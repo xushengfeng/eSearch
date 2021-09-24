@@ -1,0 +1,14 @@
+{
+  "name": "information-portal",
+  "version": "1.0.0",
+  "description": "截屏OCR",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "xsf",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "electron": "^15.0.0"
+  }
+}
