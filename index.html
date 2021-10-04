@@ -1,16 +1,32 @@
+
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="supported-color-schemes" content="light dark">
-    <link rel="stylesheet" type="text/css" href="css/css.css">
-    <script type="text/javascript" src="js/js.js" defer="true"></script>
-    <script src="lib/jquery.min.js"></script>
-    <title></title>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+    <!-- https://electronjs.org/docs/tutorial
+                           /security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="script-src 'self' 'unsafe-inline';" />
   </head>
   <body>
+    <h1>Hello World!</h1>
+    We are using node 
+    <script>
+        document.write(process.versions.node)
+    </script>, Chrome 
+    <script>
+        document.write(process.versions.chrome)
+    </script>, and Electron 
+    <script>
+        document.write(process.versions.electron)
+    </script>.
+      <h3>Screenshot of Page in Electron</h3>
+      <button id="screenshot">
+        Take Screenshot
+      </button>
+      <video></video>
+     <!-- Adding Individual Renderer Process JS File -->
+    <script src="js.js"></script>
   </body>
 </html>

@@ -9,6 +9,6 @@
   "author": "xsf",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "electron": "^15.0.0"
+    "electron": "^15.1.0"
   }
 }
