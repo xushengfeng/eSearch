@@ -1,12 +1,21 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require("electron");
+var screen = require("electron").screen;
 const path = require("path");
 
 function createWindow() {
     // Create the browser window.
+    var size = screen.getPrimaryDisplay().bounds;
     const mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        fullscreen: true,
+        transparent: true,
+        frame: false,
+        skipTaskbar: true,
+        autoHideMenuBar: true,
+        movable: false,
+        resizable: false,
+        enableLargerThanScreen: true, // mac
+        hasShadow: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,

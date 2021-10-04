@@ -4,29 +4,21 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-    <!-- https://electronjs.org/docs/tutorial
-                           /security#csp-meta-tag -->
-    <meta http-equiv="Content-Security-Policy" 
-          content="script-src 'self' 'unsafe-inline';" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="supported-color-schemes" content="light dark">
+    <link rel="stylesheet" type="text/css" href="css/css.css">
   </head>
   <body>
-    <h1>Hello World!</h1>
-    We are using node 
-    <script>
-        document.write(process.versions.node)
-    </script>, Chrome 
-    <script>
-        document.write(process.versions.chrome)
-    </script>, and Electron 
-    <script>
-        document.write(process.versions.electron)
-    </script>.
-      <h3>Screenshot of Page in Electron</h3>
-      <button id="screenshot">
-        Take Screenshot
-      </button>
+      <div id="windows_bar"></div>
+      <div id="tool_bar">
+          <div id="tool_ocr"></div>
+          <div id="tool_QR"></div>
+          <div id="tool_draw"></div>
+          <div id="tool_copy"></div>
+          <div id="tool_save"></div>
+      </div>
       <video></video>
-     <!-- Adding Individual Renderer Process JS File -->
     <script src="js.js"></script>
   </body>
 </html>

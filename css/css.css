@@ -1,12 +1,93 @@
 :root {
 }
-
-html {
+::-webkit-scrollbar {
+    display: none;
 }
-
-@media (max-width:900px) {
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+html {
+    background: #00000080;
+}
+#windows_bar {
+    width: 150px;
+    /* height: 20px; */
+    background: #fffc;
+    position: fixed;
+    left: -100px;
+    backdrop-filter: blur(20px);
+    transition: 0.5s;
+    overflow: scroll;
+    max-height: 100%;
+}
+#windows_bar:hover {
+    left: 10px;
+    transition: 0.5s;
+}
+#window_name {
+}
+.window_icon {
+    width: 20px;
+}
+.window_title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#window_photo {
+    width: 100%;
+}
+.window_thumbnail {
+    width: 100%;
+}
+#tool_bar {
+    width: 50px;
+    background: #fffc;
+    position: fixed;
+    right: 10px;
+    top: 100px;
+    backdrop-filter: blur(20px);
+    border-radius: 10px;
+    overflow: hidden;
+}
+#tool_bar>div{
+    background-position: center;
+    background-size: cover;
+    background-repeat:no-repeat;
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    transition: 0.5s;
+}
+#tool_bar>div:hover{
+    background-color: #fff;
+    transition: 0.5s;
+}
+#tool_ocr{
+    background-image: url('../assets/tool_ocr.svg')
+}
+#tool_QR{
+    background-image: url('../assets/tool_QR.svg')
+}
+#tool_draw{
+    background-image: url('../assets/tool_draw.svg')
+}
+#tool_copy{
+    background-image: url('../assets/tool_copy.svg')
+}
+#tool_save{
+    background-image: url('../assets/tool_save.svg')
+}
+video {
+    width: 50%;
+    height: 50%;
+    margin: 0 auto;
+}
+@media (max-width: 900px) {
 }
 
 @media (prefers-color-scheme: dark) {
-
 }
