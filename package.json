@@ -8,8 +8,8 @@
     "build": "electron-builder"
   },
   "author": {
-      "name": "xsf",
-      "email": "xushengfeng_zg@163.com"
+    "name": "xsf",
+    "email": "xushengfeng_zg@163.com"
   },
   "license": "GPL3",
   "devDependencies": {
@@ -17,18 +17,21 @@
     "electron-builder": "^22.11.7"
   },
   "build": {
-      "linux": {
-          "icon": "assets/icons",
-          "category": "System",
-          "target": [
-              "tar.gz",
-              "deb",
-              "pacman"
-          ]
-      },
-      "extraResources": [
-          "./assets/**",
-          "./run.sh"
+    "linux": {
+      "icon": "assets/icons",
+      "category": "System",
+      "target": [
+        "tar.gz",
+        "deb",
+        "pacman"
       ]
+    },
+    "extraResources": [
+      "./assets/**",
+      "./run.sh"
+    ]
+  },
+  "dependencies": {
+    "@electron/remote": "^2.0.1"
   }
 }

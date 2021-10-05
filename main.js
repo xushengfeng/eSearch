@@ -3,16 +3,16 @@ const { app, BrowserWindow } = require("electron");
 var screen = require("electron").screen;
 const path = require("path");
 if (app.getAppPath().slice(-8) == "app.asar") {
-  run_path = path.resolve(__dirname, "..");
+    run_path = path.resolve(__dirname, "..");
 } else {
-  run_path = path.resolve(__dirname, "");
+    run_path = path.resolve(__dirname, "");
 }
+require('@electron/remote/main').enable(screen)
 
 function createWindow() {
     // Create the browser window.
-    var size = screen.getPrimaryDisplay().bounds;
     const mainWindow = new BrowserWindow({
-        icon: path.join(run_path,'assets/icons/1024x1024.png'),
+        icon: path.join(run_path, "assets/icons/1024x1024.png"),
         fullscreen: true,
         transparent: true,
         frame: false,
@@ -40,8 +40,6 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(() => {
-
-  const { bounds: { width, height }, scaleFactor } = screen.getPrimaryDisplay()
     createWindow();
 
     app.on("activate", function () {

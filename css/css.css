@@ -10,12 +10,12 @@ body {
     height: 100%;
 }
 html {
-    background: #00000080;
+    /* background: #000; */
 }
 #windows_bar {
-    width: 150px;
+    width: 200px;
     /* height: 20px; */
-    background: #fffc;
+    background: #fff0;
     position: fixed;
     left: -100px;
     backdrop-filter: blur(20px);
@@ -24,13 +24,22 @@ html {
     max-height: 100%;
 }
 #windows_bar:hover {
-    left: 10px;
+    left: 0px;
     transition: 0.5s;
 }
-#window_name {
+.window{
+    background-color: #fff9;
+    transition: 0.5s;
+}
+#window:hover{
+    background-color: #fffc;
+    transition: 0.5s;
+}
+.window_name {
 }
 .window_icon {
-    width: 20px;
+    height: 2rem;
+    vertical-align: middle;
 }
 .window_title {
     overflow: hidden;
@@ -44,26 +53,27 @@ html {
     width: 100%;
 }
 #tool_bar {
-    width: 50px;
-    background: #fffc;
+    width: 60px;
+    background: #fff9;
     position: fixed;
     right: 10px;
     top: 100px;
     backdrop-filter: blur(20px);
     border-radius: 10px;
     overflow: hidden;
+    transition: 0.5s;
 }
 #tool_bar>div{
     background-position: center;
-    background-size: cover;
+    background-size: 70%;
     background-repeat:no-repeat;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 10px;
     transition: 0.5s;
 }
 #tool_bar>div:hover{
-    background-color: #fff;
+    background-color: #fffc;
     transition: 0.5s;
 }
 #tool_ocr{
