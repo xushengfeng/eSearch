@@ -2,6 +2,7 @@
 const { desktopCapturer, ipcRenderer } = require("electron");
 
 const canvas = document.getElementById("main_photo");
+canvas.style.width = window.screen.width;
 
 desktopCapturer
     .getSources({

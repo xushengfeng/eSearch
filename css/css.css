@@ -128,11 +128,7 @@ html {
     background-color: var(--hover-color);
     transition: 0.5s;
 }
-video {
-    width: 50%;
-    height: 50%;
-    margin: 0 auto;
-}
+
 @media (max-width: 900px) {
 }
 
