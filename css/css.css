@@ -19,6 +19,7 @@ html {
     /* height: 20px; */
     background: #fff0;
     position: fixed;
+    z-index: 99;
     left: -100px;
     backdrop-filter: blur(20px);
     transition: 0.5s;
@@ -61,6 +62,7 @@ html {
     width: 60px;
     background: #fff9;
     position: fixed;
+    z-index: 99;
     right: 10px;
     top: 100px;
     backdrop-filter: blur(20px);
@@ -108,6 +110,7 @@ html {
     width: 60px;
     background: #fff9;
     position: fixed;
+    z-index: 99;
     right: 80px;
     top: 100px;
     backdrop-filter: blur(20px);
@@ -128,7 +131,12 @@ html {
     background-color: var(--hover-color);
     transition: 0.5s;
 }
-
+canvas {
+    position: absolute;
+}
+#clip_photo {
+    z-index: 10;
+}
 @media (max-width: 900px) {
 }
 

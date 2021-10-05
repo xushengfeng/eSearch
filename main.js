@@ -1,5 +1,7 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const os = require("os");
+
 var screen = require("electron").screen;
 const path = require("path");
 if (app.getAppPath().slice(-8) == "app.asar") {
@@ -35,8 +37,26 @@ app.whenReady().then(() => {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
 
-    ipcMain.on("window-close", function () {
+    ipcMain.on("window-close", () => {
         mainWindow.close();
+    });
+
+    ipcMain.on("save", (event) => {
+        save_time = new Date();
+        save_name_time = `${save_time.getFullYear()}-${
+            save_time.getMonth() + 1
+        }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
+        dialog
+            .showSaveDialog({
+                title: "选择要保存的位置",
+                defaultPath: `Screenshot-${save_name_time}.png`,
+                filters: [
+                    { name: "Images", extensions: ["png", "jpg", "gif"] },
+                ],
+            })
+            .then((x) => {
+                event.sender.send("save_path", x.filePath);
+            });
     });
 
     app.on("activate", function () {
