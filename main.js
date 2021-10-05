@@ -9,7 +9,6 @@ if (app.getAppPath().slice(-8) == "app.asar") {
 } else {
     run_path = path.resolve(__dirname, "");
 }
-require("@electron/remote/main").enable(screen);
 
 app.whenReady().then(() => {
     // Create the browser window.
@@ -50,19 +49,15 @@ app.whenReady().then(() => {
             .showSaveDialog({
                 title: "选择要保存的位置",
                 defaultPath: `Screenshot-${save_name_time}.png`,
-                filters: [
-                    { name: "Images", extensions: ["png", "jpg", "gif"] },
-                ],
+                filters: [{ name: "Images", extensions: ["png"] }],
             })
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
             });
     });
 
-    app.on("activate", function () {
-        // On macOS it's common to re-create a window in the app when the
-        // dock icon is clicked and there are no other windows open.
-        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    ipcMain.on("ding", (event, arg) => {
+        create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
     });
 });
 
@@ -72,3 +67,33 @@ app.whenReady().then(() => {
 app.on("window-all-closed", function () {
     // if (process.platform !== "darwin") app.quit();
 });
+
+function create_ding_window(x, y, w, h, img) {
+    const ding_window = new BrowserWindow({
+        x: x,
+        y: y,
+        width: w,
+        height: h,
+        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        backgroundColor: "#fff",
+        frame: false,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        autoHideMenuBar: true,
+        enableLargerThanScreen: true, // mac
+        hasShadow: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
+    });
+
+    // and load the index.html of the app.
+    ding_window.loadFile("ding.html");
+    ding_window.webContents.openDevTools();
+    ding_window.webContents.on('did-finish-load', () => {
+        ding_window.webContents.send('img', img)
+      })
+    
+}

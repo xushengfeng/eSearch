@@ -32,6 +32,7 @@
     ]
   },
   "dependencies": {
-    "@electron/remote": "^2.0.1"
+    "@electron/remote": "^2.0.1",
+    "qrcode": "^1.4.4"
   }
 }
