@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 var screen = require("electron").screen;
 const path = require("path");
 if (app.getAppPath().slice(-8) == "app.asar") {
@@ -7,9 +7,9 @@ if (app.getAppPath().slice(-8) == "app.asar") {
 } else {
     run_path = path.resolve(__dirname, "");
 }
-require('@electron/remote/main').enable(screen)
+require("@electron/remote/main").enable(screen);
 
-function createWindow() {
+app.whenReady().then(() => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
@@ -30,17 +30,14 @@ function createWindow() {
     });
 
     // and load the index.html of the app.
-    mainWindow.loadFile("index.html");
+    mainWindow.loadFile("capture.html");
 
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
-}
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// 部分 API 在 ready 事件触发后才能使用。
-app.whenReady().then(() => {
-    createWindow();
+    ipcMain.on("window-close", function () {
+        mainWindow.close();
+    });
 
     app.on("activate", function () {
         // On macOS it's common to re-create a window in the app when the
@@ -53,5 +50,5 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", function () {
-    if (process.platform !== "darwin") app.quit();
+    // if (process.platform !== "darwin") app.quit();
 });

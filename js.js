@@ -1,5 +1,5 @@
 // In the renderer process.
-const { desktopCapturer } = require("electron");
+const { desktopCapturer, ipcRenderer } = require("electron");
 
 const canvas = document.getElementById("main_photo");
 
@@ -35,7 +35,7 @@ function draw_windows_bar(o) {
     for (i in o) {
         (function (n) {
             document.getElementById(o[n].id).addEventListener("click", () => {
-                draw_canvas(o[n].thumbnail.toDataURL())
+                draw_canvas(o[n].thumbnail.toDataURL());
             });
         })(i);
     }
@@ -51,3 +51,36 @@ function draw_canvas(url) {
         ctx.drawImage(img, 0, 0);
     };
 }
+
+document.getElementById("tool_close").addEventListener("click", tool_close_f);
+document.getElementById("tool_ocr").addEventListener("click", tool_ocr_f);
+document.getElementById("tool_QR").addEventListener("click", tool_QR_f);
+document.getElementById("tool_draw").addEventListener("click", tool_draw_f);
+document.getElementById("tool_ding").addEventListener("click", tool_ding_f);
+document.getElementById("tool_copy").addEventListener("click", tool_copy_f);
+document.getElementById("tool_save").addEventListener("click", tool_save_f);
+
+function tool_close_f() {
+    ipcRenderer.send("window-close");
+}
+function tool_ocr_f() {}
+function tool_QR_f() {}
+drawing = false;
+function tool_draw_f() {
+    drawing = drawing ? false : true; // 切换状态
+    if (drawing) {
+        document.getElementById("tool_draw").style.backgroundColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+                "--hover-color"
+            );
+        document.getElementById("draw_bar").style.maxHeight = "500px";
+        document.getElementById("windows_bar").style.left = "-100%";
+    } else {
+        document.getElementById("tool_draw").style.backgroundColor = "";
+        document.getElementById("draw_bar").style.maxHeight = "0";
+        document.getElementById("windows_bar").style.left = "";
+    }
+}
+function tool_ding_f() {}
+function tool_copy_f() {}
+function tool_save_f() {}

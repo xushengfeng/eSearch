@@ -1,4 +1,5 @@
 :root {
+    --hover-color: #0002;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -12,6 +13,7 @@ body {
 html {
     /* background: #000; */
 }
+/* 窗口预览 */
 #windows_bar {
     width: 200px;
     /* height: 20px; */
@@ -27,12 +29,12 @@ html {
     left: 0px;
     transition: 0.5s;
 }
-.window{
-    background-color: #fff9;
+.window {
+    /* background-color: #fff9; */
     transition: 0.5s;
 }
-#window:hover{
-    background-color: #fffc;
+.window:hover {
+    background-color: var(--hover-color);
     transition: 0.5s;
 }
 .window_name {
@@ -45,6 +47,7 @@ html {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin: 0 0 0 8px;
 }
 #window_photo {
     width: 100%;
@@ -52,6 +55,8 @@ html {
 .window_thumbnail {
     width: 100%;
 }
+
+/* 工具 */
 #tool_bar {
     width: 60px;
     background: #fff9;
@@ -63,33 +68,65 @@ html {
     overflow: hidden;
     transition: 0.5s;
 }
-#tool_bar>div{
+#tool_bar > div {
     background-position: center;
     background-size: 70%;
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     width: 60px;
     height: 60px;
     border-radius: 10px;
     transition: 0.5s;
 }
-#tool_bar>div:hover{
-    background-color: #fffc;
+#tool_bar > div:hover {
+    background-color: var(--hover-color);
     transition: 0.5s;
 }
-#tool_ocr{
-    background-image: url('../assets/tool_ocr.svg')
+#tool_close {
+    background-image: url("../assets/tool_close.svg");
 }
-#tool_QR{
-    background-image: url('../assets/tool_QR.svg')
+#tool_ocr {
+    background-image: url("../assets/tool_ocr.svg");
 }
-#tool_draw{
-    background-image: url('../assets/tool_draw.svg')
+#tool_QR {
+    background-image: url("../assets/tool_QR.svg");
 }
-#tool_copy{
-    background-image: url('../assets/tool_copy.svg')
+#tool_draw {
+    background-image: url("../assets/tool_draw.svg");
 }
-#tool_save{
-    background-image: url('../assets/tool_save.svg')
+#tool_ding {
+    background-image: url("../assets/tool_ding.svg");
+}
+#tool_copy {
+    background-image: url("../assets/tool_copy.svg");
+}
+#tool_save {
+    background-image: url("../assets/tool_save.svg");
+}
+
+/* 画 */
+#draw_bar {
+    width: 60px;
+    background: #fff9;
+    position: fixed;
+    right: 80px;
+    top: 100px;
+    backdrop-filter: blur(20px);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.5s;
+}
+#draw_bar > div {
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    transition: 0.5s;
+}
+#draw_bar > div:hover {
+    background-color: var(--hover-color);
+    transition: 0.5s;
 }
 video {
     width: 50%;
