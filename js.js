@@ -104,7 +104,7 @@ function tool_ding_f() {
     ding_window_setting = final_rect;
     ding_window_setting[4] = get_clip_photo();
     ipcRenderer.send("ding", ding_window_setting);
-    tool_close_f()
+    tool_close_f();
 }
 // 复制
 function tool_copy_f() {
@@ -129,7 +129,7 @@ function tool_save_f() {
 function page_position_to_canvas_position(canvas, x, y) {
     c_x = canvas.width * (x / canvas.offsetWidth); // canvas本来无外宽，不影响
     c_y = canvas.height * (y / canvas.offsetHeight);
-    return { x: c_x, y: c_y };
+    return { x: Math.round(c_x), y: Math.round(c_y) };
 }
 
 // 防止宽高负数
