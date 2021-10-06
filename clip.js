@@ -48,7 +48,12 @@ clip_canvas.onmousemove = (e) => {
             canvas_rect_e.x - canvas_rect.x,
             canvas_rect_e.y - canvas_rect.y
         );
-        clip_ctx.strokeRect(xywh[0], xywh[1], xywh[2], xywh[3]);
+        // 奇迹!!!
+        clip_ctx.fillStyle = "#0005";
+        clip_ctx.fillRect(0, 0, clip_canvas.width, xywh[1]);
+        clip_ctx.fillRect(0, xywh[1], xywh[0], xywh[3]);
+        clip_ctx.fillRect(xywh[0] + xywh[2], xywh[1], clip_canvas.width - (xywh[0] + xywh[2]), xywh[3]);
+        clip_ctx.fillRect(0, xywh[1] + xywh[3], clip_canvas.width, clip_canvas.height - (xywh[1] + xywh[3]));
     }
 };
 clip_canvas.onmouseup = (e) => {

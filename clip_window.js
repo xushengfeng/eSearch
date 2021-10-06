@@ -20,7 +20,7 @@ desktopCapturer
         types: ["window", "screen"],
         fetchWindowIcons: true,
         thumbnailSize: {
-            width: window.screen.width * window.devicePixelRatio,
+            width: 1980,
             height: 8000,
         },
     })
@@ -54,6 +54,7 @@ function draw_windows_bar(o) {
 }
 
 function show_photo(url) {
+    final_rect=''
     var main_ctx = main_canvas.getContext("2d");
     let img = new Image();
     img.src = url;
@@ -138,7 +139,7 @@ function tool_save_f() {
     ipcRenderer.send("save");
     ipcRenderer.on("save_path", (event, message) => {
         console.log(message);
-        if (message != undefined) {
+        if (message != '') {
             f = get_clip_photo()
                 .toDataURL()
                 .replace(/^data:image\/\w+;base64,/, "");
@@ -151,7 +152,7 @@ function tool_save_f() {
 }
 
 function get_clip_photo() {
-    if (final_rect != undefined) {
+    if (final_rect != '') {
         main_ctx = main_canvas.getContext("2d");
         var tmp_canvas = document.createElement("canvas");
         tmp_canvas.width = final_rect[2];
