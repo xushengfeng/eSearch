@@ -20,23 +20,24 @@ html {
     background: #fff0;
     position: fixed;
     z-index: 99;
-    left: -100px;
+    left: -200px;
+    padding-right: 1px;
     backdrop-filter: blur(20px);
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     overflow: scroll;
     max-height: 100%;
 }
 #windows_bar:hover {
     left: 0px;
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .window {
     /* background-color: #fff9; */
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .window:hover {
     background-color: var(--hover-color);
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .window_name {
 }
@@ -68,7 +69,7 @@ html {
     backdrop-filter: blur(20px);
     border-radius: 10px;
     overflow: hidden;
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #tool_bar > div {
     background-position: center;
@@ -77,11 +78,11 @@ html {
     width: 60px;
     height: 60px;
     border-radius: 10px;
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #tool_close {
     background-image: url("../assets/tool_close.svg");
@@ -116,7 +117,7 @@ html {
     backdrop-filter: blur(20px);
     border-radius: 10px;
     overflow: hidden;
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #draw_bar > div {
     background-position: center;
@@ -125,11 +126,11 @@ html {
     width: 60px;
     height: 60px;
     border-radius: 10px;
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #draw_bar > div:hover {
     background-color: var(--hover-color);
-    transition: 0.5s;
+    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 canvas {
     position: absolute;
