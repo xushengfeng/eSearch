@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
+const { app, Tray, Menu, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
 const os = require("os");
 
 var screen = require("electron").screen;
@@ -11,10 +11,35 @@ if (app.getAppPath().slice(-8) == "app.asar") {
 }
 
 app.whenReady().then(() => {
+    tray = new Tray(`${run_path}/assets/icons/64x64.png`);
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: "截图",
+            click: () => {
+                // clip_window.setFullScreen(true)
+                clip_window.setSize(1920,1080)
+                // clip_window.alwaysOnTop(true)
+                clip_window.show();
+            },
+        },
+        {
+            type: "separator",
+        },
+        {
+            label: "退出",
+            click: () => {
+                app.quit();
+            },
+        },
+    ]);
+    tray.setToolTip("This is my application.");
+    tray.setTitle("hi");
+    tray.setContextMenu(contextMenu);
     // Create the browser window.
     const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         fullscreen: true,
+        fullscreenable:true,
         transparent: true,
         frame: false,
         skipTaskbar: true,
@@ -37,7 +62,7 @@ app.whenReady().then(() => {
     clip_window.webContents.openDevTools();
 
     ipcMain.on("window-close", () => {
-        clip_window.close();
+        clip_window.hide();
     });
 
     ipcMain.on("ocr", (event, arg) => {
@@ -55,7 +80,7 @@ app.whenReady().then(() => {
             });
             response.on("end", () => {
                 console.log("数据接收完成");
-                clip_window.close();
+                clip_window.hide();
             });
         });
         request.write(arg);
@@ -145,9 +170,9 @@ function create_main_window(t, type) {
         main_window.webContents.send("text", [t, type]);
     });
     // ipcMain.on("web_show", (event, url) => {
-        const view = new BrowserView();
-        main_window.setBrowserView(view);
-        view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
-        view.webContents.loadURL('https://www.baidu.com');
+    const view = new BrowserView();
+    main_window.setBrowserView(view);
+    view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
+    view.webContents.loadURL("https://www.baidu.com");
     // });
 }
