@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, dialog, net } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
 const os = require("os");
 
 var screen = require("electron").screen;
@@ -51,17 +51,22 @@ app.whenReady().then(() => {
             console.log(`**header:${JSON.stringify(response.headers)}`);
             response.on("data", (chunk) => {
                 console.log("接收到数据：", chunk.toString());
+                create_main_window(chunk.toString(), "ocr");
             });
             response.on("end", () => {
                 console.log("数据接收完成");
+                clip_window.close();
             });
         });
         request.write(arg);
         request.end();
     });
+
     ipcMain.on("QR", (event, arg) => {
         console.log(arg);
+        create_main_window(arg, "QR");
     });
+
     ipcMain.on("save", (event) => {
         save_time = new Date();
         save_name_time = `${save_time.getFullYear()}-${
@@ -119,20 +124,13 @@ function create_ding_window(x, y, w, h, img) {
     });
 }
 
-function create_main_window(x, y, w, h, img) {
+function create_main_window(t, type) {
     const main_window = new BrowserWindow({
-        x: x,
-        y: y,
-        width: w,
-        height: h,
+        // x: x,
+        // y: y,
+        // width: w,
+        // height: h,
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        transparent: true,
-        frame: false,
-        alwaysOnTop: true,
-        skipTaskbar: true,
-        autoHideMenuBar: true,
-        enableLargerThanScreen: true, // mac
-        hasShadow: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -140,10 +138,16 @@ function create_main_window(x, y, w, h, img) {
         },
     });
 
-    main_window.setAspectRatio(w / h);
+    // main_window.setAspectRatio(w / h);
     main_window.loadFile("index.html");
     main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
-        main_window.webContents.send("img", img);
+        main_window.webContents.send("text", [t, type]);
     });
+    // ipcMain.on("web_show", (event, url) => {
+        const view = new BrowserView();
+        main_window.setBrowserView(view);
+        view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
+        view.webContents.loadURL('https://www.baidu.com');
+    // });
 }
