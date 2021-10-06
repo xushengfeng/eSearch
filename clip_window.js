@@ -20,7 +20,7 @@ desktopCapturer
         types: ["window", "screen"],
         fetchWindowIcons: true,
         thumbnailSize: {
-            width: 1980,
+            width: window.screen.width * window.devicePixelRatio,
             height: 8000,
         },
     })

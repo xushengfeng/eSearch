@@ -84,7 +84,7 @@ function follow_bar(sx, sy, x, y) {
     if (x - sx >= 0) {
         // 向右
         if (x + tool_bar.offsetWidth + 10 <= window.screen.width) {
-            tool_bar.style.left = x + tool_bar.offsetWidth + 10 + "px"; // 贴右边
+            tool_bar.style.left = x + 10 + "px"; // 贴右边
         } else {
             // 超出屏幕贴左边
             if (sx - tool_bar.offsetWidth - 10 >= 0) {
@@ -101,7 +101,7 @@ function follow_bar(sx, sy, x, y) {
         } else {
             // 超出屏幕贴右边
             if (sx + tool_bar.offsetWidth + 10 <= window.screen.width) {
-                tool_bar.style.left = sx + tool_bar.offsetWidth + 10 + "px";
+                tool_bar.style.left = sx + 10 + "px";
             } else {
                 // 还超贴左内
                 tool_bar.style.left = x + 10 + "px";
