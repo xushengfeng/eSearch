@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "electron": "^15.1.1",
-    "jsqr": "^1.4.0"
+    "jsqr": "^1.4.0",
+    "robotjs": "^0.6.0"
   }
 }

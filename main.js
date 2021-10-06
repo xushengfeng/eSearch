@@ -1,6 +1,7 @@
 // Modules to control application life and create native browser window
-const { app, Tray, Menu, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
+const { app, Tray, Menu,clipboard, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
 const os = require("os");
+var robot = require("robotjs");
 
 var screen = require("electron").screen;
 const path = require("path");
@@ -18,8 +19,21 @@ app.whenReady().then(() => {
             click: () => {
                 // clip_window.setFullScreen(true)
                 clip_window.setSize(1920,1080)
-                // clip_window.alwaysOnTop(true)
                 clip_window.show();
+            },
+        },
+        {
+            label: "选中搜索",
+            click: () => {
+                if(process.platform=='linux'){
+                    t=clipboard.readText('selection')
+                }else{
+                    o_clipboard=clipboard.readText()
+                    robot.keyTap('c', 'command')
+                    t=clipboard.readText()
+                    clipboard.write(o_clipboard)
+                }
+                create_main_window(t, 'ocr')
             },
         },
         {
