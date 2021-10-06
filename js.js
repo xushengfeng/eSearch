@@ -6,6 +6,7 @@ const {
     nativeImage,
 } = require("electron");
 const fs = require("fs");
+const jsqr = require("jsqr");
 
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width + "px";
@@ -81,9 +82,26 @@ function tool_close_f() {
     ipcRenderer.send("window-close");
 }
 function tool_ocr_f() {
-    ipcRenderer.send("ocr", get_clip_photo().replace(/^data:image\/\w+;base64,/, ""));
+    ipcRenderer.send(
+        "ocr",
+        get_clip_photo()
+            .toDataURL()
+            .replace(/^data:image\/\w+;base64,/, "")
+    );
 }
-function tool_QR_f() {}
+// 二维码
+function tool_QR_f() {
+    var imageData = get_clip_photo()
+        .getContext("2d")
+        .getImageData(0, 0, get_clip_photo().width, get_clip_photo().height);
+    var code = jsqr(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: "dontInvert",
+    });
+    if (code) {
+        ipcRenderer.send("QR", code.data);
+        tool_close_f();
+    }
+}
 // 图片编辑
 drawing = false;
 function tool_draw_f() {
@@ -104,13 +122,15 @@ function tool_draw_f() {
 // 钉在屏幕上
 function tool_ding_f() {
     ding_window_setting = final_rect;
-    ding_window_setting[4] = get_clip_photo();
+    ding_window_setting[4] = get_clip_photo().toDataURL();
     ipcRenderer.send("ding", ding_window_setting);
     tool_close_f();
 }
 // 复制
 function tool_copy_f() {
-    clipboard.writeImage(nativeImage.createFromDataURL(get_clip_photo()));
+    clipboard.writeImage(
+        nativeImage.createFromDataURL(get_clip_photo().toDataURL())
+    );
     tool_close_f();
 }
 // 保存
@@ -119,7 +139,9 @@ function tool_save_f() {
     ipcRenderer.on("save_path", (event, message) => {
         console.log(message);
         if (message != undefined) {
-            f = get_clip_photo().replace(/^data:image\/\w+;base64,/, "");
+            f = get_clip_photo()
+                .toDataURL()
+                .replace(/^data:image\/\w+;base64,/, "");
             console.log(f);
             dataBuffer = new Buffer(f, "base64");
             fs.writeFile(message, dataBuffer, () => {});
@@ -141,8 +163,8 @@ function get_clip_photo() {
             final_rect[3]
         );
         tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-        return tmp_canvas.toDataURL();
+        return tmp_canvas;
     } else {
-        return main_canvas.toDataURL();
+        return main_canvas;
     }
 }

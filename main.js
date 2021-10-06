@@ -56,10 +56,12 @@ app.whenReady().then(() => {
                 console.log("数据接收完成");
             });
         });
-        request.write(arg)
+        request.write(arg);
         request.end();
     });
-
+    ipcMain.on("QR", (event, arg) => {
+        console.log(arg);
+    });
     ipcMain.on("save", (event) => {
         save_time = new Date();
         save_name_time = `${save_time.getFullYear()}-${

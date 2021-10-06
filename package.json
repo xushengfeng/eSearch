@@ -32,6 +32,6 @@
     ]
   },
   "dependencies": {
-    "@electron/remote": "^2.0.1"
+    "jsqr": "^1.4.0"
   }
 }
