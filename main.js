@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, net } = require("electron");
 const os = require("os");
 
 var screen = require("electron").screen;
@@ -12,7 +12,7 @@ if (app.getAppPath().slice(-8) == "app.asar") {
 
 app.whenReady().then(() => {
     // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         fullscreen: true,
         transparent: true,
@@ -31,13 +31,33 @@ app.whenReady().then(() => {
     });
 
     // and load the index.html of the app.
-    mainWindow.loadFile("capture.html");
+    clip_window.loadFile("capture.html");
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    clip_window.webContents.openDevTools();
 
     ipcMain.on("window-close", () => {
-        mainWindow.close();
+        clip_window.close();
+    });
+
+    ipcMain.on("ocr", (event, arg) => {
+        const request = net.request({
+            method: "POST",
+            url: "http://127.0.0.1:8080",
+            headers: { "Content-type": "application/text" },
+        });
+        request.on("response", (response) => {
+            console.log(`**statusCode:${response.statusCode}`);
+            console.log(`**header:${JSON.stringify(response.headers)}`);
+            response.on("data", (chunk) => {
+                console.log("接收到数据：", chunk.toString());
+            });
+            response.on("end", () => {
+                console.log("数据接收完成");
+            });
+        });
+        request.write(arg)
+        request.end();
     });
 
     ipcMain.on("save", (event) => {
@@ -75,7 +95,7 @@ function create_ding_window(x, y, w, h, img) {
         width: w,
         height: h,
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        transparent:true,
+        transparent: true,
         frame: false,
         alwaysOnTop: true,
         skipTaskbar: true,
@@ -94,5 +114,34 @@ function create_ding_window(x, y, w, h, img) {
     ding_window.webContents.openDevTools();
     ding_window.webContents.on("did-finish-load", () => {
         ding_window.webContents.send("img", img);
+    });
+}
+
+function create_main_window(x, y, w, h, img) {
+    const main_window = new BrowserWindow({
+        x: x,
+        y: y,
+        width: w,
+        height: h,
+        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        transparent: true,
+        frame: false,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        autoHideMenuBar: true,
+        enableLargerThanScreen: true, // mac
+        hasShadow: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
+    });
+
+    main_window.setAspectRatio(w / h);
+    main_window.loadFile("index.html");
+    main_window.webContents.openDevTools();
+    main_window.webContents.on("did-finish-load", () => {
+        main_window.webContents.send("img", img);
     });
 }
