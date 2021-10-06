@@ -75,7 +75,7 @@ function create_ding_window(x, y, w, h, img) {
         width: w,
         height: h,
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        backgroundColor: "#fff",
+        transparent:true,
         frame: false,
         alwaysOnTop: true,
         skipTaskbar: true,
@@ -89,11 +89,10 @@ function create_ding_window(x, y, w, h, img) {
         },
     });
 
-    // and load the index.html of the app.
+    ding_window.setAspectRatio(w / h);
     ding_window.loadFile("ding.html");
     ding_window.webContents.openDevTools();
-    ding_window.webContents.on('did-finish-load', () => {
-        ding_window.webContents.send('img', img)
-      })
-    
+    ding_window.webContents.on("did-finish-load", () => {
+        ding_window.webContents.send("img", img);
+    });
 }

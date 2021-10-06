@@ -137,6 +137,9 @@ canvas {
 #clip_photo {
     z-index: 10;
 }
+#ding_photo {
+    width: 100%;
+}
 @media (max-width: 900px) {
 }
 

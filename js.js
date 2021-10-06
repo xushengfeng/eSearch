@@ -104,6 +104,7 @@ function tool_ding_f() {
     ding_window_setting = final_rect;
     ding_window_setting[4] = get_clip_photo();
     ipcRenderer.send("ding", ding_window_setting);
+    tool_close_f()
 }
 // 复制
 function tool_copy_f() {
@@ -200,8 +201,8 @@ function get_clip_photo() {
     if (final_rect != undefined) {
         main_ctx = main_canvas.getContext("2d");
         var tmp_canvas = document.createElement("canvas");
-        tmp_canvas.width=final_rect[2]
-        tmp_canvas.height=final_rect[3]
+        tmp_canvas.width = final_rect[2];
+        tmp_canvas.height = final_rect[3];
         gid = main_ctx.getImageData(
             final_rect[0],
             final_rect[1],
