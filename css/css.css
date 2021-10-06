@@ -64,7 +64,7 @@ html {
     background: #fff9;
     position: fixed;
     z-index: 99;
-    right: 10px;
+    left: 10px;
     top: 100px;
     backdrop-filter: blur(20px);
     border-radius: 10px;

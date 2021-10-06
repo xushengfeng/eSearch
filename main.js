@@ -14,7 +14,9 @@ app.whenReady().then(() => {
     // Create the browser window.
     const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        fullscreen: true,
+        // fullscreen: true,
+        width:1980,
+        height:1080,
         transparent: true,
         frame: false,
         skipTaskbar: true,

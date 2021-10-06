@@ -13,7 +13,6 @@
   },
   "license": "GPL3",
   "devDependencies": {
-    "electron": "^15.1.0",
     "electron-builder": "^22.11.7"
   },
   "build": {
@@ -32,6 +31,7 @@
     ]
   },
   "dependencies": {
+    "electron": "^15.1.1",
     "jsqr": "^1.4.0"
   }
 }

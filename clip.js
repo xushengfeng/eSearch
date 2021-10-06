@@ -18,11 +18,13 @@ function auto_fix_position(x, y, w, h) {
 }
 
 selecting = false;
+o_position = "";
 canvas_rect = "";
 var final_rect;
 clip_ctx = clip_canvas.getContext("2d");
 clip_canvas.onmousedown = (e) => {
     selecting = true;
+    o_position = [e.screenX, e.screenY];
     canvas_rect = page_position_to_canvas_position(
         // 起始坐标
         clip_canvas,
@@ -72,4 +74,52 @@ clip_canvas.onmouseup = (e) => {
         canvas_rect_e.x - canvas_rect.x,
         canvas_rect_e.y - canvas_rect.y
     );
+    follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
+
+// 误代码后恢复,奇迹再现
+function follow_bar(sx, sy, x, y) {
+    tool_bar = document.getElementById("tool_bar");
+
+    if (x - sx >= 0) {
+        // 向右
+        if (x + tool_bar.offsetWidth + 10 <= window.screen.width) {
+            tool_bar.style.left = x + tool_bar.offsetWidth + 10 + "px"; // 贴右边
+        } else {
+            // 超出屏幕贴左边
+            if (sx - tool_bar.offsetWidth - 10 >= 0) {
+                tool_bar.style.left = sx - tool_bar.offsetWidth - 10 + "px";
+            } else {
+                // 还超贴右内
+                tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px";
+            }
+        }
+    } else {
+        // 向左
+        if (x - tool_bar.offsetWidth - 10 >= 0) {
+            tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px"; // 贴左边
+        } else {
+            // 超出屏幕贴右边
+            if (sx + tool_bar.offsetWidth + 10 <= window.screen.width) {
+                tool_bar.style.left = sx + tool_bar.offsetWidth + 10 + "px";
+            } else {
+                // 还超贴左内
+                tool_bar.style.left = x + 10 + "px";
+            }
+        }
+    }
+
+    if (y - sy >= 0) {
+        if (y - tool_bar.offsetHeight >= 0) {
+            tool_bar.style.top = y - tool_bar.offsetHeight + "px";
+        } else {
+            tool_bar.style.top = sy + "px";
+        }
+    } else {
+        if (y + tool_bar.offsetHeight <= window.screen.height) {
+            tool_bar.style.top = y + "px";
+        } else {
+            tool_bar.style.top = window.screen.height - tool_bar.offsetHeight + "px";
+        }
+    }
+}
