@@ -19,7 +19,7 @@ function get_desktop_capturer() {
             types: ["window", "screen"],
             fetchWindowIcons: true,
             thumbnailSize: {
-                width: window.screen.width * window.devicePixelRatio,
+                width: window.screen.width * window.devicePixelRatio, // TODO 加载慢
                 height: 8000,
             },
         })
