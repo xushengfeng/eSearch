@@ -27,9 +27,10 @@ function get_desktop_capturer() {
         });
 }
 get_desktop_capturer();
-ipcRenderer.on("reflash", ()=>{
+ipcRenderer.on("reflash", () => {
     get_desktop_capturer();
 });
+
 function draw_windows_bar(o) {
     内容 = "";
     for (i in o) {
@@ -114,7 +115,12 @@ function tool_draw_f() {
 }
 // 钉在屏幕上
 function tool_ding_f() {
-    ding_window_setting = final_rect;
+    if (final_rect != "") { // 解决全屏无法钉的bug
+        ding_window_setting = final_rect;
+    } else {
+        ding_window_setting = [0, 0, window.screen.width, window.screen.height];
+    }
+
     ding_window_setting[4] = get_clip_photo().toDataURL();
     ipcRenderer.send("ding", ding_window_setting);
     tool_close_f();

@@ -20,7 +20,7 @@ function auto_fix_position(x, y, w, h) {
 selecting = false;
 o_position = "";
 canvas_rect = "";
-var final_rect;
+final_rect='';
 clip_ctx = clip_canvas.getContext("2d");
 clip_canvas.onmousedown = (e) => {
     selecting = true;

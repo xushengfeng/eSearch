@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, Tray, Menu,clipboard, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
+const { app, Tray, Menu, clipboard, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
 const os = require("os");
 var robot = require("robotjs");
 
@@ -15,26 +15,23 @@ app.whenReady().then(() => {
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: "截图",
+            label: "截图搜索",
             click: () => {
-                // clip_window.setFullScreen(true)
-                clip_window.webContents.send('reflash')
-                clip_window.setSize(1920,1080)
+                clip_window.webContents.send("reflash");
+                clip_window.setSize(1920, 1080);
                 clip_window.show();
             },
         },
         {
             label: "选中搜索",
             click: () => {
-                if(process.platform=='linux'){
-                    t=clipboard.readText('selection')
-                }else{
-                    o_clipboard=clipboard.readText()
-                    robot.keyTap('c', 'command')
-                    t=clipboard.readText()
-                    clipboard.write(o_clipboard)
-                }
-                create_main_window(t, 'ocr')
+                open_selection()
+            },
+        },
+        {
+            label: "剪贴板搜索",
+            click: () => {
+                open_clip_board()
             },
         },
         {
@@ -54,7 +51,7 @@ app.whenReady().then(() => {
     const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         fullscreen: true,
-        fullscreenable:true,
+        fullscreenable: true,
         transparent: true,
         frame: false,
         skipTaskbar: true,
@@ -134,6 +131,23 @@ app.whenReady().then(() => {
 app.on("window-all-closed", function () {
     // if (process.platform !== "darwin") app.quit();
 });
+
+function open_selection() {
+    if (process.platform == "linux") {
+        t = clipboard.readText("selection");
+    } else {
+        o_clipboard = clipboard.readText();
+        robot.keyTap("c", "command");
+        t = clipboard.readText();
+        clipboard.write(o_clipboard);
+    }
+    create_main_window(t, "ocr");
+}
+
+function open_clip_board() {
+    t = clipboard.readText();
+    create_main_window(t, "ocr");
+}
 
 function create_ding_window(x, y, w, h, img) {
     const ding_window = new BrowserWindow({
