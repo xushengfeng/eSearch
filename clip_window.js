@@ -50,6 +50,8 @@ function draw_windows_bar(o) {
     }
 }
 
+final_rect = [0, 0, main_canvas.width, main_canvas.height];
+
 function show_photo(url) {
     final_rect = "";
     var main_ctx = main_canvas.getContext("2d");
@@ -76,6 +78,7 @@ document.getElementById("tool_save").addEventListener("click", tool_save_f);
 function tool_close_f() {
     ipcRenderer.send("window-close");
 }
+// OCR
 function tool_ocr_f() {
     ipcRenderer.send(
         "ocr",
@@ -83,6 +86,19 @@ function tool_ocr_f() {
             .toDataURL()
             .replace(/^data:image\/\w+;base64,/, "")
     );
+    document.getElementById("waiting").style.display = "block";
+    document.getElementById("waiting").style.left = final_rect[0] + "px";
+    document.getElementById("waiting").style.top = final_rect[1] + "px";
+    document.getElementById("waiting").style.width = final_rect[2] + "px";
+    document.getElementById("waiting").style.height = final_rect[3] + "px";
+    ipcRenderer.on("ocr_back", (event, arg) => {
+        if ((arg = "ok")) {
+            document.getElementById("waiting").style.display = "none";
+            tool_close_f();
+        } else {
+            document.getElementById("waiting").style.display = "none";
+        }
+    });
 }
 // 二维码
 function tool_QR_f() {
@@ -95,6 +111,8 @@ function tool_QR_f() {
     if (code) {
         ipcRenderer.send("QR", code.data);
         tool_close_f();
+    } else {
+        ipcRenderer.send("QR", "nothing");
     }
 }
 // 图片编辑
@@ -115,10 +133,11 @@ function tool_draw_f() {
 }
 // 钉在屏幕上
 function tool_ding_f() {
-    if (final_rect != "") { // 解决全屏无法钉的bug
+    if (final_rect != "") {
+        // 解决全屏无法钉的bug
         ding_window_setting = final_rect;
     } else {
-        ding_window_setting = [0, 0, window.screen.width, window.screen.height];
+        ding_window_setting = [0, 0, main_canvas.width, main_canvas.height];
     }
 
     ding_window_setting[4] = get_clip_photo().toDataURL();

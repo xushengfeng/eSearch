@@ -31,6 +31,12 @@
     <canvas id="main_photo"></canvas>
     <canvas id="clip_photo"></canvas>
     <canvas id="draw_photo"></canvas>
+    <svg id="waiting">
+        <line x1="0" x2="100%" y1="0" y2="0" stroke="#00f">
+            <animate attributeName="y1" values="0;100%;0" dur="3s" repeatCount="indefinite"></animate>
+            <animate attributeName="y2" values="0;100%;0" dur="3s" repeatCount="indefinite"></animate>
+        </line>
+    </svg>
     <script src="clip_window.js"></script>
     <script src="clip.js"></script>
     <script src="edit.js"></script>

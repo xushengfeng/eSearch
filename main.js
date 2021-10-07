@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, Tray, Menu, clipboard, BrowserWindow, ipcMain, dialog, net, BrowserView } = require("electron");
+const { app, Tray, Menu, clipboard, BrowserWindow, ipcMain, dialog, Notification, net, BrowserView } = require("electron");
 const os = require("os");
 var robot = require("robotjs");
 
@@ -25,13 +25,13 @@ app.whenReady().then(() => {
         {
             label: "选中搜索",
             click: () => {
-                open_selection()
+                open_selection();
             },
         },
         {
             label: "剪贴板搜索",
             click: () => {
-                open_clip_board()
+                open_clip_board();
             },
         },
         {
@@ -84,24 +84,32 @@ app.whenReady().then(() => {
             headers: { "Content-type": "application/text" },
         });
         request.on("response", (response) => {
-            console.log(`**statusCode:${response.statusCode}`);
-            console.log(`**header:${JSON.stringify(response.headers)}`);
-            response.on("data", (chunk) => {
-                console.log("接收到数据：", chunk.toString());
-                create_main_window(chunk.toString(), "ocr");
-            });
-            response.on("end", () => {
-                console.log("数据接收完成");
-                clip_window.hide();
-            });
+            if (response.statusCode == "200") {
+                response.on("data", (chunk) => {
+                    create_main_window(chunk.toString(), "ocr");
+                });
+                response.on("end", () => {
+                    event.sender.send('ocr_back','ok')
+                });
+            }else if(response.statusCode == "404"){
+                event.sender.send('ocr_back','else')
+                dialog.showMessageBox({title:'警告',message:'识别失败\n找不到服务器',icon:`${run_path}/assets/icons/warning.png`})
+            }else{
+                event.sender.send('ocr_back','else')
+                dialog.showMessageBox({title:'警告',message:'识别失败\n请尝试重新识别',icon:`${run_path}/assets/icons/warning.png`})
+            }
         });
         request.write(arg);
         request.end();
     });
 
     ipcMain.on("QR", (event, arg) => {
-        console.log(arg);
+        if(arg!='nothing'){
         create_main_window(arg, "QR");
+
+        }else{
+            dialog.showMessageBox({title:'警告',message:'无法识别二维码\n请尝试重新识别',icon:`${run_path}/assets/icons/warning.png`})
+        }
     });
 
     ipcMain.on("save", (event) => {
@@ -141,12 +149,12 @@ function open_selection() {
         t = clipboard.readText();
         clipboard.write(o_clipboard);
     }
-    create_main_window(t, "ocr");
+    create_main_window(t, "text");
 }
 
 function open_clip_board() {
     t = clipboard.readText();
-    create_main_window(t, "ocr");
+    create_main_window(t, "text");
 }
 
 function create_ding_window(x, y, w, h, img) {
@@ -192,16 +200,9 @@ function create_main_window(t, type) {
         },
     });
 
-    // main_window.setAspectRatio(w / h);
     main_window.loadFile("index.html");
     main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
         main_window.webContents.send("text", [t, type]);
     });
-    // ipcMain.on("web_show", (event, url) => {console.log(url)})
-    // const view = new BrowserView();
-    // main_window.setBrowserView(view);
-    // view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
-    // view.webContents.loadURL("https://www.baidu.com");
-    // // });
 }

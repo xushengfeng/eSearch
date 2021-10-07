@@ -141,6 +141,10 @@ canvas {
 #ding_photo {
     width: 100%;
 }
+#waiting {
+    position: fixed;
+    display: none;
+}
 @media (max-width: 900px) {
 }
 

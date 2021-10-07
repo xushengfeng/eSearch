@@ -14,6 +14,7 @@
    inkscape:export-ydpi="122.88"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -40,30 +41,36 @@
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="true" />
   <defs
-     id="defs2" />
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1395">
+      <stop
+         style="stop-color:#5cbcff;stop-opacity:1"
+         offset="0"
+         id="stop1391" />
+      <stop
+         style="stop-color:#0396ff;stop-opacity:1"
+         offset="1"
+         id="stop1393" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1395"
+       id="linearGradient1397"
+       x1="70"
+       y1="70"
+       x2="330"
+       y2="330"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#004799;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 70,110 V 70 h 260 v 40"
-       id="path873"
-       sodipodi:nodetypes="cccc" />
-    <path
-       style="fill:none;stroke:#004799;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 150,150 H 250"
-       id="path875"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#004799;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 200,250 V 150"
-       id="path875-3"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#004799;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 70,290 v 40 h 260 v -40"
        id="path877"
-       sodipodi:nodetypes="cccc" />
+       style="fill:none;stroke:url(#linearGradient1397);stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 70,290 v 40 H 330 V 290 M 200,250 V 150 m -50,0 H 250 M 70,110 V 70 h 260 v 40" />
   </g>
 </svg>
