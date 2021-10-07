@@ -18,6 +18,7 @@ app.whenReady().then(() => {
             label: "截图",
             click: () => {
                 // clip_window.setFullScreen(true)
+                clip_window.webContents.send('reflash')
                 clip_window.setSize(1920,1080)
                 clip_window.show();
             },
@@ -183,10 +184,10 @@ function create_main_window(t, type) {
     main_window.webContents.on("did-finish-load", () => {
         main_window.webContents.send("text", [t, type]);
     });
-    // ipcMain.on("web_show", (event, url) => {
-    const view = new BrowserView();
-    main_window.setBrowserView(view);
-    view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
-    view.webContents.loadURL("https://www.baidu.com");
-    // });
+    // ipcMain.on("web_show", (event, url) => {console.log(url)})
+    // const view = new BrowserView();
+    // main_window.setBrowserView(view);
+    // view.setBounds({ x: 0, y: 0, width: 300, height: 300 });
+    // view.webContents.loadURL("https://www.baidu.com");
+    // // });
 }

@@ -1,10 +1,5 @@
 // In the renderer process.
-const {
-    desktopCapturer,
-    ipcRenderer,
-    clipboard,
-    nativeImage,
-} = require("electron");
+const { desktopCapturer, ipcRenderer, clipboard, nativeImage } = require("electron");
 const fs = require("fs");
 const jsqr = require("jsqr");
 
@@ -15,31 +10,32 @@ clip_canvas.style.width = window.screen.width + "px";
 const draw_canvas = document.getElementById("draw_photo");
 draw_canvas.style.width = window.screen.width + "px";
 
-desktopCapturer
-    .getSources({
-        types: ["window", "screen"],
-        fetchWindowIcons: true,
-        thumbnailSize: {
-            width: window.screen.width * window.devicePixelRatio,
-            height: 8000,
-        },
-    })
-    .then(async (sources) => {
-        console.log(sources);
-        draw_windows_bar(sources);
-        show_photo(sources[0].thumbnail.toDataURL());
-    });
-
+function get_desktop_capturer() {
+    desktopCapturer
+        .getSources({
+            types: ["window", "screen"],
+            fetchWindowIcons: true,
+            thumbnailSize: {
+                width: window.screen.width * window.devicePixelRatio,
+                height: 8000,
+            },
+        })
+        .then(async (sources) => {
+            console.log(sources);
+            draw_windows_bar(sources);
+            show_photo(sources[0].thumbnail.toDataURL());
+        });
+}
+get_desktop_capturer();
+ipcRenderer.on("reflash", ()=>{
+    get_desktop_capturer();
+});
 function draw_windows_bar(o) {
     内容 = "";
     for (i in o) {
-        内容 += `<div class="window" id="${
-            o[i].id
-        }"><div class="window_name"><p class="window_title"><img src="${
+        内容 += `<div class="window" id="${o[i].id}"><div class="window_name"><p class="window_title"><img src="${
             o[i].appIcon?.toDataURL() ?? "assets/no_photo.png"
-        }" class="window_icon">${
-            o[i].name
-        }</p></div><div id="window_photo" ><img src="${o[
+        }" class="window_icon">${o[i].name}</p></div><div id="window_photo" ><img src="${o[
             i
         ].thumbnail.toDataURL()}" class="window_thumbnail"></div></div>`;
     }
@@ -54,17 +50,14 @@ function draw_windows_bar(o) {
 }
 
 function show_photo(url) {
-    final_rect=''
+    final_rect = "";
     var main_ctx = main_canvas.getContext("2d");
     let img = new Image();
     img.src = url;
     img.onload = function () {
         // 统一大小
         main_canvas.width = clip_canvas.width = draw_canvas.width = img.width;
-        main_canvas.height =
-            clip_canvas.height =
-            draw_canvas.height =
-                img.height;
+        main_canvas.height = clip_canvas.height = draw_canvas.height = img.height;
         main_ctx.drawImage(img, 0, 0);
     };
 }
@@ -108,10 +101,9 @@ drawing = false;
 function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
-        document.getElementById("tool_draw").style.backgroundColor =
-            getComputedStyle(document.documentElement).getPropertyValue(
-                "--hover-color"
-            );
+        document.getElementById("tool_draw").style.backgroundColor = getComputedStyle(
+            document.documentElement
+        ).getPropertyValue("--hover-color");
         document.getElementById("draw_bar").style.maxHeight = "500px";
         document.getElementById("windows_bar").style.left = "-100%";
     } else {
@@ -129,9 +121,7 @@ function tool_ding_f() {
 }
 // 复制
 function tool_copy_f() {
-    clipboard.writeImage(
-        nativeImage.createFromDataURL(get_clip_photo().toDataURL())
-    );
+    clipboard.writeImage(nativeImage.createFromDataURL(get_clip_photo().toDataURL()));
     tool_close_f();
 }
 // 保存
@@ -139,7 +129,7 @@ function tool_save_f() {
     ipcRenderer.send("save");
     ipcRenderer.on("save_path", (event, message) => {
         console.log(message);
-        if (message != '') {
+        if (message != "") {
             f = get_clip_photo()
                 .toDataURL()
                 .replace(/^data:image\/\w+;base64,/, "");
@@ -152,17 +142,12 @@ function tool_save_f() {
 }
 
 function get_clip_photo() {
-    if (final_rect != '') {
+    if (final_rect != "") {
         main_ctx = main_canvas.getContext("2d");
         var tmp_canvas = document.createElement("canvas");
         tmp_canvas.width = final_rect[2];
         tmp_canvas.height = final_rect[3];
-        gid = main_ctx.getImageData(
-            final_rect[0],
-            final_rect[1],
-            final_rect[2],
-            final_rect[3]
-        );
+        gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
         tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
         return tmp_canvas;
     } else {
