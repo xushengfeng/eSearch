@@ -29,23 +29,23 @@ clip_canvas.onmousedown = (e) => {
 clip_canvas.onmousemove = (e) => {
     // xywh=final_rect
     if (selecting) {
-        xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
         clip_ctx.beginPath();
 
         // 奇迹!!!
         clip_ctx.fillStyle = "#0005";
-        clip_ctx.fillRect(0, 0, clip_canvas.width, xywh[1]);
-        clip_ctx.fillRect(0, xywh[1], xywh[0], xywh[3]);
-        clip_ctx.fillRect(xywh[0] + xywh[2], xywh[1], clip_canvas.width - (xywh[0] + xywh[2]), xywh[3]);
-        clip_ctx.fillRect(0, xywh[1] + xywh[3], clip_canvas.width, clip_canvas.height - (xywh[1] + xywh[3]));
+        clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
+        clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
+        clip_ctx.fillRect(final_rect[0] + final_rect[2], final_rect[1], clip_canvas.width - (final_rect[0] + final_rect[2]), final_rect[3]);
+        clip_ctx.fillRect(0, final_rect[1] + final_rect[3], clip_canvas.width, clip_canvas.height - (final_rect[1] + final_rect[3]));
 
-        document.getElementById("clip_wh").innerHTML = `${xywh[2]}x${xywh[3]}`;
+        document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
     }
 
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
     document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
-    color_pincker(xywh, now_canvas_position[0] + 1, now_canvas_position[1] + 1);
+    color_pincker(final_rect, now_canvas_position[0] + 1, now_canvas_position[1] + 1);
 };
 
 clip_canvas.onmouseup = (e) => {
@@ -56,12 +56,11 @@ clip_canvas.onmouseup = (e) => {
     follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
 
-function color_pincker(xywh, x, y) {
-    x0 = xywh[0];
-    x1 = xywh[0] + xywh[2];
-    y0 = xywh[1];
-    y1 = xywh[1] + xywh[3];
-    // console.log(x0, y0, x1, y1);
+function color_pincker(final_rect, x, y) {
+    x0 = final_rect[0];
+    x1 = final_rect[0] + final_rect[2];
+    y0 = final_rect[1];
+    y1 = final_rect[1] + final_rect[3];
     color = main_canvas.getContext("2d").getImageData(x - 4, y - 4, 9, 9).data;
     color_g = [];
     for (var i = 0, len = color.length; i < len; i += 4) {
@@ -71,11 +70,11 @@ function color_pincker(xywh, x, y) {
     for (i in color_g) {
         xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
         yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
-        if (!(x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) && i != (color_g.length - 1) / 2) {
+        if (!(x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) && i != (color_g.length - 1) / 2) { // 框外
             inner_html += `<span id="point_color_t_b" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
-        } else if (i == (color_g.length - 1) / 2) {
-            // console.log(x,y,xx,yy)
+        } else if (i == (color_g.length - 1) / 2) { // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+            document.getElementById('clip_color').innerHTML=`rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }
