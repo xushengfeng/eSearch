@@ -37,12 +37,21 @@ clip_canvas.onmousemove = (e) => {
         clip_ctx.fillStyle = "#0005";
         clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
         clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
-        clip_ctx.fillRect(final_rect[0] + final_rect[2], final_rect[1], clip_canvas.width - (final_rect[0] + final_rect[2]), final_rect[3]);
-        clip_ctx.fillRect(0, final_rect[1] + final_rect[3], clip_canvas.width, clip_canvas.height - (final_rect[1] + final_rect[3]));
-
-        document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
+        clip_ctx.fillRect(
+            final_rect[0] + final_rect[2],
+            final_rect[1],
+            clip_canvas.width - (final_rect[0] + final_rect[2]),
+            final_rect[3]
+        );
+        clip_ctx.fillRect(
+            0,
+            final_rect[1] + final_rect[3],
+            clip_canvas.width,
+            clip_canvas.height - (final_rect[1] + final_rect[3])
+        );
     }
 
+    document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
     document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
     color_pincker(final_rect, now_canvas_position[0] + 1, now_canvas_position[1] + 1);
@@ -70,11 +79,15 @@ function color_pincker(final_rect, x, y) {
     for (i in color_g) {
         xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
         yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
-        if (!(x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) && i != (color_g.length - 1) / 2) { // 框外
+        if (!(x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) && i != (color_g.length - 1) / 2) {
+            // 框外
             inner_html += `<span id="point_color_t_b" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
-        } else if (i == (color_g.length - 1) / 2) { // 光标中心点
+        } else if (i == (color_g.length - 1) / 2) {
+            // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
-            document.getElementById('clip_color').innerHTML=`rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`
+            document.getElementById(
+                "clip_color"
+            ).innerHTML = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }

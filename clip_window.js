@@ -10,8 +10,8 @@ clip_canvas.style.width = window.screen.width + "px";
 const draw_canvas = document.getElementById("draw_photo");
 draw_canvas.style.width = window.screen.width + "px";
 // 第一次截的一定是桌面,所以可提前定义
-main_canvas.width=window.screen.width * window.devicePixelRatio
-main_canvas.height=window.screen.height * window.devicePixelRatio
+main_canvas.width = window.screen.width * window.devicePixelRatio;
+main_canvas.height = window.screen.height * window.devicePixelRatio;
 
 function get_desktop_capturer() {
     desktopCapturer
@@ -56,7 +56,6 @@ function draw_windows_bar(o) {
 final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function show_photo(url) {
-    final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
     var main_ctx = main_canvas.getContext("2d");
     let img = new Image();
     img.src = url;
@@ -65,6 +64,7 @@ function show_photo(url) {
         main_canvas.width = clip_canvas.width = draw_canvas.width = img.width;
         main_canvas.height = clip_canvas.height = draw_canvas.height = img.height;
         main_ctx.drawImage(img, 0, 0);
+        final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
     };
 }
 
