@@ -134,12 +134,16 @@ html {
 }
 canvas {
     position: absolute;
+    cursor: crosshair;
 }
 #clip_photo {
     z-index: 10;
 }
 #ding_photo {
     width: 100%;
+}
+#clip_size{
+    position: fixed;
 }
 #waiting {
     position: fixed;

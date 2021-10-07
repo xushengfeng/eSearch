@@ -34,28 +34,32 @@ clip_canvas.onmousedown = (e) => {
     console.log(canvas_rect);
 };
 clip_canvas.onmousemove = (e) => {
+    canvas_rect_e = page_position_to_canvas_position(
+        // 实时坐标
+        clip_canvas,
+        e.offsetX,
+        e.offsetY
+    );
+    xywh = auto_fix_position(
+        canvas_rect.x,
+        canvas_rect.y,
+        canvas_rect_e.x - canvas_rect.x,
+        canvas_rect_e.y - canvas_rect.y
+    );
     if (selecting) {
         clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
         clip_ctx.beginPath();
-        canvas_rect_e = page_position_to_canvas_position(
-            // 实时坐标
-            clip_canvas,
-            e.offsetX,
-            e.offsetY
-        );
-        xywh = auto_fix_position(
-            canvas_rect.x,
-            canvas_rect.y,
-            canvas_rect_e.x - canvas_rect.x,
-            canvas_rect_e.y - canvas_rect.y
-        );
+
         // 奇迹!!!
         clip_ctx.fillStyle = "#0005";
         clip_ctx.fillRect(0, 0, clip_canvas.width, xywh[1]);
         clip_ctx.fillRect(0, xywh[1], xywh[0], xywh[3]);
         clip_ctx.fillRect(xywh[0] + xywh[2], xywh[1], clip_canvas.width - (xywh[0] + xywh[2]), xywh[3]);
         clip_ctx.fillRect(0, xywh[1] + xywh[3], clip_canvas.width, clip_canvas.height - (xywh[1] + xywh[3]));
+
+        document.getElementById("clip_wh").innerHTML = `${xywh[2]}x${xywh[3]}`;
     }
+    document.getElementById("clip_xy").innerHTML = `${canvas_rect_e.x},${canvas_rect_e.y}`;
 };
 clip_canvas.onmouseup = (e) => {
     clip_ctx.closePath();
