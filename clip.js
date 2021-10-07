@@ -4,17 +4,21 @@ function page_position_to_canvas_position(canvas, x, y) {
     return { x: Math.round(c_x), y: Math.round(c_y) };
 }
 
-// 防止宽高负数
-function auto_fix_position(x, y, w, h) {
-    if (w < 0) {
-        x = x + w; // w是负数,下同
-        w = -w;
-    }
-    if (h < 0) {
-        y = y + h;
-        h = -h;
-    }
-    return [x, y, w, h];
+function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
+    // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
+    // 输入为边框像素坐标
+    // 为了让canvas获取全屏，边框像素点要包括
+    // 像素坐标转为点坐标后,左和上(小的)是不变的,大的少1
+    x1 = Math.min(o_x1, o_x2);
+    y1 = Math.min(o_y1, o_y2);
+    x2 = Math.max(o_x1, o_x2) + 1;
+    y2 = Math.max(o_y1, o_y2) + 1;
+    // canvas缩放变换
+    x1 = Math.round(canvas.width * (x1 / canvas.offsetWidth));
+    y1 = Math.round(canvas.height * (y1 / canvas.offsetHeight));
+    x2 = Math.round(canvas.width * (x2 / canvas.offsetWidth));
+    y2 = Math.round(canvas.height * (y2 / canvas.offsetHeight));
+    return [x1, y1, x2 - x1, y2 - y1];
 }
 
 selecting = false;
@@ -23,29 +27,11 @@ canvas_rect = "";
 clip_ctx = clip_canvas.getContext("2d");
 clip_canvas.onmousedown = (e) => {
     selecting = true;
-    o_position = [e.screenX, e.screenY];
-    canvas_rect = page_position_to_canvas_position(
-        // 起始坐标
-        clip_canvas,
-        e.offsetX,
-        e.offsetY
-    );
-    console.log(e.offsetX, e.offsetY);
-    console.log(canvas_rect);
+    o_position = [e.screenX, e.screenY]; // 用于跟随
+    canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
 };
 clip_canvas.onmousemove = (e) => {
-    canvas_rect_e = page_position_to_canvas_position(
-        // 实时坐标
-        clip_canvas,
-        e.offsetX,
-        e.offsetY
-    );
-    xywh = auto_fix_position(
-        canvas_rect.x,
-        canvas_rect.y,
-        canvas_rect_e.x - canvas_rect.x,
-        canvas_rect_e.y - canvas_rect.y
-    );
+    xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
     if (selecting) {
         clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
         clip_ctx.beginPath();
@@ -59,24 +45,14 @@ clip_canvas.onmousemove = (e) => {
 
         document.getElementById("clip_wh").innerHTML = `${xywh[2]}x${xywh[3]}`;
     }
-    document.getElementById("clip_xy").innerHTML = `${canvas_rect_e.x},${canvas_rect_e.y}`;
+
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+    document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
 };
 clip_canvas.onmouseup = (e) => {
     clip_ctx.closePath();
     selecting = false;
-    canvas_rect_e = page_position_to_canvas_position(
-        // 实时坐标
-        clip_canvas,
-        e.offsetX,
-        e.offsetY
-    );
-    final_rect = auto_fix_position(
-        // 最终坐标
-        canvas_rect.x,
-        canvas_rect.y,
-        canvas_rect_e.x - canvas_rect.x,
-        canvas_rect_e.y - canvas_rect.y
-    );
+    final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
     follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
 
