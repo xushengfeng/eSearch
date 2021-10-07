@@ -1,9 +1,3 @@
-function page_position_to_canvas_position(canvas, x, y) {
-    c_x = canvas.width * (x / canvas.offsetWidth); // canvas本来无外宽，不影响
-    c_y = canvas.height * (y / canvas.offsetHeight);
-    return { x: Math.round(c_x), y: Math.round(c_y) };
-}
-
 function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
     // 输入为边框像素坐标
@@ -25,14 +19,17 @@ selecting = false;
 o_position = "";
 canvas_rect = "";
 clip_ctx = clip_canvas.getContext("2d");
+
 clip_canvas.onmousedown = (e) => {
     selecting = true;
     o_position = [e.screenX, e.screenY]; // 用于跟随
     canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
 };
+
 clip_canvas.onmousemove = (e) => {
-    xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+    // xywh=final_rect
     if (selecting) {
+        xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
         clip_ctx.beginPath();
 
@@ -48,13 +45,43 @@ clip_canvas.onmousemove = (e) => {
 
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
     document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
+    color_pincker(xywh, now_canvas_position[0] + 1, now_canvas_position[1] + 1);
 };
+
 clip_canvas.onmouseup = (e) => {
     clip_ctx.closePath();
     selecting = false;
-    final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+    final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
     follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
+
+function color_pincker(xywh, x, y) {
+    x0 = xywh[0];
+    x1 = xywh[0] + xywh[2];
+    y0 = xywh[1];
+    y1 = xywh[1] + xywh[3];
+    // console.log(x0, y0, x1, y1);
+    color = main_canvas.getContext("2d").getImageData(x - 4, y - 4, 9, 9).data;
+    color_g = [];
+    for (var i = 0, len = color.length; i < len; i += 4) {
+        color_g.push(color.slice(i, i + 4));
+    }
+    inner_html = "";
+    for (i in color_g) {
+        xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
+        yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
+        if (!(x0 <= xx && xx <= x1 && y0 <= yy && yy <= y1) && i != (color_g.length - 1) / 2) {
+            inner_html += `<span id="point_color_t_b" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+        } else if (i == (color_g.length - 1) / 2) {
+            // console.log(x,y,xx,yy)
+            inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+        } else {
+            inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+        }
+    }
+    document.getElementById("point_color").innerHTML = inner_html;
+}
 
 // 误代码后恢复,奇迹再现
 function follow_bar(sx, sy, x, y) {

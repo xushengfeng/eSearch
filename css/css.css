@@ -145,6 +145,30 @@ canvas {
 #clip_size{
     position: fixed;
 }
+#point_color{
+    position: fixed;
+    width: 90px;
+    height: 90px;
+    z-index: 99;
+    right: 0;
+}
+#point_color_t{
+    width: 10px;
+    height: 10px;
+    float: left;
+}
+#point_color_t_c{
+    width: 10px;
+    height: 10px;
+    float: left;
+    box-shadow: #00f 0 0 3px inset;
+}
+#point_color_t_b{
+    width: 10px;
+    height: 10px;
+    float: left;
+    box-shadow: #0005 0 0 3px inset;
+}
 #waiting {
     position: fixed;
     display: none;

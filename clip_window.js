@@ -50,7 +50,7 @@ function draw_windows_bar(o) {
     }
 }
 
-final_rect = [0, 0, main_canvas.width, main_canvas.height];
+final_rect =xywh= [0, 0, main_canvas.width, main_canvas.height];
 
 function show_photo(url) {
     final_rect = "";
