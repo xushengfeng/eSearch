@@ -1,5 +1,6 @@
 :root {
     --hover-color: #0002;
+    --transition:0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 ::-webkit-scrollbar {
     display: none;
@@ -23,21 +24,21 @@ html {
     left: -200px;
     padding-right: 1px;
     backdrop-filter: blur(20px);
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
     overflow: scroll;
     max-height: 100%;
 }
 #windows_bar:hover {
     left: 0px;
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 .window {
     /* background-color: #fff9; */
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 .window:hover {
     background-color: var(--hover-color);
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 .window_name {
 }
@@ -69,7 +70,7 @@ html {
     backdrop-filter: blur(20px);
     border-radius: 10px;
     overflow: hidden;
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 #tool_bar > div {
     background-position: center;
@@ -78,11 +79,11 @@ html {
     width: 60px;
     height: 60px;
     border-radius: 10px;
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 #tool_close {
     background-image: url("../assets/tool_close.svg");
@@ -117,7 +118,7 @@ html {
     backdrop-filter: blur(20px);
     border-radius: 10px;
     overflow: hidden;
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 #draw_bar > div {
     background-position: center;
@@ -126,11 +127,11 @@ html {
     width: 60px;
     height: 60px;
     border-radius: 10px;
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 #draw_bar > div:hover {
     background-color: var(--hover-color);
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: var(--transition);
 }
 canvas {
     position: absolute;
@@ -138,9 +139,6 @@ canvas {
 }
 #clip_photo {
     z-index: 10;
-}
-#ding_photo {
-    width: 100%;
 }
 #clip_size{
     position: fixed;

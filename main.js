@@ -52,7 +52,7 @@ app.whenReady().then(() => {
         {
             label: "设置",
             click: () => {
-                Store.initRenderer()
+                Store.initRenderer();
                 create_setting_window();
             },
         },
@@ -95,6 +95,7 @@ app.whenReady().then(() => {
     // Open the DevTools.
     clip_window.webContents.openDevTools();
 
+    // 监听截图奇奇怪怪的事件
     ipcMain.on("window-close", () => {
         clip_window.hide();
     });
@@ -217,6 +218,10 @@ function create_ding_window(x, y, w, h, img) {
     ding_window.webContents.on("did-finish-load", () => {
         ding_window.webContents.send("img", img);
     });
+    ipcMain.on("ding_close", () => {
+        ding_window.close();
+    });
+    ipcMain.on("ding_resize", () => {});
 }
 
 function create_main_window(t, type) {
