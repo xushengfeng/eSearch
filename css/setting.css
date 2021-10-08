@@ -1,0 +1,22 @@
+:root {
+    --hover-color: #0002;
+    --transition:0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+::-webkit-scrollbar {
+    display: none;
+}
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+#setting_left{
+    width: 30%;
+    height: 100%;
+    background: rgb(84,95,103)
+}
+#setting_main{
+    width: 70%
+}
