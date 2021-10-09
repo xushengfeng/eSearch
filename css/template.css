@@ -1,0 +1,6 @@
+.文字{
+    font-size: 20px;
+}
+:host{
+    display: flex;
+}

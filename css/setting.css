@@ -12,11 +12,17 @@ body {
     height: 100%;
     display: flex;
 }
+#setting_main{
+    width: 100%
+}
+#setting_item{
+    display: flex;
+    margin: 16px 0 16px 0;
+}
 #setting_left{
     width: 30%;
-    height: 100%;
-    background: rgb(84,95,103)
+    font-size: 20px;
 }
-#setting_main{
-    width: 70%
+set-select{
+    width: 100%;
 }
