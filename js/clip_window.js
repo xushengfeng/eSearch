@@ -53,6 +53,18 @@ function draw_windows_bar(o) {
     }
 }
 
+// 左边窗口工具栏弹出
+document.onmousemove = (e) => {
+    if (e.screenX == 0) {
+        窗口工具栏弹出 = setTimeout(() => {
+            document.querySelector("#windows_bar").style.left = 0;
+        }, 1000);
+    } else if(e.screenX >=200){
+        if(typeof 窗口工具栏弹出!=undefined) clearTimeout(窗口工具栏弹出);
+        document.querySelector("#windows_bar").style.left = "-200px";
+    }
+};
+
 final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function show_photo(url) {
@@ -136,13 +148,7 @@ function tool_draw_f() {
 }
 // 钉在屏幕上
 function tool_ding_f() {
-    if (final_rect != "") {
-        // 解决全屏无法钉的bug
-        ding_window_setting = final_rect;
-    } else {
-        ding_window_setting = [0, 0, main_canvas.width, main_canvas.height];
-    }
-
+    ding_window_setting = final_rect;
     ding_window_setting[4] = get_clip_photo().toDataURL();
     ipcRenderer.send("ding", ding_window_setting);
     tool_close_f();

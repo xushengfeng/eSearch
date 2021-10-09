@@ -1,6 +1,7 @@
 :root {
     --hover-color: #0002;
     --transition:0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    --bar-bg:#fff9;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -17,23 +18,17 @@ html {
 /* 窗口预览 */
 #windows_bar {
     width: 200px;
-    /* height: 20px; */
-    background: #fff0;
+    /* background: var(--bar-bg); */
     position: fixed;
     z-index: 99;
     left: -200px;
-    padding-right: 1px;
+    /* padding-right: 1px; */
     backdrop-filter: blur(20px);
     transition: var(--transition);
     overflow: scroll;
     max-height: 100%;
 }
-#windows_bar:hover {
-    left: 0px;
-    transition: var(--transition);
-}
 .window {
-    /* background-color: #fff9; */
     transition: var(--transition);
 }
 .window:hover {
@@ -62,7 +57,7 @@ html {
 /* 工具 */
 #tool_bar {
     width: 60px;
-    background: #fff9;
+    background: var(--bar-bg);
     position: fixed;
     z-index: 99;
     left: 10px;
