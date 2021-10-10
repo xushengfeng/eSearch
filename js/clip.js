@@ -1,3 +1,4 @@
+// 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
 function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
     // 输入为边框像素坐标
@@ -34,6 +35,7 @@ clip_canvas.onmousemove = (e) => {
         clip_ctx.beginPath();
 
         // 奇迹!!!
+        // 框选为黑色遮罩
         clip_ctx.fillStyle = "#0005";
         clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
         clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
@@ -50,10 +52,16 @@ clip_canvas.onmousemove = (e) => {
             clip_canvas.height - (final_rect[1] + final_rect[3])
         );
     }
-
+    // 大小文字
     document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
+    // 鼠标位置文字
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-    document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
+    if (光标 == "以(1,1)为起点") {
+        document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
+    } else {
+        document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0]},${now_canvas_position[1]}`;
+    }
+    // 取色器
     color_pincker(final_rect, now_canvas_position[0], now_canvas_position[1]);
 };
 
@@ -62,9 +70,11 @@ clip_canvas.onmouseup = (e) => {
     selecting = false;
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
     final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+    // 抬起鼠标后工具栏跟随
     follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
 
+// 取色器
 function color_pincker(final_rect, x, y) {
     x0 = final_rect[0];
     x1 = final_rect[0] + final_rect[2];
@@ -79,7 +89,7 @@ function color_pincker(final_rect, x, y) {
     for (i in color_g) {
         xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
         yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
-        if (!(x0 <= xx && xx <= x1-1 && y0 <= yy && yy <= y1-1) && i != (color_g.length - 1) / 2) {
+        if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && i != (color_g.length - 1) / 2) {
             // 框外
             inner_html += `<span id="point_color_t_b" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         } else if (i == (color_g.length - 1) / 2) {
@@ -96,6 +106,7 @@ function color_pincker(final_rect, x, y) {
 }
 
 // 误代码后恢复,奇迹再现
+// 工具栏跟随
 function follow_bar(sx, sy, x, y) {
     tool_bar = document.getElementById("tool_bar");
 
@@ -104,11 +115,16 @@ function follow_bar(sx, sy, x, y) {
         if (x + tool_bar.offsetWidth + 10 <= window.screen.width) {
             tool_bar.style.left = x + 10 + "px"; // 贴右边
         } else {
-            // 超出屏幕贴左边
-            if (sx - tool_bar.offsetWidth - 10 >= 0) {
-                tool_bar.style.left = sx - tool_bar.offsetWidth - 10 + "px";
+            if (工具栏跟随 == "展示内容优先") {
+                // 超出屏幕贴左边
+                if (sx - tool_bar.offsetWidth - 10 >= 0) {
+                    tool_bar.style.left = sx - tool_bar.offsetWidth - 10 + "px";
+                } else {
+                    // 还超贴右内
+                    tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px";
+                }
             } else {
-                // 还超贴右内
+                // 直接贴右边,即使遮挡
                 tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px";
             }
         }
@@ -117,11 +133,15 @@ function follow_bar(sx, sy, x, y) {
         if (x - tool_bar.offsetWidth - 10 >= 0) {
             tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px"; // 贴左边
         } else {
-            // 超出屏幕贴右边
-            if (sx + tool_bar.offsetWidth + 10 <= window.screen.width) {
-                tool_bar.style.left = sx + 10 + "px";
+            if (工具栏跟随 == "展示内容优先") {
+                // 超出屏幕贴右边
+                if (sx + tool_bar.offsetWidth + 10 <= window.screen.width) {
+                    tool_bar.style.left = sx + 10 + "px";
+                } else {
+                    // 还超贴左内
+                    tool_bar.style.left = x + 10 + "px";
+                }
             } else {
-                // 还超贴左内
                 tool_bar.style.left = x + 10 + "px";
             }
         }

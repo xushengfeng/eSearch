@@ -2,6 +2,15 @@
 const { desktopCapturer, ipcRenderer, clipboard, nativeImage } = require("electron");
 const fs = require("fs");
 const jsqr = require("jsqr");
+const Store = require("electron-store");
+
+// 获取设置
+store = new Store();
+工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
+弹出时间 = store.get("弹出时间") || "500";
+保留时间 = store.get("保留时间") || "500";
+光标 = store.get("光标") || "以(1,1)为起点";
+取色器默认格式 = store.get("取色器默认格式") || "RGBA";
 
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width + "px";
@@ -32,6 +41,12 @@ function get_desktop_capturer() {
 get_desktop_capturer();
 ipcRenderer.on("reflash", () => {
     get_desktop_capturer();
+    // 刷新设置
+    工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
+    弹出时间 = store.get("弹出时间") || "500";
+    保留时间 = store.get("保留时间") || "500";
+    光标 = store.get("光标") || "以(1,1)为起点";
+    取色器默认格式 = store.get("取色器默认格式") || "RGBA";
 });
 
 function draw_windows_bar(o) {
@@ -58,10 +73,14 @@ document.onmousemove = (e) => {
     if (e.screenX == 0) {
         窗口工具栏弹出 = setTimeout(() => {
             document.querySelector("#windows_bar").style.left = 0;
-        }, 1000);
-    } else if(e.screenX >=200){
-        if(typeof 窗口工具栏弹出!='undefined') clearTimeout(窗口工具栏弹出);
-        document.querySelector("#windows_bar").style.left = "-200px";
+        }, 弹出时间);
+    } else {
+        if (typeof 窗口工具栏弹出 != "undefined") clearTimeout(窗口工具栏弹出);
+    }
+    if (e.screenX >= 200) {
+        setTimeout(() => {
+            document.querySelector("#windows_bar").style.left = "-200px";
+        }, 保留时间);
     }
 };
 

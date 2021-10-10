@@ -89,6 +89,7 @@ app.whenReady().then(() => {
         },
     });
 
+    Store.initRenderer();
     // and load the index.html of the app.
     clip_window.loadFile("capture.html");
 
