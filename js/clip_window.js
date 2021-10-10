@@ -60,7 +60,7 @@ document.onmousemove = (e) => {
             document.querySelector("#windows_bar").style.left = 0;
         }, 1000);
     } else if(e.screenX >=200){
-        if(typeof 窗口工具栏弹出!=undefined) clearTimeout(窗口工具栏弹出);
+        if(typeof 窗口工具栏弹出!='undefined') clearTimeout(窗口工具栏弹出);
         document.querySelector("#windows_bar").style.left = "-200px";
     }
 };

@@ -23,6 +23,9 @@ body {
     width: 30%;
     font-size: 20px;
 }
+#setting_right{
+    width: 70%;
+}
 set-select{
     width: 100%;
 }

@@ -13,36 +13,64 @@
 <body>
     <!-- <div id="setting_left"></div> -->
     <div id="setting_main">
+
         <div id="setting_item">
             <div id="setting_left">工具栏跟随</div>
-            <set-select>
-                <div 默认="true">展示内容优先</div>
-                <div>效率优先</div>
-            </set-select>
+            <div id="setting_right">
+                <set-select id="工具栏跟随">
+                    <div>展示内容优先</div>
+                    <div>效率优先</div>
+                </set-select>
+            </div>
         </div>
+
         <div id="setting_item">
             <div id="setting_left">窗口栏悬停</div>
-            <div>弹出时间<input type="number" min="0" ></div>
-            <div>保留时间<input type="number" min="0"></div>
+            <div id="setting_right">
+                <div>弹出时间<input type="number" min="0" id="弹出时间"></div>
+                <div>保留时间<input type="number" min="0" id="保留时间"></div>
+            </div>
         </div>
+
         <div id="setting_item">
             <div id="setting_left">光标</div>
-            <set-select>
-                <div>以(0,0)为起点</div>
-                <div 默认="true">以(1,1)为起点</div>
-            </set-select>
+            <div id="setting_right">
+                <set-select id="光标">
+                    <div>以(0,0)为起点</div>
+                    <div>以(1,1)为起点</div>
+                </set-select>
+            </div>
         </div>
+
         <div id="setting_item">
             <div id="setting_left">取色器默认格式</div>
-            <set-select>
-                <div>#ffffff</div>
-                <div>rgb(255,255,255)</div>
-                <div>rgba(255,255,255,1)</div>
-                <div>hsl()</div>
-                <div>hsla()</div>
-            </set-select>
+            <div id="setting_right">
+                <set-select id="取色器默认格式">
+                    <div>HEX</div>
+                    <div>RGB</div>
+                    <div>RGBA</div>
+                    <div>HSL</div>
+                    <div>HSLA</div>
+                </set-select>
+            </div>
+        </div>
+
+        <div id="setting_item">
+            <div id="setting_left">搜索引擎设置</div>
+            <div id="setting_right">
+                <textarea id="搜索引擎"></textarea>
+            </div>
+        </div>
+
+        <div id="setting_item">
+            <div id="setting_left">翻译引擎设置</div>
+            <div id="setting_right">
+                <textarea id="翻译引擎"></textarea>
+            </div>
         </div>
     </div>
+
+
     <script src="lib/template.js"></script>
     <script src="js/set.js"></script>
 </body>
