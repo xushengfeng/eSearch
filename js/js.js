@@ -23,15 +23,16 @@ function show_ocr_r(t) {
     for (i in text) {
         r += text[i] + "</br>";
     }
-    document.getElementById("text").innerHTML = r;
+    document.getElementById("text").innerHTML = replace_link(r);
 }
 
 function show_t(t) {
-    document.getElementById("text").innerHTML = t;
+    document.getElementById("text").innerHTML = replace_link(t);
 }
 
 function replace_link(t) {
-    regex = /(((https?|ftp|file):\/\/)?[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|])/g;
+    regex =
+        /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
     return t.replace(regex, '<a href="https://$1">$1</a>');
 }
 function is_link(l) {}

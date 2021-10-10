@@ -7,6 +7,9 @@ function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).onclick = () => {
         store.set(id, document.querySelector(`#${id}`).value);
     };
+    document.querySelector(`#${id}`).oninput = () => {
+        store.set(id, document.querySelector(`#${id}`).value);
+    };
 }
 
 if (document.title == "Information-portal-设置") {
