@@ -34,6 +34,7 @@
     "electron": "^15.1.1",
     "electron-store": "^8.0.1",
     "jsqr": "^1.4.0",
+    "open": "^8.3.0",
     "robotjs": "^0.6.0"
   }
 }
