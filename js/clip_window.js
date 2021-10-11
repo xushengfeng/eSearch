@@ -22,21 +22,74 @@ draw_canvas.style.width = window.screen.width + "px";
 main_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = window.screen.height * window.devicePixelRatio;
 
+// function get_desktop_capturer() {
+//     desktopCapturer
+//         .getSources({
+//             types: ["window", "screen"],
+//             fetchWindowIcons: true,
+//             thumbnailSize: {
+//                 width: window.screen.width * window.devicePixelRatio, // TODO 加载慢
+//                 height: 8000,
+//             },
+//         })
+//         .then(async (sources) => {
+//             const stream = await navigator.mediaDevices.getUserMedia({
+//                 audio: false,
+//                 video: {
+//                     mandatory: {
+//                         chromeMediaSource: "desktop",
+//                         chromeMediaSourceId: sources[0],
+//                         minWidth: 1280,
+//                         maxWidth: 1280,
+//                         minHeight: 720,
+//                         maxHeight: 720,
+//                     },
+//                 },
+//             });
+//             const video = document.querySelector('#root_resource"');
+//             video.srcObject = stream;
+//             video.onloadedmetadata = (e) => video.play();
+//             // draw_windows_bar(sources);
+//             // show_photo(sources[0].thumbnail.toDataURL());
+//         });
+// }
 function get_desktop_capturer() {
-    desktopCapturer
-        .getSources({
-            types: ["window", "screen"],
-            fetchWindowIcons: true,
-            thumbnailSize: {
-                width: window.screen.width * window.devicePixelRatio, // TODO 加载慢
-                height: 8000,
+    desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
+        console.log(sources);
+        // for (const source of sources) {
+        // try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                mandatory: {
+                    chromeMediaSource: "desktop",
+                    chromeMediaSourceId: sources[0].id,
+                    // minWidth: 1280,
+                    // maxWidth: 1280,
+                    // minHeight: 720,
+                    // maxHeight: 720,
+                },
             },
-        })
-        .then(async (sources) => {
-            console.log(sources);
-            draw_windows_bar(sources);
-            show_photo(sources[0].thumbnail.toDataURL());
         });
+        handleStream(stream);
+        // } catch (e) {
+        //     handleError(e);
+        // }
+        return;
+        // }
+    });
+}
+
+function handleStream(stream) {
+    const video = document.querySelector("#root_resource");
+    video.srcObject = stream;
+    video.onloadedmetadata = (e) => {
+        video.play();
+
+        main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
+        main_canvas.height = clip_canvas.height = draw_canvas.height =video.videoHeight;
+        main_canvas.getContext("2d").drawImage(video, 0, 0);
+    };
 }
 get_desktop_capturer();
 ipcRenderer.on("reflash", () => {

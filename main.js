@@ -248,10 +248,6 @@ function create_main_window(t, type) {
 
 function create_setting_window() {
     const main_window = new BrowserWindow({
-        // x: x,
-        // y: y,
-        // width: w,
-        // height: h,
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         webPreferences: {
             nodeIntegration: true,
@@ -262,7 +258,4 @@ function create_setting_window() {
 
     main_window.loadFile("setting.html");
     main_window.webContents.openDevTools();
-    main_window.webContents.on("did-finish-load", () => {
-        // main_window.webContents.send("text", [t, type]);
-    });
 }
