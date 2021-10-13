@@ -27,6 +27,12 @@ app.whenReady().then(() => {
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
+            label: "自动搜索",
+            click: () => {
+                auto_open();
+            },
+        },
+        {
             label: "截图搜索",
             click: () => {
                 clip_window.webContents.send("reflash");
@@ -69,6 +75,21 @@ app.whenReady().then(() => {
     tray.setToolTip("This is my application.");
     tray.setTitle("hi");
     tray.setContextMenu(contextMenu);
+
+    function auto_open() {
+        var o_clipboard = clipboard.readText();
+        robot.keyTap("c", "control");
+        var t = clipboard.readText();
+        if (o_clipboard != t) {
+            open_clip_board();
+        } else {
+            clip_window.webContents.c
+            clip_window.setSize(1920, 1080);
+            clip_window.show();
+        }
+        clipboard.write(o_clipboard);
+    }
+
     // Create the browser window.
     const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
@@ -180,7 +201,8 @@ function open_selection() {
         t = clipboard.readText("selection");
     } else {
         o_clipboard = clipboard.readText();
-        robot.keyTap("c", "command");
+        robot.keyTap("c", "control");
+        // robot.keyTap("c", "command");
         t = clipboard.readText();
         clipboard.write(o_clipboard);
     }
