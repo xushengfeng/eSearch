@@ -110,6 +110,7 @@ function mouse_bar(final_rect, x, y) {
     }
 }
 
+
 function color_conversion(rgba, type) {
     switch (type) {
         case "HEX":
@@ -124,39 +125,16 @@ function color_conversion(rgba, type) {
             return `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]})`;
 
         case "HSL":
-            var r = rgba[0] / 255;
-            var g = rgba[1] / 255;
-            var b = rgba[2] / 255;
-            var max = Math.max(r, g, b);
-            var min = Math.min(r, g, b);
-            var Δ = max - min;
-
-            l = (max + min) / 2;
-            if (Δ == 0) {
-                h = 0;
-                s = 0;
-            } else {
-                switch (max) {
-                    case r:
-                        h = 60 * ((g - b) / Δ + 6);
-                        if (h > 360) h = h - 360;
-                        break;
-                    case g:
-                        h = 60 * ((b - r) / Δ + 2);
-                        break;
-                    case b:
-                        h = 60 * ((r - g) / Δ + 4);
-                        break;
-                }
-                s = Δ / (1 - Math.abs(2 * l - 1));
-            }
-            h = h.toFixed(0);
-            s = +s.toFixed(2) * 100;
-            l = +l.toFixed(2) * 100;
+            h = rgb_2_hsl(rgba)[0];
+            s = rgb_2_hsl(rgba)[1];
+            l = rgb_2_hsl(rgba)[2];
             return `hsl(${h},${s}%,${l}%)`;
 
         case "HSLA":
-            break;
+            h = rgb_2_hsl(rgba)[0];
+            s = rgb_2_hsl(rgba)[1];
+            l = rgb_2_hsl(rgba)[2];
+            return `hsla(${h},${s}%,${l}%,${rgba[3]}/255)`;
 
         case "CMYK":
             var r = rgba[0] / 255;
@@ -168,6 +146,39 @@ function color_conversion(rgba, type) {
             var y = +((1 - b - k) / (1 - k)).toFixed(2) || 0;
             return `(${c},${m},${y},${k.toFixed(2)})`;
     }
+}
+
+function rgb_2_hsl(rgba) {
+    var r = rgba[0] / 255;
+    var g = rgba[1] / 255;
+    var b = rgba[2] / 255;
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    var Δ = max - min;
+
+    l = (max + min) / 2;
+    if (Δ == 0) {
+        h = 0;
+        s = 0;
+    } else {
+        switch (max) {
+            case r:
+                h = 60 * ((g - b) / Δ + 6);
+                if (h > 360) h = h - 360;
+                break;
+            case g:
+                h = 60 * ((b - r) / Δ + 2);
+                break;
+            case b:
+                h = 60 * ((r - g) / Δ + 4);
+                break;
+        }
+        s = Δ / (1 - Math.abs(2 * l - 1));
+    }
+    h = h.toFixed(0);
+    s = +s.toFixed(2) * 100;
+    l = +l.toFixed(2) * 100;
+    return [h, s, l];
 }
 
 // 鼠标栏实时跟踪
