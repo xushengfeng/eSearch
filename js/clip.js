@@ -95,7 +95,7 @@ function mouse_bar(final_rect, x, y) {
             // 颜色值
             document.querySelector("#clip_color").innerHTML = color_conversion(
                 [color_g[i][0], color_g[i][1], color_g[i][2], color_g[i][3]],
-                "CMYK"
+                "HSL"
             );
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
@@ -124,7 +124,36 @@ function color_conversion(rgba, type) {
             return `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]})`;
 
         case "HSL":
-            break;
+            var r = rgba[0] / 255;
+            var g = rgba[1] / 255;
+            var b = rgba[2] / 255;
+            var max = Math.max(r, g, b);
+            var min = Math.min(r, g, b);
+            var Δ = max - min;
+
+            l = (max + min) / 2;
+            if (Δ == 0) {
+                h = 0;
+                s = 0;
+            } else {
+                switch (max) {
+                    case r:
+                        h = 60 * ((g - b) / Δ + 6);
+                        if (h > 360) h = h - 360;
+                        break;
+                    case g:
+                        h = 60 * ((b - r) / Δ + 2);
+                        break;
+                    case b:
+                        h = 60 * ((r - g) / Δ + 4);
+                        break;
+                }
+                s = Δ / (1 - Math.abs(2 * l - 1));
+            }
+            h = h.toFixed(0);
+            s = +s.toFixed(2) * 100;
+            l = +l.toFixed(2) * 100;
+            return `hsl(${h},${s}%,${l}%)`;
 
         case "HSLA":
             break;
