@@ -93,9 +93,10 @@ function mouse_bar(final_rect, x, y) {
             // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
             // 颜色值
-            document.querySelector(
-                "#clip_color"
-            ).innerHTML = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
+            document.querySelector("#clip_color").innerHTML = color_conversion(
+                [color_g[i][0], color_g[i][1], color_g[i][2], color_g[i][3]],
+                "CMYK"
+            );
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }
@@ -106,6 +107,37 @@ function mouse_bar(final_rect, x, y) {
         document.querySelector("#clip_xy").innerHTML = `${x + 1},${y + 1}`;
     } else {
         document.querySelector("#clip_xy").innerHTML = `${x},${y}`;
+    }
+}
+
+function color_conversion(rgba, type) {
+    switch (type) {
+        case "HEX":
+            return `#${rgba[0].toString(16).padStart(2, 0)}${rgba[1].toString(16).padStart(2, 0)}${rgba[2]
+                .toString(16)
+                .padStart(2, 0)}`;
+
+        case "RGB":
+            return `rgb(${rgba[0]},${rgba[1]},${rgba[2]})`;
+
+        case "RGBA":
+            return `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]})`;
+
+        case "HSL":
+            break;
+
+        case "HSLA":
+            break;
+
+        case "CMYK":
+            var r = rgba[0] / 255;
+            var g = rgba[1] / 255;
+            var b = rgba[2] / 255;
+            var k = 1 - Math.max(r, g, b);
+            var c = +((1 - r - k) / (1 - k)).toFixed(2) || 0;
+            var m = +((1 - g - k) / (1 - k)).toFixed(2) || 0;
+            var y = +((1 - b - k) / (1 - k)).toFixed(2) || 0;
+            return `(${c},${m},${y},${k.toFixed(2)})`;
     }
 }
 
