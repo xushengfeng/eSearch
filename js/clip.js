@@ -110,7 +110,6 @@ function mouse_bar(final_rect, x, y) {
     }
 }
 
-
 function color_conversion(rgba, type) {
     switch (type) {
         case "HEX":
@@ -125,16 +124,28 @@ function color_conversion(rgba, type) {
             return `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]})`;
 
         case "HSL":
-            h = rgb_2_hsl(rgba)[0];
-            s = rgb_2_hsl(rgba)[1];
-            l = rgb_2_hsl(rgba)[2];
+            h = rgb_2_hslsv(rgba)[0];
+            s = rgb_2_hslsv(rgba)[1];
+            l = rgb_2_hslsv(rgba)[2];
             return `hsl(${h},${s}%,${l}%)`;
 
         case "HSLA":
-            h = rgb_2_hsl(rgba)[0];
-            s = rgb_2_hsl(rgba)[1];
-            l = rgb_2_hsl(rgba)[2];
+            h = rgb_2_hslsv(rgba)[0];
+            s = rgb_2_hslsv(rgba)[1];
+            l = rgb_2_hslsv(rgba)[2];
             return `hsla(${h},${s}%,${l}%,${rgba[3]}/255)`;
+
+        case "HSV":
+            h = rgb_2_hslsv(rgba)[0];
+            s = rgb_2_hslsv(rgba)[3];
+            v = rgb_2_hslsv(rgba)[4];
+            return `hsv(${h},${s}%,${v}%)`;
+
+        case "HSVA":
+            h = rgb_2_hslsv(rgba)[0];
+            s = rgb_2_hslsv(rgba)[3];
+            v = rgb_2_hslsv(rgba)[4];
+            return `hsva(${h},${s}%,${v}%,${rgba[3]}/255)`;
 
         case "CMYK":
             var r = rgba[0] / 255;
@@ -148,7 +159,7 @@ function color_conversion(rgba, type) {
     }
 }
 
-function rgb_2_hsl(rgba) {
+function rgb_2_hslsv(rgba) {
     var r = rgba[0] / 255;
     var g = rgba[1] / 255;
     var b = rgba[2] / 255;
@@ -174,11 +185,13 @@ function rgb_2_hsl(rgba) {
                 break;
         }
         s = Δ / (1 - Math.abs(2 * l - 1));
+        s2 = Δ / max;
     }
     h = h.toFixed(0);
-    s = +s.toFixed(2) * 100;
-    l = +l.toFixed(2) * 100;
-    return [h, s, l];
+    s = (s * 100).toFixed(0);
+    l = (l * 100).toFixed(0);
+    s2 = (s2 * 100).toFixed(0);
+    return [h, s, l, s2, max];
 }
 
 // 鼠标栏实时跟踪
