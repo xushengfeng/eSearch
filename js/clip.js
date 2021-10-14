@@ -84,6 +84,7 @@ function mouse_bar(final_rect, x, y) {
     }
     inner_html = "";
     for (i in color_g) {
+        color_g[i][3] /= 255;
         xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
         yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
         if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && i != (color_g.length - 1) / 2) {
@@ -92,11 +93,8 @@ function mouse_bar(final_rect, x, y) {
         } else if (i == (color_g.length - 1) / 2) {
             // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
-            // 颜色值
-            document.querySelector("#clip_color").innerHTML = color_conversion(
-                [color_g[i][0], color_g[i][1], color_g[i][2], color_g[i][3]],
-                "HSL"
-            );
+            // 颜色文字
+            clip_color_text(color_g[i][0], color_g[i][1], color_g[i][2], color_g[i][3]);
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }
@@ -110,6 +108,7 @@ function mouse_bar(final_rect, x, y) {
     }
 }
 
+// 色彩空间转换
 function color_conversion(rgba, type) {
     switch (type) {
         case "HEX":
@@ -133,7 +132,7 @@ function color_conversion(rgba, type) {
             h = rgb_2_hslsv(rgba)[0];
             s = rgb_2_hslsv(rgba)[1];
             l = rgb_2_hslsv(rgba)[2];
-            return `hsla(${h},${s}%,${l}%,${rgba[3]}/255)`;
+            return `hsla(${h},${s}%,${l}%,${rgba[3]})`;
 
         case "HSV":
             h = rgb_2_hslsv(rgba)[0];
@@ -145,7 +144,7 @@ function color_conversion(rgba, type) {
             h = rgb_2_hslsv(rgba)[0];
             s = rgb_2_hslsv(rgba)[3];
             v = rgb_2_hslsv(rgba)[4];
-            return `hsva(${h},${s}%,${v}%,${rgba[3]}/255)`;
+            return `hsva(${h},${s}%,${v}%,${rgba[3]})`;
 
         case "CMYK":
             var r = rgba[0] / 255;
@@ -159,6 +158,7 @@ function color_conversion(rgba, type) {
     }
 }
 
+// RGB转HSL或HSV
 function rgb_2_hslsv(rgba) {
     var r = rgba[0] / 255;
     var g = rgba[1] / 255;
@@ -192,6 +192,23 @@ function rgb_2_hslsv(rgba) {
     l = (l * 100).toFixed(0);
     s2 = (s2 * 100).toFixed(0);
     return [h, s, l, s2, max];
+}
+
+// 改变颜色文字和样式
+function clip_color_text(r, g, b, a) {
+    document.querySelector("#clip_color").innerHTML = color_conversion([r, g, b, a], 取色器默认格式);
+    document.querySelector("#clip_color").style.background = `rgba(${r},${g},${b},${a})`;
+    var r = r / 255;
+    var g = g / 255;
+    var b = b / 255;
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    l = (max + min) / 2;
+    if (l >= 0.5) {
+        document.querySelector("#clip_color").style.color = "#000";
+    } else {
+        document.querySelector("#clip_color").style.color = "#fff";
+    }
 }
 
 // 鼠标栏实时跟踪

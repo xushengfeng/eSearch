@@ -99,7 +99,7 @@ ipcRenderer.on("reflash", () => {
     弹出时间 = store.get("弹出时间") || "500";
     保留时间 = store.get("保留时间") || "500";
     光标 = store.get("光标") || "以(1,1)为起点";
-    取色器默认格式 = store.get("取色器默认格式") || "RGBA";
+    取色器默认格式 = store.get("取色器默认格式") || "HEX";
 });
 
 function draw_windows_bar(o) {
