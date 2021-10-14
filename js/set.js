@@ -19,6 +19,3 @@ if (document.title == "Information-portal-设置") {
     选择器储存("光标", "以(1,1)为起点");
     选择器储存("取色器默认格式", "RGBA");
 }
-
-// 获取
-store.get("unicorn");

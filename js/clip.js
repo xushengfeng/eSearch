@@ -56,13 +56,9 @@ clip_canvas.onmousemove = (e) => {
     document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
     // 鼠标位置文字
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-    if (光标 == "以(1,1)为起点") {
-        document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0] + 1},${now_canvas_position[1] + 1}`;
-    } else {
-        document.getElementById("clip_xy").innerHTML = `${now_canvas_position[0]},${now_canvas_position[1]}`;
-    }
-    // 取色器
-    color_pincker(final_rect, now_canvas_position[0], now_canvas_position[1]);
+
+    // 鼠标跟随栏
+    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
 };
 
 clip_canvas.onmouseup = (e) => {
@@ -74,13 +70,14 @@ clip_canvas.onmouseup = (e) => {
     follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
 
-// 取色器
-function color_pincker(final_rect, x, y) {
+// 鼠标跟随栏
+function mouse_bar(final_rect, x, y) {
     x0 = final_rect[0];
     x1 = final_rect[0] + final_rect[2];
     y0 = final_rect[1];
     y1 = final_rect[1] + final_rect[3];
-    color = main_canvas.getContext("2d").getImageData(x - 4, y - 4, 9, 9).data;
+    color = main_canvas.getContext("2d").getImageData(x - 5, y - 5, 11, 11).data; // 取色器密度
+    // 分开每个像素的颜色
     color_g = [];
     for (var i = 0, len = color.length; i < len; i += 4) {
         color_g.push(color.slice(i, i + 4));
@@ -95,15 +92,41 @@ function color_pincker(final_rect, x, y) {
         } else if (i == (color_g.length - 1) / 2) {
             // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
-            document.getElementById(
-                "clip_color"
+            // 颜色值
+            document.querySelector(
+                "#clip_color"
             ).innerHTML = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }
     }
-    document.getElementById("point_color").innerHTML = inner_html;
+    document.querySelector("#point_color").innerHTML = inner_html;
+
+    if (光标 == "以(1,1)为起点") {
+        document.querySelector("#clip_xy").innerHTML = `${x + 1},${y + 1}`;
+    } else {
+        document.querySelector("#clip_xy").innerHTML = `${x},${y}`;
+    }
 }
+
+// 鼠标栏实时跟踪
+document.onmousemove = (e) => {
+    var x = e.screenX + 10;
+    var y = e.screenY + 10;
+    var w = document.querySelector("#mouse_bar").offsetWidth;
+    var h = document.querySelector("#mouse_bar").offsetHeight;
+    var sw = window.screen.width;
+    var sh = window.screen.height;
+    if (x + w > sw) {
+        x = x - w - 20;
+    }
+    if (y + h > sh) {
+        y = y - h - 20;
+    }
+
+    document.querySelector("#mouse_bar").style.left = `${x}px`;
+    document.querySelector("#mouse_bar").style.top = `${y}px`;
+};
 
 // 误代码后恢复,奇迹再现
 // 工具栏跟随

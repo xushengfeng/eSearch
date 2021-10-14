@@ -135,15 +135,14 @@ canvas {
 #clip_photo {
     z-index: 10;
 }
-#clip_size{
+
+#mouse_bar{
     position: fixed;
+    z-index: 99;
 }
 #point_color{
-    position: fixed;
-    width: 90px;
-    height: 90px;
-    z-index: 99;
-    right: 0;
+    width: 110px;
+    height: 110px;
 }
 #point_color_t{
     width: 10px;
@@ -162,11 +161,10 @@ canvas {
     float: left;
     box-shadow: #0005 0 0 3px inset;
 }
+
 #waiting {
     position: fixed;
     display: none;
-}
-@media (max-width: 900px) {
 }
 
 @media (prefers-color-scheme: dark) {
