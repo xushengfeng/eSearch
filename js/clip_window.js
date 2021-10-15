@@ -22,78 +22,37 @@ draw_canvas.style.width = window.screen.width + "px";
 main_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = window.screen.height * window.devicePixelRatio;
 
-// function get_desktop_capturer() {
-//     desktopCapturer
-//         .getSources({
-//             types: ["window", "screen"],
-//             fetchWindowIcons: true,
-//             thumbnailSize: {
-//                 width: window.screen.width * window.devicePixelRatio, // TODO 加载慢
-//                 height: 8000,
-//             },
-//         })
-//         .then(async (sources) => {
-//             const stream = await navigator.mediaDevices.getUserMedia({
-//                 audio: false,
-//                 video: {
-//                     mandatory: {
-//                         chromeMediaSource: "desktop",
-//                         chromeMediaSourceId: sources[0],
-//                         minWidth: 1280,
-//                         maxWidth: 1280,
-//                         minHeight: 720,
-//                         maxHeight: 720,
-//                     },
-//                 },
-//             });
-//             const video = document.querySelector('#root_resource"');
-//             video.srcObject = stream;
-//             video.onloadedmetadata = (e) => video.play();
-//             // draw_windows_bar(sources);
-//             // show_photo(sources[0].thumbnail.toDataURL());
-//         });
-// }
-function get_desktop_capturer() {
-    desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
-        console.log(sources);
-        // for (const source of sources) {
-        // try {
+function get_desktop_capturer(n) {
+    document.querySelector("html").style.display = "none";
+    desktopCapturer.getSources({ types: ["window", "screen"], fetchWindowIcons: true }).then(async (sources) => {
+        draw_windows_bar(sources);
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
                 mandatory: {
                     chromeMediaSource: "desktop",
-                    chromeMediaSourceId: sources[0].id,
-                    // minWidth: 1280,
-                    // maxWidth: 1280,
-                    // minHeight: 720,
-                    // maxHeight: 720,
+                    chromeMediaSourceId: sources[n].id,
                 },
             },
+            // cursor: "never"
         });
-        handleStream(stream);
-        // } catch (e) {
-        //     handleError(e);
-        // }
+        const video = document.querySelector("#root_resource");
+        video.srcObject = stream;
+        video.onloadedmetadata = (e) => {
+            video.play();
+            main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
+            main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
+            main_canvas.getContext("2d").drawImage(video, 0, 0);
+        };
+        document.querySelector("html").style.display = "block";
         return;
-        // }
     });
 }
 
-function handleStream(stream) {
-    const video = document.querySelector("#root_resource");
-    video.srcObject = stream;
-    video.onloadedmetadata = (e) => {
-        video.play();
+get_desktop_capturer(0);
 
-        main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
-        main_canvas.height = clip_canvas.height = draw_canvas.height =video.videoHeight;
-        main_canvas.getContext("2d").drawImage(video, 0, 0);
-    };
-}
-get_desktop_capturer();
 ipcRenderer.on("reflash", () => {
-    get_desktop_capturer();
+    get_desktop_capturer(0);
     // 刷新设置
     工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
     弹出时间 = store.get("弹出时间") || "500";
@@ -115,42 +74,14 @@ function draw_windows_bar(o) {
     for (i in o) {
         (function (n) {
             document.getElementById(o[n].id).addEventListener("click", () => {
-                show_photo(o[n].thumbnail.toDataURL());
+                get_desktop_capturer(n);
             });
         })(i);
     }
 }
 
-// 左边窗口工具栏弹出
-document.onmousemove = (e) => {
-    if (e.screenX == 0) {
-        窗口工具栏弹出 = setTimeout(() => {
-            document.querySelector("#windows_bar").style.left = 0;
-        }, 弹出时间);
-    } else {
-        if (typeof 窗口工具栏弹出 != "undefined") clearTimeout(窗口工具栏弹出);
-    }
-    if (e.screenX >= 200) {
-        setTimeout(() => {
-            document.querySelector("#windows_bar").style.left = "-200px";
-        }, 保留时间);
-    }
-};
 
 final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
-
-function show_photo(url) {
-    var main_ctx = main_canvas.getContext("2d");
-    let img = new Image();
-    img.src = url;
-    img.onload = function () {
-        // 统一大小
-        main_canvas.width = clip_canvas.width = draw_canvas.width = img.width;
-        main_canvas.height = clip_canvas.height = draw_canvas.height = img.height;
-        main_ctx.drawImage(img, 0, 0);
-        final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
-    };
-}
 
 // 工具栏按钮
 document.getElementById("tool_close").addEventListener("click", tool_close_f);

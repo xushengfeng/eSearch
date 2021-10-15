@@ -22,7 +22,7 @@ html {
     /* background: var(--bar-bg); */
     position: fixed;
     z-index: 99;
-    left: -200px;
+    transform: translateX(-100%);
     /* padding-right: 1px; */
     backdrop-filter: var(--blur);
     transition: var(--transition);
