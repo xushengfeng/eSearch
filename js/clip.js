@@ -228,25 +228,6 @@ document.onmousemove = (e) => {
 
     document.querySelector("#mouse_bar").style.left = `${x}px`;
     document.querySelector("#mouse_bar").style.top = `${y}px`;
-
-    // 左侧窗口栏弹出
-    show_windows(e.screenX)
-};
-
-// 左边窗口工具栏弹出
-function show_windows(x){
-    if (x == 0) {
-        窗口工具栏弹出 = setTimeout(() => {
-            document.querySelector("#windows_bar").style.transform='translateX(0)';
-        }, 弹出时间);
-    } else {
-        if (typeof 窗口工具栏弹出 != "undefined") clearTimeout(窗口工具栏弹出);
-    }
-    if (x >= 200) {
-        setTimeout(() => {
-            document.querySelector("#windows_bar").style.transform='translateX(-100%)';
-        }, 保留时间);
-    }
 };
 
 // 误代码后恢复,奇迹再现

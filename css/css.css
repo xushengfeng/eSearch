@@ -21,7 +21,7 @@ html {
     width: 200px;
     /* background: var(--bar-bg); */
     position: fixed;
-    z-index: 99;
+    z-index: 999;
     transform: translateX(-100%);
     /* padding-right: 1px; */
     backdrop-filter: var(--blur);

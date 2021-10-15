@@ -43,6 +43,7 @@ function get_desktop_capturer(n) {
             main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
             main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
             main_canvas.getContext("2d").drawImage(video, 0, 0);
+            final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
         };
         document.querySelector("html").style.display = "block";
         return;
@@ -80,8 +81,25 @@ function draw_windows_bar(o) {
     }
 }
 
+// 左边窗口工具栏弹出
+o = false;
+document.onkeydown = (e) => {
+    if (e.key == "a") {
+        if (!o) {
+            document.querySelector("#windows_bar").style.transform = "translateX(0)";
+            o = true;
+        } else {
+            document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+            o = false;
+        }
+    }
 
-final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+    if (e.key == "Escape") {
+        tool_close_f();
+    }
+};
+
+
 
 // 工具栏按钮
 document.getElementById("tool_close").addEventListener("click", tool_close_f);
