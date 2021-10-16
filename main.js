@@ -83,7 +83,7 @@ app.whenReady().then(() => {
         if (o_clipboard != t) {
             open_clip_board();
         } else {
-            clip_window.webContents.c
+            clip_window.webContents.send("reflash")
             clip_window.setSize(1920, 1080);
             clip_window.show();
         }

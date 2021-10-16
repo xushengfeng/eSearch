@@ -46,8 +46,9 @@ function get_desktop_capturer(n) {
             main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
             main_canvas.getContext("2d").drawImage(video, 0, 0);
             final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+            video.pause();
+            document.querySelector("html").style.display = "block";
         };
-        document.querySelector("html").style.display = "block";
         return;
     });
 }
