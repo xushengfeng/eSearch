@@ -1,20 +1,20 @@
-const { ipcRenderer, shell } = require("electron");
+// const { ipcRenderer, shell } = require("electron");
 
-t = "";
-type = "";
-ipcRenderer.on("text", (event, list) => {
-    t = list[0];
-    type = list[1];
-    if (type == "ocr") {
-        show_ocr_r(t);
-    }
-    if (type == "QR") {
-        show_t(t);
-    }
-    if (type == "text") {
-        show_t(t);
-    }
-});
+// t = "";
+// type = "";
+// ipcRenderer.on("text", (event, list) => {
+//     t = list[0];
+//     type = list[1];
+//     if (type == "ocr") {
+//         show_ocr_r(t);
+//     }
+//     if (type == "QR") {
+//         show_t(t);
+//     }
+//     if (type == "text") {
+//         show_t(t);
+//     }
+// });
 
 function show_ocr_r(t) {
     var t = JSON.parse(t);
@@ -46,3 +46,28 @@ document.getElementById("search_b").addEventListener("click", () => {
     shell.openExternal(url);
     window.open(url, "_blank");
 });
+
+搜索引擎_list = {
+    谷歌: "https://www.google.com/search?q=%s",
+    百度: "https://www.baidu.com/s?wd=%s",
+    必应: "https://cn.bing.com/search?q=%s",
+};
+
+翻译引擎_list = {
+    google: "https://translate.google.cn/?op=translate&text=%s",
+    deepl: "https://www.deepl.com/translator#en/zh/%s",
+    小米: "https://translator.ai.xiaomi.com/?text=%s&ua=transfer",
+    金山词霸: "http://www.iciba.com/word?w=%s",
+    百度: "https://fanyi.baidu.com/#en/zh/%s",
+};
+
+search_c = "";
+for (i in 搜索引擎_list) {
+    search_c += `<option value="${搜索引擎_list[i]}">${i}</option>`;
+}
+document.querySelector("#search_s").innerHTML = search_c;
+translate_c = "";
+for (i in 翻译引擎_list) {
+    translate_c += `<option value="${翻译引擎_list[i]}">${i}</option>`;
+}
+document.querySelector("#translate_s").innerHTML = translate_c;

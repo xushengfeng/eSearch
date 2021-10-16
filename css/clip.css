@@ -1,0 +1,177 @@
+:root {
+    --hover-color: #0002;
+    --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    --bar-bg: #fff9;
+    --blur: blur(10px);
+}
+::-webkit-scrollbar {
+    display: none;
+}
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+html {
+    /* background: #000; */
+}
+/* 窗口预览 */
+#windows_bar {
+    width: 200px;
+    /* background: var(--bar-bg); */
+    position: fixed;
+    z-index: 999;
+    transform: translateX(-100%);
+    /* padding-right: 1px; */
+    backdrop-filter: var(--blur);
+    transition: var(--transition);
+    overflow: scroll;
+    max-height: 100%;
+}
+.window {
+    transition: var(--transition);
+}
+.window:hover {
+    background-color: var(--hover-color);
+    transition: var(--transition);
+}
+.window_name {
+}
+.window_icon {
+    height: 2rem;
+    vertical-align: middle;
+}
+.window_title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0 0 0 8px;
+}
+#window_photo {
+    width: 100%;
+}
+.window_thumbnail {
+    width: 100%;
+}
+
+/* 工具 */
+#tool_bar {
+    width: 60px;
+    background: var(--bar-bg);
+    position: fixed;
+    z-index: 99;
+    left: 10px;
+    top: 100px;
+    backdrop-filter: var(--blur);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+#tool_bar > div {
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    transition: var(--transition);
+}
+#tool_bar > div:hover {
+    background-color: var(--hover-color);
+    transition: var(--transition);
+}
+#tool_close {
+    background-image: url("../assets/tool_close.svg");
+}
+#tool_ocr {
+    background-image: url("../assets/tool_ocr.svg");
+}
+#tool_QR {
+    background-image: url("../assets/tool_QR.svg");
+}
+#tool_draw {
+    background-image: url("../assets/tool_draw.svg");
+}
+#tool_ding {
+    background-image: url("../assets/tool_ding.svg");
+}
+#tool_copy {
+    background-image: url("../assets/tool_copy.svg");
+}
+#tool_save {
+    background-image: url("../assets/tool_save.svg");
+}
+
+/* 画 */
+#draw_bar {
+    width: 60px;
+    background: #fff9;
+    position: fixed;
+    z-index: 99;
+    right: 80px;
+    top: 100px;
+    backdrop-filter: var(--blur);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+#draw_bar > div {
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    transition: var(--transition);
+}
+#draw_bar > div:hover {
+    background-color: var(--hover-color);
+    transition: var(--transition);
+}
+canvas {
+    position: absolute;
+    cursor: crosshair;
+}
+#clip_photo {
+    z-index: 10;
+}
+
+#mouse_bar {
+    position: fixed;
+    z-index: 99;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: #0003 0 0 8px;
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
+}
+#point_color {
+    width: 110px;
+    height: 110px;
+}
+#point_color_t {
+    width: 10px;
+    height: 10px;
+    float: left;
+}
+#point_color_t_c {
+    width: 10px;
+    height: 10px;
+    float: left;
+    box-shadow: #00f 0 0 3px inset;
+}
+#point_color_t_b {
+    width: 10px;
+    height: 10px;
+    float: left;
+    box-shadow: #0005 0 0 3px inset;
+}
+
+#waiting {
+    position: fixed;
+    display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+}
