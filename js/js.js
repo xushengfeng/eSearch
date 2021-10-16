@@ -1,20 +1,22 @@
-// const { ipcRenderer, shell } = require("electron");
+const { ipcRenderer, shell } = require("electron");
 
-// t = "";
-// type = "";
-// ipcRenderer.on("text", (event, list) => {
-//     t = list[0];
-//     type = list[1];
-//     if (type == "ocr") {
-//         show_ocr_r(t);
-//     }
-//     if (type == "QR") {
-//         show_t(t);
-//     }
-//     if (type == "text") {
-//         show_t(t);
-//     }
-// });
+t = "";
+type = "";
+ipcRenderer.on("text", (event, list) => {
+    t = list[0];
+    type = list[1];
+    if (type == "ocr") {
+        show_ocr_r(t);
+    }
+    if (type == "QR") {
+        show_t(t);
+    }
+    if (type == "text") {
+        show_t(t);
+    }
+});
+
+自动搜索 = true;
 
 function show_ocr_r(t) {
     var t = JSON.parse(t);
@@ -24,10 +26,25 @@ function show_ocr_r(t) {
         r += text[i]["words"] + "</br>";
     }
     document.getElementById("text").innerHTML = replace_link(r);
+    if (自动搜索 && text.length == 1) {
+        if (t["language"] == "cn") {
+            open_link("search");
+        } else {
+            open_link("translate");
+        }
+    }
 }
 
 function show_t(t) {
     document.getElementById("text").innerHTML = replace_link(t);
+    if (自动搜索 && t.match(/\n/) == null) {
+        if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
+            // 中文字符过半
+            open_link("search");
+        } else {
+            open_link("translate");
+        }
+    }
 }
 
 function replace_link(t) {
@@ -36,19 +53,19 @@ function replace_link(t) {
     return t.replace(regex, "<url>$1</url>");
 }
 
-editting=true
+editting = true;
 document.onkeydown = (e) => {
     if (e.key == "Control") {
-        document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerText);
+        document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
         document.querySelector("#text").contentEditable = false;
-        editting=false
+        editting = false;
         url_ele();
     }
 };
 document.onkeyup = (e) => {
     if (e.key == "Control") {
         document.querySelector("#text").contentEditable = true;
-        editting=true
+        editting = true;
     }
 };
 
@@ -70,12 +87,14 @@ function url_ele() {
     }
 }
 
+搜索引擎_默认 = "百度";
 搜索引擎_list = {
     谷歌: "https://www.google.com/search?q=%s",
     百度: "https://www.baidu.com/s?wd=%s",
     必应: "https://cn.bing.com/search?q=%s",
 };
 
+翻译引擎_默认 = "google";
 翻译引擎_list = {
     google: "https://translate.google.cn/?op=translate&text=%s",
     deepl: "https://www.deepl.com/translator#en/zh/%s",
@@ -86,12 +105,20 @@ function url_ele() {
 
 search_c = "";
 for (i in 搜索引擎_list) {
-    search_c += `<option value="${搜索引擎_list[i]}">${i}</option>`;
+    if (i == 搜索引擎_默认) {
+        search_c += `<option selected value="${搜索引擎_list[i]}">${i}</option>`;
+    } else {
+        search_c += `<option value="${搜索引擎_list[i]}">${i}</option>`;
+    }
 }
 document.querySelector("#search_s").innerHTML = search_c;
 translate_c = "";
 for (i in 翻译引擎_list) {
-    translate_c += `<option value="${翻译引擎_list[i]}">${i}</option>`;
+    if (i == 翻译引擎_默认) {
+        translate_c += `<option selected value="${翻译引擎_list[i]}">${i}</option>`;
+    } else {
+        translate_c += `<option value="${翻译引擎_list[i]}">${i}</option>`;
+    }
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
 
