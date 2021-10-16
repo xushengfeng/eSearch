@@ -1,20 +1,20 @@
-const { ipcRenderer, shell } = require("electron");
+// const { ipcRenderer, shell } = require("electron");
 
-t = "";
-type = "";
-ipcRenderer.on("text", (event, list) => {
-    t = list[0];
-    type = list[1];
-    if (type == "ocr") {
-        show_ocr_r(t);
-    }
-    if (type == "QR") {
-        show_t(t);
-    }
-    if (type == "text") {
-        show_t(t);
-    }
-});
+// t = "";
+// type = "";
+// ipcRenderer.on("text", (event, list) => {
+//     t = list[0];
+//     type = list[1];
+//     if (type == "ocr") {
+//         show_ocr_r(t);
+//     }
+//     if (type == "QR") {
+//         show_t(t);
+//     }
+//     if (type == "text") {
+//         show_t(t);
+//     }
+// });
 
 function show_ocr_r(t) {
     var t = JSON.parse(t);
@@ -33,13 +33,14 @@ function show_t(t) {
 function replace_link(t) {
     regex =
         /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
-    return t.replace(regex, '<a href="https://$1">$1</a>');
+    return t.replace(regex, "<url>$1</url>");
 }
 
 document.onkeydown = (e) => {
     if (e.key == "Control") {
         document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerText);
         document.querySelector("#text").contentEditable = false;
+        url_ele();
     }
 };
 document.onkeyup = (e) => {
@@ -47,6 +48,22 @@ document.onkeyup = (e) => {
         document.querySelector("#text").contentEditable = true;
     }
 };
+
+function url_ele() {
+    var urls = document.querySelectorAll("url");
+    for (i in urls) {
+        ((e) => {
+            e.onclick = () => {
+                var url = e.innerText;
+                if (浏览器打开) {
+                    shell.openExternal(url);
+                } else {
+                    window.open(url, "_blank");
+                }
+            };
+        })(urls[i]);
+    }
+}
 
 搜索引擎_list = {
     谷歌: "https://www.google.com/search?q=%s",

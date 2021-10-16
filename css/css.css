@@ -21,6 +21,14 @@ html {
     /* background: #000; */
 }
 
+url{
+    text-decoration: underline;
+}
+
+url:hover{
+    color: #00f;
+}
+
 #b_bar {
     display: flex;
     justify-content: flex-end;
