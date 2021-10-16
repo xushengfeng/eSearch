@@ -36,16 +36,19 @@ function replace_link(t) {
     return t.replace(regex, "<url>$1</url>");
 }
 
+editting=true
 document.onkeydown = (e) => {
     if (e.key == "Control") {
         document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerText);
         document.querySelector("#text").contentEditable = false;
+        editting=false
         url_ele();
     }
 };
 document.onkeyup = (e) => {
     if (e.key == "Control") {
         document.querySelector("#text").contentEditable = true;
+        editting=true
     }
 };
 
@@ -54,11 +57,13 @@ function url_ele() {
     for (i in urls) {
         ((e) => {
             e.onclick = () => {
-                var url = e.innerText;
-                if (浏览器打开) {
-                    shell.openExternal(url);
-                } else {
-                    window.open(url, "_blank");
+                if (editting == false) {
+                    var url = e.innerText;
+                    if (浏览器打开) {
+                        shell.openExternal(url);
+                    } else {
+                        window.open(url, "_blank");
+                    }
                 }
             };
         })(urls[i]);
@@ -90,7 +95,7 @@ for (i in 翻译引擎_list) {
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
 
-浏览器打开 = true;
+浏览器打开 = document.querySelector("#browser_i").checked;
 
 function open_link(id) {
     s = // 要么全部，要么选中
