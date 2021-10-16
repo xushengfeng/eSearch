@@ -35,7 +35,18 @@ function replace_link(t) {
         /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
     return t.replace(regex, '<a href="https://$1">$1</a>');
 }
-function is_link(l) {}
+
+document.onkeydown = (e) => {
+    if (e.key == "Control") {
+        document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerText);
+        document.querySelector("#text").contentEditable = false;
+    }
+};
+document.onkeyup = (e) => {
+    if (e.key == "Control") {
+        document.querySelector("#text").contentEditable = true;
+    }
+};
 
 搜索引擎_list = {
     谷歌: "https://www.google.com/search?q=%s",
