@@ -22,6 +22,8 @@ draw_canvas.style.width = window.screen.width + "px";
 main_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = window.screen.height * window.devicePixelRatio;
 
+final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+
 function get_desktop_capturer(n) {
     document.querySelector("html").style.display = "none";
     desktopCapturer.getSources({ types: ["window", "screen"], fetchWindowIcons: true }).then(async (sources) => {
@@ -98,8 +100,6 @@ document.onkeydown = (e) => {
         tool_close_f();
     }
 };
-
-
 
 // 工具栏按钮
 document.getElementById("tool_close").addEventListener("click", tool_close_f);
@@ -182,6 +182,7 @@ function tool_copy_f() {
 // 保存
 function tool_save_f() {
     ipcRenderer.send("save");
+    tool_close_f();
     ipcRenderer.on("save_path", (event, message) => {
         console.log(message);
         if (message != "") {
@@ -191,7 +192,6 @@ function tool_save_f() {
             console.log(f);
             dataBuffer = new Buffer(f, "base64");
             fs.writeFile(message, dataBuffer, () => {});
-            tool_close_f();
         }
     });
 }

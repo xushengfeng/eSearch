@@ -101,6 +101,7 @@ app.whenReady().then(() => {
         autoHideMenuBar: true,
         movable: false,
         resizable: false,
+        alwaysOnTop: true,
         enableLargerThanScreen: true, // mac
         hasShadow: false,
         webPreferences: {
