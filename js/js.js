@@ -19,9 +19,9 @@ ipcRenderer.on("text", (event, list) => {
 function show_ocr_r(t) {
     var t = JSON.parse(t);
     var r = "";
-    var text = t["txts"];
+    var text = t["words_result"];
     for (i in text) {
-        r += text[i] + "</br>";
+        r += text[i]["words"] + "</br>";
     }
     document.getElementById("text").innerHTML = replace_link(r);
 }

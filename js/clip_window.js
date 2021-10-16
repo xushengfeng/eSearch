@@ -113,6 +113,7 @@ document.getElementById("tool_save").addEventListener("click", tool_save_f);
 // 关闭
 function tool_close_f() {
     ipcRenderer.send("window-close");
+    document.getElementById("waiting").style.display = "none";
 }
 // OCR
 function tool_ocr_f() {
