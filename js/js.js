@@ -146,6 +146,6 @@ document.querySelector("#translate_b").onclick = () => {
 document.querySelector("#search_s").oninput = () => {
     open_link("search");
 };
-document.querySelector("#translate_b").oninput = () => {
+document.querySelector("#translate_s").oninput = () => {
     open_link("translate");
 };

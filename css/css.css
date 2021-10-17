@@ -3,10 +3,12 @@
     --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     --bar-bg: #fff9;
     --blur: blur(10px);
-    --height: 30px;
+    --shadow: #0002 0 0 8px;
+    --height: 40px;
     --bg: #fff;
     --color: #000;
     --border: 1px #000 solid;
+    --font-size: 20px;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -19,43 +21,70 @@ body {
     font-family: sans-serif;
 }
 
-url{
-    text-decoration: underline;
+#text {
+    padding: 16px;
+    margin: 16px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
+}
+#text:focus {
+    outline: none;
 }
 
-url:hover{
-    color: #00f;
+url {
+    text-decoration: underline;
 }
 
 #b_bar {
     display: flex;
     justify-content: flex-end;
+    margin: 16px 0 0 0;
 }
 
 #b_bar > div {
     display: flex;
     align-items: center;
     margin: 0 16px 0 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
 }
 
-select {
-    border-radius: 0;
-    background-color: var(--bg);
-    height: var(--height);
-    border: var(--border);
-    outline: none;
-    margin: 0px;
-    color: var(--color);
-}
 button {
     border-radius: 0;
     background-color: var(--bg);
     height: var(--height);
-    border: var(--border);
+    border: none;
     outline: none;
     margin: 0px;
     padding: 0;
     color: var(--color);
+    font-size: var(--font-size);
+    padding: 0 16px 0 16px;
+}
+select {
+    border-radius: 0;
+    background-color: var(--bg);
+    height: var(--height);
+    border: none;
+    outline: none;
+    margin: 0px;
+    color: var(--color);
+    font-size: var(--font-size);
+    padding: 0 16px 0 16px;
+    border-left: 2px solid #eee;
+}
+option {
+    font-size: var(--font-size);
+}
+
+#browser {
+    font-size: var(--font-size);
+    padding: 0 16px 0 16px;
 }
 
 @media (prefers-color-scheme: dark) {
