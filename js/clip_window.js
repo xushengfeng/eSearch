@@ -22,7 +22,7 @@ draw_canvas.style.width = window.screen.width + "px";
 main_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = window.screen.height * window.devicePixelRatio;
 
-final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+// final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function get_desktop_capturer(n) {
     document.querySelector("html").style.display = "none";
@@ -46,6 +46,10 @@ function get_desktop_capturer(n) {
             main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
             main_canvas.getContext("2d").drawImage(video, 0, 0);
             final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+            document.querySelector("#clip_wh").style.left =
+                final_rect[2] / 2 - document.querySelector("#clip_wh").offsetWidth / 2 + "px";
+            document.querySelector("#clip_wh").style.top = "10px";
+            document.querySelector("#clip_wh").innerHTML = `${final_rect[2]}×${final_rect[3]}`;
             video.pause();
             document.querySelector("html").style.display = "block";
         };

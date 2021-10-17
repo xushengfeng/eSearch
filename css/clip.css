@@ -3,6 +3,7 @@
     --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     --bar-bg: #fff9;
     --blur: blur(10px);
+    --shadow: #0002 0 0 8px;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -67,6 +68,7 @@ html {
     border-radius: 10px;
     overflow: hidden;
     transition: var(--transition);
+    box-shadow: var(--shadow);
 }
 #tool_bar > div {
     background-position: center;
@@ -142,7 +144,7 @@ canvas {
     z-index: 99;
     padding: 8px;
     border-radius: 8px;
-    box-shadow: #0003 0 0 8px;
+    box-shadow: var(--shadow);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
 }
@@ -166,6 +168,15 @@ canvas {
     height: 10px;
     float: left;
     box-shadow: #0005 0 0 3px inset;
+}
+#clip_wh {
+    position: absolute;
+    z-index: 99;
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 8px;
 }
 
 #waiting {
