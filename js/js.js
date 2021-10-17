@@ -23,9 +23,9 @@ function show_ocr_r(t) {
     var r = "";
     var text = t["words_result"];
     for (i in text) {
-        r += text[i]["words"] + "</br>";
+        r += text[i]["words"] + "\n";
     }
-    document.getElementById("text").innerHTML = replace_link(r);
+    document.getElementById("text").innerText = replace_link(r);
     if (自动搜索 && text.length == 1) {
         if (t["language"] == "cn") {
             open_link("search");
@@ -36,7 +36,7 @@ function show_ocr_r(t) {
 }
 
 function show_t(t) {
-    document.getElementById("text").innerHTML = replace_link(t);
+    document.getElementById("text").innerText = replace_link(t);
     if (自动搜索 && t.match(/\n/) == null) {
         if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
             // 中文字符过半
@@ -56,8 +56,9 @@ function replace_link(t) {
 editting = true;
 document.onkeydown = (e) => {
     if (e.key == "Control") {
-        document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
+        document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerText);
         document.querySelector("#text").contentEditable = false;
+        document.querySelector("url").style.cursor = "pointer";
         editting = false;
         url_ele();
     }
@@ -66,6 +67,7 @@ document.onkeyup = (e) => {
     if (e.key == "Control") {
         document.querySelector("#text").contentEditable = true;
         editting = true;
+        document.querySelector("url").style.cursor = "";
     }
 };
 
@@ -122,7 +124,12 @@ for (i in 翻译引擎_list) {
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
 
-浏览器打开 = document.querySelector("#browser_i").checked;
+浏览器打开 = true;
+document.querySelector("#browser_i").checked = 浏览器打开;
+document.querySelector("#browser").onclick = () => {
+    document.querySelector("#browser_i").checked = document.querySelector("#browser_i").checked ? false : true;
+    浏览器打开 = document.querySelector("#browser_i").checked;
+};
 
 function open_link(id) {
     s = // 要么全部，要么选中

@@ -25,7 +25,7 @@ body {
     padding: 16px;
     margin: 16px;
     border-radius: 8px;
-    box-shadow: var(--shadow);
+    border: var(--border);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
 }
@@ -35,6 +35,23 @@ body {
 
 url {
     text-decoration: underline;
+    position: relative;
+    transition: var(--transition);
+}
+url:hover::after {
+    transition: var(--transition);
+    content: "Ctrl / ⌘ + 点击打开";
+    text-decoration: none;
+    position: absolute;
+    min-width: 110px;
+    text-align: center;
+    font-size: 10px;
+    left: 0;
+    top: 24px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: var(--border);
+    padding: 4px;
 }
 
 #b_bar {
@@ -49,7 +66,7 @@ url {
     margin: 0 16px 0 16px;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: var(--shadow);
+    border: var(--border);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
 }
@@ -65,6 +82,11 @@ button {
     color: var(--color);
     font-size: var(--font-size);
     padding: 0 16px 0 16px;
+    transition: var(--transition);
+    cursor: pointer;
+}
+button:hover {
+    background: var(--hover-color);
 }
 select {
     border-radius: 0;
@@ -76,7 +98,7 @@ select {
     color: var(--color);
     font-size: var(--font-size);
     padding: 0 16px 0 16px;
-    border-left: 2px solid #eee;
+    border-left: 2px solid var(--hover-color);
 }
 option {
     font-size: var(--font-size);
@@ -85,6 +107,15 @@ option {
 #browser {
     font-size: var(--font-size);
     padding: 0 16px 0 16px;
+    transition: var(--transition);
+    cursor: default;
+    user-select: none;
+}
+#browser:hover {
+    background: var(--hover-color);
+}
+#browser > input {
+    pointer-events: none;
 }
 
 @media (prefers-color-scheme: dark) {
