@@ -25,10 +25,29 @@ clip_canvas.onmousedown = (e) => {
     selecting = true;
     o_position = [e.screenX, e.screenY]; // 用于跟随
     canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
+    draw_clip_rect(e)
 };
 
 clip_canvas.onmousemove = (e) => {
-    // xywh=final_rect
+    // 画框
+    draw_clip_rect(e)
+    // 鼠标位置文字
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+
+    // 鼠标跟随栏
+    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+};
+
+clip_canvas.onmouseup = (e) => {
+    clip_ctx.closePath();
+    selecting = false;
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+    final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+    // 抬起鼠标后工具栏跟随
+    follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
+};
+
+function draw_clip_rect(e){
     if (selecting) {
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
@@ -54,21 +73,7 @@ clip_canvas.onmousemove = (e) => {
     }
     // 大小文字
     document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
-    // 鼠标位置文字
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-
-    // 鼠标跟随栏
-    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
-};
-
-clip_canvas.onmouseup = (e) => {
-    clip_ctx.closePath();
-    selecting = false;
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-    final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-    // 抬起鼠标后工具栏跟随
-    follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
-};
+}
 
 // 鼠标跟随栏
 function mouse_bar(final_rect, x, y) {
