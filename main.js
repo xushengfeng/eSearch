@@ -35,9 +35,11 @@ app.whenReady().then(() => {
         {
             label: "截图搜索",
             click: () => {
-                clip_window.webContents.send("reflash");
-                clip_window.setSize(1920, 1080);
-                clip_window.show();
+                setTimeout(() => {
+                    clip_window.webContents.send("reflash");
+                    clip_window.setSize(1920, 1080);
+                    clip_window.show();
+                }, 500);
             },
         },
         {
@@ -72,8 +74,6 @@ app.whenReady().then(() => {
             },
         },
     ]);
-    tray.setToolTip("This is my application.");
-    tray.setTitle("hi");
     tray.setContextMenu(contextMenu);
 
     function auto_open() {
@@ -83,7 +83,7 @@ app.whenReady().then(() => {
         if (o_clipboard != t) {
             open_clip_board();
         } else {
-            clip_window.webContents.send("reflash")
+            clip_window.webContents.send("reflash");
             clip_window.setSize(1920, 1080);
             clip_window.show();
         }
