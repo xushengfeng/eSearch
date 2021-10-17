@@ -216,8 +216,8 @@ function rgb_2_hslsv(rgba) {
                 h = 60 * ((r - g) / Δ + 4);
                 break;
         }
-        s = Δ / (1 - Math.abs(2 * l - 1));
-        s2 = Δ / max;
+        s = l == 0 ? 0 : Δ / (1 - Math.abs(2 * l - 1)); // 防止得到无限大
+        s2 = max == 0 ? 0 : Δ / max;
     }
     h = h.toFixed(0);
     s = (s * 100).toFixed(0);
@@ -233,10 +233,8 @@ function clip_color_text(r, g, b, a) {
     var r = r / 255;
     var g = g / 255;
     var b = b / 255;
-    var max = Math.max(r, g, b);
-    var min = Math.min(r, g, b);
-    l = (max + min) / 2;
-    if (l >= 0.5) {
+    y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    if (y >= 0.5) {
         document.querySelector("#clip_color").style.color = "#000";
     } else {
         document.querySelector("#clip_color").style.color = "#fff";
