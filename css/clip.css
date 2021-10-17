@@ -2,7 +2,7 @@
     --hover-color: #0002;
     --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     --bar-bg: #fff9;
-    --blur: blur(10px);
+    --blur: blur(8px);
     --shadow: #0002 0 0 8px;
 }
 ::-webkit-scrollbar {
@@ -35,8 +35,6 @@ body {
 .window:hover {
     background-color: var(--hover-color);
     transition: var(--transition);
-}
-.window_name {
 }
 .window_icon {
     height: 2rem;
@@ -139,6 +137,9 @@ canvas {
 }
 
 #mouse_bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: fixed;
     z-index: 99;
     padding: 8px;
@@ -160,16 +161,16 @@ canvas {
     width: 10px;
     height: 10px;
     float: left;
-    box-shadow: #00f 0 0 3px inset;
+    box-shadow: #00f 0 0 0 0.5px inset;
 }
 #point_color_t_b {
     width: 10px;
     height: 10px;
     float: left;
-    box-shadow: #0005 0 0 3px inset;
+    box-shadow: #0005 0 0 0 0.5px inset;
 }
 #clip_color {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Courier New", Courier, monospace;
 }
 #clip_wh {
     position: absolute;

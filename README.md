@@ -1,8 +1,8 @@
-#  Information-portal-js
+#  eSearch
 
 ## 简介
 
-Information-portal-js是[Information-portal](https://github.com/xushengfeng/Information-portal.git)的:electron:重写版(顺便加了些功能)
+eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal.git)的:electron:重写版(顺便加了些功能)
 
 主要是想在Linux上(win,mac理论上能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的屏幕搜索功能
 
@@ -11,8 +11,8 @@ Information-portal-js是[Information-portal](https://github.com/xushengfeng/Info
 ## 运行
 
 ```shell
-git clone https://github.com/xushengfeng/Information-portal-js.git
-cd Information-portal-js
+git clone https://github.com/xushengfeng/eSearch.git
+cd eSearch
 npm install
 npm start
 ```

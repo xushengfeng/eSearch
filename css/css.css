@@ -22,7 +22,7 @@ body {
 }
 
 #text {
-    padding: 16px;
+    padding: 8px;
     margin: 16px;
     border-radius: 8px;
     border: var(--border);

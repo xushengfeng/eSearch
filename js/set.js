@@ -12,7 +12,7 @@ function 选择器储存(id, 默认) {
     };
 }
 
-if (document.title == "Information-portal-设置") {
+if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
     选择器储存("光标", "以(1,1)为起点");
     选择器储存("取色器默认格式", "HEX");
