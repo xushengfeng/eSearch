@@ -25,12 +25,12 @@ clip_canvas.onmousedown = (e) => {
     selecting = true;
     o_position = [e.screenX, e.screenY]; // 用于跟随
     canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
-    draw_clip_rect(e)
+    draw_clip_rect(e);
 };
 
 clip_canvas.onmousemove = (e) => {
     // 画框
-    draw_clip_rect(e)
+    draw_clip_rect(e);
     // 鼠标位置文字
     now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
 
@@ -47,7 +47,7 @@ clip_canvas.onmouseup = (e) => {
     follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
 };
 
-function draw_clip_rect(e){
+function draw_clip_rect(e) {
     if (selecting) {
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
@@ -70,9 +70,35 @@ function draw_clip_rect(e){
             clip_canvas.width,
             clip_canvas.height - (final_rect[1] + final_rect[3])
         );
+        wh_bar(final_rect);
     }
+}
+
+// 大小栏
+function wh_bar(final_rect) {
+    dw = document.querySelector("#clip_wh").offsetWidth;
+    dh = document.querySelector("#clip_wh").offsetHeight;
+    var x;
+    if (dw >= final_rect[2]) {
+        if (dw + final_rect[0] <= window.screen.width) {
+            x = final_rect[0]; // 对齐框的左边
+        } else {
+            x = final_rect[0] + final_rect[2] - dw; // 对齐框的右边
+        }
+    } else {
+        x = final_rect[0] + final_rect[2] / 2 - dw / 2;
+    }
+    var y;
+    if (final_rect[1] - (dh + 10) >= 0) {
+        y = final_rect[1] - (dh + 10); // 不超出时在外
+    } else {
+        y = final_rect[1] + 10;
+    }
+    // 位置
+    document.querySelector("#clip_wh").style.left = `${x}px`;
+    document.querySelector("#clip_wh").style.top = `${y}px`;
     // 大小文字
-    document.getElementById("clip_wh").innerHTML = `${final_rect[2]}x${final_rect[3]}`;
+    document.querySelector("#clip_wh").innerHTML = `${final_rect[2]}×${final_rect[3]}`;
 }
 
 // 鼠标跟随栏
@@ -107,9 +133,9 @@ function mouse_bar(final_rect, x, y) {
     document.querySelector("#point_color").innerHTML = inner_html;
 
     if (光标 == "以(1,1)为起点") {
-        document.querySelector("#clip_xy").innerHTML = `${x + 1},${y + 1}`;
+        document.querySelector("#clip_xy").innerHTML = `(${x + 1},${y + 1})`;
     } else {
-        document.querySelector("#clip_xy").innerHTML = `${x},${y}`;
+        document.querySelector("#clip_xy").innerHTML = `(${x},${y})`;
     }
 }
 
