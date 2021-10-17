@@ -49,7 +49,7 @@ function get_desktop_capturer(n) {
             document.querySelector("#clip_wh").style.left =
                 final_rect[2] / 2 - document.querySelector("#clip_wh").offsetWidth / 2 + "px";
             document.querySelector("#clip_wh").style.top = "10px";
-            document.querySelector("#clip_wh").innerHTML = `${final_rect[2]}×${final_rect[3]}`;
+            document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
             video.pause();
             document.querySelector("html").style.display = "block";
         };

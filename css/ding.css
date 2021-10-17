@@ -4,6 +4,7 @@
 html,body{
     margin: 0;
     -webkit-app-region: drag;
+    font-family: sans-serif;
 }
 #ding_photo{
     width: 100%;

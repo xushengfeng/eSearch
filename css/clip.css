@@ -13,10 +13,9 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
+    font-family: sans-serif;
 }
-html {
-    /* background: #000; */
-}
+
 /* 窗口预览 */
 #windows_bar {
     width: 200px;
@@ -168,6 +167,9 @@ canvas {
     height: 10px;
     float: left;
     box-shadow: #0005 0 0 3px inset;
+}
+#clip_color {
+    font-family: 'Courier New', Courier, monospace;
 }
 #clip_wh {
     position: absolute;

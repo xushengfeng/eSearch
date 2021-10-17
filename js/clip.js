@@ -98,7 +98,7 @@ function wh_bar(final_rect) {
     document.querySelector("#clip_wh").style.left = `${x}px`;
     document.querySelector("#clip_wh").style.top = `${y}px`;
     // 大小文字
-    document.querySelector("#clip_wh").innerHTML = `${final_rect[2]}×${final_rect[3]}`;
+    document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
 }
 
 // 鼠标跟随栏
@@ -133,9 +133,9 @@ function mouse_bar(final_rect, x, y) {
     document.querySelector("#point_color").innerHTML = inner_html;
 
     if (光标 == "以(1,1)为起点") {
-        document.querySelector("#clip_xy").innerHTML = `(${x + 1},${y + 1})`;
+        document.querySelector("#clip_xy").innerHTML = `(${x + 1}, ${y + 1})`;
     } else {
-        document.querySelector("#clip_xy").innerHTML = `(${x},${y})`;
+        document.querySelector("#clip_xy").innerHTML = `(${x}, ${y})`;
     }
 }
 
@@ -143,39 +143,40 @@ function mouse_bar(final_rect, x, y) {
 function color_conversion(rgba, type) {
     switch (type) {
         case "HEX":
-            return `#${rgba[0].toString(16).padStart(2, 0)}${rgba[1].toString(16).padStart(2, 0)}${rgba[2]
+            return `#${rgba[0].toString(16).padStart(2, 0).toUpperCase()}${rgba[1]
                 .toString(16)
-                .padStart(2, 0)}`;
+                .padStart(2, 0)
+                .toUpperCase()}${rgba[2].toString(16).padStart(2, 0).toUpperCase()}`;
 
         case "RGB":
-            return `rgb(${rgba[0]},${rgba[1]},${rgba[2]})`;
+            return `rgb(${rgba[0]}, ${rgba[1]}, ${rgba[2]})`;
 
         case "RGBA":
-            return `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]})`;
+            return `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
 
         case "HSL":
             h = rgb_2_hslsv(rgba)[0];
             s = rgb_2_hslsv(rgba)[1];
             l = rgb_2_hslsv(rgba)[2];
-            return `hsl(${h},${s}%,${l}%)`;
+            return `hsl(${h}, ${s}%, ${l}%)`;
 
         case "HSLA":
             h = rgb_2_hslsv(rgba)[0];
             s = rgb_2_hslsv(rgba)[1];
             l = rgb_2_hslsv(rgba)[2];
-            return `hsla(${h},${s}%,${l}%,${rgba[3]})`;
+            return `hsla(${h}, ${s}%, ${l}%, ${rgba[3]})`;
 
         case "HSV":
             h = rgb_2_hslsv(rgba)[0];
             s = rgb_2_hslsv(rgba)[3];
             v = rgb_2_hslsv(rgba)[4];
-            return `hsv(${h},${s}%,${v}%)`;
+            return `hsv(${h}, ${s}%, ${v}%)`;
 
         case "HSVA":
             h = rgb_2_hslsv(rgba)[0];
             s = rgb_2_hslsv(rgba)[3];
             v = rgb_2_hslsv(rgba)[4];
-            return `hsva(${h},${s}%,${v}%,${rgba[3]})`;
+            return `hsva(${h}, ${s}%, ${v}%, ${rgba[3]})`;
 
         case "CMYK":
             var r = rgba[0] / 255;
@@ -185,7 +186,7 @@ function color_conversion(rgba, type) {
             var c = +((1 - r - k) / (1 - k)).toFixed(2) || 0;
             var m = +((1 - g - k) / (1 - k)).toFixed(2) || 0;
             var y = +((1 - b - k) / (1 - k)).toFixed(2) || 0;
-            return `(${c},${m},${y},${k.toFixed(2)})`;
+            return `(${c}, ${m}, ${y}, ${k.toFixed(2)})`;
     }
 }
 
