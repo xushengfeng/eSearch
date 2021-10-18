@@ -243,17 +243,17 @@ function clip_color_text(r, g, b, a) {
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
-    var x = e.screenX + 10;
-    var y = e.screenY + 10;
+    var x = e.screenX + 35;
+    var y = e.screenY + 35;
     var w = document.querySelector("#mouse_bar").offsetWidth;
     var h = document.querySelector("#mouse_bar").offsetHeight;
     var sw = window.screen.width;
     var sh = window.screen.height;
     if (x + w > sw) {
-        x = x - w - 20;
+        x = x - w - 70;
     }
     if (y + h > sh) {
-        y = y - h - 20;
+        y = y - h - 70;
     }
 
     document.querySelector("#mouse_bar").style.left = `${x}px`;
