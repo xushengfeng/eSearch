@@ -58,6 +58,15 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
+            label: "主页面",
+            click: () => {
+                create_main_window('', "text");
+            },
+        },
+        {
+            type: "separator",
+        },
+        {
             label: "设置",
             click: () => {
                 Store.initRenderer();
