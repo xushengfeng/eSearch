@@ -10,7 +10,7 @@
     --border: 1px #000 solid;
     --font-size: 20px;
 }
-::-webkit-scrollbar {
+body::-webkit-scrollbar {
     display: none;
 }
 html,
@@ -19,6 +19,8 @@ body {
     width: 100%;
     height: 100%;
     font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
 #text {
@@ -28,9 +30,25 @@ body {
     border: var(--border);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
+    overflow: overlay;
+    flex-grow: 1;
 }
 #text:focus {
     outline: none;
+}
+#text::-webkit-scrollbar {
+    width: 8px;
+    height: 1px;
+}
+#text::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #dddd;
+}
+#text::-webkit-scrollbar-track {
+    background: #0000;
+}
+#text::-webkit-scrollbar-button {
+    height: 8px;
 }
 
 url {
@@ -63,7 +81,7 @@ url:hover::after {
 #b_bar > div {
     display: flex;
     align-items: center;
-    margin: 0 16px 0 16px;
+    margin: 0 16px 16px 16px;
     border-radius: 8px;
     overflow: hidden;
     border: var(--border);
