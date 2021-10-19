@@ -27,6 +27,13 @@ body {
 #setting_right{
     width: 70%;
 }
+textarea{
+    width: 80%;
+    height: 100px;
+}
+textarea:focus {
+    outline: none;
+}
 set-select{
     width: 100%;
 }

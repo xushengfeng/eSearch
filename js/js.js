@@ -1,4 +1,5 @@
 const { ipcRenderer, shell } = require("electron");
+const Store = require("electron-store");
 
 t = "";
 type = "";
@@ -16,6 +17,7 @@ ipcRenderer.on("text", (event, list) => {
     }
 });
 
+store = new Store();
 自动搜索 = true;
 
 function show_ocr_r(t) {
@@ -89,37 +91,25 @@ function url_ele() {
     }
 }
 
-搜索引擎_默认 = "百度";
-搜索引擎_list = {
-    谷歌: "https://www.google.com/search?q=%s",
-    百度: "https://www.baidu.com/s?wd=%s",
-    必应: "https://cn.bing.com/search?q=%s",
-};
+搜索引擎_list = store.get('搜索引擎');
 
-翻译引擎_默认 = "google";
-翻译引擎_list = {
-    google: "https://translate.google.cn/?op=translate&text=%s",
-    deepl: "https://www.deepl.com/translator#en/zh/%s",
-    小米: "https://translator.ai.xiaomi.com/?text=%s&ua=transfer",
-    金山词霸: "http://www.iciba.com/word?w=%s",
-    百度: "https://fanyi.baidu.com/#en/zh/%s",
-};
+翻译引擎_list = store.get('翻译引擎');
 
 search_c = "";
 for (i in 搜索引擎_list) {
-    if (i == 搜索引擎_默认) {
-        search_c += `<option selected value="${搜索引擎_list[i]}">${i}</option>`;
+    if (搜索引擎_list[i][0].match(/\*\W*/) != null) {
+        search_c += `<option selected value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0].replace("*", "")}</option>`;
     } else {
-        search_c += `<option value="${搜索引擎_list[i]}">${i}</option>`;
+        search_c += `<option value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0]}</option>`;
     }
 }
 document.querySelector("#search_s").innerHTML = search_c;
 translate_c = "";
 for (i in 翻译引擎_list) {
-    if (i == 翻译引擎_默认) {
-        translate_c += `<option selected value="${翻译引擎_list[i]}">${i}</option>`;
+    if (翻译引擎_list[i][0].match(/\*\W*/) != null) {
+        translate_c += `<option selected value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0].replace("*", "")}</option>`;
     } else {
-        translate_c += `<option value="${翻译引擎_list[i]}">${i}</option>`;
+        translate_c += `<option value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
     }
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
