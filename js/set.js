@@ -15,6 +15,19 @@ if (document.title == "eSearch-设置") {
     选择器储存("取色器默认格式", "HEX");
 }
 
+document.querySelector("#遮罩颜色 > span").style.background = store.get("遮罩颜色") || "#0005";
+document.querySelector("#选区颜色 > span").style.background = store.get("选区颜色") || "#0000";
+document.querySelector("#遮罩颜色 > input").value = store.get("遮罩颜色") || "#0005";
+document.querySelector("#选区颜色 > input").value = store.get("选区颜色") || "#0000";
+document.querySelector("#遮罩颜色 > input").oninput = () => {
+    document.querySelector("#遮罩颜色 > span").style.background = document.querySelector("#遮罩颜色 > input").value;
+    store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
+};
+document.querySelector("#选区颜色 > input").oninput = () => {
+    document.querySelector("#选区颜色 > span").style.background = document.querySelector("#选区颜色 > input").value;
+    store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
+};
+
 document.querySelector("#自动搜索").checked = store.get("自动搜索") || false;
 document.querySelector("#自动搜索").onclick = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);

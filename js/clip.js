@@ -55,7 +55,7 @@ function draw_clip_rect(e) {
 
         // 奇迹!!!
         // 框选为黑色遮罩
-        clip_ctx.fillStyle = "#0005";
+        clip_ctx.fillStyle = 遮罩颜色;
         clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
         clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
         clip_ctx.fillRect(
@@ -70,6 +70,9 @@ function draw_clip_rect(e) {
             clip_canvas.width,
             clip_canvas.height - (final_rect[1] + final_rect[3])
         );
+
+        clip_ctx.fillStyle = 选区颜色;
+        clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
         wh_bar(final_rect);
     }
 }

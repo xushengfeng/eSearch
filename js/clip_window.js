@@ -7,10 +7,10 @@ const Store = require("electron-store");
 // 获取设置
 store = new Store();
 工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
-弹出时间 = store.get("弹出时间") || "500";
-保留时间 = store.get("保留时间") || "500";
 光标 = store.get("光标") || "以(1,1)为起点";
 取色器默认格式 = store.get("取色器默认格式") || "RGBA";
+遮罩颜色 = store.get("遮罩颜色") || "#0005";
+选区颜色 = store.get("选区颜色") || "#0000";
 
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width + "px";
@@ -63,10 +63,10 @@ ipcRenderer.on("reflash", () => {
     get_desktop_capturer(0);
     // 刷新设置
     工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
-    弹出时间 = store.get("弹出时间") || "500";
-    保留时间 = store.get("保留时间") || "500";
     光标 = store.get("光标") || "以(1,1)为起点";
     取色器默认格式 = store.get("取色器默认格式") || "HEX";
+    遮罩颜色 = store.get("遮罩颜色") || "#0005";
+    选区颜色 = store.get("选区颜色") || "#0000";
 });
 
 function draw_windows_bar(o) {

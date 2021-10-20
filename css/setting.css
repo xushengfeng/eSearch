@@ -1,6 +1,6 @@
 :root {
     --hover-color: #0002;
-    --transition:0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 ::-webkit-scrollbar {
     display: none;
@@ -13,27 +13,41 @@ body {
     display: flex;
     font-family: sans-serif;
 }
-#setting_main{
-    width: 100%
+#setting_main {
+    width: 100%;
 }
-#setting_item{
+#setting_item {
     display: flex;
     margin: 16px 0 16px 0;
 }
-#setting_left{
+#setting_left {
     width: 30%;
     font-size: 20px;
 }
-#setting_right{
+#setting_right {
     width: 70%;
 }
-textarea{
+textarea {
     width: 80%;
     height: 100px;
 }
 textarea:focus {
     outline: none;
 }
-set-select{
+
+#遮罩颜色 > span,
+#选区颜色 > span {
+    display: inline-block;
+    border: 1px #000 solid;
+    border-radius: 10px;
+    width: 20px;
+    height: 20px;
+}
+#遮罩颜色,
+#选区颜色 {
+    display: flex;
+}
+
+set-select {
     width: 100%;
 }
