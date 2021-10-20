@@ -18,7 +18,8 @@ ipcRenderer.on("text", (event, list) => {
 });
 
 store = new Store();
-自动搜索 = true;
+
+自动搜索 = store.get("自动搜索");
 
 function show_ocr_r(t) {
     var t = JSON.parse(t);
@@ -41,7 +42,12 @@ function show_ocr_r(t) {
 function show_t(t) {
     document.getElementById("text").innerText = t;
     document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
-    if (自动搜索 && t.match(/\n/) == null && document.getElementById("text").innerHTML.match(/<url>/) == null) {
+    if (
+        自动搜索 &&
+        t.match(/\n/) == null &&
+        document.getElementById("text").innerHTML.match(/<url>/) == null &&
+        t != ""
+    ) {
         if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
             // 中文字符过半
             open_link("search");
@@ -118,7 +124,7 @@ for (i in 翻译引擎_list) {
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
 
-浏览器打开 = true;
+浏览器打开 = store.get("浏览器中打开");
 document.querySelector("#browser_i").checked = 浏览器打开;
 document.querySelector("#browser").onclick = () => {
     document.querySelector("#browser_i").checked = document.querySelector("#browser_i").checked ? false : true;
