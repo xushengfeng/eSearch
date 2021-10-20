@@ -64,9 +64,6 @@ app.whenReady().then(() => {
             },
         },
         {
-            type: "separator",
-        },
-        {
             label: "设置",
             click: () => {
                 Store.initRenderer();

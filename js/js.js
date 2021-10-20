@@ -27,8 +27,9 @@ function show_ocr_r(t) {
     for (i in text) {
         r += text[i]["words"] + "\n";
     }
-    document.getElementById("text").innerText = replace_link(r);
-    if (自动搜索 && text.length == 1) {
+    document.getElementById("text").innerText = r;
+    document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
+    if (自动搜索 && text.length == 1 && document.getElementById("text").innerHTML.match(/<url>/) == null) {
         if (t["language"] == "cn") {
             open_link("search");
         } else {
@@ -38,8 +39,9 @@ function show_ocr_r(t) {
 }
 
 function show_t(t) {
-    document.getElementById("text").innerText = replace_link(t);
-    if (自动搜索 && t.match(/\n/) == null) {
+    document.getElementById("text").innerText = t;
+    document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
+    if (自动搜索 && t.match(/\n/) == null && document.getElementById("text").innerHTML.match(/<url>/) == null) {
         if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
             // 中文字符过半
             open_link("search");
@@ -51,14 +53,13 @@ function show_t(t) {
 
 function replace_link(t) {
     regex =
-        /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
+        /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)[^<]/g;
     return t.replace(regex, "<url>$1</url>");
 }
 
 editting = true;
 document.onkeydown = (e) => {
     if (e.key == "Control") {
-        document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerText);
         document.querySelector("#text").contentEditable = false;
         document.querySelector("url").style.cursor = "pointer";
         editting = false;
@@ -91,9 +92,9 @@ function url_ele() {
     }
 }
 
-搜索引擎_list = store.get('搜索引擎');
+搜索引擎_list = store.get("搜索引擎");
 
-翻译引擎_list = store.get('翻译引擎');
+翻译引擎_list = store.get("翻译引擎");
 
 search_c = "";
 for (i in 搜索引擎_list) {
@@ -107,7 +108,10 @@ document.querySelector("#search_s").innerHTML = search_c;
 translate_c = "";
 for (i in 翻译引擎_list) {
     if (翻译引擎_list[i][0].match(/\*\W*/) != null) {
-        translate_c += `<option selected value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0].replace("*", "")}</option>`;
+        translate_c += `<option selected value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0].replace(
+            "*",
+            ""
+        )}</option>`;
     } else {
         translate_c += `<option value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
     }

@@ -32,6 +32,7 @@ body {
     background: var(--bar-bg);
     overflow: overlay;
     flex-grow: 1;
+    font-size: var(--font-size);
 }
 #text:focus {
     outline: none;
@@ -70,6 +71,7 @@ url:hover::after {
     background: var(--bg);
     border: var(--border);
     padding: 4px;
+    z-index: 2;
 }
 
 #b_bar {
