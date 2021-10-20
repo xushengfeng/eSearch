@@ -161,7 +161,9 @@ canvas {
     width: 10px;
     height: 10px;
     float: left;
-    box-shadow: #00f 0 0 0 0.5px inset;
+    outline: 2px #000 solid;
+    position: relative;
+    z-index: 2;
 }
 #point_color_t_b {
     width: 10px;
