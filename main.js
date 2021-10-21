@@ -60,7 +60,7 @@ app.whenReady().then(() => {
         {
             label: "主页面",
             click: () => {
-                create_main_window('', "text");
+                create_main_window("", "text");
             },
         },
         {
@@ -93,7 +93,7 @@ app.whenReady().then(() => {
             clip_window.setSize(1920, 1080);
             clip_window.show();
         }
-        clipboard.write(o_clipboard);
+        clipboard.writeText(o_clipboard);
     }
 
     // Create the browser window.
@@ -204,16 +204,13 @@ app.on("window-all-closed", function () {
 });
 
 function open_selection() {
-    if (process.platform == "linux") {
-        t = clipboard.readText("selection");
-    } else {
-        o_clipboard = clipboard.readText();
-        robot.keyTap("c", "control");
-        // robot.keyTap("c", "command");
-        t = clipboard.readText();
-        clipboard.write(o_clipboard);
+    o_clipboard = clipboard.readText();
+    robot.keyTap("c", "control");
+    t = clipboard.readText();
+    if (o_clipboard != t) {
+        create_main_window(t, "text");
     }
-    create_main_window(t, "text");
+    clipboard.writeText(o_clipboard);
 }
 
 function open_clip_board() {
