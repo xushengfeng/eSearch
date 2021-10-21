@@ -119,6 +119,8 @@ document.getElementById("tool_save").addEventListener("click", tool_save_f);
 function tool_close_f() {
     ipcRenderer.send("window-close");
     document.getElementById("waiting").style.display = "none";
+    document.querySelectorAll("#waiting line animate")[0].endElement();
+    document.querySelectorAll("#waiting line animate")[1].endElement();
 }
 // OCR
 function tool_ocr_f() {
@@ -128,11 +130,15 @@ function tool_ocr_f() {
             .toDataURL()
             .replace(/^data:image\/\w+;base64,/, "")
     );
-    document.getElementById("waiting").style.display = "block";
-    document.getElementById("waiting").style.left = final_rect[0] + "px";
-    document.getElementById("waiting").style.top = final_rect[1] + "px";
-    document.getElementById("waiting").style.width = final_rect[2] + "px";
-    document.getElementById("waiting").style.height = final_rect[3] + "px";
+
+    document.querySelector("#waiting").style.display = "block";
+    document.querySelector("#waiting").style.left = final_rect[0] + "px";
+    document.querySelector("#waiting").style.top = final_rect[1] + "px";
+    document.querySelector("#waiting").style.width = final_rect[2] + "px";
+    document.querySelector("#waiting").style.height = final_rect[3] + "px";
+    document.querySelectorAll("#waiting line animate")[0].beginElement();
+    document.querySelectorAll("#waiting line animate")[1].beginElement();
+
     ipcRenderer.on("ocr_back", (event, arg) => {
         if ((arg = "ok")) {
             document.getElementById("waiting").style.display = "none";

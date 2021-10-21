@@ -43,9 +43,11 @@
     </div>
 
     <svg id="waiting">
-        <line x1="0" x2="100%" y1="0" y2="0" stroke="#00f">
-            <animate attributeName="y1" values="0;100%;0" dur="3s" repeatCount="indefinite"></animate>
-            <animate attributeName="y2" values="0;100%;0" dur="3s" repeatCount="indefinite"></animate>
+        <line x1="0" x2="100%" y1="0" y2="0" stroke="#00f" stroke-width="2">
+            <animate attributeName="y1" values="0;100%;0" dur="3s" repeatCount="indefinite" begin="indefinite"
+                calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"></animate>
+            <animate attributeName="y2" values="0;100%;0" dur="3s" repeatCount="indefinite" begin="indefinite"
+                calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"></animate>
         </line>
     </svg>
     <script src="js/clip_window.js"></script>
