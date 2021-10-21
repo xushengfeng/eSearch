@@ -9,6 +9,7 @@
     --color: #000;
     --border: 1px #000 solid;
     --font-size: 20px;
+    --border-radius: 8px;
 }
 body::-webkit-scrollbar {
     display: none;
@@ -26,7 +27,7 @@ body {
 #text {
     padding: 8px;
     margin: 16px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     border: var(--border);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
@@ -52,39 +53,36 @@ body {
     height: 8px;
 }
 
-url {
-    text-decoration: underline;
-    position: relative;
-    transition: var(--transition);
-}
-url:hover::after {
-    transition: var(--transition);
-    content: "Ctrl / ⌘ + 点击打开";
-    text-decoration: none;
+#link_b {
+    display: none;
     position: absolute;
-    min-width: 110px;
-    text-align: center;
-    font-size: 10px;
-    left: 0;
-    top: 24px;
-    border-radius: 8px;
-    background: var(--bg);
+    width: 20px;
+    height: 20px;
+    border-radius: var(--border-radius);
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
+    background-image: url('../assets/link.svg');
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
     border: var(--border);
-    padding: 4px;
-    z-index: 2;
+    font-size: 5px;
+    text-align: center;
+    line-height: 20px;
+    cursor: pointer;
 }
 
 #b_bar {
     display: flex;
     justify-content: flex-end;
-    margin: 16px 0 0 0;
+    margin: 0;
 }
 
 #b_bar > div {
     display: flex;
     align-items: center;
     margin: 0 16px 16px 16px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     overflow: hidden;
     border: var(--border);
     backdrop-filter: var(--blur);

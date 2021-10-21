@@ -29,8 +29,8 @@ function show_ocr_r(t) {
         r += text[i]["words"] + "\n";
     }
     document.getElementById("text").innerText = r;
-    document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
-    if (自动搜索 && text.length == 1 && document.getElementById("text").innerHTML.match(/<url>/) == null) {
+    document.getElementById("text").innerHTML = document.getElementById("text").innerHTML;
+    if (自动搜索 && text.length == 1) {
         if (t["language"] == "cn") {
             open_link("search");
         } else {
@@ -41,13 +41,8 @@ function show_ocr_r(t) {
 
 function show_t(t) {
     document.getElementById("text").innerText = t;
-    document.getElementById("text").innerHTML = replace_link(document.getElementById("text").innerHTML);
-    if (
-        自动搜索 &&
-        t.match(/\n/) == null &&
-        document.getElementById("text").innerHTML.match(/<url>/) == null &&
-        t != ""
-    ) {
+    document.getElementById("text").innerHTML = document.getElementById("text").innerHTML;
+    if (自动搜索 && t.match(/\n/) == null && t != "") {
         if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
             // 中文字符过半
             open_link("search");
@@ -57,46 +52,27 @@ function show_t(t) {
     }
 }
 
-function replace_link(t) {
-    regex =
-        /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)[^<]/g;
-    return t.replace(regex, "<url>$1</url>");
-}
-
-editting = true;
-document.onkeydown = (e) => {
-    if (e.key == "Control") {
-        document.querySelector("#text").contentEditable = false;
-        document.querySelector("url").style.cursor = "pointer";
-        editting = false;
-        url_ele();
-    }
-};
-document.onkeyup = (e) => {
-    if (e.key == "Control") {
-        document.querySelector("#text").contentEditable = true;
-        editting = true;
-        document.querySelector("url").style.cursor = "";
+document.getElementById("text").onmouseup = (e) => {
+    if (document.getSelection().toString() != "") {
+        document.querySelector("#link_b").style.display = "block";
+        document.querySelector("#link_b").style.left = e.offsetX + "px";
+        document.querySelector("#link_b").style.top = e.offsetY + "px";
+    } else {
+        document.querySelector("#link_b").style.display = "none";
     }
 };
 
-function url_ele() {
-    var urls = document.querySelectorAll("url");
-    for (i in urls) {
-        ((e) => {
-            e.onclick = () => {
-                if (editting == false) {
-                    var url = e.innerText;
-                    if (浏览器打开) {
-                        shell.openExternal(url);
-                    } else {
-                        window.open(url, "_blank");
-                    }
-                }
-            };
-        })(urls[i]);
+document.querySelector("#link_b").onmousedown = (event) => {
+    event.preventDefault();
+    var url = document.getSelection().toString();
+    console.log(url);
+    
+    if (浏览器打开) {
+        shell.openExternal(url);
+    } else {
+        window.open(url, "_blank");
     }
-}
+};
 
 搜索引擎_list = store.get("搜索引擎");
 
