@@ -3,6 +3,7 @@ const { desktopCapturer, ipcRenderer, clipboard, nativeImage } = require("electr
 const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
+const hotkeys = require("hotkeys-js");
 
 // 获取设置
 store = new Store();
@@ -91,7 +92,7 @@ function draw_windows_bar(o) {
 // 左边窗口工具栏弹出
 o = false;
 document.onkeydown = (e) => {
-    if (e.key == "a") {
+    if (e.key == "z") {
         if (!o) {
             document.querySelector("#windows_bar").style.transform = "translateX(0)";
             o = true;
@@ -114,6 +115,11 @@ document.getElementById("tool_draw").addEventListener("click", tool_draw_f);
 document.getElementById("tool_ding").addEventListener("click", tool_ding_f);
 document.getElementById("tool_copy").addEventListener("click", tool_copy_f);
 document.getElementById("tool_save").addEventListener("click", tool_save_f);
+
+hotkeys("esc", tool_close_f);
+hotkeys("enter", tool_ocr_f);
+hotkeys("ctrl+s, command+s", tool_save_f);
+hotkeys("ctrl+c, command+c", tool_copy_f);
 
 // 关闭
 function tool_close_f() {

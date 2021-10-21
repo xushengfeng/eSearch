@@ -77,6 +77,14 @@ function draw_clip_rect(e) {
     }
 }
 
+hotkeys("ctrl+a, command+a", () => {
+    final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
+    clip_ctx.beginPath();
+    clip_ctx.fillStyle = 选区颜色;
+    clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
+});
+
 // 大小栏
 function wh_bar(final_rect) {
     dw = document.querySelector("#clip_wh").offsetWidth;
