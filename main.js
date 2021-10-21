@@ -188,6 +188,11 @@ app.whenReady().then(() => {
             })
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
+                new Notification({
+                    title: 'eSearch保存图像成功',
+                    body: `已保存图像到${x.filePath}`,
+                    icon: `${run_path}/assets/icons/64x64.png`,
+                }).show();
             });
     });
 
