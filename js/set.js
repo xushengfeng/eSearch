@@ -1,6 +1,6 @@
-const Store = require("electron-store");
+// const Store = require("electron-store");
 
-store = new Store();
+// store = new Store();
 
 function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).value = store.get(id) || 默认;
