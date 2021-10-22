@@ -1,7 +1,3 @@
-// const Store = require("electron-store");
-
-// store = new Store();
-
 function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).value = store.get(id) || 默认;
     document.querySelector(`#${id}`).onclick = () => {
@@ -9,7 +5,10 @@ function 选择器储存(id, 默认) {
     };
 }
 
-document.querySelector('# >hot-keys >input').onblur=()=>{}
+document.querySelector("#自动识别 hot-keys input").value = store.get("key_自动识别") || "";
+document.querySelector("#截图搜索 hot-keys input").value = store.get("key_截图搜索") || "";
+document.querySelector("#选中搜索 hot-keys input").value = store.get("key_选中搜索") || "";
+document.querySelector("#剪贴板搜索 hot-keys input").value = store.get("key_剪贴板搜索") || "";
 
 if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
