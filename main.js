@@ -4,6 +4,7 @@ const {
     Tray,
     Menu,
     clipboard,
+    globalShortcut,
     BrowserWindow,
     ipcMain,
     dialog,
@@ -81,6 +82,14 @@ app.whenReady().then(() => {
         },
     ]);
     tray.setContextMenu(contextMenu);
+
+    ipcMain.on("快捷键", (event, arg) => {
+        eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
+            ${arg[2]};
+        });`);
+
+        event.sender.send("状态", eval(arg[0]));
+    });
 
     function auto_open() {
         var o_clipboard = clipboard.readText();
@@ -189,7 +198,7 @@ app.whenReady().then(() => {
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
                 new Notification({
-                    title: 'eSearch保存图像成功',
+                    title: "eSearch保存图像成功",
                     body: `已保存图像到${x.filePath}`,
                     icon: `${run_path}/assets/icons/64x64.png`,
                 }).show();
@@ -201,12 +210,10 @@ app.whenReady().then(() => {
     });
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on("window-all-closed", function () {
-    // if (process.platform !== "darwin") app.quit();
-});
+app.on('will-quit', () => {  
+    // Unregister all shortcuts.
+    globalShortcut.unregisterAll()
+  })
 
 function open_selection() {
     o_clipboard = clipboard.readText();

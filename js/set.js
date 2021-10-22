@@ -9,6 +9,8 @@ function 选择器储存(id, 默认) {
     };
 }
 
+document.querySelector('# >hot-keys >input').onblur=()=>{}
+
 if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
     选择器储存("光标", "以(1,1)为起点");

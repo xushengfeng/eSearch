@@ -19,16 +19,22 @@
             <div id="setting_right">
                 <div id="快捷键">
                     <div id="自动识别">
-                        <p>自动识别</p><hot-keys></hot-keys>
+                        <p>自动识别</p>
+                        <hot-keys name="自动识别" f="auto_open()"></hot-keys>
                     </div>
                     <div id="截图搜索">
-                        <p>截图搜索</p><hot-keys></hot-keys>
+                        <p>截图搜索</p>
+                        <hot-keys name="截图搜索"
+                            f='clip_window.webContents.send("reflash"); clip_window.setSize(1920,1080); clip_window.show(); '>
+                        </hot-keys>
                     </div>
                     <div id="选中搜索">
-                        <p>选中搜索</p><hot-keys></hot-keys>
+                        <p>选中搜索</p>
+                        <hot-keys name="选中搜索" f="open_selection()"></hot-keys>
                     </div>
                     <div id="剪贴板搜索">
-                        <p>剪贴板搜索</p><hot-keys></hot-keys>
+                        <p>剪贴板搜索</p>
+                        <hot-keys name="剪贴板搜索" f="open_clip_board()"></hot-keys>
                     </div>
                 </div>
             </div>
