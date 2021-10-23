@@ -5,6 +5,10 @@ const jsqr = require("jsqr");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
 
+try {
+    require('electron-reloader')(module)
+  } catch (_) {}
+
 // 获取设置
 store = new Store();
 工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
@@ -20,10 +24,10 @@ clip_canvas.style.width = window.screen.width + "px";
 const draw_canvas = document.getElementById("draw_photo");
 draw_canvas.style.width = window.screen.width + "px";
 // 第一次截的一定是桌面,所以可提前定义
-main_canvas.width = window.screen.width * window.devicePixelRatio;
-main_canvas.height = window.screen.height * window.devicePixelRatio;
+main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;
+main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
 
-// final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function get_desktop_capturer(n) {
     document.querySelector("html").style.display = "none";

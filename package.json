@@ -13,7 +13,8 @@
   },
   "license": "GPL3",
   "devDependencies": {
-    "electron-builder": "^22.11.7"
+    "electron-builder": "^22.11.7",
+    "electron-reloader": "^1.2.1"
   },
   "build": {
     "linux": {
@@ -33,6 +34,7 @@
   "dependencies": {
     "electron": "^15.1.1",
     "electron-store": "^8.0.1",
+    "fabric": "^4.6.0",
     "hotkeys-js": "^3.8.7",
     "jsqr": "^1.4.0",
     "open": "^8.3.0",

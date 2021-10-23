@@ -128,12 +128,23 @@ body {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
-canvas {
+#main_photo,
+#clip_photo,
+#draw_photo {
     position: absolute;
-    cursor: crosshair;
 }
 #clip_photo {
     z-index: 10;
+    cursor: crosshair;
+}
+#draw_photo_top {
+    position: absolute;
+    /* z-index: 199; */
+}
+video {
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 #mouse_bar {
