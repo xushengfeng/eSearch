@@ -38,8 +38,8 @@ app.whenReady().then(() => {
             click: () => {
                 setTimeout(() => {
                     clip_window.webContents.send("reflash");
-                    clip_window.setSize(1920, 1080);
                     clip_window.show();
+                    clip_window.setFullScreen(true);
                 }, 500);
             },
         },
@@ -83,6 +83,8 @@ app.whenReady().then(() => {
     ]);
     tray.setContextMenu(contextMenu);
 
+    Store.initRenderer();
+
     ipcMain.on("快捷键", (event, arg) => {
         eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
             ${arg[2]};
@@ -99,8 +101,8 @@ app.whenReady().then(() => {
             open_clip_board();
         } else {
             clip_window.webContents.send("reflash");
-            clip_window.setSize(1920, 1080);
             clip_window.show();
+            clip_window.setFullScreen(true);
         }
         clipboard.writeText(o_clipboard);
     }
@@ -108,12 +110,17 @@ app.whenReady().then(() => {
     // Create the browser window.
     const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        fullscreen: true,
+        x: 0,
+        y: 0,
+        width: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
+        height: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
+        show: false,
+        // fullscreen: true,
         fullscreenable: true,
         transparent: true,
         frame: false,
         skipTaskbar: true,
-        autoHideMenuBar: true,
+        // autoHideMenuBar: true,
         movable: false,
         resizable: false,
         alwaysOnTop: true,
@@ -126,15 +133,15 @@ app.whenReady().then(() => {
         },
     });
 
-    Store.initRenderer();
     // and load the index.html of the app.
     clip_window.loadFile("capture.html");
 
     // Open the DevTools.
-    clip_window.webContents.openDevTools();
+    // clip_window.webContents.openDevTools();
 
     // 监听截图奇奇怪怪的事件
     ipcMain.on("window-close", () => {
+        clip_window.setFullScreen(false);
         clip_window.hide();
     });
 
@@ -210,10 +217,10 @@ app.whenReady().then(() => {
     });
 });
 
-app.on('will-quit', () => {  
+app.on("will-quit", () => {
     // Unregister all shortcuts.
-    globalShortcut.unregisterAll()
-  })
+    globalShortcut.unregisterAll();
+});
 
 function open_selection() {
     o_clipboard = clipboard.readText();

@@ -58,7 +58,7 @@ function get_desktop_capturer(n) {
     });
 }
 
-get_desktop_capturer(0);
+// get_desktop_capturer(0);
 
 ipcRenderer.on("reflash", () => {
     get_desktop_capturer(0);
