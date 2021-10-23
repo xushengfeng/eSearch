@@ -21,6 +21,25 @@ store = new Store();
 
 自动搜索 = store.get("自动搜索");
 
+function is_link(url, s) {
+    if (s) {
+        // 严格模式
+        var regex =
+            /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
+        if (url.match(regex) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        if (url.match(/./g) != null && url.match(/\s+/g) == null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 function show_ocr_r(t) {
     var t = JSON.parse(t);
     var r = "";
@@ -29,31 +48,29 @@ function show_ocr_r(t) {
         r += text[i]["words"] + "\n";
     }
     document.getElementById("text").innerText = r;
-    document.getElementById("text").innerHTML = document.getElementById("text").innerHTML;
     if (自动搜索 && text.length == 1) {
         if (t["language"] == "cn") {
             open_link("search");
         } else {
-            open_link("translate");
+            if (!is_link(r, true)) open_link("translate");
         }
     }
 }
 
 function show_t(t) {
     document.getElementById("text").innerText = t;
-    document.getElementById("text").innerHTML = document.getElementById("text").innerHTML;
     if (自动搜索 && t.match(/\n/) == null && t != "") {
         if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
             // 中文字符过半
             open_link("search");
         } else {
-            open_link("translate");
+            if (!is_link(t, true)) open_link("translate");
         }
     }
 }
 
 document.getElementById("text").onmouseup = (e) => {
-    if (document.getSelection().toString() != "") {
+    if (document.getSelection().toString() != "" && is_link(document.getSelection().toString(), false)) {
         document.querySelector("#link_b").style.display = "block";
         document.querySelector("#link_b").style.left = e.offsetX + "px";
         document.querySelector("#link_b").style.top = e.offsetY + "px";
@@ -66,7 +83,10 @@ document.querySelector("#link_b").onmousedown = (event) => {
     event.preventDefault();
     var url = document.getSelection().toString();
     console.log(url);
-    
+    if (url.match(/\/\//g) == null) {
+        url = "https://" + url;
+    }
+
     if (浏览器打开) {
         shell.openExternal(url);
     } else {
