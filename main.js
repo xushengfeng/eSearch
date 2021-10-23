@@ -93,6 +93,27 @@ app.whenReady().then(() => {
         event.sender.send("状态", eval(arg[0]));
     });
 
+    store = new Store();
+
+    if (store.get("key_自动识别") != undefined)
+        globalShortcut.register(store.get("key_自动识别"), () => {
+            auto_open();
+        });
+    if (store.get("key_截图搜索") != undefined)
+        globalShortcut.register(store.get("key_截图搜索"), () => {
+            clip_window.webContents.send("reflash");
+            clip_window.show();
+            clip_window.setFullScreen(true);
+        });
+    if (store.get("key_选中搜索") != undefined)
+        globalShortcut.register(store.get("key_选中搜索"), () => {
+            open_selection();
+        });
+    if (store.get("key_剪贴板搜索") != undefined)
+        globalShortcut.register(store.get("key_剪贴板搜索"), () => {
+            open_clip_board();
+        });
+
     function auto_open() {
         var o_clipboard = clipboard.readText();
         robot.keyTap("c", "control");
