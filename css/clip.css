@@ -104,18 +104,23 @@ body {
 
 /* 画 */
 #draw_bar {
+    left: 500px;
     width: 60px;
     background: #fff9;
     position: fixed;
     z-index: 99;
-    right: 80px;
-    top: 100px;
     backdrop-filter: var(--blur);
     border-radius: 10px;
-    overflow: hidden;
+    overflow: scroll;
     transition: var(--transition);
+    height: 480px;
+    box-shadow: var(--shadow);
 }
-#draw_bar > div {
+#draw_items{
+    transition: var(--transition);
+    overflow: hidden;
+}
+#draw_bar > div > div {
     background-position: center;
     background-size: 70%;
     background-repeat: no-repeat;
@@ -124,10 +129,24 @@ body {
     border-radius: 10px;
     transition: var(--transition);
 }
-#draw_bar > div:hover {
+#draw_bar > div > div:hover {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
+
+#draw_free,
+#draw_rect,
+#draw_shapes,
+#draw_filters,
+#draw_text,
+#draw_color,
+#draw_size,
+#draw_move {
+    position: sticky;
+    background-color: #000;
+    top: 0px;
+}
+
 #main_photo,
 #clip_photo,
 #draw_photo {

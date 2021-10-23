@@ -135,7 +135,7 @@ app.whenReady().then(() => {
         y: 0,
         width: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
         height: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
-        show: false,
+        // show: false,
         // fullscreen: true,
         fullscreenable: true,
         transparent: true,
@@ -144,7 +144,7 @@ app.whenReady().then(() => {
         // autoHideMenuBar: true,
         movable: false,
         resizable: false,
-        alwaysOnTop: true,
+        // alwaysOnTop: true,
         enableLargerThanScreen: true, // mac
         hasShadow: false,
         webPreferences: {
@@ -158,7 +158,7 @@ app.whenReady().then(() => {
     clip_window.loadFile("capture.html");
 
     // Open the DevTools.
-    // clip_window.webContents.openDevTools();
+    clip_window.webContents.openDevTools();
 
     // 监听截图奇奇怪怪的事件
     ipcMain.on("window-close", () => {

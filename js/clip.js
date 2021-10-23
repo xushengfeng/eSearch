@@ -20,6 +20,8 @@ selecting = false;
 o_position = "";
 canvas_rect = "";
 clip_ctx = clip_canvas.getContext("2d");
+tool_bar = document.getElementById("tool_bar");
+draw_bar = document.getElementById("draw_bar");
 
 clip_canvas.onmousedown = (e) => {
     selecting = true;
@@ -269,13 +271,16 @@ document.onmousemove = (e) => {
 
     document.querySelector("#mouse_bar").style.left = `${x}px`;
     document.querySelector("#mouse_bar").style.top = `${y}px`;
+
+    if (draw_bar_moving) {
+        draw_bar.style.left = e.screenX - draw_bar_moving_xy[0] + "px";
+        draw_bar.style.top = e.screenY - draw_bar_moving_xy[1] + "px";
+    }
 };
 
 // 误代码后恢复,奇迹再现
 // 工具栏跟随
 function follow_bar(sx, sy, x, y) {
-    tool_bar = document.getElementById("tool_bar");
-
     if (x - sx >= 0) {
         // 向右
         if (x + tool_bar.offsetWidth + 10 <= window.screen.width) {
@@ -327,3 +332,22 @@ function follow_bar(sx, sy, x, y) {
         }
     }
 }
+
+draw_bar_moving = false;
+draw_bar_moving_xy = [];
+document.getElementById("draw_move").onmousedown = (e) => {
+    if (e.button == 2) {
+        draw_bar_moving = true;
+        draw_bar_moving_xy[0] = e.offsetX + document.getElementById("draw_move").offsetLeft;
+        draw_bar_moving_xy[1] = e.offsetY;
+        console.log(draw_bar_moving_xy);
+        draw_bar.style.transition = "0s";
+    }
+};
+document.getElementById("draw_move").onmouseup = (e) => {
+    if (e.button == 2) {
+        draw_bar_moving = false;
+        draw_bar_moving_xy = [];
+        draw_bar.style.transition = "";
+    }
+};
