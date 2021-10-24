@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="400"
+   height="400"
+   viewBox="0 0 400 400"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="draw_free_eraser.svg"
+   inkscape:export-filename="/home/xsf/Project/eSearch/assets/位图.png"
+   inkscape:export-xdpi="122.88"
+   inkscape:export-ydpi="122.88"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#111111"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="px"
+     showgrid="false"
+     units="px"
+     width="512px"
+     inkscape:zoom="1.3984406"
+     inkscape:cx="355.39586"
+     inkscape:cy="238.83746"
+     inkscape:window-width="1920"
+     inkscape:window-height="1031"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g1128"
+       transform="translate(30)">
+      <rect
+         style="fill:none;stroke:#333333;stroke-width:40;stroke-linecap:round;stroke-linejoin:round"
+         id="rect924"
+         width="200"
+         height="260"
+         x="70"
+         y="70"
+         rx="40"
+         ry="40" />
+      <rect
+         style="fill:none;stroke:#333333;stroke-width:40.605;stroke-linecap:round;stroke-linejoin:round"
+         id="rect926"
+         width="200"
+         height="200"
+         x="70"
+         y="130"
+         rx="0"
+         ry="0" />
+    </g>
+  </g>
+</svg>

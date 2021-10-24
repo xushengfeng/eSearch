@@ -105,7 +105,7 @@ body {
 /* 画 */
 #draw_bar {
     left: 500px;
-    width: 60px;
+    width: 120px;
     background: #fff9;
     position: fixed;
     z-index: 99;
@@ -113,14 +113,15 @@ body {
     border-radius: 10px;
     overflow: scroll;
     transition: var(--transition);
-    height: 480px;
+    height: 420px;
     box-shadow: var(--shadow);
+    display: flex;
 }
-#draw_items{
-    transition: var(--transition);
-    overflow: hidden;
+#draw_bar > div {
+    width: 60px;
 }
-#draw_bar > div > div {
+#draw_main > div,
+#draw_items > div {
     background-position: center;
     background-size: 70%;
     background-repeat: no-repeat;
@@ -129,22 +130,14 @@ body {
     border-radius: 10px;
     transition: var(--transition);
 }
-#draw_bar > div > div:hover {
+#draw_main > div:hover,
+#draw_items > div:hover {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
-
-#draw_free,
-#draw_rect,
-#draw_shapes,
-#draw_filters,
-#draw_text,
-#draw_color,
-#draw_size,
-#draw_move {
-    position: sticky;
-    background-color: #000;
-    top: 0px;
+#draw_items {
+    transition: var(--transition);
+    overflow: scroll;
 }
 
 #main_photo,
@@ -158,7 +151,7 @@ body {
 }
 #draw_photo_top {
     position: absolute;
-    /* z-index: 199; */
+    z-index: 199;
 }
 video {
     position: absolute;

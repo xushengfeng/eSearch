@@ -23,58 +23,61 @@
     </div>
     <!-- <div id="draw_bar" style="max-height: 0;"> -->
     <div id="draw_bar">
-        <div id="draw_items">
-            <div id="draw_free"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
+        <div id="draw_main">
+            <div id="draw_free" style="background-image: url('../assets/draw_free.svg');"></div>
+            <div id="draw_shapes" style="background-image: url('../assets/draw_shapes.svg');"></div>
+            <div id="draw_filters" style="background-image: url('../assets/draw_filters.svg');"></div>
+            <div id="draw_text" style="background-image: url('../assets/draw_text.svg');"></div>
+            <div id="draw_color" style="background-image: url('../assets/draw_free.svg');"></div>
+            <div id="draw_size" style="background-image: url('../assets/draw_free.svg');"></div>
+            <div id="draw_move" style="background-image: url('../assets/draw_move.svg');"></div>
         </div>
-        <div id="draw_items">
-            <div id="draw_rect"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
+        <div id="draw_side">
+            <div id="draw_items">
+                <div id="draw_free_pencil"style="background-image: url('../assets/draw_free_pencil.svg');"></div>
+                <div id="draw_free_eraser"style="background-image: url('../assets/draw_free_eraser.svg');"></div>
+                <div id="draw_free_spray"style="background-image: url('../assets/draw_free_spray.svg');"></div>
+            </div>
+            <div id="draw_items">
+                <div id="draw_shapes_line" style="background-image: url('../assets/draw_shapes_line.svg');"></div>
+                <div id="draw_shapes_circle" style="background-image: url('../assets/draw_shapes_circle.svg');"></div>
+                <div id="draw_shapes_rect" style="background-image: url('../assets/draw_shapes_rect.svg');"></div>
+                <div id="draw_shapes_triangle" style="background-image: url('../assets/draw_shapes_triangle.svg');"></div>
+                <div id="draw_shapes_polyline" style="background-image: url('../assets/draw_shapes_polyline.svg');"></div>
+                <div id="draw_shapes_polygon" style="background-image: url('../assets/draw_shapes_polygon.svg')"></div>
+            </div>
+            <div id="draw_items">
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+            </div>
+            <div id="draw_items">
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+            </div>
+            <div id="draw_items">
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+            </div>
+            <div id="draw_items">
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+            </div>
+            <div id="draw_items">
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+                <div id="draw_"></div>
+            </div>
+            <div id="draw_items">
+            </div>
         </div>
-        <div id="draw_items">
-            <div id="draw_shapes"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-        </div>
-        <div id="draw_items">
-            <div id="draw_filters"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-        </div>
-        <div id="draw_items">
-            <div id="draw_text"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-        </div>
-        <div id="draw_items">
-            <div id="draw_color"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-        </div>
-        <div id="draw_items">
-            <div id="draw_size"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-            <div id="draw_"></div>
-        </div>
-        <div id="draw_items">
-            <div id="draw_move"></div>
-        </div>
+
     </div>
     <canvas id="main_photo"></canvas>
     <canvas id="clip_photo"></canvas>
@@ -101,6 +104,7 @@
     </svg>
     <script src="js/clip_window.js"></script>
     <script src="js/clip.js"></script>
+    <script src="lib/fabric.min.js"></script>
     <script src="js/edit.js"></script>
 </body>
 

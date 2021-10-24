@@ -231,17 +231,3 @@ function get_clip_photo() {
         return main_canvas;
     }
 }
-
-document.querySelectorAll("#draw_bar >div> div:first-child").forEach((e) => {
-    e.parentNode.style.height = "60px";
-    e.addEventListener("click", () => {
-        console.log(e);
-        if (e.show) {
-            e.show = !e.show;
-            e.parentNode.style.height = "60px";
-        } else {
-            e.show = !e.show;
-            e.parentNode.style.height = "0";
-        }
-    });
-});
