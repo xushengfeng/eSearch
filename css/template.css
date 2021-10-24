@@ -1,22 +1,22 @@
 :root {
     --hover-color: #0002;
-    --transition:0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
-:host{
+:host {
     display: flex;
 }
-.文字{
+.文字 {
     margin: 0;
 }
-.选项{
+.选项 {
     margin: 8px;
     border-radius: 8px;
     padding: 8px;
     transition: var(--transition);
 }
-.选项:hover{
+.选项:hover {
     background: var(--hover-color);
 }
-.选中{
+.选中 {
     background: var(--hover-color);
 }

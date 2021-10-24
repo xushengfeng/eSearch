@@ -256,7 +256,7 @@ document.onmousemove = (e) => {
 
     // 鼠标跟随栏
     mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
-    
+
     var x = e.screenX + 35;
     var y = e.screenY + 35;
     var w = document.querySelector("#mouse_bar").offsetWidth;
@@ -339,8 +339,8 @@ draw_bar_moving_xy = [];
 document.getElementById("draw_move").onmousedown = (e) => {
     if (e.button == 2) {
         draw_bar_moving = true;
-        draw_bar_moving_xy[0] = e.offsetX ;
-        draw_bar_moving_xy[1] = e.offsetY+ document.getElementById("draw_move").offsetTop;
+        draw_bar_moving_xy[0] = e.offsetX;
+        draw_bar_moving_xy[1] = e.offsetY + document.getElementById("draw_move").offsetTop;
         console.log(draw_bar_moving_xy);
         draw_bar.style.transition = "0s";
     }

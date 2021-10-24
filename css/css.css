@@ -61,7 +61,7 @@ body {
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
-    background-image: url('../assets/link.svg');
+    background-image: url("../assets/link.svg");
     background-size: 80%;
     background-position: center;
     background-repeat: no-repeat;

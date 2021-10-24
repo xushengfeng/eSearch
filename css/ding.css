@@ -1,15 +1,16 @@
 ::-webkit-scrollbar {
     display: none;
 }
-html,body{
+html,
+body {
     margin: 0;
     -webkit-app-region: drag;
     font-family: sans-serif;
 }
-#ding_photo{
+#ding_photo {
     width: 100%;
 }
-#tool_bar{
+#tool_bar {
     -webkit-app-region: no-drag;
     width: 100%;
     position: fixed;
@@ -18,7 +19,7 @@ html,body{
     padding-bottom: 10px;
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
-#tool_bar:hover{
+#tool_bar:hover {
     top: 0;
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }

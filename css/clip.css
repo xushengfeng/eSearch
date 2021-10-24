@@ -145,7 +145,7 @@ body {
 #draw_photo {
     position: absolute;
 }
-#main_photo{
+#main_photo {
     z-index: 8;
 }
 #clip_photo {
