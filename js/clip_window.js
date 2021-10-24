@@ -4,6 +4,7 @@ const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
+const { get } = require("http");
 
 try {
     require("electron-reloader")(module);
@@ -47,6 +48,7 @@ function get_desktop_capturer(n) {
         video.srcObject = stream;
         video.onloadedmetadata = (e) => {
             video.play();
+            canvas.clear();
             main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
             main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
             main_canvas.getContext("2d").drawImage(video, 0, 0);
@@ -62,7 +64,7 @@ function get_desktop_capturer(n) {
     });
 }
 
-// get_desktop_capturer(0);
+get_desktop_capturer(0);
 
 ipcRenderer.on("reflash", () => {
     get_desktop_capturer(0);
@@ -125,16 +127,12 @@ function tool_close_f() {
     document.getElementById("waiting").style.display = "none";
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
-    canvas.clear();
 }
 // OCR
 function tool_ocr_f() {
-    ipcRenderer.send(
-        "ocr",
-        get_clip_photo()
-            .toDataURL()
-            .replace(/^data:image\/\w+;base64,/, "")
-    );
+    get_clip_photo().then((c) => {
+        ipcRenderer.send("ocr", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
+    });
 
     document.querySelector("#waiting").style.display = "block";
     document.querySelector("#waiting").style.left = final_rect[0] + "px";
@@ -155,18 +153,18 @@ function tool_ocr_f() {
 }
 // 二维码
 function tool_QR_f() {
-    var imageData = get_clip_photo()
-        .getContext("2d")
-        .getImageData(0, 0, get_clip_photo().width, get_clip_photo().height);
-    var code = jsqr(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: "dontInvert",
+    get_clip_photo().then((c) => {
+        var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
+        var code = jsqr(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "dontInvert",
+        });
+        if (code) {
+            ipcRenderer.send("QR", code.data);
+            tool_close_f();
+        } else {
+            ipcRenderer.send("QR", "nothing");
+        }
     });
-    if (code) {
-        ipcRenderer.send("QR", code.data);
-        tool_close_f();
-    } else {
-        ipcRenderer.send("QR", "nothing");
-    }
 }
 // 图片编辑
 drawing = false;
@@ -177,7 +175,7 @@ function tool_draw_f() {
             document.documentElement
         ).getPropertyValue("--hover-color");
         document.getElementById("draw_bar").style.maxHeight = "500px";
-        document.querySelector("#draw_photo_top").style.zIndex = "97";
+        document.querySelector("#draw_photo_top").style.zIndex = "11";
     } else {
         document.getElementById("tool_draw").style.backgroundColor = "";
         document.getElementById("draw_bar").style.maxHeight = "0";
@@ -187,14 +185,18 @@ function tool_draw_f() {
 // 钉在屏幕上
 function tool_ding_f() {
     ding_window_setting = final_rect;
-    ding_window_setting[4] = get_clip_photo().toDataURL();
-    ipcRenderer.send("ding", ding_window_setting);
-    tool_close_f();
+    get_clip_photo().then((c) => {
+        ding_window_setting[4] = c.toDataURL();
+        ipcRenderer.send("ding", ding_window_setting);
+        tool_close_f();
+    });
 }
 // 复制
 function tool_copy_f() {
-    clipboard.writeImage(nativeImage.createFromDataURL(get_clip_photo().toDataURL()));
-    tool_close_f();
+    get_clip_photo().then((c) => {
+        clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
+        tool_close_f();
+    });
 }
 // 保存
 function tool_save_f() {
@@ -203,26 +205,42 @@ function tool_save_f() {
     ipcRenderer.on("save_path", (event, message) => {
         console.log(message);
         if (message != "") {
-            f = get_clip_photo()
-                .toDataURL()
-                .replace(/^data:image\/\w+;base64,/, "");
-            console.log(f);
-            dataBuffer = new Buffer(f, "base64");
-            fs.writeFile(message, dataBuffer, () => {});
+            get_clip_photo().then((c) => {
+                f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+                dataBuffer = new Buffer(f, "base64");
+                fs.writeFile(message, dataBuffer, () => {});
+            });
         }
     });
 }
 
 function get_clip_photo() {
+    main_ctx = main_canvas.getContext("2d");
+    var tmp_canvas = document.createElement("canvas");
     if (final_rect != "") {
-        main_ctx = main_canvas.getContext("2d");
-        var tmp_canvas = document.createElement("canvas");
         tmp_canvas.width = final_rect[2];
         tmp_canvas.height = final_rect[3];
-        gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
-        tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-        return tmp_canvas;
     } else {
-        return main_canvas;
+        tmp_canvas.width = main_canvas.width;
+        tmp_canvas.height = main_canvas.height;
+        final_rect = [0, 0, main_canvas.width, main_canvas.height];
     }
+    gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
+    tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
+    canvas.discardActiveObject();
+    var image = document.createElement("img");
+    image.src = canvas.toDataURL({
+        left: final_rect[0],
+        top: final_rect[1],
+        width: final_rect[2],
+        height: final_rect[3],
+        format: "png",
+    });
+    return new Promise((resolve, rejects) => {
+        image.onload = () => {
+            tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
+            resolve(tmp_canvas);
+            // tmp_canvas;
+        };
+    });
 }

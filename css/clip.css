@@ -213,6 +213,7 @@ video {
 #waiting {
     position: fixed;
     display: none;
+    z-index: 11;
 }
 
 @media (prefers-color-scheme: dark) {
