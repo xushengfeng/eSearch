@@ -33,11 +33,6 @@ clip_canvas.onmousedown = (e) => {
 clip_canvas.onmousemove = (e) => {
     // 画框
     draw_clip_rect(e);
-    // 鼠标位置文字
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-
-    // 鼠标跟随栏
-    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
 };
 
 clip_canvas.onmouseup = (e) => {
@@ -256,6 +251,12 @@ function clip_color_text(r, g, b, a) {
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
+    // 鼠标位置文字
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+
+    // 鼠标跟随栏
+    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+    
     var x = e.screenX + 35;
     var y = e.screenY + 35;
     var w = document.querySelector("#mouse_bar").offsetWidth;
@@ -338,8 +339,8 @@ draw_bar_moving_xy = [];
 document.getElementById("draw_move").onmousedown = (e) => {
     if (e.button == 2) {
         draw_bar_moving = true;
-        draw_bar_moving_xy[0] = e.offsetX + document.getElementById("draw_move").offsetLeft;
-        draw_bar_moving_xy[1] = e.offsetY;
+        draw_bar_moving_xy[0] = e.offsetX ;
+        draw_bar_moving_xy[1] = e.offsetY+ document.getElementById("draw_move").offsetTop;
         console.log(draw_bar_moving_xy);
         draw_bar.style.transition = "0s";
     }

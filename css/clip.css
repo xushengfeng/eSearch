@@ -105,7 +105,7 @@ body {
 /* 画 */
 #draw_bar {
     left: 500px;
-    width: 120px;
+    width: 60px;
     background: #fff9;
     position: fixed;
     z-index: 98;
@@ -113,7 +113,7 @@ body {
     border-radius: 10px;
     overflow: scroll;
     transition: var(--transition);
-    height: 420px;
+    height: 0px;
     box-shadow: var(--shadow);
     display: flex;
 }

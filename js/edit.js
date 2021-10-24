@@ -20,7 +20,9 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
         if (e.show) {
             e.show = !e.show;
             document.querySelectorAll("#draw_side > div")[index].style.height = "0";
+            document.querySelector('#draw_bar').style.width = '60px'
         } else {
+            document.querySelector('#draw_bar').style.width = '120px'
             document.querySelectorAll("#draw_main > div").forEach((ei) => {
                 ei.show = false;
             });

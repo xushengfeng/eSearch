@@ -135,8 +135,7 @@ app.whenReady().then(() => {
         y: 0,
         width: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
         height: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
-        // show: false,
-        // fullscreen: true,
+        show: false,
         fullscreenable: true,
         transparent: true,
         frame: false,
@@ -144,7 +143,7 @@ app.whenReady().then(() => {
         // autoHideMenuBar: true,
         movable: false,
         resizable: false,
-        // alwaysOnTop: true,
+        alwaysOnTop: true,
         enableLargerThanScreen: true, // mac
         hasShadow: false,
         webPreferences: {
@@ -225,11 +224,19 @@ app.whenReady().then(() => {
             })
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
-                new Notification({
-                    title: "eSearch保存图像成功",
-                    body: `已保存图像到${x.filePath}`,
-                    icon: `${run_path}/assets/icons/64x64.png`,
-                }).show();
+                if (x.filePath) {
+                    new Notification({
+                        title: "eSearch保存图像成功",
+                        body: `已保存图像到${x.filePath}`,
+                        icon: `${run_path}/assets/icons/64x64.png`,
+                    }).show();
+                } else {
+                    new Notification({
+                        title: "eSearch保存图像失败",
+                        body: `用户已取消保存`,
+                        icon: `${run_path}/assets/icons/64x64.png`,
+                    }).show();
+                }
             });
     });
 

@@ -174,11 +174,11 @@ function tool_draw_f() {
         document.getElementById("tool_draw").style.backgroundColor = getComputedStyle(
             document.documentElement
         ).getPropertyValue("--hover-color");
-        document.getElementById("draw_bar").style.maxHeight = "500px";
+        document.getElementById("draw_bar").style.height = "420px";
         document.querySelector("#draw_photo_top").style.zIndex = "11";
     } else {
         document.getElementById("tool_draw").style.backgroundColor = "";
-        document.getElementById("draw_bar").style.maxHeight = "0";
+        document.getElementById("draw_bar").style.height = "0";
         document.querySelector("#draw_photo_top").style.zIndex = "9";
     }
 }
