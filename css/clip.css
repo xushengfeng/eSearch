@@ -108,7 +108,7 @@ body {
     width: 120px;
     background: #fff9;
     position: fixed;
-    z-index: 99;
+    z-index: 98;
     backdrop-filter: var(--blur);
     border-radius: 10px;
     overflow: scroll;
@@ -145,13 +145,15 @@ body {
 #draw_photo {
     position: absolute;
 }
+#main_photo{
+    z-index: 8;
+}
 #clip_photo {
     z-index: 10;
     cursor: crosshair;
 }
 #draw_photo_top {
     position: absolute;
-    z-index: 199;
 }
 video {
     position: absolute;
@@ -164,7 +166,7 @@ video {
     flex-direction: column;
     align-items: center;
     position: fixed;
-    z-index: 99;
+    z-index: 100;
     padding: 8px;
     border-radius: 8px;
     box-shadow: var(--shadow);

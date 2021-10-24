@@ -95,21 +95,15 @@ function draw_windows_bar(o) {
 
 // 左边窗口工具栏弹出
 o = false;
-document.onkeydown = (e) => {
-    if (e.key == "z") {
-        if (!o) {
-            document.querySelector("#windows_bar").style.transform = "translateX(0)";
-            o = true;
-        } else {
-            document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
-            o = false;
-        }
+hotkeys("z", () => {
+    if (!o) {
+        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        o = true;
+    } else {
+        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+        o = false;
     }
-
-    if (e.key == "Escape") {
-        tool_close_f();
-    }
-};
+});
 
 // 工具栏按钮
 document.getElementById("tool_close").addEventListener("click", tool_close_f);
@@ -131,6 +125,7 @@ function tool_close_f() {
     document.getElementById("waiting").style.display = "none";
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
+    canvas.clear();
 }
 // OCR
 function tool_ocr_f() {
@@ -182,11 +177,11 @@ function tool_draw_f() {
             document.documentElement
         ).getPropertyValue("--hover-color");
         document.getElementById("draw_bar").style.maxHeight = "500px";
-        document.getElementById("windows_bar").style.left = "-100%";
+        document.querySelector("#draw_photo_top").style.zIndex = "97";
     } else {
         document.getElementById("tool_draw").style.backgroundColor = "";
         document.getElementById("draw_bar").style.maxHeight = "0";
-        document.getElementById("windows_bar").style.left = "";
+        document.querySelector("#draw_photo_top").style.zIndex = "9";
     }
 }
 // 钉在屏幕上
