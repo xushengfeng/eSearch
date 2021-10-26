@@ -32,7 +32,7 @@ function is_link(url, s) {
             return false;
         }
     } else {
-        if (url.match(/./g) != null && url.match(/\s+/g) == null) {
+        if (url.match(/\./g) != null && url.match(/\s+/g) == null) {
             return true;
         } else {
             return false;
