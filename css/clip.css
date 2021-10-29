@@ -8,6 +8,12 @@
 ::-webkit-scrollbar {
     display: none;
 }
+html {
+    cursor: none;
+}
+body {
+    cursor: default;
+}
 html,
 body {
     margin: 0;

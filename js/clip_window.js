@@ -31,7 +31,7 @@ main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.hei
 final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function get_desktop_capturer(n) {
-    document.querySelector("html").style.display = "none";
+    document.querySelector("body").style.display = "none";
     desktopCapturer.getSources({ types: ["window", "screen"], fetchWindowIcons: true }).then(async (sources) => {
         draw_windows_bar(sources);
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -58,7 +58,7 @@ function get_desktop_capturer(n) {
             document.querySelector("#clip_wh").style.top = "10px";
             document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
             video.pause();
-            document.querySelector("html").style.display = "block";
+            document.querySelector("body").style.display = "block";
         };
         return;
     });
@@ -127,6 +127,8 @@ function tool_close_f() {
     document.getElementById("waiting").style.display = "none";
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
+
+    document.querySelector("body").style.display = "none";
 }
 // OCR
 function tool_ocr_f() {
