@@ -1,3 +1,4 @@
+// 单选项目设置加载
 function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).value = store.get(id) || 默认;
     document.querySelector(`#${id}`).onclick = () => {
@@ -16,16 +17,25 @@ if (document.title == "eSearch-设置") {
     选择器储存("取色器默认格式", "HEX");
 }
 
-document.querySelector("#遮罩颜色 > span").style.background = store.get("遮罩颜色") || "#0005";
-document.querySelector("#选区颜色 > span").style.background = store.get("选区颜色") || "#0000";
+// 选区&遮罩颜色设置
+document.querySelector("#遮罩颜色 > span").style.backgroundImage =
+    `linear-gradient(${store.get("遮罩颜色")}, ${store.get("遮罩颜色")}), url('assets/tbg.svg')` ||
+    "linear-gradient(#0005, #0005), url('assets/tbg.svg')";
+document.querySelector("#选区颜色 > span").style.backgroundImage =
+    `linear-gradient(${store.get("选区颜色")}, ${store.get("选区颜色")}), url('assets/tbg.svg')` ||
+    "linear-gradient(#0000, #0000), url('assets/tbg.svg')";
 document.querySelector("#遮罩颜色 > input").value = store.get("遮罩颜色") || "#0005";
 document.querySelector("#选区颜色 > input").value = store.get("选区颜色") || "#0000";
 document.querySelector("#遮罩颜色 > input").oninput = () => {
-    document.querySelector("#遮罩颜色 > span").style.background = document.querySelector("#遮罩颜色 > input").value;
+    document.querySelector("#遮罩颜色 > span").style.backgroundImage = `linear-gradient(${
+        document.querySelector("#遮罩颜色 > input").value
+    }, ${document.querySelector("#遮罩颜色 > input").value}), url('assets/tbg.svg')`;
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
 };
 document.querySelector("#选区颜色 > input").oninput = () => {
-    document.querySelector("#选区颜色 > span").style.background = document.querySelector("#选区颜色 > input").value;
+    document.querySelector("#选区颜色 > span").style.backgroundImage = `linear-gradient(${
+        document.querySelector("#选区颜色 > input").value
+    }, ${document.querySelector("#选区颜色 > input").value}), url('assets/tbg.svg')`;
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
 };
 
@@ -34,6 +44,7 @@ document.querySelector("#自动搜索").onclick = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
 };
 
+// 搜索引擎项的设置加载和设置设置
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎 != undefined) {
     var text = "";
