@@ -15,6 +15,7 @@ canvas.add(
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
+    if (index == document.querySelectorAll("#draw_main > div").length-1) return;
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {

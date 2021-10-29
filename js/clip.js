@@ -337,18 +337,14 @@ function follow_bar(sx, sy, x, y) {
 draw_bar_moving = false;
 draw_bar_moving_xy = [];
 document.getElementById("draw_move").onmousedown = (e) => {
-    if (e.button == 2) {
-        draw_bar_moving = true;
-        draw_bar_moving_xy[0] = e.offsetX;
-        draw_bar_moving_xy[1] = e.offsetY + document.getElementById("draw_move").offsetTop;
-        console.log(draw_bar_moving_xy);
-        draw_bar.style.transition = "0s";
-    }
+    draw_bar_moving = true;
+    draw_bar_moving_xy[0] = e.offsetX;
+    draw_bar_moving_xy[1] = e.offsetY + document.getElementById("draw_move").offsetTop;
+    console.log(draw_bar_moving_xy);
+    draw_bar.style.transition = "0s";
 };
 document.getElementById("draw_move").onmouseup = (e) => {
-    if (e.button == 2) {
-        draw_bar_moving = false;
-        draw_bar_moving_xy = [];
-        draw_bar.style.transition = "";
-    }
+    draw_bar_moving = false;
+    draw_bar_moving_xy = [];
+    draw_bar.style.transition = "";
 };
