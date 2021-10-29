@@ -152,3 +152,7 @@ document.querySelector("#search_s").oninput = () => {
 document.querySelector("#translate_s").oninput = () => {
     open_link("translate");
 };
+document.querySelector("#setting").onclick = () => {
+    window.location.href="setting.html"
+};
+

@@ -81,12 +81,29 @@ body {
 #b_bar > div {
     display: flex;
     align-items: center;
-    margin: 0 16px 16px 16px;
     border-radius: var(--border-radius);
     overflow: hidden;
     border: var(--border);
     backdrop-filter: var(--blur);
-    background: var(--bar-bg);
+    background-color: var(--bar-bg);
+}
+#search,
+#translate,
+#browser {
+    margin: 0 16px 16px 16px;
+}
+#setting {
+    width: 40px;
+    height: 40px;
+    transition: var(--transition);
+    margin: 0 auto 0 16px;
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-image: url('../assets/setting.svg');
+}
+#setting:hover{
+    background-color: var(--hover-color);
 }
 
 button {

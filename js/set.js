@@ -44,7 +44,6 @@ document.querySelector("#自动搜索").onclick = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
 };
 
-// 搜索引擎项的设置加载和设置设置
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎 != undefined) {
     var text = "";
@@ -92,4 +91,8 @@ document.querySelector("#翻译引擎").oninput = () => {
 document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开") || false;
 document.querySelector("#浏览器中打开").onclick = () => {
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
+};
+
+document.querySelector("#main").onclick = () => {
+    window.location.href = "index.html";
 };

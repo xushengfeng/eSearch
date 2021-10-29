@@ -1,6 +1,7 @@
 :root {
     --hover-color: #0002;
     --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    --border-radius: 8px;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -10,8 +11,22 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    display: flex;
     font-family: sans-serif;
+}
+#main {
+    border-radius: var(--border-radius);
+    border: var(--border);
+    background-color: var(--bar-bg);
+    width: 40px;
+    height: 40px;
+    transition: var(--transition);
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-image: url('../assets/main.svg');
+}
+#main:hover{
+    background-color: var(--hover-color);
 }
 #setting_main {
     width: 100%;
@@ -28,10 +43,13 @@ body {
     width: 70%;
 }
 textarea {
+    padding: 8px;
     width: 80%;
     height: 100px;
+    border-radius: var(--border-radius);
 }
-textarea:focus {
+textarea:focus,
+input:focus {
     outline: none;
 }
 
@@ -39,7 +57,7 @@ textarea:focus {
 #选区颜色 > span {
     display: inline-block;
     border: 1px #000 solid;
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     width: 20px;
     height: 20px;
     background-position: center;
