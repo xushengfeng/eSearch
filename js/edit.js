@@ -1,18 +1,5 @@
 let canvas = new fabric.Canvas("draw_photo");
 
-// 创建一个矩形对象
-
-// 将矩形添加到canvas画布上
-canvas.add(
-    new fabric.Rect({
-        left: 10, //距离左边的距离
-        top: 10, //距离上边的距离
-        fill: "green", //填充的颜色
-        width: 20, //矩形宽度
-        height: 20, //矩形高度
-    })
-);
-
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
     if (index == document.querySelectorAll("#draw_main > div").length-1) return;
