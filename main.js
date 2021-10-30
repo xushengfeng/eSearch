@@ -25,7 +25,7 @@ if (app.getAppPath().slice(-8) == "app.asar") {
 }
 
 app.whenReady().then(() => {
-    tray = new Tray(`${run_path}/assets/icons/64x64.png`);
+    tray = new Tray(`${run_path}/assets/icons/b.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
             label: "自动搜索",
