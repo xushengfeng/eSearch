@@ -2,7 +2,7 @@ let canvas = new fabric.Canvas("draw_photo");
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
-    if (index == document.querySelectorAll("#draw_main > div").length-1) return;
+    if (index == document.querySelectorAll("#draw_main > div").length - 1) return;
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {
@@ -175,6 +175,18 @@ document.querySelector("#draw_shapes_triangle").onclick = () => {
 //         })
 //     );
 // };
+document.querySelector("#draw_position_front").onclick = () => {
+    canvas.getActiveObject().bringToFront();
+};
+document.querySelector("#draw_position_forwards").onclick = () => {
+    canvas.getActiveObject().bringForward();
+};
+document.querySelector("#draw_position_backwards").onclick = () => {
+    canvas.getActiveObject().sendBackwards();
+};
+document.querySelector("#draw_position_back").onclick = () => {
+    canvas.getActiveObject().sendToBack();
+};
 
 document.onkeydown = (e) => {
     if (e.key == "Delete") {
