@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1500"
+   height="400"
+   viewBox="0 0 1500 400"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="title_photo.svg"
+   inkscape:export-filename="/home/xsf/Project/eSearch/assets/位图.png"
+   inkscape:export-xdpi="122.88"
+   inkscape:export-ydpi="122.88"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#111111"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:document-units="px"
+     showgrid="false"
+     units="px"
+     width="512px"
+     inkscape:zoom="0.4944234"
+     inkscape:cx="819.13599"
+     inkscape:cy="392.37625"
+     inkscape:window-width="1920"
+     inkscape:window-height="1031"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <rect
+       x="507.45541"
+       y="38.289848"
+       width="657.26764"
+       height="344.57553"
+       id="rect3896" />
+    <linearGradient
+       id="prefix__a">
+      <stop
+         offset="0"
+         stop-color="#3b41ff"
+         id="stop7"
+         style="stop-color:#3131ff;stop-opacity:1" />
+      <stop
+         offset="1"
+         stop-color="#34ccff"
+         id="stop9"
+         style="stop-color:#4ad3ff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#prefix__a"
+       id="prefix__c"
+       x1="50"
+       y1="350"
+       x2="350"
+       y2="50"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-25,-25)" />
+    <radialGradient
+       xlink:href="#prefix__b"
+       id="prefix__d"
+       cx="220"
+       cy="180"
+       fx="220"
+       fy="180"
+       r="100"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       id="text3894"
+       style="font-style:normal;font-weight:normal;font-size:144px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect3896);fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(1.5200959,0,0,1.5200959,-223.8037,1.5372331)"><tspan
+         x="507.45508"
+         y="183.00906"
+         id="tspan46853"><tspan
+           style="font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans';fill:#115aff"
+           id="tspan46849">e</tspan><tspan
+           style="font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans'"
+           id="tspan46851">Search</tspan></tspan></text>
+    <g
+       id="g21908"
+       transform="translate(159.87407,24.959197)">
+      <path
+         style="fill:url(#prefix__c);-inkscape-stroke:none"
+         d="M 175,25 C 92.394,25 25,92.394 25,175 c 0,82.606 67.394,150 150,150 34.119,0 65.625,-11.52 90.877,-30.838 l 24.98,24.98 a 20,20 0 0 0 28.286,0 20,20 0 0 0 0,-28.285 l -24.98,-24.98 C 313.48,240.625 325,209.119 325,175 325,92.394 257.606,25 175,25 Z m 0,40 c 60.988,0 110,49.012 110,110 0,60.988 -49.012,110 -110,110 C 114.012,285 65,235.988 65,175 65,114.012 114.012,65 175,65 Z"
+         color="#000000"
+         fill="url(#prefix__c)"
+         id="path16" />
+      <circle
+         cx="175"
+         cy="175"
+         r="40"
+         fill="url(#prefix__d)"
+         id="circle18-3"
+         style="fill:#2e86ff;fill-opacity:1" />
+    </g>
+  </g>
+</svg>
