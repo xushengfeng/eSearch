@@ -18,11 +18,10 @@ const Store = require("electron-store");
 
 var screen = require("electron").screen;
 const path = require("path");
-if (app.getAppPath().slice(-8) == "app.asar") {
-    run_path = path.resolve(__dirname, "..");
+run_path = path.resolve(__dirname, "");
+if (app.isPackaged) {
     dev = false;
 } else {
-    run_path = path.resolve(__dirname, "");
     dev = true;
 }
 

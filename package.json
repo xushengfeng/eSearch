@@ -1,42 +1,78 @@
 {
-    "name": "eSearch",
-    "version": "1.0.0",
-    "description": "截屏OCR",
-    "main": "main.js",
-    "scripts": {
-        "start": "electron .",
-        "build": "electron-builder"
+  "name": "esearch",
+  "version": "1.0.0",
+  "description": "截屏OCR",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "build": "electron-builder",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "author": {
+    "name": "xsf",
+    "email": "xushengfeng_zg@163.com"
+  },
+  "license": "GPL3",
+  "build": {
+    "linux": {
+      "icon": "assets/icons",
+      "category": "System",
+      "target": [
+        "tar.gz",
+        "deb",
+        "pacman"
+      ]
     },
-    "author": {
-        "name": "xsf",
-        "email": "xushengfeng_zg@163.com"
-    },
-    "license": "GPL3",
-    "build": {
-        "linux": {
-            "icon": "assets/icons",
-            "category": "System",
-            "target": [
-                "tar.gz",
-                "deb",
-                "pacman"
-            ]
+    "files": [
+      "./assets/**",
+      "./lib/**"
+    ]
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.0.1",
+    "fabric": "^4.6.0",
+    "hotkeys-js": "^3.8.7",
+    "jsqr": "^1.4.0",
+    "open": "^8.4.0",
+    "robotjs": "^0.6.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "electron": "15.3.0",
+    "electron-rebuild": "^3.2.3"
+  },
+  "rebuild": "npm rebuild --runtime=electron --target=15.3.0 --disturl=https://atom.io/download/atom-shell --abi=98",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "eSearch"
+          }
         },
-        "extraResources": [
-            "./assets/**",
-            "./run.sh"
-        ]
-    },
-    "dependencies": {
-        "electron-store": "^8.0.1",
-        "fabric": "^4.6.0",
-        "hotkeys-js": "^3.8.7",
-        "jsqr": "^1.4.0",
-        "open": "^8.4.0",
-        "robotjs": "^0.6.0"
-    },
-    "devDependencies": {
-        "electron-rebuild": "^3.2.3"
-    },
-    "rebuild": "npm rebuild --runtime=electron --target=15.3.0 --disturl=https://atom.io/download/atom-shell --abi=93"
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  }
 }
