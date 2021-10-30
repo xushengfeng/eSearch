@@ -84,6 +84,12 @@ app.whenReady().then(() => {
     ]);
     tray.setContextMenu(contextMenu);
 
+    new Notification({
+        title: "eSearch",
+        body: `eSearch已经在后台启动`,
+        icon: `${run_path}/assets/icons/64x64.png`,
+    }).show();
+
     Store.initRenderer();
 
     ipcMain.on("快捷键", (event, arg) => {
