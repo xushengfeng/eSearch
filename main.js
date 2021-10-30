@@ -20,8 +20,10 @@ var screen = require("electron").screen;
 const path = require("path");
 if (app.getAppPath().slice(-8) == "app.asar") {
     run_path = path.resolve(__dirname, "..");
+    dev = false;
 } else {
     run_path = path.resolve(__dirname, "");
+    dev = true;
 }
 
 app.whenReady().then(() => {
@@ -157,7 +159,7 @@ app.whenReady().then(() => {
     clip_window.loadFile("capture.html");
 
     // Open the DevTools.
-    clip_window.webContents.openDevTools();
+    if (dev) clip_window.webContents.openDevTools();
 
     // 监听截图奇奇怪怪的事件
     ipcMain.on("window-close", () => {
@@ -288,7 +290,7 @@ function create_ding_window(x, y, w, h, img) {
 
     ding_window.setAspectRatio(w / h);
     ding_window.loadFile("ding.html");
-    ding_window.webContents.openDevTools();
+    if (dev) ding_window.webContents.openDevTools();
     ding_window.webContents.on("did-finish-load", () => {
         ding_window.webContents.send("img", img);
     });
@@ -313,7 +315,7 @@ function create_main_window(t, type) {
     });
 
     main_window.loadFile("index.html");
-    main_window.webContents.openDevTools();
+    if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
         main_window.webContents.send("text", [t, type]);
     });
@@ -330,5 +332,5 @@ function create_setting_window() {
     });
 
     main_window.loadFile("setting.html");
-    main_window.webContents.openDevTools();
+    if (dev) main_window.webContents.openDevTools();
 }

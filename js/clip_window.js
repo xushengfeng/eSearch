@@ -4,11 +4,6 @@ const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
-const { get } = require("http");
-
-try {
-    require("electron-reloader")(module);
-} catch (_) {}
 
 // 获取设置
 store = new Store();
