@@ -102,10 +102,9 @@ app.whenReady().then(() => {
 
     store = new Store();
 
-    if (store.get("key_自动识别") != undefined)
-        globalShortcut.register(store.get("key_自动识别"), () => {
-            auto_open();
-        });
+    globalShortcut.register(store.get("key_自动识别") || "CommandOrControl+Shift+Z", () => {
+        auto_open();
+    });
     if (store.get("key_截图搜索") != undefined)
         globalShortcut.register(store.get("key_截图搜索"), () => {
             clip_window.webContents.send("reflash");
