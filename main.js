@@ -10,7 +10,7 @@ const {
     dialog,
     Notification,
     net,
-    BrowserView,
+    shell,
 } = require("electron");
 const os = require("os");
 var robot = require("robotjs");
@@ -232,11 +232,15 @@ app.whenReady().then(() => {
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
                 if (x.filePath) {
-                    new Notification({
+                    notification = new Notification({
                         title: "eSearch保存图像成功",
                         body: `已保存图像到${x.filePath}`,
                         icon: `${run_path}/assets/icons/64x64.png`,
-                    }).show();
+                    });
+                    notification.on("click", () => {
+                        shell.showItemInFolder(x.filePath);
+                    });
+                    notification.show();
                 } else {
                     new Notification({
                         title: "eSearch保存图像失败",
