@@ -33,7 +33,7 @@
     "electron-rebuild": "^3.2.3",
     "yarn": "^1.22.17"
   },
-  "rebuild": "npm rebuild --runtime=electron --target=15.3.0 --disturl=https://atom.io/download/atom-shell --abi=98",
+  "rebuild": "npm rebuild --runtime=electron --target=15.3.0 --disturl=https://atom.io/download/atom-shell --abi=93",
   "config": {
     "forge": {
       "packagerConfig": {},
