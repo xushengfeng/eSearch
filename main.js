@@ -147,7 +147,7 @@ app.whenReady().then(() => {
         transparent: true,
         frame: false,
         skipTaskbar: true,
-        // autoHideMenuBar: true,
+        autoHideMenuBar: true,
         movable: false,
         resizable: false,
         alwaysOnTop: true,
