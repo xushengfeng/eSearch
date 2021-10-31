@@ -28,7 +28,6 @@ final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 function get_desktop_capturer(n) {
     document.querySelector("body").style.display = "none";
     desktopCapturer.getSources({ types: ["window", "screen"], fetchWindowIcons: true }).then(async (sources) => {
-        draw_windows_bar(sources);
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
@@ -69,37 +68,6 @@ ipcRenderer.on("reflash", () => {
     取色器默认格式 = store.get("取色器默认格式") || "HEX";
     遮罩颜色 = store.get("遮罩颜色") || "#0005";
     选区颜色 = store.get("选区颜色") || "#0000";
-});
-
-function draw_windows_bar(o) {
-    内容 = "";
-    for (i in o) {
-        内容 += `<div class="window" id="${o[i].id}"><div class="window_name"><p class="window_title"><img src="${
-            o[i].appIcon?.toDataURL() ?? "assets/no_photo.png"
-        }" class="window_icon">${o[i].name}</p></div><div id="window_photo" ><img src="${o[
-            i
-        ].thumbnail.toDataURL()}" class="window_thumbnail"></div></div>`;
-    }
-    document.getElementById("windows_bar").innerHTML = 内容;
-    for (i in o) {
-        (function (n) {
-            document.getElementById(o[n].id).addEventListener("click", () => {
-                get_desktop_capturer(n);
-            });
-        })(i);
-    }
-}
-
-// 左边窗口工具栏弹出
-o = false;
-hotkeys("z", () => {
-    if (!o) {
-        document.querySelector("#windows_bar").style.transform = "translateX(0)";
-        o = true;
-    } else {
-        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
-        o = false;
-    }
 });
 
 // 工具栏按钮

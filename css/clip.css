@@ -22,43 +22,6 @@ body {
     font-family: sans-serif;
 }
 
-/* 窗口预览 */
-#windows_bar {
-    width: 200px;
-    /* background: var(--bar-bg); */
-    position: fixed;
-    z-index: 999;
-    transform: translateX(-100%);
-    /* padding-right: 1px; */
-    backdrop-filter: var(--blur);
-    transition: var(--transition);
-    overflow: scroll;
-    max-height: 100%;
-}
-.window {
-    transition: var(--transition);
-}
-.window:hover {
-    background-color: var(--hover-color);
-    transition: var(--transition);
-}
-.window_icon {
-    height: 2rem;
-    vertical-align: middle;
-}
-.window_title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin: 0 0 0 8px;
-}
-#window_photo {
-    width: 100%;
-}
-.window_thumbnail {
-    width: 100%;
-}
-
 /* 工具 */
 #tool_bar {
     width: 60px;
