@@ -12,14 +12,39 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 ![1](readme/2.png)
 
-## 运行
+## 安装
+
+在右侧releases打开标签，选择符合你系统的包并下载安装
+
+国内快速下载链接：[Releases · xushengfeng/eSearch · fastgit](https://hub.fastgit.org/xushengfeng/eSearch/releases)
+
+## OCR服务
+
+确保你的电脑安装了python
+
+```shell
+python serve.py
+```
+
+## 源码运行&编译
 
 ```shell
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
+# 运行
 npm start
+# 编译
+npm run make
 ```
+
+## 启动
+
+在你的启动器打开eSearch,他将出现在托盘.Gnome用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件
+
+默认快捷键为<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>(你也可以在设置设置快捷键)
+
+
 
 ## 功能
 
@@ -37,17 +62,28 @@ npm start
   - [ ] 画笔撤销
   - [ ] 画画鼠标跟随
   - [ ] 马赛克
+  
 - [x] 保存
+
 - [x] 复制到剪贴板
+
 - [x] 钉在屏幕上
   - [ ] 展示缩放百分比
   - [ ] 滚轮缩放
   - [ ] 恢复默认大小
+  
 - [x] 二维码识别
+
 - [x] OCR识别
+  - [x] 本地OCR
+  - [ ] 百度OCR
+  
 - [ ] 以图搜图
+
 - [x] 托盘
+
 - [x] 系统选中搜索
+
 - [x] 识别展示
   - [x] 自动搜索翻译
   - [x] 搜索
@@ -55,6 +91,17 @@ npm start
   - [x] 内部打开
   - [x] 浏览器打开
   - [x] 链接识别
+  
+- [x] Wayland桌面:sweat_smile:(为什么electron截不了wayland!)
+
+- [x] 独立于electron的截图api
+
+## 测试
+
+在ArchLinux,KDE plasma,Xorg下测试通过
+Windows暂时无法解决截屏截到光标问题
+Gnome暂时无法解决截屏截到光标问题
+Wayland无法截图
 
 ## 开发原因
 
