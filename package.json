@@ -14,21 +14,6 @@
     "email": "xushengfeng_zg@163.com"
   },
   "license": "GPL3",
-  "build": {
-    "linux": {
-      "icon": "assets/icons",
-      "category": "System",
-      "target": [
-        "tar.gz",
-        "deb",
-        "pacman"
-      ]
-    },
-    "files": [
-      "./assets/**",
-      "./lib/**"
-    ]
-  },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
@@ -45,7 +30,8 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
     "@electron-forge/maker-zip": "^6.0.0-beta.61",
     "electron": "15.3.0",
-    "electron-rebuild": "^3.2.3"
+    "electron-rebuild": "^3.2.3",
+    "yarn": "^1.22.17"
   },
   "rebuild": "npm rebuild --runtime=electron --target=15.3.0 --disturl=https://atom.io/download/atom-shell --abi=98",
   "config": {
