@@ -26,7 +26,7 @@ if (app.isPackaged) {
 }
 
 app.whenReady().then(() => {
-    tray = new Tray(`${run_path}/assets/icons/b.png`);
+    tray = new Tray(`${run_path}/assets/icons/64x64.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
             label: "自动搜索",

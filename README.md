@@ -91,9 +91,9 @@ npm run make
   - [x] 浏览器打开
   - [x] 链接识别
   
-- [x] Wayland桌面:sweat_smile:(为什么electron截不了wayland!)
+- [ ] Wayland桌面:sweat_smile:(为什么electron截不了wayland!)
 
-- [x] 独立于electron的截图api
+- [ ] 独立于electron的截图api
 
 ## 测试
 
