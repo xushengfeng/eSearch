@@ -17,6 +17,7 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
 }
 
 selecting = false;
+right_key = false;
 o_position = "";
 canvas_rect = "";
 clip_ctx = clip_canvas.getContext("2d");
@@ -24,24 +25,34 @@ tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
 
 clip_canvas.onmousedown = (e) => {
-    selecting = true;
-    o_position = [e.screenX, e.screenY]; // 用于跟随
-    canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
-    draw_clip_rect(e);
+    if (e.button == 0) {
+        selecting = true;
+        o_position = [e.screenX, e.screenY]; // 用于跟随
+        canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
+        draw_clip_rect(e);
+    }
+    if (e.button == 2) {
+        right_key = true;
+        change_right_bar(true);
+    }
 };
 
 clip_canvas.onmousemove = (e) => {
-    // 画框
-    draw_clip_rect(e);
+    if (e.button == 0) {
+        // 画框
+        draw_clip_rect(e);
+    }
 };
 
 clip_canvas.onmouseup = (e) => {
-    clip_ctx.closePath();
-    selecting = false;
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-    final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-    // 抬起鼠标后工具栏跟随
-    follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
+    if (e.button == 0) {
+        clip_ctx.closePath();
+        selecting = false;
+        now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+        final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+        // 抬起鼠标后工具栏跟随
+        follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
+    }
 };
 
 function draw_clip_rect(e) {
@@ -133,7 +144,13 @@ function mouse_bar(final_rect, x, y) {
             // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
             // 颜色文字
-            clip_color_text(color_g[i][0], color_g[i][1], color_g[i][2], color_g[i][3]);
+            document.querySelector("#clip_color").innerHTML = clip_color_text(
+                color_g[i][0],
+                color_g[i][1],
+                color_g[i][2],
+                color_g[i][3],
+                取色器默认格式
+            );
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }
@@ -235,47 +252,60 @@ function rgb_2_hslsv(rgba) {
 }
 
 // 改变颜色文字和样式
-function clip_color_text(r, g, b, a) {
-    document.querySelector("#clip_color").innerHTML = color_conversion([r, g, b, a], 取色器默认格式);
-    document.querySelector("#clip_color").style.background = `rgba(${r},${g},${b},${a})`;
-    var r = r / 255;
-    var g = g / 255;
-    var b = b / 255;
-    y = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+function clip_color_text(r, g, b, a, type) {
+    // document.querySelector("#clip_color").innerHTML = color_conversion([r, g, b, a], type);
+    // document.querySelector("#clip_color").style.background = `rgba(${r},${g},${b},${a})`;
+    clip_color_text_color = null;
+    y = 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
     if (y >= 0.5) {
-        document.querySelector("#clip_color").style.color = "#000";
+        clip_color_text_color = "#000";
     } else {
-        document.querySelector("#clip_color").style.color = "#fff";
+        clip_color_text_color = "#fff";
+    }
+    return `<div class="color_text" style="background-color:rgba(${r},${g},${b},${a});color:${clip_color_text_color}">${color_conversion(
+        [r, g, b, a],
+        type
+    )}</div>`;
+}
+
+function change_right_bar(v) {
+    if (v) {
+        document.querySelector("#point_color").style.height = "0";
+    } else {
+        document.querySelector("#point_color").style.height = "";
     }
 }
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
-    // 鼠标位置文字
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+    if (!right_key) {
+        // 鼠标位置文字
+        now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
 
-    // 鼠标跟随栏
-    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+        // 鼠标跟随栏
+        mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
 
-    var x = e.screenX + 35;
-    var y = e.screenY + 35;
-    var w = document.querySelector("#mouse_bar").offsetWidth;
-    var h = document.querySelector("#mouse_bar").offsetHeight;
-    var sw = window.screen.width;
-    var sh = window.screen.height;
-    if (x + w > sw) {
-        x = x - w - 70;
-    }
-    if (y + h > sh) {
-        y = y - h - 70;
-    }
+        var x = e.screenX + 35;
+        var y = e.screenY + 35;
+        var w = document.querySelector("#mouse_bar").offsetWidth;
+        var h = document.querySelector("#mouse_bar").offsetHeight;
+        var sw = window.screen.width;
+        var sh = window.screen.height;
+        if (x + w > sw) {
+            x = x - w - 70;
+        }
+        if (y + h > sh) {
+            y = y - h - 70;
+        }
 
-    document.querySelector("#mouse_bar").style.left = `${x}px`;
-    document.querySelector("#mouse_bar").style.top = `${y}px`;
+        document.querySelector("#mouse_bar").style.left = `${x}px`;
+        document.querySelector("#mouse_bar").style.top = `${y}px`;
 
-    if (draw_bar_moving) {
-        draw_bar.style.left = e.screenX - draw_bar_moving_xy[0] + "px";
-        draw_bar.style.top = e.screenY - draw_bar_moving_xy[1] + "px";
+        // 画板栏移动
+        if (draw_bar_moving) {
+            draw_bar.style.left = e.screenX - draw_bar_moving_xy[0] + "px";
+            draw_bar.style.top = e.screenY - draw_bar_moving_xy[1] + "px";
+        }
     }
 };
 
