@@ -20,6 +20,7 @@ selecting = false;
 right_key = false;
 o_position = "";
 canvas_rect = "";
+the_color = null;
 clip_ctx = clip_canvas.getContext("2d");
 tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
@@ -144,13 +145,8 @@ function mouse_bar(final_rect, x, y) {
             // 光标中心点
             inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
             // 颜色文字
-            document.querySelector("#clip_color").innerHTML = clip_color_text(
-                color_g[i][0],
-                color_g[i][1],
-                color_g[i][2],
-                color_g[i][3],
-                取色器默认格式
-            );
+            the_color = color_g[i];
+            document.querySelector("#clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
         } else {
             inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
         }
@@ -228,6 +224,7 @@ function rgb_2_hslsv(rgba) {
     if (Δ == 0) {
         h = 0;
         s = 0;
+        s2 = 0;
     } else {
         switch (max) {
             case r:
@@ -248,11 +245,13 @@ function rgb_2_hslsv(rgba) {
     s = (s * 100).toFixed(0);
     l = (l * 100).toFixed(0);
     s2 = (s2 * 100).toFixed(0);
+    max = (max * 100).toFixed(0);
     return [h, s, l, s2, max];
 }
 
 // 改变颜色文字和样式
-function clip_color_text(r, g, b, a, type) {
+function clip_color_text(l, type) {
+    [r, g, b, a] = l;
     // document.querySelector("#clip_color").innerHTML = color_conversion([r, g, b, a], type);
     // document.querySelector("#clip_color").style.background = `rgba(${r},${g},${b},${a})`;
     clip_color_text_color = null;
@@ -268,9 +267,16 @@ function clip_color_text(r, g, b, a, type) {
     )}</div>`;
 }
 
+// 改变鼠标跟随栏形态，展示所有颜色格式
 function change_right_bar(v) {
     if (v) {
         document.querySelector("#point_color").style.height = "0";
+        var t = "";
+        var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+        for (i in all_color_format) {
+            t += clip_color_text(the_color, all_color_format[i]);
+        }
+        document.querySelector("#clip_color").innerHTML = t;
     } else {
         document.querySelector("#point_color").style.height = "";
     }
