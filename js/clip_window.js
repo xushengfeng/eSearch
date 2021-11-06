@@ -76,9 +76,11 @@ ipcRenderer.on("reflash", () => {
 function draw_windows_bar(o) {
     内容 = "";
     for (i in o) {
-        内容 += `<div class="window" id="${o[i].id}"><div class="window_name"><p class="window_title"><img src="${
-            o[i].appIcon?.toDataURL() ?? "assets/no_photo.png"
-        }" class="window_icon">${o[i].name}</p></div><div id="window_photo" ><img src="${o[
+        内容 += `<div class="window" id="${
+            o[i].id
+        }"><div class="window_name"><p class="window_title"><img src="assets/screen.svg" class="window_icon">屏幕${
+            i - 0 + 1
+        }</p></div><div id="window_photo" ><img src="${o[
             i
         ].thumbnail.toDataURL()}" class="window_thumbnail"></div></div>`;
     }

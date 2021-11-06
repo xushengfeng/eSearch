@@ -24,6 +24,7 @@ body {
 
 /* 桌面切换 */
 #windows_bar {
+    background-color: var(--bar-bg);
     width: 200px;
     position: fixed;
     z-index: 999;
