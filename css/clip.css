@@ -22,6 +22,44 @@ body {
     font-family: sans-serif;
 }
 
+/* 桌面切换 */
+#windows_bar {
+    width: 200px;
+    position: fixed;
+    z-index: 999;
+    transform: translateX(-100%);
+    backdrop-filter: var(--blur);
+    transition: var(--transition);
+    overflow: scroll;
+    height: 100%;
+}
+.window {
+    transition: var(--transition);
+    padding: 8px;
+}
+.window:hover {
+    background-color: var(--hover-color);
+    transition: var(--transition);
+}
+.window_icon {
+    height: 2rem;
+    vertical-align: middle;
+}
+.window_title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0 0 0 8px;
+}
+#window_photo {
+    overflow: hidden;
+    border-radius: 8px;
+}
+.window_thumbnail {
+    width: 100%;
+    display: block;
+}
+
 /* 工具 */
 #tool_bar {
     width: 60px;

@@ -27,35 +27,38 @@ final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function get_desktop_capturer(n) {
     document.querySelector("body").style.display = "none";
-    desktopCapturer.getSources({ types: ["window", "screen"], fetchWindowIcons: true }).then(async (sources) => {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: {
-                mandatory: {
-                    chromeMediaSource: "desktop",
-                    chromeMediaSourceId: sources[n].id,
+    desktopCapturer
+        .getSources({ types: ["screen"], fetchWindowIcons: true, thumbnailSize: { width: 200, height: 1000 } })
+        .then(async (sources) => {
+            draw_windows_bar(sources);
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: "desktop",
+                        chromeMediaSourceId: sources[n].id,
+                    },
                 },
-            },
-            // cursor: "never"
+                // cursor: "never"
+            });
+            const video = document.querySelector("#root_resource");
+            video.srcObject = stream;
+            video.onloadedmetadata = (e) => {
+                video.play();
+                canvas.clear();
+                main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
+                main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
+                main_canvas.getContext("2d").drawImage(video, 0, 0);
+                final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+                document.querySelector("#clip_wh").style.left =
+                    final_rect[2] / 2 - document.querySelector("#clip_wh").offsetWidth / 2 + "px";
+                document.querySelector("#clip_wh").style.top = "10px";
+                document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+                video.pause();
+                document.querySelector("body").style.display = "block";
+            };
+            return;
         });
-        const video = document.querySelector("#root_resource");
-        video.srcObject = stream;
-        video.onloadedmetadata = (e) => {
-            video.play();
-            canvas.clear();
-            main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
-            main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
-            main_canvas.getContext("2d").drawImage(video, 0, 0);
-            final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
-            document.querySelector("#clip_wh").style.left =
-                final_rect[2] / 2 - document.querySelector("#clip_wh").offsetWidth / 2 + "px";
-            document.querySelector("#clip_wh").style.top = "10px";
-            document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
-            video.pause();
-            document.querySelector("body").style.display = "block";
-        };
-        return;
-    });
 }
 
 get_desktop_capturer(0);
@@ -68,6 +71,37 @@ ipcRenderer.on("reflash", () => {
     取色器默认格式 = store.get("取色器默认格式") || "HEX";
     遮罩颜色 = store.get("遮罩颜色") || "#0005";
     选区颜色 = store.get("选区颜色") || "#0000";
+});
+
+function draw_windows_bar(o) {
+    内容 = "";
+    for (i in o) {
+        内容 += `<div class="window" id="${o[i].id}"><div class="window_name"><p class="window_title"><img src="${
+            o[i].appIcon?.toDataURL() ?? "assets/no_photo.png"
+        }" class="window_icon">${o[i].name}</p></div><div id="window_photo" ><img src="${o[
+            i
+        ].thumbnail.toDataURL()}" class="window_thumbnail"></div></div>`;
+    }
+    document.getElementById("windows_bar").innerHTML = 内容;
+    for (i in o) {
+        (function (n) {
+            document.getElementById(o[n].id).addEventListener("click", () => {
+                get_desktop_capturer(n);
+            });
+        })(i);
+    }
+}
+
+// 左边窗口工具栏弹出
+o = false;
+hotkeys("z", () => {
+    if (!o) {
+        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        o = true;
+    } else {
+        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+        o = false;
+    }
 });
 
 // 工具栏按钮
