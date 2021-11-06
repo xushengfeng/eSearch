@@ -170,6 +170,14 @@ video {
 #clip_color {
     font-family: "Courier New", Courier, monospace;
 }
+.color_text {
+    margin: 4px 0 4px 0;
+    outline: 2px #0000 solid;
+    transition: var(--transition);
+}
+.color_text:hover {
+    outline: 2px #000 solid;
+}
 #clip_wh {
     position: absolute;
     z-index: 99;

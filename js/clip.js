@@ -31,6 +31,8 @@ clip_canvas.onmousedown = (e) => {
         o_position = [e.screenX, e.screenY]; // 用于跟随
         canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
         draw_clip_rect(e);
+        right_key = false;
+        change_right_bar(false);
     }
     if (e.button == 2) {
         right_key = true;
@@ -252,8 +254,6 @@ function rgb_2_hslsv(rgba) {
 // 改变颜色文字和样式
 function clip_color_text(l, type) {
     [r, g, b, a] = l;
-    // document.querySelector("#clip_color").innerHTML = color_conversion([r, g, b, a], type);
-    // document.querySelector("#clip_color").style.background = `rgba(${r},${g},${b},${a})`;
     clip_color_text_color = null;
     y = 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
     if (y >= 0.5) {
@@ -277,8 +277,17 @@ function change_right_bar(v) {
             t += clip_color_text(the_color, all_color_format[i]);
         }
         document.querySelector("#clip_color").innerHTML = t;
+        var nodes=document.querySelectorAll("#clip_color > div")
+        nodes.forEach(element =>{
+            (e=>{
+                e.onclick=()=>{
+                    clipboard.writeText(e.innerText)
+                }
+            })(element)
+        } )
     } else {
         document.querySelector("#point_color").style.height = "";
+        document.querySelector("#clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
     }
 }
 
