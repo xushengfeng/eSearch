@@ -265,7 +265,7 @@ function clip_color_text(l, type) {
     } else {
         clip_color_text_color = "#fff";
     }
-    return `<div class="color_text" style="background-color:rgba(${r},${g},${b},${a});color:${clip_color_text_color}">${color_conversion(
+    return `<div style="background-color:rgba(${r},${g},${b},${a});color:${clip_color_text_color}">${color_conversion(
         [r, g, b, a],
         type
     )}</div>`;
@@ -275,7 +275,7 @@ function clip_color_text(l, type) {
 function change_right_bar(v) {
     if (v) {
         document.querySelector("#point_color").style.height = "0";
-        var t = "";
+        var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
         var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
         for (i in all_color_format) {
             t += clip_color_text(the_color, all_color_format[i]);

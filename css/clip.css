@@ -209,12 +209,12 @@ video {
 #clip_color {
     font-family: "Courier New", Courier, monospace;
 }
-.color_text {
+#clip_color div {
     margin: 4px 0 4px 0;
     outline: 2px #0000 solid;
     transition: var(--transition);
 }
-.color_text:hover {
+#clip_color div:hover {
     outline: 2px #000 solid;
 }
 #clip_wh {
