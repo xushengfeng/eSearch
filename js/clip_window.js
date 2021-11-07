@@ -7,11 +7,18 @@ const hotkeys = require("hotkeys-js");
 
 // 获取设置
 store = new Store();
-工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
-光标 = store.get("光标") || "以(1,1)为起点";
-取色器默认格式 = store.get("取色器默认格式") || "RGBA";
-遮罩颜色 = store.get("遮罩颜色") || "#0005";
-选区颜色 = store.get("选区颜色") || "#0000";
+function set_setting() {
+    工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
+    光标 = store.get("光标") || "以(1,1)为起点";
+    取色器默认格式 = store.get("取色器默认格式") || "RGBA";
+    遮罩颜色 = store.get("遮罩颜色") || "#0005";
+    选区颜色 = store.get("选区颜色") || "#0000";
+
+    copy_size = store.get("取色器大小") || "15";
+    copy_i_size = store.get("像素大小") || "10";
+    document.documentElement.style.setProperty("--copy_size", `${copy_size * copy_i_size}px`);
+    document.documentElement.style.setProperty("--copy_i_size", `${copy_i_size}px`);
+}
 
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width + "px";
@@ -26,6 +33,7 @@ main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.hei
 final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 function get_desktop_capturer(n) {
+    set_setting()
     document.querySelector("body").style.display = "none";
     desktopCapturer
         .getSources({ types: ["screen"], fetchWindowIcons: true, thumbnailSize: { width: 200, height: 1000 } })

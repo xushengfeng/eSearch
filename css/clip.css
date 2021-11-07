@@ -4,6 +4,8 @@
     --bar-bg: #fff9;
     --blur: blur(8px);
     --shadow: #0002 0 0 8px;
+    --copy_size: 150px;
+    --copy_i_size: 10px;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -182,39 +184,44 @@ video {
     background: var(--bar-bg);
 }
 #point_color {
-    width: 110px;
-    height: 110px;
+    width: var(--copy_size);
+    height: var(--copy_size);
     overflow: hidden;
     transition: var(--transition);
 }
-#point_color_t {
-    width: 10px;
-    height: 10px;
+#point_color span{
+    width: var(--copy_i_size);
+    height: var(--copy_i_size);
     float: left;
+
 }
 #point_color_t_c {
-    width: 10px;
-    height: 10px;
-    float: left;
     outline: 2px #000 solid;
     position: relative;
     z-index: 2;
 }
 #point_color_t_b {
-    width: 10px;
-    height: 10px;
-    float: left;
     box-shadow: #0005 0 0 0 0.5px inset;
 }
 #clip_color {
     font-family: "Courier New", Courier, monospace;
+    transition: var(--transition);
+    height: 16px;
+    overflow: hidden;
 }
-#clip_color div {
+#clip_copy {
+    width: 100%;
+    height: 0;
+    transition: var(--transition);
+    overflow: hidden;
+}
+#clip_copy div {
     margin: 4px 0 4px 0;
     outline: 2px #0000 solid;
-    transition: var(--transition);
 }
-#clip_color div:hover {
+#clip_copy div:hover {
+    position: relative;
+    z-index: 2;
     outline: 2px #000 solid;
 }
 #clip_wh {

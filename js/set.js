@@ -17,6 +17,19 @@ if (document.title == "eSearch-设置") {
     选择器储存("取色器默认格式", "HEX");
 }
 
+// 取色器设置
+document.querySelector("#取色器大小").value = store.get("取色器大小") || "15";
+document.querySelector("#像素大小").value = store.get("像素大小") || "10";
+document.querySelector("#取色器大小").oninput = () => {
+    if ((document.querySelector("#取色器大小").value - 0) % 2 == 0) {
+        document.querySelector("#取色器大小").value = document.querySelector("#取色器大小").value - 0 + 1;
+    }
+    store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
+};
+document.querySelector("#像素大小").oninput = () => {
+    store.set("像素大小", document.querySelector("#像素大小").value - 0);
+};
+
 // 选区&遮罩颜色设置
 document.querySelector("#遮罩颜色 > span").style.backgroundImage =
     `linear-gradient(${store.get("遮罩颜色")}, ${store.get("遮罩颜色")}), url('assets/tbg.svg')` ||

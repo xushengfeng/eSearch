@@ -133,7 +133,9 @@ function mouse_bar(final_rect, x, y) {
     x1 = final_rect[0] + final_rect[2];
     y0 = final_rect[1];
     y1 = final_rect[1] + final_rect[3];
-    color = main_canvas.getContext("2d").getImageData(x - 5, y - 5, 11, 11).data; // 取色器密度
+    color = main_canvas
+        .getContext("2d")
+        .getImageData(x - (copy_size - 1) / 2, y - (copy_size - 1) / 2, copy_size, copy_size).data; // 取色器密度
     // 分开每个像素的颜色
     color_g = [];
     for (var i = 0, len = color.length; i < len; i += 4) {
@@ -273,25 +275,30 @@ function clip_color_text(l, type) {
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
 function change_right_bar(v) {
+    var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
+    var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+    for (i in all_color_format) {
+        t += clip_color_text(the_color, all_color_format[i]);
+    }
+    document.querySelector("#clip_copy").innerHTML = t;
+    var nodes = document.querySelectorAll("#clip_copy > div");
+    nodes.forEach((element) => {
+        ((e) => {
+            e.onclick = () => {
+                clipboard.writeText(e.innerText);
+                right_key = false;
+                change_right_bar(false);
+            };
+        })(element);
+    });
     if (v) {
         document.querySelector("#point_color").style.height = "0";
-        var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
-        var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
-        for (i in all_color_format) {
-            t += clip_color_text(the_color, all_color_format[i]);
-        }
-        document.querySelector("#clip_color").innerHTML = t;
-        var nodes=document.querySelectorAll("#clip_color > div")
-        nodes.forEach(element =>{
-            (e=>{
-                e.onclick=()=>{
-                    clipboard.writeText(e.innerText)
-                }
-            })(element)
-        } )
+        document.querySelector("#clip_color").style.height = "0";
+        document.querySelector("#clip_copy").style.height = `142px`;
     } else {
         document.querySelector("#point_color").style.height = "";
-        document.querySelector("#clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
+        document.querySelector("#clip_color").style.height = "";
+        document.querySelector("#clip_copy").style.height = "";
     }
 }
 
