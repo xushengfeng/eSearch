@@ -36,6 +36,10 @@ clip_canvas.onmousedown = (e) => {
     }
     if (e.button == 2) {
         right_key = true;
+        // 自由右键取色
+        now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+        mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+        // 改成多格式样式
         change_right_bar(true);
     }
 };
