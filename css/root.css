@@ -13,3 +13,40 @@
     --copy_size: 150px;
     --copy_i_size: 10px;
 }
+
+#tab_bar {
+    margin: 0 auto 16px 16px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: var(--border);
+    backdrop-filter: var(--blur);
+    background-color: var(--bar-bg);
+}
+#tab_bar a {
+    display: block;
+}
+
+#tab_bar a div {
+    width: 40px;
+    height: 40px;
+    transition: var(--transition);
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+}
+#tab_bar a div:hover {
+    background-color: var(--hover-color);
+}
+
+#main{
+    background-image: url("../assets/main.svg");
+
+}
+#setting {
+    background-image: url("../assets/setting.svg");
+}
+#help{
+    background-image: url("../assets/help.svg");
+}

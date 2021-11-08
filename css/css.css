@@ -79,19 +79,6 @@ body {
 #browser {
     margin: 0 16px 16px 16px;
 }
-#setting {
-    width: 40px;
-    height: 40px;
-    transition: var(--transition);
-    margin: 0 auto 0 16px;
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
-    background-image: url('../assets/setting.svg');
-}
-#setting:hover{
-    background-color: var(--hover-color);
-}
 
 button {
     border-radius: 0;

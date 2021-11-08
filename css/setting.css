@@ -8,21 +8,6 @@ body {
     height: 100%;
     font-family: sans-serif;
 }
-#main {
-    border-radius: var(--border-radius);
-    border: var(--border);
-    background-color: var(--bar-bg);
-    width: 40px;
-    height: 40px;
-    transition: var(--transition);
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
-    background-image: url('../assets/main.svg');
-}
-#main:hover{
-    background-color: var(--hover-color);
-}
 #setting_main {
     width: 100%;
 }
