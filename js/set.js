@@ -109,3 +109,28 @@ document.querySelector("#浏览器中打开").onclick = () => {
 document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
 };
+
+document.querySelector("#ocr_local").oninput = () => {
+    ocr_l_c();
+    store.set("ocr_local", document.querySelector("#ocr_local").checked);
+};
+function ocr_l_c() {
+    if (document.querySelector("#ocr_local").checked) {
+        document.querySelector("#ocr_url").disabled = true;
+        document.querySelector("#ocr_access_token").disabled = true;
+    } else {
+        document.querySelector("#ocr_url").disabled = false;
+        document.querySelector("#ocr_access_token").disabled = false;
+    }
+}
+document.querySelector("#ocr_local").checked = store.get("ocr_local") || true;
+ocr_l_c();
+document.querySelector("#ocr_url").value = store.get("ocr_url") || "";
+document.querySelector("#ocr_access_token").value = store.get("ocr_access_token") || "";
+
+document.querySelector("#ocr_url").oninput = () => {
+    store.set("ocr_url", document.querySelector("#ocr_url").value);
+};
+document.querySelector("#ocr_access_token").oninput = () => {
+    store.set("ocr_access_token", document.querySelector("#ocr_access_token").value);
+};

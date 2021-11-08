@@ -75,7 +75,7 @@ npm run make
 
 - [x] OCR识别
   - [x] 本地OCR
-  - [ ] 百度OCR
+  - [x] 百度OCR
   
 - [ ] 以图搜图
 
