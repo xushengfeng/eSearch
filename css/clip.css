@@ -1,12 +1,3 @@
-:root {
-    --hover-color: #0002;
-    --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    --bar-bg: #fff9;
-    --blur: blur(8px);
-    --shadow: #0002 0 0 8px;
-    --copy_size: 150px;
-    --copy_i_size: 10px;
-}
 ::-webkit-scrollbar {
     display: none;
 }
