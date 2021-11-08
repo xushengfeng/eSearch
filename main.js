@@ -174,8 +174,8 @@ app.whenReady().then(() => {
     ipcMain.on("ocr", (event, arg) => {
         const request = net.request({
             method: "POST",
-            url: "http://127.0.0.1:8080",
-            headers: { "Content-type": "application/text" },
+            url: store.get("ocr_url") || "http://127.0.0.1:8080",
+            headers: { "Content-type": "application/x-www-form-urlencoded" },
         });
         request.on("response", (response) => {
             if (response.statusCode == "200") {
@@ -201,7 +201,14 @@ app.whenReady().then(() => {
                 });
             }
         });
-        request.write(arg);
+        access_token = store.get("ocr_access_token") || "";
+        data = JSON.stringify({
+            access_token: access_token,
+            image: arg,
+            detect_direction: true,
+            paragraph: true,
+        });
+        request.write(data);
         request.end();
     });
 

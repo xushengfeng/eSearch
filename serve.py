@@ -8,7 +8,8 @@ import numpy as np
 
 def ocr(data, lang):
     ocr = PaddleOCR(use_gpu=False, lang=lang)  # 首次执行会自动下载模型文件
-    image_string = data
+    data = json.loads(str(data, encoding='utf-8'))
+    image_string = data['image']
     img_data = base64.b64decode(image_string)
     nparr = np.fromstring(img_data, np.uint8)
     img_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
