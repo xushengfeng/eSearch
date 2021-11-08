@@ -14,6 +14,11 @@
     --copy_i_size: 10px;
 }
 
+html,
+body {
+    margin: 0;
+}
+
 #tab_bar {
     margin: 0 auto 16px 16px;
     display: flex;
@@ -40,13 +45,12 @@
     background-color: var(--hover-color);
 }
 
-#main{
+#main {
     background-image: url("../assets/main.svg");
-
 }
 #setting {
     background-image: url("../assets/setting.svg");
 }
-#help{
+#help {
     background-image: url("../assets/help.svg");
 }

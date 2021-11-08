@@ -8,8 +8,13 @@ body {
     height: 100%;
     font-family: sans-serif;
 }
+#tab_bar {
+    position: fixed;
+    bottom: 0;
+}
 #setting_main {
     width: 100%;
+    padding-bottom: 100px;
 }
 #setting_item {
     display: flex;
