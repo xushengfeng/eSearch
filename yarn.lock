@@ -524,6 +524,11 @@
     "require-from-string" "^2.0.2"
     "uri-js" "^4.2.2"
 
+"animejs@^3.2.1":
+  "integrity" "sha1-3p/i55L0Snd6f99q4WDiZgSwzdo="
+  "resolved" "https://registry.npm.taobao.org/animejs/download/animejs-3.2.1.tgz"
+  "version" "3.2.1"
+
 "ansi-escapes@^4.2.1":
   "integrity" "sha1-ayKR0dt9mLZSHV8e+kLQ86n+tl4="
   "resolved" "https://registry.npm.taobao.org/ansi-escapes/download/ansi-escapes-4.3.2.tgz?cache=0&sync_timestamp=1618723498592&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fansi-escapes%2Fdownload%2Fansi-escapes-4.3.2.tgz"

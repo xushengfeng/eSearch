@@ -15,6 +15,7 @@
   },
   "license": "GPL3",
   "dependencies": {
+    "animejs": "^3.2.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
     "fabric": "^4.6.0",
