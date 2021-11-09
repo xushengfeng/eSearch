@@ -9,10 +9,11 @@
     <meta name="supported-color-schemes" content="light dark">
     <link rel="stylesheet" type="text/css" href="css/root.css">
     <link rel="stylesheet" type="text/css" href="css/setting.css">
+    <link rel="stylesheet" type="text/css" href="css/template.css">
 </head>
 
 <body>
-    
+
     <div id="tab_bar">
         <a href="index.html">
             <div id="main"></div>
@@ -28,11 +29,9 @@
             <div id="setting_right">
                 <div id="快捷键">
                     <div id="自动识别">
-                        <p>自动识别</p>
                         <hot-keys name="自动识别" f="auto_open()"></hot-keys>
                     </div>
                     <div id="截图搜索">
-                        <p>截图搜索</p>
                         <hot-keys name="截图搜索" f='
                             clip_window.webContents.send("reflash");
                             clip_window.show();
@@ -40,11 +39,9 @@
                         </hot-keys>
                     </div>
                     <div id="选中搜索">
-                        <p>选中搜索</p>
                         <hot-keys name="选中搜索" f="open_selection()"></hot-keys>
                     </div>
                     <div id="剪贴板搜索">
-                        <p>剪贴板搜索</p>
                         <hot-keys name="剪贴板搜索" f="open_clip_board()"></hot-keys>
                     </div>
                 </div>
@@ -74,6 +71,7 @@
             <div id="setting_left">光标</div>
             <div id="setting_right">
                 取色器大小<input type="number" id="取色器大小" step="2" min="1">
+                </br>
                 像素大小<input type="number" id="像素大小" min="1">px
             </div>
         </div>
@@ -96,15 +94,11 @@
 
 
         <div id="setting_item">
-            <div id="setting_left">遮罩颜色</div>
+            <div id="setting_left">框选颜色</div>
             <div id="setting_right">
+                遮罩颜色
                 <div id="遮罩颜色"><span></span><input type="text"></div>
-            </div>
-        </div>
-
-        <div id="setting_item">
-            <div id="setting_left">选区颜色</div>
-            <div id="setting_right">
+                选区颜色
                 <div id="选区颜色"><span></span><input type="text"></div>
             </div>
         </div>

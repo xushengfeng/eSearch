@@ -73,6 +73,12 @@ app.whenReady().then(() => {
             },
         },
         {
+            label: "教程帮助",
+            click: () => {
+                create_help_window();
+            },
+        },
+        {
             type: "separator",
         },
         {
@@ -349,3 +355,18 @@ function create_setting_window() {
     main_window.loadFile("setting.html");
     if (dev) main_window.webContents.openDevTools();
 }
+
+function create_help_window() {
+    const main_window = new BrowserWindow({
+        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
+    });
+
+    main_window.loadFile("help.html");
+    if (dev) main_window.webContents.openDevTools();
+}
+
