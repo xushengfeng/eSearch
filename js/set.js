@@ -6,29 +6,63 @@ function 选择器储存(id, 默认) {
     };
 }
 
-document.querySelector("#自动识别 hot-keys input").value = store.get("key_自动识别") || "";
-document.querySelector("#截图搜索 hot-keys input").value = store.get("key_截图搜索") || "";
-document.querySelector("#选中搜索 hot-keys input").value = store.get("key_选中搜索") || "";
-document.querySelector("#剪贴板搜索 hot-keys input").value = store.get("key_剪贴板搜索") || "";
+// document.querySelector("#自动识别 hot-keys input").value = store.get("key_自动识别") || "";
+// document.querySelector("#截图搜索 hot-keys input").value = store.get("key_截图搜索") || "";
+// document.querySelector("#选中搜索 hot-keys input").value = store.get("key_选中搜索") || "";
+// document.querySelector("#剪贴板搜索 hot-keys input").value = store.get("key_剪贴板搜索") || "";
 
-if (document.title == "eSearch-设置") {
-    选择器储存("工具栏跟随", "展示内容优先");
-    选择器储存("光标", "以(1,1)为起点");
-    选择器储存("取色器默认格式", "HEX");
-}
+// if (document.title == "eSearch-设置") {
+//     选择器储存("工具栏跟随", "展示内容优先");
+//     选择器储存("光标", "以(1,1)为起点");
+//     选择器储存("取色器默认格式", "HEX");
+// }
 
-// 取色器设置
-document.querySelector("#取色器大小").value = store.get("取色器大小") || "15";
-document.querySelector("#像素大小").value = store.get("像素大小") || "10";
+// // 取色器设置
+// document.querySelector("#取色器大小").value = store.get("取色器大小") || "15";
+// document.querySelector("#像素大小").value = store.get("像素大小") || "10";
 document.querySelector("#取色器大小").oninput = () => {
     if ((document.querySelector("#取色器大小").value - 0) % 2 == 0) {
         document.querySelector("#取色器大小").value = document.querySelector("#取色器大小").value - 0 + 1;
     }
+    show_color_picker();
     store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
 };
 document.querySelector("#像素大小").oninput = () => {
+    show_color_picker();
     store.set("像素大小", document.querySelector("#像素大小").value - 0);
 };
+
+point_color_view = document.querySelector("#point_color_view");
+var img = document.createElement("img");
+img.src = "assets/color_picker_photo.svg";
+img.onload = () => {
+    point_color_view.width = img.width;
+    point_color_view.height = img.height;
+    point_color_view.getContext("2d").drawImage(img, 0, 0);
+};
+function show_color_picker() {
+    copy_size = document.querySelector("#取色器大小").value - 0;
+    color = point_color_view.getContext("2d").getImageData(0, 0, copy_size, copy_size).data; // 取色器密度
+    // 分开每个像素的颜色
+    color_g = [];
+    for (var i = 0, len = color.length; i < len; i += 4) {
+        color_g.push(color.slice(i, i + 4));
+    }
+    inner_html = "";
+    for (i in color_g) {
+        color_g[i][3] /= 255;
+        inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${
+            color_g[i][2]
+        },${color_g[i][3]}); width:${document.querySelector("#像素大小").value}px;height:${
+            document.querySelector("#像素大小").value
+        }px"></span>`;
+    }
+    document.querySelector("#point_color").style.width =
+        (document.querySelector("#像素大小").value - 0) * copy_size + "px";
+    document.querySelector("#point_color").style.height =
+        (document.querySelector("#像素大小").value - 0) * copy_size + "px";
+    document.querySelector("#point_color").innerHTML = inner_html;
+}
 
 // 选区&遮罩颜色设置
 document.querySelector("#遮罩颜色 > span").style.backgroundImage =

@@ -78,6 +78,21 @@ input:focus {
     display: flex;
 }
 
+#point_color_view {
+    display: none;
+}
+#point_color{
+    margin-top: 8px;
+    padding: 8px;
+    box-shadow: var(--shadow);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+#point_color_t {
+    display: block;
+    float: left;
+}
+
 set-select {
     width: 100%;
 }
