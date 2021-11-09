@@ -127,6 +127,18 @@ function wh_bar(final_rect) {
     document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
 }
 
+inner_html = "";
+for (i = 1; i <= copy_size ** 2; i++) {
+    if (i == (copy_size ** 2 + 1) / 2) {
+        // 光标中心点
+        inner_html += `<span id="point_color_t_c"></span>`;
+    } else {
+        inner_html += `<span id="point_color_t"></span>`;
+    }
+}
+document.querySelector("#point_color").innerHTML = inner_html;
+point_color_span_list = document.querySelectorAll("#point_color > span");
+
 // 鼠标跟随栏
 function mouse_bar(final_rect, x, y) {
     x0 = final_rect[0];
@@ -141,25 +153,32 @@ function mouse_bar(final_rect, x, y) {
     for (var i = 0, len = color.length; i < len; i += 4) {
         color_g.push(color.slice(i, i + 4));
     }
-    inner_html = "";
     for (i in color_g) {
         color_g[i][3] /= 255;
         xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
         yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
         if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && i != (color_g.length - 1) / 2) {
             // 框外
-            inner_html += `<span id="point_color_t_b" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+            point_color_span_list[i].id = "point_color_t_b";
+            point_color_span_list[
+                i
+            ].style.background = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
         } else if (i == (color_g.length - 1) / 2) {
             // 光标中心点
-            inner_html += `<span id="point_color_t_c" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+            point_color_span_list[i].id = "point_color_t_c";
+            point_color_span_list[
+                i
+            ].style.background = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
             // 颜色文字
             the_color = color_g[i];
             document.querySelector("#clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
         } else {
-            inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})"></span>`;
+            point_color_span_list[i].id = "point_color_t_t";
+            point_color_span_list[
+                i
+            ].style.background = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
         }
     }
-    document.querySelector("#point_color").innerHTML = inner_html;
 
     if (光标 == "以(1,1)为起点") {
         document.querySelector("#clip_xy").innerHTML = `(${x + 1}, ${y + 1})`;
