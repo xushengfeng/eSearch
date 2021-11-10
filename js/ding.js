@@ -9,12 +9,15 @@ ipcRenderer.on("window_size", (event, size) => {
     window_size = size;
 });
 窗口透明度 = document.getElementById("透明度");
-窗口透明度.addEventListener("input", () => {
-    document.getElementById("ding_photo").style.opacity = `${窗口透明度.value / 100}`;
-});
-document.getElementById("re").addEventListener("click", () => {
-    ipcRenderer.send("ding_resize", window_name, window_size);
-});
-document.getElementById("close").addEventListener("click", () => {
+窗口透明度.oninput = () => {
+    document.getElementById("ding_photo").style.opacity = `${窗口透明度.value/100}`;
+};
+document.querySelector("#size").oninput = () => {
+    document.querySelector("#size_p").innerHTML = `${document.querySelector("#size").value}%`;
+    zoom = (document.querySelector("#size").value - 0) / 100;
+    console.log([window_size[0] * zoom, window_size[1] * zoom])
+    ipcRenderer.send("ding_resize", window_name, [Math.round(window_size[0] * zoom), Math.round(window_size[1] * zoom)]);
+};
+document.querySelector("#close").onclick = () => {
     ipcRenderer.send("ding_close", window_name);
-});
+};

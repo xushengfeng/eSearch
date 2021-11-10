@@ -12,12 +12,14 @@ body {
 }
 #tool_bar {
     -webkit-app-region: no-drag;
+    z-index: 2;
     width: 100%;
     position: fixed;
     height: 40px;
     top: -40px;
     padding-bottom: 10px;
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    user-select: none;
 }
 #tool_bar:hover {
     top: 0;
