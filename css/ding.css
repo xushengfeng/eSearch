@@ -12,6 +12,10 @@ body {
 }
 #tool_bar {
     -webkit-app-region: no-drag;
+    display: flex;
+    align-items: center;
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
     z-index: 2;
     width: 100%;
     position: fixed;
@@ -24,4 +28,35 @@ body {
 #tool_bar:hover {
     top: 0;
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+#tool_bar > div {
+    margin: 0 8px;
+    display: flex;
+    align-items: center;
+}
+#b {
+    margin: 8px 8px 8px auto !important;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: var(--border);
+}
+#b > button {
+    background: none;
+    border: none;
+    transition: var(--transition);
+    padding: 8px;
+}
+#b > button:hover {
+    background: var(--hover-color);
+}
+
+@media (max-width: 700px) {
+    #tool_bar {
+        flex-direction: column;
+    }
+}
+@media (max-width: 300px) {
+    #tool_bar > div {
+        flex-direction: column;
+    }
 }

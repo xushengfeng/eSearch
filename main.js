@@ -318,12 +318,19 @@ function create_ding_window(x, y, w, h, img) {
         windows[ding_name].webContents.send("img", img);
         windows[ding_name].webContents.send("window_name", ding_name);
         windows[ding_name].webContents.send("window_size", [w, h]);
+        windows[ding_name].webContents.send("window_position", [x, y]);
     });
     ipcMain.on("ding_close", (enent, arg) => {
         windows[arg].close();
     });
+    ipcMain.on("ding_minimize", (enent, arg) => {
+        windows[arg].minimize();
+    });
     ipcMain.on("ding_resize", (enent, name, size) => {
         windows[name].setSize(size[0], size[1]);
+    });
+    ipcMain.on("ding_back_position", (enent, name, p) => {
+        windows[name].setBounds({ x: p[0], y: p[1] });
     });
 }
 

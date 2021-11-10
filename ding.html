@@ -13,10 +13,19 @@
 
 <body>
     <div id="tool_bar">
-        <input type="range" id="透明度">
-        窗口大小<input type="range" name="窗口大小" id="size" min="25" max="300" step="25" value="100">
-        <span id="size_p">100%</span>
-        <button name="关闭按钮" id="close">关闭</button>
+        <div id="opacity">
+            窗口不透明度<input type="range" id="透明度" value="100">
+            <span id="透明度_p">100%</span>
+        </div>
+        <div id="window_size">
+            窗口大小<input type="range" name="窗口大小" id="size" min="25" max="300" step="25" value="100">
+            <span id="size_p">100%</span>
+        </div>
+        <div id="b">
+            <button name="最小化按钮" id="minimize">最小化</button>
+            <button name="归位按钮" id="back_position">归位</button>
+            <button name="关闭按钮" id="close">关闭</button>
+        </div>
     </div>
     <img id="ding_photo"></img>
     <script src="js/ding.js"></script>
