@@ -288,8 +288,10 @@ function open_clip_board() {
     create_main_window(t, "text");
 }
 
+const windows = {};
 function create_ding_window(x, y, w, h, img) {
-    const ding_window = new BrowserWindow({
+    ding_name = `ding_window${new Date().getTime()}`;
+    windows[ding_name] = new BrowserWindow({
         x: x,
         y: y,
         width: w,
@@ -309,16 +311,20 @@ function create_ding_window(x, y, w, h, img) {
         },
     });
 
-    ding_window.setAspectRatio(w / h);
-    ding_window.loadFile("ding.html");
-    if (dev) ding_window.webContents.openDevTools();
-    ding_window.webContents.on("did-finish-load", () => {
-        ding_window.webContents.send("img", img);
+    windows[ding_name].setAspectRatio(w / h);
+    windows[ding_name].loadFile("ding.html");
+    if (dev) windows[ding_name].webContents.openDevTools();
+    windows[ding_name].webContents.on("did-finish-load", () => {
+        windows[ding_name].webContents.send("img", img);
+        windows[ding_name].webContents.send("window_name", ding_name);
+        windows[ding_name].webContents.send("window_size", [w, h]);
     });
-    ipcMain.on("ding_close", () => {
-        ding_window.close();
+    ipcMain.on("ding_close", (enent, arg) => {
+        windows[arg].close();
     });
-    ipcMain.on("ding_resize", () => {});
+    ipcMain.on("ding_resize", (enent, name, size) => {
+        windows[name].setSize(size[0], size[1]);
+    });
 }
 
 function create_main_window(t, type) {
