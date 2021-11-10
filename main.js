@@ -323,10 +323,9 @@ function create_ding_window(x, y, w, h, img) {
 
 function create_main_window(t, type) {
     const main_window = new BrowserWindow({
-        // x: x,
-        // y: y,
-        // width: w,
-        // height: h,
+        x: screen.getCursorScreenPoint().x,
+        y: screen.getCursorScreenPoint().y,
+        minWidth: 800,
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         webPreferences: {
             nodeIntegration: true,
@@ -369,4 +368,3 @@ function create_help_window() {
     main_window.loadFile("help.html");
     if (dev) main_window.webContents.openDevTools();
 }
-
