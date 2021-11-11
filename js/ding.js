@@ -31,7 +31,7 @@ document.querySelector("#minimize").onclick = () => {
     ipcRenderer.send("ding_minimize", window_name);
 };
 document.querySelector("#back_position").onclick = () => {
-    ipcRenderer.send("ding_back_position", window_name, window_position);
+    ipcRenderer.send("ding_back_position", window_name, window_position, window_size);
 };
 
 document.querySelector("#close").onclick = () => {
