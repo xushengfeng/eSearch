@@ -17,15 +17,10 @@ body {
     z-index: 2;
     width: 100%;
     position: fixed;
-    height: 40px;
-    transform: translateY(-90%);
+    transform: translateY(-100%);
     margin-bottom: 20px;
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     user-select: none;
-}
-#tool_bar:hover {
-    transform: translateY(0%);
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #tool_bar > div {
     margin: 0 8px;

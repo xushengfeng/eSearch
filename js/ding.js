@@ -58,3 +58,10 @@ document.onwheel = (e) => {
         e.clientY
     );
 };
+
+document.onmouseenter = () => {
+    document.querySelector("#tool_bar").style.transform = "translateY(0%)";
+};
+document.onmouseleave = () => {
+    document.querySelector("#tool_bar").style.transform = "";
+};
