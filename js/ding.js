@@ -21,11 +21,22 @@ document.querySelector("#size").oninput = () => {
     resize(zoom, 0, 0);
 };
 function resize(zoom, dx, dy) {
+    if (zoom < 0.25) zoom = 0.25;
+    if (zoom > 3) zoom = 3;
     ipcRenderer.send("ding_resize", window_name, dx, dy, window_size[0], window_size[1], zoom);
 }
 window.onresize = () => {
+    document.querySelector("#size_main_p").style.display="block"
+    document.querySelector("#size_main_p").style.opacity = "1";
     document.querySelector("#size").value = (window.innerWidth / window_size[0]) * 100;
-    document.querySelector("#size_p").innerHTML = `${((window.innerWidth / window_size[0]) * 100).toFixed(0)}%`;
+    document.querySelector("#size_p").innerHTML = document.querySelector("#size_main_p").innerHTML = `${(
+        (window.innerWidth / window_size[0]) *
+        100
+    ).toFixed(0)}%`;
+    show_size_timer = setTimeout(() => {
+        document.querySelector("#size_main_p").style.opacity = "0";
+    }, 500);
+    clearTimeout(show_size_timer - 1);
 };
 document.querySelector("#minimize").onclick = () => {
     ipcRenderer.send("ding_minimize", window_name);
@@ -47,7 +58,7 @@ document.querySelector("#ding_photo").onmouseup = () => {
     ipcRenderer.send("move", window_name, "up");
 };
 
-document.onwheel = (e) => {
+document.querySelector("#ding_photo").onwheel = (e) => {
     resize(
         (document.querySelector("#size").value -
             0 -
