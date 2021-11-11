@@ -332,6 +332,24 @@ function create_ding_window(x, y, w, h, img) {
     ipcMain.on("ding_back_position", (enent, name, p) => {
         windows[name].setBounds({ x: p[0], y: p[1] });
     });
+    ipcMain.on("move", (enent, name, v) => {
+        if (v == "down") {
+            var ding_xy = windows[name].getBounds();
+            var m_xy = screen.getCursorScreenPoint();
+            moving = true;
+        } else {
+            // up
+            moving = false;
+        }
+        function move_ding() {
+            if (moving) {
+                var n_m_xy = screen.getCursorScreenPoint();
+                windows[name].setBounds({ x: ding_xy.x + n_m_xy.x - m_xy.x, y: ding_xy.y + n_m_xy.y - m_xy.y });
+                setTimeout(move_ding, 10);
+            }
+        }
+        move_ding();
+    });
 }
 
 function create_main_window(t, type) {

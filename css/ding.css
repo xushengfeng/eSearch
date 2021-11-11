@@ -4,14 +4,12 @@
 html,
 body {
     margin: 0;
-    -webkit-app-region: drag;
     font-family: sans-serif;
 }
 #ding_photo {
     width: 100%;
 }
 #tool_bar {
-    -webkit-app-region: no-drag;
     display: flex;
     align-items: center;
     backdrop-filter: var(--blur);

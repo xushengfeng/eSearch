@@ -37,3 +37,10 @@ document.querySelector("#back_position").onclick = () => {
 document.querySelector("#close").onclick = () => {
     ipcRenderer.send("ding_close", window_name);
 };
+
+document.querySelector("img").onmousedown = () => {
+    ipcRenderer.send("move", window_name, "down");
+};
+document.querySelector("img").onmouseup = () => {
+    ipcRenderer.send("move", window_name, "up");
+};
