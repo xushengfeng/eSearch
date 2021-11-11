@@ -98,6 +98,7 @@ hotkeys("ctrl+a, command+a", () => {
     clip_ctx.beginPath();
     clip_ctx.fillStyle = 选区颜色;
     clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
+    wh_bar(final_rect)
 });
 
 // 大小栏
