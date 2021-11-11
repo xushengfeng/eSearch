@@ -148,6 +148,7 @@ app.whenReady().then(() => {
         width: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
         height: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
         show: false,
+        alwaysOnTop: true,
         fullscreenable: true,
         transparent: true,
         frame: false,
@@ -155,7 +156,6 @@ app.whenReady().then(() => {
         autoHideMenuBar: true,
         movable: false,
         resizable: false,
-        alwaysOnTop: true,
         enableLargerThanScreen: true, // mac
         hasShadow: false,
         webPreferences: {
@@ -326,8 +326,17 @@ function create_ding_window(x, y, w, h, img) {
     ipcMain.on("ding_minimize", (enent, arg) => {
         windows[arg].minimize();
     });
-    ipcMain.on("ding_resize", (enent, name, size) => {
-        windows[name].setSize(size[0], size[1]);
+    ipcMain.on("ding_resize", (enent, name, dx, dy, w, h, zoom) => {
+        var nw = windows[name].getBounds().width;
+        var nh = windows[name].getBounds().height;
+        var x = windows[name].getBounds().x + dx - w * zoom * (dx / nw);
+        var y = windows[name].getBounds().y + dy - h * zoom * (dy / nh);
+        windows[name].setBounds({
+            x: Math.round(x),
+            y: Math.round(y),
+            width: Math.round(w * zoom),
+            height: Math.round(h * zoom),
+        });
     });
     ipcMain.on("ding_back_position", (enent, name, p) => {
         windows[name].setBounds({ x: p[0], y: p[1] });

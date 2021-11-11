@@ -18,13 +18,13 @@ body {
     width: 100%;
     position: fixed;
     height: 40px;
-    top: -40px;
-    padding-bottom: 10px;
+    transform: translateY(-90%);
+    margin-bottom: 20px;
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     user-select: none;
 }
 #tool_bar:hover {
-    top: 0;
+    transform: translateY(0%);
     transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 #tool_bar > div {
