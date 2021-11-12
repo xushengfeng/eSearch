@@ -40,23 +40,47 @@ body {
     height: 8px;
 }
 
-#link_b {
+#edit_b {
     display: none;
     position: absolute;
-    width: 20px;
-    height: 20px;
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
-    background: var(--bar-bg);
-    background-image: url("../assets/link.svg");
-    background-size: 80%;
-    background-position: center;
-    background-repeat: no-repeat;
     border: var(--border);
     font-size: 5px;
-    text-align: center;
-    line-height: 20px;
+    overflow: hidden;
     cursor: pointer;
+}
+#edit_b > div {
+    float: left;
+    width: 30px;
+    height: 30px;
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: var(--transition);
+}
+#edit_b > div:hover {
+    background-color: var(--hover-color);
+}
+
+#link_bar {
+    background-image: url("../assets/main_link.svg");
+    display: none;
+}
+#search_bar {
+    background-image: url("../assets/main_search.svg");
+}
+#translate_bar {
+    background-image: url("../assets/main_translate.svg");
+}
+#cut_bar {
+    background-image: url("../assets/main_cut.svg");
+}
+#copy_bar {
+    background-image: url("../assets/main_copy.svg");
+}
+#paste_bar {
+    background-image: url("../assets/main_paste.svg");
 }
 
 #b_bar {

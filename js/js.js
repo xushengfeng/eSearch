@@ -1,4 +1,4 @@
-const { ipcRenderer, shell } = require("electron");
+const { ipcRenderer, shell, clipboard } = require("electron");
 const Store = require("electron-store");
 
 t = "";
@@ -70,27 +70,26 @@ function show_t(t) {
 }
 
 document.getElementById("text").onmouseup = (e) => {
-    if (document.getSelection().toString() != "" && is_link(document.getSelection().toString(), false)) {
-        document.querySelector("#link_b").style.display = "block";
-        document.querySelector("#link_b").style.left = e.offsetX + "px";
-        document.querySelector("#link_b").style.top = e.offsetY + "px";
+    if (is_link(document.getSelection().toString(), false)) {
+        document.querySelector("#link_bar").style.display = "block";
     } else {
-        document.querySelector("#link_b").style.display = "none";
+        document.querySelector("#link_bar").style.display = "";
     }
-};
-
-document.querySelector("#link_b").onmousedown = (event) => {
-    event.preventDefault();
-    var url = document.getSelection().toString();
-    console.log(url);
-    if (url.match(/\/\//g) == null) {
-        url = "https://" + url;
-    }
-
-    if (浏览器打开) {
-        shell.openExternal(url);
+    if (document.getSelection().toString() != "") {
+        document.querySelector("#edit_b").style.display = "block";
+        if (
+            document.querySelector("#edit_b").offsetWidth + e.clientX <=
+            window.innerWidth
+        ) {
+            document.querySelector("#edit_b").style.left = e.clientX + "px";
+            document.querySelector("#edit_b").style.top = e.clientY + "px";
+        } else {
+            document.querySelector("#edit_b").style.left =
+                window.innerWidth - document.querySelector("#edit_b").offsetWidth + "px";
+            document.querySelector("#edit_b").style.top = e.clientY + "px";
+        }
     } else {
-        window.open(url, "_blank");
+        document.querySelector("#edit_b").style.display = "none";
     }
 };
 
@@ -189,4 +188,39 @@ document.querySelector("#search_s").oninput = () => {
 };
 document.querySelector("#translate_s").oninput = () => {
     open_link("translate");
+};
+
+document.querySelector("#link_bar").onmousedown = (event) => {
+    event.preventDefault();
+    var url = document.getSelection().toString();
+    console.log(url);
+    if (url.match(/\/\//g) == null) {
+        url = "https://" + url;
+    }
+
+    if (浏览器打开) {
+        shell.openExternal(url);
+    } else {
+        window.open(url, "_blank");
+    }
+};
+document.querySelector("#search_bar").onmousedown = (event) => {
+    event.preventDefault();
+    open_link("search");
+};
+document.querySelector("#translate_bar").onmousedown = (event) => {
+    event.preventDefault();
+    open_link("translate");
+};
+document.querySelector("#cut_bar").onmousedown = (event) => {
+    event.preventDefault();
+    ipcRenderer.send("edit", "cut");
+};
+document.querySelector("#copy_bar").onmousedown = (event) => {
+    event.preventDefault();
+    ipcRenderer.send("edit", "copy");
+};
+document.querySelector("#paste_bar").onmousedown = (event) => {
+    event.preventDefault();
+    ipcRenderer.send("edit", "paste");
 };

@@ -379,6 +379,20 @@ function create_main_window(t, type) {
     main_window.webContents.on("did-finish-load", () => {
         main_window.webContents.send("text", [t, type]);
     });
+
+    ipcMain.on("edit", (enent, v) => {
+        switch (v) {
+            case "cut":
+                main_window.webContents.cut();
+                break;
+            case "copy":
+                main_window.webContents.copy();
+                break;
+            case "paste":
+                main_window.webContents.paste();
+                break;
+        }
+    });
 }
 
 function create_setting_window() {
