@@ -68,9 +68,7 @@ input:focus {
     background-image: linear-gradient(#0000, #0000), url("../assets/tbg.svg");
 }
 #遮罩颜色 > input,
-#选区颜色 > input,
-#ocr_url,
-#ocr_access_token {
+#选区颜色 > input {
     margin: 0 0 0 8px;
 }
 #遮罩颜色,
@@ -92,7 +90,13 @@ input:focus {
     display: block;
     float: left;
 }
-
+#ocr_url,
+#ocr_access_token {
+    border-radius: 0;
+    border: none;
+    border-bottom: var(--border);
+    margin: 0 0 0 8px;
+}
 set-select {
     width: 100%;
 }
