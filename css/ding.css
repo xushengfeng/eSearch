@@ -49,13 +49,26 @@ body {
     border: var(--border);
 }
 #b > button {
-    background: none;
     border: none;
     transition: var(--transition);
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
     padding: 8px;
+    width: 40px;
+    height: 40px;
 }
 #b > button:hover {
-    background: var(--hover-color);
+    background-color: var(--hover-color);
+}
+#minimize {
+    background-image: url("../assets/ding_minimize.svg");
+}
+#back_position {
+    background-image: url("../assets/ding_back.svg");
+}
+#close {
+    background-image: url("../assets/ding_close.svg");
 }
 
 @media (max-width: 700px) {

@@ -26,7 +26,7 @@ function resize(zoom, dx, dy) {
     ipcRenderer.send("ding_resize", window_name, dx, dy, window_size[0], window_size[1], zoom);
 }
 window.onresize = () => {
-    document.querySelector("#size_main_p").style.display="block"
+    document.querySelector("#size_main_p").style.display = "block";
     document.querySelector("#size_main_p").style.opacity = "1";
     document.querySelector("#size").value = (window.innerWidth / window_size[0]) * 100;
     document.querySelector("#size_p").innerHTML = document.querySelector("#size_main_p").innerHTML = `${(
@@ -51,10 +51,12 @@ document.querySelector("#close").onclick = () => {
 
 document.querySelector("#ding_photo").onmousedown = (e) => {
     if (e.button == 2) {
+        document.querySelector("#ding_photo").style.cursor = "move";
         ipcRenderer.send("move", window_name, "down");
     }
 };
 document.querySelector("#ding_photo").onmouseup = () => {
+    document.querySelector("#ding_photo").style.cursor = "default";
     ipcRenderer.send("move", window_name, "up");
 };
 
