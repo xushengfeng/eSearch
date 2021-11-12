@@ -64,7 +64,7 @@ body {
 #minimize {
     background-image: url("../assets/ding_minimize.svg");
 }
-#back_position {
+#back {
     background-image: url("../assets/ding_back.svg");
 }
 #close {

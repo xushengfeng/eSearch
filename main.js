@@ -338,7 +338,7 @@ function create_ding_window(x, y, w, h, img) {
             height: Math.round(h * zoom),
         });
     });
-    ipcMain.on("ding_back_position", (enent, name, p, s) => {
+    ipcMain.on("ding_back", (enent, name, p, s) => {
         windows[name].setBounds({ x: p[0], y: p[1], width: s[0], height: s[1] });
     });
     ipcMain.on("move", (enent, name, v) => {
