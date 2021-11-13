@@ -18,9 +18,12 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
 
 selecting = false;
 right_key = false;
-moving = false;
 o_position = "";
 canvas_rect = "";
+in_rect = false;
+moving = false;
+oe = "";
+o_final_rect = "";
 the_color = null;
 clip_ctx = clip_canvas.getContext("2d");
 tool_bar = document.getElementById("tool_bar");
@@ -28,8 +31,7 @@ draw_bar = document.getElementById("draw_bar");
 
 clip_canvas.onmousedown = (e) => {
     is_in_clip_rect(e);
-    if (e.button == 0 && !moving) {
-        moving = false;
+    if (e.button == 0 && !in_rect) {
         selecting = true;
         o_position = [e.screenX, e.screenY]; // 用于跟随
         canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
@@ -46,6 +48,13 @@ clip_canvas.onmousedown = (e) => {
         // 改成多格式样式
         change_right_bar(true);
     }
+    if (in_rect) {
+        is_in_clip_rect(e);
+        oe = e;
+        o_final_rect = final_rect;
+        moving = true;
+        move_rect(o_final_rect, oe, oe);
+    }
 };
 
 clip_canvas.onmousemove = (e) => {
@@ -54,17 +63,26 @@ clip_canvas.onmousemove = (e) => {
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         draw_clip_rect();
     }
-    if (!selecting) is_in_clip_rect(e);
+    if (!selecting && !moving) {
+        is_in_clip_rect(e);
+    }
+
+    if (moving) move_rect(o_final_rect, oe, e);
 };
 
 clip_canvas.onmouseup = (e) => {
-    if (e.button == 0 && !moving) {
+    if (e.button == 0 && !in_rect) {
         clip_ctx.closePath();
         selecting = false;
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
         final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         // 抬起鼠标后工具栏跟随
         follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
+    }
+    if (moving) {
+        move_rect(o_final_rect, oe, e);
+        moving = false;
+        o_final_rect = "";
     }
 };
 
@@ -424,8 +442,9 @@ document.getElementById("draw_move").onmouseup = (e) => {
     draw_bar.style.transition = "";
 };
 
-function is_in_clip_rect(e) {
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+var dw, de, dn, ds;
+function is_in_clip_rect(event) {
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, event.offsetX, event.offsetY, event.offsetX, event.offsetY);
     x = now_canvas_position[0];
     y = now_canvas_position[1];
     x0 = final_rect[0];
@@ -434,11 +453,12 @@ function is_in_clip_rect(e) {
     y1 = final_rect[1] + final_rect[3];
     if (final_rect[2] < main_canvas.width && final_rect[3] < main_canvas.height) {
         if (x0 <= x && x <= x1 && y0 <= y && y <= y1) {
-            moving = true;
+            in_rect = true;
         } else {
-            moving = false;
-            clip_canvas.style.cursor = "crosshair";
+            in_rect = false;
         }
+
+        direction = "";
 
         var num = 8;
 
@@ -446,48 +466,81 @@ function is_in_clip_rect(e) {
         switch (true) {
             case x0 <= x && x <= x0 + num && y0 <= y && y <= y0 + num:
                 clip_canvas.style.cursor = "nw-resize";
+                direction = "西北";
                 break;
             case x1 - num <= x && x <= x1 && y1 - num <= y && y <= y1:
                 clip_canvas.style.cursor = "se-resize";
+                direction = "东南";
                 break;
             case y0 <= y && y <= y0 + num && x1 - num <= x && x <= x1:
                 clip_canvas.style.cursor = "ne-resize";
+                direction = "东北";
                 break;
             case y1 - num <= y && y <= y1 && x0 <= x && x <= x0 + num:
                 clip_canvas.style.cursor = "sw-resize";
+                direction = "西南";
                 break;
-            case x0 <= x && x <= x0 + num && !(y0 <= y && y <= y0 + num):
+            case x0 <= x && x <= x0 + num:
                 clip_canvas.style.cursor = "w-resize";
+                direction = "西";
                 break;
-            case x1 - num <= x && x <= x1 && !(y1 - num <= y && y <= y1):
+            case x1 - num <= x && x <= x1:
                 clip_canvas.style.cursor = "e-resize";
+                direction = "东";
                 break;
-            case y0 <= y && y <= y0 + num && !(x1 - num <= x && x <= x1):
+            case y0 <= y && y <= y0 + num:
                 clip_canvas.style.cursor = "n-resize";
+                direction = "北";
                 break;
-            case y1 - num <= y && y <= y1 && !(x0 <= x && x <= x0 + num):
+            case y1 - num <= y && y <= y1:
                 clip_canvas.style.cursor = "s-resize";
+                direction = "南";
                 break;
             case x0 + num < x && x < x1 - num && y0 + num < y && y < y1 - num:
                 clip_canvas.style.cursor = "move";
+                direction = "move";
                 break;
             default:
                 clip_canvas.style.cursor = "crosshair";
+                direction = "none";
                 break;
-        }
-
-        if (x0 <= x && x <= x0 + 4 && y0 <= y && y <= y0 + 4) {
-        }
-        if (x1 - 4 <= x && x <= x1 && y1 - 4 <= y && y <= y1) {
-        }
-        if (y0 <= y && y <= y0 + 4 && x1 - 4 <= x && x <= x1) {
-        }
-        if (y1 - 4 <= y && y <= y1 && x0 <= x && x <= x0 + 4) {
         }
     }
 }
 
-function move_rect(oe, e) {
-    dx = p_xy_to_c_xy(e)[0] - p_xy_to_c_xy(oe)[0];
-    dy = p_xy_to_c_xy(e)[0] - p_xy_to_c_xy(oe)[0];
+function move_rect(o_final_rect, oe, e) {
+    var op = p_xy_to_c_xy(clip_canvas, oe.offsetX, oe.offsetY, oe.offsetX, oe.offsetY);
+    var p = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+    dx = p[0] - op[0];
+    dy = p[1] - op[1];
+    switch (direction) {
+        case "西北":
+            final_rect = [o_final_rect[0] + dx, o_final_rect[1] + dy, o_final_rect[2] - dx, o_final_rect[3] - dy];
+            break;
+        case "东南":
+            final_rect = [o_final_rect[0], o_final_rect[1], o_final_rect[2] + dx, o_final_rect[3] + dy];
+            break;
+        case "东北":
+            final_rect = [o_final_rect[0], o_final_rect[1] + dy, o_final_rect[2] + dx, o_final_rect[3] - dy];
+            break;
+        case "西南":
+            final_rect = [o_final_rect[0] + dx, o_final_rect[1], o_final_rect[2] - dx, o_final_rect[3] + dy];
+            break;
+        case "西":
+            final_rect = [o_final_rect[0] + dx, o_final_rect[1], o_final_rect[2] - dx, o_final_rect[3]];
+            break;
+        case "东":
+            final_rect = [o_final_rect[0], o_final_rect[1], o_final_rect[2] + dx, o_final_rect[3]];
+            break;
+        case "北":
+            final_rect = [o_final_rect[0], o_final_rect[1] + dy, o_final_rect[2], o_final_rect[3] - dy];
+            break;
+        case "南":
+            final_rect = [o_final_rect[0], o_final_rect[1], o_final_rect[2], o_final_rect[3] + dy];
+            break;
+        case "move":
+            final_rect = [o_final_rect[0] + dx, o_final_rect[1] + dy, o_final_rect[2], o_final_rect[3]];
+            break;
+    }
+    draw_clip_rect();
 }
