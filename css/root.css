@@ -54,3 +54,12 @@ body {
 #help {
     background-image: url("../assets/help.svg");
 }
+
+kbd {
+    display: inline-block;
+    padding: 4px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px #0002;
+    transform: rotateX(45deg);
+    background: linear-gradient(315deg, #e6e6e6, #ffffff);
+}

@@ -1,5 +1,28 @@
+main {
+    width: 70%;
+    margin-left: 20%;
+}
 
 #tab_bar {
     position: fixed;
     bottom: 0;
+}
+
+img{
+    width: 80%;
+}
+
+.line_img {
+    width: auto;
+    height: 1rem;
+    vertical-align: middle;
+}
+
+.window{
+    box-shadow: 0 0 16px #00000030;
+    border-radius: var(--border-radius);
+}
+
+a{
+    color: unset;
 }

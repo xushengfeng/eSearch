@@ -412,6 +412,8 @@ function create_setting_window() {
 function create_help_window() {
     const main_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        width:1000,
+        height:800,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
