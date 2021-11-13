@@ -100,47 +100,19 @@ document.getElementById("text").onmouseup = (e) => {
     }
 };
 
-搜索引擎_list =
-    store.get("搜索引擎") ||
-    `[
-        [
-            "谷歌",
-            "https://www.google.com/search?q=%s"
-    ],
-    [
-        "*百度",
-        "https://www.baidu.com/s?wd=%s"
-    ],
-    [
-        "必应",
-        "https://cn.bing.com/search?q=%s"
-    ]
-]`;
+搜索引擎_list = store.get("搜索引擎") || [
+    ["谷歌", "https://www.google.com/search?q=%s"],
+    ["*百度", "https://www.baidu.com/s?wd=%s"],
+    ["必应", "https://cn.bing.com/search?q=%s"],
+];
 
-翻译引擎_list =
-    store.get("翻译引擎") ||
-    `[
-        [
-            "google",
-            "https://translate.google.cn/?op=translate&text=%s"
-        ],
-        [
-            "deepl",
-            "https://www.deepl.com/translator#en/zh/%s"
-        ],
-        [
-            "小米",
-            "https://translator.ai.xiaomi.com/?text=%s&ua=transfer"
-        ],
-        [
-            "金山词霸",
-            "http://www.iciba.com/word?w=%s"
-        ],
-        [
-            "百度",
-            "https://fanyi.baidu.com/#en/zh/%s"
-        ]
-    ]`;
+翻译引擎_list = store.get("翻译引擎") || [
+    ["google", "https://translate.google.cn/?op=translate&text=%s"],
+    ["deepl", "https://www.deepl.com/translator#en/zh/%s"],
+    ["小米", "https://translator.ai.xiaomi.com/?text=%s&ua=transfer"],
+    ["金山词霸", "http://www.iciba.com/word?w=%s"],
+    ["百度", "https://fanyi.baidu.com/#en/zh/%s"],
+];
 
 search_c = "";
 for (i in 搜索引擎_list) {
