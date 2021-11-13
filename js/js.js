@@ -21,6 +21,7 @@ store = new Store();
 
 自动搜索 = store.get("自动搜索");
 自动打开链接 = store.get("自动打开链接");
+自动搜索中文占比 = store.get("自动搜索中文占比");
 
 function is_link(url, s) {
     if (s) {
@@ -68,8 +69,8 @@ function show_t(t) {
         if (自动打开链接) open_link("url", t);
     } else {
         if (自动搜索 && t.match(/\n/) == null && t != "") {
-            if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length / 2) {
-                // 中文字符过半
+            if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
+                // 中文字符过一定阈值
                 open_link("search");
             } else {
                 open_link("translate");

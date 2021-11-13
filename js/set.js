@@ -95,6 +95,10 @@ document.querySelector("#自动打开链接").checked = store.get("自动打开�
 document.querySelector("#自动打开链接").onclick = () => {
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
 };
+document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比") || 0.5;
+document.querySelector("#自动搜索中文占比").oninput = () => {
+    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
+};
 
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎 != undefined) {
