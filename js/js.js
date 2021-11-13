@@ -21,7 +21,7 @@ store = new Store();
 
 自动搜索 = store.get("自动搜索");
 自动打开链接 = store.get("自动打开链接");
-自动搜索中文占比 = store.get("自动搜索中文占比");
+自动搜索中文占比 = store.get("自动搜索中文占比") || 0.5;
 
 function is_link(url, s) {
     if (s) {
