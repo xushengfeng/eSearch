@@ -18,6 +18,7 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
 
 selecting = false;
 right_key = false;
+moving = false;
 o_position = "";
 canvas_rect = "";
 the_color = null;
@@ -26,11 +27,14 @@ tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
 
 clip_canvas.onmousedown = (e) => {
-    if (e.button == 0) {
+    is_in_clip_rect(e);
+    if (e.button == 0 && !moving) {
+        moving = false;
         selecting = true;
         o_position = [e.screenX, e.screenY]; // 用于跟随
         canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
-        draw_clip_rect(e);
+        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+        draw_clip_rect();
         right_key = false;
         change_right_bar(false);
     }
@@ -45,14 +49,16 @@ clip_canvas.onmousedown = (e) => {
 };
 
 clip_canvas.onmousemove = (e) => {
-    if (e.button == 0) {
+    if (e.button == 0 && selecting) {
         // 画框
-        draw_clip_rect(e);
+        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+        draw_clip_rect();
     }
+    if (!selecting) is_in_clip_rect(e);
 };
 
 clip_canvas.onmouseup = (e) => {
-    if (e.button == 0) {
+    if (e.button == 0 && !moving) {
         clip_ctx.closePath();
         selecting = false;
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
@@ -62,43 +68,36 @@ clip_canvas.onmouseup = (e) => {
     }
 };
 
-function draw_clip_rect(e) {
-    if (selecting) {
-        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-        clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
-        clip_ctx.beginPath();
+function draw_clip_rect() {
+    clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
+    clip_ctx.beginPath();
 
-        // 奇迹!!!
-        // 框选为黑色遮罩
-        clip_ctx.fillStyle = 遮罩颜色;
-        clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
-        clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
-        clip_ctx.fillRect(
-            final_rect[0] + final_rect[2],
-            final_rect[1],
-            clip_canvas.width - (final_rect[0] + final_rect[2]),
-            final_rect[3]
-        );
-        clip_ctx.fillRect(
-            0,
-            final_rect[1] + final_rect[3],
-            clip_canvas.width,
-            clip_canvas.height - (final_rect[1] + final_rect[3])
-        );
+    // 奇迹!!!
+    // 框选为黑色遮罩
+    clip_ctx.fillStyle = 遮罩颜色;
+    clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
+    clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
+    clip_ctx.fillRect(
+        final_rect[0] + final_rect[2],
+        final_rect[1],
+        clip_canvas.width - (final_rect[0] + final_rect[2]),
+        final_rect[3]
+    );
+    clip_ctx.fillRect(
+        0,
+        final_rect[1] + final_rect[3],
+        clip_canvas.width,
+        clip_canvas.height - (final_rect[1] + final_rect[3])
+    );
 
-        clip_ctx.fillStyle = 选区颜色;
-        clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
-        wh_bar(final_rect);
-    }
+    clip_ctx.fillStyle = 选区颜色;
+    clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
+    wh_bar(final_rect);
 }
 
 hotkeys("ctrl+a, command+a", () => {
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
-    clip_ctx.beginPath();
-    clip_ctx.fillStyle = 选区颜色;
-    clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
-    wh_bar(final_rect)
+    draw_clip_rect();
 });
 
 // 大小栏
@@ -424,3 +423,25 @@ document.getElementById("draw_move").onmouseup = (e) => {
     draw_bar_moving_xy = [];
     draw_bar.style.transition = "";
 };
+
+function is_in_clip_rect(e) {
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+    x = now_canvas_position[0];
+    y = now_canvas_position[1];
+    x0 = final_rect[0];
+    x1 = final_rect[0] + final_rect[2];
+    y0 = final_rect[1];
+    y1 = final_rect[1] + final_rect[3];
+    if (
+        x0 <= x &&
+        x <= x1 &&
+        y0 <= y &&
+        y <= y1 &&
+        final_rect[2] < main_canvas.width &&
+        final_rect[3] < main_canvas.height
+    ) {
+        moving = true;
+    } else {
+        moving = false;
+    }
+}
