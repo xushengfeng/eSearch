@@ -432,16 +432,62 @@ function is_in_clip_rect(e) {
     x1 = final_rect[0] + final_rect[2];
     y0 = final_rect[1];
     y1 = final_rect[1] + final_rect[3];
-    if (
-        x0 <= x &&
-        x <= x1 &&
-        y0 <= y &&
-        y <= y1 &&
-        final_rect[2] < main_canvas.width &&
-        final_rect[3] < main_canvas.height
-    ) {
-        moving = true;
-    } else {
-        moving = false;
+    if (final_rect[2] < main_canvas.width && final_rect[3] < main_canvas.height) {
+        if (x0 <= x && x <= x1 && y0 <= y && y <= y1) {
+            moving = true;
+        } else {
+            moving = false;
+            clip_canvas.style.cursor = "crosshair";
+        }
+
+        var num = 8;
+
+        // 光标样式
+        switch (true) {
+            case x0 <= x && x <= x0 + num && y0 <= y && y <= y0 + num:
+                clip_canvas.style.cursor = "nw-resize";
+                break;
+            case x1 - num <= x && x <= x1 && y1 - num <= y && y <= y1:
+                clip_canvas.style.cursor = "se-resize";
+                break;
+            case y0 <= y && y <= y0 + num && x1 - num <= x && x <= x1:
+                clip_canvas.style.cursor = "ne-resize";
+                break;
+            case y1 - num <= y && y <= y1 && x0 <= x && x <= x0 + num:
+                clip_canvas.style.cursor = "sw-resize";
+                break;
+            case x0 <= x && x <= x0 + num && !(y0 <= y && y <= y0 + num):
+                clip_canvas.style.cursor = "w-resize";
+                break;
+            case x1 - num <= x && x <= x1 && !(y1 - num <= y && y <= y1):
+                clip_canvas.style.cursor = "e-resize";
+                break;
+            case y0 <= y && y <= y0 + num && !(x1 - num <= x && x <= x1):
+                clip_canvas.style.cursor = "n-resize";
+                break;
+            case y1 - num <= y && y <= y1 && !(x0 <= x && x <= x0 + num):
+                clip_canvas.style.cursor = "s-resize";
+                break;
+            case x0 + num < x && x < x1 - num && y0 + num < y && y < y1 - num:
+                clip_canvas.style.cursor = "move";
+                break;
+            default:
+                clip_canvas.style.cursor = "crosshair";
+                break;
+        }
+
+        if (x0 <= x && x <= x0 + 4 && y0 <= y && y <= y0 + 4) {
+        }
+        if (x1 - 4 <= x && x <= x1 && y1 - 4 <= y && y <= y1) {
+        }
+        if (y0 <= y && y <= y0 + 4 && x1 - 4 <= x && x <= x1) {
+        }
+        if (y1 - 4 <= y && y <= y1 && x0 <= x && x <= x0 + 4) {
+        }
     }
+}
+
+function move_rect(oe, e) {
+    dx = p_xy_to_c_xy(e)[0] - p_xy_to_c_xy(oe)[0];
+    dy = p_xy_to_c_xy(e)[0] - p_xy_to_c_xy(oe)[0];
 }
