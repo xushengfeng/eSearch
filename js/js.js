@@ -20,6 +20,7 @@ ipcRenderer.on("text", (event, list) => {
 store = new Store();
 
 自动搜索 = store.get("自动搜索");
+自动打开链接 = store.get("自动打开链接");
 
 function is_link(url, s) {
     if (s) {
@@ -48,23 +49,31 @@ function show_ocr_r(t) {
         r += text[i]["words"] + "\n";
     }
     document.getElementById("text").innerText = r;
-    if (自动搜索 && text.length == 1) {
-        if (t["language"] == "cn") {
-            open_link("search");
-        } else {
-            if (!is_link(r, true)) open_link("translate");
+    if (is_link(r, true)) {
+        if (自动打开链接) open_link("url", r);
+    } else {
+        if (自动搜索 && text.length == 1) {
+            if (t["language"] == "cn") {
+                open_link("search");
+            } else {
+                open_link("translate");
+            }
         }
     }
 }
 
 function show_t(t) {
     document.getElementById("text").innerText = t;
-    if (自动搜索 && t.match(/\n/) == null && t != "") {
-        if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length) {
-            // 中文字符过半
-            open_link("search");
-        } else {
-            if (!is_link(t, true)) open_link("translate");
+    if (is_link(t, true)) {
+        if (自动打开链接) open_link("url", t);
+    } else {
+        if (自动搜索 && t.match(/\n/) == null && t != "") {
+            if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length / 2) {
+                // 中文字符过半
+                open_link("search");
+            } else {
+                open_link("translate");
+            }
         }
     }
 }
@@ -77,10 +86,7 @@ document.getElementById("text").onmouseup = (e) => {
     }
     if (document.getSelection().toString() != "") {
         document.querySelector("#edit_b").style.display = "block";
-        if (
-            document.querySelector("#edit_b").offsetWidth + e.clientX <=
-            window.innerWidth
-        ) {
+        if (document.querySelector("#edit_b").offsetWidth + e.clientX <= window.innerWidth) {
             document.querySelector("#edit_b").style.left = e.clientX + "px";
             document.querySelector("#edit_b").style.top = e.clientY + "px";
         } else {
@@ -164,12 +170,19 @@ document.querySelector("#browser").onclick = () => {
     浏览器打开 = document.querySelector("#browser_i").checked;
 };
 
-function open_link(id) {
-    s = // 要么全部，要么选中
-        document.getSelection().toString() == ""
-            ? document.getElementById("text").innerText
-            : document.getSelection().toString();
-    url = document.querySelector(`#${id}_s`).value.replace("%s", s);
+function open_link(id, link) {
+    if (id == "url") {
+        if (link.match(/\/\//g) == null) {
+            link = "https://" + link;
+        }
+        url = link;
+    } else {
+        s = // 要么全部，要么选中
+            document.getSelection().toString() == ""
+                ? document.getElementById("text").innerText
+                : document.getSelection().toString();
+        url = document.querySelector(`#${id}_s`).value.replace("%s", s);
+    }
     if (浏览器打开) {
         shell.openExternal(url);
     } else {
@@ -193,16 +206,7 @@ document.querySelector("#translate_s").oninput = () => {
 document.querySelector("#link_bar").onmousedown = (event) => {
     event.preventDefault();
     var url = document.getSelection().toString();
-    console.log(url);
-    if (url.match(/\/\//g) == null) {
-        url = "https://" + url;
-    }
-
-    if (浏览器打开) {
-        shell.openExternal(url);
-    } else {
-        window.open(url, "_blank");
-    }
+    open_link("url", url);
 };
 document.querySelector("#search_bar").onmousedown = (event) => {
     event.preventDefault();

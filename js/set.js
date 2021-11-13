@@ -91,6 +91,10 @@ document.querySelector("#自动搜索").checked = store.get("自动搜索") || f
 document.querySelector("#自动搜索").onclick = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
 };
+document.querySelector("#自动打开链接").checked = store.get("自动打开链接") || false;
+document.querySelector("#自动打开链接").onclick = () => {
+    store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
+};
 
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎 != undefined) {
