@@ -37,6 +37,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
     padding: 8px;

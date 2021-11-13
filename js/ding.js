@@ -29,10 +29,9 @@ window.onresize = () => {
     document.querySelector("#size_main_p").style.display = "block";
     document.querySelector("#size_main_p").style.opacity = "1";
     document.querySelector("#size").value = (window.innerWidth / window_size[0]) * 100;
-    document.querySelector("#size_p").innerHTML = document.querySelector("#size_main_p").innerHTML = `${(
-        (window.innerWidth / window_size[0]) *
-        100
-    ).toFixed(0)}%`;
+    document.querySelector("#size_p").innerHTML = document.querySelector("#size_main_p").innerHTML = `${
+        ((window.innerWidth / window_size[0]) * 100).toFixed(0) || 100
+    }%`;
     show_size_timer = setTimeout(() => {
         document.querySelector("#size_main_p").style.opacity = "0";
     }, 500);
