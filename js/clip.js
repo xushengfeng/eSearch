@@ -542,5 +542,15 @@ function move_rect(o_final_rect, oe, e) {
             final_rect = [o_final_rect[0] + dx, o_final_rect[1] + dy, o_final_rect[2], o_final_rect[3]];
             break;
     }
+    if (final_rect[0] < 0) {
+        final_rect[2] = final_rect[2] + final_rect[0];
+        final_rect[0] = 0;
+    }
+    if (final_rect[1] < 0) {
+        final_rect[3] = final_rect[3] + final_rect[1];
+        final_rect[1] = 0;
+    }
+    if (final_rect[0] + final_rect[2] > main_canvas.width) final_rect[2] = main_canvas.width - final_rect[0];
+    if (final_rect[1] + final_rect[3] > main_canvas.height) final_rect[3] = main_canvas.height - final_rect[1];
     draw_clip_rect();
 }
