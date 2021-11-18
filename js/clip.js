@@ -442,6 +442,18 @@ document.getElementById("draw_move").onmouseup = (e) => {
     draw_bar.style.transition = "";
 };
 
+function final_rect_fix(rect) {
+    var x0 = final_rect[0];
+    var y0 = final_rect[1];
+    var x1 = final_rect[0] + final_rect[2];
+    var y1 = final_rect[1] + final_rect[3];
+    x = Math.min(x0, x1);
+    y = Math.min(y0, y1);
+    w = Math.max(x0, x1) - x;
+    h = Math.max(y0, y1) - y;
+    return [x, y, w, h];
+}
+
 var dw, de, dn, ds;
 function is_in_clip_rect(event) {
     now_canvas_position = p_xy_to_c_xy(clip_canvas, event.offsetX, event.offsetY, event.offsetX, event.offsetY);
@@ -552,5 +564,6 @@ function move_rect(o_final_rect, oe, e) {
     }
     if (final_rect[0] + final_rect[2] > main_canvas.width) final_rect[2] = main_canvas.width - final_rect[0];
     if (final_rect[1] + final_rect[3] > main_canvas.height) final_rect[3] = main_canvas.height - final_rect[1];
+    final_rect = final_rect_fix(final_rect);
     draw_clip_rect();
 }
