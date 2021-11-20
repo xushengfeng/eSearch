@@ -507,11 +507,12 @@ function final_rect_fix() {
     y = Math.min(y0, y1);
     w = Math.max(x0, x1) - x;
     h = Math.max(y0, y1) - y;
-    // todo
-    if (x > main_canvas.width) x = main_canvas.width;
-    if (y > main_canvas.height) y = main_canvas.height;
-    if (w > main_canvas.width) w = main_canvas.width;
-    if (h > main_canvas.height) h = main_canvas.height;
+    if (x < 0) w = x = 0;
+    if (y < 0) h = y = 0;
+    if (x > main_canvas.width) x = x % main_canvas.width;
+    if (y > main_canvas.height) y = y % main_canvas.height;
+    if (x + w > main_canvas.width) w = main_canvas.width - x;
+    if (y + h > main_canvas.height) h = main_canvas.height - y;
     final_rect = [x, y, w, h];
 }
 
