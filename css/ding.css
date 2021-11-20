@@ -70,6 +70,21 @@ input[type="range"]::-webkit-slider-thumb {
     margin-top: -1px;
 }
 
+.opacity,
+.size {
+    width: 40px;
+    height: 40px;
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.opacity {
+    background-image: url("../assets/ding_opacity.svg");
+}
+.size {
+    background-image: url("../assets/ding_size.svg");
+}
+
 #b {
     margin: 8px 8px 8px auto !important;
     border-radius: var(--border-radius);
