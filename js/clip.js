@@ -142,7 +142,19 @@ function wh_bar(final_rect) {
     document.querySelector("#clip_wh").style.left = `${x}px`;
     document.querySelector("#clip_wh").style.top = `${y}px`;
     // 大小文字
-    document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+    if (四角坐标) {
+        var x, y;
+        if (光标 == "以(1,1)为起点") {
+            x = `${final_rect[0] + 1}, ${final_rect[0] + 1 + final_rect[2]}`;
+            y = `${final_rect[1] + 1}, ${final_rect[1] + 1 + final_rect[3]}`;
+        } else {
+            x = `${final_rect[0]}, ${final_rect[0] + final_rect[2]}`;
+            y = `${final_rect[1]}, ${final_rect[1] + final_rect[3]}`;
+        }
+        document.querySelector("#clip_wh").innerHTML = `${x} ${final_rect[2]} × ${final_rect[3]} ${y}`;
+    } else {
+        document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+    }
 }
 
 inner_html = "";

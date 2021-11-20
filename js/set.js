@@ -6,16 +6,25 @@ function 选择器储存(id, 默认) {
     };
 }
 
-document.querySelector("#自动识别 hot-keys div").innerHTML = `<kbd>${store.get("key_自动识别")?.replace(/\+/g,'</kbd>+<kbd>')}</kbd>`|| "";
-document.querySelector("#截图搜索 hot-keys div").innerHTML = `<kbd>${store.get("key_截图搜索")?.replace(/\+/g,'</kbd>+<kbd>')}</kbd>`|| "";
-document.querySelector("#选中搜索 hot-keys div").innerHTML = `<kbd>${store.get("key_选中搜索")?.replace(/\+/g,'</kbd>+<kbd>')}</kbd>`|| "";
-document.querySelector("#剪贴板搜索 hot-keys div").innerHTML = `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g,'</kbd>+<kbd>')}</kbd>` || "";
+document.querySelector("#自动识别 hot-keys div").innerHTML =
+    `<kbd>${store.get("key_自动识别")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+document.querySelector("#截图搜索 hot-keys div").innerHTML =
+    `<kbd>${store.get("key_截图搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+document.querySelector("#选中搜索 hot-keys div").innerHTML =
+    `<kbd>${store.get("key_选中搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
+    `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
 
 if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
     选择器储存("光标", "以(1,1)为起点");
     选择器储存("取色器默认格式", "HEX");
 }
+
+document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标") || false;
+document.querySelector("#显示四角坐标").oninput = () => {
+    store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
+};
 
 // 取色器设置
 document.querySelector("#取色器大小").value = store.get("取色器大小") || "15";
@@ -39,7 +48,7 @@ img.onload = () => {
     point_color_view.width = img.width;
     point_color_view.height = img.height;
     point_color_view.getContext("2d").drawImage(img, 0, 0);
-    show_color_picker()
+    show_color_picker();
 };
 function show_color_picker() {
     copy_size = document.querySelector("#取色器大小").value - 0;
