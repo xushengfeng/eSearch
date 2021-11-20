@@ -270,16 +270,16 @@ app.whenReady().then(() => {
     ipcMain.on("move_mouse", (event, arrow, d) => {
         var mouse = robot.getMousePos();
         switch (arrow) {
-            case "ArrowUp":
+            case "up":
                 robot.moveMouse(mouse.x, mouse.y - 1 * d);
                 break;
-            case "ArrowRight":
+            case "right":
                 robot.moveMouse(mouse.x + 1 * d, mouse.y);
                 break;
-            case "ArrowDown":
+            case "down":
                 robot.moveMouse(mouse.x, mouse.y + 1 * d);
                 break;
-            case "ArrowLeft":
+            case "left":
                 robot.moveMouse(mouse.x - 1 * d, mouse.y);
                 break;
         }

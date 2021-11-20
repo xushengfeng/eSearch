@@ -1,11 +1,20 @@
-document.querySelector('body').onkeydown = (e) => {
-    console.log(e.key)
+document.querySelector("body").onkeydown = (e) => {
+    var o = {
+        ArrowUp: "up",
+        w: "up",
+        ArrowRight: "right",
+        d: "right",
+        ArrowDown: "down",
+        s: "down",
+        ArrowLeft: "left",
+        a: "left",
+    };
     if (e.ctrlKey) {
-        ipcRenderer.send("move_mouse", e.key, 5);
+        ipcRenderer.send("move_mouse", o[e.key], 5);
     } else if (e.shiftKey) {
-        ipcRenderer.send("move_mouse", e.key, 10);
+        ipcRenderer.send("move_mouse", o[e.key], 10);
     } else {
-        ipcRenderer.send("move_mouse", e.key, 1);
+        ipcRenderer.send("move_mouse", o[e.key], 1);
     }
 };
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
