@@ -266,6 +266,24 @@ app.whenReady().then(() => {
     ipcMain.on("ding", (event, arg) => {
         create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
     });
+
+    ipcMain.on("move_mouse", (event, arrow, d) => {
+        var mouse = robot.getMousePos();
+        switch (arrow) {
+            case "ArrowUp":
+                robot.moveMouse(mouse.x, mouse.y - 1 * d);
+                break;
+            case "ArrowRight":
+                robot.moveMouse(mouse.x + 1 * d, mouse.y);
+                break;
+            case "ArrowDown":
+                robot.moveMouse(mouse.x, mouse.y + 1 * d);
+                break;
+            case "ArrowLeft":
+                robot.moveMouse(mouse.x - 1 * d, mouse.y);
+                break;
+        }
+    });
 });
 
 app.on("will-quit", () => {

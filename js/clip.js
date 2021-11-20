@@ -1,3 +1,13 @@
+document.querySelector('body').onkeydown = (e) => {
+    console.log(e.key)
+    if (e.ctrlKey) {
+        ipcRenderer.send("move_mouse", e.key, 5);
+    } else if (e.shiftKey) {
+        ipcRenderer.send("move_mouse", e.key, 10);
+    } else {
+        ipcRenderer.send("move_mouse", e.key, 1);
+    }
+};
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
 function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
@@ -631,6 +641,7 @@ function move_rect(o_final_rect, oe, e) {
     }
     if (final_rect[0] + final_rect[2] > main_canvas.width) final_rect[2] = main_canvas.width - final_rect[0];
     if (final_rect[1] + final_rect[3] > main_canvas.height) final_rect[3] = main_canvas.height - final_rect[1];
+
     final_rect_fix();
     draw_clip_rect();
 }
