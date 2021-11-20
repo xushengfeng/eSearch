@@ -76,6 +76,7 @@ clip_canvas.onmouseup = (e) => {
         selecting = false;
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
         final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+        draw_clip_rect();
         // 抬起鼠标后工具栏跟随
         follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
     }
@@ -143,19 +144,62 @@ function wh_bar(final_rect) {
     document.querySelector("#clip_wh").style.top = `${y}px`;
     // 大小文字
     if (四角坐标) {
-        var x, y;
-        if (光标 == "以(1,1)为起点") {
-            x = `${final_rect[0] + 1}, ${final_rect[0] + 1 + final_rect[2]}`;
-            y = `${final_rect[1] + 1}, ${final_rect[1] + 1 + final_rect[3]}`;
-        } else {
-            x = `${final_rect[0]}, ${final_rect[0] + final_rect[2]}`;
-            y = `${final_rect[1]}, ${final_rect[1] + final_rect[3]}`;
-        }
-        document.querySelector("#clip_wh").innerHTML = `${x} ${final_rect[2]} × ${final_rect[3]} ${y}`;
+        var x0, y0, x1, y1;
+        d = 光标 == "以(1,1)为起点" ? 1 : 0;
+        x0 = final_rect[0] + d;
+        y0 = final_rect[1] + d;
+        x1 = final_rect[0] + d + final_rect[2];
+        y1 = final_rect[1] + d + final_rect[3];
+        document.querySelector("#x0y0").value = `${x0}, ${y0}`;
+        document.querySelector("#x1y1").value = `${x1}, ${y1}`;
     } else {
-        document.querySelector("#clip_wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+    }
+    document.querySelector("#wh").value = `${final_rect[2]} × ${final_rect[3]}`;
+    if (selecting == false) {
+        // clip_wh = document.querySelectorAll("#clip_wh>div");
+        // for (i = 0; i < 3; i++) {
+        //     clip_wh[i].style.userSelect = "contain";
+        // }
     }
 }
+
+document.querySelector("#x0y0").onchange = () => {
+    var xy = document.querySelector("#x0y0").value.match(/(\d+)\D+(\d+)/);
+    d = 光标 == "以(1,1)为起点" ? 1 : 0;
+    if (xy != null) {
+        final_rect[0] = xy[1] - 0 - d;
+        final_rect[1] = xy[2] - 0 - d;
+        final_rect_fix();
+        draw_clip_rect();
+    } else {
+        document.querySelector("#x0y0").value = `${final_rect[0] + d}, ${final_rect[1] + d}`;
+    }
+};
+document.querySelector("#x1y1").onchange = () => {
+    var xy = document.querySelector("#x1y1").value.match(/(\d+)\D+(\d+)/);
+    d = 光标 == "以(1,1)为起点" ? 1 : 0;
+    if (xy != null) {
+        final_rect[0] = xy[1] - 0 - final_rect[2] - d;
+        final_rect[1] = xy[2] - 0 - final_rect[3] - d;
+        final_rect_fix();
+        draw_clip_rect();
+    } else {
+        document.querySelector("#x1y1").value = `${final_rect[0] + d + final_rect[2]}, ${
+            final_rect[1] + d + final_rect[3]
+        }`;
+    }
+};
+document.querySelector("#wh").onchange = () => {
+    var wh = document.querySelector("#wh").value.match(/(\d+)\D+(\d+)/);
+    if (wh != null) {
+        final_rect[2] = wh[1] - 0;
+        final_rect[3] = wh[2] - 0;
+        final_rect_fix();
+        draw_clip_rect();
+    } else {
+        document.querySelector("#wh").value = `${final_rect[2]} × ${final_rect[3]}`;
+    }
+};
 
 inner_html = "";
 for (i = 1; i <= copy_size ** 2; i++) {
@@ -454,7 +498,7 @@ document.getElementById("draw_move").onmouseup = (e) => {
     draw_bar.style.transition = "";
 };
 
-function final_rect_fix(rect) {
+function final_rect_fix() {
     var x0 = final_rect[0];
     var y0 = final_rect[1];
     var x1 = final_rect[0] + final_rect[2];
@@ -463,7 +507,12 @@ function final_rect_fix(rect) {
     y = Math.min(y0, y1);
     w = Math.max(x0, x1) - x;
     h = Math.max(y0, y1) - y;
-    return [x, y, w, h];
+    // todo
+    if (x > main_canvas.width) x = main_canvas.width;
+    if (y > main_canvas.height) y = main_canvas.height;
+    if (w > main_canvas.width) w = main_canvas.width;
+    if (h > main_canvas.height) h = main_canvas.height;
+    final_rect = [x, y, w, h];
 }
 
 var dw, de, dn, ds;
@@ -576,6 +625,6 @@ function move_rect(o_final_rect, oe, e) {
     }
     if (final_rect[0] + final_rect[2] > main_canvas.width) final_rect[2] = main_canvas.width - final_rect[0];
     if (final_rect[1] + final_rect[3] > main_canvas.height) final_rect[3] = main_canvas.height - final_rect[1];
-    final_rect = final_rect_fix(final_rect);
+    final_rect_fix();
     draw_clip_rect();
 }

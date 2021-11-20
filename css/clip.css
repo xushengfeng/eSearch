@@ -6,6 +6,7 @@ html {
 }
 body {
     cursor: default;
+    user-select: none;
 }
 html,
 body {
@@ -179,11 +180,10 @@ video {
     overflow: hidden;
     transition: var(--transition);
 }
-#point_color span{
+#point_color span {
     width: var(--copy_i_size);
     height: var(--copy_i_size);
     float: left;
-
 }
 #point_color_t_c {
     outline: 2px #000 solid;
@@ -221,8 +221,15 @@ video {
     background: var(--bar-bg);
     border-radius: 8px;
     box-shadow: var(--shadow);
-    padding: 8px;
+    /* padding: 8px; */
+    display: flex;
     user-select: none;
+}
+#clip_wh:focus {
+    outline: none;
+}
+#clip_wh > div {
+    margin: 8px;
 }
 
 #waiting {

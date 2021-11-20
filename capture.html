@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="css/clip.css">
 </head>
 
-<body onselectstart="return false">
+<body>
     <div id="windows_bar"></div>
     <div id="tool_bar">
         <div id="tool_close"></div>
@@ -79,8 +79,10 @@
             <!-- draw_position -->
             <div id="draw_items">
                 <div id="draw_position_front" style="background-image: url('assets/draw_position_front.svg');"></div>
-                <div id="draw_position_forwards" style="background-image: url('assets/draw_position_forwards.svg');"></div>
-                <div id="draw_position_backwards" style="background-image: url('assets/draw_position_backwards.svg');"></div>
+                <div id="draw_position_forwards" style="background-image: url('assets/draw_position_forwards.svg');">
+                </div>
+                <div id="draw_position_backwards" style="background-image: url('assets/draw_position_backwards.svg');">
+                </div>
                 <div id="draw_position_back" style="background-image: url('assets/draw_position_back.svg');"></div>
             </div>
         </div>
@@ -93,7 +95,11 @@
     </div>
     <video id="root_resource"></video>
 
-    <div id="clip_wh"></div>
+    <div id="clip_wh">
+        <input id="x0y0"></input>
+        <input id="x1y1"></input>
+        <input id="wh"></input>
+    </div>
 
     <div id="mouse_bar">
         <div id="point_color"></div>
