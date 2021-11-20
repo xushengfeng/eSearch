@@ -221,15 +221,17 @@ video {
     background: var(--bar-bg);
     border-radius: 8px;
     box-shadow: var(--shadow);
-    /* padding: 8px; */
     display: flex;
-    user-select: none;
 }
-#clip_wh:focus {
+#clip_wh > div:focus {
     outline: none;
 }
 #clip_wh > div {
     margin: 8px;
+}
+#x0y0,
+#x1y1 {
+    display: none;
 }
 
 #waiting {

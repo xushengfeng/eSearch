@@ -150,54 +150,59 @@ function wh_bar(final_rect) {
         y0 = final_rect[1] + d;
         x1 = final_rect[0] + d + final_rect[2];
         y1 = final_rect[1] + d + final_rect[3];
-        document.querySelector("#x0y0").value = `${x0}, ${y0}`;
-        document.querySelector("#x1y1").value = `${x1}, ${y1}`;
+        document.querySelector("#x0y0").style.display = "block";
+        document.querySelector("#x1y1").style.display = "block";
+        document.querySelector("#x0y0").innerHTML = `${x0}, ${y0}`;
+        document.querySelector("#x1y1").innerHTML = `${x1}, ${y1}`;
     } else {
     }
-    document.querySelector("#wh").value = `${final_rect[2]} × ${final_rect[3]}`;
-    if (selecting == false) {
-        // clip_wh = document.querySelectorAll("#clip_wh>div");
-        // for (i = 0; i < 3; i++) {
-        //     clip_wh[i].style.userSelect = "contain";
-        // }
-    }
+    document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
 }
 
-document.querySelector("#x0y0").onchange = () => {
-    var xy = document.querySelector("#x0y0").value.match(/(\d+)\D+(\d+)/);
-    d = 光标 == "以(1,1)为起点" ? 1 : 0;
-    if (xy != null) {
-        final_rect[0] = xy[1] - 0 - d;
-        final_rect[1] = xy[2] - 0 - d;
-        final_rect_fix();
-        draw_clip_rect();
-    } else {
-        document.querySelector("#x0y0").value = `${final_rect[0] + d}, ${final_rect[1] + d}`;
+document.querySelector("#x0y0").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        e.preventDefault();
+        var xy = document.querySelector("#x0y0").innerHTML.match(/(\d+)\D+(\d+)/);
+        d = 光标 == "以(1,1)为起点" ? 1 : 0;
+        if (xy != null) {
+            final_rect[0] = xy[1] - 0 - d;
+            final_rect[1] = xy[2] - 0 - d;
+            final_rect_fix();
+            draw_clip_rect();
+        } else {
+            document.querySelector("#x0y0").innerHTML = `${final_rect[0] + d}, ${final_rect[1] + d}`;
+        }
     }
 };
-document.querySelector("#x1y1").onchange = () => {
-    var xy = document.querySelector("#x1y1").value.match(/(\d+)\D+(\d+)/);
-    d = 光标 == "以(1,1)为起点" ? 1 : 0;
-    if (xy != null) {
-        final_rect[0] = xy[1] - 0 - final_rect[2] - d;
-        final_rect[1] = xy[2] - 0 - final_rect[3] - d;
-        final_rect_fix();
-        draw_clip_rect();
-    } else {
-        document.querySelector("#x1y1").value = `${final_rect[0] + d + final_rect[2]}, ${
-            final_rect[1] + d + final_rect[3]
-        }`;
+document.querySelector("#x1y1").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        e.preventDefault();
+        var xy = document.querySelector("#x1y1").innerHTML.match(/(\d+)\D+(\d+)/);
+        d = 光标 == "以(1,1)为起点" ? 1 : 0;
+        if (xy != null) {
+            final_rect[0] = xy[1] - 0 - final_rect[2] - d;
+            final_rect[1] = xy[2] - 0 - final_rect[3] - d;
+            final_rect_fix();
+            draw_clip_rect();
+        } else {
+            document.querySelector("#x1y1").innerHTML = `${final_rect[0] + d + final_rect[2]}, ${
+                final_rect[1] + d + final_rect[3]
+            }`;
+        }
     }
 };
-document.querySelector("#wh").onchange = () => {
-    var wh = document.querySelector("#wh").value.match(/(\d+)\D+(\d+)/);
-    if (wh != null) {
-        final_rect[2] = wh[1] - 0;
-        final_rect[3] = wh[2] - 0;
-        final_rect_fix();
-        draw_clip_rect();
-    } else {
-        document.querySelector("#wh").value = `${final_rect[2]} × ${final_rect[3]}`;
+document.querySelector("#wh").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        e.preventDefault();
+        var wh = document.querySelector("#wh").innerHTML.match(/(\d+)\D+(\d+)/);
+        if (wh != null) {
+            final_rect[2] = wh[1] - 0;
+            final_rect[3] = wh[2] - 0;
+            final_rect_fix();
+            draw_clip_rect();
+        } else {
+            document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+        }
     }
 };
 
