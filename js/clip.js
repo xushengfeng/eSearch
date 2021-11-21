@@ -426,6 +426,7 @@ document.onmousemove = (e) => {
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
 
         // 鼠标跟随栏
+        document.querySelector("#mouse_bar").style.display = "block";
         mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
 
         var x = e.screenX + 35;

@@ -66,6 +66,7 @@ function get_desktop_capturer(n) {
                 document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
                 video.pause();
                 document.querySelector("body").style.display = "block";
+                document.querySelector("#mouse_bar").style.display = "none";
             };
             return;
         });
