@@ -291,6 +291,105 @@ app.on("will-quit", () => {
     globalShortcut.unregisterAll();
 });
 
+const isMac = process.platform === "darwin";
+const template = [
+    // { role: 'appMenu' }
+    ...(isMac
+        ? [
+              {
+                  label: app.name,
+                  submenu: [
+                      { role: "about" },
+                      { type: "separator" },
+                      { role: "services" },
+                      { type: "separator" },
+                      { role: "hide" },
+                      { role: "hideOthers" },
+                      { role: "unhide" },
+                      { type: "separator" },
+                      { role: "quit" },
+                  ],
+              },
+          ]
+        : []),
+    // { role: 'fileMenu' }
+    {
+        label: "文件",
+        submenu: [isMac ? { label: "退出", role: "close" } : { label: "退出", role: "quit" }],
+    },
+    // { role: 'editMenu' }
+    {
+        label: "编辑",
+        submenu: [
+            { label: "撤销", role: "undo" },
+            { label: "重做", role: "redo" },
+            { type: "separator" },
+            { label: "剪切", role: "cut" },
+            { label: "复制", role: "copy" },
+            { label: "粘贴", role: "paste" },
+            ...(isMac
+                ? [
+                      { label: "", role: "pasteAndMatchStyle" },
+                      { label: "删除", role: "delete" },
+                      { label: "全选", role: "selectAll" },
+                      { type: "separator" },
+                      {
+                          label: "Speech",
+                          submenu: [
+                              { label: "开始朗读", role: "startSpeaking" },
+                              { label: "停止朗读", role: "stopSpeaking" },
+                          ],
+                      },
+                  ]
+                : [{ label: "删除", role: "delete" }, { type: "separator" }, { label: "全选", role: "selectAll" }]),
+        ],
+    },
+    // { role: 'viewMenu' }
+    {
+        label: "视图",
+        submenu: [
+            { label: "重新加载", role: "reload" },
+            { label: "强制重载", role: "forceReload" },
+            { label: "开发者工具", role: "toggleDevTools" },
+            { type: "separator" },
+            { label: "实际大小", role: "resetZoom" },
+            { label: "放大", role: "zoomIn" },
+            { label: "缩小", role: "zoomOut" },
+            { type: "separator" },
+            { label: "全屏", role: "togglefullscreen" },
+        ],
+    },
+    // { role: 'windowMenu' }
+    {
+        label: "窗口",
+        submenu: [
+            { label: "最小化", role: "minimize" },
+            ...(isMac
+                ? [
+                      { type: "separator" },
+                      { label: "置于最前面", role: "front" },
+                      { type: "separator" },
+                      { label: "窗口", role: "window" },
+                  ]
+                : []),
+        ],
+    },
+    {
+        label: "帮助",
+        role: "help",
+        submenu: [
+            {
+                label: "教程帮助",
+                click: () => {
+                    create_help_window();
+                },
+            },
+        ],
+    },
+];
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
+
 function open_selection() {
     o_clipboard = clipboard.readText();
     robot.keyTap("c", "control");
