@@ -194,13 +194,6 @@ app.whenReady().then(() => {
                 response.on("end", () => {
                     event.sender.send("ocr_back", "ok");
                 });
-            } else if (response.statusCode == "404") {
-                event.sender.send("ocr_back", "else");
-                dialog.showMessageBox({
-                    title: "警告",
-                    message: "识别失败\n找不到服务器",
-                    icon: `${run_path}/assets/icons/warning.png`,
-                });
             } else {
                 event.sender.send("ocr_back", "else");
                 dialog.showMessageBox({
@@ -209,6 +202,14 @@ app.whenReady().then(() => {
                     icon: `${run_path}/assets/icons/warning.png`,
                 });
             }
+        });
+        request.on("error", () => {
+            event.sender.send("ocr_back", "else");
+            dialog.showMessageBox({
+                title: "警告",
+                message: "识别失败\n找不到服务器",
+                icon: `${run_path}/assets/icons/warning.png`,
+            });
         });
         access_token = store.get("ocr_access_token") || "";
         data = JSON.stringify({
