@@ -604,6 +604,9 @@ function is_in_clip_rect(event) {
                 direction = "none";
                 break;
         }
+    } else {
+        clip_canvas.style.cursor = "crosshair";
+        direction = "none";
     }
 }
 
