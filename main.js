@@ -5,6 +5,7 @@ const {
     Menu,
     clipboard,
     globalShortcut,
+    desktopCapturer,
     BrowserWindow,
     ipcMain,
     dialog,
@@ -176,6 +177,8 @@ app.whenReady().then(() => {
         clip_window.setFullScreen(false);
         clip_window.hide();
     });
+
+    ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", (event, opts) => desktopCapturer.getSources(opts));
 
     ipcMain.on("ocr", (event, arg) => {
         const request = net.request({

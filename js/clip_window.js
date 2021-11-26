@@ -1,9 +1,12 @@
 // In the renderer process.
-const { desktopCapturer, ipcRenderer, clipboard, nativeImage } = require("electron");
+const { ipcRenderer, clipboard, nativeImage } = require("electron");
 const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
+const desktopCapturer = {
+    getSources: (opts) => ipcRenderer.invoke("DESKTOP_CAPTURER_GET_SOURCES", opts),
+};
 
 // 获取设置
 store = new Store();
