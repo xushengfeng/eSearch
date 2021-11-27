@@ -1,0 +1,18 @@
+#draw_color_input {
+    outline: none;
+}
+
+#draw_color_h,
+#draw_color_s,
+#draw_color_l,
+#draw_color_alpha {
+    overflow: hidden;
+}
+#draw_color_h > div,
+#draw_color_s > div,
+#draw_color_l > div,
+#draw_color_alpha > div  {
+    height: 100%;
+    width: 0%;
+    background-color: var(--hover-color);
+}
