@@ -929,15 +929,31 @@
   dependencies:
     "color-name" "~1.1.4"
 
-"color-name@~1.1.4":
+"color-name@^1.0.0", "color-name@~1.1.4":
   "integrity" "sha1-wqCah6y95pVD3m9j+jmVyCbFNqI="
   "resolved" "https://registry.nlark.com/color-name/download/color-name-1.1.4.tgz"
   "version" "1.1.4"
+
+"color-string@^1.7.4":
+  "integrity" "sha512-nVdUvPVgZMpRQad5dcsCMOSB5BXLljklTiaxS6ehhKxDsAI5sD7k5VmFuBt1y3Rlym8uulc/ANUN/bMWtBu6Sg=="
+  "resolved" "https://registry.npmmirror.com/color-string/download/color-string-1.7.4.tgz"
+  "version" "1.7.4"
+  dependencies:
+    "color-name" "^1.0.0"
+    "simple-swizzle" "^0.2.2"
 
 "color-support@^1.1.2":
   "integrity" "sha1-k4NDeaHMmgxh+C9S8NBDIiUb1aI="
   "resolved" "https://registry.npm.taobao.org/color-support/download/color-support-1.1.3.tgz"
   "version" "1.1.3"
+
+"color@^4.0.2":
+  "integrity" "sha512-fSu0jW2aKQG2FHlDywqdFPdabJHsUdZ0xabSt3wFZdcgRKtLnUHs19nUtuFuLGVMFhINGgfZEIjbUOsGZXGu7Q=="
+  "resolved" "https://registry.npmmirror.com/color/download/color-4.0.2.tgz"
+  "version" "4.0.2"
+  dependencies:
+    "color-convert" "^2.0.1"
+    "color-string" "^1.7.4"
 
 "colors@^1.3.3", "colors@^1.4.0":
   "integrity" "sha1-xQSRR51MG9rtLJztMs98fcI2D3g="
@@ -1415,10 +1431,10 @@
     "lodash.template" "^4.2.2"
     "temp" "^0.9.0"
 
-"electron@^15.3.0":
-  "integrity" "sha1-+YA8WgWy2sEu/G1CA0ksfiBLSBk="
-  "resolved" "https://registry.npmmirror.com/electron/download/electron-15.3.0.tgz"
-  "version" "15.3.0"
+"electron@^16.0.2":
+  "integrity" "sha512-kT746yVMztrP4BbT3nrFNcUcfgFu2yelUw6TWBVTy0pju+fBISaqcvoiMrq+8U0vRpoXSu2MJYygOf4T0Det7g=="
+  "resolved" "https://registry.npmmirror.com/electron/download/electron-16.0.2.tgz"
+  "version" "16.0.2"
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"
@@ -2212,6 +2228,11 @@
   "integrity" "sha1-d8mYQFJ6qOyxqLppe4BkWnqSap0="
   "resolved" "https://registry.npm.taobao.org/is-arrayish/download/is-arrayish-0.2.1.tgz"
   "version" "0.2.1"
+
+"is-arrayish@^0.3.1":
+  "integrity" "sha1-RXSirlb3qyBolvtDHq7tBm/fjwM="
+  "resolved" "https://registry.npm.taobao.org/is-arrayish/download/is-arrayish-0.3.2.tgz"
+  "version" "0.3.2"
 
 "is-core-module@^2.2.0":
   "integrity" "sha1-AyEzbD0JJeSX/Zf12VyxFKXM1Ug="
@@ -3849,6 +3870,13 @@
     "decompress-response" "^4.2.0"
     "once" "^1.3.1"
     "simple-concat" "^1.0.0"
+
+"simple-swizzle@^0.2.2":
+  "integrity" "sha1-pNprY1/8zMoz9w0Xy5JZLeleVXo="
+  "resolved" "https://registry.npmmirror.com/simple-swizzle/download/simple-swizzle-0.2.2.tgz"
+  "version" "0.2.2"
+  dependencies:
+    "is-arrayish" "^0.3.1"
 
 "single-line-log@^1.1.2":
   "integrity" "sha1-wvg/Jzo+GhbtsJlWYdoO1e8DM2Q="

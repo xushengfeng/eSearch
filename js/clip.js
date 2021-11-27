@@ -1,3 +1,5 @@
+const Color = require('color');
+
 document.querySelector("body").onkeydown = (e) => {
     var o = {
         ArrowUp: "up",
