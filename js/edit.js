@@ -1,5 +1,8 @@
 let fabric_canvas = new fabric.Canvas("draw_photo");
 
+stroke_color = null;
+fill_color = null;
+
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
     if (index == document.querySelectorAll("#draw_main > div").length - 1) return;
@@ -46,6 +49,7 @@ document.querySelector("#draw_free_pencil").onclick = () => {
 
         fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
+        fabric_canvas.freeDrawingBrush.color = stroke_color;
     } else {
         document.querySelector("#draw_free_pencil").clicked = !document.querySelector("#draw_free_pencil").clicked;
         document.querySelector("#draw_free_pencil").style.backgroundColor = "";
@@ -92,6 +96,7 @@ document.querySelector("#draw_free_spray").onclick = () => {
 
         fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
+        fabric_canvas.freeDrawingBrush.color = stroke_color;
     } else {
         document.querySelector("#draw_free_spray").clicked = !document.querySelector("#draw_free_spray").clicked;
         document.querySelector("#draw_free_spray").style.backgroundColor = "";
@@ -219,7 +224,7 @@ function draw(shape, v, x1, y1, x2, y2) {
 
 // 颜色选择
 document.querySelector("#draw_color_input").oninput = () => {
-    document.querySelector("#draw_color_input").style.backgroundColor =
+    document.querySelector("#draw_color_input").style.backgroundColor = stroke_color =
         document.querySelector("#draw_color_input").innerText;
 };
 
@@ -256,7 +261,8 @@ function change_color(e, event) {
     a = (document.querySelector("#draw_color_alpha > div").style.width.replace("%", "") - 0) / 100;
 
     var hsla = `hsl(${h}, ${s}, ${l}, ${a})`;
-    document.querySelector("#draw_color_input").style.backgroundColor = document.querySelector(
-        "#draw_color_input"
-    ).innerText = hsla;
+    document.querySelector("#draw_color_input").style.backgroundColor =
+        stroke_color =
+        document.querySelector("#draw_color_input").innerText =
+            hsla;
 }
