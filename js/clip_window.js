@@ -57,7 +57,7 @@ function get_desktop_capturer(n) {
             video.srcObject = stream;
             video.onloadedmetadata = (e) => {
                 video.play();
-                canvas.clear();
+                fabric_canvas.clear();
                 main_canvas.width = clip_canvas.width = draw_canvas.width = video.videoWidth;
                 main_canvas.height = clip_canvas.height = draw_canvas.height = video.videoHeight;
                 main_canvas.getContext("2d").drawImage(video, 0, 0);
@@ -242,9 +242,9 @@ function get_clip_photo() {
     }
     gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
     tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-    canvas.discardActiveObject();
+    fabric_canvas.discardActiveObject();
     var image = document.createElement("img");
-    image.src = canvas.toDataURL({
+    image.src = fabric_canvas.toDataURL({
         left: final_rect[0],
         top: final_rect[1],
         width: final_rect[2],

@@ -1,4 +1,4 @@
-let canvas = new fabric.Canvas("draw_photo");
+let fabric_canvas = new fabric.Canvas("draw_photo");
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
@@ -44,13 +44,13 @@ document.querySelector("#draw_free_pencil").onclick = () => {
             document.documentElement
         ).getPropertyValue("--hover-color");
 
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+        fabric_canvas.isDrawingMode = true;
+        fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
     } else {
         document.querySelector("#draw_free_pencil").clicked = !document.querySelector("#draw_free_pencil").clicked;
         document.querySelector("#draw_free_pencil").style.backgroundColor = "";
 
-        canvas.isDrawingMode = false;
+        fabric_canvas.isDrawingMode = false;
     }
 };
 document.querySelector("#draw_free_eraser").onclick = () => {
@@ -67,13 +67,13 @@ document.querySelector("#draw_free_eraser").onclick = () => {
             document.documentElement
         ).getPropertyValue("--hover-color");
 
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush = new fabric.EraserBrush(canvas);
+        fabric_canvas.isDrawingMode = true;
+        fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
     } else {
         document.querySelector("#draw_free_eraser").clicked = !document.querySelector("#draw_free_eraser").clicked;
         document.querySelector("#draw_free_eraser").style.backgroundColor = "";
 
-        canvas.isDrawingMode = false;
+        fabric_canvas.isDrawingMode = false;
     }
 };
 document.querySelector("#draw_free_spray").onclick = () => {
@@ -90,18 +90,19 @@ document.querySelector("#draw_free_spray").onclick = () => {
             document.documentElement
         ).getPropertyValue("--hover-color");
 
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush = new fabric.SprayBrush(canvas);
+        fabric_canvas.isDrawingMode = true;
+        fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
     } else {
         document.querySelector("#draw_free_spray").clicked = !document.querySelector("#draw_free_spray").clicked;
         document.querySelector("#draw_free_spray").style.backgroundColor = "";
 
-        canvas.isDrawingMode = false;
+        fabric_canvas.isDrawingMode = false;
     }
 };
 
+shape = "";
 document.querySelector("#draw_shapes_line").onclick = () => {
-    canvas.add(
+    fabric_canvas.add(
         new fabric.Line([50, 100, 200, 200], {
             left: 10,
             top: 20,
@@ -112,84 +113,110 @@ document.querySelector("#draw_shapes_line").onclick = () => {
     );
 };
 document.querySelector("#draw_shapes_circle").onclick = () => {
-    canvas.add(
-        new fabric.Circle({
-            radius: 20,
-            left: 10,
-            top: 20,
-            width: 20,
-            height: 20,
-            fill: "green",
-        })
-    );
+    shape = "circle";
 };
 document.querySelector("#draw_shapes_rect").onclick = () => {
-    canvas.add(
-        new fabric.Rect({
-            left: 10,
-            top: 20,
-            width: 20,
-            height: 20,
-            fill: "green",
-        })
-    );
+    shape = "rect";
 };
 document.querySelector("#draw_shapes_triangle").onclick = () => {
-    canvas.add(
-        new fabric.Triangle({
-            left: 10,
-            top: 20,
-            width: 20,
-            height: 20,
-            fill: "green",
-        })
-    );
+    shape = "triangle";
 };
-// document.querySelector("#draw_shapes_polyline").onclick = () => {
-//     canvas.add(
-//         new fabric.Polyline(
-//             [
-//                 { x: 200, y: 10 },
-//                 { x: 250, y: 50 },
-//             ],
-//             {
-//                 left: 10,
-//                 top: 20,
-//                 width: 20,
-//                 height: 20,
-//                 fill: "green",
-//                 stroke: "green",
-//                 lockUniScaling: true,
-//             }
-//         )
-//     );
-// };
-// document.querySelector("#draw_shapes_polygon").onclick = () => {
-//     canvas.add(
-//         new fabric.Polygon({
-//             left: 10,
-//             top: 20,
-//             width: 20,
-//             height: 20,
-//             fill: "green",
-//         })
-//     );
-// };
 document.querySelector("#draw_position_front").onclick = () => {
-    canvas.getActiveObject().bringToFront();
+    fabric_canvas.getActiveObject().bringToFront();
 };
 document.querySelector("#draw_position_forwards").onclick = () => {
-    canvas.getActiveObject().bringForward();
+    fabric_canvas.getActiveObject().bringForward();
 };
 document.querySelector("#draw_position_backwards").onclick = () => {
-    canvas.getActiveObject().sendBackwards();
+    fabric_canvas.getActiveObject().sendBackwards();
 };
 document.querySelector("#draw_position_back").onclick = () => {
-    canvas.getActiveObject().sendToBack();
+    fabric_canvas.getActiveObject().sendToBack();
 };
 
 document.onkeydown = (e) => {
     if (e.key == "Delete") {
-        canvas.remove(canvas.getActiveObject());
+        fabric_canvas.remove(fabric_canvas.getActiveObject());
     }
 };
+
+drawing = false;
+shapes = [];
+draw_o_p = [];
+draw_p = [];
+
+fabric_canvas.on("mouse:down", (options) => {
+    drawing = true;
+    draw_o_p = [options.e.offsetX, options.e.offsetY];
+    draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+});
+fabric_canvas.on("mouse:move", (options) => {
+    if (drawing) {
+        draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+    }
+});
+fabric_canvas.on("mouse:up", () => {
+    drawing = false;
+    // shape = "";
+});
+
+function draw(shape, v, x1, y1, x2, y2) {
+    var [x, y, w, h] = p_xy_to_c_xy(draw_canvas, x1, y1, x2, y2);
+    if (v == "start") {
+        switch (shape) {
+            case "line":
+                shapes[shapes.length] = new fabric.Line({
+                    left: x,
+                    top: y,
+                    width: 1,
+                    height: 1,
+                    stroke: "green",
+                });
+                break;
+            case "circle":
+                shapes[shapes.length] = new fabric.Circle({
+                    radius: 1,
+                    left: x,
+                    top: y,
+                    fill: "green",
+                });
+                break;
+            case "rect":
+                shapes[shapes.length] = new fabric.Rect({
+                    left: x,
+                    top: y,
+                    width: 1,
+                    height: 1,
+                    fill: "green",
+                });
+                break;
+            case "triangle":
+                shapes[shapes.length] = new fabric.Triangle({
+                    left: x,
+                    top: y,
+                    width: 1,
+                    height: 1,
+                    fill: "green",
+                });
+                break;
+            default:
+                break;
+        }
+        fabric_canvas.add(shapes[shapes.length - 1]);
+    } else {
+        if (shape == "circle") {
+            shapes[shapes.length - 1].set({
+                radius: Math.sqrt(w ** 2 + h ** 2),
+                left: x,
+                top: y,
+            });
+        } else {
+            shapes[shapes.length - 1].set({
+                left: x,
+                top: y,
+                width: w,
+                height: h,
+            });
+        }
+    }
+}
