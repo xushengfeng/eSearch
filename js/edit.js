@@ -226,6 +226,14 @@ function draw(shape, v, x1, y1, x2, y2) {
 document.querySelector("#draw_color_input").oninput = () => {
     document.querySelector("#draw_color_input").style.backgroundColor = stroke_color =
         document.querySelector("#draw_color_input").innerText;
+    change_text_color();
+    var rgba = window.getComputedStyle(document.querySelector("#draw_color_input"), null)["background-color"];
+    console.log(rgba)
+    var [, r, g, b, a] = rgba.match(/rgba?\((\d+), (\d+), (\d+),? ?(0?\.?\d+)?\)/);
+    document.querySelector("#draw_color_h > div").style.width = ((r - 0) / 255) * 100 + "%";
+    document.querySelector("#draw_color_s > div").style.width = ((g - 0) / 255) * 100 + "%";
+    document.querySelector("#draw_color_l > div").style.width = ((b - 0) / 255) * 100 + "%";
+    document.querySelector("#draw_color_alpha > div").style.width = ((a - 0) / 255) * 100 + "%";
 };
 
 [
@@ -265,4 +273,16 @@ function change_color(e, event) {
         stroke_color =
         document.querySelector("#draw_color_input").innerText =
             hsla;
+    change_text_color();
+}
+
+function change_text_color() {
+    var rgba = window.getComputedStyle(document.querySelector("#draw_color_input"), null)["background-color"];
+    var [, r, g, b, a] = rgba.match(/rgba?\((\d+), (\d+), (\d+),? ?(0?\.?\d+)?\)/);
+    y = 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
+    if (y >= 0.5) {
+        document.querySelector("#draw_color_input").style.color = "#000";
+    } else {
+        document.querySelector("#draw_color_input").style.color = "#fff";
+    }
 }
