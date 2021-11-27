@@ -102,15 +102,7 @@ document.querySelector("#draw_free_spray").onclick = () => {
 
 shape = "";
 document.querySelector("#draw_shapes_line").onclick = () => {
-    fabric_canvas.add(
-        new fabric.Line([50, 100, 200, 200], {
-            left: 10,
-            top: 20,
-            width: 20,
-            height: 20,
-            stroke: "green",
-        })
-    );
+    shape = "line";
 };
 document.querySelector("#draw_shapes_circle").onclick = () => {
     shape = "circle";
@@ -143,21 +135,25 @@ document.onkeydown = (e) => {
 drawing = false;
 shapes = [];
 draw_o_p = [];
-draw_p = [];
 
 fabric_canvas.on("mouse:down", (options) => {
-    drawing = true;
-    draw_o_p = [options.e.offsetX, options.e.offsetY];
-    draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+    if (shape != "") {
+        drawing = true;
+        draw_o_p = [options.e.offsetX, options.e.offsetY];
+        draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+        // fabric_canvas.selection = false;
+    }
 });
 fabric_canvas.on("mouse:move", (options) => {
     if (drawing) {
+        console.log(options.e.offsetX, options.e.offsetY)
         draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
     }
 });
 fabric_canvas.on("mouse:up", () => {
     drawing = false;
-    // shape = "";
+    // fabric_canvas.selection = true;
+    shape = "";
 });
 
 function draw(shape, v, x1, y1, x2, y2) {
@@ -206,7 +202,7 @@ function draw(shape, v, x1, y1, x2, y2) {
     } else {
         if (shape == "circle") {
             shapes[shapes.length - 1].set({
-                radius: Math.sqrt(w ** 2 + h ** 2),
+                radius: Math.min(w, h) / 2,
                 left: x,
                 top: y,
             });
