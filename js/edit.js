@@ -1,7 +1,7 @@
 let fabric_canvas = new fabric.Canvas("draw_photo");
 
-stroke_color = null;
-fill_color = null;
+stroke_color = "#fff";
+fill_color = "#fff";
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
@@ -171,7 +171,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                     top: y,
                     width: 1,
                     height: 1,
-                    stroke: "green",
+                    stroke: fill_color,
                 });
                 break;
             case "circle":
@@ -179,7 +179,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                     radius: 1,
                     left: x,
                     top: y,
-                    fill: "green",
+                    fill: fill_color,
                 });
                 break;
             case "rect":
@@ -188,7 +188,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                     top: y,
                     width: 1,
                     height: 1,
-                    fill: "green",
+                    fill: fill_color,
                 });
                 break;
             case "triangle":
@@ -197,7 +197,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                     top: y,
                     width: 1,
                     height: 1,
-                    fill: "green",
+                    fill: fill_color,
                 });
                 break;
             default:

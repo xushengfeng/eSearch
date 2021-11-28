@@ -1,3 +1,5 @@
+const Color = require("color");
+
 // 单选项目设置加载
 function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).value = store.get(id) || 默认;
@@ -61,11 +63,9 @@ function show_color_picker() {
     inner_html = "";
     for (i in color_g) {
         color_g[i][3] /= 255;
-        inner_html += `<span id="point_color_t" style="background:rgba(${color_g[i][0]},${color_g[i][1]},${
-            color_g[i][2]
-        },${color_g[i][3]}); width:${document.querySelector("#像素大小").value}px;height:${
+        inner_html += `<span id="point_color_t" style="background: ${Color.rgb(color_g[i]).string()}; width:${
             document.querySelector("#像素大小").value
-        }px"></span>`;
+        }px;height:${document.querySelector("#像素大小").value}px"></span>`;
     }
     document.querySelector("#point_color").style.width =
         (document.querySelector("#像素大小").value - 0) * copy_size + "px";

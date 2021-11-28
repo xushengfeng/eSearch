@@ -1,4 +1,4 @@
-const Color = require('color');
+const Color = require("color");
 
 document.querySelector("body").onkeydown = (e) => {
     var o = {
@@ -260,23 +260,17 @@ function mouse_bar(final_rect, x, y) {
         if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && i != (color_g.length - 1) / 2) {
             // 框外
             point_color_span_list[i].id = "point_color_t_b";
-            point_color_span_list[
-                i
-            ].style.background = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
+            point_color_span_list[i].style.background = Color.rgb(color_g[i]).string();
         } else if (i == (color_g.length - 1) / 2) {
             // 光标中心点
             point_color_span_list[i].id = "point_color_t_c";
-            point_color_span_list[
-                i
-            ].style.background = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
+            point_color_span_list[i].style.background = Color.rgb(color_g[i]).string();
             // 颜色文字
             the_color = color_g[i];
             document.querySelector("#clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
         } else {
             point_color_span_list[i].id = "point_color_t_t";
-            point_color_span_list[
-                i
-            ].style.background = `rgba(${color_g[i][0]},${color_g[i][1]},${color_g[i][2]},${color_g[i][3]})`;
+            point_color_span_list[i].style.background = Color.rgb(color_g[i]).string();
         }
     }
 
@@ -289,105 +283,35 @@ function mouse_bar(final_rect, x, y) {
 
 // 色彩空间转换
 function color_conversion(rgba, type) {
+    var color = Color(rgba);
     switch (type) {
         case "HEX":
-            return `#${rgba[0].toString(16).padStart(2, 0).toUpperCase()}${rgba[1]
-                .toString(16)
-                .padStart(2, 0)
-                .toUpperCase()}${rgba[2].toString(16).padStart(2, 0).toUpperCase()}`;
-
+            return color.hex();
         case "RGB":
-            return `rgb(${rgba[0]}, ${rgba[1]}, ${rgba[2]})`;
-
-        case "RGBA":
-            return `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
-
+            return color.rgb().string();
         case "HSL":
-            h = rgb_2_hslsv(rgba)[0];
-            s = rgb_2_hslsv(rgba)[1];
-            l = rgb_2_hslsv(rgba)[2];
+            var [h, s, l] = color.hsl().round().array();
             return `hsl(${h}, ${s}%, ${l}%)`;
-
-        case "HSLA":
-            h = rgb_2_hslsv(rgba)[0];
-            s = rgb_2_hslsv(rgba)[1];
-            l = rgb_2_hslsv(rgba)[2];
-            return `hsla(${h}, ${s}%, ${l}%, ${rgba[3]})`;
-
         case "HSV":
-            h = rgb_2_hslsv(rgba)[0];
-            s = rgb_2_hslsv(rgba)[3];
-            v = rgb_2_hslsv(rgba)[4];
+            var [h, s, v] = color.hsv().round().array();
             return `hsv(${h}, ${s}%, ${v}%)`;
-
-        case "HSVA":
-            h = rgb_2_hslsv(rgba)[0];
-            s = rgb_2_hslsv(rgba)[3];
-            v = rgb_2_hslsv(rgba)[4];
-            return `hsva(${h}, ${s}%, ${v}%, ${rgba[3]})`;
-
         case "CMYK":
-            var r = rgba[0] / 255;
-            var g = rgba[1] / 255;
-            var b = rgba[2] / 255;
-            var k = 1 - Math.max(r, g, b);
-            var c = +((1 - r - k) / (1 - k)).toFixed(2) || 0;
-            var m = +((1 - g - k) / (1 - k)).toFixed(2) || 0;
-            var y = +((1 - b - k) / (1 - k)).toFixed(2) || 0;
-            return `(${c}, ${m}, ${y}, ${k.toFixed(2)})`;
+            var [c, m, y, k] = color.cmyk().round().array();
+            return `cmyk(${c}, ${m}, ${y}, ${k})`;
     }
-}
-
-// RGB转HSL或HSV
-function rgb_2_hslsv(rgba) {
-    var r = rgba[0] / 255;
-    var g = rgba[1] / 255;
-    var b = rgba[2] / 255;
-    var max = Math.max(r, g, b);
-    var min = Math.min(r, g, b);
-    var Δ = max - min;
-
-    l = (max + min) / 2;
-    if (Δ == 0) {
-        h = 0;
-        s = 0;
-        s2 = 0;
-    } else {
-        switch (max) {
-            case r:
-                h = 60 * ((g - b) / Δ + 6);
-                if (h > 360) h = h - 360;
-                break;
-            case g:
-                h = 60 * ((b - r) / Δ + 2);
-                break;
-            case b:
-                h = 60 * ((r - g) / Δ + 4);
-                break;
-        }
-        s = l == 0 ? 0 : Δ / (1 - Math.abs(2 * l - 1)); // 防止得到无限大
-        s2 = max == 0 ? 0 : Δ / max;
-    }
-    h = h.toFixed(0);
-    s = (s * 100).toFixed(0);
-    l = (l * 100).toFixed(0);
-    s2 = (s2 * 100).toFixed(0);
-    max = (max * 100).toFixed(0);
-    return [h, s, l, s2, max];
 }
 
 // 改变颜色文字和样式
 function clip_color_text(l, type) {
-    [r, g, b, a] = l;
+    var color = Color.rgb(l);
     clip_color_text_color = null;
-    y = 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
-    if (y >= 0.5) {
+    if (color.isLight()) {
         clip_color_text_color = "#000";
     } else {
         clip_color_text_color = "#fff";
     }
-    return `<div style="background-color:rgba(${r},${g},${b},${a});color:${clip_color_text_color}">${color_conversion(
-        [r, g, b, a],
+    return `<div style="background-color:${color.hex()};color:${clip_color_text_color}">${color_conversion(
+        l,
         type
     )}</div>`;
 }
