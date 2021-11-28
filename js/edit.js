@@ -223,9 +223,21 @@ function draw(shape, v, x1, y1, x2, y2) {
 }
 
 // 颜色选择
-document.querySelector("#draw_color_input").oninput = () => {
-    change_color(document.querySelector("#draw_color_input").innerText, false);
-    var rgba = Color(document.querySelector("#draw_color_input").style.backgroundColor);
+document.querySelector("#draw_color_fill").onfocus = () => {
+    color_m = "fill";
+};
+document.querySelector("#draw_color_stroke").onfocus = () => {
+    color_m = "stroke";
+};
+document.querySelector("#draw_color_fill").oninput = () => {
+    change_color(document.querySelector("#draw_color_fill").innerText, false);
+    var rgba = Color(document.querySelector("#draw_color_fill").style.backgroundColor);
+    var [, , , a] = rgba.rgb().array();
+    document.querySelector("#draw_color_alpha > div").style.width = a * 100 + "%";
+};
+document.querySelector("#draw_color_stroke").oninput = () => {
+    change_color(document.querySelector("#draw_color_stroke").innerText, false);
+    var rgba = Color(document.querySelector("#draw_color_stroke").style.backgroundColor);
     var [, , , a] = rgba.rgb().array();
     document.querySelector("#draw_color_alpha > div").style.width = a * 100 + "%";
 };
@@ -252,7 +264,7 @@ document.querySelector("#draw_color_input").oninput = () => {
 function change_alpha(e, event) {
     e.querySelector("div").style.width = ((event.offsetX / e.offsetWidth) * 100).toFixed(0) + "%";
 
-    rgb = Color(document.querySelector("#draw_color_input").style.backgroundColor).hex();
+    rgb = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor).hex();
     a = Math.round(((document.querySelector("#draw_color_alpha > div").style.width.replace("%", "") - 0) / 100) * 255)
         .toString(16)
         .padStart(2, 0)
@@ -262,20 +274,26 @@ function change_alpha(e, event) {
 }
 
 function change_color(color, text) {
-    document.querySelector("#draw_color_input").style.backgroundColor =
-        document.querySelector("#draw_color > div").style.borderColor =
-        stroke_color =
-            color;
-
-    var t_color = Color(document.querySelector("#draw_color_input").style.backgroundColor);
-    if (t_color.isLight()) {
-        document.querySelector("#draw_color_input").style.color = "#000";
+    if (color_m == "fill") {
+        document.querySelector("#draw_color_fill").style.backgroundColor =
+            document.querySelector("#draw_color > div").style.backgroundColor =
+            fill_color =
+                color;
     } else {
-        document.querySelector("#draw_color_input").style.color = "#fff";
+        document.querySelector("#draw_color_stroke").style.backgroundColor =
+            document.querySelector("#draw_color > div").style.borderColor =
+            stroke_color =
+                color;
+    }
+    var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
+    if (t_color.isLight()) {
+        document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+    } else {
+        document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
     }
 
     if (text) {
-        document.querySelector("#draw_color_input").innerText = Color(color).hex();
+        document.querySelector(`#draw_color_${color_m}`).innerText = Color(color).hex();
     }
 }
 

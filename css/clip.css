@@ -105,7 +105,8 @@ body {
 
 /* 画 */
 #draw_bar {
-    left: 500px;
+    left: 80px;
+    top: 100px;
     width: 60px;
     background: #fff9;
     position: fixed;

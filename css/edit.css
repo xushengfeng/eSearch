@@ -1,6 +1,6 @@
 #draw_color {
     display: flex;
-    align-content: center;
+    justify-content: center;
     align-items: center;
 }
 #draw_color > div {
@@ -13,10 +13,14 @@
     border-color: #333;
     background-color: #fff;
 }
-
 #draw_color_input {
-    outline: none;
-    background-color: white;
+    overflow: hidden;
+}
+#draw_color_input > div {
+    outline: #333;
+    font-family: monospace;
+    font-size: 12px;
+    height: 50%;
 }
 #draw_color_alpha {
     overflow: hidden;
