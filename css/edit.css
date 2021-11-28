@@ -4,10 +4,10 @@
     align-items: center;
 }
 #draw_color > div {
-    width: 80%;
-    height: 80%;
-    border-radius: 20px;
-    border-width: 10px;
+    width: 52.5%;
+    height: 52.5%;
+    border-radius: 8px;
+    border-width: 4px;
     border-style: solid;
     box-sizing: border-box;
     border-color: #333;
