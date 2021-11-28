@@ -224,31 +224,21 @@ function draw(shape, v, x1, y1, x2, y2) {
 
 // 颜色选择
 document.querySelector("#draw_color_input").oninput = () => {
-    document.querySelector("#draw_color_input").style.backgroundColor = stroke_color =
-        document.querySelector("#draw_color_input").innerText;
-    change_text_color();
-    var rgba = Color(window.getComputedStyle(document.querySelector("#draw_color_input"), null)["background-color"]);
-    var [r, g, b, a] = rgba.rgb().array();
-    document.querySelector("#draw_color_h > div").style.width = ((r - 0) / 255) * 100 + "%";
-    document.querySelector("#draw_color_s > div").style.width = ((g - 0) / 255) * 100 + "%";
-    document.querySelector("#draw_color_l > div").style.width = ((b - 0) / 255) * 100 + "%";
-    document.querySelector("#draw_color_alpha > div").style.width = ((a - 0) / 255) * 100 + "%";
+    change_color(document.querySelector("#draw_color_input").innerText, false);
+    var rgba = Color(document.querySelector("#draw_color_input").style.backgroundColor);
+    var [, , , a] = rgba.rgb().array();
+    document.querySelector("#draw_color_alpha > div").style.width = a * 100 + "%";
 };
 
-[
-    document.querySelector("#draw_color_h"),
-    document.querySelector("#draw_color_s"),
-    document.querySelector("#draw_color_l"),
-    document.querySelector("#draw_color_alpha"),
-].forEach((e, index) => {
+[document.querySelector("#draw_color_alpha")].forEach((e, index) => {
     e.querySelector("div").style.width = "100%";
     e.addEventListener("mousedown", (event) => {
         e.querySelector("div").change = true;
-        change_color(e, event);
+        change_alpha(e, event);
     });
     e.addEventListener("mousemove", (event) => {
         if (e.querySelector("div").change) {
-            change_color(e, event);
+            change_alpha(e, event);
         }
     });
     e.addEventListener("mouseup", (event) => {
@@ -259,27 +249,57 @@ document.querySelector("#draw_color_input").oninput = () => {
     });
 });
 
-function change_color(e, event) {
+function change_alpha(e, event) {
     e.querySelector("div").style.width = ((event.offsetX / e.offsetWidth) * 100).toFixed(0) + "%";
 
-    h = (360 * (document.querySelector("#draw_color_h > div").style.width.replace("%", "") - 0)) / 100;
-    s = document.querySelector("#draw_color_s > div").style.width;
-    l = document.querySelector("#draw_color_l > div").style.width;
-    a = (document.querySelector("#draw_color_alpha > div").style.width.replace("%", "") - 0) / 100;
+    rgb = Color(document.querySelector("#draw_color_input").style.backgroundColor).hex();
+    a = Math.round(((document.querySelector("#draw_color_alpha > div").style.width.replace("%", "") - 0) / 100) * 255)
+        .toString(16)
+        .padStart(2, 0)
+        .toUpperCase();
 
-    var hsla = `hsl(${h}, ${s}, ${l}, ${a})`;
-    document.querySelector("#draw_color_input").style.backgroundColor =
-        stroke_color =
-        document.querySelector("#draw_color_input").innerText =
-            hsla;
-    change_text_color();
+    change_color(rgb + a, true);
 }
 
-function change_text_color() {
-    var color = Color(window.getComputedStyle(document.querySelector("#draw_color_input"), null)["background-color"]);
-    if (color.isLight()) {
+function change_color(color, text) {
+    document.querySelector("#draw_color_input").style.backgroundColor =
+        document.querySelector("#draw_color > div").style.borderColor =
+        stroke_color =
+            color;
+
+    var t_color = Color(document.querySelector("#draw_color_input").style.backgroundColor);
+    if (t_color.isLight()) {
         document.querySelector("#draw_color_input").style.color = "#000";
     } else {
         document.querySelector("#draw_color_input").style.color = "#fff";
     }
+
+    if (text) {
+        document.querySelector("#draw_color_input").innerText = Color(color).hex();
+    }
 }
+
+function color_bar() {
+    color_list = [];
+    var b_color = Color("hsl(0,0%,100%)");
+    for (k = 0; k <= 1; k += 0.25) {
+        color_list[color_list.length] = b_color.darken(k).string();
+    }
+    var w_color = Color("hsl(0,100%,100%)");
+    for (i = 0; i < 360; i += 24) {
+        for (j = 0.1; j < 1; j += 0.1) {
+            color_list[color_list.length] = w_color.rotate(i).darken(j).string();
+        }
+    }
+    var t = "";
+    for (x in color_list) {
+        t += `<div class="color_i" style="background-color: ${color_list[x]}"></div>`;
+    }
+    document.querySelector("#draw_color_color").innerHTML = t;
+    document.querySelectorAll("#draw_color_color > div").forEach((e, index) => {
+        e.addEventListener("click", () => {
+            change_color(e.style.backgroundColor, true);
+        });
+    });
+}
+color_bar();
