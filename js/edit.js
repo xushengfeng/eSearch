@@ -223,34 +223,34 @@ function draw(shape, v, x1, y1, x2, y2) {
 }
 
 // 颜色选择
+fill_a = 1;
+stroke_a = 1;
 color_m = "fill";
 document.querySelector("#draw_color_fill").onfocus = () => {
     color_m = "fill";
-    var a = Color(document.querySelector("#draw_color > div").style.backgroundColor).valpha;
     document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
         "#draw_color_alpha_text"
-    ).innerText = a * 100 + "%";
+    ).innerText = Math.round(fill_a * 100) + "%";
 };
 document.querySelector("#draw_color_stroke").onfocus = () => {
     color_m = "stroke";
-    var a = Color(document.querySelector("#draw_color > div").style.borderColor).valpha;
     document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
         "#draw_color_alpha_text"
-    ).innerText = a * 100 + "%";
+    ).innerText = Math.round(stroke_a * 100) + "%";
 };
 document.querySelector("#draw_color_fill").oninput = () => {
     change_color(document.querySelector("#draw_color_fill").innerText, false);
-    var a = Color(document.querySelector("#draw_color > div").style.backgroundColor).valpha;
+    fill_a = Color(document.querySelector("#draw_color > div").style.backgroundColor).valpha;
     document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
         "#draw_color_alpha_text"
-    ).innerText = a * 100 + "%";
+    ).innerText = Math.round(fill_a * 100) + "%";
 };
 document.querySelector("#draw_color_stroke").oninput = () => {
     change_color(document.querySelector("#draw_color_stroke").innerText, false);
-    var a = Color(document.querySelector("#draw_color > div").style.borderColor).valpha;
+    stroke_a = Color(document.querySelector("#draw_color > div").style.borderColor).valpha;
     document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
         "#draw_color_alpha_text"
-    ).innerText = a * 100 + "%";
+    ).innerText = Math.round(stroke_a * 100) + "%";
 };
 
 [document.querySelector("#draw_color_alpha")].forEach((e, index) => {
@@ -273,31 +273,38 @@ document.querySelector("#draw_color_stroke").oninput = () => {
 });
 
 function change_alpha(e, event) {
+    var a = event.offsetX / e.offsetWidth;
     e.querySelector("#draw_color_alpha_i").style.width = e.querySelector("#draw_color_alpha_text").innerText =
-        ((event.offsetX / e.offsetWidth) * 100).toFixed(0) + "%";
+        Math.round(a * 100) + "%";
+    if (color_m == "fill") {
+        fill_a = a;
+    } else {
+        stroke_a = a;
+    }
 
-    rgb = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor).hex();
-    var alpha = Math.round(
-        ((document.querySelector("#draw_color_alpha_i").style.width.replace("%", "") - 0) / 100) * 255
-    )
-        .toString(16)
-        .padStart(2, 0)
-        .toUpperCase();
+    var rgba = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor)
+        .rgb()
+        .array();
+    var alpha = Math.round((document.querySelector("#draw_color_alpha_i").style.width.replace("%", "") - 0) / 100);
+    rgba[3] = alpha;
 
-    change_color(rgb + alpha, true);
+    change_color(rgba, true);
 }
 
 function change_color(color, text) {
+    color_l = Color(color).rgb().array();
     if (color_m == "fill") {
+        if (text) color_l[3] = fill_a;
         document.querySelector("#draw_color_fill").style.backgroundColor =
             document.querySelector("#draw_color > div").style.backgroundColor =
             fill_color =
-                color;
+                Color(color_l).string();
     } else {
+        if (text) color_l[3] = stroke_a;
         document.querySelector("#draw_color_stroke").style.backgroundColor =
             document.querySelector("#draw_color > div").style.borderColor =
             stroke_color =
-                color;
+                Color(color_l).string();
     }
     var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
     if (t_color.isLight()) {
