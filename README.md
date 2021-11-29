@@ -44,20 +44,20 @@ npm run make
 
 默认快捷键为<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>(你也可以在设置设置快捷键)
 
-
-
 ## 功能
 
 - [x] 截屏
   - [x] 框选裁切
-  - [x] 框大小位置可调整(支持方向键或wasd)
+  - [x] 框大小位置可调整(支持方向键或WASD)
   - [x] 取色器
   - [x] 放大镜
   - [x] 画笔
-  - [x] 画笔二次编辑
   - [ ] 画笔撤销
-  - [ ] 画画鼠标跟随
-  - [ ] 马赛克
+  - [x] 色板
+  - [ ] 笔画粗细
+  - [ ] 鼠标拖动画几何
+  - [ ] 高级几何设置
+  - [ ] 图像滤镜
 - [x] 保存
 - [x] 复制到剪贴板
 - [x] 钉在屏幕上
@@ -68,6 +68,7 @@ npm run make
 - [x] OCR识别
   - [x] 本地OCR
   - [x] 百度OCR
+  - [ ] OCR插件
 - [ ] 以图搜图
 - [x] 托盘
 - [x] 系统选中搜索
@@ -78,6 +79,7 @@ npm run make
   - [x] 内部打开
   - [x] 浏览器打开
   - [x] 链接识别
+  - [ ] 历史记录
 - [ ] Wayland桌面:sweat_smile:(为什么electron截不了wayland!)
 - [ ] 独立于electron的截图api
 
@@ -95,4 +97,3 @@ Wayland无法截图
 促使我开发eSearch的另一个契机是我很享受在手机上使用[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的即时信息搜索工具，但我没有找到电脑上类似的代替品。
 
 所以我干脆自己开发一个“截图+OCR+搜索+贴图”的软件。最开始用python+pyqt开发出[Information-portal](https://github.com/xushengfeng/Information-portal.git)，但因为我不熟悉pyqt，所以我转战:electron:，开发出本软件。:smile:
-
