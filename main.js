@@ -181,45 +181,7 @@ app.whenReady().then(() => {
     ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", (event, opts) => desktopCapturer.getSources(opts));
 
     ipcMain.on("ocr", (event, arg) => {
-        const request = net.request({
-            method: "POST",
-            url: store.get("ocr_url") || "http://127.0.0.1:8080",
-            headers: { "Content-type": "application/x-www-form-urlencoded" },
-        });
-        request.on("response", (response) => {
-            if (response.statusCode == "200") {
-                response.on("data", (chunk) => {
-                    create_main_window(chunk.toString(), "ocr");
-                });
-                response.on("end", () => {
-                    event.sender.send("ocr_back", "ok");
-                });
-            } else {
-                event.sender.send("ocr_back", "else");
-                dialog.showMessageBox({
-                    title: "警告",
-                    message: "识别失败\n请尝试重新识别",
-                    icon: `${run_path}/assets/icons/warning.png`,
-                });
-            }
-        });
-        request.on("error", () => {
-            event.sender.send("ocr_back", "else");
-            dialog.showMessageBox({
-                title: "警告",
-                message: "识别失败\n找不到服务器",
-                icon: `${run_path}/assets/icons/warning.png`,
-            });
-        });
-        access_token = store.get("ocr_access_token") || "";
-        data = JSON.stringify({
-            access_token: access_token,
-            image: arg,
-            detect_direction: true,
-            paragraph: true,
-        });
-        request.write(data);
-        request.end();
+        ocr(event, arg);
     });
 
     ipcMain.on("QR", (event, arg) => {
@@ -480,6 +442,48 @@ function create_ding_window(x, y, w, h, img) {
         }
         move_ding();
     });
+}
+
+function ocr(event, arg) {
+    const request = net.request({
+        method: "POST",
+        url: store.get("ocr_url") || "http://127.0.0.1:8080",
+        headers: { "Content-type": "application/x-www-form-urlencoded" },
+    });
+    request.on("response", (response) => {
+        if (response.statusCode == "200") {
+            response.on("data", (chunk) => {
+                create_main_window(chunk.toString(), "ocr");
+            });
+            response.on("end", () => {
+                event.sender.send("ocr_back", "ok");
+            });
+        } else {
+            event.sender.send("ocr_back", "else");
+            dialog.showMessageBox({
+                title: "警告",
+                message: "识别失败\n请尝试重新识别",
+                icon: `${run_path}/assets/icons/warning.png`,
+            });
+        }
+    });
+    request.on("error", () => {
+        event.sender.send("ocr_back", "else");
+        dialog.showMessageBox({
+            title: "警告",
+            message: "识别失败\n找不到服务器",
+            icon: `${run_path}/assets/icons/warning.png`,
+        });
+    });
+    access_token = store.get("ocr_access_token") || "";
+    data = JSON.stringify({
+        access_token: access_token,
+        image: arg,
+        detect_direction: true,
+        paragraph: true,
+    });
+    request.write(data);
+    request.end();
 }
 
 function create_main_window(t, type) {
