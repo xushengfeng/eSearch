@@ -163,6 +163,12 @@ function open_link(id, link) {
     }
 }
 
+document.querySelector("#history_b").onclick = () => {
+    show_history()
+};
+function show_history(){
+    
+}
 document.querySelector("#search_b").onclick = () => {
     open_link("search");
 };

@@ -99,7 +99,8 @@ body {
 }
 #search,
 #translate,
-#browser {
+#browser,
+#history {
     margin: 0 16px 16px 16px;
 }
 
