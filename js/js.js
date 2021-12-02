@@ -5,16 +5,8 @@ t = "";
 type = "";
 ipcRenderer.on("text", (event, list) => {
     t = list[0];
-    type = list[1];
-    if (type == "ocr") {
-        show_ocr_r(t);
-    }
-    if (type == "QR") {
-        show_t(t);
-    }
-    if (type == "text") {
-        show_t(t);
-    }
+    language = list[1];
+    show_t(t, language);
 });
 
 store = new Store();
@@ -42,35 +34,20 @@ function is_link(url, s) {
     }
 }
 
-function show_ocr_r(t) {
-    var t = JSON.parse(t);
-    var r = "";
-    var text = t["words_result"];
-    for (i in text) {
-        r += text[i]["words"] + "\n";
-    }
-    document.getElementById("text").innerText = r;
-    if (is_link(r, true)) {
-        if (自动打开链接) open_link("url", r);
-    } else {
-        if (自动搜索 && text.length == 1) {
-            if (t["language"] == "cn") {
-                open_link("search");
-            } else {
-                open_link("translate");
-            }
-        }
-    }
-}
-
-function show_t(t) {
+function show_t(t, language) {
     document.getElementById("text").innerText = t;
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
     } else {
-        if (自动搜索 && t.match(/\n/) == null && t != "") {
+        if (language == "auto") {
             if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
-                // 中文字符过一定阈值
+                language = "本地语言";
+            } else {
+                language = "外语";
+            }
+        }
+        if (自动搜索 && t.match(/\n/) == null && t != "") {
+            if (language == "本地语言") {
                 open_link("search");
             } else {
                 open_link("translate");
@@ -164,11 +141,9 @@ function open_link(id, link) {
 }
 
 document.querySelector("#history_b").onclick = () => {
-    show_history()
+    show_history();
 };
-function show_history(){
-    
-}
+function show_history() {}
 document.querySelector("#search_b").onclick = () => {
     open_link("search");
 };

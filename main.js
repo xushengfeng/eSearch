@@ -63,7 +63,7 @@ app.whenReady().then(() => {
         {
             label: "主页面",
             click: () => {
-                create_main_window("", "text");
+                create_main_window([""]);
             },
         },
         {
@@ -186,7 +186,7 @@ app.whenReady().then(() => {
 
     ipcMain.on("QR", (event, arg) => {
         if (arg != "nothing") {
-            create_main_window(arg, "QR");
+            create_main_window([arg]);
         } else {
             dialog.showMessageBox({
                 title: "警告",
@@ -361,14 +361,14 @@ function open_selection() {
     robot.keyTap("c", "control");
     t = clipboard.readText();
     if (o_clipboard != t) {
-        create_main_window(t, "text");
+        create_main_window([t]);
     }
     clipboard.writeText(o_clipboard);
 }
 
 function open_clip_board() {
     t = clipboard.readText();
-    create_main_window(t, "text");
+    create_main_window([t]);
 }
 
 const windows = {};
@@ -453,7 +453,14 @@ function ocr(event, arg) {
     request.on("response", (response) => {
         if (response.statusCode == "200") {
             response.on("data", (chunk) => {
-                create_main_window(chunk.toString(), "ocr");
+                var t = chunk.toString();
+                var t = JSON.parse(t);
+                var r = "";
+                var text = t["words_result"];
+                for (i in text) {
+                    r += text[i]["words"] + "\n";
+                }
+                create_main_window([r, text["language"]]);
             });
             response.on("end", () => {
                 event.sender.send("ocr_back", "ok");
@@ -486,7 +493,7 @@ function ocr(event, arg) {
     request.end();
 }
 
-function create_main_window(t, type) {
+function create_main_window(t, web_page) {
     const main_window = new BrowserWindow({
         x: screen.getCursorScreenPoint().x,
         y: screen.getCursorScreenPoint().y,
@@ -499,10 +506,15 @@ function create_main_window(t, type) {
         },
     });
 
-    main_window.loadFile("index.html");
+    if (web_page == undefined) {
+        main_window.loadFile("index.html");
+    } else {
+        main_window.loadFile(web_page);
+    }
+
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
-        main_window.webContents.send("text", [t, type]);
+        main_window.webContents.send("text", [t[0], t[1] || "auto"]);
     });
 
     ipcMain.on("edit", (enent, v) => {
