@@ -117,9 +117,12 @@ button {
     padding: 0 16px 0 16px;
     transition: var(--transition);
     cursor: pointer;
+    background-position: center;
+    background-size: cover;
+    width: 40px;
 }
 button:hover {
-    background: var(--hover-color);
+    background-color: var(--hover-color);
 }
 select {
     border-radius: 0;
@@ -137,18 +140,17 @@ option {
     font-size: var(--font-size);
 }
 
-#browser {
-    font-size: var(--font-size);
-    padding: 0 16px 0 16px;
-    transition: var(--transition);
-    cursor: default;
-    user-select: none;
+#history_b{
+    background-image: url(../assets/main_history.svg);
 }
-#browser:hover {
-    background: var(--hover-color);
+#browser_b{
+    background-image: url(../assets/main_browser.svg);
 }
-#browser > input {
-    pointer-events: none;
+#search_b{
+    background-image: url(../assets/main_search.svg);
+}
+#translate_b{
+    background-image: url(../assets/main_translate.svg);
 }
 
 @media (prefers-color-scheme: dark) {

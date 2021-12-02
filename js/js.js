@@ -114,10 +114,21 @@ for (i in 翻译引擎_list) {
 document.querySelector("#translate_s").innerHTML = translate_c;
 
 浏览器打开 = store.get("浏览器中打开");
-document.querySelector("#browser_i").checked = 浏览器打开;
+if (浏览器打开)
+    document.querySelector("#browser_b").style.backgroundColor = getComputedStyle(
+        document.documentElement
+    ).getPropertyValue("--hover-color");
+
 document.querySelector("#browser").onclick = () => {
-    document.querySelector("#browser_i").checked = document.querySelector("#browser_i").checked ? false : true;
-    浏览器打开 = document.querySelector("#browser_i").checked;
+    if (浏览器打开) {
+        document.querySelector("#browser_b").style.backgroundColor = "";
+        浏览器打开 = false;
+    } else {
+        document.querySelector("#browser_b").style.backgroundColor = getComputedStyle(
+            document.documentElement
+        ).getPropertyValue("--hover-color");
+        浏览器打开 = true;
+    }
 };
 
 function open_link(id, link) {
