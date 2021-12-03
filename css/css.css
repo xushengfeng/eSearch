@@ -62,14 +62,23 @@ body {
     height: 0;
 }
 #history_list > div {
-    padding: 8px;
     margin: 0 0 16px 0;
     border-radius: var(--border-radius);
     border: var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    overflow: hidden;
 }
-#history_list > div:hover {
+#history_list > div > div {
+    flex-grow: 1;
+    padding: 8px;
+}
+#history_list > div > div:hover {
     background-color: var(--hover-color);
-    transition: var(--transition);
+}
+#history_list > div > button:hover {
+    background-color: #f00;
 }
 
 #edit_b {
@@ -134,7 +143,7 @@ body {
 #translate,
 #browser,
 #history {
-    margin: 0 16px 16px 16px;
+    margin: 0 16px 16px 0;
 }
 
 button {

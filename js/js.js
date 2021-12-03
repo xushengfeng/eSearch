@@ -173,13 +173,21 @@ function show_history() {
 
         var history_text = "";
         for (var i in history_list) {
-            history_text += `<div>${history_list[i].text}</div>`;
+            history_text = `<div><div>${history_list[i].text}</div><button></button></div>` + history_text;
         }
         document.querySelector("#history_list").innerHTML = history_text;
-        document.querySelectorAll("#history_list > div").forEach((e, index) => {
+        document.querySelectorAll("#history_list > div > div").forEach((e, index) => {
             e.addEventListener("click", () => {
                 document.getElementById("text").innerText = history_list[index].text;
                 show_history();
+            });
+        });
+        document.querySelectorAll("#history_list > div > button").forEach((e, index) => {
+            e.addEventListener("click", () => {
+                delete history_list[index];
+                history_list = history_list.flat();
+                e.parentElement.remove();
+                store.set("历史记录", history_list);
             });
         });
 
