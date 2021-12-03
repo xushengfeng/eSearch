@@ -1,6 +1,6 @@
 :root {
     --hover-color: #0002;
-    --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
     --bar-bg: #fff9;
     --blur: blur(10px);

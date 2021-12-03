@@ -26,7 +26,7 @@ body {
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
     overflow: overlay;
-    height: 100%;
+    flex-grow: 1;
     font-size: var(--font-size);
     transition: var(--transition);
 }
@@ -52,6 +52,8 @@ body {
     height: 100%;
     overflow: hidden;
     transition: var(--transition);
+    display: flex;
+    flex-direction: column;
 }
 
 #history_list {
