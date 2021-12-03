@@ -34,8 +34,23 @@ function is_link(url, s) {
     }
 }
 
+var history_list = JSON.parse(store.get("历史记录") || "[]");
+var history_text = "";
+for (var i in history_list) {
+    history_text += `<div>${history_list[i].text}</div>`;
+}
+document.querySelector("#history_list").innerHTML = history_text;
+document.querySelectorAll("#history_list > div").forEach((e, index) => {
+    e.addEventListener("click", () => {
+        document.getElementById("text").innerText = history_list[index];
+        show_history();
+    });
+});
+
 function show_t(t, language) {
     document.getElementById("text").innerText = t;
+    history_list[history_list.length] = { text: t, time: new Date().getTime() };
+    store.set("history", history_list);
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
     } else {
@@ -151,10 +166,28 @@ function open_link(id, link) {
     }
 }
 
+history_showed = false;
 document.querySelector("#history_b").onclick = () => {
+    if (history_showed) {
+        document.querySelector("#history_b").style.backgroundColor = "";
+        history_showed = false;
+    } else {
+        document.querySelector("#history_b").style.backgroundColor = getComputedStyle(
+            document.documentElement
+        ).getPropertyValue("--hover-color");
+        history_showed = true;
+    }
     show_history();
 };
-function show_history() {}
+function show_history() {
+    if (history_showed) {
+        document.querySelector("#text_out").style.height = "0%";
+        document.querySelector("#history_list").style.height = "100%";
+    } else {
+        document.querySelector("#text_out").style.height = "100%";
+        document.querySelector("#history_list").style.height = "0%";
+    }
+}
 document.querySelector("#search_b").onclick = () => {
     open_link("search");
 };
