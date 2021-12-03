@@ -30,7 +30,7 @@
      units="px"
      width="512px"
      inkscape:zoom="2.2627417"
-     inkscape:cx="232.9033"
+     inkscape:cx="233.34524"
      inkscape:cy="210.80621"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
@@ -80,13 +80,6 @@
        cy="200"
        rx="65"
        ry="135" />
-    <ellipse
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:4;stroke-opacity:1"
-       id="path937-56"
-       cx="200"
-       cy="200"
-       rx="135"
-       ry="65" />
     <path
        style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 65,200 H 335"
@@ -96,6 +89,16 @@
        style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 200,65 V 335"
        id="path1585"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 85,135 H 315"
+       id="path943"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 80,265 H 315"
+       id="path945"
        sodipodi:nodetypes="cc" />
   </g>
 </svg>
