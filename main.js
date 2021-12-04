@@ -495,8 +495,10 @@ function ocr(event, arg) {
 
 function create_main_window(t, web_page) {
     const main_window = new BrowserWindow({
-        x: screen.getCursorScreenPoint().x,
-        y: screen.getCursorScreenPoint().y,
+        x: screen.getCursorScreenPoint().x - 800,
+        y: screen.getCursorScreenPoint().y - 600,
+        width: 800,
+        height: 600,
         minWidth: 800,
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         webPreferences: {
