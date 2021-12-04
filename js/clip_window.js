@@ -66,6 +66,19 @@ function get_desktop_capturer(n) {
                     final_rect[2] / 2 - document.querySelector("#clip_wh").offsetWidth / 2 + "px";
                 document.querySelector("#clip_wh").style.top = "10px";
                 document.querySelector("#x0y0").style.display = document.querySelector("#x1y1").style.display = "none";
+                if (四角坐标) {
+                    var x0, y0, x1, y1;
+                    var d = 光标 == "以(1,1)为起点" ? 1 : 0;
+                    x0 = final_rect[0] + d;
+                    y0 = final_rect[1] + d;
+                    x1 = final_rect[0] + d + final_rect[2];
+                    y1 = final_rect[1] + d + final_rect[3];
+                    document.querySelector("#x0y0").style.display = "block";
+                    document.querySelector("#x1y1").style.display = "block";
+                    document.querySelector("#x0y0").innerHTML = `${x0}, ${y0}`;
+                    document.querySelector("#x1y1").innerHTML = `${x1}, ${y1}`;
+                } else {
+                }
                 document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
                 video.pause();
                 document.querySelector("body").style.display = "block";

@@ -137,6 +137,8 @@ function draw_clip_rect() {
 
 hotkeys("ctrl+a, command+a", () => {
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    clip_canvas.style.cursor = "crosshair";
+    direction = "none";
     draw_clip_rect();
 });
 
