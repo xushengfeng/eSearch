@@ -186,3 +186,15 @@ document.querySelector("#ocr_url").oninput = () => {
 document.querySelector("#ocr_access_token").oninput = () => {
     store.set("ocr_access_token", document.querySelector("#ocr_access_token").value);
 };
+
+// 进度条
+scroll = setTimeout(() => {
+    document.querySelector("body").className = "hidescrollbar";
+}, 1000);
+document.querySelector("body").onscroll = () => {
+    clearTimeout(scroll - 1);
+    document.querySelector("body").className = "";
+    scroll = setTimeout(() => {
+        document.querySelector("body").className = "hidescrollbar";
+    }, 1000);
+};

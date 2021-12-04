@@ -1,3 +1,6 @@
+body{
+    overflow: overlay;
+}
 main {
     width: 70%;
     margin-left: 20%;

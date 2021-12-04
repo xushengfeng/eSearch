@@ -59,9 +59,10 @@
         <p>在设置中<a href="setting.html#ocr_url">自定义</a>百度OCR api </p>
         <h1>主窗口</h1>
         <p>当你按下 <img src="assets/tool_ocr.svg" class="line_img">
-        文字识别或
-        <img src="assets/tool_QR.svg" class="line_img">
-        扫描二维码后，若识别成功，<strong>eSearch</strong>将弹出主窗口</p>
+            文字识别或
+            <img src="assets/tool_QR.svg" class="line_img">
+            扫描二维码后，若识别成功，<strong>eSearch</strong>将弹出主窗口
+        </p>
         <img src="assets/help/main1.png" class="window">
         <p>按下“搜索”或“翻译”进行对应的操作</p>
         <p>如果不想“搜索”或“翻译”全文，可以用鼠标选区部分文字，这样可以“搜索”或“翻译”部分文字</p>
@@ -86,6 +87,19 @@
         <p>归位可以让窗口回到最开始位置和大小，于原来截图位置贴合以至于无法察觉</p>
 
     </main>
+    <script>
+        // 进度条
+        scroll = setTimeout(() => {
+            document.querySelector("body").className = "hidescrollbar";
+        }, 1000);
+        document.querySelector("body").onscroll = () => {
+            clearTimeout(scroll - 1);
+            document.querySelector("body").className = "";
+            scroll = setTimeout(() => {
+                document.querySelector("body").className = "hidescrollbar";
+            }, 1000);
+        };
+    </script>
 </body>
 
 </html>

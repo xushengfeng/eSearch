@@ -43,24 +43,6 @@ body {
 #text:focus {
     outline: none;
 }
-::-webkit-scrollbar {
-    width: 8px;
-    height: 1px;
-}
-::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: #dddd;
-}
-::-webkit-scrollbar-track {
-    background: #0000;
-}
-::-webkit-scrollbar-button {
-    height: 8px;
-}
-.hidescrollbar::-webkit-scrollbar {
-    width: 0px !important;
-    height: 1px;
-}
 
 #history_list {
     transition: var(--transition);

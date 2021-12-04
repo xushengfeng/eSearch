@@ -64,3 +64,22 @@ kbd {
     transform: rotateX(45deg);
     background: linear-gradient(315deg, #e6e6e6, #ffffff);
 }
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 1px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #dddd;
+}
+::-webkit-scrollbar-track {
+    background: #0000;
+}
+::-webkit-scrollbar-button {
+    height: 8px;
+}
+.hidescrollbar::-webkit-scrollbar {
+    width: 0px !important;
+    height: 1px;
+}
