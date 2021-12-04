@@ -34,7 +34,7 @@ function is_link(url, s) {
     }
 }
 
-var history_list = store.get("历史记录") || "[]";
+var history_list = store.get("历史记录") || [];
 
 function show_t(t, language) {
     document.getElementById("text").innerText = t;
