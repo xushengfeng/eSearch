@@ -159,12 +159,16 @@ history_showed = false;
 document.querySelector("#history_b").onclick = () => {
     show_history();
 };
+function html2Escape(sHtml) {
+    return sHtml.replace(/[<>&"]/g, function (c) {
+        return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c];
+    });
+}
 function show_history() {
     if (history_showed) {
         document.querySelector("#history_b").style.backgroundColor = "";
         history_showed = false;
-        document.querySelector("#text_out").style.height = "100%";
-        document.querySelector("#history_list").style.height = "0%";
+        document.querySelector("#history_list").style.height = "0";
     } else {
         document.querySelector("#history_b").style.backgroundColor = getComputedStyle(
             document.documentElement
@@ -173,7 +177,7 @@ function show_history() {
 
         var history_text = "";
         for (var i in history_list) {
-            history_text = `<div><div>${history_list[i].text}</div><button></button></div>` + history_text;
+            history_text = `<div><div>${html2Escape(history_list[i].text)}</div><button></button></div>` + history_text;
         }
         if (history_list.length != 0) document.querySelector("#history_list").innerHTML = history_text;
         document.querySelectorAll("#history_list > div > div").forEach((e, index) => {
@@ -187,11 +191,13 @@ function show_history() {
                 delete history_list[index];
                 history_list = history_list.flat();
                 e.parentElement.remove();
+                if (history_list.length == 0) {
+                    document.querySelector("#history_list").innerText = "暂无历史记录";
+                }
                 store.set("历史记录", history_list);
             });
         });
 
-        document.querySelector("#text_out").style.height = "0%";
         document.querySelector("#history_list").style.height = "100%";
     }
 }

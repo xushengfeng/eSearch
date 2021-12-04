@@ -79,7 +79,7 @@ npm run make
   - [x] 内部打开
   - [x] 浏览器打开
   - [x] 链接识别
-  - [ ] 历史记录
+  - [x] 历史记录
 - [ ] Wayland桌面:sweat_smile:(为什么electron截不了wayland!)
 - [ ] 独立于electron的截图api
 

@@ -66,6 +66,7 @@ body {
     transition: var(--transition);
     overflow-y: overlay;
     height: 0;
+    text-align: center;
 }
 #history_list > div {
     margin: 0 0 16px 0;
@@ -75,6 +76,7 @@ body {
     justify-content: space-between;
     align-items: stretch;
     overflow: hidden;
+    text-align: start;
 }
 #history_list > div > div {
     flex-grow: 1;
@@ -82,6 +84,11 @@ body {
 }
 #history_list > div > div:hover {
     background-color: var(--hover-color);
+}
+#history_list > div > button {
+    height: auto;
+    width: 36px;
+    border-left: 2px solid var(--hover-color);
 }
 #history_list > div > button:hover {
     background-color: #f00;
@@ -159,7 +166,6 @@ button {
     border: none;
     outline: none;
     margin: 0px;
-    padding: 0;
     color: var(--color);
     font-size: var(--font-size);
     padding: 0 16px 0 16px;
