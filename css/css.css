@@ -13,11 +13,21 @@ body {
 
 #top {
     flex-grow: 1;
-    width: 100%;
     padding: 16px;
     box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
+#text_out {
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: var(--transition);
+    display: flex;
+    flex: 1;
+}
 #text {
     padding: 8px;
     box-sizing: border-box;
@@ -46,14 +56,6 @@ body {
 }
 #text::-webkit-scrollbar-button {
     height: 8px;
-}
-#text_out {
-    box-sizing: border-box;
-    height: 100%;
-    overflow: hidden;
-    transition: var(--transition);
-    display: flex;
-    flex-direction: column;
 }
 
 #history_list {
