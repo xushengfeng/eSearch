@@ -176,10 +176,13 @@ function show_history() {
         history_showed = true;
 
         var history_text = "";
-        for (var i in history_list) {
-            history_text = `<div><div>${html2Escape(history_list[i].text)}</div><button></button></div>` + history_text;
+        if (history_list.length != 0) {
+            for (var i in history_list) {
+                history_text =
+                    `<div><div>${html2Escape(history_list[i].text)}</div><button></button></div>` + history_text;
+            }
+            document.querySelector("#history_list").innerHTML = history_text;
         }
-        if (history_list.length != 0) document.querySelector("#history_list").innerHTML = history_text;
         document.querySelectorAll("#history_list > div > div").forEach((e, index) => {
             e.addEventListener("click", () => {
                 document.getElementById("text").innerText = history_list[index].text;
