@@ -233,3 +233,21 @@ document.querySelector("#paste_bar").onmousedown = (event) => {
     event.preventDefault();
     ipcRenderer.send("edit", "paste");
 };
+
+// 滚动条
+var text_scroll = 0;
+document.querySelector("#text").onscroll = () => {
+    clearTimeout(text_scroll - 1);
+    document.querySelector("#text").className = "";
+    text_scroll = setTimeout(() => {
+        document.querySelector("#text").className = "hidescrollbar";
+    }, 1000);
+};
+var history_scroll = 0;
+document.querySelector("#history").onscroll = () => {
+    clearTimeout(history_scroll - 1);
+    document.querySelector("#history").className = "";
+    history_scroll = setTimeout(() => {
+        document.querySelector("#history").className = "hidescrollbar";
+    }, 1000);
+};

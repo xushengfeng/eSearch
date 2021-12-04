@@ -43,24 +43,28 @@ body {
 #text:focus {
     outline: none;
 }
-#text::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 8px;
     height: 1px;
 }
-#text::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background: #dddd;
 }
-#text::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     background: #0000;
 }
-#text::-webkit-scrollbar-button {
+::-webkit-scrollbar-button {
     height: 8px;
+}
+.hidescrollbar::-webkit-scrollbar {
+    width: 0px !important;
+    height: 1px;
 }
 
 #history_list {
     transition: var(--transition);
-    overflow-y: scroll;
+    overflow-y: overlay;
     height: 0;
 }
 #history_list > div {
