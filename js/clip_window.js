@@ -228,7 +228,7 @@ function tool_open_f() {
         document.getElementById("tool_open").style.backgroundColor = getComputedStyle(
             document.documentElement
         ).getPropertyValue("--hover-color");
-        document.querySelector("#app_path").style.width = "238px";
+        document.querySelector("#app_path").style.width = "288px";
         document.querySelector("#app_path > div > input").focus();
     } else {
         document.getElementById("tool_open").style.backgroundColor = "";
@@ -238,7 +238,7 @@ function tool_open_f() {
         ipcRenderer.send("open");
         ipcRenderer.on("open_path", (event, message) => {
             document.querySelector("#app_path > div > input").value = message;
-            open_app()
+            open_app();
         });
     };
     document.querySelector("#app_path > div > #open").onclick = () => {
@@ -256,7 +256,11 @@ function tool_open_f() {
             f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
             dataBuffer = new Buffer(f, "base64");
             fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
-                open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] });
+                if (app == "") {
+                    open(os.tmpdir() + "/tmp.png");
+                } else {
+                    open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] });
+                }
                 tool_close_f();
             });
         });
