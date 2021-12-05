@@ -1,5 +1,25 @@
 const Color = require("color");
 
+模糊 = store.get("模糊") || 10;
+if (模糊 != 0) {
+    document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
+} else {
+    document.documentElement.style.setProperty("--blur", `none`);
+}
+document.querySelector("#模糊").value = store.get("模糊") || 10;
+document.querySelector("#模糊").oninput = () => {
+    var 模糊 = document.querySelector("#模糊").value;
+    if (模糊 < 0) {
+        document.querySelector("#模糊").value = 0;
+    }
+    if (模糊 != 0) {
+        document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
+    } else {
+        document.documentElement.style.setProperty("--blur", `none`);
+    }
+    store.set("模糊", 模糊);
+};
+
 // 单选项目设置加载
 function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).value = store.get(id) || 默认;
@@ -45,7 +65,7 @@ document.querySelector("#像素大小").oninput = () => {
 
 point_color_view = document.querySelector("#point_color_view");
 var img = document.createElement("img");
-img.src = "assets/color_picker_photo.svg";
+img.src = "assets/sample_picture.svg";
 img.onload = () => {
     point_color_view.width = img.width;
     point_color_view.height = img.height;

@@ -11,6 +11,13 @@ ipcRenderer.on("text", (event, list) => {
 
 store = new Store();
 
+模糊 = store.get("模糊") || 10;
+if (模糊 != 0) {
+    document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
+} else {
+    document.documentElement.style.setProperty("--blur", `none`);
+}
+
 自动搜索 = store.get("自动搜索");
 自动打开链接 = store.get("自动打开链接");
 自动搜索中文占比 = store.get("自动搜索中文占比") || 0.5;

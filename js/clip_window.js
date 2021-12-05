@@ -18,6 +18,13 @@ function set_setting() {
     遮罩颜色 = store.get("遮罩颜色") || "#0005";
     选区颜色 = store.get("选区颜色") || "#0000";
 
+    模糊 = store.get("模糊") || 10;
+    if (模糊 != 0) {
+        document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
+    } else {
+        document.documentElement.style.setProperty("--blur", `none`);
+    }
+
     copy_size = store.get("取色器大小") || "15";
     copy_i_size = store.get("像素大小") || "10";
     document.documentElement.style.setProperty("--copy_size", `${copy_size * copy_i_size}px`);

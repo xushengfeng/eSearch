@@ -33,7 +33,6 @@ body {
     box-sizing: border-box;
     border-radius: var(--border-radius);
     border: var(--border);
-    backdrop-filter: var(--blur);
     background: var(--bar-bg);
     overflow: overlay;
     flex-grow: 1;
@@ -131,7 +130,6 @@ body {
     border-radius: var(--border-radius);
     overflow: hidden;
     border: var(--border);
-    backdrop-filter: var(--blur);
     background-color: var(--bar-bg);
 }
 #search,

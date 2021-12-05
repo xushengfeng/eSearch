@@ -87,19 +87,7 @@
         <p>归位可以让窗口回到最开始位置和大小，于原来截图位置贴合以至于无法察觉</p>
 
     </main>
-    <script>
-        // 进度条
-        scroll = setTimeout(() => {
-            document.querySelector("body").className = "hidescrollbar";
-        }, 1000);
-        document.querySelector("body").onscroll = () => {
-            clearTimeout(scroll - 1);
-            document.querySelector("body").className = "";
-            scroll = setTimeout(() => {
-                document.querySelector("body").className = "hidescrollbar";
-            }, 1000);
-        };
-    </script>
+    <script src="js/help.js"></script>
 </body>
 
 </html>
