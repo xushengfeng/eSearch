@@ -229,11 +229,18 @@ function tool_open_f() {
             document.documentElement
         ).getPropertyValue("--hover-color");
         document.querySelector("#app_path").style.width = "238px";
-        document.querySelector("#app_path > div > input").focus()
+        document.querySelector("#app_path > div > input").focus();
     } else {
         document.getElementById("tool_open").style.backgroundColor = "";
         document.querySelector("#app_path").style.width = "0";
     }
+    document.querySelector("#app_path > div > #open_file").onclick = () => {
+        ipcRenderer.send("open");
+        ipcRenderer.on("open_path", (event, message) => {
+            document.querySelector("#app_path > div > input").value = message;
+            open_app()
+        });
+    };
     document.querySelector("#app_path > div > #open").onclick = () => {
         open_app();
     };

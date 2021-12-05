@@ -196,6 +196,17 @@ app.whenReady().then(() => {
         }
     });
 
+    ipcMain.on("open", (event) => {
+        dialog
+            .showOpenDialog({
+                title: "选择要打开应用的位置"
+            })
+            .then((x) => {
+                console.log(x)
+                event.sender.send("open_path", x.filePaths[0]);
+            });
+    });
+
     ipcMain.on("save", (event) => {
         save_time = new Date();
         save_name_time = `${save_time.getFullYear()}-${
