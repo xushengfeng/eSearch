@@ -73,8 +73,8 @@ img.onload = () => {
     show_color_picker();
 };
 function show_color_picker() {
-    copy_size = document.querySelector("#取色器大小").value - 0;
-    color = point_color_view.getContext("2d").getImageData(0, 0, copy_size, copy_size).data; // 取色器密度
+    color_size = document.querySelector("#取色器大小").value - 0;
+    color = point_color_view.getContext("2d").getImageData(0, 0, color_size, color_size).data; // 取色器密度
     // 分开每个像素的颜色
     color_g = [];
     for (var i = 0, len = color.length; i < len; i += 4) {
@@ -88,9 +88,9 @@ function show_color_picker() {
         }px;height:${document.querySelector("#像素大小").value}px"></span>`;
     }
     document.querySelector("#point_color").style.width =
-        (document.querySelector("#像素大小").value - 0) * copy_size + "px";
+        (document.querySelector("#像素大小").value - 0) * color_size + "px";
     document.querySelector("#point_color").style.height =
-        (document.querySelector("#像素大小").value - 0) * copy_size + "px";
+        (document.querySelector("#像素大小").value - 0) * color_size + "px";
     document.querySelector("#point_color").innerHTML = inner_html;
 }
 

@@ -239,8 +239,8 @@ document.querySelector("#wh").onkeydown = (e) => {
 };
 
 inner_html = "";
-for (i = 1; i <= copy_size ** 2; i++) {
-    if (i == (copy_size ** 2 + 1) / 2) {
+for (i = 1; i <= color_size ** 2; i++) {
+    if (i == (color_size ** 2 + 1) / 2) {
         // 光标中心点
         inner_html += `<span id="point_color_t_c"></span>`;
     } else {
@@ -258,7 +258,7 @@ function mouse_bar(final_rect, x, y) {
     y1 = final_rect[1] + final_rect[3];
     color = main_canvas
         .getContext("2d")
-        .getImageData(x - (copy_size - 1) / 2, y - (copy_size - 1) / 2, copy_size, copy_size).data; // 取色器密度
+        .getImageData(x - (color_size - 1) / 2, y - (color_size - 1) / 2, color_size, color_size).data; // 取色器密度
     // 分开每个像素的颜色
     color_g = [];
     for (var i = 0, len = color.length; i < len; i += 4) {
@@ -356,7 +356,7 @@ function change_right_bar(v) {
     } else {
         document.querySelector("#clip_copy").style.width = `${getComputedStyle(
             document.documentElement
-        ).getPropertyValue("--copy_size")}`;
+        ).getPropertyValue("--color-size")}`;
         document.querySelector("#point_color").style.height = "";
         document.querySelector("#clip_color").style.height = "";
         document.querySelector("#clip_copy").style.height = "";

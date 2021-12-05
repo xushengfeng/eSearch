@@ -27,10 +27,10 @@ function set_setting() {
         document.documentElement.style.setProperty("--blur", `none`);
     }
 
-    copy_size = store.get("取色器大小") || "15";
-    copy_i_size = store.get("像素大小") || "10";
-    document.documentElement.style.setProperty("--copy_size", `${copy_size * copy_i_size}px`);
-    document.documentElement.style.setProperty("--copy_i_size", `${copy_i_size}px`);
+    color_size = store.get("取色器大小") || "15";
+    color_i_size = store.get("像素大小") || "10";
+    document.documentElement.style.setProperty("--color-size", `${color_size * color_i_size}px`);
+    document.documentElement.style.setProperty("--color-i-size", `${color_i_size}px`);
 }
 
 const main_canvas = document.getElementById("main_photo");

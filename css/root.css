@@ -10,8 +10,8 @@
     --color: #000;
     --border: 1px #000 solid;
     --font-size: 20px;
-    --copy_size: 150px;
-    --copy_i_size: 10px;
+    --color-size: 150px;
+    --color-i-size: 10px;
 }
 
 html,

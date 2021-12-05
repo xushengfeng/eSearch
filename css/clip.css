@@ -179,14 +179,14 @@ video {
     background: var(--bar-bg);
 }
 #point_color {
-    width: var(--copy_size);
-    height: var(--copy_size);
+    width: var(--color-size);
+    height: var(--color-size);
     overflow: hidden;
     transition: var(--transition);
 }
 #point_color span {
-    width: var(--copy_i_size);
-    height: var(--copy_i_size);
+    width: var(--color-i-size);
+    height: var(--color-i-size);
     float: left;
 }
 #point_color_t_c {
