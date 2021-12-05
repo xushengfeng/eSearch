@@ -458,13 +458,13 @@ function follow_bar(sx, sy, x, y) {
     }
 }
 
+// 移动画画栏
 draw_bar_moving = false;
 draw_bar_moving_xy = [];
 document.getElementById("draw_move").onmousedown = (e) => {
     draw_bar_moving = true;
     draw_bar_moving_xy[0] = e.offsetX;
     draw_bar_moving_xy[1] = e.offsetY + document.getElementById("draw_move").offsetTop;
-    console.log(draw_bar_moving_xy);
     draw_bar.style.transition = "0s";
 };
 document.getElementById("draw_move").onmouseup = (e) => {
@@ -473,6 +473,8 @@ document.getElementById("draw_move").onmouseup = (e) => {
     draw_bar.style.transition = "";
 };
 
+// 修复final_rect负数
+// 超出屏幕处理
 function final_rect_fix() {
     var x0 = final_rect[0];
     var y0 = final_rect[1];
@@ -482,6 +484,7 @@ function final_rect_fix() {
     y = Math.min(y0, y1);
     w = Math.max(x0, x1) - x;
     h = Math.max(y0, y1) - y;
+    // 移出去移回来保持原来大小
     if (x < 0) w = x = 0;
     if (y < 0) h = y = 0;
     if (x > main_canvas.width) x = x % main_canvas.width;
@@ -491,7 +494,8 @@ function final_rect_fix() {
     final_rect = [x, y, w, h];
 }
 
-var dw, de, dn, ds;
+// 判断光标位置并更改样式
+// 定义光标位置的移动方向
 function is_in_clip_rect(event) {
     now_canvas_position = p_xy_to_c_xy(clip_canvas, event.offsetX, event.offsetY, event.offsetX, event.offsetY);
     x = now_canvas_position[0];
@@ -500,8 +504,10 @@ function is_in_clip_rect(event) {
     x1 = final_rect[0] + final_rect[2];
     y0 = final_rect[1];
     y1 = final_rect[1] + final_rect[3];
+    // 如果全屏,那允许框选
     if (!(final_rect[2] == main_canvas.width && final_rect[3] == main_canvas.height)) {
         if (x0 <= x && x <= x1 && y0 <= y && y <= y1) {
+            // 在框选区域内,不可框选,只可调整
             in_rect = true;
         } else {
             in_rect = false;
@@ -555,12 +561,14 @@ function is_in_clip_rect(event) {
                 break;
         }
     } else {
+        // 全屏可框选
         clip_canvas.style.cursor = "crosshair";
         direction = "";
         in_rect = false;
     }
 }
 
+// 调整框选
 function move_rect(o_final_rect, oe, e) {
     var op = p_xy_to_c_xy(clip_canvas, oe.offsetX, oe.offsetY, oe.offsetX, oe.offsetY);
     var p = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
