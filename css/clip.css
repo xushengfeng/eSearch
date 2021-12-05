@@ -250,7 +250,7 @@ video {
     backdrop-filter: var(--blur);
     box-shadow: var(--shadow);
     position: absolute;
-    z-index: 11;
+    z-index: 99;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
