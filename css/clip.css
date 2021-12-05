@@ -197,26 +197,35 @@ video {
 #point_color_t_b {
     box-shadow: #0005 0 0 0 0.5px inset;
 }
+#clip_xy {
+    font-family: "Courier New", Courier, monospace;
+    height: 20px;
+}
 #clip_color {
     font-family: "Courier New", Courier, monospace;
     transition: var(--transition);
-    height: 16px;
     overflow: hidden;
 }
+#clip_color > div {
+    height: 20px;
+}
 #clip_copy {
+    font-family: "Courier New", Courier, monospace;
     width: 100%;
     height: 0;
     transition: var(--transition);
     overflow: hidden;
 }
-#clip_copy div {
-    margin: 4px 0 4px 0;
-    outline: 2px #0000 solid;
+#clip_copy > div {
+    margin: 8px 0 0 0;
+    height: 20px;
+    transition: var(--transition);
+    text-align: center;
 }
-#clip_copy div:hover {
+#clip_copy > div:hover {
     position: relative;
     z-index: 2;
-    outline: 2px #000 solid;
+    transform: scale(1.4);
 }
 #clip_wh {
     position: absolute;
@@ -244,7 +253,7 @@ video {
     z-index: 11;
 }
 
-#app_path{
+#app_path {
     background-color: var(--bar-bg);
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);

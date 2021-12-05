@@ -1,3 +1,8 @@
+ipcRenderer.on("reflash", () => {
+    right_key = false;
+    change_right_bar(false);
+});
+
 const Color = require("color");
 
 document.querySelector("body").onkeydown = (e) => {
@@ -339,13 +344,22 @@ function change_right_bar(v) {
     if (v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_color").style.height = "0";
-        document.querySelector("#clip_copy").style.height = `142px`;
+        document.querySelector("#clip_copy").style.height = `168px`;
+        document.querySelector("#clip_copy").style.width = `200px`;
+        setTimeout(() => {
+            document.querySelector("#clip_copy").style.overflow = "inherit";
+        }, 400);
     } else {
+        document.querySelector("#clip_copy").style.width = `${getComputedStyle(
+            document.documentElement
+        ).getPropertyValue("--copy_size")}`;
         document.querySelector("#point_color").style.height = "";
         document.querySelector("#clip_color").style.height = "";
         document.querySelector("#clip_copy").style.height = "";
+        document.querySelector("#clip_copy").style.overflow = "hidden";
     }
 }
+change_right_bar(false);
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
@@ -354,7 +368,7 @@ document.onmousemove = (e) => {
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
 
         // 鼠标跟随栏
-        document.querySelector("#mouse_bar").style.display = "block";
+        document.querySelector("#mouse_bar").style.display = "flex";
         mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
 
         var x = e.screenX + 35;
