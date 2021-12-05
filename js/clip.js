@@ -496,7 +496,7 @@ function is_in_clip_rect(event) {
     x1 = final_rect[0] + final_rect[2];
     y0 = final_rect[1];
     y1 = final_rect[1] + final_rect[3];
-    if (final_rect[2] < main_canvas.width && final_rect[3] < main_canvas.height) {
+    if (!(final_rect[2] == main_canvas.width && final_rect[3] == main_canvas.height)) {
         if (x0 <= x && x <= x1 && y0 <= y && y <= y1) {
             in_rect = true;
         } else {
@@ -547,12 +547,13 @@ function is_in_clip_rect(event) {
                 break;
             default:
                 clip_canvas.style.cursor = "crosshair";
-                direction = "none";
+                direction = "";
                 break;
         }
     } else {
         clip_canvas.style.cursor = "crosshair";
-        direction = "none";
+        direction = "";
+        in_rect = false;
     }
 }
 
