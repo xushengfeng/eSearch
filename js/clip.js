@@ -1,3 +1,4 @@
+// 初始化刷新
 ipcRenderer.on("reflash", () => {
     draw_clip_rect();
     setTimeout(() => {
@@ -9,6 +10,7 @@ ipcRenderer.on("reflash", () => {
 
 const Color = require("color");
 
+// 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {
     var o = {
         ArrowUp: "up",
@@ -117,11 +119,11 @@ clip_canvas.onmouseup = (e) => {
     }
 };
 
+// 画框(遮罩)
 function draw_clip_rect() {
     clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
     clip_ctx.beginPath();
 
-    // 奇迹!!!
     // 框选为黑色遮罩
     clip_ctx.fillStyle = 遮罩颜色;
     clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
@@ -141,15 +143,9 @@ function draw_clip_rect() {
 
     clip_ctx.fillStyle = 选区颜色;
     clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
+    // 大小栏
     wh_bar(final_rect);
 }
-
-hotkeys("ctrl+a, command+a", () => {
-    final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    clip_canvas.style.cursor = "crosshair";
-    direction = "none";
-    draw_clip_rect();
-});
 
 // 大小栏
 function wh_bar(final_rect) {
@@ -190,7 +186,7 @@ function wh_bar(final_rect) {
     }
     document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
 }
-
+// 回车更改x1y1 x1y2 wh
 document.querySelector("#x0y0").onkeydown = (e) => {
     if (e.key == "Enter") {
         e.preventDefault();
@@ -238,6 +234,15 @@ document.querySelector("#wh").onkeydown = (e) => {
     }
 };
 
+// 快捷键全屏选择
+hotkeys("ctrl+a, command+a", () => {
+    final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    clip_canvas.style.cursor = "crosshair";
+    direction = "none";
+    draw_clip_rect();
+});
+
+// 生成取色器
 inner_html = "";
 for (i = 1; i <= color_size ** 2; i++) {
     if (i == (color_size ** 2 + 1) / 2) {
@@ -399,7 +404,6 @@ document.onmousemove = (e) => {
     }
 };
 
-// 误代码后恢复,奇迹再现
 // 工具栏跟随
 function follow_bar(sx, sy, x, y) {
     if (x - sx >= 0) {

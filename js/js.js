@@ -22,6 +22,7 @@ if (模糊 != 0) {
 自动打开链接 = store.get("自动打开链接");
 自动搜索中文占比 = store.get("自动搜索中文占比") || 0.5;
 
+// 判断链接
 function is_link(url, s) {
     if (s) {
         // 严格模式
@@ -33,6 +34,7 @@ function is_link(url, s) {
             return false;
         }
     } else {
+        // 有.就行
         if (url.match(/\./g) != null && url.match(/\s+/g) == null) {
             return true;
         } else {
@@ -47,6 +49,7 @@ function show_t(t, language) {
     document.getElementById("text").innerText = t;
     if (t != "") history_list[history_list.length] = { text: t, time: new Date().getTime() };
     store.set("历史记录", history_list);
+    // 严格模式
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
     } else {
@@ -67,12 +70,15 @@ function show_t(t, language) {
     }
 }
 
+// 选中释放鼠标显示编辑面板
 document.getElementById("text").onmouseup = (e) => {
+    // 简易判断链接并显示按钮
     if (is_link(document.getSelection().toString(), false)) {
         document.querySelector("#link_bar").style.display = "block";
     } else {
         document.querySelector("#link_bar").style.display = "";
     }
+    // 排除没选中
     if (document.getSelection().toString() != "") {
         document.querySelector("#edit_b").style.display = "block";
         if (document.querySelector("#edit_b").offsetWidth + e.clientX <= window.innerWidth) {
@@ -142,6 +148,7 @@ document.querySelector("#browser").onclick = () => {
     }
 };
 
+// 打开浏览界面
 function open_link(id, link) {
     if (id == "url") {
         if (link.match(/\/\//g) == null) {
@@ -159,13 +166,16 @@ function open_link(id, link) {
         shell.openExternal(url);
     } else {
         window.open(url, "_blank");
+        // TODO 安全问题
     }
 }
 
+// 历史记录
 history_showed = false;
 document.querySelector("#history_b").onclick = () => {
     show_history();
 };
+// html转义
 function html2Escape(sHtml) {
     return sHtml.replace(/[<>&"]/g, function (c) {
         return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c];
@@ -190,12 +200,15 @@ function show_history() {
             }
             document.querySelector("#history_list").innerHTML = history_text;
         }
+        // 打开某项历史
         document.querySelectorAll("#history_list > div > div").forEach((e, index) => {
             e.addEventListener("click", () => {
                 document.getElementById("text").innerText = history_list[index].text;
                 show_history();
             });
         });
+        // 删除某项历史
+        // TODO多选
         document.querySelectorAll("#history_list > div > button").forEach((e, index) => {
             e.addEventListener("click", () => {
                 delete history_list[index];

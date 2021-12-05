@@ -13,13 +13,13 @@ const {
     net,
     shell,
 } = require("electron");
-const os = require("os");
 var robot = require("robotjs");
 const Store = require("electron-store");
-
 var screen = require("electron").screen;
 const path = require("path");
 run_path = path.resolve(__dirname, "");
+
+// 自动开启开发者模式
 if (app.isPackaged) {
     dev = false;
 } else {
@@ -27,6 +27,7 @@ if (app.isPackaged) {
 }
 
 app.whenReady().then(() => {
+    // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -91,14 +92,48 @@ app.whenReady().then(() => {
     ]);
     tray.setContextMenu(contextMenu);
 
+    // 自动判断选中搜索还是截图搜索
+    function auto_open() {
+        var o_clipboard = clipboard.readText();
+        robot.keyTap("c", "control");
+        var t = clipboard.readText();
+        if (o_clipboard != t) {
+            open_clip_board();
+        } else {
+            clip_window.webContents.send("reflash");
+            clip_window.show();
+            clip_window.setFullScreen(true);
+        }
+        clipboard.writeText(o_clipboard);
+    }
+
+    function open_selection() {
+        o_clipboard = clipboard.readText();
+        robot.keyTap("c", "control");
+        t = clipboard.readText();
+        if (o_clipboard != t) {
+            create_main_window([t]);
+        }
+        clipboard.writeText(o_clipboard);
+    }
+
+    function open_clip_board() {
+        t = clipboard.readText();
+        create_main_window([t]);
+    }
+
+    // 启动时提示
     new Notification({
         title: "eSearch",
         body: `eSearch已经在后台启动`,
         icon: `${run_path}/assets/icons/64x64.png`,
     }).show();
 
+    // 初始化设置
     Store.initRenderer();
+    store = new Store();
 
+    // 快捷键
     ipcMain.on("快捷键", (event, arg) => {
         eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
             ${arg[2]};
@@ -106,8 +141,6 @@ app.whenReady().then(() => {
 
         event.sender.send("状态", eval(arg[0]));
     });
-
-    store = new Store();
 
     globalShortcut.register(store.get("key_自动识别") || "CommandOrControl+Shift+Z", () => {
         auto_open();
@@ -127,21 +160,7 @@ app.whenReady().then(() => {
             open_clip_board();
         });
 
-    function auto_open() {
-        var o_clipboard = clipboard.readText();
-        robot.keyTap("c", "control");
-        var t = clipboard.readText();
-        if (o_clipboard != t) {
-            open_clip_board();
-        } else {
-            clip_window.webContents.send("reflash");
-            clip_window.show();
-            clip_window.setFullScreen(true);
-        }
-        clipboard.writeText(o_clipboard);
-    }
-
-    // Create the browser window.
+    // 截图窗口
     const clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         x: 0,
@@ -166,10 +185,8 @@ app.whenReady().then(() => {
         },
     });
 
-    // and load the index.html of the app.
     clip_window.loadFile("capture.html");
 
-    // Open the DevTools.
     if (dev) clip_window.webContents.openDevTools();
 
     // 监听截图奇奇怪怪的事件
@@ -199,10 +216,10 @@ app.whenReady().then(() => {
     ipcMain.on("open", (event) => {
         dialog
             .showOpenDialog({
-                title: "选择要打开应用的位置"
+                title: "选择要打开应用的位置",
             })
             .then((x) => {
-                console.log(x)
+                console.log(x);
                 event.sender.send("open_path", x.filePaths[0]);
             });
     });
@@ -244,6 +261,7 @@ app.whenReady().then(() => {
         create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
     });
 
+    // 移动光标
     ipcMain.on("move_mouse", (event, arrow, d) => {
         var mouse = robot.getMousePos();
         switch (arrow) {
@@ -263,11 +281,61 @@ app.whenReady().then(() => {
     });
 });
 
+function ocr(event, arg) {
+    const request = net.request({
+        method: "POST",
+        url: store.get("ocr_url") || "http://127.0.0.1:8080",
+        headers: { "Content-type": "application/x-www-form-urlencoded" },
+    });
+    request.on("response", (response) => {
+        if (response.statusCode == "200") {
+            response.on("data", (chunk) => {
+                var t = chunk.toString();
+                var t = JSON.parse(t);
+                var r = "";
+                var text = t["words_result"];
+                for (i in text) {
+                    r += text[i]["words"] + "\n";
+                }
+                create_main_window([r, text["language"]]);
+            });
+            response.on("end", () => {
+                event.sender.send("ocr_back", "ok");
+            });
+        } else {
+            event.sender.send("ocr_back", "else");
+            dialog.showMessageBox({
+                title: "警告",
+                message: "识别失败\n请尝试重新识别",
+                icon: `${run_path}/assets/icons/warning.png`,
+            });
+        }
+    });
+    request.on("error", () => {
+        event.sender.send("ocr_back", "else");
+        dialog.showMessageBox({
+            title: "警告",
+            message: "识别失败\n找不到服务器",
+            icon: `${run_path}/assets/icons/warning.png`,
+        });
+    });
+    access_token = store.get("ocr_access_token") || "";
+    data = JSON.stringify({
+        access_token: access_token,
+        image: arg,
+        detect_direction: true,
+        paragraph: true,
+    });
+    request.write(data);
+    request.end();
+}
+
 app.on("will-quit", () => {
     // Unregister all shortcuts.
     globalShortcut.unregisterAll();
 });
 
+// 菜单栏设置(截图没必要)
 const isMac = process.platform === "darwin";
 const template = [
     // { role: 'appMenu' }
@@ -367,21 +435,7 @@ const template = [
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
-function open_selection() {
-    o_clipboard = clipboard.readText();
-    robot.keyTap("c", "control");
-    t = clipboard.readText();
-    if (o_clipboard != t) {
-        create_main_window([t]);
-    }
-    clipboard.writeText(o_clipboard);
-}
-
-function open_clip_board() {
-    t = clipboard.readText();
-    create_main_window([t]);
-}
-
+// ding窗口
 const windows = {};
 function create_ding_window(x, y, w, h, img) {
     ding_name = `ding_window${new Date().getTime()}`;
@@ -409,20 +463,25 @@ function create_ding_window(x, y, w, h, img) {
     windows[ding_name].loadFile("ding.html");
     if (dev) windows[ding_name].webContents.openDevTools();
     windows[ding_name].webContents.on("did-finish-load", () => {
+        // 传递窗口初始状态
         windows[ding_name].webContents.send("img", img);
         windows[ding_name].webContents.send("window_name", ding_name);
         windows[ding_name].webContents.send("window_size", [w, h]);
         windows[ding_name].webContents.send("window_position", [x, y]);
     });
+    // 关闭窗口
     ipcMain.on("ding_close", (enent, arg) => {
         windows[arg].close();
     });
+    // 最小化
     ipcMain.on("ding_minimize", (enent, arg) => {
         windows[arg].minimize();
     });
+    // 调整大小
     ipcMain.on("ding_resize", (enent, name, dx, dy, w, h, zoom) => {
         var nw = windows[name].getBounds().width;
         var nh = windows[name].getBounds().height;
+        // 以鼠标为中心缩放
         var x = windows[name].getBounds().x + dx - w * zoom * (dx / nw);
         var y = windows[name].getBounds().y + dy - h * zoom * (dy / nh);
         windows[name].setBounds({
@@ -432,9 +491,11 @@ function create_ding_window(x, y, w, h, img) {
             height: Math.round(h * zoom),
         });
     });
+    // 归位
     ipcMain.on("ding_back", (enent, name, p, s) => {
         windows[name].setBounds({ x: p[0], y: p[1], width: s[0], height: s[1] });
     });
+    // 右键移动窗口
     ipcMain.on("move", (enent, name, v) => {
         if (v == "down") {
             var ding_xy = windows[name].getBounds();
@@ -455,55 +516,7 @@ function create_ding_window(x, y, w, h, img) {
     });
 }
 
-function ocr(event, arg) {
-    const request = net.request({
-        method: "POST",
-        url: store.get("ocr_url") || "http://127.0.0.1:8080",
-        headers: { "Content-type": "application/x-www-form-urlencoded" },
-    });
-    request.on("response", (response) => {
-        if (response.statusCode == "200") {
-            response.on("data", (chunk) => {
-                var t = chunk.toString();
-                var t = JSON.parse(t);
-                var r = "";
-                var text = t["words_result"];
-                for (i in text) {
-                    r += text[i]["words"] + "\n";
-                }
-                create_main_window([r, text["language"]]);
-            });
-            response.on("end", () => {
-                event.sender.send("ocr_back", "ok");
-            });
-        } else {
-            event.sender.send("ocr_back", "else");
-            dialog.showMessageBox({
-                title: "警告",
-                message: "识别失败\n请尝试重新识别",
-                icon: `${run_path}/assets/icons/warning.png`,
-            });
-        }
-    });
-    request.on("error", () => {
-        event.sender.send("ocr_back", "else");
-        dialog.showMessageBox({
-            title: "警告",
-            message: "识别失败\n找不到服务器",
-            icon: `${run_path}/assets/icons/warning.png`,
-        });
-    });
-    access_token = store.get("ocr_access_token") || "";
-    data = JSON.stringify({
-        access_token: access_token,
-        image: arg,
-        detect_direction: true,
-        paragraph: true,
-    });
-    request.write(data);
-    request.end();
-}
-
+// 主窗口
 function create_main_window(t, web_page) {
     const main_window = new BrowserWindow({
         x: screen.getCursorScreenPoint().x - 800,
@@ -519,6 +532,7 @@ function create_main_window(t, web_page) {
         },
     });
 
+    // 自定义界面
     if (web_page == undefined) {
         main_window.loadFile("index.html");
     } else {
@@ -545,6 +559,7 @@ function create_main_window(t, web_page) {
     });
 }
 
+// 设置窗口
 function create_setting_window() {
     const main_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
@@ -559,6 +574,7 @@ function create_setting_window() {
     if (dev) main_window.webContents.openDevTools();
 }
 
+// 帮助窗口
 function create_help_window() {
     const main_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
