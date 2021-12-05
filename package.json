@@ -38,7 +38,9 @@
   "rebuild": "npm rebuild --runtime=electron --target=16.0.2 --disturl=https://atom.io/download/atom-shell --abi=93",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "assets/icons/icon"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
