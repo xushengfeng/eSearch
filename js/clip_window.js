@@ -221,19 +221,30 @@ function tool_draw_f() {
     }
 }
 // 在其他应用打开
+opening = false;
 function tool_open_f() {
-    document.querySelector("#app_path").style.display = "block";
-    document.querySelector("#app_path > #open").onclick = () => {
+    opening = opening ? false : true;
+    if (opening) {
+        document.getElementById("tool_open").style.backgroundColor = getComputedStyle(
+            document.documentElement
+        ).getPropertyValue("--hover-color");
+        document.querySelector("#app_path").style.width = "238px";
+        document.querySelector("#app_path > div > input").focus()
+    } else {
+        document.getElementById("tool_open").style.backgroundColor = "";
+        document.querySelector("#app_path").style.width = "0";
+    }
+    document.querySelector("#app_path > div > #open").onclick = () => {
         open_app();
     };
-    document.querySelector("#app_path > input").onkeydown = (e) => {
+    document.querySelector("#app_path > div > input").onkeydown = (e) => {
         if (e.key == "Enter") {
             e.preventDefault();
             open_app();
         }
     };
     function open_app() {
-        var app = document.querySelector("#app_path > input").value;
+        var app = document.querySelector("#app_path > div > input").value;
         get_clip_photo().then((c) => {
             f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
             dataBuffer = new Buffer(f, "base64");

@@ -93,6 +93,9 @@ body {
 #tool_draw {
     background-image: url("../assets/tool_draw.svg");
 }
+#tool_open {
+    background-image: url("../assets/tool_open.svg");
+}
 #tool_ding {
     background-image: url("../assets/tool_ding.svg");
 }
@@ -170,7 +173,7 @@ video {
     position: fixed;
     z-index: 100;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
@@ -220,7 +223,7 @@ video {
     z-index: 99;
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     display: flex;
 }
@@ -242,12 +245,52 @@ video {
 }
 
 #app_path{
-    display: none;
+    background-color: var(--bar-bg);
+    border-radius: var(--border-radius);
+    backdrop-filter: var(--blur);
+    box-shadow: var(--shadow);
     position: absolute;
     z-index: 11;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    transition: var(--transition);
+    overflow: hidden;
+    width: 0;
+}
+#app_path > div {
+    display: flex;
+}
+#app_path > div > input {
+    outline: none;
+    border: none;
+    margin: 8px;
+    height: 20px;
+    padding: 0;
+    background-color: #0000;
+    width: 150px;
+}
+#app_path > div > button {
+    outline: none;
+    background-color: var(--bg);
+    border: none;
+    transition: var(--transition);
+    border-radius: var(--border-radius);
+    width: 36px;
+    height: 36px;
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-color: #0000;
+}
+#open_file {
+    background-image: url("../assets/open_file.svg");
+}
+#open {
+    background-image: url("../assets/open_open.svg");
+}
+#app_path > button:hover {
+    background-color: var(--hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
