@@ -1,4 +1,8 @@
 ipcRenderer.on("reflash", () => {
+    draw_clip_rect();
+    setTimeout(() => {
+        wh_bar(final_rect);
+    }, 100);
     right_key = false;
     change_right_bar(false);
 });
