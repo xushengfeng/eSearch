@@ -4,6 +4,8 @@ const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
+const open = require("open");
+const os = require("os");
 const desktopCapturer = {
     getSources: (opts) => ipcRenderer.invoke("DESKTOP_CAPTURER_GET_SOURCES", opts),
 };
@@ -145,6 +147,7 @@ document.getElementById("tool_close").addEventListener("click", tool_close_f);
 document.getElementById("tool_ocr").addEventListener("click", tool_ocr_f);
 document.getElementById("tool_QR").addEventListener("click", tool_QR_f);
 document.getElementById("tool_draw").addEventListener("click", tool_draw_f);
+document.getElementById("tool_open").addEventListener("click", tool_open_f);
 document.getElementById("tool_ding").addEventListener("click", tool_ding_f);
 document.getElementById("tool_copy").addEventListener("click", tool_copy_f);
 document.getElementById("tool_save").addEventListener("click", tool_save_f);
@@ -215,6 +218,30 @@ function tool_draw_f() {
         document.getElementById("tool_draw").style.backgroundColor = "";
         document.getElementById("draw_bar").style.height = "0";
         document.querySelector("#draw_photo_top").style.zIndex = "9";
+    }
+}
+// 在其他应用打开
+function tool_open_f() {
+    document.querySelector("#app_path").style.display = "block";
+    document.querySelector("#app_path > #open").onclick = () => {
+        open_app();
+    };
+    document.querySelector("#app_path > input").onkeydown = (e) => {
+        if (e.key == "Enter") {
+            e.preventDefault();
+            open_app();
+        }
+    };
+    function open_app() {
+        var app = document.querySelector("#app_path > input").value;
+        get_clip_photo().then((c) => {
+            f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+            dataBuffer = new Buffer(f, "base64");
+            fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
+                open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] });
+                tool_close_f();
+            });
+        });
     }
 }
 // 钉在屏幕上

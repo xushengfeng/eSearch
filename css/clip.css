@@ -241,5 +241,14 @@ video {
     z-index: 11;
 }
 
+#app_path{
+    display: none;
+    position: absolute;
+    z-index: 11;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 @media (prefers-color-scheme: dark) {
 }
