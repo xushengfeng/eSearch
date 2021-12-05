@@ -43,9 +43,21 @@
       },
       "makers": [
         {
-          "name": "@electron-forge/maker-squirrel",
+          "name": "@electron-forge/maker-deb",
           "config": {
-            "name": "eSearch"
+            "name": "esearch",
+            "productName": "eSearch",
+            "categories": ["Graphics", "System", "Utility"],
+            "icon": "assets/icons/1024x1024.png"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {
+            "name": "esearch",
+            "productName": "eSearch",
+            "categories": ["Graphics", "System", "Utility"],
+            "icon": "assets/icons/1024x1024.png"
           }
         }
       ]
