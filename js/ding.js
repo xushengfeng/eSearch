@@ -12,6 +12,7 @@ ipcRenderer.on("window_position", (event, position) => {
     window_position = position;
 });
 
+const Store = require("electron-store");
 store = new Store();
 模糊 = store.get("模糊") || 10;
 if (模糊 != 0) {
