@@ -353,18 +353,14 @@ function change_right_bar(v) {
     if (v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_color").style.height = "0";
-        document.querySelector("#clip_copy").style.height = `168px`;
-        document.querySelector("#clip_copy").style.width = `200px`;
+        document.querySelector("#clip_copy").className="clip_copy"
         setTimeout(() => {
             document.querySelector("#clip_copy").style.overflow = "inherit";
         }, 400);
     } else {
-        document.querySelector("#clip_copy").style.width = `${getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--color-size")}`;
+        document.querySelector("#clip_copy").className="clip_copy_h"
         document.querySelector("#point_color").style.height = "";
         document.querySelector("#clip_color").style.height = "";
-        document.querySelector("#clip_copy").style.height = "";
         document.querySelector("#clip_copy").style.overflow = "hidden";
     }
 }

@@ -83,3 +83,7 @@ kbd {
     width: 0px !important;
     height: 1px;
 }
+
+.hover_b{
+    background-color: var(--hover-color);
+}

@@ -227,6 +227,14 @@ video {
     z-index: 2;
     transform: scale(1.4);
 }
+.clip_copy{
+    width: 200px !important;
+    height: 168px !important;
+}
+.clip_copy_h{
+    width: var(--color-size) !important;
+    height: 0 !important;
+}
 #clip_wh {
     position: absolute;
     z-index: 99;

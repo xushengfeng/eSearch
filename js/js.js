@@ -131,19 +131,14 @@ for (i in 翻译引擎_list) {
 document.querySelector("#translate_s").innerHTML = translate_c;
 
 浏览器打开 = store.get("浏览器中打开");
-if (浏览器打开)
-    document.querySelector("#browser_b").style.backgroundColor = getComputedStyle(
-        document.documentElement
-    ).getPropertyValue("--hover-color");
+if (浏览器打开) document.querySelector("#browser_b").className = "hover_b";
 
 document.querySelector("#browser").onclick = () => {
     if (浏览器打开) {
-        document.querySelector("#browser_b").style.backgroundColor = "";
+        document.querySelector("#browser_b").className = "";
         浏览器打开 = false;
     } else {
-        document.querySelector("#browser_b").style.backgroundColor = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--hover-color");
+        document.querySelector("#browser_b").className = "hover_b";
         浏览器打开 = true;
     }
 };
@@ -183,13 +178,11 @@ function html2Escape(sHtml) {
 }
 function show_history() {
     if (history_showed) {
-        document.querySelector("#history_b").style.backgroundColor = "";
+        document.querySelector("#history_b").className = "";
         history_showed = false;
         document.querySelector("#history_list").style.height = "0";
     } else {
-        document.querySelector("#history_b").style.backgroundColor = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--hover-color");
+        document.querySelector("#history_b").className = "hover_b";
         history_showed = true;
 
         var history_text = "";
