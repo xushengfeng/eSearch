@@ -218,3 +218,23 @@ document.querySelector("body").onscroll = () => {
         document.querySelector("body").className = "hidescrollbar";
     }, 1000);
 };
+
+var package = require("./package.json");
+document.querySelector(
+    "#name"
+).innerHTML = `<span>${package.name} ${package.version}</span></br>${package.description}`;
+document.querySelector("#info").innerHTML = `<div>项目主页: <a href="${package.homepage}">${package.homepage}</a></div>
+    <div>本软件遵循 <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a> 协议</div>
+    <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
+var version = ``;
+var version_l = ["electron", "node", "chrome", "v8"];
+for (i in version_l) {
+    version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
+}
+document.querySelector("#version").innerHTML = version;
+
+ipcRenderer.on("about", (event, arg) => {
+    if (arg != undefined) {
+        location.hash = "#about";
+    }
+});

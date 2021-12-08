@@ -12,7 +12,7 @@ body {
     bottom: 0;
 }
 #setting_main {
-    width: 70%;
+    width: 60%;
     margin-left: 20%;
     padding-bottom: 100px;
 }
@@ -26,7 +26,7 @@ body {
     margin: 0 0 8px 0;
 }
 #setting_right {
-    width: 70%;
+    width: 100%;
 }
 textarea {
     padding: 8px;
@@ -117,4 +117,32 @@ input:focus {
 }
 set-select {
     width: 100%;
+}
+
+#about {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#about > img {
+    width: 200px;
+}
+#about a {
+    color: var(--color);
+}
+#about > #name {
+    text-align: center;
+}
+#about > #name > span {
+    font-size: 2rem;
+}
+#about > #version {
+    color: var(--color2);
+}
+#about > #info > div {
+    text-align: center;
+}
+#about > div {
+    margin: 8px;
 }

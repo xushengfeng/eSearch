@@ -429,6 +429,13 @@ const template = [
                     create_help_window();
                 },
             },
+            { type: "separator" },
+            {
+                label: "关于",
+                click: () => {
+                    create_setting_window(true);
+                },
+            },
         ],
     },
 ];
@@ -560,7 +567,7 @@ function create_main_window(t, web_page) {
 }
 
 // 设置窗口
-function create_setting_window() {
+function create_setting_window(about) {
     const main_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         webPreferences: {
@@ -572,6 +579,9 @@ function create_setting_window() {
 
     main_window.loadFile("setting.html");
     if (dev) main_window.webContents.openDevTools();
+    main_window.webContents.on("did-finish-load", () => {
+        main_window.webContents.send("about", about);
+    });
 }
 
 // 帮助窗口

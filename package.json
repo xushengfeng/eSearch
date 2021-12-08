@@ -13,6 +13,7 @@
     "name": "xsf",
     "email": "xushengfeng_zg@163.com"
   },
+  "homepage": "https://github.com/xushengfeng/eSearch",
   "license": "GPL3",
   "dependencies": {
     "animejs": "^3.2.1",
