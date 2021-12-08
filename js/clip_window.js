@@ -145,6 +145,10 @@ function tool_close_f() {
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
 
+    // 取消打开程序框
+    opening = true;
+    tool_open_f();
+
     document.querySelector("body").style.display = "none";
 }
 // OCR
@@ -208,6 +212,8 @@ function tool_open_f() {
             document.documentElement
         ).getPropertyValue("--hover-color");
         document.querySelector("#app_path").style.width = "288px";
+        document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
+        document.querySelector("#app_path > div > input").select();
         document.querySelector("#app_path > div > input").focus();
     } else {
         document.getElementById("tool_open").style.backgroundColor = "";
@@ -231,6 +237,7 @@ function tool_open_f() {
     };
     function open_app() {
         var app = document.querySelector("#app_path > div > input").value;
+        store.set("其他应用打开", app);
         get_clip_photo().then((c) => {
             f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
             dataBuffer = new Buffer(f, "base64");
