@@ -28,9 +28,9 @@
      showgrid="false"
      units="px"
      width="512px"
-     inkscape:zoom="0.9888468"
-     inkscape:cx="156.74824"
-     inkscape:cy="275.06789"
+     inkscape:zoom="2.7968812"
+     inkscape:cx="114.41315"
+     inkscape:cy="345.02717"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
@@ -50,15 +50,21 @@
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <text
-       xml:space="preserve"
-       id="text2772"
-       style="font-style:normal;font-weight:normal;font-size:144px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2774);fill:#333333;fill-opacity:1;stroke:none"
-       transform="matrix(2.8229449,0,0,2.8229449,-18.562539,-378.03767)"><tspan
-         x="47.183594"
-         y="255.88406"
-         id="tspan1285"><tspan
-           style="font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans'"
-           id="tspan1283">?</tspan></tspan></text>
+    <path
+       style="fill:none;stroke:#333333;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 130,120 c 0,0 -4.97829,-70.289082 70,-70 44.15026,0.170223 69.86254,33.099855 70,75 0.19748,60.19798 -70.41751,59.27728 -70,135"
+       id="path858"
+       sodipodi:nodetypes="cssc" />
+    <circle
+       style="fill:#333333;fill-opacity:1;stroke:none;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:4"
+       id="path2505"
+       cx="200"
+       cy="327.47867"
+       r="0" />
+    <path
+       style="fill:none;stroke:#333333;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 200,330 v 0"
+       id="path903"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
