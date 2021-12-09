@@ -353,12 +353,12 @@ function change_right_bar(v) {
     if (v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_color").style.height = "0";
-        document.querySelector("#clip_copy").className="clip_copy"
+        document.querySelector("#clip_copy").className = "clip_copy";
         setTimeout(() => {
             document.querySelector("#clip_copy").style.overflow = "inherit";
         }, 400);
     } else {
-        document.querySelector("#clip_copy").className="clip_copy_h"
+        document.querySelector("#clip_copy").className = "clip_copy_h";
         document.querySelector("#point_color").style.height = "";
         document.querySelector("#clip_color").style.height = "";
         document.querySelector("#clip_copy").style.overflow = "hidden";
@@ -369,12 +369,14 @@ change_right_bar(false);
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
     if (!right_key) {
-        // 鼠标位置文字
-        now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-
+        if (clip_canvas.offsetWidth != 0) {
+            // 鼠标位置文字
+            now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+            // 鼠标跟随栏
+            mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+        }
         // 鼠标跟随栏
         document.querySelector("#mouse_bar").style.display = "flex";
-        mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
 
         var x = e.screenX + 35;
         var y = e.screenY + 35;
