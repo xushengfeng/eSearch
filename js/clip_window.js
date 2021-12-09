@@ -245,9 +245,14 @@ function tool_open_f() {
                 if (app == "") {
                     open(os.tmpdir() + "/tmp.png");
                 } else {
-                    open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] });
+                    open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
+                        if (c.pid != undefined) {
+                            tool_close_f();
+                        } else {
+                            document.querySelector("#app_path > div > input").select();
+                        }
+                    });
                 }
-                tool_close_f();
             });
         });
     }
