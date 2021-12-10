@@ -245,6 +245,7 @@ function tool_open_f() {
             fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
                 if (app == "") {
                     open(os.tmpdir() + "/tmp.png");
+                    tool_close_f()
                 } else {
                     open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
                         if (c.pid != undefined) {
