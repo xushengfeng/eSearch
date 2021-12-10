@@ -228,54 +228,29 @@ stroke_a = 1;
 color_m = "fill";
 document.querySelector("#draw_color_fill").onfocus = () => {
     color_m = "fill";
-    document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
-        "#draw_color_alpha_text"
-    ).innerText = Math.round(fill_a * 100) + "%";
+    document.querySelector("#draw_color_alpha > range-b").value = fill_a * 100;
 };
 document.querySelector("#draw_color_stroke").onfocus = () => {
     color_m = "stroke";
-    document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
-        "#draw_color_alpha_text"
-    ).innerText = Math.round(stroke_a * 100) + "%";
+    document.querySelector("#draw_color_alpha > range-b").value = stroke_a * 100;
 };
 document.querySelector("#draw_color_fill").oninput = () => {
     change_color(document.querySelector("#draw_color_fill").innerText, false);
     fill_a = Color(document.querySelector("#draw_color > div").style.backgroundColor).valpha;
-    document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
-        "#draw_color_alpha_text"
-    ).innerText = Math.round(fill_a * 100) + "%";
+    document.querySelector("#draw_color_alpha > range-b").value = fill_a * 100;
 };
 document.querySelector("#draw_color_stroke").oninput = () => {
     change_color(document.querySelector("#draw_color_stroke").innerText, false);
     stroke_a = Color(document.querySelector("#draw_color > div").style.borderColor).valpha;
-    document.querySelector("#draw_color_alpha_i").style.width = document.querySelector(
-        "#draw_color_alpha_text"
-    ).innerText = Math.round(stroke_a * 100) + "%";
+    document.querySelector("#draw_color_alpha > range-b").value = stroke_a * 100;
 };
 
-[document.querySelector("#draw_color_alpha")].forEach((e, index) => {
-    e.querySelector("div").style.width = "100%";
-    e.addEventListener("mousedown", (event) => {
-        e.querySelector("div").change = true;
-        change_alpha(e, event);
-    });
-    e.addEventListener("mousemove", (event) => {
-        if (e.querySelector("div").change) {
-            change_alpha(e, event);
-        }
-    });
-    e.addEventListener("mouseup", (event) => {
-        e.querySelector("div").change = false;
-    });
-    e.addEventListener("mouseleave", (event) => {
-        e.querySelector("div").change = false;
-    });
-});
+document.querySelector("#draw_color_alpha > range-b").oninput = () => {
+    change_alpha(document.querySelector("#draw_color_alpha > range-b").value);
+};
 
-function change_alpha(e, event) {
-    var a = event.offsetX / e.offsetWidth;
-    e.querySelector("#draw_color_alpha_i").style.width = e.querySelector("#draw_color_alpha_text").innerText =
-        Math.round(a * 100) + "%";
+function change_alpha(v) {
+    var a = v / 100;
     if (color_m == "fill") {
         fill_a = a;
     } else {
@@ -285,8 +260,7 @@ function change_alpha(e, event) {
     var rgba = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor)
         .rgb()
         .array();
-    var alpha = Math.round((document.querySelector("#draw_color_alpha_i").style.width.replace("%", "") - 0) / 100);
-    rgba[3] = alpha;
+    rgba[3] = a;
 
     change_color(rgba, true);
 }
