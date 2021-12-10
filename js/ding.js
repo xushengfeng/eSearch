@@ -58,6 +58,15 @@ document.querySelector("#close").onclick = () => {
     ipcRenderer.send("ding_close", window_name);
 };
 
+document.querySelector("#tool_bar").onmousedown = (e) => {
+    if (e.target !== document.querySelector("#tool_bar")) return;
+    document.querySelector("#ding_photo").style.cursor = "move";
+    ipcRenderer.send("move", window_name, "down");
+};
+document.querySelector("#tool_bar").onmouseup = (e) => {
+    document.querySelector("#ding_photo").style.cursor = "default";
+    ipcRenderer.send("move", window_name, "up");
+};
 document.querySelector("#ding_photo").onmousedown = (e) => {
     if (e.button == 2) {
         document.querySelector("#ding_photo").style.cursor = "move";
