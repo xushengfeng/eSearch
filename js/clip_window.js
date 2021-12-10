@@ -82,6 +82,7 @@ get_desktop_capturer(0);
 
 ipcRenderer.on("reflash", () => {
     get_desktop_capturer(0);
+    final_rect = [0, 0, main_canvas.width, main_canvas.height];
     // 刷新设置
     工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
     光标 = store.get("光标") || "以(1,1)为起点";
