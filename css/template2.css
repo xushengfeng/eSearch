@@ -1,0 +1,26 @@
+#range {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    -webkit-appearance: none;
+    background-size: 75% 100%;
+    background: linear-gradient(var(--hover-color), var(--hover-color)) no-repeat, #0000;
+}
+
+#range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 30px;
+    width: 20px;
+}
+
+.range_t {
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: -100%;
+}
+.range_t > p {
+    pointer-events: auto;
+}

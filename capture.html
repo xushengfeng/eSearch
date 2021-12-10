@@ -78,6 +78,7 @@
                 </div>
                 <div id="draw_color_color"></div>
                 <div id="draw_color_alpha">
+                    <range-b></range-b>
                     <div id="draw_color_alpha_text">100%</div>
                     <div id="draw_color_alpha_i"></div>
                 </div>
@@ -130,9 +131,19 @@
 
     <div id="app_path">
         <div>
-            <input type="text" name="" id="" spellcheck="false" placeholder="输入程序名字或路径，或留空默认"><button id="open_file"></button><button id="open"></button>
+            <input type="text" name="" id="" spellcheck="false" placeholder="输入程序名字或路径，或留空默认"><button
+                id="open_file"></button><button id="open"></button>
         </div>
     </div>
+
+    <template id="range-b">
+        <link rel="stylesheet" type="text/css" href="css/template2.css">
+        <input type="range" id="range">
+        <div class="range_t">
+            <p></p>
+        </div>
+    </template>
+    <script src="lib/template2.js"></script>
     <script src="js/clip_window.js"></script>
     <script src="js/clip.js"></script>
     <script src="lib/fabric.min.js"></script>
