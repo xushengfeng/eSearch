@@ -279,6 +279,7 @@ function change_color(color, text) {
             document.querySelector("#draw_color > div").style.borderColor =
             stroke_color =
                 Color(color_l).string();
+        fabric_canvas.freeDrawingBrush.color = stroke_color;
     }
     var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
     if (t_color.isLight()) {
