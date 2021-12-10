@@ -195,7 +195,7 @@ function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
         document.getElementById("tool_draw").className = "hover_b";
-        document.getElementById("draw_bar").style.height = "480px";
+        document.getElementById("draw_bar").style.height = "420px";
         document.querySelector("#draw_photo_top").style.zIndex = "11";
     } else {
         document.getElementById("tool_draw").className = "";

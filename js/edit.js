@@ -5,7 +5,7 @@ fill_color = "#fff";
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
-    if (index == document.querySelectorAll("#draw_main > div").length - 1) return;
+    if (index == document.querySelectorAll("#draw_main > div").length - 1) return; // 排除move
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {
@@ -137,26 +137,26 @@ document.onkeydown = (e) => {
     }
 };
 
-drawing = false;
+drawing_shape = false;
 shapes = [];
 draw_o_p = [];
 
 fabric_canvas.on("mouse:down", (options) => {
     if (shape != "") {
-        drawing = true;
+        drawing_shape = true;
         draw_o_p = [options.e.offsetX, options.e.offsetY];
         draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
         // fabric_canvas.selection = false;
     }
 });
 fabric_canvas.on("mouse:move", (options) => {
-    if (drawing) {
+    if (drawing_shape) {
         console.log(options.e.offsetX, options.e.offsetY);
         draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
     }
 });
 fabric_canvas.on("mouse:up", () => {
-    drawing = false;
+    drawing_shape = false;
     // fabric_canvas.selection = true;
     shape = "";
 });
