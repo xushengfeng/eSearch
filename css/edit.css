@@ -25,19 +25,8 @@
 #draw_color_alpha {
     overflow: hidden;
 }
-#draw_color_alpha_text {
+#draw_stroke_width {
     overflow: hidden;
-    font-family: monospace;
-    font-size: 20px;
-    line-height: 60px;
-    text-align: center;
-}
-#draw_color_alpha_i {
-    height: 100%;
-    position: relative;
-    top: -100%;
-    background-color: var(--hover-color);
-    width: 100%;
 }
 #draw_color_color {
     overflow: scroll;

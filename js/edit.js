@@ -2,6 +2,7 @@ let fabric_canvas = new fabric.Canvas("draw_photo");
 
 stroke_color = "#fff";
 fill_color = "#fff";
+stroke_width = 1;
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
@@ -50,6 +51,7 @@ document.querySelector("#draw_free_pencil").onclick = () => {
         fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = stroke_color;
+        fabric_canvas.freeDrawingBrush.width = stroke_width;
     } else {
         document.querySelector("#draw_free_pencil").clicked = !document.querySelector("#draw_free_pencil").clicked;
         document.querySelector("#draw_free_pencil").style.backgroundColor = "";
@@ -97,6 +99,7 @@ document.querySelector("#draw_free_spray").onclick = () => {
         fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = stroke_color;
+        fabric_canvas.freeDrawingBrush.width = stroke_width;
     } else {
         document.querySelector("#draw_free_spray").clicked = !document.querySelector("#draw_free_spray").clicked;
         document.querySelector("#draw_free_spray").style.backgroundColor = "";
@@ -317,3 +320,8 @@ function color_bar() {
     });
 }
 color_bar();
+
+document.querySelector("#draw_stroke_width > range-b").oninput = () => {
+    stroke_width = document.querySelector("#draw_stroke_width > range-b").value;
+    fabric_canvas.freeDrawingBrush.width = stroke_width;
+};
