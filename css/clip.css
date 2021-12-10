@@ -177,6 +177,7 @@ video {
     box-shadow: var(--shadow);
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
+    overflow: hidden;
 }
 #point_color {
     width: var(--color-size);

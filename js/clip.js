@@ -73,12 +73,16 @@ clip_canvas.onmousedown = (e) => {
         change_right_bar(false);
     }
     if (e.button == 2) {
-        right_key = true;
+        right_key = right_key ? false : true;
         // 自由右键取色
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
         mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
         // 改成多格式样式
-        change_right_bar(true);
+        if (right_key) {
+            change_right_bar(true);
+        } else {
+            change_right_bar(false);
+        }
     }
     if (in_rect) {
         is_in_clip_rect(e);
@@ -354,14 +358,10 @@ function change_right_bar(v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_color").style.height = "0";
         document.querySelector("#clip_copy").className = "clip_copy";
-        setTimeout(() => {
-            document.querySelector("#clip_copy").style.overflow = "inherit";
-        }, 400);
     } else {
         document.querySelector("#clip_copy").className = "clip_copy_h";
         document.querySelector("#point_color").style.height = "";
         document.querySelector("#clip_color").style.height = "";
-        document.querySelector("#clip_copy").style.overflow = "hidden";
     }
 }
 change_right_bar(false);
