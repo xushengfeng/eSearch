@@ -60,30 +60,6 @@ function show_t(t, language) {
     }
 }
 
-// 选中释放鼠标显示编辑面板
-document.getElementById("text").onmouseup = (e) => {
-    // 简易判断链接并显示按钮
-    if (is_link(document.getSelection().toString(), false)) {
-        document.querySelector("#link_bar").style.display = "block";
-    } else {
-        document.querySelector("#link_bar").style.display = "";
-    }
-    // 排除没选中
-    if (document.getSelection().toString() != "") {
-        document.querySelector("#edit_b").style.display = "block";
-        if (document.querySelector("#edit_b").offsetWidth + e.clientX <= window.innerWidth) {
-            document.querySelector("#edit_b").style.left = e.clientX + "px";
-            document.querySelector("#edit_b").style.top = e.clientY + "px";
-        } else {
-            document.querySelector("#edit_b").style.left =
-                window.innerWidth - document.querySelector("#edit_b").offsetWidth + "px";
-            document.querySelector("#edit_b").style.top = e.clientY + "px";
-        }
-    } else {
-        document.querySelector("#edit_b").style.display = "none";
-    }
-};
-
 搜索引擎_list = store.get("搜索引擎") || [
     ["谷歌", "https://www.google.com/search?q=%s"],
     ["*百度", "https://www.baidu.com/s?wd=%s"],
@@ -219,30 +195,58 @@ document.querySelector("#translate_s").oninput = () => {
     open_link("translate");
 };
 
-document.querySelector("#link_bar").onmousedown = (event) => {
-    event.preventDefault();
-    var url = document.getSelection().toString();
-    open_link("url", url);
+// 选中释放鼠标显示编辑面板
+window.onmouseup = (e) => {
+    // 延时等待(选中取消)
+    setTimeout(() => {
+        show_edit_bar(e);
+    }, 10);
 };
-document.querySelector("#search_bar").onmousedown = (event) => {
-    event.preventDefault();
-    open_link("search");
-};
-document.querySelector("#translate_bar").onmousedown = (event) => {
-    event.preventDefault();
-    open_link("translate");
-};
-document.querySelector("#cut_bar").onmousedown = (event) => {
-    event.preventDefault();
-    ipcRenderer.send("edit", "cut");
-};
-document.querySelector("#copy_bar").onmousedown = (event) => {
-    event.preventDefault();
-    ipcRenderer.send("edit", "copy");
-};
-document.querySelector("#paste_bar").onmousedown = (event) => {
-    event.preventDefault();
-    ipcRenderer.send("edit", "paste");
+
+function show_edit_bar(e) {
+    // 简易判断链接并显示按钮
+    if (is_link(document.getSelection().toString(), false)) {
+        document.querySelector("#link_bar").style.display = "block";
+    } else {
+        document.querySelector("#link_bar").style.display = "";
+    }
+    // 排除没选中
+    if (document.getSelection().toString() != "") {
+        document.querySelector("#edit_b").style.display = "block";
+        var x = e.clientX < 0 ? 0 : e.clientX;
+        if (document.querySelector("#edit_b").offsetWidth + e.clientX > window.innerWidth)
+            x = window.innerWidth - document.querySelector("#edit_b").offsetWidth;
+        var y = e.clientY < 0 ? 0 : e.clientY;
+        document.querySelector("#edit_b").style.left = `${x}px`;
+        document.querySelector("#edit_b").style.top = `${y}px`;
+    } else {
+        document.querySelector("#edit_b").style.display = "none";
+    }
+}
+
+document.querySelector("#edit_b").onmousedown = (e) => {
+    e.preventDefault();
+    switch (e.target.id) {
+        case "link_bar":
+            var url = document.getSelection().toString();
+            open_link("url", url);
+            break;
+        case "search_bar":
+            open_link("search");
+            break;
+        case "translate_bar":
+            open_link("translate");
+            break;
+        case "cut_bar":
+            ipcRenderer.send("edit", "cut");
+            break;
+        case "copy_bar":
+            ipcRenderer.send("edit", "copy");
+            break;
+        case "paste_bar":
+            ipcRenderer.send("edit", "paste");
+            break;
+    }
 };
 
 // 滚动条
