@@ -200,15 +200,12 @@ video {
 }
 #clip_xy {
     font-family: var(--monospace);
-    height: 20px;
+    height: 24px;
 }
 #clip_color {
     font-family: var(--monospace);
     transition: var(--transition);
     overflow: hidden;
-}
-#clip_color > div {
-    height: 20px;
 }
 #clip_copy {
     font-family: var(--monospace);
@@ -219,7 +216,7 @@ video {
 }
 #clip_copy > div {
     margin: 8px 0 0 0;
-    height: 20px;
+    height: 24px;
     transition: var(--transition);
     text-align: center;
 }
@@ -230,7 +227,7 @@ video {
 }
 .clip_copy {
     width: 200px !important;
-    height: 168px !important;
+    height: 188px !important;
 }
 .clip_copy_h {
     width: var(--color-size) !important;
@@ -250,6 +247,7 @@ video {
 }
 #clip_wh > div {
     margin: 8px;
+    font-family: var(--monospace);
 }
 #x0y0,
 #x1y1 {

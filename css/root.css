@@ -13,13 +13,14 @@
     --font-size: 20px;
     --color-size: 150px;
     --color-i-size: 10px;
-    --monospace: Courier, monospace;
+    --monospace: ;
+    --main-font:sans-serif;
 }
 
 html,
 body {
     margin: 0;
-    font-family: sans-serif;
+    font-family: var(--main-font);
 }
 
 #tab_bar {

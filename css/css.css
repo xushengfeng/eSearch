@@ -84,6 +84,7 @@ body {
     font-size: 5px;
     overflow: hidden;
     cursor: pointer;
+    background-color: var(--bar-bg);
 }
 #edit_b > div {
     float: left;

@@ -116,6 +116,20 @@ document.querySelector("#选区颜色 > input").oninput = () => {
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
 };
 
+字体 = store.get("字体") || { 主要字体: "", 等宽字体: "" };
+document.documentElement.style.setProperty("--main-font", 字体.主要字体);
+document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
+document.querySelector("#主要字体 > input").oninput = () => {
+    字体.主要字体 = document.querySelector("#主要字体 > input").value;
+    document.documentElement.style.setProperty("--main-font", 字体.主要字体);
+    store.set("字体", 字体);
+};
+document.querySelector("#等宽字体 > input").oninput = () => {
+    字体.等宽字体 = document.querySelector("#等宽字体 > input").value;
+    document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
+    store.set("字体", 字体);
+};
+
 document.querySelector("#自动搜索").checked = store.get("自动搜索") || false;
 document.querySelector("#自动搜索").onclick = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);

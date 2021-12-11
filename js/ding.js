@@ -12,15 +12,6 @@ ipcRenderer.on("window_position", (event, position) => {
     window_position = position;
 });
 
-const Store = require("electron-store");
-store = new Store();
-模糊 = store.get("模糊") || 10;
-if (模糊 != 0) {
-    document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
-} else {
-    document.documentElement.style.setProperty("--blur", `none`);
-}
-
 窗口透明度 = document.getElementById("透明度");
 窗口透明度.oninput = () => {
     document.getElementById("ding_photo").style.opacity = `${窗口透明度.value / 100}`;

@@ -20,6 +20,10 @@ function set_setting() {
     遮罩颜色 = store.get("遮罩颜色") || "#0005";
     选区颜色 = store.get("选区颜色") || "#0000";
 
+    字体 = store.get("字体") || { 主要字体: "", 等宽字体: "" };
+    document.documentElement.style.setProperty("--main-font", 字体.主要字体);
+    document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
+
     模糊 = store.get("模糊") || 10;
     if (模糊 != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
@@ -84,11 +88,7 @@ ipcRenderer.on("reflash", () => {
     get_desktop_capturer(0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     // 刷新设置
-    工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
-    光标 = store.get("光标") || "以(1,1)为起点";
-    取色器默认格式 = store.get("取色器默认格式") || "HEX";
-    遮罩颜色 = store.get("遮罩颜色") || "#0005";
-    选区颜色 = store.get("选区颜色") || "#0000";
+    set_setting()
 });
 
 function draw_windows_bar(o) {
