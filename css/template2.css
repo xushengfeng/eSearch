@@ -23,4 +23,5 @@
 }
 .range_t > p {
     pointer-events: auto;
+    font-family: var(--monospace);
 }
