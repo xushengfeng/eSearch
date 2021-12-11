@@ -466,7 +466,6 @@ function create_ding_window(x, y, w, h, img) {
         },
     });
 
-    windows[ding_name].setAspectRatio(w / h);
     windows[ding_name].loadFile("ding.html");
     if (dev) windows[ding_name].webContents.openDevTools();
     windows[ding_name].webContents.on("did-finish-load", () => {

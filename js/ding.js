@@ -26,6 +26,8 @@ function resize(zoom, dx, dy) {
     if (zoom > 3) zoom = 3;
     ipcRenderer.send("ding_resize", window_name, dx, dy, window_size[0], window_size[1], zoom);
 }
+document.querySelector("#size").value = 100;
+document.querySelector("#size_p").innerHTML = document.querySelector("#size_main_p").innerHTML = "100%";
 window.onresize = () => {
     document.querySelector("#size_main_p").style.display = "block";
     document.querySelector("#size_main_p").style.opacity = "1";
