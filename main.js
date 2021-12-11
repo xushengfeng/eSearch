@@ -551,7 +551,7 @@ function create_main_window(t, web_page) {
         main_window.webContents.send("text", [t[0], t[1] || "auto"]);
     });
 
-    ipcMain.on("edit", (enent, v) => {
+    ipcMain.on("edit", (event, v) => {
         switch (v) {
             case "cut":
                 main_window.webContents.cut();
@@ -563,6 +563,15 @@ function create_main_window(t, web_page) {
                 main_window.webContents.paste();
                 break;
         }
+    });
+
+    ipcMain.on("open_url", (event, url) => {
+        const search_window = new BrowserWindow({
+            webPreferences: {
+                sandbox: true,
+            },
+        });
+        search_window.loadURL(url);
     });
 }
 

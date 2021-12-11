@@ -150,8 +150,7 @@ function open_link(id, link) {
     if (浏览器打开) {
         shell.openExternal(url);
     } else {
-        window.open(url, "_blank");
-        // TODO 安全问题
+        ipcRenderer.send("open_url", url);
     }
 }
 
