@@ -54,7 +54,7 @@ npm run make
   - [x] 画笔
   - [ ] 画笔撤销
   - [x] 色板
-  - [ ] 笔画粗细
+  - [x] 笔画粗细
   - [ ] 鼠标拖动画几何
   - [ ] 高级几何设置
   - [ ] 图像滤镜
@@ -86,8 +86,11 @@ npm run make
 ## 测试
 
 在ArchLinux,KDE plasma,Xorg下测试通过
-Windows暂时无法解决截屏截到光标问题
-Gnome暂时无法解决截屏截到光标问题
+
+Windows、Gnome暂时无法解决截屏截到光标问题
+
+win7截图出现白屏，win10能达到大部分效果
+
 Wayland无法截图
 
 ## 开发原因
