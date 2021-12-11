@@ -213,6 +213,7 @@ function tool_open_f() {
             document.documentElement
         ).getPropertyValue("--hover-color");
         document.querySelector("#app_path").style.width = "288px";
+        document.querySelector("#app_path > div > input").disabled = false;
         document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
         document.querySelector("#app_path > div > input").select();
         document.querySelector("#app_path > div > input").focus();
@@ -244,17 +245,22 @@ function tool_open_f() {
             dataBuffer = new Buffer(f, "base64");
             fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
                 if (app == "") {
-                    open(os.tmpdir() + "/tmp.png");
-                    tool_close_f()
+                    open(os.tmpdir() + "/tmp.png").then(() => {
+                        tool_close_f();
+                    });
                 } else {
                     open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
                         if (c.pid != undefined) {
                             tool_close_f();
                         } else {
+                            document.querySelector("#app_path > div > input").disabled = false;
+                            document.querySelector("#app_path > div > input").value = app;
                             document.querySelector("#app_path > div > input").select();
                         }
                     });
                 }
+                document.querySelector("#app_path > div > input").disabled = true;
+                document.querySelector("#app_path > div > input").value = "正在打开...";
             });
         });
     }
