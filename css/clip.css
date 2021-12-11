@@ -199,11 +199,11 @@ video {
     box-shadow: #0005 0 0 0 0.5px inset;
 }
 #clip_xy {
-    font-family: "Courier New", Courier, monospace;
+    font-family: var(--monospace);
     height: 20px;
 }
 #clip_color {
-    font-family: "Courier New", Courier, monospace;
+    font-family: var(--monospace);
     transition: var(--transition);
     overflow: hidden;
 }
@@ -211,7 +211,7 @@ video {
     height: 20px;
 }
 #clip_copy {
-    font-family: "Courier New", Courier, monospace;
+    font-family: var(--monospace);
     width: 100%;
     height: 0;
     transition: var(--transition);
@@ -228,11 +228,11 @@ video {
     z-index: 2;
     transform: scale(1.4);
 }
-.clip_copy{
+.clip_copy {
     width: 200px !important;
     height: 168px !important;
 }
-.clip_copy_h{
+.clip_copy_h {
     width: var(--color-size) !important;
     height: 0 !important;
 }

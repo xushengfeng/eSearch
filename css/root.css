@@ -13,6 +13,7 @@
     --font-size: 20px;
     --color-size: 150px;
     --color-i-size: 10px;
+    --monospace: Courier, monospace;
 }
 
 html,
@@ -64,6 +65,7 @@ kbd {
     box-shadow: 0 5px #0002;
     transform: rotateX(45deg);
     background: linear-gradient(315deg, #e6e6e6, #ffffff);
+    font-family: var(--monospace);
 }
 
 ::-webkit-scrollbar {
@@ -85,6 +87,6 @@ kbd {
     height: 1px;
 }
 
-.hover_b{
+.hover_b {
     background-color: var(--hover-color);
 }

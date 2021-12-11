@@ -40,7 +40,7 @@ app.whenReady().then(() => {
             label: "截图搜索",
             click: () => {
                 setTimeout(() => {
-                    full_screen()
+                    full_screen();
                 }, 500);
             },
         },
@@ -98,7 +98,7 @@ app.whenReady().then(() => {
         if (o_clipboard != t) {
             open_clip_board();
         } else {
-            full_screen()
+            full_screen();
         }
         clipboard.writeText(o_clipboard);
     }
@@ -143,7 +143,7 @@ app.whenReady().then(() => {
     });
     if (store.get("key_截图搜索") != undefined)
         globalShortcut.register(store.get("key_截图搜索"), () => {
-            full_screen()
+            full_screen();
         });
     if (store.get("key_选中搜索") != undefined)
         globalShortcut.register(store.get("key_选中搜索"), () => {
@@ -274,11 +274,10 @@ app.whenReady().then(() => {
         }
     });
 
-    function full_screen(){
+    function full_screen() {
         clip_window.webContents.send("reflash");
         clip_window.show();
         clip_window.setFullScreen(true);
-
     }
 });
 

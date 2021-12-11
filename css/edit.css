@@ -18,7 +18,7 @@
 }
 #draw_color_input > div {
     outline: #333;
-    font-family: monospace;
+    font-family: var(--monospace);
     font-size: 12px;
     height: 50%;
 }
