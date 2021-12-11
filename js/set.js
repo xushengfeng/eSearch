@@ -1,4 +1,5 @@
 const Color = require("color");
+const { shell } = require("electron");
 
 模糊 = store.get("模糊") || 10;
 if (模糊 != 0) {
@@ -246,6 +247,14 @@ for (i in version_l) {
     version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
 }
 document.querySelector("#version").innerHTML = version;
+
+document.querySelector("#info").onclick = (e) => {
+    console.log(e.target);
+    if (e.target.tagName == "A") {
+        e.preventDefault();
+        shell.openExternal(e.target.href);
+    }
+};
 
 ipcRenderer.on("about", (event, arg) => {
     if (arg != undefined) {
