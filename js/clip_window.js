@@ -16,7 +16,7 @@ function set_setting() {
     工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
     光标 = store.get("光标") || "以(1,1)为起点";
     四角坐标 = store.get("显示四角坐标") || false;
-    取色器默认格式 = store.get("取色器默认格式") || "RGBA";
+    取色器默认格式 = store.get("取色器默认格式") || "RGB";
     遮罩颜色 = store.get("遮罩颜色") || "#0005";
     选区颜色 = store.get("选区颜色") || "#0000";
 
