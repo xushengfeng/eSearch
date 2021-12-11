@@ -371,7 +371,10 @@ document.onmousemove = (e) => {
     if (!right_key) {
         if (clip_canvas.offsetWidth != 0) {
             // 鼠标位置文字
-            now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+            var c_rect = e.target.getBoundingClientRect();
+            var c_x = e.offsetX + c_rect.left;
+            var c_y = e.offsetY + c_rect.top;
+            now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
             // 鼠标跟随栏
             mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
         }
