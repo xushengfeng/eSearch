@@ -34,10 +34,20 @@ function is_link(url, s) {
 }
 
 var history_list = store.get("历史记录") || [];
+var 历史记录设置 = store.get("历史记录设置") || { 保留历史记录: true, 自动清除历史记录: false, d: 0, h: 0 };
+if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
+    var now_time = new Date().getTime();
+    var d_time = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
+    for (i in history_list) {
+        if (now_time - history_list[i].time > d_time) {
+            history_list.splice(i, 1);
+        }
+    }
+}
 
 function show_t(t, language) {
     document.getElementById("text").innerText = t;
-    if (t != "") history_list[history_list.length] = { text: t, time: new Date().getTime() };
+    if (t != "" && 历史记录设置.保留历史记录) history_list.push({ text: t, time: new Date().getTime() });
     store.set("历史记录", history_list);
     // 严格模式
     if (is_link(t, true)) {
@@ -131,6 +141,7 @@ function open_link(id, link) {
 }
 
 // 历史记录
+// 历史记录界面
 history_showed = false;
 document.querySelector("#history_b").onclick = () => {
     show_history();
@@ -182,6 +193,7 @@ function show_history() {
         document.querySelector("#history_list").style.height = "100%";
     }
 }
+
 document.querySelector("#search_b").onclick = () => {
     open_link("search");
 };

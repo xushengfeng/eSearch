@@ -1,4 +1,4 @@
-// 进度条
+// 滚动条
 scroll = setTimeout(() => {
     document.querySelector("body").className = "hidescrollbar";
 }, 1000);

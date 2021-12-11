@@ -222,7 +222,35 @@ document.querySelector("#ocr_access_token").oninput = () => {
     store.set("ocr_access_token", document.querySelector("#ocr_access_token").value);
 };
 
-// 进度条
+历史记录设置 = store.get("历史记录设置") || { 保留历史记录: true, 自动清除历史记录: false, d: 0, h: 0 };
+
+document.querySelector("#清除历史记录").disabled = !历史记录设置.保留历史记录;
+document.querySelector("#his_d").disabled = !历史记录设置.自动清除历史记录;
+document.querySelector("#his_h").disabled = !历史记录设置.自动清除历史记录;
+document.querySelector("#his_d").value = 历史记录设置.d;
+document.querySelector("#his_h").value = 历史记录设置.h;
+
+document.querySelector("#历史记录_b").oninput = () => {
+    历史记录设置.保留历史记录 = document.querySelector("#历史记录_b").checked;
+    store.set("历史记录设置", 历史记录设置);
+    document.querySelector("#清除历史记录").disabled = !document.querySelector("#历史记录_b").checked;
+};
+document.querySelector("#清除历史记录").oninput = () => {
+    历史记录设置.自动清除历史记录 = document.querySelector("#清除历史记录").checked;
+    store.set("历史记录设置", 历史记录设置);
+    document.querySelector("#his_d").disabled = !document.querySelector("#清除历史记录").checked;
+    document.querySelector("#his_h").disabled = !document.querySelector("#清除历史记录").checked;
+};
+document.querySelector("#his_d").oninput = () => {
+    历史记录设置.d = document.querySelector("#his_d").value;
+    store.set("历史记录设置", 历史记录设置);
+};
+document.querySelector("#his_h").oninput = () => {
+    历史记录设置.h = document.querySelector("#his_h").value;
+    store.set("历史记录设置", 历史记录设置);
+};
+
+// 滚动条
 scroll = setTimeout(() => {
     document.querySelector("body").className = "hidescrollbar";
 }, 1000);
