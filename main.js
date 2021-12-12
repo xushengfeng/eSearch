@@ -446,36 +446,38 @@ Menu.setApplicationMenu(menu);
 has_ding = false;
 ding_windows_l = [];
 function create_ding_window(x, y, w, h, img) {
-    ding_window = new BrowserWindow({
-        icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        fullscreen: true,
-        transparent: true,
-        frame: false,
-        alwaysOnTop: true,
-        skipTaskbar: true,
-        autoHideMenuBar: true,
-        enableLargerThanScreen: true, // mac
-        hasShadow: false,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            enableRemoteModule: true,
-        },
-    });
+    if (!has_ding) {
+        ding_window = new BrowserWindow({
+            icon: path.join(run_path, "assets/icons/1024x1024.png"),
+            fullscreen: true,
+            transparent: true,
+            frame: false,
+            alwaysOnTop: true,
+            skipTaskbar: true,
+            autoHideMenuBar: true,
+            enableLargerThanScreen: true, // mac
+            hasShadow: false,
+            webPreferences: {
+                nodeIntegration: true,
+                contextIsolation: false,
+                enableRemoteModule: true,
+            },
+        });
 
-    ding_window.setIgnoreMouseEvents(true);
+        ding_window.setIgnoreMouseEvents(true);
 
-    ding_window.loadFile("ding.html");
-    if (dev) ding_window.webContents.openDevTools();
-    ding_window.webContents.on("did-finish-load", () => {
-        ding_window.webContents.send("img", x, y, w, h, img);
-        ding_windows_l.push([x, y, x + w, y + h]);
-    });
-    if (has_ding) {
+        ding_window.loadFile("ding.html");
+        if (dev) ding_window.webContents.openDevTools();
+        ding_window.webContents.on("did-finish-load", () => {
+            ding_window.webContents.send("img", x, y, w, h, img);
+            ding_windows_l.push([x, y, x + w, y + h]);
+        });
+
+        has_ding = true;
+    } else {
         ding_window.webContents.send("img", x, y, w, h, img);
         ding_windows_l.push([x, y, x + w, y + h]);
     }
-    has_ding = true;
     // 关闭窗口
     ipcMain.on("ding_close", (event) => {
         ding_window.close();
