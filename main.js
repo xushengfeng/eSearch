@@ -443,10 +443,9 @@ const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
 // ding窗口
-has_ding = false;
 ding_windows_l = {};
 function create_ding_window(x, y, w, h, img) {
-    if (!has_ding) {
+    if (Object.keys(ding_windows_l).length == 0) {
         ding_window = new BrowserWindow({
             icon: path.join(run_path, "assets/icons/1024x1024.png"),
             fullscreen: true,
@@ -471,8 +470,6 @@ function create_ding_window(x, y, w, h, img) {
             ding_window.webContents.send("img", id, x, y, w, h, img);
             ding_windows_l[id] = [x, y, x + w, y + h];
         });
-
-        has_ding = true;
     } else {
         var id = new Date().getTime();
         ding_window.webContents.send("img", id, x, y, w, h, img);
@@ -485,7 +482,6 @@ function create_ding_window(x, y, w, h, img) {
     ipcMain.on("ding_close", (event, wid) => {
         delete ding_windows_l[wid];
         if (Object.keys(ding_windows_l).length == 0) {
-            has_ding = false;
             ding_window.close();
         }
     });
