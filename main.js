@@ -443,15 +443,12 @@ const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
 // ding窗口
-const windows = {};
+has_ding = false;
+ding_windows_l = [];
 function create_ding_window(x, y, w, h, img) {
-    ding_name = `ding_window${new Date().getTime()}`;
-    windows[ding_name] = new BrowserWindow({
-        x: x,
-        y: y,
-        width: w,
-        height: h,
+    ding_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        fullscreen: true,
         transparent: true,
         frame: false,
         alwaysOnTop: true,
@@ -466,62 +463,38 @@ function create_ding_window(x, y, w, h, img) {
         },
     });
 
-    windows[ding_name].loadFile("ding.html");
-    if (dev) windows[ding_name].webContents.openDevTools();
-    windows[ding_name].webContents.on("did-finish-load", () => {
-        // 传递窗口初始状态
-        windows[ding_name].webContents.send("img", img);
-        windows[ding_name].webContents.send("window_name", ding_name);
-        windows[ding_name].webContents.send("window_size", [w, h]);
-        windows[ding_name].webContents.send("window_position", [x, y]);
+    ding_window.setIgnoreMouseEvents(true);
+
+    ding_window.loadFile("ding.html");
+    if (dev) ding_window.webContents.openDevTools();
+    ding_window.webContents.on("did-finish-load", () => {
+        ding_window.webContents.send("img", x, y, w, h, img);
+        ding_windows_l.push([x, y, x + w, y + h]);
     });
+    if (has_ding) {
+        ding_window.webContents.send("img", x, y, w, h, img);
+        ding_windows_l.push([x, y, x + w, y + h]);
+    }
+    has_ding = true;
     // 关闭窗口
-    ipcMain.on("ding_close", (event, arg) => {
-        windows[arg].close();
+    ipcMain.on("ding_close", (event) => {
+        ding_window.close();
     });
-    // 最小化
-    ipcMain.on("ding_minimize", (event, arg) => {
-        windows[arg].minimize();
-    });
-    // 调整大小
-    ipcMain.on("ding_resize", (event, name, dx, dy, w, h, zoom) => {
-        var nw = windows[name].getBounds().width;
-        var nh = windows[name].getBounds().height;
-        // 以鼠标为中心缩放
-        var x = windows[name].getBounds().x + dx - w * zoom * (dx / nw);
-        var y = windows[name].getBounds().y + dy - h * zoom * (dy / nh);
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        windows[name].setBounds({
-            x: Math.round(x),
-            y: Math.round(y),
-            width: Math.round(w * zoom),
-            height: Math.round(h * zoom),
-        });
-    });
-    // 归位
-    ipcMain.on("ding_back", (event, name, p, s) => {
-        windows[name].setBounds({ x: p[0], y: p[1], width: s[0], height: s[1] });
-    });
-    // 右键移动窗口
-    ipcMain.on("ding_move", (event, name, v) => {
-        if (v == "down") {
-            var ding_xy = windows[name].getBounds();
-            var m_xy = screen.getCursorScreenPoint();
-            moving = true;
-        } else {
-            // up
-            moving = false;
-        }
-        function move_ding() {
-            if (moving) {
-                var n_m_xy = screen.getCursorScreenPoint();
-                windows[name].setBounds({ x: ding_xy.x + n_m_xy.x - m_xy.x, y: ding_xy.y + n_m_xy.y - m_xy.y });
-                setTimeout(move_ding, 10);
+    // 自动改变鼠标穿透
+    function ding_click_through() {
+        var n_xy = screen.getCursorScreenPoint();
+        for (i in ding_windows_l) {
+            var ii = ding_windows_l[i];
+            if (ii[0] <= n_xy.x && n_xy.x <= ii[2] && ii[1] <= n_xy.y && n_xy.y <= ii[3]) {
+                ding_window.setIgnoreMouseEvents(false);
+                break;
+            } else {
+                ding_window.setIgnoreMouseEvents(true);
             }
         }
-        move_ding();
-    });
+        setTimeout(ding_click_through, 10);
+    }
+    ding_click_through();
 }
 
 // 主窗口
