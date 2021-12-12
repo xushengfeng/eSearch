@@ -476,8 +476,11 @@ function create_ding_window(x, y, w, h, img) {
     } else {
         var id = new Date().getTime();
         ding_window.webContents.send("img", id, x, y, w, h, img);
-        ding_windows_l[id] = [x, y, x + w, y + h];
+        ding_windows_l[id] = [x, y, w, h];
     }
+    ipcMain.on("ding_p_s", (event, wid, p_s) => {
+        ding_windows_l[wid] = p_s;
+    });
     // 关闭窗口
     ipcMain.on("ding_close", (event, wid) => {
         delete ding_windows_l[wid];
@@ -493,7 +496,9 @@ function create_ding_window(x, y, w, h, img) {
         for (i in Object.values(ding_windows_l)) {
             ii = Object.values(ding_windows_l)[i];
             // 如果光标在某个窗口上，不穿透
-            if (ii[0] <= n_xy.x && n_xy.x <= ii[2] && ii[1] <= n_xy.y && n_xy.y <= ii[3]) {
+            var x2 = ii[0] + ii[2],
+                y2 = ii[1] + ii[3];
+            if (ii[0] <= n_xy.x && n_xy.x <= x2 && ii[1] <= n_xy.y && n_xy.y <= y2) {
                 in_window += 1;
             }
         }

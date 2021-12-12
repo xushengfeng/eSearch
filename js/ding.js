@@ -19,7 +19,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
         minimize(wid);
     };
     tool_bar.querySelector("#back").onclick = () => {
-        back(wid);
+        back(div);
     };
     tool_bar.querySelector("#close").onclick = () => {
         close(div);
@@ -34,7 +34,17 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
 });
 
 function minimize(id) {}
-function back(id) {}
+function back(el) {
+    el.style.transition = "var(--transition)";
+    setTimeout(() => {
+        el.style.transition = "";
+    }, 400);
+    var p_s = photos[el.id];
+    el.style.left = p_s[0] + "px";
+    el.style.top = p_s[1] + "px";
+    el.style.width = p_s[2] + "px";
+    el.style.height = p_s[3] + "px";
+}
 function close(el) {
     el.innerHTML = "";
     el.parentNode.removeChild(el);
