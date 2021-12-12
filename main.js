@@ -444,7 +444,7 @@ Menu.setApplicationMenu(menu);
 
 // ding窗口
 has_ding = false;
-ding_windows_l = [];
+ding_windows_l = {};
 function create_ding_window(x, y, w, h, img) {
     if (!has_ding) {
         ding_window = new BrowserWindow({
@@ -469,24 +469,30 @@ function create_ding_window(x, y, w, h, img) {
         ding_window.loadFile("ding.html");
         if (dev) ding_window.webContents.openDevTools();
         ding_window.webContents.on("did-finish-load", () => {
-            ding_window.webContents.send("img", x, y, w, h, img);
-            ding_windows_l.push([x, y, x + w, y + h]);
+            var id = new Date().getTime();
+            ding_window.webContents.send("img", id, x, y, w, h, img);
+            ding_windows_l[id] = [x, y, x + w, y + h];
         });
 
         has_ding = true;
     } else {
-        ding_window.webContents.send("img", x, y, w, h, img);
-        ding_windows_l.push([x, y, x + w, y + h]);
+        var id = new Date().getTime();
+        ding_window.webContents.send("img", id, x, y, w, h, img);
+        ding_windows_l[id] = [x, y, x + w, y + h];
     }
     // 关闭窗口
-    ipcMain.on("ding_close", (event) => {
-        ding_window.close();
+    ipcMain.on("ding_close", (event, wid) => {
+        delete ding_windows_l[wid];
+        if (Object.keys(ding_windows_l).length == 0) {
+            has_ding = false;
+            ding_window.close();
+        }
     });
     // 自动改变鼠标穿透
     function ding_click_through() {
         var n_xy = screen.getCursorScreenPoint();
-        for (i in ding_windows_l) {
-            var ii = ding_windows_l[i];
+        for (i in Object.values(ding_windows_l)) {
+            ii = Object.values(ding_windows_l)[i];
             if (ii[0] <= n_xy.x && n_xy.x <= ii[2] && ii[1] <= n_xy.y && n_xy.y <= ii[3]) {
                 ding_window.setIgnoreMouseEvents(false);
                 break;
