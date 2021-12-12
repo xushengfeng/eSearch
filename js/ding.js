@@ -22,7 +22,11 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
         back(wid);
     };
     tool_bar.querySelector("#close").onclick = () => {
-        close(wid);
+        close(div);
+    };
+    div.onclick = () => {
+        div.style.zIndex = toppest + 1;
+        toppest += 1;
     };
     div.appendChild(tool_bar);
     div.appendChild(img);
@@ -31,9 +35,12 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
 
 function minimize(id) {}
 function back(id) {}
-function close(id) {
-    document.getElementById(id).innerHTML = "";
-    document.getElementById(id).parentNode.removeChild(document.getElementById(id));
-    delete photos[id];
-    ipcRenderer.send("ding_close", id);
+function close(el) {
+    el.innerHTML = "";
+    el.parentNode.removeChild(el);
+    delete photos[el.id];
+    ipcRenderer.send("ding_close", el.id);
 }
+
+// 最高窗口
+toppest = 1;
