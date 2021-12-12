@@ -1,5 +1,6 @@
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, ipcMain } = require("electron");
 
+var changing = null;
 var photos = {};
 ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
@@ -28,6 +29,19 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
         div.style.zIndex = toppest + 1;
         toppest += 1;
     };
+    div.onkeydown = (e) => {
+        if (e.target.id != "透明度" || e.target.id != "size") {
+            changing = e;
+        }
+    };
+    div.onkeymove = (e) => {
+        if (changing != null) {
+            change(div, changing, e);
+        }
+    };
+    div.onkeydown = (e) => {
+        changing = null;
+    };
     div.appendChild(tool_bar);
     div.appendChild(img);
     document.querySelector("#photo").appendChild(div);
@@ -44,6 +58,7 @@ function back(el) {
     el.style.top = p_s[1] + "px";
     el.style.width = p_s[2] + "px";
     el.style.height = p_s[3] + "px";
+    ipcMain.send("ding_p_s", el.id, p_s);
 }
 function close(el) {
     el.innerHTML = "";
@@ -54,3 +69,18 @@ function close(el) {
 
 // 最高窗口
 toppest = 1;
+
+function change(el, o_e, e) {
+    var x1 = photos[el.id][0],
+        y1 = photos[el.id][1],
+        x2 = photos[el.id][0] + photos[el.id][2],
+        y2 = photos[el.id][0] + photos[el.id][3];
+    var o_x = o_e.screenX,
+        n_x = e.screenX,
+        o_y = o_e.screenY,
+        n_y = e.screenY;
+    var dx = n_x - o_x,
+        dy = n_y - o_y;
+
+    ipcMain.send("ding_p_s", el.id, [x, y, w, h]);
+}
