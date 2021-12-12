@@ -464,8 +464,6 @@ function create_ding_window(x, y, w, h, img) {
             },
         });
 
-        ding_window.setIgnoreMouseEvents(true);
-
         ding_window.loadFile("ding.html");
         if (dev) ding_window.webContents.openDevTools();
         ding_window.webContents.on("did-finish-load", () => {
@@ -491,15 +489,22 @@ function create_ding_window(x, y, w, h, img) {
     // 自动改变鼠标穿透
     function ding_click_through() {
         var n_xy = screen.getCursorScreenPoint();
+        var in_window = 0;
         for (i in Object.values(ding_windows_l)) {
             ii = Object.values(ding_windows_l)[i];
+            // 如果光标在某个窗口上，不穿透
             if (ii[0] <= n_xy.x && n_xy.x <= ii[2] && ii[1] <= n_xy.y && n_xy.y <= ii[3]) {
+                in_window += 1;
+            }
+        }
+        // 窗口可能destroyed
+        try {
+            if (in_window > 0) {
                 ding_window.setIgnoreMouseEvents(false);
-                break;
             } else {
                 ding_window.setIgnoreMouseEvents(true);
             }
-        }
+        } catch {}
         setTimeout(ding_click_through, 10);
     }
     ding_click_through();

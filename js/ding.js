@@ -14,6 +14,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     img.src = url;
     img.className = "img";
     var tool_bar = document.querySelector("#tool_bar").cloneNode(true);
+    tool_bar.style.display = "flex";
     tool_bar.querySelector("#minimize").onclick = () => {
         minimize(wid);
     };
@@ -33,6 +34,6 @@ function back(id) {}
 function close(id) {
     document.getElementById(id).innerHTML = "";
     document.getElementById(id).parentNode.removeChild(document.getElementById(id));
-    delete photos[id]
+    delete photos[id];
     ipcRenderer.send("ding_close", id);
 }

@@ -16,7 +16,7 @@ body {
     overflow: hidden;
 }
 #tool_bar {
-    display: flex;
+    display: none;
     align-items: center;
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
