@@ -476,15 +476,15 @@ function create_ding_window(x, y, w, h, img) {
         windows[ding_name].webContents.send("window_position", [x, y]);
     });
     // 关闭窗口
-    ipcMain.on("ding_close", (enent, arg) => {
+    ipcMain.on("ding_close", (event, arg) => {
         windows[arg].close();
     });
     // 最小化
-    ipcMain.on("ding_minimize", (enent, arg) => {
+    ipcMain.on("ding_minimize", (event, arg) => {
         windows[arg].minimize();
     });
     // 调整大小
-    ipcMain.on("ding_resize", (enent, name, dx, dy, w, h, zoom) => {
+    ipcMain.on("ding_resize", (event, name, dx, dy, w, h, zoom) => {
         var nw = windows[name].getBounds().width;
         var nh = windows[name].getBounds().height;
         // 以鼠标为中心缩放
@@ -500,7 +500,7 @@ function create_ding_window(x, y, w, h, img) {
         });
     });
     // 归位
-    ipcMain.on("ding_back", (enent, name, p, s) => {
+    ipcMain.on("ding_back", (event, name, p, s) => {
         windows[name].setBounds({ x: p[0], y: p[1], width: s[0], height: s[1] });
     });
     // 右键移动窗口
