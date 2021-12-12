@@ -29,7 +29,7 @@ document.querySelector("#size > span").onkeydown = (e) => {
 };
 function resize(zoom, dx, dy) {
     if (zoom < 0.25) zoom = 0.25;
-    if (zoom > 3) zoom = 3;
+    if (zoom > 5) zoom = 5;
     ipcRenderer.send("ding_resize", window_name, dx, dy, window_size[0], window_size[1], zoom);
 }
 document.querySelector("#size > span").innerHTML = document.querySelector("#size_main_p > span").innerHTML = "100";
@@ -58,29 +58,30 @@ document.querySelector("#close").onclick = () => {
 document.querySelector("#tool_bar").onmousedown = (e) => {
     if (e.target !== document.querySelector("#tool_bar")) return;
     document.querySelector("#ding_photo").style.cursor = "move";
-    ipcRenderer.send("move", window_name, "down");
+    ipcRenderer.send("ding_move", window_name, "down");
 };
 document.querySelector("#tool_bar").onmouseup = (e) => {
     document.querySelector("#ding_photo").style.cursor = "default";
-    ipcRenderer.send("move", window_name, "up");
+    ipcRenderer.send("ding_move", window_name, "up");
 };
 document.querySelector("#ding_photo").onmousedown = (e) => {
     if (e.button == 2) {
         document.querySelector("#ding_photo").style.cursor = "move";
-        ipcRenderer.send("move", window_name, "down");
+        ipcRenderer.send("ding_move", window_name, "down");
     }
 };
 document.querySelector("#ding_photo").onmouseup = () => {
     document.querySelector("#ding_photo").style.cursor = "default";
-    ipcRenderer.send("move", window_name, "up");
+    ipcRenderer.send("ding_move", window_name, "up");
 };
 
 document.querySelector("#ding_photo").onwheel = (e) => {
-    resize(
-        (document.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100,
-        e.clientX,
-        e.clientY
-    );
+    if (e.deltaY != 0)
+        resize(
+            (document.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100,
+            e.clientX,
+            e.clientY
+        );
 };
 
 document.onmouseenter = () => {

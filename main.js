@@ -490,6 +490,8 @@ function create_ding_window(x, y, w, h, img) {
         // 以鼠标为中心缩放
         var x = windows[name].getBounds().x + dx - w * zoom * (dx / nw);
         var y = windows[name].getBounds().y + dy - h * zoom * (dy / nh);
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
         windows[name].setBounds({
             x: Math.round(x),
             y: Math.round(y),
@@ -502,7 +504,7 @@ function create_ding_window(x, y, w, h, img) {
         windows[name].setBounds({ x: p[0], y: p[1], width: s[0], height: s[1] });
     });
     // 右键移动窗口
-    ipcMain.on("move", (enent, name, v) => {
+    ipcMain.on("ding_move", (event, name, v) => {
         if (v == "down") {
             var ding_xy = windows[name].getBounds();
             var m_xy = screen.getCursorScreenPoint();
