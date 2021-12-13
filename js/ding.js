@@ -2,8 +2,9 @@ const { ipcRenderer, ipcMain } = require("electron");
 
 var changing = null;
 var photos = {};
+var photos2 = {};
 ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
-    photos[wid] = [x, y, w, h];
+    photos[wid] = photos2[wid] = [x, y, w, h];
     var div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
@@ -41,17 +42,15 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
         div.style.zIndex = toppest + 1;
         toppest += 1;
     };
-    div.onkeydown = (e) => {
+    div.onmousedown = (e) => {
         if (e.target.id != "透明度" || e.target.id != "size") {
             changing = e;
         }
     };
-    div.onkeymove = (e) => {
-        if (changing != null) {
-            change(div, changing, e);
-        }
+    div.onmousemove = (e) => {
+        change(div, e);
     };
-    div.onkeydown = (e) => {
+    div.onmouseup = (e) => {
         changing = null;
     };
     div.appendChild(tool_bar);
@@ -76,23 +75,72 @@ function close(el) {
     el.innerHTML = "";
     el.parentNode.removeChild(el);
     delete photos[el.id];
+    delete photos2[el.id];
     ipcRenderer.send("ding_close", el.id);
 }
 
 // 最高窗口
 toppest = 1;
 
-function change(el, o_e, e) {
-    var x1 = photos[el.id][0],
-        y1 = photos[el.id][1],
-        x2 = photos[el.id][0] + photos[el.id][2],
-        y2 = photos[el.id][0] + photos[el.id][3];
-    var o_x = o_e.screenX,
-        n_x = e.screenX,
-        o_y = o_e.screenY,
-        n_y = e.screenY;
-    var dx = n_x - o_x,
-        dy = n_y - o_y;
+function change(el, e) {
+    var width = el.offsetWidth,
+        height = el.offsetHeight;
 
-    ipcMain.send("ding_p_s", el.id, [x, y, w, h]);
+    direction = "";
+    var num = 8;
+    // 光标样式
+    switch (true) {
+        case p_x <= num && p_y <= num:
+            el.style.cursor = "nw-resize";
+            direction = "西北";
+            break;
+        case p_x >= width - num && p_y >= height - num:
+            el.style.cursor = "se-resize";
+            direction = "东南";
+            break;
+        case p_x >= width - num && p_y <= num:
+            el.style.cursor = "ne-resize";
+            direction = "东北";
+            break;
+        case p_x <= num && p_y >= height - num:
+            el.style.cursor = "sw-resize";
+            direction = "西南";
+            break;
+        case p_x <= num:
+            el.style.cursor = "w-resize";
+            direction = "西";
+            break;
+        case p_x >= width - num:
+            el.style.cursor = "e-resize";
+            direction = "东";
+            break;
+        case p_y <= num:
+            el.style.cursor = "n-resize";
+            direction = "北";
+            break;
+        case p_y >= height - num:
+            el.style.cursor = "s-resize";
+            direction = "南";
+            break;
+        case num < p_x && p_x < width - num && num < p_y && p_y < height - num:
+            el.style.cursor = "default";
+            direction = "move";
+            break;
+        default:
+            el.style.cursor = "default";
+            direction = "";
+            break;
+    }
+    if (changing != num) {
+        var o_e = changing;
+        var o_x = o_e.screenX,
+            n_x = e.screenX,
+            o_y = o_e.screenY,
+            n_y = e.screenY,
+            p_x = e.offsetX,
+            p_y = e.offsetY;
+        var dx = n_x - o_x,
+            dy = n_y - o_y;
+    }
+    // ipcMain.send("ding_p_s", el.id, [x, y, w, h]);
 }
