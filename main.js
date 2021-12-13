@@ -468,7 +468,7 @@ function create_ding_window(x, y, w, h, img) {
         ding_window.webContents.on("did-finish-load", () => {
             var id = new Date().getTime();
             ding_window.webContents.send("img", id, x, y, w, h, img);
-            ding_windows_l[id] = [x, y, x + w, y + h];
+            ding_windows_l[id] = [x, y, w, h];
         });
     } else {
         var id = new Date().getTime();

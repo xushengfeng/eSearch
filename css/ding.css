@@ -7,7 +7,7 @@ body {
     width: 100%;
     height: 100%;
 }
-#photo{
+#photo {
     width: 100%;
     height: 100%;
 }
@@ -16,23 +16,27 @@ body {
     overflow: hidden;
 }
 #tool_bar {
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    z-index: 2;
+}
+#tool_bar_c {
     display: none;
     align-items: center;
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
-    /* width: 100%; */
-    position: fixed;
-    /* transform: translateY(-105%); */
-    z-index: 2;
-    transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    width: 100%;
+    transform: translateY(-105%);
+    transition: var(--transition);
     user-select: none;
 }
-#tool_bar > div {
+#tool_bar_c > div {
     margin: 0 8px;
     display: flex;
     align-items: center;
 }
-.img{
+.img {
     position: absolute;
 }
 #size_main_p {

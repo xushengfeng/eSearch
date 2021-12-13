@@ -15,7 +15,13 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     img.src = url;
     img.className = "img";
     var tool_bar = document.querySelector("#tool_bar").cloneNode(true);
-    tool_bar.style.display = "flex";
+    tool_bar.querySelector("#tool_bar_c").style.display = "flex";
+    div.onmouseenter = () => {
+        tool_bar.querySelector("#tool_bar_c").style.transform="translateY(0)"
+    };
+    div.onmouseleave = () => {
+        tool_bar.querySelector("#tool_bar_c").style.transform="translateY(-105%)"
+    };
     tool_bar.querySelector("#minimize").onclick = () => {
         minimize(wid);
     };
