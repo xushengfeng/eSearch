@@ -166,6 +166,30 @@ function cursor(el, e) {
             dy = n_y - o_y;
         var p_s;
         switch (direction) {
+            case "西北":
+                break;
+            case "东南":
+                break;
+            case "东北":
+                break;
+            case "西南":
+                break;
+            case "西":
+                r = (o_ps[2] - dx) / o_ps[2];
+                p_s = [o_ps[0] + dx, o_ps[1], o_ps[2] - dx, o_ps[3] * r];
+                break;
+            case "东":
+                r = (o_ps[2] + dx) / o_ps[2];
+                p_s = [o_ps[0], o_ps[1], o_ps[2] + dx, o_ps[3] * r];
+                break;
+            case "北":
+                r = (o_ps[3] - dy) / o_ps[3];
+                p_s = [o_ps[0], o_ps[1] + dy, o_ps[2] * r, o_ps[3] - dy];
+                break;
+            case "南":
+                r = (o_ps[3] + dy) / o_ps[3];
+                p_s = [o_ps[0], o_ps[1], o_ps[2] * r, o_ps[3] + dy];
+                break;
             case "move":
                 p_s = [o_ps[0] + dx, o_ps[1] + dy, o_ps[2], o_ps[3]];
                 break;

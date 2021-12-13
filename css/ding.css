@@ -38,6 +38,7 @@ body {
 }
 .img {
     position: absolute;
+    width: 100%;
 }
 #size_main_p {
     display: none;
