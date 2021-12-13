@@ -16,11 +16,17 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     img.className = "img";
     var tool_bar = document.querySelector("#tool_bar").cloneNode(true);
     tool_bar.querySelector("#tool_bar_c").style.display = "flex";
+    // 顶栏
     div.onmouseenter = () => {
-        tool_bar.querySelector("#tool_bar_c").style.transform="translateY(0)"
+        tool_bar.querySelector("#tool_bar_c").style.transform = "translateY(0)";
     };
     div.onmouseleave = () => {
-        tool_bar.querySelector("#tool_bar_c").style.transform="translateY(-105%)"
+        tool_bar.querySelector("#tool_bar_c").style.transform = "translateY(-105%)";
+    };
+    // 透明
+    窗口透明度 = tool_bar.querySelector("#透明度");
+    窗口透明度.oninput = () => {
+        img.style.opacity = `${窗口透明度.value / 100}`;
     };
     tool_bar.querySelector("#minimize").onclick = () => {
         minimize(wid);
