@@ -128,30 +128,3 @@ input[type="range"]::-webkit-slider-thumb {
 #close {
     background-image: url("../assets/ding_close.svg");
 }
-
-@media (max-width: 700px) {
-    #tool_bar {
-        zoom: 0.9;
-    }
-}
-@media (max-width: 620px) {
-    #tool_bar {
-        zoom: 0.8;
-    }
-}
-@media (max-width: 540px) {
-    #tool_bar {
-        zoom: 0.7;
-    }
-}
-@media (max-width: 480px) {
-    #tool_bar {
-        zoom: 0.6;
-    }
-}
-@media (max-width: 410px) {
-    #tool_bar {
-        zoom: 0.6;
-        flex-direction: column;
-    }
-}

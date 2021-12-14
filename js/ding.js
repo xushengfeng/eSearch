@@ -86,6 +86,8 @@ function back(el) {
     ipcRenderer.send("ding_p_s", el.id, p_s);
 
     resize(el, 1);
+    el.querySelector("#tool_bar_c").style.flexDirection = "";
+    el.querySelector("#tool_bar_c").style.zoom = "";
 }
 function close(el) {
     el.innerHTML = "";
@@ -278,4 +280,27 @@ function div_zoom(el, zoom, dx, dy, wheel) {
 
 function resize(el, zoom) {
     el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
+    var w = el.offsetWidth;
+    if (w <= 240) {
+        el.querySelector("#tool_bar_c").style.flexDirection = "column";
+    } else {
+        el.querySelector("#tool_bar_c").style.flexDirection = "";
+    }
+    if (w <= 100) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.3";
+    } else if (w <= 130) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.4";
+    } else if (w <= 300) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.5";
+    } else if (w <= 340) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.6";
+    } else if (w <= 380) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.7";
+    } else if (w <= 420) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.8";
+    } else if (w <= 500) {
+        el.querySelector("#tool_bar_c").style.zoom = "0.9";
+    } else {
+        el.querySelector("#tool_bar_c").style.zoom = "";
+    }
 }
