@@ -45,6 +45,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
             }
         }
     };
+    // 三个按钮
     tool_bar.querySelector("#minimize").onclick = () => {
         minimize(wid);
     };
@@ -54,6 +55,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     tool_bar.querySelector("#close").onclick = () => {
         close(div);
     };
+    // 放到前面
     div.onclick = () => {
         div.style.zIndex = toppest + 1;
         toppest += 1;
@@ -91,7 +93,7 @@ toppest = 1;
 
 window_div = null;
 document.onmousedown = (e) => {
-    if (e.target.id != "透明度" || e.target.id != "size") {
+    if (e.target.id != "透明度" && e.target.id != "size") {
         div = e.target;
         if (div.id != "photo")
             while (div.className != "ding_photo") {
