@@ -158,40 +158,57 @@ function cursor(el, e) {
         }
     if (changing != null && o_ps != []) {
         var o_e = changing;
-        var o_x = o_e.clientX,
-            n_x = e.clientX,
-            o_y = o_e.clientY,
-            n_y = e.clientY;
-        var dx = n_x - o_x,
-            dy = n_y - o_y;
+        var dx = e.clientX - o_e.clientX,
+            dy = e.clientY - o_e.clientY;
+        var [ox, oy, ow, oh] = o_ps;
         var p_s;
         switch (direction) {
             case "西北":
+                var k = -1 / (oh / ow);
+                var d = (k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
+                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
+                p_s = [ox + ow - w, oy + oh - h, w, h];
                 break;
             case "东南":
+                var k = -1 / (oh / ow);
+                var d = -(k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
+                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
+                p_s = [ox, oy, w, h];
                 break;
             case "东北":
+                var k = 1 / (oh / ow);
+                var d = (k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
+                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
+                p_s = [ox, oy + oh - h, w, h];
                 break;
             case "西南":
+                var k = 1 / (oh / ow);
+                var d = -(k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
+                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
+                p_s = [ox + ow - w, oy, w, h];
                 break;
             case "西":
-                r = (o_ps[2] - dx) / o_ps[2];
-                p_s = [o_ps[0] + dx, o_ps[1], o_ps[2] - dx, o_ps[3] * r];
+                r = (ow - dx) / ow;
+                p_s = [ox + dx, oy, ow - dx, oh * r];
                 break;
             case "东":
-                r = (o_ps[2] + dx) / o_ps[2];
-                p_s = [o_ps[0], o_ps[1], o_ps[2] + dx, o_ps[3] * r];
+                r = (ow + dx) / ow;
+                p_s = [ox, oy, ow + dx, oh * r];
                 break;
             case "北":
-                r = (o_ps[3] - dy) / o_ps[3];
-                p_s = [o_ps[0], o_ps[1] + dy, o_ps[2] * r, o_ps[3] - dy];
+                r = (o_ps[3] - dy) / oh;
+                p_s = [ox, oy + dy, ow * r, oh - dy];
                 break;
             case "南":
-                r = (o_ps[3] + dy) / o_ps[3];
-                p_s = [o_ps[0], o_ps[1], o_ps[2] * r, o_ps[3] + dy];
+                r = (o_ps[3] + dy) / oh;
+                p_s = [ox, oy, ow * r, oh + dy];
                 break;
             case "move":
-                p_s = [o_ps[0] + dx, o_ps[1] + dy, o_ps[2], o_ps[3]];
+                p_s = [ox + dx, oy + dy, ow, oh];
                 break;
         }
         el.style.left = p_s[0] + "px";
