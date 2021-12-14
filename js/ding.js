@@ -45,6 +45,13 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
             }
         }
     };
+    div.onwheel = (e) => {
+        if (e.deltaY != 0) {
+            var zoom = (div.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
+            div_zoom(div, zoom, e.offsetX, e.offsetY, true);
+            resize(div, zoom);
+        }
+    };
     // 三个按钮
     tool_bar.querySelector("#minimize").onclick = () => {
         minimize(wid);
@@ -78,7 +85,7 @@ function back(el) {
     el.style.height = p_s[3] + "px";
     ipcRenderer.send("ding_p_s", el.id, p_s);
 
-    el.querySelector("#size > span").innerHTML = "100";
+    resize(el, 1);
 }
 function close(el) {
     el.innerHTML = "";
@@ -263,4 +270,9 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     el.style.width = p_s[2] + "px";
     el.style.height = p_s[3] + "px";
     ipcRenderer.send("ding_p_s", el.id, p_s);
+}
+
+function resize(el, zoom) {
+    // var zoom = ((el.offsetWidth / photos[el.id][2]) * 100).toFixed(0) || 100;
+    el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
 }
