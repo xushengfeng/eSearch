@@ -43,7 +43,7 @@ body {
 #size_main_p {
     display: none;
     pointer-events: none;
-    position: fixed;
+    position: absolute;
     z-index: 3;
     top: 50%;
     left: 50%;

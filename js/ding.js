@@ -143,43 +143,43 @@ function cursor(el, e) {
     if (window_div == null)
         switch (true) {
             case p_x <= num && p_y <= num:
-                el.style.cursor = "nw-resize";
+                document.querySelector("html").style.cursor = "nw-resize";
                 direction = "西北";
                 break;
             case p_x >= width - num && p_y >= height - num:
-                el.style.cursor = "se-resize";
+                document.querySelector("html").style.cursor = "se-resize";
                 direction = "东南";
                 break;
             case p_x >= width - num && p_y <= num:
-                el.style.cursor = "ne-resize";
+                document.querySelector("html").style.cursor = "ne-resize";
                 direction = "东北";
                 break;
             case p_x <= num && p_y >= height - num:
-                el.style.cursor = "sw-resize";
+                document.querySelector("html").style.cursor = "sw-resize";
                 direction = "西南";
                 break;
             case p_x <= num:
-                el.style.cursor = "w-resize";
+                document.querySelector("html").style.cursor = "w-resize";
                 direction = "西";
                 break;
             case p_x >= width - num:
-                el.style.cursor = "e-resize";
+                document.querySelector("html").style.cursor = "e-resize";
                 direction = "东";
                 break;
             case p_y <= num:
-                el.style.cursor = "n-resize";
+                document.querySelector("html").style.cursor = "n-resize";
                 direction = "北";
                 break;
             case p_y >= height - num:
-                el.style.cursor = "s-resize";
+                document.querySelector("html").style.cursor = "s-resize";
                 direction = "南";
                 break;
             case num < p_x && p_x < width - num && num < p_y && p_y < height - num:
-                el.style.cursor = "default";
+                document.querySelector("html").style.cursor = "default";
                 direction = "move";
                 break;
             default:
-                el.style.cursor = "default";
+                document.querySelector("html").style.cursor = "default";
                 direction = "";
                 break;
         }
@@ -243,6 +243,10 @@ function cursor(el, e) {
         el.style.width = p_s[2] + "px";
         el.style.height = p_s[3] + "px";
         ipcRenderer.send("ding_p_s", el.id, p_s);
+
+        el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
+
+        resize(el, p_s[2] / photos[el.id][2]);
     }
 }
 
@@ -273,6 +277,5 @@ function div_zoom(el, zoom, dx, dy, wheel) {
 }
 
 function resize(el, zoom) {
-    // var zoom = ((el.offsetWidth / photos[el.id][2]) * 100).toFixed(0) || 100;
     el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
 }
