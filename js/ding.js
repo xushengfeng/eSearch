@@ -29,6 +29,22 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     窗口透明度.oninput = () => {
         img.style.opacity = `${窗口透明度.value / 100}`;
     };
+    // 大小
+    tool_bar.querySelector("#size > span").onblur = () => {
+        if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
+            var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
+            div_zoom(div, zoom, 0, 0, false);
+        }
+    };
+    tool_bar.querySelector("#size > span").onkeydown = (e) => {
+        if (e.key == "Enter") {
+            e.preventDefault();
+            if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
+                var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
+                div_zoom(div, zoom, 0, 0, false);
+            }
+        }
+    };
     tool_bar.querySelector("#minimize").onclick = () => {
         minimize(wid);
     };
@@ -59,6 +75,8 @@ function back(el) {
     el.style.width = p_s[2] + "px";
     el.style.height = p_s[3] + "px";
     ipcRenderer.send("ding_p_s", el.id, p_s);
+
+    el.querySelector("#size > span").innerHTML = "100";
 }
 function close(el) {
     el.innerHTML = "";
@@ -217,4 +235,30 @@ function cursor(el, e) {
         el.style.height = p_s[3] + "px";
         ipcRenderer.send("ding_p_s", el.id, p_s);
     }
+}
+
+function div_zoom(el, zoom, dx, dy, wheel) {
+    var w = photos[el.id][2];
+    var h = photos[el.id][3];
+    if (zoom < 0.25) zoom = 0.25;
+    if (zoom > 3) zoom = 3;
+    var nw = el.offsetWidth;
+    var nh = el.offsetHeight;
+    // 以鼠标为中心缩放
+    var x = el.offsetLeft + dx - w * zoom * (dx / nw);
+    var y = el.offsetTop + dy - h * zoom * (dy / nh);
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    var p_s = [x, y, Math.round(w * zoom), Math.round(h * zoom)];
+    if (!wheel) {
+        el.style.transition = "var(--transition)";
+        setTimeout(() => {
+            el.style.transition = "";
+        }, 400);
+    }
+    el.style.left = p_s[0] + "px";
+    el.style.top = p_s[1] + "px";
+    el.style.width = p_s[2] + "px";
+    el.style.height = p_s[3] + "px";
+    ipcRenderer.send("ding_p_s", el.id, p_s);
 }
