@@ -148,3 +148,11 @@ input[type="range"]::-webkit-slider-thumb {
     top: 0 !important;
     border-radius: 0 !important;
 }
+
+#dock > div{
+    overflow: hidden;
+    width: 100%;
+}
+#dock img{
+    width: 100%;
+}

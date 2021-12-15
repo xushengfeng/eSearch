@@ -2,8 +2,10 @@ const { ipcRenderer, ipcMain } = require("electron");
 
 var changing = null;
 var photos = {};
+var urls = {};
 ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
+    urls[wid] = url;
     var div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
@@ -53,13 +55,14 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     };
     // 三个按钮
     tool_bar.querySelector("#minimize").onclick = () => {
-        minimize(wid);
+        minimize(div);
     };
     tool_bar.querySelector("#back").onclick = () => {
         back(div);
     };
     tool_bar.querySelector("#close").onclick = () => {
         close(div);
+        dock_i();
     };
     // 放到前面
     div.onclick = () => {
@@ -70,10 +73,16 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.appendChild(img);
     document.querySelector("#photo").appendChild(div);
 
+    // dock
+    dock_i();
+
     resize(div, 1);
 });
 
-function minimize(id) {}
+function minimize(el) {
+    el.style.opacity = 0;
+    ipcRenderer.send("ding_p_s", el.id, [0, 0, 0, 0]);
+}
 function back(el) {
     el.style.transition = "var(--transition)";
     setTimeout(() => {
@@ -95,6 +104,7 @@ function close(el) {
     el.innerHTML = "";
     el.parentNode.removeChild(el);
     delete photos[el.id];
+    delete urls[el.id]
     ipcRenderer.send("ding_close", el.id);
 }
 
@@ -369,3 +379,20 @@ document.querySelector("#dock").onclick = () => {
         ipcRenderer.send("ding_p_s", "dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
     }
 };
+
+function dock_i() {
+    document.querySelector("#dock > div").innerHTML = "";
+    for (i in urls) {
+        var dock_item = document.querySelector("#dock_item").cloneNode(true);
+        dock_item.style.display = "block";
+        dock_item.querySelector("img").src = urls[i];
+        dock_item.onclick = () => {
+            var div = document.getElementById(i);
+            div.style.opacity = 1;
+            ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+            div.style.zIndex = toppest + 1;
+            toppest += 1;
+        };
+        document.querySelector("#dock > div").appendChild(dock_item);
+    }
+}
