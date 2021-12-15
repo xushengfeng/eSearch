@@ -470,6 +470,8 @@ function create_ding_window(x, y, w, h, img) {
             ding_window.webContents.send("img", id, x, y, w, h, img);
             ding_windows_l[id] = [x, y, w, h];
         });
+
+        ding_window.setAlwaysOnTop(true, "screen-saver");
     } else {
         var id = new Date().getTime();
         ding_window.webContents.send("img", id, x, y, w, h, img);
