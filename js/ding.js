@@ -2,9 +2,8 @@ const { ipcRenderer, ipcMain } = require("electron");
 
 var changing = null;
 var photos = {};
-var photos2 = {};
 ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
-    photos[wid] = photos2[wid] = [x, y, w, h];
+    photos[wid] = [x, y, w, h];
     var div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
@@ -25,9 +24,9 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
         tool_bar.querySelector("#tool_bar_c").style.transform = "translateY(-105%)";
     };
     // 透明
-    窗口透明度 = tool_bar.querySelector("#透明度");
-    窗口透明度.oninput = () => {
-        img.style.opacity = `${窗口透明度.value / 100}`;
+    tool_bar.querySelector("#透明度").oninput = () => {
+        img.style.opacity = `${tool_bar.querySelector("#透明度").value / 100}`;
+        tool_bar.querySelector("#透明度_p").innerHTML = tool_bar.querySelector("#透明度").value + "%";
     };
     // 大小
     tool_bar.querySelector("#size > span").onblur = () => {
@@ -88,12 +87,15 @@ function back(el) {
     resize(el, 1);
     el.querySelector("#tool_bar_c").style.flexDirection = "";
     el.querySelector("#tool_bar_c").style.zoom = "";
+
+    el.querySelector("#透明度").value = "100";
+    el.querySelector("#透明度_p").innerHTML = "100%";
+    el.querySelector("img").style.opacity = 1;
 }
 function close(el) {
     el.innerHTML = "";
     el.parentNode.removeChild(el);
     delete photos[el.id];
-    delete photos2[el.id];
     ipcRenderer.send("ding_close", el.id);
 }
 
