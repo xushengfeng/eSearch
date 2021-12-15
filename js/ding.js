@@ -69,6 +69,8 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.appendChild(tool_bar);
     div.appendChild(img);
     document.querySelector("#photo").appendChild(div);
+
+    resize(div, 1);
 });
 
 function minimize(id) {}
@@ -76,6 +78,7 @@ function back(el) {
     el.style.transition = "var(--transition)";
     setTimeout(() => {
         el.style.transition = "";
+        resize(el, 1);
     }, 400);
     var p_s = photos[el.id];
     el.style.left = p_s[0] + "px";
@@ -83,10 +86,6 @@ function back(el) {
     el.style.width = p_s[2] + "px";
     el.style.height = p_s[3] + "px";
     ipcRenderer.send("ding_p_s", el.id, p_s);
-
-    resize(el, 1);
-    el.querySelector("#tool_bar_c").style.flexDirection = "";
-    el.querySelector("#tool_bar_c").style.zoom = "";
 
     el.querySelector("#透明度").value = "100";
     el.querySelector("#透明度_p").innerHTML = "100%";
@@ -283,6 +282,7 @@ function div_zoom(el, zoom, dx, dy, wheel) {
 function resize(el, zoom) {
     el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
     var w = el.offsetWidth;
+    console.log(w);
     if (w <= 240) {
         el.querySelector("#tool_bar_c").style.flexDirection = "column";
     } else {
