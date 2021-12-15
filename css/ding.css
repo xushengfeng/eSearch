@@ -39,6 +39,7 @@ body {
 .img {
     position: absolute;
     width: 100%;
+    user-select: none;
 }
 #size_main_p {
     display: none;
@@ -127,4 +128,23 @@ input[type="range"]::-webkit-slider-thumb {
 }
 #close {
     background-image: url("../assets/ding_close.svg");
+}
+
+#dock {
+    position: fixed;
+    height: 50px;
+    width: 10px;
+    left: 0;
+    top: 0;
+    background-color: var(--bar-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.dock {
+    width: 200px !important;
+    height: 100% !important;
+    top: 0 !important;
+    border-radius: 0 !important;
 }

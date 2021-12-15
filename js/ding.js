@@ -103,7 +103,16 @@ toppest = 1;
 
 window_div = null;
 document.onmousedown = (e) => {
-    if (e.target.id != "透明度" && e.target.id != "size") {
+    if (e.target.id == "dock") {
+        if (!dock_show) {
+            div = e.target;
+            window_div = div;
+            o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
+            changing = e;
+            div.style.transition = "none";
+            ipcRenderer.send("ding_ignore", true);
+        }
+    } else if (e.target.id != "透明度" && e.target.id != "size") {
         div = e.target;
         if (div.id != "photo")
             while (div.className != "ding_photo") {
@@ -116,21 +125,33 @@ document.onmousedown = (e) => {
     }
 };
 document.onmousemove = (e) => {
-    if (window_div == null) {
-        div = e.target;
-        if (div.id != "photo")
-            while (div.className != "ding_photo") {
-                div = div?.offsetParent;
+    if (e.target.id == "dock") {
+        if (!dock_show) {
+            if (window_div == null) {
+                div = e.target;
+                cursor(div, e);
+            } else {
+                cursor(window_div, e);
             }
-        cursor(div, e);
+        }
     } else {
-        cursor(window_div, e);
+        if (window_div == null) {
+            div = e.target;
+            if (div.id != "photo")
+                while (div.className != "ding_photo") {
+                    div = div?.offsetParent;
+                }
+            cursor(div, e);
+        } else {
+            cursor(window_div, e);
+        }
     }
 };
 document.onmouseup = (e) => {
     o_ps = [];
     changing = null;
     window_div = null;
+    div.style.transition = "";
     ipcRenderer.send("ding_ignore", false);
 };
 
@@ -143,49 +164,61 @@ function cursor(el, e) {
 
     var num = 8;
     // 光标样式
-    if (window_div == null)
-        switch (true) {
-            case p_x <= num && p_y <= num:
-                document.querySelector("html").style.cursor = "nw-resize";
-                direction = "西北";
-                break;
-            case p_x >= width - num && p_y >= height - num:
-                document.querySelector("html").style.cursor = "se-resize";
-                direction = "东南";
-                break;
-            case p_x >= width - num && p_y <= num:
-                document.querySelector("html").style.cursor = "ne-resize";
-                direction = "东北";
-                break;
-            case p_x <= num && p_y >= height - num:
-                document.querySelector("html").style.cursor = "sw-resize";
-                direction = "西南";
-                break;
-            case p_x <= num:
-                document.querySelector("html").style.cursor = "w-resize";
-                direction = "西";
-                break;
-            case p_x >= width - num:
-                document.querySelector("html").style.cursor = "e-resize";
-                direction = "东";
-                break;
-            case p_y <= num:
-                document.querySelector("html").style.cursor = "n-resize";
-                direction = "北";
-                break;
-            case p_y >= height - num:
-                document.querySelector("html").style.cursor = "s-resize";
-                direction = "南";
-                break;
-            case num < p_x && p_x < width - num && num < p_y && p_y < height - num:
+    if (el.id == "dock") {
+        if (window_div == null) {
+            if (0 < p_x && p_x < width && 0 < p_y && p_y < height) {
                 document.querySelector("html").style.cursor = "default";
                 direction = "move";
-                break;
-            default:
-                document.querySelector("html").style.cursor = "default";
+            } else {
                 direction = "";
-                break;
+            }
         }
+    } else {
+        // 不等于null移动中,自锁,等于,随时变
+        if (window_div == null)
+            switch (true) {
+                case p_x <= num && p_y <= num:
+                    document.querySelector("html").style.cursor = "nw-resize";
+                    direction = "西北";
+                    break;
+                case p_x >= width - num && p_y >= height - num:
+                    document.querySelector("html").style.cursor = "se-resize";
+                    direction = "东南";
+                    break;
+                case p_x >= width - num && p_y <= num:
+                    document.querySelector("html").style.cursor = "ne-resize";
+                    direction = "东北";
+                    break;
+                case p_x <= num && p_y >= height - num:
+                    document.querySelector("html").style.cursor = "sw-resize";
+                    direction = "西南";
+                    break;
+                case p_x <= num:
+                    document.querySelector("html").style.cursor = "w-resize";
+                    direction = "西";
+                    break;
+                case p_x >= width - num:
+                    document.querySelector("html").style.cursor = "e-resize";
+                    direction = "东";
+                    break;
+                case p_y <= num:
+                    document.querySelector("html").style.cursor = "n-resize";
+                    direction = "北";
+                    break;
+                case p_y >= height - num:
+                    document.querySelector("html").style.cursor = "s-resize";
+                    direction = "南";
+                    break;
+                case num < p_x && p_x < width - num && num < p_y && p_y < height - num:
+                    document.querySelector("html").style.cursor = "default";
+                    direction = "move";
+                    break;
+                default:
+                    document.querySelector("html").style.cursor = "default";
+                    direction = "";
+                    break;
+            }
+    }
     if (changing != null && o_ps != []) {
         var o_e = changing;
         var dx = e.clientX - o_e.clientX,
@@ -247,9 +280,11 @@ function cursor(el, e) {
         el.style.height = p_s[3] + "px";
         ipcRenderer.send("ding_p_s", el.id, p_s);
 
-        el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
+        if (el.id != "dock") {
+            el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
 
-        resize(el, p_s[2] / photos[el.id][2]);
+            resize(el, p_s[2] / photos[el.id][2]);
+        }
     }
 }
 
@@ -306,3 +341,31 @@ function resize(el, zoom) {
         el.querySelector("#tool_bar_c").style.zoom = "";
     }
 }
+
+dock_show = false;
+dock_p_s = [];
+document.querySelector("#dock").onclick = () => {
+    var dock = document.querySelector("#dock");
+    dock_show = !dock_show;
+    if (dock_show) {
+        dock_p_s = [dock.offsetLeft, dock.offsetTop];
+        if (dock.offsetLeft + 5 <= document.querySelector("html").offsetWidth / 2) {
+            dock.style.left = "0";
+        } else {
+            dock.style.left = document.querySelector("html").offsetWidth - 200 + "px";
+        }
+
+        dock.className = "dock";
+        ipcRenderer.send("ding_p_s", "dock", [
+            dock.style.left.replace("px", "") - 0,
+            0,
+            200,
+            document.querySelector("html").offsetHeight,
+        ]);
+    } else {
+        dock.style.transition = dock.className = "";
+        dock.style.left = dock_p_s[0] + "px";
+        dock.style.top = dock_p_s[1] + "px";
+        ipcRenderer.send("ding_p_s", "dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
+    }
+};
