@@ -1,4 +1,4 @@
-const { ipcRenderer, ipcMain } = require("electron");
+const { ipcRenderer } = require("electron");
 
 var changing = null;
 var photos = {};
@@ -80,6 +80,10 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
 });
 
 function minimize(el) {
+    div.style.transition = "var(--transition)";
+    setTimeout(() => {
+        div.style.transition = "";
+    }, 400);
     el.style.opacity = 0;
     ipcRenderer.send("ding_p_s", el.id, [0, 0, 0, 0]);
 }
@@ -104,7 +108,7 @@ function close(el) {
     el.innerHTML = "";
     el.parentNode.removeChild(el);
     delete photos[el.id];
-    delete urls[el.id]
+    delete urls[el.id];
     ipcRenderer.send("ding_close", el.id);
 }
 
@@ -113,7 +117,7 @@ toppest = 1;
 
 window_div = null;
 document.onmousedown = (e) => {
-    if (e.target.id == "dock") {
+    if (e.target.id == "dock" || e.target.offsetParent.id == "dock") {
         if (!dock_show) {
             div = e.target;
             window_div = div;
@@ -135,7 +139,7 @@ document.onmousedown = (e) => {
     }
 };
 document.onmousemove = (e) => {
-    if (e.target.id == "dock") {
+    if (e.target.id == "dock" || e.target.offsetParent.id == "dock") {
         if (!dock_show) {
             if (window_div == null) {
                 div = e.target;
@@ -174,7 +178,7 @@ function cursor(el, e) {
 
     var num = 8;
     // 光标样式
-    if (el.id == "dock") {
+    if (el.id == "dock" || el.offsetParent?.id == "dock") {
         if (window_div == null) {
             if (0 < p_x && p_x < width && 0 < p_y && p_y < height) {
                 document.querySelector("html").style.cursor = "default";
@@ -184,7 +188,7 @@ function cursor(el, e) {
             }
         }
     } else {
-        // 不等于null移动中,自锁,等于,随时变
+        // 不等于null移动中,自锁;等于,随时变
         if (window_div == null)
             switch (true) {
                 case p_x <= num && p_y <= num:
@@ -327,7 +331,6 @@ function div_zoom(el, zoom, dx, dy, wheel) {
 function resize(el, zoom) {
     el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
     var w = el.offsetWidth;
-    console.log(w);
     if (w <= 240) {
         el.querySelector("#tool_bar_c").style.flexDirection = "column";
     } else {
@@ -366,6 +369,7 @@ document.querySelector("#dock").onclick = () => {
         }
 
         dock.className = "dock";
+        dock.querySelector("div").style.width = "100%";
         ipcRenderer.send("ding_p_s", "dock", [
             dock.style.left.replace("px", "") - 0,
             0,
@@ -374,6 +378,7 @@ document.querySelector("#dock").onclick = () => {
         ]);
     } else {
         dock.style.transition = dock.className = "";
+        dock.querySelector("div").style.width = "0";
         dock.style.left = dock_p_s[0] + "px";
         dock.style.top = dock_p_s[1] + "px";
         ipcRenderer.send("ding_p_s", "dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
@@ -382,17 +387,23 @@ document.querySelector("#dock").onclick = () => {
 
 function dock_i() {
     document.querySelector("#dock > div").innerHTML = "";
-    for (i in urls) {
-        var dock_item = document.querySelector("#dock_item").cloneNode(true);
-        dock_item.style.display = "block";
-        dock_item.querySelector("img").src = urls[i];
-        dock_item.onclick = () => {
-            var div = document.getElementById(i);
-            div.style.opacity = 1;
-            ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
-            div.style.zIndex = toppest + 1;
-            toppest += 1;
-        };
-        document.querySelector("#dock > div").appendChild(dock_item);
+    for (o in urls) {
+        (function (i) {
+            var dock_item = document.querySelector("#dock_item").cloneNode(true);
+            dock_item.style.display = "block";
+            dock_item.querySelector("img").src = urls[i];
+            dock_item.onclick = () => {
+                var div = document.getElementById(i);
+                div.style.transition = "var(--transition)";
+                setTimeout(() => {
+                    div.style.transition = "";
+                }, 400);
+                div.style.opacity = 1;
+                ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+                div.style.zIndex = toppest + 1;
+                toppest += 1;
+            };
+            document.querySelector("#dock > div").appendChild(dock_item);
+        })(o);
     }
 }

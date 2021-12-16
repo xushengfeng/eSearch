@@ -149,10 +149,14 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 0 !important;
 }
 
-#dock > div{
+#dock > div {
     overflow: hidden;
-    width: 100%;
+    width: 0;
 }
-#dock img{
+#dock_item {
+    padding: 8px 8px 0 8px;
+    box-sizing: border-box;
+}
+#dock img {
     width: 100%;
 }
