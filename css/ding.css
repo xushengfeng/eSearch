@@ -151,7 +151,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 #dock > div {
     overflow: hidden;
-    width: 0;
+    width: 100%;
+    display: none;
 }
 #dock_item {
     padding: 8px 8px 0 8px;
@@ -159,4 +160,22 @@ input[type="range"]::-webkit-slider-thumb {
 }
 #dock img {
     width: 100%;
+}
+#dock_item > #i_close {
+    display: none;
+    position: absolute;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: var(--hover-color);
+    background-image: url("../assets/ding_close.svg");
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: var(--transition);
+    border-radius: 50%;
+}
+#dock_item > #i_close:hover {
+    background-image: url("../assets/ding_i_close.svg");
+    background-color: #f00;
 }

@@ -110,6 +110,7 @@ function close(el) {
     delete photos[el.id];
     delete urls[el.id];
     ipcRenderer.send("ding_close", el.id);
+    dock_i();
 }
 
 // 最高窗口
@@ -369,7 +370,7 @@ document.querySelector("#dock").onclick = () => {
         }
 
         dock.className = "dock";
-        dock.querySelector("div").style.width = "100%";
+        dock.querySelector("div").style.display = "block";
         ipcRenderer.send("ding_p_s", "dock", [
             dock.style.left.replace("px", "") - 0,
             0,
@@ -378,7 +379,7 @@ document.querySelector("#dock").onclick = () => {
         ]);
     } else {
         dock.style.transition = dock.className = "";
-        dock.querySelector("div").style.width = "0";
+        dock.querySelector("div").style.display = "none";
         dock.style.left = dock_p_s[0] + "px";
         dock.style.top = dock_p_s[1] + "px";
         ipcRenderer.send("ding_p_s", "dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
@@ -392,16 +393,22 @@ function dock_i() {
             var dock_item = document.querySelector("#dock_item").cloneNode(true);
             dock_item.style.display = "block";
             dock_item.querySelector("img").src = urls[i];
-            dock_item.onclick = () => {
-                var div = document.getElementById(i);
-                div.style.transition = "var(--transition)";
-                setTimeout(() => {
-                    div.style.transition = "";
-                }, 400);
-                div.style.opacity = 1;
-                ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
-                div.style.zIndex = toppest + 1;
-                toppest += 1;
+            dock_item.onclick = (e) => {
+                if (e.target.id != "i_close") {
+                    var div = document.getElementById(i);
+                    div.style.transition = "var(--transition)";
+                    setTimeout(() => {
+                        div.style.transition = "";
+                    }, 400);
+                    div.style.opacity = 1;
+                    ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+                    div.style.zIndex = toppest + 1;
+                    toppest += 1;
+                }
+            };
+            dock_item.querySelector("#i_close").style.display = "block";
+            dock_item.querySelector("#i_close").onclick = () => {
+                close(document.getElementById(i));
             };
             document.querySelector("#dock > div").appendChild(dock_item);
         })(o);
