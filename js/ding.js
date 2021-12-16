@@ -46,6 +46,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
             }
         }
     };
+    // 滚轮缩放
     div.onwheel = (e) => {
         if (e.deltaY != 0) {
             var zoom = (div.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
@@ -62,7 +63,6 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     };
     tool_bar.querySelector("#close").onclick = () => {
         close(div);
-        dock_i();
     };
     // 放到前面
     div.onclick = () => {
@@ -303,6 +303,7 @@ function cursor(el, e) {
     }
 }
 
+// 滚轮缩放
 function div_zoom(el, zoom, dx, dy, wheel) {
     var w = photos[el.id][2];
     var h = photos[el.id][3];
@@ -329,6 +330,7 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     ipcRenderer.send("ding_p_s", el.id, p_s);
 }
 
+// 缩放文字实时更新,顶栏大小自适应
 function resize(el, zoom) {
     el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
     var w = el.offsetWidth;
@@ -386,6 +388,7 @@ document.querySelector("#dock").onclick = () => {
     }
 };
 
+// 刷新dock
 function dock_i() {
     document.querySelector("#dock > div").innerHTML = "";
     for (o in urls) {
