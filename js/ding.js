@@ -163,10 +163,11 @@ document.onmousemove = (e) => {
     }
 };
 document.onmouseup = (e) => {
+    if (window_div != null) store.set("ding_dock", [window_div.offsetLeft, window_div.offsetTop]);
     o_ps = [];
     changing = null;
     window_div = null;
-    div.style.transition = "";
+    div.style.transition = ""; // 用于dock动画
     ipcRenderer.send("ding_ignore", false);
 };
 
@@ -357,6 +358,11 @@ function resize(el, zoom) {
         el.querySelector("#tool_bar_c").style.zoom = "";
     }
 }
+
+dock_p = store.get("ding_dock") || [0, 0];
+document.querySelector("#dock").style.left = dock_p[0] + "px";
+document.querySelector("#dock").style.top = dock_p[1] + "px";
+ipcRenderer.send("ding_p_s", "dock", [dock_p[0], dock_p[1], 10, 50]);
 
 dock_show = false;
 dock_p_s = [];
