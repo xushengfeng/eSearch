@@ -26,6 +26,17 @@ if (app.isPackaged) {
     dev = true;
 }
 
+const isFirstInstance = app.requestSingleInstanceLock();
+
+if (!isFirstInstance) {
+    console.log("is second instance");
+    app.quit();
+} else {
+    app.on("second-instance", (event, commanLine, workingDirectory) => {
+        console.log("new app started", commanLine);
+    });
+}
+
 app.whenReady().then(() => {
     // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
