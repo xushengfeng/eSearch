@@ -1,5 +1,6 @@
 const Color = require("color");
 const { shell } = require("electron");
+const os = require("os");
 
 模糊 = store.get("模糊") || 10;
 if (模糊 != 0) {
@@ -267,9 +268,10 @@ document.querySelector(
     "#name"
 ).innerHTML = `<span>${package.name} ${package.version}</span></br>${package.description}`;
 document.querySelector("#info").innerHTML = `<div>项目主页: <a href="${package.homepage}">${package.homepage}</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">更新日志</a></div>
     <div>本软件遵循 <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a> 协议</div>
     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
-var version = ``;
+var version = `<div>本机系统: ${os.type()} ${os.release()}</div>`;
 var version_l = ["electron", "node", "chrome", "v8"];
 for (i in version_l) {
     version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
@@ -289,3 +291,13 @@ ipcRenderer.on("about", (event, arg) => {
         location.hash = "#about";
     }
 });
+
+show_v = false;
+document.querySelector("#about > img").onclick = () => {
+    show_v = !show_v;
+    if (show_v) {
+        document.querySelector("#version").style.opacity = "1";
+    } else {
+        document.querySelector("#version").style.opacity = "0";
+    }
+};

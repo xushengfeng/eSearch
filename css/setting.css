@@ -139,6 +139,9 @@ set-select {
 }
 #about > #version {
     color: var(--color2);
+    opacity: 0;
+    overflow: hidden;
+    transition: var(--transition);
 }
 #about > #info > div {
     text-align: center;
