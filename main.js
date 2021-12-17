@@ -37,6 +37,34 @@ if (!isFirstInstance) {
     });
 }
 
+// 自动判断选中搜索还是截图搜索
+function auto_open() {
+    var o_clipboard = clipboard.readText();
+    robot.keyTap("c", "control");
+    var t = clipboard.readText();
+    if (o_clipboard != t) {
+        open_clip_board();
+    } else {
+        full_screen();
+    }
+    clipboard.writeText(o_clipboard);
+}
+
+function open_selection() {
+    o_clipboard = clipboard.readText();
+    robot.keyTap("c", "control");
+    t = clipboard.readText();
+    if (o_clipboard != t) {
+        create_main_window([t]);
+    }
+    clipboard.writeText(o_clipboard);
+}
+
+function open_clip_board() {
+    t = clipboard.readText();
+    create_main_window([t]);
+}
+
 app.whenReady().then(() => {
     // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
@@ -101,34 +129,6 @@ app.whenReady().then(() => {
     ]);
     tray.setContextMenu(contextMenu);
 
-    // 自动判断选中搜索还是截图搜索
-    function auto_open() {
-        var o_clipboard = clipboard.readText();
-        robot.keyTap("c", "control");
-        var t = clipboard.readText();
-        if (o_clipboard != t) {
-            open_clip_board();
-        } else {
-            full_screen();
-        }
-        clipboard.writeText(o_clipboard);
-    }
-
-    function open_selection() {
-        o_clipboard = clipboard.readText();
-        robot.keyTap("c", "control");
-        t = clipboard.readText();
-        if (o_clipboard != t) {
-            create_main_window([t]);
-        }
-        clipboard.writeText(o_clipboard);
-    }
-
-    function open_clip_board() {
-        t = clipboard.readText();
-        create_main_window([t]);
-    }
-
     // 启动时提示
     new Notification({
         title: "eSearch",
@@ -164,9 +164,18 @@ app.whenReady().then(() => {
         globalShortcut.register(store.get("key_剪贴板搜索"), () => {
             open_clip_board();
         });
+});
 
-    // 截图窗口
-    const clip_window = new BrowserWindow({
+app.on("will-quit", () => {
+    // Unregister all shortcuts.
+    globalShortcut.unregisterAll();
+});
+
+
+// 截图窗口
+clip_window = null;
+function create_clip_window() {
+    clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
         x: 0,
         y: 0,
@@ -284,13 +293,15 @@ app.whenReady().then(() => {
                 break;
         }
     });
-
-    function full_screen() {
-        clip_window.webContents.send("reflash");
-        clip_window.show();
-        clip_window.setFullScreen(true);
+}
+function full_screen() {
+    if (clip_window == null) {
+        create_clip_window();
     }
-});
+    clip_window.webContents.send("reflash");
+    clip_window.show();
+    clip_window.setFullScreen(true);
+}
 
 function ocr(event, arg) {
     const request = net.request({
@@ -341,10 +352,6 @@ function ocr(event, arg) {
     request.end();
 }
 
-app.on("will-quit", () => {
-    // Unregister all shortcuts.
-    globalShortcut.unregisterAll();
-});
 
 // 菜单栏设置(截图没必要)
 const isMac = process.platform === "darwin";
