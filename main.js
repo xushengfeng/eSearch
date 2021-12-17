@@ -26,17 +26,6 @@ if (app.isPackaged) {
     dev = true;
 }
 
-const isFirstInstance = app.requestSingleInstanceLock();
-
-if (!isFirstInstance) {
-    console.log("is second instance");
-    app.quit();
-} else {
-    app.on("second-instance", (event, commanLine, workingDirectory) => {
-        console.log("new app started", commanLine);
-    });
-}
-
 // 自动判断选中搜索还是截图搜索
 function auto_open() {
     var o_clipboard = clipboard.readText();
@@ -66,6 +55,35 @@ function open_clip_board() {
 }
 
 app.whenReady().then(() => {
+    arg_run(process.argv);
+    function arg_run(c) {
+        switch (true) {
+            case c.includes("-a"):
+                auto_open();
+                break;
+            case c.includes("-c"):
+                full_screen();
+                break;
+            case c.includes("-s"):
+                open_selection();
+                break;
+            case c.includes("-b"):
+                open_clip_board();
+                break;
+        }
+    }
+
+    const isFirstInstance = app.requestSingleInstanceLock();
+    if (!isFirstInstance) {
+        console.log("is second instance");
+        app.quit();
+    } else {
+        app.on("second-instance", (event, commanLine, workingDirectory) => {
+            console.log("new app started", commanLine);
+            arg_run(commanLine);
+        });
+    }
+
     // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
     const contextMenu = Menu.buildFromTemplate([
@@ -170,7 +188,6 @@ app.on("will-quit", () => {
     // Unregister all shortcuts.
     globalShortcut.unregisterAll();
 });
-
 
 // 截图窗口
 clip_window = null;
@@ -351,7 +368,6 @@ function ocr(event, arg) {
     request.write(data);
     request.end();
 }
-
 
 // 菜单栏设置(截图没必要)
 const isMac = process.platform === "darwin";
