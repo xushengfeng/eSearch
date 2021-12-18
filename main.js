@@ -226,12 +226,12 @@ function create_clip_window() {
     ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", (event, opts) => desktopCapturer.getSources(opts));
 
     ipcMain.on("ocr", (event, arg) => {
-        other_ocr_path = store.get("OCR路径")||'';
+        other_ocr_path = store.get("OCR路径") || "";
         if (other_ocr_path == "") {
             ocr(event, arg);
         } else {
-            ohter_ocr = require(other_ocr_path);
-            ohter_ocr();
+            other_ocr = require(other_ocr_path);
+            other_ocr(event, arg, create_main_window);
         }
     });
 

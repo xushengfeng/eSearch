@@ -1,5 +1,5 @@
-const { net,dialog } = require("electron");
-module.exports = function (event, arg) {
+const { net, dialog } = require("electron");
+module.exports = function (event, arg, f) {
     // 定义了POST请求
     const request = net.request({
         method: "POST",
@@ -12,12 +12,15 @@ module.exports = function (event, arg) {
                 var t = chunk.toString();
                 var t = JSON.parse(t);
                 // 把返回的数据解析为JSON
+                f([r, text["language"]]);
             });
             response.on("end", () => {
                 // 成功
+                event.sender.send("ocr_back", "ok");
             });
         } else {
             // 识别失败，警告弹窗
+            event.sender.send("ocr_back", "else");
             dialog.showMessageBox({
                 title: "警告",
                 message: "识别失败\n请尝试重新识别",
@@ -26,7 +29,7 @@ module.exports = function (event, arg) {
         }
     });
     request.on("error", () => {
-        // 无法请求到数据，失败
+        event.sender.send("ocr_back", "else");
         dialog.showMessageBox({
             title: "警告",
             message: "识别失败\n找不到服务器",
@@ -35,7 +38,7 @@ module.exports = function (event, arg) {
     });
     // 要发送给OCR Api的数据
     data = JSON.stringify({
-        access_token: access_token,
+        access_token: "",
         image: arg,
         detect_direction: true,
         paragraph: true,
