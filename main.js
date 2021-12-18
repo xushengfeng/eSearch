@@ -54,8 +54,10 @@ function open_clip_board() {
     create_main_window([t]);
 }
 
+first_open = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
+    first_open = false;
     app.quit();
 } else {
     app.on("second-instance", (event, commanLine, workingDirectory) => {
@@ -144,11 +146,12 @@ app.whenReady().then(() => {
     tray.setContextMenu(contextMenu);
 
     // 启动时提示
-    new Notification({
-        title: "eSearch",
-        body: `eSearch已经在后台启动`,
-        icon: `${run_path}/assets/icons/64x64.png`,
-    }).show();
+    if (first_open)
+        new Notification({
+            title: "eSearch",
+            body: `eSearch已经在后台启动`,
+            icon: `${run_path}/assets/icons/64x64.png`,
+        }).show();
 
     // 初始化设置
     Store.initRenderer();
