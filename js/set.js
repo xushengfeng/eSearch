@@ -19,7 +19,6 @@ document.querySelector("#模糊").oninput = () => {
     } else {
         document.documentElement.style.setProperty("--blur", `none`);
     }
-    store.set("模糊", 模糊);
 };
 
 // 单选项目设置加载
@@ -46,9 +45,6 @@ if (document.title == "eSearch-设置") {
 }
 
 document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标") || false;
-document.querySelector("#显示四角坐标").oninput = () => {
-    store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
-};
 
 // 取色器设置
 document.querySelector("#取色器大小").value = store.get("取色器大小") || "15";
@@ -58,11 +54,9 @@ document.querySelector("#取色器大小").oninput = () => {
         document.querySelector("#取色器大小").value = document.querySelector("#取色器大小").value - 0 + 1;
     }
     show_color_picker();
-    store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
 };
 document.querySelector("#像素大小").oninput = () => {
     show_color_picker();
-    store.set("像素大小", document.querySelector("#像素大小").value - 0);
 };
 
 point_color_view = document.querySelector("#point_color_view");
@@ -109,13 +103,11 @@ document.querySelector("#遮罩颜色 > input").oninput = () => {
     document.querySelector("#遮罩颜色 > span").style.backgroundImage = `linear-gradient(${
         document.querySelector("#遮罩颜色 > input").value
     }, ${document.querySelector("#遮罩颜色 > input").value}), url('assets/tbg.svg')`;
-    store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
 };
 document.querySelector("#选区颜色 > input").oninput = () => {
     document.querySelector("#选区颜色 > span").style.backgroundImage = `linear-gradient(${
         document.querySelector("#选区颜色 > input").value
     }, ${document.querySelector("#选区颜色 > input").value}), url('assets/tbg.svg')`;
-    store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
 };
 
 字体 = store.get("字体") || { 主要字体: "", 等宽字体: "" };
@@ -124,26 +116,15 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 document.querySelector("#主要字体 > input").oninput = () => {
     字体.主要字体 = document.querySelector("#主要字体 > input").value;
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
-    store.set("字体", 字体);
 };
 document.querySelector("#等宽字体 > input").oninput = () => {
     字体.等宽字体 = document.querySelector("#等宽字体 > input").value;
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
-    store.set("字体", 字体);
 };
 
 document.querySelector("#自动搜索").checked = store.get("自动搜索") || false;
-document.querySelector("#自动搜索").onclick = () => {
-    store.set("自动搜索", document.querySelector("#自动搜索").checked);
-};
 document.querySelector("#自动打开链接").checked = store.get("自动打开链接") || false;
-document.querySelector("#自动打开链接").onclick = () => {
-    store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
-};
 document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比") || 0.5;
-document.querySelector("#自动搜索中文占比").oninput = () => {
-    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
-};
 
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎 != undefined) {
@@ -154,17 +135,16 @@ if (o_搜索引擎 != undefined) {
     document.querySelector("#搜索引擎").value = text;
 }
 
+搜索引擎list = [];
 document.querySelector("#搜索引擎").oninput = () => {
-    var list = [];
     var text = document.querySelector("#搜索引擎").value;
     var text_l = text.split("\n");
     for (i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
-        if (l[0] != "") list[i] = [l[0], l[1]];
+        if (l[0] != "") 搜索引擎list[i] = [l[0], l[1]];
     }
 
-    store.set("搜索引擎", list);
 };
 
 var o_翻译引擎 = store.get("翻译引擎");
@@ -176,23 +156,19 @@ if (o_翻译引擎 != undefined) {
     document.querySelector("#翻译引擎").value = text;
 }
 
+翻译引擎list = [];
 document.querySelector("#翻译引擎").oninput = () => {
-    var list = [];
     var text = document.querySelector("#翻译引擎").value;
     var text_l = text.split("\n");
     for (i in text_l) {
-        var r = /(\S+)\W*[,，]\W*(\S+)/g;
+        var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
-        if (l[0] != "") list[i] = [l[0], l[1]];
+        if (l[0] != "") 翻译引擎list[i] = [l[0], l[1]];
     }
 
-    store.set("翻译引擎", list);
 };
 
 document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开") || false;
-document.querySelector("#浏览器中打开").onclick = () => {
-    store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
-};
 
 document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
@@ -210,20 +186,30 @@ document.querySelector("#his_h").value = 历史记录设置.h;
 
 document.querySelector("#历史记录_b").oninput = () => {
     历史记录设置.保留历史记录 = document.querySelector("#历史记录_b").checked;
-    store.set("历史记录设置", 历史记录设置);
     document.querySelector("#清除历史记录").disabled = !document.querySelector("#历史记录_b").checked;
 };
 document.querySelector("#清除历史记录").oninput = () => {
     历史记录设置.自动清除历史记录 = document.querySelector("#清除历史记录").checked;
-    store.set("历史记录设置", 历史记录设置);
     document.querySelector("#his_d").disabled = !document.querySelector("#清除历史记录").checked;
     document.querySelector("#his_h").disabled = !document.querySelector("#清除历史记录").checked;
 };
-document.querySelector("#his_d").oninput = () => {
+
+window.onbeforeunload = () => {
+    var 模糊 = document.querySelector("#模糊").value;
+    store.set("模糊", 模糊);
+    store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
+    store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
+    store.set("像素大小", document.querySelector("#像素大小").value - 0);
+    store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
+    store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
+    store.set("字体", 字体);
+    store.set("自动搜索", document.querySelector("#自动搜索").checked);
+    store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
+    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
+    store.set("搜索引擎", 搜索引擎list);
+    store.set("翻译引擎", 翻译引擎list);
+    store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value;
-    store.set("历史记录设置", 历史记录设置);
-};
-document.querySelector("#his_h").oninput = () => {
     历史记录设置.h = document.querySelector("#his_h").value;
     store.set("历史记录设置", 历史记录设置);
 };
