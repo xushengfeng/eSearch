@@ -22,7 +22,12 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 确保你的电脑安装了python
 
+下载[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)并安装运行
+
 ```shell
+git clone https://github.com/xushengfeng/eSearch-OCR.git
+cd eSearch-OCR
+pip install -r requirements.txt
 python serve.py
 ```
 
@@ -68,7 +73,7 @@ npm run make
 - [x] OCR识别
   - [x] 本地OCR
   - [x] 百度OCR
-  - [ ] OCR插件
+  - [x] OCR插件
 - [ ] 以图搜图
 - [x] 托盘
 - [x] 系统选中搜索
