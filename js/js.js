@@ -152,6 +152,25 @@ function html2Escape(sHtml) {
         return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c];
     });
 }
+Date.prototype.format = function (fmt) {
+    let ret;
+    const opt = {
+        "Y+": this.getFullYear().toString(), // 年
+        "m+": (this.getMonth() + 1).toString(), // 月
+        "d+": this.getDate().toString(), // 日
+        "H+": this.getHours().toString(), // 时
+        "M+": this.getMinutes().toString(), // 分
+        "S+": this.getSeconds().toString(), // 秒
+        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+    };
+    for (let k in opt) {
+        ret = new RegExp("(" + k + ")").exec(fmt);
+        if (ret) {
+            fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0"));
+        }
+    }
+    return fmt;
+};
 function show_history() {
     if (history_showed) {
         document.querySelector("#history_b").className = "";
@@ -165,12 +184,16 @@ function show_history() {
         if (history_list.length != 0) {
             for (var i in history_list) {
                 history_text =
-                    `<div><div>${html2Escape(history_list[i].text)}</div><button></button></div>` + history_text;
+                    `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
+                        "mm-dd HH:MM"
+                    )}</span><button></button></div><div class="history_text">${html2Escape(
+                        history_list[i].text
+                    )}</div></div>` + history_text;
             }
             document.querySelector("#history_list").innerHTML = history_text;
         }
         // 打开某项历史
-        document.querySelectorAll("#history_list > div > div").forEach((e, index) => {
+        document.querySelectorAll("#history_list > div > .history_text").forEach((e, index) => {
             e.addEventListener("click", () => {
                 document.getElementById("text").innerText = history_list[index].text;
                 show_history();
@@ -178,11 +201,11 @@ function show_history() {
         });
         // 删除某项历史
         // TODO多选
-        document.querySelectorAll("#history_list > div > button").forEach((e, index) => {
+        document.querySelectorAll("#history_list > div > .history_title > button").forEach((e, index) => {
             e.addEventListener("click", () => {
                 delete history_list[index];
                 history_list = history_list.flat();
-                e.parentElement.remove();
+                e.parentElement.parentElement.remove();
                 if (history_list.length == 0) {
                     document.querySelector("#history_list").innerText = "暂无历史记录";
                 }
