@@ -20,7 +20,7 @@ const path = require("path");
 run_path = path.resolve(__dirname, "");
 
 // 自动开启开发者模式
-if (app.isPackaged) {
+if (app.isPackaged || process.argv.includes("-n")) {
     dev = false;
 } else {
     dev = true;
@@ -40,9 +40,9 @@ function auto_open() {
 }
 
 function open_selection() {
-    o_clipboard = clipboard.readText();
+    var o_clipboard = clipboard.readText();
     robot.keyTap("c", "control");
-    t = clipboard.readText();
+    var t = clipboard.readText();
     if (o_clipboard != t) {
         create_main_window([t]);
     }
@@ -50,7 +50,7 @@ function open_selection() {
 }
 
 function open_clip_board() {
-    t = clipboard.readText();
+    var t = clipboard.readText();
     create_main_window([t]);
 }
 
@@ -63,6 +63,7 @@ if (!isFirstInstance) {
     });
 }
 function arg_run(c) {
+    if (c.includes("-n")) dev = false;
     switch (true) {
         case c.includes("-a"):
             auto_open();
