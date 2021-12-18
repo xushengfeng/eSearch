@@ -9,6 +9,7 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 主要是想在Linux上(win,mac理论上能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的屏幕搜索功能
 
 ![1](readme/1.png)
+> 字体是[FiraCode](https://github.com/tonsky/FiraCode)，对角坐标默认不显示，对角坐标和字体均可在设置里设置
 
 ![1](readme/2.png)
 
@@ -47,7 +48,21 @@ npm run make
 
 在你的启动器打开eSearch,他将出现在托盘.Gnome用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件
 
-默认快捷键为<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>(你也可以在设置设置快捷键)
+默认快捷键为<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>(你也可以在设置里设置快捷键)
+
+### Linux下的快捷键
+
+大多数Linux桌面环境支持自定义快捷键，**eSearch**支持cli，这也意味着你可以进行系统级设置快捷键
+
+```shell
+eSearch 
+	-a 自动搜索
+	-c 截图搜索
+	-s 选中搜索
+	-b 剪贴板搜索
+```
+
+不建议在终端进行自动或选中搜索，否则**eSearch**会执行<kbd>Ctrl</kbd>+<kbd>C</kbd>，从而导致终止终端程序
 
 ## 功能
 
