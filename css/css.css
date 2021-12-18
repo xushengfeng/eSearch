@@ -57,7 +57,7 @@ body {
 }
 .history_title {
     height: 16px;
-    width: 100%;
+    padding: 4px;
     display: flex;
     justify-content: flex-end;
 }
@@ -65,13 +65,22 @@ body {
     height: 16px;
     width: 16px;
     padding: 0;
-    border-left: 2px solid var(--hover-color);
+    margin-left: 4px;
+    background-color: var(--hover-color);
+    background-image: url("../assets/i_close.svg");
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: var(--transition);
+    border-radius: 50%;
 }
 .history_title > button:hover {
     background-color: #f00;
+    background-image: url("../assets/i_close_w.svg");
 }
 .history_text {
     padding: 8px;
+    text-align: start;
 }
 .history_text:hover {
     background-color: var(--hover-color);
