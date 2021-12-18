@@ -9,3 +9,5 @@ document.querySelector("body").onscroll = () => {
         document.querySelector("body").className = "hidescrollbar";
     }, 1000);
 };
+
+document.querySelector("#locate_ocr_path").innerText = __dirname + "/ocr/ocr.js";
