@@ -54,36 +54,31 @@ function open_clip_board() {
     create_main_window([t]);
 }
 
+const isFirstInstance = app.requestSingleInstanceLock();
+if (!isFirstInstance) {
+    app.quit();
+} else {
+    app.on("second-instance", (event, commanLine, workingDirectory) => {
+        arg_run(commanLine);
+    });
+}
+function arg_run(c) {
+    switch (true) {
+        case c.includes("-a"):
+            auto_open();
+            break;
+        case c.includes("-c"):
+            full_screen();
+            break;
+        case c.includes("-s"):
+            open_selection();
+            break;
+        case c.includes("-b"):
+            open_clip_board();
+            break;
+    }
+}
 app.whenReady().then(() => {
-    arg_run(process.argv);
-    function arg_run(c) {
-        switch (true) {
-            case c.includes("-a"):
-                auto_open();
-                break;
-            case c.includes("-c"):
-                full_screen();
-                break;
-            case c.includes("-s"):
-                open_selection();
-                break;
-            case c.includes("-b"):
-                open_clip_board();
-                break;
-        }
-    }
-
-    const isFirstInstance = app.requestSingleInstanceLock();
-    if (!isFirstInstance) {
-        console.log("is second instance");
-        app.quit();
-    } else {
-        app.on("second-instance", (event, commanLine, workingDirectory) => {
-            console.log("new app started", commanLine);
-            arg_run(commanLine);
-        });
-    }
-
     // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
     const contextMenu = Menu.buildFromTemplate([
@@ -182,6 +177,7 @@ app.whenReady().then(() => {
         globalShortcut.register(store.get("key_剪贴板搜索"), () => {
             open_clip_board();
         });
+    create_clip_window();
 });
 
 app.on("will-quit", () => {
