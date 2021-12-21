@@ -1,6 +1,6 @@
 let fabric_canvas = new fabric.Canvas("draw_photo");
 
-stroke_color = "#fff";
+stroke_color = "#333";
 fill_color = "#fff";
 stroke_width = 1;
 
