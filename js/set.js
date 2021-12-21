@@ -127,7 +127,7 @@ document.querySelector("#自动打开链接").checked = store.get("自动打开�
 document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比") || 0.5;
 
 var o_搜索引擎 = store.get("搜索引擎");
-if (o_搜索引擎 != undefined) {
+if (typeof o_搜索引擎 != "undefined") {
     var text = "";
     for (i in o_搜索引擎) {
         text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
@@ -135,20 +135,19 @@ if (o_搜索引擎 != undefined) {
     document.querySelector("#搜索引擎").value = text;
 }
 
-搜索引擎list = [];
 document.querySelector("#搜索引擎").oninput = () => {
+    o_搜索引擎 = [];
     var text = document.querySelector("#搜索引擎").value;
     var text_l = text.split("\n");
     for (i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
-        if (l[0] != "") 搜索引擎list[i] = [l[0], l[1]];
+        if (l[0] != "") o_搜索引擎[i] = [l[0], l[1]];
     }
-
 };
 
 var o_翻译引擎 = store.get("翻译引擎");
-if (o_翻译引擎 != undefined) {
+if (typeof o_翻译引擎 != "undefined") {
     var text = "";
     for (i in o_翻译引擎) {
         text += `${o_翻译引擎[i][0]}, ${o_翻译引擎[i][1]}\n`;
@@ -156,16 +155,15 @@ if (o_翻译引擎 != undefined) {
     document.querySelector("#翻译引擎").value = text;
 }
 
-翻译引擎list = [];
 document.querySelector("#翻译引擎").oninput = () => {
+    o_翻译引擎 = [];
     var text = document.querySelector("#翻译引擎").value;
     var text_l = text.split("\n");
     for (i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
-        if (l[0] != "") 翻译引擎list[i] = [l[0], l[1]];
+        if (l[0] != "") o_翻译引擎[i] = [l[0], l[1]];
     }
-
 };
 
 document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开") || false;
@@ -206,8 +204,8 @@ window.onbeforeunload = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
     store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
-    store.set("搜索引擎", 搜索引擎list);
-    store.set("翻译引擎", 翻译引擎list);
+    store.set("搜索引擎", o_搜索引擎);
+    store.set("翻译引擎", o_翻译引擎);
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value;
     历史记录设置.h = document.querySelector("#his_h").value;
