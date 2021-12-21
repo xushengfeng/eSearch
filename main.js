@@ -54,6 +54,7 @@ function open_clip_board() {
     create_main_window([t]);
 }
 
+// cil参数重复启动;
 first_open = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
@@ -81,6 +82,7 @@ function arg_run(c) {
             break;
     }
 }
+
 app.whenReady().then(() => {
     // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
@@ -316,6 +318,9 @@ function create_clip_window() {
                 break;
         }
     });
+
+    // cil参数启动;
+    if (first_open) arg_run(process.argv);
 }
 function full_screen() {
     if (clip_window == null) {
