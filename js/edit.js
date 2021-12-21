@@ -322,6 +322,6 @@ function color_bar() {
 color_bar();
 
 document.querySelector("#draw_stroke_width > range-b").oninput = () => {
-    stroke_width = document.querySelector("#draw_stroke_width > range-b").value;
+    stroke_width = document.querySelector("#draw_stroke_width > range-b").value - 0;
     fabric_canvas.freeDrawingBrush.width = stroke_width;
 };
