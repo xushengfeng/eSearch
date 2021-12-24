@@ -87,7 +87,6 @@ body {
 }
 
 #edit_b {
-    display: none;
     position: absolute;
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
@@ -96,6 +95,15 @@ body {
     overflow: hidden;
     cursor: pointer;
     background-color: var(--bar-bg);
+    transition: var(--transition);
+}
+.edit_h {
+    opacity: 0;
+    pointer-events: none;
+}
+.edit_s {
+    opacity: 1;
+    pointer-events: auto;
 }
 #edit_b > div {
     float: left;
@@ -112,7 +120,8 @@ body {
 
 #link_bar {
     background-image: url("../assets/main_link.svg");
-    display: none;
+    width: 0;
+    transition: var(--transition);
 }
 #search_bar {
     background-image: url("../assets/main_search.svg");

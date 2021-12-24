@@ -242,13 +242,13 @@ window.onmouseup = (e) => {
 function show_edit_bar(e) {
     // 简易判断链接并显示按钮
     if (is_link(document.getSelection().toString(), false)) {
-        document.querySelector("#link_bar").style.display = "block";
+        document.querySelector("#link_bar").style.width = "30px";
     } else {
-        document.querySelector("#link_bar").style.display = "";
+        document.querySelector("#link_bar").style.width = "0";
     }
     // 排除没选中
     if (document.getSelection().toString() != "") {
-        document.querySelector("#edit_b").style.display = "block";
+        document.querySelector("#edit_b").className = "edit_s";
         var x = e.clientX < 0 ? 0 : e.clientX;
         if (document.querySelector("#edit_b").offsetWidth + e.clientX > window.innerWidth)
             x = window.innerWidth - document.querySelector("#edit_b").offsetWidth;
@@ -256,7 +256,7 @@ function show_edit_bar(e) {
         document.querySelector("#edit_b").style.left = `${x}px`;
         document.querySelector("#edit_b").style.top = `${y}px`;
     } else {
-        document.querySelector("#edit_b").style.display = "none";
+        document.querySelector("#edit_b").className = "edit_h";
     }
 }
 
