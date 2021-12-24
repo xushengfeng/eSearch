@@ -233,9 +233,10 @@ document.querySelector("#translate_s").oninput = () => {
 // 选中释放鼠标显示编辑面板
 window.onmouseup = (e) => {
     // 延时等待(选中取消)
-    setTimeout(() => {
-        show_edit_bar(e);
-    }, 10);
+    if (e.clientY <= document.getElementById("b_bar").offsetTop)
+        setTimeout(() => {
+            show_edit_bar(e);
+        }, 10);
 };
 
 function show_edit_bar(e) {
