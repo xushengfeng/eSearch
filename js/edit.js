@@ -172,7 +172,7 @@ function draw(shape, v, x1, y1, x2, y2) {
     switch (shape) {
         case "line":
             shapes[shapes.length] = new fabric.Line([x, y, x + w, y + h], {
-                stroke: fill_color,
+                stroke: stroke_color,
             });
             break;
         case "circle":
@@ -181,6 +181,8 @@ function draw(shape, v, x1, y1, x2, y2) {
                 left: x,
                 top: y,
                 fill: fill_color,
+                stroke: stroke_color,
+                strokeWidth: stroke_width,
             });
             break;
         case "rect":
@@ -190,6 +192,8 @@ function draw(shape, v, x1, y1, x2, y2) {
                 width: w,
                 height: h,
                 fill: fill_color,
+                stroke: stroke_color,
+                strokeWidth: stroke_width,
             });
             break;
         case "triangle":
@@ -199,6 +203,8 @@ function draw(shape, v, x1, y1, x2, y2) {
                 width: w,
                 height: h,
                 fill: fill_color,
+                stroke: stroke_color,
+                strokeWidth: stroke_width,
             });
             break;
         default:
