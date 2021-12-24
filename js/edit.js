@@ -149,80 +149,62 @@ fabric_canvas.on("mouse:down", (options) => {
         drawing_shape = true;
         draw_o_p = [options.e.offsetX, options.e.offsetY];
         draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
-        // fabric_canvas.selection = false;
+        fabric_canvas.selection = false;
     }
 });
 fabric_canvas.on("mouse:move", (options) => {
     if (drawing_shape) {
-        console.log(options.e.offsetX, options.e.offsetY);
         draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
     }
 });
 fabric_canvas.on("mouse:up", () => {
     drawing_shape = false;
-    // fabric_canvas.selection = true;
+    fabric_canvas.selection = true;
     shape = "";
 });
 
 function draw(shape, v, x1, y1, x2, y2) {
+    if (v == "move") {
+        fabric_canvas.remove(shapes[shapes.length - 1]);
+        shapes.splice(shapes.length - 1, 1);
+    }
     var [x, y, w, h] = p_xy_to_c_xy(draw_canvas, x1, y1, x2, y2);
-    if (v == "start") {
-        switch (shape) {
-            case "line":
-                shapes[shapes.length] = new fabric.Line({
-                    left: x,
-                    top: y,
-                    width: 1,
-                    height: 1,
-                    stroke: fill_color,
-                });
-                break;
-            case "circle":
-                shapes[shapes.length] = new fabric.Circle({
-                    radius: 1,
-                    left: x,
-                    top: y,
-                    fill: fill_color,
-                });
-                break;
-            case "rect":
-                shapes[shapes.length] = new fabric.Rect({
-                    left: x,
-                    top: y,
-                    width: 1,
-                    height: 1,
-                    fill: fill_color,
-                });
-                break;
-            case "triangle":
-                shapes[shapes.length] = new fabric.Triangle({
-                    left: x,
-                    top: y,
-                    width: 1,
-                    height: 1,
-                    fill: fill_color,
-                });
-                break;
-            default:
-                break;
-        }
-        fabric_canvas.add(shapes[shapes.length - 1]);
-    } else {
-        if (shape == "circle") {
-            shapes[shapes.length - 1].set({
-                radius: Math.min(w, h) / 2,
+    switch (shape) {
+        case "line":
+            shapes[shapes.length] = new fabric.Line([x, y, x + w, y + h], {
+                stroke: fill_color,
+            });
+            break;
+        case "circle":
+            shapes[shapes.length] = new fabric.Circle({
+                radius: Math.max(w, h) / 2,
                 left: x,
                 top: y,
+                fill: fill_color,
             });
-        } else {
-            shapes[shapes.length - 1].set({
+            break;
+        case "rect":
+            shapes[shapes.length] = new fabric.Rect({
                 left: x,
                 top: y,
                 width: w,
                 height: h,
+                fill: fill_color,
             });
-        }
+            break;
+        case "triangle":
+            shapes[shapes.length] = new fabric.Triangle({
+                left: x,
+                top: y,
+                width: w,
+                height: h,
+                fill: fill_color,
+            });
+            break;
+        default:
+            break;
     }
+    fabric_canvas.add(shapes[shapes.length - 1]);
 }
 
 // 颜色选择
