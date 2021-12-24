@@ -126,7 +126,7 @@ body {
     width: 60px;
 }
 #draw_main > div,
-#draw_items > div {
+.draw_items > div {
     background-position: center;
     background-size: 70%;
     background-repeat: no-repeat;
@@ -136,11 +136,11 @@ body {
     transition: var(--transition);
 }
 #draw_main > div:hover,
-#draw_items > div:hover {
+.draw_items > div:hover {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
-#draw_items {
+.draw_items {
     transition: var(--transition);
     overflow: scroll;
 }
