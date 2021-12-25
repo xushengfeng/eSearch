@@ -384,3 +384,10 @@ document.querySelector("#draw_edit_run").onclick = () => {
     eval(e);
     fabric_canvas.renderAll();
 };
+document.querySelector("#draw_edit input").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        var e = document.querySelector("#draw_edit input").value.replace("$0", "fabric_canvas.getActiveObject()");
+        eval(e);
+        fabric_canvas.renderAll();
+    }
+};
