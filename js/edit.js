@@ -121,6 +121,12 @@ document.querySelector("#draw_shapes_rect").onclick = () => {
 document.querySelector("#draw_shapes_triangle").onclick = () => {
     shape = "triangle";
 };
+document.querySelector("#draw_shapes_polyline").onclick = () => {
+    shape = "polyline";
+};
+document.querySelector("#draw_shapes_polygon").onclick = () => {
+    shape = "polygon";
+};
 document.querySelector("#draw_position_front").onclick = () => {
     fabric_canvas.getActiveObject().bringToFront();
 };
@@ -143,24 +149,40 @@ document.onkeydown = (e) => {
 drawing_shape = false;
 shapes = [];
 draw_o_p = [];
+poly_o_p = [];
 
 fabric_canvas.on("mouse:down", (options) => {
     if (shape != "") {
         drawing_shape = true;
-        draw_o_p = [options.e.offsetX, options.e.offsetY];
-        draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
         fabric_canvas.selection = false;
+        if (shape != "polyline" && shape != "polygon") {
+            draw_o_p = [options.e.offsetX, options.e.offsetY];
+            draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+        } else {
+            var poly_o_p_l = poly_o_p[poly_o_p.length - 1];
+            if (!(options.e.offsetX == poly_o_p_l?.x && options.e.offsetY == poly_o_p_l?.y)) {
+                poly_o_p.push({ x: options.e.offsetX, y: options.e.offsetY });
+                draw_poly(shape);
+            } else {
+                shape = "";
+                poly_o_p = [];
+            }
+        }
     }
 });
 fabric_canvas.on("mouse:move", (options) => {
     if (drawing_shape) {
-        draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+        if (shape != "polyline" && shape != "polygon") {
+            draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+        }
     }
 });
 fabric_canvas.on("mouse:up", () => {
-    drawing_shape = false;
-    fabric_canvas.selection = true;
-    shape = "";
+    if (shape != "polyline" && shape != "polygon") {
+        drawing_shape = false;
+        fabric_canvas.selection = true;
+        shape = "";
+    }
 });
 
 function draw(shape, v, x1, y1, x2, y2) {
@@ -209,6 +231,31 @@ function draw(shape, v, x1, y1, x2, y2) {
             break;
         default:
             break;
+    }
+    fabric_canvas.add(shapes[shapes.length - 1]);
+}
+function draw_poly(shape) {
+    if (poly_o_p.length != 1) {
+        fabric_canvas.remove(shapes[shapes.length - 1]);
+        shapes.splice(shapes.length - 1, 1);
+    }
+    if (shape == "polyline") {
+        shapes.push(
+            new fabric.Polyline(poly_o_p, {
+                fill: "#0000",
+                stroke: stroke_color,
+                strokeWidth: stroke_width,
+            })
+        );
+    }
+    if (shape == "polygon") {
+        shapes.push(
+            new fabric.Polygon(poly_o_p, {
+                fill: fill_color,
+                stroke: stroke_color,
+                strokeWidth: stroke_width,
+            })
+        );
     }
     fabric_canvas.add(shapes[shapes.length - 1]);
 }
