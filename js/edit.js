@@ -375,19 +375,27 @@ document.getElementById("draw_edit_b").onclick = () => {
     show_draw_edit = !show_draw_edit;
     if (show_draw_edit) {
         document.getElementById("draw_edit").classList.add("edit_s");
+        document.querySelector("#draw_edit input").focus();
     } else {
         document.getElementById("draw_edit").classList.remove("edit_s");
     }
 };
 document.querySelector("#draw_edit_run").onclick = () => {
-    var e = document.querySelector("#draw_edit input").value.replace("$0", "fabric_canvas.getActiveObject()");
-    eval(e);
-    fabric_canvas.renderAll();
+    fabric_api();
 };
 document.querySelector("#draw_edit input").onkeydown = (e) => {
     if (e.key == "Enter") {
-        var e = document.querySelector("#draw_edit input").value.replace("$0", "fabric_canvas.getActiveObject()");
-        eval(e);
-        fabric_canvas.renderAll();
+        fabric_api();
     }
 };
+
+function fabric_api() {
+    var e = document.querySelector("#draw_edit input").value;
+    if (e.includes("$0")) {
+        e = e.replace("$0", "fabric_canvas.getActiveObject()");
+    } else {
+        e = `fabric_canvas.getActiveObject().set({${e}})`;
+    }
+    eval(e);
+    fabric_canvas.renderAll();
+}
