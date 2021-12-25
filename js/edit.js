@@ -109,35 +109,43 @@ document.querySelector("#draw_free_spray").onclick = () => {
 };
 
 shape = "";
-document.querySelector("#draw_shapes_line").onclick = () => {
-    shape = "line";
+document.getElementById("draw_shapes_i").onclick = (e) => {
+    switch (e.target.id) {
+        case "draw_shapes_line":
+            shape = "line";
+            break;
+        case "draw_shapes_circle":
+            shape = "circle";
+            break;
+        case "draw_shapes_rect":
+            shape = "rect";
+            break;
+        case "draw_shapes_triangle":
+            shape = "triangle";
+            break;
+        case "draw_shapes_polyline":
+            shape = "polyline";
+            break;
+        case "draw_shapes_polygon":
+            shape = "polygon";
+            break;
+    }
 };
-document.querySelector("#draw_shapes_circle").onclick = () => {
-    shape = "circle";
-};
-document.querySelector("#draw_shapes_rect").onclick = () => {
-    shape = "rect";
-};
-document.querySelector("#draw_shapes_triangle").onclick = () => {
-    shape = "triangle";
-};
-document.querySelector("#draw_shapes_polyline").onclick = () => {
-    shape = "polyline";
-};
-document.querySelector("#draw_shapes_polygon").onclick = () => {
-    shape = "polygon";
-};
-document.querySelector("#draw_position_front").onclick = () => {
-    fabric_canvas.getActiveObject().bringToFront();
-};
-document.querySelector("#draw_position_forwards").onclick = () => {
-    fabric_canvas.getActiveObject().bringForward();
-};
-document.querySelector("#draw_position_backwards").onclick = () => {
-    fabric_canvas.getActiveObject().sendBackwards();
-};
-document.querySelector("#draw_position_back").onclick = () => {
-    fabric_canvas.getActiveObject().sendToBack();
+document.getElementById("draw_position_i").onclick = (e) => {
+    switch (e.target.id) {
+        case "draw_position_front":
+            fabric_canvas.getActiveObject().bringToFront();
+            break;
+        case "draw_position_forwards":
+            fabric_canvas.getActiveObject().bringForward();
+            break;
+        case "draw_position_backwards":
+            fabric_canvas.getActiveObject().sendBackwards();
+            break;
+        case "draw_position_back":
+            fabric_canvas.getActiveObject().sendToBack();
+            break;
+    }
 };
 
 document.onkeydown = (e) => {
