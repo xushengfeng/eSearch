@@ -26,8 +26,8 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
                 h += e.offsetHeight;
             });
-            if (h > 420) {
-                h = 420;
+            if (h > 360) {
+                h = 360;
             }
             document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
         }
@@ -119,9 +119,6 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
             break;
         case "draw_shapes_rect":
             shape = "rect";
-            break;
-        case "draw_shapes_triangle":
-            shape = "triangle";
             break;
         case "draw_shapes_polyline":
             shape = "polyline";
@@ -217,17 +214,6 @@ function draw(shape, v, x1, y1, x2, y2) {
             break;
         case "rect":
             shapes[shapes.length] = new fabric.Rect({
-                left: x,
-                top: y,
-                width: w,
-                height: h,
-                fill: fill_color,
-                stroke: stroke_color,
-                strokeWidth: stroke_width,
-            });
-            break;
-        case "triangle":
-            shapes[shapes.length] = new fabric.Triangle({
                 left: x,
                 top: y,
                 width: w,
