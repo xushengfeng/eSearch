@@ -1385,7 +1385,7 @@
     "semver" "^7.1.3"
     "yargs-parser" "^20.0.0"
 
-"electron-rebuild@^3.2.2", "electron-rebuild@^3.2.3":
+"electron-rebuild@^3.2.2", "electron-rebuild@^3.2.5":
   "integrity" "sha512-U9dKi10V9w/BdIVB8a8dTKYLK3Q1d2WZ+Yo5qfM3XX/O4jI7KpnwgvWgGoVv0jTWPC2NlebF00ffWS/8NfUAtA=="
   "resolved" "https://registry.npmmirror.com/electron-rebuild/download/electron-rebuild-3.2.5.tgz?cache=0&sync_timestamp=1636602524255&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Felectron-rebuild%2Fdownload%2Felectron-rebuild-3.2.5.tgz"
   "version" "3.2.5"
