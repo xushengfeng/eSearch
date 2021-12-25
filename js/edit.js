@@ -126,6 +126,9 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
         case "draw_shapes_polygon":
             shape = "polygon";
             break;
+        case "draw_shapes_text":
+            shape = "text";
+            break;
     }
 };
 document.getElementById("draw_position_i").onclick = (e) => {
@@ -223,6 +226,13 @@ function draw(shape, v, x1, y1, x2, y2) {
                 strokeWidth: stroke_width,
             });
             break;
+        case "text":
+            shapes.push(
+                new fabric.IText("点击输入文字", {
+                    left: x,
+                    top: y,
+                })
+            );
         default:
             break;
     }
