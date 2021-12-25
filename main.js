@@ -196,10 +196,6 @@ clip_window = null;
 function create_clip_window() {
     clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
-        x: 0,
-        y: 0,
-        width: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
-        height: screen.getPrimaryDisplay().workAreaSize.width * screen.getPrimaryDisplay().scaleFactor,
         show: false,
         alwaysOnTop: true,
         fullscreenable: true,
@@ -208,7 +204,6 @@ function create_clip_window() {
         skipTaskbar: true,
         autoHideMenuBar: true,
         movable: false,
-        resizable: false,
         enableLargerThanScreen: true, // mac
         hasShadow: false,
         webPreferences: {

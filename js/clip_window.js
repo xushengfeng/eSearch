@@ -110,7 +110,7 @@ hotkeys("ctrl+c, command+c", tool_copy_f);
 
 // 关闭
 function tool_close_f() {
-    ipcRenderer.send("window-close");
+    document.querySelector("html").style.display = "none";
     document.getElementById("waiting").style.display = "none";
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
@@ -118,8 +118,10 @@ function tool_close_f() {
     // 取消打开程序框
     opening = true;
     tool_open_f();
-
-    // document.querySelector("body").style.display = "none";
+    setTimeout(() => {
+        ipcRenderer.send("window-close");
+        document.querySelector("html").style.display = "";
+    }, 50);
 }
 // OCR
 function tool_ocr_f() {
