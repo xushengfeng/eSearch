@@ -369,3 +369,18 @@ document.querySelector("#draw_stroke_width > range-b").oninput = () => {
         fabric_canvas.freeDrawingBrush.width = stroke_width;
     }
 };
+
+show_draw_edit = false;
+document.getElementById("draw_edit_b").onclick = () => {
+    show_draw_edit = !show_draw_edit;
+    if (show_draw_edit) {
+        document.getElementById("draw_edit").classList.add("edit_s");
+    } else {
+        document.getElementById("draw_edit").classList.remove("edit_s");
+    }
+};
+document.querySelector("#draw_edit_run").onclick = () => {
+    var e = document.querySelector("#draw_edit input").value.replace("$0", "fabric_canvas.getActiveObject()");
+    eval(e);
+    fabric_canvas.renderAll();
+};

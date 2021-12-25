@@ -36,3 +36,10 @@
     height: 12px;
     float: left;
 }
+
+.edit_s{
+    width: 280px;
+}
+#draw_edit_run{
+    background-image: url("../assets/open_file.svg");
+}

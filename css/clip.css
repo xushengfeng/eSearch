@@ -260,7 +260,7 @@ video {
     z-index: 11;
 }
 
-#app_path {
+.input_bar {
     background-color: var(--bar-bg);
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
@@ -274,19 +274,19 @@ video {
     overflow: hidden;
     width: 0;
 }
-#app_path > div {
+.input_bar > div {
     display: flex;
 }
-#app_path > div > input {
+.input_bar > div > input {
     outline: none;
     border: none;
     margin: 8px;
     height: 20px;
     padding: 0;
     background-color: #0000;
-    width: 200px;
+    flex-grow: 1;
 }
-#app_path > div > button {
+.input_bar > div > button {
     outline: none;
     background-color: var(--bg);
     border: none;

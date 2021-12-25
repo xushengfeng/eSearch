@@ -73,7 +73,7 @@
                 <div id="draw_stroke_width">
                     <range-b text="px" min=0 max=20 value="1"></range-b>
                 </div>
-                <div id="draw_edit"></div>
+                <div id="draw_edit_b"></div>
             </div>
             <!-- draw_position -->
             <div class="draw_items" id="draw_position_i">
@@ -116,10 +116,17 @@
         </line>
     </svg>
 
-    <div id="app_path">
+    <div id="app_path" class="input_bar">
         <div>
             <input type="text" name="" id="" spellcheck="false" placeholder="输入程序名字或路径，或留空默认"><button
                 id="open_file"></button><button id="open"></button>
+        </div>
+    </div>
+
+    <div id="draw_edit" class="input_bar">
+        <div>
+            <input type="text" name="" id="" spellcheck="false">
+            <button id="draw_edit_run"></button>
         </div>
     </div>
 
