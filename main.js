@@ -319,6 +319,9 @@ function create_clip_window() {
         }
     });
 
+    var x = robot.screen.capture();
+    clip_window.webContents.send("reflash", x.image, x.width, x.height);
+
     // cil参数启动;
     if (first_open) arg_run(process.argv);
 }
@@ -326,11 +329,11 @@ function full_screen() {
     if (clip_window == null) {
         create_clip_window();
     }
-    clip_window.webContents.send("reflash");
+    var x = robot.screen.capture();
+    clip_window.webContents.send("reflash", x.image, x.width, x.height);
     clip_window.show();
     clip_window.setFullScreen(true);
 }
-
 function ocr(event, arg) {
     const request = net.request({
         method: "POST",
