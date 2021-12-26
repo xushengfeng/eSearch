@@ -84,7 +84,7 @@ function minimize(el) {
     setTimeout(() => {
         div.style.transition = "";
     }, 400);
-    el.style.opacity = 0;
+    el.classList.add("minimize");
     ipcRenderer.send("ding_p_s", el.id, [0, 0, 0, 0]);
 }
 function back(el) {
@@ -409,7 +409,7 @@ function dock_i() {
                     setTimeout(() => {
                         div.style.transition = "";
                     }, 400);
-                    div.style.opacity = 1;
+                    div.classList.remove("minimize");
                     ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
                     div.style.zIndex = toppest + 1;
                     toppest += 1;

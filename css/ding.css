@@ -130,6 +130,11 @@ input[type="range"]::-webkit-slider-thumb {
     background-image: url("../assets/ding_close.svg");
 }
 
+.minimize{
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 #dock {
     position: fixed;
     height: 50px;

@@ -535,7 +535,7 @@ function create_ding_window(x, y, w, h, img) {
     // 关闭窗口
     ipcMain.on("ding_close", (event, wid) => {
         delete ding_windows_l[wid];
-        if (Object.keys(ding_windows_l).length == 0) {
+        if (Object.keys(ding_windows_l).length == 1) {
             ding_window.close();
         }
     });
