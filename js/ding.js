@@ -163,7 +163,8 @@ document.onmousemove = (e) => {
     }
 };
 document.onmouseup = (e) => {
-    if (window_div != null) store.set("ding_dock", [window_div.offsetLeft, window_div.offsetTop]);
+    if (window_div != null)
+        store.set("ding_dock", [document.getElementById("dock").offsetLeft, document.getElementById("dock").offsetTop]);
     o_ps = [];
     changing = null;
     window_div = null;
