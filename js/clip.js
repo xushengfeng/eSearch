@@ -114,12 +114,13 @@ clip_canvas.onmouseup = (e) => {
         final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         draw_clip_rect();
         // 抬起鼠标后工具栏跟随
-        follow_bar(o_position[0], o_position[1], e.screenX, e.screenY);
+        follow_bar(e.screenX, e.screenY);
     }
     if (moving) {
         move_rect(o_final_rect, oe, e);
         moving = false;
         o_final_rect = "";
+        follow_bar(e.screenX, e.screenY);
     }
 };
 
@@ -406,53 +407,56 @@ document.onmousemove = (e) => {
 };
 
 // 工具栏跟随
-function follow_bar(sx, sy, x, y) {
-    if (x - sx >= 0) {
+function follow_bar(x, y) {
+    [x1, y1] = final_rect;
+    x2 = x1 + final_rect[2];
+    y2 = y1 + final_rect[3];
+    if ((x1 + x2) / 2 <= x) {
         // 向右
-        if (x + tool_bar.offsetWidth + 10 <= window.screen.width) {
-            tool_bar.style.left = x + 10 + "px"; // 贴右边
+        if (x2 + tool_bar.offsetWidth + 10 <= window.screen.width) {
+            tool_bar.style.left = x2 + 10 + "px"; // 贴右边
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴左边
-                if (sx - tool_bar.offsetWidth - 10 >= 0) {
-                    tool_bar.style.left = sx - tool_bar.offsetWidth - 10 + "px";
+                if (x1 - tool_bar.offsetWidth - 10 >= 0) {
+                    tool_bar.style.left = x1 - tool_bar.offsetWidth - 10 + "px";
                 } else {
                     // 还超贴右内
-                    tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px";
+                    tool_bar.style.left = x2 - tool_bar.offsetWidth - 10 + "px";
                 }
             } else {
                 // 直接贴右边,即使遮挡
-                tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px";
+                tool_bar.style.left = x2 - tool_bar.offsetWidth - 10 + "px";
             }
         }
     } else {
         // 向左
-        if (x - tool_bar.offsetWidth - 10 >= 0) {
-            tool_bar.style.left = x - tool_bar.offsetWidth - 10 + "px"; // 贴左边
+        if (x1 - tool_bar.offsetWidth - 10 >= 0) {
+            tool_bar.style.left = x1 - tool_bar.offsetWidth - 10 + "px"; // 贴左边
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴右边
-                if (sx + tool_bar.offsetWidth + 10 <= window.screen.width) {
-                    tool_bar.style.left = sx + 10 + "px";
+                if (x2 + tool_bar.offsetWidth + 10 <= window.screen.width) {
+                    tool_bar.style.left = x2 + 10 + "px";
                 } else {
                     // 还超贴左内
-                    tool_bar.style.left = x + 10 + "px";
+                    tool_bar.style.left = x1 + 10 + "px";
                 }
             } else {
-                tool_bar.style.left = x + 10 + "px";
+                tool_bar.style.left = x1 + 10 + "px";
             }
         }
     }
 
-    if (y - sy >= 0) {
-        if (y - tool_bar.offsetHeight >= 0) {
-            tool_bar.style.top = y - tool_bar.offsetHeight + "px";
+    if (y >= (y1 + y2) / 2) {
+        if (y2 - tool_bar.offsetHeight >= 0) {
+            tool_bar.style.top = y2 - tool_bar.offsetHeight + "px";
         } else {
-            tool_bar.style.top = sy + "px";
+            tool_bar.style.top = y1 + "px";
         }
     } else {
-        if (y + tool_bar.offsetHeight <= window.screen.height) {
-            tool_bar.style.top = y + "px";
+        if (y1 + tool_bar.offsetHeight <= window.screen.height) {
+            tool_bar.style.top = y1 + "px";
         } else {
             tool_bar.style.top = window.screen.height - tool_bar.offsetHeight + "px";
         }
