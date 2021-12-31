@@ -131,19 +131,36 @@ set-select {
 #about a {
     color: var(--color);
 }
-#about > #name {
-    text-align: center;
+#about_main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-#about > #name > span {
+#about_main > * {
+    text-align: center;
+    margin: 4px;
+}
+#name {
+    text-align: center;
+    font-size: 3rem;
+}
+#version {
+    border: var(--border);
+    border-radius: var(--border-radius);
+    background-color: #0000;
+    transition: var(--transition);
     font-size: 2rem;
 }
-#about > #version {
+#version:hover {
+    background-color: var(--hover-color);
+}
+#versions {
     color: var(--color2);
     opacity: 0;
     overflow: hidden;
     transition: var(--transition);
 }
-#about > #info > div {
+#info > div {
     text-align: center;
 }
 #about > div {

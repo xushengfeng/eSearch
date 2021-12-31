@@ -1,5 +1,5 @@
 const Color = require("color");
-const { shell} = require("electron");
+const { shell } = require("electron");
 const os = require("os");
 
 document.getElementById("autostart").oninput = () => {
@@ -229,21 +229,55 @@ document.querySelector("body").onscroll = () => {
 };
 
 var package = require("./package.json");
-document.querySelector(
-    "#name"
-).innerHTML = `<span>${package.name} ${package.version}</span></br>${package.description}`;
+document.getElementById("name").innerHTML = package.name;
+document.querySelector("#version").innerHTML = package.version;
+document.getElementById("description").innerHTML = package.description;
+document.getElementById("version").onclick = () => {
+    var requestOptions = {
+        method: "GET",
+        redirect: "follow",
+    };
+
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases/latest", requestOptions)
+        .then((response) => response.text())
+        .then((result) => {
+            result = JSON.parse(result);
+            console.log(result);
+            if (version_new(result.name, package.version) && !result.draft) {
+                document.getElementById(
+                    "update_info"
+                ).innerHTML = `有新版本: <a href="${result.html_url}">${result.name}</a>`;
+            } else {
+                document.getElementById("update_info").innerHTML = "暂无更新";
+                setTimeout(() => {
+                    document.getElementById("update_info").innerHTML = "";
+                }, 3000);
+            }
+        })
+        .catch((error) => console.log("error", error));
+};
+function version_new(v1, v2) {
+    v1 = v1.split(".");
+    v2 = v2.split(".");
+    if (v1[0] >= v2[0] && v1[1] >= v2[1] && v1[2] > v2[2]) {
+        return true;
+    } else {
+        return false;
+    }
+}
 document.querySelector("#info").innerHTML = `<div>项目主页: <a href="${package.homepage}">${package.homepage}</a></div>
     <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">更新日志</a></div>
     <div>本软件遵循 <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a> 协议</div>
     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
+
 var version = `<div>本机系统: ${os.type()} ${os.release()}</div>`;
 var version_l = ["electron", "node", "chrome", "v8"];
 for (i in version_l) {
     version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
 }
-document.querySelector("#version").innerHTML = version;
+document.querySelector("#versions").innerHTML = version;
 
-document.querySelector("#info").onclick = (e) => {
+document.querySelector("#about").onclick = (e) => {
     console.log(e.target);
     if (e.target.tagName == "A") {
         e.preventDefault();
@@ -261,8 +295,8 @@ show_v = false;
 document.querySelector("#about > img").onclick = () => {
     show_v = !show_v;
     if (show_v) {
-        document.querySelector("#version").style.opacity = "1";
+        document.querySelector("#versions").style.opacity = "1";
     } else {
-        document.querySelector("#version").style.opacity = "0";
+        document.querySelector("#versions").style.opacity = "0";
     }
 };
