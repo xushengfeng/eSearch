@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=eSearch
+Comment=截图+OCR+搜索+贴图
+GenericName=eSearch
+Exec=esearch %U
+Icon=esearch
+Type=Application
+StartupNotify=true
+Categories=Graphics;System;Utility;
+

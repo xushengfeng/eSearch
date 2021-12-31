@@ -1,6 +1,10 @@
 const Color = require("color");
-const { shell } = require("electron");
+const { shell} = require("electron");
 const os = require("os");
+
+document.getElementById("autostart").oninput = () => {
+    ipcRenderer.send("autostart", document.getElementById("autostart").checked);
+};
 
 模糊 = store.get("模糊") || 10;
 if (模糊 != 0) {

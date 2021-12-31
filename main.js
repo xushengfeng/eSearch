@@ -18,6 +18,7 @@ const Store = require("electron-store");
 var screen = require("electron").screen;
 const path = require("path");
 run_path = path.resolve(__dirname, "");
+const { exec } = require("child_process");
 
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -25,6 +26,19 @@ if (app.isPackaged || process.argv.includes("-n")) {
 } else {
     dev = true;
 }
+
+ipcMain.on("autostart", (event, v) => {
+    if (process.platform == "linux") {
+        if (v) {
+            exec("mkdir ~/.config/autostart");
+            exec(`cp ${run_path}/assets/esearch.desktop ~/.config/autostart/`);
+        } else {
+            exec("rm ~/.config/autostart/esearch.desktop");
+        }
+    } else {
+        app.setLoginItemSettings(v);
+    }
+});
 
 // 自动判断选中搜索还是截图搜索
 function auto_open() {
