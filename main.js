@@ -277,11 +277,12 @@ function create_clip_window() {
         save_name_time = `${save_time.getFullYear()}-${
             save_time.getMonth() + 1
         }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
+        saved_path = store.get("保存路径") || "";
         dialog
             .showSaveDialog({
                 title: "选择要保存的位置",
-                defaultPath: `Screenshot-${save_name_time}.png`,
-                filters: [{ name: "Images", extensions: ["png"] }],
+                defaultPath: `${saved_path}Screenshot-${save_name_time}.png`,
+                filters: [{ name: "图像", extensions: ["png", "jpg"] }],
             })
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
@@ -295,6 +296,9 @@ function create_clip_window() {
                         shell.showItemInFolder(x.filePath);
                     });
                     notification.show();
+                    save_path = x.filePath.split("/");
+                    save_path.pop();
+                    store.set("保存路径", save_path.join("/") + "/");
                 } else {
                     new Notification({
                         title: "eSearch保存图像失败",
