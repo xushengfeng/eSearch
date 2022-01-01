@@ -385,12 +385,8 @@ function ocr(event, arg) {
             icon: `${run_path}/assets/icons/warning.png`,
         });
     });
-    access_token = store.get("ocr_access_token") || "";
     data = JSON.stringify({
-        access_token: access_token,
         image: arg,
-        detect_direction: true,
-        paragraph: true,
     });
     request.write(data);
     request.end();
