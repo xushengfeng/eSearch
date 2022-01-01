@@ -68,6 +68,8 @@ function show_t(t, language) {
             }
         }
     }
+    document.getElementById("text").focus();
+    ipcRenderer.send("edit", "selectAll");
 }
 
 搜索引擎_list = store.get("搜索引擎") || [
@@ -272,6 +274,9 @@ document.querySelector("#edit_b").onmousedown = (e) => {
             break;
         case "translate_bar":
             open_link("translate");
+            break;
+        case "selectAll_bar":
+            ipcRenderer.send("edit", "selectAll");
             break;
         case "cut_bar":
             ipcRenderer.send("edit", "cut");

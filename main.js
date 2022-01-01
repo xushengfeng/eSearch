@@ -610,6 +610,9 @@ function create_main_window(t, web_page) {
 
     ipcMain.on("edit", (event, v) => {
         switch (v) {
+            case "selectAll":
+                main_window.webContents.selectAll();
+                break;
             case "cut":
                 main_window.webContents.cut();
                 break;

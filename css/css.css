@@ -129,6 +129,9 @@ body {
 #translate_bar {
     background-image: url("../assets/main_translate.svg");
 }
+#selectAll_bar{
+    background-image: url('../assets/main_selectAll.svg');
+}
 #cut_bar {
     background-image: url("../assets/main_cut.svg");
 }

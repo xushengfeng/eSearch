@@ -91,7 +91,7 @@ clip_canvas.onmousedown = (e) => {
         moving = true;
         move_rect(o_final_rect, oe, oe);
     }
-        tool_bar.style.pointerEvents = "none";
+    tool_bar.style.pointerEvents = "none";
 };
 
 clip_canvas.onmousemove = (e) => {
@@ -123,7 +123,7 @@ clip_canvas.onmouseup = (e) => {
         o_final_rect = "";
         follow_bar(e.screenX, e.screenY);
     }
-        tool_bar.style.pointerEvents = "auto";
+    tool_bar.style.pointerEvents = "auto";
 };
 
 // 画框(遮罩)
