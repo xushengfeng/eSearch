@@ -182,6 +182,10 @@ document.querySelector("#main").onclick = () => {
 };
 
 document.querySelector("#OCR路径").value = store.get("OCR路径") || "";
+document.getElementById("本地OCR下载").onclick = (e) => {
+    e.preventDefault();
+    shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
+};
 
 历史记录设置 = store.get("历史记录设置") || { 保留历史记录: true, 自动清除历史记录: false, d: 0, h: 0 };
 
