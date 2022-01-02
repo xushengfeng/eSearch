@@ -48,7 +48,6 @@ final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
 
 set_setting();
 ipcRenderer.on("reflash", (a, x, w, h) => {
-    fabric_canvas.clear();
     main_canvas.width = clip_canvas.width = draw_canvas.width = w;
     main_canvas.height = clip_canvas.height = draw_canvas.height = h;
     for (let i = 0; i < x.length; i += 4) {
@@ -57,7 +56,7 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    // 刷新设置
+    fabric_canvas.clear();
 });
 
 function draw_windows_bar(o) {
