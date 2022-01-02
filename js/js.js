@@ -1,8 +1,11 @@
 const { ipcRenderer, shell } = require("electron");
 
+window_name = "";
 t = "";
 type = "";
-ipcRenderer.on("text", (event, list) => {
+ipcRenderer.on("text", (event, name, list) => {
+    window_name = name;
+
     t = list[0];
     language = list[1];
     show_t(t, language);
@@ -69,7 +72,7 @@ function show_t(t, language) {
         }
     }
     document.getElementById("text").focus();
-    ipcRenderer.send("edit", "selectAll");
+    ipcRenderer.send("edit", window_name, "selectAll");
 }
 
 搜索引擎_list = store.get("搜索引擎") || [
@@ -276,16 +279,16 @@ document.querySelector("#edit_b").onmousedown = (e) => {
             open_link("translate");
             break;
         case "selectAll_bar":
-            ipcRenderer.send("edit", "selectAll");
+            ipcRenderer.send("edit", window_name, "selectAll");
             break;
         case "cut_bar":
-            ipcRenderer.send("edit", "cut");
+            ipcRenderer.send("edit", window_name, "cut");
             break;
         case "copy_bar":
-            ipcRenderer.send("edit", "copy");
+            ipcRenderer.send("edit", window_name, "copy");
             break;
         case "paste_bar":
-            ipcRenderer.send("edit", "paste");
+            ipcRenderer.send("edit", window_name, "paste");
             break;
     }
 };

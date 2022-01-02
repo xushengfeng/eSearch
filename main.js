@@ -581,8 +581,10 @@ function create_ding_window(x, y, w, h, img) {
 }
 
 // 主窗口
+main_window_l = {};
 function create_main_window(t, web_page) {
-    const main_window = new BrowserWindow({
+    var window_name = new Date().getTime();
+    main_window_l[window_name] = new BrowserWindow({
         x: screen.getCursorScreenPoint().x - 800,
         y: screen.getCursorScreenPoint().y - 600,
         width: 800,
@@ -598,29 +600,33 @@ function create_main_window(t, web_page) {
 
     // 自定义界面
     if (web_page == undefined) {
-        main_window.loadFile("index.html");
+        main_window_l[window_name].loadFile("index.html");
     } else {
-        main_window.loadFile(web_page);
+        main_window_l[window_name].loadFile(web_page);
     }
 
-    if (dev) main_window.webContents.openDevTools();
-    main_window.webContents.on("did-finish-load", () => {
-        main_window.webContents.send("text", [t[0], t[1] || "auto"]);
+    if (dev) main_window_l[window_name].webContents.openDevTools();
+    main_window_l[window_name].webContents.on("did-finish-load", () => {
+        main_window_l[window_name].webContents.send("text", window_name, [t[0], t[1] || "auto"]);
     });
 
-    ipcMain.on("edit", (event, v) => {
+    main_window_l[window_name].on("closed", () => {
+        delete main_window_l[window_name];
+    });
+
+    ipcMain.on("edit", (event, name, v) => {
         switch (v) {
             case "selectAll":
-                main_window.webContents.selectAll();
+                main_window_l[name].webContents.selectAll();
                 break;
             case "cut":
-                main_window.webContents.cut();
+                main_window_l[name].webContents.cut();
                 break;
             case "copy":
-                main_window.webContents.copy();
+                main_window_l[name].webContents.copy();
                 break;
             case "paste":
-                main_window.webContents.paste();
+                main_window_l[name].webContents.paste();
                 break;
         }
     });
