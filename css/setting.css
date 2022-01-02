@@ -40,7 +40,6 @@ input {
 input[type="text"] {
     border: none;
     border-bottom: var(--border);
-    font-size: 18px;
 }
 input[type="text"]:disabled {
     opacity: 0.2;
@@ -54,6 +53,10 @@ input[type="number"] {
 textarea:focus,
 input:focus {
     outline: none;
+}
+
+a {
+    color: var(--color);
 }
 
 .blur {
