@@ -28,7 +28,7 @@
         <p>此时默认框选全屏</p>
         <p>按下鼠标并拖动，画出框即可框选你想要的区域</p>
         <p>鼠标旁边有一个“工具栏”，你可以点击按钮进行</p>
-        <img src="./assets/tool_OCR.svg" class="line_img">
+        <img src="./assets/tool_ocr.svg" class="line_img">
         <a href="#文字识别">文字识别</a>、
         <img src="./assets/tool_QR.svg" class="line_img">
         扫描二维码、
@@ -93,8 +93,8 @@
         <p>在设置中填入 <span id="locate_ocr_path"></span> 并用打开</p>
         <p>这是一个用js语言编写的模板文件，可以调用本程序携带的Electron Api和Nodejs Api，这里主要用到<a
                 href="https://www.electronjs.org/zh/docs/latest/api/net#netrequestoptions">Electron.Net</a>。你也可以填入你自己改写的文件来使用你自己的OCR api接口</p>
-        <p>除了空模板，软件还提供百度OCR的示例，你可以申请百度OCR的接口，并把上述路径的“OCR.js”改为“baidu.OCR”，并把“baidu.OCR”中的“[调用鉴权接口获取的token]”改为你自己的token
-        </p>
+        <p>除了空模板，软件还提供百度OCR的示例，你可以申请百度OCR的接口，并把上述路径的“ocr.js”改为“baidu.js”，并把“baidu.js”中的“[调用鉴权接口获取的token]”改为你自己的token</p>
+        <p>百度OCR token可以在https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=【百度云应用的AK】&client_secret=【百度云应用的SK】获取，再此之前，你需要在https://console.bce.baidu.com/ai 中创建应用并购买通用文字识别包，根据其文档适当更改baidu.js中的网址和token</p>
 
     </main>
     <script src="js/root.js"></script>
