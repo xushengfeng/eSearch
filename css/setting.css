@@ -38,9 +38,9 @@ input {
     vertical-align: middle;
 }
 input[type="text"] {
-    border-radius: var(--border-radius);
-    border: var(--border);
-    padding: 1px 4px 1px 4px;
+    border: none;
+    border-bottom: var(--border);
+    font-size: 18px;
 }
 input[type="text"]:disabled {
     opacity: 0.2;
@@ -108,12 +108,8 @@ input:focus {
     display: block;
     float: left;
 }
-#ocr_url,
-#ocr_access_token {
-    border-radius: 0;
-    border: none;
-    border-bottom: var(--border);
-    margin: 0 0 0 8px;
+#OCR路径 {
+    width: 400px;
 }
 set-select {
     width: 100%;
