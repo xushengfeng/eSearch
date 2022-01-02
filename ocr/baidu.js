@@ -14,19 +14,29 @@ module.exports = function (event, arg, f) {
             response.on("data", (chunk) => {
                 var 返回的数据 = chunk.toString();
                 var 返回的数据 = JSON.parse(返回的数据);
-                // 把返回的数据解析为JSON
-                var 输出的内容 = "";
-                var text = 返回的数据["words_result"];
-                for (i in text) {
-                    输出的内容 += text[i]["words"] + "\n";
-                }
-                if (text["language"]) {
-                    language = "本地语言";
+                console.log(返回的数据);
+                if (返回的数据.error_code) {
+                    event.sender.send("ocr_back", "else");
+                    dialog.showMessageBox({
+                        title: "警告",
+                        message: `识别失败\n${返回的数据.error_code} ${返回的数据.error_msg}`,
+                        icon: `${run_path}/assets/icons/warning.png`,
+                    });
                 } else {
-                    language = "外语";
+                    // 把返回的数据解析为JSON
+                    var 输出的内容 = "";
+                    var text = 返回的数据["words_result"];
+                    for (i in text) {
+                        输出的内容 += text[i]["words"] + "\n";
+                    }
+                    if (text["language"]) {
+                        language = "本地语言";
+                    } else {
+                        language = "外语";
+                    }
+                    // 在主界面输出 第二个为语言
+                    f([输出的内容, text["language"]]);
                 }
-                // 在主界面输出 第二个为语言
-                f([输出的内容, text["language"]]);
             });
             response.on("end", () => {
                 // 成功
