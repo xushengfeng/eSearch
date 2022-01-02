@@ -630,16 +630,15 @@ function create_main_window(t, web_page) {
                 break;
         }
     });
-
-    ipcMain.on("open_url", (event, url) => {
-        const search_window = new BrowserWindow({
-            webPreferences: {
-                sandbox: true,
-            },
-        });
-        search_window.loadURL(url);
-    });
 }
+ipcMain.on("open_url", (event, url) => {
+    const search_window = new BrowserWindow({
+        webPreferences: {
+            sandbox: true,
+        },
+    });
+    search_window.loadURL(url);
+});
 
 // 设置窗口
 function create_setting_window(about) {
