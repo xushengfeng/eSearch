@@ -91,3 +91,7 @@ kbd {
 .hover_b {
     background-color: var(--hover-color);
 }
+
+button{
+    outline: none;
+}
