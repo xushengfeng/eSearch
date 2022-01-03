@@ -252,7 +252,7 @@ function show_edit_bar(e) {
         document.querySelector("#link_bar").style.width = "0";
     }
     // 排除没选中
-    if (document.getSelection().toString() != "") {
+    if (document.getSelection().toString() != "" || e.button == 2) {
         document.querySelector("#edit_b").className = "edit_s";
         var x = e.clientX < 0 ? 0 : e.clientX;
         if (document.querySelector("#edit_b").offsetWidth + e.clientX > window.innerWidth)
