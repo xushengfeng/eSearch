@@ -59,6 +59,10 @@ a {
     color: var(--color);
 }
 
+select{
+    outline: none;
+}
+
 .blur {
     margin-top: 8px;
 }

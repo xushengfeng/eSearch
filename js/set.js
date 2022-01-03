@@ -114,6 +114,8 @@ document.querySelector("#选区颜色 > input").oninput = () => {
     }, ${document.querySelector("#选区颜色 > input").value}), url('assets/tbg.svg')`;
 };
 
+document.getElementById("框选后默认操作").value = store.get("框选后默认操作") || "no";
+
 字体 = store.get("字体") || { 主要字体: "", 等宽字体: "" };
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
@@ -206,12 +208,13 @@ window.onbeforeunload = () => {
     store.set("像素大小", document.querySelector("#像素大小").value - 0);
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
+    store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
     store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
-    if(o_搜索引擎) store.set("搜索引擎", o_搜索引擎);
-    if(o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
+    if (o_搜索引擎) store.set("搜索引擎", o_搜索引擎);
+    if (o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value;
     历史记录设置.h = document.querySelector("#his_h").value;

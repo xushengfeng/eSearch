@@ -124,6 +124,32 @@ clip_canvas.onmouseup = (e) => {
         follow_bar(e.screenX, e.screenY);
     }
     tool_bar.style.pointerEvents = "auto";
+    auto_do = store.get("框选后默认操作") || "no";
+    switch (auto_do) {
+        case "no":
+            break;
+        case "ocr":
+            tool_ocr_f();
+            break;
+        case "QR":
+            tool_QR_f();
+            break;
+        case "draw":
+            tool_draw_f();
+            break;
+        case "open":
+            tool_open_f();
+            break;
+        case "ding":
+            tool_ding_f();
+            break;
+        case "copy":
+            tool_copy_f();
+            break;
+        case "save":
+            tool_save_f();
+            break;
+    }
 };
 
 // 画框(遮罩)
