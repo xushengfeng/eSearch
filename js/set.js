@@ -137,11 +137,7 @@ if (typeof o_搜索引擎 != "undefined") {
         text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
     }
     document.querySelector("#搜索引擎").value = text;
-} else {
-    o_搜索引擎 = [];
-    // 这是为了应付[]!=[]为true这个sb才写得这么复杂
 }
-
 document.querySelector("#搜索引擎").oninput = () => {
     o_搜索引擎 = [];
     var text = document.querySelector("#搜索引擎").value;
@@ -160,10 +156,7 @@ if (typeof o_翻译引擎 != "undefined") {
         text += `${o_翻译引擎[i][0]}, ${o_翻译引擎[i][1]}\n`;
     }
     document.querySelector("#翻译引擎").value = text;
-} else {
-    o_翻译引擎 = [];
 }
-
 document.querySelector("#翻译引擎").oninput = () => {
     o_翻译引擎 = [];
     var text = document.querySelector("#翻译引擎").value;
@@ -217,8 +210,8 @@ window.onbeforeunload = () => {
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
     store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
-    store.set("搜索引擎", o_搜索引擎);
-    store.set("翻译引擎", o_翻译引擎);
+    if(o_搜索引擎) store.set("搜索引擎", o_搜索引擎);
+    if(o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value;
     历史记录设置.h = document.querySelector("#his_h").value;
