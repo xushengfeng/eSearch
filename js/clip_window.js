@@ -113,6 +113,7 @@ function tool_close_f() {
     document.getElementById("waiting").style.display = "none";
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
+    clip_canvas.getContext("2d").clearRect(0, 0, clip_canvas.width, clip_canvas.height);
 
     // 取消打开程序框
     opening = true;
