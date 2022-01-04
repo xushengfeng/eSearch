@@ -466,6 +466,7 @@ const template = [
         label: "窗口",
         submenu: [
             { label: "最小化", role: "minimize" },
+            { label: "关闭", role: "close" },
             ...(isMac
                 ? [
                       { type: "separator" },
