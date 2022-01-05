@@ -50,7 +50,7 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
 
 function show_t(t, language) {
     document.getElementById("text").innerText = t;
-    if (t != "" && 历史记录设置.保留历史记录) history_list.push({ text: t, time: new Date().getTime() });
+    if (t != "" && 历史记录设置.保留历史记录) history_list.unshift({ text: t, time: new Date().getTime() });
     store.set("历史记录", history_list);
     // 严格模式
     if (is_link(t, true)) {
@@ -189,11 +189,12 @@ function show_history() {
         if (history_list.length != 0) {
             for (var i in history_list) {
                 history_text =
+                    history_text +
                     `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
                         "mm-dd HH:MM"
                     )}</span><button></button></div><div class="history_text">${html2Escape(
                         history_list[i].text
-                    )}</div></div>` + history_text;
+                    )}</div></div>`;
             }
             document.querySelector("#history_list").innerHTML = history_text;
         }
