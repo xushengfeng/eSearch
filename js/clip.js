@@ -3,7 +3,7 @@ ipcRenderer.on("reflash", () => {
     draw_clip_rect();
     setTimeout(() => {
         wh_bar(final_rect);
-    }, 100);
+    }, 0);
     right_key = false;
     change_right_bar(false);
 });

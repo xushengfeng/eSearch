@@ -56,7 +56,9 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    fabric_canvas.clear();
+    try {
+        fabric_canvas.clear();
+    } catch {}
 });
 
 function draw_windows_bar(o) {
