@@ -91,7 +91,10 @@ clip_canvas.onmousedown = (e) => {
         moving = true;
         move_rect(o_final_rect, oe, oe);
     }
-    tool_bar.style.pointerEvents = "none";
+    tool_bar.style.pointerEvents =
+        document.getElementById("mouse_bar").style.pointerEvents =
+        document.getElementById("clip_wh").style.pointerEvents =
+            "none";
 };
 
 clip_canvas.onmousemove = (e) => {
@@ -123,7 +126,10 @@ clip_canvas.onmouseup = (e) => {
         o_final_rect = "";
         follow_bar(e.screenX, e.screenY);
     }
-    tool_bar.style.pointerEvents = "auto";
+    tool_bar.style.pointerEvents =
+        document.getElementById("mouse_bar").style.pointerEvents =
+        document.getElementById("clip_wh").style.pointerEvents =
+            "auto";
     auto_do = store.get("框选后默认操作") || "no";
     switch (auto_do) {
         case "no":
@@ -410,17 +416,17 @@ document.onmousemove = (e) => {
         // 鼠标跟随栏
         document.querySelector("#mouse_bar").style.display = "flex";
 
-        var x = e.screenX + 35;
-        var y = e.screenY + 35;
+        var x = e.screenX + 16;
+        var y = e.screenY + 16;
         var w = document.querySelector("#mouse_bar").offsetWidth;
         var h = document.querySelector("#mouse_bar").offsetHeight;
         var sw = window.screen.width;
         var sh = window.screen.height;
         if (x + w > sw) {
-            x = x - w - 70;
+            x = x - w - 32;
         }
         if (y + h > sh) {
-            y = y - h - 70;
+            y = y - h - 32;
         }
 
         document.querySelector("#mouse_bar").style.left = `${x}px`;
