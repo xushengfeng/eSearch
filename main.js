@@ -465,6 +465,7 @@ const template = [
     {
         label: "窗口",
         submenu: [
+            { label: "浏览器打开", click: open_in_browser },
             { label: "最小化", role: "minimize" },
             { label: "关闭", role: "close" },
             ...(isMac
@@ -632,6 +633,8 @@ function create_main_window(t, web_page) {
         }
     });
 }
+
+var focused_search_window = null;
 ipcMain.on("open_url", (event, url) => {
     const search_window = new BrowserWindow({
         webPreferences: {
@@ -639,7 +642,27 @@ ipcMain.on("open_url", (event, url) => {
         },
     });
     search_window.loadURL(url);
+    search_window.on("focus", () => {
+        focused_search_window = search_window;
+    });
+    search_window.on("blur", () => {
+        focused_search_window = null;
+    });
+    search_window.webContents.on("did-create-window", (child_window) => {
+        child_window.on("focus", () => {
+            focused_search_window = child_window;
+        });
+        child_window.on("blur", () => {
+            focused_search_window = null;
+        });
+    });
 });
+function open_in_browser() {
+    if (focused_search_window != null) {
+        url = focused_search_window.webContents.getURL();
+        shell.openExternal(url);
+    }
+}
 
 // 设置窗口
 function create_setting_window(about) {
