@@ -24,11 +24,11 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 确保你的电脑安装了python
 
-下载[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)并安装运行
+下载[eSearch-service](https://github.com/xushengfeng/eSearch-service)并安装运行
 
 ```shell
-git clone https://github.com/xushengfeng/eSearch-OCR.git
-cd eSearch-OCR
+git clone https://github.com/xushengfeng/eSearch-service.git
+cd eSearch-service
 pip install -r requirements.txt
 python serve.py
 ```
