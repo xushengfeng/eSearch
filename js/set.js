@@ -199,6 +199,9 @@ document.querySelector("#清除历史记录").oninput = () => {
     document.querySelector("#his_d").disabled = !document.querySelector("#清除历史记录").checked;
     document.querySelector("#his_h").disabled = !document.querySelector("#清除历史记录").checked;
 };
+document.getElementById("clear_his").onclick = () => {
+    store.set("历史记录", []);
+};
 
 window.onbeforeunload = () => {
     var 模糊 = document.querySelector("#模糊").value;
