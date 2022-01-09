@@ -15,25 +15,25 @@
 <body>
     <div id="windows_bar"></div>
     <div id="tool_bar">
-        <div id="tool_close"></div>
-        <div id="tool_ocr"></div>
-        <div id="tool_QR"></div>
-        <div id="tool_draw"></div>
-        <div id="tool_open"></div>
-        <div id="tool_ding"></div>
-        <div id="tool_copy"></div>
-        <div id="tool_save"></div>
+        <div id="tool_close" title="关闭"></div>
+        <div id="tool_ocr" title="OCR(文字识别)"></div>
+        <div id="tool_QR" title="QR码"></div>
+        <div id="tool_draw" title="标记"></div>
+        <div id="tool_open" title="其他应用打开"></div>
+        <div id="tool_ding" title="放在屏幕上"></div>
+        <div id="tool_copy" title="复制"></div>
+        <div id="tool_save" title="保存"></div>
     </div>
     <div id="draw_bar">
         <div id="draw_main">
-            <div id="draw_free" style="background-image: url('assets/draw_free.svg');"></div>
-            <div id="draw_shapes" style="background-image: url('assets/draw_shapes.svg');"></div>
-            <div id="draw_filters" style="background-image: url('assets/draw_filters.svg');"></div>
-            <div id="draw_color">
+            <div id="draw_free" style="background-image: url('assets/draw_free.svg');" title="自由画笔"></div>
+            <div id="draw_shapes" style="background-image: url('assets/draw_shapes.svg');" title="形状"></div>
+            <div id="draw_filters" style="background-image: url('assets/draw_filters.svg');" title="滤镜"></div>
+            <div id="draw_color" title="颜色和大小">
                 <div></div>
             </div>
-            <div id="draw_position" style="background-image: url('assets/draw_position.svg');"></div>
-            <div id="draw_move" style="background-image: url('assets/draw_move.svg');"></div>
+            <div id="draw_position" style="background-image: url('assets/draw_position.svg');" title="元素层次"></div>
+            <div id="draw_move" style="background-image: url('assets/draw_move.svg');" title="按住移动"></div>
         </div>
         <div id="draw_side">
             <!-- draw_free -->
@@ -94,7 +94,7 @@
     </div>
     <video id="root_resource"></video>
 
-    <div id="clip_wh">
+    <div id="clip_wh" title="更改数字来改变大小或位置">
         <div id="x0y0" contenteditable="true"></div>
         <div id="x1y1" contenteditable="true"></div>
         <div id="wh" contenteditable="true"></div>
@@ -119,14 +119,14 @@
     <div id="app_path" class="input_bar">
         <div>
             <input type="text" name="" id="" spellcheck="false" placeholder="输入程序名字或路径，或留空默认"><button
-                id="open_file"></button><button id="open"></button>
+                id="open_file"></button><button id="open" title="打开"></button>
         </div>
     </div>
 
     <div id="draw_edit" class="input_bar">
         <div>
             <input type="text" name="" id="" spellcheck="false" placeholder="$0是选中元素，基于Fabric.js API">
-            <button id="draw_edit_run"></button>
+            <button id="draw_edit_run" title="运行"></button>
         </div>
     </div>
 
