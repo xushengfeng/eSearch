@@ -178,6 +178,7 @@ video {
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
     overflow: hidden;
+    pointer-events: none;
 }
 #point_color {
     width: var(--color-size);

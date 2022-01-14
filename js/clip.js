@@ -393,10 +393,12 @@ function change_right_bar(v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_color").style.height = "0";
         document.querySelector("#clip_copy").className = "clip_copy";
+        document.getElementById("mouse_bar").style.pointerEvents = "auto";
     } else {
         document.querySelector("#clip_copy").className = "clip_copy_h";
         document.querySelector("#point_color").style.height = "";
         document.querySelector("#clip_color").style.height = "";
+        document.getElementById("mouse_bar").style.pointerEvents = "none";
     }
 }
 change_right_bar(false);
