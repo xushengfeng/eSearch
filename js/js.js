@@ -1,4 +1,5 @@
 const { ipcRenderer, shell } = require("electron");
+const hotkeys = require("hotkeys-js");
 
 window_name = "";
 t = "";
@@ -311,3 +312,9 @@ document.querySelector("#history").onscroll = () => {
         document.querySelector("#history").className = "hidescrollbar";
     }, 1000);
 };
+
+hotkeys("ctrl+h", show_history);
+
+hotkeys("ctrl+,", () => {
+    window.open("setting.html");
+});
