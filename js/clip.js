@@ -60,6 +60,7 @@ the_color = null;
 clip_ctx = clip_canvas.getContext("2d");
 tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
+var final_rect_list = [];
 
 clip_canvas.onmousedown = (e) => {
     is_in_clip_rect(e);
@@ -117,6 +118,7 @@ clip_canvas.onmouseup = (e) => {
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
         final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         draw_clip_rect();
+        final_rect_list.push(final_rect);
         // 抬起鼠标后工具栏跟随
         follow_bar(e.screenX, e.screenY);
     }
@@ -236,6 +238,7 @@ document.querySelector("#x0y0").onkeydown = (e) => {
             final_rect[1] = xy[2] - 0 - d;
             final_rect_fix();
             draw_clip_rect();
+            follow_bar();
         } else {
             document.querySelector("#x0y0").innerHTML = `${final_rect[0] + d}, ${final_rect[1] + d}`;
         }
@@ -251,6 +254,7 @@ document.querySelector("#x1y1").onkeydown = (e) => {
             final_rect[1] = xy[2] - 0 - final_rect[3] - d;
             final_rect_fix();
             draw_clip_rect();
+            follow_bar();
         } else {
             document.querySelector("#x1y1").innerHTML = `${final_rect[0] + d + final_rect[2]}, ${
                 final_rect[1] + d + final_rect[3]
@@ -267,6 +271,7 @@ document.querySelector("#wh").onkeydown = (e) => {
             final_rect[3] = wh[2] - 0;
             final_rect_fix();
             draw_clip_rect();
+            follow_bar();
         } else {
             document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
         }
@@ -443,7 +448,15 @@ document.onmousemove = (e) => {
 };
 
 // 工具栏跟随
+var follow_bar_list = [];
 function follow_bar(x, y) {
+    if (!x && !y) {
+        var dx = final_rect_list[final_rect_list.length - 1][0] - final_rect_list[final_rect_list.length - 2][0];
+        var dy = final_rect_list[final_rect_list.length - 1][1] - final_rect_list[final_rect_list.length - 2][1];
+        x = follow_bar_list[follow_bar_list.length - 1][0] + dx;
+        y = follow_bar_list[follow_bar_list.length - 1][1] + dy;
+    }
+    follow_bar_list.push([x, y]);
     [x1, y1] = final_rect;
     x2 = x1 + final_rect[2];
     y2 = y1 + final_rect[3];
