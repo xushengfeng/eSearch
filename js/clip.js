@@ -198,14 +198,14 @@ function wh_bar(final_rect) {
     dw = document.querySelector("#clip_wh").offsetWidth;
     dh = document.querySelector("#clip_wh").offsetHeight;
     var x;
-    if (dw >= final_rect[2]) {
+    if (dw >= final_rect[2] / ratio) {
         if (dw + final_rect[0] <= window.screen.width) {
-            x = final_rect[0]; // 对齐框的左边
+            x = final_rect[0] / ratio; // 对齐框的左边
         } else {
-            x = final_rect[0] + final_rect[2] - dw; // 对齐框的右边
+            x = final_rect[0] / ratio + final_rect[2] / ratio - dw; // 对齐框的右边
         }
     } else {
-        x = final_rect[0] + final_rect[2] / 2 - dw / 2;
+        x = final_rect[0] / ratio + final_rect[2] / ratio / 2 - dw / 2;
     }
     var y;
     if (final_rect[1] - (dh * ratio + 10) >= 0) {
@@ -214,7 +214,7 @@ function wh_bar(final_rect) {
         y = final_rect[1] + 10;
     }
     // 位置
-    document.querySelector("#clip_wh").style.left = `${x / ratio}px`;
+    document.querySelector("#clip_wh").style.left = `${x}px`;
     document.querySelector("#clip_wh").style.top = `${y / ratio}px`;
     // 大小文字
     if (四角坐标) {
@@ -432,8 +432,8 @@ document.onmousemove = (e) => {
         // 鼠标跟随栏
         document.querySelector("#mouse_bar").style.display = "flex";
 
-        var x = e.screenX + 16;
-        var y = e.screenY + 16;
+        var x = e.clientX + 16;
+        var y = e.clientY + 16;
         var w = document.querySelector("#mouse_bar").offsetWidth;
         var h = document.querySelector("#mouse_bar").offsetHeight;
         var sw = window.screen.width;
@@ -450,8 +450,8 @@ document.onmousemove = (e) => {
 
         // 画板栏移动
         if (draw_bar_moving) {
-            draw_bar.style.left = e.screenX - draw_bar_moving_xy[0] + "px";
-            draw_bar.style.top = e.screenY - draw_bar_moving_xy[1] + "px";
+            draw_bar.style.left = e.clientX - draw_bar_moving_xy[0] + "px";
+            draw_bar.style.top = e.clientY - draw_bar_moving_xy[1] + "px";
         }
     }
 };
@@ -469,9 +469,11 @@ function follow_bar(x, y) {
     [x1, y1] = [final_rect[0] / ratio, final_rect[1] / ratio];
     x2 = x1 + final_rect[2] / ratio;
     y2 = y1 + final_rect[3] / ratio;
+    max_width = window.screen.width / 全局缩放;
+    max_height = window.screen.height / 全局缩放;
     if ((x1 + x2) / 2 <= x) {
         // 向右
-        if (x2 + tool_bar.offsetWidth + 10 <= window.screen.width) {
+        if (x2 + tool_bar.offsetWidth + 10 <= max_width) {
             tool_bar.style.left = x2 + 10 + "px"; // 贴右边
         } else {
             if (工具栏跟随 == "展示内容优先") {
@@ -494,7 +496,7 @@ function follow_bar(x, y) {
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴右边
-                if (x2 + tool_bar.offsetWidth + 10 <= window.screen.width) {
+                if (x2 + tool_bar.offsetWidth + 10 <= max_width) {
                     tool_bar.style.left = x2 + 10 + "px";
                 } else {
                     // 还超贴左内
@@ -513,10 +515,10 @@ function follow_bar(x, y) {
             tool_bar.style.top = y1 + "px";
         }
     } else {
-        if (y1 + tool_bar.offsetHeight <= window.screen.height) {
+        if (y1 + tool_bar.offsetHeight <= max_height) {
             tool_bar.style.top = y1 + "px";
         } else {
-            tool_bar.style.top = window.screen.height - tool_bar.offsetHeight + "px";
+            tool_bar.style.top = max_height - tool_bar.offsetHeight + "px";
         }
     }
 }
