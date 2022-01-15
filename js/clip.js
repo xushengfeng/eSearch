@@ -64,6 +64,7 @@ tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
 var final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
 var rect_history_n = 0;
+var ratio = window.devicePixelRatio;
 
 clip_canvas.onmousedown = (e) => {
     is_in_clip_rect(e);
@@ -123,13 +124,13 @@ clip_canvas.onmouseup = (e) => {
         draw_clip_rect();
         his_push(final_rect);
         // 抬起鼠标后工具栏跟随
-        follow_bar(e.screenX, e.screenY);
+        follow_bar(e.clientX, e.clientY);
     }
     if (moving) {
         move_rect(o_final_rect, oe, e);
         moving = false;
         o_final_rect = "";
-        follow_bar(e.screenX, e.screenY);
+        follow_bar(e.clientX, e.clientY);
         his_push(final_rect);
     }
     tool_bar.style.pointerEvents =
@@ -207,14 +208,14 @@ function wh_bar(final_rect) {
         x = final_rect[0] + final_rect[2] / 2 - dw / 2;
     }
     var y;
-    if (final_rect[1] - (dh + 10) >= 0) {
-        y = final_rect[1] - (dh + 10); // 不超出时在外
+    if (final_rect[1] - (dh * ratio + 10) >= 0) {
+        y = final_rect[1] - (dh * ratio + 10); // 不超出时在外
     } else {
         y = final_rect[1] + 10;
     }
     // 位置
-    document.querySelector("#clip_wh").style.left = `${x}px`;
-    document.querySelector("#clip_wh").style.top = `${y}px`;
+    document.querySelector("#clip_wh").style.left = `${x / ratio}px`;
+    document.querySelector("#clip_wh").style.top = `${y / ratio}px`;
     // 大小文字
     if (四角坐标) {
         var x0, y0, x1, y1;
@@ -461,13 +462,13 @@ function follow_bar(x, y) {
     if (!x && !y) {
         var dx = final_rect_list[final_rect_list.length - 1][0] - final_rect_list[final_rect_list.length - 2][0];
         var dy = final_rect_list[final_rect_list.length - 1][1] - final_rect_list[final_rect_list.length - 2][1];
-        x = follow_bar_list[follow_bar_list.length - 1][0] + dx;
-        y = follow_bar_list[follow_bar_list.length - 1][1] + dy;
+        x = follow_bar_list[follow_bar_list.length - 1][0] + dx / ratio;
+        y = follow_bar_list[follow_bar_list.length - 1][1] + dy / ratio;
     }
     follow_bar_list.push([x, y]);
-    [x1, y1] = final_rect;
-    x2 = x1 + final_rect[2];
-    y2 = y1 + final_rect[3];
+    [x1, y1] = [final_rect[0] / ratio, final_rect[1] / ratio];
+    x2 = x1 + final_rect[2] / ratio;
+    y2 = y1 + final_rect[3] / ratio;
     if ((x1 + x2) / 2 <= x) {
         // 向右
         if (x2 + tool_bar.offsetWidth + 10 <= window.screen.width) {
