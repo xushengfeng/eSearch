@@ -247,6 +247,7 @@ video {
     outline: none;
 }
 #clip_wh > div {
+    cursor: text;
     margin: 8px;
     font-family: var(--monospace);
 }
