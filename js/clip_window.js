@@ -184,18 +184,23 @@ function tool_open_f() {
     if (o) {
         document.querySelector("#windows_bar").style.transform = "translateX(0)";
         document.querySelector("#app_path > div > input").disabled = false;
-        document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
         document.querySelector("#app_path > div > input").select();
         document.querySelector("#app_path > div > input").focus();
     } else {
         document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
     }
 }
+document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
 document.querySelector("#app_path > div > #open_file").onclick = () => {
     ipcRenderer.send("open");
     ipcRenderer.on("open_path", (event, message) => {
-        document.querySelector("#app_path > div > input").value = message;
-        open_app();
+        if (typeof message != "undefined") {
+            document.querySelector("#app_path > div > input").value = message;
+            open_app();
+        } else {
+            document.querySelector("#app_path > div > input").select();
+            document.querySelector("#app_path > div > input").focus();
+        }
     });
 };
 document.querySelector("#app_path > div > #open").onclick = () => {
