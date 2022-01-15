@@ -84,7 +84,7 @@ function draw_windows_bar(o) {
 }
 
 // 左边窗口工具栏弹出
-o = false;
+var o = false;
 hotkeys("z", () => {
     if (!o) {
         document.querySelector("#windows_bar").style.transform = "translateX(0)";
@@ -179,65 +179,60 @@ function tool_draw_f() {
     }
 }
 // 在其他应用打开
-opening = false;
 function tool_open_f() {
-    opening = opening ? false : true;
-    if (opening) {
-        document.getElementById("tool_open").style.backgroundColor = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--hover-color");
-        document.querySelector("#app_path").style.width = "288px";
+    o = !o;
+    if (o) {
+        document.querySelector("#windows_bar").style.transform = "translateX(0)";
         document.querySelector("#app_path > div > input").disabled = false;
         document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
         document.querySelector("#app_path > div > input").select();
         document.querySelector("#app_path > div > input").focus();
     } else {
-        document.getElementById("tool_open").style.backgroundColor = "";
-        document.querySelector("#app_path").style.width = "0";
+        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
     }
-    document.querySelector("#app_path > div > #open_file").onclick = () => {
-        ipcRenderer.send("open");
-        ipcRenderer.on("open_path", (event, message) => {
-            document.querySelector("#app_path > div > input").value = message;
-            open_app();
-        });
-    };
-    document.querySelector("#app_path > div > #open").onclick = () => {
+}
+document.querySelector("#app_path > div > #open_file").onclick = () => {
+    ipcRenderer.send("open");
+    ipcRenderer.on("open_path", (event, message) => {
+        document.querySelector("#app_path > div > input").value = message;
         open_app();
-    };
-    document.querySelector("#app_path > div > input").onkeydown = (e) => {
-        if (e.key == "Enter") {
-            e.preventDefault();
-            open_app();
-        }
-    };
-    function open_app() {
-        var app = document.querySelector("#app_path > div > input").value;
-        store.set("其他应用打开", app);
-        get_clip_photo().then((c) => {
-            f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-            dataBuffer = new Buffer(f, "base64");
-            fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
-                if (app == "") {
-                    open(os.tmpdir() + "/tmp.png").then(() => {
-                        tool_close_f();
-                    });
-                } else {
-                    open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
-                        if (c.pid != undefined) {
-                            tool_close_f();
-                        } else {
-                            document.querySelector("#app_path > div > input").disabled = false;
-                            document.querySelector("#app_path > div > input").value = app;
-                            document.querySelector("#app_path > div > input").select();
-                        }
-                    });
-                }
-                document.querySelector("#app_path > div > input").disabled = true;
-                document.querySelector("#app_path > div > input").value = "正在打开...";
-            });
-        });
+    });
+};
+document.querySelector("#app_path > div > #open").onclick = () => {
+    open_app();
+};
+document.querySelector("#app_path > div > input").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        e.preventDefault();
+        open_app();
     }
+};
+function open_app() {
+    var app = document.querySelector("#app_path > div > input").value;
+    store.set("其他应用打开", app);
+    get_clip_photo().then((c) => {
+        f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+        dataBuffer = new Buffer(f, "base64");
+        fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
+            if (app == "") {
+                open(os.tmpdir() + "/tmp.png").then(() => {
+                    tool_close_f();
+                });
+            } else {
+                open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
+                    if (c.pid != undefined) {
+                        tool_close_f();
+                    } else {
+                        document.querySelector("#app_path > div > input").disabled = false;
+                        document.querySelector("#app_path > div > input").value = app;
+                        document.querySelector("#app_path > div > input").select();
+                    }
+                });
+            }
+            document.querySelector("#app_path > div > input").disabled = true;
+            document.querySelector("#app_path > div > input").value = "正在打开...";
+        });
+    });
 }
 // 钉在屏幕上
 function tool_ding_f() {

@@ -13,7 +13,22 @@
 </head>
 
 <body>
-    <div id="windows_bar"></div>
+    <div id="windows_bar">
+        <div id="screens"></div>
+        <div id="app_path" class="input_bar">
+            <div>
+                <input type="text" name="" id="" spellcheck="false" placeholder="输入程序名字或路径，或留空默认"><button
+                    id="open_file"></button><button id="open" title="打开"></button>
+            </div>
+        </div>
+
+        <div id="draw_edit" class="input_bar">
+            <div>
+                <input type="text" name="" id="" spellcheck="false" placeholder="$0是选中元素，基于Fabric.js API">
+                <button id="draw_edit_run" title="运行"></button>
+            </div>
+        </div>
+    </div>
     <div id="tool_bar">
         <div id="tool_close" title="关闭"></div>
         <div id="tool_ocr" title="OCR(文字识别)"></div>
@@ -116,19 +131,6 @@
         </line>
     </svg>
 
-    <div id="app_path" class="input_bar">
-        <div>
-            <input type="text" name="" id="" spellcheck="false" placeholder="输入程序名字或路径，或留空默认"><button
-                id="open_file"></button><button id="open" title="打开"></button>
-        </div>
-    </div>
-
-    <div id="draw_edit" class="input_bar">
-        <div>
-            <input type="text" name="" id="" spellcheck="false" placeholder="$0是选中元素，基于Fabric.js API">
-            <button id="draw_edit_run" title="运行"></button>
-        </div>
-    </div>
 
     <template id="range-b">
         <link rel="stylesheet" type="text/css" href="css/template2.css">

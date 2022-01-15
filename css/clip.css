@@ -18,9 +18,9 @@ body {
 /* 桌面切换 */
 #windows_bar {
     background-color: var(--bar-bg);
-    width: 200px;
+    width: 250px;
     position: fixed;
-    z-index: 999;
+    z-index: 97;
     transform: translateX(-100%);
     backdrop-filter: var(--blur);
     transition: var(--transition);
@@ -236,7 +236,7 @@ video {
 }
 #clip_wh {
     position: absolute;
-    z-index: 99;
+    z-index: 11;
     backdrop-filter: var(--blur);
     background: var(--bar-bg);
     border-radius: var(--border-radius);
@@ -263,18 +263,8 @@ video {
 }
 
 .input_bar {
-    background-color: var(--bar-bg);
-    border-radius: var(--border-radius);
-    backdrop-filter: var(--blur);
-    box-shadow: var(--shadow);
-    position: absolute;
-    z-index: 99;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     transition: var(--transition);
     overflow: hidden;
-    width: 0;
 }
 .input_bar > div {
     display: flex;
@@ -290,7 +280,6 @@ video {
 }
 .input_bar > div > button {
     outline: none;
-    background-color: var(--bg);
     border: none;
     transition: var(--transition);
     border-radius: var(--border-radius);
@@ -300,6 +289,9 @@ video {
     background-size: 70%;
     background-repeat: no-repeat;
     background-color: #0000;
+}
+.input_bar > div > button:hover {
+    background-color: var(--hover-color);
 }
 #open_file {
     background-image: url("../assets/open_file.svg");

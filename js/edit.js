@@ -370,14 +370,13 @@ document.querySelector("#draw_stroke_width > range-b").oninput = () => {
     }
 };
 
-show_draw_edit = false;
 document.getElementById("draw_edit_b").onclick = () => {
-    show_draw_edit = !show_draw_edit;
-    if (show_draw_edit) {
-        document.getElementById("draw_edit").classList.add("edit_s");
+    o = !o;
+    if (o) {
         document.querySelector("#draw_edit input").focus();
+        document.querySelector("#windows_bar").style.transform = "translateX(0)";
     } else {
-        document.getElementById("draw_edit").classList.remove("edit_s");
+        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
     }
 };
 document.querySelector("#draw_edit_run").onclick = () => {
