@@ -6,6 +6,8 @@ ipcRenderer.on("reflash", () => {
     }, 0);
     right_key = false;
     change_right_bar(false);
+    final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
+    rect_history_n = 0;
 });
 
 const Color = require("color");
@@ -60,7 +62,8 @@ the_color = null;
 clip_ctx = clip_canvas.getContext("2d");
 tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
-var final_rect_list = [];
+var final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
+var rect_history_n = 0;
 
 clip_canvas.onmousedown = (e) => {
     is_in_clip_rect(e);
@@ -118,7 +121,7 @@ clip_canvas.onmouseup = (e) => {
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
         final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         draw_clip_rect();
-        final_rect_list.push(final_rect);
+        his_push(final_rect);
         // 抬起鼠标后工具栏跟随
         follow_bar(e.screenX, e.screenY);
     }
@@ -127,6 +130,7 @@ clip_canvas.onmouseup = (e) => {
         moving = false;
         o_final_rect = "";
         follow_bar(e.screenX, e.screenY);
+        his_push(final_rect);
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
@@ -237,6 +241,7 @@ document.querySelector("#x0y0").onkeydown = (e) => {
             final_rect[0] = xy[1] - 0 - d;
             final_rect[1] = xy[2] - 0 - d;
             final_rect_fix();
+            his_push(final_rect);
             draw_clip_rect();
             follow_bar();
         } else {
@@ -253,6 +258,7 @@ document.querySelector("#x1y1").onkeydown = (e) => {
             final_rect[0] = xy[1] - 0 - final_rect[2] - d;
             final_rect[1] = xy[2] - 0 - final_rect[3] - d;
             final_rect_fix();
+            his_push(final_rect);
             draw_clip_rect();
             follow_bar();
         } else {
@@ -270,6 +276,7 @@ document.querySelector("#wh").onkeydown = (e) => {
             final_rect[2] = wh[1] - 0;
             final_rect[3] = wh[2] - 0;
             final_rect_fix();
+            his_push(final_rect);
             draw_clip_rect();
             follow_bar();
         } else {
@@ -281,6 +288,7 @@ document.querySelector("#wh").onkeydown = (e) => {
 // 快捷键全屏选择
 hotkeys("ctrl+a, command+a", () => {
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    his_push(final_rect);
     clip_canvas.style.cursor = "crosshair";
     direction = "none";
     draw_clip_rect();
@@ -671,3 +679,32 @@ function move_rect(o_final_rect, oe, e) {
     final_rect_fix();
     draw_clip_rect();
 }
+
+function his_push(final_rect) {
+    let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]]; // 防止引用源地址导致后续操作-2个被改变
+    final_rect_list.push(final_rect_v);
+    rect_history_n = final_rect_list.length - 1;
+}
+
+function rect_history(a) {
+    if (a) {
+        if (final_rect_list[rect_history_n - 1]) {
+            final_rect = final_rect_list[rect_history_n - 1];
+            rect_history_n -= 1;
+        }
+    } else {
+        if (final_rect_list[rect_history_n + 1]) {
+            final_rect = final_rect_list[rect_history_n + 1];
+            rect_history_n += 1;
+        }
+    }
+    draw_clip_rect();
+    follow_bar();
+}
+
+hotkeys("ctrl+z", () => {
+    rect_history(true);
+});
+hotkeys("ctrl+y", () => {
+    rect_history(false);
+});
