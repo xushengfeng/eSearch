@@ -8,6 +8,7 @@ ipcRenderer.on("reflash", () => {
     change_right_bar(false);
     final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
     rect_history_n = 0;
+    ratio = window.devicePixelRatio;
 });
 
 const Color = require("color");
@@ -195,17 +196,24 @@ function draw_clip_rect() {
 
 // 大小栏
 function wh_bar(final_rect) {
+    // 位置
     dw = document.querySelector("#clip_wh").offsetWidth;
     dh = document.querySelector("#clip_wh").offsetHeight;
     var x;
     if (dw >= final_rect[2] / ratio) {
-        if (dw + final_rect[0] <= window.screen.width) {
+        if (dw + final_rect[0] <= main_canvas.offsetWidth) {
             x = final_rect[0] / ratio; // 对齐框的左边
+            document.querySelector("#clip_wh").style.right = ``;
+            document.querySelector("#clip_wh").style.left = `${x}px`;
         } else {
-            x = final_rect[0] / ratio + final_rect[2] / ratio - dw; // 对齐框的右边
+            document.querySelector("#clip_wh").style.left = ``;
+            document.querySelector("#clip_wh").style.right = `0px`;
+            // x = final_rect[0] / ratio + final_rect[2] / ratio - dw; // 对齐框的右边
         }
     } else {
         x = final_rect[0] / ratio + final_rect[2] / ratio / 2 - dw / 2;
+        document.querySelector("#clip_wh").style.right = ``;
+        document.querySelector("#clip_wh").style.left = `${x}px`;
     }
     var y;
     if (final_rect[1] - (dh * ratio + 10) >= 0) {
@@ -213,8 +221,6 @@ function wh_bar(final_rect) {
     } else {
         y = final_rect[1] + 10;
     }
-    // 位置
-    document.querySelector("#clip_wh").style.left = `${x}px`;
     document.querySelector("#clip_wh").style.top = `${y / ratio}px`;
     // 大小文字
     if (四角坐标) {
