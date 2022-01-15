@@ -54,6 +54,10 @@ body {
     display: block;
 }
 
+#service_download {
+    cursor: pointer;
+}
+
 /* 工具 */
 #tool_bar {
     width: 60px;

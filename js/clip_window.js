@@ -1,5 +1,5 @@
 // In the renderer process.
-const { ipcRenderer, clipboard, nativeImage } = require("electron");
+const { ipcRenderer, clipboard, nativeImage, shell } = require("electron");
 const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
@@ -60,6 +60,7 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     try {
         fabric_canvas.clear();
     } catch {}
+    check_service();
 });
 
 function draw_windows_bar(o) {
@@ -81,6 +82,19 @@ function draw_windows_bar(o) {
             });
         })(i);
     }
+}
+function check_service() {
+    var dir = store.path.replace("config.json", "service-installed");
+    if (!fs.existsSync(dir)) {
+        document.getElementById(
+            "toast"
+        ).innerHTML = `<span id="service_download">检测到eSearch服务未安装，请前往官网下载安装</span>`;
+        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        o = true;
+    }
+    document.getElementById("service_download").onclick = () => {
+        shell.openExternal("https://github.com/xushengfeng/eSearch-service");
+    };
 }
 
 // 左边窗口工具栏弹出
