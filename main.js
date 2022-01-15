@@ -5,7 +5,6 @@ const {
     Menu,
     clipboard,
     globalShortcut,
-    desktopCapturer,
     BrowserWindow,
     ipcMain,
     dialog,
@@ -240,8 +239,6 @@ function create_clip_window() {
         clip_window.hide();
     });
 
-    ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", (event, opts) => desktopCapturer.getSources(opts));
-
     ipcMain.on("ocr", (event, arg) => {
         other_ocr_path = store.get("OCR路径") || "";
         if (other_ocr_path == "") {
@@ -394,6 +391,22 @@ function ocr(event, arg) {
     request.write(data);
     request.end();
 }
+ipcMain.on("check_service", (event) => {
+    const request = net.request({
+        method: "POST",
+        url: "http://127.0.0.1:8080",
+    });
+    request.on("error", () => {
+        console.log('e');
+        event.sender.send("check_service_back", "error");
+    });
+    request.on("response", () => {
+        console.log('o');
+        event.sender.send("check_service_back", "ok");
+    });
+    request.write('');
+    request.end();
+});
 
 // 菜单栏设置(截图没必要)
 const isMac = process.platform === "darwin";
