@@ -228,6 +228,9 @@ function create_clip_window() {
     });
 
     clip_window.loadFile("capture.html");
+    clip_window.webContents.on("did-finish-load", () => {
+        clip_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
+    });
 
     if (dev) clip_window.webContents.openDevTools();
 
@@ -525,6 +528,7 @@ function create_ding_window(x, y, w, h, img) {
         ding_window.loadFile("ding.html");
         if (dev) ding_window.webContents.openDevTools();
         ding_window.webContents.on("did-finish-load", () => {
+            ding_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
             var id = new Date().getTime();
             ding_window.webContents.send("img", id, x, y, w, h, img);
             ding_windows_l[id] = [x, y, w, h];
@@ -609,6 +613,7 @@ function create_main_window(t, web_page) {
 
     if (dev) main_window_l[window_name].webContents.openDevTools();
     main_window_l[window_name].webContents.on("did-finish-load", () => {
+        main_window_l[window_name].webContents.setZoomFactor(store.get("全局缩放") || 1.0);
         main_window_l[window_name].webContents.send("text", window_name, [t[0], t[1] || "auto"]);
     });
 
@@ -676,8 +681,10 @@ function create_setting_window(about) {
     });
 
     main_window.loadFile("setting.html");
+
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
+        main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
         main_window.webContents.send("about", about);
     });
 }
@@ -696,5 +703,9 @@ function create_help_window() {
     });
 
     main_window.loadFile("help.html");
+    main_window.webContents.on("did-finish-load", () => {
+        main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
+    });
+
     if (dev) main_window.webContents.openDevTools();
 }

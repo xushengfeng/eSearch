@@ -25,6 +25,11 @@ document.querySelector("#模糊").oninput = () => {
     }
 };
 
+document.getElementById("全局缩放").value = store.get("全局缩放") || 1;
+document.getElementById("全局缩放").oninput = () => {
+    document.getElementById("全局缩放_n").innerText = document.getElementById("全局缩放").value;
+};
+
 // 单选项目设置加载
 function 选择器储存(id, 默认) {
     document.querySelector(`#${id}`).value = store.get(id) || 默认;
@@ -206,6 +211,7 @@ document.getElementById("clear_his").onclick = () => {
 window.onbeforeunload = () => {
     var 模糊 = document.querySelector("#模糊").value;
     store.set("模糊", 模糊);
+    store.set("全局缩放", document.getElementById("全局缩放").value - 0);
     store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
     store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
     store.set("像素大小", document.querySelector("#像素大小").value - 0);
