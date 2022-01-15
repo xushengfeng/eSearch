@@ -1,7 +1,7 @@
 {
   "name": "eSearch",
   "version": "1.2.7",
-  "description": "截图+OCR+搜索+贴图",
+  "description": "识屏 · 搜索",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
