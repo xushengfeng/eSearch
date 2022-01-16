@@ -1,5 +1,6 @@
 const { ipcRenderer } = require("electron");
 
+var ratio = window.devicePixelRatio;
 var changing = null;
 var photos = {};
 var urls = {};
@@ -9,10 +10,10 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     var div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
-    div.style.left = x + "px";
-    div.style.top = y + "px";
-    div.style.width = w + "px";
-    div.style.height = h + "px";
+    div.style.left = x / ratio + "px";
+    div.style.top = y / ratio + "px";
+    div.style.width = w / ratio + "px";
+    div.style.height = h / ratio + "px";
     var img = document.createElement("img");
     img.src = url;
     img.className = "img";
@@ -85,14 +86,14 @@ function minimize(el) {
         div.style.transition = "";
     }, 400);
     el.classList.add("minimize");
-    ipcRenderer.send("ding_p_s", el.id, [0, 0, 0, 0]);
+    ding_p_s(el.id, [0, 0, 0, 0]);
 }
 function ignore(el, v) {
     var i = el.id;
     if (v) {
-        ipcRenderer.send("ding_p_s", i, [0, 0, 0, 0]);
+        ding_p_s(i, [0, 0, 0, 0]);
     } else {
-        ipcRenderer.send("ding_p_s", i, [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight]);
+        ding_p_s(i, [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight]);
     }
 }
 function back(el) {
@@ -102,10 +103,10 @@ function back(el) {
         resize(el, 1);
     }, 400);
     var p_s = photos[el.id];
-    el.style.left = p_s[0] + "px";
-    el.style.top = p_s[1] + "px";
-    el.style.width = p_s[2] + "px";
-    el.style.height = p_s[3] + "px";
+    el.style.left = p_s[0] / ratio + "px";
+    el.style.top = p_s[1] / ratio + "px";
+    el.style.width = p_s[2] / ratio + "px";
+    el.style.height = p_s[3] / ratio + "px";
     ipcRenderer.send("ding_p_s", el.id, p_s);
 
     el.querySelector("#透明度").value = "100";
@@ -119,6 +120,10 @@ function close(el) {
     delete urls[el.id];
     ipcRenderer.send("ding_close", el.id);
     dock_i();
+}
+
+function ding_p_s(id, p_s) {
+    ipcRenderer.send("ding_p_s", id, [p_s[0] * ratio, p_s[1] * ratio, p_s[2] * ratio, p_s[3] * ratio]);
 }
 
 // 最高窗口
@@ -303,7 +308,7 @@ function cursor(el, e) {
         el.style.top = p_s[1] + "px";
         el.style.width = p_s[2] + "px";
         el.style.height = p_s[3] + "px";
-        ipcRenderer.send("ding_p_s", el.id, p_s);
+        ding_p_s(el.id, p_s);
 
         if (el.id != "dock") {
             el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
@@ -337,7 +342,7 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     el.style.top = p_s[1] + "px";
     el.style.width = p_s[2] + "px";
     el.style.height = p_s[3] + "px";
-    ipcRenderer.send("ding_p_s", el.id, p_s);
+    ding_p_s(el.id, p_s);
 }
 
 // 缩放文字实时更新,顶栏大小自适应
@@ -371,7 +376,7 @@ function resize(el, zoom) {
 dock_p = store.get("ding_dock") || [0, 0];
 document.querySelector("#dock").style.left = dock_p[0] + "px";
 document.querySelector("#dock").style.top = dock_p[1] + "px";
-ipcRenderer.send("ding_p_s", "dock", [dock_p[0], dock_p[1], 10, 50]);
+ding_p_s("dock", [dock_p[0], dock_p[1], 10, 50]);
 
 dock_show = false;
 dock_p_s = [];
@@ -388,18 +393,13 @@ document.querySelector("#dock").onclick = () => {
 
         dock.className = "dock";
         dock.querySelector("div").style.display = "block";
-        ipcRenderer.send("ding_p_s", "dock", [
-            dock.style.left.replace("px", "") - 0,
-            0,
-            200,
-            document.querySelector("html").offsetHeight,
-        ]);
+        ding_p_s("dock", [dock.style.left.replace("px", "") - 0, 0, 200, document.querySelector("html").offsetHeight]);
     } else {
         dock.style.transition = dock.className = "";
         dock.querySelector("div").style.display = "none";
         dock.style.left = dock_p_s[0] + "px";
         dock.style.top = dock_p_s[1] + "px";
-        ipcRenderer.send("ding_p_s", "dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
+        ding_p_s("dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
     }
 };
 
@@ -419,7 +419,7 @@ function dock_i() {
                         div.style.transition = "";
                     }, 400);
                     div.classList.remove("minimize");
-                    ipcRenderer.send("ding_p_s", i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+                    ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
                     div.style.zIndex = toppest + 1;
                     toppest += 1;
                 }
@@ -432,9 +432,7 @@ function dock_i() {
             dock_item.querySelector("#i_ignore").setAttribute("data-ignore", "false");
             var i_ignore_v = false;
             dock_item.querySelector("#i_ignore").onclick = () => {
-                // var i_ignore_v = JSON.parse(dock_item.querySelector("#i_ignore").getAttribute("data-ignore"));
                 i_ignore_v = !i_ignore_v;
-                // dock_item.querySelector("#i_ignore").setAttribute("data-ignore", i_ignore_v + "");
                 ignore(document.getElementById(i), i_ignore_v);
             };
             document.querySelector("#dock > div").appendChild(dock_item);

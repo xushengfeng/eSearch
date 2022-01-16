@@ -397,14 +397,14 @@ ipcMain.on("check_service", (event) => {
         url: "http://127.0.0.1:8080",
     });
     request.on("error", () => {
-        console.log('e');
+        console.log("e");
         event.sender.send("check_service_back", "error");
     });
     request.on("response", () => {
-        console.log('o');
+        console.log("o");
         event.sender.send("check_service_back", "ok");
     });
-    request.write('');
+    request.write("");
     request.end();
 });
 
@@ -575,13 +575,14 @@ function create_ding_window(x, y, w, h, img) {
     // 自动改变鼠标穿透
     function ding_click_through() {
         var n_xy = screen.getCursorScreenPoint();
+        var ratio = screen.getPrimaryDisplay().scaleFactor;
         var in_window = 0;
         for (i in Object.values(ding_windows_l)) {
             ii = Object.values(ding_windows_l)[i];
             // 如果光标在某个窗口上，不穿透
             var x2 = ii[0] + ii[2],
                 y2 = ii[1] + ii[3];
-            if (ii[0] <= n_xy.x && n_xy.x <= x2 && ii[1] <= n_xy.y && n_xy.y <= y2) {
+            if (ii[0] <= n_xy.x * ratio && n_xy.x * ratio <= x2 && ii[1] <= n_xy.y * ratio && n_xy.y * ratio <= y2) {
                 in_window += 1;
             }
         }
