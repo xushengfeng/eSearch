@@ -130,7 +130,7 @@ input[type="range"]::-webkit-slider-thumb {
     background-image: url("../assets/ding_close.svg");
 }
 
-.minimize{
+.minimize {
     opacity: 0 !important;
     pointer-events: none !important;
 }
@@ -166,14 +166,12 @@ input[type="range"]::-webkit-slider-thumb {
 #dock img {
     width: 100%;
 }
-#dock_item > #i_close {
+#dock_item > div {
     display: none;
     position: absolute;
-    right: 8px;
     width: 24px;
     height: 24px;
     background-color: var(--hover-color);
-    background-image: url("../assets/i_close.svg");
     background-size: 80%;
     background-position: center;
     background-repeat: no-repeat;
@@ -182,7 +180,20 @@ input[type="range"]::-webkit-slider-thumb {
     margin: 8px;
     backdrop-filter: var(--blur);
 }
+
+#dock_item > #i_close {
+    right: 8px;
+    background-image: url("../assets/i_close.svg");
+}
 #dock_item > #i_close:hover {
     background-image: url("../assets/i_close_w.svg");
     background-color: #f00;
+}
+
+#dock_item > #i_ignore {
+    right: 40px;
+    background-image: url("../assets/i_ignore.svg");
+}
+#dock_item > #i_ignore:hover {
+    background-color: var(--bar-bg);
 }

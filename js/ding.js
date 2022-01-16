@@ -87,6 +87,14 @@ function minimize(el) {
     el.classList.add("minimize");
     ipcRenderer.send("ding_p_s", el.id, [0, 0, 0, 0]);
 }
+function ignore(el, v) {
+    var i = el.id;
+    if (v) {
+        ipcRenderer.send("ding_p_s", i, [0, 0, 0, 0]);
+    } else {
+        ipcRenderer.send("ding_p_s", i, [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight]);
+    }
+}
 function back(el) {
     el.style.transition = "var(--transition)";
     setTimeout(() => {
@@ -404,7 +412,7 @@ function dock_i() {
             dock_item.style.display = "block";
             dock_item.querySelector("img").src = urls[i];
             dock_item.onclick = (e) => {
-                if (e.target.id != "i_close") {
+                if (e.target.id != "i_close" && e.target.id != "i_ignore") {
                     var div = document.getElementById(i);
                     div.style.transition = "var(--transition)";
                     setTimeout(() => {
@@ -419,6 +427,15 @@ function dock_i() {
             dock_item.querySelector("#i_close").style.display = "block";
             dock_item.querySelector("#i_close").onclick = () => {
                 close(document.getElementById(i));
+            };
+            dock_item.querySelector("#i_ignore").style.display = "block";
+            dock_item.querySelector("#i_ignore").setAttribute("data-ignore", "false");
+            var i_ignore_v = false;
+            dock_item.querySelector("#i_ignore").onclick = () => {
+                // var i_ignore_v = JSON.parse(dock_item.querySelector("#i_ignore").getAttribute("data-ignore"));
+                i_ignore_v = !i_ignore_v;
+                // dock_item.querySelector("#i_ignore").setAttribute("data-ignore", i_ignore_v + "");
+                ignore(document.getElementById(i), i_ignore_v);
             };
             document.querySelector("#dock > div").appendChild(dock_item);
         })(o);
