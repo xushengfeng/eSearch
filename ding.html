@@ -14,19 +14,19 @@
 <body>
     <div id="tool_bar">
         <div id="tool_bar_c">
-            <div id="opacity">
+            <div id="opacity" title="透明度">
                 <div class="opacity"></div>
                 <input type="range" id="透明度" value="100">
                 <span id="透明度_p">100%</span>
             </div>
-            <div id="window_size">
+            <div id="window_size" title="大小">
                 <div class="size"></div>
                 <span id="size"><span contenteditable="true">100</span>%</span>
             </div>
             <div id="b">
-                <button name="最小化按钮" id="minimize"></button>
-                <button name="归位按钮" id="back"></button>
-                <button name="关闭按钮" id="close"></button>
+                <button name="最小化按钮" id="minimize" title="最小化"></button>
+                <button name="归位按钮" id="back" title="归位"></button>
+                <button name="关闭按钮" id="close" title="关闭"></button>
             </div>
         </div>
     </div>
@@ -35,8 +35,9 @@
         <div></div>
     </div>
     <div id="dock_item">
-        <div id="i_ignore"></div>
-        <div id="i_close"></div><img>
+        <div id="i_ignore" title="鼠标穿透"></div>
+        <div id="i_close" title="关闭"></div>
+        <img>
     </div>
     <script src="js/root.js"></script>
     <script src="js/ding.js"></script>
