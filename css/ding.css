@@ -15,6 +15,9 @@ body {
     position: fixed;
     overflow: hidden;
 }
+.ding_photo:hover {
+    box-shadow: var(--shadow);
+}
 #tool_bar {
     overflow: hidden;
     position: absolute;
@@ -35,6 +38,9 @@ body {
     margin: 0 8px;
     display: flex;
     align-items: center;
+}
+#size > span {
+    cursor: text;
 }
 .img {
     position: absolute;
