@@ -138,7 +138,7 @@ document.onmousedown = (e) => {
             o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
             changing = e;
             div.style.transition = "none";
-            ipcRenderer.send("ding_ignore", true);
+            ipcRenderer.send("ding_ignore", false);
         }
     } else if (e.target.id != "透明度" && e.target.id != "size") {
         div = e.target;
@@ -149,7 +149,7 @@ document.onmousedown = (e) => {
         window_div = div;
         o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
         changing = e;
-        ipcRenderer.send("ding_ignore", true);
+        ipcRenderer.send("ding_ignore", false);
     }
 };
 document.onmousemove = (e) => {
@@ -182,7 +182,7 @@ document.onmouseup = (e) => {
     changing = null;
     window_div = null;
     div.style.transition = ""; // 用于dock动画
-    ipcRenderer.send("ding_ignore", false);
+    ipcRenderer.send("ding_ignore", true);
 };
 
 direction = "";

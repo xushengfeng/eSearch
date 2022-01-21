@@ -553,14 +553,10 @@ function create_ding_window(x, y, w, h, img) {
         ding_window.webContents.send("img", id, x, y, w, h, img);
         ding_windows_l[id] = [x, y, w, h];
     }
-    can_c_ignore = true;
+    can_c_ignore = false;
     ipcMain.on("ding_ignore", (event, v) => {
-        if (v) {
-            can_c_ignore = false;
-            ding_window.setIgnoreMouseEvents(false);
-        } else {
-            can_c_ignore = true;
-        }
+        can_c_ignore = v;
+        if (!v) ding_window.setIgnoreMouseEvents(false);
     });
     ipcMain.on("ding_p_s", (event, wid, p_s) => {
         ding_windows_l[wid] = p_s;
