@@ -26,6 +26,8 @@ body {
     transition: var(--transition);
     overflow: scroll;
     height: 100%;
+    padding: 16px;
+    box-sizing: border-box;
 }
 .window {
     transition: var(--transition);
@@ -266,23 +268,33 @@ video {
     z-index: 11;
 }
 
+#toast {
+    display: flex;
+    align-items: center;
+}
+#toast > span {
+    width: 100%;
+}
+
 .input_bar {
     transition: var(--transition);
     overflow: hidden;
 }
 .input_bar > div {
     display: flex;
+    align-items: center;
 }
 .input_bar > div > input {
     outline: none;
     border: none;
-    margin: 8px;
     height: 20px;
     padding: 0;
     background-color: #0000;
-    flex-grow: 1;
+    width: 100%;
+    font-size: 1rem;
 }
-.input_bar > div > button {
+.input_bar > div > button,
+#toast > button {
     outline: none;
     border: none;
     transition: var(--transition);
@@ -293,9 +305,14 @@ video {
     background-size: 70%;
     background-repeat: no-repeat;
     background-color: #0000;
+    flex-shrink: 0;
 }
-.input_bar > div > button:hover {
+.input_bar > div > button:hover,
+#toast > button:hover {
     background-color: var(--hover-color);
+}
+#toast > button {
+    background-image: url("../assets/tool_close.svg");
 }
 #open_file {
     background-image: url("../assets/open_file.svg");
