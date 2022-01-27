@@ -181,7 +181,7 @@ document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
 };
 
-document.querySelector("#OCR路径").value = store.get("OCR路径") || "";
+document.querySelector("#检查OCR").checked = store.get("检查OCR") || true;
 document.getElementById("本地OCR下载").onclick = (e) => {
     e.preventDefault();
     shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
@@ -228,7 +228,7 @@ window.onbeforeunload = () => {
     历史记录设置.d = document.querySelector("#his_d").value;
     历史记录设置.h = document.querySelector("#his_h").value;
     store.set("历史记录设置", 历史记录设置);
-    store.set("OCR路径", document.getElementById("OCR路径").value);
+    store.set("检查OCR", document.getElementById("检查ocr").checked);
 };
 
 // 滚动条

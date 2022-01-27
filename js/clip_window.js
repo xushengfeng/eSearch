@@ -60,7 +60,7 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     try {
         fabric_canvas.clear();
     } catch {}
-    if (can_check) check_service();
+    if (can_check && (store.get("检查OCR") || true)) check_service();
 });
 
 function draw_windows_bar(o) {
