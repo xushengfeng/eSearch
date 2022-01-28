@@ -367,6 +367,8 @@ function color_bar() {
     document.querySelectorAll("#draw_color_color > div").forEach((e, index) => {
         e.addEventListener("click", () => {
             change_color({ [color_m]: e.style.backgroundColor }, true);
+            if (color_m == "fill") document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = 100;
+            if (color_m == "stroke") document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = 100;
         });
     });
 }
@@ -388,7 +390,6 @@ function get_f_object_v() {
     change_color({ fill: fill, stroke: stroke }, true);
     var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
-    change_color({ stroke: document.querySelector("#draw_color_stroke").innerText }, false);
     var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
 }
