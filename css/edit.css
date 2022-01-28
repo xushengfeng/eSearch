@@ -41,6 +41,12 @@
     width: 12px;
     height: 12px;
     float: left;
+    transition: var(--transition);
+}
+.color_i:hover {
+    position: relative;
+    z-index: 2;
+    transform: scale(1.5);
 }
 
 .edit_s {
