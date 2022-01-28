@@ -25,8 +25,14 @@
 #draw_color_alpha {
     overflow: hidden;
 }
+#draw_color_alpha > range-b {
+    height: 30px;
+}
 #draw_stroke_width {
     overflow: hidden;
+}
+#draw_stroke_width > range-b {
+    height: 60px;
 }
 #draw_color_color {
     overflow: scroll;
@@ -37,9 +43,9 @@
     float: left;
 }
 
-.edit_s{
+.edit_s {
     width: 280px;
 }
-#draw_edit_run{
+#draw_edit_run {
     background-image: url("../assets/draw_edit.svg");
 }
