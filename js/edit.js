@@ -348,29 +348,67 @@ function change_color(m_l, text) {
 
 // 色盘
 function color_bar() {
-    color_list = [];
-    var b_color = Color("hsl(0,0%,100%)");
-    for (k = 0; k <= 1; k += 0.25) {
-        color_list[color_list.length] = b_color.darken(k).string();
-    }
-    var w_color = Color("hsl(0,100%,100%)");
-    for (i = 0; i < 360; i += 24) {
-        for (j = 0.1; j < 1; j += 0.1) {
-            color_list[color_list.length] = w_color.rotate(i).darken(j).string();
-        }
+    // 主盘
+    var color_list = ["hsl(0, 0%, 100%)"];
+    var base_color = Color("hsl(0, 100%, 50%)");
+    for (i = 0; i < 360; i += 15) {
+        color_list.push(base_color.rotate(i).string());
     }
     var t = "";
     for (x in color_list) {
-        t += `<div class="color_i" style="background-color: ${color_list[x]}"></div>`;
+        t += `<div class="color_i" style="background-color: ${color_list[x]}" title="右键更多"></div>`;
     }
-    document.querySelector("#draw_color_color").innerHTML = t;
-    document.querySelectorAll("#draw_color_color > div").forEach((e, index) => {
-        e.addEventListener("click", () => {
-            change_color({ [color_m]: e.style.backgroundColor }, true);
-            if (color_m == "fill") document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = 100;
-            if (color_m == "stroke") document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = 100;
+    show_color();
+    // 下一层级
+    function next_color(h) {
+        next_color_list = [];
+        if (h == "hsl(0, 0%, 100%)") {
+            for (i = 255; i >= 0; i = (i - 10.625).toFixed(3)) {
+                next_color_list.push(`rgb(${i}, ${i}, ${i})`);
+            }
+        } else {
+            h = h.match(/hsl\(([0-9]*)/)[1] - 0;
+            for (i = 90; i > 0; i -= 20) {
+                for (j = 100; j > 0; j -= 20) {
+                    next_color_list.push(`hsl(${h}, ${j}%, ${i}%)`);
+                }
+            }
+        }
+        var tt = "";
+        for (n in next_color_list) {
+            tt += `<div class="color_i" style="background-color: ${next_color_list[n]}" title="右键返回"></div>`;
+        }
+        document.querySelector("#draw_color_color").innerHTML = tt;
+        document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
+            el.onmousedown = (event) => {
+                if (event.button == 0) {
+                    c_color(el);
+                } else {
+                    // 回到主盘
+                    show_color();
+                }
+            };
         });
-    });
+    }
+    function show_color() {
+        document.querySelector("#draw_color_color").innerHTML = t;
+        document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
+            el.onmousedown = (event) => {
+                if (event.button == 0) {
+                    c_color(el);
+                } else {
+                    // 下一层级
+                    next_color(color_list[index]);
+                }
+            };
+        });
+    }
+    // 事件
+    function c_color(el) {
+        change_color({ [color_m]: el.style.backgroundColor }, true);
+        if (color_m == "fill") document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = 100;
+        if (color_m == "stroke") document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = 100;
+    }
 }
 color_bar();
 
