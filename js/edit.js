@@ -278,46 +278,38 @@ function draw_poly(shape) {
 }
 
 // 颜色选择
-var fill_a = 1;
-var stroke_a = 1;
 var color_m = "fill";
 document.querySelector("#draw_color_fill").onfocus = () => {
     color_m = "fill";
-    document.querySelector("#draw_color_alpha > range-b").value = fill_a * 100;
 };
 document.querySelector("#draw_color_stroke").onfocus = () => {
     color_m = "stroke";
-    document.querySelector("#draw_color_alpha > range-b").value = stroke_a * 100;
 };
+// 输入颜色
 document.querySelector("#draw_color_fill").oninput = () => {
-    change_color({ [color_m]: document.querySelector("#draw_color_fill").innerText }, false);
-    fill_a = Color(document.querySelector("#draw_color > div").style.backgroundColor).valpha;
-    document.querySelector("#draw_color_alpha > range-b").value = fill_a * 100;
+    change_color({ fill: document.querySelector("#draw_color_fill").innerText }, false);
+    var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
+    document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
 };
 document.querySelector("#draw_color_stroke").oninput = () => {
-    change_color({ [color_m]: document.querySelector("#draw_color_stroke").innerText }, false);
-    stroke_a = Color(document.querySelector("#draw_color > div").style.borderColor).valpha;
-    document.querySelector("#draw_color_alpha > range-b").value = stroke_a * 100;
+    change_color({ stroke: document.querySelector("#draw_color_stroke").innerText }, false);
+    var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
+    document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
 };
 
-document.querySelector("#draw_color_alpha > range-b").oninput = () => {
-    change_alpha(document.querySelector("#draw_color_alpha > range-b").value);
+// 改变透明度
+document.querySelector("#draw_color_alpha > range-b:nth-child(1)").oninput = () => {
+    change_alpha(document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value, "fill");
 };
-
-function change_alpha(v) {
-    var a = v / 100;
-    if (color_m == "fill") {
-        fill_a = a;
-    } else {
-        stroke_a = a;
-    }
-
-    var rgba = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor)
+document.querySelector("#draw_color_alpha > range-b:nth-child(2)").oninput = () => {
+    change_alpha(document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value, "stroke");
+};
+function change_alpha(v, m) {
+    var rgba = Color(document.querySelector(`#draw_color_${m}`).style.backgroundColor)
         .rgb()
         .array();
-    rgba[3] = a;
-
-    change_color({ [color_m]: rgba }, true);
+    rgba[3] = v / 100;
+    change_color({ [m]: rgba }, true);
 }
 
 // 刷新控件颜色
@@ -328,13 +320,12 @@ function change_color(m_l, text) {
             color = m_l[i];
         color_l = Color(color).rgb().array();
         if (color_m == "fill") {
-            if (text) color_l[3] = fill_a;
             document.querySelector("#draw_color_fill").style.backgroundColor =
                 document.querySelector("#draw_color > div").style.backgroundColor =
                 fill_color =
                     Color(color_l).string();
-        } else {
-            if (text) color_l[3] = stroke_a;
+        }
+        if (color_m == "stroke") {
             document.querySelector("#draw_color_stroke").style.backgroundColor =
                 document.querySelector("#draw_color > div").style.borderColor =
                 stroke_color =
@@ -349,7 +340,7 @@ function change_color(m_l, text) {
         }
 
         if (text) {
-            document.querySelector(`#draw_color_${color_m}`).innerText = Color(color).hex();
+            document.querySelector(`#draw_color_${color_m}`).innerText = Color(color).hexa();
         }
     }
 }
