@@ -8,15 +8,17 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 主要是想在Linux上(win,mac理论上能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的屏幕搜索功能，当然也是一款方便的截图软件
 
-![截屏界面](readme/1.png)
+![截屏界面](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/1.png)
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，对角坐标默认不显示，对角坐标和字体均可在设置里设置
 
-![识别文字主界面](readme/2.png)
+![识别文字主界面](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/2.png)
 
-## 安装
+## 下载安装
 
-在右侧releases打开标签，选择符合你系统的包并下载安装
+到网站[eSearch](https://esearch.vercel.app/#download)下载
+
+或在右侧releases打开标签，选择符合你系统的包并下载安装
 
 国内快速下载链接：[Releases · xushengfeng/eSearch · fastgit](https://hub.fastgit.org/xushengfeng/eSearch/releases)
 
@@ -80,16 +82,18 @@ esearch
   - [ ] 图像滤镜
   - [ ] 窗口选择
   - [ ] 控件选择
+  - [ ] 多屏幕
 - [x] 保存
 - [x] 复制到剪贴板
 - [x] 钉在屏幕上
   - [x] 滚轮缩放
   - [x] 恢复默认大小位置
   - [x] 透明度
+  - [x] 鼠标穿透
 - [x] 二维码识别
 - [x] OCR识别
   - [x] 本地OCR
-  - [x] OCR插件（在[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)实现）
+  - [x] OCR插件（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
 - [ ] 以图搜图
 - [x] 托盘
 - [x] 系统选中搜索
@@ -101,22 +105,22 @@ esearch
   - [x] 浏览器打开
   - [x] 链接识别
   - [x] 历史记录
-- [ ] Wayland桌面😅(为什么electron截不了wayland!)
+- [ ] Wayland桌面(为什么electron截不了wayland!)
 - [ ] 独立于electron的截图api
 
-![4](readme/4.gif)
+![4](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/4.gif)
 
 > 截图，自由调整框选大小
 
-![5](readme/5.gif)
+![5](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/5.gif)
 
 > 取色器
 
-![6](readme/6.gif)
+![6](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/6.gif)
 
 > ding在屏幕上
 
-![3](readme/3.png)
+![3](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/3.png)
 
 > 绘图界面，暂不支持滤镜
 

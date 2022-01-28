@@ -16,11 +16,9 @@
   "homepage": "https://xushengfeng.github.io/eSearch-website/",
   "license": "GPL3",
   "dependencies": {
-    "animejs": "^3.2.1",
     "color": "^4.0.2",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
-    "fabric": "^4.6.0",
     "hotkeys-js": "^3.8.7",
     "jsqr": "^1.4.0",
     "open": "^8.4.0",
@@ -48,7 +46,11 @@
           "config": {
             "name": "esearch",
             "productName": "eSearch",
-            "categories": ["Graphics", "System", "Utility"],
+            "categories": [
+              "Graphics",
+              "System",
+              "Utility"
+            ],
             "icon": "assets/icons/1024x1024.png"
           }
         },
@@ -57,7 +59,11 @@
           "config": {
             "name": "esearch",
             "productName": "eSearch",
-            "categories": ["Graphics", "System", "Utility"],
+            "categories": [
+              "Graphics",
+              "System",
+              "Utility"
+            ],
             "icon": "assets/icons/1024x1024.png"
           }
         }
