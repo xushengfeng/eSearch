@@ -849,21 +849,21 @@
   "resolved" "https://registry.nlark.com/color-name/download/color-name-1.1.4.tgz"
   "version" "1.1.4"
 
-"color-string@^1.7.4":
-  "integrity" "sha512-nVdUvPVgZMpRQad5dcsCMOSB5BXLljklTiaxS6ehhKxDsAI5sD7k5VmFuBt1y3Rlym8uulc/ANUN/bMWtBu6Sg=="
-  "resolved" "https://registry.npmmirror.com/color-string/download/color-string-1.7.4.tgz"
-  "version" "1.7.4"
+"color-string@^1.9.0":
+  "integrity" "sha512-9Mrz2AQLefkH1UvASKj6v6hj/7eWgjnT/cVsR8CumieLoT+g900exWeNogqtweI8dxloXN9BDQTYro1oWu/5CQ=="
+  "resolved" "https://registry.npmmirror.com/color-string/download/color-string-1.9.0.tgz"
+  "version" "1.9.0"
   dependencies:
     "color-name" "^1.0.0"
     "simple-swizzle" "^0.2.2"
 
-"color@^4.0.2":
-  "integrity" "sha512-fSu0jW2aKQG2FHlDywqdFPdabJHsUdZ0xabSt3wFZdcgRKtLnUHs19nUtuFuLGVMFhINGgfZEIjbUOsGZXGu7Q=="
-  "resolved" "https://registry.npmmirror.com/color/download/color-4.0.2.tgz"
-  "version" "4.0.2"
+"color@^4.2.0":
+  "integrity" "sha512-hHTcrbvEnGjC7WBMk6ibQWFVDgEFTVmjrz2Q5HlU6ltwxv0JJN2Z8I7uRbWeQLF04dikxs8zgyZkazRJvSMtyQ=="
+  "resolved" "https://registry.npmmirror.com/color/download/color-4.2.0.tgz"
+  "version" "4.2.0"
   dependencies:
     "color-convert" "^2.0.1"
-    "color-string" "^1.7.4"
+    "color-string" "^1.9.0"
 
 "colors@^1.3.3", "colors@^1.4.0":
   "integrity" "sha1-xQSRR51MG9rtLJztMs98fcI2D3g="
