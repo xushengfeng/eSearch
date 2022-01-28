@@ -138,7 +138,7 @@ document.querySelector("#自动打开链接").checked = store.get("自动打开�
 document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比") || 0.5;
 
 var o_搜索引擎 = store.get("搜索引擎");
-if (typeof o_搜索引擎 != "undefined") {
+if (o_搜索引擎) {
     var text = "";
     for (i in o_搜索引擎) {
         text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
@@ -157,7 +157,7 @@ document.querySelector("#搜索引擎").oninput = () => {
 };
 
 var o_翻译引擎 = store.get("翻译引擎");
-if (typeof o_翻译引擎 != "undefined") {
+if (o_翻译引擎) {
     var text = "";
     for (i in o_翻译引擎) {
         text += `${o_翻译引擎[i][0]}, ${o_翻译引擎[i][1]}\n`;
