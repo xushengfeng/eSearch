@@ -34,6 +34,7 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
     });
 });
 
+// 笔
 document.querySelector("#draw_free_pencil").onclick = () => {
     if (!document.querySelector("#draw_free_pencil").clicked) {
         document
@@ -59,6 +60,7 @@ document.querySelector("#draw_free_pencil").onclick = () => {
         fabric_canvas.isDrawingMode = false;
     }
 };
+// 橡皮
 document.querySelector("#draw_free_eraser").onclick = () => {
     if (!document.querySelector("#draw_free_eraser").clicked) {
         document
@@ -82,6 +84,7 @@ document.querySelector("#draw_free_eraser").onclick = () => {
         fabric_canvas.isDrawingMode = false;
     }
 };
+// 刷
 document.querySelector("#draw_free_spray").onclick = () => {
     if (!document.querySelector("#draw_free_spray").clicked) {
         document
@@ -108,7 +111,8 @@ document.querySelector("#draw_free_spray").onclick = () => {
     }
 };
 
-shape = "";
+// 几何
+var shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
     switch (e.target.id) {
         case "draw_shapes_line":
@@ -131,6 +135,7 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
             break;
     }
 };
+// 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
     switch (e.target.id) {
         case "draw_position_front":
@@ -148,25 +153,29 @@ document.getElementById("draw_position_i").onclick = (e) => {
     }
 };
 
+// 删除快捷键
 document.onkeydown = (e) => {
     if (e.key == "Delete") {
         fabric_canvas.remove(fabric_canvas.getActiveObject());
     }
 };
 
-drawing_shape = false;
-shapes = [];
-draw_o_p = [];
-poly_o_p = [];
+var drawing_shape = false;
+var shapes = [];
+var draw_o_p = []; // 首次按下的点
+var poly_o_p = []; // 多边形点
 
 fabric_canvas.on("mouse:down", (options) => {
+    // 非常规状态下点击
     if (shape != "") {
         drawing_shape = true;
         fabric_canvas.selection = false;
+        // 折线与多边形要多次点击，在poly_o_p存储点
         if (shape != "polyline" && shape != "polygon") {
             draw_o_p = [options.e.offsetX, options.e.offsetY];
             draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
         } else {
+            // 定义最后一个点,双击,点重复,结束
             var poly_o_p_l = poly_o_p[poly_o_p.length - 1];
             if (!(options.e.offsetX == poly_o_p_l?.x && options.e.offsetY == poly_o_p_l?.y)) {
                 poly_o_p.push({ x: options.e.offsetX, y: options.e.offsetY });
@@ -193,6 +202,7 @@ fabric_canvas.on("mouse:up", () => {
     }
 });
 
+// 画一般图形
 function draw(shape, v, x1, y1, x2, y2) {
     if (v == "move") {
         fabric_canvas.remove(shapes[shapes.length - 1]);
@@ -238,6 +248,7 @@ function draw(shape, v, x1, y1, x2, y2) {
     }
     fabric_canvas.add(shapes[shapes.length - 1]);
 }
+// 多边形
 function draw_poly(shape) {
     if (poly_o_p.length != 1) {
         fabric_canvas.remove(shapes[shapes.length - 1]);
@@ -265,9 +276,9 @@ function draw_poly(shape) {
 }
 
 // 颜色选择
-fill_a = 1;
-stroke_a = 1;
-color_m = "fill";
+var fill_a = 1;
+var stroke_a = 1;
+var color_m = "fill";
 document.querySelector("#draw_color_fill").onfocus = () => {
     color_m = "fill";
     document.querySelector("#draw_color_alpha > range-b").value = fill_a * 100;
@@ -335,6 +346,7 @@ function change_color(color, text) {
     }
 }
 
+// 色盘
 function color_bar() {
     color_list = [];
     var b_color = Color("hsl(0,0%,100%)");
@@ -370,6 +382,8 @@ document.querySelector("#draw_stroke_width > range-b").oninput = () => {
     }
 };
 
+
+// fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
     o = !o;
     if (o) {
@@ -387,7 +401,6 @@ document.querySelector("#draw_edit input").onkeydown = (e) => {
         fabric_api();
     }
 };
-
 function fabric_api() {
     var e = document.querySelector("#draw_edit input").value;
     if (e.includes("$0")) {
