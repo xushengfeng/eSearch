@@ -33,3 +33,7 @@ range-b {
     font-family: var(--monospace);
     margin: 0;
 }
+
+.range_t > p:nth-child(2) {
+    pointer-events: none;
+}
