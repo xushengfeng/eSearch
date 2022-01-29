@@ -37,3 +37,7 @@ range-b {
 .range_t > p:nth-child(2) {
     pointer-events: none;
 }
+
+lock-b {
+    display: block;
+}
