@@ -184,15 +184,15 @@ app.whenReady().then(() => {
     globalShortcut.register(store.get("key_自动识别") || "CommandOrControl+Shift+Z", () => {
         auto_open();
     });
-    if (store.get("key_截图搜索") != undefined)
+    if (store.get("key_截图搜索"))
         globalShortcut.register(store.get("key_截图搜索"), () => {
             full_screen();
         });
-    if (store.get("key_选中搜索") != undefined)
+    if (store.get("key_选中搜索"))
         globalShortcut.register(store.get("key_选中搜索"), () => {
             open_selection();
         });
-    if (store.get("key_剪贴板搜索") != undefined)
+    if (store.get("key_剪贴板搜索"))
         globalShortcut.register(store.get("key_剪贴板搜索"), () => {
             open_clip_board();
         });
