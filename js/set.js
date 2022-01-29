@@ -38,14 +38,18 @@ function 选择器储存(id, 默认) {
     };
 }
 
-document.querySelector("#自动识别 hot-keys div").innerHTML =
-    `<kbd>${store.get("key_自动识别")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-document.querySelector("#截图搜索 hot-keys div").innerHTML =
-    `<kbd>${store.get("key_截图搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-document.querySelector("#选中搜索 hot-keys div").innerHTML =
-    `<kbd>${store.get("key_选中搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
-    `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+if (store.get("key_自动识别"))
+    document.querySelector("#自动识别 hot-keys div").innerHTML =
+        `<kbd>${store.get("key_自动识别")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+if (store.get("key_截图搜索"))
+    document.querySelector("#截图搜索 hot-keys div").innerHTML =
+        `<kbd>${store.get("key_截图搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+if (store.get("key_选中搜索"))
+    document.querySelector("#选中搜索 hot-keys div").innerHTML =
+        `<kbd>${store.get("key_选中搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+if (store.get("key_剪贴板搜索"))
+    document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
+        `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
 
 if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
