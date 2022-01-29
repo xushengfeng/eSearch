@@ -158,7 +158,8 @@ body {
     width: 60px;
 }
 #draw_main > div,
-.draw_items > div {
+.draw_items > div,
+.draw_items > lock-b {
     background-position: center;
     background-size: 70%;
     background-repeat: no-repeat;

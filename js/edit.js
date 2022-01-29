@@ -35,79 +35,38 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
 });
 
 // 笔
-document.querySelector("#draw_free_pencil").onclick = () => {
-    if (!document.querySelector("#draw_free_pencil").clicked) {
-        document
-            .querySelector("#draw_free_pencil")
-            .parentNode.querySelectorAll("div")
-            .forEach((ei) => {
-                ei.clicked = false;
-                ei.style.backgroundColor = "";
-            });
-        document.querySelector("#draw_free_pencil").clicked = !document.querySelector("#draw_free_pencil").clicked;
-        document.querySelector("#draw_free_pencil").style.backgroundColor = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--hover-color");
+document.querySelector("#draw_free_pencil").oninput = () => {
+    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_pencil").checked;
+    if (document.querySelector("#draw_free_pencil").checked) {
+        document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
+        document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
 
-        fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = stroke_color;
         fabric_canvas.freeDrawingBrush.width = stroke_width;
-    } else {
-        document.querySelector("#draw_free_pencil").clicked = !document.querySelector("#draw_free_pencil").clicked;
-        document.querySelector("#draw_free_pencil").style.backgroundColor = "";
-
-        fabric_canvas.isDrawingMode = false;
     }
 };
 // 橡皮
-document.querySelector("#draw_free_eraser").onclick = () => {
-    if (!document.querySelector("#draw_free_eraser").clicked) {
-        document
-            .querySelector("#draw_free_eraser")
-            .parentNode.querySelectorAll("div")
-            .forEach((ei) => {
-                ei.clicked = false;
-                ei.style.backgroundColor = "";
-            });
-        document.querySelector("#draw_free_eraser").clicked = !document.querySelector("#draw_free_eraser").clicked;
-        document.querySelector("#draw_free_eraser").style.backgroundColor = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--hover-color");
+document.querySelector("#draw_free_eraser").oninput = () => {
+    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_eraser").checked;
+    if (document.querySelector("#draw_free_eraser").checked) {
+        document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
+        document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
 
-        fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
-    } else {
-        document.querySelector("#draw_free_eraser").clicked = !document.querySelector("#draw_free_eraser").clicked;
-        document.querySelector("#draw_free_eraser").style.backgroundColor = "";
-
-        fabric_canvas.isDrawingMode = false;
+        fabric_canvas.freeDrawingBrush.width = stroke_width;
     }
 };
 // 刷
-document.querySelector("#draw_free_spray").onclick = () => {
-    if (!document.querySelector("#draw_free_spray").clicked) {
-        document
-            .querySelector("#draw_free_spray")
-            .parentNode.querySelectorAll("div")
-            .forEach((ei) => {
-                ei.clicked = false;
-                ei.style.backgroundColor = "";
-            });
-        document.querySelector("#draw_free_spray").clicked = !document.querySelector("#draw_free_spray").clicked;
-        document.querySelector("#draw_free_spray").style.backgroundColor = getComputedStyle(
-            document.documentElement
-        ).getPropertyValue("--hover-color");
+document.querySelector("#draw_free_spray").oninput = () => {
+    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_spray").checked;
+    if (document.querySelector("#draw_free_spray").checked) {
+        document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
+        document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
 
-        fabric_canvas.isDrawingMode = true;
         fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = stroke_color;
         fabric_canvas.freeDrawingBrush.width = stroke_width;
-    } else {
-        document.querySelector("#draw_free_spray").clicked = !document.querySelector("#draw_free_spray").clicked;
-        document.querySelector("#draw_free_spray").style.backgroundColor = "";
-
-        fabric_canvas.isDrawingMode = false;
     }
 };
 
