@@ -167,7 +167,7 @@ function tool_close_f() {
 }
 // OCR
 function tool_ocr_f() {
-    get_clip_photo().then((c) => {
+    get_clip_photo("png").then((c) => {
         ipcRenderer.send("ocr", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
     });
 
@@ -190,7 +190,7 @@ function tool_ocr_f() {
 }
 // 二维码
 function tool_QR_f() {
-    get_clip_photo().then((c) => {
+    get_clip_photo("png").then((c) => {
         var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
         var code = jsqr(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
@@ -254,7 +254,7 @@ document.querySelector("#app_path > div > input").onkeydown = (e) => {
 function open_app() {
     var app = document.querySelector("#app_path > div > input").value;
     store.set("其他应用打开", app);
-    get_clip_photo().then((c) => {
+    get_clip_photo("png").then((c) => {
         f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         dataBuffer = new Buffer(f, "base64");
         fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
@@ -281,7 +281,7 @@ function open_app() {
 // 钉在屏幕上
 function tool_ding_f() {
     ding_window_setting = final_rect;
-    get_clip_photo().then((c) => {
+    get_clip_photo("png").then((c) => {
         ding_window_setting[4] = c.toDataURL();
         ipcRenderer.send("ding", ding_window_setting);
         tool_close_f();
@@ -289,7 +289,7 @@ function tool_ding_f() {
 }
 // 复制
 function tool_copy_f() {
-    get_clip_photo().then((c) => {
+    get_clip_photo("png").then((c) => {
         clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
         tool_close_f();
     });
@@ -307,10 +307,15 @@ function tool_save_f() {
             console.log(message);
             tool_close_f();
             if (message != "") {
-                get_clip_photo().then((c) => {
-                    f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-                    dataBuffer = new Buffer(f, "base64");
-                    fs.writeFile(message, dataBuffer, () => {});
+                get_clip_photo(type).then((c) => {
+                    if (type == "svg") {
+                        var dataBuffer = new Buffer(c, "UTF-8");
+                        fs.writeFile(message, dataBuffer, () => {});
+                    } else {
+                        var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+                        var dataBuffer = new Buffer(f, "base64");
+                        fs.writeFile(message, dataBuffer, () => {});
+                    }
                 });
             }
             document.getElementById("save_type").style.display = "none";
@@ -318,33 +323,44 @@ function tool_save_f() {
     };
 }
 
-function get_clip_photo() {
+var svg;
+function get_clip_photo(type) {
     main_ctx = main_canvas.getContext("2d");
-    var tmp_canvas = document.createElement("canvas");
-    if (final_rect != "") {
+    if (final_rect == "") final_rect = [0, 0, main_canvas.width, main_canvas.height];
+
+    if (type == "svg") {
+        fabric_canvas.discardActiveObject();
+        svg = document.createElement("div");
+        svg.innerHTML = fabric_canvas.toSVG();
+        svg.querySelector("svg").setAttribute("viewBox", final_rect.join(" "));
+        var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        image.setAttribute("xlink:href", main_canvas.toDataURL());
+        svg.querySelector("svg").insertBefore(image, svg.querySelector("svg").firstChild);
+        svg_t = new XMLSerializer().serializeToString(svg.querySelector("svg"));
+        return new Promise((resolve, rejects) => {
+            resolve(svg_t);
+        });
+    } else {
+        var tmp_canvas = document.createElement("canvas");
         tmp_canvas.width = final_rect[2];
         tmp_canvas.height = final_rect[3];
-    } else {
-        tmp_canvas.width = main_canvas.width;
-        tmp_canvas.height = main_canvas.height;
-        final_rect = [0, 0, main_canvas.width, main_canvas.height];
+        gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
+        tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
+        fabric_canvas.discardActiveObject();
+        var image = document.createElement("img");
+        image.src = fabric_canvas.toDataURL({
+            left: final_rect[0],
+            top: final_rect[1],
+            width: final_rect[2],
+            height: final_rect[3],
+            format: type,
+        });
+        return new Promise((resolve, rejects) => {
+            image.onload = () => {
+                tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
+                resolve(tmp_canvas);
+                // tmp_canvas;
+            };
+        });
     }
-    gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
-    tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-    fabric_canvas.discardActiveObject();
-    var image = document.createElement("img");
-    image.src = fabric_canvas.toDataURL({
-        left: final_rect[0],
-        top: final_rect[1],
-        width: final_rect[2],
-        height: final_rect[3],
-        format: "png",
-    });
-    return new Promise((resolve, rejects) => {
-        image.onload = () => {
-            tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
-            resolve(tmp_canvas);
-            // tmp_canvas;
-        };
-    });
 }
