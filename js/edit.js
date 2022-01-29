@@ -93,6 +93,10 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
             shape = "text";
             break;
     }
+    fabric_canvas.isDrawingMode = false;
+    document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
+    document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
+    document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
 };
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
