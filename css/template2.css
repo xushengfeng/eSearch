@@ -10,7 +10,6 @@ range-b {
     -webkit-appearance: none;
     background-size: 75% 100%;
     background: linear-gradient(var(--hover-color), var(--hover-color)) no-repeat, #0000;
-    outline: none;
 }
 
 #range::-webkit-slider-thumb {

@@ -14,7 +14,7 @@
     --color-size: 150px;
     --color-i-size: 10px;
     --monospace: ;
-    --main-font:sans-serif;
+    --main-font: sans-serif;
 }
 
 html,
@@ -92,6 +92,18 @@ kbd {
     background-color: var(--hover-color);
 }
 
-button{
+button {
+    outline: none;
+}
+
+input {
+    outline: none;
+}
+
+select {
+    outline: none;
+}
+
+textarea{
     outline: none;
 }

@@ -68,14 +68,12 @@ body {
     grid-area: 1 / 1 / 2 / 3;
 }
 #save_type > select {
-    outline: none;
     font-size: 1rem;
     border: none;
     background-color: #0000;
     width: 100%;
 }
 #save_type > button {
-    outline: none;
     border: none;
     background-color: #0000;
     transition: var(--transition);
@@ -313,7 +311,6 @@ video {
     align-items: center;
 }
 .input_bar > div > input {
-    outline: none;
     border: none;
     height: 20px;
     padding: 0;
@@ -323,7 +320,6 @@ video {
 }
 .input_bar > div > button,
 #toast > button {
-    outline: none;
     border: none;
     transition: var(--transition);
     border-radius: var(--border-radius);

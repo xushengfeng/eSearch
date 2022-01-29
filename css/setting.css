@@ -50,10 +50,6 @@ input[type="number"] {
     border-bottom: var(--border);
     font-size: 18px;
 }
-textarea:focus,
-input:focus {
-    outline: none;
-}
 
 a {
     color: var(--color);

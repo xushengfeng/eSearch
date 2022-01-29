@@ -30,7 +30,6 @@ hot-keys {
 }
 
 #key_input:focus {
-    outline: none;
     border-bottom: var(--border);
 }
 
