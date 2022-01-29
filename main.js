@@ -205,7 +205,7 @@ app.on("will-quit", () => {
 });
 
 // 截图窗口
-clip_window = null;
+var clip_window = null;
 function create_clip_window() {
     clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
@@ -272,17 +272,19 @@ function create_clip_window() {
             });
     });
 
-    ipcMain.on("save", (event) => {
-        save_time = new Date();
-        save_name_time = `${save_time.getFullYear()}-${
+    ipcMain.on("save", (event, type) => {
+        var save_time = new Date();
+        var save_name_time = `${save_time.getFullYear()}-${
             save_time.getMonth() + 1
         }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
-        saved_path = store.get("保存路径") || "";
+        var saved_path = store.get("保存路径") || "";
+        clip_window.setFullScreen(false);
+        clip_window.hide();
         dialog
             .showSaveDialog({
                 title: "选择要保存的位置",
-                defaultPath: `${saved_path}Screenshot-${save_name_time}.png`,
-                filters: [{ name: "图像", extensions: ["png", "jpg"] }],
+                defaultPath: `${saved_path}Screenshot-${save_name_time}.${type}`,
+                filters: [{ name: "图像", extensions: [type] }],
             })
             .then((x) => {
                 event.sender.send("save_path", x.filePath);
@@ -305,6 +307,8 @@ function create_clip_window() {
                         body: `用户已取消保存`,
                         icon: `${run_path}/assets/icons/64x64.png`,
                     }).show();
+                    clip_window.show();
+                    clip_window.setFullScreen(true);
                 }
             });
     });

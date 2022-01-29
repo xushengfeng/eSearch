@@ -56,6 +56,10 @@ body {
     display: block;
 }
 
+#save_type {
+    display: none;
+}
+
 #service_download {
     cursor: pointer;
 }

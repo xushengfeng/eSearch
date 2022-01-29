@@ -296,18 +296,25 @@ function tool_copy_f() {
 }
 // 保存
 function tool_save_f() {
-    ipcRenderer.send("save");
-    tool_close_f();
-    ipcRenderer.on("save_path", (event, message) => {
-        console.log(message);
-        if (message != "") {
-            get_clip_photo().then((c) => {
-                f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-                dataBuffer = new Buffer(f, "base64");
-                fs.writeFile(message, dataBuffer, () => {});
-            });
-        }
-    });
+    document.querySelector("#windows_bar").style.transform = "translateX(0)";
+    o = true;
+    document.getElementById("save_type").style.display = "block";
+    document.getElementById("suffix").oninput = (e) => {
+        var type = document.getElementById("suffix").value;
+        ipcRenderer.send("save", type);
+        ipcRenderer.on("save_path", (event, message) => {
+            console.log(message);
+            tool_close_f();
+            if (message != "") {
+                get_clip_photo().then((c) => {
+                    f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+                    dataBuffer = new Buffer(f, "base64");
+                    fs.writeFile(message, dataBuffer, () => {});
+                });
+            }
+            document.getElementById("save_type").style.display = "none";
+        });
+    };
 }
 
 function get_clip_photo() {
