@@ -21,13 +21,16 @@ body {
     width: 250px;
     position: fixed;
     z-index: 97;
-    transform: translateX(-100%);
+    /* transform: translateX(-100%); */
     backdrop-filter: var(--blur);
     transition: var(--transition);
     overflow: scroll;
     height: 100%;
     padding: 16px;
     box-sizing: border-box;
+}
+#windows_bar > div {
+    margin-bottom: 16px;
 }
 .window {
     transition: var(--transition);
@@ -58,6 +61,27 @@ body {
 
 #save_type {
     display: none;
+    grid-template-columns: auto 36px;
+    grid-template-rows: auto 36px;
+}
+#save_type > span {
+    grid-area: 1 / 1 / 2 / 3;
+}
+#save_type > select {
+    outline: none;
+    font-size: 1rem;
+    border: none;
+    background-color: #0000;
+    width: 100%;
+}
+#save_type > button {
+    outline: none;
+    border: none;
+    background-color: #0000;
+    transition: var(--transition);
+}
+#save_type > button:hover {
+    background-color: var(--hover-color);
 }
 
 #service_download {

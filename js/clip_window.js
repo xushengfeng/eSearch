@@ -298,8 +298,9 @@ function tool_copy_f() {
 function tool_save_f() {
     document.querySelector("#windows_bar").style.transform = "translateX(0)";
     o = true;
-    document.getElementById("save_type").style.display = "block";
-    document.getElementById("suffix").oninput = (e) => {
+    document.getElementById("save_type").style.display = "grid";
+    document.getElementById("suffix").focus();
+    document.getElementById("suffix").oninput = document.getElementById("suffix_b").onclick = () => {
         var type = document.getElementById("suffix").value;
         ipcRenderer.send("save", type);
         ipcRenderer.on("save_path", (event, message) => {
