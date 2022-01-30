@@ -475,6 +475,48 @@ document.querySelector("#draw_filters_blur > range-b").oninput = () => {
         apply_filter(1, null);
     }
 };
+// 亮度
+document.querySelector("#draw_filters_brightness > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_brightness > range-b").value;
+    var filter = new fabric.Image.filters.Brightness({
+        brightness: value,
+    });
+    apply_filter(2, filter);
+};
+// 对比度
+document.querySelector("#draw_filters_contrast > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_contrast > range-b").value;
+    var filter = new fabric.Image.filters.Contrast({
+        contrast: value,
+    });
+    apply_filter(3, filter);
+};
+// 饱和度
+document.querySelector("#draw_filters_saturation > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_saturation > range-b").value;
+    var filter = new fabric.Image.filters.Saturation({
+        saturation: value,
+    });
+    apply_filter(4, filter);
+};
+// 色调
+document.querySelector("#draw_filters_hue > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_hue > range-b").value;
+    var filter = new fabric.Image.filters.HueRotation({
+        rotation: value,
+    });
+    apply_filter(5, filter);
+};
+// 负片
+document.querySelector("#draw_filters_invert > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_invert > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Invert();
+        apply_filter(20, filter);
+    } else {
+        apply_filter(20, null);
+    }
+};
 // fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
     o = !o;

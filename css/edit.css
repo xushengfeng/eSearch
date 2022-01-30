@@ -53,7 +53,8 @@
     overflow: hidden;
 }
 
-#draw_filters_i > div > range-b {
+#draw_filters_i > div > range-b,
+#draw_filters_i > div > lock-b {
     height: 60px;
 }
 
