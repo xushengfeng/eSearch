@@ -132,6 +132,7 @@ var drawing_shape = false;
 var shapes = [];
 var draw_o_p = []; // 首次按下的点
 var poly_o_p = []; // 多边形点
+var new_filter_o = null;
 
 fabric_canvas.on("mouse:down", (options) => {
     // 非常规状态下点击
@@ -154,6 +155,10 @@ fabric_canvas.on("mouse:down", (options) => {
             }
         }
     }
+    
+    if (new_filter_selecting) {
+    	new_filter_o = fabric_canvas.getPointer(options.e);
+    }
 });
 fabric_canvas.on("mouse:move", (options) => {
     if (drawing_shape) {
@@ -170,6 +175,11 @@ fabric_canvas.on("mouse:up", () => {
     }
 
     get_f_object_v();
+    
+    if (new_filter_selecting) {
+    	new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
+    	new_filter_selecting = flase;
+    }
 });
 
 // 画一般图形
@@ -427,22 +437,39 @@ function set_f_object_v(fill, stroke, strokeWidth) {
 }
 
 // 滤镜
+fabric_canvas.filterBackend = fabric.initFilterBackend();
 var webglBackend;
 try {
     webglBackend = new fabric.WebglFilterBackend();
+    fabric_canvas.filterBackend = webglBackend;
 } catch (e) {
     console.log(e);
 }
-fabric_canvas.filterBackend = fabric.initFilterBackend();
-fabric_canvas.filterBackend = webglBackend;
 
-function new_filter_select() {
-    // TODO
-    var img = new fabric.Image(main_canvas);
+var new_filter_selectting = false;
+function new_filter_select(o, no) {
+	var x1 = o.x.toFixed(),
+	    y1 = o.y.toFixed(),
+	    x2 = no.x.toFixed(),
+	    y2 = no.y.toFixed();
+	var x = Math.min(x1, x2),
+	    y = Math.min(y1, y2),
+	    w = Math.abs(x1 - x2),
+	    h = Math.abs(y1 - y2);
+	        
+    var main_ctx = main_canvas.getContext("2d");
+    var tmp_canvas = document.createElement("canvas");
+    tmp_canvas.width = w;
+    tmp_canvas.height = h;
+    var gid = main_ctx.getImageData(x, y, w, h); // 裁剪
+    tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
+    var img = new fabric.Image(tmp_canvas);
     fabric_canvas.add(img);
 }
 
-document.getElementById("draw_filters_select").onclick = new_filter_select;
+document.getElementById("draw_filters_select").onclick = () => {
+    new_filter_selecting = true;
+};
 
 function apply_filter(i, filter) {
     var obj = fabric_canvas.getActiveObject();
