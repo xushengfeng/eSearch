@@ -312,47 +312,52 @@ for (i = 1; i <= color_size ** 2; i++) {
     }
 }
 document.querySelector("#point_color").innerHTML = inner_html;
-point_color_span_list = document.querySelectorAll("#point_color > span");
+inner_html = null;
+var point_color_span_list = document.querySelectorAll("#point_color > span");
 
 // 鼠标跟随栏
 function mouse_bar(final_rect, x, y) {
-    x0 = final_rect[0];
-    x1 = final_rect[0] + final_rect[2];
-    y0 = final_rect[1];
-    y1 = final_rect[1] + final_rect[3];
-    color = main_canvas
+    var x0 = final_rect[0],
+        x1 = final_rect[0] + final_rect[2],
+        y0 = final_rect[1],
+        y1 = final_rect[1] + final_rect[3];
+    var color = main_canvas
         .getContext("2d")
         .getImageData(x - (color_size - 1) / 2, y - (color_size - 1) / 2, color_size, color_size).data; // 取色器密度
     // 分开每个像素的颜色
-    color_g = [];
     for (var i = 0, len = color.length; i < len; i += 4) {
-        color_g.push(color.slice(i, i + 4));
-    }
-    for (i in color_g) {
-        color_g[i][3] /= 255;
-        xx = (i % Math.sqrt(color_g.length)) + (x - (Math.sqrt(color_g.length) - 1) / 2);
-        yy = parseInt(i / Math.sqrt(color_g.length)) + (y - (Math.sqrt(color_g.length) - 1) / 2);
-        if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && i != (color_g.length - 1) / 2) {
+        var color_g = color.slice(i, i + 4);
+        color_g[3] /= 255;
+        var ii = parseInt(i / 4);
+        var xx = (ii % color_size) + (x - (color_size - 1) / 2);
+        var yy = parseInt(ii / color_size) + (y - (color_size - 1) / 2);
+        if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && ii != (color.length / 4 - 1) / 2) {
             // 框外
-            point_color_span_list[i].id = "point_color_t_b";
-            point_color_span_list[i].style.background = Color.rgb(color_g[i]).string();
-        } else if (i == (color_g.length - 1) / 2) {
+            point_color_span_list[ii].id = "point_color_t_b";
+            point_color_span_list[
+                ii
+            ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
+        } else if (ii == (color.length / 4 - 1) / 2) {
             // 光标中心点
-            point_color_span_list[i].id = "point_color_t_c";
-            point_color_span_list[i].style.background = Color.rgb(color_g[i]).string();
+            point_color_span_list[ii].id = "point_color_t_c";
+            point_color_span_list[
+                ii
+            ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
             // 颜色文字
-            the_color = color_g[i];
-            document.querySelector("#clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
+            the_color = color_g;
+            document.getElementById("clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
         } else {
-            point_color_span_list[i].id = "point_color_t_t";
-            point_color_span_list[i].style.background = Color.rgb(color_g[i]).string();
+            point_color_span_list[ii].id = "point_color_t_t";
+            point_color_span_list[
+                ii
+            ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
         }
     }
 
     if (光标 == "以(1,1)为起点") {
-        document.querySelector("#clip_xy").innerHTML = `(${x + 1}, ${y + 1})`;
+        document.getElementById("clip_xy").innerHTML = `(${x + 1}, ${y + 1})`;
     } else {
-        document.querySelector("#clip_xy").innerHTML = `(${x}, ${y})`;
+        document.getElementById("clip_xy").innerHTML = `(${x}, ${y})`;
     }
 }
 

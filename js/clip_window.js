@@ -32,6 +32,7 @@ function set_setting() {
     color_i_size = store.get("像素大小") || "10";
     document.documentElement.style.setProperty("--color-size", `${color_size * color_i_size}px`);
     document.documentElement.style.setProperty("--color-i-size", `${color_i_size}px`);
+    document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
 }
 
 全局缩放 = store.get("全局缩放") || 1.0;

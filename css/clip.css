@@ -218,11 +218,9 @@ video {
     height: var(--color-size);
     overflow: hidden;
     transition: var(--transition);
-}
-#point_color span {
-    width: var(--color-i-size);
-    height: var(--color-i-size);
-    float: left;
+    display: grid;
+    grid-template-columns: repeat(var(--color-i-i), var(--color-i-size));
+    grid-template-rows: repeat(var(--color-i-i), var(--color-i-size));
 }
 #point_color_t_c {
     outline: 2px #000 solid;
