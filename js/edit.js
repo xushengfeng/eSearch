@@ -39,6 +39,7 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
 // 笔
 document.querySelector("#draw_free_pencil").oninput = () => {
     fabric_canvas.isDrawingMode = document.querySelector("#draw_free_pencil").checked;
+    get_f_object_v();
     if (document.querySelector("#draw_free_pencil").checked) {
         document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
         document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
@@ -51,6 +52,7 @@ document.querySelector("#draw_free_pencil").oninput = () => {
 // 橡皮
 document.querySelector("#draw_free_eraser").oninput = () => {
     fabric_canvas.isDrawingMode = document.querySelector("#draw_free_eraser").checked;
+    get_f_object_v();
     if (document.querySelector("#draw_free_eraser").checked) {
         document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
         document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
@@ -62,6 +64,7 @@ document.querySelector("#draw_free_eraser").oninput = () => {
 // 刷
 document.querySelector("#draw_free_spray").oninput = () => {
     fabric_canvas.isDrawingMode = document.querySelector("#draw_free_spray").checked;
+    get_f_object_v();
     if (document.querySelector("#draw_free_spray").checked) {
         document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
         document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
@@ -283,14 +286,15 @@ function change_color(m_l, text) {
     for (i in m_l) {
         var color_m = i,
             color = m_l[i];
-        if (color_m == "fill" && color) {
+        if (color === null) color = "#0000";
+        if (color_m == "fill") {
             color_l = Color(color).rgb().array();
             document.querySelector("#draw_color_fill").style.backgroundColor = document.querySelector(
                 "#draw_color > div"
             ).style.backgroundColor = Color(color_l).string();
             set_f_object_v(Color(color_l).string(), null, null);
         }
-        if (color_m == "stroke" && color) {
+        if (color_m == "stroke") {
             color_l = Color(color).rgb().array();
             document.querySelector("#draw_color_stroke").style.backgroundColor = document.querySelector(
                 "#draw_color > div"
