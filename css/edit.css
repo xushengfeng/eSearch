@@ -49,6 +49,14 @@
     transform: scale(1.5);
 }
 
+#draw_filters_i > div {
+    overflow: hidden;
+}
+
+#draw_filters_i > div > range-b {
+    height: 60px;
+}
+
 .edit_s {
     width: 280px;
 }

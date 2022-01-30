@@ -426,6 +426,44 @@ function set_f_object_v(fill, stroke, strokeWidth) {
     }
 }
 
+// 滤镜
+var webglBackend;
+try {
+    webglBackend = new fabric.WebglFilterBackend();
+} catch (e) {
+    console.log(e);
+}
+fabric_canvas.filterBackend = fabric.initFilterBackend();
+fabric_canvas.filterBackend = webglBackend;
+
+function new_filter_select() {
+    // TODO
+    var img = new fabric.Image(main_canvas);
+    fabric_canvas.add(img);
+}
+
+document.getElementById("draw_filters_select").onclick = new_filter_select;
+
+function apply_filter(i, filter) {
+    var obj = fabric_canvas.getActiveObject();
+    obj.filters[i] = filter;
+    obj.applyFilters();
+    fabric_canvas.renderAll();
+}
+
+// 马赛克
+document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_pixelate > range-b").value;
+    if (value != 0) {
+        var filter = new fabric.Image.filters.Pixelate({
+            blocksize: value,
+        });
+        apply_filter(2, filter);
+    } else {
+        apply_filter(2, null);
+    }
+};
+
 // fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
     o = !o;
