@@ -3,6 +3,8 @@ let fabric_canvas = new fabric.Canvas("draw_photo");
 var stroke_color = "#333";
 var fill_color = "#fff";
 var stroke_width = 1;
+var free_color = "#333";
+var free_width = 1;
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
@@ -42,8 +44,8 @@ document.querySelector("#draw_free_pencil").oninput = () => {
         document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
 
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
-        fabric_canvas.freeDrawingBrush.color = stroke_color;
-        fabric_canvas.freeDrawingBrush.width = stroke_width;
+        fabric_canvas.freeDrawingBrush.color = free_color;
+        fabric_canvas.freeDrawingBrush.width = free_width;
     }
 };
 // 橡皮
@@ -54,7 +56,7 @@ document.querySelector("#draw_free_eraser").oninput = () => {
         document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
 
         fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
-        fabric_canvas.freeDrawingBrush.width = stroke_width;
+        fabric_canvas.freeDrawingBrush.width = free_width;
     }
 };
 // 刷
@@ -65,8 +67,8 @@ document.querySelector("#draw_free_spray").oninput = () => {
         document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
 
         fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
-        fabric_canvas.freeDrawingBrush.color = stroke_color;
-        fabric_canvas.freeDrawingBrush.width = stroke_width;
+        fabric_canvas.freeDrawingBrush.color = free_color;
+        fabric_canvas.freeDrawingBrush.width = free_width;
     }
 };
 
@@ -294,7 +296,6 @@ function change_color(m_l, text) {
                 "#draw_color > div"
             ).style.borderColor = Color(color_l).string();
             set_f_object_v(null, Color(color_l).string(), null);
-            fabric_canvas.freeDrawingBrush.color = stroke_color;
         }
         var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
         if (t_color.isLight()) {
@@ -382,6 +383,8 @@ document.querySelector("#draw_stroke_width > range-b").oninput = () => {
 function get_f_object_v() {
     if (fabric_canvas.getActiveObject()) {
         var n = fabric_canvas.getActiveObject();
+    } else if (fabric_canvas.isDrawingMode) {
+        n = { _objects: [{ fill: "#0000", stroke: free_color, strokeWidth: free_width }] };
     } else {
         n = { _objects: [{ fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width }] };
     }
@@ -394,7 +397,7 @@ function get_f_object_v() {
     var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
 }
-function set_f_object_v(fill, stroke, stroke_width) {
+function set_f_object_v(fill, stroke, strokeWidth) {
     if (fabric_canvas.getActiveObject()) {
         var n = fabric_canvas.getActiveObject();
         if (!n._objects) n._objects = [n];
@@ -402,13 +405,16 @@ function set_f_object_v(fill, stroke, stroke_width) {
         for (i in n) {
             if (fill) n[i].set("fill", fill);
             if (stroke) n[i].set("stroke", stroke);
-            if (stroke_width) n[i].set("strokeWidth", stroke_width);
+            if (strokeWidth) n[i].set("strokeWidth", strokeWidth);
         }
         fabric_canvas.renderAll();
+    } else if (fabric_canvas.isDrawingMode) {
+        if (stroke) fabric_canvas.freeDrawingBrush.color = free_color = stroke;
+        if (strokeWidth) fabric_canvas.freeDrawingBrush.width = free_width = strokeWidth;
     } else {
         if (fill) fill_color = fill;
         if (stroke) stroke_color = stroke;
-        if (stroke_width) fabric_canvas.freeDrawingBrush.width = stroke_width;
+        if (strokeWidth) stroke_width = strokeWidth;
     }
 }
 
