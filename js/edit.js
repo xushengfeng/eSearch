@@ -458,12 +458,23 @@ document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
         var filter = new fabric.Image.filters.Pixelate({
             blocksize: value,
         });
-        apply_filter(2, filter);
+        apply_filter(0, filter);
     } else {
-        apply_filter(2, null);
+        apply_filter(0, null);
     }
 };
-
+// 模糊
+document.querySelector("#draw_filters_blur > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_blur > range-b").value / 100;
+    if (value != 0) {
+        var filter = new fabric.Image.filters.Blur({
+            blur: value,
+        });
+        apply_filter(1, filter);
+    } else {
+        apply_filter(1, null);
+    }
+};
 // fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
     o = !o;
