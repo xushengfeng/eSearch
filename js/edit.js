@@ -302,10 +302,14 @@ function change_color(m_l, text) {
             set_f_object_v(null, Color(color_l).string(), null);
         }
         var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
-        if (t_color.isLight()) {
-            document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+        if (t_color.rgb().array()[3] >= 0.5 || t_color.rgb().array()[3] === undefined) {
+            if (t_color.isLight()) {
+                document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+            } else {
+                document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
+            }
         } else {
-            document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
+            document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
         }
 
         if (text) {
