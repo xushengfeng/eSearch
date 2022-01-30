@@ -79,25 +79,59 @@
             <!-- draw_filters -->
             <div class="draw_items" id="draw_filters_i">
                 <div id="draw_filters_select"></div>
-                <div id="draw_filters_pixelate">
+                <div id="draw_filters_pixelate" title="马赛克">
                     <range-b text="px" value="0" max="20"></range-b>
                 </div>
-                <div id="draw_filters_blur">
+                <div id="draw_filters_blur" title="模糊">
                     <range-b text="%" value="0"></range-b>
                 </div>
-                <div id="draw_filters_brightness">
+                <div id="draw_filters_brightness" title="亮度">
                     <range-b value="0" min="-1" max="1" step="0.01"></range-b>
                 </div>
-                <div id="draw_filters_contrast">
+                <div id="draw_filters_contrast" title="对比度">
                     <range-b value="0" min="-1" max="1" step="0.01"></range-b>
                 </div>
-                <div id="draw_filters_saturation">
+                <div id="draw_filters_saturation" title="饱和度">
                     <range-b value="0" min="-1" max="1" step="0.01"></range-b>
                 </div>
-                <div id="draw_filters_hue">
+                <div id="draw_filters_hue" title="色调">
                     <range-b value="0" min="-1" max="1" step="0.01"></range-b>
                 </div>
-                <div id="draw_filters_invert">
+                <div id="draw_filters_gamma" title="伽马">
+                    <range-b value="1" min="0.01" max="2.2" step="0.01" title="红"></range-b>
+                    <range-b value="1" min="0.01" max="2.2" step="0.01" title="绿"></range-b>
+                    <range-b value="1" min="0.01" max="2.2" step="0.01" title="蓝"></range-b>
+                </div>
+                <div id="draw_filters_noise" title="噪点">
+                    <range-b value="0" min="0" max="1000"></range-b>
+                </div>
+                <div id="draw_filters_grayscale" title="灰度">
+                    <lock-b title="平均"></lock-b>
+                    <lock-b title="亮度"></lock-b>
+                    <lock-b title="光度"></lock-b>
+                </div>
+                <div id="draw_filters_invert" title="负片">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_sepia" title="棕褐色">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_bw" title="黑白">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_brownie" title="布朗尼">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_vintage" title="老式">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_koda" title="柯达彩色胶片">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_techni" title="特艺色彩">
+                    <lock-b></lock-b>
+                </div>
+                <div id="draw_filters_polaroid" title="宝丽来">
                     <lock-b></lock-b>
                 </div>
             </div>

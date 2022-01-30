@@ -507,14 +507,127 @@ document.querySelector("#draw_filters_hue > range-b").oninput = () => {
     });
     apply_filter(5, filter);
 };
+// 伽马
+document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").oninput =
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").oninput =
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").oninput =
+        () => {
+            var r = document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").value;
+            var g = document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").value;
+            var b = document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").value;
+            var filter = new fabric.Image.filters.Gamma({
+                gamma: [r, g, b],
+            });
+            apply_filter(6, filter);
+        };
+// 噪音
+document.querySelector("#draw_filters_noise > range-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_noise > range-b").value;
+    var filter = new fabric.Image.filters.Noise({
+        noise: value,
+    });
+    apply_filter(7, filter);
+};
+// 灰度
+document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").oninput = () => {
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = false;
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = false;
+    if (document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked)
+        var filter = new fabric.Image.filters.Grayscale({ mode: "average" });
+    apply_filter(8, filter);
+};
+document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").oninput = () => {
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = false;
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = false;
+    if (document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked)
+        var filter = new fabric.Image.filters.Grayscale({ mode: "lightness" });
+    apply_filter(8, filter);
+};
+document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").oninput = () => {
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = false;
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = false;
+    if (document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked)
+        var filter = new fabric.Image.filters.Grayscale({ mode: "luminosity" });
+    apply_filter(8, filter);
+};
 // 负片
 document.querySelector("#draw_filters_invert > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_invert > lock-b").checked;
     if (value) {
         var filter = new fabric.Image.filters.Invert();
-        apply_filter(20, filter);
+        apply_filter(9, filter);
     } else {
-        apply_filter(20, null);
+        apply_filter(9, null);
+    }
+};
+// 棕褐色
+document.querySelector("#draw_filters_sepia > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_sepia > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Sepia();
+        apply_filter(10, filter);
+    } else {
+        apply_filter(10, null);
+    }
+};
+// 黑白
+document.querySelector("#draw_filters_bw > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_bw > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.BlackWhite();
+        apply_filter(11, filter);
+    } else {
+        apply_filter(11, null);
+    }
+};
+// 布朗尼
+document.querySelector("#draw_filters_brownie > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_brownie > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Brownie();
+        apply_filter(12, filter);
+    } else {
+        apply_filter(12, null);
+    }
+};
+// 老式
+document.querySelector("#draw_filters_vintage > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_vintage > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Vintage();
+        apply_filter(13, filter);
+    } else {
+        apply_filter(13, null);
+    }
+};
+// 柯达彩色胶片
+document.querySelector("#draw_filters_koda > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_koda > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Kodachrome();
+        apply_filter(14, filter);
+    } else {
+        apply_filter(14, null);
+    }
+};
+// 特艺色彩
+document.querySelector("#draw_filters_techni > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_techni > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Technicolor();
+        apply_filter(15, filter);
+    } else {
+        apply_filter(15, null);
+    }
+};
+// 宝丽来
+document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
+    var value = document.querySelector("#draw_filters_polaroid > lock-b").checked;
+    if (value) {
+        var filter = new fabric.Image.filters.Polaroid();
+        apply_filter(16, filter);
+    } else {
+        apply_filter(16, null);
     }
 };
 // fabric命令行

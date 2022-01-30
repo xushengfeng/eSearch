@@ -58,6 +58,13 @@
     height: 60px;
 }
 
+#draw_filters_gamma > range-b {
+    height: 20px !important;
+}
+#draw_filters_grayscale > lock-b {
+    height: 20px !important;
+}
+
 .edit_s {
     width: 280px;
 }
