@@ -49,6 +49,9 @@
     transform: scale(1.5);
 }
 
+#draw_filters_select {
+    background-image: url(../assets/draw_filter_add.svg);
+}
 #draw_filters_i > div {
     overflow: hidden;
 }

@@ -491,7 +491,12 @@ function apply_filter(i, filter) {
     fabric_canvas.renderAll();
 }
 function get_filters() {
-    if (!fabric_canvas.getActiveObject()?.filters) return; // TODO 可拆分为默认和有滤镜
+    if (fabric_canvas.getActiveObject()?.filters !== undefined) {
+        s_h_filters_div(false);
+    } else {
+        s_h_filters_div(true);
+        return;
+    }
     var f = fabric_canvas.getActiveObject().filters;
     console.log(f);
     document.querySelector("#draw_filters_pixelate > range-b").value = f[0]?.blocksize || 0;
@@ -528,6 +533,21 @@ function get_filters() {
     document.querySelector("#draw_filters_techni > lock-b").checked = f[15] ? true : false;
     document.querySelector("#draw_filters_polaroid > lock-b").checked = f[16] ? true : false;
 }
+function s_h_filters_div(v) {
+    var l = document.querySelectorAll("#draw_filters_i > div");
+    if (v) {
+        for (i = 1; i < l.length; i++) {
+            l[i].style.pointerEvents = "none";
+            l[i].style.opacity = 0.2;
+        }
+    } else {
+        for (i = 1; i < l.length; i++) {
+            l[i].style.pointerEvents = "auto";
+            l[i].style.opacity = 1;
+        }
+    }
+}
+s_h_filters_div(true);
 
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
