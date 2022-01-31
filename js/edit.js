@@ -155,9 +155,9 @@ fabric_canvas.on("mouse:down", (options) => {
             }
         }
     }
-    
+
     if (new_filter_selecting) {
-    	new_filter_o = fabric_canvas.getPointer(options.e);
+        new_filter_o = fabric_canvas.getPointer(options.e);
     }
 });
 fabric_canvas.on("mouse:move", (options) => {
@@ -167,7 +167,7 @@ fabric_canvas.on("mouse:move", (options) => {
         }
     }
 });
-fabric_canvas.on("mouse:up", () => {
+fabric_canvas.on("mouse:up", (options) => {
     if (shape != "polyline" && shape != "polygon") {
         drawing_shape = false;
         fabric_canvas.selection = true;
@@ -175,10 +175,10 @@ fabric_canvas.on("mouse:up", () => {
     }
 
     get_f_object_v();
-    
+
     if (new_filter_selecting) {
-    	new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
-    	new_filter_selecting = flase;
+        new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
+        new_filter_selecting = false;
     }
 });
 
@@ -448,23 +448,33 @@ try {
 
 var new_filter_selectting = false;
 function new_filter_select(o, no) {
-	var x1 = o.x.toFixed(),
-	    y1 = o.y.toFixed(),
-	    x2 = no.x.toFixed(),
-	    y2 = no.y.toFixed();
-	var x = Math.min(x1, x2),
-	    y = Math.min(y1, y2),
-	    w = Math.abs(x1 - x2),
-	    h = Math.abs(y1 - y2);
-	        
+    var x1 = o.x.toFixed(),
+        y1 = o.y.toFixed(),
+        x2 = no.x.toFixed(),
+        y2 = no.y.toFixed();
+    var x = Math.min(x1, x2),
+        y = Math.min(y1, y2),
+        w = Math.abs(x1 - x2),
+        h = Math.abs(y1 - y2);
+
     var main_ctx = main_canvas.getContext("2d");
     var tmp_canvas = document.createElement("canvas");
     tmp_canvas.width = w;
     tmp_canvas.height = h;
     var gid = main_ctx.getImageData(x, y, w, h); // 裁剪
     tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-    var img = new fabric.Image(tmp_canvas);
+    var img = new fabric.Image(tmp_canvas, {
+        left: x,
+        top: y,
+        lockMovementX: true,
+        lockMovementY: true,
+        lockRotation: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        hasControls: false,
+    });
     fabric_canvas.add(img);
+    fabric_canvas.setActiveObject(img);
 }
 
 document.getElementById("draw_filters_select").onclick = () => {
