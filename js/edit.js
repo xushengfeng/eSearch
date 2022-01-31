@@ -530,6 +530,7 @@ function get_filters() {
 }
 
 // 马赛克
+// 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
 document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
     var value = document.querySelector("#draw_filters_pixelate > range-b").value;
     if (value != 0) {
