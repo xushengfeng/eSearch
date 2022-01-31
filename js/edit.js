@@ -175,10 +175,12 @@ fabric_canvas.on("mouse:up", (options) => {
     }
 
     get_f_object_v();
+    get_filters();
 
     if (new_filter_selecting) {
         new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
         new_filter_selecting = false;
+        get_filters();
     }
 });
 
@@ -401,6 +403,7 @@ document.querySelector("#draw_stroke_width > range-b").oninput = () => {
 function get_f_object_v() {
     if (fabric_canvas.getActiveObject()) {
         var n = fabric_canvas.getActiveObject();
+        if (n.filters) n = { _objects: [{ fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width }] };
     } else if (fabric_canvas.isDrawingMode) {
         n = { _objects: [{ fill: "#0000", stroke: free_color, strokeWidth: free_width }] };
     } else {
@@ -446,7 +449,7 @@ try {
     console.log(e);
 }
 
-var new_filter_selectting = false;
+var new_filter_selecting = false;
 function new_filter_select(o, no) {
     var x1 = o.x.toFixed(),
         y1 = o.y.toFixed(),
@@ -486,6 +489,44 @@ function apply_filter(i, filter) {
     obj.filters[i] = filter;
     obj.applyFilters();
     fabric_canvas.renderAll();
+}
+function get_filters() {
+    if (!fabric_canvas.getActiveObject()?.filters) return; // TODO 可拆分为默认和有滤镜
+    var f = fabric_canvas.getActiveObject().filters;
+    console.log(f);
+    document.querySelector("#draw_filters_pixelate > range-b").value = f[0]?.blocksize || 0;
+    document.querySelector("#draw_filters_blur > range-b").value = f[1]?.blur * 100 || 0;
+    document.querySelector("#draw_filters_brightness > range-b").value = f[2]?.brightness || 0;
+    document.querySelector("#draw_filters_contrast > range-b").value = f[3]?.contrast || 0;
+    document.querySelector("#draw_filters_saturation > range-b").value = f[4]?.saturation || 0;
+    document.querySelector("#draw_filters_hue > range-b").value = f[5]?.rotation || 0;
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").value = f[6]?.gamma[0] || 1;
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").value = f[6]?.gamma[1] || 1;
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").value = f[6]?.gamma[2] || 1;
+    document.querySelector("#draw_filters_noise > range-b").value = f[7]?.noise || 0;
+    var gray = f[8]?.mode;
+    switch (gray) {
+        case "average":
+            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = true;
+            break;
+        case "lightness":
+            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = true;
+            break;
+        case "luminosity":
+            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = true;
+        default:
+            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = false;
+            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = false;
+            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = false;
+    }
+    document.querySelector("#draw_filters_invert > lock-b").checked = f[9] ? true : false;
+    document.querySelector("#draw_filters_sepia > lock-b").checked = f[10] ? true : false;
+    document.querySelector("#draw_filters_bw > lock-b").checked = f[11] ? true : false;
+    document.querySelector("#draw_filters_brownie > lock-b").checked = f[12] ? true : false;
+    document.querySelector("#draw_filters_vintage > lock-b").checked = f[13] ? true : false;
+    document.querySelector("#draw_filters_koda > lock-b").checked = f[14] ? true : false;
+    document.querySelector("#draw_filters_techni > lock-b").checked = f[15] ? true : false;
+    document.querySelector("#draw_filters_polaroid > lock-b").checked = f[16] ? true : false;
 }
 
 // 马赛克
@@ -667,6 +708,7 @@ document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
         apply_filter(16, null);
     }
 };
+
 // fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
     o = !o;
