@@ -175,8 +175,11 @@ fabric_canvas.on("mouse:up", (options) => {
     if (shape != "polyline" && shape != "polygon") {
         drawing_shape = false;
         fabric_canvas.selection = true;
-        shape = "";
         fabric_canvas.defaultCursor = "auto";
+        if (shape != "") {
+            fabric_canvas.setActiveObject(shapes[shapes.length - 1]);
+        }
+        shape = "";
     }
 
     get_f_object_v();
