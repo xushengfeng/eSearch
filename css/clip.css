@@ -20,8 +20,7 @@ body {
     background-color: var(--bar-bg);
     width: 250px;
     position: fixed;
-    z-index: 97;
-    /* transform: translateX(-100%); */
+    z-index: 100;
     backdrop-filter: var(--blur);
     transition: var(--transition);
     overflow: scroll;
@@ -77,6 +76,11 @@ body {
     border: none;
     background-color: #0000;
     transition: var(--transition);
+    border-radius: var(--border-radius);
+    background-image: url(../assets/tool_save.svg);
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
 }
 #save_type > button:hover {
     background-color: var(--hover-color);
