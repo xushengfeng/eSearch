@@ -126,6 +126,8 @@ document.getElementById("draw_position_i").onclick = (e) => {
 document.onkeydown = (e) => {
     if (e.key == "Delete") {
         fabric_canvas.remove(fabric_canvas.getActiveObject());
+        get_f_object_v();
+        get_filters();
     }
 };
 
