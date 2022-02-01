@@ -84,26 +84,7 @@ document.querySelector("#draw_free_spray").oninput = () => {
 // 几何
 var shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
-    switch (e.target.id) {
-        case "draw_shapes_line":
-            shape = "line";
-            break;
-        case "draw_shapes_circle":
-            shape = "circle";
-            break;
-        case "draw_shapes_rect":
-            shape = "rect";
-            break;
-        case "draw_shapes_polyline":
-            shape = "polyline";
-            break;
-        case "draw_shapes_polygon":
-            shape = "polygon";
-            break;
-        case "draw_shapes_text":
-            shape = "text";
-            break;
-    }
+    if (e.target.id != "draw_shapes_i") shape = e.target.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
     exit_free();
     exit_filter();
     fabric_canvas.defaultCursor = "crosshair";
