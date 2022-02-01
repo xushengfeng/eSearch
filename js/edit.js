@@ -48,6 +48,8 @@ document.querySelector("#draw_free_pencil").oninput = () => {
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
     }
+    exit_shape();
+    exit_filter();
 };
 // 橡皮
 document.querySelector("#draw_free_eraser").oninput = () => {
@@ -60,6 +62,8 @@ document.querySelector("#draw_free_eraser").oninput = () => {
         fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.width = free_width;
     }
+    exit_shape();
+    exit_filter();
 };
 // 刷
 document.querySelector("#draw_free_spray").oninput = () => {
@@ -73,6 +77,8 @@ document.querySelector("#draw_free_spray").oninput = () => {
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
     }
+    exit_shape();
+    exit_filter();
 };
 
 // 几何
@@ -98,11 +104,9 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
             shape = "text";
             break;
     }
+    exit_free();
+    exit_filter();
     fabric_canvas.defaultCursor = "crosshair";
-    fabric_canvas.isDrawingMode = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
 };
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
@@ -492,6 +496,8 @@ function new_filter_select(o, no) {
 }
 
 document.querySelector("#draw_filters_select > lock-b").oninput = () => {
+    exit_free();
+    exit_shape();
     new_filter_selecting = true;
     fabric_canvas.defaultCursor = "crosshair";
 };
@@ -741,6 +747,27 @@ document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
         apply_filter(16, null);
     }
 };
+
+// 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
+function exit_free() {
+    fabric_canvas.isDrawingMode = false;
+    document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
+    document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
+    document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    fabric_canvas.defaultCursor = "auto";
+}
+function exit_shape() {
+    shape = "";
+    drawing_shape = false;
+    fabric_canvas.selection = true;
+    fabric_canvas.defaultCursor = "auto";
+    poly_o_p = [];
+}
+function exit_filter() {
+    new_filter_selecting = false;
+    document.querySelector("#draw_filters_select > lock-b").checked = false;
+    fabric_canvas.defaultCursor = "auto";
+}
 
 // fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
