@@ -98,6 +98,7 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
             shape = "text";
             break;
     }
+    fabric_canvas.defaultCursor = "crosshair";
     fabric_canvas.isDrawingMode = false;
     document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
     document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
@@ -152,6 +153,7 @@ fabric_canvas.on("mouse:down", (options) => {
             } else {
                 shape = "";
                 poly_o_p = [];
+                fabric_canvas.defaultCursor = "auto";
             }
         }
     }
@@ -172,6 +174,7 @@ fabric_canvas.on("mouse:up", (options) => {
         drawing_shape = false;
         fabric_canvas.selection = true;
         shape = "";
+        fabric_canvas.defaultCursor = "auto";
     }
 
     get_f_object_v();
@@ -180,6 +183,8 @@ fabric_canvas.on("mouse:up", (options) => {
     if (new_filter_selecting) {
         new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
         new_filter_selecting = false;
+        document.querySelector("#draw_filters_select > lock-b").checked = false;
+        fabric_canvas.defaultCursor = "auto";
         get_filters();
     }
 });
@@ -475,13 +480,15 @@ function new_filter_select(o, no) {
         lockScalingX: true,
         lockScalingY: true,
         hasControls: false,
+        hoverCursor: "auto",
     });
     fabric_canvas.add(img);
     fabric_canvas.setActiveObject(img);
 }
 
-document.getElementById("draw_filters_select").onclick = () => {
+document.querySelector("#draw_filters_select > lock-b").oninput = () => {
     new_filter_selecting = true;
+    fabric_canvas.defaultCursor = "crosshair";
 };
 
 function apply_filter(i, filter) {
