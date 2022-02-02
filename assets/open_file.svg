@@ -2,16 +2,12 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="400"
-   height="400"
-   viewBox="0 0 400 400"
-   version="1.1"
+   width="240"
+   height="240"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    sodipodi:docname="open_file.svg"
-   inkscape:export-filename="/home/xsf/Project/eSearch/assets/位图.png"
-   inkscape:export-xdpi="122.88"
-   inkscape:export-ydpi="122.88"
+   version="1.1"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,45 +21,75 @@
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
      inkscape:document-units="px"
-     showgrid="false"
+     showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="1.6"
-     inkscape:cx="200"
-     inkscape:cy="281.25"
+     inkscape:zoom="2.7968813"
+     inkscape:cx="77.228878"
+     inkscape:cy="94.39085"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
-     inkscape:snap-bbox="true"
-     inkscape:snap-bbox-midpoints="true" />
+     inkscape:showpageshadow="false"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid907"
+       spacingx="10"
+       spacingy="10"
+       empspacing="4" />
+  </sodipodi:namedview>
   <defs
-     id="defs2" />
+     id="defs2">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1133"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect857"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+  </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 110,70 V 330 H 330 V 120 L 280,70 Z"
-       id="path854"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 60,40 V 200 H 180 V 80 L 140,40 Z"
+       id="path857"
        sodipodi:nodetypes="cccccc" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 170,150 H 270"
-       id="path2389"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 90,90 h 60"
+       id="path1405"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 170,210 H 270"
-       id="path2389-3"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 90,130 h 60"
+       id="path1407"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 170,270 H 270"
-       id="path2391"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 90,170 h 60"
+       id="path1409"
        sodipodi:nodetypes="cc" />
   </g>
 </svg>

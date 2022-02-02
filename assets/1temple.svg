@@ -5,7 +5,7 @@
    width="240"
    height="240"
    id="svg5"
-   sodipodi:docname="tool_copy.svg"
+   sodipodi:docname="temple.svg"
    version="1.1"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -25,8 +25,8 @@
      units="px"
      width="512px"
      inkscape:zoom="1.9776937"
-     inkscape:cx="18.70866"
-     inkscape:cy="121.85911"
+     inkscape:cx="9.60715"
+     inkscape:cy="118.31964"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
@@ -44,17 +44,6 @@
   </sodipodi:namedview>
   <defs
      id="defs2">
-    <inkscape:path-effect
-       effect="bspline"
-       id="path-effect1170"
-       is_visible="true"
-       lpeversion="1"
-       weight="33.333333"
-       steps="2"
-       helper_size="0"
-       apply_no_weight="true"
-       apply_with_weight="true"
-       only_selected="false" />
     <inkscape:path-effect
        effect="bspline"
        id="path-effect1133"
@@ -81,20 +70,5 @@
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
-     id="layer1">
-    <path
-       id="rect940"
-       style="fill:none;fill-opacity:0.991158;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:4;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="M 40,40 V 160 H 80 V 80 h 80 V 40 Z" />
-    <path
-       id="rect940-3-6"
-       style="fill:none;fill-opacity:0.991158;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:4;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="m 80,80 v 120 h 60 v -60 h 60 V 80 Z" />
-    <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="m 140,200 c 20,-20 40,-40 60,-60"
-       id="path1168"
-       inkscape:path-effect="#path-effect1170"
-       inkscape:original-d="m 140,200 c 20.001,-19.999 40.001,-39.999 60,-60" />
-  </g>
+     id="layer1" />
 </svg>

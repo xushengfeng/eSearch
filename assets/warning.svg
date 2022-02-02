@@ -2,16 +2,12 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="400"
-   height="400"
-   viewBox="0 0 400 400"
-   version="1.1"
+   width="240"
+   height="240"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="warning.svg"
-   inkscape:export-filename="/home/xsf/Project/eSearch/assets/icons/warning.png"
-   inkscape:export-xdpi="122.88"
-   inkscape:export-ydpi="122.88"
+   version="1.1"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -26,22 +22,51 @@
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
      inkscape:document-units="px"
-     showgrid="false"
+     showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="1.3984406"
-     inkscape:cx="54.346248"
-     inkscape:cy="192.35712"
+     inkscape:zoom="11.187525"
+     inkscape:cx="98.860113"
+     inkscape:cy="186.18952"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
-     inkscape:snap-bbox="true"
-     inkscape:snap-bbox-midpoints="true" />
+     inkscape:showpageshadow="false"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid907"
+       spacingx="10"
+       spacingy="10"
+       empspacing="4" />
+  </sodipodi:namedview>
   <defs
      id="defs2">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1133"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect857"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
     <linearGradient
        inkscape:collect="always"
        id="linearGradient1155">
@@ -57,35 +82,50 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient1155"
-       id="linearGradient1157"
+       id="linearGradient860"
+       gradientUnits="userSpaceOnUse"
        x1="50.001427"
-       y1="195.00103"
+       y1="195.00104"
        x2="349.99857"
-       y2="195.00103"
+       y2="195.00104" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1155"
+       id="linearGradient862"
+       gradientUnits="userSpaceOnUse"
+       x1="50.001427"
+       y1="195.00104"
+       x2="349.99857"
+       y2="195.00104" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1155"
+       id="linearGradient1637"
+       x1="111.5"
+       y1="180"
+       x2="128.5"
+       y2="180"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <g
-       id="g1149"
-       style="stroke:url(#linearGradient1157)">
-      <path
-         style="fill:none;stroke:url(#linearGradient1157);stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="M 200,80 70,310 h 260 z"
-         id="path938"
-         sodipodi:nodetypes="cccc" />
-      <path
-         style="fill:none;stroke:url(#linearGradient1157);stroke-width:21.2464;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 196.77908,163.4928 h 6.44184 L 200,236.5316 Z"
-         id="path942"
-         sodipodi:nodetypes="cccc" />
-      <path
-         style="fill:none;stroke:url(#linearGradient1157);stroke-width:21.2464;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 200,270 h -0.674 z"
-         id="path942-3"
-         sodipodi:nodetypes="ccc" />
-    </g>
+    <path
+       style="fill:none;stroke:url(#linearGradient862);stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 115,110 h 10 l -5,50 z"
+       id="path942"
+       sodipodi:nodetypes="cccc" />
+    <circle
+       style="fill:url(#linearGradient1637);stroke:none;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;fill-opacity:1"
+       id="path939"
+       cx="120"
+       cy="180"
+       r="10" />
   </g>
+  <path
+     style="fill:none;stroke:url(#linearGradient860);stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 120,50 40,200 h 160 z"
+     id="path938"
+     sodipodi:nodetypes="cccc" />
 </svg>

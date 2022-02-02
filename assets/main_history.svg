@@ -2,19 +2,14 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="400"
-   height="400"
-   viewBox="0 0 400 400"
-   version="1.1"
+   width="240"
+   height="240"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    sodipodi:docname="main_history.svg"
-   inkscape:export-filename="/home/xsf/Project/eSearch/assets/位图.png"
-   inkscape:export-xdpi="122.88"
-   inkscape:export-ydpi="122.88"
+   version="1.1"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -26,69 +21,77 @@
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
      inkscape:document-units="px"
-     showgrid="false"
+     showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="1.6"
-     inkscape:cx="173.125"
-     inkscape:cy="291.25"
+     inkscape:zoom="2.2627417"
+     inkscape:cx="-11.490485"
+     inkscape:cy="97.227183"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     inkscape:showpageshadow="false"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid907"
+       spacingx="10"
+       spacingy="10"
+       empspacing="4" />
+  </sodipodi:namedview>
   <defs
      id="defs2">
-    <linearGradient
-       xlink:href="#prefix__a"
-       id="prefix__c"
-       x1="50"
-       y1="350"
-       x2="350"
-       y2="50"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.9999959,0,0,0.99999756,2.0259283e-4,1.2196504e-4)" />
-    <linearGradient
-       id="prefix__a">
-      <stop
-         offset="0"
-         stop-color="#3b41ff"
-         id="stop7"
-         style="stop-color:#3131ff;stop-opacity:1" />
-      <stop
-         offset="1"
-         stop-color="#34ccff"
-         id="stop9"
-         style="stop-color:#4ad3ff;stop-opacity:1" />
-    </linearGradient>
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1133"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect857"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
   </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 200,110 v 90 h 50"
-       id="path3114"
-       sodipodi:nodetypes="ccc" />
-    <path
-       style="fill:none;fill-opacity:1;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:4;stroke-opacity:1"
-       id="path4274"
+       style="fill:none;fill-opacity:0.991158;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round"
+       id="path846"
        sodipodi:type="arc"
-       sodipodi:cx="200"
-       sodipodi:cy="200"
-       sodipodi:rx="135"
-       sodipodi:ry="135"
-       sodipodi:start="3.1415963"
-       sodipodi:end="2.6179939"
+       sodipodi:cx="120"
+       sodipodi:cy="120"
+       sodipodi:rx="80"
+       sodipodi:ry="80"
+       sodipodi:start="3.141592658979323846264338"
+       sodipodi:end="2.35619449019"
        sodipodi:open="true"
        sodipodi:arc-type="arc"
-       d="M 65,199.99951 A 135,135 0 0 1 182.37933,66.154895 135,135 0 0 1 330.40005,165.05967 135,135 0 0 1 251.66215,324.72378 135,135 0 0 1 83.086569,267.5" />
+       d="M 40,120 A 80,80 0 0 1 109.51286,40.690354 80,80 0 0 1 197.26008,99.242335 80,80 0 0 1 150.67244,193.88641 80,80 0 0 1 50.753538,160.06155" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 65,199.99951 100,165"
-       id="path4450"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 120,70 v 50 h 30"
+       id="path980" />
+    <path
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 40,120 60,110"
+       id="path1081"
        sodipodi:nodetypes="cc" />
   </g>
 </svg>

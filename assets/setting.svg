@@ -2,16 +2,12 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="400"
-   height="400"
-   viewBox="0 0 400 400"
-   version="1.1"
+   width="240"
+   height="240"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="setting.svg"
-   inkscape:export-filename="/home/xsf/Project/eSearch/assets/位图.png"
-   inkscape:export-xdpi="122.88"
-   inkscape:export-ydpi="122.88"
+   version="1.1"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,38 +21,60 @@
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
      inkscape:document-units="px"
-     showgrid="false"
+     showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="0.9888468"
-     inkscape:cx="156.74824"
-     inkscape:cy="275.06789"
+     inkscape:zoom="1.9776937"
+     inkscape:cx="9.60715"
+     inkscape:cy="118.31964"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     inkscape:showpageshadow="false"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid907"
+       spacingx="10"
+       spacingy="10"
+       empspacing="4" />
+  </sodipodi:namedview>
   <defs
-     id="defs2" />
+     id="defs2">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1133"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect857"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+  </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       sodipodi:type="star"
-       style="fill:none;fill-opacity:1;stroke:#333333;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-       id="path1178"
-       inkscape:flatsided="true"
-       sodipodi:sides="6"
-       sodipodi:cx="200"
-       sodipodi:cy="200"
-       sodipodi:r1="152.828"
-       sodipodi:r2="132.35294"
-       sodipodi:arg1="0.52359878"
-       sodipodi:arg2="1.0471976"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="M 332.35293,276.414 200,352.828 67.647067,276.414 l 0,-152.828 L 200,47.171997 332.35293,123.586 Z" />
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 120,40 50,80 v 80 l 70,40 70,-40 V 80 L 120,40"
+       id="path857"
+       sodipodi:nodetypes="ccccccc" />
   </g>
 </svg>

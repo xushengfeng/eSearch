@@ -2,19 +2,14 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="400"
-   height="400"
-   viewBox="0 0 400 400"
-   version="1.1"
+   width="240"
+   height="240"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    sodipodi:docname="main_cut.svg"
-   inkscape:export-filename="/home/xsf/Project/eSearch/assets/位图.png"
-   inkscape:export-xdpi="122.88"
-   inkscape:export-ydpi="122.88"
+   version="1.1"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -26,99 +21,77 @@
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
      inkscape:document-units="px"
-     showgrid="false"
+     showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="1.3366662"
-     inkscape:cx="192.26939"
-     inkscape:cy="222.94272"
+     inkscape:zoom="2.7968813"
+     inkscape:cx="229.89893"
+     inkscape:cy="127.28463"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     inkscape:showpageshadow="false"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid907"
+       spacingx="10"
+       spacingy="10"
+       empspacing="4" />
+  </sodipodi:namedview>
   <defs
      id="defs2">
-    <rect
-       x="230.25619"
-       y="208.09882"
-       width="254.1534"
-       height="286.56343"
-       id="rect33168" />
-    <rect
-       x="40.542518"
-       y="87.907214"
-       width="285.49278"
-       height="263.56866"
-       id="rect30060" />
-    <rect
-       x="-203.00705"
-       y="276.30711"
-       width="280.55325"
-       height="141.10972"
-       id="rect24453" />
-    <rect
-       x="195.37386"
-       y="313.04958"
-       width="165.21797"
-       height="164.51977"
-       id="rect12564" />
-    <rect
-       x="101.76784"
-       y="96.416622"
-       width="148.23216"
-       height="153.58338"
-       id="rect3880" />
-    <linearGradient
-       xlink:href="#prefix__a"
-       id="prefix__c"
-       x1="50"
-       y1="350"
-       x2="350"
-       y2="50"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.9999959,0,0,0.99999756,2.0259283e-4,1.2196504e-4)" />
-    <linearGradient
-       id="prefix__a">
-      <stop
-         offset="0"
-         stop-color="#3b41ff"
-         id="stop7"
-         style="stop-color:#3131ff;stop-opacity:1" />
-      <stop
-         offset="1"
-         stop-color="#34ccff"
-         id="stop9"
-         style="stop-color:#4ad3ff;stop-opacity:1" />
-    </linearGradient>
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1133"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect857"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
   </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:30;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 120,70 250,300"
-       id="path949"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 170,40 90,160"
+       id="path857"
        sodipodi:nodetypes="cc" />
-    <circle
-       style="fill:none;stroke:#333333;stroke-width:30;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path1220"
-       cx="250"
-       cy="300"
-       r="20" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:30;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 250,70 120,300"
-       id="path949-3"
+       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 70,40 80,120"
+       id="path859"
        sodipodi:nodetypes="cc" />
     <circle
-       style="fill:none;stroke:#333333;stroke-width:30;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path1220-6"
-       cx="-120"
-       cy="300"
-       r="20"
-       transform="scale(-1,1)" />
+       style="fill:none;fill-opacity:0.991158;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path883"
+       cx="160"
+       cy="180"
+       r="20" />
+    <circle
+       style="fill:none;fill-opacity:0.991158;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path885"
+       cx="80"
+       cy="180"
+       r="20" />
   </g>
 </svg>
