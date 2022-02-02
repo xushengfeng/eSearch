@@ -36,7 +36,7 @@ body {
     background: var(--bar-bg);
     overflow: overlay;
     flex-grow: 1;
-    font-size: var(--font-size);
+    font-size: 16px;
     transition: var(--transition);
 }
 #text:focus {
@@ -129,7 +129,7 @@ body {
 #translate_bar {
     background-image: url(../assets/main_translate.svg);
 }
-#selectAll_bar{
+#selectAll_bar {
     background-image: url(../assets/main_selectAll.svg);
 }
 #cut_bar {

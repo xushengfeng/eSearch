@@ -318,3 +318,16 @@ hotkeys("ctrl+h", show_history);
 hotkeys("ctrl+,", () => {
     window.open("setting.html");
 });
+
+// ctrl滚轮控制字体大小
+hotkeys("ctrl+0", () => {
+    document.getElementById("text").style.fontSize = "16px";
+});
+
+document.onwheel = (e) => {
+    if (e.ctrlKey) {
+        var d = e.deltaY / Math.abs(e.deltaY);
+        var size = (document.getElementById("text").style.fontSize || "16px").replace("px", "") - 0;
+        document.getElementById("text").style.fontSize = `${size - d}px`;
+    }
+};
