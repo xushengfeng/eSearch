@@ -1277,13 +1277,6 @@
     "tar" "^6.0.5"
     "yargs" "^17.0.1"
 
-"electron-squirrel-startup@^1.0.0":
-  "integrity" "sha1-GbTlWTP6Dvj1VnhLnGYPdyVGoLg="
-  "resolved" "https://registry.nlark.com/electron-squirrel-startup/download/electron-squirrel-startup-1.0.0.tgz"
-  "version" "1.0.0"
-  dependencies:
-    "debug" "^2.2.0"
-
 "electron-store@^8.0.1":
   "integrity" "sha1-m1mMHS7e/+vunYwc2VetNoxSiSU="
   "resolved" "https://registry.npmmirror.com/electron-store/download/electron-store-8.0.1.tgz"

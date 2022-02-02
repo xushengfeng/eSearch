@@ -17,7 +17,6 @@
   "license": "GPL3",
   "dependencies": {
     "color": "^4.2.0",
-    "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
     "hotkeys-js": "^3.8.7",
     "jsqr": "^1.4.0",
