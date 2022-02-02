@@ -67,7 +67,7 @@ body {
     padding: 0;
     margin-left: 4px;
     background-color: var(--hover-color);
-    background-image: url("../assets/i_close.svg");
+    background-image: url(../assets/i_close.svg);
     background-size: 80%;
     background-position: center;
     background-repeat: no-repeat;
@@ -76,7 +76,7 @@ body {
 }
 .history_title > button:hover {
     background-color: #f00;
-    background-image: url("../assets/i_close_w.svg");
+    background-image: url(../assets/i_close_w.svg);
 }
 .history_text {
     padding: 8px;
@@ -119,27 +119,27 @@ body {
 }
 
 #link_bar {
-    background-image: url("../assets/main_link.svg");
+    background-image: url(../assets/main_link.svg);
     width: 0;
     transition: var(--transition);
 }
 #search_bar {
-    background-image: url("../assets/main_search.svg");
+    background-image: url(../assets/main_search.svg);
 }
 #translate_bar {
-    background-image: url("../assets/main_translate.svg");
+    background-image: url(../assets/main_translate.svg);
 }
 #selectAll_bar{
-    background-image: url('../assets/main_selectAll.svg');
+    background-image: url(../assets/main_selectAll.svg);
 }
 #cut_bar {
-    background-image: url("../assets/main_cut.svg");
+    background-image: url(../assets/main_cut.svg);
 }
 #copy_bar {
-    background-image: url("../assets/main_copy.svg");
+    background-image: url(../assets/main_copy.svg);
 }
 #paste_bar {
-    background-image: url("../assets/main_paste.svg");
+    background-image: url(../assets/main_paste.svg);
 }
 
 #b_bar {

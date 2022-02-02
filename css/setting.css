@@ -86,7 +86,7 @@ select{
     height: 20px;
     background-position: center;
     background-size: 100%;
-    background-image: linear-gradient(#0000, #0000), url("../assets/tbg.svg");
+    background-image: linear-gradient(#0000, #0000), url(../assets/tbg.svg);
 }
 #遮罩颜色 > input,
 #选区颜色 > input {

@@ -118,28 +118,28 @@ body {
     transition: var(--transition);
 }
 #tool_close {
-    background-image: url("../assets/tool_close.svg");
+    background-image: url(../assets/tool_close.svg);
 }
 #tool_ocr {
-    background-image: url("../assets/tool_ocr.svg");
+    background-image: url(../assets/tool_ocr.svg);
 }
 #tool_QR {
-    background-image: url("../assets/tool_QR.svg");
+    background-image: url(../assets/tool_QR.svg);
 }
 #tool_draw {
-    background-image: url("../assets/tool_draw.svg");
+    background-image: url(../assets/tool_draw.svg);
 }
 #tool_open {
-    background-image: url("../assets/tool_open.svg");
+    background-image: url(../assets/tool_open.svg);
 }
 #tool_ding {
-    background-image: url("../assets/tool_ding.svg");
+    background-image: url(../assets/tool_ding.svg);
 }
 #tool_copy {
-    background-image: url("../assets/tool_copy.svg");
+    background-image: url(../assets/tool_copy.svg);
 }
 #tool_save {
-    background-image: url("../assets/tool_save.svg");
+    background-image: url(../assets/tool_save.svg);
 }
 
 /* 画 */
@@ -339,13 +339,13 @@ video {
     background-color: var(--hover-color);
 }
 #toast > button {
-    background-image: url("../assets/tool_close.svg");
+    background-image: url(../assets/tool_close.svg);
 }
 #open_file {
-    background-image: url("../assets/open_file.svg");
+    background-image: url(../assets/open_file.svg);
 }
 #open {
-    background-image: url("../assets/open_open.svg");
+    background-image: url(../assets/open_open.svg);
 }
 #app_path > button:hover {
     background-color: var(--hover-color);

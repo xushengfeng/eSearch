@@ -97,10 +97,10 @@ input[type="range"]::-webkit-slider-thumb {
     background-repeat: no-repeat;
 }
 .opacity {
-    background-image: url("../assets/ding_opacity.svg");
+    background-image: url(../assets/ding_opacity.svg);
 }
 .size {
-    background-image: url("../assets/ding_size.svg");
+    background-image: url(../assets/ding_size.svg);
 }
 #size > span {
     outline: none;
@@ -127,13 +127,13 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: var(--hover-color);
 }
 #minimize {
-    background-image: url("../assets/ding_minimize.svg");
+    background-image: url(../assets/ding_minimize.svg);
 }
 #back {
-    background-image: url("../assets/ding_back.svg");
+    background-image: url(../assets/ding_back.svg);
 }
 #close {
-    background-image: url("../assets/ding_close.svg");
+    background-image: url(../assets/ding_close.svg);
 }
 
 .minimize {
@@ -189,16 +189,16 @@ input[type="range"]::-webkit-slider-thumb {
 
 #dock_item > #i_close {
     right: 8px;
-    background-image: url("../assets/i_close.svg");
+    background-image: url(../assets/i_close.svg);
 }
 #dock_item > #i_close:hover {
-    background-image: url("../assets/i_close_w.svg");
+    background-image: url(../assets/i_close_w.svg);
     background-color: #f00;
 }
 
 #dock_item > #i_ignore {
     right: 40px;
-    background-image: url("../assets/i_ignore.svg");
+    background-image: url(../assets/i_ignore.svg);
 }
 #dock_item > #i_ignore:hover {
     background-color: var(--bar-bg);

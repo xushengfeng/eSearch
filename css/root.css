@@ -42,7 +42,7 @@ body {
     height: 40px;
     transition: var(--transition);
     background-position: center;
-    background-size: 70%;
+    background-size: cover;
     background-repeat: no-repeat;
 }
 #tab_bar a div:hover {
@@ -50,13 +50,13 @@ body {
 }
 
 #main {
-    background-image: url("../assets/main.svg");
+    background-image: url(../assets/main.svg);
 }
 #setting {
-    background-image: url("../assets/setting.svg");
+    background-image: url(../assets/setting.svg);
 }
 #help {
-    background-image: url("../assets/help.svg");
+    background-image: url(../assets/help.svg);
 }
 
 kbd {
