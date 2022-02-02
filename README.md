@@ -58,7 +58,7 @@ npm run make
 大多数Linux桌面环境支持自定义快捷键，**eSearch**支持cli，这也意味着你可以进行系统级设置快捷键
 
 ```shell
-esearch 
+e-search
 	-a # 自动搜索
 	-c # 截图搜索
 	-s # 选中搜索

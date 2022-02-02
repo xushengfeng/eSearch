@@ -44,7 +44,7 @@
         {
           "name": "@electron-forge/maker-deb",
           "config": {
-            "name": "esearch",
+            "name": "e-search",
             "productName": "eSearch",
             "categories": [
               "Graphics",
@@ -57,7 +57,7 @@
         {
           "name": "@electron-forge/maker-rpm",
           "config": {
-            "name": "esearch",
+            "name": "e-search",
             "productName": "eSearch",
             "categories": [
               "Graphics",
