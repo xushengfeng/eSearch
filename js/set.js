@@ -51,6 +51,16 @@ if (store.get("key_剪贴板搜索"))
     document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
         `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
 
+// var 快捷键 = store.get("快捷键");
+// var ct = "";
+// for (i in 快捷键) {
+//     if (快捷键[i].f) {
+//         ct += `<div><hot-keys name="${i}" value="${快捷键[i].key}"></hot-keys></div>`;
+//     } else {
+//         ct += `<div><hot-keys name="${i}" value="${快捷键[i].key}" f="${快捷键[i].f}"></hot-keys></div>`;
+//     }
+// }
+
 if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
     选择器储存("光标", "以(1,1)为起点");
