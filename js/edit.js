@@ -292,7 +292,7 @@ function change_alpha(v, m) {
 // m_l={fill:color,stroke:color}
 function change_color(m_l, text) {
     var n =
-        (fabric_canvas.getActiveObject() !== null && fabric_canvas.getActiveObject()._objects === undefined) ||
+        (fabric_canvas.getActiveObject() !== null && fabric_canvas.getActiveObject()?._objects === undefined) ||
         (fabric_canvas.getActiveObject()?._objects || []).length == 1;
     for (i in m_l) {
         var color_m = i,
@@ -655,82 +655,50 @@ document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").oninput 
 // 负片
 document.querySelector("#draw_filters_invert > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_invert > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Invert();
-        apply_filter(9, filter);
-    } else {
-        apply_filter(9, null);
-    }
+    var filter = value ? new fabric.Image.filters.Invert() : null;
+    apply_filter(9, filter);
 };
 // 棕褐色
 document.querySelector("#draw_filters_sepia > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_sepia > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Sepia();
-        apply_filter(10, filter);
-    } else {
-        apply_filter(10, null);
-    }
+    var filter = value ? new fabric.Image.filters.Sepia() : null;
+    apply_filter(10, filter);
 };
 // 黑白
 document.querySelector("#draw_filters_bw > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_bw > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.BlackWhite();
-        apply_filter(11, filter);
-    } else {
-        apply_filter(11, null);
-    }
+    var filter = value ? new fabric.Image.filters.BlackWhite() : null;
+    apply_filter(11, filter);
 };
 // 布朗尼
 document.querySelector("#draw_filters_brownie > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_brownie > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Brownie();
-        apply_filter(12, filter);
-    } else {
-        apply_filter(12, null);
-    }
+    var filter = value ? new fabric.Image.filters.Brownie() : null;
+    apply_filter(12, filter);
 };
 // 老式
 document.querySelector("#draw_filters_vintage > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_vintage > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Vintage();
-        apply_filter(13, filter);
-    } else {
-        apply_filter(13, null);
-    }
+    var filter = value ? new fabric.Image.filters.Vintage() : null;
+    apply_filter(13, filter);
 };
 // 柯达彩色胶片
 document.querySelector("#draw_filters_koda > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_koda > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Kodachrome();
-        apply_filter(14, filter);
-    } else {
-        apply_filter(14, null);
-    }
+    var filter = value ? new fabric.Image.filters.Kodachrome() : null;
+    apply_filter(14, filter);
 };
 // 特艺色彩
 document.querySelector("#draw_filters_techni > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_techni > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Technicolor();
-        apply_filter(15, filter);
-    } else {
-        apply_filter(15, null);
-    }
+    var filter = value ? new fabric.Image.filters.Technicolor() : null;
+    apply_filter(15, filter);
 };
 // 宝丽来
 document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
     var value = document.querySelector("#draw_filters_polaroid > lock-b").checked;
-    if (value) {
-        var filter = new fabric.Image.filters.Polaroid();
-        apply_filter(16, filter);
-    } else {
-        apply_filter(16, null);
-    }
+    var filter = value ? new fabric.Image.filters.Polaroid() : null;
+    apply_filter(16, filter);
 };
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
