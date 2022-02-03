@@ -291,6 +291,9 @@ function change_alpha(v, m) {
 // 刷新控件颜色
 // m_l={fill:color,stroke:color}
 function change_color(m_l, text) {
+    var n =
+        (fabric_canvas.getActiveObject() !== null && fabric_canvas.getActiveObject()._objects === undefined) ||
+        (fabric_canvas.getActiveObject()?._objects || []).length == 1;
     for (i in m_l) {
         var color_m = i,
             color = m_l[i];
@@ -300,14 +303,14 @@ function change_color(m_l, text) {
             document.querySelector("#draw_color_fill").style.backgroundColor = document.querySelector(
                 "#draw_color > div"
             ).style.backgroundColor = Color(color_l).string();
-            set_f_object_v(Color(color_l).string(), null, null);
+            if (n) set_f_object_v(Color(color_l).string(), null, null);
         }
         if (color_m == "stroke") {
             color_l = Color(color).rgb().array();
             document.querySelector("#draw_color_stroke").style.backgroundColor = document.querySelector(
                 "#draw_color > div"
             ).style.borderColor = Color(color_l).string();
-            set_f_object_v(null, Color(color_l).string(), null);
+            if (n) set_f_object_v(null, Color(color_l).string(), null);
         }
         var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
         if (t_color.rgb().array()[3] >= 0.5 || t_color.rgb().array()[3] === undefined) {
