@@ -557,7 +557,7 @@ function create_ding_window(x, y, w, h, img) {
         ding_window.webContents.send("img", id, x, y, w, h, img);
         ding_windows_l[id] = [x, y, w, h];
     }
-    can_c_ignore = false;
+    var can_c_ignore = true;
     ipcMain.on("ding_ignore", (event, v) => {
         can_c_ignore = v;
         if (!v) ding_window.setIgnoreMouseEvents(false);
