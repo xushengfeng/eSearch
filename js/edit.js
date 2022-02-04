@@ -189,7 +189,7 @@ function draw(shape, v, x1, y1, x2, y2) {
     var [x, y, w, h] = p_xy_to_c_xy(draw_canvas, x1, y1, x2, y2);
     switch (shape) {
         case "line":
-            shapes[shapes.length] = new fabric.Line([x, y, x + w, y + h], {
+            shapes[shapes.length] = new fabric.Line([x1, y1, x2, y2], {
                 stroke: stroke_color,
             });
             break;
