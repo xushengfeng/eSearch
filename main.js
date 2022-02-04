@@ -181,7 +181,7 @@ app.whenReady().then(() => {
     // 初始化设置
     Store.initRenderer();
     store = new Store();
-    if (store.get("首次运行") !== undefined) set_default_setting();
+    if (store.get("首次运行") === undefined) set_default_setting();
 
     // 快捷键
     ipcMain.on("快捷键", (event, arg) => {
@@ -797,3 +797,5 @@ function set_default_setting() {
         store.set(i, default_setting[i]);
     }
 }
+
+ipcMain.on("默认设置", set_default_setting);

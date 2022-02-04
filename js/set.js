@@ -1,6 +1,14 @@
 const Color = require("color");
-const { shell } = require("electron");
+const { shell, ipcRenderer } = require("electron");
 const os = require("os");
+
+document.getElementById("set_default_setting").onclick = () => {
+    document.getElementById("ok_set_default_setting").style.display = "block";
+};
+document.getElementById("ok_set_default_setting").onclick = () => {
+    ipcRenderer.send("默认设置");
+    document.getElementById("ok_set_default_setting").style.display = "none";
+};
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (event, v) => {

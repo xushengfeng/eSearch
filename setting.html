@@ -179,8 +179,10 @@
         <div id="setting_item">
             <div id="setting_left">搜索引擎设置</div>
             <div id="setting_right">
-                <textarea id="搜索引擎" placeholder="*百度, https://www.baidu.com/s?wd=%s&#13;谷歌, https://www.google.com/search?q=%s" autocomplete="off" autocorrect="off"
-                    autocapitalize="off" spellcheck="false" title="换行新建项目，*号为默认引擎，%s代替关键字"></textarea>
+                <textarea id="搜索引擎"
+                    placeholder="*百度, https://www.baidu.com/s?wd=%s&#13;谷歌, https://www.google.com/search?q=%s"
+                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                    title="换行新建项目，*号为默认引擎，%s代替关键字"></textarea>
             </div>
         </div>
 
@@ -216,6 +218,14 @@
                     type="number" min="1" id="his_h">小时
                 <br>
                 <button id="clear_his">清空所有历史记录</button>
+            </div>
+        </div>
+
+        <div id="setting_item">
+            <div id="setting_left">恢复为默认设置</div>
+            <div id="setting_right">
+                <button id="set_default_setting">恢复为默认设置</button>
+                <button id="ok_set_default_setting" style="display: none;">确定恢复</button>
             </div>
         </div>
 
