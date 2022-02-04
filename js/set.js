@@ -10,13 +10,13 @@ document.getElementById("autostart").oninput = () => {
     ipcRenderer.send("autostart", "set", document.getElementById("autostart").checked);
 };
 
-模糊 = store.get("模糊") || 10;
+模糊 = store.get("模糊");
 if (模糊 != 0) {
     document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
 } else {
     document.documentElement.style.setProperty("--blur", `none`);
 }
-document.querySelector("#模糊").value = store.get("模糊") || 10;
+document.querySelector("#模糊").value = 模糊;
 document.querySelector("#模糊").oninput = () => {
     var 模糊 = document.querySelector("#模糊").value;
     if (模糊 < 0) {
@@ -29,7 +29,7 @@ document.querySelector("#模糊").oninput = () => {
     }
 };
 
-document.getElementById("全局缩放").value = store.get("全局缩放") || 1;
+document.getElementById("全局缩放").value = store.get("全局缩放");
 document.getElementById("全局缩放").oninput = () => {
     document.getElementById("全局缩放_n").innerText = document.getElementById("全局缩放").value;
 };
@@ -41,19 +41,6 @@ function 选择器储存(id, 默认) {
         store.set(id, document.querySelector(`#${id}`).value);
     };
 }
-
-// if (store.get("key_自动识别"))
-//     document.querySelector("#自动识别 hot-keys div").innerHTML =
-//         `<kbd>${store.get("key_自动识别")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-// if (store.get("key_截图搜索"))
-//     document.querySelector("#截图搜索 hot-keys div").innerHTML =
-//         `<kbd>${store.get("key_截图搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-// if (store.get("key_选中搜索"))
-//     document.querySelector("#选中搜索 hot-keys div").innerHTML =
-//         `<kbd>${store.get("key_选中搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-// if (store.get("key_剪贴板搜索"))
-//     document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
-//         `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
 
 var 快捷键 = store.get("快捷键");
 var ct = "";
@@ -72,11 +59,11 @@ if (document.title == "eSearch-设置") {
     选择器储存("取色器默认格式", "HEX");
 }
 
-document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标") || false;
+document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标");
 
 // 取色器设置
-document.querySelector("#取色器大小").value = store.get("取色器大小") || "15";
-document.querySelector("#像素大小").value = store.get("像素大小") || "10";
+document.querySelector("#取色器大小").value = store.get("取色器大小");
+document.querySelector("#像素大小").value = store.get("像素大小");
 document.querySelector("#取色器大小").oninput = () => {
     if ((document.querySelector("#取色器大小").value - 0) % 2 == 0) {
         document.querySelector("#取色器大小").value = document.querySelector("#取色器大小").value - 0 + 1;
@@ -119,14 +106,14 @@ function show_color_picker() {
 }
 
 // 选区&遮罩颜色设置
-document.querySelector("#遮罩颜色 > span").style.backgroundImage =
-    `linear-gradient(${store.get("遮罩颜色")}, ${store.get("遮罩颜色")}), url('assets/tbg.svg')` ||
-    "linear-gradient(#0005, #0005), url('assets/tbg.svg')";
-document.querySelector("#选区颜色 > span").style.backgroundImage =
-    `linear-gradient(${store.get("选区颜色")}, ${store.get("选区颜色")}), url('assets/tbg.svg')` ||
-    "linear-gradient(#0000, #0000), url('assets/tbg.svg')";
-document.querySelector("#遮罩颜色 > input").value = store.get("遮罩颜色") || "#0005";
-document.querySelector("#选区颜色 > input").value = store.get("选区颜色") || "#0000";
+document.querySelector("#遮罩颜色 > span").style.backgroundImage = `linear-gradient(${store.get(
+    "遮罩颜色"
+)}, ${store.get("遮罩颜色")}), url('assets/tbg.svg')`;
+document.querySelector("#选区颜色 > span").style.backgroundImage = `linear-gradient(${store.get(
+    "选区颜色"
+)}, ${store.get("选区颜色")}), url('assets/tbg.svg')`;
+document.querySelector("#遮罩颜色 > input").value = store.get("遮罩颜色");
+document.querySelector("#选区颜色 > input").value = store.get("选区颜色");
 document.querySelector("#遮罩颜色 > input").oninput = () => {
     document.querySelector("#遮罩颜色 > span").style.backgroundImage = `linear-gradient(${
         document.querySelector("#遮罩颜色 > input").value
@@ -138,9 +125,9 @@ document.querySelector("#选区颜色 > input").oninput = () => {
     }, ${document.querySelector("#选区颜色 > input").value}), url('assets/tbg.svg')`;
 };
 
-document.getElementById("框选后默认操作").value = store.get("框选后默认操作") || "no";
+document.getElementById("框选后默认操作").value = store.get("框选后默认操作");
 
-字体 = store.get("字体") || { 主要字体: "", 等宽字体: "" };
+字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 document.querySelector("#主要字体 > input").oninput = () => {
@@ -152,9 +139,9 @@ document.querySelector("#等宽字体 > input").oninput = () => {
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 };
 
-document.querySelector("#自动搜索").checked = store.get("自动搜索") || false;
-document.querySelector("#自动打开链接").checked = store.get("自动打开链接") || false;
-document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比") || 0.5;
+document.querySelector("#自动搜索").checked = store.get("自动搜索");
+document.querySelector("#自动打开链接").checked = store.get("自动打开链接");
+document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比");
 
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎) {
@@ -194,19 +181,19 @@ document.querySelector("#翻译引擎").oninput = () => {
     }
 };
 
-document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开") || false;
+document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开");
 
 document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
 };
 
-document.querySelector("#检查OCR").checked = store.get("检查OCR") || true;
+document.querySelector("#检查OCR").checked = store.get("检查OCR");
 document.getElementById("本地OCR下载").onclick = (e) => {
     e.preventDefault();
     shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
 };
 
-历史记录设置 = store.get("历史记录设置") || { 保留历史记录: true, 自动清除历史记录: false, d: 0, h: 0 };
+历史记录设置 = store.get("历史记录设置");
 
 document.querySelector("#清除历史记录").disabled = !历史记录设置.保留历史记录;
 document.querySelector("#his_d").disabled = !历史记录设置.自动清除历史记录;

@@ -767,7 +767,9 @@ function set_default_setting() {
         取色器大小: 15,
         显示四角坐标: true,
         其他应用打开: "",
+        检查OCR: true,
         自动打开链接: false,
+        自动搜索中文占比: 0.5,
         浏览器中打开: false,
         保存路径: "",
         框选后默认操作: "no",
@@ -776,7 +778,7 @@ function set_default_setting() {
             ["*百度", "https://www.baidu.com/s?wd=%s"],
             ["必应", "https://cn.bing.com/search?q=%s"],
         ],
-        翻译引擎:[
+        翻译引擎: [
             ["google", "https://translate.google.cn/?op=translate&text=%s"],
             ["deepl", "https://www.deepl.com/translator#en/zh/%s"],
             ["金山词霸", "http://www.iciba.com/word?w=%s"],
