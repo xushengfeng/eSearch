@@ -2,8 +2,8 @@
 Name=eSearch
 Comment=截图+OCR+搜索+贴图
 GenericName=eSearch
-Exec=esearch %U
-Icon=esearch
+Exec=e-search %U
+Icon=e-search
 Type=Application
 StartupNotify=true
 Categories=Graphics;System;Utility;

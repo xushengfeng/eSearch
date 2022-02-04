@@ -26,16 +26,26 @@ if (app.isPackaged || process.argv.includes("-n")) {
     dev = true;
 }
 
-ipcMain.on("autostart", (event, v) => {
-    if (process.platform == "linux") {
-        if (v) {
-            exec("mkdir ~/.config/autostart");
-            exec(`cp ${run_path}/assets/esearch.desktop ~/.config/autostart/`);
+ipcMain.on("autostart", (event, m, v) => {
+    if (m == "set") {
+        if (process.platform == "linux") {
+            if (v) {
+                exec("mkdir ~/.config/autostart");
+                exec(`cp ${run_path}/assets/e-search.desktop ~/.config/autostart/`);
+            } else {
+                exec("rm ~/.config/autostart/e-search.desktop");
+            }
         } else {
-            exec("rm ~/.config/autostart/esearch.desktop");
+            app.setLoginItemSettings(v);
         }
     } else {
-        app.setLoginItemSettings(v);
+        if (process.platform == "linux") {
+            exec("test -e ~/.config/autostart/e-search.desktop", (error, stdout, stderr) => {
+                error ? event.sender.send("开机启动状态", false) : event.sender.send("开机启动状态", true);
+            });
+        } else {
+            event.sender.send("开机启动状态", app.getLoginItemSettings().openAtLogin);
+        }
     }
 });
 

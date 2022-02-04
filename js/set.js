@@ -2,8 +2,12 @@ const Color = require("color");
 const { shell } = require("electron");
 const os = require("os");
 
+ipcRenderer.send("autostart", "get");
+ipcRenderer.on("开机启动状态", (event, v) => {
+    document.getElementById("autostart").checked = v;
+});
 document.getElementById("autostart").oninput = () => {
-    ipcRenderer.send("autostart", document.getElementById("autostart").checked);
+    ipcRenderer.send("autostart", "set", document.getElementById("autostart").checked);
 };
 
 模糊 = store.get("模糊") || 10;
@@ -38,28 +42,29 @@ function 选择器储存(id, 默认) {
     };
 }
 
-if (store.get("key_自动识别"))
-    document.querySelector("#自动识别 hot-keys div").innerHTML =
-        `<kbd>${store.get("key_自动识别")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-if (store.get("key_截图搜索"))
-    document.querySelector("#截图搜索 hot-keys div").innerHTML =
-        `<kbd>${store.get("key_截图搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-if (store.get("key_选中搜索"))
-    document.querySelector("#选中搜索 hot-keys div").innerHTML =
-        `<kbd>${store.get("key_选中搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
-if (store.get("key_剪贴板搜索"))
-    document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
-        `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+// if (store.get("key_自动识别"))
+//     document.querySelector("#自动识别 hot-keys div").innerHTML =
+//         `<kbd>${store.get("key_自动识别")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+// if (store.get("key_截图搜索"))
+//     document.querySelector("#截图搜索 hot-keys div").innerHTML =
+//         `<kbd>${store.get("key_截图搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+// if (store.get("key_选中搜索"))
+//     document.querySelector("#选中搜索 hot-keys div").innerHTML =
+//         `<kbd>${store.get("key_选中搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
+// if (store.get("key_剪贴板搜索"))
+//     document.querySelector("#剪贴板搜索 hot-keys div").innerHTML =
+//         `<kbd>${store.get("key_剪贴板搜索")?.replace(/\+/g, "</kbd>+<kbd>")}</kbd>` || "";
 
-// var 快捷键 = store.get("快捷键");
-// var ct = "";
-// for (i in 快捷键) {
-//     if (快捷键[i].f) {
-//         ct += `<div><hot-keys name="${i}" value="${快捷键[i].key}"></hot-keys></div>`;
-//     } else {
-//         ct += `<div><hot-keys name="${i}" value="${快捷键[i].key}" f="${快捷键[i].f}"></hot-keys></div>`;
-//     }
-// }
+var 快捷键 = store.get("快捷键");
+var ct = "";
+for (i in 快捷键) {
+    if (快捷键[i].f) {
+        ct += `<div><hot-keys name="${i}" value="${快捷键[i].key || ""}"></hot-keys></div>`;
+    } else {
+        ct += `<div><hot-keys name="${i}" value="${快捷键[i].key || ""}" f="${快捷键[i].f}"></hot-keys></div>`;
+    }
+}
+document.getElementById("快捷键").innerHTML = ct;
 
 if (document.title == "eSearch-设置") {
     选择器储存("工具栏跟随", "展示内容优先");
