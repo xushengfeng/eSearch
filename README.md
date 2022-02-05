@@ -75,11 +75,11 @@ e-search
   - [x] 取色器
   - [x] 放大镜
   - [x] 画笔
-  - [ ] 画笔撤销
+  - [x] 画笔撤销
   - [x] 色板
   - [x] 画笔粗细
   - [x] 高级画板设置
-  - [ ] 图像滤镜
+  - [x] 图像滤镜
   - [ ] 窗口选择
   - [ ] 控件选择
   - [ ] 多屏幕
@@ -122,17 +122,15 @@ e-search
 
 ![3](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/3.png)
 
-> 绘图界面，暂不支持滤镜
+> 绘图界面
 
 ## 测试
 
 在ArchLinux,KDE plasma,Xorg下测试通过
 
-Windows、Gnome暂时无法解决截屏截到光标问题
-
 win7截图出现白屏，win10能达到大部分效果
 
-Wayland无法截图
+Wayland无法运行
 
 ## 开发原因
 
