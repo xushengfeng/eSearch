@@ -74,27 +74,13 @@ document.querySelector("#像素大小").oninput = () => {
     show_color_picker();
 };
 
-point_color_view = document.querySelector("#point_color_view");
-var img = document.createElement("img");
-img.src = "assets/sample_picture.svg";
-img.onload = () => {
-    point_color_view.width = img.width;
-    point_color_view.height = img.height;
-    point_color_view.getContext("2d").drawImage(img, 0, 0);
-    show_color_picker();
-};
+show_color_picker();
 function show_color_picker() {
     color_size = document.querySelector("#取色器大小").value - 0;
-    color = point_color_view.getContext("2d").getImageData(0, 0, color_size, color_size).data; // 取色器密度
-    // 分开每个像素的颜色
-    color_g = [];
-    for (var i = 0, len = color.length; i < len; i += 4) {
-        color_g.push(color.slice(i, i + 4));
-    }
     inner_html = "";
-    for (i in color_g) {
-        color_g[i][3] /= 255;
-        inner_html += `<span id="point_color_t" style="background: ${Color.rgb(color_g[i]).string()}; width:${
+    for (i = 0; i < color_size ** 2; i++) {
+        var l = Math.random() * 40 + 60;
+        inner_html += `<span id="point_color_t"style="background:hsl(0,0%,${l}%);width:${
             document.querySelector("#像素大小").value
         }px;height:${document.querySelector("#像素大小").value}px"></span>`;
     }
