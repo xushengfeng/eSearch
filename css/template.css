@@ -1,5 +1,7 @@
 :host {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 }
 .文字 {
     margin: 0;
