@@ -751,6 +751,11 @@ function exit_filter() {
     document.querySelector("#draw_filters_select > lock-b").checked = false;
     fabric_canvas.defaultCursor = "auto";
 }
+hotkeys("esc", "drawing", () => {
+    exit_free();
+    exit_shape();
+    exit_filter();
+});
 
 // fabric命令行
 document.getElementById("draw_edit_b").onclick = () => {
