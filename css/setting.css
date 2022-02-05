@@ -73,6 +73,7 @@ lock-b {
     display: inline-block !important;
     width: 16px;
     height: 16px;
+    margin: 4px;
     border: var(--border);
     border-radius: var(--border-radius);
     transition: var(--transition);
@@ -82,8 +83,8 @@ lock-b:hover {
 }
 
 range-b {
-    height: 20px;
-    width: 100px;
+    height: 30px;
+    width: 200px;
     border: var(--border);
     border-radius: var(--border-radius);
     overflow: hidden;
