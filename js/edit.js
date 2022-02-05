@@ -1,5 +1,29 @@
 let fabric_canvas = new fabric.Canvas("draw_photo");
 
+// 定义撤销栈
+var undo_stack = [fabric_canvas.toJSON()];
+// 定义位置
+var undo_stack_i = 0;
+function stack_add() {
+    undo_stack.push(fabric_canvas.toJSON());
+    undo_stack_i = undo_stack.length - 1;
+}
+function undo() {
+    if (undo_stack_i > 0) {
+        undo_stack_i--;
+        fabric_canvas.loadFromJSON(undo_stack[undo_stack_i]);
+    }
+}
+function redo() {
+    if (undo_stack_i < undo_stack.length - 1) {
+        undo_stack_i++;
+        fabric_canvas.loadFromJSON(undo_stack[undo_stack_i]);
+    }
+}
+
+hotkeys("ctrl+z", "drawing", undo);
+hotkeys("ctrl+y", "drawing", redo);
+
 var stroke_color = "#333";
 var fill_color = "#fff";
 var stroke_width = 1;
@@ -164,6 +188,7 @@ fabric_canvas.on("mouse:up", (options) => {
         fabric_canvas.defaultCursor = "auto";
         if (shape != "") {
             fabric_canvas.setActiveObject(shapes[shapes.length - 1]);
+            stack_add();
         }
         shape = "";
     }
@@ -177,6 +202,11 @@ fabric_canvas.on("mouse:up", (options) => {
         document.querySelector("#draw_filters_select > lock-b").checked = false;
         fabric_canvas.defaultCursor = "auto";
         get_filters();
+        stack_add();
+    }
+
+    if (fabric_canvas.isDrawingMode) {
+        stack_add();
     }
 });
 

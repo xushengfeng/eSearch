@@ -716,9 +716,9 @@ function rect_history(a) {
     follow_bar();
 }
 
-hotkeys("ctrl+z", () => {
+hotkeys("ctrl+z", "normal", () => {
     rect_history(true);
 });
-hotkeys("ctrl+y", () => {
+hotkeys("ctrl+y", "normal", () => {
     rect_history(false);
 });

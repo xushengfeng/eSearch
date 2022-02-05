@@ -145,7 +145,8 @@ document.getElementById("tool_ding").addEventListener("click", tool_ding_f);
 document.getElementById("tool_copy").addEventListener("click", tool_copy_f);
 document.getElementById("tool_save").addEventListener("click", tool_save_f);
 
-hotkeys("esc", tool_close_f);
+hotkeys.setScope("normal");
+hotkeys("esc", "normal", tool_close_f);
 hotkeys("enter", tool_ocr_f);
 hotkeys("ctrl+s, command+s", tool_save_f);
 hotkeys("ctrl+c, command+c", tool_copy_f);
@@ -212,10 +213,12 @@ function tool_draw_f() {
         document.getElementById("tool_draw").className = "hover_b";
         document.getElementById("draw_bar").style.height = "360px";
         document.querySelector("#draw_photo_top").style.zIndex = "11";
+        hotkeys.setScope("drawing");
     } else {
         document.getElementById("tool_draw").className = "";
         document.getElementById("draw_bar").style.height = "0";
         document.querySelector("#draw_photo_top").style.zIndex = "9";
+        hotkeys.setScope("normal");
     }
 }
 // 在其他应用打开
