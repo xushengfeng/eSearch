@@ -50,14 +50,14 @@ input[type="number"] {
     font-size: 18px;
 }
 
-button{
+button {
     border: var(--border);
     border-radius: var(--border-radius);
     background-color: #0000;
     transition: var(--transition);
     font-size: 1rem;
 }
-button:hover{
+button:hover {
     background-color: var(--hover-color);
 }
 
@@ -65,8 +65,28 @@ a {
     color: var(--color);
 }
 
-select{
+select {
     outline: none;
+}
+
+lock-b {
+    display: inline-block !important;
+    width: 16px;
+    height: 16px;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+lock-b:hover {
+    background-color: var(--hover-color);
+}
+
+range-b {
+    height: 20px;
+    width: 100px;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 
 .blur {

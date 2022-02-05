@@ -27,9 +27,6 @@ if (模糊 != 0) {
 document.querySelector("#模糊").value = 模糊;
 document.querySelector("#模糊").oninput = () => {
     var 模糊 = document.querySelector("#模糊").value;
-    if (模糊 < 0) {
-        document.querySelector("#模糊").value = 0;
-    }
     if (模糊 != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     } else {
@@ -38,9 +35,6 @@ document.querySelector("#模糊").oninput = () => {
 };
 
 document.getElementById("全局缩放").value = store.get("全局缩放");
-document.getElementById("全局缩放").oninput = () => {
-    document.getElementById("全局缩放_n").innerText = document.getElementById("全局缩放").value;
-};
 
 // 单选项目设置加载
 function 选择器储存(id, 默认) {

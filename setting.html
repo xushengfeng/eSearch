@@ -26,7 +26,7 @@
         <div id="setting_item">
             <div id="setting_left">开机自启动</div>
             <div id="setting_right">
-                <input type="checkbox" name="" id="autostart">
+                <lock-b id="autostart"></lock-b>
             </div>
         </div>
 
@@ -34,22 +34,6 @@
             <div id="setting_left">快捷键</div>
             <div id="setting_right">
                 <div id="快捷键">
-                    <div id="自动识别">
-                        <hot-keys name="自动识别" f="auto_open()"></hot-keys>
-                    </div>
-                    <div id="截图搜索">
-                        <hot-keys name="截图搜索" f='
-                            clip_window.webContents.send("reflash");
-                            clip_window.show();
-                            clip_window.setFullScreen(true);'>
-                        </hot-keys>
-                    </div>
-                    <div id="选中搜索">
-                        <hot-keys name="选中搜索" f="open_selection()"></hot-keys>
-                    </div>
-                    <div id="剪贴板搜索">
-                        <hot-keys name="剪贴板搜索" f="open_clip_board()"></hot-keys>
-                    </div>
                 </div>
             </div>
         </div>
@@ -57,7 +41,7 @@
         <div id="setting_item">
             <div id="setting_left">模糊</div>
             <div id="setting_right">
-                模糊<input type="number" id="模糊" step="1" min="0" max="100">px
+                模糊<range-b id="模糊" step="1" min="0" max="100" text="px"></range-b>
                 <div class="blur">
                     <img src="./assets/sample_picture.svg" alt="" class="blur_p">
                     <div class="blur_c"></div>
@@ -68,7 +52,7 @@
         <div id="setting_item">
             <div id="setting_left">全局缩放</div>
             <div id="setting_right">
-                <input type="range" min="0.1" max="3" id="全局缩放" step="0.05"><span id="全局缩放_n"></span>
+                <range-b min="0.1" max="3" id="全局缩放" step="0.05"></range-b>
             </div>
         </div>
 
@@ -95,16 +79,16 @@
         <div id="setting_item">
             <div id="setting_left">大小坐标</div>
             <div id="setting_right">
-                <input type="checkbox" id="显示四角坐标">显示四角坐标
+                <lock-b id="显示四角坐标"></lock-b>显示四角坐标
             </div>
         </div>
 
         <div id="setting_item">
             <div id="setting_left">取色器</div>
             <div id="setting_right">
-                取色器大小<input type="number" id="取色器大小" step="2" min="1" max="31">
+                取色器大小<range-b id="取色器大小" step="2" min="1" max="31"></range-b>
                 </br>
-                像素大小<input type="number" id="像素大小" min="1">px
+                像素大小<range-b id="像素大小" min="1" text="px"></range-b>
                 <canvas id="point_color_view"></canvas>
                 <div id="point_color"></div>
             </div>
@@ -163,9 +147,9 @@
         <div id="setting_item">
             <div id="setting_left">自动</div>
             <div id="setting_right">
-                <input type="checkbox" id="自动搜索">自动搜索
+                <lock-b id="自动搜索"></lock-b>自动搜索
                 </br>
-                <input type="checkbox" id="自动打开链接">自动打开链接
+                <lock-b id="自动打开链接"></lock-b>自动打开链接
                 </br>
                 自动搜索中文占比<input type="number" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01">
             </div>
@@ -192,13 +176,15 @@
 
         <div id="setting_item">
             <div id="setting_left">浏览器中打开</div>
-            <div id="setting_right"><input type="checkbox" id="浏览器中打开"></div>
+            <div id="setting_right">
+                <lock-b id="浏览器中打开"></lock-b>
+            </div>
         </div>
 
         <div id="setting_item">
             <div id="setting_left">OCR设置</div>
             <div id="setting_right">
-                每次截屏都提示OCR服务是否安装或开启<input type="checkbox" checked id="检查OCR">
+                <lock-b checked id="检查OCR"></lock-b>每次截屏都提示OCR服务是否安装或开启
                 <br>
                 <a id="本地OCR下载" href="https://hub.fastgit.org/xushengfeng/eSearch-service">本地OCR下载</a>
             </div>
@@ -207,9 +193,9 @@
         <div id="setting_item">
             <div id="setting_left">历史记录</div>
             <div id="setting_right">
-                保留历史记录<input type="checkbox" name="" id="历史记录_b" checked>
+                <lock-b name="" id="历史记录_b" checked></lock-b>保留历史记录
                 </br>
-                自动清除历史记录<input type="checkbox" name="" id="清除历史记录"> <input type="number" min="0" id="his_d">天 <input
+                <lock-b name="" id="清除历史记录"></lock-b>自动清除历史记录 <input type="number" min="0" id="his_d">天 <input
                     type="number" min="1" id="his_h">小时
                 <br>
                 <button id="clear_his">清空所有历史记录</button>
@@ -242,8 +228,17 @@
         </div>
     </div>
 
+    <template id="range-b">
+        <link rel="stylesheet" type="text/css" href="css/template2.css">
+        <input type="range" id="range">
+        <div class="range_t">
+            <p></p>
+            <p></p>
+        </div>
+    </template>
 
     <script src="lib/template.js"></script>
+    <script src="lib/template2.js"></script>
     <script src="js/set.js"></script>
 </body>
 
