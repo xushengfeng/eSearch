@@ -55,11 +55,9 @@ for (i in 快捷键) {
 }
 document.getElementById("快捷键").innerHTML = ct;
 
-if (document.title == "eSearch-设置") {
-    选择器储存("工具栏跟随", "展示内容优先");
-    选择器储存("光标", "以(1,1)为起点");
-    选择器储存("取色器默认格式", "HEX");
-}
+选择器储存("工具栏跟随", "展示内容优先");
+选择器储存("光标", "以(1,1)为起点");
+选择器储存("取色器默认格式", "HEX");
 
 document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标");
 
