@@ -41,7 +41,7 @@
         <div id="setting_item">
             <div id="setting_left">模糊</div>
             <div id="setting_right">
-                模糊<range-b id="模糊" step="1" min="0" max="100" text="px"></range-b>
+                模糊程度<range-b id="模糊" step="1" min="0" max="30" text="px"></range-b>
                 <div class="blur">
                     <img src="./assets/sample_picture.svg" alt="" class="blur_p">
                     <div class="blur_c"></div>
@@ -79,7 +79,7 @@
         <div id="setting_item">
             <div id="setting_left">大小坐标</div>
             <div id="setting_right">
-                <lock-b id="显示四角坐标"></lock-b>显示四角坐标
+                <lock-b id="显示四角坐标"></lock-b>显示四角坐标 （截屏框选附近除了框选大小，还会加上左上角和右下角坐标）
             </div>
         </div>
 
@@ -88,7 +88,7 @@
             <div id="setting_right">
                 取色器大小<range-b id="取色器大小" step="2" min="1" max="31"></range-b>
                 </br>
-                像素大小<range-b id="像素大小" min="1" text="px"></range-b>
+                像素大小<range-b id="像素大小" min="1" max="10" text="px"></range-b>
                 <canvas id="point_color_view"></canvas>
                 <div id="point_color"></div>
             </div>
@@ -120,6 +120,7 @@
 
         <div id="setting_item">
             <div id="setting_left">框选后默认操作</div>
+            框选完鼠标松开一瞬间，执行操作
             <div id="setting_right">
                 <select name="" id="框选后默认操作">
                     <option value="no">无</option>
@@ -137,9 +138,9 @@
         <div id="setting_item">
             <div id="setting_left">字体</div>
             <div id="setting_right">
-                主要字体
+                主要字体 （适用于主界面等文字字体）
                 <div id="主要字体"><input type="text" spellcheck="false"></div>
-                等宽字体
+                等宽字体 （适用于截图时数字、颜色代码等字体）
                 <div id="等宽字体"><input type="text" spellcheck="false"></div>
             </div>
         </div>
@@ -147,7 +148,7 @@
         <div id="setting_item">
             <div id="setting_left">自动</div>
             <div id="setting_right">
-                <lock-b id="自动搜索"></lock-b>自动搜索
+                <lock-b id="自动搜索"></lock-b>自动搜索 （识屏或直接打开主窗口，若文字为一行，则自动搜索）
                 </br>
                 <lock-b id="自动打开链接"></lock-b>自动打开链接
                 </br>
@@ -177,14 +178,14 @@
         <div id="setting_item">
             <div id="setting_left">浏览器中打开</div>
             <div id="setting_right">
-                <lock-b id="浏览器中打开"></lock-b>
+                <lock-b id="浏览器中打开"></lock-b>浏览器中打开 （点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）
             </div>
         </div>
 
         <div id="setting_item">
             <div id="setting_left">OCR设置</div>
             <div id="setting_right">
-                <lock-b checked id="检查OCR"></lock-b>每次截屏都提示OCR服务是否安装或开启
+                <lock-b checked id="检查OCR"></lock-b>OCR检测 （每次截屏都提示OCR服务是否安装或开启）
                 <br>
                 <a id="本地OCR下载" href="https://hub.fastgit.org/xushengfeng/eSearch-service">本地OCR下载</a>
             </div>
