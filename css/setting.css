@@ -20,8 +20,7 @@ body {
     margin: 32px 0 32px 0;
 }
 #setting_left {
-    width: 30%;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 500;
     margin: 0 0 8px 0;
 }
@@ -49,6 +48,17 @@ input[type="number"] {
     border: none;
     border-bottom: var(--border);
     font-size: 18px;
+}
+
+button{
+    border: var(--border);
+    border-radius: var(--border-radius);
+    background-color: #0000;
+    transition: var(--transition);
+    font-size: 1rem;
+}
+button:hover{
+    background-color: var(--hover-color);
 }
 
 a {
