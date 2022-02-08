@@ -141,6 +141,9 @@ body {
 #paste_bar {
     background-image: url(../assets/main_paste.svg);
 }
+#delete_enter_bar {
+    background-image: url(../assets/main_delete_enter.svg);
+}
 
 #b_bar {
     display: flex;

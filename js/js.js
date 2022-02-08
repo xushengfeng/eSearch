@@ -282,7 +282,7 @@ document.querySelector("#edit_b").onmousedown = (e) => {
         case "paste_bar":
             ipcRenderer.send("edit", window_name, "paste");
             break;
-        case "delete_enter":
+        case "delete_enter_bar":
             delete_enter();
             break;
     }
