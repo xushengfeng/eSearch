@@ -282,8 +282,21 @@ document.querySelector("#edit_b").onmousedown = (e) => {
         case "paste_bar":
             ipcRenderer.send("edit", window_name, "paste");
             break;
+        case "delete_enter":
+            delete_enter();
+            break;
     }
 };
+
+function delete_enter() {
+    var t = document.getElementById("text").innerText;
+    if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
+        t = t.replace(/(?<=[^。])\n/g, "");
+    } else {
+        t = t.replace(/(?<=[^.])\n/g, " ");
+    }
+    document.getElementById("text").innerText = t;
+}
 
 // 滚动条
 var text_scroll = 0;
