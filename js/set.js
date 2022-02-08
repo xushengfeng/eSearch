@@ -178,6 +178,7 @@ document.getElementById("本地OCR下载").onclick = (e) => {
     e.preventDefault();
     shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
 };
+document.getElementById("自动运行命令").value = store.get("自动运行命令");
 
 历史记录设置 = store.get("历史记录设置");
 
@@ -221,6 +222,7 @@ window.onbeforeunload = () => {
     历史记录设置.h = document.querySelector("#his_h").value;
     store.set("历史记录设置", 历史记录设置);
     store.set("检查OCR", document.getElementById("检查ocr").checked);
+    store.set("自动运行命令", document.getElementById("自动运行命令").value);
 };
 
 // 滚动条

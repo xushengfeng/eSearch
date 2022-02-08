@@ -142,11 +142,15 @@ range-b {
     display: block;
     float: left;
 }
-#OCR路径 {
-    width: 400px;
-}
 set-select {
     width: 100%;
+}
+
+#自动运行命令 {
+    width: 100%;
+    border: none;
+    border-bottom: var(--border);
+    font-size: 1rem;
 }
 
 #about {

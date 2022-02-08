@@ -18,6 +18,7 @@ var screen = require("electron").screen;
 const path = require("path");
 run_path = path.resolve(__dirname, "");
 const { exec } = require("child_process");
+const fs = require("fs");
 
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -182,6 +183,23 @@ app.whenReady().then(() => {
     Store.initRenderer();
     store = new Store();
     if (store.get("首次运行") === undefined) set_default_setting();
+
+    // 检查并开启服务
+    function start_service() {
+        const request = net.request({
+            method: "POST",
+            url: "http://127.0.0.1:8080",
+        });
+        request.on("error", () => {
+            var dir = store.path.replace("config.json", "service-installed");
+            if (fs.existsSync(dir) && store.get("自动运行命令")) {
+                exec(store.get("自动运行命令"));
+            }
+        });
+        request.write("");
+        request.end();
+    }
+    start_service();
 
     // 快捷键
     ipcMain.on("快捷键", (event, arg) => {
@@ -412,11 +430,9 @@ ipcMain.on("check_service", (event) => {
         url: "http://127.0.0.1:8080",
     });
     request.on("error", () => {
-        console.log("e");
         event.sender.send("check_service_back", "error");
     });
     request.on("response", () => {
-        console.log("o");
         event.sender.send("check_service_back", "ok");
     });
     request.write("");
@@ -768,6 +784,7 @@ function set_default_setting() {
         显示四角坐标: true,
         其他应用打开: "",
         检查OCR: true,
+        自动运行命令: "",
         自动打开链接: false,
         自动搜索中文占比: 0.5,
         浏览器中打开: false,
