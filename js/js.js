@@ -289,13 +289,24 @@ document.querySelector("#edit_b").onmousedown = (e) => {
 };
 
 function delete_enter() {
-    var t = document.getElementById("text").innerText;
-    if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
-        t = t.replace(/(?<=[^。])\n/g, "");
+    if (document.getSelection().toString() == "") {
+        var text = document.getElementById("text").innerText;
+        document.getElementById("text").innerText = p(text);
     } else {
-        t = t.replace(/(?<=[^.])\n/g, " ");
+        var text = document.getSelection().toString();
+        var range = document.getSelection().getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(p(text)));
     }
-    document.getElementById("text").innerText = t;
+
+    function p(t) {
+        if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
+            t = t.replace(/(?<=[^。])\n/g, "");
+        } else {
+            t = t.replace(/(?<=[^.])\n/g, " ");
+        }
+        return t;
+    }
 }
 
 // 滚动条
