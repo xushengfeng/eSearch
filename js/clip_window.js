@@ -61,7 +61,6 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     try {
         fabric_canvas.clear();
     } catch {}
-    if (can_check && (store.get("检查OCR") || true)) check_service();
 });
 
 function draw_windows_bar(o) {
@@ -84,44 +83,6 @@ function draw_windows_bar(o) {
         })(i);
     }
 }
-
-var can_check = true;
-function check_service() {
-    var dir = store.path.replace("config.json", "service-installed");
-    ipcRenderer.send("check_service");
-    ipcRenderer.on("check_service_back", (event, arg) => {
-        console.log(arg);
-        if (arg == "error") {
-            if (!fs.existsSync(dir)) {
-                document.querySelector(
-                    "#toast > span"
-                ).innerHTML = `<span id="service_download">检测到eSearch服务未安装，请前往官网下载安装</span>`;
-                document.querySelector("#windows_bar").style.transform = "translateX(0)";
-                o = true;
-                document.getElementById("service_download").onclick = () => {
-                    shell.openExternal("https://github.com/xushengfeng/eSearch-service");
-                };
-            } else {
-                document.querySelector("#toast > span").innerHTML = `eSearch服务未启动`;
-                document.querySelector("#windows_bar").style.transform = "translateX(0)";
-                o = true;
-            }
-        } else {
-            document.querySelector("#toast > span").innerHTML = ``;
-            document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
-            o = false;
-            if (!fs.existsSync(dir)) {
-                fs.mkdir(dir, () => {});
-            }
-        }
-    });
-}
-
-document.querySelector("#toast > button").onclick = () => {
-    document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
-    o = false;
-    can_check = false;
-};
 
 // 左边窗口工具栏弹出
 var o = false;

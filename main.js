@@ -424,16 +424,55 @@ function ocr(event, arg) {
     request.write(data);
     request.end();
 }
+
+var check_service_v = true;
 ipcMain.on("check_service", (event) => {
     const request = net.request({
         method: "POST",
         url: "http://127.0.0.1:8080",
     });
+    var dir = store.path.replace("config.json", "service-installed");
     request.on("error", () => {
         event.sender.send("check_service_back", "error");
+        if (!fs.existsSync(dir)) {
+            if (check_service_v) {
+                dialog
+                    .showMessageBox({
+                        title: "服务未安装",
+                        message: "服务未安装\n需要下载并安装服务才能使用OCR",
+                        icon: `${run_path}/assets/icons/warning.png`,
+                        buttons: ["下载", "取消并不再提示", "取消"],
+                        defaultId: 0,
+                    })
+                    .then((resolve) => {
+                        switch (resolve.response) {
+                            case 0:
+                                shell.openExternal("https://github.com/xushengfeng/eSearch-service");
+                                break;
+                            case 1:
+                                store.set("检查OCR", false);
+                                break;
+                            case 2:
+                                check_service_v = false;
+                                break;
+                        }
+                    });
+            }
+        } else {
+            if (store.get("自动运行命令")) {
+                exec(store.get("自动运行命令"));
+            } else {
+                dialog.showMessageBox({
+                    title: "服务未启动",
+                    message: "检测到服务未启动\n请手动启动eSearch服务",
+                    icon: `${run_path}/assets/icons/warning.png`,
+                });
+            }
+        }
     });
     request.on("response", () => {
         event.sender.send("check_service_back", "ok");
+        if (!fs.existsSync(dir)) fs.mkdir(dir, () => {});
     });
     request.write("");
     request.end();

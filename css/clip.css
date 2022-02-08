@@ -27,6 +27,7 @@ body {
     height: 100%;
     padding: 16px;
     box-sizing: border-box;
+    transform: translateX(-100%);
 }
 #windows_bar > div {
     margin-bottom: 16px;
