@@ -441,3 +441,15 @@ document.getElementById("find_b_replace_all").onclick = () => {
     document.getElementById("text").innerHTML = tmp_text.replace(text, document.getElementById("replace_input").value);
     tmp_text = null;
 };
+
+document.getElementById("find_b_replace").onclick = () => {
+    var text = document.getElementById("find_input").value;
+    text = string_or_regex(text);
+    var el = document.querySelector(".find_h_h");
+    var tttt = el.innerText.replace(text, document.getElementById("replace_input").value);
+    var tttt = document.createTextNode(tttt);
+    el.parentElement.insertBefore(tttt, el);
+    find_l_n("↓");
+    el.parentElement.removeChild(el);
+    find_l_n_i = find_l_n_i - 1;
+};
