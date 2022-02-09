@@ -352,8 +352,9 @@ function show_find() {
     if (find_show) {
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
+        document.getElementById("find_input").focus();
     } else {
-        document.getElementById("find").style.transform = "translateY(-100%)";
+        document.getElementById("find").style.transform = "translateY(-120%)";
         document.getElementById("find").style.pointerEvents = "none";
     }
 }
