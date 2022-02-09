@@ -327,7 +327,7 @@ document.querySelector("#history").onscroll = () => {
     }, 1000);
 };
 
-hotkeys("ctrl+h", show_history);
+hotkeys("ctrl+shift+h", show_history);
 
 hotkeys("ctrl+,", () => {
     window.open("setting.html");
@@ -345,3 +345,17 @@ document.onwheel = (e) => {
         document.getElementById("text").style.fontSize = `${size - d}px`;
     }
 };
+
+var find_show = false;
+function show_find() {
+    find_show = !find_show;
+    if (find_show) {
+        document.getElementById("find").style.transform = "translateY(0)";
+        document.getElementById("find").style.pointerEvents = "auto";
+    } else {
+        document.getElementById("find").style.transform = "translateY(-100%)";
+        document.getElementById("find").style.pointerEvents = "none";
+    }
+}
+
+hotkeys("ctrl+h", show_find);
