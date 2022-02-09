@@ -184,12 +184,32 @@ body {
     width: 1rem;
     height: 1rem;
     padding: 0;
+    border-radius: 4px;
 }
 #find input{
     border: none;
     background-color: var(--bar-color);
     backdrop-filter: var(--blur);
 }
+#find_b_last{
+    background-image: url(../assets/find_last.svg);
+}
+#find_b_next{
+    background-image: url(../assets/find_next.svg);
+}
+#find_b_close{
+    background-image: url(../assets/tool_close.svg);
+}
+#find_b_regex{
+    background-image: url(../assets/find_regex.svg);
+}
+#find_b_replace{
+    background-image: url(../assets/find_replace.svg);
+}
+#find_b_replace_all{
+    background-image: url(../assets/find_replace_all.svg);
+}
+
 
 #search,
 #translate,
