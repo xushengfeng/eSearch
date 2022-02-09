@@ -302,9 +302,9 @@ function delete_enter() {
 
     function p(t) {
         if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
-            t = t.replace(/(?<=[^。])\n/g, "");
+            t = t.replace(/(?<=[^。？！……])\n/g, "");
         } else {
-            t = t.replace(/(?<=[^.])\n/g, " ");
+            t = t.replace(/(?<=[^.\?!])\n/g, " ");
         }
         return t;
     }
