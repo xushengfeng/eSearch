@@ -410,13 +410,13 @@ function find() {
     if (document.getElementById("find_input").value == "") exit_find();
 }
 document.getElementById("text").onkeydown = (e) => {
-    if (tmp_text) {
+    var s = document.getSelection().baseNode.parentElement.className;
+    if (s == "find_h" || s == "find_h find_h_h") {
         e.preventDefault();
         exit_find();
     }
 };
 function exit_find() {
-    if (tmp_text === null || tmp_text === undefined) return;
     document.getElementById("text").innerText = document.getElementById("text").innerText;
     tmp_text = null;
     // todo 记录光标位置并恢复
