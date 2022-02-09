@@ -433,6 +433,7 @@ function find_l_n(a) {
             find_l_n_i = l.length - 1;
         }
         l[find_l_n_i].classList.add("find_h_h");
+        document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop;
     } else if (a == "↓") {
         l[find_l_n_i].classList.remove("find_h_h");
         if (find_l_n_i < l.length - 1) {
@@ -441,6 +442,7 @@ function find_l_n(a) {
             find_l_n_i = 0;
         }
         l[find_l_n_i].classList.add("find_h_h");
+        document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop;
     }
 }
 document.getElementById("find_b_last").onclick = () => {

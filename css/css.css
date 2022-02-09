@@ -38,6 +38,7 @@ body {
     flex-grow: 1;
     font-size: 16px;
     transition: var(--transition);
+    scroll-behavior: smooth;
 }
 #text:focus {
     outline: none;
@@ -175,7 +176,7 @@ body {
     padding: 4px;
     border-bottom-left-radius: var(--border-radius);
 }
-#find>div{
+#find > div {
     display: flex;
     align-items: center;
 }
