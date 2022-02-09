@@ -404,9 +404,8 @@ function find() {
     document.getElementById("text").innerHTML = tmp_text.replace(text, (m) => {
         return `<span class="find_h">${m}</span>`;
     });
-    find_l_n_i = 0;
-    var l = document.querySelectorAll(".find_h");
-    if (l.length != 0) document.querySelector(".find_h").classList.add("find_h_h");
+    find_l_n_i = -1;
+    find_l_n("↓");
     if (document.getElementById("find_input").value == "") exit_find();
 }
 document.getElementById("text").onkeydown = (e) => {
@@ -419,31 +418,33 @@ document.getElementById("text").onkeydown = (e) => {
 function exit_find() {
     document.getElementById("text").innerText = document.getElementById("text").innerText;
     tmp_text = null;
+    document.querySelector(".find_t > span").innerText = "";
     // todo 记录光标位置并恢复
 }
 var find_l_n_i = 0;
 function find_l_n(a) {
     var l = document.querySelectorAll(".find_h");
-    if (l.length == 0) return;
+    if (l.length == 0) {
+        document.querySelector(".find_t > span").innerText = `无结果`;
+        return;
+    }
+    if (l[find_l_n_i]) l[find_l_n_i].classList.remove("find_h_h");
     if (a == "↑") {
-        l[find_l_n_i].classList.remove("find_h_h");
         if (find_l_n_i > 0) {
             find_l_n_i--;
         } else {
             find_l_n_i = l.length - 1;
         }
-        l[find_l_n_i].classList.add("find_h_h");
-        document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop;
     } else if (a == "↓") {
-        l[find_l_n_i].classList.remove("find_h_h");
         if (find_l_n_i < l.length - 1) {
             find_l_n_i++;
         } else {
             find_l_n_i = 0;
         }
-        l[find_l_n_i].classList.add("find_h_h");
-        document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop;
     }
+    l[find_l_n_i].classList.add("find_h_h");
+    document.querySelector(".find_t > span").innerText = `${find_l_n_i + 1}/${l.length}`;
+    document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop;
 }
 document.getElementById("find_b_last").onclick = () => {
     find_l_n("↑");
@@ -451,6 +452,12 @@ document.getElementById("find_b_last").onclick = () => {
 document.getElementById("find_b_next").onclick = () => {
     find_l_n("↓");
 };
+document.getElementById("find_input").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        find_l_n("↓");
+    }
+};
+
 
 document.getElementById("find_b_replace_all").onclick = () => {
     var text = document.getElementById("find_input").value;
@@ -467,9 +474,9 @@ function find_replace() {
     var tttt = el.innerText.replace(text, document.getElementById("replace_input").value);
     var tttt = document.createTextNode(tttt);
     el.parentElement.insertBefore(tttt, el);
-    find_l_n("↓");
     el.parentElement.removeChild(el);
     find_l_n_i = find_l_n_i - 1;
+    find_l_n("↓");
 }
 document.getElementById("replace_input").onkeydown = (e) => {
     if (e.key == "Enter") {
