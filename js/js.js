@@ -356,7 +356,10 @@ function show_find() {
     if (find_show) {
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
+        document.getElementById("find_input").value = document.getSelection().toString();
+        document.getElementById("find_input").select();
         document.getElementById("find_input").focus();
+        if (document.getSelection().toString() != "") find();
     } else {
         document.getElementById("find").style.transform = "translateY(-120%)";
         document.getElementById("find").style.pointerEvents = "none";
