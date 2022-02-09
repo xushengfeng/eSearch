@@ -375,19 +375,24 @@ document.getElementById("find_b_regex").onclick = () => {
     }
 };
 
+var tmp_text;
 document.getElementById("find_input").onchange = () => {
+    tmp_text = null;
     find();
     document.querySelector(".find_h").classList.add("find_h_h");
 };
-var tmp_text;
-function find() {
-    var text = document.getElementById("find_input").value;
+function string_or_regex(text) {
     if (find_regex) {
         text = eval(text);
     } else {
         text = new RegExp(text) + ""; // 自动转义
         text = eval("/(" + text.slice(1, -1) + ")/g");
     }
+    return text;
+}
+function find() {
+    var text = document.getElementById("find_input").value;
+    text = string_or_regex(text);
     if (!tmp_text) tmp_text = document.getElementById("text").innerHTML;
     document.getElementById("text").innerHTML = tmp_text.replace(text, '<span class="find_h">$1</span>');
 }
@@ -428,4 +433,11 @@ document.getElementById("find_b_last").onclick = () => {
 };
 document.getElementById("find_b_next").onclick = () => {
     find_l_n("↓");
+};
+
+document.getElementById("find_b_replace_all").onclick = () => {
+    var text = document.getElementById("find_input").value;
+    text = string_or_regex(text);
+    document.getElementById("text").innerHTML = tmp_text.replace(text, document.getElementById("replace_input").value);
+    tmp_text = null;
 };
