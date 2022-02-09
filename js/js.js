@@ -327,6 +327,10 @@ document.querySelector("#history").onscroll = () => {
     }, 1000);
 };
 
+hotkeys.filter = () => {
+    return true;
+};
+
 hotkeys("ctrl+shift+h", show_history);
 
 hotkeys("ctrl+,", () => {
@@ -358,7 +362,7 @@ function show_find() {
         document.getElementById("find").style.pointerEvents = "none";
     }
 }
-
+hotkeys("ctrl+f", show_find);
 hotkeys("ctrl+h", show_find);
 
 document.getElementById("find_b_close").onclick = () => {
