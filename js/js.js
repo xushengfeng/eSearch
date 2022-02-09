@@ -377,16 +377,16 @@ document.getElementById("find_b_regex").onclick = () => {
 
 var tmp_text;
 document.getElementById("find_input").onchange = () => {
-    tmp_text = null;
+    if (tmp_text) {
+        exit_find();
+    }
     find();
-    document.querySelector(".find_h").classList.add("find_h_h");
 };
 function string_or_regex(text) {
     if (find_regex) {
         text = eval(text);
     } else {
-        text = new RegExp(text) + ""; // 自动转义
-        text = eval("/(" + text.slice(1, -1) + ")/g");
+        text = new RegExp(text, "g"); // 自动转义
     }
     return text;
 }
@@ -394,7 +394,11 @@ function find() {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
     if (!tmp_text) tmp_text = document.getElementById("text").innerHTML;
-    document.getElementById("text").innerHTML = tmp_text.replace(text, '<span class="find_h">$1</span>');
+    document.getElementById("text").innerHTML = tmp_text.replace(text, (m) => {
+        return `<span class="find_h">${m}</span>`;
+    });
+    find_l_n_i = 0;
+    document.querySelector(".find_h").classList.add("find_h_h");
 }
 document.getElementById("text").onkeydown = (e) => {
     if (tmp_text) {
