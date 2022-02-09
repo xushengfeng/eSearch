@@ -341,7 +341,6 @@ hotkeys("ctrl+,", () => {
 hotkeys("ctrl+0", () => {
     document.getElementById("text").style.fontSize = "16px";
 });
-
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
@@ -350,6 +349,7 @@ document.onwheel = (e) => {
     }
 };
 
+// 查找ui
 var find_show = false;
 function show_find() {
     find_show = !find_show;
@@ -373,6 +373,7 @@ document.getElementById("find_b_close").onclick = () => {
     exit_find();
 };
 
+// 正则
 var find_regex = false;
 document.getElementById("find_b_regex").onclick = () => {
     find_regex = !find_regex;
@@ -385,18 +386,21 @@ document.getElementById("find_b_regex").onclick = () => {
 };
 
 var tmp_text;
-document.getElementById("find_input").oninput = (e) => {
+document.getElementById("find_input").oninput = () => {
+    // 清除样式后查找
     exit_find();
     find();
 };
+// 判断是找文字还是正则
 function string_or_regex(text) {
     if (find_regex) {
         text = eval(text);
     } else {
-        text = new RegExp(text, "g"); // 自动转义
+        text = new RegExp(text, "g"); // 自动转义，找文字
     }
     return text;
 }
+// 查找并突出
 function find() {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
@@ -408,6 +412,7 @@ function find() {
     find_l_n("↓");
     if (document.getElementById("find_input").value == "") exit_find();
 }
+// 防止样式溢出
 document.getElementById("text").onkeydown = (e) => {
     var s = document.getSelection().baseNode.parentElement.className;
     if (s == "find_h" || s == "find_h find_h_h") {
@@ -415,12 +420,14 @@ document.getElementById("text").onkeydown = (e) => {
         exit_find();
     }
 };
+// 清除样式
 function exit_find() {
     document.getElementById("text").innerText = document.getElementById("text").innerText;
     tmp_text = null;
     document.querySelector(".find_t > span").innerText = "";
     // todo 记录光标位置并恢复
 }
+// 跳转
 var find_l_n_i = 0;
 function find_l_n(a) {
     var l = document.querySelectorAll(".find_h");
@@ -458,14 +465,14 @@ document.getElementById("find_input").onkeydown = (e) => {
     }
 };
 
-
+// 全部替换
 document.getElementById("find_b_replace_all").onclick = () => {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
     document.getElementById("text").innerHTML = tmp_text.replace(text, document.getElementById("replace_input").value);
     tmp_text = null;
 };
-
+// 替换选中
 document.getElementById("find_b_replace").onclick = find_replace;
 function find_replace() {
     var text = document.getElementById("find_input").value;
