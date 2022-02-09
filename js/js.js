@@ -359,3 +359,65 @@ function show_find() {
 }
 
 hotkeys("ctrl+h", show_find);
+
+document.getElementById("find_b_close").onclick = () => {
+    show_find();
+    exit_find();
+};
+
+var find_regex = false;
+
+document.getElementById("find_input").onchange = () => {
+    find();
+    document.querySelector(".find_h").classList.add("find_h_h");
+};
+var tmp_text;
+function find() {
+    var text = document.getElementById("find_input").value;
+    if (find_regex) {
+        text = eval(text);
+    } else {
+        text = new RegExp(text) + ""; // 自动转义
+        text = eval("/(" + text.slice(1, -1) + ")/g");
+    }
+    if (!tmp_text) tmp_text = document.getElementById("text").innerHTML;
+    document.getElementById("text").innerHTML = tmp_text.replace(text, '<span class="find_h">$1</span>');
+}
+document.getElementById("text").onkeydown = (e) => {
+    if (tmp_text) {
+        e.preventDefault();
+        exit_find();
+    }
+};
+function exit_find() {
+    document.getElementById("text").innerHTML = tmp_text;
+    tmp_text = null;
+    // todo 记录光标位置并恢复
+}
+var find_l_n_i = 0;
+function find_l_n(a) {
+    var l = document.querySelectorAll(".find_h");
+    if (a == "↑") {
+        l[find_l_n_i].classList.remove("find_h_h");
+        if (find_l_n_i > 0) {
+            find_l_n_i--;
+        } else {
+            find_l_n_i = l.length - 1;
+        }
+        l[find_l_n_i].classList.add("find_h_h");
+    } else if (a == "↓") {
+        l[find_l_n_i].classList.remove("find_h_h");
+        if (find_l_n_i < l.length - 1) {
+            find_l_n_i++;
+        } else {
+            find_l_n_i = 0;
+        }
+        l[find_l_n_i].classList.add("find_h_h");
+    }
+}
+document.getElementById("find_b_last").onclick = () => {
+    find_l_n("↑");
+};
+document.getElementById("find_b_next").onclick = () => {
+    find_l_n("↓");
+};

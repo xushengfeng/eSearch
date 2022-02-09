@@ -180,36 +180,41 @@ body {
 .find_s {
     grid-area: 2 / 1 / 3 / 2;
 }
-#find button{
+#find button {
     width: 1rem;
     height: 1rem;
     padding: 0;
     border-radius: 4px;
 }
-#find input{
+#find input {
     border: none;
     background-color: var(--bar-color);
     backdrop-filter: var(--blur);
 }
-#find_b_last{
+#find_b_last {
     background-image: url(../assets/find_last.svg);
 }
-#find_b_next{
+#find_b_next {
     background-image: url(../assets/find_next.svg);
 }
-#find_b_close{
+#find_b_close {
     background-image: url(../assets/tool_close.svg);
 }
-#find_b_regex{
+#find_b_regex {
     background-image: url(../assets/find_regex.svg);
 }
-#find_b_replace{
+#find_b_replace {
     background-image: url(../assets/find_replace.svg);
 }
-#find_b_replace_all{
+#find_b_replace_all {
     background-image: url(../assets/find_replace_all.svg);
 }
-
+.find_h {
+    background-color: var(--hover-color);
+}
+.find_h_h {
+    border: var(--border);
+}
 
 #search,
 #translate,
