@@ -366,6 +366,14 @@ document.getElementById("find_b_close").onclick = () => {
 };
 
 var find_regex = false;
+document.getElementById("find_b_regex").onclick = () => {
+    find_regex = !find_regex;
+    if (find_regex) {
+        document.getElementById("find_b_regex").style.backgroundColor = "var(--hover-color)";
+    } else {
+        document.getElementById("find_b_regex").style.backgroundColor = "";
+    }
+};
 
 document.getElementById("find_input").onchange = () => {
     find();
