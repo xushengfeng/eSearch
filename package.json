@@ -29,11 +29,11 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.61",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
     "@electron-forge/maker-zip": "^6.0.0-beta.61",
-    "electron": "^16.0.5",
+    "electron": "^17.0.0",
     "electron-rebuild": "^3.2.5",
     "yarn": "^1.22.17"
   },
-  "rebuild": "npm rebuild --runtime=electron --target=16.0.5 --disturl=https://atom.io/download/atom-shell --abi=99",
+  "rebuild": "npm rebuild --runtime=electron --target=17.0.0 --disturl=https://atom.io/download/atom-shell --abi=102",
   "config": {
     "forge": {
       "packagerConfig": {
