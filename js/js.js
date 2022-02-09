@@ -373,13 +373,12 @@ document.getElementById("find_b_regex").onclick = () => {
     } else {
         document.getElementById("find_b_regex").style.backgroundColor = "";
     }
+    find();
 };
 
 var tmp_text;
-document.getElementById("find_input").onchange = () => {
-    if (tmp_text) {
-        exit_find();
-    }
+document.getElementById("find_input").oninput = (e) => {
+    exit_find();
     find();
 };
 function string_or_regex(text) {
@@ -398,7 +397,9 @@ function find() {
         return `<span class="find_h">${m}</span>`;
     });
     find_l_n_i = 0;
-    document.querySelector(".find_h").classList.add("find_h_h");
+    var l = document.querySelectorAll(".find_h");
+    if (l.length != 0) document.querySelector(".find_h").classList.add("find_h_h");
+    if (document.getElementById("find_input").value == "") exit_find();
 }
 document.getElementById("text").onkeydown = (e) => {
     if (tmp_text) {
@@ -407,13 +408,15 @@ document.getElementById("text").onkeydown = (e) => {
     }
 };
 function exit_find() {
-    document.getElementById("text").innerHTML = tmp_text;
+    if (tmp_text === null || tmp_text === undefined) return;
+    document.getElementById("text").innerText = document.getElementById("text").innerText;
     tmp_text = null;
     // todo 记录光标位置并恢复
 }
 var find_l_n_i = 0;
 function find_l_n(a) {
     var l = document.querySelectorAll(".find_h");
+    if (l.length == 0) return;
     if (a == "↑") {
         l[find_l_n_i].classList.remove("find_h_h");
         if (find_l_n_i > 0) {
@@ -446,7 +449,8 @@ document.getElementById("find_b_replace_all").onclick = () => {
     tmp_text = null;
 };
 
-document.getElementById("find_b_replace").onclick = () => {
+document.getElementById("find_b_replace").onclick = find_replace;
+function find_replace() {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
     var el = document.querySelector(".find_h_h");
@@ -456,4 +460,9 @@ document.getElementById("find_b_replace").onclick = () => {
     find_l_n("↓");
     el.parentElement.removeChild(el);
     find_l_n_i = find_l_n_i - 1;
+}
+document.getElementById("replace_input").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        find_replace();
+    }
 };

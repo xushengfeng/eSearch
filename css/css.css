@@ -170,6 +170,7 @@ body {
     background-color: var(--bar-bg);
     backdrop-filter: var(--blur);
     transition: var(--transition);
+    transform: translateY(-100%);
 }
 .find_buttons {
     grid-area: 1 / 2 / 3 / 3;
@@ -213,7 +214,7 @@ body {
     background-color: var(--hover-color);
 }
 .find_h_h {
-    border: var(--border);
+    outline: var(--border);
 }
 
 #search,
