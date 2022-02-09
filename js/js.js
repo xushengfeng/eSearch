@@ -288,6 +288,7 @@ document.querySelector("#edit_b").onmousedown = (e) => {
     }
 };
 
+// 自动删除换行
 function delete_enter() {
     if (document.getSelection().toString() == "") {
         var text = document.getElementById("text").innerText;
@@ -308,6 +309,7 @@ function delete_enter() {
         return t;
     }
 }
+ipcRenderer.on("delete_enter", delete_enter);
 
 // 滚动条
 var text_scroll = 0;

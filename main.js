@@ -530,6 +530,10 @@ const template = [
                       },
                   ]
                 : [{ label: "删除", role: "delete" }, { type: "separator" }, { label: "全选", role: "selectAll" }]),
+            {
+                label: "自动删除换行",
+                click: delete_enter,
+            },
         ],
     },
     // { role: 'viewMenu' }
@@ -667,7 +671,8 @@ function create_ding_window(x, y, w, h, img) {
 }
 
 // 主窗口
-main_window_l = {};
+var main_window_l = {};
+var main_window_focus;
 function create_main_window(t, web_page) {
     var window_name = new Date().getTime();
     main_window_l[window_name] = new BrowserWindow({
@@ -701,6 +706,13 @@ function create_main_window(t, web_page) {
         delete main_window_l[window_name];
     });
 
+    main_window_l[window_name].on("focus", () => {
+        main_window_focus = main_window_l[window_name];
+    });
+    main_window_l[window_name].on("blur", () => {
+        main_window_focus = null;
+    });
+
     ipcMain.on("edit", (event, name, v) => {
         switch (v) {
             case "selectAll":
@@ -717,6 +729,9 @@ function create_main_window(t, web_page) {
                 break;
         }
     });
+}
+function delete_enter() {
+    if (main_window_focus) main_window_focus.webContents.send("delete_enter");
 }
 
 var focused_search_window = null;
