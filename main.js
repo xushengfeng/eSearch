@@ -270,13 +270,7 @@ function create_clip_window() {
     });
 
     ipcMain.on("ocr", (event, arg) => {
-        other_ocr_path = store.get("OCR路径") || "";
-        if (other_ocr_path == "") {
-            ocr(event, arg);
-        } else {
-            other_ocr = require(other_ocr_path);
-            other_ocr(event, arg, create_main_window);
-        }
+        ocr(event, arg);
     });
 
     ipcMain.on("QR", (event, arg) => {
@@ -382,36 +376,48 @@ function full_screen() {
     clip_window.setFullScreen(true);
 }
 function ocr(event, arg) {
-    const request = net.request({
+    const check_r = net.request({
         method: "POST",
-        url: store.get("ocr_url") || "http://127.0.0.1:8080",
-        headers: { "Content-type": "application/x-www-form-urlencoded" },
+        url: `http://127.0.0.1:8080`,
     });
-    request.on("response", (response) => {
-        if (response.statusCode == "200") {
-            response.on("data", (chunk) => {
-                var t = chunk.toString();
-                var t = JSON.parse(t);
-                var r = "";
-                var text = t["words_result"];
-                for (i in text) {
-                    r += text[i]["words"] + "\n";
-                }
-                create_main_window([r, text["language"]]);
-            });
-            response.on("end", () => {
-                event.sender.send("ocr_back", "ok");
-            });
-        } else {
-            event.sender.send("ocr_back", "else");
-            dialog.showMessageBox({
-                title: "警告",
-                message: "识别失败\n请尝试重新识别",
-                icon: `${run_path}/assets/icons/warning.png`,
-            });
-        }
+    check_r.on("response", () => {
+        const request = net.request({
+            method: "POST",
+            url: `http://127.0.0.1:8080`,
+            headers: { "Content-type": "application/x-www-form-urlencoded" },
+        });
+        request.on("response", (response) => {
+            if (response.statusCode == "200") {
+                response.on("data", (chunk) => {
+                    var t = chunk.toString();
+                    var t = JSON.parse(t);
+                    var r = "";
+                    var text = t["words_result"];
+                    for (i in text) {
+                        r += text[i]["words"] + "\n";
+                    }
+                    create_main_window([r, text["language"]]);
+                });
+                response.on("end", () => {
+                    event.sender.send("ocr_back", "ok");
+                });
+            } else {
+                event.sender.send("ocr_back", "else");
+                dialog.showMessageBox({
+                    title: "警告",
+                    message: "识别失败\n请尝试重新识别",
+                    icon: `${run_path}/assets/icons/warning.png`,
+                });
+            }
+        });
+        data = JSON.stringify({
+            image: arg,
+        });
+        request.write(data);
+        request.end();
     });
-    request.on("error", () => {
+
+    check_r.on("error", () => {
         event.sender.send("ocr_back", "else");
         dialog.showMessageBox({
             title: "警告",
@@ -419,11 +425,9 @@ function ocr(event, arg) {
             icon: `${run_path}/assets/icons/warning.png`,
         });
     });
-    data = JSON.stringify({
-        image: arg,
-    });
-    request.write(data);
-    request.end();
+
+    check_r.write("");
+    check_r.end();
 }
 
 var check_service_v = true;
