@@ -183,6 +183,7 @@ app.whenReady().then(() => {
     Store.initRenderer();
     store = new Store();
     if (store.get("首次运行") === undefined) set_default_setting();
+    fix_setting_tree();
 
     // 检查并开启服务
     function start_service() {
@@ -805,68 +806,87 @@ function create_help_window() {
     if (dev) main_window.webContents.openDevTools();
 }
 
+// 默认设置
+var default_setting = {
+    首次运行: false,
+    快捷键: {
+        自动识别: {
+            f: "auto_open()",
+        },
+        截图搜索: {
+            f: "clip_window.webContents.send('reflash');clip_window.show();clip_window.setFullScreen(true);",
+        },
+        选中搜索: {
+            f: "open_selection()",
+        },
+        剪贴板搜索: {
+            f: "open_clip_board()",
+        },
+    },
+    模糊: 10,
+    字体: {
+        主要字体: "",
+        等宽字体: "",
+    },
+    全局缩放: 1,
+    工具栏跟随: "展示内容优先",
+    取色器默认格式: "HEX",
+    自动搜索: true,
+    遮罩颜色: "#0008",
+    选区颜色: "#0000",
+    像素大小: 10,
+    取色器大小: 15,
+    显示四角坐标: true,
+    其他应用打开: "",
+    检查OCR: true,
+    自动运行命令: "",
+    自动打开链接: false,
+    自动搜索中文占比: 0.5,
+    浏览器中打开: false,
+    保存路径: "",
+    框选后默认操作: "no",
+    搜索引擎: [
+        ["谷歌", "https://www.google.com/search?q=%s"],
+        ["*百度", "https://www.baidu.com/s?wd=%s"],
+        ["必应", "https://cn.bing.com/search?q=%s"],
+    ],
+    翻译引擎: [
+        ["google", "https://translate.google.cn/?op=translate&text=%s"],
+        ["deepl", "https://www.deepl.com/translator#en/zh/%s"],
+        ["金山词霸", "http://www.iciba.com/word?w=%s"],
+        ["百度", "https://fanyi.baidu.com/#en/zh/%s"],
+    ],
+    历史记录: [],
+    历史记录设置: {
+        保留历史记录: true,
+        自动清除历史记录: false,
+        d: 14,
+        h: 0,
+    },
+    ding_dock: [10, 50],
+};
 function set_default_setting() {
-    var default_setting = {
-        首次运行: false,
-        快捷键: {
-            自动识别: {
-                f: "auto_open()",
-            },
-            截图搜索: {
-                f: "clip_window.webContents.send('reflash');clip_window.show();clip_window.setFullScreen(true);",
-            },
-            选中搜索: {
-                f: "open_selection()",
-            },
-            剪贴板搜索: {
-                f: "open_clip_board()",
-            },
-        },
-        模糊: 10,
-        字体: {
-            主要字体: "",
-            等宽字体: "",
-        },
-        全局缩放: 1,
-        工具栏跟随: "展示内容优先",
-        取色器默认格式: "HEX",
-        自动搜索: true,
-        遮罩颜色: "#0008",
-        选区颜色: "#0000",
-        像素大小: 10,
-        取色器大小: 15,
-        显示四角坐标: true,
-        其他应用打开: "",
-        检查OCR: true,
-        自动运行命令: "",
-        自动打开链接: false,
-        自动搜索中文占比: 0.5,
-        浏览器中打开: false,
-        保存路径: "",
-        框选后默认操作: "no",
-        搜索引擎: [
-            ["谷歌", "https://www.google.com/search?q=%s"],
-            ["*百度", "https://www.baidu.com/s?wd=%s"],
-            ["必应", "https://cn.bing.com/search?q=%s"],
-        ],
-        翻译引擎: [
-            ["google", "https://translate.google.cn/?op=translate&text=%s"],
-            ["deepl", "https://www.deepl.com/translator#en/zh/%s"],
-            ["金山词霸", "http://www.iciba.com/word?w=%s"],
-            ["百度", "https://fanyi.baidu.com/#en/zh/%s"],
-        ],
-        历史记录: [],
-        历史记录设置: {
-            保留历史记录: true,
-            自动清除历史记录: false,
-            d: 14,
-            h: 0,
-        },
-        ding_dock: [10, 50],
-    };
     for (i in default_setting) {
         store.set(i, default_setting[i]);
     }
 }
 
 ipcMain.on("默认设置", set_default_setting);
+
+// 增加设置项后，防止undefined
+function fix_setting_tree() {
+    var tree = "default_setting";
+    walk(tree);
+    function walk(path) {
+        var x = eval(path);
+        for (let i in x) {
+            var c_path = path + "." + i;
+            if (x[i].constructor === Object) {
+                walk(c_path);
+            } else {
+                c_path = c_path.slice(tree.length + 1); /* 去除开头主tree */
+                if (store.get(c_path) === undefined) store.set(c_path, x[i]);
+            }
+        }
+    }
+}
