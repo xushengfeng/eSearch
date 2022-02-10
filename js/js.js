@@ -471,7 +471,7 @@ document.getElementById("find_b_next").onclick = () => {
 };
 document.getElementById("find_input").onkeydown = (e) => {
     if (e.key == "Enter") {
-        if (tmp_text) {
+        if (document.querySelector(".find_h_h")) {
             find_l_n("↓");
         } else {
             find();
@@ -492,12 +492,18 @@ function find_replace() {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
     var el = document.querySelector(".find_h_h");
+    if (!el) {
+        exit_find();
+        find();
+        return;
+    }
     var tttt = el.innerText.replace(text, document.getElementById("replace_input").value);
     var tttt = document.createTextNode(tttt);
     el.parentElement.insertBefore(tttt, el);
     el.parentElement.removeChild(el);
     find_l_n_i = find_l_n_i - 1;
     find_l_n("↓");
+    tmp_text = document.getElementById("text").innerText;
 }
 document.getElementById("replace_input").onkeydown = (e) => {
     if (e.key == "Enter") {
