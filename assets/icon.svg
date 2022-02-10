@@ -1,79 +1,121 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
-   width="350"
-   height="350"
-   version="1.1"
-   id="svg20"
+   width="192"
+   height="192"
+   id="svg5"
    sodipodi:docname="icon.svg"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   version="1.1"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
-     id="namedview22"
+     id="namedview7"
      pagecolor="#ffffff"
      bordercolor="#111111"
      borderopacity="1"
      inkscape:pageshadow="0"
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="1"
-     showgrid="false"
-     inkscape:zoom="1.3875"
-     inkscape:cx="199.63964"
-     inkscape:cy="199.63964"
+     inkscape:document-units="px"
+     showgrid="true"
+     units="px"
+     width="512px"
+     inkscape:zoom="256"
+     inkscape:cx="172.78906"
+     inkscape:cy="116.14844"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg20" />
+     inkscape:current-layer="layer1"
+     inkscape:showpageshadow="false"
+     showborder="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid907"
+       spacingx="4"
+       spacingy="4"
+       empspacing="4" />
+  </sodipodi:namedview>
   <defs
-     id="defs14">
+     id="defs2">
     <linearGradient
-       id="prefix__a">
+       inkscape:collect="always"
+       id="linearGradient2074">
       <stop
+         style="stop-color:#00bdf9;stop-opacity:1"
          offset="0"
-         stop-color="#3b41ff"
-         id="stop7"
-         style="stop-color:#3131ff;stop-opacity:1" />
+         id="stop2070" />
       <stop
+         style="stop-color:#4242ff;stop-opacity:1"
          offset="1"
-         stop-color="#34ccff"
-         id="stop9"
-         style="stop-color:#4ad3ff;stop-opacity:1" />
+         id="stop2072" />
     </linearGradient>
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1133"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect857"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
     <linearGradient
-       xlink:href="#prefix__a"
-       id="prefix__c"
-       x1="50"
-       y1="350"
-       x2="350"
-       y2="50"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-25,-25)" />
-    <radialGradient
-       xlink:href="#prefix__b"
-       id="prefix__d"
-       cx="220"
-       cy="180"
-       fx="220"
-       fy="180"
-       r="100"
+       inkscape:collect="always"
+       xlink:href="#linearGradient2074"
+       id="linearGradient1665"
+       x1="184"
+       y1="96"
+       x2="96"
+       y2="184"
        gradientUnits="userSpaceOnUse" />
   </defs>
-  <path
-     style="fill:url(#prefix__c);-inkscape-stroke:none"
-     d="M 175,25 C 92.394,25 25,92.394 25,175 c 0,82.606 67.394,150 150,150 34.119,0 65.625,-11.52 90.877,-30.838 l 24.98,24.98 a 20,20 0 0 0 28.286,0 20,20 0 0 0 0,-28.285 l -24.98,-24.98 C 313.48,240.625 325,209.119 325,175 325,92.394 257.606,25 175,25 Z m 0,40 c 60.988,0 110,49.012 110,110 0,60.988 -49.012,110 -110,110 C 114.012,285 65,235.988 65,175 65,114.012 114.012,65 175,65 Z"
-     color="#000000"
-     fill="url(#prefix__c)"
-     id="path16" />
-  <circle
-     cx="175"
-     cy="175"
-     r="40"
-     fill="url(#prefix__d)"
-     id="circle18-3"
-     style="fill:#2e86ff;fill-opacity:1" />
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:none;stroke:#2424ff;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 176.5,176.6 -23.9,-24"
+       id="path979"
+       sodipodi:nodetypes="cc" />
+    <circle
+       style="fill:#0f6efd;fill-opacity:1;stroke:none;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path870"
+       cx="96"
+       cy="96"
+       r="32" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:url(#linearGradient1665);stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path846"
+       sodipodi:type="arc"
+       sodipodi:cx="96"
+       sodipodi:cy="96"
+       sodipodi:rx="80"
+       sodipodi:ry="80"
+       sodipodi:start="0.78539371"
+       sodipodi:end="0.25274231"
+       sodipodi:arc-type="arc"
+       d="M 152.56879,152.56829 A 80,80 0 0 1 47.443132,159.57854 80,80 0 0 1 26.537449,56.31431 80,80 0 0 1 126.11183,21.883351 a 80,80 0 0 1 47.3466,94.121459"
+       sodipodi:open="true" />
+  </g>
 </svg>
