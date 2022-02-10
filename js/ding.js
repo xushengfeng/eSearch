@@ -15,6 +15,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.style.width = w / ratio + "px";
     div.style.height = h / ratio + "px";
     var img = document.createElement("img");
+    img.draggable = false;
     img.src = url;
     img.className = "img";
     var tool_bar = document.querySelector("#tool_bar").cloneNode(true);
