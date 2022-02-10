@@ -471,7 +471,11 @@ document.getElementById("find_b_next").onclick = () => {
 };
 document.getElementById("find_input").onkeydown = (e) => {
     if (e.key == "Enter") {
-        find_l_n("↓");
+        if (tmp_text) {
+            find_l_n("↓");
+        } else {
+            find();
+        }
     }
 };
 
