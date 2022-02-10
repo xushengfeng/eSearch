@@ -224,6 +224,7 @@ body {
 }
 .find_h {
     background-color: var(--hover-color);
+    border-radius: 4px;
 }
 .find_h_h {
     outline: var(--border);
