@@ -144,8 +144,8 @@ document.querySelector("#history_b").onclick = () => {
 };
 // html转义
 function html2Escape(sHtml) {
-    return sHtml.replace(/[<>&"]/g, function (c) {
-        return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c];
+    return sHtml.replace(/[<>& \'\"]/g, (c) => {
+        return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c];
     });
 }
 Date.prototype.format = function (fmt) {
@@ -299,14 +299,7 @@ function delete_enter() {
         range.deleteContents();
         var d = document.createElement("span");
         // 转义
-        d.innerHTML = p(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/ /g, "&nbsp;")
-            .replace(/\'/g, "&#39;")
-            .replace(/\"/g, "&quot;")
-            .replace(/\n/g, "<br/>");
+        d.innerHTML = html2Escape(p(text)).replace(/\n/g, "<br>");
         range.insertNode(d);
         // 清空span
         document.getElementById("text").innerText = document.getElementById("text").innerText;
@@ -405,8 +398,9 @@ document.getElementById("find_input").oninput = () => {
 // 判断是找文字还是正则
 function string_or_regex(text) {
     if (find_regex) {
-        text = eval(text);
+        text = eval("/" + text + "/g");
     } else {
+        text = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
         text = new RegExp(text, "g"); // 自动转义，找文字
     }
     return text;
@@ -415,13 +409,18 @@ function string_or_regex(text) {
 function find() {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
-    if (!tmp_text) tmp_text = document.getElementById("text").innerHTML;
-    document.getElementById("text").innerHTML = tmp_text.replace(text, (m) => {
-        return `<span class="find_h">${m}</span>`;
-    });
+    if (!tmp_text) tmp_text = document.getElementById("text").innerText;
+    document.getElementById("text").innerHTML = html2Escape(tmp_text)
+        .replace(text, (m) => {
+            return `<span class="find_h">${m}</span>`;
+        })
+        .replace(/\n/g, "<br>");
     find_l_n_i = -1;
     find_l_n("↓");
-    if (document.getElementById("find_input").value == "") exit_find();
+    if (document.getElementById("find_input").value == "") {
+        document.getElementById("text").innerText = tmp_text;
+        exit_find();
+    }
 }
 // 防止样式溢出
 document.getElementById("text").onkeydown = (e) => {
@@ -480,8 +479,8 @@ document.getElementById("find_input").onkeydown = (e) => {
 document.getElementById("find_b_replace_all").onclick = () => {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
-    document.getElementById("text").innerHTML = tmp_text.replace(text, document.getElementById("replace_input").value);
-    tmp_text = null;
+    document.getElementById("text").innerText = tmp_text.replace(text, document.getElementById("replace_input").value);
+    exit_find();
 };
 // 替换选中
 document.getElementById("find_b_replace").onclick = find_replace;
