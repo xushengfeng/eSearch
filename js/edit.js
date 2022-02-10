@@ -74,6 +74,7 @@ document.querySelector("#draw_free_pencil").oninput = () => {
     }
     exit_shape();
     exit_filter();
+    free_draw_cursor("free");
 };
 // 橡皮
 document.querySelector("#draw_free_eraser").oninput = () => {
@@ -88,6 +89,7 @@ document.querySelector("#draw_free_eraser").oninput = () => {
     }
     exit_shape();
     exit_filter();
+    free_draw_cursor("eraser");
 };
 // 刷
 document.querySelector("#draw_free_spray").oninput = () => {
@@ -103,7 +105,36 @@ document.querySelector("#draw_free_spray").oninput = () => {
     }
     exit_shape();
     exit_filter();
+    free_draw_cursor("spray");
 };
+
+function free_draw_cursor() {
+    var mode = "free";
+    if (document.querySelector("#draw_free_pencil").checked) mode = "free";
+    if (document.querySelector("#draw_free_eraser").checked) mode = "eraser";
+    if (document.querySelector("#draw_free_spray").checked) mode = "spray";
+    if (mode == "free" || mode == "eraser") {
+        var svg_w = free_width,
+            h_w = svg_w / 2,
+            r = free_width / 2;
+        if (svg_w < 10) {
+            svg_w = 10;
+            h_w = 5;
+        }
+        if (mode == "free") {
+            var svg = `<svg width="${svg_w}" height="${svg_w}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svg_w}" y1="${h_w}" y2="${h_w}" stroke="#000"/><line y1="0" y2="${svg_w}" x1="${h_w}" x2="${h_w}" stroke="#000"/><circle style="fill:${free_color};" cx="${h_w}" cy="${h_w}" r="${r}"/></svg>`;
+        } else {
+            var svg = `<svg width="${svg_w}" height="${svg_w}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svg_w}" y1="${h_w}" y2="${h_w}" stroke="#000"/><line y1="0" y2="${svg_w}" x1="${h_w}" x2="${h_w}" stroke="#000"/><circle style="stroke-width:1;stroke:#000;fill:none" cx="${h_w}" cy="${h_w}" r="${r}"/></svg>`;
+        }
+        var d = document.createElement("div");
+        d.innerHTML = svg;
+        var s = new XMLSerializer().serializeToString(d.querySelector("svg"));
+        var cursorUrl = `data:image/svg+xml;base64,` + window.btoa(s);
+        fabric_canvas.freeDrawingCursor = `url(" ${cursorUrl} ") ${h_w} ${h_w}, auto`;
+    } else {
+        fabric_canvas.freeDrawingCursor = `auto`;
+    }
+}
 
 // 几何
 var shape = "";
@@ -461,6 +492,7 @@ function set_f_object_v(fill, stroke, strokeWidth) {
     } else if (fabric_canvas.isDrawingMode) {
         if (stroke) fabric_canvas.freeDrawingBrush.color = free_color = stroke;
         if (strokeWidth) fabric_canvas.freeDrawingBrush.width = free_width = strokeWidth;
+        free_draw_cursor();
     } else {
         if (fill) fill_color = fill;
         if (stroke) stroke_color = stroke;
