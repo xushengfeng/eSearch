@@ -2623,10 +2623,10 @@
   dependencies:
     "semver" "^5.4.1"
 
-"node-abi@^3.0.0":
-  "integrity" "sha512-LtHvNIBgOy5mO8mPEUtkCW/YCRWYEKshIvqhe1GHHyXEHEB5mgICyYnAcl4qan3uFeRROErKGzatFHPf6kDxWw=="
-  "resolved" "https://registry.npmmirror.com/node-abi/download/node-abi-3.5.0.tgz?cache=0&sync_timestamp=1637029311519&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Fnode-abi%2Fdownload%2Fnode-abi-3.5.0.tgz"
-  "version" "3.5.0"
+"node-abi@^3.0.0", "node-abi@^3.8.0":
+  "integrity" "sha512-tzua9qWWi7iW4I42vUPKM+SfaF0vQSLAm4yO5J83mSwB7GeoWrDKC/K+8YCnYNwqP5duwazbw2X9l4m8SC2cUw=="
+  "resolved" "https://registry.npmmirror.com/node-abi/-/node-abi-3.8.0.tgz"
+  "version" "3.8.0"
   dependencies:
     "semver" "^7.3.5"
 
