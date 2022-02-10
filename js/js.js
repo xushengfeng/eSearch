@@ -297,15 +297,24 @@ function delete_enter() {
         var text = document.getSelection().toString();
         var range = document.getSelection().getRangeAt(0);
         range.deleteContents();
-        range.insertNode(document.createTextNode(p(text)));
+        var d = document.createElement("span");
+        // 转义
+        d.innerHTML = p(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/ /g, "&nbsp;")
+            .replace(/\'/g, "&#39;")
+            .replace(/\"/g, "&quot;")
+            .replace(/\n/g, "<br/>");
+        range.insertNode(d);
+        // 清空span
+        document.getElementById("text").innerText = document.getElementById("text").innerText;
     }
 
     function p(t) {
-        if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
-            t = t.replace(/(?<=[^。？！……])\n/g, "");
-        } else {
-            t = t.replace(/(?<=[^.\?!])\n/g, " ");
-        }
+        var x = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "" : " ";
+        t = t.replace(/(?<=[^。？！…….\?!])\n/g, x);
         return t;
     }
 }
