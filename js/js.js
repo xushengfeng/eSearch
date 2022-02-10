@@ -387,6 +387,7 @@ document.getElementById("find_b_regex").onclick = () => {
         document.getElementById("find_b_regex").style.backgroundColor = "";
     }
     find();
+    document.getElementById("find_input").focus();
 };
 
 var tmp_text;
@@ -398,7 +399,12 @@ document.getElementById("find_input").oninput = () => {
 // 判断是找文字还是正则
 function string_or_regex(text) {
     if (find_regex) {
-        text = eval("/" + text + "/g");
+        try {
+            text = eval("/" + text + "/g");
+            document.getElementById("find_input").style.outline = "none";
+        } catch (error) {
+            document.getElementById("find_input").style.outline = "red  solid 1px";
+        }
     } else {
         text = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
         text = new RegExp(text, "g"); // 自动转义，找文字

@@ -203,6 +203,7 @@ body {
     border: none;
     background-color: var(--bar-color);
     backdrop-filter: var(--blur);
+    border-radius: 4px;
 }
 #find_b_last {
     background-image: url(../assets/find_last.svg);
