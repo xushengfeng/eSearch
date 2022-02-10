@@ -29,6 +29,7 @@ var fill_color = "#fff";
 var stroke_width = 1;
 var free_color = "#333";
 var free_width = 1;
+var shadow_blur = 0;
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
@@ -71,6 +72,7 @@ document.querySelector("#draw_free_pencil").oninput = () => {
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
+        free_shadow();
     }
     exit_shape();
     exit_filter();
@@ -107,6 +109,16 @@ document.querySelector("#draw_free_spray").oninput = () => {
     exit_filter();
     free_draw_cursor("spray");
 };
+// 阴影
+document.querySelector("#shadow_blur > range-b").oninput = free_shadow;
+
+function free_shadow() {
+    shadow_blur = document.querySelector("#shadow_blur > range-b").value;
+    fabric_canvas.freeDrawingBrush.shadow = new fabric.Shadow({
+        blur: shadow_blur,
+        color: free_color,
+    });
+}
 
 function free_draw_cursor() {
     var mode = "free";
@@ -493,6 +505,7 @@ function set_f_object_v(fill, stroke, strokeWidth) {
         if (stroke) fabric_canvas.freeDrawingBrush.color = free_color = stroke;
         if (strokeWidth) fabric_canvas.freeDrawingBrush.width = free_width = strokeWidth;
         free_draw_cursor();
+        free_shadow();
     } else {
         if (fill) fill_color = fill;
         if (stroke) stroke_color = stroke;
