@@ -863,7 +863,7 @@ var default_setting = {
         d: 14,
         h: 0,
     },
-    ding_dock: [10, 50],
+    ding_dock: [0, 0],
 };
 function set_default_setting() {
     for (i in default_setting) {

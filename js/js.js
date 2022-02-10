@@ -14,7 +14,7 @@ ipcRenderer.on("text", (event, name, list) => {
 
 自动搜索 = store.get("自动搜索");
 自动打开链接 = store.get("自动打开链接");
-自动搜索中文占比 = store.get("自动搜索中文占比") || 0.5;
+自动搜索中文占比 = store.get("自动搜索中文占比");
 
 // 判断链接
 function is_link(url, s) {
@@ -37,8 +37,8 @@ function is_link(url, s) {
     }
 }
 
-var history_list = store.get("历史记录") || [];
-var 历史记录设置 = store.get("历史记录设置") || { 保留历史记录: true, 自动清除历史记录: false, d: 0, h: 0 };
+var history_list = store.get("历史记录");
+var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     var now_time = new Date().getTime();
     var d_time = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;

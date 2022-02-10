@@ -138,7 +138,7 @@ clip_canvas.onmouseup = (e) => {
         document.getElementById("mouse_bar").style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
-    auto_do = store.get("框选后默认操作") || "no";
+    auto_do = store.get("框选后默认操作");
     switch (auto_do) {
         case "no":
             break;

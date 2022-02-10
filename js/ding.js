@@ -374,7 +374,7 @@ function resize(el, zoom) {
     }
 }
 
-dock_p = store.get("ding_dock") || [0, 0];
+dock_p = store.get("ding_dock");
 document.querySelector("#dock").style.left = dock_p[0] + "px";
 document.querySelector("#dock").style.top = dock_p[1] + "px";
 ding_p_s("dock", [dock_p[0], dock_p[1], 10, 50]);

@@ -10,26 +10,26 @@ const os = require("os");
 // 获取设置
 store = new Store();
 function set_setting() {
-    工具栏跟随 = store.get("工具栏跟随") || "展示内容优先";
-    光标 = store.get("光标") || "以(1,1)为起点";
-    四角坐标 = store.get("显示四角坐标") || false;
-    取色器默认格式 = store.get("取色器默认格式") || "RGB";
-    遮罩颜色 = store.get("遮罩颜色") || "#0005";
-    选区颜色 = store.get("选区颜色") || "#0000";
+    工具栏跟随 = store.get("工具栏跟随");
+    光标 = store.get("光标");
+    四角坐标 = store.get("显示四角坐标");
+    取色器默认格式 = store.get("取色器默认格式");
+    遮罩颜色 = store.get("遮罩颜色");
+    选区颜色 = store.get("选区颜色");
 
-    字体 = store.get("字体") || { 主要字体: "", 等宽字体: "" };
+    字体 = store.get("字体");
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
-    模糊 = store.get("模糊") || 10;
+    模糊 = store.get("模糊");
     if (模糊 != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     } else {
         document.documentElement.style.setProperty("--blur", `none`);
     }
 
-    color_size = store.get("取色器大小") || "15";
-    color_i_size = store.get("像素大小") || "10";
+    color_size = store.get("取色器大小");
+    color_i_size = store.get("像素大小");
     document.documentElement.style.setProperty("--color-size", `${color_size * color_i_size}px`);
     document.documentElement.style.setProperty("--color-i-size", `${color_i_size}px`);
     document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
