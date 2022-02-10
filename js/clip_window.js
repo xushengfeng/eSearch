@@ -143,7 +143,7 @@ function tool_ocr_f() {
     document.querySelectorAll("#waiting line animate")[1].beginElement();
 
     ipcRenderer.on("ocr_back", (event, arg) => {
-        if ((arg = "ok")) {
+        if (arg == "ok") {
             document.getElementById("waiting").style.display = "none";
             tool_close_f();
         } else {
