@@ -25,9 +25,9 @@
      showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="256"
-     inkscape:cx="172.78906"
-     inkscape:cy="116.14844"
+     inkscape:zoom="5.421643"
+     inkscape:cx="174.85474"
+     inkscape:cy="151.24566"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
@@ -82,12 +82,21 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient2074"
-       id="linearGradient1665"
-       x1="184"
-       y1="96"
-       x2="96"
-       y2="184"
+       id="linearGradient1988"
+       x1="0"
+       y1="192"
+       x2="192"
+       y2="0"
        gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2074"
+       id="linearGradient2591"
+       gradientUnits="userSpaceOnUse"
+       x1="0"
+       y1="0"
+       x2="192"
+       y2="192" />
   </defs>
   <g
      inkscape:label="图层 1"
@@ -95,27 +104,16 @@
      id="layer1">
     <path
        style="fill:none;stroke:#2424ff;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 176.5,176.6 -23.9,-24"
+       d="M 176,176 152,152"
        id="path979"
        sodipodi:nodetypes="cc" />
-    <circle
-       style="fill:#0f6efd;fill-opacity:1;stroke:none;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path870"
-       cx="96"
-       cy="96"
-       r="32" />
     <path
-       style="fill:none;fill-opacity:1;stroke:url(#linearGradient1665);stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
-       id="path846"
-       sodipodi:type="arc"
-       sodipodi:cx="96"
-       sodipodi:cy="96"
-       sodipodi:rx="80"
-       sodipodi:ry="80"
-       sodipodi:start="0.78539371"
-       sodipodi:end="0.25274231"
-       sodipodi:arc-type="arc"
-       d="M 152.56879,152.56829 A 80,80 0 0 1 47.443132,159.57854 80,80 0 0 1 26.537449,56.31431 80,80 0 0 1 126.11183,21.883351 a 80,80 0 0 1 47.3466,94.121459"
-       sodipodi:open="true" />
+       id="path1950"
+       style="fill:url(#linearGradient1988);fill-opacity:1;stroke:none;stroke-width:24;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 96,8 A 88,88 0 0 0 8,96 88,88 0 0 0 96,184 88,88 0 0 0 184,96 88,88 0 0 0 96,8 Z m 0,56 A 32,32 0 0 1 128,96 32,32 0 0 1 96,128 32,32 0 0 1 64,96 32,32 0 0 1 96,64 Z" />
+    <path
+       id="path2191"
+       style="fill:url(#linearGradient2591);fill-opacity:1;stroke:none;stroke-width:24;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 96,32 A 64,64 0 0 0 32,96 64,64 0 0 0 96,160 64,64 0 0 0 160,96 64,64 0 0 0 96,32 Z m 0,32 A 32,32 0 0 1 128,96 32,32 0 0 1 96,128 32,32 0 0 1 64,96 32,32 0 0 1 96,64 Z" />
   </g>
 </svg>
