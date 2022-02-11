@@ -8,8 +8,7 @@ ipcRenderer.on("text", (event, name, list) => {
     window_name = name;
 
     t = list[0];
-    language = list[1];
-    show_t(t, language);
+    show_t(t);
 });
 
 自动搜索 = store.get("自动搜索");
@@ -49,7 +48,7 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
     }
 }
 
-function show_t(t, language) {
+function show_t(t) {
     document.getElementById("text").innerText = t;
     if (t != "" && 历史记录设置.保留历史记录) history_list.unshift({ text: t, time: new Date().getTime() });
     store.set("历史记录", history_list);
@@ -57,13 +56,7 @@ function show_t(t, language) {
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
     } else {
-        if (language == "auto") {
-            if (t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比) {
-                language = "本地语言";
-            } else {
-                language = "外语";
-            }
-        }
+        language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
         if (自动搜索 && t.match(/\n/) == null && t != "") {
             if (language == "本地语言") {
                 open_link("search");

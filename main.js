@@ -396,7 +396,7 @@ function ocr(event, arg) {
                     for (i in text) {
                         r += text[i]["words"] + "\n";
                     }
-                    create_main_window([r, text["language"]]);
+                    create_main_window([r]);
                 });
                 response.on("end", () => {
                     event.sender.send("ocr_back", "ok");
