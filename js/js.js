@@ -372,6 +372,7 @@ var find_show = false;
 function show_find() {
     find_show = !find_show;
     if (find_show) {
+        document.getElementById("text").style.marginTop = "40px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
         document.getElementById("find_input").value = document.getSelection().toString();
@@ -379,6 +380,7 @@ function show_find() {
         document.getElementById("find_input").focus();
         if (document.getSelection().toString() != "") find();
     } else {
+        document.getElementById("text").style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
         document.getElementById("find").style.pointerEvents = "none";
     }
