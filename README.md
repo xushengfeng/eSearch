@@ -22,6 +22,8 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 国内快速下载链接：[Releases · xushengfeng/eSearch · fastgit](https://hub.fastgit.org/xushengfeng/eSearch/releases)
 
+ArchLinux 可在 AUR 查找安装 e-search
+
 ## OCR服务
 
 确保你的电脑安装了python
@@ -31,7 +33,7 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 ```shell
 git clone https://github.com/xushengfeng/eSearch-service.git
 cd eSearch-service
-pip install -r requirements.txt
+python setup.py
 python serve.py
 ```
 
@@ -105,6 +107,8 @@ e-search
   - [x] 浏览器打开
   - [x] 链接识别
   - [x] 历史记录
+  - [x] 自动删除换行
+  - [x] 查找替换（支持正则匹配）
 - [ ] Wayland桌面(为什么electron截不了wayland!)
 - [ ] 独立于electron的截图api
 
@@ -128,7 +132,7 @@ e-search
 
 在ArchLinux,KDE plasma,Xorg下测试通过
 
-win7截图出现白屏，win10能达到大部分效果
+win10测试通过
 
 Wayland无法运行
 
