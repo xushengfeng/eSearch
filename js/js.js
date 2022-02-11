@@ -294,12 +294,33 @@ function delete_enter() {
         var text = document.getElementById("text").innerText;
         document.getElementById("text").innerText = p(text);
     } else {
-        var text = document.getSelection().toString();
-        var range = document.getSelection().getRangeAt(0);
+        // 选择会选择整行
+        var sel_a = document.getSelection().anchorNode;
+        var sel_f = document.getSelection().focusNode;
+        if (sel_a.id == "text" || sel_f.id == "text") return; /* 禁止选择换行符 */
+        var node_l = document.getElementById("text").childNodes;
+        var text = document.createElement("span"),
+            s,
+            e;
+        // 区分谁先谁后
+        for (i = 0; i < node_l.length; i++) {
+            if (node_l[i] === sel_a) s = i;
+            if (node_l[i] === sel_f) e = i;
+        }
+        if (s > e) {
+            [s, e] = [e, s];
+            [sel_a, sel_f] = [sel_f, sel_a];
+        }
+        for (j = s; j <= e; j++) {
+            text.appendChild(node_l[j].cloneNode());
+        }
+        // 选择整行
+        var range = document.createRange();
+        range.setStartBefore(sel_a);
+        range.setEndAfter(sel_f);
         range.deleteContents();
         var d = document.createElement("span");
-        // 转义
-        d.innerHTML = html2Escape(p(text)).replace(/\n/g, "<br>");
+        d.innerHTML = p(text.innerHTML.replace(/<br>/g, "\n")).replace(/\n/g, "<br>");
         range.insertNode(d);
         // 清空span
         document.getElementById("text").innerText = document.getElementById("text").innerText;
