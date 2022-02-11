@@ -181,6 +181,7 @@ document.onkeydown = (e) => {
         fabric_canvas.remove(fabric_canvas.getActiveObject());
         get_f_object_v();
         get_filters();
+        stack_add();
     }
 };
 
