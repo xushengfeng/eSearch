@@ -57,7 +57,11 @@
         <h1>截图搜索</h1>
         <h2 id="文字识别"><img src="./assets/tool_ocr.svg" class="line_img">文字识别（OCR）</h2>
         <p>你可以选择本地OCR或其他OCR服务，无论哪种，你都必须安装Python，还要下载<a href="https://github.com/xushengfeng/eSearch-service">eSearch-service</a>，并参照其教程启动OCR服务</p>
-        <p><strong>eSearch-OCR</strong>提供了一个百度OCR的模板，你可以直接修改里面的“[你的百度OCR access_token]”来使用百度OCR，截止2022年1月，百度OCR还可以免费领取服务，<a href="https://cloud.baidu.com/doc/OCR/s/dk3iqnq51">详情教程点此</a>，然后<a href="https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu">参照此</a>获得access_token</p>
+        <p><strong>eSearch-service</strong>提供了一个百度OCR的模板，你可以直接修改里面的“[官网获取的AK]”“{官网获取的SK]”来使用百度OCR，截止2022年1月，百度OCR还可以免费领取服务，<a href="https://cloud.baidu.com/doc/OCR/s/dk3iqnq51">详情教程点此</a></p>
+        <p>下载并成功安装<strong>eSearch-service</strong>后，为了方便使用，请在<a href="setting.html#本地OCR下载">设置-本地OCR下载</a>中填入命令，大多数平台是通用的：</p>
+        <pre>cd [你下载的目录] && python serve.py</pre>
+        <p>若想使用百度的OCR</p>
+        <pre>cd [你下载的目录] && python serve.py -s baidu</pre>
         <h1>主窗口</h1>
         <p>当你按下 <img src="./assets/tool_ocr.svg" class="line_img">
             文字识别或
