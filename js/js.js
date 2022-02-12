@@ -150,14 +150,13 @@ function open_link(id, link) {
 // 历史记录
 // 历史记录界面
 history_showed = false;
-document.querySelector("#history_b").onclick = () => {
-    show_history();
-};
+document.querySelector("#history_b").onclick = show_history;
 // html转义
-function html2Escape(sHtml) {
-    return sHtml.replace(/[<>& \'\"]/g, (c) => {
-        return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c];
-    });
+function html_to_text(html) {
+    return html.replace(
+        /[<>& \'\"]/g,
+        (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c])
+    );
 }
 Date.prototype.format = function (fmt) {
     let ret;
@@ -187,42 +186,49 @@ function show_history() {
         document.querySelector("#history_b").className = "hover_b";
         history_showed = true;
 
-        var history_text = "";
-        if (history_list.length != 0) {
-            for (var i in history_list) {
-                history_text =
-                    history_text +
-                    `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
-                        "mm-dd HH:MM"
-                    )}</span><button></button></div><div class="history_text">${html2Escape(
-                        history_list[i].text
-                    )}</div></div>`;
-            }
-            document.querySelector("#history_list").innerHTML = history_text;
-        }
-        // 打开某项历史
-        document.querySelectorAll("#history_list > div > .history_text").forEach((e, index) => {
-            e.addEventListener("click", () => {
-                document.getElementById("text").innerText = history_list[index].text;
-                show_history();
-            });
-        });
-        // 删除某项历史
-        // TODO多选
-        document.querySelectorAll("#history_list > div > .history_title > button").forEach((e, index) => {
-            e.addEventListener("click", () => {
-                delete history_list[index];
-                history_list = history_list.flat();
-                e.parentElement.parentElement.remove();
-                if (history_list.length == 0) {
-                    document.querySelector("#history_list").innerText = "暂无历史记录";
-                }
-                store.set("历史记录", history_list);
-            });
-        });
-
         document.querySelector("#history_list").style.height = "100%";
     }
+}
+
+var history_text = "";
+if (history_list.length != 0) {
+    for (var i in history_list) {
+        history_text =
+            history_text +
+            `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
+                "mm-dd HH:MM"
+            )}</span><button></button></div><div class="history_text">${html_to_text(
+                history_list[i].text
+            )}</div></div>`;
+    }
+    document.querySelector("#history_list").innerHTML = history_text;
+}
+// 打开某项历史
+document.querySelectorAll("#history_list > div > .history_text").forEach((e, index) => {
+    e.addEventListener("click", () => {
+        document.getElementById("text").innerText = history_list[index].text;
+        show_history();
+        console.log(index);
+    });
+});
+// 删除某项历史
+// TODO多选
+document.querySelectorAll("#history_list > div > .history_title > button").forEach((e, index) => {
+    e.addEventListener("click", () => {
+        history_list[index] = null;
+        e.parentElement.parentElement.style.display = "none";
+        save_history();
+    });
+});
+
+function save_history() {
+    for (i in history_list) {
+        if (!history_list[i]) delete history_list[i];
+    }
+    if (history_list.flat().length == 0) {
+        document.querySelector("#history_list").innerText = "暂无历史记录";
+    }
+    store.set("历史记录", history_list.flat());
 }
 
 document.querySelector("#search_b").onclick = () => {
@@ -454,8 +460,8 @@ function find() {
     if (!tmp_text) tmp_text = document.getElementById("text").innerText;
     // 拆分并转义
     try {
-        var match_l = tmp_text.match(text).map((m) => html2Escape(m));
-        var text_l = tmp_text.split(text).map((m) => html2Escape(m));
+        var match_l = tmp_text.match(text).map((m) => html_to_text(m));
+        var text_l = tmp_text.split(text).map((m) => html_to_text(m));
         var t_l = [];
         // 交替插入
         for (i in text_l) {
