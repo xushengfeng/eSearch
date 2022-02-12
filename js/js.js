@@ -110,6 +110,22 @@ document.querySelector("#browser").onclick = () => {
     }
 };
 
+var text_focus = false;
+document.getElementById("text").onfocus = () => {
+    text_focus = true;
+    document.getElementById("top").style.boxShadow = "var(--shadow)";
+};
+document.getElementById("text").onmouseenter = () => {
+    document.getElementById("top").style.boxShadow = "var(--shadow)";
+};
+document.getElementById("text").onmouseleave = () => {
+    if (!text_focus) document.getElementById("top").style.boxShadow = "";
+};
+document.getElementById("text").onblur = () => {
+    text_focus = false;
+    document.getElementById("top").style.boxShadow = "";
+};
+
 // 打开浏览界面
 function open_link(id, link) {
     if (id == "url") {
@@ -225,7 +241,7 @@ document.querySelector("#translate_s").oninput = () => {
 // 选中释放鼠标显示编辑面板
 window.onmouseup = (e) => {
     // 延时等待(选中取消)
-    if (e.clientY <= document.getElementById("b_bar").offsetTop)
+    if (e.clientY <= document.getElementById("top").offsetHeight + 16)
         setTimeout(() => {
             show_edit_bar(e);
         }, 10);
@@ -376,7 +392,7 @@ var find_show = false;
 function show_find() {
     find_show = !find_show;
     if (find_show) {
-        document.getElementById("text").style.marginTop = "48px";
+        document.getElementById("top").style.marginTop = "48px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
         document.getElementById("find_input").value = document.getSelection().toString();
@@ -384,7 +400,7 @@ function show_find() {
         document.getElementById("find_input").focus();
         if (document.getSelection().toString() != "") find();
     } else {
-        document.getElementById("text").style.marginTop = "";
+        document.getElementById("top").style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
         document.getElementById("find").style.pointerEvents = "none";
     }

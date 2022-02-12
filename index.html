@@ -12,52 +12,6 @@
 </head>
 
 <body>
-    <div id="top">
-        <div id="text_out">
-            <div id="text" contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off"
-                spellcheck="false">
-            </div>
-        </div>
-        <div id="history_list">
-            暂无历史记录
-        </div>
-    </div>
-    <div id="edit_b" class="edit_h">
-        <div id="link_bar" title="打开链接"></div>
-        <div id="search_bar" title="搜索"></div>
-        <div id="translate_bar" title="翻译"></div>
-        <div id="selectAll_bar" title="全选"></div>
-        <div id="cut_bar" title="剪切"></div>
-        <div id="copy_bar" title="复制"></div>
-        <div id="paste_bar" title="粘贴"></div>
-        <div id="delete_enter_bar" title="自动删除换行"></div>
-    </div>
-    <div id="b_bar">
-        <div id="tab_bar">
-            <a href="setting.html" title="设置">
-                <div id="setting"></div>
-            </a>
-            <a href="help.html" title="帮助">
-                <div id="help"></div>
-            </a>
-        </div>
-        <div id="history">
-            <button id="history_b" title="历史记录"></button>
-        </div>
-        <div id="browser">
-            <button id="browser_b" title="浏览器打开"></button>
-        </div>
-        <div id="search">
-            <button id="search_b" title="搜索"></button>
-            <select id="search_s" title="选择搜索引擎">
-            </select>
-        </div>
-        <div id="translate">
-            <button id="translate_b" title="翻译"></button>
-            <select id="translate_s" title="选择翻译引擎">
-            </select>
-        </div>
-    </div>
     <div id="find">
         <div class="find_buttons">
             <button title="上一个匹配" id="find_b_last"></button>
@@ -74,6 +28,56 @@
                 title="全部替换" id="find_b_replace_all"></button>
         </div>
         <div class="find_t"><span></span></div>
+    </div>
+
+    <div class="main">
+        <div id="top">
+            <div id="text_out">
+                <div id="text" contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off"
+                    spellcheck="false">
+                </div>
+            </div>
+            <div id="history_list">
+                暂无历史记录
+            </div>
+        </div>
+
+        <div id="tab_bar">
+            <a href="setting.html" title="设置">
+                <div id="setting"></div>
+            </a>
+            <a href="help.html" title="帮助">
+                <div id="help"></div>
+            </a>
+        </div>
+        <div style="visibility: hidden;"></div>
+        <div id="history">
+            <button id="history_b" title="历史记录"></button>
+        </div>
+        <div id="browser">
+            <button id="browser_b" title="浏览器打开"></button>
+        </div>
+        <div id="search">
+            <button id="search_b" title="搜索"></button>
+            <select id="search_s" title="选择搜索引擎">
+            </select>
+        </div>
+        <div id="translate">
+            <button id="translate_b" title="翻译"></button>
+            <select id="translate_s" title="选择翻译引擎">
+            </select>
+        </div>
+
+    </div>
+    <div id="edit_b" class="edit_h">
+        <div id="link_bar" title="打开链接"></div>
+        <div id="search_bar" title="搜索"></div>
+        <div id="translate_bar" title="翻译"></div>
+        <div id="selectAll_bar" title="全选"></div>
+        <div id="cut_bar" title="剪切"></div>
+        <div id="copy_bar" title="复制"></div>
+        <div id="paste_bar" title="粘贴"></div>
+        <div id="delete_enter_bar" title="自动删除换行"></div>
     </div>
     <script src="js/root.js"></script>
     <script src="js/js.js"></script>
