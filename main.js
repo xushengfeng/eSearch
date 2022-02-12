@@ -213,21 +213,14 @@ app.whenReady().then(() => {
         event.sender.send("状态", eval(arg[0]));
     });
 
-    globalShortcut.register(store.get("key_自动识别") || "CommandOrControl+Shift+Z", () => {
-        auto_open();
-    });
-    if (store.get("key_截图搜索"))
-        globalShortcut.register(store.get("key_截图搜索"), () => {
-            full_screen();
-        });
-    if (store.get("key_选中搜索"))
-        globalShortcut.register(store.get("key_选中搜索"), () => {
-            open_selection();
-        });
-    if (store.get("key_剪贴板搜索"))
-        globalShortcut.register(store.get("key_剪贴板搜索"), () => {
-            open_clip_board();
-        });
+    var 快捷键 = store.get("快捷键");
+    for (k in 快捷键) {
+        var m = 快捷键[k];
+        if (m.key && m.f)
+            eval(`globalShortcut.register("${m.key}", () => {
+            ${m.f};
+        });`);
+    }
     create_clip_window();
 });
 
@@ -818,9 +811,10 @@ var default_setting = {
     快捷键: {
         自动识别: {
             f: "auto_open()",
+            key: "CommandOrControl+Shift+Z",
         },
         截图搜索: {
-            f: "clip_window.webContents.send('reflash');clip_window.show();clip_window.setFullScreen(true);",
+            f: "full_screen()",
         },
         选中搜索: {
             f: "open_selection()",
@@ -828,7 +822,11 @@ var default_setting = {
         剪贴板搜索: {
             f: "open_clip_board()",
         },
+        主页面: {
+            f: "create_main_window([''])",
+        },
     },
+    其他快捷键: {},
     模糊: 10,
     字体: {
         主要字体: "",
