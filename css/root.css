@@ -1,14 +1,14 @@
 :root {
+    --bar-bg: #fff9;
     --hover-color: #0002;
-    --hover-color2: #f7f7f7;
+    --bg: #fff;
+    --bg2: #f5f5f5;
+    --hover-color2: #f1f1f1;
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
-    --bar-bg: #fff9;
     --blur: blur(10px);
     --shadow: #0002 0 0 8px;
     --height: 40px;
-    --bg: #fff;
-    --bg2: #f5f5f5;
     --color: #000;
     --color2: #555;
     --border: 1px #000 solid;
@@ -92,6 +92,7 @@ kbd {
     height: 1px;
 }
 
+/* 用于截屏界面固定 */
 .hover_b {
     background-color: var(--hover-color);
 }

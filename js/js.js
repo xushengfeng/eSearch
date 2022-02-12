@@ -98,14 +98,14 @@ for (i in 翻译引擎_list) {
 document.querySelector("#translate_s").innerHTML = translate_c;
 
 浏览器打开 = store.get("浏览器中打开");
-if (浏览器打开) document.querySelector("#browser_b").className = "hover_b";
+if (浏览器打开) document.querySelector("#browser").className = "hover_b2";
 
 document.querySelector("#browser").onclick = () => {
     if (浏览器打开) {
-        document.querySelector("#browser_b").className = "";
+        document.querySelector("#browser").className = "";
         浏览器打开 = false;
     } else {
-        document.querySelector("#browser_b").className = "hover_b";
+        document.querySelector("#browser").className = "hover_b2";
         浏览器打开 = true;
     }
 };
@@ -376,7 +376,7 @@ var find_show = false;
 function show_find() {
     find_show = !find_show;
     if (find_show) {
-        document.getElementById("text").style.marginTop = "40px";
+        document.getElementById("text").style.marginTop = "48px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
         document.getElementById("find_input").value = document.getSelection().toString();

@@ -43,6 +43,14 @@ body {
     outline: none;
 }
 
+/* 用于浏览器打开固定 */
+.hover_b2 {
+    box-shadow: var(--shadow);
+}
+.hover_b2 > button {
+    background-color: var(--hover-color2);
+}
+
 #history_list {
     transition: var(--transition);
     overflow-y: overlay;
@@ -158,7 +166,7 @@ body {
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
-    background-color: var(--bar-bg);
+    background-color: var(--bg);
     transition: var(--transition);
 }
 #b_bar > div:hover {
@@ -172,8 +180,7 @@ body {
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: auto auto;
-    background-color: var(--bar-bg);
-    backdrop-filter: var(--blur);
+    background-color: var(--bg);
     transition: var(--transition);
     transform: translateY(-120%);
     box-shadow: var(--shadow);
@@ -228,7 +235,7 @@ body {
     background-image: url(../assets/find_replace_all.svg);
 }
 .find_h {
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
     border-radius: 4px;
 }
 .find_h_h {
