@@ -20,14 +20,14 @@
      borderopacity="1"
      inkscape:pageshadow="0"
      inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="1"
+     inkscape:pagecheckerboard="true"
      inkscape:document-units="px"
      showgrid="true"
      units="px"
      width="512px"
-     inkscape:zoom="5.421643"
-     inkscape:cx="174.85474"
-     inkscape:cy="151.24566"
+     inkscape:zoom="0.11980252"
+     inkscape:cx="-1819.6613"
+     inkscape:cy="-626.03026"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
@@ -97,14 +97,23 @@
        y1="0"
        x2="192"
        y2="192" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2074"
+       id="linearGradient857"
+       x1="184"
+       y1="184"
+       x2="152"
+       y2="152"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      inkscape:label="图层 1"
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#2424ff;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 176,176 152,152"
+       style="fill:none;stroke:url(#linearGradient857);stroke-width:24;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 172,172 152,152"
        id="path979"
        sodipodi:nodetypes="cc" />
     <path
