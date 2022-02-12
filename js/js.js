@@ -67,6 +67,8 @@ function show_t(t) {
     }
     document.getElementById("text").focus();
     ipcRenderer.send("edit", window_name, "selectAll");
+
+    stack_add();
 }
 
 搜索引擎_list = store.get("搜索引擎");
@@ -324,6 +326,8 @@ function delete_enter() {
         t = t.replace(/(?<=[^。？！…….\?!])\n/g, x);
         return t;
     }
+
+    stack_add();
 }
 ipcRenderer.on("delete_enter", delete_enter);
 
@@ -507,6 +511,8 @@ document.getElementById("find_b_replace_all").onclick = () => {
     text = string_or_regex(text);
     document.getElementById("text").innerText = tmp_text.replace(text, document.getElementById("replace_input").value);
     exit_find();
+
+    stack_add();
 };
 // 替换选中
 document.getElementById("find_b_replace").onclick = find_replace;
@@ -526,9 +532,62 @@ function find_replace() {
     find_l_n_i = find_l_n_i - 1;
     find_l_n("↓");
     tmp_text = document.getElementById("text").innerText;
+
+    stack_add();
 }
 document.getElementById("replace_input").onkeydown = (e) => {
     if (e.key == "Enter") {
         find_replace();
     }
 };
+
+// 定义撤销栈
+var undo_stack = [""];
+// 定义位置
+var undo_stack_i = 0;
+function stack_add() {
+    if (undo_stack[undo_stack_i] == document.getElementById("text").innerText) return;
+    // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
+    if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
+    undo_stack.push(document.getElementById("text").innerText);
+    undo_stack_i = undo_stack.length - 1;
+}
+function undo() {
+    if (undo_stack_i > 0) {
+        undo_stack_i--;
+        document.getElementById("text").innerText = undo_stack[undo_stack_i];
+    }
+    exit_find();
+}
+function redo() {
+    if (undo_stack_i < undo_stack.length - 1) {
+        undo_stack_i++;
+        document.getElementById("text").innerText = undo_stack[undo_stack_i];
+    }
+    exit_find();
+}
+
+var can_add_undo_stack = true;
+document.getElementById("text").oncompositionstart = () => {
+    can_add_undo_stack = false;
+};
+document.getElementById("text").oncompositionend = () => {
+    can_add_undo_stack = true;
+};
+
+document.getElementById("text").oninput =
+    document.getElementById("text").onpaste =
+    document.getElementById("text").ondragend =
+        () => {
+            can_add_undo_stack = true;
+        };
+
+setInterval(() => {
+    if (can_add_undo_stack) {
+        stack_add();
+        can_add_undo_stack = false;
+    }
+}, 6000);
+
+hotkeys("ctrl+z", undo);
+hotkeys("ctrl+y", redo);
