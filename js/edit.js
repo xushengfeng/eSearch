@@ -5,6 +5,8 @@ var undo_stack = [fabric_canvas.toJSON()];
 // 定义位置
 var undo_stack_i = 0;
 function stack_add() {
+    // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
+    if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
     undo_stack.push(fabric_canvas.toJSON());
     undo_stack_i = undo_stack.length - 1;
 }
