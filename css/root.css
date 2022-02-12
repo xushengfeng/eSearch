@@ -1,5 +1,6 @@
 :root {
     --hover-color: #0002;
+    --hover-color2: #f7f7f7;
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
     --bar-bg: #fff9;
@@ -7,10 +8,11 @@
     --shadow: #0002 0 0 8px;
     --height: 40px;
     --bg: #fff;
+    --bg2: #f5f5f5;
     --color: #000;
     --color2: #555;
     --border: 1px #000 solid;
-    --font-size: 20px;
+    --font-size: 1rem;
     --color-size: 150px;
     --color-i-size: 10px;
     --monospace: ;
@@ -21,6 +23,7 @@ html,
 body {
     margin: 0;
     font-family: var(--main-font);
+    background-color: var(--bg2);
 }
 
 #tab_bar {
@@ -29,9 +32,10 @@ body {
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
-    border: var(--border);
-    backdrop-filter: var(--blur);
-    background-color: var(--bar-bg);
+    background-color: var(--bg);
+}
+#tab_bar:hover {
+    box-shadow: var(--shadow);
 }
 #tab_bar a {
     display: block;
@@ -46,7 +50,7 @@ body {
     background-repeat: no-repeat;
 }
 #tab_bar a div:hover {
-    background-color: var(--hover-color);
+    background-color: var(--hover-color2);
 }
 
 #main {
@@ -104,6 +108,6 @@ select {
     outline: none;
 }
 
-textarea{
+textarea {
     outline: none;
 }

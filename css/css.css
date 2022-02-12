@@ -32,7 +32,6 @@ body {
     padding: 8px;
     box-sizing: border-box;
     border-radius: var(--border-radius);
-    border: var(--border);
     background: var(--bar-bg);
     overflow: overlay;
     flex-grow: 1;
@@ -53,8 +52,13 @@ body {
 #history_list > div {
     margin: 0 0 16px 0;
     border-radius: var(--border-radius);
-    border: var(--border);
     overflow: hidden;
+    background-color: var(--bg);
+    transition: var(--transition);
+}
+#history_list > div:hover {
+    background-color: var(--hover-color2);
+    box-shadow: var(--shadow);
 }
 .history_title {
     height: 16px;
@@ -67,7 +71,7 @@ body {
     width: 16px;
     padding: 0;
     margin-left: 4px;
-    background-color: var(--hover-color);
+    background-color: var(--hover-color2);
     background-image: url(../assets/i_close.svg);
     background-size: 80%;
     background-position: center;
@@ -82,9 +86,6 @@ body {
 .history_text {
     padding: 8px;
     text-align: start;
-}
-.history_text:hover {
-    background-color: var(--hover-color);
 }
 
 #edit_b {
@@ -157,8 +158,11 @@ body {
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
-    border: var(--border);
     background-color: var(--bar-bg);
+    transition: var(--transition);
+}
+#b_bar > div:hover {
+    box-shadow: var(--shadow);
 }
 
 #find {
@@ -224,7 +228,7 @@ body {
     background-image: url(../assets/find_replace_all.svg);
 }
 .find_h {
-    background-color: var(--hover-color);
+    background-color: var(--hover-color2);
     border-radius: 4px;
 }
 .find_h_h {
@@ -246,7 +250,6 @@ button {
     outline: none;
     margin: 0px;
     color: var(--color);
-    font-size: var(--font-size);
     padding: 0 16px 0 16px;
     transition: var(--transition);
     cursor: pointer;
@@ -255,7 +258,7 @@ button {
     width: 40px;
 }
 button:hover {
-    background-color: var(--hover-color);
+    background-color: var(--hover-color2);
 }
 select {
     border-radius: 0;
@@ -267,7 +270,10 @@ select {
     color: var(--color);
     font-size: var(--font-size);
     padding: 0 16px 0 16px;
-    border-left: 2px solid var(--hover-color);
+    transition: var(--transition);
+}
+select:hover {
+    background-color: var(--hover-color2);
 }
 option {
     font-size: var(--font-size);
