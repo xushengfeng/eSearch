@@ -503,7 +503,7 @@ function find_l_n(a) {
     }
     l[find_l_n_i].classList.add("find_h_h");
     document.querySelector(".find_t > span").innerText = `${find_l_n_i + 1}/${l.length}`;
-    document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop;
+    document.getElementById("text").scrollTop = l[find_l_n_i].offsetTop - 48 - 16;
 }
 document.getElementById("find_b_last").onclick = () => {
     find_l_n("↑");
