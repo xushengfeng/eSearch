@@ -193,7 +193,9 @@ app.whenReady().then(() => {
         });
         request.on("error", () => {
             var dir = store.path.replace("config.json", "service-installed");
+            console.log(`存在目录${dir}`);
             if (fs.existsSync(dir) && store.get("自动运行命令")) {
+                console.log("启动");
                 exec(store.get("自动运行命令"));
             }
         });
