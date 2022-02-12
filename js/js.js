@@ -452,11 +452,21 @@ function find() {
     var text = document.getElementById("find_input").value;
     text = string_or_regex(text);
     if (!tmp_text) tmp_text = document.getElementById("text").innerText;
-    document.getElementById("text").innerHTML = html2Escape(tmp_text)
-        .replace(text, (m) => {
-            return `<span class="find_h">${m}</span>`;
-        })
-        .replace(/\n/g, "<br>");
+    // 拆分并转义
+    try {
+        var match_l = tmp_text.match(text).map((m) => html2Escape(m));
+        var text_l = tmp_text.split(text).map((m) => html2Escape(m));
+        var t_l = [];
+        // 交替插入
+        for (i in text_l) {
+            t_l.push(text_l[i]);
+            if (match_l[i]) t_l.push(`<span class="find_h">${match_l[i]}</span>`);
+        }
+        document.getElementById("text").innerHTML = t_l
+            .join("")
+            .replace(/\n/g, "<br>")
+            .replace(/&nbsp;/g, " ");
+    } catch (error) {}
     find_l_n_i = -1;
     find_l_n("↓");
     if (document.getElementById("find_input").value == "") {
