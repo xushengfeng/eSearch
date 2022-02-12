@@ -214,7 +214,7 @@ window.onbeforeunload = () => {
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
-    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").checked);
+    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value);
     if (o_搜索引擎) store.set("搜索引擎", o_搜索引擎);
     if (o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
