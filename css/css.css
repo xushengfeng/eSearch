@@ -70,7 +70,7 @@ body {
     outline: none;
 }
 
-/* 用于浏览器打开固定 */
+/* 用于历史记录和浏览器打开固定 */
 .hover_b2 {
     box-shadow: var(--shadow);
 }

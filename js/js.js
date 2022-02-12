@@ -179,11 +179,11 @@ Date.prototype.format = function (fmt) {
 };
 function show_history() {
     if (history_showed) {
-        document.querySelector("#history_b").className = "";
+        document.querySelector("#history").className = "";
         history_showed = false;
         document.querySelector("#history_list").style.height = "0";
     } else {
-        document.querySelector("#history_b").className = "hover_b";
+        document.querySelector("#history").className = "hover_b2";
         history_showed = true;
 
         document.querySelector("#history_list").style.height = "100%";
