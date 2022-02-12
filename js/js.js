@@ -138,7 +138,7 @@ function open_link(id, link) {
             document.getSelection().toString() == ""
                 ? document.getElementById("text").innerText
                 : document.getSelection().toString();
-        url = document.querySelector(`#${id}_s`).value.replace("%s", s);
+        url = document.querySelector(`#${id}_s`).value.replace("%s", encodeURIComponent(s));
     }
     if (浏览器打开) {
         shell.openExternal(url);
