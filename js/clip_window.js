@@ -97,20 +97,25 @@ hotkeys("z", () => {
 });
 
 // 工具栏按钮
-document.getElementById("tool_close").addEventListener("click", tool_close_f);
-document.getElementById("tool_ocr").addEventListener("click", tool_ocr_f);
-document.getElementById("tool_QR").addEventListener("click", tool_QR_f);
-document.getElementById("tool_draw").addEventListener("click", tool_draw_f);
-document.getElementById("tool_open").addEventListener("click", tool_open_f);
-document.getElementById("tool_ding").addEventListener("click", tool_ding_f);
-document.getElementById("tool_copy").addEventListener("click", tool_copy_f);
-document.getElementById("tool_save").addEventListener("click", tool_save_f);
+document.getElementById("tool_bar").onmouseup = (e) => {
+    if (e.button == 0) {
+        eval(`${e.target.id}_f()`);
+    } else {
+        e.target.style.backgroundColor = "";
+        auto_do = "no";
+    }
+};
 
 hotkeys.setScope("normal");
 hotkeys("esc", "normal", tool_close_f);
 hotkeys("enter", tool_ocr_f);
 hotkeys("ctrl+s, command+s", tool_save_f);
 hotkeys("ctrl+c, command+c", tool_copy_f);
+
+var auto_do = store.get("框选后默认操作");
+if (auto_do != "no") {
+    document.getElementById(`tool_${auto_do}`).style.backgroundColor = "var(--hover-color)";
+}
 
 // 关闭
 function tool_close_f() {

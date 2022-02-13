@@ -138,31 +138,8 @@ clip_canvas.onmouseup = (e) => {
         document.getElementById("mouse_bar").style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
-    auto_do = store.get("框选后默认操作");
-    switch (auto_do) {
-        case "no":
-            break;
-        case "ocr":
-            tool_ocr_f();
-            break;
-        case "QR":
-            tool_QR_f();
-            break;
-        case "draw":
-            tool_draw_f();
-            break;
-        case "open":
-            tool_open_f();
-            break;
-        case "ding":
-            tool_ding_f();
-            break;
-        case "copy":
-            tool_copy_f();
-            break;
-        case "save":
-            tool_save_f();
-            break;
+    if (auto_do != "no") {
+        eval(`${e.target.id}_f()`);
     }
 };
 
