@@ -127,7 +127,7 @@ body {
     position: absolute;
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
-    border: var(--border);
+    box-shadow: var(--shadow);
     font-size: 5px;
     overflow: hidden;
     cursor: pointer;
