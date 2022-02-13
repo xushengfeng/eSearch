@@ -47,11 +47,7 @@ function 选择器储存(id, 默认) {
 var 快捷键 = store.get("快捷键");
 var ct = "";
 for (i in 快捷键) {
-    if (快捷键[i].f) {
-        ct += `<div><hot-keys name="${i}" value="${快捷键[i].key || ""}"></hot-keys></div>`;
-    } else {
-        ct += `<div><hot-keys name="${i}" value="${快捷键[i].key || ""}" f="${快捷键[i].f}"></hot-keys></div>`;
-    }
+    ct += `<div><hot-keys name="${i}" value="${快捷键[i].key || ""}"></hot-keys></div>`;
 }
 document.getElementById("快捷键").innerHTML = ct;
 

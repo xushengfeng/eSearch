@@ -205,21 +205,46 @@ app.whenReady().then(() => {
     start_service();
 
     // 快捷键
+    var 快捷键函数 = {
+        自动识别: {
+            f: "auto_open()",
+        },
+        截图搜索: {
+            f: "full_screen()",
+        },
+        选中搜索: {
+            f: "open_selection()",
+        },
+        剪贴板搜索: {
+            f: "open_clip_board()",
+        },
+        主页面: {
+            f: "create_main_window([''])",
+        },
+    };
     ipcMain.on("快捷键", (event, arg) => {
-        eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
-            ${arg[2]};
+        try {
+            eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
+            ${快捷键函数[arg[0]].f};
         });`);
-
-        event.sender.send("状态", eval(arg[0]));
+            event.sender.send("状态", eval(arg[0]));
+        } catch (error) {
+            event.sender.send("状态", false);
+        }
     });
 
     var 快捷键 = store.get("快捷键");
     for (k in 快捷键) {
         var m = 快捷键[k];
-        if (m.key && m.f)
-            eval(`globalShortcut.register("${m.key}", () => {
-            ${m.f};
+        try {
+            if (m.key)
+                eval(`globalShortcut.register("${m.key}", () => {
+            ${快捷键函数[k].f};
         });`);
+        } catch (error) {
+            delete 快捷键[k].key;
+            store.set(`快捷键`, 快捷键);
+        }
     }
     create_clip_window();
 });
@@ -810,21 +835,12 @@ var default_setting = {
     首次运行: false,
     快捷键: {
         自动识别: {
-            f: "auto_open()",
             key: "CommandOrControl+Shift+Z",
         },
-        截图搜索: {
-            f: "full_screen()",
-        },
-        选中搜索: {
-            f: "open_selection()",
-        },
-        剪贴板搜索: {
-            f: "open_clip_board()",
-        },
-        主页面: {
-            f: "create_main_window([''])",
-        },
+        截图搜索: {},
+        选中搜索: {},
+        剪贴板搜索: {},
+        主页面: {},
     },
     其他快捷键: {},
     模糊: 10,
