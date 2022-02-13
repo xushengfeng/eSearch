@@ -180,6 +180,8 @@ function tool_draw_f() {
         document.getElementById("draw_bar").style.height = "0";
         document.querySelector("#draw_photo_top").style.zIndex = "9";
         hotkeys.setScope("normal");
+        fabric_canvas.discardActiveObject();
+        fabric_canvas.renderAll();
     }
 }
 // 在其他应用打开
@@ -295,6 +297,7 @@ function get_clip_photo(type) {
 
     if (type == "svg") {
         fabric_canvas.discardActiveObject();
+        fabric_canvas.renderAll();
         svg = document.createElement("div");
         svg.innerHTML = fabric_canvas.toSVG();
         svg.querySelector("svg").setAttribute("viewBox", final_rect.join(" "));
@@ -312,6 +315,7 @@ function get_clip_photo(type) {
         gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
         tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
         fabric_canvas.discardActiveObject();
+        fabric_canvas.renderAll();
         var image = document.createElement("img");
         image.src = fabric_canvas.toDataURL({
             left: final_rect[0],
