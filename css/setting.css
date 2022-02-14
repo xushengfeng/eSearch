@@ -36,6 +36,8 @@ textarea {
     width: 80%;
     height: 100px;
     border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow);
 }
 input {
     vertical-align: middle;
@@ -55,11 +57,13 @@ input[type="number"] {
 }
 
 button {
-    border: var(--border);
+    border: none;
+    box-shadow: var(--shadow);
     border-radius: var(--border-radius);
     background-color: #0000;
     transition: var(--transition);
     font-size: 1rem;
+    margin-top: 8px;
 }
 button:hover {
     background-color: var(--hover-color);
@@ -78,8 +82,8 @@ lock-b {
     width: 16px;
     height: 16px;
     margin: 4px;
-    border: var(--border);
-    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border-radius: 4px;
     transition: var(--transition);
 }
 lock-b:hover {
@@ -89,9 +93,10 @@ lock-b:hover {
 range-b {
     height: 30px;
     width: 200px;
-    border: var(--border);
+    box-shadow: var(--shadow);
     border-radius: var(--border-radius);
     overflow: hidden;
+    margin-top: 8px;
 }
 
 .blur {
@@ -110,12 +115,13 @@ range-b {
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
     transition: var(--transition);
+    box-shadow: var(--shadow);
 }
 
 #遮罩颜色 > span,
 #选区颜色 > span {
     display: inline-block;
-    border: 1px #000 solid;
+    box-shadow: var(--shadow);
     border-radius: var(--border-radius);
     width: 20px;
     height: 20px;
@@ -132,14 +138,15 @@ range-b {
     display: flex;
 }
 
-#point_color_view {
-    display: none;
-}
-#point_color {
+.point_color_f {
     margin-top: 8px;
-    padding: 8px;
+    padding: 2px;
     box-shadow: var(--shadow);
     border-radius: var(--border-radius);
+    width: fit-content;
+}
+#point_color {
+    border-radius: 6px;
     overflow: hidden;
 }
 #point_color_t {
@@ -183,7 +190,7 @@ set-select {
     font-size: 3rem;
 }
 #version {
-    border: var(--border);
+    box-shadow: var(--shadow);
     border-radius: var(--border-radius);
     background-color: #0000;
     transition: var(--transition);
