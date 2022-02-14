@@ -59,7 +59,7 @@ body {
     padding: 8px;
     box-sizing: border-box;
     border-radius: var(--border-radius);
-    background: var(--bar-bg);
+    background: var(--bg);
     overflow: overlay;
     flex-grow: 1;
     font-size: 16px;
