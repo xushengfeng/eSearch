@@ -52,6 +52,7 @@ function show_t(t) {
     document.getElementById("text").innerText = t;
     if (t != "" && 历史记录设置.保留历史记录) history_list.unshift({ text: t, time: new Date().getTime() });
     store.set("历史记录", history_list);
+    render_history();
     // 严格模式
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
@@ -189,37 +190,38 @@ function show_history() {
         document.querySelector("#history_list").style.height = "100%";
     }
 }
-
-var history_text = "";
-if (history_list.length != 0) {
-    for (var i in history_list) {
-        history_text =
-            history_text +
-            `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
-                "mm-dd HH:MM"
-            )}</span><button></button></div><div class="history_text">${html_to_text(
-                history_list[i].text
-            )}</div></div>`;
+function render_history() {
+    var history_text = "";
+    if (history_list.length != 0) {
+        for (var i in history_list) {
+            history_text =
+                history_text +
+                `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
+                    "mm-dd HH:MM"
+                )}</span><button></button></div><div class="history_text">${html_to_text(
+                    history_list[i].text
+                )}</div></div>`;
+        }
+        document.querySelector("#history_list").innerHTML = history_text;
     }
-    document.querySelector("#history_list").innerHTML = history_text;
+    // 打开某项历史
+    document.querySelectorAll("#history_list > div > .history_text").forEach((e, index) => {
+        e.addEventListener("click", () => {
+            document.getElementById("text").innerText = history_list[index].text;
+            show_history();
+            console.log(index);
+        });
+    });
+    // 删除某项历史
+    // TODO多选
+    document.querySelectorAll("#history_list > div > .history_title > button").forEach((e, index) => {
+        e.addEventListener("click", () => {
+            history_list[index] = null;
+            e.parentElement.parentElement.style.display = "none";
+            save_history();
+        });
+    });
 }
-// 打开某项历史
-document.querySelectorAll("#history_list > div > .history_text").forEach((e, index) => {
-    e.addEventListener("click", () => {
-        document.getElementById("text").innerText = history_list[index].text;
-        show_history();
-        console.log(index);
-    });
-});
-// 删除某项历史
-// TODO多选
-document.querySelectorAll("#history_list > div > .history_title > button").forEach((e, index) => {
-    e.addEventListener("click", () => {
-        history_list[index] = null;
-        e.parentElement.parentElement.style.display = "none";
-        save_history();
-    });
-});
 
 function save_history() {
     for (i in history_list) {
