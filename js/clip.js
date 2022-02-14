@@ -139,8 +139,9 @@ clip_canvas.onmouseup = (e) => {
         document.getElementById("mouse_bar").style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
-    if (auto_do != "no") {
-        eval(`${e.target.id}_f()`);
+    // 框选后默认操作
+    if (auto_do != "no" && e.button == 0) {
+        eval(`tool_${auto_do}_f()`);
     }
 };
 
