@@ -1,4 +1,3 @@
-const Color = require("color");
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 

@@ -1,9 +1,9 @@
-body{
+body {
     overflow: overlay;
 }
 main {
     width: 70%;
-    margin-left: 20%;
+    margin-left: 15%;
 }
 
 #tab_bar {
@@ -11,7 +11,7 @@ main {
     bottom: 0;
 }
 
-img{
+img {
     width: 80%;
 }
 
@@ -21,11 +21,11 @@ img{
     vertical-align: middle;
 }
 
-.window{
+.window {
     box-shadow: 0 0 16px #00000030;
     border-radius: var(--border-radius);
 }
 
-a{
+a {
     color: unset;
 }
