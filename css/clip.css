@@ -210,7 +210,7 @@ video {
     align-items: center;
     position: fixed;
     z-index: 100;
-    padding: 8px;
+    padding: 2px;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     backdrop-filter: var(--blur);
@@ -226,6 +226,7 @@ video {
     display: grid;
     grid-template-columns: repeat(var(--color-i-i), var(--color-i-size));
     grid-template-rows: repeat(var(--color-i-i), var(--color-i-size));
+    border-radius: 6px;
 }
 #point_color_t_c {
     outline: 2px #000 solid;
@@ -243,6 +244,10 @@ video {
     font-family: var(--monospace);
     transition: var(--transition);
     overflow: hidden;
+}
+#clip_color > div {
+    padding: 4px;
+    border-radius: 6px;
 }
 #clip_copy {
     font-family: var(--monospace);
