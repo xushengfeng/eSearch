@@ -245,10 +245,10 @@ body {
 }
 .find_h {
     background-color: var(--hover-color);
-    border-radius: 4px;
+    border-radius: 2px;
 }
 .find_h_h {
-    outline: var(--border);
+    background-color: #00000040;
 }
 
 button {
