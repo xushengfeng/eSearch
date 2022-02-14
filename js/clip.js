@@ -59,7 +59,8 @@ in_rect = false;
 moving = false;
 oe = "";
 o_final_rect = "";
-the_color = null;
+var the_color = null;
+var the_text_color = [null, null];
 clip_ctx = clip_canvas.getContext("2d");
 tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
@@ -322,7 +323,10 @@ function mouse_bar(final_rect, x, y) {
             ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
             // 颜色文字
             the_color = color_g;
-            document.getElementById("clip_color").innerHTML = clip_color_text(the_color, 取色器默认格式);
+            clip_color_text(the_color, 取色器默认格式);
+            document.getElementById("clip_color").innerHTML = `<div style="background-color:${
+                the_text_color[0]
+            };color:${the_text_color[1]}">${color_conversion(the_color, "HEX")}</div>`;
         } else {
             point_color_span_list[ii].id = "point_color_t_t";
             point_color_span_list[
@@ -367,20 +371,18 @@ function clip_color_text(l, type) {
     } else {
         clip_color_text_color = "#fff";
     }
-    return `<div style="background-color:${color.hex()};color:${clip_color_text_color}">${color_conversion(
-        l,
-        type
-    )}</div>`;
+    the_text_color = [color.hex(), clip_color_text_color];
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
 function change_right_bar(v) {
     var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
+    t += `<div style="background-color:${the_text_color[0]};color:${the_text_color[1]}">`;
     var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
     for (i in all_color_format) {
-        t += clip_color_text(the_color, all_color_format[i]);
+        t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
     }
-    document.querySelector("#clip_copy").innerHTML = t;
+    document.getElementById("clip_copy").innerHTML = t + "</div>";
     var nodes = document.querySelectorAll("#clip_copy > div");
     nodes.forEach((element) => {
         ((e) => {

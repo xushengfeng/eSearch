@@ -251,20 +251,24 @@ video {
     transition: var(--transition);
     overflow: hidden;
 }
-#clip_copy > div {
-    margin: 8px 0 0 0;
-    height: 24px;
+#clip_copy > div:nth-child(1),
+#clip_copy > div > div {
+    height: 32px;
+    line-height: 32px;
     transition: var(--transition);
     text-align: center;
+    border-radius: 6px;
 }
-#clip_copy > div:hover {
-    position: relative;
-    z-index: 2;
-    transform: scale(1.4);
+#clip_copy > div:not(:nth-child(1)) {
+    border-radius: 6px;
+}
+#clip_copy > div:nth-child(1):hover,
+#clip_copy > div > div:hover {
+    background-color: var(--hover-color);
 }
 .clip_copy {
     width: 200px !important;
-    height: 188px !important;
+    height: 192px !important;
 }
 .clip_copy_h {
     width: var(--color-size) !important;
