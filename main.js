@@ -407,7 +407,7 @@ function ocr(event, arg) {
             headers: { "Content-type": "application/x-www-form-urlencoded" },
         });
         request.on("response", (response) => {
-            if (response.statusCode == "200") {
+            try {
                 response.on("data", (chunk) => {
                     var t = chunk.toString();
                     var t = JSON.parse(t);
@@ -417,11 +417,11 @@ function ocr(event, arg) {
                         r += text[i]["words"] + "\n";
                     }
                     create_main_window([r]);
+                    response.on("end", () => {
+                        event.sender.send("ocr_back", "ok");
+                    });
                 });
-                response.on("end", () => {
-                    event.sender.send("ocr_back", "ok");
-                });
-            } else {
+            } catch (error) {
                 event.sender.send("ocr_back", "else");
                 dialog.showMessageBox({
                     title: "警告",
