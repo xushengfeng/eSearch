@@ -163,6 +163,9 @@ set-select {
     border-bottom: var(--border);
     font-size: 1rem;
 }
+#端口 {
+    width: 100px;
+}
 
 #about {
     width: 100%;

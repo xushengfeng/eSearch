@@ -107,6 +107,8 @@ function arg_run(c) {
     }
 }
 
+var port = 8080;
+
 app.whenReady().then(() => {
     // 托盘
     tray = new Tray(`${run_path}/assets/icons/64x64.png`);
@@ -189,7 +191,7 @@ app.whenReady().then(() => {
     function start_service() {
         const request = net.request({
             method: "POST",
-            url: "http://127.0.0.1:8080",
+            url: `http://127.0.0.1:${port}`,
         });
         request.on("error", () => {
             var dir = store.path.replace("config.json", "service-installed");
@@ -394,16 +396,17 @@ function full_screen() {
     clip_window.webContents.send("reflash", x.image, x.width, x.height);
     clip_window.show();
     clip_window.setFullScreen(true);
+    port = store.get("端口");
 }
 function ocr(event, arg) {
     const check_r = net.request({
         method: "POST",
-        url: `http://127.0.0.1:8080`,
+        url: `http://127.0.0.1:${port}`,
     });
     check_r.on("response", () => {
         const request = net.request({
             method: "POST",
-            url: `http://127.0.0.1:8080`,
+            url: `http://127.0.0.1:${port}`,
             headers: { "Content-type": "application/x-www-form-urlencoded" },
         });
         request.on("response", (response) => {
@@ -454,7 +457,7 @@ var check_service_v = true;
 ipcMain.on("check_service", (event) => {
     const request = net.request({
         method: "POST",
-        url: "http://127.0.0.1:8080",
+        url: `http://127.0.0.1:${port}`,
     });
     var dir = store.path.replace("config.json", "service-installed");
     request.on("error", () => {
@@ -860,6 +863,7 @@ var default_setting = {
     其他应用打开: "",
     检查OCR: true,
     自动运行命令: "",
+    端口: 8080,
     自动打开链接: false,
     自动搜索中文占比: 0.2,
     浏览器中打开: false,

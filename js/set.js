@@ -174,6 +174,7 @@ document.getElementById("本地OCR下载").onclick = (e) => {
     shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
 };
 document.getElementById("自动运行命令").value = store.get("自动运行命令");
+document.getElementById("端口").value = store.get("端口");
 
 历史记录设置 = store.get("历史记录设置");
 
@@ -196,7 +197,9 @@ document.getElementById("clear_his").onclick = () => {
     store.set("历史记录", []);
 };
 
-window.onbeforeunload = () => {
+window.onbeforeunload = save_setting;
+
+function save_setting() {
     var 模糊 = document.querySelector("#模糊").value;
     store.set("模糊", 模糊);
     store.set("全局缩放", document.getElementById("全局缩放").value - 0);
@@ -216,9 +219,10 @@ window.onbeforeunload = () => {
     历史记录设置.d = document.querySelector("#his_d").value;
     历史记录设置.h = document.querySelector("#his_h").value;
     store.set("历史记录设置", 历史记录设置);
-    store.set("检查OCR", document.getElementById("检查ocr").checked);
+    store.set("检查OCR", document.getElementById("检查OCR").checked);
     store.set("自动运行命令", document.getElementById("自动运行命令").value);
-};
+    store.set("端口", document.getElementById("端口").value - 0);
+}
 
 // 滚动条
 scroll = setTimeout(() => {
