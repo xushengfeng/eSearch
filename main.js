@@ -201,7 +201,9 @@ app.whenReady().then(() => {
             console.log(`存在目录${dir}`);
             if (fs.existsSync(dir) && store.get("自动运行命令")) {
                 console.log("启动");
-                exec(store.get("自动运行命令"));
+                exec(store.get("自动运行命令"), (e) => {
+                    console.log(e);
+                });
             }
         });
         request.write("");
