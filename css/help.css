@@ -1,5 +1,6 @@
 body {
     overflow: overlay;
+    background-color: var(--bg2);
 }
 main {
     width: 70%;

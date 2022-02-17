@@ -9,6 +9,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    background-color: var(--bg2);
 }
 
 .main {

@@ -23,7 +23,6 @@ html,
 body {
     margin: 0;
     font-family: var(--main-font);
-    background-color: var(--bg2);
 }
 
 #tab_bar {
