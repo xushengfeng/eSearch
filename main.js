@@ -838,13 +838,37 @@ function quick_clip() {
     if (store.get("快速截图.模式") == "clip") {
         clipboard.writeImage(image);
     } else if (store.get("快速截图.模式") == "path" && store.get("快速截图.路径")) {
+        var save_time = new Date();
+        var save_name_time = `${save_time.getFullYear()}-${
+            save_time.getMonth() + 1
+        }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
+        var file_name = `${store.get("快速截图.路径")}Screenshot-${save_name_time}.png`;
         fs.writeFile(
-            store.get("快速截图.路径") + "x.png",
+            file_name,
             Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
             () => {}
         );
+        notification = new Notification({
+            title: "eSearch保存图像成功",
+            body: `已保存图像到${file_name}`,
+            icon: `${run_path}/assets/icons/64x64.png`,
+        });
+        notification.on("click", () => {
+            shell.showItemInFolder(file_name);
+        });
+        notification.show();
     }
 }
+ipcMain.on("get_save_path", (event) => {
+    dialog
+        .showOpenDialog({
+            title: "选择要保存的位置",
+            properties: ["openDirectory"],
+        })
+        .then((x) => {
+            if (x.filePaths) event.sender.send("get_save_path", x.filePaths[0] + "/");
+        });
+});
 
 // 默认设置
 var default_setting = {

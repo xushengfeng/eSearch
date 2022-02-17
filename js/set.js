@@ -110,6 +110,12 @@ document.getElementById("框选后默认操作").value = store.get("框选后默
 
 document.getElementById("快速截图").value = store.get("快速截图.模式");
 document.getElementById("快速截图路径").value = store.get("快速截图.路径");
+document.getElementById("获取保存路径").onclick = () => {
+    ipcRenderer.send("get_save_path");
+    ipcRenderer.on("get_save_path", (e, a) => {
+        document.getElementById("快速截图路径").value = a;
+    });
+};
 
 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
