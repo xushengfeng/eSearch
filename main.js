@@ -859,10 +859,11 @@ function quick_clip() {
         notification.show();
     }
 }
-ipcMain.on("get_save_path", (event) => {
+ipcMain.on("get_save_path", (event, path) => {
     dialog
         .showOpenDialog({
             title: "选择要保存的位置",
+            defaultPath: path,
             properties: ["openDirectory"],
         })
         .then((x) => {
