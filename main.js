@@ -213,21 +213,12 @@ app.whenReady().then(() => {
 
     // 快捷键
     var 快捷键函数 = {
-        自动识别: {
-            f: "auto_open()",
-        },
-        截图搜索: {
-            f: "full_screen()",
-        },
-        选中搜索: {
-            f: "open_selection()",
-        },
-        剪贴板搜索: {
-            f: "open_clip_board()",
-        },
-        主页面: {
-            f: "create_main_window([''])",
-        },
+        自动识别: { f: "auto_open()" },
+        截图搜索: { f: "full_screen()" },
+        选中搜索: { f: "open_selection()" },
+        剪贴板搜索: { f: "open_clip_board()" },
+        快速截图: { f: "quick_clip()" },
+        主页面: { f: "create_main_window([''])" },
     };
     ipcMain.on("快捷键", (event, arg) => {
         try {
@@ -848,6 +839,7 @@ var default_setting = {
         截图搜索: {},
         选中搜索: {},
         剪贴板搜索: {},
+        快速截图: {},
         主页面: {},
     },
     其他快捷键: {},
@@ -874,6 +866,7 @@ var default_setting = {
     浏览器中打开: false,
     保存路径: "",
     框选后默认操作: "no",
+    快速截图: { 模式: "clip", 路径: "" },
     搜索引擎: [
         ["谷歌", "https://www.google.com/search?q=%s"],
         ["*百度", "https://www.baidu.com/s?wd=%s"],
@@ -908,13 +901,18 @@ function fix_setting_tree() {
     walk(tree);
     function walk(path) {
         var x = eval(path);
-        for (let i in x) {
-            var c_path = path + "." + i;
-            if (x[i].constructor === Object) {
-                walk(c_path);
-            } else {
-                c_path = c_path.slice(tree.length + 1); /* 去除开头主tree */
-                if (store.get(c_path) === undefined) store.set(c_path, x[i]);
+        if (Object.keys(x).length == 0) {
+            path = path.slice(tree.length + 1); /* 去除开头主tree */
+            if (store.get(path) === undefined) store.set(path, x);
+        } else {
+            for (let i in x) {
+                var c_path = path + "." + i;
+                if (x[i].constructor === Object) {
+                    walk(c_path);
+                } else {
+                    c_path = c_path.slice(tree.length + 1); /* 去除开头主tree */
+                    if (store.get(c_path) === undefined) store.set(c_path, x[i]);
+                }
             }
         }
     }
