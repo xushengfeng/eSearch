@@ -106,6 +106,12 @@ function arg_run(c) {
         case c.includes("-b"):
             open_clip_board();
             break;
+        case c.includes("-g"):
+            create_main_window([""]);
+            break;
+        case c.includes("-q"):
+            quick_clip();
+            break;
     }
 }
 
