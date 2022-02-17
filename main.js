@@ -11,7 +11,9 @@ const {
     Notification,
     net,
     shell,
+    nativeImage,
 } = require("electron");
+const { Buffer } = require("buffer");
 var robot = require("robotjs");
 const Store = require("electron-store");
 var screen = require("electron").screen;
@@ -827,6 +829,21 @@ function create_help_window() {
     });
 
     if (dev) main_window.webContents.openDevTools();
+}
+
+// 快速截图
+function quick_clip() {
+    var x = robot.screen.capture();
+    var image = nativeImage.createFromBuffer(Buffer.from(x.image), { width: x.width, height: x.height });
+    if (store.get("快速截图.模式") == "clip") {
+        clipboard.writeImage(image);
+    } else if (store.get("快速截图.模式") == "path" && store.get("快速截图.路径")) {
+        fs.writeFile(
+            store.get("快速截图.路径") + "x.png",
+            Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
+            () => {}
+        );
+    }
 }
 
 // 默认设置

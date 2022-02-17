@@ -108,6 +108,9 @@ document.querySelector("#选区颜色 > input").oninput = () => {
 
 document.getElementById("框选后默认操作").value = store.get("框选后默认操作");
 
+document.getElementById("快速截图").value = store.get("快速截图.模式");
+document.getElementById("快速截图路径").value = store.get("快速截图.路径");
+
 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
@@ -209,6 +212,8 @@ function save_setting() {
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
+    store.set("快速截图.模式", document.getElementById("快速截图").value);
+    store.set("快速截图.路径", document.getElementById("快速截图路径").value);
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
