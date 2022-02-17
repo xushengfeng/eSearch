@@ -198,8 +198,9 @@ function render_history() {
                 history_text +
                 `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
                     "mm-dd HH:MM"
-                )}</span><button></button></div><div class="history_text">${html_to_text(
-                    history_list[i].text
+                )}</span><button></button></div><div class="history_text">${html_to_text(history_list[i].text).replace(
+                    /\n/g,
+                    "<br>"
                 )}</div></div>`;
         }
         document.querySelector("#history_list").innerHTML = history_text;
