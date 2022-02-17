@@ -413,10 +413,6 @@ function color_bar() {
     for (i = 0; i < 360; i += 15) {
         color_list.push(base_color.rotate(i).string());
     }
-    var t = "";
-    for (x in color_list) {
-        t += `<div class="color_i" style="background-color: ${color_list[x]}" title="右键更多"></div>`;
-    }
     show_color();
     // 下一层级
     function next_color(h) {
@@ -448,8 +444,13 @@ function color_bar() {
                 }
             };
         });
+        next_color_list = tt = null;
     }
     function show_color() {
+        var t = "";
+        for (x in color_list) {
+            t += `<div class="color_i" style="background-color: ${color_list[x]}" title="右键更多"></div>`;
+        }
         document.querySelector("#draw_color_color").innerHTML = t;
         document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
             el.onmousedown = (event) => {
@@ -461,6 +462,7 @@ function color_bar() {
                 }
             };
         });
+        t = null;
     }
     // 事件
     function c_color(el) {
