@@ -1,5 +1,7 @@
 const { ipcRenderer, shell } = require("electron");
 const hotkeys = require("hotkeys-js");
+const fs = require("fs");
+const os = require("os");
 
 window_name = "";
 t = "";
@@ -626,3 +628,32 @@ setInterval(() => {
 
 hotkeys("ctrl+z", undo);
 hotkeys("ctrl+y", redo);
+
+var file_watcher = null;
+var path = `${os.tmpdir()}/eSearch_${new Date().getTime()}.txt`;
+var editing_on_other = false;
+function edit_on_other() {
+    editing_on_other = !editing_on_other;
+    if (editing_on_other) {
+        var data = Buffer.from(document.getElementById("text").innerText);
+        fs.writeFile(path, data, () => {
+            shell.openPath(path);
+            file_watcher = fs.watch(path, () => {
+                fs.readFile(path, "utf8", (e, data) => {
+                    if (e) console.log(e);
+                    document.getElementById("text").innerText = data;
+                });
+            });
+            document.getElementById("text").contentEditable = false;
+            document.getElementById("text").title = "正在外部编辑中";
+        });
+        data = null;
+    } else {
+        try {
+            document.getElementById("text").contentEditable = true;
+            document.getElementById("text").title = null;
+            file_watcher.close();
+            fs.unlink(path, () => {});
+        } catch {}
+    }
+}
