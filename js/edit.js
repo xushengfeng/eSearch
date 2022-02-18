@@ -178,14 +178,12 @@ document.getElementById("draw_position_i").onclick = (e) => {
 };
 
 // 删除快捷键
-document.onkeydown = (e) => {
-    if (e.key == "Delete") {
-        fabric_canvas.remove(fabric_canvas.getActiveObject());
-        get_f_object_v();
-        get_filters();
-        stack_add();
-    }
-};
+hotkeys("delete", "drawing", () => {
+    fabric_canvas.remove(fabric_canvas.getActiveObject());
+    get_f_object_v();
+    get_filters();
+    stack_add();
+});
 
 var drawing_shape = false;
 var shapes = [];
