@@ -535,7 +535,11 @@ const template = [
     // { role: 'fileMenu' }
     {
         label: "文件",
-        submenu: [isMac ? { label: "退出", role: "close" } : { label: "退出", role: "quit" }],
+        submenu: [
+            { label: "其他编辑器打开", click: edit_on_other },
+            { type: "separator" },
+            ...(isMac ? [{ label: "退出", role: "close" }] : [{ label: "退出", role: "quit" }]),
+        ],
     },
     // { role: 'editMenu' }
     {
@@ -764,6 +768,9 @@ function create_main_window(t, web_page) {
 }
 function delete_enter() {
     if (main_window_focus) main_window_focus.webContents.send("delete_enter");
+}
+function edit_on_other() {
+    if (main_window_focus) main_window_focus.webContents.send("edit_on_other");
 }
 
 var focused_search_window = null;
