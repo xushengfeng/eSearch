@@ -124,6 +124,7 @@ function tool_close_f() {
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
     clip_canvas.getContext("2d").clearRect(0, 0, clip_canvas.width, clip_canvas.height);
+    main_canvas.getContext("2d").clearRect(0, 0, main_canvas.width, main_canvas.height);
 
     // 取消打开程序框
     o = true;
