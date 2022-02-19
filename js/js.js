@@ -196,14 +196,14 @@ function render_history() {
     var history_text = "";
     if (history_list.length != 0) {
         for (var i in history_list) {
+            var t = html_to_text(history_list[i].text).split(/\n/g);
             history_text =
                 history_text +
                 `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
                     "mm-dd HH:MM"
-                )}</span><button></button></div><div class="history_text">${html_to_text(history_list[i].text).replace(
-                    /\n/g,
-                    "<br>"
-                )}</div></div>`;
+                )}</span><button></button></div><div class="history_text">${
+                    t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
+                }</div></div>`;
         }
         document.querySelector("#history_list").innerHTML = history_text;
     }
@@ -225,6 +225,7 @@ function render_history() {
         });
     });
 }
+if (t == "") render_history();
 
 function save_history() {
     for (i in history_list) {
