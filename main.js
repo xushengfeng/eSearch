@@ -359,6 +359,7 @@ function create_clip_window() {
                             clip_window.setFullScreen(true);
                         }
                     });
+                break;
             case "ding":
                 create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;

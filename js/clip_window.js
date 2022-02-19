@@ -280,7 +280,6 @@ function tool_save_f() {
         ipcRenderer.send("clip_main_b", "save", type);
         ipcRenderer.on("save_path", (event, message) => {
             console.log(message);
-            tool_close_f();
             if (message != "") {
                 get_clip_photo(type).then((c) => {
                     if (type == "svg") {
@@ -293,6 +292,7 @@ function tool_save_f() {
                     }
                 });
             }
+            tool_close_f();
             document.getElementById("save_type").style.display = "none";
         });
     };
