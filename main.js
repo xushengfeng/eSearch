@@ -768,13 +768,13 @@ function create_main_window(t, web_page) {
     });
 }
 function delete_enter() {
-    if (main_window_focus) main_window_focus.webContents.send("delete_enter");
+    if (main_window_focus) main_window_focus.webContents.send("edit", "delete_enter");
 }
 function edit_on_other() {
-    if (main_window_focus) main_window_focus.webContents.send("edit_on_other");
+    if (main_window_focus) main_window_focus.webContents.send("edit", "edit_on_other");
 }
 function wrap() {
-    if (main_window_focus) main_window_focus.webContents.send("wrap");
+    if (main_window_focus) main_window_focus.webContents.send("edit", "wrap");
 }
 
 var focused_search_window = null;

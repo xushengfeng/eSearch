@@ -356,7 +356,6 @@ function delete_enter() {
 
     stack_add();
 }
-ipcRenderer.on("delete_enter", delete_enter);
 
 // 滚动条
 var text_scroll = 0;
@@ -665,7 +664,6 @@ function edit_on_other() {
         } catch {}
     }
 }
-ipcRenderer.on("edit_on_other", edit_on_other);
 
 var is_wrap = true;
 function wrap() {
@@ -676,4 +674,17 @@ function wrap() {
         document.getElementById("text").style.whiteSpace = "nowrap";
     }
 }
-ipcRenderer.on("wrap", wrap);
+
+ipcRenderer.on("edit", (event, arg) => {
+    switch (arg) {
+        case "delete_enter":
+            delete_enter();
+            break;
+        case "edit_on_other":
+            edit_on_other();
+            break;
+        case "wrap":
+            wrap();
+            break;
+    }
+});
