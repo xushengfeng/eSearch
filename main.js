@@ -566,6 +566,7 @@ const template = [
                       },
                   ]
                 : [{ label: "删除", role: "delete" }, { type: "separator" }, { label: "全选", role: "selectAll" }]),
+            { label: "自动换行", click: wrap },
             {
                 label: "自动删除换行",
                 click: delete_enter,
@@ -771,6 +772,9 @@ function delete_enter() {
 }
 function edit_on_other() {
     if (main_window_focus) main_window_focus.webContents.send("edit_on_other");
+}
+function wrap() {
+    if (main_window_focus) main_window_focus.webContents.send("wrap");
 }
 
 var focused_search_window = null;

@@ -666,3 +666,14 @@ function edit_on_other() {
     }
 }
 ipcRenderer.on("edit_on_other", edit_on_other);
+
+var is_wrap = true;
+function wrap() {
+    is_wrap = !is_wrap;
+    if (is_wrap) {
+        document.getElementById("text").style.whiteSpace = "normal";
+    } else {
+        document.getElementById("text").style.whiteSpace = "nowrap";
+    }
+}
+ipcRenderer.on("wrap", wrap);
