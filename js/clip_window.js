@@ -58,9 +58,6 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    try {
-        fabric_canvas.clear();
-    } catch {}
 });
 
 function draw_windows_bar(o) {
@@ -124,7 +121,12 @@ function tool_close_f() {
     document.querySelectorAll("#waiting line animate")[0].endElement();
     document.querySelectorAll("#waiting line animate")[1].endElement();
     clip_canvas.getContext("2d").clearRect(0, 0, clip_canvas.width, clip_canvas.height);
+    final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]]; /* 清空撤销栈 */
     main_canvas.getContext("2d").clearRect(0, 0, main_canvas.width, main_canvas.height);
+    try {
+        fabric_canvas.clear();
+        undo_stack = [fabric_canvas.toJSON()]; /* 清空撤销栈 */
+    } catch {}
 
     // 取消打开程序框
     o = true;
