@@ -290,81 +290,79 @@ function create_clip_window() {
     if (dev) clip_window.webContents.openDevTools();
 
     // 监听截图奇奇怪怪的事件
-    ipcMain.on("window-close", () => {
-        clip_window.setFullScreen(false);
-        clip_window.hide();
-    });
-
-    ipcMain.on("ocr", (event, arg) => {
-        ocr(event, arg);
-    });
-
-    ipcMain.on("QR", (event, arg) => {
-        if (arg != "nothing") {
-            create_main_window([arg]);
-        } else {
-            dialog.showMessageBox({
-                title: "警告",
-                message: "无法识别二维码\n请尝试重新识别",
-                icon: `${run_path}/assets/icons/warning.png`,
-            });
-        }
-    });
-
-    ipcMain.on("open", (event) => {
-        dialog
-            .showOpenDialog({
-                title: "选择要打开应用的位置",
-            })
-            .then((x) => {
-                console.log(x);
-                event.sender.send("open_path", x.filePaths[0]);
-            });
-    });
-
-    ipcMain.on("save", (event, type) => {
-        var save_time = new Date();
-        var save_name_time = `${save_time.getFullYear()}-${
-            save_time.getMonth() + 1
-        }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
-        var saved_path = store.get("保存路径") || "";
-        clip_window.setFullScreen(false);
-        clip_window.hide();
-        dialog
-            .showSaveDialog({
-                title: "选择要保存的位置",
-                defaultPath: `${saved_path}Screenshot-${save_name_time}.${type}`,
-                filters: [{ name: "图像", extensions: [type] }],
-            })
-            .then((x) => {
-                event.sender.send("save_path", x.filePath);
-                if (x.filePath) {
-                    notification = new Notification({
-                        title: "eSearch保存图像成功",
-                        body: `已保存图像到${x.filePath}`,
-                        icon: `${run_path}/assets/icons/64x64.png`,
-                    });
-                    notification.on("click", () => {
-                        shell.showItemInFolder(x.filePath);
-                    });
-                    notification.show();
-                    save_path = x.filePath.split("/");
-                    save_path.pop();
-                    store.set("保存路径", save_path.join("/") + "/");
+    ipcMain.on("clip_main_b", (event, type, arg) => {
+        switch (type) {
+            case "window-close":
+                clip_window.setFullScreen(false);
+                clip_window.hide();
+                break;
+            case "ocr":
+                ocr(event, arg);
+                break;
+            case "QR":
+                if (arg != "nothing") {
+                    create_main_window([arg]);
                 } else {
-                    new Notification({
-                        title: "eSearch保存图像失败",
-                        body: `用户已取消保存`,
-                        icon: `${run_path}/assets/icons/64x64.png`,
-                    }).show();
-                    clip_window.show();
-                    clip_window.setFullScreen(true);
+                    dialog.showMessageBox({
+                        title: "警告",
+                        message: "无法识别二维码\n请尝试重新识别",
+                        icon: `${run_path}/assets/icons/warning.png`,
+                    });
                 }
-            });
-    });
-
-    ipcMain.on("ding", (event, arg) => {
-        create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
+                break;
+            case "open":
+                dialog
+                    .showOpenDialog({
+                        title: "选择要打开应用的位置",
+                    })
+                    .then((x) => {
+                        console.log(x);
+                        event.sender.send("open_path", x.filePaths[0]);
+                    });
+                break;
+            case "save":
+                var save_time = new Date();
+                var save_name_time = `${save_time.getFullYear()}-${
+                    save_time.getMonth() + 1
+                }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
+                var saved_path = store.get("保存路径") || "";
+                clip_window.setFullScreen(false);
+                clip_window.hide();
+                dialog
+                    .showSaveDialog({
+                        title: "选择要保存的位置",
+                        defaultPath: `${saved_path}Screenshot-${save_name_time}.${arg}`,
+                        filters: [{ name: "图像", extensions: [arg] }],
+                    })
+                    .then((x) => {
+                        event.sender.send("save_path", x.filePath);
+                        if (x.filePath) {
+                            notification = new Notification({
+                                title: "eSearch保存图像成功",
+                                body: `已保存图像到${x.filePath}`,
+                                icon: `${run_path}/assets/icons/64x64.png`,
+                            });
+                            notification.on("click", () => {
+                                shell.showItemInFolder(x.filePath);
+                            });
+                            notification.show();
+                            save_path = x.filePath.split("/");
+                            save_path.pop();
+                            store.set("保存路径", save_path.join("/") + "/");
+                        } else {
+                            new Notification({
+                                title: "eSearch保存图像失败",
+                                body: `用户已取消保存`,
+                                icon: `${run_path}/assets/icons/64x64.png`,
+                            }).show();
+                            clip_window.show();
+                            clip_window.setFullScreen(true);
+                        }
+                    });
+            case "ding":
+                create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
+                break;
+        }
     });
 
     // 移动光标

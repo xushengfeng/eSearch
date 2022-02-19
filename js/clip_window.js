@@ -130,14 +130,14 @@ function tool_close_f() {
     o = true;
     tool_open_f();
     setTimeout(() => {
-        ipcRenderer.send("window-close");
+        ipcRenderer.send("clip_main_b", "window-close");
         document.querySelector("html").style.display = "";
     }, 50);
 }
 // OCR
 function tool_ocr_f() {
     get_clip_photo("png").then((c) => {
-        ipcRenderer.send("ocr", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
+        ipcRenderer.send("clip_main_b", "ocr", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
     });
 
     document.querySelector("#waiting").style.display = "block";
@@ -165,10 +165,10 @@ function tool_QR_f() {
             inversionAttempts: "dontInvert",
         });
         if (code) {
-            ipcRenderer.send("QR", code.data);
+            ipcRenderer.send("clip_main_b", "QR", code.data);
             tool_close_f();
         } else {
-            ipcRenderer.send("QR", "nothing");
+            ipcRenderer.send("clip_main_b", "QR", "nothing");
         }
     });
 }
@@ -204,7 +204,7 @@ function tool_open_f() {
 }
 document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
 document.querySelector("#app_path > div > #open_file").onclick = () => {
-    ipcRenderer.send("open");
+    ipcRenderer.send("clip_main_b", "open");
     ipcRenderer.on("open_path", (event, message) => {
         if (typeof message != "undefined") {
             document.querySelector("#app_path > div > input").value = message;
@@ -256,7 +256,7 @@ function tool_ding_f() {
     ding_window_setting = final_rect;
     get_clip_photo("png").then((c) => {
         ding_window_setting[4] = c.toDataURL();
-        ipcRenderer.send("ding", ding_window_setting);
+        ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
         tool_close_f();
     });
 }
@@ -275,7 +275,7 @@ function tool_save_f() {
     document.getElementById("suffix").focus();
     document.getElementById("suffix").oninput = document.getElementById("suffix_b").onclick = () => {
         var type = document.getElementById("suffix").value;
-        ipcRenderer.send("save", type);
+        ipcRenderer.send("clip_main_b", "save", type);
         ipcRenderer.on("save_path", (event, message) => {
             console.log(message);
             tool_close_f();
