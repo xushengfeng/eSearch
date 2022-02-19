@@ -534,6 +534,8 @@ const template = [
     {
         label: "文件",
         submenu: [
+            { label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," },
+            { type: "separator" },
             { label: "其他编辑器打开", click: edit_on_other },
             { type: "separator" },
             ...(isMac ? [{ label: "退出", role: "close" }] : [{ label: "退出", role: "quit" }]),
@@ -543,15 +545,15 @@ const template = [
     {
         label: "编辑",
         submenu: [
-            { label: "撤销", role: "undo" },
-            { label: "重做", role: "redo" },
+            { label: "撤销", click: undo, accelerator: "CmdOrCtrl+Z" },
+            { label: "重做", click: redo, accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y" },
             { type: "separator" },
             { label: "剪切", role: "cut" },
             { label: "复制", role: "copy" },
             { label: "粘贴", role: "paste" },
             ...(isMac
                 ? [
-                      { label: "", role: "pasteAndMatchStyle" },
+                      { label: "粘贴并匹配样式", role: "pasteAndMatchStyle" },
                       { label: "删除", role: "delete" },
                       { label: "全选", role: "selectAll" },
                       { type: "separator" },
@@ -563,12 +565,19 @@ const template = [
                           ],
                       },
                   ]
-                : [{ label: "删除", role: "delete" }, { type: "separator" }, { label: "全选", role: "selectAll" }]),
-            { label: "自动换行", click: wrap },
+                : [
+                      { label: "删除", role: "delete" },
+                      { label: "全选", role: "selectAll" },
+                  ]),
             {
                 label: "自动删除换行",
                 click: delete_enter,
             },
+            { type: "separator" },
+            { label: "查找", click: show_find, accelerator: "CmdOrCtrl+F" },
+            { label: "替换", click: show_find, accelerator: "CmdOrCtrl+H" },
+            { type: "separator" },
+            { label: "自动换行", click: wrap },
         ],
     },
     // { role: 'viewMenu' }
@@ -579,7 +588,9 @@ const template = [
             { label: "强制重载", role: "forceReload" },
             { label: "开发者工具", role: "toggleDevTools" },
             { type: "separator" },
-            { label: "实际大小", role: "resetZoom" },
+            { label: "历史记录", click: show_history, accelerator: "CmdOrCtrl+Shift+H" },
+            { type: "separator" },
+            { label: "实际大小", role: "resetZoom", accelerator: "" },
             { label: "放大", role: "zoomIn" },
             { label: "缩小", role: "zoomOut" },
             { type: "separator" },
@@ -591,6 +602,7 @@ const template = [
         label: "窗口",
         submenu: [
             { label: "浏览器打开", click: open_in_browser },
+            { type: "separator" },
             { label: "最小化", role: "minimize" },
             { label: "关闭", role: "close" },
             ...(isMac
@@ -764,6 +776,18 @@ function create_main_window(t, web_page) {
                 break;
         }
     });
+}
+function undo() {
+    if (main_window_focus) main_window_focus.webContents.send("edit", "undo");
+}
+function redo() {
+    if (main_window_focus) main_window_focus.webContents.send("edit", "redo");
+}
+function show_find() {
+    if (main_window_focus) main_window_focus.webContents.send("edit", "show_find");
+}
+function show_history() {
+    if (main_window_focus) main_window_focus.webContents.send("edit", "show_history");
 }
 function delete_enter() {
     if (main_window_focus) main_window_focus.webContents.send("edit", "delete_enter");

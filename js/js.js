@@ -379,12 +379,6 @@ hotkeys.filter = () => {
     return true;
 };
 
-hotkeys("ctrl+shift+h", show_history);
-
-hotkeys("ctrl+,", () => {
-    window.open("setting.html");
-});
-
 // ctrl滚轮控制字体大小
 hotkeys("ctrl+0", () => {
     document.getElementById("text").style.fontSize = "16px";
@@ -415,8 +409,6 @@ function show_find() {
         document.getElementById("find").style.pointerEvents = "none";
     }
 }
-hotkeys("ctrl+f", show_find);
-hotkeys("ctrl+h", show_find);
 
 document.getElementById("find_b_close").onclick = () => {
     show_find();
@@ -625,9 +617,6 @@ setInterval(() => {
     }
 }, 6000);
 
-hotkeys("ctrl+z", undo);
-hotkeys("ctrl+y", redo);
-
 var file_watcher = null;
 var path = `${os.tmpdir()}/eSearch_${new Date().getTime()}.txt`;
 var editing_on_other = false;
@@ -677,6 +666,18 @@ function wrap() {
 
 ipcRenderer.on("edit", (event, arg) => {
     switch (arg) {
+        case "undo":
+            undo();
+            break;
+        case "redo":
+            redo();
+            break;
+        case "show_find":
+            show_find();
+            break;
+        case "show_history":
+            show_history();
+            break;
         case "delete_enter":
             delete_enter();
             break;
