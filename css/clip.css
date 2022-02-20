@@ -259,19 +259,19 @@ video {
     overflow: hidden;
     border-radius: 6px;
 }
-#clip_copy > div:nth-child(1),
-#clip_copy > div > div {
+#clip_copy > div > div:nth-child(1),
+#clip_copy > div > div:not(:nth-child(1)) > div {
     height: 32px;
     line-height: 32px;
     transition: var(--transition);
     text-align: center;
     border-radius: 6px;
 }
-#clip_copy > div:not(:nth-child(1)) {
+#clip_copy > div > div:not(:nth-child(1)) {
     border-radius: 6px;
 }
-#clip_copy > div:nth-child(1):hover,
-#clip_copy > div > div:hover {
+#clip_copy > div > div:nth-child(1):hover,
+#clip_copy > div > div > div:hover {
     background-color: var(--hover-color);
 }
 .clip_copy {

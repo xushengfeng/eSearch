@@ -383,17 +383,23 @@ function change_right_bar(v) {
     for (i in all_color_format) {
         t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
     }
-    document.getElementById("clip_copy").innerHTML = t + "</div>";
-    var nodes = document.querySelectorAll("#clip_copy > div");
+    document.querySelector("#clip_copy > div").innerHTML = t + "</div>";
+    document.querySelector("#clip_copy > div > div:nth-child(1)").onclick = () => {
+        copy(document.querySelector("#clip_copy > div > div:nth-child(1)"));
+    };
+    var nodes = document.querySelectorAll("#clip_copy > div > div:not(:nth-child(1)) > div");
     nodes.forEach((element) => {
         ((e) => {
             e.onclick = () => {
-                clipboard.writeText(e.innerText);
-                right_key = false;
-                change_right_bar(false);
+                copy(e);
             };
         })(element);
     });
+    function copy(e) {
+        clipboard.writeText(e.innerText);
+        right_key = false;
+        change_right_bar(false);
+    }
     if (v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_color").style.height = "0";
