@@ -244,10 +244,12 @@ video {
     font-family: var(--monospace);
     transition: var(--transition);
     overflow: hidden;
+    height: 28px;
 }
 #clip_color > div {
     padding: 4px;
     border-radius: 6px;
+    height: 20px;
 }
 #clip_copy {
     font-family: var(--monospace);
@@ -255,6 +257,7 @@ video {
     height: 0;
     transition: var(--transition);
     overflow: hidden;
+    border-radius: 6px;
 }
 #clip_copy > div:nth-child(1),
 #clip_copy > div > div {
