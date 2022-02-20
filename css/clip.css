@@ -240,24 +240,17 @@ video {
     font-family: var(--monospace);
     height: 24px;
 }
-#clip_color {
-    font-family: var(--monospace);
-    transition: var(--transition);
-    overflow: hidden;
-    height: 28px;
-}
-#clip_color > div {
-    padding: 4px;
-    border-radius: 6px;
-    height: 20px;
-}
 #clip_copy {
     font-family: var(--monospace);
     width: 100%;
-    height: 0;
     transition: var(--transition);
     overflow: hidden;
     border-radius: 6px;
+}
+#clip_copy > div {
+    position: relative;
+    top: 0px;
+    transition: var(--transition);
 }
 #clip_copy > div > div:nth-child(1),
 #clip_copy > div > div:not(:nth-child(1)) > div {
@@ -280,7 +273,10 @@ video {
 }
 .clip_copy_h {
     width: var(--color-size) !important;
-    height: 0 !important;
+    height: 32px !important;
+}
+.clip_copy > div {
+    top: 0 !important;
 }
 #clip_wh {
     position: absolute;

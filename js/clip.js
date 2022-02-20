@@ -325,9 +325,6 @@ function mouse_bar(final_rect, x, y) {
             // 颜色文字
             the_color = color_g;
             clip_color_text(the_color, 取色器默认格式);
-            document.getElementById("clip_color").innerHTML = `<div style="background-color:${
-                the_text_color[0]
-            };color:${the_text_color[1]}">${color_conversion(the_color, "HEX")}</div>`;
         } else {
             point_color_span_list[ii].id = "point_color_t_t";
             point_color_span_list[
@@ -363,6 +360,7 @@ function color_conversion(rgba, type) {
     }
 }
 
+var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 // 改变颜色文字和样式
 function clip_color_text(l, type) {
     var color = Color.rgb(l);
@@ -373,13 +371,25 @@ function clip_color_text(l, type) {
         clip_color_text_color = "#fff";
     }
     the_text_color = [color.hex(), clip_color_text_color];
+
+    document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`).style.backgroundColor = the_text_color[0];
+    for (i in all_color_format) {
+        if (type == all_color_format[i]) {
+            var main_el = document.querySelector(
+                `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${i - 0 + 1})`
+            );
+            main_el.style.color = the_text_color[1];
+            main_el.innerText = color_conversion(the_color, type);
+            document.querySelector("#clip_copy > div").style.top = -32 * (i - 0 + 1) + "px";
+            break;
+        }
+    }
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
 function change_right_bar(v) {
     var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
     t += `<div style="background-color:${the_text_color[0]};color:${the_text_color[1]}">`;
-    var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
     for (i in all_color_format) {
         t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
     }
@@ -402,13 +412,11 @@ function change_right_bar(v) {
     }
     if (v) {
         document.querySelector("#point_color").style.height = "0";
-        document.querySelector("#clip_color").style.height = "0";
         document.querySelector("#clip_copy").className = "clip_copy";
         document.getElementById("mouse_bar").style.pointerEvents = "auto";
     } else {
         document.querySelector("#clip_copy").className = "clip_copy_h";
         document.querySelector("#point_color").style.height = "";
-        document.querySelector("#clip_color").style.height = "";
         document.getElementById("mouse_bar").style.pointerEvents = "none";
     }
 }
