@@ -277,34 +277,34 @@ function tool_copy_f() {
     });
 }
 // 保存
+var type;
 function tool_save_f() {
     document.querySelector("#windows_bar").style.transform = "translateX(0)";
     o = true;
     document.getElementById("save_type").style.display = "grid";
     document.getElementById("suffix").focus();
     document.getElementById("suffix").oninput = document.getElementById("suffix_b").onclick = () => {
-        var type = document.getElementById("suffix").value;
+        type = document.getElementById("suffix").value;
         ipcRenderer.send("clip_main_b", "save", type);
-        ipcRenderer.on("save_path", (event, message) => {
-            console.log(message);
-            if (message) {
-                get_clip_photo(type).then((c) => {
-                    if (type == "svg") {
-                        var dataBuffer = new Buffer(c, "UTF-8");
-                        fs.writeFile(message, dataBuffer, () => {});
-                    } else {
-                        var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-                        var dataBuffer = new Buffer(f, "base64");
-                        fs.writeFile(message, dataBuffer, () => {});
-                    }
-                });
-                tool_close_f();
-            }
-            document.getElementById("save_type").style.display = "none";
-        });
     };
 }
-
+ipcRenderer.on("save_path", (event, message) => {
+    console.log(message);
+    if (message) {
+        get_clip_photo(type).then((c) => {
+            if (type == "svg") {
+                var dataBuffer = new Buffer(c, "UTF-8");
+                fs.writeFile(message, dataBuffer, () => {});
+            } else {
+                var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+                var dataBuffer = new Buffer(f, "base64");
+                fs.writeFile(message, dataBuffer, () => {});
+            }
+        });
+        tool_close_f();
+    }
+    document.getElementById("save_type").style.display = "none";
+});
 var svg;
 function get_clip_photo(type) {
     main_ctx = main_canvas.getContext("2d");
