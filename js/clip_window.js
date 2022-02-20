@@ -14,6 +14,13 @@ function set_setting() {
     光标 = store.get("光标");
     四角坐标 = store.get("显示四角坐标");
     取色器默认格式 = store.get("取色器默认格式");
+    all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+    for (let i in all_color_format) {
+        if (取色器默认格式 == all_color_format[i]) {
+            取色器格式位置 = i - 0 + 1;
+            break;
+        }
+    }
     遮罩颜色 = store.get("遮罩颜色");
     选区颜色 = store.get("选区颜色");
 

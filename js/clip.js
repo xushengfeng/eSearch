@@ -360,30 +360,19 @@ function color_conversion(rgba, type) {
     }
 }
 
-var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 // 改变颜色文字和样式
 function clip_color_text(l, type) {
     var color = Color.rgb(l);
-    clip_color_text_color = null;
-    if (color.isLight()) {
-        clip_color_text_color = "#000";
-    } else {
-        clip_color_text_color = "#fff";
-    }
+    var clip_color_text_color = color.isLight() ? "#000" : "#fff";
     the_text_color = [color.hex(), clip_color_text_color];
 
     document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`).style.backgroundColor = the_text_color[0];
-    for (i in all_color_format) {
-        if (type == all_color_format[i]) {
-            var main_el = document.querySelector(
-                `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${i - 0 + 1})`
-            );
-            main_el.style.color = the_text_color[1];
-            main_el.innerText = color_conversion(the_color, type);
-            document.querySelector("#clip_copy > div").style.top = -32 * (i - 0 + 1) + "px";
-            break;
-        }
-    }
+    var main_el = document.querySelector(
+        `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`
+    );
+    main_el.style.color = the_text_color[1];
+    main_el.innerText = color_conversion(the_color, type);
+    document.querySelector("#clip_copy > div").style.top = -32 * 取色器格式位置 + "px";
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
