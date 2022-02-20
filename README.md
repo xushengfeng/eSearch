@@ -10,7 +10,7 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 ![截屏界面](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/1.png)
 
-> 字体是[FiraCode](https://github.com/tonsky/FiraCode)，对角坐标默认不显示，对角坐标和字体均可在设置里设置
+> 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
 ![识别文字主界面](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/2.png)
 
@@ -22,7 +22,7 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 国内快速下载链接：[Releases · xushengfeng/eSearch · fastgit](https://hub.fastgit.org/xushengfeng/eSearch/releases)
 
-ArchLinux 可在 AUR 查找安装 e-search
+ArchLinux 可在 AUR 查找安装 `e-search`
 
 ## OCR服务
 
@@ -76,16 +76,16 @@ e-search
   - [x] 框大小位置可调整(支持方向键或WASD)
   - [x] 取色器
   - [x] 放大镜
-  - [x] 画笔
-  - [x] 画笔撤销
-  - [x] 色板
-  - [x] 画笔粗细
-  - [x] 高级画板设置
-  - [x] 图像滤镜
+  - [x] 画笔（自由画笔）
+  - [x] 几何形状（边框填充支持调节）
+  - [x] 高级画板设置（使用Fabric.js的api）
+  - [x] 图像滤镜（支持局部马赛克模糊和色彩调节）
+  - [x] 自定义框选松开后操作
+  - [x] 快速截取全屏到剪贴板或自定义的目录
   - [ ] 窗口选择
   - [ ] 控件选择
   - [ ] 多屏幕
-- [x] 保存
+- [x] 保存（可选保存为SVG可编辑文件）
 - [x] 复制到剪贴板
 - [x] 钉在屏幕上
   - [x] 滚轮缩放
@@ -95,20 +95,22 @@ e-search
 - [x] 二维码识别
 - [x] OCR识别
   - [x] 本地OCR
-  - [x] OCR插件（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
+  - [x] 其他OCR（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
 - [ ] 以图搜图
 - [x] 托盘
-- [x] 系统选中搜索
+- [x] 划词句来搜索
 - [x] 识别展示
   - [x] 自动搜索翻译
   - [x] 搜索
   - [x] 翻译
-  - [x] 内部打开
+  - [x] 自定义搜索翻译引擎
+  - [x] 自带窗口打开
   - [x] 浏览器打开
   - [x] 链接识别
   - [x] 历史记录
-  - [x] 自动删除换行
+  - [x] 自动删除换行（用于自动排版）
   - [x] 查找替换（支持正则匹配）
+  - [x] 其他编辑器编辑（支持自动重载）
 - [ ] Wayland桌面(为什么electron截不了wayland!)
 - [ ] 独立于electron的截图api
 
@@ -138,7 +140,7 @@ Wayland无法运行
 
 ## 开发原因
 
-我在用Windows时一直用这个好用的截图软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到Linux，Snipaste不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它不支持取色器。
+我在用Windows时一直用这个好用的截图软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到Linux，Snipaste不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。
 
 促使我开发eSearch的另一个契机是我很享受在手机上使用[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的即时信息搜索工具，但我没有找到电脑上类似的代替品。
 
