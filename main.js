@@ -321,17 +321,13 @@ function create_clip_window() {
                     });
                 break;
             case "save":
-                var save_time = new Date();
-                var save_name_time = `${save_time.getFullYear()}-${
-                    save_time.getMonth() + 1
-                }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
                 var saved_path = store.get("保存路径") || "";
                 clip_window.setFullScreen(false);
                 clip_window.hide();
                 dialog
                     .showSaveDialog({
                         title: "选择要保存的位置",
-                        defaultPath: `${saved_path}Screenshot-${save_name_time}.${arg}`,
+                        defaultPath: `${saved_path}${get_file_name()}.${arg}`,
                         filters: [{ name: "图像", extensions: [arg] }],
                     })
                     .then((x) => {
@@ -871,6 +867,13 @@ function create_help_window() {
     if (dev) main_window.webContents.openDevTools();
 }
 
+function get_file_name() {
+    var save_time = new Date();
+    var save_name_time = `${save_time.getFullYear()}-${
+        save_time.getMonth() + 1
+    }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
+    return "Screenshot-" + save_name_time;
+}
 // 快速截图
 function quick_clip() {
     var x = robot.screen.capture();
@@ -878,25 +881,34 @@ function quick_clip() {
     if (store.get("快速截图.模式") == "clip") {
         clipboard.writeImage(image);
     } else if (store.get("快速截图.模式") == "path" && store.get("快速截图.路径")) {
-        var save_time = new Date();
-        var save_name_time = `${save_time.getFullYear()}-${
-            save_time.getMonth() + 1
-        }-${save_time.getDate()}-${save_time.getHours()}-${save_time.getMinutes()}-${save_time.getSeconds()}-${save_time.getMilliseconds()}`;
-        var file_name = `${store.get("快速截图.路径")}Screenshot-${save_name_time}.png`;
-        fs.writeFile(
-            file_name,
-            Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
-            () => {}
-        );
-        notification = new Notification({
-            title: "eSearch保存图像成功",
-            body: `已保存图像到${file_name}`,
-            icon: `${run_path}/assets/icons/64x64.png`,
-        });
-        notification.on("click", () => {
-            shell.showItemInFolder(file_name);
-        });
-        notification.show();
+        var file_name = `${store.get("快速截图.路径")}${get_file_name()}.png`;
+        function check_file(n, name) {
+            // 检查文件是否存在于当前目录中。
+            fs.access(name, fs.constants.F_OK, (err) => {
+                if (!err) {
+                    /* 存在文件，需要重命名 */
+                    name = file_name.replace(/\.png$/, `(${n}).png`);
+                    check_file(n + 1, name);
+                } else {
+                    file_name = name;
+                    fs.writeFile(
+                        file_name,
+                        Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
+                        () => {}
+                    );
+                    notification = new Notification({
+                        title: "eSearch保存图像成功",
+                        body: `已保存图像到${file_name}`,
+                        icon: `${run_path}/assets/icons/64x64.png`,
+                    });
+                    notification.on("click", () => {
+                        shell.showItemInFolder(file_name);
+                    });
+                    notification.show();
+                }
+            });
+        }
+        check_file(1, file_name);
     }
 }
 ipcMain.on("get_save_path", (event, path) => {
