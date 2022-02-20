@@ -242,6 +242,10 @@ document.getElementById("clear_his").onclick = () => {
     store.set("历史记录", []);
 };
 
+document.getElementById("打开config").onclick = () => {
+    shell.openPath(store.path);
+};
+
 window.onbeforeunload = save_setting;
 
 function save_setting() {
