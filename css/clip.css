@@ -256,9 +256,10 @@ video {
 #clip_copy > div > div:not(:nth-child(1)) > div {
     height: 32px;
     line-height: 32px;
-    transition: var(--transition);
+    transition: background-color var(--transition);
     text-align: center;
     border-radius: 6px;
+    white-space: nowrap;
 }
 #clip_copy > div > div:not(:nth-child(1)) {
     border-radius: 6px;
