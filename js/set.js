@@ -255,7 +255,7 @@ function save_setting() {
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
     store.set("快速截图.模式", document.getElementById("快速截图").value);
-    store.set("快速截图.路径", document.getElementById("快速截图路径").value);
+    store.set("快速截图.路径", (document.getElementById("快速截图路径").value + "/").replace("//", "/"));
     store.set("保存名称", document.getElementById("保存文件名称").value.replace("//", "//"));
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
