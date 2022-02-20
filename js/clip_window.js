@@ -287,7 +287,7 @@ function tool_save_f() {
         ipcRenderer.send("clip_main_b", "save", type);
         ipcRenderer.on("save_path", (event, message) => {
             console.log(message);
-            if (message != "") {
+            if (message) {
                 get_clip_photo(type).then((c) => {
                     if (type == "svg") {
                         var dataBuffer = new Buffer(c, "UTF-8");
@@ -298,8 +298,8 @@ function tool_save_f() {
                         fs.writeFile(message, dataBuffer, () => {});
                     }
                 });
+                tool_close_f();
             }
-            tool_close_f();
             document.getElementById("save_type").style.display = "none";
         });
     };
