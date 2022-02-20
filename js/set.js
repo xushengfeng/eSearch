@@ -117,6 +117,42 @@ document.getElementById("获取保存路径").onclick = () => {
     });
 };
 
+document.getElementById("保存文件名称").value = store.get("保存名称");
+document.getElementById("保存文件名称").oninput = () => {
+    function f(fmt, date) {
+        let ret;
+        const opt = {
+            YYYY: date.getFullYear() + "",
+            YY: (date.getFullYear() % 1000) + "",
+            MM: (date.getMonth() + 1 + "").padStart(2, "0"),
+            M: date.getMonth() + 1 + "",
+            DD: (date.getDate() + "").padStart(2, "0"),
+            D: date.getDate() + "",
+            d: date.getDay() + "",
+            HH: (date.getHours() + "").padStart(2, "0"),
+            H: date.getHours() + "",
+            hh: ((date.getHours() % 12) + "").padStart(2, "0"),
+            h: (date.getHours() % 12) + "",
+            mm: (date.getMinutes() + "").padStart(2, "0"),
+            m: date.getMinutes() + "",
+            ss: (date.getSeconds() + "").padStart(2, "0"),
+            s: date.getSeconds() + "",
+            S: date.getMilliseconds() + "",
+        };
+        for (let k in opt) {
+            ret = new RegExp(`\(\[\-\.\_\]\)\(\?\<\!\\\\)${k}\(\[\-\.\_\]\)\?`, "g");
+            fmt = fmt.replace(ret, `$1${opt[k]}$2`);
+        }
+        return fmt;
+    }
+    var save_time = new Date();
+    console.log(document.getElementById("保存文件名称").value);
+    document.getElementById("保存文件名称_p").innerText = f(
+        document.getElementById("保存文件名称").value,
+        save_time
+    ).replace("\\", "");
+};
+
 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
@@ -220,6 +256,7 @@ function save_setting() {
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
     store.set("快速截图.模式", document.getElementById("快速截图").value);
     store.set("快速截图.路径", document.getElementById("快速截图路径").value);
+    store.set("保存名称", document.getElementById("保存文件名称").value.replace("//", "//"));
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
