@@ -531,6 +531,8 @@ const template = [
     {
         label: "文件",
         submenu: [
+            { label: "保存到历史记录", click: save, accelerator: "CmdOrCtrl+S" },
+            { type: "separator" },
             { label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," },
             { type: "separator" },
             { label: "其他编辑器打开", click: edit_on_other },
@@ -773,6 +775,9 @@ function create_main_window(t, web_page) {
                 break;
         }
     });
+}
+function save() {
+    if (main_window_focus) main_window_focus.webContents.send("edit", "save");
 }
 function undo() {
     if (main_window_focus) main_window_focus.webContents.send("edit", "undo");

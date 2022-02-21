@@ -50,11 +50,16 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
     }
 }
 
-function show_t(t) {
-    document.getElementById("text").innerText = t;
+function push_history() {
+    var t = document.getElementById("text").innerText;
     if (t != "" && 历史记录设置.保留历史记录) history_list.unshift({ text: t, time: new Date().getTime() });
     store.set("历史记录", history_list);
     render_history();
+}
+
+function show_t(t) {
+    document.getElementById("text").innerText = t;
+    push_history();
     // 严格模式
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
@@ -667,6 +672,9 @@ function wrap() {
 
 ipcRenderer.on("edit", (event, arg) => {
     switch (arg) {
+        case "save":
+            push_history();
+            break;
         case "undo":
             undo();
             break;
