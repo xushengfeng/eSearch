@@ -90,7 +90,8 @@ function draw_windows_bar(o) {
 
 // 左边窗口工具栏弹出
 var o = false;
-hotkeys("z", () => {
+hotkeys("z", windows_bar_c_o);
+function windows_bar_c_o() {
     if (!o) {
         document.querySelector("#windows_bar").style.transform = "translateX(0)";
         o = true;
@@ -98,7 +99,9 @@ hotkeys("z", () => {
         document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
         o = false;
     }
-});
+}
+
+document.querySelector("#toast > button").onclick = windows_bar_c_o;
 
 // 工具栏按钮
 document.getElementById("tool_bar").onmouseup = (e) => {
