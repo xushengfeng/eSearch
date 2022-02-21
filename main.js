@@ -531,11 +531,22 @@ const template = [
     {
         label: "文件",
         submenu: [
-            { label: "保存到历史记录", click: save, accelerator: "CmdOrCtrl+S" },
+            {
+                label: "保存到历史记录",
+                click: () => {
+                    main_edit("save");
+                },
+                accelerator: "CmdOrCtrl+S",
+            },
             { type: "separator" },
             { label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," },
             { type: "separator" },
-            { label: "其他编辑器打开", click: edit_on_other },
+            {
+                label: "其他编辑器打开",
+                click: () => {
+                    main_edit("edit_on_other");
+                },
+            },
             { type: "separator" },
             ...(isMac ? [{ label: "退出", role: "close" }] : [{ label: "退出", role: "quit" }]),
         ],
@@ -544,8 +555,20 @@ const template = [
     {
         label: "编辑",
         submenu: [
-            { label: "撤销", click: undo, accelerator: "CmdOrCtrl+Z" },
-            { label: "重做", click: redo, accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y" },
+            {
+                label: "撤销",
+                click: () => {
+                    main_edit("undo");
+                },
+                accelerator: "CmdOrCtrl+Z",
+            },
+            {
+                label: "重做",
+                click: () => {
+                    main_edit("redo");
+                },
+                accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
+            },
             { type: "separator" },
             { label: "剪切", role: "cut" },
             { label: "复制", role: "copy" },
@@ -570,13 +593,32 @@ const template = [
                   ]),
             {
                 label: "自动删除换行",
-                click: delete_enter,
+                click: () => {
+                    main_edit("delete_enter");
+                },
             },
             { type: "separator" },
-            { label: "查找", click: show_find, accelerator: "CmdOrCtrl+F" },
-            { label: "替换", click: show_find, accelerator: "CmdOrCtrl+H" },
+            {
+                label: "查找",
+                click: () => {
+                    main_edit("show_find");
+                },
+                accelerator: "CmdOrCtrl+F",
+            },
+            {
+                label: "替换",
+                click: () => {
+                    main_edit("show_find");
+                },
+                accelerator: "CmdOrCtrl+H",
+            },
             { type: "separator" },
-            { label: "自动换行", click: wrap },
+            {
+                label: "自动换行",
+                click: () => {
+                    main_edit("wrap");
+                },
+            },
         ],
     },
     // { role: 'viewMenu' }
@@ -587,7 +629,13 @@ const template = [
             { label: "强制重载", role: "forceReload" },
             { label: "开发者工具", role: "toggleDevTools" },
             { type: "separator" },
-            { label: "历史记录", click: show_history, accelerator: "CmdOrCtrl+Shift+H" },
+            {
+                label: "历史记录",
+                click: () => {
+                    main_edit("show_history");
+                },
+                accelerator: "CmdOrCtrl+Shift+H",
+            },
             { type: "separator" },
             { label: "实际大小", role: "resetZoom", accelerator: "" },
             { label: "放大", role: "zoomIn" },
@@ -776,29 +824,8 @@ function create_main_window(t, web_page) {
         }
     });
 }
-function save() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "save");
-}
-function undo() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "undo");
-}
-function redo() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "redo");
-}
-function show_find() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "show_find");
-}
-function show_history() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "show_history");
-}
-function delete_enter() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "delete_enter");
-}
-function edit_on_other() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "edit_on_other");
-}
-function wrap() {
-    if (main_window_focus) main_window_focus.webContents.send("edit", "wrap");
+function main_edit(m) {
+    if (main_window_focus) main_window_focus.webContents.send("edit", m);
 }
 
 var focused_search_window = null;
