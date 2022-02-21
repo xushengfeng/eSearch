@@ -206,13 +206,7 @@ app.whenReady().then(() => {
             if (!fs.existsSync(dir)) fs.mkdir(dir, () => {});
         });
         request.on("error", () => {
-            console.log(`存在目录${dir}`);
-            if (fs.existsSync(dir) && store.get("自动运行命令")) {
-                console.log("启动");
-                exec(store.get("自动运行命令"), (e) => {
-                    console.log(e);
-                });
-            }
+            if (store.get("检查OCR")) check_service_no();
         });
         request.write("");
         request.end();
@@ -397,6 +391,41 @@ function full_screen() {
     clip_window.setFullScreen(true);
     port = store.get("端口");
 }
+
+function check_service_no() {
+    var dir = store.path.replace("config.json", "service-installed");
+    if (!fs.existsSync(dir)) {
+        dialog
+            .showMessageBox({
+                title: "服务未安装",
+                message: "服务未安装\n需要下载并安装服务才能使用OCR",
+                icon: `${run_path}/assets/icons/warning.png`,
+                checkboxLabel: "不再提示",
+                buttons: ["下载", "取消"],
+                defaultId: 0,
+                cancelId: 1,
+            })
+            .then((resolve) => {
+                if (resolve.checkboxChecked) store.set("检查OCR", false);
+                if (resolve.response == 0) shell.openExternal("https://github.com/xushengfeng/eSearch-service");
+            });
+    } else {
+        console.log(`存在目录${dir}`);
+        if (store.get("自动运行命令")) {
+            console.log("启动");
+            exec(store.get("自动运行命令"), (e) => {
+                console.log(e);
+            });
+        } else {
+            dialog.showMessageBox({
+                title: "服务未启动",
+                message: "检测到服务未启动\n请手动启动eSearch服务",
+                buttons: ["确定"],
+                icon: `${run_path}/assets/icons/warning.png`,
+            });
+        }
+    }
+}
 function ocr(event, arg) {
     const check_r = net.request({
         method: "POST",
@@ -441,69 +470,12 @@ function ocr(event, arg) {
 
     check_r.on("error", () => {
         event.sender.send("ocr_back", "else");
-        dialog.showMessageBox({
-            title: "警告",
-            message: "识别失败\n找不到服务器",
-            icon: `${run_path}/assets/icons/warning.png`,
-        });
+        check_service_no();
     });
 
     check_r.write("");
     check_r.end();
 }
-
-var check_service_v = true;
-ipcMain.on("check_service", (event) => {
-    const request = net.request({
-        method: "POST",
-        url: `http://127.0.0.1:${port}`,
-    });
-    var dir = store.path.replace("config.json", "service-installed");
-    request.on("error", () => {
-        event.sender.send("check_service_back", "error");
-        if (!fs.existsSync(dir)) {
-            if (check_service_v) {
-                dialog
-                    .showMessageBox({
-                        title: "服务未安装",
-                        message: "服务未安装\n需要下载并安装服务才能使用OCR",
-                        icon: `${run_path}/assets/icons/warning.png`,
-                        buttons: ["下载", "取消并不再提示", "取消"],
-                        defaultId: 0,
-                    })
-                    .then((resolve) => {
-                        switch (resolve.response) {
-                            case 0:
-                                shell.openExternal("https://github.com/xushengfeng/eSearch-service");
-                                break;
-                            case 1:
-                                store.set("检查OCR", false);
-                                break;
-                            case 2:
-                                check_service_v = false;
-                                break;
-                        }
-                    });
-            }
-        } else {
-            if (store.get("自动运行命令")) {
-                exec(store.get("自动运行命令"));
-            } else {
-                dialog.showMessageBox({
-                    title: "服务未启动",
-                    message: "检测到服务未启动\n请手动启动eSearch服务",
-                    icon: `${run_path}/assets/icons/warning.png`,
-                });
-            }
-        }
-    });
-    request.on("response", () => {
-        event.sender.send("check_service_back", "ok");
-        if (!fs.existsSync(dir)) fs.mkdir(dir, () => {});
-    });
-    request.write("");
-    request.end();
-});
 
 // 菜单栏设置(截图没必要)
 const isMac = process.platform === "darwin";
