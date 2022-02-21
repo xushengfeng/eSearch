@@ -477,6 +477,14 @@ function ocr(event, arg) {
     check_r.end();
 }
 
+ipcMain.on("setting", (event, arg) => {
+    switch (arg) {
+        case "reload_main":
+            if (clip_window && !clip_window.isVisible()) clip_window.reload();
+            break;
+    }
+});
+
 // 菜单栏设置(截图没必要)
 const isMac = process.platform === "darwin";
 const template = [

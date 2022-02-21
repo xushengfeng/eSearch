@@ -274,6 +274,7 @@ function save_setting() {
     store.set("检查OCR", document.getElementById("检查OCR").checked);
     store.set("自动运行命令", document.getElementById("自动运行命令").value);
     store.set("端口", document.getElementById("端口").value - 0);
+    ipcRenderer.send("setting", "reload_main");
 }
 
 // 滚动条
