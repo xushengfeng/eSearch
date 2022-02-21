@@ -619,7 +619,7 @@ setInterval(() => {
 }, 6000);
 
 var file_watcher = null;
-var path = `${os.tmpdir()}/eSearch_${new Date().getTime()}.txt`;
+var path = `${os.tmpdir()}/eSearch_${new Date().getTime()}.eSearch`;
 var editing_on_other = false;
 function edit_on_other() {
     editing_on_other = !editing_on_other;
