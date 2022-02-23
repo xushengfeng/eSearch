@@ -272,14 +272,20 @@ function open_app() {
                     tool_close_f();
                 });
             } else {
+                const { exec } = require("child_process");
                 if (process.platform == "win32") {
-                    const { exec } = require("child_process");
                     exec(
                         `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
                         (e) => {
                             if (!e) tool_close_f();
                         }
                     );
+                } else if (process.platform == "linux") {
+                    exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
+                        var app_l = s.replace("image/png=", "").split(";");
+                        app_l.pop();
+                        console.log(app_l);
+                    });
                 } else {
                     open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
                         if (c.pid != undefined) {
