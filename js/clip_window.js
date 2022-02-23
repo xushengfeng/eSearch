@@ -139,7 +139,7 @@ document.getElementById("tool_bar").onmouseup = (e) => {
 
 hotkeys.setScope("normal");
 hotkeys("esc", "normal", tool_close_f);
-hotkeys("enter", tool_ocr_f);
+hotkeys("enter", "normal", tool_ocr_f);
 hotkeys("ctrl+s, command+s", tool_save_f);
 hotkeys("ctrl+c, command+c", tool_copy_f);
 
@@ -317,13 +317,29 @@ function tool_copy_f() {
 var type;
 function tool_save_f() {
     s_center_bar(true, "save");
-    o = true;
-    document.getElementById("save_type").style.display = "grid";
-    document.getElementById("suffix").focus();
-    document.getElementById("suffix").oninput = document.getElementById("suffix_b").onclick = () => {
-        type = document.getElementById("suffix").value;
-        ipcRenderer.send("clip_main_b", "save", type);
+    document.querySelectorAll("#suffix > div")[0].className = "suffix_h";
+    document.getElementById("suffix").onclick = (e) => {
+        if (e.target.dataset.value) ipcRenderer.send("clip_main_b", "save", e.target.dataset.value);
     };
+    hotkeys.setScope("c_bar");
+    var i = 0;
+    hotkeys("enter", "c_bar", () => {
+        ipcRenderer.send("clip_main_b", "save", document.querySelector("#suffix > .suffix_h").dataset.value);
+    });
+    hotkeys("up", "c_bar", () => {
+        document.querySelectorAll("#suffix > div")[i % 3].className = "";
+        if (i == 0) {
+            i = 2;
+        } else {
+            i--;
+        }
+        document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
+    });
+    hotkeys("down", "c_bar", () => {
+        document.querySelectorAll("#suffix > div")[i % 3].className = "";
+        i++;
+        document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
+    });
 }
 ipcRenderer.on("save_path", (event, message) => {
     console.log(message);

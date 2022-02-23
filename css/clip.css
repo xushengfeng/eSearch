@@ -59,31 +59,14 @@ body {
     display: block;
 }
 
-#save_type {
-    display: none;
-    grid-template-columns: auto 36px;
-    grid-template-rows: auto 36px;
-}
-#save_type > span {
-    grid-area: 1 / 1 / 2 / 3;
-}
-#save_type > select {
-    font-size: 1rem;
-    border: none;
-    background-color: #0000;
-    width: 100%;
-}
-#save_type > button {
-    border: none;
-    background-color: #0000;
-    transition: var(--transition);
+#save_type > #suffix > div {
+    text-align: center;
+    line-height: 2rem;
     border-radius: var(--border-radius);
-    background-image: url(../assets/tool_save.svg);
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
+    transition: var(--transition);
 }
-#save_type > button:hover {
+#save_type > #suffix > div:hover,
+.suffix_h {
     background-color: var(--hover-color);
 }
 
