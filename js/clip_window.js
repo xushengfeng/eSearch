@@ -248,15 +248,25 @@ function open_app() {
                     tool_close_f();
                 });
             } else {
-                open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
-                    if (c.pid != undefined) {
-                        tool_close_f();
-                    } else {
-                        document.querySelector("#app_path > div > input").disabled = false;
-                        document.querySelector("#app_path > div > input").value = app;
-                        document.querySelector("#app_path > div > input").select();
-                    }
-                });
+                if (process.platform == "win32") {
+                    const { exec } = require("child_process");
+                    exec(
+                        `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
+                        (e) => {
+                            if (!e) tool_close_f();
+                        }
+                    );
+                } else {
+                    open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
+                        if (c.pid != undefined) {
+                            tool_close_f();
+                        } else {
+                            document.querySelector("#app_path > div > input").disabled = false;
+                            document.querySelector("#app_path > div > input").value = app;
+                            document.querySelector("#app_path > div > input").select();
+                        }
+                    });
+                }
             }
             document.querySelector("#app_path > div > input").disabled = true;
             document.querySelector("#app_path > div > input").value = "正在打开...";
