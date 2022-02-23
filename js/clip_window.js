@@ -285,6 +285,16 @@ function open_app() {
                         var app_l = s.replace("image/png=", "").split(";");
                         app_l.pop();
                         console.log(app_l);
+                        for (let i of app_l) {
+                            exec(
+                                `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
+                                grep 'Icon' /usr/share/applications/${i} -w && 
+                                grep 'Exec' /usr/share/applications/${i} -w -m 1`,
+                                (e, s) => {
+                                    console.log(i, s);
+                                }
+                            );
+                        }
                     });
                 } else {
                     open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
