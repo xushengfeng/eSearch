@@ -810,9 +810,9 @@ document.getElementById("draw_edit_b").onclick = () => {
     o = !o;
     if (o) {
         document.querySelector("#draw_edit input").focus();
-        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        s_center_bar(true, "edit");
     } else {
-        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+        s_center_bar(false);
     }
 };
 document.querySelector("#draw_edit_run").onclick = () => {

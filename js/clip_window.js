@@ -103,6 +103,30 @@ function windows_bar_c_o() {
 
 document.querySelector("#toast > button").onclick = windows_bar_c_o;
 
+function s_center_bar(v, m) {
+    if (v) {
+        document.getElementById("save_type").style.height = 0;
+        document.getElementById("app_path").style.height = 0;
+        document.getElementById("draw_edit").style.height = 0;
+        document.getElementById("center_bar").style.opacity = 1;
+        document.getElementById("center_bar").style.pointerEvents = "auto";
+    } else {
+        document.getElementById("center_bar").style.opacity = 0;
+        document.getElementById("center_bar").style.pointerEvents = "none";
+    }
+    switch (m) {
+        case "save":
+            document.getElementById("save_type").style.height = "";
+            break;
+        case "app":
+            document.getElementById("app_path").style.height = "";
+            break;
+        case "edit":
+            document.getElementById("draw_edit").style.height = "";
+            break;
+    }
+}
+
 // 工具栏按钮
 document.getElementById("tool_bar").onmouseup = (e) => {
     if (e.button == 0) {
@@ -206,12 +230,12 @@ function tool_draw_f() {
 function tool_open_f() {
     o = !o;
     if (o) {
-        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        s_center_bar(true, "app");
         document.querySelector("#app_path > div > input").disabled = false;
         document.querySelector("#app_path > div > input").select();
         document.querySelector("#app_path > div > input").focus();
     } else {
-        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+        s_center_bar(false);
     }
 }
 document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
@@ -292,7 +316,7 @@ function tool_copy_f() {
 // 保存
 var type;
 function tool_save_f() {
-    document.querySelector("#windows_bar").style.transform = "translateX(0)";
+    s_center_bar(true, "save");
     o = true;
     document.getElementById("save_type").style.display = "grid";
     document.getElementById("suffix").focus();
