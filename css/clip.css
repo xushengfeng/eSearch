@@ -102,6 +102,8 @@ body {
     backdrop-filter: var(--blur);
     opacity: 0;
     transition: var(--transition);
+    padding: 4px;
+    border-radius: var(--border-radius);
 }
 
 /* 工具 */
