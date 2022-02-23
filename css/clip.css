@@ -91,6 +91,19 @@ body {
     cursor: pointer;
 }
 
+#center_bar {
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    transform: translate(-50%, -50%);
+    z-index: 99;
+    pointer-events: none;
+    background-color: var(--bar-bg);
+    backdrop-filter: var(--blur);
+    opacity: 0;
+    transition: var(--transition);
+}
+
 /* 工具 */
 #tool_bar {
     width: 60px;
