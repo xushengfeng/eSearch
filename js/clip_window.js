@@ -253,37 +253,37 @@ function open_app() {
                 exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
                     var app_l = s.replace("image/png=", "").split(";");
                     app_l.pop();
-                    console.log(app_l);
+                    var grep_co = "";
                     for (let i of app_l) {
-                        exec(
+                        grep_co +=
                             `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
-                                grep 'Icon' /usr/share/applications/${i} -w && 
-                                grep 'Exec' /usr/share/applications/${i} -w -m 1`,
-                            (e, s) => {
-                                append_app(s);
-                            }
-                        );
+                            grep 'Icon' /usr/share/applications/${i} -w && 
+                            grep 'Exec' /usr/share/applications/${i} -w -m 1` + ";";
                     }
+                    exec(grep_co, (e, s) => {
+                        append_app(s);
+                    });
                 });
                 function append_app(s) {
-                    var l = s.split(/\n/);
-                    var name = l[0].replace(/Name\=/, "");
-                    var icon = l[1].replace(/Icon\=/, "");
-                    var _exec = l[2].replace(/Exec\=/, "");
-                    console.log(name, icon, _exec);
-                    var div = document.createElement("div");
-                    div.id = name;
-                    div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png"><span>${name}</span>`;
-                    div.onclick = () => {
-                        var arg = _exec.match(/%\w/)
-                            ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")
-                            : _exec + os.tmpdir() + "/tmp.png";
-                        exec(arg, (e) => {
-                            if (!e) tool_close_f();
-                        });
-                    };
                     document.getElementById("app_path").innerHTML = "";
-                    document.getElementById("app_path").appendChild(div);
+                    var l = s.split(/\n/);
+                    l.pop();
+                    for (i = 0; i < l.length; i += 3) {
+                        let name = l[i].replace(/Name\=/, ""),
+                            icon = l[i + 1].replace(/Icon\=/, ""),
+                            _exec = l[i + 2].replace(/Exec\=/, ""),
+                            div = document.createElement("div");
+                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png"><span>${name}</span>`;
+                        div.onclick = () => {
+                            var arg = _exec.match(/%\w/)
+                                ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")
+                                : _exec + os.tmpdir() + "/tmp.png";
+                            exec(arg, (e) => {
+                                if (!e) tool_close_f();
+                            });
+                        };
+                        document.getElementById("app_path").appendChild(div);
+                    }
                 }
             }
         });
