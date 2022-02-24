@@ -299,6 +299,12 @@ function open_app() {
                         };
                         document.getElementById("app_path").appendChild(div);
                     }
+                    var other_div = document.createElement("div");
+                    other_div.innerHTML = `<span>其他应用打开</span>`;
+                    other_div.onclick = () => {
+                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                    };
+                    document.getElementById("app_path").appendChild(other_div);
                 }
             }
         });
