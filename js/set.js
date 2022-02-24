@@ -140,7 +140,7 @@ document.getElementById("保存文件名称").oninput = () => {
             S: date.getMilliseconds() + "",
         };
         for (let k in opt) {
-            ret = new RegExp(`\(\[\-\.\_\]\)\(\?\<\!\\\\)${k}\(\[\-\.\_\]\)\?`, "g");
+            ret = new RegExp(`\(\\W\)\(\?\<\!\\\\)${k}\(\\W\)\?`, "g");
             fmt = fmt.replace(ret, `$1${opt[k]}$2`);
         }
         return fmt;
