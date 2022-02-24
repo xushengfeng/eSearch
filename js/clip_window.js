@@ -291,11 +291,25 @@ function open_app() {
                                 grep 'Icon' /usr/share/applications/${i} -w && 
                                 grep 'Exec' /usr/share/applications/${i} -w -m 1`,
                                 (e, s) => {
-                                    console.log(i, s);
+                                    append_app(s);
                                 }
                             );
                         }
                     });
+                    function append_app(s) {
+                        var l = s.split(/\n/);
+                        var name = l[0].replace(/Name\=/, "");
+                        var icon = l[1].replace(/Icon\=/, "");
+                        var _exec = l[2].replace(/Exec\=/, "");
+                        console.log(name, icon, _exec);
+                        var div = document.createElement("div");
+                        div.id = name;
+                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png"><span>${name}</span>`;
+                        div.onclick = () => {
+                            exec(_exec + " " + os.tmpdir() + "/tmp.png");
+                        };
+                        document.getElementById("app_path").appendChild(div);
+                    }
                 } else {
                     open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
                         if (c.pid != undefined) {
