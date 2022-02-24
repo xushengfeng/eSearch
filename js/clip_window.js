@@ -243,12 +243,27 @@ function open_app() {
         fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
             const { exec } = require("child_process");
             if (process.platform == "win32") {
-                exec(
-                    `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
-                    (e) => {
-                        if (!e) tool_close_f();
-                    }
-                );
+                document.getElementById("app_path").innerHTML = "";
+                var div1 = document.createElement("div");
+                div1.id = "default_app";
+                div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
+                div1.onclick = () => {
+                    shell.openPath(os.tmpdir() + "\\tmp.png");
+                    tool_close_f();
+                };
+                var div2 = document.createElement("div");
+                div2.id = "other_app";
+                div2.innerHTML = `<span>其他应用打开</span>`;
+                div2.onclick = () => {
+                    exec(
+                        `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
+                        (e) => {
+                            if (!e) tool_close_f();
+                        }
+                    );
+                };
+                document.getElementById("app_path").appendChild(div1);
+                document.getElementById("app_path").appendChild(div2);
             } else if (process.platform == "linux") {
                 exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
                     var app_l = s.replace("image/png=", "").split(";");
