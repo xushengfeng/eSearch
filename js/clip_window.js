@@ -231,99 +231,61 @@ function tool_open_f() {
     o = !o;
     if (o) {
         s_center_bar(true, "app");
-        document.querySelector("#app_path > div > input").disabled = false;
-        document.querySelector("#app_path > div > input").select();
-        document.querySelector("#app_path > div > input").focus();
+        open_app();
     } else {
         s_center_bar(false);
     }
 }
-document.querySelector("#app_path > div > input").value = store.get("其他应用打开") || "";
-document.querySelector("#app_path > div > #open_file").onclick = () => {
-    ipcRenderer.send("clip_main_b", "open");
-    ipcRenderer.on("open_path", (event, message) => {
-        if (typeof message != "undefined") {
-            document.querySelector("#app_path > div > input").value = message;
-            open_app();
-        } else {
-            document.querySelector("#app_path > div > input").select();
-            document.querySelector("#app_path > div > input").focus();
-        }
-    });
-};
-document.querySelector("#app_path > div > #open").onclick = () => {
-    open_app();
-};
-document.querySelector("#app_path > div > input").onkeydown = (e) => {
-    if (e.key == "Enter") {
-        e.preventDefault();
-        open_app();
-    }
-};
 function open_app() {
-    var app = document.querySelector("#app_path > div > input").value;
-    store.set("其他应用打开", app);
     get_clip_photo("png").then((c) => {
         f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         dataBuffer = new Buffer(f, "base64");
         fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
-            if (app == "") {
-                open(os.tmpdir() + "/tmp.png").then(() => {
-                    tool_close_f();
-                });
-            } else {
-                const { exec } = require("child_process");
-                if (process.platform == "win32") {
-                    exec(
-                        `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
-                        (e) => {
-                            if (!e) tool_close_f();
-                        }
-                    );
-                } else if (process.platform == "linux") {
-                    exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
-                        var app_l = s.replace("image/png=", "").split(";");
-                        app_l.pop();
-                        console.log(app_l);
-                        for (let i of app_l) {
-                            exec(
-                                `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
+            const { exec } = require("child_process");
+            if (process.platform == "win32") {
+                exec(
+                    `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
+                    (e) => {
+                        if (!e) tool_close_f();
+                    }
+                );
+            } else if (process.platform == "linux") {
+                exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
+                    var app_l = s.replace("image/png=", "").split(";");
+                    app_l.pop();
+                    console.log(app_l);
+                    for (let i of app_l) {
+                        exec(
+                            `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
                                 grep 'Icon' /usr/share/applications/${i} -w && 
                                 grep 'Exec' /usr/share/applications/${i} -w -m 1`,
-                                (e, s) => {
-                                    append_app(s);
-                                }
-                            );
-                        }
-                    });
-                    function append_app(s) {
-                        var l = s.split(/\n/);
-                        var name = l[0].replace(/Name\=/, "");
-                        var icon = l[1].replace(/Icon\=/, "");
-                        var _exec = l[2].replace(/Exec\=/, "");
-                        console.log(name, icon, _exec);
-                        var div = document.createElement("div");
-                        div.id = name;
-                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png"><span>${name}</span>`;
-                        div.onclick = () => {
-                            exec(_exec + " " + os.tmpdir() + "/tmp.png");
-                        };
-                        document.getElementById("app_path").appendChild(div);
+                            (e, s) => {
+                                append_app(s);
+                            }
+                        );
                     }
-                } else {
-                    open.openApp(app, { arguments: [os.tmpdir() + "/tmp.png"] }).then((c) => {
-                        if (c.pid != undefined) {
-                            tool_close_f();
-                        } else {
-                            document.querySelector("#app_path > div > input").disabled = false;
-                            document.querySelector("#app_path > div > input").value = app;
-                            document.querySelector("#app_path > div > input").select();
-                        }
-                    });
+                });
+                function append_app(s) {
+                    var l = s.split(/\n/);
+                    var name = l[0].replace(/Name\=/, "");
+                    var icon = l[1].replace(/Icon\=/, "");
+                    var _exec = l[2].replace(/Exec\=/, "");
+                    console.log(name, icon, _exec);
+                    var div = document.createElement("div");
+                    div.id = name;
+                    div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png"><span>${name}</span>`;
+                    div.onclick = () => {
+                        var arg = _exec.match(/%\w/)
+                            ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")
+                            : _exec + os.tmpdir() + "/tmp.png";
+                        exec(arg, (e) => {
+                            if (!e) tool_close_f();
+                        });
+                    };
+                    document.getElementById("app_path").innerHTML = "";
+                    document.getElementById("app_path").appendChild(div);
                 }
             }
-            document.querySelector("#app_path > div > input").disabled = true;
-            document.querySelector("#app_path > div > input").value = "正在打开...";
         });
     });
 }
