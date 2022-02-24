@@ -288,7 +288,8 @@ function open_app() {
                             icon = l[i + 1].replace(/Icon\=/, ""),
                             _exec = l[i + 2].replace(/Exec\=/, ""),
                             div = document.createElement("div");
-                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png"><span>${name}</span>`;
+                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png" 
+                                        onerror="this.src='./assets/default_app.svg';"><span>${name}</span>`;
                         div.onclick = () => {
                             var arg = _exec.match(/%\w/)
                                 ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")

@@ -107,6 +107,7 @@ body {
 }
 #app_path > div > img {
     height: 100%;
+    margin-right: 8px;
 }
 
 /* 工具 */
