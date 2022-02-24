@@ -302,7 +302,19 @@ function open_app() {
                     var other_div = document.createElement("div");
                     other_div.innerHTML = `<span>其他应用打开</span>`;
                     other_div.onclick = () => {
-                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                        exec("echo $XDG_SESSION_DESKTOP", (e, s) => {
+                            switch (s) {
+                                case "KDE\n":
+                                    exec(`cd ${__dirname}/lib/ && ./kde-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                    break;
+                                case "GNOME\n":
+                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                    break;
+                                default:
+                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                    break;
+                            }
+                        });
                     };
                     document.getElementById("app_path").appendChild(other_div);
                 }
