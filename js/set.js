@@ -118,7 +118,8 @@ document.getElementById("获取保存路径").onclick = () => {
 };
 
 document.getElementById("保存文件名称").value = store.get("保存名称");
-document.getElementById("保存文件名称").oninput = () => {
+document.getElementById("保存文件名称").oninput = show_f_time;
+function show_f_time() {
     function f(fmt, date) {
         let ret;
         const opt = {
@@ -151,7 +152,8 @@ document.getElementById("保存文件名称").oninput = () => {
         document.getElementById("保存文件名称").value,
         save_time
     ).replace("\\", "");
-};
+}
+show_f_time();
 
 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
