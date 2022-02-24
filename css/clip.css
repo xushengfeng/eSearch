@@ -85,11 +85,28 @@ body {
     backdrop-filter: var(--blur);
     opacity: 0;
     transition: var(--transition);
-    padding: 4px;
+    padding: 2px;
     border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
 }
 #center_bar > div {
     overflow: hidden;
+}
+
+#app_path > div {
+    height: 32px;
+    box-sizing: border-box;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+}
+#app_path > div:hover {
+    background-color: var(--hover-color);
+}
+#app_path > div > img {
+    height: 100%;
 }
 
 /* 工具 */
