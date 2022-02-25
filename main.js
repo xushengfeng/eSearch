@@ -287,7 +287,7 @@ function create_clip_window() {
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
             case "window-close":
-                clip_window.setFullScreen(false);
+                clip_window.setSimpleFullScreen(false);
                 clip_window.hide();
                 break;
             case "ocr":
@@ -316,7 +316,7 @@ function create_clip_window() {
                 break;
             case "save":
                 var saved_path = store.get("保存路径") || "";
-                clip_window.setFullScreen(false);
+                clip_window.setSimpleFullScreen(false);
                 clip_window.hide();
                 dialog
                     .showSaveDialog({
@@ -346,7 +346,7 @@ function create_clip_window() {
                                 icon: `${run_path}/assets/icons/64x64.png`,
                             }).show();
                             clip_window.show();
-                            clip_window.setFullScreen(true);
+                            clip_window.setSimpleFullScreen(true);
                         }
                     });
                 break;
@@ -388,7 +388,7 @@ function full_screen() {
     var x = robot.screen.capture();
     clip_window.webContents.send("reflash", x.image, x.width, x.height);
     clip_window.show();
-    clip_window.setFullScreen(true);
+    clip_window.setSimpleFullScreen(true);
     port = store.get("端口");
 }
 
