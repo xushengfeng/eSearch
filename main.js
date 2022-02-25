@@ -119,7 +119,7 @@ var port = 8080;
 
 app.whenReady().then(() => {
     // 托盘
-    tray = new Tray(`${run_path}/assets/icons/64x64.png`);
+    tray = process.platform != "darwin" ? new Tray(`${run_path}/assets/icons/64x64.png`) : new Tray(`${run_path}/assets/icons/16x16.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
             label: "自动搜索",
