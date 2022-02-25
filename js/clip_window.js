@@ -358,12 +358,16 @@ function tool_save_f() {
     s_center_bar(true, "save");
     document.querySelectorAll("#suffix > div")[0].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
-        if (e.target.dataset.value) ipcRenderer.send("clip_main_b", "save", e.target.dataset.value);
+        if (e.target.dataset.value) {
+            ipcRenderer.send("clip_main_b", "save", e.target.dataset.value);
+            s_center_bar(false);
+        }
     };
     hotkeys.setScope("c_bar");
     var i = 0;
     hotkeys("enter", "c_bar", () => {
         ipcRenderer.send("clip_main_b", "save", document.querySelector("#suffix > .suffix_h").dataset.value);
+        s_center_bar(false);
     });
     hotkeys("up", "c_bar", () => {
         document.querySelectorAll("#suffix > div")[i % 3].className = "";
