@@ -671,6 +671,7 @@ function create_ding_window(x, y, w, h, img) {
     if (Object.keys(ding_windows_l).length == 1) {
         ding_window = new BrowserWindow({
             icon: path.join(run_path, "assets/icons/1024x1024.png"),
+            simpleFullscreen: true,
             fullscreen: true,
             transparent: true,
             frame: false,
