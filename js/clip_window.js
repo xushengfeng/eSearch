@@ -319,6 +319,19 @@ function open_app() {
                     };
                     document.getElementById("app_path").appendChild(other_div);
                 }
+            } else if (process.platform == "darwin") {
+                document.getElementById("app_path").innerHTML = "";
+                var div1 = document.createElement("div");
+                div1.id = "default_app";
+                div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
+                div1.onclick = () => {
+                    shell.openPath(os.tmpdir() + "\\tmp.png");
+                    tool_close_f();
+                };
+                var div2 = document.createElement("div");
+                div2.id = "other_app";
+                div2.innerHTML = `<span>其他应用打开</span>`;
+                div2.onclick = () => {};
             }
         });
     });
