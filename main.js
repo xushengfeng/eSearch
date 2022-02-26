@@ -21,6 +21,7 @@ const path = require("path");
 run_path = path.resolve(__dirname, "");
 const { exec } = require("child_process");
 const fs = require("fs");
+const os = require("os");
 
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -249,12 +250,20 @@ app.whenReady().then(() => {
             store.set(`快捷键`, 快捷键);
         }
     }
+
+    // tmp目录
+    if (!fs.existsSync(os.tmpdir() + "/eSearch")) fs.mkdir(os.tmpdir() + "/eSearch", () => {});
     create_clip_window();
 });
 
 app.on("will-quit", () => {
     // Unregister all shortcuts.
     globalShortcut.unregisterAll();
+    if (process.platform == "win32") {
+        exec(`rmdir ${os.tmpdir() + "\\eSearch"}`);
+    } else {
+        exec(`rm -r ${os.tmpdir() + "/eSearch"}`);
+    }
 });
 
 // 截图窗口

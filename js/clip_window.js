@@ -245,11 +245,13 @@ function tool_open_f() {
     s_center_bar("app");
     if (center_bar_show) open_app();
 }
+
+const tmpdir = os.tmpdir() + "/eSearch";
 function open_app() {
     get_clip_photo("png").then((c) => {
         f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         dataBuffer = new Buffer(f, "base64");
-        fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
+        fs.writeFile(tmpdir + "/tmp.png", dataBuffer, () => {
             const { exec } = require("child_process");
             switch (process.platform) {
                 case "win32":
@@ -258,7 +260,7 @@ function open_app() {
                     div1.id = "default_app";
                     div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
                     div1.onclick = () => {
-                        shell.openPath(os.tmpdir() + "\\tmp.png");
+                        shell.openPath(tmpdir + "/tmp.png");
                         tool_close_f();
                     };
                     var div2 = document.createElement("div");
@@ -267,7 +269,7 @@ function open_app() {
                     div2.onclick = () => {
                         exec(
                             `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${
-                                os.tmpdir() + "\\tmp.png"
+                                tmpdir.replace("/", "\\") + "\\tmp.png"
                             }`,
                             (e) => {
                                 if (!e) tool_close_f();
@@ -306,8 +308,8 @@ function open_app() {
                                         onerror="this.src='./assets/default_app.svg';"><span>${name}</span>`;
                             div.onclick = () => {
                                 var arg = _exec.match(/%\w/)
-                                    ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")
-                                    : _exec + os.tmpdir() + "/tmp.png";
+                                    ? _exec.replace(/%\w/, tmpdir + "/tmp.png")
+                                    : _exec + tmpdir + "/tmp.png";
                                 exec(arg, (e) => {
                                     if (!e) tool_close_f();
                                 });
@@ -320,13 +322,13 @@ function open_app() {
                             exec("echo $XDG_SESSION_DESKTOP", (e, s) => {
                                 switch (s) {
                                     case "KDE\n":
-                                        exec(`cd ${__dirname}/lib/ && ./kde-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                        exec(`cd ${__dirname}/lib/ && ./kde-open-with ${tmpdir + "/tmp.png"}`);
                                         break;
                                     case "GNOME\n":
-                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
                                         break;
                                     default:
-                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
                                         break;
                                 }
                             });
@@ -341,7 +343,7 @@ function open_app() {
                     div1.id = "default_app";
                     div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
                     div1.onclick = () => {
-                        shell.openPath(os.tmpdir() + "/tmp.png");
+                        shell.openPath(tmpdir + "/tmp.png");
                         tool_close_f();
                     };
                     document.getElementById("app_path").appendChild(div1);
@@ -357,7 +359,7 @@ function open_app() {
                     ipcRenderer.on("mac_app_path", (ev, c, paths) => {
                         if (!c) {
                             tool_close_f();
-                            var co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${os.tmpdir() + "/tmp.png"}`;
+                            var co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${tmpdir + "/tmp.png"}`;
                             exec(co);
                         }
                     });
