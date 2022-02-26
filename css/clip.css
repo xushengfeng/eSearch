@@ -59,22 +59,7 @@ body {
     display: block;
 }
 
-#save_type > #suffix > div,
-#save_type > div:nth-child(1) {
-    text-align: center;
-    line-height: 2rem;
-    border-radius: 6px;
-    transition: var(--transition);
-}
-#save_type > #suffix > div:hover,
-.suffix_h {
-    background-color: var(--hover-color);
-}
-
-#service_download {
-    cursor: pointer;
-}
-
+/* 居中栏 */
 #center_bar {
     position: absolute;
     left: 50%;
@@ -93,7 +78,19 @@ body {
 #center_bar > div {
     overflow: hidden;
 }
-
+/* 保存 */
+#save_type > #suffix > div,
+#save_type > div:nth-child(1) {
+    text-align: center;
+    line-height: 2rem;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+#save_type > #suffix > div:hover,
+.suffix_h {
+    background-color: var(--hover-color);
+}
+/* 其他应用打开 */
 #app_path > div {
     height: 32px;
     box-sizing: border-box;
