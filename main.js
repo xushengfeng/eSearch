@@ -187,8 +187,8 @@ app.whenReady().then(() => {
     // 启动时提示
     if (first_open)
         new Notification({
-            title: "eSearch",
-            body: `eSearch已经在后台启动`,
+            title: app.name,
+            body: `${app.name} 已经在后台启动`,
             icon: `${run_path}/assets/icons/64x64.png`,
         }).show();
 
@@ -331,8 +331,8 @@ function create_clip_window() {
                         event.sender.send("save_path", x.filePath);
                         if (x.filePath) {
                             notification = new Notification({
-                                title: "eSearch保存图像成功",
-                                body: `已保存图像到${x.filePath}`,
+                                title: `${app.name} 保存图像成功`,
+                                body: `已保存图像到 ${x.filePath}`,
                                 icon: `${run_path}/assets/icons/64x64.png`,
                             });
                             notification.on("click", () => {
@@ -344,7 +344,7 @@ function create_clip_window() {
                             store.set("保存路径", save_path.join("/") + "/");
                         } else {
                             new Notification({
-                                title: "eSearch保存图像失败",
+                                title: `${app.name} 保存图像失败`,
                                 body: `用户已取消保存`,
                                 icon: `${run_path}/assets/icons/64x64.png`,
                             }).show();
@@ -416,7 +416,7 @@ function check_service_no() {
         dialog
             .showMessageBox({
                 title: "服务未安装",
-                message: "服务未安装\n需要下载并安装服务才能使用OCR",
+                message: `${app.name} 服务未安装\n需要下载并安装服务才能使用OCR`,
                 icon: `${run_path}/assets/icons/warning.png`,
                 checkboxLabel: "不再提示",
                 buttons: ["下载", "取消"],
@@ -437,7 +437,7 @@ function check_service_no() {
         } else {
             dialog.showMessageBox({
                 title: "服务未启动",
-                message: "检测到服务未启动\n请手动启动eSearch服务",
+                message: `检测到服务未启动\n请手动启动 ${app.name} 服务`,
                 buttons: ["确定"],
                 icon: `${run_path}/assets/icons/warning.png`,
             });
@@ -952,8 +952,8 @@ function quick_clip() {
                         () => {}
                     );
                     notification = new Notification({
-                        title: "eSearch保存图像成功",
-                        body: `已保存图像到${file_name}`,
+                        title: `${app.name} 保存图像成功`,
+                        body: `已保存图像到 ${file_name}`,
                         icon: `${run_path}/assets/icons/64x64.png`,
                     });
                     notification.on("click", () => {
