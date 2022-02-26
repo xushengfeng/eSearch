@@ -20,7 +20,6 @@
     "electron-store": "^8.0.1",
     "hotkeys-js": "^3.8.7",
     "jsqr": "^1.4.0",
-    "open": "^8.4.0",
     "robotjs": "^0.6.0"
   },
   "devDependencies": {

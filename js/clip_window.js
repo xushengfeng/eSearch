@@ -4,7 +4,6 @@ const fs = require("fs");
 const jsqr = require("jsqr");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
-const open = require("open");
 const os = require("os");
 
 // 获取设置
