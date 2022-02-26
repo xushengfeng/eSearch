@@ -815,7 +815,6 @@ document.getElementById("draw_edit_b").onclick = () => {
         hotkeys.filter = (event) => {
             return event.target === document.querySelector("#draw_edit input");
         };
-        hotkeys.setScope("c_bar");
         hotkeys("enter", "c_bar", fabric_api);
         hotkeys("esc", "c_bar", () => {
             s_center_bar(false);

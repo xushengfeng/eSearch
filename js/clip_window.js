@@ -103,6 +103,7 @@ function windows_bar_c_o() {
 
 document.querySelector("#toast > button").onclick = windows_bar_c_o;
 
+var b_scope = null;
 function s_center_bar(v, m) {
     if (v) {
         document.getElementById("save_type").style.height = 0;
@@ -110,9 +111,12 @@ function s_center_bar(v, m) {
         document.getElementById("draw_edit").style.height = 0;
         document.getElementById("center_bar").style.opacity = 1;
         document.getElementById("center_bar").style.pointerEvents = "auto";
+        b_scope = hotkeys.getScope();
+        hotkeys.setScope("c_bar");
     } else {
         document.getElementById("center_bar").style.opacity = 0;
         document.getElementById("center_bar").style.pointerEvents = "none";
+        hotkeys.setScope(b_scope || "normal");
     }
     switch (m) {
         case "save":
@@ -125,7 +129,6 @@ function s_center_bar(v, m) {
             document.getElementById("draw_edit").style.height = "";
             break;
     }
-    hotkeys.setScope("normal");
 }
 
 // 工具栏按钮
