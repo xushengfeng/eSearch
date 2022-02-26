@@ -125,6 +125,7 @@ function s_center_bar(v, m) {
             document.getElementById("draw_edit").style.height = "";
             break;
     }
+    hotkeys.setScope("normal");
 }
 
 // 工具栏按钮
@@ -358,7 +359,6 @@ function open_app() {
                 hotkeys.setScope("c_bar");
                 var i = 0,
                     l = document.querySelectorAll("#app_path > div").length;
-                console.log(i, l);
                 document.querySelectorAll("#app_path > div")[i].className = "app_h";
                 hotkeys("enter", "c_bar", () => {
                     document.querySelector("#app_path > .app_h").click();
@@ -366,17 +366,16 @@ function open_app() {
                 });
                 hotkeys("up", "c_bar", () => {
                     document.querySelectorAll("#app_path > div")[i % l].className = "";
-                    if (i == 0) {
-                        i = l - 1;
-                    } else {
-                        i--;
-                    }
+                    i = i == 0 ? l - 1 : i - 1;
                     document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
                 });
                 hotkeys("down", "c_bar", () => {
                     document.querySelectorAll("#app_path > div")[i % l].className = "";
                     i++;
                     document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
+                });
+                hotkeys("esc", "c_bar", () => {
+                    s_center_bar(false);
                 });
             }
         });
@@ -417,17 +416,16 @@ function tool_save_f() {
     });
     hotkeys("up", "c_bar", () => {
         document.querySelectorAll("#suffix > div")[i % 3].className = "";
-        if (i == 0) {
-            i = 2;
-        } else {
-            i--;
-        }
+        i = i == 0 ? 2 : i - 1;
         document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
     });
     hotkeys("down", "c_bar", () => {
         document.querySelectorAll("#suffix > div")[i % 3].className = "";
         i++;
         document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
+    });
+    hotkeys("esc", "c_bar", () => {
+        s_center_bar(false);
     });
 }
 ipcRenderer.on("save_path", (event, message) => {
