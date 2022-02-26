@@ -353,6 +353,21 @@ function create_clip_window() {
             case "ding":
                 create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
+            case "mac_app":
+                clip_window.setSimpleFullScreen(false);
+                clip_window.hide();
+                dialog
+                    .showOpenDialog({
+                        defaultPath: "/Applications",
+                    })
+                    .then((x) => {
+                        if (x.canceled) {
+                            clip_window.show();
+                            clip_window.setSimpleFullScreen(true);
+                        }
+                        event.sender.send("mac_app_path", x.canceled, x.filePaths);
+                    });
+                break;
         }
     });
 

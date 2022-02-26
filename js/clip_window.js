@@ -325,13 +325,25 @@ function open_app() {
                 div1.id = "default_app";
                 div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
                 div1.onclick = () => {
-                    shell.openPath(os.tmpdir() + "\\tmp.png");
+                    shell.openPath(os.tmpdir() + "/tmp.png");
                     tool_close_f();
                 };
+                document.getElementById("app_path").appendChild(div1);
+
                 var div2 = document.createElement("div");
                 div2.id = "other_app";
                 div2.innerHTML = `<span>其他应用打开</span>`;
-                div2.onclick = () => {};
+                div2.onclick = () => {
+                    ipcRenderer.send("clip_main_b", "mac_app");
+                };
+                document.getElementById("app_path").appendChild(div2);
+                ipcRenderer.on("mac_app_path", (ev, c, paths) => {
+                    if (!c) {
+                        tool_close_f();
+                        var co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${os.tmpdir() + "/tmp.png"}`;
+                        exec(co);
+                    }
+                });
             }
         });
     });
