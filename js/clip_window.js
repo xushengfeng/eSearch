@@ -247,8 +247,7 @@ function tool_draw_f() {
 }
 // 在其他应用打开
 function tool_open_f() {
-    s_center_bar("app");
-    if (center_bar_show) open_app();
+    open_app();
 }
 
 const tmpdir = os.tmpdir() + "/eSearch";
@@ -371,6 +370,7 @@ function open_app() {
                     break;
             }
             function set_hotkey() {
+                s_center_bar("app");
                 hotkeys.setScope("c_bar");
                 var i = 0,
                     l = document.querySelectorAll("#app_path > div").length;
