@@ -539,8 +539,9 @@ const template = [
                 accelerator: "CmdOrCtrl+S",
             },
             { type: "separator" },
-            { label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," },
-            { type: "separator" },
+            ...(isMac
+                ? []
+                : [{ label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," }, { type: "separator" }]),
             {
                 label: "其他编辑器打开",
                 click: () => {
