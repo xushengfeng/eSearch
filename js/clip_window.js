@@ -104,14 +104,25 @@ function windows_bar_c_o() {
 document.querySelector("#toast > button").onclick = windows_bar_c_o;
 
 var b_scope = null;
-function s_center_bar(v, m) {
-    if (v) {
+var center_bar_show = false;
+var center_bar_m = null;
+function s_center_bar(m) {
+    hotkeys.deleteScope("c_bar");
+    if (center_bar_m == m) {
+        center_bar_show = false;
+        center_bar_m = null;
+    } else {
+        center_bar_show = true;
+        center_bar_m = m;
+    }
+    if (m === false) center_bar_show = false;
+    if (center_bar_show) {
         document.getElementById("save_type").style.height = 0;
         document.getElementById("app_path").style.height = 0;
         document.getElementById("draw_edit").style.height = 0;
         document.getElementById("center_bar").style.opacity = 1;
         document.getElementById("center_bar").style.pointerEvents = "auto";
-        b_scope = hotkeys.getScope();
+        if (hotkeys.getScope() != "all") b_scope = hotkeys.getScope();
         hotkeys.setScope("c_bar");
     } else {
         document.getElementById("center_bar").style.opacity = 0;
@@ -167,8 +178,7 @@ function tool_close_f() {
     } catch {}
 
     // 取消打开程序框
-    o = true;
-    tool_open_f();
+    s_center_bar(false);
     setTimeout(() => {
         ipcRenderer.send("clip_main_b", "window-close");
         document.querySelector("html").style.display = "";
@@ -232,13 +242,8 @@ function tool_draw_f() {
 }
 // 在其他应用打开
 function tool_open_f() {
-    o = !o;
-    if (o) {
-        s_center_bar(true, "app");
-        open_app();
-    } else {
-        s_center_bar(false);
-    }
+    s_center_bar("app");
+    if (center_bar_show) open_app();
 }
 function open_app() {
     get_clip_photo("png").then((c) => {
@@ -365,7 +370,7 @@ function open_app() {
                 document.querySelectorAll("#app_path > div")[i].className = "app_h";
                 hotkeys("enter", "c_bar", () => {
                     document.querySelector("#app_path > .app_h").click();
-                    s_center_bar(false);
+                    s_center_bar("app");
                 });
                 hotkeys("up", "c_bar", () => {
                     document.querySelectorAll("#app_path > div")[i % l].className = "";
@@ -378,7 +383,7 @@ function open_app() {
                     document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
                 });
                 hotkeys("esc", "c_bar", () => {
-                    s_center_bar(false);
+                    s_center_bar("app");
                 });
             }
         });
@@ -403,19 +408,19 @@ function tool_copy_f() {
 // 保存
 var type;
 function tool_save_f() {
-    s_center_bar(true, "save");
+    s_center_bar("save");
     document.querySelectorAll("#suffix > div")[0].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
         if (e.target.dataset.value) {
             ipcRenderer.send("clip_main_b", "save", e.target.dataset.value);
-            s_center_bar(false);
+            s_center_bar("save");
         }
     };
     hotkeys.setScope("c_bar");
     var i = 0;
     hotkeys("enter", "c_bar", () => {
         ipcRenderer.send("clip_main_b", "save", document.querySelector("#suffix > .suffix_h").dataset.value);
-        s_center_bar(false);
+        s_center_bar("save");
     });
     hotkeys("up", "c_bar", () => {
         document.querySelectorAll("#suffix > div")[i % 3].className = "";
@@ -428,7 +433,7 @@ function tool_save_f() {
         document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
     });
     hotkeys("esc", "c_bar", () => {
-        s_center_bar(false);
+        s_center_bar("save");
     });
 }
 ipcRenderer.on("save_path", (event, message) => {

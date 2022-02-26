@@ -806,22 +806,17 @@ hotkeys("esc", "drawing", () => {
 });
 
 // fabric命令行
-var edit_o = false;
 document.getElementById("draw_edit_b").onclick = () => {
-    edit_o = !edit_o;
-    if (edit_o) {
+    s_center_bar("edit");
+    if (center_bar_show) {
         document.querySelector("#draw_edit input").focus();
-        s_center_bar(true, "edit");
         hotkeys.filter = (event) => {
             return event.target === document.querySelector("#draw_edit input");
         };
         hotkeys("enter", "c_bar", fabric_api);
         hotkeys("esc", "c_bar", () => {
-            s_center_bar(false);
-            edit_o = false;
+            s_center_bar("edit");
         });
-    } else {
-        s_center_bar(false);
     }
 };
 document.querySelector("#draw_edit_run").onclick = () => {
