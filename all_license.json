@@ -2924,15 +2924,6 @@
     "path": "node_modules/onetime",
     "licenseFile": "node_modules/onetime/license"
   },
-  "open@8.4.0": {
-    "licenses": "MIT",
-    "repository": "https://github.com/sindresorhus/open",
-    "publisher": "Sindre Sorhus",
-    "email": "sindresorhus@gmail.com",
-    "url": "https://sindresorhus.com",
-    "path": "node_modules/open",
-    "licenseFile": "node_modules/open/license"
-  },
   "ora@5.4.1": {
     "licenses": "MIT",
     "repository": "https://github.com/sindresorhus/ora",
