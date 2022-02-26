@@ -59,10 +59,11 @@ body {
     display: block;
 }
 
-#save_type > #suffix > div {
+#save_type > #suffix > div,
+#save_type > div:nth-child(1) {
     text-align: center;
     line-height: 2rem;
-    border-radius: var(--border-radius);
+    border-radius: 6px;
     transition: var(--transition);
 }
 #save_type > #suffix > div:hover,
