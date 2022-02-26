@@ -84,6 +84,8 @@ body {
     overflow-y: overlay;
     height: 0;
     text-align: center;
+    position: relative;
+    z-index: 9;
 }
 #history_list > div {
     margin: 0 0 16px 0;
