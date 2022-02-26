@@ -267,6 +267,7 @@ function open_app() {
                     };
                     document.getElementById("app_path").appendChild(div1);
                     document.getElementById("app_path").appendChild(div2);
+                    set_hotkey();
                     break;
                 case "linux":
                     exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
@@ -275,7 +276,7 @@ function open_app() {
                         var grep_co = "";
                         for (let i of app_l) {
                             grep_co +=
-                            `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
+                                `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
                             grep 'Icon' /usr/share/applications/${i} -w && 
                             grep 'Exec' /usr/share/applications/${i} -w -m 1` + ";";
                         }
@@ -322,6 +323,7 @@ function open_app() {
                             });
                         };
                         document.getElementById("app_path").appendChild(other_div);
+                        set_hotkey();
                     }
                     break;
                 case "darwin":
@@ -342,6 +344,7 @@ function open_app() {
                         ipcRenderer.send("clip_main_b", "mac_app");
                     };
                     document.getElementById("app_path").appendChild(div2);
+                    set_hotkey();
                     ipcRenderer.on("mac_app_path", (ev, c, paths) => {
                         if (!c) {
                             tool_close_f();
@@ -350,6 +353,31 @@ function open_app() {
                         }
                     });
                     break;
+            }
+            function set_hotkey() {
+                hotkeys.setScope("c_bar");
+                var i = 0,
+                    l = document.querySelectorAll("#app_path > div").length;
+                console.log(i, l);
+                document.querySelectorAll("#app_path > div")[i].className = "app_h";
+                hotkeys("enter", "c_bar", () => {
+                    document.querySelector("#app_path > .app_h").click();
+                    s_center_bar(false);
+                });
+                hotkeys("up", "c_bar", () => {
+                    document.querySelectorAll("#app_path > div")[i % l].className = "";
+                    if (i == 0) {
+                        i = l - 1;
+                    } else {
+                        i--;
+                    }
+                    document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
+                });
+                hotkeys("down", "c_bar", () => {
+                    document.querySelectorAll("#app_path > div")[i % l].className = "";
+                    i++;
+                    document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
+                });
             }
         });
     });

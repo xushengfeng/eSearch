@@ -103,7 +103,8 @@ body {
     align-items: center;
     transition: var(--transition);
 }
-#app_path > div:hover {
+#app_path > div:hover,
+.app_h {
     background-color: var(--hover-color);
 }
 #app_path > div > img {
