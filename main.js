@@ -512,15 +512,17 @@ const template = [
               {
                   label: app.name,
                   submenu: [
-                      { role: "about" },
+                      { label: `关于 ${app.name}`, role: "about" },
                       { type: "separator" },
-                      { role: "services" },
+                      { label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," },
                       { type: "separator" },
-                      { role: "hide" },
-                      { role: "hideOthers" },
-                      { role: "unhide" },
+                      { label: "服务", role: "services" },
                       { type: "separator" },
-                      { role: "quit" },
+                      { label: `隐藏 ${app.name}`, role: "hide" },
+                      { label: "隐藏其他 ", role: "hideOthers" },
+                      { label: "全部显示", role: "unhide" },
+                      { type: "separator" },
+                      { label: `退出 ${app.name}`, role: "quit" },
                   ],
               },
           ]
@@ -546,7 +548,7 @@ const template = [
                 },
             },
             { type: "separator" },
-            ...(isMac ? [{ label: "退出", role: "close" }] : [{ label: "退出", role: "quit" }]),
+            { label: "关闭", role: "close" },
         ],
     },
     // { role: 'editMenu' }
@@ -571,24 +573,9 @@ const template = [
             { label: "剪切", role: "cut" },
             { label: "复制", role: "copy" },
             { label: "粘贴", role: "paste" },
-            ...(isMac
-                ? [
-                      { label: "粘贴并匹配样式", role: "pasteAndMatchStyle" },
-                      { label: "删除", role: "delete" },
-                      { label: "全选", role: "selectAll" },
-                      { type: "separator" },
-                      {
-                          label: "Speech",
-                          submenu: [
-                              { label: "开始朗读", role: "startSpeaking" },
-                              { label: "停止朗读", role: "stopSpeaking" },
-                          ],
-                      },
-                  ]
-                : [
-                      { label: "删除", role: "delete" },
-                      { label: "全选", role: "selectAll" },
-                  ]),
+            ...(isMac ? [{ label: "粘贴并匹配样式", role: "pasteAndMatchStyle" }] : []),
+            { label: "删除", role: "delete" },
+            { label: "全选", role: "selectAll" },
             {
                 label: "自动删除换行",
                 click: () => {
@@ -608,7 +595,7 @@ const template = [
                 click: () => {
                     main_edit("show_find");
                 },
-                accelerator: "CmdOrCtrl+H",
+                accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
             },
             { type: "separator" },
             {
@@ -617,6 +604,18 @@ const template = [
                     main_edit("wrap");
                 },
             },
+            { type: "separator" },
+            ...(isMac
+                ? [
+                      {
+                          label: "Speech",
+                          submenu: [
+                              { label: "开始朗读", role: "startSpeaking" },
+                              { label: "停止朗读", role: "stopSpeaking" },
+                          ],
+                      },
+                  ]
+                : []),
         ],
     },
     // { role: 'viewMenu' }
