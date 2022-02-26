@@ -242,108 +242,114 @@ function open_app() {
         dataBuffer = new Buffer(f, "base64");
         fs.writeFile(os.tmpdir() + "/tmp.png", dataBuffer, () => {
             const { exec } = require("child_process");
-            if (process.platform == "win32") {
-                document.getElementById("app_path").innerHTML = "";
-                var div1 = document.createElement("div");
-                div1.id = "default_app";
-                div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
-                div1.onclick = () => {
-                    shell.openPath(os.tmpdir() + "\\tmp.png");
-                    tool_close_f();
-                };
-                var div2 = document.createElement("div");
-                div2.id = "other_app";
-                div2.innerHTML = `<span>其他应用打开</span>`;
-                div2.onclick = () => {
-                    exec(
-                        `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${os.tmpdir() + "\\tmp.png"}`,
-                        (e) => {
-                            if (!e) tool_close_f();
-                        }
-                    );
-                };
-                document.getElementById("app_path").appendChild(div1);
-                document.getElementById("app_path").appendChild(div2);
-            } else if (process.platform == "linux") {
-                exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
-                    var app_l = s.replace("image/png=", "").split(";");
-                    app_l.pop();
-                    var grep_co = "";
-                    for (let i of app_l) {
-                        grep_co +=
+            switch (process.platform) {
+                case "win32":
+                    document.getElementById("app_path").innerHTML = "";
+                    var div1 = document.createElement("div");
+                    div1.id = "default_app";
+                    div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
+                    div1.onclick = () => {
+                        shell.openPath(os.tmpdir() + "\\tmp.png");
+                        tool_close_f();
+                    };
+                    var div2 = document.createElement("div");
+                    div2.id = "other_app";
+                    div2.innerHTML = `<span>其他应用打开</span>`;
+                    div2.onclick = () => {
+                        exec(
+                            `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${
+                                os.tmpdir() + "\\tmp.png"
+                            }`,
+                            (e) => {
+                                if (!e) tool_close_f();
+                            }
+                        );
+                    };
+                    document.getElementById("app_path").appendChild(div1);
+                    document.getElementById("app_path").appendChild(div2);
+                    break;
+                case "linux":
+                    exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
+                        var app_l = s.replace("image/png=", "").split(";");
+                        app_l.pop();
+                        var grep_co = "";
+                        for (let i of app_l) {
+                            grep_co +=
                             `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
                             grep 'Icon' /usr/share/applications/${i} -w && 
                             grep 'Exec' /usr/share/applications/${i} -w -m 1` + ";";
-                    }
-                    exec(grep_co, (e, s) => {
-                        append_app(s);
+                        }
+                        exec(grep_co, (e, s) => {
+                            append_app(s);
+                        });
                     });
-                });
-                function append_app(s) {
-                    document.getElementById("app_path").innerHTML = "";
-                    var l = s.split(/\n/);
-                    l.pop();
-                    for (i = 0; i < l.length; i += 3) {
-                        let name = l[i].replace(/Name\=/, ""),
-                            icon = l[i + 1].replace(/Icon\=/, ""),
-                            _exec = l[i + 2].replace(/Exec\=/, ""),
-                            div = document.createElement("div");
-                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png" 
+                    function append_app(s) {
+                        document.getElementById("app_path").innerHTML = "";
+                        var l = s.split(/\n/);
+                        l.pop();
+                        for (i = 0; i < l.length; i += 3) {
+                            let name = l[i].replace(/Name\=/, ""),
+                                icon = l[i + 1].replace(/Icon\=/, ""),
+                                _exec = l[i + 2].replace(/Exec\=/, ""),
+                                div = document.createElement("div");
+                            div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png" 
                                         onerror="this.src='./assets/default_app.svg';"><span>${name}</span>`;
-                        div.onclick = () => {
-                            var arg = _exec.match(/%\w/)
-                                ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")
-                                : _exec + os.tmpdir() + "/tmp.png";
-                            exec(arg, (e) => {
-                                if (!e) tool_close_f();
+                            div.onclick = () => {
+                                var arg = _exec.match(/%\w/)
+                                    ? _exec.replace(/%\w/, os.tmpdir() + "/tmp.png")
+                                    : _exec + os.tmpdir() + "/tmp.png";
+                                exec(arg, (e) => {
+                                    if (!e) tool_close_f();
+                                });
+                            };
+                            document.getElementById("app_path").appendChild(div);
+                        }
+                        var other_div = document.createElement("div");
+                        other_div.innerHTML = `<span>其他应用打开</span>`;
+                        other_div.onclick = () => {
+                            exec("echo $XDG_SESSION_DESKTOP", (e, s) => {
+                                switch (s) {
+                                    case "KDE\n":
+                                        exec(`cd ${__dirname}/lib/ && ./kde-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                        break;
+                                    case "GNOME\n":
+                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                        break;
+                                    default:
+                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
+                                        break;
+                                }
                             });
                         };
-                        document.getElementById("app_path").appendChild(div);
+                        document.getElementById("app_path").appendChild(other_div);
                     }
-                    var other_div = document.createElement("div");
-                    other_div.innerHTML = `<span>其他应用打开</span>`;
-                    other_div.onclick = () => {
-                        exec("echo $XDG_SESSION_DESKTOP", (e, s) => {
-                            switch (s) {
-                                case "KDE\n":
-                                    exec(`cd ${__dirname}/lib/ && ./kde-open-with ${os.tmpdir() + "/tmp.png"}`);
-                                    break;
-                                case "GNOME\n":
-                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
-                                    break;
-                                default:
-                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${os.tmpdir() + "/tmp.png"}`);
-                                    break;
-                            }
-                        });
-                    };
-                    document.getElementById("app_path").appendChild(other_div);
-                }
-            } else if (process.platform == "darwin") {
-                document.getElementById("app_path").innerHTML = "";
-                var div1 = document.createElement("div");
-                div1.id = "default_app";
-                div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
-                div1.onclick = () => {
-                    shell.openPath(os.tmpdir() + "/tmp.png");
-                    tool_close_f();
-                };
-                document.getElementById("app_path").appendChild(div1);
-
-                var div2 = document.createElement("div");
-                div2.id = "other_app";
-                div2.innerHTML = `<span>其他应用打开</span>`;
-                div2.onclick = () => {
-                    ipcRenderer.send("clip_main_b", "mac_app");
-                };
-                document.getElementById("app_path").appendChild(div2);
-                ipcRenderer.on("mac_app_path", (ev, c, paths) => {
-                    if (!c) {
+                    break;
+                case "darwin":
+                    document.getElementById("app_path").innerHTML = "";
+                    var div1 = document.createElement("div");
+                    div1.id = "default_app";
+                    div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
+                    div1.onclick = () => {
+                        shell.openPath(os.tmpdir() + "/tmp.png");
                         tool_close_f();
-                        var co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${os.tmpdir() + "/tmp.png"}`;
-                        exec(co);
-                    }
-                });
+                    };
+                    document.getElementById("app_path").appendChild(div1);
+
+                    var div2 = document.createElement("div");
+                    div2.id = "other_app";
+                    div2.innerHTML = `<span>其他应用打开</span>`;
+                    div2.onclick = () => {
+                        ipcRenderer.send("clip_main_b", "mac_app");
+                    };
+                    document.getElementById("app_path").appendChild(div2);
+                    ipcRenderer.on("mac_app_path", (ev, c, paths) => {
+                        if (!c) {
+                            tool_close_f();
+                            var co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${os.tmpdir() + "/tmp.png"}`;
+                            exec(co);
+                        }
+                    });
+                    break;
             }
         });
     });
