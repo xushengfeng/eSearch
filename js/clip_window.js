@@ -458,7 +458,6 @@ ipcRenderer.on("save_path", (event, message) => {
         });
         tool_close_f();
     }
-    document.getElementById("save_type").style.display = "none";
 });
 var svg;
 function get_clip_photo(type) {

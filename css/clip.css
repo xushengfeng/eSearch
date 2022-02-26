@@ -65,7 +65,7 @@ body {
     left: 50%;
     top: 35%;
     transform: translateX(-50%);
-    z-index: 99;
+    z-index: 111;
     pointer-events: none;
     background-color: var(--bar-bg);
     backdrop-filter: var(--blur);
