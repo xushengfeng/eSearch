@@ -67,6 +67,7 @@ input[type="range"] {
     width: 150px;
     border-radius: 10px;
     height: 20px;
+    box-shadow: var(--shadow);
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -76,7 +77,6 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-webkit-slider-runnable-track {
     height: 20px;
     border-radius: 10px;
-    border: #000 solid 1px;
     background-color: #0000;
 }
 
@@ -110,7 +110,10 @@ input[type="range"]::-webkit-slider-thumb {
     margin: 8px 8px 8px auto !important;
     border-radius: var(--border-radius);
     overflow: hidden;
-    border: var(--border);
+    transition: var(--transition);
+}
+#b:hover {
+    box-shadow: var(--shadow);
 }
 #b > button {
     border: none;
