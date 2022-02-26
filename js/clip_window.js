@@ -420,13 +420,14 @@ function tool_save_f() {
     document.getElementById("suffix").onclick = (e) => {
         if (e.target.dataset.value) {
             ipcRenderer.send("clip_main_b", "save", e.target.dataset.value);
+            type = e.target.dataset.value;
             s_center_bar("save");
         }
     };
     hotkeys.setScope("c_bar");
     var i = 0;
     hotkeys("enter", "c_bar", () => {
-        ipcRenderer.send("clip_main_b", "save", document.querySelector("#suffix > .suffix_h").dataset.value);
+        document.querySelector("#suffix > .suffix_h").click();
         s_center_bar("save");
     });
     hotkeys("up", "c_bar", () => {
@@ -447,13 +448,21 @@ ipcRenderer.on("save_path", (event, message) => {
     console.log(message);
     if (message) {
         get_clip_photo(type).then((c) => {
-            if (type == "svg") {
-                var dataBuffer = new Buffer(c, "UTF-8");
-                fs.writeFile(message, dataBuffer, () => {});
-            } else {
-                var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-                var dataBuffer = new Buffer(f, "base64");
-                fs.writeFile(message, dataBuffer, () => {});
+            switch (type) {
+                case "svg":
+                    var dataBuffer = new Buffer(c, "UTF-8");
+                    fs.writeFile(message, dataBuffer, () => {});
+                    break;
+                case "png":
+                    var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+                    var dataBuffer = new Buffer(f, "base64");
+                    fs.writeFile(message, dataBuffer, () => {});
+                    break;
+                case "jpg":
+                    var f = c.toDataURL("image/jpeg").replace(/^data:image\/\w+;base64,/, "");
+                    var dataBuffer = new Buffer(f, "base64");
+                    fs.writeFile(message, dataBuffer, () => {});
+                    break;
             }
         });
         tool_close_f();
