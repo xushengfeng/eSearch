@@ -806,11 +806,21 @@ hotkeys("esc", "drawing", () => {
 });
 
 // fabric命令行
+var edit_o = false;
 document.getElementById("draw_edit_b").onclick = () => {
-    o = !o;
-    if (o) {
+    edit_o = !edit_o;
+    if (edit_o) {
         document.querySelector("#draw_edit input").focus();
         s_center_bar(true, "edit");
+        hotkeys.filter = (event) => {
+            return event.target === document.querySelector("#draw_edit input");
+        };
+        hotkeys.setScope("c_bar");
+        hotkeys("enter", "c_bar", fabric_api);
+        hotkeys("esc", "c_bar", () => {
+            s_center_bar(false);
+            edit_o = false;
+        });
     } else {
         s_center_bar(false);
     }
@@ -818,16 +828,10 @@ document.getElementById("draw_edit_b").onclick = () => {
 document.querySelector("#draw_edit_run").onclick = () => {
     fabric_api();
 };
-document.querySelector("#draw_edit input").onkeydown = (e) => {
-    if (e.key == "Enter") {
-        fabric_api();
-    }
-};
 function fabric_api() {
     var e = document.querySelector("#draw_edit input").value;
-    if (e.includes("$0")) {
-        e = e.replace("$0", "fabric_canvas.getActiveObject()");
-    } else {
+    var $0 = fabric_canvas.getActiveObject();
+    if (!e.includes("$0")) {
         e = `fabric_canvas.getActiveObject().set({${e}})`;
     }
     eval(e);
