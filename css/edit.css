@@ -88,10 +88,3 @@
 #draw_filters_bs > div:hover {
     background-color: var(--hover-color);
 }
-
-.edit_s {
-    width: 280px;
-}
-#draw_edit_run {
-    background-image: url(../assets/draw_edit.svg);
-}

@@ -108,6 +108,36 @@ body {
     height: 100%;
     margin-right: 8px;
 }
+/* 命令 */
+#draw_edit {
+    display: flex;
+    align-items: center;
+}
+#draw_edit > input {
+    border: none;
+    height: 20px;
+    padding: 0;
+    margin: 0 4px;
+    background-color: #0000;
+    width: 300px;
+    font-size: 1rem;
+}
+#draw_edit_run {
+    border: none;
+    transition: var(--transition);
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-color: #0000;
+    flex-shrink: 0;
+    background-image: url(../assets/draw_edit.svg);
+}
+#draw_edit_run:hover {
+    background-color: var(--hover-color);
+}
 
 /* 工具 */
 #tool_bar {
@@ -333,23 +363,6 @@ video {
     width: 100%;
 }
 
-.input_bar {
-    transition: var(--transition);
-    overflow: hidden;
-}
-.input_bar > div {
-    display: flex;
-    align-items: center;
-}
-.input_bar > div > input {
-    border: none;
-    height: 20px;
-    padding: 0;
-    background-color: #0000;
-    width: 100%;
-    font-size: 1rem;
-}
-.input_bar > div > button,
 #toast > button {
     border: none;
     transition: var(--transition);
@@ -362,21 +375,11 @@ video {
     background-color: #0000;
     flex-shrink: 0;
 }
-.input_bar > div > button:hover,
 #toast > button:hover {
     background-color: var(--hover-color);
 }
 #toast > button {
     background-image: url(../assets/tool_close.svg);
-}
-#open_file {
-    background-image: url(../assets/open_file.svg);
-}
-#open {
-    background-image: url(../assets/open_open.svg);
-}
-#app_path > button:hover {
-    background-color: var(--hover-color);
 }
 
 @media (prefers-color-scheme: dark) {
