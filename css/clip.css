@@ -79,6 +79,9 @@ body {
     overflow: hidden;
 }
 /* 保存 */
+#save_type > #suffix > div {
+    padding: 0 4px;
+}
 #save_type > #suffix > div,
 #save_type > div:nth-child(1) {
     text-align: center;
