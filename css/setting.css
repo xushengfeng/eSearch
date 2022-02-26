@@ -12,6 +12,31 @@ body {
     position: fixed;
     bottom: 0;
 }
+
+#give_up_setting {
+    width: 40px;
+    height: 40px;
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background-image: url(../assets/give_up_setting.svg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#give_up_setting_b {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    box-shadow: none;
+}
+#give_up_setting:hover {
+    box-shadow: var(--shadow);
+}
+
 #setting_main {
     width: 70%;
     margin-left: 15%;

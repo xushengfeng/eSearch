@@ -248,9 +248,20 @@ document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
 };
 
+var give_up = false;
+document.getElementById("give_up_setting_b").oninput = () => {
+    give_up = document.getElementById("give_up_setting_b").checked;
+    if (give_up) {
+        document.getElementById("give_up_setting_b").title = "关闭此界面后将不保存部分设置值";
+    } else {
+        document.getElementById("give_up_setting_b").title = "不保存设置值";
+    }
+};
+
 window.onbeforeunload = save_setting;
 
 function save_setting() {
+    if (give_up) return;
     var 模糊 = document.querySelector("#模糊").value;
     store.set("模糊", 模糊);
     store.set("全局缩放", document.getElementById("全局缩放").value - 0);
