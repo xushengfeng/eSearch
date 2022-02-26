@@ -110,12 +110,15 @@ body {
 }
 /* 命令 */
 #draw_edit {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto 36px;
+    grid-template-rows: 36px auto;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
 }
 #draw_edit > input {
     border: none;
-    height: 20px;
+    height: 36px;
     padding: 0;
     margin: 0 4px;
     background-color: #0000;
@@ -137,6 +140,10 @@ body {
 }
 #draw_edit_run:hover {
     background-color: var(--hover-color);
+}
+#draw_edit_output {
+    grid-area: 2 / 1 / 3 / 3;
+    margin: 4px;
 }
 
 /* 工具 */

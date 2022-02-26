@@ -834,6 +834,8 @@ function fabric_api() {
     if (!e.includes("$0")) {
         e = `fabric_canvas.getActiveObject().set({${e}})`;
     }
-    eval(e);
+    var div = document.createElement("div");
+    div.innerText = eval(e);
+    document.getElementById("draw_edit_output").appendChild(div);
     fabric_canvas.renderAll();
 }
