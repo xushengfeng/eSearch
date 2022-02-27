@@ -811,6 +811,7 @@ function create_main_window(t, web_page) {
 
     main_window_l[window_name].on("closed", () => {
         delete main_window_l[window_name];
+        main_window_focus = null;
     });
 
     main_window_l[window_name].on("focus", () => {
