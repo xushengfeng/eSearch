@@ -446,7 +446,7 @@ ipcRenderer.on("save_path", (event, message) => {
                     fs.writeFile(message, dataBuffer, () => {});
                     break;
                 case "jpg":
-                    var f = c.toDataURL("image/jpeg").replace(/^data:image\/\w+;base64,/, "");
+                    var f = c.toDataURL("image/jpeg", store.get("jpg质量") - 0).replace(/^data:image\/\w+;base64,/, "");
                     var dataBuffer = new Buffer(f, "base64");
                     fs.writeFile(message, dataBuffer, () => {});
                     break;

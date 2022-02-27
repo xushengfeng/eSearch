@@ -1030,6 +1030,7 @@ var default_setting = {
     浏览器中打开: false,
     保存路径: app.getPath("pictures") + "/",
     保存名称: "eSearch-YYYY-MM-DD-HH-mm-ss-S",
+    jpg质量: 0.92,
     框选后默认操作: "no",
     快速截图: { 模式: "clip", 路径: "" },
     搜索引擎: [

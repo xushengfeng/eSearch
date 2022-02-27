@@ -155,6 +155,8 @@ function show_f_time() {
 }
 show_f_time();
 
+document.getElementById("jpg质量").value = store.get("jpg质量");
+
 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
@@ -274,6 +276,7 @@ function save_setting() {
     store.set("快速截图.模式", document.getElementById("快速截图").value);
     store.set("快速截图.路径", (document.getElementById("快速截图路径").value + "/").replace("//", "/"));
     store.set("保存名称", document.getElementById("保存文件名称").value.replace("//", "//"));
+    store.set("jpg质量", document.getElementById("jpg质量").value);
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
