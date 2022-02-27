@@ -144,6 +144,9 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 > 主界面搜索和其他应用编辑（视频约 1.6MB）
 
+![3](https://esearch.vercel.app/readme/4.png)
+
+> 主界面查找替换（支持正则）
 
 https://user-images.githubusercontent.com/28475549/155870885-d41bcbda-6124-4e29-ac19-694d27f6dba1.mp4
 
