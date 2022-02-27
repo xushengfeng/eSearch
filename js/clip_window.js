@@ -287,45 +287,45 @@ function open_app() {
                         });
                     });
                     function append_app(s) {
-                        document.getElementById("app_path").innerHTML = "";
-                        var l = s.split(/\n/);
-                        l.pop();
-                        for (i = 0; i < l.length; i += 3) {
-                            let name = l[i].replace(/Name\=/, ""),
-                                icon = l[i + 1].replace(/Icon\=/, ""),
-                                _exec = l[i + 2].replace(/Exec\=/, ""),
-                                div = document.createElement("div");
-                            div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png" 
+                        exec("echo $XDG_SESSION_DESKTOP", (e, disk) => {
+                            switch (disk) {
+                                case "KDE\n":
+                                    document.getElementById("app_path").innerHTML = "";
+                                    var l = s.split(/\n/);
+                                    l.pop();
+                                    for (i = 0; i < l.length; i += 3) {
+                                        let name = l[i].replace(/Name\=/, ""),
+                                            icon = l[i + 1].replace(/Icon\=/, ""),
+                                            _exec = l[i + 2].replace(/Exec\=/, ""),
+                                            div = document.createElement("div");
+                                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png" 
                                         onerror="this.src='./assets/default_app.svg';"><span>${name}</span>`;
-                            div.onclick = () => {
-                                var arg = _exec.match(/%\w/)
-                                    ? _exec.replace(/%\w/, tmpdir + "/tmp.png")
-                                    : _exec + tmpdir + "/tmp.png";
-                                exec(arg, (e) => {
-                                    if (!e) tool_close_f();
-                                });
-                            };
-                            document.getElementById("app_path").appendChild(div);
-                        }
-                        var other_div = document.createElement("div");
-                        other_div.innerHTML = `<span>其他应用打开</span>`;
-                        other_div.onclick = () => {
-                            exec("echo $XDG_SESSION_DESKTOP", (e, s) => {
-                                switch (s) {
-                                    case "KDE\n":
+                                        div.onclick = () => {
+                                            var arg = _exec.match(/%\w/)
+                                                ? _exec.replace(/%\w/, tmpdir + "/tmp.png")
+                                                : _exec + tmpdir + "/tmp.png";
+                                            exec(arg, (e) => {
+                                                if (!e) tool_close_f();
+                                            });
+                                        };
+                                        document.getElementById("app_path").appendChild(div);
+                                    }
+                                    var other_div = document.createElement("div");
+                                    other_div.innerHTML = `<span>其他应用打开</span>`;
+                                    other_div.onclick = () => {
                                         exec(`cd ${__dirname}/lib/ && ./kde-open-with ${tmpdir + "/tmp.png"}`);
-                                        break;
-                                    case "GNOME\n":
-                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
-                                        break;
-                                    default:
-                                        exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
-                                        break;
-                                }
-                            });
-                        };
-                        document.getElementById("app_path").appendChild(other_div);
-                        set_hotkey();
+                                    };
+                                    document.getElementById("app_path").appendChild(other_div);
+                                    set_hotkey();
+                                    break;
+                                case "GNOME\n":
+                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
+                                    break;
+                                default:
+                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
+                                    break;
+                            }
+                        });
                     }
                     break;
                 case "darwin":
