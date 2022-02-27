@@ -562,6 +562,12 @@ const template = [
                     main_edit("edit_on_other");
                 },
             },
+            {
+                label: "打开方式...",
+                click: () => {
+                    main_edit("choose_editer");
+                },
+            },
             { type: "separator" },
             { label: "关闭", role: "close" },
         ],
