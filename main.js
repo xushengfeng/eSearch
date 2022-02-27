@@ -301,8 +301,7 @@ function create_clip_window() {
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
             case "window-close":
-                clip_window.setSimpleFullScreen(false);
-                clip_window.hide();
+                n_full_screen();
                 break;
             case "ocr":
                 ocr(event, arg);
@@ -330,8 +329,7 @@ function create_clip_window() {
                 break;
             case "save":
                 var saved_path = store.get("保存路径") || "";
-                clip_window.setSimpleFullScreen(false);
-                clip_window.hide();
+                n_full_screen();
                 dialog
                     .showSaveDialog({
                         title: "选择要保存的位置",
@@ -368,8 +366,7 @@ function create_clip_window() {
                 create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
             case "mac_app":
-                clip_window.setSimpleFullScreen(false);
-                clip_window.hide();
+                n_full_screen();
                 dialog
                     .showOpenDialog({
                         defaultPath: "/Applications",
@@ -420,6 +417,11 @@ function full_screen() {
     clip_window.setSimpleFullScreen(true);
     x = null;
     port = store.get("端口");
+}
+
+function n_full_screen() {
+    clip_window.setSimpleFullScreen(false);
+    clip_window.hide();
 }
 
 function check_service_no() {
