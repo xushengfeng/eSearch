@@ -9,6 +9,7 @@ ipcRenderer.on("reflash", () => {
     final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
     rect_history_n = 0;
     ratio = window.devicePixelRatio;
+    document.querySelector("#mouse_bar").style.display = "flex";
 });
 
 const Color = require("color");
@@ -424,7 +425,6 @@ document.onmousemove = (e) => {
             mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
         }
         // 鼠标跟随栏
-        document.querySelector("#mouse_bar").style.display = "flex";
 
         var x = e.clientX + 16;
         var y = e.clientY + 16;

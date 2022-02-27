@@ -414,10 +414,12 @@ function full_screen() {
     if (clip_window == null) {
         create_clip_window();
     }
-    var x = robot.screen.capture();
-    clip_window.webContents.send("reflash", x.image, x.width, x.height);
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
+    var x = robot.screen.capture();
+    clip_window.webContents.send("reflash", x.image, x.width, x.height);
+    x = null;
+    clip_window.focus()
     port = store.get("端口");
 }
 
