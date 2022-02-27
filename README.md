@@ -118,15 +118,19 @@ e-search
 -   [ ] Wayland 桌面(为什么 electron 截不了 wayland!)
 -   [ ] 独立于 electron 的截图 api
 
-<video src="https://esearch.vercel.app/readme/1.mp4"></video>
+https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
+
 
 > 截图，自由调整框选大小（视频约 2.6MB）
 
-<video src="https://esearch.vercel.app/readme/3.mp4"></video>
+https://user-images.githubusercontent.com/28475549/155870857-99c7d6d0-a90b-4558-872a-85f2603225d6.mp4
+
 
 > 取色器（视频约 1MB）
 
-<video src="https://esearch.vercel.app/readme/2.mp4"></video>
+
+https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-9ae9-ee3af5a5c08e.mp4
+
 
 > Ding 在屏幕上，透明度调节、归位以及鼠标操作（视频约 1.8MB）
 
@@ -134,11 +138,15 @@ e-search
 
 > 绘图界面
 
-<video src="https://esearch.vercel.app/readme/4.mp4"></video>
+
+https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-8076-ed49b7b5c4c0.mp4
+
 
 > 主界面搜索和其他应用编辑（视频约 1.6MB）
 
-<video src="https://esearch.vercel.app/readme/5.mp4"></video>
+
+https://user-images.githubusercontent.com/28475549/155870885-d41bcbda-6124-4e29-ac19-694d27f6dba1.mp4
+
 
 > 其他应用打开（Linux 可以列出诸多应用，Win 和 mac 不会列出，但可以自选打开更多应用）（视频约 1.6MB）
 
