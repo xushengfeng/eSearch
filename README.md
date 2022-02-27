@@ -8,11 +8,11 @@ eSearch是[Information-portal](https://github.com/xushengfeng/Information-portal
 
 主要是想在Linux上(win,mac理论上能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的屏幕搜索功能，当然也是一款方便的截图软件
 
-![截屏界面](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/1.png)
+![截屏界面](https://esearch.vercel.app/readme/1.png)
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
-![识别文字主界面](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/2.png)
+![识别文字主界面](https://esearch.vercel.app/readme/2.png)
 
 ## 下载安装
 
@@ -114,19 +114,19 @@ e-search
 - [ ] Wayland桌面(为什么electron截不了wayland!)
 - [ ] 独立于electron的截图api
 
-![4](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/4.gif)
+![4](https://esearch.vercel.app/readme/4.gif)
 
 > 截图，自由调整框选大小
 
-![5](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/5.gif)
+![5](https://esearch.vercel.app/readme/5.gif)
 
 > 取色器
 
-![6](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/6.gif)
+![6](https://esearch.vercel.app/readme/6.git)
 
 > ding在屏幕上
 
-![3](https://raw.fastgit.org/xushengfeng/eSearch-website/master/readme/3.png)
+![3](https://esearch.vercel.app/readme/3.png)
 
 > 绘图界面
 
