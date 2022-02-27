@@ -246,30 +246,14 @@ function open_app() {
             const { exec } = require("child_process");
             switch (process.platform) {
                 case "win32":
-                    document.getElementById("app_path").innerHTML = "";
-                    var div1 = document.createElement("div");
-                    div1.id = "default_app";
-                    div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
-                    div1.onclick = () => {
-                        shell.openPath(tmpdir + "/tmp.png");
-                        tool_close_f();
-                    };
-                    var div2 = document.createElement("div");
-                    div2.id = "other_app";
-                    div2.innerHTML = `<span>其他应用打开</span>`;
-                    div2.onclick = () => {
-                        exec(
-                            `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${
-                                tmpdir.replace("/", "\\") + "\\tmp.png"
-                            }`,
-                            (e) => {
-                                if (!e) tool_close_f();
-                            }
-                        );
-                    };
-                    document.getElementById("app_path").appendChild(div1);
-                    document.getElementById("app_path").appendChild(div2);
-                    set_hotkey();
+                    exec(
+                        `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${
+                            tmpdir.replace("/", "\\") + "\\tmp.png"
+                        }`,
+                        (e) => {
+                            if (!e) tool_close_f();
+                        }
+                    );
                     break;
                 case "linux":
                     exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
@@ -329,24 +313,7 @@ function open_app() {
                     }
                     break;
                 case "darwin":
-                    document.getElementById("app_path").innerHTML = "";
-                    var div1 = document.createElement("div");
-                    div1.id = "default_app";
-                    div1.innerHTML = `<img src="./assets/default_app.svg"><span>默认看图软件</span>`;
-                    div1.onclick = () => {
-                        shell.openPath(tmpdir + "/tmp.png");
-                        tool_close_f();
-                    };
-                    document.getElementById("app_path").appendChild(div1);
-
-                    var div2 = document.createElement("div");
-                    div2.id = "other_app";
-                    div2.innerHTML = `<span>其他应用打开</span>`;
-                    div2.onclick = () => {
-                        ipcRenderer.send("clip_main_b", "mac_app");
-                    };
-                    document.getElementById("app_path").appendChild(div2);
-                    set_hotkey();
+                    ipcRenderer.send("clip_main_b", "mac_app");
                     ipcRenderer.on("mac_app_path", (ev, c, paths) => {
                         if (!c) {
                             tool_close_f();
