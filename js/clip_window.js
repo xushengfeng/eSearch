@@ -170,6 +170,7 @@ if (auto_do != "no") {
 
 // 关闭
 function tool_close_f() {
+    document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
     setTimeout(() => {
         ipcRenderer.send("clip_main_b", "window-close");
         location.reload();

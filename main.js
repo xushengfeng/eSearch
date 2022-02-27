@@ -271,6 +271,8 @@ var clip_window = null;
 function create_clip_window() {
     clip_window = new BrowserWindow({
         icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        width: screen.getPrimaryDisplay().workAreaSize.width,
+        height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
         alwaysOnTop: true,
         fullscreenable: true,
