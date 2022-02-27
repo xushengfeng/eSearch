@@ -256,24 +256,20 @@ function open_app() {
                     );
                     break;
                 case "linux":
-                    exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
-                        var app_l = s.replace("image/png=", "").split(";");
-                        app_l.pop();
-                        var grep_co = "";
-                        for (let i of app_l) {
-                            grep_co +=
-                                `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
+                    // 判断桌面环境
+                    exec("echo $XDG_SESSION_DESKTOP", (e, disk) => {
+                        if (disk == "KDE\n") {
+                            exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
+                                var app_l = s.replace("image/png=", "").split(";");
+                                app_l.pop();
+                                var grep_co = "";
+                                for (let i of app_l) {
+                                    grep_co +=
+                                        `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
                             grep 'Icon' /usr/share/applications/${i} -w && 
                             grep 'Exec' /usr/share/applications/${i} -w -m 1` + ";";
-                        }
-                        exec(grep_co, (e, s) => {
-                            append_app(s);
-                        });
-                    });
-                    function append_app(s) {
-                        exec("echo $XDG_SESSION_DESKTOP", (e, disk) => {
-                            switch (disk) {
-                                case "KDE\n":
+                                }
+                                exec(grep_co, (e, s) => {
                                     document.getElementById("app_path").innerHTML = "";
                                     var l = s.split(/\n/);
                                     l.pop();
@@ -301,16 +297,12 @@ function open_app() {
                                     };
                                     document.getElementById("app_path").appendChild(other_div);
                                     set_hotkey();
-                                    break;
-                                case "GNOME\n":
-                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
-                                    break;
-                                default:
-                                    exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
-                                    break;
-                            }
-                        });
-                    }
+                                });
+                            });
+                        } else {
+                            exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
+                        }
+                    });
                     break;
                 case "darwin":
                     ipcRenderer.send("clip_main_b", "mac_app");
