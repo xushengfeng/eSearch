@@ -221,12 +221,12 @@ function tool_draw_f() {
     if (drawing) {
         document.getElementById("tool_draw").className = "hover_b";
         document.getElementById("draw_bar").style.height = "360px";
-        document.querySelector("#draw_photo_top").style.zIndex = "11";
+        document.getElementById("clip_photo").style.pointerEvents = "none";
         hotkeys.setScope("drawing");
     } else {
         document.getElementById("tool_draw").className = "";
         document.getElementById("draw_bar").style.height = "0";
-        document.querySelector("#draw_photo_top").style.zIndex = "9";
+        document.getElementById("clip_photo").style.pointerEvents = "auto";
         hotkeys.setScope("normal");
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();

@@ -254,6 +254,7 @@ body {
     cursor: crosshair;
 }
 #draw_photo_top {
+    z-index: 9;
     position: absolute;
 }
 video {
