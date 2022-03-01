@@ -259,46 +259,7 @@ function open_app() {
                     // 判断桌面环境
                     exec("echo $XDG_SESSION_DESKTOP", (e, disk) => {
                         if (disk == "KDE\n") {
-                            exec(`grep 'image/png' /usr/share/applications/mimeinfo.cache`, (e, s) => {
-                                var app_l = s.replace("image/png=", "").split(";");
-                                app_l.pop();
-                                var grep_co = "";
-                                for (let i of app_l) {
-                                    grep_co +=
-                                        `grep '^Name=' /usr/share/applications/${i} -E -m 1 && 
-                            grep 'Icon' /usr/share/applications/${i} -w && 
-                            grep 'Exec' /usr/share/applications/${i} -w -m 1` + ";";
-                                }
-                                exec(grep_co, (e, s) => {
-                                    document.getElementById("app_path").innerHTML = "";
-                                    var l = s.split(/\n/);
-                                    l.pop();
-                                    for (i = 0; i < l.length; i += 3) {
-                                        let name = l[i].replace(/Name\=/, ""),
-                                            icon = l[i + 1].replace(/Icon\=/, ""),
-                                            _exec = l[i + 2].replace(/Exec\=/, ""),
-                                            div = document.createElement("div");
-                                        div.innerHTML = `<img src="/usr/share/icons/hicolor/48x48/apps/${icon}.png" 
-                                        onerror="this.src='./assets/default_app.svg';"><span>${name}</span>`;
-                                        div.onclick = () => {
-                                            var arg = _exec.match(/%\w/)
-                                                ? _exec.replace(/%\w/, tmpdir + "/tmp.png")
-                                                : _exec + tmpdir + "/tmp.png";
-                                            exec(arg, (e) => {
-                                                if (!e) tool_close_f();
-                                            });
-                                        };
-                                        document.getElementById("app_path").appendChild(div);
-                                    }
-                                    var other_div = document.createElement("div");
-                                    other_div.innerHTML = `<span>其他应用打开</span>`;
-                                    other_div.onclick = () => {
-                                        exec(`cd ${__dirname}/lib/ && ./kde-open-with ${tmpdir + "/tmp.png"}`);
-                                    };
-                                    document.getElementById("app_path").appendChild(other_div);
-                                    set_hotkey();
-                                });
-                            });
+                            exec(`cd ${__dirname}/lib/ && ./kde-open-with ${tmpdir + "/tmp.png"}`);
                         } else {
                             exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
                         }
