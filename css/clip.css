@@ -288,7 +288,7 @@ video {
     border-radius: 6px;
 }
 #point_color_t_c {
-    outline: 2px #000 solid;
+    box-shadow: #000 0 0 0 1px, #fff 0 0 0 2px;
     position: relative;
     z-index: 2;
 }
