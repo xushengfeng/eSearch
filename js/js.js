@@ -625,21 +625,22 @@ setInterval(() => {
 
 var edit_on_other_type = null;
 var file_watcher = null;
-var path = `${os.tmpdir()}/eSearch/eSearch_${new Date().getTime()}.txt`;
+const path = require("path");
+var tmp_text_path = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
 var editing_on_other = false;
 function edit_on_other() {
     editing_on_other = !editing_on_other;
     if (editing_on_other) {
         var data = Buffer.from(document.getElementById("text").innerText);
-        fs.writeFile(path, data, () => {
+        fs.writeFile(tmp_text_path, data, () => {
             if (edit_on_other_type == "o") {
-                shell.openPath(path);
+                shell.openPath(tmp_text_path);
             } else if (edit_on_other_type == "c") {
                 var open_with = require("./lib/open_with");
-                open_with(path);
+                open_with(tmp_text_path);
             }
-            file_watcher = fs.watch(path, () => {
-                fs.readFile(path, "utf8", (e, data) => {
+            file_watcher = fs.watch(tmp_text_path, () => {
+                fs.readFile(tmp_text_path, "utf8", (e, data) => {
                     if (e) console.log(e);
                     document.getElementById("text").innerText = data;
                 });
@@ -661,7 +662,7 @@ function edit_on_other() {
                 edit_on_other();
             });
             file_watcher.close();
-            fs.unlink(path, () => {});
+            fs.unlink(tmp_text_path, () => {});
         } catch {}
     }
 }

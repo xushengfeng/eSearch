@@ -237,14 +237,15 @@ function tool_open_f() {
     open_app();
 }
 
-const tmpdir = os.tmpdir() + "/eSearch";
+const path = require("path");
+const tmp_photo = path.join(os.tmpdir(), "/eSearch/tmp.png");
 function open_app() {
     get_clip_photo("png").then((c) => {
         f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         dataBuffer = new Buffer(f, "base64");
-        fs.writeFile(tmpdir + "/tmp.png", dataBuffer, () => {
+        fs.writeFile(tmp_photo, dataBuffer, () => {
             var open = require("./lib/open_with");
-            if (open(tmpdir + "/tmp.png")) tool_close_f();
+            if (open(tmp_photo)) tool_close_f();
         });
     });
 }
