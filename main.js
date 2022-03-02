@@ -121,8 +121,8 @@ var port = 8080;
 app.whenReady().then(() => {
     // 托盘
     tray =
-        process.platform != "darwin"
-            ? new Tray(`${run_path}/assets/icons/64x64.png`)
+        process.platform == "linux"
+            ? new Tray(`${run_path}/assets/icons/32x32.png`)
             : new Tray(`${run_path}/assets/icons/16x16.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -266,11 +266,18 @@ app.on("will-quit", () => {
     }
 });
 
+var the_icon = null;
+if (process.platform == "win32") {
+    the_icon = path.join(run_path, "assets/icons/icon.ico");
+} else {
+    the_icon = path.join(run_path, "assets/icons/1024x1024.png");
+}
+
 // 截图窗口
 var clip_window = null;
 function create_clip_window() {
     clip_window = new BrowserWindow({
-        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        icon: the_icon,
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
@@ -708,7 +715,7 @@ ding_windows_l = { dock: [0, 0, 10, 50] };
 function create_ding_window(x, y, w, h, img) {
     if (Object.keys(ding_windows_l).length == 1) {
         ding_window = new BrowserWindow({
-            icon: path.join(run_path, "assets/icons/1024x1024.png"),
+            icon: the_icon,
             simpleFullscreen: true,
             fullscreen: true,
             transparent: true,
@@ -794,7 +801,7 @@ function create_main_window(t, web_page) {
         width: 800,
         height: 600,
         minWidth: 800,
-        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -881,7 +888,7 @@ function open_in_browser() {
 // 设置窗口
 function create_setting_window(about) {
     const main_window = new BrowserWindow({
-        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -901,7 +908,7 @@ function create_setting_window(about) {
 // 帮助窗口
 function create_help_window() {
     const main_window = new BrowserWindow({
-        icon: path.join(run_path, "assets/icons/1024x1024.png"),
+        icon: the_icon,
         width: 1000,
         height: 800,
         webPreferences: {
