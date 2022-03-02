@@ -623,15 +623,21 @@ setInterval(() => {
     }
 }, 6000);
 
+var edit_on_other_type = null;
 var file_watcher = null;
-var path = `${os.tmpdir()}/eSearch/eSearch_${new Date().getTime()}.eSearch`;
+var path = `${os.tmpdir()}/eSearch/eSearch_${new Date().getTime()}.txt`;
 var editing_on_other = false;
 function edit_on_other() {
     editing_on_other = !editing_on_other;
     if (editing_on_other) {
         var data = Buffer.from(document.getElementById("text").innerText);
         fs.writeFile(path, data, () => {
-            shell.openPath(path);
+            if (edit_on_other_type == "o") {
+                shell.openPath(path);
+            } else if (edit_on_other_type == "c") {
+                var open_with = require("./lib/open_with");
+                open_with(path);
+            }
             file_watcher = fs.watch(path, () => {
                 fs.readFile(path, "utf8", (e, data) => {
                     if (e) console.log(e);
@@ -691,6 +697,11 @@ ipcRenderer.on("edit", (event, arg) => {
             delete_enter();
             break;
         case "edit_on_other":
+            edit_on_other_type = "o";
+            edit_on_other();
+            break;
+        case "choose_editer":
+            edit_on_other_type = "c";
             edit_on_other();
             break;
         case "wrap":
