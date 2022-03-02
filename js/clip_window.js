@@ -243,63 +243,8 @@ function open_app() {
         f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         dataBuffer = new Buffer(f, "base64");
         fs.writeFile(tmpdir + "/tmp.png", dataBuffer, () => {
-            const { exec } = require("child_process");
-            switch (process.platform) {
-                case "win32":
-                    exec(
-                        `rundll32.exe C:\\Windows\\system32\\shell32.dll,OpenAs_RunDLL ${
-                            tmpdir.replace("/", "\\") + "\\tmp.png"
-                        }`,
-                        (e) => {
-                            if (!e) tool_close_f();
-                        }
-                    );
-                    break;
-                case "linux":
-                    // 判断桌面环境
-                    exec("echo $XDG_SESSION_DESKTOP", (e, disk) => {
-                        if (disk == "KDE\n") {
-                            exec(`cd ${__dirname}/lib/ && ./kde-open-with ${tmpdir + "/tmp.png"}`);
-                        } else {
-                            exec(`cd ${__dirname}/lib/ && ./gtk-open-with ${tmpdir + "/tmp.png"}`);
-                        }
-                    });
-                    break;
-                case "darwin":
-                    ipcRenderer.send("clip_main_b", "mac_app");
-                    ipcRenderer.on("mac_app_path", (ev, c, paths) => {
-                        if (!c) {
-                            tool_close_f();
-                            var co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${tmpdir + "/tmp.png"}`;
-                            exec(co);
-                        }
-                    });
-                    break;
-            }
-            function set_hotkey() {
-                s_center_bar("app");
-                hotkeys.setScope("c_bar");
-                var i = 0,
-                    l = document.querySelectorAll("#app_path > div").length;
-                document.querySelectorAll("#app_path > div")[i].className = "app_h";
-                hotkeys("enter", "c_bar", () => {
-                    document.querySelector("#app_path > .app_h").click();
-                    s_center_bar("app");
-                });
-                hotkeys("up", "c_bar", () => {
-                    document.querySelectorAll("#app_path > div")[i % l].className = "";
-                    i = i == 0 ? l - 1 : i - 1;
-                    document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
-                });
-                hotkeys("down", "c_bar", () => {
-                    document.querySelectorAll("#app_path > div")[i % l].className = "";
-                    i++;
-                    document.querySelectorAll("#app_path > div")[i % l].className = "app_h";
-                });
-                hotkeys("esc", "c_bar", () => {
-                    s_center_bar("app");
-                });
-            }
+            var open = require("./lib/open_with");
+            if (open(tmpdir + "/tmp.png")) tool_close_f();
         });
     });
 }
