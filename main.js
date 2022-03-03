@@ -856,12 +856,13 @@ function main_edit(m) {
 }
 
 var focused_search_window = null;
-ipcMain.on("open_url", (event, url) => {
+ipcMain.on("open_url", async (event, url) => {
     const search_window = new BrowserWindow({
         webPreferences: {
             sandbox: true,
         },
     });
+    await search_window.webContents.session.setProxy(store.get("proxy"));
     search_window.loadURL(url);
     search_window.on("focus", () => {
         focused_search_window = search_window;
@@ -869,7 +870,8 @@ ipcMain.on("open_url", (event, url) => {
     search_window.on("blur", () => {
         focused_search_window = null;
     });
-    search_window.webContents.on("did-create-window", (child_window) => {
+    search_window.webContents.on("did-create-window", async (child_window) => {
+        await child_window.webContents.session.setProxy(store.get("proxy"));
         child_window.on("focus", () => {
             focused_search_window = child_window;
         });
@@ -1065,6 +1067,11 @@ var default_setting = {
         h: 0,
     },
     ding_dock: [0, 0],
+    proxy: {
+        pacScript: "",
+        proxyRules: "",
+        proxyBypassRules: "",
+    },
 };
 function set_default_setting() {
     for (i in default_setting) {
