@@ -245,7 +245,7 @@ function open_app() {
         dataBuffer = new Buffer(f, "base64");
         fs.writeFile(tmp_photo, dataBuffer, () => {
             var open = require("./lib/open_with");
-            if (open(tmp_photo)) tool_close_f();
+            open(tmp_photo);
         });
     });
 }
