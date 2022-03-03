@@ -36,45 +36,6 @@
   },
   "rebuild": "npm rebuild --runtime=electron --target=17.0.0 --disturl=https://atom.io/download/atom-shell --abi=102",
   "config": {
-    "forge": {
-      "packagerConfig": {
-        "icon": "assets/icons/icon"
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "name": "e-search",
-            "productName": "eSearch",
-            "categories": [
-              "Graphics",
-              "System",
-              "Utility"
-            ],
-            "icon": "assets/icons/1024x1024.png"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {
-            "name": "e-search",
-            "productName": "eSearch",
-            "categories": [
-              "Graphics",
-              "System",
-              "Utility"
-            ],
-            "icon": "assets/icons/1024x1024.png"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-dmg",
-          "config": {
-            "icon": "assets/icons/icon.icns",
-            "overwrite": true
-          }
-        }
-      ]
-    }
+    "forge": "./forge.config.js"
   }
 }
