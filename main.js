@@ -862,7 +862,7 @@ ipcMain.on("open_url", async (event, url) => {
             sandbox: true,
         },
     });
-    await search_window.webContents.session.setProxy(store.get("proxy"));
+    if (store.get("开启代理")) await search_window.webContents.session.setProxy(store.get("代理"));
     search_window.loadURL(url);
     search_window.on("focus", () => {
         focused_search_window = search_window;
@@ -871,7 +871,7 @@ ipcMain.on("open_url", async (event, url) => {
         focused_search_window = null;
     });
     search_window.webContents.on("did-create-window", async (child_window) => {
-        await child_window.webContents.session.setProxy(store.get("proxy"));
+        if (store.get("开启代理")) await child_window.webContents.session.setProxy(store.get("代理"));
         child_window.on("focus", () => {
             focused_search_window = child_window;
         });
@@ -1067,7 +1067,8 @@ var default_setting = {
         h: 0,
     },
     ding_dock: [0, 0],
-    proxy: {
+    开启代理: false,
+    代理: {
         pacScript: "",
         proxyRules: "",
         proxyBypassRules: "",

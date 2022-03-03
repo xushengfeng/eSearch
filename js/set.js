@@ -246,6 +246,12 @@ document.getElementById("clear_his").onclick = () => {
     store.set("历史记录", []);
 };
 
+document.getElementById("代理").checked = store.get("开启代理");
+var 代理 = store.get("代理");
+document.getElementById("pacScript").value = 代理.pacScript;
+document.getElementById("proxyRules").value = 代理.proxyRules;
+document.getElementById("proxyBypassRules").value = 代理.proxyBypassRules;
+
 document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
 };
@@ -290,6 +296,12 @@ function save_setting() {
     store.set("检查OCR", document.getElementById("检查OCR").checked);
     store.set("自动运行命令", document.getElementById("自动运行命令").value);
     store.set("端口", document.getElementById("端口").value - 0);
+    store.set("开启代理", document.getElementById("代理").checked);
+    store.set("代理", {
+        pacScript: document.getElementById("pacScript").value,
+        proxyRules: document.getElementById("proxyRules").value,
+        proxyBypassRules: document.getElementById("proxyBypassRules").value,
+    });
     ipcRenderer.send("setting", "reload_main");
 }
 
