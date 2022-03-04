@@ -255,6 +255,8 @@ app.whenReady().then(() => {
     // tmp目录
     if (!fs.existsSync(os.tmpdir() + "/eSearch")) fs.mkdir(os.tmpdir() + "/eSearch", () => {});
     create_clip_window();
+
+    nativeTheme.themeSource = store.get("深色模式");
 });
 
 app.on("will-quit", () => {
@@ -1010,17 +1012,8 @@ ipcMain.on("get_save_path", (event, path) => {
 });
 
 ipcMain.on("theme", (e, v) => {
-    switch (v) {
-        case "auto":
-            nativeTheme.themeSource = "system";
-            break;
-        case "light":
-            nativeTheme.themeSource = "light";
-            break;
-        case "dark":
-            nativeTheme.themeSource = "dark";
-            break;
-    }
+    nativeTheme.themeSource = v;
+    store.set("深色模式", v);
 });
 
 // 默认设置
@@ -1088,6 +1081,7 @@ var default_setting = {
         proxyRules: "",
         proxyBypassRules: "",
     },
+    深色模式: "system",
 };
 function set_default_setting() {
     for (i in default_setting) {

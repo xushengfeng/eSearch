@@ -17,6 +17,7 @@ document.getElementById("autostart").oninput = () => {
     ipcRenderer.send("autostart", "set", document.getElementById("autostart").checked);
 };
 
+document.getElementById("深色模式").value = store.get("深色模式");
 document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", document.getElementById("深色模式").value);
 };
