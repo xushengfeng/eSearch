@@ -12,6 +12,7 @@ const {
     net,
     shell,
     nativeImage,
+    nativeTheme,
 } = require("electron");
 const { Buffer } = require("buffer");
 var robot = require("robotjs");
@@ -1006,6 +1007,20 @@ ipcMain.on("get_save_path", (event, path) => {
         .then((x) => {
             if (x.filePaths) event.sender.send("get_save_path", x.filePaths[0] + "/");
         });
+});
+
+ipcMain.on("theme", (e, v) => {
+    switch (v) {
+        case "auto":
+            nativeTheme.themeSource = "system";
+            break;
+        case "light":
+            nativeTheme.themeSource = "light";
+            break;
+        case "dark":
+            nativeTheme.themeSource = "dark";
+            break;
+    }
 });
 
 // 默认设置
