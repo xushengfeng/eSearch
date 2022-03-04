@@ -1,4 +1,4 @@
-const { shell, ipcRenderer } = require("electron");
+const { shell, ipcRenderer, nativeTheme } = require("electron");
 const os = require("os");
 
 document.getElementById("set_default_setting").onclick = () => {
@@ -15,6 +15,20 @@ ipcRenderer.on("开机启动状态", (event, v) => {
 });
 document.getElementById("autostart").oninput = () => {
     ipcRenderer.send("autostart", "set", document.getElementById("autostart").checked);
+};
+
+document.getElementById("深色模式").oninput = () => {
+    switch (document.getElementById("深色模式").value) {
+        case "auto":
+            nativeTheme.themeSource = "system";
+            break;
+        case "light":
+            nativeTheme.themeSource = "light";
+            break;
+        case "drak":
+            nativeTheme.themeSource = "dark";
+            break;
+    }
 };
 
 模糊 = store.get("模糊");
