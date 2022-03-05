@@ -430,7 +430,8 @@ function dock_i() {
                             div.style.transition = "";
                         }, 400);
                         div.classList.remove("minimize");
-                        ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+                        if (!i_ignore_v)
+                            ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
                     } else {
                         back(div);
                     }
