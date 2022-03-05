@@ -23,6 +23,7 @@ html,
 body {
     margin: 0;
     font-family: var(--main-font);
+    color: var(--color);
 }
 
 #tab_bar {
@@ -98,10 +99,13 @@ kbd {
 
 button {
     outline: none;
+    color: var(--color);
 }
 
 input {
     outline: none;
+    background-color: #0000;
+    color: var(--color);
 }
 
 select {
@@ -110,4 +114,28 @@ select {
 
 textarea {
     outline: none;
+    background-color: #0000;
+    color: var(--color);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bar-bg: #0009;
+        --hover-color: #fff2;
+        --bg: #000;
+        --bg2: #0f0f0f;
+        --hover-color2: #222;
+        --shadow: #fff5 0 0 4px;
+        --color: #fff;
+        --color2: #aaa;
+        --border: 1px #fff solid;
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background: #222d;
+    }
+    kbd {
+        box-shadow: 0 5px #fff4;
+        background: linear-gradient(315deg, #191919, #000);
+    }
 }

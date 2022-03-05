@@ -7,6 +7,7 @@ body {
 }
 body {
     overflow: overlay;
+    color: var(--color);
 }
 #tab_bar {
     position: fixed;
@@ -19,7 +20,7 @@ body {
     position: fixed;
     right: 16px;
     bottom: 16px;
-    background-color: #fff;
+    background-color: var(--bg);
     border-radius: var(--border-radius);
     overflow: hidden;
     background-image: url(../assets/give_up_setting.svg);
@@ -45,7 +46,7 @@ body {
 #setting_item {
     padding: 16px;
     border-radius: var(--border-radius);
-    background-color: #fff;
+    background-color: var(--bg);
     margin-top: 32px;
     box-shadow: var(--shadow);
 }
