@@ -133,7 +133,7 @@ clip_canvas.onmouseup = (e) => {
         move_rect(o_final_rect, oe, e);
         moving = false;
         o_final_rect = "";
-        follow_bar(e.clientX, e.clientY);
+        if (e.button == 0) follow_bar(e.clientX, e.clientY);
         his_push(final_rect);
     }
     tool_bar.style.pointerEvents =
