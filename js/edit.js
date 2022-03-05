@@ -390,7 +390,6 @@ function change_color(m_l, text) {
         // 文字自适应
         var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
         var bg_color = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
-        console.log(bg_color);
         if (t_color.rgb().array()[3] >= 0.5 || t_color.rgb().array()[3] === undefined) {
             if (t_color.isLight()) {
                 document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
