@@ -138,4 +138,134 @@ textarea {
         box-shadow: 0 5px #fff4;
         background: linear-gradient(315deg, #191919, #000);
     }
+
+    #main {
+        background-image: url(../assets/dark/main.svg);
+    }
+    #setting {
+        background-image: url(../assets/dark/setting.svg);
+    }
+    #help {
+        background-image: url(../assets/dark/help.svg);
+    }
+    #draw_edit_run {
+        background-image: url(../assets/dark/draw_edit.svg) !important;
+    }
+    #tool_close {
+        background-image: url(../assets/dark/tool_close.svg) !important;
+    }
+    #tool_ocr {
+        background-image: url(../assets/dark/tool_ocr.svg) !important;
+    }
+    #tool_QR {
+        background-image: url(../assets/dark/tool_QR.svg) !important;
+    }
+    #tool_draw {
+        background-image: url(../assets/dark/tool_draw.svg) !important;
+    }
+    #tool_open {
+        background-image: url(../assets/dark/tool_open.svg) !important;
+    }
+    #tool_ding {
+        background-image: url(../assets/dark/tool_ding.svg) !important;
+    }
+    #tool_copy {
+        background-image: url(../assets/dark/tool_copy.svg) !important;
+    }
+    #tool_save {
+        background-image: url(../assets/dark/tool_save.svg) !important;
+    }
+    #toast > button {
+        background-image: url(../assets/dark/tool_close.svg) !important;
+    }
+    .history_title > button {
+        background-image: url(../assets/dark/i_close.svg) !important;
+    }
+    .history_title > button:hover {
+        background-image: url(../assets/dark/i_close_w.svg) !important;
+    }
+    #link_bar {
+        background-image: url(../assets/dark/main_link.svg) !important;
+    }
+    #search_bar {
+        background-image: url(../assets/dark/main_search.svg) !important;
+    }
+    #translate_bar {
+        background-image: url(../assets/dark/main_translate.svg) !important;
+    }
+    #selectAll_bar {
+        background-image: url(../assets/dark/main_selectAll.svg) !important;
+    }
+    #cut_bar {
+        background-image: url(../assets/dark/main_cut.svg) !important;
+    }
+    #copy_bar {
+        background-image: url(../assets/dark/main_copy.svg) !important;
+    }
+    #paste_bar {
+        background-image: url(../assets/dark/main_paste.svg) !important;
+    }
+    #delete_enter_bar {
+        background-image: url(../assets/dark/main_delete_enter.svg) !important;
+    }
+    #find_b_last {
+        background-image: url(../assets/dark/find_last.svg) !important;
+    }
+    #find_b_next {
+        background-image: url(../assets/dark/find_next.svg) !important;
+    }
+    #find_b_close {
+        background-image: url(../assets/dark/tool_close.svg) !important;
+    }
+    #find_b_regex {
+        background-image: url(../assets/dark/find_regex.svg) !important;
+    }
+    #find_b_replace {
+        background-image: url(../assets/dark/find_replace.svg) !important;
+    }
+    #find_b_replace_all {
+        background-image: url(../assets/dark/find_replace_all.svg) !important;
+    }
+    #history_b {
+        background-image: url(../assets/dark/main_history.svg) !important;
+    }
+    #browser_b {
+        background-image: url(../assets/dark/main_browser.svg) !important;
+    }
+    #search_b {
+        background-image: url(../assets/dark/main_search.svg) !important;
+    }
+    #translate_b {
+        background-image: url(../assets/dark/main_translate.svg) !important;
+    }
+    .opacity {
+        background-image: url(../assets/dark/ding_opacity.svg) !important;
+    }
+    .size {
+        background-image: url(../assets/dark/ding_size.svg) !important;
+    }
+    #minimize {
+        background-image: url(../assets/dark/ding_minimize.svg) !important;
+    }
+    #back {
+        background-image: url(../assets/dark/ding_back.svg) !important;
+    }
+    #close {
+        background-image: url(../assets/dark/ding_close.svg) !important;
+    }
+    #dock_item > #i_close {
+        background-image: url(../assets/dark/i_close.svg) !important;
+    }
+    #dock_item > #i_close:hover {
+        background-image: url(../assets/dark/i_close_w.svg) !important;
+    }
+    #dock_item > #i_ignore {
+        background-image: url(../assets/dark/i_ignore.svg) !important;
+    }
+    #draw_filters_select {
+        background-image: url(../assets/dark/draw_filter_add.svg) !important;
+    }
+    #give_up_setting {
+        background-image: url(../assets/dark/give_up_setting.svg) !important;
+    }
 }
