@@ -3,7 +3,7 @@
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --hover-color: #fff2;
+        --hover-color: #fff2 !important;
     }
 }
 ::-webkit-scrollbar {

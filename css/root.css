@@ -6,7 +6,7 @@
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
     --blur: blur(10px);
-    --shadow: #0002 0 0 8px;
+    --shadow: #0002 0 0 4px;
     --height: 40px;
     --color: #000;
     --color2: #555;
@@ -264,7 +264,7 @@ textarea {
     #draw_filters_select {
         background-image: url(../assets/dark/draw_filter_add.svg) !important;
     }
-    #give_up_setting {
+    #give_up_setting_b {
         background-image: url(../assets/dark/give_up_setting.svg) !important;
     }
 }

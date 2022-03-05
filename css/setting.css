@@ -23,10 +23,6 @@ body {
     background-color: var(--bg);
     border-radius: var(--border-radius);
     overflow: hidden;
-    background-image: url(../assets/give_up_setting.svg);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
     transition: var(--transition);
 }
 #give_up_setting_b {
@@ -34,12 +30,12 @@ body {
     width: 100%;
     margin: 0;
     box-shadow: none;
-}
-#give_up_setting_b:hover{
-    background-color: #0000;
+    background-image: url(../assets/give_up_setting.svg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 #give_up_setting:hover {
-    background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
 
