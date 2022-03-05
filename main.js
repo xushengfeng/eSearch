@@ -804,6 +804,7 @@ function create_main_window(t, web_page) {
         width: 800,
         height: 600,
         minWidth: 800,
+        transparent: true,
         icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
@@ -894,6 +895,7 @@ function open_in_browser() {
 function create_setting_window(about) {
     const main_window = new BrowserWindow({
         icon: the_icon,
+        transparent: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -914,6 +916,7 @@ function create_setting_window(about) {
 function create_help_window() {
     const main_window = new BrowserWindow({
         icon: the_icon,
+        transparent: true,
         width: 1000,
         height: 800,
         webPreferences: {
