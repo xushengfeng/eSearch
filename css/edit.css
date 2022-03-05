@@ -88,3 +88,61 @@
 #draw_filters_bs > div:hover {
     background-color: var(--hover-color);
 }
+
+#draw_free {
+    background-image: url(../assets/draw_free.svg);
+}
+#draw_shapes {
+    background-image: url(../assets/draw_shapes.svg);
+}
+#draw_filters {
+    background-image: url(../assets/draw_filters.svg);
+}
+#draw_position {
+    background-image: url(../assets/draw_position.svg);
+}
+#draw_move {
+    background-image: url(../assets/draw_move.svg);
+}
+#draw_free_pencil {
+    background-image: url(../assets/draw_free_pencil.svg);
+}
+#draw_free_eraser {
+    background-image: url(../assets/draw_free_eraser.svg);
+}
+#draw_free_spray {
+    background-image: url(../assets/draw_free_spray.svg);
+}
+#draw_shapes_line {
+    background-image: url(../assets/draw_shapes_line.svg);
+}
+#draw_shapes_circle {
+    background-image: url(../assets/draw_shapes_circle.svg);
+}
+#draw_shapes_rect {
+    background-image: url(../assets/draw_shapes_rect.svg);
+}
+#draw_shapes_polyline {
+    background-image: url(../assets/draw_shapes_polyline.svg);
+}
+#draw_shapes_polygon {
+    background-image: url(../assets/draw_shapes_polygon.svg);
+}
+#draw_shapes_text {
+    background-image: url(../assets/draw_shapes_text.svg);
+}
+#draw_edit_b {
+    background-image: url(../assets/draw_edit.svg);
+}
+#draw_position_front {
+    background-image: url(../assets/draw_position_front.svg);
+}
+#draw_position_forwards {
+    background-image: url(../assets/draw_position_forwards.svg);
+}
+#draw_position_backwards {
+    background-image: url(../assets/draw_position_backwards.svg);
+}
+#draw_position_back {
+    background-image: url(../assets/draw_position_back.svg);
+}

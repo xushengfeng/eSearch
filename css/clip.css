@@ -214,7 +214,7 @@ body {
     left: 80px;
     top: 100px;
     width: 60px;
-    background: #fff9;
+    background: var(--bar-bg);
     position: fixed;
     z-index: 98;
     backdrop-filter: var(--blur);

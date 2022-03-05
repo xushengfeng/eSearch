@@ -47,33 +47,33 @@
     </div>
     <div id="draw_bar">
         <div id="draw_main">
-            <div id="draw_free" style="background-image: url('assets/draw_free.svg');" title="自由画笔"></div>
-            <div id="draw_shapes" style="background-image: url('assets/draw_shapes.svg');" title="形状"></div>
-            <div id="draw_filters" style="background-image: url('assets/draw_filters.svg');" title="滤镜"></div>
+            <div id="draw_free"></div>
+            <div id="draw_shapes"></div>
+            <div id="draw_filters"></div>
             <div id="draw_color" title="颜色和大小">
                 <div></div>
             </div>
-            <div id="draw_position" style="background-image: url('assets/draw_position.svg');" title="元素层次"></div>
-            <div id="draw_move" style="background-image: url('assets/draw_move.svg');" title="按住移动"></div>
+            <div id="draw_position"></div>
+            <div id="draw_move"></div>
         </div>
         <div id="draw_side">
             <!-- draw_free -->
             <div class="draw_items" id="draw_free_i">
-                <lock-b id="draw_free_pencil" style="background-image: url('assets/draw_free_pencil.svg');"></lock-b>
-                <lock-b id="draw_free_eraser" style="background-image: url('assets/draw_free_eraser.svg');"></lock-b>
-                <lock-b id="draw_free_spray" style="background-image: url('assets/draw_free_spray.svg');"></lock-b>
+                <lock-b id="draw_free_pencil"></lock-b>
+                <lock-b id="draw_free_eraser"></lock-b>
+                <lock-b id="draw_free_spray"></lock-b>
                 <div id="shadow_blur">
                     <range-b text="px" value="0" min="0" max="20" title="画笔阴影"></range-b>
                 </div>
             </div>
             <!-- draw_shapes -->
             <div class="draw_items" id="draw_shapes_i">
-                <div id="draw_shapes_line" style="background-image: url('assets/draw_shapes_line.svg');"></div>
-                <div id="draw_shapes_circle" style="background-image: url('assets/draw_shapes_circle.svg');"></div>
-                <div id="draw_shapes_rect" style="background-image: url('assets/draw_shapes_rect.svg');"></div>
-                <div id="draw_shapes_polyline" style="background-image: url('assets/draw_shapes_polyline.svg');"></div>
-                <div id="draw_shapes_polygon" style="background-image: url('assets/draw_shapes_polygon.svg')"></div>
-                <div id="draw_shapes_text" style="background-image: url('assets/draw_shapes_text.svg')"></div>
+                <div id="draw_shapes_line"></div>
+                <div id="draw_shapes_circle"></div>
+                <div id="draw_shapes_rect"></div>
+                <div id="draw_shapes_polyline"></div>
+                <div id="draw_shapes_polygon"></div>
+                <div id="draw_shapes_text"></div>
             </div>
             <!-- draw_filters -->
             <div class="draw_items" id="draw_filters_i">
@@ -143,7 +143,7 @@
             <div class="draw_items">
                 <div id="draw_color_input">
                     <div contenteditable="true" spellcheck="false" id="draw_color_fill"
-                        style="background-color: #FFFFFF;">#FFFFFF</div>
+                        style="background-color: #FFFFFF;color: #000000;">#FFFFFF</div>
                     <div contenteditable="true" spellcheck="false" id="draw_color_stroke"
                         style="background-color: #333333;color: #FFFFFF;">#333333</div>
                 </div>
@@ -155,16 +155,16 @@
                 <div id="draw_stroke_width">
                     <range-b text="px" min=0 max=20 value="1"></range-b>
                 </div>
-                <div id="draw_edit_b" style="background-image: url('assets/draw_edit.svg');"></div>
+                <div id="draw_edit_b"></div>
             </div>
             <!-- draw_position -->
             <div class="draw_items" id="draw_position_i">
-                <div id="draw_position_front" style="background-image: url('assets/draw_position_front.svg');"></div>
-                <div id="draw_position_forwards" style="background-image: url('assets/draw_position_forwards.svg');">
+                <div id="draw_position_front"></div>
+                <div id="draw_position_forwards">
                 </div>
-                <div id="draw_position_backwards" style="background-image: url('assets/draw_position_backwards.svg');">
+                <div id="draw_position_backwards">
                 </div>
-                <div id="draw_position_back" style="background-image: url('assets/draw_position_back.svg');"></div>
+                <div id="draw_position_back"></div>
             </div>
         </div>
 

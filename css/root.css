@@ -261,10 +261,67 @@ textarea {
     #dock_item > #i_ignore {
         background-image: url(../assets/dark/i_ignore.svg) !important;
     }
+    #give_up_setting_b {
+        background-image: url(../assets/dark/give_up_setting.svg) !important;
+    }
     #draw_filters_select {
         background-image: url(../assets/dark/draw_filter_add.svg) !important;
     }
-    #give_up_setting_b {
-        background-image: url(../assets/dark/give_up_setting.svg) !important;
+    #draw_free {
+        background-image: url(../assets/dark/draw_free.svg) !important;
+    }
+    #draw_shapes {
+        background-image: url(../assets/dark/draw_shapes.svg) !important;
+    }
+    #draw_filters {
+        background-image: url(../assets/dark/draw_filters.svg) !important;
+    }
+    #draw_position {
+        background-image: url(../assets/dark/draw_position.svg) !important;
+    }
+    #draw_move {
+        background-image: url(../assets/dark/draw_move.svg) !important;
+    }
+    #draw_free_pencil {
+        background-image: url(../assets/dark/draw_free_pencil.svg) !important;
+    }
+    #draw_free_eraser {
+        background-image: url(../assets/dark/draw_free_eraser.svg) !important;
+    }
+    #draw_free_spray {
+        background-image: url(../assets/dark/draw_free_spray.svg) !important;
+    }
+    #draw_shapes_line {
+        background-image: url(../assets/dark/draw_shapes_line.svg) !important;
+    }
+    #draw_shapes_circle {
+        background-image: url(../assets/dark/draw_shapes_circle.svg) !important;
+    }
+    #draw_shapes_rect {
+        background-image: url(../assets/dark/draw_shapes_rect.svg) !important;
+    }
+    #draw_shapes_polyline {
+        background-image: url(../assets/dark/draw_shapes_polyline.svg) !important;
+    }
+    #draw_shapes_polygon {
+        background-image: url(../assets/dark/draw_shapes_polygon.svg) !important;
+    }
+    #draw_shapes_text {
+        background-image: url(../assets/dark/draw_shapes_text.svg) !important;
+    }
+    #draw_edit_b {
+        background-image: url(../assets/dark/draw_edit.svg) !important;
+    }
+    #draw_position_front {
+        background-image: url(../assets/dark/draw_position_front.svg) !important;
+    }
+    #draw_position_forwards {
+        background-image: url(../assets/dark/draw_position_forwards.svg) !important;
+    }
+    #draw_position_backwards {
+        background-image: url(../assets/dark/draw_position_backwards.svg) !important;
+    }
+    #draw_position_back {
+        background-image: url(../assets/dark/draw_position_back.svg) !important;
     }
 }
