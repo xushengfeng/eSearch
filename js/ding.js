@@ -36,7 +36,11 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     tool_bar.querySelector("#size > span").onblur = () => {
         if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
             var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
+            if (zoom < 0.05) zoom = 0.05;
             div_zoom(div, zoom, 0, 0, false);
+            setTimeout(() => {
+                resize(div, zoom);
+            }, 400);
         }
     };
     tool_bar.querySelector("#size > span").onkeydown = (e) => {
@@ -44,7 +48,11 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
             e.preventDefault();
             if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
                 var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
+                if (zoom < 0.05) zoom = 0.05;
                 div_zoom(div, zoom, 0, 0, false);
+                setTimeout(() => {
+                    resize(div, zoom);
+                }, 400);
             }
         }
     };
@@ -52,6 +60,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.onwheel = (e) => {
         if (e.deltaY != 0) {
             var zoom = (div.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
+            if (zoom < 0.05) zoom = 0.05;
             div_zoom(div, zoom, e.offsetX, e.offsetY, true);
             resize(div, zoom);
         }
@@ -327,7 +336,6 @@ function cursor(el, e) {
 function div_zoom(el, zoom, dx, dy, wheel) {
     var w = photos[el.id][2];
     var h = photos[el.id][3];
-    if (zoom < 0.25) zoom = 0.25;
     var nw = el.offsetWidth;
     var nh = el.offsetHeight;
     // 以鼠标为中心缩放
