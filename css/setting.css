@@ -27,6 +27,7 @@ body {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
+    transition: var(--transition);
 }
 #give_up_setting_b {
     height: 100%;
@@ -34,7 +35,11 @@ body {
     margin: 0;
     box-shadow: none;
 }
+#give_up_setting_b:hover{
+    background-color: #0000;
+}
 #give_up_setting:hover {
+    background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
 

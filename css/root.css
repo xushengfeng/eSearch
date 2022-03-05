@@ -1,9 +1,8 @@
 :root {
     --bar-bg: #fff9;
-    --hover-color: #0002;
     --bg: #fff;
     --bg2: #f5f5f5;
-    --hover-color2: #f1f1f1;
+    --hover-color: #dfdfdf;
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
     --blur: blur(10px);
@@ -33,6 +32,7 @@ body {
     border-radius: var(--border-radius);
     overflow: hidden;
     background-color: var(--bg);
+    transition: var(--transition);
 }
 #tab_bar:hover {
     box-shadow: var(--shadow);
@@ -50,7 +50,7 @@ body {
     background-repeat: no-repeat;
 }
 #tab_bar a div:hover {
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
 }
 
 #main {
@@ -121,10 +121,9 @@ textarea {
 @media (prefers-color-scheme: dark) {
     :root {
         --bar-bg: #0009;
-        --hover-color: #fff2;
         --bg: #000;
         --bg2: #0f0f0f;
-        --hover-color2: #222;
+        --hover-color: #222;
         --shadow: #fff5 0 0 4px;
         --color: #fff;
         --color2: #aaa;

@@ -76,7 +76,7 @@ body {
     box-shadow: var(--shadow);
 }
 .hover_b2 > button {
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
 }
 
 #history_list {
@@ -95,7 +95,7 @@ body {
     transition: var(--transition);
 }
 #history_list > div:hover {
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
 .history_title {
@@ -109,7 +109,7 @@ body {
     width: 16px;
     padding: 0;
     margin-left: 4px;
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
     background-image: url(../assets/i_close.svg);
     background-size: 80%;
     background-position: center;
@@ -270,7 +270,7 @@ button {
     width: 40px;
 }
 button:hover {
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
 }
 select {
     border-radius: 0;
@@ -285,7 +285,7 @@ select {
     transition: var(--transition);
 }
 select:hover {
-    background-color: var(--hover-color2);
+    background-color: var(--hover-color);
 }
 option {
     font-size: var(--font-size);
