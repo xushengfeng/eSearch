@@ -304,17 +304,29 @@ ipcRenderer.on("save_path", (event, message) => {
             switch (type) {
                 case "svg":
                     var dataBuffer = new Buffer(c, "UTF-8");
-                    fs.writeFile(message, dataBuffer, () => {});
+                    fs.writeFile(message, dataBuffer, (err) => {
+                        if (!err) {
+                            ipcRenderer.send("clip_main_b", "ok_save", message);
+                        }
+                    });
                     break;
                 case "png":
                     var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
                     var dataBuffer = new Buffer(f, "base64");
-                    fs.writeFile(message, dataBuffer, () => {});
+                    fs.writeFile(message, dataBuffer, (err) => {
+                        if (!err) {
+                            ipcRenderer.send("clip_main_b", "ok_save", message);
+                        }
+                    });
                     break;
                 case "jpg":
                     var f = c.toDataURL("image/jpeg", store.get("jpg质量") - 0).replace(/^data:image\/\w+;base64,/, "");
                     var dataBuffer = new Buffer(f, "base64");
-                    fs.writeFile(message, dataBuffer, () => {});
+                    fs.writeFile(message, dataBuffer, (err) => {
+                        if (!err) {
+                            ipcRenderer.send("clip_main_b", "ok_save", message);
+                        }
+                    });
                     break;
             }
         });

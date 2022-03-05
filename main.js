@@ -349,18 +349,6 @@ function create_clip_window() {
                     .then((x) => {
                         event.sender.send("save_path", x.filePath);
                         if (x.filePath) {
-                            notification = new Notification({
-                                title: `${app.name} 保存图像成功`,
-                                body: `已保存图像到 ${x.filePath}`,
-                                icon: `${run_path}/assets/icons/64x64.png`,
-                            });
-                            notification.on("click", () => {
-                                shell.showItemInFolder(x.filePath);
-                            });
-                            notification.show();
-                            save_path = x.filePath.split("/");
-                            save_path.pop();
-                            store.set("保存路径", save_path.join("/") + "/");
                         } else {
                             new Notification({
                                 title: `${app.name} 保存图像失败`,
@@ -388,6 +376,12 @@ function create_clip_window() {
                         }
                         event.sender.send("mac_app_path", x.canceled, x.filePaths);
                     });
+                break;
+            case "ok_save":
+                noti(arg);
+                save_path = arg.split("/");
+                save_path.pop();
+                store.set("保存路径", save_path.join("/") + "/");
                 break;
         }
     });
@@ -985,23 +979,30 @@ function quick_clip() {
                     fs.writeFile(
                         file_name,
                         Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
-                        () => {}
+                        (err) => {
+                            if (err) return;
+                            noti(file_name);
+                        }
                     );
-                    notification = new Notification({
-                        title: `${app.name} 保存图像成功`,
-                        body: `已保存图像到 ${file_name}`,
-                        icon: `${run_path}/assets/icons/64x64.png`,
-                    });
-                    notification.on("click", () => {
-                        shell.showItemInFolder(file_name);
-                    });
-                    notification.show();
                 }
             });
         }
         check_file(1, file_name);
     }
 }
+
+function noti(file_path) {
+    notification = new Notification({
+        title: `${app.name} 保存图像成功`,
+        body: `已保存图像到 ${file_path}`,
+        icon: `${run_path}/assets/icons/64x64.png`,
+    });
+    notification.on("click", () => {
+        shell.showItemInFolder(file_path);
+    });
+    notification.show();
+}
+
 ipcMain.on("get_save_path", (event, path) => {
     dialog
         .showOpenDialog({
