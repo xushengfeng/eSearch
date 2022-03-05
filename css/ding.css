@@ -71,6 +71,7 @@ input[type="range"] {
     border-radius: 10px;
     height: 20px;
     box-shadow: var(--shadow);
+    cursor: col-resize;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -128,6 +129,7 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 8px;
     width: 40px;
     height: 40px;
+    cursor: pointer;
 }
 #b > button:hover {
     background-color: var(--hover-color);
@@ -183,7 +185,7 @@ input[type="range"]::-webkit-slider-thumb {
     position: absolute;
     width: 24px;
     height: 24px;
-    background-color: var(--hover-color);
+    background-color: var(--bar-bg);
     background-size: 80%;
     background-position: center;
     background-repeat: no-repeat;
@@ -191,6 +193,7 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     margin: 8px;
     backdrop-filter: var(--blur);
+    cursor: pointer;
 }
 
 #dock_item > #i_close {
@@ -207,5 +210,5 @@ input[type="range"]::-webkit-slider-thumb {
     background-image: url(../assets/i_ignore.svg);
 }
 #dock_item > #i_ignore:hover {
-    background-color: var(--bar-bg);
+    background-color: var(--hover-color);
 }
