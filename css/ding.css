@@ -1,10 +1,5 @@
 :root {
-    --hover-color: #0002 !important;
-}
-@media (prefers-color-scheme: dark) {
-    :root {
-        --hover-color: #fff2;
-    }
+    --hover-color: var(--bar-hover-color) !important;
 }
 ::-webkit-scrollbar {
     display: none;

@@ -1,5 +1,6 @@
 :root {
     --bar-bg: #fff9;
+    --bar-hover-color: #0002;
     --bg: #fff;
     --bg2: #f5f5f5;
     --hover-color: #dfdfdf;
@@ -121,10 +122,11 @@ textarea {
 @media (prefers-color-scheme: dark) {
     :root {
         --bar-bg: #0009;
+        --bar-hover-color: #fff2;
         --bg: #000;
         --bg2: #0f0f0f;
         --hover-color: #222;
-        --shadow: #fff5 0 0 4px;
+        --shadow: #fff5 0 0 2px;
         --color: #fff;
         --color2: #aaa;
         --border: 1px #fff solid;
