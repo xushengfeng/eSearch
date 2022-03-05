@@ -328,14 +328,11 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     var w = photos[el.id][2];
     var h = photos[el.id][3];
     if (zoom < 0.25) zoom = 0.25;
-    if (zoom > 3) zoom = 3;
     var nw = el.offsetWidth;
     var nh = el.offsetHeight;
     // 以鼠标为中心缩放
     var x = el.offsetLeft + dx - w * zoom * (dx / nw);
     var y = el.offsetTop + dy - h * zoom * (dy / nh);
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
     var p_s = [x, y, Math.round(w * zoom), Math.round(h * zoom)];
     if (!wheel) {
         el.style.transition = "var(--transition)";
