@@ -296,7 +296,8 @@ video {
     z-index: 2;
 }
 #point_color_t_b {
-    box-shadow: #0005 0 0 0 0.5px inset;
+    box-shadow: #0005 0 0 0 0.25px inset, #fff5 0 0 0 0.5px inset;
+    opacity: 0.5;
 }
 #clip_xy {
     font-family: var(--monospace);
