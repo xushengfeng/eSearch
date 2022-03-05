@@ -66,6 +66,10 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     tool_bar.querySelector("#close").onclick = () => {
         close(div);
     };
+    // 双击归位
+    div.ondblclick = () => {
+        back(div);
+    };
     // 放到前面
     div.onclick = () => {
         div.style.zIndex = toppest + 1;
