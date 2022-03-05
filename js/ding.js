@@ -424,12 +424,16 @@ function dock_i() {
             dock_item.onclick = (e) => {
                 if (e.target.id != "i_close" && e.target.id != "i_ignore") {
                     var div = document.getElementById(i);
-                    div.style.transition = "var(--transition)";
-                    setTimeout(() => {
-                        div.style.transition = "";
-                    }, 400);
-                    div.classList.remove("minimize");
-                    ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+                    if (div.classList.contains("minimize")) {
+                        div.style.transition = "var(--transition)";
+                        setTimeout(() => {
+                            div.style.transition = "";
+                        }, 400);
+                        div.classList.remove("minimize");
+                        ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
+                    } else {
+                        back(div);
+                    }
                     div.style.zIndex = toppest + 1;
                     toppest += 1;
                 }
