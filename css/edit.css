@@ -23,7 +23,7 @@
     overflow: hidden;
 }
 #draw_color_input > div {
-    outline: #333;
+    outline: none;
     font-family: var(--monospace);
     font-size: 12px;
     height: 50%;
