@@ -151,6 +151,14 @@ document.getElementById("tool_bar").onmouseup = (e) => {
     }
 };
 
+hotkeys.filter = (event) => {
+    var tagName = (event.target || event.srcElement).tagName;
+    return (
+        !(tagName.isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA") ||
+        event.target === document.querySelector("#draw_edit input")
+    );
+};
+
 hotkeys.setScope("normal");
 hotkeys("esc", "normal", tool_close_f);
 hotkeys("enter", "normal", tool_ocr_f);
