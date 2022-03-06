@@ -839,5 +839,10 @@ function fabric_api() {
     var div = document.createElement("div");
     div.innerText = eval(e);
     document.getElementById("draw_edit_output").appendChild(div);
+    document.getElementById("draw_edit_output").style.margin = "4px";
     fabric_canvas.renderAll();
 }
+document.getElementById("draw_edit_clear").onclick = () => {
+    document.getElementById("draw_edit_output").innerHTML = "";
+    document.getElementById("draw_edit_output").style.margin = "";
+};

@@ -113,7 +113,8 @@ body {
     width: 300px;
     font-size: 1rem;
 }
-#draw_edit_run {
+#draw_edit_run,
+#draw_edit_clear {
     border: none;
     transition: var(--transition);
     border-radius: 6px;
@@ -124,14 +125,19 @@ body {
     background-repeat: no-repeat;
     background-color: #0000;
     flex-shrink: 0;
+}
+#draw_edit_run {
     background-image: url(../assets/draw_edit.svg);
 }
-#draw_edit_run:hover {
+#draw_edit_clear {
+    background-image: url(../assets/draw_edit_clear.svg);
+}
+#draw_edit_run:hover,
+#draw_edit_clear:hover {
     background-color: var(--hover-color);
 }
 #draw_edit_output {
-    grid-area: 2 / 1 / 3 / 3;
-    margin: 4px;
+    grid-area: 2 / 1 / 3 / 4;
 }
 
 /* 工具 */

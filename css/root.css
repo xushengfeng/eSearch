@@ -152,6 +152,9 @@ textarea {
     #draw_edit_run {
         background-image: url(../assets/dark/draw_edit.svg) !important;
     }
+    #draw_edit_clear {
+        background-image: url(../assets/dark/draw_edit_clear.svg) !important;
+    }
     #tool_close {
         background-image: url(../assets/dark/tool_close.svg) !important;
     }
