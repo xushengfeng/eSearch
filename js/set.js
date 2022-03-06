@@ -330,7 +330,7 @@ document.getElementById("version").onclick = () => {
         .then((result) => {
             result = JSON.parse(result);
             console.log(result);
-            if (version_new(result.name, package.version) && !result.draft) {
+            if (version_new(result.name, package.version) && !result.draft && !result.prerelease) {
                 document.getElementById(
                     "update_info"
                 ).innerHTML = `有新版本: <a href="${result.html_url}">${result.name}</a>`;
