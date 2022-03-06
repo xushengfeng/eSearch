@@ -117,10 +117,8 @@ function s_center_bar(m) {
     if (m === false) center_bar_show = false;
     if (center_bar_show) {
         document.getElementById("save_type").style.height = 0;
-        document.getElementById("app_path").style.height = 0;
         document.getElementById("draw_edit").style.height = 0;
         document.getElementById("save_type").style.width = 0;
-        document.getElementById("app_path").style.width = 0;
         document.getElementById("draw_edit").style.width = 0;
         document.getElementById("center_bar").style.opacity = 1;
         document.getElementById("center_bar").style.pointerEvents = "auto";
@@ -135,10 +133,6 @@ function s_center_bar(m) {
         case "save":
             document.getElementById("save_type").style.height = "";
             document.getElementById("save_type").style.width = "";
-            break;
-        case "app":
-            document.getElementById("app_path").style.height = "";
-            document.getElementById("app_path").style.width = "";
             break;
         case "edit":
             document.getElementById("draw_edit").style.height = "";

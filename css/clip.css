@@ -96,24 +96,6 @@ body {
 .suffix_h {
     background-color: var(--hover-color);
 }
-/* 其他应用打开 */
-#app_path > div {
-    height: 32px;
-    box-sizing: border-box;
-    padding: 4px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    transition: var(--transition);
-}
-#app_path > div:hover,
-.app_h {
-    background-color: var(--hover-color);
-}
-#app_path > div > img {
-    height: 100%;
-    margin-right: 8px;
-}
 /* 命令 */
 #draw_edit {
     display: grid;
