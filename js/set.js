@@ -2,11 +2,8 @@ const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 
 document.getElementById("set_default_setting").onclick = () => {
-    document.getElementById("ok_set_default_setting").style.display = "block";
-};
-document.getElementById("ok_set_default_setting").onclick = () => {
-    ipcRenderer.send("默认设置");
-    document.getElementById("ok_set_default_setting").style.display = "none";
+    var c = confirm("这将恢复所有设置\n且不能复原\n确定恢复吗？");
+    if (c) ipcRenderer.send("默认设置");
 };
 
 ipcRenderer.send("autostart", "get");
@@ -248,7 +245,8 @@ document.querySelector("#清除历史记录").oninput = () => {
     document.querySelector("#his_h").disabled = !document.querySelector("#清除历史记录").checked;
 };
 document.getElementById("clear_his").onclick = () => {
-    store.set("历史记录", []);
+    var c = confirm("这将清除所有的历史记录\n且不能复原\n确定清除？");
+    if (c) store.set("历史记录", []);
 };
 
 document.getElementById("代理").checked = store.get("开启代理");
