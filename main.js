@@ -1095,8 +1095,6 @@ function set_default_setting() {
     }
 }
 
-ipcMain.on("默认设置", set_default_setting);
-
 // 增加设置项后，防止undefined
 function fix_setting_tree() {
     var tree = "default_setting";

@@ -1,11 +1,6 @@
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 
-document.getElementById("set_default_setting").onclick = () => {
-    var c = confirm("这将恢复所有设置\n且不能复原\n确定恢复吗？");
-    if (c) ipcRenderer.send("默认设置");
-};
-
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (event, v) => {
     document.getElementById("autostart").checked = v;
