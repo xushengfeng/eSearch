@@ -305,4 +305,7 @@ option {
 }
 
 @media (prefers-color-scheme: dark) {
+    .find_h_h {
+        background-color: #ffffff40;
+    }
 }
