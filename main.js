@@ -1004,6 +1004,7 @@ function noti(file_path) {
 }
 
 ipcMain.on("get_save_path", (event, path) => {
+    if (!path) path = app.getPath("pictures");
     dialog
         .showOpenDialog({
             title: "选择要保存的位置",
@@ -1011,7 +1012,7 @@ ipcMain.on("get_save_path", (event, path) => {
             properties: ["openDirectory"],
         })
         .then((x) => {
-            if (x.filePaths) event.sender.send("get_save_path", x.filePaths[0] + "/");
+            if (x.filePaths[0]) event.sender.send("get_save_path", x.filePaths[0] + "/");
         });
 });
 
