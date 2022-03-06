@@ -118,7 +118,6 @@ function arg_run(c) {
 }
 
 var port = 8080;
-var bg_color = "#f5f5f5";
 
 app.whenReady().then(() => {
     // 托盘
@@ -258,7 +257,6 @@ app.whenReady().then(() => {
     create_clip_window();
 
     nativeTheme.themeSource = store.get("深色模式");
-    bg_color = nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5";
 });
 
 app.on("will-quit", () => {
@@ -800,7 +798,7 @@ function create_main_window(t, web_page) {
         width: 800,
         height: 600,
         minWidth: 800,
-        backgroundColor: bg_color,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
         icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
@@ -891,7 +889,7 @@ function open_in_browser() {
 function create_setting_window(about) {
     const main_window = new BrowserWindow({
         icon: the_icon,
-        backgroundColor: bg_color,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -912,7 +910,7 @@ function create_setting_window(about) {
 function create_help_window() {
     const main_window = new BrowserWindow({
         icon: the_icon,
-        backgroundColor: bg_color,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
         width: 1000,
         height: 800,
         webPreferences: {
