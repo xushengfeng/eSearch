@@ -214,7 +214,8 @@ body {
     z-index: 98;
     backdrop-filter: var(--blur);
     border-radius: 10px;
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
     transition: var(--transition);
     height: 0px;
     box-shadow: var(--shadow);
