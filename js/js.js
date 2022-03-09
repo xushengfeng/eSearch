@@ -58,6 +58,7 @@ function push_history() {
 }
 
 function show_t(t) {
+    t = t.replace(/\n$/, "");
     document.getElementById("text").innerText = t;
     push_history();
     // 严格模式
