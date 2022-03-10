@@ -58,7 +58,7 @@ function push_history() {
 }
 
 function show_t(t) {
-    t = t.replace(/\n$/, "");
+    t = t.replace(/[\r\n]$/, "");
     document.getElementById("text").innerText = t;
     push_history();
     // 严格模式
@@ -66,7 +66,7 @@ function show_t(t) {
         if (自动打开链接) open_link("url", t);
     } else {
         language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
-        if (自动搜索 && t.match(/\n/) == null && t != "") {
+        if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
             if (language == "本地语言") {
                 open_link("search");
             } else {
@@ -202,7 +202,7 @@ function render_history() {
     var history_text = "";
     if (history_list.length != 0) {
         for (var i in history_list) {
-            var t = html_to_text(history_list[i].text).split(/\n/g);
+            var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
             history_text =
                 history_text +
                 `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
@@ -357,7 +357,7 @@ function delete_enter() {
 
     function p(t) {
         var x = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "" : " ";
-        t = t.replace(/(?<=[^。？！…….\?!])\n/g, x);
+        t = t.replace(/(?<=[^。？！…….\?!])[\r\n]/g, x);
         return t;
     }
 
@@ -473,7 +473,7 @@ function find() {
         }
         document.getElementById("text").innerHTML = t_l
             .join("")
-            .replace(/\n/g, "<br>")
+            .replace(/[\r\n]/g, "<br>")
             .replace(/&nbsp;/g, " ");
     } catch (error) {}
     find_l_n_i = -1;
