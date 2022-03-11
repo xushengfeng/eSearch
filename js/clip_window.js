@@ -223,7 +223,7 @@ function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
         document.getElementById("tool_draw").className = "hover_b";
-        document.getElementById("draw_bar").style.height = "360px";
+        document.getElementById("draw_bar").style.height = "300px";
         document.getElementById("clip_photo").style.pointerEvents = "none";
         hotkeys.setScope("drawing");
     } else {
@@ -380,17 +380,15 @@ function get_clip_photo(type) {
     }
 }
 
-var tool_position = { x: null, y: null, ox: null, oy: null };
+var tool_position = { x: null, y: null };
 tool_bar.addEventListener("mousedown", (e) => {
     tool_bar.style.transition = "none";
     if (e.button == 1) {
-        tool_position.x = e.clientX;
-        tool_position.y = e.clientY;
-        tool_position.ox = tool_bar.offsetLeft;
-        tool_position.oy = tool_bar.offsetTop;
+        tool_position.x = e.clientX - tool_bar.offsetLeft;
+        tool_position.y = e.clientY - tool_bar.offsetTop;
     }
 });
 tool_bar.addEventListener("mouseup", (e) => {
     tool_bar.style.transition = "";
-    if (e.button == 1) tool_position = { x: null, y: null, ox: null, oy: null };
+    if (e.button == 1) tool_position = { x: null, y: null };
 });

@@ -448,8 +448,8 @@ document.onmousemove = (e) => {
         }
     }
     if (tool_position.x) {
-        tool_bar.style.left = e.clientX - tool_position.x + tool_position.ox + "px";
-        tool_bar.style.top = e.clientY - tool_position.y + tool_position.oy + "px";
+        tool_bar.style.left = e.clientX - tool_position.x + "px";
+        tool_bar.style.top = e.clientY - tool_position.y + "px";
     }
 };
 
@@ -523,17 +523,21 @@ function follow_bar(x, y) {
 // 移动画画栏
 draw_bar_moving = false;
 draw_bar_moving_xy = [];
-document.getElementById("draw_move").onmousedown = (e) => {
-    draw_bar_moving = true;
-    draw_bar_moving_xy[0] = e.offsetX;
-    draw_bar_moving_xy[1] = e.offsetY + document.getElementById("draw_move").offsetTop;
-    draw_bar.style.transition = "0s";
-};
-document.getElementById("draw_move").onmouseup = (e) => {
-    draw_bar_moving = false;
-    draw_bar_moving_xy = [];
-    draw_bar.style.transition = "";
-};
+document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
+    if (e.button != 0) {
+        draw_bar_moving = true;
+        draw_bar_moving_xy[0] = e.clientX - document.getElementById("draw_bar").offsetLeft;
+        draw_bar_moving_xy[1] = e.clientY - document.getElementById("draw_bar").offsetTop;
+        draw_bar.style.transition = "0s";
+    }
+});
+document.getElementById("draw_bar").addEventListener("mouseup", (e) => {
+    if (e.button != 0) {
+        draw_bar_moving = false;
+        draw_bar_moving_xy = [];
+        draw_bar.style.transition = "";
+    }
+});
 
 // 修复final_rect负数
 // 超出屏幕处理

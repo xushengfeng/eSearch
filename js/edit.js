@@ -35,7 +35,6 @@ var shadow_blur = 0;
 
 // 画画栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
-    if (index == document.querySelectorAll("#draw_main > div").length - 1) return; // 排除move
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {
@@ -55,8 +54,8 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
                 h += e.offsetHeight;
             });
-            if (h > 360) {
-                h = 360;
+            if (h > 300) {
+                h = 300;
             }
             document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
         }
