@@ -146,7 +146,8 @@ var tool_bar = document.getElementById("tool_bar");
 tool_bar.onmouseup = (e) => {
     if (e.button == 0) {
         eval(`${e.target.id}_f()`);
-    } else {
+    }
+    if (e.button == 1) {
         e.target.style.backgroundColor = "";
         auto_do = "no";
     }
@@ -383,12 +384,12 @@ function get_clip_photo(type) {
 var tool_position = { x: null, y: null };
 tool_bar.addEventListener("mousedown", (e) => {
     tool_bar.style.transition = "none";
-    if (e.button == 1) {
+    if (e.button == 2) {
         tool_position.x = e.clientX - tool_bar.offsetLeft;
         tool_position.y = e.clientY - tool_bar.offsetTop;
     }
 });
 tool_bar.addEventListener("mouseup", (e) => {
     tool_bar.style.transition = "";
-    if (e.button == 1) tool_position = { x: null, y: null };
+    if (e.button == 2) tool_position = { x: null, y: null };
 });
