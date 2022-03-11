@@ -586,35 +586,35 @@ function is_in_clip_rect(event) {
         // 光标样式
         switch (true) {
             case x0 <= x && x <= x0 + num && y0 <= y && y <= y0 + num:
-                clip_canvas.style.cursor = "nw-resize";
+                clip_canvas.style.cursor = "nwse-resize";
                 direction = "西北";
                 break;
             case x1 - num <= x && x <= x1 && y1 - num <= y && y <= y1:
-                clip_canvas.style.cursor = "se-resize";
+                clip_canvas.style.cursor = "nwse-resize";
                 direction = "东南";
                 break;
             case y0 <= y && y <= y0 + num && x1 - num <= x && x <= x1:
-                clip_canvas.style.cursor = "ne-resize";
+                clip_canvas.style.cursor = "nesw-resize";
                 direction = "东北";
                 break;
             case y1 - num <= y && y <= y1 && x0 <= x && x <= x0 + num:
-                clip_canvas.style.cursor = "sw-resize";
+                clip_canvas.style.cursor = "nesw-resize";
                 direction = "西南";
                 break;
             case x0 <= x && x <= x0 + num:
-                clip_canvas.style.cursor = "w-resize";
+                clip_canvas.style.cursor = "ew-resize";
                 direction = "西";
                 break;
             case x1 - num <= x && x <= x1:
-                clip_canvas.style.cursor = "e-resize";
+                clip_canvas.style.cursor = "ew-resize";
                 direction = "东";
                 break;
             case y0 <= y && y <= y0 + num:
-                clip_canvas.style.cursor = "n-resize";
+                clip_canvas.style.cursor = "ns-resize";
                 direction = "北";
                 break;
             case y1 - num <= y && y <= y1:
-                clip_canvas.style.cursor = "s-resize";
+                clip_canvas.style.cursor = "ns-resize";
                 direction = "南";
                 break;
             case x0 + num < x && x < x1 - num && y0 + num < y && y < y1 - num:

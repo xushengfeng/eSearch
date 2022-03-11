@@ -222,35 +222,35 @@ function cursor(el, e) {
         if (window_div == null)
             switch (true) {
                 case p_x <= num && p_y <= num:
-                    document.querySelector("html").style.cursor = "nw-resize";
+                    document.querySelector("html").style.cursor = "nwse-resize";
                     direction = "西北";
                     break;
                 case p_x >= width - num && p_y >= height - num:
-                    document.querySelector("html").style.cursor = "se-resize";
+                    document.querySelector("html").style.cursor = "nwse-resize";
                     direction = "东南";
                     break;
                 case p_x >= width - num && p_y <= num:
-                    document.querySelector("html").style.cursor = "ne-resize";
+                    document.querySelector("html").style.cursor = "nesw-resize";
                     direction = "东北";
                     break;
                 case p_x <= num && p_y >= height - num:
-                    document.querySelector("html").style.cursor = "sw-resize";
+                    document.querySelector("html").style.cursor = "nesw-resize";
                     direction = "西南";
                     break;
                 case p_x <= num:
-                    document.querySelector("html").style.cursor = "w-resize";
+                    document.querySelector("html").style.cursor = "ew-resize";
                     direction = "西";
                     break;
                 case p_x >= width - num:
-                    document.querySelector("html").style.cursor = "e-resize";
+                    document.querySelector("html").style.cursor = "ew-resize";
                     direction = "东";
                     break;
                 case p_y <= num:
-                    document.querySelector("html").style.cursor = "n-resize";
+                    document.querySelector("html").style.cursor = "ns-resize";
                     direction = "北";
                     break;
                 case p_y >= height - num:
-                    document.querySelector("html").style.cursor = "s-resize";
+                    document.querySelector("html").style.cursor = "ns-resize";
                     direction = "南";
                     break;
                 case num < p_x && p_x < width - num && num < p_y && p_y < height - num:
