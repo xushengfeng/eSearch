@@ -3,7 +3,7 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--bg2);
+    background-color: var(--bg);
 }
 body {
     overflow: overlay;
@@ -49,7 +49,6 @@ body {
     border-radius: var(--border-radius);
     background-color: var(--bg);
     margin-top: 32px;
-    box-shadow: var(--shadow);
 }
 #setting_left {
     font-size: 1.8rem;
@@ -72,6 +71,12 @@ input {
 }
 input[type="text"] {
     border: none;
+    border-bottom: 1px solid var(--hover-color);
+    transition: var(--transition);
+    font-size: 1rem;
+}
+input[type="text"]:focus {
+    border: none;
     border-bottom: var(--border);
 }
 input[type="text"]:disabled {
@@ -80,8 +85,13 @@ input[type="text"]:disabled {
 input[type="number"] {
     width: 50px;
     border: none;
+    border-bottom: 1px solid var(--hover-color);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+input[type="number"]:focus {
+    border: none;
     border-bottom: var(--border);
-    font-size: 18px;
 }
 
 button {
@@ -92,6 +102,7 @@ button {
     transition: var(--transition);
     font-size: 1rem;
     margin-top: 8px;
+    padding: 4px;
 }
 button:hover {
     background-color: var(--hover-color);
@@ -187,9 +198,6 @@ set-select {
 
 #自动运行命令 {
     width: 100%;
-    border: none;
-    border-bottom: var(--border);
-    font-size: 1rem;
 }
 #端口 {
     width: 100px;

@@ -7,7 +7,7 @@
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
     --blur: blur(10px);
-    --shadow: #0002 0 0 4px;
+    --shadow: #0003 0 0 4px;
     --height: 40px;
     --color: #000;
     --color2: #555;
@@ -125,8 +125,8 @@ textarea {
         --bar-hover-color: #fff2;
         --bg: #000;
         --bg2: #1f1f1f;
-        --hover-color: #222;
-        --shadow: #fff5 0 0 2px;
+        --hover-color: #333;
+        --shadow: #fff9 0 0 2px;
         --color: #fff;
         --color2: #aaa;
         --border: 1px #fff solid;

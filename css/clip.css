@@ -162,6 +162,7 @@ body {
     height: 60px;
     border-radius: 10px;
     transition: var(--transition);
+    cursor: pointer;
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
@@ -187,6 +188,7 @@ body {
 }
 #tool_copy {
     background-image: url(../assets/tool_copy.svg);
+    cursor: copy !important;
 }
 #tool_save {
     background-image: url(../assets/tool_save.svg);
@@ -298,6 +300,7 @@ video {
     transition: var(--transition);
     overflow: hidden;
     border-radius: 6px;
+    cursor: copy;
 }
 #clip_copy > div {
     position: relative;

@@ -9,7 +9,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-color: var(--bg2);
+    background-color: var(--bg);
 }
 
 .main {
@@ -42,7 +42,7 @@ body {
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
-    background-color: var(--bg);
+    background-color: var(--bg2);
     transition: var(--transition);
 }
 .main > div:not(:first-child):hover {
@@ -60,7 +60,7 @@ body {
     padding: 8px;
     box-sizing: border-box;
     border-radius: var(--border-radius);
-    background: var(--bg);
+    background: var(--bg2);
     overflow: overlay;
     flex-grow: 1;
     font-size: 16px;
