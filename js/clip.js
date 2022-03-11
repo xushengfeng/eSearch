@@ -63,7 +63,6 @@ o_final_rect = "";
 var the_color = null;
 var the_text_color = [null, null];
 clip_ctx = clip_canvas.getContext("2d");
-tool_bar = document.getElementById("tool_bar");
 draw_bar = document.getElementById("draw_bar");
 var final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
 var rect_history_n = 0;
@@ -447,6 +446,10 @@ document.onmousemove = (e) => {
             draw_bar.style.left = e.clientX - draw_bar_moving_xy[0] + "px";
             draw_bar.style.top = e.clientY - draw_bar_moving_xy[1] + "px";
         }
+    }
+    if (tool_position.x) {
+        tool_bar.style.left = e.clientX - tool_position.x + tool_position.ox + "px";
+        tool_bar.style.top = e.clientY - tool_position.y + tool_position.oy + "px";
     }
 };
 

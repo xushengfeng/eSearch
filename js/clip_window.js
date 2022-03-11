@@ -141,8 +141,9 @@ function s_center_bar(m) {
     }
 }
 
+var tool_bar = document.getElementById("tool_bar");
 // 工具栏按钮
-document.getElementById("tool_bar").onmouseup = (e) => {
+tool_bar.onmouseup = (e) => {
     if (e.button == 0) {
         eval(`${e.target.id}_f()`);
     } else {
@@ -378,3 +379,18 @@ function get_clip_photo(type) {
         });
     }
 }
+
+var tool_position = { x: null, y: null, ox: null, oy: null };
+tool_bar.addEventListener("mousedown", (e) => {
+    tool_bar.style.transition = "none";
+    if (e.button == 1) {
+        tool_position.x = e.clientX;
+        tool_position.y = e.clientY;
+        tool_position.ox = tool_bar.offsetLeft;
+        tool_position.oy = tool_bar.offsetTop;
+    }
+});
+tool_bar.addEventListener("mouseup", (e) => {
+    tool_bar.style.transition = "";
+    if (e.button == 1) tool_position = { x: null, y: null, ox: null, oy: null };
+});
