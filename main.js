@@ -31,6 +31,8 @@ if (app.isPackaged || process.argv.includes("-n")) {
     dev = true;
 }
 
+var run_noti = !process.argv.includes("-r");
+
 ipcMain.on("autostart", (event, m, v) => {
     if (m == "set") {
         if (process.platform == "linux") {
@@ -187,7 +189,7 @@ app.whenReady().then(() => {
     tray.setContextMenu(contextMenu);
 
     // 启动时提示
-    if (first_open)
+    if (first_open && run_noti)
         new Notification({
             title: app.name,
             body: `${app.name} 已经在后台启动`,
