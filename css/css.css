@@ -155,7 +155,7 @@ body {
     transition: var(--transition);
 }
 #edit_b > div:hover {
-    background-color: var(--hover-color);
+    background-color: var(--bar-hover-color);
 }
 
 #link_bar {
