@@ -794,11 +794,12 @@ var main_window_l = {};
 var main_window_focus;
 function create_main_window(t, web_page) {
     var window_name = new Date().getTime();
+    var [w, h, m] = store.get("主窗口大小");
     main_window_l[window_name] = new BrowserWindow({
-        x: screen.getCursorScreenPoint().x - 800,
-        y: screen.getCursorScreenPoint().y - 600,
-        width: 800,
-        height: 600,
+        x: screen.getCursorScreenPoint().x - w,
+        y: screen.getCursorScreenPoint().y - h,
+        width: w,
+        height: h,
         minWidth: 800,
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
         icon: the_icon,
@@ -808,6 +809,8 @@ function create_main_window(t, web_page) {
             enableRemoteModule: true,
         },
     });
+
+    if (m) main_window_l[window_name].maximize();
 
     // 自定义界面
     if (web_page == undefined) {
@@ -820,6 +823,14 @@ function create_main_window(t, web_page) {
     main_window_l[window_name].webContents.on("did-finish-load", () => {
         main_window_l[window_name].webContents.setZoomFactor(store.get("全局缩放") || 1.0);
         main_window_l[window_name].webContents.send("text", window_name, [t[0], t[1] || "auto"]);
+    });
+
+    main_window_l[window_name].on("close", () => {
+        store.set("主窗口大小", [
+            main_window_l[window_name].getNormalBounds().width,
+            main_window_l[window_name].getNormalBounds().height,
+            main_window_l[window_name].isMaximized(),
+        ]);
     });
 
     main_window_l[window_name].on("closed", () => {
@@ -1089,6 +1100,7 @@ var default_setting = {
         proxyBypassRules: "",
     },
     深色模式: "system",
+    主窗口大小: [800, 600],
 };
 function set_default_setting() {
     for (i in default_setting) {
