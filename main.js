@@ -801,7 +801,7 @@ function create_main_window(t, web_page) {
         width: w,
         height: h,
         minWidth: 800,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
@@ -902,7 +902,7 @@ function open_in_browser() {
 function create_setting_window(about) {
     const main_window = new BrowserWindow({
         icon: the_icon,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -923,7 +923,7 @@ function create_setting_window(about) {
 function create_help_window() {
     const main_window = new BrowserWindow({
         icon: the_icon,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#f5f5f5",
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         width: 1000,
         height: 800,
         webPreferences: {
