@@ -152,7 +152,7 @@ function open_link(id, link) {
     if (浏览器打开) {
         shell.openExternal(url);
     } else {
-        ipcRenderer.send("open_url", url);
+        ipcRenderer.send("open_url", window_name, url);
     }
 }
 
