@@ -1107,7 +1107,7 @@ var default_setting = {
     快速截图: { 模式: "clip", 路径: "" },
     搜索引擎: [
         ["谷歌", "https://www.google.com/search?q=%s"],
-        ["*百度", "https://www.baidu.com/s?wd=%s"],
+        ["百度", "https://www.baidu.com/s?wd=%s"],
         ["必应", "https://cn.bing.com/search?q=%s"],
     ],
     翻译引擎: [
@@ -1116,6 +1116,11 @@ var default_setting = {
         ["金山词霸", "http://www.iciba.com/word?w=%s"],
         ["百度", "https://fanyi.baidu.com/#en/zh/%s"],
     ],
+    引擎: {
+        记住: false,
+        默认搜索引擎: "百度",
+        默认翻译引擎: "google",
+    },
     历史记录: [],
     历史记录设置: {
         保留历史记录: true,

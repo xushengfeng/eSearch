@@ -84,25 +84,32 @@ function show_t(t) {
 
 翻译引擎_list = store.get("翻译引擎");
 
+var 引擎 = store.get("引擎");
+
 search_c = "";
 for (i in 搜索引擎_list) {
-    if (搜索引擎_list[i][0].match(/\*\W*/) != null) {
-        search_c += `<option selected value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0].replace("*", "")}</option>`;
-    } else {
-        search_c += `<option value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0]}</option>`;
-    }
+    search_c += `<option ${
+        引擎.记住
+            ? 引擎.记住[0] == 搜索引擎_list[i][0]
+                ? "selected"
+                : ""
+            : 引擎.默认搜索引擎 == 搜索引擎_list[i][0]
+            ? "selected"
+            : ""
+    } value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0]}</option>`;
 }
 document.querySelector("#search_s").innerHTML = search_c;
 translate_c = "";
 for (i in 翻译引擎_list) {
-    if (翻译引擎_list[i][0].match(/\*\W*/) != null) {
-        translate_c += `<option selected value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0].replace(
-            "*",
-            ""
-        )}</option>`;
-    } else {
-        translate_c += `<option value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
-    }
+    translate_c += `<option ${
+        引擎.记住
+            ? 引擎.记住[1] == 翻译引擎_list[i][0]
+                ? "selected"
+                : ""
+            : 引擎.默认翻译引擎 == 翻译引擎_list[i][0]
+            ? "selected"
+            : ""
+    } value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
 
