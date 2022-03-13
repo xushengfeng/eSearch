@@ -258,9 +258,19 @@ document.querySelector("#translate_b").onclick = () => {
 };
 document.querySelector("#search_s").oninput = () => {
     open_link("search");
+    if (引擎.记住)
+        store.set("引擎.记住", [
+            document.querySelector("#search_s").selectedOptions[0].innerText,
+            store.get("引擎.记住")[1],
+        ]);
 };
 document.querySelector("#translate_s").oninput = () => {
     open_link("translate");
+    if (引擎.记住)
+        store.set("引擎.记住", [
+            store.get("引擎.记住")[0],
+            document.querySelector("#translate_s").selectedOptions[0].innerText,
+        ]);
 };
 
 // 选中释放鼠标显示编辑面板
