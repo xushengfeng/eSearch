@@ -918,7 +918,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
             }
         }
         if (main_window_url_window_l[window_name].length == 0 && store.get("关闭窗口.主窗口跟随子窗口关")) {
-            main_window_l[window_name].close();
+            if (main_window_l[window_name]) main_window_l[window_name].close();
         }
     }
 });

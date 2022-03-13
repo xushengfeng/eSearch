@@ -250,6 +250,9 @@ document.getElementById("pacScript").value = 代理.pacScript;
 document.getElementById("proxyRules").value = 代理.proxyRules;
 document.getElementById("proxyBypassRules").value = 代理.proxyBypassRules;
 
+document.getElementById("主关子").checked = store.get("关闭窗口.子窗口跟随主窗口关");
+document.getElementById("子关主").checked = store.get("关闭窗口.主窗口跟随子窗口关");
+
 document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
 };
@@ -304,6 +307,10 @@ function save_setting() {
         pacScript: document.getElementById("pacScript").value,
         proxyRules: document.getElementById("proxyRules").value,
         proxyBypassRules: document.getElementById("proxyBypassRules").value,
+    });
+    store.set("关闭窗口", {
+        子窗口跟随主窗口关: document.getElementById("主关子").checked,
+        主窗口跟随子窗口关: document.getElementById("子关主").checked,
     });
     ipcRenderer.send("setting", "reload_main");
 }
