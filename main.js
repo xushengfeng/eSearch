@@ -931,6 +931,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         if (search_window_l[win_name].isDestroyed()) return;
         var view = new Date().getTime();
         search_window_l[view] = new BrowserView();
+        search_window_l[view].setBackgroundColor(nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff");
         search_window_l[win_name].addBrowserView(search_window_l[view]);
         search_window_l[view].webContents.loadURL(url);
         var w = search_window_l[win_name].getBounds().width,
