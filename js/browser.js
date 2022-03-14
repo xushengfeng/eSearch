@@ -15,6 +15,15 @@ ipcRenderer.on("url", (event, pid, id, title, url) => {
     var button = li.querySelector("button");
     button.onclick = () => {
         ipcRenderer.send("tab_view", pid, id, "close");
+        var l = document.querySelectorAll("li");
+        for (i in l) {
+            if (l[i] === li)
+                if (i == 0) {
+                    focus_tab(l[1]);
+                } else {
+                    focus_tab(l[i - 1]);
+                }
+        }
         document.getElementById("tabs").removeChild(li);
     };
     document.getElementById("tabs").appendChild(li);
