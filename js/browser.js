@@ -1,11 +1,13 @@
 const { ipcRenderer, shell } = require("electron");
 
 var top_tab = {};
+var li_list = [];
 
 ipcRenderer.on("url", (event, pid, id, title, url) => {
     top_tab = { title: title, url: url };
     console.log(top_tab);
     var li = document.getElementById("tab").cloneNode(true);
+    li_list.push(li);
     li.style.display = "flex";
     li.querySelector("span").innerText = title;
     li.querySelector("span").onclick = () => {
@@ -16,13 +18,15 @@ ipcRenderer.on("url", (event, pid, id, title, url) => {
     button.onclick = () => {
         ipcRenderer.send("tab_view", pid, id, "close");
         var l = document.querySelectorAll("li");
-        for (i in l) {
-            if (l[i] === li)
+        for (i in li_list) {
+            if (li_list[i] === li) {
                 if (i == 0) {
-                    focus_tab(l[1]);
+                    focus_tab(li_list[1]);
                 } else {
-                    focus_tab(l[i - 1]);
+                    focus_tab(li_list[i - 1]);
                 }
+                li_list.splice(i, 1);
+            }
         }
         document.getElementById("tabs").removeChild(li);
     };
@@ -37,6 +41,12 @@ function focus_tab(li) {
             i.className = "tab_focus";
         } else {
             i.className = "";
+        }
+    }
+    for (j in li_list) {
+        if (li_list[j] === li) {
+            li_list.splice(j, 1);
+            li_list.push(li);
         }
     }
 }
