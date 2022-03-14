@@ -792,11 +792,11 @@ function create_ding_window(x, y, w, h, img) {
 
 // 主窗口
 /**
- * @type {{id: BrowserWindow}}
+ * @type {Object.<number, BrowserWindow>}
  */
 var main_window_l = {};
 /**
- * @type {{id: String}} id: search_id
+ * @type {Object.<number, number>}
  */
 var main_to_search_l = {};
 var main_window_focus;
@@ -887,7 +887,7 @@ function main_edit(m) {
  */
 var focused_search_window = null;
 /**
- * @type {{id: BrowserWindow}}
+ * @type {Object.<number, BrowserWindow>}
  */
 var search_window_l = {};
 ipcMain.on("open_url", async (event, window_name, url) => {
@@ -926,8 +926,6 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[view].webContents.on("new-window", (event, url) => {
             new_browser_view(url);
             event.preventDefault();
-
-            console.log(search_window_l[win_name].getBrowserViews());
         });
     }
 
@@ -942,6 +940,12 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     });
 
     function close_win() {
+        // 清除列表中的索引
+        for (i in main_to_search_l[window_name]) {
+            if (main_to_search_l[window_name] == win_name) {
+                main_to_search_l[window_name].splice(i, 1);
+            }
+        }
         if (search_window_l.length == 0 && store.get("关闭窗口.主窗口跟随子窗口关")) {
             if (main_window_l[window_name]) main_window_l[window_name].close();
         }
@@ -956,6 +960,9 @@ function open_in_browser() {
 ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
     if (arg == "close") {
         search_window_l[pid].removeBrowserView(search_window_l[id]);
+        if (search_window_l[pid].getBrowserViews().length == 0) search_window_l[pid].close();
+    } else if (arg == "top") {
+        search_window_l[pid].setTopBrowserView(search_window_l[id]);
     }
 });
 

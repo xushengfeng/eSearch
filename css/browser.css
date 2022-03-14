@@ -1,6 +1,44 @@
-#tabs{
+#tabs {
     display: flex;
     margin: 0;
     padding: 0;
     list-style: none;
+    background-color: var(--hover-color);
+}
+
+#tab {
+    display: flex;
+    height: 30px;
+    align-items: center;
+    background-color: var(--hover-color);
+    flex: 1;
+    max-width: 200px;
+    justify-content: space-between;
+    transition: var(--transition);
+}
+
+.tab_focus {
+    background-color: var(--bg) !important;
+}
+
+#tab > span {
+    cursor: default;
+    padding-left: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+#tab > button {
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    transition: var(--transition);
+    background-image: url(../assets/i_close.svg);
+    background-size: cover;
+    margin: 5px;
+}
+
+#tab > button:hover {
+    background-color: var(--hover-color);
 }
