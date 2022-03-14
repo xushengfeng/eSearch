@@ -13,6 +13,7 @@ const {
     shell,
     nativeImage,
     nativeTheme,
+    BrowserView,
 } = require("electron");
 const { Buffer } = require("buffer");
 var robot = require("robotjs");
@@ -877,15 +878,36 @@ function main_edit(m) {
 
 var focused_search_window = null;
 ipcMain.on("open_url", async (event, window_name, url) => {
-    const search_window = new BrowserWindow({
+    var search_window = new BrowserWindow({
         webPreferences: {
             sandbox: true,
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
         },
     });
     main_window_url_window_l[window_name].push(search_window);
 
     if (store.get("开启代理")) await search_window.webContents.session.setProxy(store.get("代理"));
-    search_window.loadURL(url);
+    search_window.loadFile("browser.html");
+
+    new_browser_view(url);
+
+    function new_browser_view(url) {
+        var view = new BrowserView();
+        search_window.addBrowserView(view);
+        view.webContents.loadURL(url);
+        view.setAutoResize({ width: true, height: true });
+        view.setBounds({ x: 0, y: 40, width: 800, height: 590 });
+        search_window.webContents.send("url", view.id, url);
+        view.webContents.on("new-window", (event, url) => {
+            new_browser_view(url);
+            event.preventDefault();
+
+            console.log(search_window.getBrowserViews());
+        });
+    }
+
     search_window.on("focus", () => {
         focused_search_window = search_window;
     });
@@ -894,20 +916,6 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     });
     search_window.on("close", () => {
         close_win(search_window);
-    });
-    search_window.webContents.on("did-create-window", async (child_window) => {
-        main_window_url_window_l[window_name].push(child_window);
-
-        if (store.get("开启代理")) await child_window.webContents.session.setProxy(store.get("代理"));
-        child_window.on("focus", () => {
-            focused_search_window = child_window;
-        });
-        child_window.on("blur", () => {
-            focused_search_window = null;
-        });
-        child_window.on("close", () => {
-            close_win(child_window);
-        });
     });
 
     function close_win(win) {
