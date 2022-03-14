@@ -933,7 +933,6 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[view] = new BrowserView();
         search_window_l[win_name].addBrowserView(search_window_l[view]);
         search_window_l[view].webContents.loadURL(url);
-        search_window_l[view].setAutoResize({ width: true, height: true });
         var w = search_window_l[win_name].getBounds().width,
             h = search_window_l[win_name].getBounds().height;
         search_window_l[view].setBounds({ x: 0, y: 30, width: w, height: h - 30 });
