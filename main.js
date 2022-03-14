@@ -1188,7 +1188,7 @@ var default_setting = {
     深色模式: "system",
     主窗口大小: [800, 600],
     关闭窗口: {
-        失焦: [true, true],
+        失焦: [false, false],
         子窗口跟随主窗口关: false,
         主窗口跟随子窗口关: false,
     },
