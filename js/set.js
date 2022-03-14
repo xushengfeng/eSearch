@@ -277,6 +277,8 @@ document.getElementById("proxyBypassRules").value = 代理.proxyBypassRules;
 
 document.getElementById("主关子").checked = store.get("关闭窗口.子窗口跟随主窗口关");
 document.getElementById("子关主").checked = store.get("关闭窗口.主窗口跟随子窗口关");
+document.getElementById("主窗口失焦").checked = store.get("关闭窗口.失焦")[0];
+document.getElementById("搜索窗口失焦").checked = store.get("关闭窗口.失焦")[1];
 
 document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
@@ -341,6 +343,7 @@ function save_setting() {
         proxyBypassRules: document.getElementById("proxyBypassRules").value,
     });
     store.set("关闭窗口", {
+        失焦: [document.getElementById("主窗口失焦").checked, document.getElementById("搜索窗口失焦").checked],
         子窗口跟随主窗口关: document.getElementById("主关子").checked,
         主窗口跟随子窗口关: document.getElementById("子关主").checked,
     });

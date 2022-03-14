@@ -908,6 +908,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     new_browser_view(url);
 
     function new_browser_view(url) {
+        if (search_window_l[win_name].isDestroyed()) return;
         var view = new Date().getTime();
         search_window_l[view] = new BrowserView();
         search_window_l[win_name].addBrowserView(search_window_l[view]);
@@ -932,8 +933,15 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     search_window_l[win_name].on("focus", () => {
         focused_search_window = search_window_l[win_name];
     });
-    search_window_l[win_name].on("blur", () => {
-        focused_search_window = null;
+    var 失焦关闭 = false;
+    search_window_l[win_name].webContents.on("did-finish-load", () => {
+        search_window_l[win_name].on("blur", () => {
+            focused_search_window = null;
+            if (store.get("关闭窗口.失焦")[1]) {
+                失焦关闭 = true;
+                search_window_l[win_name].close();
+            }
+        });
     });
     search_window_l[win_name].on("close", () => {
         close_win();
@@ -946,7 +954,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
                 main_to_search_l[window_name].splice(i, 1);
             }
         }
-        if (search_window_l.length == 0 && store.get("关闭窗口.主窗口跟随子窗口关")) {
+        if (search_window_l.length == 0 && store.get("关闭窗口.主窗口跟随子窗口关") && !失焦关闭) {
             if (main_window_l[window_name]) main_window_l[window_name].close();
         }
     }
@@ -1174,7 +1182,8 @@ var default_setting = {
     },
     深色模式: "system",
     主窗口大小: [800, 600],
-    关闭: {
+    关闭窗口: {
+        失焦: [true, true],
         子窗口跟随主窗口关: false,
         主窗口跟随子窗口关: false,
     },
