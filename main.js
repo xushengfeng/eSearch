@@ -843,11 +843,12 @@ function create_main_window(t, web_page) {
         ]);
     });
 
+    var 失焦关闭 = false;
     main_window_l[window_name].on("closed", () => {
         delete main_window_l[window_name];
         main_window_focus = null;
 
-        if (store.get("关闭窗口.子窗口跟随主窗口关")) {
+        if (store.get("关闭窗口.子窗口跟随主窗口关") && !失焦关闭) {
             for (i of main_to_search_l[window_name]) {
                 search_window_l[i].close();
             }
@@ -859,6 +860,10 @@ function create_main_window(t, web_page) {
     });
     main_window_l[window_name].on("blur", () => {
         main_window_focus = null;
+        if (store.get("关闭窗口.失焦")[0]) {
+            失焦关闭 = true;
+            main_window_l[window_name].close();
+        }
     });
 
     ipcMain.on("edit", (event, name, v) => {
