@@ -1,6 +1,6 @@
 # eSearch
 
-![LOGO](readme/title_photo.svg)
+![LOGO](https://esearch.vercel.app/readme/title_photo.svg)
 
 ## 简介
 
@@ -94,6 +94,7 @@ e-search
     -   [ ] 控件选择
     -   [ ] 多屏幕
 -   [x] 保存（可选保存为 SVG 可编辑文件）
+-   [x] 其他应用打开
 -   [x] 复制到剪贴板
 -   [x] 钉在屏幕上
     -   [x] 滚轮缩放
@@ -112,8 +113,9 @@ e-search
     -   [x] 搜索
     -   [x] 翻译
     -   [x] 自定义搜索翻译引擎
-    -   [x] 自带窗口打开
-    -   [x] 浏览器打开
+    -   [x] 软件自带浏览器打开
+    -   [x] 跟随关闭、失焦关闭
+    -   [x] 系统浏览器打开
     -   [x] 链接识别
     -   [x] 历史记录
     -   [x] 自动删除换行（用于自动排版）
