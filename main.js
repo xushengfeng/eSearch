@@ -912,6 +912,21 @@ ipcMain.on("open_url", async (event, window_name, url) => {
 
     new_browser_view(url);
 
+    search_window_l[win_name].on("resize", () => {
+        var w = search_window_l[win_name].getBounds().width,
+            h = search_window_l[win_name].getBounds().height;
+        for (i of search_window_l[win_name].getBrowserViews()) {
+            i.setBounds({ x: 0, y: 30, width: w, height: h - 30 });
+            if (search_window_l[win_name].isMaximized() || search_window_l[win_name].isFullScreen()) {
+                search_window_l[win_name].setSize(
+                    screen.getPrimaryDisplay().workArea.width,
+                    screen.getPrimaryDisplay().workArea.height
+                );
+                i.setBounds({ x: 0, y: 30, width: w, height: h - 30 });
+            }
+        }
+    });
+
     function new_browser_view(url) {
         if (search_window_l[win_name].isDestroyed()) return;
         var view = new Date().getTime();
@@ -919,7 +934,11 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[win_name].addBrowserView(search_window_l[view]);
         search_window_l[view].webContents.loadURL(url);
         search_window_l[view].setAutoResize({ width: true, height: true });
-        search_window_l[view].setBounds({ x: 0, y: 40, width: 800, height: 590 });
+        var w = search_window_l[win_name].getBounds().width,
+            h = search_window_l[win_name].getBounds().height;
+        search_window_l[view].setBounds({ x: 0, y: 30, width: w, height: h - 30 });
+        search_window_l[win_name].setSize(w, h + 1);
+        search_window_l[win_name].setSize(w, h);
         search_window_l[view].webContents.on("did-finish-load", () => {
             search_window_l[win_name].webContents.send(
                 "url",
