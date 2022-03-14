@@ -380,9 +380,6 @@ document.getElementById("version").onclick = () => {
                 ).innerHTML = `有新版本: <a href="${result.html_url}">${result.name}</a>`;
             } else {
                 document.getElementById("update_info").innerHTML = "暂无更新";
-                setTimeout(() => {
-                    document.getElementById("update_info").innerHTML = "";
-                }, 3000);
             }
         })
         .catch((error) => console.log("error", error));
