@@ -791,8 +791,14 @@ function create_ding_window(x, y, w, h, img) {
 }
 
 // 主窗口
+/**
+ * @type {{id: BrowserWindow}}
+ */
 var main_window_l = {};
-var main_window_url_window_l = {};
+/**
+ * @type {{id: String}} id: search_id
+ */
+var main_to_search_l = {};
 var main_window_focus;
 function create_main_window(t, web_page) {
     var window_name = new Date().getTime();
@@ -812,7 +818,7 @@ function create_main_window(t, web_page) {
         },
     });
 
-    main_window_url_window_l[window_name] = [];
+    main_to_search_l[window_name] = [];
 
     if (m) main_window_l[window_name].maximize();
 
@@ -842,8 +848,8 @@ function create_main_window(t, web_page) {
         main_window_focus = null;
 
         if (store.get("关闭窗口.子窗口跟随主窗口关")) {
-            for (i of main_window_url_window_l[window_name]) {
-                i.close();
+            for (i of main_to_search_l[window_name]) {
+                search_window_l[i].close();
             }
         }
     });
@@ -876,66 +882,82 @@ function main_edit(m) {
     if (main_window_focus) main_window_focus.webContents.send("edit", m);
 }
 
+/**
+ * @type BrowserWindow
+ */
 var focused_search_window = null;
+/**
+ * @type {{id: BrowserWindow}}
+ */
+var search_window_l = {};
 ipcMain.on("open_url", async (event, window_name, url) => {
-    var search_window = new BrowserWindow({
+    var win_name = new Date().getTime();
+    search_window_l[win_name] = new BrowserWindow({
         webPreferences: {
-            sandbox: true,
             nodeIntegration: true,
             contextIsolation: false,
             enableRemoteModule: true,
         },
     });
-    main_window_url_window_l[window_name].push(search_window);
+    main_to_search_l[window_name].push(win_name);
+    if (dev) search_window_l[win_name].webContents.openDevTools();
 
-    if (store.get("开启代理")) await search_window.webContents.session.setProxy(store.get("代理"));
-    search_window.loadFile("browser.html");
+    if (store.get("开启代理")) await search_window_l[win_name].webContents.session.setProxy(store.get("代理"));
+    search_window_l[win_name].loadFile("browser.html");
 
     new_browser_view(url);
 
     function new_browser_view(url) {
-        var view = new BrowserView();
-        search_window.addBrowserView(view);
-        view.webContents.loadURL(url);
-        view.setAutoResize({ width: true, height: true });
-        view.setBounds({ x: 0, y: 40, width: 800, height: 590 });
-        search_window.webContents.send("url", view.id, url);
-        view.webContents.on("new-window", (event, url) => {
+        var view = new Date().getTime();
+        search_window_l[view] = new BrowserView();
+        search_window_l[win_name].addBrowserView(search_window_l[view]);
+        search_window_l[view].webContents.loadURL(url);
+        search_window_l[view].setAutoResize({ width: true, height: true });
+        search_window_l[view].setBounds({ x: 0, y: 40, width: 800, height: 590 });
+        search_window_l[view].webContents.on("did-finish-load", () => {
+            search_window_l[win_name].webContents.send(
+                "url",
+                win_name,
+                view,
+                search_window_l[view].webContents.getTitle(),
+                url
+            );
+        });
+        search_window_l[view].webContents.on("new-window", (event, url) => {
             new_browser_view(url);
             event.preventDefault();
 
-            console.log(search_window.getBrowserViews());
+            console.log(search_window_l[win_name].getBrowserViews());
         });
     }
 
-    search_window.on("focus", () => {
-        focused_search_window = search_window;
+    search_window_l[win_name].on("focus", () => {
+        focused_search_window = search_window_l[win_name];
     });
-    search_window.on("blur", () => {
+    search_window_l[win_name].on("blur", () => {
         focused_search_window = null;
     });
-    search_window.on("close", () => {
-        close_win(search_window);
+    search_window_l[win_name].on("close", () => {
+        close_win();
     });
 
-    function close_win(win) {
-        for (i in main_window_url_window_l[window_name]) {
-            if (main_window_url_window_l[window_name][i] === win) {
-                console.log(main_window_url_window_l[window_name]);
-                main_window_url_window_l[window_name].splice(i, 1);
-            }
-        }
-        if (main_window_url_window_l[window_name].length == 0 && store.get("关闭窗口.主窗口跟随子窗口关")) {
+    function close_win() {
+        if (search_window_l.length == 0 && store.get("关闭窗口.主窗口跟随子窗口关")) {
             if (main_window_l[window_name]) main_window_l[window_name].close();
         }
     }
 });
 function open_in_browser() {
     if (focused_search_window != null) {
-        url = focused_search_window.webContents.getURL();
-        shell.openExternal(url);
+        url = focused_search_window.webContents.send("open_in_browser");
     }
 }
+
+ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
+    if (arg == "close") {
+        search_window_l[pid].removeBrowserView(search_window_l[id]);
+    }
+});
 
 // 设置窗口
 function create_setting_window(about) {
