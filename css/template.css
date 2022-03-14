@@ -10,7 +10,7 @@
     margin: 8px;
     border-radius: 8px;
     padding: 8px;
-    transition: var(--transition);
+    transition: background var(--transition), box-shadow var(--transition);
 }
 .选项:hover {
     background: var(--hover-color);
