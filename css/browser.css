@@ -41,6 +41,9 @@
 #browser{
     background-image: url(../assets/main_browser.svg);
 }
+#add_history{
+    background-image: url(../assets/browser_add_history.svg);
+}
 
 .tab {
     display: flex;
