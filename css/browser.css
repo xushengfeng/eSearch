@@ -6,7 +6,7 @@
     background-color: var(--hover-color);
 }
 
-#tab {
+.tab {
     display: flex;
     height: 30px;
     align-items: center;
@@ -21,13 +21,17 @@
     background-color: var(--bg) !important;
 }
 
-#tab > span {
+.tab > img {
+    height: 20px;
+    margin-left: 5px;
+}
+.tab > span {
     cursor: default;
     padding-left: 4px;
     overflow: hidden;
     white-space: nowrap;
 }
-#tab > button {
+.tab > button {
     width: 20px;
     height: 20px;
     background: none;
@@ -39,6 +43,6 @@
     margin: 5px;
 }
 
-#tab > button:hover {
+.tab > button:hover {
     background-color: var(--hover-color);
 }

@@ -2,12 +2,23 @@ const { ipcRenderer, shell } = require("electron");
 
 var li_list = [];
 
-ipcRenderer.on("url", (event, pid, id, title, url) => {
+ipcRenderer.on("url", (event, pid, id, arg, arg1) => {
+    if (arg == "new") {
+        new_tab(pid, id, arg1);
+    } 
+     if (arg == "title") {
+        title(pid, id, arg1);
+    } 
+    if (arg == "icon") {
+        icon(pid, id, arg1);
+    }
+});
+
+function new_tab(pid, id, url) {
     var li = document.getElementById("tab").cloneNode(true);
     li_list.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
-    li.querySelector("span").innerText = title;
     li.querySelector("span").onclick = () => {
         ipcRenderer.send("tab_view", pid, id, "top");
         focus_tab(li);
@@ -30,15 +41,16 @@ ipcRenderer.on("url", (event, pid, id, title, url) => {
     };
     document.getElementById("tabs").appendChild(li);
     focus_tab(li);
-});
+    li.id = "id" + id;
+}
 
 function focus_tab(li) {
     var l = document.querySelectorAll("li");
     for (i of l) {
         if (i === li) {
-            i.className = "tab_focus";
+            i.classList.add("tab_focus");
         } else {
-            i.className = "";
+            i.classList.remove("tab_focus");
         }
     }
     for (j in li_list) {
@@ -47,6 +59,14 @@ function focus_tab(li) {
             li_list.push(li);
         }
     }
+}
+
+function title(pid, id, arg) {
+    document.querySelector(`#id${id} > span`).innerHTML = arg;
+}
+
+function icon(pid, id, arg) {
+    document.querySelector(`#id${id} > img`).src = arg[0];
 }
 
 ipcRenderer.on("open_in_browser", () => {

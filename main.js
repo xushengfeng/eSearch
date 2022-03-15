@@ -910,8 +910,6 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     if (store.get("开启代理")) await search_window_l[win_name].webContents.session.setProxy(store.get("代理"));
     search_window_l[win_name].loadFile("browser.html");
 
-    new_browser_view(url);
-
     search_window_l[win_name].on("resize", () => {
         var w = search_window_l[win_name].getBounds().width,
             h = search_window_l[win_name].getBounds().height;
@@ -939,14 +937,12 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[view].setBounds({ x: 0, y: 30, width: w, height: h - 30 });
         search_window_l[win_name].setSize(w, h + 1);
         search_window_l[win_name].setSize(w, h);
-        search_window_l[view].webContents.on("did-finish-load", () => {
-            search_window_l[win_name].webContents.send(
-                "url",
-                win_name,
-                view,
-                search_window_l[view].webContents.getTitle(),
-                url
-            );
+        search_window_l[win_name].webContents.send("url", win_name, view, "new", url);
+        search_window_l[view].webContents.on("page-title-updated", (event, title) => {
+            search_window_l[win_name].webContents.send("url", win_name, view, "title", title);
+        });
+        search_window_l[view].webContents.on("page-favicon-updated", (event, favicons) => {
+            search_window_l[win_name].webContents.send("url", win_name, view, "icon", favicons);
         });
         search_window_l[view].webContents.on("new-window", (event, url) => {
             new_browser_view(url);
@@ -959,6 +955,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     });
     var 失焦关闭 = false;
     search_window_l[win_name].webContents.on("did-finish-load", () => {
+        new_browser_view(url);
         search_window_l[win_name].on("blur", () => {
             focused_search_window = null;
             if (store.get("关闭窗口.失焦")[1]) {
