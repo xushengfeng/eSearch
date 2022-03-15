@@ -937,16 +937,16 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[view].setBounds({ x: 0, y: 30, width: w, height: h - 30 });
         search_window_l[win_name].setSize(w, h + 1);
         search_window_l[win_name].setSize(w, h);
+        search_window_l[view].webContents.setWindowOpenHandler(({ url }) => {
+            new_browser_view(url);
+            return { action: "deny" };
+        });
         search_window_l[win_name].webContents.send("url", win_name, view, "new", url);
         search_window_l[view].webContents.on("page-title-updated", (event, title) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "title", title);
         });
         search_window_l[view].webContents.on("page-favicon-updated", (event, favicons) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "icon", favicons);
-        });
-        search_window_l[view].webContents.on("new-window", (event, url) => {
-            new_browser_view(url);
-            event.preventDefault();
         });
     }
 
