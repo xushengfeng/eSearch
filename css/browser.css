@@ -32,7 +32,7 @@
     white-space: nowrap;
 }
 .tab > button {
-    width: 20px;
+    min-width: 20px;
     height: 20px;
     background: none;
     border: none;
