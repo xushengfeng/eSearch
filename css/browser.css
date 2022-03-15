@@ -6,6 +6,39 @@
     background-color: var(--hover-color);
 }
 
+#buttons {
+    display: flex;
+    padding: 3px 3px 3px 0;
+}
+#buttons > div {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    margin-left: 3px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    background-color: var(--bg);
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+#buttons > div:hover {
+    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
+}
+#back {
+    background-image: url(../assets/browser_back.svg);
+}
+#forward {
+    background-image: url(../assets/browser_forward.svg);
+}
+#stop {
+    background-image: url(../assets/i_close.svg);
+}
+#reload {
+    background-image: url(../assets/browser_reload.svg);
+}
+
 .tab {
     display: flex;
     height: 30px;

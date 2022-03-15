@@ -1,8 +1,10 @@
 const { ipcRenderer, shell } = require("electron");
 
 var li_list = [];
+var pid;
 
 ipcRenderer.on("url", (event, pid, id, arg, arg1) => {
+    pid = pid;
     if (arg == "new") {
         new_tab(pid, id, arg1);
     }
@@ -75,6 +77,11 @@ function icon(pid, id, arg) {
 function url(pid, id, url) {
     document.querySelector(`#id${id}`).setAttribute("data-url", url);
 }
+
+document.getElementById("buttons").onclick = (e) => {
+    var id = li_list[li_list.length - 1].id.replace("id", "");
+    if (e.target.id) ipcRenderer.send("tab_view", pid, id, e.target.id);
+};
 
 ipcRenderer.on("open_in_browser", () => {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");

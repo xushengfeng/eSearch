@@ -944,7 +944,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[win_name].webContents.send("url", win_name, view, "new", url);
         search_window_l[view].webContents.on("page-title-updated", (event, title) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "title", title);
-            search_window_l[win_name].setTitle(`eSearch - ${title}`)
+            search_window_l[win_name].setTitle(`eSearch - ${title}`);
         });
         search_window_l[view].webContents.on("page-favicon-updated", (event, favicons) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "icon", favicons);
@@ -996,6 +996,14 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
         if (search_window_l[pid].getBrowserViews().length == 0) search_window_l[pid].close();
     } else if (arg == "top") {
         search_window_l[pid].setTopBrowserView(search_window_l[id]);
+    } else if (arg == "back") {
+        search_window_l[id].webContents.goBack();
+    } else if (arg == "forward") {
+        search_window_l[id].webContents.goForward();
+    } else if (arg == "stop") {
+        search_window_l[id].webContents.stop();
+    } else if (arg == "reload") {
+        search_window_l[id].webContents.reload();
     }
 });
 
