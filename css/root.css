@@ -329,4 +329,19 @@ textarea {
     #draw_position_back {
         background-image: url(../assets/dark/draw_position_back.svg) !important;
     }
+    #back {
+        background-image: url(../assets/dark/browser_back.svg) !important;
+    }
+    #forward {
+        background-image: url(../assets/dark/browser_forward.svg) !important;
+    }
+    #stop {
+        background-image: url(../assets/dark/i_close.svg) !important;
+    }
+    #reload {
+        background-image: url(../assets/dark/browser_reload.svg) !important;
+    }
+    .tab > button {
+        background-image: url(../assets/dark/i_close.svg) !important;
+    }
 }
