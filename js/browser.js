@@ -1,14 +1,12 @@
 const { ipcRenderer, shell } = require("electron");
 
-var top_tab = {};
 var li_list = [];
 
 ipcRenderer.on("url", (event, pid, id, title, url) => {
-    top_tab = { title: title, url: url };
-    console.log(top_tab);
     var li = document.getElementById("tab").cloneNode(true);
     li_list.push(li);
     li.style.display = "flex";
+    li.setAttribute("data-url", url);
     li.querySelector("span").innerText = title;
     li.querySelector("span").onclick = () => {
         ipcRenderer.send("tab_view", pid, id, "top");
@@ -52,5 +50,6 @@ function focus_tab(li) {
 }
 
 ipcRenderer.on("open_in_browser", () => {
-    shell.openExternal(top_tab.url);
+    var url = document.querySelector(".tab_focus").getAttribute("data-url");
+    shell.openExternal(url);
 });
