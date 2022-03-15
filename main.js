@@ -944,6 +944,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[win_name].webContents.send("url", win_name, view, "new", url);
         search_window_l[view].webContents.on("page-title-updated", (event, title) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "title", title);
+            search_window_l[win_name].setTitle(`eSearch - ${title}`)
         });
         search_window_l[view].webContents.on("page-favicon-updated", (event, favicons) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "icon", favicons);
