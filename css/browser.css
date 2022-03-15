@@ -38,6 +38,9 @@
 #reload {
     background-image: url(../assets/browser_reload.svg);
 }
+#browser{
+    background-image: url(../assets/main_browser.svg);
+}
 
 .tab {
     display: flex;

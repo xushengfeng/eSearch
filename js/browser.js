@@ -80,10 +80,16 @@ function url(pid, id, url) {
 
 document.getElementById("buttons").onclick = (e) => {
     var id = li_list[li_list.length - 1].id.replace("id", "");
-    if (e.target.id) ipcRenderer.send("tab_view", pid, id, e.target.id);
+    if (e.target.id == "browser") {
+        open_in_browser();
+    } else {
+        if (e.target.id) ipcRenderer.send("tab_view", pid, id, e.target.id);
+    }
 };
 
-ipcRenderer.on("open_in_browser", () => {
+function open_in_browser() {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
-});
+}
+
+ipcRenderer.on("open_in_browser", open_in_browser);

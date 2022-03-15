@@ -341,6 +341,9 @@ textarea {
     #reload {
         background-image: url(../assets/dark/browser_reload.svg) !important;
     }
+    #browser {
+        background-image: url(../assets/dark/main_browser.svg) !important;
+    }
     .tab > button {
         background-image: url(../assets/dark/i_close.svg) !important;
     }
