@@ -303,7 +303,7 @@ window.onbeforeunload = save_setting;
 
 function save_setting() {
     if (give_up) return;
-    var 模糊 = document.querySelector("#模糊").value;
+    var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("模糊", 模糊);
     store.set("全局缩放", document.getElementById("全局缩放").value - 0);
     store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
@@ -320,13 +320,13 @@ function save_setting() {
             : ""
     );
     store.set("保存名称", document.getElementById("保存文件名称").value.replace("//", "//"));
-    store.set("jpg质量", document.getElementById("jpg质量").value);
+    store.set("jpg质量", document.getElementById("jpg质量").value - 0);
     字体.大小 = document.getElementById("字体大小").value - 0;
     字体.记住 = document.getElementById("记住字体大小").checked ? 字体.大小 : false;
     store.set("字体", 字体);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
-    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value);
+    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value - 0);
     if (o_搜索引擎) store.set("搜索引擎", o_搜索引擎);
     if (o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
     store.set("引擎", {
@@ -337,8 +337,8 @@ function save_setting() {
         默认翻译引擎: document.getElementById("默认翻译引擎").value,
     });
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
-    历史记录设置.d = document.querySelector("#his_d").value;
-    历史记录设置.h = document.querySelector("#his_h").value;
+    历史记录设置.d = document.querySelector("#his_d").value - 0;
+    历史记录设置.h = document.querySelector("#his_h").value - 0;
     store.set("历史记录设置", 历史记录设置);
     store.set("检查OCR", document.getElementById("检查OCR").checked);
     store.set("自动运行命令", document.getElementById("自动运行命令").value);
