@@ -948,6 +948,9 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_window_l[view].webContents.on("page-favicon-updated", (event, favicons) => {
             search_window_l[win_name].webContents.send("url", win_name, view, "icon", favicons);
         });
+        search_window_l[view].webContents.on("did-navigate", (event, url) => {
+            search_window_l[win_name].webContents.send("url", win_name, view, "url", url);
+        });
     }
 
     search_window_l[win_name].on("focus", () => {

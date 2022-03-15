@@ -5,12 +5,15 @@ var li_list = [];
 ipcRenderer.on("url", (event, pid, id, arg, arg1) => {
     if (arg == "new") {
         new_tab(pid, id, arg1);
-    } 
-     if (arg == "title") {
+    }
+    if (arg == "title") {
         title(pid, id, arg1);
-    } 
+    }
     if (arg == "icon") {
         icon(pid, id, arg1);
+    }
+    if (arg == "url") {
+        url(pid, id, arg1);
     }
 });
 
@@ -67,6 +70,10 @@ function title(pid, id, arg) {
 
 function icon(pid, id, arg) {
     document.querySelector(`#id${id} > img`).src = arg[0];
+}
+
+function url(pid, id, url) {
+    document.querySelector(`#id${id}`).setAttribute("data-url", url);
 }
 
 ipcRenderer.on("open_in_browser", () => {
