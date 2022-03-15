@@ -403,15 +403,19 @@ hotkeys.filter = () => {
     return true;
 };
 
+if (store.get("字体.大小")) document.getElementById("text").style.fontSize = store.get("字体.大小") + "px";
+
 // ctrl滚轮控制字体大小
 hotkeys("ctrl+0", () => {
     document.getElementById("text").style.fontSize = "16px";
+    if (store.get("字体.大小")) store.set("字体.大小", 16);
 });
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
         var size = (document.getElementById("text").style.fontSize || "16px").replace("px", "") - 0;
         document.getElementById("text").style.fontSize = `${size - d}px`;
+        if (store.get("字体.大小")) store.set("字体.大小", size - d);
     }
 };
 
