@@ -32,14 +32,14 @@ function new_tab(pid, id, url) {
     button.onclick = () => {
         ipcRenderer.send("tab_view", pid, id, "close");
         var l = document.querySelectorAll("li");
-        for (i in li_list) {
-            if (li_list[i] === li) {
-                if (i == 0) {
-                    focus_tab(li_list[1]);
+        for (i in l) {
+            if (l[i] === li && document.querySelector(".tab_focus") === li) {
+                // 模板排除
+                if (i == l.length - 2) {
+                    focus_tab(l[l.length - 3]);
                 } else {
-                    focus_tab(li_list[i - 1]);
+                    focus_tab(l[i + 1]);
                 }
-                li_list.splice(i, 1);
             }
         }
         document.getElementById("tabs").removeChild(li);
