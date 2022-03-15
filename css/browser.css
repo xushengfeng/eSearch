@@ -48,10 +48,31 @@
     max-width: 200px;
     justify-content: space-between;
     transition: var(--transition);
+    position: relative;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
-
 .tab_focus {
     background-color: var(--bg) !important;
+}
+.tab_focus::before {
+    position: absolute;
+    left: -8px;
+    bottom: 0;
+    z-index: 2;
+    width: 8px;
+    height: 8px;
+    content: "";
+    background: radial-gradient(circle farthest-corner at 0% 0%, #0000 70%, var(--bg) 70%);
+}
+.tab_focus::after {
+    position: absolute;
+    right: -8px;
+    bottom: 0;
+    z-index: 2;
+    width: 8px;
+    height: 8px;
+    content: "";
+    background: radial-gradient(circle farthest-corner at 100% 0%, #0000 70%, var(--bg) 70%);
 }
 
 .tab > img {
