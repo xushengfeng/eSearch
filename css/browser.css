@@ -39,10 +39,15 @@
     border-radius: 4px;
     transition: var(--transition);
     background-image: url(../assets/i_close.svg);
-    background-size: cover;
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 5px;
+    padding: 0;
     margin: 5px;
 }
 
 .tab > button:hover {
     background-color: var(--hover-color);
+    box-shadow: var(--shadow);
 }
