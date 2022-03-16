@@ -849,7 +849,8 @@ function create_main_window(t, web_page) {
         main_window_focus = null;
 
         if (store.get("关闭窗口.子窗口跟随主窗口关") && !失焦关闭) {
-            for (i of main_to_search_l[window_name]) {
+            var search_l = [...main_to_search_l[window_name]];
+            for (i of search_l) {
                 search_window_l[i].close();
             }
         }
@@ -975,11 +976,11 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     function close_win() {
         // 清除列表中的索引
         for (i in main_to_search_l[window_name]) {
-            if (main_to_search_l[window_name] == win_name) {
+            if (main_to_search_l[window_name][i] == win_name) {
                 main_to_search_l[window_name].splice(i, 1);
             }
         }
-        if (search_window_l.length == 0 && store.get("关闭窗口.主窗口跟随子窗口关") && !失焦关闭) {
+        if (main_to_search_l[window_name].length == 0 && store.get("关闭窗口.主窗口跟随子窗口关") && !失焦关闭) {
             if (main_window_l[window_name]) main_window_l[window_name].close();
         }
     }
