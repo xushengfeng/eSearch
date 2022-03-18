@@ -38,10 +38,10 @@
 #reload {
     background-image: url(../assets/browser_reload.svg);
 }
-#browser{
+#browser {
     background-image: url(../assets/main_browser.svg);
 }
-#add_history{
+#add_history {
     background-image: url(../assets/browser_add_history.svg);
 }
 
@@ -85,6 +85,18 @@
     height: 20px;
     margin-left: 5px;
 }
+.loading {
+    animation: loading 0.8s linear 0s infinite;
+}
+@keyframes loading {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .tab > span {
     cursor: default;
     padding-left: 4px;

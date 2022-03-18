@@ -956,6 +956,12 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         search_view.webContents.on("did-navigate", (event, url) => {
             search_window.webContents.send("url", win_name, view, "url", url);
         });
+        search_view.webContents.on("did-start-loading", () => {
+            search_window.webContents.send("url", win_name, view, "load", true);
+        });
+        search_view.webContents.on("did-stop-loading", () => {
+            search_window.webContents.send("url", win_name, view, "load", false);
+        });
     }
 
     search_window.on("focus", () => {

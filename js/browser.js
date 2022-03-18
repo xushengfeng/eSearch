@@ -17,6 +17,9 @@ ipcRenderer.on("url", (event, pid, id, arg, arg1) => {
     if (arg == "url") {
         url(pid, id, arg1);
     }
+    if (arg == "load") {
+        load(pid, id, arg1);
+    }
 });
 
 function new_tab(pid, id, url) {
@@ -76,6 +79,19 @@ function icon(pid, id, arg) {
 
 function url(pid, id, url) {
     document.querySelector(`#id${id}`).setAttribute("data-url", url);
+}
+
+function load(pid, id, loading) {
+    if (loading) {
+        document.querySelector(`#id${id} > img`).src = "./assets/browser_reload.svg";
+        document.querySelector(`#id${id} > img`).classList.add("loading");
+        document.querySelector("#reload").style.display = "none";
+        document.querySelector("#stop").style.display = "block";
+    } else {
+        document.querySelector(`#id${id} > img`).classList.remove("loading");
+        document.querySelector("#reload").style.display = "block";
+        document.querySelector("#stop").style.display = "none";
+    }
 }
 
 document.getElementById("buttons").onclick = (e) => {
