@@ -344,6 +344,9 @@ textarea {
     #browser {
         background-image: url(../assets/dark/main_browser.svg) !important;
     }
+    #add_history {
+        background-image: url(../assets/dark/browser_add_history.svg) !important;
+    }
     .tab > button {
         background-image: url(../assets/dark/i_close.svg) !important;
     }
