@@ -81,9 +81,15 @@ function url(pid, id, url) {
     document.querySelector(`#id${id}`).setAttribute("data-url", url);
 }
 
+document.querySelector('li > img').src = `./assets/${
+    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark/" : ""
+}browser_reload.svg`;
+
 function load(pid, id, loading) {
     if (loading) {
-        document.querySelector(`#id${id} > img`).src = "./assets/browser_reload.svg";
+        document.querySelector(`#id${id} > img`).src = `./assets/${
+            window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark/" : ""
+        }browser_reload.svg`;
         document.querySelector(`#id${id} > img`).classList.add("loading");
         document.querySelector("#reload").style.display = "none";
         document.querySelector("#stop").style.display = "block";
