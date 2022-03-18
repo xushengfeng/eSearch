@@ -70,7 +70,7 @@ function focus_tab(li) {
 }
 
 function title(pid, id, arg) {
-    document.querySelector(`#id${id} > span`).innerHTML = arg;
+    document.querySelector(`#id${id} > span`).innerHTML = document.querySelector(`#id${id} > span`).title = arg;
 }
 
 function icon(pid, id, arg) {

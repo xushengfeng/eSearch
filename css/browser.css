@@ -102,6 +102,7 @@
     padding-left: 4px;
     overflow: hidden;
     white-space: nowrap;
+    flex-grow: 1;
 }
 .tab > button {
     min-width: 20px;
