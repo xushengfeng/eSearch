@@ -847,7 +847,10 @@ function create_main_window(web_page, t, about) {
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
         main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
-        if (web_page == "index.html") main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
+        t = t || [""];
+        // 确保切换到index时能传递window_name
+        main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
+
         if (web_page == "setting.html") main_window.webContents.send("about", about);
     });
 
