@@ -838,11 +838,7 @@ function create_main_window(web_page, t, about) {
     if (m) main_window.maximize();
 
     // 自定义界面
-    if (web_page == undefined) {
-        main_window.loadFile("index.html");
-    } else {
-        main_window.loadFile(web_page);
-    }
+    main_window.loadFile(web_page || "index.html");
 
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
