@@ -404,18 +404,21 @@ hotkeys.filter = () => {
 };
 
 var 默认字体大小 = store.get("字体.大小");
-document.getElementById("text").style.fontSize =
+document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
     (store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小) + "px";
 // ctrl滚轮控制字体大小
 hotkeys("ctrl+0", () => {
-    document.getElementById("text").style.fontSize = 默认字体大小 + "px";
+    document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
+        默认字体大小 + "px";
     if (store.get("字体.记住")) store.set("字体.记住", 默认字体大小);
 });
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
         var size = document.getElementById("text").style.fontSize.replace("px", "") - 0;
-        document.getElementById("text").style.fontSize = `${size - d}px`;
+        document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize = `${
+            size - d
+        }px`;
         if (store.get("字体.记住")) store.set("字体.记住", size - d);
     }
 };
@@ -636,7 +639,6 @@ document.getElementById("text").oninput =
     document.getElementById("text").onpaste =
     document.getElementById("text").ondragend =
         () => {
-            line_num();
             can_add_undo_stack = true;
         };
 
@@ -697,8 +699,10 @@ function wrap() {
     is_wrap = !is_wrap;
     if (is_wrap) {
         document.getElementById("text").style.whiteSpace = "normal";
+        document.getElementById("text").style.width = "0";
     } else {
         document.getElementById("text").style.whiteSpace = "nowrap";
+        document.getElementById("text").style.width = "";
     }
 }
 
@@ -746,22 +750,38 @@ ipcRenderer.on("edit", (event, arg) => {
     }
 });
 
-document.getElementById("text").onresize = line_num;
 function line_num() {
     document.getElementById("line_num").innerHTML = "";
     var num = 0;
     var list = [...document.getElementById("text").childNodes];
+    var old_top = NaN;
+    var new_top = NaN;
     for (i = 0; i < list.length; i++) {
-        if (list[i].tagName != "BR" || i == list.length - 1) {
+        var div = document.createElement("div");
+        list[i].before(div);
+        new_top = div.offsetTop - 24;
+        document.getElementById("text").removeChild(div);
+        if (new_top != old_top) {
             num++;
             var num_el = document.createElement("div");
             num_el.innerText = num;
-            var div = document.createElement("div");
-            list[i].before(div);
-            num_el.style.top = div.offsetTop - 24 + "px";
-            document.getElementById("text").removeChild(div);
-            console.log(num_el);
-            document.getElementById("line_num").appendChild(num_el);
+            num_el.style.marginTop = new_top - old_top - document.querySelector("#line_num > div")?.offsetHeight + "px";
+            old_top = new_top;
         }
+        document.getElementById("line_num").appendChild(num_el);
     }
 }
+
+var check_text = "";
+var check_width = NaN;
+function check_text_change() {
+    var text = document.getElementById("text").innerText;
+    var width = document.getElementById("text").offsetWidth;
+    if (text != check_text || width != check_width) {
+        check_text = text;
+        check_width = width;
+        line_num();
+    }
+    setTimeout(check_text_change, 10);
+}
+check_text_change();

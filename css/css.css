@@ -72,11 +72,7 @@ body {
 #line_num {
     margin-right: 8px;
     text-align: end;
-    opacity: 0.4;
-    position: relative;
-}
-#line_num > div {
-    position: absolute;
+    opacity: 0.3;
 }
 
 /* 用于历史记录和浏览器打开固定 */
