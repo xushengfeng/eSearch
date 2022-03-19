@@ -51,17 +51,16 @@ body {
 
 #text_out {
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: overlay;
     transition: var(--transition);
     display: flex;
     flex: 1;
-}
-#text {
-    padding: 8px;
-    box-sizing: border-box;
     border-radius: var(--border-radius);
     background: var(--bg2);
-    overflow: overlay;
+    padding: 8px;
+}
+#text {
+    box-sizing: border-box;
     flex-grow: 1;
     font-size: 16px;
     transition: var(--transition);
@@ -69,6 +68,15 @@ body {
 }
 #text:focus {
     outline: none;
+}
+#line_num {
+    margin-right: 8px;
+    text-align: end;
+    opacity: 0.4;
+    position: relative;
+}
+#line_num > div {
+    position: absolute;
 }
 
 /* 用于历史记录和浏览器打开固定 */

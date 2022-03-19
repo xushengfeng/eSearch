@@ -636,6 +636,7 @@ document.getElementById("text").oninput =
     document.getElementById("text").onpaste =
     document.getElementById("text").ondragend =
         () => {
+            line_num();
             can_add_undo_stack = true;
         };
 
@@ -744,3 +745,23 @@ ipcRenderer.on("edit", (event, arg) => {
             break;
     }
 });
+
+document.getElementById("text").onresize = line_num;
+function line_num() {
+    document.getElementById("line_num").innerHTML = "";
+    var num = 0;
+    var list = [...document.getElementById("text").childNodes];
+    for (i = 0; i < list.length; i++) {
+        if (list[i].tagName != "BR" || i == list.length - 1) {
+            num++;
+            var num_el = document.createElement("div");
+            num_el.innerText = num;
+            var div = document.createElement("div");
+            list[i].before(div);
+            num_el.style.top = div.offsetTop - 24 + "px";
+            document.getElementById("text").removeChild(div);
+            console.log(num_el);
+            document.getElementById("line_num").appendChild(num_el);
+        }
+    }
+}
