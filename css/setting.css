@@ -50,14 +50,6 @@ body {
     background-color: var(--bg);
     margin-top: 32px;
 }
-#setting_left {
-    font-size: 1.8rem;
-    font-weight: 500;
-    margin: 0 0 8px 0;
-}
-#setting_right {
-    width: 100%;
-}
 textarea {
     padding: 8px;
     width: 80%;
