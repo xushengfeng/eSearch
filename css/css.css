@@ -57,7 +57,6 @@ body {
     flex: 1;
     border-radius: var(--border-radius);
     background: var(--bg2);
-    padding: 8px;
 }
 #text {
     box-sizing: border-box;
@@ -65,12 +64,13 @@ body {
     font-size: 16px;
     transition: var(--transition);
     scroll-behavior: smooth;
+    margin: 8px;
 }
 #text:focus {
     outline: none;
 }
 #line_num {
-    margin-right: 8px;
+    margin: 8px;
     text-align: end;
     opacity: 0.3;
 }
