@@ -700,6 +700,12 @@ function wrap() {
     }
 }
 
+var is_check = false;
+function spellcheck() {
+    is_check = !is_check;
+    document.getElementById("text").spellcheck = is_check;
+}
+
 ipcRenderer.on("edit", (event, arg) => {
     switch (arg) {
         case "save":
@@ -730,6 +736,9 @@ ipcRenderer.on("edit", (event, arg) => {
             break;
         case "wrap":
             wrap();
+            break;
+        case "spellcheck":
+            spellcheck();
             break;
     }
 });

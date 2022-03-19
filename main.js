@@ -647,6 +647,12 @@ const template = [
                     main_edit("wrap");
                 },
             },
+            {
+                label: "拼写检查",
+                click: () => {
+                    main_edit("spellcheck");
+                },
+            },
             { type: "separator" },
             ...(isMac
                 ? [
