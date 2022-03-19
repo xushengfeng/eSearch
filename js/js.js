@@ -690,7 +690,8 @@ function edit_on_other() {
     }
 }
 
-var is_wrap = true;
+var is_wrap = !store.get("编辑器.自动换行");
+wrap();
 function wrap() {
     is_wrap = !is_wrap;
     if (is_wrap) {
@@ -700,7 +701,8 @@ function wrap() {
     }
 }
 
-var is_check = false;
+var is_check = !store.get("编辑器.拼写检查");
+spellcheck();
 function spellcheck() {
     is_check = !is_check;
     document.getElementById("text").spellcheck = is_check;

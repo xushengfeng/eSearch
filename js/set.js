@@ -171,6 +171,9 @@ document.querySelector("#等宽字体 > input").oninput = () => {
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 };
 
+document.getElementById("换行").checked = store.get("编辑器.自动换行");
+document.getElementById("拼写检查").checked = store.get("编辑器.拼写检查");
+
 document.querySelector("#自动搜索").checked = store.get("自动搜索");
 document.querySelector("#自动打开链接").checked = store.get("自动打开链接");
 document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比");
@@ -324,6 +327,8 @@ function save_setting() {
     字体.大小 = document.getElementById("字体大小").value - 0;
     字体.记住 = document.getElementById("记住字体大小").checked ? 字体.大小 : false;
     store.set("字体", 字体);
+    store.set("编辑器.自动换行", document.getElementById("换行").checked);
+    store.set("编辑器.拼写检查", document.getElementById("拼写检查").checked);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
     store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value - 0);
