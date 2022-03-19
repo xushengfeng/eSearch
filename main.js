@@ -75,14 +75,14 @@ function open_selection() {
     robot.keyTap("c", "control");
     var t = clipboard.readText();
     if (o_clipboard != t) {
-        create_main_window([t]);
+        create_main_window("index.html", [t]);
     }
     clipboard.writeText(o_clipboard);
 }
 
 function open_clip_board() {
     var t = clipboard.readText();
-    create_main_window([t]);
+    create_main_window("index.html", [t]);
 }
 
 // cil参数重复启动;
@@ -112,7 +112,7 @@ function arg_run(c) {
             open_clip_board();
             break;
         case c.includes("-g"):
-            create_main_window([""]);
+            create_main_window("index.html", [""]);
             break;
         case c.includes("-q"):
             quick_clip();
@@ -161,20 +161,20 @@ app.whenReady().then(() => {
         {
             label: "主页面",
             click: () => {
-                create_main_window([""]);
+                create_main_window("index.html", [""]);
             },
         },
         {
             label: "设置",
             click: () => {
                 Store.initRenderer();
-                create_setting_window();
+                create_main_window("setting.html");
             },
         },
         {
             label: "教程帮助",
             click: () => {
-                create_help_window();
+                create_main_window("help.html");
             },
         },
         {
@@ -321,7 +321,7 @@ function create_clip_window() {
                 break;
             case "QR":
                 if (arg != "nothing") {
-                    create_main_window([arg]);
+                    create_main_window("index.html", [arg]);
                 } else {
                     dialog.showMessageBox({
                         title: "警告",
@@ -486,7 +486,7 @@ function ocr(event, arg) {
                     for (i in text) {
                         r += text[i]["words"] + "\n";
                     }
-                    create_main_window([r]);
+                    create_main_window("index.html", [r]);
                     response.on("end", () => {
                         event.sender.send("ocr_back", "ok");
                     });
@@ -535,7 +535,13 @@ const template = [
                   submenu: [
                       { label: `关于 ${app.name}`, role: "about" },
                       { type: "separator" },
-                      { label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," },
+                      {
+                          label: "设置",
+                          click: () => {
+                              create_main_window("setting.html");
+                          },
+                          accelerator: "CmdOrCtrl+,",
+                      },
                       { type: "separator" },
                       { label: "服务", role: "services" },
                       { type: "separator" },
@@ -562,7 +568,16 @@ const template = [
             { type: "separator" },
             ...(isMac
                 ? []
-                : [{ label: "设置", click: create_setting_window, accelerator: "CmdOrCtrl+," }, { type: "separator" }]),
+                : [
+                      {
+                          label: "设置",
+                          click: () => {
+                              create_main_window("setting.html");
+                          },
+                          accelerator: "CmdOrCtrl+,",
+                      },
+                      { type: "separator" },
+                  ]),
             {
                 label: "其他编辑器打开",
                 click: () => {
@@ -694,14 +709,14 @@ const template = [
             {
                 label: "教程帮助",
                 click: () => {
-                    create_help_window();
+                    create_main_window("help.html");
                 },
             },
             { type: "separator" },
             {
                 label: "关于",
                 click: () => {
-                    create_setting_window(true);
+                    create_main_window("setting.html", true);
                 },
             },
         ],
@@ -800,7 +815,7 @@ var main_window_l = {};
  */
 var main_to_search_l = {};
 var main_window_focus;
-function create_main_window(t, web_page) {
+function create_main_window(web_page, t, about) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主窗口大小");
     var main_window = (main_window_l[window_name] = new BrowserWindow({
@@ -832,7 +847,8 @@ function create_main_window(t, web_page) {
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
         main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
-        main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
+        if (web_page == "index.html") main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
+        if (web_page == "setting.html") main_window.webContents.send("about", about);
     });
 
     main_window.on("close", () => {
@@ -1021,49 +1037,6 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
         search_window.webContents.reload();
     }
 });
-
-// 设置窗口
-function create_setting_window(about) {
-    const main_window = new BrowserWindow({
-        icon: the_icon,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            enableRemoteModule: true,
-        },
-    });
-
-    main_window.loadFile("setting.html");
-
-    if (dev) main_window.webContents.openDevTools();
-    main_window.webContents.on("did-finish-load", () => {
-        main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
-        main_window.webContents.send("about", about);
-    });
-}
-
-// 帮助窗口
-function create_help_window() {
-    const main_window = new BrowserWindow({
-        icon: the_icon,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
-        width: 1000,
-        height: 800,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            enableRemoteModule: true,
-        },
-    });
-
-    main_window.loadFile("help.html");
-    main_window.webContents.on("did-finish-load", () => {
-        main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
-    });
-
-    if (dev) main_window.webContents.openDevTools();
-}
 
 function get_file_name() {
     function f(fmt, date) {
