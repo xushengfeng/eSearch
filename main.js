@@ -689,6 +689,45 @@ const template = [
                 : []),
         ],
     },
+    {
+        label: "浏览器",
+        submenu: [
+            {
+                label: "后退",
+                click: () => {
+                    view_events("back");
+                },
+                accelerator: isMac ? "Command+[" : "Alt+Left",
+            },
+            {
+                label: "前进",
+                click: () => {
+                    view_events("forward");
+                },
+                accelerator: isMac ? "Command+]" : "Alt+Right",
+            },
+            {
+                label: "刷新",
+                click: () => {
+                    view_events("reload");
+                },
+                accelerator: "F5",
+            },
+            {
+                label: "停止加载",
+                click: () => {
+                    view_events("stop");
+                },
+                accelerator: "Esc",
+            },
+            {
+                label: "浏览器打开",
+                click: () => {
+                    view_events("browser");
+                },
+            },
+        ],
+    },
     // { role: 'viewMenu' }
     {
         label: "视图",
@@ -716,8 +755,6 @@ const template = [
     {
         label: "窗口",
         submenu: [
-            { label: "浏览器打开", click: open_in_browser },
-            { type: "separator" },
             { label: "最小化", role: "minimize" },
             { label: "关闭", role: "close" },
             ...(isMac
@@ -1044,9 +1081,9 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         delete search_window_l[window_name];
     }
 });
-function open_in_browser() {
+function view_events(arg) {
     if (focused_search_window != null) {
-        url = focused_search_window.webContents.send("open_in_browser");
+        focused_search_window.webContents.send("view_events", arg);
     }
 }
 

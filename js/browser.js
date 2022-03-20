@@ -81,7 +81,7 @@ function url(pid, id, url) {
     document.querySelector(`#id${id}`).setAttribute("data-url", url);
 }
 
-document.querySelector('li > img').src = `./assets/${
+document.querySelector("li > img").src = `./assets/${
     window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark/" : ""
 }browser_reload.svg`;
 
@@ -101,6 +101,9 @@ function load(pid, id, loading) {
 }
 
 document.getElementById("buttons").onclick = (e) => {
+    main_event(e);
+};
+function main_event(e) {
     var id = li_list[li_list.length - 1].id.replace("id", "");
     if (e.target.id == "browser") {
         open_in_browser();
@@ -117,11 +120,14 @@ document.getElementById("buttons").onclick = (e) => {
     } else {
         if (e.target.id) ipcRenderer.send("tab_view", pid, id, e.target.id);
     }
-};
+}
 
 function open_in_browser() {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
 }
 
-ipcRenderer.on("open_in_browser", open_in_browser);
+ipcRenderer.on("view_events", (event, arg) => {
+    var e = { target: { id: arg } };
+    main_event(e);
+});
