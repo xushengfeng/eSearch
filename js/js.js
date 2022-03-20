@@ -792,7 +792,7 @@ function line_num() {
 
     // 顺便根据行数计算行高
     line_height = document.querySelector("#line_num > div")?.offsetHeight;
-    line_height_delta = num == 1 ? 16 : 8;
+    line_height_delta = num == 1 || num == 0 ? 16 : 8;
     document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${
         line_height + line_height_delta
     }px)`;
