@@ -761,6 +761,16 @@ ipcRenderer.on("edit", (event, arg) => {
         case "spellcheck":
             spellcheck();
             break;
+        case "link":
+            var url = document.getSelection().toString();
+            open_link("url", url);
+            break;
+        case "search":
+            open_link("search");
+            break;
+        case "translate":
+            open_link("translate");
+            break;
     }
 });
 

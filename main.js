@@ -599,6 +599,28 @@ const template = [
         label: "编辑",
         submenu: [
             {
+                label: "打开链接",
+                click: () => {
+                    main_edit("link");
+                },
+                accelerator: "CmdOrCtrl+Shift+L",
+            },
+            {
+                label: "搜索",
+                click: () => {
+                    main_edit("search");
+                },
+                accelerator: "CmdOrCtrl+Shift+S",
+            },
+            {
+                label: "翻译",
+                click: () => {
+                    main_edit("translate");
+                },
+                accelerator: "CmdOrCtrl+Shift+T",
+            },
+            { type: "separator" },
+            {
                 label: "撤销",
                 click: () => {
                     main_edit("undo");
@@ -907,6 +929,10 @@ ipcMain.on("edit", (event, name, v) => {
     }
 });
 
+/**
+ * 向聚焦的主界面发送事件信息
+ * @param {String} m
+ */
 function main_edit(m) {
     if (main_window_focus) main_window_focus.webContents.send("edit", m);
 }
