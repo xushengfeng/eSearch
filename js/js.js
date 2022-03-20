@@ -699,10 +699,8 @@ function wrap() {
     is_wrap = !is_wrap;
     if (is_wrap) {
         document.getElementById("text").style.whiteSpace = "normal";
-        document.getElementById("text").style.width = "0";
     } else {
         document.getElementById("text").style.whiteSpace = "nowrap";
-        document.getElementById("text").style.width = "";
     }
 }
 
@@ -785,3 +783,7 @@ function check_text_change() {
     setTimeout(check_text_change, 10);
 }
 check_text_change();
+
+document.getElementById("text_bottom").onclick = () => {
+    document.getElementById("text").focus();
+};
