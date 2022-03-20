@@ -326,7 +326,11 @@ function save_setting() {
     store.set("保存名称", document.getElementById("保存文件名称").value.replace("//", "//"));
     store.set("jpg质量", document.getElementById("jpg质量").value - 0);
     字体.大小 = document.getElementById("字体大小").value - 0;
-    字体.记住 = document.getElementById("记住字体大小").checked ? 字体.大小 : false;
+    字体.记住 = document.getElementById("记住字体大小").checked
+        ? typeof 字体.记住 === "number"
+            ? 字体.记住
+            : 字体.大小
+        : false;
     store.set("字体", 字体);
     store.set("编辑器.自动换行", document.getElementById("换行").checked);
     store.set("编辑器.拼写检查", document.getElementById("拼写检查").checked);
