@@ -726,6 +726,13 @@ const template = [
                     view_events("browser");
                 },
             },
+            {
+                label: "保存到历史记录",
+                click: () => {
+                    view_events("add_history");
+                },
+                accelerator: "CmdOrCtrl+D",
+            },
         ],
     },
     // { role: 'viewMenu' }
