@@ -409,8 +409,11 @@ document.getElementById("text").style.fontSize = document.getElementById("line_n
 
 // 生成行号以获取行高,以此计算底部增高区高度
 line_num();
-var line_height = document.querySelector("#line_num > div")?.offsetHeight + 16;
-document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${line_height}px)`;
+var line_height = document.querySelector("#line_num > div")?.offsetHeight;
+var line_height_delta = 8;
+document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${
+    line_height + line_height_delta
+}px)`;
 
 // ctrl滚轮控制字体大小
 hotkeys("ctrl+0", () => {
@@ -428,7 +431,10 @@ function set_font_size(font_size) {
         font_size + "px";
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
 
-    document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${line_height}px)`;
+    line_height = document.querySelector("#line_num > div")?.offsetHeight;
+    document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${
+        line_height + line_height_delta
+    }px)`;
 }
 
 // 查找ui
@@ -785,8 +791,11 @@ function line_num() {
     }
 
     // 顺便根据行数计算行高
-    line_height = document.querySelector("#line_num > div")?.offsetHeight + (num == 1 ? 16 : 8);
-    document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${line_height}px)`;
+    line_height = document.querySelector("#line_num > div")?.offsetHeight;
+    line_height_delta = num == 1 ? 16 : 8;
+    document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${
+        line_height + line_height_delta
+    }px)`;
 }
 
 var check_text = "";
