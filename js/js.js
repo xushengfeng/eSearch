@@ -30,7 +30,7 @@ function is_link(url, s) {
         }
     } else {
         // 有.就行
-        if (url.match(/\./g) != null && url.match(/\s+/g) == null) {
+        if (url.match(/\./g) != null) {
             return true;
         } else {
             return false;
@@ -145,6 +145,7 @@ document.getElementById("text").onblur = () => {
 // 打开浏览界面
 function open_link(id, link) {
     if (id == "url") {
+        link = link.replace(/[(^\s)(\s$)]/g, "");
         if (link.match(/\/\//g) == null) {
             link = "https://" + link;
         }
