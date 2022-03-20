@@ -1160,6 +1160,7 @@ var default_setting = {
     编辑器: {
         自动换行: true,
         拼写检查: false,
+        行号: true,
     },
     全局缩放: 1,
     工具栏跟随: "展示内容优先",

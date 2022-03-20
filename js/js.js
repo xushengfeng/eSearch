@@ -758,6 +758,9 @@ ipcRenderer.on("edit", (event, arg) => {
     }
 });
 
+document.getElementById("text_out").style.gridTemplateColumns = store.get("编辑器.行号")
+    ? "min-content auto"
+    : "0 auto";
 /** 生成行号 */
 function line_num() {
     // 防止无字无行号

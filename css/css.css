@@ -79,6 +79,7 @@ body {
     margin: 8px;
     text-align: end;
     opacity: 0.3;
+    overflow: hidden;
 }
 #text_bottom {
     cursor: text;
