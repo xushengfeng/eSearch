@@ -1029,6 +1029,7 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
         search_window = search_window_l[id];
     if (arg == "close") {
         main_window.removeBrowserView(search_window);
+        search_window.webContents.setAudioMuted(true);
         if (main_window.getBrowserViews().length == 0) main_window.close();
     } else if (arg == "top") {
         main_window.setTopBrowserView(search_window);
