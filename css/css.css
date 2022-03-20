@@ -55,7 +55,7 @@ body {
     transition: var(--transition);
     display: grid;
     grid-template-columns: min-content auto;
-    grid-template-rows: auto calc(100% - 19px);
+    grid-template-rows: min-content 100%;
     flex: 1;
     border-radius: var(--border-radius);
     background: var(--bg2);
@@ -67,6 +67,10 @@ body {
     transition: var(--transition);
     scroll-behavior: smooth;
     margin: 8px;
+    overflow-x: overlay;
+}
+#text::-webkit-scrollbar {
+    display: none;
 }
 #text:focus {
     outline: none;

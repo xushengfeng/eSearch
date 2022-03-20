@@ -406,22 +406,30 @@ hotkeys.filter = () => {
 var 默认字体大小 = store.get("字体.大小");
 document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
     (store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小) + "px";
+
+// 生成行号以获取行高,以此计算底部增高区高度
+line_num();
+var line_height = document.querySelector("#line_num > div")?.offsetHeight + 16;
+document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${line_height}px)`;
+
 // ctrl滚轮控制字体大小
 hotkeys("ctrl+0", () => {
-    document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
-        默认字体大小 + "px";
-    if (store.get("字体.记住")) store.set("字体.记住", 默认字体大小);
+    set_font_size(默认字体大小);
 });
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
         var size = document.getElementById("text").style.fontSize.replace("px", "") - 0;
-        document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize = `${
-            size - d
-        }px`;
-        if (store.get("字体.记住")) store.set("字体.记住", size - d);
+        set_font_size(size - d);
     }
 };
+function set_font_size(font_size) {
+    document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
+        font_size + "px";
+    if (store.get("字体.记住")) store.set("字体.记住", font_size);
+
+    document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${line_height}px)`;
+}
 
 // 查找ui
 var find_show = false;
@@ -702,6 +710,8 @@ function wrap() {
     } else {
         document.getElementById("text").style.whiteSpace = "nowrap";
     }
+
+    line_num();
 }
 
 var is_check = !store.get("编辑器.拼写检查");
@@ -748,8 +758,10 @@ ipcRenderer.on("edit", (event, arg) => {
     }
 });
 
+/** 生成行号 */
 function line_num() {
-    document.getElementById("line_num").innerHTML = "";
+    // 防止无字无行号
+    if (!document.getElementById("text").innerHTML == "") document.getElementById("line_num").innerHTML = "";
     var num = 0;
     var list = [...document.getElementById("text").childNodes];
     var old_top = NaN;
@@ -759,7 +771,7 @@ function line_num() {
         list[i].before(div);
         new_top = div.offsetTop - 24;
         document.getElementById("text").removeChild(div);
-        if (new_top != old_top) {
+        if (new_top != old_top || document.getElementById("text").innerHTML == "") {
             num++;
             var num_el = document.createElement("div");
             num_el.innerText = num;
@@ -768,10 +780,15 @@ function line_num() {
         }
         document.getElementById("line_num").appendChild(num_el);
     }
+
+    // 顺便根据行数计算行高
+    line_height = document.querySelector("#line_num > div")?.offsetHeight + (num == 1 ? 16 : 8);
+    document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${line_height}px)`;
 }
 
 var check_text = "";
 var check_width = NaN;
+/** 实时刷新*/
 function check_text_change() {
     var text = document.getElementById("text").innerText;
     var width = document.getElementById("text").offsetWidth;
