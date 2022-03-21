@@ -204,6 +204,8 @@ function show_history() {
         history_showed = true;
 
         document.querySelector("#history_list").style.height = "100%";
+
+        render_history();
     }
 }
 function render_history() {
