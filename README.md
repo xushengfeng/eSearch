@@ -103,8 +103,10 @@ e-search
     -   [x] 鼠标穿透
 -   [x] 二维码识别
 -   [x] OCR 识别
-    -   [x] 本地 OCR
+    -   [x] 本地 OCR（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
+    -   [ ] 本地 OCR C++ 编译内嵌
     -   [x] 其他 OCR（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
+    -   [ ] 其他 OCR 基于 js 原生实现
 -   [ ] 以图搜图
 -   [x] 托盘
 -   [x] 划词句来搜索
@@ -121,6 +123,8 @@ e-search
     -   [x] 自动删除换行（用于自动排版）
     -   [x] 查找替换（支持正则匹配）
     -   [x] 其他编辑器编辑（支持自动重载）
+    -   [x] 行号
+    -   [x] 拼写检查
 -   [ ] Wayland 桌面(为什么 electron 截不了 wayland!)
 -   [ ] 独立于 electron 的截图 api
 
