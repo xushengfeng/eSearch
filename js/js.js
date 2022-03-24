@@ -384,6 +384,13 @@ function delete_enter() {
     stack_add();
 }
 
+function end_range() {
+    document.getElementById("text").focus();
+    var range = window.getSelection();
+    range.selectAllChildren(document.getElementById("text"));
+    range.collapseToEnd();
+}
+
 // 滚动条
 var text_scroll = 0;
 document.querySelector("#text").onscroll = () => {
@@ -826,6 +833,4 @@ function check_text_change() {
 }
 check_text_change();
 
-document.getElementById("text_bottom").onclick = () => {
-    document.getElementById("text").focus();
-};
+document.getElementById("text_bottom").onclick = end_range;
