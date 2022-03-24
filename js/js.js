@@ -696,7 +696,8 @@ function edit_on_other() {
                 });
             });
             document.getElementById("text").contentEditable = false;
-            document.getElementById("text").title = "正在外部编辑中，双击退出";
+            document.getElementById("text_bottom").style.cursor = "auto";
+            document.getElementById("text_out").title = "正在外部编辑中，双击退出";
             document.addEventListener("dblclick", () => {
                 editing_on_other = true;
                 edit_on_other();
@@ -706,7 +707,8 @@ function edit_on_other() {
     } else {
         try {
             document.getElementById("text").contentEditable = true;
-            document.getElementById("text").title = "";
+            document.getElementById("text_bottom").style.cursor = "text";
+            document.getElementById("text_out").title = "";
             document.removeEventListener("dblclick", () => {
                 editing_on_other = true;
                 edit_on_other();
