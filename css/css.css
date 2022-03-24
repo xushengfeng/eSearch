@@ -59,6 +59,7 @@ body {
     flex: 1;
     border-radius: var(--border-radius);
     background: var(--bg2);
+    cursor: text;
 }
 #text {
     box-sizing: border-box;
@@ -80,9 +81,9 @@ body {
     text-align: end;
     opacity: 0.3;
     overflow: hidden;
+    cursor: default;
 }
 #text_bottom {
-    cursor: text;
     grid-area: 2 / 1 / 3 / 3;
 }
 
