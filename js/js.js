@@ -382,6 +382,8 @@ function delete_enter() {
     }
 
     stack_add();
+
+    setTimeout(end_range, 10);
 }
 
 function end_range() {
