@@ -80,7 +80,10 @@ kbd {
 }
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background: #dddd;
+    background: #ddd;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
 }
 ::-webkit-scrollbar-track {
     background: #0000;
@@ -129,7 +132,10 @@ textarea {
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;
-        background: #222d;
+        background: #444;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
     kbd {
         box-shadow: 0 5px #fff4;
