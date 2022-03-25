@@ -368,18 +368,6 @@ function save_setting() {
     ipcRenderer.send("setting", "reload_main");
 }
 
-// 滚动条
-scroll = setTimeout(() => {
-    document.querySelector("body").className = "hidescrollbar";
-}, 1000);
-document.querySelector("body").onscroll = () => {
-    clearTimeout(scroll - 1);
-    document.querySelector("body").className = "";
-    scroll = setTimeout(() => {
-        document.querySelector("body").className = "hidescrollbar";
-    }, 1000);
-};
-
 var package = require("./package.json");
 document.getElementById("name").innerHTML = package.name;
 document.querySelector("#version").innerHTML = package.version;

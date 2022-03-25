@@ -88,10 +88,6 @@ kbd {
 ::-webkit-scrollbar-button {
     height: 8px;
 }
-.hidescrollbar::-webkit-scrollbar {
-    width: 0px !important;
-    height: 1px;
-}
 
 /* 用于截屏界面固定 */
 .hover_b {
