@@ -131,3 +131,9 @@ ipcRenderer.on("view_events", (event, arg) => {
     var e = { target: { id: arg } };
     main_event(e);
 });
+
+document.getElementById("tabs").onwheel = (e) => {
+    e.preventDefault();
+    var i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
+    document.getElementById("tabs").scrollLeft += i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
+};

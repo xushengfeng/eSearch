@@ -4,11 +4,17 @@
     padding: 0;
     list-style: none;
     background-color: var(--hover-color);
+    overflow-x: scroll;
 }
 
 #buttons {
     display: flex;
     padding: 3px 3px 3px 0;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: var(--hover-color);
+    margin-right: 4px;
 }
 #buttons > div {
     cursor: pointer;
