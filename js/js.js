@@ -776,28 +776,37 @@ document.getElementById("text_out").style.gridTemplateColumns = store.get("编�
 /** 生成行号 */
 function line_num() {
     // 防止无字无行号
-    if (!document.getElementById("text").innerHTML == "") document.getElementById("line_num").innerHTML = "";
+    document.getElementById("line_num").innerHTML = "<div>&nbsp</div>";
+    line_height = document.querySelector("#line_num > div").offsetHeight;
+    document.getElementById("line_num").innerHTML = "";
     var num = 0;
+    var num_t = "";
     var list = [...document.getElementById("text").childNodes];
-    var old_top = NaN;
+    var old_top = -line_height;
     var new_top = NaN;
+    if (document.getElementById("text").innerHTML == "") {
+        num_t = "1";
+        num = 1;
+    }
     for (i = 0; i < list.length; i++) {
         var div = document.createElement("div");
         list[i].before(div);
         new_top = div.offsetTop - 24;
         document.getElementById("text").removeChild(div);
-        if (new_top != old_top || document.getElementById("text").innerHTML == "") {
+        if (new_top != old_top) {
             num++;
-            var num_el = document.createElement("div");
-            num_el.innerText = num;
-            num_el.style.marginTop = new_top - old_top - document.querySelector("#line_num > div")?.offsetHeight + "px";
+            var line_n =Math.round(Math.abs(new_top - old_top) / line_height);
+            if (num != 1)
+                for (let j = 1; j <= line_n; j++) {
+                    num_t += "<br>";
+                }
+            num_t += num;
             old_top = new_top;
         }
-        document.getElementById("line_num").appendChild(num_el);
     }
+    document.getElementById("line_num").innerHTML = num_t;
 
     // 顺便根据行数计算行高
-    line_height = document.querySelector("#line_num > div")?.offsetHeight;
     line_height_delta = num == 1 || num == 0 ? 16 : 8;
     document.getElementById("text_out").style.gridTemplateRows = `min-content calc(100% - ${
         line_height + line_height_delta
