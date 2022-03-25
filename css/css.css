@@ -60,11 +60,14 @@ body {
     border-radius: var(--border-radius);
     background: var(--bg2);
     cursor: text;
+    font-size: 1em;
+    line-height: 1.5em;
 }
 #text {
     box-sizing: border-box;
     flex-grow: 1;
-    font-size: 16px;
+    font-size: 1em;
+    line-height: 1.5em;
     transition: var(--transition);
     scroll-behavior: smooth;
     margin: 8px;

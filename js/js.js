@@ -398,7 +398,7 @@ hotkeys.filter = () => {
 };
 
 var 默认字体大小 = store.get("字体.大小");
-document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
+document.getElementById("text_out").style.fontSize =
     (store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小) + "px";
 
 // 生成行号以获取行高,以此计算底部增高区高度
@@ -416,13 +416,12 @@ hotkeys("ctrl+0", () => {
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
-        var size = document.getElementById("text").style.fontSize.replace("px", "") - 0;
+        var size = document.getElementById("text_out").style.fontSize.replace("px", "") - 0;
         set_font_size(size - d);
     }
 };
 function set_font_size(font_size) {
-    document.getElementById("text").style.fontSize = document.getElementById("line_num").style.fontSize =
-        font_size + "px";
+    document.getElementById("text_out").style.fontSize = font_size + "px";
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
 
     line_height = document.querySelector("#line_num > div")?.offsetHeight;
@@ -795,7 +794,7 @@ function line_num() {
         document.getElementById("text").removeChild(div);
         if (new_top != old_top) {
             num++;
-            var line_n =Math.round(Math.abs(new_top - old_top) / line_height);
+            var line_n = Math.round(Math.abs(new_top - old_top) / line_height);
             if (num != 1)
                 for (let j = 1; j <= line_n; j++) {
                     num_t += "<br>";
