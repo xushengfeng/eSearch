@@ -474,7 +474,6 @@ function ocr(event, arg) {
             } else {
                 event.sender.send("ocr_back", "ok");
                 create_main_window("index.html", [result]);
-                console.log(result);
             }
         });
         return;

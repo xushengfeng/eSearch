@@ -23,6 +23,7 @@ function local_ocr(arg, callback) {
                 --image_dir=${tmp_path}`,
                     (e, result) => {
                         result = result.split(/[\r\n]/);
+                        result = result.slice(0, result.length - 1);
                         result.reverse();
                         result = result.join("\n");
                         return callback(e, result);
