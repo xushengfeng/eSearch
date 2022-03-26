@@ -997,6 +997,8 @@ ipcMain.on("open_url", async (event, window_name, url) => {
             contextIsolation: false,
             enableRemoteModule: true,
         },
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
+        icon: the_icon,
     }));
 
     main_to_search_l[window_name].push(win_name);
