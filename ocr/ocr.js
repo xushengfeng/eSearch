@@ -22,6 +22,9 @@ function local_ocr(arg, callback) {
                 --char_list_file ppocr_keys_v1.txt \
                 --image_dir=${tmp_path}`,
                     (e, result) => {
+                        result = result.split(/[\r\n]/);
+                        result.reverse();
+                        result = result.join("\n");
                         return callback(e, result);
                     }
                 );
