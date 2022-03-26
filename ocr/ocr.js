@@ -1,20 +1,20 @@
 const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
-const { ipcRenderer } = require("electron");
 const path = require("path");
-function ocr(event, arg) {
-    local_ocr(event, arg);
+function ocr(arg, callback) {
+    local_ocr(arg, (err, r) => {
+        return callback(err, r);
+    });
 }
 module.exports = ocr;
 
-function local_ocr(event, arg) {
+function local_ocr(arg, callback) {
     var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png");
-    fs.writeFile(tmp_path, Buffer.from(arg, "base64"), (err) => {
-        if (err) return;
+    fs.writeFile(tmp_path, Buffer.from(arg, "base64"), async (err) => {
+        if (err) callback(err);
         switch (process.platform) {
             case "linux":
-                // 判断桌面环境
                 exec(
                     `cd ${__dirname}/ppocr/ && 
                 ./ppocr --det_model_dir=inference/ch_ppocr_mobile_v2.0_det_infer \
@@ -22,8 +22,7 @@ function local_ocr(event, arg) {
                 --char_list_file ppocr_keys_v1.txt \
                 --image_dir=${tmp_path}`,
                     (e, result) => {
-                        console.log(result);
-                        event.sender.send("ocr_back", e ? "else" : "ok");
+                        return callback(e, result);
                     }
                 );
                 break;

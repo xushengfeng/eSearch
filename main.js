@@ -468,7 +468,15 @@ function check_service_no() {
 function ocr(event, arg) {
     if (process.platform == "linux") {
         const ocr = require("./ocr/ocr");
-        ocr(event, arg);
+        ocr(arg, (err, result) => {
+            if (err) {
+                event.sender.send("ocr_back", "else");
+            } else {
+                event.sender.send("ocr_back", "ok");
+                create_main_window("index.html", [result]);
+                console.log(result);
+            }
+        });
         return;
     }
     const check_r = net.request({
