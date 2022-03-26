@@ -57,9 +57,12 @@ textarea {
     border-radius: var(--border-radius);
     border: none;
     box-shadow: var(--shadow);
+    font-size: 1rem;
+    font-family: sans-serif;
 }
 input {
     vertical-align: middle;
+    font-family: sans-serif;
 }
 input[type="text"] {
     border: none;
