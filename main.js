@@ -466,6 +466,11 @@ function check_service_no() {
     }
 }
 function ocr(event, arg) {
+    if (process.platform == "linux") {
+        const ocr = require("./ocr/ocr");
+        ocr(event, arg);
+        return;
+    }
     const check_r = net.request({
         method: "POST",
         url: `http://127.0.0.1:${port}`,
