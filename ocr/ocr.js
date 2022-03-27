@@ -16,8 +16,8 @@ function local_ocr(arg, callback) {
         switch (process.platform) {
             case "linux":
                 exec(
-                    `cd ${__dirname}/ppocr/ && 
-                ./ppocr --det_model_dir=inference/ch_ppocr_mobile_v2.0_det_infer \
+                    `cd ${__dirname}/ppocr/ && export LD_LIBRARY_PATH=ocr && 
+                ./ocr/ppocr --det_model_dir=inference/ch_ppocr_mobile_v2.0_det_infer \
                 --rec_model_dir=inference/ch_ppocr_mobile_v2.0_rec_infer \
                 --char_list_file ppocr_keys_v1.txt \
                 --image_dir=${tmp_path}`,
