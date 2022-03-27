@@ -222,10 +222,22 @@
         </div>
 
         <div id="setting_item">
-            <h1>OCR</h1>
+            <h1>文字识别（OCR）</h1>
 
+            <h2>离线OCR</h2>
+            <lock-b checked id="离线OCR"></lock-b>使用离线OCR（不勾选将使用在线OCR）
+            <br>
             <lock-b checked id="检查OCR"></lock-b>OCR检测 （每次截屏都提示OCR服务是否安装或开启）
             <br>
+            det模型：<input type="text" spellcheck="false">
+            <br>
+            rec模型：<input type="text" spellcheck="false">
+            <br>
+            字典：<input type="text" spellcheck="false">
+            <br>
+            <button>下载离线OCR</button>
+            <button>删除离线OCR</button>
+            <h3>macOS OCR设置</h3>
             <a id="本地OCR下载" href="https://hub.fastgit.org/xushengfeng/eSearch-service">本地OCR下载</a>
             <br>
             自动运行命令 （程序启动后，若检测到服务未开启，运行的命令）
