@@ -216,7 +216,7 @@ app.whenReady().then(() => {
             if (!fs.existsSync(dir)) fs.mkdir(dir, () => {});
         });
         request.on("error", () => {
-            if (store.get("检查OCR")) check_service_no();
+            if (store.get("OCR.检查OCR")) check_service_no();
         });
         request.write("");
         request.end();
@@ -225,7 +225,7 @@ app.whenReady().then(() => {
 
     async function download_ocr() {
         var download_path = path.join(__dirname, "/ocr/ppocr/");
-        if (fs.existsSync(path.join(download_path, "/ocr")) || !store.get("检查OCR")) return;
+        if (fs.existsSync(path.join(download_path, "/ocr")) || !store.get("OCR.检查OCR")) return;
         var resolve = await dialog.showMessageBox({
             title: "服务未下载",
             message: `${app.name} 服务未安装\n需要下载服务才能使用OCR\n预计耗费约50MB流量`,
@@ -235,7 +235,7 @@ app.whenReady().then(() => {
             defaultId: 0,
             cancelId: 1,
         });
-        if (resolve.checkboxChecked) store.set("检查OCR", false);
+        if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
         if (resolve.response == 0) {
             var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
             var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
@@ -479,7 +479,7 @@ function check_service_no() {
                 cancelId: 1,
             })
             .then((resolve) => {
-                if (resolve.checkboxChecked) store.set("检查OCR", false);
+                if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
                 if (resolve.response == 0) shell.openExternal("https://github.com/xushengfeng/eSearch-service");
             });
     } else {
@@ -1290,7 +1290,13 @@ var default_setting = {
     取色器大小: 15,
     显示四角坐标: true,
     其他应用打开: "",
-    检查OCR: true,
+    OCR: {
+        离线OCR: true,
+        检查OCR: true,
+        det: "",
+        rec: "",
+        字典: "",
+    },
     自动运行命令: "",
     端口: 8080,
     自动打开链接: false,

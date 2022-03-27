@@ -248,7 +248,16 @@ document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
 };
 
-document.querySelector("#检查OCR").checked = store.get("检查OCR");
+document.getElementById("离线OCR").checked = store.get("OCR.离线OCR");
+document.getElementById("离线OCR").oninput = () => {
+    if (!document.getElementById("离线OCR").checked) {
+        document.getElementById("检查OCR").checked = false;
+    }
+};
+document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
+document.getElementById("ocr_det").value = store.get("OCR.det");
+document.getElementById("ocr_rec").value = store.get("OCR.rec");
+document.getElementById("ocr_字典").value = store.get("OCR.字典");
 document.getElementById("本地OCR下载").onclick = (e) => {
     e.preventDefault();
     shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
@@ -351,7 +360,13 @@ function save_setting() {
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
     store.set("历史记录设置", 历史记录设置);
-    store.set("检查OCR", document.getElementById("检查OCR").checked);
+    store.set("OCR", {
+        离线OCR: document.getElementById("离线OCR").checked,
+        检查OCR: document.getElementById("离线OCR").checked ? document.getElementById("检查OCR").checked : false,
+        det: document.getElementById("ocr_det").value,
+        rec: document.getElementById("ocr_rec").value,
+        字典: document.getElementById("ocr_字典").value,
+    });
     store.set("自动运行命令", document.getElementById("自动运行命令").value);
     store.set("端口", document.getElementById("端口").value - 0);
     store.set("开启代理", document.getElementById("代理").checked);
