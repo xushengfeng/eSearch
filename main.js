@@ -483,7 +483,7 @@ function check_service_no() {
     }
 }
 function the_ocr(event, arg) {
-    if (process.platform == "linux") {
+    if (process.platform == "linux" || process.platform == "win32") {
         ocr(arg, (err, result) => {
             if (err) {
                 event.sender.send("ocr_back", "else");

@@ -30,6 +30,18 @@ function local_ocr(arg, callback) {
                     }
                 );
                 break;
+            case "win32":
+                exec(
+                    `CHCP 65001 && cd ${__dirname}\\ppocr && .\\ocr\\ppocr.exe --det_model_dir=inference/ch_ppocr_mobile_v2.0_det_infer --rec_model_dir=inference/ch_ppocr_mobile_v2.0_rec_infer --char_list_file ppocr_keys_v1.txt --image_dir=${tmp_path}`,
+                    (e, result) => {
+                        result = result.split(/\n/);
+                        result = result.slice(1, result.length - 1);
+                        result.reverse();
+                        result = result.join("\n");
+                        return callback(e, result);
+                    }
+                );
+                break;
         }
     });
 }
