@@ -25,6 +25,7 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const ocr = require("./ocr/ocr");
+const download = require("download");
 
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -222,7 +223,20 @@ app.whenReady().then(() => {
     }
     start_service();
 
-    ocr();
+    function download_ocr() {
+        var download_path = path.join(__dirname, "/ocr/ppocr/");
+        if (fs.existsSync(path.join(download_path, "/ocr"))) return;
+        var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
+        var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
+            file_o[process.platform]
+        }`;
+
+        (async () => {
+            await download(url, download_path, { extract: true });
+            console.log("完成");
+        })();
+    }
+    download_ocr();
 
     // 快捷键
     var 快捷键函数 = {
