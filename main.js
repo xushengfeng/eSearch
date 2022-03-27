@@ -24,6 +24,7 @@ run_path = path.resolve(__dirname, "");
 const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
+const ocr = require("./ocr/ocr");
 
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -221,6 +222,8 @@ app.whenReady().then(() => {
     }
     start_service();
 
+    ocr();
+
     // 快捷键
     var 快捷键函数 = {
         自动识别: { f: "auto_open()" },
@@ -317,7 +320,7 @@ function create_clip_window() {
                 n_full_screen();
                 break;
             case "ocr":
-                ocr(event, arg);
+                the_ocr(event, arg);
                 break;
             case "QR":
                 if (arg != "nothing") {
@@ -465,9 +468,8 @@ function check_service_no() {
         }
     }
 }
-function ocr(event, arg) {
+function the_ocr(event, arg) {
     if (process.platform == "linux") {
-        const ocr = require("./ocr/ocr");
         ocr(arg, (err, result) => {
             if (err) {
                 event.sender.send("ocr_back", "else");
