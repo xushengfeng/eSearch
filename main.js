@@ -223,18 +223,35 @@ app.whenReady().then(() => {
     }
     start_service();
 
-    function download_ocr() {
+    async function download_ocr() {
         var download_path = path.join(__dirname, "/ocr/ppocr/");
-        if (fs.existsSync(path.join(download_path, "/ocr"))) return;
-        var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
-        var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
-            file_o[process.platform]
-        }`;
-
-        (async () => {
-            await download(url, download_path, { extract: true });
-            console.log("完成");
-        })();
+        if (fs.existsSync(path.join(download_path, "/ocr")) || !store.get("检查OCR")) return;
+        var resolve = await dialog.showMessageBox({
+            title: "服务未下载",
+            message: `${app.name} 服务未安装\n需要下载服务才能使用OCR\n预计耗费约50MB流量`,
+            icon: `${run_path}/assets/icons/warning.png`,
+            checkboxLabel: "不再提示",
+            buttons: ["下载", "取消"],
+            defaultId: 0,
+            cancelId: 1,
+        });
+        if (resolve.checkboxChecked) store.set("检查OCR", false);
+        if (resolve.response == 0) {
+            var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
+            var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
+                file_o[process.platform]
+            }`;
+            (async () => {
+                console.log("开始下载服务");
+                await download(url, download_path, { extract: true });
+                console.log("服务下载完成");
+                new Notification({
+                    title: app.name,
+                    body: `${app.name} 服务已下载`,
+                    icon: `${run_path}/assets/icons/64x64.png`,
+                }).show();
+            })();
+        }
     }
     download_ocr();
 
