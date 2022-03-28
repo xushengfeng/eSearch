@@ -479,6 +479,7 @@ function n_full_screen() {
 }
 
 function check_service_no() {
+    if (process.platform == "linux" || process.platform == "win32") return;
     var dir = store.path.replace("config.json", "service-installed");
     if (!fs.existsSync(dir)) {
         dialog
