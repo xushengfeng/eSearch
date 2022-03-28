@@ -1297,6 +1297,12 @@ var default_setting = {
         rec: "",
         字典: "",
     },
+    在线OCR: {
+        baidu: {
+            id: "",
+            secret: "",
+        },
+    },
     自动运行命令: "",
     端口: 8080,
     自动打开链接: false,

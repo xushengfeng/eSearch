@@ -57,12 +57,12 @@ function local_ocr(arg, callback) {
     });
 }
 
-function online_ocr() {
+function online_ocr(arg, callback) {
     var https = require("https");
     var qs = require("querystring");
 
-    var client_id = "",
-        client_secret = "";
+    var client_id = store.get("在线OCR.baidu.id"),
+        client_secret = store.get("在线OCR.baidu.secret");
 
     access();
     function access() {
@@ -111,12 +111,27 @@ function online_ocr() {
             res.on("end", function () {
                 var body = Buffer.concat(chunks);
                 console.log(body.toString());
+                format(body.toString());
             });
         });
 
-        req.write(qs.stringify({ url: "https://esearch.vercel.app/readme/2.png", paragraph: "true" }));
+        req.write(qs.stringify({ image: arg, paragraph: "true" }));
         req.end();
     }
-    // return callback(e, result);
+    function format(result) {
+        result = JSON.parse(result);
+
+        if (result.error_msg || result.error_code) return callback(result, null);
+
+        var output = "";
+        for (i in result.paragraphs_result) {
+            for (ii in result.paragraphs_result[i]["words_result_idx"]) {
+                output += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
+            }
+            if (i != result.paragraphs_result.length - 1) output += "\n";
+        }
+        console.log(output);
+        return callback(null, output);
+    }
 }
-online_ocr();
+// online_ocr();
