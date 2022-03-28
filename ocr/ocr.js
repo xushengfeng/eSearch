@@ -57,6 +57,66 @@ function local_ocr(arg, callback) {
     });
 }
 
-function online_ocr(arg, callback) {
-    return callback(e, result);
+function online_ocr() {
+    var https = require("https");
+    var qs = require("querystring");
+
+    var client_id = "",
+        client_secret = "";
+
+    access();
+    function access() {
+        var options = {
+            method: "GET",
+            hostname: "aip.baidubce.com",
+            port: null,
+            path: `/oauth/2.0/token?grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`,
+        };
+
+        var req = https.request(options, function (res) {
+            var chunks = [];
+
+            res.on("data", function (chunk) {
+                chunks.push(chunk);
+            });
+
+            res.on("end", function () {
+                var body = Buffer.concat(chunks);
+                var access_token = JSON.parse(body.toString()).access_token;
+                console.log(access_token);
+                get_ocr(access_token);
+            });
+        });
+
+        req.end();
+    }
+    function get_ocr(access_token) {
+        var options = {
+            method: "POST",
+            hostname: "aip.baidubce.com",
+            port: null,
+            path: `/rest/2.0/ocr/v1/general_basic?access_token=${access_token}`,
+            headers: {
+                "content-type": "application/x-www-form-urlencoded",
+            },
+        };
+
+        var req = https.request(options, (res) => {
+            var chunks = [];
+
+            res.on("data", function (chunk) {
+                chunks.push(chunk);
+            });
+
+            res.on("end", function () {
+                var body = Buffer.concat(chunks);
+                console.log(body.toString());
+            });
+        });
+
+        req.write(qs.stringify({ url: "https://esearch.vercel.app/readme/2.png", paragraph: "true" }));
+        req.end();
+    }
+    // return callback(e, result);
 }
+online_ocr();
