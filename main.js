@@ -580,7 +580,7 @@ ipcMain.on("setting", (event, arg) => {
             if (clip_window && !clip_window.isVisible()) clip_window.reload();
             break;
         case "下载离线OCR":
-            download_ocr();
+            download_ocr(path.join(__dirname, "/ocr/ppocr/"));
             break;
         case "删除离线OCR":
             rm_r();
