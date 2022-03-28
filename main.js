@@ -124,6 +124,44 @@ function arg_run(c) {
 
 var port = 8080;
 
+async function download_ocr(download_path) {
+    var resolve = await dialog.showMessageBox({
+        title: "服务未下载",
+        message: `${app.name} 服务未安装\n需要下载服务才能使用OCR\n预计耗费约50MB流量`,
+        icon: `${run_path}/assets/icons/warning.png`,
+        checkboxLabel: "不再提示",
+        buttons: ["下载", "取消"],
+        defaultId: 0,
+        cancelId: 1,
+    });
+    if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
+    if (resolve.response == 0) {
+        var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
+        var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
+            file_o[process.platform]
+        }`;
+        (async () => {
+            console.log("开始下载服务");
+            await download(url, download_path, { extract: true });
+            console.log("服务下载完成");
+            new Notification({
+                title: app.name,
+                body: `${app.name} 服务已下载`,
+                icon: `${run_path}/assets/icons/64x64.png`,
+            }).show();
+        })();
+    }
+}
+
+async function rm_r() {
+    var ocr_path = path.join(__dirname, "/ocr/ppocr/ocr");
+    if (process.platform == "win32") {
+        exec(`rd \\s \\q ${ocr_path}`);
+    } else {
+        exec(`rm -r ${ocr_path}`);
+    }
+}
+
 app.whenReady().then(() => {
     // 托盘
     tray =
@@ -223,37 +261,12 @@ app.whenReady().then(() => {
     }
     start_service();
 
-    async function download_ocr() {
+    async function check_ocr() {
         var download_path = path.join(__dirname, "/ocr/ppocr/");
         if (fs.existsSync(path.join(download_path, "/ocr")) || !store.get("OCR.检查OCR")) return;
-        var resolve = await dialog.showMessageBox({
-            title: "服务未下载",
-            message: `${app.name} 服务未安装\n需要下载服务才能使用OCR\n预计耗费约50MB流量`,
-            icon: `${run_path}/assets/icons/warning.png`,
-            checkboxLabel: "不再提示",
-            buttons: ["下载", "取消"],
-            defaultId: 0,
-            cancelId: 1,
-        });
-        if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
-        if (resolve.response == 0) {
-            var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
-            var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
-                file_o[process.platform]
-            }`;
-            (async () => {
-                console.log("开始下载服务");
-                await download(url, download_path, { extract: true });
-                console.log("服务下载完成");
-                new Notification({
-                    title: app.name,
-                    body: `${app.name} 服务已下载`,
-                    icon: `${run_path}/assets/icons/64x64.png`,
-                }).show();
-            })();
-        }
+        download_ocr(download_path);
     }
-    download_ocr();
+    check_ocr();
 
     // 快捷键
     var 快捷键函数 = {
@@ -565,6 +578,12 @@ ipcMain.on("setting", (event, arg) => {
     switch (arg) {
         case "reload_main":
             if (clip_window && !clip_window.isVisible()) clip_window.reload();
+            break;
+        case "下载离线OCR":
+            download_ocr();
+            break;
+        case "删除离线OCR":
+            rm_r();
             break;
     }
 });

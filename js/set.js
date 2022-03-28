@@ -258,6 +258,12 @@ document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
 document.getElementById("ocr_det").value = store.get("OCR.det");
 document.getElementById("ocr_rec").value = store.get("OCR.rec");
 document.getElementById("ocr_字典").value = store.get("OCR.字典");
+document.getElementById("下载离线OCR").onclick = () => {
+    ipcRenderer.send("setting", "下载离线OCR");
+};
+document.getElementById("删除离线OCR").onclick = () => {
+    ipcRenderer.send("setting", "删除离线OCR");
+};
 document.getElementById("本地OCR下载").onclick = (e) => {
     e.preventDefault();
     shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
