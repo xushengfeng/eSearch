@@ -264,6 +264,9 @@ document.getElementById("本地OCR下载").onclick = (e) => {
 };
 document.getElementById("自动运行命令").value = store.get("自动运行命令");
 document.getElementById("端口").value = store.get("端口");
+document.getElementById("baidu_ocr_url").value = store.get("在线OCR.baidu.url");
+document.getElementById("baidu_ocr_id").value = store.get("在线OCR.baidu.id");
+document.getElementById("baidu_ocr_secret").value = store.get("在线OCR.baidu.secret");
 
 历史记录设置 = store.get("历史记录设置");
 
@@ -366,6 +369,11 @@ function save_setting() {
         det: document.getElementById("ocr_det").value,
         rec: document.getElementById("ocr_rec").value,
         字典: document.getElementById("ocr_字典").value,
+    });
+    store.set("在线OCR.baidu", {
+        url: document.getElementById("baidu_ocr_url").value,
+        id: document.getElementById("baidu_ocr_id").value,
+        secret: document.getElementById("baidu_ocr_secret").value,
     });
     store.set("自动运行命令", document.getElementById("自动运行命令").value);
     store.set("端口", document.getElementById("端口").value - 0);

@@ -1299,6 +1299,7 @@ var default_setting = {
     },
     在线OCR: {
         baidu: {
+            url: "",
             id: "",
             secret: "",
         },

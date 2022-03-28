@@ -91,11 +91,18 @@ function online_ocr(arg, callback) {
         req.end();
     }
     function get_ocr(access_token) {
+        var url = store.get("在线OCR.baidu.url");
+        var hostname = url.replace(/https:\/\/(.*)/, "$1").split("/")[0];
+        var path = url
+            .replace(/https:\/\/(.*)/, "$1")
+            .split("/")
+            .splice(1)
+            .join("/");
         var options = {
             method: "POST",
-            hostname: "aip.baidubce.com",
+            hostname: hostname,
             port: null,
-            path: `/rest/2.0/ocr/v1/general_basic?access_token=${access_token}`,
+            path: `/${path}?access_token=${access_token}`,
             headers: {
                 "content-type": "application/x-www-form-urlencoded",
             },
