@@ -28,6 +28,16 @@ ArchLinux 可在 AUR 查找安装 `e-search`或`e-search-git`
 
 ## OCR 服务
 
+软件不附带本地 OCR 核心服务，但在启动时会提示下载。
+
+本地 OCR 由[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)提供支持，在[eSearch-service](https://github.com/xushengfeng/eSearch-service)中发布编译好的服务。
+
+默认启用本地 OCR 服务，若想使用在线 OCR，目前提供了百度在线 OCR，需要依据[教程](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)获取*API KEY* 以及 _Secret KEY_，截止 2022 年 1 月，百度 OCR 还是可以[免费领取服务](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)。将获取到的*API KEY* 和*Secret KEY* 以及相应的你选择的文字识别服务[_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) 填入软件设置，去掉离线 OCR 的勾选即可使用在线 OCR。
+
+### macOS 用户
+
+macOS 本地 OCR 暂时编译不通过，需要使用 Python 版 OCR。
+
 确保你的电脑安装了 python<=3.9
 
 下载[eSearch-service](https://github.com/xushengfeng/eSearch-service)并安装运行
@@ -105,8 +115,7 @@ e-search
 -   [x] OCR 识别
     -   [x] 本地 OCR（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
     -   [ ] 本地 OCR C++ 编译内嵌
-    -   [x] 其他 OCR（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
-    -   [ ] 其他 OCR 基于 js 原生实现
+    -   [x] 其他 OCR 基于 js 原生实现
 -   [ ] 以图搜图
 -   [x] 托盘
 -   [x] 划词句来搜索
