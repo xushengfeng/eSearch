@@ -22,17 +22,20 @@ function local_ocr(arg, callback) {
         rec = store.get("OCR.rec") || "inference/ch_ppocr_mobile_v2.0_rec_infer",
         字典 = store.get("OCR.字典") || "ppocr_keys_v1.txt";
     var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png");
+    var ocr_path = store.path.replace("config.json", "ocr");
+    console.log(ocr_path);
     fs.writeFile(tmp_path, Buffer.from(arg, "base64"), async (err) => {
         if (err) callback(err);
         switch (process.platform) {
             case "linux":
                 exec(
                     `cd ${__dirname}/ppocr/ && export LD_LIBRARY_PATH=ocr && 
-                ./ocr/ppocr --det_model_dir=${det} \
+                ${ocr_path}/ppocr --det_model_dir=${det} \
                 --rec_model_dir=${rec} \
                 --char_list_file=${字典} \
                 --image_dir=${tmp_path}`,
                     (e, result) => {
+                        if (e) console.log(e);
                         result = result.split(/[\r\n]/);
                         result = result.slice(0, result.length - 1);
                         result.reverse();

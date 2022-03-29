@@ -262,7 +262,7 @@ app.whenReady().then(() => {
     start_service();
 
     async function check_ocr() {
-        var download_path = path.join(__dirname, "/ocr/ppocr/");
+        var download_path = app.getPath("userData");
         if (fs.existsSync(path.join(download_path, "/ocr")) || !store.get("OCR.检查OCR")) return;
         download_ocr(download_path);
     }
@@ -581,7 +581,7 @@ ipcMain.on("setting", (event, arg) => {
             if (clip_window && !clip_window.isVisible()) clip_window.reload();
             break;
         case "下载离线OCR":
-            download_ocr(path.join(__dirname, "/ocr/ppocr/"));
+            download_ocr(app.getPath("userData"));
             break;
         case "删除离线OCR":
             rm_r();
