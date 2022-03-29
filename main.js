@@ -127,12 +127,12 @@ var port = 8080;
 async function download_ocr(download_path) {
     var resolve = await dialog.showMessageBox({
         title: "服务未下载",
-        message: `${app.name} 服务未安装\n需要下载服务才能使用OCR\n预计耗费约50MB流量`,
+        message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
         icon: `${run_path}/assets/icons/warning.png`,
         checkboxLabel: "不再提示",
-        buttons: ["下载", "取消"],
+        buttons: ["下载(约200MB)", "前往 设置", "取消"],
         defaultId: 0,
-        cancelId: 1,
+        cancelId: 2,
     });
     if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
     if (resolve.response == 0) {
@@ -150,7 +150,7 @@ async function download_ocr(download_path) {
                 icon: `${run_path}/assets/icons/64x64.png`,
             }).show();
         })();
-    }
+    } else if (resolve.response == 1) create_main_window("setting.html");
 }
 
 async function rm_r() {
