@@ -1103,22 +1103,22 @@ ipcMain.on("open_url", async (event, window_name, url) => {
             new_browser_view(url);
             return { action: "deny" };
         });
-        search_window.webContents.send("url", win_name, view, "new", url);
+        if (search_window.webContents) search_window.webContents.send("url", win_name, view, "new", url);
         search_view.webContents.on("page-title-updated", (event, title) => {
-            search_window.webContents.send("url", win_name, view, "title", title);
+            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "title", title);
             search_window.setTitle(`eSearch - ${title}`);
         });
         search_view.webContents.on("page-favicon-updated", (event, favicons) => {
-            search_window.webContents.send("url", win_name, view, "icon", favicons);
+            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "icon", favicons);
         });
         search_view.webContents.on("did-navigate", (event, url) => {
-            search_window.webContents.send("url", win_name, view, "url", url);
+            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "url", url);
         });
         search_view.webContents.on("did-start-loading", () => {
-            search_window.webContents.send("url", win_name, view, "load", true);
+            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "load", true);
         });
         search_view.webContents.on("did-stop-loading", () => {
-            search_window.webContents.send("url", win_name, view, "load", false);
+            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "load", false);
         });
     }
 
