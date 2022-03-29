@@ -154,7 +154,7 @@ async function download_ocr(download_path) {
 }
 
 async function rm_r() {
-    var ocr_path = path.join(__dirname, "/ocr/ppocr/ocr");
+    var ocr_path = path.join(app.getPath("userData"), "/ocr");
     if (process.platform == "win32") {
         exec(`rd /s /q ${ocr_path}`);
     } else {
