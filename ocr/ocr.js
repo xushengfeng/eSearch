@@ -46,8 +46,9 @@ function local_ocr(arg, callback) {
                 break;
             case "win32":
                 exec(
-                    `CHCP 65001 && cd ${__dirname}\\ppocr && .\\ocr\\ppocr.exe --det_model_dir=${det} --rec_model_dir=${rec} --char_list_file=${字典} --image_dir=${tmp_path}`,
+                    `CHCP 65001 && cd ${__dirname}\\ppocr && ${ocr_path}\\ppocr.exe --det_model_dir=${det} --rec_model_dir=${rec} --char_list_file=${字典} --image_dir=${tmp_path}`,
                     (e, result) => {
+                        if (e) console.log(e);
                         result = result.split(/\n/);
                         result = result.slice(1, result.length - 1);
                         result.reverse();
