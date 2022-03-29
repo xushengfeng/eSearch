@@ -261,7 +261,7 @@ document.getElementById("删除离线OCR").onclick = () => {
 };
 document.getElementById("本地OCR下载").onclick = (e) => {
     e.preventDefault();
-    shell.openExternal("https://hub.fastgit.org/xushengfeng/eSearch-OCR");
+    shell.openExternal("https://hub.fastgit.xyz/xushengfeng/eSearch-service");
 };
 document.getElementById("自动运行命令").value = store.get("自动运行命令");
 document.getElementById("端口").value = store.get("端口");
