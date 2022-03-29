@@ -29,7 +29,7 @@ function local_ocr(arg, callback) {
         switch (process.platform) {
             case "linux":
                 exec(
-                    `cd ${__dirname}/ppocr/ && export LD_LIBRARY_PATH=ocr && 
+                    `cd ${__dirname}/ppocr/ && export LD_LIBRARY_PATH=${ocr_path} && 
                 ${ocr_path}/ppocr --det_model_dir=${det} \
                 --rec_model_dir=${rec} \
                 --char_list_file=${字典} \
