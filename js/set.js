@@ -248,12 +248,7 @@ document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
 };
 
-document.getElementById("离线OCR").checked = store.get("OCR.离线OCR");
-document.getElementById("离线OCR").oninput = () => {
-    if (!document.getElementById("离线OCR").checked) {
-        document.getElementById("检查OCR").checked = false;
-    }
-};
+document.getElementById("OCR类型").value = store.get("OCR.类型");
 document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
 document.getElementById("ocr_det").value = store.get("OCR.det");
 document.getElementById("ocr_rec").value = store.get("OCR.rec");
@@ -370,8 +365,8 @@ function save_setting() {
     历史记录设置.h = document.querySelector("#his_h").value - 0;
     store.set("历史记录设置", 历史记录设置);
     store.set("OCR", {
-        离线OCR: document.getElementById("离线OCR").checked,
-        检查OCR: document.getElementById("离线OCR").checked ? document.getElementById("检查OCR").checked : false,
+        类型: document.getElementById("OCR类型").value,
+        检查OCR: document.getElementById("检查OCR").checked,
         det: document.getElementById("ocr_det").value,
         rec: document.getElementById("ocr_rec").value,
         字典: document.getElementById("ocr_字典").value,

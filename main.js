@@ -263,7 +263,12 @@ app.whenReady().then(() => {
 
     async function check_ocr() {
         var download_path = app.getPath("userData");
-        if (fs.existsSync(path.join(download_path, "/ocr")) || !store.get("OCR.检查OCR")) return;
+        if (
+            fs.existsSync(path.join(download_path, "/ocr")) ||
+            !store.get("OCR.检查OCR") ||
+            store.get("OCR.类型") != "离线"
+        )
+            return;
         download_ocr(download_path);
     }
     check_ocr();
@@ -1311,7 +1316,7 @@ var default_setting = {
     显示四角坐标: true,
     其他应用打开: "",
     OCR: {
-        离线OCR: true,
+        类型: "离线",
         检查OCR: true,
         det: "",
         rec: "",

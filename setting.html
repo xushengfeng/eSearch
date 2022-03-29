@@ -224,9 +224,12 @@
         <div id="setting_item">
             <h1>文字识别（OCR）</h1>
 
+            <set-select name="" id="OCR类型">
+                <div value="离线">离线OCR</div>
+                <div value="baidu">百度</div>
+            </set-select>
+
             <h2>离线OCR</h2>
-            <lock-b checked id="离线OCR"></lock-b>使用离线OCR（不勾选将使用在线OCR）
-            <br>
             <lock-b checked id="检查OCR"></lock-b>OCR检测 （每次截屏都提示OCR服务是否安装或开启）
             <br>
             det模型：<input type="text" spellcheck="false" id="ocr_det">

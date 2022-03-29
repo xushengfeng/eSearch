@@ -5,18 +5,23 @@ const path = require("path");
 const Store = require("electron-store");
 var store = new Store();
 function ocr(arg, callback) {
-    if (store.get("OCR.离线OCR")) {
+    if (store.get("OCR.类型") == "离线") {
         local_ocr(arg, (err, r) => {
             return callback(err, r);
         });
     } else {
-        online_ocr(arg, (err, r) => {
+        online_ocr(store.get("OCR.类型"), arg, (err, r) => {
             return callback(err, r);
         });
     }
 }
 module.exports = ocr;
 
+/**
+ * 离线OCR
+ * @param {String} arg 图片base64
+ * @param {Function} callback 回调
+ */
 function local_ocr(arg, callback) {
     var det = store.get("OCR.det") || "inference/ch_ppocr_mobile_v2.0_det_infer",
         rec = store.get("OCR.rec") || "inference/ch_ppocr_mobile_v2.0_rec_infer",
@@ -61,12 +66,18 @@ function local_ocr(arg, callback) {
     });
 }
 
-function online_ocr(arg, callback) {
+/**
+ * 在线OCR
+ * @param {String} type 服务提供者
+ * @param {String} arg 图片base64
+ * @param {Function} callback 回调
+ */
+function online_ocr(type, arg, callback) {
     var https = require("https");
     var qs = require("querystring");
 
-    var client_id = store.get("在线OCR.baidu.id"),
-        client_secret = store.get("在线OCR.baidu.secret");
+    var client_id = store.get(`在线OCR.${type}.id`),
+        client_secret = store.get(`在线OCR.${type}.secret`);
 
     access();
     function access() {
@@ -95,7 +106,7 @@ function online_ocr(arg, callback) {
         req.end();
     }
     function get_ocr(access_token) {
-        var url = store.get("在线OCR.baidu.url");
+        var url = store.get(`在线OCR.${type}.url`);
         var hostname = url.replace(/https:\/\/(.*)/, "$1").split("/")[0];
         var path = url
             .replace(/https:\/\/(.*)/, "$1")
