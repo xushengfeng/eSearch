@@ -23,8 +23,8 @@ module.exports = ocr;
  * @param {Function} callback 回调
  */
 function local_ocr(arg, callback) {
-    var det = store.get("OCR.det") || "inference/ch_ppocr_mobile_v2.0_det_infer",
-        rec = store.get("OCR.rec") || "inference/ch_ppocr_mobile_v2.0_rec_infer",
+    var det = store.get("OCR.det") || "inference/ch_PP-OCRv2_det_infer",
+        rec = store.get("OCR.rec") || "inference/ch_PP-OCRv2_rec_infer",
         字典 = store.get("OCR.字典") || "ppocr_keys_v1.txt";
     var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png");
     var ocr_path = store.path.replace("config.json", "ocr");
