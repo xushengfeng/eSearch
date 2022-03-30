@@ -253,7 +253,15 @@
             <h2>在线OCR</h2>
             <details>
                 <summary>百度</summary>
-                URL：<input type="text" spellcheck="false" id="baidu_ocr_url">
+                类型：位置版不起实质效果，但可以扩充免费使用次数:)
+                <set-select name="" id="baidu_ocr_url">
+                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">高精度版</div>
+                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">高精度含位置版</div>
+                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic">标准版</div>
+                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general">标准含位置版</div>
+                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting">手写文字</div>
+                </set-select>
+                
                 <br>
                 API Key：<input type="text" spellcheck="false" id="baidu_ocr_id">
                 <br>
