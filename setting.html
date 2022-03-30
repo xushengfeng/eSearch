@@ -107,10 +107,10 @@
             </set-select>
 
             <h2>大小坐标</h2>
-            <lock-b id="显示四角坐标"></lock-b>显示四角坐标 （截屏框选附近除了框选大小，还会加上左上角和右下角坐标）
+            <lock-b id="显示四角坐标"></lock-b>显示四角坐标<comment>（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）</comment>
 
             <h2>框选后默认操作</h2>
-            框选完鼠标松开一瞬间，执行操作
+            <comment>框选完鼠标松开一瞬间，执行操作</comment>
             <set-select name="" id="框选后默认操作">
                 <div value="no">无</div>
                 <div value="ocr">OCR（文字识别）</div>
@@ -161,11 +161,12 @@
                 s: 秒(1);
                 S: 毫秒(500);
             </details>
-            <p>
+            <comment>
                 请夹在"-._"任何一对之间
                 <br>
                 如果不想转换请在前面加"\"
-            </p>
+            </comment>
+            <br>
             jpg质量
             <range-b id="jpg质量" min="0" max="1.00" step="0.01"></range-b>
 
@@ -175,9 +176,9 @@
             <h1>编辑器</h1>
 
             <h2>字体</h2>
-            主要字体 （适用于主界面等文字字体）
+            主要字体<comment>（适用于主界面等文字字体）</comment>
             <div id="主要字体"><input type="text" spellcheck="false"></div>
-            等宽字体 （适用于截图时数字、颜色代码等字体）
+            等宽字体<comment>（适用于截图时数字、颜色代码等字体）</comment>
             <div id="等宽字体"><input type="text" spellcheck="false"></div>
             字体大小<range-b id="字体大小" min="0" max="100" step="1" value="16"></range-b>
             <lock-b id="记住字体大小"></lock-b>记住主界面字体大小
@@ -194,11 +195,11 @@
             <h1>搜索</h1>
 
             <h2>自动</h2>
-            <lock-b id="自动搜索"></lock-b>自动搜索 （识屏或直接打开主窗口，若文字为一行，则自动搜索）
+            <lock-b id="自动搜索"></lock-b>自动搜索<comment>（识屏或直接打开主窗口，若文字为一行，则自动搜索）</comment>
             </br>
             <lock-b id="自动打开链接"></lock-b>自动打开链接
             </br>
-            自动搜索中文占比 （在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）
+            自动搜索中文占比<comment>（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）</comment>
             <range-b id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b>
 
             <h2>引擎</h2>
@@ -218,7 +219,7 @@
             </div>
 
             <h2>浏览器中打开</h2>
-            <lock-b id="浏览器中打开"></lock-b>浏览器中打开 （点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）
+            <lock-b id="浏览器中打开"></lock-b>浏览器中打开<comment>（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）</comment>
         </div>
 
         <div id="setting_item">
@@ -230,7 +231,7 @@
             </set-select>
 
             <h2>离线OCR</h2>
-            <lock-b checked id="检查OCR"></lock-b>OCR检测 （每次截屏都提示OCR服务是否安装或开启）
+            <lock-b checked id="检查OCR"></lock-b>OCR检测<comment>（每次启动时都提示OCR服务是否安装或开启）</comment>
             <br>
             det模型：<input type="text" spellcheck="false" id="ocr_det" placeholder="目录">
             <br>
@@ -243,7 +244,7 @@
             <h3>macOS OCR设置</h3>
             <a id="本地OCR下载" href="https://hub.fastgit.org/xushengfeng/eSearch-service">本地OCR下载</a>
             <br>
-            自动运行命令 （程序启动后，若检测到服务未开启，运行的命令）
+            自动运行命令<comment>（程序启动后，若检测到服务未开启，运行的命令）</comment>
             <input type="text" name="自动运行命令" id="自动运行命令" autocomplete="off" autocorrect="off" autocapitalize="off"
                 spellcheck="false">
             <br>
@@ -253,7 +254,7 @@
             <h2>在线OCR</h2>
             <details>
                 <summary>百度</summary>
-                类型：位置版不起实质效果，但可以扩充免费使用次数:)
+                类型：<comment>位置版不起实质效果，但可以扩充免费使用次数:)</comment>
                 <set-select name="" id="baidu_ocr_url">
                     <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">高精度版</div>
                     <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">高精度含位置版</div>
@@ -298,7 +299,7 @@
         <div id="setting_item">
             <h1>自动关闭窗口</h1>
 
-            失去焦点后自动关闭(不会触发跟随关闭)：
+            失去焦点后自动关闭<comment>（不会触发跟随关闭）</comment>：
             <lock-b name="" id="主窗口失焦"></lock-b>主窗口 <lock-b name="" id="搜索窗口失焦"></lock-b>搜索窗口
             </br>
             <lock-b name="" id="主关子"></lock-b>主窗口关闭后，所有搜索窗口跟随关闭
@@ -309,7 +310,7 @@
         <div id="setting_item">
             <h1>高级设置</h1>
 
-            直接编辑设置源文件，更多自定义设置（需要JSON知识，如遇错误，把文件改成<code>{}</code>恢复默认）
+            直接编辑设置源文件，更多自定义设置<comment>（需要JSON知识，如遇错误，把文件改成<code>{}</code>恢复默认）</comment>
             <br>
             <button id="打开config">打开设置源文件</button>
         </div>

@@ -191,6 +191,10 @@ set-select {
     width: 100%;
 }
 
+comment{
+    opacity: 0.6;
+}
+
 #自动运行命令 {
     width: 100%;
 }
