@@ -317,8 +317,10 @@ app.whenReady().then(() => {
 app.on("will-quit", () => {
     // Unregister all shortcuts.
     globalShortcut.unregisterAll();
+
+    // 删除临时文件夹
     if (process.platform == "win32") {
-        exec(`rmdir ${os.tmpdir() + "\\eSearch"}`);
+        exec(`rd /s /q ${os.tmpdir() + "\\eSearch"}`);
     } else {
         exec(`rm -r ${os.tmpdir() + "/eSearch"}`);
     }
