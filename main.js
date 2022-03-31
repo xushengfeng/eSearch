@@ -1118,22 +1118,22 @@ ipcMain.on("open_url", async (event, window_name, url) => {
             new_browser_view(url);
             return { action: "deny" };
         });
-        if (search_window.webContents) search_window.webContents.send("url", win_name, view, "new", url);
+        if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "new", url);
         search_view.webContents.on("page-title-updated", (event, title) => {
-            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "title", title);
+            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "title", title);
             search_window.setTitle(`eSearch - ${title}`);
         });
         search_view.webContents.on("page-favicon-updated", (event, favicons) => {
-            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "icon", favicons);
+            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "icon", favicons);
         });
         search_view.webContents.on("did-navigate", (event, url) => {
-            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "url", url);
+            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "url", url);
         });
         search_view.webContents.on("did-start-loading", () => {
-            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "load", true);
+            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "load", true);
         });
         search_view.webContents.on("did-stop-loading", () => {
-            if (search_window.webContents) search_window.webContents.send("url", win_name, view, "load", false);
+            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "load", false);
         });
     }
 
@@ -1156,6 +1156,10 @@ ipcMain.on("open_url", async (event, window_name, url) => {
     });
 
     function close_win() {
+        var views = search_window.getBrowserViews();
+        for (i of views) {
+            search_window.removeBrowserView(i);
+        }
         // 清除列表中的索引
         for (i in main_to_search_l[window_name]) {
             if (main_to_search_l[window_name][i] == win_name) {
