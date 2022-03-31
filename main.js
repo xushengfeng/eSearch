@@ -968,9 +968,11 @@ var main_window_focus;
 function create_main_window(web_page, t, about) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主窗口大小");
+    var x = screen.getCursorScreenPoint().x - w,
+        y = screen.getCursorScreenPoint().y - h;
     var main_window = (main_window_l[window_name] = new BrowserWindow({
-        x: screen.getCursorScreenPoint().x - w,
-        y: screen.getCursorScreenPoint().y - h,
+        x: x < 0 ? 0 : x,
+        y: y < 0 ? 0 : y,
         width: w,
         height: h,
         minWidth: 800,
