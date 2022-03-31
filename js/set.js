@@ -302,6 +302,7 @@ document.getElementById("子关主").checked = store.get("关闭窗口.主窗口
 document.getElementById("主窗口失焦").checked = store.get("关闭窗口.失焦")[0];
 document.getElementById("搜索窗口失焦").checked = store.get("关闭窗口.失焦")[1];
 
+document.getElementById("打开config").title = store.path;
 document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
 };
@@ -391,6 +392,13 @@ function save_setting() {
     });
     ipcRenderer.send("setting", "reload_main");
 }
+
+var path_info = `运行目录：${__dirname}<br>
+                配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>
+                OCR 目录：${store.path.replace("config.json", "ocr")}<br>
+                临时目录：${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch`;
+document.createTextNode(path_info);
+document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 
 var package = require("./package.json");
 document.getElementById("name").innerHTML = package.name;
