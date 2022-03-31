@@ -14,13 +14,13 @@ const {
     nativeImage,
     nativeTheme,
     BrowserView,
+    screen,
 } = require("electron");
 const { Buffer } = require("buffer");
 var robot = require("robotjs");
 const Store = require("electron-store");
-var screen = require("electron").screen;
 const path = require("path");
-run_path = path.resolve(__dirname, "");
+const run_path = path.resolve(__dirname, "");
 const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
