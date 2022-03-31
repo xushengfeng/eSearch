@@ -400,6 +400,13 @@ var path_info = `运行目录：${__dirname}<br>
 document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 
+var version = `<div>本机系统: ${os.type()} ${os.release()}</div>`;
+var version_l = ["electron", "node", "chrome", "v8"];
+for (i in version_l) {
+    version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
+}
+document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
+
 var package = require("./package.json");
 document.getElementById("name").innerHTML = package.name;
 document.querySelector("#version").innerHTML = package.version;
@@ -440,13 +447,6 @@ document.querySelector("#info").innerHTML = `<div>项目主页: <a href="${packa
     <div>本软件基于 <a href="all_license.json">这些软件</a></div>
     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
 
-var version = `<div>本机系统: ${os.type()} ${os.release()}</div>`;
-var version_l = ["electron", "node", "chrome", "v8"];
-for (i in version_l) {
-    version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
-}
-document.querySelector("#versions").innerHTML = version;
-
 document.querySelector("#about").onclick = (e) => {
     console.log(e.target);
     if (e.target.tagName == "A") {
@@ -460,13 +460,3 @@ ipcRenderer.on("about", (event, arg) => {
         location.hash = "#about";
     }
 });
-
-show_v = false;
-document.querySelector("#about > img").onclick = () => {
-    show_v = !show_v;
-    if (show_v) {
-        document.querySelector("#versions").style.opacity = "1";
-    } else {
-        document.querySelector("#versions").style.opacity = "0";
-    }
-};
