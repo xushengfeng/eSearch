@@ -73,8 +73,8 @@ function local_ocr(arg, callback) {
  * @param {Function} callback 回调
  */
 function online_ocr(type, arg, callback) {
-    var https = require("https");
-    var qs = require("querystring");
+    const https = require("https");
+    const { URLSearchParams } = require("url");
 
     var client_id = store.get(`在线OCR.${type}.id`),
         client_secret = store.get(`在线OCR.${type}.secret`);
@@ -148,7 +148,7 @@ function online_ocr(type, arg, callback) {
             });
         });
 
-        req.write(qs.stringify({ image: arg, paragraph: "true" }));
+        req.write(new URLSearchParams({ image: arg, paragraph: "true" }).toString());
         req.end();
     }
     function format(result) {
