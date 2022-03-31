@@ -525,6 +525,12 @@ function the_ocr(event, arg) {
         ocr(arg, (err, result) => {
             if (err) {
                 event.sender.send("ocr_back", "else");
+                dialog.showMessageBox({
+                    title: "错误",
+                    message: `${err}`,
+                    buttons: ["确定"],
+                    icon: `${run_path}/assets/icons/warning.png`,
+                });
             } else {
                 event.sender.send("ocr_back", "ok");
                 create_main_window("index.html", [result]);

@@ -79,6 +79,8 @@ function online_ocr(type, arg, callback) {
     var client_id = store.get(`在线OCR.${type}.id`),
         client_secret = store.get(`在线OCR.${type}.secret`);
 
+    if (!client_id || !client_secret) return callback("未填写 API Key 或 Secret Key", null);
+
     access();
     function access() {
         var options = {
@@ -99,7 +101,12 @@ function online_ocr(type, arg, callback) {
                 var body = Buffer.concat(chunks);
                 var access_token = JSON.parse(body.toString()).access_token;
                 console.log(access_token);
+                if (!access_token) return callback(body.toString(), null);
                 get_ocr(access_token);
+            });
+
+            res.on("error", () => {
+                return callback(JSON.stringify(err), null);
             });
         });
 
@@ -135,6 +142,10 @@ function online_ocr(type, arg, callback) {
                 console.log(body.toString());
                 format(body.toString());
             });
+
+            res.on("error", (err) => {
+                return callback(err, null);
+            });
         });
 
         req.write(qs.stringify({ image: arg, paragraph: "true" }));
@@ -143,7 +154,7 @@ function online_ocr(type, arg, callback) {
     function format(result) {
         result = JSON.parse(result);
 
-        if (result.error_msg || result.error_code) return callback(result, null);
+        if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
 
         var output = "";
         for (i in result.paragraphs_result) {
