@@ -1332,6 +1332,7 @@ var default_setting = {
     OCR: {
         类型: "离线",
         检查OCR: true,
+        离线切换: true,
         det: "",
         rec: "",
         字典: "",

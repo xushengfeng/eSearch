@@ -250,6 +250,7 @@ document.querySelector("#main").onclick = () => {
 
 document.getElementById("OCR类型").value = store.get("OCR.类型");
 document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
+document.getElementById("离线切换").checked = store.get("OCR.离线切换");
 document.getElementById("ocr_det").value = store.get("OCR.det");
 document.getElementById("ocr_rec").value = store.get("OCR.rec");
 document.getElementById("ocr_字典").value = store.get("OCR.字典");
@@ -368,6 +369,7 @@ function save_setting() {
     store.set("OCR", {
         类型: document.getElementById("OCR类型").value,
         检查OCR: document.getElementById("检查OCR").checked,
+        离线切换: document.getElementById("离线切换").checked,
         det: document.getElementById("ocr_det").value,
         rec: document.getElementById("ocr_rec").value,
         字典: document.getElementById("ocr_字典").value,

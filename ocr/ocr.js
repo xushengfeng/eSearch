@@ -110,6 +110,16 @@ function online_ocr(type, arg, callback) {
             });
         });
 
+        req.on("error", () => {
+            if (store.get("OCR.离线切换")) {
+                local_ocr(arg, (err, r) => {
+                    return callback(err, r);
+                });
+            } else {
+                return callback("网络或服务错误", null);
+            }
+        });
+
         req.end();
     }
     function get_ocr(access_token) {
