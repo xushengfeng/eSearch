@@ -280,7 +280,7 @@ app.whenReady().then(() => {
         选中搜索: { f: "open_selection()" },
         剪贴板搜索: { f: "open_clip_board()" },
         快速截图: { f: "quick_clip()" },
-        主页面: { f: "create_main_window([''])" },
+        主页面: { f: "create_main_window('index.html', [''])" },
     };
     ipcMain.on("快捷键", (event, arg) => {
         try {
