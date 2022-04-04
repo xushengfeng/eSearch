@@ -260,12 +260,6 @@ document.getElementById("下载离线OCR").onclick = () => {
 document.getElementById("删除离线OCR").onclick = () => {
     ipcRenderer.send("setting", "删除离线OCR");
 };
-document.getElementById("本地OCR下载").onclick = (e) => {
-    e.preventDefault();
-    shell.openExternal("https://hub.fastgit.xyz/xushengfeng/eSearch-service");
-};
-document.getElementById("自动运行命令").value = store.get("自动运行命令");
-document.getElementById("端口").value = store.get("端口");
 document.getElementById("baidu_ocr_url").value = store.get("在线OCR.baidu.url");
 document.getElementById("baidu_ocr_id").value = store.get("在线OCR.baidu.id");
 document.getElementById("baidu_ocr_secret").value = store.get("在线OCR.baidu.secret");
