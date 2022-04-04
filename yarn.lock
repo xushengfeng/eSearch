@@ -417,10 +417,10 @@
   "resolved" "https://registry.nlark.com/@types/minimatch/download/@types/minimatch-3.0.5.tgz?cache=0&sync_timestamp=1629708337307&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Fminimatch%2Fdownload%2F%40types%2Fminimatch-3.0.5.tgz"
   "version" "3.0.5"
 
-"@types/node@*", "@types/node@^14.6.2":
-  "integrity" "sha512-noEeJ06zbn3lOh4gqe2v7NMGS33jrulfNqYFDjjEbhpDEHR5VTxgYNQSBqBlJIsBJW3uEYDgD6kvMnrrhGzq8g=="
-  "resolved" "https://registry.npmmirror.com/@types/node/download/@types/node-14.17.33.tgz?cache=0&sync_timestamp=1636407492316&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2F%40types%2Fnode%2Fdownload%2F%40types%2Fnode-14.17.33.tgz"
-  "version" "14.17.33"
+"@types/node@*", "@types/node@^16.11.26":
+  "integrity" "sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ=="
+  "resolved" "https://registry.npmmirror.com/@types/node/-/node-16.11.26.tgz"
+  "version" "16.11.26"
 
 "@types/responselike@*", "@types/responselike@^1.0.0":
   "integrity" "sha1-JR9P59FU0rrRJavhtCmyOv0mLik="
@@ -1408,13 +1408,13 @@
     "lodash.template" "^4.2.2"
     "temp" "^0.9.0"
 
-"electron@^17.2.0":
-  "integrity" "sha512-KuYHCOw1a+CE9thZlWRqTScf6M81KLd6n5qpdBGb0rl62+50RUuau9CnYpBb3EJxrjsXLaiQCBBSdPsozf/XUg=="
-  "resolved" "https://registry.npmjs.org/electron/-/electron-17.3.0.tgz"
-  "version" "17.3.0"
+"electron@^18.0.1":
+  "integrity" "sha512-8y3nxmK+v/tiuaR8yd4K83ApHxgomMIPAEl3J+2Jfv/D5G6M3KnvxNlNiNoTXI8uOegfmoqiDm5/2xlWFLzfLQ=="
+  "resolved" "https://registry.npmmirror.com/electron/-/electron-18.0.1.tgz"
+  "version" "18.0.1"
   dependencies:
     "@electron/get" "^1.13.0"
-    "@types/node" "^14.6.2"
+    "@types/node" "^16.11.26"
     "extract-zip" "^1.0.3"
 
 "emoji-regex@^8.0.0":
