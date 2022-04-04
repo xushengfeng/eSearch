@@ -68,7 +68,6 @@ function local_ocr(arg, callback) {
                     `,
                     (e, result) => {
                         if (e) console.log(e);
-                        console.log(result);
                         return callback(e, result);
                     }
                 );
