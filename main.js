@@ -45,7 +45,7 @@ ipcMain.on("autostart", (event, m, v) => {
                 exec("rm ~/.config/autostart/e-search.desktop");
             }
         } else {
-            app.setLoginItemSettings(v);
+            app.setLoginItemSettings({ openAtLogin: v });
         }
     } else {
         if (process.platform == "linux") {
