@@ -34,23 +34,6 @@ ArchLinux 可在 AUR 查找安装 `e-search`或`e-search-git`
 
 默认启用本地 OCR 服务，若想使用在线 OCR，目前提供了百度在线 OCR，需要依据[教程](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)获取*API KEY* 以及 _Secret KEY_，截止 2022 年 1 月，百度 OCR 还是可以[免费领取服务](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)。将获取到的*API KEY* 和*Secret KEY* 以及相应的你选择的文字识别服务[_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) 填入软件设置，去掉离线 OCR 的勾选即可使用在线 OCR。
 
-### macOS 用户
-
-macOS 本地 OCR 暂时编译不通过，需要使用 Python 版 OCR。
-
-确保你的电脑安装了 python<=3.9
-
-下载[eSearch-service](https://github.com/xushengfeng/eSearch-service)并安装运行
-
-```shell
-git clone https://github.com/xushengfeng/eSearch-service.git
-cd eSearch-service
-python setup.py
-python serve.py
-```
-
-或使用 Docker：[Docker 安装指南](https://github.com/xushengfeng/eSearch-service#Docker)
-
 ## 源码运行&编译
 
 编译需要`python` 和 `C++`环境，Windows 下编译需要 `python` 和`visual studio`（安装 C++）
@@ -113,8 +96,7 @@ e-search
     -   [x] 鼠标穿透
 -   [x] 二维码识别
 -   [x] OCR 识别
-    -   [x] 本地 OCR（在[eSearch-service](https://github.com/xushengfeng/eSearch-service)实现）
-    -   [ ] 本地 OCR C++ 编译内嵌
+    -   [x] 离线 OCR（基于 C++ 或 Python 实现，[eSearch-service](https://github.com/xushengfeng/eSearch-service)）
     -   [x] 其他 OCR 基于 js 原生实现
 -   [ ] 以图搜图
 -   [x] 托盘
