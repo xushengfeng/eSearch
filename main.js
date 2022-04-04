@@ -9,7 +9,6 @@ const {
     ipcMain,
     dialog,
     Notification,
-    net,
     shell,
     nativeImage,
     nativeTheme,
@@ -121,8 +120,6 @@ function arg_run(c) {
             break;
     }
 }
-
-var port = 8080;
 
 async function download_ocr(download_path) {
     var resolve = await dialog.showMessageBox({
@@ -243,24 +240,9 @@ app.whenReady().then(() => {
     if (store.get("首次运行") === undefined) set_default_setting();
     fix_setting_tree();
 
-    // 检查并开启服务
-    function start_service() {
-        const request = net.request({
-            method: "POST",
-            url: `http://127.0.0.1:${port}`,
-        });
-        var dir = store.path.replace("config.json", "service-installed");
-        request.on("response", () => {
-            if (!fs.existsSync(dir)) fs.mkdir(dir, () => {});
-        });
-        request.on("error", () => {
-            if (store.get("OCR.检查OCR")) check_service_no();
-        });
-        request.write("");
-        request.end();
-    }
-    start_service();
-
+    /**
+     * 检查ocr文件是否下载，否，则下载
+     */
     async function check_ocr() {
         var download_path = app.getPath("userData");
         if (
@@ -485,41 +467,6 @@ function n_full_screen() {
     clip_window.hide();
 }
 
-function check_service_no() {
-    if (process.platform == "linux" || process.platform == "win32") return;
-    var dir = store.path.replace("config.json", "service-installed");
-    if (!fs.existsSync(dir)) {
-        dialog
-            .showMessageBox({
-                title: "服务未安装",
-                message: `${app.name} 服务未安装\n需要下载并安装服务才能使用OCR`,
-                icon: `${run_path}/assets/icons/warning.png`,
-                checkboxLabel: "不再提示",
-                buttons: ["下载", "取消"],
-                defaultId: 0,
-                cancelId: 1,
-            })
-            .then((resolve) => {
-                if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
-                if (resolve.response == 0) shell.openExternal("https://github.com/xushengfeng/eSearch-service");
-            });
-    } else {
-        console.log(`存在目录${dir}`);
-        if (store.get("自动运行命令")) {
-            console.log("启动");
-            exec(store.get("自动运行命令"), (e) => {
-                console.log(e);
-            });
-        } else {
-            dialog.showMessageBox({
-                title: "服务未启动",
-                message: `检测到服务未启动\n请手动启动 ${app.name} 服务`,
-                buttons: ["确定"],
-                icon: `${run_path}/assets/icons/warning.png`,
-            });
-        }
-    }
-}
 function the_ocr(event, arg) {
     ocr(arg, (err, result) => {
         if (err) {
