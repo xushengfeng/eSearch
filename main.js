@@ -521,71 +521,20 @@ function check_service_no() {
     }
 }
 function the_ocr(event, arg) {
-    if (process.platform == "linux" || process.platform == "win32") {
-        ocr(arg, (err, result) => {
-            if (err) {
-                event.sender.send("ocr_back", "else");
-                dialog.showMessageBox({
-                    title: "错误",
-                    message: `${err}`,
-                    buttons: ["确定"],
-                    icon: `${run_path}/assets/icons/warning.png`,
-                });
-            } else {
-                event.sender.send("ocr_back", "ok");
-                create_main_window("index.html", [result]);
-            }
-        });
-        return;
-    }
-    const check_r = net.request({
-        method: "POST",
-        url: `http://127.0.0.1:${port}`,
+    ocr(arg, (err, result) => {
+        if (err) {
+            event.sender.send("ocr_back", "else");
+            dialog.showMessageBox({
+                title: "错误",
+                message: `${err}`,
+                buttons: ["确定"],
+                icon: `${run_path}/assets/icons/warning.png`,
+            });
+        } else {
+            event.sender.send("ocr_back", "ok");
+            create_main_window("index.html", [result]);
+        }
     });
-    check_r.on("response", () => {
-        const request = net.request({
-            method: "POST",
-            url: `http://127.0.0.1:${port}`,
-            headers: { "Content-type": "application/x-www-form-urlencoded" },
-        });
-        request.on("response", (response) => {
-            try {
-                response.on("data", (chunk) => {
-                    var t = chunk.toString();
-                    var t = JSON.parse(t);
-                    var r = "";
-                    var text = t["words_result"];
-                    for (i in text) {
-                        r += text[i]["words"] + "\n";
-                    }
-                    create_main_window("index.html", [r]);
-                    response.on("end", () => {
-                        event.sender.send("ocr_back", "ok");
-                    });
-                });
-            } catch (error) {
-                event.sender.send("ocr_back", "else");
-                dialog.showMessageBox({
-                    title: "警告",
-                    message: "识别失败\n请尝试重新识别",
-                    icon: `${run_path}/assets/icons/warning.png`,
-                });
-            }
-        });
-        data = JSON.stringify({
-            image: arg,
-        });
-        request.write(data);
-        request.end();
-    });
-
-    check_r.on("error", () => {
-        event.sender.send("ocr_back", "else");
-        check_service_no();
-    });
-
-    check_r.write("");
-    check_r.end();
 }
 
 ipcMain.on("setting", (event, arg) => {

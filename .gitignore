@@ -5,3 +5,4 @@ out/
 eSearch
 .VSCodeCounter/
 ocr/ppocr/ocr
+.DS_Store

@@ -27,7 +27,7 @@ function local_ocr(arg, callback) {
         rec = store.get("OCR.rec") || "inference/ch_PP-OCRv2_rec_infer",
         字典 = store.get("OCR.字典") || "ppocr_keys_v1.txt";
     var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png");
-    var ocr_path = store.path.replace("config.json", "ocr");
+    var ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
     console.log(ocr_path);
     fs.writeFile(tmp_path, Buffer.from(arg, "base64"), async (err) => {
         if (err) callback(err);
@@ -58,6 +58,17 @@ function local_ocr(arg, callback) {
                         result = result.slice(1, result.length - 1);
                         result.reverse();
                         result = result.join("\n");
+                        return callback(e, result);
+                    }
+                );
+                break;
+            case "darwin":
+                exec(
+                    `source ${ocr_path}/env/bin/activate && ${ocr_path}/env/bin/python ${ocr_path}/ppocr/tools/infer/predict_system.py --image_dir="${tmp_path}" --det_model_dir="${__dirname}/ppocr/${det}" --rec_model_dir="${__dirname}/ppocr/${rec}" --use_gpu=False --rec_char_dict_path="${__dirname}/ppocr/ppocr_keys_v1.txt"
+                    `,
+                    (e, result) => {
+                        if (e) console.log(e);
+                        console.log(result);
                         return callback(e, result);
                     }
                 );
