@@ -360,6 +360,7 @@ video {
     position: fixed;
     display: none;
     z-index: 11;
+    cursor: progress;
 }
 
 #toast {
