@@ -122,20 +122,19 @@ function arg_run(c) {
 }
 
 async function download_ocr(download_path) {
+    var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
     var resolve = await dialog.showMessageBox({
         title: "服务未下载",
         message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
-        icon: `${run_path}/assets/icons/warning.png`,
         checkboxLabel: "不再提示",
-        buttons: ["下载(约200MB)", "前往 设置", "取消"],
+        buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
         defaultId: 0,
         cancelId: 2,
     });
     if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
     if (resolve.response == 0) {
-        var file_o = { linux: "Linux.tar.gz", win32: "Windows.zip", darwin: "macOS.zip" };
         var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
-            file_o[process.platform]
+            file_o[process.platform][0]
         }`;
         (async () => {
             console.log("开始下载服务");
