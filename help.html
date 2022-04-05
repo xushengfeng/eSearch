@@ -54,11 +54,29 @@
         <p>搜索你选中的文字，即划词搜索</p>
         <h2>剪贴板搜索</h2>
         <p>搜索最近复制的文字</p>
+
         <h1>截图搜索</h1>
+
         <h2 id="文字识别"><img src="./assets/tool_ocr.svg" class="line_img">文字识别（OCR）</h2>
-        <p>你可以在<a href="setting.html#OCR类型">设置</a>中选择 离线OCR 或 其他在线OCR</p>
-        <p>软件开启时，会提示 离线OCR 的下载，点击下载，大约5分钟后，软件会提示下载完成</p>
-        <p>软件目前支持的在线OCR服务是百度OCR，参考<a href="https://cloud.baidu.com/doc/OCR/s/dk3iqnq51">百度OCR的教程</a>，获取 API Key 和 Secret Key，并填入<a href="setting.html#baidu_ocr_url">设置</a>中，截止2022年1月，百度OCR还可以免费领取服务</p>
+        <p>文字识别可以把框选的图片的文字转化为可编辑的文字在主界面显示。</p>
+        <p><strong>eSearch</strong>提供了<strong>离线OCR</strong>和其他<strong>在线OCR</strong>，可以在<a
+                href="setting.html#OCR类型">设置</a>中选择。</p>
+        <p>离线OCR完全免费，不依赖网络，但它体积较大。部分在线OCR可以免费体验，但它速度快，准确率高，不占体积。软件默认启用离线OCR。</p>
+        <p>由于离线OCR的体积原因，软件不附带，需要下载。软件开启时，会提示离线OCR的下载，点击下载，大约5分钟后，软件会提示下载完成。下载完成的离线OCR可能会占用1G不等，你可以在<a
+                href="setting.html#删除离线OCR">设置</a>删除。</p>
+        <p>软件目前支持的在线OCR服务是<strong>百度OCR</strong>和<strong>有道OCR</strong>。</p>
+        <h3>离线OCR</h3>
+        <p>你可以使用<a
+                href="https://github.com/PaddlePaddle/PaddleOCR#pp-ocr-series-model-listupdate-on-september-8th">官方推理模型（inference
+                model）</a>或你自己训练的模型，在<a href="setting.html#ocr_det">设置</a>填入绝对路径。</p>
+        <h3>百度OCR</h3>
+        <p>参考<a href="https://cloud.baidu.com/doc/OCR/s/dk3iqnq51">百度OCR的教程</a>，获取 API Key 和 Secret Key，并填入<a
+                href="setting.html#baidu_details">设置</a>中。截止2022年1月，百度OCR还可以免费领取服务。</p>
+        <h3>有道OCR</h3>
+        <p>参考<a
+                href="https://ai.youdao.com/doc.s#guide">有道AI文档</a>，在创建应用时服务选择<i>光学字符识别服务-通用文字识别</i>，接入方式为<i>API</i>，获取应用ID和密钥，并填入<a
+                href="setting.html#youdao_details">设置</a>中。</p>
+
         <h1>主窗口</h1>
         <p>当你按下 <img src="./assets/tool_ocr.svg" class="line_img">
             文字识别或
