@@ -263,6 +263,8 @@ document.getElementById("删除离线OCR").onclick = () => {
 document.getElementById("baidu_ocr_url").value = store.get("在线OCR.baidu.url");
 document.getElementById("baidu_ocr_id").value = store.get("在线OCR.baidu.id");
 document.getElementById("baidu_ocr_secret").value = store.get("在线OCR.baidu.secret");
+document.getElementById("youdao_ocr_id").value = store.get("在线OCR.youdao.id");
+document.getElementById("youdao_ocr_secret").value = store.get("在线OCR.youdao.secret");
 
 历史记录设置 = store.get("历史记录设置");
 
