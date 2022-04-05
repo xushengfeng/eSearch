@@ -191,7 +191,16 @@ set-select {
     width: 100%;
 }
 
-comment{
+summary {
+    font-size: 1.17rem;
+    font-weight: bold;
+    outline: none;
+}
+details {
+    outline: none;
+}
+
+comment {
     opacity: 0.6;
 }
 

@@ -249,6 +249,17 @@ document.querySelector("#main").onclick = () => {
 };
 
 document.getElementById("OCR类型").value = store.get("OCR.类型");
+ocr_d_open();
+function ocr_d_open() {
+    document.getElementById("baidu_details").open = false;
+    document.getElementById("youdao_details").open = false;
+    if (document.getElementById("OCR类型").value == "baidu") {
+        document.getElementById("baidu_details").open = true;
+    } else if (document.getElementById("OCR类型").value == "youdao") {
+        document.getElementById("youdao_details").open = true;
+    }
+}
+document.getElementById("OCR类型").onclick = ocr_d_open;
 document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
 document.getElementById("离线切换").checked = store.get("OCR.离线切换");
 document.getElementById("ocr_det").value = store.get("OCR.det");
