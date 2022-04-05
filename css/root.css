@@ -164,7 +164,7 @@ textarea {
         background-image: url(../assets/dark/tool_ocr.svg) !important;
     }
     #tool_search {
-        background-image: url(../assets/dark/main_search.svg);
+        background-image: url(../assets/dark/main_search.svg) !important;
     }
     #tool_QR {
         background-image: url(../assets/dark/tool_QR.svg) !important;
