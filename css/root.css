@@ -91,6 +91,9 @@ kbd {
 ::-webkit-scrollbar-button {
     height: 8px;
 }
+::-webkit-scrollbar-corner {
+    background-color: #0000;
+}
 
 /* 用于截屏界面固定 */
 .hover_b {
