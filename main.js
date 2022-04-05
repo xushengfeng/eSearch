@@ -1268,7 +1268,7 @@ var default_setting = {
         },
     },
     以图搜图: {
-        类型: "baidu",
+        引擎: "baidu",
     },
     自动打开链接: false,
     自动搜索中文占比: 0.2,

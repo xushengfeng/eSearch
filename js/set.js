@@ -242,6 +242,8 @@ document.querySelector("#翻译引擎").onchange = () => {
 };
 document.getElementById("记住引擎").checked = store.get("引擎.记住");
 
+document.getElementById("图像搜索引擎").value = store.get("以图搜图.引擎");
+
 document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开");
 
 document.querySelector("#main").onclick = () => {
@@ -376,6 +378,7 @@ function save_setting() {
         默认搜索引擎: document.getElementById("默认搜索引擎").value,
         默认翻译引擎: document.getElementById("默认翻译引擎").value,
     });
+    store.get("以图搜图.引擎", document.getElementById("图像搜索引擎").value);
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
