@@ -205,9 +205,27 @@ function tool_ocr_f() {
         }
     });
 }
+// 以图搜图
 function tool_search_f() {
     get_clip_photo("png").then((c) => {
         ipcRenderer.send("clip_main_b", "search", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
+    });
+
+    document.querySelector("#waiting").style.display = "block";
+    document.querySelector("#waiting").style.left = final_rect[0] + "px";
+    document.querySelector("#waiting").style.top = final_rect[1] + "px";
+    document.querySelector("#waiting").style.width = final_rect[2] + "px";
+    document.querySelector("#waiting").style.height = final_rect[3] + "px";
+    document.querySelectorAll("#waiting line animate")[0].beginElement();
+    document.querySelectorAll("#waiting line animate")[1].beginElement();
+
+    ipcRenderer.on("search_back", (event, arg) => {
+        if (arg == "ok") {
+            tool_close_f();
+            document.getElementById("waiting").style.display = "none";
+        } else {
+            document.getElementById("waiting").style.display = "none";
+        }
     });
 }
 // 二维码

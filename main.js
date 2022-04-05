@@ -488,7 +488,20 @@ function the_ocr(event, arg) {
 }
 
 function image_search(event, arg) {
-    image_search(arg, (err, url) => {});
+    img_search(arg, (err, url) => {
+        if (!err) {
+            shell.openExternal(url);
+            event.sender.send("search_back", "ok");
+        } else {
+            event.sender.send("search_back", "else");
+            dialog.showMessageBox({
+                title: "错误",
+                message: `${err}`,
+                buttons: ["确定"],
+                icon: `${run_path}/assets/icons/warning.png`,
+            });
+        }
+    });
 }
 
 ipcMain.on("setting", (event, arg) => {
@@ -1253,6 +1266,9 @@ var default_setting = {
             id: "",
             secret: "",
         },
+    },
+    以图搜图: {
+        类型: "baidu",
     },
     自动打开链接: false,
     自动搜索中文占比: 0.2,
