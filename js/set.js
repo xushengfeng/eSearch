@@ -380,6 +380,10 @@ function save_setting() {
         id: document.getElementById("baidu_ocr_id").value,
         secret: document.getElementById("baidu_ocr_secret").value,
     });
+    store.set("在线OCR.youdao", {
+        id: document.getElementById("youdao_ocr_id").value,
+        secret: document.getElementById("youdao_ocr_secret").value,
+    });
     store.set("开启代理", document.getElementById("代理").checked);
     store.set("代理", {
         pacScript: document.getElementById("pacScript").value,

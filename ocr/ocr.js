@@ -191,7 +191,7 @@ function online_ocr(type, arg, callback) {
             .digest("hex");
         var data = {
             img: arg,
-            langType: "",
+            langType: "auto",
             detectType: "10012",
             imageType: "1",
             appKey: client_id,
@@ -212,10 +212,24 @@ function online_ocr(type, arg, callback) {
             },
             (error, result) => {
                 if (error) return callback(error, null);
-                console.log(result);
+                youdao_format(result);
             },
             data
         );
+        function youdao_format(result) {
+            if (result.errorCode != "0") return callback(new Error(JSON.stringify(result)), null);
+            var text = [];
+            for (i of result.Result.regions) {
+                var t = "";
+                for (j of i.lines) {
+                    t += j.text;
+                }
+                text.push(t);
+            }
+            text = text.join("\n");
+            console.log(text);
+            return callback(null, text);
+        }
     }
 }
 // online_ocr();
