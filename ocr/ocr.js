@@ -117,8 +117,16 @@ function online_ocr(type, arg, callback) {
         client_secret = store.get(`在线OCR.${type}.secret`);
     if (!client_id || !client_secret) return callback("未填写 API Key 或 Secret Key", null);
 
-    access();
-    function access() {
+    switch (type) {
+        case "baidu":
+            baidu_ocr();
+            break;
+        case "youdao":
+            youdao_ocr();
+            break;
+    }
+
+    function baidu_ocr() {
         获取(
             `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`,
             {
@@ -149,27 +157,65 @@ function online_ocr(type, arg, callback) {
                         },
                         (error, result) => {
                             if (error) return callback(error, null);
-                            format(result);
+                            baidu_format(result);
                         },
                         { image: arg, paragraph: "true" }
                     );
                 }
             }
         );
+
+        function baidu_format(result) {
+            if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
+
+            var output = "";
+            for (i in result.paragraphs_result) {
+                for (ii in result.paragraphs_result[i]["words_result_idx"]) {
+                    output += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
+                }
+                if (i != result.paragraphs_result.length - 1) output += "\n";
+            }
+            console.log(output);
+            return callback(null, output);
+        }
     }
 
-    function format(result) {
-        if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
-
-        var output = "";
-        for (i in result.paragraphs_result) {
-            for (ii in result.paragraphs_result[i]["words_result_idx"]) {
-                output += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
-            }
-            if (i != result.paragraphs_result.length - 1) output += "\n";
-        }
-        console.log(output);
-        return callback(null, output);
+    function youdao_ocr() {
+        const crypto = require("crypto");
+        var input = arg.length >= 20 ? arg.slice(0, 10) + arg.length + arg.slice(-10) : arg;
+        var curtime = Math.round(new Date().getTime() / 1000);
+        var salt = crypto.randomUUID();
+        var sign = crypto
+            .createHash("sha256")
+            .update(client_id + input + salt + curtime + client_secret)
+            .digest("hex");
+        var data = {
+            img: arg,
+            langType: "",
+            detectType: "10012",
+            imageType: "1",
+            appKey: client_id,
+            docType: "json",
+            signType: "v3",
+            salt,
+            sign,
+            curtime,
+        };
+        获取(
+            "https://openapi.youdao.com/ocrapi",
+            {
+                method: "POST",
+                port: null,
+                headers: {
+                    "content-type": "application/x-www-form-urlencoded",
+                },
+            },
+            (error, result) => {
+                if (error) return callback(error, null);
+                console.log(result);
+            },
+            data
+        );
     }
 }
 // online_ocr();

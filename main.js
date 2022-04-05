@@ -1241,6 +1241,10 @@ var default_setting = {
             id: "",
             secret: "",
         },
+        youdao: {
+            id: "",
+            secret: "",
+        },
     },
     自动打开链接: false,
     自动搜索中文占比: 0.2,
