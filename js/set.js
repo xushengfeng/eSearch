@@ -373,8 +373,6 @@ function save_setting() {
         id: document.getElementById("baidu_ocr_id").value,
         secret: document.getElementById("baidu_ocr_secret").value,
     });
-    store.set("自动运行命令", document.getElementById("自动运行命令").value);
-    store.set("端口", document.getElementById("端口").value - 0);
     store.set("开启代理", document.getElementById("代理").checked);
     store.set("代理", {
         pacScript: document.getElementById("pacScript").value,
