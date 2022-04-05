@@ -24,6 +24,7 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const ocr = require("./ocr/ocr");
+const img_search = require("./lib/image_search");
 const download = require("download");
 
 // 自动开启开发者模式
@@ -345,7 +346,7 @@ function create_clip_window() {
 
     if (dev) clip_window.webContents.openDevTools();
 
-    // 监听截图奇奇怪怪的事件
+    // * 监听截图奇奇怪怪的事件
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
             case "window-close":
@@ -353,6 +354,9 @@ function create_clip_window() {
                 break;
             case "ocr":
                 the_ocr(event, arg);
+                break;
+            case "search":
+                image_search(event, arg);
                 break;
             case "QR":
                 if (arg != "nothing") {
@@ -481,6 +485,10 @@ function the_ocr(event, arg) {
             create_main_window("index.html", [result]);
         }
     });
+}
+
+function image_search(event, arg) {
+    image_search(arg, (err, url) => {});
 }
 
 ipcMain.on("setting", (event, arg) => {

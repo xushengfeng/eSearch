@@ -145,8 +145,10 @@ var tool_bar = document.getElementById("tool_bar");
 // 工具栏按钮
 tool_bar.onmouseup = (e) => {
     if (e.button == 0) {
+        // * 拼接函数名
         eval(`${e.target.id}_f()`);
     }
+    // 中键取消抬起操作
     if (e.button == 1) {
         e.target.style.backgroundColor = "";
         auto_do = "no";
@@ -201,6 +203,11 @@ function tool_ocr_f() {
         } else {
             document.getElementById("waiting").style.display = "none";
         }
+    });
+}
+function tool_search_f() {
+    get_clip_photo("png").then((c) => {
+        ipcRenderer.send("clip_main_b", "search", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
     });
 }
 // 二维码
