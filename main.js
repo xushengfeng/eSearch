@@ -485,6 +485,9 @@ function the_ocr(event, arg) {
 
 ipcMain.on("setting", (event, arg) => {
     switch (arg) {
+        case "save_err":
+            console.log("保存设置失败");
+            break;
         case "reload_main":
             if (clip_window && !clip_window.isVisible()) clip_window.reload();
             break;

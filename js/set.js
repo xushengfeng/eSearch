@@ -312,7 +312,14 @@ document.getElementById("give_up_setting_b").oninput = () => {
     }
 };
 
-window.onbeforeunload = save_setting;
+window.onbeforeunload = () => {
+    try {
+        save_setting();
+    } catch {
+        ipcRenderer.send("setting", "save_err");
+    }
+    ipcRenderer.send("setting", "reload_main");
+};
 
 function save_setting() {
     if (give_up) return;
@@ -384,7 +391,6 @@ function save_setting() {
         子窗口跟随主窗口关: document.getElementById("主关子").checked,
         主窗口跟随子窗口关: document.getElementById("子关主").checked,
     });
-    ipcRenderer.send("setting", "reload_main");
 }
 
 var path_info = `运行目录：${__dirname}<br>
