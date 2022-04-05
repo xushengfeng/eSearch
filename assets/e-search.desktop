@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=eSearch
-Comment=截图+OCR+搜索+贴图
+Comment=识屏 · 搜索
 GenericName=eSearch
 Exec=e-search %U
 Icon=e-search
