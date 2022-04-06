@@ -30,10 +30,10 @@ body {
     width: 100%;
     margin: 0;
     box-shadow: none;
-    background-image: url(../assets/give_up_setting.svg);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
+    font-size: 40px;
+}
+#give_up_setting_b::before {
+    content: "\e911";
 }
 #give_up_setting:hover {
     box-shadow: var(--shadow);

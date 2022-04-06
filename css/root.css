@@ -22,8 +22,16 @@
 html,
 body {
     margin: 0;
-    font-family: var(--main-font);
+    font-family: var(--main-font), "icon";
     color: var(--color);
+}
+
+@font-face {
+    font-family: "icon";
+    src: url("../assets/icons.ttf?1nvuay") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
 }
 
 #tab_bar {
@@ -34,34 +42,34 @@ body {
     overflow: hidden;
     background-color: var(--bg);
     transition: var(--transition);
+    font-size: 40px;
 }
 #tab_bar:hover {
     box-shadow: var(--shadow);
 }
 #tab_bar a {
     display: block;
+    color: var(--color);
+    text-decoration: none;
 }
 
 #tab_bar a div {
     width: 40px;
     height: 40px;
     transition: var(--transition);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
 }
 #tab_bar a div:hover {
     background-color: var(--hover-color);
 }
 
-#main {
-    background-image: url(../assets/main.svg);
+#main::before {
+    content: "\e918";
 }
-#setting {
-    background-image: url(../assets/setting.svg);
+#setting::before {
+    content: "\e930";
 }
-#help {
-    background-image: url(../assets/help.svg);
+#help::before {
+    content: "\e912";
 }
 
 kbd {
@@ -103,6 +111,7 @@ kbd {
 button {
     outline: none;
     color: var(--color);
+    font-family: sans-serif, "icon";
 }
 
 input {
@@ -143,219 +152,5 @@ textarea {
     kbd {
         box-shadow: 0 5px #fff4;
         background: linear-gradient(315deg, #191919, #000);
-    }
-
-    #main {
-        background-image: url(../assets/dark/main.svg);
-    }
-    #setting {
-        background-image: url(../assets/dark/setting.svg);
-    }
-    #help {
-        background-image: url(../assets/dark/help.svg);
-    }
-    #draw_edit_run {
-        background-image: url(../assets/dark/draw_edit.svg) !important;
-    }
-    #draw_edit_clear {
-        background-image: url(../assets/dark/draw_edit_clear.svg) !important;
-    }
-    #tool_close {
-        background-image: url(../assets/dark/tool_close.svg) !important;
-    }
-    #tool_ocr {
-        background-image: url(../assets/dark/tool_ocr.svg) !important;
-    }
-    #tool_search {
-        background-image: url(../assets/dark/main_search.svg) !important;
-    }
-    #tool_QR {
-        background-image: url(../assets/dark/tool_QR.svg) !important;
-    }
-    #tool_draw {
-        background-image: url(../assets/dark/tool_draw.svg) !important;
-    }
-    #tool_open {
-        background-image: url(../assets/dark/tool_open.svg) !important;
-    }
-    #tool_ding {
-        background-image: url(../assets/dark/tool_ding.svg) !important;
-    }
-    #tool_copy {
-        background-image: url(../assets/dark/tool_copy.svg) !important;
-    }
-    #tool_save {
-        background-image: url(../assets/dark/tool_save.svg) !important;
-    }
-    #toast > button {
-        background-image: url(../assets/dark/tool_close.svg) !important;
-    }
-    .history_title > button {
-        background-image: url(../assets/dark/i_close.svg) !important;
-    }
-    .history_title > button:hover {
-        background-image: url(../assets/dark/i_close_w.svg) !important;
-    }
-    #link_bar {
-        background-image: url(../assets/dark/main_link.svg) !important;
-    }
-    #search_bar {
-        background-image: url(../assets/dark/main_search.svg) !important;
-    }
-    #translate_bar {
-        background-image: url(../assets/dark/main_translate.svg) !important;
-    }
-    #selectAll_bar {
-        background-image: url(../assets/dark/main_selectAll.svg) !important;
-    }
-    #cut_bar {
-        background-image: url(../assets/dark/main_cut.svg) !important;
-    }
-    #copy_bar {
-        background-image: url(../assets/dark/main_copy.svg) !important;
-    }
-    #paste_bar {
-        background-image: url(../assets/dark/main_paste.svg) !important;
-    }
-    #delete_enter_bar {
-        background-image: url(../assets/dark/main_delete_enter.svg) !important;
-    }
-    #find_b_last {
-        background-image: url(../assets/dark/find_last.svg) !important;
-    }
-    #find_b_next {
-        background-image: url(../assets/dark/find_next.svg) !important;
-    }
-    #find_b_close {
-        background-image: url(../assets/dark/tool_close.svg) !important;
-    }
-    #find_b_regex {
-        background-image: url(../assets/dark/find_regex.svg) !important;
-    }
-    #find_b_replace {
-        background-image: url(../assets/dark/find_replace.svg) !important;
-    }
-    #find_b_replace_all {
-        background-image: url(../assets/dark/find_replace_all.svg) !important;
-    }
-    #history_b {
-        background-image: url(../assets/dark/main_history.svg) !important;
-    }
-    #browser_b {
-        background-image: url(../assets/dark/main_browser.svg) !important;
-    }
-    #search_b {
-        background-image: url(../assets/dark/main_search.svg) !important;
-    }
-    #translate_b {
-        background-image: url(../assets/dark/main_translate.svg) !important;
-    }
-    .opacity {
-        background-image: url(../assets/dark/ding_opacity.svg) !important;
-    }
-    .size {
-        background-image: url(../assets/dark/ding_size.svg) !important;
-    }
-    #minimize {
-        background-image: url(../assets/dark/ding_minimize.svg) !important;
-    }
-    #back {
-        background-image: url(../assets/dark/ding_back.svg) !important;
-    }
-    #close {
-        background-image: url(../assets/dark/ding_close.svg) !important;
-    }
-    #dock_item > #i_close {
-        background-image: url(../assets/dark/i_close.svg) !important;
-    }
-    #dock_item > #i_close:hover {
-        background-image: url(../assets/dark/i_close_w.svg) !important;
-    }
-    #dock_item > #i_ignore {
-        background-image: url(../assets/dark/i_ignore.svg) !important;
-    }
-    #give_up_setting_b {
-        background-image: url(../assets/dark/give_up_setting.svg) !important;
-    }
-    #draw_filters_select {
-        background-image: url(../assets/dark/draw_filter_add.svg) !important;
-    }
-    #draw_free {
-        background-image: url(../assets/dark/draw_free.svg) !important;
-    }
-    #draw_shapes {
-        background-image: url(../assets/dark/draw_shapes.svg) !important;
-    }
-    #draw_filters {
-        background-image: url(../assets/dark/draw_filters.svg) !important;
-    }
-    #draw_position {
-        background-image: url(../assets/dark/draw_position.svg) !important;
-    }
-    #draw_move {
-        background-image: url(../assets/dark/draw_move.svg) !important;
-    }
-    #draw_free_pencil {
-        background-image: url(../assets/dark/draw_free_pencil.svg) !important;
-    }
-    #draw_free_eraser {
-        background-image: url(../assets/dark/draw_free_eraser.svg) !important;
-    }
-    #draw_free_spray {
-        background-image: url(../assets/dark/draw_free_spray.svg) !important;
-    }
-    #draw_shapes_line {
-        background-image: url(../assets/dark/draw_shapes_line.svg) !important;
-    }
-    #draw_shapes_circle {
-        background-image: url(../assets/dark/draw_shapes_circle.svg) !important;
-    }
-    #draw_shapes_rect {
-        background-image: url(../assets/dark/draw_shapes_rect.svg) !important;
-    }
-    #draw_shapes_polyline {
-        background-image: url(../assets/dark/draw_shapes_polyline.svg) !important;
-    }
-    #draw_shapes_polygon {
-        background-image: url(../assets/dark/draw_shapes_polygon.svg) !important;
-    }
-    #draw_shapes_text {
-        background-image: url(../assets/dark/draw_shapes_text.svg) !important;
-    }
-    #draw_edit_b {
-        background-image: url(../assets/dark/draw_edit.svg) !important;
-    }
-    #draw_position_front {
-        background-image: url(../assets/dark/draw_position_front.svg) !important;
-    }
-    #draw_position_forwards {
-        background-image: url(../assets/dark/draw_position_forwards.svg) !important;
-    }
-    #draw_position_backwards {
-        background-image: url(../assets/dark/draw_position_backwards.svg) !important;
-    }
-    #draw_position_back {
-        background-image: url(../assets/dark/draw_position_back.svg) !important;
-    }
-    #back {
-        background-image: url(../assets/dark/browser_back.svg) !important;
-    }
-    #forward {
-        background-image: url(../assets/dark/browser_forward.svg) !important;
-    }
-    #stop {
-        background-image: url(../assets/dark/i_close.svg) !important;
-    }
-    #reload {
-        background-image: url(../assets/dark/browser_reload.svg) !important;
-    }
-    #browser {
-        background-image: url(../assets/dark/main_browser.svg) !important;
-    }
-    #add_history {
-        background-image: url(../assets/dark/browser_add_history.svg) !important;
-    }
-    .tab > button {
-        background-image: url(../assets/dark/i_close.svg) !important;
     }
 }

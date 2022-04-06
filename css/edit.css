@@ -1,3 +1,6 @@
+range-b {
+    font-size: 1rem;
+}
 #shadow_blur {
     overflow: hidden;
 }
@@ -55,8 +58,8 @@
     transform: scale(1.5);
 }
 
-#draw_filters_select {
-    background-image: url(../assets/draw_filter_add.svg);
+#draw_filters_select::before {
+    content: "\e901";
 }
 #draw_filters_i > div {
     overflow: hidden;
@@ -89,60 +92,57 @@
     background-color: var(--hover-color);
 }
 
-#draw_free {
-    background-image: url(../assets/draw_free.svg);
+#draw_free::before {
+    content: "\e910";
 }
-#draw_shapes {
-    background-image: url(../assets/draw_shapes.svg);
+#draw_shapes::before {
+    content: "\e931";
 }
-#draw_filters {
-    background-image: url(../assets/draw_filters.svg);
+#draw_filters::before {
+    content: "\e90f";
 }
-#draw_position {
-    background-image: url(../assets/draw_position.svg);
+#draw_position::before {
+    content: "\e924";
 }
-#draw_move {
-    background-image: url(../assets/draw_move.svg);
+#draw_free_pencil::before {
+    content: "\e910";
 }
-#draw_free_pencil {
-    background-image: url(../assets/draw_free_pencil.svg);
+#draw_free_eraser::before {
+    content: "\e90e";
 }
-#draw_free_eraser {
-    background-image: url(../assets/draw_free_eraser.svg);
+#draw_free_spray::before {
+    content: "\e933";
 }
-#draw_free_spray {
-    background-image: url(../assets/draw_free_spray.svg);
+#draw_shapes_line::before {
+    content: "\e916";
 }
-#draw_shapes_line {
-    background-image: url(../assets/draw_shapes_line.svg);
+#draw_shapes_circle::before {
+    content: "\e904";
 }
-#draw_shapes_circle {
-    background-image: url(../assets/draw_shapes_circle.svg);
+#draw_shapes_rect::before {
+    content: "\e925";
 }
-#draw_shapes_rect {
-    background-image: url(../assets/draw_shapes_rect.svg);
+#draw_shapes_polyline::before {
+    content: "\e91f";
 }
-#draw_shapes_polyline {
-    background-image: url(../assets/draw_shapes_polyline.svg);
+#draw_shapes_polygon::before {
+    content: "\e91e";
 }
-#draw_shapes_polygon {
-    background-image: url(../assets/draw_shapes_polygon.svg);
+#draw_shapes_text::before {
+    content: "\e934";
 }
-#draw_shapes_text {
-    background-image: url(../assets/draw_shapes_text.svg);
+#draw_edit_b::before {
+    content: "\e90d";
 }
-#draw_edit_b {
-    background-image: url(../assets/draw_edit.svg);
+#draw_position_front::before {
+    content: "\e923";
 }
-#draw_position_front {
-    background-image: url(../assets/draw_position_front.svg);
+#draw_position_forwards::before {
+    content: "\e922";
 }
-#draw_position_forwards {
-    background-image: url(../assets/draw_position_forwards.svg);
+#draw_position_backwards::before {
+    content: "\e921";
 }
-#draw_position_backwards {
-    background-image: url(../assets/draw_position_backwards.svg);
-}
-#draw_position_back {
-    background-image: url(../assets/draw_position_back.svg);
+#draw_position_back::before {
+    content: "\e920";
 }

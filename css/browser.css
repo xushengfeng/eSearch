@@ -24,31 +24,29 @@
     border-radius: var(--border-radius);
     transition: var(--transition);
     background-color: var(--bg);
-    background-size: 100%;
-    background-position: center;
-    background-repeat: no-repeat;
+    font-size: 24px;
 }
 #buttons > div:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
-#back {
-    background-image: url(../assets/browser_back.svg);
+#back::before {
+    content: "\e915";
 }
-#forward {
-    background-image: url(../assets/browser_forward.svg);
+#forward::before {
+    content: "\e92a";
 }
-#stop {
-    background-image: url(../assets/i_close.svg);
+#stop::before {
+    content: "\e906";
 }
-#reload {
-    background-image: url(../assets/browser_reload.svg);
+#reload::before {
+    content: "\e927";
 }
-#browser {
-    background-image: url(../assets/main_browser.svg);
+#browser::before {
+    content: "\e903";
 }
-#add_history {
-    background-image: url(../assets/browser_add_history.svg);
+#add_history::before {
+    content: "\e900";
 }
 
 .tab {
@@ -117,13 +115,16 @@
     border: none;
     border-radius: 4px;
     transition: var(--transition);
-    background-image: url(../assets/i_close.svg);
     background-size: 100%;
     background-position: center;
     background-repeat: no-repeat;
     margin: 5px;
     padding: 0;
     margin: 5px;
+}
+
+.tab > button::before {
+    content: "\e906";
 }
 
 .tab > button:hover {

@@ -130,16 +130,16 @@ body {
     padding: 0;
     margin-left: 4px;
     background-color: var(--hover-color);
-    background-image: url(../assets/i_close.svg);
-    background-size: 80%;
-    background-position: center;
-    background-repeat: no-repeat;
+    font-size: 16px;
     transition: var(--transition);
     border-radius: 50%;
 }
+.history_title > button::before {
+    content: "\e906";
+}
 .history_title > button:hover {
     background-color: #f00;
-    background-image: url(../assets/i_close_w.svg);
+    color: var(--bg);
 }
 .history_text {
     padding: 8px;
@@ -169,9 +169,7 @@ body {
     float: left;
     width: 30px;
     height: 30px;
-    background-size: 100%;
-    background-position: center;
-    background-repeat: no-repeat;
+    font-size: 30px;
     transition: var(--transition);
 }
 #edit_b > div:hover {
@@ -179,30 +177,33 @@ body {
 }
 
 #link_bar {
-    background-image: url(../assets/main_link.svg);
     width: 0;
     transition: var(--transition);
+    overflow: hidden;
 }
-#search_bar {
-    background-image: url(../assets/main_search.svg);
+#link_bar::before {
+    content: "\e917";
 }
-#translate_bar {
-    background-image: url(../assets/main_translate.svg);
+#search_bar::before {
+    content: "\e92e";
 }
-#selectAll_bar {
-    background-image: url(../assets/main_selectAll.svg);
+#translate_bar::before {
+    content: "\e935";
 }
-#cut_bar {
-    background-image: url(../assets/main_cut.svg);
+#selectAll_bar::before {
+    content: "\e92f";
 }
-#copy_bar {
-    background-image: url(../assets/main_copy.svg);
+#cut_bar::before {
+    content: "\e908";
 }
-#paste_bar {
-    background-image: url(../assets/main_paste.svg);
+#copy_bar::before {
+    content: "\e907";
 }
-#delete_enter_bar {
-    background-image: url(../assets/main_delete_enter.svg);
+#paste_bar::before {
+    content: "\e91d";
+}
+#delete_enter_bar::before {
+    content: "\e909";
 }
 
 #find {
@@ -241,6 +242,7 @@ body {
     height: 20px;
     padding: 0;
     border-radius: 4px;
+    font-size: 20px;
 }
 #find input {
     border: none;
@@ -248,23 +250,23 @@ body {
     backdrop-filter: var(--blur);
     border-radius: 4px;
 }
-#find_b_last {
-    background-image: url(../assets/find_last.svg);
+#find_b_last::before {
+    content: "\e936";
 }
-#find_b_next {
-    background-image: url(../assets/find_next.svg);
+#find_b_next::before {
+    content: "\e90b";
 }
-#find_b_close {
-    background-image: url(../assets/tool_close.svg);
+#find_b_close::before {
+    content: "\e906";
 }
-#find_b_regex {
-    background-image: url(../assets/find_regex.svg);
+#find_b_regex::before {
+    content: "\e926";
 }
-#find_b_replace {
-    background-image: url(../assets/find_replace.svg);
+#find_b_replace::before {
+    content: "\e929";
 }
-#find_b_replace_all {
-    background-image: url(../assets/find_replace_all.svg);
+#find_b_replace_all::before {
+    content: "\e928";
 }
 .find_h {
     background-color: var(--hover-color);
@@ -282,12 +284,13 @@ button {
     outline: none;
     margin: 0px;
     color: var(--color);
-    padding: 0 16px 0 16px;
+    padding: 0;
     transition: var(--transition);
     cursor: pointer;
     background-position: center;
     background-size: cover;
     width: 40px;
+    font-size: 40px;
 }
 button:hover {
     background-color: var(--hover-color);
@@ -312,17 +315,17 @@ option {
     font-size: var(--font-size);
 }
 
-#history_b {
-    background-image: url(../assets/main_history.svg);
+#history_b::before {
+    content: "\e913";
 }
-#browser_b {
-    background-image: url(../assets/main_browser.svg);
+#browser_b::before {
+    content: "\e903";
 }
-#search_b {
-    background-image: url(../assets/main_search.svg);
+#search_b::before {
+    content: "\e92e";
 }
-#translate_b {
-    background-image: url(../assets/main_translate.svg);
+#translate_b::before {
+    content: "\e935";
 }
 
 @media (prefers-color-scheme: dark) {

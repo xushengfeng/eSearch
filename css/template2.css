@@ -42,6 +42,11 @@ lock-b {
     display: block;
 }
 
+lock-b::before {
+    position: absolute;
+    width: 60px;
+}
+
 lock-b > input {
     width: 100%;
     height: 100%;

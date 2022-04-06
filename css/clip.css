@@ -120,17 +120,16 @@ body {
     border-radius: 6px;
     width: 36px;
     height: 36px;
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
+    font-size: 36px;
+    padding: 0;
     background-color: #0000;
     flex-shrink: 0;
 }
-#draw_edit_run {
-    background-image: url(../assets/draw_edit.svg);
+#draw_edit_run::before {
+    content: "\e90d";
 }
-#draw_edit_clear {
-    background-image: url(../assets/draw_edit_clear.svg);
+#draw_edit_clear::before {
+    content: "\e905";
 }
 #draw_edit_run:hover,
 #draw_edit_clear:hover {
@@ -155,46 +154,46 @@ body {
     box-shadow: var(--shadow);
 }
 #tool_bar > div {
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
     width: 60px;
     height: 60px;
     border-radius: 10px;
     transition: var(--transition);
     cursor: pointer;
+    font-size: 42px;
+    text-align: center;
+    line-height: 68px;
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
-#tool_close {
-    background-image: url(../assets/tool_close.svg);
+#tool_close::before {
+    content: "\e906";
 }
-#tool_ocr {
-    background-image: url(../assets/tool_ocr.svg);
+#tool_ocr::before {
+    content: "\e91a";
 }
-#tool_search {
-    background-image: url(../assets/main_search.svg);
+#tool_search::before {
+    content: "\e92e";
 }
-#tool_QR {
-    background-image: url(../assets/tool_QR.svg);
+#tool_QR::before {
+    content: "\e92c";
 }
-#tool_draw {
-    background-image: url(../assets/tool_draw.svg);
+#tool_draw::before {
+    content: "\e90c";
 }
-#tool_open {
-    background-image: url(../assets/tool_open.svg);
+#tool_open::before {
+    content: "\e91c";
 }
-#tool_ding {
-    background-image: url(../assets/tool_ding.svg);
+#tool_ding::before {
+    content: "\e90a";
 }
-#tool_copy {
-    background-image: url(../assets/tool_copy.svg);
+#tool_copy::before {
+    content: "\e907";
     cursor: copy !important;
 }
-#tool_save {
-    background-image: url(../assets/tool_save.svg);
+#tool_save::before {
+    content: "\e92b";
 }
 
 /* 画 */
@@ -213,6 +212,9 @@ body {
     height: 0px;
     box-shadow: var(--shadow);
     display: flex;
+    font-size: 42px;
+    text-align: center;
+    line-height: 68px;
 }
 #draw_bar > div {
     width: 60px;
@@ -389,8 +391,8 @@ video {
 #toast > button:hover {
     background-color: var(--hover-color);
 }
-#toast > button {
-    background-image: url(../assets/tool_close.svg);
+#toast > button::before {
+    content: "\e906";
 }
 
 @media (prefers-color-scheme: dark) {

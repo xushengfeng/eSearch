@@ -1,6 +1,6 @@
 module.exports = {
     packagerConfig: {
-        icon: "assets/icons/icon",
+        icon: "assets/logo/icon",
     },
     makers: [
         {
@@ -9,7 +9,7 @@ module.exports = {
                 name: "e-search",
                 productName: "eSearch",
                 categories: ["Graphics", "System", "Utility"],
-                icon: "assets/icons/1024x1024.png",
+                icon: "assets/logo/1024x1024.png",
             },
         },
         {
@@ -18,13 +18,13 @@ module.exports = {
                 name: "e-search",
                 productName: "eSearch",
                 categories: ["Graphics", "System", "Utility"],
-                icon: "assets/icons/1024x1024.png",
+                icon: "assets/logo/1024x1024.png",
             },
         },
         {
             name: "@electron-forge/maker-dmg",
             config: {
-                icon: "assets/icons/icon.icns",
+                icon: "assets/logo/icon.icns",
                 overwrite: true,
             },
         },

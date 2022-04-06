@@ -144,7 +144,7 @@ async function download_ocr(download_path) {
             new Notification({
                 title: app.name,
                 body: `${app.name} 服务已下载`,
-                icon: `${run_path}/assets/icons/64x64.png`,
+                icon: `${run_path}/assets/logo/64x64.png`,
             }).show();
         })();
     } else if (resolve.response == 1) create_main_window("setting.html");
@@ -163,8 +163,8 @@ app.whenReady().then(() => {
     // 托盘
     tray =
         process.platform == "linux"
-            ? new Tray(`${run_path}/assets/icons/32x32.png`)
-            : new Tray(`${run_path}/assets/icons/16x16.png`);
+            ? new Tray(`${run_path}/assets/logo/32x32.png`)
+            : new Tray(`${run_path}/assets/logo/16x16.png`);
     const contextMenu = Menu.buildFromTemplate([
         {
             label: "自动搜索",
@@ -231,7 +231,7 @@ app.whenReady().then(() => {
         new Notification({
             title: app.name,
             body: `${app.name} 已经在后台启动`,
-            icon: `${run_path}/assets/icons/64x64.png`,
+            icon: `${run_path}/assets/logo/64x64.png`,
         }).show();
 
     // 初始化设置
@@ -310,9 +310,9 @@ app.on("will-quit", () => {
 
 var the_icon = null;
 if (process.platform == "win32") {
-    the_icon = path.join(run_path, "assets/icons/icon.ico");
+    the_icon = path.join(run_path, "assets/logo/icon.ico");
 } else {
-    the_icon = path.join(run_path, "assets/icons/1024x1024.png");
+    the_icon = path.join(run_path, "assets/logo/1024x1024.png");
 }
 
 // 截图窗口
@@ -365,7 +365,7 @@ function create_clip_window() {
                     dialog.showMessageBox({
                         title: "警告",
                         message: "无法识别二维码\n请尝试重新识别",
-                        icon: `${run_path}/assets/icons/warning.png`,
+                        icon: `${run_path}/assets/logo/warning.png`,
                     });
                 }
                 break;
@@ -395,7 +395,7 @@ function create_clip_window() {
                             new Notification({
                                 title: `${app.name} 保存图像失败`,
                                 body: `用户已取消保存`,
-                                icon: `${run_path}/assets/icons/64x64.png`,
+                                icon: `${run_path}/assets/logo/64x64.png`,
                             }).show();
                             clip_window.show();
                             clip_window.setSimpleFullScreen(true);
@@ -478,7 +478,7 @@ function the_ocr(event, arg) {
                 title: "错误",
                 message: `${err}`,
                 buttons: ["确定"],
-                icon: `${run_path}/assets/icons/warning.png`,
+                icon: `${run_path}/assets/logo/warning.png`,
             });
         } else {
             event.sender.send("ocr_back", "ok");
@@ -498,7 +498,7 @@ function image_search(event, arg) {
                 title: "错误",
                 message: `${err}`,
                 buttons: ["确定"],
-                icon: `${run_path}/assets/icons/warning.png`,
+                icon: `${run_path}/assets/logo/warning.png`,
             });
         }
     });
@@ -1042,8 +1042,8 @@ ipcMain.on("open_url", async (event, window_name, url) => {
             if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "title", title);
             search_window.setTitle(`eSearch - ${title}`);
         });
-        search_view.webContents.on("page-favicon-updated", (event, favicons) => {
-            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "icon", favicons);
+        search_view.webContents.on("page-favicon-updated", (event, favlogo) => {
+            if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "icon", favlogo);
         });
         search_view.webContents.on("did-navigate", (event, url) => {
             if (!search_window.isDestroyed()) search_window.webContents.send("url", win_name, view, "url", url);
@@ -1186,7 +1186,7 @@ function noti(file_path) {
     notification = new Notification({
         title: `${app.name} 保存图像成功`,
         body: `已保存图像到 ${file_path}`,
-        icon: `${run_path}/assets/icons/64x64.png`,
+        icon: `${run_path}/assets/logo/64x64.png`,
     });
     notification.on("click", () => {
         shell.showItemInFolder(file_path);

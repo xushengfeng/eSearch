@@ -96,15 +96,13 @@ input[type="range"]::-webkit-slider-thumb {
 .size {
     width: 40px;
     height: 40px;
-    background-size: 80%;
-    background-position: center;
-    background-repeat: no-repeat;
+    font-size: 40px;
 }
-.opacity {
-    background-image: url(../assets/ding_opacity.svg);
+.opacity::before {
+    content: "\e91b";
 }
-.size {
-    background-image: url(../assets/ding_size.svg);
+.size::before {
+    content: "\e932";
 }
 #size > span {
     outline: none;
@@ -126,22 +124,23 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: #0000;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 8px;
+    padding: 0;
     width: 40px;
     height: 40px;
     cursor: pointer;
+    font-size: 40px;
 }
 #b > button:hover {
     background-color: var(--hover-color);
 }
-#minimize {
-    background-image: url(../assets/ding_minimize.svg);
+#minimize::before {
+    content: "\e919";
 }
-#back {
-    background-image: url(../assets/ding_back.svg);
+#back::before {
+    content: "\e902";
 }
-#close {
-    background-image: url(../assets/ding_close.svg);
+#close::before {
+    content: "\e906";
 }
 
 .minimize {
@@ -186,29 +185,32 @@ input[type="range"]::-webkit-slider-thumb {
     width: 24px;
     height: 24px;
     background-color: var(--bar-bg);
-    background-size: 80%;
-    background-position: center;
-    background-repeat: no-repeat;
     transition: var(--transition);
     border-radius: 50%;
     margin: 8px;
     backdrop-filter: var(--blur);
     cursor: pointer;
+    font-size: 24px;
 }
 
 #dock_item > #i_close {
     right: 8px;
-    background-image: url(../assets/i_close.svg);
+}
+#dock_item > #i_close::before {
+    content: "\e906";
 }
 #dock_item > #i_close:hover {
-    background-image: url(../assets/i_close_w.svg);
+    color: var(--bg);
     background-color: #f00;
 }
 
 #dock_item > #i_ignore {
     right: 40px;
-    background-image: url(../assets/i_ignore.svg);
 }
+#dock_item > #i_ignore::before {
+    content: "\e914";
+}
+
 #dock_item > #i_ignore:hover {
     background-color: var(--hover-color);
 }
