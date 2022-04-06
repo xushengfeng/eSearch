@@ -161,7 +161,10 @@ body {
     cursor: pointer;
     font-size: 42px;
     text-align: center;
-    line-height: 68px;
+    line-height: 60px;
+}
+#tool_bar > div::before {
+    vertical-align: middle;
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
@@ -188,9 +191,11 @@ body {
 #tool_ding::before {
     content: "\e90a";
 }
+#tool_copy {
+    cursor: copy !important;
+}
 #tool_copy::before {
     content: "\e907";
-    cursor: copy !important;
 }
 #tool_save::before {
     content: "\e92b";
@@ -214,7 +219,7 @@ body {
     display: flex;
     font-size: 42px;
     text-align: center;
-    line-height: 68px;
+    line-height: 60px;
 }
 #draw_bar > div {
     width: 60px;
@@ -229,6 +234,11 @@ body {
     height: 60px;
     border-radius: 10px;
     transition: var(--transition);
+}
+#draw_main > div::before,
+.draw_items > div::before,
+.draw_items > lock-b::before {
+    vertical-align: middle;
 }
 #draw_main > div:hover,
 .draw_items > div:hover {
@@ -393,7 +403,4 @@ video {
 }
 #toast > button::before {
     content: "\e906";
-}
-
-@media (prefers-color-scheme: dark) {
 }

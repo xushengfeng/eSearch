@@ -30,6 +30,8 @@ range-b {
     font-family: var(--monospace);
     font-size: 12px;
     height: 50%;
+    line-height: 12px;
+    text-align: start;
 }
 #draw_color_alpha {
     overflow: hidden;
