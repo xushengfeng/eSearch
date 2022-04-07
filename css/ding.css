@@ -97,6 +97,7 @@ input[type="range"]::-webkit-slider-thumb {
     width: 40px;
     height: 40px;
     font-size: 40px;
+    color: var(--icon-color);
 }
 .opacity::before {
     content: "\e91b";
@@ -132,6 +133,9 @@ input[type="range"]::-webkit-slider-thumb {
 }
 #b > button:hover {
     background-color: var(--hover-color);
+}
+#b > button::before {
+    color: var(--icon-color);
 }
 #minimize::before {
     content: "\e919";

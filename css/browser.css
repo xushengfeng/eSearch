@@ -9,7 +9,6 @@
 
 #buttons {
     display: flex;
-    padding: 3px 3px 3px 0;
     position: sticky;
     left: 0;
     z-index: 3;
@@ -20,7 +19,7 @@
     cursor: pointer;
     width: 24px;
     height: 24px;
-    margin-left: 3px;
+    margin: 3px 0 0 3px;
     border-radius: var(--border-radius);
     transition: var(--transition);
     background-color: var(--bg);
@@ -29,6 +28,9 @@
 #buttons > div:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
+}
+#buttons > div::before {
+    color: var(--icon-color);
 }
 #back::before {
     content: "\e915";
@@ -85,12 +87,25 @@
     background: radial-gradient(circle farthest-corner at 100% 0%, #0000 70%, var(--bg) 70%);
 }
 
-.tab > img {
+.tab img {
     height: 20px;
+}
+.loading_img {
+    max-width: 20px;
+    max-height: 20px;
+    padding: 0 !important;
     margin-left: 5px;
 }
 .loading {
     animation: loading 0.8s linear 0s infinite;
+}
+.loading > img {
+    height: 0;
+}
+.loading::before {
+    color: var(--icon-color);
+    font-size: 20px;
+    content: "\e927";
 }
 @keyframes loading {
     from {
@@ -115,16 +130,13 @@
     border: none;
     border-radius: 4px;
     transition: var(--transition);
-    background-size: 100%;
-    background-position: center;
-    background-repeat: no-repeat;
     margin: 5px;
     padding: 0;
-    margin: 5px;
 }
 
 .tab > button::before {
     content: "\e906";
+    font-size: 20px;
 }
 
 .tab > button:hover {

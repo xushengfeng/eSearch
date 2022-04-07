@@ -33,6 +33,7 @@ body {
     font-size: 40px;
 }
 #give_up_setting_b::before {
+    color: var(--icon-color);
     content: "\e911";
 }
 #give_up_setting:hover {

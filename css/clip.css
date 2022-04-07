@@ -126,9 +126,11 @@ body {
     flex-shrink: 0;
 }
 #draw_edit_run::before {
+    color: var(--icon-color);
     content: "\e90d";
 }
 #draw_edit_clear::before {
+    color: var(--icon-color);
     content: "\e905";
 }
 #draw_edit_run:hover,
@@ -164,6 +166,7 @@ body {
     line-height: 60px;
 }
 #tool_bar > div::before {
+    color: var(--icon-color);
     vertical-align: middle;
 }
 #tool_bar > div:hover {
@@ -238,6 +241,7 @@ body {
 #draw_main > div::before,
 .draw_items > div::before,
 .draw_items > lock-b::before {
+    color: var(--icon-color);
     vertical-align: middle;
 }
 #draw_main > div:hover,

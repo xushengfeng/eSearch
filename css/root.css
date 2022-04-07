@@ -17,6 +17,7 @@
     --color-i-size: 10px;
     --monospace: ;
     --main-font: sans-serif;
+    --icon-color: #333;
 }
 
 html,
@@ -49,7 +50,6 @@ body {
 }
 #tab_bar a {
     display: block;
-    color: var(--color);
     text-decoration: none;
 }
 
@@ -61,7 +61,9 @@ body {
 #tab_bar a div:hover {
     background-color: var(--hover-color);
 }
-
+#tab_bar a div::before {
+    color: var(--icon-color);
+}
 #main::before {
     content: "\e918";
 }
@@ -141,6 +143,7 @@ textarea {
         --color: #fff;
         --color2: #aaa;
         --border: 1px #fff solid;
+        --icon-color: #ccc;
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;

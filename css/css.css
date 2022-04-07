@@ -176,6 +176,9 @@ body {
     background-color: var(--bar-hover-color);
 }
 
+#edit_b > div::before {
+    color: var(--icon-color);
+}
 #link_bar {
     width: 0;
     transition: var(--transition);
@@ -243,6 +246,9 @@ body {
     padding: 0;
     border-radius: 4px;
     font-size: 20px;
+}
+#find button::before {
+    color: var(--icon-color);
 }
 #find input {
     border: none;
@@ -314,7 +320,9 @@ select:hover {
 option {
     font-size: var(--font-size);
 }
-
+button::before {
+    color: var(--icon-color);
+}
 #history_b::before {
     content: "\e913";
 }
