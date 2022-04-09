@@ -9,7 +9,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Debug Main Process",
+            "name": "Debug Main Process(Arch Linux)",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -20,7 +20,7 @@
             "args": ["."]
         },
         {
-            "name": "Debug Main Process(mac)",
+            "name": "Debug Main Process",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
