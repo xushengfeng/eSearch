@@ -186,6 +186,7 @@ function tool_close_f() {
 document.getElementById("ocr引擎").value = store.get("OCR.记住") || store.get("OCR.类型");
 document.getElementById("ocr引擎").oninput = () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", document.getElementById("ocr引擎").value);
+    tool_ocr_f();
 };
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${document.getElementById("ocr引擎").value}`;
 function tool_ocr_f() {
@@ -215,6 +216,7 @@ function tool_ocr_f() {
 document.getElementById("识图引擎").value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
 document.getElementById("识图引擎").oninput = () => {
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", document.getElementById("识图引擎").value);
+    tool_search_f();
 };
 document.getElementById("tool_search").title = `以图搜图 - ${document.getElementById("识图引擎").value}`;
 function tool_search_f() {
