@@ -70,25 +70,24 @@ function focus_tab(li) {
 }
 
 function title(pid, id, arg) {
-    document.querySelector(`#id${id} > #title`).innerHTML = document.querySelector(`#id${id} > span`).title = arg;
+    document.querySelector(`#id${id} > span`).innerHTML = document.querySelector(`#id${id} > span`).title = arg;
 }
 
 function icon(pid, id, arg) {
-    document.querySelector(`#id${id} img`).src = arg[0];
+    document.querySelector(`#id${id} > img`).src = arg[0];
 }
 
 function url(pid, id, url) {
     document.querySelector(`#id${id}`).setAttribute("data-url", url);
 }
 
-
 function load(pid, id, loading) {
     if (loading) {
-        document.querySelector(`#id${id} > .loading_img`).classList.add("loading");
+        document.querySelector(`#id${id} > img`).src = `./assets/icons/reload.svg`;
         document.querySelector("#reload").style.display = "none";
         document.querySelector("#stop").style.display = "block";
     } else {
-        document.querySelector(`#id${id} > .loading_img`).classList.remove("loading");
+        document.querySelector(`#id${id} > img`).classList.remove("loading");
         document.querySelector("#reload").style.display = "block";
         document.querySelector("#stop").style.display = "none";
     }

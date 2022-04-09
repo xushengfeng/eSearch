@@ -60,9 +60,6 @@ range-b {
     transform: scale(1.5);
 }
 
-#draw_filters_select::before {
-    content: "\e901";
-}
 #draw_filters_i > div {
     overflow: hidden;
 }

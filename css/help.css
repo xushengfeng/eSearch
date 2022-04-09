@@ -16,10 +16,11 @@ img {
     width: 80%;
 }
 
-.line_img {
+main .icon {
     width: auto;
-    height: 1rem;
+    height: 1em;
     vertical-align: middle;
+    position: static;
 }
 
 .window {

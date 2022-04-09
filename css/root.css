@@ -17,7 +17,7 @@
     --color-i-size: 10px;
     --monospace: ;
     --main-font: sans-serif;
-    --icon-color: #333;
+    --icon-color: none;
 }
 
 html,
@@ -35,9 +35,12 @@ body {
     font-display: block;
 }
 
-.icon{
+.icon {
     position: absolute;
     pointer-events: none;
+    left: 0;
+    top: 0;
+    filter: var(--icon-color);
 }
 
 #tab_bar {
@@ -62,21 +65,13 @@ body {
     width: 40px;
     height: 40px;
     transition: var(--transition);
+    position: relative;
 }
 #tab_bar a div:hover {
     background-color: var(--hover-color);
 }
-#tab_bar a div::before {
-    color: var(--icon-color);
-}
-#main::before {
-    content: "\e918";
-}
-#setting::before {
-    content: "\e930";
-}
-#help::before {
-    content: "\e912";
+#tab_bar a div > .icon {
+    width: 40px;
 }
 
 kbd {
@@ -148,7 +143,7 @@ textarea {
         --color: #fff;
         --color2: #aaa;
         --border: 1px #fff solid;
-        --icon-color: #ccc;
+        --icon-color: invert(1);
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;

@@ -16,15 +16,16 @@
 
     <div id="tab_bar">
         <a href="index.html" title="主界面">
-            <div id="main"></div>
+            <div id="main"><img src="./assets/icons/main.svg" class="icon"></div>
         </a>
         <a href="help.html" title="帮助">
-            <div id="help"></div>
+            <div id="help"><img src="./assets/icons/help.svg" class="icon"></div>
         </a>
     </div>
 
     <div id="give_up_setting">
         <lock-b id="give_up_setting_b" title="不保存设置值"></lock-b>
+        <img src="./assets/icons/give_up_setting.svg" class="icon">
     </div>
 
     <div id="setting_main">
@@ -112,15 +113,31 @@
             <h2>框选后默认操作</h2>
             <comment>框选完鼠标松开一瞬间，执行操作</comment>
             <set-select name="" id="框选后默认操作">
-                <div value="no" style="height: 1rem;line-height: 1rem;" >无</div>
-                <div value="ocr" style="height: 1rem;" title="OCR(文字识别)"></div>
-                <div value="search" style="height: 1rem;" title="以图搜图"></div>
-                <div value="QR" style="height: 1rem;" title="QR码"></div>
-                <div value="draw" style="height: 1rem;" title="标记"></div>
-                <div value="open" style="height: 1rem;" title="其他应用打开"></div>
-                <div value="ding" style="height: 1rem;" title="放在屏幕上"></div>
-                <div value="copy" style="height: 1rem;" title="复制"></div>
-                <div value="save" style="height: 1rem;" title="保存"></div>
+                <div value="no">无</div>
+                <div value="ocr" title="OCR(文字识别)">
+                    <img src="./assets/icons/ocr.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="search" title="以图搜图">
+                    <img src="./assets/icons/search.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="QR" title="QR码">
+                    <img src="./assets/icons/scan.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="draw" title="标记">
+                    <img src="./assets/icons/draw.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="open" title="其他应用打开">
+                    <img src="./assets/icons/open.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="ding" title="放在屏幕上">
+                    <img src="./assets/icons/ding.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="copy" title="复制">
+                    <img src="./assets/icons/copy.svg" class="icon" style="height: 24px;display: block;">
+                </div>
+                <div value="save" title="保存">
+                    <img src="./assets/icons/save.svg" class="icon" style="height: 24px;display: block;">
+                </div>
             </set-select>
         </div>
 

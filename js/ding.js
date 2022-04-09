@@ -420,7 +420,7 @@ function dock_i() {
         (function (i) {
             var dock_item = document.querySelector("#dock_item").cloneNode(true);
             dock_item.style.display = "block";
-            dock_item.querySelector("img").src = urls[i];
+            dock_item.querySelector("#i_photo").src = urls[i];
             dock_item.onclick = (e) => {
                 if (e.target.id != "i_close" && e.target.id != "i_ignore") {
                     var div = document.getElementById(i);

@@ -134,12 +134,11 @@ body {
     transition: var(--transition);
     border-radius: 50%;
 }
-.history_title > button::before {
-    content: "\e906";
+.history_title > button>.icon{
+    width: 16px;
 }
 .history_title > button:hover {
     background-color: #f00;
-    color: var(--bg);
 }
 .history_text {
     padding: 8px;
@@ -171,42 +170,19 @@ body {
     height: 30px;
     font-size: 30px;
     transition: var(--transition);
+    position: relative;
 }
 #edit_b > div:hover {
     background-color: var(--bar-hover-color);
 }
 
-#edit_b > div::before {
-    color: var(--icon-color);
+#edit_b > div > .icon {
+    width: 30px;
 }
 #link_bar {
     width: 0;
     transition: var(--transition);
     overflow: hidden;
-}
-#link_bar::before {
-    content: "\e917";
-}
-#search_bar::before {
-    content: "\e92e";
-}
-#translate_bar::before {
-    content: "\e935";
-}
-#selectAll_bar::before {
-    content: "\e92f";
-}
-#cut_bar::before {
-    content: "\e908";
-}
-#copy_bar::before {
-    content: "\e907";
-}
-#paste_bar::before {
-    content: "\e91d";
-}
-#delete_enter_bar::before {
-    content: "\e909";
 }
 
 #find {
@@ -246,33 +222,16 @@ body {
     padding: 0;
     border-radius: 4px;
     font-size: 20px;
+    position: relative;
 }
-#find button::before {
-    color: var(--icon-color);
+#find button > .icon {
+    width: 20px;
 }
 #find input {
     border: none;
     background-color: var(--bar-color);
     backdrop-filter: var(--blur);
     border-radius: 4px;
-}
-#find_b_last::before {
-    content: "\e936";
-}
-#find_b_next::before {
-    content: "\e90b";
-}
-#find_b_close::before {
-    content: "\e906";
-}
-#find_b_regex::before {
-    content: "\e926";
-}
-#find_b_replace::before {
-    content: "\e929";
-}
-#find_b_replace_all::before {
-    content: "\e928";
 }
 .find_h {
     background-color: var(--hover-color);
@@ -296,7 +255,7 @@ button {
     background-position: center;
     background-size: cover;
     width: 40px;
-    font-size: 40px;
+    position: relative;
 }
 button:hover {
     background-color: var(--hover-color);
@@ -320,20 +279,8 @@ select:hover {
 option {
     font-size: var(--font-size);
 }
-button::before {
-    color: var(--icon-color);
-}
-#history_b::before {
-    content: "\e913";
-}
-#browser_b::before {
-    content: "\e903";
-}
-#search_b::before {
-    content: "\e92e";
-}
-#translate_b::before {
-    content: "\e935";
+button > .icon {
+    width: 40px;
 }
 
 @media (prefers-color-scheme: dark) {

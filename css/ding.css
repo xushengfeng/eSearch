@@ -96,14 +96,11 @@ input[type="range"]::-webkit-slider-thumb {
 .size {
     width: 40px;
     height: 40px;
-    font-size: 40px;
-    color: var(--icon-color);
+    position: relative;
 }
-.opacity::before {
-    content: "\e91b";
-}
-.size::before {
-    content: "\e932";
+.opacity > .icon,
+.size > .icon {
+    width: 40px;
 }
 #size > span {
     outline: none;
@@ -121,30 +118,18 @@ input[type="range"]::-webkit-slider-thumb {
 #b > button {
     border: none;
     transition: var(--transition);
-    background-size: 80%;
     background-color: #0000;
-    background-position: center;
-    background-repeat: no-repeat;
     padding: 0;
     width: 40px;
     height: 40px;
     cursor: pointer;
-    font-size: 40px;
+    position: relative;
 }
 #b > button:hover {
     background-color: var(--hover-color);
 }
-#b > button::before {
-    color: var(--icon-color);
-}
-#minimize::before {
-    content: "\e919";
-}
-#back::before {
-    content: "\e902";
-}
-#close::before {
-    content: "\e906";
+#b > button > .icon {
+    width: 40px;
 }
 
 .minimize {
@@ -200,9 +185,6 @@ input[type="range"]::-webkit-slider-thumb {
 #dock_item > #i_close {
     right: 8px;
 }
-#dock_item > #i_close::before {
-    content: "\e906";
-}
 #dock_item > #i_close:hover {
     color: var(--bg);
     background-color: #f00;
@@ -210,9 +192,6 @@ input[type="range"]::-webkit-slider-thumb {
 
 #dock_item > #i_ignore {
     right: 40px;
-}
-#dock_item > #i_ignore::before {
-    content: "\e914";
 }
 
 #dock_item > #i_ignore:hover {

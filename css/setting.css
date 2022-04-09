@@ -30,11 +30,10 @@ body {
     width: 100%;
     margin: 0;
     box-shadow: none;
-    font-size: 40px;
+    position: absolute;
 }
-#give_up_setting_b::before {
-    color: var(--icon-color);
-    content: "\e911";
+#give_up_setting > .icon {
+    width: 40px;
 }
 #give_up_setting:hover {
     box-shadow: var(--shadow);

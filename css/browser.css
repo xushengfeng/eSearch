@@ -23,32 +23,14 @@
     border-radius: var(--border-radius);
     transition: var(--transition);
     background-color: var(--bg);
-    font-size: 24px;
+    position: relative;
 }
 #buttons > div:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
-#buttons > div::before {
-    color: var(--icon-color);
-}
-#back::before {
-    content: "\e915";
-}
-#forward::before {
-    content: "\e92a";
-}
-#stop::before {
-    content: "\e906";
-}
-#reload::before {
-    content: "\e927";
-}
-#browser::before {
-    content: "\e903";
-}
-#add_history::before {
-    content: "\e900";
+#buttons > div > .icon {
+    width: 24px;
 }
 
 .tab {
@@ -87,25 +69,12 @@
     background: radial-gradient(circle farthest-corner at 100% 0%, #0000 70%, var(--bg) 70%);
 }
 
-.tab img {
+.tab > img {
     height: 20px;
-}
-.loading_img {
-    max-width: 20px;
-    max-height: 20px;
-    padding: 0 !important;
     margin-left: 5px;
 }
 .loading {
     animation: loading 0.8s linear 0s infinite;
-}
-.loading > img {
-    height: 0;
-}
-.loading::before {
-    color: var(--icon-color);
-    font-size: 20px;
-    content: "\e927";
 }
 @keyframes loading {
     from {
@@ -132,11 +101,11 @@
     transition: var(--transition);
     margin: 5px;
     padding: 0;
+    position: relative;
 }
 
-.tab > button::before {
-    content: "\e906";
-    font-size: 20px;
+.tab > button > .icon {
+    width: 20px;
 }
 
 .tab > button:hover {

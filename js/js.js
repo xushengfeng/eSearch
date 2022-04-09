@@ -217,7 +217,7 @@ function render_history() {
                 history_text +
                 `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
                     "mm-dd HH:MM"
-                )}</span><button></button></div><div class="history_text">${
+                )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
                     t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
                 }</div></div>`;
         }
