@@ -316,6 +316,9 @@ if (process.platform == "win32") {
 }
 
 // 截图窗口
+/**
+ * @type BrowserWindow
+ */
 var clip_window = null;
 function create_clip_window() {
     clip_window = new BrowserWindow({
@@ -488,7 +491,7 @@ function the_ocr(event, arg) {
 }
 
 function image_search(event, arg) {
-    img_search(arg[0],arg[1], (err, url) => {
+    img_search(arg[0], arg[1], (err, url) => {
         if (!err) {
             shell.openExternal(url);
             event.sender.send("search_back", "ok");
@@ -510,7 +513,7 @@ ipcMain.on("setting", (event, arg) => {
             console.log("保存设置失败");
             break;
         case "reload_main":
-            if (clip_window && !clip_window.isVisible()) clip_window.reload();
+            if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
             break;
         case "下载离线OCR":
             download_ocr(app.getPath("userData"));
