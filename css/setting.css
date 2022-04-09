@@ -116,10 +116,11 @@ select {
 }
 
 lock-b {
+    top: 2px;
     display: inline-block !important;
     width: 16px;
     height: 16px;
-    margin: 4px;
+    margin-right: 4px;
     box-shadow: var(--shadow);
     border-radius: 4px;
     transition: var(--transition);
