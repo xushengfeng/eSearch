@@ -29,8 +29,8 @@
         </div>
         <div id="draw_edit">
             <input type="text" name="" id="" spellcheck="false" placeholder="$0是选中元素，基于Fabric.js API">
-            <button id="draw_edit_run" title="运行命令"></button>
-            <button id="draw_edit_clear" title="清空输出"></button>
+            <button id="draw_edit_run" title="运行命令"><img src="./assets/icons/command.svg" class="icon"></button>
+            <button id="draw_edit_clear" title="清空输出"><img src="./assets/icons/clear.svg" class="icon"></button>
             <div id="draw_edit_output"></div>
         </div>
     </div>
@@ -63,36 +63,37 @@
     </div>
     <div id="draw_bar">
         <div id="draw_main">
-            <div id="draw_free"></div>
-            <div id="draw_shapes"></div>
-            <div id="draw_filters"></div>
+            <div id="draw_free"><img src="./assets/icons/free_draw.svg" class="icon"></div>
+            <div id="draw_shapes"><img src="./assets/icons/shapes.svg" class="icon"></div>
+            <div id="draw_filters"><img src="./assets/icons/filters.svg" class="icon"></div>
             <div id="draw_color" title="颜色和大小">
                 <div></div>
             </div>
-            <div id="draw_position"></div>
+            <div id="draw_position"><img src="./assets/icons/position.svg" class="icon"></div>
         </div>
         <div id="draw_side">
             <!-- draw_free -->
             <div class="draw_items" id="draw_free_i">
-                <lock-b id="draw_free_pencil"></lock-b>
-                <lock-b id="draw_free_eraser"></lock-b>
-                <lock-b id="draw_free_spray"></lock-b>
+                <lock-b id="draw_free_pencil"><img src="./assets/icons/draw.svg" class="icon"></lock-b>
+                <lock-b id="draw_free_eraser"><img src="./assets/icons/eraser.svg" class="icon"></lock-b>
+                <lock-b id="draw_free_spray"><img src="./assets/icons/spray.svg" class="icon"></lock-b>
                 <div id="shadow_blur">
                     <range-b text="px" value="0" min="0" max="20" title="画笔阴影"></range-b>
                 </div>
             </div>
             <!-- draw_shapes -->
             <div class="draw_items" id="draw_shapes_i">
-                <div id="draw_shapes_line"></div>
-                <div id="draw_shapes_circle"></div>
-                <div id="draw_shapes_rect"></div>
-                <div id="draw_shapes_polyline"></div>
-                <div id="draw_shapes_polygon"></div>
-                <div id="draw_shapes_text"></div>
+                <div id="draw_shapes_line"><img src="./assets/icons/line.svg" class="icon"></div>
+                <div id="draw_shapes_circle"><img src="./assets/icons/circle.svg" class="icon"></div>
+                <div id="draw_shapes_rect"><img src="./assets/icons/rect.svg" class="icon"></div>
+                <div id="draw_shapes_polyline"><img src="./assets/icons/polygon.svg" class="icon"></div>
+                <div id="draw_shapes_polygon"><img src="./assets/icons/polygon.svg" class="icon"></div>
+                <div id="draw_shapes_text"><img src="./assets/icons/text.svg" class="icon"></div>
             </div>
             <!-- draw_filters -->
             <div class="draw_items" id="draw_filters_i">
                 <div id="draw_filters_select">
+                    <img src="./assets/icons/add.svg" class="icon">
                     <lock-b></lock-b>
                 </div>
                 <div id="draw_filters_pixelate" title="马赛克">
@@ -170,16 +171,14 @@
                 <div id="draw_stroke_width">
                     <range-b text="px" min=0 max=20 value="1"></range-b>
                 </div>
-                <div id="draw_edit_b"></div>
+                <div id="draw_edit_b"><img src="./assets/icons/command.svg" class="icon"></div>
             </div>
             <!-- draw_position -->
             <div class="draw_items" id="draw_position_i">
-                <div id="draw_position_front"></div>
-                <div id="draw_position_forwards">
-                </div>
-                <div id="draw_position_backwards">
-                </div>
-                <div id="draw_position_back"></div>
+                <div id="draw_position_front"><img src="./assets/icons/position_front.svg" class="icon"></div>
+                <div id="draw_position_forwards"><img src="./assets/icons/position_forwards.svg" class="icon"></div>
+                <div id="draw_position_backwards"><img src="./assets/icons/position_backwards.svg" class="icon"></div>
+                <div id="draw_position_back"><img src="./assets/icons/position_back.svg" class="icon"></div>
             </div>
         </div>
 

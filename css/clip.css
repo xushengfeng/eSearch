@@ -124,14 +124,13 @@ body {
     padding: 0;
     background-color: #0000;
     flex-shrink: 0;
+    position: relative;
 }
-#draw_edit_run::before {
-    color: var(--icon-color);
-    content: "\e90d";
-}
-#draw_edit_clear::before {
-    color: var(--icon-color);
-    content: "\e905";
+#draw_edit_run > .icon,
+#draw_edit_clear > .icon {
+    width: 36px;
+    left: 0;
+    top: 0;
 }
 #draw_edit_run:hover,
 #draw_edit_clear:hover {
@@ -221,19 +220,24 @@ body {
 #draw_main > div,
 .draw_items > div,
 .draw_items > lock-b {
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
     width: 60px;
     height: 60px;
     border-radius: 10px;
     transition: var(--transition);
+    position: relative;
 }
 #draw_main > div::before,
 .draw_items > div::before,
 .draw_items > lock-b::before {
     color: var(--icon-color);
     vertical-align: middle;
+}
+#draw_main > div > .icon,
+.draw_items > div > .icon,
+.draw_items > lock-b > .icon {
+    width: 42px;
+    left: 9px;
+    top: 9px;
 }
 #draw_main > div:hover,
 .draw_items > div:hover {
@@ -395,7 +399,4 @@ video {
 }
 #toast > button:hover {
     background-color: var(--hover-color);
-}
-#toast > button::before {
-    content: "\e906";
 }
