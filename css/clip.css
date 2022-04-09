@@ -166,43 +166,17 @@ body {
     line-height: 60px;
     position: relative;
 }
-#tool_bar > div::before {
-    color: var(--icon-color);
-    vertical-align: middle;
+#tool_bar > div > .icon {
+    width: 42px;
+    left: 9px;
+    top: 9px;
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
-#tool_close::before {
-    content: "\e906";
-}
-#tool_ocr::before {
-    content: "\e91a";
-}
-#tool_search::before {
-    content: "\e92e";
-}
-#tool_QR::before {
-    content: "\e92c";
-}
-#tool_draw::before {
-    content: "\e90c";
-}
-#tool_open::before {
-    content: "\e91c";
-}
-#tool_ding::before {
-    content: "\e90a";
-}
 #tool_copy {
     cursor: copy !important;
-}
-#tool_copy::before {
-    content: "\e907";
-}
-#tool_save::before {
-    content: "\e92b";
 }
 
 .side_select {

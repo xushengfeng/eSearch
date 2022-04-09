@@ -35,6 +35,11 @@ body {
     font-display: block;
 }
 
+.icon{
+    position: absolute;
+    pointer-events: none;
+}
+
 #tab_bar {
     margin: 0 auto 16px 16px;
     display: flex;
