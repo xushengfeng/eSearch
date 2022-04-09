@@ -23,16 +23,8 @@
 html,
 body {
     margin: 0;
-    font-family: var(--main-font), "icon";
+    font-family: var(--main-font);
     color: var(--color);
-}
-
-@font-face {
-    font-family: "icon";
-    src: url("../assets/icons.ttf?1nvuay") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: block;
 }
 
 .icon {
@@ -113,7 +105,7 @@ kbd {
 button {
     outline: none;
     color: var(--color);
-    font-family: sans-serif, "icon";
+    font-family: var(--main-font);
 }
 
 input {

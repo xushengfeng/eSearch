@@ -59,12 +59,12 @@ textarea {
     box-shadow: var(--shadow);
     font-size: 1rem;
     line-height: 1.5rem;
-    font-family: sans-serif;
+    font-family: var(--main-font);
     resize: vertical;
 }
 input {
     vertical-align: middle;
-    font-family: sans-serif;
+    font-family: var(--main-font);
 }
 input[type="text"] {
     border: none;
