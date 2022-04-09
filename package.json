@@ -30,7 +30,7 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.63",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
-    "electron": "^18.0.1",
+    "electron": "^17.2.0",
     "electron-rebuild": "^3.2.7",
     "node-abi": "^3.8.0"
   },
