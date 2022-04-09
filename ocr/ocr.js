@@ -4,13 +4,13 @@ const os = require("os");
 const path = require("path");
 const Store = require("electron-store");
 var store = new Store();
-function ocr(arg, callback) {
-    if (store.get("OCR.类型") == "离线") {
+function ocr(arg, type, callback) {
+    if (type == "离线") {
         local_ocr(arg, (err, r) => {
             return callback(err, r);
         });
     } else {
-        online_ocr(store.get("OCR.类型"), arg, (err, r) => {
+        online_ocr(type, arg, (err, r) => {
             return callback(err, r);
         });
     }

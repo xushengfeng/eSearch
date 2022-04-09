@@ -471,7 +471,7 @@ function n_full_screen() {
 }
 
 function the_ocr(event, arg) {
-    ocr(arg, (err, result) => {
+    ocr(arg[0], arg[1], (err, result) => {
         if (err) {
             event.sender.send("ocr_back", "else");
             dialog.showMessageBox({
@@ -488,7 +488,7 @@ function the_ocr(event, arg) {
 }
 
 function image_search(event, arg) {
-    img_search(arg, (err, url) => {
+    img_search(arg[0],arg[1], (err, url) => {
         if (!err) {
             shell.openExternal(url);
             event.sender.send("search_back", "ok");
@@ -1255,6 +1255,7 @@ var default_setting = {
         det: "",
         rec: "",
         字典: "",
+        记住: false,
     },
     在线OCR: {
         baidu: {
@@ -1269,6 +1270,7 @@ var default_setting = {
     },
     以图搜图: {
         引擎: "baidu",
+        记住: false,
     },
     自动打开链接: false,
     自动搜索中文占比: 0.2,

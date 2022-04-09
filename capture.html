@@ -37,8 +37,21 @@
 
     <div id="tool_bar">
         <div id="tool_close" title="关闭"></div>
-        <div id="tool_ocr" title="OCR(文字识别)"></div>
-        <div id="tool_search" title="以图搜图"></div>
+        <div id="tool_ocr" title="OCR(文字识别)">
+            <select name="ocr引擎" id="ocr引擎" class="side_select">
+                <option value="离线">离线</option>
+                <option value="baidu">百度</option>
+                <option value="youdao">有道</option>
+            </select>
+        </div>
+        <div id="tool_search" title="以图搜图">
+            <select name="识图引擎" id="识图引擎" class="side_select">
+                <option value="baidu">百度</option>
+                <option value="yandex">Yandex</option>
+                <option value="google">Google</option>
+            </select>
+
+        </div>
         <div id="tool_QR" title="QR码"></div>
         <div id="tool_draw" title="标记"></div>
         <div id="tool_open" title="其他应用打开"></div>

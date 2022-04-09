@@ -164,6 +164,7 @@ body {
     font-size: 42px;
     text-align: center;
     line-height: 60px;
+    position: relative;
 }
 #tool_bar > div::before {
     color: var(--icon-color);
@@ -202,6 +203,22 @@ body {
 }
 #tool_save::before {
     content: "\e92b";
+}
+
+.side_select {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: none;
+    appearance: none;
+    color: #0000;
+    right: 2px;
+    top: 2px;
+    border-radius: 5px;
+    background-color: var(--bar-bg);
+}
+.side_select > option {
+    color: var(--color);
 }
 
 /* 画 */

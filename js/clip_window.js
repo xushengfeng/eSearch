@@ -183,9 +183,12 @@ function tool_close_f() {
     }, 50);
 }
 // OCR
+document.getElementById("ocr引擎").value = store.get("OCR.记住") || store.get("OCR.类型");
+document.getElementById("tool_ocr").title = `OCR(文字识别) - ${document.getElementById("ocr引擎").value}`;
 function tool_ocr_f() {
+    var type = document.getElementById("ocr引擎").value;
     get_clip_photo("png").then((c) => {
-        ipcRenderer.send("clip_main_b", "ocr", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
+        ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
     document.querySelector("#waiting").style.display = "block";
@@ -206,9 +209,12 @@ function tool_ocr_f() {
     });
 }
 // 以图搜图
+document.getElementById("识图引擎").value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
+document.getElementById("tool_search").title = `以图搜图 - ${document.getElementById("识图引擎").value}`;
 function tool_search_f() {
+    var type = document.getElementById("识图引擎").value;
     get_clip_photo("png").then((c) => {
-        ipcRenderer.send("clip_main_b", "search", c.toDataURL().replace(/^data:image\/\w+;base64,/, ""));
+        ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
     document.querySelector("#waiting").style.display = "block";

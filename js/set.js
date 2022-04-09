@@ -243,6 +243,7 @@ document.querySelector("#翻译引擎").onchange = () => {
 document.getElementById("记住引擎").checked = store.get("引擎.记住");
 
 document.getElementById("图像搜索引擎").value = store.get("以图搜图.引擎");
+document.getElementById("记住识图引擎").checked = store.get("以图搜图.记住");
 
 document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开");
 
@@ -263,6 +264,7 @@ function ocr_d_open() {
 }
 document.getElementById("OCR类型").onclick = ocr_d_open;
 document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
+document.getElementById("记住OCR引擎").checked = store.get("OCR.记住");
 document.getElementById("离线切换").checked = store.get("OCR.离线切换");
 document.getElementById("ocr_det").value = store.get("OCR.det");
 document.getElementById("ocr_rec").value = store.get("OCR.rec");
@@ -378,7 +380,12 @@ function save_setting() {
         默认搜索引擎: document.getElementById("默认搜索引擎").value,
         默认翻译引擎: document.getElementById("默认翻译引擎").value,
     });
-    store.get("以图搜图.引擎", document.getElementById("图像搜索引擎").value);
+    store.set("以图搜图", {
+        引擎: document.getElementById("图像搜索引擎").value,
+        记住: document.getElementById("记住识图引擎").checked
+            ? store.get("以图搜图.记住") || document.getElementById("图像搜索引擎").value
+            : false,
+    });
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
@@ -390,6 +397,9 @@ function save_setting() {
         det: document.getElementById("ocr_det").value,
         rec: document.getElementById("ocr_rec").value,
         字典: document.getElementById("ocr_字典").value,
+        记住: document.getElementById("记住OCR引擎").checked
+            ? store.get("OCR.记住") || document.getElementById("OCR类型").value
+            : false,
     });
     store.set("在线OCR.baidu", {
         url: document.getElementById("baidu_ocr_url").value,
