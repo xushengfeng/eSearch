@@ -134,11 +134,14 @@ body {
     transition: var(--transition);
     border-radius: 50%;
 }
-.history_title > button>.icon{
+.history_title > button > .icon {
     width: 16px;
 }
 .history_title > button:hover {
     background-color: #f00;
+}
+.history_title > button:hover > .icon {
+    filter: invert(1);
 }
 .history_text {
     padding: 8px;

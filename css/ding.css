@@ -186,8 +186,10 @@ input[type="range"]::-webkit-slider-thumb {
     right: 8px;
 }
 #dock_item > #i_close:hover {
-    color: var(--bg);
     background-color: #f00;
+}
+#dock_item > #i_close:hover > .icon {
+    filter: invert(1);
 }
 
 #dock_item > #i_ignore {
