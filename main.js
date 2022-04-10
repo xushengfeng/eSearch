@@ -134,7 +134,7 @@ async function download_ocr(download_path) {
     });
     if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
     if (resolve.response == 0) {
-        var url = `https://download.fastgit.org/xushengfeng/eSearch-service/releases/download/2.0.0/${
+        var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/${
             file_o[process.platform][0]
         }`;
         (async () => {
