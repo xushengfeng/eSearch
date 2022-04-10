@@ -168,13 +168,20 @@ function online_ocr(type, arg, callback) {
         function baidu_format(result) {
             if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
 
-            var output = "";
-            for (i in result.paragraphs_result) {
-                for (ii in result.paragraphs_result[i]["words_result_idx"]) {
-                    output += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
+            var output = [];
+            if (!result.paragraphs_result) {
+                for (i of result.words_result) {
+                    output.push(i.words);
                 }
-                if (i != result.paragraphs_result.length - 1) output += "\n";
+            } else {
+                for (i in result.paragraphs_result) {
+                    output[i] = "";
+                    for (ii in result.paragraphs_result[i]["words_result_idx"]) {
+                        output[i] += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
+                    }
+                }
             }
+            output = output.join("\n");
             console.log(output);
             return callback(null, output);
         }
