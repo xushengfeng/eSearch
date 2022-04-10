@@ -46,8 +46,11 @@ var 快捷键 = store.get("快捷键");
 document.querySelectorAll("#快捷键 hot-keys").forEach((el) => {
     el.value = 快捷键[el.name].key;
     el.addEventListener("inputend", () => {
-        console.log(0, el.name);
-        ipcRenderer.send("快捷键", [el.name, el.value]);
+        if (el.value === "") {
+            store.set(`快捷键.${el.name}.key`, el.value);
+        } else {
+            ipcRenderer.send("快捷键", [el.name, el.value]);
+        }
     });
 });
 ipcRenderer.on("状态", (event, name, arg) => {
