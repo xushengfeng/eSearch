@@ -642,7 +642,6 @@ const template = [
             { label: "剪切", role: "cut" },
             { label: "复制", role: "copy" },
             { label: "粘贴", role: "paste" },
-            ...(isMac ? [{ label: "粘贴并匹配样式", role: "pasteAndMatchStyle" }] : []),
             { label: "删除", role: "delete" },
             { label: "全选", role: "selectAll" },
             {
@@ -974,7 +973,7 @@ ipcMain.on("edit", (event, name, v) => {
             main_window.webContents.copy();
             break;
         case "paste":
-            main_window.webContents.paste();
+            main_window.webContents.pasteAndMatchStyle();
             break;
     }
 });

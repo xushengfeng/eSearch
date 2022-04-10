@@ -329,7 +329,7 @@ document.querySelector("#edit_b").onmousedown = (e) => {
             ipcRenderer.send("edit", window_name, "copy");
             break;
         case "paste_bar":
-            ipcRenderer.send("edit", window_name, "paste");
+            paste();
             break;
         case "delete_enter_bar":
             delete_enter();
@@ -828,3 +828,18 @@ function check_text_change() {
 check_text_change();
 
 document.getElementById("text_bottom").onclick = end_range;
+
+var can_paste = false;
+document.getElementById("text").onpaste = (e) => {
+    if (!can_paste) {
+        e.preventDefault();
+        paste();
+    }
+};
+function paste() {
+    can_paste = true;
+    ipcRenderer.send("edit", window_name, "paste");
+    setTimeout(() => {
+        can_paste = false;
+    }, 10);
+}
