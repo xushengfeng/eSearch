@@ -30,7 +30,7 @@ function is_link(url, s) {
         }
     } else {
         // 有.就行
-        if (url.match(/\./g) != null) {
+        if (url.match(/\./g) != null && !url.match(/[\n\r]/g)) {
             return true;
         } else {
             return false;
