@@ -492,10 +492,7 @@ function the_ocr(event, arg) {
 
 function image_search(event, arg) {
     img_search(arg[0], arg[1], (err, url) => {
-        if (!err) {
-            shell.openExternal(url);
-            event.sender.send("search_back", "ok");
-        } else {
+        if (err) {
             event.sender.send("search_back", "else");
             dialog.showMessageBox({
                 title: "错误",
@@ -503,6 +500,13 @@ function image_search(event, arg) {
                 buttons: ["确定"],
                 icon: `${run_path}/assets/logo/warning.png`,
             });
+        } else {
+            if (store.get("浏览器中打开")) {
+                shell.openExternal(url);
+            } else {
+                create_browser(null, url);
+            }
+            event.sender.send("search_back", "ok");
         }
     });
 }
@@ -991,7 +995,10 @@ var focused_search_window = null;
  * @type {Object.<number, BrowserWindow>}
  */
 var search_window_l = {};
-ipcMain.on("open_url", async (event, window_name, url) => {
+ipcMain.on("open_url", (event, window_name, url) => {
+    create_browser(window_name, url);
+});
+async function create_browser(window_name, url) {
     var win_name = new Date().getTime();
     var search_window = (search_window_l[win_name] = new BrowserWindow({
         webPreferences: {
@@ -1003,7 +1010,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         icon: the_icon,
     }));
 
-    main_to_search_l[window_name].push(win_name);
+    if (window_name) main_to_search_l[window_name].push(win_name);
     if (dev) search_window.webContents.openDevTools();
 
     if (store.get("开启代理")) await search_window.webContents.session.setProxy(store.get("代理"));
@@ -1082,6 +1089,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
         for (i of views) {
             search_window.removeBrowserView(i);
         }
+        if (!window_name) return;
         // 清除列表中的索引
         for (i in main_to_search_l[window_name]) {
             if (main_to_search_l[window_name][i] == win_name) {
@@ -1095,7 +1103,7 @@ ipcMain.on("open_url", async (event, window_name, url) => {
 
         delete search_window_l[window_name];
     }
-});
+}
 function view_events(arg) {
     if (focused_search_window != null) {
         focused_search_window.webContents.send("view_events", arg);
