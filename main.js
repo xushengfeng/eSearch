@@ -1291,20 +1291,22 @@ var default_setting = {
     框选后默认操作: "no",
     快速截图: { 模式: "clip", 路径: "" },
     搜索引擎: [
-        ["谷歌", "https://www.google.com/search?q=%s"],
+        ["Google", "https://www.google.com/search?q=%s"],
         ["百度", "https://www.baidu.com/s?wd=%s"],
         ["必应", "https://cn.bing.com/search?q=%s"],
+        ["Yandex", "https://yandex.com/search/?text=%s"],
     ],
     翻译引擎: [
-        ["google", "https://translate.google.cn/?op=translate&text=%s"],
-        ["deepl", "https://www.deepl.com/translator#en/zh/%s"],
+        ["Google", "https://translate.google.cn/?op=translate&text=%s"],
+        ["Deepl", "https://www.deepl.com/translator#any/any/%s"],
         ["金山词霸", "http://www.iciba.com/word?w=%s"],
-        ["百度", "https://fanyi.baidu.com/#en/zh/%s"],
+        ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
+        ["腾讯", "https://fanyi.qq.com/?text=%s"],
     ],
     引擎: {
         记住: false,
         默认搜索引擎: "百度",
-        默认翻译引擎: "google",
+        默认翻译引擎: "Google",
     },
     历史记录: [],
     历史记录设置: {
