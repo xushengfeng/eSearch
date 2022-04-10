@@ -1227,7 +1227,7 @@ var default_setting = {
     首次运行: false,
     快捷键: {
         自动识别: {
-            key: "CommandOrControl+Shift+Z",
+            key: "Alt+C",
         },
         截图搜索: {},
         选中搜索: {},
