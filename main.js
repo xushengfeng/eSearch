@@ -269,9 +269,9 @@ app.whenReady().then(() => {
             eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
             ${快捷键函数[arg[0]].f};
         });`);
-            event.sender.send("状态", eval(arg[0]));
+            event.sender.send("状态", arg[0], eval(arg[0]));
         } catch (error) {
-            event.sender.send("状态", false);
+            event.sender.send("状态", arg[0], false);
         }
     });
 

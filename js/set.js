@@ -1,5 +1,7 @@
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
+const Store = require("electron-store");
+var store = new Store();
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (event, v) => {
@@ -41,11 +43,20 @@ function 选择器储存(id, 默认) {
 }
 
 var 快捷键 = store.get("快捷键");
-var ct = "";
-for (i in 快捷键) {
-    ct += `<div><hot-keys name="${i}" value="${快捷键[i].key || ""}"></hot-keys></div>`;
-}
-document.getElementById("快捷键").innerHTML = ct;
+document.querySelectorAll("#快捷键 hot-keys").forEach((el) => {
+    el.value = 快捷键[el.name].key;
+    el.addEventListener("inputend", () => {
+        console.log(0, el.name);
+        ipcRenderer.send("快捷键", [el.name, el.value]);
+    });
+});
+ipcRenderer.on("状态", (event, name, arg) => {
+    var el = document.querySelector(`hot-keys[name=${name}]`);
+    el.t = arg;
+    if (arg) {
+        store.set(`快捷键.${el.name}.key`, el.value);
+    }
+});
 
 选择器储存("工具栏跟随", "展示内容优先");
 选择器储存("光标", "以(1,1)为起点");
