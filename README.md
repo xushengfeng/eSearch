@@ -98,7 +98,7 @@ e-search
 -   [x] OCR 识别
     -   [x] 离线 OCR（基于 C++ 或 Python 实现，[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)）
     -   [x] 其他 OCR 基于 js 原生实现
--   [ ] 以图搜图
+-   [x] 以图搜图
 -   [x] 托盘
 -   [x] 划词句来搜索
 -   [x] 识别展示
