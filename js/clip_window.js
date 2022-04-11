@@ -65,7 +65,7 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     if (store.get("记录截屏.记录"))
-        add_img([{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }) }]);
+        add_img([{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }), w, h }]);
 });
 
 var img_store = new Store({ name: "img_history" });
@@ -85,6 +85,13 @@ function show_img_his() {
             let img = document.createElement("img");
             img.src = k.src;
             div.append(img);
+            (() => {
+                img.onclick = () => {
+                    main_canvas.width = k.w;
+                    main_canvas.height = k.h;
+                    main_canvas.getContext("2d").drawImage(img, 0, 0, k.w, k.h);
+                };
+            })();
         }
         document.getElementById("img_history").prepend(div);
     }
