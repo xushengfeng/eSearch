@@ -46,19 +46,11 @@ var 快捷键 = store.get("快捷键");
 document.querySelectorAll("#快捷键 hot-keys").forEach((el) => {
     el.value = 快捷键[el.name].key;
     el.addEventListener("inputend", () => {
-        if (el.value === "") {
-            store.set(`快捷键.${el.name}.key`, el.value);
-        } else {
-            ipcRenderer.send("快捷键", [el.name, el.value]);
-        }
+        ipcRenderer.send("快捷键", [el.name, el.value]);
     });
 });
 ipcRenderer.on("状态", (event, name, arg) => {
-    var el = document.querySelector(`hot-keys[name=${name}]`);
-    el.t = arg;
-    if (arg) {
-        store.set(`快捷键.${el.name}.key`, el.value);
-    }
+    document.querySelector(`hot-keys[name=${name}]`).t = arg;
 });
 
 选择器储存("工具栏跟随", "展示内容优先");

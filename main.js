@@ -265,13 +265,21 @@ app.whenReady().then(() => {
         主页面: { f: "create_main_window('index.html', [''])" },
     };
     ipcMain.on("快捷键", (event, arg) => {
+        var [name, key] = arg;
         try {
-            eval(`${arg[0]} = globalShortcut.register("${arg[1]}", () => {
-            ${快捷键函数[arg[0]].f};
-        });`);
-            event.sender.send("状态", arg[0], eval(arg[0]));
+            try {
+                globalShortcut.unregister(store.get(`快捷键.${name}.key`));
+            } catch {}
+            if (key) {
+                eval(`${arg[0]} = globalShortcut.register("${key}", () => {
+                ${快捷键函数[arg[0]].f};});`);
+            }
+            // key为空或成功注册时保存，否则存为空
+            store.set(`快捷键.${name}.key`, key === "" || eval(arg[0]) ? key : "");
+            event.sender.send("状态", name, key ? eval(arg[0]) : true);
         } catch (error) {
-            event.sender.send("状态", arg[0], false);
+            event.sender.send("状态", name, false);
+            store.set(`快捷键.${name}.key`, "");
         }
     });
 
