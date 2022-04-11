@@ -16,7 +16,7 @@ const {
     screen,
 } = require("electron");
 const { Buffer } = require("buffer");
-var robot = require("../robotjs");
+var robot = require("./lib/robotjs");
 const Store = require("electron-store");
 const path = require("path");
 const run_path = path.resolve(__dirname, "");

@@ -7,7 +7,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "rebuild": "electron-rebuild -f -w "
+    "rebuild": "electron-rebuild -f -w -m ./lib/robotjs"
   },
   "author": {
     "name": "xsf",
@@ -20,8 +20,7 @@
     "download": "^8.0.0",
     "electron-store": "^8.0.1",
     "hotkeys-js": "^3.8.7",
-    "jsqr": "^1.4.0",
-    "robotjs": "^0.6.0"
+    "jsqr": "^1.4.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.63",
@@ -34,7 +33,7 @@
     "electron-rebuild": "^3.2.7",
     "node-abi": "^3.8.0"
   },
-  "rebuild": "npm rebuild --runtime=electron --target=18.0.1 --disturl=https://atom.io/download/atom-shell --abi=103",
+  "rebuild": "npm rebuild --runtime=electron --target=17.2.0 --disturl=https://atom.io/download/atom-shell --abi=103",
   "config": {
     "forge": "./forge.config.js"
   }

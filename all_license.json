@@ -3877,8 +3877,8 @@
     "licenses": "MIT",
     "repository": "https://github.com/octalmage/robotjs",
     "publisher": "Jason Stallings",
-    "path": "node_modules/robotjs",
-    "licenseFile": "node_modules/robotjs/LICENSE.md"
+    "path": "./lib/robotjs",
+    "licenseFile": "./lib/robotjs/LICENSE.md"
   },
   "run-async@2.4.1": {
     "licenses": "MIT",
