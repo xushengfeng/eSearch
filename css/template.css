@@ -31,6 +31,7 @@ hot-keys {
     border: none;
     border-bottom: 1px solid var(--hover-color);
     transition: var(--transition);
+    outline: none;
 }
 
 #key_input:focus {
