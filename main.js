@@ -1112,7 +1112,7 @@ async function create_browser(window_name, url) {
     }
 }
 function view_events(arg) {
-    if (focused_search_window != null) {
+    if (focused_search_window != null && !focused_search_window.isDestroyed()) {
         focused_search_window.webContents.send("view_events", arg);
     }
 }
