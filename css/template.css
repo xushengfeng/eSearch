@@ -39,13 +39,14 @@ hot-keys {
 }
 
 #clear {
-    vertical-align: middle;
     display: inline-block;
-    padding: 4px 8px 4px 8px;
-    border-radius: var(--border-radius);
     background: none;
-    transition: var(--transition);
+    box-shadow: none;
+    position: relative;
+    height: 1.5em;
+    width: 1.5em;
+    cursor: pointer;
 }
-#clear:hover {
-    background-color: var(--hover-color);
+#clear > .icon {
+    height: 1.5em;
 }
