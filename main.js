@@ -1337,6 +1337,9 @@ var default_setting = {
         子窗口跟随主窗口关: false,
         主窗口跟随子窗口关: false,
     },
+    记录截屏: {
+        记录: true,
+    },
 };
 function set_default_setting() {
     for (i in default_setting) {

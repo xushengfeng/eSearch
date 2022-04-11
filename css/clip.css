@@ -61,6 +61,9 @@ body {
     width: 100%;
     display: block;
 }
+#img_history > div > img {
+    width: 100%;
+}
 
 /* 居中栏 */
 #center_bar {
