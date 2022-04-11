@@ -79,8 +79,19 @@ function add_img(img_l) {
 function show_img_his() {
     if (document.getElementById("img_history").innerHTML != "") return;
     var o_l = img_store.get("截屏记录");
-    for (j in o_l) {
+    if (store.get("记录截屏.限定保留")) {
+        var s_l = Object.keys(o_l).sort();
+        s_l = s_l.splice(-store.get("记录截屏.保留次数"));
+        var oo_l = {};
+        for (i of s_l) {
+            oo_l[i] = o_l[i];
+        }
+        o_l = oo_l;
+        oo_l = null;
+    }
+    for (let j in o_l) {
         let div = document.createElement("div");
+        div.innerHTML = '<button><img src="./assets/icons/close.svg" class="icon"></button>';
         for (k of o_l[j]) {
             let img = document.createElement("img");
             img.src = k.src;
@@ -94,7 +105,14 @@ function show_img_his() {
             })();
         }
         document.getElementById("img_history").prepend(div);
+        (() => {
+            div.querySelector("button").onclick = () => {
+                div.parentElement.removeChild(div);
+                img_store.delete(`截屏记录.${j}`);
+            };
+        })();
     }
+    img_store.set("截屏记录", o_l);
     o_l = null;
 }
 

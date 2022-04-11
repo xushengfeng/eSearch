@@ -63,6 +63,39 @@ body {
 }
 #img_history > div > img {
     width: 100%;
+    display: block;
+    border-radius: 6px;
+}
+#img_history > div {
+    position: relative;
+    margin-bottom: 8px;
+    padding: 2px;
+    box-sizing: border-box;
+    background-color: var(--bar-bg);
+    backdrop-filter: var(--blur);
+    border-radius: var(--border-radius);
+}
+#img_history > div > button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: none;
+    outline: none;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--border-radius);
+    background: none;
+    transition: var(--transition);
+    background-color: var(--bar-bg);
+}
+#img_history > div > button > .icon {
+    width: 16px;
+}
+#img_history > div > button:hover {
+    background-color: #f00;
+}
+#img_history > div > button:hover > .icon {
+    filter: invert(1);
 }
 
 /* 居中栏 */

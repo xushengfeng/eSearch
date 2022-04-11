@@ -1339,6 +1339,8 @@ var default_setting = {
     },
     记录截屏: {
         记录: true,
+        限定保留: true,
+        保留次数: 6,
     },
 };
 function set_default_setting() {

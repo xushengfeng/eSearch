@@ -287,6 +287,10 @@ document.getElementById("baidu_ocr_secret").value = store.get("在线OCR.baidu.s
 document.getElementById("youdao_ocr_id").value = store.get("在线OCR.youdao.id");
 document.getElementById("youdao_ocr_secret").value = store.get("在线OCR.youdao.secret");
 
+document.getElementById("截屏记录_b").checked = store.get("记录截屏.记录");
+document.getElementById("保留截屏记录").checked = store.get("记录截屏.限定保留");
+document.getElementById("截屏保留次").value = store.get("记录截屏.保留次数");
+
 历史记录设置 = store.get("历史记录设置");
 
 document.querySelector("#清除历史记录").disabled = !历史记录设置.保留历史记录;
@@ -395,6 +399,11 @@ function save_setting() {
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
+    store.set("记录截屏", {
+        记录: document.getElementById("截屏记录_b").checked,
+        限定保留: document.getElementById("保留截屏记录").checked,
+        保留次数: document.getElementById("截屏保留次").value - 0,
+    });
     store.set("历史记录设置", 历史记录设置);
     store.set("OCR", {
         类型: document.getElementById("OCR类型").value,
