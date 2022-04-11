@@ -52,7 +52,7 @@ npm run make
 
 在你的启动器打开 eSearch，他将出现在托盘。Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件
 
-默认快捷键为 <kbd>Ctrl </kbd>+<kbd>Shift </kbd>+<kbd>Z </kbd>(你也可以在设置里设置快捷键)
+默认快捷键为 <kbd>Alt</kbd>+<kbd>C</kbd>(你也可以在设置里设置快捷键)
 
 ### Linux 下的快捷键
 
@@ -81,8 +81,9 @@ e-search
     -   [x] 几何形状（边框填充支持调节）
     -   [x] 高级画板设置（使用 Fabric.js 的 api）
     -   [x] 图像滤镜（支持局部马赛克模糊和色彩调节）
-    -   [x] 自定义框选松开后操作
+    -   [x] 自定义框选松开后的操作
     -   [x] 快速截取全屏到剪贴板或自定义的目录
+    -   [x] 截图历史记录
     -   [ ] 窗口选择
     -   [ ] 控件选择
     -   [ ] 多屏幕
@@ -97,7 +98,10 @@ e-search
 -   [x] 二维码识别
 -   [x] OCR 识别
     -   [x] 离线 OCR（基于 C++ 或 Python 实现，[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)）
-    -   [x] 其他 OCR 基于 js 原生实现
+    -   [x] 自定义离线 OCR 模型和字典
+    -   [x] 其他在线 OCR
+    -   [x] 在线公式识别
+    -   [x] 支持自己申请秘钥
 -   [x] 以图搜图
 -   [x] 托盘
 -   [x] 划词句来搜索
@@ -117,7 +121,6 @@ e-search
     -   [x] 行号
     -   [x] 拼写检查
 -   [ ] Wayland 桌面(为什么 electron 截不了 wayland!)
--   [ ] 独立于 electron 的截图 api
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
@@ -145,7 +148,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 https://user-images.githubusercontent.com/28475549/155870885-d41bcbda-6124-4e29-ac19-694d27f6dba1.mp4
 
-> 其他应用打开（Linux 可以列出诸多应用，Win 和 mac 不会列出，但可以自选打开更多应用）（视频约 1.6MB）
+> 其他应用打开（视频约 1.6MB）
 
 ## 测试
 
