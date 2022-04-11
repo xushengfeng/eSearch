@@ -290,6 +290,11 @@ document.getElementById("youdao_ocr_secret").value = store.get("在线OCR.youdao
 document.getElementById("截屏记录_b").checked = store.get("记录截屏.记录");
 document.getElementById("保留截屏记录").checked = store.get("记录截屏.限定保留");
 document.getElementById("截屏保留次").value = store.get("记录截屏.保留次数");
+document.getElementById("clear_img_his").onclick = () => {
+    var c = confirm("这将清除所有的截屏记录\n且不能复原\n确定清除？");
+    var img_store = new Store({ name: "img_history" });
+    if (c) img_store.set("截屏记录", {});
+};
 
 历史记录设置 = store.get("历史记录设置");
 
