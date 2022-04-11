@@ -65,31 +65,30 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     if (store.get("记录截屏.记录"))
-        add_img([main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" })]);
+        add_img([{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }) }]);
 });
 
 var img_store = new Store({ name: "img_history" });
 
 function add_img(img_l) {
+    var time = new Date().getTime();
+    img_store.set(`截屏记录.${time}`, img_l);
+    img_l = null;
+}
+
+function show_img_his() {
+    if (document.getElementById("img_history").innerHTML != "") return;
     var o_l = img_store.get("截屏记录");
     for (j in o_l) {
         let div = document.createElement("div");
         for (k of o_l[j]) {
             let img = document.createElement("img");
-            img.src = k;
+            img.src = k.src;
             div.append(img);
         }
         document.getElementById("img_history").prepend(div);
     }
-    var div = document.createElement("div");
-    for (i in img_l) {
-        var img = document.createElement("img");
-        img.src = img_l[i];
-        div.append(img);
-    }
-    document.getElementById("img_history").prepend(div);
-    var time = new Date().getTime();
-    img_store.set(`截屏记录.${time}`, img_l);
+    o_l = null;
 }
 
 function draw_windows_bar(o) {
@@ -120,6 +119,7 @@ function windows_bar_c_o() {
     if (!o) {
         document.querySelector("#windows_bar").style.transform = "translateX(0)";
         o = true;
+        show_img_his();
     } else {
         document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
         o = false;
