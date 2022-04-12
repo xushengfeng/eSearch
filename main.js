@@ -612,8 +612,8 @@ const template = [
         submenu: [
             {
                 label: "保存到历史记录",
-                click: () => {
-                    main_edit("save");
+                click: (i, w) => {
+                    main_edit(w, "save");
                 },
                 accelerator: "CmdOrCtrl+S",
             },
@@ -632,14 +632,14 @@ const template = [
                   ]),
             {
                 label: "其他编辑器打开",
-                click: () => {
-                    main_edit("edit_on_other");
+                click: (i, w) => {
+                    main_edit(w, "edit_on_other");
                 },
             },
             {
                 label: "打开方式...",
-                click: () => {
-                    main_edit("choose_editer");
+                click: (i, w) => {
+                    main_edit(w, "choose_editer");
                 },
             },
             { type: "separator" },
@@ -652,37 +652,37 @@ const template = [
         submenu: [
             {
                 label: "打开链接",
-                click: () => {
-                    main_edit("link");
+                click: (i, w) => {
+                    main_edit(w, "link");
                 },
                 accelerator: "CmdOrCtrl+Shift+L",
             },
             {
                 label: "搜索",
-                click: () => {
-                    main_edit("search");
+                click: (i, w) => {
+                    main_edit(w, "search");
                 },
                 accelerator: "CmdOrCtrl+Shift+S",
             },
             {
                 label: "翻译",
-                click: () => {
-                    main_edit("translate");
+                click: (i, w) => {
+                    main_edit(w, "translate");
                 },
                 accelerator: "CmdOrCtrl+Shift+T",
             },
             { type: "separator" },
             {
                 label: "撤销",
-                click: () => {
-                    main_edit("undo");
+                click: (i, w) => {
+                    main_edit(w, "undo");
                 },
                 accelerator: "CmdOrCtrl+Z",
             },
             {
                 label: "重做",
-                click: () => {
-                    main_edit("redo");
+                click: (i, w) => {
+                    main_edit(w, "redo");
                 },
                 accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
             },
@@ -694,36 +694,36 @@ const template = [
             { label: "全选", role: "selectAll" },
             {
                 label: "自动删除换行",
-                click: () => {
-                    main_edit("delete_enter");
+                click: (i, w) => {
+                    main_edit(w, "delete_enter");
                 },
             },
             { type: "separator" },
             {
                 label: "查找",
-                click: () => {
-                    main_edit("show_find");
+                click: (i, w) => {
+                    main_edit(w, "show_find");
                 },
                 accelerator: "CmdOrCtrl+F",
             },
             {
                 label: "替换",
-                click: () => {
-                    main_edit("show_find");
+                click: (i, w) => {
+                    main_edit(w, "show_find");
                 },
                 accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
             },
             { type: "separator" },
             {
                 label: "自动换行",
-                click: () => {
-                    main_edit("wrap");
+                click: (i, w) => {
+                    main_edit(w, "wrap");
                 },
             },
             {
                 label: "拼写检查",
-                click: () => {
-                    main_edit("spellcheck");
+                click: (i, w) => {
+                    main_edit(w, "spellcheck");
                 },
             },
             { type: "separator" },
@@ -796,8 +796,8 @@ const template = [
             { type: "separator" },
             {
                 label: "历史记录",
-                click: () => {
-                    main_edit("show_history");
+                click: (i, w) => {
+                    main_edit(w, "show_history");
                 },
                 accelerator: "CmdOrCtrl+Shift+H",
             },
@@ -1030,8 +1030,8 @@ ipcMain.on("edit", (event, name, v) => {
  * 向聚焦的主界面发送事件信息
  * @param {String} m
  */
-function main_edit(m) {
-    if (main_window_focus) main_window_focus.webContents.send("edit", m);
+function main_edit(window, m) {
+    window.webContents.send("edit", m);
 }
 
 /**
