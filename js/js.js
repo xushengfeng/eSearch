@@ -38,22 +38,23 @@ function is_link(url, s) {
     }
 }
 
-var history_list = store.get("历史记录");
+var history_store = new Store({ name: "history" });
+
+var history_list = history_store.get("历史记录");
 var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     var now_time = new Date().getTime();
     var d_time = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
-    for (i in history_list) {
-        if (now_time - history_list[i].time > d_time) {
-            history_list.splice(i, 1);
+    for (i of Object.keys(history_list)) {
+        if (now_time - i > d_time) {
+            history_store.delete(`历史记录.${i}`);
         }
     }
 }
 
 function push_history() {
     var t = document.getElementById("text").innerText;
-    if (t != "" && 历史记录设置.保留历史记录) history_list.unshift({ text: t, time: new Date().getTime() });
-    store.set("历史记录", history_list);
+    if (t != "" && 历史记录设置.保留历史记录) history_store.set(`历史记录.${new Date().getTime()}`, { text: t });
     render_history();
 }
 
@@ -209,49 +210,37 @@ function show_history() {
     }
 }
 function render_history() {
-    var history_text = "";
-    if (history_list.length != 0) {
-        for (var i in history_list) {
-            var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
-            history_text =
-                history_text +
-                `<div><div class="history_title"><span>${new Date(history_list[i].time).format(
-                    "mm-dd HH:MM"
-                )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
-                    t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
-                }</div></div>`;
-        }
-        document.querySelector("#history_list").innerHTML = history_text;
+    document.querySelector("#history_list").innerHTML = "";
+    for (let i in history_list) {
+        console.log(i);
+        var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
+        var div = document.createElement("div");
+        div.id = i;
+        div.innerHTML = `<div class="history_title"><span>${new Date(i).format(
+            "mm-dd HH:MM"
+        )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
+            t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
+        }</div>`;
+        document.querySelector("#history_list").prepend(div);
     }
+
     // 打开某项历史
-    document.querySelectorAll("#history_list > div > .history_text").forEach((e, index) => {
+    document.querySelectorAll("#history_list > div > .history_text").forEach((e) => {
         e.addEventListener("click", () => {
-            document.getElementById("text").innerText = history_list[index].text;
+            document.getElementById("text").innerText = history_list[e.parentElement.id].text;
             show_history();
-            console.log(index);
         });
     });
     // 删除某项历史
     // TODO多选
-    document.querySelectorAll("#history_list > div > .history_title > button").forEach((e, index) => {
+    document.querySelectorAll("#history_list > div > .history_title > button").forEach((e) => {
         e.addEventListener("click", () => {
-            history_list[index] = null;
+            history_store.delete(`历史记录.${e.parentElement.parentElement.id}`);
             e.parentElement.parentElement.style.display = "none";
-            save_history();
         });
     });
 }
 if (t == "") render_history();
-
-function save_history() {
-    for (i in history_list) {
-        if (!history_list[i]) delete history_list[i];
-    }
-    if (history_list.flat().length == 0) {
-        document.querySelector("#history_list").innerText = "暂无历史记录";
-    }
-    store.set("历史记录", history_list.flat());
-}
 
 document.querySelector("#search_b").onclick = () => {
     open_link("search");
