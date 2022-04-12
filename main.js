@@ -745,42 +745,42 @@ const template = [
         submenu: [
             {
                 label: "后退",
-                click: () => {
-                    view_events("back");
+                click: (i, w) => {
+                    view_events(w, "back");
                 },
                 accelerator: isMac ? "Command+[" : "Alt+Left",
             },
             {
                 label: "前进",
-                click: () => {
-                    view_events("forward");
+                click: (i, w) => {
+                    view_events(w, "forward");
                 },
                 accelerator: isMac ? "Command+]" : "Alt+Right",
             },
             {
                 label: "刷新",
-                click: () => {
-                    view_events("reload");
+                click: (i, w) => {
+                    view_events(w, "reload");
                 },
                 accelerator: "F5",
             },
             {
                 label: "停止加载",
-                click: () => {
-                    view_events("stop");
+                click: (i, w) => {
+                    view_events(w, "stop");
                 },
                 accelerator: "Esc",
             },
             {
                 label: "浏览器打开",
-                click: () => {
-                    view_events("browser");
+                click: (i, w) => {
+                    view_events(w, "browser");
                 },
             },
             {
                 label: "保存到历史记录",
-                click: () => {
-                    view_events("add_history");
+                click: (i, w) => {
+                    view_events(w, "add_history");
                 },
                 accelerator: "CmdOrCtrl+D",
             },
@@ -1151,10 +1151,8 @@ async function create_browser(window_name, url) {
         delete search_window_l[window_name];
     }
 }
-function view_events(arg) {
-    if (focused_search_window != null && !focused_search_window.isDestroyed()) {
-        focused_search_window.webContents.send("view_events", arg);
-    }
+function view_events(w, arg) {
+    w.webContents.send("view_events", arg);
 }
 
 ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
