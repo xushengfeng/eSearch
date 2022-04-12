@@ -59,27 +59,37 @@ ipcMain.on("autostart", (event, m, v) => {
     }
 });
 
+function copy_text(callback) {
+    var o_clipboard = clipboard.readText();
+    robot.keyToggle("control", "down");
+    setTimeout(() => {
+        robot.keyTap("c");
+    }, 100);
+    setTimeout(() => {
+        robot.keyToggle("control", "up");
+    }, 200);
+    setTimeout(() => {
+        var t = clipboard.readText();
+        callback(o_clipboard != t ? t : false);
+        clipboard.writeText(o_clipboard);
+    }, 300);
+}
+
 // 自动判断选中搜索还是截图搜索
 function auto_open() {
-    var o_clipboard = clipboard.readText();
-    robot.keyTap("c", "control");
-    var t = clipboard.readText();
-    if (o_clipboard != t) {
-        open_clip_board();
-    } else {
-        full_screen();
-    }
-    clipboard.writeText(o_clipboard);
+    copy_text((t) => {
+        if (t) {
+            create_main_window("index.html", [t]);
+        } else {
+            full_screen();
+        }
+    });
 }
 
 function open_selection() {
-    var o_clipboard = clipboard.readText();
-    robot.keyTap("c", "control");
-    var t = clipboard.readText();
-    if (o_clipboard != t) {
-        create_main_window("index.html", [t]);
-    }
-    clipboard.writeText(o_clipboard);
+    copy_text((t) => {
+        if (t) create_main_window("index.html", [t]);
+    });
 }
 
 function open_clip_board() {
