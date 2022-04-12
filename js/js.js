@@ -54,7 +54,12 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
 
 function push_history() {
     var t = document.getElementById("text").innerText;
-    if (t != "" && 历史记录设置.保留历史记录) history_store.set(`历史记录.${new Date().getTime()}`, { text: t });
+    var i = new Date().getTime();
+    var s = { text: t };
+    if (t != "" && 历史记录设置.保留历史记录) {
+        history_store.set(`历史记录.${i}`, s);
+        history_list[i] = s;
+    }
     render_history();
 }
 
@@ -212,11 +217,10 @@ function show_history() {
 function render_history() {
     document.querySelector("#history_list").innerHTML = "";
     for (let i in history_list) {
-        console.log(i);
         var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
         div.id = i;
-        div.innerHTML = `<div class="history_title"><span>${new Date(i).format(
+        div.innerHTML = `<div class="history_title"><span>${new Date(i - 0).format(
             "mm-dd HH:MM"
         )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
             t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
