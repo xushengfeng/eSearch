@@ -35,6 +35,28 @@ body {
 #windows_bar > div {
     margin-bottom: 16px;
 }
+#windows_bar_close {
+    border: none;
+    transition: var(--transition);
+    border-radius: var(--border-radius);
+    width: 36px;
+    height: 36px;
+    background-color: #0000;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    left: 200px;
+    z-index: 2;
+}
+#windows_bar_close > .icon {
+    width: 24px;
+    left: 6px;
+    top: 6px;
+}
+#windows_bar_close:hover {
+    background-color: var(--hover-color);
+}
+
 .window {
     transition: var(--transition);
     padding: 8px;
@@ -411,28 +433,4 @@ video {
     display: none;
     z-index: 11;
     cursor: progress;
-}
-
-#toast {
-    display: flex;
-    align-items: center;
-}
-#toast > span {
-    width: 100%;
-}
-
-#toast > button {
-    border: none;
-    transition: var(--transition);
-    border-radius: var(--border-radius);
-    width: 36px;
-    height: 36px;
-    background-position: center;
-    background-size: 70%;
-    background-repeat: no-repeat;
-    background-color: #0000;
-    flex-shrink: 0;
-}
-#toast > button:hover {
-    background-color: var(--hover-color);
 }

@@ -153,7 +153,7 @@ function windows_bar_c_o() {
     }
 }
 
-document.querySelector("#toast > button").onclick = windows_bar_c_o;
+document.getElementById("windows_bar_close").onclick = windows_bar_c_o;
 
 var b_scope = null;
 var center_bar_show = false;

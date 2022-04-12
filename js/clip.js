@@ -69,6 +69,8 @@ var rect_history_n = 0;
 var ratio = window.devicePixelRatio;
 
 clip_canvas.onmousedown = (e) => {
+    o = true;
+    windows_bar_c_o();
     is_in_clip_rect(e);
     if (e.button == 0 && !in_rect) {
         selecting = true;
