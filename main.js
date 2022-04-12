@@ -1001,7 +1001,7 @@ function create_main_window(web_page, t, about) {
     });
     main_window.on("blur", () => {
         main_window_focus = null;
-        if (store.get("关闭窗口.main")) {
+        if (store.get("关闭窗口.失焦.主窗口")) {
             失焦关闭 = true;
             main_window.close();
         }
@@ -1374,7 +1374,7 @@ var default_setting = {
     },
     主窗口大小: [800, 600],
     关闭窗口: {
-        失焦: { main: false, search: false },
+        失焦: { 主窗口: false, 搜索窗口: false },
         子窗口跟随主窗口关: false,
         主窗口跟随子窗口关: false,
     },
