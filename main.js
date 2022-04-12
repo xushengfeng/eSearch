@@ -175,13 +175,18 @@ async function rm_r() {
     }
 }
 
+var contextMenu;
+
 app.whenReady().then(() => {
+    // 初始化设置
+    Store.initRenderer();
+    store = new Store();
     // 托盘
     tray =
         process.platform == "linux"
             ? new Tray(`${run_path}/assets/logo/32x32.png`)
             : new Tray(`${run_path}/assets/logo/16x16.png`);
-    const contextMenu = Menu.buildFromTemplate([
+    contextMenu = Menu.buildFromTemplate([
         {
             label: "自动搜索",
             click: () => {
@@ -206,6 +211,25 @@ app.whenReady().then(() => {
             label: "剪贴板搜索",
             click: () => {
                 open_clip_board();
+            },
+        },
+        {
+            type: "separator",
+        },
+        {
+            label: "主界面失焦关闭",
+            type: "checkbox",
+            checked: store.get("关闭窗口.失焦.主窗口"),
+            click: (i) => {
+                store.set("关闭窗口.失焦.主窗口", i.checked);
+            },
+        },
+        {
+            label: "搜索界面失焦关闭",
+            type: "checkbox",
+            checked: store.get("关闭窗口.失焦.搜索窗口"),
+            click: (i) => {
+                store.set("关闭窗口.失焦.搜索窗口", i.checked);
             },
         },
         {
@@ -250,9 +274,6 @@ app.whenReady().then(() => {
             icon: `${run_path}/assets/logo/64x64.png`,
         }).show();
 
-    // 初始化设置
-    Store.initRenderer();
-    store = new Store();
     if (store.get("首次运行") === undefined) set_default_setting();
     fix_setting_tree();
 
@@ -542,6 +563,9 @@ ipcMain.on("setting", (event, arg) => {
             break;
         case "reload_main":
             if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
+            contextMenu.items[5].checked = store.get("关闭窗口.失焦.主窗口");
+            contextMenu.items[6].checked = store.get("关闭窗口.失焦.搜索窗口");
+            tray.setContextMenu(contextMenu);
             break;
         case "下载离线OCR":
             download_ocr(app.getPath("userData"));
@@ -977,7 +1001,7 @@ function create_main_window(web_page, t, about) {
     });
     main_window.on("blur", () => {
         main_window_focus = null;
-        if (store.get("关闭窗口.失焦")[0]) {
+        if (store.get("关闭窗口.main")) {
             失焦关闭 = true;
             main_window.close();
         }
@@ -1097,7 +1121,7 @@ async function create_browser(window_name, url) {
         new_browser_view(url);
         search_window.on("blur", () => {
             focused_search_window = null;
-            if (store.get("关闭窗口.失焦")[1]) {
+            if (store.get("关闭窗口.失焦.搜索窗口")) {
                 失焦关闭 = true;
                 search_window.close();
             }
@@ -1352,7 +1376,7 @@ var default_setting = {
     },
     主窗口大小: [800, 600],
     关闭窗口: {
-        失焦: [false, false],
+        失焦: { main: false, search: false },
         子窗口跟随主窗口关: false,
         主窗口跟随子窗口关: false,
     },
