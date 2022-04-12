@@ -61,13 +61,19 @@ ipcMain.on("autostart", (event, m, v) => {
 
 function copy_text(callback) {
     var o_clipboard = clipboard.readText();
-    robot.keyToggle("control", "down");
-    setTimeout(() => {
-        robot.keyTap("c");
-    }, 100);
-    setTimeout(() => {
-        robot.keyToggle("control", "up");
-    }, 200);
+    if (process.platform == "darwin") {
+        exec(
+            `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
+        );
+    } else {
+        robot.keyToggle("control", "down");
+        setTimeout(() => {
+            robot.keyTap("c");
+        }, 100);
+        setTimeout(() => {
+            robot.keyToggle("control", "up");
+        }, 200);
+    }
     setTimeout(() => {
         var t = clipboard.readText();
         callback(o_clipboard != t ? t : false);
