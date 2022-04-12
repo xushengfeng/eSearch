@@ -20,7 +20,8 @@
     "download": "^8.0.0",
     "electron-store": "^8.0.1",
     "hotkeys-js": "^3.8.7",
-    "jsqr": "^1.4.0"
+    "jsqr": "^1.4.0",
+    "robotjs":"0.6.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.63",
