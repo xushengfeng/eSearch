@@ -1,5 +1,6 @@
 :root {
-    --bar-bg: #fff9;
+    --alpha: 0.6;
+    --bar-bg: rgba(255, 255, 255, var(--alpha));
     --bar-hover-color: #0002;
     --bg: #fff;
     --bg2: #f5f5f5;
@@ -126,7 +127,7 @@ textarea {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bar-bg: #0009;
+        --bar-bg: rgba(0, 0, 0, var(--alpha));
         --bar-hover-color: #fff2;
         --bg: #000;
         --bg2: #1f1f1f;

@@ -1,11 +1,13 @@
 const Store = require("electron-store");
 store = new Store();
-模糊 = store.get("模糊");
+模糊 = store.get("全局.模糊");
 if (模糊 != 0) {
     document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
 } else {
     document.documentElement.style.setProperty("--blur", `none`);
 }
+
+document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
 
 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);

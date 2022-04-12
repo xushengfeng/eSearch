@@ -27,12 +27,14 @@ function set_setting() {
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
-    模糊 = store.get("模糊");
+    模糊 = store.get("全局.模糊");
     if (模糊 != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     } else {
         document.documentElement.style.setProperty("--blur", `none`);
     }
+
+    document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
 
     color_size = store.get("取色器大小");
     color_i_size = store.get("像素大小");

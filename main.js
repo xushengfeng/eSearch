@@ -301,7 +301,7 @@ app.whenReady().then(() => {
     if (!fs.existsSync(os.tmpdir() + "/eSearch")) fs.mkdir(os.tmpdir() + "/eSearch", () => {});
     create_clip_window();
 
-    nativeTheme.themeSource = store.get("深色模式");
+    nativeTheme.themeSource = store.get("全局.深色模式");
 });
 
 app.on("will-quit", () => {
@@ -352,7 +352,7 @@ function create_clip_window() {
 
     clip_window.loadFile("capture.html");
     clip_window.webContents.on("did-finish-load", () => {
-        clip_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
+        clip_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
     });
 
     if (dev) clip_window.webContents.openDevTools();
@@ -833,7 +833,7 @@ function create_ding_window(x, y, w, h, img) {
         ding_window.loadFile("ding.html");
         if (dev) ding_window.webContents.openDevTools();
         ding_window.webContents.on("did-finish-load", () => {
-            ding_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
+            ding_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
             var id = new Date().getTime();
             ding_window.webContents.send("img", id, x, y, w, h, img);
             ding_windows_l[id] = [x, y, w, h];
@@ -927,7 +927,7 @@ function create_main_window(web_page, t, about) {
 
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
-        main_window.webContents.setZoomFactor(store.get("全局缩放") || 1.0);
+        main_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
         main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
@@ -1227,7 +1227,7 @@ ipcMain.on("get_save_path", (event, path) => {
 
 ipcMain.on("theme", (e, v) => {
     nativeTheme.themeSource = v;
-    store.set("深色模式", v);
+    store.set("全局.深色模式", v);
 });
 
 // 默认设置
@@ -1244,7 +1244,12 @@ var default_setting = {
         主页面: {},
     },
     其他快捷键: {},
-    模糊: 10,
+    全局: {
+        模糊: 25,
+        缩放: 1,
+        不透明度: 0.4,
+        深色模式: "system",
+    },
     字体: {
         主要字体: "",
         等宽字体: "",
@@ -1256,7 +1261,6 @@ var default_setting = {
         拼写检查: false,
         行号: true,
     },
-    全局缩放: 1,
     工具栏跟随: "展示内容优先",
     取色器默认格式: "HEX",
     自动搜索: true,
@@ -1330,7 +1334,6 @@ var default_setting = {
         proxyRules: "",
         proxyBypassRules: "",
     },
-    深色模式: "system",
     主窗口大小: [800, 600],
     关闭窗口: {
         失焦: [false, false],

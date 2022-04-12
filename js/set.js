@@ -11,12 +11,14 @@ document.getElementById("autostart").oninput = () => {
     ipcRenderer.send("autostart", "set", document.getElementById("autostart").checked);
 };
 
-document.getElementById("深色模式").value = store.get("深色模式");
+var 全局 = store.get("全局");
+
+document.getElementById("深色模式").value = store.get("全局.深色模式");
 document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", document.getElementById("深色模式").value);
 };
 
-模糊 = store.get("模糊");
+模糊 = store.get("全局.模糊");
 if (模糊 != 0) {
     document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
 } else {
@@ -32,7 +34,14 @@ document.querySelector("#模糊").oninput = () => {
     }
 };
 
-document.getElementById("全局缩放").value = store.get("全局缩放");
+document.documentElement.style.setProperty("--alpha", 全局.不透明度);
+document.querySelector("#不透明度").value = 全局.不透明度 * 100;
+document.querySelector("#不透明度").oninput = () => {
+    var 不透明度 = document.querySelector("#不透明度").value;
+    document.documentElement.style.setProperty("--alpha", 不透明度 / 100);
+};
+
+document.getElementById("全局缩放").value = store.get("全局.缩放");
 
 // 单选项目设置加载
 function 选择器储存(id, 默认) {
@@ -356,8 +365,9 @@ window.onbeforeunload = () => {
 function save_setting() {
     if (give_up) return;
     var 模糊 = document.querySelector("#模糊").value - 0;
-    store.set("模糊", 模糊);
-    store.set("全局缩放", document.getElementById("全局缩放").value - 0);
+    store.set("全局.模糊", 模糊);
+    store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);
+    store.set("全局.缩放", document.getElementById("全局缩放").value - 0);
     store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
     store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
     store.set("像素大小", document.querySelector("#像素大小").value - 0);
