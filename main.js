@@ -217,19 +217,32 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
-            label: "主界面失焦关闭",
-            type: "checkbox",
-            checked: store.get("关闭窗口.失焦.主窗口"),
-            click: (i) => {
-                store.set("关闭窗口.失焦.主窗口", i.checked);
-            },
+            label: "失焦关闭",
+            submenu: [
+                {
+                    label: "主界面",
+                    type: "checkbox",
+                    checked: store.get("关闭窗口.失焦.主窗口"),
+                    click: (i) => {
+                        store.set("关闭窗口.失焦.主窗口", i.checked);
+                    },
+                },
+                {
+                    label: "搜索界面",
+                    type: "checkbox",
+                    checked: store.get("关闭窗口.失焦.搜索窗口"),
+                    click: (i) => {
+                        store.set("关闭窗口.失焦.搜索窗口", i.checked);
+                    },
+                },
+            ],
         },
         {
-            label: "搜索界面失焦关闭",
-            type: "checkbox",
-            checked: store.get("关闭窗口.失焦.搜索窗口"),
+            label: "浏览器打开",
+            type:"checkbox",
+            checked: store.get("浏览器中打开"),
             click: (i) => {
-                store.set("关闭窗口.失焦.搜索窗口", i.checked);
+                store.set("浏览器中打开", i.checked);
             },
         },
         {
@@ -563,8 +576,9 @@ ipcMain.on("setting", (event, arg) => {
             break;
         case "reload_main":
             if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
-            contextMenu.items[5].checked = store.get("关闭窗口.失焦.主窗口");
-            contextMenu.items[6].checked = store.get("关闭窗口.失焦.搜索窗口");
+            contextMenu.items[5].submenu.items[0].checked = store.get("关闭窗口.失焦.主窗口");
+            contextMenu.items[5].submenu.items[1].checked = store.get("关闭窗口.失焦.搜索窗口");
+            contextMenu.items[6].checked = store.get("浏览器中打开");
             tray.setContextMenu(contextMenu);
             break;
         case "下载离线OCR":
