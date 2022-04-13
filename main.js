@@ -239,7 +239,7 @@ app.whenReady().then(() => {
         },
         {
             label: "浏览器打开",
-            type:"checkbox",
+            type: "checkbox",
             checked: store.get("浏览器中打开"),
             click: (i) => {
                 store.set("浏览器中打开", i.checked);
@@ -569,7 +569,7 @@ function image_search(event, arg) {
     });
 }
 
-ipcMain.on("setting", (event, arg) => {
+ipcMain.on("setting", async (event, arg) => {
     switch (arg) {
         case "save_err":
             console.log("保存设置失败");
@@ -586,6 +586,21 @@ ipcMain.on("setting", (event, arg) => {
             break;
         case "删除离线OCR":
             rm_r();
+            break;
+        case "set_default_setting":
+            store.clear();
+            set_default_setting();
+            var resolve = await dialog.showMessageBox({
+                title: "重启",
+                message: `已恢复默认设置，部分设置需要重启 ${app.name} 生效`,
+                buttons: ["重启", "稍后"],
+                defaultId: 0,
+                cancelId: 1,
+            });
+            if (resolve.response == 0) {
+                app.relaunch();
+                app.exit(0);
+            }
             break;
     }
 });
@@ -1372,7 +1387,6 @@ var default_setting = {
         默认搜索引擎: "百度",
         默认翻译引擎: "Google",
     },
-    历史记录: [],
     历史记录设置: {
         保留历史记录: true,
         自动清除历史记录: false,

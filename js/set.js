@@ -456,6 +456,14 @@ function save_setting() {
     });
 }
 
+document.getElementById("set_default_setting").onclick = () => {
+    if (confirm("将会把所有设置恢复成默认，无法撤销")) {
+        ipcRenderer.send("setting", "set_default_setting");
+        give_up = true;
+        location.reload();
+    }
+};
+
 var path_info = `运行目录：${__dirname}<br>
                 配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>
                 OCR 目录：${store.path.replace("config.json", "ocr")}<br>
