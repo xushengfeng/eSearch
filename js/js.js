@@ -215,7 +215,13 @@ function show_history() {
     }
 }
 function render_history() {
-    document.querySelector("#history_list").innerHTML = "";
+    var n = {};
+    for (i of Object.keys(history_list).sort()) {
+        n[i] = history_list[i];
+    }
+    history_list = n;
+    n = null;
+    document.querySelector("#history_list").innerHTML = `<div id = "old_his_to_new">迁移旧历史</div>`;
     for (let i in history_list) {
         var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
@@ -243,8 +249,19 @@ function render_history() {
             e.parentElement.parentElement.style.display = "none";
         });
     });
+    // 迁移历史记录
+    document.querySelector("#history_list #old_his_to_new").onclick = old_his_to_new;
 }
 if (t == "") render_history();
+
+function old_his_to_new() {
+    for (i of store.get("历史记录")) {
+        history_store.set(`历史记录.${i.time}`, { text: i.text });
+        history_list[i.time] = { text: i.text };
+    }
+    store.delete("历史记录");
+    render_history();
+}
 
 document.querySelector("#search_b").onclick = () => {
     open_link("search");
