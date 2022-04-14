@@ -94,10 +94,8 @@ function show_img_his() {
     for (let j in o_l) {
         let div = document.createElement("div");
         div.innerHTML = '<button><img src="./assets/icons/close.svg" class="icon"></button>';
-        var time = new Date(j - 0);
-        div.title = `${(time.getMonth() + 1).toString()}/${time.getDate().toString()} ${time
-            .getHours()
-            .toString()}:${time.getMinutes().toString()}:${time.getSeconds().toString()}`;
+        var f = require("./lib/time_format");
+        div.title = f("MMDD hh:mm:ss", new Date(j - 0));
         for (k of o_l[j]) {
             let img = document.createElement("img");
             img.src = k.src;

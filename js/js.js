@@ -181,25 +181,7 @@ function html_to_text(html) {
         (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c])
     );
 }
-Date.prototype.format = function (fmt) {
-    let ret;
-    const opt = {
-        "Y+": this.getFullYear().toString(), // 年
-        "m+": (this.getMonth() + 1).toString(), // 月
-        "d+": this.getDate().toString(), // 日
-        "H+": this.getHours().toString(), // 时
-        "M+": this.getMinutes().toString(), // 分
-        "S+": this.getSeconds().toString(), // 秒
-        // 有其他格式化字符需求可以继续添加，必须转化成字符串
-    };
-    for (let k in opt) {
-        ret = new RegExp("(" + k + ")").exec(fmt);
-        if (ret) {
-            fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0"));
-        }
-    }
-    return fmt;
-};
+
 function show_history() {
     if (history_showed) {
         document.querySelector("#history").className = "";
@@ -226,8 +208,10 @@ function render_history() {
         var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
         div.id = i;
-        div.innerHTML = `<div class="history_title"><span>${new Date(i - 0).format(
-            "mm-dd HH:MM"
+        var f = require("./lib/time_format");
+        div.innerHTML = `<div class="history_title"><span>${f(
+            "mm-dd HH:MM",
+            new Date(i - 0)
         )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
             t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
         }</div>`;

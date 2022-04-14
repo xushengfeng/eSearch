@@ -1205,32 +1205,7 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
 });
 
 function get_file_name() {
-    function f(fmt, date) {
-        let ret;
-        const opt = {
-            YYYY: date.getFullYear() + "",
-            YY: (date.getFullYear() % 1000) + "",
-            MM: (date.getMonth() + 1 + "").padStart(2, "0"),
-            M: date.getMonth() + 1 + "",
-            DD: (date.getDate() + "").padStart(2, "0"),
-            D: date.getDate() + "",
-            d: date.getDay() + "",
-            HH: (date.getHours() + "").padStart(2, "0"),
-            H: date.getHours() + "",
-            hh: ((date.getHours() % 12) + "").padStart(2, "0"),
-            h: (date.getHours() % 12) + "",
-            mm: (date.getMinutes() + "").padStart(2, "0"),
-            m: date.getMinutes() + "",
-            ss: (date.getSeconds() + "").padStart(2, "0"),
-            s: date.getSeconds() + "",
-            S: date.getMilliseconds() + "",
-        };
-        for (let k in opt) {
-            ret = new RegExp(`\(\[\-\.\_\]\)\(\?\<\!\\\\)${k}\(\[\-\.\_\]\)\?`, "g");
-            fmt = fmt.replace(ret, `$1${opt[k]}$2`);
-        }
-        return fmt;
-    }
+    const f = require("./lib/time_format");
     var save_time = new Date();
     var save_name_time = f(store.get("保存名称"), save_time).replace("\\", "");
     return save_name_time;
