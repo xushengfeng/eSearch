@@ -3,22 +3,22 @@ const { ipcRenderer, shell } = require("electron");
 var li_list = [];
 var pid;
 
-ipcRenderer.on("url", (event, pid, id, arg, arg1) => {
-    pid = pid;
+ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
+    pid = _pid;
     if (arg == "new") {
-        new_tab(pid, id, arg1);
+        new_tab(_pid, id, arg1);
     }
     if (arg == "title") {
-        title(pid, id, arg1);
+        title(_pid, id, arg1);
     }
     if (arg == "icon") {
-        icon(pid, id, arg1);
+        icon(_pid, id, arg1);
     }
     if (arg == "url") {
-        url(pid, id, arg1);
+        url(_pid, id, arg1);
     }
     if (arg == "load") {
-        load(pid, id, arg1);
+        load(_pid, id, arg1);
     }
 });
 
@@ -33,23 +33,27 @@ function new_tab(pid, id, url) {
     };
     var button = li.querySelector("button");
     button.onclick = () => {
-        ipcRenderer.send("tab_view", pid, id, "close");
-        var l = document.querySelectorAll("li");
-        for (i in l) {
-            if (l[i] === li && document.querySelector(".tab_focus") === li) {
-                // 模板排除
-                if (i == l.length - 2) {
-                    focus_tab(l[l.length - 3]);
-                } else {
-                    focus_tab(l[i + 1]);
-                }
-            }
-        }
-        document.getElementById("tabs").removeChild(li);
+        close_tab(pid, id);
     };
     document.getElementById("tabs").appendChild(li);
     focus_tab(li);
     li.id = "id" + id;
+}
+
+function close_tab(li, pid, id) {
+    ipcRenderer.send("tab_view", pid, id, "close");
+    var l = document.querySelectorAll("li");
+    for (i in l) {
+        if (l[i] === li && document.querySelector(".tab_focus") === li) {
+            // 模板排除
+            if (i == l.length - 2) {
+                focus_tab(l[l.length - 3]);
+            } else {
+                focus_tab(l[i + 1]);
+            }
+        }
+    }
+    document.getElementById("tabs").removeChild(li);
 }
 
 function focus_tab(li) {
@@ -118,6 +122,10 @@ function main_event(e) {
 function open_in_browser() {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
+    if (store.get("搜索窗口自动关闭")) {
+        id = document.querySelector(".tab_focus").id.replace("id", "");
+        close_tab(document.querySelector(".tab_focus"), pid, id);
+    }
 }
 
 ipcRenderer.on("view_events", (event, arg) => {
