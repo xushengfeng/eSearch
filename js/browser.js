@@ -105,15 +105,10 @@ function main_event(e) {
     if (e.target.id == "browser") {
         open_in_browser();
     } else if (e.target.id == "add_history") {
-        var 历史记录 = store.get("历史记录");
-        var the_历史记录 = [
-            {
-                text: document.querySelector(".tab_focus").getAttribute("data-url"),
-                time: new Date().getTime(),
-            },
-        ];
-        the_历史记录.push.apply(the_历史记录, 历史记录);
-        store.set("历史记录", the_历史记录);
+        var history_store = new Store({ name: "history" });
+        history_store.set(`历史记录.${new Date().getTime()}`, {
+            text: document.querySelector(".tab_focus").getAttribute("data-url"),
+        });
     } else {
         if (e.target.id) ipcRenderer.send("tab_view", pid, id, e.target.id);
     }
