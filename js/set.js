@@ -132,10 +132,11 @@ document.getElementById("获取保存路径").onclick = () => {
 document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
 document.getElementById("保存文件名称后缀").value = store.get("保存名称.后缀");
-document.getElementById("保存文件名称前缀").oninput =
-    document.getElementById("保存文件名称时间").oninput =
-    document.getElementById("保存文件名称后缀").oninput =
-        show_f_time;
+document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
+    e.target.style.width = `${e.target.value.length || 1}em`;
+    show_f_time();
+};
+document.getElementById("保存文件名称时间").oninput = show_f_time;
 function show_f_time() {
     var f = require("./lib/time_format");
     var save_time = new Date();
