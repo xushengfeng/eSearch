@@ -274,6 +274,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                 fill: fill_color,
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
+                canChangeFill: true,
             });
             break;
         case "rect":
@@ -285,6 +286,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                 fill: fill_color,
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
+                canChangeFill: true,
             });
             break;
         case "text":
@@ -292,6 +294,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                 new fabric.IText("点击输入文字", {
                     left: x,
                     top: y,
+                    canChangeFill: true,
                 })
             );
         default:
@@ -320,6 +323,7 @@ function draw_poly(shape) {
                 fill: fill_color,
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
+                canChangeFill: true,
             })
         );
     }
@@ -336,12 +340,12 @@ document.querySelector("#draw_color_stroke").onfocus = () => {
 };
 // 输入颜色
 document.querySelector("#draw_color_fill").oninput = () => {
-    change_color({ fill: document.querySelector("#draw_color_fill").innerText }, false);
+    change_color({ fill: document.querySelector("#draw_color_fill").innerText }, true, false);
     var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
 };
 document.querySelector("#draw_color_stroke").oninput = () => {
-    change_color({ stroke: document.querySelector("#draw_color_stroke").innerText }, false);
+    change_color({ stroke: document.querySelector("#draw_color_stroke").innerText }, true, false);
     var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
 };
@@ -358,12 +362,17 @@ function change_alpha(v, m) {
         .rgb()
         .array();
     rgba[3] = v / 100;
-    change_color({ [m]: rgba }, true);
+    change_color({ [m]: rgba }, true, true);
 }
 
 // 刷新控件颜色
-// m_l={fill:color,stroke:color}
-function change_color(m_l, text) {
+/**
+ * 改变颜色
+ * @param {{fill:String, stroke:String}} m_l
+ * @param {Boolean} set_o 是否改变选中形状样式
+ * @param {Boolean} text 是否更改文字，仅在input时为true
+ */
+function change_color(m_l, set_o, text) {
     var n =
         (fabric_canvas.getActiveObject() !== null && fabric_canvas.getActiveObject()?._objects === undefined) ||
         (fabric_canvas.getActiveObject()?._objects || []).length == 1;
@@ -371,19 +380,15 @@ function change_color(m_l, text) {
         var color_m = i,
             color = m_l[i];
         if (color === null) color = "#0000";
+        color_l = Color(color).rgb().array();
+        document.querySelector(`#draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
         if (color_m == "fill") {
-            color_l = Color(color).rgb().array();
-            document.querySelector("#draw_color_fill").style.backgroundColor = document.querySelector(
-                "#draw_color > div"
-            ).style.backgroundColor = Color(color_l).string();
-            if (n) set_f_object_v(Color(color_l).string(), null, null);
+            if (set_o) document.querySelector("#draw_color > div").style.backgroundColor = Color(color_l).string();
+            set_f_object_v(Color(color_l).string(), null, null);
         }
         if (color_m == "stroke") {
-            color_l = Color(color).rgb().array();
-            document.querySelector("#draw_color_stroke").style.backgroundColor = document.querySelector(
-                "#draw_color > div"
-            ).style.borderColor = Color(color_l).string();
-            if (n) set_f_object_v(null, Color(color_l).string(), null);
+            if (set_o) document.querySelector("#draw_color > div").style.borderColor = Color(color_l).string();
+            set_f_object_v(null, Color(color_l).string(), null);
         }
 
         // 文字自适应
@@ -471,7 +476,7 @@ function color_bar() {
     }
     // 事件
     function c_color(el) {
-        change_color({ [color_m]: el.style.backgroundColor }, true);
+        change_color({ [color_m]: el.style.backgroundColor }, true, true);
         if (color_m == "fill") document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = 100;
         if (color_m == "stroke") document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = 100;
     }
@@ -482,43 +487,64 @@ document.querySelector("#draw_stroke_width > range-b").oninput = () => {
     set_f_object_v(null, null, document.querySelector("#draw_stroke_width > range-b").value - 0);
 };
 
+/** 鼠标点击后，改变栏文字样式 */
 function get_f_object_v() {
     if (fabric_canvas.getActiveObject()) {
         var n = fabric_canvas.getActiveObject();
-        if (n.filters) n = { _objects: [{ fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width }] };
+        if (n._objects) {
+            // 当线与形一起选中，确保形不会透明
+            for (i of n._objects) {
+                if (i.canChangeFill) n = i;
+            }
+        }
+        if (n.filters) n = { fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width };
     } else if (fabric_canvas.isDrawingMode) {
-        n = { _objects: [{ fill: "#0000", stroke: free_color, strokeWidth: free_width }] };
+        n = { fill: "#0000", stroke: free_color, strokeWidth: free_width };
     } else {
-        n = { _objects: [{ fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width }] };
+        n = { fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width };
     }
-    if (n._objects) n = n._objects[0];
+    console.log(n);
     var [fill, stroke, strokeWidth] = [n.fill, n.stroke, n.strokeWidth];
     document.querySelector("#draw_stroke_width > range-b").value = strokeWidth;
-    change_color({ fill: fill, stroke: stroke }, true);
+    change_color({ fill: fill, stroke: stroke }, false, true);
     var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
     var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
     document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
 }
+/**
+ * 更改全局或选中形状的颜色
+ * @param {Srting} fill 填充颜色
+ * @param {String} stroke 边框颜色
+ * @param {Number} strokeWidth 边框宽度
+ */
 function set_f_object_v(fill, stroke, strokeWidth) {
     if (fabric_canvas.getActiveObject()) {
-        var n = fabric_canvas.getActiveObject();
-        if (!n._objects) n._objects = [n];
-        n = n._objects;
-        for (i in n) {
-            if (fill) n[i].set("fill", fill);
+        console.log(0);
+        /* 选中Object */
+        var n = fabric_canvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
+        n = n._objects || [n];
+        for (let i in n) {
+            if (fill) {
+                // 只改变形的颜色
+                if (n[i].canChangeFill) n[i].set("fill", fill);
+            }
             if (stroke) n[i].set("stroke", stroke);
             if (strokeWidth) n[i].set("strokeWidth", strokeWidth);
         }
         fabric_canvas.renderAll();
     } else if (fabric_canvas.isDrawingMode) {
+        console.log(1);
+        /* 画笔 */
         if (stroke) fabric_canvas.freeDrawingBrush.color = free_color = stroke;
         if (strokeWidth) fabric_canvas.freeDrawingBrush.width = free_width = strokeWidth;
         free_draw_cursor();
         free_shadow();
     } else {
+        console.log(2);
+        /* 非画笔非选中 */
         if (fill) fill_color = fill;
-        if (stroke) stroke_color = stroke;
+        if (stroke) stroke_color = free_color = stroke;
         if (strokeWidth) stroke_width = strokeWidth;
     }
 }
