@@ -160,19 +160,19 @@
             <div class="draw_items">
                 <div id="draw_color_input">
                     <div contenteditable="true" spellcheck="false" id="draw_color_fill"
-                        style="background-color: #FFFFFF;color: #000000;">#FFFFFF</div>
+                        style="background-color: #FFFFFF;color: #000000;" title="填充颜色">#FFFFFF</div>
                     <div contenteditable="true" spellcheck="false" id="draw_color_stroke"
-                        style="background-color: #333333;color: #FFFFFF;">#333333</div>
+                        style="background-color: #333333;color: #FFFFFF;" title="边框颜色">#333333</div>
                 </div>
                 <div id="draw_color_alpha">
-                    <range-b text="%" value="100"></range-b>
-                    <range-b text="%" value="100"></range-b>
+                    <range-b text="%" value="100" title="填充不透明度"></range-b>
+                    <range-b text="%" value="100" title="边框不透明度"></range-b>
                 </div>
                 <div id="draw_color_color"></div>
                 <div id="draw_stroke_width">
-                    <range-b text="px" min=0 max=20 value="1"></range-b>
+                    <range-b text="px" min=0 max=20 value="1" title="边框宽度"></range-b>
                 </div>
-                <div id="draw_edit_b"><img src="./assets/icons/command.svg" class="icon"></div>
+                <div id="draw_edit_b" title="命令行高级编辑"><img src="./assets/icons/command.svg" class="icon"></div>
             </div>
             <!-- draw_position -->
             <div class="draw_items" id="draw_position_i">
