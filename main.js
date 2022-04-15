@@ -1206,9 +1206,9 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
 
 function get_file_name() {
     const f = require("./lib/time_format");
-    var save_time = new Date();
-    var save_name_time = f(store.get("保存名称"), save_time).replace("\\", "");
-    return save_name_time;
+    var save_name_time = f(store.get("保存名称.时间"), new Date()).replace("\\", "");
+    var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
+    return file_name;
 }
 // 快速截图
 function quick_clip() {
@@ -1340,7 +1340,7 @@ var default_setting = {
     自动搜索中文占比: 0.2,
     浏览器中打开: false,
     保存路径: app.getPath("pictures") + "/",
-    保存名称: "eSearch-YYYY-MM-DD-HH-mm-ss-S",
+    保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 0.92,
     框选后默认操作: "no",
     快速截图: { 模式: "clip", 路径: "" },

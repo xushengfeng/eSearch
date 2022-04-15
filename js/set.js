@@ -129,41 +129,20 @@ document.getElementById("获取保存路径").onclick = () => {
     });
 };
 
-document.getElementById("保存文件名称").value = store.get("保存名称");
-document.getElementById("保存文件名称").oninput = show_f_time;
+document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
+document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
+document.getElementById("保存文件名称后缀").value = store.get("保存名称.后缀");
+document.getElementById("保存文件名称前缀").oninput =
+    document.getElementById("保存文件名称时间").oninput =
+    document.getElementById("保存文件名称后缀").oninput =
+        show_f_time;
 function show_f_time() {
-    function f(fmt, date) {
-        let ret;
-        const opt = {
-            YYYY: date.getFullYear() + "",
-            YY: (date.getFullYear() % 1000) + "",
-            MM: (date.getMonth() + 1 + "").padStart(2, "0"),
-            M: date.getMonth() + 1 + "",
-            DD: (date.getDate() + "").padStart(2, "0"),
-            D: date.getDate() + "",
-            d: date.getDay() + "",
-            HH: (date.getHours() + "").padStart(2, "0"),
-            H: date.getHours() + "",
-            hh: ((date.getHours() % 12) + "").padStart(2, "0"),
-            h: (date.getHours() % 12) + "",
-            mm: (date.getMinutes() + "").padStart(2, "0"),
-            m: date.getMinutes() + "",
-            ss: (date.getSeconds() + "").padStart(2, "0"),
-            s: date.getSeconds() + "",
-            S: date.getMilliseconds() + "",
-        };
-        for (let k in opt) {
-            ret = new RegExp(`\(\\W\)\(\?\<\!\\\\)${k}\(\\W\)\?`, "g");
-            fmt = fmt.replace(ret, `$1${opt[k]}$2`);
-        }
-        return fmt;
-    }
+    var f = require("./lib/time_format");
     var save_time = new Date();
-    console.log(document.getElementById("保存文件名称").value);
-    document.getElementById("保存文件名称_p").innerText = f(
-        document.getElementById("保存文件名称").value,
+    document.getElementById("保存文件名称_p").innerText = `${document.getElementById("保存文件名称前缀").value}${f(
+        document.getElementById("保存文件名称时间").value,
         save_time
-    ).replace("\\", "");
+    )}${document.getElementById("保存文件名称后缀").value}`;
 }
 show_f_time();
 
@@ -381,7 +360,11 @@ function save_setting() {
             ? (document.getElementById("快速截图路径").value + "/").replace("//", "/")
             : ""
     );
-    store.set("保存名称", document.getElementById("保存文件名称").value.replace("//", "//"));
+    store.set("保存名称", {
+        前缀: document.getElementById("保存文件名称前缀").value,
+        时间: document.getElementById("保存文件名称时间").value,
+        后缀: document.getElementById("保存文件名称后缀").value,
+    });
     store.set("jpg质量", document.getElementById("jpg质量").value - 0);
     字体.大小 = document.getElementById("字体大小").value - 0;
     字体.记住 = document.getElementById("记住字体大小").checked
