@@ -146,6 +146,12 @@ function show_f_time() {
     )}${document.getElementById("保存文件名称后缀").value}`;
 }
 show_f_time();
+document.getElementById("保存文件名称前缀").style.width = `${
+    document.getElementById("保存文件名称前缀").value.length || 1
+}em`;
+document.getElementById("保存文件名称后缀").style.width = `${
+    document.getElementById("保存文件名称后缀").value.length || 1
+}em`;
 
 document.getElementById("jpg质量").value = store.get("jpg质量");
 
