@@ -210,7 +210,7 @@ function render_history() {
         div.id = i;
         var f = require("./lib/time_format");
         div.innerHTML = `<div class="history_title"><span>${f(
-            "mm-dd HH:MM",
+            store.get("时间格式"),
             new Date(i - 0)
         )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
             t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")

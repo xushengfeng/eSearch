@@ -95,7 +95,7 @@ function show_img_his() {
         let div = document.createElement("div");
         div.innerHTML = '<button><img src="./assets/icons/close.svg" class="icon"></button>';
         var f = require("./lib/time_format");
-        div.title = f("MMDD hh:mm:ss", new Date(j - 0));
+        div.title = f(store.get("时间格式"), new Date(j - 0));
         for (k of o_l[j]) {
             let img = document.createElement("img");
             img.src = k.src;

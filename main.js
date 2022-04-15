@@ -1386,6 +1386,7 @@ var default_setting = {
         限定保留: true,
         保留次数: 6,
     },
+    时间格式: "MM/DD hh:mm:ss",
 };
 function set_default_setting() {
     for (i in default_setting) {

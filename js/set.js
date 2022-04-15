@@ -307,6 +307,8 @@ document.getElementById("clear_his").onclick = () => {
     if (c) store.set("历史记录", []);
 };
 
+document.getElementById("时间格式").value = store.get("时间格式");
+
 document.getElementById("代理").checked = store.get("开启代理");
 var 代理 = store.get("代理");
 document.getElementById("pacScript").value = 代理.pacScript;
@@ -404,6 +406,7 @@ function save_setting() {
         保留次数: document.getElementById("截屏保留次").value - 0,
     });
     store.set("历史记录设置", 历史记录设置);
+    store.set("时间格式", document.getElementById("时间格式").value);
     store.set("OCR", {
         类型: document.getElementById("OCR类型").value,
         检查OCR: document.getElementById("检查OCR").checked,
