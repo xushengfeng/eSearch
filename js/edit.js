@@ -443,7 +443,10 @@ function color_bar() {
         }
         var tt = "";
         for (n in next_color_list) {
-            tt += `<div class="color_i" style="background-color: ${next_color_list[n]}" title="右键返回"></div>`;
+            tt += `<div class="color_i" style="background-color: ${next_color_list[n]}" title="${color_conversion(
+                next_color_list[n],
+                取色器默认格式
+            )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = tt;
         document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
@@ -461,7 +464,10 @@ function color_bar() {
     function show_color() {
         var t = "";
         for (x in color_list) {
-            t += `<div class="color_i" style="background-color: ${color_list[x]}" title="右键更多"></div>`;
+            t += `<div class="color_i" style="background-color: ${color_list[x]}" title="${color_conversion(
+                color_list[x],
+                取色器默认格式
+            )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = t;
         document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
