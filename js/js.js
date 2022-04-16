@@ -40,7 +40,7 @@ function is_link(url, s) {
 
 var history_store = new Store({ name: "history" });
 
-var history_list = history_store.get("历史记录");
+var history_list = history_store.get("历史记录") || {};
 var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     var now_time = new Date().getTime();

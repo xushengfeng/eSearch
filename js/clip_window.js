@@ -80,7 +80,7 @@ function add_img(img_l) {
 function show_img_his() {
     var img_store = new Store({ name: "img_history" });
     if (document.getElementById("img_history").innerHTML != "") return;
-    var o_l = img_store.get("截屏记录");
+    var o_l = img_store.get("截屏记录") || {};
     if (store.get("记录截屏.限定保留")) {
         var s_l = Object.keys(o_l).sort();
         s_l = s_l.splice(-store.get("记录截屏.保留次数"));
