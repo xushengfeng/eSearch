@@ -1390,7 +1390,7 @@ var default_setting = {
     记录截屏: {
         记录: true,
         限定保留: true,
-        保留次数: 6,
+        保留次数: 4,
     },
     时间格式: "MM/DD hh:mm:ss",
 };

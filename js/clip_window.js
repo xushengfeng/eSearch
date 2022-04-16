@@ -70,15 +70,15 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
         add_img([{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }), w, h }]);
 });
 
-var img_store = new Store({ name: "img_history" });
-
 function add_img(img_l) {
+    var img_store = new Store({ name: "img_history" });
     var time = new Date().getTime();
     img_store.set(`截屏记录.${time}`, img_l);
     img_l = null;
 }
 
 function show_img_his() {
+    var img_store = new Store({ name: "img_history" });
     if (document.getElementById("img_history").innerHTML != "") return;
     var o_l = img_store.get("截屏记录");
     if (store.get("记录截屏.限定保留")) {
