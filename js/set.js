@@ -286,9 +286,9 @@ document.getElementById("youdao_ocr_secret").value = store.get("在线OCR.youdao
 document.getElementById("截屏记录_b").checked = store.get("记录截屏.记录");
 document.getElementById("保留截屏记录").checked = store.get("记录截屏.限定保留");
 document.getElementById("截屏保留次").value = store.get("记录截屏.保留次数");
+var img_store = new Store({ name: "img_history" });
 document.getElementById("clear_img_his").onclick = () => {
     var c = confirm("这将清除所有的截屏记录\n且不能复原\n确定清除？");
-    var img_store = new Store({ name: "img_history" });
     if (c) img_store.set("截屏记录", {});
 };
 
@@ -309,9 +309,10 @@ document.querySelector("#清除历史记录").oninput = () => {
     document.querySelector("#his_d").disabled = !document.querySelector("#清除历史记录").checked;
     document.querySelector("#his_h").disabled = !document.querySelector("#清除历史记录").checked;
 };
+var history_store = new Store({ name: "history" });
 document.getElementById("clear_his").onclick = () => {
     var c = confirm("这将清除所有的历史记录\n且不能复原\n确定清除？");
-    if (c) store.set("历史记录", []);
+    if (c) history_store.set("历史记录", {});
 };
 
 document.getElementById("时间格式").value = store.get("时间格式");
@@ -462,7 +463,9 @@ document.getElementById("set_default_setting").onclick = () => {
 var path_info = `运行目录：${__dirname}<br>
                 配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>
                 OCR 目录：${store.path.replace("config.json", "ocr")}<br>
-                临时目录：${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch`;
+                临时目录：${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
+                文字记录：${history_store.path}<br>
+                截屏记录：${img_store.path}`;
 document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 
