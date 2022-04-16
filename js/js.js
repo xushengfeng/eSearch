@@ -203,7 +203,12 @@ function render_history() {
     }
     history_list = n;
     n = null;
-    document.querySelector("#history_list").innerHTML = `<div id = "old_his_to_new">迁移旧历史</div>`;
+    // 迁移历史记录
+    if (store.get("历史记录")) {
+        document.querySelector("#history_list").innerHTML = `<div id = "old_his_to_new">迁移旧历史</div>`;
+        document.querySelector("#history_list #old_his_to_new").onclick = old_his_to_new;
+    }
+    if (Object.keys(history_list).length == 0) document.querySelector("#history_list").innerHTML = "暂无历史记录";
     for (let i in history_list) {
         var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
@@ -233,8 +238,6 @@ function render_history() {
             e.parentElement.parentElement.style.display = "none";
         });
     });
-    // 迁移历史记录
-    document.querySelector("#history_list #old_his_to_new").onclick = old_his_to_new;
 }
 if (t == "") render_history();
 
