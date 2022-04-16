@@ -178,7 +178,9 @@ document.getElementById("draw_position_i").onclick = (e) => {
 
 // 删除快捷键
 hotkeys("delete", "drawing", () => {
-    fabric_canvas.remove(fabric_canvas.getActiveObject());
+    for (o of fabric_canvas.getActiveObject()._objects || [fabric_canvas.getActiveObject()]) {
+        fabric_canvas.remove(o);
+    }
     get_f_object_v();
     get_filters();
     stack_add();
