@@ -6,7 +6,7 @@
 
 eSearch 是[Information-portal](https://github.com/xushengfeng/Information-portal.git)的:electron:重写版(顺便加了亿些功能)
 
-主要是想在 Linux 上(win 和 mac 上也能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的**屏幕搜索**功能，当然也是一款方便的**截图软件**。
+主要是想在 Linux 上(win 和 mac 上也能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的**屏幕搜索**功能，当然也是一款方便的**截屏软件**。
 
 即 **截屏+OCR+搜索+贴图+以图搜图**
 
@@ -61,7 +61,7 @@ npm run make
 ```shell
 e-search
 	-a # 自动搜索
-	-c # 截图搜索
+	-c # 截屏搜索
 	-s # 选中搜索
 	-b # 剪贴板搜索
 	-q # 快速截屏
@@ -83,7 +83,7 @@ e-search
     -   [x] 图像滤镜（支持局部马赛克模糊和色彩调节）
     -   [x] 自定义框选松开后的操作
     -   [x] 快速截取全屏到剪贴板或自定义的目录
-    -   [x] 截图历史记录
+    -   [x] 截屏历史记录
     -   [ ] 窗口选择
     -   [ ] 控件选择
     -   [ ] 多屏幕
@@ -124,7 +124,7 @@ e-search
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
-> 截图，自由调整框选大小（视频约 2.6MB）
+> 截屏，自由调整框选大小（视频约 2.6MB）
 
 https://user-images.githubusercontent.com/28475549/155870857-99c7d6d0-a90b-4558-872a-85f2603225d6.mp4
 
@@ -162,8 +162,8 @@ Wayland 桌面环境暂时不支持
 
 ## 开发原因
 
-我在用 Windows 时一直用这个好用的截图软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到 Linux，Snipaste 不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。
+我在用 Windows 时一直用这个好用的截屏软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到 Linux，Snipaste 不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。
 
 促使我开发 eSearch 的另一个契机是我很享受在手机上使用[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的即时信息搜索工具，但我没有找到电脑上类似的代替品。
 
-所以我干脆自己开发一个“截图+OCR+搜索+贴图”的软件。最开始用 python+pyqt 开发出[Information-portal](https://github.com/xushengfeng/Information-portal.git)，但因为我不熟悉 pyqt，所以我转战:electron:，开发出本软件。😄
+所以我干脆自己开发一个“截屏+OCR+搜索+贴图”的软件。最开始用 python+pyqt 开发出[Information-portal](https://github.com/xushengfeng/Information-portal.git)，但因为我不熟悉 pyqt，所以我转战:electron:，开发出本软件。😄

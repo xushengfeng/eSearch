@@ -120,12 +120,12 @@ document.querySelector("#选区颜色 > input").oninput = () => {
 
 document.getElementById("框选后默认操作").value = store.get("框选后默认操作");
 
-document.getElementById("快速截图").value = store.get("快速截图.模式");
-document.getElementById("快速截图路径").value = store.get("快速截图.路径");
+document.getElementById("快速截屏").value = store.get("快速截屏.模式");
+document.getElementById("快速截屏路径").value = store.get("快速截屏.路径");
 document.getElementById("获取保存路径").onclick = () => {
-    ipcRenderer.send("get_save_path", document.getElementById("快速截图路径").value || "");
+    ipcRenderer.send("get_save_path", document.getElementById("快速截屏路径").value || "");
     ipcRenderer.on("get_save_path", (e, a) => {
-        document.getElementById("快速截图路径").value = a;
+        document.getElementById("快速截屏路径").value = a;
     });
 };
 
@@ -364,11 +364,11 @@ function save_setting() {
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
-    store.set("快速截图.模式", document.getElementById("快速截图").value);
+    store.set("快速截屏.模式", document.getElementById("快速截屏").value);
     store.set(
-        "快速截图.路径",
-        document.getElementById("快速截图路径").value
-            ? (document.getElementById("快速截图路径").value + "/").replace("//", "/")
+        "快速截屏.路径",
+        document.getElementById("快速截屏路径").value
+            ? (document.getElementById("快速截屏路径").value + "/").replace("//", "/")
             : ""
     );
     store.set("保存名称", {
@@ -469,7 +469,7 @@ var path_info = `运行目录：${__dirname}<br>
 document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 
-var version = `<div>本机系统: ${os.type()} ${os.release()}</div>`;
+var version = `<div>本机系统内核: ${os.type()} ${os.release()}</div>`;
 var version_l = ["electron", "node", "chrome", "v8"];
 for (i in version_l) {
     version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;

@@ -81,7 +81,7 @@ function copy_text(callback) {
     }, 300);
 }
 
-// 自动判断选中搜索还是截图搜索
+// 自动判断选中搜索还是截屏搜索
 function auto_open() {
     copy_text((t) => {
         if (t) {
@@ -194,7 +194,7 @@ app.whenReady().then(() => {
             },
         },
         {
-            label: "截图搜索",
+            label: "截屏搜索",
             click: () => {
                 setTimeout(() => {
                     full_screen();
@@ -308,10 +308,10 @@ app.whenReady().then(() => {
     // 快捷键
     var 快捷键函数 = {
         自动识别: { f: "auto_open()" },
-        截图搜索: { f: "full_screen()" },
+        截屏搜索: { f: "full_screen()" },
         选中搜索: { f: "open_selection()" },
         剪贴板搜索: { f: "open_clip_board()" },
-        快速截图: { f: "quick_clip()" },
+        快速截屏: { f: "quick_clip()" },
         主页面: { f: "create_main_window('index.html', [''])" },
     };
     ipcMain.on("快捷键", (event, arg) => {
@@ -373,7 +373,7 @@ if (process.platform == "win32") {
     the_icon = path.join(run_path, "assets/logo/1024x1024.png");
 }
 
-// 截图窗口
+// 截屏窗口
 /**
  * @type BrowserWindow
  */
@@ -407,7 +407,7 @@ function create_clip_window() {
 
     if (dev) clip_window.webContents.openDevTools();
 
-    // * 监听截图奇奇怪怪的事件
+    // * 监听截屏奇奇怪怪的事件
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
             case "window-close":
@@ -605,7 +605,7 @@ ipcMain.on("setting", async (event, arg) => {
     }
 });
 
-// 菜单栏设置(截图没必要)
+// 菜单栏设置(截屏没必要)
 const isMac = process.platform === "darwin";
 const template = [
     // { role: 'appMenu' }
@@ -1215,14 +1215,14 @@ function get_file_name() {
     var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
     return file_name;
 }
-// 快速截图
+// 快速截屏
 function quick_clip() {
     var x = robot.screen.capture();
     var image = nativeImage.createFromBuffer(Buffer.from(x.image), { width: x.width, height: x.height });
-    if (store.get("快速截图.模式") == "clip") {
+    if (store.get("快速截屏.模式") == "clip") {
         clipboard.writeImage(image);
-    } else if (store.get("快速截图.模式") == "path" && store.get("快速截图.路径")) {
-        var file_name = `${store.get("快速截图.路径")}${get_file_name()}.png`;
+    } else if (store.get("快速截屏.模式") == "path" && store.get("快速截屏.路径")) {
+        var file_name = `${store.get("快速截屏.路径")}${get_file_name()}.png`;
         function check_file(n, name) {
             // 检查文件是否存在于当前目录中。
             fs.access(name, fs.constants.F_OK, (err) => {
@@ -1284,10 +1284,10 @@ var default_setting = {
         自动识别: {
             key: "Alt+C",
         },
-        截图搜索: {},
+        截屏搜索: {},
         选中搜索: {},
         剪贴板搜索: {},
-        快速截图: {},
+        快速截屏: {},
         主页面: {},
     },
     其他快捷键: {},
@@ -1349,7 +1349,7 @@ var default_setting = {
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 0.92,
     框选后默认操作: "no",
-    快速截图: { 模式: "clip", 路径: "" },
+    快速截屏: { 模式: "clip", 路径: "" },
     搜索引擎: [
         ["Google", "https://www.google.com/search?q=%s"],
         ["百度", "https://www.baidu.com/s?wd=%s"],
