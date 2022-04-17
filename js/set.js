@@ -1,6 +1,15 @@
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 const Store = require("electron-store");
+
+document.getElementById("set_default_setting").onclick = () => {
+    if (confirm("将会把所有设置恢复成默认，无法撤销")) {
+        ipcRenderer.send("setting", "set_default_setting");
+        give_up = true;
+        location.reload();
+    }
+};
+
 var store = new Store();
 
 ipcRenderer.send("autostart", "get");
@@ -451,14 +460,6 @@ function save_setting() {
         主窗口跟随子窗口关: document.getElementById("子关主").checked,
     });
 }
-
-document.getElementById("set_default_setting").onclick = () => {
-    if (confirm("将会把所有设置恢复成默认，无法撤销")) {
-        ipcRenderer.send("setting", "set_default_setting");
-        give_up = true;
-        location.reload();
-    }
-};
 
 var path_info = `运行目录：${__dirname}<br>
                 配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>
