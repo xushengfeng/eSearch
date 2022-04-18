@@ -157,7 +157,7 @@ body {
     overflow: hidden;
     cursor: pointer;
     background-color: var(--bar-bg);
-    transition: var(--transition);
+    transition: opacity var(--transition);
     display: flex;
 }
 .edit_h {

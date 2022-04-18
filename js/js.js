@@ -282,6 +282,7 @@ window.onmouseup = (e) => {
         }, 10);
 };
 
+var edit_bar_s = false;
 function show_edit_bar(e) {
     // 简易判断链接并显示按钮
     if (is_link(document.getSelection().toString(), false)) {
@@ -289,6 +290,12 @@ function show_edit_bar(e) {
     } else {
         setTimeout(() => {
             document.querySelector("#link_bar").style.width = "0";
+        }, 400);
+    }
+    if (edit_bar_s && e.button == 2) {
+        document.getElementById("edit_b").style.transition = "var(--transition)";
+        setTimeout(() => {
+            document.getElementById("edit_b").style.transition = "";
         }, 400);
     }
     // 排除没选中
@@ -300,8 +307,10 @@ function show_edit_bar(e) {
         var y = e.clientY < 0 ? 0 : e.clientY;
         document.querySelector("#edit_b").style.left = `${x}px`;
         document.querySelector("#edit_b").style.top = `${y}px`;
+        edit_bar_s = true;
     } else {
         document.querySelector("#edit_b").className = "edit_h";
+        edit_bar_s = false;
     }
 }
 
