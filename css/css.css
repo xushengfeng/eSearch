@@ -169,10 +169,12 @@ body {
     pointer-events: auto;
 }
 #edit_b > div {
-    width: 30px;
     height: 30px;
     font-size: 30px;
     position: relative;
+}
+#edit_b > div:not(:nth-child(1)) {
+    width: 30px;
 }
 #edit_b > div:hover {
     background-color: var(--bar-hover-color);
