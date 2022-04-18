@@ -341,6 +341,9 @@ function mouse_bar(final_rect, x, y) {
         document.getElementById("clip_xy").innerHTML = `(${x}, ${y})`;
     }
 }
+document.getElementById("clip_xy").onclick = () => {
+    copy(document.getElementById("clip_xy"));
+};
 
 // 色彩空间转换
 function color_conversion(rgba, type) {
@@ -396,11 +399,6 @@ function change_right_bar(v) {
             };
         })(element);
     });
-    function copy(e) {
-        clipboard.writeText(e.innerText);
-        right_key = false;
-        change_right_bar(false);
-    }
     if (v) {
         document.querySelector("#point_color").style.height = "0";
         document.querySelector("#clip_copy").className = "clip_copy";
@@ -412,6 +410,16 @@ function change_right_bar(v) {
     }
 }
 change_right_bar(false);
+
+/**
+ * 复制内容
+ * @param {Element} e 要复制内容的元素
+ */
+function copy(e) {
+    clipboard.writeText(e.innerText);
+    right_key = false;
+    change_right_bar(false);
+}
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
