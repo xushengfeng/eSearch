@@ -287,7 +287,9 @@ function show_edit_bar(e) {
     if (is_link(document.getSelection().toString(), false)) {
         document.querySelector("#link_bar").style.width = "30px";
     } else {
-        document.querySelector("#link_bar").style.width = "0";
+        setTimeout(() => {
+            document.querySelector("#link_bar").style.width = "0";
+        }, 400);
     }
     // 排除没选中
     if (document.getSelection().toString() != "" || e.button == 2) {
