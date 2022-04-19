@@ -473,7 +473,12 @@ document.onmousemove = (e) => {
 };
 
 // 工具栏跟随
-var follow_bar_list = [];
+var follow_bar_list = [0, 0, main_canvas.width, main_canvas.height];
+/**
+ * 工具栏自动跟随
+ * @param {number} x x坐标
+ * @param {number} y y坐标
+ */
 function follow_bar(x, y) {
     if (!x && !y) {
         var dx = final_rect_list[final_rect_list.length - 1][0] - final_rect_list[final_rect_list.length - 2][0];
