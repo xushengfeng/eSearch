@@ -709,11 +709,16 @@ function move_rect(o_final_rect, oe, e) {
 }
 
 function his_push(final_rect) {
+    final_rect_list.push(final_rect_list[rect_history_n]);
+    // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
     let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]]; // 防止引用源地址导致后续操作-2个被改变
     final_rect_list.push(final_rect_v);
     rect_history_n = final_rect_list.length - 1;
 }
-
+/**
+ * 更改历史指针
+ * @param {boolean} a true向前 false向后
+ */
 function rect_history(a) {
     if (a) {
         if (final_rect_list[rect_history_n - 1]) {
