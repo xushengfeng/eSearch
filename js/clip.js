@@ -219,58 +219,67 @@ function wh_bar(final_rect) {
     }
     document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
 }
-// 回车更改x1y1 x1y2 wh
-document.querySelector("#x0y0").onkeydown = (e) => {
+
+/**
+ * 更改x0y0 x1y1 wh
+ * @param {string} arg 要改的位置
+ */
+function 更改大小栏(arg) {
+    var l = document.querySelector(`#${arg}`).innerHTML.match(/(\d+)\D+(\d+)/);
+    var d = 光标 == "以(1,1)为起点" ? 1 : 0;
+    if (l != null) {
+        switch (arg) {
+            case "x0y0":
+                final_rect[0] = l[1] - 0 - d;
+                final_rect[1] = l[2] - 0 - d;
+                break;
+            case "x1y1":
+                final_rect[0] = l[1] - 0 - final_rect[2] - d;
+                final_rect[1] = l[2] - 0 - final_rect[3] - d;
+                break;
+            case "wh":
+                final_rect[2] = l[1] - 0;
+                final_rect[3] = l[2] - 0;
+                break;
+        }
+        final_rect_fix();
+        his_push(final_rect);
+        draw_clip_rect();
+        follow_bar();
+    } else {
+        var innerHTML = null;
+        switch (arg) {
+            case "x0y0":
+                innerHTML = `${final_rect[0] + d}, ${final_rect[1] + d}`;
+                break;
+            case "x1y1":
+                innerHTML = `${final_rect[0] + d + final_rect[2]}, ${final_rect[1] + d + final_rect[3]}`;
+                break;
+            case "wh":
+                innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+                break;
+        }
+        document.querySelector(`#${arg}`).innerHTML = innerHTML;
+    }
+}
+document.querySelector("#clip_wh").onkeydown = (e) => {
+    hotkeys.setScope("none");
     if (e.key == "Enter") {
         e.preventDefault();
-        var xy = document.querySelector("#x0y0").innerHTML.match(/(\d+)\D+(\d+)/);
-        d = 光标 == "以(1,1)为起点" ? 1 : 0;
-        if (xy != null) {
-            final_rect[0] = xy[1] - 0 - d;
-            final_rect[1] = xy[2] - 0 - d;
-            final_rect_fix();
-            his_push(final_rect);
-            draw_clip_rect();
-            follow_bar();
-        } else {
-            document.querySelector("#x0y0").innerHTML = `${final_rect[0] + d}, ${final_rect[1] + d}`;
-        }
+        更改大小栏(e.target.id);
     }
 };
-document.querySelector("#x1y1").onkeydown = (e) => {
-    if (e.key == "Enter") {
-        e.preventDefault();
-        var xy = document.querySelector("#x1y1").innerHTML.match(/(\d+)\D+(\d+)/);
-        d = 光标 == "以(1,1)为起点" ? 1 : 0;
-        if (xy != null) {
-            final_rect[0] = xy[1] - 0 - final_rect[2] - d;
-            final_rect[1] = xy[2] - 0 - final_rect[3] - d;
-            final_rect_fix();
-            his_push(final_rect);
-            draw_clip_rect();
-            follow_bar();
-        } else {
-            document.querySelector("#x1y1").innerHTML = `${final_rect[0] + d + final_rect[2]}, ${
-                final_rect[1] + d + final_rect[3]
-            }`;
-        }
-    }
+document.querySelector("#x0y0").onblur = () => {
+    更改大小栏("x0y0");
+    hotkeys.setScope("normal");
 };
-document.querySelector("#wh").onkeydown = (e) => {
-    if (e.key == "Enter") {
-        e.preventDefault();
-        var wh = document.querySelector("#wh").innerHTML.match(/(\d+)\D+(\d+)/);
-        if (wh != null) {
-            final_rect[2] = wh[1] - 0;
-            final_rect[3] = wh[2] - 0;
-            final_rect_fix();
-            his_push(final_rect);
-            draw_clip_rect();
-            follow_bar();
-        } else {
-            document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
-        }
-    }
+document.querySelector("#x1y1").onblur = () => {
+    更改大小栏("x1y1");
+    hotkeys.setScope("normal");
+};
+document.querySelector("#wh").onblur = () => {
+    更改大小栏("wh");
+    hotkeys.setScope("normal");
 };
 
 // 快捷键全屏选择
