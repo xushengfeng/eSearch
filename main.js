@@ -139,7 +139,7 @@ function arg_run(c) {
 }
 
 async function download_ocr(download_path) {
-    var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
+    var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Window.zip", 80], darwin: ["macOS.zip", 300] };
     var resolve = await dialog.showMessageBox({
         title: "服务未下载",
         message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
@@ -157,11 +157,20 @@ async function download_ocr(download_path) {
             console.log("开始下载服务");
             await download(url, download_path, { extract: true });
             console.log("服务下载完成");
-            new Notification({
-                title: app.name,
-                body: `${app.name} 服务已下载`,
-                icon: `${run_path}/assets/logo/64x64.png`,
-            }).show();
+            if (process.platform == "win32") {
+                new Notification({
+                    title: app.name,
+                    body: `${app.name} 服务已下载，正准备安装相关的依赖，请允许安装`,
+                    icon: `${run_path}/assets/logo/64x64.png`,
+                }).show();
+                exec(`cd ${download_path}\\ocr && .\\cp15e.exe`);
+            } else {
+                new Notification({
+                    title: app.name,
+                    body: `${app.name} 服务已下载`,
+                    icon: `${run_path}/assets/logo/64x64.png`,
+                }).show();
+            }
         })();
     } else if (resolve.response == 1) create_main_window("setting.html");
 }
