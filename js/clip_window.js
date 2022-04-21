@@ -313,7 +313,6 @@ function tool_QR_f() {
 // 图片编辑
 drawing = false;
 function tool_draw_f() {
-    add_edit_js();
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
         document.getElementById("tool_draw").className = "hover_b";
@@ -328,6 +327,7 @@ function tool_draw_f() {
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();
     }
+    setTimeout(add_edit_js, 400);
 }
 function add_edit_js() {
     if (document.querySelector("#edit_js")) return;
