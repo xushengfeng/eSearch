@@ -25,7 +25,6 @@ const fs = require("fs");
 const os = require("os");
 const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
-const download = require("download");
 
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -139,6 +138,8 @@ function arg_run(c) {
 }
 
 async function download_ocr(download_path) {
+    const download = require("download");
+
     var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Window.zip", 80], darwin: ["macOS.zip", 300] };
     var resolve = await dialog.showMessageBox({
         title: "服务未下载",
