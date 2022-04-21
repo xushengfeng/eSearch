@@ -63,8 +63,6 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    if (store.get("记录截屏.记录"))
-        add_img([{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }), w, h }]);
 });
 
 function add_img(img_l) {
@@ -75,6 +73,10 @@ function add_img(img_l) {
 }
 
 function show_img_his() {
+    var w = main_canvas.width,
+        h = main_canvas.height;
+    if (store.get("记录截屏.记录"))
+        add_img([{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }), w, h }]);
     var img_store = new Store({ name: "img_history" });
     if (document.getElementById("img_history").innerHTML != "") return;
     var o_l = img_store.get("截屏记录") || {};
