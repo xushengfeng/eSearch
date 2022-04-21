@@ -1,10 +1,7 @@
 // In the renderer process.
-const { ipcRenderer, clipboard, nativeImage, shell } = require("electron");
-const fs = require("fs");
-const jsqr = require("jsqr");
+const { ipcRenderer, clipboard, nativeImage } = require("electron");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
-const os = require("os");
 
 // 获取设置
 store = new Store();
@@ -299,6 +296,7 @@ function tool_search_f() {
 }
 // 二维码
 function tool_QR_f() {
+    const jsqr = require("jsqr");
     get_clip_photo("png").then((c) => {
         var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
         var code = jsqr(imageData.data, imageData.width, imageData.height, {
@@ -335,9 +333,11 @@ function tool_open_f() {
     open_app();
 }
 
-const path = require("path");
-const tmp_photo = path.join(os.tmpdir(), "/eSearch/tmp.png");
 function open_app() {
+    const path = require("path");
+    const os = require("os");
+    const tmp_photo = path.join(os.tmpdir(), "/eSearch/tmp.png");
+    const fs = require("fs");
     get_clip_photo("png").then((c) => {
         f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         dataBuffer = new Buffer(f, "base64");
@@ -398,6 +398,7 @@ function tool_save_f() {
 ipcRenderer.on("save_path", (event, message) => {
     console.log(message);
     if (message) {
+        const fs = require("fs");
         get_clip_photo(type).then((c) => {
             switch (type) {
                 case "svg":
