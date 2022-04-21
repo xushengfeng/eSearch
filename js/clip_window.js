@@ -313,6 +313,7 @@ function tool_QR_f() {
 // 图片编辑
 drawing = false;
 function tool_draw_f() {
+    add_edit_js();
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
         document.getElementById("tool_draw").className = "hover_b";
@@ -327,6 +328,13 @@ function tool_draw_f() {
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();
     }
+}
+function add_edit_js() {
+    if (document.querySelector("#edit_js")) return;
+    var edit = document.createElement("script");
+    edit.src = "js/edit.js";
+    edit.id = "edit_js";
+    document.body.append(edit);
 }
 // 在其他应用打开
 function tool_open_f() {
@@ -437,11 +445,22 @@ function get_clip_photo(type) {
     main_ctx = main_canvas.getContext("2d");
     if (final_rect == "") final_rect = [0, 0, main_canvas.width, main_canvas.height];
 
-    if (type == "svg") {
+    if (typeof fabric_canvas != "undefined") {
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();
+    }
+
+    if (type == "svg") {
         svg = document.createElement("div");
-        svg.innerHTML = fabric_canvas.toSVG();
+        if (typeof fabric_canvas == "undefined") {
+            svg.innerHTML = `<!--?xml version="1.0" encoding="UTF-8" standalone="no" ?-->
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="${main_canvas.width}" height="${main_canvas.height}" viewBox="0 0 1920 1080" xml:space="preserve">
+            <desc>Created with eSearch</desc>
+            </svg>`;
+        } else {
+            svg.innerHTML = fabric_canvas.toSVG();
+            svg.querySelector("desc").innerHTML = "Created with eSearch & Fabric.js";
+        }
         svg.querySelector("svg").setAttribute("viewBox", final_rect.join(" "));
         var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
         image.setAttribute("xlink:href", main_canvas.toDataURL());
@@ -456,23 +475,26 @@ function get_clip_photo(type) {
         tmp_canvas.height = final_rect[3];
         gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
         tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-        fabric_canvas.discardActiveObject();
-        fabric_canvas.renderAll();
         var image = document.createElement("img");
-        image.src = fabric_canvas.toDataURL({
-            left: final_rect[0],
-            top: final_rect[1],
-            width: final_rect[2],
-            height: final_rect[3],
-            format: type,
-        });
-        return new Promise((resolve, rejects) => {
-            image.onload = () => {
-                tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
+        if (typeof fabric_canvas != "undefined") {
+            image.src = fabric_canvas.toDataURL({
+                left: final_rect[0],
+                top: final_rect[1],
+                width: final_rect[2],
+                height: final_rect[3],
+                format: type,
+            });
+            return new Promise((resolve, rejects) => {
+                image.onload = () => {
+                    tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
+                    resolve(tmp_canvas);
+                };
+            });
+        } else {
+            return new Promise((resolve, rejects) => {
                 resolve(tmp_canvas);
-                // tmp_canvas;
-            };
-        });
+            });
+        }
     }
 }
 

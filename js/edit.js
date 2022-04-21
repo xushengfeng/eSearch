@@ -1,4 +1,5 @@
-let fabric_canvas = new fabric.Canvas("draw_photo");
+const { fabric } = require("./lib/fabric.min.js");
+var fabric_canvas = new fabric.Canvas("draw_photo");
 
 // 定义撤销栈
 var undo_stack = [fabric_canvas.toJSON()];
