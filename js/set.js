@@ -337,6 +337,8 @@ document.getElementById("子关主").checked = store.get("关闭窗口.主窗口
 document.getElementById("主窗口失焦").checked = store.get("关闭窗口.失焦.主窗口");
 document.getElementById("搜索窗口失焦").checked = store.get("关闭窗口.失焦.搜索窗口");
 
+document.getElementById("硬件加速").checked = store.get("硬件加速");
+
 document.getElementById("打开config").title = store.path;
 document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
@@ -459,6 +461,7 @@ function save_setting() {
         子窗口跟随主窗口关: document.getElementById("主关子").checked,
         主窗口跟随子窗口关: document.getElementById("子关主").checked,
     });
+    store.set("硬件加速", document.getElementById("硬件加速").checked);
 }
 
 var path_info = `运行目录：${__dirname}<br>

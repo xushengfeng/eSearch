@@ -26,6 +26,8 @@ const os = require("os");
 const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
 
+var store = new Store();
+
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
     dev = false;
@@ -34,6 +36,10 @@ if (app.isPackaged || process.argv.includes("-n")) {
 }
 
 var run_noti = !process.argv.includes("-r");
+
+if (!store.get("硬件加速")) {
+    app.disableHardwareAcceleration();
+}
 
 ipcMain.on("autostart", (event, m, v) => {
     if (m == "set") {
@@ -190,7 +196,6 @@ var contextMenu;
 app.whenReady().then(() => {
     // 初始化设置
     Store.initRenderer();
-    store = new Store();
     // 托盘
     tray =
         process.platform == "linux"
@@ -1403,6 +1408,7 @@ var default_setting = {
         保留次数: 4,
     },
     时间格式: "MM/DD hh:mm:ss",
+    硬件加速: true,
 };
 function set_default_setting() {
     for (i in default_setting) {
