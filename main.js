@@ -35,8 +35,6 @@ if (app.isPackaged || process.argv.includes("-n")) {
     dev = true;
 }
 
-var run_noti = !process.argv.includes("-r");
-
 if (!store.get("硬件加速")) {
     app.disableHardwareAcceleration();
 }
@@ -295,7 +293,7 @@ app.whenReady().then(() => {
     tray.setContextMenu(contextMenu);
 
     // 启动时提示
-    if (first_open && run_noti)
+    if (first_open && store.get("启动提示"))
         new Notification({
             title: app.name,
             body: `${app.name} 已经在后台启动`,
@@ -1295,6 +1293,7 @@ ipcMain.on("theme", (e, v) => {
 // 默认设置
 var default_setting = {
     首次运行: false,
+    启动提示: true,
     快捷键: {
         自动识别: {
             key: "Alt+C",

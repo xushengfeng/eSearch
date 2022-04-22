@@ -20,6 +20,8 @@ document.getElementById("autostart").oninput = () => {
     ipcRenderer.send("autostart", "set", document.getElementById("autostart").checked);
 };
 
+document.getElementById("启动提示").checked = store.get("启动提示");
+
 var 全局 = store.get("全局");
 
 document.getElementById("深色模式").value = store.get("全局.深色模式");
@@ -365,6 +367,7 @@ window.onbeforeunload = () => {
 
 function save_setting() {
     if (give_up) return;
+    store.set("启动提示", document.getElementById("启动提示").checked);
     var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("全局.模糊", 模糊);
     store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);
