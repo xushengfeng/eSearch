@@ -998,6 +998,7 @@ function create_main_window(web_page, t, about) {
             contextIsolation: false,
             enableRemoteModule: true,
         },
+        show: false,
     }));
 
     main_to_search_l[window_name] = [];
@@ -1009,6 +1010,7 @@ function create_main_window(web_page, t, about) {
 
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
+        main_window.show();
         main_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
