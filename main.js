@@ -523,6 +523,7 @@ function create_clip_window() {
 
     var x = robot.screen.capture();
     clip_window.webContents.send("reflash", x.image, x.width, x.height);
+    x = null;
 
     // cil参数启动;
     if (first_open) arg_run(process.argv);
@@ -1260,6 +1261,7 @@ function quick_clip() {
         }
         check_file(1, file_name);
     }
+    x = image = null;
 }
 
 function noti(file_path) {
