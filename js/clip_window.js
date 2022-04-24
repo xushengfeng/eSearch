@@ -220,10 +220,15 @@ hotkeys.filter = (event) => {
 };
 
 hotkeys.setScope("normal");
-hotkeys("esc", "normal", tool_close_f);
-hotkeys("enter", "normal", tool_ocr_f);
-hotkeys("ctrl+s, command+s", tool_save_f);
-hotkeys("ctrl+c, command+c", tool_copy_f);
+hotkeys(store.get("其他快捷键.关闭"), "normal", tool_close_f);
+hotkeys(store.get("其他快捷键.OCR"), "normal", tool_ocr_f);
+hotkeys(store.get("其他快捷键.以图搜图"), "normal", tool_search_f);
+hotkeys(store.get("其他快捷键.QR码"), "normal", tool_QR_f);
+hotkeys(store.get("其他快捷键.图像编辑"), "normal", tool_draw_f);
+hotkeys(store.get("其他快捷键.其他应用打开"), "normal", tool_open_f);
+hotkeys(store.get("其他快捷键.放在屏幕上"), "normal", tool_ding_f);
+hotkeys(store.get("其他快捷键.复制"), "normal", tool_copy_f);
+hotkeys(store.get("其他快捷键.保存"), "normal", tool_save_f);
 
 var auto_do = store.get("框选后默认操作");
 if (auto_do != "no") {
@@ -322,7 +327,7 @@ function tool_draw_f() {
         document.getElementById("tool_draw").className = "hover_b";
         document.getElementById("draw_bar").style.height = "300px";
         document.getElementById("clip_photo").style.pointerEvents = "none";
-        hotkeys.setScope("drawing");
+        // hotkeys.setScope("drawing");
     } else {
         document.getElementById("tool_draw").className = "";
         document.getElementById("draw_bar").style.height = "0";

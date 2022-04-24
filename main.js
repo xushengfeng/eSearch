@@ -1306,7 +1306,17 @@ var default_setting = {
         快速截屏: {},
         主页面: {},
     },
-    其他快捷键: {},
+    其他快捷键: {
+        关闭: "esc",
+        OCR: "enter",
+        以图搜图: "",
+        QR码: "",
+        图像编辑: isMac ? "command+d" : "ctrl+d",
+        其他应用打开: "",
+        放在屏幕上: "",
+        复制: isMac ? "command+c" : "ctrl+c",
+        保存: isMac ? "command+s" : "ctrl+s",
+    },
     全局: {
         模糊: 25,
         缩放: 1,

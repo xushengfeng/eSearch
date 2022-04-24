@@ -24,8 +24,8 @@ function redo() {
     }
 }
 
-hotkeys("ctrl+z", "drawing", undo);
-hotkeys("ctrl+y", "drawing", redo);
+// hotkeys("ctrl+z", "drawing", undo);
+// hotkeys("ctrl+y", "drawing", redo);
 
 var stroke_color = "#333";
 var fill_color = "#fff";
@@ -79,6 +79,7 @@ document.querySelector("#draw_free_pencil").oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor("free");
+    hotkeys.setScope("drawing_esc");
 };
 // 橡皮
 document.querySelector("#draw_free_eraser").oninput = () => {
@@ -94,6 +95,7 @@ document.querySelector("#draw_free_eraser").oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor("eraser");
+    hotkeys.setScope("drawing_esc");
 };
 // 刷
 document.querySelector("#draw_free_spray").oninput = () => {
@@ -110,6 +112,7 @@ document.querySelector("#draw_free_spray").oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor("spray");
+    hotkeys.setScope("drawing_esc");
 };
 // 阴影
 document.querySelector("#shadow_blur > range-b").oninput = free_shadow;
@@ -158,6 +161,7 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
     exit_free();
     exit_filter();
     fabric_canvas.defaultCursor = "crosshair";
+    hotkeys.setScope("drawing_esc");
 };
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
@@ -178,7 +182,7 @@ document.getElementById("draw_position_i").onclick = (e) => {
 };
 
 // 删除快捷键
-hotkeys("delete", "drawing", () => {
+hotkeys("delete", () => {
     for (o of fabric_canvas.getActiveObject()._objects || [fabric_canvas.getActiveObject()]) {
         fabric_canvas.remove(o);
     }
@@ -605,6 +609,7 @@ document.querySelector("#draw_filters_select > lock-b").oninput = () => {
     exit_shape();
     new_filter_selecting = true;
     fabric_canvas.defaultCursor = "crosshair";
+    hotkeys.setScope("drawing_esc");
 };
 
 function apply_filter(i, filter) {
@@ -841,10 +846,11 @@ function exit_filter() {
     document.querySelector("#draw_filters_select > lock-b").checked = false;
     fabric_canvas.defaultCursor = "auto";
 }
-hotkeys("esc", "drawing", () => {
+hotkeys("esc", "drawing_esc", () => {
     exit_free();
     exit_shape();
     exit_filter();
+    hotkeys.setScope("normal");
 });
 
 // fabric命令行
