@@ -263,7 +263,6 @@ function 更改大小栏(arg) {
     }
 }
 document.querySelector("#clip_wh").onkeydown = (e) => {
-    hotkeys.setScope("none");
     if (e.key == "Enter") {
         e.preventDefault();
         更改大小栏(e.target.id);
@@ -271,15 +270,12 @@ document.querySelector("#clip_wh").onkeydown = (e) => {
 };
 document.querySelector("#x0y0").onblur = () => {
     更改大小栏("x0y0");
-    hotkeys.setScope("normal");
 };
 document.querySelector("#x1y1").onblur = () => {
     更改大小栏("x1y1");
-    hotkeys.setScope("normal");
 };
 document.querySelector("#wh").onblur = () => {
     更改大小栏("wh");
-    hotkeys.setScope("normal");
 };
 
 // 快捷键全屏选择

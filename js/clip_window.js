@@ -213,10 +213,10 @@ tool_bar.onmouseup = (e) => {
 
 hotkeys.filter = (event) => {
     var tagName = (event.target || event.srcElement).tagName;
-    return (
-        !(tagName.isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA") ||
-        event.target === document.querySelector("#draw_edit input")
-    );
+    var v =
+        !(event.target.isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA") ||
+        event.target === document.querySelector("#draw_edit input");
+    return v;
 };
 
 hotkeys.setScope("normal");
