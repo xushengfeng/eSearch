@@ -73,6 +73,17 @@ ipcRenderer.on("状态", (event, name, arg) => {
     document.querySelector(`hot-keys[name=${name}]`).t = arg;
 });
 
+var 其他快捷键 = store.get("其他快捷键");
+document.querySelector(`hot-keys[name="关闭"]`).value = 其他快捷键.关闭;
+document.querySelector(`hot-keys[name="OCR(文字识别)"]`).value = 其他快捷键.OCR;
+document.querySelector(`hot-keys[name="以图搜图"]`).value = 其他快捷键.以图搜图;
+document.querySelector(`hot-keys[name="QR码"]`).value = 其他快捷键.QR码;
+document.querySelector(`hot-keys[name="图像编辑"]`).value = 其他快捷键.图像编辑;
+document.querySelector(`hot-keys[name="其他应用打开"]`).value = 其他快捷键.其他应用打开;
+document.querySelector(`hot-keys[name="放在屏幕上"]`).value = 其他快捷键.放在屏幕上;
+document.querySelector(`hot-keys[name="复制"]`).value = 其他快捷键.复制;
+document.querySelector(`hot-keys[name="保存"]`).value = 其他快捷键.保存;
+
 选择器储存("工具栏跟随", "展示内容优先");
 选择器储存("光标", "以(1,1)为起点");
 选择器储存("取色器默认格式", "HEX");
@@ -368,6 +379,17 @@ window.onbeforeunload = () => {
 function save_setting() {
     if (give_up) return;
     store.set("启动提示", document.getElementById("启动提示").checked);
+    store.set("其他快捷键", {
+        关闭: document.querySelector(`hot-keys[name="关闭"]`).value,
+        OCR: document.querySelector(`hot-keys[name="OCR(文字识别)"]`).value,
+        以图搜图: document.querySelector(`hot-keys[name="以图搜图"]`).value,
+        QR码: document.querySelector(`hot-keys[name="QR码"]`).value,
+        图像编辑: document.querySelector(`hot-keys[name="图像编辑"]`).value,
+        其他应用打开: document.querySelector(`hot-keys[name="其他应用打开"]`).value,
+        放在屏幕上: document.querySelector(`hot-keys[name="放在屏幕上"]`).value,
+        复制: document.querySelector(`hot-keys[name="复制"]`).value,
+        保存: document.querySelector(`hot-keys[name="保存"]`).value,
+    });
     var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("全局.模糊", 模糊);
     store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);
