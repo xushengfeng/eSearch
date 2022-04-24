@@ -107,7 +107,7 @@ function open_clip_board() {
 }
 
 // cil参数重复启动;
-first_open = true;
+var first_open = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
     first_open = false;
@@ -189,7 +189,7 @@ async function rm_r() {
     }
 }
 
-var contextMenu;
+var contextMenu, tray;
 
 app.whenReady().then(() => {
     // 初始化设置
@@ -495,7 +495,7 @@ function create_clip_window() {
                 break;
             case "ok_save":
                 noti(arg);
-                save_path = arg.split("/");
+                var save_path = arg.split("/");
                 save_path.pop();
                 store.set("保存路径", save_path.join("/") + "/");
                 break;
@@ -891,7 +891,8 @@ const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
 // ding窗口
-ding_windows_l = { dock: [0, 0, 10, 50] };
+var ding_windows_l = { dock: [0, 0, 10, 50] };
+var ding_window;
 function create_ding_window(x, y, w, h, img) {
     if (Object.keys(ding_windows_l).length == 1) {
         ding_window = new BrowserWindow({
@@ -948,7 +949,7 @@ function create_ding_window(x, y, w, h, img) {
         var ratio = screen.getPrimaryDisplay().scaleFactor;
         var in_window = 0;
         for (i in Object.values(ding_windows_l)) {
-            ii = Object.values(ding_windows_l)[i];
+            let ii = Object.values(ding_windows_l)[i];
             // 如果光标在某个窗口上，不穿透
             var x2 = ii[0] + ii[2],
                 y2 = ii[1] + ii[3];
@@ -1250,7 +1251,7 @@ function quick_clip() {
 }
 
 function noti(file_path) {
-    notification = new Notification({
+    var notification = new Notification({
         title: `${app.name} 保存图像成功`,
         body: `已保存图像到 ${file_path}`,
         icon: `${run_path}/assets/logo/64x64.png`,
