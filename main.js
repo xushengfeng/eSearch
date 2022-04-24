@@ -537,7 +537,6 @@ function full_screen() {
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
     x = null;
-    port = store.get("端口");
 }
 
 function n_full_screen() {
@@ -980,7 +979,6 @@ var main_window_l = {};
  * @type {Object.<number, number>}
  */
 var main_to_search_l = {};
-var main_window_focus;
 function create_main_window(web_page, t, about) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主窗口大小");
@@ -1031,7 +1029,6 @@ function create_main_window(web_page, t, about) {
     var 失焦关闭 = false;
     main_window.on("closed", () => {
         delete main_window_l[window_name];
-        main_window_focus = null;
 
         if (store.get("关闭窗口.子窗口跟随主窗口关") && !失焦关闭) {
             var search_l = [...main_to_search_l[window_name]];
@@ -1041,11 +1038,7 @@ function create_main_window(web_page, t, about) {
         }
     });
 
-    main_window.on("focus", () => {
-        main_window_focus = main_window;
-    });
     main_window.on("blur", () => {
-        main_window_focus = null;
         if (store.get("关闭窗口.失焦.主窗口")) {
             失焦关闭 = true;
             main_window.close();
@@ -1079,10 +1072,6 @@ function main_edit(window, m) {
     window.webContents.send("edit", m);
 }
 
-/**
- * @type BrowserWindow
- */
-var focused_search_window = null;
 /**
  * @type {Object.<number, BrowserWindow>}
  */
@@ -1158,14 +1147,10 @@ async function create_browser(window_name, url) {
         });
     }
 
-    search_window.on("focus", () => {
-        focused_search_window = search_window;
-    });
     var 失焦关闭 = false;
     search_window.webContents.on("did-finish-load", () => {
         new_browser_view(url);
         search_window.on("blur", () => {
-            focused_search_window = null;
             if (store.get("关闭窗口.失焦.搜索窗口")) {
                 失焦关闭 = true;
                 search_window.close();
