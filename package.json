@@ -45,8 +45,13 @@
     },
     "asar": false,
     "icon": "./assets/logo",
-    "linux":{
-        "category": "Utility"
+    "linux": {
+        "category": "Utility",
+        "target": [
+          "tar.gz",
+          "deb",
+          "rpm"
+      ]
     }
   }
 }
