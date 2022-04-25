@@ -6,5 +6,4 @@ eSearch
 .VSCodeCounter/
 ocr/ppocr/ocr
 .DS_Store
-lib/robotjs/build
-lib/robotjs/bin
+build
