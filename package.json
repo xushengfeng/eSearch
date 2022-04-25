@@ -41,17 +41,25 @@
   "build": {
     "appId": "com.esearch.app",
     "directories": {
-        "output": "build"
+      "output": "build"
     },
     "asar": false,
     "icon": "./assets/logo",
     "linux": {
-        "category": "Utility",
-        "target": [
-          "tar.gz",
-          "deb",
-          "rpm"
+      "category": "Utility",
+      "target": [
+        "tar.gz",
+        "deb",
+        "rpm"
       ]
+    },
+    "win": {
+      "icon": "./assets/logo/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }
