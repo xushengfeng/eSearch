@@ -42,10 +42,28 @@
         "tar.gz",
         "deb",
         "rpm"
+      ],
+      "files": [
+        "!.vscode",
+        "!.github"
+      ]
+    },
+    "mac": {
+      "files": [
+        "!lib/gtk-open-with",
+        "!lib/kde-open-with",
+        "!.vscode",
+        "!.github"
       ]
     },
     "win": {
-      "icon": "./assets/logo/icon.ico"
+      "icon": "./assets/logo/icon.ico",
+      "files": [
+        "!lib/gtk-open-with",
+        "!lib/kde-open-with",
+        "!.vscode",
+        "!.github"
+      ]
     },
     "nsis": {
       "oneClick": false,
