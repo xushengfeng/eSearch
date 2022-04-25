@@ -36,6 +36,9 @@
     },
     "asar": false,
     "icon": "./assets/logo",
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
     "linux": {
       "category": "Utility",
       "target": [
