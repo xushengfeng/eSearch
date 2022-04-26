@@ -4,13 +4,14 @@ const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
 
 // 获取设置
-store = new Store();
+var store = new Store();
+var 工具栏跟随, 光标, 四角坐标, 遮罩颜色, 选区颜色, 取色器默认格式, 取色器格式位置, color_size, color_i_size;
+var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 function set_setting() {
     工具栏跟随 = store.get("工具栏跟随");
     光标 = store.get("光标");
     四角坐标 = store.get("显示四角坐标");
     取色器默认格式 = store.get("取色器默认格式");
-    all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
     for (let i in all_color_format) {
         if (取色器默认格式 == all_color_format[i]) {
             取色器格式位置 = i - 0 + 1;
@@ -20,11 +21,11 @@ function set_setting() {
     遮罩颜色 = store.get("遮罩颜色");
     选区颜色 = store.get("选区颜色");
 
-    字体 = store.get("字体");
+    var 字体 = store.get("字体");
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
-    模糊 = store.get("全局.模糊");
+    var 模糊 = store.get("全局.模糊");
     if (模糊 != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     } else {
@@ -40,7 +41,7 @@ function set_setting() {
     document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
 }
 
-全局缩放 = store.get("全局缩放") || 1.0;
+var 全局缩放 = store.get("全局缩放") || 1.0;
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width / 全局缩放 + "px";
 const clip_canvas = document.getElementById("clip_photo");
@@ -51,7 +52,7 @@ draw_canvas.style.width = window.screen.width / 全局缩放 + "px";
 main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
 
-final_rect = xywh = [0, 0, main_canvas.width, main_canvas.height];
+var final_rect = [0, 0, main_canvas.width, main_canvas.height];
 
 set_setting();
 ipcRenderer.on("reflash", (a, x, w, h) => {
@@ -60,7 +61,7 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     for (let i = 0; i < x.length; i += 4) {
         [x[i], x[i + 2]] = [x[i + 2], x[i]];
     }
-    d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     // 防止阻塞main_canvas显示
@@ -86,7 +87,7 @@ function show_img_his() {
         var s_l = Object.keys(o_l).sort();
         s_l = s_l.splice(-store.get("记录截屏.保留次数"));
         var oo_l = {};
-        for (i of s_l) {
+        for (let i of s_l) {
             oo_l[i] = o_l[i];
         }
         o_l = oo_l;
@@ -97,7 +98,7 @@ function show_img_his() {
         div.innerHTML = '<button><img src="./assets/icons/close.svg" class="icon"></button>';
         var f = require("./lib/time_format");
         div.title = f(store.get("时间格式"), new Date(j - 0));
-        for (k of o_l[j]) {
+        for (let k of o_l[j]) {
             let img = document.createElement("img");
             img.src = k.src;
             div.append(img);
@@ -119,27 +120,6 @@ function show_img_his() {
     }
     img_store.set("截屏记录", o_l);
     o_l = null;
-}
-
-function draw_windows_bar(o) {
-    内容 = "";
-    for (i in o) {
-        内容 += `<div class="window" id="${
-            o[i].id
-        }"><div class="window_name"><p class="window_title"><img src="assets/screen.svg" class="window_icon">屏幕${
-            i - 0 + 1
-        }</p></div><div id="window_photo" ><img src="${o[
-            i
-        ].thumbnail.toDataURL()}" class="window_thumbnail"></div></div>`;
-    }
-    document.getElementById("windows_bar").innerHTML = 内容;
-    for (i in o) {
-        (function (n) {
-            document.getElementById(o[n].id).addEventListener("click", () => {
-                get_desktop_capturer(n);
-            });
-        })(i);
-    }
 }
 
 // 左边窗口工具栏弹出
@@ -172,16 +152,16 @@ function s_center_bar(m) {
     }
     if (m === false) center_bar_show = false;
     if (center_bar_show) {
-        document.getElementById("save_type").style.height = 0;
-        document.getElementById("draw_edit").style.height = 0;
-        document.getElementById("save_type").style.width = 0;
-        document.getElementById("draw_edit").style.width = 0;
-        document.getElementById("center_bar").style.opacity = 1;
+        document.getElementById("save_type").style.height = "0";
+        document.getElementById("draw_edit").style.height = "0";
+        document.getElementById("save_type").style.width = "0";
+        document.getElementById("draw_edit").style.width = "0";
+        document.getElementById("center_bar").style.opacity = "1";
         document.getElementById("center_bar").style.pointerEvents = "auto";
         if (hotkeys.getScope() != "all") b_scope = hotkeys.getScope();
         hotkeys.setScope("c_bar");
     } else {
-        document.getElementById("center_bar").style.opacity = 0;
+        document.getElementById("center_bar").style.opacity = "0";
         document.getElementById("center_bar").style.pointerEvents = "none";
         hotkeys.setScope(b_scope || "normal");
     }
@@ -200,13 +180,14 @@ function s_center_bar(m) {
 var tool_bar = document.getElementById("tool_bar");
 // 工具栏按钮
 tool_bar.onmouseup = (e) => {
+    var el = e.target;
     if (e.button == 0) {
         // * 拼接函数名
-        eval(`${e.target.id}_f()`);
+        eval(`${el.id}_f()`);
     }
     // 中键取消抬起操作
     if (e.button == 1) {
-        e.target.style.backgroundColor = "";
+        el.style.backgroundColor = "";
         auto_do = "no";
     }
 };
@@ -244,23 +225,24 @@ function tool_close_f() {
     }, 50);
 }
 // OCR
-document.getElementById("ocr引擎").value = store.get("OCR.记住") || store.get("OCR.类型");
+var ocr引擎 = document.getElementById("ocr引擎");
+ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
 document.getElementById("ocr引擎").oninput = () => {
-    if (store.get("OCR.记住")) store.set("OCR.记住", document.getElementById("ocr引擎").value);
+    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
     tool_ocr_f();
 };
-document.getElementById("tool_ocr").title = `OCR(文字识别) - ${document.getElementById("ocr引擎").value}`;
+document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
 function tool_ocr_f() {
-    var type = document.getElementById("ocr引擎").value;
+    var type = ocr引擎.value;
     get_clip_photo("png").then((c) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
-    document.querySelector("#waiting").style.display = "block";
-    document.querySelector("#waiting").style.left = final_rect[0] + "px";
-    document.querySelector("#waiting").style.top = final_rect[1] + "px";
-    document.querySelector("#waiting").style.width = final_rect[2] + "px";
-    document.querySelector("#waiting").style.height = final_rect[3] + "px";
+    document.getElementById("waiting").style.display = "block";
+    document.getElementById("waiting").style.left = final_rect[0] + "px";
+    document.getElementById("waiting").style.top = final_rect[1] + "px";
+    document.getElementById("waiting").style.width = final_rect[2] + "px";
+    document.getElementById("waiting").style.height = final_rect[3] + "px";
     document.querySelectorAll("#waiting line animate")[0].beginElement();
     document.querySelectorAll("#waiting line animate")[1].beginElement();
 
@@ -274,23 +256,24 @@ function tool_ocr_f() {
     });
 }
 // 以图搜图
-document.getElementById("识图引擎").value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
-document.getElementById("识图引擎").oninput = () => {
-    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", document.getElementById("识图引擎").value);
+var 识图引擎 = document.getElementById("识图引擎");
+识图引擎.value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
+识图引擎.oninput = () => {
+    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.value);
     tool_search_f();
 };
-document.getElementById("tool_search").title = `以图搜图 - ${document.getElementById("识图引擎").value}`;
+document.getElementById("tool_search").title = `以图搜图 - ${识图引擎.value}`;
 function tool_search_f() {
-    var type = document.getElementById("识图引擎").value;
+    var type = 识图引擎.value;
     get_clip_photo("png").then((c) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
-    document.querySelector("#waiting").style.display = "block";
-    document.querySelector("#waiting").style.left = final_rect[0] + "px";
-    document.querySelector("#waiting").style.top = final_rect[1] + "px";
-    document.querySelector("#waiting").style.width = final_rect[2] + "px";
-    document.querySelector("#waiting").style.height = final_rect[3] + "px";
+    document.getElementById("waiting").style.display = "block";
+    document.getElementById("waiting").style.left = final_rect[0] + "px";
+    document.getElementById("waiting").style.top = final_rect[1] + "px";
+    document.getElementById("waiting").style.width = final_rect[2] + "px";
+    document.getElementById("waiting").style.height = final_rect[3] + "px";
     document.querySelectorAll("#waiting line animate")[0].beginElement();
     document.querySelectorAll("#waiting line animate")[1].beginElement();
 
@@ -320,7 +303,7 @@ function tool_QR_f() {
     });
 }
 // 图片编辑
-drawing = false;
+var drawing = false;
 function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
@@ -355,8 +338,8 @@ function open_app() {
     const tmp_photo = path.join(os.tmpdir(), "/eSearch/tmp.png");
     const fs = require("fs");
     get_clip_photo("png").then((c) => {
-        f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-        dataBuffer = new Buffer(f, "base64");
+        var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+        var dataBuffer = new Buffer(f, "base64");
         fs.writeFile(tmp_photo, dataBuffer, () => {
             var open = require("./lib/open_with");
             open(tmp_photo);
@@ -365,7 +348,7 @@ function open_app() {
 }
 // 钉在屏幕上
 function tool_ding_f() {
-    ding_window_setting = final_rect;
+    var ding_window_setting = final_rect;
     get_clip_photo("png").then((c) => {
         ding_window_setting[4] = c.toDataURL();
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
@@ -385,9 +368,10 @@ function tool_save_f() {
     s_center_bar("save");
     document.querySelectorAll("#suffix > div")[0].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
-        if (e.target.dataset.value) {
-            ipcRenderer.send("clip_main_b", "save", e.target.dataset.value);
-            type = e.target.dataset.value;
+        var el = e.target;
+        if (el.dataset.value) {
+            ipcRenderer.send("clip_main_b", "save", el.dataset.value);
+            type = el.dataset.value;
             s_center_bar("save");
         }
     };
@@ -449,9 +433,14 @@ ipcRenderer.on("save_path", (event, message) => {
     }
 });
 var svg;
+/**
+ * 获取选区图像
+ * @param {string} type 格式
+ * @returns promise svg base64|canvas element
+ */
 function get_clip_photo(type) {
-    main_ctx = main_canvas.getContext("2d");
-    if (final_rect == "") final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    var main_ctx = main_canvas.getContext("2d");
+    if (!final_rect) final_rect = [0, 0, main_canvas.width, main_canvas.height];
 
     if (typeof fabric_canvas != "undefined") {
         fabric_canvas.discardActiveObject();
@@ -470,10 +459,10 @@ function get_clip_photo(type) {
             svg.querySelector("desc").innerHTML = "Created with eSearch & Fabric.js";
         }
         svg.querySelector("svg").setAttribute("viewBox", final_rect.join(" "));
-        var image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        let image = document.createElementNS("http://www.w3.org/2000/svg", "image");
         image.setAttribute("xlink:href", main_canvas.toDataURL());
         svg.querySelector("svg").insertBefore(image, svg.querySelector("svg").firstChild);
-        svg_t = new XMLSerializer().serializeToString(svg.querySelector("svg"));
+        var svg_t = new XMLSerializer().serializeToString(svg.querySelector("svg"));
         return new Promise((resolve, rejects) => {
             resolve(svg_t);
         });
@@ -481,9 +470,9 @@ function get_clip_photo(type) {
         var tmp_canvas = document.createElement("canvas");
         tmp_canvas.width = final_rect[2];
         tmp_canvas.height = final_rect[3];
-        gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
+        var gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
         tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-        var image = document.createElement("img");
+        let image = document.createElement("img");
         if (typeof fabric_canvas != "undefined") {
             image.src = fabric_canvas.toDataURL({
                 left: final_rect[0],
