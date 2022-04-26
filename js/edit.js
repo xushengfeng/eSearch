@@ -865,3 +865,33 @@ document.getElementById("draw_edit_clear").onclick = () => {
     document.getElementById("draw_edit_output").innerHTML = "";
     document.getElementById("draw_edit_output").style.margin = "";
 };
+
+var fabric_clipboard;
+function copy() {
+    fabric_canvas.getActiveObject().clone(function (cloned) {
+        fabric_clipboard = cloned;
+    });
+    fabric_clipboard.clone(function (clonedObj) {
+        fabric_canvas.discardActiveObject();
+        clonedObj.set({
+            left: clonedObj.left + 10,
+            top: clonedObj.top + 10,
+            evented: true,
+        });
+        if (clonedObj.type === "activeSelection") {
+            clonedObj.fabric_canvas = fabric_canvas;
+            clonedObj.forEachObject(function (obj) {
+                fabric_canvas.add(obj);
+            });
+            clonedObj.setCoords();
+        } else {
+            fabric_canvas.add(clonedObj);
+        }
+        fabric_clipboard.top += 10;
+        fabric_clipboard.left += 10;
+        fabric_canvas.setActiveObject(clonedObj);
+        fabric_canvas.requestRenderAll();
+    });
+    stack_add();
+}
+hotkeys("Ctrl+v", "normal", copy);
