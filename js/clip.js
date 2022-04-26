@@ -6,8 +6,8 @@ ipcRenderer.on("reflash", () => {
     }, 0);
     right_key = false;
     change_right_bar(false);
-    final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
-    rect_history_n = 0;
+    undo_stack = [[0, 0, main_canvas.width, main_canvas.height]];
+    undo_stack_i = 0;
     ratio = window.devicePixelRatio;
     document.querySelector("#mouse_bar").style.display = "flex";
 });
@@ -64,8 +64,8 @@ var the_color = null;
 var the_text_color = [null, null];
 clip_ctx = clip_canvas.getContext("2d");
 draw_bar = document.getElementById("draw_bar");
-var final_rect_list = [[0, 0, main_canvas.width, main_canvas.height]];
-var rect_history_n = 0;
+var undo_stack = [[0, 0, main_canvas.width, main_canvas.height]];
+var undo_stack_i = 0;
 var ratio = window.devicePixelRatio;
 
 clip_canvas.onmousedown = (e) => {
@@ -477,8 +477,8 @@ var follow_bar_list = [0, 0, main_canvas.width, main_canvas.height];
  */
 function follow_bar(x, y) {
     if (!x && !y) {
-        var dx = final_rect_list[final_rect_list.length - 1][0] - final_rect_list[final_rect_list.length - 2][0];
-        var dy = final_rect_list[final_rect_list.length - 1][1] - final_rect_list[final_rect_list.length - 2][1];
+        var dx = undo_stack[undo_stack.length - 1][0] - undo_stack[undo_stack.length - 2][0];
+        var dy = undo_stack[undo_stack.length - 1][1] - undo_stack[undo_stack.length - 2][1];
         x = follow_bar_list[follow_bar_list.length - 1][0] + dx / ratio;
         y = follow_bar_list[follow_bar_list.length - 1][1] + dy / ratio;
     }
@@ -705,35 +705,39 @@ function move_rect(o_final_rect, oe, e) {
 }
 
 function his_push(final_rect) {
-    final_rect_list.push(final_rect_list[rect_history_n]);
+    undo_stack.push(undo_stack[undo_stack_i]);
     // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
     let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]]; // 防止引用源地址导致后续操作-2个被改变
-    final_rect_list.push(final_rect_v);
-    rect_history_n = final_rect_list.length - 1;
+    undo_stack.push(final_rect_v);
+    undo_stack_i = undo_stack.length - 1;
 }
 /**
  * 更改历史指针
  * @param {boolean} a true向前 false向后
  */
-function rect_history(a) {
-    if (a) {
-        if (final_rect_list[rect_history_n - 1]) {
-            final_rect = final_rect_list[rect_history_n - 1];
-            rect_history_n -= 1;
+function undo(v) {
+    if (v) {
+        if (undo_stack_i > 0) {
+            undo_stack_i--;
         }
     } else {
-        if (final_rect_list[rect_history_n + 1]) {
-            final_rect = final_rect_list[rect_history_n + 1];
-            rect_history_n += 1;
+        if (undo_stack_i < undo_stack.length - 1) {
+            undo_stack_i++;
         }
     }
-    draw_clip_rect();
-    follow_bar();
+    var c = undo_stack[undo_stack_i];
+    if (Array.isArray(c)) {
+        final_rect = c;
+        draw_clip_rect();
+        follow_bar();
+    } else {
+        fabric_canvas.loadFromJSON(c);
+    }
 }
 
 hotkeys("ctrl+z", "normal", () => {
-    rect_history(true);
+    undo(true);
 });
 hotkeys("ctrl+y", "normal", () => {
-    rect_history(false);
+    undo(false);
 });

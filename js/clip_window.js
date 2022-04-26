@@ -327,7 +327,6 @@ function tool_draw_f() {
         document.getElementById("tool_draw").className = "hover_b";
         document.getElementById("draw_bar").style.height = "300px";
         document.getElementById("clip_photo").style.pointerEvents = "none";
-        // hotkeys.setScope("drawing");
     } else {
         document.getElementById("tool_draw").className = "";
         document.getElementById("draw_bar").style.height = "0";

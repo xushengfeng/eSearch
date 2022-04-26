@@ -2,30 +2,13 @@ const { fabric } = require("./lib/fabric.min.js");
 var fabric_canvas = new fabric.Canvas("draw_photo");
 
 // 定义撤销栈
-var undo_stack = [fabric_canvas.toJSON()];
-// 定义位置
-var undo_stack_i = 0;
+stack_add();
 function stack_add() {
     // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
     if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
     undo_stack.push(fabric_canvas.toJSON());
     undo_stack_i = undo_stack.length - 1;
 }
-function undo() {
-    if (undo_stack_i > 0) {
-        undo_stack_i--;
-        fabric_canvas.loadFromJSON(undo_stack[undo_stack_i]);
-    }
-}
-function redo() {
-    if (undo_stack_i < undo_stack.length - 1) {
-        undo_stack_i++;
-        fabric_canvas.loadFromJSON(undo_stack[undo_stack_i]);
-    }
-}
-
-// hotkeys("ctrl+z", "drawing", undo);
-// hotkeys("ctrl+y", "drawing", redo);
 
 var stroke_color = "#333";
 var fill_color = "#fff";
@@ -79,7 +62,6 @@ document.querySelector("#draw_free_pencil").oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor("free");
-    hotkeys.setScope("drawing_esc");
 };
 // 橡皮
 document.querySelector("#draw_free_eraser").oninput = () => {
@@ -95,7 +77,6 @@ document.querySelector("#draw_free_eraser").oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor("eraser");
-    hotkeys.setScope("drawing_esc");
 };
 // 刷
 document.querySelector("#draw_free_spray").oninput = () => {
@@ -112,7 +93,6 @@ document.querySelector("#draw_free_spray").oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor("spray");
-    hotkeys.setScope("drawing_esc");
 };
 // 阴影
 document.querySelector("#shadow_blur > range-b").oninput = free_shadow;
@@ -241,6 +221,7 @@ fabric_canvas.on("mouse:up", (options) => {
             stack_add();
         }
         shape = "";
+        hotkeys.setScope("normal");
     }
 
     get_f_object_v();
@@ -253,6 +234,7 @@ fabric_canvas.on("mouse:up", (options) => {
         fabric_canvas.defaultCursor = "auto";
         get_filters();
         stack_add();
+        hotkeys.setScope("normal");
     }
 
     if (fabric_canvas.isDrawingMode) {
