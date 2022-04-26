@@ -15,10 +15,10 @@
   "homepage": "https://xushengfeng.github.io/eSearch-website/",
   "license": "GPL-3.0",
   "dependencies": {
-    "color": "^4.2.0",
+    "color": "^4.2.3",
     "download": "^8.0.0",
     "electron-store": "^8.0.1",
-    "hotkeys-js": "^3.8.7",
+    "hotkeys-js": "^3.9.0",
     "jsqr": "^1.4.0",
     "robotjs": "^0.6.0"
   },
@@ -26,7 +26,7 @@
     "electron": "^18.1.0",
     "electron-builder": "^23.0.3",
     "electron-rebuild": "^3.2.7",
-    "node-abi": "^3.8.0"
+    "node-abi": "^3.15.0"
   },
   "rebuild": "npm rebuild --runtime=electron --target=18.1.0 --disturl=https://atom.io/download/atom-shell --abi=103",
   "build": {
