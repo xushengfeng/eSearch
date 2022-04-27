@@ -160,8 +160,19 @@ async function download_ocr(download_path) {
         }`;
         (async () => {
             console.log("开始下载服务");
-            await download(url, download_path, { extract: true });
-            console.log("服务下载完成");
+            let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0 });
+            dialog.showMessageBox(win, { title: "下载", message: "正在下载中……", buttons: ["后台下载"] });
+            await download(url, download_path, { extract: true }).on("response", (res) => {
+                var download_len = 0;
+                res.on("data", function (chunk) {
+                    download_len += chunk.length;
+                    var p = download_len / res.headers["content-length"];
+                    win.setProgressBar(p);
+                    if (p == 1) {
+                        console.log("服务下载完成，解压中");
+                    }
+                });
+            });
             if (process.platform == "win32") {
                 new Notification({
                     title: app.name,
