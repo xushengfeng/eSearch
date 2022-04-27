@@ -40,10 +40,10 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
     // 输入为边框像素坐标
     // 为了让canvas获取全屏，边框像素点要包括
     // 像素坐标转为点坐标后,左和上(小的)是不变的,大的少1
-    x1 = Math.min(o_x1, o_x2);
-    y1 = Math.min(o_y1, o_y2);
-    x2 = Math.max(o_x1, o_x2) + 1;
-    y2 = Math.max(o_y1, o_y2) + 1;
+    var x1 = Math.min(o_x1, o_x2);
+    var y1 = Math.min(o_y1, o_y2);
+    var x2 = Math.max(o_x1, o_x2) + 1;
+    var y2 = Math.max(o_y1, o_y2) + 1;
     // canvas缩放变换
     x1 = Math.round(canvas.width * (x1 / canvas.offsetWidth));
     y1 = Math.round(canvas.height * (y1 / canvas.offsetHeight));
@@ -52,21 +52,23 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
     return [x1, y1, x2 - x1, y2 - y1];
 }
 
-selecting = false;
-right_key = false;
-o_position = "";
-canvas_rect = "";
-in_rect = false;
-moving = false;
-oe = "";
-o_final_rect = "";
+var selecting = false;
+var right_key = false;
+var o_position = "";
+var canvas_rect = "";
+var in_rect = false;
+var moving = false;
+var oe = "";
+var o_final_rect = "";
 var the_color = null;
 var the_text_color = [null, null];
-clip_ctx = clip_canvas.getContext("2d");
-draw_bar = document.getElementById("draw_bar");
+var clip_ctx = clip_canvas.getContext("2d");
+var draw_bar = document.getElementById("draw_bar");
 var undo_stack = [[0, 0, main_canvas.width, main_canvas.height]];
 var undo_stack_i = 0;
 var ratio = window.devicePixelRatio;
+var now_canvas_position;
+var direction;
 
 clip_canvas.onmousedown = (e) => {
     o = true;
@@ -124,7 +126,7 @@ clip_canvas.onmouseup = (e) => {
         clip_ctx.closePath();
         selecting = false;
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-        final_rect = xywh = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         draw_clip_rect();
         his_push(final_rect);
         // 抬起鼠标后工具栏跟随
@@ -178,8 +180,8 @@ function draw_clip_rect() {
 // 大小栏
 function wh_bar(final_rect) {
     // 位置
-    dw = document.querySelector("#clip_wh").offsetWidth;
-    dh = document.querySelector("#clip_wh").offsetHeight;
+    var dw = document.querySelector("#clip_wh").offsetWidth,
+        dh = document.querySelector("#clip_wh").offsetHeight;
     var x;
     if (dw >= final_rect[2] / ratio) {
         if (dw + final_rect[0] <= main_canvas.offsetWidth) {
@@ -205,7 +207,7 @@ function wh_bar(final_rect) {
     document.querySelector("#clip_wh").style.top = `${y / ratio}px`;
     // 大小文字
     if (四角坐标) {
-        var x0, y0, x1, y1;
+        var x0, y0, x1, y1, d;
         d = 光标 == "以(1,1)为起点" ? 1 : 0;
         x0 = final_rect[0] + d;
         y0 = final_rect[1] + d;
@@ -288,7 +290,7 @@ hotkeys("ctrl+a, command+a", () => {
 });
 
 // 生成取色器
-inner_html = "";
+var inner_html = "";
 for (i = 1; i <= color_size ** 2; i++) {
     if (i == (color_size ** 2 + 1) / 2) {
         // 光标中心点
@@ -541,8 +543,8 @@ function follow_bar(x, y) {
 }
 
 // 移动画画栏
-draw_bar_moving = false;
-draw_bar_moving_xy = [];
+var draw_bar_moving = false;
+var draw_bar_moving_xy = [];
 document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
     if (e.button != 0) {
         draw_bar_moving = true;
@@ -566,10 +568,10 @@ function final_rect_fix() {
     var y0 = final_rect[1];
     var x1 = final_rect[0] + final_rect[2];
     var y1 = final_rect[1] + final_rect[3];
-    x = Math.min(x0, x1);
-    y = Math.min(y0, y1);
-    w = Math.max(x0, x1) - x;
-    h = Math.max(y0, y1) - y;
+    var x = Math.min(x0, x1),
+        y = Math.min(y0, y1);
+    var w = Math.max(x0, x1) - x,
+        h = Math.max(y0, y1) - y;
     // 移出去移回来保持原来大小
     if (x < 0) w = x = 0;
     if (y < 0) h = y = 0;
@@ -584,12 +586,12 @@ function final_rect_fix() {
 // 定义光标位置的移动方向
 function is_in_clip_rect(event) {
     now_canvas_position = p_xy_to_c_xy(clip_canvas, event.offsetX, event.offsetY, event.offsetX, event.offsetY);
-    x = now_canvas_position[0];
-    y = now_canvas_position[1];
-    x0 = final_rect[0];
-    x1 = final_rect[0] + final_rect[2];
-    y0 = final_rect[1];
-    y1 = final_rect[1] + final_rect[3];
+    var x = now_canvas_position[0],
+        y = now_canvas_position[1];
+    var x0 = final_rect[0],
+        x1 = final_rect[0] + final_rect[2],
+        y0 = final_rect[1],
+        y1 = final_rect[1] + final_rect[3];
     // 如果全屏,那允许框选
     if (!(final_rect[2] == main_canvas.width && final_rect[3] == main_canvas.height)) {
         if (x0 <= x && x <= x1 && y0 <= y && y <= y1) {
@@ -658,8 +660,8 @@ function is_in_clip_rect(event) {
 function move_rect(o_final_rect, oe, e) {
     var op = p_xy_to_c_xy(clip_canvas, oe.offsetX, oe.offsetY, oe.offsetX, oe.offsetY);
     var p = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-    dx = p[0] - op[0];
-    dy = p[1] - op[1];
+    var dx = p[0] - op[0],
+        dy = p[1] - op[1];
     switch (direction) {
         case "西北":
             final_rect = [o_final_rect[0] + dx, o_final_rect[1] + dy, o_final_rect[2] - dx, o_final_rect[3] - dy];
