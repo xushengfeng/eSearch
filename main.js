@@ -161,7 +161,7 @@ async function download_ocr(download_path, dal) {
         }`;
         (async () => {
             console.log("开始下载服务");
-            let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0 });
+            let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
             new Notification({
                 title: app.name,
                 body: `${app.name} 服务正在下载中……`,
@@ -172,7 +172,10 @@ async function download_ocr(download_path, dal) {
                 res.on("data", function (chunk) {
                     download_len += chunk.length;
                     var p = download_len / res.headers["content-length"];
-                    if (!win.isDestroyed()) win.setProgressBar(p);
+                    if (!win.isDestroyed()) {
+                        win.setProgressBar(p);
+                        win.setTitle(`${Math.round(p * 100)}%`);
+                    }
                     if (p == 1) console.log("服务下载完成，解压中");
                 });
             });
