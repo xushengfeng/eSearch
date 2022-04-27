@@ -144,7 +144,7 @@ function arg_run(c) {
 async function download_ocr(download_path) {
     const download = require("download");
 
-    var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Window.zip", 80], darwin: ["macOS.zip", 300] };
+    var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
     var resolve = await dialog.showMessageBox({
         title: "服务未下载",
         message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
