@@ -141,20 +141,21 @@ function arg_run(c) {
     }
 }
 
-async function download_ocr(download_path) {
+async function download_ocr(download_path, dal) {
     const download = require("download");
 
     var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
-    var resolve = await dialog.showMessageBox({
-        title: "服务未下载",
-        message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
-        checkboxLabel: "不再提示",
-        buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
-        defaultId: 0,
-        cancelId: 2,
-    });
-    if (resolve.checkboxChecked) store.set("OCR.检查OCR", false);
-    if (resolve.response == 0) {
+    if (!dal)
+        var resolve = await dialog.showMessageBox({
+            title: "服务未下载",
+            message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
+            checkboxLabel: "不再提示",
+            buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
+            defaultId: 0,
+            cancelId: 2,
+        });
+    if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
+    if (dal || resolve.response == 0) {
         var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/${
             file_o[process.platform][0]
         }`;
@@ -171,10 +172,8 @@ async function download_ocr(download_path) {
                 res.on("data", function (chunk) {
                     download_len += chunk.length;
                     var p = download_len / res.headers["content-length"];
-                    win.setProgressBar(p);
-                    if (p == 1) {
-                        console.log("服务下载完成，解压中");
-                    }
+                    if (!win.isDestroyed()) win.setProgressBar(p);
+                    if (p == 1) console.log("服务下载完成，解压中");
                 });
             });
             win.close();
@@ -611,7 +610,7 @@ ipcMain.on("setting", async (event, arg) => {
             tray.setContextMenu(contextMenu);
             break;
         case "下载离线OCR":
-            download_ocr(app.getPath("userData"));
+            download_ocr(app.getPath("userData"), true);
             break;
         case "删除离线OCR":
             rm_r();
