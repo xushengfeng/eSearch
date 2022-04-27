@@ -161,7 +161,11 @@ async function download_ocr(download_path) {
         (async () => {
             console.log("开始下载服务");
             let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0 });
-            dialog.showMessageBox(win, { title: "下载", message: "正在下载中……", buttons: ["后台下载"] });
+            new Notification({
+                title: app.name,
+                body: `${app.name} 服务正在下载中……`,
+                icon: `${run_path}/assets/logo/64x64.png`,
+            }).show();
             await download(url, download_path, { extract: true }).on("response", (res) => {
                 var download_len = 0;
                 res.on("data", function (chunk) {
@@ -173,6 +177,7 @@ async function download_ocr(download_path) {
                     }
                 });
             });
+            win.close();
             if (process.platform == "win32") {
                 new Notification({
                     title: app.name,
