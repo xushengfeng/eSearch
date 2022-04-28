@@ -28,6 +28,7 @@ const img_search = require("./lib/image_search");
 
 var store = new Store();
 
+var dev;
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
     dev = false;
@@ -171,7 +172,7 @@ async function download_ocr(download_path, dal) {
                 var download_len = 0;
                 res.on("data", function (chunk) {
                     download_len += chunk.length;
-                    var p = download_len / res.headers["content-length"];
+                    var p = download_len / Number(res.headers["content-length"]);
                     if (!win.isDestroyed()) {
                         win.setProgressBar(p);
                         win.setTitle(`${Math.round(p * 100)}%`);
@@ -364,8 +365,8 @@ app.whenReady().then(() => {
         }
     });
 
-    var 快捷键 = store.get("快捷键");
-    for (k in 快捷键) {
+    var /**@type {Object} */ 快捷键 = store.get("快捷键");
+    for (let k in 快捷键) {
         var m = 快捷键[k];
         try {
             if (m.key)
@@ -427,7 +428,6 @@ function create_clip_window() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            enableRemoteModule: true,
         },
     });
 
@@ -927,7 +927,6 @@ function create_ding_window(x, y, w, h, img) {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
-                enableRemoteModule: true,
             },
         });
 
@@ -966,7 +965,7 @@ function create_ding_window(x, y, w, h, img) {
         var n_xy = screen.getCursorScreenPoint();
         var ratio = screen.getPrimaryDisplay().scaleFactor;
         var in_window = 0;
-        for (i in Object.values(ding_windows_l)) {
+        for (let i in Object.values(ding_windows_l)) {
             let ii = Object.values(ding_windows_l)[i];
             // 如果光标在某个窗口上，不穿透
             var x2 = ii[0] + ii[2],
@@ -995,7 +994,7 @@ function create_ding_window(x, y, w, h, img) {
  */
 var main_window_l = {};
 /**
- * @type {Object.<number, number>}
+ * @type {Object.<number, Array.<number>>}
  */
 var main_to_search_l = {};
 function create_main_window(web_page, t, about) {
@@ -1014,7 +1013,6 @@ function create_main_window(web_page, t, about) {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            enableRemoteModule: true,
         },
         show: false,
     }));
@@ -1051,7 +1049,7 @@ function create_main_window(web_page, t, about) {
 
         if (store.get("关闭窗口.子窗口跟随主窗口关") && !失焦关闭) {
             var search_l = [...main_to_search_l[window_name]];
-            for (i of search_l) {
+            for (let i of search_l) {
                 search_window_l[i].close();
             }
         }
@@ -1092,7 +1090,7 @@ function main_edit(window, m) {
 }
 
 /**
- * @type {Object.<number, BrowserWindow>}
+ * @type {Object.<number, BrowserWindow | BrowserView>}
  */
 var search_window_l = {};
 ipcMain.on("open_url", (event, window_name, url) => {
@@ -1104,7 +1102,6 @@ async function create_browser(window_name, url) {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            enableRemoteModule: true,
         },
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         icon: the_icon,
@@ -1119,7 +1116,7 @@ async function create_browser(window_name, url) {
     search_window.on("resize", () => {
         var w = search_window.getBounds().width,
             h = search_window.getBounds().height;
-        for (i of search_window.getBrowserViews()) {
+        for (let i of search_window.getBrowserViews()) {
             i.setBounds({ x: 0, y: 30, width: w, height: h - 30 });
             if (search_window.isMaximized() || search_window.isFullScreen()) {
                 search_window.setSize(
@@ -1182,14 +1179,14 @@ async function create_browser(window_name, url) {
 
     function close_win() {
         var views = search_window.getBrowserViews();
-        for (i of views) {
+        for (let i of views) {
             search_window.removeBrowserView(i);
         }
         if (!window_name) return;
         // 清除列表中的索引
-        for (i in main_to_search_l[window_name]) {
+        for (let i in main_to_search_l[window_name]) {
             if (main_to_search_l[window_name][i] == win_name) {
-                main_to_search_l[window_name].splice(i, 1);
+                main_to_search_l[window_name].splice(Number(i), 1);
             }
         }
         // 自动关闭
@@ -1428,7 +1425,7 @@ var default_setting = {
     硬件加速: true,
 };
 function set_default_setting() {
-    for (i in default_setting) {
+    for (let i in default_setting) {
         store.set(i, default_setting[i]);
     }
 }

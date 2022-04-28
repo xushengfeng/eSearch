@@ -43,10 +43,10 @@ function new_tab(pid, id, url) {
 function close_tab(li, pid, id) {
     ipcRenderer.send("tab_view", pid, id, "close");
     var l = document.querySelectorAll("li");
-    for (i in l) {
+    for (let i in l) {
         if (l[i] === li && document.querySelector(".tab_focus") === li) {
             // 模板排除
-            if (i == l.length - 2) {
+            if (Number(i) == l.length - 2) {
                 focus_tab(l[l.length - 3]);
             } else {
                 focus_tab(l[i + 1]);
@@ -58,14 +58,14 @@ function close_tab(li, pid, id) {
 
 function focus_tab(li) {
     var l = document.querySelectorAll("li");
-    for (i of l) {
+    for (let i of l) {
         if (i === li) {
             i.classList.add("tab_focus");
         } else {
             i.classList.remove("tab_focus");
         }
     }
-    for (j in li_list) {
+    for (let j in li_list) {
         if (li_list[j] === li) {
             li_list.splice(j, 1);
             li_list.push(li);
@@ -118,7 +118,7 @@ function open_in_browser() {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
     if (store.get("搜索窗口自动关闭")) {
-        id = document.querySelector(".tab_focus").id.replace("id", "");
+        var id = document.querySelector(".tab_focus").id.replace("id", "");
         close_tab(document.querySelector(".tab_focus"), pid, id);
     }
 }

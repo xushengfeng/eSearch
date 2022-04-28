@@ -3,9 +3,8 @@ const hotkeys = require("hotkeys-js");
 const fs = require("fs");
 const os = require("os");
 
-window_name = "";
-t = "";
-type = "";
+var window_name = "",
+    t = "";
 ipcRenderer.on("text", (event, name, list) => {
     window_name = name;
 
@@ -13,9 +12,9 @@ ipcRenderer.on("text", (event, name, list) => {
     show_t(t);
 });
 
-自动搜索 = store.get("自动搜索");
-自动打开链接 = store.get("自动打开链接");
-自动搜索中文占比 = store.get("自动搜索中文占比");
+var 自动搜索 = store.get("自动搜索"),
+    自动打开链接 = store.get("自动打开链接"),
+    自动搜索中文占比 = store.get("自动搜索中文占比");
 
 // 判断链接
 function is_link(url, s) {
@@ -45,7 +44,7 @@ var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     var now_time = new Date().getTime();
     var d_time = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
-    for (i of Object.keys(history_list)) {
+    for (var i of Object.keys(history_list)) {
         if (now_time - i > d_time) {
             history_store.delete(`历史记录.${i}`);
         }
@@ -71,7 +70,7 @@ function show_t(t) {
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
     } else {
-        language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
+        var language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
         if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
             if (language == "本地语言") {
                 open_link("search");
@@ -86,14 +85,12 @@ function show_t(t) {
     stack_add();
 }
 
-搜索引擎_list = store.get("搜索引擎");
+var 搜索引擎_list = store.get("搜索引擎"),
+    翻译引擎_list = store.get("翻译引擎"),
+    引擎 = store.get("引擎");
 
-翻译引擎_list = store.get("翻译引擎");
-
-var 引擎 = store.get("引擎");
-
-search_c = "";
-for (i in 搜索引擎_list) {
+var search_c = "";
+for (let i in 搜索引擎_list) {
     search_c += `<option ${
         引擎.记住
             ? 引擎.记住[0] == 搜索引擎_list[i][0]
@@ -105,8 +102,8 @@ for (i in 搜索引擎_list) {
     } value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0]}</option>`;
 }
 document.querySelector("#search_s").innerHTML = search_c;
-translate_c = "";
-for (i in 翻译引擎_list) {
+var translate_c = "";
+for (let i in 翻译引擎_list) {
     translate_c += `<option ${
         引擎.记住
             ? 引擎.记住[1] == 翻译引擎_list[i][0]
@@ -119,7 +116,7 @@ for (i in 翻译引擎_list) {
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
 
-浏览器打开 = store.get("浏览器中打开");
+var 浏览器打开 = store.get("浏览器中打开");
 if (浏览器打开) document.querySelector("#browser").className = "hover_b2";
 
 document.querySelector("#browser").onclick = () => {
@@ -155,13 +152,13 @@ function open_link(id, link) {
         if (link.match(/\/\//g) == null) {
             link = "https://" + link;
         }
-        url = link;
+        var url = link;
     } else {
-        s = // 要么全部，要么选中
+        var s = // 要么全部，要么选中
             document.getSelection().toString() == ""
                 ? document.getElementById("text").innerText
                 : document.getSelection().toString();
-        url = document.querySelector(`#${id}_s`).value.replace("%s", encodeURIComponent(s));
+        var url = document.querySelector(`#${id}_s`).value.replace("%s", encodeURIComponent(s));
     }
     if (浏览器打开) {
         shell.openExternal(url);
@@ -172,7 +169,7 @@ function open_link(id, link) {
 
 // 历史记录
 // 历史记录界面
-history_showed = false;
+var history_showed = false;
 document.querySelector("#history_b").onclick = show_history;
 // html转义
 function html_to_text(html) {
@@ -198,7 +195,7 @@ function show_history() {
 }
 function render_history() {
     var n = {};
-    for (i of Object.keys(history_list).sort()) {
+    for (let i of Object.keys(history_list).sort()) {
         n[i] = history_list[i];
     }
     history_list = n;
@@ -242,7 +239,7 @@ function render_history() {
 if (t == "") render_history();
 
 function old_his_to_new() {
-    for (i of store.get("历史记录")) {
+    for (let i of store.get("历史记录")) {
         history_store.set(`历史记录.${i.time}`, { text: i.text });
         history_list[i.time] = { text: i.text };
     }
@@ -348,7 +345,7 @@ document.querySelector("#edit_b").onmousedown = (e) => {
 // 自动删除换行
 function delete_enter() {
     if (document.getSelection().toString() == "") {
-        var text = document.getElementById("text").innerText;
+        let text = document.getElementById("text").innerText;
         document.getElementById("text").innerText = p(text);
     } else {
         // 选择会选择整行
@@ -356,11 +353,11 @@ function delete_enter() {
         var sel_f = document.getSelection().focusNode;
         if (sel_a.id == "text" || sel_f.id == "text") return; /* 禁止选择换行符 */
         var node_l = document.getElementById("text").childNodes;
-        var text = document.createElement("span"),
+        let text = document.createElement("span"),
             s,
             e;
         // 区分谁先谁后
-        for (i = 0; i < node_l.length; i++) {
+        for (let i = 0; i < node_l.length; i++) {
             if (node_l[i] === sel_a) s = i;
             if (node_l[i] === sel_f) e = i;
         }
@@ -368,7 +365,7 @@ function delete_enter() {
             [s, e] = [e, s];
             [sel_a, sel_f] = [sel_f, sel_a];
         }
-        for (j = s; j <= e; j++) {
+        for (let j = s; j <= e; j++) {
             text.appendChild(node_l[j].cloneNode());
         }
         // 选择整行
@@ -686,7 +683,7 @@ function edit_on_other() {
                     document.getElementById("text").innerText = data;
                 });
             });
-            document.getElementById("text").contentEditable = false;
+            document.getElementById("text").contentEditable = "false";
             document.getElementById("text_out").style.cursor = "auto";
             document.getElementById("text_out").title = "正在外部编辑中，双击退出";
             document.addEventListener("dblclick", () => {
@@ -697,7 +694,7 @@ function edit_on_other() {
         data = null;
     } else {
         try {
-            document.getElementById("text").contentEditable = true;
+            document.getElementById("text").contentEditable = "true";
             document.getElementById("text_out").style.cursor = "text";
             document.getElementById("text_out").title = "";
             document.removeEventListener("dblclick", () => {
@@ -795,7 +792,7 @@ function line_num() {
         num_t = "1";
         num = 1;
     }
-    for (i = 0; i < list.length; i++) {
+    for (let i = 0; i < list.length; i++) {
         var div = document.createElement("div");
         list[i].before(div);
         new_top = div.offsetTop - 24;

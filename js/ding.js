@@ -7,7 +7,7 @@ var urls = {};
 ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
-    var div = document.createElement("div");
+    let div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
     div.style.left = x / ratio + "px";
@@ -141,9 +141,10 @@ function ding_p_s(id, p_s) {
 }
 
 // 最高窗口
-toppest = 1;
-
-window_div = null;
+var toppest = 1;
+var o_ps;
+var window_div = null;
+var div;
 document.onmousedown = (e) => {
     if (e.target.id == "dock" || e.target.offsetParent.id == "dock") {
         if (!dock_show) {
@@ -199,7 +200,7 @@ document.onmouseup = (e) => {
     ipcRenderer.send("ding_ignore", true);
 };
 
-direction = "";
+var direction = "";
 function cursor(el, e) {
     var width = el.offsetWidth,
         height = el.offsetHeight;
@@ -299,19 +300,19 @@ function cursor(el, e) {
                 p_s = [ox + ow - w, oy, w, h];
                 break;
             case "西":
-                r = (ow - dx) / ow;
+                var r = (ow - dx) / ow;
                 p_s = [ox + dx, oy, ow - dx, oh * r];
                 break;
             case "东":
-                r = (ow + dx) / ow;
+                var r = (ow + dx) / ow;
                 p_s = [ox, oy, ow + dx, oh * r];
                 break;
             case "北":
-                r = (o_ps[3] - dy) / oh;
+                var r = (o_ps[3] - dy) / oh;
                 p_s = [ox, oy + dy, ow * r, oh - dy];
                 break;
             case "南":
-                r = (o_ps[3] + dy) / oh;
+                var r = (o_ps[3] + dy) / oh;
                 p_s = [ox, oy, ow * r, oh + dy];
                 break;
             case "move":
@@ -383,13 +384,13 @@ function resize(el, zoom) {
     }
 }
 
-dock_p = store.get("ding_dock");
+var dock_p = store.get("ding_dock");
 document.querySelector("#dock").style.left = dock_p[0] + "px";
 document.querySelector("#dock").style.top = dock_p[1] + "px";
 ding_p_s("dock", [dock_p[0], dock_p[1], 10, 50]);
 
-dock_show = false;
-dock_p_s = [];
+var dock_show = false;
+var dock_p_s = [];
 document.querySelector("#dock").onclick = () => {
     var dock = document.querySelector("#dock");
     dock_show = !dock_show;
@@ -416,7 +417,7 @@ document.querySelector("#dock").onclick = () => {
 // 刷新dock
 function dock_i() {
     document.querySelector("#dock > div").innerHTML = "";
-    for (o in urls) {
+    for (let o in urls) {
         (function (i) {
             var dock_item = document.querySelector("#dock_item").cloneNode(true);
             dock_item.style.display = "block";

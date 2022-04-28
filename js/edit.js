@@ -34,7 +34,7 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             document.querySelectorAll("#draw_side > div").forEach((ei) => {
                 ei.style.height = "0";
             });
-            h = 0;
+            var h = 0;
             Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
                 h += e.offsetHeight;
             });
@@ -61,7 +61,7 @@ document.querySelector("#draw_free_pencil").oninput = () => {
     }
     exit_shape();
     exit_filter();
-    free_draw_cursor("free");
+    free_draw_cursor();
 };
 // 橡皮
 document.querySelector("#draw_free_eraser").oninput = () => {
@@ -76,7 +76,7 @@ document.querySelector("#draw_free_eraser").oninput = () => {
     }
     exit_shape();
     exit_filter();
-    free_draw_cursor("eraser");
+    free_draw_cursor();
 };
 // 刷
 document.querySelector("#draw_free_spray").oninput = () => {
@@ -92,7 +92,7 @@ document.querySelector("#draw_free_spray").oninput = () => {
     }
     exit_shape();
     exit_filter();
-    free_draw_cursor("spray");
+    free_draw_cursor();
 };
 // 阴影
 document.querySelector("#shadow_blur > range-b").oninput = free_shadow;
@@ -163,7 +163,7 @@ document.getElementById("draw_position_i").onclick = (e) => {
 
 // 删除快捷键
 hotkeys("delete", () => {
-    for (o of fabric_canvas.getActiveObject()._objects || [fabric_canvas.getActiveObject()]) {
+    for (let o of fabric_canvas.getActiveObject()._objects || [fabric_canvas.getActiveObject()]) {
         fabric_canvas.remove(o);
     }
     get_f_object_v();
@@ -357,16 +357,16 @@ function change_alpha(v, m) {
 // 刷新控件颜色
 /**
  * 改变颜色
- * @param {{fill:String, stroke:String}} m_l
+ * @param {{fill?: String, stroke?: String}} m_l
  * @param {Boolean} set_o 是否改变选中形状样式
  * @param {Boolean} text 是否更改文字，仅在input时为true
  */
 function change_color(m_l, set_o, text) {
-    for (i in m_l) {
+    for (let i in m_l) {
         var color_m = i,
             color = m_l[i];
         if (color === null) color = "#0000";
-        color_l = Color(color).rgb().array();
+        var color_l = Color(color).rgb().array();
         document.querySelector(`#draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
         if (color_m == "fill") {
             document.querySelector("#draw_color > div").style.backgroundColor = Color(color_l).string();
@@ -406,27 +406,27 @@ function color_bar() {
     // 主盘
     var color_list = ["hsl(0, 0%, 100%)"];
     var base_color = Color("hsl(0, 100%, 50%)");
-    for (i = 0; i < 360; i += 15) {
+    for (let i = 0; i < 360; i += 15) {
         color_list.push(base_color.rotate(i).string());
     }
     show_color();
     // 下一层级
     function next_color(h) {
-        next_color_list = [];
+        var next_color_list = [];
         if (h == "hsl(0, 0%, 100%)") {
-            for (i = 255; i >= 0; i = (i - 10.625).toFixed(3)) {
+            for (let i = 255; i >= 0; i = Number((i - 10.625).toFixed(3))) {
                 next_color_list.push(`rgb(${i}, ${i}, ${i})`);
             }
         } else {
             h = h.match(/hsl\(([0-9]*)/)[1] - 0;
-            for (i = 90; i > 0; i -= 20) {
-                for (j = 100; j > 0; j -= 20) {
+            for (let i = 90; i > 0; i -= 20) {
+                for (let j = 100; j > 0; j -= 20) {
                     next_color_list.push(`hsl(${h}, ${j}%, ${i}%)`);
                 }
             }
         }
         var tt = "";
-        for (n in next_color_list) {
+        for (let n in next_color_list) {
             tt += `<div class="color_i" style="background-color: ${next_color_list[n]}" title="${color_conversion(
                 next_color_list[n],
                 取色器默认格式
@@ -447,9 +447,9 @@ function color_bar() {
     }
     function show_color() {
         var t = "";
-        for (x in color_list) {
-            t += `<div class="color_i" style="background-color: ${color_list[x]}" title="${color_conversion(
-                color_list[x],
+        for (let x of color_list) {
+            t += `<div class="color_i" style="background-color: ${x}" title="${color_conversion(
+                x,
                 取色器默认格式
             )}"></div>`;
         }
@@ -485,7 +485,7 @@ function get_f_object_v() {
         var n = fabric_canvas.getActiveObject();
         if (n._objects) {
             // 当线与形一起选中，确保形不会透明
-            for (i of n._objects) {
+            for (let i of n._objects) {
                 if (i.canChangeFill) n = i;
             }
         }
@@ -506,7 +506,7 @@ function get_f_object_v() {
 }
 /**
  * 更改全局或选中形状的颜色
- * @param {Srting} fill 填充颜色
+ * @param {String} fill 填充颜色
  * @param {String} stroke 边框颜色
  * @param {Number} strokeWidth 边框宽度
  */
@@ -643,12 +643,12 @@ function get_filters() {
 function s_h_filters_div(v) {
     var l = document.querySelectorAll("#draw_filters_i > div");
     if (v) {
-        for (i = 1; i < l.length; i++) {
+        for (let i = 1; i < l.length; i++) {
             l[i].style.pointerEvents = "none";
             l[i].style.opacity = 0.2;
         }
     } else {
-        for (i = 1; i < l.length; i++) {
+        for (let i = 1; i < l.length; i++) {
             l[i].style.pointerEvents = "auto";
             l[i].style.opacity = 1;
         }
