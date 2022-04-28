@@ -362,9 +362,6 @@ function change_alpha(v, m) {
  * @param {Boolean} text 是否更改文字，仅在input时为true
  */
 function change_color(m_l, set_o, text) {
-    var n =
-        (fabric_canvas.getActiveObject() !== null && fabric_canvas.getActiveObject()?._objects === undefined) ||
-        (fabric_canvas.getActiveObject()?._objects || []).length == 1;
     for (i in m_l) {
         var color_m = i,
             color = m_l[i];
@@ -372,12 +369,12 @@ function change_color(m_l, set_o, text) {
         color_l = Color(color).rgb().array();
         document.querySelector(`#draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
         if (color_m == "fill") {
-            if (set_o) document.querySelector("#draw_color > div").style.backgroundColor = Color(color_l).string();
-            set_f_object_v(Color(color_l).string(), null, null);
+            document.querySelector("#draw_color > div").style.backgroundColor = Color(color_l).string();
+            if (set_o) set_f_object_v(Color(color_l).string(), null, null);
         }
         if (color_m == "stroke") {
-            if (set_o) document.querySelector("#draw_color > div").style.borderColor = Color(color_l).string();
-            set_f_object_v(null, Color(color_l).string(), null);
+            document.querySelector("#draw_color > div").style.borderColor = Color(color_l).string();
+            if (set_o) set_f_object_v(null, Color(color_l).string(), null);
         }
 
         // 文字自适应
