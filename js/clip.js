@@ -227,21 +227,26 @@ function wh_bar(final_rect) {
  * @param {string} arg 要改的位置
  */
 function 更改大小栏(arg) {
-    var l = document.querySelector(`#${arg}`).innerHTML.match(/(\d+)\D+(\d+)/);
+    var l = document.querySelector(`#${arg}`).innerHTML.split(/[,×]/);
+    l = l.map((string) => {
+        // 排除（数字运算符空格）之外的非法输入
+        if (string.match(/[\d\+\-*/\.\s\(\)]/g).length != string.length) return null;
+        return eval(string);
+    });
     var d = 光标 == "以(1,1)为起点" ? 1 : 0;
     if (l != null) {
         switch (arg) {
             case "x0y0":
-                final_rect[0] = l[1] - 0 - d;
-                final_rect[1] = l[2] - 0 - d;
+                final_rect[0] = l[0] - 0 - d;
+                final_rect[1] = l[1] - 0 - d;
                 break;
             case "x1y1":
-                final_rect[0] = l[1] - 0 - final_rect[2] - d;
-                final_rect[1] = l[2] - 0 - final_rect[3] - d;
+                final_rect[0] = l[0] - 0 - final_rect[2] - d;
+                final_rect[1] = l[1] - 0 - final_rect[3] - d;
                 break;
             case "wh":
-                final_rect[2] = l[1] - 0;
-                final_rect[3] = l[2] - 0;
+                final_rect[2] = l[0] - 0;
+                final_rect[3] = l[1] - 0;
                 break;
         }
         final_rect_fix();
@@ -564,6 +569,7 @@ document.getElementById("draw_bar").addEventListener("mouseup", (e) => {
 // 修复final_rect负数
 // 超出屏幕处理
 function final_rect_fix() {
+    final_rect = final_rect.map((i) => Math.round(i));
     var x0 = final_rect[0];
     var y0 = final_rect[1];
     var x1 = final_rect[0] + final_rect[2];
