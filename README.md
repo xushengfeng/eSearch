@@ -43,9 +43,10 @@ git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
 # 运行
-npm start
+npx electron .
 # 编译
-npm run make
+npm run rebuild
+npm run dist
 ```
 
 ## 启动
