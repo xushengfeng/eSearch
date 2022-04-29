@@ -300,11 +300,12 @@ function tool_QR_f() {
 }
 // 图片编辑
 var drawing = false;
+var draw_bar_height = 360;
 function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
     if (drawing) {
         document.getElementById("tool_draw").className = "hover_b";
-        document.getElementById("draw_bar").style.height = "300px";
+        document.getElementById("draw_bar").style.height = `${draw_bar_height}px`;
         document.getElementById("clip_photo").style.pointerEvents = "none";
     } else {
         document.getElementById("tool_draw").className = "";

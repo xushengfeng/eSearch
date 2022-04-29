@@ -756,3 +756,16 @@ hotkeys("ctrl+z", "normal", () => {
 hotkeys("ctrl+y", "normal", () => {
     undo(false);
 });
+
+document.getElementById("操作_撤回").onclick = () => {
+    undo(true);
+};
+document.getElementById("操作_重做").onclick = () => {
+    undo(false);
+};
+document.getElementById("操作_复制").onclick = () => {
+    fabric_copy();
+};
+document.getElementById("操作_删除").onclick = () => {
+    fabric_delete();
+};

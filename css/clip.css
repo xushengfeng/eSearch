@@ -268,9 +268,6 @@ body {
     height: 0px;
     box-shadow: var(--shadow);
     display: flex;
-    font-size: 42px;
-    text-align: center;
-    line-height: 60px;
 }
 #draw_bar > div {
     width: 60px;
@@ -305,6 +302,16 @@ body {
 .draw_items {
     transition: var(--transition);
     overflow: scroll;
+}
+#draw_操作 {
+    display: grid;
+    grid-template-columns: 30px 30px;
+    grid-template-rows: 30px 30px;
+    overflow: hidden;
+}
+#draw_操作 > div:hover {
+    background-color: var(--hover-color);
+    transition: var(--transition);
 }
 
 #main_photo,

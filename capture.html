@@ -13,13 +13,16 @@
 </head>
 
 <body>
+    <!-- 侧栏 -->
     <div id="windows_bar">
         <button id="windows_bar_close"><img src="./assets/icons/close.svg" class="icon"></button>
         <div id="screens"></div>
         <div id="img_history"></div>
     </div>
 
+    <!-- 居中弹窗 -->
     <div id="center_bar">
+        <!-- 保存栏 -->
         <div id="save_type">
             <div>保存文件格式为</div>
             <div name="文件格式" id="suffix">
@@ -28,6 +31,7 @@
                 <div data-value="svg" title="可编辑类型">svg</div>
             </div>
         </div>
+        <!-- 编辑命令行 -->
         <div id="draw_edit">
             <input type="text" name="" id="" spellcheck="false" placeholder="$0是选中元素，基于Fabric.js API">
             <button id="draw_edit_run" title="运行命令"><img src="./assets/icons/command.svg" class="icon"></button>
@@ -36,6 +40,7 @@
         </div>
     </div>
 
+    <!-- 工具栏 -->
     <div id="tool_bar">
         <div id="tool_close" title="关闭"><img src="./assets/icons/close.svg" class="icon"></div>
         <div id="tool_ocr" title="OCR(文字识别)">
@@ -62,7 +67,9 @@
         <div id="tool_copy" title="复制"><img src="./assets/icons/copy.svg" class="icon"></div>
         <div id="tool_save" title="保存"><img src="./assets/icons/save.svg" class="icon"></div>
     </div>
+    <!-- 编辑栏 -->
     <div id="draw_bar">
+        <!-- 左侧主按钮 -->
         <div id="draw_main">
             <div id="draw_free" title="自由绘画"><img src="./assets/icons/free_draw.svg" class="icon"></div>
             <div id="draw_shapes" title="形状和文字"><img src="./assets/icons/shapes.svg" class="icon"></div>
@@ -70,9 +77,16 @@
             <div id="draw_color" title="颜色和大小">
                 <div></div>
             </div>
-            <div id="draw_position"><img src="./assets/icons/position.svg" class="icon"></div>
+            <div id="draw_position" title="层叠高度"><img src="./assets/icons/position.svg" class="icon"></div>
+            <div id="draw_操作">
+                <div id="操作_撤回" title="撤回"></div>
+                <div id="操作_重做" title="重做"></div>
+                <div id="操作_复制" title="复制"></div>
+                <div id="操作_删除" title="删除"></div>
+            </div>
         </div>
-        <div id="draw_side" title="层叠高度">
+        <!-- 副按钮 -->
+        <div id="draw_side">
             <!-- draw_free -->
             <div class="draw_items" id="draw_free_i">
                 <lock-b id="draw_free_pencil" title="画笔"><img src="./assets/icons/draw.svg" class="icon"></lock-b>
@@ -176,26 +190,33 @@
             </div>
             <!-- draw_position -->
             <div class="draw_items" id="draw_position_i">
-                <div id="draw_position_front" title="移动到最顶端"><img src="./assets/icons/position_front.svg" class="icon"></div>
-                <div id="draw_position_forwards" title="向上移动一层"><img src="./assets/icons/position_forwards.svg" class="icon"></div>
-                <div id="draw_position_backwards" title="向下移动一层"><img src="./assets/icons/position_backwards.svg" class="icon"></div>
-                <div id="draw_position_back" title="移动到最底端"><img src="./assets/icons/position_back.svg" class="icon"></div>
+                <div id="draw_position_front" title="移动到最顶端"><img src="./assets/icons/position_front.svg" class="icon">
+                </div>
+                <div id="draw_position_forwards" title="向上移动一层"><img src="./assets/icons/position_forwards.svg"
+                        class="icon"></div>
+                <div id="draw_position_backwards" title="向下移动一层"><img src="./assets/icons/position_backwards.svg"
+                        class="icon"></div>
+                <div id="draw_position_back" title="移动到最底端"><img src="./assets/icons/position_back.svg" class="icon">
+                </div>
             </div>
         </div>
-
     </div>
+
+    <!-- 显示 -->
     <canvas id="main_photo"></canvas>
     <canvas id="clip_photo"></canvas>
     <div id="draw_photo_top">
         <canvas id="draw_photo"></canvas>
     </div>
 
+    <!-- 大小栏 -->
     <div id="clip_wh">
         <div id="x0y0" contenteditable="true" title="左上角坐标"></div>
         <div id="x1y1" contenteditable="true" title="右下角坐标"></div>
         <div id="wh" contenteditable="true" title="大小"></div>
     </div>
 
+    <!-- 鼠标栏 -->
     <div id="mouse_bar" style="display: none;">
         <div id="point_color"></div>
         <div id="clip_xy"></div>
@@ -204,6 +225,7 @@
         </div>
     </div>
 
+    <!-- 扫描线 -->
     <svg id="waiting">
         <line x1="0" x2="100%" y1="0" y2="0" stroke="#00f" stroke-width="2">
             <animate attributeName="y1" values="0;100%;0" dur="3s" repeatCount="indefinite" begin="indefinite"

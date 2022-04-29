@@ -10,8 +10,11 @@ var free_color = "#333";
 var free_width = 1;
 var shadow_blur = 0;
 
-// 画画栏
+// 编辑栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
+    // 排除操作栏
+    if (index == document.querySelectorAll("#draw_main > div").length - 1) return;
+
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {
@@ -31,8 +34,8 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
                 h += e.offsetHeight;
             });
-            if (h > 300) {
-                h = 300;
+            if (h > draw_bar_height) {
+                h = draw_bar_height;
             }
             document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
         }
@@ -155,14 +158,15 @@ document.getElementById("draw_position_i").onclick = (e) => {
 };
 
 // 删除快捷键
-hotkeys("delete", () => {
+hotkeys("delete", fabric_delete);
+function fabric_delete() {
     for (let o of fabric_canvas.getActiveObject()._objects || [fabric_canvas.getActiveObject()]) {
         fabric_canvas.remove(o);
     }
     get_f_object_v();
     get_filters();
     his_push();
-});
+}
 
 var drawing_shape = false;
 var shapes = [];
@@ -857,7 +861,7 @@ document.getElementById("draw_edit_clear").onclick = () => {
 };
 
 var fabric_clipboard;
-function copy() {
+function fabric_copy() {
     fabric_canvas.getActiveObject().clone(function (cloned) {
         fabric_clipboard = cloned;
     });
@@ -884,4 +888,4 @@ function copy() {
     });
     his_push();
 }
-hotkeys("Ctrl+v", "normal", copy);
+hotkeys("Ctrl+v", "normal", fabric_copy);
