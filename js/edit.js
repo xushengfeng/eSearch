@@ -190,6 +190,7 @@ fabric_canvas.on("mouse:down", (options) => {
                 poly_o_p.push({ x: options.e.offsetX, y: options.e.offsetY });
                 draw_poly(shape);
             } else {
+                his_push();
                 shape = "";
                 poly_o_p = [];
                 fabric_canvas.defaultCursor = "auto";
