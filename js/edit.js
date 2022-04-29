@@ -12,9 +12,6 @@ var shadow_blur = 0;
 
 // 编辑栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
-    // 排除操作栏
-    if (index == document.querySelectorAll("#draw_main > div").length - 1) return;
-
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {
