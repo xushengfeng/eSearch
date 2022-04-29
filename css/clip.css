@@ -257,6 +257,7 @@ body {
     left: 80px;
     top: 100px;
     width: 60px;
+    height: 0px;
     background: var(--bar-bg);
     position: fixed;
     z-index: 98;
@@ -265,7 +266,6 @@ body {
     overflow-y: scroll;
     overflow-x: hidden;
     transition: var(--transition);
-    height: 0px;
     box-shadow: var(--shadow);
     display: flex;
 }
@@ -309,9 +309,18 @@ body {
     grid-template-rows: 30px 30px;
     overflow: hidden;
 }
+
+#draw_操作 > div {
+    position: relative;
+    transition: var(--transition);
+}
 #draw_操作 > div:hover {
     background-color: var(--hover-color);
-    transition: var(--transition);
+}
+#draw_操作 > div > .icon {
+    width: 24px;
+    left: 3px;
+    top: 3px;
 }
 
 #main_photo,
