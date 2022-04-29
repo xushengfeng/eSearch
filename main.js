@@ -1376,7 +1376,7 @@ var default_setting = {
     搜索窗口自动关闭: true,
     保存路径: app.getPath("pictures") + "/",
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
-    jpg质量: 0.92,
+    jpg质量: 1,
     框选后默认操作: "no",
     快速截屏: { 模式: "clip", 路径: "" },
     搜索引擎: [
