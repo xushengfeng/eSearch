@@ -6,8 +6,6 @@ ipcRenderer.on("reflash", () => {
     }, 0);
     right_key = false;
     change_right_bar(false);
-    undo_stack = [[0, 0, main_canvas.width, main_canvas.height]];
-    undo_stack_i = 0;
     ratio = window.devicePixelRatio;
     document.querySelector("#mouse_bar").style.display = "flex";
 });
@@ -64,11 +62,14 @@ var the_color = null;
 var the_text_color = [null, null];
 var clip_ctx = clip_canvas.getContext("2d");
 var draw_bar = document.getElementById("draw_bar");
-var undo_stack = [[0, 0, main_canvas.width, main_canvas.height]];
+var undo_stack = [{ rect: 0, canvas: 0 }],
+    rect_stack = [[0, 0, main_canvas.width, main_canvas.height]],
+    canvas_stack = [{}];
 var undo_stack_i = 0;
 var ratio = window.devicePixelRatio;
 var now_canvas_position;
 var direction;
+var fabric_canvas;
 
 clip_canvas.onmousedown = (e) => {
     o = true;
@@ -128,7 +129,7 @@ clip_canvas.onmouseup = (e) => {
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         draw_clip_rect();
-        his_push(final_rect);
+        his_push();
         // 抬起鼠标后工具栏跟随
         follow_bar(e.clientX, e.clientY);
     }
@@ -137,7 +138,7 @@ clip_canvas.onmouseup = (e) => {
         moving = false;
         o_final_rect = "";
         if (e.button == 0) follow_bar(e.clientX, e.clientY);
-        his_push(final_rect);
+        his_push();
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
@@ -250,7 +251,7 @@ function 更改大小栏(arg) {
                 break;
         }
         final_rect_fix();
-        his_push(final_rect);
+        his_push();
         draw_clip_rect();
         follow_bar();
     } else {
@@ -288,7 +289,7 @@ document.querySelector("#wh").onblur = () => {
 // 快捷键全屏选择
 hotkeys("ctrl+a, command+a", () => {
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    his_push(final_rect);
+    his_push();
     clip_canvas.style.cursor = "crosshair";
     direction = "none";
     draw_clip_rect();
@@ -712,16 +713,25 @@ function move_rect(o_final_rect, oe, e) {
     draw_clip_rect();
 }
 
-function his_push(final_rect) {
-    undo_stack.push(undo_stack[undo_stack_i]);
+/**
+ * 保存历史
+ */
+function his_push() {
     // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
+    if (undo_stack_i != undo_stack.length - 1 && undo_stack.length >= 2) undo_stack.push(undo_stack[undo_stack_i]);
+
     let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]]; // 防止引用源地址导致后续操作-2个被改变
-    undo_stack.push(final_rect_v);
+    let canvas = fabric_canvas?.toJSON() || {};
+
+    if (rect_stack[rect_stack.length - 1] + "" != final_rect_v + "") rect_stack.push(final_rect_v);
+    if (JSON.stringify(canvas_stack[canvas_stack.length - 1]) != JSON.stringify(canvas)) canvas_stack.push(canvas);
+
+    undo_stack.push({ rect: rect_stack.length - 1, canvas: canvas_stack.length - 1 });
     undo_stack_i = undo_stack.length - 1;
 }
 /**
  * 更改历史指针
- * @param {boolean} a true向前 false向后
+ * @param {boolean} v true向前 false向后
  */
 function undo(v) {
     if (v) {
@@ -734,13 +744,10 @@ function undo(v) {
         }
     }
     var c = undo_stack[undo_stack_i];
-    if (Array.isArray(c)) {
-        final_rect = c;
-        draw_clip_rect();
-        follow_bar();
-    } else {
-        fabric_canvas.loadFromJSON(c);
-    }
+    final_rect = rect_stack[c.rect];
+    draw_clip_rect();
+    follow_bar();
+    if (fabric_canvas) fabric_canvas.loadFromJSON(canvas_stack[c.canvas]);
 }
 
 hotkeys("ctrl+z", "normal", () => {

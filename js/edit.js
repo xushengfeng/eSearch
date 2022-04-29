@@ -1,14 +1,7 @@
 const { fabric } = require("./lib/fabric.min.js");
 var fabric_canvas = new fabric.Canvas("draw_photo");
 
-// 定义撤销栈
-stack_add();
-function stack_add() {
-    // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
-    if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
-    undo_stack.push(fabric_canvas.toJSON());
-    undo_stack_i = undo_stack.length - 1;
-}
+his_push();
 
 var stroke_color = "#333";
 var fill_color = "#fff";
@@ -168,7 +161,7 @@ hotkeys("delete", () => {
     }
     get_f_object_v();
     get_filters();
-    stack_add();
+    his_push();
 });
 
 var drawing_shape = false;
@@ -218,7 +211,7 @@ fabric_canvas.on("mouse:up", (options) => {
         fabric_canvas.defaultCursor = "auto";
         if (shape != "") {
             fabric_canvas.setActiveObject(shapes[shapes.length - 1]);
-            stack_add();
+            his_push();
         }
         shape = "";
         hotkeys.setScope("normal");
@@ -233,12 +226,12 @@ fabric_canvas.on("mouse:up", (options) => {
         document.querySelector("#draw_filters_select > lock-b").checked = false;
         fabric_canvas.defaultCursor = "auto";
         get_filters();
-        stack_add();
+        his_push();
         hotkeys.setScope("normal");
     }
 
     if (fabric_canvas.isDrawingMode) {
-        stack_add();
+        his_push();
     }
 });
 
@@ -889,6 +882,6 @@ function copy() {
         fabric_canvas.setActiveObject(clonedObj);
         fabric_canvas.requestRenderAll();
     });
-    stack_add();
+    his_push();
 }
 hotkeys("Ctrl+v", "normal", copy);
