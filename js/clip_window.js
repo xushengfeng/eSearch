@@ -181,6 +181,7 @@ var tool_bar = document.getElementById("tool_bar");
 // 工具栏按钮
 tool_bar.onmouseup = (e) => {
     var el = e.target;
+    if (el.parentElement != tool_bar) return;
     if (e.button == 0) {
         // * 拼接函数名
         eval(`${el.id}_f()`);
