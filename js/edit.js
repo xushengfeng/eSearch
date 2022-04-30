@@ -3,11 +3,11 @@ var fabric_canvas = new fabric.Canvas("draw_photo");
 
 his_push();
 
-var stroke_color = "#333";
-var fill_color = "#fff";
-var stroke_width = 1;
-var free_color = "#333";
-var free_width = 1;
+var fill_color = store.get("图像编辑.默认属性.填充颜色");
+var stroke_color = store.get("图像编辑.默认属性.边框颜色");
+var stroke_width = store.get("图像编辑.默认属性.边框宽度");
+var free_color = store.get("图像编辑.默认属性.画笔颜色");
+var free_width = store.get("图像编辑.默认属性.画笔粗细");
 var shadow_blur = 0;
 
 // 编辑栏

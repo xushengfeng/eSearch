@@ -142,6 +142,12 @@ document.querySelector("#选区颜色 > input").oninput = () => {
 
 document.getElementById("框选后默认操作").value = store.get("框选后默认操作");
 
+document.getElementById("填充颜色").value = store.get("图像编辑.默认属性.填充颜色");
+document.getElementById("边框颜色").value = store.get("图像编辑.默认属性.边框颜色");
+document.getElementById("边框宽度").value = store.get("图像编辑.默认属性.边框宽度");
+document.getElementById("画笔颜色").value = store.get("图像编辑.默认属性.画笔颜色");
+document.getElementById("画笔粗细").value = store.get("图像编辑.默认属性.画笔粗细");
+
 document.getElementById("复制dx").value = store.get("图像编辑.复制偏移.x");
 document.getElementById("复制dy").value = store.get("图像编辑.复制偏移.y");
 
@@ -402,6 +408,13 @@ function save_setting() {
     store.set("像素大小", document.querySelector("#像素大小").value - 0);
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
+    store.set("图像编辑.默认属性", {
+        填充颜色: document.getElementById("填充颜色").value,
+        边框颜色: document.getElementById("边框颜色").value,
+        边框宽度: document.getElementById("边框宽度").value - 0,
+        画笔颜色: document.getElementById("画笔颜色").value,
+        画笔粗细: document.getElementById("画笔粗细").value - 0,
+    });
     store.set("图像编辑.复制偏移", {
         x: document.getElementById("复制dx").value - 0,
         y: document.getElementById("复制dy").value - 0,
