@@ -34,6 +34,7 @@
     "directories": {
       "output": "build"
     },
+    "compression": "maximum",
     "asar": false,
     "icon": "./assets/logo",
     "electronDownload": {
