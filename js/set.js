@@ -402,22 +402,22 @@ function save_setting() {
     var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("全局.模糊", 模糊);
     store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);
-    store.set("全局.缩放", document.getElementById("全局缩放").value - 0);
+    store.set("全局.缩放", document.getElementById("全局缩放").value);
     store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
-    store.set("取色器大小", document.querySelector("#取色器大小").value - 0);
-    store.set("像素大小", document.querySelector("#像素大小").value - 0);
+    store.set("取色器大小", document.querySelector("#取色器大小").value);
+    store.set("像素大小", document.querySelector("#像素大小").value);
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
     store.set("图像编辑.默认属性", {
         填充颜色: document.getElementById("填充颜色").value,
         边框颜色: document.getElementById("边框颜色").value,
-        边框宽度: document.getElementById("边框宽度").value - 0,
+        边框宽度: document.getElementById("边框宽度").value,
         画笔颜色: document.getElementById("画笔颜色").value,
-        画笔粗细: document.getElementById("画笔粗细").value - 0,
+        画笔粗细: document.getElementById("画笔粗细").value,
     });
     store.set("图像编辑.复制偏移", {
-        x: document.getElementById("复制dx").value - 0,
-        y: document.getElementById("复制dy").value - 0,
+        x: document.getElementById("复制dx").value,
+        y: document.getElementById("复制dy").value,
     });
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
     store.set("快速截屏.模式", document.getElementById("快速截屏").value);
@@ -432,8 +432,8 @@ function save_setting() {
         时间: document.getElementById("保存文件名称时间").value,
         后缀: document.getElementById("保存文件名称后缀").value,
     });
-    store.set("jpg质量", document.getElementById("jpg质量").value - 0);
-    字体.大小 = document.getElementById("字体大小").value - 0;
+    store.set("jpg质量", document.getElementById("jpg质量").value);
+    字体.大小 = document.getElementById("字体大小").value;
     字体.记住 = document.getElementById("记住字体大小").checked
         ? typeof 字体.记住 === "number"
             ? 字体.记住
@@ -445,7 +445,7 @@ function save_setting() {
     store.set("编辑器.行号", document.getElementById("行号").checked);
     store.set("自动搜索", document.querySelector("#自动搜索").checked);
     store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
-    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value - 0);
+    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value);
     if (o_搜索引擎) store.set("搜索引擎", o_搜索引擎);
     if (o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
     store.set("引擎", {
