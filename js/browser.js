@@ -6,23 +6,23 @@ var pid;
 ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
     pid = _pid;
     if (arg == "new") {
-        new_tab(_pid, id, arg1);
+        new_tab(id, arg1);
     }
     if (arg == "title") {
-        title(_pid, id, arg1);
+        title(id, arg1);
     }
     if (arg == "icon") {
-        icon(_pid, id, arg1);
+        icon(id, arg1);
     }
     if (arg == "url") {
-        url(_pid, id, arg1);
+        url(id, arg1);
     }
     if (arg == "load") {
-        load(_pid, id, arg1);
+        load(id, arg1);
     }
 });
 
-function new_tab(pid, id, url) {
+function new_tab(id, url) {
     var li = document.getElementById("tab").cloneNode(true);
     li_list.push(li);
     li.style.display = "flex";
@@ -33,14 +33,14 @@ function new_tab(pid, id, url) {
     };
     var button = li.querySelector("button");
     button.onclick = () => {
-        close_tab(li, pid, id);
+        close_tab(li, id);
     };
     document.getElementById("tabs").appendChild(li);
     focus_tab(li);
     li.id = "id" + id;
 }
 
-function close_tab(li, pid, id) {
+function close_tab(li, id) {
     ipcRenderer.send("tab_view", pid, id, "close");
     var l = document.querySelectorAll("li");
     for (let i in l) {
@@ -73,19 +73,19 @@ function focus_tab(li) {
     }
 }
 
-function title(pid, id, arg) {
+function title(id, arg) {
     document.querySelector(`#id${id} > span`).innerHTML = document.querySelector(`#id${id} > span`).title = arg;
 }
 
-function icon(pid, id, arg) {
+function icon(id, arg) {
     document.querySelector(`#id${id} > img`).src = arg[0];
 }
 
-function url(pid, id, url) {
+function url(id, url) {
     document.querySelector(`#id${id}`).setAttribute("data-url", url);
 }
 
-function load(pid, id, loading) {
+function load(id, loading) {
     if (loading) {
         document.querySelector(`#id${id} > img`).src = `./assets/icons/reload.svg`;
         document.querySelector("#reload").style.display = "none";
@@ -119,7 +119,7 @@ function open_in_browser() {
     shell.openExternal(url);
     if (store.get("搜索窗口自动关闭")) {
         var id = document.querySelector(".tab_focus").id.replace("id", "");
-        close_tab(document.querySelector(".tab_focus"), pid, id);
+        close_tab(document.querySelector(".tab_focus"), id);
     }
 }
 
