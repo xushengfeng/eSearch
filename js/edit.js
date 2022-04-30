@@ -860,14 +860,16 @@ document.getElementById("draw_edit_clear").onclick = () => {
 
 var fabric_clipboard;
 function fabric_copy() {
+    var dx = store.get("图像编辑.复制偏移.x"),
+        dy = store.get("图像编辑.复制偏移.y");
     fabric_canvas.getActiveObject().clone(function (cloned) {
         fabric_clipboard = cloned;
     });
     fabric_clipboard.clone(function (clonedObj) {
         fabric_canvas.discardActiveObject();
         clonedObj.set({
-            left: clonedObj.left + 10,
-            top: clonedObj.top + 10,
+            left: clonedObj.left + dx,
+            top: clonedObj.top + dy,
             evented: true,
         });
         if (clonedObj.type === "activeSelection") {
@@ -879,8 +881,6 @@ function fabric_copy() {
         } else {
             fabric_canvas.add(clonedObj);
         }
-        fabric_clipboard.top += 10;
-        fabric_clipboard.left += 10;
         fabric_canvas.setActiveObject(clonedObj);
         fabric_canvas.requestRenderAll();
     });

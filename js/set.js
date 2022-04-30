@@ -142,6 +142,9 @@ document.querySelector("#选区颜色 > input").oninput = () => {
 
 document.getElementById("框选后默认操作").value = store.get("框选后默认操作");
 
+document.getElementById("复制dx").value = store.get("图像编辑.复制偏移.x");
+document.getElementById("复制dy").value = store.get("图像编辑.复制偏移.y");
+
 document.getElementById("快速截屏").value = store.get("快速截屏.模式");
 document.getElementById("快速截屏路径").value = store.get("快速截屏.路径");
 document.getElementById("获取保存路径").onclick = () => {
@@ -399,6 +402,10 @@ function save_setting() {
     store.set("像素大小", document.querySelector("#像素大小").value - 0);
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
+    store.set("图像编辑.复制偏移", {
+        x: document.getElementById("复制dx").value - 0,
+        y: document.getElementById("复制dy").value - 0,
+    });
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
     store.set("快速截屏.模式", document.getElementById("快速截屏").value);
     store.set(
