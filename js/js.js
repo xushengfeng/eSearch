@@ -804,7 +804,7 @@ function line_num() {
                 for (let j = 1; j <= line_n; j++) {
                     num_t += "<br>";
                 }
-            num_t += num;
+            num_t += `<span>${num}</span>`;
             old_top = new_top;
         }
     }
@@ -816,6 +816,10 @@ function line_num() {
         line_height + line_height_delta
     }px)`;
 }
+document.getElementById("line_num").onclick = (e) => {
+    if (e.target == document.getElementById("line_num")) return;
+    select_line(Number(e.target.innerText));
+};
 
 var check_text = "";
 var check_width = NaN;
@@ -847,4 +851,30 @@ function paste() {
     setTimeout(() => {
         can_paste = false;
     }, 10);
+}
+
+/**
+ * 选择对应的行数。清空样式，转化实际索引，选择
+ * @param {number} i 行数
+ */
+function select_line(i) {
+    exit_find();
+
+    var list = document.getElementById("text").childNodes;
+    var br_n = 0,
+        final_i = 0;
+    for (let index = 0; index < list.length; index++) {
+        final_i = index;
+        if (list[index].tagName == "BR") br_n++;
+        if (br_n == i) {
+            if (list[index - 1].tagName != "BR") final_i = index - 1;
+            break;
+        }
+    }
+
+    var selection = window.getSelection();
+    selection.removeAllRanges();
+    var range = document.createRange();
+    range.selectNodeContents(list[final_i]);
+    selection.addRange(range);
 }
