@@ -400,7 +400,7 @@ ipcRenderer.on("save_path", (event, message) => {
         get_clip_photo(type).then((c) => {
             switch (type) {
                 case "svg":
-                    var dataBuffer = new Buffer(c, "UTF-8");
+                    var dataBuffer = Buffer.from(c, "UTF-8");
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "ok_save", message);
@@ -409,7 +409,7 @@ ipcRenderer.on("save_path", (event, message) => {
                     break;
                 case "png":
                     var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-                    var dataBuffer = new Buffer(f, "base64");
+                    var dataBuffer = Buffer.from(f, "base64");
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "ok_save", message);
@@ -418,7 +418,7 @@ ipcRenderer.on("save_path", (event, message) => {
                     break;
                 case "jpg":
                     var f = c.toDataURL("image/jpeg", store.get("jpg质量") - 0).replace(/^data:image\/\w+;base64,/, "");
-                    var dataBuffer = new Buffer(f, "base64");
+                    var dataBuffer = Buffer.from(f, "base64");
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "ok_save", message);
