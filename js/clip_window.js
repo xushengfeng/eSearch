@@ -363,7 +363,9 @@ function tool_copy_f() {
 var type;
 function tool_save_f() {
     s_center_bar("save");
-    document.querySelectorAll("#suffix > div")[0].className = "suffix_h";
+    var t_to_n = { png: 0, jpg: 1, svg: 2 };
+    var i = t_to_n[store.get("保存.默认格式")];
+    document.querySelectorAll("#suffix > div")[i].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
         var el = e.target;
         if (el.dataset.value) {
@@ -373,7 +375,6 @@ function tool_save_f() {
         }
     };
     hotkeys.setScope("c_bar");
-    var i = 0;
     hotkeys("enter", "c_bar", () => {
         document.querySelector("#suffix > .suffix_h").click();
         s_center_bar("save");

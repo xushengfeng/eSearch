@@ -184,6 +184,8 @@ document.getElementById("保存文件名称后缀").style.width = `${
     document.getElementById("保存文件名称后缀").value.length || 1
 }em`;
 
+document.getElementById("默认格式").value = store.get("保存.默认格式");
+
 document.getElementById("jpg质量").value = store.get("jpg质量");
 
 var 字体 = store.get("字体");
@@ -427,6 +429,7 @@ function save_setting() {
             ? (document.getElementById("快速截屏路径").value + "/").replace("//", "/")
             : ""
     );
+    store.set("保存.默认格式", document.getElementById("默认格式").value);
     store.set("保存名称", {
         前缀: document.getElementById("保存文件名称前缀").value,
         时间: document.getElementById("保存文件名称时间").value,

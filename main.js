@@ -1387,6 +1387,9 @@ var default_setting = {
     自动搜索中文占比: 0.2,
     浏览器中打开: false,
     搜索窗口自动关闭: true,
+    保存: {
+        默认格式: "png",
+    },
     保存路径: app.getPath("pictures") + "/",
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 1,
