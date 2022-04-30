@@ -33,7 +33,7 @@ function new_tab(pid, id, url) {
     };
     var button = li.querySelector("button");
     button.onclick = () => {
-        close_tab(pid, id);
+        close_tab(li, pid, id);
     };
     document.getElementById("tabs").appendChild(li);
     focus_tab(li);
