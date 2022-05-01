@@ -1,5 +1,6 @@
 range-b {
     font-size: 1rem;
+    border-radius: inherit;
 }
 #shadow_blur {
     overflow: hidden;
