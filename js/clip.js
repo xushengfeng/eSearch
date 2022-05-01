@@ -354,6 +354,8 @@ function mouse_bar(final_rect, x, y) {
         document.getElementById("clip_xy").innerHTML = `(${x}, ${y})`;
     }
 }
+
+// 复制坐标
 document.getElementById("clip_xy").onclick = () => {
     copy(document.getElementById("clip_xy"));
 };
@@ -388,6 +390,7 @@ function clip_color_text(l, type) {
     var main_el = document.querySelector(
         `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`
     );
+    // 只改变默认格式的字体颜色和内容，并定位展示
     main_el.style.color = the_text_color[1];
     main_el.innerText = color_conversion(the_color, type);
     document.querySelector("#clip_copy > div").style.top = -32 * 取色器格式位置 + "px";
@@ -395,12 +398,14 @@ function clip_color_text(l, type) {
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
 function change_right_bar(v) {
+    // 拼接坐标和颜色代码
     var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
     t += `<div style="background-color:${the_text_color[0]};color:${the_text_color[1]}">`;
     for (i in all_color_format) {
         t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
     }
     document.querySelector("#clip_copy > div").innerHTML = t + "</div>";
+    // 复制大小和颜色
     document.querySelector("#clip_copy > div > div:nth-child(1)").onclick = () => {
         copy(document.querySelector("#clip_copy > div > div:nth-child(1)"));
     };
@@ -433,6 +438,10 @@ function copy(e) {
     right_key = false;
     change_right_bar(false);
 }
+
+hotkeys(store.get("其他快捷键.复制颜色"), () => {
+    copy(document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`));
+});
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {

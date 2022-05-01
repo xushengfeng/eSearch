@@ -83,6 +83,7 @@ document.querySelector(`hot-keys[name="其他应用打开"]`).value = 其他快�
 document.querySelector(`hot-keys[name="放在屏幕上"]`).value = 其他快捷键.放在屏幕上;
 document.querySelector(`hot-keys[name="复制"]`).value = 其他快捷键.复制;
 document.querySelector(`hot-keys[name="保存"]`).value = 其他快捷键.保存;
+document.querySelector(`hot-keys[name="复制颜色"]`).value = 其他快捷键.复制颜色;
 
 选择器储存("工具栏跟随", "展示内容优先");
 选择器储存("光标", "以(1,1)为起点");
@@ -400,6 +401,7 @@ function save_setting() {
         放在屏幕上: document.querySelector(`hot-keys[name="放在屏幕上"]`).value,
         复制: document.querySelector(`hot-keys[name="复制"]`).value,
         保存: document.querySelector(`hot-keys[name="保存"]`).value,
+        复制颜色: document.querySelector(`hot-keys[name="复制颜色"]`).value,
     });
     var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("全局.模糊", 模糊);

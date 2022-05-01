@@ -1319,6 +1319,7 @@ var default_setting = {
         放在屏幕上: "",
         复制: isMac ? "Command+C" : "Control+C",
         保存: isMac ? "Command+S" : "Control+S",
+        复制颜色: "K",
     },
     全局: {
         模糊: 25,
