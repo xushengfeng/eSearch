@@ -17,6 +17,10 @@ jobs:
             - name: Install Node.js, NPM and Yarn
               uses: actions/setup-node@v1
 
+            - name: Install Ubuntu X11
+              if: matrix.os == 'ubuntu-latest'
+              run: sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
+
             - name: ${{ matrix.os }} build
               run: |
                   npm install
