@@ -6,7 +6,7 @@
   "scripts": {
     "rebuild": "electron-rebuild -f -w",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder -p never"
   },
   "author": {
     "name": "xsf",
