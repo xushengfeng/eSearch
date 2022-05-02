@@ -303,6 +303,13 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
+            label: "重启",
+            click: () => {
+                app.relaunch();
+                app.exit(0);
+            },
+        },
+        {
             label: "退出",
             click: () => {
                 app.quit();
