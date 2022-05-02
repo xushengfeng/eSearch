@@ -158,16 +158,18 @@ async function download_ocr(download_path, dal) {
     if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
     if (dal || resolve.response == 0) {
         var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/${
-            file_o[process.platform][0]
-        }`;
+                file_o[process.platform][0]
+            }`,
+            model_url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/ppocr.zip`;
+
         (async () => {
-            console.log("开始下载服务");
             let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
             new Notification({
                 title: app.name,
                 body: `${app.name} 服务正在下载中……`,
                 icon: `${run_path}/assets/logo/64x64.png`,
             }).show();
+            console.log("开始下载服务");
             await download(url, download_path, { extract: true }).on("response", (res) => {
                 var download_len = 0;
                 res.on("data", function (chunk) {
@@ -178,6 +180,20 @@ async function download_ocr(download_path, dal) {
                         win.setTitle(`${Math.round(p * 100)}%`);
                     }
                     if (p == 1) console.log("服务下载完成，解压中");
+                });
+            });
+            console.log("开始下载模型");
+            // TODO 下载到app userdata ocr
+            await download(model_url, "./ocr/", { extract: true }).on("response", (res) => {
+                var download_len = 0;
+                res.on("data", function (chunk) {
+                    download_len += chunk.length;
+                    var p = download_len / Number(res.headers["content-length"]);
+                    if (!win.isDestroyed()) {
+                        win.setProgressBar(p);
+                        win.setTitle(`${Math.round(p * 100)}%`);
+                    }
+                    if (p == 1) console.log("模型下载完成，解压中");
                 });
             });
             win.close();
