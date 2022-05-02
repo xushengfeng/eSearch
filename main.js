@@ -441,6 +441,7 @@ function create_clip_window() {
     clip_window.loadFile("capture.html");
     clip_window.webContents.on("did-finish-load", () => {
         clip_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+        return new Promise(() => {});
     });
 
     if (dev) clip_window.webContents.openDevTools();
@@ -553,9 +554,9 @@ function create_clip_window() {
     // cil参数启动;
     if (first_open) arg_run(process.argv);
 }
-function full_screen() {
+async function full_screen() {
     if (clip_window == null) {
-        create_clip_window();
+        await create_clip_window();
     }
     var x = robot.screen.capture();
     clip_window.webContents.send("reflash", x.image, x.width, x.height);
