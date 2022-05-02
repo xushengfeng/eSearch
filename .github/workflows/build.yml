@@ -1,6 +1,9 @@
 name: Build/release
 
-on: push
+on:
+    push:
+        tags:
+            - '*'
 
 jobs:
     release:
@@ -17,7 +20,7 @@ jobs:
             - name: Install Node.js, NPM and Yarn
               uses: actions/setup-node@v1
               with:
-                node-version: 16
+                  node-version: 16
 
             - name: Install Ubuntu X11
               if: matrix.os == 'ubuntu-latest'
@@ -42,8 +45,8 @@ jobs:
 
             - name: release
               uses: softprops/action-gh-release@v1
-              if: startsWith(github.ref, 'refs/tags/')
               with:
                   files: "build/*"
+                  draft: true
               env:
                   GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
