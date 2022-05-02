@@ -142,76 +142,65 @@ function arg_run(c) {
     }
 }
 
-async function download_ocr(download_path, dal) {
+
+var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
+
+async function download_ocr() {
     const download = require("download");
 
-    var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
-    if (!dal)
-        var resolve = await dialog.showMessageBox({
-            title: "服务未下载",
-            message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
-            checkboxLabel: "不再提示",
-            buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
-            defaultId: 0,
-            cancelId: 2,
-        });
-    if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
-    if (dal || resolve.response == 0) {
-        var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/${
-                file_o[process.platform][0]
-            }`,
-            model_url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/ppocr.zip`;
+    var download_path = app.getPath("userData");
+    var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/${
+            file_o[process.platform][0]
+        }`,
+        model_url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/ppocr.zip`;
 
-        (async () => {
-            let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
-            new Notification({
-                title: app.name,
-                body: `${app.name} 服务正在下载中……`,
-                icon: `${run_path}/assets/logo/64x64.png`,
-            }).show();
-            console.log("开始下载服务");
-            await download(url, download_path, { extract: true }).on("response", (res) => {
-                var download_len = 0;
-                res.on("data", function (chunk) {
-                    download_len += chunk.length;
-                    var p = download_len / Number(res.headers["content-length"]);
-                    if (!win.isDestroyed()) {
-                        win.setProgressBar(p);
-                        win.setTitle(`${Math.round(p * 100)}%`);
-                    }
-                    if (p == 1) console.log("服务下载完成，解压中");
-                });
-            });
-            console.log("开始下载模型");
-            await download(model_url, download_path, { extract: true }).on("response", (res) => {
-                var download_len = 0;
-                res.on("data", function (chunk) {
-                    download_len += chunk.length;
-                    var p = download_len / Number(res.headers["content-length"]);
-                    if (!win.isDestroyed()) {
-                        win.setProgressBar(p);
-                        win.setTitle(`${Math.round(p * 100)}%`);
-                    }
-                    if (p == 1) console.log("模型下载完成，解压中");
-                });
-            });
-            win.close();
-            if (process.platform == "win32") {
-                new Notification({
-                    title: app.name,
-                    body: `${app.name} 服务已下载，正准备安装相关的依赖，请允许安装`,
-                    icon: `${run_path}/assets/logo/64x64.png`,
-                }).show();
-                exec(`cd ${download_path}\\ocr && .\\cp15e.exe`);
-            } else {
-                new Notification({
-                    title: app.name,
-                    body: `${app.name} 服务已下载`,
-                    icon: `${run_path}/assets/logo/64x64.png`,
-                }).show();
+    let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
+    new Notification({
+        title: app.name,
+        body: `${app.name} 服务正在下载中……`,
+        icon: `${run_path}/assets/logo/64x64.png`,
+    }).show();
+    console.log("开始下载服务");
+    await download(url, download_path, { extract: true }).on("response", (res) => {
+        var download_len = 0;
+        res.on("data", function (chunk) {
+            download_len += chunk.length;
+            var p = download_len / Number(res.headers["content-length"]);
+            if (!win.isDestroyed()) {
+                win.setProgressBar(p);
+                win.setTitle(`${Math.round(p * 100)}%`);
             }
-        })();
-    } else if (resolve.response == 1) create_main_window("setting.html");
+            if (p == 1) console.log("服务下载完成，解压中");
+        });
+    });
+    console.log("开始下载模型");
+    await download(model_url, download_path, { extract: true }).on("response", (res) => {
+        var download_len = 0;
+        res.on("data", function (chunk) {
+            download_len += chunk.length;
+            var p = download_len / Number(res.headers["content-length"]);
+            if (!win.isDestroyed()) {
+                win.setProgressBar(p);
+                win.setTitle(`${Math.round(p * 100)}%`);
+            }
+            if (p == 1) console.log("模型下载完成，解压中");
+        });
+    });
+    win.close();
+    if (process.platform == "win32") {
+        new Notification({
+            title: app.name,
+            body: `${app.name} 服务已下载，正准备安装相关的依赖，请允许安装`,
+            icon: `${run_path}/assets/logo/64x64.png`,
+        }).show();
+        exec(`cd ${download_path}\\ocr && .\\cp15e.exe`);
+    } else {
+        new Notification({
+            title: app.name,
+            body: `${app.name} 服务已下载`,
+            icon: `${run_path}/assets/logo/64x64.png`,
+        }).show();
+    }
 }
 
 async function rm_r() {
@@ -355,7 +344,19 @@ app.whenReady().then(() => {
             store.get("OCR.类型") != "离线"
         )
             return;
-        download_ocr(download_path);
+
+        var resolve = await dialog.showMessageBox({
+            title: "服务未下载",
+            message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
+            checkboxLabel: "不再提示",
+            buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
+            defaultId: 0,
+            cancelId: 2,
+        });
+        if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
+        if (resolve.response == 0) {
+            download_ocr();
+        } else if (resolve.response == 1) create_main_window("setting.html");
     }
     check_ocr();
 
@@ -636,7 +637,7 @@ ipcMain.on("setting", async (event, arg) => {
             tray.setContextMenu(contextMenu);
             break;
         case "下载离线OCR":
-            download_ocr(app.getPath("userData"), true);
+            download_ocr();
             break;
         case "删除离线OCR":
             rm_r();
