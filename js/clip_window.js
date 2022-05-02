@@ -66,18 +66,18 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
 });
 
+var img_his_name = new Date().getTime();
 function show_img_his() {
     var img_store = new Store({ name: "img_history" });
     if (store.get("记录截屏.记录")) {
         var w = main_canvas.width,
             h = main_canvas.height;
         var img_l = [{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }), w, h }];
-        var time = new Date().getTime();
-        img_store.set(`截屏记录.${time}`, img_l);
-        img_l = null;
     }
     if (document.getElementById("img_history").innerHTML != "") return;
     var o_l = img_store.get("截屏记录") || {};
+    o_l[img_his_name] = img_l;
+    img_l = null;
     if (store.get("记录截屏.限定保留")) {
         var s_l = Object.keys(o_l).sort();
         s_l = s_l.splice(-store.get("记录截屏.保留次数"));
@@ -215,6 +215,14 @@ if (auto_do != "no") {
 // 关闭
 function tool_close_f() {
     document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
+    var img_store = new Store({ name: "img_history" });
+    if (store.get("记录截屏.记录") && !img_store.has(`截屏记录.${img_his_name}`)) {
+        var w = main_canvas.width,
+            h = main_canvas.height;
+        var img_l = [{ src: main_canvas.toDataURL({ left: 0, top: 0, width: w, height: h, type: "png" }), w, h }];
+        img_store.set(`截屏记录.${img_his_name}`, img_l);
+        img_l = null;
+    }
     setTimeout(() => {
         ipcRenderer.send("clip_main_b", "window-close");
         location.reload();
