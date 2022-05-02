@@ -183,8 +183,7 @@ async function download_ocr(download_path, dal) {
                 });
             });
             console.log("开始下载模型");
-            // TODO 下载到app userdata ocr
-            await download(model_url, "./ocr/", { extract: true }).on("response", (res) => {
+            await download(model_url, download_path, { extract: true }).on("response", (res) => {
                 var download_len = 0;
                 res.on("data", function (chunk) {
                     download_len += chunk.length;
