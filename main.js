@@ -420,11 +420,7 @@ app.on("will-quit", () => {
     globalShortcut.unregisterAll();
 
     // 删除临时文件夹
-    if (process.platform == "win32") {
-        exec(`rd /s /q ${os.tmpdir() + "\\eSearch"}`);
-    } else {
-        exec(`rm -r ${os.tmpdir() + "/eSearch"}`);
-    }
+    rm_r(path.join(os.tmpdir(), "eSearch"));
 });
 
 var the_icon = null;
