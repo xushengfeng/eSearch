@@ -49,7 +49,9 @@
       ],
       "files": [
         "!.vscode",
-        "!.github"
+        "!.github",
+        "!assets/logo/icon.icns",
+        "!assets/logo/icon.ico"
       ]
     },
     "mac": {
@@ -57,7 +59,10 @@
         "!lib/gtk-open-with",
         "!lib/kde-open-with",
         "!.vscode",
-        "!.github"
+        "!.github",
+        "!assets/logo/1024x1024.png",
+        "!assets/logo/512x512.png",
+        "!assets/logo/icon.ico"
       ]
     },
     "win": {
@@ -70,7 +75,10 @@
         "!lib/gtk-open-with",
         "!lib/kde-open-with",
         "!.vscode",
-        "!.github"
+        "!.github",
+        "!assets/logo/icon.icns",
+        "!assets/logo/1024x1024.png",
+        "!assets/logo/512x512.png"
       ]
     },
     "nsis": {
