@@ -60,13 +60,12 @@ npm run dist
 大多数 Linux 桌面环境支持自定义快捷键，**eSearch**支持 cli，这也意味着你可以进行系统级设置快捷键
 
 ```shell
-e-search
+esearch (若找不到，请尝试e-search)
 	-a # 自动搜索
 	-c # 截屏搜索
 	-s # 选中搜索
 	-b # 剪贴板搜索
 	-q # 快速截屏
-	-r # 不显示启动通知
 ```
 
 不建议在终端进行自动或选中搜索，否则**eSearch**会执行<kbd>Ctrl</kbd>+<kbd>C</kbd>，从而导致终止终端程序
@@ -75,7 +74,8 @@ e-search
 
 -   [x] 截屏
     -   [x] 框选裁切
-    -   [x] 框大小位置可调整(支持方向键或 WASD)
+    -   [x] 框选大小位置可调整(支持方向键或 WASD)
+    -   [x] 框选大小栏可输入四则运算式调整
     -   [x] 取色器
     -   [x] 放大镜
     -   [x] 画笔（自由画笔）
@@ -146,10 +146,6 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 ![3](https://esearch.vercel.app/readme/4.png)
 
 > 主界面查找替换（支持正则）
-
-https://user-images.githubusercontent.com/28475549/155870885-d41bcbda-6124-4e29-ac19-694d27f6dba1.mp4
-
-> 其他应用打开（视频约 1.6MB）
 
 ## 测试
 
