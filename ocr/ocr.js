@@ -27,8 +27,8 @@ function local_ocr(arg, callback) {
         rec = store.get("OCR.rec") || "inference/ch_PP-OCRv2_rec_infer",
         字典 = store.get("OCR.字典") || "ppocr_keys_v1.txt";
     var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png"),
-        ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ "),
-        model_path = store.path.replace("config.json", "ppocr").replace(" ", "\\ ");
+        ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
+    var model_path = path.join(ocr_path, "ppcor_model");
     console.log(ocr_path);
     fs.writeFile(tmp_path, Buffer.from(arg, "base64"), async (err) => {
         if (err) callback(err);
