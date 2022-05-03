@@ -143,16 +143,15 @@ function arg_run(c) {
 }
 
 var ocr_v = "2.5.0";
-var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
+var file_o = { linux: ["Linux.tar.gz", 210], win32: ["Windows.zip", 91], darwin: ["macOS.zip", 300] };
 
 async function download_ocr(callback) {
     const download = require("download");
 
     var download_path = app.getPath("userData");
-    var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/${
-            file_o[process.platform][0]
-        }`,
-        model_url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/2.0.0/ppocr.zip`;
+    var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/${ocr_v}/${
+        file_o[process.platform][0]
+    }`;
 
     let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
     new Notification({
@@ -172,18 +171,8 @@ async function download_ocr(callback) {
             }
             if (p == 1) console.log("服务下载完成，解压中");
         });
-    });
-    console.log("开始下载模型");
-    await download(model_url, download_path, { extract: true }).on("response", (res) => {
-        var download_len = 0;
-        res.on("data", function (chunk) {
-            download_len += chunk.length;
-            var p = download_len / Number(res.headers["content-length"]);
-            if (!win.isDestroyed()) {
-                win.setProgressBar(p);
-                win.setTitle(`${Math.round(p * 100)}%`);
-            }
-            if (p == 1) console.log("模型下载完成，解压中");
+        res.on("error", (err) => {
+            callback(err);
         });
     });
     win.close();
