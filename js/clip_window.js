@@ -41,7 +41,7 @@ function set_setting() {
     document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
 }
 
-var 全局缩放 = store.get("全局缩放") || 1.0;
+var 全局缩放 = store.get("全局.缩放") || 1.0;
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width / 全局缩放 + "px";
 const clip_canvas = document.getElementById("clip_photo");

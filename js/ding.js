@@ -10,6 +10,8 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     let div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
+    // 防止延迟
+    ratio = window.devicePixelRatio;
     div.style.left = x / ratio + "px";
     div.style.top = y / ratio + "px";
     div.style.width = w / ratio + "px";
