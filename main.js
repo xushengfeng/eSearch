@@ -142,10 +142,10 @@ function arg_run(c) {
     }
 }
 
-
+var ocr_v = "2.5.0";
 var file_o = { linux: ["Linux.tar.gz", 200], win32: ["Windows.zip", 80], darwin: ["macOS.zip", 300] };
 
-async function download_ocr() {
+async function download_ocr(callback) {
     const download = require("download");
 
     var download_path = app.getPath("userData");
@@ -187,6 +187,7 @@ async function download_ocr() {
         });
     });
     win.close();
+    callback(null);
     if (process.platform == "win32") {
         new Notification({
             title: app.name,
@@ -203,12 +204,11 @@ async function download_ocr() {
     }
 }
 
-async function rm_r() {
-    var ocr_path = path.join(app.getPath("userData"), "/ocr");
+async function rm_r(dir_path) {
     if (process.platform == "win32") {
-        exec(`rd /s /q ${ocr_path}`);
+        exec(`rd /s /q ${dir_path}`);
     } else {
-        exec(`rm -r ${ocr_path}`);
+        exec(`rm -r ${dir_path}`);
     }
 }
 
@@ -337,26 +337,43 @@ app.whenReady().then(() => {
      * 检查ocr文件是否下载，否，则下载
      */
     async function check_ocr() {
-        var download_path = app.getPath("userData");
-        if (
-            fs.existsSync(path.join(download_path, "/ocr")) ||
-            !store.get("OCR.检查OCR") ||
-            store.get("OCR.类型") != "离线"
-        )
-            return;
+        var ocr_path = path.join(app.getPath("userData"), "ocr"),
+            old_ocr_path = path.join(app.getPath("userData"), "ocr.old");
+        if (!store.get("OCR.检查OCR") || store.get("OCR.类型") != "离线") return;
+        // 已经下载
+        let download = fs.existsSync(ocr_path),
+            // 需要升级
+            update = store.get("OCR.版本") != ocr_v;
 
-        var resolve = await dialog.showMessageBox({
-            title: "服务未下载",
-            message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
-            checkboxLabel: "不再提示",
-            buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
-            defaultId: 0,
-            cancelId: 2,
-        });
+        if (!download)
+            var resolve = await dialog.showMessageBox({
+                title: "服务未下载",
+                message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
+                checkboxLabel: "不再提示",
+                buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
+                defaultId: 0,
+                cancelId: 2,
+            });
+        if (download && update)
+            var resolve = await dialog.showMessageBox({
+                title: "服务需要升级",
+                message: `${app.name} 离线OCR 服务版本较旧\n需要下载升级才能使用\n或前往 设置 配置 在线OCR`,
+                buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
+                defaultId: 0,
+                cancelId: 2,
+            });
         if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
-        if (resolve.response == 0) {
-            download_ocr();
-        } else if (resolve.response == 1) create_main_window("setting.html");
+        if (resolve?.response == 0) {
+            fs.renameSync(ocr_path, old_ocr_path);
+            download_ocr((err) => {
+                if (err) {
+                    fs.renameSync(old_ocr_path, ocr_path);
+                } else {
+                    store.set("OCR.版本", ocr_v);
+                    rm_r(old_ocr_path);
+                }
+            });
+        } else if (resolve?.response == 1) create_main_window("setting.html");
     }
     check_ocr();
 
@@ -640,7 +657,7 @@ ipcMain.on("setting", async (event, arg) => {
             download_ocr();
             break;
         case "删除离线OCR":
-            rm_r();
+            rm_r(path.join(app.getPath("userData"), "ocr"));
             break;
         case "set_default_setting":
             store.clear();
