@@ -487,6 +487,7 @@ function save_setting() {
         记住: document.getElementById("记住OCR引擎").checked
             ? store.get("OCR.记住") || document.getElementById("OCR类型").value
             : false,
+        版本: store.get("OCR.版本"),
     });
     store.set("在线OCR.baidu", {
         url: document.getElementById("baidu_ocr_url").value,
