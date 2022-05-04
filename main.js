@@ -1124,7 +1124,10 @@ ipcMain.on("open_url", (event, window_name, url) => {
 });
 async function create_browser(window_name, url) {
     var win_name = new Date().getTime();
+    var [w, h, m] = store.get("主窗口大小");
     var search_window = (search_window_l[win_name] = new BrowserWindow({
+        width: w,
+        height: h,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -1132,6 +1135,8 @@ async function create_browser(window_name, url) {
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         icon: the_icon,
     }));
+
+    if (m) search_window.maximize();
 
     if (window_name) main_to_search_l[window_name].push(win_name);
     if (dev) search_window.webContents.openDevTools();
@@ -1453,7 +1458,7 @@ var default_setting = {
         proxyRules: "",
         proxyBypassRules: "",
     },
-    主窗口大小: [800, 600],
+    主窗口大小: [800, 600, false],
     关闭窗口: {
         失焦: { 主窗口: false, 搜索窗口: false },
         子窗口跟随主窗口关: false,
