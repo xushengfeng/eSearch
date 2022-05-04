@@ -55,6 +55,21 @@ npx electron .
 # 编译
 npm run rebuild
 npm run dist
+# 将在build目录生产安装包和解压的目录
+```
+
+### 修改已安装的程序
+
+先按下<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>，或在菜单栏-识图-开发者工具 打开开发者工具进行调试。修改调试知道满意后，在对源码进行修改。
+
+```shell
+# 安装asar
+npm install -g asar
+asar e [设置里提示的运行位置]
+# 解压后在app目录修改
+# 打包
+asar p app app.asar
+# 重启软件即可
 ```
 
 ## 启动
