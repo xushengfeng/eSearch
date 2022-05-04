@@ -35,11 +35,11 @@
       "output": "build"
     },
     "compression": "maximum",
-    "asar": false,
     "icon": "./assets/logo",
     "electronDownload": {
       "mirror": "https://npmmirror.com/mirrors/electron/"
     },
+    "npmRebuild": false,
     "linux": {
       "category": "Utility",
       "target": [
