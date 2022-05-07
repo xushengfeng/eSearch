@@ -179,7 +179,7 @@ async function download_ocr(callback) {
                 icon: `${run_path}/assets/logo/64x64.png`,
             }).show();
         });
-        win.on("closed", () => {
+        win.on("close", () => {
             res.destroy();
             callback(true);
             new Notification({
@@ -189,7 +189,7 @@ async function download_ocr(callback) {
             }).show();
         });
     });
-    win.close();
+    win.destroy();
     callback(null);
     if (process.platform == "win32") {
         new Notification({
