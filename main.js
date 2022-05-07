@@ -173,6 +173,20 @@ async function download_ocr(callback) {
         });
         res.on("error", (err) => {
             callback(err);
+            new Notification({
+                title: app.name,
+                body: `${app.name} 服务下载错误，请重试`,
+                icon: `${run_path}/assets/logo/64x64.png`,
+            }).show();
+        });
+        win.on("closed", () => {
+            res.destroy();
+            callback(true);
+            new Notification({
+                title: app.name,
+                body: `${app.name} 服务下载已取消`,
+                icon: `${run_path}/assets/logo/64x64.png`,
+            }).show();
         });
     });
     win.close();
