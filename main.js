@@ -189,6 +189,7 @@ async function download_ocr(callback) {
             }).show();
         });
     });
+    win.setProgressBar(-1.0);
     win.destroy();
     callback(null);
     if (process.platform == "win32") {
