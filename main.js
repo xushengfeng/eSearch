@@ -353,18 +353,17 @@ app.whenReady().then(() => {
             });
         if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
         if (resolve?.response == 0) {
-            fs.renameSync(ocr_path, old_ocr_path);
+            if (download) fs.renameSync(ocr_path, old_ocr_path);
             download_ocr((err) => {
                 if (err) {
-                    fs.renameSync(old_ocr_path, ocr_path);
+                    if (download) fs.renameSync(old_ocr_path, ocr_path);
                 } else {
                     store.set("OCR.版本", ocr_v);
-                    rm_r(old_ocr_path);
+                    if (download) rm_r(old_ocr_path);
                 }
             });
         } else if (resolve?.response == 1) create_main_window("setting.html");
     }
-    check_ocr();
 
     // 快捷键
     var 快捷键函数 = {
@@ -413,6 +412,8 @@ app.whenReady().then(() => {
     create_clip_window();
 
     nativeTheme.themeSource = store.get("全局.深色模式");
+
+    check_ocr();
 });
 
 app.on("will-quit", () => {
