@@ -34,32 +34,33 @@ function editor_get() {
     }
     return t;
 }
-var editor_selection = {
-    start: { pg: NaN, of: NaN },
-    end: { pg: NaN, of: NaN },
-};
+/**@type {[{start: { pg: number, of: number },end: { pg: number, of: number }}]} */
+var editor_selection = [];
 
 function editor_cursor() {
     editor.addEventListener("mousedown", (e) => {
         if (e.target.tagName == "SPAN") {
             var /**@type {HTMLDivElement} */ w = e.target;
+            var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
             if (e.offsetX <= w.offsetWidth) {
-                editor_selection.start.of = get_index(w.parentElement, w);
+                n_s.start.of = get_index(w.parentElement, w);
             } else {
-                editor_selection.start.of = get_index(w.parentElement, w) + 1;
+                n_s.start.of = get_index(w.parentElement, w) + 1;
             }
-            editor_selection.start.pg = get_index(editor, w.parentElement);
+            n_s.start.pg = get_index(editor, w.parentElement);
+            editor_selection[0] = n_s;
         }
     });
     editor.addEventListener("mouseup", (e) => {
         if (e.target.tagName == "SPAN") {
             var /**@type {HTMLDivElement} */ w = e.target;
+            var n_s = editor_selection[0];
             if (e.offsetX <= w.offsetWidth) {
-                editor_selection.end.of = get_index(w.parentElement, w);
+                n_s.end.of = get_index(w.parentElement, w);
             } else {
-                editor_selection.end.of = get_index(w.parentElement, w) + 1;
+                n_s.end.of = get_index(w.parentElement, w) + 1;
             }
-            editor_selection.end.pg = get_index(editor, w.parentElement);
+            n_s.end.pg = get_index(editor, w.parentElement);
         }
     });
 }
