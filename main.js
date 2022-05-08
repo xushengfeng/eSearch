@@ -160,35 +160,34 @@ async function download_ocr(callback) {
         icon: `${run_path}/assets/logo/64x64.png`,
     }).show();
     console.log("开始下载服务");
-    await download(url, download_path, { extract: true }).on("response", (res) => {
-        var download_len = 0;
-        res.on("data", function (chunk) {
-            download_len += chunk.length;
-            var p = download_len / Number(res.headers["content-length"]);
-            if (!win.isDestroyed()) {
-                win.setProgressBar(p);
-                win.setTitle(`${Math.round(p * 100)}%`);
-            }
-            if (p == 1) console.log("服务下载完成，解压中");
-        });
-        res.on("error", (err) => {
+    await download(url, download_path, { extract: true })
+        .on("response", (res) => {
+            var download_len = 0;
+            res.on("data", function (chunk) {
+                download_len += chunk.length;
+                var p = download_len / Number(res.headers["content-length"]);
+                if (!win.isDestroyed()) {
+                    win.setProgressBar(p);
+                    win.setTitle(`${Math.round(p * 100)}%`);
+                }
+                if (p == 1) console.log("服务下载完成，解压中");
+            });
+            res.on("error", (err) => {
+                callback(err);
+            });
+            win.on("close", () => {
+                res.destroy();
+                callback(true);
+                new Notification({
+                    title: app.name,
+                    body: `${app.name} 服务下载已取消`,
+                    icon: `${run_path}/assets/logo/64x64.png`,
+                }).show();
+            });
+        })
+        .on("error", (err) => {
             callback(err);
-            new Notification({
-                title: app.name,
-                body: `${app.name} 服务下载错误，请重试`,
-                icon: `${run_path}/assets/logo/64x64.png`,
-            }).show();
         });
-        win.on("close", () => {
-            res.destroy();
-            callback(true);
-            new Notification({
-                title: app.name,
-                body: `${app.name} 服务下载已取消`,
-                icon: `${run_path}/assets/logo/64x64.png`,
-            }).show();
-        });
-    });
     win.setProgressBar(-1.0);
     win.destroy();
     callback(null);
@@ -367,9 +366,23 @@ app.whenReady().then(() => {
         if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
         if (resolve?.response == 0) {
             if (download) fs.renameSync(ocr_path, old_ocr_path);
-            download_ocr((err) => {
+            download_ocr(async (err) => {
                 if (err) {
                     if (download) fs.renameSync(old_ocr_path, ocr_path);
+                    var resolve = await dialog.showMessageBox({
+                        title: "服务下载失败",
+                        message: `${
+                            app.name
+                        } 离线OCR 服务版本下载失败\n请前往网站手动下载\n解压并移动 ocr 文件夹到 ${app.getPath(
+                            "userData"
+                        )}`,
+                        buttons: [`前往网站`, "取消"],
+                        defaultId: 0,
+                        cancelId: 1,
+                    });
+                    if (resolve?.response == 0) {
+                        shell.openExternal("https://github.com/xushengfeng/eSearch-OCR/releases/tag/2.5.0");
+                    }
                 } else {
                     store.set("OCR.版本", ocr_v);
                     if (download) rm_r(old_ocr_path);
