@@ -61,6 +61,9 @@ function editor_cursor() {
                 n_s.end.of = get_index(w.parentElement, w) + 1;
             }
             n_s.end.pg = get_index(editor, w.parentElement);
+            cursor.pg = n_s.end.pg;
+            cursor.of = n_s.end.of;
+            editor_i(cursor.pg, cursor.of);
         }
     });
 }
@@ -76,7 +79,18 @@ function get_index(parent_element, element) {
         if (parent_element.children[i] === element) return i;
     }
 }
-
+var cursor = { pg: NaN, of: NaN };
+/**
+ * 定位光标(左边)
+ * @param {number} p 段落(from 0)
+ * @param {number} i 词(from 0)
+ */
+function editor_i(p, i) {
+    var top = editor.querySelector(`div:nth-child(${p + 1})`).offsetTop;
+    var left = editor.querySelector(`span:nth-child(${i + 1})`).offsetLeft;
+    document.getElementById("cursor").style.left = left + "px";
+    document.getElementById("cursor").style.top = top + "px";
+}
 const { ipcRenderer, shell } = require("electron");
 const hotkeys = require("hotkeys-js");
 const fs = require("fs");
