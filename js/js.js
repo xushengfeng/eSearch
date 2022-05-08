@@ -377,7 +377,9 @@ function delete_enter() {
         d.innerHTML = p(text.innerHTML.replace(/<br>/g, "\n")).replace(/\n/g, "<br>");
         range.insertNode(d);
         // 清空span
-        document.getElementById("text").innerText = document.getElementById("text").innerText;
+        for (let i of document.getElementById("text").querySelectorAll("span")) {
+            i.outerHTML = i.innerHTML;
+        }
     }
 
     function p(t) {
