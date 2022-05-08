@@ -64,6 +64,7 @@ function local_ocr(arg, callback) {
                 );
                 break;
             case "darwin":
+                model_path = model_path.replace("\\ ", " ");
                 exec(
                     `source ${ocr_path}/env/bin/activate && ${ocr_path}/env/bin/python ${ocr_path}/ppocr/tools/infer/predict_system.py --image_dir="${tmp_path}" --det_model_dir="${model_path}/${det}" --rec_model_dir="${model_path}/${rec}" --use_gpu=False --rec_char_dict_path="${model_path}/ppocr_keys_v1.txt"
                     `,
