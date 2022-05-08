@@ -91,6 +91,36 @@ function editor_i(p, i) {
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + "px";
 }
+
+document.addEventListener("keyup", (e) => {
+    e.preventDefault();
+    switch (e.key) {
+        case "ArrowUp":
+            cursor.pg--;
+            break;
+        case "ArrowDown":
+            cursor.pg++;
+            break;
+        case "ArrowLeft":
+            if (cursor.of == 0) {
+                cursor.pg--;
+                cursor.of = editor.querySelector(`div:nth-child(${cursor.pg + 1})`).innerText.length;
+            } else {
+                cursor.pg--;
+            }
+            break;
+        case "ArrowRight":
+            if ((cursor.of = editor.querySelector(`div:nth-child(${cursor.pg + 1})`).innerText.length - 1)) {
+                cursor.pg++;
+                cursor.of = 0;
+            } else {
+                cursor.of++;
+            }
+            break;
+    }
+    editor_i(cursor.pg, cursor.of);
+});
+
 const { ipcRenderer, shell } = require("electron");
 const hotkeys = require("hotkeys-js");
 const fs = require("fs");
