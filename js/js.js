@@ -1,3 +1,81 @@
+var editor = document.getElementById("text");
+/**
+ * 写入编辑器
+ * @param {string} value 传入text
+ */
+function editor_push(value) {
+    let pg = value.split(/[\n\r]/);
+    for (let i of pg) {
+        let word_l = i.split("");
+        let div = document.createElement("div");
+        for (let j of word_l) {
+            let span = document.createElement("span");
+            span.innerText = j;
+            div.append(span);
+        }
+        if (word_l.length == 0) {
+            div.innerHTML = "<br>";
+        }
+        editor.append(div);
+    }
+}
+/**
+ * 获取编辑器文字
+ * @returns 文字
+ */
+function editor_get() {
+    var t = "";
+    for (let i of editor.querySelectorAll("div")) {
+        if (i.innerText == "\n" || t == "") {
+            t += i.innerText;
+        } else {
+            t += "\n" + i.innerText;
+        }
+    }
+    return t;
+}
+var editor_selection = {
+    start: { pg: NaN, of: NaN },
+    end: { pg: NaN, of: NaN },
+};
+
+function editor_cursor() {
+    editor.addEventListener("mousedown", (e) => {
+        if (e.target.tagName == "SPAN") {
+            var /**@type {HTMLDivElement} */ w = e.target;
+            if (e.offsetX <= w.offsetWidth) {
+                editor_selection.start.of = get_index(w.parentElement, w);
+            } else {
+                editor_selection.start.of = get_index(w.parentElement, w) + 1;
+            }
+            editor_selection.start.pg = get_index(editor, w.parentElement);
+        }
+    });
+    editor.addEventListener("mouseup", (e) => {
+        if (e.target.tagName == "SPAN") {
+            var /**@type {HTMLDivElement} */ w = e.target;
+            if (e.offsetX <= w.offsetWidth) {
+                editor_selection.end.of = get_index(w.parentElement, w);
+            } else {
+                editor_selection.end.of = get_index(w.parentElement, w) + 1;
+            }
+            editor_selection.end.pg = get_index(editor, w.parentElement);
+        }
+    });
+}
+editor_cursor();
+/**
+ * 定位子元素
+ * @param {HTMLElement} parent_element 父元素
+ * @param {HTMLElement} element 子元素
+ * @returns {number} 位置，从0算起
+ */
+function get_index(parent_element, element) {
+    for (let i = 0; i < parent_element.children.length; i++) {
+        if (parent_element.children[i] === element) return i;
+    }
+}
+
 const { ipcRenderer, shell } = require("electron");
 const hotkeys = require("hotkeys-js");
 const fs = require("fs");
@@ -666,6 +744,7 @@ setInterval(() => {
 var edit_on_other_type = null;
 var file_watcher = null;
 const path = require("path");
+const { disconnect } = require("process");
 var tmp_text_path = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
 var editing_on_other = false;
 function edit_on_other() {

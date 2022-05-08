@@ -72,6 +72,7 @@ body {
     scroll-behavior: smooth;
     margin: 8px;
     overflow-x: overlay;
+    user-select: none;
 }
 #text::-webkit-scrollbar {
     display: none;
