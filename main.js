@@ -143,7 +143,7 @@ function arg_run(c) {
 }
 
 var ocr_v = "2.5.0";
-var file_o = { linux: ["Linux.tar.gz", 210], win32: ["Windows.zip", 91], darwin: ["macOS.zip", 300] };
+var file_o = { linux: ["Linux.tar.gz", 210], win32: ["Windows.zip", 91], darwin: ["macOS.zip", 340] };
 
 async function download_ocr(callback) {
     const download = require("download");
