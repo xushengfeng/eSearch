@@ -199,6 +199,15 @@ async function download_ocr(callback) {
             icon: `${run_path}/assets/logo/64x64.png`,
         }).show();
         exec(`cd ${download_path}\\ocr && .\\cp15e.exe`);
+    } else if (process.platform == "darwin") {
+        new Notification({
+            title: app.name,
+            body: `${app.name} 服务已下载，正准备安装相关的依赖，请允许安装`,
+            icon: `${run_path}/assets/logo/64x64.png`,
+        }).show();
+        exec(`open -W "${download_path}/ocr/python-3.7.9-macosx10.9.pkg"`, (err) => {
+            if (!err) fs.rm(`${download_path}/ocr/python-3.7.9-macosx10.9.pkg`, () => {});
+        });
     } else {
         new Notification({
             title: app.name,
