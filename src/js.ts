@@ -101,12 +101,7 @@ function get_pg_max() {
  * @returns 元素，通过元素获取属性
  */
 function get_w(p: number, i: number) {
-    var el = null;
-    if (i == 0) {
-        el = editor.querySelector(`div:nth-child(${p + 1})`);
-    } else {
-        el = editor.querySelector(`div:nth-child(${p + 1})`).querySelector(`span:nth-child(${i + 1})`);
-    }
+    var el = editor.querySelector(`div:nth-child(${p + 1})`).querySelector(`span:nth-child(${i})`);
     return <HTMLElement>el;
 }
 /**
@@ -233,6 +228,39 @@ document.addEventListener("keyup", (e) => {
             break;
         case "End":
             cursor.of = get_w_max(cursor.pg);
+            break;
+        case "Backspace":
+            cursor = cursor_real; /* 左右移动后，不记录横向最大 */
+            if (cursor.of == 0) {
+                if (cursor.pg != 0) {
+                    cursor.pg--;
+                    cursor.of = get_w_max(cursor.pg);
+                    if (get_pg(cursor.pg).innerText == "\n") {
+                        get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
+                    } else {
+                        get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
+                    }
+                    get_pg(cursor.pg + 1).remove();
+                }
+            } else {
+                get_w(cursor.pg, cursor.of).remove();
+                cursor.of--;
+            }
+            break;
+        case "Delete":
+            cursor = cursor_real;
+            if (cursor.of == get_w_max(cursor.pg)) {
+                if (cursor.pg != get_pg_max()) {
+                    if (get_pg(cursor.pg).innerText == "\n") {
+                        get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
+                    } else if (get_pg(cursor.pg + 1).innerText != "\n") {
+                        get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
+                    }
+                    get_pg(cursor.pg + 1).remove();
+                }
+            } else {
+                get_w(cursor.pg, cursor.of + 1).remove();
+            }
             break;
     }
     editor_i(cursor.pg, cursor.of);
