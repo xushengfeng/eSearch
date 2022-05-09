@@ -72,11 +72,7 @@ body {
     transition: var(--transition);
     scroll-behavior: smooth;
     margin: 8px;
-    overflow-x: overlay;
     user-select: none;
-}
-#text::-webkit-scrollbar {
-    display: none;
 }
 #text:focus {
     outline: none;
@@ -88,6 +84,8 @@ body {
     overflow: hidden;
     cursor: default;
     user-select: none;
+    position: sticky;
+    left: 8px;
 }
 #text_bottom {
     grid-area: 2 / 1 / 3 / 3;
