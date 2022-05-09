@@ -89,6 +89,14 @@ function get_pg(p) {
     return editor.querySelector(`div:nth-child(${p + 1})`);
 }
 /**
+ * 获取段落最大索引
+ * @returns 索引值
+ */
+function get_pg_max() {
+    var i = editor.querySelectorAll(`div`).length;
+    return i - 1;
+}
+/**
  * 获取字符
  * @param p 段落数，从0开始算
  * @param i 字符索引
@@ -118,9 +126,28 @@ function get_w_index(p, i) {
     }
     else {
         var el = editor.querySelector(`div:nth-child(${p + 1})`).querySelector(`span:nth-child(${i})`);
-        n = el.offsetLeft + el.offsetWidth;
+        if (!el) {
+            return null;
+        }
+        else {
+            n = el.offsetLeft + el.offsetWidth;
+        }
     }
     return n;
+}
+/**
+ * 获取段落最大词数（最大间隔索引）
+ * @param p 段落数，从0开始算
+ * @returns 词数
+ */
+function get_w_max(p) {
+    var el = editor.querySelector(`div:nth-child(${p + 1})`);
+    if (el.innerText == "\n") {
+        return 0;
+    }
+    else {
+        return el.innerText.length;
+    }
 }
 /**
  * 定位子元素
@@ -142,7 +169,7 @@ var cursor = { pg: NaN, of: NaN };
  */
 function editor_i(p, i) {
     var top = get_pg(p).offsetTop;
-    var left = get_w_index(p, i);
+    var left = get_w_index(p, i) || get_w_index(p, get_w_max(p));
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + "px";
 }
@@ -151,24 +178,30 @@ document.addEventListener("keyup", (e) => {
     e.preventDefault();
     switch (e.key) {
         case "ArrowUp":
-            cursor.pg--;
+            if (cursor.pg != 0)
+                cursor.pg--;
             break;
         case "ArrowDown":
-            cursor.pg++;
+            if (cursor.pg != get_pg_max())
+                cursor.pg++;
             break;
         case "ArrowLeft":
             if (cursor.of == 0) {
-                cursor.pg--;
-                cursor.of = get_pg(cursor.pg).innerText.length;
+                if (cursor.pg != 0) {
+                    cursor.pg--;
+                    cursor.of = get_w_max(cursor.pg);
+                }
             }
             else {
-                cursor.pg--;
+                cursor.of--;
             }
             break;
         case "ArrowRight":
-            if ((cursor.of = get_pg(cursor.pg).innerText.length - 1)) {
-                cursor.pg++;
-                cursor.of = 0;
+            if (cursor.of == get_w_max(cursor.pg)) {
+                if (cursor.pg != get_pg_max()) {
+                    cursor.pg++;
+                    cursor.of = 0;
+                }
             }
             else {
                 cursor.of++;
