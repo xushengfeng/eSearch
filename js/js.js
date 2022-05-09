@@ -1,7 +1,7 @@
 var editor = document.getElementById("text");
 /**
  * 写入编辑器
- * @param {string} value 传入text
+ * @param value 传入text
  */
 function editor_push(value) {
     let pg = value.split(/[\n\r]/);
@@ -151,9 +151,9 @@ function get_w_max(p) {
 }
 /**
  * 定位子元素
- * @param {HTMLElement} parent_element 父元素
- * @param {HTMLElement} element 子元素
- * @returns {number} 位置，从0算起
+ * @param parent_element 父元素
+ * @param element 子元素
+ * @returns 位置，从0算起
  */
 function get_index(parent_element, element) {
     for (let i = 0; i < parent_element.children.length; i++) {
@@ -165,8 +165,8 @@ var cursor = { pg: 0, of: 0 };
 var cursor_real = { pg: 0, of: 0 };
 /**
  * 定位光标(左边)
- * @param {number} p 段落(from 0)
- * @param {number} i 词(from 0)
+ * @param p 段落(from 0)
+ * @param i 词(from 0)
  */
 function editor_i(p, i) {
     cursor_real = { pg: p, of: i };
@@ -178,13 +178,14 @@ function editor_i(p, i) {
     document.getElementById("cursor").style.top = top + "px";
 }
 editor_i(cursor.pg, cursor.of);
-document.addEventListener("keydown", (e) => {
-    e.preventDefault();
-    if (e.key.length == 1) {
-        var t = e.key;
-        if (t == " ")
-            t = "&nbsp;";
-        if (cursor_real.of != 0) {
+document.getElementById("cursor").focus();
+document.getElementById("cursor").oninput = () => {
+    var input_t = document.getElementById("cursor").innerText;
+    document.getElementById("cursor").innerText = "";
+    var input_t_l = input_t.split("");
+    if (cursor_real.of != 0) {
+        for (let i = input_t_l.length - 1; i >= 0; i--) {
+            const t = input_t_l[i];
             var span = document.createElement("span");
             span.innerHTML = t;
             editor
@@ -192,12 +193,17 @@ document.addEventListener("keydown", (e) => {
                 .querySelector(`span:nth-child(${cursor_real.of})`)
                 .after(span);
         }
-        else {
-            editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span>${t}</span>`;
-        }
-        cursor.of++;
-        editor_i(cursor.pg, cursor.of);
     }
+    else {
+        editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span>${input_t_l.join("</span><span>")}</span>`;
+    }
+    cursor.of += input_t_l.length;
+    editor_i(cursor.pg, cursor.of);
+};
+document.addEventListener("keydown", (e) => {
+    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"];
+    if (l.includes(e.key))
+        e.preventDefault();
 });
 document.addEventListener("keyup", (e) => {
     switch (e.key) {

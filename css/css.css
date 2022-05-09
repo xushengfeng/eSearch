@@ -105,6 +105,7 @@ body {
     animation: 1s blink 3 steps(1);
     animation-iteration-count: infinite;
     transition: 0.2s;
+    overflow: hidden;
 }
 
 /* 用于历史记录和浏览器打开固定 */
