@@ -161,19 +161,23 @@ function get_index(parent_element, element) {
             return i;
     }
 }
-var cursor = { pg: NaN, of: NaN };
+var cursor = { pg: 0, of: 0 };
+var cursor_real = { pg: 0, of: 0 };
 /**
  * 定位光标(左边)
  * @param {number} p 段落(from 0)
  * @param {number} i 词(from 0)
  */
 function editor_i(p, i) {
+    cursor_real = { pg: p, of: i };
+    if (!get_w_index(p, i))
+        cursor_real.of = get_w_max(p); /* 移动到更短行，定位到末尾 */
     var top = get_pg(p).offsetTop;
     var left = get_w_index(p, i) || get_w_index(p, get_w_max(p));
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + "px";
 }
-editor_i(0, 0);
+editor_i(cursor.pg, cursor.of);
 document.addEventListener("keyup", (e) => {
     e.preventDefault();
     switch (e.key) {
@@ -186,6 +190,7 @@ document.addEventListener("keyup", (e) => {
                 cursor.pg++;
             break;
         case "ArrowLeft":
+            cursor = cursor_real; /* 左右移动后，不记录横向最大 */
             if (cursor.of == 0) {
                 if (cursor.pg != 0) {
                     cursor.pg--;
@@ -197,6 +202,7 @@ document.addEventListener("keyup", (e) => {
             }
             break;
         case "ArrowRight":
+            cursor = cursor_real;
             if (cursor.of == get_w_max(cursor.pg)) {
                 if (cursor.pg != get_pg_max()) {
                     cursor.pg++;
