@@ -180,6 +180,24 @@ function editor_i(p, i) {
 editor_i(cursor.pg, cursor.of);
 document.addEventListener("keydown", (e) => {
     e.preventDefault();
+    if (e.key.length == 1) {
+        var t = e.key;
+        if (t == " ")
+            t = "&nbsp;";
+        if (cursor_real.of != 0) {
+            var span = document.createElement("span");
+            span.innerHTML = t;
+            editor
+                .querySelector(`div:nth-child(${cursor_real.pg + 1})`)
+                .querySelector(`span:nth-child(${cursor_real.of})`)
+                .after(span);
+        }
+        else {
+            editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span>${t}</span>`;
+        }
+        cursor.of++;
+        editor_i(cursor.pg, cursor.of);
+    }
 });
 document.addEventListener("keyup", (e) => {
     switch (e.key) {
