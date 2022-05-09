@@ -202,6 +202,12 @@ document.addEventListener("keyup", (e) => {
                 cursor.of++;
             }
             break;
+        case "Home":
+            cursor.of = 0;
+            break;
+        case "End":
+            cursor.of = get_w_max(cursor.pg);
+            break;
     }
     editor_i(cursor.pg, cursor.of);
 });
