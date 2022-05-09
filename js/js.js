@@ -178,8 +178,10 @@ function editor_i(p, i) {
     document.getElementById("cursor").style.top = top + "px";
 }
 editor_i(cursor.pg, cursor.of);
-document.addEventListener("keyup", (e) => {
+document.addEventListener("keydown", (e) => {
     e.preventDefault();
+});
+document.addEventListener("keyup", (e) => {
     switch (e.key) {
         case "ArrowUp":
             if (cursor.pg != 0)
