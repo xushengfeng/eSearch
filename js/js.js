@@ -195,7 +195,7 @@ document.getElementById("cursor").oninput = () => {
     editor_i(cursor.pg, cursor.of);
 };
 document.addEventListener("keydown", (e) => {
-    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"];
+    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete"];
     if (l.includes(e.key))
         e.preventDefault();
     switch (e.key) {
