@@ -198,8 +198,6 @@ document.addEventListener("keydown", (e) => {
     var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"];
     if (l.includes(e.key))
         e.preventDefault();
-});
-document.addEventListener("keyup", (e) => {
     switch (e.key) {
         case "ArrowUp":
             if (cursor.pg != 0)
