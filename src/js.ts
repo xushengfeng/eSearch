@@ -133,7 +133,7 @@ function get_w_index(p: number, i: number) {
     if (i == 0) {
         n = (<HTMLElement>editor.querySelector(`div:nth-child(${p + 1})`)).offsetLeft;
     } else {
-        var el = <HTMLElement>editor.querySelector(`div:nth-child(${p + 1})`).querySelector(`span:nth-child(${i})`);
+        var el = <HTMLElement>editor.querySelector(`div:nth-child(${p + 1}) > span:nth-child(${i})`);
         if (!el) {
             return null;
         } else {

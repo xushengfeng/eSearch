@@ -136,7 +136,7 @@ function get_w_index(p, i) {
         n = editor.querySelector(`div:nth-child(${p + 1})`).offsetLeft;
     }
     else {
-        var el = editor.querySelector(`div:nth-child(${p + 1})`).querySelector(`span:nth-child(${i})`);
+        var el = editor.querySelector(`div:nth-child(${p + 1}) > span:nth-child(${i})`);
         if (!el) {
             return null;
         }
