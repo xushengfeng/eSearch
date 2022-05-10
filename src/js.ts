@@ -36,8 +36,23 @@ function editor_get() {
     return t;
 }
 /**记录间隔位置，从0开始 */
-type _Selection = [{ start: { pg: number; of: number }; end: { pg: number; of: number } }?];
-var editor_selection: _Selection = [];
+type selection = { start: { pg: number; of: number }; end: { pg: number; of: number } };
+type selection_list = [selection?];
+var editor_selection: selection_list = [];
+
+function format_selection(s: selection) {
+    var tmp: selection;
+    if (s.end.pg == s.start.pg) {
+        tmp.start.pg = tmp.end.pg = s.end.pg;
+        tmp.start.of = Math.min(s.start.of, s.end.of);
+        tmp.end.of = Math.max(s.start.of, s.end.of);
+    } else if (s.end.pg < s.start.pg) {
+        [tmp.start, tmp.end] = [s.end, s.start];
+    } else {
+        tmp = s;
+    }
+    return tmp;
+}
 
 function editor_cursor() {
     editor.addEventListener("mousedown", (e) => {
@@ -165,6 +180,97 @@ function editor_i(p: number, i: number) {
     document.getElementById("cursor").style.top = top + "px";
 }
 editor_i(cursor.pg, cursor.of);
+
+/**
+ * 渲染选区
+ * @param s 选区
+ */
+function rander_selection(s: selection) {
+    if (s.start.pg == s.end.pg) {
+        draw_line_selection(s.start.pg, s.start.of, s.end.of, false);
+    } else {
+        for (let i = s.start.pg; i <= s.end.pg; i++) {
+            if (i == s.start.pg) {
+                draw_line_selection(i, s.start.of, get_w_max(i), true);
+            } else if (i == s.end.pg) {
+                if (s.end.of == 0) {
+                    draw_line_selection(i, 0, get_w_max(i), true);
+                } else {
+                    draw_line_selection(i, 0, get_w_max(i), false);
+                }
+            } else {
+                draw_line_selection(i, 0, get_w_max(i), true);
+            }
+        }
+    }
+    function draw_line_selection(pg: number, s_of: number, e_of: number, br: boolean) {}
+}
+/**
+ * 获取选区文字
+ * @param s 选区
+ * @returns 文字（反转义）
+ */
+function get_selection(s: selection) {
+    var text = "";
+    if (s.start.pg == s.end.pg) {
+        text = get_s(s.start.pg, s.start.of, s.end.of);
+    } else {
+        for (let i = s.start.pg; i <= s.end.pg; i++) {
+            if (i == s.start.pg) {
+                text += get_s(i, s.start.of, get_w_max(i)) || "\n";
+            } else if (i == s.end.pg) {
+                text += "\n" + get_s(i, 0, s.end.of);
+            } else {
+                text += "\n" + get_s(i, 0, get_w_max(i));
+            }
+        }
+    }
+    return text;
+}
+/**
+ * 截取的文字
+ * @param n 段落索引
+ * @param s 开始间隔索引
+ * @param e 末尾间隔索引
+ * @returns 文字（反转义）
+ */
+function get_s(n: number, s: number, e: number) {
+    var r = get_pg(n).innerText;
+    return r;
+}
+/**
+ * 替换选区文字
+ * @param s 选区
+ * @param text 要替换成的文字
+ */
+function replace_selection(s: selection, text: string) {
+    var t = "";
+    // 拼接替换后的文字
+    t = get_s(s.start.pg, 0, s.start.of) + text + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
+    // 删除原来的段落
+    for (let i = s.start.pg; i <= s.end.pg; i++) {
+        get_pg(i).remove();
+    }
+    // 倒叙添加
+    let pg = t.split(/[\n\r]/);
+    for (let i = pg.length - 1; i >= 0; i--) {
+        let word_l = pg[i].split("");
+        let div = document.createElement("div");
+        for (let j of word_l) {
+            let span = document.createElement("span");
+            span.innerText = j;
+            div.append(span);
+        }
+        if (word_l.length == 0) {
+            div.innerHTML = "<br>";
+        }
+        if (s.start.pg == 0) {
+            editor.prepend(div);
+        } else {
+            get_pg(s.start.pg - 1).after(div);
+        }
+    }
+}
 
 document.getElementById("cursor").focus();
 document.getElementById("cursor").oninput = () => {
