@@ -51,17 +51,28 @@ body {
 
 #text_out {
     box-sizing: border-box;
-    overflow: overlay;
     transition: var(--transition);
-    display: grid;
-    grid-template-columns: min-content auto;
-    grid-template-rows: min-content 100%;
+    display: flex;
     flex: 1;
     border-radius: var(--border-radius);
     background: var(--bg2);
     cursor: text;
     font-size: 1em;
     line-height: 1.5em;
+    position: relative;
+}
+#line_num {
+    margin: 8px;
+    text-align: end;
+    opacity: 0.3;
+    overflow: hidden;
+    cursor: default;
+    user-select: none;
+}
+#main_text {
+    overflow: overlay;
+    width: 100%;
+    height: 100%;
     position: relative;
 }
 #text {
@@ -71,21 +82,11 @@ body {
     line-height: 1.5em;
     transition: var(--transition);
     scroll-behavior: smooth;
-    margin: 8px;
+    margin: 8px 8px 8px 0;
     user-select: none;
 }
 #text:focus {
     outline: none;
-}
-#line_num {
-    margin: 8px 0 8px 8px;
-    text-align: end;
-    opacity: 0.3;
-    overflow: hidden;
-    cursor: default;
-    user-select: none;
-    position: sticky;
-    left: 8px;
 }
 #text_bottom {
     grid-area: 2 / 1 / 3 / 3;
