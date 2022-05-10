@@ -287,6 +287,23 @@ function replace_selection(s: selection, text: string) {
     editor_i(s.start.pg, s.start.of);
 }
 
+function edit_delete() {
+    replace_selection(format_selection(editor_selection[0]), "");
+}
+function edit_copy() {
+    var t = get_selection(format_selection(editor_selection[0]));
+    navigator.clipboard.writeText(t);
+}
+function edit_cut() {
+    edit_copy();
+    edit_delete();
+}
+function edit_paste() {
+    navigator.clipboard.readText().then((t) => {
+        replace_selection(format_selection(editor_selection[0]), t);
+    });
+}
+
 document.getElementById("cursor").focus();
 document.getElementById("cursor").oninput = () => {
     var input_t = document.getElementById("cursor").innerText;
@@ -309,6 +326,9 @@ document.getElementById("cursor").oninput = () => {
     }
     cursor.of += input_t_l.length;
     editor_i(cursor.pg, cursor.of);
+};
+document.getElementById("cursor").onpaste = (e) => {
+    e.preventDefault();
 };
 document.addEventListener("keydown", (e) => {
     var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete"];
