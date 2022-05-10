@@ -74,6 +74,7 @@ body {
     width: 100%;
     height: 100%;
     position: relative;
+    -webkit-user-drag: none;
 }
 #text {
     box-sizing: border-box;
