@@ -180,6 +180,7 @@ function editor_i(p: number, i: number) {
     var left = get_w_index(p, i) || get_w_index(p, get_w_max(p));
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + 8 + "px";
+    document.getElementById("cursor").focus();
 }
 editor_i(cursor.pg, cursor.of);
 
