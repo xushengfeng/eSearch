@@ -256,8 +256,12 @@ function replace_selection(s: selection, text: string) {
     // 拼接替换后的文字
     t = get_s(s.start.pg, 0, s.start.of) + text + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
     // 删除原来的段落
+    var t_l = [];
     for (let i = s.start.pg; i <= s.end.pg; i++) {
-        get_pg(i).remove();
+        t_l.push(get_pg(i));
+    }
+    for (let i of t_l) {
+        i.remove();
     }
     // 倒叙添加
     let pg = t.split(/[\n\r]/);
@@ -278,6 +282,9 @@ function replace_selection(s: selection, text: string) {
             get_pg(s.start.pg - 1).after(div);
         }
     }
+
+    document.getElementById("selection").innerHTML = "";
+    editor_i(s.start.pg, s.start.of);
 }
 
 document.getElementById("cursor").focus();
