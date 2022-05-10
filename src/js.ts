@@ -417,8 +417,20 @@ document.addEventListener("keydown", (e) => {
         case "Enter":
             if (get_selection(format_selection(editor_selection[0])) == "") {
                 var div = document.createElement("div");
-                div.innerHTML = "<br>";
-                get_pg(cursor.pg).after(div);
+                if (cursor.of == get_w_max(cursor.pg)) {
+                    div.innerHTML = "<br>";
+                    get_pg(cursor.pg).after(div);
+                } else if (cursor.of == 0) {
+                    div.innerHTML = "<br>";
+                    get_pg(cursor.pg).before(div);
+                } else {
+                    div.innerHTML = s_to_span(get_s(cursor.pg, cursor.of, get_w_max(cursor.pg)));
+                    get_pg(cursor.pg).innerHTML = s_to_span(get_s(cursor.pg, 0, cursor.of));
+                    function s_to_span(t: string) {
+                        return `<span>${t.split("").join("</span><span>")}</span>`;
+                    }
+                    get_pg(cursor.pg).after(div);
+                }
                 cursor.pg++;
                 cursor.of = 0;
             } else {
