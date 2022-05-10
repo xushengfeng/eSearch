@@ -181,10 +181,10 @@ var cursor_real = { pg: 0, of: 0 };
  */
 function editor_i(p, i) {
     cursor_real = { pg: p, of: i };
-    if (!get_w_index(p, i))
+    if (get_w_index(p, i) === null)
         cursor_real.of = get_w_max(p); /* 移动到更短行，定位到末尾 */
     var top = get_pg(p).offsetTop;
-    var left = get_w_index(p, i) || get_w_index(p, get_w_max(p));
+    var left = get_w_index(p, i) === null ? get_w_index(p, get_w_max(p)) : get_w_index(p, i);
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + 8 + "px";
     document.getElementById("cursor").focus();
@@ -399,7 +399,12 @@ document.addEventListener("keydown", (e) => {
                     }
                 }
                 else {
-                    get_w(cursor.pg, cursor.of).remove();
+                    if (cursor.of == 1) {
+                        get_pg(cursor.pg).innerText = "\n";
+                    }
+                    else {
+                        get_w(cursor.pg, cursor.of).remove();
+                    }
                     cursor.of--;
                 }
             }
