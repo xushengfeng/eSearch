@@ -38,7 +38,7 @@ function editor_get() {
 }
 var editor_selection = [];
 function format_selection(s) {
-    var tmp;
+    var tmp = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (s.end.pg == s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
         tmp.start.of = Math.min(s.start.of, s.end.of);
@@ -71,6 +71,7 @@ function editor_cursor() {
             n_s.start.pg = get_index(editor, el);
         }
         editor_selection[0] = n_s;
+        document.getElementById("selection").innerHTML = "";
     });
     editor.addEventListener("mouseup", (e) => {
         var el = e.target;
@@ -89,6 +90,7 @@ function editor_cursor() {
             n_s.end.of = el.innerText == "\n" ? 0 : el.innerText.length;
             n_s.end.pg = get_index(editor, el);
         }
+        rander_selection(format_selection(n_s));
         cursor.pg = n_s.end.pg;
         cursor.of = n_s.end.of;
         editor_i(cursor.pg, cursor.of);
@@ -112,7 +114,7 @@ function get_pg_max() {
     return i - 1;
 }
 /**
- * 获取字符
+ * 获取字符元素
  * @param p 段落数，从0开始算
  * @param i 字符索引
  * @returns 元素，通过元素获取属性
@@ -184,7 +186,7 @@ function editor_i(p, i) {
     var top = get_pg(p).offsetTop;
     var left = get_w_index(p, i) || get_w_index(p, get_w_max(p));
     document.getElementById("cursor").style.left = left + "px";
-    document.getElementById("cursor").style.top = top + "px";
+    document.getElementById("cursor").style.top = top + 8 + "px";
 }
 editor_i(cursor.pg, cursor.of);
 /**
@@ -201,19 +203,22 @@ function rander_selection(s) {
                 draw_line_selection(i, s.start.of, get_w_max(i), true);
             }
             else if (i == s.end.pg) {
-                if (s.end.of == 0) {
-                    draw_line_selection(i, 0, get_w_max(i), true);
-                }
-                else {
-                    draw_line_selection(i, 0, get_w_max(i), false);
-                }
+                draw_line_selection(i, 0, s.end.of, s.end.of == 0);
             }
             else {
                 draw_line_selection(i, 0, get_w_max(i), true);
             }
         }
     }
-    function draw_line_selection(pg, s_of, e_of, br) { }
+    function draw_line_selection(pg, s_of, e_of, br) {
+        var div = document.createElement("div");
+        div.className = "selection";
+        var s_left = s_of == 0 ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth, e_left = e_of == 0 ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
+        div.style.left = s_left + "px";
+        div.style.width = e_left - s_left + (br ? 1 : 0) + "px";
+        div.style.top = get_pg(pg).offsetTop + "px";
+        document.getElementById("selection").append(div);
+    }
 }
 /**
  * 获取选区文字
@@ -249,6 +254,7 @@ function get_selection(s) {
  */
 function get_s(n, s, e) {
     var r = get_pg(n).innerText;
+    r = r.slice(s, e);
     return r;
 }
 /**

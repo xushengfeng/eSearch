@@ -84,6 +84,8 @@ body {
     scroll-behavior: smooth;
     margin: 8px 8px 8px 0;
     user-select: none;
+    position: relative;
+    z-index: 2;
 }
 #text:focus {
     outline: none;
@@ -105,6 +107,16 @@ body {
     animation-iteration-count: infinite;
     transition: 0.2s;
     overflow: hidden;
+    z-index: 3;
+}
+#selection {
+    position: absolute;
+    top: 8px;
+}
+.selection {
+    position: absolute;
+    height: 1.5rem;
+    background-color: var(--hover-color);
 }
 
 /* 用于历史记录和浏览器打开固定 */
