@@ -36,7 +36,7 @@ function editor_get() {
     }
     return t;
 }
-var editor_selection = [];
+var editor_selection = [{ start: { pg: 0, of: 0 }, end: { pg: 0, of: 0 } }];
 function format_selection(s) {
     var tmp = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (s.end.pg == s.start.pg) {
@@ -339,7 +339,7 @@ document.getElementById("cursor").onpaste = (e) => {
     e.preventDefault();
 };
 document.addEventListener("keydown", (e) => {
-    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete"];
+    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete", "Enter"];
     if (l.includes(e.key))
         e.preventDefault();
     switch (e.key) {
@@ -383,39 +383,60 @@ document.addEventListener("keydown", (e) => {
             break;
         case "Backspace":
             cursor = cursor_real; /* 左右移动后，不记录横向最大 */
-            if (cursor.of == 0) {
-                if (cursor.pg != 0) {
-                    cursor.pg--;
-                    cursor.of = get_w_max(cursor.pg);
-                    if (get_pg(cursor.pg).innerText == "\n") {
-                        get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
+            if (get_selection(format_selection(editor_selection[0])) == "") {
+                if (cursor.of == 0) {
+                    if (cursor.pg != 0) {
+                        cursor.pg--;
+                        cursor.of = get_w_max(cursor.pg);
+                        if (get_pg(cursor.pg).innerText == "\n") {
+                            get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
+                        }
+                        else {
+                            get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
+                        }
+                        get_pg(cursor.pg + 1).remove();
                     }
-                    else {
-                        get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
-                    }
-                    get_pg(cursor.pg + 1).remove();
+                }
+                else {
+                    get_w(cursor.pg, cursor.of).remove();
+                    cursor.of--;
                 }
             }
             else {
-                get_w(cursor.pg, cursor.of).remove();
-                cursor.of--;
+                edit_delete();
             }
             break;
         case "Delete":
             cursor = cursor_real;
-            if (cursor.of == get_w_max(cursor.pg)) {
-                if (cursor.pg != get_pg_max()) {
-                    if (get_pg(cursor.pg).innerText == "\n") {
-                        get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
+            if (get_selection(format_selection(editor_selection[0])) == "") {
+                if (cursor.of == get_w_max(cursor.pg)) {
+                    if (cursor.pg != get_pg_max()) {
+                        if (get_pg(cursor.pg).innerText == "\n") {
+                            get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
+                        }
+                        else if (get_pg(cursor.pg + 1).innerText != "\n") {
+                            get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
+                        }
+                        get_pg(cursor.pg + 1).remove();
                     }
-                    else if (get_pg(cursor.pg + 1).innerText != "\n") {
-                        get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
-                    }
-                    get_pg(cursor.pg + 1).remove();
+                }
+                else {
+                    get_w(cursor.pg, cursor.of + 1).remove();
                 }
             }
             else {
-                get_w(cursor.pg, cursor.of + 1).remove();
+                edit_delete();
+            }
+            break;
+        case "Enter":
+            if (get_selection(format_selection(editor_selection[0])) == "") {
+                var div = document.createElement("div");
+                get_pg(cursor.pg).after(div);
+                cursor.pg++;
+                cursor.of = 0;
+            }
+            else {
+                edit_delete();
             }
             break;
     }
