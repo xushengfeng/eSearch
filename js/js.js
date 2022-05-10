@@ -432,6 +432,7 @@ document.addEventListener("keydown", (e) => {
         case "Enter":
             if (get_selection(format_selection(editor_selection[0])) == "") {
                 var div = document.createElement("div");
+                div.innerHTML = "<br>";
                 get_pg(cursor.pg).after(div);
                 cursor.pg++;
                 cursor.of = 0;
