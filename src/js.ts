@@ -176,7 +176,7 @@ function editor_cursor() {
             }
             n_s.start.pg = get_index(editor, w.parentElement);
         } else if (el.tagName == "DIV") {
-            n_s.start.of = el.innerText == "\n" ? 0 : el.innerText.length;
+            n_s.start.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.start.pg = get_index(editor, el);
         }
         if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
@@ -195,7 +195,7 @@ function editor_cursor() {
             }
             n_s.end.pg = get_index(editor, w.parentElement);
         } else if (el.tagName == "DIV") {
-            n_s.end.of = el.innerText == "\n" ? 0 : el.innerText.length;
+            n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.end.pg = get_index(editor, el);
         }
         document.getElementById("selection").innerHTML = "";
@@ -217,7 +217,7 @@ function editor_cursor() {
             }
             n_s.end.pg = get_index(editor, w.parentElement);
         } else if (el.tagName == "DIV") {
-            n_s.end.of = el.innerText == "\n" ? 0 : el.innerText.length;
+            n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.end.pg = get_index(editor, el);
         }
         n_s.rander();
@@ -284,7 +284,7 @@ function get_w_max(p: number) {
     if (el.innerText == "\n") {
         return 0;
     } else {
-        return el.innerText.length;
+        return el.querySelectorAll("span").length;
     }
 }
 /**
@@ -488,7 +488,7 @@ document.addEventListener("keydown", (e) => {
             break;
         case "Tab":
             var span = document.createElement("span");
-            span.innerHTML = "&emsp;";
+            span.innerHTML = "&emsp;&emsp;";
             if (cursor.of == 0) {
                 if (get_w(cursor.pg, 1)) {
                     get_w(cursor.pg, 1).before(span);
