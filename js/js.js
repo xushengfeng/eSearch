@@ -757,6 +757,24 @@ if (in_browser) {
         e.preventDefault();
     };
 }
+var is_wrap = !store.get("编辑器.自动换行");
+wrap();
+function wrap() {
+    is_wrap = !is_wrap;
+    if (is_wrap) {
+        document.documentElement.style.setProperty("--wrap", "nowrap");
+    }
+    else {
+        document.documentElement.style.setProperty("--wrap", "wrap");
+    }
+    editor_i(cursor.pg, cursor.of);
+}
+var is_check = !store.get("编辑器.拼写检查");
+spellcheck();
+function spellcheck() {
+    is_check = !is_check;
+    document.getElementById("text").spellcheck = is_check;
+}
 /************************************搜索 */
 /**
  * 判断是否为链接

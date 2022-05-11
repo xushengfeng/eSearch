@@ -88,9 +88,14 @@ body {
     user-select: none;
     position: relative;
     z-index: 2;
+    white-space: nowrap;
 }
 #text:focus {
     outline: none;
+}
+#text > div {
+    display: flex;
+    flex-wrap: var(--wrap);
 }
 .tab {
     width: 1rem;
