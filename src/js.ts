@@ -430,7 +430,7 @@ document.getElementById("cursor").oninput = () => {
         }
     } else {
         editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span class="w">${input_t_l.join(
-            "</span><span>"
+            `</span><span class="w">`
         )}</span>`;
     }
     cursor.of += input_t_l.length;
