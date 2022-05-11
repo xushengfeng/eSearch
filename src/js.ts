@@ -504,3 +504,14 @@ document.addEventListener("keydown", (e) => {
     }
     editor_i(cursor.pg, cursor.of);
 });
+
+/**
+ * 底部增高
+ */
+function change_text_bottom() {
+    var d = 8;
+    if (get_pg_max() == 0) {
+        d = 16;
+    }
+    document.getElementById("text_bottom").style.height = `calc(100% - 1.5rem - ${d}px)`;
+}
