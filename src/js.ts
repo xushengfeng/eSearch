@@ -515,3 +515,9 @@ function change_text_bottom() {
     }
     document.getElementById("text_bottom").style.height = `calc(100% - 1.5rem - ${d}px)`;
 }
+
+document.getElementById("text_bottom").onclick = () => {
+    cursor.pg = get_pg_max();
+    cursor.of = get_w_max(get_pg_max());
+    editor_i(cursor.pg, cursor.of);
+};
