@@ -595,6 +595,7 @@ document.getElementById("main_text").onscroll = () => {
 
 if (in_browser) {
     class Store {
+        constructor() {}
         get(value: string) {
             var o = {
                 自动打开链接: false,
@@ -629,13 +630,21 @@ if (in_browser) {
                     拼写检查: false,
                     行号: true,
                 },
+                历史记录设置: {
+                    保留历史记录: true,
+                    自动清除历史记录: false,
+                    d: 14,
+                    h: 0,
+                },
             };
 
             return eval(`o.${value}`);
         }
         set(k, v) {}
+        delete(k) {}
     }
     var store = new Store();
+    history_store = new Store();
 }
 
 /************************************主要 */
@@ -911,6 +920,114 @@ for (let i in 翻译引擎_list) {
     } value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
 }
 document.querySelector("#translate_s").innerHTML = translate_c;
+
+/************************************历史记录 */
+// 历史记录
+
+if(!in_browser){
+    var history_store = new Store({ name: "history" });
+}
+
+var history_list = history_store.get("历史记录") || {};
+var 历史记录设置 = store.get("历史记录设置");
+if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
+    var now_time = new Date().getTime();
+    var d_time = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
+    for (var i of Object.keys(history_list)) {
+        if (now_time - Number(i) > d_time) {
+            history_store.delete(`历史记录.${i}`);
+        }
+    }
+}
+
+function push_history() {
+    var t = editor_get();
+    var i = new Date().getTime();
+    var s = { text: t };
+    if (t != "" && 历史记录设置.保留历史记录) {
+        history_store.set(`历史记录.${i}`, s);
+        history_list[i] = s;
+    }
+    render_history();
+}
+// 历史记录界面
+var history_showed = false;
+document.getElementById("history_b").onclick = show_history;
+// html转义
+function html_to_text(html) {
+    return html.replace(
+        /[<>& \'\"]/g,
+        (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c])
+    );
+}
+
+function show_history() {
+    if (history_showed) {
+        document.getElementById("history").className = "";
+        history_showed = false;
+        document.getElementById("history_list").style.top = "100%";
+    } else {
+        document.getElementById("history").className = "hover_b2";
+        history_showed = true;
+
+        document.getElementById("history_list").style.top = "0%";
+
+        render_history();
+    }
+}
+function render_history() {
+    var n = {};
+    for (let i of Object.keys(history_list).sort()) {
+        n[i] = history_list[i];
+    }
+    history_list = n;
+    n = null;
+    // 迁移历史记录
+    if (store.get("历史记录")) {
+        document.querySelector("#history_list").innerHTML = `<div id = "old_his_to_new">迁移旧历史</div>`;
+        document.getElementById("old_his_to_new").onclick = old_his_to_new;
+    }
+    if (Object.keys(history_list).length == 0) document.querySelector("#history_list").innerHTML = "暂无历史记录";
+    for (let i in history_list) {
+        var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
+        var div = document.createElement("div");
+        div.id = i;
+        var f = require("./lib/time_format");
+        div.innerHTML = `<div class="history_title"><span>${f(
+            store.get("时间格式"),
+            new Date(Number(i) - 0)
+        )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
+            t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
+        }</div>`;
+        document.querySelector("#history_list").prepend(div);
+    }
+
+    // 打开某项历史
+    document.querySelectorAll("#history_list > div > .history_text").forEach((e) => {
+        e.addEventListener("click", () => {
+            editor_push(history_list[e.parentElement.id].text);
+            show_history();
+        });
+    });
+    // 删除某项历史
+    // TODO多选
+    document.querySelectorAll("#history_list > div > .history_title > button").forEach((e) => {
+        e.addEventListener("click", () => {
+            history_store.delete(`历史记录.${e.parentElement.parentElement.id}`);
+            e.parentElement.parentElement.style.display = "none";
+        });
+    });
+}
+if (t == "") render_history();
+
+function old_his_to_new() {
+    for (let i of store.get("历史记录")) {
+        history_store.set(`历史记录.${i.time}`, { text: i.text });
+        history_list[i.time] = { text: i.text };
+    }
+    store.delete("历史记录");
+    render_history();
+}
 
 /************************************引入 */
 const { ipcRenderer, shell } = require("electron");

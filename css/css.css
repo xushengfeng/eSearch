@@ -32,6 +32,7 @@ body {
     grid-area: 1 / 1 / 2 / 7;
     border-radius: var(--border-radius);
     transition: var(--transition);
+    position: relative;
 }
 #top:focus-within {
     box-shadow: var(--shadow);
@@ -153,10 +154,13 @@ body {
 #history_list {
     transition: var(--transition);
     overflow-y: overlay;
-    height: 0;
+    height: 100%;
     text-align: center;
-    position: relative;
+    position: absolute;
     z-index: 9;
+    top: 100%;
+    width: 100%;
+    background-color: var(--bg);
 }
 #history_list > div {
     margin: 0 0 16px 0;
