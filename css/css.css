@@ -108,7 +108,7 @@ body {
 #cursor {
     position: absolute;
     width: 1.6px;
-    height: 1.5rem;
+    height: 1.5em;
     background-color: black;
     animation: 1s blink 3 steps(1);
     animation-iteration-count: infinite;
@@ -122,7 +122,7 @@ body {
 }
 .selection {
     position: absolute;
-    height: 1.5rem;
+    height: 1.5em;
     background-color: var(--hover-color);
 }
 
@@ -185,6 +185,7 @@ body {
 
 #edit_b {
     position: absolute;
+    z-index: 3;
     border-radius: var(--border-radius);
     backdrop-filter: var(--blur);
     box-shadow: var(--shadow);

@@ -1,3 +1,4 @@
+var in_browser = typeof global == "undefined";
 var editor = document.getElementById("text");
 /**
  * 写入编辑器
@@ -235,6 +236,8 @@ function editor_cursor() {
         cursor.pg = n_s.end.pg;
         cursor.of = n_s.end.of;
         editor_i(cursor.pg, cursor.of);
+        var end_el = get_w(cursor.pg, cursor.of);
+        show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8);
     });
 }
 editor_cursor();
@@ -368,7 +371,6 @@ class editing_operation {
     }
     delete_enter() {
         var t = editor_selections[0].get();
-        var 自动搜索中文占比 = 0.3;
         var x = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "" : " ";
         t = t.replace(/(?<=[^。？！…….\?!])[\r\n]/g, x);
         editor_selections[0].replace(t);
@@ -603,12 +605,46 @@ document.getElementById("main_text").onscroll = () => {
     document.getElementById("line_num").style.top = `-${document.getElementById("main_text").scrollTop}px`;
 };
 /************************************浏览器转换 */
-if (typeof global == "undefined") {
+if (in_browser) {
     class Store {
         get(value) {
-            var o = {};
-            return o[value];
+            var o = {
+                自动打开链接: false,
+                自动搜索中文占比: 0.2,
+                浏览器中打开: false,
+                搜索引擎: [
+                    ["Google", "https://www.google.com/search?q=%s"],
+                    ["百度", "https://www.baidu.com/s?wd=%s"],
+                    ["必应", "https://cn.bing.com/search?q=%s"],
+                    ["Yandex", "https://yandex.com/search/?text=%s"],
+                ],
+                翻译引擎: [
+                    ["Google", "https://translate.google.cn/?op=translate&text=%s"],
+                    ["Deepl", "https://www.deepl.com/translator#any/any/%s"],
+                    ["金山词霸", "http://www.iciba.com/word?w=%s"],
+                    ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
+                    ["腾讯", "https://fanyi.qq.com/?text=%s"],
+                ],
+                引擎: {
+                    记住: false,
+                    默认搜索引擎: "百度",
+                    默认翻译引擎: "Google",
+                },
+                字体: {
+                    主要字体: "",
+                    等宽字体: "",
+                    记住: false,
+                    大小: 16,
+                },
+                编辑器: {
+                    自动换行: true,
+                    拼写检查: false,
+                    行号: true,
+                },
+            };
+            return eval(`o.${value}`);
         }
+        set(k, v) { }
     }
     var store = new Store();
 }
@@ -627,6 +663,93 @@ document.getElementById("browser").onclick = () => {
     else {
         document.getElementById("browser").className = "hover_b2";
         浏览器打开 = true;
+    }
+};
+/**字体大小 */
+var 默认字体大小 = store.get("字体.大小");
+document.getElementById("text_out").style.fontSize =
+    (store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小) + "px";
+// ctrl滚轮控制字体大小
+if (!in_browser) {
+    const hotkeys = require("hotkeys-js");
+    hotkeys("ctrl+0", () => {
+        set_font_size(默认字体大小);
+    });
+}
+document.onwheel = (e) => {
+    if (e.ctrlKey) {
+        var d = e.deltaY / Math.abs(e.deltaY);
+        var size = Number(document.getElementById("text_out").style.fontSize.replace("px", ""));
+        set_font_size(size - d);
+    }
+};
+function set_font_size(font_size) {
+    document.getElementById("text_out").style.fontSize = font_size + "px";
+    if (store.get("字体.记住"))
+        store.set("字体.记住", font_size);
+}
+/**编辑栏 */
+var edit_bar_s = false;
+function show_edit_bar(x, y) {
+    // 简易判断链接并显示按钮
+    if (is_link(document.getSelection().toString(), false)) {
+        document.getElementById("link_bar").style.width = "30px";
+    }
+    else {
+        setTimeout(() => {
+            document.getElementById("link_bar").style.width = "0";
+        }, 400);
+    }
+    if (edit_bar_s) {
+        document.getElementById("edit_b").style.transition = "var(--transition)";
+        setTimeout(() => {
+            document.getElementById("edit_b").style.transition = "";
+        }, 400);
+    }
+    // 排除没选中
+    if (editor_selections[0].get() != "") {
+        document.getElementById("edit_b").className = "edit_s";
+        var x = x < 0 ? 0 : x;
+        if (document.getElementById("edit_b").offsetWidth + x > window.innerWidth)
+            x = window.innerWidth - document.getElementById("edit_b").offsetWidth;
+        var y = y < 0 ? 0 : y;
+        document.getElementById("edit_b").style.left = `${x}px`;
+        document.getElementById("edit_b").style.top = `${y}px`;
+        edit_bar_s = true;
+    }
+    else {
+        document.getElementById("edit_b").className = "edit_h";
+        edit_bar_s = false;
+    }
+}
+document.getElementById("edit_b").onmousedown = (e) => {
+    e.preventDefault();
+    switch (e.target.id) {
+        case "link_bar":
+            var url = document.getSelection().toString();
+            open_link("url", url);
+            break;
+        case "search_bar":
+            open_link("search");
+            break;
+        case "translate_bar":
+            open_link("translate");
+            break;
+        case "selectAll_bar":
+            edit.select_all();
+            break;
+        case "cut_bar":
+            edit.cut();
+            break;
+        case "copy_bar":
+            edit.copy();
+            break;
+        case "paste_bar":
+            edit.paste();
+            break;
+        case "delete_enter_bar":
+            edit.delete_enter();
+            break;
     }
 };
 /************************************搜索 */
@@ -710,9 +833,57 @@ function open_link(id, link) {
         window.open(url);
     }
 }
+var 搜索引擎_list = store.get("搜索引擎"), 翻译引擎_list = store.get("翻译引擎"), 引擎 = store.get("引擎");
+/**搜索翻译按钮 */
+document.getElementById("search_b").onclick = () => {
+    open_link("search");
+};
+document.getElementById("translate_b").onclick = () => {
+    open_link("translate");
+};
+/**改变选项后搜索 */
+document.getElementById("search_s").oninput = () => {
+    open_link("search");
+    if (引擎.记住)
+        store.set("引擎.记住", [
+            document.getElementById("search_s").selectedOptions[0].innerText,
+            store.get("引擎.记住")[1],
+        ]);
+};
+document.getElementById("translate_s").oninput = () => {
+    open_link("translate");
+    if (引擎.记住)
+        store.set("引擎.记住", [
+            store.get("引擎.记住")[0],
+            document.getElementById("translate_s").selectedOptions[0].innerText,
+        ]);
+};
+/**展示搜索引擎选项 */
+var search_c = "";
+for (let i in 搜索引擎_list) {
+    search_c += `<option ${引擎.记住
+        ? 引擎.记住[0] == 搜索引擎_list[i][0]
+            ? "selected"
+            : ""
+        : 引擎.默认搜索引擎 == 搜索引擎_list[i][0]
+            ? "selected"
+            : ""} value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0]}</option>`;
+}
+document.querySelector("#search_s").innerHTML = search_c;
+/**展示翻译引擎选项 */
+var translate_c = "";
+for (let i in 翻译引擎_list) {
+    translate_c += `<option ${引擎.记住
+        ? 引擎.记住[1] == 翻译引擎_list[i][0]
+            ? "selected"
+            : ""
+        : 引擎.默认翻译引擎 == 翻译引擎_list[i][0]
+            ? "selected"
+            : ""} value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
+}
+document.querySelector("#translate_s").innerHTML = translate_c;
 /************************************引入 */
 const { ipcRenderer, shell } = require("electron");
-const hotkeys = require("hotkeys-js");
 const fs = require("fs");
 const os = require("os");
 ipcRenderer.on("text", (event, name, list) => {
