@@ -33,6 +33,12 @@ body {
     border-radius: var(--border-radius);
     transition: var(--transition);
 }
+#top:focus-within {
+    box-shadow: var(--shadow);
+}
+#top:hover {
+    box-shadow: var(--shadow);
+}
 
 #tab_bar {
     margin: 0;
