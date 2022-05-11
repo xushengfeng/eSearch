@@ -313,6 +313,8 @@ function editor_i(p: number, i: number) {
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + 8 + "px";
     document.getElementById("cursor").focus();
+
+    editor_change();
 }
 editor_i(cursor.pg, cursor.of);
 
@@ -504,6 +506,10 @@ document.addEventListener("keydown", (e) => {
     }
     editor_i(cursor.pg, cursor.of);
 });
+
+function editor_change() {
+    change_text_bottom();
+}
 
 /**
  * 底部增高
