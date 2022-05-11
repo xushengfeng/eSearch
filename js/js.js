@@ -4,6 +4,7 @@ var editor = document.getElementById("text");
  * @param value 传入text
  */
 function editor_push(value) {
+    editor.innerHTML = "";
     let pg = value.split(/[\n\r]/);
     for (let i of pg) {
         let word_l = i.split("");
@@ -18,6 +19,7 @@ function editor_push(value) {
         }
         editor.append(div);
     }
+    editor_i(get_pg_max(), get_w_max(get_pg_max()));
 }
 editor_push("");
 /**
@@ -311,8 +313,8 @@ function get_index(parent_element, element) {
             return i;
     }
 }
-var cursor = { pg: 0, of: 0 };
-var cursor_real = { pg: 0, of: 0 };
+var cursor = { pg: get_pg_max(), of: get_w_max(get_pg_max()) };
+var cursor_real = { pg: get_pg_max(), of: get_w_max(get_pg_max()) };
 /**
  * 定位光标(左边)
  * @param p 段落(from 0)
@@ -600,3 +602,121 @@ document.getElementById("line_num").onclick = (e) => {
 document.getElementById("main_text").onscroll = () => {
     document.getElementById("line_num").style.top = `-${document.getElementById("main_text").scrollTop}px`;
 };
+/************************************浏览器转换 */
+if (typeof global == "undefined") {
+    class Store {
+        get(value) {
+            var o = {};
+            return o[value];
+        }
+    }
+    var store = new Store();
+}
+/************************************主要 */
+var window_name = "", t = "";
+var 自动搜索 = store.get("自动搜索"), 自动打开链接 = store.get("自动打开链接"), 自动搜索中文占比 = store.get("自动搜索中文占比");
+/************************************UI */
+var 浏览器打开 = store.get("浏览器中打开");
+if (浏览器打开)
+    document.getElementById("browser").className = "hover_b2";
+document.getElementById("browser").onclick = () => {
+    if (浏览器打开) {
+        document.getElementById("browser").className = "";
+        浏览器打开 = false;
+    }
+    else {
+        document.getElementById("browser").className = "hover_b2";
+        浏览器打开 = true;
+    }
+};
+/************************************搜索 */
+/**
+ * 判断是否为链接
+ * @param url 链接
+ * @param s 严格模式
+ * @returns 是否为链接
+ */
+function is_link(url, s) {
+    if (s) {
+        var regex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
+        if (url.match(regex) != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        // 有.就行
+        if (url.match(/\./g) != null && !url.match(/[\n\r]/g)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
+/**
+ * 展示文字
+ * @param t 展示的文字
+ */
+function show_t(t) {
+    t = t.replace(/[\r\n]$/, "");
+    editor_push(t);
+    // 严格模式
+    if (is_link(t, true)) {
+        if (自动打开链接)
+            open_link("url", t);
+    }
+    else {
+        var language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
+        if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
+            if (language == "本地语言") {
+                open_link("search");
+            }
+            else {
+                open_link("translate");
+            }
+        }
+    }
+    edit.select_all();
+}
+/**
+ * 打开浏览界面
+ * @param id 模式
+ * @param link 链接
+ */
+function open_link(id, link) {
+    if (id == "url") {
+        link = link.replace(/[(^\s)(\s$)]/g, "");
+        if (link.match(/\/\//g) == null) {
+            link = "https://" + link;
+        }
+        var url = link;
+    }
+    else {
+        var s = editor_selection.get() || document.getElementById("text").innerText; // 要么全部，要么选中
+        var url = document.querySelector(`#${id}_s`).value.replace("%s", encodeURIComponent(s));
+    }
+    if (typeof global != "undefined") {
+        if (浏览器打开) {
+            shell.openExternal(url);
+        }
+        else {
+            ipcRenderer.send("open_url", window_name, url);
+        }
+    }
+    else {
+        window.open(url);
+    }
+}
+/************************************引入 */
+const { ipcRenderer, shell } = require("electron");
+const hotkeys = require("hotkeys-js");
+const fs = require("fs");
+const os = require("os");
+ipcRenderer.on("text", (event, name, list) => {
+    window_name = name;
+    t = list[0];
+    show_t(t);
+});
