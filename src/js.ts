@@ -231,7 +231,12 @@ function editor_cursor() {
         editor_i(cursor.pg, cursor.of);
 
         var end_el = get_w(cursor.pg, cursor.of);
-        show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8);
+        show_edit_bar(
+            end_el.offsetLeft + 8,
+            end_el.offsetTop + end_el.offsetHeight + 8,
+            el.offsetHeight,
+            e.button == 2
+        );
     });
 }
 editor_cursor();
@@ -682,23 +687,23 @@ function set_font_size(font_size) {
 
 /**编辑栏 */
 var edit_bar_s = false;
-function show_edit_bar(x: number, y: number) {
+function show_edit_bar(x: number, y: number, h: number, right: boolean) {
     // 简易判断链接并显示按钮
-    if (is_link(document.getSelection().toString(), false)) {
+    if (is_link(editor_selections[0].get(), false)) {
         document.getElementById("link_bar").style.width = "30px";
     } else {
         setTimeout(() => {
             document.getElementById("link_bar").style.width = "0";
         }, 400);
     }
-    if (edit_bar_s) {
+    if (edit_bar_s && right) {
         document.getElementById("edit_b").style.transition = "var(--transition)";
         setTimeout(() => {
             document.getElementById("edit_b").style.transition = "";
         }, 400);
     }
     // 排除没选中
-    if (editor_selections[0].get() != "") {
+    if (editor_selections[0].get() != "" || right) {
         document.getElementById("edit_b").className = "edit_s";
         var x = x < 0 ? 0 : x;
         if (document.getElementById("edit_b").offsetWidth + x > window.innerWidth)
@@ -743,6 +748,12 @@ document.getElementById("edit_b").onmousedown = (e) => {
             break;
     }
 };
+
+if (in_browser) {
+    document.body.oncontextmenu = (e) => {
+        e.preventDefault();
+    };
+}
 
 /************************************搜索 */
 
