@@ -1,5 +1,35 @@
 var in_browser = typeof global == "undefined";
 
+
+/**撤销 */
+// 定义撤销栈
+var undo_stack = [""];
+// 定义位置
+var undo_stack_i = 0;
+/**
+ * 添加到撤销栈
+ * @returns none
+ */
+function stack_add() {
+    if (undo_stack[undo_stack_i] == editor_get()) return;
+    // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
+    if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
+    undo_stack.push(editor_get());
+    undo_stack_i = undo_stack.length - 1;
+}
+function undo() {
+    if (undo_stack_i > 0) {
+        undo_stack_i--;
+        editor_push(undo_stack[undo_stack_i]);
+    }
+}
+function redo() {
+    if (undo_stack_i < undo_stack.length - 1) {
+        undo_stack_i++;
+        editor_push(undo_stack[undo_stack_i]);
+    }
+}
+
 var editor = document.getElementById("text");
 /**
  * 写入编辑器
@@ -79,7 +109,7 @@ class selection {
             div.style.top = get_pg(pg).offsetTop + "px";
             return div.outerHTML;
         }
-        document.getElementById("selection").innerHTML=t
+        document.getElementById("selection").innerHTML = t;
     }
     /**
      * 获取选区文字
@@ -552,6 +582,7 @@ document.addEventListener("keydown", (e) => {
 function editor_change() {
     change_text_bottom();
     line_num();
+    stack_add();
 }
 
 /**
