@@ -114,12 +114,17 @@ body {
     position: absolute;
     width: 1.6px;
     height: 1.5em;
-    background-color: black;
-    animation: 1s blink 3 steps(1);
-    animation-iteration-count: infinite;
+    background-color: #0002;
     transition: 0.2s;
     overflow: hidden;
     z-index: 3;
+    outline: none;
+    color: #0000;
+}
+#cursor:focus {
+    background-color: #000;
+    animation: 1s blink 3 steps(1);
+    animation-iteration-count: infinite;
 }
 #selection {
     position: absolute;
