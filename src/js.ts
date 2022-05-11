@@ -55,7 +55,9 @@ function format_selection(s: selection) {
 }
 
 function editor_cursor() {
+    var down = false;
     editor.addEventListener("mousedown", (e) => {
+        down = true;
         var el = <HTMLElement>e.target;
         var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
         if (el.tagName == "SPAN") {
@@ -73,7 +75,30 @@ function editor_cursor() {
         if (!e.shiftKey) editor_selection[0] = n_s;
         document.getElementById("selection").innerHTML = "";
     });
+    editor.addEventListener("mousemove", (e) => {
+        if (!down) return;
+        var el = <HTMLElement>e.target;
+        var n_s = editor_selection[0];
+        if (el.tagName == "SPAN") {
+            var w = el;
+            if (e.offsetX <= w.offsetWidth + w.offsetLeft) {
+                n_s.end.of = get_index(w.parentElement, w);
+            } else {
+                n_s.end.of = get_index(w.parentElement, w) + 1;
+            }
+            n_s.end.pg = get_index(editor, w.parentElement);
+        } else if (el.tagName == "DIV") {
+            n_s.end.of = el.innerText == "\n" ? 0 : el.innerText.length;
+            n_s.end.pg = get_index(editor, el);
+        }
+        document.getElementById("selection").innerHTML = "";
+        rander_selection(format_selection(n_s));
+        cursor.pg = n_s.end.pg;
+        cursor.of = n_s.end.of;
+        editor_i(cursor.pg, cursor.of);
+    });
     editor.addEventListener("mouseup", (e) => {
+        down = false;
         var el = <HTMLElement>e.target;
         var n_s = editor_selection[0];
         if (el.tagName == "SPAN") {
