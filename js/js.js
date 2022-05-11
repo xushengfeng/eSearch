@@ -364,6 +364,13 @@ class editing_operation {
         s.rander();
         editor_selections[0] = s;
     }
+    delete_enter() {
+        var t = editor_selections[0].get();
+        var 自动搜索中文占比 = 0.3;
+        var x = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "" : " ";
+        t = t.replace(/(?<=[^。？！…….\?!])[\r\n]/g, x);
+        editor_selections[0].replace(t);
+    }
 }
 var edit = new editing_operation();
 document.getElementById("cursor").focus();
