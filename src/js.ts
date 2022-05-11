@@ -221,7 +221,8 @@ function editor_cursor() {
             down = true;
         }
         if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
-        // document.getElementById("selection").innerHTML = "";
+
+        document.getElementById("edit_b").style.pointerEvents = "none";
     });
     document.addEventListener("mousemove", (e) => {
         if (!down) return;
@@ -274,6 +275,8 @@ function editor_cursor() {
             el.offsetHeight,
             e.button == 2
         );
+
+        document.getElementById("edit_b").style.pointerEvents = "";
     });
 }
 editor_cursor();
@@ -754,14 +757,13 @@ function show_edit_bar(x: number, y: number, h: number, right: boolean) {
             document.getElementById("link_bar").style.width = "0";
         }, 400);
     }
-    if (edit_bar_s && right) {
-        document.getElementById("edit_b").style.transition = "var(--transition)";
-        setTimeout(() => {
-            document.getElementById("edit_b").style.transition = "";
-        }, 400);
-    }
     // 排除没选中
     if (editor_selections[0].get() != "" || right) {
+        if (edit_bar_s) {
+            document.getElementById("edit_b").style.transition = "var(--transition)";
+        } else {
+            document.getElementById("edit_b").style.transition = "opacity var(--transition)";
+        }
         document.getElementById("edit_b").className = "edit_s";
         var x = x < 0 ? 0 : x;
         if (document.getElementById("edit_b").offsetWidth + x > window.innerWidth)

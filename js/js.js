@@ -224,7 +224,7 @@ function editor_cursor() {
         }
         if (!e.shiftKey)
             [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
-        // document.getElementById("selection").innerHTML = "";
+        document.getElementById("edit_b").style.pointerEvents = "none";
     });
     document.addEventListener("mousemove", (e) => {
         if (!down)
@@ -277,6 +277,7 @@ function editor_cursor() {
         editor_i(cursor.pg, cursor.of);
         var end_el = get_w(cursor.pg, cursor.of);
         show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8, el.offsetHeight, e.button == 2);
+        document.getElementById("edit_b").style.pointerEvents = "";
     });
 }
 editor_cursor();
@@ -762,14 +763,14 @@ function show_edit_bar(x, y, h, right) {
             document.getElementById("link_bar").style.width = "0";
         }, 400);
     }
-    if (edit_bar_s && right) {
-        document.getElementById("edit_b").style.transition = "var(--transition)";
-        setTimeout(() => {
-            document.getElementById("edit_b").style.transition = "";
-        }, 400);
-    }
     // 排除没选中
     if (editor_selections[0].get() != "" || right) {
+        if (edit_bar_s) {
+            document.getElementById("edit_b").style.transition = "var(--transition)";
+        }
+        else {
+            document.getElementById("edit_b").style.transition = "opacity var(--transition)";
+        }
         document.getElementById("edit_b").className = "edit_s";
         var x = x < 0 ? 0 : x;
         if (document.getElementById("edit_b").offsetWidth + x > window.innerWidth)
