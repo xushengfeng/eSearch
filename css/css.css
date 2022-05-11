@@ -91,6 +91,11 @@ body {
 #text:focus {
     outline: none;
 }
+.tab {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+}
 #text_bottom {
     grid-area: 2 / 1 / 3 / 3;
 }

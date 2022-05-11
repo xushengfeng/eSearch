@@ -121,6 +121,7 @@ class selection {
             let div = document.createElement("div");
             for (let j of word_l) {
                 let span = document.createElement("span");
+                if (j == "\t") span.className = "tab";
                 span.innerText = j;
                 div.append(span);
             }
@@ -349,7 +350,7 @@ class editing_operation {
         });
     }
     select_all() {
-        var s = <selection>{ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } };
+        var s = new selection({ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } });
         s.rander();
         editor_selections[0] = s;
     }
@@ -442,6 +443,8 @@ document.addEventListener("keydown", (e) => {
                     }
                     cursor.of--;
                 }
+                var s = new selection({ start: cursor, end: cursor });
+                editor_selections[0] = s;
             } else {
                 edit.delete();
             }
@@ -461,6 +464,8 @@ document.addEventListener("keydown", (e) => {
                 } else {
                     get_w(cursor.pg, cursor.of + 1).remove();
                 }
+                var s = new selection({ start: cursor, end: cursor });
+                editor_selections[0] = s;
             } else {
                 edit.delete();
             }
@@ -484,24 +489,33 @@ document.addEventListener("keydown", (e) => {
                 }
                 cursor.pg++;
                 cursor.of = 0;
+                var s = new selection({ start: cursor, end: cursor });
+                editor_selections[0] = s;
             } else {
                 edit.delete();
             }
             break;
         case "Tab":
             var span = document.createElement("span");
-            span.innerHTML = "&emsp;&emsp;";
-            if (cursor.of == 0) {
-                if (get_w(cursor.pg, 1)) {
-                    get_w(cursor.pg, 1).before(span);
+            span.className = "tab";
+            span.innerHTML = "\t";
+            if (editor_selections[0].get() == "") {
+                if (cursor.of == 0) {
+                    if (get_w(cursor.pg, 1)) {
+                        get_w(cursor.pg, 1).before(span);
+                    } else {
+                        get_pg(cursor.pg).innerHTML = "";
+                        get_pg(cursor.pg).append(span);
+                    }
                 } else {
-                    get_pg(cursor.pg).innerHTML = "";
-                    get_pg(cursor.pg).append(span);
+                    get_w(cursor.pg, cursor.of).after(span);
                 }
+                cursor.of++;
             } else {
-                get_w(cursor.pg, cursor.of).after(span);
+                editor_selection.replace(span.innerText);
             }
-            cursor.of++;
+            var s = new selection({ start: cursor, end: cursor });
+            editor_selections[0] = s;
             break;
     }
     editor_i(cursor.pg, cursor.of);
