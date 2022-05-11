@@ -523,6 +523,7 @@ document.addEventListener("keydown", (e) => {
 
 function editor_change() {
     change_text_bottom();
+    line_num();
 }
 
 /**
@@ -541,3 +542,16 @@ document.getElementById("text_bottom").onclick = () => {
     cursor.of = get_w_max(get_pg_max());
     editor_i(cursor.pg, cursor.of);
 };
+
+/**
+ * 行号
+ */
+function line_num() {
+    document.getElementById("line_num").innerHTML = "";
+    for (let i = 0; i <= get_pg_max(); i++) {
+        var item = document.createElement("div");
+        item.style.height = get_pg(i).offsetHeight + "px";
+        item.innerText = (i + 1).toString();
+        document.getElementById("line_num").append(item);
+    }
+}
