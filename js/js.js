@@ -672,6 +672,9 @@ document.getElementById("text_out").style.fontSize =
 // ctrl滚轮控制字体大小
 if (!in_browser) {
     const hotkeys = require("hotkeys-js");
+    hotkeys.filter = () => {
+        return true;
+    };
     hotkeys("ctrl+0", () => {
         set_font_size(默认字体大小);
     });
@@ -687,6 +690,9 @@ function set_font_size(font_size) {
     document.getElementById("text_out").style.fontSize = font_size + "px";
     if (store.get("字体.记住"))
         store.set("字体.记住", font_size);
+    setTimeout(() => {
+        editor_i(cursor.pg, cursor.of);
+    }, 400);
 }
 /**编辑栏 */
 var edit_bar_s = false;
