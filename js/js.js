@@ -577,3 +577,16 @@ function line_num() {
         document.getElementById("line_num").append(item);
     }
 }
+document.getElementById("line_num").onclick = (e) => {
+    var el = e.target;
+    if (el == document.getElementById("line_num"))
+        return;
+    var l_i = Number(el.innerText) - 1;
+    var s = new selection({ start: { pg: l_i, of: 0 }, end: { pg: l_i, of: get_w_max(l_i) } });
+    editor_selections[0] = s;
+    document.getElementById("selection").innerHTML = "";
+    s.rander();
+    cursor.pg = l_i;
+    cursor.of = get_w_max(l_i);
+    editor_i(cursor.pg, cursor.of);
+};
