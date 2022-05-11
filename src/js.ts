@@ -381,7 +381,7 @@ document.getElementById("cursor").onpaste = (e) => {
     e.preventDefault();
 };
 document.addEventListener("keydown", (e) => {
-    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete", "Enter"];
+    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete", "Enter", "Tab"];
     if (l.includes(e.key)) e.preventDefault();
     switch (e.key) {
         case "ArrowUp":
@@ -485,6 +485,21 @@ document.addEventListener("keydown", (e) => {
             } else {
                 edit.delete();
             }
+            break;
+        case "Tab":
+            var span = document.createElement("span");
+            span.innerHTML = "&emsp;";
+            if (cursor.of == 0) {
+                if (get_w(cursor.pg, 1)) {
+                    get_w(cursor.pg, 1).before(span);
+                } else {
+                    get_pg(cursor.pg).innerHTML = "";
+                    get_pg(cursor.pg).append(span);
+                }
+            } else {
+                get_w(cursor.pg, cursor.of).after(span);
+            }
+            cursor.of++;
             break;
     }
     editor_i(cursor.pg, cursor.of);
