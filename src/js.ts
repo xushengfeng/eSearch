@@ -1,6 +1,5 @@
 var in_browser = typeof global == "undefined";
 
-
 /**撤销 */
 // 定义撤销栈
 var undo_stack = [""];
@@ -64,9 +63,9 @@ function editor_get() {
     var t = "";
     for (let i of editor.querySelectorAll("div")) {
         if (i.innerText == "\n" || t == "") {
-            t += i.innerText;
+            t += i.innerText.replace(/\n/g, "");
         } else {
-            t += "\n" + i.innerText;
+            t += "\n" + i.innerText.replace(/\n/g, "");
         }
     }
     return t;
@@ -377,7 +376,7 @@ editor_i(cursor.pg, cursor.of);
  * @returns 文字（反转义）
  */
 function get_s(n: number, s: number, e: number) {
-    var r = get_pg(n).innerText;
+    var r = get_pg(n).innerText.replace(/\n/g, "");
     r = r.slice(s, e);
     return r;
 }
