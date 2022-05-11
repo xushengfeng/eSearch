@@ -344,6 +344,11 @@ function edit_paste() {
         replace_selection(format_selection(editor_selection[0]), t);
     });
 }
+function edit_select_all() {
+    var s = { start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } };
+    rander_selection(s);
+    editor_selection[0] = s;
+}
 document.getElementById("cursor").focus();
 document.getElementById("cursor").oninput = () => {
     var input_t = document.getElementById("cursor").innerText;
