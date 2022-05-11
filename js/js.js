@@ -295,6 +295,7 @@ function replace_selection(s, text) {
             get_pg(s.start.pg - 1).after(div);
         }
     }
+    editor_selection[0] = { start: s.start, end: s.start };
     document.getElementById("selection").innerHTML = "";
     editor_i(s.start.pg, s.start.of);
 }

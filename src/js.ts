@@ -284,6 +284,8 @@ function replace_selection(s: selection, text: string) {
         }
     }
 
+    editor_selection[0] = { start: s.start, end: s.start };
+
     document.getElementById("selection").innerHTML = "";
     editor_i(s.start.pg, s.start.of);
 }
