@@ -35,13 +35,120 @@ function editor_get() {
     }
     return t;
 }
+
+class selection {
+    start: { pg: number; of: number };
+    end: { pg: number; of: number };
+    constructor(s: { start: { pg: number; of: number }; end: { pg: number; of: number } }) {
+        this.start = s.start;
+        this.end = s.end;
+    }
+    /**
+     * 渲染选区
+     * @param this 选区
+     */
+    rander(this: selection) {
+        var s = format_selection(this);
+        if (s.start.pg == s.end.pg) {
+            draw_line_selection(s.start.pg, s.start.of, s.end.of, false);
+        } else {
+            for (let i = s.start.pg; i <= s.end.pg; i++) {
+                if (i == s.start.pg) {
+                    draw_line_selection(i, s.start.of, get_w_max(i), true);
+                } else if (i == s.end.pg) {
+                    draw_line_selection(i, 0, s.end.of, s.end.of == 0);
+                } else {
+                    draw_line_selection(i, 0, get_w_max(i), true);
+                }
+            }
+        }
+        function draw_line_selection(pg: number, s_of: number, e_of: number, br: boolean) {
+            var div = document.createElement("div");
+            div.className = "selection";
+            var s_left = s_of == 0 ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth,
+                e_left = e_of == 0 ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
+            div.style.left = s_left + "px";
+            div.style.width = e_left - s_left + (br ? 1 : 0) + "px";
+            div.style.top = get_pg(pg).offsetTop + "px";
+            document.getElementById("selection").append(div);
+        }
+    }
+    /**
+     * 获取选区文字
+     * @param this 选区
+     * @returns 文字（反转义）
+     */
+    get(this: selection) {
+        var s = format_selection(this);
+        var text = "";
+        if (s.start.pg == s.end.pg) {
+            text = get_s(s.start.pg, s.start.of, s.end.of);
+        } else {
+            for (let i = s.start.pg; i <= s.end.pg; i++) {
+                if (i == s.start.pg) {
+                    text += get_s(i, s.start.of, get_w_max(i)) || "\n";
+                } else if (i == s.end.pg) {
+                    text += "\n" + get_s(i, 0, s.end.of);
+                } else {
+                    text += "\n" + get_s(i, 0, get_w_max(i));
+                }
+            }
+        }
+        return text;
+    }
+    /**
+     * 替换选区文字
+     * @param this 选区
+     * @param text 要替换成的文字
+     */
+    replace(this: selection, text: string) {
+        var s = format_selection(this);
+        var t = "";
+        // 拼接替换后的文字
+        t = get_s(s.start.pg, 0, s.start.of) + text + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
+        // 删除原来的段落
+        var t_l = [];
+        for (let i = s.start.pg; i <= s.end.pg; i++) {
+            t_l.push(get_pg(i));
+        }
+        for (let i of t_l) {
+            i.remove();
+        }
+        // 倒叙添加
+        let pg = t.split(/[\n\r]/);
+        for (let i = pg.length - 1; i >= 0; i--) {
+            let word_l = pg[i].split("");
+            let div = document.createElement("div");
+            for (let j of word_l) {
+                let span = document.createElement("span");
+                span.innerText = j;
+                div.append(span);
+            }
+            if (word_l.length == 0) {
+                div.innerHTML = "<br>";
+            }
+            if (s.start.pg == 0) {
+                editor.prepend(div);
+            } else {
+                get_pg(s.start.pg - 1).after(div);
+            }
+        }
+
+        editor_selections[0].start = s.start;
+        editor_selections[0].end = s.start;
+
+        document.getElementById("selection").innerHTML = "";
+        editor_i(s.start.pg, s.start.of);
+    }
+}
+
 /**记录间隔位置，从0开始 */
-type selection = { start: { pg: number; of: number }; end: { pg: number; of: number } };
 type selection_list = [selection?];
-var editor_selection: selection_list = [{ start: { pg: 0, of: 0 }, end: { pg: 0, of: 0 } }];
+var editor_selection = new selection({ start: { pg: 0, of: 0 }, end: { pg: 0, of: 0 } });
+var editor_selections: selection_list = [editor_selection];
 
 function format_selection(s: selection) {
-    var tmp: selection = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
+    var tmp = new selection({ start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } });
     if (s.end.pg == s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
         tmp.start.of = Math.min(s.start.of, s.end.of);
@@ -72,13 +179,13 @@ function editor_cursor() {
             n_s.start.of = el.innerText == "\n" ? 0 : el.innerText.length;
             n_s.start.pg = get_index(editor, el);
         }
-        if (!e.shiftKey) editor_selection[0] = n_s;
+        if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
         document.getElementById("selection").innerHTML = "";
     });
     editor.addEventListener("mousemove", (e) => {
         if (!down) return;
         var el = <HTMLElement>e.target;
-        var n_s = editor_selection[0];
+        var n_s = editor_selections[0];
         if (el.tagName == "SPAN") {
             var w = el;
             if (e.offsetX <= w.offsetWidth + w.offsetLeft) {
@@ -92,7 +199,7 @@ function editor_cursor() {
             n_s.end.pg = get_index(editor, el);
         }
         document.getElementById("selection").innerHTML = "";
-        rander_selection(format_selection(n_s));
+        n_s.rander();
         cursor.pg = n_s.end.pg;
         cursor.of = n_s.end.of;
         editor_i(cursor.pg, cursor.of);
@@ -100,7 +207,7 @@ function editor_cursor() {
     editor.addEventListener("mouseup", (e) => {
         down = false;
         var el = <HTMLElement>e.target;
-        var n_s = editor_selection[0];
+        var n_s = editor_selections[0];
         if (el.tagName == "SPAN") {
             var w = el;
             if (e.offsetX <= w.offsetWidth + w.offsetLeft) {
@@ -113,7 +220,7 @@ function editor_cursor() {
             n_s.end.of = el.innerText == "\n" ? 0 : el.innerText.length;
             n_s.end.pg = get_index(editor, el);
         }
-        rander_selection(format_selection(n_s));
+        n_s.rander();
         cursor.pg = n_s.end.pg;
         cursor.of = n_s.end.of;
         editor_i(cursor.pg, cursor.of);
@@ -210,57 +317,6 @@ function editor_i(p: number, i: number) {
 editor_i(cursor.pg, cursor.of);
 
 /**
- * 渲染选区
- * @param s 选区
- */
-function rander_selection(s: selection) {
-    if (s.start.pg == s.end.pg) {
-        draw_line_selection(s.start.pg, s.start.of, s.end.of, false);
-    } else {
-        for (let i = s.start.pg; i <= s.end.pg; i++) {
-            if (i == s.start.pg) {
-                draw_line_selection(i, s.start.of, get_w_max(i), true);
-            } else if (i == s.end.pg) {
-                draw_line_selection(i, 0, s.end.of, s.end.of == 0);
-            } else {
-                draw_line_selection(i, 0, get_w_max(i), true);
-            }
-        }
-    }
-    function draw_line_selection(pg: number, s_of: number, e_of: number, br: boolean) {
-        var div = document.createElement("div");
-        div.className = "selection";
-        var s_left = s_of == 0 ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth,
-            e_left = e_of == 0 ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
-        div.style.left = s_left + "px";
-        div.style.width = e_left - s_left + (br ? 1 : 0) + "px";
-        div.style.top = get_pg(pg).offsetTop + "px";
-        document.getElementById("selection").append(div);
-    }
-}
-/**
- * 获取选区文字
- * @param s 选区
- * @returns 文字（反转义）
- */
-function get_selection(s: selection) {
-    var text = "";
-    if (s.start.pg == s.end.pg) {
-        text = get_s(s.start.pg, s.start.of, s.end.of);
-    } else {
-        for (let i = s.start.pg; i <= s.end.pg; i++) {
-            if (i == s.start.pg) {
-                text += get_s(i, s.start.of, get_w_max(i)) || "\n";
-            } else if (i == s.end.pg) {
-                text += "\n" + get_s(i, 0, s.end.of);
-            } else {
-                text += "\n" + get_s(i, 0, get_w_max(i));
-            }
-        }
-    }
-    return text;
-}
-/**
  * 截取的文字
  * @param n 段落索引
  * @param s 开始间隔索引
@@ -272,70 +328,31 @@ function get_s(n: number, s: number, e: number) {
     r = r.slice(s, e);
     return r;
 }
-/**
- * 替换选区文字
- * @param s 选区
- * @param text 要替换成的文字
- */
-function replace_selection(s: selection, text: string) {
-    var t = "";
-    // 拼接替换后的文字
-    t = get_s(s.start.pg, 0, s.start.of) + text + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
-    // 删除原来的段落
-    var t_l = [];
-    for (let i = s.start.pg; i <= s.end.pg; i++) {
-        t_l.push(get_pg(i));
-    }
-    for (let i of t_l) {
-        i.remove();
-    }
-    // 倒叙添加
-    let pg = t.split(/[\n\r]/);
-    for (let i = pg.length - 1; i >= 0; i--) {
-        let word_l = pg[i].split("");
-        let div = document.createElement("div");
-        for (let j of word_l) {
-            let span = document.createElement("span");
-            span.innerText = j;
-            div.append(span);
-        }
-        if (word_l.length == 0) {
-            div.innerHTML = "<br>";
-        }
-        if (s.start.pg == 0) {
-            editor.prepend(div);
-        } else {
-            get_pg(s.start.pg - 1).after(div);
-        }
-    }
 
-    editor_selection[0] = { start: s.start, end: s.start };
-
-    document.getElementById("selection").innerHTML = "";
-    editor_i(s.start.pg, s.start.of);
+class editing_operation {
+    delete() {
+        editor_selections[0].replace("");
+    }
+    copy() {
+        var t = editor_selections[0].get();
+        navigator.clipboard.writeText(t);
+    }
+    cut() {
+        this.copy();
+        this.delete();
+    }
+    paste() {
+        navigator.clipboard.readText().then((t) => {
+            editor_selections[0].replace(t);
+        });
+    }
+    select_all() {
+        var s = <selection>{ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } };
+        s.rander();
+        editor_selections[0] = s;
+    }
 }
-
-function edit_delete() {
-    replace_selection(format_selection(editor_selection[0]), "");
-}
-function edit_copy() {
-    var t = get_selection(format_selection(editor_selection[0]));
-    navigator.clipboard.writeText(t);
-}
-function edit_cut() {
-    edit_copy();
-    edit_delete();
-}
-function edit_paste() {
-    navigator.clipboard.readText().then((t) => {
-        replace_selection(format_selection(editor_selection[0]), t);
-    });
-}
-function edit_select_all() {
-    var s = <selection>{ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } };
-    rander_selection(s);
-    editor_selection[0] = s;
-}
+var edit = new editing_operation();
 
 document.getElementById("cursor").focus();
 document.getElementById("cursor").oninput = () => {
@@ -403,7 +420,7 @@ document.addEventListener("keydown", (e) => {
             break;
         case "Backspace":
             cursor = cursor_real; /* 左右移动后，不记录横向最大 */
-            if (get_selection(format_selection(editor_selection[0])) == "") {
+            if (editor_selections[0].get() == "") {
                 if (cursor.of == 0) {
                     if (cursor.pg != 0) {
                         cursor.pg--;
@@ -424,12 +441,12 @@ document.addEventListener("keydown", (e) => {
                     cursor.of--;
                 }
             } else {
-                edit_delete();
+                edit.delete();
             }
             break;
         case "Delete":
             cursor = cursor_real;
-            if (get_selection(format_selection(editor_selection[0])) == "") {
+            if (editor_selections[0].get() == "") {
                 if (cursor.of == get_w_max(cursor.pg)) {
                     if (cursor.pg != get_pg_max()) {
                         if (get_pg(cursor.pg).innerText == "\n") {
@@ -443,11 +460,11 @@ document.addEventListener("keydown", (e) => {
                     get_w(cursor.pg, cursor.of + 1).remove();
                 }
             } else {
-                edit_delete();
+                edit.delete();
             }
             break;
         case "Enter":
-            if (get_selection(format_selection(editor_selection[0])) == "") {
+            if (editor_selections[0].get() == "") {
                 var div = document.createElement("div");
                 if (cursor.of == get_w_max(cursor.pg)) {
                     div.innerHTML = "<br>";
@@ -466,7 +483,7 @@ document.addEventListener("keydown", (e) => {
                 cursor.pg++;
                 cursor.of = 0;
             } else {
-                edit_delete();
+                edit.delete();
             }
             break;
     }
