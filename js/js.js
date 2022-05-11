@@ -597,3 +597,6 @@ document.getElementById("line_num").onclick = (e) => {
     cursor.of = get_w_max(l_i);
     editor_i(cursor.pg, cursor.of);
 };
+document.getElementById("main_text").onscroll = () => {
+    document.getElementById("line_num").style.top = `-${document.getElementById("main_text").scrollTop}px`;
+};
