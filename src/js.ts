@@ -11,8 +11,10 @@ function editor_push(value: string) {
     for (let i of pg) {
         let word_l = i.split("");
         let div = document.createElement("div");
+        div.className = "p";
         for (let j of word_l) {
             let span = document.createElement("span");
+            span.className = "w";
             span.innerText = j;
             div.append(span);
         }
@@ -123,8 +125,10 @@ class selection {
         for (let i = pg.length - 1; i >= 0; i--) {
             let word_l = pg[i].split("");
             let div = document.createElement("div");
+            div.className = "p";
             for (let j of word_l) {
                 let span = document.createElement("span");
+                span.className = "w";
                 if (j == "\t") span.className = "tab";
                 span.innerText = j;
                 div.append(span);
@@ -168,38 +172,39 @@ function format_selection(s: selection) {
 
 function editor_cursor() {
     var down = false;
-    editor.addEventListener("mousedown", (e) => {
-        down = true;
+    document.addEventListener("mousedown", (e) => {
         var el = <HTMLElement>e.target;
         var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
-        if (el.tagName == "SPAN") {
+        if (el.className.split(" ").includes("w")) {
             var w = el;
-            if (e.offsetX <= w.offsetWidth + w.offsetLeft) {
+            if (e.offsetX <= w.offsetWidth / 2) {
                 n_s.start.of = get_index(w.parentElement, w);
             } else {
                 n_s.start.of = get_index(w.parentElement, w) + 1;
             }
             n_s.start.pg = get_index(editor, w.parentElement);
-        } else if (el.tagName == "DIV") {
+            down = true;
+        } else if (el.className == "p") {
             n_s.start.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.start.pg = get_index(editor, el);
+            down = true;
         }
         if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
         document.getElementById("selection").innerHTML = "";
     });
-    editor.addEventListener("mousemove", (e) => {
+    document.addEventListener("mousemove", (e) => {
         if (!down) return;
         var el = <HTMLElement>e.target;
         var n_s = editor_selections[0];
-        if (el.tagName == "SPAN") {
+        if (el.className.split(" ").includes("w")) {
             var w = el;
-            if (e.offsetX <= w.offsetWidth + w.offsetLeft) {
+            if (e.offsetX <= w.offsetWidth / 2) {
                 n_s.end.of = get_index(w.parentElement, w);
             } else {
                 n_s.end.of = get_index(w.parentElement, w) + 1;
             }
             n_s.end.pg = get_index(editor, w.parentElement);
-        } else if (el.tagName == "DIV") {
+        } else if (el.className == "p") {
             n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.end.pg = get_index(editor, el);
         }
@@ -209,19 +214,20 @@ function editor_cursor() {
         cursor.of = n_s.end.of;
         editor_i(cursor.pg, cursor.of);
     });
-    editor.addEventListener("mouseup", (e) => {
+    document.addEventListener("mouseup", (e) => {
+        if (!down) return;
         down = false;
         var el = <HTMLElement>e.target;
         var n_s = editor_selections[0];
-        if (el.tagName == "SPAN") {
+        if (el.className.split(" ").includes("w")) {
             var w = el;
-            if (e.offsetX <= w.offsetWidth + w.offsetLeft) {
+            if (e.offsetX <= w.offsetWidth / 2) {
                 n_s.end.of = get_index(w.parentElement, w);
             } else {
                 n_s.end.of = get_index(w.parentElement, w) + 1;
             }
             n_s.end.pg = get_index(editor, w.parentElement);
-        } else if (el.tagName == "DIV") {
+        } else if (el.className == "p") {
             n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.end.pg = get_index(editor, el);
         }
@@ -384,6 +390,7 @@ document.getElementById("cursor").oninput = () => {
         for (let i = input_t_l.length - 1; i >= 0; i--) {
             const t = input_t_l[i];
             var span = document.createElement("span");
+            span.className = "w";
             span.innerHTML = t;
             editor
                 .querySelector(`div:nth-child(${cursor_real.pg + 1})`)
@@ -391,7 +398,7 @@ document.getElementById("cursor").oninput = () => {
                 .after(span);
         }
     } else {
-        editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span>${input_t_l.join(
+        editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span class="w">${input_t_l.join(
             "</span><span>"
         )}</span>`;
     }
@@ -491,6 +498,7 @@ document.addEventListener("keydown", (e) => {
         case "Enter":
             if (editor_selections[0].get() == "") {
                 var div = document.createElement("div");
+                div.className = "p";
                 if (cursor.of == get_w_max(cursor.pg)) {
                     div.innerHTML = "<br>";
                     get_pg(cursor.pg).after(div);
@@ -515,7 +523,7 @@ document.addEventListener("keydown", (e) => {
             break;
         case "Tab":
             var span = document.createElement("span");
-            span.className = "tab";
+            span.classList.add("tab", "w");
             span.innerHTML = "\t";
             if (editor_selections[0].get() == "") {
                 if (cursor.of == 0) {
