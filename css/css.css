@@ -122,7 +122,6 @@ body {
     width: 1.6px;
     height: 1.5em;
     background-color: #0002;
-    transition: 0.2s;
     overflow: hidden;
     z-index: 3;
     outline: none;

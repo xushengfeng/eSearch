@@ -55,16 +55,17 @@ class selection {
      */
     rander(this: selection) {
         var s = format_selection(this);
+        var t = "";
         if (s.start.pg == s.end.pg) {
-            draw_line_selection(s.start.pg, s.start.of, s.end.of, false);
+            t += draw_line_selection(s.start.pg, s.start.of, s.end.of, false);
         } else {
             for (let i = s.start.pg; i <= s.end.pg; i++) {
                 if (i == s.start.pg) {
-                    draw_line_selection(i, s.start.of, get_w_max(i), true);
+                    t += draw_line_selection(i, s.start.of, get_w_max(i), true);
                 } else if (i == s.end.pg) {
-                    draw_line_selection(i, 0, s.end.of, s.end.of == 0);
+                    t += draw_line_selection(i, 0, s.end.of, s.end.of == 0);
                 } else {
-                    draw_line_selection(i, 0, get_w_max(i), true);
+                    t += draw_line_selection(i, 0, get_w_max(i), true);
                 }
             }
         }
@@ -76,8 +77,9 @@ class selection {
             div.style.left = s_left + "px";
             div.style.width = e_left - s_left + (br ? 1 : 0) + "px";
             div.style.top = get_pg(pg).offsetTop + "px";
-            document.getElementById("selection").append(div);
+            return div.outerHTML;
         }
+        document.getElementById("selection").innerHTML=t
     }
     /**
      * 获取选区文字
@@ -190,7 +192,7 @@ function editor_cursor() {
             down = true;
         }
         if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
-        document.getElementById("selection").innerHTML = "";
+        // document.getElementById("selection").innerHTML = "";
     });
     document.addEventListener("mousemove", (e) => {
         if (!down) return;
@@ -208,7 +210,7 @@ function editor_cursor() {
             n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
             n_s.end.pg = get_index(editor, el);
         }
-        document.getElementById("selection").innerHTML = "";
+        // document.getElementById("selection").innerHTML = "";
         n_s.rander();
         cursor.pg = n_s.end.pg;
         cursor.of = n_s.end.of;
