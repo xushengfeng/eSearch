@@ -70,7 +70,8 @@ function editor_cursor() {
             n_s.start.of = el.innerText == "\n" ? 0 : el.innerText.length;
             n_s.start.pg = get_index(editor, el);
         }
-        editor_selection[0] = n_s;
+        if (!e.shiftKey)
+            editor_selection[0] = n_s;
         document.getElementById("selection").innerHTML = "";
     });
     editor.addEventListener("mouseup", (e) => {
