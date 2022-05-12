@@ -800,11 +800,40 @@ const template = [
                 accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
             },
             { type: "separator" },
-            { label: "剪切", role: "cut" },
-            { label: "复制", role: "copy" },
-            { label: "粘贴", role: "paste" },
-            { label: "删除", role: "delete" },
-            { label: "全选", role: "selectAll" },
+            {
+                label: "剪切",
+                click: (i, w) => {
+                    main_edit(w, "cut");
+                },
+                accelerator: "CmdOrCtrl+X",
+            },
+            {
+                label: "复制",
+                click: (i, w) => {
+                    main_edit(w, "copy");
+                },
+                accelerator: "CmdOrCtrl+C",
+            },
+            {
+                label: "粘贴",
+                click: (i, w) => {
+                    main_edit(w, "paste");
+                },
+                accelerator: "CmdOrCtrl+V",
+            },
+            {
+                label: "删除",
+                click: (i, w) => {
+                    main_edit(w, "delete");
+                },
+            },
+            {
+                label: "全选",
+                click: (i, w) => {
+                    main_edit(w, "select_all");
+                },
+                accelerator: "CmdOrCtrl+A",
+            },
             {
                 label: "自动删除换行",
                 click: (i, w) => {

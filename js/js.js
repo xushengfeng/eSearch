@@ -1378,3 +1378,64 @@ function edit_on_other() {
         catch { }
     }
 }
+ipcRenderer.on("edit", (event, arg) => {
+    switch (arg) {
+        case "save":
+            push_history();
+            break;
+        case "undo":
+            undo();
+            break;
+        case "redo":
+            redo();
+            break;
+        case "copy":
+            edit.copy();
+            break;
+        case "cut":
+            edit.cut();
+            break;
+        case "paste":
+            edit.paste();
+            break;
+        case "delete":
+            edit.delete();
+            break;
+        case "select_all":
+            edit.select_all();
+            break;
+        case "delete_enter":
+            edit.delete_enter();
+            break;
+        case "show_find":
+            show_find();
+            break;
+        case "show_history":
+            show_history();
+            break;
+        case "edit_on_other":
+            edit_on_other_type = "o";
+            edit_on_other();
+            break;
+        case "choose_editer":
+            edit_on_other_type = "c";
+            edit_on_other();
+            break;
+        case "wrap":
+            wrap();
+            break;
+        case "spellcheck":
+            spellcheck();
+            break;
+        case "link":
+            var url = editor_selections[0].get();
+            open_link("url", url);
+            break;
+        case "search":
+            open_link("search");
+            break;
+        case "translate":
+            open_link("translate");
+            break;
+    }
+});
