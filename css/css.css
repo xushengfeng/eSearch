@@ -147,10 +147,9 @@ body {
     background-color: var(--hover-color);
 }
 
-#find_area{
+#find_area {
     position: absolute;
     width: 100%;
-    height: 100%;
     top: 0px;
     padding-top: 8px;
     color: #0000;
@@ -228,6 +227,7 @@ body {
     cursor: pointer;
     background-color: var(--bar-bg);
     display: flex;
+    top: 0;
 }
 .edit_h {
     opacity: 0;
