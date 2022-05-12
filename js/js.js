@@ -679,10 +679,17 @@ document.addEventListener("keydown", (e) => {
     }
     editor_i(cursor.pg, cursor.of);
 });
+/**
+ * 每次更改光标触发
+ */
 function editor_change() {
     change_text_bottom();
     line_num();
     stack_add();
+    if (find_show) {
+        exit_find();
+        find();
+    }
 }
 /**
  * 底部增高
