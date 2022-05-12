@@ -490,9 +490,6 @@ function editor_add_text(input_t) {
         editor_selections[0].replace(input_t);
     }
 }
-document.getElementById("cursor").onpaste = (e) => {
-    e.preventDefault();
-};
 document.addEventListener("keydown", (e) => {
     var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete", "Enter", "Tab"];
     if (!l.includes(e.key) || find_show)
@@ -788,16 +785,6 @@ document.getElementById("browser").onclick = () => {
 var 默认字体大小 = store.get("字体.大小");
 document.getElementById("text_out").style.fontSize =
     (store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小) + "px";
-// ctrl滚轮控制字体大小
-if (!in_browser) {
-    const hotkeys = require("hotkeys-js");
-    hotkeys.filter = () => {
-        return true;
-    };
-    hotkeys("ctrl+0", () => {
-        set_font_size(默认字体大小);
-    });
-}
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
@@ -1438,4 +1425,21 @@ ipcRenderer.on("edit", (event, arg) => {
             open_link("translate");
             break;
     }
+});
+// ctrl滚轮控制字体大小
+const hotkeys = require("hotkeys-js");
+hotkeys.filter = () => {
+    return true;
+};
+hotkeys("ctrl+0", () => {
+    set_font_size(默认字体大小);
+});
+hotkeys("ctrl+c", () => {
+    edit.copy();
+});
+hotkeys("ctrl+x", () => {
+    edit.cut();
+});
+hotkeys("ctrl+v", () => {
+    edit.paste();
 });

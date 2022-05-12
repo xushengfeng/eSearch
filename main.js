@@ -1145,24 +1145,6 @@ function create_main_window(web_page, t, about) {
     });
 }
 
-ipcMain.on("edit", (event, name, v) => {
-    var main_window = main_window_l[name];
-    switch (v) {
-        case "selectAll":
-            main_window.webContents.selectAll();
-            break;
-        case "cut":
-            main_window.webContents.cut();
-            break;
-        case "copy":
-            main_window.webContents.copy();
-            break;
-        case "paste":
-            main_window.webContents.pasteAndMatchStyle();
-            break;
-    }
-});
-
 /**
  * 向聚焦的主界面发送事件信息
  * @param {String} m
