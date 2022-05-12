@@ -105,8 +105,8 @@ body {
     flex-wrap: var(--wrap);
 }
 .tab {
-    width: 1rem;
-    height: 1rem;
+    width: 1em;
+    height: 1em;
     display: inline-block;
 }
 #text_bottom {
