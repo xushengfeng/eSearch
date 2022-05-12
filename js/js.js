@@ -326,6 +326,7 @@ function editor_cursor() {
         var end_el = get_w(cursor.pg, cursor.of);
         show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8, el.offsetHeight, e.button == 2);
         document.getElementById("edit_b").style.pointerEvents = "";
+        add_selection_linux();
     });
 }
 editor_cursor();
@@ -1350,7 +1351,7 @@ function old_his_to_new() {
     render_history();
 }
 /************************************引入 */
-const { ipcRenderer, shell } = require("electron");
+const { ipcRenderer, shell, clipboard } = require("electron");
 const fs = require("fs");
 const os = require("os");
 ipcRenderer.on("text", (event, name, list) => {
@@ -1496,3 +1497,12 @@ hotkeys("ctrl+x", () => {
 hotkeys("ctrl+v", () => {
     edit.paste();
 });
+function add_selection_linux() {
+    if (!in_browser) {
+        if (editor_selections &&
+            editor_selections[0].get() != "" &&
+            editor_selections[0].get() != clipboard.readText("selection")) {
+            clipboard.writeText(editor_selections[0].get(), "selection");
+        }
+    }
+}
