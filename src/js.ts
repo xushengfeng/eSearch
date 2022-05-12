@@ -488,6 +488,14 @@ function editor_add_text(input_t: string) {
     }
 }
 
+var editor_focus = false;
+document.getElementById("cursor").onfocus = () => {
+    editor_focus = true;
+};
+document.getElementById("cursor").onblur = () => {
+    editor_focus = false;
+};
+
 document.addEventListener("keydown", (e) => {
     var l = [
         "ArrowUp",
@@ -502,7 +510,7 @@ document.addEventListener("keydown", (e) => {
         "Tab",
         "Insert",
     ];
-    if (!l.includes(e.key) || find_show) return;
+    if (!l.includes(e.key) || !editor_focus) return;
     e.preventDefault();
     switch (e.key) {
         case "ArrowUp":
