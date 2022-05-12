@@ -21,12 +21,22 @@ function undo() {
     if (undo_stack_i > 0) {
         undo_stack_i--;
         editor_push(undo_stack[undo_stack_i]);
+        if (find_show) {
+            find_area.innerText = undo_stack[undo_stack_i];
+            exit_find();
+            find();
+        }
     }
 }
 function redo() {
     if (undo_stack_i < undo_stack.length - 1) {
         undo_stack_i++;
         editor_push(undo_stack[undo_stack_i]);
+        if (find_show) {
+            find_area.innerText = undo_stack[undo_stack_i];
+            exit_find();
+            find();
+        }
     }
 }
 var editor = document.getElementById("text");
