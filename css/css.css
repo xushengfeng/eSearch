@@ -131,6 +131,7 @@ body {
     outline: none;
     color: #0000;
     white-space: nowrap;
+    transition: 0.1s;
 }
 #cursor:focus {
     background-color: #000;

@@ -379,6 +379,10 @@ function editor_i(p, i) {
         cursor_real.of = get_w_max(p); /* 移动到更短行，定位到末尾 */
     var top = get_pg(p).offsetTop;
     var left = get_w_index(p, i) === null ? get_w_index(p, get_w_max(p)) : get_w_index(p, i);
+    document.getElementById("cursor").style.animation = "none";
+    setTimeout(() => {
+        document.getElementById("cursor").style.animation = "";
+    }, 100);
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + 8 + "px";
     document.getElementById("cursor").focus();
