@@ -41,6 +41,24 @@ function redo() {
 }
 var editor = document.getElementById("text");
 /**
+ * 文字包装span
+ * @param t 单个文字
+ * @returns 包装好的span
+ */
+function word_to_span(t) {
+    let span = document.createElement("span");
+    span.className = "w";
+    if (t == "\t")
+        span.className = "tab";
+    if (t == " ") {
+        span.innerHTML = t.replace(" ", "&nbsp;");
+    }
+    else {
+        span.innerText = t;
+    }
+    return span;
+}
+/**
  * 写入编辑器
  * @param value 传入text
  */
@@ -52,9 +70,7 @@ function editor_push(value) {
         let div = document.createElement("div");
         div.className = "p";
         for (let j of word_l) {
-            let span = document.createElement("span");
-            span.className = "w";
-            span.innerText = j;
+            let span = word_to_span(j);
             div.append(span);
         }
         if (word_l.length == 0) {
@@ -171,11 +187,7 @@ class selection {
             let div = document.createElement("div");
             div.className = "p";
             for (let j of word_l) {
-                let span = document.createElement("span");
-                span.className = "w";
-                if (j == "\t")
-                    span.className = "tab";
-                span.innerText = j;
+                let span = word_to_span(j);
                 div.append(span);
             }
             if (word_l.length == 0) {
@@ -472,9 +484,7 @@ function editor_add_text(input_t) {
         if (cursor_real.of != 0) {
             for (let i = input_t_l.length - 1; i >= 0; i--) {
                 const t = input_t_l[i];
-                var span = document.createElement("span");
-                span.className = "w";
-                span.innerHTML = t;
+                var span = word_to_span(t);
                 if (insert) {
                     if (get_w(cursor_real.pg, cursor_real.of + 1))
                         get_w(cursor_real.pg, cursor_real.of + 1).remove();
