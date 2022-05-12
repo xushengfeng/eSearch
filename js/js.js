@@ -50,8 +50,8 @@ function word_to_span(t) {
     span.className = "w";
     if (t == "\t")
         span.className = "tab";
-    if (t == " ") {
-        span.innerHTML = t.replace(" ", "&nbsp;");
+    if (t == " " || t == " " || t == " ") {
+        span.innerHTML = t.replace(" ", "&nbsp;").replace(" ", "&emsp;").replace(" ", "&ensp");
     }
     else {
         span.innerText = t;
