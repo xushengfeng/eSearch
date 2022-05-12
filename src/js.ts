@@ -1128,7 +1128,7 @@ function open_link(id: "url" | "search" | "translate", link?: string) {
         }
         var url = link;
     } else {
-        var s = editor_selections[0].get() || document.getElementById("text").innerText; // 要么全部，要么选中
+        var s = editor_selections[0].get() || editor_get(); // 要么全部，要么选中
         var url = (<HTMLSelectElement>document.querySelector(`#${id}_s`)).value.replace("%s", encodeURIComponent(s));
     }
     if (typeof global != "undefined") {
