@@ -460,6 +460,10 @@ function editor_add_text(input_t) {
             var span = document.createElement("span");
             span.className = "w";
             span.innerHTML = t;
+            if (insert) {
+                if (get_w(cursor_real.pg, cursor_real.of + 1))
+                    get_w(cursor_real.pg, cursor_real.of + 1).remove();
+            }
             get_w(cursor_real.pg, cursor_real.of).after(span);
         }
     }
@@ -625,6 +629,15 @@ document.addEventListener("keydown", (e) => {
             var s = new selection({ start: cursor, end: cursor });
             editor_selections[0] = s;
             break;
+        case "Insert":
+            insert = !insert;
+            if (insert) {
+                document.getElementById("cursor").style.width = "6px";
+            }
+            else {
+                document.getElementById("cursor").style.width = "";
+            }
+            break;
     }
     editor_i(cursor.pg, cursor.of);
 });
@@ -676,6 +689,8 @@ document.getElementById("line_num").onclick = (e) => {
 document.getElementById("main_text").onscroll = () => {
     document.getElementById("line_num").style.top = `-${document.getElementById("main_text").scrollTop}px`;
 };
+// 插入文字
+var insert = false;
 /************************************浏览器转换 */
 var Store;
 if (in_browser) {
