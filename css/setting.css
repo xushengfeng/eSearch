@@ -262,3 +262,9 @@ comment {
 #about > div {
     margin: 8px;
 }
+
+@media (prefers-color-scheme: dark) {
+    #point_color {
+        filter: invert(1);
+    }
+}
