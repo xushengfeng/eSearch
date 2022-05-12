@@ -377,7 +377,7 @@ function editor_i(p, i) {
     cursor_real = { pg: p, of: i };
     if (get_w_index(p, i) === null)
         cursor_real.of = get_w_max(p); /* 移动到更短行，定位到末尾 */
-    var top = get_pg(p).offsetTop;
+    var top = get_w(p, i)?.offsetTop || get_pg(p).offsetTop;
     var left = get_w_index(p, i) === null ? get_w_index(p, get_w_max(p)) : get_w_index(p, i);
     document.getElementById("cursor").style.animation = "none";
     setTimeout(() => {
