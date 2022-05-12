@@ -5,6 +5,10 @@
     list-style: none;
     background-color: var(--hover-color);
     overflow-x: scroll;
+    height: 30px;
+}
+#tabs::-webkit-scrollbar {
+    display: none;
 }
 
 #buttons {
