@@ -180,8 +180,9 @@ class selection {
     replace(this: selection, text: string) {
         var s = format_selection(this);
         var t = "";
+        var end_s = { pg: NaN, of: NaN };
         // 拼接替换后的文字
-        t = get_s(s.start.pg, 0, s.start.of) + text + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
+        t = get_s(s.start.pg, 0, s.start.of) + text + "\ue000" + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
         // 删除原来的段落
         var t_l = [];
         for (let i = s.start.pg; i <= s.end.pg; i++) {
@@ -196,9 +197,14 @@ class selection {
             let word_l = pg[i].split("");
             let div = document.createElement("div");
             div.className = "p";
-            for (let j of word_l) {
-                let span = word_to_span(j);
-                div.append(span);
+            for (let j in word_l) {
+                if (word_l[j] == "\ue000") {
+                    end_s.pg = s.start.pg + i;
+                    end_s.of = Number(j);
+                } else {
+                    let span = word_to_span(word_l[j]);
+                    div.append(span);
+                }
             }
             if (word_l.length == 0) {
                 div.innerHTML = "<br>";
@@ -210,6 +216,8 @@ class selection {
             }
         }
 
+        s.start = end_s;
+        cursor = s.start;
         editor_selections[0].start = s.start;
         editor_selections[0].end = s.start;
 
