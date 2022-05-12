@@ -147,6 +147,16 @@ body {
     background-color: var(--hover-color);
 }
 
+#find_area{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    padding-top: 8px;
+    color: #0000;
+    user-select: none;
+}
+
 /* 用于历史记录和浏览器打开固定 */
 .hover_b2 {
     box-shadow: var(--shadow);

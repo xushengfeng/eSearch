@@ -478,7 +478,8 @@ document.getElementById("cursor").onpaste = (e) => {
 };
 document.addEventListener("keydown", (e) => {
     var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete", "Enter", "Tab"];
-    if (l.includes(e.key)) e.preventDefault();
+    if (!l.includes(e.key) || find_show) return;
+    e.preventDefault();
     switch (e.key) {
         case "ArrowUp":
             if (cursor.pg != 0) cursor.pg--;
@@ -878,6 +879,190 @@ function spellcheck() {
     is_check = !is_check;
     document.getElementById("text").spellcheck = is_check;
 }
+
+/**
+ * 查找与替换
+ */
+
+var find_input = <HTMLInputElement>document.getElementById("find_input");
+var replace_input = <HTMLInputElement>document.getElementById("replace_input");
+var find_t = <HTMLElement>document.querySelector(".find_t > span");
+
+var find_area = document.getElementById("find_area");
+
+// 查找ui
+var find_show = false;
+function show_find() {
+    find_show = !find_show;
+    if (find_show) {
+        document.getElementById("top").style.marginTop = "48px";
+        document.getElementById("find").style.transform = "translateY(0)";
+        document.getElementById("find").style.pointerEvents = "auto";
+        find_input.value = editor_selections[0].get();
+        find_input.select();
+        find_input.focus();
+        if (editor_selections[0].get() != "") find();
+    } else {
+        document.getElementById("top").style.marginTop = "";
+        document.getElementById("find").style.transform = "translateY(-120%)";
+        document.getElementById("find").style.pointerEvents = "none";
+    }
+}
+
+document.getElementById("find_b_close").onclick = () => {
+    show_find();
+    exit_find();
+};
+
+// 正则
+var find_regex = false;
+document.getElementById("find_b_regex").onclick = () => {
+    find_regex = !find_regex;
+    if (find_regex) {
+        document.getElementById("find_b_regex").style.backgroundColor = "var(--hover-color)";
+    } else {
+        document.getElementById("find_b_regex").style.backgroundColor = "";
+    }
+    find();
+    find_input.focus();
+};
+
+var tmp_text: string;
+document.getElementById("find_input").oninput = () => {
+    // 清除样式后查找
+    exit_find();
+    find();
+};
+// 判断是找文字还是正则
+function string_or_regex(text: string) {
+    var o_text = null;
+    if (find_regex) {
+        try {
+            o_text = eval("/" + text + "/g");
+            document.getElementById("find_input").style.outline = "none";
+        } catch (error) {
+            document.getElementById("find_input").style.outline = "red  solid 1px";
+        }
+    } else {
+        text = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+        o_text = new RegExp(text, "g"); // 自动转义，找文字
+    }
+    return o_text;
+}
+// 查找并突出
+function find() {
+    var text = find_input.value;
+    text = string_or_regex(text);
+    if (!tmp_text) tmp_text = editor_get();
+    // 拆分并转义
+    try {
+        var match_l = tmp_text.match(text).map((m: string) => html_to_text(m));
+        var text_l = tmp_text.split(text).map((m: string) => html_to_text(m));
+        var t_l = [];
+        // 交替插入
+        for (i in text_l) {
+            t_l.push(text_l[i]);
+            if (match_l[i]) t_l.push(`<span class="find_h">${match_l[i]}</span>`);
+        }
+        document.getElementById("find_area").innerHTML = t_l
+            .join("")
+            .replace(/[\r\n]/g, "<br>")
+            .replace(/&nbsp;/g, " ");
+    } catch (error) {}
+    find_l_n_i = -1;
+    find_l_n("↓");
+    if (find_input.value == "") {
+        document.getElementById("find_area").innerText = tmp_text;
+        exit_find();
+    }
+}
+
+// 清除样式
+function exit_find() {
+    find_area.innerText = find_area.innerText;
+    tmp_text = null;
+    find_t.innerText = "";
+}
+// 跳转
+var find_l_n_i = 0;
+function find_l_n(a: "↑" | "↓") {
+    var l = document.querySelectorAll(".find_h");
+    if (l.length == 0) {
+        find_t.innerText = `无结果`;
+        return;
+    }
+    if (l[find_l_n_i]) l[find_l_n_i].classList.remove("find_h_h");
+    if (a == "↑") {
+        if (find_l_n_i > 0) {
+            find_l_n_i--;
+        } else {
+            find_l_n_i = l.length - 1;
+        }
+    } else if (a == "↓") {
+        if (find_l_n_i < l.length - 1) {
+            find_l_n_i++;
+        } else {
+            find_l_n_i = 0;
+        }
+    }
+    l[find_l_n_i].classList.add("find_h_h");
+    find_t.innerText = `${find_l_n_i + 1}/${l.length}`;
+    document.getElementById("text_out").scrollTop = (<HTMLElement>l[find_l_n_i]).offsetTop - 48 - 16;
+}
+document.getElementById("find_b_last").onclick = () => {
+    find_l_n("↑");
+};
+document.getElementById("find_b_next").onclick = () => {
+    find_l_n("↓");
+};
+document.getElementById("find_input").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        if (document.querySelector(".find_h_h")) {
+            find_l_n("↓");
+        } else {
+            find();
+        }
+    }
+};
+
+// 全部替换
+document.getElementById("find_b_replace_all").onclick = () => {
+    var text = find_input.value;
+    text = string_or_regex(text);
+    var t = tmp_text.replace(text, replace_input.value);
+    editor_push(t);
+    find_area.innerText = t;
+    exit_find();
+
+    stack_add();
+};
+// 替换选中
+document.getElementById("find_b_replace").onclick = find_replace;
+function find_replace() {
+    var text = find_input.value;
+    text = string_or_regex(text);
+    var el = <HTMLElement>document.querySelector(".find_h_h");
+    if (!el) {
+        exit_find();
+        find();
+        return;
+    }
+    var tttt = el.innerText.replace(text, replace_input.value);
+    el.before(document.createTextNode(tttt));
+    el.remove();
+    editor_push(find_area.innerText);
+    find_l_n_i = find_l_n_i - 1;
+    find_l_n("↓");
+    tmp_text = find_area.innerText;
+
+    stack_add();
+}
+document.getElementById("replace_input").onkeydown = (e) => {
+    if (e.key == "Enter") {
+        find_replace();
+    }
+};
+
 /************************************搜索 */
 
 /**
@@ -1044,7 +1229,7 @@ function push_history() {
 var history_showed = false;
 document.getElementById("history_b").onclick = show_history;
 // html转义
-function html_to_text(html) {
+function html_to_text(html: string) {
     return html.replace(
         /[<>& \'\"]/g,
         (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c])
