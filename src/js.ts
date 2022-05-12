@@ -416,8 +416,38 @@ class editing_operation {
 var edit = new editing_operation();
 
 document.getElementById("cursor").focus();
+// 中文等合成器输入法输入适配
+var composition = false;
+document.getElementById("cursor").addEventListener("compositionstart", (e) => {
+    composition = true;
+    if (cursor_real.of != 0) {
+        var span = document.createElement("span");
+        span.id = "composition";
+        get_w(cursor_real.pg, cursor_real.of).after(span);
+    } else {
+        get_pg(cursor_real.pg).innerHTML = `<span id="composition"></span>`;
+    }
+    cursor.of++;
+    editor_i(cursor.pg, cursor.of);
+});
+document.getElementById("cursor").addEventListener("compositionupdate", (e) => {
+    document.getElementById("composition").innerText = e.data;
+    editor_i(cursor.pg, cursor.of);
+});
+document.getElementById("cursor").addEventListener("compositionend", (e) => {
+    composition = false;
+    document.getElementById("composition").remove();
+    cursor.of--;
+    cursor_real.of--;
+    editor_add_text(e.data);
+    editor_i(cursor.pg, cursor.of);
+});
 document.getElementById("cursor").oninput = () => {
+    if (composition) return;
     var input_t = document.getElementById("cursor").innerText;
+    editor_add_text(input_t);
+};
+function editor_add_text(input_t: string) {
     document.getElementById("cursor").innerText = "";
     var input_t_l = input_t.split("");
     if (cursor_real.of != 0) {
@@ -426,19 +456,14 @@ document.getElementById("cursor").oninput = () => {
             var span = document.createElement("span");
             span.className = "w";
             span.innerHTML = t;
-            editor
-                .querySelector(`div:nth-child(${cursor_real.pg + 1})`)
-                .querySelector(`span:nth-child(${cursor_real.of})`)
-                .after(span);
+            get_w(cursor_real.pg, cursor_real.of).after(span);
         }
     } else {
-        editor.querySelector(`div:nth-child(${cursor_real.pg + 1})`).innerHTML = `<span class="w">${input_t_l.join(
-            `</span><span class="w">`
-        )}</span>`;
+        get_pg(cursor_real.pg).innerHTML = `<span class="w">${input_t_l.join(`</span><span class="w">`)}</span>`;
     }
     cursor.of += input_t_l.length;
     editor_i(cursor.pg, cursor.of);
-};
+}
 document.getElementById("cursor").onpaste = (e) => {
     e.preventDefault();
 };

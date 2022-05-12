@@ -117,6 +117,10 @@ body {
         opacity: 0;
     }
 }
+#composition {
+    border-bottom: dotted var(--color) 1px;
+    height: 1.3em;
+}
 #cursor {
     position: absolute;
     width: 1.6px;
@@ -126,6 +130,7 @@ body {
     z-index: 3;
     outline: none;
     color: #0000;
+    white-space: nowrap;
 }
 #cursor:focus {
     background-color: #000;
