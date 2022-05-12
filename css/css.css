@@ -123,9 +123,10 @@ body {
 }
 #cursor {
     position: absolute;
-    width: 1.6px;
+    width: 0.1em;
     height: 1.5em;
-    background-color: #0002;
+    background-color: var(--color);
+    opacity: 0.2;
     overflow: hidden;
     z-index: 3;
     outline: none;
@@ -134,9 +135,12 @@ body {
     transition: 0.1s;
 }
 #cursor:focus {
-    background-color: #000;
+    opacity: 1;
     animation: 1s blink 3 steps(1);
     animation-iteration-count: infinite;
+}
+.cursor_insert {
+    width: 0.3em !important;
 }
 #selection {
     position: absolute;

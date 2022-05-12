@@ -495,7 +495,19 @@ function editor_add_text(input_t) {
     }
 }
 document.addEventListener("keydown", (e) => {
-    var l = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End", "Backspace", "Delete", "Enter", "Tab"];
+    var l = [
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "Home",
+        "End",
+        "Backspace",
+        "Delete",
+        "Enter",
+        "Tab",
+        "Insert",
+    ];
     if (!l.includes(e.key) || find_show)
         return;
     e.preventDefault();
@@ -651,10 +663,10 @@ document.addEventListener("keydown", (e) => {
         case "Insert":
             insert = !insert;
             if (insert) {
-                document.getElementById("cursor").style.width = "6px";
+                document.getElementById("cursor").classList.add("cursor_insert");
             }
             else {
-                document.getElementById("cursor").style.width = "";
+                document.getElementById("cursor").classList.remove("cursor_insert");
             }
             break;
     }
