@@ -104,6 +104,12 @@ body {
     display: flex;
     flex-wrap: var(--wrap);
 }
+.space{
+    white-space: pre-line;
+    width: 0.3em;
+    height: 1em;
+    display: inline-block;
+}
 .tab {
     width: 1em;
     height: 1em;

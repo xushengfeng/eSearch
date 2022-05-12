@@ -50,11 +50,8 @@ function word_to_span(t: string) {
     let span = document.createElement("span");
     span.className = "w";
     if (t == "\t") span.className = "tab";
-    if (t == " " || t == " " || t == " ") {
-        span.innerHTML = t.replace(" ", "&nbsp;").replace(" ", "&emsp;").replace(" ", "&ensp");
-    } else {
-        span.innerText = t;
-    }
+    if (t == " ") span.className = "space";
+    span.innerText = t;
     return span;
 }
 /**
@@ -87,13 +84,30 @@ editor_push("");
 function editor_get() {
     var t = "";
     for (let i of editor.querySelectorAll("div")) {
-        if (i.innerText == "\n" || t == "") {
-            t += i.innerText.replace(/\n/g, "");
+        if (i.innerText == "\n") {
+            t += get_line_innertext(i);
         } else {
-            t += "\n" + i.innerText.replace(/\n/g, "");
+            t += "\n" + get_line_innertext(i).replace(/\n/g, "");
         }
     }
-    return t;
+    function get_line_innertext(el: HTMLElement) {
+        let t = "";
+        if (el.innerText == "\n") {
+            return "\n";
+        } else {
+            for (let j of el.querySelectorAll("span")) {
+                if (j.className == "tab") {
+                    t += "\t";
+                } else if (j.className == "space") {
+                    t += " ";
+                } else {
+                    t += j.innerText;
+                }
+            }
+            return t;
+        }
+    }
+    return t.replace(/\n/, "");
 }
 
 class selection {
@@ -475,6 +489,7 @@ document.getElementById("cursor").oninput = () => {
 };
 function editor_add_text(input_t: string) {
     document.getElementById("cursor").innerText = "";
+    input_t = input_t.replace(" ", " ");
     if (editor_selections[0].get() == "") {
         var input_t_l = input_t.split("");
         if (cursor_real.of != 0) {
@@ -487,9 +502,18 @@ function editor_add_text(input_t: string) {
                 get_w(cursor_real.pg, cursor_real.of).after(span);
             }
         } else {
-            get_pg(cursor_real.pg).innerHTML =
-                `<span class="w">${input_t_l.join(`</span><span class="w">`)}</span>` +
-                (get_pg(cursor_real.pg).innerHTML == "<br>" ? "" : get_pg(cursor_real.pg).innerHTML);
+            if (get_pg(cursor_real.pg).innerHTML == "<br>") {
+                get_pg(cursor_real.pg).innerHTML = "";
+                for (let i of input_t_l) {
+                    get_pg(cursor_real.pg).append(word_to_span(i));
+                }
+            } else {
+                for (let i = input_t_l.length - 1; i >= 0; i--) {
+                    const t = input_t_l[i];
+                    var span = word_to_span(t);
+                    get_pg(cursor_real.pg).prepend(span);
+                }
+            }
         }
         cursor.of += input_t_l.length;
         editor_i(cursor.pg, cursor.of);
@@ -607,34 +631,13 @@ document.addEventListener("keydown", (e) => {
             }
             break;
         case "Enter":
-            if (editor_selections[0].get() == "") {
-                var div = document.createElement("div");
-                div.className = "p";
-                if (cursor.of == get_w_max(cursor.pg)) {
-                    div.innerHTML = "<br>";
-                    get_pg(cursor.pg).after(div);
-                } else if (cursor.of == 0) {
-                    div.innerHTML = "<br>";
-                    get_pg(cursor.pg).before(div);
-                } else {
-                    div.innerHTML = s_to_span(get_s(cursor.pg, cursor.of, get_w_max(cursor.pg)));
-                    get_pg(cursor.pg).innerHTML = s_to_span(get_s(cursor.pg, 0, cursor.of));
-                    function s_to_span(t: string) {
-                        return `<span>${t.split("").join("</span><span>")}</span>`;
-                    }
-                    get_pg(cursor.pg).after(div);
-                }
-                cursor.pg++;
-                cursor.of = 0;
-                var s = new selection({ start: cursor, end: cursor });
-                editor_selections[0] = s;
-            } else {
-                edit.delete();
-            }
+            var s = new selection({ start: cursor, end: cursor });
+            editor_selections[0] = s;
+            editor_selections[0].replace("\n");
             break;
         case "Tab":
             var span = document.createElement("span");
-            span.classList.add("tab", "w");
+            span.className = "tab";
             span.innerHTML = "\t";
             if (editor_selections[0].get() == "") {
                 if (cursor.of == 0) {
