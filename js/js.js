@@ -453,25 +453,32 @@ document.getElementById("cursor").oninput = () => {
 };
 function editor_add_text(input_t) {
     document.getElementById("cursor").innerText = "";
-    var input_t_l = input_t.split("");
-    if (cursor_real.of != 0) {
-        for (let i = input_t_l.length - 1; i >= 0; i--) {
-            const t = input_t_l[i];
-            var span = document.createElement("span");
-            span.className = "w";
-            span.innerHTML = t;
-            if (insert) {
-                if (get_w(cursor_real.pg, cursor_real.of + 1))
-                    get_w(cursor_real.pg, cursor_real.of + 1).remove();
+    if (editor_selections[0].get() == "") {
+        var input_t_l = input_t.split("");
+        if (cursor_real.of != 0) {
+            for (let i = input_t_l.length - 1; i >= 0; i--) {
+                const t = input_t_l[i];
+                var span = document.createElement("span");
+                span.className = "w";
+                span.innerHTML = t;
+                if (insert) {
+                    if (get_w(cursor_real.pg, cursor_real.of + 1))
+                        get_w(cursor_real.pg, cursor_real.of + 1).remove();
+                }
+                get_w(cursor_real.pg, cursor_real.of).after(span);
             }
-            get_w(cursor_real.pg, cursor_real.of).after(span);
         }
+        else {
+            get_pg(cursor_real.pg).innerHTML =
+                `<span class="w">${input_t_l.join(`</span><span class="w">`)}</span>` +
+                    (get_pg(cursor_real.pg).innerHTML == "<br>" ? "" : get_pg(cursor_real.pg).innerHTML);
+        }
+        cursor.of += input_t_l.length;
+        editor_i(cursor.pg, cursor.of);
     }
     else {
-        get_pg(cursor_real.pg).innerHTML = `<span class="w">${input_t_l.join(`</span><span class="w">`)}</span>`;
+        editor_selections[0].replace(input_t);
     }
-    cursor.of += input_t_l.length;
-    editor_i(cursor.pg, cursor.of);
 }
 document.getElementById("cursor").onpaste = (e) => {
     e.preventDefault();
@@ -624,7 +631,7 @@ document.addEventListener("keydown", (e) => {
                 cursor.of++;
             }
             else {
-                editor_selection.replace(span.innerText);
+                editor_selections[0].replace(span.innerText);
             }
             var s = new selection({ start: cursor, end: cursor });
             editor_selections[0] = s;
@@ -948,7 +955,7 @@ function open_link(id, link) {
         var url = link;
     }
     else {
-        var s = editor_selection.get() || document.getElementById("text").innerText; // 要么全部，要么选中
+        var s = editor_selections[0].get() || document.getElementById("text").innerText; // 要么全部，要么选中
         var url = document.querySelector(`#${id}_s`).value.replace("%s", encodeURIComponent(s));
     }
     if (typeof global != "undefined") {
