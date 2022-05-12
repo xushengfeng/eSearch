@@ -1329,3 +1329,52 @@ document.documentElement.style.setProperty("--alpha", store.get("全局.不透�
 var 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
+var edit_on_other_type = null;
+var file_watcher = null;
+const path = require("path");
+var tmp_text_path = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
+var editing_on_other = false;
+function edit_on_other() {
+    editing_on_other = !editing_on_other;
+    if (editing_on_other) {
+        var data = Buffer.from(editor_get());
+        fs.writeFile(tmp_text_path, data, () => {
+            if (edit_on_other_type == "o") {
+                shell.openPath(tmp_text_path);
+            }
+            else if (edit_on_other_type == "c") {
+                var open_with = require("./lib/open_with");
+                open_with(tmp_text_path);
+            }
+            file_watcher = fs.watch(tmp_text_path, () => {
+                fs.readFile(tmp_text_path, "utf8", (e, data) => {
+                    if (e)
+                        console.log(e);
+                    editor_push(data);
+                });
+            });
+            document.getElementById("text").style.pointerEvents = "none";
+            document.getElementById("text_out").style.cursor = "auto";
+            document.getElementById("text_out").title = "正在外部编辑中，双击退出";
+            document.addEventListener("dblclick", () => {
+                editing_on_other = true;
+                edit_on_other();
+            });
+        });
+        data = null;
+    }
+    else {
+        try {
+            document.getElementById("text").style.pointerEvents = "";
+            document.getElementById("text_out").style.cursor = "text";
+            document.getElementById("text_out").title = "";
+            document.removeEventListener("dblclick", () => {
+                editing_on_other = true;
+                edit_on_other();
+            });
+            file_watcher.close();
+            fs.unlink(tmp_text_path, () => { });
+        }
+        catch { }
+    }
+}
