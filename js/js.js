@@ -229,87 +229,84 @@ function format_selection(s) {
     }
     return tmp;
 }
-function editor_cursor() {
-    var down = false;
-    document.addEventListener("mousedown", (e) => {
-        var el = e.target;
-        var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
-        if (el.className.split(" ").includes("w")) {
-            var w = el;
-            if (e.offsetX <= w.offsetWidth / 2) {
-                n_s.start.of = get_index(w.parentElement, w);
-            }
-            else {
-                n_s.start.of = get_index(w.parentElement, w) + 1;
-            }
-            n_s.start.pg = get_index(editor, w.parentElement);
-            down = true;
+var down = false;
+document.addEventListener("mousedown", (e) => {
+    var el = e.target;
+    var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
+    if (el.tagName == "SPAN") {
+        var w = el;
+        if (e.offsetX <= w.offsetWidth / 2) {
+            n_s.start.of = get_index(w.parentElement, w);
         }
-        else if (el.className == "p") {
-            n_s.start.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
-            n_s.start.pg = get_index(editor, el);
-            down = true;
+        else {
+            n_s.start.of = get_index(w.parentElement, w) + 1;
         }
-        if (!e.shiftKey)
-            [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
-        document.getElementById("edit_b").style.pointerEvents = "none";
-    });
-    document.addEventListener("mousemove", (e) => {
-        if (!down)
-            return;
-        var el = e.target;
-        var n_s = editor_selections[0];
-        if (el.className.split(" ").includes("w")) {
-            var w = el;
-            if (e.offsetX <= w.offsetWidth / 2) {
-                n_s.end.of = get_index(w.parentElement, w);
-            }
-            else {
-                n_s.end.of = get_index(w.parentElement, w) + 1;
-            }
-            n_s.end.pg = get_index(editor, w.parentElement);
+        n_s.start.pg = get_index(editor, w.parentElement);
+        down = true;
+    }
+    else if (el.className == "p") {
+        n_s.start.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
+        n_s.start.pg = get_index(editor, el);
+        down = true;
+    }
+    if (!e.shiftKey)
+        [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
+    document.getElementById("edit_b").style.pointerEvents = "none";
+});
+document.addEventListener("mousemove", (e) => {
+    if (!down)
+        return;
+    var el = e.target;
+    var n_s = editor_selections[0];
+    if (el.tagName == "SPAN") {
+        var w = el;
+        if (e.offsetX <= w.offsetWidth / 2) {
+            n_s.end.of = get_index(w.parentElement, w);
         }
-        else if (el.className == "p") {
-            n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
-            n_s.end.pg = get_index(editor, el);
+        else {
+            n_s.end.of = get_index(w.parentElement, w) + 1;
         }
-        // document.getElementById("selection").innerHTML = "";
-        n_s.rander();
-        cursor.pg = n_s.end.pg;
-        cursor.of = n_s.end.of;
-        editor_i(cursor.pg, cursor.of);
-    });
-    document.addEventListener("mouseup", (e) => {
-        if (!down)
-            return;
-        down = false;
-        var el = e.target;
-        var n_s = editor_selections[0];
-        if (el.className.split(" ").includes("w")) {
-            var w = el;
-            if (e.offsetX <= w.offsetWidth / 2) {
-                n_s.end.of = get_index(w.parentElement, w);
-            }
-            else {
-                n_s.end.of = get_index(w.parentElement, w) + 1;
-            }
-            n_s.end.pg = get_index(editor, w.parentElement);
+        n_s.end.pg = get_index(editor, w.parentElement);
+    }
+    else if (el.className == "p") {
+        n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
+        n_s.end.pg = get_index(editor, el);
+    }
+    // document.getElementById("selection").innerHTML = "";
+    n_s.rander();
+    cursor.pg = n_s.end.pg;
+    cursor.of = n_s.end.of;
+    editor_i(cursor.pg, cursor.of);
+});
+document.addEventListener("mouseup", (e) => {
+    if (!down)
+        return;
+    down = false;
+    var el = e.target;
+    var n_s = editor_selections[0];
+    if (el.tagName == "SPAN") {
+        var w = el;
+        if (e.offsetX <= w.offsetWidth / 2) {
+            n_s.end.of = get_index(w.parentElement, w);
         }
-        else if (el.className == "p") {
-            n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
-            n_s.end.pg = get_index(editor, el);
+        else {
+            n_s.end.of = get_index(w.parentElement, w) + 1;
         }
-        n_s.rander();
-        cursor.pg = n_s.end.pg;
-        cursor.of = n_s.end.of;
-        editor_i(cursor.pg, cursor.of);
-        var end_el = get_w(cursor.pg, cursor.of);
-        show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8, el.offsetHeight, e.button == 2);
-        document.getElementById("edit_b").style.pointerEvents = "";
-        add_selection_linux();
-    });
-}
-editor_cursor();
+        n_s.end.pg = get_index(editor, w.parentElement);
+    }
+    else if (el.className == "p") {
+        n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
+        n_s.end.pg = get_index(editor, el);
+    }
+    n_s.rander();
+    cursor.pg = n_s.end.pg;
+    cursor.of = n_s.end.of;
+    editor_i(cursor.pg, cursor.of);
+    var end_el = get_w(cursor.pg, cursor.of);
+    show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8, el.offsetHeight, e.button == 2);
+    document.getElementById("edit_b").style.pointerEvents = "";
+    add_selection_linux();
+});
 /**
  * 获取段落元素
  * @param p 段落数，从0开始算
