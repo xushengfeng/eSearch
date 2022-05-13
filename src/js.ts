@@ -900,9 +900,9 @@ wrap();
 function wrap() {
     is_wrap = !is_wrap;
     if (is_wrap) {
-        document.documentElement.style.setProperty("--wrap", "nowrap");
+        document.documentElement.style.setProperty("--wrap", "normal");
     } else {
-        document.documentElement.style.setProperty("--wrap", "wrap");
+        document.documentElement.style.setProperty("--wrap", "nowrap");
     }
 
     editor_i(cursor.pg, cursor.of);

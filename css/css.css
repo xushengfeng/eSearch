@@ -95,24 +95,25 @@ body {
     user-select: none;
     position: relative;
     z-index: 2;
-    white-space: nowrap;
 }
 #text:focus {
     outline: none;
 }
 #text > div {
-    display: flex;
-    flex-wrap: var(--wrap);
+    white-space: var(--wrap);
+}
+#text > div >span{
+    height: 1.5em;
+    display: inline-block;
+    vertical-align: bottom;
 }
 .space{
     white-space: pre-line;
     width: 0.3em;
-    height: 1em;
     display: inline-block;
 }
 .tab {
     width: 1em;
-    height: 1em;
     display: inline-block;
 }
 #text_bottom {
