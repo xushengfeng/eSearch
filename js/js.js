@@ -86,30 +86,10 @@ function editor_get() {
     var t = "";
     for (let i of editor.querySelectorAll("div")) {
         if (i.innerText == "\n") {
-            t += get_line_innertext(i);
+            t += i.textContent;
         }
         else {
-            t += "\n" + get_line_innertext(i).replace(/\n/g, "");
-        }
-    }
-    function get_line_innertext(el) {
-        let t = "";
-        if (el.innerText == "\n") {
-            return "\n";
-        }
-        else {
-            for (let j of el.querySelectorAll("span")) {
-                if (j.className == "tab") {
-                    t += "\t";
-                }
-                else if (j.className == "space") {
-                    t += " ";
-                }
-                else {
-                    t += j.innerText;
-                }
-            }
-            return t;
+            t += "\n" + i.textContent.replace(/\n/g, "");
         }
     }
     return t.replace(/\n/, "");
@@ -436,7 +416,7 @@ editor_i(cursor.pg, cursor.of);
  * @returns 文字（反转义）
  */
 function get_s(n, s, e) {
-    var r = get_pg(n).innerText.replace(/\n/g, "");
+    var r = get_pg(n).textContent.replace(/\n/g, "");
     r = r.slice(s, e);
     return r;
 }
@@ -686,7 +666,7 @@ document.addEventListener("keydown", (e) => {
                 cursor.of++;
             }
             else {
-                editor_selections[0].replace(span.innerText);
+                editor_selections[0].replace(span.textContent);
             }
             var s = new selection({ start: cursor, end: cursor });
             editor_selections[0] = s;
