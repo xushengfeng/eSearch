@@ -51,7 +51,8 @@
         "!.vscode",
         "!.github",
         "!assets/logo/icon.icns",
-        "!assets/logo/icon.ico"
+        "!assets/logo/icon.ico",
+        "!src"
       ]
     },
     "mac": {
@@ -62,7 +63,8 @@
         "!.github",
         "!assets/logo/1024x1024.png",
         "!assets/logo/512x512.png",
-        "!assets/logo/icon.ico"
+        "!assets/logo/icon.ico",
+        "!src"
       ]
     },
     "win": {
@@ -78,7 +80,8 @@
         "!.github",
         "!assets/logo/icon.icns",
         "!assets/logo/1024x1024.png",
-        "!assets/logo/512x512.png"
+        "!assets/logo/512x512.png",
+        "!src"
       ]
     },
     "nsis": {
