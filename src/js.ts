@@ -228,6 +228,50 @@ function format_selection(s: selection) {
     return tmp;
 }
 
+type t_line = { [top: number]: { min: { i: number; l: 0 }; max: { i: number; r: number }; pg: number } };
+type t_pg_to_line = { [pg: number]: Array<number> };
+
+var line: t_line = {};
+var pg_to_line: t_pg_to_line = {};
+function push_p_l(i: number, v: number) {
+    if (!pg_to_line[i]) pg_to_line[i] = [];
+    if (!pg_to_line[i].includes(v)) pg_to_line[i].push(v);
+}
+
+function add_line() {
+    var h = 0;
+    pg_to_line = {};
+    var pg_l = editor.querySelectorAll("div");
+    pg_l.forEach((pg, i) => {
+        var w_l = pg.querySelectorAll("span");
+        w_l.forEach((w, j) => {
+            if (w_l[j + 1]) {
+                var n_w = w_l[j + 1];
+                if (n_w.offsetTop != h) {
+                    /* 新行，w最大,n_w最小 */
+                    h = n_w.offsetTop;
+                    push_p_l(i, w.offsetTop);
+                    line[n_w.offsetTop] = { min: { i: j + 1, l: 0 }, max: { i: 0, r: 0 }, pg: i };
+                    // 上一行
+                    line[w.offsetTop].max = { i: j, r: w.offsetLeft + w.offsetWidth };
+                }
+            } else {
+                // 此段最后一行
+                var m = { i: j, r: w.offsetLeft + w.offsetWidth };
+                // 上一行
+                if (!line[w.offsetTop]) line[w.offsetTop] = { min: { i: 0, l: 0 }, max: m, pg: i };
+                line[w.offsetTop].max = m;
+                push_p_l(i, w.offsetTop);
+            }
+        });
+        if (w_l.length == 0) {
+            line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: 0, r: 0 }, pg: i };
+            push_p_l(i, pg.offsetTop);
+        }
+    });
+}
+add_line();
+
 var down = false;
 document.addEventListener("mousedown", (e) => {
     var el = <HTMLElement>e.target;
