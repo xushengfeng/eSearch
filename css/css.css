@@ -101,13 +101,14 @@ body {
 }
 #text > div {
     white-space: var(--wrap);
+    min-height: 1.5em;
 }
-#text > div >span{
+#text > div > span {
     height: 1.5em;
     display: inline-block;
     vertical-align: bottom;
 }
-.space{
+.space {
     white-space: pre-line;
     width: 0.3em;
     display: inline-block;

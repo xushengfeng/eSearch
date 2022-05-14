@@ -71,7 +71,7 @@ function editor_push(value) {
             div.append(span);
         }
         if (word_l.length == 0) {
-            div.innerHTML = "<br>";
+            div.innerHTML = "";
         }
         editor.append(div);
     }
@@ -85,8 +85,8 @@ editor_push("");
 function editor_get() {
     var t = "";
     for (let i of editor.querySelectorAll("div")) {
-        if (i.innerText == "\n") {
-            t += i.textContent;
+        if (i.innerText == "") {
+            t += "\n";
         }
         else {
             t += "\n" + i.textContent.replace(/\n/g, "");
@@ -187,7 +187,7 @@ class selection {
                 }
             }
             if (word_l.length == 0) {
-                div.innerHTML = "<br>";
+                div.innerHTML = "";
             }
             if (s.start.pg == 0) {
                 editor.prepend(div);
@@ -320,7 +320,7 @@ document.addEventListener("mousedown", (e) => {
         down = true;
     }
     else if (el.className == "p") {
-        n_s.start.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
+        n_s.start.of = el.innerText == "" ? 0 : el.querySelectorAll("span").length;
         n_s.start.pg = get_index(editor, el);
         down = true;
     }
@@ -344,7 +344,7 @@ document.addEventListener("mousemove", (e) => {
         n_s.end.pg = get_index(editor, w.parentElement);
     }
     else if (el.className == "p") {
-        n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
+        n_s.end.of = el.innerText == "" ? 0 : el.querySelectorAll("span").length;
         n_s.end.pg = get_index(editor, el);
     }
     // document.getElementById("selection").innerHTML = "";
@@ -370,7 +370,7 @@ document.addEventListener("mouseup", (e) => {
         n_s.end.pg = get_index(editor, w.parentElement);
     }
     else if (el.className == "p") {
-        n_s.end.of = el.innerText == "\n" ? 0 : el.querySelectorAll("span").length;
+        n_s.end.of = el.innerText == "" ? 0 : el.querySelectorAll("span").length;
         n_s.end.pg = get_index(editor, el);
     }
     n_s.rander();
@@ -438,7 +438,7 @@ function get_w_index(p, i) {
  */
 function get_w_max(p) {
     var el = editor.querySelector(`div:nth-child(${p + 1})`);
-    if (el.innerText == "\n") {
+    if (el.innerText == "") {
         return 0;
     }
     else {
@@ -573,7 +573,7 @@ function editor_add_text(input_t) {
             }
         }
         else {
-            if (get_pg(cursor_real.pg).innerHTML == "<br>") {
+            if (get_pg(cursor_real.pg).innerHTML == "") {
                 get_pg(cursor_real.pg).innerHTML = "";
                 for (let i of input_t_l) {
                     get_pg(cursor_real.pg).append(word_to_span(i));
@@ -664,7 +664,7 @@ document.addEventListener("keydown", (e) => {
                     if (cursor.pg != 0) {
                         cursor.pg--;
                         cursor.of = get_w_max(cursor.pg);
-                        if (get_pg(cursor.pg).innerText == "\n") {
+                        if (get_pg(cursor.pg).innerText == "") {
                             get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
                         }
                         else {
@@ -675,7 +675,7 @@ document.addEventListener("keydown", (e) => {
                 }
                 else {
                     if (cursor.of == 1) {
-                        get_pg(cursor.pg).innerText = "\n";
+                        get_pg(cursor.pg).innerText = "";
                     }
                     else {
                         get_w(cursor.pg, cursor.of).remove();
@@ -694,10 +694,10 @@ document.addEventListener("keydown", (e) => {
             if (editor_selections[0].get() == "") {
                 if (cursor.of == get_w_max(cursor.pg)) {
                     if (cursor.pg != get_pg_max()) {
-                        if (get_pg(cursor.pg).innerText == "\n") {
+                        if (get_pg(cursor.pg).innerText == "") {
                             get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
                         }
-                        else if (get_pg(cursor.pg + 1).innerText != "\n") {
+                        else if (get_pg(cursor.pg + 1).innerText != "") {
                             get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
                         }
                         get_pg(cursor.pg + 1).remove();
