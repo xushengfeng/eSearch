@@ -308,6 +308,7 @@ var down = false;
 var click_time = 0;
 var click_d_time = 500;
 var click_i = 0;
+var line_height = 24;
 document.addEventListener("mousedown", (e) => {
     var el = e.target;
     var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
@@ -384,7 +385,7 @@ document.addEventListener("mouseup", (e) => {
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
     let p = editor_i(cursor.pg, cursor.of);
-    show_edit_bar(p.left, p.top + 24, 24, e.button == 2);
+    show_edit_bar(p.left, p.top + line_height, line_height, e.button == 2);
     document.getElementById("edit_b").style.pointerEvents = "";
     document.getElementById("cursor").style.pointerEvents = "";
     add_selection_linux();
@@ -403,7 +404,7 @@ function posi(e) {
         pg_line = 0;
         of = 0;
     }
-    else if (y >= l[l.length - 1] + 24) {
+    else if (y >= l[l.length - 1] + line_height) {
         pg_line = l.length - 1;
         if (line[l[pg_line]].max.r == 0) {
             // line空和一个字的i都为0
@@ -415,7 +416,7 @@ function posi(e) {
     }
     else {
         for (i in l) {
-            if (l[i] <= y && y < l[i] + 24) {
+            if (l[i] <= y && y < l[i] + line_height) {
                 pg_line = Number(i);
                 if (x < line[l[i]].min.l) {
                     if (pg_line != 0) {
@@ -440,7 +441,7 @@ function posi(e) {
             }
         }
     }
-    return { pg: line[pg_line * 24].pg, of };
+    return { pg: line[pg_line * Math.round(line_height)].pg, of };
 }
 /**
  * 获取段落元素
@@ -836,7 +837,7 @@ function change_text_bottom() {
     if (get_pg_max() == 0) {
         d = 16;
     }
-    document.getElementById("text_bottom").style.height = `calc(100% - 1.5rem - ${d}px)`;
+    document.getElementById("text_bottom").style.height = `calc(100% - 1.5em - ${d}px)`;
 }
 document.getElementById("text_bottom").onclick = () => {
     cursor.pg = get_pg_max();
@@ -961,10 +962,12 @@ document.onwheel = (e) => {
 };
 function set_font_size(font_size) {
     document.getElementById("text_out").style.fontSize = font_size + "px";
+    line_height = font_size * 1.5;
     if (store.get("字体.记住"))
         store.set("字体.记住", font_size);
     setTimeout(() => {
         editor_i(cursor.pg, cursor.of);
+        editor_selections[0].rander();
     }, 400);
 }
 /**编辑栏 */
