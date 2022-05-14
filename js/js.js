@@ -322,14 +322,14 @@ document.addEventListener("mousedown", (e) => {
         n_s.start.pg = get_index(editor, w.parentElement);
         down = true;
     }
-    else if (el.className == "p") {
-        n_s.start.of = el.innerText == "" ? 0 : el.querySelectorAll("span").length;
-        n_s.start.pg = get_index(editor, el);
+    else {
+        n_s.start = posi(e);
         down = true;
     }
     if (!e.shiftKey)
         [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
     document.getElementById("edit_b").style.pointerEvents = "none";
+    document.getElementById("cursor").style.pointerEvents = "none";
 });
 document.addEventListener("mousemove", (e) => {
     if (!down)
@@ -346,11 +346,9 @@ document.addEventListener("mousemove", (e) => {
         }
         n_s.end.pg = get_index(editor, w.parentElement);
     }
-    else if (el.className == "p") {
-        n_s.end.of = el.innerText == "" ? 0 : el.querySelectorAll("span").length;
-        n_s.end.pg = get_index(editor, el);
+    else {
+        n_s.end = posi(e);
     }
-    // document.getElementById("selection").innerHTML = "";
     n_s.rander();
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
@@ -379,9 +377,8 @@ document.addEventListener("mouseup", (e) => {
         }
         n_s.end.pg = get_index(editor, w.parentElement);
     }
-    else if (el.className == "p") {
-        n_s.end.of = el.innerText == "" ? 0 : el.querySelectorAll("span").length;
-        n_s.end.pg = get_index(editor, el);
+    else {
+        n_s.end = posi(e);
     }
     n_s.rander();
     cursor.pg = n_s.end.pg;
@@ -390,8 +387,62 @@ document.addEventListener("mouseup", (e) => {
     var end_el = get_w(cursor.pg, cursor.of);
     show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8, el.offsetHeight, e.button == 2);
     document.getElementById("edit_b").style.pointerEvents = "";
+    document.getElementById("cursor").style.pointerEvents = "";
     add_selection_linux();
 });
+function posi(e) {
+    add_line();
+    var dy = document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
+    var y = e.pageY - dy;
+    var dx = document.getElementById("main_text").scrollLeft +
+        document.getElementById("main_text").offsetLeft +
+        document.getElementById("top").offsetLeft;
+    var x = e.pageX - dx;
+    var l = Object.keys(line).map((x) => Number(x));
+    var pg_line = 0, of = 0;
+    if (y < 0) {
+        pg_line = 0;
+        of = 0;
+    }
+    else if (y >= l[l.length - 1] + 24) {
+        pg_line = l.length - 1;
+        if (line[l[pg_line]].max.r == 0) {
+            // line空和一个字的i都为0
+            of = 0;
+        }
+        else {
+            of = line[l[pg_line]].max.i + 1;
+        }
+    }
+    else {
+        for (i in l) {
+            if (l[i] <= y && y < l[i] + 24) {
+                pg_line = Number(i);
+                if (x < line[l[i]].min.l) {
+                    if (pg_line != 0) {
+                        pg_line--;
+                        if (line[l[Number(i) - 1]].max.r == 0) {
+                            of = 0;
+                        }
+                        else {
+                            of = line[l[Number(i) - 1]].max.i + 1;
+                        }
+                    }
+                }
+                if (x > line[l[i]].max.r) {
+                    if (line[l[i]].max.r == 0) {
+                        // line空和一个字的i都为0
+                        of = 0;
+                    }
+                    else {
+                        of = line[l[i]].max.i + 1;
+                    }
+                }
+            }
+        }
+    }
+    return { pg: line[pg_line * 24].pg, of };
+}
 /**
  * 获取段落元素
  * @param p 段落数，从0开始算
