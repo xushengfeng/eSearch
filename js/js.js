@@ -457,7 +457,8 @@ function posi(e) {
                         }
                     }
                 }
-                if (x > line[l[i]].max.r) {
+                if (x >= line[l[i]].max.r - 1) {
+                    /* -1防止虚无的跳跃 */
                     if (line[l[i]].max.r == 0) {
                         // line空和一个字的i都为0
                         of = 0;
