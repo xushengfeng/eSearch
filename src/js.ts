@@ -199,13 +199,23 @@ class selection {
         editor_i(s.start.pg, s.start.of);
     }
 }
+/**
+ * 绘制段落内选区
+ * @param pg 段落数
+ * @param s_of 开头间隔索引
+ * @param e_of 末尾间隔索引
+ * @param br 是否绘制换行
+ * @returns html文字
+ */
 function draw_pg_selection(pg: number, s_of: number, e_of: number, br: boolean) {
     let t = "";
+    let br_w = 2;/* 换行宽度 */
     for (let i of pg_to_line[pg]) {
         let l_i = line[i];
+        if (s_of == 0 && e_of == 0 && br) {
+            t += draw_div(i, 0, br_w);
+        }
         if (!(s_of <= l_i.max.i && l_i.min.i < e_of)) continue;
-        let div = document.createElement("div");
-        div.className = "selection";
         if (l_i.min.i <= s_of && s_of <= l_i.max.i) {
             var s_left = s_of == l_i.min.i ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth;
         } else {
@@ -215,11 +225,17 @@ function draw_pg_selection(pg: number, s_of: number, e_of: number, br: boolean) 
             var e_left = e_of == l_i.min.i ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
         } else {
             var e_left = l_i.max.r;
+            if (br && e_of == l_i.max.i + 1) e_left += br_w;
         }
+        t += draw_div(i, s_left, e_left);
+    }
+    function draw_div(i: number, s_left: number, e_left: number) {
+        let div = document.createElement("div");
+        div.className = "selection";
         div.style.left = s_left + "px";
         div.style.width = e_left - s_left + "px";
         div.style.top = i + "px";
-        t += div.outerHTML;
+        return div.outerHTML;
     }
     return t;
 }
