@@ -400,17 +400,16 @@ function mouseup(e: MouseEvent) {
     if (!move_s) {
         editor_selections[0] = n_s;
         n_s.rander();
+        cursor.pg = n_s.end.pg;
+        cursor.of = n_s.end.of;
+        let p = editor_i(cursor.pg, cursor.of);
+        show_edit_bar(p.left, p.top + line_height, line_height, e.button == 2);
     } else {
         let t_s = new selection({ start: cursor, end: cursor });
         t_s.replace(move_s_t);
         move_s_t = "";
     }
     move_s = false;
-    cursor.pg = n_s.end.pg;
-    cursor.of = n_s.end.of;
-    let p = editor_i(cursor.pg, cursor.of);
-
-    show_edit_bar(p.left, p.top + line_height, line_height, e.button == 2);
 
     document.getElementById("edit_b").style.pointerEvents = "";
 
