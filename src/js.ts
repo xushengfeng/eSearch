@@ -579,7 +579,7 @@ function editor_add_text(input_t: string) {
     }
 }
 
-var editor_focus = false;
+var editor_focus = true;
 document.getElementById("cursor").onfocus = () => {
     editor_focus = true;
 };
