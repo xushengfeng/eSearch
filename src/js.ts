@@ -304,6 +304,8 @@ var click_time = 0;
 var click_d_time = 500;
 var click_i = 0;
 var line_height = 24;
+var move_s = false;
+var move_s_t = "";
 document.getElementById("top").addEventListener("mousedown", (e) => {
     var el = <HTMLElement>e.target;
     var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
@@ -324,14 +326,30 @@ document.getElementById("top").addEventListener("mousedown", (e) => {
     cursor.of = n_s.start.of;
     editor_i(cursor.pg, cursor.of);
 
-    if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
+    var t_s = format_selection(editor_selections[0]);
+    if (
+        (t_s.end.pg - t_s.start.pg >= 2 && t_s.start.pg <= cursor.pg && cursor.pg <= t_s.end.pg) /* >=3 */ ||
+        (t_s.start.pg - t_s.end.pg == 0 &&
+            t_s.start.pg == cursor.pg &&
+            t_s.start.of < cursor.of &&
+            cursor.of < t_s.end.of) /* 1 */ ||
+        (t_s.end.pg - t_s.start.pg == 1 &&
+            ((t_s.start.pg == cursor.pg && t_s.start.of < cursor.of) ||
+                (t_s.end.pg == cursor.pg && cursor.of < t_s.end.of))) /* 2 */
+    ) {
+        move_s = true;
+        move_s_t = editor_selections[0].get();
+        editor_selections[0].replace("");
+    }
+
+    if (!e.shiftKey && !move_s) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
 
     document.getElementById("edit_b").style.pointerEvents = "none";
 });
 document.addEventListener("mousemove", (e) => {
     if (!down) return;
     var el = <HTMLElement>e.target;
-    var n_s = editor_selections[0];
+    var n_s = new selection({ start: editor_selections[0].start, end: { of: NaN, pg: NaN } });
     if (el.tagName == "SPAN") {
         var w = el;
         if (e.offsetX <= w.offsetWidth / 2) {
@@ -343,7 +361,10 @@ document.addEventListener("mousemove", (e) => {
     } else {
         n_s.end = posi(e);
     }
-    n_s.rander();
+    if (!move_s) {
+        editor_selections[0] = n_s;
+        n_s.rander();
+    }
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
     editor_i(cursor.pg, cursor.of);
@@ -358,7 +379,7 @@ document.addEventListener("mouseup", (e) => {
     if (!down) return;
     down = false;
     var el = <HTMLElement>e.target;
-    var n_s = editor_selections[0];
+    var n_s = new selection({ start: editor_selections[0].start, end: { of: NaN, pg: NaN } });
     if (el.tagName == "SPAN") {
         var w = el;
         if (e.offsetX <= w.offsetWidth / 2) {
@@ -370,7 +391,15 @@ document.addEventListener("mouseup", (e) => {
     } else {
         n_s.end = posi(e);
     }
-    n_s.rander();
+    if (!move_s) {
+        editor_selections[0] = n_s;
+        n_s.rander();
+    } else {
+        let t_s = new selection({ start: cursor, end: cursor });
+        t_s.replace(move_s_t);
+        move_s_t = "";
+    }
+    move_s = false;
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
     let p = editor_i(cursor.pg, cursor.of);
