@@ -369,10 +369,9 @@ document.addEventListener("mouseup", (e) => {
     n_s.rander();
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
-    editor_i(cursor.pg, cursor.of);
+    let p = editor_i(cursor.pg, cursor.of);
 
-    var end_el = get_w(cursor.pg, cursor.of);
-    show_edit_bar(end_el.offsetLeft + 8, end_el.offsetTop + end_el.offsetHeight + 8, el.offsetHeight, e.button == 2);
+    show_edit_bar(p.left, p.top + 24, 24, e.button == 2);
 
     document.getElementById("edit_b").style.pointerEvents = "";
     document.getElementById("cursor").style.pointerEvents = "";
@@ -526,6 +525,7 @@ function editor_i(p: number, i: number) {
     document.getElementById("cursor").focus();
 
     editor_change();
+    return { left, top: top + 8 };
 }
 editor_i(cursor.pg, cursor.of);
 
