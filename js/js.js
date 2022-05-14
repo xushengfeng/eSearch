@@ -305,6 +305,9 @@ function add_line() {
 }
 add_line();
 var down = false;
+var click_time = 0;
+var click_d_time = 500;
+var click_i = 0;
 document.addEventListener("mousedown", (e) => {
     var el = e.target;
     var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
@@ -354,6 +357,13 @@ document.addEventListener("mousemove", (e) => {
     editor_i(cursor.pg, cursor.of);
 });
 document.addEventListener("mouseup", (e) => {
+    if (new Date().getTime() - click_time > click_d_time) {
+        click_time = new Date().getTime();
+        click_i = 1;
+    }
+    else {
+        click_i++;
+    }
     if (!down)
         return;
     down = false;
