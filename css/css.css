@@ -95,6 +95,7 @@ body {
     user-select: none;
     position: relative;
     z-index: 2;
+    caret-color: #0000;
 }
 #text:focus {
     outline: none;

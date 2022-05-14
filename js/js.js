@@ -350,6 +350,9 @@ document.getElementById("top").addEventListener("mousedown", (e) => {
     document.getElementById("edit_b").style.pointerEvents = "none";
 });
 document.addEventListener("mousemove", (e) => {
+    mousemove(e);
+});
+function mousemove(e) {
     if (!down)
         return;
     var el = e.target;
@@ -374,8 +377,11 @@ document.addEventListener("mousemove", (e) => {
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
     editor_i(cursor.pg, cursor.of);
-});
+}
 document.addEventListener("mouseup", (e) => {
+    mouseup(e);
+});
+function mouseup(e) {
     if (new Date().getTime() - click_time > click_d_time) {
         click_time = new Date().getTime();
         click_i = 1;
@@ -417,7 +423,7 @@ document.addEventListener("mouseup", (e) => {
     show_edit_bar(p.left, p.top + line_height, line_height, e.button == 2);
     document.getElementById("edit_b").style.pointerEvents = "";
     add_selection_linux();
-});
+}
 function posi(e) {
     add_line();
     var dy = document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
@@ -472,6 +478,19 @@ function posi(e) {
     }
     return { pg: line[pg_line * Math.round(line_height)].pg, of };
 }
+document.addEventListener("dragover", function (e) {
+    e.preventDefault();
+    down = true;
+    editor.contentEditable = "true";
+    move_s = true;
+    mousemove(e);
+});
+document.addEventListener("drop", (e) => {
+    e.preventDefault();
+    editor.contentEditable = "false";
+    move_s_t = e.dataTransfer.getData("text/plain");
+    mouseup(e);
+});
 /**
  * 获取段落元素
  * @param p 段落数，从0开始算
