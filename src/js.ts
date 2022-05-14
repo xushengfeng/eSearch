@@ -304,7 +304,7 @@ var click_time = 0;
 var click_d_time = 500;
 var click_i = 0;
 var line_height = 24;
-document.addEventListener("mousedown", (e) => {
+document.getElementById("top").addEventListener("mousedown", (e) => {
     var el = <HTMLElement>e.target;
     var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (el.tagName == "SPAN") {
@@ -988,6 +988,7 @@ function show_edit_bar(x: number, y: number, h: number, right: boolean) {
 }
 
 document.getElementById("edit_b").onmousedown = (e) => {
+    e.stopPropagation();
     e.preventDefault();
     switch ((<HTMLElement>e.target).id) {
         case "link_bar":
