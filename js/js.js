@@ -104,32 +104,51 @@ class selection {
      * @param this 选区
      */
     rander() {
+        add_line();
         var s = format_selection(this);
         var t = "";
         if (s.start.pg == s.end.pg) {
-            t += draw_line_selection(s.start.pg, s.start.of, s.end.of, false);
+            t += draw_pg_selection(s.start.pg, s.start.of, s.end.of, false);
         }
         else {
             for (let i = s.start.pg; i <= s.end.pg; i++) {
                 if (i == s.start.pg) {
-                    t += draw_line_selection(i, s.start.of, get_w_max(i), true);
+                    t += draw_pg_selection(i, s.start.of, get_w_max(i), true);
                 }
                 else if (i == s.end.pg) {
-                    t += draw_line_selection(i, 0, s.end.of, s.end.of == 0);
+                    t += draw_pg_selection(i, 0, s.end.of, s.end.of == 0);
                 }
                 else {
-                    t += draw_line_selection(i, 0, get_w_max(i), true);
+                    t += draw_pg_selection(i, 0, get_w_max(i), true);
                 }
             }
         }
-        function draw_line_selection(pg, s_of, e_of, br) {
-            var div = document.createElement("div");
-            div.className = "selection";
-            var s_left = s_of == 0 ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth, e_left = e_of == 0 ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
-            div.style.left = s_left + "px";
-            div.style.width = e_left - s_left + (br ? 1 : 0) + "px";
-            div.style.top = get_pg(pg).offsetTop + "px";
-            return div.outerHTML;
+        function draw_pg_selection(pg, s_of, e_of, br) {
+            let t = "";
+            for (let i of pg_to_line[pg]) {
+                let l_i = line[i];
+                if (!(s_of < l_i.max.i && l_i.min.i < e_of))
+                    continue;
+                let div = document.createElement("div");
+                div.className = "selection";
+                if (l_i.min.i <= s_of && s_of < l_i.max.i) {
+                    var s_left = s_of == 0 ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth;
+                }
+                else {
+                    var s_left = 0;
+                }
+                if (l_i.min.i <= e_of && e_of < l_i.max.i) {
+                    var e_left = e_of == 0 ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
+                }
+                else {
+                    var e_left = l_i.max.r;
+                }
+                div.style.left = s_left + "px";
+                div.style.width = e_left - s_left + "px";
+                div.style.top = i + "px";
+                t += div.outerHTML;
+            }
+            return t;
         }
         document.getElementById("selection").innerHTML = t;
     }
