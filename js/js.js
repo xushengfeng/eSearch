@@ -239,12 +239,8 @@ function draw_pg_selection(pg, s_of, e_of, br) {
         t += draw_div(i, s_left, e_left);
     }
     function draw_div(i, s_left, e_left) {
-        let div = document.createElement("div");
-        div.className = "selection";
-        div.style.left = s_left + "px";
-        div.style.width = e_left - s_left + "px";
-        div.style.top = i + "px";
-        return div.outerHTML;
+        let div = `<div class="selection" style="left: ${s_left}px; width: ${e_left - s_left}px; top: ${i}px;"></div>`;
+        return div;
     }
     return t;
 }

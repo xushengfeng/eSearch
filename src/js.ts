@@ -209,7 +209,7 @@ class selection {
  */
 function draw_pg_selection(pg: number, s_of: number, e_of: number, br: boolean) {
     let t = "";
-    let br_w = 2;/* 换行宽度 */
+    let br_w = 2; /* 换行宽度 */
     for (let i of pg_to_line[pg]) {
         let l_i = line[i];
         if (s_of == 0 && e_of == 0 && br) {
@@ -230,12 +230,8 @@ function draw_pg_selection(pg: number, s_of: number, e_of: number, br: boolean) 
         t += draw_div(i, s_left, e_left);
     }
     function draw_div(i: number, s_left: number, e_left: number) {
-        let div = document.createElement("div");
-        div.className = "selection";
-        div.style.left = s_left + "px";
-        div.style.width = e_left - s_left + "px";
-        div.style.top = i + "px";
-        return div.outerHTML;
+        let div = `<div class="selection" style="left: ${s_left}px; width: ${e_left - s_left}px; top: ${i}px;"></div>`;
+        return div;
     }
     return t;
 }
