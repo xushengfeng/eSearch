@@ -141,6 +141,7 @@ body {
     color: #0000;
     white-space: nowrap;
     transition: 0.1s;
+    pointer-events: none;
 }
 #cursor:focus {
     opacity: 1;

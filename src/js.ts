@@ -320,10 +320,13 @@ document.getElementById("top").addEventListener("mousedown", (e) => {
         n_s.start = posi(e);
         down = true;
     }
+    cursor.pg = n_s.start.pg;
+    cursor.of = n_s.start.of;
+    editor_i(cursor.pg, cursor.of);
+
     if (!e.shiftKey) [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
 
     document.getElementById("edit_b").style.pointerEvents = "none";
-    document.getElementById("cursor").style.pointerEvents = "none";
 });
 document.addEventListener("mousemove", (e) => {
     if (!down) return;
@@ -375,7 +378,6 @@ document.addEventListener("mouseup", (e) => {
     show_edit_bar(p.left, p.top + line_height, line_height, e.button == 2);
 
     document.getElementById("edit_b").style.pointerEvents = "";
-    document.getElementById("cursor").style.pointerEvents = "";
 
     add_selection_linux();
 });
