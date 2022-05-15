@@ -932,7 +932,8 @@ function line_num() {
     }
     document.getElementById("line_num").innerHTML = t;
 }
-document.getElementById("line_num").onclick = (e) => {
+document.getElementById("line_num").onmousedown = (e) => {
+    e.stopPropagation();
     var el = <HTMLElement>e.target;
     if (el == document.getElementById("line_num")) return;
     var l_i = Number(el.innerText) - 1;
