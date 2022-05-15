@@ -76,6 +76,16 @@ function word_to_span_string(t: string) {
     return span;
 }
 /**
+ * 文字包装span文字
+ * @param t 单个文字
+ * @returns 包装好的span文字
+ */
+function word_to_span_string_split(t: string) {
+    let o = in_browser ? t.split("") : <string[]>splitter.GraphemeSplitter.splitGraphemes(t);
+    o = o.map((t) => word_to_span_string(t));
+    return o.join("");
+}
+/**
  * 写入编辑器
  * @param value 传入text
  */
@@ -1210,13 +1220,13 @@ function find() {
     if (!tmp_text) tmp_text = editor_get();
     // 拆分并转义
     try {
-        var match_l = tmp_text.match(text).map((m: string) => html_to_text(m));
-        var text_l = tmp_text.split(text).map((m: string) => html_to_text(m));
+        var match_l = tmp_text.match(text);
+        var text_l = tmp_text.split(text);
         var t_l = [];
         // 交替插入
         for (i in text_l) {
-            t_l.push(text_l[i]);
-            if (match_l[i]) t_l.push(`<span class="find_h">${match_l[i]}</span>`);
+            if (text_l[i]) t_l.push(word_to_span_string_split(text_l[i]));
+            if (match_l[i]) t_l.push(`<span class="find_h">${word_to_span_string_split(match_l[i])}</span>`);
         }
         document.getElementById("find_area").innerHTML = t_l
             .join("")
@@ -1226,14 +1236,13 @@ function find() {
     find_l_n_i = -1;
     find_l_n("↓");
     if (find_input.value == "") {
-        document.getElementById("find_area").innerText = tmp_text;
         exit_find();
     }
 }
 
 // 清除样式
 function exit_find() {
-    find_area.innerText = find_area.innerText;
+    find_area.innerHTML = "";
     tmp_text = null;
     find_t.innerText = "";
 }
