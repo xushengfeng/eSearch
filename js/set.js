@@ -515,6 +515,10 @@ function save_setting() {
     store.set("硬件加速", document.getElementById("硬件加速").checked);
 }
 
+function find(text) {
+    ipcRenderer.send("setting", "find", { t: text });
+}
+
 var path_info = `运行目录：${__dirname}<br>
                 配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>
                 OCR 目录：${store.path.replace("config.json", "ocr")}<br>

@@ -653,7 +653,7 @@ function image_search(event, arg) {
     });
 }
 
-ipcMain.on("setting", async (event, arg) => {
+ipcMain.on("setting", async (event, arg, arg1) => {
     switch (arg) {
         case "save_err":
             console.log("保存设置失败");
@@ -685,6 +685,9 @@ ipcMain.on("setting", async (event, arg) => {
                 app.relaunch();
                 app.exit(0);
             }
+            break;
+        case "find":
+            event.sender.findInPage(arg1.t, arg1.o || {});
             break;
     }
 });
@@ -1114,7 +1117,10 @@ function create_main_window(web_page, t, about) {
         // 确保切换到index时能传递window_name
         main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
 
-        if (web_page == "setting.html") main_window.webContents.send("about", about);
+        if (web_page == "setting.html") {
+            main_window.webContents.send("about", about);
+            main_window.webContents.send("setting", main_window.id);
+        }
     });
 
     main_window.on("close", () => {
