@@ -296,6 +296,7 @@ function push_p_l(i: number, v: number) {
 function add_line() {
     var h = 0;
     pg_to_line = {};
+    line = {};
     var pg_l = editor.querySelectorAll("div");
     pg_l.forEach((pg, i) => {
         var w_l = pg.querySelectorAll("span");
@@ -308,6 +309,7 @@ function add_line() {
                     push_p_l(i, w.offsetTop);
                     line[n_w.offsetTop] = { min: { i: j, l: 0 }, max: { i: 0, r: 0 }, pg: i };
                     // 上一行
+                    if (!line[w.offsetTop]) line[w.offsetTop] = { min: { i: 0, l: 0 }, max: { i: NaN, r: NaN }, pg: i };
                     line[w.offsetTop].max = { i: j, r: w.offsetLeft + w.offsetWidth };
                 }
             } else {
@@ -337,6 +339,7 @@ var move_s_t = "";
 document.getElementById("top").addEventListener("mousedown", (e) => {
     var el = <HTMLElement>e.target;
     var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
+    add_line();
     if (el.tagName == "SPAN") {
         var w = el;
         if (e.offsetX <= w.offsetWidth / 2) {
@@ -350,7 +353,6 @@ document.getElementById("top").addEventListener("mousedown", (e) => {
         n_s.start = posi(e);
         down = true;
     }
-    add_line();
     cursor.pg = n_s.start.pg;
     cursor.of = n_s.start.of;
     editor_i(cursor.pg, cursor.of);
