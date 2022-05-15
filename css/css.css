@@ -164,12 +164,15 @@ body {
 }
 
 #find_area {
+    white-space: var(--wrap);
     position: absolute;
-    width: 100%;
     top: 0px;
-    padding-top: 8px;
     color: #0000;
     user-select: none;
+    font-size: 1em;
+    line-height: 1.5em;
+    margin: 8px 8px 8px 0;
+    word-break: break-all;
 }
 
 /* 用于历史记录和浏览器打开固定 */
