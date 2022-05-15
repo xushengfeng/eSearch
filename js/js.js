@@ -39,6 +39,11 @@ function redo() {
         }
     }
 }
+var splitter;
+if (!in_browser) {
+    const GraphemeSplitter = require("grapheme-splitter");
+    splitter = new GraphemeSplitter();
+}
 var editor = document.getElementById("text");
 /**
  * 文字包装span
@@ -63,7 +68,7 @@ function editor_push(value) {
     editor.innerHTML = "";
     let pg = value.split(/[\n\r]/);
     for (let i of pg) {
-        let word_l = i.split("");
+        let word_l = in_browser ? i.split("") : splitter.splitGraphemes(i);
         let div = document.createElement("div");
         div.className = "p";
         for (let j of word_l) {
@@ -173,7 +178,7 @@ class selection {
         // 倒叙添加
         let pg = t.split(/[\n\r]/);
         for (let i = pg.length - 1; i >= 0; i--) {
-            let word_l = pg[i].split("");
+            let word_l = in_browser ? pg[i].split("") : splitter.splitGraphemes(pg[i]);
             let div = document.createElement("div");
             div.className = "p";
             for (let j in word_l) {
