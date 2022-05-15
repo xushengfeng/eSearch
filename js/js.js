@@ -344,7 +344,10 @@ var click_d_time = 500;
 var click_i = 0;
 var line_height = 24;
 var move_s = false;
+var in_selection = false;
+var move_first_start = false;
 var move_s_t = "";
+var tmp_s = { start: { pg: NaN, of: NaN }, end: {} };
 document.getElementById("top").addEventListener("mousedown", (e) => {
     var el = e.target;
     var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
@@ -376,12 +379,10 @@ document.getElementById("top").addEventListener("mousedown", (e) => {
         (t_s.end.pg - t_s.start.pg == 1 &&
             ((t_s.start.pg == cursor.pg && t_s.start.of < cursor.of) ||
                 (t_s.end.pg == cursor.pg && cursor.of < t_s.end.of))) /* 2 */) {
-        move_s = true;
-        move_s_t = editor_selections[0].get();
-        editor_selections[0].replace("");
+        in_selection = true;
     }
-    if (!e.shiftKey && !move_s)
-        [editor_selections[0].start, editor_selections[0].end] = [n_s.start, n_s.end];
+    if (!e.shiftKey)
+        [tmp_s.start, tmp_s.end] = [n_s.start, n_s.end];
     document.getElementById("edit_b").style.pointerEvents = "none";
 });
 document.addEventListener("mousemove", (e) => {
@@ -390,8 +391,9 @@ document.addEventListener("mousemove", (e) => {
 function mousemove(e) {
     if (!down)
         return;
+    move_s = true;
     var el = e.target;
-    var n_s = new selection({ start: editor_selections[0].start, end: { of: NaN, pg: NaN } });
+    var n_s = new selection({ start: tmp_s.start, end: { of: NaN, pg: NaN } });
     if (el.tagName == "SPAN") {
         var w = el;
         if (e.offsetX <= w.offsetWidth / 2) {
@@ -405,14 +407,19 @@ function mousemove(e) {
     else {
         n_s.end = posi(e);
     }
-    if (!move_s) {
+    if (!in_selection) {
         editor_selections[0] = n_s;
         n_s.rander(false);
     }
     else {
-        // 虚线光标
-        document.getElementById("cursor").style.background = "url(./assets/icons/cursor.svg) center";
-        document.getElementById("cursor").style.backgroundSize = "cover";
+        if (!move_first_start) {
+            // 虚线光标
+            document.getElementById("cursor").style.background = "url(./assets/icons/cursor.svg) center";
+            document.getElementById("cursor").style.backgroundSize = "cover";
+            move_s_t = editor_selections[0].get();
+            editor_selections[0].replace("");
+            move_first_start = true;
+        }
     }
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
@@ -442,6 +449,8 @@ function mouseup(e) {
         return;
     down = false;
     var el = e.target;
+    if (!move_first_start)
+        editor_selections[0].start = tmp_s.start;
     var n_s = new selection({ start: editor_selections[0].start, end: { of: NaN, pg: NaN } });
     if (el.tagName == "SPAN") {
         var w = el;
@@ -456,7 +465,7 @@ function mouseup(e) {
     else {
         n_s.end = posi(e);
     }
-    if (!move_s) {
+    if (!(move_first_start || in_selection)) {
         editor_selections[0] = n_s;
         n_s.rander();
         cursor.pg = n_s.end.pg;
@@ -468,6 +477,8 @@ function mouseup(e) {
         let t_s = new selection({ start: cursor, end: cursor });
         t_s.replace(move_s_t);
         move_s_t = "";
+        in_selection = false;
+        move_first_start = false;
         document.getElementById("cursor").style.background = "";
         document.getElementById("cursor").style.backgroundSize = "";
         edit_bar_s = true;
