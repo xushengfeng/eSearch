@@ -61,25 +61,43 @@ function word_to_span(t) {
     return span;
 }
 /**
+ * 文字包装span文字
+ * @param t 单个文字
+ * @returns 包装好的span文字
+ */
+function word_to_span_string(t) {
+    let span;
+    if (t == "\t") {
+        span = `<span class="tab">${t}</span>`;
+    }
+    else if (t == " ") {
+        span = `<span class="space">${t}</span>`;
+    }
+    else {
+        span = `<span class="w">${t}</span>`;
+    }
+    return span;
+}
+/**
  * 写入编辑器
  * @param value 传入text
  */
 function editor_push(value) {
     editor.innerHTML = "";
+    var t = "";
     let pg = value.split(/[\n\r]/);
     for (let i of pg) {
         let word_l = in_browser ? i.split("") : splitter.splitGraphemes(i);
-        let div = document.createElement("div");
-        div.className = "p";
+        let div = `<div class="p">`;
+        let spans = "";
         for (let j of word_l) {
-            let span = word_to_span(j);
-            div.append(span);
+            spans += word_to_span_string(j);
         }
-        if (word_l.length == 0) {
-            div.innerHTML = "";
-        }
-        editor.append(div);
+        div += spans;
+        div += "</div>";
+        t += div;
     }
+    editor.innerHTML = t;
     editor_i(get_pg_max(), get_w_max(get_pg_max()));
 }
 editor_push("");
@@ -108,8 +126,9 @@ class selection {
      * 渲染选区
      * @param this 选区
      */
-    rander() {
-        add_line();
+    rander(not_add) {
+        if (!not_add)
+            add_line();
         var s = format_selection(this);
         var t = "";
         if (s.start.pg == s.end.pg) {
@@ -187,12 +206,9 @@ class selection {
                     end_s.of = Number(j);
                 }
                 else {
-                    let span = word_to_span(word_l[j]);
-                    div.append(span);
+                    let span = word_to_span_string(word_l[j]);
+                    div.innerHTML += span;
                 }
-            }
-            if (word_l.length == 0) {
-                div.innerHTML = "";
             }
             if (s.start.pg == 0) {
                 editor.prepend(div);
@@ -334,6 +350,7 @@ document.getElementById("top").addEventListener("mousedown", (e) => {
         n_s.start = posi(e);
         down = true;
     }
+    add_line();
     cursor.pg = n_s.start.pg;
     cursor.of = n_s.start.of;
     editor_i(cursor.pg, cursor.of);
@@ -377,7 +394,7 @@ function mousemove(e) {
     }
     if (!move_s) {
         editor_selections[0] = n_s;
-        n_s.rander();
+        n_s.rander(false);
     }
     else {
         // 虚线光标
@@ -911,12 +928,11 @@ document.getElementById("text_bottom").onclick = () => {
  */
 function line_num() {
     document.getElementById("line_num").innerHTML = "";
+    let t = "";
     for (let i = 0; i <= get_pg_max(); i++) {
-        var item = document.createElement("div");
-        item.style.height = get_pg(i).offsetHeight + "px";
-        item.innerText = (i + 1).toString();
-        document.getElementById("line_num").append(item);
+        t += `<div style="height:${get_pg(i).offsetHeight}px">${(i + 1).toString()}</div>`;
     }
+    document.getElementById("line_num").innerHTML = t;
 }
 document.getElementById("line_num").onclick = (e) => {
     var el = e.target;
