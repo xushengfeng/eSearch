@@ -414,6 +414,8 @@ function mouseup(e: MouseEvent) {
         move_s_t = "";
         document.getElementById("cursor").style.background = "";
         document.getElementById("cursor").style.backgroundSize = "";
+        edit_bar_s = true;
+        show_edit_bar(0, 0, 0, false);
     }
     move_s = false;
 
