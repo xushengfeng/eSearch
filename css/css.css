@@ -134,7 +134,8 @@ body {
     position: absolute;
     width: 0.1em;
     height: 1.5em;
-    background-color: var(--color);
+    background: var(--color);
+    background-size: cover;
     opacity: 0.2;
     overflow: hidden;
     z-index: 3;

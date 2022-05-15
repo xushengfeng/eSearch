@@ -367,6 +367,10 @@ function mousemove(e: MouseEvent) {
     if (!move_s) {
         editor_selections[0] = n_s;
         n_s.rander();
+    } else {
+        // 虚线光标
+        document.getElementById("cursor").style.background = "url(./assets/icons/cursor.svg) center";
+        document.getElementById("cursor").style.backgroundSize = "cover";
     }
     cursor.pg = n_s.end.pg;
     cursor.of = n_s.end.of;
@@ -408,6 +412,8 @@ function mouseup(e: MouseEvent) {
         let t_s = new selection({ start: cursor, end: cursor });
         t_s.replace(move_s_t);
         move_s_t = "";
+        document.getElementById("cursor").style.background = "";
+        document.getElementById("cursor").style.backgroundSize = "";
     }
     move_s = false;
 
