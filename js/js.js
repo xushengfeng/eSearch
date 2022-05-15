@@ -429,6 +429,15 @@ function mouseup(e) {
     else {
         click_i++;
     }
+    if (click_i == 3) {
+        let t = new selection({ start: { of: 0, pg: cursor.pg }, end: { of: get_w_max(cursor.pg), pg: cursor.pg } });
+        t.rander();
+        editor_selections[0] = t;
+        down = false;
+        cursor.of = get_w_max(cursor.pg);
+        editor_i(cursor.pg, cursor.of);
+        return;
+    }
     if (!down)
         return;
     down = false;
