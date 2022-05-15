@@ -626,16 +626,27 @@ class editing_operation {
     }
     copy() {
         var t = editor_selections[0].get();
-        navigator.clipboard.writeText(t);
+        if (in_browser) {
+            navigator.clipboard.writeText(t);
+        } else {
+            clipboard.writeText(t);
+        }
     }
     cut() {
         this.copy();
         this.delete();
     }
     paste() {
-        navigator.clipboard.readText().then((t) => {
+        if (in_browser) {
+            navigator.clipboard.readText().then((t) => {
+                editor_selections[0].replace(t);
+            });
+        } else {
+            console.log(1);
+
+            let t = clipboard.readText();
             editor_selections[0].replace(t);
-        });
+        }
     }
     select_all() {
         var s = new selection({ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } });
@@ -717,6 +728,9 @@ function editor_add_text(input_t: string) {
         editor_selections[0].replace(input_t);
     }
 }
+document.getElementById("cursor").onpaste = (e) => {
+    e.preventDefault();
+};
 
 var editor_focus = true;
 document.getElementById("cursor").onfocus = () => {
