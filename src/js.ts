@@ -1014,6 +1014,7 @@ if (in_browser) {
                     自动换行: true,
                     拼写检查: false,
                     行号: true,
+                    tab: 2,
                 },
                 历史记录设置: {
                     保留历史记录: true,
@@ -1079,6 +1080,9 @@ function set_font_size(font_size: number) {
         editor_selections[0].rander();
     }, 400);
 }
+
+/**tab */
+document.documentElement.style.setProperty("--tab", `${store.get("编辑器.tab")}em`);
 
 /**编辑栏 */
 var edit_bar_s = false;

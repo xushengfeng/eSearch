@@ -115,7 +115,7 @@ body {
     display: inline-block;
 }
 .tab {
-    width: 1em;
+    width: var(--tab);
     display: inline-block;
 }
 #text_bottom {

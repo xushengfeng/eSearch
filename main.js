@@ -1157,7 +1157,7 @@ function create_main_window(web_page, t, about) {
     });
 
     main_window.webContents.on("found-in-page", (e, r) => {
-        main_window.webContents.send('found',r.activeMatchOrdinal, r.matches)
+        main_window.webContents.send("found", r.activeMatchOrdinal, r.matches);
     });
 }
 
@@ -1422,6 +1422,7 @@ var default_setting = {
         自动换行: true,
         拼写检查: false,
         行号: true,
+        tab: 2,
     },
     工具栏跟随: "展示内容优先",
     取色器默认格式: "HEX",
