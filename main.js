@@ -687,7 +687,13 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             }
             break;
         case "find":
-            event.sender.findInPage(arg1.t, arg1.o || {});
+            if (arg1.o?.start) {
+                let o = arg1.o;
+                delete arg1.o.start;
+                event.sender.findInPage(arg1.t, o || {});
+            } else {
+                event.sender.stopFindInPage("clearSelection");
+            }
             break;
     }
 });
@@ -1148,6 +1154,10 @@ function create_main_window(web_page, t, about) {
             失焦关闭 = true;
             main_window.close();
         }
+    });
+
+    main_window.webContents.on("found-in-page", (e, r) => {
+        main_window.webContents.send('found',r.activeMatchOrdinal, r.matches)
     });
 }
 

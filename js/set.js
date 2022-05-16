@@ -515,9 +515,26 @@ function save_setting() {
     store.set("硬件加速", document.getElementById("硬件加速").checked);
 }
 
-function find(text) {
-    ipcRenderer.send("setting", "find", { t: text });
+// 查找
+document.getElementById("find_b_close").onclick = () => {
+    find(document.getElementById("find_input").value, { start: false });
+    document.getElementById("find_t").innerText = ``;
+};
+document.getElementById("find_input").onchange = () => {
+    find(document.getElementById("find_input").value, { start: Boolean(document.getElementById("find_input").value) });
+};
+document.getElementById("find_b_last").onclick = () => {
+    find(document.getElementById("find_input").value, { start: true, forward: false, findNext: true });
+};
+document.getElementById("find_b_next").onclick = () => {
+    find(document.getElementById("find_input").value, { start: true, forward: true, findNext: true });
+};
+function find(t, o) {
+    ipcRenderer.send("setting", "find", { t, o });
 }
+ipcRenderer.on("found", (e, a, b) => {
+    document.getElementById("find_t").innerText = `${a} / ${b}`;
+});
 
 var path_info = `运行目录：${__dirname}<br>
                 配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>

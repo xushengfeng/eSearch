@@ -13,6 +13,40 @@ body {
     position: fixed;
     bottom: 0;
 }
+#find {
+    position: fixed;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    background-color: var(--bg);
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    padding: 4px;
+    border-bottom-left-radius: var(--border-radius);
+    z-index: 2;
+}
+.find_t > span {
+    font-size: 14px;
+    font-family: var(--monospace);
+}
+#find button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0 0 0 4px;
+    border-radius: 4px;
+    position: relative;
+}
+#find button > .icon {
+    width: 20px;
+}
+#find input {
+    border: none;
+    background-color: var(--bar-color);
+    backdrop-filter: var(--blur);
+    border-radius: 4px;
+}
 
 #give_up_setting {
     width: 40px;
