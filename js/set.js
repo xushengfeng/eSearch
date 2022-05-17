@@ -592,6 +592,11 @@ document.getElementById("version").onclick = () => {
         })
         .catch((error) => console.log("error", error));
 };
+
+if (new Date().getDay() >= 6) {
+    document.getElementById("version").click();
+}
+
 function version_new(v1, v2) {
     v1 = v1.split(".").map((v) => Number(v));
     v2 = v2.split(".").map((v) => Number(v));
