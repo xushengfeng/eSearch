@@ -580,9 +580,13 @@ document.getElementById("version").onclick = () => {
         .catch((error) => console.log("error", error));
 };
 function version_new(v1, v2) {
-    v1 = v1.split(".");
-    v2 = v2.split(".");
-    if (v1[0] >= v2[0] && v1[1] >= v2[1] && v1[2] > v2[2]) {
+    v1 = v1.split(".").map((v) => Number(v));
+    v2 = v2.split(".").map((v) => Number(v));
+    if (v1[0] > v2[0]) {
+        return true;
+    } else if (v1[0] == v2[0] && v1[1] > v2[1]) {
+        return true;
+    } else if (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] > v2[2]) {
         return true;
     } else {
         return false;
