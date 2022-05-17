@@ -586,6 +586,7 @@ document.getElementById("version").onclick = () => {
                 document.getElementById(
                     "update_info"
                 ).innerHTML = `有新版本: <a href="${result.html_url}">${result.name}</a>`;
+                document.getElementById("menu").lastElementChild.style.color = "#335EFE";
             } else {
                 document.getElementById("update_info").innerHTML = "暂无更新";
             }
