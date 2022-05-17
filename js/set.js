@@ -1,3 +1,16 @@
+var menu_o = {};
+var menu_t = "";
+for (let i of document.querySelectorAll("h1")) {
+    menu_o[i.innerText] = i;
+    menu_t += `<li>${i.innerText}</li>`;
+}
+document.getElementById("menu").innerHTML = menu_t;
+document.getElementById("menu").onclick = (e) => {
+    if (e.target.tagName == "LI") {
+        document.getElementsByTagName("html")[0].scrollTop = menu_o[e.target.innerText].offsetTop;
+    }
+};
+
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 const Store = require("electron-store");

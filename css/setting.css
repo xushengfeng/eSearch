@@ -4,6 +4,7 @@ body {
     width: 100%;
     height: 100%;
     background-color: var(--bg);
+    scroll-behavior: smooth;
 }
 body {
     overflow: overlay;
@@ -71,6 +72,15 @@ body {
 }
 #give_up_setting:hover {
     box-shadow: var(--shadow);
+}
+
+#menu {
+    width: 10%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: calc(100vh - 16px - 40px - 16px);
+    overflow: scroll;
 }
 
 #setting_main {
