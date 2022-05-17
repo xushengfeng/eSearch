@@ -81,6 +81,9 @@ body {
     top: 0;
     height: calc(100vh - 16px - 40px - 16px);
     overflow: scroll;
+    list-style: none;
+    padding: 16px;
+    box-sizing: border-box;
 }
 
 #setting_main {
