@@ -84,11 +84,12 @@ body {
     list-style: none;
     padding: 16px;
     box-sizing: border-box;
+    min-width: 180px;
 }
 
 #setting_main {
-    width: 70%;
-    margin-left: 15%;
+    width: 60%;
+    margin-left: 20%;
     padding-bottom: 100px;
 }
 #setting_item {
@@ -313,5 +314,12 @@ comment {
 @media (prefers-color-scheme: dark) {
     #point_color {
         filter: invert(1);
+    }
+}
+
+@media (max-width: 900px) {
+    #setting_main{
+        width: auto;
+        margin-left: 180px;
     }
 }

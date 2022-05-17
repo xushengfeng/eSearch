@@ -36,423 +36,427 @@
         <img src="./assets/icons/give_up_setting.svg" class="icon">
     </div>
 
-    <div id="menu"></div>
+    <div id="main">
+        <div id="menu"></div>
 
-    <div id="setting_main">
-        <div id="setting_item">
-            <h1>启动</h1>
+        <div id="setting_main">
+            <div id="setting_item">
+                <h1>启动</h1>
 
-            <h2>开机自启动</h2>
-            <lock-b id="autostart"></lock-b>开机自启动
+                <h2>开机自启动</h2>
+                <lock-b id="autostart"></lock-b>开机自启动
 
-            <h2>启动提示</h2>
-            <lock-b id="启动提示"></lock-b>启动时系统通知提示启动
-        </div>
+                <h2>启动提示</h2>
+                <lock-b id="启动提示"></lock-b>启动时系统通知提示启动
+            </div>
 
-        <div id="setting_item">
-            <h1>快捷键</h1>
+            <div id="setting_item">
+                <h1>快捷键</h1>
 
-            <h2>全局</h2>
-            <div id="快捷键">
+                <h2>全局</h2>
+                <div id="快捷键">
+                    <div>
+                        <hot-keys name="自动识别" value=""></hot-keys>
+                        <hot-keys name="截屏搜索" value=""></hot-keys>
+                        <hot-keys name="选中搜索" value=""></hot-keys>
+                        <hot-keys name="剪贴板搜索" value=""></hot-keys>
+                        <hot-keys name="快速截屏" value=""></hot-keys>
+                        <hot-keys name="主页面" value=""></hot-keys>
+                    </div>
+                </div>
+
+                <h2>截屏</h2>
                 <div>
-                    <hot-keys name="自动识别" value=""></hot-keys>
-                    <hot-keys name="截屏搜索" value=""></hot-keys>
-                    <hot-keys name="选中搜索" value=""></hot-keys>
-                    <hot-keys name="剪贴板搜索" value=""></hot-keys>
-                    <hot-keys name="快速截屏" value=""></hot-keys>
-                    <hot-keys name="主页面" value=""></hot-keys>
+                    <hot-keys name="关闭" value=""></hot-keys>
+                    <hot-keys name="OCR(文字识别)" value=""></hot-keys>
+                    <hot-keys name="以图搜图" value=""></hot-keys>
+                    <hot-keys name="QR码" value=""></hot-keys>
+                    <hot-keys name="图像编辑" value=""></hot-keys>
+                    <hot-keys name="其他应用打开" value=""></hot-keys>
+                    <hot-keys name="放在屏幕上" value=""></hot-keys>
+                    <hot-keys name="复制" value=""></hot-keys>
+                    <hot-keys name="保存" value=""></hot-keys>
+                    <hot-keys name="复制颜色" value=""></hot-keys>
                 </div>
             </div>
 
-            <h2>截屏</h2>
-            <div>
-                <hot-keys name="关闭" value=""></hot-keys>
-                <hot-keys name="OCR(文字识别)" value=""></hot-keys>
-                <hot-keys name="以图搜图" value=""></hot-keys>
-                <hot-keys name="QR码" value=""></hot-keys>
-                <hot-keys name="图像编辑" value=""></hot-keys>
-                <hot-keys name="其他应用打开" value=""></hot-keys>
-                <hot-keys name="放在屏幕上" value=""></hot-keys>
-                <hot-keys name="复制" value=""></hot-keys>
-                <hot-keys name="保存" value=""></hot-keys>
-                <hot-keys name="复制颜色" value=""></hot-keys>
-            </div>
-        </div>
+            <div id="setting_item">
+                <h1>全局样式</h1>
 
-        <div id="setting_item">
-            <h1>全局样式</h1>
-
-            <h2>毛玻璃效果</h2>
-            模糊
-            <range-b id="模糊" step="1" min="0" max="50" text="px"></range-b>
-            <br>
-            不透明度
-            <range-b id="不透明度" step="1" min="0" max="100" text="%"></range-b>
-            <div class="blur">
-                <img src="./assets/sample_picture.svg" alt="" class="blur_p">
-                <div class="blur_c"></div>
-            </div>
-
-            <h2>深色模式</h2>
-            <set-select name="" id="深色模式">
-                <div value="system">跟随系统</div>
-                <div value="light">浅色</div>
-                <div value="dark">深色</div>
-            </set-select>
-
-            <h2>全局缩放</h2>
-            <range-b min="0.1" max="3" id="全局缩放" step="0.05"></range-b>
-        </div>
-
-
-        <div id="setting_item">
-            <h1>工具栏跟随</h1>
-            <set-select id="工具栏跟随">
-                <div value="展示内容优先">展示内容优先</div>
-                <div value="效率优先">效率优先</div>
-            </set-select>
-        </div>
-
-        <div id="setting_item">
-            <h1>取色器</h1>
-
-            <h2>大小</h2>
-            取色器大小<range-b id="取色器大小" step="2" min="1" max="31"></range-b>
-            </br>
-            像素大小<range-b id="像素大小" min="1" max="10" text="px"></range-b>
-            <div class="point_color_f">
-                <div id="point_color"></div>
-            </div>
-            <h2>默认格式</h2>
-            <set-select id="取色器默认格式">
-                <div value="HEX">HEX</div>
-                <div value="RGB">RGB</div>
-                <div value="HSL">HSL</div>
-                <div value="HSV">HSV</div>
-                <div value="CMYK">CMYK</div>
-            </set-select>
-        </div>
-
-        <div id="setting_item">
-            <h1>框选</h1>
-
-            <h2>框选颜色</h2>
-            遮罩颜色
-            <div id="遮罩颜色"><span></span><input type="text" spellcheck="false"></div>
-            选区颜色
-            <div id="选区颜色"><span></span><input type="text" spellcheck="false"></div>
-
-            <h2>光标</h2>
-            <set-select id="光标">
-                <div value="以(0,0)为起点">以(0,0)为起点</div>
-                <div value="以(1,1)为起点">以(1,1)为起点</div>
-            </set-select>
-
-            <h2>大小坐标</h2>
-            <lock-b id="显示四角坐标"></lock-b>显示四角坐标<comment>（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）</comment>
-
-            <h2>框选后默认操作</h2>
-            <comment>框选完鼠标松开一瞬间，执行操作</comment>
-            <set-select name="" id="框选后默认操作">
-                <div value="no">无</div>
-                <div value="ocr" title="OCR(文字识别)">
-                    <img src="./assets/icons/ocr.svg" class="icon" style="height: 24px;display: block;">
+                <h2>毛玻璃效果</h2>
+                模糊
+                <range-b id="模糊" step="1" min="0" max="50" text="px"></range-b>
+                <br>
+                不透明度
+                <range-b id="不透明度" step="1" min="0" max="100" text="%"></range-b>
+                <div class="blur">
+                    <img src="./assets/sample_picture.svg" alt="" class="blur_p">
+                    <div class="blur_c"></div>
                 </div>
-                <div value="search" title="以图搜图">
-                    <img src="./assets/icons/search.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-                <div value="QR" title="QR码">
-                    <img src="./assets/icons/scan.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-                <div value="draw" title="标记">
-                    <img src="./assets/icons/draw.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-                <div value="open" title="其他应用打开">
-                    <img src="./assets/icons/open.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-                <div value="ding" title="放在屏幕上">
-                    <img src="./assets/icons/ding.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-                <div value="copy" title="复制">
-                    <img src="./assets/icons/copy.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-                <div value="save" title="保存">
-                    <img src="./assets/icons/save.svg" class="icon" style="height: 24px;display: block;">
-                </div>
-            </set-select>
-        </div>
 
-        <div id="setting_item">
-            <h1>图像编辑</h1>
-
-            <h2>默认属性</h2>
-            填充颜色<input id="填充颜色" type="text" spellcheck="false">
-            <br>
-            边框颜色<input id="边框颜色" type="text" spellcheck="false">
-            <br>
-            边框宽度
-            <range-b id="边框宽度" min="0" max="20" text="px"></range-b>
-            <br>
-            画笔颜色<input id="画笔颜色" type="text" spellcheck="false">
-            <br>
-            画笔粗细
-            <range-b id="画笔粗细" min="0" max="20" text="px"></range-b>
-
-            <h2>复制偏移</h2>
-            <comment>复制完一个元素后，为了分辨，可以让其偏移</comment>
-            <br>
-            x轴
-            <range-b id="复制dx" min="0" max="50" text="px"></range-b>
-            <br>
-            y轴
-            <range-b id="复制dy" min="0" max="50" text="px"></range-b>
-        </div>
-
-        <div id="setting_item">
-            <h1>快速截屏</h1>
-
-            保存到
-            <set-select id="快速截屏">
-                <div value="clip">剪贴板</div>
-                <div value="path">目录</div>
-            </set-select>
-            <input type="text" name="快速截屏路径" id="快速截屏路径" spellcheck="false"><button id="获取保存路径">获取保存路径</button>
-
-        </div>
-
-        <div id="setting_item">
-            <h1>保存</h1>
-
-            文件名称<input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false" style="width: 1em;"><input
-                type="text" name="保存文件名称时间" id="保存文件名称时间" placeholder="时间" spellcheck="false"><input type="text"
-                name="保存文件名称后缀" id="保存文件名称后缀" style="width: 1em;" spellcheck="false">
-            <p>预览:</p>
-            <p id="保存文件名称_p"></p>
-            <details>
-                <summary>时间代码</summary>
-                YYYY: 四位数年(2022);
-                YY: 末两位年(22);
-                MM: 月(01);
-                M: 月(1);
-                DD: 日(01);
-                D: 日(1);
-                d: 星期(0~6);
-                HH: 24小时制小时(01);
-                H: 24小时制小时(18);
-                hh: 12小时制小时(06);
-                h: 12小时制小时(6);
-                mm: 分(01);
-                m: 分(1);
-                ss: 秒(01);
-                s: 秒(1);
-                S: 毫秒(500);
-            </details>
-
-            <h2>默认格式</h2>
-            <set-select name="" id="默认格式">
-                <div value="png">png</div>
-                <div value="jpg">jpg</div>
-                <div value="svg">svg</div>
-            </set-select>
-            <br>
-            jpg质量
-            <range-b id="jpg质量" min="0" max="1.00" step="0.01"></range-b>
-
-        </div>
-
-        <div id="setting_item">
-            <h1>编辑器</h1>
-
-            <h2>字体</h2>
-            主要字体<comment>（适用于主界面等文字字体）</comment>
-            <div id="主要字体"><input type="text" spellcheck="false"></div>
-            等宽字体<comment>（适用于截屏时数字、颜色代码等字体）</comment>
-            <div id="等宽字体"><input type="text" spellcheck="false"></div>
-            字体大小<range-b id="字体大小" min="0" max="100" step="1" value="16"></range-b>
-            <lock-b id="记住字体大小"></lock-b>记住主界面字体大小
-
-            <h2>样式</h2>
-            Tab制表符宽度<range-b id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b>
-            光标动画时间<range-b id="光标动画" min="0" max="0.5" step="0.01" value="0.05" text="秒"></range-b>
-
-            <h2>更多</h2>
-            <lock-b id="换行"></lock-b>自动换行
-            <br>
-            <lock-b id="拼写检查"></lock-b>拼写检查
-            <br>
-            <lock-b id="行号"></lock-b>行号
-        </div>
-
-        <div id="setting_item">
-            <h1>搜索</h1>
-
-            <h2>自动</h2>
-            <lock-b id="自动搜索"></lock-b>自动搜索<comment>（识屏或直接打开主窗口，若文字为一行，则自动搜索）</comment>
-            </br>
-            <lock-b id="自动打开链接"></lock-b>自动打开链接
-            </br>
-            自动搜索中文占比<comment>（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）</comment>
-            <range-b id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b>
-
-            <h2>文字搜索引擎</h2>
-            <h3>搜索引擎</h3>
-            <textarea id="搜索引擎"
-                placeholder="百度, https://www.baidu.com/s?wd=%s&#13;谷歌, https://www.google.com/search?q=%s"
-                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                title="换行新建项目，%s代替关键字"></textarea>
-            <h3>翻译引擎</h3>
-            <textarea id="翻译引擎" placeholder="谷歌, https://translate.google.cn/?op=translate&text=%s" autocomplete="off"
-                autocorrect="off" autocapitalize="off" spellcheck="false" title="换行新建项目，%s代替关键字"></textarea>
-            <h3>默认引擎</h3>
-            <lock-b id="记住引擎"></lock-b>记住引擎选择
-            <div name="" id="默认搜索引擎div">
-            </div>
-            <div name="" id="默认翻译引擎div">
-            </div>
-
-            <h2>图像搜索引擎</h2>
-            <set-select name="" id="图像搜索引擎">
-                <div value="baidu">百度</div>
-                <div value="yandex">Yandex</div>
-                <div value="google">Google</div>
-            </set-select>
-            <lock-b id="记住识图引擎"></lock-b>记住引擎选择
-
-            <h2>浏览器中打开</h2>
-            <lock-b id="浏览器中打开"></lock-b>浏览器中打开<comment>（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）</comment>
-            <br>
-            <lock-b id="搜索窗口自动关闭"></lock-b>打开后自动关闭软件浏览器
-        </div>
-
-        <div id="setting_item">
-            <h1>文字识别（OCR）</h1>
-
-            <set-select name="" id="OCR类型">
-                <div value="离线">离线OCR</div>
-                <div value="baidu">百度</div>
-                <div value="youdao">有道</div>
-            </set-select>
-            <lock-b id="记住OCR引擎"></lock-b>记住引擎选择
-            <br>
-            <lock-b checked id="离线切换"></lock-b>离线时切换离线OCR
-
-            <h2>离线OCR</h2>
-            <lock-b checked id="检查OCR"></lock-b>OCR检测<comment>（每次启动时都提示OCR服务是否安装或开启）</comment>
-            <br>
-            det模型：<input type="text" spellcheck="false" id="ocr_det" placeholder="目录">
-            <br>
-            rec模型：<input type="text" spellcheck="false" id="ocr_rec" placeholder="目录">
-            <br>
-            字典：<input type="text" spellcheck="false" id="ocr_字典" placeholder="位置">
-            <br>
-            <button id="下载离线OCR">下载离线OCR</button>
-            <button id="删除离线OCR">删除离线OCR</button>
-
-            <h2>在线OCR</h2>
-            <details id="baidu_details">
-                <summary>百度</summary>
-                类型：<comment>位置版不起实质效果，但可以扩充免费使用次数:)</comment>
-                <set-select name="" id="baidu_ocr_url">
-                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">高精度版</div>
-                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">高精度含位置版</div>
-                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic">标准版</div>
-                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general">标准含位置版</div>
-                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting">手写文字</div>
-                    <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula">公式</div>
+                <h2>深色模式</h2>
+                <set-select name="" id="深色模式">
+                    <div value="system">跟随系统</div>
+                    <div value="light">浅色</div>
+                    <div value="dark">深色</div>
                 </set-select>
-                API Key：<input type="text" spellcheck="false" id="baidu_ocr_id">
-                <br>
-                Secret Key：<input type="text" spellcheck="false" id="baidu_ocr_secret">
-            </details>
-            <details id="youdao_details">
-                <summary>有道</summary>
-                应用ID：<input type="text" spellcheck="false" id="youdao_ocr_id">
-                <br>
-                应用秘钥：<input type="text" spellcheck="false" id="youdao_ocr_secret">
-            </details>
-        </div>
 
-        <div id="setting_item">
-            <h1>历史记录</h1>
+                <h2>全局缩放</h2>
+                <range-b min="0.1" max="3" id="全局缩放" step="0.05"></range-b>
+            </div>
 
-            <h2>截屏</h2>
-            <lock-b name="" id="截屏记录_b" checked></lock-b>保留截屏记录
-            </br>
-            <lock-b name="" id="保留截屏记录" title="不勾选将不限次数保留"></lock-b>只保留 <input type="number" min="1" id="截屏保留次">次记录
-            <br>
-            <button id="clear_img_his">清空所有截屏记录</button>
 
-            <h2>搜索</h2>
+            <div id="setting_item">
+                <h1>工具栏跟随</h1>
+                <set-select id="工具栏跟随">
+                    <div value="展示内容优先">展示内容优先</div>
+                    <div value="效率优先">效率优先</div>
+                </set-select>
+            </div>
 
-            <lock-b name="" id="历史记录_b" checked></lock-b>保留历史记录
-            </br>
-            <lock-b name="" id="清除历史记录"></lock-b>自动清除历史记录 <input type="number" min="0" id="his_d">天 <input type="number"
-                min="1" id="his_h">小时
-            <br>
-            <button id="clear_his">清空所有文字记录</button>
+            <div id="setting_item">
+                <h1>取色器</h1>
 
-            <h2>日期格式</h2>
-            <input type="text" id="时间格式" placeholder="时间格式" spellcheck="false">
-        </div>
-
-        <div id="setting_item">
-            <h1>代理</h1>
-
-            <lock-b name="" id="代理"></lock-b>开启代理
-            </br>
-            pac文件：
-            <input type="text" spellcheck="false" id="pacScript">
-            </br>
-            代理规则：
-            <input type="text" spellcheck="false" id="proxyRules">
-            </br>
-            排除规则：
-            <input type="text" spellcheck="false" id="proxyBypassRules">
-        </div>
-
-        <div id="setting_item">
-            <h1>自动关闭窗口</h1>
-
-            失去焦点后自动关闭<comment>（不会触发跟随关闭）</comment>：
-            <lock-b name="" id="主窗口失焦"></lock-b>主窗口 <lock-b name="" id="搜索窗口失焦"></lock-b>搜索窗口
-            </br>
-            <lock-b name="" id="主关子"></lock-b>主窗口关闭后，所有搜索窗口跟随关闭
-            </br>
-            <lock-b name="" id="子关主"></lock-b>所有搜索窗口关闭后，主窗口跟随关闭
-        </div>
-
-        <div id="setting_item">
-            <h1>高级</h1>
-
-            <h2>高级设置</h2>
-            直接编辑设置源文件，更多自定义设置<comment>（需要JSON知识）</comment>
-            <br>
-            <button id="打开config">打开设置源文件</button>
-            <br>
-            <button id="set_default_setting">恢复默认设置</button>
-
-            <h2>硬件加速</h2>
-            <lock-b name="" id="硬件加速"></lock-b>启用硬件加速<comment>（如果可用，且更改需要重启软件生效）</comment>
-
-            <h2 id="path_info">位置信息</h2>
-
-            <h2 id="versions_info">版本信息</h2>
-        </div>
-
-        <div id="setting_item">
-            <h1>关于</h1>
-            <div id="about">
-                <img src="./assets/icon.svg" alt="Logo">
-                <div id="about_main">
-                    <div id="name"></div>
-                    <button id="version" title="检查更新"></button>
-                    <div id="description"></div>
+                <h2>大小</h2>
+                取色器大小<range-b id="取色器大小" step="2" min="1" max="31"></range-b>
+                </br>
+                像素大小<range-b id="像素大小" min="1" max="10" text="px"></range-b>
+                <div class="point_color_f">
+                    <div id="point_color"></div>
                 </div>
-                <div id="update_info"></div>
-                <div id="info"></div>
+                <h2>默认格式</h2>
+                <set-select id="取色器默认格式">
+                    <div value="HEX">HEX</div>
+                    <div value="RGB">RGB</div>
+                    <div value="HSL">HSL</div>
+                    <div value="HSV">HSV</div>
+                    <div value="CMYK">CMYK</div>
+                </set-select>
+            </div>
+
+            <div id="setting_item">
+                <h1>框选</h1>
+
+                <h2>框选颜色</h2>
+                遮罩颜色
+                <div id="遮罩颜色"><span></span><input type="text" spellcheck="false"></div>
+                选区颜色
+                <div id="选区颜色"><span></span><input type="text" spellcheck="false"></div>
+
+                <h2>光标</h2>
+                <set-select id="光标">
+                    <div value="以(0,0)为起点">以(0,0)为起点</div>
+                    <div value="以(1,1)为起点">以(1,1)为起点</div>
+                </set-select>
+
+                <h2>大小坐标</h2>
+                <lock-b id="显示四角坐标"></lock-b>显示四角坐标<comment>（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）</comment>
+
+                <h2>框选后默认操作</h2>
+                <comment>框选完鼠标松开一瞬间，执行操作</comment>
+                <set-select name="" id="框选后默认操作">
+                    <div value="no">无</div>
+                    <div value="ocr" title="OCR(文字识别)">
+                        <img src="./assets/icons/ocr.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="search" title="以图搜图">
+                        <img src="./assets/icons/search.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="QR" title="QR码">
+                        <img src="./assets/icons/scan.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="draw" title="标记">
+                        <img src="./assets/icons/draw.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="open" title="其他应用打开">
+                        <img src="./assets/icons/open.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="ding" title="放在屏幕上">
+                        <img src="./assets/icons/ding.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="copy" title="复制">
+                        <img src="./assets/icons/copy.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                    <div value="save" title="保存">
+                        <img src="./assets/icons/save.svg" class="icon" style="height: 24px;display: block;">
+                    </div>
+                </set-select>
+            </div>
+
+            <div id="setting_item">
+                <h1>图像编辑</h1>
+
+                <h2>默认属性</h2>
+                填充颜色<input id="填充颜色" type="text" spellcheck="false">
+                <br>
+                边框颜色<input id="边框颜色" type="text" spellcheck="false">
+                <br>
+                边框宽度
+                <range-b id="边框宽度" min="0" max="20" text="px"></range-b>
+                <br>
+                画笔颜色<input id="画笔颜色" type="text" spellcheck="false">
+                <br>
+                画笔粗细
+                <range-b id="画笔粗细" min="0" max="20" text="px"></range-b>
+
+                <h2>复制偏移</h2>
+                <comment>复制完一个元素后，为了分辨，可以让其偏移</comment>
+                <br>
+                x轴
+                <range-b id="复制dx" min="0" max="50" text="px"></range-b>
+                <br>
+                y轴
+                <range-b id="复制dy" min="0" max="50" text="px"></range-b>
+            </div>
+
+            <div id="setting_item">
+                <h1>快速截屏</h1>
+
+                保存到
+                <set-select id="快速截屏">
+                    <div value="clip">剪贴板</div>
+                    <div value="path">目录</div>
+                </set-select>
+                <input type="text" name="快速截屏路径" id="快速截屏路径" spellcheck="false"><button id="获取保存路径">获取保存路径</button>
+
+            </div>
+
+            <div id="setting_item">
+                <h1>保存</h1>
+
+                文件名称<input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false" style="width: 1em;"><input
+                    type="text" name="保存文件名称时间" id="保存文件名称时间" placeholder="时间" spellcheck="false"><input type="text"
+                    name="保存文件名称后缀" id="保存文件名称后缀" style="width: 1em;" spellcheck="false">
+                <p>预览:</p>
+                <p id="保存文件名称_p"></p>
+                <details>
+                    <summary>时间代码</summary>
+                    YYYY: 四位数年(2022);
+                    YY: 末两位年(22);
+                    MM: 月(01);
+                    M: 月(1);
+                    DD: 日(01);
+                    D: 日(1);
+                    d: 星期(0~6);
+                    HH: 24小时制小时(01);
+                    H: 24小时制小时(18);
+                    hh: 12小时制小时(06);
+                    h: 12小时制小时(6);
+                    mm: 分(01);
+                    m: 分(1);
+                    ss: 秒(01);
+                    s: 秒(1);
+                    S: 毫秒(500);
+                </details>
+
+                <h2>默认格式</h2>
+                <set-select name="" id="默认格式">
+                    <div value="png">png</div>
+                    <div value="jpg">jpg</div>
+                    <div value="svg">svg</div>
+                </set-select>
+                <br>
+                jpg质量
+                <range-b id="jpg质量" min="0" max="1.00" step="0.01"></range-b>
+
+            </div>
+
+            <div id="setting_item">
+                <h1>编辑器</h1>
+
+                <h2>字体</h2>
+                主要字体<comment>（适用于主界面等文字字体）</comment>
+                <div id="主要字体"><input type="text" spellcheck="false"></div>
+                等宽字体<comment>（适用于截屏时数字、颜色代码等字体）</comment>
+                <div id="等宽字体"><input type="text" spellcheck="false"></div>
+                字体大小<range-b id="字体大小" min="0" max="100" step="1" value="16"></range-b>
+                <lock-b id="记住字体大小"></lock-b>记住主界面字体大小
+
+                <h2>样式</h2>
+                Tab制表符宽度<range-b id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b>
+                光标动画时间<range-b id="光标动画" min="0" max="0.5" step="0.01" value="0.05" text="秒"></range-b>
+
+                <h2>更多</h2>
+                <lock-b id="换行"></lock-b>自动换行
+                <br>
+                <lock-b id="拼写检查"></lock-b>拼写检查
+                <br>
+                <lock-b id="行号"></lock-b>行号
+            </div>
+
+            <div id="setting_item">
+                <h1>搜索</h1>
+
+                <h2>自动</h2>
+                <lock-b id="自动搜索"></lock-b>自动搜索<comment>（识屏或直接打开主窗口，若文字为一行，则自动搜索）</comment>
+                </br>
+                <lock-b id="自动打开链接"></lock-b>自动打开链接
+                </br>
+                自动搜索中文占比<comment>（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）</comment>
+                <range-b id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b>
+
+                <h2>文字搜索引擎</h2>
+                <h3>搜索引擎</h3>
+                <textarea id="搜索引擎"
+                    placeholder="百度, https://www.baidu.com/s?wd=%s&#13;谷歌, https://www.google.com/search?q=%s"
+                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                    title="换行新建项目，%s代替关键字"></textarea>
+                <h3>翻译引擎</h3>
+                <textarea id="翻译引擎" placeholder="谷歌, https://translate.google.cn/?op=translate&text=%s"
+                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                    title="换行新建项目，%s代替关键字"></textarea>
+                <h3>默认引擎</h3>
+                <lock-b id="记住引擎"></lock-b>记住引擎选择
+                <div name="" id="默认搜索引擎div">
+                </div>
+                <div name="" id="默认翻译引擎div">
+                </div>
+
+                <h2>图像搜索引擎</h2>
+                <set-select name="" id="图像搜索引擎">
+                    <div value="baidu">百度</div>
+                    <div value="yandex">Yandex</div>
+                    <div value="google">Google</div>
+                </set-select>
+                <lock-b id="记住识图引擎"></lock-b>记住引擎选择
+
+                <h2>浏览器中打开</h2>
+                <lock-b id="浏览器中打开"></lock-b>浏览器中打开<comment>（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）</comment>
+                <br>
+                <lock-b id="搜索窗口自动关闭"></lock-b>打开后自动关闭软件浏览器
+            </div>
+
+            <div id="setting_item">
+                <h1>文字识别（OCR）</h1>
+
+                <set-select name="" id="OCR类型">
+                    <div value="离线">离线OCR</div>
+                    <div value="baidu">百度</div>
+                    <div value="youdao">有道</div>
+                </set-select>
+                <lock-b id="记住OCR引擎"></lock-b>记住引擎选择
+                <br>
+                <lock-b checked id="离线切换"></lock-b>离线时切换离线OCR
+
+                <h2>离线OCR</h2>
+                <lock-b checked id="检查OCR"></lock-b>OCR检测<comment>（每次启动时都提示OCR服务是否安装或开启）</comment>
+                <br>
+                det模型：<input type="text" spellcheck="false" id="ocr_det" placeholder="目录">
+                <br>
+                rec模型：<input type="text" spellcheck="false" id="ocr_rec" placeholder="目录">
+                <br>
+                字典：<input type="text" spellcheck="false" id="ocr_字典" placeholder="位置">
+                <br>
+                <button id="下载离线OCR">下载离线OCR</button>
+                <button id="删除离线OCR">删除离线OCR</button>
+
+                <h2>在线OCR</h2>
+                <details id="baidu_details">
+                    <summary>百度</summary>
+                    类型：<comment>位置版不起实质效果，但可以扩充免费使用次数:)</comment>
+                    <set-select name="" id="baidu_ocr_url">
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">高精度版</div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">高精度含位置版</div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic">标准版</div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general">标准含位置版</div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting">手写文字</div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula">公式</div>
+                    </set-select>
+                    API Key：<input type="text" spellcheck="false" id="baidu_ocr_id">
+                    <br>
+                    Secret Key：<input type="text" spellcheck="false" id="baidu_ocr_secret">
+                </details>
+                <details id="youdao_details">
+                    <summary>有道</summary>
+                    应用ID：<input type="text" spellcheck="false" id="youdao_ocr_id">
+                    <br>
+                    应用秘钥：<input type="text" spellcheck="false" id="youdao_ocr_secret">
+                </details>
+            </div>
+
+            <div id="setting_item">
+                <h1>历史记录</h1>
+
+                <h2>截屏</h2>
+                <lock-b name="" id="截屏记录_b" checked></lock-b>保留截屏记录
+                </br>
+                <lock-b name="" id="保留截屏记录" title="不勾选将不限次数保留"></lock-b>只保留 <input type="number" min="1" id="截屏保留次">次记录
+                <br>
+                <button id="clear_img_his">清空所有截屏记录</button>
+
+                <h2>搜索</h2>
+
+                <lock-b name="" id="历史记录_b" checked></lock-b>保留历史记录
+                </br>
+                <lock-b name="" id="清除历史记录"></lock-b>自动清除历史记录 <input type="number" min="0" id="his_d">天 <input
+                    type="number" min="1" id="his_h">小时
+                <br>
+                <button id="clear_his">清空所有文字记录</button>
+
+                <h2>日期格式</h2>
+                <input type="text" id="时间格式" placeholder="时间格式" spellcheck="false">
+            </div>
+
+            <div id="setting_item">
+                <h1>代理</h1>
+
+                <lock-b name="" id="代理"></lock-b>开启代理
+                </br>
+                pac文件：
+                <input type="text" spellcheck="false" id="pacScript">
+                </br>
+                代理规则：
+                <input type="text" spellcheck="false" id="proxyRules">
+                </br>
+                排除规则：
+                <input type="text" spellcheck="false" id="proxyBypassRules">
+            </div>
+
+            <div id="setting_item">
+                <h1>自动关闭窗口</h1>
+
+                失去焦点后自动关闭<comment>（不会触发跟随关闭）</comment>：
+                <lock-b name="" id="主窗口失焦"></lock-b>主窗口 <lock-b name="" id="搜索窗口失焦"></lock-b>搜索窗口
+                </br>
+                <lock-b name="" id="主关子"></lock-b>主窗口关闭后，所有搜索窗口跟随关闭
+                </br>
+                <lock-b name="" id="子关主"></lock-b>所有搜索窗口关闭后，主窗口跟随关闭
+            </div>
+
+            <div id="setting_item">
+                <h1>高级</h1>
+
+                <h2>高级设置</h2>
+                直接编辑设置源文件，更多自定义设置<comment>（需要JSON知识）</comment>
+                <br>
+                <button id="打开config">打开设置源文件</button>
+                <br>
+                <button id="set_default_setting">恢复默认设置</button>
+
+                <h2>硬件加速</h2>
+                <lock-b name="" id="硬件加速"></lock-b>启用硬件加速<comment>（如果可用，且更改需要重启软件生效）</comment>
+
+                <h2 id="path_info">位置信息</h2>
+
+                <h2 id="versions_info">版本信息</h2>
+            </div>
+
+            <div id="setting_item">
+                <h1>关于</h1>
+                <div id="about">
+                    <img src="./assets/icon.svg" alt="Logo">
+                    <div id="about_main">
+                        <div id="name"></div>
+                        <button id="version" title="检查更新"></button>
+                        <div id="description"></div>
+                    </div>
+                    <div id="update_info"></div>
+                    <div id="info"></div>
+                </div>
             </div>
         </div>
     </div>
+
 
     <template id="range-b">
         <link rel="stylesheet" type="text/css" href="css/template2.css">
