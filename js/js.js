@@ -1043,6 +1043,7 @@ if (in_browser) {
                     拼写检查: false,
                     行号: true,
                     tab: 2,
+                    光标动画: 0.05,
                 },
                 历史记录设置: {
                     保留历史记录: true,
@@ -1103,6 +1104,8 @@ function set_font_size(font_size) {
 }
 /**tab */
 document.documentElement.style.setProperty("--tab", `${store.get("编辑器.tab")}em`);
+/**光标动画 */
+document.documentElement.style.setProperty("--cursor-a", `${store.get("编辑器.光标动画")}s`);
 /**编辑栏 */
 var edit_bar_s = false;
 function show_edit_bar(x, y, h, right) {

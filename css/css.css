@@ -142,7 +142,8 @@ body {
     outline: none;
     color: #0000;
     white-space: nowrap;
-    transition: 0.1s;
+    transition-duration: var(--cursor-a);
+    transition-timing-function: linear;
     pointer-events: none;
 }
 #cursor:focus {

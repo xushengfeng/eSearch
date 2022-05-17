@@ -1423,6 +1423,7 @@ var default_setting = {
         拼写检查: false,
         行号: true,
         tab: 2,
+        光标动画: 0.05,
     },
     工具栏跟随: "展示内容优先",
     取色器默认格式: "HEX",
