@@ -135,7 +135,7 @@ class selection {
      * 渲染选区
      * @param this 选区
      */
-    rander(this: selection, not_add?: boolean) {
+    render(this: selection, not_add?: boolean) {
         if (!not_add) add_line();
         var s = format_selection(this);
         var t = "";
@@ -431,7 +431,7 @@ function mousemove(e: MouseEvent) {
     }
     if (!in_selection) {
         editor_selections[0] = n_s;
-        n_s.rander(true);
+        n_s.render(true);
     } else {
         if (!move_first_start) {
             // 虚线光标
@@ -458,7 +458,7 @@ function mouseup(e: MouseEvent) {
     }
     if (click_i == 3) {
         let t = new selection({ start: { of: 0, pg: cursor.pg }, end: { of: get_w_max(cursor.pg), pg: cursor.pg } });
-        t.rander();
+        t.render();
         editor_selections[0] = t;
         down = false;
         cursor.of = get_w_max(cursor.pg);
@@ -483,7 +483,7 @@ function mouseup(e: MouseEvent) {
     }
     if (!(move_first_start || in_selection)) {
         editor_selections[0] = n_s;
-        n_s.rander();
+        n_s.render();
         cursor.pg = n_s.end.pg;
         cursor.of = n_s.end.of;
         let p = editor_i(cursor.pg, cursor.of);
@@ -712,7 +712,7 @@ class editing_operation {
     }
     select_all() {
         var s = new selection({ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } });
-        s.rander();
+        s.render();
         editor_selections[0] = s;
     }
     delete_enter() {
@@ -991,7 +991,7 @@ document.getElementById("line_num").onmousedown = (e) => {
     var s = new selection({ start: { pg: l_i, of: 0 }, end: { pg: l_i, of: get_w_max(l_i) } });
     editor_selections[0] = s;
     document.getElementById("selection").innerHTML = "";
-    s.rander();
+    s.render();
 
     cursor.pg = l_i;
     cursor.of = get_w_max(l_i);
@@ -1109,7 +1109,7 @@ function set_font_size(font_size: number) {
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
         editor_i(cursor.pg, cursor.of);
-        editor_selections[0].rander();
+        editor_selections[0].render();
     }, 400);
 }
 
