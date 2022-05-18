@@ -293,13 +293,15 @@ function push_p_l(i: number, v: number) {
     if (!pg_to_line[i].includes(v)) pg_to_line[i].push(v);
 }
 
+var line_height = 24;
 function add_line() {
     var h = 0;
     pg_to_line = {};
     line = {};
     var pg_l = editor.querySelectorAll("div");
-    let i = 0,
-        j = 0;
+    let i = 0;
+    // 以最长的tab计算，算出尽可能小的分段数且不包含多个换行
+    let d_k = Math.floor(editor.offsetWidth / ((line_height / 1.5) * (store?.get("编辑器.tab") || 2)));
     for (let pg of pg_l) {
         let r = 0;
         if (pg.lastElementChild) {
@@ -309,34 +311,51 @@ function add_line() {
             line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: pg.children.length, r }, pg: i };
             push_p_l(i, pg.offsetTop);
         } else {
+            // 多行
             var w_l = pg.querySelectorAll("span");
-            for (let w of w_l) {
-                if (w_l[j + 1]) {
-                    var n_w = w_l[j + 1];
-                    if (n_w.offsetTop != h) {
-                        /* 新行，w最大,n_w最小 */
-                        h = n_w.offsetTop;
-                        push_p_l(i, w.offsetTop);
-                        line[n_w.offsetTop] = { min: { i: j, l: 0 }, max: { i: 0, r: 0 }, pg: i };
-                        // 上一行
-                        if (!line[w.offsetTop])
-                            line[w.offsetTop] = { min: { i: 0, l: 0 }, max: { i: NaN, r: NaN }, pg: i };
-                        line[w.offsetTop].max = { i: j, r: w.offsetLeft + w.offsetWidth };
-                    }
-                } else {
-                    // 此段最后一行
-                    var m = { i: j, r: w.offsetLeft + w.offsetWidth };
-                    // 上一行
-                    if (!line[w.offsetTop]) line[w.offsetTop] = { min: { i: 0, l: 0 }, max: m, pg: i };
-                    line[w.offsetTop].max = m;
-                    push_p_l(i, w.offsetTop);
+            let k_l = [];
+            // 分段
+            for (let k = 0; k <= w_l.length + d_k; k += d_k) {
+                if (k >= w_l.length) {
+                    k_l.push(w_l.length - 1);
+                    break;
                 }
-                j++;
+                k_l.push(k);
             }
-            if (w_l.length == 0) {
-                line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: 0, r: 0 }, pg: i };
-                push_p_l(i, pg.offsetTop);
+            for (let k of k_l) {
+                if (w_l[k].offsetTop != h) {
+                    let k_min = k - d_k;
+                    if (k_min < 0) k_min = 0;
+                    // 细分
+                    for (let j = k_min; j <= k_min + d_k; j++) {
+                        let w = w_l[j];
+                        if (w_l[j + 1]) {
+                            var n_w = w_l[j + 1];
+                            if (n_w.offsetTop != h) {
+                                /* 新行，w最大,n_w最小 */
+                                h = n_w.offsetTop;
+                                let w_top = w.offsetTop;
+                                push_p_l(i, w_top);
+                                line[h] = { min: { i: j, l: 0 }, max: { i: 0, r: 0 }, pg: i };
+                                // 上一行
+                                if (!line[w_top]) line[w_top] = { min: { i: 0, l: 0 }, max: { i: NaN, r: NaN }, pg: i };
+                                line[w_top].max = { i: j, r: w.offsetLeft + w.offsetWidth };
+                            }
+                        } else {
+                            // 此段最后一行
+                            let m = { i: j, r: w.offsetLeft + w.offsetWidth };
+                            // 上一行
+                            if (!line[w.offsetTop]) line[w.offsetTop] = { min: { i: 0, l: 0 }, max: m, pg: i };
+                            line[w.offsetTop].max = m;
+                            push_p_l(i, w.offsetTop);
+                        }
+                    }
+                }
             }
+            let w = w_l[w_l.length - 1];
+            let m = { i: w_l.length - 1, r: w.offsetLeft + w.offsetWidth };
+            line[w.offsetTop].max = m;
+            push_p_l(i, w.offsetTop);
         }
         i++;
     }
@@ -347,7 +366,6 @@ var down = false;
 var click_time = 0;
 var click_d_time = 500;
 var click_i = 0;
-var line_height = 24;
 var move_s = false;
 var in_selection = false;
 var move_first_start = false;
