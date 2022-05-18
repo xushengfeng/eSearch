@@ -443,7 +443,7 @@ function mousemove(e) {
     }
     if (!in_selection) {
         editor_selections[0] = n_s;
-        n_s.rander(false);
+        n_s.rander(true);
     }
     else {
         if (!move_first_start) {
@@ -523,7 +523,6 @@ function mouseup(e) {
     add_selection_linux();
 }
 function posi(e) {
-    add_line();
     var dy = document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
     var y = e.pageY - dy;
     var dx = document.getElementById("main_text").scrollLeft +

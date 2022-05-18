@@ -431,7 +431,7 @@ function mousemove(e: MouseEvent) {
     }
     if (!in_selection) {
         editor_selections[0] = n_s;
-        n_s.rander(false);
+        n_s.rander(true);
     } else {
         if (!move_first_start) {
             // 虚线光标
@@ -507,7 +507,6 @@ function mouseup(e: MouseEvent) {
 }
 
 function posi(e: MouseEvent) {
-    add_line();
     var dy =
         document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
     var y = e.pageY - dy;
