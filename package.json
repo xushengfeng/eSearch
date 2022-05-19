@@ -12,7 +12,7 @@
     "name": "xsf",
     "email": "xushengfeng_zg@163.com"
   },
-  "homepage": "https://xushengfeng.github.io/eSearch-website/",
+  "homepage": "https://github.com/xushengfeng/eSearch/",
   "license": "GPL-3.0",
   "dependencies": {
     "color": "^4.2.3",
