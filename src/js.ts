@@ -508,10 +508,10 @@ function mouseup(e: MouseEvent) {
 
 function posi(e: MouseEvent) {
     var dy =
-        document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
+        -document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
     var y = e.pageY - dy;
     var dx =
-        document.getElementById("main_text").scrollLeft +
+        -document.getElementById("main_text").scrollLeft +
         document.getElementById("main_text").offsetLeft +
         document.getElementById("top").offsetLeft;
     var x = e.pageX - dx;
