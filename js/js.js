@@ -233,6 +233,7 @@ class selection {
         editor_selections[0].end = s.start;
         document.getElementById("selection").innerHTML = "";
         editor_i(s.start.pg, s.start.of);
+        hide_edit_bar();
     }
 }
 /**
@@ -515,8 +516,7 @@ function mouseup(e) {
         move_first_start = false;
         document.getElementById("cursor").style.background = "";
         document.getElementById("cursor").style.backgroundSize = "";
-        edit_bar_s = true;
-        show_edit_bar(0, 0, 0, false);
+        hide_edit_bar();
     }
     move_s = false;
     document.getElementById("edit_b").style.pointerEvents = "";
@@ -706,6 +706,7 @@ function get_s(n, s, e) {
 class editing_operation {
     delete() {
         editor_selections[0].replace("");
+        hide_edit_bar();
     }
     copy() {
         var t = editor_selections[0].get();
@@ -1176,6 +1177,10 @@ function show_edit_bar(x, y, h, right) {
         document.getElementById("edit_b").className = "edit_h";
         edit_bar_s = false;
     }
+}
+function hide_edit_bar() {
+    edit_bar_s = true;
+    show_edit_bar(0, 0, 0, false);
 }
 document.getElementById("edit_b").onmousedown = (e) => {
     e.stopPropagation();
