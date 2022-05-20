@@ -84,6 +84,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     // 放到前面
     div.onclick = () => {
         div.style.zIndex = toppest + 1;
+        document.getElementById("dock").style.zIndex = toppest + 2;
         toppest += 1;
     };
     div.appendChild(tool_bar);

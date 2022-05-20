@@ -147,6 +147,7 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     transition: var(--transition);
+    z-index: 2;
 }
 
 .dock {
