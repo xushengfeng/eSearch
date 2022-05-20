@@ -688,6 +688,15 @@ function editor_i(p, i, select) {
         editor_selections[0].end = { pg: p, of: i };
         editor_selections[0].render();
     }
+    // 确保光标在视线内
+    let h = document.getElementById("text_out").offsetHeight + document.getElementById("main_text").scrollTop;
+    if (h < top + 8 + line_height) {
+        document.getElementById("main_text").scrollTop =
+            top + 8 - document.getElementById("text_out").offsetHeight + line_height;
+    }
+    if (top + 8 < document.getElementById("main_text").scrollTop) {
+        document.getElementById("main_text").scrollTop = top + 8;
+    }
     return { left, top: top + 8 };
 }
 editor_i(cursor.pg, cursor.of);
