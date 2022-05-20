@@ -994,6 +994,8 @@ function line_num() {
     }
     document.getElementById("line_num").innerHTML = t;
 }
+line_num();
+
 document.getElementById("line_num").onmousedown = (e) => {
     e.stopPropagation();
     var el = <HTMLElement>e.target;
