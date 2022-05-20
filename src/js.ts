@@ -227,6 +227,8 @@ class selection {
         editor_i(s.start.pg, s.start.of);
 
         hide_edit_bar();
+
+        editor_change();
     }
 }
 /**
@@ -670,7 +672,6 @@ function editor_i(p: number, i: number, select?: boolean) {
         editor_selections[0].render();
     }
 
-    editor_change();
     return { left, top: top + 8 };
 }
 editor_i(cursor.pg, cursor.of);
@@ -796,6 +797,7 @@ function editor_add_text(input_t: string) {
     } else {
         editor_selections[0].replace(input_t);
     }
+    editor_change();
 }
 document.getElementById("cursor").onpaste = (e) => {
     e.preventDefault();
@@ -887,6 +889,7 @@ document.addEventListener("keydown", (e) => {
             } else {
                 edit.delete();
             }
+            editor_change();
             break;
         case "Delete":
             cursor = cursor_real;
@@ -908,6 +911,7 @@ document.addEventListener("keydown", (e) => {
             } else {
                 edit.delete();
             }
+            editor_change();
             break;
         case "Enter":
             var s = new selection({ start: cursor, end: cursor });
@@ -935,6 +939,7 @@ document.addEventListener("keydown", (e) => {
             }
             var s = new selection({ start: cursor, end: cursor });
             editor_selections[0] = s;
+            editor_change();
             break;
         case "Insert":
             insert = !insert;
