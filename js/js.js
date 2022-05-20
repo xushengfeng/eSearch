@@ -316,7 +316,7 @@ function add_line() {
             r = pg.lastElementChild.offsetLeft + pg.lastElementChild.offsetWidth;
         }
         if (pg.offsetHeight == line_height) {
-            line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: pg.children.length, r }, pg: i };
+            line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: pg.children.length - 1, r }, pg: i };
             push_p_l(i, pg.offsetTop);
         }
         else {
