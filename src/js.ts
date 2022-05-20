@@ -651,7 +651,7 @@ var cursor_real = { pg: get_pg_max(), of: get_w_max(get_pg_max()) };
  * @param p 段落(from 0)
  * @param i 词(from 0)
  */
-function editor_i(p: number, i: number) {
+function editor_i(p: number, i: number, select?: boolean) {
     cursor_real = { pg: p, of: i };
     if (get_w_index(p, i) === null) cursor_real.of = get_w_max(p); /* 移动到更短行，定位到末尾 */
     var top = get_w(p, i)?.offsetTop || get_pg(p).offsetTop;
@@ -663,6 +663,11 @@ function editor_i(p: number, i: number) {
     document.getElementById("cursor").style.left = left + "px";
     document.getElementById("cursor").style.top = top + 8 + "px";
     document.getElementById("cursor").focus();
+
+    if (select) {
+        editor_selections[0].end = { pg: p, of: i };
+        editor_selections[0].render();
+    }
 
     editor_change();
     return { left, top: top + 8 };
@@ -938,7 +943,7 @@ document.addEventListener("keydown", (e) => {
             }
             break;
     }
-    editor_i(cursor.pg, cursor.of);
+    editor_i(cursor.pg, cursor.of, e.shiftKey);
 });
 
 /**
