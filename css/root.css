@@ -19,6 +19,8 @@
     --monospace: ;
     --main-font: sans-serif;
     --icon-color: none;
+    --bar-size: 60px;
+    --bar-icon: 0.7;
 }
 
 html,

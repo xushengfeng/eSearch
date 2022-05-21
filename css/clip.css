@@ -200,33 +200,30 @@ body {
 
 /* 工具 */
 #tool_bar {
-    width: 60px;
+    width: var(--bar-size);
     background: var(--bar-bg);
     position: fixed;
     z-index: 99;
     left: 10px;
     top: 100px;
     backdrop-filter: var(--blur);
-    border-radius: 10px;
+    border-radius: calc(var(--bar-size) / 6);
     overflow: hidden;
     transition: var(--transition);
     box-shadow: var(--shadow);
 }
 #tool_bar > div {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
+    width: var(--bar-size);
+    height: var(--bar-size);
+    border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
     cursor: pointer;
-    font-size: 42px;
-    text-align: center;
-    line-height: 60px;
     position: relative;
 }
 #tool_bar > div > .icon {
-    width: 42px;
-    left: 9px;
-    top: 9px;
+    width: calc(var(--bar-size) * var(--bar-icon));
+    left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
+    top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
@@ -256,13 +253,13 @@ body {
 #draw_bar {
     left: 80px;
     top: 100px;
-    width: 60px;
+    width: var(--bar-size);
     height: 0px;
     background: var(--bar-bg);
     position: fixed;
     z-index: 98;
     backdrop-filter: var(--blur);
-    border-radius: 10px;
+    border-radius: calc(var(--bar-size) / 6);
     overflow-y: scroll;
     overflow-x: hidden;
     transition: var(--transition);
@@ -270,14 +267,14 @@ body {
     display: flex;
 }
 #draw_bar > div {
-    width: 60px;
+    width: var(--bar-size);
 }
 #draw_main > div,
 .draw_items > div,
 .draw_items > lock-b {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
+    width: var(--bar-size);
+    height: var(--bar-size);
+    border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
     position: relative;
 }
@@ -290,9 +287,9 @@ body {
 #draw_main > div > .icon,
 .draw_items > div > .icon,
 .draw_items > lock-b > .icon {
-    width: 42px;
-    left: 9px;
-    top: 9px;
+    width: calc(var(--bar-size) * var(--bar-icon));
+    left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
+    top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
 }
 #draw_main > div:hover,
 .draw_items > div:hover {
