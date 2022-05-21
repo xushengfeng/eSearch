@@ -17,9 +17,9 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
         if (e.show) {
             e.show = !e.show;
             document.querySelectorAll("#draw_side > div")[index].style.height = "0";
-            document.querySelector("#draw_bar").style.width = "60px";
+            document.querySelector("#draw_bar").style.width = "var(--bar-size)";
         } else {
-            document.querySelector("#draw_bar").style.width = "120px";
+            document.querySelector("#draw_bar").style.width = "calc(var(--bar-size) * 2)";
             document.querySelectorAll("#draw_main > div").forEach((ei) => {
                 ei.show = false;
             });

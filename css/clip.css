@@ -300,6 +300,9 @@ body {
     transition: var(--transition);
     overflow: scroll;
 }
+#draw_side {
+    overflow: scroll;
+}
 
 #main_photo,
 #clip_photo,
