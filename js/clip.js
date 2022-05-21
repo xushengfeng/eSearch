@@ -7,7 +7,6 @@ ipcRenderer.on("reflash", () => {
     right_key = false;
     change_right_bar(false);
     ratio = window.devicePixelRatio;
-    document.querySelector("#mouse_bar").style.display = "flex";
 });
 
 const Color = require("color");
@@ -442,6 +441,11 @@ function copy(e) {
 hotkeys(store.get("其他快捷键.复制颜色"), () => {
     copy(document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`));
 });
+
+// 初始化鼠标栏
+document.onmouseenter = () => {
+    document.querySelector("#mouse_bar").style.display = "flex";
+};
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
