@@ -603,10 +603,32 @@ async function full_screen() {
     if (clip_window == null) {
         await create_clip_window();
     }
-    var x = robot.screen.capture();
+    let x = robot.screen.capture();
     clip_window.webContents.send("reflash", x.image, x.width, x.height);
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
+    let img_store = new Store({ name: "img_history" });
+    let o_l = img_store.get("截屏记录") || {};
+    if (store.get("记录截屏.限定保留")) {
+        let s_l = Object.keys(o_l).sort();
+        s_l = s_l.splice(-store.get("记录截屏.保留次数") + 1);
+        var oo_l = {};
+        for (let i of s_l) {
+            oo_l[i] = o_l[i];
+        }
+        o_l = oo_l;
+        oo_l = null;
+    }
+    img_store.set("截屏记录", o_l);
+    let img_his_name = new Date().getTime();
+    if (store.get("记录截屏.记录")) {
+        let w = x.width,
+            h = x.height;
+        let image = nativeImage.createFromBuffer(Buffer.from(x.image), { width: x.width, height: x.height });
+        let img_l = [{ src: image.toDataURL(), w, h }];
+        img_store.set(`截屏记录.${img_his_name}`, img_l);
+        img_l = null;
+    }
     x = null;
 }
 
