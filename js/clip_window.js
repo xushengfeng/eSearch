@@ -39,6 +39,9 @@ function set_setting() {
     document.documentElement.style.setProperty("--color-size", `${color_size * color_i_size}px`);
     document.documentElement.style.setProperty("--color-i-size", `${color_i_size}px`);
     document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
+    let 工具栏 = store.get("工具栏");
+    document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
+    document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
 }
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;

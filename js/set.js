@@ -102,6 +102,9 @@ document.querySelector(`hot-keys[name="复制颜色"]`).value = 其他快捷键.
 选择器储存("光标", "以(1,1)为起点");
 选择器储存("取色器默认格式", "HEX");
 
+document.getElementById("按钮大小").value = store.get("工具栏.按钮大小");
+document.getElementById("按钮图标比例").value = store.get("工具栏.按钮图标比例");
+
 document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标");
 
 // 取色器设置
@@ -424,6 +427,10 @@ function save_setting() {
     store.set("全局.模糊", 模糊);
     store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);
     store.set("全局.缩放", document.getElementById("全局缩放").value);
+    store.set("工具栏", {
+        按钮大小: document.getElementById("按钮大小").value,
+        按钮图标比例: document.getElementById("按钮图标比例").value,
+    });
     store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
     store.set("取色器大小", document.querySelector("#取色器大小").value);
     store.set("像素大小", document.querySelector("#像素大小").value);
