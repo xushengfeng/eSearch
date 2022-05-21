@@ -32,13 +32,15 @@ jobs:
                   npm run rebuild
                   npm run dist
 
-            - name: sha512
+            - name: sha512 linux
               if: matrix.os == 'ubuntu-latest'
-              run: sha512sum *.*
+              run: sha512sum build/*.*
+            - name: sha512 win
               if: matrix.os == 'windows-latest'
-              run: Get-FileHash *.* -Algorithm SHA512 | Format-List
+              run: Get-FileHash build/?*.* -Algorithm SHA512 | Format-List
+            - name: sha512 mac
               if: matrix.os == 'macos-latest'
-              run: shasum -a 512 *.*
+              run: shasum -a 512 build/*.*
 
             - name: upload
               uses: actions/upload-artifact@v3
