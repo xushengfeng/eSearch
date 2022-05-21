@@ -1527,6 +1527,9 @@ var default_setting = {
     },
     时间格式: "MM/DD hh:mm:ss",
     硬件加速: true,
+    更新: {
+        检查更新: true,
+    },
 };
 function set_default_setting() {
     for (let i in default_setting) {
