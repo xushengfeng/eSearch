@@ -1,12 +1,12 @@
 range-b {
-    font-size: 1rem;
+    font-size: calc(var(--bar-size) / 3.75);
     border-radius: inherit;
 }
 #shadow_blur {
     overflow: hidden;
 }
 #shadow_blur > range-b {
-    height: 60px;
+    height: var(--bar-size);
 }
 #draw_color {
     display: flex;
@@ -16,8 +16,8 @@ range-b {
 #draw_color > div {
     width: 52.5%;
     height: 52.5%;
-    border-radius: 8px;
-    border-width: 4px;
+    border-radius: calc(var(--bar-size) / 10);
+    border-width: calc(var(--bar-size) / 15);
     border-style: solid;
     box-sizing: border-box;
     border-color: #333;
@@ -29,30 +29,29 @@ range-b {
 #draw_color_input > div {
     outline: none;
     font-family: var(--monospace);
-    font-size: 12px;
+    font-size: calc(var(--bar-size) / 5);
     height: 50%;
-    line-height: 12px;
+    line-height: calc(var(--bar-size) / 5);
     text-align: start;
 }
 #draw_color_alpha {
     overflow: hidden;
 }
 #draw_color_alpha > range-b {
-    height: 30px;
+    height: calc(var(--bar-size) / 2);
 }
 #draw_stroke_width {
     overflow: hidden;
 }
 #draw_stroke_width > range-b {
-    height: 60px;
+    height: var(--bar-size);
 }
 #draw_color_color {
     overflow: scroll;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
 }
 .color_i {
-    width: 12px;
-    height: 12px;
-    float: left;
     transition: var(--transition);
 }
 .color_i:hover {
@@ -67,14 +66,14 @@ range-b {
 
 #draw_filters_i > div > range-b,
 #draw_filters_i > div > lock-b {
-    height: 60px;
+    height: var(--bar-size);
 }
 
 #draw_filters_gamma > range-b {
-    height: 20px !important;
+    height: calc(var(--bar-size) / 3) !important;
 }
 #draw_filters_grayscale > lock-b {
-    height: 20px !important;
+    height: calc(var(--bar-size) / 3) !important;
 }
 #draw_filters_grayscale > lock-b:hover {
     background-color: var(--hover-color);
@@ -86,7 +85,7 @@ range-b {
     grid-template-rows: repeat(3, 1fr);
 }
 #draw_filters_bs > div > lock-b {
-    height: 20px;
+    height: calc(var(--bar-size) / 3);
 }
 #draw_filters_bs > div:hover {
     background-color: var(--hover-color);
