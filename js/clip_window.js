@@ -67,19 +67,22 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    edge();
 });
 
-const cv = require("opencv.js");
+var edge_init = false;
 var src;
 var edge_rect = [];
 function edge() {
+    edge_init = true;
+    const cv = require("opencv.js");
     let canvas = main_canvas;
     src = cv.imread(canvas);
     cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
 
     let dst = new cv.Mat();
-    cv.Canny(src, dst, 50, 150);
+    let c_min = store.get("框选.自动框选.最小阈值"),
+        c_max = store.get("框选.自动框选.最大阈值");
+    cv.Canny(src, dst, c_min, c_max);
 
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();

@@ -69,6 +69,7 @@ var ratio = window.devicePixelRatio;
 var now_canvas_position;
 var direction;
 var fabric_canvas;
+var auto_select_rect = store.get("框选.自动框选.开启");
 var moved = false;
 var down = false;
 var rect_select = false;
@@ -129,7 +130,12 @@ clip_canvas.onmousemove = (e) => {
 
     if (moving) move_rect(o_final_rect, oe, e);
 
-    in_edge(e);
+    if (auto_select_rect) {
+        if (!edge_init) {
+            edge();
+        }
+        in_edge(e);
+    }
 };
 
 clip_canvas.onmouseup = (e) => {

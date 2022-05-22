@@ -159,6 +159,20 @@ document.querySelector("#选区颜色 > input").oninput = () => {
 
 document.getElementById("框选后默认操作").value = store.get("框选后默认操作");
 
+document.getElementById("自动框选").checked = store.get("框选.自动框选.开启");
+document.getElementById("框选最小阈值").value = store.get("框选.自动框选.最小阈值");
+document.getElementById("框选最大阈值").value = store.get("框选.自动框选.最大阈值");
+document.getElementById("框选最小阈值").oninput = () => {
+    if (document.getElementById("框选最小阈值").value > document.getElementById("框选最大阈值").value) {
+        document.getElementById("框选最大阈值").value = document.getElementById("框选最小阈值").value;
+    }
+};
+document.getElementById("框选最大阈值").oninput = () => {
+    if (document.getElementById("框选最大阈值").value < document.getElementById("框选最小阈值").value) {
+        document.getElementById("框选最小阈值").value = document.getElementById("框选最大阈值").value;
+    }
+};
+
 document.getElementById("填充颜色").value = store.get("图像编辑.默认属性.填充颜色");
 document.getElementById("边框颜色").value = store.get("图像编辑.默认属性.边框颜色");
 document.getElementById("边框宽度").value = store.get("图像编辑.默认属性.边框宽度");
@@ -436,6 +450,11 @@ function save_setting() {
     store.set("像素大小", document.querySelector("#像素大小").value);
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
+    store.set("框选.自动框选", {
+        开启: document.getElementById("自动框选").checked,
+        最小阈值: document.getElementById("框选最小阈值").value,
+        最大阈值: document.getElementById("框选最大阈值").value,
+    });
     store.set("图像编辑.默认属性", {
         填充颜色: document.getElementById("填充颜色").value,
         边框颜色: document.getElementById("边框颜色").value,
