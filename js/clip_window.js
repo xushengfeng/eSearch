@@ -67,7 +67,21 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    edge();
 });
+
+const cv = require("opencv.js");
+let src;
+function edge() {
+    let canvas = main_canvas;
+    src = cv.imread(canvas);
+    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
+
+    let dst = new cv.Mat();
+    cv.Canny(src, dst, 50, 150);
+
+    cv.imshow(canvas, dst);
+}
 
 function show_img_his() {
     var img_store = new Store({ name: "img_history" });

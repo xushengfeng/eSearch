@@ -21,6 +21,7 @@
     "grapheme-splitter": "^1.0.4",
     "hotkeys-js": "^3.9.0",
     "jsqr": "^1.4.0",
+    "opencv.js": "^1.2.1",
     "robotjs": "^0.6.0"
   },
   "devDependencies": {
