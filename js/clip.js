@@ -114,7 +114,10 @@ clip_canvas.onmousedown = (e) => {
 };
 
 clip_canvas.onmousemove = (e) => {
-    if (down) moved = true;
+    if (down) {
+        moved = true;
+        rect_select = true;
+    }
     if (e.button == 0 && selecting) {
         // 画框
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
