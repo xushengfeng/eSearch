@@ -77,12 +77,25 @@ function edge() {
     const cv = require("opencv.js");
     let canvas = main_canvas;
     src = cv.imread(canvas);
-    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY);
+
+    cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
+    cv.cvtColor(src, src, cv.COLOR_RGB2HSV);
+
+    // 对比度
+    for (let i = 1; i < src.data.length; i += 3) {
+        let v = src.data[i] * 3;
+        if (v > 255) {
+            v = 255;
+        }
+        src.data[i] = v;
+    }
+    cv.cvtColor(src, src, cv.COLOR_HSV2RGB);
+    // cv.imshow(canvas, src);
 
     let dst = new cv.Mat();
     let c_min = store.get("框选.自动框选.最小阈值"),
         c_max = store.get("框选.自动框选.最大阈值");
-    cv.Canny(src, dst, c_min, c_max);
+    cv.Canny(src, dst, c_min, c_max, 3, true);
 
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
@@ -93,6 +106,8 @@ function edge() {
         let cnt = contours.get(i);
         edge_rect.push(cv.boundingRect(cnt));
     }
+
+    // cv.imshow(canvas, dst);
 }
 
 function show_img_his() {
