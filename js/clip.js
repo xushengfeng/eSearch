@@ -228,6 +228,12 @@ function in_edge(e) {
     }
 }
 
+hotkeys("s", () => {
+    rect_select = false;
+    final_rect = [0, 0, clip_canvas.width, clip_canvas.height];
+    draw_clip_rect();
+});
+
 // 大小栏
 function wh_bar(final_rect) {
     // 位置
