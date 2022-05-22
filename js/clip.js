@@ -119,6 +119,8 @@ clip_canvas.onmousemove = (e) => {
     }
 
     if (moving) move_rect(o_final_rect, oe, e);
+
+    in_edge(e);
 };
 
 clip_canvas.onmouseup = (e) => {
@@ -175,6 +177,23 @@ function draw_clip_rect() {
     clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
     // 大小栏
     wh_bar(final_rect);
+}
+
+/**
+ * 在边框内
+ * @param {MouseEvent} e 鼠标事件
+ */
+function in_edge(e) {
+    for (const i of edge_rect) {
+        let x0 = i.x,
+            y0 = i.y,
+            x1 = i.x + i.width,
+            y1 = i.y + i.height;
+        if (x0 < e.offsetX && e.offsetX < x1 && y0 < e.offsetY && e.offsetY < y1) {
+            final_rect = [i.x, i.y, i.width, i.height];
+            draw_clip_rect();
+        }
+    }
 }
 
 // 大小栏

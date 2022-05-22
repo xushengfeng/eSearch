@@ -71,7 +71,8 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
 });
 
 const cv = require("opencv.js");
-let src;
+var src;
+var edge_rect = [];
 function edge() {
     let canvas = main_canvas;
     src = cv.imread(canvas);
@@ -80,7 +81,15 @@ function edge() {
     let dst = new cv.Mat();
     cv.Canny(src, dst, 50, 150);
 
-    cv.imshow(canvas, dst);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+
+    cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+    for (let i = 0; i < contours.size(); i++) {
+        let cnt = contours.get(i);
+        edge_rect.push(cv.boundingRect(cnt));
+    }
 }
 
 function show_img_his() {
