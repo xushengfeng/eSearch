@@ -69,7 +69,11 @@ var ratio = window.devicePixelRatio;
 var now_canvas_position;
 var direction;
 var fabric_canvas;
+var moved = false;
+var down = false;
+var rect_select = false;
 
+// var /**@type {HTMLCanvasElement} */ clip_canvas = clip_canvas;
 clip_canvas.onmousedown = (e) => {
     o = true;
     windows_bar_c_o();
@@ -79,7 +83,6 @@ clip_canvas.onmousedown = (e) => {
         o_position = [e.screenX, e.screenY]; // 用于跟随
         canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-        draw_clip_rect();
         right_key = false;
         change_right_bar(false);
     }
@@ -106,9 +109,12 @@ clip_canvas.onmousedown = (e) => {
         document.getElementById("mouse_bar").style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "none";
+
+    down = true;
 };
 
 clip_canvas.onmousemove = (e) => {
+    if (down) moved = true;
     if (e.button == 0 && selecting) {
         // 画框
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
@@ -128,8 +134,22 @@ clip_canvas.onmouseup = (e) => {
         clip_ctx.closePath();
         selecting = false;
         now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-        draw_clip_rect();
+        if (!moved && down) {
+            rect_select = true;
+            let min = [],
+                min_n = Infinity;
+            for (let i of rect_in_rect) {
+                if (i[2] * i[3] < min_n) {
+                    min = i;
+                    min_n = i[2] * i[3];
+                }
+            }
+            final_rect = min;
+            draw_clip_rect();
+        } else {
+            final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+            draw_clip_rect();
+        }
         his_push();
         // 抬起鼠标后工具栏跟随
         follow_bar(e.clientX, e.clientY);
@@ -149,6 +169,9 @@ clip_canvas.onmouseup = (e) => {
     if (auto_do != "no" && e.button == 0) {
         eval(`tool_${auto_do}_f()`);
     }
+
+    down = false;
+    moved = false;
 };
 
 // 画框(遮罩)
@@ -179,20 +202,29 @@ function draw_clip_rect() {
     wh_bar(final_rect);
 }
 
+var rect_in_rect = [];
 /**
  * 在边框内
  * @param {MouseEvent} e 鼠标事件
  */
 function in_edge(e) {
+    if (rect_select) return;
+    rect_in_rect = [];
     for (const i of edge_rect) {
         let x0 = i.x,
             y0 = i.y,
             x1 = i.x + i.width,
             y1 = i.y + i.height;
         if (x0 < e.offsetX && e.offsetX < x1 && y0 < e.offsetY && e.offsetY < y1) {
-            final_rect = [i.x, i.y, i.width, i.height];
-            draw_clip_rect();
+            rect_in_rect.push([i.x, i.y, i.width, i.height]);
         }
+    }
+    clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
+    clip_ctx.beginPath();
+    clip_ctx.strokeStyle = "#000";
+    clip_ctx.lineWidth = "1";
+    for (let i of rect_in_rect) {
+        clip_ctx.strokeRect(i[0], i[1], i[2], i[3]);
     }
 }
 
