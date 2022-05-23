@@ -37,6 +37,7 @@ document.getElementById("启动提示").checked = store.get("启动提示");
 
 if (process.platform == "linux") {
     document.getElementById("linux_selection").style.display = "block";
+    document.getElementById("剪贴板选区搜索").checked = store.get("主搜索功能.剪贴板选区搜索");
 }
 
 var 全局 = store.get("全局");
@@ -441,6 +442,7 @@ function save_setting() {
         保存: document.querySelector(`hot-keys[name="保存"]`).value,
         复制颜色: document.querySelector(`hot-keys[name="复制颜色"]`).value,
     });
+    store.set("主搜索功能.剪贴板选区搜索", document.getElementById("剪贴板选区搜索").checked);
     var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("全局.模糊", 模糊);
     store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);

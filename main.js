@@ -103,7 +103,9 @@ function open_selection() {
 }
 
 function open_clip_board() {
-    var t = clipboard.readText();
+    var t = clipboard.readText(
+        process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
+    );
     create_main_window("index.html", [t]);
 }
 
@@ -1427,6 +1429,10 @@ var default_setting = {
         复制: isMac ? "Command+C" : "Control+C",
         保存: isMac ? "Command+S" : "Control+S",
         复制颜色: "K",
+    },
+    主搜索功能: {
+        自动搜索排除: [],
+        剪贴板选区搜索: true,
     },
     全局: {
         模糊: 25,
