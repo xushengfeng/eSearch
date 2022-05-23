@@ -35,6 +35,10 @@ document.getElementById("autostart").oninput = () => {
 
 document.getElementById("启动提示").checked = store.get("启动提示");
 
+if (process.platform == "linux") {
+    document.getElementById("linux_selection").style.display = "block";
+}
+
 var 全局 = store.get("全局");
 
 document.getElementById("深色模式").value = store.get("全局.深色模式");
