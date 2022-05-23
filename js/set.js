@@ -652,6 +652,7 @@ function version_new(v1, v2) {
 }
 document.querySelector("#info").innerHTML = `<div>项目主页: <a href="${package.homepage}">${package.homepage}</a></div>
     <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">更新日志</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/issues">错误报告与建议</a></div>
     <div>本软件遵循 <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a> 协议</div>
     <div>本软件基于 <a href="https://esearch.vercel.app/readme/all_license.json">这些软件</a></div>
     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
