@@ -35,6 +35,7 @@ document.getElementById("autostart").oninput = () => {
 
 document.getElementById("启动提示").checked = store.get("启动提示");
 
+document.getElementById("自动搜索排除").value = store.get("主搜索功能.自动搜索排除").join(/\n/);
 if (process.platform == "linux") {
     document.getElementById("linux_selection").style.display = "block";
     document.getElementById("剪贴板选区搜索").checked = store.get("主搜索功能.剪贴板选区搜索");
@@ -442,6 +443,7 @@ function save_setting() {
         保存: document.querySelector(`hot-keys[name="保存"]`).value,
         复制颜色: document.querySelector(`hot-keys[name="复制颜色"]`).value,
     });
+    store.set("主搜索功能.自动搜索排除", document.getElementById("自动搜索排除").value.split(/\n/));
     store.set("主搜索功能.剪贴板选区搜索", document.getElementById("剪贴板选区搜索").checked);
     var 模糊 = document.querySelector("#模糊").value - 0;
     store.set("全局.模糊", 模糊);

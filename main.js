@@ -79,8 +79,16 @@ function copy_text(callback) {
         }, 200);
     }
     setTimeout(() => {
-        var t = clipboard.readText();
-        callback(o_clipboard != t ? t : false);
+        let t = clipboard.readText();
+        let v = false;
+        if (o_clipboard != t) v = t;
+        for (let i of store.get("主搜索功能.自动搜索排除")) {
+            if (t.match(i)) {
+                v = false;
+                break;
+            }
+        }
+        callback(v);
         clipboard.writeText(o_clipboard);
     }, 300);
 }
