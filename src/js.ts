@@ -106,6 +106,12 @@ function editor_push(value: string) {
     }
     editor.innerHTML = t;
     editor_i(get_pg_max(), get_w_max(get_pg_max()));
+
+    if (editing_on_other) {
+        editing_on_other = false;
+        editor_change();
+        editing_on_other = true;
+    }
 }
 editor_push("");
 /**
