@@ -1704,7 +1704,12 @@ function edit_on_other() {
             file_watcher = fs.watch(tmp_text_path, () => {
                 fs.readFile(tmp_text_path, "utf8", (e, data) => {
                     if (e) console.log(e);
+                    let cu = cursor;
                     editor_push(data);
+                    if (cu.pg > get_pg_max()) cu.pg = get_pg_max();
+                    if (cu.of > get_w_max(cu.pg)) cu.of = get_w_max(cu.pg);
+                    cursor = cu;
+                    editor_i(cursor.pg, cursor.of);
                 });
             });
             document.getElementById("text_out").title = "正在外部编辑中，双击退出";
