@@ -209,7 +209,7 @@ body {
     backdrop-filter: var(--blur);
     border-radius: calc(var(--bar-size) / 6);
     overflow: hidden;
-    transition: var(--transition);
+    transition: opacity var(--transition);
     box-shadow: var(--shadow);
 }
 #tool_bar > div {
