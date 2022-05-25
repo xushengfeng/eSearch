@@ -35,7 +35,7 @@ document.getElementById("autostart").oninput = () => {
 
 document.getElementById("启动提示").checked = store.get("启动提示");
 
-document.getElementById("自动搜索排除").value = store.get("主搜索功能.自动搜索排除").join(/\n/);
+document.getElementById("自动搜索排除").value = store.get("主搜索功能.自动搜索排除").join("\n");
 if (process.platform == "linux") {
     document.getElementById("linux_selection").style.display = "block";
     document.getElementById("剪贴板选区搜索").checked = store.get("主搜索功能.剪贴板选区搜索");
