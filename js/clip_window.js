@@ -332,16 +332,38 @@ function tool_draw_f() {
         document.getElementById("tool_draw").className = "hover_b";
         document.getElementById("draw_bar").style.height = `${draw_bar_height}`;
         document.getElementById("clip_photo").style.pointerEvents = "none";
+        track_location();
     } else {
         document.getElementById("tool_draw").className = "";
         document.getElementById("draw_bar").style.height = "0";
         document.getElementById("clip_photo").style.pointerEvents = "auto";
+        document.getElementById("draw_bar").style.width = "var(--bar-size)";
+        document.querySelectorAll("#draw_main > div").forEach((ei) => {
+            ei.show = false;
+        });
         hotkeys.setScope("normal");
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();
     }
     setTimeout(add_edit_js, 400);
 }
+
+/**
+ * 编辑栏跟踪工具栏
+ */
+function track_location() {
+    let h = document.getElementById("tool_bar").offsetTop;
+    let l = document.getElementById("tool_bar").offsetLeft + document.getElementById("tool_bar").offsetWidth + 8;
+    document.getElementById("draw_bar").setAttribute("right", "true");
+    if (l + 2 * document.getElementById("tool_bar").offsetWidth > document.body.offsetWidth) {
+        l = document.getElementById("tool_bar").offsetLeft - document.getElementById("draw_bar").offsetWidth - 8;
+        l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
+        document.getElementById("draw_bar").setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
+    }
+    document.getElementById("draw_bar").style.top = `${h}px`;
+    document.getElementById("draw_bar").style.left = `${l}px`;
+}
+
 function add_edit_js() {
     if (document.querySelector("#edit_js")) return;
     var edit = document.createElement("script");

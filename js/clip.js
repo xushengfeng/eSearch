@@ -555,6 +555,7 @@ document.onmousemove = (e) => {
     if (tool_position.x) {
         tool_bar.style.left = e.clientX - tool_position.x + "px";
         tool_bar.style.top = e.clientY - tool_position.y + "px";
+        track_location();
     }
 };
 

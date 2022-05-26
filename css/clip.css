@@ -262,7 +262,7 @@ body {
     border-radius: calc(var(--bar-size) / 6);
     overflow-y: scroll;
     overflow-x: hidden;
-    transition: var(--transition);
+    transition: width var(--transition), height var(--transition);
     box-shadow: var(--shadow);
     display: flex;
 }

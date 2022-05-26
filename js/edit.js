@@ -18,8 +18,28 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             e.show = !e.show;
             document.querySelectorAll("#draw_side > div")[index].style.height = "0";
             document.querySelector("#draw_bar").style.width = "var(--bar-size)";
+            if (document.getElementById("draw_bar").getAttribute("right") != "true") {
+                document.getElementById("draw_bar").style.transition = "var(--transition)";
+                document.getElementById("draw_bar").style.left = document
+                    .getElementById("draw_bar")
+                    .getAttribute("right")
+                    .split(",")[1];
+                setTimeout(() => {
+                    document.getElementById("draw_bar").style.transition = "";
+                }, 400);
+            }
         } else {
             document.querySelector("#draw_bar").style.width = "calc(var(--bar-size) * 2)";
+            if (document.getElementById("draw_bar").getAttribute("right") != "true") {
+                document.getElementById("draw_bar").style.transition = "var(--transition)";
+                document.getElementById("draw_bar").style.left = document
+                    .getElementById("draw_bar")
+                    .getAttribute("right")
+                    .split(",")[0];
+                setTimeout(() => {
+                    document.getElementById("draw_bar").style.transition = "";
+                }, 400);
+            }
             document.querySelectorAll("#draw_main > div").forEach((ei) => {
                 ei.show = false;
             });
