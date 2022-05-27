@@ -268,7 +268,14 @@ function wh_bar(final_rect) {
     if (final_rect[1] - (dh * ratio + 10) >= 0) {
         y = final_rect[1] - (dh * ratio + 10); // 不超出时在外
     } else {
-        y = final_rect[1] + 10;
+        if (
+            final_rect[1] + final_rect[3] + 10 + document.getElementById("clip_wh").offsetHeight <=
+            main_canvas.offsetHeight
+        ) {
+            y = final_rect[1] + final_rect[3] + 10;
+        } else {
+            y = final_rect[1] + 10;
+        }
     }
     document.querySelector("#clip_wh").style.top = `${y / ratio}px`;
     // 大小文字
