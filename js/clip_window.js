@@ -2,6 +2,7 @@
 const { ipcRenderer, clipboard, nativeImage } = require("electron");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
+const cv = require("opencv.js");
 
 // 获取设置
 var store = new Store();
@@ -67,6 +68,9 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    setTimeout(() => {
+        edge();
+    }, 0);
 });
 
 var edge_init = false;
@@ -74,22 +78,10 @@ var src;
 var edge_rect = [];
 function edge() {
     edge_init = true;
-    const cv = require("opencv.js");
     let canvas = main_canvas;
     src = cv.imread(canvas);
 
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
-    cv.cvtColor(src, src, cv.COLOR_RGB2HSV);
-
-    // 对比度
-    for (let i = 1; i < src.data.length; i += 3) {
-        let v = src.data[i] * 3;
-        if (v > 255) {
-            v = 255;
-        }
-        src.data[i] = v;
-    }
-    cv.cvtColor(src, src, cv.COLOR_HSV2RGB);
     // cv.imshow(canvas, src);
 
     let dst = new cv.Mat();

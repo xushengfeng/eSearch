@@ -132,10 +132,7 @@ clip_canvas.onmousemove = (e) => {
 
     if (moving) move_rect(o_final_rect, oe, e);
 
-    if (auto_select_rect) {
-        if (!edge_init) {
-            edge();
-        }
+    if (auto_select_rect && edge_init) {
         in_edge(e);
     }
 };
