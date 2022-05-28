@@ -384,9 +384,10 @@ function open_app() {
 }
 
 function tool_record_f() {
-    ipcRenderer.send("record", true);
+    ipcRenderer.send("clip_main_b", "record", "webm");
+    let recorder;
     ipcRenderer.on("record", async (event, v, sourceId) => {
-        try {
+        if (v) {
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {
@@ -397,7 +398,7 @@ function tool_record_f() {
                 },
             });
             var chunks = [];
-            let recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+            recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
             recorder.start();
             recorder.ondataavailable = function (e) {
                 chunks.push(e.data);
@@ -408,14 +409,11 @@ function tool_record_f() {
                 reader.readAsArrayBuffer(b);
                 reader.onloadend = (e) => {
                     const fs = require("fs");
-                    fs.writeFile("/home/x.webm", Buffer.from(reader.result), () => {});
+                    fs.writeFile(v, Buffer.from(reader.result), () => {});
                 };
             };
-            setTimeout(() => {
-                recorder.stop();
-            }, 3000);
-        } catch (e) {
-            console.error(e);
+        } else {
+            recorder.stop();
         }
     });
 }

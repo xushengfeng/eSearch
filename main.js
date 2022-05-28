@@ -581,6 +581,31 @@ function create_clip_window() {
                 save_path.pop();
                 store.set("保存路径", save_path.join("/") + "/");
                 break;
+            case "record":
+                var saved_path = store.get("保存路径") || "";
+                n_full_screen();
+                dialog
+                    .showSaveDialog({
+                        title: "选择要保存的位置",
+                        defaultPath: `${saved_path}${get_file_name()}.${arg}`,
+                        filters: [{ name: "视频", extensions: [arg] }],
+                    })
+                    .then((x) => {
+                        desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
+                            clip_window.webContents.send("record", x.filePath, sources[0].id);
+                        });
+                        if (x.filePath) {
+                        } else {
+                            new Notification({
+                                title: `${app.name} 保存视频失败`,
+                                body: `用户已取消保存`,
+                                icon: `${run_path}/assets/logo/64x64.png`,
+                            }).show();
+                            clip_window.show();
+                            clip_window.setSimpleFullScreen(true);
+                        }
+                    });
+                break;
         }
     });
 
@@ -609,12 +634,6 @@ function create_clip_window() {
 
     // cil参数启动;
     if (first_open) arg_run(process.argv);
-
-    ipcMain.on("record", (event, s) => {
-        desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
-            clip_window.webContents.send("record", s, sources[0].id);
-        });
-    });
 }
 
 async function full_screen() {
