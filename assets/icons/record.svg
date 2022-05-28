@@ -5,7 +5,7 @@
    width="240"
    height="240"
    id="svg5"
-   sodipodi:docname="1temple.svg"
+   sodipodi:docname="record.svg"
    version="1.1"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -26,7 +26,7 @@
      width="512px"
      inkscape:zoom="1.9776937"
      inkscape:cx="9.60715"
-     inkscape:cy="118.57246"
+     inkscape:cy="119.0781"
      inkscape:window-width="1920"
      inkscape:window-height="1031"
      inkscape:window-x="0"
@@ -73,13 +73,13 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#000000;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
+       style="fill:none;stroke:#333333;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
        id="path61"
        cx="120"
        cy="120"
        r="80" />
     <circle
-       style="fill:none;stroke:#000000;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
+       style="fill:none;stroke:#333333;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
        id="path63"
        cx="120"
        cy="120"
