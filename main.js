@@ -502,6 +502,10 @@ function create_clip_window() {
 
     if (dev) clip_window.webContents.openDevTools();
 
+    let mouse_ps = {};
+    let record_start = false;
+    let record_path = "";
+
     // * 监听截屏奇奇怪怪的事件
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
@@ -591,6 +595,7 @@ function create_clip_window() {
                         filters: [{ name: "视频", extensions: [arg] }],
                     })
                     .then((x) => {
+                        record_path = x.filePath;
                         desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
                             clip_window.webContents.send("record", x.filePath, sources[0].id);
                         });
@@ -605,12 +610,27 @@ function create_clip_window() {
                             clip_window.setSimpleFullScreen(true);
                         }
                     });
+                record_start = true;
+                mouse_ps = {};
+                function record_mouse() {
+                    if (record_start) {
+                        let n_xy = screen.getCursorScreenPoint();
+                        let s = screen.getAllDisplays()[0];
+                        let t = new Date().getTime();
+                        mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
+                        setTimeout(record_mouse, 10);
+                    }
+                }
+                record_mouse();
                 break;
         }
     });
 
     globalShortcut.register("Super+R", () => {
         clip_window.webContents.send("record", false);
+        record_start = false;
+        let t = JSON.stringify(mouse_ps);
+        fs.writeFile(record_path.replace("webm", "json"), t, () => {});
     });
 
     // 移动光标
