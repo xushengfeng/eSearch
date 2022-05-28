@@ -49,34 +49,6 @@ body {
     border-radius: 4px;
 }
 
-#give_up_setting {
-    width: 40px;
-    height: 40px;
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    background-color: var(--bar-bg);
-    backdrop-filter: var(--blur);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    transition: var(--transition);
-    z-index: 2;
-}
-#give_up_setting_b {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    box-shadow: none;
-    position: absolute;
-    top: 0;
-}
-#give_up_setting > .icon {
-    width: 40px;
-}
-#give_up_setting:hover {
-    box-shadow: var(--shadow);
-}
-
 #menu {
     width: 10%;
     position: fixed;

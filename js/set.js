@@ -412,11 +412,6 @@ document.getElementById("打开config").onclick = () => {
 var give_up = false;
 document.getElementById("give_up_setting_b").oninput = () => {
     give_up = document.getElementById("give_up_setting_b").checked;
-    if (give_up) {
-        document.getElementById("give_up_setting_b").title = "关闭此界面后将不保存部分设置值";
-    } else {
-        document.getElementById("give_up_setting_b").title = "不保存设置值";
-    }
 };
 
 window.onbeforeunload = () => {
