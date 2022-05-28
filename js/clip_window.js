@@ -384,7 +384,7 @@ function open_app() {
 }
 
 function tool_record_f() {
-    ipcRenderer.send("clip_main_b", "record", "webm");
+    ipcRenderer.send("clip_main_b", "record", final_rect);
     let recorder;
     ipcRenderer.on("record", async (event, v, sourceId) => {
         if (v) {

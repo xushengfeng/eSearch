@@ -591,8 +591,8 @@ function create_clip_window() {
                 dialog
                     .showSaveDialog({
                         title: "选择要保存的位置",
-                        defaultPath: `${saved_path}${get_file_name()}.${arg}`,
-                        filters: [{ name: "视频", extensions: [arg] }],
+                        defaultPath: `${saved_path}${get_file_name()}.${"webm"}`,
+                        filters: [{ name: "视频", extensions: ["webm"] }],
                     })
                     .then((x) => {
                         record_path = x.filePath;
@@ -611,7 +611,7 @@ function create_clip_window() {
                         }
                     });
                 record_start = true;
-                mouse_ps = {};
+                mouse_ps = { rect: arg };
                 function record_mouse() {
                     if (record_start) {
                         let n_xy = screen.getCursorScreenPoint();
