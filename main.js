@@ -609,6 +609,10 @@ function create_clip_window() {
         }
     });
 
+    globalShortcut.register("Super+R", () => {
+        clip_window.webContents.send("record", false);
+    });
+
     // 移动光标
     ipcMain.on("move_mouse", (event, arrow, d) => {
         var mouse = robot.getMousePos();

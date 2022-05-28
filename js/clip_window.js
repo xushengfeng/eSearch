@@ -409,7 +409,11 @@ function tool_record_f() {
                 reader.readAsArrayBuffer(b);
                 reader.onloadend = (e) => {
                     const fs = require("fs");
-                    fs.writeFile(v, Buffer.from(reader.result), () => {});
+                    fs.writeFile(v, Buffer.from(reader.result), (err) => {
+                        if (!err) {
+                            ipcRenderer.send("clip_main_b", "ok_save", v);
+                        }
+                    });
                 };
             };
         } else {
