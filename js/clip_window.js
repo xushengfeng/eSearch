@@ -382,6 +382,43 @@ function open_app() {
         });
     });
 }
+
+function tool_record_f() {
+    ipcRenderer.send("record", true);
+    ipcRenderer.on("record", async (event, v, sourceId) => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: "desktop",
+                        chromeMediaSourceId: sourceId,
+                    },
+                },
+            });
+            var chunks = [];
+            let recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+            recorder.start();
+            recorder.ondataavailable = function (e) {
+                chunks.push(e.data);
+            };
+            recorder.onstop = () => {
+                let b = new Blob(chunks, { type: "video/webm" });
+                let reader = new FileReader();
+                reader.readAsArrayBuffer(b);
+                reader.onloadend = (e) => {
+                    const fs = require("fs");
+                    fs.writeFile("/home/x.webm", Buffer.from(reader.result), () => {});
+                };
+            };
+            setTimeout(() => {
+                recorder.stop();
+            }, 3000);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+}
 // 钉在屏幕上
 function tool_ding_f() {
     var ding_window_setting = final_rect;

@@ -14,6 +14,7 @@ const {
     nativeTheme,
     BrowserView,
     screen,
+    desktopCapturer,
 } = require("electron");
 const { Buffer } = require("buffer");
 const robot = require("robotjs");
@@ -608,7 +609,14 @@ function create_clip_window() {
 
     // cil参数启动;
     if (first_open) arg_run(process.argv);
+
+    ipcMain.on("record", (event, s) => {
+        desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
+            clip_window.webContents.send("record", s, sources[0].id);
+        });
+    });
 }
+
 async function full_screen() {
     if (clip_window == null) {
         await create_clip_window();
