@@ -11,7 +11,11 @@ body {
     border-radius: var(--border-radius);
 }
 
-#main > button {
+#record_b {
+    display: flex;
+}
+
+#main button {
     width: 24px;
     height: 24px;
     position: relative;
@@ -21,15 +25,16 @@ body {
     border-radius: var(--border-radius);
 }
 
-#main > button:hover {
+#main button:hover {
     background-color: var(--hover-color);
 }
 
-#move {
+#time {
     -webkit-app-region: drag;
+    width: 72px;
 }
 
-#main > button > .icon {
+#main button > .icon {
     width: 20px;
     left: 2px;
     top: 2px;

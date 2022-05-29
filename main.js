@@ -718,7 +718,7 @@ var record_path = "";
 function create_recorder_window(save_path, rect) {
     recorder = new BrowserWindow({
         icon: the_icon,
-        width: 120,
+        width: 168,
         height: 24,
         alwaysOnTop: true,
         transparent: true,
