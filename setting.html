@@ -258,6 +258,40 @@
             </div>
 
             <div id="setting_item">
+                <h1>录屏</h1>
+
+                <h2>自动录制</h2>
+                <lock-b></lock-b>开启自动录制
+                <range-b id="自动录制延时" min="0" max="5" text="s" step="0.1"></range-b>
+
+                <h2>录制</h2>
+                视频比特率<range-b id="自动录制延时" min="1" max="40" text="Mbps" step="0.5"></range-b>
+
+                <h2>屏幕</h2>
+                帧率<range-b id="屏幕帧率" min="1" max="60"></range-b>
+                高级
+                <textarea id="搜索引擎" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                    title="换行新建项目，%s代替关键字"></textarea>
+
+                <h2>摄像头</h2>
+                <lock-b></lock-b>默认开启
+                <lock-b></lock-b>记录开启状态
+                <br>
+                高级
+                <textarea id="搜索引擎" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                    title="换行新建项目，%s代替关键字"></textarea>
+
+                <h2>音频</h2>
+                <lock-b></lock-b>默认开启
+                <lock-b></lock-b>记录开启状态
+                <br>
+                高级
+                <textarea id="搜索引擎" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                    title="换行新建项目，%s代替关键字"></textarea>
+
+            </div>
+
+            <div id="setting_item">
                 <h1>保存</h1>
 
                 文件名称<input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false" style="width: 1em;"><input

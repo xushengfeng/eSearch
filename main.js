@@ -1671,6 +1671,21 @@ var default_setting = {
     更新: {
         检查更新: true,
     },
+    录屏: {
+        自动录制: 3,
+        视频比特率: 2.5,
+        屏幕: {
+            帧率: 30,
+        },
+        摄像头: {
+            默认开启: false,
+            记住开启状态: false,
+        },
+        音频: {
+            默认开启: false,
+            记住开启状态: false,
+        },
+    },
 };
 function set_default_setting() {
     for (let i in default_setting) {
