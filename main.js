@@ -720,7 +720,7 @@ function create_recorder_window(save_path, rect) {
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
-        movable: false,
+        resizable: false,
         titleBarStyle: "hiddenInset",
         webPreferences: {
             nodeIntegration: true,
@@ -752,12 +752,21 @@ function create_recorder_window(save_path, rect) {
     }
 
     ipcMain.on("record", (event, t) => {
-        if (t == "stop") {
-            record_start = false;
-            let t = JSON.stringify(mouse_ps);
-            fs.writeFile(record_path.replace("webm", "json"), t, () => {});
-        } else if (t == "start") {
-            record_mouse();
+        switch (t) {
+            case "stop":
+                record_start = false;
+                let t = JSON.stringify(mouse_ps);
+                fs.writeFile(record_path.replace("webm", "json"), t, () => {});
+                break;
+            case "start":
+                record_mouse();
+                break;
+            case "close":
+                recorder.close();
+                break;
+            case "min":
+                recorder.minimize();
+                break;
         }
     });
 

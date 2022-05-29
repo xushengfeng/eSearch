@@ -55,6 +55,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     fs.writeFile(v, Buffer.from(reader.result), (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "ok_save", v);
+                            ipcRenderer.send("record", "close");
                         }
                     });
                 };
@@ -65,3 +66,11 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
             break;
     }
 });
+
+document.getElementById("min").onclick = () => {
+    ipcRenderer.send("record", "min");
+};
+
+document.getElementById("close").onclick = () => {
+    ipcRenderer.send("record", "close");
+};
