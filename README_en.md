@@ -16,15 +16,15 @@
 
 eSearch is a :electron: rewrite of [information-portal](https://github.com/xushengfeng/Information-portal.git) (with a bi~~t~~llion features added by the way)
 
-The main idea is to implement [Smartisan bigbang](https://www.smartisan.com/pr/videos/bigbang-introduction) or [Xiaomi portal](https://www.miui.com/zt/miui9/) on Linux (it works on win and mac too) index.html) like **Screen Search** and of course a handy **Screenshot Software**.
+The main idea is to implement [Smartisan bigbang](https://www.smartisan.com/pr/videos/bigbang-introduction) or [Xiaomi portal](https://www.miui.com/zt/miui9/index.html) on Linux (it works on win and mac too) like **Screen Search** and of course a handy **Screenshot Software**.
 
 I.e. **Screenshot+OCR+Search+Paste+Search by Image**
 
-! [Screenshot screen](https://esearch.vercel.app/readme/1.png)
+![Screenshot screen](https://esearch.vercel.app/readme/1.png)
 
 > The font is [FiraCode](https://github.com/tonsky/FiraCode), the font can be set in the settings
 
-! [Main screen for text recognition](https://esearch.vercel.app/readme/2.png)
+![Main screen for text recognition](https://esearch.vercel.app/readme/2.png)
 
 ## Download and install
 
@@ -170,7 +170,7 @@ https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-
 
 > Ding on screen, transparency adjustment, homing and mouse operation (video approx. 1.8MB)
 
-! [3](https://esearch.vercel.app/readme/3.png)
+![3](https://esearch.vercel.app/readme/3.png)
 
 > Drawing screen
 
@@ -178,7 +178,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 > Main screen search and other application editing (video approx. 1.6MB)
 
-! [3](https://esearch.vercel.app/readme/4.png)
+![3](https://esearch.vercel.app/readme/4.png)
 
 > main interface find and replace (regular support)
 
@@ -196,7 +196,7 @@ Wayland desktop environment not supported at this time
 
 I've been using this great screenshot software for Windows: [Snipaste - Snip & Paste](https://www.snipaste.com/), but I've switched to Linux and Snipaste is not supported, so I've chosen [Flameshot](https://flameshot.org/), which unfortunately doesn't have an intuitive colour picker.
 
-Another incentive for me to develop eSearch was that I enjoyed using [Smartisan bigbang](https://www.smartisan.com/pr/videos/bigbang-introduction) or [Xiaomi Portal](https://www.miui.com/zt/) on my phone miui9/index.html), but I couldn't find a similar replacement on my computer.
+Another incentive for me to develop eSearch was that I enjoyed using [Smartisan bigbang](https://www.smartisan.com/pr/videos/bigbang-introduction) or [Xiaomi Portal](https://www.miui.com/zt/miui9/index.html) on my phone, but I couldn't find a similar replacement on my computer.
 
 So I simply developed my own "screenshot + OCR + search + mapping" software. At first I developed [Information-portal](https://github.com/xushengfeng/Information-portal.git) using python+pyqt, but since I'm not familiar with pyqt, I switched to :electron: and developed this software. 😄
 
