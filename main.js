@@ -711,8 +711,12 @@ function image_search(event, arg) {
     });
 }
 
+var /** @type {BrowserWindow}*/ recorder;
+var mouse_ps = {};
+var record_start = false;
+var record_path = "";
 function create_recorder_window(save_path, rect) {
-    let recorder = new BrowserWindow({
+    recorder = new BrowserWindow({
         icon: the_icon,
         width: 120,
         height: 24,
@@ -730,9 +734,9 @@ function create_recorder_window(save_path, rect) {
     recorder.loadFile("recorder.html");
     if (dev) recorder.webContents.openDevTools();
 
-    let mouse_ps = {};
-    let record_start = false;
-    let record_path = save_path;
+    mouse_ps = {};
+    record_start = false;
+    record_path = save_path;
 
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
@@ -741,39 +745,39 @@ function create_recorder_window(save_path, rect) {
     });
     record_start = true;
     mouse_ps = { rect };
-    function record_mouse() {
-        if (record_start) {
-            let n_xy = screen.getCursorScreenPoint();
-            let s = screen.getAllDisplays()[0];
-            let t = new Date().getTime();
-            mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
-            setTimeout(record_mouse, 10);
-        }
-    }
-
-    ipcMain.on("record", (event, t) => {
-        switch (t) {
-            case "stop":
-                record_start = false;
-                let t = JSON.stringify(mouse_ps);
-                fs.writeFile(record_path.replace("webm", "json"), t, () => {});
-                break;
-            case "start":
-                record_mouse();
-                break;
-            case "close":
-                recorder.close();
-                break;
-            case "min":
-                recorder.minimize();
-                break;
-        }
-    });
 
     globalShortcut.register("Super+R", () => {
         recorder.webContents.send("record", "stop");
     });
 }
+
+ipcMain.on("record", (event, t) => {
+    switch (t) {
+        case "stop":
+            record_start = false;
+            let t = JSON.stringify(mouse_ps);
+            fs.writeFile(record_path.replace("webm", "json"), t, () => {});
+            break;
+        case "start":
+            function record_mouse() {
+                if (record_start) {
+                    let n_xy = screen.getCursorScreenPoint();
+                    let s = screen.getAllDisplays()[0];
+                    let t = new Date().getTime();
+                    mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
+                    setTimeout(record_mouse, 10);
+                }
+            }
+            record_mouse();
+            break;
+        case "close":
+            recorder.close();
+            break;
+        case "min":
+            recorder.minimize();
+            break;
+    }
+});
 
 ipcMain.on("setting", async (event, arg, arg1) => {
     switch (arg) {
