@@ -97,6 +97,8 @@ It is not recommended to do an automatic or selected search in the terminal, oth
 
 ## Functions
 
+Features that have been ticked are the latest in the development process but may not have been released in the latest version
+
 -   [x] Screenshot
     -   [x] Frame crop
     -   [x] Resizable frame position (arrow keys or WASD supported)
