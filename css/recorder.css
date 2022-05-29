@@ -6,7 +6,6 @@ body {
 
 #main {
     display: flex;
-    background-color: #fff;
     opacity: 0.4;
     pointer-events: none;
 }
@@ -16,8 +15,19 @@ body {
     height: 24px;
     -webkit-app-region: no-drag;
     position: relative;
+    background-color: var(--bg);
+    border: none;
+    transition: var(--transition);
+    border-radius: var(--border-radius);
+}
+
+#main > button:hover {
+    background-color: var(--hover-color);
 }
 
 #main > button > .icon {
-    width: 24px;
+    width: 20px;
+    left: 2px;
+    top: 2px;
+    user-select: none;
 }
