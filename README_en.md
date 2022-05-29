@@ -116,9 +116,9 @@ It is not recommended to do an automatic or selected search in the terminal, oth
     -   [x] Recording full screen
     -   [ ] Customize size
     -   [ ] Follow mouse
-    -   [ ] Recording bar
+    -   [x] Recorder bar
     -   [ ] Stream Write
-    -   [ ] Recording
+    -   [ ] Recording audio
     -   [ ] Custom Bitrate
 -   [x] Save (optionally as SVG editable file)
 -   [x] Open in other applications
