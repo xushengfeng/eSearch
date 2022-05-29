@@ -72,8 +72,8 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
             if (audio_stream) for (let i of audio_stream.getAudioTracks()) stream.addTrack(i);
             var chunks = [];
             recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-            document.getElementById("main").style.opacity = "1";
-            document.getElementById("main").style.pointerEvents = "auto";
+            document.getElementById("record_b").style.opacity = "1";
+            document.getElementById("record_b").style.pointerEvents = "auto";
             recorder.ondataavailable = function (e) {
                 chunks.push(e.data);
             };

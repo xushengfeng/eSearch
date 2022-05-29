@@ -5,14 +5,14 @@ body {
 
 #main {
     display: flex;
-    opacity: 0.4;
-    pointer-events: none;
     background-color: var(--bg);
     border-radius: var(--border-radius);
 }
 
 #record_b {
     display: flex;
+    opacity: 0.4;
+    pointer-events: none;
 }
 
 #main button {
