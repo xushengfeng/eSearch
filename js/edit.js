@@ -18,6 +18,9 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             e.show = !e.show;
             document.querySelectorAll("#draw_side > div")[index].style.height = "0";
             document.querySelector("#draw_bar").style.width = "var(--bar-size)";
+            for (const ee of document.querySelectorAll("#draw_main > div")) {
+                ee.style.backgroundColor = "";
+            }
             if (document.getElementById("draw_bar").getAttribute("right") != "true") {
                 document.getElementById("draw_bar").style.transition = "var(--transition)";
                 document.getElementById("draw_bar").style.left = document
@@ -30,6 +33,10 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             }
         } else {
             document.querySelector("#draw_bar").style.width = "calc(var(--bar-size) * 2)";
+            for (const ee of document.querySelectorAll("#draw_main > div")) {
+                ee.style.backgroundColor = "";
+            }
+            e.style.backgroundColor = "var(--hover-color)";
             if (document.getElementById("draw_bar").getAttribute("right") != "true") {
                 document.getElementById("draw_bar").style.transition = "var(--transition)";
                 document.getElementById("draw_bar").style.left = document
