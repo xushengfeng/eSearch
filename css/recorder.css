@@ -1,6 +1,5 @@
 body {
     margin: 0;
-    -webkit-app-region: drag;
     overflow: hidden;
 }
 
@@ -8,12 +7,13 @@ body {
     display: flex;
     opacity: 0.4;
     pointer-events: none;
+    background-color: var(--bg);
+    border-radius: var(--border-radius);
 }
 
 #main > button {
     width: 24px;
     height: 24px;
-    -webkit-app-region: no-drag;
     position: relative;
     background-color: var(--bg);
     border: none;
@@ -23,6 +23,10 @@ body {
 
 #main > button:hover {
     background-color: var(--hover-color);
+}
+
+#move {
+    -webkit-app-region: drag;
 }
 
 #main > button > .icon {

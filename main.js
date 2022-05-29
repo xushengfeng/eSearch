@@ -714,7 +714,7 @@ function image_search(event, arg) {
 function create_recorder_window(save_path, rect) {
     let recorder = new BrowserWindow({
         icon: the_icon,
-        width: 96,
+        width: 120,
         height: 24,
         alwaysOnTop: true,
         transparent: true,
