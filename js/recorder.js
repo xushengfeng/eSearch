@@ -6,6 +6,8 @@ var start_stop = document.getElementById("start_stop");
 var s_s = false;
 start_stop.onclick = () => {
     if (s_s) {
+        start_stop.querySelector("img").src = "./assets/icons/stop.svg";
+        pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
         recorder.start();
         s_s = false;
         ipcRenderer.send("record", "start");
@@ -17,8 +19,10 @@ start_stop.onclick = () => {
 var pause_recume = document.getElementById("pause_recume");
 pause_recume.onclick = () => {
     if (recorder.state == "recording") {
+        pause_recume.querySelector("img").src = "./assets/icons/recume.svg";
         recorder.pause();
     } else if (recorder.state == "paused") {
+        pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
         recorder.resume();
     }
 };

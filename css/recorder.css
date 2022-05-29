@@ -15,4 +15,9 @@ body {
     width: 24px;
     height: 24px;
     -webkit-app-region: no-drag;
+    position: relative;
+}
+
+#main > button > .icon {
+    width: 24px;
 }
