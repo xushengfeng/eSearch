@@ -450,6 +450,8 @@ app.whenReady().then(() => {
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
+    create_recorder_window();
+
     check_ocr();
 });
 
@@ -586,6 +588,7 @@ function create_clip_window() {
                 store.set("保存路径", save_path.join("/") + "/");
                 break;
             case "record":
+                create_recorder_window();
                 var saved_path = store.get("保存路径") || "";
                 n_full_screen();
                 dialog
@@ -734,6 +737,26 @@ function image_search(event, arg) {
             event.sender.send("search_back", "ok");
         }
     });
+}
+
+function create_recorder_window() {
+    let recorder = new BrowserWindow({
+        icon: the_icon,
+        width: 96,
+        height: 24,
+        alwaysOnTop: true,
+        transparent: true,
+        frame: false,
+        autoHideMenuBar: true,
+        movable: false,
+        titleBarStyle: "hiddenInset",
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+    recorder.loadFile("recorder.html");
+    if (dev) recorder.webContents.openDevTools();
 }
 
 ipcMain.on("setting", async (event, arg, arg1) => {

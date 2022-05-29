@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    background-color: #fff;
+    -webkit-app-region: drag;
+    overflow: hidden;
+}
+
+#main {
+    display: flex;
+    background-color: #fff;
+}
+
+#main > button {
+    width: 24px;
+    height: 24px;
+    -webkit-app-region: no-drag;
+}
