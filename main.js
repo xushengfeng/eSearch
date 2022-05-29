@@ -450,8 +450,6 @@ app.whenReady().then(() => {
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
-    create_recorder_window();
-
     check_ocr();
 });
 
@@ -503,10 +501,6 @@ function create_clip_window() {
     });
 
     if (dev) clip_window.webContents.openDevTools();
-
-    let mouse_ps = {};
-    let record_start = false;
-    let record_path = "";
 
     // * 监听截屏奇奇怪怪的事件
     ipcMain.on("clip_main_b", (event, type, arg) => {
@@ -588,7 +582,6 @@ function create_clip_window() {
                 store.set("保存路径", save_path.join("/") + "/");
                 break;
             case "record":
-                create_recorder_window();
                 var saved_path = store.get("保存路径") || "";
                 n_full_screen();
                 dialog
@@ -598,11 +591,9 @@ function create_clip_window() {
                         filters: [{ name: "视频", extensions: ["webm"] }],
                     })
                     .then((x) => {
-                        record_path = x.filePath;
-                        desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
-                            clip_window.webContents.send("record", x.filePath, sources[0].id);
-                        });
                         if (x.filePath) {
+                            create_recorder_window(x.filePath, arg);
+                            event.sender.send("close");
                         } else {
                             new Notification({
                                 title: `${app.name} 保存视频失败`,
@@ -613,27 +604,8 @@ function create_clip_window() {
                             clip_window.setSimpleFullScreen(true);
                         }
                     });
-                record_start = true;
-                mouse_ps = { rect: arg };
-                function record_mouse() {
-                    if (record_start) {
-                        let n_xy = screen.getCursorScreenPoint();
-                        let s = screen.getAllDisplays()[0];
-                        let t = new Date().getTime();
-                        mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
-                        setTimeout(record_mouse, 10);
-                    }
-                }
-                record_mouse();
                 break;
         }
-    });
-
-    globalShortcut.register("Super+R", () => {
-        clip_window.webContents.send("record", false);
-        record_start = false;
-        let t = JSON.stringify(mouse_ps);
-        fs.writeFile(record_path.replace("webm", "json"), t, () => {});
     });
 
     // 移动光标
@@ -739,7 +711,7 @@ function image_search(event, arg) {
     });
 }
 
-function create_recorder_window() {
+function create_recorder_window(save_path, rect) {
     let recorder = new BrowserWindow({
         icon: the_icon,
         width: 96,
@@ -757,6 +729,41 @@ function create_recorder_window() {
     });
     recorder.loadFile("recorder.html");
     if (dev) recorder.webContents.openDevTools();
+
+    let mouse_ps = {};
+    let record_start = false;
+    let record_path = save_path;
+
+    recorder.webContents.on("did-finish-load", () => {
+        desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
+            recorder.webContents.send("record", "init", save_path, sources[0].id);
+        });
+    });
+    record_start = true;
+    mouse_ps = { rect };
+    function record_mouse() {
+        if (record_start) {
+            let n_xy = screen.getCursorScreenPoint();
+            let s = screen.getAllDisplays()[0];
+            let t = new Date().getTime();
+            mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
+            setTimeout(record_mouse, 10);
+        }
+    }
+
+    ipcMain.on("record", (event, t) => {
+        if (t == "stop") {
+            record_start = false;
+            let t = JSON.stringify(mouse_ps);
+            fs.writeFile(record_path.replace("webm", "json"), t, () => {});
+        } else if (t == "start") {
+            record_mouse();
+        }
+    });
+
+    globalShortcut.register("Super+R", () => {
+        recorder.webContents.send("record", "stop");
+    });
 }
 
 ipcMain.on("setting", async (event, arg, arg1) => {

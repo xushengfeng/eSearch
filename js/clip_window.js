@@ -385,41 +385,7 @@ function open_app() {
 
 function tool_record_f() {
     ipcRenderer.send("clip_main_b", "record", final_rect);
-    let recorder;
-    ipcRenderer.on("record", async (event, v, sourceId) => {
-        if (v) {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
-                video: {
-                    mandatory: {
-                        chromeMediaSource: "desktop",
-                        chromeMediaSourceId: sourceId,
-                    },
-                },
-            });
-            var chunks = [];
-            recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-            recorder.start();
-            recorder.ondataavailable = function (e) {
-                chunks.push(e.data);
-            };
-            recorder.onstop = () => {
-                let b = new Blob(chunks, { type: "video/webm" });
-                let reader = new FileReader();
-                reader.readAsArrayBuffer(b);
-                reader.onloadend = (e) => {
-                    const fs = require("fs");
-                    fs.writeFile(v, Buffer.from(reader.result), (err) => {
-                        if (!err) {
-                            ipcRenderer.send("clip_main_b", "ok_save", v);
-                        }
-                    });
-                };
-            };
-        } else {
-            recorder.stop();
-        }
-    });
+    ipcRenderer.on("close", tool_close_f);
 }
 // 钉在屏幕上
 function tool_ding_f() {

@@ -1,6 +1,5 @@
 body {
     margin: 0;
-    background-color: #fff;
     -webkit-app-region: drag;
     overflow: hidden;
 }
@@ -8,6 +7,8 @@ body {
 #main {
     display: flex;
     background-color: #fff;
+    opacity: 0.4;
+    pointer-events: none;
 }
 
 #main > button {
