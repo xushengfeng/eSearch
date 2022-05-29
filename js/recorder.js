@@ -18,6 +18,7 @@ start_stop.onclick = () => {
 
 var pause_recume = document.getElementById("pause_recume");
 pause_recume.onclick = () => {
+    if (recorder.state == "inactive") return;
     if (recorder.state == "recording") {
         pause_recume.querySelector("img").src = "./assets/icons/recume.svg";
         recorder.pause();
