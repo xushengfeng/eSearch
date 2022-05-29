@@ -34,6 +34,10 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
         case "init":
             s_s = true;
             save_path = v;
+            const audio_stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false,
+            });
             const stream = await navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {
@@ -43,6 +47,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     },
                 },
             });
+            if (audio_stream) for (let i of audio_stream.getAudioTracks()) stream.addTrack(i);
             var chunks = [];
             recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
             document.getElementById("main").style.opacity = "1";
