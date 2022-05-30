@@ -9,7 +9,6 @@ document.getElementById("set_default_setting").onclick = () => {
     }
 };
 
-
 var menu_o = {};
 var menu_t = "";
 for (let i of document.querySelectorAll("h1")) {
@@ -35,7 +34,15 @@ document.getElementById("启动提示").checked = store.get("启动提示");
 
 document.getElementById("语言").value = store.get("语言.语言");
 document.getElementById("系统语言").onclick = () => {
-    document.getElementById("语言").value = navigator.language;
+    let l2l = {
+        "zh-CN": "zh-HANS",
+        "zh-SG": "zh-HANS",
+        "zh-TW": "zh-HANT",
+        "zh-HK": "zh-HANT",
+        "en-GB": "en",
+        "en-UK": "en",
+    };
+    document.getElementById("语言").value = l2l[navigator.language];
 };
 
 document.getElementById("自动搜索排除").value = store.get("主搜索功能.自动搜索排除").join("\n");

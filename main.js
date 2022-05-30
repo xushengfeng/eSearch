@@ -1517,7 +1517,7 @@ ipcMain.on("theme", (e, v) => {
 var default_setting = {
     首次运行: false,
     启动提示: true,
-    语言: { 语言: "zh-CN" },
+    语言: { 语言: "zh-HANS" },
     快捷键: {
         自动识别: {
             key: "Alt+C",
