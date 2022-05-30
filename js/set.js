@@ -25,6 +25,12 @@ document.getElementById("set_default_setting").onclick = () => {
 
 var store = new Store();
 
+const { t, lan } = require("./lib/translate");
+lan(store.get("语言.语言"));
+document.querySelector("html").innerHTML = document
+    .querySelector("html")
+    .innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
+
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (event, v) => {
     document.getElementById("autostart").checked = v;
@@ -591,16 +597,16 @@ ipcRenderer.on("found", (e, a, b) => {
     document.getElementById("find_t").innerText = `${a} / ${b}`;
 });
 
-var path_info = `运行目录：${__dirname}<br>
-                配置目录：${store.path.replace(/[/\\]config\.json/, "")}<br>
-                OCR 目录：${store.path.replace("config.json", "ocr")}<br>
-                临时目录：${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
-                文字记录：${history_store.path}<br>
-                截屏记录：${img_store.path}`;
+var path_info = `${t("运行目录：")}${__dirname}<br>
+                ${t("配置目录：")}${store.path.replace(/[/\\]config\.json/, "")}<br>
+                ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>
+                ${t("临时目录：")}${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
+                ${t("文字记录：")}${history_store.path}<br>
+                ${t("截屏记录：")}${img_store.path}`;
 document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 
-var version = `<div>本机系统内核: ${os.type()} ${os.release()}</div>`;
+var version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
 var version_l = ["electron", "node", "chrome", "v8"];
 for (i in version_l) {
     version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
@@ -610,7 +616,7 @@ document.getElementById("versions_info").insertAdjacentHTML("afterend", version)
 var package = require("./package.json");
 document.getElementById("name").innerHTML = package.name;
 document.querySelector("#version").innerHTML = package.version;
-document.getElementById("description").innerHTML = package.description;
+document.getElementById("description").innerHTML = t(package.description);
 document.getElementById("version").onclick = () => {
     var requestOptions = {
         method: "GET",
@@ -623,12 +629,13 @@ document.getElementById("version").onclick = () => {
             result = JSON.parse(result);
             console.log(result);
             if (version_new(result.name, package.version) && !result.draft && !result.prerelease) {
-                document.getElementById(
-                    "update_info"
-                ).innerHTML = `有新版本: <a href="${result.html_url}">${result.name}</a>`;
+                document.getElementById("update_info").innerHTML = `${t("有新版本:")} <a href="${result.html_url}">${
+                    result.name
+                }</a>`;
                 document.getElementById("menu").lastElementChild.style.color = "#335EFE";
             } else {
-                document.getElementById("update_info").innerHTML = "暂无更新";
+                document.getElementById("update_info").innerHTML = t("暂无更新");
+                (")");
             }
         })
         .catch((error) => console.log("error", error));
@@ -651,11 +658,15 @@ function version_new(v1, v2) {
         return false;
     }
 }
-document.querySelector("#info").innerHTML = `<div>项目主页: <a href="${package.homepage}">${package.homepage}</a></div>
-    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">更新日志</a></div>
-    <div><a href="https://github.com/xushengfeng/eSearch/issues">错误报告与建议</a></div>
-    <div>本软件遵循 <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a> 协议</div>
-    <div>本软件基于 <a href="https://esearch.vercel.app/readme/all_license.json">这些软件</a></div>
+document.querySelector("#info").innerHTML = `<div>${t("项目主页:")} <a href="${package.homepage}">${
+    package.homepage
+}</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">${t("更新日志")}</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/issues">${t("错误报告与建议")}</a></div>
+    <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a> ${t(
+    "协议"
+)}</div>
+    <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
 
 document.querySelector("#about").onclick = (e) => {
