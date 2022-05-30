@@ -187,7 +187,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 Most buttons use icons, reducing unnecessary translations
 
 -   [x] Chinese (Simplified)
--   [ ] Chinese (Traditional)
+-   [x] Chinese (Traditional)
 -   [x] English
 -   [ ] French
 -   [ ] Russian
