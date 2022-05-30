@@ -1,6 +1,5 @@
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
-const Store = require("electron-store");
 
 document.getElementById("set_default_setting").onclick = () => {
     if (confirm("将会把所有设置恢复成默认，无法撤销")) {
@@ -10,13 +9,6 @@ document.getElementById("set_default_setting").onclick = () => {
     }
 };
 
-var store = new Store();
-
-const { t, lan } = require("./lib/translate");
-lan(store.get("语言.语言"));
-document.querySelector("html").innerHTML = document
-    .querySelector("html")
-    .innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
 
 var menu_o = {};
 var menu_t = "";

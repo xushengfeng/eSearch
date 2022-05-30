@@ -540,20 +540,28 @@
         </div>
     </div>
 
-
-    <template id="range-b">
-        <link rel="stylesheet" type="text/css" href="css/template2.css">
-        <input type="range" id="range">
-        <div id="range_thumb"></div>
-        <div class="range_t">
-            <p></p>
-            <p></p>
-        </div>
-    </template>
-
-    <script src="lib/template.js"></script>
-    <script src="lib/template2.js"></script>
-    <script src="js/set.js"></script>
 </body>
+
+<script>
+    const Store = require("electron-store");
+    var store = new Store();
+    const { t, lan } = require("./lib/translate");
+    lan(store.get("语言.语言"));
+    document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
+</script>
+
+<template id="range-b">
+    <link rel="stylesheet" type="text/css" href="css/template2.css">
+    <input type="range" id="range">
+    <div id="range_thumb"></div>
+    <div class="range_t">
+        <p></p>
+        <p></p>
+    </div>
+</template>
+
+<script src="lib/template.js"></script>
+<script src="lib/template2.js"></script>
+<script src="js/set.js"></script>
 
 </html>
