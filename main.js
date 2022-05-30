@@ -27,9 +27,10 @@ const os = require("os");
 const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
 const { t, lan } = require("./lib/translate");
-lan("en");
 
 var store = new Store();
+
+lan(store.get("语言.语言"));
 
 var dev;
 // 自动开启开发者模式

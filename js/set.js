@@ -35,6 +35,11 @@ document.getElementById("autostart").oninput = () => {
 
 document.getElementById("启动提示").checked = store.get("启动提示");
 
+document.getElementById("语言").value = store.get("语言.语言");
+document.getElementById("系统语言").onclick = () => {
+    document.getElementById("语言").value = navigator.language;
+};
+
 document.getElementById("自动搜索排除").value = store.get("主搜索功能.自动搜索排除").join("\n");
 if (process.platform == "linux") {
     document.getElementById("linux_selection").style.display = "block";
@@ -426,6 +431,7 @@ window.onbeforeunload = () => {
 function save_setting() {
     if (give_up) return;
     store.set("启动提示", document.getElementById("启动提示").checked);
+    store.set("语言.语言", document.getElementById("语言").value);
     store.set("其他快捷键", {
         关闭: document.querySelector(`hot-keys[name="关闭"]`).value,
         OCR: document.querySelector(`hot-keys[name="OCR(文字识别)"]`).value,
