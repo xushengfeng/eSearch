@@ -1102,7 +1102,7 @@ if (in_browser) {
 /************************************主要 */
 
 var window_name = "",
-    t = "";
+    main_text = "";
 var 自动搜索 = store.get("自动搜索"),
     自动打开链接 = store.get("自动打开链接"),
     自动搜索中文占比 = store.get("自动搜索中文占比");
@@ -1656,7 +1656,7 @@ function render_history() {
         });
     });
 }
-if (t == "") render_history();
+if (main_text == "") render_history();
 
 function old_his_to_new() {
     for (let i of store.get("历史记录")) {
@@ -1675,8 +1675,8 @@ const os = require("os");
 ipcRenderer.on("text", (event, name: string, list: [string]) => {
     window_name = name;
 
-    t = list[0];
-    show_t(t);
+    main_text = list[0];
+    show_t(main_text);
 });
 var 模糊 = store.get("全局.模糊");
 if (模糊 != 0) {
@@ -1835,3 +1835,7 @@ function add_selection_linux() {
         }
     }
 }
+
+const { t, lan } = require("./lib/translate");
+lan(store.get("语言.语言"));
+document.title = t(document.title);

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>{eSearch - 设置}</title>
+    <title>eSearch - 设置</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="supported-color-schemes" content="light dark">
@@ -548,6 +548,7 @@
     const { t, lan } = require("./lib/translate");
     lan(store.get("语言.语言"));
     document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
+    document.title = t(document.title)
 </script>
 
 <template id="range-b">

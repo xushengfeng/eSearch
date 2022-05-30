@@ -549,3 +549,7 @@ tool_bar.addEventListener("mouseup", (e) => {
     tool_bar.style.transition = "";
     if (e.button == 2) tool_position = { x: null, y: null };
 });
+
+const { t, lan } = require("./lib/translate");
+lan(store.get("语言.语言"));
+document.title = t(document.title);
