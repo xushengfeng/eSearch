@@ -1,16 +1,3 @@
-var menu_o = {};
-var menu_t = "";
-for (let i of document.querySelectorAll("h1")) {
-    menu_o[i.innerText] = i;
-    menu_t += `<li>${i.innerText}</li>`;
-}
-document.getElementById("menu").innerHTML = menu_t;
-document.getElementById("menu").onclick = (e) => {
-    if (e.target.tagName == "LI") {
-        document.getElementsByTagName("html")[0].scrollTop = menu_o[e.target.innerText].offsetTop;
-    }
-};
-
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 const Store = require("electron-store");
@@ -30,6 +17,19 @@ lan(store.get("语言.语言"));
 document.querySelector("html").innerHTML = document
     .querySelector("html")
     .innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
+
+var menu_o = {};
+var menu_t = "";
+for (let i of document.querySelectorAll("h1")) {
+    menu_o[i.innerText] = i;
+    menu_t += `<li>${i.innerText}</li>`;
+}
+document.getElementById("menu").innerHTML = menu_t;
+document.getElementById("menu").onclick = (e) => {
+    if (e.target.tagName == "LI") {
+        document.getElementsByTagName("html")[0].scrollTop = menu_o[e.target.innerText].offsetTop;
+    }
+};
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (event, v) => {
