@@ -26,6 +26,8 @@ const fs = require("fs");
 const os = require("os");
 const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
+const { t, lan } = require("./lib/translate");
+lan("en");
 
 var store = new Store();
 
@@ -167,7 +169,7 @@ async function download_ocr(callback) {
     let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
     new Notification({
         title: app.name,
-        body: `${app.name} 服务正在下载中……`,
+        body: `${app.name} ${t("服务正在下载中……")}`,
         icon: `${run_path}/assets/logo/64x64.png`,
     }).show();
     console.log("开始下载服务");
@@ -191,7 +193,7 @@ async function download_ocr(callback) {
                 callback(true);
                 new Notification({
                     title: app.name,
-                    body: `${app.name} 服务下载已取消`,
+                    body: `${app.name} ${t("服务下载已取消")}`,
                     icon: `${run_path}/assets/logo/64x64.png`,
                 }).show();
             });
@@ -204,7 +206,9 @@ async function download_ocr(callback) {
     callback(null);
     new Notification({
         title: app.name,
-        body: `${app.name} 服务已下载${process.platform == "linux" ? "" : "，正准备安装相关的依赖，请允许安装"}`,
+        body: `${app.name} ${t("服务已下载")}${
+            process.platform == "linux" ? "" : t("，正准备安装相关的依赖，请允许安装")
+        }`,
         icon: `${run_path}/assets/logo/64x64.png`,
     }).show();
     if (process.platform == "win32") {
@@ -236,13 +240,13 @@ app.whenReady().then(() => {
             : new Tray(`${run_path}/assets/logo/16x16.png`);
     contextMenu = Menu.buildFromTemplate([
         {
-            label: "自动搜索",
+            label: `${t("自动搜索")}`,
             click: () => {
                 auto_open();
             },
         },
         {
-            label: "截屏搜索",
+            label: t("截屏搜索"),
             click: () => {
                 setTimeout(() => {
                     full_screen();
@@ -250,13 +254,13 @@ app.whenReady().then(() => {
             },
         },
         {
-            label: "选中搜索",
+            label: t("选中搜索"),
             click: () => {
                 open_selection();
             },
         },
         {
-            label: "剪贴板搜索",
+            label: t("剪贴板搜索"),
             click: () => {
                 open_clip_board();
             },
@@ -265,10 +269,10 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
-            label: "失焦关闭",
+            label: t("失焦关闭"),
             submenu: [
                 {
-                    label: "主界面",
+                    label: t("主界面"),
                     type: "checkbox",
                     checked: store.get("关闭窗口.失焦.主窗口"),
                     click: (i) => {
@@ -276,7 +280,7 @@ app.whenReady().then(() => {
                     },
                 },
                 {
-                    label: "搜索界面",
+                    label: t("搜索界面"),
                     type: "checkbox",
                     checked: store.get("关闭窗口.失焦.搜索窗口"),
                     click: (i) => {
@@ -286,7 +290,7 @@ app.whenReady().then(() => {
             ],
         },
         {
-            label: "浏览器打开",
+            label: t("浏览器打开"),
             type: "checkbox",
             checked: store.get("浏览器中打开"),
             click: (i) => {
@@ -297,20 +301,20 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
-            label: "主页面",
+            label: t("主页面"),
             click: () => {
                 create_main_window("index.html", [""]);
             },
         },
         {
-            label: "设置",
+            label: t("设置"),
             click: () => {
                 Store.initRenderer();
                 create_main_window("setting.html");
             },
         },
         {
-            label: "教程帮助",
+            label: t("教程帮助"),
             click: () => {
                 create_main_window("help.html");
             },
@@ -319,14 +323,14 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
-            label: "重启",
+            label: t("重启"),
             click: () => {
                 app.relaunch();
                 app.exit(0);
             },
         },
         {
-            label: "退出",
+            label: t("退出"),
             click: () => {
                 app.quit();
             },
@@ -338,7 +342,7 @@ app.whenReady().then(() => {
     if (first_open && store.get("启动提示"))
         new Notification({
             title: app.name,
-            body: `${app.name} 已经在后台启动`,
+            body: `${app.name} ${t("已经在后台启动")}`,
             icon: `${run_path}/assets/logo/64x64.png`,
         }).show();
 
@@ -359,18 +363,22 @@ app.whenReady().then(() => {
 
         if (!download)
             var resolve = await dialog.showMessageBox({
-                title: "服务未下载",
-                message: `${app.name} 离线OCR 服务未安装\n需要下载才能使用\n或前往 设置 配置 在线OCR`,
-                checkboxLabel: "不再提示",
-                buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
+                title: t("服务未下载"),
+                message: `${app.name} ${t("离线OCR 服务未安装")}\n${t("需要下载才能使用")}\n${t(
+                    "或前往 设置 配置 在线OCR"
+                )}`,
+                checkboxLabel: t("不再提示"),
+                buttons: [`${t("下载(约")}${file_o[process.platform][1]}MB+)`, t("前往 设置"), t("取消")],
                 defaultId: 0,
                 cancelId: 2,
             });
         if (download && update)
             var resolve = await dialog.showMessageBox({
-                title: "服务需要升级",
-                message: `${app.name} 离线OCR 服务版本较旧\n需要下载升级才能使用\n或前往 设置 配置 在线OCR`,
-                buttons: [`下载(约${file_o[process.platform][1]}MB+)`, "前往 设置", "取消"],
+                title: t("服务需要升级"),
+                message: `${app.name} ${t("离线OCR 服务版本较旧")}\n需要下载升级才能使用\n${t(
+                    "或前往 设置 配置 在线OCR"
+                )}`,
+                buttons: [`${t("下载(约")}${file_o[process.platform][1]}MB+)`, t("前往 设置"), t("取消")],
                 defaultId: 0,
                 cancelId: 2,
             });
@@ -381,13 +389,11 @@ app.whenReady().then(() => {
                 if (err) {
                     if (download) fs.renameSync(old_ocr_path, ocr_path);
                     var resolve = await dialog.showMessageBox({
-                        title: "服务下载失败",
-                        message: `${
-                            app.name
-                        } 离线OCR 服务版本下载失败\n请前往网站手动下载\n解压并移动 ocr 文件夹到 ${app.getPath(
-                            "userData"
-                        )}`,
-                        buttons: [`前往网站`, "取消"],
+                        title: t("服务下载失败"),
+                        message: `${app.name} ${t("离线OCR 服务版本下载失败")}\n${t("请前往网站手动下载")}\n${t(
+                            "解压并移动 ocr 文件夹到"
+                        )} ${app.getPath("userData")}`,
+                        buttons: [t("前往网站"), t("取消")],
                         defaultId: 0,
                         cancelId: 1,
                     });
@@ -519,8 +525,8 @@ function create_clip_window() {
                     create_main_window("index.html", [arg]);
                 } else {
                     dialog.showMessageBox({
-                        title: "警告",
-                        message: "无法识别二维码\n请尝试重新识别",
+                        title: t("警告"),
+                        message: `${t("无法识别二维码")}\n${t("请尝试重新识别")}`,
                         icon: `${run_path}/assets/logo/warning.png`,
                     });
                 }
@@ -528,7 +534,7 @@ function create_clip_window() {
             case "open":
                 dialog
                     .showOpenDialog({
-                        title: "选择要打开应用的位置",
+                        title: t("选择要打开应用的位置"),
                     })
                     .then((x) => {
                         console.log(x);
@@ -540,17 +546,17 @@ function create_clip_window() {
                 n_full_screen();
                 dialog
                     .showSaveDialog({
-                        title: "选择要保存的位置",
+                        title: t("选择要保存的位置"),
                         defaultPath: `${saved_path}${get_file_name()}.${arg}`,
-                        filters: [{ name: "图像", extensions: [arg] }],
+                        filters: [{ name: t("图像"), extensions: [arg] }],
                     })
                     .then((x) => {
                         event.sender.send("save_path", x.filePath);
                         if (x.filePath) {
                         } else {
                             new Notification({
-                                title: `${app.name} 保存图像失败`,
-                                body: `用户已取消保存`,
+                                title: `${app.name} ${t("保存图像失败")}`,
+                                body: t("用户已取消保存"),
                                 icon: `${run_path}/assets/logo/64x64.png`,
                             }).show();
                             clip_window.show();
@@ -586,9 +592,9 @@ function create_clip_window() {
                 n_full_screen();
                 dialog
                     .showSaveDialog({
-                        title: "选择要保存的位置",
+                        title: t("选择要保存的位置"),
                         defaultPath: `${saved_path}${get_file_name()}.${"webm"}`,
-                        filters: [{ name: "视频", extensions: ["webm"] }],
+                        filters: [{ name: t("视频"), extensions: ["webm"] }],
                     })
                     .then((x) => {
                         if (x.filePath) {
@@ -596,8 +602,8 @@ function create_clip_window() {
                             event.sender.send("close");
                         } else {
                             new Notification({
-                                title: `${app.name} 保存视频失败`,
-                                body: `用户已取消保存`,
+                                title: `${app.name} ${t("保存视频失败")}`,
+                                body: t("用户已取消保存"),
                                 icon: `${run_path}/assets/logo/64x64.png`,
                             }).show();
                             clip_window.show();
@@ -678,9 +684,9 @@ function the_ocr(event, arg) {
         if (err) {
             event.sender.send("ocr_back", "else");
             dialog.showMessageBox({
-                title: "错误",
+                title: t("错误"),
                 message: `${err}`,
-                buttons: ["确定"],
+                buttons: [t("确定")],
                 icon: `${run_path}/assets/logo/warning.png`,
             });
         } else {
@@ -695,9 +701,9 @@ function image_search(event, arg) {
         if (err) {
             event.sender.send("search_back", "else");
             dialog.showMessageBox({
-                title: "错误",
+                title: t("错误"),
                 message: `${err}`,
-                buttons: ["确定"],
+                buttons: [t("确定")],
                 icon: `${run_path}/assets/logo/warning.png`,
             });
         } else {
@@ -801,9 +807,9 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             store.clear();
             set_default_setting();
             var resolve = await dialog.showMessageBox({
-                title: "重启",
-                message: `已恢复默认设置，部分设置需要重启 ${app.name} 生效`,
-                buttons: ["重启", "稍后"],
+                title: t("重启"),
+                message: `${t("已恢复默认设置，部分设置需要重启")} ${app.name} ${t("生效")}`,
+                buttons: [t("重启"), t("稍后")],
                 defaultId: 0,
                 cancelId: 1,
             });
@@ -833,21 +839,21 @@ const template = [
               {
                   label: app.name,
                   submenu: [
-                      { label: `关于 ${app.name}`, role: "about" },
+                      { label: `${t("关于")} ${app.name}`, role: "about" },
                       { type: "separator" },
                       {
-                          label: "设置",
+                          label: t("设置"),
                           click: () => {
                               create_main_window("setting.html");
                           },
                           accelerator: "CmdOrCtrl+,",
                       },
                       { type: "separator" },
-                      { label: "服务", role: "services" },
+                      { label: t("服务"), role: "services" },
                       { type: "separator" },
-                      { label: `隐藏 ${app.name}`, role: "hide" },
-                      { label: "隐藏其他 ", role: "hideOthers" },
-                      { label: "全部显示", role: "unhide" },
+                      { label: `${t("隐藏")} ${app.name}`, role: "hide" },
+                      { label: t("隐藏其他"), role: "hideOthers" },
+                      { label: t("全部显示"), role: "unhide" },
                       { type: "separator" },
                       { label: `退出 ${app.name}`, role: "quit" },
                   ],
@@ -856,10 +862,10 @@ const template = [
         : []),
     // { role: 'fileMenu' }
     {
-        label: "文件",
+        label: t("文件"),
         submenu: [
             {
-                label: "保存到历史记录",
+                label: t("保存到历史记录"),
                 click: (i, w) => {
                     main_edit(w, "save");
                 },
@@ -870,7 +876,7 @@ const template = [
                 ? []
                 : [
                       {
-                          label: "设置",
+                          label: t("设置"),
                           click: () => {
                               create_main_window("setting.html");
                           },
@@ -879,41 +885,41 @@ const template = [
                       { type: "separator" },
                   ]),
             {
-                label: "其他编辑器打开",
+                label: t("其他编辑器打开"),
                 click: (i, w) => {
                     main_edit(w, "edit_on_other");
                 },
             },
             {
-                label: "打开方式...",
+                label: t("打开方式..."),
                 click: (i, w) => {
                     main_edit(w, "choose_editer");
                 },
             },
             { type: "separator" },
-            { label: "关闭", role: "close" },
+            { label: t("关闭"), role: "close" },
         ],
     },
     // { role: 'editMenu' }
     {
-        label: "编辑",
+        label: t("编辑"),
         submenu: [
             {
-                label: "打开链接",
+                label: t("打开链接"),
                 click: (i, w) => {
                     main_edit(w, "link");
                 },
                 accelerator: "CmdOrCtrl+Shift+L",
             },
             {
-                label: "搜索",
+                label: t("搜索"),
                 click: (i, w) => {
                     main_edit(w, "search");
                 },
                 accelerator: "CmdOrCtrl+Shift+S",
             },
             {
-                label: "翻译",
+                label: t("翻译"),
                 click: (i, w) => {
                     main_edit(w, "translate");
                 },
@@ -921,14 +927,14 @@ const template = [
             },
             { type: "separator" },
             {
-                label: "撤销",
+                label: t("撤销"),
                 click: (i, w) => {
                     main_edit(w, "undo");
                 },
                 accelerator: "CmdOrCtrl+Z",
             },
             {
-                label: "重做",
+                label: t("重做"),
                 click: (i, w) => {
                     main_edit(w, "redo");
                 },
@@ -936,55 +942,55 @@ const template = [
             },
             { type: "separator" },
             {
-                label: "剪切",
+                label: t("剪切"),
                 click: (i, w) => {
                     main_edit(w, "cut");
                 },
                 accelerator: "CmdOrCtrl+X",
             },
             {
-                label: "复制",
+                label: t("复制"),
                 click: (i, w) => {
                     main_edit(w, "copy");
                 },
                 accelerator: "CmdOrCtrl+C",
             },
             {
-                label: "粘贴",
+                label: t("粘贴"),
                 click: (i, w) => {
                     main_edit(w, "paste");
                 },
                 accelerator: "CmdOrCtrl+V",
             },
             {
-                label: "删除",
+                label: t("删除"),
                 click: (i, w) => {
                     main_edit(w, "delete");
                 },
             },
             {
-                label: "全选",
+                label: t("全选"),
                 click: (i, w) => {
                     main_edit(w, "select_all");
                 },
                 accelerator: "CmdOrCtrl+A",
             },
             {
-                label: "自动删除换行",
+                label: t("自动删除换行"),
                 click: (i, w) => {
                     main_edit(w, "delete_enter");
                 },
             },
             { type: "separator" },
             {
-                label: "查找",
+                label: t("查找"),
                 click: (i, w) => {
                     main_edit(w, "show_find");
                 },
                 accelerator: "CmdOrCtrl+F",
             },
             {
-                label: "替换",
+                label: t("替换"),
                 click: (i, w) => {
                     main_edit(w, "show_find");
                 },
@@ -992,13 +998,13 @@ const template = [
             },
             { type: "separator" },
             {
-                label: "自动换行",
+                label: t("自动换行"),
                 click: (i, w) => {
                     main_edit(w, "wrap");
                 },
             },
             {
-                label: "拼写检查",
+                label: t("拼写检查"),
                 click: (i, w) => {
                     main_edit(w, "spellcheck");
                 },
@@ -1007,10 +1013,10 @@ const template = [
             ...(isMac
                 ? [
                       {
-                          label: "Speech",
+                          label: t("朗读"),
                           submenu: [
-                              { label: "开始朗读", role: "startSpeaking" },
-                              { label: "停止朗读", role: "stopSpeaking" },
+                              { label: t("开始朗读"), role: "startSpeaking" },
+                              { label: t("停止朗读"), role: "stopSpeaking" },
                           ],
                       },
                   ]
@@ -1018,44 +1024,44 @@ const template = [
         ],
     },
     {
-        label: "浏览器",
+        label: t("浏览器"),
         submenu: [
             {
-                label: "后退",
+                label: t("后退"),
                 click: (i, w) => {
                     view_events(w, "back");
                 },
                 accelerator: isMac ? "Command+[" : "Alt+Left",
             },
             {
-                label: "前进",
+                label: t("前进"),
                 click: (i, w) => {
                     view_events(w, "forward");
                 },
                 accelerator: isMac ? "Command+]" : "Alt+Right",
             },
             {
-                label: "刷新",
+                label: t("刷新"),
                 click: (i, w) => {
                     view_events(w, "reload");
                 },
                 accelerator: "F5",
             },
             {
-                label: "停止加载",
+                label: t("停止加载"),
                 click: (i, w) => {
                     view_events(w, "stop");
                 },
                 accelerator: "Esc",
             },
             {
-                label: "浏览器打开",
+                label: t("浏览器打开"),
                 click: (i, w) => {
                     view_events(w, "browser");
                 },
             },
             {
-                label: "保存到历史记录",
+                label: t("保存到历史记录"),
                 click: (i, w) => {
                     view_events(w, "add_history");
                 },
@@ -1065,56 +1071,56 @@ const template = [
     },
     // { role: 'viewMenu' }
     {
-        label: "视图",
+        label: t("视图"),
         submenu: [
-            { label: "重新加载", role: "reload" },
-            { label: "强制重载", role: "forceReload" },
-            { label: "开发者工具", role: "toggleDevTools" },
+            { label: t("重新加载"), role: "reload" },
+            { label: t("强制重载"), role: "forceReload" },
+            { label: t("开发者工具"), role: "toggleDevTools" },
             { type: "separator" },
             {
-                label: "历史记录",
+                label: t("历史记录"),
                 click: (i, w) => {
                     main_edit(w, "show_history");
                 },
                 accelerator: "CmdOrCtrl+Shift+H",
             },
             { type: "separator" },
-            { label: "实际大小", role: "resetZoom", accelerator: "" },
-            { label: "放大", role: "zoomIn" },
-            { label: "缩小", role: "zoomOut" },
+            { label: t("实际大小"), role: "resetZoom", accelerator: "" },
+            { label: t("放大"), role: "zoomIn" },
+            { label: t("缩小"), role: "zoomOut" },
             { type: "separator" },
-            { label: "全屏", role: "togglefullscreen" },
+            { label: t("全屏"), role: "togglefullscreen" },
         ],
     },
     // { role: 'windowMenu' }
     {
-        label: "窗口",
+        label: t("窗口"),
         submenu: [
-            { label: "最小化", role: "minimize" },
-            { label: "关闭", role: "close" },
+            { label: t("最小化"), role: "minimize" },
+            { label: t("关闭"), role: "close" },
             ...(isMac
                 ? [
                       { type: "separator" },
-                      { label: "置于最前面", role: "front" },
+                      { label: t("置于最前面"), role: "front" },
                       { type: "separator" },
-                      { label: "窗口", role: "window" },
+                      { label: t("窗口"), role: "window" },
                   ]
                 : []),
         ],
     },
     {
-        label: "帮助",
+        label: t("帮助"),
         role: "help",
         submenu: [
             {
-                label: "教程帮助",
+                label: t("教程帮助"),
                 click: () => {
                     create_main_window("help.html");
                 },
             },
             { type: "separator" },
             {
-                label: "关于",
+                label: t("关于"),
                 click: () => {
                     create_main_window("setting.html", true);
                 },
@@ -1478,8 +1484,8 @@ function quick_clip() {
 
 function noti(file_path) {
     var notification = new Notification({
-        title: `${app.name} 保存图像成功`,
-        body: `已保存图像到 ${file_path}`,
+        title: `${app.name} ${t("保存图像成功")}`,
+        body: `${t("已保存图像到")} ${file_path}`,
         icon: `${run_path}/assets/logo/64x64.png`,
     });
     notification.on("click", () => {
@@ -1492,7 +1498,7 @@ ipcMain.on("get_save_path", (event, path) => {
     if (!path) path = app.getPath("pictures");
     dialog
         .showOpenDialog({
-            title: "选择要保存的位置",
+            title: t("选择要保存的位置"),
             defaultPath: path,
             properties: ["openDirectory"],
         })
@@ -1510,6 +1516,7 @@ ipcMain.on("theme", (e, v) => {
 var default_setting = {
     首次运行: false,
     启动提示: true,
+    语言: { 语言: "zh-CN" },
     快捷键: {
         自动识别: {
             key: "Alt+C",
