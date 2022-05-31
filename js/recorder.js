@@ -119,6 +119,7 @@ async function mic_stream(v) {
 
 document.getElementById("mic").onclick = () => {
     mic_stream(document.getElementById("mic").checked);
+    if (store.get("录屏.音频.记住开启状态")) store.set("录屏.音频.默认开启", document.getElementById("mic").checked);
 };
 
 var /**@type {MediaStream} */ camera_stream;
@@ -144,4 +145,6 @@ if (store.get("录屏.摄像头.默认开启")) {
 
 document.getElementById("camera").onclick = () => {
     camera_streamcamera(document.getElementById("camera").checked);
+    if (store.get("录屏.摄像头.记住开启状态"))
+        store.set("录屏.摄像头.默认开启", document.getElementById("camera").checked);
 };
