@@ -50,17 +50,19 @@ function get_time() {
     }
 }
 
+var /**@type {MediaStream} */ audio_stream, /**@type {MediaStream} */ stream;
+
 const { ipcRenderer } = require("electron");
 ipcRenderer.on("record", async (event, t, v, sourceId) => {
     switch (t) {
         case "init":
             s_s = true;
             save_path = v;
-            const audio_stream = await navigator.mediaDevices.getUserMedia({
+            audio_stream = await navigator.mediaDevices.getUserMedia({
                 audio: true,
                 video: false,
             });
-            const stream = await navigator.mediaDevices.getUserMedia({
+            stream = await navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {
                     mandatory: {
@@ -70,6 +72,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                 },
             });
             if (audio_stream) for (let i of audio_stream.getAudioTracks()) stream.addTrack(i);
+            mic_stream(store.get("录屏.音频.默认开启"));
             var chunks = [];
             recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
             document.getElementById("record_b").style.opacity = "1";
@@ -105,6 +108,17 @@ document.getElementById("min").onclick = () => {
 
 document.getElementById("close").onclick = () => {
     ipcRenderer.send("record", "close");
+};
+
+async function mic_stream(v) {
+    for (let i of audio_stream.getAudioTracks()) {
+        i.enabled = v;
+    }
+    if (v != document.getElementById("mic").checked) document.getElementById("mic").checked = v;
+}
+
+document.getElementById("mic").onclick = () => {
+    mic_stream(document.getElementById("mic").checked);
 };
 
 var /**@type {MediaStream} */ camera_stream;
