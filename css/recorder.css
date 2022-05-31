@@ -38,14 +38,15 @@ body {
     text-align: center;
 }
 
-#main button > .icon {
+#main button > .icon,
+#main lock-b > .icon {
     width: 20px;
     left: 2px;
     top: 2px;
     user-select: none;
 }
 
-#video{
+#video {
     display: flex;
     justify-content: center;
 }
