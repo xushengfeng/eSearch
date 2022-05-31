@@ -69,6 +69,27 @@ range-b {
     height: var(--bar-size);
 }
 
+#draw_filters_brightness:hover > .icon,
+#draw_filters_contrast:hover > .icon,
+#draw_filters_saturation:hover > .icon,
+#draw_filters_hue:hover > .icon {
+    transition: var(--transition);
+    opacity: 0;
+}
+#draw_filters_brightness > range-b,
+#draw_filters_contrast > range-b,
+#draw_filters_saturation > range-b,
+#draw_filters_hue > range-b {
+    transition: var(--transition);
+    opacity: 0;
+}
+#draw_filters_brightness:hover > range-b,
+#draw_filters_contrast:hover > range-b,
+#draw_filters_saturation:hover > range-b,
+#draw_filters_hue:hover > range-b {
+    opacity: 1;
+}
+
 #draw_filters_gamma > range-b {
     height: calc(var(--bar-size) / 3) !important;
 }
