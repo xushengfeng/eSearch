@@ -106,3 +106,28 @@ document.getElementById("min").onclick = () => {
 document.getElementById("close").onclick = () => {
     ipcRenderer.send("record", "close");
 };
+
+var /**@type {MediaStream} */ camera_stream;
+async function camera_streamcamera(v) {
+    if (v) {
+        camera_stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: true,
+        });
+        document.querySelector("video").srcObject = camera_stream;
+        document.querySelector("video").play();
+    } else {
+        camera_stream.getVideoTracks()[0].stop();
+        document.querySelector("video").srcObject = null;
+    }
+    ipcRenderer.send("record", "camera", v);
+}
+
+if (store.get("录屏.摄像头.默认开启")) {
+    camera_streamcamera(true);
+    document.getElementById("camera").checked = true;
+}
+
+document.getElementById("camera").onclick = () => {
+    camera_streamcamera(document.getElementById("camera").checked);
+};

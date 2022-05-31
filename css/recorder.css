@@ -15,7 +15,8 @@ body {
     pointer-events: none;
 }
 
-#main button {
+#main button,
+#main lock-b {
     width: 24px;
     height: 24px;
     position: relative;
@@ -25,13 +26,14 @@ body {
     border-radius: var(--border-radius);
 }
 
-#main button:hover {
+#main button:hover,
+#main lock-b:hover {
     background-color: var(--hover-color);
 }
 
 #time {
     -webkit-app-region: drag;
-    width: 72px;
+    flex-grow: 1;
     line-height: 24px;
     text-align: center;
 }
@@ -41,4 +43,12 @@ body {
     left: 2px;
     top: 2px;
     user-select: none;
+}
+
+#video{
+    display: flex;
+    justify-content: center;
+}
+video {
+    height: calc(100vh - 24px);
 }

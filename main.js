@@ -725,7 +725,7 @@ var record_path = "";
 function create_recorder_window(save_path, rect) {
     recorder = new BrowserWindow({
         icon: the_icon,
-        width: 168,
+        width: 216,
         height: 24,
         alwaysOnTop: true,
         transparent: true,
@@ -758,7 +758,7 @@ function create_recorder_window(save_path, rect) {
     });
 }
 
-ipcMain.on("record", (event, t) => {
+ipcMain.on("record", (event, t, arg) => {
     switch (t) {
         case "stop":
             record_start = false;
@@ -783,6 +783,14 @@ ipcMain.on("record", (event, t) => {
         case "min":
             recorder.minimize();
             break;
+        case "camera":
+            if (arg) {
+                recorder.setResizable(true);
+                recorder.setBounds({ width: 800, height: 500, x: recorder.getBounds().x, y: recorder.getBounds().y });
+            } else {
+                recorder.setResizable(false);
+                recorder.setBounds({ width: 216, height: 24, x: recorder.getBounds().x, y: recorder.getBounds().y });
+            }
     }
 });
 

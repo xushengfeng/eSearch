@@ -9,6 +9,7 @@
     <meta name="supported-color-schemes" content="light dark">
     <link rel="stylesheet" type="text/css" href="css/root.css">
     <link rel="stylesheet" type="text/css" href="css/recorder.css">
+    <link rel="stylesheet" type="text/css" href="css/template2.css">
 </head>
 
 <body>
@@ -16,12 +17,16 @@
         <div id="record_b">
             <button id="start_stop"><img src="./assets/icons/record.svg" class="icon"></button>
             <button id="pause_recume"><img src="./assets/icons/recume.svg" class="icon"></button>
+            <lock-b id="mic"></lock-b>
+            <lock-b id="camera"></lock-b>
         </div>
         <div id="time"></div>
         <button id="min"><img src="./assets/icons/minimize.svg" class="icon"></button>
         <button id="close"><img src="./assets/icons/close.svg" class="icon"></button>
     </div>
+    <div id="video"><video></video></div>
     <script src="js/root.js"></script>
+    <script src="lib/template2.js"></script>
     <script src="js/recorder.js"></script>
 </body>
 
