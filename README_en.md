@@ -186,15 +186,14 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 Most buttons use icons, reducing unnecessary translations
 
+-   [x] English
+-   [x] Arabic
 -   [x] Chinese (Simplified)
 -   [x] Chinese (Traditional)
--   [x] English
--   [ ] French
--   [ ] Russian
--   [ ] Spanish
--   [ ] Arabic
--   [ ] Esperanto
-
+-   [x] Esperanto
+-   [x] French
+-   [x] Russian
+-   [x] Spanish
 ## Testing
 
 Tested under ArchLinux, KDE plasma, Xorg
