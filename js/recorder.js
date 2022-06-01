@@ -10,7 +10,7 @@ start_stop.onclick = () => {
         pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
         recorder.start();
         p_time();
-        setInterval(get_time, 10);
+        setInterval(get_time, 500);
         s_s = false;
         ipcRenderer.send("record", "start");
     } else {
@@ -46,7 +46,10 @@ function get_time() {
         t += new Date().getTime() - time_l[time_l.length - 1];
         let s = Math.trunc(t / 1000);
         let m = Math.trunc(s / 60);
-        document.getElementById("time").innerText = `${m}:${s - 60 * m}.${t % 1000}`;
+        let h = Math.trunc(m / 60);
+        document.getElementById("time").innerText = `${h == 0 ? "" : `${h}:`}${m - 60 * h}:${String(
+            s - 60 * m
+        ).padStart(2, 0)}`;
     }
 }
 
