@@ -548,7 +548,7 @@ function create_clip_window() {
                 dialog
                     .showSaveDialog({
                         title: t("选择要保存的位置"),
-                        defaultPath: `${saved_path}${get_file_name()}.${arg}`,
+                        defaultPath: path.join(saved_path, `${get_file_name()}.${arg}`),
                         filters: [{ name: t("图像"), extensions: [arg] }],
                     })
                     .then((x) => {
@@ -584,9 +584,7 @@ function create_clip_window() {
                 break;
             case "ok_save":
                 noti(arg);
-                var save_path = arg.split("/");
-                save_path.pop();
-                store.set("保存.保存路径.图片", save_path.join("/") + "/");
+                store.set("保存.保存路径.图片", path.dirname(arg));
                 break;
             case "record":
                 var saved_path = store.get("保存.保存路径.视频") || "";
@@ -594,7 +592,7 @@ function create_clip_window() {
                 dialog
                     .showSaveDialog({
                         title: t("选择要保存的位置"),
-                        defaultPath: `${saved_path}${get_file_name()}.${"webm"}`,
+                        defaultPath: path.join(saved_path, `${get_file_name()}.webm`),
                         filters: [{ name: t("视频"), extensions: ["webm"] }],
                     })
                     .then((x) => {
@@ -614,9 +612,7 @@ function create_clip_window() {
                 break;
             case "record_ok_save":
                 noti(arg);
-                var save_path = arg.split("/");
-                save_path.pop();
-                store.set("保存.保存路径.视频", save_path.join("/") + "/");
+                store.set("保存.保存路径.视频", path.dirname(arg));
                 break;
         }
     });
@@ -1659,7 +1655,7 @@ var default_setting = {
     搜索窗口自动关闭: true,
     保存: {
         默认格式: "png",
-        保存路径: { 图片: app.getPath("pictures") + "/", 视频: app.getPath("videos") + "/" },
+        保存路径: { 图片: app.getPath("pictures"), 视频: app.getPath("videos") },
     },
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 1,
