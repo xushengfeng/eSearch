@@ -92,7 +92,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     const fs = require("fs");
                     fs.writeFile(v, Buffer.from(reader.result), (err) => {
                         if (!err) {
-                            ipcRenderer.send("clip_main_b", "ok_save", v);
+                            ipcRenderer.send("clip_main_b", "record_ok_save", v);
                             ipcRenderer.send("record", "close");
                         }
                     });

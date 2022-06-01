@@ -543,7 +543,7 @@ function create_clip_window() {
                     });
                 break;
             case "save":
-                var saved_path = store.get("保存路径") || "";
+                var saved_path = store.get("保存.保存路径.图片") || "";
                 n_full_screen();
                 dialog
                     .showSaveDialog({
@@ -586,10 +586,10 @@ function create_clip_window() {
                 noti(arg);
                 var save_path = arg.split("/");
                 save_path.pop();
-                store.set("保存路径", save_path.join("/") + "/");
+                store.set("保存.保存路径.图片", save_path.join("/") + "/");
                 break;
             case "record":
-                var saved_path = store.get("保存路径") || "";
+                var saved_path = store.get("保存.保存路径.视频") || "";
                 n_full_screen();
                 dialog
                     .showSaveDialog({
@@ -611,6 +611,12 @@ function create_clip_window() {
                             clip_window.setSimpleFullScreen(true);
                         }
                     });
+                break;
+            case "record_ok_save":
+                noti(arg);
+                var save_path = arg.split("/");
+                save_path.pop();
+                store.set("保存.保存路径.视频", save_path.join("/") + "/");
                 break;
         }
     });
@@ -1653,8 +1659,8 @@ var default_setting = {
     搜索窗口自动关闭: true,
     保存: {
         默认格式: "png",
+        保存路径: { 图片: app.getPath("pictures") + "/", 视频: app.getPath("videos") + "/" },
     },
-    保存路径: app.getPath("pictures") + "/",
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 1,
     框选后默认操作: "no",
