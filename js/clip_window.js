@@ -550,6 +550,6 @@ tool_bar.addEventListener("mouseup", (e) => {
     if (e.button == 2) tool_position = { x: null, y: null };
 });
 
-const { t, lan } = require("./lib/translate");
+const { t, lan } = require("./lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);

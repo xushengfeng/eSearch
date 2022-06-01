@@ -26,7 +26,7 @@ const fs = require("fs");
 const os = require("os");
 const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
-const { t, lan } = require("./lib/translate");
+const { t, lan } = require("./lib/translate/translate");
 
 var store = new Store();
 

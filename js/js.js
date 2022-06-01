@@ -1829,6 +1829,6 @@ function add_selection_linux() {
         }
     }
 }
-const { t, lan } = require("./lib/translate");
+const { t, lan } = require("./lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
