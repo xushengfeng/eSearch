@@ -725,6 +725,8 @@ var record_path = "";
 function create_recorder_window(save_path, rect) {
     recorder = new BrowserWindow({
         icon: the_icon,
+        ...(store.get("录屏.大小.x") ? { x: store.get("录屏.大小.x") } : {}),
+        ...(store.get("录屏.大小.y") ? { y: store.get("录屏.大小.y") } : {}),
         width: 216,
         height: 24,
         alwaysOnTop: true,
@@ -740,6 +742,18 @@ function create_recorder_window(save_path, rect) {
     });
     recorder.loadFile("recorder.html");
     if (dev) recorder.webContents.openDevTools();
+
+    recorder.on("close", () => {
+        store.set("录屏.大小.x", recorder.getBounds().x);
+        store.set("录屏.大小.y", recorder.getBounds().y);
+    });
+
+    recorder.on("resize", () => {
+        if (recorder.isResizable()) {
+            store.set("录屏.大小.width", recorder.getBounds().width);
+            store.set("录屏.大小.height", recorder.getBounds().height);
+        }
+    });
 
     mouse_ps = {};
     record_start = false;
@@ -785,8 +799,13 @@ ipcMain.on("record", (event, t, arg) => {
             break;
         case "camera":
             if (arg) {
+                recorder.setBounds({
+                    width: store.get("录屏.大小.width") || 800,
+                    height: store.get("录屏.大小.height") || 600,
+                    x: recorder.getBounds().x,
+                    y: recorder.getBounds().y,
+                });
                 recorder.setResizable(true);
-                recorder.setBounds({ width: 800, height: 500, x: recorder.getBounds().x, y: recorder.getBounds().y });
             } else {
                 recorder.setResizable(false);
                 recorder.setBounds({ width: 216, height: 24, x: recorder.getBounds().x, y: recorder.getBounds().y });
