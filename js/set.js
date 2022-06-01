@@ -208,6 +208,11 @@ document.getElementById("获取保存路径").onclick = () => {
     });
 };
 
+document.getElementById("默认开启摄像头").checked = store.get("录屏.摄像头.默认开启");
+document.getElementById("记录摄像头开启状态").checked = store.get("录屏.摄像头.记住开启状态");
+document.getElementById("默认开启音频").checked = store.get("录屏.音频.默认开启");
+document.getElementById("记录音频开启状态").checked = store.get("录屏.音频.记住开启状态");
+
 document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
 document.getElementById("保存文件名称后缀").value = store.get("保存名称.后缀");
@@ -489,6 +494,14 @@ function save_setting() {
             ? (document.getElementById("快速截屏路径").value + "/").replace("//", "/")
             : ""
     );
+    store.set("录屏.摄像头", {
+        默认开启: document.getElementById("默认开启摄像头").checked,
+        记住开启状态: document.getElementById("记录摄像头开启状态").checked,
+    });
+    store.set("录屏.音频", {
+        默认开启: document.getElementById("默认开启音频").checked,
+        记住开启状态: document.getElementById("记录音频开启状态").checked,
+    });
     store.set("保存.默认格式", document.getElementById("默认格式").value);
     store.set("保存名称", {
         前缀: document.getElementById("保存文件名称前缀").value,
