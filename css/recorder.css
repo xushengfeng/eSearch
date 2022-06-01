@@ -68,6 +68,8 @@ body {
 #video {
     display: flex;
     justify-content: center;
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 video {
     height: calc(100vh - 24px);
