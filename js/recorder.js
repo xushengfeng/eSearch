@@ -6,7 +6,7 @@ var start_stop = document.getElementById("start_stop");
 var s_s = false;
 start_stop.onclick = () => {
     if (s_s) {
-        start_stop.querySelector("img").src = "./assets/icons/stop.svg";
+        start_stop.querySelector("div").className = "stop";
         pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
         recorder.start();
         p_time();

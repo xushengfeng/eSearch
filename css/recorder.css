@@ -15,6 +15,25 @@ body {
     pointer-events: none;
 }
 
+#start_stop_icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #f00;
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    transition: var(--transition);
+}
+
+.stop {
+    width: 12px !important;
+    height: 12px !important;
+    left: 6px !important;
+    top: 6px !important;
+    border-radius: 4px !important;
+}
+
 #main button,
 #main lock-b {
     width: 24px;
