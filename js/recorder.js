@@ -123,7 +123,7 @@ document.getElementById("mic").onclick = () => {
 };
 
 var /**@type {MediaStream} */ camera_stream;
-async function camera_streamcamera(v) {
+async function camera_stream_f(v) {
     if (v) {
         camera_stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
@@ -139,12 +139,12 @@ async function camera_streamcamera(v) {
 }
 
 if (store.get("录屏.摄像头.默认开启")) {
-    camera_streamcamera(true);
+    camera_stream_f(true);
     document.getElementById("camera").checked = true;
 }
 
 document.getElementById("camera").onclick = () => {
-    camera_streamcamera(document.getElementById("camera").checked);
+    camera_stream_f(document.getElementById("camera").checked);
     if (store.get("录屏.摄像头.记住开启状态"))
         store.set("录屏.摄像头.默认开启", document.getElementById("camera").checked);
 };
