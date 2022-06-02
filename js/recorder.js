@@ -55,20 +55,29 @@ function get_time() {
 
 var /**@type {MediaStream} */ audio_stream, /**@type {MediaStream} */ stream;
 
+var audio = false,
+    camera = false;
+
 const { ipcRenderer } = require("electron");
 ipcRenderer.on("record", async (event, t, v, sourceId) => {
     switch (t) {
         case "init":
             s_s = true;
             save_path = v;
-            try {
+            let devices = await navigator.mediaDevices.enumerateDevices();
+            for (let i of devices) {
+                if (i.kind == "audioinput") audio = true;
+                if (i.kind == "videoinput") camera = true;
+            }
+            if (audio) {
                 audio_stream = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: false,
                 });
-            } catch (e) {
-                console.error(e);
+            } else {
+                document.getElementById("mic").style.display = "none";
             }
+            if (!camera) document.getElementById("camera").style.display = "none";
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
