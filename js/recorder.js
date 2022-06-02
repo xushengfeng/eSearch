@@ -135,6 +135,12 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     });
                 };
             };
+
+            if (store.get("录屏.自动录制")) {
+                setTimeout(() => {
+                    if (s_s) start_stop.click();
+                }, store.get("录屏.自动录制") * 1000);
+            }
             break;
         case "stop":
             start_stop.click();
