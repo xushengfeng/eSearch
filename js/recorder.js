@@ -111,7 +111,10 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                 mic_stream(store.get("录屏.音频.默认开启"));
             }
             var chunks = [];
-            recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+            recorder = new MediaRecorder(stream, {
+                videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
+                mimeType: "video/webm",
+            });
             document.getElementById("record_b").style.opacity = "1";
             document.getElementById("record_b").style.pointerEvents = "auto";
             recorder.ondataavailable = function (e) {

@@ -208,6 +208,7 @@ document.getElementById("获取保存路径").onclick = () => {
     });
 };
 
+document.getElementById("视频比特率").value = store.get("录屏.视频比特率");
 document.getElementById("默认开启摄像头").checked = store.get("录屏.摄像头.默认开启");
 document.getElementById("记录摄像头开启状态").checked = store.get("录屏.摄像头.记住开启状态");
 document.getElementById("默认开启音频").checked = store.get("录屏.音频.默认开启");
@@ -494,6 +495,7 @@ function save_setting() {
             ? (document.getElementById("快速截屏路径").value + "/").replace("//", "/")
             : ""
     );
+    store.set("录屏.视频比特率", document.getElementById("视频比特率").value);
     store.set("录屏.摄像头", {
         默认开启: document.getElementById("默认开启摄像头").checked,
         记住开启状态: document.getElementById("记录摄像头开启状态").checked,
