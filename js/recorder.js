@@ -61,21 +61,32 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
         case "init":
             s_s = true;
             save_path = v;
-            audio_stream = await navigator.mediaDevices.getUserMedia({
-                audio: true,
-                video: false,
-            });
-            stream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
-                video: {
-                    mandatory: {
-                        chromeMediaSource: "desktop",
-                        chromeMediaSourceId: sourceId,
+            try {
+                audio_stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: false,
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: {
+                        mandatory: {
+                            chromeMediaSource: "desktop",
+                            chromeMediaSourceId: sourceId,
+                        },
                     },
-                },
-            });
-            if (audio_stream) for (let i of audio_stream.getAudioTracks()) stream.addTrack(i);
-            mic_stream(store.get("录屏.音频.默认开启"));
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            if (!stream) return;
+            if (audio_stream) {
+                for (let i of audio_stream.getAudioTracks()) stream.addTrack(i);
+                mic_stream(store.get("录屏.音频.默认开启"));
+            }
             var chunks = [];
             recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
             document.getElementById("record_b").style.opacity = "1";
@@ -121,8 +132,13 @@ async function mic_stream(v) {
 }
 
 document.getElementById("mic").onclick = () => {
-    mic_stream(document.getElementById("mic").checked);
-    if (store.get("录屏.音频.记住开启状态")) store.set("录屏.音频.默认开启", document.getElementById("mic").checked);
+    try {
+        mic_stream(document.getElementById("mic").checked);
+        if (store.get("录屏.音频.记住开启状态"))
+            store.set("录屏.音频.默认开启", document.getElementById("mic").checked);
+    } catch (e) {
+        console.error(e);
+    }
 };
 
 var /**@type {MediaStream} */ camera_stream;
@@ -142,12 +158,20 @@ async function camera_stream_f(v) {
 }
 
 if (store.get("录屏.摄像头.默认开启")) {
-    camera_stream_f(true);
-    document.getElementById("camera").checked = true;
+    try {
+        camera_stream_f(true);
+        document.getElementById("camera").checked = true;
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 document.getElementById("camera").onclick = () => {
-    camera_stream_f(document.getElementById("camera").checked);
-    if (store.get("录屏.摄像头.记住开启状态"))
-        store.set("录屏.摄像头.默认开启", document.getElementById("camera").checked);
+    try {
+        camera_stream_f(document.getElementById("camera").checked);
+        if (store.get("录屏.摄像头.记住开启状态"))
+            store.set("录屏.摄像头.默认开启", document.getElementById("camera").checked);
+    } catch (e) {
+        console.error(e);
+    }
 };
