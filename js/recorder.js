@@ -78,6 +78,20 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                 document.getElementById("mic").style.display = "none";
             }
             if (!camera) document.getElementById("camera").style.display = "none";
+            navigator.mediaDevices.ondevicechange = () => {
+                navigator.mediaDevices.enumerateDevices().then((d) => {
+                    let video = false;
+                    for (let i of d) {
+                        if (i.kind == "videoinput") video = true;
+                    }
+                    if (video) {
+                        document.getElementById("camera").style.display = "";
+                    } else {
+                        document.getElementById("camera").style.display = "none";
+                        camera_stream_f(false);
+                    }
+                });
+            };
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
