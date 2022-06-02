@@ -8,6 +8,7 @@ start_stop.onclick = () => {
     if (s_s) {
         start_stop.querySelector("div").className = "stop";
         pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
+        document.getElementById("time").innerText = "0:00";
         recorder.start();
         p_time();
         setInterval(get_time, 500);
