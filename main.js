@@ -30,8 +30,6 @@ const { t, lan } = require("./lib/translate/translate");
 
 var store = new Store();
 
-lan(store.get("语言.语言"));
-
 var dev;
 // 自动开启开发者模式
 if (app.isPackaged || process.argv.includes("-n")) {
@@ -232,6 +230,12 @@ async function rm_r(dir_path) {
 var contextMenu, tray;
 
 app.whenReady().then(() => {
+    if (store.get("首次运行") === undefined) set_default_setting();
+    fix_setting_tree();
+
+    // 初始化语言
+    lan(store.get("语言.语言"));
+
     // 初始化设置
     Store.initRenderer();
     // 托盘
@@ -346,9 +350,6 @@ app.whenReady().then(() => {
             body: `${app.name} ${t("已经在后台启动")}`,
             icon: `${run_path}/assets/logo/64x64.png`,
         }).show();
-
-    if (store.get("首次运行") === undefined) set_default_setting();
-    fix_setting_tree();
 
     /**
      * 检查ocr文件是否下载，否，则下载
@@ -1546,7 +1547,7 @@ ipcMain.on("theme", (e, v) => {
 var default_setting = {
     首次运行: false,
     启动提示: true,
-    语言: { 语言: "zh-HANS" },
+    语言: {},
     快捷键: {
         自动识别: {
             key: "Alt+C",
@@ -1726,7 +1727,11 @@ var default_setting = {
 };
 function set_default_setting() {
     for (let i in default_setting) {
-        store.set(i, default_setting[i]);
+        if (i == "语言") {
+            store.set(i, { 语言: app.getLocale() || "zh-HANS" });
+        } else {
+            store.set(i, default_setting[i]);
+        }
     }
 }
 
