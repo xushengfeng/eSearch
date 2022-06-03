@@ -349,6 +349,12 @@ function save() {
     let tt = `${save_path}.${document.getElementById("格式").value} `;
     t += tt;
     console.log(t);
+    store.set("录屏.转换", {
+        格式: document.getElementById("格式").value,
+        码率: document.getElementById("码率").value,
+        帧率: document.getElementById("帧率").value,
+        其他: document.getElementById("其他参数").value,
+    });
     ipcRenderer.send("record", "ff", t, tt);
     ipcRenderer.send("record", "close");
 }
