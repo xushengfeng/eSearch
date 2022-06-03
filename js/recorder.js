@@ -243,7 +243,11 @@ function show_control() {
     document.getElementById("码率").value = store.get("录屏.转换.码率");
     document.getElementById("帧率").value = store.get("录屏.转换.帧率");
     document.getElementById("其他参数").value = store.get("录屏.转换.其他");
-    ipcRenderer.send("record", "camera", true);
+    if (store.get("录屏.转换.自动转换")) {
+        document.getElementById("save").click();
+    } else {
+        ipcRenderer.send("record", "camera", true);
+    }
 }
 
 var video = document.querySelector("video");
