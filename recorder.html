@@ -28,6 +28,13 @@
     </div>
     <div id="video"><video></video></div>
     <div id="s">
+        开始时间：<input type="number" name="t_start" id="t_start" min="0">
+        总时间：<span id="t_t"></span>
+        <button id="v_play" class="b"><img src="./assets/icons/recume.svg" class="icon"></button>
+        当前时间：<span id="t_nt"></span>
+        结束时间：<input type="number" name="t_end" id="t_end">
+        <button id="b_t_end" class="b"><img src="./assets/icons/right.svg" class="icon"></button>
+        <br>
         输出格式：<select id="格式" name="格式"></select>
         <br>
         码率：<input type="number" name="码率" id="码率">Mbps
@@ -36,7 +43,7 @@
         <br>
         其他参数：<input type="text" name="其他参数" id="其他参数">
         <br>
-        <button id="save" disabled="true"><img src="./assets/icons/save.svg" class="icon"></button>
+        <button id="save" disabled="true" class="b"><img src="./assets/icons/save.svg" class="icon"></button>
     </div>
     <script src="js/root.js"></script>
     <script src="lib/template2.js"></script>

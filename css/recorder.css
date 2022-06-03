@@ -109,7 +109,7 @@ input[type="number"]:focus {
     border-bottom: var(--border);
 }
 
-#save {
+.b {
     width: 24px;
     height: 24px;
     position: relative;
@@ -122,10 +122,10 @@ input[type="number"]:focus {
     margin-top: 8px;
     padding: 4px;
 }
-#save:hover {
+.b:hover {
     background-color: var(--hover-color);
 }
-#save > .icon {
+.b > .icon {
     width: 18px;
     height: 18px;
     left: 3px;

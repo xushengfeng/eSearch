@@ -16,6 +16,7 @@ start_stop.onclick = () => {
         ipcRenderer.send("record", "start", time_l[0]);
     } else {
         recorder.stop();
+        p_time();
     }
 };
 
@@ -235,9 +236,70 @@ function show_control() {
     document.getElementById("time").innerText = "";
     add_types();
     document.querySelector("video").style.height = "300px";
+    document.querySelector("video").src = save_path;
+    clip_v();
     document.getElementById("save").disabled = false;
     ipcRenderer.send("record", "camera", true);
 }
+
+var video = document.querySelector("video");
+
+function clip_v() {
+    document.getElementById("t_start").value = 0;
+    document.getElementById("b_t_end").click();
+
+    document.getElementById("t_t").innerText =
+        document.getElementById("t_end").value - document.getElementById("t_start").value;
+
+    document.getElementById("t_nt").innerText = 0;
+}
+
+document.getElementById("t_start").oninput = () => {
+    video.currentTime = document.getElementById("t_end").min = document.getElementById("t_start").value;
+    document.getElementById("t_t").innerText =
+        document.getElementById("t_end").value - document.getElementById("t_start").value;
+};
+document.getElementById("t_end").oninput = () => {
+    video.currentTime = document.getElementById("t_start").max = document.getElementById("t_end").value;
+    document.getElementById("t_t").innerText =
+        document.getElementById("t_end").value - document.getElementById("t_start").value;
+};
+
+document.getElementById("b_t_end").onclick = () => {
+    document.getElementById("t_end").value =
+        document.getElementById("t_start").max =
+        document.getElementById("t_end").max =
+            (time_l[time_l.length - 1] - time_l[0]) / 1000;
+};
+
+document.getElementById("v_play").onclick = () => {
+    if (video.paused) {
+        video_play();
+        document.getElementById("v_play").querySelector("img").src = "./assets/icons/pause.svg";
+    } else {
+        video.pause();
+        document.getElementById("v_play").querySelector("img").src = "./assets/icons/recume.svg";
+    }
+};
+
+video.onpause = () => {
+    document.getElementById("v_play").querySelector("img").src = "./assets/icons/recume.svg";
+};
+video.onplay = () => {
+    document.getElementById("v_play").querySelector("img").src = "./assets/icons/pause.svg";
+};
+
+function video_play() {
+    video.currentTime = document.getElementById("t_start").value;
+    video.play();
+}
+
+video.ontimeupdate = () => {
+    if (video.currentTime > document.getElementById("t_end").value) {
+        video.pause();
+    }
+    document.getElementById("t_nt").innerText = video.currentTime;
+};
 
 function add_types() {
     let types = [
@@ -268,7 +330,10 @@ function save() {
     let t = "";
     if (document.getElementById("码率").value) t += `-b:v ${document.getElementById("码率").value * 1000}k `;
     if (document.getElementById("帧率").value) t += `-r ${document.getElementById("帧率").value} `;
-    if (document.getElementById("其他参数").value) t += `${document.getElementById("其他参数").value}`;
+    if (document.getElementById("其他参数").value) t += `${document.getElementById("其他参数").value} `;
+    t += `-ss ${document.getElementById("t_start").value} `;
+    if (document.getElementById("t_end").value != (time_l[time_l.length - 1] - time_l[0]) / 1000)
+        t += `-to ${document.getElementById("t_end").value} `;
     let tt = save_path.replace(".webm", `.${document.getElementById("格式").value} `);
     t += tt;
     console.log(t);
