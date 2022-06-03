@@ -725,6 +725,9 @@ var /** @type {BrowserWindow}*/ recorder;
 var mouse_ps = {};
 var record_start = false;
 var record_path = "";
+var record_mouse_v = false;
+var record_start_time = 0;
+var record_start_d_time = 0;
 function create_recorder_window(save_path, rect) {
     recorder = new BrowserWindow({
         icon: the_icon,
@@ -783,14 +786,15 @@ ipcMain.on("record", (event, t, arg) => {
             fs.writeFile(record_path.replace("webm", "json"), t, () => {});
             break;
         case "start":
+            record_start_time = arg;
             function record_mouse() {
-                if (record_start) {
+                if (record_start && record_mouse_v) {
                     let n_xy = screen.getCursorScreenPoint();
                     let s = screen.getAllDisplays()[0];
-                    let t = new Date().getTime();
+                    let t = new Date().getTime() - record_start_time - record_start_d_time;
                     mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
-                    setTimeout(record_mouse, 10);
                 }
+                if (record_start) setTimeout(record_mouse, 10);
             }
             record_mouse();
             break;
@@ -813,6 +817,11 @@ ipcMain.on("record", (event, t, arg) => {
                 recorder.setResizable(false);
                 recorder.setBounds({ width: 216, height: 24, x: recorder.getBounds().x, y: recorder.getBounds().y });
             }
+            break;
+        case "pause_time":
+            record_mouse_v = !arg.pause;
+            record_start_d_time = arg.dt;
+            break;
     }
 });
 

@@ -13,7 +13,7 @@ start_stop.onclick = () => {
         p_time();
         setInterval(get_time, 500);
         s_s = false;
-        ipcRenderer.send("record", "start");
+        ipcRenderer.send("record", "start", time_l[0]);
     } else {
         recorder.stop();
     }
@@ -37,6 +37,11 @@ var time_l = [];
 function p_time() {
     let t = new Date().getTime();
     time_l.push(t);
+    let d = 0;
+    for (let i = 0; i < time_l.length; i += 2) {
+        if (time_l[i + 1]) d += time_l[i + 1] - time_l[i];
+    }
+    ipcRenderer.send("record", "pause_time", { t, dt: d, pause: time_l.length % 2 == 0 });
 }
 function get_time() {
     if (recorder.state == "recording") {
