@@ -782,8 +782,6 @@ ipcMain.on("record", (event, t, arg) => {
     switch (t) {
         case "stop":
             record_start = false;
-            let t = JSON.stringify(mouse_ps);
-            fs.writeFile(record_path.replace("webm", "json"), t, () => {});
             break;
         case "start":
             record_start_time = arg;
