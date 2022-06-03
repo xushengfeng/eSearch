@@ -216,6 +216,11 @@ document.getElementById("记录摄像头开启状态").checked = store.get("录�
 document.getElementById("默认开启音频").checked = store.get("录屏.音频.默认开启");
 document.getElementById("记录音频开启状态").checked = store.get("录屏.音频.记住开启状态");
 
+document.getElementById("ffmpeg_path").value = store.get("录屏.转换.ffmpeg");
+document.getElementById("下载ffmpeg").onclick = () => {
+    shell.openExternal("http://ffmpeg.org/download.html");
+};
+
 document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
 document.getElementById("保存文件名称后缀").value = store.get("保存名称.后缀");
@@ -510,6 +515,7 @@ function save_setting() {
         默认开启: document.getElementById("默认开启音频").checked,
         记住开启状态: document.getElementById("记录音频开启状态").checked,
     });
+    store.set("录屏.转换.ffmpeg", document.getElementById("ffmpeg_path").value);
     store.set("保存.默认格式", document.getElementById("默认格式").value);
     store.set("保存名称", {
         前缀: document.getElementById("保存文件名称前缀").value,

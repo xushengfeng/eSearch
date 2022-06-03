@@ -800,7 +800,8 @@ ipcMain.on("record", (event, t, arg) => {
             break;
         case "close":
             recorder.close();
-            let x = `ffmpeg -i ${record_path} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${
+            let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
+            let x = `${ffmpeg} -i ${record_path} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${
                 mouse_ps.rect[1]
             } ${record_path.replace("webm", "mp4")}`;
             exec(x, (e) => {
@@ -1734,6 +1735,9 @@ var default_setting = {
         音频: {
             默认开启: false,
             记住开启状态: false,
+        },
+        转换: {
+            ffmpeg: "",
         },
     },
 };
