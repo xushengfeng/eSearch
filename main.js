@@ -804,7 +804,7 @@ ipcMain.on("record", (event, t, arg, arg1) => {
                     noti(arg1);
                     store.set("保存.保存路径.视频", path.dirname(arg1));
                 }
-                if (!recorder.webContents.isDestroyed()) recorder.webContents.send("ff", e, st);
+                if (!recorder.isDestroyed()) recorder.webContents.send("ff", e, st);
             });
             break;
         case "close":
