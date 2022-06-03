@@ -345,8 +345,7 @@ function save() {
     let tt = save_path.replace(".webm", `.${document.getElementById("格式").value} `);
     t += tt;
     console.log(t);
-    ipcRenderer.send("record", "ff", t);
-    ipcRenderer.send("clip_main_b", "record_ok_save", tt);
+    ipcRenderer.send("record", "ff", t, tt);
 }
 
 document.getElementById("save").onclick = save;

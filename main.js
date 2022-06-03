@@ -611,10 +611,6 @@ function create_clip_window() {
                         }
                     });
                 break;
-            case "record_ok_save":
-                noti(arg);
-                store.set("保存.保存路径.视频", path.dirname(arg));
-                break;
         }
     });
 
@@ -778,7 +774,7 @@ function create_recorder_window(save_path, rect) {
     });
 }
 
-ipcMain.on("record", (event, t, arg) => {
+ipcMain.on("record", (event, t, arg, arg1) => {
     switch (t) {
         case "stop":
             record_start = false;
@@ -800,7 +796,12 @@ ipcMain.on("record", (event, t, arg) => {
             let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
             let x = `${ffmpeg} -i ${record_path} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${arg}`;
             exec(x, (e, st) => {
-                if (e) console.error(e);
+                if (e) {
+                    console.error(e);
+                } else {
+                    noti(arg1);
+                    store.set("保存.保存路径.视频", path.dirname(arg1));
+                }
                 if (!recorder.webContents.isDestroyed()) recorder.webContents.send("ff", e, st);
             });
             break;
