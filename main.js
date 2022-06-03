@@ -801,7 +801,7 @@ ipcMain.on("record", (event, t, arg) => {
             let x = `${ffmpeg} -i ${record_path} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${arg}`;
             exec(x, (e, st) => {
                 if (e) console.error(e);
-                recorder.webContents.send("ff", e, st);
+                if (!recorder.webContents.isDestroyed()) recorder.webContents.send("ff", e, st);
             });
             break;
         case "close":
@@ -1737,6 +1737,11 @@ var default_setting = {
         },
         转换: {
             ffmpeg: "",
+            自动转换: false,
+            格式: "WEBM",
+            码率: 2.5,
+            帧率: 30,
+            其他: "",
         },
     },
 };

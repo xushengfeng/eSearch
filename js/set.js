@@ -220,6 +220,11 @@ document.getElementById("ffmpeg_path").value = store.get("录屏.转换.ffmpeg")
 document.getElementById("下载ffmpeg").onclick = () => {
     shell.openExternal("http://ffmpeg.org/download.html");
 };
+document.getElementById("开启自动转换").checked = store.get("录屏.转换.自动转换");
+document.getElementById("格式").value = store.get("录屏.转换.格式");
+document.getElementById("码率").value = store.get("录屏.转换.码率");
+document.getElementById("帧率").value = store.get("录屏.转换.帧率");
+document.getElementById("ff其他参数").value = store.get("录屏.转换.其他");
 
 document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
@@ -515,7 +520,14 @@ function save_setting() {
         默认开启: document.getElementById("默认开启音频").checked,
         记住开启状态: document.getElementById("记录音频开启状态").checked,
     });
-    store.set("录屏.转换.ffmpeg", document.getElementById("ffmpeg_path").value);
+    store.set("录屏.转换", {
+        ffmpeg: document.getElementById("ffmpeg_path").value,
+        自动转换: document.getElementById("开启自动转换").checked,
+        格式: document.getElementById("格式").value,
+        码率: document.getElementById("码率").value,
+        帧率: document.getElementById("帧率").value,
+        其他: document.getElementById("ff其他参数").value,
+    });
     store.set("保存.默认格式", document.getElementById("默认格式").value);
     store.set("保存名称", {
         前缀: document.getElementById("保存文件名称前缀").value,

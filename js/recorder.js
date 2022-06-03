@@ -239,6 +239,10 @@ function show_control() {
     document.querySelector("video").src = save_path;
     clip_v();
     document.getElementById("save").disabled = false;
+    document.getElementById("格式").value = store.get("录屏.转换.格式");
+    document.getElementById("码率").value = store.get("录屏.转换.码率");
+    document.getElementById("帧率").value = store.get("录屏.转换.帧率");
+    document.getElementById("其他参数").value = store.get("录屏.转换.其他");
     ipcRenderer.send("record", "camera", true);
 }
 
