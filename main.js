@@ -800,6 +800,12 @@ ipcMain.on("record", (event, t, arg) => {
             break;
         case "close":
             recorder.close();
+            let x = `ffmpeg -i ${record_path} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${
+                mouse_ps.rect[1]
+            } ${record_path.replace("webm", "mp4")}`;
+            exec(x, (e) => {
+                console.error(e);
+            });
             break;
         case "min":
             recorder.minimize();
