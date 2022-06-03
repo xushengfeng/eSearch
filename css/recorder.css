@@ -1,12 +1,16 @@
 body {
     margin: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #main {
     display: flex;
     background-color: var(--bg);
     border-radius: var(--border-radius);
+    width: 100%;
 }
 
 #record_b {
@@ -73,4 +77,57 @@ body {
 }
 video {
     height: calc(100vh - 24px);
+}
+
+input {
+    vertical-align: middle;
+    font-family: var(--main-font);
+}
+input[type="text"] {
+    border: none;
+    border-bottom: 1px solid var(--hover-color);
+    transition: var(--transition);
+    font-size: 1rem;
+    width: 300px;
+}
+input[type="text"]:focus {
+    border: none;
+    border-bottom: var(--border);
+}
+input[type="text"]:disabled {
+    opacity: 0.2;
+}
+input[type="number"] {
+    width: 50px;
+    border: none;
+    border-bottom: 1px solid var(--hover-color);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+input[type="number"]:focus {
+    border: none;
+    border-bottom: var(--border);
+}
+
+#save {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    border: none;
+    box-shadow: var(--shadow);
+    border-radius: var(--border-radius);
+    background-color: #0000;
+    transition: var(--transition);
+    font-size: 1rem;
+    margin-top: 8px;
+    padding: 4px;
+}
+#save:hover {
+    background-color: var(--hover-color);
+}
+#save > .icon {
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
 }

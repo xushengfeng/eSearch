@@ -230,6 +230,9 @@ ipcRenderer.on("ff", (event, err, st) => {
 });
 
 function show_control() {
+    document.getElementById("record_b").style.display = "none";
+    document.body.style.backgroundColor = "var(--bg)";
+    document.getElementById("time").innerText = "";
     add_types();
     document.querySelector("video").style.height = "300px";
     document.getElementById("save").disabled = false;
@@ -263,9 +266,9 @@ function add_types() {
 
 function save() {
     let t = "";
-    t += `-b:v ${document.getElementById("码率").value * 1000}k `;
-    t += `-r ${document.getElementById("帧率").value} `;
-    t += `${document.getElementById("其他参数").value}`;
+    if (document.getElementById("码率").value) t += `-b:v ${document.getElementById("码率").value * 1000}k `;
+    if (document.getElementById("帧率").value) t += `-r ${document.getElementById("帧率").value} `;
+    if (document.getElementById("其他参数").value) t += `${document.getElementById("其他参数").value}`;
     let tt = save_path.replace(".webm", `.${document.getElementById("格式").value} `);
     t += tt;
     console.log(t);
