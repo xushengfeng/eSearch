@@ -593,8 +593,8 @@ function create_clip_window() {
                 dialog
                     .showSaveDialog({
                         title: t("选择要保存的位置"),
-                        defaultPath: path.join(saved_path, `${get_file_name()}.webm`),
-                        filters: [{ name: t("视频"), extensions: ["webm"] }],
+                        defaultPath: path.join(saved_path, `${get_file_name()}`),
+                        filters: [{ name: t("视频") }],
                     })
                     .then((x) => {
                         if (x.filePath) {

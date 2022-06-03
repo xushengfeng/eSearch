@@ -342,7 +342,7 @@ function save() {
     t += `-ss ${document.getElementById("t_start").value} `;
     if (document.getElementById("t_end").value != (time_l[time_l.length - 1] - time_l[0]) / 1000)
         t += `-to ${document.getElementById("t_end").value} `;
-    let tt = save_path.replace(".webm", `.${document.getElementById("格式").value} `);
+    let tt = `${save_path}.${document.getElementById("格式").value} `;
     t += tt;
     console.log(t);
     ipcRenderer.send("record", "ff", t, tt);
