@@ -315,21 +315,21 @@ video.ontimeupdate = () => {
 
 function add_types() {
     let types = [
-        "MP4",
-        "MKV",
-        "MOV",
-        "AVI",
-        "WMV",
-        "M4V",
-        "MPEG",
-        "VOB",
-        "WEBM",
-        "OGV",
-        "3GP",
-        "FLV",
-        "F4V",
-        "SWF",
-        "GIF",
+        "mp4",
+        "mkv",
+        "mov",
+        "avi",
+        "wmv",
+        "m4v",
+        "mpeg",
+        "vob",
+        "webm",
+        "ogv",
+        "3gp",
+        "flv",
+        "f4v",
+        "swf",
+        "gif",
     ];
     let t = "";
     for (let i of types) {

@@ -1741,7 +1741,7 @@ var default_setting = {
         转换: {
             ffmpeg: "",
             自动转换: false,
-            格式: "WEBM",
+            格式: "webm",
             码率: 2.5,
             帧率: 30,
             其他: "",
