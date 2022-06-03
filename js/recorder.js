@@ -136,7 +136,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     fs.writeFile(v, Buffer.from(reader.result), (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "record_ok_save", v);
-                            ipcRenderer.send("record", "close");
+                            ipcRenderer.send("record", "ff");
                         }
                     });
                 };
@@ -224,3 +224,7 @@ document.getElementById("camera").onclick = () => {
         console.error(e);
     }
 };
+
+ipcRenderer.on("ff", (event, st) => {
+    console.log(st);
+});

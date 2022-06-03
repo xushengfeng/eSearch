@@ -798,15 +798,18 @@ ipcMain.on("record", (event, t, arg) => {
             }
             record_mouse();
             break;
-        case "close":
-            recorder.close();
+        case "ff":
             let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
             let x = `${ffmpeg} -i ${record_path} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${
                 mouse_ps.rect[1]
             } ${record_path.replace("webm", "mp4")}`;
-            exec(x, (e) => {
+            exec(x, (e, st) => {
                 console.error(e);
+                recorder.webContents.send("ff", st);
             });
+            break;
+        case "close":
+            recorder.close();
             break;
         case "min":
             recorder.minimize();
