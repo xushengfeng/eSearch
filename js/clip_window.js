@@ -347,7 +347,10 @@ function track_location() {
     let h = document.getElementById("tool_bar").offsetTop;
     let l = document.getElementById("tool_bar").offsetLeft + document.getElementById("tool_bar").offsetWidth + 8;
     document.getElementById("draw_bar").setAttribute("right", "true");
-    if (l + 2 * document.getElementById("tool_bar").offsetWidth > document.body.offsetWidth) {
+    let x =
+        document.getElementById("tool_bar").offsetLeft < final_rect[0] &&
+        document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth * 2 > 0;
+    if (l + 2 * document.getElementById("tool_bar").offsetWidth > document.body.offsetWidth || x) {
         l = document.getElementById("tool_bar").offsetLeft - document.getElementById("draw_bar").offsetWidth - 8;
         l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
         document.getElementById("draw_bar").setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
