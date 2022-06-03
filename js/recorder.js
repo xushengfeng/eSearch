@@ -1,6 +1,7 @@
 var /**@type {MediaRecorder} */ recorder;
 
 var save_path;
+var tmp_path;
 
 var start_stop = document.getElementById("start_stop");
 var s_s = false;
@@ -134,7 +135,10 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                 reader.readAsArrayBuffer(b);
                 reader.onloadend = (e) => {
                     const fs = require("fs");
-                    fs.writeFile(v, Buffer.from(reader.result), (err) => {
+                    const os = require("os");
+                    const path = require("path");
+                    tmp_path = path.join(os.tmpdir(), "eSearch/", path.basename(v));
+                    fs.writeFile(tmp_path, Buffer.from(reader.result), (err) => {
                         if (!err) {
                             show_control();
                         }
@@ -236,7 +240,7 @@ function show_control() {
     document.getElementById("time").innerText = "";
     add_types();
     document.querySelector("video").style.height = "300px";
-    document.querySelector("video").src = save_path;
+    document.querySelector("video").src = tmp_path;
     clip_v();
     document.getElementById("save").disabled = false;
     document.getElementById("格式").value = store.get("录屏.转换.格式");
