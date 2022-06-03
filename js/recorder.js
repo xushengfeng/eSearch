@@ -135,8 +135,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     const fs = require("fs");
                     fs.writeFile(v, Buffer.from(reader.result), (err) => {
                         if (!err) {
-                            ipcRenderer.send("clip_main_b", "record_ok_save", v);
-                            ipcRenderer.send("record", "ff");
+                            show_control();
                         }
                     });
                 };
@@ -225,6 +224,53 @@ document.getElementById("camera").onclick = () => {
     }
 };
 
-ipcRenderer.on("ff", (event, st) => {
+ipcRenderer.on("ff", (event, err, st) => {
+    if (err) console.error(err);
     console.log(st);
 });
+
+function show_control() {
+    add_types();
+    document.querySelector("video").style.height = "300px";
+    document.getElementById("save").disabled = false;
+    ipcRenderer.send("record", "camera", true);
+}
+
+function add_types() {
+    let types = [
+        "MP4",
+        "MKV",
+        "MOV",
+        "AVI",
+        "WMV",
+        "M4V",
+        "MPEG",
+        "VOB",
+        "WEBM",
+        "OGV",
+        "3GP",
+        "FLV",
+        "F4V",
+        "SWF",
+        "GIF",
+    ];
+    let t = "";
+    for (let i of types) {
+        t += `<option value="${i}">${i}</option>`;
+    }
+    document.getElementById("格式").innerHTML = t;
+}
+
+function save() {
+    let t = "";
+    t += `-b:v ${document.getElementById("码率").value * 1000}k `;
+    t += `-r ${document.getElementById("帧率").value} `;
+    t += `${document.getElementById("其他参数").value}`;
+    let tt = save_path.replace(".webm", `.${document.getElementById("格式").value} `);
+    t += tt;
+    console.log(t);
+    ipcRenderer.send("record", "ff", t);
+    ipcRenderer.send("clip_main_b", "record_ok_save", tt);
+}
+
+document.getElementById("save").onclick = save;

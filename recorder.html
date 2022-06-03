@@ -15,7 +15,9 @@
 <body>
     <div id="main">
         <div id="record_b">
-            <button id="start_stop"><div id="start_stop_icon"></div></button>
+            <button id="start_stop">
+                <div id="start_stop_icon"></div>
+            </button>
             <button id="pause_recume"><img src="./assets/icons/recume.svg" class="icon"></button>
             <lock-b id="mic"><img src="./assets/icons/mic.svg" class="icon"></lock-b>
             <lock-b id="camera"><img src="./assets/icons/camera.svg" class="icon"></lock-b>
@@ -25,6 +27,14 @@
         <button id="close"><img src="./assets/icons/close.svg" class="icon"></button>
     </div>
     <div id="video"><video></video></div>
+    <div id="s">
+        输出格式：<select id="格式" name="格式"></select>
+        <br>
+        码率：<input type="number" name="码率" id="码率">Mbps
+        帧率：<input type="number" name="帧率" id="帧率">
+        其他参数：<input type="text" name="其他参数" id="其他参数">
+        <button id="save" disabled="true"><img src="./assets/icons/save.svg" class="icon"></button>
+    </div>
     <script src="js/root.js"></script>
     <script src="lib/template2.js"></script>
     <script src="js/recorder.js"></script>
