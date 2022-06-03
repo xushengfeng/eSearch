@@ -1,9 +1,13 @@
 body {
     margin: 0;
+}
+
+#m {
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: var(--border-radius);
 }
 
 #main {

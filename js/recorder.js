@@ -232,7 +232,7 @@ ipcRenderer.on("ff", (event, err, st) => {
 
 function show_control() {
     document.getElementById("record_b").style.display = "none";
-    document.body.style.backgroundColor = "var(--bg)";
+    document.getElementById("m").style.backgroundColor = "var(--bg)";
     document.getElementById("time").innerText = "";
     add_types();
     document.querySelector("video").style.height = "300px";

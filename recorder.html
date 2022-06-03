@@ -13,37 +13,39 @@
 </head>
 
 <body>
-    <div id="main">
-        <div id="record_b">
-            <button id="start_stop">
-                <div id="start_stop_icon"></div>
-            </button>
-            <button id="pause_recume"><img src="./assets/icons/recume.svg" class="icon"></button>
-            <lock-b id="mic"><img src="./assets/icons/mic.svg" class="icon"></lock-b>
-            <lock-b id="camera"><img src="./assets/icons/camera.svg" class="icon"></lock-b>
+    <div id="m">
+        <div id="main">
+            <div id="record_b">
+                <button id="start_stop">
+                    <div id="start_stop_icon"></div>
+                </button>
+                <button id="pause_recume"><img src="./assets/icons/recume.svg" class="icon"></button>
+                <lock-b id="mic"><img src="./assets/icons/mic.svg" class="icon"></lock-b>
+                <lock-b id="camera"><img src="./assets/icons/camera.svg" class="icon"></lock-b>
+            </div>
+            <div id="time"></div>
+            <button id="min"><img src="./assets/icons/minimize.svg" class="icon"></button>
+            <button id="close"><img src="./assets/icons/close.svg" class="icon"></button>
         </div>
-        <div id="time"></div>
-        <button id="min"><img src="./assets/icons/minimize.svg" class="icon"></button>
-        <button id="close"><img src="./assets/icons/close.svg" class="icon"></button>
-    </div>
-    <div id="video"><video></video></div>
-    <div id="s">
-        开始时间：<input type="number" name="t_start" id="t_start" min="0">
-        总时间：<span id="t_t"></span>
-        <button id="v_play" class="b"><img src="./assets/icons/recume.svg" class="icon"></button>
-        当前时间：<span id="t_nt"></span>
-        结束时间：<input type="number" name="t_end" id="t_end">
-        <button id="b_t_end" class="b"><img src="./assets/icons/right.svg" class="icon"></button>
-        <br>
-        输出格式：<select id="格式" name="格式"></select>
-        <br>
-        码率：<input type="number" name="码率" id="码率">Mbps
-        <br>
-        帧率：<input type="number" name="帧率" id="帧率">
-        <br>
-        其他参数：<input type="text" name="其他参数" id="其他参数">
-        <br>
-        <button id="save" disabled="true" class="b"><img src="./assets/icons/save.svg" class="icon"></button>
+        <div id="video"><video></video></div>
+        <div id="s">
+            开始时间：<input type="number" name="t_start" id="t_start" min="0">
+            总时间：<span id="t_t"></span>
+            <button id="v_play" class="b"><img src="./assets/icons/recume.svg" class="icon"></button>
+            当前时间：<span id="t_nt"></span>
+            结束时间：<input type="number" name="t_end" id="t_end">
+            <button id="b_t_end" class="b"><img src="./assets/icons/right.svg" class="icon"></button>
+            <br>
+            输出格式：<select id="格式" name="格式"></select>
+            <br>
+            码率：<input type="number" name="码率" id="码率">Mbps
+            <br>
+            帧率：<input type="number" name="帧率" id="帧率">
+            <br>
+            其他参数：<input type="text" name="其他参数" id="其他参数">
+            <br>
+            <button id="save" disabled="true" class="b"><img src="./assets/icons/save.svg" class="icon"></button>
+        </div>
     </div>
     <script src="js/root.js"></script>
     <script src="lib/template2.js"></script>
