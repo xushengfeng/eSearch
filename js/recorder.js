@@ -244,7 +244,7 @@ function show_control() {
     document.getElementById("帧率").value = store.get("录屏.转换.帧率");
     document.getElementById("其他参数").value = store.get("录屏.转换.其他");
     if (store.get("录屏.转换.自动转换")) {
-        document.getElementById("save").click();
+        save();
     } else {
         ipcRenderer.send("record", "camera", true);
     }
@@ -346,6 +346,7 @@ function save() {
     t += tt;
     console.log(t);
     ipcRenderer.send("record", "ff", t, tt);
+    ipcRenderer.send("record", "close");
 }
 
 document.getElementById("save").onclick = save;
