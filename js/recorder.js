@@ -260,21 +260,24 @@ function clip_v() {
     document.getElementById("t_start").value = 0;
     document.getElementById("b_t_end").click();
 
-    document.getElementById("t_t").innerText =
-        document.getElementById("t_end").value - document.getElementById("t_start").value;
+    document.getElementById("t_t").innerText = t_format(
+        document.getElementById("t_end").value - document.getElementById("t_start").value
+    );
 
-    document.getElementById("t_nt").innerText = 0;
+    document.getElementById("t_nt").innerText = t_format(0);
 }
 
 document.getElementById("t_start").oninput = () => {
     video.currentTime = document.getElementById("t_end").min = document.getElementById("t_start").value;
-    document.getElementById("t_t").innerText =
-        document.getElementById("t_end").value - document.getElementById("t_start").value;
+    document.getElementById("t_t").innerText = t_format(
+        document.getElementById("t_end").value - document.getElementById("t_start").value
+    );
 };
 document.getElementById("t_end").oninput = () => {
     video.currentTime = document.getElementById("t_start").max = document.getElementById("t_end").value;
-    document.getElementById("t_t").innerText =
-        document.getElementById("t_end").value - document.getElementById("t_start").value;
+    document.getElementById("t_t").innerText = t_format(
+        document.getElementById("t_end").value - document.getElementById("t_start").value
+    );
 };
 
 document.getElementById("b_t_end").onclick = () => {
@@ -283,6 +286,18 @@ document.getElementById("b_t_end").onclick = () => {
         document.getElementById("t_end").max =
             (time_l[time_l.length - 1] - time_l[0]) / 1000;
 };
+
+/**
+ *
+ * @param {string} x 输入秒
+ */
+function t_format(x) {
+    let t = Number(x) * 1000;
+    let s = Math.trunc(t / 1000);
+    let m = Math.trunc(s / 60);
+    let h = Math.trunc(m / 60);
+    return `${h == 0 ? "" : `${h}:`}${m - 60 * h}:${String(s - 60 * m).padStart(2, 0)}.${String(t % 1000).slice(0, 1)}`;
+}
 
 document.getElementById("v_play").onclick = () => {
     if (video.paused) {
@@ -310,7 +325,7 @@ video.ontimeupdate = () => {
     if (video.currentTime > document.getElementById("t_end").value) {
         video.pause();
     }
-    document.getElementById("t_nt").innerText = video.currentTime;
+    document.getElementById("t_nt").innerText = t_format(video.currentTime);
 };
 
 function add_types() {
