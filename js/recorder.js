@@ -351,8 +351,8 @@ function save() {
     console.log(t);
     store.set("录屏.转换", {
         格式: document.getElementById("格式").value,
-        码率: document.getElementById("码率").value,
-        帧率: document.getElementById("帧率").value,
+        码率: Number(document.getElementById("码率").value),
+        帧率: Number(document.getElementById("帧率").value),
         其他: document.getElementById("其他参数").value,
     });
     ipcRenderer.send("record", "ff", t, tt);

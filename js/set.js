@@ -524,8 +524,8 @@ function save_setting() {
         ffmpeg: document.getElementById("ffmpeg_path").value,
         自动转换: document.getElementById("开启自动转换").checked,
         格式: document.getElementById("格式").value,
-        码率: document.getElementById("码率").value,
-        帧率: document.getElementById("帧率").value,
+        码率: Number(document.getElementById("码率").value),
+        帧率: Number(document.getElementById("帧率").value),
         其他: document.getElementById("ff其他参数").value,
     });
     store.set("保存.默认格式", document.getElementById("默认格式").value);
