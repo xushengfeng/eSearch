@@ -770,7 +770,9 @@ function create_recorder_window(save_path, rect) {
     mouse_ps = { rect };
 
     globalShortcut.register("Super+R", () => {
-        recorder.webContents.send("record", "stop");
+        if (!recorder.isDestroyed()) {
+            recorder.webContents.send("record", "start_stop");
+        }
     });
 }
 

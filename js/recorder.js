@@ -163,7 +163,7 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                 d();
             }
             break;
-        case "stop":
+        case "start_stop":
             start_stop.click();
             break;
     }
