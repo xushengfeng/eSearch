@@ -8,6 +8,8 @@ body {
     flex-direction: column;
     align-items: center;
     border-radius: var(--border-radius);
+    justify-content: space-between;
+    height: 100vh;
 }
 
 #main {
@@ -78,11 +80,15 @@ body {
     justify-content: center;
     border-radius: var(--border-radius);
     overflow: hidden;
+    flex-grow: 1;
 }
 video {
     height: calc(100vh - 24px);
 }
 
+#s {
+    padding: 8px;
+}
 input {
     vertical-align: middle;
     font-family: var(--main-font);
@@ -113,9 +119,20 @@ input[type="number"]:focus {
     border-bottom: var(--border);
 }
 
+#t_start,
+#t_end {
+    width: 100px;
+}
+
+select {
+    border: none;
+    background-color: #0000;
+    font-size: 1em;
+}
+
 .b {
     width: 24px;
-    height: 24px;
+    height: 18px;
     position: relative;
     border: none;
     box-shadow: var(--shadow);
@@ -123,8 +140,8 @@ input[type="number"]:focus {
     background-color: #0000;
     transition: var(--transition);
     font-size: 1rem;
-    margin-top: 8px;
     padding: 4px;
+    vertical-align: middle;
 }
 .b:hover {
     background-color: var(--hover-color);
@@ -133,5 +150,4 @@ input[type="number"]:focus {
     width: 18px;
     height: 18px;
     left: 3px;
-    top: 3px;
 }

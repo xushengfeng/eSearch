@@ -239,7 +239,7 @@ function show_control() {
     document.getElementById("m").style.backgroundColor = "var(--bg)";
     document.getElementById("time").innerText = "";
     add_types();
-    document.querySelector("video").style.height = "300px";
+    document.querySelector("video").style.height = "100%";
     document.querySelector("video").src = tmp_path;
     clip_v();
     document.getElementById("save").disabled = false;
