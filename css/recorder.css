@@ -65,6 +65,7 @@ body {
     flex-grow: 1;
     line-height: 24px;
     text-align: center;
+    font-family: var(--monospace);
 }
 
 #main button > .icon,
@@ -117,6 +118,11 @@ input[type="number"] {
 input[type="number"]:focus {
     border: none;
     border-bottom: var(--border);
+}
+
+#t_nt,
+#t_t {
+    font-family: var(--monospace);
 }
 
 #t_start,
