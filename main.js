@@ -774,6 +774,34 @@ function create_recorder_window(save_path, rect) {
             recorder.webContents.send("record", "start_stop");
         }
     });
+
+    if (store.get("录屏.转换.ffmpeg")) {
+        exec(store.get("录屏.转换.ffmpeg"), (e) => {
+            if (e) {
+                dialog.showMessageBox({
+                    title: t("FFmpeg 位置错误"),
+                    message: t("FFmpeg 位置错误，请在设置里更正"),
+                    buttons: [t("确定")],
+                    icon: `${run_path}/assets/logo/warning.png`,
+                });
+            }
+        });
+    } else {
+        exec("ffmpeg", async (e) => {
+            if (e) {
+                let resolve = await dialog.showMessageBox({
+                    title: t("FFmpeg 未下载"),
+                    message: `${t("FFmpeg 未下载")}\n${t("请前往网站手动下载")}\n${t("解压并填写路径到设置")}`,
+                    buttons: [t("前往网站"), t("取消")],
+                    defaultId: 0,
+                    cancelId: 1,
+                });
+                if (resolve?.response == 0) {
+                    shell.openExternal("http://ffmpeg.org/download.html");
+                }
+            }
+        });
+    }
 }
 
 ipcMain.on("record", (event, t, arg, arg1) => {
