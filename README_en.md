@@ -116,12 +116,13 @@ Features that have been ticked are the latest in the development process but may
     -   [ ] Multi-screen
 -   [x] Record screen
     -   [x] Recording full screen
-    -   [ ] Customize size
+    -   [x] Customize size
     -   [ ] Follow mouse
     -   [x] Recorder bar
     -   [ ] Stream Write
-    -   [ ] Recording audio
-    -   [ ] Custom Bitrate
+    -   [x] Recording audio
+    -   [x] Recording camera
+    -   [x] Custom Bitrate
 -   [x] Save (optionally as SVG editable file)
 -   [x] Open in other applications
 -   [x] Copy to clipboard
