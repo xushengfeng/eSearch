@@ -776,7 +776,7 @@ function create_recorder_window(save_path, rect) {
     });
 
     if (store.get("录屏.转换.ffmpeg")) {
-        exec(store.get("录屏.转换.ffmpeg"), (e) => {
+        exec(`${store.get("录屏.转换.ffmpeg")} -h`, (e) => {
             if (e) {
                 dialog.showMessageBox({
                     title: t("FFmpeg 位置错误"),
@@ -787,7 +787,7 @@ function create_recorder_window(save_path, rect) {
             }
         });
     } else {
-        exec("ffmpeg", async (e) => {
+        exec("ffmpeg -h", async (e) => {
             if (e) {
                 let resolve = await dialog.showMessageBox({
                     title: t("FFmpeg 未下载"),
