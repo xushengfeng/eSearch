@@ -261,6 +261,7 @@ body {
     height: 30px;
     font-size: 30px;
     position: relative;
+    transition: var(--transition);
 }
 #edit_b > div:not(:nth-child(1)) {
     width: 30px;
