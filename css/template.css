@@ -16,7 +16,11 @@
     box-shadow: var(--shadow);
 }
 .选中 {
-    background: var(--hover-color);
+    background: var(--m-color1);
+    color: #fff;
+}
+.选中 > * {
+    filter: invert(1) brightness(2);
 }
 
 hot-keys {
