@@ -2,10 +2,14 @@
 const { ipcRenderer, clipboard, nativeImage } = require("electron");
 const Store = require("electron-store");
 const hotkeys = require("hotkeys-js");
-const cv = require("opencv.js");
 
 // 获取设置
 var store = new Store();
+
+if (store.get("框选.自动框选.开启")) {
+    var cv = require("opencv.js");
+}
+
 var 工具栏跟随, 光标, 四角坐标, 遮罩颜色, 选区颜色, 取色器默认格式, 取色器格式位置, color_size, color_i_size;
 var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 function set_setting() {
@@ -68,9 +72,11 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    setTimeout(() => {
-        edge();
-    }, 0);
+    if (store.get("框选.自动框选.开启")) {
+        setTimeout(() => {
+            edge();
+        }, 0);
+    }
 });
 
 var edge_init = false;
