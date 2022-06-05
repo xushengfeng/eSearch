@@ -7,7 +7,7 @@
     margin: 0;
 }
 .选项 {
-    margin: 8px;
+    margin: 8px 8px 8px 0;
     border-radius: 8px;
     padding: 8px;
     transition: background var(--transition), box-shadow var(--transition);
