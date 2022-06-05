@@ -16,11 +16,11 @@ body {
     display: grid;
     height: 100%;
     width: 100%;
-    grid-template-columns: 80px 1fr repeat(2, 40px) repeat(2, auto);
-    grid-template-rows: auto 40px;
-    grid-column-gap: 16px;
-    grid-row-gap: 16px;
-    padding: 16px;
+    grid-template-columns: calc(2 * var(--b-button)) 1fr repeat(2, var(--b-button)) repeat(2, auto);
+    grid-template-rows: auto var(--b-button);
+    grid-column-gap: var(--o-padding);
+    grid-row-gap: var(--o-padding);
+    padding: var(--o-padding);
     box-sizing: border-box;
 }
 
@@ -346,7 +346,8 @@ button {
     cursor: pointer;
     background-position: center;
     background-size: cover;
-    width: 40px;
+    width: var(--b-button);
+    height: var(--b-button);
     position: relative;
 }
 button:hover {
@@ -361,7 +362,7 @@ select {
     margin: 0px;
     color: var(--color);
     font-size: var(--font-size);
-    padding: 0 16px 0 16px;
+    padding: 0 var(--o-padding) 0 var(--o-padding);
     transition: var(--transition);
     user-select: none;
 }
@@ -372,7 +373,7 @@ option {
     font-size: var(--font-size);
 }
 button > .icon {
-    width: 40px;
+    width: var(--b-button);
 }
 
 @media (prefers-color-scheme: dark) {

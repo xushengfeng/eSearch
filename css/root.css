@@ -23,6 +23,8 @@
     --icon-color: none;
     --bar-size: 60px;
     --bar-icon: 0.7;
+    --b-button: 32px;
+    --o-padding: 8px;
 }
 
 html,
@@ -41,14 +43,13 @@ body {
 }
 
 #tab_bar {
-    margin: 0 auto 16px 16px;
+    margin: 0 auto var(--o-padding) var(--o-padding);
     display: flex;
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
     background-color: var(--bg);
     transition: var(--transition);
-    font-size: 40px;
 }
 #tab_bar:hover {
     box-shadow: var(--shadow);
@@ -59,8 +60,8 @@ body {
 }
 
 #tab_bar a div {
-    width: 40px;
-    height: 40px;
+    width: var(--b-button);
+    height: var(--b-button);
     transition: var(--transition);
     position: relative;
 }
@@ -68,7 +69,7 @@ body {
     background-color: var(--hover-color);
 }
 #tab_bar a div > .icon {
-    width: 40px;
+    width: var(--b-button);
 }
 
 kbd {
