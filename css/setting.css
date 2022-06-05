@@ -63,7 +63,7 @@ body {
 }
 #menu > li {
     cursor: pointer;
-    margin-bottom:8px;
+    margin-bottom: 8px;
 }
 
 #setting_main {
@@ -84,11 +84,17 @@ textarea {
     height: 10rem;
     border-radius: var(--border-radius);
     border: none;
-    box-shadow: var(--shadow);
     font-size: 1rem;
     line-height: 1.5rem;
     font-family: var(--main-font);
     resize: vertical;
+    transition: var(--transition);
+}
+textarea:hover {
+    box-shadow: var(--shadow);
+}
+textarea:focus {
+    box-shadow: var(--shadow);
 }
 input {
     vertical-align: middle;
@@ -122,16 +128,17 @@ input[type="number"]:focus {
 
 button {
     border: none;
-    box-shadow: var(--shadow);
     border-radius: var(--border-radius);
     background-color: #0000;
     transition: var(--transition);
     font-size: 1rem;
     margin-top: 8px;
     padding: 4px;
+    background-color: var(--m-color2);
 }
 button:hover {
     background-color: var(--hover-color);
+    box-shadow: var(--shadow);
 }
 
 a {
@@ -148,21 +155,31 @@ lock-b {
     width: 16px;
     height: 16px;
     margin-right: 4px;
-    box-shadow: var(--shadow);
+    background-color: var(--m-color2);
     border-radius: 4px;
     transition: var(--transition);
 }
 lock-b:hover {
-    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
 }
 
 range-b {
-    height: 30px;
-    width: 200px;
-    box-shadow: var(--shadow);
+    height: 24px;
     border-radius: var(--border-radius);
-    overflow: hidden;
     margin-top: 8px;
+}
+
+range-b > div:nth-child(1) {
+    background-color: var(--m-color2);
+    width: 200px;
+    transition: var(--transition);
+}
+range-b > div:nth-child(1):hover {
+    box-shadow: var(--shadow);
+}
+
+#range_thumb {
+    background-color: var(--m-color1) !important;
 }
 
 .blur {

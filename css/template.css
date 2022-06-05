@@ -13,12 +13,10 @@
     transition: background var(--transition), box-shadow var(--transition);
 }
 .选项:hover {
-    background: var(--hover-color);
     box-shadow: var(--shadow);
 }
 .选中 {
     background: var(--hover-color);
-    box-shadow: var(--shadow);
 }
 
 hot-keys {
