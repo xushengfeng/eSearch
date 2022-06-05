@@ -235,6 +235,8 @@ ipcRenderer.on("ff", (event, err, st) => {
 });
 
 function show_control() {
+    if (document.getElementById("mic").checked) mic_stream(false);
+    if (document.getElementById("camera").checked) camera_stream_f(false);
     document.getElementById("s").className = "s_show";
     document.getElementById("record_b").style.display = "none";
     document.getElementById("m").style.backgroundColor = "var(--bg)";
