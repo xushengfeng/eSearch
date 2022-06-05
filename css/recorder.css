@@ -88,8 +88,13 @@ video {
 }
 
 #s {
-    padding: 8px;
+    height: 0;
 }
+.s_show {
+    padding: 8px;
+    height: auto !important;
+}
+
 input {
     vertical-align: middle;
     font-family: var(--main-font);
