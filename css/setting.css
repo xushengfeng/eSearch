@@ -162,6 +162,9 @@ lock-b {
 lock-b:hover {
     box-shadow: var(--shadow);
 }
+.lock-b-lock {
+    background-color: var(--m-color1) !important;
+}
 
 range-b {
     height: 24px;

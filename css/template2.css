@@ -79,6 +79,10 @@ lock-b > input {
     opacity: 0;
 }
 
+.lock-b-lock {
+    background-color: var(--hover-color);
+}
+
 time-i {
     font-family: var(--monospace);
 }
