@@ -40,10 +40,14 @@
                 <h1>{启动}</h1>
 
                 <h2>{开机自启动}</h2>
-                <lock-b id="autostart"></lock-b>{开机自启动}
+                <group-b>
+                    <lock-b id="autostart"></lock-b>{开机自启动}
+                </group-b>
 
                 <h2>{启动提示}</h2>
-                <lock-b id="启动提示"></lock-b>{启动时系统通知提示启动}
+                <group-b>
+                    <lock-b id="启动提示"></lock-b>{启动时系统通知提示启动}
+                </group-b>
             </div>
 
             <div id="setting_item">
@@ -102,7 +106,9 @@
 
                 <div id="linux_selection" style="display: none;">
                     <h2>{剪贴板搜索}</h2>
-                    <lock-b id="剪贴板选区搜索"></lock-b>{使用选区内容}
+                    <group-b>
+                        <lock-b id="剪贴板选区搜索"></lock-b>{使用选区内容}
+                    </group-b>
                 </div>
             </div>
 
@@ -189,7 +195,10 @@
                 </set-select>
 
                 <h2>{大小坐标}</h2>
-                <lock-b id="显示四角坐标"></lock-b>{显示四角坐标}<comment>{（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）}</comment>
+                <group-b>
+                    <lock-b id="显示四角坐标"></lock-b>{显示四角坐标}
+                </group-b>
+                <comment>{（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）}</comment>
 
                 <h2>{框选后默认操作}</h2>
                 <comment>{框选完鼠标松开一瞬间，执行操作}</comment>
@@ -224,7 +233,9 @@
                 <h2>{自动框选}</h2>
                 <comment>{使用OpenCV自动识别边缘轮廓（测试版）}</comment>
                 <br>
-                <lock-b id="自动框选"></lock-b>{启用自动框选}
+                <group-b>
+                    <lock-b id="自动框选"></lock-b>{启用自动框选}
+                </group-b>
                 <details>
                     <summary>{边缘识别高级设置}</summary>
                     {最小阈值}
@@ -279,21 +290,33 @@
                 <comment>{凡是麦克风和摄像头，都应该当成开着的}</comment>
 
                 <h2>{自动录制}</h2>
-                <lock-b id="开启自动录制"></lock-b>{开启自动录制}
+                <group-b>
+                    <lock-b id="开启自动录制"></lock-b>{开启自动录制}
+                </group-b>
                 <range-b out="true" id="自动录制延时" min="0" max="10" text="s" step="1"></range-b out="true">
 
                 <h2>{录制}</h2>
                 {视频比特率}<range-b out="true" id="视频比特率" min="1" max="40" text="Mbps" step="0.5"></range-b out="true">
 
                 <h2>{摄像头}</h2>
-                <lock-b id="默认开启摄像头"></lock-b>{默认开启}
-                <lock-b id="记录摄像头开启状态"></lock-b>{记录开启状态}
+                <group-b>
+                    <lock-b id="默认开启摄像头"></lock-b>{默认开启}
+                </group-b>
+                <group-b>
+                    <lock-b id="记录摄像头开启状态"></lock-b>{记录开启状态}
+                </group-b>
                 <br>
-                <lock-b id="摄像头镜像"></lock-b>{镜像}
+                <group-b>
+                    <lock-b id="摄像头镜像"></lock-b>{镜像}
+                </group-b>
 
                 <h2>{音频}</h2>
-                <lock-b id="默认开启音频"></lock-b>{默认开启}
-                <lock-b id="记录音频开启状态"></lock-b>{记录开启状态}
+                <group-b>
+                    <lock-b id="默认开启音频"></lock-b>{默认开启}
+                </group-b>
+                <group-b>
+                    <lock-b id="记录音频开启状态"></lock-b>{记录开启状态}
+                </group-b>
 
                 <h2>{转换}</h2>
                 <comment>{使用 FFmpeg 对录制的视频进行转换工作}</comment>
@@ -301,7 +324,9 @@
                 <button id="下载ffmpeg">{下载 FFmpeg}</button>
                 {FFmpeg 位置}<input type="text" spellcheck="false" id="ffmpeg_path" placeholder="{文件}">
                 <h3>{自动转换}</h3>
-                <lock-b id="开启自动转换"></lock-b>{开启自动转换}
+                <group-b>
+                    <lock-b id="开启自动转换"></lock-b>{开启自动转换}
+                </group-b>
                 <br>
                 {输出格式}<input id="格式" type="text" spellcheck="false" name="格式">
                 <br>
@@ -358,7 +383,9 @@
 
                 <h2>{字体}</h2>
                 {字体大小}<range-b out="true" id="字体大小" min="0" max="100" step="1" value="16"></range-b out="true">
-                <lock-b id="记住字体大小"></lock-b>{记住主界面字体大小}
+                <group-b>
+                    <lock-b id="记住字体大小"></lock-b>{记住主界面字体大小}
+                </group-b>
 
                 <h2>{样式}</h2>
                 {Tab制表符宽度}<range-b out="true" id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b
@@ -368,20 +395,31 @@
                     out="true">
 
                 <h2>{更多}</h2>
-                <lock-b id="换行"></lock-b>{自动换行}
+                <group-b>
+                    <lock-b id="换行"></lock-b>{自动换行}
+                </group-b>
                 <br>
-                <lock-b id="拼写检查"></lock-b>{拼写检查}
+                <group-b>
+                    <lock-b id="拼写检查"></lock-b>{拼写检查}
+                </group-b>
                 <br>
-                <lock-b id="行号"></lock-b>{行号}
+                <group-b>
+                    <lock-b id="行号"></lock-b>{行号}
+                </group-b>
             </div>
 
             <div id="setting_item">
                 <h1>{搜索}</h1>
 
                 <h2>{自动}</h2>
-                <lock-b id="自动搜索"></lock-b>{自动搜索}<comment>{（识屏或直接打开主窗口，若文字为一行，则自动搜索）}</comment>
+                <group-b>
+                    <lock-b id="自动搜索"></lock-b>{自动搜索}
+                </group-b>
+                <comment>{（识屏或直接打开主窗口，若文字为一行，则自动搜索）}</comment>
                 </br>
-                <lock-b id="自动打开链接"></lock-b>{自动打开链接}
+                <group-b>
+                    <lock-b id="自动打开链接"></lock-b>{自动打开链接}
+                </group-b>
                 </br>
                 {自动搜索中文占比}<comment>{（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）}</comment>
                 <range-b out="true" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b out="true">
@@ -397,7 +435,9 @@
                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     title="{换行新建项目，%s代替关键字}"></textarea>
                 <h3>{默认引擎}</h3>
-                <lock-b id="记住引擎"></lock-b>{记住引擎选择}
+                <group-b>
+                    <lock-b id="记住引擎"></lock-b>{记住引擎选择}
+                </group-b>
                 <div name="" id="默认搜索引擎div">
                 </div>
                 <div name="" id="默认翻译引擎div">
@@ -409,12 +449,19 @@
                     <div value="yandex">Yandex</div>
                     <div value="google">Google</div>
                 </set-select>
-                <lock-b id="记住识图引擎"></lock-b>{记住引擎选择}
+                <group-b>
+                    <lock-b id="记住识图引擎"></lock-b>{记住引擎选择}
+                </group-b>
 
                 <h2>{浏览器中打开}</h2>
-                <lock-b id="浏览器中打开"></lock-b>{浏览器中打开}<comment>{（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）}</comment>
+                <group-b>
+                    <lock-b id="浏览器中打开"></lock-b>{浏览器中打开}
+                </group-b>
+                <comment>{（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）}</comment>
                 <br>
-                <lock-b id="搜索窗口自动关闭"></lock-b>{打开后自动关闭软件浏览器}
+                <group-b>
+                    <lock-b id="搜索窗口自动关闭"></lock-b>{打开后自动关闭软件浏览器}
+                </group-b>
             </div>
 
             <div id="setting_item">
@@ -425,12 +472,19 @@
                     <div value="baidu">{百度}</div>
                     <div value="youdao">{有道}</div>
                 </set-select>
-                <lock-b id="记住OCR引擎"></lock-b>{记住引擎选择}
+                <group-b>
+                    <lock-b id="记住OCR引擎"></lock-b>{记住引擎选择}
+                </group-b>
                 <br>
-                <lock-b checked id="离线切换"></lock-b>{离线时切换离线OCR}
+                <group-b>
+                    <lock-b checked id="离线切换"></lock-b>{离线时切换离线OCR}
+                </group-b>
 
                 <h2>{离线OCR}</h2>
-                <lock-b checked id="检查OCR"></lock-b>{OCR检测}<comment>{（每次启动时都提示OCR服务是否安装或开启）}</comment>
+                <group-b>
+                    <lock-b checked id="检查OCR"></lock-b>{OCR检测}
+                </group-b>
+                <comment>{（每次启动时都提示OCR服务是否安装或开启）}</comment>
                 <br>
                 {det模型}：<input type="text" spellcheck="false" id="ocr_det" placeholder="{目录}">
                 <br>
@@ -469,19 +523,26 @@
                 <h1>{历史记录}</h1>
 
                 <h2>{截屏}</h2>
-                <lock-b name="" id="截屏记录_b" checked></lock-b>{保留截屏记录}
+                <group-b>
+                    <lock-b name="" id="截屏记录_b" checked></lock-b>{保留截屏记录}
+                </group-b>
                 </br>
-                <lock-b name="" id="保留截屏记录" title="{不勾选将不限次数保留}"></lock-b>{只保留} <input type="number" min="1"
-                    id="截屏保留次">{次记录}
+                <group-b>
+                    <lock-b name="" id="保留截屏记录" title="{不勾选将不限次数保留}</group-b>"></lock-b>{只保留}
+                </group-b>
+                <input type="number" min="1" id="截屏保留次">{次记录}
                 <br>
                 <button id="clear_img_his">{清空所有截屏记录}</button>
 
                 <h2>{搜索}</h2>
 
-                <lock-b name="" id="历史记录_b" checked></lock-b>{保留历史记录}
+                <group-b>
+                    <lock-b name="" id="历史记录_b" checked></lock-b>{保留历史记录}
+                </group-b>
                 </br>
-                <lock-b name="" id="清除历史记录"></lock-b>{自动清除历史记录} <input type="number" min="0" id="his_d">{天} <input
-                    type="number" min="1" id="his_h">{小时}
+                <group-b>
+                    <lock-b name="" id="清除历史记录"></lock-b>{自动清除历史记录}
+                </group-b> <input type="number" min="0" id="his_d">{天} <input type="number" min="1" id="his_h">{小时}
                 <br>
                 <button id="clear_his">{清空所有文字记录}</button>
 
@@ -492,7 +553,9 @@
             <div id="setting_item">
                 <h1>{代理}</h1>
 
-                <lock-b name="" id="代理"></lock-b>{开启代理}
+                <group-b>
+                    <lock-b name="" id="代理"></lock-b>{开启代理}
+                </group-b>
                 </br>
                 {pac文件：}
                 <input type="text" spellcheck="false" id="pacScript">
@@ -508,11 +571,20 @@
                 <h1>{自动关闭窗口}</h1>
 
                 {失去焦点后自动关闭}<comment>{（不会触发跟随关闭）}</comment>：
-                <lock-b name="" id="主窗口失焦"></lock-b>{主窗口} <lock-b name="" id="搜索窗口失焦"></lock-b>{搜索窗口}
+                <group-b>
+                    <lock-b name="" id="主窗口失焦"></lock-b>{主窗口}
+                </group-b>
+                <group-b>
+                    <lock-b name="" id="搜索窗口失焦"></lock-b>{搜索窗口}
+                </group-b>
                 </br>
-                <lock-b name="" id="主关子"></lock-b>{主窗口关闭后，所有搜索窗口跟随关闭}
+                <group-b>
+                    <lock-b name="" id="主关子"></lock-b>{主窗口关闭后，所有搜索窗口跟随关闭}
+                </group-b>
                 </br>
-                <lock-b name="" id="子关主"></lock-b>{所有搜索窗口关闭后，主窗口跟随关闭}
+                <group-b>
+                    <lock-b name="" id="子关主"></lock-b>{所有搜索窗口关闭后，主窗口跟随关闭}
+                </group-b>
             </div>
 
             <div id="setting_item">
@@ -525,13 +597,22 @@
                 <br>
                 <button id="set_default_setting">{恢复默认设置}</button>
                 <br>
-                <lock-b id="give_up_setting_b"></lock-b>{不保存本次设置值}<comment>{（若不清楚刚才更改了什么设置，请选中）}</comment>
+                <group-b>
+                    <lock-b id="give_up_setting_b"></lock-b>{不保存本次设置值}
+                </group-b>
+                <comment>{（若不清楚刚才更改了什么设置，请选中）}</comment>
 
                 <h2>{硬件加速}</h2>
-                <lock-b name="" id="硬件加速"></lock-b>{启用硬件加速}<comment>{（如果可用，且更改需要重启软件生效）}</comment>
+                <group-b>
+                    <lock-b name="" id="硬件加速"></lock-b>{启用硬件加速}
+                </group-b>
+                <comment>{（如果可用，且更改需要重启软件生效）}</comment>
 
                 <h2>{检查更新}</h2>
-                <lock-b name="" id="检查更新"></lock-b>{启用检查更新}<comment>{（仅在周末检查，且只在设置打开时检查）}</comment>
+                <group-b>
+                    <lock-b name="" id="检查更新"></lock-b>{启用检查更新}
+                </group-b>
+                <comment>{（仅在周末检查，且只在设置打开时检查）}</comment>
 
                 <h2 id="path_info">{位置信息}</h2>
 
