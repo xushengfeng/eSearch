@@ -322,10 +322,15 @@ function video_play() {
 }
 
 video.ontimeupdate = () => {
+    document.getElementById("t_nt").innerText = t_format(video.currentTime * 1000);
     if (video.currentTime * 1000 > document.getElementById("t_end").value) {
         video.pause();
+        document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
     }
-    document.getElementById("t_nt").innerText = t_format(video.currentTime * 1000);
+};
+
+video.onended = () => {
+    document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
 };
 
 function add_types() {
