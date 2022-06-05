@@ -213,6 +213,8 @@ document.getElementById("自动录制延时").value = store.get("录屏.自动�
 document.getElementById("视频比特率").value = store.get("录屏.视频比特率");
 document.getElementById("默认开启摄像头").checked = store.get("录屏.摄像头.默认开启");
 document.getElementById("记录摄像头开启状态").checked = store.get("录屏.摄像头.记住开启状态");
+document.getElementById("摄像头镜像").checked = store.get("录屏.摄像头.镜像");
+
 document.getElementById("默认开启音频").checked = store.get("录屏.音频.默认开启");
 document.getElementById("记录音频开启状态").checked = store.get("录屏.音频.记住开启状态");
 
@@ -515,6 +517,7 @@ function save_setting() {
     store.set("录屏.摄像头", {
         默认开启: document.getElementById("默认开启摄像头").checked,
         记住开启状态: document.getElementById("记录摄像头开启状态").checked,
+        镜像: document.getElementById("摄像头镜像").checked,
     });
     store.set("录屏.音频", {
         默认开启: document.getElementById("默认开启音频").checked,

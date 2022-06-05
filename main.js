@@ -1763,6 +1763,7 @@ var default_setting = {
         摄像头: {
             默认开启: false,
             记住开启状态: false,
+            镜像: false,
         },
         音频: {
             默认开启: false,

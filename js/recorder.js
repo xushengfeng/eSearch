@@ -203,6 +203,7 @@ async function camera_stream_f(v) {
         });
         document.querySelector("video").srcObject = camera_stream;
         document.querySelector("video").play();
+        if (store.get("录屏.摄像头.镜像")) document.querySelector("video").style.transform = "rotateY(180deg)";
     } else {
         camera_stream.getVideoTracks()[0].stop();
         document.querySelector("video").srcObject = null;
@@ -247,6 +248,7 @@ function show_control() {
     document.getElementById("time").innerText = "";
     add_types();
     document.querySelector("video").style.height = "100%";
+    document.querySelector("video").style.transform = "";
     document.querySelector("video").src = tmp_path;
     clip_v();
     document.getElementById("save").disabled = false;
