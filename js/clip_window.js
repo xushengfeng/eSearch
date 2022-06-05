@@ -80,12 +80,11 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
 });
 
 var edge_init = false;
-var src;
 var edge_rect = [];
 function edge() {
     edge_init = true;
     let canvas = main_canvas;
-    src = cv.imread(canvas);
+    let src = cv.imread(canvas);
 
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
     // cv.imshow(canvas, src);
@@ -106,6 +105,13 @@ function edge() {
     }
 
     // cv.imshow(canvas, dst);
+
+    src.delete();
+    dst.delete();
+    contours.delete();
+    hierarchy.delete();
+
+    src = dst = contours = hierarchy = null;
 }
 
 function show_img_his() {
