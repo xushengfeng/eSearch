@@ -67,11 +67,8 @@ time-i {
 time-i > span:nth-child(1) > span {
     outline: none;
 }
-time-i > span:nth-child(2),
-time-i > span:nth-child(3) {
-    user-select: none;
-    cursor: pointer;
-    display: inline-block;
-    width: 16px;
-    text-align: center;
+time-i > input {
+    width: 15px !important;
+    border: none !important;
+    padding: 0;
 }
