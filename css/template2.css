@@ -2,6 +2,23 @@ range-b {
     display: block;
 }
 
+range-b > div:nth-child(1) {
+    border-radius: inherit;
+    height: 100%;
+}
+
+.in_range {
+    display: block;
+}
+
+.out_range {
+    display: flex;
+}
+
+.out_range > div:nth-child(1) {
+    flex-grow: 1;
+}
+
 #range {
     width: 100%;
     height: 100%;
@@ -26,14 +43,19 @@ range-b {
     border-radius: inherit;
 }
 
+.in_range > .range_t {
+    top: -100%;
+    width: 100%;
+}
+.out_range > .range_t {
+    margin-left: 4px;
+}
 .range_t {
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    top: -200%;
-    width: 100%;
     height: 100%;
 }
 .range_t > p {
