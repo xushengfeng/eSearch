@@ -234,7 +234,11 @@ ipcRenderer.on("ff", (event, err, st) => {
     console.log(st);
 });
 
+var editting = false;
+
 function show_control() {
+    editting = true;
+    document.getElementById("v_play").querySelector("img").src = "./assets/icons/recume.svg";
     if (document.getElementById("mic").checked) mic_stream(false);
     if (document.getElementById("camera").checked) camera_stream_f(false);
     document.getElementById("s").className = "s_show";
@@ -325,6 +329,7 @@ function video_play() {
 }
 
 video.ontimeupdate = () => {
+    if (!editting) return;
     document.getElementById("t_nt").innerText = t_format(video.currentTime * 1000);
     if (video.currentTime * 1000 > document.getElementById("t_end").value) {
         video.pause();
