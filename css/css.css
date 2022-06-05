@@ -387,10 +387,16 @@ button > .icon {
     margin: 0;
     padding: 0;
     overflow-x: scroll;
-    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 #tabs::-webkit-scrollbar {
     display: none;
+}
+
+.tabs_show {
+    opacity: 1 !important;
+    pointer-events: all !important;
 }
 
 #buttons {

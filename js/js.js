@@ -1852,7 +1852,7 @@ ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
     if (arg == "load") {
         load(id, arg1);
     }
-    document.getElementById("tabs").style.visibility = "visible";
+    document.getElementById("tabs").classList.add("tabs_show");
 });
 function new_tab(id, url) {
     var li = document.getElementById("tab").cloneNode(true);
@@ -1892,7 +1892,7 @@ function close_tab(li, id) {
     }
     document.getElementById("tabs").removeChild(li);
     if (document.getElementById("tabs").querySelectorAll("li").length == 0) {
-        document.getElementById("tabs").style.visibility = "hidden";
+        document.getElementById("tabs").classList.remove("tabs_show");
     }
 }
 function focus_tab(li) {

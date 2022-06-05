@@ -1863,7 +1863,7 @@ ipcRenderer.on("url", (event, _pid: number, id: number, arg: string, arg1: any) 
     if (arg == "load") {
         load(id, arg1);
     }
-    document.getElementById("tabs").style.visibility = "visible";
+    document.getElementById("tabs").classList.add("tabs_show");
 });
 
 function new_tab(id: number, url: string) {
@@ -1903,7 +1903,7 @@ function close_tab(li: HTMLElement, id: number) {
     }
     document.getElementById("tabs").removeChild(li);
     if (document.getElementById("tabs").querySelectorAll("li").length == 0) {
-        document.getElementById("tabs").style.visibility = "hidden";
+        document.getElementById("tabs").classList.remove("tabs_show");
     }
 }
 
