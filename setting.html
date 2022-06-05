@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="css/root.css">
     <link rel="stylesheet" type="text/css" href="css/setting.css">
     <link rel="stylesheet" type="text/css" href="css/template.css">
+    <link rel="stylesheet" type="text/css" href="css/template2.css">
 </head>
 
 <body>
@@ -110,10 +111,10 @@
 
                 <h2>{毛玻璃效果}</h2>
                 {模糊}
-                <range-b id="模糊" step="1" min="0" max="50" text="px"></range-b>
+                <range-b out="true" id="模糊" step="1" min="0" max="50" text="px"></range-b out="true">
                 <br>
                 {不透明度}
-                <range-b id="不透明度" step="1" min="0" max="100" text="%"></range-b>
+                <range-b out="true" id="不透明度" step="1" min="0" max="100" text="%"></range-b out="true">
                 <div class="blur">
                     <img src="./assets/sample_picture.svg" alt="" class="blur_p">
                     <div class="blur_c"></div>
@@ -127,7 +128,7 @@
                 </set-select>
 
                 <h2>{全局缩放}</h2>
-                <range-b min="0.1" max="3" id="全局缩放" step="0.05"></range-b>
+                <range-b out="true" min="0.1" max="3" id="全局缩放" step="0.05"></range-b out="true">
 
                 <h2>{字体}</h2>
                 {主要字体}<comment>{（适用于主界面等文字字体）}</comment>
@@ -147,18 +148,18 @@
                 </set-select>
 
                 <h2>{按钮大小}</h2>
-                {按钮}<range-b id="按钮大小" step="1" min="1" max="80" text="px"></range-b>
+                {按钮}<range-b out="true" id="按钮大小" step="1" min="1" max="80" text="px"></range-b out="true">
                 </br>
-                {图标比例}<range-b id="按钮图标比例" step="0.01" min="0.01" max="1" value="0.7"></range-b>
+                {图标比例}<range-b out="true" id="按钮图标比例" step="0.01" min="0.01" max="1" value="0.7"></range-b out="true">
             </div>
 
             <div id="setting_item">
                 <h1>{取色器}</h1>
 
                 <h2>{大小}</h2>
-                {取色器大小}<range-b id="取色器大小" step="2" min="1" max="31"></range-b>
+                {取色器大小}<range-b out="true" id="取色器大小" step="2" min="1" max="31"></range-b out="true">
                 </br>
-                {像素大小}<range-b id="像素大小" min="1" max="10" text="px"></range-b>
+                {像素大小}<range-b out="true" id="像素大小" min="1" max="10" text="px"></range-b out="true">
                 <div class="point_color_f">
                     <div id="point_color"></div>
                 </div>
@@ -227,10 +228,10 @@
                 <details>
                     <summary>{边缘识别高级设置}</summary>
                     {最小阈值}
-                    <range-b id="框选最小阈值" min="0" max="255"></range-b>
+                    <range-b out="true" id="框选最小阈值" min="0" max="255"></range-b out="true">
                     <br>
                     {最大阈值}
-                    <range-b id="框选最大阈值" min="0" max="255"></range-b>
+                    <range-b out="true" id="框选最大阈值" min="0" max="255"></range-b out="true">
                 </details>
 
             </div>
@@ -244,21 +245,21 @@
                 {边框颜色}<input id="边框颜色" type="text" spellcheck="false">
                 <br>
                 {边框宽度}
-                <range-b id="边框宽度" min="0" max="20" text="px"></range-b>
+                <range-b out="true" id="边框宽度" min="0" max="20" text="px"></range-b out="true">
                 <br>
                 {画笔颜色}<input id="画笔颜色" type="text" spellcheck="false">
                 <br>
                 {画笔粗细}
-                <range-b id="画笔粗细" min="0" max="20" text="px"></range-b>
+                <range-b out="true" id="画笔粗细" min="0" max="20" text="px"></range-b out="true">
 
                 <h2>{复制偏移}</h2>
                 <comment>{复制完一个元素后，为了分辨，可以让其偏移}</comment>
                 <br>
                 {x轴}
-                <range-b id="复制dx" min="0" max="50" text="px"></range-b>
+                <range-b out="true" id="复制dx" min="0" max="50" text="px"></range-b out="true">
                 <br>
                 {y轴}
-                <range-b id="复制dy" min="0" max="50" text="px"></range-b>
+                <range-b out="true" id="复制dy" min="0" max="50" text="px"></range-b out="true">
             </div>
 
             <div id="setting_item">
@@ -279,10 +280,10 @@
 
                 <h2>{自动录制}</h2>
                 <lock-b id="开启自动录制"></lock-b>{开启自动录制}
-                <range-b id="自动录制延时" min="0" max="10" text="s" step="1"></range-b>
+                <range-b out="true" id="自动录制延时" min="0" max="10" text="s" step="1"></range-b out="true">
 
                 <h2>{录制}</h2>
-                {视频比特率}<range-b id="视频比特率" min="1" max="40" text="Mbps" step="0.5"></range-b>
+                {视频比特率}<range-b out="true" id="视频比特率" min="1" max="40" text="Mbps" step="0.5"></range-b out="true">
 
                 <h2>{摄像头}</h2>
                 <lock-b id="默认开启摄像头"></lock-b>{默认开启}
@@ -348,7 +349,7 @@
                 </set-select>
                 <br>
                 {jpg质量}
-                <range-b id="jpg质量" min="0" max="1.00" step="0.01"></range-b>
+                <range-b out="true" id="jpg质量" min="0" max="1.00" step="0.01"></range-b out="true">
 
             </div>
 
@@ -356,12 +357,12 @@
                 <h1>{编辑器}</h1>
 
                 <h2>{字体}</h2>
-                {字体大小}<range-b id="字体大小" min="0" max="100" step="1" value="16"></range-b>
+                {字体大小}<range-b out="true" id="字体大小" min="0" max="100" step="1" value="16"></range-b out="true">
                 <lock-b id="记住字体大小"></lock-b>{记住主界面字体大小}
 
                 <h2>{样式}</h2>
-                {Tab制表符宽度}<range-b id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b>
-                {光标动画时间}<range-b id="光标动画" min="0" max="0.5" step="0.01" value="0.05" text="秒"></range-b>
+                {Tab制表符宽度}<range-b out="true" id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b out="true">
+                {光标动画时间}<range-b out="true" id="光标动画" min="0" max="0.5" step="0.01" value="0.05" text="秒"></range-b out="true">
 
                 <h2>{更多}</h2>
                 <lock-b id="换行"></lock-b>{自动换行}
@@ -380,7 +381,7 @@
                 <lock-b id="自动打开链接"></lock-b>{自动打开链接}
                 </br>
                 {自动搜索中文占比}<comment>{（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）}</comment>
-                <range-b id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b>
+                <range-b out="true" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b out="true">
 
                 <h2>{文字搜索引擎}</h2>
                 <h3>{搜索引擎}</h3>
@@ -560,16 +561,6 @@
     document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
     document.title = t(document.title)
 </script>
-
-<template id="range-b">
-    <link rel="stylesheet" type="text/css" href="css/template2.css">
-    <input type="range" id="range">
-    <div id="range_thumb"></div>
-    <div class="range_t">
-        <p></p>
-        <p></p>
-    </div>
-</template>
 
 <script src="lib/template.js"></script>
 <script src="lib/template2.js"></script>
