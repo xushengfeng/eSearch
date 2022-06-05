@@ -62,7 +62,7 @@ body {
     display: flex;
     flex: 1;
     border-radius: var(--border-radius);
-    background: var(--bg2);
+    background: var(--bg);
     cursor: text;
     font-size: 1em;
     line-height: 1.5em;
