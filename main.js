@@ -1348,21 +1348,12 @@ function create_main_window(web_page, t, about) {
         ]);
     });
 
-    var 失焦关闭 = false;
     main_window.on("closed", () => {
         delete main_window_l[window_name];
-
-        if (store.get("关闭窗口.子窗口跟随主窗口关") && !失焦关闭) {
-            var search_l = [...main_to_search_l[window_name]];
-            for (let i of search_l) {
-                search_window_l[i].close();
-            }
-        }
     });
 
     main_window.on("blur", () => {
         if (store.get("关闭窗口.失焦.主窗口")) {
-            失焦关闭 = true;
             main_window.close();
         }
     });
@@ -1456,7 +1447,6 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
     if (arg == "close") {
         main_window.removeBrowserView(search_window);
         search_window.webContents.setAudioMuted(true);
-        if (main_window.getBrowserViews().length == 0) main_window.close();
     } else if (arg == "top") {
         main_window.setTopBrowserView(search_window);
     } else if (arg == "back") {
@@ -1692,8 +1682,6 @@ var default_setting = {
     主窗口大小: [800, 600, false],
     关闭窗口: {
         失焦: { 主窗口: false, 搜索窗口: false },
-        子窗口跟随主窗口关: false,
-        主窗口跟随子窗口关: false,
     },
     记录截屏: {
         记录: true,
