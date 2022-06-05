@@ -1871,9 +1871,13 @@ function new_tab(id: number, url: string) {
     li_list.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
-    li.querySelector("span").onclick = () => {
-        ipcRenderer.send("tab_view", window_name, id, "top");
-        focus_tab(li);
+    li.querySelector("span").onmouseup = (e) => {
+        if (e.button == 0) {
+            ipcRenderer.send("tab_view", window_name, id, "top");
+            focus_tab(li);
+        } else {
+            close_tab(li, id);
+        }
     };
     var button = li.querySelector("button");
     button.onclick = () => {
