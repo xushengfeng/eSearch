@@ -1898,6 +1898,9 @@ function close_tab(li: HTMLElement, id: number) {
         }
     }
     document.getElementById("tabs").removeChild(li);
+    if (document.getElementById("tabs").querySelectorAll("li").length == 0) {
+        document.getElementById("tabs").style.visibility = "hidden";
+    }
 }
 
 function focus_tab(li: HTMLElement) {

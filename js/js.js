@@ -1886,6 +1886,9 @@ function close_tab(li, id) {
         }
     }
     document.getElementById("tabs").removeChild(li);
+    if (document.getElementById("tabs").querySelectorAll("li").length == 0) {
+        document.getElementById("tabs").style.visibility = "hidden";
+    }
 }
 function focus_tab(li) {
     var l = document.querySelectorAll("li");
