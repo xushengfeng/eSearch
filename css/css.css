@@ -404,14 +404,13 @@ button > .icon {
     position: sticky;
     left: 0;
     z-index: 3;
-    margin-right: 4px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 #buttons > div {
     cursor: pointer;
-    width: 24px;
-    height: 24px;
-    margin: 0 0 0 3px;
-    border-radius: var(--border-radius);
+    width: var(--b-button);
+    height: var(--b-button);
     transition: var(--transition);
     background-color: var(--bg);
     position: relative;
@@ -421,12 +420,12 @@ button > .icon {
     box-shadow: var(--shadow);
 }
 #buttons > div > .icon {
-    width: 24px;
+    width: var(--b-button);
 }
 
 .tab {
     display: flex;
-    height: 24px;
+    height: var(--b-button);
     align-items: center;
     flex: 1;
     max-width: 200px;
