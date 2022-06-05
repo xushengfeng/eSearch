@@ -1671,6 +1671,7 @@ function old_his_to_new() {
 const { ipcRenderer, shell, clipboard } = require("electron");
 const fs = require("fs");
 const os = require("os");
+ipcRenderer.on("init", (event, name) => { });
 ipcRenderer.on("text", (event, name, list) => {
     window_name = name;
     main_text = list[0];
@@ -1833,3 +1834,132 @@ function add_selection_linux() {
 const { t, lan } = require("./lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
+/************************************浏览器 */
+var li_list = [];
+ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
+    if (arg == "new") {
+        new_tab(id, arg1);
+    }
+    if (arg == "title") {
+        title(id, arg1);
+    }
+    if (arg == "icon") {
+        icon(id, arg1);
+    }
+    if (arg == "url") {
+        url(id, arg1);
+    }
+    if (arg == "load") {
+        load(id, arg1);
+    }
+    document.getElementById("tabs").style.visibility = "visible";
+});
+function new_tab(id, url) {
+    var li = document.getElementById("tab").cloneNode(true);
+    li_list.push(li);
+    li.style.display = "flex";
+    li.setAttribute("data-url", url);
+    li.querySelector("span").onclick = () => {
+        ipcRenderer.send("tab_view", window_name, id, "top");
+        focus_tab(li);
+    };
+    var button = li.querySelector("button");
+    button.onclick = () => {
+        close_tab(li, id);
+    };
+    document.getElementById("tabs").appendChild(li);
+    focus_tab(li);
+    li.id = "id" + id;
+}
+function close_tab(li, id) {
+    ipcRenderer.send("tab_view", window_name, id, "close");
+    var l = document.querySelectorAll("li");
+    for (let i in l) {
+        if (l[i] === li && document.querySelector(".tab_focus") === li) {
+            // 模板排除
+            if (Number(i) == l.length - 2) {
+                focus_tab(l[l.length - 3]);
+            }
+            else {
+                focus_tab(l[i + 1]);
+            }
+        }
+    }
+    document.getElementById("tabs").removeChild(li);
+}
+function focus_tab(li) {
+    var l = document.querySelectorAll("li");
+    for (let i of l) {
+        if (i === li) {
+            i.classList.add("tab_focus");
+        }
+        else {
+            i.classList.remove("tab_focus");
+        }
+    }
+    for (let j in li_list) {
+        if (li_list[j] === li) {
+            li_list.splice(Number(j), 1);
+            li_list.push(li);
+        }
+    }
+}
+function title(id, arg) {
+    document.querySelector(`#id${id} > span`).innerHTML = document
+        .getElementById(`id${id}`)
+        .querySelector(`span`).title = arg;
+}
+function icon(id, arg) {
+    document.getElementById(`id${id}`).querySelector(`img`).src = arg[0];
+}
+function url(id, url) {
+    document.querySelector(`#id${id}`).setAttribute("data-url", url);
+}
+function load(id, loading) {
+    if (loading) {
+        document.getElementById(`id${id}`).querySelector(`img`).src = `./assets/icons/reload.svg`;
+        document.getElementById("reload").style.display = "none";
+        document.getElementById("stop").style.display = "block";
+    }
+    else {
+        document.querySelector(`#id${id} > img`).classList.remove("loading");
+        document.getElementById("reload").style.display = "block";
+        document.getElementById("stop").style.display = "none";
+    }
+}
+document.getElementById("buttons").onclick = (e) => {
+    main_event(e);
+};
+function main_event(e) {
+    var id = li_list[li_list.length - 1].id.replace("id", "");
+    let el = e.target;
+    if (el.id == "browser") {
+        open_in_browser();
+    }
+    else if (el.id == "add_history") {
+        history_store.set(`历史记录.${new Date().getTime()}`, {
+            text: document.querySelector(".tab_focus").getAttribute("data-url"),
+        });
+    }
+    else {
+        if (el.id)
+            ipcRenderer.send("tab_view", window_name, id, el.id);
+    }
+}
+function open_in_browser() {
+    var url = document.querySelector(".tab_focus").getAttribute("data-url");
+    shell.openExternal(url);
+    if (store.get("搜索窗口自动关闭")) {
+        var id = Number(document.querySelector(".tab_focus").id.replace("id", ""));
+        close_tab(document.querySelector(".tab_focus"), id);
+    }
+}
+ipcRenderer.on("view_events", (event, arg) => {
+    var e = { target: { id: arg } };
+    main_event(e);
+});
+document.getElementById("tabs").onwheel = (e) => {
+    e.preventDefault();
+    var i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
+    document.getElementById("tabs").scrollLeft += i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
+};

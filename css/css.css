@@ -49,7 +49,6 @@ body {
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
-    background-color: var(--bg2);
     transition: var(--transition);
 }
 .main > div:not(:first-child):hover {
@@ -381,4 +380,101 @@ button > .icon {
     .find_h_h {
         background-color: #ffffff40;
     }
+}
+
+#tabs {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    overflow-x: scroll;
+    visibility: hidden;
+}
+#tabs::-webkit-scrollbar {
+    display: none;
+}
+
+#buttons {
+    display: flex;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    margin-right: 4px;
+}
+#buttons > div {
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    margin: 0 0 0 3px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    background-color: var(--bg);
+    position: relative;
+}
+#buttons > div:hover {
+    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
+}
+#buttons > div > .icon {
+    width: 24px;
+}
+
+.tab {
+    display: flex;
+    height: 24px;
+    align-items: center;
+    flex: 1;
+    max-width: 200px;
+    justify-content: space-between;
+    transition: var(--transition);
+    position: relative;
+    border-radius: var(--border-radius);
+}
+.tab_focus {
+    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
+}
+
+.tab > img {
+    height: 20px;
+    margin-left: 5px;
+}
+.loading {
+    animation: loading 0.8s linear 0s infinite;
+}
+@keyframes loading {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.tab > span {
+    cursor: default;
+    padding-left: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    flex-grow: 1;
+}
+.tab > button {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    transition: var(--transition);
+    margin: 2px;
+    padding: 0;
+    position: relative;
+}
+
+.tab > button > .icon {
+    width: 20px;
+}
+
+.tab > button:hover {
+    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
 }

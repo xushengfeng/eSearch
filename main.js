@@ -1397,7 +1397,7 @@ function main_edit(window, m) {
 }
 
 /**
- * @type {Object.<number, BrowserWindow | BrowserView>}
+ * @type {Object.<number, BrowserView>}
  */
 var search_window_l = {};
 ipcMain.on("open_url", (event, window_name, url) => {
@@ -1451,7 +1451,7 @@ function view_events(w, arg) {
 }
 
 ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
-    var main_window = search_window_l[pid],
+    var main_window = main_window_l[pid],
         search_window = search_window_l[id];
     if (arg == "close") {
         main_window.removeBrowserView(search_window);
