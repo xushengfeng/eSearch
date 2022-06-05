@@ -1657,7 +1657,9 @@ var default_setting = {
     自动打开链接: false,
     自动搜索中文占比: 0.2,
     浏览器中打开: false,
-    搜索窗口自动关闭: true,
+    浏览器: {
+        标签页自动关闭: true,
+    },
     保存: {
         默认格式: "png",
         保存路径: { 图片: app.getPath("pictures"), 视频: app.getPath("videos") },
