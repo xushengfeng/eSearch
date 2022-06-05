@@ -1947,6 +1947,9 @@ function main_event(e) {
     else {
         if (el.id)
             ipcRenderer.send("tab_view", window_name, id, el.id);
+        if (el.id == "home") {
+            document.querySelector(".tab_focus").classList.remove("tab_focus");
+        }
     }
 }
 function open_in_browser() {

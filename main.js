@@ -1367,13 +1367,13 @@ function create_main_window(web_page, t, about) {
         var w = main_window.getBounds().width,
             h = main_window.getBounds().height;
         for (let i of main_window.getBrowserViews()) {
-            i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+            if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
             if (main_window.isMaximized() || main_window.isFullScreen()) {
                 main_window.setSize(
                     screen.getPrimaryDisplay().workArea.width,
                     screen.getPrimaryDisplay().workArea.height
                 );
-                i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+                if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
             }
         }
     });
@@ -1444,19 +1444,37 @@ function view_events(w, arg) {
 ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
     var main_window = main_window_l[pid],
         search_window = search_window_l[id];
-    if (arg == "close") {
-        main_window.removeBrowserView(search_window);
-        search_window.webContents.setAudioMuted(true);
-    } else if (arg == "top") {
-        main_window.setTopBrowserView(search_window);
-    } else if (arg == "back") {
-        search_window.webContents.goBack();
-    } else if (arg == "forward") {
-        search_window.webContents.goForward();
-    } else if (arg == "stop") {
-        search_window.webContents.stop();
-    } else if (arg == "reload") {
-        search_window.webContents.reload();
+    switch (arg) {
+        case "close":
+            main_window.removeBrowserView(search_window);
+            search_window.webContents.setAudioMuted(true);
+            break;
+        case "top":
+            main_window.setTopBrowserView(search_window);
+            search_window.setBounds({
+                x: 0,
+                y: 0,
+                width: main_window.getBounds().width,
+                height: main_window.getBounds().height - 48,
+            });
+            break;
+        case "back":
+            search_window.webContents.goBack();
+            break;
+        case "forward":
+            search_window.webContents.goForward();
+            break;
+        case "stop":
+            search_window.webContents.stop();
+            break;
+        case "reload":
+            search_window.webContents.reload();
+            break;
+        case "home":
+            for (let v of main_window.getBrowserViews()) {
+                v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+            }
+            break;
     }
 });
 
