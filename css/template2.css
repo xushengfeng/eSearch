@@ -15,10 +15,6 @@ range-b > div:nth-child(1) {
     display: flex;
 }
 
-.out_range > div:nth-child(1) {
-    flex-grow: 1;
-}
-
 #range {
     width: 100%;
     height: 100%;
