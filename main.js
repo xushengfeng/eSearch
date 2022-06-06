@@ -284,14 +284,6 @@ app.whenReady().then(() => {
                         store.set("关闭窗口.失焦.主页面", i.checked);
                     },
                 },
-                {
-                    label: t("搜索界面"),
-                    type: "checkbox",
-                    checked: store.get("关闭窗口.失焦.搜索窗口"),
-                    click: (i) => {
-                        store.set("关闭窗口.失焦.搜索窗口", i.checked);
-                    },
-                },
             ],
         },
         {
@@ -864,7 +856,6 @@ ipcMain.on("setting", async (event, arg, arg1) => {
         case "reload_main":
             if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
             contextMenu.items[5].submenu.items[0].checked = store.get("关闭窗口.失焦.主页面");
-            contextMenu.items[5].submenu.items[1].checked = store.get("关闭窗口.失焦.搜索窗口");
             contextMenu.items[6].checked = store.get("浏览器中打开");
             tray.setContextMenu(contextMenu);
             break;
@@ -1707,7 +1698,7 @@ var default_setting = {
     },
     主页面大小: [800, 600, false],
     关闭窗口: {
-        失焦: { 主页面: false, 搜索窗口: false },
+        失焦: { 主页面: false },
     },
     记录截屏: {
         记录: true,
