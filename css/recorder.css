@@ -60,6 +60,10 @@ body {
     background-color: var(--hover-color);
 }
 
+.lock-b-lock {
+    background-color: var(--hover-color) !important;
+}
+
 #time {
     -webkit-app-region: drag;
     flex-grow: 1;
