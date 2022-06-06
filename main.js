@@ -738,8 +738,8 @@ function create_recorder_window(rect) {
     mouse_ps = {};
     record_start = false;
 
-    recorder.webContents.on("did-finish-load", () => {
-        desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
+    desktopCapturer.getSources({ types: ["window", "screen"] }).then((sources) => {
+        recorder.webContents.on("did-finish-load", () => {
             recorder.webContents.send("record", "init", sources[0].id);
         });
     });
