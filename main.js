@@ -1369,6 +1369,8 @@ function create_main_window(web_page, t, about) {
             }
         }
     });
+
+    return window_name;
 }
 
 /**
@@ -1387,6 +1389,8 @@ ipcMain.on("open_url", (event, window_name, url) => {
     create_browser(window_name, url);
 });
 async function create_browser(window_name, url) {
+    if (!window_name) window_name = create_main_window("index.html");
+
     var win_name = new Date().getTime();
 
     let main_window = main_window_l[window_name];
