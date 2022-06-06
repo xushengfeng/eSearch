@@ -1964,7 +1964,7 @@ function main_event(e: MouseEvent | any) {
 function open_in_browser() {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
-    if (store.get("浏览器.标签页自动关闭")) {
+    if (store.get("浏览器.标签页.自动关闭")) {
         var id = Number(document.querySelector(".tab_focus").id.replace("id", ""));
         close_tab(document.querySelector(".tab_focus"), id);
     }

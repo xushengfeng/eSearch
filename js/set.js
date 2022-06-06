@@ -350,7 +350,7 @@ document.getElementById("图像搜索引擎").value = store.get("以图搜图.�
 document.getElementById("记住识图引擎").checked = store.get("以图搜图.记住");
 
 document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开");
-document.querySelector("#搜索窗口自动关闭").checked = store.get("浏览器.标签页自动关闭");
+document.querySelector("#搜索窗口自动关闭").checked = store.get("浏览器.标签页.自动关闭");
 
 document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
@@ -567,7 +567,7 @@ function save_setting() {
             : false,
     });
     store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
-    store.set("浏览器.标签页自动关闭", document.querySelector("#搜索窗口自动关闭").checked);
+    store.set("浏览器.标签页.自动关闭", document.querySelector("#搜索窗口自动关闭").checked);
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
     store.set("记录截屏", {
