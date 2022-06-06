@@ -277,11 +277,11 @@ app.whenReady().then(() => {
             label: t("失焦关闭"),
             submenu: [
                 {
-                    label: t("主界面"),
+                    label: t("主页面"),
                     type: "checkbox",
-                    checked: store.get("关闭窗口.失焦.主窗口"),
+                    checked: store.get("关闭窗口.失焦.主页面"),
                     click: (i) => {
-                        store.set("关闭窗口.失焦.主窗口", i.checked);
+                        store.set("关闭窗口.失焦.主页面", i.checked);
                     },
                 },
                 {
@@ -863,7 +863,7 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             break;
         case "reload_main":
             if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
-            contextMenu.items[5].submenu.items[0].checked = store.get("关闭窗口.失焦.主窗口");
+            contextMenu.items[5].submenu.items[0].checked = store.get("关闭窗口.失焦.主页面");
             contextMenu.items[5].submenu.items[1].checked = store.get("关闭窗口.失焦.搜索窗口");
             contextMenu.items[6].checked = store.get("浏览器中打开");
             tray.setContextMenu(contextMenu);
@@ -1282,7 +1282,7 @@ function create_ding_window(x, y, w, h, img) {
     ding_click_through();
 }
 
-// 主窗口
+// 主页面
 /**
  * @type {Object.<number, BrowserWindow>}
  */
@@ -1293,7 +1293,7 @@ var main_window_l = {};
 var main_to_search_l = {};
 function create_main_window(web_page, t, about) {
     var window_name = new Date().getTime();
-    var [w, h, m] = store.get("主窗口大小");
+    var [w, h, m] = store.get("主页面大小");
     var x = screen.getCursorScreenPoint().x - w,
         y = screen.getCursorScreenPoint().y - h;
     var main_window = (main_window_l[window_name] = new BrowserWindow({
@@ -1333,7 +1333,7 @@ function create_main_window(web_page, t, about) {
     });
 
     main_window.on("close", () => {
-        store.set("主窗口大小", [
+        store.set("主页面大小", [
             main_window.getNormalBounds().width,
             main_window.getNormalBounds().height,
             main_window.isMaximized(),
@@ -1345,7 +1345,7 @@ function create_main_window(web_page, t, about) {
     });
 
     main_window.on("blur", () => {
-        if (store.get("关闭窗口.失焦.主窗口")) {
+        if (store.get("关闭窗口.失焦.主页面")) {
             main_window.close();
         }
     });
@@ -1374,7 +1374,7 @@ function create_main_window(web_page, t, about) {
 }
 
 /**
- * 向聚焦的主界面发送事件信息
+ * 向聚焦的主页面发送事件信息
  * @param {String} m
  */
 function main_edit(window, m) {
@@ -1699,9 +1699,9 @@ var default_setting = {
         proxyRules: "",
         proxyBypassRules: "",
     },
-    主窗口大小: [800, 600, false],
+    主页面大小: [800, 600, false],
     关闭窗口: {
-        失焦: { 主窗口: false, 搜索窗口: false },
+        失焦: { 主页面: false, 搜索窗口: false },
     },
     记录截屏: {
         记录: true,

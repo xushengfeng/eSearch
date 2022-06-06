@@ -428,7 +428,7 @@ document.getElementById("pacScript").value = 代理.pacScript;
 document.getElementById("proxyRules").value = 代理.proxyRules;
 document.getElementById("proxyBypassRules").value = 代理.proxyBypassRules;
 
-document.getElementById("主窗口失焦").checked = store.get("关闭窗口.失焦.主窗口");
+document.getElementById("主页面失焦").checked = store.get("关闭窗口.失焦.主页面");
 document.getElementById("搜索窗口失焦").checked = store.get("关闭窗口.失焦.搜索窗口");
 
 document.getElementById("硬件加速").checked = store.get("硬件加速");
@@ -612,7 +612,7 @@ function save_setting() {
     });
     store.set("关闭窗口", {
         失焦: {
-            主窗口: document.getElementById("主窗口失焦").checked,
+            主页面: document.getElementById("主页面失焦").checked,
             搜索窗口: document.getElementById("搜索窗口失焦").checked,
         },
     });

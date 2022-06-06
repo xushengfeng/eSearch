@@ -24,7 +24,7 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
-![识别文字主界面](https://esearch.vercel.app/readme/2.png)
+![识别文字主页面](https://esearch.vercel.app/readme/2.png)
 
 ## 下载安装
 
@@ -177,11 +177,11 @@ https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-
 
 https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-8076-ed49b7b5c4c0.mp4
 
-> 主界面搜索和其他应用编辑（视频约 1.6MB）
+> 主页面搜索和其他应用编辑（视频约 1.6MB）
 
 ![3](https://esearch.vercel.app/readme/4.png)
 
-> 主界面查找替换（支持正则）
+> 主页面查找替换（支持正则）
 
 ## 国际化
 
