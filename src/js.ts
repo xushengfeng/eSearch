@@ -1193,7 +1193,7 @@ document.getElementById("edit_b").onmousedown = (e) => {
     e.preventDefault();
     switch ((<HTMLElement>e.target).id) {
         case "link_bar":
-            var url = document.getSelection().toString();
+            let url = editor_selections[0].get();
             open_link("url", url);
             break;
         case "search_bar":
