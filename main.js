@@ -1652,6 +1652,8 @@ var default_setting = {
     浏览器: {
         标签页: {
             自动关闭: true,
+            小: false,
+            灰度: false,
         },
     },
     保存: {

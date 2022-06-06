@@ -433,15 +433,22 @@ button > .icon {
     transition: var(--transition);
     position: relative;
     border-radius: var(--border-radius);
+    overflow: hidden;
 }
 .tab_focus {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
+.tab_small {
+    max-width: 32px !important;
+}
+.tab_gray > img {
+    filter: grayscale(1);
+}
 
 .tab > img {
     height: 20px;
-    margin-left: 5px;
+    margin-left: 6px;
 }
 .loading {
     animation: loading 0.8s linear 0s infinite;

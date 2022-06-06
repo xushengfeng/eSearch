@@ -1876,6 +1876,13 @@ function new_tab(id: number, url: string) {
     document.getElementById("tabs").appendChild(li);
     focus_tab(li);
     li.id = "id" + id;
+
+    if (store.get("浏览器.标签页.小")) {
+        li.classList.add("tab_small");
+    }
+    if (store.get("浏览器.标签页.灰度")) {
+        li.classList.add("tab_gray");
+    }
 }
 
 function close_tab(li: HTMLElement, id: number) {
