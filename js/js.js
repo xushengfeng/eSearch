@@ -1859,7 +1859,7 @@ function new_tab(id, url) {
     li_list.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
-    li.querySelector("span").onmouseup = (e) => {
+    li.onmouseup = (e) => {
         if (e.button == 0) {
             ipcRenderer.send("tab_view", window_name, id, "top");
             focus_tab(li);
@@ -1869,7 +1869,8 @@ function new_tab(id, url) {
         }
     };
     var button = li.querySelector("button");
-    button.onclick = () => {
+    button.onclick = (e) => {
+        e.stopPropagation();
         close_tab(li, id);
     };
     document.getElementById("tabs").appendChild(li);
@@ -1913,9 +1914,10 @@ function focus_tab(li) {
     }
 }
 function title(id, arg) {
-    document.querySelector(`#id${id} > span`).innerHTML = document
-        .getElementById(`id${id}`)
-        .querySelector(`span`).title = arg;
+    document.querySelector(`#id${id} > span`).innerHTML =
+        document.getElementById(`id${id}`).querySelector(`span`).title =
+            document.getElementById(`id${id}`).querySelector(`img`).title =
+                arg;
 }
 function icon(id, arg) {
     document.getElementById(`id${id}`).querySelector(`img`).src = arg[0];
