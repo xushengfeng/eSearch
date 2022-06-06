@@ -1396,6 +1396,7 @@ async function create_browser(window_name, url) {
     let main_window = main_window_l[window_name];
 
     if (main_window.isDestroyed()) return;
+    min_views(main_window);
     var view = new Date().getTime();
     var search_view = (search_window_l[view] = new BrowserView());
     search_view.setBackgroundColor(nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff");
@@ -1447,6 +1448,7 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
             break;
         case "top":
             main_window.setTopBrowserView(search_window);
+            min_views(main_window);
             search_window.setBounds({
                 x: 0,
                 y: 0,
@@ -1467,12 +1469,16 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
             search_window.webContents.reload();
             break;
         case "home":
-            for (let v of main_window.getBrowserViews()) {
-                v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-            }
+            min_views(main_window);
             break;
     }
 });
+
+function min_views(main_window) {
+    for (let v of main_window.getBrowserViews()) {
+        v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    }
+}
 
 function get_file_name() {
     const f = require("./lib/time_format");
