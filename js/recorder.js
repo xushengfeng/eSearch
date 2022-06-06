@@ -1,6 +1,5 @@
 var /**@type {MediaRecorder} */ recorder;
 
-var save_path;
 var tmp_path;
 
 var start_stop = document.getElementById("start_stop");
@@ -67,11 +66,10 @@ var audio = false,
     camera = false;
 
 const { ipcRenderer } = require("electron");
-ipcRenderer.on("record", async (event, t, v, sourceId) => {
+ipcRenderer.on("record", async (event, t, sourceId) => {
     switch (t) {
         case "init":
             s_s = true;
-            save_path = v;
             let devices = await navigator.mediaDevices.enumerateDevices();
             for (let i of devices) {
                 if (i.kind == "audioinput") audio = true;
@@ -137,7 +135,8 @@ ipcRenderer.on("record", async (event, t, v, sourceId) => {
                     const fs = require("fs");
                     const os = require("os");
                     const path = require("path");
-                    tmp_path = path.join(os.tmpdir(), "eSearch/", path.basename(v));
+                    let file_name = String(new Date().getTime());
+                    tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
                     fs.writeFile(tmp_path, Buffer.from(reader.result), (err) => {
                         if (!err) {
                             show_control();
@@ -231,8 +230,11 @@ document.getElementById("camera").onclick = () => {
 };
 
 ipcRenderer.on("ff", (event, err, st) => {
-    if (err) console.error(err);
-    console.log(st);
+    if (err) {
+        console.error(err);
+    } else {
+        ipcRenderer.send("record", "close");
+    }
 });
 
 var editting = false;
@@ -376,15 +378,14 @@ function save() {
     t += `-ss ${document.getElementById("t_start").value} `;
     if (document.getElementById("t_end").value != (time_l[time_l.length - 1] - time_l[0]) / 1000)
         t += `-to ${document.getElementById("t_end").value} `;
-    let tt = `${save_path}.${document.getElementById("格式").value} `;
-    t += tt;
+    let 格式 = document.getElementById("格式").value;
     console.log(t);
     store.set("录屏.转换.格式", document.getElementById("格式").value);
     store.set("录屏.转换.码率", Number(document.getElementById("码率").value));
     store.set("录屏.转换.帧率", Number(document.getElementById("帧率").value));
     store.set("录屏.转换.其他", document.getElementById("其他参数").value);
-    ipcRenderer.send("record", "ff", t, tt);
-    ipcRenderer.send("record", "close");
+    ipcRenderer.send("record", "ff", { 源文件: tmp_path, 参数: t, 格式 });
+    // ipcRenderer.send("record", "close");
 }
 
 document.getElementById("save").onclick = save;

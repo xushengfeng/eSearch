@@ -588,28 +588,7 @@ function create_clip_window() {
                 store.set("保存.保存路径.图片", path.dirname(arg));
                 break;
             case "record":
-                var saved_path = store.get("保存.保存路径.视频") || "";
-                n_full_screen();
-                dialog
-                    .showSaveDialog({
-                        title: t("选择要保存的位置"),
-                        defaultPath: path.join(saved_path, `${get_file_name()}`),
-                        filters: [{ name: t("视频") }],
-                    })
-                    .then((x) => {
-                        if (x.filePath) {
-                            create_recorder_window(x.filePath, arg);
-                            event.sender.send("close");
-                        } else {
-                            new Notification({
-                                title: `${app.name} ${t("保存视频失败")}`,
-                                body: t("用户已取消保存"),
-                                icon: `${run_path}/assets/logo/64x64.png`,
-                            }).show();
-                            clip_window.show();
-                            clip_window.setSimpleFullScreen(true);
-                        }
-                    });
+                create_recorder_window(arg);
                 break;
         }
     });
@@ -720,11 +699,10 @@ function image_search(event, arg) {
 var /** @type {BrowserWindow}*/ recorder;
 var mouse_ps = {};
 var record_start = false;
-var record_path = "";
 var record_mouse_v = false;
 var record_start_time = 0;
 var record_start_d_time = 0;
-function create_recorder_window(save_path, rect) {
+function create_recorder_window(rect) {
     recorder = new BrowserWindow({
         icon: the_icon,
         ...(store.get("录屏.大小.x") ? { x: store.get("录屏.大小.x") } : {}),
@@ -759,11 +737,10 @@ function create_recorder_window(save_path, rect) {
 
     mouse_ps = {};
     record_start = false;
-    record_path = save_path;
 
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
-            recorder.webContents.send("record", "init", save_path, sources[0].id);
+            recorder.webContents.send("record", "init", sources[0].id);
         });
     });
     record_start = true;
@@ -804,8 +781,8 @@ function create_recorder_window(save_path, rect) {
     }
 }
 
-ipcMain.on("record", (event, t, arg, arg1) => {
-    switch (t) {
+ipcMain.on("record", (event, type, arg, arg1) => {
+    switch (type) {
         case "stop":
             record_start = false;
             break;
@@ -823,19 +800,34 @@ ipcMain.on("record", (event, t, arg, arg1) => {
             record_mouse();
             break;
         case "ff":
-            let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
-            let x = `${ffmpeg} -i ${path.join(os.tmpdir(), "eSearch/", path.basename(record_path))} -vf crop=${
-                mouse_ps.rect[2]
-            }:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${arg}`;
-            exec(x, (e, st) => {
-                if (e) {
-                    console.error(e);
-                } else {
-                    noti(arg1);
-                    store.set("保存.保存路径.视频", path.dirname(arg1));
-                }
-                if (!recorder.isDestroyed()) recorder.webContents.send("ff", e, st);
-            });
+            var saved_path = store.get("保存.保存路径.视频") || "";
+            dialog
+                .showSaveDialog({
+                    title: t("选择要保存的位置"),
+                    defaultPath: path.join(saved_path, `${get_file_name()}.${arg.格式}`),
+                    filters: [{ name: t("视频") }],
+                })
+                .then((x) => {
+                    if (x.filePath) {
+                        let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
+                        let ml = `${ffmpeg} -i ${arg.源文件} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${x.filePath}`;
+                        exec(ml, (e, st) => {
+                            if (e) {
+                                console.error(e);
+                            } else {
+                                noti(x.filePath);
+                                store.set("保存.保存路径.视频", path.dirname(x.filePath));
+                            }
+                            if (!recorder.isDestroyed()) recorder.webContents.send("ff", e, st);
+                        });
+                    } else {
+                        new Notification({
+                            title: `${app.name} ${t("保存视频失败")}`,
+                            body: t("用户已取消保存"),
+                            icon: `${run_path}/assets/logo/64x64.png`,
+                        }).show();
+                    }
+                });
             break;
         case "close":
             recorder.close();

@@ -400,7 +400,7 @@ function open_app() {
 
 function tool_record_f() {
     ipcRenderer.send("clip_main_b", "record", final_rect);
-    ipcRenderer.on("close", tool_close_f);
+    tool_close_f();
 }
 // 钉在屏幕上
 function tool_ding_f() {
