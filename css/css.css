@@ -175,10 +175,7 @@ body {
     word-break: break-all;
 }
 
-/* 用于历史记录和浏览器打开固定 */
-.hover_b2 {
-    box-shadow: var(--shadow);
-}
+/* 用于历史记录固定 */
 .hover_b2 > button {
     background-color: var(--hover-color);
 }
@@ -435,9 +432,12 @@ button > .icon {
     border-radius: var(--border-radius);
     overflow: hidden;
 }
-.tab_focus {
+.tab:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
+}
+.tab_focus {
+    background-color: var(--hover-color);
 }
 .tab_small {
     max-width: 32px !important;
