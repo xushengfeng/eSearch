@@ -249,7 +249,6 @@ function show_control() {
     document.getElementById("m").style.backgroundColor = "var(--bg)";
     document.getElementById("time").innerText = "";
     add_types();
-    document.querySelector("video").style.height = "100%";
     document.querySelector("video").style.transform = "";
     document.querySelector("video").src = tmp_path;
     clip_v();
