@@ -726,3 +726,11 @@ ipcRenderer.on("about", (event, arg) => {
         location.hash = "#about";
     }
 });
+
+var io = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+        document.getElementById("version").click();
+    }
+});
+
+io.observe(document.querySelector("#about > img"));
