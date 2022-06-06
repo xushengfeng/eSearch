@@ -16,7 +16,7 @@ body {
     display: grid;
     height: 100%;
     width: 100%;
-    grid-template-columns: calc(2 * var(--b-button)) 1fr repeat(2, var(--b-button)) repeat(2, auto);
+    grid-template-columns: calc(2 * var(--b-button)) 1fr var(--b-button) repeat(2, auto);
     grid-template-rows: auto var(--b-button);
     grid-column-gap: var(--o-padding);
     grid-row-gap: var(--o-padding);

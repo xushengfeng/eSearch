@@ -1129,18 +1129,6 @@ var window_name = "", main_text = "";
 var 自动搜索 = store.get("自动搜索"), 自动打开链接 = store.get("自动打开链接"), 自动搜索中文占比 = store.get("自动搜索中文占比");
 /************************************UI */
 var 浏览器打开 = store.get("浏览器中打开");
-if (浏览器打开)
-    document.getElementById("browser").className = "hover_b2";
-document.getElementById("browser").onclick = () => {
-    if (浏览器打开) {
-        document.getElementById("browser").className = "";
-        浏览器打开 = false;
-    }
-    else {
-        document.getElementById("browser").className = "hover_b2";
-        浏览器打开 = true;
-    }
-};
 /**字体大小 */
 var 默认字体大小 = store.get("字体.大小");
 document.getElementById("text_out").style.fontSize =
