@@ -353,6 +353,7 @@ document.querySelector("#浏览器中打开").checked = store.get("浏览器中�
 document.querySelector("#搜索窗口自动关闭").checked = store.get("浏览器.标签页.自动关闭");
 document.getElementById("标签缩小").checked = store.get("浏览器.标签页.小");
 document.getElementById("标签灰度").checked = store.get("浏览器.标签页.灰度");
+document.getElementById("标签页透明填充").checked = store.get("浏览器.标签页.透明填充");
 
 document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
@@ -578,6 +579,7 @@ function save_setting() {
         自动关闭: document.querySelector("#搜索窗口自动关闭").checked,
         小: document.getElementById("标签缩小").checked,
         灰度: document.getElementById("标签灰度").checked,
+        透明填充: document.getElementById("标签页透明填充").checked,
     });
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
