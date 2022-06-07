@@ -1844,11 +1844,23 @@ ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
     }
     document.getElementById("tabs").classList.add("tabs_show");
 });
-function new_tab(id, url) {
-    var li = document.getElementById("tab").cloneNode(true);
-    li_list.push(li);
-    li.style.display = "flex";
-    li.setAttribute("data-url", url);
+ipcRenderer.on("html", (e, h) => {
+    document.getElementById("tabs").innerHTML = h;
+    document
+        .getElementById("tabs")
+        .querySelectorAll("li")
+        .forEach((li) => {
+        绑定li(li);
+        li_list.push(li);
+    });
+    document.getElementById("buttons").onclick = (e) => {
+        main_event(e);
+    };
+    if (document.getElementById("tabs").querySelector("li"))
+        document.getElementById("tabs").classList.add("tabs_show");
+});
+function 绑定li(li) {
+    let id = Number(li.id.replace("id", ""));
     li.onmouseup = (e) => {
         if (e.button == 0) {
             focus_tab(li);
@@ -1857,11 +1869,18 @@ function new_tab(id, url) {
             close_tab(li, id);
         }
     };
-    var button = li.querySelector("button");
+    let button = li.querySelector("button");
     button.onclick = (e) => {
         e.stopPropagation();
         close_tab(li, id);
     };
+}
+function new_tab(id, url) {
+    let li = document.getElementById("tab").cloneNode(true);
+    li_list.push(li);
+    li.style.display = "flex";
+    li.setAttribute("data-url", url);
+    绑定li(li);
     document.getElementById("tabs").appendChild(li);
     li.id = "id" + id;
     focus_tab(li);
@@ -1982,4 +2001,8 @@ document.getElementById("tabs").onwheel = (e) => {
     e.preventDefault();
     var i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
     document.getElementById("tabs").scrollLeft += i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
+};
+document.getElementById("tab_bar").onclick = () => {
+    let html = document.getElementById("tabs").innerHTML;
+    ipcRenderer.send("tab_view", window_name, null, "save_html", html);
 };

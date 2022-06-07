@@ -1324,6 +1324,10 @@ function create_main_window(web_page, t, about) {
             main_window.webContents.send("about", about);
             main_window.webContents.send("setting", main_window.id);
         }
+
+        if (main_window.html) {
+            main_window.webContents.send("html", main_window.html);
+        }
     });
 
     main_window.on("close", () => {
@@ -1462,6 +1466,9 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
             break;
         case "home":
             min_views(main_window);
+            break;
+        case "save_html":
+            main_window["html"] = arg2;
             break;
     }
 });
