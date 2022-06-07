@@ -1851,7 +1851,6 @@ function new_tab(id, url) {
     li.setAttribute("data-url", url);
     li.onmouseup = (e) => {
         if (e.button == 0) {
-            ipcRenderer.send("tab_view", window_name, id, "top");
             focus_tab(li);
         }
         else {
@@ -1864,8 +1863,8 @@ function new_tab(id, url) {
         close_tab(li, id);
     };
     document.getElementById("tabs").appendChild(li);
-    focus_tab(li);
     li.id = "id" + id;
+    focus_tab(li);
     if (store.get("浏览器.标签页.小")) {
         li.classList.add("tab_small");
     }
@@ -1908,8 +1907,15 @@ function focus_tab(li) {
             li_list.push(li);
         }
     }
-    document.title = `eSearch - ${li.querySelector("span").title}`;
-    document.body.classList.add(透明填充 ? "fill_t_s" : "n_fill_t_s");
+    if (li) {
+        ipcRenderer.send("tab_view", window_name, li.id.replace("id", ""), "top");
+        document.title = `eSearch - ${li.querySelector("span").title}`;
+        document.body.classList.add(透明填充 ? "fill_t_s" : "n_fill_t_s");
+    }
+    else {
+        document.body.classList.remove(透明填充 ? "fill_t_s" : "n_fill_t_s");
+        document.title = t("eSearch - 主页面");
+    }
 }
 function title(id, arg) {
     document.querySelector(`#id${id} > span`).innerHTML =
