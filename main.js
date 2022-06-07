@@ -1469,6 +1469,7 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
             break;
         case "save_html":
             main_window["html"] = arg2;
+            min_views(main_window);
             break;
     }
 });

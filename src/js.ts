@@ -2024,6 +2024,7 @@ document.getElementById("tabs").onwheel = (e) => {
 };
 
 document.getElementById("tab_bar").onclick = () => {
+    document.querySelector(".tab_focus").classList.remove("tab_focus");
     let html = document.getElementById("tabs").innerHTML;
     ipcRenderer.send("tab_view", window_name, null, "save_html", html);
 };
