@@ -1285,8 +1285,12 @@ var main_to_search_l = {};
 function create_main_window(web_page, t, about) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
-    var x = screen.getCursorScreenPoint().x - w,
-        y = screen.getCursorScreenPoint().y - h;
+    let vw = screen.getPrimaryDisplay().bounds.width,
+        vh = screen.getPrimaryDisplay().bounds.height,
+        px = screen.getCursorScreenPoint().x,
+        py = screen.getCursorScreenPoint().y;
+    let x = px > vw / 2 ? px - w : px,
+        y = py > vh / 2 ? py - h : py;
     var main_window = (main_window_l[window_name] = new BrowserWindow({
         x: x < 0 ? 0 : x,
         y: y < 0 ? 0 : y,
