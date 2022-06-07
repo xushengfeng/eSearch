@@ -699,9 +699,15 @@ function create_recorder_window(rect) {
     let hx = rect[0] + rect[2] / 2,
         hy = rect[1] + rect[3] / 2,
         w = 216,
-        h = 24;
+        h = 24,
+        sw = screen.getPrimaryDisplay().bounds.width,
+        sh = screen.getPrimaryDisplay().bounds.height;
     let x = p.x <= hx ? rect[0] : rect[0] + rect[2] - w,
         y = p.y <= hy ? rect[1] - h - 8 : rect[1] + rect[3] + 8;
+    x = x < 0 ? 0 : x;
+    x = x + w > sw ? sw - w : x;
+    y = y < 0 ? 0 : y;
+    y = y + h > sh ? sh - h : y;
     recorder = new BrowserWindow({
         icon: the_icon,
         x,
