@@ -25,10 +25,6 @@ uIOhook.on("keyup", (e) => {
 });
 
 uIOhook.on("mousedown", (e) => {});
-uIOhook.on("mousemove", (e) => {
-    document.getElementById("mouse_c").style.left = e.x + "px";
-    document.getElementById("mouse_c").style.top = e.y + "px";
-});
 uIOhook.on("mouseup", (e) => {});
 
 uIOhook.start();
@@ -40,6 +36,10 @@ ipcRenderer.on("record", async (event, t, arg) => {
             document.getElementById("rect").style.top = arg[1] + "px";
             document.getElementById("rect").style.width = arg[2] + "px";
             document.getElementById("rect").style.height = arg[3] + "px";
+            break;
+        case "mouse":
+            document.getElementById("mouse_c").style.left = arg.x + "px";
+            document.getElementById("mouse_c").style.top = arg.y + "px";
             break;
     }
 });

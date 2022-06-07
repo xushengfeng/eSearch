@@ -798,9 +798,13 @@ function create_recorder_window(rect) {
 
     recorder1.setIgnoreMouseEvents(true);
 
-    const { uIOhook, UiohookKey } = require("uiohook-napi");
-
-
+    function mouse() {
+        let n_xy = screen.getCursorScreenPoint();
+        let ratio = screen.getPrimaryDisplay().scaleFactor;
+        recorder1.webContents.send("record", "mouse", { x: n_xy.x * ratio, y: n_xy.y * ratio });
+        setTimeout(mouse, 10);
+    }
+    mouse();
 }
 
 ipcMain.on("record", (event, type, arg, arg1) => {
