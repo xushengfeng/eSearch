@@ -1293,7 +1293,10 @@ function create_main_window(web_page, t, about) {
         width: w,
         height: h,
         minWidth: 800,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
+        ...(store.get("浏览器.标签页.透明填充")
+            ? { backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff" }
+            : {}),
+        transparent: true,
         icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
@@ -1390,7 +1393,6 @@ async function create_browser(window_name, url) {
     min_views(main_window);
     var view = new Date().getTime();
     var search_view = (search_window_l[view] = new BrowserView());
-    search_view.setBackgroundColor(nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff");
     main_window_l[window_name].addBrowserView(search_view);
     search_view.webContents.loadURL(url);
     var w = main_window.getBounds().width,
@@ -1655,6 +1657,7 @@ var default_setting = {
             自动关闭: true,
             小: false,
             灰度: false,
+            透明填充: true,
         },
     },
     保存: {

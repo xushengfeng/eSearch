@@ -1823,6 +1823,8 @@ const { t, lan } = require("./lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 /************************************浏览器 */
+var 透明填充 = store.get("浏览器.标签页.透明填充");
+document.body.className = 透明填充 ? "fill_t" : "n_fill_t";
 var li_list = [];
 ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
     if (arg == "new") {
@@ -1906,6 +1908,7 @@ function focus_tab(li) {
             li_list.push(li);
         }
     }
+    document.body.classList.add(透明填充 ? "fill_t_s" : "n_fill_t_s");
 }
 function title(id, arg) {
     document.querySelector(`#id${id} > span`).innerHTML =
@@ -1950,6 +1953,7 @@ function main_event(e) {
             ipcRenderer.send("tab_view", window_name, id, el.id);
         if (el.id == "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
+            document.body.classList.remove(透明填充 ? "fill_t_s" : "n_fill_t_s");
         }
     }
 }

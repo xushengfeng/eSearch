@@ -9,7 +9,6 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background-color: var(--bg);
 }
 
 .main {
@@ -490,4 +489,47 @@ button > .icon {
 .tab > button:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
+}
+
+.fill_t {
+    background-color: var(--bg);
+}
+
+.fill_t #browser_bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 48px);
+    background-color: var(--bg);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+}
+
+.fill_t_s #browser_bg {
+    opacity: 1;
+}
+
+.n_fill_t {
+    background-color: var(--bg);
+}
+.n_fill_t #browser_bg {
+    position: fixed;
+    top: calc(100vh - 48px);
+    left: 0;
+    width: 100%;
+    height: 48px;
+    background-color: var(--bg);
+    pointer-events: none;
+    z-index: -1;
+}
+.n_fill_t_s {
+    background-color: #0000 !important;
+}
+.n_fill_t_s #top {
+    opacity: 0;
+}
+.n_fill_t_s #find {
+    opacity: 0;
 }
