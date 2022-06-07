@@ -33,9 +33,12 @@ uIOhook.on("mousedown", (e) => {
 uIOhook.on("mouseup", (e) => {
     mouse_el[m2m[e.button]].style.backgroundColor = "";
 });
+
+let time_out;
 uIOhook.on("wheel", (e) => {
     mouse_el[1].style.backgroundColor = "#0f0";
-    setTimeout(() => {
+    clearTimeout(time_out);
+    time_out = setTimeout(() => {
         mouse_el[1].style.backgroundColor = "";
     }, 200);
 });
