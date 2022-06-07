@@ -420,7 +420,7 @@ button > .icon {
     width: var(--b-button);
 }
 
-.tab {
+.b_tab {
     display: flex;
     height: var(--b-button);
     align-items: center;
@@ -432,7 +432,7 @@ button > .icon {
     border-radius: var(--border-radius);
     overflow: hidden;
 }
-.tab:hover {
+.b_tab:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
@@ -446,7 +446,7 @@ button > .icon {
     filter: grayscale(1);
 }
 
-.tab > img {
+.b_tab > img {
     height: 20px;
     margin-left: 6px;
 }
@@ -462,14 +462,14 @@ button > .icon {
     }
 }
 
-.tab > span {
+.b_tab > span {
     cursor: default;
     padding-left: 4px;
     overflow: hidden;
     white-space: nowrap;
     flex-grow: 1;
 }
-.tab > button {
+.b_tab > button {
     width: 20px;
     height: 20px;
     flex-shrink: 0;
@@ -482,11 +482,11 @@ button > .icon {
     position: relative;
 }
 
-.tab > button > .icon {
+.b_tab > button > .icon {
     width: 20px;
 }
 
-.tab > button:hover {
+.b_tab > button:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
