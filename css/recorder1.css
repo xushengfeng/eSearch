@@ -2,3 +2,18 @@
     position: fixed;
     border: 1px solid #000;
 }
+
+#mouse_c {
+    position: fixed;
+    width: 24px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background-color: #ff08;
+}
+
+#bar {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}

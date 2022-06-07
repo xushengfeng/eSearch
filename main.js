@@ -800,21 +800,7 @@ function create_recorder_window(rect) {
 
     const { uIOhook, UiohookKey } = require("uiohook-napi");
 
-    uIOhook.on("keydown", (e) => {
-        console.log(e.keycode);
-    });
-    uIOhook.on("keyup", (e) => {
-        console.log(e.keycode);
-    });
 
-    uIOhook.on("mousedown", (e) => {
-        console.log(e.button);
-    });
-    uIOhook.on("mouseup", (e) => {
-        console.log(e.button);
-    });
-
-    uIOhook.start();
 }
 
 ipcMain.on("record", (event, type, arg, arg1) => {
