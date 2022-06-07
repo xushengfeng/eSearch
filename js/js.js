@@ -2002,7 +2002,7 @@ document.getElementById("tabs").onwheel = (e) => {
     var i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
     document.getElementById("tabs").scrollLeft += i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
 };
-document.getElementById("tab_bar").onclick = () => {
+window.onbeforeunload = () => {
     document.querySelector(".tab_focus").classList.remove("tab_focus");
     let html = document.getElementById("tabs").innerHTML;
     ipcRenderer.send("tab_view", window_name, null, "save_html", html);
