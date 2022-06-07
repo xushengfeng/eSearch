@@ -805,6 +805,7 @@ function create_recorder_window(rect) {
     recorder1.setIgnoreMouseEvents(true);
 
     function mouse() {
+        if (recorder1.isDestroyed()) return;
         let n_xy = screen.getCursorScreenPoint();
         let ratio = screen.getPrimaryDisplay().scaleFactor;
         recorder1.webContents.send("record", "mouse", { x: n_xy.x * ratio, y: n_xy.y * ratio });
