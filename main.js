@@ -1407,7 +1407,6 @@ async function create_browser(window_name, url) {
     if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "new", url);
     search_view.webContents.on("page-title-updated", (event, title) => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "title", title);
-        main_window.setTitle(`eSearch - ${title}`);
     });
     search_view.webContents.on("page-favicon-updated", (event, favlogo) => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "icon", favlogo);

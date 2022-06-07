@@ -1908,6 +1908,7 @@ function focus_tab(li) {
             li_list.push(li);
         }
     }
+    document.title = `eSearch - ${li.querySelector("span").title}`;
     document.body.classList.add(透明填充 ? "fill_t_s" : "n_fill_t_s");
 }
 function title(id, arg) {
@@ -1915,6 +1916,7 @@ function title(id, arg) {
         document.getElementById(`id${id}`).querySelector(`span`).title =
             document.getElementById(`id${id}`).querySelector(`img`).title =
                 arg;
+    document.title = `eSearch - ${arg}`;
 }
 function icon(id, arg) {
     document.getElementById(`id${id}`).querySelector(`img`).src = arg[0];
@@ -1954,6 +1956,7 @@ function main_event(e) {
         if (el.id == "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
             document.body.classList.remove(透明填充 ? "fill_t_s" : "n_fill_t_s");
+            document.title = t("eSearch - 主页面");
         }
     }
 }
