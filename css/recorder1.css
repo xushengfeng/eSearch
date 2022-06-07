@@ -20,10 +20,22 @@
 
 #mouse {
     display: flex;
-    outline: 0.5px solid #000;
 }
 
-#mouse > div {
-    width: 10px;
-    height: 10px;
+#mouse > div:nth-child(1) {
+    width: 8px;
+    height: 16px;
+    border-radius: 4px 0 0 4px;
+    margin-right: -2px;
+}
+#mouse > div:nth-child(2) {
+    width: 4px;
+    height: 8px;
+    border-radius: 2px;
+    margin-right: -2px;
+}
+#mouse > div:nth-child(3) {
+    width: 8px;
+    height: 16px;
+    border-radius: 0 4px 4px 0;
 }
