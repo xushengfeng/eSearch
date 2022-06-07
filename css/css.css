@@ -368,6 +368,7 @@ select:hover {
 }
 option {
     font-size: var(--font-size);
+    background-color: var(--bg);
 }
 button > .icon {
     width: var(--b-button);
