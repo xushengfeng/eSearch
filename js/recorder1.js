@@ -9,19 +9,19 @@ for (let i in UiohookKey) {
 }
 console.log(keycode2key);
 
-var down_key = 0;
+var key_o = {};
 
 uIOhook.on("keydown", (e) => {
-    down_key++;
-    if (document.getElementById("key").innerText) {
-        document.getElementById("key").innerText += "+" + keycode2key[e.keycode];
-    } else {
-        document.getElementById("key").innerText += keycode2key[e.keycode];
-    }
+    key_o[e.keycode] = "";
+    document.getElementById("key").innerText = Object.keys(key_o)
+        .map((v) => keycode2key[v])
+        .join("+");
 });
 uIOhook.on("keyup", (e) => {
-    down_key--;
-    if (down_key == 0) document.getElementById("key").innerText = "";
+    delete key_o[e.keycode];
+    document.getElementById("key").innerText = Object.keys(key_o)
+        .map((v) => keycode2key[v])
+        .join("+");
 });
 
 uIOhook.on("mousedown", (e) => {});
