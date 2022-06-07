@@ -28,7 +28,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    grid-area: 1 / 1 / 2 / 7;
+    grid-area: 1 / 1 / 2 / 6;
     border-radius: var(--border-radius);
     transition: var(--transition);
     position: relative;
