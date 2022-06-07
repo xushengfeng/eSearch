@@ -695,12 +695,19 @@ var record_mouse_v = false;
 var record_start_time = 0;
 var record_start_d_time = 0;
 function create_recorder_window(rect) {
+    let p = screen.getCursorScreenPoint();
+    let hx = rect[0] + rect[2] / 2,
+        hy = rect[1] + rect[3] / 2,
+        w = 216,
+        h = 24;
+    let x = p.x <= hx ? rect[0] : rect[0] + rect[2] - w,
+        y = p.y <= hy ? rect[1] - h - 8 : rect[1] + rect[3] + 8;
     recorder = new BrowserWindow({
         icon: the_icon,
-        ...(store.get("录屏.大小.x") ? { x: store.get("录屏.大小.x") } : {}),
-        ...(store.get("录屏.大小.y") ? { y: store.get("录屏.大小.y") } : {}),
-        width: 216,
-        height: 24,
+        x,
+        y,
+        width: w,
+        height: h,
         alwaysOnTop: true,
         transparent: true,
         frame: false,
