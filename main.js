@@ -688,7 +688,7 @@ function image_search(event, arg) {
     });
 }
 
-var /** @type {BrowserWindow}*/ recorder;
+var /** @type {BrowserWindow}*/ recorder, /** @type {BrowserWindow}*/ recorder1;
 var mouse_ps = {};
 var record_start = false;
 var record_mouse_v = false;
@@ -718,6 +718,7 @@ function create_recorder_window(rect) {
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
+        recorder1.close();
     });
 
     recorder.on("resize", () => {
@@ -771,6 +772,30 @@ function create_recorder_window(rect) {
             }
         });
     }
+
+    recorder1 = new BrowserWindow({
+        icon: the_icon,
+        fullscreen: true,
+        transparent: true,
+        frame: false,
+        autoHideMenuBar: true,
+        resizable: false,
+        titleBarStyle: "hiddenInset",
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+    recorder1.loadFile("recorder1.html");
+    if (dev) recorder1.webContents.openDevTools();
+
+    recorder1.setAlwaysOnTop(true, "screen-saver");
+
+    recorder1.webContents.on("did-finish-load", () => {
+        recorder1.webContents.send("record", "init", rect);
+    });
+
+    recorder1.setIgnoreMouseEvents(true);
 }
 
 ipcMain.on("record", (event, type, arg, arg1) => {
