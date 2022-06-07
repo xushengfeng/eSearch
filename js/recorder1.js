@@ -13,15 +13,18 @@ var key_o = {};
 
 uIOhook.on("keydown", (e) => {
     key_o[e.keycode] = "";
-    document.getElementById("key").innerText = Object.keys(key_o)
+    document.getElementById("key").innerHTML = `<kbd>${Object.keys(key_o)
         .map((v) => keycode2key[v])
-        .join("+");
+        .join("</kbd>+<kbd>")}</kbd>`;
 });
 uIOhook.on("keyup", (e) => {
     delete key_o[e.keycode];
-    document.getElementById("key").innerText = Object.keys(key_o)
-        .map((v) => keycode2key[v])
-        .join("+");
+    document.getElementById("key").innerHTML =
+        Object.keys(key_o).length == 0
+            ? ""
+            : `<kbd>${Object.keys(key_o)
+                  .map((v) => keycode2key[v])
+                  .join("</kbd>+<kbd>")}</kbd>`;
 });
 
 var m2m = { 1: 0, 3: 1, 2: 2 };
