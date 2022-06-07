@@ -36,6 +36,8 @@ Quick download link in China: [Releases - xushengfeng/eSearch - fastgit](https:/
 
 ArchLinux can be found at AUR to install `e-search` or `e-search-git`.
 
+winget `winget install esearch`
+
 ## OCR Services
 
 The software does not come with a local OCR core service, but will prompt for a download when launched.

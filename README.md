@@ -36,6 +36,8 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 ArchLinux 可在 AUR 查找安装 `e-search`或`e-search-git`
 
+winget `winget install esearch`
+
 ## OCR 服务
 
 软件不附带本地 OCR 核心服务，但在启动时会提示下载。
