@@ -875,17 +875,32 @@ ipcMain.on("record", (event, type, arg, arg1) => {
             recorder.minimize();
             break;
         case "camera":
-            if (arg) {
-                recorder.setBounds({
-                    width: store.get("录屏.大小.width") || 800,
-                    height: store.get("录屏.大小.height") || 600,
-                    x: recorder.getBounds().x,
-                    y: recorder.getBounds().y,
-                });
-                recorder.setResizable(true);
-            } else {
-                recorder.setResizable(false);
-                recorder.setBounds({ width: 216, height: 24, x: recorder.getBounds().x, y: recorder.getBounds().y });
+            switch (arg) {
+                case 0:
+                    recorder.setBounds({
+                        width: store.get("录屏.大小.width") || 800,
+                        height: store.get("录屏.大小.height") || 600,
+                        x: recorder.getBounds().x,
+                        y: recorder.getBounds().y,
+                    });
+                    recorder.setResizable(true);
+                    break;
+                case 1:
+                    recorder.setResizable(false);
+                    recorder.setBounds({
+                        width: 216,
+                        height: 24,
+                        x: recorder.getBounds().x,
+                        y: recorder.getBounds().y,
+                    });
+                    break;
+                case 2:
+                    recorder.setBounds({
+                        width: store.get("录屏.大小.width") || 800,
+                        height: store.get("录屏.大小.height") || 600,
+                    });
+                    recorder.center();
+                    break;
             }
             break;
         case "pause_time":

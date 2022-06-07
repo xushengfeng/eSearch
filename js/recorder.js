@@ -203,11 +203,12 @@ async function camera_stream_f(v) {
         document.querySelector("video").srcObject = camera_stream;
         document.querySelector("video").play();
         if (store.get("录屏.摄像头.镜像")) document.querySelector("video").style.transform = "rotateY(180deg)";
+        ipcRenderer.send("record", "camera", 0);
     } else {
         camera_stream.getVideoTracks()[0].stop();
         document.querySelector("video").srcObject = null;
+        ipcRenderer.send("record", "camera", 1);
     }
-    ipcRenderer.send("record", "camera", v);
 }
 
 if (store.get("录屏.摄像头.默认开启")) {
@@ -260,7 +261,7 @@ function show_control() {
     if (store.get("录屏.转换.自动转换")) {
         save();
     } else {
-        ipcRenderer.send("record", "camera", true);
+        ipcRenderer.send("record", "camera", 2);
     }
 }
 
