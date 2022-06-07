@@ -17,3 +17,13 @@
     right: 0;
     bottom: 0;
 }
+
+#mouse {
+    display: flex;
+    outline: 0.5px solid #000;
+}
+
+#mouse > div {
+    width: 10px;
+    height: 10px;
+}

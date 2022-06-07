@@ -719,7 +719,6 @@ function create_recorder_window(rect) {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
         recorder1.close();
-        uIOhook.stop();
     });
 
     recorder.on("resize", () => {

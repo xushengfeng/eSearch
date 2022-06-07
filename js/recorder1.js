@@ -24,8 +24,21 @@ uIOhook.on("keyup", (e) => {
         .join("+");
 });
 
-uIOhook.on("mousedown", (e) => {});
-uIOhook.on("mouseup", (e) => {});
+var m2m = { 1: 0, 3: 1, 2: 2 };
+var mouse_el = document.getElementById("mouse").querySelectorAll("div");
+
+uIOhook.on("mousedown", (e) => {
+    mouse_el[m2m[e.button]].style.backgroundColor = "#00f";
+});
+uIOhook.on("mouseup", (e) => {
+    mouse_el[m2m[e.button]].style.backgroundColor = "";
+});
+uIOhook.on("wheel", (e) => {
+    mouse_el[1].style.backgroundColor = "#0f0";
+    setTimeout(() => {
+        mouse_el[1].style.backgroundColor = "";
+    }, 200);
+});
 
 uIOhook.start();
 
