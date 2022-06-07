@@ -510,6 +510,15 @@ button > .icon {
 .fill_t_s #browser_bg {
     opacity: 1;
 }
+.fill_t_s .main {
+    grid-template-columns: 1fr repeat(2, auto);
+}
+.fill_t_s #top {
+    grid-area: 1 / 1 / 2 / 4;
+}
+.fill_t_s .main > :is(#tab_bar, #history) {
+    display: none;
+}
 
 .n_fill_t {
     background-color: var(--bg);
@@ -532,4 +541,13 @@ button > .icon {
 }
 .n_fill_t_s #find {
     opacity: 0;
+}
+.n_fill_t_s .main {
+    grid-template-columns: 1fr repeat(2, auto);
+}
+.n_fill_t_s #top {
+    grid-area: 1 / 1 / 2 / 4;
+}
+.n_fill_t_s .main > :is(#tab_bar, #history) {
+    display: none;
 }
