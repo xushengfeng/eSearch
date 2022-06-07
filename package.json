@@ -22,7 +22,8 @@
     "hotkeys-js": "^3.9.0",
     "jsqr": "^1.4.0",
     "opencv.js": "^1.2.1",
-    "robotjs": "^0.6.0"
+    "robotjs": "^0.6.0",
+    "uiohook-napi": "^1.2.0"
   },
   "devDependencies": {
     "electron": "^18.1.0",

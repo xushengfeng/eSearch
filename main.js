@@ -719,6 +719,7 @@ function create_recorder_window(rect) {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
         recorder1.close();
+        uIOhook.stop();
     });
 
     recorder.on("resize", () => {
@@ -796,6 +797,24 @@ function create_recorder_window(rect) {
     });
 
     recorder1.setIgnoreMouseEvents(true);
+
+    const { uIOhook, UiohookKey } = require("uiohook-napi");
+
+    uIOhook.on("keydown", (e) => {
+        console.log(e.keycode);
+    });
+    uIOhook.on("keyup", (e) => {
+        console.log(e.keycode);
+    });
+
+    uIOhook.on("mousedown", (e) => {
+        console.log(e.button);
+    });
+    uIOhook.on("mouseup", (e) => {
+        console.log(e.button);
+    });
+
+    uIOhook.start();
 }
 
 ipcMain.on("record", (event, type, arg, arg1) => {
