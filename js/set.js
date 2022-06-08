@@ -637,8 +637,7 @@ var path_info = `${t("运行目录：")}${__dirname}<br>
                 ${t("配置目录：")}${store.path.replace(/[/\\]config\.json/, "")}<br>
                 ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
-                ${t("文字记录：")}${history_store.path}<br>
-                ${t("截屏记录：")}${img_store.path}`;
+                ${t("文字记录：")}${history_store.path}`;
 document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 
