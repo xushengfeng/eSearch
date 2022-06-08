@@ -389,15 +389,6 @@ document.getElementById("baidu_ocr_secret").value = store.get("在线OCR.baidu.s
 document.getElementById("youdao_ocr_id").value = store.get("在线OCR.youdao.id");
 document.getElementById("youdao_ocr_secret").value = store.get("在线OCR.youdao.secret");
 
-document.getElementById("截屏记录_b").checked = store.get("记录截屏.记录");
-document.getElementById("保留截屏记录").checked = store.get("记录截屏.限定保留");
-document.getElementById("截屏保留次").value = store.get("记录截屏.保留次数");
-var img_store = new Store({ name: "img_history" });
-document.getElementById("clear_img_his").onclick = () => {
-    var c = confirm("这将清除所有的截屏记录\n且不能复原\n确定清除？");
-    if (c) img_store.set("截屏记录", {});
-};
-
 历史记录设置 = store.get("历史记录设置");
 
 document.querySelector("#清除历史记录").disabled = !历史记录设置.保留历史记录;
@@ -583,11 +574,6 @@ function save_setting() {
     });
     历史记录设置.d = document.querySelector("#his_d").value - 0;
     历史记录设置.h = document.querySelector("#his_h").value - 0;
-    store.set("记录截屏", {
-        记录: document.getElementById("截屏记录_b").checked,
-        限定保留: document.getElementById("保留截屏记录").checked,
-        保留次数: document.getElementById("截屏保留次").value - 0,
-    });
     store.set("历史记录设置", 历史记录设置);
     store.set("时间格式", document.getElementById("时间格式").value);
     store.set("OCR", {

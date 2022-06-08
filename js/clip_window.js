@@ -114,38 +114,6 @@ function edge() {
     src = dst = contours = hierarchy = null;
 }
 
-function show_img_his() {
-    var img_store = new Store({ name: "img_history" });
-    if (document.getElementById("img_history").innerHTML != "") return;
-    var o_l = img_store.get("截屏记录") || {};
-    for (let j in o_l) {
-        let div = document.createElement("div");
-        div.innerHTML = '<button><img src="./assets/icons/close.svg" class="icon"></button>';
-        var f = require("./lib/time_format");
-        div.title = f(store.get("时间格式"), new Date(j - 0));
-        for (let k of o_l[j]) {
-            let img = document.createElement("img");
-            img.src = k.src;
-            div.append(img);
-            (() => {
-                img.onclick = () => {
-                    main_canvas.width = k.w;
-                    main_canvas.height = k.h;
-                    main_canvas.getContext("2d").drawImage(img, 0, 0, k.w, k.h);
-                };
-            })();
-        }
-        document.getElementById("img_history").prepend(div);
-        (() => {
-            div.querySelector("button").onclick = () => {
-                div.parentElement.removeChild(div);
-                img_store.delete(`截屏记录.${j}`);
-            };
-        })();
-    }
-    o_l = null;
-}
-
 // 左边窗口工具栏弹出
 var o = false;
 hotkeys("z", windows_bar_c_o);
@@ -153,7 +121,6 @@ function windows_bar_c_o() {
     if (!o) {
         document.querySelector("#windows_bar").style.transform = "translateX(0)";
         o = true;
-        show_img_his();
     } else {
         document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
         o = false;
