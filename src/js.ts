@@ -1960,6 +1960,7 @@ function title(id: number, arg: string) {
 }
 
 function icon(id: number, arg: Array<string>) {
+    document.getElementById(`id${id}`).setAttribute("data-icon", arg[0]);
     document.getElementById(`id${id}`).querySelector(`img`).src = arg[0];
 }
 
@@ -1974,6 +1975,10 @@ function load(id: number, loading: boolean) {
         document.getElementById("stop").style.display = "block";
     } else {
         document.querySelector(`#id${id} > img`).classList.remove("loading");
+        if (document.getElementById(`id${id}`).getAttribute("data-icon"))
+            document.getElementById(`id${id}`).querySelector(`img`).src = document
+                .getElementById(`id${id}`)
+                .getAttribute("data-icon");
         document.getElementById("reload").style.display = "block";
         document.getElementById("stop").style.display = "none";
     }

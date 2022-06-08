@@ -1943,6 +1943,7 @@ function title(id, arg) {
     document.title = `eSearch - ${arg}`;
 }
 function icon(id, arg) {
+    document.getElementById(`id${id}`).setAttribute("data-icon", arg[0]);
     document.getElementById(`id${id}`).querySelector(`img`).src = arg[0];
 }
 function url(id, url) {
@@ -1956,6 +1957,10 @@ function load(id, loading) {
     }
     else {
         document.querySelector(`#id${id} > img`).classList.remove("loading");
+        if (document.getElementById(`id${id}`).getAttribute("data-icon"))
+            document.getElementById(`id${id}`).querySelector(`img`).src = document
+                .getElementById(`id${id}`)
+                .getAttribute("data-icon");
         document.getElementById("reload").style.display = "block";
         document.getElementById("stop").style.display = "none";
     }
