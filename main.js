@@ -255,7 +255,7 @@ app.whenReady().then(() => {
             click: () => {
                 setTimeout(() => {
                     full_screen();
-                }, 500);
+                }, store.get("主搜索功能.截屏搜索延迟"));
             },
         },
         {
@@ -1643,6 +1643,7 @@ var default_setting = {
     主搜索功能: {
         自动搜索排除: [],
         剪贴板选区搜索: true,
+        截屏搜索延迟: 0,
     },
     全局: {
         模糊: 25,
