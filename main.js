@@ -1395,8 +1395,7 @@ function create_main_window(web_page, t, about) {
 
     // 浏览器大小适应
     main_window.on("resize", () => {
-        var w = main_window.getBounds().width,
-            h = main_window.getBounds().height;
+        var [w, h] = main_window.getContentSize();
         for (let i of main_window.getBrowserViews()) {
             if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
             if (main_window.isMaximized() || main_window.isFullScreen()) {
@@ -1440,11 +1439,10 @@ async function create_browser(window_name, url) {
     var search_view = (search_window_l[view] = new BrowserView());
     main_window_l[window_name].addBrowserView(search_view);
     search_view.webContents.loadURL(url);
-    var w = main_window.getBounds().width,
-        h = main_window.getBounds().height;
-    search_view.setBounds({ x: 0, y: 30, width: w, height: h - 30 });
-    main_window.setSize(w, h + 1);
-    main_window.setSize(w, h);
+    var [w, h] = main_window.getContentSize();
+    search_view.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+    main_window.setContentSize(w, h + 1);
+    main_window.setContentSize(w, h);
     search_view.webContents.setWindowOpenHandler(({ url }) => {
         create_browser(window_name, url);
         return { action: "deny" };
@@ -1508,8 +1506,8 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
             search_window.setBounds({
                 x: 0,
                 y: 0,
-                width: main_window.getBounds().width,
-                height: main_window.getBounds().height - 48,
+                width: main_window.getContentBounds().width,
+                height: main_window.getContentBounds().height - 48,
             });
             break;
         case "back":
