@@ -1823,8 +1823,7 @@ const { t, lan } = require("./lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 /************************************浏览器 */
-var 透明填充 = store.get("浏览器.标签页.透明填充");
-document.body.className = 透明填充 ? "fill_t" : "n_fill_t";
+document.body.className = "fill_t";
 var li_list = [];
 ipcRenderer.on("url", (event, _pid, id, arg, arg1) => {
     if (arg == "new") {
@@ -1929,10 +1928,10 @@ function focus_tab(li) {
     if (li) {
         ipcRenderer.send("tab_view", window_name, li.id.replace("id", ""), "top");
         document.title = `eSearch - ${li.querySelector("span").title}`;
-        document.body.classList.add(透明填充 ? "fill_t_s" : "n_fill_t_s");
+        document.body.classList.add("fill_t_s");
     }
     else {
-        document.body.classList.remove(透明填充 ? "fill_t_s" : "n_fill_t_s");
+        document.body.classList.remove("fill_t_s");
         document.title = t("eSearch - 主页面");
     }
 }
@@ -1980,7 +1979,7 @@ function main_event(e) {
             ipcRenderer.send("tab_view", window_name, id, el.id);
         if (el.id == "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
-            document.body.classList.remove(透明填充 ? "fill_t_s" : "n_fill_t_s");
+            document.body.classList.remove("fill_t_s");
             document.title = t("eSearch - 主页面");
         }
     }

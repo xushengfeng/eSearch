@@ -1337,10 +1337,7 @@ function create_main_window(web_page, t, about) {
         width: w,
         height: h,
         minWidth: 800,
-        ...(store.get("浏览器.标签页.透明填充")
-            ? { backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff" }
-            : {}),
-        transparent: true,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         icon: the_icon,
         webPreferences: {
             nodeIntegration: true,
@@ -1729,7 +1726,6 @@ var default_setting = {
             自动关闭: true,
             小: false,
             灰度: false,
-            透明填充: true,
         },
     },
     保存: {

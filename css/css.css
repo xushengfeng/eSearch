@@ -519,35 +519,3 @@ button > .icon {
 .fill_t_s .main > #history {
     display: none;
 }
-
-.n_fill_t {
-    background-color: var(--bg);
-}
-.n_fill_t #browser_bg {
-    position: fixed;
-    top: calc(100vh - 48px);
-    left: 0;
-    width: 100%;
-    height: 48px;
-    background-color: var(--bg);
-    pointer-events: none;
-    z-index: -1;
-}
-.n_fill_t_s {
-    background-color: #0000 !important;
-}
-.n_fill_t_s #top {
-    opacity: 0;
-}
-.n_fill_t_s #find {
-    opacity: 0;
-}
-.n_fill_t_s .main {
-    grid-template-columns: calc(2 * var(--b-button)) 1fr repeat(2, auto);
-}
-.n_fill_t_s #top {
-    grid-area: 1 / 1 / 2 / 5;
-}
-.n_fill_t_s .main > #history {
-    display: none;
-}
