@@ -1879,9 +1879,9 @@ function new_tab(id, url) {
     li_list.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
-    绑定li(li);
     document.getElementById("tabs").appendChild(li);
     li.id = "id" + id;
+    绑定li(li);
     focus_tab(li);
     if (store.get("浏览器.标签页.小")) {
         li.classList.add("tab_small");
