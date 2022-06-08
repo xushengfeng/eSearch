@@ -1970,6 +1970,7 @@ function url(id: number, url: string) {
 
 function load(id: number, loading: boolean) {
     if (loading) {
+        document.querySelector(`#id${id} > img`).classList.add("loading");
         document.getElementById(`id${id}`).querySelector(`img`).src = `./assets/icons/reload.svg`;
         document.getElementById("reload").style.display = "none";
         document.getElementById("stop").style.display = "block";
