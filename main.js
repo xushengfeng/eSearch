@@ -75,10 +75,10 @@ function copy_text(callback) {
         robot.keyToggle("control", "down");
         setTimeout(() => {
             robot.keyTap("c");
-        }, 100);
-        setTimeout(() => {
-            robot.keyToggle("control", "up");
-        }, 200);
+            setTimeout(() => {
+                robot.keyToggle("control", "up");
+            }, 50);
+        }, 50);
     }
     setTimeout(() => {
         let t = clipboard.readText();
