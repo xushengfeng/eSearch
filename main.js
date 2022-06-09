@@ -1463,8 +1463,10 @@ async function create_browser(window_name, url) {
     search_view.webContents.on("did-stop-loading", () => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "load", false);
     });
-    search_view.webContents.on("did-fail-load", () => {
-        search_view.webContents.loadFile("./browser_bg.html", { query: { type: "did-fail-load" } });
+    search_view.webContents.on("did-fail-load", (event, err_code, err_des) => {
+        search_view.webContents.loadFile("./browser_bg.html", {
+            query: { type: "did-fail-load", err_code, err_des },
+        });
         if (dev) search_view.webContents.openDevTools();
     });
     search_view.webContents.on("render-process-gone", () => {
