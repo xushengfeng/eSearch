@@ -677,6 +677,8 @@ function editor_i(p: number, i: number, select?: boolean) {
     if (select) {
         editor_selections[0].end = { pg: p, of: i };
         editor_selections[0].render();
+
+        show_edit_bar(left, top + 8 + line_height, NaN, false);
     }
 
     // 确保光标在视线内
@@ -739,6 +741,9 @@ class editing_operation {
         var s = new selection({ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } });
         s.render();
         editor_selections[0] = s;
+
+        let p = editor_i(cursor.pg, cursor.of);
+        show_edit_bar(p.left, p.top + line_height, NaN, false);
     }
     delete_enter() {
         var t = editor_selections[0].get();
