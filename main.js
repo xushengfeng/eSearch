@@ -1381,6 +1381,9 @@ function create_main_window(web_page, t, about) {
 
     main_window.on("closed", () => {
         delete main_window_l[window_name];
+        for (let i in search_window_l) {
+            search_window_l[i]?.webContents?.destroy();
+        }
     });
 
     main_window.on("blur", () => {
@@ -1500,7 +1503,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
     switch (arg) {
         case "close":
             main_window.removeBrowserView(search_window);
-            search_window.webContents.setAudioMuted(true);
+            search_window.webContents.destroy();
             break;
         case "top":
             // 有时直接把主页面当成浏览器打开，这时pid未初始化就触发top了，直接忽略
