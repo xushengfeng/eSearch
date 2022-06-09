@@ -1003,6 +1003,10 @@ document.addEventListener("keydown", (e) => {
             break;
     }
     editor_i(cursor.pg, cursor.of, e.shiftKey);
+    if (!e.shiftKey && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
+        editor_selections[0].start = editor_selections[0].end = cursor;
+        editor_selections[0].render();
+    }
 });
 /**
  * 每次更改光标触发
