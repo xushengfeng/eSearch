@@ -1503,6 +1503,8 @@ ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
             search_window.webContents.setAudioMuted(true);
             break;
         case "top":
+            // 有时直接把主页面当成浏览器打开，这时pid未初始化就触发top了，直接忽略
+            if (!main_window) return;
             main_window.setTopBrowserView(search_window);
             min_views(main_window);
             search_window.setBounds({
