@@ -1494,7 +1494,7 @@ function view_events(w, arg) {
     w.webContents.send("view_events", arg);
 }
 
-ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
+ipcMain.on("tab_view", (e, id, arg, arg2) => {
     let main_window = BrowserWindow.fromWebContents(e.sender);
     let search_window = search_window_l[id];
     switch (arg) {
