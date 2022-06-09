@@ -1495,8 +1495,8 @@ function view_events(w, arg) {
 }
 
 ipcMain.on("tab_view", (e, pid, id, arg, arg2) => {
-    var main_window = main_window_l[pid],
-        search_window = search_window_l[id];
+    let main_window = BrowserWindow.fromWebContents(e.sender);
+    let search_window = search_window_l[id];
     switch (arg) {
         case "close":
             main_window.removeBrowserView(search_window);
