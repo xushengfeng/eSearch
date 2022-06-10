@@ -1504,6 +1504,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
         case "close":
             main_window.removeBrowserView(search_window);
             search_window.webContents.destroy();
+            delete search_window_l[id];
             break;
         case "top":
             // 有时直接把主页面当成浏览器打开，这时pid未初始化就触发top了，直接忽略
