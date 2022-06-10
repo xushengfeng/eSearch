@@ -128,7 +128,7 @@ function back(el) {
 
     el.querySelector("#透明度").value = "100";
     el.querySelector("#透明度_p").innerHTML = "100%";
-    el.querySelector("img").style.opacity = 1;
+    el.querySelector(".img").style.opacity = 1;
 }
 function close(el) {
     el.innerHTML = "";
