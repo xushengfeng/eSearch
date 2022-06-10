@@ -228,6 +228,10 @@ document.getElementById("码率").value = store.get("录屏.转换.码率");
 document.getElementById("帧率").value = store.get("录屏.转换.帧率");
 document.getElementById("ff其他参数").value = store.get("录屏.转换.其他");
 
+document.getElementById("开启键盘按键提示").checked = store.get("录屏.提示.键盘.开启");
+document.getElementById("开启鼠标按键提示").checked = store.get("录屏.提示.鼠标.开启");
+document.getElementById("开启光标提示").checked = store.get("录屏.提示.光标.开启");
+
 document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
 document.getElementById("保存文件名称后缀").value = store.get("保存名称.后缀");
@@ -526,6 +530,17 @@ function save_setting() {
         码率: Number(document.getElementById("码率").value),
         帧率: Number(document.getElementById("帧率").value),
         其他: document.getElementById("ff其他参数").value,
+    });
+    store.set("录屏.提示", {
+        键盘: {
+            开启: document.getElementById("开启键盘按键提示").checked,
+        },
+        鼠标: {
+            开启: document.getElementById("开启鼠标按键提示").checked,
+        },
+        光标: {
+            开启: document.getElementById("开启光标提示").checked,
+        },
     });
     store.set("保存.默认格式", document.getElementById("默认格式").value);
     store.set("保存名称", {

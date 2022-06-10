@@ -1,52 +1,64 @@
 const { ipcRenderer } = require("electron");
+const Store = require("electron-store");
+var store = new Store();
 
-const { uIOhook, UiohookKey } = require("uiohook-napi");
+if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
+    var { uIOhook, UiohookKey } = require("uiohook-napi");
 
-var keycode2key = {};
+function r_key() {
+    var keycode2key = {};
 
-for (let i in UiohookKey) {
-    keycode2key[UiohookKey[i]] = i;
+    for (let i in UiohookKey) {
+        keycode2key[UiohookKey[i]] = i;
+    }
+    console.log(keycode2key);
+
+    var key_o = {};
+
+    uIOhook.on("keydown", (e) => {
+        key_o[e.keycode] = "";
+        document.getElementById("key").innerHTML = `<kbd>${Object.keys(key_o)
+            .map((v) => keycode2key[v])
+            .join("</kbd>+<kbd>")}</kbd>`;
+    });
+    uIOhook.on("keyup", (e) => {
+        delete key_o[e.keycode];
+        document.getElementById("key").innerHTML =
+            Object.keys(key_o).length == 0
+                ? ""
+                : `<kbd>${Object.keys(key_o)
+                      .map((v) => keycode2key[v])
+                      .join("</kbd>+<kbd>")}</kbd>`;
+    });
 }
-console.log(keycode2key);
 
-var key_o = {};
+function r_mouse() {
+    var m2m = { 1: 0, 3: 1, 2: 2 };
+    var mouse_el = document.getElementById("mouse").querySelectorAll("div");
 
-uIOhook.on("keydown", (e) => {
-    key_o[e.keycode] = "";
-    document.getElementById("key").innerHTML = `<kbd>${Object.keys(key_o)
-        .map((v) => keycode2key[v])
-        .join("</kbd>+<kbd>")}</kbd>`;
-});
-uIOhook.on("keyup", (e) => {
-    delete key_o[e.keycode];
-    document.getElementById("key").innerHTML =
-        Object.keys(key_o).length == 0
-            ? ""
-            : `<kbd>${Object.keys(key_o)
-                  .map((v) => keycode2key[v])
-                  .join("</kbd>+<kbd>")}</kbd>`;
-});
+    uIOhook.on("mousedown", (e) => {
+        mouse_el[m2m[e.button]].style.backgroundColor = "#00f";
+    });
+    uIOhook.on("mouseup", (e) => {
+        mouse_el[m2m[e.button]].style.backgroundColor = "";
+    });
 
-var m2m = { 1: 0, 3: 1, 2: 2 };
-var mouse_el = document.getElementById("mouse").querySelectorAll("div");
+    let time_out;
+    uIOhook.on("wheel", (e) => {
+        mouse_el[1].style.backgroundColor = "#0f0";
+        clearTimeout(time_out);
+        time_out = setTimeout(() => {
+            mouse_el[1].style.backgroundColor = "";
+        }, 200);
+    });
+}
 
-uIOhook.on("mousedown", (e) => {
-    mouse_el[m2m[e.button]].style.backgroundColor = "#00f";
-});
-uIOhook.on("mouseup", (e) => {
-    mouse_el[m2m[e.button]].style.backgroundColor = "";
-});
+if (store.get("录屏.提示.键盘.开启")) r_key();
+if (store.get("录屏.提示.鼠标.开启")) r_mouse();
 
-let time_out;
-uIOhook.on("wheel", (e) => {
-    mouse_el[1].style.backgroundColor = "#0f0";
-    clearTimeout(time_out);
-    time_out = setTimeout(() => {
-        mouse_el[1].style.backgroundColor = "";
-    }, 200);
-});
+if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启")) uIOhook.start();
 
-uIOhook.start();
+if (!store.get("录屏.提示.光标.开启")) document.getElementById("mouse_c").style.display = "none";
 
 ipcRenderer.on("record", async (event, t, arg) => {
     switch (t) {

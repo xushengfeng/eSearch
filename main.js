@@ -795,7 +795,7 @@ function create_recorder_window(rect) {
         recorder1.webContents.send("record", "mouse", { x: n_xy.x * ratio, y: n_xy.y * ratio });
         setTimeout(mouse, 10);
     }
-    mouse();
+    if (store.get("录屏.提示.光标.开启")) mouse();
 }
 
 ipcMain.on("record", (event, type, arg, arg1) => {
@@ -1801,6 +1801,17 @@ var default_setting = {
             码率: 2.5,
             帧率: 30,
             其他: "",
+        },
+        提示: {
+            键盘: {
+                开启: false,
+            },
+            鼠标: {
+                开启: false,
+            },
+            光标: {
+                开启: false,
+            },
         },
     },
 };
