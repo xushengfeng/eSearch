@@ -1377,13 +1377,13 @@ function create_main_window(web_page, t, about) {
             main_window.getNormalBounds().height,
             main_window.isMaximized(),
         ]);
+        for (let i of main_window.getBrowserViews()) {
+            i?.webContents?.destroy();
+        }
     });
 
     main_window.on("closed", () => {
         delete main_window_l[window_name];
-        for (let i in search_window_l) {
-            search_window_l[i]?.webContents?.destroy();
-        }
     });
 
     main_window.on("blur", () => {
