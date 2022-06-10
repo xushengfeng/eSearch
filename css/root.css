@@ -5,8 +5,8 @@
     --bg: #fff;
     --bg2: #f5f5f5;
     --hover-color: #dfdfdf;
-    --m-color1: hsl(207, 100%, 27%);
-    --m-color2: hsl(208, 23%, 89%);
+    --m-color1: hsl(0, 0%, 20%);
+    --m-color2: hsl(0, 0%, 90%);
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --border-radius: 8px;
     --blur: blur(10px);
@@ -139,6 +139,8 @@ textarea {
         --bg: #000;
         --bg2: #1f1f1f;
         --hover-color: #333;
+        --m-color1: hsl(0, 0%, 35%);
+        --m-color2: hsl(0, 0%, 14%);
         --shadow: #fff9 0 0 2px;
         --color: #fff;
         --color2: #aaa;
