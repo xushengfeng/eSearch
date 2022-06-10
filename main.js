@@ -709,7 +709,6 @@ function create_recorder_window(rect) {
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
-        recorder1.close();
     });
 
     recorder.on("resize", () => {
@@ -802,6 +801,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
     switch (type) {
         case "stop":
             record_start = false;
+            recorder1.close();
             break;
         case "start":
             record_start_time = arg;
