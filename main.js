@@ -805,16 +805,6 @@ ipcMain.on("record", (event, type, arg, arg1) => {
             break;
         case "start":
             record_start_time = arg;
-            function record_mouse() {
-                if (record_start && record_mouse_v) {
-                    let n_xy = screen.getCursorScreenPoint();
-                    let s = screen.getAllDisplays()[0];
-                    let t = new Date().getTime() - record_start_time - record_start_d_time;
-                    mouse_ps[t] = { ...n_xy, r: s.scaleFactor };
-                }
-                if (record_start) setTimeout(record_mouse, 10);
-            }
-            record_mouse();
             break;
         case "ff":
             var saved_path = store.get("保存.保存路径.视频") || "";
