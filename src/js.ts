@@ -1965,7 +1965,8 @@ function title(id: number, arg: string) {
         document.getElementById(`id${id}`).querySelector(`span`).title =
         document.getElementById(`id${id}`).querySelector(`img`).title =
             arg;
-    document.title = `eSearch - ${arg}`;
+    if (document.getElementById(`id${id}`).className.split(" ").includes("tab_focus"))
+        document.title = `eSearch - ${arg}`;
 }
 
 function icon(id: number, arg: Array<string>) {
