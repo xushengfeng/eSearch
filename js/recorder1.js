@@ -13,22 +13,18 @@ function r_key() {
     }
     console.log(keycode2key);
 
-    var key_o = {};
+    var key_o = [];
 
     uIOhook.on("keydown", (e) => {
-        key_o[e.keycode] = "";
-        document.getElementById("key").innerHTML = `<kbd>${Object.keys(key_o)
+        if (!key_o.includes(e.keycode)) key_o.push(e.keycode);
+        document.getElementById("key").innerHTML = `<kbd>${key_o
             .map((v) => keycode2key[v])
             .join("</kbd>+<kbd>")}</kbd>`;
     });
     uIOhook.on("keyup", (e) => {
-        delete key_o[e.keycode];
+        key_o = key_o.filter((i) => i != e.keycode);
         document.getElementById("key").innerHTML =
-            Object.keys(key_o).length == 0
-                ? ""
-                : `<kbd>${Object.keys(key_o)
-                      .map((v) => keycode2key[v])
-                      .join("</kbd>+<kbd>")}</kbd>`;
+            key_o.length == 0 ? "" : `<kbd>${key_o.map((v) => keycode2key[v]).join("</kbd>+<kbd>")}</kbd>`;
     });
 }
 
