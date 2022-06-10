@@ -709,6 +709,7 @@ function create_recorder_window(rect) {
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
+        if (!recorder1.isDestroyed()) recorder1.close();
     });
 
     recorder.on("resize", () => {
