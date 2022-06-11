@@ -920,6 +920,10 @@ ipcMain.on("setting", async (event, arg, arg1) => {
                 event.sender.stopFindInPage("clearSelection");
             }
             break;
+        case "reload":
+            app.relaunch();
+            app.exit(0);
+            break;
     }
 });
 

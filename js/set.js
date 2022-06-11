@@ -45,6 +45,15 @@ document.getElementById("系统语言").onclick = () => {
         document.getElementById("语言").value = navigator.language.split("-")[0];
     }
 };
+document.getElementById("语言").onclick = () => {
+    lan(document.getElementById("语言").value);
+    document.getElementById("语言重启").innerText = t("重启软件以生效");
+};
+
+document.getElementById("语言重启").onclick = () => {
+    store.set("语言.语言", document.getElementById("语言").value);
+    ipcRenderer.send("setting", "reload");
+};
 
 document.getElementById("自动搜索排除").value = store.get("主搜索功能.自动搜索排除").join("\n");
 if (process.platform == "linux") {

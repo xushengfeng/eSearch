@@ -109,6 +109,7 @@
 "启动时系统通知提示启动": {"en":"System notification to start at boot","zh-HANT":"啟動時系統通知提示啟動","fr":"Notification du système au démarrage","ru":"Системное уведомление при загрузке","es":"Notificación del sistema para el arranque","ar":"يطالب إعلام النظام بالبدء عند بدء التشغيل","eo":"Sistema sciigo petas komenci ĉe ekfunkciigo"},
 "语言": {"en":"Language","zh-HANT":"語言","fr":"Langue","ru":"Язык","es":"Idioma","ar":"لغة","eo":"lingvo"},
 "使用系统语言": {"en":"Use system language","zh-HANT":"使用系統語言","fr":"Utiliser le langage du système","ru":"Используйте системный язык","es":"Utilizar el lenguaje del sistema","ar":"استخدم لغة النظام","eo":"Uzu sisteman lingvon"},
+"重启软件以生效":{"en":"Restart software to take effect","zh-HANT":"重啟軟件以生效","fr":"Redémarrez le logiciel pour prendre effet","ru":"Перезапустите программу, чтобы изменения вступили в силу.","es":"Reinicie el software para que surta efecto","ar":"أعد تشغيل البرنامج ليصبح ساري المفعول","eo":"Rekomencu la programaron por efiki"},
 "快捷键": {"en":"Shortcuts","zh-HANT":"快捷鍵","fr":"Touches de raccourci","ru":"Клавиши быстрого доступа","es":"Teclas de acceso rápido","ar":"مفتاح تشغيل سريع","eo":"varma klavo"},
 "全局": {"en":"Global","zh-HANT":"全局","fr":"Global","ru":"Глобальный","es":"Global","ar":"عالمي","eo":"tutmonda"},
 "截屏": {"en":"Screenshot","zh-HANT":"截屏","fr":"Capture d'écran","ru":"Скриншот","es":"Captura de pantalla","ar":"لقطة شاشة","eo":"ekrankopio"},
