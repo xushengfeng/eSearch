@@ -167,8 +167,8 @@ lock-b:hover {
 }
 
 range-b {
-    height: 24px;
-    border-radius: var(--border-radius);
+    height: 18px;
+    border-radius: 6px;
 }
 
 range-b > div:nth-child(1) {
