@@ -692,7 +692,6 @@ function create_recorder_window(rect) {
         y,
         width: w,
         height: h,
-        alwaysOnTop: true,
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
@@ -705,6 +704,8 @@ function create_recorder_window(rect) {
     });
     recorder.loadFile("recorder.html");
     if (dev) recorder.webContents.openDevTools();
+
+    recorder.setAlwaysOnTop(true, "screen-saver");
 
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
