@@ -37,24 +37,24 @@
 
         <div id="setting_main">
             <div id="setting_item">
-                <h1>{启动}</h1>
+                <h1><t>启动</t></h1>
 
-                <h2>{开机自启动}</h2>
+                <h2><t>开机自启动</t></h2>
                 <group-b>
-                    <lock-b id="autostart"></lock-b>{开机自启动}
+                    <lock-b id="autostart"></lock-b><t>开机自启动</t>
                 </group-b>
 
-                <h2>{启动提示}</h2>
+                <h2><t>启动提示</t></h2>
                 <group-b>
-                    <lock-b id="启动提示"></lock-b>{启动时系统通知提示启动}
+                    <lock-b id="启动提示"></lock-b><t>启动时系统通知提示启动</t>
                 </group-b>
             </div>
 
             <div id="setting_item">
-                <h1>{语言}</h1>
+                <h1><t>语言</t></h1>
 
-                <button id="系统语言">{使用系统语言}</button>
-                <button id="语言重启">{重启软件以生效}</button>
+                <button id="系统语言"><t>使用系统语言</t></button>
+                <button id="语言重启"><t>重启软件以生效</t></button>
                 <set-select name="" id="语言">
                     <div value="zh-HANS">简体中文</div>
                     <div value="zh-HANT">繁体中文</div>
@@ -68,9 +68,9 @@
             </div>
 
             <div id="setting_item">
-                <h1>{快捷键}</h1>
+                <h1><t>快捷键</t></h1>
 
-                <h2>{全局}</h2>
+                <h2><t>全局</t></h2>
                 <div id="快捷键">
                     <div>
                         <hot-keys name="自动识别" value=""></hot-keys>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <h2>{截屏}</h2>
+                <h2><t>截屏</t></h2>
                 <div>
                     <hot-keys name="关闭" value=""></hot-keys>
                     <hot-keys name="OCR(文字识别)" value=""></hot-keys>
@@ -98,79 +98,79 @@
             </div>
 
             <div id="setting_item">
-                <h1>{主搜索功能}</h1>
+                <h1><t>主搜索功能</t></h1>
 
-                <h2>{自动搜索排除}</h2>
-                <comment>{若选中的文字符合文本框的规则，将使用截屏搜索而不是选择搜索}</comment>
+                <h2><t>自动搜索排除</t></h2>
+                <comment><t>若选中的文字符合文本框的规则，将使用截屏搜索而不是选择搜索</t></comment>
                 <textarea id="自动搜索排除" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     title="{换行新建项目，支持正则表达式}"></textarea>
 
                 <div id="linux_selection" style="display: none;">
-                    <h2>{剪贴板搜索}</h2>
+                    <h2><t>剪贴板搜索</t></h2>
                     <group-b>
-                        <lock-b id="剪贴板选区搜索"></lock-b>{使用选区内容}
+                        <lock-b id="剪贴板选区搜索"></lock-b><t>使用选区内容</t>
                     </group-b>
                 </div>
             </div>
 
             <div id="setting_item">
-                <h1>{全局样式}</h1>
+                <h1><t>全局样式</t></h1>
 
-                <h2>{毛玻璃效果}</h2>
-                {模糊}
+                <h2><t>毛玻璃效果</t></h2>
+                <t>模糊</t>
                 <range-b out="true" id="模糊" step="1" min="0" max="50" text="px"></range-b out="true">
                 <br>
-                {不透明度}
+                <t>不透明度</t>
                 <range-b out="true" id="不透明度" step="1" min="0" max="100" text="%"></range-b out="true">
                 <div class="blur">
                     <img src="./assets/sample_picture.svg" alt="" class="blur_p">
                     <div class="blur_c"></div>
                 </div>
 
-                <h2>{深色模式}</h2>
+                <h2><t>深色模式</t></h2>
                 <set-select name="" id="深色模式">
-                    <div value="system">{跟随系统}</div>
-                    <div value="light">{浅色}</div>
-                    <div value="dark">{深色}</div>
+                    <div value="system"><t>跟随系统</t></div>
+                    <div value="light"><t>浅色</t></div>
+                    <div value="dark"><t>深色</t></div>
                 </set-select>
 
-                <h2>{全局缩放}</h2>
+                <h2><t>全局缩放</t></h2>
                 <range-b out="true" min="0.1" max="3" id="全局缩放" step="0.05"></range-b out="true">
 
-                <h2>{字体}</h2>
-                {主要字体}<comment>{（适用于主页面等文字字体）}</comment>
+                <h2><t>字体</t></h2>
+                <t>主要字体</t><comment><t>（适用于主页面等文字字体）</t></comment>
                 <div id="主要字体"><input type="text" spellcheck="false"></div>
-                {等宽字体}<comment>{（适用于截屏时数字、颜色代码等字体）}</comment>
+                <t>等宽字体</t><comment><t>（适用于截屏时数字、颜色代码等字体）</t></comment>
                 <div id="等宽字体"><input type="text" spellcheck="false"></div>
             </div>
 
 
             <div id="setting_item">
-                <h1>{工具栏}</h1>
+                <h1><t>工具栏</t></h1>
 
-                <h2>{工具栏跟随}</h2>
+                <h2><t>工具栏跟随</t></h2>
                 <set-select id="工具栏跟随">
-                    <div value="展示内容优先">{展示内容优先}</div>
-                    <div value="效率优先">{效率优先}</div>
+                    <div value="展示内容优先"><t>展示内容优先</t></div>
+                    <div value="效率优先"><t>效率优先</t></div>
                 </set-select>
 
-                <h2>{按钮大小}</h2>
-                {按钮}<range-b out="true" id="按钮大小" step="1" min="1" max="80" text="px"></range-b out="true">
+                <h2><t>按钮大小</t></h2>
+                <t>按钮</t><range-b out="true" id="按钮大小" step="1" min="1" max="80" text="px"></range-b out="true">
                 </br>
-                {图标比例}<range-b out="true" id="按钮图标比例" step="0.01" min="0.01" max="1" value="0.7"></range-b out="true">
+                <t>图标比例</t><range-b out="true" id="按钮图标比例" step="0.01" min="0.01" max="1" value="0.7"></range-b out="true">
             </div>
 
             <div id="setting_item">
-                <h1>{取色器}</h1>
+                <h1><t>取色器</t></h1>
 
-                <h2>{大小}</h2>
-                {取色器大小}<range-b out="true" id="取色器大小" step="2" min="1" max="31"></range-b out="true">
+                <h2><t>大小</t></h2>
+                <t>取色器大小</t><range-b out="true" id="取色器大小" step="2" min="1" max="31"></range-b out="true">
                 </br>
-                {像素大小}<range-b out="true" id="像素大小" min="1" max="10" text="px"></range-b out="true">
+                <t>像素大小</t><range-b out="true" id="像素大小" min="1" max="10" text="px"></range-b out="true">
                 <div class="point_color_f">
                     <div id="point_color"></div>
                 </div>
-                <h2>{默认格式}</h2>
+                <h2><t>默认格式</t></h2>
                 <set-select id="取色器默认格式">
                     <div value="HEX">HEX</div>
                     <div value="RGB">RGB</div>
@@ -181,30 +181,30 @@
             </div>
 
             <div id="setting_item">
-                <h1>{框选}</h1>
+                <h1><t>框选</t></h1>
 
-                <h2>{框选颜色}</h2>
-                {遮罩颜色}
+                <h2><t>框选颜色</t></h2>
+                <t>遮罩颜色</t>
                 <div id="遮罩颜色"><span></span><input type="text" spellcheck="false"></div>
-                {选区颜色}
+                <t>选区颜色</t>
                 <div id="选区颜色"><span></span><input type="text" spellcheck="false"></div>
 
-                <h2>{光标}</h2>
+                <h2><t>光标</t></h2>
                 <set-select id="光标">
-                    <div value="以(0,0)为起点">{以(0,0)为起点}</div>
-                    <div value="以(1,1)为起点">{以(1,1)为起点}</div>
+                    <div value="以(0,0)为起点"><t>以(0,0)为起点</t></div>
+                    <div value="以(1,1)为起点"><t>以(1,1)为起点</t></div>
                 </set-select>
 
-                <h2>{大小坐标}</h2>
+                <h2><t>大小坐标</t></h2>
                 <group-b>
-                    <lock-b id="显示四角坐标"></lock-b>{显示四角坐标}
+                    <lock-b id="显示四角坐标"></lock-b><t>显示四角坐标</t>
                 </group-b>
-                <comment>{（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）}</comment>
+                <comment><t>（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）</t></comment>
 
-                <h2>{框选后默认操作}</h2>
-                <comment>{框选完鼠标松开一瞬间，执行操作}</comment>
+                <h2><t>框选后默认操作</t></h2>
+                <comment><t>框选完鼠标松开一瞬间，执行操作</t></comment>
                 <set-select name="" id="框选后默认操作">
-                    <div value="no">{无}</div>
+                    <div value="no"><t>无</t></div>
                     <div value="ocr" title="{OCR(文字识别)}">
                         <img src="./assets/icons/ocr.svg" class="icon" style="height: 24px;display: block;">
                     </div>
@@ -231,397 +231,397 @@
                     </div>
                 </set-select>
 
-                <h2>{自动框选}</h2>
-                <comment>{使用OpenCV自动识别边缘轮廓（测试版）}</comment>
+                <h2><t>自动框选</t></h2>
+                <comment><t>使用OpenCV自动识别边缘轮廓（测试版）</t></comment>
                 <br>
                 <group-b>
-                    <lock-b id="自动框选"></lock-b>{启用自动框选}
+                    <lock-b id="自动框选"></lock-b><t>启用自动框选</t>
                 </group-b>
                 <details>
-                    <summary>{边缘识别高级设置}</summary>
-                    {最小阈值}
+                    <summary><t>边缘识别高级设置</t></summary>
+                    <t>最小阈值</t>
                     <range-b out="true" id="框选最小阈值" min="0" max="255"></range-b out="true">
                     <br>
-                    {最大阈值}
+                    <t>最大阈值</t>
                     <range-b out="true" id="框选最大阈值" min="0" max="255"></range-b out="true">
                 </details>
 
             </div>
 
             <div id="setting_item">
-                <h1>{图像编辑}</h1>
+                <h1><t>图像编辑</t></h1>
 
-                <h2>{默认属性}</h2>
-                {填充颜色}<input id="填充颜色" type="text" spellcheck="false">
+                <h2><t>默认属性</t></h2>
+                <t>填充颜色</t><input id="填充颜色" type="text" spellcheck="false">
                 <br>
-                {边框颜色}<input id="边框颜色" type="text" spellcheck="false">
+                <t>边框颜色</t><input id="边框颜色" type="text" spellcheck="false">
                 <br>
-                {边框宽度}
+                <t>边框宽度</t>
                 <range-b out="true" id="边框宽度" min="0" max="20" text="px"></range-b out="true">
                 <br>
-                {画笔颜色}<input id="画笔颜色" type="text" spellcheck="false">
+                <t>画笔颜色</t><input id="画笔颜色" type="text" spellcheck="false">
                 <br>
-                {画笔粗细}
+                <t>画笔粗细</t>
                 <range-b out="true" id="画笔粗细" min="0" max="20" text="px"></range-b out="true">
 
-                <h2>{复制偏移}</h2>
-                <comment>{复制完一个元素后，为了分辨，可以让其偏移}</comment>
+                <h2><t>复制偏移</t></h2>
+                <comment><t>复制完一个元素后，为了分辨，可以让其偏移</t></comment>
                 <br>
-                {x轴}
+                <t>x轴</t>
                 <range-b out="true" id="复制dx" min="0" max="50" text="px"></range-b out="true">
                 <br>
-                {y轴}
+                <t>y轴</t>
                 <range-b out="true" id="复制dy" min="0" max="50" text="px"></range-b out="true">
             </div>
 
             <div id="setting_item">
-                <h1>{快速截屏}</h1>
+                <h1><t>快速截屏</t></h1>
 
-                {保存到}
+                <t>保存到</t>
                 <set-select id="快速截屏">
-                    <div value="clip">{剪贴板}</div>
-                    <div value="path">{目录}</div>
+                    <div value="clip"><t>剪贴板</t></div>
+                    <div value="path"><t>目录</t></div>
                 </set-select>
-                <input type="text" name="快速截屏路径" id="快速截屏路径" spellcheck="false"><button id="获取保存路径">{获取保存路径}</button>
+                <input type="text" name="快速截屏路径" id="快速截屏路径" spellcheck="false"><button id="获取保存路径"><t>获取保存路径</t></button>
 
             </div>
 
             <div id="setting_item">
-                <h1>{录屏}</h1>
-                <comment>{凡是麦克风和摄像头，都应该当成开着的}</comment>
+                <h1><t>录屏</t></h1>
+                <comment><t>凡是麦克风和摄像头，都应该当成开着的</t></comment>
 
-                <h2>{自动录制}</h2>
+                <h2><t>自动录制</t></h2>
                 <group-b>
-                    <lock-b id="开启自动录制"></lock-b>{开启自动录制}
+                    <lock-b id="开启自动录制"></lock-b><t>开启自动录制</t>
                 </group-b>
                 <range-b out="true" id="自动录制延时" min="0" max="10" text="s" step="1"></range-b out="true">
 
-                <h2>{录制}</h2>
-                {视频比特率}<range-b out="true" id="视频比特率" min="1" max="40" text="Mbps" step="0.5"></range-b out="true">
+                <h2><t>录制</t></h2>
+                <t>视频比特率</t><range-b out="true" id="视频比特率" min="1" max="40" text="Mbps" step="0.5"></range-b out="true">
 
-                <h2>{提示}</h2>
+                <h2><t>提示</t></h2>
                 <group-b>
-                    <lock-b id="开启键盘按键提示"></lock-b>{开启键盘按键提示}
+                    <lock-b id="开启键盘按键提示"></lock-b><t>开启键盘按键提示</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="开启鼠标按键提示"></lock-b>{开启鼠标按键提示}
+                    <lock-b id="开启鼠标按键提示"></lock-b><t>开启鼠标按键提示</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="开启光标提示"></lock-b>{开启光标提示}
-                </group-b>
-
-                <h2>{摄像头}</h2>
-                <group-b>
-                    <lock-b id="默认开启摄像头"></lock-b>{默认开启}
-                </group-b>
-                <group-b>
-                    <lock-b id="记录摄像头开启状态"></lock-b>{记录开启状态}
-                </group-b>
-                <br>
-                <group-b>
-                    <lock-b id="摄像头镜像"></lock-b>{镜像}
+                    <lock-b id="开启光标提示"></lock-b><t>开启光标提示</t>
                 </group-b>
 
-                <h2>{音频}</h2>
+                <h2><t>摄像头</t></h2>
                 <group-b>
-                    <lock-b id="默认开启音频"></lock-b>{默认开启}
+                    <lock-b id="默认开启摄像头"></lock-b><t>默认开启</t>
                 </group-b>
                 <group-b>
-                    <lock-b id="记录音频开启状态"></lock-b>{记录开启状态}
+                    <lock-b id="记录摄像头开启状态"></lock-b><t>记录开启状态</t>
+                </group-b>
+                <br>
+                <group-b>
+                    <lock-b id="摄像头镜像"></lock-b><t>镜像</t>
                 </group-b>
 
-                <h2>{转换}</h2>
-                <comment>{使用 FFmpeg 对录制的视频进行转换工作}</comment>
-                <br>
-                <button id="下载ffmpeg">{下载 FFmpeg}</button>
-                {FFmpeg 位置}<input type="text" spellcheck="false" id="ffmpeg_path" placeholder="{文件}">
-                <h3>{自动转换}</h3>
+                <h2><t>音频</t></h2>
                 <group-b>
-                    <lock-b id="开启自动转换"></lock-b>{开启自动转换}
+                    <lock-b id="默认开启音频"></lock-b><t>默认开启</t>
+                </group-b>
+                <group-b>
+                    <lock-b id="记录音频开启状态"></lock-b><t>记录开启状态</t>
+                </group-b>
+
+                <h2><t>转换</t></h2>
+                <comment><t>使用 FFmpeg 对录制的视频进行转换工作</t></comment>
+                <br>
+                <button id="下载ffmpeg"><t>下载 FFmpeg</t></button>
+                <t>FFmpeg 位置</t><input type="text" spellcheck="false" id="ffmpeg_path" placeholder="{文件}">
+                <h3><t>自动转换</t></h3>
+                <group-b>
+                    <lock-b id="开启自动转换"></lock-b><t>开启自动转换</t>
                 </group-b>
                 <br>
-                {输出格式}<input id="格式" type="text" spellcheck="false" name="格式">
+                <t>输出格式</t><input id="格式" type="text" spellcheck="false" name="格式">
                 <br>
-                {码率}<input type="number" name="码率" id="码率">Mbps
+                <t>码率</t><input type="number" name="码率" id="码率">Mbps
                 <br>
-                {帧率}<input type="number" name="帧率" id="帧率">
+                <t>帧率</t><input type="number" name="帧率" id="帧率">
                 <br>
-                {其他参数}<input type="text" name="其他参数" id="ff其他参数">
+                <t>其他参数</t><input type="text" name="其他参数" id="ff其他参数">
 
             </div>
 
             <div id="setting_item">
-                <h1>{保存}</h1>
+                <h1><t>保存</t></h1>
 
-                {文件名称}<input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false" style="width: 1em;"><input
+                <t>文件名称</t><input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false" style="width: 1em;"><input
                     type="text" name="保存文件名称时间" id="保存文件名称时间" placeholder="{时间}" spellcheck="false"><input type="text"
                     name="保存文件名称后缀" id="保存文件名称后缀" style="width: 1em;" spellcheck="false">
-                <p>{预览:}</p>
+                <p><t>预览:</t></p>
                 <p id="保存文件名称_p"></p>
                 <details>
-                    <summary>{时间代码}</summary>
-                    YYYY: {四位数年}(2022);
-                    YY: {末两位年}(22);
-                    MM: {月}(01);
-                    M: {月}(1);
-                    DD: {日}(01);
-                    D: {日}(1);
-                    d: {星期}(0~6);
-                    HH: {24小时制小时}(01);
-                    H: {24小时制小时}(18);
-                    hh: {12小时制小时}(06);
-                    h: {12小时制小时}(6);
-                    mm: {分}(01);
-                    m: {分}(1);
-                    ss: {秒}(01);
-                    s: {秒}(1);
-                    S: {毫秒}(500);
+                    <summary><t>时间代码</t></summary>
+                    YYYY: <t>四位数年</t>(2022);
+                    YY: <t>末两位年</t>(22);
+                    MM: <t>月</t>(01);
+                    M: <t>月</t>(1);
+                    DD: <t>日</t>(01);
+                    D: <t>日</t>(1);
+                    d: <t>星期</t>(0~6);
+                    HH: <t>24小时制小时</t>(01);
+                    H: <t>24小时制小时</t>(18);
+                    hh: <t>12小时制小时</t>(06);
+                    h: <t>12小时制小时</t>(6);
+                    mm: <t>分</t>(01);
+                    m: <t>分</t>(1);
+                    ss: <t>秒</t>(01);
+                    s: <t>秒</t>(1);
+                    S: <t>毫秒</t>(500);
                 </details>
 
-                <h2>{默认格式}</h2>
+                <h2><t>默认格式</t></h2>
                 <set-select name="" id="默认格式">
                     <div value="png">png</div>
                     <div value="jpg">jpg</div>
                     <div value="svg">svg</div>
                 </set-select>
                 <br>
-                {jpg质量}
+                <t>jpg质量</t>
                 <range-b out="true" id="jpg质量" min="0" max="1.00" step="0.01"></range-b out="true">
 
             </div>
 
             <div id="setting_item">
-                <h1>{编辑器}</h1>
+                <h1><t>编辑器</t></h1>
 
-                <h2>{字体}</h2>
-                {字体大小}<range-b out="true" id="字体大小" min="0" max="100" step="1" value="16"></range-b out="true">
+                <h2><t>字体</t></h2>
+                <t>字体大小</t><range-b out="true" id="字体大小" min="0" max="100" step="1" value="16"></range-b out="true">
                 <group-b>
-                    <lock-b id="记住字体大小"></lock-b>{记住主页面字体大小}
+                    <lock-b id="记住字体大小"></lock-b><t>记住主页面字体大小</t>
                 </group-b>
 
-                <h2>{样式}</h2>
-                {Tab制表符宽度}<range-b out="true" id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b
+                <h2><t>样式</t></h2>
+                <t>Tab制表符宽度</t><range-b out="true" id="tab" min="1" max="8" step="1" value="2" text="字符"></range-b
                     out="true">
                 <br>
-                {光标动画时间}<range-b out="true" id="光标动画" min="0" max="0.5" step="0.01" value="0.05" text="秒"></range-b
+                <t>光标动画时间</t><range-b out="true" id="光标动画" min="0" max="0.5" step="0.01" value="0.05" text="秒"></range-b
                     out="true">
 
-                <h2>{更多}</h2>
+                <h2><t>更多</t></h2>
                 <group-b>
-                    <lock-b id="换行"></lock-b>{自动换行}
+                    <lock-b id="换行"></lock-b><t>自动换行</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="拼写检查"></lock-b>{拼写检查}
+                    <lock-b id="拼写检查"></lock-b><t>拼写检查</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="行号"></lock-b>{行号}
+                    <lock-b id="行号"></lock-b><t>行号</t>
                 </group-b>
             </div>
 
             <div id="setting_item">
-                <h1>{搜索}</h1>
+                <h1><t>搜索</t></h1>
 
-                <h2>{自动}</h2>
+                <h2><t>自动</t></h2>
                 <group-b>
-                    <lock-b id="自动搜索"></lock-b>{自动搜索}
+                    <lock-b id="自动搜索"></lock-b><t>自动搜索</t>
                 </group-b>
-                <comment>{（识屏或直接打开主页面，若文字为一行，则自动搜索）}</comment>
+                <comment><t>（识屏或直接打开主页面，若文字为一行，则自动搜索）</t></comment>
                 </br>
                 <group-b>
-                    <lock-b id="自动打开链接"></lock-b>{自动打开链接}
+                    <lock-b id="自动打开链接"></lock-b><t>自动打开链接</t>
                 </group-b>
                 </br>
-                {自动搜索中文占比}<comment>{（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）}</comment>
+                <t>自动搜索中文占比</t><comment><t>（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）</t></comment>
                 <range-b out="true" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b out="true">
 
-                <h2>{文字搜索引擎}</h2>
-                <h3>{搜索引擎}</h3>
+                <h2><t>文字搜索引擎</t></h2>
+                <h3><t>搜索引擎</t></h3>
                 <textarea id="搜索引擎"
                     placeholder="{百度}, https://www.baidu.com/s?wd=%s&#13;Google, https://www.google.com/search?q=%s"
                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     title="{换行新建项目，%s代替关键字}"></textarea>
-                <h3>{翻译引擎}</h3>
+                <h3><t>翻译引擎</t></h3>
                 <textarea id="翻译引擎" placeholder="Google, https://translate.google.cn/?op=translate&text=%s"
                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     title="{换行新建项目，%s代替关键字}"></textarea>
-                <h3>{默认引擎}</h3>
+                <h3><t>默认引擎</t></h3>
                 <group-b>
-                    <lock-b id="记住引擎"></lock-b>{记住引擎选择}
+                    <lock-b id="记住引擎"></lock-b><t>记住引擎选择</t>
                 </group-b>
                 <div name="" id="默认搜索引擎div">
                 </div>
                 <div name="" id="默认翻译引擎div">
                 </div>
 
-                <h2>{图像搜索引擎}</h2>
+                <h2><t>图像搜索引擎</t></h2>
                 <set-select name="" id="图像搜索引擎">
-                    <div value="baidu">{百度}</div>
+                    <div value="baidu"><t>百度</t></div>
                     <div value="yandex">Yandex</div>
                     <div value="google">Google</div>
                 </set-select>
                 <group-b>
-                    <lock-b id="记住识图引擎"></lock-b>{记住引擎选择}
+                    <lock-b id="记住识图引擎"></lock-b><t>记住引擎选择</t>
                 </group-b>
 
-                <h2>{浏览器中打开}</h2>
+                <h2><t>浏览器中打开</t></h2>
                 <group-b>
-                    <lock-b id="浏览器中打开"></lock-b>{浏览器中打开}
+                    <lock-b id="浏览器中打开"></lock-b><t>浏览器中打开</t>
                 </group-b>
-                <comment>{（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）}</comment>
+                <comment><t>（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）</t></comment>
                 <br>
                 <group-b>
-                    <lock-b id="搜索窗口自动关闭"></lock-b>{浏览器打开后自动关闭标签页}
+                    <lock-b id="搜索窗口自动关闭"></lock-b><t>浏览器打开后自动关闭标签页</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="标签缩小"></lock-b>{标签缩小}
+                    <lock-b id="标签缩小"></lock-b><t>标签缩小</t>
                 </group-b>
-                <comment>{（标签将只显示图标，悬浮查看标题，中键或右键关闭）}</comment>
+                <comment><t>（标签将只显示图标，悬浮查看标题，中键或右键关闭）</t></comment>
                 <br>
                 <group-b>
-                    <lock-b id="标签灰度"></lock-b>{标签图标灰度}
+                    <lock-b id="标签灰度"></lock-b><t>标签图标灰度</t>
                 </group-b>
-                <comment>{（标签图标将以灰度图片展示，减少多余颜色的干扰）}</comment>
+                <comment><t>（标签图标将以灰度图片展示，减少多余颜色的干扰）</t></comment>
             </div>
 
             <div id="setting_item">
-                <h1>{文字识别（OCR）}</h1>
+                <h1><t>文字识别（OCR）</t></h1>
 
                 <set-select name="" id="OCR类型">
-                    <div value="离线">{离线OCR}</div>
-                    <div value="baidu">{百度}</div>
-                    <div value="youdao">{有道}</div>
+                    <div value="离线"><t>离线OCR</t></div>
+                    <div value="baidu"><t>百度</t></div>
+                    <div value="youdao"><t>有道</t></div>
                 </set-select>
                 <group-b>
-                    <lock-b id="记住OCR引擎"></lock-b>{记住引擎选择}
+                    <lock-b id="记住OCR引擎"></lock-b><t>记住引擎选择</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b checked id="离线切换"></lock-b>{离线时切换离线OCR}
+                    <lock-b checked id="离线切换"></lock-b><t>离线时切换离线OCR</t>
                 </group-b>
 
-                <h2>{离线OCR}</h2>
+                <h2><t>离线OCR</t></h2>
                 <group-b>
-                    <lock-b checked id="检查OCR"></lock-b>{OCR检测}
+                    <lock-b checked id="检查OCR"></lock-b><t>OCR检测</t>
                 </group-b>
-                <comment>{（每次启动时都提示OCR服务是否安装或开启）}</comment>
+                <comment><t>（每次启动时都提示OCR服务是否安装或开启）</t></comment>
                 <br>
-                {det模型}：<input type="text" spellcheck="false" id="ocr_det" placeholder="{目录}">
+                <t>det模型</t>：<input type="text" spellcheck="false" id="ocr_det" placeholder="{目录}">
                 <br>
-                {rec模型}：<input type="text" spellcheck="false" id="ocr_rec" placeholder="{目录}">
+                <t>rec模型</t>：<input type="text" spellcheck="false" id="ocr_rec" placeholder="{目录}">
                 <br>
-                {字典}：<input type="text" spellcheck="false" id="ocr_字典" placeholder="{位置}">
+                <t>字典</t>：<input type="text" spellcheck="false" id="ocr_字典" placeholder="{位置}">
                 <br>
-                <button id="下载离线OCR">{下载离线OCR}</button>
-                <button id="删除离线OCR">{删除离线OCR}</button>
+                <button id="下载离线OCR"><t>下载离线OCR</t></button>
+                <button id="删除离线OCR"><t>删除离线OCR</t></button>
 
-                <h2>{在线OCR}</h2>
+                <h2><t>在线OCR</t></h2>
                 <details id="baidu_details">
-                    <summary>{百度}</summary>
-                    {类型：}<comment>{位置版不起实质效果，但可以扩充免费使用次数:)}</comment>
+                    <summary><t>百度</t></summary>
+                    <t>类型：</t><comment><t>位置版不起实质效果，但可以扩充免费使用次数:)</t></comment>
                     <set-select name="" id="baidu_ocr_url">
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">{高精度版}</div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">{高精度含位置版}</div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic">{标准版}</div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general">{标准含位置版}</div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting">{手写文字}</div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula">{公式}</div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic"><t>高精度版</t></div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate"><t>高精度含位置版</t></div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic"><t>标准版</t></div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general"><t>标准含位置版</t></div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting"><t>手写文字</t></div>
+                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula"><t>公式</t></div>
                     </set-select>
-                    {API Key：}<input type="text" spellcheck="false" id="baidu_ocr_id">
+                    <t>API Key：</t><input type="text" spellcheck="false" id="baidu_ocr_id">
                     <br>
-                    {Secret Key：}<input type="text" spellcheck="false" id="baidu_ocr_secret">
+                    <t>Secret Key：</t><input type="text" spellcheck="false" id="baidu_ocr_secret">
                 </details>
                 <details id="youdao_details">
-                    <summary>{有道}</summary>
-                    {应用ID：}<input type="text" spellcheck="false" id="youdao_ocr_id">
+                    <summary><t>有道</t></summary>
+                    <t>应用ID：</t><input type="text" spellcheck="false" id="youdao_ocr_id">
                     <br>
-                    {应用秘钥：}<input type="text" spellcheck="false" id="youdao_ocr_secret">
+                    <t>应用秘钥：</t><input type="text" spellcheck="false" id="youdao_ocr_secret">
                 </details>
             </div>
 
             <div id="setting_item">
-                <h1>{历史记录}</h1>
+                <h1><t>历史记录</t></h1>
 
-                <h2>{搜索}</h2>
+                <h2><t>搜索</t></h2>
 
                 <group-b>
-                    <lock-b name="" id="历史记录_b" checked></lock-b>{保留历史记录}
+                    <lock-b name="" id="历史记录_b" checked></lock-b><t>保留历史记录</t>
                 </group-b>
                 </br>
                 <group-b>
-                    <lock-b name="" id="清除历史记录"></lock-b>{自动清除历史记录}
-                </group-b> <input type="number" min="0" id="his_d">{天} <input type="number" min="1" id="his_h">{小时}
+                    <lock-b name="" id="清除历史记录"></lock-b><t>自动清除历史记录</t>
+                </group-b> <input type="number" min="0" id="his_d"><t>天</t> <input type="number" min="1" id="his_h"><t>小时</t>
                 <br>
-                <button id="clear_his">{清空所有文字记录}</button>
+                <button id="clear_his"><t>清空所有文字记录</t></button>
 
-                <h2>{日期格式}</h2>
+                <h2><t>日期格式</t></h2>
                 <input type="text" id="时间格式" placeholder="时间格式" spellcheck="false">
             </div>
 
             <div id="setting_item">
-                <h1>{代理}</h1>
+                <h1><t>代理</t></h1>
 
                 <group-b>
-                    <lock-b name="" id="代理"></lock-b>{开启代理}
+                    <lock-b name="" id="代理"></lock-b><t>开启代理</t>
                 </group-b>
                 </br>
-                {pac文件：}
+                <t>pac文件：</t>
                 <input type="text" spellcheck="false" id="pacScript">
                 </br>
-                {代理规则：}
+                <t>代理规则：</t>
                 <input type="text" spellcheck="false" id="proxyRules">
                 </br>
-                {排除规则：}
+                <t>排除规则：</t>
                 <input type="text" spellcheck="false" id="proxyBypassRules">
             </div>
 
             <div id="setting_item">
-                <h1>{自动关闭窗口}</h1>
+                <h1><t>自动关闭窗口</t></h1>
 
-                {失去焦点后自动关闭}：
+                <t>失去焦点后自动关闭</t>：
                 <group-b>
-                    <lock-b name="" id="主页面失焦"></lock-b>{主页面}
+                    <lock-b name="" id="主页面失焦"></lock-b><t>主页面</t>
                 </group-b>
             </div>
 
             <div id="setting_item">
-                <h1>{高级}</h1>
+                <h1><t>高级</t></h1>
 
-                <h2>{高级设置}</h2>
-                {直接编辑设置源文件，更多自定义设置}<comment>{（需要JSON知识）}</comment>
+                <h2><t>高级设置</t></h2>
+                <t>直接编辑设置源文件，更多自定义设置</t><comment><t>（需要JSON知识）</t></comment>
                 <br>
-                <button id="打开config">{打开设置源文件}</button>
+                <button id="打开config"><t>打开设置源文件</t></button>
                 <br>
-                <button id="set_default_setting">{恢复默认设置}</button>
+                <button id="set_default_setting"><t>恢复默认设置</t></button>
                 <br>
                 <group-b>
-                    <lock-b id="give_up_setting_b"></lock-b>{不保存本次设置值}
+                    <lock-b id="give_up_setting_b"></lock-b><t>不保存本次设置值</t>
                 </group-b>
-                <comment>{（若不清楚刚才更改了什么设置，请选中）}</comment>
+                <comment><t>（若不清楚刚才更改了什么设置，请选中）</t></comment>
 
-                <h2>{硬件加速}</h2>
+                <h2><t>硬件加速</t></h2>
                 <group-b>
-                    <lock-b name="" id="硬件加速"></lock-b>{启用硬件加速}
+                    <lock-b name="" id="硬件加速"></lock-b><t>启用硬件加速</t>
                 </group-b>
-                <comment>{（如果可用，且更改需要重启软件生效）}</comment>
+                <comment><t>（如果可用，且更改需要重启软件生效）</t></comment>
 
-                <h2>{检查更新}</h2>
+                <h2><t>检查更新</t></h2>
                 <group-b>
-                    <lock-b name="" id="检查更新"></lock-b>{启用检查更新}
+                    <lock-b name="" id="检查更新"></lock-b><t>启用检查更新</t>
                 </group-b>
-                <comment>{（仅在周末检查，且只在设置打开时检查）}</comment>
+                <comment><t>（仅在周末检查，且只在设置打开时检查）</t></comment>
 
-                <h2 id="path_info">{位置信息}</h2>
+                <h2 id="path_info"><t>位置信息</t></h2>
 
-                <h2 id="versions_info">{版本信息}</h2>
+                <h2 id="versions_info"><t>版本信息</t></h2>
             </div>
 
             <div id="setting_item">
-                <h1>{关于}</h1>
+                <h1><t>关于</t></h1>
                 <div id="about">
                     <img src="./assets/icon.svg" alt="Logo">
                     <div id="about_main">
@@ -643,7 +643,7 @@
     var store = new Store();
     const { t, lan } = require("./lib/translate/translate");
     lan(store.get("语言.语言"));
-    document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v));
+    document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v)).replace(/<t>(.*?)<\/t>/g, (m, v) => t(v));
     document.title = t(document.title)
 </script>
 
