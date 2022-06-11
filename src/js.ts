@@ -1444,8 +1444,8 @@ function is_link(url: string, s: boolean) {
             return false;
         }
     } else {
-        // 有.就行
-        if (url.match(/\./g) != null && !url.match(/[\n\r]/g)) {
+        // 有.或://就行
+        if ((url.match(/\./g) != null || url.match(/:\/\//g) != null) && !url.match(/[\n\r]/g)) {
             return true;
         } else {
             return false;

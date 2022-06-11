@@ -1457,8 +1457,8 @@ function is_link(url, s) {
         }
     }
     else {
-        // 有.就行
-        if (url.match(/\./g) != null && !url.match(/[\n\r]/g)) {
+        // 有.或://就行
+        if ((url.match(/\./g) != null || url.match(/:\/\//g) != null) && !url.match(/[\n\r]/g)) {
             return true;
         }
         else {
