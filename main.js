@@ -818,7 +818,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                 .then((x) => {
                     if (x.filePath) {
                         let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
-                        let ml = `${ffmpeg} -i ${arg.源文件} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${x.filePath}`;
+                        let ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${x.filePath}`;
                         exec(ml, (e, st) => {
                             if (e) {
                                 console.error(e);

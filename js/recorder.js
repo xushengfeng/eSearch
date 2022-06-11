@@ -375,9 +375,9 @@ function save() {
     if (document.getElementById("码率").value) t += `-b:v ${document.getElementById("码率").value * 1000}k `;
     if (document.getElementById("帧率").value) t += `-r ${document.getElementById("帧率").value} `;
     if (document.getElementById("其他参数").value) t += `${document.getElementById("其他参数").value} `;
-    t += `-ss ${document.getElementById("t_start").value} `;
+    t += `-ss ${document.getElementById("t_start").value / 1000} `;
     if (document.getElementById("t_end").value != (time_l[time_l.length - 1] - time_l[0]) / 1000)
-        t += `-to ${document.getElementById("t_end").value} `;
+        t += `-to ${document.getElementById("t_end").value / 1000} `;
     let 格式 = document.getElementById("格式").value;
     console.log(t);
     store.set("录屏.转换.格式", document.getElementById("格式").value);
