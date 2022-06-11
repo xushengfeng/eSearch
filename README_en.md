@@ -119,7 +119,8 @@ Features that have been ticked are the latest in the development process but may
 -   [x] Record screen
     -   [x] Recording full screen
     -   [x] Customize size
-    -   [ ] Follow mouse
+    -   [x] Key prompt
+    -   [x] Cursor Location Tips
     -   [x] Recorder bar
     -   [ ] Stream Write
     -   [x] Recording audio
