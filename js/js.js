@@ -1006,6 +1006,7 @@ document.addEventListener("keydown", (e) => {
     if (!e.shiftKey && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
         editor_selections[0].start = editor_selections[0].end = tmp_s.start = { ...cursor };
         editor_selections[0].render();
+        hide_edit_bar();
     }
 });
 /**
