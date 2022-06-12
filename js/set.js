@@ -367,6 +367,13 @@ document.querySelector("#搜索窗口自动关闭").checked = store.get("浏览�
 document.getElementById("标签缩小").checked = store.get("浏览器.标签页.小");
 document.getElementById("标签灰度").checked = store.get("浏览器.标签页.灰度");
 
+document.getElementById("clear_storage").onclick = () => {
+    ipcRenderer.send("setting", "clear", "storage");
+};
+document.getElementById("clear_cache").onclick = () => {
+    ipcRenderer.send("setting", "clear", "cache");
+};
+
 document.querySelector("#main").onclick = () => {
     window.location.href = "index.html";
 };

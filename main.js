@@ -928,34 +928,27 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             break;
         case "clear":
             let ses = session.defaultSession;
-            switch (arg1) {
-                case "auth":
-                    ses_clear(ses.clearAuthCache(), "auth");
-                    break;
-                case "cache":
-                    ses_clear(ses.clearCache(), "cache");
-                    break;
-                case "code":
-                    ses_clear(ses.clearCodeCaches(), "code");
-                    break;
-                case "host_r":
-                    ses_clear(ses.clearHostResolverCache(), "host_r");
-                    break;
-                case "storage":
-                    ses_clear(ses.clearStorageData(), "storage");
-                    break;
-            }
-            /**
-             *
-             * @param {Promise} s session方法
-             * @param {string} t 返回关键字
-             */
-            function ses_clear(s, t) {
-                s.then(() => {
-                    event.sender.send("setting", t, true);
-                }).catch(() => {
-                    event.sender.send("setting", t, false);
-                });
+            if (arg1 == "storage") {
+                ses.clearStorageData()
+                    .then(() => {
+                        event.sender.send("setting", "storage", true);
+                    })
+                    .catch(() => {
+                        event.sender.send("setting", "storage", false);
+                    });
+            } else {
+                Promise.all([
+                    ses.clearAuthCache(),
+                    ses.clearCache(),
+                    ses.clearCodeCaches(),
+                    ses.clearHostResolverCache(),
+                ])
+                    .then(() => {
+                        event.sender.send("setting", "cache", true);
+                    })
+                    .catch(() => {
+                        event.sender.send("setting", "cache", false);
+                    });
             }
     }
 });
