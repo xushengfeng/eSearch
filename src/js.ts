@@ -81,7 +81,7 @@ function word_to_span_string(t: string) {
  * @returns 包装好的span文字
  */
 function word_to_span_string_split(t: string) {
-    let o = in_browser ? t.split("") : <string[]>splitter.GraphemeSplitter.splitGraphemes(t);
+    let o = in_browser ? t.split("") : <string[]>splitter.splitGraphemes(t);
     o = o.map((t) => word_to_span_string(t));
     return o.join("");
 }
