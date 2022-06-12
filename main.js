@@ -1197,6 +1197,12 @@ const template = [
                 },
                 accelerator: "CmdOrCtrl+D",
             },
+            {
+                label: t("开发者工具"),
+                click: (i, w) => {
+                    view_events(w, "dev");
+                },
+            },
         ],
     },
     // { role: 'viewMenu' }
@@ -1564,6 +1570,9 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
         case "save_html":
             main_window["html"] = arg2;
             min_views(main_window);
+            break;
+        case "dev":
+            search_window.webContents.openDevTools();
             break;
     }
 });
