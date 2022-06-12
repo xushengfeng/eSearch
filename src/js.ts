@@ -1842,6 +1842,21 @@ const { t, lan } = require("./lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 
+/**
+ * 统计字数
+ */
+function count_words() {
+    let text = editor_get();
+    let p = text.trim().match(/\n+/g)?.length + 1 || 1;
+    text = text.replace(/[\n\r]/g, "");
+    let c = splitter.splitGraphemes(text).length;
+    let c_space = c - text.match(/\s/g)?.length || 0;
+    let cjk_rg = /[\u2E80-\uFE4F]/g;
+    let cjk = text.match(cjk_rg)?.length || 0;
+    text = text.replace(cjk_rg, "").replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
+    let n_cjk = text.match(/\S+/g)?.length || 0;
+    console.log({ p, c, c_space, cjk, n_cjk });
+}
 /************************************浏览器 */
 
 document.body.className = "fill_t";
