@@ -990,6 +990,7 @@ function editor_change() {
     if (find_show) {
         exit_find();
         find();
+        if (!in_browser) count_words();
     }
     if (editing_on_other) write_edit_on_other();
 }
@@ -1266,6 +1267,7 @@ function show_find() {
         find_input.select();
         find_input.focus();
         if (editor_selections[0].get() != "") find();
+        if (!in_browser) count_words();
     } else {
         document.getElementById("top").style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
@@ -1855,8 +1857,12 @@ function count_words() {
     let cjk = text.match(cjk_rg)?.length || 0;
     text = text.replace(cjk_rg, "").replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
     let n_cjk = text.match(/\S+/g)?.length || 0;
-    console.log({ p, c, c_space, cjk, n_cjk });
+    document.getElementById("count").innerText = `${cjk + n_cjk} ${t("字")}`;
+    document.getElementById("count").title = `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${c_space}\n${t(
+        "汉字"
+    )} ${cjk}\n${t("非汉字词")} ${n_cjk}`;
 }
+
 /************************************浏览器 */
 
 document.body.className = "fill_t";
