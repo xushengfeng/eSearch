@@ -50,6 +50,7 @@ function set_setting() {
 }
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;
+var ratio = window.devicePixelRatio;
 const main_canvas = document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width / 全局缩放 + "px";
 const clip_canvas = document.getElementById("clip_photo");
@@ -231,10 +232,10 @@ function tool_ocr_f() {
     });
 
     document.getElementById("waiting").style.display = "block";
-    document.getElementById("waiting").style.left = final_rect[0] + "px";
-    document.getElementById("waiting").style.top = final_rect[1] + "px";
-    document.getElementById("waiting").style.width = final_rect[2] + "px";
-    document.getElementById("waiting").style.height = final_rect[3] + "px";
+    document.getElementById("waiting").style.left = final_rect[0] / ratio + "px";
+    document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
+    document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
+    document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
     document.querySelectorAll("#waiting line animate")[0].beginElement();
     document.querySelectorAll("#waiting line animate")[1].beginElement();
 
@@ -262,10 +263,10 @@ function tool_search_f() {
     });
 
     document.getElementById("waiting").style.display = "block";
-    document.getElementById("waiting").style.left = final_rect[0] + "px";
-    document.getElementById("waiting").style.top = final_rect[1] + "px";
-    document.getElementById("waiting").style.width = final_rect[2] + "px";
-    document.getElementById("waiting").style.height = final_rect[3] + "px";
+    document.getElementById("waiting").style.left = final_rect[0] / ratio + "px";
+    document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
+    document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
+    document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
     document.querySelectorAll("#waiting line animate")[0].beginElement();
     document.querySelectorAll("#waiting line animate")[1].beginElement();
 
