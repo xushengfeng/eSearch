@@ -231,13 +231,7 @@ function tool_ocr_f() {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
-    document.getElementById("waiting").style.display = "block";
-    document.getElementById("waiting").style.left = final_rect[0] / ratio + "px";
-    document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
-    document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
-    document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
-    document.querySelectorAll("#waiting line animate")[0].beginElement();
-    document.querySelectorAll("#waiting line animate")[1].beginElement();
+    scan_line();
 
     ipcRenderer.on("ocr_back", (event, arg) => {
         if (arg == "ok") {
@@ -247,6 +241,15 @@ function tool_ocr_f() {
             document.getElementById("waiting").style.display = "none";
         }
     });
+}
+function scan_line() {
+    document.getElementById("waiting").style.display = "block";
+    document.getElementById("waiting").style.left = final_rect[0] / ratio + "px";
+    document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
+    document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
+    document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
+    document.querySelectorAll("#waiting line animate")[0].beginElement();
+    document.querySelectorAll("#waiting line animate")[1].beginElement();
 }
 // 以图搜图
 var 识图引擎 = document.getElementById("识图引擎");
@@ -262,13 +265,7 @@ function tool_search_f() {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
-    document.getElementById("waiting").style.display = "block";
-    document.getElementById("waiting").style.left = final_rect[0] / ratio + "px";
-    document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
-    document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
-    document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
-    document.querySelectorAll("#waiting line animate")[0].beginElement();
-    document.querySelectorAll("#waiting line animate")[1].beginElement();
+    scan_line();
 
     ipcRenderer.on("search_back", (event, arg) => {
         if (arg == "ok") {
