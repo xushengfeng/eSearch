@@ -1797,6 +1797,11 @@ var default_setting = {
         h: 0,
     },
     ding_dock: [0, 0],
+    贴图: {
+        窗口: {
+            变换: `transform: rotateY(180deg);`,
+        },
+    },
     开启代理: false,
     代理: {
         pacScript: "",

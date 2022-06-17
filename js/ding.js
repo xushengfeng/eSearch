@@ -113,6 +113,21 @@ function ignore(el, v) {
         ding_p_s(i, [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight]);
     }
 }
+var tran_style = document.createElement("style");
+tran_style.innerText = `.tran{${store.get("贴图.窗口.变换")}}`;
+document.body.appendChild(tran_style);
+/**
+ * 窗口变换
+ * @param {HTMLElement} el 窗口
+ * @param {boolean} v 是否变换
+ */
+function transform(el, v) {
+    if (v) {
+        el.querySelector(".img").classList.add("tran");
+    } else {
+        el.querySelector(".img").classList.remove("tran");
+    }
+}
 function back(el) {
     el.style.transition = "var(--transition)";
     setTimeout(() => {
@@ -454,6 +469,13 @@ function dock_i() {
                 i_ignore_v = !i_ignore_v;
                 ignore(document.getElementById(i), i_ignore_v);
             };
+            var i_tran_v = false;
+            dock_item.querySelector("#i_tran").style.display = "block";
+            dock_item.querySelector("#i_tran").onclick = () => {
+                i_tran_v = !i_tran_v;
+                transform(document.getElementById(i), i_tran_v);
+            };
+
             document.querySelector("#dock > div").appendChild(dock_item);
         })(o);
     }

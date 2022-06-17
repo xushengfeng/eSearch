@@ -200,3 +200,11 @@ input[type="range"]::-webkit-slider-thumb {
 #dock_item > #i_ignore:hover {
     background-color: var(--hover-color);
 }
+
+#dock_item > #i_tran {
+    right: 72px;
+}
+
+#dock_item > #i_tran:hover {
+    background-color: var(--hover-color);
+}
