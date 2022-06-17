@@ -114,7 +114,7 @@ function ignore(el, v) {
     }
 }
 var tran_style = document.createElement("style");
-tran_style.innerText = `.tran{${store.get("贴图.窗口.变换")}}`;
+tran_style.innerHTML = `.tran{${store.get("贴图.窗口.变换")}}`;
 document.body.appendChild(tran_style);
 /**
  * 窗口变换
