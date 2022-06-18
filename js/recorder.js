@@ -110,6 +110,8 @@ ipcRenderer.on("record", async (event, t, sourceId, r) => {
                         mandatory: {
                             chromeMediaSource: "desktop",
                             chromeMediaSourceId: sourceId,
+                            minWidth: window.screen.width * ratio,
+                            minHeight: window.screen.height * ratio,
                         },
                     },
                 });

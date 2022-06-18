@@ -669,11 +669,13 @@ function image_search(event, arg) {
 
 var /** @type {BrowserWindow}*/ recorder, /** @type {BrowserWindow}*/ recorder1;
 var mouse_ps = {};
+var o_rect;
 var record_start = false;
 var record_mouse_v = false;
 var record_start_time = 0;
 var record_start_d_time = 0;
 function create_recorder_window(rect) {
+    o_rect = rect;
     let ratio = screen.getPrimaryDisplay().scaleFactor;
     let p = screen.getCursorScreenPoint() * ratio;
     rect = rect.map((v) => v / ratio);
@@ -823,7 +825,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                 .then((x) => {
                     if (x.filePath) {
                         let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
-                        let ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf crop=${mouse_ps.rect[2]}:${mouse_ps.rect[3]}:${mouse_ps.rect[0]}:${mouse_ps.rect[1]} ${x.filePath}`;
+                        let ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]} ${x.filePath}`;
                         exec(ml, (e, st) => {
                             if (e) {
                                 console.error(e);
