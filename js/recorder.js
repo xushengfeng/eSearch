@@ -210,8 +210,10 @@ async function camera_stream_f(v) {
         document.querySelector("video").srcObject = camera_stream;
         document.querySelector("video").play();
         if (store.get("录屏.摄像头.镜像")) document.querySelector("video").style.transform = "rotateY(180deg)";
-        resize();
         ipcRenderer.send("record", "camera", 0);
+        setTimeout(() => {
+            resize();
+        }, 400);
     } else {
         camera_stream.getVideoTracks()[0].stop();
         document.querySelector("video").srcObject = null;
@@ -280,7 +282,6 @@ function show_control() {
     document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] * ratio + "px";
     document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight =
         rect[3] * ratio + "px";
-    resize();
     clip_v();
     document.getElementById("save").disabled = false;
     document.getElementById("格式").value = store.get("录屏.转换.格式");
@@ -292,6 +293,9 @@ function show_control() {
     } else {
         ipcRenderer.send("record", "camera", 2);
     }
+    setTimeout(() => {
+        resize();
+    }, 400);
 }
 
 var video = document.querySelector("video");
