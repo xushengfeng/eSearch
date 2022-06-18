@@ -728,7 +728,7 @@ function create_recorder_window(rect) {
 
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
-            recorder.webContents.send("record", "init", sources[0].id);
+            recorder.webContents.send("record", "init", sources[0].id, rect);
         });
     });
     record_start = true;

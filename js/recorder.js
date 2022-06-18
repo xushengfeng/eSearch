@@ -65,10 +65,13 @@ var /**@type {MediaStream} */ audio_stream, /**@type {MediaStream} */ stream;
 var audio = false,
     camera = false;
 
+var rect;
+
 const { ipcRenderer } = require("electron");
-ipcRenderer.on("record", async (event, t, sourceId) => {
+ipcRenderer.on("record", async (event, t, sourceId, r) => {
     switch (t) {
         case "init":
+            rect = r;
             s_s = true;
             let devices = await navigator.mediaDevices.enumerateDevices();
             for (let i of devices) {
@@ -252,6 +255,10 @@ function show_control() {
     add_types();
     document.querySelector("video").style.transform = "";
     document.querySelector("video").src = tmp_path;
+    document.querySelector("video").style.left = -rect[0] + "px";
+    document.querySelector("video").style.top = -rect[1] + "px";
+    document.getElementById("v_p").style.width = rect[2] + "px";
+    document.getElementById("v_p").style.height = rect[3] + "px";
     clip_v();
     document.getElementById("save").disabled = false;
     document.getElementById("格式").value = store.get("录屏.转换.格式");

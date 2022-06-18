@@ -97,8 +97,7 @@ body {
 }
 video {
     border-radius: var(--border-radius);
-    max-height: 100%;
-    max-width: 100%;
+    position: relative;
 }
 #s {
     height: 0;
