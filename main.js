@@ -674,21 +674,23 @@ var record_mouse_v = false;
 var record_start_time = 0;
 var record_start_d_time = 0;
 function create_recorder_window(rect) {
-    let p = screen.getCursorScreenPoint();
     let ratio = screen.getPrimaryDisplay().scaleFactor;
+    let p = screen.getCursorScreenPoint() * ratio;
     rect = rect.map((v) => v / ratio);
     let hx = rect[0] + rect[2] / 2,
         hy = rect[1] + rect[3] / 2,
         w = 216,
         h = 24,
-        sw = screen.getPrimaryDisplay().bounds.width,
-        sh = screen.getPrimaryDisplay().bounds.height;
+        sw = screen.getPrimaryDisplay().bounds.width * ratio,
+        sh = screen.getPrimaryDisplay().bounds.height * ratio;
     let x = p.x <= hx ? rect[0] : rect[0] + rect[2] - w,
         y = p.y <= hy ? rect[1] - h - 8 : rect[1] + rect[3] + 8;
     x = x < 0 ? 0 : x;
     x = x + w > sw ? sw - w : x;
     y = y < 0 ? 0 : y;
     y = y + h > sh ? sh - h : y;
+    x = Math.round(x);
+    y = Math.round(y);
     recorder = new BrowserWindow({
         icon: the_icon,
         x,
