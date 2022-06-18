@@ -318,7 +318,7 @@ function add_line() {
         if (pg.lastElementChild) {
             r = (<HTMLElement>pg.lastElementChild).offsetLeft + (<HTMLElement>pg.lastElementChild).offsetWidth;
         }
-        if (editor.childElementCount == 1) {
+        if (line_height * 0.5 <= pg.offsetHeight && pg.offsetHeight <= line_height * 1.5) {
             line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: pg.children.length - 1, r }, pg: i };
             push_p_l(i, pg.offsetTop);
         } else {
