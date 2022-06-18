@@ -238,6 +238,7 @@ document.getElementById("格式").value = store.get("录屏.转换.格式");
 document.getElementById("码率").value = store.get("录屏.转换.码率");
 document.getElementById("帧率").value = store.get("录屏.转换.帧率");
 document.getElementById("ff其他参数").value = store.get("录屏.转换.其他");
+document.getElementById("高质量gif").checked = store.get("录屏.转换.高质量gif");
 
 document.getElementById("开启键盘按键提示").checked = store.get("录屏.提示.键盘.开启");
 document.getElementById("开启鼠标按键提示").checked = store.get("录屏.提示.鼠标.开启");
@@ -549,6 +550,7 @@ function save_setting() {
         码率: Number(document.getElementById("码率").value),
         帧率: Number(document.getElementById("帧率").value),
         其他: document.getElementById("ff其他参数").value,
+        高质量gif: document.getElementById("高质量gif").checked,
     });
     store.set("录屏.提示", {
         键盘: {

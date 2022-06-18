@@ -825,7 +825,13 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                 .then((x) => {
                     if (x.filePath) {
                         let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
-                        let ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]} ${x.filePath}`;
+                        let ml;
+                        console.log();
+                        if (arg.格式 == "gif" && store.get("录屏.转换.高质量gif")) {
+                            ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf "[in]crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1" ${x.filePath}`;
+                        } else {
+                            ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]} ${x.filePath}`;
+                        }
                         exec(ml, (e, st) => {
                             if (e) {
                                 console.error(e);
@@ -1843,6 +1849,7 @@ var default_setting = {
             码率: 2.5,
             帧率: 30,
             其他: "",
+            高质量gif: false,
         },
         提示: {
             键盘: {

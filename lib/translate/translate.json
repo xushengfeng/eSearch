@@ -217,6 +217,8 @@
 "码率": {"en":"Code rate","zh-HANT":"碼率","fr":"taux de code","ru":"кодовая скорость","es":"tasa de código","ar":"معدل الكود","eo":"koda indico"},
 "帧率": {"en":"Frame rate","zh-HANT":"幀率","fr":"Fréquence d'images","ru":"Частота кадров","es":"Velocidad de fotogramas","ar":"معدل الإطار","eo":"framfrekvenco"},
 "其他参数": {"en":"Other parameters","zh-HANT":"其他參數","fr":"Autres paramètres","ru":"Другие параметры","es":"Otros parámetros","ar":"معلمات أخرى","eo":"Aliaj parametroj"},
+"高质量 Gif":{"en":"High Quality Gif","zh-HANT":"高質量 Gif","fr":"GIF de haute qualité","ru":"Высококачественный GIF","es":"Gif de alta calidad","ar":"جودة عالية Gif","eo":"Altkvalita GIF"},
+"（转换时速度会很慢）":{"en":"(It will be slow when converting)","zh-HANT":"（轉換時速度會很慢）","fr":"(Ce sera lent lors de la conversion)","ru":"(Скорость будет очень медленной при преобразовании)","es":"(Será lento al convertir)","ar":"(سيكون بطيئا عند التحويل)","eo":"(La rapideco estos tre malrapida kiam la konvertiĝo)"},
 "文件名称": {"en":"File name","zh-HANT":"文件名稱","fr":"Nom du fichier","ru":"Имя файла","es":"Nombre del archivo","ar":"اسم الملف","eo":"dosiernomo"},
 "预览:": {"en":"Preview:","zh-HANT":"預覽:","fr":"Avant-première :","ru":"Предварительный просмотр:","es":"Previsualización:","ar":"معاينة:","eo":"Antaŭrigardo:"},
 "时间代码": {"en":"Timecode","zh-HANT":"時間代碼","fr":"Code temporel","ru":"Временной код","es":"Código de tiempo","ar":"رمز الوقت","eo":"tempokodo"},
