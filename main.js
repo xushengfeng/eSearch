@@ -675,6 +675,8 @@ var record_start_time = 0;
 var record_start_d_time = 0;
 function create_recorder_window(rect) {
     let p = screen.getCursorScreenPoint();
+    let ratio = screen.getPrimaryDisplay().scaleFactor;
+    rect = rect.map((v) => v / ratio);
     let hx = rect[0] + rect[2] / 2,
         hy = rect[1] + rect[3] / 2,
         w = 216,
@@ -793,8 +795,7 @@ function create_recorder_window(rect) {
     function mouse() {
         if (recorder1.isDestroyed()) return;
         let n_xy = screen.getCursorScreenPoint();
-        let ratio = screen.getPrimaryDisplay().scaleFactor;
-        recorder1.webContents.send("record", "mouse", { x: n_xy.x * ratio, y: n_xy.y * ratio });
+        recorder1.webContents.send("record", "mouse", { x: n_xy.x, y: n_xy.y });
         setTimeout(mouse, 10);
     }
     if (store.get("录屏.提示.光标.开启")) mouse();

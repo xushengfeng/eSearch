@@ -2,6 +2,8 @@ const { ipcRenderer } = require("electron");
 const Store = require("electron-store");
 var store = new Store();
 
+var ratio = window.devicePixelRatio;
+
 if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
     var { uIOhook, UiohookKey } = require("uiohook-napi");
 
