@@ -334,7 +334,9 @@ function video_play() {
 
 video.ontimeupdate = () => {
     if (!editting) return;
-    document.getElementById("t_nt").innerText = t_format(video.currentTime * 1000);
+    document.getElementById("t_nt").innerText = t_format(
+        video.currentTime * 1000 - document.getElementById("t_start").value
+    );
     if (video.currentTime * 1000 > document.getElementById("t_end").value) {
         video.pause();
         document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
