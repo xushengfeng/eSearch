@@ -871,6 +871,8 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                         width: store.get("录屏.大小.width") || 800,
                         height: store.get("录屏.大小.height") || 600,
                     });
+                    recorder.setAlwaysOnTop(false);
+                    recorder.setResizable(true);
                     recorder.center();
                     break;
             }
