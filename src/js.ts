@@ -1142,6 +1142,7 @@ function set_font_size(font_size: number) {
     setTimeout(() => {
         editor_i(cursor.pg, cursor.of);
         editor_selections[0].render();
+        line_num();
     }, 400);
 }
 
