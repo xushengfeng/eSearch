@@ -281,7 +281,7 @@ function clip_v() {
 document.getElementById("t_start").oninput = () => {
     video.currentTime =
         (document.getElementById("t_end").min = document.getElementById("jdt").min =
-            document.getElementById("t_start").value) * 1000;
+            document.getElementById("t_start").value) / 1000;
     document.getElementById("t_t").innerText = t_format(
         document.getElementById("t_end").value - document.getElementById("t_start").value
     );
@@ -289,7 +289,7 @@ document.getElementById("t_start").oninput = () => {
 document.getElementById("t_end").oninput = () => {
     video.currentTime =
         (document.getElementById("t_start").max = document.getElementById("jdt").max =
-            document.getElementById("t_end").value) * 1000;
+            document.getElementById("t_end").value) / 1000;
     document.getElementById("t_t").innerText = t_format(
         document.getElementById("t_end").value - document.getElementById("t_start").value
     );
