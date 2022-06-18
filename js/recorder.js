@@ -1,3 +1,5 @@
+var ratio = window.devicePixelRatio;
+
 var /**@type {MediaRecorder} */ recorder;
 
 var tmp_path;
@@ -206,6 +208,7 @@ async function camera_stream_f(v) {
         document.querySelector("video").srcObject = camera_stream;
         document.querySelector("video").play();
         if (store.get("录屏.摄像头.镜像")) document.querySelector("video").style.transform = "rotateY(180deg)";
+        resize();
         ipcRenderer.send("record", "camera", 0);
     } else {
         camera_stream.getVideoTracks()[0].stop();
@@ -233,6 +236,21 @@ document.getElementById("camera").onclick = () => {
     }
 };
 
+document.body.onresize = resize;
+
+function resize() {
+    let p = { h: document.getElementById("video").offsetHeight, w: document.getElementById("video").offsetWidth },
+        c = { h: document.getElementById("v_p").offsetHeight, w: document.getElementById("v_p").offsetWidth };
+    let k0 = p.h / p.w;
+    let k1 = c.h / c.w;
+    if (k0 >= k1) {
+        console.log(p.w, c.w);
+        document.getElementById("v_p").style.zoom = p.w / c.w;
+    } else {
+        document.getElementById("v_p").style.zoom = p.h / c.h;
+    }
+}
+
 ipcRenderer.on("ff", (event, err, st) => {
     if (err) {
         console.error(err);
@@ -257,8 +275,9 @@ function show_control() {
     document.querySelector("video").src = tmp_path;
     document.querySelector("video").style.left = -rect[0] + "px";
     document.querySelector("video").style.top = -rect[1] + "px";
-    document.getElementById("v_p").style.width = rect[2] + "px";
-    document.getElementById("v_p").style.height = rect[3] + "px";
+    document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] + "px";
+    document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight = rect[3] + "px";
+    resize();
     clip_v();
     document.getElementById("save").disabled = false;
     document.getElementById("格式").value = store.get("录屏.转换.格式");

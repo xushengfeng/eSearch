@@ -88,12 +88,15 @@ body {
 #video {
     display: flex;
     justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
     border-radius: var(--border-radius);
     overflow: hidden;
-    height: auto;
-    width: auto;
-    max-height: 100%;
-    max-width: 100%;
+}
+#v_p {
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 video {
     border-radius: var(--border-radius);
