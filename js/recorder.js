@@ -279,20 +279,25 @@ function clip_v() {
 }
 
 document.getElementById("t_start").oninput = () => {
-    video.currentTime = (document.getElementById("t_end").min = document.getElementById("t_start").value) * 1000;
+    video.currentTime =
+        (document.getElementById("t_end").min = document.getElementById("jdt").min =
+            document.getElementById("t_start").value) * 1000;
     document.getElementById("t_t").innerText = t_format(
         document.getElementById("t_end").value - document.getElementById("t_start").value
     );
 };
 document.getElementById("t_end").oninput = () => {
-    video.currentTime = (document.getElementById("t_start").max = document.getElementById("t_end").value) * 1000;
+    video.currentTime =
+        (document.getElementById("t_start").max = document.getElementById("jdt").max =
+            document.getElementById("t_end").value) * 1000;
     document.getElementById("t_t").innerText = t_format(
         document.getElementById("t_end").value - document.getElementById("t_start").value
     );
 };
 
 document.getElementById("b_t_end").onclick = () => {
-    document.getElementById("t_end").value =
+    document.getElementById("jdt").max =
+        document.getElementById("t_end").value =
         document.getElementById("t_start").max =
         document.getElementById("t_end").max =
             time_l[time_l.length - 1] - time_l[0];
@@ -341,10 +346,16 @@ video.ontimeupdate = () => {
         video.pause();
         document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
     }
+    document.getElementById("jdt").value = video.currentTime * 1000;
+};
+
+document.getElementById("jdt").oninput = () => {
+    video.currentTime = document.getElementById("jdt").value / 1000;
 };
 
 video.onended = () => {
     document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
+    document.getElementById("jdt").value = document.getElementById("jdt").max;
 };
 
 function add_types() {

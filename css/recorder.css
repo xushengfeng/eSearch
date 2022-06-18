@@ -108,6 +108,21 @@ video {
     height: auto !important;
 }
 
+#jdt {
+    -webkit-appearance: none;
+    width: 100%;
+    border-radius: 2px;
+    background: var(--hover-color);
+    margin: 0;
+}
+
+#jdt::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    background-color: var(--color);
+    border-radius: 2px;
+    height: 16px;
+    width: 4px;
+}
 input {
     vertical-align: middle;
     font-family: var(--main-font);
