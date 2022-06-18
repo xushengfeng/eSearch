@@ -275,10 +275,11 @@ function show_control() {
     add_types();
     document.querySelector("video").style.transform = "";
     document.querySelector("video").src = tmp_path;
-    document.querySelector("video").style.left = -rect[0] + "px";
-    document.querySelector("video").style.top = -rect[1] + "px";
-    document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] + "px";
-    document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight = rect[3] + "px";
+    document.querySelector("video").style.left = -rect[0] * ratio + "px";
+    document.querySelector("video").style.top = -rect[1] * ratio + "px";
+    document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] * ratio + "px";
+    document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight =
+        rect[3] * ratio + "px";
     resize();
     clip_v();
     document.getElementById("save").disabled = false;
