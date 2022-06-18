@@ -295,6 +295,7 @@ function show_control() {
     }
     setTimeout(() => {
         resize();
+        document.getElementById("m").style.transition = "none";
     }, 400);
 }
 
