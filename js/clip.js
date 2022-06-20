@@ -241,6 +241,7 @@ hotkeys("s", () => {
     final_rect = [0, 0, clip_canvas.width, clip_canvas.height];
     draw_clip_rect();
     document.getElementById("tool_bar").style.opacity = "0";
+    tool_bar.style.pointerEvents = "none";
 });
 
 // 大小栏
