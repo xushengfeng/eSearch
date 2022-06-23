@@ -116,6 +116,7 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Screenshot history
     -   [x] Window and control selection (using OpenCV edge recognition)
     -   [ ] Multi-screen
+    -   [ ] Long screen capture
 -   [x] Record screen
     -   [x] Recording full screen
     -   [x] Customize size
