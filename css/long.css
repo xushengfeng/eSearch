@@ -1,0 +1,18 @@
+#rect {
+    position: fixed;
+    outline: 1px solid #000;
+}
+
+#finish {
+    width: 16px;
+    height: 16px;
+    background-color: #000;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: pointer;
+}
+
+#finish:hover {
+    background-color: #0000;
+}

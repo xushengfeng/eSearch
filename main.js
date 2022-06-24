@@ -587,9 +587,11 @@ function create_clip_window() {
                 n_full_screen();
                 long_s_v = true;
                 long_s();
+                long_win(arg);
                 break;
             case "long_e":
                 long_s_v = false;
+                long_window.close();
                 break;
         }
     });
@@ -982,8 +984,56 @@ function long_s() {
     if (long_s_v) {
         setTimeout(() => {
             long_s();
-        },200);
+        }, 200);
+    } else {
+        clip_window.webContents.send("long", null);
     }
+}
+
+/**@type {BrowserWindow} */
+var long_window;
+function long_win(rect) {
+    long_window = new BrowserWindow({
+        icon: the_icon,
+        fullscreen: true,
+        transparent: true,
+        frame: false,
+        autoHideMenuBar: true,
+        resizable: false,
+        titleBarStyle: "hiddenInset",
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+    long_window.loadFile("long.html");
+    if (dev) long_window.webContents.openDevTools();
+
+    long_window.setAlwaysOnTop(true, "screen-saver");
+
+    long_window.webContents.on("did-finish-load", () => {
+        long_window.webContents.send("rect", "init", rect);
+    });
+
+    long_window.setIgnoreMouseEvents(true);
+
+    function mouse() {
+        if (long_window.isDestroyed()) return;
+        let n_xy = screen.getCursorScreenPoint();
+        let ratio = screen.getPrimaryDisplay().scaleFactor;
+        if (
+            rect[0] + rect[2] - 16 <= n_xy.x * ratio &&
+            n_xy.x * ratio <= rect[0] + rect[2] &&
+            rect[1] + rect[3] - 16 <= n_xy.y * ratio &&
+            n_xy.y * ratio <= rect[1] + rect[3]
+        ) {
+            long_window.setIgnoreMouseEvents(false);
+        } else {
+            long_window.setIgnoreMouseEvents(true);
+        }
+        setTimeout(mouse, 10);
+    }
+    mouse();
 }
 
 // 菜单栏设置(截屏没必要)

@@ -371,9 +371,13 @@ function tool_record_f() {
 var long_list = [];
 function tool_long_f() {
     long_list = [];
-    ipcRenderer.send("clip_main_b", "long_s");
+    ipcRenderer.send("clip_main_b", "long_s", final_rect);
     if (!cv) cv = require("opencv.js");
     ipcRenderer.on("long", (event, x, w, h) => {
+        if (!x) {
+            pj_long();
+            return;
+        }
         let canvas = document.createElement("canvas");
         let canvas_top = document.createElement("canvas");
         canvas.width = clip_canvas.width = draw_canvas.width = w;
@@ -391,10 +395,6 @@ function tool_long_f() {
         canvas_top.getContext("2d").putImageData(gid, 0, 0);
         long_list.push([canvas, canvas_top]);
     });
-    setTimeout(() => {
-        ipcRenderer.send("clip_main_b", "long_e");
-        pj_long();
-    }, 5000);
 }
 
 function pj_long() {
