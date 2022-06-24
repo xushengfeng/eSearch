@@ -422,13 +422,9 @@ function pj_long() {
         dst.delete();
         mask.delete();
     }
-    o_canvas.width += p.x;
-    o_canvas.height += p.y;
     for (let i = 0; i < long_list.length - 1; i++) {
         o_canvas.getContext("2d").drawImage(long_list[i + 1][0], l[i][0], l[i][1]);
     }
-
-    console.log(o_canvas.toDataURL());
 
     main_canvas.width = clip_canvas.width = draw_canvas.width = o_canvas.width;
     main_canvas.height = clip_canvas.height = draw_canvas.height = o_canvas.height;
