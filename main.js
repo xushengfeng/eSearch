@@ -583,6 +583,14 @@ function create_clip_window() {
             case "record":
                 create_recorder_window(arg);
                 break;
+            case "long_s":
+                n_full_screen();
+                long_s_v = true;
+                long_s();
+                break;
+            case "long_e":
+                long_s_v = false;
+                break;
         }
     });
 
@@ -965,6 +973,18 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             }
     }
 });
+
+var long_s_v = false;
+
+function long_s() {
+    let x = robot.screen.capture();
+    clip_window.webContents.send("long", x.image, x.width, x.height);
+    if (long_s_v) {
+        setTimeout(() => {
+            long_s();
+        },200);
+    }
+}
 
 // 菜单栏设置(截屏没必要)
 const isMac = process.platform === "darwin";
