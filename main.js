@@ -592,6 +592,8 @@ function create_clip_window() {
             case "long_e":
                 long_s_v = false;
                 long_window.close();
+                clip_window.show();
+                clip_window.setSimpleFullScreen(true);
                 break;
         }
     });

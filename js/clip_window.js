@@ -429,6 +429,14 @@ function pj_long() {
     }
 
     console.log(o_canvas.toDataURL());
+
+    main_canvas.width = clip_canvas.width = draw_canvas.width = o_canvas.width;
+    main_canvas.height = clip_canvas.height = draw_canvas.height = o_canvas.height;
+
+    let ggid = o_canvas.getContext("2d").getImageData(0, 0, o_canvas.width, o_canvas.height);
+    main_canvas.getContext("2d").putImageData(ggid, 0, 0);
+
+    final_rect = [0, 0, o_canvas.width, o_canvas.height];
 }
 
 // 钉在屏幕上
