@@ -700,7 +700,7 @@ document.getElementById("version").onclick = () => {
             if (version_new(result.name, package.version) && !result.draft && !result.prerelease) {
                 document.getElementById("update_info").innerHTML = `${t("有新版本:")} <a href="${result.html_url}">${
                     result.name
-                }</a>`;
+                }</a><div>${result.body.replace(/\r\n/g, "<br>")}</div>`;
                 document.getElementById("menu").lastElementChild.style.color = "#335EFE";
             } else {
                 document.getElementById("update_info").innerHTML = t("暂无更新");

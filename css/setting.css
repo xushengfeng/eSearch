@@ -283,6 +283,10 @@ comment {
     text-align: center;
     margin: 4px;
 }
+#update_info > div {
+    height: 200px;
+    overflow: auto;
+}
 #name {
     text-align: center;
     font-size: 3rem;
