@@ -981,9 +981,9 @@ ipcMain.on("setting", async (event, arg, arg1) => {
 var long_s_v = false;
 
 function long_s() {
-    let x = robot.screen.capture();
-    clip_window.webContents.send("long", x.image, x.width, x.height);
     if (long_s_v) {
+        let x = robot.screen.capture();
+        clip_window.webContents.send("long", x.image, x.width, x.height);
         robot.scrollMouse(0, -1);
         setTimeout(() => {
             long_s();
