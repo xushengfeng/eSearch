@@ -984,6 +984,7 @@ function long_s() {
     let x = robot.screen.capture();
     clip_window.webContents.send("long", x.image, x.width, x.height);
     if (long_s_v) {
+        robot.scrollMouse(0, -1);
         setTimeout(() => {
             long_s();
         }, 200);
