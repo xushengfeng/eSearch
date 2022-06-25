@@ -6,7 +6,8 @@
 #finish {
     width: 16px;
     height: 16px;
-    background-color: #000;
+    background-color: #f00;
+    border-radius: 8px;
     position: absolute;
     right: 0;
     bottom: 0;
