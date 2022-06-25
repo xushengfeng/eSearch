@@ -18,7 +18,9 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 主要是想在 Linux 上(win 和 mac 上也能用)实现[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的**屏幕搜索**功能，当然也是一款方便的**截屏软件**。
 
-即 **截屏+OCR+搜索+贴图+以图搜图**
+经过数次版本迭代，eSearch 的功能愈加丰富
+
+即拥有 **截屏+OCR+搜索+翻译+贴图+以图搜图+录屏**
 
 ![截屏界面](https://esearch.vercel.app/readme/1.png)
 

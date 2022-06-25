@@ -18,7 +18,9 @@ eSearch is a :electron: rewrite of [information-portal](https://github.com/xushe
 
 The main idea is to implement [Smartisan bigbang](https://www.smartisan.com/pr/videos/bigbang-introduction) or [Xiaomi portal](https://www.miui.com/zt/miui9/index.html) on Linux (it works on win and mac too) like **Screen Search** and of course a handy **Screenshot Software**.
 
-I.e. **Screenshot+OCR+Search+Paste+Search by Image**
+After several version iterations, eSearch has become more and more functional
+
+That is to have **Screenshot+OCR+Search+Translate+Paste Image +Search by Image+Screen Recorder**
 
 ![Screenshot screen](https://esearch.vercel.app/readme/1.png)
 
@@ -200,6 +202,7 @@ Most buttons use icons, reducing unnecessary translations
 -   [x] French
 -   [x] Russian
 -   [x] Spanish
+
 ## Testing
 
 Tested under ArchLinux, KDE plasma, Xorg
