@@ -243,6 +243,7 @@ document.getElementById("高质量gif").checked = store.get("录屏.转换.高�
 document.getElementById("开启键盘按键提示").checked = store.get("录屏.提示.键盘.开启");
 document.getElementById("开启鼠标按键提示").checked = store.get("录屏.提示.鼠标.开启");
 document.getElementById("开启光标提示").checked = store.get("录屏.提示.光标.开启");
+document.getElementById("cursor_css").value = store.get("录屏.提示.光标.样式");
 
 document.getElementById("保存文件名称前缀").value = store.get("保存名称.前缀");
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
@@ -561,6 +562,7 @@ function save_setting() {
         },
         光标: {
             开启: document.getElementById("开启光标提示").checked,
+            样式: document.getElementById("cursor_css").value,
         },
     });
     store.set("保存.默认格式", document.getElementById("默认格式").value);

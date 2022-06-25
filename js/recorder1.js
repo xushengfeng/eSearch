@@ -58,6 +58,10 @@ if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.
 
 if (!store.get("录屏.提示.光标.开启")) document.getElementById("mouse_c").style.display = "none";
 
+var mouse_style = document.createElement("style");
+mouse_style.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
+document.body.appendChild(mouse_style);
+
 ipcRenderer.on("record", async (event, t, arg) => {
     switch (t) {
         case "init":

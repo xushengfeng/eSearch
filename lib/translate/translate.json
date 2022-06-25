@@ -201,6 +201,7 @@
 "开启键盘按键提示":{"en":"Enable keyboard key hints","zh-HANT":"開啟鍵盤按鍵提示","fr":"Activer les raccourcis clavier","ru":"Включить подсказки клавиш клавиатуры","es":"Encienda el indicador del botón del teclado","ar":"تفعيل تلميحات مفاتيح لوحة المفاتيح","eo":"Ebligu klavarajn sugestojn"},
 "开启鼠标按键提示":{"en":"Enable mouse button hints","zh-HANT":"開啟鼠標按鍵提示","fr":"Activer les astuces du bouton de la souris","ru":"Включить подсказки кнопок мыши","es":"Gire la solicitud del botón del mouse","ar":"تمكين تلميحات زر الماوس","eo":"Ebligu musbutonajn sugestojn"},
 "开启光标提示":{"en":"Enable cursor hints","zh-HANT":"開啟光標提示","fr":"Activer les conseils de curseur","ru":"Включить подсказки курсора","es":"Enciende el cursor","ar":"تفعيل تلميحات المؤشر","eo":"Ebligu kursorajn sugestojn"},
+"光标提示样式":{"en":"cursor hint style","zh-HANT":"光標提示樣式","fr":"style d'indication du curseur","ru":"стиль подсказки курсора","es":"estilo de sugerencia de cursor","ar":"نمط تلميح المؤشر","eo":"kursora sugesta stilo"},
 "高级": {"en":"Advanced","zh-HANT":"高級","fr":"Avancé","ru":"Расширенный","es":"Avanzado","ar":"المتقدمة","eo":"progresinta"},
 "摄像头": {"en":"Camera","zh-HANT":"攝像頭","fr":"Appareil photo","ru":"Камера","es":"Cámara","ar":"آلة تصوير","eo":"Fotilo"},
 "默认开启": {"en":"Default on","zh-HANT":"默認開啟","fr":"Activé par défaut","ru":"Включено по умолчанию","es":"Activado por defecto","ar":"قيد التشغيل افتراضيًا","eo":"Enŝaltita defaŭlte"},

@@ -1933,6 +1933,7 @@ var default_setting = {
             },
             光标: {
                 开启: false,
+                样式: "width: 24px;\nheight: 24px;\nborder-radius: 50%;\nbackground-color: #ff08;",
             },
         },
     },
