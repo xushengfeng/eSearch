@@ -115,8 +115,8 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Quick full screen capture to clipboard or custom directory
     -   [x] Screenshot history
     -   [x] Window and control selection (using OpenCV edge recognition)
+    -   [x] Long screen capture
     -   [ ] Multi-screen
-    -   [ ] Long screen capture
 -   [x] Record screen
     -   [x] Recording full screen
     -   [x] Customize size
@@ -142,6 +142,7 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Other online OCR
     -   [x] Online formula recognition
     -   [x] Support for applying your own secret key
+    -   [ ] Form identification
 -   [x] Map search by map
 -   [x] Pallets
 -   [x] Search by word and phrase
