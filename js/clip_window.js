@@ -390,7 +390,7 @@ function tool_long_f() {
         var gid = canvas.getContext("2d").getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
         canvas.width = canvas_top.width = final_rect[2];
         canvas.height = final_rect[3];
-        canvas_top.height = 20;
+        canvas_top.height = 200;
         canvas.getContext("2d").putImageData(gid, 0, 0);
         canvas_top.getContext("2d").putImageData(gid, 0, 0);
         long_list.push([canvas, canvas_top]);
