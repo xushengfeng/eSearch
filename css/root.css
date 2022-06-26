@@ -40,6 +40,7 @@ body {
     left: 0;
     top: 0;
     filter: var(--icon-color);
+    user-select: none;
 }
 
 #tab_bar {
