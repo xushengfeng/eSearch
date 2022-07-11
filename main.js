@@ -1511,20 +1511,6 @@ function create_main_window(web_page, t, about) {
 
     // 浏览器大小适应
     main_window.on("resize", () => {
-        var [w, h] = main_window.getContentSize();
-        for (let i of main_window.getBrowserViews()) {
-            if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
-            if (main_window.isMaximized() || main_window.isFullScreen()) {
-                main_window.setSize(
-                    screen.getPrimaryDisplay().workArea.width,
-                    screen.getPrimaryDisplay().workArea.height
-                );
-                if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
-            }
-        }
-    });
-
-    main_window.on("unmaximize", () => {
         setTimeout(() => {
             var [w, h] = main_window.getContentSize();
             for (let i of main_window.getBrowserViews()) {
