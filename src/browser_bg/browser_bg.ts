@@ -1,5 +1,7 @@
 var h1 = document.querySelector("h1");
+
 var search = new URLSearchParams(location.search);
+
 if (navigator.onLine) {
     switch (search.get("type")) {
         case "did-fail-load":
@@ -19,7 +21,6 @@ if (navigator.onLine) {
         default:
             break;
     }
-}
-else {
+} else {
     h1.innerText = "无网络连接";
 }

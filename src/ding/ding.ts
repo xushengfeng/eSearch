@@ -1,4 +1,5 @@
 const { ipcRenderer } = require("electron");
+
 var ratio = window.devicePixelRatio;
 var changing = null;
 var photos = {};
@@ -37,8 +38,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     tool_bar.querySelector("#size > span").onblur = () => {
         if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
             var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
-            if (zoom < 0.05)
-                zoom = 0.05;
+            if (zoom < 0.05) zoom = 0.05;
             div_zoom(div, zoom, 0, 0, false);
             setTimeout(() => {
                 resize(div, zoom);
@@ -50,8 +50,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
             e.preventDefault();
             if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
                 var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
-                if (zoom < 0.05)
-                    zoom = 0.05;
+                if (zoom < 0.05) zoom = 0.05;
                 div_zoom(div, zoom, 0, 0, false);
                 setTimeout(() => {
                     resize(div, zoom);
@@ -63,8 +62,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.onwheel = (e) => {
         if (e.deltaY != 0) {
             var zoom = (div.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
-            if (zoom < 0.05)
-                zoom = 0.05;
+            if (zoom < 0.05) zoom = 0.05;
             div_zoom(div, zoom, e.offsetX, e.offsetY, true);
             resize(div, zoom);
         }
@@ -92,10 +90,13 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.appendChild(tool_bar);
     div.appendChild(img);
     document.querySelector("#photo").appendChild(div);
+
     // dock
     dock_i();
+
     resize(div, 1);
 });
+
 function minimize(el) {
     div.style.transition = "var(--transition)";
     setTimeout(() => {
@@ -108,8 +109,7 @@ function ignore(el, v) {
     var i = el.id;
     if (v) {
         ding_p_s(i, [0, 0, 0, 0]);
-    }
-    else {
+    } else {
         ding_p_s(i, [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight]);
     }
 }
@@ -124,8 +124,7 @@ document.body.appendChild(tran_style);
 function transform(el, v) {
     if (v) {
         el.querySelector(".img").classList.add("tran");
-    }
-    else {
+    } else {
         el.querySelector(".img").classList.remove("tran");
     }
 }
@@ -141,6 +140,7 @@ function back(el) {
     el.style.width = p_s[2] / ratio + "px";
     el.style.height = p_s[3] / ratio + "px";
     ipcRenderer.send("ding_p_s", el.id, p_s);
+
     el.querySelector("#透明度").value = "100";
     el.querySelector("#透明度_p").innerHTML = "100%";
     el.querySelector(".img").style.opacity = 1;
@@ -153,9 +153,11 @@ function close(el) {
     ipcRenderer.send("ding_close", el.id);
     dock_i();
 }
+
 function ding_p_s(id, p_s) {
     ipcRenderer.send("ding_p_s", id, [p_s[0] * ratio, p_s[1] * ratio, p_s[2] * ratio, p_s[3] * ratio]);
 }
+
 // 最高窗口
 var toppest = 1;
 var o_ps;
@@ -171,8 +173,7 @@ document.onmousedown = (e) => {
             div.style.transition = "none";
             ipcRenderer.send("ding_ignore", false);
         }
-    }
-    else if (e.target.id != "透明度" && e.target.id != "size") {
+    } else if (e.target.id != "透明度" && e.target.id != "size") {
         div = e.target;
         if (div.id != "photo")
             while (div.className != "ding_photo") {
@@ -190,13 +191,11 @@ document.onmousemove = (e) => {
             if (window_div == null) {
                 div = e.target;
                 cursor(div, e);
-            }
-            else {
+            } else {
                 cursor(window_div, e);
             }
         }
-    }
-    else {
+    } else {
         if (window_div == null) {
             div = e.target;
             if (div.id != "photo")
@@ -204,8 +203,7 @@ document.onmousemove = (e) => {
                     div = div?.offsetParent;
                 }
             cursor(div, e);
-        }
-        else {
+        } else {
             cursor(window_div, e);
         }
     }
@@ -219,10 +217,14 @@ document.onmouseup = (e) => {
     div.style.transition = ""; // 用于dock动画
     ipcRenderer.send("ding_ignore", true);
 };
+
 var direction = "";
 function cursor(el, e) {
-    var width = el.offsetWidth, height = el.offsetHeight;
-    var p_x = e.clientX - el.offsetLeft, p_y = e.clientY - el.offsetTop;
+    var width = el.offsetWidth,
+        height = el.offsetHeight;
+    var p_x = e.clientX - el.offsetLeft,
+        p_y = e.clientY - el.offsetTop;
+
     var num = 8;
     // 光标样式
     if (el.id == "dock" || el.offsetParent?.id == "dock") {
@@ -230,13 +232,11 @@ function cursor(el, e) {
             if (0 < p_x && p_x < width && 0 < p_y && p_y < height) {
                 document.querySelector("html").style.cursor = "default";
                 direction = "move";
-            }
-            else {
+            } else {
                 direction = "";
             }
         }
-    }
-    else {
+    } else {
         // 不等于null移动中,自锁;等于,随时变
         if (window_div == null)
             switch (true) {
@@ -284,7 +284,8 @@ function cursor(el, e) {
     }
     if (changing != null && o_ps != []) {
         var o_e = changing;
-        var dx = e.clientX - o_e.clientX, dy = e.clientY - o_e.clientY;
+        var dx = e.clientX - o_e.clientX,
+            dy = e.clientY - o_e.clientY;
         var [ox, oy, ow, oh] = o_ps;
         var p_s;
         switch (direction) {
@@ -341,12 +342,15 @@ function cursor(el, e) {
         el.style.width = p_s[2] + "px";
         el.style.height = p_s[3] + "px";
         ding_p_s(el.id, p_s);
+
         if (el.id != "dock") {
             el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
+
             resize(el, p_s[2] / photos[el.id][2]);
         }
     }
 }
+
 // 滚轮缩放
 function div_zoom(el, zoom, dx, dy, wheel) {
     var w = photos[el.id][2];
@@ -369,45 +373,40 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     el.style.height = p_s[3] + "px";
     ding_p_s(el.id, p_s);
 }
+
 // 缩放文字实时更新,顶栏大小自适应
 function resize(el, zoom) {
     el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
     var w = el.offsetWidth;
     if (w <= 240) {
         el.querySelector("#tool_bar_c").style.flexDirection = "column";
-    }
-    else {
+    } else {
         el.querySelector("#tool_bar_c").style.flexDirection = "";
     }
     if (w <= 100) {
         el.querySelector("#tool_bar_c").style.zoom = "0.3";
-    }
-    else if (w <= 130) {
+    } else if (w <= 130) {
         el.querySelector("#tool_bar_c").style.zoom = "0.4";
-    }
-    else if (w <= 300) {
+    } else if (w <= 300) {
         el.querySelector("#tool_bar_c").style.zoom = "0.5";
-    }
-    else if (w <= 340) {
+    } else if (w <= 340) {
         el.querySelector("#tool_bar_c").style.zoom = "0.6";
-    }
-    else if (w <= 380) {
+    } else if (w <= 380) {
         el.querySelector("#tool_bar_c").style.zoom = "0.7";
-    }
-    else if (w <= 420) {
+    } else if (w <= 420) {
         el.querySelector("#tool_bar_c").style.zoom = "0.8";
-    }
-    else if (w <= 500) {
+    } else if (w <= 500) {
         el.querySelector("#tool_bar_c").style.zoom = "0.9";
-    }
-    else {
+    } else {
         el.querySelector("#tool_bar_c").style.zoom = "";
     }
 }
+
 var dock_p = store.get("ding_dock");
 document.querySelector("#dock").style.left = dock_p[0] + "px";
 document.querySelector("#dock").style.top = dock_p[1] + "px";
 ding_p_s("dock", [dock_p[0], dock_p[1], 10, 50]);
+
 var dock_show = false;
 var dock_p_s = [];
 document.querySelector("#dock").onclick = () => {
@@ -417,15 +416,14 @@ document.querySelector("#dock").onclick = () => {
         dock_p_s = [dock.offsetLeft, dock.offsetTop];
         if (dock.offsetLeft + 5 <= document.querySelector("html").offsetWidth / 2) {
             dock.style.left = "0";
-        }
-        else {
+        } else {
             dock.style.left = document.querySelector("html").offsetWidth - 200 + "px";
         }
+
         dock.className = "dock";
         dock.querySelector("div").style.display = "block";
         ding_p_s("dock", [dock.style.left.replace("px", "") - 0, 0, 200, document.querySelector("html").offsetHeight]);
-    }
-    else {
+    } else {
         dock.style.transition = dock.className = "";
         dock.querySelector("div").style.display = "none";
         dock.style.left = dock_p_s[0] + "px";
@@ -433,6 +431,7 @@ document.querySelector("#dock").onclick = () => {
         ding_p_s("dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
     }
 };
+
 // 刷新dock
 function dock_i() {
     document.querySelector("#dock > div").innerHTML = "";
@@ -452,8 +451,7 @@ function dock_i() {
                         div.classList.remove("minimize");
                         if (!i_ignore_v)
                             ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
-                    }
-                    else {
+                    } else {
                         back(div);
                     }
                     div.style.zIndex = toppest + 1;
@@ -477,6 +475,7 @@ function dock_i() {
                 i_tran_v = !i_tran_v;
                 transform(document.getElementById(i), i_tran_v);
             };
+
             document.querySelector("#dock > div").appendChild(dock_item);
         })(o);
     }

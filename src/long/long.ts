@@ -1,5 +1,7 @@
 const { ipcRenderer } = require("electron");
+
 var ratio = window.devicePixelRatio;
+
 ipcRenderer.on("rect", async (event, t, arg) => {
     switch (t) {
         case "init":
@@ -10,6 +12,7 @@ ipcRenderer.on("rect", async (event, t, arg) => {
             break;
     }
 });
+
 document.getElementById("finish").onclick = () => {
     document.getElementById("rect").style.opacity = 0;
     ipcRenderer.send("clip_main_b", "long_e");
