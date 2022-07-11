@@ -1524,6 +1524,15 @@ function create_main_window(web_page, t, about) {
         }
     });
 
+    main_window.on("unmaximize", () => {
+        setTimeout(() => {
+            var [w, h] = main_window.getContentSize();
+            for (let i of main_window.getBrowserViews()) {
+                if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+            }
+        }, 0);
+    });
+
     return window_name;
 }
 
