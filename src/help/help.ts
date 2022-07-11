@@ -3,14 +3,14 @@ if (store.get("语言.语言") != "zh-CN") {
         store.get("语言.语言").split("-")[0]
     }&source=url&render=1`;
 
-    document.getElementById("language").href = href;
+    (<HTMLAnchorElement>document.getElementById("language")).href = href;
     document.getElementById("language").innerText = "Translation";
 }
 
 const { shell } = require("electron");
 document.onclick = (e) => {
-    let el = e.target;
+    let el = <HTMLElement>e.target;
     if (el.tagName == "A") {
-        shell.openExternal(el.href);
+        shell.openExternal((<HTMLAnchorElement>el).href);
     }
 };
