@@ -23,12 +23,12 @@ module.exports = ocr;
  * @param {Function} callback 回调
  */
 function local_ocr(arg, callback) {
-    var det = store.get("OCR.det") || "inference/ch_PP-OCRv2_det_infer",
-        rec = store.get("OCR.rec") || "inference/ch_PP-OCRv2_rec_infer",
-        字典 = store.get("OCR.字典") || "ppocr_keys_v1.txt";
     var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png"),
         ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
     var model_path = path.join(ocr_path, "ppocr_model");
+    var det = store.get("OCR.det") || path.join(model_path, "inference/ch_PP-OCRv2_det_infer"),
+        rec = store.get("OCR.rec") || path.join(model_path, "inference/ch_PP-OCRv2_rec_infer"),
+        字典 = store.get("OCR.字典") || path.join(model_path, "ppocr_keys_v1.txt");
     console.log(ocr_path);
     fs.writeFile(tmp_path, Buffer.from(arg, "base64"), async (err) => {
         if (err) callback(err);
@@ -52,7 +52,7 @@ function local_ocr(arg, callback) {
                 break;
             case "win32":
                 exec(
-                    `CHCP 65001 && cd ${model_path} && ${ocr_path}\\ppocr.exe --det_model_dir=${det} --rec_model_dir=${rec} --char_list_file=${字典} --image_dir=${tmp_path}`,
+                    `CHCP 65001 && ${ocr_path}\\ppocr.exe --det_model_dir=${det} --rec_model_dir=${rec} --char_list_file=${字典} --image_dir=${tmp_path}`,
                     (e, result) => {
                         if (e) console.log(e);
                         result = result.split(/\n/);
