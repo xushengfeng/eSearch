@@ -44,6 +44,15 @@
       "mirror": "https://npmmirror.com/mirrors/electron/"
     },
     "npmRebuild": false,
+    "fileAssociations": [
+      {
+        "ext": [
+          "png",
+          "jpg",
+          "svg"
+        ]
+      }
+    ],
     "linux": {
       "category": "Utility",
       "target": [
