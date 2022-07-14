@@ -1,20 +1,14 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+name: 新功能请求
+about: 给这个项目提个点子
+title: ""
+labels: ""
+assignees: ""
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**设别和软件信息**
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+-   操作系统和具体版本: [如： Win11 专业版 pre 25158]
+-   软件版本: [如：1.7.2]
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**请自由地描述你的提议**
