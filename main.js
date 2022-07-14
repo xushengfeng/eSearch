@@ -131,6 +131,11 @@ if (!isFirstInstance) {
         arg_run(commanLine);
     });
 }
+
+/**
+ * 根据命令运行
+ * @param {string[]} c 命令
+ */
 function arg_run(c) {
     if (c.includes("-n")) dev = false;
     switch (true) {
@@ -151,6 +156,14 @@ function arg_run(c) {
             break;
         case c.includes("-q"):
             quick_clip();
+            break;
+        default:
+            for (let i of c) {
+                if (i.match(/(\.png)|(\.jpg)|(\.svg)$/i)) {
+                    full_screen(i);
+                    break;
+                }
+            }
             break;
     }
 }
@@ -625,15 +638,31 @@ function create_clip_window() {
     if (first_open) arg_run(process.argv);
 }
 
-async function full_screen() {
+/**
+ * 获取图片并全屏
+ * @param {?string} img_path 路径
+ */
+async function full_screen(img_path) {
     if (clip_window == null) {
         await create_clip_window();
     }
-    let x = robot.screen.capture();
-    clip_window.webContents.send("reflash", x.image, x.width, x.height);
+    if (img_path) {
+        console.log(img_path);
+        fs.readFile(img_path, (err, data) => {
+            if (err) console.error(err);
+            let p = nativeImage.createFromBuffer(data);
+            let s = p.getSize();
+            setTimeout(() => {
+                clip_window.webContents.send("reflash", p.toBitmap(), s.width, s.height);
+            }, 500);
+        });
+    } else {
+        let x = robot.screen.capture();
+        clip_window.webContents.send("reflash", x.image, x.width, x.height);
+        x = null;
+    }
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
-    x = null;
 }
 
 function n_full_screen() {
