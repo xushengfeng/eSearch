@@ -315,6 +315,22 @@ function draw(shape, v, x1, y1, x2, y2) {
                     canChangeFill: true,
                 })
             );
+            break;
+        case "arrow":
+            let line = new fabric.Line([x1, y1, x2, y2], {
+                stroke: stroke_color,
+            });
+            let t = new fabric.Triangle({
+                width: 20,
+                height: 25,
+                fill: stroke_color,
+                left: x2,
+                top: y2,
+                originX: "center",
+                angle: (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 90,
+            });
+            shapes.push(new fabric.Group([line, t]));
+            break;
         default:
             break;
     }
