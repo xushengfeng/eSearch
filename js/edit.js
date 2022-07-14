@@ -14,35 +14,29 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
         if (e.show) {
             e.show = !e.show;
             document.querySelectorAll("#draw_side > div")[index].style.height = "0";
-            document.querySelector("#draw_bar").style.width = "var(--bar-size)";
+            draw_bar.style.width = "var(--bar-size)";
             for (const ee of document.querySelectorAll("#draw_main > div")) {
                 ee.style.backgroundColor = "";
             }
-            if (document.getElementById("draw_bar").getAttribute("right") != "true") {
-                document.getElementById("draw_bar").style.transition = "var(--transition)";
-                document.getElementById("draw_bar").style.left = document
-                    .getElementById("draw_bar")
-                    .getAttribute("right")
-                    .split(",")[1];
+            if (draw_bar.getAttribute("right") != "true") {
+                draw_bar.style.transition = "var(--transition)";
+                draw_bar.style.left = draw_bar.getAttribute("right").split(",")[1];
                 setTimeout(() => {
-                    document.getElementById("draw_bar").style.transition = "";
+                    draw_bar.style.transition = "";
                 }, 400);
             }
         }
         else {
-            document.querySelector("#draw_bar").style.width = "calc(var(--bar-size) * 2)";
+            draw_bar.style.width = "calc(var(--bar-size) * 2)";
             for (const ee of document.querySelectorAll("#draw_main > div")) {
                 ee.style.backgroundColor = "";
             }
             e.style.backgroundColor = "var(--hover-color)";
-            if (document.getElementById("draw_bar").getAttribute("right") != "true") {
-                document.getElementById("draw_bar").style.transition = "var(--transition)";
-                document.getElementById("draw_bar").style.left = document
-                    .getElementById("draw_bar")
-                    .getAttribute("right")
-                    .split(",")[0];
+            if (draw_bar.getAttribute("right") != "true") {
+                draw_bar.style.transition = "var(--transition)";
+                draw_bar.style.left = draw_bar.getAttribute("right").split(",")[0];
                 setTimeout(() => {
-                    document.getElementById("draw_bar").style.transition = "";
+                    draw_bar.style.transition = "";
                 }, 400);
             }
             document.querySelectorAll("#draw_main > div").forEach((ei) => {
@@ -56,20 +50,22 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
                 h += e.offsetHeight;
             });
-            if (h > draw_bar_height) {
-                h = draw_bar_height;
+            if (h > Number(draw_bar_height)) {
+                h = Number(draw_bar_height);
             }
             document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
         }
     });
 });
+var free_i_els = document.querySelectorAll("#draw_free_i > lock-b");
 // 笔
-document.querySelector("#draw_free_pencil").oninput = () => {
-    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_pencil").checked;
+var pencil_el = document.getElementById("draw_free_pencil");
+pencil_el.oninput = () => {
+    fabric_canvas.isDrawingMode = pencil_el.checked;
     get_f_object_v();
-    if (document.querySelector("#draw_free_pencil").checked) {
-        document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
-        document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    if (pencil_el.checked) {
+        free_i_els[1].checked = false;
+        free_i_els[2].checked = false;
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
@@ -80,12 +76,13 @@ document.querySelector("#draw_free_pencil").oninput = () => {
     free_draw_cursor();
 };
 // 橡皮
-document.querySelector("#draw_free_eraser").oninput = () => {
-    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_eraser").checked;
+var eraser_el = document.getElementById("draw_free_eraser");
+eraser_el.oninput = () => {
+    fabric_canvas.isDrawingMode = eraser_el.checked;
     get_f_object_v();
-    if (document.querySelector("#draw_free_eraser").checked) {
-        document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-        document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    if (eraser_el.checked) {
+        free_i_els[0].checked = false;
+        free_i_els[2].checked = false;
         fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.width = free_width;
     }
@@ -94,12 +91,13 @@ document.querySelector("#draw_free_eraser").oninput = () => {
     free_draw_cursor();
 };
 // 刷
-document.querySelector("#draw_free_spray").oninput = () => {
-    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_spray").checked;
+var free_spray_el = document.getElementById("draw_free_spray");
+free_spray_el.oninput = () => {
+    fabric_canvas.isDrawingMode = free_spray_el.checked;
     get_f_object_v();
-    if (document.querySelector("#draw_free_spray").checked) {
-        document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-        document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
+    if (free_spray_el.checked) {
+        free_i_els[0].checked = false;
+        free_i_els[1].checked = false;
         fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
@@ -111,7 +109,7 @@ document.querySelector("#draw_free_spray").oninput = () => {
 // 阴影
 document.querySelector("#shadow_blur > range-b").oninput = free_shadow;
 function free_shadow() {
-    shadow_blur = document.querySelector("#shadow_blur > range-b").value;
+    shadow_blur = Number(document.querySelector("#shadow_blur > range-b").value);
     fabric_canvas.freeDrawingBrush.shadow = new fabric.Shadow({
         blur: shadow_blur,
         color: free_color,
@@ -119,11 +117,11 @@ function free_shadow() {
 }
 function free_draw_cursor() {
     var mode = "free";
-    if (document.querySelector("#draw_free_pencil").checked)
+    if (pencil_el.checked)
         mode = "free";
-    if (document.querySelector("#draw_free_eraser").checked)
+    if (eraser_el.checked)
         mode = "eraser";
-    if (document.querySelector("#draw_free_spray").checked)
+    if (free_spray_el.checked)
         mode = "spray";
     if (mode == "free" || mode == "eraser") {
         var svg_w = free_width, h_w = svg_w / 2, r = free_width / 2;
@@ -150,9 +148,10 @@ function free_draw_cursor() {
 // 几何
 var shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
+    let el = e.target;
     exit_shape();
-    if (e.target.id != "draw_shapes_i")
-        shape = e.target.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
+    if (el.id != "draw_shapes_i")
+        shape = el.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
     exit_free();
     exit_filter();
     fabric_canvas.defaultCursor = "crosshair";
@@ -325,32 +324,36 @@ function draw_poly(shape) {
 }
 // 颜色选择
 var color_m = "fill";
-document.querySelector("#draw_color_fill").onfocus = () => {
+var color_fill_el = document.getElementById("draw_color_fill");
+color_fill_el.onfocus = () => {
     color_m = "fill";
 };
-document.querySelector("#draw_color_stroke").onfocus = () => {
+var color_stroke_el = document.getElementById("draw_color_stroke");
+color_stroke_el.onfocus = () => {
     color_m = "stroke";
 };
 // 输入颜色
-document.querySelector("#draw_color_fill").oninput = () => {
-    change_color({ fill: document.querySelector("#draw_color_fill").innerText }, true, false);
-    var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
+var color_alpha_input_1 = document.querySelector("#draw_color_alpha > range-b:nth-child(1)");
+color_fill_el.oninput = () => {
+    change_color({ fill: color_fill_el.innerText }, true, false);
+    var fill_a = Color(color_fill_el.innerText).valpha;
+    color_alpha_input_1.value = String(Math.round(fill_a * 100));
 };
-document.querySelector("#draw_color_stroke").oninput = () => {
-    change_color({ stroke: document.querySelector("#draw_color_stroke").innerText }, true, false);
-    var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
+var color_alpha_input_2 = document.querySelector("#draw_color_alpha > range-b:nth-child(2)");
+color_stroke_el.oninput = () => {
+    change_color({ stroke: color_stroke_el.innerText }, true, false);
+    var stroke_a = Color(color_stroke_el.innerText).valpha;
+    color_alpha_input_2.value = String(Math.round(stroke_a * 100));
 };
 // 改变透明度
-document.querySelector("#draw_color_alpha > range-b:nth-child(1)").oninput = () => {
-    change_alpha(document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value, "fill");
+color_alpha_input_1.oninput = () => {
+    change_alpha(color_alpha_input_1.value, "fill");
 };
-document.querySelector("#draw_color_alpha > range-b:nth-child(2)").oninput = () => {
-    change_alpha(document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value, "stroke");
+color_alpha_input_2.oninput = () => {
+    change_alpha(color_alpha_input_2.value, "stroke");
 };
 function change_alpha(v, m) {
-    var rgba = Color(document.querySelector(`#draw_color_${m}`).style.backgroundColor)
+    var rgba = Color(document.getElementById(`draw_color_${m}`).style.backgroundColor)
         .rgb()
         .array();
     rgba[3] = v / 100;
@@ -369,9 +372,10 @@ function change_color(m_l, set_o, text) {
         if (color === null)
             color = "#0000";
         var color_l = Color(color).rgb().array();
-        document.querySelector(`#draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
+        document.getElementById(`draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
         if (color_m == "fill") {
-            document.querySelector("#draw_color > div").style.backgroundColor = Color(color_l).string();
+            document.querySelector("#draw_color > div").style.backgroundColor =
+                Color(color_l).string();
             if (set_o)
                 set_f_object_v(Color(color_l).string(), null, null);
         }
@@ -381,27 +385,27 @@ function change_color(m_l, set_o, text) {
                 set_f_object_v(null, Color(color_l).string(), null);
         }
         // 文字自适应
-        var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
+        var t_color = Color(document.getElementById(`draw_color_${color_m}`).style.backgroundColor);
         var bg_color = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
         if (t_color.rgb().array()[3] >= 0.5 || t_color.rgb().array()[3] === undefined) {
             if (t_color.isLight()) {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#000";
             }
             else {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#fff";
             }
         }
         else {
             // 低透明度背景呈现栏的颜色
             if (bg_color.isLight()) {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#000";
             }
             else {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#fff";
             }
         }
         if (text) {
-            document.querySelector(`#draw_color_${color_m}`).innerText = Color(color).hexa();
+            document.getElementById(`draw_color_${color_m}`).innerText = Color(color).hexa();
         }
     }
 }
@@ -471,14 +475,14 @@ function color_bar() {
     function c_color(el) {
         change_color({ [color_m]: el.style.backgroundColor }, true, true);
         if (color_m == "fill")
-            document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = 100;
+            color_alpha_input_1.value = "100";
         if (color_m == "stroke")
-            document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = 100;
+            color_alpha_input_2.value = "100";
     }
 }
 color_bar();
 document.querySelector("#draw_stroke_width > range-b").oninput = () => {
-    set_f_object_v(null, null, document.querySelector("#draw_stroke_width > range-b").value - 0);
+    set_f_object_v(null, null, Number(document.querySelector("#draw_stroke_width > range-b").value));
 };
 /** 鼠标点击后，改变栏文字样式 */
 function get_f_object_v() {
@@ -504,10 +508,10 @@ function get_f_object_v() {
     var [fill, stroke, strokeWidth] = [n.fill, n.stroke, n.strokeWidth];
     document.querySelector("#draw_stroke_width > range-b").value = strokeWidth;
     change_color({ fill: fill, stroke: stroke }, false, true);
-    var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
-    var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
+    var fill_a = Color(color_fill_el.innerText).valpha;
+    color_alpha_input_1.value = String(Math.round(fill_a * 100));
+    var stroke_a = Color(color_stroke_el.innerText).valpha;
+    color_alpha_input_2.value = String(Math.round(stroke_a * 100));
 }
 /**
  * 更改全局或选中形状的颜色
@@ -614,16 +618,16 @@ function get_filters() {
     }
     var f = fabric_canvas.getActiveObject().filters;
     console.log(f);
-    document.querySelector("#draw_filters_pixelate > range-b").value = f[0]?.blocksize || 0;
-    document.querySelector("#draw_filters_blur > range-b").value = f[1]?.blur * 100 || 0;
-    document.querySelector("#draw_filters_brightness > range-b").value = f[2]?.brightness || 0;
-    document.querySelector("#draw_filters_contrast > range-b").value = f[3]?.contrast || 0;
-    document.querySelector("#draw_filters_saturation > range-b").value = f[4]?.saturation || 0;
-    document.querySelector("#draw_filters_hue > range-b").value = f[5]?.rotation || 0;
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").value = f[6]?.gamma[0] || 1;
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").value = f[6]?.gamma[1] || 1;
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").value = f[6]?.gamma[2] || 1;
-    document.querySelector("#draw_filters_noise > range-b").value = f[7]?.noise || 0;
+    document.querySelector("#draw_filters_pixelate > range-b").value = String(f[0]?.blocksize || 0);
+    document.querySelector("#draw_filters_blur > range-b").value = String(f[1]?.blur * 100 || 0);
+    document.querySelector("#draw_filters_brightness > range-b").value = String(f[2]?.brightness || 0);
+    document.querySelector("#draw_filters_contrast > range-b").value = String(f[3]?.contrast || 0);
+    document.querySelector("#draw_filters_saturation > range-b").value = String(f[4]?.saturation || 0);
+    document.querySelector("#draw_filters_hue > range-b").value = String(f[5]?.rotation || 0);
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").value = String(f[6]?.gamma[0] || 1);
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").value = String(f[6]?.gamma[1] || 1);
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").value = String(f[6]?.gamma[2] || 1);
+    document.querySelector("#draw_filters_noise > range-b").value = String(f[7]?.noise || 0);
     var gray = f[8]?.mode;
     switch (gray) {
         case "average":
@@ -653,13 +657,13 @@ function s_h_filters_div(v) {
     if (v) {
         for (let i = 1; i < l.length; i++) {
             l[i].style.pointerEvents = "none";
-            l[i].style.opacity = 0.2;
+            l[i].style.opacity = "0.2";
         }
     }
     else {
         for (let i = 1; i < l.length; i++) {
             l[i].style.pointerEvents = "auto";
-            l[i].style.opacity = 1;
+            l[i].style.opacity = "1";
         }
     }
 }
@@ -667,7 +671,7 @@ s_h_filters_div(true);
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
 document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_pixelate > range-b").value;
+    var value = Number(document.querySelector("#draw_filters_pixelate > range-b").value);
     if (value != 0) {
         var filter = new fabric.Image.filters.Pixelate({
             blocksize: value,
@@ -680,7 +684,7 @@ document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
 };
 // 模糊
 document.querySelector("#draw_filters_blur > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_blur > range-b").value / 100;
+    var value = Number(document.querySelector("#draw_filters_blur > range-b").value) / 100;
     if (value != 0) {
         var filter = new fabric.Image.filters.Blur({
             blur: value,
@@ -817,9 +821,9 @@ document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
 function exit_free() {
     fabric_canvas.isDrawingMode = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    free_i_els[0].checked = false;
+    free_i_els[1].checked = false;
+    free_i_els[2].checked = false;
     fabric_canvas.defaultCursor = "auto";
 }
 function exit_shape() {
@@ -841,21 +845,22 @@ hotkeys("esc", "drawing_esc", () => {
     hotkeys.setScope("normal");
 });
 // fabric命令行
+var draw_edit_input_el = document.querySelector("#draw_edit input");
 document.getElementById("draw_edit_b").onclick = () => {
     s_center_bar("edit");
     if (center_bar_show) {
-        document.querySelector("#draw_edit input").focus();
+        draw_edit_input_el.focus();
         hotkeys("enter", "c_bar", fabric_api);
         hotkeys("esc", "c_bar", () => {
             s_center_bar("edit");
         });
     }
 };
-document.querySelector("#draw_edit_run").onclick = () => {
+document.getElementById("draw_edit_run").onclick = () => {
     fabric_api();
 };
 function fabric_api() {
-    var e = document.querySelector("#draw_edit input").value;
+    var e = draw_edit_input_el.value;
     var $0 = fabric_canvas.getActiveObject();
     if (!e.includes("$0")) {
         e = `fabric_canvas.getActiveObject().set({${e}})`;

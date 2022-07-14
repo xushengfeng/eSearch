@@ -51,11 +51,11 @@ function set_setting() {
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;
 var ratio = window.devicePixelRatio;
-const main_canvas = document.getElementById("main_photo");
+const main_canvas = <HTMLCanvasElement>document.getElementById("main_photo");
 main_canvas.style.width = window.screen.width / 全局缩放 + "px";
-const clip_canvas = document.getElementById("clip_photo");
+const clip_canvas = <HTMLCanvasElement>document.getElementById("clip_photo");
 clip_canvas.style.width = window.screen.width / 全局缩放 + "px";
-const draw_canvas = document.getElementById("draw_photo");
+const draw_canvas = <HTMLCanvasElement>document.getElementById("draw_photo");
 draw_canvas.style.width = window.screen.width / 全局缩放 + "px";
 // 第一次截的一定是桌面,所以可提前定义
 main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;

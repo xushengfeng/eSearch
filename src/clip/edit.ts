@@ -11,68 +11,65 @@ var free_width = store.get("图像编辑.默认属性.画笔粗细");
 var shadow_blur = 0;
 
 // 编辑栏
-document.querySelectorAll("#draw_main > div").forEach((e, index) => {
-    document.querySelectorAll("#draw_side > div")[index].style.height = "0";
+document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
+    (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
     e.addEventListener("click", () => {
         if (e.show) {
             e.show = !e.show;
-            document.querySelectorAll("#draw_side > div")[index].style.height = "0";
-            document.querySelector("#draw_bar").style.width = "var(--bar-size)";
+            (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
+            draw_bar.style.width = "var(--bar-size)";
             for (const ee of document.querySelectorAll("#draw_main > div")) {
-                ee.style.backgroundColor = "";
+                (<HTMLDivElement>ee).style.backgroundColor = "";
             }
-            if (document.getElementById("draw_bar").getAttribute("right") != "true") {
-                document.getElementById("draw_bar").style.transition = "var(--transition)";
-                document.getElementById("draw_bar").style.left = document
-                    .getElementById("draw_bar")
-                    .getAttribute("right")
-                    .split(",")[1];
+            if (draw_bar.getAttribute("right") != "true") {
+                draw_bar.style.transition = "var(--transition)";
+                draw_bar.style.left = draw_bar.getAttribute("right").split(",")[1];
                 setTimeout(() => {
-                    document.getElementById("draw_bar").style.transition = "";
+                    draw_bar.style.transition = "";
                 }, 400);
             }
         } else {
-            document.querySelector("#draw_bar").style.width = "calc(var(--bar-size) * 2)";
+            draw_bar.style.width = "calc(var(--bar-size) * 2)";
             for (const ee of document.querySelectorAll("#draw_main > div")) {
-                ee.style.backgroundColor = "";
+                (<HTMLDivElement>ee).style.backgroundColor = "";
             }
             e.style.backgroundColor = "var(--hover-color)";
-            if (document.getElementById("draw_bar").getAttribute("right") != "true") {
-                document.getElementById("draw_bar").style.transition = "var(--transition)";
-                document.getElementById("draw_bar").style.left = document
-                    .getElementById("draw_bar")
-                    .getAttribute("right")
-                    .split(",")[0];
+            if (draw_bar.getAttribute("right") != "true") {
+                draw_bar.style.transition = "var(--transition)";
+                draw_bar.style.left = draw_bar.getAttribute("right").split(",")[0];
                 setTimeout(() => {
-                    document.getElementById("draw_bar").style.transition = "";
+                    draw_bar.style.transition = "";
                 }, 400);
             }
-            document.querySelectorAll("#draw_main > div").forEach((ei) => {
+            document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
                 ei.show = false;
             });
             e.show = !e.show;
-            document.querySelectorAll("#draw_side > div").forEach((ei) => {
+            document.querySelectorAll("#draw_side > div").forEach((ei: HTMLDivElement) => {
                 ei.style.height = "0";
             });
             var h = 0;
-            Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
+            Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e: HTMLDivElement) => {
                 h += e.offsetHeight;
             });
-            if (h > draw_bar_height) {
-                h = draw_bar_height;
+            if (h > Number(draw_bar_height)) {
+                h = Number(draw_bar_height);
             }
-            document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
+            (<HTMLDivElement>document.querySelectorAll("#draw_side > div")[index]).style.height = h + "px";
         }
     });
 });
 
+var free_i_els = document.querySelectorAll("#draw_free_i > lock-b") as NodeListOf<HTMLInputElement>;
+
 // 笔
-document.querySelector("#draw_free_pencil").oninput = () => {
-    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_pencil").checked;
+var pencil_el = <HTMLInputElement>document.getElementById("draw_free_pencil");
+pencil_el.oninput = () => {
+    fabric_canvas.isDrawingMode = pencil_el.checked;
     get_f_object_v();
-    if (document.querySelector("#draw_free_pencil").checked) {
-        document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
-        document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    if (pencil_el.checked) {
+        free_i_els[1].checked = false;
+        free_i_els[2].checked = false;
 
         fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
@@ -84,12 +81,13 @@ document.querySelector("#draw_free_pencil").oninput = () => {
     free_draw_cursor();
 };
 // 橡皮
-document.querySelector("#draw_free_eraser").oninput = () => {
-    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_eraser").checked;
+var eraser_el = <HTMLInputElement>document.getElementById("draw_free_eraser");
+eraser_el.oninput = () => {
+    fabric_canvas.isDrawingMode = eraser_el.checked;
     get_f_object_v();
-    if (document.querySelector("#draw_free_eraser").checked) {
-        document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-        document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    if (eraser_el.checked) {
+        free_i_els[0].checked = false;
+        free_i_els[2].checked = false;
 
         fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.width = free_width;
@@ -99,12 +97,13 @@ document.querySelector("#draw_free_eraser").oninput = () => {
     free_draw_cursor();
 };
 // 刷
-document.querySelector("#draw_free_spray").oninput = () => {
-    fabric_canvas.isDrawingMode = document.querySelector("#draw_free_spray").checked;
+var free_spray_el = <HTMLInputElement>document.getElementById("draw_free_spray");
+free_spray_el.oninput = () => {
+    fabric_canvas.isDrawingMode = free_spray_el.checked;
     get_f_object_v();
-    if (document.querySelector("#draw_free_spray").checked) {
-        document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-        document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
+    if (free_spray_el.checked) {
+        free_i_els[0].checked = false;
+        free_i_els[1].checked = false;
 
         fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
@@ -115,10 +114,10 @@ document.querySelector("#draw_free_spray").oninput = () => {
     free_draw_cursor();
 };
 // 阴影
-document.querySelector("#shadow_blur > range-b").oninput = free_shadow;
+(<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = free_shadow;
 
 function free_shadow() {
-    shadow_blur = document.querySelector("#shadow_blur > range-b").value;
+    shadow_blur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
     fabric_canvas.freeDrawingBrush.shadow = new fabric.Shadow({
         blur: shadow_blur,
         color: free_color,
@@ -127,9 +126,9 @@ function free_shadow() {
 
 function free_draw_cursor() {
     var mode = "free";
-    if (document.querySelector("#draw_free_pencil").checked) mode = "free";
-    if (document.querySelector("#draw_free_eraser").checked) mode = "eraser";
-    if (document.querySelector("#draw_free_spray").checked) mode = "spray";
+    if (pencil_el.checked) mode = "free";
+    if (eraser_el.checked) mode = "eraser";
+    if (free_spray_el.checked) mode = "spray";
     if (mode == "free" || mode == "eraser") {
         var svg_w = free_width,
             h_w = svg_w / 2,
@@ -156,8 +155,9 @@ function free_draw_cursor() {
 // 几何
 var shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
+    let el = <HTMLElement>e.target;
     exit_shape();
-    if (e.target.id != "draw_shapes_i") shape = e.target.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
+    if (el.id != "draw_shapes_i") shape = el.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
     exit_free();
     exit_filter();
     fabric_canvas.defaultCursor = "crosshair";
@@ -165,7 +165,7 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
 };
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
-    switch (e.target.id) {
+    switch ((<HTMLElement>e.target).id) {
         case "draw_position_front":
             fabric_canvas.getActiveObject().bringToFront();
             break;
@@ -252,7 +252,7 @@ fabric_canvas.on("mouse:up", (options) => {
     if (new_filter_selecting) {
         new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
         new_filter_selecting = false;
-        document.querySelector("#draw_filters_select > lock-b").checked = false;
+        (<HTMLInputElement>(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b"))).checked = false;
         fabric_canvas.defaultCursor = "auto";
         get_filters();
         his_push();
@@ -343,33 +343,37 @@ function draw_poly(shape) {
 
 // 颜色选择
 var color_m = "fill";
-document.querySelector("#draw_color_fill").onfocus = () => {
+var color_fill_el = document.getElementById("draw_color_fill");
+color_fill_el.onfocus = () => {
     color_m = "fill";
 };
-document.querySelector("#draw_color_stroke").onfocus = () => {
+var color_stroke_el = document.getElementById("draw_color_stroke");
+color_stroke_el.onfocus = () => {
     color_m = "stroke";
 };
 // 输入颜色
-document.querySelector("#draw_color_fill").oninput = () => {
-    change_color({ fill: document.querySelector("#draw_color_fill").innerText }, true, false);
-    var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
+var color_alpha_input_1 = <HTMLInputElement>document.querySelector("#draw_color_alpha > range-b:nth-child(1)");
+color_fill_el.oninput = () => {
+    change_color({ fill: color_fill_el.innerText }, true, false);
+    var fill_a = Color(color_fill_el.innerText).valpha;
+    color_alpha_input_1.value = String(Math.round(fill_a * 100));
 };
-document.querySelector("#draw_color_stroke").oninput = () => {
-    change_color({ stroke: document.querySelector("#draw_color_stroke").innerText }, true, false);
-    var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
+var color_alpha_input_2 = <HTMLInputElement>document.querySelector("#draw_color_alpha > range-b:nth-child(2)");
+color_stroke_el.oninput = () => {
+    change_color({ stroke: color_stroke_el.innerText }, true, false);
+    var stroke_a = Color(color_stroke_el.innerText).valpha;
+    color_alpha_input_2.value = String(Math.round(stroke_a * 100));
 };
 
 // 改变透明度
-document.querySelector("#draw_color_alpha > range-b:nth-child(1)").oninput = () => {
-    change_alpha(document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value, "fill");
+color_alpha_input_1.oninput = () => {
+    change_alpha(color_alpha_input_1.value, "fill");
 };
-document.querySelector("#draw_color_alpha > range-b:nth-child(2)").oninput = () => {
-    change_alpha(document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value, "stroke");
+color_alpha_input_2.oninput = () => {
+    change_alpha(color_alpha_input_2.value, "stroke");
 };
 function change_alpha(v, m) {
-    var rgba = Color(document.querySelector(`#draw_color_${m}`).style.backgroundColor)
+    var rgba = Color(document.getElementById(`draw_color_${m}`).style.backgroundColor)
         .rgb()
         .array();
     rgba[3] = v / 100;
@@ -383,42 +387,43 @@ function change_alpha(v, m) {
  * @param {Boolean} set_o 是否改变选中形状样式
  * @param {Boolean} text 是否更改文字，仅在input时为true
  */
-function change_color(m_l, set_o, text) {
+function change_color(m_l: { fill?: string; stroke?: string }, set_o: boolean, text: boolean) {
     for (let i in m_l) {
         var color_m = i,
             color = m_l[i];
         if (color === null) color = "#0000";
         var color_l = Color(color).rgb().array();
-        document.querySelector(`#draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
+        document.getElementById(`draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
         if (color_m == "fill") {
-            document.querySelector("#draw_color > div").style.backgroundColor = Color(color_l).string();
+            (<HTMLDivElement>document.querySelector("#draw_color > div")).style.backgroundColor =
+                Color(color_l).string();
             if (set_o) set_f_object_v(Color(color_l).string(), null, null);
         }
         if (color_m == "stroke") {
-            document.querySelector("#draw_color > div").style.borderColor = Color(color_l).string();
+            (<HTMLDivElement>document.querySelector("#draw_color > div")).style.borderColor = Color(color_l).string();
             if (set_o) set_f_object_v(null, Color(color_l).string(), null);
         }
 
         // 文字自适应
-        var t_color = Color(document.querySelector(`#draw_color_${color_m}`).style.backgroundColor);
+        var t_color = Color(document.getElementById(`draw_color_${color_m}`).style.backgroundColor);
         var bg_color = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
         if (t_color.rgb().array()[3] >= 0.5 || t_color.rgb().array()[3] === undefined) {
             if (t_color.isLight()) {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#000";
             } else {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#fff";
             }
         } else {
             // 低透明度背景呈现栏的颜色
             if (bg_color.isLight()) {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#000";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#000";
             } else {
-                document.querySelector(`#draw_color_${color_m}`).style.color = "#fff";
+                document.getElementById(`draw_color_${color_m}`).style.color = "#fff";
             }
         }
 
         if (text) {
-            document.querySelector(`#draw_color_${color_m}`).innerText = Color(color).hexa();
+            document.getElementById(`draw_color_${color_m}`).innerText = Color(color).hexa();
         }
     }
 }
@@ -455,7 +460,7 @@ function color_bar() {
             )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = tt;
-        document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
+        document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, index) => {
             el.onmousedown = (event) => {
                 if (event.button == 0) {
                     c_color(el);
@@ -476,7 +481,7 @@ function color_bar() {
             )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = t;
-        document.querySelectorAll("#draw_color_color > div").forEach((el, index) => {
+        document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, index) => {
             el.onmousedown = (event) => {
                 if (event.button == 0) {
                     c_color(el);
@@ -491,14 +496,18 @@ function color_bar() {
     // 事件
     function c_color(el) {
         change_color({ [color_m]: el.style.backgroundColor }, true, true);
-        if (color_m == "fill") document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = 100;
-        if (color_m == "stroke") document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = 100;
+        if (color_m == "fill") color_alpha_input_1.value = "100";
+        if (color_m == "stroke") color_alpha_input_2.value = "100";
     }
 }
 color_bar();
 
-document.querySelector("#draw_stroke_width > range-b").oninput = () => {
-    set_f_object_v(null, null, document.querySelector("#draw_stroke_width > range-b").value - 0);
+(<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).oninput = () => {
+    set_f_object_v(
+        null,
+        null,
+        Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value)
+    );
 };
 
 /** 鼠标点击后，改变栏文字样式 */
@@ -519,12 +528,12 @@ function get_f_object_v() {
     }
     console.log(n);
     var [fill, stroke, strokeWidth] = [n.fill, n.stroke, n.strokeWidth];
-    document.querySelector("#draw_stroke_width > range-b").value = strokeWidth;
+    (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = strokeWidth;
     change_color({ fill: fill, stroke: stroke }, false, true);
-    var fill_a = Color(document.querySelector("#draw_color_fill").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(1)").value = Math.round(fill_a * 100);
-    var stroke_a = Color(document.querySelector("#draw_color_stroke").innerText).valpha;
-    document.querySelector("#draw_color_alpha > range-b:nth-child(2)").value = Math.round(stroke_a * 100);
+    var fill_a = Color(color_fill_el.innerText).valpha;
+    color_alpha_input_1.value = String(Math.round(fill_a * 100));
+    var stroke_a = Color(color_stroke_el.innerText).valpha;
+    color_alpha_input_2.value = String(Math.round(stroke_a * 100));
 }
 /**
  * 更改全局或选中形状的颜色
@@ -532,7 +541,7 @@ function get_f_object_v() {
  * @param {String} stroke 边框颜色
  * @param {Number} strokeWidth 边框宽度
  */
-function set_f_object_v(fill, stroke, strokeWidth) {
+function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
     if (fabric_canvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
@@ -607,7 +616,7 @@ function new_filter_select(o, no) {
     fabric_canvas.setActiveObject(img);
 }
 
-document.querySelector("#draw_filters_select > lock-b").oninput = () => {
+(<HTMLInputElement>(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b"))).oninput = () => {
     exit_free();
     exit_shape();
     new_filter_selecting = true;
@@ -630,51 +639,61 @@ function get_filters() {
     }
     var f = fabric_canvas.getActiveObject().filters;
     console.log(f);
-    document.querySelector("#draw_filters_pixelate > range-b").value = f[0]?.blocksize || 0;
-    document.querySelector("#draw_filters_blur > range-b").value = f[1]?.blur * 100 || 0;
-    document.querySelector("#draw_filters_brightness > range-b").value = f[2]?.brightness || 0;
-    document.querySelector("#draw_filters_contrast > range-b").value = f[3]?.contrast || 0;
-    document.querySelector("#draw_filters_saturation > range-b").value = f[4]?.saturation || 0;
-    document.querySelector("#draw_filters_hue > range-b").value = f[5]?.rotation || 0;
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").value = f[6]?.gamma[0] || 1;
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").value = f[6]?.gamma[1] || 1;
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").value = f[6]?.gamma[2] || 1;
-    document.querySelector("#draw_filters_noise > range-b").value = f[7]?.noise || 0;
+    (<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).value = String(f[0]?.blocksize || 0);
+    (<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).value = String(f[1]?.blur * 100 || 0);
+    (<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).value = String(
+        f[2]?.brightness || 0
+    );
+    (<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).value = String(f[3]?.contrast || 0);
+    (<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).value = String(
+        f[4]?.saturation || 0
+    );
+    (<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).value = String(f[5]?.rotation || 0);
+    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value = String(
+        f[6]?.gamma[0] || 1
+    );
+    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value = String(
+        f[6]?.gamma[1] || 1
+    );
+    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value = String(
+        f[6]?.gamma[2] || 1
+    );
+    (<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).value = String(f[7]?.noise || 0);
     var gray = f[8]?.mode;
     switch (gray) {
         case "average":
-            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = true;
+            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = true;
             break;
         case "lightness":
-            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = true;
+            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = true;
             break;
         case "luminosity":
-            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = true;
+            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = true;
         default:
-            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = false;
-            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = false;
-            document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = false;
+            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
+            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
+            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     }
-    document.querySelector("#draw_filters_invert > lock-b").checked = f[9] ? true : false;
-    document.querySelector("#draw_filters_sepia > lock-b").checked = f[10] ? true : false;
-    document.querySelector("#draw_filters_bw > lock-b").checked = f[11] ? true : false;
-    document.querySelector("#draw_filters_brownie > lock-b").checked = f[12] ? true : false;
-    document.querySelector("#draw_filters_vintage > lock-b").checked = f[13] ? true : false;
-    document.querySelector("#draw_filters_koda > lock-b").checked = f[14] ? true : false;
-    document.querySelector("#draw_filters_techni > lock-b").checked = f[15] ? true : false;
-    document.querySelector("#draw_filters_polaroid > lock-b").checked = f[16] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).checked = f[9] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).checked = f[10] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).checked = f[11] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).checked = f[12] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).checked = f[13] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).checked = f[14] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked = f[15] ? true : false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked = f[16] ? true : false;
 }
 function s_h_filters_div(v) {
-    var l = document.querySelectorAll("#draw_filters_i > div");
+    var l = document.querySelectorAll("#draw_filters_i > div") as NodeListOf<HTMLDivElement>;
     if (v) {
         for (let i = 1; i < l.length; i++) {
             l[i].style.pointerEvents = "none";
-            l[i].style.opacity = 0.2;
+            l[i].style.opacity = "0.2";
         }
     } else {
         for (let i = 1; i < l.length; i++) {
             l[i].style.pointerEvents = "auto";
-            l[i].style.opacity = 1;
+            l[i].style.opacity = "1";
         }
     }
 }
@@ -682,8 +701,8 @@ s_h_filters_div(true);
 
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_pixelate > range-b").value;
+(<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).oninput = () => {
+    var value = Number((<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).value);
     if (value != 0) {
         var filter = new fabric.Image.filters.Pixelate({
             blocksize: value,
@@ -694,8 +713,8 @@ document.querySelector("#draw_filters_pixelate > range-b").oninput = () => {
     }
 };
 // 模糊
-document.querySelector("#draw_filters_blur > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_blur > range-b").value / 100;
+(<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).oninput = () => {
+    var value = Number((<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).value) / 100;
     if (value != 0) {
         var filter = new fabric.Image.filters.Blur({
             blur: value,
@@ -706,125 +725,125 @@ document.querySelector("#draw_filters_blur > range-b").oninput = () => {
     }
 };
 // 亮度
-document.querySelector("#draw_filters_brightness > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_brightness > range-b").value;
+(<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).value;
     var filter = new fabric.Image.filters.Brightness({
         brightness: value,
     });
     apply_filter(2, filter);
 };
 // 对比度
-document.querySelector("#draw_filters_contrast > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_contrast > range-b").value;
+(<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).value;
     var filter = new fabric.Image.filters.Contrast({
         contrast: value,
     });
     apply_filter(3, filter);
 };
 // 饱和度
-document.querySelector("#draw_filters_saturation > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_saturation > range-b").value;
+(<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).value;
     var filter = new fabric.Image.filters.Saturation({
         saturation: value,
     });
     apply_filter(4, filter);
 };
 // 色调
-document.querySelector("#draw_filters_hue > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_hue > range-b").value;
+(<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).value;
     var filter = new fabric.Image.filters.HueRotation({
         rotation: value,
     });
     apply_filter(5, filter);
 };
 // 伽马
-document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").oninput =
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").oninput =
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").oninput =
+(<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
+    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
+    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).oninput =
         () => {
-            var r = document.querySelector("#draw_filters_gamma > range-b:nth-child(1)").value;
-            var g = document.querySelector("#draw_filters_gamma > range-b:nth-child(2)").value;
-            var b = document.querySelector("#draw_filters_gamma > range-b:nth-child(3)").value;
+            var r = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value;
+            var g = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value;
+            var b = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value;
             var filter = new fabric.Image.filters.Gamma({
                 gamma: [r, g, b],
             });
             apply_filter(6, filter);
         };
 // 噪音
-document.querySelector("#draw_filters_noise > range-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_noise > range-b").value;
+(<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).value;
     var filter = new fabric.Image.filters.Noise({
         noise: value,
     });
     apply_filter(7, filter);
 };
 // 灰度
-document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").oninput = () => {
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = false;
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = false;
-    if (document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked)
+(<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
+    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
+    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked)
         var filter = new fabric.Image.filters.Grayscale({ mode: "average" });
     apply_filter(8, filter);
 };
-document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").oninput = () => {
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = false;
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked = false;
-    if (document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked)
+(<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).oninput = () => {
+    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
+    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked)
         var filter = new fabric.Image.filters.Grayscale({ mode: "lightness" });
     apply_filter(8, filter);
 };
-document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").oninput = () => {
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)").checked = false;
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)").checked = false;
-    if (document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)").checked)
+(<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).oninput = () => {
+    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
+    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked)
         var filter = new fabric.Image.filters.Grayscale({ mode: "luminosity" });
     apply_filter(8, filter);
 };
 // 负片
-document.querySelector("#draw_filters_invert > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_invert > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Invert() : null;
     apply_filter(9, filter);
 };
 // 棕褐色
-document.querySelector("#draw_filters_sepia > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_sepia > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Sepia() : null;
     apply_filter(10, filter);
 };
 // 黑白
-document.querySelector("#draw_filters_bw > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_bw > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.BlackWhite() : null;
     apply_filter(11, filter);
 };
 // 布朗尼
-document.querySelector("#draw_filters_brownie > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_brownie > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Brownie() : null;
     apply_filter(12, filter);
 };
 // 老式
-document.querySelector("#draw_filters_vintage > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_vintage > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Vintage() : null;
     apply_filter(13, filter);
 };
 // 柯达彩色胶片
-document.querySelector("#draw_filters_koda > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_koda > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Kodachrome() : null;
     apply_filter(14, filter);
 };
 // 特艺色彩
-document.querySelector("#draw_filters_techni > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_techni > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Technicolor() : null;
     apply_filter(15, filter);
 };
 // 宝丽来
-document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
-    var value = document.querySelector("#draw_filters_polaroid > lock-b").checked;
+(<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).oninput = () => {
+    var value = (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked;
     var filter = value ? new fabric.Image.filters.Polaroid() : null;
     apply_filter(16, filter);
 };
@@ -832,9 +851,9 @@ document.querySelector("#draw_filters_polaroid > lock-b").oninput = () => {
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
 function exit_free() {
     fabric_canvas.isDrawingMode = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[0].checked = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[1].checked = false;
-    document.querySelectorAll("#draw_free_i > lock-b")[2].checked = false;
+    free_i_els[0].checked = false;
+    free_i_els[1].checked = false;
+    free_i_els[2].checked = false;
     fabric_canvas.defaultCursor = "auto";
 }
 function exit_shape() {
@@ -846,7 +865,7 @@ function exit_shape() {
 }
 function exit_filter() {
     new_filter_selecting = false;
-    document.querySelector("#draw_filters_select > lock-b").checked = false;
+    (<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b")).checked = false;
     fabric_canvas.defaultCursor = "auto";
 }
 hotkeys("esc", "drawing_esc", () => {
@@ -857,21 +876,22 @@ hotkeys("esc", "drawing_esc", () => {
 });
 
 // fabric命令行
+var draw_edit_input_el = <HTMLInputElement>document.querySelector("#draw_edit input");
 document.getElementById("draw_edit_b").onclick = () => {
     s_center_bar("edit");
     if (center_bar_show) {
-        document.querySelector("#draw_edit input").focus();
+        draw_edit_input_el.focus();
         hotkeys("enter", "c_bar", fabric_api);
         hotkeys("esc", "c_bar", () => {
             s_center_bar("edit");
         });
     }
 };
-document.querySelector("#draw_edit_run").onclick = () => {
+document.getElementById("draw_edit_run").onclick = () => {
     fabric_api();
 };
 function fabric_api() {
-    var e = document.querySelector("#draw_edit input").value;
+    var e = draw_edit_input_el.value;
     var $0 = fabric_canvas.getActiveObject();
     if (!e.includes("$0")) {
         e = `fabric_canvas.getActiveObject().set({${e}})`;
