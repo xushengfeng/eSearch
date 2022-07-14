@@ -194,9 +194,11 @@ function fabric_delete() {
 
 var drawing_shape = false;
 var shapes = [];
+var unnormal_shapes = ["polyline", "polygon", "number"];
 var draw_o_p = []; // 首次按下的点
 var poly_o_p = []; // 多边形点
 var new_filter_o = null;
+var draw_number_n = 1;
 
 fabric_canvas.on("mouse:down", (options) => {
     // 非常规状态下点击
@@ -204,7 +206,7 @@ fabric_canvas.on("mouse:down", (options) => {
         drawing_shape = true;
         fabric_canvas.selection = false;
         // 折线与多边形要多次点击，在poly_o_p存储点
-        if (shape != "polyline" && shape != "polygon") {
+        if (!unnormal_shapes.includes(shape)) {
             draw_o_p = [options.e.offsetX, options.e.offsetY];
             draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
         } else {
@@ -212,11 +214,16 @@ fabric_canvas.on("mouse:down", (options) => {
             var poly_o_p_l = poly_o_p[poly_o_p.length - 1];
             if (!(options.e.offsetX == poly_o_p_l?.x && options.e.offsetY == poly_o_p_l?.y)) {
                 poly_o_p.push({ x: options.e.offsetX, y: options.e.offsetY });
-                draw_poly(shape);
+                if (shape == "number") {
+                    draw_number();
+                } else {
+                    draw_poly(shape);
+                }
             } else {
                 his_push();
                 shape = "";
                 poly_o_p = [];
+                draw_number_n = 1;
                 fabric_canvas.defaultCursor = "auto";
             }
         }
@@ -228,13 +235,13 @@ fabric_canvas.on("mouse:down", (options) => {
 });
 fabric_canvas.on("mouse:move", (options) => {
     if (drawing_shape) {
-        if (shape != "polyline" && shape != "polygon") {
+        if (!unnormal_shapes.includes(shape)) {
             draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
         }
     }
 });
 fabric_canvas.on("mouse:up", (options) => {
-    if (shape != "polyline" && shape != "polygon") {
+    if (!unnormal_shapes.includes(shape)) {
         drawing_shape = false;
         fabric_canvas.selection = true;
         fabric_canvas.defaultCursor = "auto";
@@ -339,6 +346,38 @@ function draw_poly(shape) {
         );
     }
     fabric_canvas.add(shapes[shapes.length - 1]);
+}
+
+function draw_number() {
+    console.log(draw_number_n);
+    let p = poly_o_p[poly_o_p.length - 1];
+    shapes.push(
+        new fabric.IText(String(draw_number_n), {
+            left: p.x,
+            top: p.y,
+            fontSize: 16,
+            originX: "center",
+            originY: "center",
+            canChangeFill: true,
+        })
+    );
+    shapes.push(
+        new fabric.Circle({
+            radius: 10,
+            left: p.x,
+            top: p.y,
+            originX: "center",
+            originY: "center",
+            fill: fill_color,
+            stroke: stroke_color,
+            strokeWidth: stroke_width,
+            canChangeFill: true,
+        })
+    );
+    fabric_canvas.add(shapes[shapes.length - 1]);
+    fabric_canvas.add(shapes[shapes.length - 2]);
+
+    draw_number_n++;
 }
 
 // 颜色选择
