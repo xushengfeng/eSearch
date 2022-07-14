@@ -50,7 +50,9 @@
           "png",
           "jpg",
           "svg"
-        ]
+        ],
+        "mimeType": "image/png;image/jpg;image/svg",
+        "role": "Editor"
       }
     ],
     "linux": {
