@@ -1952,6 +1952,7 @@ var default_setting = {
             },
         },
     },
+    插件: { 加载前: [], 加载后: [] },
 };
 function set_default_setting() {
     for (let i in default_setting) {
