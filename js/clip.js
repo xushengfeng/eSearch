@@ -590,7 +590,12 @@ function follow_bar(x, y) {
             tool_bar.style.top = y2 - tool_bar.offsetHeight + "px";
         }
         else {
-            tool_bar.style.top = y1 + "px";
+            if (y1 + tool_bar.offsetHeight > max_height) {
+                tool_bar.style.top = max_height - tool_bar.offsetHeight + "px";
+            }
+            else {
+                tool_bar.style.top = y1 + "px";
+            }
         }
     }
     else {
