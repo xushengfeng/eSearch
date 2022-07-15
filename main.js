@@ -487,6 +487,7 @@ if (process.platform == "win32") {
  * @type BrowserWindow
  */
 var clip_window = null;
+var clip_window_loaded = false;
 function create_clip_window() {
     clip_window = new BrowserWindow({
         icon: the_icon,
@@ -511,7 +512,9 @@ function create_clip_window() {
     clip_window.loadFile("capture.html");
     clip_window.webContents.on("did-finish-load", () => {
         clip_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-        return new Promise(() => {});
+        if (clip_window_loaded) return;
+        clip_window_loaded = true;
+        if (first_open) arg_run(process.argv);
     });
 
     if (dev) clip_window.webContents.openDevTools();
@@ -629,32 +632,20 @@ function create_clip_window() {
                 break;
         }
     });
-
-    var x = robot.screen.capture();
-    clip_window.webContents.send("reflash", x.image, x.width, x.height);
-    x = null;
-
-    // cil参数启动;
-    if (first_open) arg_run(process.argv);
 }
 
 /**
  * 获取图片并全屏
  * @param {?string} img_path 路径
  */
-async function full_screen(img_path) {
-    if (clip_window == null) {
-        await create_clip_window();
-    }
+function full_screen(img_path) {
     if (img_path) {
         console.log(img_path);
         fs.readFile(img_path, (err, data) => {
             if (err) console.error(err);
             let p = nativeImage.createFromBuffer(data);
             let s = p.getSize();
-            setTimeout(() => {
-                clip_window.webContents.send("reflash", p.toBitmap(), s.width, s.height);
-            }, 500);
+            clip_window.webContents.send("reflash", p.toBitmap(), s.width, s.height);
         });
     } else {
         let x = robot.screen.capture();
