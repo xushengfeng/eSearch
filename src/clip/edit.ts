@@ -365,33 +365,34 @@ function draw_poly(shape) {
 }
 
 function draw_number() {
-    console.log(draw_number_n);
+    draw_number_n = Number(shapes?.[shapes.length - 1]?.text) + 1 || draw_number_n;
     let p = poly_o_p[poly_o_p.length - 1];
-    shapes.push(
-        new fabric.IText(String(draw_number_n), {
-            left: p.x,
-            top: p.y,
-            fontSize: 16,
-            originX: "center",
-            originY: "center",
-            canChangeFill: true,
-        })
-    );
-    shapes.push(
-        new fabric.Circle({
-            radius: 10,
-            left: p.x,
-            top: p.y,
-            originX: "center",
-            originY: "center",
-            fill: fill_color,
-            stroke: stroke_color,
-            strokeWidth: stroke_width,
-            canChangeFill: true,
-        })
-    );
-    fabric_canvas.add(shapes[shapes.length - 1]);
+
+    let txt = new fabric.IText(String(draw_number_n), {
+        left: p.x,
+        top: p.y,
+        fontSize: 16,
+        originX: "center",
+        originY: "center",
+        canChangeFill: true,
+    });
+    let cr = new fabric.Circle({
+        radius: 10,
+        left: p.x,
+        top: p.y,
+        originX: "center",
+        originY: "center",
+        fill: fill_color,
+        stroke: stroke_color,
+        strokeWidth: stroke_width,
+        canChangeFill: true,
+    });
+    shapes.push(cr);
+    shapes.push(txt);
     fabric_canvas.add(shapes[shapes.length - 2]);
+    fabric_canvas.add(shapes[shapes.length - 1]);
+    fabric_canvas.setActiveObject(txt);
+    txt.enterEditing();
 
     draw_number_n++;
 }
