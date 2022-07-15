@@ -16,7 +16,7 @@ function set_setting() {
     取色器默认格式 = store.get("取色器默认格式");
     for (let i in all_color_format) {
         if (取色器默认格式 == all_color_format[i]) {
-            取色器格式位置 = i - 0 + 1;
+            取色器格式位置 = Number(i) + 1;
             break;
         }
     }
@@ -100,11 +100,11 @@ var o = false;
 hotkeys("z", windows_bar_c_o);
 function windows_bar_c_o() {
     if (!o) {
-        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        document.getElementById("windows_bar").style.transform = "translateX(0)";
         o = true;
     }
     else {
-        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+        document.getElementById("windows_bar").style.transform = "translateX(-100%)";
         o = false;
     }
 }
@@ -307,7 +307,7 @@ function track_location() {
         document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth * 2 > 0;
     if (l + 2 * document.getElementById("tool_bar").offsetWidth > document.body.offsetWidth || x) {
         l = document.getElementById("tool_bar").offsetLeft - document.getElementById("draw_bar").offsetWidth - 8;
-        l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
+        let l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
         document.getElementById("draw_bar").setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
     }
     document.getElementById("draw_bar").style.top = `${h}px`;
@@ -410,6 +410,7 @@ function pj_long() {
 function tool_ding_f() {
     var ding_window_setting = final_rect;
     get_clip_photo("png").then((c) => {
+        // @ts-ignore
         ding_window_setting[4] = c.toDataURL();
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
         tool_close_f();
@@ -463,7 +464,7 @@ ipcRenderer.on("save_path", (event, message) => {
         get_clip_photo(type).then((c) => {
             switch (type) {
                 case "svg":
-                    var dataBuffer = Buffer.from(c, "UTF-8");
+                    var dataBuffer = Buffer.from(c);
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "ok_save", message);
@@ -480,7 +481,9 @@ ipcRenderer.on("save_path", (event, message) => {
                     });
                     break;
                 case "jpg":
-                    var f = c.toDataURL("image/jpeg", store.get("jpg质量") - 0).replace(/^data:image\/\w+;base64,/, "");
+                    var f = c
+                        .toDataURL("image/jpeg", store.get("jpg质量") - 0)
+                        .replace(/^data:image\/\w+;base64,/, "");
                     var dataBuffer = Buffer.from(f, "base64");
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
@@ -496,7 +499,7 @@ ipcRenderer.on("save_path", (event, message) => {
 var svg;
 /**
  * 获取选区图像
- * @param {string} type 格式
+ * @param type 格式
  * @returns promise svg base64|canvas element
  */
 function get_clip_photo(type) {

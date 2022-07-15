@@ -51,12 +51,12 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
 
 var selecting = false;
 var right_key = false;
-var o_position = "";
-var canvas_rect = "";
+var o_position = null;
+var canvas_rect = null;
 var in_rect = false;
 var moving = false;
-var oe = "";
-var o_final_rect = "";
+var oe = null;
+var o_final_rect = null;
 var the_color = null;
 var the_text_color = [null, null];
 var clip_ctx = clip_canvas.getContext("2d");
@@ -215,7 +215,7 @@ var rect_in_rect = [];
  * 在边框内
  * @param {MouseEvent} e 鼠标事件
  */
-function in_edge(e) {
+function in_edge(e: MouseEvent) {
     if (rect_select) return;
     rect_in_rect = [];
     for (const i of edge_rect) {
@@ -230,7 +230,7 @@ function in_edge(e) {
     clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
     clip_ctx.beginPath();
     clip_ctx.strokeStyle = "#000";
-    clip_ctx.lineWidth = "1";
+    clip_ctx.lineWidth = 1;
     for (let i of rect_in_rect) {
         clip_ctx.strokeRect(i[0], i[1], i[2], i[3]);
     }
@@ -244,26 +244,27 @@ hotkeys("s", () => {
     tool_bar.style.pointerEvents = "none";
 });
 
+var wh_el = document.getElementById("clip_wh");
 // 大小栏
 function wh_bar(final_rect) {
     // 位置
-    var dw = document.querySelector("#clip_wh").offsetWidth,
-        dh = document.querySelector("#clip_wh").offsetHeight;
+    var dw = wh_el.offsetWidth,
+        dh = wh_el.offsetHeight;
     var x;
     if (dw >= final_rect[2] / ratio) {
         if (dw + final_rect[0] <= main_canvas.offsetWidth) {
             x = final_rect[0] / ratio; // 对齐框的左边
-            document.querySelector("#clip_wh").style.right = ``;
-            document.querySelector("#clip_wh").style.left = `${x}px`;
+            wh_el.style.right = ``;
+            wh_el.style.left = `${x}px`;
         } else {
-            document.querySelector("#clip_wh").style.left = ``;
-            document.querySelector("#clip_wh").style.right = `0px`;
+            wh_el.style.left = ``;
+            wh_el.style.right = `0px`;
             // x = final_rect[0] / ratio + final_rect[2] / ratio - dw; // 对齐框的右边
         }
     } else {
         x = final_rect[0] / ratio + final_rect[2] / ratio / 2 - dw / 2;
-        document.querySelector("#clip_wh").style.right = ``;
-        document.querySelector("#clip_wh").style.left = `${x}px`;
+        wh_el.style.right = ``;
+        wh_el.style.left = `${x}px`;
     }
     var y;
     if (final_rect[1] - (dh * ratio + 10) >= 0) {
@@ -278,7 +279,7 @@ function wh_bar(final_rect) {
             y = final_rect[1] + 10;
         }
     }
-    document.querySelector("#clip_wh").style.top = `${y / ratio}px`;
+    wh_el.style.top = `${y / ratio}px`;
     // 大小文字
     if (四角坐标) {
         var x0, y0, x1, y1, d;
@@ -287,10 +288,10 @@ function wh_bar(final_rect) {
         y0 = final_rect[1] + d;
         x1 = final_rect[0] + d + final_rect[2];
         y1 = final_rect[1] + d + final_rect[3];
-        document.querySelector("#x0y0").style.display = "block";
-        document.querySelector("#x1y1").style.display = "block";
-        document.querySelector("#x0y0").innerHTML = `${x0}, ${y0}`;
-        document.querySelector("#x1y1").innerHTML = `${x1}, ${y1}`;
+        document.getElementById("x0y0").style.display = "block";
+        document.getElementById("x1y1").style.display = "block";
+        document.getElementById("x0y0").innerHTML = `${x0}, ${y0}`;
+        document.getElementById("x1y1").innerHTML = `${x1}, ${y1}`;
     } else {
     }
     document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
@@ -300,7 +301,7 @@ function wh_bar(final_rect) {
  * 更改x0y0 x1y1 wh
  * @param {string} arg 要改的位置
  */
-function 更改大小栏(arg) {
+function 更改大小栏(arg: string) {
     var l = document.querySelector(`#${arg}`).innerHTML.split(/[,×]/);
     l = l.map((string) => {
         // 排除（数字运算符空格）之外的非法输入
@@ -311,16 +312,16 @@ function 更改大小栏(arg) {
     if (l != null) {
         switch (arg) {
             case "x0y0":
-                final_rect[0] = l[0] - 0 - d;
-                final_rect[1] = l[1] - 0 - d;
+                final_rect[0] = Number(l[0]) - d;
+                final_rect[1] = Number(l[1]) - d;
                 break;
             case "x1y1":
-                final_rect[0] = l[0] - 0 - final_rect[2] - d;
-                final_rect[1] = l[1] - 0 - final_rect[3] - d;
+                final_rect[0] = Number(l[0]) - final_rect[2] - d;
+                final_rect[1] = Number(l[1]) - final_rect[3] - d;
                 break;
             case "wh":
-                final_rect[2] = l[0] - 0;
-                final_rect[3] = l[1] - 0;
+                final_rect[2] = Number(l[0]);
+                final_rect[3] = Number(l[1]);
                 break;
         }
         final_rect_fix();
@@ -343,19 +344,19 @@ function 更改大小栏(arg) {
         document.querySelector(`#${arg}`).innerHTML = innerHTML;
     }
 }
-document.querySelector("#clip_wh").onkeydown = (e) => {
+wh_el.onkeydown = (e) => {
     if (e.key == "Enter") {
         e.preventDefault();
-        更改大小栏(e.target.id);
+        更改大小栏((<HTMLElement>e.target).id);
     }
 };
-document.querySelector("#x0y0").onblur = () => {
+document.getElementById("x0y0").onblur = () => {
     更改大小栏("x0y0");
 };
-document.querySelector("#x1y1").onblur = () => {
+document.getElementById("x1y1").onblur = () => {
     更改大小栏("x1y1");
 };
-document.querySelector("#wh").onblur = () => {
+document.getElementById("wh").onblur = () => {
     更改大小栏("wh");
 };
 
@@ -370,7 +371,7 @@ hotkeys("ctrl+a, command+a", () => {
 
 // 生成取色器
 var inner_html = "";
-for (i = 1; i <= color_size ** 2; i++) {
+for (let i = 1; i <= color_size ** 2; i++) {
     if (i == (color_size ** 2 + 1) / 2) {
         // 光标中心点
         inner_html += `<span id="point_color_t_c"></span>`;
@@ -380,8 +381,9 @@ for (i = 1; i <= color_size ** 2; i++) {
 }
 document.querySelector("#point_color").innerHTML = inner_html;
 inner_html = null;
-var point_color_span_list = document.querySelectorAll("#point_color > span");
+var point_color_span_list = document.querySelectorAll("#point_color > span") as NodeListOf<HTMLSpanElement>;
 
+var mouse_bar_el = document.getElementById("mouse_bar");
 // 鼠标跟随栏
 function mouse_bar(final_rect, x, y) {
     var x0 = final_rect[0],
@@ -395,9 +397,9 @@ function mouse_bar(final_rect, x, y) {
     for (var i = 0, len = color.length; i < len; i += 4) {
         var color_g = color.slice(i, i + 4);
         color_g[3] /= 255;
-        var ii = parseInt(i / 4);
+        var ii = parseInt(String(i / 4));
         var xx = (ii % color_size) + (x - (color_size - 1) / 2);
-        var yy = parseInt(ii / color_size) + (y - (color_size - 1) / 2);
+        var yy = parseInt(String(ii / color_size)) + (y - (color_size - 1) / 2);
         if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && ii != (color.length / 4 - 1) / 2) {
             // 框外
             point_color_span_list[ii].id = "point_color_t_b";
@@ -459,14 +461,15 @@ function clip_color_text(l, type) {
     var clip_color_text_color = color.isLight() ? "#000" : "#fff";
     the_text_color = [color.hex(), clip_color_text_color];
 
-    document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`).style.backgroundColor = the_text_color[0];
-    var main_el = document.querySelector(
-        `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`
+    (<HTMLDivElement>document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`)).style.backgroundColor =
+        the_text_color[0];
+    var main_el = <HTMLElement>(
+        document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`)
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
     main_el.style.color = the_text_color[1];
     main_el.innerText = color_conversion(the_color, type);
-    document.querySelector("#clip_copy > div").style.top = -32 * 取色器格式位置 + "px";
+    (<HTMLDivElement>document.querySelector("#clip_copy > div")).style.top = -32 * 取色器格式位置 + "px";
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
@@ -474,16 +477,16 @@ function change_right_bar(v) {
     // 拼接坐标和颜色代码
     var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
     t += `<div style="background-color:${the_text_color[0]};color:${the_text_color[1]}">`;
-    for (i in all_color_format) {
+    for (let i in all_color_format) {
         t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
     }
     document.querySelector("#clip_copy > div").innerHTML = t + "</div>";
     // 复制大小和颜色
-    document.querySelector("#clip_copy > div > div:nth-child(1)").onclick = () => {
+    (<HTMLElement>document.querySelector("#clip_copy > div > div:nth-child(1)")).onclick = () => {
         copy(document.querySelector("#clip_copy > div > div:nth-child(1)"));
     };
     var nodes = document.querySelectorAll("#clip_copy > div > div:not(:nth-child(1)) > div");
-    nodes.forEach((element) => {
+    nodes.forEach((element: HTMLElement) => {
         ((e) => {
             e.onclick = () => {
                 copy(e);
@@ -491,12 +494,12 @@ function change_right_bar(v) {
         })(element);
     });
     if (v) {
-        document.querySelector("#point_color").style.height = "0";
-        document.querySelector("#clip_copy").className = "clip_copy";
+        document.getElementById("point_color").style.height = "0";
+        document.getElementById("clip_copy").className = "clip_copy";
         document.getElementById("mouse_bar").style.pointerEvents = "auto";
     } else {
-        document.querySelector("#clip_copy").className = "clip_copy_h";
-        document.querySelector("#point_color").style.height = "";
+        document.getElementById("clip_copy").className = "clip_copy_h";
+        document.getElementById("point_color").style.height = "";
         document.getElementById("mouse_bar").style.pointerEvents = "none";
     }
 }
@@ -504,9 +507,9 @@ change_right_bar(false);
 
 /**
  * 复制内容
- * @param {Element} e 要复制内容的元素
+ * @param e 要复制内容的元素
  */
-function copy(e) {
+function copy(e: HTMLElement) {
     clipboard.writeText(e.innerText);
     right_key = false;
     change_right_bar(false);
@@ -518,7 +521,7 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
 
 // 初始化鼠标栏
 document.onmouseenter = () => {
-    document.querySelector("#mouse_bar").style.display = "flex";
+    mouse_bar_el.style.display = "flex";
 };
 
 // 鼠标栏实时跟踪
@@ -526,7 +529,7 @@ document.onmousemove = (e) => {
     if (!right_key) {
         if (clip_canvas.offsetWidth != 0) {
             // 鼠标位置文字
-            var c_rect = e.target.getBoundingClientRect();
+            var c_rect = (<HTMLElement>e.target).getBoundingClientRect();
             var c_x = e.offsetX + c_rect.left;
             var c_y = e.offsetY + c_rect.top;
             now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
@@ -537,8 +540,8 @@ document.onmousemove = (e) => {
 
         var x = e.clientX + 16;
         var y = e.clientY + 16;
-        var w = document.querySelector("#mouse_bar").offsetWidth;
-        var h = document.querySelector("#mouse_bar").offsetHeight;
+        var w = mouse_bar_el.offsetWidth;
+        var h = mouse_bar_el.offsetHeight;
         var sw = window.screen.width;
         var sh = window.screen.height;
         if (x + w > sw) {
@@ -548,8 +551,8 @@ document.onmousemove = (e) => {
             y = y - h - 32;
         }
 
-        document.querySelector("#mouse_bar").style.left = `${x}px`;
-        document.querySelector("#mouse_bar").style.top = `${y}px`;
+        mouse_bar_el.style.left = `${x}px`;
+        mouse_bar_el.style.top = `${y}px`;
 
         // 画板栏移动
         if (draw_bar_moving) {
@@ -565,13 +568,13 @@ document.onmousemove = (e) => {
 };
 
 // 工具栏跟随
-var follow_bar_list = [0, 0, main_canvas.width, main_canvas.height];
+var follow_bar_list = [[0, 0]];
 /**
  * 工具栏自动跟随
- * @param {number} x x坐标
- * @param {number} y y坐标
+ * @param x x坐标
+ * @param y y坐标
  */
-function follow_bar(x, y) {
+function follow_bar(x?: number, y?: number) {
     if (!x && !y) {
         var dx = undo_stack[undo_stack.length - 1][0] - undo_stack[undo_stack.length - 2][0];
         var dy = undo_stack[undo_stack.length - 1][1] - undo_stack[undo_stack.length - 2][1];
@@ -579,11 +582,11 @@ function follow_bar(x, y) {
         y = follow_bar_list[follow_bar_list.length - 1][1] + dy / ratio;
     }
     follow_bar_list.push([x, y]);
-    [x1, y1] = [final_rect[0] / ratio, final_rect[1] / ratio];
-    x2 = x1 + final_rect[2] / ratio;
-    y2 = y1 + final_rect[3] / ratio;
-    max_width = window.screen.width / 全局缩放;
-    max_height = window.screen.height / 全局缩放;
+    let [x1, y1] = [final_rect[0] / ratio, final_rect[1] / ratio];
+    let x2 = x1 + final_rect[2] / ratio;
+    let y2 = y1 + final_rect[3] / ratio;
+    let max_width = window.screen.width / 全局缩放;
+    let max_height = window.screen.height / 全局缩放;
     if ((x1 + x2) / 2 <= x) {
         // 向右
         if (x2 + tool_bar.offsetWidth + 10 <= max_width) {
@@ -822,7 +825,7 @@ function his_push() {
  * 更改历史指针
  * @param {boolean} v true向前 false向后
  */
-function undo(v) {
+function undo(v: boolean) {
     if (v) {
         if (undo_stack_i > 0) {
             undo_stack_i--;

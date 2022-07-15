@@ -19,7 +19,7 @@ function set_setting() {
     取色器默认格式 = store.get("取色器默认格式");
     for (let i in all_color_format) {
         if (取色器默认格式 == all_color_format[i]) {
-            取色器格式位置 = i - 0 + 1;
+            取色器格式位置 = Number(i) + 1;
             break;
         }
     }
@@ -120,10 +120,10 @@ var o = false;
 hotkeys("z", windows_bar_c_o);
 function windows_bar_c_o() {
     if (!o) {
-        document.querySelector("#windows_bar").style.transform = "translateX(0)";
+        document.getElementById("windows_bar").style.transform = "translateX(0)";
         o = true;
     } else {
-        document.querySelector("#windows_bar").style.transform = "translateX(-100%)";
+        document.getElementById("windows_bar").style.transform = "translateX(-100%)";
         o = false;
     }
 }
@@ -172,7 +172,7 @@ function s_center_bar(m) {
 var tool_bar = document.getElementById("tool_bar");
 // 工具栏按钮
 tool_bar.onmouseup = (e) => {
-    var el = e.target;
+    var el = <HTMLElement>e.target;
     if (el.parentElement != tool_bar) return;
     if (e.button == 0) {
         // * 拼接函数名
@@ -218,7 +218,7 @@ function tool_close_f() {
     }, 50);
 }
 // OCR
-var ocr引擎 = document.getElementById("ocr引擎");
+var ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
 document.getElementById("ocr引擎").oninput = () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
@@ -227,7 +227,7 @@ document.getElementById("ocr引擎").oninput = () => {
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
 function tool_ocr_f() {
     var type = ocr引擎.value;
-    get_clip_photo("png").then((c) => {
+    get_clip_photo("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
@@ -248,11 +248,11 @@ function scan_line() {
     document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
     document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
     document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
-    document.querySelectorAll("#waiting line animate")[0].beginElement();
-    document.querySelectorAll("#waiting line animate")[1].beginElement();
+    (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[0]).beginElement();
+    (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[1]).beginElement();
 }
 // 以图搜图
-var 识图引擎 = document.getElementById("识图引擎");
+var 识图引擎 = <HTMLSelectElement>document.getElementById("识图引擎");
 识图引擎.value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
 识图引擎.oninput = () => {
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.value);
@@ -261,7 +261,7 @@ var 识图引擎 = document.getElementById("识图引擎");
 document.getElementById("tool_search").title = `以图搜图 - ${识图引擎.value}`;
 function tool_search_f() {
     var type = 识图引擎.value;
-    get_clip_photo("png").then((c) => {
+    get_clip_photo("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
@@ -279,7 +279,7 @@ function tool_search_f() {
 // 二维码
 function tool_QR_f() {
     const jsqr = require("jsqr");
-    get_clip_photo("png").then((c) => {
+    get_clip_photo("png").then((c: HTMLCanvasElement) => {
         var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
         var code = jsqr(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
@@ -307,7 +307,7 @@ function tool_draw_f() {
         document.getElementById("draw_bar").style.height = "0";
         document.getElementById("clip_photo").style.pointerEvents = "auto";
         document.getElementById("draw_bar").style.width = "var(--bar-size)";
-        document.querySelectorAll("#draw_main > div").forEach((ei) => {
+        document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
             ei.show = false;
         });
         hotkeys.setScope("normal");
@@ -329,7 +329,7 @@ function track_location() {
         document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth * 2 > 0;
     if (l + 2 * document.getElementById("tool_bar").offsetWidth > document.body.offsetWidth || x) {
         l = document.getElementById("tool_bar").offsetLeft - document.getElementById("draw_bar").offsetWidth - 8;
-        l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
+        let l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
         document.getElementById("draw_bar").setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
     }
     document.getElementById("draw_bar").style.top = `${h}px`;
@@ -353,7 +353,7 @@ function open_app() {
     const os = require("os");
     const tmp_photo = path.join(os.tmpdir(), "/eSearch/tmp.png");
     const fs = require("fs");
-    get_clip_photo("png").then((c) => {
+    get_clip_photo("png").then((c: HTMLCanvasElement) => {
         var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         var dataBuffer = new Buffer(f, "base64");
         fs.writeFile(tmp_photo, dataBuffer, () => {
@@ -438,7 +438,8 @@ function pj_long() {
 // 钉在屏幕上
 function tool_ding_f() {
     var ding_window_setting = final_rect;
-    get_clip_photo("png").then((c) => {
+    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+        // @ts-ignore
         ding_window_setting[4] = c.toDataURL();
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
         tool_close_f();
@@ -446,7 +447,7 @@ function tool_ding_f() {
 }
 // 复制
 function tool_copy_f() {
-    get_clip_photo("png").then((c) => {
+    get_clip_photo("png").then((c: HTMLCanvasElement) => {
         clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
         tool_close_f();
     });
@@ -459,7 +460,7 @@ function tool_save_f() {
     var i = t_to_n[store.get("保存.默认格式")];
     document.querySelectorAll("#suffix > div")[i].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
-        var el = e.target;
+        var el = <HTMLDivElement>e.target;
         if (el.dataset.value) {
             ipcRenderer.send("clip_main_b", "save", el.dataset.value);
             type = el.dataset.value;
@@ -468,7 +469,7 @@ function tool_save_f() {
     };
     hotkeys.setScope("c_bar");
     hotkeys("enter", "c_bar", () => {
-        document.querySelector("#suffix > .suffix_h").click();
+        (<HTMLDivElement>document.querySelector("#suffix > .suffix_h")).click();
         s_center_bar("save");
     });
     hotkeys("up", "c_bar", () => {
@@ -492,7 +493,7 @@ ipcRenderer.on("save_path", (event, message) => {
         get_clip_photo(type).then((c) => {
             switch (type) {
                 case "svg":
-                    var dataBuffer = Buffer.from(c, "UTF-8");
+                    var dataBuffer = Buffer.from(<string>c);
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
                             ipcRenderer.send("clip_main_b", "ok_save", message);
@@ -500,7 +501,7 @@ ipcRenderer.on("save_path", (event, message) => {
                     });
                     break;
                 case "png":
-                    var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+                    var f = (<HTMLCanvasElement>c).toDataURL().replace(/^data:image\/\w+;base64,/, "");
                     var dataBuffer = Buffer.from(f, "base64");
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
@@ -509,7 +510,9 @@ ipcRenderer.on("save_path", (event, message) => {
                     });
                     break;
                 case "jpg":
-                    var f = c.toDataURL("image/jpeg", store.get("jpg质量") - 0).replace(/^data:image\/\w+;base64,/, "");
+                    var f = (<HTMLCanvasElement>c)
+                        .toDataURL("image/jpeg", store.get("jpg质量") - 0)
+                        .replace(/^data:image\/\w+;base64,/, "");
                     var dataBuffer = Buffer.from(f, "base64");
                     fs.writeFile(message, dataBuffer, (err) => {
                         if (!err) {
@@ -525,10 +528,10 @@ ipcRenderer.on("save_path", (event, message) => {
 var svg;
 /**
  * 获取选区图像
- * @param {string} type 格式
+ * @param type 格式
  * @returns promise svg base64|canvas element
  */
-function get_clip_photo(type) {
+function get_clip_photo(type: string) {
     var main_ctx = main_canvas.getContext("2d");
     if (!final_rect) final_rect = [0, 0, main_canvas.width, main_canvas.height];
 
