@@ -498,6 +498,7 @@ function create_clip_window() {
         fullscreenable: true,
         transparent: true,
         frame: false,
+        resizable: process.platform == "linux", // gnome下为false时无法全屏
         skipTaskbar: true,
         autoHideMenuBar: true,
         movable: false,
@@ -734,7 +735,7 @@ function create_recorder_window(rect) {
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
-        resizable: false,
+        resizable: process.platform == "linux",
         titleBarStyle: "hiddenInset",
         webPreferences: {
             nodeIntegration: true,
@@ -810,7 +811,7 @@ function create_recorder_window(rect) {
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
-        resizable: false,
+        resizable: process.platform == "linux",
         titleBarStyle: "hiddenInset",
         webPreferences: {
             nodeIntegration: true,
@@ -1022,7 +1023,7 @@ function long_win(rect) {
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
-        resizable: false,
+        resizable: process.platform == "linux",
         titleBarStyle: "hiddenInset",
         webPreferences: {
             nodeIntegration: true,
