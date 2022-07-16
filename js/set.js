@@ -175,6 +175,7 @@ document.getElementById("画笔颜色").value = store.get("图像编辑.默认�
 document.getElementById("画笔粗细").value = store.get("图像编辑.默认属性.画笔粗细");
 document.getElementById("复制dx").value = store.get("图像编辑.复制偏移.x");
 document.getElementById("复制dy").value = store.get("图像编辑.复制偏移.y");
+document.getElementById("plugin").value = store.get("插件.加载后").join("\n");
 document.getElementById("tran_css").value = store.get("贴图.窗口.变换");
 document.getElementById("快速截屏").value = store.get("快速截屏.模式");
 document.getElementById("快速截屏路径").value = store.get("快速截屏.路径");
@@ -451,6 +452,7 @@ function save_setting() {
         x: document.getElementById("复制dx").value,
         y: document.getElementById("复制dy").value,
     });
+    store.set("插件.加载后", document.getElementById("plugin").value.trim().split("\n"));
     store.set("贴图.窗口.变换", document.getElementById("tran_css").value);
     store.set("框选后默认操作", document.getElementById("框选后默认操作").value);
     store.set("快速截屏.模式", document.getElementById("快速截屏").value);
