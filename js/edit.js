@@ -1,5 +1,9 @@
 const { fabric } = require("./lib/fabric.min.js");
 var fabric_canvas = new fabric.Canvas("draw_photo");
+var canvas_container = document.querySelector(".canvas-container");
+var upper_canvas = document.querySelector(".upper-canvas");
+draw_canvas.style.width = canvas_container.style.width = upper_canvas.style.width = main_canvas.width / ratio + "px";
+draw_canvas.style.height = canvas_container.style.height = upper_canvas.style.height = "auto";
 his_push();
 var fill_color = store.get("图像编辑.默认属性.填充颜色");
 var stroke_color = store.get("图像编辑.默认属性.边框颜色");
@@ -629,15 +633,13 @@ function new_filter_select(o, no) {
     var x = Math.min(x1, x2), y = Math.min(y1, y2), w = Math.abs(x1 - x2), h = Math.abs(y1 - y2);
     var main_ctx = main_canvas.getContext("2d");
     var tmp_canvas = document.createElement("canvas");
-    tmp_canvas.width = w * ratio;
-    tmp_canvas.height = h * ratio;
-    var gid = main_ctx.getImageData(x * ratio, y * ratio, w * ratio, h * ratio); // 裁剪
+    tmp_canvas.width = w;
+    tmp_canvas.height = h;
+    var gid = main_ctx.getImageData(x, y, w, h); // 裁剪
     tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
     var img = new fabric.Image(tmp_canvas, {
         left: x,
         top: y,
-        scaleX: 1 / ratio,
-        scaleY: 1 / ratio,
         lockMovementX: true,
         lockMovementY: true,
         lockRotation: true,
