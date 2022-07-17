@@ -973,15 +973,7 @@
 
 </body>
 
-<script>
-    const Store = require("electron-store");
-    var store = new Store();
-    const { t, lan } = require("./lib/translate/translate");
-    lan(store.get("语言.语言"));
-    document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (m, v) => t(v)).replace(/<t>(.*?)<\/t>/g, (m, v) => t(v));
-    document.title = t(document.title)
-</script>
-
+<script src="js/setting_preload.js"></script>
 <script src="lib/template.js"></script>
 <script src="lib/template2.js"></script>
 <script src="js/set.js"></script>

@@ -15,8 +15,9 @@ for (let i of document.querySelectorAll("h1")) {
 }
 document.getElementById("menu").innerHTML = menu_t;
 document.getElementById("menu").onclick = (e) => {
-    if (e.target.tagName == "LI") {
-        document.getElementsByTagName("html")[0].scrollTop = menu_o[e.target.innerText].offsetTop;
+    let el = e.target;
+    if (el.tagName == "LI") {
+        document.getElementsByTagName("html")[0].scrollTop = menu_o[el.innerText].offsetTop;
     }
 };
 ipcRenderer.send("autostart", "get");
@@ -59,17 +60,17 @@ document.getElementById("深色模式").value = store.get("全局.深色模式")
 document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", document.getElementById("深色模式").value);
 };
-模糊 = store.get("全局.模糊");
+var 模糊 = store.get("全局.模糊");
 if (模糊 != 0) {
     document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
 }
 else {
     document.documentElement.style.setProperty("--blur", `none`);
 }
-document.querySelector("#模糊").value = 模糊;
-document.querySelector("#模糊").oninput = () => {
-    var 模糊 = document.querySelector("#模糊").value;
-    if (模糊 != 0) {
+document.getElementById("模糊").value = 模糊;
+document.getElementById("模糊").oninput = () => {
+    var 模糊 = document.getElementById("模糊").value;
+    if (Number(模糊) != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     }
     else {
@@ -77,10 +78,10 @@ document.querySelector("#模糊").oninput = () => {
     }
 };
 document.documentElement.style.setProperty("--alpha", 全局.不透明度);
-document.querySelector("#不透明度").value = 全局.不透明度 * 100;
-document.querySelector("#不透明度").oninput = () => {
-    var 不透明度 = document.querySelector("#不透明度").value;
-    document.documentElement.style.setProperty("--alpha", 不透明度 / 100);
+document.getElementById("不透明度").value = String(全局.不透明度 * 100);
+document.getElementById("不透明度").oninput = () => {
+    var 不透明度 = document.getElementById("不透明度").value;
+    document.documentElement.style.setProperty("--alpha", String(Number(不透明度) / 100));
 };
 document.getElementById("全局缩放").value = store.get("全局.缩放");
 // 单选项目设置加载
@@ -116,32 +117,32 @@ document.querySelector(`hot-keys[name="复制颜色"]`).value = 其他快捷键.
 选择器储存("取色器默认格式", "HEX");
 document.getElementById("按钮大小").value = store.get("工具栏.按钮大小");
 document.getElementById("按钮图标比例").value = store.get("工具栏.按钮图标比例");
-document.querySelector("#显示四角坐标").checked = store.get("显示四角坐标");
+document.getElementById("显示四角坐标").checked = store.get("显示四角坐标");
 // 取色器设置
-document.querySelector("#取色器大小").value = store.get("取色器大小");
-document.querySelector("#像素大小").value = store.get("像素大小");
-document.querySelector("#取色器大小").oninput = () => {
-    if ((document.querySelector("#取色器大小").value - 0) % 2 == 0) {
-        document.querySelector("#取色器大小").value = document.querySelector("#取色器大小").value - 0 + 1;
+document.getElementById("取色器大小").value = store.get("取色器大小");
+document.getElementById("像素大小").value = store.get("像素大小");
+document.getElementById("取色器大小").oninput = () => {
+    if (Number(document.getElementById("取色器大小").value) % 2 == 0) {
+        document.getElementById("取色器大小").value = String(Number(document.getElementById("取色器大小").value) + 1);
     }
     show_color_picker();
 };
-document.querySelector("#像素大小").oninput = () => {
+document.getElementById("像素大小").oninput = () => {
     show_color_picker();
 };
 show_color_picker();
 function show_color_picker() {
-    color_size = document.querySelector("#取色器大小").value - 0;
-    inner_html = "";
-    for (i = 0; i < color_size ** 2; i++) {
+    let color_size = Number(document.getElementById("取色器大小").value);
+    let inner_html = "";
+    for (let i = 0; i < color_size ** 2; i++) {
         var l = Math.random() * 40 + 60;
-        inner_html += `<span id="point_color_t"style="background:hsl(0,0%,${l}%);width:${document.querySelector("#像素大小").value}px;height:${document.querySelector("#像素大小").value}px"></span>`;
+        inner_html += `<span id="point_color_t"style="background:hsl(0,0%,${l}%);width:${document.getElementById("像素大小").value}px;height:${document.getElementById("像素大小").value}px"></span>`;
     }
-    document.querySelector("#point_color").style.width =
-        (document.querySelector("#像素大小").value - 0) * color_size + "px";
-    document.querySelector("#point_color").style.height =
-        (document.querySelector("#像素大小").value - 0) * color_size + "px";
-    document.querySelector("#point_color").innerHTML = inner_html;
+    document.getElementById("point_color").style.width =
+        Number(document.getElementById("像素大小").value) * color_size + "px";
+    document.getElementById("point_color").style.height =
+        Number(document.getElementById("像素大小").value) * color_size + "px";
+    document.getElementById("point_color").innerHTML = inner_html;
 }
 // 选区&遮罩颜色设置
 document.querySelector("#遮罩颜色 > span").style.backgroundImage = `linear-gradient(${store.get("遮罩颜色")}, ${store.get("遮罩颜色")}), url('assets/tbg.svg')`;
@@ -159,13 +160,15 @@ document.getElementById("自动框选").checked = store.get("框选.自动框选
 document.getElementById("框选最小阈值").value = store.get("框选.自动框选.最小阈值");
 document.getElementById("框选最大阈值").value = store.get("框选.自动框选.最大阈值");
 document.getElementById("框选最小阈值").oninput = () => {
-    if (document.getElementById("框选最小阈值").value > document.getElementById("框选最大阈值").value) {
-        document.getElementById("框选最大阈值").value = document.getElementById("框选最小阈值").value;
+    if (document.getElementById("框选最小阈值").value >
+        document.getElementById("框选最大阈值").value) {
+        document.getElementById("框选最大阈值").value = (document.getElementById("框选最小阈值")).value;
     }
 };
 document.getElementById("框选最大阈值").oninput = () => {
-    if (document.getElementById("框选最大阈值").value < document.getElementById("框选最小阈值").value) {
-        document.getElementById("框选最小阈值").value = document.getElementById("框选最大阈值").value;
+    if (document.getElementById("框选最大阈值").value <
+        document.getElementById("框选最小阈值").value) {
+        document.getElementById("框选最小阈值").value = (document.getElementById("框选最大阈值")).value;
     }
 };
 document.getElementById("填充颜色").value = store.get("图像编辑.默认属性.填充颜色");
@@ -211,7 +214,8 @@ document.getElementById("保存文件名称前缀").value = store.get("保存名
 document.getElementById("保存文件名称时间").value = store.get("保存名称.时间");
 document.getElementById("保存文件名称后缀").value = store.get("保存名称.后缀");
 document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
-    e.target.style.width = `${e.target.value.length || 1}em`;
+    let el = e.target;
+    el.style.width = `${el.value.length || 1}em`;
     show_f_time();
 };
 document.getElementById("保存文件名称时间").oninput = show_f_time;
@@ -245,28 +249,28 @@ document.getElementById("拼写检查").checked = store.get("编辑器.拼写检
 document.getElementById("行号").checked = store.get("编辑器.行号");
 document.getElementById("tab").value = store.get("编辑器.tab");
 document.getElementById("光标动画").value = store.get("编辑器.光标动画");
-document.querySelector("#自动搜索").checked = store.get("自动搜索");
-document.querySelector("#自动打开链接").checked = store.get("自动打开链接");
-document.querySelector("#自动搜索中文占比").value = store.get("自动搜索中文占比");
+document.getElementById("自动搜索").checked = store.get("自动搜索");
+document.getElementById("自动打开链接").checked = store.get("自动打开链接");
+document.getElementById("自动搜索中文占比").value = store.get("自动搜索中文占比");
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎) {
     var text = "";
     var default_en = `<set-select name="" id="默认搜索引擎">`;
-    for (i in o_搜索引擎) {
+    for (let i in o_搜索引擎) {
         text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
         default_en += `<div value="${o_搜索引擎[i][0]}">${o_搜索引擎[i][0]}</div>`;
     }
-    document.querySelector("#搜索引擎").value = text;
+    document.getElementById("搜索引擎").value = text;
     default_en += `</set-select>`;
     document.getElementById("默认搜索引擎div").innerHTML = default_en;
     document.getElementById("默认搜索引擎").value = store.get("引擎.默认搜索引擎");
 }
-document.querySelector("#搜索引擎").onchange = () => {
+document.getElementById("搜索引擎").onchange = () => {
     o_搜索引擎 = [];
-    var text = document.querySelector("#搜索引擎").value;
+    var text = document.getElementById("搜索引擎").value;
     var text_l = text.split("\n");
     var default_en = `<set-select name="" id="默认搜索引擎">`;
-    for (i in text_l) {
+    for (let i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
         if (l[0] != "") {
@@ -282,21 +286,21 @@ var o_翻译引擎 = store.get("翻译引擎");
 if (o_翻译引擎) {
     var text = "";
     var default_en = `<set-select name="" id="默认翻译引擎">`;
-    for (i in o_翻译引擎) {
+    for (let i in o_翻译引擎) {
         text += `${o_翻译引擎[i][0]}, ${o_翻译引擎[i][1]}\n`;
         default_en += `<div value="${o_翻译引擎[i][0]}">${o_翻译引擎[i][0]}</div>`;
     }
-    document.querySelector("#翻译引擎").value = text;
+    document.getElementById("翻译引擎").value = text;
     default_en += `</set-select>`;
     document.getElementById("默认翻译引擎div").innerHTML = default_en;
     document.getElementById("默认翻译引擎").value = store.get("引擎.默认翻译引擎");
 }
-document.querySelector("#翻译引擎").onchange = () => {
+document.getElementById("翻译引擎").onchange = () => {
     o_翻译引擎 = [];
-    var text = document.querySelector("#翻译引擎").value;
+    var text = document.getElementById("翻译引擎").value;
     var text_l = text.split("\n");
     var default_en = `<set-select name="" id="默认翻译引擎">`;
-    for (i in text_l) {
+    for (let i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
         if (l[0] != "") {
@@ -311,8 +315,8 @@ document.querySelector("#翻译引擎").onchange = () => {
 document.getElementById("记住引擎").checked = store.get("引擎.记住");
 document.getElementById("图像搜索引擎").value = store.get("以图搜图.引擎");
 document.getElementById("记住识图引擎").checked = store.get("以图搜图.记住");
-document.querySelector("#浏览器中打开").checked = store.get("浏览器中打开");
-document.querySelector("#搜索窗口自动关闭").checked = store.get("浏览器.标签页.自动关闭");
+document.getElementById("浏览器中打开").checked = store.get("浏览器中打开");
+document.getElementById("搜索窗口自动关闭").checked = store.get("浏览器.标签页.自动关闭");
 document.getElementById("标签缩小").checked = store.get("浏览器.标签页.小");
 document.getElementById("标签灰度").checked = store.get("浏览器.标签页.灰度");
 document.getElementById("clear_storage").onclick = () => {
@@ -321,7 +325,7 @@ document.getElementById("clear_storage").onclick = () => {
 document.getElementById("clear_cache").onclick = () => {
     ipcRenderer.send("setting", "clear", "cache");
 };
-document.querySelector("#main").onclick = () => {
+document.getElementById("main").onclick = () => {
     window.location.href = "index.html";
 };
 document.getElementById("OCR类型").value = store.get("OCR.类型");
@@ -354,20 +358,20 @@ document.getElementById("baidu_ocr_id").value = store.get("在线OCR.baidu.id");
 document.getElementById("baidu_ocr_secret").value = store.get("在线OCR.baidu.secret");
 document.getElementById("youdao_ocr_id").value = store.get("在线OCR.youdao.id");
 document.getElementById("youdao_ocr_secret").value = store.get("在线OCR.youdao.secret");
-历史记录设置 = store.get("历史记录设置");
-document.querySelector("#清除历史记录").disabled = !历史记录设置.保留历史记录;
-document.querySelector("#his_d").disabled = !历史记录设置.自动清除历史记录;
-document.querySelector("#his_h").disabled = !历史记录设置.自动清除历史记录;
-document.querySelector("#his_d").value = 历史记录设置.d;
-document.querySelector("#his_h").value = 历史记录设置.h;
-document.querySelector("#历史记录_b").oninput = () => {
-    历史记录设置.保留历史记录 = document.querySelector("#历史记录_b").checked;
-    document.querySelector("#清除历史记录").disabled = !document.querySelector("#历史记录_b").checked;
+var 历史记录设置 = store.get("历史记录设置");
+document.getElementById("清除历史记录").disabled = !历史记录设置.保留历史记录;
+document.getElementById("his_d").disabled = !历史记录设置.自动清除历史记录;
+document.getElementById("his_h").disabled = !历史记录设置.自动清除历史记录;
+document.getElementById("his_d").value = 历史记录设置.d;
+document.getElementById("his_h").value = 历史记录设置.h;
+document.getElementById("历史记录_b").oninput = () => {
+    历史记录设置.保留历史记录 = document.getElementById("历史记录_b").checked;
+    document.getElementById("清除历史记录").disabled = !(document.getElementById("历史记录_b")).checked;
 };
-document.querySelector("#清除历史记录").oninput = () => {
-    历史记录设置.自动清除历史记录 = document.querySelector("#清除历史记录").checked;
-    document.querySelector("#his_d").disabled = !document.querySelector("#清除历史记录").checked;
-    document.querySelector("#his_h").disabled = !document.querySelector("#清除历史记录").checked;
+document.getElementById("清除历史记录").oninput = () => {
+    历史记录设置.自动清除历史记录 = document.getElementById("清除历史记录").checked;
+    document.getElementById("his_d").disabled = !(document.getElementById("清除历史记录")).checked;
+    document.getElementById("his_h").disabled = !(document.getElementById("清除历史记录")).checked;
 };
 var history_store = new Store({ name: "history" });
 document.getElementById("clear_his").onclick = () => {
@@ -418,22 +422,19 @@ function save_setting() {
         保存: document.querySelector(`hot-keys[name="保存"]`).value,
         复制颜色: document.querySelector(`hot-keys[name="复制颜色"]`).value,
     });
-    store.set("主搜索功能.自动搜索排除", document
-        .getElementById("自动搜索排除")
-        .value.split(/\n/)
-        .filter((i) => i != ""));
+    store.set("主搜索功能.自动搜索排除", document.getElementById("自动搜索排除").value.split(/\n/).filter((i) => i != ""));
     store.set("主搜索功能.剪贴板选区搜索", document.getElementById("剪贴板选区搜索").checked);
-    var 模糊 = document.querySelector("#模糊").value - 0;
+    var 模糊 = Number(document.getElementById("模糊").value);
     store.set("全局.模糊", 模糊);
-    store.set("全局.不透明度", document.querySelector("#不透明度").value / 100);
+    store.set("全局.不透明度", Number(document.getElementById("不透明度").value) / 100);
     store.set("全局.缩放", document.getElementById("全局缩放").value);
     store.set("工具栏", {
         按钮大小: document.getElementById("按钮大小").value,
         按钮图标比例: document.getElementById("按钮图标比例").value,
     });
-    store.set("显示四角坐标", document.querySelector("#显示四角坐标").checked);
-    store.set("取色器大小", document.querySelector("#取色器大小").value);
-    store.set("像素大小", document.querySelector("#像素大小").value);
+    store.set("显示四角坐标", document.getElementById("显示四角坐标").checked);
+    store.set("取色器大小", document.getElementById("取色器大小").value);
+    store.set("像素大小", document.getElementById("像素大小").value);
     store.set("遮罩颜色", document.querySelector("#遮罩颜色 > input").value);
     store.set("选区颜色", document.querySelector("#选区颜色 > input").value);
     store.set("框选.自动框选", {
@@ -459,7 +460,8 @@ function save_setting() {
     store.set("快速截屏.路径", document.getElementById("快速截屏路径").value
         ? (document.getElementById("快速截屏路径").value + "/").replace("//", "/")
         : "");
-    store.set("录屏.自动录制", document.getElementById("开启自动录制").checked && document.getElementById("自动录制延时").value);
+    store.set("录屏.自动录制", document.getElementById("开启自动录制").checked &&
+        document.getElementById("自动录制延时").value);
     store.set("录屏.视频比特率", document.getElementById("视频比特率").value);
     store.set("录屏.摄像头", {
         默认开启: document.getElementById("默认开启摄像头").checked,
@@ -510,16 +512,19 @@ function save_setting() {
     store.set("编辑器.行号", document.getElementById("行号").checked);
     store.set("编辑器.tab", document.getElementById("tab").value);
     store.set("编辑器.光标动画", document.getElementById("光标动画").value);
-    store.set("自动搜索", document.querySelector("#自动搜索").checked);
-    store.set("自动打开链接", document.querySelector("#自动打开链接").checked);
-    store.set("自动搜索中文占比", document.querySelector("#自动搜索中文占比").value);
+    store.set("自动搜索", document.getElementById("自动搜索").checked);
+    store.set("自动打开链接", document.getElementById("自动打开链接").checked);
+    store.set("自动搜索中文占比", document.getElementById("自动搜索中文占比").value);
     if (o_搜索引擎)
         store.set("搜索引擎", o_搜索引擎);
     if (o_翻译引擎)
         store.set("翻译引擎", o_翻译引擎);
     store.set("引擎", {
         记住: document.getElementById("记住引擎").checked
-            ? [document.getElementById("默认搜索引擎").value, document.getElementById("默认翻译引擎").value]
+            ? [
+                document.getElementById("默认搜索引擎").value,
+                document.getElementById("默认翻译引擎").value,
+            ]
             : false,
         默认搜索引擎: document.getElementById("默认搜索引擎").value,
         默认翻译引擎: document.getElementById("默认翻译引擎").value,
@@ -530,14 +535,14 @@ function save_setting() {
             ? store.get("以图搜图.记住") || document.getElementById("图像搜索引擎").value
             : false,
     });
-    store.set("浏览器中打开", document.querySelector("#浏览器中打开").checked);
+    store.set("浏览器中打开", document.getElementById("浏览器中打开").checked);
     store.set("浏览器.标签页", {
-        自动关闭: document.querySelector("#搜索窗口自动关闭").checked,
+        自动关闭: document.getElementById("搜索窗口自动关闭").checked,
         小: document.getElementById("标签缩小").checked,
         灰度: document.getElementById("标签灰度").checked,
     });
-    历史记录设置.d = document.querySelector("#his_d").value - 0;
-    历史记录设置.h = document.querySelector("#his_h").value - 0;
+    历史记录设置.d = Number(document.getElementById("his_d").value);
+    历史记录设置.h = Number(document.getElementById("his_h").value);
     store.set("历史记录设置", 历史记录设置);
     store.set("时间格式", document.getElementById("时间格式").value);
     store.set("OCR", {
@@ -581,13 +586,23 @@ document.getElementById("find_b_close").onclick = () => {
     document.getElementById("find_t").innerText = ``;
 };
 document.getElementById("find_input").onchange = () => {
-    find(document.getElementById("find_input").value, { start: Boolean(document.getElementById("find_input").value) });
+    find(document.getElementById("find_input").value, {
+        start: Boolean(document.getElementById("find_input").value),
+    });
 };
 document.getElementById("find_b_last").onclick = () => {
-    find(document.getElementById("find_input").value, { start: true, forward: false, findNext: true });
+    find(document.getElementById("find_input").value, {
+        start: true,
+        forward: false,
+        findNext: true,
+    });
 };
 document.getElementById("find_b_next").onclick = () => {
-    find(document.getElementById("find_input").value, { start: true, forward: true, findNext: true });
+    find(document.getElementById("find_input").value, {
+        start: true,
+        forward: true,
+        findNext: true,
+    });
 };
 function find(t, o) {
     ipcRenderer.send("setting", "find", { t, o });
@@ -604,23 +619,19 @@ document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
 var version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
 var version_l = ["electron", "node", "chrome", "v8"];
-for (i in version_l) {
+for (let i in version_l) {
     version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
 }
 document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
 var package = require("./package.json");
 document.getElementById("name").innerHTML = package.name;
-document.querySelector("#version").innerHTML = package.version;
+document.getElementById("version").innerHTML = package.version;
 document.getElementById("description").innerHTML = t(package.description);
 document.getElementById("version").onclick = () => {
-    var requestOptions = {
-        method: "GET",
-        redirect: "follow",
-    };
-    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases/latest", requestOptions)
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases/latest", { method: "GET", redirect: "follow" })
         .then((response) => response.text())
-        .then((result) => {
-        result = JSON.parse(result);
+        .then((re) => {
+        let result = JSON.parse(re);
         console.log(result);
         if (version_new(result.name, package.version) && !result.draft && !result.prerelease) {
             document.getElementById("update_info").innerHTML = `${t("有新版本:")} <a href="${result.html_url}">${result.name}</a><div>${result.body.replace(/\r\n/g, "<br>")}</div>`;
@@ -652,13 +663,13 @@ function version_new(v1, v2) {
         return false;
     }
 }
-document.querySelector("#info").innerHTML = `<div>${t("项目主页:")} <a href="${package.homepage}">${package.homepage}</a></div>
+document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${package.homepage}">${package.homepage}</a></div>
     <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">${t("更新日志")}</a></div>
     <div><a href="https://github.com/xushengfeng/eSearch/issues">${t("错误报告与建议")}</a></div>
     <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a></div>
     <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
-document.querySelector("#about").onclick = (e) => {
+document.getElementById("about").onclick = (e) => {
     console.log(e.target);
     if (e.target.tagName == "A") {
         e.preventDefault();
