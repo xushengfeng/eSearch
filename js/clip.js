@@ -144,7 +144,8 @@ clip_canvas.onmouseup = (e) => {
                     min_n = i[2] * i[3];
                 }
             }
-            final_rect = min;
+            if (min.length != 0)
+                final_rect = min;
             draw_clip_rect();
         }
         else {

@@ -152,7 +152,7 @@ clip_canvas.onmouseup = (e) => {
                     min_n = i[2] * i[3];
                 }
             }
-            final_rect = min;
+            if (min.length != 0) final_rect = min;
             draw_clip_rect();
         } else {
             final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
