@@ -29,7 +29,7 @@ const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
 const { t, lan } = require("./lib/translate/translate");
 
-const userDataPath = fs.readFileSync("preload_config").toString().trim();
+const userDataPath = path.resolve(fs.readFileSync("preload_config").toString().trim());
 if (userDataPath) app.setPath("userData", userDataPath);
 
 // 重写存储器
