@@ -417,6 +417,21 @@ document.getElementById("OCR类型").onclick = ocr_d_open;
 (<HTMLInputElement>document.getElementById("ocr_det")).value = store.get("OCR.det");
 (<HTMLInputElement>document.getElementById("ocr_rec")).value = store.get("OCR.rec");
 (<HTMLInputElement>document.getElementById("ocr_字典")).value = store.get("OCR.字典");
+document.getElementById("ocr_det_b").onclick = () => {
+    ipcRenderer.send("setting", "open_dialog", { properties: ["openDirectory"] }, "ocr_det");
+};
+document.getElementById("ocr_rec_b").onclick = () => {
+    ipcRenderer.send("setting", "open_dialog", { properties: ["openDirectory"] }, "ocr_rec");
+};
+document.getElementById("ocr_字典_b").onclick = () => {
+    ipcRenderer.send(
+        "setting",
+        "open_dialog",
+        { filters: [{ name: "txt", extensions: ["txt"] }], properties: ["openFile"] },
+        "ocr_字典"
+    );
+};
+
 document.getElementById("下载离线OCR").onclick = () => {
     ipcRenderer.send("setting", "下载离线OCR");
 };
@@ -711,6 +726,28 @@ var path_info = `${t("运行目录：")}${__dirname}<br>
                 ${t("文字记录：")}${history_store.path}`;
 document.createTextNode(path_info);
 document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
+
+ipcRenderer.on("setting", (err, t, id, r) => {
+    if (t == "open_dialog") {
+        switch (id) {
+            case "ocr_det":
+                if (!r.canceled) {
+                    (<HTMLInputElement>document.getElementById("ocr_det")).value = r.filePaths[0];
+                }
+                break;
+            case "ocr_rec":
+                if (!r.canceled) {
+                    (<HTMLInputElement>document.getElementById("ocr_rec")).value = r.filePaths[0];
+                }
+                break;
+            case "ocr_字典":
+                if (!r.canceled) {
+                    (<HTMLInputElement>document.getElementById("ocr_字典")).value = r.filePaths[0];
+                }
+                break;
+        }
+    }
+});
 
 var version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
 var version_l = ["electron", "node", "chrome", "v8"];

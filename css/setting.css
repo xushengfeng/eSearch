@@ -255,6 +255,22 @@ comment {
     opacity: 0.6;
 }
 
+#ocr_det_b,
+#ocr_rec_b,
+#ocr_字典_b {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    margin: 0;
+    vertical-align: middle;
+}
+:is(#ocr_det_b, #ocr_rec_b, #ocr_字典_b) > .icon {
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+}
+
 #自动运行命令 {
     width: 100%;
 }

@@ -927,7 +927,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
     }
 });
 
-ipcMain.on("setting", async (event, arg, arg1) => {
+ipcMain.on("setting", async (event, arg, arg1, arg2) => {
     switch (arg) {
         case "save_err":
             console.log("保存设置失败");
@@ -996,6 +996,11 @@ ipcMain.on("setting", async (event, arg, arg1) => {
                         event.sender.send("setting", "cache", false);
                     });
             }
+            break;
+        case "open_dialog":
+            dialog.showOpenDialog(arg1).then((x) => {
+                event.sender.send("setting", arg, arg2, x);
+            });
     }
 });
 
