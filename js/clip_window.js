@@ -281,6 +281,7 @@ function tool_draw_f() {
         document.getElementById("draw_bar").style.height = `${draw_bar_height}`;
         document.getElementById("clip_photo").style.pointerEvents = "none";
         track_location();
+        mouse_bar_el.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "none";
     }
     else {
         document.getElementById("tool_draw").className = "";
@@ -293,6 +294,7 @@ function tool_draw_f() {
         hotkeys.setScope("normal");
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();
+        mouse_bar_el.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "auto";
     }
     setTimeout(add_edit_js, 400);
 }
