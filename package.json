@@ -55,6 +55,7 @@
         "role": "Editor"
       }
     ],
+    "beforePack": "./before_pack.js",
     "linux": {
       "category": "Utility",
       "target": [

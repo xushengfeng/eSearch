@@ -34,16 +34,6 @@ try {
     if (userDataPath) app.setPath("userData", path.resolve(userDataPath));
 } catch (e) {}
 
-// 重写存储器
-const storeindex = path.join(__dirname, "/node_modules/electron-store/index.js");
-fs.writeFileSync(
-    storeindex,
-    fs
-        .readFileSync(storeindex)
-        .toString()
-        .replace(/ipcMain\.on\(.*\n.*\n.*?;/, "")
-);
-
 ipcMain.on("electron-store-get-data", (event) => {
     event.returnValue = {
         defaultCwd: app.getPath("userData"),
