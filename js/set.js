@@ -593,7 +593,10 @@ function save_setting() {
     store.set("硬件加速", document.getElementById("硬件加速").checked);
     store.set("更新.检查更新", document.getElementById("检查更新").checked);
     if (document.getElementById("user_data_path").value)
-        fs.writeFile("preload_config", document.getElementById("user_data_path").value, () => { });
+        fs.writeFile("preload_config", document.getElementById("user_data_path").value, (e) => {
+            if (e)
+                throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));
+        });
 }
 // 查找
 document.getElementById("find_b_close").onclick = () => {
