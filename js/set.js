@@ -633,7 +633,7 @@ var path_info = `<br>
 document.createTextNode(path_info);
 document.getElementById("user_data_divs").insertAdjacentHTML("afterend", path_info);
 document.getElementById("user_data_path").value = store.path.replace(/[/\\]config\.json/, "");
-document.getElementById("user_data_path").onchange = () => {
+document.getElementById("user_data_path").oninput = () => {
     document.getElementById("user_data_divs").classList.add("user_data_divs");
 };
 document.getElementById("move_user_data").onclick = () => {
