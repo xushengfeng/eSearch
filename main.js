@@ -25,7 +25,6 @@ const run_path = path.resolve(__dirname, "");
 const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
-const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
 const { t, lan } = require("./lib/translate/translate");
 
@@ -40,6 +39,8 @@ ipcMain.on("electron-store-get-data", (event) => {
         appVersion: app.getVersion(),
     };
 });
+
+const ocr = require("./ocr/ocr");
 
 var store = new Store();
 
