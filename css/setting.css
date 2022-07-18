@@ -279,6 +279,14 @@ comment {
     width: 100px;
 }
 
+#user_data_divs{
+    display: none;
+}
+
+.user_data_divs{
+    display: block !important;
+}
+
 #about {
     width: 100%;
     display: flex;

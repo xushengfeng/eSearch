@@ -1013,6 +1013,17 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             dialog.showOpenDialog(arg1).then((x) => {
                 event.sender.send("setting", arg, arg2, x);
             });
+            break;
+        case "move_user_data":
+            if (!arg1) return;
+            const to_path = path.resolve(arg1);
+            const pre_path = app.getPath("userData");
+            fs.mkdirSync(to_path, { recursive: true });
+            if (process.platform == "win32") {
+                exec(`cp ${pre_path}\\** ${to_path}`);
+            } else {
+                exec(`cp -r ${pre_path}/** ${to_path}`);
+            }
     }
 });
 

@@ -631,8 +631,18 @@ var path_info = `<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
                 ${t("运行目录：")}${__dirname}`;
 document.createTextNode(path_info);
-document.getElementById("user_data_path").insertAdjacentHTML("afterend", path_info);
+document.getElementById("user_data_divs").insertAdjacentHTML("afterend", path_info);
 document.getElementById("user_data_path").value = store.path.replace(/[/\\]config\.json/, "");
+document.getElementById("user_data_path").onchange = () => {
+    document.getElementById("user_data_divs").classList.add("user_data_divs");
+};
+document.getElementById("move_user_data").onclick = () => {
+    ipcRenderer.send("setting", "move_user_data", document.getElementById("user_data_path").value);
+};
+document.getElementById("reload").onclick = () => {
+    save_setting();
+    ipcRenderer.send("setting", "reload");
+};
 ipcRenderer.on("setting", (err, t, id, r) => {
     if (t == "open_dialog") {
         switch (id) {
