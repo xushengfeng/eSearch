@@ -255,6 +255,7 @@ comment {
     opacity: 0.6;
 }
 
+#ffmpeg_path_b,
 #ocr_det_b,
 #ocr_rec_b,
 #ocr_字典_b {
@@ -264,7 +265,7 @@ comment {
     margin: 0;
     vertical-align: middle;
 }
-:is(#ocr_det_b, #ocr_rec_b, #ocr_字典_b) > .icon {
+:is(#ffmpeg_path_b, #ocr_det_b, #ocr_rec_b, #ocr_字典_b) > .icon {
     left: 2px;
     top: 2px;
     width: 20px;
