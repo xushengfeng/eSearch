@@ -1021,7 +1021,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             const pre_path = app.getPath("userData");
             fs.mkdirSync(to_path, { recursive: true });
             if (process.platform == "win32") {
-                exec(`cp ${pre_path}\\** ${to_path}`);
+                exec(`xcopy ${pre_path}\\** ${to_path} /Y /s`);
             } else {
                 exec(`cp -r ${pre_path}/** ${to_path}`);
             }
