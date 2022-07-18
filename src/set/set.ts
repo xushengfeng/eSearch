@@ -1,5 +1,6 @@
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
+const fs = require("fs");
 
 document.getElementById("set_default_setting").onclick = () => {
     if (confirm("将会把所有设置恢复成默认，无法撤销")) {
@@ -694,6 +695,8 @@ function save_setting() {
     });
     store.set("硬件加速", (<HTMLInputElement>document.getElementById("硬件加速")).checked);
     store.set("更新.检查更新", (<HTMLInputElement>document.getElementById("检查更新")).checked);
+    if ((<HTMLInputElement>document.getElementById("user_data_path")).value)
+        fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, () => {});
 }
 
 // 查找
@@ -727,13 +730,14 @@ ipcRenderer.on("found", (e, a, b) => {
     document.getElementById("find_t").innerText = `${a} / ${b}`;
 });
 
-var path_info = `${t("运行目录：")}${__dirname}<br>
-                ${t("配置目录：")}${store.path.replace(/[/\\]config\.json/, "")}<br>
+var path_info = `<br>
                 ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>
+                ${t("文字记录：")}${history_store.path}<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
-                ${t("文字记录：")}${history_store.path}`;
+                ${t("运行目录：")}${__dirname}`;
 document.createTextNode(path_info);
-document.getElementById("path_info").insertAdjacentHTML("afterend", path_info);
+document.getElementById("user_data_path").insertAdjacentHTML("afterend", path_info);
+(<HTMLInputElement>document.getElementById("user_data_path")).value = store.path.replace(/[/\\]config\.json/, "");
 
 ipcRenderer.on("setting", (err, t, id, r) => {
     if (t == "open_dialog") {

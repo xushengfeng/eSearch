@@ -7,3 +7,4 @@ eSearch
 ocr/ppocr/ocr
 .DS_Store
 build
+preload_config

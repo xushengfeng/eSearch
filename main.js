@@ -29,8 +29,10 @@ const ocr = require("./ocr/ocr");
 const img_search = require("./lib/image_search");
 const { t, lan } = require("./lib/translate/translate");
 
-const userDataPath = path.resolve(fs.readFileSync("preload_config").toString().trim());
-if (userDataPath) app.setPath("userData", userDataPath);
+try {
+    const userDataPath = fs.readFileSync("preload_config").toString().trim();
+    if (userDataPath) app.setPath("userData", path.resolve(userDataPath));
+} catch (e) {}
 
 // 重写存储器
 const storeindex = path.join(__dirname, "/node_modules/electron-store/index.js");
