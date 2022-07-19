@@ -180,6 +180,9 @@ document.getElementById("画笔粗细").value = store.get("图像编辑.默认�
 document.getElementById("复制dx").value = store.get("图像编辑.复制偏移.x");
 document.getElementById("复制dy").value = store.get("图像编辑.复制偏移.y");
 document.getElementById("plugin").value = store.get("插件.加载后").join("\n");
+document.getElementById("plugin_b").onclick = () => {
+    ipcRenderer.send("setting", "open_dialog", { filters: [{ name: "js | css", extensions: ["js", "css"] }], properties: ["openFile"] }, "plugin");
+};
 document.getElementById("tran_css").value = store.get("贴图.窗口.变换");
 document.getElementById("快速截屏").value = store.get("快速截屏.模式");
 document.getElementById("快速截屏路径").value = store.get("快速截屏.路径");
@@ -671,6 +674,12 @@ ipcRenderer.on("setting", (err, t, id, r) => {
                     document.getElementById("ffmpeg_path").value = r.filePaths[0];
                 }
                 break;
+            case "plugin":
+                if (!r.canceled) {
+                    let l = document.getElementById("plugin").value.trim();
+                    l += (l && "\n") + r.filePaths[0];
+                    document.getElementById("plugin").value = l;
+                }
         }
     }
 });
