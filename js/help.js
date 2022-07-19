@@ -10,3 +10,6 @@ document.onclick = (e) => {
         shell.openExternal(el.href);
     }
 };
+if (process.platform != "linux") {
+    document.getElementById("ffmpeg_linux").style.display = "none";
+}

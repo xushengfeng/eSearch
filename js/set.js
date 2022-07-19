@@ -202,7 +202,17 @@ document.getElementById("默认开启音频").checked = store.get("录屏.音频
 document.getElementById("记录音频开启状态").checked = store.get("录屏.音频.记住开启状态");
 document.getElementById("ffmpeg_path").value = store.get("录屏.转换.ffmpeg");
 document.getElementById("下载ffmpeg").onclick = () => {
-    shell.openExternal("http://ffmpeg.org/download.html");
+    let url = "";
+    if (process.platform == "linux") {
+        url = "http://ffmpeg.org/download.html";
+    }
+    else if (process.platform == "win32") {
+        url = "https://www.gyan.dev/ffmpeg/builds/#git-master-builds";
+    }
+    else if (process.platform == "darwin") {
+        url = "https://evermeet.cx/ffmpeg/#ffmpeg";
+    }
+    shell.openExternal(url);
 };
 document.getElementById("ffmpeg_path_b").onclick = () => {
     ipcRenderer.send("setting", "open_dialog", { filters: [{ name: "exe", extensions: ["exe"] }], properties: ["openFile"] }, "ffmpeg_path");

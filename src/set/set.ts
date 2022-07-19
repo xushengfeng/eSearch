@@ -255,7 +255,15 @@ document.getElementById("获取保存路径").onclick = () => {
 
 (<HTMLInputElement>document.getElementById("ffmpeg_path")).value = store.get("录屏.转换.ffmpeg");
 document.getElementById("下载ffmpeg").onclick = () => {
-    shell.openExternal("http://ffmpeg.org/download.html");
+    let url = "";
+    if (process.platform == "linux") {
+        url = "http://ffmpeg.org/download.html";
+    } else if (process.platform == "win32") {
+        url = "https://www.gyan.dev/ffmpeg/builds/#git-master-builds";
+    } else if (process.platform == "darwin") {
+        url = "https://evermeet.cx/ffmpeg/#ffmpeg";
+    }
+    shell.openExternal(url);
 };
 document.getElementById("ffmpeg_path_b").onclick = () => {
     ipcRenderer.send(

@@ -14,3 +14,7 @@ document.onclick = (e) => {
         shell.openExternal((<HTMLAnchorElement>el).href);
     }
 };
+
+if (process.platform != "linux") {
+    document.getElementById("ffmpeg_linux").style.display = "none";
+}
