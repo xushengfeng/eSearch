@@ -1897,7 +1897,7 @@ var default_setting = {
     },
     保存: {
         默认格式: "png",
-        保存路径: { 图片: app.getPath("pictures"), 视频: app.getPath("videos") },
+        保存路径: { 图片: "", 视频: "" },
     },
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 1,
@@ -1984,6 +1984,13 @@ var default_setting = {
     },
     插件: { 加载前: [], 加载后: [] },
 };
+try {
+    default_setting.保存.保存路径.图片 = app.getPath("pictures");
+    default_setting.保存.保存路径.视频 = app.getPath("videos");
+} catch (e) {
+    console.error(e);
+}
+
 function set_default_setting() {
     for (let i in default_setting) {
         if (i == "语言") {
