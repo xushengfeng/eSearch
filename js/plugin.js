@@ -1,4 +1,4 @@
-for (let p of store.get("插件.加载前")) {
+for (let p of store.get("插件.加载后")) {
     if (p.match(/\.css$/i)) {
         let i = document.createElement("link");
         i.rel = "stylesheet";
@@ -12,19 +12,3 @@ for (let p of store.get("插件.加载前")) {
         document.body.before(s);
     }
 }
-document.onload = () => {
-    for (let p of store.get("插件.加载后")) {
-        if (p.match(/\.css$/i)) {
-            let i = document.createElement("link");
-            i.rel = "stylesheet";
-            i.type = "text/css";
-            i.href = p;
-            document.body.after(i);
-        }
-        else {
-            let s = document.createElement("script");
-            s.src = p;
-            document.body.after(s);
-        }
-    }
-};
