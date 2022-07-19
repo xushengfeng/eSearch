@@ -695,7 +695,7 @@ function save_setting() {
     });
     store.set("硬件加速", (<HTMLInputElement>document.getElementById("硬件加速")).checked);
     store.set("更新.检查更新", (<HTMLInputElement>document.getElementById("检查更新")).checked);
-    if ((<HTMLInputElement>document.getElementById("user_data_path")).value)
+    if (user_data_path_inputed)
         fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, (e) => {
             if (e) throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));
         });
@@ -740,8 +740,10 @@ var path_info = `<br>
 document.createTextNode(path_info);
 document.getElementById("user_data_divs").insertAdjacentHTML("afterend", path_info);
 (<HTMLInputElement>document.getElementById("user_data_path")).value = store.path.replace(/[/\\]config\.json/, "");
+var user_data_path_inputed = false;
 document.getElementById("user_data_path").oninput = () => {
     document.getElementById("user_data_divs").classList.add("user_data_divs");
+    user_data_path_inputed = true;
 };
 document.getElementById("move_user_data").onclick = () => {
     ipcRenderer.send("setting", "move_user_data", (<HTMLInputElement>document.getElementById("user_data_path")).value);
