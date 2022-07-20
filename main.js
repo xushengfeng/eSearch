@@ -247,11 +247,9 @@ async function download_ocr(callback) {
 }
 
 async function rm_r(dir_path) {
-    if (process.platform == "win32") {
-        exec(`rd /s /q ${dir_path}`);
-    } else {
-        exec(`rm -r ${dir_path}`);
-    }
+    fs.rm(dir_path, { recursive: true }, (err) => {
+        if (err) console.error(err);
+    });
 }
 
 var contextMenu, tray;
