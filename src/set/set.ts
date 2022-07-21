@@ -2,6 +2,8 @@ const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 const fs = require("fs");
 
+const old_store = store.store;
+
 document.getElementById("set_default_setting").onclick = () => {
     if (confirm("将会把所有设置恢复成默认，无法撤销")) {
         ipcRenderer.send("setting", "set_default_setting");
@@ -520,6 +522,7 @@ document.getElementById("打开config").onclick = () => {
 var give_up = false;
 document.getElementById("give_up_setting_b").oninput = () => {
     give_up = (<HTMLInputElement>document.getElementById("give_up_setting_b")).checked;
+    if (give_up) store.store = old_store;
 };
 
 window.onbeforeunload = () => {
