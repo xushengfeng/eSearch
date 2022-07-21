@@ -531,6 +531,8 @@ window.onbeforeunload = () => {
     ipcRenderer.send("setting", "reload_main");
 };
 
+document.onclick = document.onkeyup = save_setting;
+
 function save_setting() {
     if (give_up) return;
     store.set("启动提示", (<HTMLInputElement>document.getElementById("启动提示")).checked);

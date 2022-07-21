@@ -431,6 +431,7 @@ window.onbeforeunload = () => {
     }
     ipcRenderer.send("setting", "reload_main");
 };
+document.onclick = document.onkeyup = save_setting;
 function save_setting() {
     if (give_up)
         return;
