@@ -1596,6 +1596,7 @@ async function create_browser(window_name, url) {
     min_views(main_window);
     var view = new Date().getTime();
     var search_view = (search_window_l[view] = new BrowserView());
+    if (store.get("开启代理")) await search_view.webContents.session.setProxy(store.get("代理"));
     main_window_l[window_name].addBrowserView(search_view);
     search_view.webContents.loadURL(url);
     var [w, h] = main_window.getContentSize();
