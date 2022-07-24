@@ -2094,43 +2094,32 @@ function search_img(img: string, type: "baidu" | "yandex" | "google", callback) 
     }
 }
 
-const https = require("https");
-
 /**
- * @param {string} url
- * @param {https.RequestOptions} options
- * @param {Function} cb 回调
- * @param {object} write req.write(write)
+ * @param url
+ * @param options
+ * @param cb 回调
  */
-function post(url, options, write, cb) {
-    console.log(url, options);
-
-    var req = https.request(Object.assign(options, { method: "POST", url }), function (res) {
-        var chunks = [];
-        res.on("data", function (chunk) {
-            chunks.push(chunk);
+function post(url: string, options: RequestInit, cb: Function) {
+    fetch(url, Object.assign(options, { method: "POST" }))
+        .then((r) => {
+            console.log(r);
+            return r.json();
+        })
+        .then((r) => {
+            console.log(r);
+            return cb(null, r);
+        })
+        .catch((e) => {
+            console.error(e);
+            return cb(e, null);
         });
-        res.on("end", function () {
-            var body = Buffer.concat(chunks);
-            return cb(null, JSON.parse(body.toString()));
-        });
-        res.on("error", (err) => {
-            return cb(new Error(JSON.stringify(err)), null);
-        });
-    });
-    req.on("error", () => {
-        return cb(new Error("网络或服务错误"), null);
-    });
-    req.write(write);
-    req.end();
 }
 
 function baidu(image, callback) {
     var data = new URLSearchParams({ from: "pc", image }).toString();
     post(
         "https://graph.baidu.com/upload",
-        { headers: { "content-type": "application/x-www-form-urlencoded" } },
-        data,
+        { headers: { "content-type": "application/x-www-form-urlencoded" }, body: data },
         (err, result) => {
             if (err) return callback(err, null);
             if (result.msg != "Success") return callback(new Error(JSON.stringify(err)), null);
@@ -2144,7 +2133,7 @@ function yandex(image, callback) {
     var b = Buffer.from(image, "base64");
     var url =
         "https://yandex.com/images-apphost/image-download?cbird=111&images_avatars_size=preview&images_avatars_namespace=images-cbir";
-    post(url, {}, b, (err, result) => {
+    post(url, { body: b }, (err, result) => {
         if (err) return callback(err, null);
         console.log(result);
         var img_url = result.url;
