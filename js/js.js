@@ -1679,11 +1679,15 @@ ipcRenderer.on("text", (event, name, list) => {
         main_text = list[0];
         show_t(main_text);
     }
-    if (list.length == 3 && list[0] == "image")
+    if (list.length == 3 && list[0] == "image") {
+        editor_push(t("图片上传中……请等候"));
         search_img(list[1], list[2], (err, url) => {
             if (url)
                 open_link("url", url);
+            if (err)
+                editor_push(t("上传错误，请打开开发者工具查看详细错误"));
         });
+    }
 });
 var 模糊 = store.get("全局.模糊");
 if (模糊 != 0) {
