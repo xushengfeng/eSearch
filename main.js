@@ -1467,7 +1467,7 @@ var main_window_l = {};
  * @type {Object.<number, Array.<number>>}
  */
 var main_to_search_l = {};
-function create_main_window(web_page, t, about) {
+async function create_main_window(web_page, t, about) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
     let vw = screen.getPrimaryDisplay().bounds.width,
@@ -1497,6 +1497,8 @@ function create_main_window(web_page, t, about) {
 
     // 自定义界面
     main_window.loadFile(web_page || "index.html");
+
+    if (store.get("开启代理")) await main_window.webContents.session.setProxy(store.get("代理"));
 
     if (dev) main_window.webContents.openDevTools();
     main_window.webContents.on("did-finish-load", () => {
