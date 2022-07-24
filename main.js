@@ -691,24 +691,8 @@ function the_ocr(event, arg) {
 }
 
 function image_search(event, arg) {
-    img_search(arg[0], arg[1], (err, url) => {
-        if (err) {
-            event.sender.send("search_back", "else");
-            dialog.showMessageBox({
-                title: t("错误"),
-                message: `${err}`,
-                buttons: [t("确定")],
-                icon: `${run_path}/assets/logo/warning.png`,
-            });
-        } else {
-            if (store.get("浏览器中打开")) {
-                shell.openExternal(url);
-            } else {
-                create_browser(null, url);
-            }
-            event.sender.send("search_back", "ok");
-        }
-    });
+    create_main_window("index.html", ["image", arg[0], arg[1]]);
+    event.sender.send("search_back", "ok");
 }
 
 var /** @type {BrowserWindow}*/ recorder, /** @type {BrowserWindow}*/ recorder1;
@@ -1520,7 +1504,7 @@ function create_main_window(web_page, t, about) {
         main_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
-        main_window.webContents.send("text", window_name, [t[0], t[1] || "auto"]);
+        main_window.webContents.send("text", window_name, t);
 
         if (web_page == "setting.html") {
             main_window.webContents.send("about", about);

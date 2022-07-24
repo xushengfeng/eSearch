@@ -1675,8 +1675,15 @@ const os = require("os");
 ipcRenderer.on("init", (event, name) => { });
 ipcRenderer.on("text", (event, name, list) => {
     window_name = name;
-    main_text = list[0];
-    show_t(main_text);
+    if (list.length == 1) {
+        main_text = list[0];
+        show_t(main_text);
+    }
+    if (list.length == 3 && list[0] == "image")
+        search_img(list[1], list[2], (err, url) => {
+            if (url)
+                open_link("url", url);
+        });
 });
 var 模糊 = store.get("全局.模糊");
 if (模糊 != 0) {
@@ -2042,3 +2049,101 @@ window.onbeforeunload = () => {
     let html = document.getElementById("tabs").innerHTML;
     ipcRenderer.send("tab_view", null, "save_html", html);
 };
+/************************************以图搜图 */
+function search_img(img, type, callback) {
+    switch (type) {
+        case "baidu":
+            baidu(img, (err, url) => {
+                return callback(err, url);
+            });
+            break;
+        case "yandex":
+            yandex(img, (err, url) => {
+                return callback(err, url);
+            });
+            break;
+        case "google":
+            google(img, (err, url) => {
+                return callback(err, url);
+            });
+    }
+}
+const https = require("https");
+/**
+ * @param {string} url
+ * @param {https.RequestOptions} options
+ * @param {Function} cb 回调
+ * @param {object} write req.write(write)
+ */
+function post(url, options, write, cb) {
+    console.log(url, options);
+    var req = https.request(Object.assign(options, { method: "POST", url }), function (res) {
+        var chunks = [];
+        res.on("data", function (chunk) {
+            chunks.push(chunk);
+        });
+        res.on("end", function () {
+            var body = Buffer.concat(chunks);
+            return cb(null, JSON.parse(body.toString()));
+        });
+        res.on("error", (err) => {
+            return cb(new Error(JSON.stringify(err)), null);
+        });
+    });
+    req.on("error", () => {
+        return cb(new Error("网络或服务错误"), null);
+    });
+    req.write(write);
+    req.end();
+}
+function baidu(image, callback) {
+    var data = new URLSearchParams({ from: "pc", image }).toString();
+    post("https://graph.baidu.com/upload", { headers: { "content-type": "application/x-www-form-urlencoded" } }, data, (err, result) => {
+        if (err)
+            return callback(err, null);
+        if (result.msg != "Success")
+            return callback(new Error(JSON.stringify(err)), null);
+        console.log(result.data.url);
+        return callback(null, result.data.url);
+    });
+}
+function yandex(image, callback) {
+    var b = Buffer.from(image, "base64");
+    var url = "https://yandex.com/images-apphost/image-download?cbird=111&images_avatars_size=preview&images_avatars_namespace=images-cbir";
+    post(url, {}, b, (err, result) => {
+        if (err)
+            return callback(err, null);
+        console.log(result);
+        var img_url = result.url;
+        if (img_url) {
+            var b_url = `https://yandex.com/images/search?family=yes&rpt=imageview&url=${encodeURIComponent(img_url)}`;
+            callback(null, b_url);
+        }
+        else {
+            callback(new Error(result), null);
+        }
+    });
+}
+function google(image, callback) {
+    var form = new FormData();
+    let bstr = window.atob(image);
+    let n = bstr.length;
+    let u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    form.append("encoded_image", new Blob([u8arr], { type: "image/png" }), "eSearch.png");
+    form.append("image_content", "");
+    var url = "https://www.google.com/searchbyimage/upload";
+    fetch(url, {
+        method: "PUSH",
+        body: form,
+    })
+        .then((r) => {
+        return callback(null, r.headers.location);
+    })
+        .catch((err) => {
+        if (err)
+            return callback(err, null);
+    });
+}
