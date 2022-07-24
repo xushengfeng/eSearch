@@ -2158,11 +2158,11 @@ function google(image, callback) {
     form.append("image_content", "");
     var url = "https://www.google.com/searchbyimage/upload";
     fetch(url, {
-        method: "PUSH",
+        method: "POST",
         body: form,
     })
         .then((r) => {
-            return callback(null, (<any>r.headers).location);
+            return callback(null, r.url);
         })
         .catch((err) => {
             if (err) return callback(err, null);
