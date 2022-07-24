@@ -25,7 +25,6 @@ const run_path = path.resolve(__dirname, "");
 const { exec } = require("child_process");
 const fs = require("fs");
 const os = require("os");
-const img_search = require("./lib/image_search");
 const { t, lan } = require("./lib/translate/translate");
 
 try {
