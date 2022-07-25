@@ -1555,6 +1555,14 @@ async function create_main_window(web_page, t, about) {
     return window_name;
 }
 
+ipcMain.on("main_win", (e, arg) => {
+    switch (arg) {
+        case "close":
+            BrowserWindow.fromWebContents(e.sender).close();
+            break;
+    }
+});
+
 /**
  * 向聚焦的主页面发送事件信息
  * @param {String} m

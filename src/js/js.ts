@@ -1688,7 +1688,12 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
     if (list.length == 3 && list[0] == "image") {
         editor_push(t("图片上传中……请等候"));
         search_img(list[1], list[2] as any, (err: Error, url: string) => {
-            if (url) open_link("url", url);
+            if (url) {
+                open_link("url", url);
+                if (浏览器打开) {
+                    ipcRenderer.send("main_win", "close");
+                }
+            }
             if (err) editor_push(t("上传错误，请打开开发者工具查看详细错误"));
         });
     }
