@@ -28,8 +28,13 @@ const os = require("os");
 const { t, lan } = require("./lib/translate/translate");
 
 try {
-    const userDataPath = fs.readFileSync("preload_config").toString().trim();
-    if (userDataPath) app.setPath("userData", path.resolve(userDataPath));
+    var userDataPath = fs.readFileSync(path.join(run_path, "preload_config")).toString().trim();
+    if (app.isPackaged) {
+        userDataPath = path.join(run_path, "../../", userDataPath);
+    } else {
+        userDataPath = path.join(run_path, userDataPath);
+    }
+    if (userDataPath) app.setPath("userData", userDataPath);
 } catch (e) {}
 
 ipcMain.on("electron-store-get-data", (event) => {
