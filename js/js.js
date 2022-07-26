@@ -759,12 +759,16 @@ class editing_operation {
     delete_enter() {
         var t = editor_selections[0].get();
         let ot = "";
+        let s = format_selection(editor_selections[0]).start;
+        let e = { pg: s.pg, of: s.of };
         for (let i = 0; i < t.length; i++) {
             if (t[i] == "\n") {
                 // 换行
                 if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
                     // 结尾
                     ot += t[i];
+                    e.of = 0;
+                    e.pg += 1;
                 }
                 else {
                     if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
@@ -773,15 +777,20 @@ class editing_operation {
                     }
                     else {
                         ot += " ";
+                        e.of += 1;
                     }
                 }
             }
             else {
                 // 正常行内字符
                 ot += t[i];
+                e.of += 1;
             }
         }
         editor_selections[0].replace(ot);
+        editor_selections[0].start = s;
+        editor_selections[0].end = e;
+        editor_selections[0].render();
     }
 }
 var edit = new editing_operation();
