@@ -29,12 +29,14 @@ const { t, lan } = require("./lib/translate/translate");
 
 try {
     var userDataPath = fs.readFileSync(path.join(run_path, "preload_config")).toString().trim();
-    if (app.isPackaged) {
-        userDataPath = path.join(run_path, "../../", userDataPath);
-    } else {
-        userDataPath = path.join(run_path, userDataPath);
+    if (userDataPath) {
+        if (app.isPackaged) {
+            userDataPath = path.join(run_path, "../../", userDataPath);
+        } else {
+            userDataPath = path.join(run_path, userDataPath);
+        }
+        app.setPath("userData", userDataPath);
     }
-    if (userDataPath) app.setPath("userData", userDataPath);
 } catch (e) {}
 
 ipcMain.on("electron-store-get-data", (event) => {
