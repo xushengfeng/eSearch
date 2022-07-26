@@ -747,9 +747,27 @@ class editing_operation {
     }
     delete_enter() {
         var t = editor_selections[0].get();
-        var x = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "" : " ";
-        t = t.replace(/(?<=[^。？！…….\?!])[\r\n]/g, x);
-        editor_selections[0].replace(t);
+        let ot = "";
+        for (let i = 0; i < t.length; i++) {
+            if (t[i] == "\n") {
+                // 换行
+                if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
+                    // 结尾
+                    ot += t[i];
+                } else {
+                    if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
+                        // 上一行末与此行首为中文字符
+                        ot += "";
+                    } else {
+                        ot += " ";
+                    }
+                }
+            } else {
+                // 正常行内字符
+                ot += t[i];
+            }
+        }
+        editor_selections[0].replace(ot);
     }
 }
 var edit = new editing_operation();
