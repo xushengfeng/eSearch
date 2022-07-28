@@ -26,12 +26,12 @@
     "uiohook-napi": "^1.2.0"
   },
   "devDependencies": {
-    "electron": "^18.1.0",
-    "electron-builder": "^23.0.3",
-    "electron-rebuild": "^3.2.7",
-    "node-abi": "^3.15.0"
+    "electron": "^19.0.10",
+    "electron-builder": "^23.1.0",
+    "electron-rebuild": "^3.2.8",
+    "node-abi": "^3.22.0"
   },
-  "rebuild": "npm rebuild --runtime=electron --target=18.1.0 --disturl=https://atom.io/download/atom-shell --abi=103",
+  "rebuild": "npm rebuild --runtime=electron --target=19.0.10 --disturl=https://atom.io/download/atom-shell --abi=103",
   "build": {
     "appId": "com.esearch.app",
     "directories": {
