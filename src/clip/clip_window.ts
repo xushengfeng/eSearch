@@ -225,10 +225,17 @@ document.getElementById("ocr引擎").oninput = () => {
     tool_ocr_f();
 };
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
+
+const ocr = require("./ocr/ocr");
+
 function tool_ocr_f() {
     var type = ocr引擎.value;
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
-        ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
+        ocr(c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type, (err, r) => {
+            console.log(r);
+
+            ipcRenderer.send("clip_main_b", "ocr", [err, r]);
+        });
     });
 
     scan_line();

@@ -22,60 +22,33 @@ module.exports = ocr;
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-function local_ocr(arg, callback) {
-    var tmp_path = path.join(os.tmpdir(), "/eSearch/ocr.png"),
-        ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
+async function local_ocr(arg, callback) {
+    var ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
     var model_path = path.join(ocr_path, "ppocr_model");
-    var det = store.get("OCR.det") || path.join(model_path, "inference/ch_PP-OCRv2_det_infer"),
-        rec = store.get("OCR.rec") || path.join(model_path, "inference/ch_PP-OCRv2_rec_infer"),
+    var detp = store.get("OCR.det") || path.join(model_path, "inference/ch_PP-OCRv2_det_infer.onnx"),
+        recp = store.get("OCR.rec") || path.join(model_path, "inference/ch_PP-OCRv2_rec_infer.onnx"),
         字典 = store.get("OCR.字典") || path.join(model_path, "ppocr_keys_v1.txt");
     console.log(ocr_path);
-    fs.writeFile(tmp_path, Buffer.from(arg, "base64"), async (err) => {
-        if (err) callback(err);
-        switch (process.platform) {
-            case "linux":
-                exec(
-                    `cd ${model_path}/ && export LD_LIBRARY_PATH=${ocr_path} && 
-                ${ocr_path}/ppocr --det_model_dir=${det} \
-                --rec_model_dir=${rec} \
-                --char_list_file=${字典} \
-                --image_dir=${tmp_path}`,
-                    (e, result) => {
-                        if (e) console.log(e);
-                        result = result.split(/[\r\n]/);
-                        result = result.slice(0, result.length - 1);
-                        result.reverse();
-                        result = result.join("\n");
-                        return callback(e, result);
-                    }
-                );
-                break;
-            case "win32":
-                exec(
-                    `CHCP 65001 && ${ocr_path}\\ppocr.exe --det_model_dir=${det} --rec_model_dir=${rec} --char_list_file=${字典} --image_dir=${tmp_path}`,
-                    (e, result) => {
-                        if (e) console.log(e);
-                        result = result.split(/\n/);
-                        result = result.slice(1, result.length - 1);
-                        result.reverse();
-                        result = result.join("\n");
-                        return callback(e, result);
-                    }
-                );
-                break;
-            case "darwin":
-                model_path = model_path.replace("\\ ", " ");
-                exec(
-                    `source ${ocr_path}/env/bin/activate && ${ocr_path}/env/bin/python ${ocr_path}/ppocr/tools/infer/predict_system.py --image_dir="${tmp_path}" --det_model_dir="${model_path}/${det}" --rec_model_dir="${model_path}/${rec}" --use_gpu=False --rec_char_dict_path="${model_path}/ppocr_keys_v1.txt"
-                    `,
-                    (e, result) => {
-                        if (e) console.log(e);
-                        return callback(e, result);
-                    }
-                );
-                break;
+    const lo = require("./local_ocr");
+    const ort = require("onnxruntime-node");
+    const det = await ort.InferenceSession.create(detp);
+    const rec = await ort.InferenceSession.create(recp);
+    let dic = fs.readFileSync(字典).toString().split("\n");
+    let img = document.createElement("img");
+    img.src = "data:image/png;base64," + arg;
+    img.onload = async () => {
+        let canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        let l = await lo(canvas.getContext("2d").getImageData(0, 0, img.width, img.height), det, rec, dic);
+        console.log(l);
+        let t = "";
+        for (let i of l) {
+            t += i.text + "\n";
         }
-    });
+        callback(null, t);
+    };
 }
 
 /**

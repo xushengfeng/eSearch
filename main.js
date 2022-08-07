@@ -511,7 +511,7 @@ function create_clip_window() {
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
-        alwaysOnTop: true,
+        // alwaysOnTop: true,
         fullscreenable: true,
         transparent: true,
         frame: false,
@@ -544,7 +544,7 @@ function create_clip_window() {
                 n_full_screen();
                 break;
             case "ocr":
-                the_ocr(event, arg);
+                the_ocr(event, arg[0],arg[1]);
                 break;
             case "search":
                 image_search(event, arg);
@@ -679,21 +679,21 @@ function n_full_screen() {
     clip_window.hide();
 }
 
-function the_ocr(event, arg) {
-    ocr(arg[0], arg[1], (err, result) => {
-        if (err) {
-            event.sender.send("ocr_back", "else");
-            dialog.showMessageBox({
-                title: t("错误"),
-                message: `${err}`,
-                buttons: [t("确定")],
-                icon: `${run_path}/assets/logo/warning.png`,
-            });
-        } else {
-            event.sender.send("ocr_back", "ok");
-            create_main_window("index.html", [result]);
-        }
-    });
+function the_ocr(event, err, result) {
+    // ocr(arg[0], arg[1], (err, result) => {
+    if (err) {
+        event.sender.send("ocr_back", "else");
+        dialog.showMessageBox({
+            title: t("错误"),
+            message: `${err}`,
+            buttons: [t("确定")],
+            icon: `${run_path}/assets/logo/warning.png`,
+        });
+    } else {
+        event.sender.send("ocr_back", "ok");
+        create_main_window("index.html", [result]);
+    }
+    // });
 }
 
 function image_search(event, arg) {
