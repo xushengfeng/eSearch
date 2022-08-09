@@ -16,7 +16,6 @@
   "license": "GPL-3.0",
   "dependencies": {
     "color": "^4.2.3",
-    "download": "^8.0.0",
     "electron-store": "^8.0.1",
     "grapheme-splitter": "^1.0.4",
     "hotkeys-js": "^3.9.0",

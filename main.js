@@ -46,8 +46,6 @@ ipcMain.on("electron-store-get-data", (event) => {
     };
 });
 
-const ocr = require("./ocr/ocr");
-
 var store = new Store();
 
 var dev;
@@ -187,71 +185,6 @@ function arg_run(c) {
     }
 }
 
-var ocr_v = "2.5.0";
-var file_o = { linux: ["Linux.tar.gz", 210], win32: ["Windows.zip", 91], darwin: ["macOS.zip", 340] };
-
-async function download_ocr(callback) {
-    const download = require("download");
-
-    var download_path = app.getPath("userData");
-    var url = `https://download.fastgit.org/xushengfeng/eSearch-OCR/releases/download/${ocr_v}/${
-        file_o[process.platform][0]
-    }`;
-
-    let win = new BrowserWindow({ frame: false, transparent: true, width: 0, height: 0, icon: the_icon });
-    new Notification({
-        title: app.name,
-        body: `${app.name} ${t("服务正在下载中……")}`,
-        icon: `${run_path}/assets/logo/64x64.png`,
-    }).show();
-    console.log("开始下载服务");
-    await download(url, download_path, { extract: true })
-        .on("response", (res) => {
-            var download_len = 0;
-            res.on("data", function (chunk) {
-                download_len += chunk.length;
-                var p = download_len / Number(res.headers["content-length"]);
-                if (!win.isDestroyed()) {
-                    win.setProgressBar(p);
-                    win.setTitle(`${Math.round(p * 100)}%`);
-                }
-                if (p == 1) console.log("服务下载完成，解压中");
-            });
-            res.on("error", (err) => {
-                callback(err);
-            });
-            win.on("close", () => {
-                res.destroy();
-                callback(true);
-                new Notification({
-                    title: app.name,
-                    body: `${app.name} ${t("服务下载已取消")}`,
-                    icon: `${run_path}/assets/logo/64x64.png`,
-                }).show();
-            });
-        })
-        .on("error", (err) => {
-            callback(err);
-        });
-    win.setProgressBar(-1.0);
-    win.destroy();
-    callback(null);
-    new Notification({
-        title: app.name,
-        body: `${app.name} ${t("服务已下载")}${
-            process.platform == "linux" ? "" : t("，正准备安装相关的依赖，请允许安装")
-        }`,
-        icon: `${run_path}/assets/logo/64x64.png`,
-    }).show();
-    if (process.platform == "win32") {
-        exec(`cd ${download_path}\\ocr && .\\cp15e.exe`);
-    } else if (process.platform == "darwin") {
-        exec(`open -W "${download_path}/ocr/python-3.7.9-macosx10.9.pkg"`, (err) => {
-            if (!err) fs.rm(`${download_path}/ocr/python-3.7.9-macosx10.9.pkg`, () => {});
-        });
-    }
-}
-
 async function rm_r(dir_path) {
     fs.rm(dir_path, { recursive: true }, (err) => {
         if (err) console.error(err);
@@ -374,65 +307,6 @@ app.whenReady().then(() => {
             icon: `${run_path}/assets/logo/64x64.png`,
         }).show();
 
-    /**
-     * 检查ocr文件是否下载，否，则下载
-     */
-    async function check_ocr() {
-        var ocr_path = path.join(app.getPath("userData"), "ocr"),
-            old_ocr_path = path.join(app.getPath("userData"), "ocr.old");
-        if (!store.get("OCR.检查OCR") || store.get("OCR.类型") != "离线") return;
-        // 已经下载
-        let download = fs.existsSync(ocr_path),
-            // 需要升级
-            update = store.get("OCR.版本") != ocr_v;
-
-        if (!download)
-            var resolve = await dialog.showMessageBox({
-                title: t("服务未下载"),
-                message: `${app.name} ${t("离线OCR 服务未安装")}\n${t("需要下载才能使用")}\n${t(
-                    "或前往 设置 配置 在线OCR"
-                )}`,
-                checkboxLabel: t("不再提示"),
-                buttons: [`${t("下载(约")}${file_o[process.platform][1]}MB+)`, t("前往 设置"), t("取消")],
-                defaultId: 0,
-                cancelId: 2,
-            });
-        if (download && update)
-            var resolve = await dialog.showMessageBox({
-                title: t("服务需要升级"),
-                message: `${app.name} ${t("离线OCR 服务版本较旧")}\n需要下载升级才能使用\n${t(
-                    "或前往 设置 配置 在线OCR"
-                )}`,
-                buttons: [`${t("下载(约")}${file_o[process.platform][1]}MB+)`, t("前往 设置"), t("取消")],
-                defaultId: 0,
-                cancelId: 2,
-            });
-        if (resolve?.checkboxChecked) store.set("OCR.检查OCR", false);
-        if (resolve?.response == 0) {
-            if (download) fs.renameSync(ocr_path, old_ocr_path);
-            download_ocr(async (err) => {
-                if (err) {
-                    if (download) fs.renameSync(old_ocr_path, ocr_path);
-                    var resolve = await dialog.showMessageBox({
-                        title: t("服务下载失败"),
-                        message: `${app.name} ${t("离线OCR 服务版本下载失败")}\n${t("请前往网站手动下载")}\n${t(
-                            "解压并移动 ocr 文件夹到"
-                        )} ${app.getPath("userData")}`,
-                        buttons: [t("前往网站"), t("取消")],
-                        defaultId: 0,
-                        cancelId: 1,
-                    });
-                    if (resolve?.response == 0) {
-                        shell.openExternal("https://github.com/xushengfeng/eSearch-OCR/releases/tag/2.5.0");
-                    }
-                } else {
-                    store.set("OCR.版本", ocr_v);
-                    if (download) rm_r(old_ocr_path);
-                }
-            });
-        } else if (resolve?.response == 1) create_main_window("setting.html");
-    }
-
     // 快捷键
     var 快捷键函数 = {
         自动识别: { f: "auto_open()" },
@@ -480,8 +354,6 @@ app.whenReady().then(() => {
     create_clip_window();
 
     nativeTheme.themeSource = store.get("全局.深色模式");
-
-    check_ocr();
 });
 
 app.on("will-quit", () => {
@@ -544,7 +416,7 @@ function create_clip_window() {
                 n_full_screen();
                 break;
             case "ocr":
-                the_ocr(event, arg[0],arg[1]);
+                the_ocr(event, arg[0], arg[1]);
                 break;
             case "search":
                 image_search(event, arg);
@@ -938,12 +810,6 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             contextMenu.items[5].submenu.items[0].checked = store.get("关闭窗口.失焦.主页面");
             contextMenu.items[6].checked = store.get("浏览器中打开");
             tray.setContextMenu(contextMenu);
-            break;
-        case "下载离线OCR":
-            download_ocr();
-            break;
-        case "删除离线OCR":
-            rm_r(path.join(app.getPath("userData"), "ocr"));
             break;
         case "set_default_setting":
             store.clear();
@@ -1862,7 +1728,6 @@ var default_setting = {
     },
     OCR: {
         类型: "离线",
-        检查OCR: true,
         离线切换: true,
         det: "",
         rec: "",
