@@ -59,14 +59,18 @@
     "linux": {
       "category": "Utility",
       "target": [
-        "deb"
+        "tar.gz",
+        "deb",
+        "rpm"
       ],
       "files": [
         "!.vscode",
         "!.github",
         "!assets/logo/icon.icns",
         "!assets/logo/icon.ico",
-        "!src"
+        "!src",
+        "!node_modules/onnxruntime-node/bin/napi-v3/win32",
+        "!node_modules/onnxruntime-node/bin/napi-v3/darwin"
       ]
     },
     "mac": {
@@ -78,7 +82,9 @@
         "!assets/logo/1024x1024.png",
         "!assets/logo/512x512.png",
         "!assets/logo/icon.ico",
-        "!src"
+        "!src",
+        "!node_modules/onnxruntime-node/bin/napi-v3/win32",
+        "!node_modules/onnxruntime-node/bin/napi-v3/linux"
       ]
     },
     "win": {
@@ -95,7 +101,9 @@
         "!assets/logo/icon.icns",
         "!assets/logo/1024x1024.png",
         "!assets/logo/512x512.png",
-        "!src"
+        "!src",
+        "!node_modules/onnxruntime-node/bin/napi-v3/linux",
+        "!node_modules/onnxruntime-node/bin/napi-v3/darwin"
       ]
     },
     "nsis": {
