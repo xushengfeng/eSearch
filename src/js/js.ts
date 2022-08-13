@@ -1720,6 +1720,7 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
                 if (浏览器打开) {
                     ipcRenderer.send("main_win", "close");
                 }
+                ipcRenderer.send("main_win", "image_search", true);
             }
             if (err) editor_push(t("上传错误，请打开开发者工具查看详细错误"));
         });
@@ -1730,6 +1731,7 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
         ocr(list[1], list[2] as any, (err: Error, text: string) => {
             if (text) {
                 editor_push(text);
+                ipcRenderer.send("main_win", "ocr", true);
             }
             if (err) editor_push(t("上传错误，请打开开发者工具查看详细错误"));
         });

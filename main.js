@@ -551,14 +551,16 @@ function n_full_screen() {
     clip_window.hide();
 }
 
+var ocr_event;
 function ocr(event, arg) {
     create_main_window("index.html", ["ocr", ...arg]);
-    event.sender.send("ocr_back", "ok");
+    ocr_event = event;
 }
 
+var image_search_event;
 function image_search(event, arg) {
     create_main_window("index.html", ["image", arg[0], arg[1]]);
-    event.sender.send("search_back", "ok");
+    image_search_event = event;
 }
 
 var /** @type {BrowserWindow}*/ recorder, /** @type {BrowserWindow}*/ recorder1;
@@ -1323,6 +1325,15 @@ function create_ding_window(x, y, w, h, img) {
  * @type {Object.<number, BrowserWindow>}
  */
 var main_window_l = {};
+
+/**
+ * @type {BrowserWindow}
+ */
+var ocr_run_window;
+/**
+ * @type {BrowserWindow}
+ */
+var image_search_window;
 /**
  * @type {Object.<number, Array.<number>>}
  */
@@ -1361,8 +1372,15 @@ async function create_main_window(web_page, t, about) {
     if (store.get("开启代理")) await main_window.webContents.session.setProxy(store.get("代理"));
 
     if (dev) main_window.webContents.openDevTools();
+
+    if (t[0] == "image") {
+        image_search_window = main_window;
+    } else if (t[0] == "ocr") {
+        ocr_run_window = main_window;
+    }
+
     main_window.webContents.on("did-finish-load", () => {
-        main_window.show();
+        if (t[0] != "image" && t[0] != "ocr") main_window.show();
         main_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
@@ -1416,10 +1434,24 @@ async function create_main_window(web_page, t, about) {
     return window_name;
 }
 
-ipcMain.on("main_win", (e, arg) => {
+ipcMain.on("main_win", (e, arg, arg1) => {
     switch (arg) {
         case "close":
             BrowserWindow.fromWebContents(e.sender).close();
+            break;
+        case "ocr":
+            if (arg1) {
+                ocr_event.sender.send("ocr_back", "ok");
+                ocr_run_window.show();
+                ocr_run_window = null;
+            }
+            break;
+        case "image_search":
+            if (arg1) {
+                image_search_event.sender.send("search_back", "ok");
+                image_search_window.show();
+                image_search_window = null;
+            }
             break;
     }
 });
