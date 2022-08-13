@@ -50,10 +50,10 @@ var store = new Store();
 
 var dev;
 // 自动开启开发者模式
-if (app.isPackaged || process.argv.includes("-n")) {
-    dev = false;
-} else {
+if (process.argv.includes("-d")) {
     dev = true;
+} else {
+    dev = false;
 }
 
 if (!store.get("硬件加速")) {
@@ -154,7 +154,7 @@ if (!isFirstInstance) {
  * @param {string[]} c 命令
  */
 function arg_run(c) {
-    if (c.includes("-n")) dev = false;
+    if (c.includes("-d")) dev = true;
     switch (true) {
         case c.includes("-a"):
             auto_open();
