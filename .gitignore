@@ -4,7 +4,7 @@ readme/todo.md
 out/
 eSearch
 .VSCodeCounter/
-ocr/ppocr/ocr
+ocr/ppocr
 .DS_Store
 build
 preload_config

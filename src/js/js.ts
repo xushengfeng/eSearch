@@ -2235,11 +2235,10 @@ function ocr(img: string, type: "离线" | "baidu" | "youdao", callback: Functio
  * @param {Function} callback 回调
  */
 async function local_ocr(arg: string, callback: Function) {
-    var ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
-    var model_path = path.join(ocr_path, "ppocr_model");
-    var detp = store.get("OCR.det") || path.join(model_path, "inference/ch_PP-OCRv2_det_infer.onnx"),
-        recp = store.get("OCR.rec") || path.join(model_path, "inference/ch_PP-OCRv2_rec_infer.onnx"),
-        字典 = store.get("OCR.字典") || path.join(model_path, "ppocr_keys_v1.txt");
+    let ocr_path = path.join(__dirname,"/ocr/ppocr");
+    let detp = store.get("OCR.det") || path.join(ocr_path, "ch_PP-OCRv2_det_infer.onnx"),
+        recp = store.get("OCR.rec") || path.join(ocr_path, "ch_PP-OCRv2_rec_infer.onnx"),
+        字典 = store.get("OCR.字典") || path.join(ocr_path, "ppocr_keys_v1.txt");
     console.log(ocr_path);
     const lo = require("./ocr/local_ocr");
     await lo.init({
