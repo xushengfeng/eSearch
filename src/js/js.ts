@@ -1726,7 +1726,7 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
     }
 
     if (list.length == 3 && list[0] == "ocr") {
-        editor_push(t("图片上传中……请等候"));
+        editor_push(t("图片识别中……请等候"));
         ocr(list[1], list[2] as any, (err: Error, text: string) => {
             if (text) {
                 editor_push(text);
@@ -2232,7 +2232,7 @@ function ocr(img: string, type: "离线" | "baidu" | "youdao", callback: Functio
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-async function local_ocr(arg, callback) {
+async function local_ocr(arg: string, callback: Function) {
     var ocr_path = store.path.replace("config.json", "ocr").replace(" ", "\\ ");
     var model_path = path.join(ocr_path, "ppocr_model");
     var detp = store.get("OCR.det") || path.join(model_path, "inference/ch_PP-OCRv2_det_infer.onnx"),
@@ -2240,10 +2240,11 @@ async function local_ocr(arg, callback) {
         字典 = store.get("OCR.字典") || path.join(model_path, "ppocr_keys_v1.txt");
     console.log(ocr_path);
     const lo = require("./ocr/local_ocr");
-    const ort = require("onnxruntime-node");
-    const det = await ort.InferenceSession.create(detp);
-    const rec = await ort.InferenceSession.create(recp);
-    let dic = fs.readFileSync(字典).toString().split("\n");
+    await lo.init({
+        det_path: detp,
+        rec_path: recp,
+        dic_path: 字典,
+    });
     let img = document.createElement("img");
     img.src = "data:image/png;base64," + arg;
     img.onload = async () => {
@@ -2251,7 +2252,7 @@ async function local_ocr(arg, callback) {
         canvas.width = img.width;
         canvas.height = img.height;
         canvas.getContext("2d").drawImage(img, 0, 0);
-        let l = await lo(canvas.getContext("2d").getImageData(0, 0, img.width, img.height), det, rec, dic);
+        let l = await lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height));
         console.log(l);
         let t = "";
         for (let i of l) {
