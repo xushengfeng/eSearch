@@ -54,6 +54,7 @@
         "role": "Editor"
       }
     ],
+    "asar": false,
     "beforePack": "./before_pack.js",
     "linux": {
       "category": "Utility",
