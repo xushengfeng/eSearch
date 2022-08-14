@@ -2208,11 +2208,11 @@ function ocr(img, type, callback) {
  * @param {Function} callback 回调
  */
 async function local_ocr(type, arg, callback) {
-    let ocr_path = type == "默认" ? path.join(__dirname, "/ocr/ppocr") : "";
     let l;
     for (let i of store.get("离线OCR"))
         if (i[0] == type)
             l = i;
+    let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "/ocr/ppocr"); // 默认模型路径
     let detp = path.join(ocr_path, l[1]), recp = path.join(ocr_path, l[2]), 字典 = path.join(ocr_path, l[3]);
     console.log(ocr_path);
     const lo = require("./ocr/local_ocr");
