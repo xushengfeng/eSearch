@@ -362,10 +362,12 @@ document.getElementById("OCR类型").onclick = ocr_d_open;
 document.getElementById("记住OCR引擎").checked = store.get("OCR.记住");
 document.getElementById("离线切换").checked = store.get("OCR.离线切换");
 function OCR模型展示() {
+    document.getElementById("OCR模型列表").innerHTML = "";
     let all = store.get("离线OCR");
     for (let i in all) {
         let d = document.createElement("div");
         let t = document.createElement("input");
+        t.type = "text";
         t.value = all[i][0];
         t.oninput = () => {
             all[i][0] = t.value;
@@ -373,6 +375,7 @@ function OCR模型展示() {
         };
         d.append(t);
         let c = document.createElement("button");
+        c.innerHTML = `<img src="./assets/icons/close.svg" class="icon">`;
         c.onclick = () => {
             all.splice(i, 1);
             d.remove();

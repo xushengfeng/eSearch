@@ -284,7 +284,22 @@ comment {
     width: 100px;
 }
 
+#OCR模型列表 > div {
+    display: flex;
+    align-items: center;
+}
+#OCR模型列表 > div > button {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+}
+#OCR模型列表 > div > button > .icon {
+    width: 20px;
+}
+
 #OCR拖拽放置区 {
+    margin-top: 16px;
     width: 100%;
     height: 200px;
     display: flex;
