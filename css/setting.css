@@ -284,6 +284,11 @@ comment {
     width: 100px;
 }
 
+#OCR拖拽放置区 {
+    width: 100%;
+    height: 200px;
+}
+
 #user_data_divs {
     display: none;
 }

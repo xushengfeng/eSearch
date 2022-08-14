@@ -766,19 +766,12 @@
                 <h2>
                     <t>离线OCR</t>
                 </h2>
-                <t>det模型</t>：<input type="text" spellcheck="false" id="ocr_det" placeholder="{目录}"><button
-                    id="ocr_det_b">
-                    <img src="./assets/icons/file.svg" class="icon">
-                </button>
-                <br>
-                <t>rec模型</t>：<input type="text" spellcheck="false" id="ocr_rec" placeholder="{目录}"><button
-                    id="ocr_rec_b">
-                    <img src="./assets/icons/file.svg" class="icon">
-                </button>
-                <br>
-                <t>字典</t>：<input type="text" spellcheck="false" id="ocr_字典" placeholder="{位置}"><button id="ocr_字典_b">
-                    <img src="./assets/icons/file.svg" class="icon">
-                </button>
+                <div id="离线OCR模型">
+                    <div id="OCR模型列表"></div>
+                    <div id="OCR拖拽放置区">
+                        <t>拖拽文件夹到此处</t>
+                    </div>
+                </div>
 
                 <h2>
                     <t>在线OCR</t>

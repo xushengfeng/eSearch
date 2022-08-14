@@ -440,22 +440,53 @@ function ocr_d_open() {
 document.getElementById("OCR类型").onclick = ocr_d_open;
 (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked = store.get("OCR.记住");
 (<HTMLInputElement>document.getElementById("离线切换")).checked = store.get("OCR.离线切换");
-(<HTMLInputElement>document.getElementById("ocr_det")).value = store.get("OCR.det");
-(<HTMLInputElement>document.getElementById("ocr_rec")).value = store.get("OCR.rec");
-(<HTMLInputElement>document.getElementById("ocr_字典")).value = store.get("OCR.字典");
-document.getElementById("ocr_det_b").onclick = () => {
-    ipcRenderer.send("setting", "open_dialog", { properties: ["openDirectory"] }, "ocr_det");
+
+function OCR模型展示() {
+    let all = store.get("离线OCR");
+    for (let i in all) {
+        let d = document.createElement("div");
+        let t = document.createElement("input");
+        t.value = all[i][0];
+        t.oninput = () => {
+            all[i][0] = t.value;
+            store.set("离线OCR", all);
+        };
+        d.append(t);
+        let c = document.createElement("button");
+        c.onclick = () => {
+            all.splice(i, 1);
+            d.remove();
+            store.set("离线OCR", all);
+        };
+        d.append(c);
+        document.getElementById("OCR模型列表").append(d);
+    }
+}
+OCR模型展示();
+
+document.getElementById("OCR拖拽放置区").ondragover = (e) => {
+    e.preventDefault();
 };
-document.getElementById("ocr_rec_b").onclick = () => {
-    ipcRenderer.send("setting", "open_dialog", { properties: ["openDirectory"] }, "ocr_rec");
-};
-document.getElementById("ocr_字典_b").onclick = () => {
-    ipcRenderer.send(
-        "setting",
-        "open_dialog",
-        { filters: [{ name: "txt", extensions: ["txt"] }], properties: ["openFile"] },
-        "ocr_字典"
-    );
+document.getElementById("OCR拖拽放置区").ondrop = (e) => {
+    e.preventDefault();
+    console.log(e);
+    let fs = e.dataTransfer.files;
+    let l = [`新模型${crypto.randomUUID().slice(0, 7)}`];
+    for (let f of fs) {
+        // @ts-ignore
+        let path = f.path as string;
+        if (path.includes("det")) {
+            l[1] = path;
+        } else if (path.includes("rec")) {
+            l[2] = path;
+        } else {
+            l[3] = path;
+        }
+    }
+    let all = store.get("离线OCR");
+    all.push(l);
+    store.set("离线OCR", all);
+    OCR模型展示();
 };
 
 (<HTMLInputElement>document.getElementById("baidu_ocr_url")).value = store.get("在线OCR.baidu.url");
