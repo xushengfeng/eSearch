@@ -17,7 +17,10 @@
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
             },
-            "args": ["."]
+            "args": [
+                ".",
+                "-d"
+            ]
         },
         {
             "name": "Debug Main Process",
@@ -28,7 +31,10 @@
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
             },
-            "args": ["."]
+            "args": [
+                ".",
+                "-d"
+            ]
         }
     ]
 }
