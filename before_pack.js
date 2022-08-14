@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const https = require("https");
+const download = require("download");
 exports.default = async function () {
     // 重写存储器
     const storeindex = path.join(__dirname, "/node_modules/electron-store/index.js");
@@ -12,31 +12,27 @@ exports.default = async function () {
             .replace(/ipcMain\.on\(.*\n.*\n.*?;/, "")
     );
 
-    function download(url, path_name) {
-        return new Promise((rj) => {
-            https.get(url, (res) => {
-                const file = fs.createWriteStream(path_name);
-                res.pipe(file);
-                file.on("finish", () => {
-                    file.close();
-                    rj();
-                });
-            });
-        });
+    if (!fs.existsSync("./ocr/ppocr/默认")) {
+        fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
+        fs.writeFileSync(
+            "./ocr/ppocr/默认/ch_PP-OCRv2_det_infer.onnx",
+            await download(
+                "https://github.com/xushengfeng/eSearch-OCR/releases/download/3.0.0/ch_PP-OCRv2_det_infer.onnx",
+                { rejectUnauthorized: false }
+            )
+        );
+        fs.writeFileSync(
+            "./ocr/ppocr/默认/ch_PP-OCRv2_rec_infer.onnx",
+            await download(
+                "https://github.com/xushengfeng/eSearch-OCR/releases/download/3.0.0/ch_PP-OCRv2_rec_infer.onnx",
+                { rejectUnauthorized: false }
+            )
+        );
+        fs.writeFileSync(
+            "./ocr/ppocr/默认/ppocr_keys_v1.txt",
+            await download("https://github.com/xushengfeng/eSearch-OCR/releases/download/3.0.0/ppocr_keys_v1.txt", {
+                rejectUnauthorized: false,
+            })
+        );
     }
-
-    if (!fs.existsSync("./ocr/ppocr")) fs.mkdirSync("./ocr/ppocr");
-
-    await download(
-        "https://bj.bcebos.com/paddle2onnx/model_zoo/ch_PP-OCRv2_det_infer.onnx",
-        "./ocr/ppocr/ch_PP-OCRv2_det_infer.onnx"
-    );
-    await download(
-        "https://bj.bcebos.com/paddle2onnx/model_zoo/ch_PP-OCRv2_rec_infer.onnx",
-        "./ocr/ppocr/ch_PP-OCRv2_rec_infer.onnx"
-    );
-    await download(
-        "https://raw.fastgit.org/PaddlePaddle/PaddleOCR/release/2.5/ppocr/utils/ppocr_keys_v1.txt",
-        "./ocr/ppocr/ppocr_keys_v1.txt"
-    );
 };

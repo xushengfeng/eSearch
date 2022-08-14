@@ -26,6 +26,7 @@
     "uiohook-napi": "^1.2.0"
   },
   "devDependencies": {
+    "download": "^8.0.0",
     "electron": "^19.0.10",
     "electron-builder": "^23.1.0",
     "electron-rebuild": "^3.2.8",
