@@ -426,7 +426,22 @@ document.getElementById("main").onclick = () => {
     window.location.href = "index.html";
 };
 
-(<HTMLInputElement>document.getElementById("OCR类型")).value = store.get("OCR.类型");
+if (store.get("OCR.类型").slice(0, 2) == "离线") {
+    (<HTMLInputElement>document.getElementById("OCR类型")).value = "离线";
+} else {
+    (<HTMLInputElement>document.getElementById("OCR类型")).value = store.get("OCR.类型");
+}
+function get_ocr_type() {
+    if ((<HTMLInputElement>document.getElementById("OCR类型")).value == "离线") {
+        if (store.get("OCR.类型").slice(0, 2) == "离线") {
+            return store.get("OCR.类型");
+        } else {
+            return "离线" + store.get("离线OCR")?.[0]?.[0] || "";
+        }
+    } else {
+        return (<HTMLInputElement>document.getElementById("OCR类型")).value;
+    }
+}
 ocr_d_open();
 function ocr_d_open() {
     (<HTMLDetailsElement>document.getElementById("baidu_details")).open = false;
@@ -715,10 +730,10 @@ function save_setting() {
     store.set("历史记录设置", 历史记录设置);
     store.set("时间格式", (<HTMLInputElement>document.getElementById("时间格式")).value);
     store.set("OCR", {
-        类型: (<HTMLInputElement>document.getElementById("OCR类型")).value,
+        类型: get_ocr_type(),
         离线切换: (<HTMLInputElement>document.getElementById("离线切换")).checked,
         记住: (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked
-            ? store.get("OCR.记住") || (<HTMLInputElement>document.getElementById("OCR类型")).value
+            ? store.get("OCR.记住") || get_ocr_type()
             : false,
         版本: store.get("OCR.版本"),
     });
