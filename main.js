@@ -1373,14 +1373,14 @@ async function create_main_window(web_page, t, about) {
 
     if (dev) main_window.webContents.openDevTools();
 
-    if (t[0] == "image") {
+    if (t?.[0] == "image") {
         image_search_window = main_window;
-    } else if (t[0] == "ocr") {
+    } else if (t?.[0] == "ocr") {
         ocr_run_window = main_window;
     }
 
     main_window.webContents.on("did-finish-load", () => {
-        if (t[0] != "image" && t[0] != "ocr") main_window.show();
+        if (t?.[0] != "image" && t?.[0] != "ocr") main_window.show();
         main_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
@@ -1752,11 +1752,7 @@ var default_setting = {
         记住: false,
     },
     离线OCR: {
-        默认: [
-            "默认/ch_PP-OCRv2_det_infer.onnx",
-            "默认/ch_PP-OCRv2_rec_infer.onnx",
-            "默认/ppocr_keys_v1.txt",
-        ],
+        默认: ["默认/ch_PP-OCRv2_det_infer.onnx", "默认/ch_PP-OCRv2_rec_infer.onnx", "默认/ppocr_keys_v1.txt"],
     },
     在线OCR: {
         baidu: {
