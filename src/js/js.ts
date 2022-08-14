@@ -2218,9 +2218,9 @@ function google(image, callback) {
 
 /************************************OCR */
 
-function ocr(img: string, type: "离线" | "baidu" | "youdao", callback: Function) {
-    if (type == "离线") {
-        local_ocr(img, (err, r) => {
+function ocr(img: string, type: string | "baidu" | "youdao", callback: Function) {
+    if (type.slice(0, 2) == "离线") {
+        local_ocr(type.slice(2), img, (err, r) => {
             return callback(err, r);
         });
     } else {
@@ -2234,11 +2234,11 @@ function ocr(img: string, type: "离线" | "baidu" | "youdao", callback: Functio
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-async function local_ocr(arg: string, callback: Function) {
-    let ocr_path = path.join(__dirname, "/ocr/ppocr");
-    let detp = store.get("OCR.det") || path.join(ocr_path, store.get("离线OCR.默认")[0]),
-        recp = store.get("OCR.rec") || path.join(ocr_path, store.get("离线OCR.默认")[1]),
-        字典 = store.get("OCR.字典") || path.join(ocr_path, store.get("离线OCR.默认")[2]);
+async function local_ocr(type: string, arg: string, callback: Function) {
+    let ocr_path = type == "默认" ? path.join(__dirname, "/ocr/ppocr") : "";
+    let detp = path.join(ocr_path, store.get(`离线OCR.${type}`)[0]),
+        recp = path.join(ocr_path, store.get(`离线OCR.${type}`)[1]),
+        字典 = path.join(ocr_path, store.get(`离线OCR.${type}`)[2]);
     console.log(ocr_path);
     const lo = require("./ocr/local_ocr");
     await lo.init({

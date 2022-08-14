@@ -219,6 +219,13 @@ function tool_close_f() {
 }
 // OCR
 var ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
+for (let i in store.get("离线OCR")) {
+    let o = document.createElement("option");
+    o.innerText = `离线（${i}）`;
+    o.value = `离线${i}`;
+    ocr引擎.append(o);
+}
+ocr引擎.insertAdjacentHTML("beforeend", `<option value="baidu">百度</option><option value="youdao">有道</option>`);
 ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
 document.getElementById("ocr引擎").oninput = () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
