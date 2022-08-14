@@ -1749,10 +1749,14 @@ var default_setting = {
     OCR: {
         类型: "离线",
         离线切换: true,
-        det: "",
-        rec: "",
-        字典: "",
         记住: false,
+    },
+    离线OCR: {
+        默认: [
+            "默认/ch_PP-OCRv2_det_infer.onnx",
+            "默认/ch_PP-OCRv2_rec_infer.onnx",
+            "默认/ppocr_keys_v1.txt",
+        ],
     },
     在线OCR: {
         baidu: {

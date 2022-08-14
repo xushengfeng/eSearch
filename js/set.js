@@ -571,9 +571,6 @@ function save_setting() {
     store.set("OCR", {
         类型: document.getElementById("OCR类型").value,
         离线切换: document.getElementById("离线切换").checked,
-        det: document.getElementById("ocr_det").value,
-        rec: document.getElementById("ocr_rec").value,
-        字典: document.getElementById("ocr_字典").value,
         记住: document.getElementById("记住OCR引擎").checked
             ? store.get("OCR.记住") || document.getElementById("OCR类型").value
             : false,
