@@ -287,6 +287,14 @@ comment {
 #OCR拖拽放置区 {
     width: 100%;
     height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+.拖拽突出 {
+    box-shadow: var(--shadow);
 }
 
 #user_data_divs {

@@ -385,6 +385,10 @@ function OCR模型展示() {
 OCR模型展示();
 document.getElementById("OCR拖拽放置区").ondragover = (e) => {
     e.preventDefault();
+    document.getElementById("OCR拖拽放置区").classList.add("拖拽突出");
+};
+document.getElementById("OCR拖拽放置区").ondragleave = () => {
+    document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     e.preventDefault();
@@ -408,6 +412,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     all.push(l);
     store.set("离线OCR", all);
     OCR模型展示();
+    document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 document.getElementById("baidu_ocr_url").value = store.get("在线OCR.baidu.url");
 document.getElementById("baidu_ocr_id").value = store.get("在线OCR.baidu.id");
