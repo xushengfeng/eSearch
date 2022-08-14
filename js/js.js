@@ -2209,7 +2209,11 @@ function ocr(img, type, callback) {
  */
 async function local_ocr(type, arg, callback) {
     let ocr_path = type == "默认" ? path.join(__dirname, "/ocr/ppocr") : "";
-    let detp = path.join(ocr_path, store.get(`离线OCR.${type}`)[0]), recp = path.join(ocr_path, store.get(`离线OCR.${type}`)[1]), 字典 = path.join(ocr_path, store.get(`离线OCR.${type}`)[2]);
+    let l;
+    for (let i of store.get("离线OCR"))
+        if (i[0] == type)
+            l = i;
+    let detp = path.join(ocr_path, l[1]), recp = path.join(ocr_path, l[2]), 字典 = path.join(ocr_path, l[3]);
     console.log(ocr_path);
     const lo = require("./ocr/local_ocr");
     await lo.init({
