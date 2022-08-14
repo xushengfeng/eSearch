@@ -359,7 +359,6 @@ function ocr_d_open() {
     }
 }
 document.getElementById("OCR类型").onclick = ocr_d_open;
-document.getElementById("检查OCR").checked = store.get("OCR.检查OCR");
 document.getElementById("记住OCR引擎").checked = store.get("OCR.记住");
 document.getElementById("离线切换").checked = store.get("OCR.离线切换");
 document.getElementById("ocr_det").value = store.get("OCR.det");
@@ -373,12 +372,6 @@ document.getElementById("ocr_rec_b").onclick = () => {
 };
 document.getElementById("ocr_字典_b").onclick = () => {
     ipcRenderer.send("setting", "open_dialog", { filters: [{ name: "txt", extensions: ["txt"] }], properties: ["openFile"] }, "ocr_字典");
-};
-document.getElementById("下载离线OCR").onclick = () => {
-    ipcRenderer.send("setting", "下载离线OCR");
-};
-document.getElementById("删除离线OCR").onclick = () => {
-    ipcRenderer.send("setting", "删除离线OCR");
 };
 document.getElementById("baidu_ocr_url").value = store.get("在线OCR.baidu.url");
 document.getElementById("baidu_ocr_id").value = store.get("在线OCR.baidu.id");
@@ -577,7 +570,6 @@ function save_setting() {
     store.set("时间格式", document.getElementById("时间格式").value);
     store.set("OCR", {
         类型: document.getElementById("OCR类型").value,
-        检查OCR: document.getElementById("检查OCR").checked,
         离线切换: document.getElementById("离线切换").checked,
         det: document.getElementById("ocr_det").value,
         rec: document.getElementById("ocr_rec").value,
