@@ -703,8 +703,13 @@ var path_info = `<br>
                 ${t("运行目录：")}${__dirname}`;
 document.createTextNode(path_info);
 document.getElementById("user_data_divs").insertAdjacentHTML("afterend", path_info);
-document.getElementById("user_data_path").value =
-    fs.readFileSync("preload_config").toString().trim() || store.path.replace(/[/\\]config\.json/, "");
+try {
+    document.getElementById("user_data_path").value =
+        fs.readFileSync("preload_config").toString().trim() || store.path.replace(/[/\\]config\.json/, "");
+}
+catch (error) {
+    document.getElementById("user_data_path").value = store.path.replace(/[/\\]config\.json/, "");
+}
 var user_data_path_inputed = false;
 document.getElementById("user_data_path").oninput = () => {
     document.getElementById("user_data_divs").classList.add("user_data_divs");
