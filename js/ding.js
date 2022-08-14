@@ -30,13 +30,14 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     };
     // 透明
     tool_bar.querySelector("#透明度").oninput = () => {
-        img.style.opacity = `${tool_bar.querySelector("#透明度").value / 100}`;
-        tool_bar.querySelector("#透明度_p").innerHTML = tool_bar.querySelector("#透明度").value + "%";
+        img.style.opacity = `${Number(tool_bar.querySelector("#透明度").value) / 100}`;
+        tool_bar.querySelector("#透明度_p").innerHTML =
+            tool_bar.querySelector("#透明度").value + "%";
     };
     // 大小
     tool_bar.querySelector("#size > span").onblur = () => {
-        if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
-            var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
+        if (isFinite(Number(tool_bar.querySelector("#size > span").innerHTML))) {
+            var zoom = Number(tool_bar.querySelector("#size > span").innerHTML) / 100;
             if (zoom < 0.05)
                 zoom = 0.05;
             div_zoom(div, zoom, 0, 0, false);
@@ -48,8 +49,8 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     tool_bar.querySelector("#size > span").onkeydown = (e) => {
         if (e.key == "Enter") {
             e.preventDefault();
-            if (isFinite(tool_bar.querySelector("#size > span").innerHTML - 0)) {
-                var zoom = (tool_bar.querySelector("#size > span").innerHTML - 0) / 100;
+            if (isFinite(Number(tool_bar.querySelector("#size > span").innerHTML))) {
+                var zoom = Number(tool_bar.querySelector("#size > span").innerHTML) / 100;
                 if (zoom < 0.05)
                     zoom = 0.05;
                 div_zoom(div, zoom, 0, 0, false);
@@ -62,7 +63,7 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     // 滚轮缩放
     div.onwheel = (e) => {
         if (e.deltaY != 0) {
-            var zoom = (div.querySelector("#size > span").innerHTML - 0 - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
+            var zoom = (Number(div.querySelector("#size > span").innerHTML) - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
             if (zoom < 0.05)
                 zoom = 0.05;
             div_zoom(div, zoom, e.offsetX, e.offsetY, true);
@@ -85,8 +86,8 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     };
     // 放到前面
     div.onclick = () => {
-        div.style.zIndex = toppest + 1;
-        document.getElementById("dock").style.zIndex = toppest + 2;
+        div.style.zIndex = String(toppest + 1);
+        document.getElementById("dock").style.zIndex = String(toppest + 2);
         toppest += 1;
     };
     div.appendChild(tool_bar);
@@ -162,9 +163,10 @@ var o_ps;
 var window_div = null;
 var div;
 document.onmousedown = (e) => {
-    if (e.target.id == "dock" || e.target.offsetParent.id == "dock") {
+    let el = e.target;
+    if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dock_show) {
-            div = e.target;
+            div = el;
             window_div = div;
             o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
             changing = e;
@@ -172,8 +174,8 @@ document.onmousedown = (e) => {
             ipcRenderer.send("ding_ignore", false);
         }
     }
-    else if (e.target.id != "透明度" && e.target.id != "size") {
-        div = e.target;
+    else if (el.id != "透明度" && el.id != "size") {
+        div = el;
         if (div.id != "photo")
             while (div.className != "ding_photo") {
                 div = div.offsetParent;
@@ -185,10 +187,11 @@ document.onmousedown = (e) => {
     }
 };
 document.onmousemove = (e) => {
-    if (e.target.id == "dock" || e.target.offsetParent.id == "dock") {
+    let el = e.target;
+    if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dock_show) {
             if (window_div == null) {
-                div = e.target;
+                div = el;
                 cursor(div, e);
             }
             else {
@@ -198,7 +201,7 @@ document.onmousemove = (e) => {
     }
     else {
         if (window_div == null) {
-            div = e.target;
+            div = el;
             if (div.id != "photo")
                 while (div.className != "ding_photo") {
                     div = div?.offsetParent;
@@ -405,13 +408,14 @@ function resize(el, zoom) {
     }
 }
 var dock_p = store.get("ding_dock");
-document.querySelector("#dock").style.left = dock_p[0] + "px";
-document.querySelector("#dock").style.top = dock_p[1] + "px";
+const dock_el = document.getElementById("dock");
+dock_el.style.left = dock_p[0] + "px";
+dock_el.style.top = dock_p[1] + "px";
 ding_p_s("dock", [dock_p[0], dock_p[1], 10, 50]);
 var dock_show = false;
 var dock_p_s = [];
-document.querySelector("#dock").onclick = () => {
-    var dock = document.querySelector("#dock");
+dock_el.onclick = () => {
+    var dock = dock_el;
     dock_show = !dock_show;
     if (dock_show) {
         dock_p_s = [dock.offsetLeft, dock.offsetTop];
@@ -423,7 +427,12 @@ document.querySelector("#dock").onclick = () => {
         }
         dock.className = "dock";
         dock.querySelector("div").style.display = "block";
-        ding_p_s("dock", [dock.style.left.replace("px", "") - 0, 0, 200, document.querySelector("html").offsetHeight]);
+        ding_p_s("dock", [
+            Number(dock.style.left.replace("px", "")),
+            0,
+            200,
+            document.querySelector("html").offsetHeight,
+        ]);
     }
     else {
         dock.style.transition = dock.className = "";
@@ -442,7 +451,8 @@ function dock_i() {
             dock_item.style.display = "block";
             dock_item.querySelector("#i_photo").src = urls[i];
             dock_item.onclick = (e) => {
-                if (e.target.id != "i_close" && e.target.id != "i_ignore") {
+                let el = e.target;
+                if (el.id != "i_close" && el.id != "i_ignore") {
                     var div = document.getElementById(i);
                     if (div.classList.contains("minimize")) {
                         div.style.transition = "var(--transition)";
@@ -456,24 +466,27 @@ function dock_i() {
                     else {
                         back(div);
                     }
-                    div.style.zIndex = toppest + 1;
+                    div.style.zIndex = String(toppest + 1);
                     toppest += 1;
                 }
             };
-            dock_item.querySelector("#i_close").style.display = "block";
-            dock_item.querySelector("#i_close").onclick = () => {
+            const i_close = dock_item.querySelector("#i_close");
+            i_close.style.display = "block";
+            i_close.onclick = () => {
                 close(document.getElementById(i));
             };
-            dock_item.querySelector("#i_ignore").style.display = "block";
-            dock_item.querySelector("#i_ignore").setAttribute("data-ignore", "false");
+            const i_ignore = dock_item.querySelector("#i_ignore");
+            i_ignore.style.display = "block";
+            i_ignore.setAttribute("data-ignore", "false");
             var i_ignore_v = false;
-            dock_item.querySelector("#i_ignore").onclick = () => {
+            i_ignore.onclick = () => {
                 i_ignore_v = !i_ignore_v;
                 ignore(document.getElementById(i), i_ignore_v);
             };
             var i_tran_v = false;
-            dock_item.querySelector("#i_tran").style.display = "block";
-            dock_item.querySelector("#i_tran").onclick = () => {
+            const i_tran = dock_item.querySelector("#i_tran");
+            i_tran.style.display = "block";
+            i_tran.onclick = () => {
                 i_tran_v = !i_tran_v;
                 transform(document.getElementById(i), i_tran_v);
             };
