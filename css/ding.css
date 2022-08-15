@@ -38,7 +38,7 @@ body {
     user-select: none;
 }
 #tool_bar_c > div {
-    margin: 0 8px;
+    margin: 0 4px;
     display: flex;
     align-items: center;
 }
@@ -94,20 +94,20 @@ input[type="range"]::-webkit-slider-thumb {
 
 .opacity,
 .size {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     position: relative;
 }
 .opacity > .icon,
 .size > .icon {
-    width: 40px;
+    width: 32px;
 }
 #size > span {
     outline: none;
 }
 
 #b {
-    margin: 8px 8px 8px auto !important;
+    margin: 4px 4px 4px auto !important;
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: var(--transition);
@@ -120,8 +120,8 @@ input[type="range"]::-webkit-slider-thumb {
     transition: var(--transition);
     background-color: #0000;
     padding: 0;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
     position: relative;
 }
@@ -129,7 +129,7 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: var(--hover-color);
 }
 #b > button > .icon {
-    width: 40px;
+    width: 32px;
 }
 
 .minimize {
@@ -194,7 +194,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 #dock_item > #i_ignore {
-    right: 40px;
+    right: 32px;
 }
 
 #dock_item > #i_ignore:hover {
