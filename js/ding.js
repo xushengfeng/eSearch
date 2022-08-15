@@ -1,4 +1,4 @@
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, clipboard, nativeImage } = require("electron");
 var ratio = window.devicePixelRatio;
 var changing = null;
 var photos = {};
@@ -80,6 +80,9 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     tool_bar.querySelector("#close").onclick = () => {
         close(div);
     };
+    tool_bar.querySelector("#copy").onclick = () => {
+        copy(div);
+    };
     // 双击归位
     div.ondblclick = () => {
         back(div);
@@ -153,6 +156,9 @@ function close(el) {
     delete urls[el.id];
     ipcRenderer.send("ding_close", el.id);
     dock_i();
+}
+function copy(el) {
+    clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
 }
 function ding_p_s(id, p_s) {
     ipcRenderer.send("ding_p_s", id, [p_s[0] * ratio, p_s[1] * ratio, p_s[2] * ratio, p_s[3] * ratio]);
