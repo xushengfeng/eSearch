@@ -238,19 +238,6 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
-            label: t("失焦关闭"),
-            submenu: [
-                {
-                    label: t("主页面"),
-                    type: "checkbox",
-                    checked: store.get("关闭窗口.失焦.主页面"),
-                    click: (i) => {
-                        store.set("关闭窗口.失焦.主页面", i.checked);
-                    },
-                },
-            ],
-        },
-        {
             label: t("浏览器打开"),
             type: "checkbox",
             checked: store.get("浏览器中打开"),
