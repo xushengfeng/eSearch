@@ -297,7 +297,16 @@ app.whenReady().then(() => {
             },
         },
     ]);
-    tray.setContextMenu(contextMenu);
+    if (store.get("点击托盘自动截图")) {
+        tray.on("click", () => {
+            auto_open();
+        });
+        tray.on("right-click", () => {
+            tray.popUpContextMenu(contextMenu);
+        });
+    } else {
+        tray.setContextMenu(contextMenu);
+    }
 
     // 启动时提示
     if (first_open && store.get("启动提示"))
@@ -1677,6 +1686,7 @@ var default_setting = {
         快速截屏: {},
         主页面: {},
     },
+    点击托盘自动截图: true,
     其他快捷键: {
         关闭: "Escape",
         OCR: "Enter",
