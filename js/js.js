@@ -1908,6 +1908,11 @@ function count_words() {
     document.getElementById("count").innerText = `${cjk + n_cjk} ${t("字")}`;
     document.getElementById("count").title = `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${c_space}\n${t("汉字")} ${cjk}\n${t("非汉字词")} ${n_cjk}`;
 }
+/************************************失焦关闭 */
+window.onblur = () => {
+    if (store.get("关闭窗口.失焦.主页面"))
+        ipcRenderer.send("main_win", "close");
+};
 /************************************浏览器 */
 document.body.className = "fill_t";
 var li_list = [];

@@ -1420,12 +1420,6 @@ async function create_main_window(web_page, t, about) {
         delete main_window_l[window_name];
     });
 
-    main_window.on("blur", () => {
-        if (store.get("关闭窗口.失焦.主页面")) {
-            main_window.close();
-        }
-    });
-
     main_window.webContents.on("found-in-page", (e, r) => {
         main_window.webContents.send("found", r.activeMatchOrdinal, r.matches);
     });

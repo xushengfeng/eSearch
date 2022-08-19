@@ -1918,6 +1918,12 @@ function count_words() {
     )} ${cjk}\n${t("非汉字词")} ${n_cjk}`;
 }
 
+/************************************失焦关闭 */
+
+window.onblur = () => {
+    if (store.get("关闭窗口.失焦.主页面")) ipcRenderer.send("main_win", "close");
+};
+
 /************************************浏览器 */
 
 document.body.className = "fill_t";
