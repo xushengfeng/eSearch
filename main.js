@@ -708,7 +708,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                 .then(async (x) => {
                     if (x.filePath) {
                         const { createFFmpeg, fetchFile } = require("@ffmpeg/ffmpeg");
-                        const ffmpeg = createFFmpeg({ log: true });
+                        const ffmpeg = createFFmpeg({ log: false });
                         await ffmpeg.load();
                         let i_fn = path.basename(arg.源文件),
                             o_fn = path.basename(x.filePath);
@@ -745,6 +745,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                         await fs.promises.writeFile(x.filePath, ffmpeg.FS("readFile", o_fn));
                         noti(x.filePath);
                         store.set("保存.保存路径.视频", path.dirname(x.filePath));
+                        ffmpeg.exit();
                     } else {
                         new Notification({
                             title: `${app.name} ${t("保存视频失败")}`,
