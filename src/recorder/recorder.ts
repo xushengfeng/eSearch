@@ -431,7 +431,7 @@ function save() {
     store.set("录屏.转换.码率", Number(document.getElementById("码率").value));
     store.set("录屏.转换.帧率", Number(document.getElementById("帧率").value));
     store.set("录屏.转换.其他", document.getElementById("其他参数").value);
-    ipcRenderer.send("record", "ff", { 源文件: tmp_path, 参数: t, 格式 });
+    ipcRenderer.send("record", "ff", { 源文件: tmp_path, 参数: t.split(" "), 格式 });
     // ipcRenderer.send("record", "close");
 }
 

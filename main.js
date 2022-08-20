@@ -733,25 +733,37 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                     defaultPath: path.join(saved_path, `${get_file_name()}.${arg.格式}`),
                     filters: [{ name: t("视频") }],
                 })
-                .then((x) => {
+                .then(async (x) => {
                     if (x.filePath) {
-                        let ffmpeg = store.get("录屏.转换.ffmpeg") || "ffmpeg";
-                        let ml;
-                        console.log();
+                        const { createFFmpeg, fetchFile } = require("@ffmpeg/ffmpeg");
+                        const ffmpeg = createFFmpeg({ log: true });
+                        await ffmpeg.load();
+                        let i_fn = path.basename(arg.源文件),
+                            o_fn = path.basename(x.filePath);
+                        ffmpeg.FS("writeFile", i_fn, await fetchFile(arg.源文件));
                         if (arg.格式 == "gif" && store.get("录屏.转换.高质量gif")) {
-                            ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf "[in]crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1" ${x.filePath}`;
+                            await ffmpeg.run(
+                                "-i",
+                                i_fn,
+                                ...arg.参数,
+                                "-vf",
+                                `"[in]crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1"`,
+                                o_fn
+                            );
                         } else {
-                            ml = `${ffmpeg} -i ${arg.源文件} ${arg.参数} -vf crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]} ${x.filePath}`;
+                            await ffmpeg.run(
+                                "-i",
+                                i_fn,
+                                ...arg.参数,
+                                "-vf",
+                                `crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]}`,
+                                o_fn
+                            );
                         }
-                        exec(ml, (e, st) => {
-                            if (e) {
-                                console.error(e);
-                            } else {
-                                noti(x.filePath);
-                                store.set("保存.保存路径.视频", path.dirname(x.filePath));
-                            }
-                            if (!recorder.isDestroyed()) recorder.webContents.send("ff", e, st);
-                        });
+                        await fs.promises.writeFile(x.filePath, ffmpeg.FS("readFile", o_fn));
+                        noti(x.filePath);
+                        store.set("保存.保存路径.视频", path.dirname(x.filePath));
+                        if (!recorder.isDestroyed()) recorder.webContents.send("ff", null, null);
                     } else {
                         new Notification({
                             title: `${app.name} ${t("保存视频失败")}`,
