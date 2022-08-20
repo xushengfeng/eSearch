@@ -253,12 +253,18 @@ function resize() {
         document.getElementById("v_p").style.zoom = p.h / c.h;
     }
 }
-ipcRenderer.on("ff", (event, err, st) => {
-    if (err) {
-        console.error(err);
+ipcRenderer.on("ff", (e, t, arg) => {
+    if (t == "p") {
+        document.getElementById("pro").style.width = arg * 100 + "%";
+        if (arg == 1)
+            setTimeout(() => {
+                ipcRenderer.send("record", "close");
+            }, 400);
     }
-    else {
-        ipcRenderer.send("record", "close");
+    if (t == "l") {
+        const textarea = document.getElementById("log");
+        textarea.value += "\n" + arg[1];
+        textarea.scrollTop = textarea.scrollHeight;
     }
 });
 var editting = false;

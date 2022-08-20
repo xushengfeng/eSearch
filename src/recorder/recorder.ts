@@ -255,11 +255,18 @@ function resize() {
     }
 }
 
-ipcRenderer.on("ff", (event, err, st) => {
-    if (err) {
-        console.error(err);
-    } else {
-        ipcRenderer.send("record", "close");
+ipcRenderer.on("ff", (e, t, arg) => {
+    if (t == "p") {
+        document.getElementById("pro").style.width = arg * 100 + "%";
+        if (arg == 1)
+            setTimeout(() => {
+                ipcRenderer.send("record", "close");
+            }, 400);
+    }
+    if (t == "l") {
+        const textarea = <HTMLTextAreaElement>document.getElementById("log");
+        textarea.value += "\n" + arg[1];
+        textarea.scrollTop = textarea.scrollHeight;
     }
 });
 

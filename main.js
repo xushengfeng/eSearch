@@ -712,6 +712,16 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                         await ffmpeg.load();
                         let i_fn = path.basename(arg.源文件),
                             o_fn = path.basename(x.filePath);
+                        ffmpeg.setProgress(({ ratio }) => {
+                            if (!recorder.isDestroyed()) {
+                                recorder.webContents.send("ff", "p", ratio);
+                            }
+                        });
+                        ffmpeg.setLogger(({ type, message }) => {
+                            if (!recorder.isDestroyed()) {
+                                recorder.webContents.send("ff", "l", [type, message]);
+                            }
+                        });
                         ffmpeg.FS("writeFile", i_fn, await fetchFile(arg.源文件));
                         if (arg.格式 == "gif" && store.get("录屏.转换.高质量gif")) {
                             await ffmpeg.run(
@@ -735,7 +745,6 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                         await fs.promises.writeFile(x.filePath, ffmpeg.FS("readFile", o_fn));
                         noti(x.filePath);
                         store.set("保存.保存路径.视频", path.dirname(x.filePath));
-                        if (!recorder.isDestroyed()) recorder.webContents.send("ff", null, null);
                     } else {
                         new Notification({
                             title: `${app.name} ${t("保存视频失败")}`,
