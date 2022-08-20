@@ -55,7 +55,7 @@ main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width 
 main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
 var final_rect = [0, 0, main_canvas.width, main_canvas.height];
 set_setting();
-ipcRenderer.on("reflash", (a, x, w, h) => {
+ipcRenderer.on("reflash", (a, x, w, h, act) => {
     main_canvas.width = clip_canvas.width = draw_canvas.width = w;
     main_canvas.height = clip_canvas.height = draw_canvas.height = h;
     for (let i = 0; i < x.length; i += 4) {
@@ -64,6 +64,14 @@ ipcRenderer.on("reflash", (a, x, w, h) => {
     var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     main_canvas.getContext("2d").putImageData(d, 0, 0);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    switch (act) {
+        case "ocr":
+            tool_ocr_f();
+            break;
+        case "image_search":
+            tool_search_f();
+            break;
+    }
     if (store.get("框选.自动框选.开启")) {
         setTimeout(() => {
             edge();

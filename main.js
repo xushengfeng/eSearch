@@ -238,6 +238,25 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
+            label: t("OCR(文字识别)"),
+            click: () => {
+                let x = robot.screen.capture();
+                clip_window.webContents.send("reflash", x.image, x.width, x.height, "ocr");
+                x = null;
+            },
+        },
+        {
+            label: t("以图搜图"),
+            click: () => {
+                let x = robot.screen.capture();
+                clip_window.webContents.send("reflash", x.image, x.width, x.height, "image_search");
+                x = null;
+            },
+        },
+        {
+            type: "separator",
+        },
+        {
             label: t("浏览器打开"),
             type: "checkbox",
             checked: store.get("浏览器中打开"),
@@ -793,7 +812,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             break;
         case "reload_main":
             if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
-            contextMenu.items[5].checked = store.get("浏览器中打开");
+            contextMenu.items[8].checked = store.get("浏览器中打开");
             tray.popUpContextMenu(contextMenu);
             break;
         case "set_default_setting":
