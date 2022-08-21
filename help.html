@@ -26,15 +26,16 @@
             <h1>快速开始</h1>
             <p>运行<strong>eSearch</strong>。按下<kbd>Alt</kbd>+<kbd>C</kbd>或<kbd>⌥</kbd><kbd>C</kbd>即可进行截屏。当然也可以右键点击托盘处的图标，点击“截屏搜索”进行截屏。
             </p>
-            <p>此时默认框选截取全屏。</p>
+            <p>此时默认<strong>框选全屏</strong>。</p>
             <p>按下鼠标并拖动，画出框，即可框选你想要的区域。</p>
             <p>鼠标旁边有一个“工具栏”，你可以点击按钮进行<a href="#文字识别"><img src="./assets/icons/ocr.svg" class="icon">文字识别</a>、<img
                     src="./assets/icons/search.svg" class="icon">以图搜图、<img src="./assets/icons/scan.svg"
                     class="icon">扫描二维码、<img src="./assets/icons/draw.svg" class="icon">图像编辑、<img
                     src="./assets/icons/open.svg" class="icon">其他应用打开、<img src="./assets/icons/ding.svg"
-                    class="icon">固定（ding）在屏幕上、<img src="./assets/icons/copy.svg" class="icon">复制图片到剪贴板、<img
-                    src="./assets/icons/save.svg" class="icon">保存和<img src="./assets/icons/close.svg"
-                    class="icon">取消截屏搜索</p>
+                    class="icon">固定（ding）在屏幕上、<img src="./assets/icons/record.svg" class="icon">录屏、<img
+                    src="./assets/icons/long_clip.svg" class="icon">长截屏、<img src="./assets/icons/copy.svg"
+                    class="icon">复制图片到剪贴板、<img src="./assets/icons/save.svg" class="icon">保存和<img
+                    src="./assets/icons/close.svg" class="icon">取消截屏搜索</p>
             <p>进行<img src="./assets/icons/ocr.svg" class="icon">文字识别</a>或<img src="./assets/icons/scan.svg"
                     class="icon">扫描二维码后，产生的文字信息将在主页面展示。你可以在<a href="#主页面">主页面</a>进行各种文字编辑，并进行<img
                     src="./assets/icons/search.svg" class="icon">搜索和 <img src="./assets/icons/translate.svg"
@@ -47,10 +48,11 @@
             <h2 id="托盘">托盘</h2>
             <p>一般操作系统的托盘位于屏幕右上角或右下角，<strong>eSearch</strong>首次运行时，会在托盘出显示图标<img src="./assets/icon.svg" class="icon">。
             </p>
+            <p>左键点击托盘图标，进行自动搜索。</p>
             <p>右键点击托盘按钮，它会弹出几个选项：</p>
 
             <h3 id="自动搜索">自动搜索</h3>
-            <p>如果你选中了屏幕上的某些文字，<strong>eSearch</strong>将搜索它，否则开启文字识别识别屏幕文字。</p>
+            <p>如果你选中了屏幕上的某些文字，<strong>eSearch</strong>将直接搜索它，否则开启文字识别识别屏幕文字。</p>
 
             <h3 id="截屏搜索">截屏搜索</h3>
             <p>识别框选的屏幕内容进行搜索，也可以进行编辑、保存等操作。</p>
@@ -65,7 +67,7 @@
             <h2 id="截屏界面">截屏界面</h2>
 
             <h3 id="选区">选区</h3>
-            <p>默认设置下，与截屏前显示一样的、鲜艳的色彩区域为选区，选取外则是灰暗的。初始截屏默认全屏选区，这意味着选中了整个屏幕，屏幕没有灰暗处。</p>
+            <p>默认设置下，与截屏前显示一样的、鲜艳的色彩区域为选区，选区外则是灰暗的。初始截屏默认全屏选区，这意味着选中了整个屏幕，屏幕没有灰暗处。</p>
             <p>除了<img src="./assets/icons/draw.svg" class="icon">图像编辑外的操作都限于选区内。</p>
             <p>在某个位置按下鼠标左键，将在此处生成一个选区，拖动光标，选区也随之改变。释放鼠标左键，选区将不再随鼠标变化。</p>
             <p>光标位于选区边缘或选区中间时，光标会改变形状，提示可以拖动。你可以向窗口一样，通过拖动改变选区大小、位置。</p>
@@ -76,7 +78,7 @@
 
             <h3 id="大小栏">大小栏</h3>
             <p>大小栏位于选区上方。分别以像素为单位显示
-            <pre>选区左上角x坐标， 选区左上角y坐标 选区右下角x坐标， 选区右下角y坐标 选区长×选区宽</pre>等数字。</p>
+            <pre>选区左上角x坐标, 选区左上角y坐标 选区右下角x坐标, 选区右下角y坐标 选区长×选区宽</pre>等数字。</p>
             <p>大小栏的数字可编辑，光标点击你想更改的数字，改变后按下回车键<kbd>↵</kbd>，即可把数字应用到选区。注意部分数字会随其他数字的改变而改变。</p>
 
             <h3 id="鼠标栏">鼠标栏</h3>
@@ -105,14 +107,10 @@
             <h3 id="侧栏">侧栏</h3>
             <p>按下<kbd>Z</kbd>键，侧栏将会在屏幕左侧弹出。再次按下<kbd>Z</kbd>键，或点击右上角的<img src="./assets/icons/close.svg"
                     class="icon">收回侧栏。</p>
-            <p>侧栏显示了截屏记录</p>
-            <h4>截屏记录</h4>
-            <p>点击某个图片，他将替换原先的截屏并展示。点击图片右上角的<img src="./assets/icons/close.svg"
-                    class="icon">即可删除此记录。过多的截屏记录可能会造成侧栏卡顿，建议设置自动清理记录。</p>
 
             <h3 id="保存">保存</h3>
             <p>按下保存按钮，将弹出提示框来选择文件格式。目前支持PNG、JPG和SVG格式。</p>
-            <p>SVG格式是一种可编辑矢量格式，但保存到文件里的截屏是栅格格式，只有图像编辑（除了滤镜）外是矢量格式，便于后期修改。</p>
+            <p>SVG格式是一种可编辑矢量格式，但保存到文件里的截屏是栅格格式，只有图像编辑产生的形状（除了滤镜外）是矢量格式，便于后期修改。</p>
 
 
             <h2 id="图像编辑"><img src="./assets/icons/draw.svg" class="icon">图像编辑</h2>
@@ -212,8 +210,6 @@
 
             <h3 id="离线OCR">离线OCR</h3>
             <p>离线OCR完全免费，不依赖网络，但它体积较大。部分在线OCR可以免费体验，但它速度快，准确率高，不占体积。<strong>eSearch</strong>默认启用离线OCR。</p>
-            <p>由于离线OCR的体积原因，<strong>eSearch</strong>不附带，需要下载。<strong>eSearch</strong>开启时，会提示离线OCR的下载，点击下载，大约5分钟后，<strong>eSearch</strong>会提示下载完成。下载完成的离线OCR可能会占用1G不等，你可以在<a
-                    href="setting.html#删除离线OCR">设置</a>删除。</p>
             <p>你可以使用<a
                     href="https://github.com/PaddlePaddle/PaddleOCR#pp-ocr-series-model-listupdate-on-september-8th">官方推理模型（inference
                     model）</a>或你自己训练的模型，在<a href="setting.html#ocr_det">设置</a>填入绝对路径。</p>
@@ -244,20 +240,6 @@
             <p>开启或停止录制的快捷键是<kbd>Win</kbd>+<kbd>R</kbd>，开始录制后，录制按钮变成方形，表示已开始录制。录制途中你可以自由开关摄像头或麦克风（前提是他们可用）。请记住，凡是麦克风和摄像头，都应该当成开着的，我不能100%保证摄像头或麦克风完全关闭，有一个系统级开关甚至物理开关是最好的。目前暂不支持录制时再次进行录制。
             </p>
             <p>录制结束后，将显示编辑（转换）模式，你可以预览、裁切、转换格式、编辑帧率和码率。编辑完成后按下保存键完成，否则视为放弃。你可以在设置开启自动转换，这样就不需要每次都编辑了。</p>
-            <h3>FFmpeg</h3>
-            <p>转换需要 FFmpeg
-                这个强大的软件，你需要通过设置前往官网下载它，解压，并在设置选择“ffmpeg”文件的位置（一般在“bin”文件夹下）。如果在命令行中输入 ffmpeg -h 能正常运行，可不用填写位置。</p>
-            <pre id="ffmpeg_linux">
-对于 Linux 系统，大部分的发行版提供了命令行下载渠道：
-
-对于 Debian 及其衍生版 和 Ubuntu
-sudo apt install ffmpeg
-
-对于 ArchLinux 及其衍生版
-sudo pacman -S ffmpeg
-
-<a href="http://ffmpeg.org/download.html">官网下载渠道</a>
-            </pre>
 
             <h2 id="长截屏"><img src="./assets/icons/long_clip.svg" class="icon">长截屏</h2>
             <p>即滚动截屏。</p>
