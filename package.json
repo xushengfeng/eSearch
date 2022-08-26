@@ -53,7 +53,7 @@
           "jpg",
           "svg"
         ],
-        "mimeType": "image/png;image/jpg;image/svg",
+        "mimeType": "image/svg+xml;image/png;image/jpeg;",
         "role": "Editor"
       }
     ],

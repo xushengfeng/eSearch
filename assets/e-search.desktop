@@ -7,4 +7,4 @@ Icon=e-search
 Type=Application
 StartupNotify=true
 Categories=Graphics;System;Utility;
-
+MimeType=image/png;image/jpg;image/svg;
