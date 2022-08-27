@@ -1750,7 +1750,7 @@ var default_setting = {
         },
     },
     OCR: {
-        类型: "离线默认",
+        类型: "默认",
         离线切换: true,
         记住: false,
     },

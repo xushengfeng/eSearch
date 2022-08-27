@@ -346,24 +346,24 @@ document.getElementById("clear_cache").onclick = () => {
 document.getElementById("main").onclick = () => {
     window.location.href = "index.html";
 };
-if (store.get("OCR.类型").slice(0, 2) == "离线") {
-    document.getElementById("OCR类型").value = "离线";
-}
-else {
+function set_ocr() {
+    let ocr_in = "";
+    for (let i of store.get("离线OCR")) {
+        ocr_in += `<div value="${i[0]}">${i[0]}</div>`;
+    }
+    ocr_in += `
+    <div value="baidu">
+        <t>百度</t>
+    </div>
+    <div value="youdao">
+        <t>有道</t>
+    </div>`;
+    document.getElementById("OCR类型").outerHTML = `<set-select name="" id="OCR类型">${ocr_in}</set-select>`;
     document.getElementById("OCR类型").value = store.get("OCR.类型");
 }
+set_ocr();
 function get_ocr_type() {
-    if (document.getElementById("OCR类型").value == "离线") {
-        if (store.get("OCR.类型").slice(0, 2) == "离线") {
-            return store.get("OCR.类型");
-        }
-        else {
-            return "离线" + store.get("离线OCR")?.[0]?.[0] || "";
-        }
-    }
-    else {
-        return document.getElementById("OCR类型").value;
-    }
+    return document.getElementById("OCR类型").value;
 }
 ocr_d_open();
 function ocr_d_open() {
@@ -390,6 +390,7 @@ function OCR模型展示() {
         t.oninput = () => {
             all[i][0] = t.value;
             store.set("离线OCR", all);
+            set_ocr();
         };
         d.append(t);
         let c = document.createElement("button");
@@ -398,6 +399,7 @@ function OCR模型展示() {
             all.splice(i, 1);
             d.remove();
             store.set("离线OCR", all);
+            set_ocr();
         };
         d.append(c);
         document.getElementById("OCR模型列表").append(d);
@@ -433,6 +435,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     all.push(l);
     store.set("离线OCR", all);
     OCR模型展示();
+    set_ocr();
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 document.getElementById("baidu_ocr_url").value = store.get("在线OCR.baidu.url");

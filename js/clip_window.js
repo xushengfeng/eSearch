@@ -207,8 +207,8 @@ function tool_close_f() {
 var ocr引擎 = document.getElementById("ocr引擎");
 for (let i of store.get("离线OCR")) {
     let o = document.createElement("option");
-    o.innerText = `离线（${i[0]}）`;
-    o.value = `离线${i[0]}`;
+    o.innerText = `${i[0]}`;
+    o.value = `${i[0]}`;
     ocr引擎.append(o);
 }
 ocr引擎.insertAdjacentHTML("beforeend", `<option value="baidu">百度</option><option value="youdao">有道</option>`);

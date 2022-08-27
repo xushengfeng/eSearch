@@ -2225,12 +2225,12 @@ function google(image, callback) {
 /************************************OCR */
 
 function ocr(img: string, type: string | "baidu" | "youdao", callback: Function) {
-    if (type.slice(0, 2) == "离线") {
-        local_ocr(type.slice(2), img, (err, r) => {
+    if (type == "baidu" || type == "youdao") {
+        online_ocr(type, img, (err, r) => {
             return callback(err, r);
         });
     } else {
-        online_ocr(type, img, (err, r) => {
+        local_ocr(type, img, (err, r) => {
             return callback(err, r);
         });
     }
