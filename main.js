@@ -1442,18 +1442,14 @@ ipcMain.on("main_win", (e, arg, arg1) => {
             BrowserWindow.fromWebContents(e.sender).close();
             break;
         case "ocr":
-            if (arg1) {
-                ocr_event.sender.send("ocr_back", "ok");
-                ocr_run_window.show();
-                ocr_run_window = null;
-            }
+            ocr_event.sender.send("ocr_back", "ok");
+            ocr_run_window.show();
+            ocr_run_window = null;
             break;
         case "image_search":
-            if (arg1) {
-                image_search_event.sender.send("search_back", "ok");
-                image_search_window.show();
-                image_search_window = null;
-            }
+            image_search_event.sender.send("search_back", "ok");
+            image_search_window.show();
+            image_search_window = null;
             break;
     }
 });
