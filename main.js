@@ -1868,6 +1868,7 @@ var default_setting = {
         },
     },
     插件: { 加载前: [], 加载后: [] },
+    点击托盘自动截图: process.platform != "linux",
 };
 try {
     default_setting.保存.保存路径.图片 = app.getPath("pictures");
