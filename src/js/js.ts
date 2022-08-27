@@ -2241,7 +2241,7 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
  * @param {Function} callback 回调
  */
 async function local_ocr(type: string, arg: string, callback: Function) {
-    let l: string[];
+    let l: [string, string, string, string, any];
     for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
     let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "/ocr/ppocr"); // 默认模型路径
     let detp = path.join(ocr_path, l[1]),
@@ -2253,6 +2253,7 @@ async function local_ocr(type: string, arg: string, callback: Function) {
         det_path: detp,
         rec_path: recp,
         dic_path: 字典,
+        ...l[4],
     });
     let img = document.createElement("img");
     img.src = "data:image/png;base64," + arg;

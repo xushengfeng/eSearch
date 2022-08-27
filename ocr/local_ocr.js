@@ -7,10 +7,14 @@ module.exports = { ocr: x, init };
 var dev = true;
 
 var det, rec, dic;
+var limit_side_len = 960,
+    imgH = 48,
+    imgW = 320;
 
 /**
  * 初始化
- * @param {{det_path:string,rec_path:string,dic_path:string,dev:boolean}} x
+ * @param {{det_path:string,rec_path:string,dic_path:string,
+ * max_side:number,imgh:number;imgw:numberdev:boolean}} x
  * @returns
  */
 async function init(x) {
@@ -18,6 +22,9 @@ async function init(x) {
     det = await ort.InferenceSession.create(x.det_path);
     rec = await ort.InferenceSession.create(x.rec_path);
     dic = fs.readFileSync(x.dic_path).toString().split("\n");
+    if (x.max_side) limit_side_len = x.max_side;
+    if (x.imgh) imgH = x.imgh;
+    if (x.imgw) imgW = x.imgw;
     return new Promise((rs) => rs());
 }
 
@@ -75,16 +82,19 @@ async function 识别(b, imgH, imgW, rec) {
  * @param {number} h 输出高
  */
 function resize_img(data, w, h) {
+    let x = document.createElement("canvas");
+    x.width = data.width;
+    x.height = data.height;
+    x.getContext("2d").putImageData(data, 0, 0);
     let src = document.createElement("canvas");
     src.width = w;
     src.height = h;
     src.getContext("2d").scale(w / data.width, h / data.height);
-    src.getContext("2d").putImageData(data, 0, 0);
+    src.getContext("2d").drawImage(x, 0, 0);
     return src.getContext("2d").getImageData(0, 0, w, h);
 }
 
 function 检测前处理(h, w, image) {
-    let limit_side_len = 960;
     let ratio = 1;
     if (Math.max(h, w) > limit_side_len) {
         if (h > w) {
@@ -155,8 +165,8 @@ function 检测后处理(data, w, h, src_canvas) {
         let min_size = 3;
         if (Math.min(bbox.width, bbox.height) >= min_size) {
             let c = document.createElement("canvas");
-            let dx = bbox.width * 0.2,
-                dy = bbox.height;
+            let dx = bbox.width * 0.1,
+                dy = bbox.height * 1.2;
             c.width = bbox.width + dx * 2;
             c.height = bbox.height + dy * 2;
 
@@ -203,15 +213,12 @@ function to_paddle_input(image, mean, std) {
 }
 
 function 识别前处理(resize_w, box) {
-    let imgC = 3,
-        imgH = 32,
-        imgW = 320;
     /**
      *
      * @param {ImageData} img
      */
     function resize_norm_img(img) {
-        imgW = Math.floor(32 * max_wh_ratio);
+        imgW = Math.floor(imgH * max_wh_ratio);
         let h = img.height,
             w = img.width;
         let ratio = w / h;
@@ -226,6 +233,7 @@ function 识别前处理(resize_w, box) {
         cc.width = imgW;
         cc.height = imgH;
         cc.getContext("2d").putImageData(d, 0, 0);
+        if (dev) document.body.append(cc);
         return cc.getContext("2d").getImageData(0, 0, imgW, imgH);
     }
 

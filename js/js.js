@@ -2225,6 +2225,7 @@ async function local_ocr(type, arg, callback) {
         det_path: detp,
         rec_path: recp,
         dic_path: 字典,
+        ...l[4],
     });
     let img = document.createElement("img");
     img.src = "data:image/png;base64," + arg;
