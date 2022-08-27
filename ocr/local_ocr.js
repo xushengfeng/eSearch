@@ -1,5 +1,5 @@
 var cv = require("opencv.js");
-const ort = require("onnxruntime-node");
+const ort = require("onnxruntime-web");
 const fs = require("fs");
 
 module.exports = { ocr: x, init };
