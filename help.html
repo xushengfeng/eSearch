@@ -210,9 +210,8 @@
 
             <h3 id="离线OCR">离线OCR</h3>
             <p>离线OCR完全免费，不依赖网络，但它体积较大。部分在线OCR可以免费体验，但它速度快，准确率高，不占体积。<strong>eSearch</strong>默认启用离线OCR。</p>
-            <p>你可以使用<a
-                    href="https://github.com/PaddlePaddle/PaddleOCR#pp-ocr-series-model-listupdate-on-september-8th">官方推理模型（inference
-                    model）</a>或你自己训练的模型，在<a href="setting.html#ocr_det">设置</a>填入绝对路径。</p>
+            <p>若想添加自己训练的模型或其他语种的模型，请将其转换为onnx格式，并将检测模型（文件名包含det）、识别模型（文件名包含rec）、字典文件一起选中，拖拽进设置的<a
+                    href="setting.html#离线OCR模型">离线OCR设置项</a>中。</p>
 
             <h3 id="在线OCR">在线OCR</h3>
             <p><strong>eSearch</strong>目前支持的在线OCR服务是<strong>百度OCR</strong>和<strong>有道OCR</strong>。</p>
