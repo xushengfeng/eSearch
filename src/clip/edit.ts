@@ -287,6 +287,7 @@ function draw(shape, v, x1, y1, x2, y2) {
         case "line":
             shapes[shapes.length] = new fabric.Line([x1, y1, x2, y2], {
                 stroke: stroke_color,
+                形状: "line",
             });
             break;
         case "circle":
@@ -298,6 +299,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
                 canChangeFill: true,
+                形状: "circle",
             });
             break;
         case "rect":
@@ -310,6 +312,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
                 canChangeFill: true,
+                形状: "rect",
             });
             break;
         case "text":
@@ -318,6 +321,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                     left: x / ratio,
                     top: y / ratio,
                     canChangeFill: true,
+                    形状: "text",
                 })
             );
             break;
@@ -353,6 +357,7 @@ function draw_poly(shape) {
                 fill: "#0000",
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
+                形状: "polyline",
             })
         );
     }
@@ -363,6 +368,7 @@ function draw_poly(shape) {
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
                 canChangeFill: true,
+                形状: "polygon",
             })
         );
     }
