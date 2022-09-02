@@ -162,7 +162,18 @@ var shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
     let el = <HTMLElement>e.target;
     exit_shape();
-    if (el.id != "draw_shapes_i") shape = el.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
+    if (el.id != "draw_shapes_i") {
+        shape = el.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
+        if (store.get(`图像编辑.形状属性.${shape}`)) {
+            let f = store.get(`图像编辑.形状属性.${shape}.fc`);
+            let s = store.get(`图像编辑.形状属性.${shape}.sc`);
+            change_color({ fill: f, stroke: s }, false, true);
+            fill_color = f;
+            stroke_color = s;
+            stroke_width = store.get(`图像编辑.形状属性.${shape}.sw`);
+            (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = stroke_width;
+        }
+    }
     exit_free();
     exit_filter();
     fabric_canvas.defaultCursor = "crosshair";
