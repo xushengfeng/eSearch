@@ -599,6 +599,16 @@ function set_f_object_v(fill, stroke, strokeWidth) {
                 n[i].set("stroke", stroke);
             if (strokeWidth)
                 n[i].set("strokeWidth", strokeWidth);
+            if (n[i].形状) {
+                if (!store.get(`图像编辑.形状属性.${n[i].形状}`))
+                    store.set(`图像编辑.形状属性.${n[i].形状}`, { fc: "", sc: "", sw: NaN });
+                if (fill)
+                    store.set(`图像编辑.形状属性.${n[i].形状}.fc`, fill);
+                if (stroke)
+                    store.set(`图像编辑.形状属性.${n[i].形状}.sc`, stroke);
+                if (strokeWidth)
+                    store.set(`图像编辑.形状属性.${n[i].形状}.sw`, strokeWidth);
+            }
         }
         fabric_canvas.renderAll();
     }
