@@ -334,6 +334,9 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 };
 
+const { hexToCSSFilter } = require("hex-to-css-filter");
+(<HTMLInputElement>document.querySelector("#图标颜色 > input")).value = store.get("全局.图标颜色")[0];
+
 (<HTMLInputElement>document.getElementById("换行")).checked = store.get("编辑器.自动换行");
 (<HTMLInputElement>document.getElementById("拼写检查")).checked = store.get("编辑器.拼写检查");
 (<HTMLInputElement>document.getElementById("行号")).checked = store.get("编辑器.行号");
@@ -616,6 +619,12 @@ function save_setting() {
     store.set("全局.模糊", 模糊);
     store.set("全局.不透明度", Number((<HTMLInputElement>document.getElementById("不透明度")).value) / 100);
     store.set("全局.缩放", (<HTMLInputElement>document.getElementById("全局缩放")).value);
+    try {
+        store.set("全局.图标颜色", [
+            (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value,
+            hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter,
+        ]);
+    } catch (e) {}
     store.set("工具栏", {
         按钮大小: (<HTMLInputElement>document.getElementById("按钮大小")).value,
         按钮图标比例: (<HTMLInputElement>document.getElementById("按钮图标比例")).value,
