@@ -61,3 +61,18 @@ function MD5(str1) {
     // @ts-ignore
     return md5(str1);
 }
+function deepl(text, from, to) {
+    fetch("https://api-free.deepl.com/v2/translate", {
+        body: `text=${encodeURIComponent(text)}&target_lang=${to}`,
+        headers: {
+            Authorization: `DeepL-Auth-Key ${api_id.deepl.key}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method: "POST",
+    })
+        .then((v) => v.json())
+        .then((t) => {
+        let l = t.translations.map((x) => x.text);
+        document.getElementById("deepl").innerText = l.join("\n");
+    });
+}
