@@ -264,6 +264,10 @@ document.querySelector("#等宽字体 > input").oninput = () => {
 };
 const { hexToCSSFilter } = require("hex-to-css-filter");
 document.querySelector("#图标颜色 > input").value = store.get("全局.图标颜色")[0];
+document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
+document.querySelector("#图标颜色 > input").oninput = () => {
+    document.documentElement.style.setProperty("--icon-color", hexToCSSFilter(document.querySelector("#图标颜色 > input").value).filter.replace(";", ""));
+};
 document.getElementById("换行").checked = store.get("编辑器.自动换行");
 document.getElementById("拼写检查").checked = store.get("编辑器.拼写检查");
 document.getElementById("行号").checked = store.get("编辑器.行号");
@@ -521,7 +525,7 @@ function save_setting() {
     try {
         store.set("全局.图标颜色", [
             document.querySelector("#图标颜色 > input").value,
-            hexToCSSFilter(document.querySelector("#图标颜色 > input").value).filter,
+            hexToCSSFilter(document.querySelector("#图标颜色 > input").value).filter.replace(";", ""),
         ]);
     }
     catch (e) { }

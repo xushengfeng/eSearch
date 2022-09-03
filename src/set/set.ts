@@ -336,6 +336,13 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
 const { hexToCSSFilter } = require("hex-to-css-filter");
 (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value = store.get("全局.图标颜色")[0];
+document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
+(<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput = () => {
+    document.documentElement.style.setProperty(
+        "--icon-color",
+        hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter.replace(";", "")
+    );
+};
 
 (<HTMLInputElement>document.getElementById("换行")).checked = store.get("编辑器.自动换行");
 (<HTMLInputElement>document.getElementById("拼写检查")).checked = store.get("编辑器.拼写检查");
@@ -622,7 +629,10 @@ function save_setting() {
     try {
         store.set("全局.图标颜色", [
             (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value,
-            hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter,
+            hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter.replace(
+                ";",
+                ""
+            ),
         ]);
     } catch (e) {}
     store.set("工具栏", {

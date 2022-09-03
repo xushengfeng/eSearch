@@ -1750,6 +1750,8 @@ var 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
+document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
+
 var edit_on_other_type = null;
 var file_watcher = null;
 const path = require("path");
