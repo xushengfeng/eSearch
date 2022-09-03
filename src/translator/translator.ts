@@ -31,6 +31,7 @@ document.querySelector("textarea").oninput = () => {
 function translate(text: string, from: string, to: string) {
     baidu(text, from, to);
     youdao(text, from, to);
+    caiyun(text, from, to);
 }
 
 function youdao(text: string, from: string, to: string) {
@@ -87,5 +88,26 @@ function deepl(text: string, from: string, to: string) {
         .then((t) => {
             let l = t.translations.map((x) => x.text);
             document.getElementById("deepl").innerText = l.join("\n");
+        });
+}
+
+function caiyun(text: string, from: string, to: string) {
+    let url = "http://api.interpreter.caiyunai.com/v1/translator";
+    let token = api_id.caiyun.token;
+    let payload = {
+        source: text.split("\n"),
+        trans_type: "auto2zh",
+        request_id: "demo",
+        detect: true,
+    };
+    let headers = {
+        "content-type": "application/json",
+        "x-authorization": "token " + token,
+    };
+    fetch(url, { method: "POST", body: JSON.stringify(payload), headers })
+        .then((v) => v.json())
+        .then((t) => {
+            console.log(t);
+            document.getElementById("caiyun").innerText = t.target.join("\n");
         });
 }
