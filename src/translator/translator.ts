@@ -20,6 +20,8 @@ for (let i of sl) {
     }
 }
 
+const api_id = JSON.parse(localStorage.getItem("fanyi"));
+
 document.querySelector("textarea").value = text;
 
 document.querySelector("textarea").oninput = () => {
@@ -27,6 +29,7 @@ document.querySelector("textarea").oninput = () => {
 };
 
 function translate(text: string, from: string, to: string) {
+    baidu(text, from, to);
     youdao(text, from, to);
 }
 
@@ -46,4 +49,27 @@ function youdao(text: string, from: string, to: string) {
             }
             document.getElementById("youdao").innerText = l.join("\n");
         });
+}
+
+function baidu(text: string, from: string, to: string) {
+    let appid = api_id.baidu.appid;
+    let key = api_id.baidu.key;
+    let salt = new Date().getTime();
+    let str1 = appid + text + salt + key;
+    let sign = MD5(str1);
+    fetch(
+        `http://api.fanyi.baidu.com/api/trans/vip/translate?q=${encodeURIComponent(
+            text
+        )}&from=en&to=zh&appid=${appid}&salt=${salt}&sign=${sign}`
+    )
+        .then((v) => v.json())
+        .then((t) => {
+            let l = t.trans_result.map((v) => v.dst);
+            document.getElementById("baidu").innerText = l.join("\n");
+        });
+}
+
+function MD5(str1: string) {
+    // @ts-ignore
+    return md5(str1);
 }
