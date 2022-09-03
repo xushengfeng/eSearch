@@ -54,7 +54,7 @@
          offset="0"
          id="stop764" />
       <stop
-         style="stop-color:#333333;stop-opacity:0.99990165;"
+         style="stop-color:#000;stop-opacity:0.99990165;"
          offset="1"
          id="stop766" />
     </linearGradient>
@@ -95,7 +95,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:url(#linearGradient770);stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;fill-opacity:1"
+       style="fill:url(#linearGradient770);stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;fill-opacity:1"
        id="rect739"
        width="160"
        height="160"

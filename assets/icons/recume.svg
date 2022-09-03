@@ -73,7 +73,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-dasharray:none"
        d="M 60,40 V 200 L 200,120 Z"
        id="path865" />
   </g>

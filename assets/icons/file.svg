@@ -73,7 +73,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="M 40,40 V 180 H 200 V 80 H 140 L 100,40 H 40"
        id="path245"
        sodipodi:nodetypes="ccccccc" />

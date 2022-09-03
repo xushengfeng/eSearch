@@ -73,13 +73,13 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#333333;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
        id="path61"
        cx="120"
        cy="120"
        r="80" />
     <circle
-       style="fill:none;stroke:#333333;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
        id="path63"
        cx="120"
        cy="120"

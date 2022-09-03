@@ -73,12 +73,12 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 40,120 c 0,0 20,-60 80,-60 60,0 80,60 80,60 0,0 -20,60 -80,60 -60,0 -80,-60 -80,-60 z"
        id="path750"
        sodipodi:nodetypes="cscsc" />
     <circle
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
        id="path804"
        cx="120"
        cy="120"

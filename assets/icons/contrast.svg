@@ -73,14 +73,14 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
        id="path739"
        cx="120"
        cy="120"
        r="80" />
     <path
        id="path739-3"
-       style="fill:#333333;stroke:#333333;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-dasharray:none;fill-opacity:1"
+       style="fill:#000;stroke:#000;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-dasharray:none;fill-opacity:1"
        d="M 122.5,42.5 A 80,80 0 0 0 120,42.697266 V 202.30273 a 80,80 0 0 0 2.5,0.19727 80,80 0 0 0 80,-80 80,80 0 0 0 -80,-80 z" />
   </g>
 </svg>

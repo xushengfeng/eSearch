@@ -73,7 +73,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-dasharray:none"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-dasharray:none"
        id="path739"
        cx="120"
        cy="120"
@@ -81,19 +81,19 @@
     <g
        id="g1113">
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
          d="M 120,40 V 60"
          id="path856" />
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
          d="m 180,120 h 20"
          id="path858" />
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
          d="m 120,180 v 20"
          id="path860" />
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
          d="M 60,120 H 40"
          id="path862" />
     </g>
@@ -101,19 +101,19 @@
        id="g1113-3"
        transform="rotate(45,120,120)">
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
          d="M 120,40 V 60"
          id="path856-6" />
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
          d="m 180,120 h 20"
          id="path858-7" />
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
          d="m 120,180 v 20"
          id="path860-5" />
       <path
-         style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+         style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
          d="M 60,120 H 40"
          id="path862-3" />
     </g>

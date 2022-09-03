@@ -73,23 +73,23 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round"
        id="path184"
        cx="120"
        cy="120"
        r="80" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
        d="M 120,70 V 170"
        id="path249"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
        d="m 100,170 h 40"
        id="path251"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
        d="M 120,70 100,80"
        id="path253"
        sodipodi:nodetypes="cc" />

@@ -73,12 +73,12 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="M 60,80 V 40 h 120 v 40"
        id="path750"
        sodipodi:nodetypes="cccc" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 60,160 v 40 h 120 v -40"
        id="path752"
        sodipodi:nodetypes="cccc" />

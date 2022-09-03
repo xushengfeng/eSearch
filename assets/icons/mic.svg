@@ -73,7 +73,7 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
+       style="fill:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160"
        id="rect739"
        width="40"
        height="110"
@@ -81,16 +81,16 @@
        y="40"
        ry="20" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
        d="m 80,200 h 80"
        id="path804" />
     <path
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-dasharray:none"
        d="m 120,170 v 30"
        id="path806" />
     <path
        id="path860"
-       style="fill:none;stroke:#333333;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
+       style="fill:none;stroke:#000;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:160;stroke-opacity:1"
        d="m 80,130 c 0,22.09139 17.90861,40 40,40 22.09139,0 40,-17.90861 40,-40"
        sodipodi:nodetypes="csc" />
   </g>
