@@ -26,6 +26,7 @@ if (!api_id) {
         baidu: { appid: "", key: "" },
         deepl: { key: "" },
         caiyun: { token: "" },
+        bing: { key: "" },
     };
     localStorage.setItem("fanyi", JSON.stringify(api_id));
 }
@@ -123,5 +124,33 @@ function caiyun(text: string, from: string, to: string) {
         .then((t) => {
             console.log(t);
             document.getElementById("caiyun").innerText = t.target.join("\n");
+        });
+}
+
+function bing(text: string, from: string, to: string) {
+    if (!api_id.bing.key) return;
+    fetch(
+        `https://api.cognitive.microsofttranslator.com/translate?${new URLSearchParams({
+            "api-version": "3.0",
+            from: "en",
+            to: "cn",
+        }).toString()}`,
+        {
+            method: "POST",
+            headers: {
+                "Ocp-Apim-Subscription-Key": api_id.bing.key,
+                "Content-type": "application/json",
+                "X-ClientTraceId": crypto.randomUUID(),
+            },
+            body: JSON.stringify([
+                {
+                    text: text,
+                },
+            ]),
+        }
+    )
+        .then((v) => v.json())
+        .then((t) => {
+            document.getElementById("bing").innerText = t[0].translations[0].text;
         });
 }
