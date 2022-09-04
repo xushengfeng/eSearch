@@ -7,13 +7,13 @@ const sl = s
 for (let i of sl) {
     switch (i[0]) {
         case "text":
-            var text = i[1];
+            var text = i[1] || "";
             break;
         case "from":
-            var fl = i[1];
+            var fl = i[1] || "";
             break;
         case "to":
-            var tl = i[1];
+            var tl = i[1] || "";
             break;
         default:
             break;
@@ -30,11 +30,14 @@ if (!api_id) {
     localStorage.setItem("fanyi", JSON.stringify(api_id));
 }
 
-document.querySelector("textarea").value = text;
+document.querySelector("textarea").value = text || "";
 
 document.querySelector("textarea").oninput = () => {
     text = document.querySelector("textarea").value;
+    translate(text, fl, tl);
 };
+
+translate(text, fl, tl);
 
 function translate(text: string, from: string, to: string) {
     baidu(text, from, to);
