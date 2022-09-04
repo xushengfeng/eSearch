@@ -18,7 +18,15 @@ for (let i of sl) {
             break;
     }
 }
-const api_id = JSON.parse(localStorage.getItem("fanyi"));
+var api_id = JSON.parse(localStorage.getItem("fanyi"));
+if (!api_id) {
+    api_id = {
+        baidu: { appid: "", key: "" },
+        deepl: { key: "" },
+        caiyun: { token: "" },
+    };
+    localStorage.setItem("fanyi", JSON.stringify(api_id));
+}
 document.querySelector("textarea").value = text;
 document.querySelector("textarea").oninput = () => {
     text = document.querySelector("textarea").value;
@@ -46,6 +54,8 @@ function youdao(text, from, to) {
     });
 }
 function baidu(text, from, to) {
+    if (!api_id.baidu.appid || !api_id.baidu.key)
+        return;
     let appid = api_id.baidu.appid;
     let key = api_id.baidu.key;
     let salt = new Date().getTime();
@@ -63,6 +73,8 @@ function MD5(str1) {
     return md5(str1);
 }
 function deepl(text, from, to) {
+    if (!api_id.deepl.key)
+        return;
     fetch("https://api-free.deepl.com/v2/translate", {
         body: `text=${encodeURIComponent(text)}&target_lang=${to}`,
         headers: {
@@ -78,6 +90,8 @@ function deepl(text, from, to) {
     });
 }
 function caiyun(text, from, to) {
+    if (!api_id.caiyun.token)
+        return;
     let url = "http://api.interpreter.caiyunai.com/v1/translator";
     let token = api_id.caiyun.token;
     let payload = {
