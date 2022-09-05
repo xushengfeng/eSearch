@@ -1,23 +1,7 @@
-const s = decodeURIComponent(location.search);
-const sl = s
-    .slice(1)
-    .split("&")
-    .map((v) => v.split("="));
-for (let i of sl) {
-    switch (i[0]) {
-        case "text":
-            var text = i[1] || "";
-            break;
-        case "from":
-            var fl = i[1] || "";
-            break;
-        case "to":
-            var tl = i[1] || "";
-            break;
-        default:
-            break;
-    }
-}
+const s = new URLSearchParams(decodeURIComponent(location.search));
+var text = s.get("text") || "";
+var fl = s.get("from") || "";
+var tl = s.get("to") || "";
 var api_id = JSON.parse(localStorage.getItem("fanyi"));
 if (!api_id) {
     api_id = {
