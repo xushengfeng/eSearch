@@ -2,14 +2,16 @@ var search = new URLSearchParams(decodeURIComponent(location.search));
 
 let text = search.get("w");
 
+let result = [];
+
 fetch(`https://www.baidu.com/s?ie=UTF-8&wd=${encodeURIComponent(text)}`)
     .then((v) => v.text())
     .then(async (v) => {
         let tmp_div = document.createElement("div");
         tmp_div.innerHTML = v;
         console.log(tmp_div);
-        let l = [];
         let sl = tmp_div.querySelectorAll("h3");
+        let n = 0;
         for await (let i of sl) {
             let p = i.parentElement;
             let title = i.innerText;
@@ -18,14 +20,19 @@ fetch(`https://www.baidu.com/s?ie=UTF-8&wd=${encodeURIComponent(text)}`)
             try {
                 href = (await fetch(href)).url;
             } catch (error) {}
-            l.push({ title, body, href });
+            let t = true;
+            for (let i of result) {
+                if (i?.href == href) {
+                    t = false;
+                    break;
+                }
+            }
+            if (t) {
+                result[n * 3] = { title, body, href };
+                n++;
+            }
         }
-        console.log(l);
-        for (const i of l) {
-            let div = `<div>
-            <h2><a href="${i.href}">${i.title}</a></h2><p>${i.body}</p></div>`;
-            document.getElementById("baidu").insertAdjacentHTML("beforeend", div);
-        }
+        r();
     });
 
 fetch(`https://cn.bing.com/search?q=${encodeURIComponent(text)}`)
@@ -34,20 +41,25 @@ fetch(`https://cn.bing.com/search?q=${encodeURIComponent(text)}`)
         let tmp_div = document.createElement("div");
         tmp_div.innerHTML = v;
         console.log(tmp_div);
-        let l = [];
         let sl = tmp_div.querySelectorAll("li.b_algo");
+        let n = 0;
         for await (let i of sl) {
             let title = (<HTMLElement>i.querySelector(".b_title"))?.innerText;
             let body = (<HTMLElement>i.querySelector(".b_caption"))?.innerText;
             let href = (<HTMLAnchorElement>i.querySelector(".b_title > a"))?.href;
-            l.push({ title, body, href });
+            let t = true;
+            for (let i of result) {
+                if (i?.href == href) {
+                    t = false;
+                    break;
+                }
+            }
+            if (t) {
+                result[n * 3 + 2] = { title, body, href };
+                n++;
+            }
         }
-        console.log(l);
-        for (const i of l) {
-            let div = `<div>
-            <h2><a href="${i.href}">${i.title}</a></h2><p>${i.body}</p></div>`;
-            document.getElementById("bing").insertAdjacentHTML("beforeend", div);
-        }
+        r();
     });
 
 fetch(`https://www.google.com/search?q=${encodeURIComponent(text)}`)
@@ -56,18 +68,32 @@ fetch(`https://www.google.com/search?q=${encodeURIComponent(text)}`)
         let tmp_div = document.createElement("div");
         tmp_div.innerHTML = v;
         console.log(tmp_div);
-        let l = [];
         let sl = tmp_div.querySelectorAll("h3");
+        let n = 0;
         for await (let i of sl) {
             let title = i.innerText;
             let body = (<HTMLElement>i.parentElement.parentElement.parentElement.nextElementSibling).innerText;
             let href = (<HTMLAnchorElement>i.parentElement).href;
-            l.push({ title, body, href });
-        }
-        console.log(l);
-        for (const i of l) {
-            let div = `<div>
-            <h2><a href="${i.href}">${i.title}</a></h2><p>${i.body}</p></div>`;
-            document.getElementById("google").insertAdjacentHTML("beforeend", div);
+            let t = true;
+            for (let i of result) {
+                if (i?.href == href) {
+                    t = false;
+                    break;
+                }
+            }
+            if (t) {
+                result[n * 3 + 2] = { title, body, href };
+                n++;
+            }
         }
     });
+
+function r() {
+    console.log(result);
+    for (const i of result) {
+        if (!i) continue;
+        let div = `<div>
+            <h2><a href="${i.href}">${i.title}</a></h2><p>${i.body}</p></div>`;
+        document.getElementById("google").insertAdjacentHTML("beforeend", div);
+    }
+}
