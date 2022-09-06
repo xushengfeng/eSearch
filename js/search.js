@@ -89,7 +89,7 @@ function r() {
         if (!i)
             continue;
         let div = `<div>
-            <h2><a href="${i.href}">${i.title}</a></h2><p>${i.body}</p></div>`;
-        document.getElementById("google").insertAdjacentHTML("beforeend", div);
+            <h2><a href="${i.href}" target="_blank">${i.title}</a></h2><p>${i.body}</p></div>`;
+        document.getElementById("result").insertAdjacentHTML("beforeend", div);
     }
 }
