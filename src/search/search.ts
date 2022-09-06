@@ -2,9 +2,12 @@ var search = new URLSearchParams(decodeURIComponent(location.search));
 
 let text = search.get("w");
 
+let proxy = search.get("proxy");
+if (proxy[proxy.length - 1] != "/") proxy = proxy + "/";
+
 let result = [];
 
-fetch(`https://www.baidu.com/s?ie=UTF-8&wd=${encodeURIComponent(text)}`)
+fetch(`${proxy}https://www.baidu.com/s?ie=UTF-8&wd=${encodeURIComponent(text)}`)
     .then((v) => v.text())
     .then(async (v) => {
         let tmp_div = document.createElement("div");
@@ -35,7 +38,7 @@ fetch(`https://www.baidu.com/s?ie=UTF-8&wd=${encodeURIComponent(text)}`)
         r();
     });
 
-fetch(`https://cn.bing.com/search?q=${encodeURIComponent(text)}`)
+fetch(`${proxy}https://cn.bing.com/search?q=${encodeURIComponent(text)}`)
     .then((v) => v.text())
     .then(async (v) => {
         let tmp_div = document.createElement("div");
@@ -62,7 +65,7 @@ fetch(`https://cn.bing.com/search?q=${encodeURIComponent(text)}`)
         r();
     });
 
-fetch(`https://www.google.com/search?q=${encodeURIComponent(text)}`)
+fetch(`${proxy}https://www.google.com/search?q=${encodeURIComponent(text)}`)
     .then((v) => v.text())
     .then(async (v) => {
         let tmp_div = document.createElement("div");
