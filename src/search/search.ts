@@ -45,7 +45,7 @@ fetch(`https://cn.bing.com/search?q=${encodeURIComponent(text)}`)
         let n = 0;
         for await (let i of sl) {
             let title = (<HTMLElement>i.querySelector(".b_title"))?.innerText;
-            let body = (<HTMLElement>i.querySelector(".b_caption"))?.innerText;
+            let body = (<HTMLElement>i.querySelector(".b_attribution").nextElementSibling)?.innerText;
             let href = (<HTMLAnchorElement>i.querySelector(".b_title > a"))?.href;
             let t = true;
             for (let i of result) {
