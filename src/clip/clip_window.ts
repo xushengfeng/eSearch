@@ -392,11 +392,24 @@ function tool_record_f() {
     tool_close_f();
 }
 
+var log_o = {
+    long_list: [],
+    l: [],
+    o_canvas: null,
+    p: { x: 0, y: 0 },
+};
 var long_list = [];
 function tool_long_f() {
     long_list = [];
     ipcRenderer.send("clip_main_b", "long_s", final_rect);
     if (!cv) cv = require("opencv.js");
+    log_o.o_canvas = document.createElement("canvas");
+    let o_canvas = log_o.o_canvas;
+    log_o.p = { x: 0, y: 0 };
+    let p = log_o.p;
+    o_canvas.width = final_rect[2];
+    o_canvas.height = final_rect[3];
+    log_o.l = [];
     ipcRenderer.on("long", (event, x, w, h) => {
         if (!x) {
             pj_long();
@@ -418,18 +431,8 @@ function tool_long_f() {
         canvas.getContext("2d").putImageData(gid, 0, 0);
         canvas_top.getContext("2d").putImageData(gid, 0, 0);
         long_list.push([canvas, canvas_top]);
-    });
-}
-
-function pj_long() {
-    let o_canvas = document.createElement("canvas");
-    let p = { x: 0, y: 0 };
-    o_canvas.width = final_rect[2];
-    o_canvas.height = final_rect[3];
-    let gid = long_list[0][0].getContext("2d").getImageData(0, 0, final_rect[2], final_rect[3]);
-    o_canvas.getContext("2d").putImageData(gid, 0, 0);
-    let l = [];
-    for (let i = 0; i < long_list.length - 1; i++) {
+        let i = long_list.length - 2;
+        if (i < 0) return;
         let src = cv.imread(long_list[i][0]);
         let templ = cv.imread(long_list[i + 1][1]);
         let dst = new cv.Mat();
@@ -441,15 +444,19 @@ function pj_long() {
         o_canvas.height += maxPoint.y;
         p.x += maxPoint.x;
         p.y += maxPoint.y;
-        l.push([p.x, p.y]);
+        log_o.l.push([p.x, p.y]);
         src.delete();
         dst.delete();
         mask.delete();
-    }
+    });
+}
+
+function pj_long() {
+    let l = log_o.l,
+        o_canvas = log_o.o_canvas;
     for (let i = 0; i < long_list.length - 1; i++) {
         o_canvas.getContext("2d").drawImage(long_list[i + 1][0], l[i][0], l[i][1]);
     }
-
     main_canvas.width = clip_canvas.width = draw_canvas.width = o_canvas.width;
     main_canvas.height = clip_canvas.height = draw_canvas.height = o_canvas.height;
 
