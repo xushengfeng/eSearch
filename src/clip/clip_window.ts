@@ -393,14 +393,13 @@ function tool_record_f() {
 }
 
 var log_o = {
-    long_list: [],
+    long_list: [] as [HTMLCanvasElement, HTMLCanvasElement][],
     l: [],
     o_canvas: null,
     p: { x: 0, y: 0 },
 };
-var long_list = [];
 function tool_long_f() {
-    long_list = [];
+    let long_list = (log_o.long_list = []);
     ipcRenderer.send("clip_main_b", "long_s", final_rect);
     if (!cv) cv = require("opencv.js");
     log_o.o_canvas = document.createElement("canvas");
@@ -453,6 +452,7 @@ function tool_long_f() {
 
 function pj_long() {
     let l = log_o.l,
+        long_list = log_o.long_list,
         o_canvas = log_o.o_canvas;
     for (let i = 0; i < long_list.length - 1; i++) {
         o_canvas.getContext("2d").drawImage(long_list[i + 1][0], l[i][0], l[i][1]);
