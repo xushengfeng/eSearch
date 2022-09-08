@@ -42,9 +42,7 @@ winget `winget install esearch`
 
 ## OCR 服务
 
-软件不附带本地 OCR 核心服务，但在启动时会提示下载。
-
-本地 OCR 由[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)提供支持，在[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)中发布编译好的服务。
+本地 OCR 由[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)的模型提供支持。
 
 默认启用本地 OCR 服务，若想使用在线 OCR，目前提供了百度在线 OCR，需要依据[教程](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)获取*API KEY* 以及 _Secret KEY_，截止 2022 年 1 月，百度 OCR 还是可以[免费领取服务](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)。将获取到的*API KEY* 和*Secret KEY* 以及相应的你选择的文字识别服务[_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) 填入软件设置，去掉离线 OCR 的勾选即可使用在线 OCR。
 
@@ -56,27 +54,20 @@ winget `winget install esearch`
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
+npm run rebuild
 # 运行
 npx electron .
 # 编译
 npm run rebuild
 npm run dist
-# 将在build目录生产安装包和解压的目录
+# 将在build目录产生安装包和解压的目录
 ```
 
 ### 修改已安装的程序
 
 先按下<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>，或在菜单栏-识图-开发者工具 打开开发者工具进行调试。修改调试知道满意后，在对源码进行修改。
 
-```shell
-# 安装asar
-npm install -g asar
-asar e [设置里提示的运行位置]
-# 解压后在app目录修改
-# 打包
-asar p app app.asar
-# 重启软件即可
-```
+源码位置：[设置里提示的运行位置]
 
 ## 启动
 
@@ -84,9 +75,9 @@ asar p app app.asar
 
 默认快捷键为 <kbd>Alt</kbd>+<kbd>C</kbd>(你也可以在设置里设置快捷键)
 
-### Linux 下的快捷键
+### cli
 
-大多数 Linux 桌面环境支持自定义快捷键，**eSearch**支持 cli，这也意味着你可以进行系统级设置快捷键
+**eSearch**支持 cli，可以通过命令行进行简单的截屏。
 
 ```shell
 esearch (若找不到，请尝试e-search)

@@ -42,9 +42,7 @@ winget `winget install esearch`
 
 ## OCR Services
 
-The software does not come with a local OCR core service, but will prompt for a download when launched.
-
-Local OCR is supported by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR), which publishes the compiled service in [eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR).
+Local OCR is supported by [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)'s model.
 
 The local OCR service is enabled by default, but if you wish to use the online OCR, Baidu Online OCR is currently available and requires [a tutorial](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51) to obtain the _API KEY_ and _Secret KEY_, which is still available for [free](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51) as of January 2022. Fill in the _API KEY_ and _Secret KEY_ and the corresponding [_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) of your chosen text recognition service into the software settings and uncheck the offline OCR box to use the online OCR.
 
@@ -56,27 +54,20 @@ Compiling requires `python` and `C++`, for Windows you need `python `and `visual
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
+npm run rebuild
 # Run
 npx electron .
 # 编译
 npm run rebuild
 npm run dist
-# The directory where the installer will be produced and unpacked in the build directory
+# The installation package and unzipped directory will be generated in the build directory
 ```
 
 ### Modifying installed programs
 
 First press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>, or in the menu bar - Literacy - Developer Tools Open the developer tools for debugging. Modify the debugging to know that you are happy with it, before making changes to the source code.
 
-```shell
-# Install asar
-npm install -g asar
-asar e [the location prompted in the settings to run]
-# Unzip and modify in the app directory
-# Build the package
-asar p app app.asar
-# Just restart the software
-```
+Source location [the location prompted in the settings to run]
 
 ## Launch
 
@@ -84,9 +75,9 @@ Open eSearch in your launcher and it will appear in the tray. Gnome users need t
 
 The default shortcut is <kbd>Alt</kbd>+<kbd>C</kbd> (you can also set the shortcut in the settings)
 
-### Shortcuts on Linux
+### cli
 
-Most Linux desktop environments support custom shortcuts. **eSearch** supports cli, which also means you can set shortcuts at system level
+**eSearch** supports cli, and you can simply take screenshots from the command line.
 
 ```shell
 esearch (if you can not find it, try e-search)
