@@ -381,6 +381,7 @@ var log_o = {
 };
 function tool_long_f() {
     let long_list = (log_o.long_list = []);
+    init_long(final_rect);
     ipcRenderer.send("clip_main_b", "long_s", final_rect);
     if (!cv)
         cv = require("opencv.js");
@@ -431,6 +432,24 @@ function tool_long_f() {
         dst.delete();
         mask.delete();
     });
+}
+function init_long(rect) {
+    let l = [tool_bar, draw_bar, main_canvas, clip_canvas, draw_canvas, wh_el, mouse_bar_el];
+    for (let i of l) {
+        i.style.display = "none";
+    }
+    const lr = document.getElementById("long_rect");
+    lr.style.left = rect[0] / ratio + "px";
+    lr.style.top = rect[1] / ratio + "px";
+    lr.style.width = rect[2] / ratio + "px";
+    lr.style.height = rect[3] / ratio + "px";
+    document.getElementById("long_finish").onclick = () => {
+        lr.style.opacity = "0";
+        ipcRenderer.send("clip_main_b", "long_e");
+        for (let i of l) {
+            i.style.display = "";
+        }
+    };
 }
 function pj_long() {
     let l = log_o.l, long_list = log_o.long_list, o_canvas = log_o.o_canvas;

@@ -434,3 +434,24 @@ video {
     z-index: 11;
     cursor: progress;
 }
+
+/* long */
+#long_rect {
+    position: fixed;
+    outline: 1px solid #000;
+}
+
+#long_finish {
+    width: 16px;
+    height: 16px;
+    background-color: #f00;
+    border-radius: 8px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: pointer;
+}
+
+#long_finish:hover {
+    background-color: #0000;
+}
