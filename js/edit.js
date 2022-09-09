@@ -15,6 +15,7 @@ var shadow_blur = 0;
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
     e.addEventListener("click", () => {
+        draw_m(!e.show);
         if (e.show) {
             e.show = !e.show;
             document.querySelectorAll("#draw_side > div")[index].style.height = "0";

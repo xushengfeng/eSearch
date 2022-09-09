@@ -254,7 +254,7 @@ body {
     left: 80px;
     top: 100px;
     width: var(--bar-size);
-    height: 0px;
+    height: calc(var(--bar-size) * 6);
     background: var(--bar-bg);
     position: fixed;
     z-index: 98;

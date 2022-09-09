@@ -317,29 +317,39 @@ var drawing = false;
 var draw_bar_height = `calc(var(--bar-size) * 6)`;
 function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
-    if (drawing) {
-        document.getElementById("tool_draw").className = "hover_b";
-        document.getElementById("draw_bar").style.height = `${draw_bar_height}`;
-        document.getElementById("clip_photo").style.pointerEvents = "none";
-        track_location();
-
-        mouse_bar_el.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "none";
-    } else {
-        document.getElementById("tool_draw").className = "";
-        document.getElementById("draw_bar").style.height = "0";
-        document.getElementById("clip_photo").style.pointerEvents = "auto";
-        document.getElementById("draw_bar").style.width = "var(--bar-size)";
+    draw_m(drawing);
+    if (!drawing) {
         document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
             ei.show = false;
-        });
+        });draw_bar.style.width = "var(--bar-size)";
+        for (const ee of document.querySelectorAll("#draw_main > div")) {
+            (<HTMLDivElement>ee).style.backgroundColor = "";
+        }
+    }
+}
+
+function draw_m(v: boolean) {
+    drawing = v;
+    if (v) {
+        // 绘画模式
+        add_edit_js();
+        document.getElementById("tool_draw").className = "hover_b";
+        document.getElementById("clip_photo").style.pointerEvents = "none";
+        document.getElementById("clip_wh").style.pointerEvents = "none";
+    } else {
+        // 裁切模式
+        document.getElementById("tool_draw").className = "";
+        document.getElementById("clip_photo").style.pointerEvents = "auto";
         hotkeys.setScope("normal");
         fabric_canvas.discardActiveObject();
         fabric_canvas.renderAll();
-
         mouse_bar_el.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "auto";
     }
-    setTimeout(add_edit_js, 400);
 }
+track_location();
+document.getElementById("draw_bar").onmouseenter = () => {
+    add_edit_js();
+};
 
 /**
  * 编辑栏跟踪工具栏
