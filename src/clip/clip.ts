@@ -86,7 +86,7 @@ clip_canvas.onmousedown = (e) => {
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
         right_key = false;
         change_right_bar(false);
-        document.getElementById("tool_bar").style.opacity = "0";
+        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
     }
     if (e.button == 2) {
         right_key = right_key ? false : true;
@@ -106,7 +106,7 @@ clip_canvas.onmousedown = (e) => {
         o_final_rect = final_rect;
         moving = true;
         move_rect(o_final_rect, oe, oe);
-        document.getElementById("tool_bar").style.opacity = "0";
+        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
@@ -641,7 +641,8 @@ function follow_bar(x?: number, y?: number) {
             tool_bar.style.top = max_height - tool_bar.offsetHeight + "px";
         }
     }
-    document.getElementById("tool_bar").style.opacity = "1";
+    draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "1";
+    track_location();
 }
 
 // 移动画画栏
