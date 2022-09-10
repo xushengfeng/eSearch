@@ -414,6 +414,8 @@ function create_clip_window() {
         },
     });
 
+    if (!dev) clip_window.setAlwaysOnTop(true, "screen-saver");
+
     clip_window.loadFile("capture.html");
     clip_window.webContents.on("did-finish-load", () => {
         clip_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
