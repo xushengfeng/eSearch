@@ -882,7 +882,10 @@ function long_s() {
 function long_win(rect) {
     clip_window.setIgnoreMouseEvents(true);
     function mouse() {
-        if (!long_s_v) return;
+        if (!long_s_v) {
+            clip_window.setIgnoreMouseEvents(false);
+            return;
+        }
         if (clip_window.isDestroyed()) return;
         let n_xy = screen.getCursorScreenPoint();
         let ratio = screen.getPrimaryDisplay().scaleFactor;
