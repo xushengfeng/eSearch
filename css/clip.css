@@ -455,3 +455,47 @@ video {
 #long_finish:hover {
     background-color: #0000;
 }
+
+/* 录屏 */
+
+#recorder_rect {
+    position: fixed;
+    outline: 1px solid #000;
+}
+
+#mouse_c {
+    position: fixed;
+    width: 24px;
+    height: 24px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background-color: #ff08;
+}
+
+#recorder_bar {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+}
+
+#recorder_mouse {
+    display: flex;
+}
+
+#recorder_mouse > div:nth-child(1) {
+    width: 8px;
+    height: 16px;
+    border-radius: 4px 0 0 4px;
+    margin-right: -2px;
+}
+#recorder_mouse > div:nth-child(2) {
+    width: 4px;
+    height: 8px;
+    border-radius: 2px;
+    margin-right: -2px;
+}
+#recorder_mouse > div:nth-child(3) {
+    width: 8px;
+    height: 16px;
+    border-radius: 0 4px 4px 0;
+}

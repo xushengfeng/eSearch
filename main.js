@@ -563,6 +563,11 @@ function n_full_screen() {
     clip_window.hide();
 }
 
+function reload_clip() {
+    n_full_screen();
+    if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
+}
+
 var ocr_event;
 function ocr(event, arg) {
     create_main_window("index.html", ["ocr", ...arg]);
@@ -625,7 +630,8 @@ function create_recorder_window(rect) {
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
-        if (!recorder1.isDestroyed()) recorder1.close();
+        reload_clip();
+        clip_window.setIgnoreMouseEvents(false);
     });
 
     recorder.on("resize", () => {
@@ -652,34 +658,12 @@ function create_recorder_window(rect) {
         }
     });
 
-    recorder1 = new BrowserWindow({
-        icon: the_icon,
-        fullscreen: true,
-        transparent: true,
-        frame: false,
-        autoHideMenuBar: true,
-        resizable: process.platform == "linux",
-        titleBarStyle: "hiddenInset",
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        },
-    });
-    recorder1.loadFile("recorder1.html");
-    if (dev) recorder1.webContents.openDevTools();
-
-    recorder1.setAlwaysOnTop(true, "screen-saver");
-
-    recorder1.webContents.on("did-finish-load", () => {
-        recorder1.webContents.send("record", "init", rect);
-    });
-
-    recorder1.setIgnoreMouseEvents(true);
+    clip_window.setIgnoreMouseEvents(true);
 
     function mouse() {
-        if (recorder1.isDestroyed()) return;
+        if (clip_window.isDestroyed()) return;
         let n_xy = screen.getCursorScreenPoint();
-        recorder1.webContents.send("record", "mouse", { x: n_xy.x, y: n_xy.y });
+        clip_window.webContents.send("record", "mouse", { x: n_xy.x, y: n_xy.y });
         setTimeout(mouse, 10);
     }
     if (store.get("录屏.提示.光标.开启")) mouse();
@@ -689,7 +673,8 @@ ipcMain.on("record", (event, type, arg, arg1) => {
     switch (type) {
         case "stop":
             record_start = false;
-            recorder1.close();
+            reload_clip();
+            clip_window.setIgnoreMouseEvents(false);
             break;
         case "start":
             record_start_time = arg;
