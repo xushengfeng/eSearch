@@ -1728,6 +1728,7 @@ ipcRenderer.on("text", (event, name, list) => {
         ocr(list[1], list[2], (err, text) => {
             if (text) {
                 editor_push(text);
+                edit.select_all();
                 ipcRenderer.send("main_win", "ocr", true);
             }
             if (err)
