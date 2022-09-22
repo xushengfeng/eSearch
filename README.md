@@ -22,11 +22,11 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 即拥有 **截屏+OCR+搜索+翻译+贴图+以图搜图+录屏**
 
-![截屏界面](https://esearch.vercel.app/readme/1.png)
+![截屏界面](https://esearch.vercel.app/readme/1.webp)
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
-![识别文字主页面](https://esearch.vercel.app/readme/2.png)
+![识别文字主页面](https://esearch.vercel.app/readme/2.webp)
 
 ## 下载安装
 
@@ -169,7 +169,7 @@ https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-
 
 > Ding 在屏幕上，透明度调节、归位以及鼠标操作（视频约 1.8MB）
 
-![3](https://esearch.vercel.app/readme/3.png)
+![3](https://esearch.vercel.app/readme/3.webp)
 
 > 绘图界面
 
@@ -177,7 +177,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 > 主页面搜索和其他应用编辑（视频约 1.6MB）
 
-![3](https://esearch.vercel.app/readme/4.png)
+![3](https://esearch.vercel.app/readme/4.webp)
 
 > 主页面查找替换（支持正则）
 

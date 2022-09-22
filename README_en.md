@@ -22,11 +22,11 @@ After several version iterations, eSearch has become more and more functional
 
 That is to have **Screenshot+OCR+Search+Translate+Paste Image +Search by Image+Screen Recorder**
 
-![Screenshot screen](https://esearch.vercel.app/readme/1.png)
+![Screenshot screen](https://esearch.vercel.app/readme/1.webp)
 
 > The font is [FiraCode](https://github.com/tonsky/FiraCode), the font can be set in the settings
 
-![Main screen for text recognition](https://esearch.vercel.app/readme/2.png)
+![Main screen for text recognition](https://esearch.vercel.app/readme/2.webp)
 
 ## Download and install
 
@@ -169,7 +169,7 @@ https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-
 
 > Ding on screen, transparency adjustment, homing and mouse operation (video approx. 1.8MB)
 
-![3](https://esearch.vercel.app/readme/3.png)
+![3](https://esearch.vercel.app/readme/3.webp)
 
 > Drawing screen
 
@@ -177,7 +177,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 > Main screen search and other application editing (video approx. 1.6MB)
 
-![3](https://esearch.vercel.app/readme/4.png)
+![3](https://esearch.vercel.app/readme/4.webp)
 
 > main interface find and replace (regular support)
 
