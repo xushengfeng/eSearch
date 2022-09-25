@@ -340,6 +340,10 @@ video {
     overflow: hidden;
     pointer-events: none;
 }
+.mouse_bar_hide {
+    transition: var(--transition);
+    opacity: 0;
+}
 #point_color {
     width: var(--color-size);
     height: var(--color-size);

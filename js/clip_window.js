@@ -1199,6 +1199,12 @@ document.onmousemove = (e) => {
         }
         mouse_bar_el.style.left = `${x}px`;
         mouse_bar_el.style.top = `${y}px`;
+        if (draw_bar.contains(e.target) || tool_bar.contains(e.target)) {
+            mouse_bar_el.classList.add("mouse_bar_hide");
+        }
+        else {
+            mouse_bar_el.classList.remove("mouse_bar_hide");
+        }
         // 画板栏移动
         if (draw_bar_moving) {
             draw_bar.style.left = e.clientX - draw_bar_moving_xy[0] + "px";
