@@ -1530,6 +1530,7 @@ var shadow_blur = 0;
 // 编辑栏
 document.querySelectorAll("#draw_main > div").forEach((e, index) => {
     document.querySelectorAll("#draw_side > div")[index].style.height = "0";
+    e.onmouseenter = show;
     e.addEventListener("click", () => {
         draw_m(!e.show);
         if (e.show) {
@@ -1548,35 +1549,38 @@ document.querySelectorAll("#draw_main > div").forEach((e, index) => {
             }
         }
         else {
-            draw_bar.style.width = "calc(var(--bar-size) * 2)";
-            for (const ee of document.querySelectorAll("#draw_main > div")) {
-                ee.style.backgroundColor = "";
-            }
-            e.style.backgroundColor = "var(--hover-color)";
-            if (draw_bar.getAttribute("right") != "true") {
-                draw_bar.style.transition = "var(--transition)";
-                draw_bar.style.left = draw_bar.getAttribute("right").split(",")[0];
-                setTimeout(() => {
-                    draw_bar.style.transition = "";
-                }, 400);
-            }
-            document.querySelectorAll("#draw_main > div").forEach((ei) => {
-                ei.show = false;
-            });
-            e.show = !e.show;
-            document.querySelectorAll("#draw_side > div").forEach((ei) => {
-                ei.style.height = "0";
-            });
-            var h = 0;
-            Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
-                h += e.offsetHeight;
-            });
-            if (h > Number(draw_bar_height)) {
-                h = Number(draw_bar_height);
-            }
-            document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
+            show();
         }
     });
+    function show() {
+        draw_bar.style.width = "calc(var(--bar-size) * 2)";
+        for (const ee of document.querySelectorAll("#draw_main > div")) {
+            ee.style.backgroundColor = "";
+        }
+        e.style.backgroundColor = "var(--hover-color)";
+        if (draw_bar.getAttribute("right") != "true") {
+            draw_bar.style.transition = "var(--transition)";
+            draw_bar.style.left = draw_bar.getAttribute("right").split(",")[0];
+            setTimeout(() => {
+                draw_bar.style.transition = "";
+            }, 400);
+        }
+        document.querySelectorAll("#draw_main > div").forEach((ei) => {
+            ei.show = false;
+        });
+        e.show = !e.show;
+        document.querySelectorAll("#draw_side > div").forEach((ei) => {
+            ei.style.height = "0";
+        });
+        var h = 0;
+        Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e) => {
+            h += e.offsetHeight;
+        });
+        if (h > Number(draw_bar_height)) {
+            h = Number(draw_bar_height);
+        }
+        document.querySelectorAll("#draw_side > div")[index].style.height = h + "px";
+    }
 });
 var free_i_els = document.querySelectorAll("#draw_free_i > lock-b");
 // 笔
