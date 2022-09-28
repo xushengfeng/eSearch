@@ -130,7 +130,7 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Mouse through
 -   [x] QR code recognition
 -   [x] OCR recognition
-    -   [x] Offline OCR (C++ or Python based implementation, [eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)）
+    -   [x] Offline OCR ([eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)）
     -   [x] Custom offline OCR models and dictionaries
     -   [x] Other online OCR
     -   [x] Online formula recognition

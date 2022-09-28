@@ -130,7 +130,7 @@ esearch (若找不到，请尝试e-search)
     -   [x] 鼠标穿透
 -   [x] 二维码识别
 -   [x] OCR 识别
-    -   [x] 离线 OCR（基于 C++ 或 Python 实现，[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)）
+    -   [x] 离线 OCR（[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)）
     -   [x] 自定义离线 OCR 模型和字典
     -   [x] 其他在线 OCR
     -   [x] 在线公式识别
