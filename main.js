@@ -1442,7 +1442,7 @@ async function create_browser(window_name, url) {
     if (main_window.isDestroyed()) return;
     min_views(main_window);
     var view = new Date().getTime();
-    var search_view = (search_window_l[view] = new BrowserView());
+    var search_view = (search_window_l[view] = new BrowserView({ webPreferences: { webSecurity: false } }));
     if (store.get("开启代理")) await search_view.webContents.session.setProxy(store.get("代理"));
     main_window_l[window_name].addBrowserView(search_view);
     search_view.webContents.loadURL(url);
@@ -1454,6 +1454,7 @@ async function create_browser(window_name, url) {
         create_browser(window_name, url);
         return { action: "deny" };
     });
+    if (dev) search_view.webContents.openDevTools();
     if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "new", url);
     search_view.webContents.on("page-title-updated", (event, title) => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "title", title);
