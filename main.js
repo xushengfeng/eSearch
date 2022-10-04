@@ -19,6 +19,7 @@ const {
 } = require("electron");
 const { Buffer } = require("buffer");
 const robot = require("robotjs");
+const { Screenshots } = require("node-screenshots");
 const Store = require("electron-store");
 const path = require("path");
 const run_path = path.resolve(__dirname, "");
@@ -552,8 +553,24 @@ function full_screen(img_path) {
             clip_window.webContents.send("reflash", p.toBitmap(), s.width, s.height);
         });
     } else {
-        let x = robot.screen.capture();
-        clip_window.webContents.send("reflash", x.image, x.width, x.height);
+        // 获取所有屏幕截图
+        let all = Screenshots.all() ?? [];
+        let x = [];
+        all.forEach((capturer) => {
+            let s = capturer.captureSync();
+            x.push({
+                image: s,
+                id: capturer.id,
+                x: capturer.x,
+                y: capturer.y,
+                width: capturer.width,
+                height: capturer.height,
+                rotation: capturer.rotation,
+                scaleFactor: capturer.scaleFactor,
+                isPrimary: capturer.isPrimary,
+            });
+        });
+        clip_window.webContents.send("reflash", x);
         x = null;
     }
     clip_window.show();

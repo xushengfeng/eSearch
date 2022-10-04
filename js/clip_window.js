@@ -56,9 +56,19 @@ main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width 
 main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
 var final_rect = [0, 0, main_canvas.width, main_canvas.height];
 set_setting();
-ipcRenderer.on("reflash", (a, x, w, h, act) => {
-    main_canvas.width = clip_canvas.width = draw_canvas.width = w;
-    main_canvas.height = clip_canvas.height = draw_canvas.height = h;
+ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
+    // main_canvas.width = clip_canvas.width = draw_canvas.width = w;
+    // main_canvas.height = clip_canvas.height = draw_canvas.height = h;
+    console.log(data);
+    let x, w, h;
+    for (let i of data) {
+        if (i) {
+            x = nativeImage.createFromBuffer(i.image).toBitmap();
+            w = i.width;
+            h = i.height;
+            break;
+        }
+    }
     for (let i = 0; i < x.length; i += 4) {
         [x[i], x[i + 2]] = [x[i + 2], x[i]];
     }

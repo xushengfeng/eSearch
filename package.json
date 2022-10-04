@@ -23,6 +23,7 @@
     "hex-to-css-filter": "^5.4.0",
     "hotkeys-js": "^3.10.0",
     "jsqr": "^1.4.0",
+    "node-screenshots": "^0.0.12",
     "onnxruntime-web": "^1.12.1",
     "opencv.js": "^1.2.1",
     "robotjs": "^0.6.0",

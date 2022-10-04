@@ -14,6 +14,7 @@ specifiers:
   hotkeys-js: ^3.10.0
   jsqr: ^1.4.0
   node-abi: ^3.24.0
+  node-screenshots: ^0.0.12
   onnxruntime-web: ^1.12.1
   opencv.js: ^1.2.1
   robotjs: ^0.6.0
@@ -28,6 +29,7 @@ dependencies:
   hex-to-css-filter: 5.4.0
   hotkeys-js: 3.10.0
   jsqr: 1.4.0
+  node-screenshots: 0.0.12
   onnxruntime-web: 1.12.1
   opencv.js: 1.2.1
   robotjs: 0.6.0
@@ -2510,6 +2512,84 @@ packages:
       - bluebird
       - supports-color
     dev: true
+
+  /node-screenshots-darwin-arm64/0.0.12:
+    resolution: {integrity: sha512-9Y1WonLGcQ78YutZJfNEa/z85AXSY40YQ4wzSrNrh7v8laT13m8CeeWmFcr/qedhjhQunqtOXj1L9UGiruLkDQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots-darwin-x64/0.0.12:
+    resolution: {integrity: sha512-uh4ULPhUAIrfR5yHTxJ5UX11osSg9MjTZbm+7LMhFtiBw3lG67aCq93aTo2IR66OecZLgiH5bl1HdKgUh5SsGw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots-linux-x64-gnu/0.0.12:
+    resolution: {integrity: sha512-KP/uX7rpnQ1wrtSwu8YpvrWqRDD4WGyHusQiI2zctuPiaHjfqM0ODn3G3Jqq/vRGCT3slvRc+GI45C8Mwwc3eg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots-linux-x64-musl/0.0.12:
+    resolution: {integrity: sha512-HL2N56p4hqlJ+7ls4o59MREZ74R3XhZCl5w/UXu3I5pzs1X8/f8yWFkGqvWQ2b7W9HvdBCbTkRFd9K+HsDb94A==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots-win32-arm64-msvc/0.0.12:
+    resolution: {integrity: sha512-J6ZVJGFD+8YTKoU3+gyCBNEXdZW5g7a2Eg8vdNrifv/4sHxI306V14OIp1U246BFO/Q2f3YwV+6Gmz94zydt2A==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots-win32-ia32-msvc/0.0.12:
+    resolution: {integrity: sha512-aEVAxUJtGhQj+D36+7sC8sR0cZy1+gXBQq0lYz1gaprK/lNA4nWPbFLJfpAgBp6B6Sayz3ylsb11HGDAC9HKmA==}
+    engines: {node: '>= 10'}
+    cpu: [ia32]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots-win32-x64-msvc/0.0.12:
+    resolution: {integrity: sha512-vN2qoYG0HMkzKfNwzvxEtXyvsrgsZISMPPenM6RQkn8Vf/PVGSWKMtzoq1DCZtG8wAfXozGHu877FNUWNSi+zw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /node-screenshots/0.0.12:
+    resolution: {integrity: sha512-ocLTxJ4ix0uY7WUjeyURwOEEqB3NwVkCJdhbGYoxqrEgwchaCG6UjLyabfQfRE5ZiRQoai6HsRlo3Np8h8SxHg==}
+    engines: {node: '>= 10'}
+    optionalDependencies:
+      node-screenshots-darwin-arm64: 0.0.12
+      node-screenshots-darwin-x64: 0.0.12
+      node-screenshots-linux-x64-gnu: 0.0.12
+      node-screenshots-linux-x64-musl: 0.0.12
+      node-screenshots-win32-arm64-msvc: 0.0.12
+      node-screenshots-win32-ia32-msvc: 0.0.12
+      node-screenshots-win32-x64-msvc: 0.0.12
+    dev: false
 
   /noop-logger/0.1.1:
     resolution: {integrity: sha512-6kM8CLXvuW5crTxsAtva2YLrRrDaiTIkIePWs9moLHqbFWT94WpNFjwS/5dfLfECg5i/lkmw3aoqVidxt23TEQ==}
