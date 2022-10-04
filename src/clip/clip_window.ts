@@ -67,25 +67,36 @@ var final_rect = [0, 0, main_canvas.width, main_canvas.height];
 
 set_setting();
 ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
-    // main_canvas.width = clip_canvas.width = draw_canvas.width = w;
-    // main_canvas.height = clip_canvas.height = draw_canvas.height = h;
     console.log(data);
-    let x, w, h;
+    function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number) {
+        canvas.width = w;
+        canvas.height = h;
+        let x = nativeImage.createFromBuffer(img).toBitmap();
+        for (let i = 0; i < x.length; i += 4) {
+            [x[i], x[i + 2]] = [x[i + 2], x[i]];
+        }
+        let d = new ImageData(Uint8ClampedArray.from(x), w, h);
+        canvas.getContext("2d").putImageData(d, 0, 0);
+    }
     for (let i of data) {
         if (i) {
-            x = nativeImage.createFromBuffer(i.image).toBitmap();
-            w = i.width;
-            h = i.height;
-            break;
+            if (i.isPrimary) {
+                main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
+                main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
+                to_canvas(main_canvas, i.image, i.width, i.height);
+                final_rect = [0, 0, main_canvas.width, main_canvas.height];
+            }
+            let c = document.createElement("canvas");
+            to_canvas(c, i.image, i.width, i.height);
+            let div = document.createElement("div");
+            div.append(c);
+            side_bar_screens.append(div);
+            div.onclick = () => {
+                to_canvas(main_canvas, i.image, i.width, i.height);
+                final_rect = [0, 0, main_canvas.width, main_canvas.height];
+            };
         }
     }
-
-    for (let i = 0; i < x.length; i += 4) {
-        [x[i], x[i + 2]] = [x[i + 2], x[i]];
-    }
-    var d = new ImageData(Uint8ClampedArray.from(x), w, h);
-    main_canvas.getContext("2d").putImageData(d, 0, 0);
-    final_rect = [0, 0, main_canvas.width, main_canvas.height];
 
     switch (act) {
         case "ocr":
@@ -140,6 +151,8 @@ function edge() {
 
 // 左边窗口工具栏弹出
 var o = false;
+const side_bar = document.getElementById("windows_bar");
+const side_bar_screens = document.getElementById("screens");
 hotkeys("z", windows_bar_c_o);
 function windows_bar_c_o() {
     if (!o) {

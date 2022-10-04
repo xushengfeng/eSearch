@@ -83,6 +83,14 @@ body {
     width: 100%;
     display: block;
 }
+#windows_bar > #screens {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+#windows_bar > #screens > div > canvas {
+    width: 100%;
+}
 #img_history > div > img {
     width: 100%;
     display: block;
