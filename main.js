@@ -192,6 +192,30 @@ async function rm_r(dir_path) {
     });
 }
 
+/**
+ * 生成截屏s
+ * @param { Screenshots[]} screen_list 截屏列表
+ * @returns
+ */
+function capturer(screen_list) {
+    let x = [];
+    screen_list.forEach((capturer) => {
+        let s = capturer.captureSync();
+        x.push({
+            image: s,
+            id: capturer.id,
+            x: capturer.x,
+            y: capturer.y,
+            width: capturer.width,
+            height: capturer.height,
+            rotation: capturer.rotation,
+            scaleFactor: capturer.scaleFactor,
+            isPrimary: capturer.isPrimary,
+        });
+    });
+    return x;
+}
+
 var contextMenu, tray;
 
 app.whenReady().then(() => {
@@ -241,17 +265,17 @@ app.whenReady().then(() => {
         {
             label: t("OCR(文字识别)"),
             click: () => {
-                let x = robot.screen.capture();
-                clip_window.webContents.send("reflash", x.image, x.width, x.height, "ocr");
-                x = null;
+                let s = Screenshots.fromDisplay(screen.getPrimaryDisplay().id);
+                clip_window.webContents.send("reflash", capturer([s]), null, null, "ocr");
+                s = null;
             },
         },
         {
             label: t("以图搜图"),
             click: () => {
-                let x = robot.screen.capture();
-                clip_window.webContents.send("reflash", x.image, x.width, x.height, "image_search");
-                x = null;
+                let s = Screenshots.fromDisplay(screen.getPrimaryDisplay().id);
+                clip_window.webContents.send("reflash", capturer([s]), null, null, "image_search");
+                s = null;
             },
         },
         {
@@ -555,21 +579,7 @@ function full_screen(img_path) {
     } else {
         // 获取所有屏幕截图
         let all = Screenshots.all() ?? [];
-        let x = [];
-        all.forEach((capturer) => {
-            let s = capturer.captureSync();
-            x.push({
-                image: s,
-                id: capturer.id,
-                x: capturer.x,
-                y: capturer.y,
-                width: capturer.width,
-                height: capturer.height,
-                rotation: capturer.rotation,
-                scaleFactor: capturer.scaleFactor,
-                isPrimary: capturer.isPrimary,
-            });
-        });
+        let x = capturer(all);
         clip_window.webContents.send("reflash", x);
         x = null;
     }
