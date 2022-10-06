@@ -55,6 +55,7 @@ draw_canvas.style.width = window.screen.width / 全局缩放 + "px";
 main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
 var final_rect = [0, 0, main_canvas.width, main_canvas.height];
+var now_screen_id = 0;
 set_setting();
 ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
@@ -75,6 +76,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
                 main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
                 to_canvas(main_canvas, i.image, i.width, i.height);
                 final_rect = [0, 0, main_canvas.width, main_canvas.height];
+                now_screen_id = i.id;
             }
             let c = document.createElement("canvas");
             to_canvas(c, i.image, i.width, i.height);
@@ -84,6 +86,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             div.onclick = () => {
                 to_canvas(main_canvas, i.image, i.width, i.height);
                 final_rect = [0, 0, main_canvas.width, main_canvas.height];
+                now_screen_id = i.id;
             };
         }
     }
