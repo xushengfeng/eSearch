@@ -574,7 +574,7 @@ function full_screen(img_path) {
             if (err) console.error(err);
             let p = nativeImage.createFromBuffer(data);
             let s = p.getSize();
-            clip_window.webContents.send("reflash", p.toBitmap(), s.width, s.height);
+            clip_window.webContents.send("reflash", { image: data, width: s.width, heigth: s.height, isPrimary: true });
         });
     } else {
         // 获取所有屏幕截图
