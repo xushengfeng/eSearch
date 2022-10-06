@@ -476,6 +476,7 @@ video {
 }
 
 #mouse_c {
+    display: none;
     position: fixed;
     width: 24px;
     height: 24px;

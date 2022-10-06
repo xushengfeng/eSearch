@@ -381,9 +381,11 @@ function open_app() {
         });
     });
 }
+const recorder_rect_el = document.getElementById("recorder_rect");
+const recorder_mouse_el = document.getElementById("mouse_c");
 function tool_record_f() {
     ipcRenderer.send("clip_main_b", "record", final_rect);
-    let l = [tool_bar, draw_bar, main_canvas, clip_canvas, draw_canvas, wh_el, mouse_bar_el];
+    let l = [tool_bar, draw_bar, main_canvas, clip_canvas, draw_canvas, wh_el, mouse_bar_el, lr];
     for (let i of l) {
         i.style.display = "none";
     }
@@ -433,20 +435,20 @@ function tool_record_f() {
         r_mouse();
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
         uIOhook.start();
-    if (!store.get("录屏.提示.光标.开启"))
-        document.getElementById("mouse_c").style.display = "none";
+    if (store.get("录屏.提示.光标.开启"))
+        recorder_mouse_el.style.display = "block";
     var mouse_style = document.createElement("style");
     mouse_style.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
     document.body.appendChild(mouse_style);
-    document.getElementById("recorder_rect").style.left = final_rect[0] + "px";
-    document.getElementById("recorder_rect").style.top = final_rect[1] + "px";
-    document.getElementById("recorder_rect").style.width = final_rect[2] + "px";
-    document.getElementById("recorder_rect").style.height = final_rect[3] + "px";
+    recorder_rect_el.style.left = final_rect[0] + "px";
+    recorder_rect_el.style.top = final_rect[1] + "px";
+    recorder_rect_el.style.width = final_rect[2] + "px";
+    recorder_rect_el.style.height = final_rect[3] + "px";
     ipcRenderer.on("record", async (event, t, arg) => {
         switch (t) {
             case "mouse":
-                document.getElementById("mouse_c").style.left = arg.x + "px";
-                document.getElementById("mouse_c").style.top = arg.y + "px";
+                recorder_mouse_el.style.left = arg.x + "px";
+                recorder_mouse_el.style.top = arg.y + "px";
                 break;
         }
     });
@@ -511,12 +513,12 @@ function tool_long_f() {
         mask.delete();
     });
 }
+const lr = document.getElementById("long_rect");
 function init_long(rect) {
     let l = [tool_bar, draw_bar, main_canvas, clip_canvas, draw_canvas, wh_el, mouse_bar_el];
     for (let i of l) {
         i.style.display = "none";
     }
-    const lr = document.getElementById("long_rect");
     lr.style.left = rect[0] / ratio + "px";
     lr.style.top = rect[1] / ratio + "px";
     lr.style.width = rect[2] / ratio + "px";
