@@ -1579,36 +1579,37 @@ function get_file_name() {
 }
 // 快速截屏
 function quick_clip() {
-    let x = robot.screen.capture();
-    let image = nativeImage.createFromBuffer(Buffer.from(x.image), { width: x.width, height: x.height });
-    if (store.get("快速截屏.模式") == "clip") {
-        clipboard.writeImage(image);
-        x = image = null;
-    } else if (store.get("快速截屏.模式") == "path" && store.get("快速截屏.路径")) {
-        var file_name = `${store.get("快速截屏.路径")}${get_file_name()}.png`;
-        function check_file(n, name) {
-            // 检查文件是否存在于当前目录中。
-            fs.access(name, fs.constants.F_OK, (err) => {
-                if (!err) {
-                    /* 存在文件，需要重命名 */
-                    name = file_name.replace(/\.png$/, `(${n}).png`);
-                    check_file(n + 1, name);
-                } else {
-                    file_name = name;
-                    fs.writeFile(
-                        file_name,
-                        Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
-                        (err) => {
-                            if (err) return;
-                            noti(file_name);
-                            x = image = null;
-                        }
-                    );
-                }
-            });
+    (Screenshots.all() ?? []).forEach((c) => {
+        let image = nativeImage.createFromBuffer(c.captureSync());
+        if (store.get("快速截屏.模式") == "clip") {
+            clipboard.writeImage(image);
+            x = image = null;
+        } else if (store.get("快速截屏.模式") == "path" && store.get("快速截屏.路径")) {
+            var file_name = `${store.get("快速截屏.路径")}${get_file_name()}.png`;
+            function check_file(n, name) {
+                // 检查文件是否存在于当前目录中。
+                fs.access(name, fs.constants.F_OK, (err) => {
+                    if (!err) {
+                        /* 存在文件，需要重命名 */
+                        name = file_name.replace(/\.png$/, `(${n}).png`);
+                        check_file(n + 1, name);
+                    } else {
+                        file_name = name;
+                        fs.writeFile(
+                            file_name,
+                            Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
+                            (err) => {
+                                if (err) return;
+                                noti(file_name);
+                                image = null;
+                            }
+                        );
+                    }
+                });
+            }
+            check_file(1, file_name);
         }
-        check_file(1, file_name);
-    }
+    });
 }
 
 function noti(file_path) {
