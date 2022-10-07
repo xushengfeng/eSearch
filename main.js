@@ -542,25 +542,6 @@ function create_clip_window() {
                 break;
         }
     });
-
-    // 移动光标
-    ipcMain.on("move_mouse", (event, arrow, d) => {
-        var mouse = robot.getMousePos();
-        switch (arrow) {
-            case "up":
-                robot.moveMouse(mouse.x, mouse.y - 1 * d);
-                break;
-            case "right":
-                robot.moveMouse(mouse.x + 1 * d, mouse.y);
-                break;
-            case "down":
-                robot.moveMouse(mouse.x, mouse.y + 1 * d);
-                break;
-            case "left":
-                robot.moveMouse(mouse.x - 1 * d, mouse.y);
-                break;
-        }
-    });
 }
 
 /**
