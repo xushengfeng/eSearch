@@ -1094,7 +1094,7 @@ if (in_browser) {
                     ["Yandex", "https://yandex.com/search/?text=%s"],
                 ],
                 翻译引擎: [
-                    ["Google", "https://translate.google.cn/?op=translate&text=%s"],
+                    ["Google", "https://translate.google.com.hk/?op=translate&text=%s"],
                     ["Deepl", "https://www.deepl.com/translator#any/any/%s"],
                     ["金山词霸", "http://www.iciba.com/word?w=%s"],
                     ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
