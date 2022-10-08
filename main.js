@@ -20,6 +20,7 @@ const {
 const { Buffer } = require("buffer");
 const robot = require("robotjs");
 const { Screenshots } = require("node-screenshots");
+const { keyboard, Key } = require("@nut-tree/nut-js");
 const Store = require("electron-store");
 const path = require("path");
 const run_path = path.resolve(__dirname, "");
@@ -84,20 +85,15 @@ ipcMain.on("autostart", (event, m, v) => {
     }
 });
 
-function copy_text(callback) {
+async function copy_text(callback) {
     var o_clipboard = clipboard.readText();
     if (process.platform == "darwin") {
         exec(
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
         );
     } else {
-        robot.keyToggle("control", "down");
-        setTimeout(() => {
-            robot.keyTap("c");
-            setTimeout(() => {
-                robot.keyToggle("control", "up");
-            }, 50);
-        }, 50);
+        await keyboard.pressKey(Key.LeftControl, Key.C);
+        await keyboard.releaseKey(Key.LeftControl, Key.C);
     }
     setTimeout(() => {
         let t = clipboard.readText();

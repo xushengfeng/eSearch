@@ -17,6 +17,7 @@
   "dependencies": {
     "@ffmpeg/core": "^0.11.0",
     "@ffmpeg/ffmpeg": "^0.11.5",
+    "@nut-tree/nut-js": "^2.3.0",
     "color": "^4.2.3",
     "electron-store": "^8.0.1",
     "grapheme-splitter": "^1.0.4",
