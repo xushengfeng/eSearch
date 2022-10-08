@@ -465,7 +465,7 @@ var log_o = {
 function tool_long_f() {
     let long_list = (log_o.long_list = []);
     init_long(final_rect);
-    ipcRenderer.send("clip_main_b", "long_s", final_rect);
+    ipcRenderer.send("clip_main_b", "long_s", [...final_rect, now_screen_id]);
     if (!cv)
         cv = require("opencv.js");
     log_o.o_canvas = document.createElement("canvas");

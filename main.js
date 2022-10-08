@@ -530,7 +530,7 @@ function create_clip_window() {
             case "long_s":
                 // n_full_screen();
                 long_s_v = true;
-                long_s();
+                long_s(arg[4]);
                 long_win(arg);
                 break;
             case "long_e":
@@ -876,12 +876,14 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
 
 var long_s_v = false;
 
-function long_s() {
+function long_s(id) {
     if (long_s_v) {
-        let x = robot.screen.capture();
-        clip_window.webContents.send("long", x.image, x.width, x.height);
+        let s = Screenshots.fromDisplay(id);
+        let x = nativeImage.createFromBuffer(capturer([s])[0].image);
+        clip_window.webContents.send("long", x.getBitmap(), x.getSize().width, x.getSize().height);
+        s = x = null;
         setTimeout(() => {
-            long_s();
+            long_s(id);
         }, 200);
     } else {
         clip_window.webContents.send("long", null);
