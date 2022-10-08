@@ -4,7 +4,6 @@
   "description": "识屏 · 搜索",
   "main": "main.js",
   "scripts": {
-    "rebuild": "electron-rebuild -f -w",
     "pack": "electron-builder --dir",
     "dist": "electron-builder -p never"
   },
@@ -32,11 +31,17 @@
   "devDependencies": {
     "download": "^8.0.0",
     "electron": "^19.0.10",
-    "electron-builder": "^23.3.3",
-    "electron-rebuild": "^3.2.9",
-    "node-abi": "^3.24.0"
+    "electron-builder": "^23.3.3"
   },
-  "rebuild": "npm rebuild --runtime=electron --target=19.0.10 --disturl=https://atom.io/download/atom-shell --abi=103",
+  "optionalDependencies": {
+    "node-screenshots-win32-x64-msvc": "0.0.12",
+    "node-screenshots-darwin-x64": "0.0.12",
+    "node-screenshots-linux-x64-gnu": "0.0.12",
+    "node-screenshots-darwin-arm64": "0.0.12",
+    "node-screenshots-win32-arm64-msvc": "0.0.12",
+    "node-screenshots-linux-x64-musl": "0.0.12",
+    "node-screenshots-win32-ia32-msvc": "0.0.12"
+  },
   "build": {
     "appId": "com.esearch.app",
     "directories": {
