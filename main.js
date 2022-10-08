@@ -48,6 +48,9 @@ ipcMain.on("electron-store-get-data", (event) => {
 
 var store = new Store();
 
+/**
+ * @type {Boolean}
+ */
 var dev;
 // 自动开启开发者模式
 if (process.argv.includes("-d")) {
@@ -418,7 +421,7 @@ function create_clip_window() {
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
-        // alwaysOnTop: true,
+        alwaysOnTop: !dev,
         fullscreenable: true,
         transparent: true,
         frame: false,
