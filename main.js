@@ -90,6 +90,8 @@ async function copy_text(callback) {
         exec(
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
         );
+    } else if (process.platform == "win32") {
+        exec(`wscript ${path.join(run_path, "lib/copy.vbs")}`);
     } else {
         await keyboard.pressKey(Key.LeftControl, Key.C);
         await keyboard.releaseKey(Key.LeftControl, Key.C);
