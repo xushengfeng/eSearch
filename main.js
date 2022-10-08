@@ -18,7 +18,6 @@ const {
     session,
 } = require("electron");
 const { Buffer } = require("buffer");
-const robot = require("robotjs");
 const { Screenshots } = require("node-screenshots");
 const { keyboard, Key } = require("@nut-tree/nut-js");
 const Store = require("electron-store");
