@@ -19,7 +19,6 @@ const {
 } = require("electron");
 const { Buffer } = require("buffer");
 const { Screenshots } = require("node-screenshots");
-const { keyboard, Key } = require("@nut-tree/nut-js");
 const Store = require("electron-store");
 const path = require("path");
 const run_path = path.resolve(__dirname, "");
@@ -92,9 +91,8 @@ async function copy_text(callback) {
         );
     } else if (process.platform == "win32") {
         exec(`wscript ${path.join(run_path, "lib/copy.vbs")}`);
-    } else {
-        await keyboard.pressKey(Key.LeftControl, Key.C);
-        await keyboard.releaseKey(Key.LeftControl, Key.C);
+    } else if (process.platform == "linux") {
+        exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
     setTimeout(() => {
         let t = clipboard.readText();

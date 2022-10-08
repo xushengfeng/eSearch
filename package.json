@@ -16,7 +16,6 @@
   "dependencies": {
     "@ffmpeg/core": "^0.11.0",
     "@ffmpeg/ffmpeg": "^0.11.5",
-    "@nut-tree/nut-js": "^2.3.0",
     "color": "^4.2.3",
     "electron-store": "^8.0.1",
     "grapheme-splitter": "^1.0.4",
@@ -34,13 +33,13 @@
     "electron-builder": "^23.3.3"
   },
   "optionalDependencies": {
-    "node-screenshots-win32-x64-msvc": "0.0.12",
+    "node-screenshots-darwin-arm64": "0.0.12",
     "node-screenshots-darwin-x64": "0.0.12",
     "node-screenshots-linux-x64-gnu": "0.0.12",
-    "node-screenshots-darwin-arm64": "0.0.12",
-    "node-screenshots-win32-arm64-msvc": "0.0.12",
     "node-screenshots-linux-x64-musl": "0.0.12",
-    "node-screenshots-win32-ia32-msvc": "0.0.12"
+    "node-screenshots-win32-arm64-msvc": "0.0.12",
+    "node-screenshots-win32-ia32-msvc": "0.0.12",
+    "node-screenshots-win32-x64-msvc": "0.0.12"
   },
   "build": {
     "appId": "com.esearch.app",
