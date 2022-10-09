@@ -2,38 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: 当前文件",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Debug Main Process(Arch Linux)",
-            "type": "node",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "electron",
-            "windows": {
-                "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
-            },
-            "args": [
-                ".",
-                "-d"
-            ]
-        },
-        {
             "name": "Debug Main Process",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
             "windows": {
-                "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
             },
-            "args": [
-                ".",
-                "-d"
+            "runtimeArgs": [
+                "--sourcemap"
             ]
         }
     ]
