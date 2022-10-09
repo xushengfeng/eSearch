@@ -18,7 +18,24 @@ import {
     session,
 } from "electron";
 import { Buffer } from "buffer";
-const { Screenshots } = require("node-screenshots");
+type Screenshots = {
+    id: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation: number;
+    scaleFactor: number;
+    isPrimary: boolean;
+    all(): Array<Screenshots> | null;
+    fromDisplay(id: number): Screenshots | null;
+    fromPoint(x: number, y: number): Screenshots | null;
+    captureSync(): Buffer | null;
+    capture(): Promise<Buffer>;
+    captureAreaSync(x: number, y: number, width: number, height: number): Buffer | null;
+    captureArea(x: number, y: number, width: number, height: number): Promise<Buffer>;
+};
+const { Screenshots } = require("node-screenshots") as { Screenshots: Screenshots };
 const Store = require("electron-store");
 import * as path from "path";
 const run_path = path.join(path.resolve(__dirname, ""), "../../");
@@ -27,7 +44,7 @@ import * as fs from "fs";
 import * as os from "os";
 const lib_path = "../../lib/",
     assets_path = "../../assets";
-const { t, lan } = require("../../lib/translate/translate");
+const { t, lan } = require("../../lib/translate/translate") as { t(t: string): string; lan(t: string): undefined };
 
 // 自定义用户路径
 try {
@@ -55,7 +72,7 @@ var store = new Store();
 /**
  * @type {Boolean}
  */
-var dev;
+var dev: boolean;
 // 自动开启开发者模式
 if (process.argv.includes("-d")) {
     dev = true;
@@ -95,7 +112,7 @@ ipcMain.on("autostart", (event, m, v) => {
  * 复制选区，存在变化，回调
  * @param {Function} callback 回调
  */
-async function copy_text(callback) {
+async function copy_text(callback: (t: string) => void) {
     var o_clipboard = clipboard.readText();
     if (process.platform == "darwin") {
         exec(
@@ -108,11 +125,11 @@ async function copy_text(callback) {
     }
     setTimeout(() => {
         let t = clipboard.readText();
-        let v = false;
+        let v = "";
         if (o_clipboard != t) v = t;
         for (let i of store.get("主搜索功能.自动搜索排除")) {
             if (t.match(i)) {
-                v = false;
+                v = "";
                 break;
             }
         }
@@ -161,7 +178,7 @@ if (!isFirstInstance) {
  * 根据命令运行
  * @param {string[]} c 命令
  */
-function arg_run(c) {
+function arg_run(c: string[]) {
     if (c.includes("-d")) dev = true;
     switch (true) {
         case c.includes("-a"):
@@ -204,7 +221,7 @@ async function rm_r(dir_path) {
  * @param { Screenshots[]} screen_list 截屏列表
  * @returns
  */
-function capturer(screen_list) {
+function capturer(screen_list: Screenshots[]) {
     let x = [];
     screen_list.forEach((capturer) => {
         let s = capturer.captureSync();
@@ -382,7 +399,7 @@ app.whenReady().then(() => {
         }
     });
 
-    var /**@type {Object} */ 快捷键 = store.get("快捷键");
+    var /**@type {Object} */ 快捷键: object = store.get("快捷键");
     for (let k in 快捷键) {
         var m = 快捷键[k];
         try {
@@ -422,7 +439,7 @@ if (process.platform == "win32") {
 /**
  * @type BrowserWindow
  */
-var clip_window = null;
+var clip_window: BrowserWindow = null;
 var clip_window_loaded = false;
 function create_clip_window() {
     clip_window = new BrowserWindow({
@@ -555,7 +572,7 @@ function create_clip_window() {
  * 获取图片并全屏
  * @param {?string} img_path 路径
  */
-function full_screen(img_path) {
+function full_screen(img_path?: string) {
     if (img_path) {
         console.log(img_path);
         fs.readFile(img_path, (err, data) => {
@@ -605,12 +622,12 @@ function image_search(event, arg) {
     image_search_event = event;
 }
 
-var /** @type {BrowserWindow}*/ recorder;
+var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
 var o_rect;
 function create_recorder_window(rect) {
     o_rect = rect;
     let ratio = screen.getPrimaryDisplay().scaleFactor;
-    let p = screen.getCursorScreenPoint() * ratio;
+    let p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
     rect = rect.map((v) => v / ratio);
     let hx = rect[0] + rect[2] / 2,
         hy = rect[1] + rect[3] / 2,
@@ -661,16 +678,11 @@ function create_recorder_window(rect) {
         }
     });
 
-    mouse_ps = {};
-    record_start = false;
-
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
             recorder.webContents.send("record", "init", sources[0].id, rect);
         });
     });
-    record_start = true;
-    mouse_ps = { rect };
 
     globalShortcut.register("Super+R", () => {
         if (!recorder.isDestroyed()) {
@@ -692,12 +704,10 @@ function create_recorder_window(rect) {
 ipcMain.on("record", (event, type, arg, arg1) => {
     switch (type) {
         case "stop":
-            record_start = false;
             reload_clip();
             clip_window.setIgnoreMouseEvents(false);
             break;
         case "start":
-            record_start_time = arg;
             break;
         case "ff": // 处理视频
             var saved_path = store.get("保存.保存路径.视频") || "";
@@ -705,7 +715,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                 .showSaveDialog({
                     title: t("选择要保存的位置"),
                     defaultPath: path.join(saved_path, `${get_file_name()}.${arg.格式}`),
-                    filters: [{ name: t("视频") }],
+                    filters: [{ name: t("视频"), extensions: null }],
                 })
                 .then(async (x) => {
                     if (x.filePath) {
@@ -795,8 +805,6 @@ ipcMain.on("record", (event, type, arg, arg1) => {
             }
             break;
         case "pause_time":
-            record_mouse_v = !arg.pause;
-            record_start_d_time = arg.dt;
             break;
     }
 });
@@ -853,7 +861,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
                 Promise.all([
                     ses.clearAuthCache(),
                     ses.clearCache(),
-                    ses.clearCodeCaches(),
+                    ses.clearCodeCaches({}),
                     ses.clearHostResolverCache(),
                 ])
                     .then(() => {
@@ -1228,7 +1236,7 @@ const template = [
             },
         ],
     },
-];
+] as (Electron.MenuItemConstructorOptions | Electron.MenuItem)[];
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
@@ -1316,21 +1324,21 @@ function create_ding_window(x, y, w, h, img) {
 /**
  * @type {Object.<number, BrowserWindow>}
  */
-var main_window_l = {};
+var main_window_l: { [n: number]: BrowserWindow } = {};
 
 /**
  * @type {BrowserWindow}
  */
-var ocr_run_window;
+var ocr_run_window: BrowserWindow;
 /**
  * @type {BrowserWindow}
  */
-var image_search_window;
+var image_search_window: BrowserWindow;
 /**
  * @type {Object.<number, Array.<number>>}
  */
-var main_to_search_l = {};
-async function create_main_window(web_page, t, about) {
+var main_to_search_l: { [n: number]: Array<number> } = {};
+async function create_main_window(web_page: string, t?: boolean | Array<any>, about?: boolean) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
     let vw = screen.getPrimaryDisplay().bounds.width,
@@ -1352,7 +1360,7 @@ async function create_main_window(web_page, t, about) {
             contextIsolation: false,
         },
         show: false,
-    }));
+    })) as BrowserWindow & { html: string };
 
     main_to_search_l[window_name] = [];
 
@@ -1401,6 +1409,7 @@ async function create_main_window(web_page, t, about) {
             main_window.isMaximized(),
         ]);
         for (let i of main_window.getBrowserViews()) {
+            // @ts-ignore
             i?.webContents?.destroy();
         }
     });
@@ -1448,14 +1457,14 @@ ipcMain.on("main_win", (e, arg, arg1) => {
  * 向聚焦的主页面发送事件信息
  * @param {String} m
  */
-function main_edit(window, m) {
+function main_edit(window, m: string) {
     window.webContents.send("edit", m);
 }
 
 /**
  * @type {Object.<number, BrowserView>}
  */
-var search_window_l = {};
+var search_window_l: { [n: number]: BrowserView } = {};
 ipcMain.on("open_url", (event, window_name, url) => {
     create_browser(window_name, url);
 });
@@ -1501,7 +1510,7 @@ async function create_browser(window_name, url) {
     const bg_path = path.join(__dirname, "../renderer", "browser_bg.html");
     search_view.webContents.on("did-fail-load", (event, err_code, err_des) => {
         search_view.webContents.loadFile(bg_path, {
-            query: { type: "did-fail-load", err_code, err_des },
+            query: { type: "did-fail-load", err_code: String(err_code), err_des },
         });
         if (dev) search_view.webContents.openDevTools();
     });
@@ -1526,7 +1535,7 @@ async function create_browser(window_name, url) {
  * @param {BrowserWindow} w 浏览器
  * @param {String} arg 事件字符
  */
-function view_events(w, arg) {
+function view_events(w: BrowserWindow, arg: string) {
     w.webContents.send("view_events", arg);
 }
 
@@ -1536,6 +1545,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
     switch (arg) {
         case "close":
             main_window.removeBrowserView(search_window);
+            // @ts-ignore
             search_window.webContents.destroy();
             delete search_window_l[id];
             break;
@@ -1594,31 +1604,31 @@ function quick_clip() {
         let image = nativeImage.createFromBuffer(c.captureSync());
         if (store.get("快速截屏.模式") == "clip") {
             clipboard.writeImage(image);
-            x = image = null;
+            image = null;
         } else if (store.get("快速截屏.模式") == "path" && store.get("快速截屏.路径")) {
             var file_name = `${store.get("快速截屏.路径")}${get_file_name()}.png`;
-            function check_file(n, name) {
-                // 检查文件是否存在于当前目录中。
-                fs.access(name, fs.constants.F_OK, (err) => {
-                    if (!err) {
-                        /* 存在文件，需要重命名 */
-                        name = file_name.replace(/\.png$/, `(${n}).png`);
-                        check_file(n + 1, name);
-                    } else {
-                        file_name = name;
-                        fs.writeFile(
-                            file_name,
-                            Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
-                            (err) => {
-                                if (err) return;
-                                noti(file_name);
-                                image = null;
-                            }
-                        );
-                    }
-                });
-            }
             check_file(1, file_name);
+        }
+        function check_file(n, name) {
+            // 检查文件是否存在于当前目录中。
+            fs.access(name, fs.constants.F_OK, (err) => {
+                if (!err) {
+                    /* 存在文件，需要重命名 */
+                    name = file_name.replace(/\.png$/, `(${n}).png`);
+                    check_file(n + 1, name);
+                } else {
+                    file_name = name;
+                    fs.writeFile(
+                        file_name,
+                        Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
+                        (err) => {
+                            if (err) return;
+                            noti(file_name);
+                            image = null;
+                        }
+                    );
+                }
+            });
         }
     });
 }
@@ -1668,7 +1678,7 @@ var default_setting = {
         快速截屏: {},
         主页面: {},
     },
-    点击托盘自动截图: true,
+    点击托盘自动截图: process.platform != "linux",
     其他快捷键: {
         关闭: "Escape",
         OCR: "Enter",
@@ -1859,7 +1869,6 @@ var default_setting = {
         },
     },
     插件: { 加载前: [], 加载后: [] },
-    点击托盘自动截图: process.platform != "linux",
 };
 try {
     default_setting.保存.保存路径.图片 = app.getPath("pictures");
