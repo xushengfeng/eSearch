@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {
+import {
     app,
     Tray,
     Menu,
@@ -16,15 +16,15 @@ const {
     screen,
     desktopCapturer,
     session,
-} = require("electron");
-const { Buffer } = require("buffer");
+} from "electron";
+import { Buffer } from "buffer";
 const { Screenshots } = require("node-screenshots");
 const Store = require("electron-store");
-const path = require("path");
+import * as path from "path";
 const run_path = path.join(path.resolve(__dirname, ""), "../../");
-const { exec } = require("child_process");
-const fs = require("fs");
-const os = require("os");
+import { exec } from "child_process";
+import * as fs from "fs";
+import * as os from "os";
 const lib_path = "../../lib/",
     assets_path = "../../assets";
 const { t, lan } = require("../../lib/translate/translate");
