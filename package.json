@@ -4,11 +4,11 @@
   "description": "识屏 · 搜索",
   "main": "./out/main/main.js",
   "scripts": {
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder -p never",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder -p never",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "npm run typecheck && electron-vite build"
+    "build": "electron-vite build"
   },
   "author": {
     "name": "xsf",
