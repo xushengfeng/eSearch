@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 // Modules to control application life and create native browser window
 import {
     app,
@@ -74,7 +75,8 @@ var store = new Store();
  */
 var dev: boolean;
 // 自动开启开发者模式
-if (process.argv.includes("-d")) {
+// @ts-ignore
+if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = true;
 } else {
     dev = false;
