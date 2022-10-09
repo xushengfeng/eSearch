@@ -27,6 +27,8 @@ const fs = require("fs");
 const os = require("os");
 const { t, lan } = require("./lib/translate/translate");
 
+
+// 自定义用户路径
 try {
     var userDataPath = fs.readFileSync(path.join(run_path, "preload_config")).toString().trim();
     if (userDataPath) {
@@ -39,6 +41,7 @@ try {
     }
 } catch (e) {}
 
+// 重写存储获取用户路径的方式
 ipcMain.on("electron-store-get-data", (event) => {
     event.returnValue = {
         defaultCwd: app.getPath("userData"),
@@ -63,6 +66,7 @@ if (!store.get("硬件加速")) {
     app.disableHardwareAcceleration();
 }
 
+// 自启动
 ipcMain.on("autostart", (event, m, v) => {
     if (m == "set") {
         if (process.platform == "linux") {
@@ -86,6 +90,10 @@ ipcMain.on("autostart", (event, m, v) => {
     }
 });
 
+/**
+ * 复制选区，存在变化，回调
+ * @param {Function} callback 回调
+ */
 async function copy_text(callback) {
     var o_clipboard = clipboard.readText();
     if (process.platform == "darwin") {
@@ -421,7 +429,7 @@ function create_clip_window() {
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
-        alwaysOnTop: !dev,
+        alwaysOnTop: !dev, // 为了方便调试，调试模式就不居上了
         fullscreenable: true,
         transparent: true,
         frame: false,
@@ -572,11 +580,13 @@ function full_screen(img_path) {
     clip_window.setSimpleFullScreen(true);
 }
 
+// 隐藏截屏窗口
 function n_full_screen() {
     clip_window.setSimpleFullScreen(false);
     clip_window.hide();
 }
 
+// 刷新（初始化）截屏窗口
 function reload_clip() {
     n_full_screen();
     if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
@@ -594,13 +604,8 @@ function image_search(event, arg) {
     image_search_event = event;
 }
 
-var /** @type {BrowserWindow}*/ recorder, /** @type {BrowserWindow}*/ recorder1;
-var mouse_ps = {};
+var /** @type {BrowserWindow}*/ recorder;
 var o_rect;
-var record_start = false;
-var record_mouse_v = false;
-var record_start_time = 0;
-var record_start_d_time = 0;
 function create_recorder_window(rect) {
     o_rect = rect;
     let ratio = screen.getPrimaryDisplay().scaleFactor;
@@ -693,7 +698,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
         case "start":
             record_start_time = arg;
             break;
-        case "ff":
+        case "ff": // 处理视频
             var saved_path = store.get("保存.保存路径.视频") || "";
             dialog
                 .showSaveDialog({
@@ -875,6 +880,8 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             }
     }
 });
+
+// 长截屏
 
 var long_s_v = false;
 
