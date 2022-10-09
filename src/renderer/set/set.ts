@@ -297,7 +297,7 @@ document.getElementById("保存文件名称前缀").oninput = document.getElemen
 };
 document.getElementById("保存文件名称时间").oninput = show_f_time;
 function show_f_time() {
-    var f = require("./lib/time_format");
+    var f = require("../../lib/time_format");
     var save_time = new Date();
     document.getElementById("保存文件名称_p").innerText = `${
         (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value

@@ -1660,7 +1660,7 @@ function render_history() {
         var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
         div.id = i;
-        var f = require("./lib/time_format");
+        var f = require("../../lib/time_format");
         div.innerHTML = `<div class="history_title"><span>${f(
             store.get("时间格式"),
             new Date(Number(i) - 0)
@@ -1766,7 +1766,7 @@ function edit_on_other() {
             if (edit_on_other_type == "o") {
                 shell.openPath(tmp_text_path);
             } else if (edit_on_other_type == "c") {
-                var open_with = require("./lib/open_with");
+                var open_with = require("../../lib/open_with");
                 open_with(tmp_text_path);
             }
             file_watcher = fs.watch(tmp_text_path, () => {
@@ -1898,7 +1898,7 @@ function add_selection_linux() {
     }
 }
 
-const { t, lan } = require("./lib/translate/translate");
+const { t, lan } = require("../../lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 

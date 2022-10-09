@@ -409,7 +409,7 @@ function open_app() {
         var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         var dataBuffer = new Buffer(f, "base64");
         fs.writeFile(tmp_photo, dataBuffer, () => {
-            var open = require("./lib/open_with");
+            var open = require("../../lib/open_with");
             open(tmp_photo);
         });
     });
@@ -760,7 +760,7 @@ tool_bar.addEventListener("mouseup", (e) => {
     if (e.button == 2) tool_position = { x: null, y: null };
 });
 
-const { t, lan } = require("./lib/translate/translate");
+const { t, lan } = require("../../lib/translate/translate");
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 
@@ -1639,7 +1639,7 @@ document.getElementById("操作_删除").onclick = () => {
     fabric_delete();
 };
 
-const { fabric } = require("./lib/fabric.min.js");
+const { fabric } = require("../../lib/fabric.min.js");
 var fabric_canvas = new fabric.Canvas("draw_photo");
 
 var canvas_container = <HTMLCanvasElement>document.querySelector(".canvas-container");
@@ -2665,3 +2665,18 @@ function fabric_copy() {
     his_push();
 }
 hotkeys("Ctrl+v", "normal", fabric_copy);
+
+// 插件
+for (let p of store.get("插件.加载后")) {
+    if (p.match(/\.css$/i)) {
+        let i = document.createElement("link");
+        i.rel = "stylesheet";
+        i.type = "text/css";
+        i.href = p;
+        document.body.before(i);
+    } else {
+        let s = document.createElement("script");
+        s.src = p;
+        document.body.before(s);
+    }
+}
