@@ -1,7 +1,8 @@
+/// <reference types="vite/client" />
 // In the renderer process.
 const { ipcRenderer, clipboard, nativeImage } = require("electron");
 const Store = require("electron-store");
-const hotkeys = require("hotkeys-js");
+import hotkeys from "hotkeys-js";
 
 // 获取设置
 var store = new Store();
@@ -1639,8 +1640,15 @@ document.getElementById("操作_删除").onclick = () => {
     fabric_delete();
 };
 
-const { fabric } = require("../../lib/fabric.min.js");
-var fabric_canvas = new fabric.Canvas("draw_photo");
+import fabric_src from "../../../lib/fabric.min.js?raw";
+let fabric_el = document.createElement("script");
+fabric_el.innerHTML = fabric_src;
+document.body.append(fabric_el);
+// @ts-ignore
+Fabric = window.fabric;
+var Fabric;
+
+var fabric_canvas = new Fabric.Canvas("draw_photo");
 
 var canvas_container = <HTMLCanvasElement>document.querySelector(".canvas-container");
 var upper_canvas = <HTMLCanvasElement>document.querySelector(".upper-canvas");
@@ -1722,7 +1730,7 @@ pencil_el.oninput = () => {
         free_i_els[1].checked = false;
         free_i_els[2].checked = false;
 
-        fabric_canvas.freeDrawingBrush = new fabric.PencilBrush(fabric_canvas);
+        fabric_canvas.freeDrawingBrush = new Fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
         free_shadow();
@@ -1740,7 +1748,7 @@ eraser_el.oninput = () => {
         free_i_els[0].checked = false;
         free_i_els[2].checked = false;
 
-        fabric_canvas.freeDrawingBrush = new fabric.EraserBrush(fabric_canvas);
+        fabric_canvas.freeDrawingBrush = new Fabric.EraserBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.width = free_width;
     }
     exit_shape();
@@ -1756,7 +1764,7 @@ free_spray_el.oninput = () => {
         free_i_els[0].checked = false;
         free_i_els[1].checked = false;
 
-        fabric_canvas.freeDrawingBrush = new fabric.SprayBrush(fabric_canvas);
+        fabric_canvas.freeDrawingBrush = new Fabric.SprayBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
     }
@@ -1769,7 +1777,7 @@ free_spray_el.oninput = () => {
 
 function free_shadow() {
     shadow_blur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
-    fabric_canvas.freeDrawingBrush.shadow = new fabric.Shadow({
+    fabric_canvas.freeDrawingBrush.shadow = new Fabric.Shadow({
         blur: shadow_blur,
         color: free_color,
     });
@@ -1942,13 +1950,13 @@ function draw(shape, v, x1, y1, x2, y2) {
     var [x, y, w, h] = p_xy_to_c_xy(draw_canvas, x1, y1, x2, y2);
     switch (shape) {
         case "line":
-            shapes[shapes.length] = new fabric.Line([x1, y1, x2, y2], {
+            shapes[shapes.length] = new Fabric.Line([x1, y1, x2, y2], {
                 stroke: stroke_color,
                 形状: "line",
             });
             break;
         case "circle":
-            shapes[shapes.length] = new fabric.Circle({
+            shapes[shapes.length] = new Fabric.Circle({
                 radius: Math.max(w / ratio, h / ratio) / 2,
                 left: x / ratio,
                 top: y / ratio,
@@ -1960,7 +1968,7 @@ function draw(shape, v, x1, y1, x2, y2) {
             });
             break;
         case "rect":
-            shapes[shapes.length] = new fabric.Rect({
+            shapes[shapes.length] = new Fabric.Rect({
                 left: x / ratio,
                 top: y / ratio,
                 width: w / ratio,
@@ -1974,7 +1982,7 @@ function draw(shape, v, x1, y1, x2, y2) {
             break;
         case "text":
             shapes.push(
-                new fabric.IText("点击输入文字", {
+                new Fabric.IText("点击输入文字", {
                     left: x / ratio,
                     top: y / ratio,
                     canChangeFill: true,
@@ -1983,10 +1991,10 @@ function draw(shape, v, x1, y1, x2, y2) {
             );
             break;
         case "arrow":
-            let line = new fabric.Line([x1, y1, x2, y2], {
+            let line = new Fabric.Line([x1, y1, x2, y2], {
                 stroke: stroke_color,
             });
-            let t = new fabric.Triangle({
+            let t = new Fabric.Triangle({
                 width: 20,
                 height: 25,
                 fill: stroke_color,
@@ -1995,7 +2003,7 @@ function draw(shape, v, x1, y1, x2, y2) {
                 originX: "center",
                 angle: (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 90,
             });
-            shapes.push(new fabric.Group([line, t]));
+            shapes.push(new Fabric.Group([line, t]));
             break;
         default:
             break;
@@ -2010,7 +2018,7 @@ function draw_poly(shape) {
     }
     if (shape == "polyline") {
         shapes.push(
-            new fabric.Polyline(poly_o_p, {
+            new Fabric.Polyline(poly_o_p, {
                 fill: "#0000",
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
@@ -2020,7 +2028,7 @@ function draw_poly(shape) {
     }
     if (shape == "polygon") {
         shapes.push(
-            new fabric.Polygon(poly_o_p, {
+            new Fabric.Polygon(poly_o_p, {
                 fill: fill_color,
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
@@ -2036,7 +2044,7 @@ function draw_number() {
     draw_number_n = Number(shapes?.[shapes.length - 1]?.text) + 1 || draw_number_n;
     let p = poly_o_p[poly_o_p.length - 1];
 
-    let txt = new fabric.IText(String(draw_number_n), {
+    let txt = new Fabric.IText(String(draw_number_n), {
         left: p.x,
         top: p.y,
         fontSize: 16,
@@ -2044,7 +2052,7 @@ function draw_number() {
         originY: "center",
         canChangeFill: true,
     });
-    let cr = new fabric.Circle({
+    let cr = new Fabric.Circle({
         radius: 10,
         left: p.x,
         top: p.y,
@@ -2304,10 +2312,10 @@ function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
 }
 
 // 滤镜
-fabric_canvas.filterBackend = fabric.initFilterBackend();
+fabric_canvas.filterBackend = Fabric.initFilterBackend();
 var webglBackend;
 try {
-    webglBackend = new fabric.WebglFilterBackend();
+    webglBackend = new Fabric.WebglFilterBackend();
     fabric_canvas.filterBackend = webglBackend;
 } catch (e) {
     console.log(e);
@@ -2330,7 +2338,7 @@ function new_filter_select(o, no) {
     tmp_canvas.height = h;
     var gid = main_ctx.getImageData(x, y, w, h); // 裁剪
     tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-    var img = new fabric.Image(tmp_canvas, {
+    var img = new Fabric.Image(tmp_canvas, {
         left: x,
         top: y,
         lockMovementX: true,
@@ -2433,7 +2441,7 @@ s_h_filters_div(true);
 (<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).oninput = () => {
     var value = Number((<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).value);
     if (value != 0) {
-        var filter = new fabric.Image.filters.Pixelate({
+        var filter = new Fabric.Image.filters.Pixelate({
             blocksize: value,
         });
         apply_filter(0, filter);
@@ -2445,7 +2453,7 @@ s_h_filters_div(true);
 (<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).oninput = () => {
     var value = Number((<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).value) / 100;
     if (value != 0) {
-        var filter = new fabric.Image.filters.Blur({
+        var filter = new Fabric.Image.filters.Blur({
             blur: value,
         });
         apply_filter(1, filter);
@@ -2456,7 +2464,7 @@ s_h_filters_div(true);
 // 亮度
 (<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).value;
-    var filter = new fabric.Image.filters.Brightness({
+    var filter = new Fabric.Image.filters.Brightness({
         brightness: value,
     });
     apply_filter(2, filter);
@@ -2464,7 +2472,7 @@ s_h_filters_div(true);
 // 对比度
 (<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).value;
-    var filter = new fabric.Image.filters.Contrast({
+    var filter = new Fabric.Image.filters.Contrast({
         contrast: value,
     });
     apply_filter(3, filter);
@@ -2472,7 +2480,7 @@ s_h_filters_div(true);
 // 饱和度
 (<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).value;
-    var filter = new fabric.Image.filters.Saturation({
+    var filter = new Fabric.Image.filters.Saturation({
         saturation: value,
     });
     apply_filter(4, filter);
@@ -2480,7 +2488,7 @@ s_h_filters_div(true);
 // 色调
 (<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).value;
-    var filter = new fabric.Image.filters.HueRotation({
+    var filter = new Fabric.Image.filters.HueRotation({
         rotation: value,
     });
     apply_filter(5, filter);
@@ -2493,7 +2501,7 @@ s_h_filters_div(true);
             var r = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value;
             var g = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value;
             var b = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value;
-            var filter = new fabric.Image.filters.Gamma({
+            var filter = new Fabric.Image.filters.Gamma({
                 gamma: [r, g, b],
             });
             apply_filter(6, filter);
@@ -2501,7 +2509,7 @@ s_h_filters_div(true);
 // 噪音
 (<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).value;
-    var filter = new fabric.Image.filters.Noise({
+    var filter = new Fabric.Image.filters.Noise({
         noise: value,
     });
     apply_filter(7, filter);
@@ -2511,69 +2519,69 @@ s_h_filters_div(true);
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked)
-        var filter = new fabric.Image.filters.Grayscale({ mode: "average" });
+        var filter = new Fabric.Image.filters.Grayscale({ mode: "average" });
     apply_filter(8, filter);
 };
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked)
-        var filter = new fabric.Image.filters.Grayscale({ mode: "lightness" });
+        var filter = new Fabric.Image.filters.Grayscale({ mode: "lightness" });
     apply_filter(8, filter);
 };
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
     if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked)
-        var filter = new fabric.Image.filters.Grayscale({ mode: "luminosity" });
+        var filter = new Fabric.Image.filters.Grayscale({ mode: "luminosity" });
     apply_filter(8, filter);
 };
 // 负片
 (<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Invert() : null;
+    var filter = value ? new Fabric.Image.filters.Invert() : null;
     apply_filter(9, filter);
 };
 // 棕褐色
 (<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Sepia() : null;
+    var filter = value ? new Fabric.Image.filters.Sepia() : null;
     apply_filter(10, filter);
 };
 // 黑白
 (<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.BlackWhite() : null;
+    var filter = value ? new Fabric.Image.filters.BlackWhite() : null;
     apply_filter(11, filter);
 };
 // 布朗尼
 (<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Brownie() : null;
+    var filter = value ? new Fabric.Image.filters.Brownie() : null;
     apply_filter(12, filter);
 };
 // 老式
 (<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Vintage() : null;
+    var filter = value ? new Fabric.Image.filters.Vintage() : null;
     apply_filter(13, filter);
 };
 // 柯达彩色胶片
 (<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Kodachrome() : null;
+    var filter = value ? new Fabric.Image.filters.Kodachrome() : null;
     apply_filter(14, filter);
 };
 // 特艺色彩
 (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Technicolor() : null;
+    var filter = value ? new Fabric.Image.filters.Technicolor() : null;
     apply_filter(15, filter);
 };
 // 宝丽来
 (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).oninput = () => {
     var value = (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked;
-    var filter = value ? new fabric.Image.filters.Polaroid() : null;
+    var filter = value ? new Fabric.Image.filters.Polaroid() : null;
     apply_filter(16, filter);
 };
 
