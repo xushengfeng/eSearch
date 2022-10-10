@@ -3,6 +3,7 @@
 const { ipcRenderer, clipboard, nativeImage } = require("electron");
 const Store = require("electron-store");
 import hotkeys from "hotkeys-js";
+import "../../../lib/template2.js";
 
 // 获取设置
 var store = new Store();

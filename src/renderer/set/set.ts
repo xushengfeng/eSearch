@@ -1,3 +1,5 @@
+import "../../../lib/template.js";
+import "../../../lib/template2.js";
 import { shell, ipcRenderer } from "electron";
 const os = require("os");
 const fs = require("fs");

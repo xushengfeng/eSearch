@@ -1,5 +1,6 @@
 import root_init from "../root/root";
 root_init();
+import "../../../lib/template2.js";
 const Store = require("electron-store");
 var store = new Store();
 
