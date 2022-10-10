@@ -1,1 +1,22 @@
-/home/xsf/Project/eSearch/eSearch/src/renderer/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "sourceMap": false,
+    "strict": false,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true
+  },
+  "files": [
+    "set.ts",
+    "setting_preload.ts"
+  ]
+}
