@@ -82,6 +82,14 @@ if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = false;
 }
 
+function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: string, q?: Electron.LoadFileOptions) {
+    if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
+        window.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/${file_name}`);
+    } else {
+        window.loadFile(path.join(__dirname, "../renderer", file_name), q);
+    }
+}
+
 if (!store.get("硬件加速")) {
     app.disableHardwareAcceleration();
 }
@@ -467,7 +475,7 @@ function create_clip_window() {
 
     if (!dev) clip_window.setAlwaysOnTop(true, "screen-saver");
 
-    clip_window.loadFile(path.join(__dirname, "../renderer", "capture.html"));
+    renderer_path(clip_window, "capture.html");
     clip_window.webContents.on("did-finish-load", () => {
         clip_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         if (clip_window_loaded) return;
@@ -661,7 +669,7 @@ function create_recorder_window(rect) {
             contextIsolation: false,
         },
     });
-    recorder.loadFile(path.join(__dirname, "../renderer", "recorder.html"));
+    renderer_path(recorder, "recorder.html");
     if (dev) recorder.webContents.openDevTools();
 
     recorder.setAlwaysOnTop(true, "screen-saver");
@@ -1264,7 +1272,7 @@ function create_ding_window(x, y, w, h, img) {
             },
         });
 
-        ding_window.loadFile(path.join(__dirname, "../renderer", "ding.html"));
+        renderer_path(ding_window, "ding.html");
         if (dev) ding_window.webContents.openDevTools();
         ding_window.webContents.on("did-finish-load", () => {
             ding_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
@@ -1369,13 +1377,7 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
     if (m) main_window.maximize();
 
     // 自定义界面
-    let page_path = "";
-    if (path.isAbsolute(web_page)) {
-        page_path = web_page;
-    } else {
-        page_path = path.join(__dirname, "../renderer/", web_page || "index.html");
-    }
-    main_window.loadFile(page_path);
+    renderer_path(main_window, web_page || "index.html");
 
     if (store.get("开启代理")) await main_window.webContents.session.setProxy(store.get("代理"));
 
@@ -1509,26 +1511,25 @@ async function create_browser(window_name, url) {
     search_view.webContents.on("did-stop-loading", () => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "load", false);
     });
-    const bg_path = path.join(__dirname, "../renderer", "browser_bg.html");
     search_view.webContents.on("did-fail-load", (event, err_code, err_des) => {
-        search_view.webContents.loadFile(bg_path, {
+        renderer_path(search_view.webContents, "browser_bg.html", {
             query: { type: "did-fail-load", err_code: String(err_code), err_des },
         });
         if (dev) search_view.webContents.openDevTools();
     });
     search_view.webContents.on("render-process-gone", () => {
-        search_view.webContents.loadFile(bg_path, { query: { type: "render-process-gone" } });
+        renderer_path(search_view.webContents, "browser_bg.html", { query: { type: "render-process-gone" } });
         if (dev) search_view.webContents.openDevTools();
     });
     search_view.webContents.on("unresponsive", () => {
-        search_view.webContents.loadFile(bg_path, { query: { type: "unresponsive" } });
+        renderer_path(search_view.webContents, "browser_bg.html", { query: { type: "unresponsive" } });
         if (dev) search_view.webContents.openDevTools();
     });
     search_view.webContents.on("responsive", () => {
         search_view.webContents.loadURL(url);
     });
     search_view.webContents.on("certificate-error", () => {
-        search_view.webContents.loadFile(bg_path, { query: { type: "certificate-error" } });
+        renderer_path(search_view.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
         if (dev) search_view.webContents.openDevTools();
     });
 }
