@@ -298,12 +298,12 @@ document.getElementById("保存文件名称前缀").oninput = document.getElemen
     show_f_time();
 };
 document.getElementById("保存文件名称时间").oninput = show_f_time;
+import time_format from "../../../lib/time_format";
 function show_f_time() {
-    var f = require("../../lib/time_format");
     var save_time = new Date();
     document.getElementById("保存文件名称_p").innerText = `${
         (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value
-    }${f((<HTMLInputElement>document.getElementById("保存文件名称时间")).value, save_time)}${
+    }${time_format((<HTMLInputElement>document.getElementById("保存文件名称时间")).value, save_time)}${
         (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value
     }`;
 }

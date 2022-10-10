@@ -1643,6 +1643,7 @@ function show_history() {
         render_history();
     }
 }
+import time_format from "../../../lib/time_format";
 function render_history() {
     var n = {};
     for (let i of Object.keys(history_list).sort()) {
@@ -1660,8 +1661,7 @@ function render_history() {
         var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
         div.id = i;
-        var f = require("../../lib/time_format");
-        div.innerHTML = `<div class="history_title"><span>${f(
+        div.innerHTML = `<div class="history_title"><span>${time_format(
             store.get("时间格式"),
             new Date(Number(i) - 0)
         )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${

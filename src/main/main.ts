@@ -46,6 +46,7 @@ import * as os from "os";
 const lib_path = "../../lib/",
     assets_path = "../../assets";
 import { t, lan } from "../../lib/translate/translate";
+import time_format from "../../lib/time_format";
 
 // 自定义用户路径
 try {
@@ -1596,8 +1597,7 @@ function min_views(main_window) {
 }
 
 function get_file_name() {
-    const f = require("./lib/time_format");
-    var save_name_time = f(store.get("保存名称.时间"), new Date()).replace("\\", "");
+    var save_name_time = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
     var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
     return file_name;
 }
