@@ -41,7 +41,7 @@ body {
 }
 
 #tab_bar {
-    margin: 0;
+    margin: 0 !important;
 }
 .main > div:not(:first-child) {
     display: flex;
