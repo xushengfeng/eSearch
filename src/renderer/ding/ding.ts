@@ -1,4 +1,8 @@
 const { ipcRenderer, clipboard, nativeImage } = require("electron");
+import root_init from "../root/root";
+root_init();
+const Store = require("electron-store");
+var store = new Store();
 
 var ratio = window.devicePixelRatio;
 var changing = null;

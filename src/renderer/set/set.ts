@@ -1,6 +1,8 @@
-const { shell, ipcRenderer } = require("electron");
+import { shell, ipcRenderer } from "electron";
 const os = require("os");
 const fs = require("fs");
+const Store = require("electron-store");
+var store = new Store();
 
 const old_store = store.store;
 

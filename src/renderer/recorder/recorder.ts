@@ -1,3 +1,8 @@
+import root_init from "../root/root";
+root_init();
+const Store = require("electron-store");
+var store = new Store();
+
 var ratio = window.devicePixelRatio;
 
 var /**@type {MediaRecorder} */ recorder;
