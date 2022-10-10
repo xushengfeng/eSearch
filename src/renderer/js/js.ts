@@ -1,4 +1,9 @@
+/// <reference types="vite/client" />
 var in_browser = typeof global == "undefined";
+
+import cursor_svg from "../assets/icons/cursor.svg";
+import close_svg from "../assets/icons/close.svg";
+import reload_svg from "../assets/icons/reload.svg";
 
 /**撤销 */
 // 定义撤销栈
@@ -446,7 +451,7 @@ function mousemove(e: MouseEvent) {
     } else {
         if (!move_first_start) {
             // 虚线光标
-            document.getElementById("cursor").style.background = "url(./assets/icons/cursor.svg) center";
+            document.getElementById("cursor").style.background = `url(${cursor_svg}) center`;
             document.getElementById("cursor").style.backgroundSize = "cover";
             move_s_t = editor_selections[0].get();
             editor_selections[0].replace("");
@@ -1664,7 +1669,7 @@ function render_history() {
         div.innerHTML = `<div class="history_title"><span>${time_format(
             store.get("时间格式"),
             new Date(Number(i) - 0)
-        )}</span><button><img src="./assets/icons/close.svg" class="icon"></button></div><div class="history_text">${
+        )}</span><button><img src="${close_svg}" class="icon"></button></div><div class="history_text">${
             t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
         }</div>`;
         document.querySelector("#history_list").prepend(div);
@@ -2067,7 +2072,7 @@ function url(id: number, url: string) {
 function load(id: number, loading: boolean) {
     if (loading) {
         document.querySelector(`#id${id} > img`).classList.add("loading");
-        document.getElementById(`id${id}`).querySelector(`img`).src = `./assets/icons/reload.svg`;
+        document.getElementById(`id${id}`).querySelector(`img`).src = reload_svg;
         document.getElementById("reload").style.display = "none";
         document.getElementById("stop").style.display = "block";
     } else {
