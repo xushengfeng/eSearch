@@ -6,9 +6,9 @@
   "scripts": {
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder -p never",
-    "start": "electron-vite preview",
-    "dev": "electron-vite dev",
-    "build": "electron-vite build"
+    "start": "electron-vite --ignoreConfigWarning preview",
+    "dev": "electron-vite --ignoreConfigWarning dev",
+    "build": "electron-vite --ignoreConfigWarning build"
   },
   "author": {
     "name": "xsf",
