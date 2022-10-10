@@ -45,7 +45,7 @@ import * as fs from "fs";
 import * as os from "os";
 const lib_path = "../../lib/",
     assets_path = "../../assets";
-const { t, lan } = require("../../lib/translate/translate") as { t(t: string): string; lan(t: string): undefined };
+import { t, lan } from "../../lib/translate/translate";
 
 // 自定义用户路径
 try {

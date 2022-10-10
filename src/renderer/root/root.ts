@@ -15,6 +15,6 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
 document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
 
-const { t, lan } = require("../../lib/translate/translate");
+import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);
