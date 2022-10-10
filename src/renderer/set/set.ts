@@ -1,10 +1,16 @@
-import "../../../lib/template.js";
-import "../../../lib/template2.js";
-import { shell, ipcRenderer } from "electron";
-const os = require("os");
-const fs = require("fs");
 const Store = require("electron-store");
 var store = new Store();
+import { t, lan } from "../../../lib/translate/translate";
+lan(store.get("语言.语言"));
+document.body.innerHTML = document.body.innerHTML
+    .replace(/\{(.*?)\}/g, (m, v) => t(v))
+    .replace(/<t>(.*?)<\/t>/g, (m, v) => t(v));
+document.title = t(document.title);
+import "../../../lib/template.js";
+import "../../../lib/template2.js";
+const { shell, ipcRenderer } = require("electron");
+const os = require("os");
+const fs = require("fs");
 
 const old_store = store.store;
 
