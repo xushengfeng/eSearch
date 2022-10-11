@@ -228,10 +228,14 @@ tool_bar.onmouseup = (e) => {
 };
 
 hotkeys.filter = (event) => {
-    var tagName = (event.target || event.srcElement).tagName;
+    var tagName = (<HTMLElement>(event.target || event.srcElement)).tagName;
     var v =
-        !(event.target.isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA") ||
-        event.target === document.querySelector("#draw_edit input");
+        !(
+            (<HTMLElement>event.target).isContentEditable ||
+            tagName == "INPUT" ||
+            tagName == "SELECT" ||
+            tagName == "TEXTAREA"
+        ) || event.target === document.querySelector("#draw_edit input");
     return v;
 };
 
