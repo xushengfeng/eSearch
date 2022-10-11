@@ -402,6 +402,8 @@ function tool_open_f() {
     open_app();
 }
 
+import open_with from "../../../lib/open_with";
+
 function open_app() {
     const path = require("path");
     const os = require("os");
@@ -411,8 +413,7 @@ function open_app() {
         var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         var dataBuffer = new Buffer(f, "base64");
         fs.writeFile(tmp_photo, dataBuffer, () => {
-            var open = require("../../lib/open_with");
-            open(tmp_photo);
+            open_with(tmp_photo);
         });
     });
 }

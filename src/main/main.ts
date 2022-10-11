@@ -61,6 +61,12 @@ try {
     }
 } catch (e) {}
 
+// 其他应用打开
+if (process.platform == "linux")
+    ipcMain.on("run_path", (event) => {
+        event.returnValue = run_path;
+    });
+
 // 重写存储获取用户路径的方式
 ipcMain.on("electron-store-get-data", (event) => {
     event.returnValue = {

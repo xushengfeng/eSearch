@@ -1763,6 +1763,7 @@ var file_watcher = null;
 const path = require("path");
 var tmp_text_path = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
 var editing_on_other = false;
+import open_with from "../../../lib/open_with";
 function edit_on_other() {
     editing_on_other = !editing_on_other;
     if (editing_on_other) {
@@ -1771,7 +1772,6 @@ function edit_on_other() {
             if (edit_on_other_type == "o") {
                 shell.openPath(tmp_text_path);
             } else if (edit_on_other_type == "c") {
-                var open_with = require("../../lib/open_with");
                 open_with(tmp_text_path);
             }
             file_watcher = fs.watch(tmp_text_path, () => {
