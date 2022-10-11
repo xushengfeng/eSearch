@@ -64,7 +64,8 @@ const draw_canvas = <HTMLCanvasElement>document.getElementById("draw_photo");
 main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
 
-var final_rect = [0, 0, main_canvas.width, main_canvas.height];
+type rect = [number, number, number, number];
+var final_rect = [0, 0, main_canvas.width, main_canvas.height] as rect;
 
 var now_screen_id = 0;
 
@@ -820,7 +821,7 @@ document.querySelector("body").onkeydown = (e) => {
     }
 };
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2) {
+function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2): rect {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
     // 输入为边框像素坐标
     // 为了让canvas获取全屏，边框像素点要包括
@@ -848,13 +849,13 @@ type editor_position = { x: number; y: number };
 type screen_position = { x: number; y: number };
 
 var o_p = { x: NaN, y: NaN } as editor_position; // 先前坐标，用于框选的生成和调整
-var o_final_rect = null;
+var o_final_rect = null as rect;
 var the_color = null;
 var the_text_color = [null, null];
 var clip_ctx = clip_canvas.getContext("2d");
 var draw_bar = document.getElementById("draw_bar");
 var undo_stack = [{ rect: 0, canvas: 0 }],
-    rect_stack = [[0, 0, main_canvas.width, main_canvas.height]],
+    rect_stack = [[0, 0, main_canvas.width, main_canvas.height]] as rect[],
     canvas_stack = [{}];
 var undo_stack_i = 0;
 var ratio = window.devicePixelRatio;
@@ -947,7 +948,7 @@ clip_canvas.onmouseup = (e) => {
     if (moving) {
         move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
         moving = false;
-        o_final_rect = "";
+        o_final_rect = null;
         if (e.button == 0) follow_bar(e.clientX, e.clientY);
         his_push();
     }
@@ -978,7 +979,7 @@ function clip_end(p: editor_position) {
                 min_n = i[2] * i[3];
             }
         }
-        if (min.length != 0) final_rect = min;
+        if (min.length != 0) final_rect = min as rect;
         draw_clip_rect();
     } else {
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], p.x, p.y);
@@ -1051,7 +1052,7 @@ hotkeys("s", () => {
 
 var wh_el = document.getElementById("clip_wh");
 // 大小栏
-function wh_bar(final_rect) {
+function wh_bar(final_rect: rect) {
     // 位置
     var dw = wh_el.offsetWidth,
         dh = wh_el.offsetHeight;
@@ -1190,7 +1191,7 @@ var point_color_span_list = document.querySelectorAll("#point_color > span") as 
 
 var mouse_bar_el = document.getElementById("mouse_bar");
 // 鼠标跟随栏
-function mouse_bar(final_rect, x, y) {
+function mouse_bar(final_rect: rect, x, y) {
     var x0 = final_rect[0],
         x1 = final_rect[0] + final_rect[2],
         y0 = final_rect[1],
@@ -1473,7 +1474,7 @@ document.getElementById("draw_bar").addEventListener("mouseup", (e) => {
 // 修复final_rect负数
 // 超出屏幕处理
 function final_rect_fix() {
-    final_rect = final_rect.map((i) => Math.round(i));
+    final_rect = final_rect.map((i) => Math.round(i)) as rect;
     var x0 = final_rect[0];
     var y0 = final_rect[1];
     var x1 = final_rect[0] + final_rect[2];
@@ -1567,7 +1568,7 @@ function is_in_clip_rect(p: editor_position) {
 }
 
 // 调整框选
-function move_rect(o_final_rect, old_position: editor_position, position: editor_position) {
+function move_rect(o_final_rect: rect, old_position: editor_position, position: editor_position) {
     var op = p_xy_to_c_xy(clip_canvas, old_position.x, old_position.y, old_position.x, old_position.y);
     var p = p_xy_to_c_xy(clip_canvas, position.x, position.y, position.x, position.y);
     var dx = p[0] - op[0],
@@ -1623,7 +1624,7 @@ function his_push() {
     // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
     if (undo_stack_i != undo_stack.length - 1 && undo_stack.length >= 2) undo_stack.push(undo_stack[undo_stack_i]);
 
-    let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]]; // 防止引用源地址导致后续操作-2个被改变
+    let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]] as rect; // 防止引用源地址导致后续操作-2个被改变
     let canvas = fabric_canvas?.toJSON() || {};
 
     if (rect_stack[rect_stack.length - 1] + "" != final_rect_v + "") rect_stack.push(final_rect_v);
