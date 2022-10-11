@@ -2243,6 +2243,7 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
         });
     }
 }
+import lo from "../../../ocr/local_ocr";
 /**
  * 离线OCR
  * @param {String} arg 图片base64
@@ -2251,12 +2252,11 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
 async function local_ocr(type: string, arg: string, callback: Function) {
     let l: [string, string, string, string, any];
     for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
-    let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "/ocr/ppocr"); // 默认模型路径
+    let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
     let detp = path.join(ocr_path, l[1]),
         recp = path.join(ocr_path, l[2]),
         字典 = path.join(ocr_path, l[3]);
     console.log(ocr_path);
-    const lo = require("./ocr/local_ocr");
     await lo.init({
         det_path: detp,
         rec_path: recp,

@@ -2,7 +2,7 @@ var cv = require("opencv.js");
 const ort = require("onnxruntime-web");
 const fs = require("fs");
 
-module.exports = { ocr: x, init };
+export default { ocr: x, init };
 
 var dev = true;
 
@@ -14,7 +14,7 @@ var limit_side_len = 960,
 /**
  * 初始化
  * @param {{det_path:string,rec_path:string,dic_path:string,
- * max_side:number,imgh:number;imgw:numberdev:boolean}} x
+ * max_side:number,imgh:number;imgw:number;dev:boolean}} x
  * @returns
  */
 async function init(x) {
@@ -41,6 +41,7 @@ async function x(img) {
     let transposedData;
     let resize_w;
     let image;
+    let canvas;
     ({ transposedData, resize_w, image, canvas } = 检测前处理(h, w, img));
     const det_results = await 检测(transposedData, image, det);
 
@@ -116,7 +117,7 @@ function 检测前处理(h, w, image) {
     for (let i in id.data) id.data[i] = image.data[i];
     src_canvas.getContext("2d").putImageData(id, 0, 0);
 
-    src0 = cv.imread(src_canvas);
+    // src0 = cv.imread(src_canvas);
 
     const transposedData = to_paddle_input(image, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]);
     console.log(image);
@@ -185,7 +186,7 @@ function 检测后处理(data, w, h, src_canvas) {
     contours.delete();
     hierarchy.delete();
 
-    src = dst = contours = hierarchy = null;
+    src = contours = hierarchy = null;
 
     return edge_rect;
 }
