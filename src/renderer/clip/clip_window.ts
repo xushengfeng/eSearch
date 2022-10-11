@@ -1673,7 +1673,12 @@ var shadow_blur = 0;
 // 编辑栏
 document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
     (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
-    e.onmouseenter = show;
+    e.onmouseenter = () => {
+        if (draw_bar.style.width == "calc(var(--bar-size) * 2)") {
+            show();
+            draw_m(true);
+        }
+    };
     e.addEventListener("click", () => {
         draw_m(!e.show);
         if (e.show) {
