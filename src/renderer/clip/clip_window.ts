@@ -843,7 +843,11 @@ var o_position = null;
 var canvas_rect = null;
 var in_rect = false;
 var moving = false;
-var oe = null;
+
+type editor_position = { x: number; y: number };
+type screen_position = { x: number; y: number };
+
+var o_p = { x: NaN, y: NaN } as editor_position; // 先前坐标，用于框选的生成和调整
 var o_final_rect = null;
 var the_color = null;
 var the_text_color = [null, null];
@@ -854,7 +858,7 @@ var undo_stack = [{ rect: 0, canvas: 0 }],
     canvas_stack = [{}];
 var undo_stack_i = 0;
 var ratio = window.devicePixelRatio;
-var now_canvas_position;
+var now_canvas_position: number[];
 var direction;
 var fabric_canvas;
 var auto_select_rect = store.get("框选.自动框选.开启");
@@ -866,35 +870,13 @@ var rect_select = false;
 clip_canvas.onmousedown = (e) => {
     o = true;
     windows_bar_c_o();
-    is_in_clip_rect(e);
-    if (e.button == 0 && !in_rect) {
-        selecting = true;
-        o_position = [e.screenX, e.screenY]; // 用于跟随
-        canvas_rect = [e.offsetX, e.offsetY]; // 用于框选
-        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-        right_key = false;
-        change_right_bar(false);
-        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
+    is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
+    if (e.button == 0) {
+        clip_start({ x: e.offsetX, y: e.offsetY });
+        if (!in_rect) o_position = [e.screenX, e.screenY]; // 用于跟随
     }
     if (e.button == 2) {
-        right_key = right_key ? false : true;
-        // 自由右键取色
-        now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-        mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
-        // 改成多格式样式
-        if (right_key) {
-            change_right_bar(true);
-        } else {
-            change_right_bar(false);
-        }
-    }
-    if (in_rect) {
-        is_in_clip_rect(e);
-        oe = e;
-        o_final_rect = final_rect;
-        moving = true;
-        move_rect(o_final_rect, oe, oe);
-        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
+        pick_color({ x: e.offsetX, y: e.offsetY });
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
@@ -903,6 +885,37 @@ clip_canvas.onmousedown = (e) => {
 
     down = true;
 };
+
+function clip_start(p: editor_position) {
+    if (in_rect) {
+        is_in_clip_rect(p);
+        o_p = { x: p.x, y: p.y };
+        o_final_rect = final_rect;
+        moving = true;
+        move_rect(o_final_rect, p, p);
+        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
+    } else {
+        selecting = true;
+        canvas_rect = [p.x, p.y]; // 用于框选
+        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], p.x, p.y);
+        right_key = false;
+        change_right_bar(false);
+        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
+    }
+}
+
+function pick_color(p: editor_position) {
+    right_key = right_key ? false : true;
+    // 自由右键取色
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
+    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+    // 改成多格式样式
+    if (right_key) {
+        change_right_bar(true);
+    } else {
+        change_right_bar(false);
+    }
+}
 
 clip_canvas.onmousemove = (e) => {
     if (down) {
@@ -915,43 +928,24 @@ clip_canvas.onmousemove = (e) => {
         draw_clip_rect();
     }
     if (!selecting && !moving) {
-        is_in_clip_rect(e);
+        is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
     }
 
-    if (moving) move_rect(o_final_rect, oe, e);
+    if (moving) move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
 
     if (auto_select_rect && edge_init) {
-        in_edge(e);
+        in_edge({ x: e.offsetX, y: e.offsetY });
     }
 };
 
 clip_canvas.onmouseup = (e) => {
     if (e.button == 0 && !in_rect) {
-        clip_ctx.closePath();
-        selecting = false;
-        now_canvas_position = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
-        if (!moved && down) {
-            rect_select = true;
-            let min = [],
-                min_n = Infinity;
-            for (let i of rect_in_rect) {
-                if (i[2] * i[3] < min_n) {
-                    min = i;
-                    min_n = i[2] * i[3];
-                }
-            }
-            if (min.length != 0) final_rect = min;
-            draw_clip_rect();
-        } else {
-            final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-            draw_clip_rect();
-        }
-        his_push();
+        clip_end({ x: e.offsetX, y: e.offsetY });
         // 抬起鼠标后工具栏跟随
         follow_bar(e.clientX, e.clientY);
     }
     if (moving) {
-        move_rect(o_final_rect, oe, e);
+        move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
         moving = false;
         o_final_rect = "";
         if (e.button == 0) follow_bar(e.clientX, e.clientY);
@@ -969,6 +963,29 @@ clip_canvas.onmouseup = (e) => {
     down = false;
     moved = false;
 };
+
+function clip_end(p: editor_position) {
+    clip_ctx.closePath();
+    selecting = false;
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
+    if (!moved && down) {
+        rect_select = true;
+        let min = [],
+            min_n = Infinity;
+        for (let i of rect_in_rect) {
+            if (i[2] * i[3] < min_n) {
+                min = i;
+                min_n = i[2] * i[3];
+            }
+        }
+        if (min.length != 0) final_rect = min;
+        draw_clip_rect();
+    } else {
+        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], p.x, p.y);
+        draw_clip_rect();
+    }
+    his_push();
+}
 
 // 画框(遮罩)
 function draw_clip_rect() {
@@ -1003,7 +1020,7 @@ var rect_in_rect = [];
  * 在边框内
  * @param {MouseEvent} e 鼠标事件
  */
-function in_edge(e: MouseEvent) {
+function in_edge(p: editor_position) {
     if (rect_select) return;
     rect_in_rect = [];
     for (const i of edge_rect) {
@@ -1011,7 +1028,7 @@ function in_edge(e: MouseEvent) {
             y0 = i.y,
             x1 = i.x + i.width,
             y1 = i.y + i.height;
-        if (x0 < e.offsetX && e.offsetX < x1 && y0 < e.offsetY && e.offsetY < y1) {
+        if (x0 < p.x && p.x < x1 && y0 < p.y && p.y < y1) {
             rect_in_rect.push([i.x, i.y, i.width, i.height]);
         }
     }
@@ -1477,17 +1494,17 @@ function final_rect_fix() {
 
 // 判断光标位置并更改样式
 // 定义光标位置的移动方向
-function is_in_clip_rect(event) {
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, event.offsetX, event.offsetY, event.offsetX, event.offsetY);
-    var x = now_canvas_position[0],
-        y = now_canvas_position[1];
+function is_in_clip_rect(p: editor_position) {
+    now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
+    p.x = now_canvas_position[0];
+    p.y = now_canvas_position[1];
     var x0 = final_rect[0],
         x1 = final_rect[0] + final_rect[2],
         y0 = final_rect[1],
         y1 = final_rect[1] + final_rect[3];
     // 如果全屏,那允许框选
     if (!(final_rect[2] == main_canvas.width && final_rect[3] == main_canvas.height)) {
-        if (x0 <= x && x <= x1 && y0 <= y && y <= y1) {
+        if (x0 <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1) {
             // 在框选区域内,不可框选,只可调整
             in_rect = true;
         } else {
@@ -1500,39 +1517,39 @@ function is_in_clip_rect(event) {
 
         // 光标样式
         switch (true) {
-            case x0 <= x && x <= x0 + num && y0 <= y && y <= y0 + num:
+            case x0 <= p.x && p.x <= x0 + num && y0 <= p.y && p.y <= y0 + num:
                 clip_canvas.style.cursor = "nwse-resize";
                 direction = "西北";
                 break;
-            case x1 - num <= x && x <= x1 && y1 - num <= y && y <= y1:
+            case x1 - num <= p.x && p.x <= x1 && y1 - num <= p.y && p.y <= y1:
                 clip_canvas.style.cursor = "nwse-resize";
                 direction = "东南";
                 break;
-            case y0 <= y && y <= y0 + num && x1 - num <= x && x <= x1:
+            case y0 <= p.y && p.y <= y0 + num && x1 - num <= p.x && p.x <= x1:
                 clip_canvas.style.cursor = "nesw-resize";
                 direction = "东北";
                 break;
-            case y1 - num <= y && y <= y1 && x0 <= x && x <= x0 + num:
+            case y1 - num <= p.y && p.y <= y1 && x0 <= p.x && p.x <= x0 + num:
                 clip_canvas.style.cursor = "nesw-resize";
                 direction = "西南";
                 break;
-            case x0 <= x && x <= x0 + num:
+            case x0 <= p.x && p.x <= x0 + num:
                 clip_canvas.style.cursor = "ew-resize";
                 direction = "西";
                 break;
-            case x1 - num <= x && x <= x1:
+            case x1 - num <= p.x && p.x <= x1:
                 clip_canvas.style.cursor = "ew-resize";
                 direction = "东";
                 break;
-            case y0 <= y && y <= y0 + num:
+            case y0 <= p.y && p.y <= y0 + num:
                 clip_canvas.style.cursor = "ns-resize";
                 direction = "北";
                 break;
-            case y1 - num <= y && y <= y1:
+            case y1 - num <= p.y && p.y <= y1:
                 clip_canvas.style.cursor = "ns-resize";
                 direction = "南";
                 break;
-            case x0 + num < x && x < x1 - num && y0 + num < y && y < y1 - num:
+            case x0 + num < p.x && p.x < x1 - num && y0 + num < p.y && p.y < y1 - num:
                 clip_canvas.style.cursor = "move";
                 direction = "move";
                 break;
@@ -1550,9 +1567,9 @@ function is_in_clip_rect(event) {
 }
 
 // 调整框选
-function move_rect(o_final_rect, oe, e) {
-    var op = p_xy_to_c_xy(clip_canvas, oe.offsetX, oe.offsetY, oe.offsetX, oe.offsetY);
-    var p = p_xy_to_c_xy(clip_canvas, e.offsetX, e.offsetY, e.offsetX, e.offsetY);
+function move_rect(o_final_rect, old_position: editor_position, position: editor_position) {
+    var op = p_xy_to_c_xy(clip_canvas, old_position.x, old_position.y, old_position.x, old_position.y);
+    var p = p_xy_to_c_xy(clip_canvas, position.x, position.y, position.x, position.y);
     var dx = p[0] - op[0],
         dy = p[1] - op[1];
     switch (direction) {
