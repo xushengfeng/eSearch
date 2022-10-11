@@ -910,28 +910,29 @@ for (let i in version_l) {
 }
 document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
 
-// var package = require("./package.json");
-// document.getElementById("name").innerHTML = package.name;
-// document.getElementById("version").innerHTML = package.version;
-// document.getElementById("description").innerHTML = t(package.description);
-// document.getElementById("version").onclick = () => {
-//     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases/latest", { method: "GET", redirect: "follow" })
-//         .then((response) => response.text())
-//         .then((re) => {
-//             let result = JSON.parse(re);
-//             console.log(result);
-//             if (version_new(result.name, package.version) && !result.draft && !result.prerelease) {
-//                 document.getElementById("update_info").innerHTML = `${t("有新版本:")} <a href="${result.html_url}">${
-//                     result.name
-//                 }</a><div>${result.body.replace(/\r\n/g, "<br>")}</div>`;
-//                 (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
-//             } else {
-//                 document.getElementById("update_info").innerHTML = t("暂无更新");
-//                 (")");
-//             }
-//         })
-//         .catch((error) => console.log("error", error));
-// };
+import pack from "../../../package.json?raw";
+var package_json = JSON.parse(pack);
+document.getElementById("name").innerHTML = package_json.name;
+document.getElementById("version").innerHTML = package_json.version;
+document.getElementById("description").innerHTML = t(package_json.description);
+document.getElementById("version").onclick = () => {
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases/latest", { method: "GET", redirect: "follow" })
+        .then((response) => response.text())
+        .then((re) => {
+            let result = JSON.parse(re);
+            console.log(result);
+            if (version_new(result.name, package_json.version) && !result.draft && !result.prerelease) {
+                document.getElementById("update_info").innerHTML = `${t("有新版本:")} <a href="${result.html_url}">${
+                    result.name
+                }</a><div>${result.body.replace(/\r\n/g, "<br>")}</div>`;
+                (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
+            } else {
+                document.getElementById("update_info").innerHTML = t("暂无更新");
+                (")");
+            }
+        })
+        .catch((error) => console.log("error", error));
+};
 
 if (new Date().getDay() >= 6) {
     document.getElementById("version").click();
@@ -950,14 +951,14 @@ function version_new(v1, v2) {
         return false;
     }
 }
-// document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${package.homepage}">${
-//     package.homepage
-// }</a></div>
-//     <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package.version}">${t("更新日志")}</a></div>
-//     <div><a href="https://github.com/xushengfeng/eSearch/issues">${t("错误报告与建议")}</a></div>
-//     <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package.license}</a></div>
-//     <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
-//     <div>Copyright (C) 2021 ${package.author.name} ${package.author.email}</div>`;
+document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${package_json.homepage}">${
+    package_json.homepage
+}</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package_json.version}">${t("更新日志")}</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/issues">${t("错误报告与建议")}</a></div>
+    <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package_json.license}</a></div>
+    <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
+    <div>Copyright (C) 2021 ${package_json.author.name} ${package_json.author.email}</div>`;
 
 document.getElementById("about").onclick = (e) => {
     console.log(e.target);
