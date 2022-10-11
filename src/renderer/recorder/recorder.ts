@@ -1,6 +1,10 @@
+/// <reference types="vite/client" />
 import root_init from "../root/root";
 root_init();
 import "../../../lib/template2.js";
+import pause_svg from "../assets/icons/pause.svg";
+import recume_svg from "../assets/icons/recume.svg";
+
 const Store = require("electron-store");
 var store = new Store();
 
@@ -15,7 +19,7 @@ var s_s = false;
 start_stop.onclick = () => {
     if (s_s) {
         start_stop.querySelector("div").className = "stop";
-        pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
+        pause_recume.querySelector("img").src = pause_svg;
         document.getElementById("time").innerText = "0:00";
         recorder.start();
         p_time();
@@ -32,11 +36,11 @@ var pause_recume = document.getElementById("pause_recume");
 pause_recume.onclick = () => {
     if (recorder.state == "inactive") return;
     if (recorder.state == "recording") {
-        pause_recume.querySelector("img").src = "./assets/icons/recume.svg";
+        pause_recume.querySelector("img").src = recume_svg;
         recorder.pause();
         p_time();
     } else if (recorder.state == "paused") {
-        pause_recume.querySelector("img").src = "./assets/icons/pause.svg";
+        pause_recume.querySelector("img").src = recume_svg;
         recorder.resume();
         p_time();
     }
@@ -280,7 +284,7 @@ var editting = false;
 
 function show_control() {
     editting = true;
-    document.getElementById("v_play").querySelector("img").src = "./assets/icons/recume.svg";
+    document.getElementById("v_play").querySelector("img").src = recume_svg;
     if (document.getElementById("mic").checked) mic_stream(false);
     if (document.getElementById("camera").checked) camera_stream_f(false);
     document.getElementById("s").className = "s_show";
@@ -365,18 +369,18 @@ function t_format(x) {
 document.getElementById("v_play").onclick = () => {
     if (video.paused) {
         video_play();
-        document.getElementById("v_play").querySelector("img").src = "./assets/icons/pause.svg";
+        document.getElementById("v_play").querySelector("img").src = pause_svg;
     } else {
         video.pause();
-        document.getElementById("v_play").querySelector("img").src = "./assets/icons/recume.svg";
+        document.getElementById("v_play").querySelector("img").src = recume_svg;
     }
 };
 
 video.onpause = () => {
-    document.getElementById("v_play").querySelector("img").src = "./assets/icons/recume.svg";
+    document.getElementById("v_play").querySelector("img").src = recume_svg;
 };
 video.onplay = () => {
-    document.getElementById("v_play").querySelector("img").src = "./assets/icons/pause.svg";
+    document.getElementById("v_play").querySelector("img").src = pause_svg;
 };
 
 function video_play() {
