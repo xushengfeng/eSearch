@@ -182,23 +182,31 @@ function show_color_picker() {
 }
 
 // 选区&遮罩颜色设置
-(<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.backgroundImage = `linear-gradient(${store.get(
-    "遮罩颜色"
-)}, ${store.get("遮罩颜色")}), url('assets/tbg.svg')`;
-(<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.backgroundImage = `linear-gradient(${store.get(
-    "选区颜色"
-)}, ${store.get("选区颜色")}), url('assets/tbg.svg')`;
+function msk(t: string) {
+    return `linear-gradient(${t},${t}),
+    conic-gradient(
+            rgb(204, 204, 204) 25%,
+            rgb(255, 255, 255) 0deg,
+            rgb(255, 255, 255) 50%,
+            rgb(204, 204, 204) 0deg,
+            rgb(204, 204, 204) 75%,
+            rgb(255, 255, 255) 0deg
+        )
+        0% 0% / 8px 8px`;
+}
+(<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background = msk(store.get("遮罩颜色"));
+(<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background = msk(store.get("选区颜色"));
 (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value = store.get("遮罩颜色");
 (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value = store.get("选区颜色");
 (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).oninput = () => {
-    (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.backgroundImage = `linear-gradient(${
+    (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background = msk(
         (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value
-    }, ${(<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value}), url('assets/tbg.svg')`;
+    );
 };
 (<HTMLInputElement>document.querySelector("#选区颜色 > input")).oninput = () => {
-    (<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.backgroundImage = `linear-gradient(${
+    (<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background = msk(
         (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value
-    }, ${(<HTMLInputElement>document.querySelector("#选区颜色 > input")).value}), url('assets/tbg.svg')`;
+    );
 };
 
 (<HTMLInputElement>document.getElementById("框选后默认操作")).value = store.get("框选后默认操作");
