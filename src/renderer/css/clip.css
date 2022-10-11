@@ -347,6 +347,8 @@ video {
     background: var(--bar-bg);
     overflow: hidden;
     pointer-events: none;
+    left: 100%;
+    top: 100%;
 }
 .mouse_bar_hide {
     transition: var(--transition);

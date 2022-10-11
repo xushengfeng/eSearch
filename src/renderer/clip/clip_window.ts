@@ -1311,11 +1311,6 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
     copy(document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`));
 });
 
-// 初始化鼠标栏
-document.onmouseenter = () => {
-    mouse_bar_el.style.display = "flex";
-};
-
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
     if (!right_key) {
