@@ -312,26 +312,24 @@ body {
     overflow: scroll;
 }
 
-#main_photo,
-#clip_photo,
-#draw_photo {
+#editor {
     position: absolute;
 }
+#editor > * {
+    position: absolute;
+}
+
 #main_photo {
+    width: 100%;
     z-index: 8;
 }
 #clip_photo {
+    width: 100%;
     z-index: 10;
     cursor: crosshair;
 }
 #draw_photo_top {
     z-index: 9;
-    position: absolute;
-}
-video {
-    position: absolute;
-    left: 0;
-    top: 0;
 }
 
 #mouse_bar {
