@@ -427,7 +427,17 @@ const recorder_mouse_el = document.getElementById("mouse_c");
 
 function tool_record_f() {
     ipcRenderer.send("clip_main_b", "record", final_rect);
-    let l = [tool_bar, draw_bar, main_canvas, clip_canvas, draw_canvas, wh_el, mouse_bar_el, lr];
+    let l = [
+        tool_bar,
+        draw_bar,
+        main_canvas,
+        clip_canvas,
+        draw_canvas,
+        document.getElementById("draw_photo_top"),
+        wh_el,
+        mouse_bar_el,
+        lr,
+    ];
 
     for (let i of l) {
         i.style.display = "none";
@@ -566,7 +576,16 @@ function tool_long_f() {
 
 const lr = document.getElementById("long_rect");
 function init_long(rect: number[]) {
-    let l = [tool_bar, draw_bar, main_canvas, clip_canvas, draw_canvas, wh_el, mouse_bar_el];
+    let l = [
+        tool_bar,
+        draw_bar,
+        main_canvas,
+        clip_canvas,
+        draw_canvas,
+        document.getElementById("draw_photo_top"),
+        wh_el,
+        mouse_bar_el,
+    ];
 
     for (let i of l) {
         i.style.display = "none";
