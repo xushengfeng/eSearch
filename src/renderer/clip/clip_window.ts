@@ -838,17 +838,16 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2): rect {
     return [x1, y1, x2 - x1, y2 - y1];
 }
 
-var selecting = false;
+var /**是否在绘制新选区*/ selecting = false;
 var right_key = false;
-var o_position = null;
 var canvas_rect = null;
-var in_rect = false;
-var moving = false;
+var /**是否在选区内*/ in_rect = false;
+var /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
 type screen_position = { x: number; y: number };
 
-var o_p = { x: NaN, y: NaN } as editor_position; // 先前坐标，用于框选的生成和调整
+var /** 先前坐标，用于框选的生成和调整 */ o_p = { x: NaN, y: NaN } as editor_position;
 var o_final_rect = null as rect;
 var the_color = null;
 var the_text_color = [null, null];
@@ -863,9 +862,9 @@ var now_canvas_position: number[];
 var direction;
 var fabric_canvas;
 var auto_select_rect = store.get("框选.自动框选.开启");
-var moved = false;
-var down = false;
-var rect_select = false;
+var /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
+var /**鼠标是否按住 */ down = false;
+var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rect_select = false;
 
 // var /**@type {HTMLCanvasElement} */ clip_canvas = clip_canvas;
 clip_canvas.onmousedown = (e) => {
@@ -874,7 +873,6 @@ clip_canvas.onmousedown = (e) => {
     is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
     if (e.button == 0) {
         clip_start({ x: e.offsetX, y: e.offsetY });
-        if (!in_rect) o_position = [e.screenX, e.screenY]; // 用于跟随
     }
     if (e.button == 2) {
         pick_color({ x: e.offsetX, y: e.offsetY });
@@ -887,22 +885,24 @@ clip_canvas.onmousedown = (e) => {
     down = true;
 };
 
+// 开始操纵框选
 function clip_start(p: editor_position) {
+    // 在选区内，则调整，否则新建
     if (in_rect) {
         is_in_clip_rect(p);
         o_p = { x: p.x, y: p.y };
         o_final_rect = final_rect;
         moving = true;
         move_rect(o_final_rect, p, p);
-        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
     } else {
         selecting = true;
         canvas_rect = [p.x, p.y]; // 用于框选
         final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], p.x, p.y);
         right_key = false;
         change_right_bar(false);
-        draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "0";
     }
+    // 隐藏
+    draw_bar.style.opacity = tool_bar.style.opacity = "0";
 }
 
 function pick_color(p: editor_position) {
@@ -921,18 +921,21 @@ function pick_color(p: editor_position) {
 clip_canvas.onmousemove = (e) => {
     if (down) {
         moved = true;
-        rect_select = true;
-    }
-    if (e.button == 0 && selecting) {
-        // 画框
-        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-        draw_clip_rect();
-    }
-    if (!selecting && !moving) {
-        is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
+        rect_select = true; // 按下并移动，肯定手动选好选区了
     }
 
-    if (moving) move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
+    if (e.button == 0) {
+        if (selecting) {
+            // 画框
+            final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+            draw_clip_rect();
+        }
+        if (moving) move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
+    }
+    if (!selecting && !moving) {
+        // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
+        is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
+    }
 
     if (auto_select_rect && edge_init) {
         in_edge({ x: e.offsetX, y: e.offsetY });
@@ -940,26 +943,28 @@ clip_canvas.onmousemove = (e) => {
 };
 
 clip_canvas.onmouseup = (e) => {
-    if (e.button == 0 && !in_rect) {
-        clip_end({ x: e.offsetX, y: e.offsetY });
-        // 抬起鼠标后工具栏跟随
-        follow_bar(e.clientX, e.clientY);
-    }
-    if (moving) {
-        move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
-        moving = false;
-        o_final_rect = null;
-        if (e.button == 0) follow_bar(e.clientX, e.clientY);
-        his_push();
+    if (e.button == 0) {
+        if (selecting) {
+            clip_end({ x: e.offsetX, y: e.offsetY });
+            // 抬起鼠标后工具栏跟随
+            follow_bar(e.clientX, e.clientY);
+            // 框选后默认操作
+            if (auto_do != "no" && e.button == 0) {
+                eval(`tool_${auto_do}_f()`);
+            }
+        }
+        if (moving) {
+            move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
+            moving = false;
+            o_final_rect = null;
+            if (e.button == 0) follow_bar(e.clientX, e.clientY);
+            his_push();
+        }
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
-    // 框选后默认操作
-    if (auto_do != "no" && e.button == 0) {
-        eval(`tool_${auto_do}_f()`);
-    }
 
     down = false;
     moved = false;
@@ -988,7 +993,7 @@ function clip_end(p: editor_position) {
     his_push();
 }
 
-// 画框(遮罩)
+/** 画框(遮罩) */
 function draw_clip_rect() {
     clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
     clip_ctx.beginPath();
@@ -1018,8 +1023,7 @@ function draw_clip_rect() {
 
 var rect_in_rect = [];
 /**
- * 在边框内
- * @param {MouseEvent} e 鼠标事件
+ * 自动框选提示
  */
 function in_edge(p: editor_position) {
     if (rect_select) return;
@@ -1043,11 +1047,10 @@ function in_edge(p: editor_position) {
 }
 
 hotkeys("s", () => {
+    // 重新启用自动框选提示
     rect_select = false;
     final_rect = [0, 0, clip_canvas.width, clip_canvas.height];
     draw_clip_rect();
-    document.getElementById("tool_bar").style.opacity = "0";
-    tool_bar.style.pointerEvents = "none";
 });
 
 var wh_el = document.getElementById("clip_wh");
@@ -1493,8 +1496,9 @@ function final_rect_fix() {
     final_rect = [x, y, w, h];
 }
 
-// 判断光标位置并更改样式
-// 定义光标位置的移动方向
+/**
+ * 判断光标位置并更改样式,定义光标位置的移动方向
+ */
 function is_in_clip_rect(p: editor_position) {
     now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
     p.x = now_canvas_position[0];
@@ -1567,7 +1571,7 @@ function is_in_clip_rect(p: editor_position) {
     }
 }
 
-// 调整框选
+/** 调整框选 */
 function move_rect(o_final_rect: rect, old_position: editor_position, position: editor_position) {
     var op = p_xy_to_c_xy(clip_canvas, old_position.x, old_position.y, old_position.x, old_position.y);
     var p = p_xy_to_c_xy(clip_canvas, position.x, position.y, position.x, position.y);
