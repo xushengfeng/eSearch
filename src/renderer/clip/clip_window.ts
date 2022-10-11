@@ -117,6 +117,14 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             edge();
         }, 0);
     }
+
+    draw_clip_rect();
+    setTimeout(() => {
+        wh_bar(final_rect);
+    }, 0);
+    right_key = false;
+    change_right_bar(false);
+    ratio = window.devicePixelRatio;
 });
 
 var edge_init = false;
@@ -788,17 +796,6 @@ tool_bar.addEventListener("mouseup", (e) => {
 import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);
-
-// 初始化刷新
-ipcRenderer.on("reflash", () => {
-    draw_clip_rect();
-    setTimeout(() => {
-        wh_bar(final_rect);
-    }, 0);
-    right_key = false;
-    change_right_bar(false);
-    ratio = window.devicePixelRatio;
-});
 
 const Color = require("color");
 
