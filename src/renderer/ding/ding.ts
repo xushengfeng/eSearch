@@ -172,7 +172,7 @@ function ding_p_s(id, p_s) {
 
 // 最高窗口
 var toppest = 1;
-var o_ps;
+var o_ps: number[];
 var window_div = null;
 var div;
 document.onmousedown = (e) => {
@@ -296,7 +296,7 @@ function cursor(el, e) {
                     break;
             }
     }
-    if (changing != null && o_ps != []) {
+    if (changing != null && o_ps.length != 0) {
         var o_e = changing;
         var dx = e.clientX - o_e.clientX,
             dy = e.clientY - o_e.clientY;
