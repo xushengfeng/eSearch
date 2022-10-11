@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 const Store = require("electron-store");
 var store = new Store();
 import { t, lan } from "../../../lib/translate/translate";
@@ -11,6 +12,7 @@ import "../../../lib/template2.js";
 const { shell, ipcRenderer } = require("electron");
 const os = require("os");
 const fs = require("fs");
+import close_svg from "../assets/icons/close.svg";
 
 const old_store = store.store;
 
@@ -496,7 +498,7 @@ function OCR模型展示() {
         };
         d.append(t);
         let c = document.createElement("button");
-        c.innerHTML = `<img src="./assets/icons/close.svg" class="icon">`;
+        c.innerHTML = `<img src="${close_svg}" class="icon">`;
         c.onclick = () => {
             all.splice(i, 1);
             d.remove();
