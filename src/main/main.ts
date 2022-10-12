@@ -587,6 +587,7 @@ function create_clip_window() {
  * @param {?string} img_path 路径
  */
 function full_screen(img_path?: string) {
+    let nearest_screen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     if (img_path) {
         console.log(img_path);
         fs.readFile(img_path, (err, data) => {
@@ -606,13 +607,14 @@ function full_screen(img_path?: string) {
         let all = Screenshots.all() ?? [];
         let x = capturer(all);
         for (let i of x) {
-            if ((i.id = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id)) {
+            if ((i.id = nearest_screen.id)) {
                 i["main"] = true;
             }
         }
         clip_window.webContents.send("reflash", x);
         x = null;
     }
+    clip_window.setBounds({ x: nearest_screen.bounds.x, y: nearest_screen.bounds.y });
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
 }
