@@ -605,6 +605,11 @@ function full_screen(img_path?: string) {
         // 获取所有屏幕截图
         let all = Screenshots.all() ?? [];
         let x = capturer(all);
+        for (let i of x) {
+            if ((i.id = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id)) {
+                i["main"] = true;
+            }
+        }
         clip_window.webContents.send("reflash", x);
         x = null;
     }

@@ -84,7 +84,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     }
     for (let i of data) {
         if (i) {
-            if (i.isPrimary) {
+            if (i.main) {
                 main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
                 main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
                 to_canvas(main_canvas, i.image, i.width, i.height);
