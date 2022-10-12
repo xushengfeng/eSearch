@@ -43,8 +43,6 @@ const run_path = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
-const lib_path = "../../lib/",
-    assets_path = "../../assets";
 import { t, lan } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
 
@@ -77,18 +75,15 @@ ipcMain.on("electron-store-get-data", (event) => {
 
 var store = new Store();
 
-/**
- * @type {Boolean}
- */
-var dev: boolean;
+var /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
-// @ts-ignore
 if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = true;
 } else {
     dev = false;
 }
 
+/** 加载网页 */
 function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: string, q?: Electron.LoadFileOptions) {
     if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
         window.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/${file_name}`);
@@ -127,7 +122,6 @@ ipcMain.on("autostart", (event, m, v) => {
 
 /**
  * 复制选区，存在变化，回调
- * @param {Function} callback 回调
  */
 async function copy_text(callback: (t: string) => void) {
     var o_clipboard = clipboard.readText();
@@ -155,7 +149,7 @@ async function copy_text(callback: (t: string) => void) {
     }, 300);
 }
 
-// 自动判断选中搜索还是截屏搜索
+/** 自动判断选中搜索还是截屏搜索 */
 function auto_open() {
     copy_text((t) => {
         if (t) {
@@ -166,12 +160,14 @@ function auto_open() {
     });
 }
 
+/** 选区搜索 */
 function open_selection() {
     copy_text((t) => {
         if (t) create_main_window("index.html", [t]);
     });
 }
 
+/** 剪贴板搜索 */
 function open_clip_board() {
     var t = clipboard.readText(
         process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
@@ -227,7 +223,7 @@ function arg_run(c: string[]) {
     }
 }
 
-async function rm_r(dir_path) {
+async function rm_r(dir_path: string) {
     fs.rm(dir_path, { recursive: true }, (err) => {
         if (err) console.error(err);
     });
@@ -257,7 +253,7 @@ function capturer(screen_list: Screenshots[]) {
     return x;
 }
 
-var contextMenu, tray;
+var contextMenu: Electron.Menu, tray: Tray;
 
 app.whenReady().then(() => {
     if (store.get("首次运行") === undefined) set_default_setting();
@@ -458,6 +454,7 @@ if (process.platform == "win32") {
  */
 var clip_window: BrowserWindow = null;
 var clip_window_loaded = false;
+/** 初始化截屏后台窗口 */
 function create_clip_window() {
     clip_window = new BrowserWindow({
         icon: the_icon,
@@ -615,26 +612,26 @@ function full_screen(img_path?: string) {
     clip_window.setSimpleFullScreen(true);
 }
 
-// 隐藏截屏窗口
+/** 隐藏截屏窗口 */
 function n_full_screen() {
     clip_window.setSimpleFullScreen(false);
     clip_window.hide();
 }
 
-// 刷新（初始化）截屏窗口
+/** 刷新（初始化）截屏窗口 */
 function reload_clip() {
     n_full_screen();
     if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
 }
 
-var ocr_event;
-function ocr(event, arg) {
+var ocr_event: Electron.IpcMainEvent;
+function ocr(event: Electron.IpcMainEvent, arg) {
     create_main_window("index.html", ["ocr", ...arg]);
     ocr_event = event;
 }
 
-var image_search_event;
-function image_search(event, arg) {
+var image_search_event: Electron.IpcMainEvent;
+function image_search(event: Electron.IpcMainEvent, arg) {
     create_main_window("index.html", ["image", arg[0], arg[1]]);
     image_search_event = event;
 }
@@ -911,7 +908,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
 
 var long_s_v = false;
 
-function long_s(id) {
+function long_s(id: number) {
     if (long_s_v) {
         let s = Screenshots.fromDisplay(id);
         let x = nativeImage.createFromBuffer(capturer([s])[0].image);
@@ -1259,8 +1256,8 @@ Menu.setApplicationMenu(menu);
 
 // ding窗口
 var ding_windows_l = { dock: [0, 0, 10, 50] };
-var ding_window;
-function create_ding_window(x, y, w, h, img) {
+var ding_window: BrowserWindow;
+function create_ding_window(x: number, y: number, w: number, h: number, img) {
     if (Object.keys(ding_windows_l).length == 1) {
         ding_window = new BrowserWindow({
             icon: the_icon,
@@ -1338,14 +1335,8 @@ function create_ding_window(x, y, w, h, img) {
 }
 
 // 主页面
-/**
- * @type {Object.<number, BrowserWindow>}
- */
 var main_window_l: { [n: number]: BrowserWindow } = {};
 
-/**
- * @type {BrowserWindow}
- */
 var ocr_run_window: BrowserWindow;
 /**
  * @type {BrowserWindow}
@@ -1468,19 +1459,18 @@ ipcMain.on("main_win", (e, arg, arg1) => {
  * 向聚焦的主页面发送事件信息
  * @param {String} m
  */
-function main_edit(window, m: string) {
+function main_edit(window: BrowserWindow, m: string) {
     window.webContents.send("edit", m);
 }
 
-/**
- * @type {Object.<number, BrowserView>}
- */
 var search_window_l: { [n: number]: BrowserView } = {};
 ipcMain.on("open_url", (event, window_name, url) => {
     create_browser(window_name, url);
 });
-async function create_browser(window_name, url) {
-    if (!window_name) window_name = create_main_window("index.html");
+
+/** 创建浏览器页面 */
+async function create_browser(window_name: number, url: string) {
+    if (!window_name) window_name = await create_main_window("index.html");
 
     var win_name = new Date().getTime();
 
@@ -1596,18 +1586,20 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
     }
 });
 
-function min_views(main_window) {
+/** 最小化某个窗口的所有标签页 */
+function min_views(main_window: BrowserWindow) {
     for (let v of main_window.getBrowserViews()) {
         v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     }
 }
 
+/** 生成一个文件名 */
 function get_file_name() {
     var save_name_time = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
     var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
     return file_name;
 }
-// 快速截屏
+/** 快速截屏 */
 function quick_clip() {
     (Screenshots.all() ?? []).forEach((c) => {
         let image = nativeImage.createFromBuffer(c.captureSync());
@@ -1642,7 +1634,8 @@ function quick_clip() {
     });
 }
 
-function noti(file_path) {
+/** 提示保存成功 */
+function noti(file_path: string) {
     var notification = new Notification({
         title: `${app.name} ${t("保存图像成功")}`,
         body: `${t("已保存图像到")} ${file_path}`,
@@ -1902,7 +1895,7 @@ function set_default_setting() {
 function fix_setting_tree() {
     var tree = "default_setting";
     walk(tree);
-    function walk(path) {
+    function walk(path: string) {
         var x = eval(path);
         if (Object.keys(x).length == 0) {
             path = path.slice(tree.length + 1); /* 去除开头主tree */
