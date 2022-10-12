@@ -1696,6 +1696,8 @@ var default_setting = {
         图像编辑: isMac ? "Command+D" : "Control+D",
         其他应用打开: "",
         放在屏幕上: "",
+        录屏: "",
+        长截屏: "",
         复制: isMac ? "Command+C" : "Control+C",
         保存: isMac ? "Command+S" : "Control+S",
         复制颜色: "K",

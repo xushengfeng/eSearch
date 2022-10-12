@@ -255,6 +255,8 @@ hotkeys(store.get("其他快捷键.QR码"), "normal", tool_QR_f);
 hotkeys(store.get("其他快捷键.图像编辑"), "normal", tool_draw_f);
 hotkeys(store.get("其他快捷键.其他应用打开"), "normal", tool_open_f);
 hotkeys(store.get("其他快捷键.放在屏幕上"), "normal", tool_ding_f);
+hotkeys(store.get("其他快捷键.长截屏"), "normal", tool_long_f);
+hotkeys(store.get("其他快捷键.录屏"), "normal", tool_record_f);
 hotkeys(store.get("其他快捷键.复制"), "normal", tool_copy_f);
 hotkeys(store.get("其他快捷键.保存"), "normal", tool_save_f);
 
