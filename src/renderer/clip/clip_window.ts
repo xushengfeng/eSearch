@@ -12,7 +12,17 @@ if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");
 }
 
-var 工具栏跟随, 光标, 四角坐标, 遮罩颜色, 选区颜色, 取色器默认格式, 取色器格式位置, color_size, color_i_size;
+var 工具栏跟随,
+    光标,
+    四角坐标,
+    遮罩颜色,
+    选区颜色,
+    取色器默认格式,
+    取色器格式位置,
+    color_size,
+    color_i_size,
+    记忆框选: boolean,
+    记忆框选值: { [id: string]: rect };
 var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 function set_setting() {
     工具栏跟随 = store.get("工具栏跟随");
@@ -51,6 +61,9 @@ function set_setting() {
     let 工具栏 = store.get("工具栏");
     document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
     document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
+
+    记忆框选 = store.get("框选.记忆.开启");
+    记忆框选值 = store.get("框选.记忆.rects");
 }
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;
@@ -89,6 +102,11 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
                 main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
                 to_canvas(main_canvas, i.image, i.width, i.height);
                 final_rect = [0, 0, main_canvas.width, main_canvas.height];
+                if (记忆框选)
+                    if (记忆框选值?.[i.id]?.[2]) {
+                        final_rect = 记忆框选值[i.id];
+                        rect_select = true;
+                    } // 记忆框选边不为0时
                 now_screen_id = i.id;
             }
             let c = document.createElement("canvas");
@@ -99,6 +117,11 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             div.onclick = () => {
                 to_canvas(main_canvas, i.image, i.width, i.height);
                 final_rect = [0, 0, main_canvas.width, main_canvas.height];
+                if (记忆框选)
+                    if (记忆框选值?.[i.id]?.[2]) {
+                        final_rect = 记忆框选值[i.id];
+                        rect_select = true;
+                    } // 记忆框选边不为0时
                 now_screen_id = i.id;
             };
         }
@@ -268,6 +291,10 @@ if (auto_do != "no") {
 // 关闭
 function tool_close_f() {
     document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
+    if (记忆框选) {
+        记忆框选值[now_screen_id] = final_rect;
+        store.set("框选.记忆.rects", 记忆框选值);
+    }
     setTimeout(() => {
         ipcRenderer.send("clip_main_b", "window-close");
         location.reload();
