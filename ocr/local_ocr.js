@@ -1,6 +1,8 @@
 var cv = require("opencv.js");
 const ort = require("onnxruntime-web");
 const fs = require("fs");
+const WordsNinjaPack = require("wordsninja");
+const WordsNinja = new WordsNinjaPack();
 
 export default { ocr: x, init };
 
@@ -25,6 +27,7 @@ async function init(x) {
     if (x.max_side) limit_side_len = x.max_side;
     if (x.imgh) imgH = x.imgh;
     if (x.imgw) imgW = x.imgw;
+    await WordsNinja.loadDictionary();
     return new Promise((rs) => rs());
 }
 
@@ -297,6 +300,7 @@ function 识别后处理(data, character) {
                 sum += item;
             });
             mean = sum / conf_list.length;
+            text = text.replace(/[a-zA-Z ]*/g, (v) => WordsNinja.splitSentence(v).join(" "));
         }
         return { text, mean };
     }

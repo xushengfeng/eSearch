@@ -28,7 +28,8 @@
     "node-screenshots": "^0.0.12",
     "onnxruntime-web": "^1.12.1",
     "opencv.js": "^1.2.1",
-    "uiohook-napi": "^1.5.0"
+    "uiohook-napi": "^1.5.0",
+    "wordsninja": "^1.0.0"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",

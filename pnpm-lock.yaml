@@ -28,6 +28,7 @@ specifiers:
   typescript: ^4.8.4
   uiohook-napi: ^1.5.0
   vite: ^3.1.7
+  wordsninja: ^1.0.0
 
 dependencies:
   '@ffmpeg/core': 0.11.0
@@ -42,6 +43,7 @@ dependencies:
   onnxruntime-web: 1.12.1
   opencv.js: 1.2.1
   uiohook-napi: 1.5.0
+  wordsninja: 1.0.0
 
 optionalDependencies:
   node-screenshots-darwin-arm64: 0.0.12
@@ -3553,6 +3555,10 @@ packages:
     dependencies:
       isexe: 2.0.0
     dev: true
+
+  /wordsninja/1.0.0:
+    resolution: {integrity: sha512-f9aKDZ01xCjBEVxqQ4+fbSw+Jksi0OlvWV4QeqFzX78FjwREk/7ARgk0PuKlOkxGPg1ylkTYMTcKpReMVi2z4A==}
+    dev: false
 
   /wrap-ansi/7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
