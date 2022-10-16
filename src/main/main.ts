@@ -1813,6 +1813,7 @@ var default_setting = {
         ["金山词霸", "http://www.iciba.com/word?w=%s"],
         ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
         ["腾讯", "https://fanyi.qq.com/?text=%s"],
+        ["聚合", "https://esearch-translator.netlify.app/?text=%s"],
     ],
     引擎: {
         记住: false,
