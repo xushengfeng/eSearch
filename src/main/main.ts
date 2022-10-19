@@ -1392,6 +1392,9 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
         image_search_window = main_window;
     } else if (t?.[0] == "ocr") {
         ocr_run_window = main_window;
+        ocr_run_window.webContents.once("render-process-gone", (e, d) => {
+            ocr_event.sender.send("ocr_back", d.reason);
+        });
     }
 
     main_window.webContents.on("did-finish-load", () => {
