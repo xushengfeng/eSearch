@@ -1453,7 +1453,7 @@ ipcMain.on("main_win", (e, arg, arg1) => {
             BrowserWindow.fromWebContents(e.sender).close();
             break;
         case "ocr":
-            ocr_event.sender.send("ocr_back", "ok");
+            ocr_event.sender.send("ocr_back", arg1);
             ocr_run_window.show();
             ocr_run_window = null;
             break;

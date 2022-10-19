@@ -1737,7 +1737,7 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
             if (text) {
                 editor_push(text);
                 edit.select_all();
-                ipcRenderer.send("main_win", "ocr", true);
+                ipcRenderer.send("main_win", "ocr", "ok");
             }
             if (err) {
                 editor_push(t("识别错误，请打开开发者工具查看详细错误"));
