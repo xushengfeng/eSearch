@@ -1739,7 +1739,10 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
                 edit.select_all();
                 ipcRenderer.send("main_win", "ocr", true);
             }
-            if (err) editor_push(t("上传错误，请打开开发者工具查看详细错误"));
+            if (err) {
+                editor_push(t("识别错误，请打开开发者工具查看详细错误"));
+                ipcRenderer.send("main_win", "ocr", t("ocr识别错误"));
+            }
         });
     }
 });
@@ -2270,13 +2273,18 @@ async function local_ocr(type: string, arg: string, callback: Function) {
         canvas.width = img.width;
         canvas.height = img.height;
         canvas.getContext("2d").drawImage(img, 0, 0);
-        let l = await lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height));
-        console.log(l);
-        let t = "";
-        for (let i of l) {
-            t += i.text + "\n";
-        }
-        callback(null, t);
+        lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height))
+            .then((l) => {
+                console.log(l);
+                let t = "";
+                for (let i of l) {
+                    t += i.text + "\n";
+                }
+                callback(null, t);
+            })
+            .catch((e) => {
+                callback(e, null);
+            });
     };
 }
 
