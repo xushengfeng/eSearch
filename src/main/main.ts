@@ -393,6 +393,14 @@ app.whenReady().then(() => {
         快速截屏: { f: "quick_clip()" },
         主页面: { f: "create_main_window('index.html', [''])" },
     };
+    // var 快捷键函数2 = {
+    //     自动识别: { f: auto_open() },
+    //     截屏搜索: { f: full_screen() },
+    //     选中搜索: { f: open_selection() },
+    //     剪贴板搜索: { f: open_clip_board() },
+    //     快速截屏: { f: quick_clip() },
+    //     主页面: { f: create_main_window("index.html", [""]) },
+    // };
     ipcMain.on("快捷键", (event, arg) => {
         var [name, key] = arg;
         try {
@@ -417,9 +425,9 @@ app.whenReady().then(() => {
         var m = 快捷键[k];
         try {
             if (m.key)
-                eval(`globalShortcut.register("${m.key}", () => {
-            ${快捷键函数[k].f};
-        });`);
+                globalShortcut.register(m.key, () => {
+                    eval(快捷键函数[k].f);
+                });
         } catch (error) {
             delete 快捷键[k].key;
             store.set(`快捷键`, 快捷键);
