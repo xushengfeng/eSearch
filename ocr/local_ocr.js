@@ -39,6 +39,7 @@ async function init(x) {
  * @param {Array} dic 字典
  */
 async function x(img) {
+    console.time();
     let h = img.height,
         w = img.width;
     let transposedData;
@@ -50,11 +51,16 @@ async function x(img) {
 
     let box = 检测后处理(det_results.data, det_results.dims[3], det_results.dims[2], canvas);
 
-    let { b, imgH, imgW } = 识别前处理(resize_w, box);
-    const rec_results = await 识别(b, imgH, imgW, rec);
-    let line = 识别后处理(rec_results, dic);
-    console.log(line);
-    return line;
+    let main_line = [];
+    for (let i of 识别前处理(resize_w, box)) {
+        let { b, imgH, imgW } = i;
+        const rec_results = await 识别(b, imgH, imgW, rec);
+        let line = 识别后处理(rec_results, dic);
+        main_line = main_line.concat(line);
+    }
+    console.log(main_line);
+    console.timeEnd();
+    return main_line;
 }
 
 async function 检测(transposedData, image, det) {
@@ -217,6 +223,7 @@ function to_paddle_input(image, mean, std) {
 }
 
 function 识别前处理(resize_w, box) {
+    let l = [];
     /**
      *
      * @param {ImageData} img
@@ -241,16 +248,31 @@ function 识别前处理(resize_w, box) {
         return cc.getContext("2d").getImageData(0, 0, imgW, imgH);
     }
 
+    let boxes = [];
+    let now_width = 0;
+    for (let i of box) {
+        if (Math.abs(i.img.width - now_width) > 32) {
+            now_width = i.img.width;
+            boxes.push([i]);
+        } else {
+            if (!boxes[boxes.length - 1]) boxes.push([]);
+            boxes[boxes.length - 1].push(i);
+        }
+    }
     let max_wh_ratio = 0;
-    for (let r of box) {
-        max_wh_ratio = Math.max(r.img.width / r.img.height, max_wh_ratio);
+    for (let box of boxes) {
+        max_wh_ratio = 0;
+        for (let r of box) {
+            max_wh_ratio = Math.max(r.img.width / r.img.height, max_wh_ratio);
+        }
+        let b = [];
+        for (let r of box) {
+            b.push(to_paddle_input(resize_norm_img(r.img), [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]));
+        }
+        l.push({ b, imgH, imgW });
     }
-    let b = [];
-    for (let r of box) {
-        b.push(to_paddle_input(resize_norm_img(r.img), [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]));
-    }
-    console.log(b);
-    return { b, imgH, imgW };
+    console.log(l);
+    return l;
 }
 
 function 识别后处理(data, character) {
