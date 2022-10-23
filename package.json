@@ -63,12 +63,18 @@
     "npmRebuild": false,
     "fileAssociations": [
       {
-        "ext": [
-          "png",
-          "jpg",
-          "svg"
-        ],
-        "mimeType": "image/svg+xml;image/png;image/jpeg;",
+        "ext": "svg",
+        "mimeType": "image/svg+xml",
+        "role": "Editor"
+      },
+      {
+        "ext": "png",
+        "mimeType": "image/png",
+        "role": "Editor"
+      },
+      {
+        "ext": "jpg",
+        "mimeType": "image/jpeg",
         "role": "Editor"
       }
     ],
@@ -79,7 +85,8 @@
       "target": [
         "tar.gz",
         "deb",
-        "rpm"
+        "rpm",
+        "AppImage"
       ],
       "files": [
         "!.vscode",
