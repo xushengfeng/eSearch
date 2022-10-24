@@ -54,11 +54,11 @@ winget `winget install esearch`
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
-npm run rebuild
 # 运行
-npx electron .
+npm run start
+# 调试
+npm run dev
 # 编译
-npm run rebuild
 npm run dist
 # 将在build目录产生安装包和解压的目录
 ```

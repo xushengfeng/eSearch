@@ -54,11 +54,11 @@ Compiling requires `python` and `C++`, for Windows you need `python `and `visual
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
-npm run rebuild
 # Run
-npx electron .
-# 编译
-npm run rebuild
+npm run start
+# debug
+npm run dev
+# make
 npm run dist
 # The installation package and unzipped directory will be generated in the build directory
 ```
