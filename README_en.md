@@ -109,7 +109,7 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Screenshot history
     -   [x] Window and control selection (using OpenCV edge recognition)
     -   [x] Long screen capture
-    -   [ ] Multi-screen
+    -   [x] Multi-screen
 -   [x] Record screen
     -   [x] Recording full screen
     -   [x] Customize size
@@ -155,7 +155,7 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Other editor editing (for automatic reloading)
     -   [x] Line numbering
     -   [x] Spell check
--   [ ] Wayland Desktop
+-   [x] Wayland Desktop
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
@@ -201,8 +201,6 @@ Tested under ArchLinux, KDE plasma, Xorg
 Tested on Windows 10 and Windows 11
 
 Tested on macOS Catalina
-
-Wayland desktop environment not supported at this time
 
 ## Development reasons
 

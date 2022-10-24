@@ -109,7 +109,7 @@ esearch (若找不到，请尝试e-search)
     -   [x] 截屏历史记录
     -   [x] 窗口和控件选择（使用 OpenCV 边缘识别）
     -   [x] 长截屏
-    -   [ ] 多屏幕
+    -   [x] 多屏幕
 -   [x] 录屏
     -   [x] 录制全屏
     -   [x] 自定义大小
@@ -155,7 +155,7 @@ esearch (若找不到，请尝试e-search)
     -   [x] 其他编辑器编辑（支持自动重载）
     -   [x] 行号
     -   [x] 拼写检查
--   [ ] Wayland 桌面
+-   [x] Wayland 桌面
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
@@ -201,8 +201,6 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 Windows10 和 Windows11 测试通过
 
 macOS Catalina 测试通过
-
-Wayland 桌面环境暂时不支持
 
 ## 开发原因
 
