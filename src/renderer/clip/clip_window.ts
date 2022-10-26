@@ -823,6 +823,19 @@ tool_bar.addEventListener("mouseup", (e) => {
     if (e.button == 2) tool_position = { x: null, y: null };
 });
 
+const loading_el = document.getElementById("loading");
+loading_el.classList.add("loading_hide");
+function show_loading(text: string) {
+    loading_el.innerText = text;
+    loading_el.classList.remove("loading_hide");
+    loading_el.style.left = `calc(50% - ${loading_el.offsetWidth / 2}px)`;
+    loading_el.style.top = `calc(50% - ${loading_el.offsetHeight / 2}px)`;
+}
+
+function hide_loading() {
+    loading_el.classList.add("loading_hide");
+}
+
 import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);

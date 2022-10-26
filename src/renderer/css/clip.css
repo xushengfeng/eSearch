@@ -447,6 +447,22 @@ body {
     cursor: progress;
 }
 
+#loading {
+    position: fixed;
+    z-index: 100;
+    padding: 4px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
+    transition: var(--transition);
+}
+
+.loading_hide {
+    pointer-events: none;
+    opacity: 0;
+}
+
 /* long */
 #long_rect {
     position: fixed;
