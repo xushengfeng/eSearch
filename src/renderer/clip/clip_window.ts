@@ -622,6 +622,7 @@ function init_long(rect: number[]) {
         document.getElementById("draw_photo_top"),
         wh_el,
         mouse_bar_el,
+        loading_el,
     ];
 
     for (let i of l) {
@@ -639,6 +640,9 @@ function init_long(rect: number[]) {
             i.style.display = "";
         }
     };
+
+    show_loading("截屏拼接中");
+    main_canvas.style.filter = "blur(20px)";
 }
 
 function pj_long() {
@@ -655,6 +659,9 @@ function pj_long() {
     main_canvas.getContext("2d").putImageData(ggid, 0, 0);
 
     final_rect = [0, 0, o_canvas.width, o_canvas.height];
+
+    main_canvas.style.filter = "";
+    hide_loading();
 }
 
 // 钉在屏幕上
