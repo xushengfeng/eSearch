@@ -48,6 +48,8 @@ hot-keys {
     height: 1.5em;
     width: 1.5em;
     cursor: pointer;
+    outline: none;
+    border: none;
 }
 #clear > .icon {
     height: 1.5em;
