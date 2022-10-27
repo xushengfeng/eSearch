@@ -23,6 +23,7 @@ specifiers:
   node-screenshots-win32-arm64-msvc: 0.0.12
   node-screenshots-win32-ia32-msvc: 0.0.12
   node-screenshots-win32-x64-msvc: 0.0.12
+  onnxruntime-node: ^1.12.1
   onnxruntime-web: ^1.12.1
   opencv.js: ^1.2.1
   typescript: ^4.8.4
@@ -40,6 +41,7 @@ dependencies:
   hotkeys-js: 3.10.0
   jsqr: 1.4.0
   node-screenshots: 0.0.12
+  onnxruntime-node: 1.12.1
   onnxruntime-web: 1.12.1
   opencv.js: 1.2.1
   uiohook-napi: 1.5.0
@@ -2807,6 +2809,13 @@ packages:
 
   /onnxruntime-common/1.12.1:
     resolution: {integrity: sha512-tWr/9nkQtzc61SH6zSE+3j2/HWBLgVcrXqS5HqQFitJ6hYNmNDcXwV2LYtFDH6CB9Qg987BMMv0ldaDUdB78VA==}
+    dev: false
+
+  /onnxruntime-node/1.12.1:
+    resolution: {integrity: sha512-H06kB4tRcZf93YDipL2nG5Oqs8WGhZzpWMgWUhH8r6ciGTZ85JrZpHuqRIabTS6Rls/IjbnBcrPXYPZnSgXqkQ==}
+    os: [win32, darwin, linux]
+    dependencies:
+      onnxruntime-common: 1.12.1
     dev: false
 
   /onnxruntime-web/1.12.1:

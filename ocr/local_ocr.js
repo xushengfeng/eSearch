@@ -1,5 +1,5 @@
 var cv = require("opencv.js");
-const ort = require("onnxruntime-web");
+var ort;
 const fs = require("fs");
 const WordsNinjaPack = require("wordsninja");
 const WordsNinja = new WordsNinjaPack();
@@ -16,10 +16,15 @@ var limit_side_len = 960,
 /**
  * 初始化
  * @param {{det_path:string,rec_path:string,dic_path:string,
- * max_side:number,imgh:number;imgw:number;dev:boolean}} x
+ * max_side:number,imgh:number;imgw:number;dev:boolean;node:boolean}} x
  * @returns
  */
 async function init(x) {
+    if (x.node) {
+        ort = require("onnxruntime-node");
+    } else {
+        ort = require("onnxruntime-web");
+    }
     dev = x.dev;
     det = await ort.InferenceSession.create(x.det_path);
     rec = await ort.InferenceSession.create(x.rec_path);

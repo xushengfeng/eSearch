@@ -2265,6 +2265,7 @@ async function local_ocr(type: string, arg: string, callback: Function) {
         rec_path: recp,
         dic_path: 字典,
         ...l[4],
+        node: store.get("离线OCR配置.node"),
     });
     let img = document.createElement("img");
     img.src = "data:image/png;base64," + arg;
