@@ -75,12 +75,11 @@ body {
 
 kbd {
     display: inline-block;
-    padding: 4px;
+    padding: 2px 4px;
     border-radius: var(--border-radius);
-    box-shadow: 0 5px #0002;
-    transform: rotateX(45deg);
     background: linear-gradient(315deg, #e6e6e6, #ffffff);
     font-family: var(--monospace);
+    border: 1px solid #ddd;
 }
 
 ::-webkit-scrollbar {

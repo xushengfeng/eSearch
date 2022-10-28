@@ -21,9 +21,9 @@ var limit_side_len = 960,
  */
 async function init(x) {
     if (x.node) {
-        ort = require("onnxruntime-node");
+        // ort = require("onnxruntime-node");
     } else {
-        ort = require("onnxruntime-web");
+        // ort = require("onnxruntime-web");
     }
     dev = x.dev;
     det = await ort.InferenceSession.create(x.det_path);
