@@ -254,6 +254,15 @@ comment {
     opacity: 0.6;
 }
 
+.hotkeys {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    gap: 8px 16px;
+}
+.hotkeys > span {
+    text-align: right;
+}
+
 #ffmpeg_path_b,
 #ocr_det_b,
 #ocr_rec_b,
