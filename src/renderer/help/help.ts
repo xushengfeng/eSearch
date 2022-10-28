@@ -19,6 +19,3 @@ document.onclick = (e) => {
     }
 };
 
-if (process.platform != "linux") {
-    document.getElementById("ffmpeg_linux").style.display = "none";
-}

@@ -275,26 +275,6 @@ document.getElementById("获取保存路径").onclick = () => {
 (<HTMLInputElement>document.getElementById("默认开启音频")).checked = store.get("录屏.音频.默认开启");
 (<HTMLInputElement>document.getElementById("记录音频开启状态")).checked = store.get("录屏.音频.记住开启状态");
 
-(<HTMLInputElement>document.getElementById("ffmpeg_path")).value = store.get("录屏.转换.ffmpeg");
-document.getElementById("下载ffmpeg").onclick = () => {
-    let url = "";
-    if (process.platform == "linux") {
-        url = "http://ffmpeg.org/download.html";
-    } else if (process.platform == "win32") {
-        url = "https://www.gyan.dev/ffmpeg/builds/#git-master-builds";
-    } else if (process.platform == "darwin") {
-        url = "https://evermeet.cx/ffmpeg/#ffmpeg";
-    }
-    shell.openExternal(url);
-};
-document.getElementById("ffmpeg_path_b").onclick = () => {
-    ipcRenderer.send(
-        "setting",
-        "open_dialog",
-        { filters: [{ name: "exe", extensions: ["exe"] }], properties: ["openFile"] },
-        "ffmpeg_path"
-    );
-};
 (<HTMLInputElement>document.getElementById("开启自动转换")).checked = store.get("录屏.转换.自动转换");
 (<HTMLInputElement>document.getElementById("格式")).value = store.get("录屏.转换.格式");
 (<HTMLInputElement>document.getElementById("码率")).value = store.get("录屏.转换.码率");
@@ -707,7 +687,6 @@ function save_setting() {
         记住开启状态: (<HTMLInputElement>document.getElementById("记录音频开启状态")).checked,
     });
     store.set("录屏.转换", {
-        ffmpeg: (<HTMLInputElement>document.getElementById("ffmpeg_path")).value,
         自动转换: (<HTMLInputElement>document.getElementById("开启自动转换")).checked,
         格式: (<HTMLInputElement>document.getElementById("格式")).value,
         码率: Number((<HTMLInputElement>document.getElementById("码率")).value),
@@ -888,11 +867,6 @@ ipcRenderer.on("setting", (err, t, id, r) => {
             case "ocr_字典":
                 if (!r.canceled) {
                     (<HTMLInputElement>document.getElementById("ocr_字典")).value = r.filePaths[0];
-                }
-                break;
-            case "ffmpeg_path":
-                if (!r.canceled) {
-                    (<HTMLInputElement>document.getElementById("ffmpeg_path")).value = r.filePaths[0];
                 }
                 break;
             case "plugin":
