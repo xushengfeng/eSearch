@@ -235,6 +235,8 @@ document.getElementById("框选最大阈值").oninput = () => {
     }
 };
 
+(<HTMLInputElement>document.getElementById("记住框选大小")).checked = store.get("框选.记忆.开启");
+
 (<HTMLInputElement>document.getElementById("填充颜色")).value = store.get("图像编辑.默认属性.填充颜色");
 (<HTMLInputElement>document.getElementById("边框颜色")).value = store.get("图像编辑.默认属性.边框颜色");
 (<HTMLInputElement>document.getElementById("边框宽度")).value = store.get("图像编辑.默认属性.边框宽度");
@@ -649,6 +651,9 @@ function save_setting() {
         开启: (<HTMLInputElement>document.getElementById("自动框选")).checked,
         最小阈值: (<HTMLInputElement>document.getElementById("框选最小阈值")).value,
         最大阈值: (<HTMLInputElement>document.getElementById("框选最大阈值")).value,
+    });
+    store.set("框选.记忆", {
+        开启: (<HTMLInputElement>document.getElementById("记住框选大小")).checked,
     });
     store.set("图像编辑.默认属性", {
         填充颜色: (<HTMLInputElement>document.getElementById("填充颜色")).value,
