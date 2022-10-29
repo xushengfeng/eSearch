@@ -44,18 +44,18 @@
                 <h2>
                     <t>开机自启动</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="autostart">
                     <t>开机自启动</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>启动提示</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="启动提示">
                     <t>启动时系统通知提示启动</t>
-                </group-b>
+                </label>
             </div>
 
             <div id="setting_item">
@@ -183,10 +183,10 @@
                     <h2>
                         <t>剪贴板搜索</t>
                     </h2>
-                    <group-b>
+                    <label>
                         <input type="checkbox" id="剪贴板选区搜索">
                         <t>使用选区内容</t>
-                    </group-b>
+                    </label>
                 </div>
             </div>
 
@@ -332,10 +332,10 @@
                 <h2>
                     <t>大小坐标</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="显示四角坐标">
                     <t>显示四角坐标</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）</t>
                 </comment>
@@ -383,10 +383,10 @@
                     <t>使用OpenCV自动识别边缘轮廓（测试版）</t>
                 </comment>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="自动框选">
                     <t>启用自动框选</t>
-                </group-b>
+                </label>
                 <details>
                     <summary>
                         <t>边缘识别高级设置</t>
@@ -401,10 +401,10 @@
                 <h2>
                     <t>记住框选大小</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="记住框选大小">
                     <t>记住框选大小</t>
-                </group-b>
+                </label>
 
             </div>
 
@@ -497,10 +497,10 @@
                 <h2>
                     <t>自动录制</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="开启自动录制">
                     <t>开启自动录制</t>
-                </group-b>
+                </label>
                 <range-b out="true" id="自动录制延时" min="0" max="10" text="s" step="1"></range-b>
 
                 <h2>
@@ -512,20 +512,20 @@
                 <h2>
                     <t>提示</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="开启键盘按键提示">
                     <t>开启键盘按键提示</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="开启鼠标按键提示">
                     <t>开启鼠标按键提示</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="开启光标提示">
                     <t>开启光标提示</t>
-                </group-b>
+                </label>
                 <h3>
                     <t>光标提示样式</t>
                 </h3>
@@ -535,31 +535,31 @@
                 <h2>
                     <t>摄像头</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="默认开启摄像头">
                     <t>默认开启</t>
-                </group-b>
-                <group-b>
+                </label>
+                <label>
                     <input type="checkbox" id="记录摄像头开启状态">
                     <t>记录开启状态</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="摄像头镜像">
                     <t>镜像</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>音频</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="默认开启音频">
                     <t>默认开启</t>
-                </group-b>
-                <group-b>
+                </label>
+                <label>
                     <input type="checkbox" id="记录音频开启状态">
                     <t>记录开启状态</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>转换</t>
@@ -570,10 +570,10 @@
                 <h3>
                     <t>自动转换</t>
                 </h3>
-                <group-b>
+                <label>
                     <input type="checkbox" id="开启自动转换">
                     <t>开启自动转换</t>
-                </group-b>
+                </label>
                 <br>
                 <t>输出格式</t><input id="格式" type="text" spellcheck="false" name="格式">
                 <br>
@@ -583,13 +583,13 @@
                 <br>
                 <t>其他参数</t><input type="text" name="其他参数" id="ff其他参数">
                 <h3>Gif</h3>
-                <group-b>
+                <label>
                     <input type="checkbox" id="高质量gif">
                     <t>高质量 Gif</t>
                     <comment>
                         <t>（转换时速度会很慢）</t>
                     </comment>
-                </group-b>
+                </label>
 
             </div>
 
@@ -652,10 +652,10 @@
                 </h2>
                 <t>字体大小</t>
                 <range-b out="true" id="字体大小" min="0" max="100" step="1" value="16"></range-b>
-                <group-b>
+                <label>
                     <input type="checkbox" id="记住字体大小">
                     <t>记住主页面字体大小</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>样式</t>
@@ -669,20 +669,20 @@
                 <h2>
                     <t>更多</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="换行">
                     <t>自动换行</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="拼写检查">
                     <t>拼写检查</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="行号">
                     <t>行号</t>
-                </group-b>
+                </label>
             </div>
 
             <div id="setting_item">
@@ -693,18 +693,18 @@
                 <h2>
                     <t>自动</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="自动搜索">
                     <t>自动搜索</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（识屏或直接打开主页面，若文字为一行，则自动搜索）</t>
                 </comment>
                 </br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="自动打开链接">
                     <t>自动打开链接</t>
-                </group-b>
+                </label>
                 </br>
                 <t>自动搜索中文占比</t>
                 <comment>
@@ -729,10 +729,10 @@
                 <h3>
                     <t>默认引擎</t>
                 </h3>
-                <group-b>
+                <label>
                     <input type="checkbox" id="记住引擎">
                     <t>记住引擎选择</t>
-                </group-b>
+                </label>
                 <div name="" id="默认搜索引擎div">
                 </div>
                 <div name="" id="默认翻译引擎div">
@@ -748,39 +748,39 @@
                     <div value="yandex">Yandex</div>
                     <div value="google">Google</div>
                 </set-select>
-                <group-b>
+                <label>
                     <input type="checkbox" id="记住识图引擎">
                     <t>记住引擎选择</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>浏览器中打开</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" id="浏览器中打开">
                     <t>浏览器中打开</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）</t>
                 </comment>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="搜索窗口自动关闭">
                     <t>浏览器打开后自动关闭标签页</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="标签缩小">
                     <t>标签缩小</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（标签将只显示图标，悬浮查看标题，中键或右键关闭）</t>
                 </comment>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="标签灰度">
                     <t>标签图标灰度</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（标签图标将以灰度图片展示，减少多余颜色的干扰）</t>
                 </comment>
@@ -806,15 +806,15 @@
                         <t>有道</t>
                     </div>
                 </set-select>
-                <group-b>
+                <label>
                     <input type="checkbox" id="记住OCR引擎">
                     <t>记住引擎选择</t>
-                </group-b>
+                </label>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" checked id="离线切换">
                     <t>离线时切换离线OCR</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>离线OCR</t>
@@ -826,10 +826,10 @@
                     </div>
                 </div>
 
-                <group-b>
+                <label>
                     <input type="checkbox" id="node后端">
                     <t>启用node后端</t>
-                </group-b>
+                </label>
 
                 <h2>
                     <t>在线OCR</t>
@@ -885,15 +885,15 @@
                     <t>搜索</t>
                 </h2>
 
-                <group-b>
+                <label>
                     <input type="checkbox" name="" id="历史记录_b" checked>
                     <t>保留历史记录</t>
-                </group-b>
+                </label>
                 </br>
-                <group-b>
+                <label>
                     <input type="checkbox" name="" id="清除历史记录">
                     <t>自动清除历史记录</t>
-                </group-b> <input type="number" min="0" id="his_d">
+                </label> <input type="number" min="0" id="his_d">
                 <t>天</t> <input type="number" min="1" id="his_h">
                 <t>小时</t>
                 <br>
@@ -912,10 +912,10 @@
                     <t>代理</t>
                 </h1>
 
-                <group-b>
+                <label>
                     <input type="checkbox" name="" id="代理">
                     <t>开启代理</t>
-                </group-b>
+                </label>
                 </br>
                 <t>pac文件：</t>
                 <input type="text" spellcheck="false" id="pacScript">
@@ -933,10 +933,10 @@
                 </h1>
 
                 <t>失去焦点后自动关闭</t>：
-                <group-b>
+                <label>
                     <input type="checkbox" name="" id="主页面失焦">
                     <t>主页面</t>
-                </group-b>
+                </label>
             </div>
 
             <div id="setting_item">
@@ -960,10 +960,10 @@
                     <t>恢复默认设置</t>
                 </button>
                 <br>
-                <group-b>
+                <label>
                     <input type="checkbox" id="give_up_setting_b">
                     <t>不保存本次设置值</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（若不清楚刚才更改了什么设置，请选中）</t>
                 </comment>
@@ -971,10 +971,10 @@
                 <h2>
                     <t>硬件加速</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" name="" id="硬件加速">
                     <t>启用硬件加速</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（如果可用，且更改需要重启软件生效）</t>
                 </comment>
@@ -982,10 +982,10 @@
                 <h2>
                     <t>检查更新</t>
                 </h2>
-                <group-b>
+                <label>
                     <input type="checkbox" name="" id="检查更新">
                     <t>启用检查更新</t>
-                </group-b>
+                </label>
                 <comment>
                     <t>（仅在周末检查，且只在设置打开时检查）</t>
                 </comment>
