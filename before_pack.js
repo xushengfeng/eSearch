@@ -35,4 +35,12 @@ exports.default = async function () {
             })
         );
     }
+    if (process.platform == "win32" && !fs.existsSync("./build/vc_redist.x64.exe")) {
+        fs.writeFileSync(
+            "./build/vc_redist.x64.exe",
+            await download("https://aka.ms/vs/17/release/vc_redist.x64.exe", {
+                rejectUnauthorized: false,
+            })
+        );
+    }
 };
