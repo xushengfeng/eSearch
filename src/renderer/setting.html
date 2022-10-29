@@ -45,7 +45,7 @@
                     <t>开机自启动</t>
                 </h2>
                 <group-b>
-                    <lock-b id="autostart"></lock-b>
+                    <input type="checkbox" id="autostart">
                     <t>开机自启动</t>
                 </group-b>
 
@@ -53,7 +53,7 @@
                     <t>启动提示</t>
                 </h2>
                 <group-b>
-                    <lock-b id="启动提示"></lock-b>
+                    <input type="checkbox" id="启动提示">
                     <t>启动时系统通知提示启动</t>
                 </group-b>
             </div>
@@ -184,7 +184,7 @@
                         <t>剪贴板搜索</t>
                     </h2>
                     <group-b>
-                        <lock-b id="剪贴板选区搜索"></lock-b>
+                        <input type="checkbox" id="剪贴板选区搜索">
                         <t>使用选区内容</t>
                     </group-b>
                 </div>
@@ -333,7 +333,7 @@
                     <t>大小坐标</t>
                 </h2>
                 <group-b>
-                    <lock-b id="显示四角坐标"></lock-b>
+                    <input type="checkbox" id="显示四角坐标">
                     <t>显示四角坐标</t>
                 </group-b>
                 <comment>
@@ -384,7 +384,7 @@
                 </comment>
                 <br>
                 <group-b>
-                    <lock-b id="自动框选"></lock-b>
+                    <input type="checkbox" id="自动框选">
                     <t>启用自动框选</t>
                 </group-b>
                 <details>
@@ -402,7 +402,7 @@
                     <t>记住框选大小</t>
                 </h2>
                 <group-b>
-                    <lock-b id="记住框选大小"></lock-b>
+                    <input type="checkbox" id="记住框选大小">
                     <t>记住框选大小</t>
                 </group-b>
 
@@ -498,7 +498,7 @@
                     <t>自动录制</t>
                 </h2>
                 <group-b>
-                    <lock-b id="开启自动录制"></lock-b>
+                    <input type="checkbox" id="开启自动录制">
                     <t>开启自动录制</t>
                 </group-b>
                 <range-b out="true" id="自动录制延时" min="0" max="10" text="s" step="1"></range-b>
@@ -513,17 +513,17 @@
                     <t>提示</t>
                 </h2>
                 <group-b>
-                    <lock-b id="开启键盘按键提示"></lock-b>
+                    <input type="checkbox" id="开启键盘按键提示">
                     <t>开启键盘按键提示</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="开启鼠标按键提示"></lock-b>
+                    <input type="checkbox" id="开启鼠标按键提示">
                     <t>开启鼠标按键提示</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="开启光标提示"></lock-b>
+                    <input type="checkbox" id="开启光标提示">
                     <t>开启光标提示</t>
                 </group-b>
                 <h3>
@@ -536,16 +536,16 @@
                     <t>摄像头</t>
                 </h2>
                 <group-b>
-                    <lock-b id="默认开启摄像头"></lock-b>
+                    <input type="checkbox" id="默认开启摄像头">
                     <t>默认开启</t>
                 </group-b>
                 <group-b>
-                    <lock-b id="记录摄像头开启状态"></lock-b>
+                    <input type="checkbox" id="记录摄像头开启状态">
                     <t>记录开启状态</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="摄像头镜像"></lock-b>
+                    <input type="checkbox" id="摄像头镜像">
                     <t>镜像</t>
                 </group-b>
 
@@ -553,11 +553,11 @@
                     <t>音频</t>
                 </h2>
                 <group-b>
-                    <lock-b id="默认开启音频"></lock-b>
+                    <input type="checkbox" id="默认开启音频">
                     <t>默认开启</t>
                 </group-b>
                 <group-b>
-                    <lock-b id="记录音频开启状态"></lock-b>
+                    <input type="checkbox" id="记录音频开启状态">
                     <t>记录开启状态</t>
                 </group-b>
 
@@ -571,7 +571,7 @@
                     <t>自动转换</t>
                 </h3>
                 <group-b>
-                    <lock-b id="开启自动转换"></lock-b>
+                    <input type="checkbox" id="开启自动转换">
                     <t>开启自动转换</t>
                 </group-b>
                 <br>
@@ -584,7 +584,7 @@
                 <t>其他参数</t><input type="text" name="其他参数" id="ff其他参数">
                 <h3>Gif</h3>
                 <group-b>
-                    <lock-b id="高质量gif"></lock-b>
+                    <input type="checkbox" id="高质量gif">
                     <t>高质量 Gif</t>
                     <comment>
                         <t>（转换时速度会很慢）</t>
@@ -653,7 +653,7 @@
                 <t>字体大小</t>
                 <range-b out="true" id="字体大小" min="0" max="100" step="1" value="16"></range-b>
                 <group-b>
-                    <lock-b id="记住字体大小"></lock-b>
+                    <input type="checkbox" id="记住字体大小">
                     <t>记住主页面字体大小</t>
                 </group-b>
 
@@ -670,17 +670,17 @@
                     <t>更多</t>
                 </h2>
                 <group-b>
-                    <lock-b id="换行"></lock-b>
+                    <input type="checkbox" id="换行">
                     <t>自动换行</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="拼写检查"></lock-b>
+                    <input type="checkbox" id="拼写检查">
                     <t>拼写检查</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="行号"></lock-b>
+                    <input type="checkbox" id="行号">
                     <t>行号</t>
                 </group-b>
             </div>
@@ -694,7 +694,7 @@
                     <t>自动</t>
                 </h2>
                 <group-b>
-                    <lock-b id="自动搜索"></lock-b>
+                    <input type="checkbox" id="自动搜索">
                     <t>自动搜索</t>
                 </group-b>
                 <comment>
@@ -702,7 +702,7 @@
                 </comment>
                 </br>
                 <group-b>
-                    <lock-b id="自动打开链接"></lock-b>
+                    <input type="checkbox" id="自动打开链接">
                     <t>自动打开链接</t>
                 </group-b>
                 </br>
@@ -730,7 +730,7 @@
                     <t>默认引擎</t>
                 </h3>
                 <group-b>
-                    <lock-b id="记住引擎"></lock-b>
+                    <input type="checkbox" id="记住引擎">
                     <t>记住引擎选择</t>
                 </group-b>
                 <div name="" id="默认搜索引擎div">
@@ -749,7 +749,7 @@
                     <div value="google">Google</div>
                 </set-select>
                 <group-b>
-                    <lock-b id="记住识图引擎"></lock-b>
+                    <input type="checkbox" id="记住识图引擎">
                     <t>记住引擎选择</t>
                 </group-b>
 
@@ -757,7 +757,7 @@
                     <t>浏览器中打开</t>
                 </h2>
                 <group-b>
-                    <lock-b id="浏览器中打开"></lock-b>
+                    <input type="checkbox" id="浏览器中打开">
                     <t>浏览器中打开</t>
                 </group-b>
                 <comment>
@@ -765,12 +765,12 @@
                 </comment>
                 <br>
                 <group-b>
-                    <lock-b id="搜索窗口自动关闭"></lock-b>
+                    <input type="checkbox" id="搜索窗口自动关闭">
                     <t>浏览器打开后自动关闭标签页</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b id="标签缩小"></lock-b>
+                    <input type="checkbox" id="标签缩小">
                     <t>标签缩小</t>
                 </group-b>
                 <comment>
@@ -778,7 +778,7 @@
                 </comment>
                 <br>
                 <group-b>
-                    <lock-b id="标签灰度"></lock-b>
+                    <input type="checkbox" id="标签灰度">
                     <t>标签图标灰度</t>
                 </group-b>
                 <comment>
@@ -807,12 +807,12 @@
                     </div>
                 </set-select>
                 <group-b>
-                    <lock-b id="记住OCR引擎"></lock-b>
+                    <input type="checkbox" id="记住OCR引擎">
                     <t>记住引擎选择</t>
                 </group-b>
                 <br>
                 <group-b>
-                    <lock-b checked id="离线切换"></lock-b>
+                    <input type="checkbox" checked id="离线切换">
                     <t>离线时切换离线OCR</t>
                 </group-b>
 
@@ -827,7 +827,7 @@
                 </div>
 
                 <group-b>
-                    <lock-b id="node后端"></lock-b>
+                    <input type="checkbox" id="node后端">
                     <t>启用node后端</t>
                 </group-b>
 
@@ -886,12 +886,12 @@
                 </h2>
 
                 <group-b>
-                    <lock-b name="" id="历史记录_b" checked></lock-b>
+                    <input type="checkbox" name="" id="历史记录_b" checked>
                     <t>保留历史记录</t>
                 </group-b>
                 </br>
                 <group-b>
-                    <lock-b name="" id="清除历史记录"></lock-b>
+                    <input type="checkbox" name="" id="清除历史记录">
                     <t>自动清除历史记录</t>
                 </group-b> <input type="number" min="0" id="his_d">
                 <t>天</t> <input type="number" min="1" id="his_h">
@@ -913,7 +913,7 @@
                 </h1>
 
                 <group-b>
-                    <lock-b name="" id="代理"></lock-b>
+                    <input type="checkbox" name="" id="代理">
                     <t>开启代理</t>
                 </group-b>
                 </br>
@@ -934,7 +934,7 @@
 
                 <t>失去焦点后自动关闭</t>：
                 <group-b>
-                    <lock-b name="" id="主页面失焦"></lock-b>
+                    <input type="checkbox" name="" id="主页面失焦">
                     <t>主页面</t>
                 </group-b>
             </div>
@@ -961,7 +961,7 @@
                 </button>
                 <br>
                 <group-b>
-                    <lock-b id="give_up_setting_b"></lock-b>
+                    <input type="checkbox" id="give_up_setting_b">
                     <t>不保存本次设置值</t>
                 </group-b>
                 <comment>
@@ -972,7 +972,7 @@
                     <t>硬件加速</t>
                 </h2>
                 <group-b>
-                    <lock-b name="" id="硬件加速"></lock-b>
+                    <input type="checkbox" name="" id="硬件加速">
                     <t>启用硬件加速</t>
                 </group-b>
                 <comment>
@@ -983,7 +983,7 @@
                     <t>检查更新</t>
                 </h2>
                 <group-b>
-                    <lock-b name="" id="检查更新"></lock-b>
+                    <input type="checkbox" name="" id="检查更新">
                     <t>启用检查更新</t>
                 </group-b>
                 <comment>

@@ -149,7 +149,8 @@ select {
     outline: none;
 }
 
-lock-b {
+input[type="checkbox"] {
+    appearance: none;
     top: 2px;
     display: inline-block !important;
     width: 16px;
@@ -159,10 +160,10 @@ lock-b {
     border-radius: 4px;
     transition: var(--transition);
 }
-lock-b:hover {
+input[type="checkbox"]:hover {
     box-shadow: var(--shadow);
 }
-.lock-b-lock {
+input[type="checkbox"]:checked {
     background-color: var(--m-color1) !important;
 }
 
