@@ -126,6 +126,7 @@ document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
 });
 ipcRenderer.on("状态", (event, name, arg) => {
     (<any>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
+    if (t) store.set(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
 
 var 其他快捷键 = store.get("其他快捷键");
