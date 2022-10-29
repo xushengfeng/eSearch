@@ -532,7 +532,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     set_ocr();
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
-(<HTMLInputElement>document.getElementById("node后端")).value = store.get("离线OCR配置.node");
+(<HTMLInputElement>document.getElementById("node后端")).checked = store.get("离线OCR配置.node");
 
 (<HTMLInputElement>document.getElementById("baidu_ocr_url")).value = store.get("在线OCR.baidu.url");
 (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value = store.get("在线OCR.baidu.id");
@@ -770,7 +770,7 @@ function save_setting() {
             : false,
         版本: store.get("OCR.版本"),
     });
-    store.set("离线OCR配置.node", (<HTMLInputElement>document.getElementById("node后端")).value);
+    store.set("离线OCR配置.node", (<HTMLInputElement>document.getElementById("node后端")).checked);
     store.set("在线OCR.baidu", {
         url: (<HTMLInputElement>document.getElementById("baidu_ocr_url")).value,
         id: (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value,
