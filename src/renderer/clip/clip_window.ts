@@ -474,6 +474,7 @@ function tool_record_f() {
         wh_el,
         mouse_bar_el,
         lr,
+        loading_el,
     ];
 
     for (let i of l) {
