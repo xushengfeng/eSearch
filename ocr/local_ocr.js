@@ -56,7 +56,7 @@ async function x(img) {
         let { b, imgH, imgW } = i;
         const rec_results = await 识别(b, imgH, imgW, rec);
         let line = 识别后处理(rec_results, dic);
-        main_line = main_line.concat(line);
+        main_line = line.concat(main_line);
     }
     console.log(main_line);
     console.timeEnd();
