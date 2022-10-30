@@ -316,6 +316,9 @@ document.getElementById("ocr引擎").oninput = () => {
 };
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
 
+const ocr_err = document.getElementById("ocr_error");
+ocr_err.classList.add("ocr_err_hide");
+
 function tool_ocr_f() {
     var type = ocr引擎.value;
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
@@ -330,6 +333,17 @@ function tool_ocr_f() {
             tool_close_f();
         } else {
             document.getElementById("waiting").style.display = "none";
+            ocr_err.classList.remove("ocr_err_hide");
+            let text = document.createElement("div");
+            text.innerText = arg;
+            let close_el = document.createElement("div");
+            close_el.onclick = () => {
+                ocr_err.classList.add("ocr_err_hide");
+            };
+            ocr_err.append(text, close_el);
+
+            ocr_err.style.left = `calc(50% - ${ocr_err.offsetWidth / 2}px)`;
+            ocr_err.style.top = `calc(50% - ${ocr_err.offsetHeight / 2}px)`;
         }
     });
 }
@@ -475,6 +489,7 @@ function tool_record_f() {
         mouse_bar_el,
         lr,
         loading_el,
+        ocr_err,
     ];
 
     for (let i of l) {
@@ -624,6 +639,7 @@ function init_long(rect: number[]) {
         wh_el,
         mouse_bar_el,
         loading_el,
+        ocr_err,
     ];
 
     for (let i of l) {

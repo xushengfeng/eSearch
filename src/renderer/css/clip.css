@@ -480,6 +480,37 @@ body {
     opacity: 0;
 }
 
+#ocr_error {
+    position: fixed;
+    z-index: 100;
+    padding: 8px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--blur);
+    background: var(--bar-bg);
+    transition: var(--transition);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#ocr_error > div:last-child {
+    width: 100%;
+    border-radius: var(--border-radius);
+    background-color: var(--bar-bg);
+    transition: var(--transition);
+    text-align: center;
+}
+#ocr_error > div:last-child:hover {
+    background-color: var(--hover-color);
+    color: var(--bg);
+}
+.ocr_err_hide {
+    pointer-events: none;
+    opacity: 0;
+}
+
 /* long */
 #long_rect {
     position: fixed;
