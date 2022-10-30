@@ -457,6 +457,23 @@ body {
     background: var(--bar-bg);
     transition: var(--transition);
 }
+#loading::after {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 0.125em solid;
+    border-radius: 1em;
+    border-right-color: transparent;
+    content: "";
+    animation: spinner 0.75s linear infinite;
+    box-sizing: border-box;
+    margin-left: 0.25em;
+}
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
 .loading_hide {
     pointer-events: none;
