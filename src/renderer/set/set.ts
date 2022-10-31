@@ -951,7 +951,7 @@ document.getElementById("version").onclick = () => {
         .catch((error) => console.log("error", error));
 };
 
-if (new Date().getDay() >= 6) {
+if (store.get("更新.频率") == "setting") {
     document.getElementById("version").click();
 }
 
@@ -979,11 +979,3 @@ ipcRenderer.on("about", (event, arg) => {
         location.hash = "#about";
     }
 });
-
-var io = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-        document.getElementById("version").click();
-    }
-});
-
-io.observe(document.querySelector("#about > img"));
