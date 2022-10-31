@@ -553,10 +553,10 @@ function tool_record_f() {
     var mouse_style = document.createElement("style");
     mouse_style.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
     document.body.appendChild(mouse_style);
-    recorder_rect_el.style.left = final_rect[0] + "px";
-    recorder_rect_el.style.top = final_rect[1] + "px";
-    recorder_rect_el.style.width = final_rect[2] + "px";
-    recorder_rect_el.style.height = final_rect[3] + "px";
+    recorder_rect_el.style.left = final_rect[0] / ratio + "px";
+    recorder_rect_el.style.top = final_rect[1] / ratio + "px";
+    recorder_rect_el.style.width = final_rect[2] / ratio + "px";
+    recorder_rect_el.style.height = final_rect[3] / ratio + "px";
 
     ipcRenderer.on("record", async (event, t, arg) => {
         switch (t) {
