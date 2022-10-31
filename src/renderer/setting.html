@@ -977,13 +977,12 @@
                 <h2>
                     <t>检查更新</t>
                 </h2>
-                <label>
-                    <input type="checkbox" name="" id="检查更新">
-                    <t>启用检查更新</t>
-                </label>
-                <comment>
-                    <t>（仅在周末检查，且只在设置打开时检查）</t>
-                </comment>
+                <set-select name="" id="检查更新频率">
+                    <div value="start">启动时检查</div>
+                    <div value="weekly">每周检查</div>
+                    <div value="setting">设置启动时检查</div>
+                    <div value="manual">手动检查</div>
+                </set-select>
                 <label>
                     <input type="checkbox" name="" id="dev">
                     <t>检查测试版更新</t>
