@@ -347,7 +347,7 @@ comment {
     margin: 4px;
 }
 #update_info {
-    height: 300px;
+    max-height: 300px;
     overflow: auto;
 }
 #update_info > div > div {
