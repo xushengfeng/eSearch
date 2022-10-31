@@ -896,19 +896,50 @@ document.getElementById("name").innerHTML = package_json.name;
 document.getElementById("version").innerHTML = package_json.version;
 document.getElementById("description").innerHTML = t(package_json.description);
 document.getElementById("version").onclick = () => {
-    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases/latest", { method: "GET", redirect: "follow" })
-        .then((response) => response.text())
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases", { method: "GET", redirect: "follow" })
+        .then((response) => response.json())
         .then((re) => {
-            let result = JSON.parse(re);
-            console.log(result);
-            if (version_new(result.name, package_json.version) && !result.draft && !result.prerelease) {
-                document.getElementById("update_info").innerHTML = `${t("有新版本:")} <a href="${result.html_url}">${
-                    result.name
-                }</a><div>${result.body.replace(/\r\n/g, "<br>")}</div>`;
-                (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
-            } else {
-                document.getElementById("update_info").innerHTML = t("暂无更新");
-                (")");
+            console.log(re);
+            if (document.getElementById("update_info").innerHTML) return;
+            let l = [];
+            for (let r of re) {
+                if (!package_json.version.includes("beta") && !package_json.version.includes("alpha")) {
+                    if (!r.draft && !r.prerelease) l.push(r);
+                } else {
+                    l.push(r);
+                }
+            }
+            function tag(text: string) {
+                let tag = document.createElement("span");
+                tag.innerText = t(text);
+                return tag;
+            }
+            for (let i in l) {
+                const r = l[i];
+                let div = document.createElement("div");
+                let tags = document.createElement("div");
+                let h = document.createElement("h1");
+                h.innerText = r.name;
+                let p = document.createElement("p");
+                p.innerHTML = r.body.replace(/\r\n/g, "<br>");
+                div.append(tags, h, p);
+                document.getElementById("update_info").append(div);
+                if (i == "0") {
+                    let tag_el = tag("最新版本");
+                    tag_el.title = t("点击下载");
+                    tag_el.classList.add("download_tag");
+                    tags.append(tag_el);
+                    tag_el.onclick = () => {
+                        shell.openExternal(r.html_url);
+                    };
+                }
+                if (r.name == package_json.version) {
+                    tags.append(tag("当前版本"));
+                    if (i != "0") {
+                        (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
+                    }
+                    break;
+                }
             }
         })
         .catch((error) => console.log("error", error));
@@ -918,19 +949,6 @@ if (new Date().getDay() >= 6) {
     document.getElementById("version").click();
 }
 
-function version_new(v1, v2) {
-    v1 = v1.split(".").map((v) => Number(v));
-    v2 = v2.split(".").map((v) => Number(v));
-    if (v1[0] > v2[0]) {
-        return true;
-    } else if (v1[0] == v2[0] && v1[1] > v2[1]) {
-        return true;
-    } else if (v1[0] == v2[0] && v1[1] == v2[1] && v1[2] > v2[2]) {
-        return true;
-    } else {
-        return false;
-    }
-}
 document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${package_json.homepage}">${
     package_json.homepage
 }</a></div>

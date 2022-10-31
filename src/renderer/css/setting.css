@@ -346,10 +346,29 @@ comment {
     text-align: center;
     margin: 4px;
 }
-#update_info > div {
-    height: 200px;
+#update_info {
+    height: 300px;
     overflow: auto;
 }
+#update_info > div > div {
+    display: flex;
+    gap: 8px;
+}
+#update_info > div > div > span {
+    padding: 4px;
+    border-radius: 4px;
+    background-color: var(--hover-color);
+}
+.download_tag {
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: #335efe !important;
+    color: var(--bg);
+}
+.download_tag:hover {
+    box-shadow: var(--shadow);
+}
+
 #name {
     text-align: center;
     font-size: 3rem;
