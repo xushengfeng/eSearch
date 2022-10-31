@@ -581,6 +581,7 @@ var 代理 = store.get("代理");
 (<HTMLInputElement>document.getElementById("硬件加速")).checked = store.get("硬件加速");
 
 (<HTMLInputElement>document.getElementById("检查更新")).checked = store.get("更新.检查更新");
+(<HTMLInputElement>document.getElementById("dev")).checked = store.get("更新.dev");
 
 document.getElementById("打开config").title = store.path;
 document.getElementById("打开config").onclick = () => {
@@ -791,6 +792,7 @@ function save_setting() {
     });
     store.set("硬件加速", (<HTMLInputElement>document.getElementById("硬件加速")).checked);
     store.set("更新.检查更新", (<HTMLInputElement>document.getElementById("检查更新")).checked);
+    store.set("更新.dev", (<HTMLInputElement>document.getElementById("dev")).checked);
     if (user_data_path_inputed)
         fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, (e) => {
             if (e) throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));
@@ -903,7 +905,11 @@ document.getElementById("version").onclick = () => {
             if (document.getElementById("update_info").innerHTML) return;
             let l = [];
             for (let r of re) {
-                if (!package_json.version.includes("beta") && !package_json.version.includes("alpha")) {
+                if (
+                    !package_json.version.includes("beta") &&
+                    !package_json.version.includes("alpha") &&
+                    !store.get("更新.dev")
+                ) {
                     if (!r.draft && !r.prerelease) l.push(r);
                 } else {
                     l.push(r);
