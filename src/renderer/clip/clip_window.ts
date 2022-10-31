@@ -96,6 +96,8 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
         canvas.getContext("2d").putImageData(d, 0, 0);
     }
     for (let i of data) {
+        i.height = i.height * i.scaleFactor;
+        i.width = i.width * i.scaleFactor;
         if (i) {
             if (i.main) {
                 main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
