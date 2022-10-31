@@ -588,6 +588,17 @@ function create_clip_window() {
             case "long_e":
                 long_s_v = false;
                 break;
+            case "new_version":
+                var notification = new Notification({
+                    title: `${app.name} ${t("有新版本：")}${arg.v}`,
+                    body: `${t("点击下载")}`,
+                    icon: `${run_path}/assets/logo/64x64.png`,
+                });
+                notification.on("click", () => {
+                    shell.openExternal(arg.url);
+                });
+                notification.show();
+                break;
         }
     });
 }
@@ -1864,6 +1875,7 @@ var default_setting = {
         检查更新: true,
         频率: "setting",
         dev: false,
+        上次更新时间: 0,
     },
     录屏: {
         自动录制: 3,

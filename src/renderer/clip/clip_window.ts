@@ -2799,3 +2799,45 @@ for (let p of store.get("插件.加载后")) {
         document.body.before(s);
     }
 }
+
+// 检查应用更新
+
+import pack from "../../../package.json?raw";
+var package_json = JSON.parse(pack);
+
+function check_update() {
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
+        .then((v) => v.json())
+        .then((re) => {
+            let l = [];
+            for (let r of re) {
+                if (
+                    !package_json.version.includes("beta") &&
+                    !package_json.version.includes("alpha") &&
+                    !store.get("更新.dev")
+                ) {
+                    if (!r.draft && !r.prerelease) l.push(r);
+                } else {
+                    l.push(r);
+                }
+            }
+            for (let i in l) {
+                const r = l[i];
+                if (r.name == package_json.version) {
+                    if (i != "0") {
+                        ipcRenderer.send("clip_main_b", "new_version", { v: l[0].name, url: l[0].html_url });
+                    }
+                    break;
+                }
+            }
+        });
+}
+
+if (store.get("更新.频率") == "start") check_update();
+if (store.get("更新.频率") == "weekly") {
+    let time = new Date();
+    if (time.getDay() == 6 && time.getTime() - store.get("更新.上次更新时间") > 24 * 60 * 60 * 1000) {
+        store.set("更新.上次更新时间", time.getTime());
+        check_update();
+    }
+}
