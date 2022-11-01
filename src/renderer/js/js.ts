@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 var in_browser = typeof global == "undefined";
 
-import cursor_svg from "../assets/icons/cursor.svg";
 import close_svg from "../assets/icons/close.svg";
 import reload_svg from "../assets/icons/reload.svg";
 
@@ -15,16 +14,16 @@ var undo_stack_i = 0;
  * @returns none
  */
 function stack_add() {
-    if (undo_stack[undo_stack_i] == editor_get()) return;
+    if (undo_stack[undo_stack_i] == editor.get()) return;
     // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
     if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
-    undo_stack.push(editor_get());
+    undo_stack.push(editor.get());
     undo_stack_i = undo_stack.length - 1;
 }
 function undo() {
     if (undo_stack_i > 0) {
         undo_stack_i--;
-        editor_push(undo_stack[undo_stack_i]);
+        editor.push(undo_stack[undo_stack_i]);
         if (find_show) {
             find_area.innerText = undo_stack[undo_stack_i];
             exit_find();
@@ -35,7 +34,7 @@ function undo() {
 function redo() {
     if (undo_stack_i < undo_stack.length - 1) {
         undo_stack_i++;
-        editor_push(undo_stack[undo_stack_i]);
+        editor.push(undo_stack[undo_stack_i]);
         if (find_show) {
             find_area.innerText = undo_stack[undo_stack_i];
             exit_find();
@@ -49,21 +48,310 @@ if (!in_browser) {
     splitter = new GraphemeSplitter();
 }
 
-var editor = document.getElementById("text");
+class xeditor {
+    text: HTMLTextAreaElement;
+    editor_more: HTMLElement;
+    selections: selections;
+    cursors: cursors;
+    constructor(el: HTMLElement) {
+        el.classList.add("text");
+        this.text = document.createElement("textarea");
+        this.editor_more = document.createElement("div");
+        el.append(this.text, this.editor_more);
 
-/**
- * 文字包装span
- * @param t 单个文字
- * @returns 包装好的span
- */
-function word_to_span(t: string) {
-    let span = document.createElement("span");
-    span.className = "w";
-    if (t == "\t") span.className = "tab";
-    if (t == " ") span.className = "space";
-    span.innerText = t;
-    return span;
+        this.selections = new selections(this);
+        this.cursors = new cursors(this);
+
+        this.text.oninput = () => {
+            this.editor_more.innerText = this.text.value;
+        };
+
+        this.text.addEventListener("keydown", (e) => {
+            var l = ["Tab", "Insert"];
+            if (!l.includes(e.key)) return;
+            e.preventDefault();
+            switch (e.key) {
+                case "Tab":
+                    this.text.setRangeText("\t");
+                    editor_change();
+                    break;
+                case "Insert":
+                    insert = !insert;
+                    if (insert) {
+                        document.getElementById("cursor").classList.add("cursor_insert");
+                    } else {
+                        document.getElementById("cursor").classList.remove("cursor_insert");
+                    }
+                    break;
+            }
+        });
+
+        let pointer_start_from_this = false;
+
+        this.text.addEventListener("pointerdown", (e) => {
+            pointer_start_from_this = true;
+            if (e.altKey) {
+            } else {
+                this.selections.clear_all();
+            }
+        });
+
+        document.addEventListener("pointerup", (e) => {
+            if (pointer_start_from_this) {
+                if (e.altKey) {
+                    this.selections.add(this.selections.ns2s(this.text.selectionStart, this.text.selectionEnd));
+                } else {
+                    this.selections.clear_all();
+                    this.selections.add(this.selections.ns2s(this.text.selectionStart, this.text.selectionEnd));
+                }
+                pointer_start_from_this = false;
+                this.text.dispatchEvent(new CustomEvent("select2", { detail: { button: e.button } }));
+            }
+        });
+    }
+
+    /**
+     * 写入编辑器
+     * @param value 传入text
+     */
+    push(value: string) {
+        this.text.value = value;
+        this.render();
+        editor_change();
+
+        if (editing_on_other) {
+            editing_on_other = false;
+            editor_change();
+            editing_on_other = true;
+        }
+    }
+
+    /**
+     * 获取编辑器文字
+     * @returns 文字
+     */
+    get(range?: range) {
+        let t = this.text.value;
+        if (range) {
+            t = t.slice(range.start, range.end);
+        }
+        return t;
+    }
+
+    render() {
+        this.editor_more.innerText = this.text.value;
+    }
+
+    l() {
+        return this.text.value.split("\n");
+    }
+
+    w_max(p: number) {
+        return this.l()[p].length; // TODO
+    }
+
+    delete() {
+        editor.selections.replace("");
+        hide_edit_bar();
+    }
+    copy() {
+        var t = editor.selections.get();
+        if (in_browser) {
+            navigator.clipboard.writeText(t);
+        } else {
+            clipboard.writeText(t);
+        }
+    }
+    cut() {
+        this.copy();
+        this.delete();
+    }
+    paste() {
+        if (in_browser) {
+            navigator.clipboard.readText().then((t) => {
+                editor.selections.replace(t);
+            });
+        } else {
+            console.log(1);
+
+            let t = clipboard.readText();
+            editor.selections.replace(t);
+        }
+    }
+    select_all() {
+        this.selections.clear_all();
+        this.selections.add({
+            start: { pg: 0, of: 0 },
+            end: { pg: editor.l().length - 1, of: editor.w_max(editor.l().length - 1) },
+        });
+        let r = this.selections.rect(this.selections.l[0]);
+        show_edit_bar(r.x, r.top + line_height, NaN, false);
+    }
+    delete_enter() {
+        for (let s of editor.selections.l) {
+            var t = editor.selections.get(s);
+            let ot = "";
+            let start = format_selection(s).start;
+            let end = { pg: start.pg, of: start.of };
+            for (let i = 0; i < t.length; i++) {
+                if (t[i] == "\n") {
+                    // 换行
+                    if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
+                        // 结尾
+                        ot += t[i];
+                        end.of = 0;
+                        end.pg += 1;
+                    } else {
+                        if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
+                            // 上一行末与此行首为中文字符
+                            ot += "";
+                        } else {
+                            ot += " ";
+                            end.of += 1;
+                        }
+                    }
+                } else {
+                    // 正常行内字符
+                    ot += t[i];
+                    end.of += 1;
+                }
+            }
+            editor.selections.replace(ot);
+            s.start = start;
+            s.end = end;
+            editor.selections.render();
+        }
+    }
 }
+
+type selection = { start: { pg: number; of: number }; end: { pg: number; of: number } };
+type range = { start: number; end: number };
+
+type cursor = { pg: number; of: number };
+
+class selections {
+    editor: xeditor;
+    constructor(editor: xeditor) {
+        this.editor = editor;
+    }
+
+    l: selection[] = [];
+
+    add(s: selection) {
+        s = format_selection(s);
+        this.l.push(s);
+        this.render();
+        console.log(this.l);
+    }
+
+    clear_all() {
+        this.l = [];
+        this.render();
+    }
+
+    s2ns(s: selection) {
+        s = format_selection(s);
+        let l = editor.l();
+        let start = 0;
+        for (let i = 0; i < s.start.pg; i++) {
+            start += l[i].length;
+        }
+        start += s.start.of;
+        let end = 0;
+        for (let i = 0; i < s.end.pg - 1; i++) {
+            end += l[i].length;
+        }
+        end += s.end.of;
+        return { start, end } as range;
+    }
+
+    ns2s(start: number, end: number) {
+        let s = { pg: NaN, of: NaN },
+            e = { pg: NaN, of: NaN };
+        let n = 0;
+        const l = editor.l();
+        for (let i = 0; i < l.length; i++) {
+            // length+1 因为换行\n也算一个字符
+            if (n <= start && start < n + l[i].length + 1) {
+                s.pg = i;
+                s.of = start - n;
+            }
+            if (n <= end && end < n + l[i].length + 1) {
+                e.pg = i;
+                e.of = end - n;
+            }
+            n += l[i].length + 1;
+        }
+        return { start: s, end: e };
+    }
+
+    get(s?: selection) {
+        let l = [];
+        if (s) {
+            l.push(editor.get(this.s2ns(s)));
+        } else {
+            for (let s of this.l) {
+                l.push(editor.get(this.s2ns(s)));
+            }
+        }
+        return l.join("\n");
+    }
+
+    replace(text: string) {
+        for (let s of this.l) {
+            let r = this.s2ns(s);
+            editor.text.setSelectionRange(r.start, r.end);
+            editor.text.setRangeText(text);
+        }
+        editor.render();
+    }
+
+    render() {
+        for (let s of this.l) {
+        }
+    }
+
+    rect(s: selection) {
+        let r = this.s2ns(s);
+        editor.text.setSelectionRange(r.start, r.end);
+        return document.getSelection().getRangeAt(0).getBoundingClientRect();
+    }
+}
+class cursors {
+    editor: xeditor;
+    constructor(editor: xeditor) {
+        this.editor = editor;
+    }
+
+    l: cursor[] = [];
+
+    c2nc(c: cursor) {
+        let l = editor.l();
+        let n = 0;
+        for (let i = 0; i < c.pg; i++) {
+            n += l[i].length;
+        }
+        n += c.of;
+        return n;
+    }
+
+    add(c: cursor) {
+        this.l.push(c);
+    }
+
+    set(c: cursor) {
+        let n = this.c2nc(c);
+        editor.text.setSelectionRange(n, n);
+    }
+
+    input() {
+        for (let c of this.l) {
+        }
+    }
+}
+
+const editor = new xeditor(document.getElementById("text"));
+
 /**
  * 文字包装span文字
  * @param t 单个文字
@@ -90,203 +378,11 @@ function word_to_span_string_split(t: string) {
     o = o.map((t) => word_to_span_string(t));
     return o.join("");
 }
-/**
- * 写入编辑器
- * @param value 传入text
- */
-function editor_push(value: string) {
-    editor.innerHTML = "";
-    var t = "";
-    let pg = value.split(/[\n\r]/);
-    for (let i of pg) {
-        let word_l = in_browser ? i.split("") : splitter.splitGraphemes(i);
-        let div = `<div class="p">`;
-        let spans = "";
-        for (let j of word_l) {
-            spans += word_to_span_string(j);
-        }
-        div += spans;
-        div += "</div>";
-        t += div;
-    }
-    editor.innerHTML = t;
-    editor_i(get_pg_max(), get_w_max(get_pg_max()));
-    editor_change();
 
-    if (editing_on_other) {
-        editing_on_other = false;
-        editor_change();
-        editing_on_other = true;
-    }
-}
-editor_push("");
-/**
- * 获取编辑器文字
- * @returns 文字
- */
-function editor_get() {
-    var t = "";
-    for (let i of editor.querySelectorAll("div")) {
-        if (i.innerText == "") {
-            t += "\n";
-        } else {
-            t += "\n" + i.textContent.replace(/\n/g, "");
-        }
-    }
-    return t.replace(/\n/, "");
-}
-
-class selection {
-    start: { pg: number; of: number };
-    end: { pg: number; of: number };
-    constructor(s: { start: { pg: number; of: number }; end: { pg: number; of: number } }) {
-        this.start = s.start;
-        this.end = s.end;
-    }
-    /**
-     * 渲染选区
-     * @param this 选区
-     */
-    render(this: selection, not_add?: boolean) {
-        if (!not_add) add_line();
-        var s = format_selection(this);
-        var t = "";
-        if (s.start.pg == s.end.pg) {
-            t += draw_pg_selection(s.start.pg, s.start.of, s.end.of, false);
-        } else {
-            for (let i = s.start.pg; i <= s.end.pg; i++) {
-                if (i == s.start.pg) {
-                    t += draw_pg_selection(i, s.start.of, get_w_max(i), true);
-                } else if (i == s.end.pg) {
-                    t += draw_pg_selection(i, 0, s.end.of, s.end.of == 0);
-                } else {
-                    t += draw_pg_selection(i, 0, get_w_max(i), true);
-                }
-            }
-        }
-        document.getElementById("selection").innerHTML = t;
-    }
-    /**
-     * 获取选区文字
-     * @param this 选区
-     * @returns 文字（反转义）
-     */
-    get(this: selection) {
-        var s = format_selection(this);
-        var text = "";
-        if (s.start.pg == s.end.pg) {
-            text = get_s(s.start.pg, s.start.of, s.end.of);
-        } else {
-            for (let i = s.start.pg; i <= s.end.pg; i++) {
-                if (i == s.start.pg) {
-                    text += get_s(i, s.start.of, get_w_max(i)) || "\n";
-                } else if (i == s.end.pg) {
-                    text += "\n" + get_s(i, 0, s.end.of);
-                } else {
-                    text += "\n" + get_s(i, 0, get_w_max(i));
-                }
-            }
-        }
-        return text;
-    }
-    /**
-     * 替换选区文字
-     * @param this 选区
-     * @param text 要替换成的文字
-     */
-    replace(this: selection, text: string) {
-        var s = format_selection(this);
-        var t = "";
-        var end_s = { pg: NaN, of: NaN };
-        // 拼接替换后的文字
-        t = get_s(s.start.pg, 0, s.start.of) + text + "\ue000" + get_s(s.end.pg, s.end.of, get_w_max(s.end.pg));
-        // 删除原来的段落
-        var t_l = [];
-        for (let i = s.start.pg; i <= s.end.pg; i++) {
-            t_l.push(get_pg(i));
-        }
-        for (let i of t_l) {
-            i.remove();
-        }
-        // 倒叙添加
-        let pg = t.split(/[\n\r]/);
-        for (let i = pg.length - 1; i >= 0; i--) {
-            let word_l = in_browser ? pg[i].split("") : splitter.splitGraphemes(pg[i]);
-            let div = document.createElement("div");
-            div.className = "p";
-            for (let j in word_l) {
-                if (word_l[j] == "\ue000") {
-                    end_s.pg = s.start.pg + i;
-                    end_s.of = Number(j);
-                } else {
-                    let span = word_to_span_string(word_l[j]);
-                    div.innerHTML += span;
-                }
-            }
-            if (s.start.pg == 0) {
-                editor.prepend(div);
-            } else {
-                get_pg(s.start.pg - 1).after(div);
-            }
-        }
-
-        s.start = end_s;
-        cursor = s.start;
-        editor_selections[0].start = s.start;
-        editor_selections[0].end = s.start;
-
-        document.getElementById("selection").innerHTML = "";
-        editor_i(s.start.pg, s.start.of);
-
-        hide_edit_bar();
-
-        editor_change();
-    }
-}
-/**
- * 绘制段落内选区
- * @param pg 段落数
- * @param s_of 开头间隔索引
- * @param e_of 末尾间隔索引
- * @param br 是否绘制换行
- * @returns html文字
- */
-function draw_pg_selection(pg: number, s_of: number, e_of: number, br: boolean) {
-    let t = "";
-    let br_w = 2; /* 换行宽度 */
-    for (let i of pg_to_line[pg]) {
-        let l_i = line[i];
-        if (s_of == 0 && e_of == 0 && br) {
-            t += draw_div(i, 0, br_w);
-        }
-        if (!(s_of <= l_i.max.i && l_i.min.i < e_of)) continue;
-        if (l_i.min.i <= s_of && s_of <= l_i.max.i) {
-            var s_left = s_of == l_i.min.i ? 0 : get_w(pg, s_of).offsetLeft + get_w(pg, s_of).offsetWidth;
-        } else {
-            var s_left = 0;
-        }
-        if (l_i.min.i <= e_of && e_of <= l_i.max.i) {
-            var e_left = e_of == l_i.min.i ? 0 : get_w(pg, e_of).offsetLeft + get_w(pg, e_of).offsetWidth;
-        } else {
-            var e_left = l_i.max.r;
-            if (br && e_of == l_i.max.i + 1) e_left += br_w;
-        }
-        t += draw_div(i, s_left, e_left);
-    }
-    function draw_div(i: number, s_left: number, e_left: number) {
-        let div = `<div class="selection" style="left: ${s_left}px; width: ${e_left - s_left}px; top: ${i}px;"></div>`;
-        return div;
-    }
-    return t;
-}
-
-/**记录间隔位置，从0开始 */
-type selection_list = [selection?];
-var editor_selection = new selection({ start: { pg: 0, of: 0 }, end: { pg: 0, of: 0 } });
-var editor_selections: selection_list = [editor_selection];
+editor.push("");
 
 function format_selection(s: selection) {
-    var tmp = new selection({ start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } });
+    var tmp: selection = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (s.end.pg == s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
         tmp.start.of = Math.min(s.start.of, s.end.of);
@@ -299,724 +395,16 @@ function format_selection(s: selection) {
     return tmp;
 }
 
-type t_line = { [top: number]: { min: { i: number; l: 0 }; max: { i: number; r: number }; pg: number } };
-type t_pg_to_line = { [pg: number]: Array<number> };
-
-var line: t_line = {};
-var pg_to_line: t_pg_to_line = {};
-function push_p_l(i: number, v: number) {
-    if (!pg_to_line[i]) pg_to_line[i] = [];
-    if (!pg_to_line[i].includes(v)) pg_to_line[i].push(v);
-}
-
 var line_height = 24;
-function add_line() {
-    var h = 0;
-    pg_to_line = {};
-    line = {};
-    var pg_l = editor.querySelectorAll("div");
-    let i = 0;
-    // 以最长的tab计算，算出尽可能小的分段数且不包含多个换行
-    let d_k = Math.floor(editor.offsetWidth / ((line_height / 1.5) * (store?.get("编辑器.tab") || 2)));
-    for (let pg of pg_l) {
-        let r = 0;
-        if (pg.lastElementChild) {
-            r = (<HTMLElement>pg.lastElementChild).offsetLeft + (<HTMLElement>pg.lastElementChild).offsetWidth;
-        }
-        if (line_height * 0.5 <= pg.offsetHeight && pg.offsetHeight <= line_height * 1.5) {
-            line[pg.offsetTop] = { min: { i: 0, l: 0 }, max: { i: pg.children.length - 1, r }, pg: i };
-            push_p_l(i, pg.offsetTop);
-        } else {
-            // 多行
-            var w_l = pg.querySelectorAll("span");
-            let k_l = [];
-            // 分段
-            for (let k = 0; k <= w_l.length + d_k; k += d_k) {
-                if (k >= w_l.length) {
-                    k_l.push(w_l.length - 1);
-                    break;
-                }
-                k_l.push(k);
-            }
-            for (let k of k_l) {
-                if (w_l[k].offsetTop != h) {
-                    let k_min = k - d_k;
-                    if (k_min < 0) k_min = 0;
-                    // 细分
-                    for (let j = k_min; j <= k_min + d_k; j++) {
-                        let w = w_l[j];
-                        if (w_l[j + 1]) {
-                            var n_w = w_l[j + 1];
-                            if (n_w.offsetTop != h) {
-                                /* 新行，w最大,n_w最小 */
-                                h = n_w.offsetTop;
-                                let w_top = w.offsetTop;
-                                push_p_l(i, w_top);
-                                line[h] = { min: { i: j, l: 0 }, max: { i: 0, r: 0 }, pg: i };
-                                // 上一行
-                                if (!line[w_top]) line[w_top] = { min: { i: 0, l: 0 }, max: { i: NaN, r: NaN }, pg: i };
-                                line[w_top].max = { i: j, r: w.offsetLeft + w.offsetWidth };
-                            }
-                        } else {
-                            // 此段最后一行
-                            let m = { i: j, r: w.offsetLeft + w.offsetWidth };
-                            // 上一行
-                            if (!line[w.offsetTop]) line[w.offsetTop] = { min: { i: 0, l: 0 }, max: m, pg: i };
-                            line[w.offsetTop].max = m;
-                            push_p_l(i, w.offsetTop);
-                        }
-                    }
-                }
-            }
-            let w = w_l[w_l.length - 1];
-            let m = { i: w_l.length - 1, r: w.offsetLeft + w.offsetWidth };
-            line[w.offsetTop].max = m;
-            push_p_l(i, w.offsetTop);
-        }
-        i++;
-    }
-}
-add_line();
 
-var down = false;
-var click_time = 0;
-var click_d_time = 500;
-var click_i = 0;
-var move_s = false;
-var in_selection = false;
-var move_first_start = false;
-var move_s_t = "";
-var tmp_s = { start: { pg: NaN, of: NaN }, end: {} };
-document.getElementById("top").addEventListener("mousedown", (e) => {
-    var el = <HTMLElement>e.target;
-    var n_s = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
-    add_line();
-    if (el.tagName == "SPAN") {
-        var w = el;
-        if (e.offsetX <= w.offsetWidth / 2) {
-            n_s.start.of = get_index(w.parentElement, w);
-        } else {
-            n_s.start.of = get_index(w.parentElement, w) + 1;
-        }
-        n_s.start.pg = get_index(editor, w.parentElement);
-        down = true;
-    } else {
-        n_s.start = posi(e);
-        down = true;
-    }
-    cursor.pg = n_s.start.pg;
-    cursor.of = n_s.start.of;
-    editor_i(cursor.pg, cursor.of);
+var cursor = { pg: 0, of: 0 };
 
-    var t_s = format_selection(editor_selections[0]);
-    if (
-        (t_s.end.pg - t_s.start.pg >= 2 && t_s.start.pg <= cursor.pg && cursor.pg <= t_s.end.pg) /* >=3 */ ||
-        (t_s.start.pg - t_s.end.pg == 0 &&
-            t_s.start.pg == cursor.pg &&
-            t_s.start.of < cursor.of &&
-            cursor.of < t_s.end.of) /* 1 */ ||
-        (t_s.end.pg - t_s.start.pg == 1 &&
-            ((t_s.start.pg == cursor.pg && t_s.start.of < cursor.of) ||
-                (t_s.end.pg == cursor.pg && cursor.of < t_s.end.of))) /* 2 */
-    ) {
-        in_selection = true;
-    }
-
-    if (!e.shiftKey) [tmp_s.start, tmp_s.end] = [n_s.start, n_s.end];
-
-    document.getElementById("edit_b").style.pointerEvents = "none";
-});
-document.addEventListener("mousemove", (e) => {
-    mousemove(e);
-});
-function mousemove(e: MouseEvent) {
-    if (!down) return;
-    move_s = true;
-    var el = <HTMLElement>e.target;
-    var n_s = new selection({ start: tmp_s.start, end: { of: NaN, pg: NaN } });
-    if (el.tagName == "SPAN") {
-        var w = el;
-        if (e.offsetX <= w.offsetWidth / 2) {
-            n_s.end.of = get_index(w.parentElement, w);
-        } else {
-            n_s.end.of = get_index(w.parentElement, w) + 1;
-        }
-        n_s.end.pg = get_index(editor, w.parentElement);
-    } else {
-        n_s.end = posi(e);
-    }
-    if (!in_selection) {
-        editor_selections[0] = n_s;
-        n_s.render(true);
-    } else {
-        if (!move_first_start) {
-            // 虚线光标
-            document.getElementById("cursor").style.background = `url(${cursor_svg}) center`;
-            document.getElementById("cursor").style.backgroundSize = "cover";
-            move_s_t = editor_selections[0].get();
-            editor_selections[0].replace("");
-            move_first_start = true;
-        }
-    }
-    cursor.pg = n_s.end.pg;
-    cursor.of = n_s.end.of;
-    editor_i(cursor.pg, cursor.of);
-}
-document.addEventListener("mouseup", (e) => {
-    mouseup(e);
-});
-function mouseup(e: MouseEvent) {
-    if (new Date().getTime() - click_time > click_d_time) {
-        click_time = new Date().getTime();
-        click_i = 1;
-    } else {
-        click_i++;
-    }
-    if (click_i == 3) {
-        let t = new selection({ start: { of: 0, pg: cursor.pg }, end: { of: get_w_max(cursor.pg), pg: cursor.pg } });
-        t.render();
-        editor_selections[0] = t;
-        down = false;
-        cursor.of = get_w_max(cursor.pg);
-        editor_i(cursor.pg, cursor.of);
-        return;
-    }
-    if (!down) return;
-    down = false;
-    var el = <HTMLElement>e.target;
-    if (!move_first_start) editor_selections[0].start = tmp_s.start;
-    var n_s = new selection({ start: editor_selections[0].start, end: { of: NaN, pg: NaN } });
-    if (el.tagName == "SPAN") {
-        var w = el;
-        if (e.offsetX <= w.offsetWidth / 2) {
-            n_s.end.of = get_index(w.parentElement, w);
-        } else {
-            n_s.end.of = get_index(w.parentElement, w) + 1;
-        }
-        n_s.end.pg = get_index(editor, w.parentElement);
-    } else {
-        n_s.end = posi(e);
-    }
-    if (!(move_first_start || in_selection)) {
-        editor_selections[0] = n_s;
-        n_s.render();
-        cursor.pg = n_s.end.pg;
-        cursor.of = n_s.end.of;
-        let p = editor_i(cursor.pg, cursor.of);
-        show_edit_bar(p.left, p.top + line_height, line_height, e.button == 2);
-    } else {
-        let t_s = new selection({ start: cursor, end: cursor });
-        t_s.replace(move_s_t);
-        move_s_t = "";
-        in_selection = false;
-        move_first_start = false;
-        document.getElementById("cursor").style.background = "";
-        document.getElementById("cursor").style.backgroundSize = "";
-        hide_edit_bar();
-    }
-    move_s = false;
-
-    document.getElementById("edit_b").style.pointerEvents = "";
-
-    add_selection_linux();
-}
-
-function posi(e: MouseEvent) {
-    var dy =
-        -document.getElementById("main_text").scrollTop + editor.offsetTop + document.getElementById("top").offsetTop;
-    var y = e.pageY - dy;
-    var dx =
-        -document.getElementById("main_text").scrollLeft +
-        document.getElementById("main_text").offsetLeft +
-        document.getElementById("top").offsetLeft;
-    var x = e.pageX - dx;
-
-    var l = Object.keys(line).map((x) => Number(x));
-
-    var pg_line = 0,
-        of = 0;
-    if (y < 0) {
-        pg_line = 0;
-        of = 0;
-    } else if (y >= l[l.length - 1] + line_height) {
-        pg_line = l.length - 1;
-        if (line[l[pg_line]].max.r == 0) {
-            // line空和一个字的i都为0
-            of = 0;
-        } else {
-            of = line[l[pg_line]].max.i + 1;
-        }
-    } else {
-        for (i in l) {
-            if (l[i] <= y && y < l[i] + line_height) {
-                pg_line = Number(i);
-                if (x < line[l[i]].min.l) {
-                    if (pg_line != 0) {
-                        pg_line--;
-                        if (line[l[Number(i) - 1]].max.r == 0) {
-                            of = 0;
-                        } else {
-                            of = line[l[Number(i) - 1]].max.i + 1;
-                        }
-                    }
-                }
-                if (x >= line[l[i]].max.r - 1) {
-                    /* -1防止虚无的跳跃 */
-                    if (line[l[i]].max.r == 0) {
-                        // line空和一个字的i都为0
-                        of = 0;
-                    } else {
-                        of = line[l[i]].max.i + 1;
-                    }
-                }
-            }
-        }
-    }
-    return { pg: line[pg_line * Math.round(line_height)].pg, of };
-}
-
-document.addEventListener("dragover", function (e) {
-    e.preventDefault();
-    down = true;
-    editor.contentEditable = "true";
-    move_s = true;
-    mousemove(e);
-});
-document.addEventListener("drop", (e) => {
-    e.preventDefault();
-    editor.contentEditable = "false";
-    move_s_t = e.dataTransfer.getData("text/plain");
-    mouseup(e);
-});
-/**
- * 获取段落元素
- * @param p 段落数，从0开始算
- * @returns 元素，通过元素获取属性
- */
-function get_pg(p: number) {
-    return <HTMLElement>editor.querySelector(`div:nth-child(${p + 1})`);
-}
-/**
- * 获取段落最大索引
- * @returns 索引值
- */
-function get_pg_max() {
-    var i = editor.querySelectorAll(`div`).length;
-    return i - 1;
-}
-/**
- * 获取字符元素
- * @param p 段落数，从0开始算
- * @param i 字符索引
- * @returns 元素，通过元素获取属性
- */
-function get_w(p: number, i: number) {
-    var el = editor.querySelector(`div:nth-child(${p + 1})`).querySelector(`span:nth-child(${i})`);
-    return <HTMLElement>el;
-}
-/**
- * 获取字符索引
- * @param p 段落数，从0开始算
- * @param i 字符间隔索引 0a1b2c3
- * @returns 横向坐标
- */
-function get_w_index(p: number, i: number) {
-    var n = 0;
-    // 由于i是间隔数，为了不必要的判断，定位元素右边，0号间隔单独算
-    if (i == 0) {
-        n = (<HTMLElement>editor.querySelector(`div:nth-child(${p + 1})`)).offsetLeft;
-    } else {
-        var el = <HTMLElement>editor.querySelector(`div:nth-child(${p + 1}) > span:nth-child(${i})`);
-        if (!el) {
-            return null;
-        } else {
-            n = el.offsetLeft + el.offsetWidth;
-        }
-    }
-    return n;
-}
-/**
- * 获取段落最大词数（最大间隔索引）
- * @param p 段落数，从0开始算
- * @returns 词数
- */
-function get_w_max(p: number) {
-    var el = <HTMLElement>editor.querySelector(`div:nth-child(${p + 1})`);
-    if (el.innerText == "") {
-        return 0;
-    } else {
-        return el.querySelectorAll("span").length;
-    }
-}
-/**
- * 定位子元素
- * @param parent_element 父元素
- * @param element 子元素
- * @returns 位置，从0算起
- */
-function get_index(parent_element: HTMLElement, element: HTMLElement): number {
-    for (let i = 0; i < parent_element.children.length; i++) {
-        if (parent_element.children[i] === element) return i;
-    }
-}
-var cursor = { pg: get_pg_max(), of: get_w_max(get_pg_max()) };
-var cursor_real = { pg: get_pg_max(), of: get_w_max(get_pg_max()) };
-/**
- * 定位光标(左边)
- * @param p 段落(from 0)
- * @param i 词(from 0)
- */
-function editor_i(p: number, i: number, select?: boolean) {
-    cursor_real = { pg: p, of: i };
-    if (get_w_index(p, i) === null) cursor_real.of = get_w_max(p); /* 移动到更短行，定位到末尾 */
-    var top = get_w(p, i)?.offsetTop || get_pg(p).offsetTop;
-    var left = get_w_index(p, i) === null ? get_w_index(p, get_w_max(p)) : get_w_index(p, i);
-    document.getElementById("cursor").style.animation = "none";
-    setTimeout(() => {
-        document.getElementById("cursor").style.animation = "";
-    }, 100);
-    document.getElementById("cursor").style.left = left + "px";
-    document.getElementById("cursor").style.top = top + 8 + "px";
-    document.getElementById("cursor").focus();
-
-    if (select) {
-        editor_selections[0].end = { pg: p, of: i };
-        editor_selections[0].render();
-
-        show_edit_bar(left, top + 8 + line_height, NaN, false);
-    }
-
-    // 确保光标在视线内
-    let h = document.getElementById("text_out").offsetHeight + document.getElementById("main_text").scrollTop;
-    if (h < top + 8 + line_height) {
-        document.getElementById("main_text").scrollTop =
-            top + 8 - document.getElementById("text_out").offsetHeight + line_height;
-    }
-    if (top + 8 < document.getElementById("main_text").scrollTop) {
-        document.getElementById("main_text").scrollTop = top + 8;
-    }
-
-    return { left, top: top + 8 };
-}
-editor_i(cursor.pg, cursor.of);
-
-/**
- * 截取的文字
- * @param n 段落索引
- * @param s 开始间隔索引
- * @param e 末尾间隔索引
- * @returns 文字（反转义）
- */
-function get_s(n: number, s: number, e: number) {
-    var r = get_pg(n).textContent.replace(/\n/g, "");
-    r = r.slice(s, e);
-    return r;
-}
-
-class editing_operation {
-    delete() {
-        editor_selections[0].replace("");
-        hide_edit_bar();
-    }
-    copy() {
-        var t = editor_selections[0].get();
-        if (in_browser) {
-            navigator.clipboard.writeText(t);
-        } else {
-            clipboard.writeText(t);
-        }
-    }
-    cut() {
-        this.copy();
-        this.delete();
-    }
-    paste() {
-        if (in_browser) {
-            navigator.clipboard.readText().then((t) => {
-                editor_selections[0].replace(t);
-            });
-        } else {
-            console.log(1);
-
-            let t = clipboard.readText();
-            editor_selections[0].replace(t);
-        }
-    }
-    select_all() {
-        var s = new selection({ start: { pg: 0, of: 0 }, end: { pg: get_pg_max(), of: get_w_max(get_pg_max()) } });
-        s.render();
-        editor_selections[0] = s;
-
-        let p = editor_i(cursor.pg, cursor.of);
-        show_edit_bar(p.left, p.top + line_height, NaN, false);
-    }
-    delete_enter() {
-        var t = editor_selections[0].get();
-        let ot = "";
-        let s = format_selection(editor_selections[0]).start;
-        let e = { pg: s.pg, of: s.of };
-        for (let i = 0; i < t.length; i++) {
-            if (t[i] == "\n") {
-                // 换行
-                if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
-                    // 结尾
-                    ot += t[i];
-                    e.of = 0;
-                    e.pg += 1;
-                } else {
-                    if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
-                        // 上一行末与此行首为中文字符
-                        ot += "";
-                    } else {
-                        ot += " ";
-                        e.of += 1;
-                    }
-                }
-            } else {
-                // 正常行内字符
-                ot += t[i];
-                e.of += 1;
-            }
-        }
-        editor_selections[0].replace(ot);
-        editor_selections[0].start = s;
-        editor_selections[0].end = e;
-        editor_selections[0].render();
-    }
-}
-var edit = new editing_operation();
-
-document.getElementById("cursor").focus();
-// 中文等合成器输入法输入适配
-var composition = false;
-document.getElementById("cursor").addEventListener("compositionstart", (e) => {
-    composition = true;
-    if (cursor_real.of != 0) {
-        var span = document.createElement("span");
-        span.id = "composition";
-        get_w(cursor_real.pg, cursor_real.of).after(span);
-    } else {
-        get_pg(cursor_real.pg).innerHTML = `<span id="composition"></span>`;
-    }
-    cursor.of++;
-    editor_i(cursor.pg, cursor.of);
-});
-document.getElementById("cursor").addEventListener("compositionupdate", (e) => {
-    document.getElementById("composition").innerText = e.data;
-    editor_i(cursor.pg, cursor.of);
-});
-document.getElementById("cursor").addEventListener("compositionend", (e) => {
-    composition = false;
-    document.getElementById("composition").remove();
-    cursor.of--;
-    cursor_real.of--;
-    editor_add_text(e.data);
-    editor_i(cursor.pg, cursor.of);
-});
-document.getElementById("cursor").oninput = () => {
-    if (composition) return;
-    var input_t = document.getElementById("cursor").innerText;
-    editor_add_text(input_t);
-};
-function editor_add_text(input_t: string) {
-    document.getElementById("cursor").innerText = "";
-    input_t = input_t.replace(" ", " ");
-    if (editor_selections[0].get() == "") {
-        var input_t_l = input_t.split("");
-        if (cursor_real.of != 0) {
-            for (let i = input_t_l.length - 1; i >= 0; i--) {
-                const t = input_t_l[i];
-                var span = word_to_span(t);
-                if (insert) {
-                    if (get_w(cursor_real.pg, cursor_real.of + 1)) get_w(cursor_real.pg, cursor_real.of + 1).remove();
-                }
-                get_w(cursor_real.pg, cursor_real.of).after(span);
-            }
-        } else {
-            if (get_pg(cursor_real.pg).innerHTML == "") {
-                get_pg(cursor_real.pg).innerHTML = "";
-                for (let i of input_t_l) {
-                    get_pg(cursor_real.pg).append(word_to_span(i));
-                }
-            } else {
-                for (let i = input_t_l.length - 1; i >= 0; i--) {
-                    const t = input_t_l[i];
-                    var span = word_to_span(t);
-                    get_pg(cursor_real.pg).prepend(span);
-                }
-            }
-        }
-        cursor.of += input_t_l.length;
-        editor_i(cursor.pg, cursor.of);
-    } else {
-        editor_selections[0].replace(input_t);
-    }
-    editor_change();
-}
-document.getElementById("cursor").onpaste = (e) => {
-    e.preventDefault();
-};
-
-var editor_focus = true;
-document.getElementById("cursor").onfocus = () => {
-    editor_focus = true;
-};
-document.getElementById("cursor").onblur = () => {
-    editor_focus = false;
-};
-
-document.addEventListener("keydown", (e) => {
-    var l = [
-        "ArrowUp",
-        "ArrowDown",
-        "ArrowLeft",
-        "ArrowRight",
-        "Home",
-        "End",
-        "Backspace",
-        "Delete",
-        "Enter",
-        "Tab",
-        "Insert",
-    ];
-    if (!l.includes(e.key) || !editor_focus) return;
-    e.preventDefault();
-    switch (e.key) {
-        case "ArrowUp":
-            if (cursor.pg != 0) cursor.pg--;
-            break;
-        case "ArrowDown":
-            if (cursor.pg != get_pg_max()) cursor.pg++;
-            break;
-        case "ArrowLeft":
-            cursor = cursor_real; /* 左右移动后，不记录横向最大 */
-            if (cursor.of == 0) {
-                if (cursor.pg != 0) {
-                    cursor.pg--;
-                    cursor.of = get_w_max(cursor.pg);
-                }
-            } else {
-                cursor.of--;
-            }
-            break;
-        case "ArrowRight":
-            cursor = cursor_real;
-            if (cursor.of == get_w_max(cursor.pg)) {
-                if (cursor.pg != get_pg_max()) {
-                    cursor.pg++;
-                    cursor.of = 0;
-                }
-            } else {
-                cursor.of++;
-            }
-            break;
-        case "Home":
-            cursor.of = 0;
-            break;
-        case "End":
-            cursor.of = get_w_max(cursor.pg);
-            break;
-        case "Backspace":
-            cursor = cursor_real; /* 左右移动后，不记录横向最大 */
-            if (editor_selections[0].get() == "") {
-                if (cursor.of == 0) {
-                    if (cursor.pg != 0) {
-                        cursor.pg--;
-                        cursor.of = get_w_max(cursor.pg);
-                        if (get_pg(cursor.pg).innerText == "") {
-                            get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
-                        } else {
-                            get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
-                        }
-                        get_pg(cursor.pg + 1).remove();
-                    }
-                } else {
-                    if (cursor.of == 1) {
-                        get_pg(cursor.pg).innerText = "";
-                    } else {
-                        get_w(cursor.pg, cursor.of).remove();
-                    }
-                    cursor.of--;
-                }
-                var s = new selection({ start: cursor, end: cursor });
-                editor_selections[0] = s;
-            } else {
-                edit.delete();
-            }
-            editor_change();
-            break;
-        case "Delete":
-            cursor = cursor_real;
-            if (editor_selections[0].get() == "") {
-                if (cursor.of == get_w_max(cursor.pg)) {
-                    if (cursor.pg != get_pg_max()) {
-                        if (get_pg(cursor.pg).innerText == "") {
-                            get_pg(cursor.pg).innerHTML = get_pg(cursor.pg + 1).innerHTML;
-                        } else if (get_pg(cursor.pg + 1).innerText != "") {
-                            get_pg(cursor.pg).innerHTML += get_pg(cursor.pg + 1).innerHTML;
-                        }
-                        get_pg(cursor.pg + 1).remove();
-                    }
-                } else {
-                    get_w(cursor.pg, cursor.of + 1).remove();
-                }
-                var s = new selection({ start: cursor, end: cursor });
-                editor_selections[0] = s;
-            } else {
-                edit.delete();
-            }
-            editor_change();
-            break;
-        case "Enter":
-            var s = new selection({ start: cursor, end: cursor });
-            editor_selections[0] = s;
-            editor_selections[0].replace("\n");
-            break;
-        case "Tab":
-            var span = document.createElement("span");
-            span.className = "tab";
-            span.innerHTML = "\t";
-            if (editor_selections[0].get() == "") {
-                if (cursor.of == 0) {
-                    if (get_w(cursor.pg, 1)) {
-                        get_w(cursor.pg, 1).before(span);
-                    } else {
-                        get_pg(cursor.pg).innerHTML = "";
-                        get_pg(cursor.pg).append(span);
-                    }
-                } else {
-                    get_w(cursor.pg, cursor.of).after(span);
-                }
-                cursor.of++;
-            } else {
-                editor_selections[0].replace(span.textContent);
-            }
-            var s = new selection({ start: cursor, end: cursor });
-            editor_selections[0] = s;
-            editor_change();
-            break;
-        case "Insert":
-            insert = !insert;
-            if (insert) {
-                document.getElementById("cursor").classList.add("cursor_insert");
-            } else {
-                document.getElementById("cursor").classList.remove("cursor_insert");
-            }
-            break;
-    }
-    editor_i(cursor.pg, cursor.of, e.shiftKey);
-    if (!e.shiftKey && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) {
-        editor_selections[0].start = editor_selections[0].end = tmp_s.start = { ...cursor };
-        editor_selections[0].render();
-        hide_edit_bar();
-    }
-});
+editor.cursors.set(cursor);
 
 /**
  * 每次更改光标触发
  */
 function editor_change() {
-    change_text_bottom();
     line_num();
     stack_add();
     if (find_show) {
@@ -1028,30 +416,13 @@ function editor_change() {
 }
 
 /**
- * 底部增高
- */
-function change_text_bottom() {
-    var d = 8;
-    if (get_pg_max() == 0) {
-        d = 16;
-    }
-    document.getElementById("text_bottom").style.height = `calc(100% - 1.5em - ${d}px)`;
-}
-
-document.getElementById("text_bottom").onclick = () => {
-    cursor.pg = get_pg_max();
-    cursor.of = get_w_max(get_pg_max());
-    editor_i(cursor.pg, cursor.of);
-};
-
-/**
  * 行号
  */
 function line_num() {
     document.getElementById("line_num").innerHTML = "";
     let t = "";
-    for (let i = 0; i <= get_pg_max(); i++) {
-        t += `<div style="height:${get_pg(i).offsetHeight}px">${(i + 1).toString()}</div>`;
+    for (let i = 0; i <= editor.l().length; i++) {
+        // t += `<div style="height:${get_pg(i).offsetHeight}px">${(i + 1).toString()}</div>`;
     }
     document.getElementById("line_num").innerHTML = t;
 }
@@ -1063,14 +434,15 @@ document.getElementById("line_num").onmousedown = (e) => {
     if (el == document.getElementById("line_num")) return;
     var l_i = Number(el.innerText) - 1;
 
-    var s = new selection({ start: { pg: l_i, of: 0 }, end: { pg: l_i, of: get_w_max(l_i) } });
-    editor_selections[0] = s;
+    var s = { start: { pg: l_i, of: 0 }, end: { pg: l_i, of: editor.w_max(l_i) } };
+    editor.selections.clear_all();
+    editor.selections.add(s);
     document.getElementById("selection").innerHTML = "";
-    s.render();
+    editor.selections.render();
 
     cursor.pg = l_i;
-    cursor.of = get_w_max(l_i);
-    editor_i(cursor.pg, cursor.of);
+    cursor.of = editor.w_max(l_i);
+    editor.cursors.set(cursor);
 };
 document.getElementById("line_num").onmouseup = (e) => {
     document.getElementById("cursor").focus();
@@ -1172,23 +544,17 @@ function set_font_size(font_size: number) {
     line_height = font_size * 1.5;
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
-        editor_i(cursor.pg, cursor.of);
-        editor_selections[0].render();
+        editor.cursors.set(cursor);
+        editor.selections.render();
         line_num();
     }, 400);
 }
-
-/**tab */
-document.documentElement.style.setProperty("--tab", `${store.get("编辑器.tab")}em`);
-
-/**光标动画 */
-document.documentElement.style.setProperty("--cursor-a", `${store.get("编辑器.光标动画")}s`);
 
 /**编辑栏 */
 var edit_bar_s = false;
 function show_edit_bar(x: number, y: number, h: number, right: boolean) {
     // 简易判断链接并显示按钮
-    if (is_link(editor_selections[0].get(), false)) {
+    if (is_link(editor.selections.get(), false)) {
         document.getElementById("link_bar").style.width = "30px";
     } else {
         setTimeout(() => {
@@ -1196,7 +562,7 @@ function show_edit_bar(x: number, y: number, h: number, right: boolean) {
         }, 400);
     }
     // 排除没选中
-    if (editor_selections[0].get() != "" || right) {
+    if (editor.selections.get() != "" || right) {
         if (edit_bar_s) {
             document.getElementById("edit_b").style.transition = "var(--transition)";
         } else {
@@ -1221,12 +587,25 @@ function hide_edit_bar() {
     show_edit_bar(0, 0, 0, false);
 }
 
+editor.text.addEventListener("select2", (e: CustomEvent) => {
+    let r = document.getSelection().getRangeAt(0).getBoundingClientRect();
+    if (e.detail.button == 2) {
+        show_edit_bar(r.x, r.y + line_height, 0, true);
+    } else {
+        if (editor.selections.get() == "") {
+            hide_edit_bar();
+        } else {
+            show_edit_bar(r.x, r.y + line_height, 0, false);
+        }
+    }
+});
+
 document.getElementById("edit_b").onmousedown = (e) => {
     e.stopPropagation();
     e.preventDefault();
     switch ((<HTMLElement>e.target).id) {
         case "link_bar":
-            let url = editor_selections[0].get();
+            let url = editor.selections.get();
             open_link("url", url);
             break;
         case "search_bar":
@@ -1236,19 +615,19 @@ document.getElementById("edit_b").onmousedown = (e) => {
             open_link("translate");
             break;
         case "selectAll_bar":
-            edit.select_all();
+            editor.select_all();
             break;
         case "cut_bar":
-            edit.cut();
+            editor.cut();
             break;
         case "copy_bar":
-            edit.copy();
+            editor.copy();
             break;
         case "paste_bar":
-            edit.paste();
+            editor.paste();
             break;
         case "delete_enter_bar":
-            edit.delete_enter();
+            editor.delete_enter();
             break;
     }
 };
@@ -1268,7 +647,7 @@ function wrap() {
         document.documentElement.style.setProperty("--wrap", "nowrap");
     }
 
-    editor_i(cursor.pg, cursor.of);
+    editor.cursors.set(cursor);
 }
 
 var is_check = !store.get("编辑器.拼写检查");
@@ -1296,10 +675,10 @@ function show_find() {
         document.getElementById("top").style.marginTop = "48px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
-        find_input.value = editor_selections[0].get();
+        find_input.value = editor.selections.get();
         find_input.select();
         find_input.focus();
-        if (editor_selections[0].get() != "") find();
+        if (editor.selections.get() != "") find();
         if (!in_browser) count_words();
     } else {
         document.getElementById("top").style.marginTop = "";
@@ -1352,7 +731,7 @@ function string_or_regex(text: string) {
 function find() {
     var text = find_input.value;
     text = string_or_regex(text);
-    if (!tmp_text) tmp_text = editor_get();
+    if (!tmp_text) tmp_text = editor.get();
     // 拆分并转义
     try {
         var match_l = tmp_text.match(text);
@@ -1428,7 +807,7 @@ document.getElementById("find_b_replace_all").onclick = () => {
     var text = find_input.value;
     text = string_or_regex(text);
     var t = tmp_text.replace(text, replace_input.value);
-    editor_push(t);
+    editor.push(t);
     find_area.innerText = t;
     exit_find();
 
@@ -1448,7 +827,7 @@ function find_replace() {
     var tttt = el.innerText.replace(text, replace_input.value);
     el.before(document.createTextNode(tttt));
     el.remove();
-    editor_push(find_area.innerText);
+    editor.push(find_area.innerText);
     find_l_n_i = find_l_n_i - 1;
     find_l_n("↓");
     tmp_text = find_area.innerText;
@@ -1493,7 +872,7 @@ function is_link(url: string, s: boolean) {
  */
 function show_t(t: string) {
     t = t.replace(/[\r\n]$/, "");
-    editor_push(t);
+    editor.push(t);
     // 严格模式
     if (is_link(t, true)) {
         if (自动打开链接) open_link("url", t);
@@ -1508,7 +887,7 @@ function show_t(t: string) {
         }
     }
 
-    edit.select_all();
+    editor.select_all();
 }
 
 /**
@@ -1524,7 +903,7 @@ function open_link(id: "url" | "search" | "translate", link?: string) {
         }
         var url = link;
     } else {
-        var s = editor_selections[0].get() || editor_get(); // 要么全部，要么选中
+        var s = editor.selections.get() || editor.get(); // 要么全部，要么选中
         var url = (<HTMLSelectElement>document.querySelector(`#${id}_s`)).value.replace("%s", encodeURIComponent(s));
     }
     if (typeof global != "undefined") {
@@ -1614,7 +993,7 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
 }
 
 function push_history() {
-    var t = editor_get();
+    var t = editor.get();
     var i = new Date().getTime();
     var s = { text: t };
     if (t != "" && 历史记录设置.保留历史记录) {
@@ -1678,7 +1057,7 @@ function render_history() {
     // 打开某项历史
     document.querySelectorAll("#history_list > div > .history_text").forEach((e) => {
         e.addEventListener("click", () => {
-            editor_push(history_list[e.parentElement.id].text);
+            editor.push(history_list[e.parentElement.id].text);
             show_history();
         });
     });
@@ -1718,7 +1097,7 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
     }
 
     if (list.length == 3 && list[0] == "image") {
-        editor_push(t("图片上传中……请等候"));
+        editor.push(t("图片上传中……请等候"));
         search_img(list[1], list[2] as any, (err: Error, url: string) => {
             if (url) {
                 open_link("url", url);
@@ -1727,20 +1106,20 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
                 }
                 ipcRenderer.send("main_win", "image_search", true);
             }
-            if (err) editor_push(t("上传错误，请打开开发者工具查看详细错误"));
+            if (err) editor.push(t("上传错误，请打开开发者工具查看详细错误"));
         });
     }
 
     if (list.length == 3 && list[0] == "ocr") {
-        editor_push(t("图片识别中……请等候"));
+        editor.push(t("图片识别中……请等候"));
         ocr(list[1], list[2] as any, (err: Error, text: string) => {
             if (text) {
-                editor_push(text);
-                edit.select_all();
+                editor.push(text);
+                editor.select_all();
                 ipcRenderer.send("main_win", "ocr", "ok");
             }
             if (err) {
-                editor_push(t("识别错误，请打开开发者工具查看详细错误"));
+                editor.push(t("识别错误，请打开开发者工具查看详细错误"));
                 ipcRenderer.send("main_win", "ocr", t("ocr识别错误"));
             }
         });
@@ -1770,7 +1149,7 @@ import open_with from "../../../lib/open_with";
 function edit_on_other() {
     editing_on_other = !editing_on_other;
     if (editing_on_other) {
-        var data = Buffer.from(editor_get());
+        var data = Buffer.from(editor.get());
         fs.writeFile(tmp_text_path, data, () => {
             if (edit_on_other_type == "o") {
                 shell.openPath(tmp_text_path);
@@ -1781,11 +1160,11 @@ function edit_on_other() {
                 fs.readFile(tmp_text_path, "utf8", (e, data) => {
                     if (e) console.log(e);
                     let cu = cursor;
-                    editor_push(data);
-                    if (cu.pg > get_pg_max()) cu.pg = get_pg_max();
-                    if (cu.of > get_w_max(cu.pg)) cu.of = get_w_max(cu.pg);
+                    editor.push(data);
+                    if (cu.pg > editor.l().length) cu.pg = editor.l().length;
+                    if (cu.of > editor.w_max(cu.pg)) cu.of = editor.w_max(cu.pg);
                     cursor = cu;
-                    editor_i(cursor.pg, cursor.of);
+                    editor.cursors.set(cursor);
                 });
             });
             document.getElementById("text_out").title = "正在外部编辑中，双击退出";
@@ -1809,7 +1188,7 @@ function edit_on_other() {
 }
 
 function write_edit_on_other() {
-    let data = Buffer.from(editor_get());
+    let data = Buffer.from(editor.get());
     fs.writeFile(tmp_text_path, data, () => {});
 }
 
@@ -1825,22 +1204,22 @@ ipcRenderer.on("edit", (event, arg) => {
             redo();
             break;
         case "copy":
-            edit.copy();
+            editor.copy();
             break;
         case "cut":
-            edit.cut();
+            editor.cut();
             break;
         case "paste":
-            edit.paste();
+            editor.paste();
             break;
         case "delete":
-            edit.delete();
+            editor.delete();
             break;
         case "select_all":
-            edit.select_all();
+            editor.select_all();
             break;
         case "delete_enter":
-            edit.delete_enter();
+            editor.delete_enter();
             break;
         case "show_find":
             show_find();
@@ -1863,7 +1242,7 @@ ipcRenderer.on("edit", (event, arg) => {
             spellcheck();
             break;
         case "link":
-            var url = editor_selections[0].get();
+            var url = editor.selections.get();
             open_link("url", url);
             break;
         case "search":
@@ -1885,26 +1264,14 @@ hotkeys("ctrl+0", () => {
     set_font_size(默认字体大小);
 });
 hotkeys("ctrl+c", () => {
-    edit.copy();
+    editor.copy();
 });
 hotkeys("ctrl+x", () => {
-    edit.cut();
+    editor.cut();
 });
 hotkeys("ctrl+v", () => {
-    edit.paste();
+    editor.paste();
 });
-
-function add_selection_linux() {
-    if (!in_browser) {
-        if (
-            editor_selections &&
-            editor_selections[0].get() != "" &&
-            editor_selections[0].get() != clipboard.readText("selection")
-        ) {
-            clipboard.writeText(editor_selections[0].get(), "selection");
-        }
-    }
-}
 
 import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
@@ -1914,7 +1281,7 @@ document.title = t(document.title);
  * 统计字数
  */
 function count_words() {
-    let text = editor_get();
+    let text = editor.get();
     let p = text.trim().match(/\n+/g)?.length + 1 || 1;
     text = text.replace(/[\n\r]/g, "");
     let c = splitter.splitGraphemes(text).length;
