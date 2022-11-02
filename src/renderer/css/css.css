@@ -99,10 +99,18 @@ body {
     font-family: sans-serif;
     border: none;
 }
+.text > textarea::selection {
+    background-color: var(--hover-color);
+}
 .text > :not(textarea) {
     pointer-events: none;
     color: transparent;
 }
+
+.text .selection {
+    background-color: var(--hover-color);
+}
+
 #text_bottom {
     grid-area: 2 / 1 / 3 / 3;
 }
@@ -138,15 +146,6 @@ body {
 }
 .cursor_insert {
     width: 0.3em !important;
-}
-#selection {
-    position: absolute;
-    top: 8px;
-}
-.selection {
-    position: absolute;
-    height: 1.5em;
-    background-color: var(--hover-color);
 }
 
 #find_area {

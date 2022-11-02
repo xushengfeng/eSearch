@@ -254,15 +254,15 @@ class selections {
         let l = editor.l();
         let start = 0;
         for (let i = 0; i < s.start.pg; i++) {
-            start += l[i].length;
+            start += l[i].length + 1;
         }
         start += s.start.of;
         let end = 0;
-        for (let i = 0; i < s.end.pg - 1; i++) {
-            end += l[i].length;
+        for (let i = 0; i < s.end.pg; i++) {
+            end += l[i].length + 1;
         }
         end += s.end.of;
-        return { start, end } as range;
+        return { start: Math.min(start, end), end: Math.max(start, end) } as range;
     }
 
     ns2s(start: number, end: number) {
@@ -307,7 +307,24 @@ class selections {
     }
 
     render() {
+        this.editor.editor_more.innerHTML = "";
+        let text = this.editor.text.value;
+        let ranges: range[] = [];
         for (let s of this.l) {
+            let r = this.s2ns(s);
+            ranges.push(r);
+        }
+        for (let i = 0; i < ranges.length; i++) {
+            let span = document.createElement("span");
+            span.classList.add("selection");
+            span.innerText = text.slice(ranges[i].start, ranges[i].end);
+            let after = "";
+            if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
+            let before_el = document.createElement("span");
+            before_el.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
+            let after_el = document.createElement("span");
+            after_el.innerText = after;
+            this.editor.editor_more.append(before_el, span, after_el);
         }
     }
 
