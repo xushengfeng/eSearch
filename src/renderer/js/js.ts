@@ -254,7 +254,6 @@ class selections {
                 new_s.start = s.start;
             } else if (new_s.start <= s.start && s.end <= new_s.end) {
                 // 选区是新选区的子集
-                break;
             } else {
                 // 交集为∅
                 new_l.push(s);
