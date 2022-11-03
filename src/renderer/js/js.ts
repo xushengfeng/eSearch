@@ -329,6 +329,7 @@ class selections {
         this.editor.editor_more.innerHTML = "";
         let text = this.editor.text.value;
         let ranges: selection[] = this.l;
+        ranges = ranges.sort((a, b) => a.start - b.start);
         for (let i = 0; i < ranges.length; i++) {
             let span = document.createElement("span");
             span.classList.add("selection");
