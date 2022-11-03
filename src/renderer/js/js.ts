@@ -238,9 +238,29 @@ class selections {
 
     l: selection[] = [];
 
-    add(s: selection) {
-        s = format_selection(s);
-        this.l.push(s);
+    add(new_s: selection) {
+        new_s = format_selection(new_s);
+        let new_l = [new_s];
+        for (let s of this.l) {
+            if (s.start <= new_s.start && new_s.end <= s.end) {
+                // 新选区是选区的子集
+                new_s.start = s.start;
+                new_s.end = s.end;
+            } else if (new_s.start <= s.start && s.start <= new_s.end) {
+                // 选区起始端在新选区内，选区末端一定在新选区外
+                new_s.end = s.end;
+            } else if (new_s.start <= s.end && s.end <= new_s.end) {
+                // 选区末端在新选区内，选区起始端一定在新选区外
+                new_s.start = s.start;
+            } else if (new_s.start <= s.start && s.end <= new_s.end) {
+                // 选区是新选区的子集
+                break;
+            } else {
+                // 交集为∅
+                new_l.push(s);
+            }
+        }
+        this.l = new_l;
         this.render();
         console.log(this.l);
     }
