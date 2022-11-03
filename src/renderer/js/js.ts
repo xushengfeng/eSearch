@@ -321,6 +321,7 @@ class selections {
         for (let s of this.l) {
             editor.text.setSelectionRange(s.start, s.end);
             editor.text.setRangeText(text);
+            s.end = s.start + text.length;
         }
         editor.render();
     }
