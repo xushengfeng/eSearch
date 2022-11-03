@@ -27,7 +27,7 @@ function undo() {
         if (find_show) {
             find_area.innerText = undo_stack[undo_stack_i];
             exit_find();
-            find();
+            find_();
         }
     }
 }
@@ -38,7 +38,7 @@ function redo() {
         if (find_show) {
             find_area.innerText = undo_stack[undo_stack_i];
             exit_find();
-            find();
+            find_();
         }
     }
 }
@@ -51,8 +51,10 @@ if (!in_browser) {
 class xeditor {
     text: HTMLTextAreaElement;
     selection_el: HTMLElement;
+    find_el: HTMLElement;
     selections: selections;
     cursors: cursors;
+    find: find;
     constructor(el: HTMLElement) {
         el.classList.add("text");
         this.text = document.createElement("textarea");
@@ -61,6 +63,7 @@ class xeditor {
 
         this.selections = new selections(this);
         this.cursors = new cursors(this);
+        this.find = new find(this);
 
         this.text.oninput = () => {
             this.selection_el.innerText = this.text.value;
@@ -389,6 +392,57 @@ class cursors {
     }
 }
 
+class find {
+    editor: xeditor;
+    constructor(editor: xeditor) {
+        this.editor = editor;
+    }
+
+    matchx(stext: string, regex: boolean) {
+        let text: string | RegExp = null;
+        // 判断是找文字还是正则
+        if (regex) {
+            try {
+                text = eval("/" + stext + "/g");
+                document.getElementById("find_input").style.outline = "none";
+            } catch (error) {
+                document.getElementById("find_input").style.outline = "red  solid 1px";
+            }
+        } else {
+            stext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+            text = new RegExp(stext, "g"); // 自动转义，找文字
+        }
+        return text;
+    }
+
+    find(text: string | RegExp) {
+        if (!tmp_text) tmp_text = editor.get();
+        // 拆分
+        let match_l = tmp_text.match(text);
+        let text_l = tmp_text.split(text);
+        let t_l: selection[] = [];
+        let n = 0;
+        // 交替插入
+        for (i in text_l) {
+            if (text_l[i]) n += text_l[i].length;
+            if (match_l[i]) {
+                t_l.push({ start: n, end: n + match_l[i].length });
+                n += match_l[i].length;
+            }
+        }
+        return t_l;
+    }
+
+    render(s: selection[]) {}
+
+    replace(s: selection, match: string | RegExp, text: string) {
+        editor.selections.clear_all();
+        editor.selections.add(s);
+        let mtext = editor.get(s).replace(match, text);
+        editor.selections.replace(mtext, editor.selections.l[0]);
+    }
+}
+
 const editor = new xeditor(document.getElementById("text"));
 
 /**
@@ -451,7 +505,7 @@ function editor_change() {
     stack_add();
     if (find_show) {
         exit_find();
-        find();
+        find_();
         if (!in_browser) count_words();
     }
     if (editing_on_other) write_edit_on_other();
@@ -720,7 +774,7 @@ function show_find() {
         find_input.value = editor.selections.get();
         find_input.select();
         find_input.focus();
-        if (editor.selections.get() != "") find();
+        if (editor.selections.get() != "") find_();
         if (!in_browser) count_words();
     } else {
         document.getElementById("top").style.marginTop = "";
@@ -743,7 +797,7 @@ document.getElementById("find_b_regex").onclick = () => {
     } else {
         document.getElementById("find_b_regex").style.backgroundColor = "";
     }
-    find();
+    find_();
     find_input.focus();
 };
 
@@ -751,44 +805,13 @@ var tmp_text: string;
 document.getElementById("find_input").oninput = () => {
     // 清除样式后查找
     exit_find();
-    find();
+    find_();
 };
-// 判断是找文字还是正则
-function string_or_regex(text: string) {
-    var o_text = null;
-    if (find_regex) {
-        try {
-            o_text = eval("/" + text + "/g");
-            document.getElementById("find_input").style.outline = "none";
-        } catch (error) {
-            document.getElementById("find_input").style.outline = "red  solid 1px";
-        }
-    } else {
-        text = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-        o_text = new RegExp(text, "g"); // 自动转义，找文字
-    }
-    return o_text;
-}
 // 查找并突出
-function find() {
-    var text = find_input.value;
-    text = string_or_regex(text);
-    if (!tmp_text) tmp_text = editor.get();
-    // 拆分并转义
-    try {
-        var match_l = tmp_text.match(text);
-        var text_l = tmp_text.split(text);
-        var t_l = [];
-        // 交替插入
-        for (i in text_l) {
-            if (text_l[i]) t_l.push(word_to_span_string_split(text_l[i]));
-            if (match_l[i]) t_l.push(`<span class="find_h">${word_to_span_string_split(match_l[i])}</span>`);
-        }
-        document.getElementById("find_area").innerHTML = t_l
-            .join("")
-            .replace(/[\r\n]/g, "<br>")
-            .replace(/&nbsp;/g, " ");
-    } catch (error) {}
+function find_() {
+    let match = editor.find.matchx(find_input.value, find_regex);
+    let find_l = editor.find.find(match);
+    editor.find.render(find_l);
     find_l_n_i = -1;
     find_l_n("↓");
     if (find_input.value == "") {
@@ -839,18 +862,18 @@ document.getElementById("find_input").onkeydown = (e) => {
         if (document.querySelector(".find_h_h")) {
             find_l_n("↓");
         } else {
-            find();
+            find_();
         }
     }
 };
 
 // 全部替换
 document.getElementById("find_b_replace_all").onclick = () => {
-    var text = find_input.value;
-    text = string_or_regex(text);
-    var t = tmp_text.replace(text, replace_input.value);
-    editor.push(t);
-    find_area.innerText = t;
+    let m = editor.find.matchx(find_input.value, find_regex);
+    let l = editor.find.find(m);
+    for (let s of l) {
+        editor.find.replace(s, m, replace_input.value);
+    }
     exit_find();
 
     stack_add();
@@ -858,18 +881,15 @@ document.getElementById("find_b_replace_all").onclick = () => {
 // 替换选中
 document.getElementById("find_b_replace").onclick = find_replace;
 function find_replace() {
-    var text = find_input.value;
-    text = string_or_regex(text);
-    var el = <HTMLElement>document.querySelector(".find_h_h");
-    if (!el) {
-        exit_find();
-        find();
-        return;
+    let m = editor.find.matchx(find_input.value, find_regex);
+    let l = editor.find.find(m);
+    let now_s = editor.selections.l[0];
+    for (let s of l) {
+        if (now_s.start <= s.start && s.end <= now_s.end) {
+            editor.find.replace(s, m, replace_input.value);
+            break;
+        }
     }
-    var tttt = el.innerText.replace(text, replace_input.value);
-    el.before(document.createTextNode(tttt));
-    el.remove();
-    editor.push(find_area.innerText);
     find_l_n_i = find_l_n_i - 1;
     find_l_n("↓");
     tmp_text = find_area.innerText;
