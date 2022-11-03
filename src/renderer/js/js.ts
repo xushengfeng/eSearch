@@ -99,10 +99,10 @@ class xeditor {
         document.addEventListener("pointerup", (e) => {
             if (pointer_start_from_this) {
                 if (e.altKey) {
-                    this.selections.add(this.selections.ns2s(this.text.selectionStart, this.text.selectionEnd));
+                    this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
                 } else {
                     this.selections.clear_all();
-                    this.selections.add(this.selections.ns2s(this.text.selectionStart, this.text.selectionEnd));
+                    this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
                 }
                 pointer_start_from_this = false;
                 this.text.dispatchEvent(new CustomEvent("select2", { detail: { button: e.button } }));
@@ -130,7 +130,7 @@ class xeditor {
      * 获取编辑器文字
      * @returns 文字
      */
-    get(range?: range) {
+    get(range?: selection) {
         let t = this.text.value;
         if (range) {
             t = t.slice(range.start, range.end);
@@ -181,17 +181,18 @@ class xeditor {
     select_all() {
         this.selections.clear_all();
         this.selections.add({
-            start: { pg: 0, of: 0 },
-            end: { pg: editor.l().length - 1, of: editor.w_max(editor.l().length - 1) },
+            start: 0,
+            end: editor.get().length,
         });
         let r = this.selections.rect(this.selections.l[0]);
         show_edit_bar(r.x, r.top + line_height, NaN, false);
     }
     delete_enter() {
-        for (let s of editor.selections.l) {
-            var t = editor.selections.get(s);
+        for (let s1 of editor.selections.l) {
+            const s = editor.selections.ns2s(s1.start, s1.end);
+            var t = editor.selections.get(s1);
             let ot = "";
-            let start = format_selection(s).start;
+            let start = format_selection2(s).start;
             let end = { pg: start.pg, of: start.of };
             for (let i = 0; i < t.length; i++) {
                 if (t[i] == "\n") {
@@ -224,8 +225,8 @@ class xeditor {
     }
 }
 
-type selection = { start: { pg: number; of: number }; end: { pg: number; of: number } };
-type range = { start: number; end: number };
+type selection2 = { start: { pg: number; of: number }; end: { pg: number; of: number } };
+type selection = { start: number; end: number };
 
 type cursor = { pg: number; of: number };
 
@@ -249,8 +250,8 @@ class selections {
         this.render();
     }
 
-    s2ns(s: selection) {
-        s = format_selection(s);
+    s2ns(s: selection2) {
+        s = format_selection2(s);
         let l = editor.l();
         let start = 0;
         for (let i = 0; i < s.start.pg; i++) {
@@ -262,7 +263,7 @@ class selections {
             end += l[i].length + 1;
         }
         end += s.end.of;
-        return { start: Math.min(start, end), end: Math.max(start, end) } as range;
+        return { start: Math.min(start, end), end: Math.max(start, end) } as selection;
     }
 
     ns2s(start: number, end: number) {
@@ -288,10 +289,10 @@ class selections {
     get(s?: selection) {
         let l = [];
         if (s) {
-            l.push(editor.get(this.s2ns(s)));
+            l.push(editor.get(s));
         } else {
             for (let s of this.l) {
-                l.push(editor.get(this.s2ns(s)));
+                l.push(editor.get(s));
             }
         }
         return l.join("\n");
@@ -299,8 +300,7 @@ class selections {
 
     replace(text: string) {
         for (let s of this.l) {
-            let r = this.s2ns(s);
-            editor.text.setSelectionRange(r.start, r.end);
+            editor.text.setSelectionRange(s.start, s.end);
             editor.text.setRangeText(text);
         }
         editor.render();
@@ -309,11 +309,7 @@ class selections {
     render() {
         this.editor.editor_more.innerHTML = "";
         let text = this.editor.text.value;
-        let ranges: range[] = [];
-        for (let s of this.l) {
-            let r = this.s2ns(s);
-            ranges.push(r);
-        }
+        let ranges: selection[] = this.l;
         for (let i = 0; i < ranges.length; i++) {
             let span = document.createElement("span");
             span.classList.add("selection");
@@ -329,8 +325,7 @@ class selections {
     }
 
     rect(s: selection) {
-        let r = this.s2ns(s);
-        editor.text.setSelectionRange(r.start, r.end);
+        editor.text.setSelectionRange(s.start, s.end);
         return document.getSelection().getRangeAt(0).getBoundingClientRect();
     }
 }
@@ -399,7 +394,10 @@ function word_to_span_string_split(t: string) {
 editor.push("");
 
 function format_selection(s: selection) {
-    var tmp: selection = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
+    return { start: Math.min(s.start, s.end), end: Math.max(s.start, s.end) } as selection;
+}
+function format_selection2(s: selection2) {
+    var tmp: selection2 = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (s.end.pg == s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
         tmp.start.of = Math.min(s.start.of, s.end.of);
@@ -453,7 +451,7 @@ document.getElementById("line_num").onmousedown = (e) => {
 
     var s = { start: { pg: l_i, of: 0 }, end: { pg: l_i, of: editor.w_max(l_i) } };
     editor.selections.clear_all();
-    editor.selections.add(s);
+    editor.selections.add(editor.selections.s2ns(s));
     document.getElementById("selection").innerHTML = "";
     editor.selections.render();
 
