@@ -50,20 +50,20 @@ if (!in_browser) {
 
 class xeditor {
     text: HTMLTextAreaElement;
-    editor_more: HTMLElement;
+    selection_el: HTMLElement;
     selections: selections;
     cursors: cursors;
     constructor(el: HTMLElement) {
         el.classList.add("text");
         this.text = document.createElement("textarea");
-        this.editor_more = document.createElement("div");
-        el.append(this.text, this.editor_more);
+        this.selection_el = document.createElement("div");
+        el.append(this.selection_el, this.text);
 
         this.selections = new selections(this);
         this.cursors = new cursors(this);
 
         this.text.oninput = () => {
-            this.editor_more.innerText = this.text.value;
+            this.selection_el.innerText = this.text.value;
         };
 
         this.text.addEventListener("keydown", (e) => {
@@ -139,7 +139,7 @@ class xeditor {
     }
 
     render() {
-        this.editor_more.innerText = this.text.value;
+        this.selection_el.innerText = this.text.value;
     }
 
     l() {
@@ -326,7 +326,7 @@ class selections {
     }
 
     render() {
-        this.editor.editor_more.innerHTML = "";
+        this.editor.selection_el.innerHTML = "";
         let text = this.editor.text.value;
         let ranges: selection[] = this.l;
         ranges = ranges.sort((a, b) => a.start - b.start);
@@ -340,7 +340,7 @@ class selections {
             before_el.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
             let after_el = document.createElement("span");
             after_el.innerText = after;
-            this.editor.editor_more.append(before_el, span, after_el);
+            this.editor.selection_el.append(before_el, span, after_el);
         }
     }
 
