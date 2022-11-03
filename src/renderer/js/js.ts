@@ -317,11 +317,17 @@ class selections {
         return l.join("\n");
     }
 
-    replace(text: string) {
-        for (let s of this.l) {
+    replace(text: string, s?: selection) {
+        if (s) {
             editor.text.setSelectionRange(s.start, s.end);
             editor.text.setRangeText(text);
             s.end = s.start + text.length;
+        } else {
+            for (let s of this.l) {
+                editor.text.setSelectionRange(s.start, s.end);
+                editor.text.setRangeText(text);
+                s.end = s.start + text.length;
+            }
         }
         editor.render();
     }
