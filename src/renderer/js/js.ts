@@ -116,6 +116,12 @@ class xeditor {
             e.clipboardData.setData("text/plain", editor.selections.get());
             e.preventDefault();
         });
+
+        this.text.addEventListener("cut", (e) => {
+            e.clipboardData.setData("text/plain", editor.selections.get());
+            editor.selections.replace("");
+            e.preventDefault();
+        });
     }
 
     /**
@@ -1329,9 +1335,6 @@ hotkeys.filter = () => {
 };
 hotkeys("ctrl+0", () => {
     set_font_size(默认字体大小);
-});
-hotkeys("ctrl+x", () => {
-    editor.cut();
 });
 hotkeys("ctrl+v", () => {
     editor.paste();
