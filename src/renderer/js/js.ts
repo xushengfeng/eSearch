@@ -111,6 +111,11 @@ class xeditor {
                 this.text.dispatchEvent(new CustomEvent("select2", { detail: { button: e.button } }));
             }
         });
+
+        this.text.addEventListener("copy", (e) => {
+            e.clipboardData.setData("text/plain", editor.selections.get());
+            e.preventDefault();
+        });
     }
 
     /**
@@ -1324,9 +1329,6 @@ hotkeys.filter = () => {
 };
 hotkeys("ctrl+0", () => {
     set_font_size(默认字体大小);
-});
-hotkeys("ctrl+c", () => {
-    editor.copy();
 });
 hotkeys("ctrl+x", () => {
     editor.cut();
