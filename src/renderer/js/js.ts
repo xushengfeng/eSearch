@@ -122,6 +122,17 @@ class xeditor {
             editor.selections.replace("");
             e.preventDefault();
         });
+
+        this.text.addEventListener("paste", (e) => {
+            let textl = e.clipboardData.getData("text/plain").split("\n");
+            if (editor.selections.l.length == textl.length) {
+                for (let i in editor.selections.l) {
+                    editor.selections.replace(textl[i], editor.selections.l[i]);
+                }
+            } else {
+                editor.selections.replace(textl.join("\n"));
+            }
+        });
     }
 
     /**
@@ -1335,9 +1346,6 @@ hotkeys.filter = () => {
 };
 hotkeys("ctrl+0", () => {
     set_font_size(默认字体大小);
-});
-hotkeys("ctrl+v", () => {
-    editor.paste();
 });
 
 import { t, lan } from "../../../lib/translate/translate";
