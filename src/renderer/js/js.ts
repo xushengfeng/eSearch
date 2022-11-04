@@ -59,7 +59,8 @@ class xeditor {
         el.classList.add("text");
         this.text = document.createElement("textarea");
         this.selection_el = document.createElement("div");
-        el.append(this.selection_el, this.text);
+        this.find_el = document.createElement("div");
+        el.append(this.find_el, this.selection_el, this.text);
 
         this.selections = new selections(this);
         this.cursors = new cursors(this);
@@ -455,7 +456,23 @@ class find {
         return t_l;
     }
 
-    render(s: selection[]) {}
+    render(s: selection[]) {
+        this.editor.find_el.innerHTML = "";
+        let text = this.editor.text.value;
+        let ranges = s.sort((a, b) => a.start - b.start);
+        for (let i = 0; i < ranges.length; i++) {
+            let span = document.createElement("span");
+            span.classList.add("find_h");
+            span.innerText = text.slice(ranges[i].start, ranges[i].end);
+            let after = "";
+            if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
+            let before_el = document.createElement("span");
+            before_el.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
+            let after_el = document.createElement("span");
+            after_el.innerText = after;
+            this.editor.find_el.append(before_el, span, after_el);
+        }
+    }
 
     replace(s: selection, match: string | RegExp, text: string) {
         editor.selections.clear_all();
