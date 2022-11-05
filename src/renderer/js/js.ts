@@ -25,7 +25,6 @@ function undo() {
         undo_stack_i--;
         editor.push(undo_stack[undo_stack_i]);
         if (find_show) {
-            find_area.innerText = undo_stack[undo_stack_i];
             exit_find();
             find_();
         }
@@ -36,7 +35,6 @@ function redo() {
         undo_stack_i++;
         editor.push(undo_stack[undo_stack_i]);
         if (find_show) {
-            find_area.innerText = undo_stack[undo_stack_i];
             exit_find();
             find_();
         }
@@ -572,7 +570,6 @@ document.getElementById("line_num").onmousedown = (e) => {
     var s = { start: { pg: l_i, of: 0 }, end: { pg: l_i, of: editor.w_max(l_i) } };
     editor.selections.clear_all();
     editor.selections.add(editor.selections.s2ns(s));
-    document.getElementById("selection").innerHTML = "";
     editor.selections.render();
 
     cursor.pg = l_i;
@@ -800,8 +797,6 @@ var find_input = <HTMLInputElement>document.getElementById("find_input");
 var replace_input = <HTMLInputElement>document.getElementById("replace_input");
 var find_t = <HTMLElement>document.querySelector(".find_t > span");
 
-var find_area = document.getElementById("find_area");
-
 // 查找ui
 var find_show = false;
 function show_find() {
@@ -860,7 +855,6 @@ function find_() {
 
 // 清除样式
 function exit_find() {
-    find_area.innerHTML = "";
     tmp_text = null;
     find_t.innerText = "";
 }
@@ -931,7 +925,6 @@ function find_replace() {
     }
     find_l_n_i = find_l_n_i - 1;
     find_l_n("↓");
-    tmp_text = find_area.innerText;
 
     stack_add();
 }
