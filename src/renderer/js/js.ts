@@ -66,6 +66,8 @@ class xeditor {
 
         this.text.oninput = () => {
             this.selection_el.innerText = this.text.value;
+            this.text.style.height = this.selection_el.offsetHeight + "px";
+            this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
         };
 
         this.text.addEventListener("keydown", (e) => {
@@ -140,6 +142,8 @@ class xeditor {
      */
     push(value: string) {
         this.text.value = value;
+        this.text.style.height = this.selection_el.offsetHeight + "px";
+        this.text.style.paddingBottom = this.text.parentElement.offsetHeight - line_height + "px";
         this.render();
         editor_change();
 

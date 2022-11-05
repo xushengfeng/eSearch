@@ -85,6 +85,7 @@ body {
 .text {
     position: relative;
     height: 100%;
+    overflow: auto;
 }
 .text > * {
     width: 100%;
@@ -95,9 +96,10 @@ body {
     font-size: 1em;
     line-height: 1.5em;
     resize: none;
-    height: 100%;
+    height: max-content;
     font-family: sans-serif;
     border: none;
+    overflow: hidden;
 }
 .text > textarea::selection {
     background-color: var(--hover-color);
