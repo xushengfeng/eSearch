@@ -476,7 +476,7 @@ document.getElementById("OCR类型").onclick = ocr_d_open;
 
 function OCR模型展示() {
     document.getElementById("OCR模型列表").innerHTML = "";
-    let all = store.get("离线OCR");
+    let all = store.get("离线OCR") as any[];
     for (let i in all) {
         let d = document.createElement("div");
         let t = document.createElement("input");
@@ -491,7 +491,8 @@ function OCR模型展示() {
         let c = document.createElement("button");
         c.innerHTML = `<img src="${close_svg}" class="icon">`;
         c.onclick = () => {
-            all.splice(i, 1);
+            if (all.length == 1) return;
+            all.splice(Number(i), 1);
             d.remove();
             store.set("离线OCR", all);
             set_ocr();
