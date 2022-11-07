@@ -367,7 +367,7 @@ app.whenReady().then(() => {
     ]);
     if (store.get("点击托盘自动截图")) {
         tray.on("click", () => {
-            auto_open();
+            full_screen();
         });
         tray.on("right-click", () => {
             tray.popUpContextMenu(contextMenu);
