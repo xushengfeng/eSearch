@@ -40,11 +40,6 @@ function redo() {
         }
     }
 }
-var splitter;
-if (!in_browser) {
-    const GraphemeSplitter = require("grapheme-splitter");
-    splitter = new GraphemeSplitter();
-}
 
 class xeditor {
     renderer_el: HTMLElement;
@@ -502,33 +497,6 @@ class find {
 }
 
 const editor = new xeditor(document.getElementById("text"));
-
-/**
- * 文字包装span文字
- * @param t 单个文字
- * @returns 包装好的span文字
- */
-function word_to_span_string(t: string) {
-    let span: string;
-    if (t == "\t") {
-        span = `<span class="tab">${t}</span>`;
-    } else if (t == " ") {
-        span = `<span class="space">${t}</span>`;
-    } else {
-        span = `<span class="w">${t}</span>`;
-    }
-    return span;
-}
-/**
- * 文字包装span文字
- * @param t 单个文字
- * @returns 包装好的span文字
- */
-function word_to_span_string_split(t: string) {
-    let o = in_browser ? t.split("") : <string[]>splitter.splitGraphemes(t);
-    o = o.map((t) => word_to_span_string(t));
-    return o.join("");
-}
 
 editor.push("");
 
@@ -1393,6 +1361,8 @@ import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 
+const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
+
 /**
  * 统计字数
  */
@@ -1400,7 +1370,7 @@ function count_words() {
     let text = editor.get();
     let p = text.trim().match(/\n+/g)?.length + 1 || 1;
     text = text.replace(/[\n\r]/g, "");
-    let c = splitter.splitGraphemes(text).length;
+    let c = [...segmenter.segment(text)].length;
     let c_space = c - text.match(/\s/g)?.length || 0;
     let cjk_rg = /[\u2E80-\uFE4F]/g;
     let cjk = text.match(cjk_rg)?.length || 0;

@@ -11,7 +11,6 @@ specifiers:
   electron-builder: ^23.6.0
   electron-store: ^8.0.1
   electron-vite: ^1.0.10
-  grapheme-splitter: ^1.0.4
   hex-to-css-filter: ^5.4.0
   hotkeys-js: ^3.10.0
   jsqr: ^1.4.0
@@ -35,7 +34,6 @@ dependencies:
   '@ffmpeg/ffmpeg': 0.11.5
   color: 4.2.3
   electron-store: 8.1.0
-  grapheme-splitter: 1.0.4
   hex-to-css-filter: 5.4.0
   hotkeys-js: 3.10.0
   jsqr: 1.4.0
@@ -2132,10 +2130,6 @@ packages:
   /graceful-readlink/1.0.1:
     resolution: {integrity: sha512-8tLu60LgxF6XpdbK8OW3FA+IfTNBn1ZHGHKF4KQbEeSkajYw5PlYJcKluntgegDPTg8UkHjpet1T82vk6TQ68w==}
     dev: true
-
-  /grapheme-splitter/1.0.4:
-    resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
-    dev: false
 
   /has-flag/3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
