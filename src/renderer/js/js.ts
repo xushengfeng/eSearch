@@ -50,6 +50,7 @@ class xeditor {
     text: HTMLTextAreaElement;
     selection_el: HTMLElement;
     find_el: HTMLElement;
+    position_el: HTMLElement;
     selections: selections;
     cursors: cursors;
     find: find;
@@ -58,7 +59,8 @@ class xeditor {
         this.text = document.createElement("textarea");
         this.selection_el = document.createElement("div");
         this.find_el = document.createElement("div");
-        el.append(this.find_el, this.selection_el, this.text);
+        this.position_el = document.createElement("div");
+        el.append(this.position_el, this.find_el, this.selection_el, this.text);
 
         this.selections = new selections(this);
         this.cursors = new cursors(this);
@@ -212,7 +214,7 @@ class xeditor {
             start: 0,
             end: editor.get().length,
         });
-        let r = this.selections.rect(this.selections.l[0]);
+        let r = this.selections.rect(this.selections.l[0])[0];
         show_edit_bar(r.x, r.top + line_height, NaN, false);
     }
     delete_enter() {
@@ -380,8 +382,28 @@ class selections {
     }
 
     rect(s: selection) {
-        editor.text.setSelectionRange(s.start, s.end);
-        return document.getSelection().getRangeAt(0).getBoundingClientRect();
+        let text_nodes: Node[] = [];
+        editor.position_el.innerText = editor.text.value;
+        [...editor.position_el.childNodes].forEach((n) => {
+            if (n.nodeName === "#text") text_nodes.push(n);
+        });
+        let ps = this.ns2s(s.start, s.end);
+        let range = new Range();
+        let rect_l = [];
+        range.setStart(text_nodes[ps.start.pg], ps.start.of);
+        range.setEnd(text_nodes[ps.end.pg], ps.end.of);
+        document.getSelection().removeAllRanges();
+        document.getSelection().addRange(range);
+        rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+        range.selectNode(text_nodes[ps.start.pg]);
+        document.getSelection().removeAllRanges();
+        document.getSelection().addRange(range);
+        rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+        range.selectNode(text_nodes[ps.end.pg]);
+        document.getSelection().removeAllRanges();
+        document.getSelection().addRange(range);
+        rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+        return rect_l;
     }
 }
 class cursors {
