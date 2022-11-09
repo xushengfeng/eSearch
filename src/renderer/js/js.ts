@@ -106,16 +106,18 @@ class xeditor {
 
         document.addEventListener("pointerup", (e) => {
             if (pointer_start_from_this) {
-                if (e.altKey) {
-                    this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
-                } else {
-                    this.selections.clear_all();
-                    this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
-                }
-                pointer_start_from_this = false;
-                this.text.dispatchEvent(
-                    new CustomEvent("select2", { detail: { button: e.button, d: this.text.selectionDirection } })
-                );
+                setTimeout(() => {
+                    if (e.altKey) {
+                        this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
+                    } else {
+                        this.selections.clear_all();
+                        this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
+                    }
+                    pointer_start_from_this = false;
+                    this.text.dispatchEvent(
+                        new CustomEvent("select2", { detail: { button: e.button, d: this.text.selectionDirection } })
+                    );
+                }, 10);
             }
         });
 
