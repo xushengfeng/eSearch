@@ -224,38 +224,29 @@ class xeditor {
         show_edit_bar(r.x, r.top + line_height, NaN, false);
     }
     delete_enter() {
-        for (let s1 of editor.selections.l) {
-            const s = editor.selections.ns2s(s1.start, s1.end);
-            var t = editor.selections.get(s1);
+        for (let s of editor.selections.l) {
+            var t = editor.selections.get(s);
             let ot = "";
-            let start = format_selection2(s).start;
-            let end = { pg: start.pg, of: start.of };
             for (let i = 0; i < t.length; i++) {
                 if (t[i] == "\n") {
                     // 换行
                     if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
                         // 结尾
                         ot += t[i];
-                        end.of = 0;
-                        end.pg += 1;
                     } else {
                         if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
                             // 上一行末与此行首为中文字符
                             ot += "";
                         } else {
                             ot += " ";
-                            end.of += 1;
                         }
                     }
                 } else {
                     // 正常行内字符
                     ot += t[i];
-                    end.of += 1;
                 }
             }
             editor.selections.replace(ot);
-            s.start = start;
-            s.end = end;
             editor.selections.render();
         }
     }
