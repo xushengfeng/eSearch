@@ -47,6 +47,7 @@ if (!in_browser) {
 }
 
 class xeditor {
+    renderer_el: HTMLElement;
     text: HTMLTextAreaElement;
     selection_el: HTMLElement;
     find_el: HTMLElement;
@@ -55,6 +56,7 @@ class xeditor {
     cursors: cursors;
     find: find;
     constructor(el: HTMLElement) {
+        this.renderer_el = el;
         el.classList.add("text");
         this.text = document.createElement("textarea");
         this.selection_el = document.createElement("div");
@@ -111,7 +113,9 @@ class xeditor {
                     this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
                 }
                 pointer_start_from_this = false;
-                this.text.dispatchEvent(new CustomEvent("select2", { detail: { button: e.button } }));
+                this.text.dispatchEvent(
+                    new CustomEvent("select2", { detail: { button: e.button, d: this.text.selectionDirection } })
+                );
             }
         });
 
@@ -389,7 +393,7 @@ class selections {
         });
         let ps = this.ns2s(s.start, s.end);
         let range = new Range();
-        let rect_l = [];
+        let rect_l: DOMRect[] = [];
         range.setStart(text_nodes[ps.start.pg], ps.start.of);
         range.setEnd(text_nodes[ps.end.pg], ps.end.of);
         document.getSelection().removeAllRanges();
@@ -403,7 +407,7 @@ class selections {
         document.getSelection().removeAllRanges();
         document.getSelection().addRange(range);
         rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
-        return rect_l;
+        return rect_l as [DOMRect, DOMRect, DOMRect];
     }
 }
 class cursors {
@@ -746,14 +750,24 @@ function hide_edit_bar() {
 }
 
 editor.text.addEventListener("select2", (e: CustomEvent) => {
-    let r = document.getSelection().getRangeAt(0).getBoundingClientRect();
+    let dir = e.detail.d as HTMLTextAreaElement["selectionDirection"];
+    let rect = editor.selections.rect(editor.selections.l[0]);
+    let r: DOMRect;
+    if (dir == "backward") {
+        r = rect[1];
+    } else {
+        r = rect[2];
+    }
+    let d = editor.renderer_el.getBoundingClientRect();
+    let x = r.x - d.x;
+    let y = r.y - d.y;
     if (e.detail.button == 2) {
-        show_edit_bar(r.x, r.y + line_height, 0, true);
+        show_edit_bar(x, y + line_height, 0, true);
     } else {
         if (editor.selections.get() == "") {
             hide_edit_bar();
         } else {
-            show_edit_bar(r.x, r.y + line_height, 0, false);
+            show_edit_bar(x, y + line_height, 0, false);
         }
     }
 });
