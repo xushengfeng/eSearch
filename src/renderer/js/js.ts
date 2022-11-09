@@ -394,19 +394,18 @@ class selections {
         let ps = this.ns2s(s.start, s.end);
         let range = new Range();
         let rect_l: DOMRect[] = [];
-        range.setStart(text_nodes[ps.start.pg], ps.start.of);
-        range.setEnd(text_nodes[ps.end.pg], ps.end.of);
-        document.getSelection().removeAllRanges();
-        document.getSelection().addRange(range);
-        rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
-        range.selectNode(text_nodes[ps.start.pg]);
-        document.getSelection().removeAllRanges();
-        document.getSelection().addRange(range);
-        rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
-        range.selectNode(text_nodes[ps.end.pg]);
-        document.getSelection().removeAllRanges();
-        document.getSelection().addRange(range);
-        rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+        set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.end.pg], ps.end.of);
+        set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.start.pg], ps.start.of);
+        set_r(text_nodes[ps.end.pg], ps.end.of, text_nodes[ps.end.pg], ps.end.of);
+        function set_r(start: Node, so: number, end: Node, eo: number) {
+            range.setStart(start, so);
+            range.setEnd(end, eo);
+            document.getSelection().removeAllRanges();
+            document.getSelection().addRange(range);
+            rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+        }
+        this.editor.text.setSelectionRange(s.start, s.end);
+        this.editor.text.focus();
         return rect_l as [DOMRect, DOMRect, DOMRect];
     }
 }
