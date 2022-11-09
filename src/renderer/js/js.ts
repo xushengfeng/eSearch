@@ -123,16 +123,15 @@ class xeditor {
 
         this.text.addEventListener("copy", (e) => {
             e.clipboardData.setData("text/plain", editor.selections.get());
-            e.preventDefault();
         });
 
         this.text.addEventListener("cut", (e) => {
             e.clipboardData.setData("text/plain", editor.selections.get());
             editor.selections.replace("");
-            e.preventDefault();
         });
 
         this.text.addEventListener("paste", (e) => {
+            e.preventDefault();
             let textl = e.clipboardData.getData("text/plain").split("\n");
             if (editor.selections.l.length == textl.length) {
                 for (let i in editor.selections.l) {
