@@ -68,12 +68,16 @@ body {
     height: 100%;
 }
 #line_num {
-    margin: 8px;
+    margin: 0 8px;
     text-align: end;
     opacity: 0.3;
     cursor: default;
     user-select: none;
     position: relative;
+}
+#line_num > div {
+    position: absolute;
+    width: 100%;
 }
 #main_text {
     overflow: overlay;

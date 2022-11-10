@@ -67,6 +67,7 @@ class xeditor {
             this.selection_el.innerText = this.text.value;
             this.text.style.height = this.selection_el.offsetHeight + "px";
             this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
+            editor_change();
         };
 
         this.text.addEventListener("keydown", (e) => {
@@ -542,11 +543,31 @@ function editor_change() {
  */
 function line_num() {
     document.getElementById("line_num").innerHTML = "";
-    let t = "";
-    for (let i = 0; i <= editor.l().length; i++) {
-        // t += `<div style="height:${get_pg(i).offsetHeight}px">${(i + 1).toString()}</div>`;
+    let text_nodes: Node[] = [];
+    editor.position_el.innerText = editor.text.value;
+    [...editor.position_el.childNodes].forEach((n) => {
+        if (n.nodeName === "#text") text_nodes.push(n);
+    });
+    const ss = editor.text.selectionStart,
+        se = editor.text.selectionEnd;
+    let range = new Range();
+    function set_r(start: Node, so: number, end: Node, eo: number) {
+        range.setStart(start, so);
+        range.setEnd(end, eo);
+        document.getSelection().removeAllRanges();
+        document.getSelection().addRange(range);
+        return document.getSelection().getRangeAt(0).getBoundingClientRect();
     }
+    let t = "";
+    let ly = document.getElementById("line_num").getBoundingClientRect().y;
+    for (let i in text_nodes) {
+        let rect = set_r(text_nodes[i], 0, text_nodes[i], 0);
+        t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
+    }
+    editor.text.setSelectionRange(ss, se);
+    editor.text.focus();
     document.getElementById("line_num").innerHTML = t;
+    document.getElementById("line_num").style.width = String(text_nodes.length).length / 2 + "em";
 }
 line_num();
 
@@ -566,10 +587,10 @@ document.getElementById("line_num").onmousedown = (e) => {
     editor.cursors.set(cursor);
 };
 document.getElementById("line_num").onmouseup = (e) => {
-    document.getElementById("cursor").focus();
+    // document.getElementById("cursor").focus();
 };
-document.getElementById("main_text").onscroll = () => {
-    document.getElementById("line_num").style.top = `-${document.getElementById("main_text").scrollTop}px`;
+document.getElementById("text").onscroll = () => {
+    document.getElementById("line_num").style.top = `-${document.getElementById("text").scrollTop}px`;
 };
 
 // 插入文字
