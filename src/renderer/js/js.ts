@@ -539,7 +539,7 @@ function editor_change() {
     if (find_show) {
         exit_find();
         find_();
-        if (!in_browser) count_words();
+        count_words();
     }
     if (editing_on_other) write_edit_on_other();
 }
@@ -825,7 +825,7 @@ function show_find() {
         find_input.select();
         find_input.focus();
         if (editor.selections.get() != "") find_();
-        if (!in_browser) count_words();
+        count_words();
     } else {
         document.getElementById("top").style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
