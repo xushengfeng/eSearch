@@ -483,8 +483,8 @@ class find {
         let ranges = s.sort((a, b) => a.start - b.start);
         for (let i = 0; i < ranges.length; i++) {
             let span = document.createElement("span");
-            span.classList.add("find_h");
             span.innerText = text.slice(ranges[i].start, ranges[i].end);
+            if (span.innerText) span.classList.add("find_h");
             let after = "";
             if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
             let before_el = document.createElement("span");
