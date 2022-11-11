@@ -583,7 +583,9 @@ document.getElementById("line_num").onmousedown = (e) => {
     editor.cursors.set(cursor);
 };
 document.getElementById("line_num").onmouseup = (e) => {
-    // document.getElementById("cursor").focus();
+    let s = editor.selections.l[0];
+    editor.text.setSelectionRange(s.start, s.end);
+    editor.text.focus();
 };
 document.getElementById("text").onscroll = () => {
     document.getElementById("line_num").style.top = `-${document.getElementById("text").scrollTop}px`;
