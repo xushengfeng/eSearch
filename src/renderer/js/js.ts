@@ -934,14 +934,10 @@ document.getElementById("find_b_replace").onclick = find_replace;
 function find_replace() {
     let m = editor.find.matchx(find_input.value, find_regex);
     let l = editor.find.find(m);
-    let now_s = editor.selections.l[0];
-    for (let s of l) {
-        if (now_s.start <= s.start && s.end <= now_s.end) {
-            editor.find.replace(s, m, replace_input.value);
-            break;
-        }
-    }
+    let s = l[find_l_n_i];
+    editor.find.replace(s, m, replace_input.value);
     find_l_n_i = find_l_n_i - 1;
+    find_();
     find_l_n("↓");
 
     stack_add();
