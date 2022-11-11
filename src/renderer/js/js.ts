@@ -937,7 +937,9 @@ function find_replace() {
     let s = l[find_l_n_i];
     editor.find.replace(s, m, replace_input.value);
     find_l_n_i = find_l_n_i - 1;
+    let ti = find_l_n_i;
     find_();
+    find_l_n_i = ti;
     find_l_n("↓");
 
     stack_add();
