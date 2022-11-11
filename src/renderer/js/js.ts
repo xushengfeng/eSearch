@@ -145,6 +145,7 @@ class xeditor {
      */
     push(value: string) {
         this.text.value = value;
+        this.selection_el.innerText = value;
         this.text.style.height = this.selection_el.offsetHeight + "px";
         this.text.style.paddingBottom = this.text.parentElement.offsetHeight - line_height + "px";
         this.render();
