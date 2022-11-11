@@ -375,20 +375,25 @@ class selections {
     }
 
     rect(s: selection) {
-        let text_nodes: Node[] = [];
-        editor.position_el.innerText = editor.text.value;
-        [...editor.position_el.childNodes].forEach((n) => {
-            if (n.nodeName === "#text") text_nodes.push(n);
-        });
+        let text_nodes: HTMLElement[] = [];
+        let l = editor.text.value.split("\n");
+        editor.position_el.innerText = "";
+        for (let text of l) {
+            let div = document.createElement("div");
+            div.innerText = text;
+            div.style.minHeight = line_height + "px";
+            text_nodes.push(div);
+            editor.position_el.append(div);
+        }
         let ps = this.ns2s(s.start, s.end);
         let range = new Range();
         let rect_l: DOMRect[] = [];
         set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.end.pg], ps.end.of);
         set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.start.pg], ps.start.of);
         set_r(text_nodes[ps.end.pg], ps.end.of, text_nodes[ps.end.pg], ps.end.of);
-        function set_r(start: Node, so: number, end: Node, eo: number) {
-            range.setStart(start, so);
-            range.setEnd(end, eo);
+        function set_r(start: HTMLElement, so: number, end: HTMLElement, eo: number) {
+            range.setStart(start.firstChild, so);
+            range.setEnd(end.firstChild, eo);
             document.getSelection().removeAllRanges();
             document.getSelection().addRange(range);
             rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
