@@ -67,6 +67,7 @@ class xeditor {
             this.selection_el.innerText = this.text.value;
             this.text.style.height = this.selection_el.offsetHeight + "px";
             this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
+            if (!is_wrap) editor.text.style.width = editor.selection_el.offsetWidth + "px";
             editor_change();
         };
 
@@ -138,6 +139,7 @@ class xeditor {
             }
             this.text.style.height = this.selection_el.offsetHeight + "px";
             this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
+            if (!is_wrap) editor.text.style.width = editor.selection_el.offsetWidth + "px";
             editor_change();
         });
     }
@@ -151,6 +153,7 @@ class xeditor {
         this.selection_el.innerText = value;
         this.text.style.height = this.selection_el.offsetHeight + "px";
         this.text.style.paddingBottom = this.text.parentElement.offsetHeight - line_height + "px";
+        if (!is_wrap) editor.text.style.width = editor.selection_el.offsetWidth + "px";
         this.render();
         editor_change();
 
@@ -795,12 +798,19 @@ wrap();
 function wrap() {
     is_wrap = !is_wrap;
     if (is_wrap) {
-        document.documentElement.style.setProperty("--wrap", "normal");
+        document.documentElement.style.setProperty("--wrap", "pre-wrap");
+        document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
+            el.style.width = "100%";
+        });
     } else {
         document.documentElement.style.setProperty("--wrap", "nowrap");
+        document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
+            el.style.width = "";
+        });
+        editor.text.style.width = editor.selection_el.offsetWidth + "px";
     }
-
-    editor.cursors.set(cursor);
+    editor.text.style.paddingBottom = editor.text.parentElement.offsetHeight - line_height + "px";
+    line_num();
 }
 
 var is_check = !store.get("编辑器.拼写检查");

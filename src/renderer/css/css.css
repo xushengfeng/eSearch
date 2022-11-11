@@ -92,7 +92,6 @@ body {
     overflow: auto;
 }
 .text > * {
-    width: 100%;
     position: absolute;
     top: 0;
     margin: 0;
@@ -107,7 +106,7 @@ body {
     letter-spacing: normal;
     word-spacing: normal;
     text-align: start;
-    white-space: pre-wrap;
+    white-space: var(--wrap);
     overflow-wrap: break-word;
 }
 .text > textarea::selection {
