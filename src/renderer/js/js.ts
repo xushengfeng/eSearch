@@ -136,6 +136,9 @@ class xeditor {
             } else {
                 editor.selections.replace(textl.join("\n"));
             }
+            this.text.style.height = this.selection_el.offsetHeight + "px";
+            this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
+            editor_change();
         });
     }
 
