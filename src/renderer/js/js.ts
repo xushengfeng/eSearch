@@ -544,31 +544,21 @@ function editor_change() {
  */
 function line_num() {
     document.getElementById("line_num").innerHTML = "";
-    let text_nodes: Node[] = [];
-    editor.position_el.innerText = editor.text.value;
-    [...editor.position_el.childNodes].forEach((n) => {
-        if (n.nodeName === "#text") text_nodes.push(n);
-    });
-    const ss = editor.text.selectionStart,
-        se = editor.text.selectionEnd;
-    let range = new Range();
-    function set_r(start: Node, so: number, end: Node, eo: number) {
-        range.setStart(start, so);
-        range.setEnd(end, eo);
-        document.getSelection().removeAllRanges();
-        document.getSelection().addRange(range);
-        return document.getSelection().getRangeAt(0).getBoundingClientRect();
-    }
+    let l = editor.text.value.split("\n");
+    editor.position_el.innerText = "";
     let t = "";
     let ly = document.getElementById("line_num").getBoundingClientRect().y;
-    for (let i in text_nodes) {
-        let rect = set_r(text_nodes[i], 0, text_nodes[i], 0);
+    for (let i in l) {
+        const text = l[i];
+        let div = document.createElement("div");
+        div.innerText = text;
+        div.style.minHeight = line_height + "px";
+        editor.position_el.append(div);
+        let rect = div.getBoundingClientRect();
         t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
     }
-    editor.text.setSelectionRange(ss, se);
-    editor.text.focus();
     document.getElementById("line_num").innerHTML = t;
-    document.getElementById("line_num").style.width = String(text_nodes.length).length / 2 + "em";
+    document.getElementById("line_num").style.width = String(l.length).length / 2 + "em";
 }
 line_num();
 
