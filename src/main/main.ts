@@ -235,7 +235,17 @@ async function rm_r(dir_path: string) {
  * @returns
  */
 function capturer(screen_list: Screenshots[]) {
-    let x = [];
+    let x: {
+        image: Buffer;
+        id: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rotation: number;
+        scaleFactor: number;
+        isPrimary: boolean;
+    }[] = [];
     screen_list.forEach((capturer) => {
         let s = capturer.captureSync();
         x.push({
@@ -628,8 +638,14 @@ function full_screen(img_path?: string) {
         let all = Screenshots.all() ?? [];
         let x = capturer(all);
         let have_main = false;
+        let p = screen.getCursorScreenPoint();
         for (let i of x) {
-            if (i.id == nearest_screen.id) {
+            if (
+                i.x <= p.x &&
+                p.x <= i.x + i.width * i.scaleFactor &&
+                i.y <= p.y &&
+                p.y <= i.y + i.height * i.scaleFactor
+            ) {
                 i["main"] = true;
                 have_main = true;
                 break;
