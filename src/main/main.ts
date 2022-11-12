@@ -628,7 +628,7 @@ function full_screen(img_path?: string) {
         let all = Screenshots.all() ?? [];
         let x = capturer(all);
         for (let i of x) {
-            if ((i.id = nearest_screen.id)) {
+            if (i.id == nearest_screen.id) {
                 i["main"] = true;
             }
         }
