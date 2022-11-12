@@ -314,17 +314,16 @@ body {
 
 #editor {
     position: absolute;
+    transform-origin: 0% 0%;
 }
 #editor > * {
     position: absolute;
 }
 
 #main_photo {
-    width: 100%;
     z-index: 8;
 }
 #clip_photo {
-    width: 100%;
     z-index: 10;
     cursor: crosshair;
 }

@@ -102,6 +102,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             if (i.main) {
                 main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
                 main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
+                editor.style.transform = `scale(${1 / i.scaleFactor})`;
                 to_canvas(main_canvas, i.image, i.width, i.height);
                 final_rect = [0, 0, main_canvas.width, main_canvas.height];
                 if (记忆框选)
@@ -1755,11 +1756,6 @@ Fabric = window.fabric;
 var Fabric;
 
 var fabric_canvas = new Fabric.Canvas("draw_photo");
-
-var canvas_container = <HTMLCanvasElement>document.querySelector(".canvas-container");
-var upper_canvas = <HTMLCanvasElement>document.querySelector(".upper-canvas");
-draw_canvas.style.width = canvas_container.style.width = upper_canvas.style.width = main_canvas.width / ratio + "px";
-draw_canvas.style.height = canvas_container.style.height = upper_canvas.style.height = "auto";
 
 his_push();
 
