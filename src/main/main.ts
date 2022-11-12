@@ -627,11 +627,15 @@ function full_screen(img_path?: string) {
         // 获取所有屏幕截图
         let all = Screenshots.all() ?? [];
         let x = capturer(all);
+        let have_main = false;
         for (let i of x) {
             if (i.id == nearest_screen.id) {
                 i["main"] = true;
+                have_main = true;
+                break;
             }
         }
+        if (!have_main) x[0]["main"] = true;
         clip_window.webContents.send("reflash", x);
         x = null;
     }
