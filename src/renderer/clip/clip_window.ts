@@ -2064,9 +2064,9 @@ function draw(shape, v, x1, y1, x2, y2) {
             break;
         case "circle":
             shapes[shapes.length] = new Fabric.Circle({
-                radius: Math.max(w / ratio, h / ratio) / 2,
-                left: x / ratio,
-                top: y / ratio,
+                radius: Math.max(w, h) / 2,
+                left: x,
+                top: y,
                 fill: fill_color,
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
@@ -2076,10 +2076,10 @@ function draw(shape, v, x1, y1, x2, y2) {
             break;
         case "rect":
             shapes[shapes.length] = new Fabric.Rect({
-                left: x / ratio,
-                top: y / ratio,
-                width: w / ratio,
-                height: h / ratio,
+                left: x,
+                top: y,
+                width: w,
+                height: h,
                 fill: fill_color,
                 stroke: stroke_color,
                 strokeWidth: stroke_width,
@@ -2090,8 +2090,8 @@ function draw(shape, v, x1, y1, x2, y2) {
         case "text":
             shapes.push(
                 new Fabric.IText("点击输入文字", {
-                    left: x / ratio,
-                    top: y / ratio,
+                    left: x,
+                    top: y,
                     canChangeFill: true,
                     形状: "text",
                 })
