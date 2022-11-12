@@ -577,6 +577,38 @@ var 代理 = store.get("代理");
 (<HTMLInputElement>document.getElementById("proxyRules")).value = 代理.proxyRules;
 (<HTMLInputElement>document.getElementById("proxyBypassRules")).value = 代理.proxyBypassRules;
 
+set_proxy_el();
+document.getElementById("代理").onclick = set_proxy_el;
+function set_proxy_el() {
+    const m = (<HTMLInputElement>document.getElementById("代理")).value;
+    const pacScript_el = document.getElementById("pacScript_p");
+    const proxyRules_el = document.getElementById("proxyRules_p");
+    const proxyBypassRules_el = document.getElementById("proxyBypassRules_p");
+    switch (m) {
+        case "direct":
+            pacScript_el.style.display = proxyRules_el.style.display = proxyBypassRules_el.style.display = "none";
+            break;
+        case "auto_detect":
+            pacScript_el.style.display = proxyRules_el.style.display = "none";
+            proxyBypassRules_el.style.display = "block";
+            break;
+        case "pac_script":
+            pacScript_el.style.display = "block";
+            proxyRules_el.style.display = "none";
+            proxyBypassRules_el.style.display = "block";
+            break;
+        case "fixed_servers":
+            proxyRules_el.style.display = "block";
+            pacScript_el.style.display = "none";
+            proxyBypassRules_el.style.display = "block";
+            break;
+        case "system":
+            pacScript_el.style.display = proxyRules_el.style.display = "none";
+            proxyBypassRules_el.style.display = "block";
+            break;
+    }
+}
+
 (<HTMLInputElement>document.getElementById("主页面失焦")).checked = store.get("关闭窗口.失焦.主页面");
 
 (<HTMLInputElement>document.getElementById("硬件加速")).checked = store.get("硬件加速");
