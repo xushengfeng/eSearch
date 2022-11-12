@@ -1405,7 +1405,7 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
     // 自定义界面
     renderer_path(main_window, web_page || "index.html");
 
-    if (store.get("开启代理")) await main_window.webContents.session.setProxy(store.get("代理"));
+    await main_window.webContents.session.setProxy(store.get("代理"));
 
     if (dev) main_window.webContents.openDevTools();
 
@@ -1511,7 +1511,7 @@ async function create_browser(window_name: number, url: string) {
     min_views(main_window);
     var view = new Date().getTime();
     var search_view = (search_window_l[view] = new BrowserView({ webPreferences: { webSecurity: false } }));
-    if (store.get("开启代理")) await search_view.webContents.session.setProxy(store.get("代理"));
+    await search_view.webContents.session.setProxy(store.get("代理"));
     main_window_l[window_name].addBrowserView(search_view);
     search_view.webContents.loadURL(url);
     var [w, h] = main_window.getContentSize();
@@ -1859,8 +1859,8 @@ var default_setting = {
             变换: `transform: rotateY(180deg);`,
         },
     },
-    开启代理: false,
     代理: {
+        mode: "direct",
         pacScript: "",
         proxyRules: "",
         proxyBypassRules: "",

@@ -907,19 +907,26 @@
                     <t>代理</t>
                 </h1>
 
-                <label>
-                    <input type="checkbox" name="" id="代理">
-                    <t>开启代理</t>
-                </label>
+                <set-select name="" id="代理">
+                    <div value="direct">无代理</div>
+                    <div value="auto_detect">自动检测</div>
+                    <div value="pac_script">PAC脚本</div>
+                    <div value="fixed_servers">固定服务器</div>
+                    <div value="system">系统代理</div>
+                </set-select>
                 </br>
-                <t>pac文件：</t>
-                <input type="text" spellcheck="false" id="pacScript">
-                </br>
-                <t>代理规则：</t>
-                <input type="text" spellcheck="false" id="proxyRules">
-                </br>
-                <t>排除规则：</t>
-                <input type="text" spellcheck="false" id="proxyBypassRules">
+                <div id="pacScript_p">
+                    <t>PAC URL：</t>
+                    <input type="text" spellcheck="false" id="pacScript">
+                </div>
+                <div id="proxyRules_p">
+                    <t>代理规则：</t>
+                    <input type="text" spellcheck="false" id="proxyRules">
+                </div>
+                <div id="proxyBypassRules_p">
+                    <t>排除规则：</t>
+                    <input type="text" spellcheck="false" id="proxyBypassRules">
+                </div>
             </div>
 
             <div id="setting_item">

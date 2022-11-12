@@ -571,8 +571,8 @@ document.getElementById("clear_his").onclick = () => {
 
 (<HTMLInputElement>document.getElementById("时间格式")).value = store.get("时间格式");
 
-(<HTMLInputElement>document.getElementById("代理")).checked = store.get("开启代理");
 var 代理 = store.get("代理");
+(<HTMLInputElement>document.getElementById("代理")).value = 代理.mode;
 (<HTMLInputElement>document.getElementById("pacScript")).value = 代理.pacScript;
 (<HTMLInputElement>document.getElementById("proxyRules")).value = 代理.proxyRules;
 (<HTMLInputElement>document.getElementById("proxyBypassRules")).value = 代理.proxyBypassRules;
@@ -780,8 +780,8 @@ function save_setting() {
         id: (<HTMLInputElement>document.getElementById("youdao_ocr_id")).value,
         secret: (<HTMLInputElement>document.getElementById("youdao_ocr_secret")).value,
     });
-    store.set("开启代理", (<HTMLInputElement>document.getElementById("代理")).checked);
     store.set("代理", {
+        mode: (<HTMLInputElement>document.getElementById("代理")).value,
         pacScript: (<HTMLInputElement>document.getElementById("pacScript")).value,
         proxyRules: (<HTMLInputElement>document.getElementById("proxyRules")).value,
         proxyBypassRules: (<HTMLInputElement>document.getElementById("proxyBypassRules")).value,
