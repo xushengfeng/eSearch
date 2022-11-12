@@ -571,10 +571,12 @@ document.getElementById("clear_his").onclick = () => {
 
 (<HTMLInputElement>document.getElementById("时间格式")).value = store.get("时间格式");
 
+var proxy_l = ["http", "https", "ftp", "socks"];
+
 var 代理 = store.get("代理");
 (<HTMLInputElement>document.getElementById("代理")).value = 代理.mode;
 (<HTMLInputElement>document.getElementById("pacScript")).value = 代理.pacScript;
-(<HTMLInputElement>document.getElementById("proxyRules")).value = 代理.proxyRules;
+get_proxy();
 (<HTMLInputElement>document.getElementById("proxyBypassRules")).value = 代理.proxyBypassRules;
 
 set_proxy_el();
@@ -607,6 +609,27 @@ function set_proxy_el() {
             proxyBypassRules_el.style.display = "block";
             break;
     }
+}
+
+function get_proxy() {
+    let l = 代理.proxyRules.split(";") as string[];
+    for (let rule of l) {
+        for (let x of proxy_l) {
+            if (rule.includes(x + "=")) {
+                (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value = rule.replace(x + "=", "");
+            }
+        }
+    }
+}
+function set_proxy() {
+    let l = [];
+    for (let x of proxy_l) {
+        let v = (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value;
+        if (v) {
+            l.push(`${x}=${v}`);
+        }
+    }
+    return l.join(";");
 }
 
 (<HTMLInputElement>document.getElementById("主页面失焦")).checked = store.get("关闭窗口.失焦.主页面");
@@ -815,7 +838,7 @@ function save_setting() {
     store.set("代理", {
         mode: (<HTMLInputElement>document.getElementById("代理")).value,
         pacScript: (<HTMLInputElement>document.getElementById("pacScript")).value,
-        proxyRules: (<HTMLInputElement>document.getElementById("proxyRules")).value,
+        proxyRules: set_proxy(),
         proxyBypassRules: (<HTMLInputElement>document.getElementById("proxyBypassRules")).value,
     });
     store.set("关闭窗口", {
