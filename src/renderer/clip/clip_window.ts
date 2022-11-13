@@ -102,7 +102,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             if (i.main) {
                 main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
                 main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
-                editor.style.transform = `scale(${1 / i.scaleFactor})`;
+                editor.style.transform = `scale(${window.innerWidth / i.width})`;
                 to_canvas(main_canvas, i.image, i.width, i.height);
                 final_rect = [0, 0, main_canvas.width, main_canvas.height];
                 if (记忆框选)
