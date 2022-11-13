@@ -251,6 +251,7 @@ class xeditor {
             editor.selections.replace(ot);
             editor.selections.render();
         }
+        line_num();
     }
 }
 
