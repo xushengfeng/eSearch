@@ -803,7 +803,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                                 i_fn,
                                 ...arg.参数,
                                 "-vf",
-                                `"[in]crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1"`,
+                                `[in]crop=${o_rect[2]}:${o_rect[3]}:${o_rect[0]}:${o_rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1`,
                                 o_fn
                             );
                         } else {
