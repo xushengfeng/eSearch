@@ -398,8 +398,8 @@ class selections {
         set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.start.pg], ps.start.of);
         set_r(text_nodes[ps.end.pg], ps.end.of, text_nodes[ps.end.pg], ps.end.of);
         function set_r(start: HTMLElement, so: number, end: HTMLElement, eo: number) {
-            range.setStart(start.firstChild, so);
-            range.setEnd(end.firstChild, eo);
+            range.setStart(start.firstChild || start, so);
+            range.setEnd(end.firstChild || end, eo);
             document.getSelection().removeAllRanges();
             document.getSelection().addRange(range);
             rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
@@ -1237,11 +1237,15 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
         editor.push(t("图片识别中……请等候"));
         ocr(list[1], list[2] as any, (err: Error, text: string) => {
             if (text) {
+                ipcRenderer.send("main_win", "ocr", "ok");
+                console.log(text);
+
                 editor.push(text);
                 editor.select_all();
-                ipcRenderer.send("main_win", "ocr", "ok");
-            }
-            if (err) {
+                return;
+            } else if (err) {
+                console.log(err);
+
                 editor.push(t("识别错误，请打开开发者工具查看详细错误"));
                 ipcRenderer.send("main_win", "ocr", t("ocr识别错误"));
             }
