@@ -100,17 +100,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
         i.width = i.width * i.scaleFactor;
         if (i) {
             if (i.main) {
-                main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
-                main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
-                editor.style.transform = `scale(${window.innerWidth / i.width})`;
-                to_canvas(main_canvas, i.image, i.width, i.height);
-                final_rect = [0, 0, main_canvas.width, main_canvas.height];
-                if (记忆框选)
-                    if (记忆框选值?.[i.id]?.[2]) {
-                        final_rect = 记忆框选值[i.id];
-                        rect_select = true;
-                    } // 记忆框选边不为0时
-                now_screen_id = i.id;
+                set_screen(i);
             }
             let c = document.createElement("canvas");
             to_canvas(c, i.image, i.width, i.height);
@@ -118,16 +108,23 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             div.append(c);
             side_bar_screens.append(div);
             div.onclick = () => {
-                to_canvas(main_canvas, i.image, i.width, i.height);
-                final_rect = [0, 0, main_canvas.width, main_canvas.height];
-                if (记忆框选)
-                    if (记忆框选值?.[i.id]?.[2]) {
-                        final_rect = 记忆框选值[i.id];
-                        rect_select = true;
-                    } // 记忆框选边不为0时
-                now_screen_id = i.id;
+                set_screen(i);
             };
         }
+    }
+    function set_screen(i) {
+        main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
+        main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
+        editor.style.transform = `scale(${window.innerWidth / i.width})`;
+        to_canvas(main_canvas, i.image, i.width, i.height);
+        final_rect = [0, 0, main_canvas.width, main_canvas.height];
+        if (记忆框选)
+            if (记忆框选值?.[i.id]?.[2]) {
+                final_rect = 记忆框选值[i.id];
+                rect_select = true;
+            } // 记忆框选边不为0时
+        draw_clip_rect();
+        now_screen_id = i.id;
     }
 
     switch (act) {
