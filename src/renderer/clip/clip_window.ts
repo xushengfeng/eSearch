@@ -76,7 +76,7 @@ const draw_canvas = <HTMLCanvasElement>document.getElementById("draw_photo");
 // 第一次截的一定是桌面,所以可提前定义
 main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;
 main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
-
+var zoom_w = 0;
 type rect = [number, number, number, number];
 var final_rect = [0, 0, main_canvas.width, main_canvas.height] as rect;
 
@@ -116,6 +116,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
         main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
         main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
         editor.style.transform = `scale(${window.screen.width / i.width})`;
+        zoom_w = window.screen.width;
         to_canvas(main_canvas, i.image, i.width, i.height);
         final_rect = [0, 0, main_canvas.width, main_canvas.height];
         if (记忆框选)
@@ -150,6 +151,15 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     change_right_bar(false);
     ratio = window.devicePixelRatio;
 });
+
+document.onwheel = (e) => {
+    document.body.style.background = "#fff";
+    if (e.ctrlKey) {
+        let z = zoom_w - e.deltaY;
+        zoom_w = z;
+        editor.style.transform = `scale(${z / main_canvas.width})`;
+    }
+};
 
 var edge_init = false;
 var edge_rect = [];
