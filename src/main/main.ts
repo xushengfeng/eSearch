@@ -260,6 +260,16 @@ function capturer(screen_list: Screenshots[]) {
             isPrimary: capturer.isPrimary,
         });
     });
+    if (process.platform == "win32")
+        for (let s of screen.getAllDisplays()) {
+            for (let ss of x) {
+                if (ss.id == s.id) {
+                    ss.height = s.size.height;
+                    ss.width = s.size.width;
+                    ss.scaleFactor = s.scaleFactor;
+                }
+            }
+        }
     return x;
 }
 
