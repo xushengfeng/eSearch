@@ -1303,7 +1303,7 @@ const template = [
             {
                 label: t("关于"),
                 click: () => {
-                    create_main_window("setting.html", true);
+                    create_main_window("setting.html", null, true);
                 },
             },
         ],
