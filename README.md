@@ -81,7 +81,7 @@ npm run dist
 
 ```shell
 esearch (若找不到，请尝试e-search)
-	-a # 自动搜索
+	-a # 自动识别
 	-c # 截屏搜索
 	-s # 选中搜索
 	-b # 剪贴板搜索

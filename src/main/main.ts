@@ -291,7 +291,7 @@ app.whenReady().then(() => {
             : new Tray(`${run_path}/assets/logo/16x16.png`);
     contextMenu = Menu.buildFromTemplate([
         {
-            label: `${t("自动搜索")}`,
+            label: `${t("自动识别")}`,
             click: () => {
                 auto_open();
             },
