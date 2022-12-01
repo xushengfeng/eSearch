@@ -79,6 +79,7 @@ main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.hei
 var zoom_w = 0;
 type rect = [number, number, number, number];
 var final_rect = [0, 0, main_canvas.width, main_canvas.height] as rect;
+var screen_position: { [key: string]: { x: number; y: number } } = {};
 
 var now_screen_id = 0;
 
@@ -110,6 +111,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             div.onclick = () => {
                 set_screen(i);
             };
+            screen_position[i.id] = { x: i.x, y: i.y };
         }
     }
     function set_screen(i) {
@@ -587,7 +589,10 @@ var log_o = {
 function tool_long_f() {
     let long_list = (log_o.long_list = []);
     init_long(final_rect);
-    ipcRenderer.send("clip_main_b", "long_s", [...final_rect, now_screen_id]);
+    let r = [...final_rect];
+    r[0] += screen_position[now_screen_id].x;
+    r[1] += screen_position[now_screen_id].y;
+    ipcRenderer.send("clip_main_b", "long_s", [...r, now_screen_id]);
     if (!cv) cv = require("opencv.js");
     log_o.o_canvas = document.createElement("canvas");
     let o_canvas = log_o.o_canvas;
