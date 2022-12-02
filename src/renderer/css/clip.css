@@ -130,7 +130,7 @@ body {
 
 /* 居中栏 */
 #center_bar {
-    position: absolute;
+    position: fixed;
     left: 50%;
     top: 35%;
     transform: translateX(-50%);
