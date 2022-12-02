@@ -95,6 +95,8 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
         if (i) {
             if (i.main) {
                 set_screen(i);
+                set_editor_p(1 / i.scaleFactor, 0, 0);
+                zoom_w = i.width;
             }
             let c = document.createElement("canvas");
             to_canvas(c, i.image, w, h);
@@ -148,8 +150,6 @@ function set_screen(i) {
     let h = i.height * i.scaleFactor;
     main_canvas.width = clip_canvas.width = draw_canvas.width = w;
     main_canvas.height = clip_canvas.height = draw_canvas.height = h;
-    editor.style.transform = `scale(${1 / i.scaleFactor})`;
-    zoom_w = i.width;
     to_canvas(main_canvas, i.image, w, h);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     if (记忆框选)
