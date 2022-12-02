@@ -83,10 +83,13 @@ var screen_position: { [key: string]: { x: number; y: number } } = {};
 
 var now_screen_id = 0;
 
+var screens_l = [];
+
 set_setting();
 ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
     for (let i of data) {
+        screens_l.push(i);
         i.height = i.height * i.scaleFactor;
         i.width = i.width * i.scaleFactor;
         if (i) {
@@ -154,6 +157,18 @@ function set_screen(i) {
         } // 记忆框选边不为0时
     draw_clip_rect();
     now_screen_id = i.id;
+}
+
+document.onmouseleave = document.onmouseenter = get_mouse_screen;
+
+function get_mouse_screen() {
+    let p = ipcRenderer.sendSync("clip_main_b", "get_mouse");
+    console.log(p);
+    for (let i of screens_l) {
+        if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
+            set_screen(i);
+        }
+    }
 }
 
 let now_mouse_e: MouseEvent = null;

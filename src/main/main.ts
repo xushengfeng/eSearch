@@ -619,6 +619,9 @@ function create_clip_window() {
                 });
                 notification.show();
                 break;
+            case "get_mouse":
+                event.returnValue = screen.getCursorScreenPoint();
+                break;
         }
     });
 }
