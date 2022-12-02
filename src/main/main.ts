@@ -1424,6 +1424,7 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            webSecurity: false,
         },
         show: false,
     })) as BrowserWindow & { html: string };
@@ -1540,7 +1541,14 @@ async function create_browser(window_name: number, url: string) {
     if (main_window.isDestroyed()) return;
     min_views(main_window);
     var view = new Date().getTime();
-    var search_view = (search_window_l[view] = new BrowserView({ webPreferences: { webSecurity: false } }));
+    let security = true;
+    for (let i of store.get("nocors")) {
+        if (url.includes(i)) {
+            security = false;
+            break;
+        }
+    }
+    var search_view = (search_window_l[view] = new BrowserView({ webPreferences: { webSecurity: security } }));
     await search_view.webContents.session.setProxy(store.get("代理"));
     main_window_l[window_name].addBrowserView(search_view);
     search_view.webContents.loadURL(url);
@@ -1877,6 +1885,7 @@ var default_setting = {
         默认搜索引擎: "百度",
         默认翻译引擎: "Google",
     },
+    nocors: ["https://yuansou.netlify.app/"],
     历史记录设置: {
         保留历史记录: true,
         自动清除历史记录: false,
