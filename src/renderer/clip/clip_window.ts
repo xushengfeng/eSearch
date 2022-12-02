@@ -86,16 +86,6 @@ var now_screen_id = 0;
 set_setting();
 ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
-    function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number) {
-        canvas.width = w;
-        canvas.height = h;
-        let x = nativeImage.createFromBuffer(img).toBitmap();
-        for (let i = 0; i < x.length; i += 4) {
-            [x[i], x[i + 2]] = [x[i + 2], x[i]];
-        }
-        let d = new ImageData(Uint8ClampedArray.from(x), w, h);
-        canvas.getContext("2d").putImageData(d, 0, 0);
-    }
     for (let i of data) {
         i.height = i.height * i.scaleFactor;
         i.width = i.width * i.scaleFactor;
@@ -113,21 +103,6 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             };
             screen_position[i.id] = { x: i.x, y: i.y };
         }
-    }
-    function set_screen(i) {
-        main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
-        main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
-        editor.style.transform = `scale(${1 / i.scaleFactor})`;
-        zoom_w = i.width / i.scaleFactor;
-        to_canvas(main_canvas, i.image, i.width, i.height);
-        final_rect = [0, 0, main_canvas.width, main_canvas.height];
-        if (记忆框选)
-            if (记忆框选值?.[i.id]?.[2]) {
-                final_rect = 记忆框选值[i.id];
-                rect_select = true;
-            } // 记忆框选边不为0时
-        draw_clip_rect();
-        now_screen_id = i.id;
     }
 
     switch (act) {
@@ -153,6 +128,34 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     change_right_bar(false);
     ratio = window.devicePixelRatio;
 });
+
+function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number) {
+    canvas.width = w;
+    canvas.height = h;
+    let x = nativeImage.createFromBuffer(img).toBitmap();
+    for (let i = 0; i < x.length; i += 4) {
+        [x[i], x[i + 2]] = [x[i + 2], x[i]];
+    }
+    let d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    canvas.getContext("2d").putImageData(d, 0, 0);
+}
+
+function set_screen(i) {
+    main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
+    main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
+    editor.style.transform = `scale(${1 / i.scaleFactor})`;
+    zoom_w = i.width / i.scaleFactor;
+    to_canvas(main_canvas, i.image, i.width, i.height);
+    final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    if (记忆框选)
+        if (记忆框选值?.[i.id]?.[2]) {
+            final_rect = 记忆框选值[i.id];
+            rect_select = true;
+        } // 记忆框选边不为0时
+    draw_clip_rect();
+    now_screen_id = i.id;
+}
+
 let now_mouse_e: MouseEvent = null;
 document.addEventListener("mousemove", (e) => {
     now_mouse_e = e;
