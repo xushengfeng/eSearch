@@ -159,9 +159,24 @@ document.onwheel = (e) => {
     if (e.ctrlKey) {
         let z = zoom_w - e.deltaY;
         zoom_w = z;
-        editor.style.transform = `scale(${z / main_canvas.width})`;
+        set_editor_p(z / main_canvas.width, 0, 0);
     }
 };
+
+let editor_p = { zoom: 1, x: 0, y: 0 };
+function set_editor_p(zoom: number, x: number, y: number) {
+    let t = [];
+    if (zoom != null) {
+        t.push(`scale(${zoom})`);
+    }
+    if (x != null) {
+        t.push(`translateX(${x}px)`);
+    }
+    if (y != null) {
+        t.push(`translateX(${y}px)`);
+    }
+    editor.style.transform = t.join(" ");
+}
 
 var edge_init = false;
 var edge_rect = [];
