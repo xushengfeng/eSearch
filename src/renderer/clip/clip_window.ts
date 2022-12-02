@@ -1303,7 +1303,7 @@ var point_color_span_list = document.querySelectorAll("#point_color > span") as 
 
 var mouse_bar_el = document.getElementById("mouse_bar");
 // 鼠标跟随栏
-function mouse_bar(final_rect: rect, x, y) {
+function mouse_bar(final_rect: rect, x: number, y: number) {
     var x0 = final_rect[0],
         x1 = final_rect[0] + final_rect[2],
         y0 = final_rect[1],
@@ -1442,9 +1442,8 @@ document.onmousemove = (e) => {
     if (!right_key) {
         if (clip_canvas.offsetWidth != 0) {
             // 鼠标位置文字
-            var c_rect = (<HTMLElement>e.target).getBoundingClientRect();
-            var c_x = e.offsetX + c_rect.left;
-            var c_y = e.offsetY + c_rect.top;
+            let c_x = (e.clientX - editor_p.x * editor_p.zoom) / editor_p.zoom;
+            let c_y = (e.clientY - editor_p.y * editor_p.zoom) / editor_p.zoom;
             now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
             // 鼠标跟随栏
             mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
