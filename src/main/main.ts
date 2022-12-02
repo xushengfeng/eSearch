@@ -650,12 +650,7 @@ function full_screen(img_path?: string) {
         let have_main = false;
         let p = screen.getCursorScreenPoint();
         for (let i of x) {
-            if (
-                i.x <= p.x &&
-                p.x <= i.x + i.width * i.scaleFactor &&
-                i.y <= p.y &&
-                p.y <= i.y + i.height * i.scaleFactor
-            ) {
+            if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
                 i["main"] = true;
                 have_main = true;
                 break;
