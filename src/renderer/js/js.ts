@@ -1248,7 +1248,7 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
                 console.log(err);
 
                 editor.push(t("识别错误，请打开开发者工具查看详细错误"));
-                ipcRenderer.send("main_win", "ocr", t("ocr识别错误"));
+                ipcRenderer.send("main_win", "ocr", err);
             }
         });
     }
