@@ -60,6 +60,8 @@ document.getElementById("系统语言").onclick = () => {
     } else {
         (<HTMLInputElement>document.getElementById("语言")).value = navigator.language.split("-")[0];
     }
+    lan((<HTMLInputElement>document.getElementById("语言")).value);
+    document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 document.getElementById("语言").onclick = () => {
     lan((<HTMLInputElement>document.getElementById("语言")).value);
