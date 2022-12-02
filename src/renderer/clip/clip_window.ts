@@ -153,13 +153,23 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     change_right_bar(false);
     ratio = window.devicePixelRatio;
 });
+let now_mouse_e: MouseEvent = null;
+document.addEventListener("mousemove", (e) => {
+    now_mouse_e = e;
+});
 
 document.onwheel = (e) => {
     document.body.style.background = "#fff";
     if (e.ctrlKey) {
         let z = zoom_w - e.deltaY;
         zoom_w = z;
-        set_editor_p(z / main_canvas.width, 0, 0);
+        let ozoom = editor_p.zoom,
+            nzoom = z / main_canvas.width;
+        let dx = now_mouse_e.clientX - editor_p.x * ozoom,
+            dy = now_mouse_e.clientY - editor_p.y * ozoom;
+        let x = now_mouse_e.clientX - dx * (nzoom / ozoom),
+            y = now_mouse_e.clientY - dy * (nzoom / ozoom);
+        set_editor_p(nzoom, x / nzoom, y / nzoom);
     }
 };
 
@@ -168,12 +178,15 @@ function set_editor_p(zoom: number, x: number, y: number) {
     let t = [];
     if (zoom != null) {
         t.push(`scale(${zoom})`);
+        editor_p.zoom = zoom;
     }
     if (x != null) {
         t.push(`translateX(${x}px)`);
+        editor_p.x = x;
     }
     if (y != null) {
-        t.push(`translateX(${y}px)`);
+        t.push(`translateY(${y}px)`);
+        editor_p.y = y;
     }
     editor.style.transform = t.join(" ");
 }
