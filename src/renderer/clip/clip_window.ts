@@ -90,14 +90,14 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
     for (let i of data) {
         screens_l.push(i);
-        i.height = i.height * i.scaleFactor;
-        i.width = i.width * i.scaleFactor;
+        let h = i.height * i.scaleFactor;
+        let w = i.width * i.scaleFactor;
         if (i) {
             if (i.main) {
                 set_screen(i);
             }
             let c = document.createElement("canvas");
-            to_canvas(c, i.image, i.width, i.height);
+            to_canvas(c, i.image, w, h);
             let div = document.createElement("div");
             div.append(c);
             side_bar_screens.append(div);
@@ -144,11 +144,13 @@ function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number)
 }
 
 function set_screen(i) {
-    main_canvas.width = clip_canvas.width = draw_canvas.width = i.width;
-    main_canvas.height = clip_canvas.height = draw_canvas.height = i.height;
+    let w = i.width * i.scaleFactor;
+    let h = i.height * i.scaleFactor;
+    main_canvas.width = clip_canvas.width = draw_canvas.width = w;
+    main_canvas.height = clip_canvas.height = draw_canvas.height = h;
     editor.style.transform = `scale(${1 / i.scaleFactor})`;
-    zoom_w = i.width / i.scaleFactor;
-    to_canvas(main_canvas, i.image, i.width, i.height);
+    zoom_w = i.width;
+    to_canvas(main_canvas, i.image, w, h);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     if (记忆框选)
         if (记忆框选值?.[i.id]?.[2]) {
