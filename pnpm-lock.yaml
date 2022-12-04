@@ -14,15 +14,15 @@ specifiers:
   hex-to-css-filter: ^5.4.0
   hotkeys-js: ^3.10.0
   jsqr: ^1.4.0
-  node-screenshots: ^0.0.12
-  node-screenshots-darwin-arm64: 0.0.12
-  node-screenshots-darwin-x64: 0.0.12
-  node-screenshots-linux-x64-gnu: 0.0.12
-  node-screenshots-linux-x64-musl: 0.0.12
-  node-screenshots-win32-arm64-msvc: 0.0.12
-  node-screenshots-win32-ia32-msvc: 0.0.12
-  node-screenshots-win32-x64-msvc: 0.0.12
-  onnxruntime-node: ^1.12.1
+  node-screenshots: ^0.0.14
+  node-screenshots-darwin-arm64: 0.0.14
+  node-screenshots-darwin-x64: 0.0.14
+  node-screenshots-linux-x64-gnu: 0.0.14
+  node-screenshots-linux-x64-musl: 0.0.14
+  node-screenshots-win32-arm64-msvc: 0.0.14
+  node-screenshots-win32-ia32-msvc: 0.0.14
+  node-screenshots-win32-x64-msvc: 0.0.14
+  onnxruntime-node: ^1.13.1
   opencv.js: ^1.2.1
   typescript: ^4.8.4
   uiohook-napi: ^1.5.0
@@ -37,20 +37,20 @@ dependencies:
   hex-to-css-filter: 5.4.0
   hotkeys-js: 3.10.0
   jsqr: 1.4.0
-  node-screenshots: 0.0.12
-  onnxruntime-node: 1.12.1
+  node-screenshots: 0.0.14
+  onnxruntime-node: 1.13.1
   opencv.js: 1.2.1
   uiohook-napi: 1.5.0
   wordsninja: 1.0.0
 
 optionalDependencies:
-  node-screenshots-darwin-arm64: 0.0.12
-  node-screenshots-darwin-x64: 0.0.12
-  node-screenshots-linux-x64-gnu: 0.0.12
-  node-screenshots-linux-x64-musl: 0.0.12
-  node-screenshots-win32-arm64-msvc: 0.0.12
-  node-screenshots-win32-ia32-msvc: 0.0.12
-  node-screenshots-win32-x64-msvc: 0.0.12
+  node-screenshots-darwin-arm64: 0.0.14
+  node-screenshots-darwin-x64: 0.0.14
+  node-screenshots-linux-x64-gnu: 0.0.14
+  node-screenshots-linux-x64-musl: 0.0.14
+  node-screenshots-win32-arm64-msvc: 0.0.14
+  node-screenshots-win32-ia32-msvc: 0.0.14
+  node-screenshots-win32-x64-msvc: 0.0.14
 
 devDependencies:
   '@electron-toolkit/tsconfig': 1.0.1_@types+node@18.8.4
@@ -2610,8 +2610,8 @@ packages:
     resolution: {integrity: sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==}
     dev: true
 
-  /node-screenshots-darwin-arm64/0.0.12:
-    resolution: {integrity: sha512-9Y1WonLGcQ78YutZJfNEa/z85AXSY40YQ4wzSrNrh7v8laT13m8CeeWmFcr/qedhjhQunqtOXj1L9UGiruLkDQ==}
+  /node-screenshots-darwin-arm64/0.0.14:
+    resolution: {integrity: sha512-9AqVOIzvGqKhjPHqTqNDyx5R/HGKZFAfK1vTeyIoLjpB4M39l2NiVSvQIAmFwMuUOZRkH1SGrIK+dPg7zjkgyQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -2619,8 +2619,8 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots-darwin-x64/0.0.12:
-    resolution: {integrity: sha512-uh4ULPhUAIrfR5yHTxJ5UX11osSg9MjTZbm+7LMhFtiBw3lG67aCq93aTo2IR66OecZLgiH5bl1HdKgUh5SsGw==}
+  /node-screenshots-darwin-x64/0.0.14:
+    resolution: {integrity: sha512-FpIExIC39vpRe3yQ2UVxzxay0g2CHIMU3Cpz+hABOBBwJUhAOiCtHkT3VNE4h5XvLP8Ia1dEjf6tBJh8pJEjhg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -2628,8 +2628,8 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots-linux-x64-gnu/0.0.12:
-    resolution: {integrity: sha512-KP/uX7rpnQ1wrtSwu8YpvrWqRDD4WGyHusQiI2zctuPiaHjfqM0ODn3G3Jqq/vRGCT3slvRc+GI45C8Mwwc3eg==}
+  /node-screenshots-linux-x64-gnu/0.0.14:
+    resolution: {integrity: sha512-Hj6W5xiqt1Hr+c26fBLwm4APPfadyW8kdeufIV5javMUhj8qui2VPuIHLrqFFvVS5kT6ouKI/F3ZzSmL/lVyiA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -2638,8 +2638,8 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots-linux-x64-musl/0.0.12:
-    resolution: {integrity: sha512-HL2N56p4hqlJ+7ls4o59MREZ74R3XhZCl5w/UXu3I5pzs1X8/f8yWFkGqvWQ2b7W9HvdBCbTkRFd9K+HsDb94A==}
+  /node-screenshots-linux-x64-musl/0.0.14:
+    resolution: {integrity: sha512-0vJrK4rShKw2JO5j5spqTOnicK6vU1uSPMIsUQGIZdd8CrX7tRTZbKvIIORpVv0ml2J+ywIb1HOdMsqWqK0iSw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -2648,8 +2648,8 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots-win32-arm64-msvc/0.0.12:
-    resolution: {integrity: sha512-J6ZVJGFD+8YTKoU3+gyCBNEXdZW5g7a2Eg8vdNrifv/4sHxI306V14OIp1U246BFO/Q2f3YwV+6Gmz94zydt2A==}
+  /node-screenshots-win32-arm64-msvc/0.0.14:
+    resolution: {integrity: sha512-ja4Dp+OdKJhglVCZCBYUtGx2hvj80OnHXg2ceYhfa6VHOuZHP2UBl/kkisk+DQt2cGYRclf4PZnjy/GCS6Aalg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
@@ -2657,8 +2657,8 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots-win32-ia32-msvc/0.0.12:
-    resolution: {integrity: sha512-aEVAxUJtGhQj+D36+7sC8sR0cZy1+gXBQq0lYz1gaprK/lNA4nWPbFLJfpAgBp6B6Sayz3ylsb11HGDAC9HKmA==}
+  /node-screenshots-win32-ia32-msvc/0.0.14:
+    resolution: {integrity: sha512-triEn3343nbv34ttgq3UfZQ0j4GpzaF48tZV05gKtE/J0mcKp7hQKuRDnk/n8ChwO2czPTlvF/QF0UNjI9tSVQ==}
     engines: {node: '>= 10'}
     cpu: [ia32]
     os: [win32]
@@ -2666,8 +2666,8 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots-win32-x64-msvc/0.0.12:
-    resolution: {integrity: sha512-vN2qoYG0HMkzKfNwzvxEtXyvsrgsZISMPPenM6RQkn8Vf/PVGSWKMtzoq1DCZtG8wAfXozGHu877FNUWNSi+zw==}
+  /node-screenshots-win32-x64-msvc/0.0.14:
+    resolution: {integrity: sha512-ZmZ3QTI1/cTZiww3ECLUGJTES4T7+CLGu6LintKEPVxFxIuzQzigOyAfMXJSggrTII9N5c4enPhHS9hgoxtnvQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -2675,17 +2675,17 @@ packages:
     dev: false
     optional: true
 
-  /node-screenshots/0.0.12:
-    resolution: {integrity: sha512-ocLTxJ4ix0uY7WUjeyURwOEEqB3NwVkCJdhbGYoxqrEgwchaCG6UjLyabfQfRE5ZiRQoai6HsRlo3Np8h8SxHg==}
+  /node-screenshots/0.0.14:
+    resolution: {integrity: sha512-7i+Ogax/nlKuC3QJR9qzlwgSNmvhQnFW9CjessBON2bEWlel0lXNk76ej9RLmq5kIi1V5hJm5vl5bUArfUBMog==}
     engines: {node: '>= 10'}
     optionalDependencies:
-      node-screenshots-darwin-arm64: 0.0.12
-      node-screenshots-darwin-x64: 0.0.12
-      node-screenshots-linux-x64-gnu: 0.0.12
-      node-screenshots-linux-x64-musl: 0.0.12
-      node-screenshots-win32-arm64-msvc: 0.0.12
-      node-screenshots-win32-ia32-msvc: 0.0.12
-      node-screenshots-win32-x64-msvc: 0.0.12
+      node-screenshots-darwin-arm64: 0.0.14
+      node-screenshots-darwin-x64: 0.0.14
+      node-screenshots-linux-x64-gnu: 0.0.14
+      node-screenshots-linux-x64-musl: 0.0.14
+      node-screenshots-win32-arm64-msvc: 0.0.14
+      node-screenshots-win32-ia32-msvc: 0.0.14
+      node-screenshots-win32-x64-msvc: 0.0.14
     dev: false
 
   /normalize-url/2.0.1:
@@ -2735,15 +2735,15 @@ packages:
       mimic-fn: 2.1.0
     dev: false
 
-  /onnxruntime-common/1.12.1:
-    resolution: {integrity: sha512-tWr/9nkQtzc61SH6zSE+3j2/HWBLgVcrXqS5HqQFitJ6hYNmNDcXwV2LYtFDH6CB9Qg987BMMv0ldaDUdB78VA==}
+  /onnxruntime-common/1.13.1:
+    resolution: {integrity: sha512-HtfNeuZ8p47avtZR2mGldXA728keJj46w/6yy5DQTLA9zmpjXF/iJdS8f9yAtyWbSGw3s95DfBPWw2myhA1r0A==}
     dev: false
 
-  /onnxruntime-node/1.12.1:
-    resolution: {integrity: sha512-H06kB4tRcZf93YDipL2nG5Oqs8WGhZzpWMgWUhH8r6ciGTZ85JrZpHuqRIabTS6Rls/IjbnBcrPXYPZnSgXqkQ==}
+  /onnxruntime-node/1.13.1:
+    resolution: {integrity: sha512-HHwxs13dSCJX+iqr90p8WGlG54XTxNG6lKXhUC4xu4r95GFjLaA6JxNUjeuGQ6T6E06hCy61lZMdH5MTcBNLTA==}
     os: [win32, darwin, linux]
     dependencies:
-      onnxruntime-common: 1.12.1
+      onnxruntime-common: 1.13.1
     dev: false
 
   /opencv.js/1.2.1:

@@ -24,8 +24,8 @@
     "hex-to-css-filter": "^5.4.0",
     "hotkeys-js": "^3.10.0",
     "jsqr": "^1.4.0",
-    "node-screenshots": "^0.0.12",
-    "onnxruntime-node": "^1.12.1",
+    "node-screenshots": "^0.0.14",
+    "onnxruntime-node": "^1.13.1",
     "opencv.js": "^1.2.1",
     "uiohook-napi": "^1.5.0",
     "wordsninja": "^1.0.0"
@@ -41,13 +41,13 @@
     "vite": "^3.1.7"
   },
   "optionalDependencies": {
-    "node-screenshots-darwin-arm64": "0.0.12",
-    "node-screenshots-darwin-x64": "0.0.12",
-    "node-screenshots-linux-x64-gnu": "0.0.12",
-    "node-screenshots-linux-x64-musl": "0.0.12",
-    "node-screenshots-win32-arm64-msvc": "0.0.12",
-    "node-screenshots-win32-ia32-msvc": "0.0.12",
-    "node-screenshots-win32-x64-msvc": "0.0.12"
+    "node-screenshots-darwin-arm64": "0.0.14",
+    "node-screenshots-darwin-x64": "0.0.14",
+    "node-screenshots-linux-x64-gnu": "0.0.14",
+    "node-screenshots-linux-x64-musl": "0.0.14",
+    "node-screenshots-win32-arm64-msvc": "0.0.14",
+    "node-screenshots-win32-ia32-msvc": "0.0.14",
+    "node-screenshots-win32-x64-msvc": "0.0.14"
   },
   "build": {
     "appId": "com.esearch.app",
