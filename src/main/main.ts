@@ -789,11 +789,15 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                 })
                 .then(async (x) => {
                     if (x.filePath) {
+                        let fpath = x.filePath;
+                        if (!fpath.includes(".")) {
+                            fpath += `.${arg.格式}`;
+                        }
                         const { createFFmpeg, fetchFile } = require("@ffmpeg/ffmpeg");
                         const ffmpeg = createFFmpeg({ log: false });
                         await ffmpeg.load();
                         let i_fn = path.basename(arg.源文件),
-                            o_fn = path.basename(x.filePath);
+                            o_fn = path.basename(fpath);
                         ffmpeg.setProgress(({ ratio }) => {
                             if (!recorder.isDestroyed()) {
                                 recorder.webContents.send("ff", "p", ratio);
@@ -824,9 +828,9 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                                 o_fn
                             );
                         }
-                        await fs.promises.writeFile(x.filePath, ffmpeg.FS("readFile", o_fn));
-                        noti(x.filePath);
-                        store.set("保存.保存路径.视频", path.dirname(x.filePath));
+                        await fs.promises.writeFile(fpath, ffmpeg.FS("readFile", o_fn));
+                        noti(fpath);
+                        store.set("保存.保存路径.视频", path.dirname(fpath));
                         ffmpeg.exit();
                     } else {
                         new Notification({
