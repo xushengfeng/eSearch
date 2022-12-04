@@ -68,7 +68,7 @@ function get_time() {
         let h = Math.trunc(m / 60);
         document.getElementById("time").innerText = `${h == 0 ? "" : `${h}:`}${m - 60 * h}:${String(
             s - 60 * m
-        ).padStart(2, 0)}`;
+        ).padStart(2, "0")}`;
     }
 }
 
@@ -117,6 +117,7 @@ ipcRenderer.on("record", async (event, t, sourceId, r) => {
                 stream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
                     video: {
+                        // @ts-ignore
                         mandatory: {
                             chromeMediaSource: "desktop",
                             chromeMediaSourceId: sourceId,
@@ -154,7 +155,7 @@ ipcRenderer.on("record", async (event, t, sourceId, r) => {
                     const path = require("path");
                     let file_name = String(new Date().getTime());
                     tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
-                    fs.writeFile(tmp_path, Buffer.from(reader.result), (err) => {
+                    fs.writeFile(tmp_path, Buffer.from(reader.result as string), (err) => {
                         if (!err) {
                             show_control();
                         }
@@ -259,8 +260,10 @@ function resize() {
     let k1 = c.h / c.w;
     if (k0 >= k1) {
         console.log(p.w, c.w);
+        // @ts-ignore
         document.getElementById("v_p").style.zoom = p.w / c.w;
     } else {
+        // @ts-ignore
         document.getElementById("v_p").style.zoom = p.h / c.h;
     }
 }
@@ -363,7 +366,10 @@ function t_format(x) {
     let s = Math.trunc(t / 1000);
     let m = Math.trunc(s / 60);
     let h = Math.trunc(m / 60);
-    return `${h == 0 ? "" : `${h}:`}${m - 60 * h}:${String(s - 60 * m).padStart(2, 0)}.${String(t % 1000).slice(0, 1)}`;
+    return `${h == 0 ? "" : `${h}:`}${m - 60 * h}:${String(s - 60 * m).padStart(2, "0")}.${String(t % 1000).slice(
+        0,
+        1
+    )}`;
 }
 
 document.getElementById("v_play").onclick = () => {
