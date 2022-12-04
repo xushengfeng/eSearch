@@ -161,18 +161,6 @@ function set_screen(i) {
     now_screen_id = i.id;
 }
 
-document.onmouseleave = document.onmouseenter = get_mouse_screen;
-
-function get_mouse_screen() {
-    let p = ipcRenderer.sendSync("clip_main_b", "get_mouse");
-    console.log(p);
-    for (let i of screens_l) {
-        if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
-            set_screen(i);
-        }
-    }
-}
-
 let now_mouse_e: MouseEvent = null;
 document.addEventListener("mousemove", (e) => {
     now_mouse_e = e;
