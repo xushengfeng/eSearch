@@ -5,6 +5,23 @@ import "../../../lib/template2.js";
 import pause_svg from "../assets/icons/pause.svg";
 import recume_svg from "../assets/icons/recume.svg";
 
+const mic_el = document.getElementById("mic") as HTMLInputElement;
+const camera_el = document.getElementById("camera") as HTMLInputElement;
+const save_el = document.getElementById("save") as HTMLButtonElement;
+const 格式_el = document.getElementById("格式") as HTMLInputElement;
+const 码率_el = document.getElementById("码率") as HTMLInputElement;
+const 帧率_el = document.getElementById("帧率") as HTMLInputElement;
+const 其他参数_el = document.getElementById("其他参数") as HTMLInputElement;
+const t_start_el: time_el = document.getElementById("t_start") as unknown as time_el;
+const t_end_el = document.getElementById("t_end") as unknown as time_el;
+const jdt_el = document.getElementById("jdt") as unknown as time_el;
+
+type time_el = {
+    value: number;
+    min: number;
+    max: number;
+} & HTMLElement;
+
 const Store = require("electron-store");
 var store = new Store();
 
@@ -96,7 +113,7 @@ ipcRenderer.on("record", async (event, t, sourceId, r) => {
                     video: false,
                 });
             } else {
-                document.getElementById("mic").style.display = "none";
+                mic_el.style.display = "none";
             }
             if (!camera) document.getElementById("camera").style.display = "none";
             navigator.mediaDevices.ondevicechange = () => {
@@ -198,14 +215,13 @@ async function mic_stream(v) {
     for (let i of audio_stream.getAudioTracks()) {
         i.enabled = v;
     }
-    if (v != document.getElementById("mic").checked) document.getElementById("mic").checked = v;
+    if (v != mic_el.checked) mic_el.checked = v;
 }
 
-document.getElementById("mic").onclick = () => {
+mic_el.onclick = () => {
     try {
-        mic_stream(document.getElementById("mic").checked);
-        if (store.get("录屏.音频.记住开启状态"))
-            store.set("录屏.音频.默认开启", document.getElementById("mic").checked);
+        mic_stream(mic_el.checked);
+        if (store.get("录屏.音频.记住开启状态")) store.set("录屏.音频.默认开启", mic_el.checked);
     } catch (e) {
         console.error(e);
     }
@@ -235,17 +251,16 @@ async function camera_stream_f(v) {
 if (store.get("录屏.摄像头.默认开启")) {
     try {
         camera_stream_f(true);
-        document.getElementById("camera").checked = true;
+        camera_el.checked = true;
     } catch (e) {
         console.error(e);
     }
 }
 
-document.getElementById("camera").onclick = () => {
+camera_el.onclick = () => {
     try {
-        camera_stream_f(document.getElementById("camera").checked);
-        if (store.get("录屏.摄像头.记住开启状态"))
-            store.set("录屏.摄像头.默认开启", document.getElementById("camera").checked);
+        camera_stream_f(camera_el.checked);
+        if (store.get("录屏.摄像头.记住开启状态")) store.set("录屏.摄像头.默认开启", camera_el.checked);
     } catch (e) {
         console.error(e);
     }
@@ -288,8 +303,8 @@ var editting = false;
 function show_control() {
     editting = true;
     document.getElementById("v_play").querySelector("img").src = recume_svg;
-    if (document.getElementById("mic").checked) mic_stream(false);
-    if (document.getElementById("camera").checked) camera_stream_f(false);
+    if (mic_el.checked) mic_stream(false);
+    if (camera_el.checked) camera_stream_f(false);
     document.getElementById("s").className = "s_show";
     document.getElementById("record_b").style.display = "none";
     document.getElementById("m").style.backgroundColor = "var(--bg)";
@@ -303,11 +318,11 @@ function show_control() {
     document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight =
         rect[3] * ratio + "px";
     clip_v();
-    document.getElementById("save").disabled = false;
-    document.getElementById("格式").value = store.get("录屏.转换.格式");
-    document.getElementById("码率").value = store.get("录屏.转换.码率");
-    document.getElementById("帧率").value = store.get("录屏.转换.帧率");
-    document.getElementById("其他参数").value = store.get("录屏.转换.其他");
+    save_el.disabled = false;
+    格式_el.value = store.get("录屏.转换.格式");
+    码率_el.value = store.get("录屏.转换.码率");
+    帧率_el.value = store.get("录屏.转换.帧率");
+    其他参数_el.value = store.get("录屏.转换.其他");
     if (store.get("录屏.转换.自动转换")) {
         save();
     } else {
@@ -322,39 +337,25 @@ function show_control() {
 var video = document.querySelector("video");
 
 function clip_v() {
-    document.getElementById("t_start").value = 0;
+    t_start_el.value = 0;
     document.getElementById("b_t_end").click();
 
-    document.getElementById("t_t").innerText = t_format(
-        document.getElementById("t_end").value - document.getElementById("t_start").value
-    );
+    document.getElementById("t_t").innerText = t_format(t_end_el.value - t_start_el.value);
 
     document.getElementById("t_nt").innerText = t_format(0);
 }
 
-document.getElementById("t_start").oninput = () => {
-    video.currentTime =
-        (document.getElementById("t_end").min = document.getElementById("jdt").min =
-            document.getElementById("t_start").value) / 1000;
-    document.getElementById("t_t").innerText = t_format(
-        document.getElementById("t_end").value - document.getElementById("t_start").value
-    );
+t_start_el.oninput = () => {
+    video.currentTime = (t_end_el.min = jdt_el.min = t_start_el.value) / 1000;
+    document.getElementById("t_t").innerText = t_format(t_end_el.value - t_start_el.value);
 };
-document.getElementById("t_end").oninput = () => {
-    video.currentTime =
-        (document.getElementById("t_start").max = document.getElementById("jdt").max =
-            document.getElementById("t_end").value) / 1000;
-    document.getElementById("t_t").innerText = t_format(
-        document.getElementById("t_end").value - document.getElementById("t_start").value
-    );
+t_end_el.oninput = () => {
+    video.currentTime = (t_start_el.max = jdt_el.max = t_end_el.value) / 1000;
+    document.getElementById("t_t").innerText = t_format(t_end_el.value - t_start_el.value);
 };
 
 document.getElementById("b_t_end").onclick = () => {
-    document.getElementById("jdt").max =
-        document.getElementById("t_end").value =
-        document.getElementById("t_start").max =
-        document.getElementById("t_end").max =
-            time_l[time_l.length - 1] - time_l[0];
+    jdt_el.max = t_end_el.value = t_start_el.max = t_end_el.max = time_l[time_l.length - 1] - time_l[0];
 };
 
 /**
@@ -390,29 +391,27 @@ video.onplay = () => {
 };
 
 function video_play() {
-    video.currentTime = document.getElementById("t_start").value / 1000;
+    video.currentTime = t_start_el.value / 1000;
     video.play();
 }
 
 video.ontimeupdate = () => {
     if (!editting) return;
-    document.getElementById("t_nt").innerText = t_format(
-        video.currentTime * 1000 - document.getElementById("t_start").value
-    );
-    if (video.currentTime * 1000 > document.getElementById("t_end").value) {
+    document.getElementById("t_nt").innerText = t_format(video.currentTime * 1000 - t_start_el.value);
+    if (video.currentTime * 1000 > t_end_el.value) {
         video.pause();
         document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
     }
-    document.getElementById("jdt").value = video.currentTime * 1000;
+    jdt_el.value = video.currentTime * 1000;
 };
 
-document.getElementById("jdt").oninput = () => {
-    video.currentTime = document.getElementById("jdt").value / 1000;
+jdt_el.oninput = () => {
+    video.currentTime = jdt_el.value / 1000;
 };
 
 video.onended = () => {
     document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
-    document.getElementById("jdt").value = document.getElementById("jdt").max;
+    jdt_el.value = jdt_el.max;
 };
 
 function add_types() {
@@ -437,23 +436,22 @@ function add_types() {
     for (let i of types) {
         t += `<option value="${i}">${i}</option>`;
     }
-    document.getElementById("格式").innerHTML = t;
+    格式_el.innerHTML = t;
 }
 
 function save() {
     let t = "";
-    if (document.getElementById("码率").value) t += `-b:v ${document.getElementById("码率").value * 1000}k `;
-    if (document.getElementById("帧率").value) t += `-r ${document.getElementById("帧率").value} `;
-    if (document.getElementById("其他参数").value) t += `${document.getElementById("其他参数").value} `;
-    t += `-ss ${document.getElementById("t_start").value / 1000} `;
-    if (document.getElementById("t_end").value != (time_l[time_l.length - 1] - time_l[0]) / 1000)
-        t += `-to ${document.getElementById("t_end").value / 1000} `;
-    let 格式 = document.getElementById("格式").value;
+    if (码率_el.value) t += `-b:v ${Number(码率_el.value) * 1000}k `;
+    if (帧率_el.value) t += `-r ${帧率_el.value} `;
+    if (其他参数_el.value) t += `${其他参数_el.value} `;
+    t += `-ss ${t_start_el.value / 1000} `;
+    if (t_end_el.value != (time_l[time_l.length - 1] - time_l[0]) / 1000) t += `-to ${t_end_el.value / 1000} `;
+    let 格式 = 格式_el.value;
     console.log(t);
-    store.set("录屏.转换.格式", document.getElementById("格式").value);
-    store.set("录屏.转换.码率", Number(document.getElementById("码率").value));
-    store.set("录屏.转换.帧率", Number(document.getElementById("帧率").value));
-    store.set("录屏.转换.其他", document.getElementById("其他参数").value);
+    store.set("录屏.转换.格式", 格式_el.value);
+    store.set("录屏.转换.码率", Number(码率_el.value));
+    store.set("录屏.转换.帧率", Number(帧率_el.value));
+    store.set("录屏.转换.其他", 其他参数_el.value);
     ipcRenderer.send("record", "ff", { 源文件: tmp_path, 参数: t.split(" "), 格式 });
     // ipcRenderer.send("record", "close");
 }
