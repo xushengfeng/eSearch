@@ -264,6 +264,8 @@ function capturer(screen_list: Screenshots[]) {
         for (let s of screen.getAllDisplays()) {
             for (let ss of x) {
                 if (ss.id == s.id) {
+                    ss.x = s.bounds.x;
+                    ss.y = s.bounds.y;
                     ss.height = s.size.height;
                     ss.width = s.size.width;
                     ss.scaleFactor = s.scaleFactor;
