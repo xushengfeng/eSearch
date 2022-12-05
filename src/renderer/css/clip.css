@@ -322,10 +322,12 @@ body {
 
 #main_photo {
     z-index: 8;
+    image-rendering: pixelated;
 }
 #clip_photo {
     z-index: 10;
     cursor: crosshair;
+    image-rendering: pixelated;
 }
 #draw_photo_top {
     z-index: 9;
