@@ -197,6 +197,9 @@ function set_editor_p(zoom: number, x: number, y: number) {
         editor_p.y = y;
     }
     editor.style.transform = t.join(" ");
+    watting_el.style.transform = t.join(" ");
+    watting_el.style.left = final_rect[0] * editor_p.zoom + "px";
+    watting_el.style.top = final_rect[1] * editor_p.zoom + "px";
 }
 
 var edge_init = false;
@@ -395,12 +398,14 @@ function tool_ocr_f() {
         }
     });
 }
+
+const watting_el = document.getElementById("waiting");
 function scan_line() {
-    document.getElementById("waiting").style.display = "block";
-    document.getElementById("waiting").style.left = final_rect[0] / ratio + "px";
-    document.getElementById("waiting").style.top = final_rect[1] / ratio + "px";
-    document.getElementById("waiting").style.width = final_rect[2] / ratio + "px";
-    document.getElementById("waiting").style.height = final_rect[3] / ratio + "px";
+    watting_el.style.display = "block";
+    watting_el.style.left = final_rect[0] * editor_p.zoom + "px";
+    watting_el.style.top = final_rect[1] * editor_p.zoom + "px";
+    watting_el.style.width = final_rect[2] + "px";
+    watting_el.style.height = final_rect[3] + "px";
     (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[0]).beginElement();
     (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[1]).beginElement();
 }

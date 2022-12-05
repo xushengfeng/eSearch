@@ -444,6 +444,7 @@ body {
     display: none;
     z-index: 11;
     cursor: progress;
+    transform-origin: top left;
 }
 
 #loading {
