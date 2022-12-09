@@ -773,7 +773,7 @@ function create_recorder_window(rect, id: string) {
     function mouse() {
         if (clip_window.isDestroyed()) return;
         let n_xy = screen.getCursorScreenPoint();
-        clip_window.webContents.send("record", "mouse", { x: n_xy.x, y: n_xy.y });
+        clip_window.webContents.send("record", "mouse", { x: n_xy.x - s.bounds.x, y: n_xy.y - s.bounds.y });
         setTimeout(mouse, 10);
     }
     if (store.get("录屏.提示.光标.开启")) mouse();
