@@ -698,17 +698,18 @@ var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
 var o_rect;
 function create_recorder_window(rect, id: string) {
     o_rect = rect;
-    let ratio = screen.getPrimaryDisplay().scaleFactor;
+    let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    let ratio = s.scaleFactor;
     let p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
     rect = rect.map((v) => v / ratio);
-    let hx = rect[0] + rect[2] / 2,
-        hy = rect[1] + rect[3] / 2,
+    let hx = s.bounds.x + rect[0] + rect[2] / 2,
+        hy = s.bounds.y + rect[1] + rect[3] / 2,
         w = 216,
         h = 24,
-        sw = screen.getPrimaryDisplay().bounds.width * ratio,
-        sh = screen.getPrimaryDisplay().bounds.height * ratio;
-    let x = p.x <= hx ? rect[0] : rect[0] + rect[2] - w,
-        y = p.y <= hy ? rect[1] - h - 8 : rect[1] + rect[3] + 8;
+        sw = s.bounds.x + s.bounds.width * ratio,
+        sh = s.bounds.y + s.bounds.height * ratio;
+    let x = p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w,
+        y = p.y <= hy ? s.bounds.y + rect[1] - h - 8 : s.bounds.y + rect[1] + rect[3] + 8;
     x = x < 0 ? 0 : x;
     x = x + w > sw ? sw - w : x;
     y = y < 0 ? 0 : y;
