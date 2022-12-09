@@ -530,7 +530,7 @@ const recorder_rect_el = document.getElementById("recorder_rect");
 const recorder_mouse_el = document.getElementById("mouse_c");
 
 function tool_record_f() {
-    ipcRenderer.send("clip_main_b", "record", final_rect);
+    ipcRenderer.send("clip_main_b", "record", { rect: final_rect, id: now_screen_id });
     let l = [
         tool_bar,
         draw_bar,
