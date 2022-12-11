@@ -1942,6 +1942,7 @@ function free_shadow() {
         blur: shadow_blur,
         color: free_color,
     });
+    store.set(`图像编辑.形状属性.${mode}.shadow`, shadow_blur);
 }
 
 function free_draw_cursor() {
@@ -1975,10 +1976,13 @@ function free_init() {
     if (free_spray_el.checked) mode = "spray";
     let sc = store.get(`图像编辑.形状属性.${mode}.sc`);
     let sw = store.get(`图像编辑.形状属性.${mode}.sw`);
+    let sb = store.get(`图像编辑.形状属性.${mode}.shadow`);
     if (sc) free_color = sc;
     if (sw) free_width = sw;
+    if (sb) shadow_blur = sb;
     if (sc) change_color({ stroke: sc }, false, true);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
+    if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
 }
 
 // 几何
