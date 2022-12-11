@@ -1886,7 +1886,7 @@ var mode: "free" | "eraser" | "spray";
 var pencil_el = <HTMLInputElement>document.getElementById("draw_free_pencil");
 pencil_el.oninput = () => {
     fabric_canvas.isDrawingMode = pencil_el.checked;
-    get_f_object_v();
+    free_init();
     if (pencil_el.checked) {
         free_i_els[1].checked = false;
         free_i_els[2].checked = false;
@@ -1904,7 +1904,7 @@ pencil_el.oninput = () => {
 var eraser_el = <HTMLInputElement>document.getElementById("draw_free_eraser");
 eraser_el.oninput = () => {
     fabric_canvas.isDrawingMode = eraser_el.checked;
-    get_f_object_v();
+    free_init();
     if (eraser_el.checked) {
         free_i_els[0].checked = false;
         free_i_els[2].checked = false;
@@ -1920,7 +1920,7 @@ eraser_el.oninput = () => {
 var free_spray_el = <HTMLInputElement>document.getElementById("draw_free_spray");
 free_spray_el.oninput = () => {
     fabric_canvas.isDrawingMode = free_spray_el.checked;
-    get_f_object_v();
+    free_init();
     if (free_spray_el.checked) {
         free_i_els[0].checked = false;
         free_i_els[1].checked = false;
@@ -1945,10 +1945,6 @@ function free_shadow() {
 }
 
 function free_draw_cursor() {
-    mode = "free";
-    if (pencil_el.checked) mode = "free";
-    if (eraser_el.checked) mode = "eraser";
-    if (free_spray_el.checked) mode = "spray";
     if (mode == "free" || mode == "eraser") {
         var svg_w = free_width,
             h_w = svg_w / 2,
@@ -1970,6 +1966,19 @@ function free_draw_cursor() {
     } else {
         fabric_canvas.freeDrawingCursor = `auto`;
     }
+}
+
+function free_init() {
+    mode = "free";
+    if (pencil_el.checked) mode = "free";
+    if (eraser_el.checked) mode = "eraser";
+    if (free_spray_el.checked) mode = "spray";
+    let sc = store.get(`图像编辑.形状属性.${mode}.sc`);
+    let sw = store.get(`图像编辑.形状属性.${mode}.sw`);
+    if (sc) free_color = sc;
+    if (sw) free_width = sw;
+    if (sc) change_color({ stroke: sc }, false, true);
+    if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
 }
 
 // 几何
