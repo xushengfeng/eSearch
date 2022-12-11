@@ -1327,10 +1327,14 @@ var ding_windows_l = { dock: [0, 0, 10, 50] };
 var ding_window: BrowserWindow;
 function create_ding_window(x: number, y: number, w: number, h: number, img) {
     if (Object.keys(ding_windows_l).length == 1) {
+        let w = 0,
+            h = 0;
+        for (let i of screen.getAllDisplays()) {
+            w = Math.max(i.bounds.x + i.bounds.width, w);
+            h = Math.max(i.bounds.y + i.bounds.height, h);
+        }
         ding_window = new BrowserWindow({
             icon: the_icon,
-            simpleFullscreen: true,
-            fullscreen: true,
             transparent: true,
             frame: false,
             alwaysOnTop: true,
@@ -1342,6 +1346,10 @@ function create_ding_window(x: number, y: number, w: number, h: number, img) {
                 nodeIntegration: true,
                 contextIsolation: false,
             },
+            x: 0,
+            y: 0,
+            width: w,
+            height: h,
         });
 
         renderer_path(ding_window, "ding.html");
