@@ -1880,6 +1880,8 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
 
 var free_i_els = document.querySelectorAll("#draw_free_i > lock-b") as NodeListOf<HTMLInputElement>;
 
+var mode: "free" | "eraser" | "spray";
+
 // 笔
 var pencil_el = <HTMLInputElement>document.getElementById("draw_free_pencil");
 pencil_el.oninput = () => {
@@ -1943,7 +1945,7 @@ function free_shadow() {
 }
 
 function free_draw_cursor() {
-    var mode = "free";
+    mode = "free";
     if (pencil_el.checked) mode = "free";
     if (eraser_el.checked) mode = "eraser";
     if (free_spray_el.checked) mode = "spray";
@@ -2446,8 +2448,6 @@ function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
             if (stroke) n[i].set("stroke", stroke);
             if (strokeWidth) n[i].set("strokeWidth", strokeWidth);
             if (n[i].形状) {
-                if (!store.get(`图像编辑.形状属性.${n[i].形状}`))
-                    store.set(`图像编辑.形状属性.${n[i].形状}`, { fc: "", sc: "", sw: NaN });
                 if (fill) store.set(`图像编辑.形状属性.${n[i].形状}.fc`, fill);
                 if (stroke) store.set(`图像编辑.形状属性.${n[i].形状}.sc`, stroke);
                 if (strokeWidth) store.set(`图像编辑.形状属性.${n[i].形状}.sw`, strokeWidth);
@@ -2461,6 +2461,10 @@ function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
         if (strokeWidth) fabric_canvas.freeDrawingBrush.width = free_width = strokeWidth;
         free_draw_cursor();
         free_shadow();
+        if (mode) {
+            if (stroke) store.set(`图像编辑.形状属性.${mode}.sc`, stroke);
+            if (strokeWidth) store.set(`图像编辑.形状属性.${mode}.sw`, strokeWidth);
+        }
     } else {
         console.log(2);
         /* 非画笔非选中 */
