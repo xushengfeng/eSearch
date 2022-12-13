@@ -320,8 +320,11 @@ body {
     position: absolute;
 }
 
-.editor_bg{
+.editor_bg {
     background-color: var(--bg);
+}
+.editor_bg > #editor > * {
+    box-shadow: var(--shadow);
 }
 
 #main_photo {
