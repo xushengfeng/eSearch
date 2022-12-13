@@ -167,7 +167,7 @@ document.addEventListener("mousemove", (e) => {
 });
 
 document.onwheel = (e) => {
-    document.body.style.background = "#fff";
+    document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
         let z = zoom_w - e.deltaY;
         zoom_w = z;
@@ -549,6 +549,8 @@ function tool_record_f() {
         i.style.display = "none";
     }
 
+    document.body.classList.remove("editor_bg");
+
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
         var { uIOhook, UiohookKey } = require("uiohook-napi");
 
@@ -701,6 +703,8 @@ function init_long(rect: number[]) {
     for (let i of l) {
         i.style.display = "none";
     }
+
+    document.body.classList.remove("editor_bg");
 
     lr.style.left = rect[0] / ratio + "px";
     lr.style.top = rect[1] / ratio + "px";

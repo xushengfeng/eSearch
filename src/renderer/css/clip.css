@@ -320,6 +320,10 @@ body {
     position: absolute;
 }
 
+.editor_bg{
+    background-color: var(--bg);
+}
+
 #main_photo {
     z-index: 8;
     image-rendering: pixelated;
