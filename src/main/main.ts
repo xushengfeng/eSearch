@@ -463,6 +463,312 @@ app.whenReady().then(() => {
     create_clip_window();
 
     nativeTheme.themeSource = store.get("全局.深色模式");
+
+    // 菜单栏设置
+    const template = [
+        // { role: 'appMenu' }
+        ...(isMac
+            ? [
+                  {
+                      label: app.name,
+                      submenu: [
+                          { label: `${t("关于")} ${app.name}`, role: "about" },
+                          { type: "separator" },
+                          {
+                              label: t("设置"),
+                              click: () => {
+                                  create_main_window("setting.html");
+                              },
+                              accelerator: "CmdOrCtrl+,",
+                          },
+                          { type: "separator" },
+                          { label: t("服务"), role: "services" },
+                          { type: "separator" },
+                          { label: `${t("隐藏")} ${app.name}`, role: "hide" },
+                          { label: t("隐藏其他"), role: "hideOthers" },
+                          { label: t("全部显示"), role: "unhide" },
+                          { type: "separator" },
+                          { label: `退出 ${app.name}`, role: "quit" },
+                      ],
+                  },
+              ]
+            : []),
+        // { role: 'fileMenu' }
+        {
+            label: t("文件"),
+            submenu: [
+                {
+                    label: t("保存到历史记录"),
+                    click: (i, w) => {
+                        main_edit(w, "save");
+                    },
+                    accelerator: "CmdOrCtrl+S",
+                },
+                { type: "separator" },
+                ...(isMac
+                    ? []
+                    : [
+                          {
+                              label: t("设置"),
+                              click: () => {
+                                  create_main_window("setting.html");
+                              },
+                              accelerator: "CmdOrCtrl+,",
+                          },
+                          { type: "separator" },
+                      ]),
+                {
+                    label: t("其他编辑器打开"),
+                    click: (i, w) => {
+                        main_edit(w, "edit_on_other");
+                    },
+                },
+                {
+                    label: t("打开方式..."),
+                    click: (i, w) => {
+                        main_edit(w, "choose_editer");
+                    },
+                },
+                { type: "separator" },
+                { label: t("关闭"), role: "close" },
+            ],
+        },
+        // { role: 'editMenu' }
+        {
+            label: t("编辑"),
+            submenu: [
+                {
+                    label: t("打开链接"),
+                    click: (i, w) => {
+                        main_edit(w, "link");
+                    },
+                    accelerator: "CmdOrCtrl+Shift+L",
+                },
+                {
+                    label: t("搜索"),
+                    click: (i, w) => {
+                        main_edit(w, "search");
+                    },
+                    accelerator: "CmdOrCtrl+Shift+S",
+                },
+                {
+                    label: t("翻译"),
+                    click: (i, w) => {
+                        main_edit(w, "translate");
+                    },
+                    accelerator: "CmdOrCtrl+Shift+T",
+                },
+                { type: "separator" },
+                {
+                    label: t("撤销"),
+                    click: (i, w) => {
+                        main_edit(w, "undo");
+                    },
+                    accelerator: "CmdOrCtrl+Z",
+                },
+                {
+                    label: t("重做"),
+                    click: (i, w) => {
+                        main_edit(w, "redo");
+                    },
+                    accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
+                },
+                { type: "separator" },
+                {
+                    label: t("剪切"),
+                    click: (i, w) => {
+                        main_edit(w, "cut");
+                    },
+                    accelerator: "CmdOrCtrl+X",
+                },
+                {
+                    label: t("复制"),
+                    click: (i, w) => {
+                        main_edit(w, "copy");
+                    },
+                    accelerator: "CmdOrCtrl+C",
+                },
+                {
+                    label: t("粘贴"),
+                    click: (i, w) => {
+                        main_edit(w, "paste");
+                    },
+                    accelerator: "CmdOrCtrl+V",
+                },
+                {
+                    label: t("删除"),
+                    click: (i, w) => {
+                        main_edit(w, "delete");
+                    },
+                },
+                {
+                    label: t("全选"),
+                    click: (i, w) => {
+                        main_edit(w, "select_all");
+                    },
+                    accelerator: "CmdOrCtrl+A",
+                },
+                {
+                    label: t("自动删除换行"),
+                    click: (i, w) => {
+                        main_edit(w, "delete_enter");
+                    },
+                },
+                { type: "separator" },
+                {
+                    label: t("查找"),
+                    click: (i, w) => {
+                        main_edit(w, "show_find");
+                    },
+                    accelerator: "CmdOrCtrl+F",
+                },
+                {
+                    label: t("替换"),
+                    click: (i, w) => {
+                        main_edit(w, "show_find");
+                    },
+                    accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
+                },
+                { type: "separator" },
+                {
+                    label: t("自动换行"),
+                    click: (i, w) => {
+                        main_edit(w, "wrap");
+                    },
+                },
+                {
+                    label: t("拼写检查"),
+                    click: (i, w) => {
+                        main_edit(w, "spellcheck");
+                    },
+                },
+                { type: "separator" },
+                ...(isMac
+                    ? [
+                          {
+                              label: t("朗读"),
+                              submenu: [
+                                  { label: t("开始朗读"), role: "startSpeaking" },
+                                  { label: t("停止朗读"), role: "stopSpeaking" },
+                              ],
+                          },
+                      ]
+                    : []),
+            ],
+        },
+        {
+            label: t("浏览器"),
+            submenu: [
+                {
+                    label: t("后退"),
+                    click: (i, w) => {
+                        view_events(w, "back");
+                    },
+                    accelerator: isMac ? "Command+[" : "Alt+Left",
+                },
+                {
+                    label: t("前进"),
+                    click: (i, w) => {
+                        view_events(w, "forward");
+                    },
+                    accelerator: isMac ? "Command+]" : "Alt+Right",
+                },
+                {
+                    label: t("刷新"),
+                    click: (i, w) => {
+                        view_events(w, "reload");
+                    },
+                    accelerator: "F5",
+                },
+                {
+                    label: t("停止加载"),
+                    click: (i, w) => {
+                        view_events(w, "stop");
+                    },
+                    accelerator: "Esc",
+                },
+                {
+                    label: t("浏览器打开"),
+                    click: (i, w) => {
+                        view_events(w, "browser");
+                    },
+                },
+                {
+                    label: t("保存到历史记录"),
+                    click: (i, w) => {
+                        view_events(w, "add_history");
+                    },
+                    accelerator: "CmdOrCtrl+D",
+                },
+                {
+                    label: t("开发者工具"),
+                    click: (i, w) => {
+                        view_events(w, "dev");
+                    },
+                },
+            ],
+        },
+        // { role: 'viewMenu' }
+        {
+            label: t("视图"),
+            submenu: [
+                { label: t("重新加载"), role: "reload" },
+                { label: t("强制重载"), role: "forceReload" },
+                { label: t("开发者工具"), role: "toggleDevTools" },
+                { type: "separator" },
+                {
+                    label: t("历史记录"),
+                    click: (i, w) => {
+                        main_edit(w, "show_history");
+                    },
+                    accelerator: "CmdOrCtrl+Shift+H",
+                },
+                { type: "separator" },
+                { label: t("实际大小"), role: "resetZoom", accelerator: "" },
+                { label: t("放大"), role: "zoomIn" },
+                { label: t("缩小"), role: "zoomOut" },
+                { type: "separator" },
+                { label: t("全屏"), role: "togglefullscreen" },
+            ],
+        },
+        // { role: 'windowMenu' }
+        {
+            label: t("窗口"),
+            submenu: [
+                { label: t("最小化"), role: "minimize" },
+                { label: t("关闭"), role: "close" },
+                ...(isMac
+                    ? [
+                          { type: "separator" },
+                          { label: t("置于最前面"), role: "front" },
+                          { type: "separator" },
+                          { label: t("窗口"), role: "window" },
+                      ]
+                    : []),
+            ],
+        },
+        {
+            label: t("帮助"),
+            role: "help",
+            submenu: [
+                {
+                    label: t("教程帮助"),
+                    click: () => {
+                        create_main_window("help.html");
+                    },
+                },
+                { type: "separator" },
+                {
+                    label: t("关于"),
+                    click: () => {
+                        create_main_window("setting.html", null, true);
+                    },
+                },
+            ],
+        },
+    ] as (Electron.MenuItemConstructorOptions | Electron.MenuItem)[];
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
 });
 
 app.on("will-quit", () => {
@@ -1015,312 +1321,7 @@ function long_win(rect) {
     mouse();
 }
 
-// 菜单栏设置(截屏没必要)
 const isMac = process.platform === "darwin";
-const template = [
-    // { role: 'appMenu' }
-    ...(isMac
-        ? [
-              {
-                  label: app.name,
-                  submenu: [
-                      { label: `${t("关于")} ${app.name}`, role: "about" },
-                      { type: "separator" },
-                      {
-                          label: t("设置"),
-                          click: () => {
-                              create_main_window("setting.html");
-                          },
-                          accelerator: "CmdOrCtrl+,",
-                      },
-                      { type: "separator" },
-                      { label: t("服务"), role: "services" },
-                      { type: "separator" },
-                      { label: `${t("隐藏")} ${app.name}`, role: "hide" },
-                      { label: t("隐藏其他"), role: "hideOthers" },
-                      { label: t("全部显示"), role: "unhide" },
-                      { type: "separator" },
-                      { label: `退出 ${app.name}`, role: "quit" },
-                  ],
-              },
-          ]
-        : []),
-    // { role: 'fileMenu' }
-    {
-        label: t("文件"),
-        submenu: [
-            {
-                label: t("保存到历史记录"),
-                click: (i, w) => {
-                    main_edit(w, "save");
-                },
-                accelerator: "CmdOrCtrl+S",
-            },
-            { type: "separator" },
-            ...(isMac
-                ? []
-                : [
-                      {
-                          label: t("设置"),
-                          click: () => {
-                              create_main_window("setting.html");
-                          },
-                          accelerator: "CmdOrCtrl+,",
-                      },
-                      { type: "separator" },
-                  ]),
-            {
-                label: t("其他编辑器打开"),
-                click: (i, w) => {
-                    main_edit(w, "edit_on_other");
-                },
-            },
-            {
-                label: t("打开方式..."),
-                click: (i, w) => {
-                    main_edit(w, "choose_editer");
-                },
-            },
-            { type: "separator" },
-            { label: t("关闭"), role: "close" },
-        ],
-    },
-    // { role: 'editMenu' }
-    {
-        label: t("编辑"),
-        submenu: [
-            {
-                label: t("打开链接"),
-                click: (i, w) => {
-                    main_edit(w, "link");
-                },
-                accelerator: "CmdOrCtrl+Shift+L",
-            },
-            {
-                label: t("搜索"),
-                click: (i, w) => {
-                    main_edit(w, "search");
-                },
-                accelerator: "CmdOrCtrl+Shift+S",
-            },
-            {
-                label: t("翻译"),
-                click: (i, w) => {
-                    main_edit(w, "translate");
-                },
-                accelerator: "CmdOrCtrl+Shift+T",
-            },
-            { type: "separator" },
-            {
-                label: t("撤销"),
-                click: (i, w) => {
-                    main_edit(w, "undo");
-                },
-                accelerator: "CmdOrCtrl+Z",
-            },
-            {
-                label: t("重做"),
-                click: (i, w) => {
-                    main_edit(w, "redo");
-                },
-                accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
-            },
-            { type: "separator" },
-            {
-                label: t("剪切"),
-                click: (i, w) => {
-                    main_edit(w, "cut");
-                },
-                accelerator: "CmdOrCtrl+X",
-            },
-            {
-                label: t("复制"),
-                click: (i, w) => {
-                    main_edit(w, "copy");
-                },
-                accelerator: "CmdOrCtrl+C",
-            },
-            {
-                label: t("粘贴"),
-                click: (i, w) => {
-                    main_edit(w, "paste");
-                },
-                accelerator: "CmdOrCtrl+V",
-            },
-            {
-                label: t("删除"),
-                click: (i, w) => {
-                    main_edit(w, "delete");
-                },
-            },
-            {
-                label: t("全选"),
-                click: (i, w) => {
-                    main_edit(w, "select_all");
-                },
-                accelerator: "CmdOrCtrl+A",
-            },
-            {
-                label: t("自动删除换行"),
-                click: (i, w) => {
-                    main_edit(w, "delete_enter");
-                },
-            },
-            { type: "separator" },
-            {
-                label: t("查找"),
-                click: (i, w) => {
-                    main_edit(w, "show_find");
-                },
-                accelerator: "CmdOrCtrl+F",
-            },
-            {
-                label: t("替换"),
-                click: (i, w) => {
-                    main_edit(w, "show_find");
-                },
-                accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
-            },
-            { type: "separator" },
-            {
-                label: t("自动换行"),
-                click: (i, w) => {
-                    main_edit(w, "wrap");
-                },
-            },
-            {
-                label: t("拼写检查"),
-                click: (i, w) => {
-                    main_edit(w, "spellcheck");
-                },
-            },
-            { type: "separator" },
-            ...(isMac
-                ? [
-                      {
-                          label: t("朗读"),
-                          submenu: [
-                              { label: t("开始朗读"), role: "startSpeaking" },
-                              { label: t("停止朗读"), role: "stopSpeaking" },
-                          ],
-                      },
-                  ]
-                : []),
-        ],
-    },
-    {
-        label: t("浏览器"),
-        submenu: [
-            {
-                label: t("后退"),
-                click: (i, w) => {
-                    view_events(w, "back");
-                },
-                accelerator: isMac ? "Command+[" : "Alt+Left",
-            },
-            {
-                label: t("前进"),
-                click: (i, w) => {
-                    view_events(w, "forward");
-                },
-                accelerator: isMac ? "Command+]" : "Alt+Right",
-            },
-            {
-                label: t("刷新"),
-                click: (i, w) => {
-                    view_events(w, "reload");
-                },
-                accelerator: "F5",
-            },
-            {
-                label: t("停止加载"),
-                click: (i, w) => {
-                    view_events(w, "stop");
-                },
-                accelerator: "Esc",
-            },
-            {
-                label: t("浏览器打开"),
-                click: (i, w) => {
-                    view_events(w, "browser");
-                },
-            },
-            {
-                label: t("保存到历史记录"),
-                click: (i, w) => {
-                    view_events(w, "add_history");
-                },
-                accelerator: "CmdOrCtrl+D",
-            },
-            {
-                label: t("开发者工具"),
-                click: (i, w) => {
-                    view_events(w, "dev");
-                },
-            },
-        ],
-    },
-    // { role: 'viewMenu' }
-    {
-        label: t("视图"),
-        submenu: [
-            { label: t("重新加载"), role: "reload" },
-            { label: t("强制重载"), role: "forceReload" },
-            { label: t("开发者工具"), role: "toggleDevTools" },
-            { type: "separator" },
-            {
-                label: t("历史记录"),
-                click: (i, w) => {
-                    main_edit(w, "show_history");
-                },
-                accelerator: "CmdOrCtrl+Shift+H",
-            },
-            { type: "separator" },
-            { label: t("实际大小"), role: "resetZoom", accelerator: "" },
-            { label: t("放大"), role: "zoomIn" },
-            { label: t("缩小"), role: "zoomOut" },
-            { type: "separator" },
-            { label: t("全屏"), role: "togglefullscreen" },
-        ],
-    },
-    // { role: 'windowMenu' }
-    {
-        label: t("窗口"),
-        submenu: [
-            { label: t("最小化"), role: "minimize" },
-            { label: t("关闭"), role: "close" },
-            ...(isMac
-                ? [
-                      { type: "separator" },
-                      { label: t("置于最前面"), role: "front" },
-                      { type: "separator" },
-                      { label: t("窗口"), role: "window" },
-                  ]
-                : []),
-        ],
-    },
-    {
-        label: t("帮助"),
-        role: "help",
-        submenu: [
-            {
-                label: t("教程帮助"),
-                click: () => {
-                    create_main_window("help.html");
-                },
-            },
-            { type: "separator" },
-            {
-                label: t("关于"),
-                click: () => {
-                    create_main_window("setting.html", null, true);
-                },
-            },
-        ],
-    },
-] as (Electron.MenuItemConstructorOptions | Electron.MenuItem)[];
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
 
 // ding窗口
 var ding_windows_l = { dock: [0, 0, 10, 50] };
