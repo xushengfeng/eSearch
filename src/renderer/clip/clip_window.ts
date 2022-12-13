@@ -739,6 +739,8 @@ function pj_long() {
 
     main_canvas.style.filter = "";
     hide_loading();
+
+    document.body.classList.add("editor_bg");
 }
 
 // 钉在屏幕上
