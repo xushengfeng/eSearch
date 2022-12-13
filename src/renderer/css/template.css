@@ -19,7 +19,7 @@
     background: var(--m-color1);
     color: #fff;
 }
-.选中 > .icon {
+.选项 > .icon {
     filter: invert(1) brightness(2);
 }
 
