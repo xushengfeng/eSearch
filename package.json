@@ -79,6 +79,7 @@
     ],
     "asar": false,
     "beforePack": "./before_pack.js",
+    "afterPack": "./after_pack.js",
     "linux": {
       "category": "Utility",
       "target": [
