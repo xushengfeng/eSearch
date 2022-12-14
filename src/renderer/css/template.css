@@ -19,7 +19,7 @@
     background: var(--m-color1);
     color: #fff;
 }
-.选项 > .icon {
+.选中 > .icon {
     filter: invert(1) brightness(2);
 }
 
@@ -53,4 +53,10 @@ hot-keys {
 }
 #clear > .icon {
     height: 1.5em;
+}
+
+@media (prefers-color-scheme: dark) {
+    .选项 > .icon {
+        filter: invert(1) brightness(2);
+    }
 }
