@@ -10,6 +10,7 @@ html {
 body {
     cursor: default;
     user-select: none;
+    overflow: hidden;
 }
 html,
 body {
