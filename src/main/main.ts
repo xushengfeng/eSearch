@@ -563,6 +563,7 @@ app.whenReady().then(() => {
                     label: t("撤销"),
                     click: (i, w) => {
                         main_edit(w, "undo");
+                        w.webContents.undo();
                     },
                     accelerator: "CmdOrCtrl+Z",
                 },
@@ -570,6 +571,7 @@ app.whenReady().then(() => {
                     label: t("重做"),
                     click: (i, w) => {
                         main_edit(w, "redo");
+                        w.webContents.redo();
                     },
                     accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
                 },
@@ -578,6 +580,7 @@ app.whenReady().then(() => {
                     label: t("剪切"),
                     click: (i, w) => {
                         main_edit(w, "cut");
+                        w.webContents.cut();
                     },
                     accelerator: "CmdOrCtrl+X",
                 },
@@ -585,6 +588,7 @@ app.whenReady().then(() => {
                     label: t("复制"),
                     click: (i, w) => {
                         main_edit(w, "copy");
+                        w.webContents.copy();
                     },
                     accelerator: "CmdOrCtrl+C",
                 },
@@ -592,6 +596,7 @@ app.whenReady().then(() => {
                     label: t("粘贴"),
                     click: (i, w) => {
                         main_edit(w, "paste");
+                        w.webContents.paste();
                     },
                     accelerator: "CmdOrCtrl+V",
                 },
@@ -599,12 +604,14 @@ app.whenReady().then(() => {
                     label: t("删除"),
                     click: (i, w) => {
                         main_edit(w, "delete");
+                        w.webContents.delete();
                     },
                 },
                 {
                     label: t("全选"),
                     click: (i, w) => {
                         main_edit(w, "select_all");
+                        w.webContents.selectAll();
                     },
                     accelerator: "CmdOrCtrl+A",
                 },
