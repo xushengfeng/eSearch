@@ -178,6 +178,16 @@ document.onwheel = (e) => {
         let x = now_mouse_e.clientX - dx * (nzoom / ozoom),
             y = now_mouse_e.clientY - dy * (nzoom / ozoom);
         set_editor_p(nzoom, x / nzoom, y / nzoom);
+    } else {
+        let dx = 0,
+            dy = 0;
+        if (e.shiftKey && !e.deltaX) {
+            dx = -e.deltaY;
+        } else {
+            dx = -e.deltaX;
+            dy = -e.deltaY;
+        }
+        set_editor_p(editor_p.zoom, editor_p.x + dx / editor_p.zoom, editor_p.y + dy / editor_p.zoom);
     }
 };
 
