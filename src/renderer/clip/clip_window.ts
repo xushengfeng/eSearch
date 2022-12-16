@@ -1885,6 +1885,13 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
             h = Number(draw_bar_height);
         }
         (<HTMLDivElement>document.querySelectorAll("#draw_side > div")[index]).style.height = h + "px";
+
+        if (index == 0) {
+            if (!fabric_canvas.isDrawingMode) {
+                pencil_el.checked = true;
+                pencil_el_click();
+            }
+        }
     }
 });
 
@@ -1894,7 +1901,8 @@ var mode: "free" | "eraser" | "spray";
 
 // 笔
 var pencil_el = <HTMLInputElement>document.getElementById("draw_free_pencil");
-pencil_el.oninput = () => {
+pencil_el.oninput = () => pencil_el_click;
+function pencil_el_click() {
     fabric_canvas.isDrawingMode = pencil_el.checked;
     free_init();
     if (pencil_el.checked) {
@@ -1909,7 +1917,7 @@ pencil_el.oninput = () => {
     exit_shape();
     exit_filter();
     free_draw_cursor();
-};
+}
 // 橡皮
 var eraser_el = <HTMLInputElement>document.getElementById("draw_free_eraser");
 eraser_el.oninput = () => {
