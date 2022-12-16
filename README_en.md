@@ -63,12 +63,6 @@ npm run dist
 # The installation package and unzipped directory will be generated in the build directory
 ```
 
-### Modifying installed programs
-
-First press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>, or in the menu bar - Literacy - Developer Tools Open the developer tools for debugging. Modify the debugging to know that you are happy with it, before making changes to the source code.
-
-Source location [the location prompted in the settings to run]
-
 ## Launch
 
 Open eSearch in your launcher and it will appear in the tray. Gnome users need to install the [appindicator](https://extensions.gnome.org/extension/615/appindicator-support/) plugin
@@ -156,6 +150,13 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Line numbering
     -   [x] Spell check
 -   [x] Wayland Desktop
+
+## plug-in
+
+[simple mini plug-ins](https://esearch-app.netlify.app/plugin.html)
+
+-   hide the mouse follow bar (color picker and coordinates).
+-   hide toolbar buttons (you can change them yourself)
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 

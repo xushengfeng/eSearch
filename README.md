@@ -63,12 +63,6 @@ npm run dist
 # 将在build目录产生安装包和解压的目录
 ```
 
-### 修改已安装的程序
-
-先按下<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>，或在菜单栏-识图-开发者工具 打开开发者工具进行调试。修改调试知道满意后，在对源码进行修改。
-
-源码位置：[设置里提示的运行位置]
-
 ## 启动
 
 在你的启动器打开 eSearch，他将出现在托盘。Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件
@@ -156,6 +150,13 @@ esearch (若找不到，请尝试e-search)
     -   [x] 行号
     -   [x] 拼写检查
 -   [x] Wayland 桌面
+
+## 插件
+
+[简单的小插件](https://esearch-app.netlify.app/plugin.html)
+
+-   隐藏鼠标跟随栏（取色器和坐标）
+-   隐藏工具栏按钮（可自行更改）
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
