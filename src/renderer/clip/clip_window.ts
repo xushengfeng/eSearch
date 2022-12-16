@@ -940,7 +940,7 @@ const Color = require("color");
 
 // 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {
-    var o = {
+    const o = {
         ArrowUp: "up",
         w: "up",
         ArrowRight: "right",
@@ -950,6 +950,32 @@ document.querySelector("body").onkeydown = (e) => {
         ArrowLeft: "left",
         a: "left",
     };
+    let v = 1;
+    if (e.ctrlKey) v = v * 5;
+    if (e.shiftKey) v = v * 10;
+    if (o[e.key]) {
+        if (down) {
+        } else {
+            let x = editor_p.x,
+                y = editor_p.y,
+                d = (10 * v) / editor_p.zoom;
+            switch (o[e.key]) {
+                case "up":
+                    y = editor_p.y - d;
+                    break;
+                case "down":
+                    y = editor_p.y + d;
+                    break;
+                case "right":
+                    x = editor_p.x + d;
+                    break;
+                case "left":
+                    x = editor_p.x - d;
+                    break;
+            }
+            set_editor_p(editor_p.zoom, x, y);
+        }
+    }
     if (e.ctrlKey) {
         ipcRenderer.send("move_mouse", o[e.key], 5);
     } else if (e.shiftKey) {
