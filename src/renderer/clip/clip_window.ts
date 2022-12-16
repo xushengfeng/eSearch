@@ -955,6 +955,25 @@ document.querySelector("body").onkeydown = (e) => {
     if (e.shiftKey) v = v * 10;
     if (o[e.key]) {
         if (down) {
+            let op = now_mouse_e;
+            let x = op.offsetX,
+                y = op.offsetY,
+                d = v;
+            switch (o[e.key]) {
+                case "up":
+                    y = op.offsetY - d;
+                    break;
+                case "down":
+                    y = op.offsetY + d;
+                    break;
+                case "right":
+                    x = op.offsetX + d;
+                    break;
+                case "left":
+                    x = op.offsetX - d;
+                    break;
+            }
+            move_rect(final_rect, { x: op.offsetX, y: op.offsetY }, { x, y });
         } else {
             let x = editor_p.x,
                 y = editor_p.y,
@@ -975,13 +994,6 @@ document.querySelector("body").onkeydown = (e) => {
             }
             set_editor_p(editor_p.zoom, x, y);
         }
-    }
-    if (e.ctrlKey) {
-        ipcRenderer.send("move_mouse", o[e.key], 5);
-    } else if (e.shiftKey) {
-        ipcRenderer.send("move_mouse", o[e.key], 10);
-    } else {
-        ipcRenderer.send("move_mouse", o[e.key], 1);
     }
 };
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
@@ -1118,7 +1130,6 @@ clip_canvas.onmouseup = (e) => {
             }
         }
         if (moving) {
-            move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
             moving = false;
             o_final_rect = null;
             if (e.button == 0) follow_bar(e.clientX, e.clientY);
