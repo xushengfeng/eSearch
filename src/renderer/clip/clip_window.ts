@@ -1055,6 +1055,7 @@ clip_canvas.onmousedown = (e) => {
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
+        draw_bar.style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "none";
 
@@ -1138,6 +1139,7 @@ clip_canvas.onmouseup = (e) => {
     }
     tool_bar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
+        draw_bar.style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
 
