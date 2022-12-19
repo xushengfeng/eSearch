@@ -1266,8 +1266,13 @@ function wh_bar(final_rect: rect) {
         }
     } else {
         x = zx + zw / 2 - dw / 2;
-        wh_el.style.right = ``;
-        wh_el.style.left = `${x}px`;
+        if (x + dw <= window.innerWidth) {
+            wh_el.style.right = ``;
+            wh_el.style.left = `${x}px`;
+        } else {
+            wh_el.style.left = ``;
+            wh_el.style.right = `0px`;
+        }
     }
     let y: number;
     if (zy - (dh + 10) >= 0) {
