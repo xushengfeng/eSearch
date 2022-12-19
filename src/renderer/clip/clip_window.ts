@@ -1248,38 +1248,38 @@ function wh_bar(final_rect: rect) {
     }
     document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
     // 位置
-    var dw = wh_el.offsetWidth,
+    let zx = (final_rect[0] + editor_p.x) * editor_p.zoom,
+        zy = (final_rect[1] + editor_p.y) * editor_p.zoom,
+        zw = final_rect[2] * editor_p.zoom,
+        zh = final_rect[3] * editor_p.zoom;
+    let dw = wh_el.offsetWidth,
         dh = wh_el.offsetHeight;
-    var x;
-    if (dw >= final_rect[2] / ratio) {
-        if (dw + final_rect[0] <= main_canvas.offsetWidth) {
-            x = final_rect[0] / ratio; // 对齐框的左边
+    let x: number;
+    if (dw >= zw) {
+        if (dw + zx <= window.innerWidth) {
+            x = zx; // 对齐框的左边
             wh_el.style.right = ``;
             wh_el.style.left = `${x}px`;
         } else {
             wh_el.style.left = ``;
             wh_el.style.right = `0px`;
-            // x = final_rect[0] / ratio + final_rect[2] / ratio - dw; // 对齐框的右边
         }
     } else {
-        x = final_rect[0] / ratio + final_rect[2] / ratio / 2 - dw / 2;
+        x = zx + zw / 2 - dw / 2;
         wh_el.style.right = ``;
         wh_el.style.left = `${x}px`;
     }
-    var y;
-    if (final_rect[1] - (dh * ratio + 10) >= 0) {
-        y = final_rect[1] - (dh * ratio + 10); // 不超出时在外
+    let y: number;
+    if (zy - (dh + 10) >= 0) {
+        y = zy - (dh + 10); // 不超出时在外
     } else {
-        if (
-            final_rect[1] + final_rect[3] + 10 + document.getElementById("clip_wh").offsetHeight <=
-            main_canvas.offsetHeight
-        ) {
-            y = final_rect[1] + final_rect[3] + 10;
+        if (zy + zh + 10 + dh <= window.innerHeight) {
+            y = zy + zh + 10;
         } else {
-            y = final_rect[1] + 10;
+            y = zy + 10;
         }
     }
-    wh_el.style.top = `${y / ratio}px`;
+    wh_el.style.top = `${y}px`;
 }
 
 /**
