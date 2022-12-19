@@ -1482,13 +1482,17 @@ function clip_color_text(l, type) {
     the_text_color = [color.hex(), clip_color_text_color];
 
     (<HTMLDivElement>document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`)).style.backgroundColor =
-        the_text_color[0];
+        color.hexa();
     var main_el = <HTMLElement>(
         document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`)
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
     main_el.style.color = the_text_color[1];
-    main_el.innerText = color_conversion(the_color, type);
+    if (color.alpha() != 1) {
+        main_el.innerText = "";
+    } else {
+        main_el.innerText = color_conversion(the_color, type);
+    }
     (<HTMLDivElement>document.querySelector("#clip_copy > div")).style.top = -32 * 取色器格式位置 + "px";
 }
 
