@@ -212,6 +212,15 @@ function set_editor_p(zoom: number, x: number, y: number) {
     watting_el.style.top = final_rect[1] * editor_p.zoom + "px";
 }
 
+document.onkeyup = (e) => {
+    if (e.key == "0") {
+        if (e.ctrlKey) {
+            set_editor_p(1, 0, 0);
+            zoom_w = main_canvas.width;
+        }
+    }
+};
+
 var edge_init = false;
 var edge_rect = [];
 function edge() {
