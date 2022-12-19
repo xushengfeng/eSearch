@@ -1231,6 +1231,20 @@ hotkeys("s", () => {
 var wh_el = document.getElementById("clip_wh");
 // 大小栏
 function wh_bar(final_rect: rect) {
+    // 大小文字
+    if (四角坐标) {
+        var x0, y0, x1, y1, d;
+        d = 光标 == "以(1,1)为起点" ? 1 : 0;
+        x0 = final_rect[0] + d;
+        y0 = final_rect[1] + d;
+        x1 = final_rect[0] + d + final_rect[2];
+        y1 = final_rect[1] + d + final_rect[3];
+        document.getElementById("x0y0").style.display = "block";
+        document.getElementById("x1y1").style.display = "block";
+        document.getElementById("x0y0").innerHTML = `${x0}, ${y0}`;
+        document.getElementById("x1y1").innerHTML = `${x1}, ${y1}`;
+    }
+    document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
     // 位置
     var dw = wh_el.offsetWidth,
         dh = wh_el.offsetHeight;
@@ -1264,21 +1278,6 @@ function wh_bar(final_rect: rect) {
         }
     }
     wh_el.style.top = `${y / ratio}px`;
-    // 大小文字
-    if (四角坐标) {
-        var x0, y0, x1, y1, d;
-        d = 光标 == "以(1,1)为起点" ? 1 : 0;
-        x0 = final_rect[0] + d;
-        y0 = final_rect[1] + d;
-        x1 = final_rect[0] + d + final_rect[2];
-        y1 = final_rect[1] + d + final_rect[3];
-        document.getElementById("x0y0").style.display = "block";
-        document.getElementById("x1y1").style.display = "block";
-        document.getElementById("x0y0").innerHTML = `${x0}, ${y0}`;
-        document.getElementById("x1y1").innerHTML = `${x1}, ${y1}`;
-    } else {
-    }
-    document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
 }
 
 /**
