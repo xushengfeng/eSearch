@@ -221,6 +221,27 @@ document.onkeyup = (e) => {
     }
 };
 
+let middle_b: PointerEvent;
+let middle_p = { x: 0, y: 0 };
+document.addEventListener("pointerdown", (e) => {
+    if (e.button == 1) {
+        middle_b = e;
+        middle_p.x = editor_p.x;
+        middle_p.y = editor_p.y;
+        document.body.classList.add("editor_bg");
+    }
+});
+document.addEventListener("pointermove", (e) => {
+    if (middle_b) {
+        let dx = e.clientX - middle_b.clientX,
+            dy = e.clientY - middle_b.clientY;
+        set_editor_p(editor_p.zoom, middle_p.x + dx / editor_p.zoom, middle_p.y + dy / editor_p.zoom);
+    }
+});
+document.addEventListener("pointerup", (e) => {
+    middle_b = null;
+});
+
 var edge_init = false;
 var edge_rect = [];
 function edge() {
