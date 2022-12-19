@@ -966,7 +966,7 @@ import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);
 
-const Color = require("color");
+import Color from "color";
 
 // 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {
@@ -2352,13 +2352,13 @@ color_stroke_el.onfocus = () => {
 var color_alpha_input_1 = <HTMLInputElement>document.querySelector("#draw_color_alpha > range-b:nth-child(1)");
 color_fill_el.oninput = () => {
     change_color({ fill: color_fill_el.innerText }, true, false);
-    var fill_a = Color(color_fill_el.innerText).valpha;
+    var fill_a = Color(color_fill_el.innerText).alpha();
     color_alpha_input_1.value = String(Math.round(fill_a * 100));
 };
 var color_alpha_input_2 = <HTMLInputElement>document.querySelector("#draw_color_alpha > range-b:nth-child(2)");
 color_stroke_el.oninput = () => {
     change_color({ stroke: color_stroke_el.innerText }, true, false);
-    var stroke_a = Color(color_stroke_el.innerText).valpha;
+    var stroke_a = Color(color_stroke_el.innerText).alpha();
     color_alpha_input_2.value = String(Math.round(stroke_a * 100));
 };
 
@@ -2527,9 +2527,9 @@ function get_f_object_v() {
     var [fill, stroke, strokeWidth] = [n.fill, n.stroke, n.strokeWidth];
     (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = strokeWidth;
     change_color({ fill: fill, stroke: stroke }, false, true);
-    var fill_a = Color(color_fill_el.innerText).valpha;
+    var fill_a = Color(color_fill_el.innerText).alpha();
     color_alpha_input_1.value = String(Math.round(fill_a * 100));
-    var stroke_a = Color(color_stroke_el.innerText).valpha;
+    var stroke_a = Color(color_stroke_el.innerText).alpha();
     color_alpha_input_2.value = String(Math.round(stroke_a * 100));
 }
 /**

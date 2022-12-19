@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
+    "@types/color": "^3.0.3",
     "@types/node": "^18.8.4",
     "download": "^8.0.0",
     "electron": "^20.3.1",

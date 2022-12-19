@@ -4,6 +4,7 @@ specifiers:
   '@electron-toolkit/tsconfig': ^1.0.1
   '@ffmpeg/core': ^0.11.0
   '@ffmpeg/ffmpeg': ^0.11.5
+  '@types/color': ^3.0.3
   '@types/node': ^18.8.4
   color: ^4.2.3
   download: ^8.0.0
@@ -54,6 +55,7 @@ optionalDependencies:
 
 devDependencies:
   '@electron-toolkit/tsconfig': 1.0.1_@types+node@18.8.4
+  '@types/color': 3.0.3
   '@types/node': 18.8.4
   download: 8.0.0
   electron: 20.3.1
@@ -453,6 +455,22 @@ packages:
   /@tootallnate/once/2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
+    dev: true
+
+  /@types/color-convert/2.0.0:
+    resolution: {integrity: sha512-m7GG7IKKGuJUXvkZ1qqG3ChccdIM/qBBo913z+Xft0nKCX4hAU/IxKwZBU4cpRZ7GS5kV4vOblUkILtSShCPXQ==}
+    dependencies:
+      '@types/color-name': 1.1.1
+    dev: true
+
+  /@types/color-name/1.1.1:
+    resolution: {integrity: sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==}
+    dev: true
+
+  /@types/color/3.0.3:
+    resolution: {integrity: sha512-X//qzJ3d3Zj82J9sC/C18ZY5f43utPbAJ6PhYt/M7uG6etcF6MRpKdN880KBy43B0BMzSfeT96MzrsNjFI3GbA==}
+    dependencies:
+      '@types/color-convert': 2.0.0
     dev: true
 
   /@types/debug/4.1.7:
