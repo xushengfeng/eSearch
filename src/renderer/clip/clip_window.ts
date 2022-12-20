@@ -1010,16 +1010,16 @@ document.querySelector("body").onkeydown = (e) => {
                 d = (10 * v) / editor_p.zoom;
             switch (o[e.key]) {
                 case "up":
-                    y = editor_p.y - d;
-                    break;
-                case "down":
                     y = editor_p.y + d;
                     break;
+                case "down":
+                    y = editor_p.y - d;
+                    break;
                 case "right":
-                    x = editor_p.x + d;
+                    x = editor_p.x - d;
                     break;
                 case "left":
-                    x = editor_p.x - d;
+                    x = editor_p.x + d;
                     break;
             }
             set_editor_p(editor_p.zoom, x, y);
