@@ -352,8 +352,6 @@ document.documentElement.style.setProperty("--icon-color", store.get("全局.图
 (<HTMLInputElement>document.getElementById("换行")).checked = store.get("编辑器.自动换行");
 (<HTMLInputElement>document.getElementById("拼写检查")).checked = store.get("编辑器.拼写检查");
 (<HTMLInputElement>document.getElementById("行号")).checked = store.get("编辑器.行号");
-(<HTMLInputElement>document.getElementById("tab")).value = store.get("编辑器.tab");
-(<HTMLInputElement>document.getElementById("光标动画")).value = store.get("编辑器.光标动画");
 
 (<HTMLInputElement>document.getElementById("自动搜索")).checked = store.get("自动搜索");
 (<HTMLInputElement>document.getElementById("自动打开链接")).checked = store.get("自动打开链接");
@@ -787,8 +785,6 @@ function save_setting() {
     store.set("编辑器.自动换行", (<HTMLInputElement>document.getElementById("换行")).checked);
     store.set("编辑器.拼写检查", (<HTMLInputElement>document.getElementById("拼写检查")).checked);
     store.set("编辑器.行号", (<HTMLInputElement>document.getElementById("行号")).checked);
-    store.set("编辑器.tab", (<HTMLInputElement>document.getElementById("tab")).value);
-    store.set("编辑器.光标动画", (<HTMLInputElement>document.getElementById("光标动画")).value);
     store.set("自动搜索", (<HTMLInputElement>document.getElementById("自动搜索")).checked);
     store.set("自动打开链接", (<HTMLInputElement>document.getElementById("自动打开链接")).checked);
     store.set("自动搜索中文占比", (<HTMLInputElement>document.getElementById("自动搜索中文占比")).value);
