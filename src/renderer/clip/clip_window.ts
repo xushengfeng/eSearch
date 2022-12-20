@@ -970,6 +970,9 @@ import Color from "color";
 
 // 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {
+    let tagName = (<HTMLElement>e.target).tagName;
+    if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
+        return;
     const o = {
         ArrowUp: "up",
         w: "up",
