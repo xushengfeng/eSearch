@@ -789,6 +789,8 @@ function tool_ding_f() {
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
         // @ts-ignore
         ding_window_setting[4] = c.toDataURL();
+        // @ts-ignore
+        ding_window_setting[5] = now_screen_id;
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
         tool_close_f();
     });

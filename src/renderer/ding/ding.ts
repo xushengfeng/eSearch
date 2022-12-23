@@ -4,11 +4,16 @@ root_init();
 const Store = require("electron-store");
 var store = new Store();
 
+var screen_id = "";
+ipcRenderer.on("screen_id", (event, id) => {
+    screen_id = id;
+});
+
 var ratio = window.devicePixelRatio;
 var changing = null;
 var photos = {};
 var urls = {};
-ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
+ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
     let div = document.createElement("div");
@@ -20,6 +25,9 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     div.style.top = y / ratio + "px";
     div.style.width = w / ratio + "px";
     div.style.height = h / ratio + "px";
+    if (screenid != screen_id) {
+        div.style.display = "none";
+    }
     var img = document.createElement("img");
     img.draggable = false;
     img.src = url;
@@ -106,6 +114,18 @@ ipcRenderer.on("img", (event, wid, x, y, w, h, url) => {
     resize(div, 1);
 });
 
+ipcRenderer.on("mouse", (e, x, y) => {
+    console.log(x, y);
+    let els = document.elementsFromPoint(x, y);
+    console.log(els);
+    if (screen_id)
+        if (els[0] == document.getElementById("photo")) {
+            ipcRenderer.send("ding_ignore", screen_id, true);
+        } else {
+            ipcRenderer.send("ding_ignore", screen_id, false);
+        }
+});
+
 function minimize(el) {
     div.style.transition = "var(--transition)";
     setTimeout(() => {
@@ -159,7 +179,7 @@ function close(el) {
     el.parentNode.removeChild(el);
     delete photos[el.id];
     delete urls[el.id];
-    ipcRenderer.send("ding_close", el.id);
+    ipcRenderer.send("ding_close", Object.keys(photos).length == 0);
     dock_i();
 }
 function copy(el: HTMLElement) {

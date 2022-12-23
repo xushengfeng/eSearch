@@ -891,7 +891,7 @@ function create_clip_window() {
                     });
                 break;
             case "ding":
-                create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4]);
+                create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]);
                 break;
             case "mac_app":
                 n_full_screen();
@@ -1331,88 +1331,69 @@ function long_win(rect) {
 const isMac = process.platform === "darwin";
 
 // ding窗口
-var ding_windows_l = { dock: [0, 0, 10, 50] };
-var ding_window: BrowserWindow;
-function create_ding_window(x: number, y: number, w: number, h: number, img) {
-    if (Object.keys(ding_windows_l).length == 1) {
-        let w = 0,
-            h = 0;
-        for (let i of screen.getAllDisplays()) {
-            w = Math.max(i.bounds.x + i.bounds.width, w);
-            h = Math.max(i.bounds.y + i.bounds.height, h);
+var ding_window_list: { [key: string]: BrowserWindow } = {};
+function create_ding_window(x: number, y: number, w: number, h: number, img, screen_id: string) {
+    if (Object.keys(ding_window_list).length == 0) {
+        let all = Screenshots.all() ?? [];
+        let screen_l = capturer(all);
+        for (let i of screen_l) {
+            let ding_window = (ding_window_list[i.id] = new BrowserWindow({
+                icon: the_icon,
+                transparent: true,
+                frame: false,
+                alwaysOnTop: true,
+                skipTaskbar: true,
+                autoHideMenuBar: true,
+                enableLargerThanScreen: true, // mac
+                hasShadow: false,
+                webPreferences: {
+                    nodeIntegration: true,
+                    contextIsolation: false,
+                },
+                x: i.x,
+                y: i.y,
+                width: i.width,
+                height: i.height,
+            }));
+
+            renderer_path(ding_window, "ding.html");
+            if (dev) ding_window.webContents.openDevTools();
+            ding_window.webContents.on("did-finish-load", () => {
+                ding_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+                var id = new Date().getTime();
+                ding_window.webContents.send("screen_id", i.id);
+                ding_window.webContents.send("img", screen_id, id, x, y, w, h, img);
+            });
+            ding_window_list[i.id].setIgnoreMouseEvents(true);
+
+            ding_window.setAlwaysOnTop(true, "screen-saver");
         }
-        ding_window = new BrowserWindow({
-            icon: the_icon,
-            transparent: true,
-            frame: false,
-            alwaysOnTop: true,
-            skipTaskbar: true,
-            autoHideMenuBar: true,
-            enableLargerThanScreen: true, // mac
-            hasShadow: false,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-            x: 0,
-            y: 0,
-            width: w,
-            height: h,
-        });
-
-        renderer_path(ding_window, "ding.html");
-        if (dev) ding_window.webContents.openDevTools();
-        ding_window.webContents.on("did-finish-load", () => {
-            ding_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-            var id = new Date().getTime();
-            ding_window.webContents.send("img", id, x, y, w, h, img);
-            ding_windows_l[id] = [x, y, w, h];
-        });
-
-        ding_window.setAlwaysOnTop(true, "screen-saver");
     } else {
-        var id = new Date().getTime();
-        ding_window.webContents.send("img", id, x, y, w, h, img);
-        ding_windows_l[id] = [x, y, w, h];
+        const id = new Date().getTime();
+        for (let i in ding_window_list) {
+            ding_window_list[i].webContents.send("img", screen_id, id, x, y, w, h, img);
+        }
     }
-    var can_c_ignore = true;
-    ipcMain.on("ding_ignore", (event, v) => {
-        can_c_ignore = v;
-        if (!v) ding_window.setIgnoreMouseEvents(false);
+    ipcMain.on("ding_ignore", (event, id, v) => {
+        if (ding_window_list[id]) ding_window_list[id].setIgnoreMouseEvents(v);
     });
-    ipcMain.on("ding_p_s", (event, wid, p_s) => {
-        ding_windows_l[wid] = p_s;
-    });
+    ipcMain.on("ding_p_s", (event, wid, p_s) => {});
     // 关闭窗口
-    ipcMain.on("ding_close", (event, wid) => {
-        delete ding_windows_l[wid];
-        if (Object.keys(ding_windows_l).length == 1) {
-            ding_window.close();
+    ipcMain.on("ding_close", (event, all) => {
+        if (all) {
+            for (let i in ding_window_list) {
+                ding_window_list[i].close();
+                delete ding_window_list[i];
+            }
         }
     });
     // 自动改变鼠标穿透
     function ding_click_through() {
-        var n_xy = screen.getCursorScreenPoint();
-        var ratio = screen.getPrimaryDisplay().scaleFactor;
-        var in_window = 0;
-        for (let i in Object.values(ding_windows_l)) {
-            let ii = Object.values(ding_windows_l)[i];
-            // 如果光标在某个窗口上，不穿透
-            var x2 = ii[0] + ii[2],
-                y2 = ii[1] + ii[3];
-            if (ii[0] <= n_xy.x * ratio && n_xy.x * ratio <= x2 && ii[1] <= n_xy.y * ratio && n_xy.y * ratio <= y2) {
-                in_window += 1;
-            }
+        let n_xy = screen.getCursorScreenPoint();
+        for (let i in ding_window_list) {
+            let b = ding_window_list[i].getBounds();
+            ding_window_list[i].webContents.send("mouse", n_xy.x - b.x, n_xy.y - b.y);
         }
-        // 窗口可能destroyed
-        try {
-            if (can_c_ignore)
-                if (in_window > 0) {
-                    ding_window.setIgnoreMouseEvents(false);
-                } else {
-                    ding_window.setIgnoreMouseEvents(true);
-                }
-        } catch {}
         setTimeout(ding_click_through, 10);
     }
     ding_click_through();
