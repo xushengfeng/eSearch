@@ -975,13 +975,9 @@ document.querySelector("body").onkeydown = (e) => {
         return;
     const o = {
         ArrowUp: "up",
-        w: "up",
         ArrowRight: "right",
-        d: "right",
         ArrowDown: "down",
-        s: "down",
         ArrowLeft: "left",
-        a: "left",
     };
     let v = 1;
     if (e.ctrlKey) v = v * 5;
