@@ -1374,23 +1374,6 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
             ding_window_list[i].webContents.send("img", screen_id, id, x, y, w, h, img);
         }
     }
-    ipcMain.on("ding_ignore", (event, id, v) => {
-        if (ding_window_list[id]) ding_window_list[id].setIgnoreMouseEvents(v);
-    });
-    ipcMain.on("ding_event", (event, type, id, screen_id, more) => {
-        for (let i in ding_window_list) {
-            if (i != screen_id) ding_window_list[i].webContents.send("ding", type, id, more);
-        }
-    });
-    // 关闭窗口
-    ipcMain.on("ding_close", (event, all) => {
-        if (all) {
-            for (let i in ding_window_list) {
-                ding_window_list[i].close();
-                delete ding_window_list[i];
-            }
-        }
-    });
     // 自动改变鼠标穿透
     function ding_click_through() {
         let n_xy = screen.getCursorScreenPoint();
@@ -1402,6 +1385,22 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
     }
     ding_click_through();
 }
+ipcMain.on("ding_ignore", (event, id, v) => {
+    if (ding_window_list[id]) ding_window_list[id].setIgnoreMouseEvents(v);
+});
+ipcMain.on("ding_event", (event, type, id, screen_id, more) => {
+    if (type == "close" && more) {
+        for (let i in ding_window_list) {
+            ding_window_list[i].close();
+            delete ding_window_list[i];
+        }
+        return;
+    }
+
+    for (let i in ding_window_list) {
+        ding_window_list[i].webContents.send("ding", type, id, screen_id, more);
+    }
+});
 
 // 主页面
 var main_window_l: { [n: number]: BrowserWindow } = {};

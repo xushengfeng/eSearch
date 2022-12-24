@@ -8,7 +8,14 @@ var screen_id = "";
 ipcRenderer.on("screen_id", (event, id) => {
     screen_id = id;
 });
-ipcRenderer.on("ding", (event, type, id, more) => {});
+ipcRenderer.on("ding", (event, type, id, screenid, more) => {
+    console.log(type, id, screenid, more);
+    switch (type) {
+        case "close":
+            close2(document.getElementById(id));
+            break;
+    }
+});
 
 var ratio = window.devicePixelRatio;
 var changing = null;
@@ -180,12 +187,13 @@ function back(el) {
     el.querySelector("#透明度_p").innerHTML = "100%";
     el.querySelector(".img").style.opacity = 1;
 }
-function close(el) {
-    el.innerHTML = "";
-    el.parentNode.removeChild(el);
+function close(el: HTMLElement) {
+    ipcRenderer.send("ding_event", "close", el.id, screen_id, Object.keys(photos).length == 1);
+}
+function close2(el: HTMLElement) {
+    el.remove();
     delete photos[el.id];
     delete urls[el.id];
-    ipcRenderer.send("ding_close", Object.keys(photos).length == 0);
     dock_i();
 }
 function copy(el: HTMLElement) {
