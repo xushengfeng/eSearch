@@ -138,7 +138,6 @@ function minimize(el) {
         div.style.transition = "";
     }, 400);
     el.classList.add("minimize");
-    ding_p_s(el.id, [0, 0, 0, 0]);
 }
 var ignore_el = [];
 function ignore(el: HTMLElement, v: boolean) {
@@ -192,9 +191,6 @@ function copy(el: HTMLElement) {
     clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
 }
 
-function ding_p_s(id, p_s) {
-    ipcRenderer.send("ding_p_s", id, [p_s[0] * ratio, p_s[1] * ratio, p_s[2] * ratio, p_s[3] * ratio]);
-}
 
 // 最高窗口
 var toppest = 1;
@@ -378,7 +374,6 @@ function cursor(el, e) {
         el.style.top = p_s[1] + "px";
         el.style.width = p_s[2] + "px";
         el.style.height = p_s[3] + "px";
-        ding_p_s(el.id, p_s);
 
         if (el.id != "dock") {
             el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
@@ -408,7 +403,6 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     el.style.top = p_s[1] + "px";
     el.style.width = p_s[2] + "px";
     el.style.height = p_s[3] + "px";
-    ding_p_s(el.id, p_s);
 }
 
 // 缩放文字实时更新,顶栏大小自适应
@@ -443,7 +437,6 @@ var dock_p = store.get("ding_dock");
 const dock_el = document.getElementById("dock");
 dock_el.style.left = dock_p[0] + "px";
 dock_el.style.top = dock_p[1] + "px";
-ding_p_s("dock", [dock_p[0], dock_p[1], 10, 50]);
 
 var dock_show = false;
 var dock_p_s = [];
@@ -460,18 +453,11 @@ dock_el.onclick = () => {
 
         dock.className = "dock";
         dock.querySelector("div").style.display = "block";
-        ding_p_s("dock", [
-            Number(dock.style.left.replace("px", "")),
-            0,
-            200,
-            document.querySelector("html").offsetHeight,
-        ]);
     } else {
         dock.style.transition = dock.className = "";
         dock.querySelector("div").style.display = "none";
         dock.style.left = dock_p_s[0] + "px";
         dock.style.top = dock_p_s[1] + "px";
-        ding_p_s("dock", [dock_p_s[0], dock_p_s[1], 10, 50]);
     }
 };
 
@@ -493,8 +479,6 @@ function dock_i() {
                             div.style.transition = "";
                         }, 400);
                         div.classList.remove("minimize");
-                        if (!i_ignore_v)
-                            ding_p_s(i, [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight]);
                     } else {
                         back(div);
                     }
