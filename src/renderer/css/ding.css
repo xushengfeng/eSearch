@@ -169,42 +169,35 @@ input[type="range"]::-webkit-slider-thumb {
 #dock img {
     width: 100%;
 }
-#dock_item > div {
-    display: none;
+#i_bar {
+    display: flex;
+    gap: 4px;
     position: absolute;
+    right: 8px;
+}
+#i_bar > div {
+    display: none;
     width: 24px;
     height: 24px;
     background-color: var(--bar-bg);
     transition: var(--transition);
     border-radius: 50%;
-    margin: 8px;
     backdrop-filter: var(--blur);
     cursor: pointer;
     font-size: 24px;
 }
 
-#dock_item > #i_close {
-    right: 8px;
-}
-#dock_item > #i_close:hover {
+#i_bar > #i_close:hover {
     background-color: #f00;
 }
-#dock_item > #i_close:hover > .icon {
+#i_bar > #i_close:hover > .icon {
     filter: invert(1);
 }
 
-#dock_item > #i_ignore {
-    right: 32px;
-}
-
-#dock_item > #i_ignore:hover {
+#i_bar > #i_ignore:hover {
     background-color: var(--hover-color);
 }
 
-#dock_item > #i_tran {
-    right: 72px;
-}
-
-#dock_item > #i_tran:hover {
+#i_bar > #i_tran:hover {
     background-color: var(--hover-color);
 }
