@@ -89,6 +89,7 @@ set_setting();
 ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
     for (let i of data) {
+        ratio = i.scaleFactor;
         screens_l.push(i);
         let h = i.height * i.scaleFactor;
         let w = i.width * i.scaleFactor;
@@ -1064,7 +1065,6 @@ var undo_stack = [{ rect: 0, canvas: 0 }],
     rect_stack = [[0, 0, main_canvas.width, main_canvas.height]] as rect[],
     canvas_stack = [{}];
 var undo_stack_i = 0;
-var ratio = window.devicePixelRatio;
 var now_canvas_position: number[];
 var direction;
 var fabric_canvas;
