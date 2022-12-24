@@ -1377,7 +1377,11 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
     ipcMain.on("ding_ignore", (event, id, v) => {
         if (ding_window_list[id]) ding_window_list[id].setIgnoreMouseEvents(v);
     });
-    ipcMain.on("ding_p_s", (event, wid, p_s) => {});
+    ipcMain.on("ding_event", (event, type, id, screen_id, more) => {
+        for (let i in ding_window_list) {
+            if (i != screen_id) ding_window_list[i].webContents.send("ding", type, id, more);
+        }
+    });
     // 关闭窗口
     ipcMain.on("ding_close", (event, all) => {
         if (all) {

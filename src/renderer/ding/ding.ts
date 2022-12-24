@@ -8,6 +8,7 @@ var screen_id = "";
 ipcRenderer.on("screen_id", (event, id) => {
     screen_id = id;
 });
+ipcRenderer.on("ding", (event, type, id, more) => {});
 
 var ratio = window.devicePixelRatio;
 var changing = null;
@@ -190,7 +191,6 @@ function close(el) {
 function copy(el: HTMLElement) {
     clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
 }
-
 
 // 最高窗口
 var toppest = 1;
