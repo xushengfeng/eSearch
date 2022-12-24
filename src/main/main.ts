@@ -1336,6 +1336,7 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
     if (Object.keys(ding_window_list).length == 0) {
         let all = Screenshots.all() ?? [];
         let screen_l = capturer(all);
+        const id = new Date().getTime();
         for (let i of screen_l) {
             let ding_window = (ding_window_list[i.id] = new BrowserWindow({
                 icon: the_icon,
@@ -1360,7 +1361,6 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
             if (dev) ding_window.webContents.openDevTools();
             ding_window.webContents.on("did-finish-load", () => {
                 ding_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-                var id = new Date().getTime();
                 ding_window.webContents.send("screen_id", i.id);
                 ding_window.webContents.send("img", screen_id, id, x, y, w, h, img);
             });
