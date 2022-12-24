@@ -115,15 +115,21 @@ ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
 });
 
 ipcRenderer.on("mouse", (e, x, y) => {
-    console.log(x, y);
     let els = document.elementsFromPoint(x, y);
-    console.log(els);
-    if (screen_id)
-        if (els[0] == document.getElementById("photo")) {
+    if (screen_id) {
+        let ignorex = false;
+        for (let el of ignore_el) {
+            if (els.includes(el)) {
+                ignorex = true;
+                break;
+            }
+        }
+        if (els[0] == document.getElementById("photo") || ignorex) {
             ipcRenderer.send("ding_ignore", screen_id, true);
         } else {
             ipcRenderer.send("ding_ignore", screen_id, false);
         }
+    }
 });
 
 function minimize(el) {
@@ -134,12 +140,12 @@ function minimize(el) {
     el.classList.add("minimize");
     ding_p_s(el.id, [0, 0, 0, 0]);
 }
-function ignore(el, v) {
-    var i = el.id;
+var ignore_el = [];
+function ignore(el: HTMLElement, v: boolean) {
     if (v) {
-        ding_p_s(i, [0, 0, 0, 0]);
+        ignore_el.push(el);
     } else {
-        ding_p_s(i, [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight]);
+        ignore_el = ignore_el.filter((e) => e != el);
     }
 }
 var tran_style = document.createElement("style");
@@ -204,7 +210,6 @@ document.onmousedown = (e) => {
             o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
             changing = e;
             div.style.transition = "none";
-            ipcRenderer.send("ding_ignore", false);
         }
     } else if (el.id != "透明度" && el.id != "size") {
         div = el;
@@ -215,7 +220,6 @@ document.onmousedown = (e) => {
         window_div = div;
         o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
         changing = e;
-        ipcRenderer.send("ding_ignore", false);
     }
 };
 document.onmousemove = (e) => {
@@ -249,7 +253,6 @@ document.onmouseup = (e) => {
     changing = null;
     window_div = null;
     div.style.transition = ""; // 用于dock动画
-    ipcRenderer.send("ding_ignore", true);
 };
 
 var direction = "";
