@@ -948,6 +948,8 @@ document.getElementById("versions_info").insertAdjacentHTML("afterend", version)
 
 import pack from "../../../package.json?raw";
 var package_json = JSON.parse(pack);
+const path = require("path");
+const download = require("download");
 document.getElementById("name").innerHTML = package_json.name;
 document.getElementById("version").innerHTML = package_json.version;
 document.getElementById("description").innerHTML = t(package_json.description);
@@ -992,6 +994,32 @@ document.getElementById("version").onclick = () => {
                     tag_el.onclick = () => {
                         shell.openExternal(r.html_url);
                     };
+                    for (let a of r.assets) {
+                        if (a.name == "app") {
+                            let el = document.createElement("span");
+                            el.innerText = "增量更新";
+                            tag_el.after(el);
+                            el.onclick = async () => {
+                                download(a.browser_download_url, path.join(__dirname, "../../../"), {
+                                    extract: true,
+                                    rejectUnauthorized: false,
+                                })
+                                    .on("response", (res) => {
+                                        let total = Number(res.headers["content-length"]);
+                                        res.on("data", (data) => {
+                                            let now = Number(data.length);
+                                            el.innerText = `${(now / total) * 100}%`;
+                                            if (now == total) {
+                                                el.innerText = t("正在覆盖中，稍后你可以重启软件以获取更新");
+                                            }
+                                        });
+                                    })
+                                    .then(() => {
+                                        el.innerText = t("覆盖完毕");
+                                    });
+                            };
+                        }
+                    }
                 }
                 if (r.name == package_json.version) {
                     tags.append(tag("当前版本"));
