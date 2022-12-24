@@ -1378,8 +1378,10 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
     function ding_click_through() {
         let n_xy = screen.getCursorScreenPoint();
         for (let i in ding_window_list) {
-            let b = ding_window_list[i].getBounds();
-            ding_window_list[i].webContents.send("mouse", n_xy.x - b.x, n_xy.y - b.y);
+            try {
+                let b = ding_window_list[i].getBounds();
+                ding_window_list[i].webContents.send("mouse", n_xy.x - b.x, n_xy.y - b.y);
+            } catch (error) {}
         }
         setTimeout(ding_click_through, 10);
     }
