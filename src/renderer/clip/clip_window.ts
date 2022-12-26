@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 // In the renderer process.
-const { ipcRenderer, clipboard, nativeImage } = require("electron");
+const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
 const Store = require("electron-store");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";

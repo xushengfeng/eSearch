@@ -11,11 +11,10 @@ if (store.get("语言.语言") != "zh-CN") {
     document.getElementById("language").innerText = "Translation";
 }
 
-const { shell } = require("electron");
+const { shell } = require("electron") as typeof import("electron");
 document.onclick = (e) => {
     let el = <HTMLElement>e.target;
     if (el.tagName == "A") {
         shell.openExternal((<HTMLAnchorElement>el).href);
     }
 };
-

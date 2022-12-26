@@ -2,7 +2,6 @@ const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof im
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 const os = require("os") as typeof import("os");
-import { tmpdir } from "os";
 import root_init from "../root/root";
 root_init();
 const Store = require("electron-store");

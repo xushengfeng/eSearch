@@ -9,9 +9,9 @@ document.body.innerHTML = document.body.innerHTML
 document.title = t(document.title);
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
-const { shell, ipcRenderer } = require("electron");
-const os = require("os");
-const fs = require("fs");
+const { shell, ipcRenderer } = require("electron") as typeof import("electron");
+const os = require("os") as typeof import("os");
+const fs = require("fs") as typeof import("fs");
 import close_svg from "../assets/icons/close.svg";
 
 const old_store = store.store;
@@ -887,7 +887,7 @@ ipcRenderer.on("found", (e, a, b) => {
 var path_info = `<br>
                 ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>
                 ${t("文字记录：")}${history_store.path}<br>
-                ${t("临时目录：")}${os.tmpdir()}${os.platform == "win32" ? "\\" : "/"}eSearch<br>
+                ${t("临时目录：")}${os.tmpdir()}${os.platform() == "win32" ? "\\" : "/"}eSearch<br>
                 ${t("运行目录：")}${__dirname}`;
 document.createTextNode(path_info);
 document.getElementById("user_data_divs").insertAdjacentHTML("afterend", path_info);
@@ -948,7 +948,7 @@ document.getElementById("versions_info").insertAdjacentHTML("afterend", version)
 
 import pack from "../../../package.json?raw";
 var package_json = JSON.parse(pack);
-const path = require("path");
+const path = require("path") as typeof import("path");
 const download = require("download");
 document.getElementById("name").innerHTML = package_json.name;
 document.getElementById("version").innerHTML = package_json.version;

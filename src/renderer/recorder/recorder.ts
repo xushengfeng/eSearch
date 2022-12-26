@@ -96,7 +96,7 @@ var audio = false,
 
 var rect;
 
-const { ipcRenderer } = require("electron");
+const { ipcRenderer } = require("electron") as typeof import("electron");
 ipcRenderer.on("record", async (event, t, sourceId, r) => {
     switch (t) {
         case "init":
@@ -167,9 +167,9 @@ ipcRenderer.on("record", async (event, t, sourceId, r) => {
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(b);
                 reader.onloadend = (e) => {
-                    const fs = require("fs");
-                    const os = require("os");
-                    const path = require("path");
+                    const fs = require("fs") as typeof import("fs");
+                    const os = require("os") as typeof import("os");
+                    const path = require("path") as typeof import("path");
                     let file_name = String(new Date().getTime());
                     tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
                     fs.writeFile(tmp_path, Buffer.from(reader.result as string), (err) => {

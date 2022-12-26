@@ -1206,9 +1206,9 @@ function old_his_to_new() {
 }
 
 /************************************引入 */
-const { ipcRenderer, shell, clipboard } = require("electron");
-const fs = require("fs");
-const os = require("os");
+const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
+const fs = require("fs") as typeof import("fs");
+const os = require("os") as typeof import("os");
 
 ipcRenderer.on("init", (event, name: number) => {});
 
@@ -1270,7 +1270,7 @@ document.documentElement.style.setProperty("--icon-color", store.get("全局.图
 
 var edit_on_other_type = null;
 var file_watcher = null;
-const path = require("path");
+const path = require("path") as typeof import("path");
 var tmp_text_path = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
 var editing_on_other = false;
 import open_with from "../../../lib/open_with";
@@ -1843,7 +1843,7 @@ function online_ocr(type: string, arg: string, callback: Function) {
     }
 
     function youdao_ocr() {
-        const crypto = require("crypto");
+        const crypto = require("crypto") as typeof import("crypto");
         let input = arg.length >= 20 ? arg.slice(0, 10) + arg.length + arg.slice(-10) : arg;
         let curtime = String(Math.round(new Date().getTime() / 1000));
         let salt = crypto.randomUUID();
