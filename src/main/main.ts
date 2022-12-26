@@ -1403,6 +1403,9 @@ ipcMain.on("ding_event", (event, type, id, screen_id, more) => {
         ding_window_list[i].webContents.send("ding", type, id, screen_id, more);
     }
 });
+ipcMain.on("ding_edit", (event, img_path) => {
+    full_screen(img_path);
+});
 
 // 主页面
 var main_window_l: { [n: number]: BrowserWindow } = {};

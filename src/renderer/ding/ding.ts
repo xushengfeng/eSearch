@@ -1,4 +1,8 @@
-const { ipcRenderer, clipboard, nativeImage } = require("electron");
+const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
+const fs = require("fs") as typeof import("fs");
+const path = require("path") as typeof import("path");
+const os = require("os") as typeof import("os");
+import { tmpdir } from "os";
 import root_init from "../root/root";
 root_init();
 const Store = require("electron-store");
@@ -102,6 +106,9 @@ ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
     (<HTMLElement>tool_bar.querySelector("#copy")).onclick = () => {
         copy(div);
     };
+    (<HTMLElement>tool_bar.querySelector("#edit")).onclick = () => {
+        edit(div);
+    };
     // 双击归位
     div.ondblclick = () => {
         back(div);
@@ -198,6 +205,13 @@ function close2(el: HTMLElement) {
 }
 function copy(el: HTMLElement) {
     clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
+}
+function edit(el: HTMLElement) {
+    let b = Buffer.from(urls[el.id].replace(/^data:image\/\w+;base64,/, ""), "base64");
+    let save = path.join(os.tmpdir(), "eSearch", new Date().getTime() + ".png");
+    fs.writeFile(save, b, () => {
+        ipcRenderer.send("ding_edit", save);
+    });
 }
 
 // 最高窗口
