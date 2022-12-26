@@ -136,9 +136,11 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
 });
 
 function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number) {
+    let x = nativeImage.createFromBuffer(img).toBitmap();
+    w = Math.floor(w);
+    h = x.length / 4 / w;
     canvas.width = w;
     canvas.height = h;
-    let x = nativeImage.createFromBuffer(img).toBitmap();
     for (let i = 0; i < x.length; i += 4) {
         [x[i], x[i + 2]] = [x[i + 2], x[i]];
     }
