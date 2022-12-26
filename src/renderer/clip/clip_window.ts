@@ -108,6 +108,8 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
                 set_screen(i);
             };
             screen_position[i.id] = { x: i.x, y: i.y };
+
+            if (i.width < window.innerWidth || i.height < window.innerHeight) document.body.classList.add("editor_bg");
         }
     }
 
