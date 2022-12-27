@@ -203,6 +203,19 @@ Windows10 和 Windows11 测试通过
 
 macOS Catalina 测试通过
 
+## Q&A
+
+### 为什么选择 electron
+
+-   跨平台需要，本来我是想在 Linux 上也能体验 Windows 下优秀的截屏工具，Linux 独占也不好，所以选择跨平台。
+-   qt 依赖 c++，学习成本太高。flutter 桌面版还不太成熟。我更擅长 js 开发。
+-   截屏依赖本地系统，这是目前浏览器做不到的。
+-   最后只有 js 类跨平台方案，我选择了较为成熟，使用最多的 electron。
+
+### [tauri](https://github.com/tauri-apps/tauri) 也支持跨平台，也使用 js 开发，会转为 tauri 开发吗
+
+-   有这个打算，还很心动。不过主进程 2000 行代码迁移到 rust 还是有些费劲的，所以现在不会很快迁移。
+
 ## 开发原因
 
 我在用 Windows 时一直用这个好用的截屏软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到 Linux，Snipaste 不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。

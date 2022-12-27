@@ -203,6 +203,19 @@ Tested on Windows 10 and Windows 11
 
 Tested on macOS Catalina
 
+## Qantia.
+
+### Why choose electron.
+
+-   Cross-platform needs. Originally, I wanted to experience the excellent screenshot tools under Windows on Linux, and Linux monopoly is not good, so I chose cross-platform.
+-   qt relies on caterpillar, so the cost of learning is too high. The flutter desktop version is not very mature. I am better at js development.
+-   Screenshot depends on the local system, which cannot be done by browsers at present.
+-   in the end, there are only js cross-platform solutions. I chose electron, which is more mature and most widely used.
+
+### [tauri](https://github.com/tauri-apps/tauri) also supports cross-platform development and uses js development. Will it be converted to tauri development?
+
+-   I have such a plan, but I am still very excited. However, the migration of 2000 lines of code from the main process to rust is a bit laborious, so it will not be migrated any time soon.
+
 ## Development reasons
 
 I've been using this great screenshot software for Windows: [Snipaste - Snip & Paste](https://www.snipaste.com/), but I've switched to Linux and Snipaste is not supported, so I've chosen [Flameshot](https://flameshot.org/), which unfortunately doesn't have an intuitive colour picker.
