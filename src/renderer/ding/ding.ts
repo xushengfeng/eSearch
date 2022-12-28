@@ -12,7 +12,7 @@ ipcRenderer.on("screen_id", (event, id) => {
     screen_id = id;
 });
 
-var move: { id: string; screenid: string; more: any };
+var move: { id: string; screenid: string; more: move_type };
 
 ipcRenderer.on("ding", (event, type, id, screenid, more) => {
     console.log(type, id, screenid, more);
@@ -45,7 +45,7 @@ type move_type = { x: number; y: number; zoom: number };
 
 var ratio = window.devicePixelRatio;
 var changing = null;
-var photos = {};
+var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
 ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
@@ -164,8 +164,16 @@ ipcRenderer.on("mouse", (e, x, y) => {
         if (els.length != 0) {
             if (move) {
                 if (move.screenid != screen_id) {
-                    document.getElementById(move.id).style.display = "";
+                    let el = document.getElementById(move.id);
+                    el.style.display = "";
                     send_event("move_hide", move.id);
+                    let xx = x - photos[move.id][2] * move.more.zoom * move.more.x;
+                    let yy = y - photos[move.id][3] * move.more.zoom * move.more.y;
+                    el.style.left = xx + "px";
+                    el.style.top = yy + "px";
+                    el.style.width = photos[move.id][2] * move.more.zoom + "px";
+                    el.style.height = photos[move.id][3] * move.more.zoom + "px";
+                    resize(el, move.more.zoom);
                 }
             }
         }
@@ -272,13 +280,13 @@ document.onmousedown = (e) => {
         send_event("move_start", div.id, {
             x: e.offsetX / div.offsetWidth,
             y: e.offsetY / div.offsetHeight,
-            zoom: 1, // TODO
+            zoom: div.offsetWidth / photos[div.id][2],
         } as move_type);
     }
 };
 document.onmousemove = (e) => {
     let el = e.target as HTMLElement;
-    if (el.id == "dock" || el.offsetParent.id == "dock") {
+    if (!move && (el.id == "dock" || el.offsetParent.id == "dock")) {
         if (!dock_show) {
             if (window_div == null) {
                 div = el;
