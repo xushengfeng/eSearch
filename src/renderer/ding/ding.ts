@@ -11,14 +11,37 @@ var screen_id = "";
 ipcRenderer.on("screen_id", (event, id) => {
     screen_id = id;
 });
+
+var move: { id: string; screenid: string; more: any };
+
 ipcRenderer.on("ding", (event, type, id, screenid, more) => {
     console.log(type, id, screenid, more);
     switch (type) {
         case "close":
             close2(document.getElementById(id));
             break;
+        case "move_start":
+            move = { id, screenid, more };
+            break;
+        case "move_end":
+            move = null;
+            break;
+        case "move_hide":
+            if (screen_id != screenid) {
+                document.getElementById(id).style.display = "none";
+                break;
+            }
     }
 });
+
+function send_event(type: "close" | "move_start" | "move_end" | "move_hide", id: string, more?: any) {
+    ipcRenderer.send("ding_event", type, id, screen_id, more);
+}
+
+/**
+ * x,y都是小数百分比
+ */
+type move_type = { x: number; y: number; zoom: number };
 
 var ratio = window.devicePixelRatio;
 var changing = null;
@@ -138,6 +161,14 @@ ipcRenderer.on("mouse", (e, x, y) => {
                 break;
             }
         }
+        if (els.length != 0) {
+            if (move) {
+                if (move.screenid != screen_id) {
+                    document.getElementById(move.id).style.display = "";
+                    send_event("move_hide", move.id);
+                }
+            }
+        }
         if (els[0] == document.getElementById("photo") || ignorex) {
             ipcRenderer.send("ding_ignore", screen_id, true);
         } else {
@@ -217,7 +248,7 @@ function edit(el: HTMLElement) {
 var toppest = 1;
 var o_ps: number[];
 var window_div = null;
-var div;
+var div: HTMLElement;
 document.onmousedown = (e) => {
     let el = e.target as HTMLElement;
     if (el.id == "dock" || el.offsetParent.id == "dock") {
@@ -232,11 +263,17 @@ document.onmousedown = (e) => {
         div = el;
         if (div.id != "photo")
             while (div.className != "ding_photo") {
-                div = div.offsetParent;
+                div = div.offsetParent as HTMLElement;
             }
         window_div = div;
         o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
         changing = e;
+
+        send_event("move_start", div.id, {
+            x: e.offsetX / div.offsetWidth,
+            y: e.offsetY / div.offsetHeight,
+            zoom: 1, // TODO
+        } as move_type);
     }
 };
 document.onmousemove = (e) => {
@@ -255,7 +292,7 @@ document.onmousemove = (e) => {
             div = el;
             if (div.id != "photo")
                 while (div.className != "ding_photo") {
-                    div = div?.offsetParent;
+                    div = div?.offsetParent as HTMLElement;
                 }
             cursor(div, e);
         } else {
@@ -268,6 +305,7 @@ document.onmouseup = (e) => {
         store.set("ding_dock", [document.getElementById("dock").offsetLeft, document.getElementById("dock").offsetTop]);
     o_ps = [];
     changing = null;
+    send_event("move_end", window_div.id);
     window_div = null;
     div.style.transition = ""; // 用于dock动画
 };
