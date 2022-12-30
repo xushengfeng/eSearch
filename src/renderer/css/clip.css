@@ -524,7 +524,7 @@ body {
 /* long */
 #long_rect {
     position: fixed;
-    outline: 1px solid #000;
+    outline: 1px dashed #000;
 }
 
 #long_finish {
@@ -546,7 +546,7 @@ body {
 
 #recorder_rect {
     position: fixed;
-    outline: 1px solid #000;
+    outline: 1px dashed #000;
 }
 
 #mouse_c {
