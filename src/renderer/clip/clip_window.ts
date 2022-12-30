@@ -786,6 +786,9 @@ function pj_long() {
 
     final_rect = [0, 0, o_canvas.width, o_canvas.height];
 
+    fabric_canvas.setWidth(o_canvas.width);
+    fabric_canvas.setHeight(o_canvas.height);
+
     main_canvas.style.filter = "";
     hide_loading();
 
