@@ -388,7 +388,7 @@ if (auto_do != "no") {
 // 关闭
 function tool_close_f() {
     document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
-    if (记忆框选) {
+    if (记忆框选 && !long_inited) {
         记忆框选值[now_screen_id] = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]];
         store.set("框选.记忆.rects", 记忆框选值);
     }
@@ -731,8 +731,11 @@ function tool_long_f() {
     });
 }
 
+var long_inited = false;
+
 const lr = document.getElementById("long_rect");
 function init_long(rect: number[]) {
+    long_inited = true;
     let l = [
         tool_bar,
         draw_bar,
