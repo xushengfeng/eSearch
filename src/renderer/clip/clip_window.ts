@@ -176,6 +176,8 @@ document.addEventListener("mousemove", (e) => {
 });
 
 document.onwheel = (e) => {
+    if (!editor.contains(e.target as HTMLElement) && e.target != document.body) return;
+
     document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
         let z = zoom_w - e.deltaY / (800 / zoom_w);
