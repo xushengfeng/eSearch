@@ -755,6 +755,9 @@ function init_long(rect: number[]) {
 
     document.body.classList.remove("editor_bg");
 
+    记忆框选值[now_screen_id] = [rect[0], rect[1], rect[2], rect[3]];
+    store.set("框选.记忆.rects", 记忆框选值);
+
     lr.style.left = rect[0] / ratio + "px";
     lr.style.top = rect[1] / ratio + "px";
     lr.style.width = rect[2] / ratio + "px";
