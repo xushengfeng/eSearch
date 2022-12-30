@@ -81,6 +81,9 @@ type rect = [number, number, number, number];
 var final_rect = [0, 0, main_canvas.width, main_canvas.height] as rect;
 var screen_position: { [key: string]: { x: number; y: number } } = {};
 
+var tool_bar = document.getElementById("tool_bar");
+var draw_bar = document.getElementById("draw_bar");
+
 var now_screen_id = 0;
 
 var screens_l = [];
@@ -339,7 +342,6 @@ function s_center_bar(m) {
     }
 }
 
-var tool_bar = document.getElementById("tool_bar");
 // 工具栏按钮
 tool_bar.onmouseup = (e) => {
     var el = <HTMLElement>e.target;
@@ -536,19 +538,17 @@ track_location();
  * 编辑栏跟踪工具栏
  */
 function track_location() {
-    let h = document.getElementById("tool_bar").offsetTop;
-    let l = document.getElementById("tool_bar").offsetLeft + document.getElementById("tool_bar").offsetWidth + 8;
-    document.getElementById("draw_bar").setAttribute("right", "true");
-    let x =
-        document.getElementById("tool_bar").offsetLeft < final_rect[0] &&
-        document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth * 2 > 0;
-    if (l + 2 * document.getElementById("tool_bar").offsetWidth > document.body.offsetWidth || x) {
-        l = document.getElementById("tool_bar").offsetLeft - document.getElementById("draw_bar").offsetWidth - 8;
-        let l2 = document.getElementById("tool_bar").offsetLeft - document.getElementById("tool_bar").offsetWidth - 8;
-        document.getElementById("draw_bar").setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
+    let h = tool_bar.offsetTop;
+    let l = tool_bar.offsetLeft + tool_bar.offsetWidth + 8;
+    draw_bar.setAttribute("right", "true");
+    let x = tool_bar.offsetLeft < final_rect[0] && tool_bar.offsetLeft - tool_bar.offsetWidth * 2 > 0;
+    if (l + 2 * tool_bar.offsetWidth > document.body.offsetWidth || x) {
+        l = tool_bar.offsetLeft - draw_bar.offsetWidth - 8;
+        let l2 = tool_bar.offsetLeft - tool_bar.offsetWidth - 8;
+        draw_bar.setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
     }
-    document.getElementById("draw_bar").style.top = `${h}px`;
-    document.getElementById("draw_bar").style.left = `${l}px`;
+    draw_bar.style.top = `${h}px`;
+    draw_bar.style.left = `${l}px`;
 }
 
 // 在其他应用打开
@@ -1074,7 +1074,6 @@ var o_final_rect = null as rect;
 var the_color = null;
 var the_text_color = [null, null];
 var clip_ctx = clip_canvas.getContext("2d");
-var draw_bar = document.getElementById("draw_bar");
 var undo_stack = [{ rect: 0, canvas: 0 }],
     rect_stack = [[0, 0, main_canvas.width, main_canvas.height]] as rect[],
     canvas_stack = [{}];
@@ -1679,7 +1678,7 @@ function follow_bar(x?: number, y?: number) {
             tool_bar.style.top = max_height - tool_bar.offsetHeight + "px";
         }
     }
-    draw_bar.style.opacity = document.getElementById("tool_bar").style.opacity = "1";
+    draw_bar.style.opacity = tool_bar.style.opacity = "1";
     track_location();
 }
 
