@@ -155,6 +155,8 @@ function set_screen(i) {
     main_canvas.width = clip_canvas.width = draw_canvas.width = w;
     main_canvas.height = clip_canvas.height = draw_canvas.height = h;
     to_canvas(main_canvas, i.image, w, h);
+    fabric_canvas.setHeight(h);
+    fabric_canvas.setWidth(w);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
     if (记忆框选)
         if (记忆框选值?.[i.id]?.[2]) {
@@ -1070,7 +1072,6 @@ var undo_stack = [{ rect: 0, canvas: 0 }],
 var undo_stack_i = 0;
 var now_canvas_position: number[];
 var direction;
-var fabric_canvas;
 var auto_select_rect = store.get("框选.自动框选.开启");
 var /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 var /**鼠标是否按住 */ down = false;
