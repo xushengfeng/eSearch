@@ -1612,6 +1612,10 @@ var follow_bar_list = [[0, 0]];
  * @param y y坐标
  */
 function follow_bar(x?: number, y?: number) {
+    let zx = (final_rect[0] + editor_p.x) * editor_p.zoom,
+        zy = (final_rect[1] + editor_p.y) * editor_p.zoom,
+        zw = final_rect[2] * editor_p.zoom,
+        zh = final_rect[3] * editor_p.zoom;
     if (!x && !y) {
         var dx = undo_stack[undo_stack.length - 1][0] - undo_stack[undo_stack.length - 2][0];
         var dy = undo_stack[undo_stack.length - 1][1] - undo_stack[undo_stack.length - 2][1];
@@ -1619,9 +1623,9 @@ function follow_bar(x?: number, y?: number) {
         y = follow_bar_list[follow_bar_list.length - 1][1] + dy / ratio;
     }
     follow_bar_list.push([x, y]);
-    let [x1, y1] = [final_rect[0] / ratio, final_rect[1] / ratio];
-    let x2 = x1 + final_rect[2] / ratio;
-    let y2 = y1 + final_rect[3] / ratio;
+    let [x1, y1] = [zx, zy];
+    let x2 = x1 + zw;
+    let y2 = y1 + zh;
     let max_width = window.screen.width / 全局缩放;
     let max_height = window.screen.height / 全局缩放;
     if ((x1 + x2) / 2 <= x) {
