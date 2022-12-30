@@ -67,7 +67,7 @@ function set_setting() {
 }
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;
-var ratio = window.devicePixelRatio;
+var ratio = 1;
 const editor = document.getElementById("editor");
 editor.style.width = window.screen.width / 全局缩放 + "px";
 const main_canvas = <HTMLCanvasElement>document.getElementById("main_photo");
@@ -89,7 +89,6 @@ set_setting();
 ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
     for (let i of data) {
-        ratio = i.scaleFactor;
         screens_l.push(i);
         let h = i.height * i.scaleFactor;
         let w = i.width * i.scaleFactor;
@@ -98,6 +97,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
                 set_screen(i);
                 set_editor_p(1 / i.scaleFactor, 0, 0);
                 zoom_w = i.width;
+                ratio = i.scaleFactor;
             }
             let c = document.createElement("canvas");
             to_canvas(c, i.image, w, h);
@@ -134,7 +134,6 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     }, 0);
     right_key = false;
     change_right_bar(false);
-    ratio = window.devicePixelRatio;
 });
 
 function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number) {
