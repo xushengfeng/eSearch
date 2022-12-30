@@ -311,6 +311,7 @@ body {
 }
 #draw_side {
     overflow: scroll;
+    scroll-behavior: smooth;
 }
 
 #editor {

@@ -1930,16 +1930,12 @@ var shadow_blur = 0;
 
 // 编辑栏
 document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
-    (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
+    // (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
     e.addEventListener("click", () => {
         draw_m(!e.show);
         if (e.show) {
             e.show = !e.show;
-            (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
             draw_bar.style.width = "var(--bar-size)";
-            for (const ee of document.querySelectorAll("#draw_main > div")) {
-                (<HTMLDivElement>ee).style.backgroundColor = "";
-            }
             if (draw_bar.getAttribute("right") != "true") {
                 draw_bar.style.transition = "var(--transition)";
                 draw_bar.style.left = draw_bar.getAttribute("right").split(",")[1];
@@ -1953,10 +1949,6 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
     });
     function show() {
         draw_bar.style.width = "calc(var(--bar-size) * 2)";
-        for (const ee of document.querySelectorAll("#draw_main > div")) {
-            (<HTMLDivElement>ee).style.backgroundColor = "";
-        }
-        e.style.backgroundColor = "var(--hover-color)";
         if (draw_bar.getAttribute("right") != "true") {
             draw_bar.style.transition = "var(--transition)";
             draw_bar.style.left = draw_bar.getAttribute("right").split(",")[0];
@@ -1968,17 +1960,10 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
             ei.show = false;
         });
         e.show = !e.show;
-        document.querySelectorAll("#draw_side > div").forEach((ei: HTMLDivElement) => {
-            ei.style.height = "0";
-        });
-        var h = 0;
-        Array.from(document.querySelectorAll("#draw_side > div")[index].children).forEach((e: HTMLDivElement) => {
-            h += e.offsetHeight;
-        });
-        if (h > Number(draw_bar_height)) {
-            h = Number(draw_bar_height);
-        }
-        (<HTMLDivElement>document.querySelectorAll("#draw_side > div")[index]).style.height = h + "px";
+
+        document.querySelector("#draw_side").scrollTop = (<HTMLDivElement>(
+            document.querySelectorAll("#draw_side > div")[index]
+        )).offsetTop;
 
         if (index == 0) {
             if (!fabric_canvas.isDrawingMode) {
