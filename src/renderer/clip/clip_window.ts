@@ -1581,8 +1581,8 @@ document.onmousemove = (e) => {
         var y = e.clientY + 16;
         var w = mouse_bar_el.offsetWidth;
         var h = mouse_bar_el.offsetHeight;
-        var sw = window.screen.width;
-        var sh = window.screen.height;
+        var sw = window.innerWidth;
+        var sh = window.innerHeight;
         if (x + w > sw) {
             x = x - w - 32;
         }
@@ -1634,8 +1634,8 @@ function follow_bar(x?: number, y?: number) {
     let [x1, y1] = [zx, zy];
     let x2 = x1 + zw;
     let y2 = y1 + zh;
-    let max_width = window.screen.width / 全局缩放;
-    let max_height = window.screen.height / 全局缩放;
+    let max_width = window.innerWidth;
+    let max_height = window.innerHeight;
     if ((x1 + x2) / 2 <= x) {
         // 向右
         if (x2 + tool_bar.offsetWidth + 10 <= max_width) {
