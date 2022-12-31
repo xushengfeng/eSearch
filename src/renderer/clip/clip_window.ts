@@ -1045,6 +1045,7 @@ document.querySelector("body").onkeydown = (e) => {
                     break;
             }
             set_editor_p(editor_p.zoom, x, y);
+            document.body.classList.add("editor_bg");
         }
     }
 };
