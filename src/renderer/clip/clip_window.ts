@@ -22,7 +22,8 @@ var 工具栏跟随,
     color_size,
     color_i_size,
     记忆框选: boolean,
-    记忆框选值: { [id: string]: rect };
+    记忆框选值: { [id: string]: rect },
+    b_size: number;
 var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 function set_setting() {
     工具栏跟随 = store.get("工具栏跟随");
@@ -60,6 +61,7 @@ function set_setting() {
     document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
     let 工具栏 = store.get("工具栏");
     document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
+    b_size = 工具栏.按钮大小;
     document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
 
     记忆框选 = store.get("框选.记忆.开启");
@@ -542,12 +544,8 @@ track_location();
 function track_location() {
     let h = tool_bar.offsetTop;
     let l = tool_bar.offsetLeft + tool_bar.offsetWidth + 8;
-    draw_bar.setAttribute("right", "true");
-    let x = tool_bar.offsetLeft < final_rect[0] && tool_bar.offsetLeft - tool_bar.offsetWidth * 2 > 0;
-    if (l + 2 * tool_bar.offsetWidth > document.body.offsetWidth || x) {
+    if (draw_bar_posi == "left") {
         l = tool_bar.offsetLeft - draw_bar.offsetWidth - 8;
-        let l2 = tool_bar.offsetLeft - tool_bar.offsetWidth - 8;
-        draw_bar.setAttribute("right", `calc(${l2}px - var(--bar-size)), ${l2}px`);
     }
     draw_bar.style.top = `${h}px`;
     draw_bar.style.left = `${l}px`;
@@ -1614,6 +1612,8 @@ document.onmousemove = (e) => {
 
 // 工具栏跟随
 var follow_bar_list = [[0, 0]];
+var draw_bar_posi: "right" | "left" = "right";
+const bar_gap = 8;
 /**
  * 工具栏自动跟随
  * @param x x坐标
@@ -1636,39 +1636,52 @@ function follow_bar(x?: number, y?: number) {
     let y2 = y1 + zh;
     let max_width = window.innerWidth;
     let max_height = window.innerHeight;
+    const tool_w = tool_bar.offsetWidth;
+    const draw_w = draw_bar.offsetWidth;
+    const gap = bar_gap;
+    let group_w = tool_w + gap + draw_w;
+
     if ((x1 + x2) / 2 <= x) {
         // 向右
-        if (x2 + tool_bar.offsetWidth + 10 <= max_width) {
-            tool_bar.style.left = x2 + 10 + "px"; // 贴右边
+        if (x2 + group_w + gap <= max_width) {
+            tool_bar.style.left = x2 + gap + "px"; // 贴右边
+            draw_bar_posi = "right";
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴左边
-                if (x1 - tool_bar.offsetWidth - 10 >= 0) {
-                    tool_bar.style.left = x1 - tool_bar.offsetWidth - 10 + "px";
+                if (x1 - group_w - gap >= 0) {
+                    tool_bar.style.left = x1 - tool_w - gap + "px";
+                    draw_bar_posi = "left";
                 } else {
                     // 还超贴右内
-                    tool_bar.style.left = x2 - tool_bar.offsetWidth - 10 + "px";
+                    tool_bar.style.left = max_width - group_w + "px";
+                    draw_bar_posi = "right";
                 }
             } else {
                 // 直接贴右边,即使遮挡
-                tool_bar.style.left = x2 - tool_bar.offsetWidth - 10 + "px";
+                tool_bar.style.left = x2 - group_w - gap + "px";
+                draw_bar_posi = "right";
             }
         }
     } else {
         // 向左
-        if (x1 - tool_bar.offsetWidth - 10 >= 0) {
-            tool_bar.style.left = x1 - tool_bar.offsetWidth - 10 + "px"; // 贴左边
+        if (x1 - group_w - gap >= 0) {
+            tool_bar.style.left = x1 - tool_w - gap + "px"; // 贴左边
+            draw_bar_posi = "left";
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴右边
-                if (x2 + tool_bar.offsetWidth + 10 <= max_width) {
-                    tool_bar.style.left = x2 + 10 + "px";
+                if (x2 + group_w <= max_width) {
+                    tool_bar.style.left = x2 + gap + "px";
+                    draw_bar_posi = "right";
                 } else {
                     // 还超贴左内
-                    tool_bar.style.left = x1 + 10 + "px";
+                    tool_bar.style.left = 0 + draw_w + gap + "px";
+                    draw_bar_posi = "left";
                 }
             } else {
-                tool_bar.style.left = x1 + 10 + "px";
+                tool_bar.style.left = x1 + gap + "px";
+                draw_bar_posi = "left";
             }
         }
     }
@@ -1944,26 +1957,29 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
         if (e.show) {
             e.show = !e.show;
             draw_bar.style.width = "var(--bar-size)";
-            if (draw_bar.getAttribute("right") != "true") {
-                draw_bar.style.transition = "var(--transition)";
-                draw_bar.style.left = draw_bar.getAttribute("right").split(",")[1];
-                setTimeout(() => {
-                    draw_bar.style.transition = "";
-                }, 400);
-            }
+            reset_bar_posi();
         } else {
             show();
         }
     });
     function show() {
         draw_bar.style.width = "calc(var(--bar-size) * 2)";
-        if (draw_bar.getAttribute("right") != "true") {
-            draw_bar.style.transition = "var(--transition)";
-            draw_bar.style.left = draw_bar.getAttribute("right").split(",")[0];
-            setTimeout(() => {
-                draw_bar.style.transition = "";
-            }, 400);
+        draw_bar.style.transition = "var(--transition)";
+        if (draw_bar_posi == "right") {
+            if (draw_bar.offsetLeft + b_size * 2 > window.innerWidth) {
+                set_bar_group(true);
+            }
+        } else {
+            if (draw_bar.offsetLeft - b_size < 0) {
+                set_bar_group(false);
+            } else {
+                before_bar_posi.draw = draw_bar.offsetLeft;
+                draw_bar.style.left = draw_bar.offsetLeft - b_size + "px";
+            }
         }
+        setTimeout(() => {
+            draw_bar.style.transition = "";
+        }, 400);
         document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
             ei.show = false;
         });
@@ -1981,6 +1997,44 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
         }
     }
 });
+
+let before_bar_posi = { tool: NaN, draw: NaN };
+/** 记录展开绘画栏前栏的位置 */
+function set_bar_group(right: boolean) {
+    if (draw_bar.offsetWidth == b_size * 2) return; // 已经展开就不记录了
+    tool_bar.style.transition = "var(--transition)";
+    before_bar_posi.tool = tool_bar.offsetLeft;
+    before_bar_posi.draw = draw_bar.offsetLeft;
+    if (right) {
+        tool_bar.style.left = window.innerWidth - b_size * 3 - bar_gap + "px";
+        draw_bar.style.left = window.innerWidth - b_size * 2 + "px";
+    } else {
+        tool_bar.style.left = b_size * 2 + bar_gap + "px";
+        draw_bar.style.left = 0 + "px";
+    }
+    setTimeout(() => {
+        tool_bar.style.transition = "";
+    }, 400);
+}
+/** 根据以前记录的位置恢复栏位置 */
+function reset_bar_posi() {
+    if (before_bar_posi.draw) {
+        draw_bar.style.transition = "var(--transition)";
+        draw_bar.style.left = before_bar_posi.draw + "px";
+        setTimeout(() => {
+            draw_bar.style.transition = "";
+        }, 400);
+        before_bar_posi.draw = NaN;
+    }
+    if (before_bar_posi.tool) {
+        tool_bar.style.transition = "var(--transition)";
+        tool_bar.style.left = before_bar_posi.tool + "px";
+        setTimeout(() => {
+            tool_bar.style.transition = "";
+        }, 400);
+        before_bar_posi.tool = NaN;
+    }
+}
 
 var free_i_els = document.querySelectorAll("#draw_free_i > lock-b") as NodeListOf<HTMLInputElement>;
 
