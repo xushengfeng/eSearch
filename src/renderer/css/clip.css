@@ -312,6 +312,7 @@ body {
 #draw_side {
     overflow: scroll;
     scroll-behavior: smooth;
+    flex-shrink: 0;
 }
 
 #editor {
