@@ -1027,9 +1027,9 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
         sh = s.bounds.y + s.bounds.height * ratio;
     let x = p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w,
         y = p.y <= hy ? s.bounds.y + rect[1] - h - 8 : s.bounds.y + rect[1] + rect[3] + 8;
-    x = x < 0 ? 0 : x;
+    x = x < s.bounds.x ? s.bounds.x : x;
     x = x + w > sw ? sw - w : x;
-    y = y < 0 ? 0 : y;
+    y = y < s.bounds.y ? s.bounds.y : y;
     y = y + h > sh ? sh - h : y;
     x = Math.round(x);
     y = Math.round(y);
