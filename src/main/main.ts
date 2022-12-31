@@ -912,7 +912,7 @@ function create_clip_window() {
                 store.set("保存.保存路径.图片", path.dirname(arg));
                 break;
             case "record":
-                create_recorder_window(arg.rect, arg.id);
+                create_recorder_window(arg.rect, { id: arg.id, w: arg.w, h: arg.h, r: arg.ratio });
                 break;
             case "long_s":
                 // n_full_screen();
@@ -1013,7 +1013,7 @@ function image_search(event: Electron.IpcMainEvent, arg) {
 
 var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
 var o_rect;
-function create_recorder_window(rect, id: string) {
+function create_recorder_window(rect, screenx: { id: string; w: number; h: number; r: number }) {
     o_rect = rect;
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     let ratio = s.scaleFactor;
@@ -1072,10 +1072,10 @@ function create_recorder_window(rect, id: string) {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
             let d_id = "";
             sources.forEach((s) => {
-                if (s.display_id == id) d_id = s.id;
+                if (s.display_id == screenx.id) d_id = s.id;
             });
             if (!d_id) d_id = sources[0].id;
-            recorder.webContents.send("record", "init", d_id, rect);
+            recorder.webContents.send("record", "init", d_id, rect, screenx.w, screenx.h, screenx.r);
         });
     });
 

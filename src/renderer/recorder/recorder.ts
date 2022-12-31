@@ -25,7 +25,7 @@ type time_el = {
 const Store = require("electron-store");
 var store = new Store();
 
-var ratio = window.devicePixelRatio;
+var ratio = 1;
 
 var /**@type {MediaRecorder} */ recorder;
 
@@ -97,10 +97,11 @@ var audio = false,
 var rect;
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
-ipcRenderer.on("record", async (event, t, sourceId, r) => {
+ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, screen_ratio) => {
     switch (t) {
         case "init":
             rect = r;
+            ratio = screen_ratio;
             s_s = true;
             let devices = await navigator.mediaDevices.enumerateDevices();
             for (let i of devices) {
@@ -138,8 +139,8 @@ ipcRenderer.on("record", async (event, t, sourceId, r) => {
                         mandatory: {
                             chromeMediaSource: "desktop",
                             chromeMediaSourceId: sourceId,
-                            minWidth: window.screen.width * ratio,
-                            minHeight: window.screen.height * ratio,
+                            minWidth: screen_w,
+                            minHeight: screen_h,
                         },
                     },
                 });
