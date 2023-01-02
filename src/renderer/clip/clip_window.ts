@@ -703,8 +703,8 @@ function tool_long_f() {
         }
         let canvas = document.createElement("canvas");
         let canvas_top = document.createElement("canvas");
-        canvas.width = clip_canvas.width = draw_canvas.width = w;
-        canvas.height = clip_canvas.height = draw_canvas.height = h;
+        canvas.width = w;
+        canvas.height = h;
         for (let i = 0; i < x.length; i += 4) {
             [x[i], x[i + 2]] = [x[i + 2], x[i]];
         }
