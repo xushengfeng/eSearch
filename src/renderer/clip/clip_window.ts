@@ -802,6 +802,8 @@ function pj_long() {
     hide_loading();
 
     document.body.classList.add("editor_bg");
+
+    lr.style.width = lr.style.height = "0";
 }
 
 // 钉在屏幕上
