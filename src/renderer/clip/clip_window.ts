@@ -2075,6 +2075,9 @@ function pencil_el_click() {
         fabric_canvas.freeDrawingBrush = new Fabric.PencilBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
+
+        color_m = "stroke";
+
         free_shadow();
     }
     exit_shape();
@@ -2109,6 +2112,8 @@ free_spray_el.oninput = () => {
         fabric_canvas.freeDrawingBrush = new Fabric.SprayBrush(fabric_canvas);
         fabric_canvas.freeDrawingBrush.color = free_color;
         fabric_canvas.freeDrawingBrush.width = free_width;
+
+        color_m = "stroke";
     }
     exit_shape();
     exit_filter();
@@ -2429,7 +2434,9 @@ function draw_number() {
 }
 
 // 颜色选择
-var color_m = "fill";
+
+/** 规定当前色盘对应的是填充还是边框 */
+var color_m: "fill" | "stroke" = "fill";
 var color_fill_el = document.getElementById("draw_color_fill");
 color_fill_el.onfocus = () => {
     color_m = "fill";
