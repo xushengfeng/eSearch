@@ -1445,7 +1445,7 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
             contextIsolation: false,
             webSecurity: false,
         },
-        show: false,
+        show: t?.[0] != "image" && t?.[0] != "ocr", // 一般情况下true，识图和ocr为false
     })) as BrowserWindow & { html: string };
 
     main_to_search_l[window_name] = [];
