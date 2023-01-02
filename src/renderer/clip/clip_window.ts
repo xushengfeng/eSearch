@@ -676,7 +676,7 @@ function tool_record_f() {
 }
 
 var log_o = {
-    long_list: [] as [HTMLCanvasElement, HTMLCanvasElement][],
+    long_list: [] as [HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement][],
     l: [],
     o_canvas: null,
     p: { x: 0, y: 0 },
@@ -701,8 +701,12 @@ function tool_long_f() {
             pj_long();
             return;
         }
+        // 原始区域
         let canvas = document.createElement("canvas");
+        // 对比模板
         let canvas_top = document.createElement("canvas");
+        // 要拼接的图片
+        let canvas_after = document.createElement("canvas");
         canvas.width = w;
         canvas.height = h;
         for (let i = 0; i < x.length; i += 4) {
@@ -711,12 +715,16 @@ function tool_long_f() {
         var d = new ImageData(Uint8ClampedArray.from(x), w, h);
         canvas.getContext("2d").putImageData(d, 0, 0);
         var gid = canvas.getContext("2d").getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
-        canvas.width = canvas_top.width = final_rect[2];
+        canvas.width = canvas_top.width = canvas_after.width = final_rect[2];
         canvas.height = final_rect[3];
-        canvas_top.height = 200;
+        const rec_height = Math.min(200, final_rect[3]);
+        const rec_top = Math.floor(final_rect[3] / 2 - rec_height / 2);
+        canvas_top.height = rec_height; // 只是用于模板对比，小一点
+        canvas_after.height = final_rect[3] - rec_top; // 裁剪顶部
         canvas.getContext("2d").putImageData(gid, 0, 0);
-        canvas_top.getContext("2d").putImageData(gid, 0, 0);
-        long_list.push([canvas, canvas_top]);
+        canvas_top.getContext("2d").putImageData(gid, 0, -rec_top);
+        canvas_after.getContext("2d").putImageData(gid, 0, -rec_top);
+        long_list.push([canvas, canvas_top, canvas_after]);
         let i = long_list.length - 2;
         if (i < 0) return;
         let src = cv.imread(long_list[i][0]);
@@ -731,6 +739,8 @@ function tool_long_f() {
         p.x += maxPoint.x;
         p.y += maxPoint.y;
         log_o.l.push([p.x, p.y]);
+        o_canvas.height -= rec_top;
+        p.y -= rec_top;
         src.delete();
         dst.delete();
         mask.delete();
@@ -784,8 +794,9 @@ function pj_long() {
     let l = log_o.l,
         long_list = log_o.long_list,
         o_canvas = log_o.o_canvas;
+    o_canvas.getContext("2d").drawImage(long_list[0][0], 0, 0); // 先画顶部图片，使用原始区域
     for (let i = 0; i < long_list.length - 1; i++) {
-        o_canvas.getContext("2d").drawImage(long_list[i + 1][0], l[i][0], l[i][1]);
+        o_canvas.getContext("2d").drawImage(long_list[i + 1][2], l[i][0], l[i][1]); // 每次拼接覆盖时底部总会被覆盖，所以不用管底部
     }
     main_canvas.width = clip_canvas.width = draw_canvas.width = o_canvas.width;
     main_canvas.height = clip_canvas.height = draw_canvas.height = o_canvas.height;
@@ -804,6 +815,14 @@ function pj_long() {
     document.body.classList.add("editor_bg");
 
     lr.style.width = lr.style.height = "0";
+
+    // for(let i of long_list){
+    //     let div=document.createElement('div')
+    //     for(let k of i){
+    //         div.append(k)
+    //     }
+    //     document.body.append(div)
+    // }
 }
 
 // 钉在屏幕上
