@@ -374,63 +374,63 @@ document.documentElement.style.setProperty("--icon-color", store.get("全局.图
 var o_搜索引擎 = store.get("搜索引擎");
 if (o_搜索引擎) {
     var text = "";
-    var default_en = `<set-select name="" id="默认搜索引擎">`;
+    var default_en = `<div id="默认搜索引擎">`;
     for (let i in o_搜索引擎) {
         text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
-        default_en += `<div value="${o_搜索引擎[i][0]}">${o_搜索引擎[i][0]}</div>`;
+        default_en += `<label><input type="radio" name="默认搜索引擎" value="${o_搜索引擎[i][0]}">${o_搜索引擎[i][0]}</label>`;
     }
     (<HTMLInputElement>document.getElementById("搜索引擎")).value = text;
-    default_en += `</set-select>`;
+    default_en += `</div>`;
     document.getElementById("默认搜索引擎div").innerHTML = default_en;
-    (<HTMLInputElement>document.getElementById("默认搜索引擎")).value = store.get("引擎.默认搜索引擎");
+    set_radio(document.getElementById("默认搜索引擎"), store.get("引擎.默认搜索引擎"));
 }
 document.getElementById("搜索引擎").onchange = () => {
     o_搜索引擎 = [];
     var text = (<HTMLInputElement>document.getElementById("搜索引擎")).value;
     var text_l = text.split("\n");
-    var default_en = `<set-select name="" id="默认搜索引擎">`;
+    var default_en = `<div id="默认搜索引擎">`;
     for (let i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
         if (l[0] != "") {
             o_搜索引擎[i] = [l[0], l[1]];
-            default_en += `<div value="${l[0]}">${l[0]}</div>`;
+            default_en += `<label><input type="radio" name="默认搜索引擎" value="${l[0]}">${l[0]}</label>`;
         }
     }
-    default_en += `</set-select>`;
+    default_en += `</div>`;
     document.getElementById("默认搜索引擎div").innerHTML = default_en;
-    (<HTMLInputElement>document.getElementById("默认搜索引擎")).value = o_搜索引擎[0][0];
+    set_radio(document.getElementById("默认搜索引擎"), o_搜索引擎[0][0]);
 };
 
 var o_翻译引擎 = store.get("翻译引擎");
 if (o_翻译引擎) {
     var text = "";
-    var default_en = `<set-select name="" id="默认翻译引擎">`;
+    var default_en = `<div id="默认翻译引擎">`;
     for (let i in o_翻译引擎) {
         text += `${o_翻译引擎[i][0]}, ${o_翻译引擎[i][1]}\n`;
-        default_en += `<div value="${o_翻译引擎[i][0]}">${o_翻译引擎[i][0]}</div>`;
+        default_en += `<label><input type="radio" name="默认翻译引擎" value="${o_翻译引擎[i][0]}">${o_翻译引擎[i][0]}</label>`;
     }
     (<HTMLInputElement>document.getElementById("翻译引擎")).value = text;
-    default_en += `</set-select>`;
+    default_en += `</div>`;
     document.getElementById("默认翻译引擎div").innerHTML = default_en;
-    (<HTMLInputElement>document.getElementById("默认翻译引擎")).value = store.get("引擎.默认翻译引擎");
+    set_radio(document.getElementById("默认翻译引擎"), store.get("引擎.默认翻译引擎"));
 }
 document.getElementById("翻译引擎").onchange = () => {
     o_翻译引擎 = [];
     var text = (<HTMLInputElement>document.getElementById("翻译引擎")).value;
     var text_l = text.split("\n");
-    var default_en = `<set-select name="" id="默认翻译引擎">`;
+    var default_en = `<div id="默认翻译引擎">`;
     for (let i in text_l) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
         var l = text_l[i].replace(r, "$1,$2").split(",");
         if (l[0] != "") {
             o_翻译引擎[i] = [l[0], l[1]];
-            default_en += `<div value="${l[0]}">${l[0]}</div>`;
+            default_en += `<label><input type="radio" name="默认翻译引擎" value="${l[0]}">${l[0]}</label>`;
         }
     }
-    default_en += `</set-select>`;
+    default_en += `</div>`;
     document.getElementById("默认翻译引擎div").innerHTML = default_en;
-    (<HTMLInputElement>document.getElementById("默认翻译引擎")).value = o_翻译引擎[0][0];
+    set_radio(document.getElementById("默认翻译引擎"), o_翻译引擎[0][0]);
 };
 (<HTMLInputElement>document.getElementById("记住引擎")).checked = store.get("引擎.记住");
 
@@ -807,13 +807,10 @@ function save_setting() {
     if (o_翻译引擎) store.set("翻译引擎", o_翻译引擎);
     store.set("引擎", {
         记住: (<HTMLInputElement>document.getElementById("记住引擎")).checked
-            ? [
-                  (<HTMLInputElement>document.getElementById("默认搜索引擎")).value,
-                  (<HTMLInputElement>document.getElementById("默认翻译引擎")).value,
-              ]
+            ? [get_radio(document.getElementById("默认搜索引擎")), get_radio(document.getElementById("默认翻译引擎"))]
             : false,
-        默认搜索引擎: (<HTMLInputElement>document.getElementById("默认搜索引擎")).value,
-        默认翻译引擎: (<HTMLInputElement>document.getElementById("默认翻译引擎")).value,
+        默认搜索引擎: get_radio(document.getElementById("默认搜索引擎")),
+        默认翻译引擎: get_radio(document.getElementById("默认翻译引擎")),
     });
     store.set("以图搜图", {
         引擎: get_radio(<HTMLInputElement>document.getElementById("图像搜索引擎")),
