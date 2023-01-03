@@ -1036,6 +1036,7 @@ document.querySelector("body").onkeydown = (e) => {
     let tagName = (<HTMLElement>e.target).tagName;
     if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
         return;
+    if (long_inited) return;
     const o = {
         ArrowUp: "up",
         ArrowRight: "right",
