@@ -322,6 +322,8 @@ document.getElementById("保存文件名称后缀").style.width = `${
 
 (<HTMLInputElement>document.getElementById("jpg质量")).value = store.get("jpg质量");
 
+(<HTMLInputElement>document.getElementById("快速保存")).checked = store.get("保存.快速保存");
+
 var 字体 = store.get("字体");
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
@@ -769,6 +771,7 @@ function save_setting() {
         },
     });
     store.set("保存.默认格式", (<HTMLInputElement>document.getElementById("默认格式")).value);
+    store.set("保存.快速保存", (<HTMLInputElement>document.getElementById("快速保存")).checked);
     store.set("保存名称", {
         前缀: (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value,
         时间: (<HTMLInputElement>document.getElementById("保存文件名称时间")).value,
