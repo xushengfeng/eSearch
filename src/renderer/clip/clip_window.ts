@@ -744,6 +744,7 @@ function tool_long_f() {
         src.delete();
         dst.delete();
         mask.delete();
+        long_list[i + 1][1] = null;
     });
 }
 
