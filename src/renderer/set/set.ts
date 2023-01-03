@@ -122,9 +122,9 @@ document.getElementById("不透明度").oninput = () => {
 
 // 单选项目设置加载
 function 选择器储存(id, 默认) {
-    (<HTMLInputElement>document.querySelector(`#${id}`)).value = store.get(id) || 默认;
+    set_radio(document.querySelector(`#${id}`), store.get(id) || 默认);
     (<HTMLElement>document.querySelector(`#${id}`)).onclick = () => {
-        store.set(id, (<HTMLInputElement>document.querySelector(`#${id}`)).value);
+        store.set(id, get_radio(<HTMLInputElement>document.querySelector(`#${id}`)));
     };
 }
 
