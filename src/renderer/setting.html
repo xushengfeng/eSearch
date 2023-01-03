@@ -992,12 +992,12 @@
                 <h2>
                     <t>检查更新</t>
                 </h2>
-                <set-select name="" id="检查更新频率">
-                    <div value="start">启动时检查</div>
-                    <div value="weekly">每周检查</div>
-                    <div value="setting">设置启动时检查</div>
-                    <div value="manual">手动检查</div>
-                </set-select>
+                <div id="检查更新频率">
+                    <label><input type="radio" name="检查更新频率" value="manual">手动检查</label>
+                    <label><input type="radio" name="检查更新频率" value="setting">设置启动时检查</label>
+                    <label><input type="radio" name="检查更新频率" value="weekly">每周检查</label>
+                    <label><input type="radio" name="检查更新频率" value="start">启动时检查</label>
+                </div>
                 <label>
                     <input type="checkbox" name="" id="dev">
                     <t>检查测试版更新</t>
