@@ -49,10 +49,10 @@ document.getElementById("autostart").oninput = () => {
 (<HTMLInputElement>document.getElementById("启动提示")).checked = store.get("启动提示");
 
 function get_radio(el: HTMLElement) {
-    return (<HTMLInputElement>el.querySelector("input:checked")).value;
+    return (<HTMLInputElement>el.querySelector("input[type=radio]:checked")).value;
 }
 function set_radio(el: HTMLElement, value: string) {
-    (<HTMLInputElement>el.querySelector(`input[value=${value}]`)).checked = true;
+    (<HTMLInputElement>el.querySelector(`input[type=radio][value="${value}"]`)).checked = true;
 }
 set_radio(document.getElementById("语言"), store.get("语言.语言"));
 document.getElementById("系统语言").onclick = () => {
