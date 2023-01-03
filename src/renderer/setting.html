@@ -906,13 +906,13 @@
                     <t>代理</t>
                 </h1>
 
-                <set-select name="" id="代理">
-                    <div value="direct">无代理</div>
-                    <div value="auto_detect">自动检测</div>
-                    <div value="pac_script">PAC脚本</div>
-                    <div value="fixed_servers">固定服务器</div>
-                    <div value="system">系统代理</div>
-                </set-select>
+                <div id="代理">
+                    <label><input type="radio" name="代理" value="system">系统代理</label>
+                    <label><input type="radio" name="代理" value="fixed_servers">固定服务器</label>
+                    <label><input type="radio" name="代理" value="pac_script">PAC脚本</label>
+                    <label><input type="radio" name="代理" value="auto_detect">自动检测</label>
+                    <label><input type="radio" name="代理" value="direct">无代理</label>
+                </div>
                 </br>
                 <div id="pacScript_p">
                     <t>PAC URL：</t>

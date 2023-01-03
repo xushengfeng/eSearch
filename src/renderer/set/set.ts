@@ -588,7 +588,7 @@ document.getElementById("clear_his").onclick = () => {
 var proxy_l = ["http", "https", "ftp", "socks"];
 
 var 代理 = store.get("代理");
-(<HTMLInputElement>document.getElementById("代理")).value = 代理.mode;
+set_radio(document.getElementById("代理"), 代理.mode);
 (<HTMLInputElement>document.getElementById("pacScript")).value = 代理.pacScript;
 get_proxy();
 (<HTMLInputElement>document.getElementById("proxyBypassRules")).value = 代理.proxyBypassRules;
@@ -849,7 +849,7 @@ function save_setting() {
         secret: (<HTMLInputElement>document.getElementById("youdao_ocr_secret")).value,
     });
     store.set("代理", {
-        mode: (<HTMLInputElement>document.getElementById("代理")).value,
+        mode: get_radio(document.getElementById("代理")),
         pacScript: (<HTMLInputElement>document.getElementById("pacScript")).value,
         proxyRules: set_proxy(),
         proxyBypassRules: (<HTMLInputElement>document.getElementById("proxyBypassRules")).value,
