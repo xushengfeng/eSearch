@@ -846,7 +846,21 @@ function tool_copy_f() {
 }
 // 保存
 var type;
+import time_format from "../../../lib/time_format";
 function tool_save_f() {
+    if (store.get("保存.快速保存")) {
+        type = store.get("保存.默认格式");
+        const path = require("path") as typeof import("path");
+        let saved_path = store.get("保存.保存路径.图片") || "";
+        let p = path.join(saved_path, `${get_file_name()}.${store.get("保存.默认格式")}`);
+        function get_file_name() {
+            var save_name_time = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
+            var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
+            return file_name;
+        }
+        save(p);
+        return;
+    }
     s_center_bar("save");
     var t_to_n = { png: 0, jpg: 1, svg: 2 };
     var i = t_to_n[store.get("保存.默认格式")];
@@ -880,6 +894,9 @@ function tool_save_f() {
 }
 ipcRenderer.on("save_path", (event, message) => {
     console.log(message);
+    save(message);
+});
+function save(message: string) {
     if (message) {
         const fs = require("fs");
         get_clip_photo(type).then((c) => {
@@ -916,7 +933,7 @@ ipcRenderer.on("save_path", (event, message) => {
         });
         tool_close_f();
     }
-});
+}
 var svg;
 /**
  * 获取选区图像

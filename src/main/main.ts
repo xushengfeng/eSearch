@@ -1884,6 +1884,7 @@ var default_setting = {
     保存: {
         默认格式: "png",
         保存路径: { 图片: "", 视频: "" },
+        快速保存: false,
     },
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     jpg质量: 1,
