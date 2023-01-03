@@ -242,6 +242,24 @@ set-select {
     width: 100%;
 }
 
+input[type="radio"] {
+    display: none;
+}
+label:has(input[type="radio"]) {
+    margin: 8px 8px 8px 0;
+    border-radius: 8px;
+    padding: 8px;
+    transition: background var(--transition), box-shadow var(--transition);
+    display: inline-block;
+}
+label:has(input[type="radio"]):hover {
+    box-shadow: var(--shadow);
+}
+label:has(input[type="radio"]:checked) {
+    background: var(--m-color1);
+    color: #fff;
+}
+
 summary {
     font-size: 1.17rem;
     font-weight: bold;

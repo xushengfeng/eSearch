@@ -277,6 +277,8 @@ function capturer(screen_list: Screenshots[]) {
 
 var contextMenu: Electron.Menu, tray: Tray;
 
+app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
+
 app.whenReady().then(() => {
     if (store.get("首次运行") === undefined) set_default_setting();
     fix_setting_tree();

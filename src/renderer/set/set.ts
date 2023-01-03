@@ -48,28 +48,37 @@ document.getElementById("autostart").oninput = () => {
 
 (<HTMLInputElement>document.getElementById("启动提示")).checked = store.get("启动提示");
 
-(<HTMLInputElement>document.getElementById("语言")).value = store.get("语言.语言");
+function get_radio(el: HTMLElement) {
+    return (<HTMLInputElement>el.querySelector("input:checked")).value;
+}
+function set_radio(el: HTMLElement, value: string) {
+    (<HTMLInputElement>el.querySelector(`input[value=${value}]`)).checked = true;
+}
+set_radio(document.getElementById("语言"), store.get("语言.语言"));
 document.getElementById("系统语言").onclick = () => {
     if (navigator.language.split("-")[0] == "zh") {
-        (<HTMLInputElement>document.getElementById("语言")).value = {
-            "zh-CN": "zh-HANS",
-            "zh-SG": "zh-HANS",
-            "zh-TW": "zh-HANT",
-            "zh-HK": "zh-HANT",
-        }[navigator.language];
+        set_radio(
+            document.getElementById("语言"),
+            {
+                "zh-CN": "zh-HANS",
+                "zh-SG": "zh-HANS",
+                "zh-TW": "zh-HANT",
+                "zh-HK": "zh-HANT",
+            }[navigator.language]
+        );
     } else {
-        (<HTMLInputElement>document.getElementById("语言")).value = navigator.language.split("-")[0];
+        set_radio(document.getElementById("语言"), navigator.language.split("-")[0]);
     }
-    lan((<HTMLInputElement>document.getElementById("语言")).value);
+    lan(get_radio(document.getElementById("语言")));
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 document.getElementById("语言").onclick = () => {
-    lan((<HTMLInputElement>document.getElementById("语言")).value);
+    lan(get_radio(document.getElementById("语言")));
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 
 document.getElementById("语言重启").onclick = () => {
-    store.set("语言.语言", (<HTMLInputElement>document.getElementById("语言")).value);
+    store.set("语言.语言", get_radio(document.getElementById("语言")));
     ipcRenderer.send("setting", "reload");
 };
 
@@ -666,7 +675,7 @@ document.onclick = document.onkeyup = save_setting;
 function save_setting() {
     if (give_up) return;
     store.set("启动提示", (<HTMLInputElement>document.getElementById("启动提示")).checked);
-    store.set("语言.语言", (<HTMLInputElement>document.getElementById("语言")).value);
+    store.set("语言.语言", get_radio(document.getElementById("语言")));
     store.set("其他快捷键", {
         关闭: (<HTMLInputElement>document.querySelector(`hot-keys[name="关闭"]`)).value,
         OCR: (<HTMLInputElement>document.querySelector(`hot-keys[name="OCR(文字识别)"]`)).value,
