@@ -270,7 +270,7 @@ document.getElementById("plugin_b").onclick = () => {
 
 (<HTMLInputElement>document.getElementById("tran_css")).value = store.get("贴图.窗口.变换");
 
-(<HTMLInputElement>document.getElementById("快速截屏")).value = store.get("快速截屏.模式");
+set_radio(document.getElementById("快速截屏"), store.get("快速截屏.模式"));
 (<HTMLInputElement>document.getElementById("快速截屏路径")).value = store.get("快速截屏.路径");
 document.getElementById("获取保存路径").onclick = () => {
     ipcRenderer.send("get_save_path", (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "");
@@ -737,7 +737,7 @@ function save_setting() {
     store.set("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
     store.set("贴图.窗口.变换", (<HTMLInputElement>document.getElementById("tran_css")).value);
     store.set("框选后默认操作", get_radio(document.getElementById("框选后默认操作")));
-    store.set("快速截屏.模式", (<HTMLInputElement>document.getElementById("快速截屏")).value);
+    store.set("快速截屏.模式", get_radio(<HTMLInputElement>document.getElementById("快速截屏")));
     store.set(
         "快速截屏.路径",
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value
