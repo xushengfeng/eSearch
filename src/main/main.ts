@@ -920,7 +920,9 @@ function create_clip_window() {
                 long_s(arg);
                 break;
             case "long_e":
+                long_s(arg);
                 long_s_v = false;
+                clip_window.webContents.send("long", null);
                 break;
             case "new_version":
                 var notification = new Notification({
@@ -1293,14 +1295,10 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
 var long_s_v = false;
 
 function long_s(id: number) {
-    if (long_s_v) {
-        let s = Screenshots.fromDisplay(id);
-        let x = nativeImage.createFromBuffer(capturer([s])[0].image);
-        clip_window.webContents.send("long", x.getBitmap(), x.getSize().width, x.getSize().height);
-        s = x = null;
-    } else {
-        clip_window.webContents.send("long", null);
-    }
+    let s = Screenshots.fromDisplay(id);
+    let x = nativeImage.createFromBuffer(capturer([s])[0].image);
+    clip_window.webContents.send("long", x.getBitmap(), x.getSize().width, x.getSize().height);
+    s = x = null;
 }
 
 function long_win(rect) {

@@ -790,7 +790,7 @@ function init_long(rect: number[]) {
     lr.style.height = rect[3] / ratio + "px";
     document.getElementById("long_finish").onclick = () => {
         lr.style.opacity = "0";
-        ipcRenderer.send("clip_main_b", "long_e");
+        ipcRenderer.send("clip_main_b", "long_e", now_screen_id);
         for (let i of l) {
             i.style.display = "";
         }
