@@ -325,7 +325,9 @@ app.whenReady().then(() => {
             label: t("OCR(文字识别)"),
             click: () => {
                 let s = Screenshots.fromDisplay(screen.getPrimaryDisplay().id);
-                clip_window.webContents.send("reflash", capturer([s]), null, null, "ocr");
+                let x = capturer([s]);
+                x[0]["main"] = true;
+                clip_window.webContents.send("reflash", x, null, null, "ocr");
                 s = null;
             },
         },
@@ -333,7 +335,9 @@ app.whenReady().then(() => {
             label: t("以图搜图"),
             click: () => {
                 let s = Screenshots.fromDisplay(screen.getPrimaryDisplay().id);
-                clip_window.webContents.send("reflash", capturer([s]), null, null, "image_search");
+                let x = capturer([s]);
+                x[0]["main"] = true;
+                clip_window.webContents.send("reflash", x, null, null, "image_search");
                 s = null;
             },
         },
