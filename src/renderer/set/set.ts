@@ -1042,7 +1042,9 @@ document.getElementById("version").onclick = () => {
 };
 
 if (store.get("更新.频率") == "setting") {
-    document.getElementById("version").click();
+    setTimeout(() => {
+        document.getElementById("version").click();
+    }, 10);
 }
 
 document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${package_json.homepage}">${
