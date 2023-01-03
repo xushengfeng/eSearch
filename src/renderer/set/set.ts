@@ -327,7 +327,7 @@ document.getElementById("保存文件名称后缀").style.width = `${
     (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value.length || 1
 }em`;
 
-(<HTMLInputElement>document.getElementById("默认格式")).value = store.get("保存.默认格式");
+set_radio(document.getElementById("默认格式"), store.get("保存.默认格式"));
 
 (<HTMLInputElement>document.getElementById("jpg质量")).value = store.get("jpg质量");
 
@@ -779,7 +779,7 @@ function save_setting() {
             样式: (<HTMLInputElement>document.getElementById("cursor_css")).value,
         },
     });
-    store.set("保存.默认格式", (<HTMLInputElement>document.getElementById("默认格式")).value);
+    store.set("保存.默认格式", get_radio(<HTMLInputElement>document.getElementById("默认格式")));
     store.set("保存.快速保存", (<HTMLInputElement>document.getElementById("快速保存")).checked);
     store.set("保存名称", {
         前缀: (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value,
