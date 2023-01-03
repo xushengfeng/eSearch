@@ -916,6 +916,9 @@ function create_clip_window() {
                 long_s(arg[4]);
                 long_win(arg);
                 break;
+            case "long_r":
+                long_s(arg);
+                break;
             case "long_e":
                 long_s_v = false;
                 break;
@@ -1295,9 +1298,6 @@ function long_s(id: number) {
         let x = nativeImage.createFromBuffer(capturer([s])[0].image);
         clip_window.webContents.send("long", x.getBitmap(), x.getSize().width, x.getSize().height);
         s = x = null;
-        setTimeout(() => {
-            long_s(id);
-        }, 200);
     } else {
         clip_window.webContents.send("long", null);
     }

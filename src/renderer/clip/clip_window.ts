@@ -696,8 +696,17 @@ function tool_long_f() {
     o_canvas.width = final_rect[2];
     o_canvas.height = final_rect[3];
     log_o.l = [];
+    const { uIOhook } = require("uiohook-napi");
+    uIOhook.start();
+    uIOhook.on("keyup", () => {
+        ipcRenderer.send("clip_main_b", "long_r", now_screen_id);
+    });
+    uIOhook.on("wheel", () => {
+        ipcRenderer.send("clip_main_b", "long_r", now_screen_id);
+    });
     ipcRenderer.on("long", (event, x, w, h) => {
         if (!x) {
+            uIOhook.stop();
             pj_long();
             return;
         }
