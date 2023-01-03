@@ -221,7 +221,7 @@ function msk(t: string) {
     );
 };
 
-(<HTMLInputElement>document.getElementById("框选后默认操作")).value = store.get("框选后默认操作");
+set_radio(document.getElementById("框选后默认操作"), store.get("框选后默认操作"));
 
 (<HTMLInputElement>document.getElementById("自动框选")).checked = store.get("框选.自动框选.开启");
 (<HTMLInputElement>document.getElementById("框选最小阈值")).value = store.get("框选.自动框选.最小阈值");
@@ -736,7 +736,7 @@ function save_setting() {
     });
     store.set("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
     store.set("贴图.窗口.变换", (<HTMLInputElement>document.getElementById("tran_css")).value);
-    store.set("框选后默认操作", (<HTMLInputElement>document.getElementById("框选后默认操作")).value);
+    store.set("框选后默认操作", get_radio(document.getElementById("框选后默认操作")));
     store.set("快速截屏.模式", (<HTMLInputElement>document.getElementById("快速截屏")).value);
     store.set(
         "快速截屏.路径",

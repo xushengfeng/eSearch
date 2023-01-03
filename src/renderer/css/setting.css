@@ -245,6 +245,11 @@ set-select {
 input[type="radio"] {
     display: none;
 }
+div:has(> label > input[type="radio"]) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
 label:has(input[type="radio"]) {
     margin: 8px 8px 8px 0;
     border-radius: 8px;
@@ -258,6 +263,14 @@ label:has(input[type="radio"]):hover {
 label:has(input[type="radio"]:checked) {
     background: var(--m-color1);
     color: #fff;
+}
+label:has(input[type="radio"]:checked) > .icon {
+    filter: invert(1) brightness(2);
+}
+@media (prefers-color-scheme: dark) {
+    label:has(input[type="radio"]:checked) > .icon {
+        filter: invert(1) brightness(2);
+    }
 }
 
 summary {
@@ -280,6 +293,10 @@ comment {
 }
 .hotkeys > span {
     text-align: right;
+}
+
+#框选后默认操作 .icon {
+    position: inherit;
 }
 
 #plugin_b {
