@@ -52,7 +52,10 @@ function get_radio(el: HTMLElement) {
     return (<HTMLInputElement>el.querySelector("input[type=radio]:checked")).value;
 }
 function set_radio(el: HTMLElement, value: string) {
-    (<HTMLInputElement>el.querySelector(`input[type=radio][value="${value}"]`)).checked = true;
+    (
+        <HTMLInputElement>el.querySelector(`input[type=radio][value="${value}"]`) ||
+        el.querySelector(`input[type=radio]`)
+    ).checked = true;
 }
 set_radio(document.getElementById("语言"), store.get("语言.语言"));
 document.getElementById("系统语言").onclick = () => {
@@ -453,31 +456,31 @@ document.getElementById("main").onclick = () => {
 function set_ocr() {
     let ocr_in = "";
     for (let i of store.get("离线OCR")) {
-        ocr_in += `<div value="${i[0]}">${i[0]}</div>`;
+        ocr_in += `<label><input type="radio" name="OCR类型" value="${i[0]}">${i[0]}</label>`;
     }
     ocr_in += `
-    <div value="baidu">
-        <t>百度</t>
-    </div>
-    <div value="youdao">
+    <label><input type="radio" name="OCR类型" value="youdao">
         <t>有道</t>
-    </div>`;
-    document.getElementById("OCR类型").outerHTML = `<set-select name="" id="OCR类型">${ocr_in}</set-select>`;
-    (<HTMLInputElement>document.getElementById("OCR类型")).value = store.get("OCR.类型");
+    </label>
+    <label><input type="radio" name="OCR类型" value="baidu">
+        <t>百度</t>
+    </label>`;
+    document.getElementById("OCR类型").outerHTML = `<div id="OCR类型">${ocr_in}</div>`;
+    set_radio(document.getElementById("OCR类型"), store.get("OCR.类型"));
 }
 
 set_ocr();
 
 function get_ocr_type() {
-    return (<HTMLInputElement>document.getElementById("OCR类型")).value;
+    return get_radio(<HTMLInputElement>document.getElementById("OCR类型"));
 }
 ocr_d_open();
 function ocr_d_open() {
     (<HTMLDetailsElement>document.getElementById("baidu_details")).open = false;
     (<HTMLDetailsElement>document.getElementById("youdao_details")).open = false;
-    if ((<HTMLInputElement>document.getElementById("OCR类型")).value == "baidu") {
+    if (get_ocr_type() == "baidu") {
         (<HTMLDetailsElement>document.getElementById("baidu_details")).open = true;
-    } else if ((<HTMLInputElement>document.getElementById("OCR类型")).value == "youdao") {
+    } else if (get_ocr_type() == "youdao") {
         (<HTMLDetailsElement>document.getElementById("youdao_details")).open = true;
     }
 }
@@ -545,7 +548,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 
-(<HTMLInputElement>document.getElementById("baidu_ocr_url")).value = store.get("在线OCR.baidu.url");
+set_radio(document.getElementById("baidu_ocr_url"), store.get("在线OCR.baidu.url"));
 (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value = store.get("在线OCR.baidu.id");
 (<HTMLInputElement>document.getElementById("baidu_ocr_secret")).value = store.get("在线OCR.baidu.secret");
 (<HTMLInputElement>document.getElementById("youdao_ocr_id")).value = store.get("在线OCR.youdao.id");
@@ -837,7 +840,7 @@ function save_setting() {
         版本: store.get("OCR.版本"),
     });
     store.set("在线OCR.baidu", {
-        url: (<HTMLInputElement>document.getElementById("baidu_ocr_url")).value,
+        url: get_radio(document.getElementById("baidu_ocr_url")),
         id: (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value,
         secret: (<HTMLInputElement>document.getElementById("baidu_ocr_secret")).value,
     });

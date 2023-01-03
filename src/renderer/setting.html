@@ -798,17 +798,7 @@
                     <t>文字识别（OCR）</t>
                 </h1>
 
-                <set-select name="" id="OCR类型">
-                    <div value="离线">
-                        <t>离线OCR</t>
-                    </div>
-                    <div value="baidu">
-                        <t>百度</t>
-                    </div>
-                    <div value="youdao">
-                        <t>有道</t>
-                    </div>
-                </set-select>
+                <div id="OCR类型"></div>
                 <label>
                     <input type="checkbox" id="记住OCR引擎">
                     <t>记住引擎选择</t>
@@ -840,26 +830,32 @@
                     <comment>
                         <t>位置版不起实质效果，但可以扩充免费使用次数:)</t>
                     </comment>
-                    <set-select name="" id="baidu_ocr_url">
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">
-                            <t>高精度版</t>
-                        </div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">
-                            <t>高精度含位置版</t>
-                        </div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic">
-                            <t>标准版</t>
-                        </div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/general">
-                            <t>标准含位置版</t>
-                        </div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting">
-                            <t>手写文字</t>
-                        </div>
-                        <div value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula">
+                    <div id="baidu_ocr_url">
+                        <label><input type="radio" name="baidu_ocr_url"
+                                value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula">
                             <t>公式</t>
-                        </div>
-                    </set-select>
+                        </label>
+                        <label><input type="radio" name="baidu_ocr_url"
+                                value="https://aip.baidubce.com/rest/2.0/ocr/v1/handwriting">
+                            <t>手写文字</t>
+                        </label>
+                        <label><input type="radio" name="baidu_ocr_url"
+                                value="https://aip.baidubce.com/rest/2.0/ocr/v1/general">
+                            <t>标准含位置版</t>
+                        </label>
+                        <label><input type="radio" name="baidu_ocr_url"
+                                value="https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic">
+                            <t>标准版</t>
+                        </label>
+                        <label><input type="radio" name="baidu_ocr_url"
+                                value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate">
+                            <t>高精度含位置版</t>
+                        </label>
+                        <label><input type="radio" name="baidu_ocr_url"
+                                value="https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic">
+                            <t>高精度版</t>
+                        </label>
+                    </div>
                     <t>API Key：</t><input type="text" spellcheck="false" id="baidu_ocr_id">
                     <br>
                     <t>Secret Key：</t><input type="text" spellcheck="false" id="baidu_ocr_secret">
