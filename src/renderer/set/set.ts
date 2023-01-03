@@ -90,9 +90,9 @@ if (process.platform == "linux") {
 
 var 全局 = store.get("全局");
 
-(<HTMLInputElement>document.getElementById("深色模式")).value = store.get("全局.深色模式");
+set_radio(document.getElementById("深色模式"), store.get("全局.深色模式"));
 document.getElementById("深色模式").onclick = () => {
-    ipcRenderer.send("theme", (<HTMLInputElement>document.getElementById("深色模式")).value);
+    ipcRenderer.send("theme", get_radio(document.getElementById("深色模式")));
 };
 
 var 模糊 = store.get("全局.模糊");
