@@ -24,12 +24,9 @@ document.getElementById("set_default_setting").onclick = () => {
 };
 
 var menu_o = {};
-var menu_t = "";
 for (let i of document.querySelectorAll("h1")) {
     menu_o[i.innerText] = i;
-    menu_t += `<li>${i.innerText}</li>`;
 }
-document.getElementById("menu").innerHTML = menu_t;
 document.getElementById("menu").onclick = (e) => {
     let el = <HTMLElement>e.target;
     if (el.tagName == "LI") {
