@@ -816,14 +816,6 @@ function pj_long() {
     document.body.classList.add("editor_bg");
 
     lr.style.width = lr.style.height = "0";
-
-    // for(let i of long_list){
-    //     let div=document.createElement('div')
-    //     for(let k of i){
-    //         div.append(k)
-    //     }
-    //     document.body.append(div)
-    // }
 }
 
 // 钉在屏幕上

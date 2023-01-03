@@ -419,14 +419,6 @@ app.whenReady().then(() => {
         快速截屏: { f: "quick_clip()" },
         主页面: { f: "create_main_window('index.html', [''])" },
     };
-    // var 快捷键函数2 = {
-    //     自动识别: { f: auto_open() },
-    //     截屏搜索: { f: full_screen() },
-    //     选中搜索: { f: open_selection() },
-    //     剪贴板搜索: { f: open_clip_board() },
-    //     快速截屏: { f: quick_clip() },
-    //     主页面: { f: create_main_window("index.html", [""]) },
-    // };
     ipcMain.on("快捷键", (event, arg) => {
         var [name, key] = arg;
         try {
