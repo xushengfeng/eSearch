@@ -431,7 +431,7 @@ document.getElementById("翻译引擎").onchange = () => {
 };
 (<HTMLInputElement>document.getElementById("记住引擎")).checked = store.get("引擎.记住");
 
-(<HTMLInputElement>document.getElementById("图像搜索引擎")).value = store.get("以图搜图.引擎");
+set_radio(document.getElementById("图像搜索引擎"), store.get("以图搜图.引擎"));
 (<HTMLInputElement>document.getElementById("记住识图引擎")).checked = store.get("以图搜图.记住");
 
 (<HTMLInputElement>document.getElementById("浏览器中打开")).checked = store.get("浏览器中打开");
@@ -813,9 +813,9 @@ function save_setting() {
         默认翻译引擎: (<HTMLInputElement>document.getElementById("默认翻译引擎")).value,
     });
     store.set("以图搜图", {
-        引擎: (<HTMLInputElement>document.getElementById("图像搜索引擎")).value,
+        引擎: get_radio(<HTMLInputElement>document.getElementById("图像搜索引擎")),
         记住: (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
-            ? store.get("以图搜图.记住") || (<HTMLInputElement>document.getElementById("图像搜索引擎")).value
+            ? store.get("以图搜图.记住") || get_radio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
             : false,
     });
     store.set("浏览器中打开", (<HTMLInputElement>document.getElementById("浏览器中打开")).checked);
