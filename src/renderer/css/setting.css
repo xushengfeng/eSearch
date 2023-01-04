@@ -268,7 +268,7 @@ label:has(input[type="radio"]:checked) > .icon {
     filter: invert(1) brightness(2);
 }
 @media (prefers-color-scheme: dark) {
-    label:has(input[type="radio"]:checked) > .icon {
+    label:has(input[type="radio"]) > .icon {
         filter: invert(1) brightness(2);
     }
 }
