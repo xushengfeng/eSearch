@@ -3,7 +3,7 @@ name: Build/release
 on:
     push:
         tags:
-            - '*'
+            - "*"
 
 jobs:
     release:
@@ -12,6 +12,7 @@ jobs:
         strategy:
             matrix:
                 os: [macos-latest, ubuntu-latest, windows-latest]
+                arch: [x86, arm64]
 
         steps:
             - name: Check out Git repository
@@ -26,10 +27,26 @@ jobs:
               if: matrix.os == 'ubuntu-latest'
               run: sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
 
-            - name: ${{ matrix.os }} build
+            - name: install pnpm
+              run: npm install pnpm -g
+
+            - name: set arm64 on win
+              if: matrix.arch == 'arm64' && matrix.os == 'windows-latest'
+              run: set npm_config_arch=arm64
+            - name: set arm64 on linux&mac
+              if: matrix.arch == 'arm64' && matrix.os != 'windows-latest'
+              run: export npm_config_arch=arm64
+
+            - name: ${{ matrix.os }} ${{ matrix.arch }} build
+              if: matrix.arch == 'arm64'
               run: |
-                  npm install
-                  npm run dist
+                  npm install --arch=arm64
+                  pnpm run dist --arm64
+            - name: ${{ matrix.os }} ${{ matrix.arch }} build
+              if: matrix.arch != 'arm64'
+              run: |
+                  pnpm install
+                  pnpm run dist
 
             - name: upload
               uses: actions/upload-artifact@v3
