@@ -32,13 +32,17 @@ jobs:
 
             - name: set arm64 on win
               if: matrix.arch == 'arm64' && matrix.os == 'windows-latest'
-              run: set npm_config_arch=arm64
-            - name: set arm64 on linux&mac
-              if: matrix.arch == 'arm64' && matrix.os != 'windows-latest'
-              run: export npm_config_arch=arm64
+              run: |
+                  set npm_config_arch=arm64
+                  npm i node-screenshots-win32-arm64-msvc
+            - name: set arm64 on mac
+              if: matrix.arch == 'arm64' && matrix.os == 'macos-latestt'
+              run: |
+                  export npm_config_arch=arm64
+                  npm i node-screenshots-darwin-arm64
 
             - name: ${{ matrix.os }} ${{ matrix.arch }} build
-              if: matrix.arch == 'arm64'
+              if: matrix.arch == 'arm64' && matrix.os != 'ubuntu-latest'
               run: |
                   npm install --arch=arm64
                   pnpm run dist --arm64
