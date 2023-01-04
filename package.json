@@ -79,6 +79,7 @@
       }
     ],
     "asar": false,
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
     "beforePack": "./before_pack.js",
     "linux": {
       "category": "Utility",
