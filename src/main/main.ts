@@ -45,6 +45,7 @@ import * as fs from "fs";
 import * as os from "os";
 import { t, lan } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
+import url from "node:url";
 
 // 自定义用户路径
 try {
@@ -86,7 +87,18 @@ if (process.argv.includes("-d") || import.meta.env.DEV) {
 /** 加载网页 */
 function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: string, q?: Electron.LoadFileOptions) {
     if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-        window.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/${file_name}`);
+        let main_url = `${process.env["ELECTRON_RENDERER_URL"]}/${file_name}`;
+        let x = new url.URL(main_url);
+        if (q) {
+            if (q.search) x.search = q.search;
+            if (q.query) {
+                for (let i in q.query) {
+                    x.searchParams.set(i, q.query[i]);
+                }
+            }
+            if (q.hash) x.hash = q.hash;
+        }
+        window.loadURL(x.toString());
     } else {
         window.loadFile(path.join(__dirname, "../renderer", file_name), q);
     }
