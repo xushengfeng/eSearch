@@ -1,12 +1,15 @@
 /// <reference types="vite/client" />
 // In the renderer process.
 const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
-const Store = require("electron-store");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 
 // 获取设置
-var store = new Store();
+let config_path = new URLSearchParams(location.search).get("config_path");
+const Store = require("electron-store");
+var store = new Store({
+    cwd: config_path || "",
+});
 
 if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");

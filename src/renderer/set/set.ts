@@ -1,6 +1,9 @@
 /// <reference types="vite/client" />
+let config_path = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
-var store = new Store();
+var store = new Store({
+    cwd: config_path || "",
+});
 import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 if (store.get("语言.语言") != "zh-HANS")

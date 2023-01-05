@@ -86,6 +86,13 @@ if (process.argv.includes("-d") || import.meta.env.DEV) {
 
 /** 加载网页 */
 function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: string, q?: Electron.LoadFileOptions) {
+    if (!q) {
+        q = { query: { config_path: app.getPath("userData") } };
+    } else if (!q.query) {
+        q.query = { config_path: app.getPath("userData") };
+    } else {
+        q.query["config_path"] = app.getPath("userData");
+    }
     if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
         let main_url = `${process.env["ELECTRON_RENDERER_URL"]}/${file_name}`;
         let x = new url.URL(main_url);

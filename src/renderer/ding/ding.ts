@@ -4,8 +4,11 @@ const path = require("path") as typeof import("path");
 const os = require("os") as typeof import("os");
 import root_init from "../root/root";
 root_init();
+let config_path = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
-var store = new Store();
+var store = new Store({
+    cwd: config_path || "",
+});
 
 var screen_id = "";
 ipcRenderer.on("screen_id", (event, id) => {

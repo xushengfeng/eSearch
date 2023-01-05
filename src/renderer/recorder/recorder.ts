@@ -22,8 +22,11 @@ type time_el = {
     max: number;
 } & HTMLElement;
 
+let config_path = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
-var store = new Store();
+var store = new Store({
+    cwd: config_path || "",
+});
 
 var ratio = 1;
 

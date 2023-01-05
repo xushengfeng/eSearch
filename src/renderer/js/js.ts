@@ -659,7 +659,10 @@ if (in_browser) {
     history_store = new Store();
 } else {
     Store = require("electron-store");
-    var store = new Store();
+    let config_path = new URLSearchParams(location.search).get("config_path");
+    var store = new Store({
+        cwd: config_path || "",
+    });
 }
 
 /************************************主要 */
