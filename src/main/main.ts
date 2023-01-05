@@ -1441,15 +1441,14 @@ var main_to_search_l: { [n: number]: Array<number> } = {};
 async function create_main_window(web_page: string, t?: boolean | Array<any>, about?: boolean) {
     var window_name = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
-    let vw = screen.getPrimaryDisplay().bounds.width,
-        vh = screen.getPrimaryDisplay().bounds.height,
+    let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,
         px = screen.getCursorScreenPoint().x,
         py = screen.getCursorScreenPoint().y;
-    let x = px > vw / 2 ? px - w : px,
-        y = py > vh / 2 ? py - h : py;
+    let x = px > vr.x + vr.width / 2 ? px - w : px,
+        y = py > vr.y + vr.height / 2 ? py - h : py;
     var main_window = (main_window_l[window_name] = new BrowserWindow({
-        x: x < 0 ? 0 : x,
-        y: y < 0 ? 0 : y,
+        x: Math.max(vr.x, x),
+        y: Math.max(vr.y, y),
         width: w,
         height: h,
         minWidth: 800,
