@@ -8,6 +8,12 @@ const os = require("os") as typeof import("os");
 const fs = require("fs") as typeof import("fs");
 import close_svg from "../assets/icons/close.svg";
 
+document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
+    let url = new URL(el.href);
+    url.search = location.search;
+    el.href = url.toString();
+});
+
 let old_store = JSON.parse(fs.readFileSync(path.join(config_path, "config.json"), "utf-8"));
 import { t, lan } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);

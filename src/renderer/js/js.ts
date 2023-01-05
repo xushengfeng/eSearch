@@ -663,6 +663,11 @@ if (in_browser) {
     var store = new Store({
         cwd: config_path || "",
     });
+    document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
+        let url = new URL(el.href);
+        url.search = location.search;
+        el.href = url.toString();
+    });
 }
 
 /************************************主要 */

@@ -1,6 +1,11 @@
 import root_init from "../root/root";
 root_init();
 let config_path = new URLSearchParams(location.search).get("config_path");
+document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
+    let url = new URL(el.href);
+    url.search = location.search;
+    el.href = url.toString();
+});
 const Store = require("electron-store");
 var store = new Store({
     cwd: config_path || "",
