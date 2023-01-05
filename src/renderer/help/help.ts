@@ -23,6 +23,9 @@ const { shell } = require("electron") as typeof import("electron");
 document.onclick = (e) => {
     let el = <HTMLElement>e.target;
     if (el.tagName == "A") {
-        shell.openExternal((<HTMLAnchorElement>el).href);
+        if (new URL((<HTMLAnchorElement>el).href).origin != location.origin) {
+            e.preventDefault();
+            shell.openExternal((<HTMLAnchorElement>el).href);
+        }
     }
 };
