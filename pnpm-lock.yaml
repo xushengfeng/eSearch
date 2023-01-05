@@ -10,7 +10,7 @@ specifiers:
   download: ^8.0.0
   electron: ^20.3.1
   electron-builder: ^23.6.0
-  electron-store: ^8.0.1
+  electron-store: ^8.1.0
   electron-vite: ^1.0.10
   hex-to-css-filter: ^5.4.0
   hotkeys-js: ^3.10.0
