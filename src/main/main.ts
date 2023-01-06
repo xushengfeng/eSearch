@@ -66,14 +66,6 @@ if (process.platform == "linux")
         event.returnValue = run_path;
     });
 
-// 重写存储获取用户路径的方式
-ipcMain.on("electron-store-get-data", (event) => {
-    event.returnValue = {
-        defaultCwd: app.getPath("userData"),
-        appVersion: app.getVersion(),
-    };
-});
-
 var store = new Store();
 
 var /** 是否开启开发模式 */ dev: boolean;
