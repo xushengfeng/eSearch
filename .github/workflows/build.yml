@@ -36,7 +36,7 @@ jobs:
                   set npm_config_arch=arm64
                   npm i node-screenshots-win32-arm64-msvc
             - name: set arm64 on mac
-              if: matrix.arch == 'arm64' && matrix.os == 'macos-latestt'
+              if: matrix.arch == 'arm64' && matrix.os == 'macos-latest'
               run: |
                   export npm_config_arch=arm64
                   npm i node-screenshots-darwin-arm64
