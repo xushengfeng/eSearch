@@ -183,6 +183,7 @@ document.addEventListener("mousemove", (e) => {
 document.onwheel = (e) => {
     if (!editor.contains(e.target as HTMLElement) && e.target != document.body) return;
     if (long_inited) return;
+    if (record_inited) return;
 
     document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
@@ -579,7 +580,10 @@ function open_app() {
 const recorder_rect_el = document.getElementById("recorder_rect");
 const recorder_mouse_el = document.getElementById("mouse_c");
 
+var record_inited = false;
+
 function tool_record_f() {
+    record_inited = true;
     ipcRenderer.send("clip_main_b", "record", {
         rect: final_rect,
         id: now_screen_id,
@@ -1043,6 +1047,7 @@ document.querySelector("body").onkeydown = (e) => {
     if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
         return;
     if (long_inited) return;
+    if (record_inited) return;
     const o = {
         ArrowUp: "up",
         ArrowRight: "right",
