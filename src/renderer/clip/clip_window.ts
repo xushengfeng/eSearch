@@ -182,6 +182,7 @@ document.addEventListener("mousemove", (e) => {
 
 document.onwheel = (e) => {
     if (!editor.contains(e.target as HTMLElement) && e.target != document.body) return;
+    if (long_inited) return;
 
     document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
@@ -828,6 +829,8 @@ function pj_long() {
     document.body.classList.add("editor_bg");
 
     lr.style.width = lr.style.height = "0";
+
+    long_inited = false;
 }
 
 // 钉在屏幕上
