@@ -17,8 +17,9 @@ document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
 let old_store = JSON.parse(fs.readFileSync(path.join(config_path, "config.json"), "utf-8"));
 import { t, lan } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
-if (old_store.语言.语言 != "zh-HANS")
-    document.body.querySelectorAll("t").forEach((el: HTMLElement) => (el.innerText = t(el.innerText)));
+document.body.innerHTML = document.body.innerHTML
+    .replace(/\{(.*?)\}/g, (m, v) => t(v))
+    .replace(/<t>(.*?)<\/t>/g, (m, v) => t(v));
 document.title = t(document.title);
 
 const xstore = old_store;
