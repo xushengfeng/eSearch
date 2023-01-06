@@ -41,14 +41,20 @@ document.getElementById("set_default_setting").onclick = () => {
     }
 };
 
-var menu_o = {};
-for (let i of document.querySelectorAll("h1")) {
-    menu_o[i.innerText] = i;
-}
 document.getElementById("menu").onclick = (e) => {
     let el = <HTMLElement>e.target;
     if (el.tagName == "LI") {
-        document.getElementsByTagName("html")[0].scrollTop = menu_o[el.innerText].offsetTop;
+        let i = 0;
+        document
+            .getElementById("menu")
+            .querySelectorAll("li")
+            .forEach((lel, n) => {
+                if (lel == el) {
+                    i = n;
+                    return;
+                }
+            });
+        document.getElementsByTagName("html")[0].scrollTop = document.querySelectorAll("h1")[i].offsetTop;
     }
 };
 
