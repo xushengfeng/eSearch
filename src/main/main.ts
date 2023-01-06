@@ -1761,6 +1761,7 @@ ipcMain.on("theme", (e, v) => {
 // 默认设置
 var default_setting = {
     首次运行: false,
+    设置版本: app.getVersion(),
     启动提示: true,
     语言: {},
     快捷键: {
@@ -1996,6 +1997,7 @@ function set_default_setting() {
 
 // 增加设置项后，防止undefined
 function fix_setting_tree() {
+    if (store.get("设置版本") == app.getVersion()) return;
     var tree = "default_setting";
     walk(tree);
     function walk(path: string) {
