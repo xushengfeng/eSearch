@@ -12,7 +12,6 @@ jobs:
         strategy:
             matrix:
                 os: [macos-latest, ubuntu-latest, windows-latest]
-                arch: [x86, arm64]
 
         steps:
             - name: Check out Git repository
@@ -27,30 +26,10 @@ jobs:
               if: matrix.os == 'ubuntu-latest'
               run: sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
 
-            - name: install pnpm
-              run: npm install pnpm -g
-
-            - name: set arm64 on win
-              if: matrix.arch == 'arm64' && matrix.os == 'windows-latest'
+            - name: ${{ matrix.os }} build
               run: |
-                  set npm_config_arch=arm64
-                  npm i node-screenshots-win32-arm64-msvc
-            - name: set arm64 on mac
-              if: matrix.arch == 'arm64' && matrix.os == 'macos-latest'
-              run: |
-                  export npm_config_arch=arm64
-                  npm i node-screenshots-darwin-arm64
-
-            - name: ${{ matrix.os }} ${{ matrix.arch }} build
-              if: matrix.arch == 'arm64' && matrix.os != 'ubuntu-latest'
-              run: |
-                  npm install --arch=arm64
-                  pnpm run dist --arm64
-            - name: ${{ matrix.os }} ${{ matrix.arch }} build
-              if: matrix.arch != 'arm64'
-              run: |
-                  pnpm install
-                  pnpm run dist
+                  npm install
+                  npm run dist
 
             - name: upload
               uses: actions/upload-artifact@v3
