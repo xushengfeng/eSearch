@@ -132,7 +132,7 @@ ipcMain.on("autostart", (event, m, v) => {
 });
 
 /**
- * 复制选区，回调
+ * 复制选区，存在变化，回调
  */
 async function copy_text(callback: (t: string) => void) {
     var o_clipboard = clipboard.readText();
@@ -147,7 +147,8 @@ async function copy_text(callback: (t: string) => void) {
     }
     setTimeout(() => {
         let t = clipboard.readText();
-        let v = t;
+        let v = "";
+        if (o_clipboard != t) v = t;
         for (let i of store.get("主搜索功能.自动搜索排除")) {
             if (t.match(i)) {
                 v = "";
