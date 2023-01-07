@@ -2338,7 +2338,10 @@ function draw(shape, v, x1, y1, x2, y2) {
         fabric_canvas.remove(shapes[shapes.length - 1]);
         shapes.splice(shapes.length - 1, 1);
     }
-    var [x, y, w, h] = p_xy_to_c_xy(draw_canvas, x1, y1, x2, y2);
+    let x = Math.min(x1, x2),
+        y = Math.min(y1, y2),
+        w = Math.abs(x1 - x2),
+        h = Math.abs(y1 - y2);
     switch (shape) {
         case "line":
             shapes[shapes.length] = new Fabric.Line([x1, y1, x2, y2], {
