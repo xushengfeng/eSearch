@@ -216,6 +216,10 @@ Tested on macOS Catalina
 
 -   I have such a plan, but I am still very excited. However, the migration of 2000 lines of code from the main process to rust is a bit laborious, so it will not be migrated any time soon.
 
+## Contribution
+
+Please see [contribution Guide](CONTRIBUTING.md)
+
 ## Development reasons
 
 I've been using this great screenshot software for Windows: [Snipaste - Snip & Paste](https://www.snipaste.com/), but I've switched to Linux and Snipaste is not supported, so I've chosen [Flameshot](https://flameshot.org/), which unfortunately doesn't have an intuitive colour picker.

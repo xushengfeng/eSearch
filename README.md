@@ -216,6 +216,10 @@ macOS Catalina 测试通过
 
 -   有这个打算，还很心动。不过主进程 2000 行代码迁移到 rust 还是有些费劲的，所以现在不会很快迁移。
 
+## 贡献
+
+请查看[贡献指南](CONTRIBUTING.md)
+
 ## 开发原因
 
 我在用 Windows 时一直用这个好用的截屏软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到 Linux，Snipaste 不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。
