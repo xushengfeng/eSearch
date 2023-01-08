@@ -1231,6 +1231,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
             contextMenu.items[8].checked = store.get("浏览器中打开");
             tray.popUpContextMenu(contextMenu);
+            tray.closeContextMenu();
             break;
         case "set_default_setting":
             store.clear();
