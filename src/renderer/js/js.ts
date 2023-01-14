@@ -1760,7 +1760,7 @@ async function local_ocr(type: string, arg: string, callback: Function) {
     await lo.init({
         det_path: detp,
         rec_path: recp,
-        dic_path: 字典,
+        dic: fs.readFileSync(字典).toString(),
         ...l[4],
         node: true,
     });
