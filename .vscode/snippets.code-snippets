@@ -15,6 +15,22 @@
 	// 	],
 	// 	"description": "Log output to console"
 	// }
+	"icon": {
+		"scope": "html",
+		"prefix": "icon",
+		"body": [
+			"<img src=\"./assets/icons/$1\" class=\"icon\">"
+		],
+		"description": "icon"
+	},
+	"translate": {
+		"scope": "json",
+		"prefix": "tran",
+		"body": [
+			"\"$1\":{\"en\":\"$2\",\"zh-HANT\":\"$3\",\"fr\":\"$4\",\"ru\":\"$5\",\"es\":\"$6\",\"ar\":\"$7\",\"eo\":\"$8\"},"
+		],
+		"description": "Translate Template"
+	},
 	"checked_get": {
 		"prefix": "checkedg",
 		"scope": "javascript,typescript",
@@ -32,5 +48,13 @@
 			"$3"
 		],
 		"description": "value_get"
+	},
+	"comment": {
+		"scope": "html",
+		"prefix": "comment",
+		"body": [
+			"<comment>$1</comment>",
+		],
+		"description": "设置提示"
 	}
 }
