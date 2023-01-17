@@ -269,6 +269,25 @@ body {
     overflow: hidden;
 }
 
+#image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    background-color: var(--bg);
+    transition: var(--transition);
+    transform: translateY(-120%);
+    box-shadow: var(--shadow);
+    padding: 4px;
+    border-radius: var(--border-radius);
+}
+
+#image .icon {
+    width: 30px;
+}
+
 #find {
     position: absolute;
     top: 0;
