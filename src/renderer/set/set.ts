@@ -549,6 +549,9 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     console.log(e);
     let fs = e.dataTransfer.files;
     let l = [`新模型${crypto.randomUUID().slice(0, 7)}`];
+    l[1] = "默认/ppocr_det.onnx";
+    l[2] = "默认/ppocr_rec.onnx";
+    l[3] = "默认/ppocr_keys_v1.txt";
     for (let f of fs) {
         // @ts-ignore
         let path = f.path as string;
