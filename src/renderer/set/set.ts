@@ -618,7 +618,7 @@ get_proxy();
 set_proxy_el();
 document.getElementById("代理").onclick = set_proxy_el;
 function set_proxy_el() {
-    const m = (<HTMLInputElement>document.getElementById("代理")).value;
+    const m = get_radio(document.getElementById("代理"));
     const pacScript_el = document.getElementById("pacScript_p");
     const proxyRules_el = document.getElementById("proxyRules_p");
     const proxyBypassRules_el = document.getElementById("proxyBypassRules_p");
