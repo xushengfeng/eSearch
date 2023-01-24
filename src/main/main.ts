@@ -976,19 +976,7 @@ function full_screen(img_path?: string) {
             ]);
         });
     } else {
-        // 获取所有屏幕截图
-        let all = Screenshots.all() ?? [];
-        let x = capturer(all);
-        let have_main = false;
-        let p = screen.getCursorScreenPoint();
-        for (let i of x) {
-            if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
-                i["main"] = true;
-                have_main = true;
-                break;
-            }
-        }
-        if (!have_main) x[0]["main"] = true;
+        let x = capture_all();
         clip_window.webContents.send("reflash", x);
         x = null;
     }
