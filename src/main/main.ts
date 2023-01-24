@@ -337,21 +337,17 @@ app.whenReady().then(() => {
         {
             label: t("OCR(文字识别)"),
             click: () => {
-                let s = Screenshots.fromDisplay(screen.getPrimaryDisplay().id);
-                let x = capturer([s]);
-                x[0]["main"] = true;
+                let x = capture_all();
                 clip_window.webContents.send("reflash", x, null, null, "ocr");
-                s = null;
+                x = null;
             },
         },
         {
             label: t("以图搜图"),
             click: () => {
-                let s = Screenshots.fromDisplay(screen.getPrimaryDisplay().id);
-                let x = capturer([s]);
-                x[0]["main"] = true;
+                let x = capture_all();
                 clip_window.webContents.send("reflash", x, null, null, "image_search");
-                s = null;
+                x = null;
             },
         },
         {
@@ -999,6 +995,23 @@ function full_screen(img_path?: string) {
     clip_window.setBounds({ x: nearest_screen.bounds.x, y: nearest_screen.bounds.y });
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
+}
+
+function capture_all() {
+    // 获取所有屏幕截图
+    let all = Screenshots.all() ?? [];
+    let x = capturer(all);
+    let have_main = false;
+    let p = screen.getCursorScreenPoint();
+    for (let i of x) {
+        if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
+            i["main"] = true;
+            have_main = true;
+            break;
+        }
+    }
+    if (!have_main) x[0]["main"] = true;
+    return x;
 }
 
 /** 隐藏截屏窗口 */
