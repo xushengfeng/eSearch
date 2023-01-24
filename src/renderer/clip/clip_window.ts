@@ -123,9 +123,11 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
 
     switch (act) {
         case "ocr":
+            final_rect = [0, 0, main_canvas.width, main_canvas.height];
             tool_ocr_f();
             break;
         case "image_search":
+            final_rect = [0, 0, main_canvas.width, main_canvas.height];
             tool_search_f();
             break;
     }
