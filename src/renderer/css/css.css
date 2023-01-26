@@ -15,7 +15,7 @@ body {
     display: grid;
     height: 100%;
     width: 100%;
-    grid-template-columns: calc(2 * var(--b-button)) 1fr var(--b-button) repeat(2, auto);
+    grid-template-columns: calc(2 * var(--b-button)) 1fr var(--b-button) var(--b-button) repeat(2, auto);
     grid-template-rows: auto var(--b-button);
     grid-column-gap: var(--o-padding);
     grid-row-gap: var(--o-padding);
@@ -28,7 +28,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    grid-area: 1 / 1 / 2 / 6;
+    grid-area: 1 / 1 / 2 / 7;
     border-radius: var(--border-radius);
     transition: var(--transition);
     position: relative;
