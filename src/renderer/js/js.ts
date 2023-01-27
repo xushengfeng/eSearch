@@ -1739,7 +1739,7 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
         });
     } else {
         local_ocr(type, img, (err, r) => {
-            return callback(err, r);
+            return callback(err, r.text);
         });
     }
 }
@@ -1749,7 +1749,7 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-async function local_ocr(type: string, arg: string, callback: Function) {
+async function local_ocr(type: string, arg: string, callback: (error: Error, result: { raw; text: string }) => void) {
     let l: [string, string, string, string, any];
     for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
     let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
@@ -1779,7 +1779,7 @@ async function local_ocr(type: string, arg: string, callback: Function) {
                 for (let i of l) {
                     t += i.text + "\n";
                 }
-                callback(null, t);
+                callback(null, { raw: l, text: t });
             })
             .catch((e) => {
                 callback(e, null);
@@ -2008,7 +2008,7 @@ function run_ocr() {
             });
         } else {
             local_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
-                add_ocr_text(r, i);
+                add_ocr_text(r.raw, i);
             });
         }
     });
