@@ -1905,12 +1905,17 @@ function online_ocr(type: string, arg: string, callback: Function) {
 }
 // online_ocr();
 
+const image_b = document.getElementById("image_b");
 const drop_el = document.getElementById("drop");
 const imgs_el = document.getElementById("img_view");
 const upload_pel = document.getElementById("file_input");
 const upload_el = document.getElementById("upload") as HTMLInputElement;
 const output_el = document.getElementById("r") as HTMLTextAreaElement;
 const run_el = document.getElementById("run");
+
+image_b.onclick = () => {
+    document.body.classList.toggle("image_main");
+};
 
 drop_el.ondragover = (e) => {
     e.preventDefault();

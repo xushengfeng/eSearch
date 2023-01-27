@@ -39,6 +39,12 @@ body {
 #top:hover {
     box-shadow: var(--shadow);
 }
+.image_main > #image {
+    transform: translateY(0);
+}
+.image_main > .main > #top {
+    margin-top: 50vh;
+}
 
 #tab_bar {
     margin: 0 !important;
