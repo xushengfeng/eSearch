@@ -1749,7 +1749,11 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-async function local_ocr(type: string, arg: string, callback: (error: Error, result: { raw; text: string }) => void) {
+async function local_ocr(
+    type: string,
+    arg: string,
+    callback: (error: Error, result: { raw: ocr_result; text: string }) => void
+) {
     let l: [string, string, string, string, any];
     for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
     let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
@@ -1793,7 +1797,11 @@ async function local_ocr(type: string, arg: string, callback: (error: Error, res
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-function online_ocr(type: string, arg: string, callback: Function) {
+function online_ocr(
+    type: string,
+    arg: string,
+    callback: (error: string, result: { raw: ocr_result; text: string }) => void
+) {
     var client_id = store.get(`在线OCR.${type}.id`),
         client_secret = store.get(`在线OCR.${type}.secret`);
     if (!client_id || !client_secret) return callback("未填写 API Key 或 Secret Key", null);
@@ -1847,7 +1855,21 @@ function online_ocr(type: string, arg: string, callback: Function) {
             }
             let output = output_l.join("\n");
             console.log(output);
-            return callback(null, output);
+            let r: ocr_result = [];
+            for (i of result.words_result) {
+                let l = (<any>i).location as { top: number; left: number; width: number; height: number };
+                r.push({
+                    box: [
+                        [l.left, l.top],
+                        [l.left + l.width, l.top],
+                        [l.left + l.width, l.top + l.height],
+                        [l.left, l.top + l.height],
+                    ],
+                    text: (<any>i).words,
+                });
+            }
+
+            return callback(null, { raw: r, text: output });
         }
     }
 
@@ -1888,18 +1910,30 @@ function online_ocr(type: string, arg: string, callback: Function) {
                 return callback(e, null);
             });
         function youdao_format(result) {
-            if (result.errorCode != "0") return callback(new Error(JSON.stringify(result)), null);
+            if (result.errorCode != "0") return callback(JSON.stringify(result), null);
+            let r: ocr_result = [];
             var text_l = [];
             for (i of result.Result.regions) {
                 var t = "";
                 for (let j of (<any>i).lines) {
+                    let p = j.boundingBox as string;
+                    let pl = p.split(",").map((x) => Number(x));
+                    r.push({
+                        box: [
+                            [pl[0], pl[1]],
+                            [pl[2], pl[3]],
+                            [pl[4], pl[5]],
+                            [pl[6], pl[7]],
+                        ],
+                        text: j.text,
+                    });
                     t += j.text;
                 }
                 text_l.push(t);
             }
             let text = text_l.join("\n");
             console.log(text);
-            return callback(null, text);
+            return callback(null, { raw: r, text });
         }
     }
 }
@@ -2004,7 +2038,7 @@ function run_ocr() {
     imgs_el.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
             online_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
-                add_ocr_text(r, i);
+                add_ocr_text(r.raw, i);
             });
         } else {
             local_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
@@ -2014,10 +2048,12 @@ function run_ocr() {
     });
 }
 
-function add_ocr_text(
-    r: { text: string; box: { x: number; y: number; w: number; h: number; a: number } }[],
-    i: number
-) {
+type ocr_result = {
+    text: string;
+    box: /** lt,rt,rb,lb */ [[number, number], [number, number], [number, number], [number, number]];
+}[];
+
+function add_ocr_text(r: ocr_result, i: number) {
     let img = imgs_el.querySelectorAll("img")[i];
     let canvas = document.createElement("canvas");
     let w = img.naturalWidth,
