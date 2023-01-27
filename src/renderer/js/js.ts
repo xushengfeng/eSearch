@@ -1244,13 +1244,16 @@ ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
 
     if (list.length == 3 && list[0] == "ocr") {
         editor.push(t("图片识别中……请等候"));
-        ocr(list[1], list[2] as any, (err: Error, text: string) => {
+        ocr(list[1], list[2] as any, (err: Error, r: { raw: ocr_result; text: string }) => {
+            const text = r.text;
             if (text) {
                 ipcRenderer.send("main_win", "ocr", "ok");
                 console.log(text);
 
                 editor.push(text);
                 editor.select_all();
+
+                add_ocr_text(r.raw, 0);
                 return;
             } else if (err) {
                 console.log(err);
@@ -1731,7 +1734,11 @@ function google(image, callback) {
 
 /************************************OCR */
 
-function ocr(img: string, type: string | "baidu" | "youdao", callback: Function) {
+function ocr(
+    img: string,
+    type: string | "baidu" | "youdao",
+    callback: (error: any, r: { raw: ocr_result; text: string }) => void
+) {
     add_ocr_photo(img);
     if (type == "baidu" || type == "youdao") {
         online_ocr(type, img, (err, r) => {
@@ -1739,7 +1746,7 @@ function ocr(img: string, type: string | "baidu" | "youdao", callback: Function)
         });
     } else {
         local_ocr(type, img, (err, r) => {
-            return callback(err, r.text);
+            return callback(err, r);
         });
     }
 }
