@@ -1910,8 +1910,8 @@ const drop_el = document.getElementById("drop");
 const imgs_el = document.getElementById("img_view");
 const upload_pel = document.getElementById("file_input");
 const upload_el = document.getElementById("upload") as HTMLInputElement;
-const output_el = document.getElementById("r") as HTMLTextAreaElement;
 const run_el = document.getElementById("run");
+const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 
 image_b.onclick = () => {
     document.body.classList.toggle("image_main");
@@ -1949,12 +1949,21 @@ run_el.onclick = () => {
     run_ocr();
 };
 document.getElementById("close").onclick = () => {
-    output_el.value = "";
     output = [];
     imgs_el.innerHTML = "";
 };
 
-var ocr_init = false;
+for (let i of store.get("离线OCR")) {
+    let o = document.createElement("option");
+    o.innerText = `${i[0]}`;
+    o.value = `${i[0]}`;
+    ocr引擎.append(o);
+}
+ocr引擎.insertAdjacentHTML("beforeend", `<option value="baidu">百度</option><option value="youdao">有道</option>`);
+ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
+document.getElementById("ocr引擎").oninput = () => {
+    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
+};
 
 /** 拖放数据处理 */
 function put_datatransfer(data: DataTransfer) {
@@ -1987,13 +1996,11 @@ function create_img(src: string) {
 }
 
 function run_ocr() {
-    if (!ocr_init) return;
-    output_el.value = "";
     output = [];
     imgs_el.querySelectorAll(":scope > div > div").forEach((el: HTMLElement) => {
         el.innerHTML = "";
     });
-    let type = "";
+    let type = ocr引擎.value;
     imgs_el.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
             online_ocr(type, el.src, (err, r) => {

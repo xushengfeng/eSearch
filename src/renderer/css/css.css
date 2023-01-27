@@ -284,7 +284,7 @@ body {
     width: 100%;
     height: 50vh;
     box-sizing: border-box;
-    grid-template-columns: auto calc(var(--b-button) * 2 + var(--o-padding));
+    grid-template-columns: auto min-content;
     grid-template-rows: auto auto;
     background-color: var(--bg);
     transition: var(--transition);
@@ -322,15 +322,19 @@ body {
     display: flex;
     gap: var(--o-padding);
 }
-#text_output > div {
+#text_output > * {
     position: relative;
     width: var(--b-button);
     height: var(--b-button);
     border-radius: var(--border-radius);
     transition: var(--transition);
 }
-#text_output > div:hover {
+#text_output > *:hover {
     background-color: var(--hover-color);
+}
+
+#ocr引擎 {
+    width: auto;
 }
 
 #img_view {
