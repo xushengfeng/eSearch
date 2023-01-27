@@ -2003,11 +2003,11 @@ function run_ocr() {
     let type = ocr引擎.value;
     imgs_el.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
-            online_ocr(type, el.src, (err, r) => {
+            online_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
                 add_ocr_text(r, i);
             });
         } else {
-            local_ocr(type, el.src, (err, r) => {
+            local_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
                 add_ocr_text(r, i);
             });
         }
