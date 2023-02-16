@@ -891,7 +891,6 @@ function save_setting() {
 // 查找
 document.getElementById("find_b_close").onclick = () => {
     find((<HTMLInputElement>document.getElementById("find_input")).value, { start: false });
-    document.getElementById("find_t").innerText = ``;
 };
 document.getElementById("find_input").oninput = () => {
     find((<HTMLInputElement>document.getElementById("find_input")).value, {
@@ -933,6 +932,7 @@ function find(t, o) {
 
     const str = t.trim().toLowerCase();
     if (!str) {
+        document.getElementById("find_t").innerText = ``;
         return;
     }
 
