@@ -899,19 +899,21 @@ document.getElementById("find_input").oninput = () => {
     });
 };
 document.getElementById("find_b_last").onclick = () => {
-    find((<HTMLInputElement>document.getElementById("find_input")).value, {
-        start: true,
-        forward: false,
-        findNext: true,
-    });
+    find_focus_i = (find_focus_i - 1) % find_ranges.length;
+    if (find_focus_i < 0) {
+        find_focus_i = find_ranges.length - 1;
+    }
+    jump_to_range(find_focus_i);
 };
 document.getElementById("find_b_next").onclick = () => {
-    find((<HTMLInputElement>document.getElementById("find_input")).value, {
-        start: true,
-        forward: true,
-        findNext: true,
-    });
+    find_focus_i = (find_focus_i + 1) % find_ranges.length;
+    jump_to_range(find_focus_i);
 };
+function jump_to_range(i: number) {
+    let rect = find_ranges[i].getBoundingClientRect();
+    document.getElementById("find_t").innerText = `${i + 1} / ${find_ranges.length}`;
+    document.documentElement.scrollTo(0, rect.top - document.body.getBoundingClientRect().top);
+}
 const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
 let allTextNodes = [];
 let currentNode = treeWalker.nextNode();
@@ -921,7 +923,8 @@ while (currentNode) {
     currentNode = treeWalker.nextNode();
 }
 console.log(allTextNodes);
-
+let find_ranges: Range[] = [];
+let find_focus_i = 0;
 function find(t, o) {
     // @ts-ignore
     CSS.highlights.clear();
@@ -953,7 +956,9 @@ function find(t, o) {
             });
         });
 
-    document.getElementById("find_t").innerText = `${1} / ${ranges.flat().length}`;
+    find_ranges = ranges.flat();
+    find_focus_i = 0;
+    jump_to_range(find_focus_i);
 
     // @ts-ignore
     const searchResultsHighlight = new Highlight(...ranges.flat());
