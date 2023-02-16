@@ -914,15 +914,17 @@ function jump_to_range(i: number) {
     document.getElementById("find_t").innerText = `${i + 1} / ${find_ranges.length}`;
     document.documentElement.scrollTo(0, rect.top - document.body.getBoundingClientRect().top);
 }
-const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
 let allTextNodes = [];
-let currentNode = treeWalker.nextNode();
-allTextNodes = [];
-while (currentNode) {
-    allTextNodes.push(currentNode);
-    currentNode = treeWalker.nextNode();
-}
-console.log(allTextNodes);
+window.onload = () => {
+    const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
+    let currentNode = treeWalker.nextNode();
+    allTextNodes = [];
+    while (currentNode) {
+        allTextNodes.push(currentNode);
+        currentNode = treeWalker.nextNode();
+    }
+    console.log(allTextNodes);
+};
 let find_ranges: Range[] = [];
 let find_focus_i = 0;
 function find(t, o) {
