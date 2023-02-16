@@ -890,12 +890,10 @@ function save_setting() {
 
 // 查找
 document.getElementById("find_b_close").onclick = () => {
-    find((<HTMLInputElement>document.getElementById("find_input")).value, { start: false });
+    find((<HTMLInputElement>document.getElementById("find_input")).value);
 };
 document.getElementById("find_input").oninput = () => {
-    find((<HTMLInputElement>document.getElementById("find_input")).value, {
-        start: Boolean((<HTMLInputElement>document.getElementById("find_input")).value),
-    });
+    find((<HTMLInputElement>document.getElementById("find_input")).value);
 };
 document.getElementById("find_b_last").onclick = () => {
     find_focus_i = (find_focus_i - 1) % find_ranges.length;
@@ -926,7 +924,7 @@ window.onload = () => {
 };
 let find_ranges: Range[] = [];
 let find_focus_i = 0;
-function find(t, o) {
+function find(t: string) {
     // @ts-ignore
     CSS.highlights.clear();
 
