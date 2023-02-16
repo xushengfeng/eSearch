@@ -48,6 +48,10 @@ body {
     backdrop-filter: var(--blur);
     border-radius: 4px;
 }
+::highlight(search-results) {
+    background-color: #f06;
+    color: white;
+}
 
 #menu {
     width: 10%;

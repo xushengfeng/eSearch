@@ -469,7 +469,7 @@ document.getElementById("clear_cache").onclick = () => {
     ipcRenderer.send("setting", "clear", "cache");
 };
 
-document.getElementById("main").onclick = () => {
+document.getElementById("main_b").onclick = () => {
     window.location.href = "index.html";
 };
 
@@ -893,7 +893,7 @@ document.getElementById("find_b_close").onclick = () => {
     find((<HTMLInputElement>document.getElementById("find_input")).value, { start: false });
     document.getElementById("find_t").innerText = ``;
 };
-document.getElementById("find_input").onchange = () => {
+document.getElementById("find_input").oninput = () => {
     find((<HTMLInputElement>document.getElementById("find_input")).value, {
         start: Boolean((<HTMLInputElement>document.getElementById("find_input")).value),
     });
@@ -912,12 +912,54 @@ document.getElementById("find_b_next").onclick = () => {
         findNext: true,
     });
 };
-function find(t, o) {
-    ipcRenderer.send("setting", "find", { t, o });
+const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
+let allTextNodes = [];
+let currentNode = treeWalker.nextNode();
+allTextNodes = [];
+while (currentNode) {
+    allTextNodes.push(currentNode);
+    currentNode = treeWalker.nextNode();
 }
-ipcRenderer.on("found", (e, a, b) => {
-    document.getElementById("find_t").innerText = `${a} / ${b}`;
-});
+console.log(allTextNodes);
+
+function find(t, o) {
+    // @ts-ignore
+    CSS.highlights.clear();
+
+    const str = t.trim().toLowerCase();
+    if (!str) {
+        return;
+    }
+
+    const ranges = allTextNodes
+        .map((el) => {
+            return { el, text: el.textContent.toLowerCase() };
+        })
+        .map(({ text, el }) => {
+            const indices = [];
+            let startPos = 0;
+            while (startPos < text.length) {
+                const index = text.indexOf(str, startPos);
+                if (index === -1) break;
+                indices.push(index);
+                startPos = index + str.length;
+            }
+
+            return indices.map((index) => {
+                const range = new Range();
+                range.setStart(el, index);
+                range.setEnd(el, index + str.length);
+                return range;
+            });
+        });
+
+    document.getElementById("find_t").innerText = `${1} / ${ranges.flat().length}`;
+
+    // @ts-ignore
+    const searchResultsHighlight = new Highlight(...ranges.flat());
+    // @ts-ignore
+    CSS.highlights.set("search-results", searchResultsHighlight);
+}
 
 var path_info = `<br>
                 ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>

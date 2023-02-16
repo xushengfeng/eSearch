@@ -1249,15 +1249,6 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
                 app.exit(0);
             }
             break;
-        case "find":
-            if (arg1.o?.start) {
-                let o = arg1.o;
-                delete arg1.o.start;
-                event.sender.findInPage(arg1.t, o || {});
-            } else {
-                event.sender.stopFindInPage("clearSelection");
-            }
-            break;
         case "reload":
             app.relaunch();
             app.exit(0);
@@ -1507,10 +1498,6 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
 
     main_window.on("closed", () => {
         delete main_window_l[window_name];
-    });
-
-    main_window.webContents.on("found-in-page", (e, r) => {
-        main_window.webContents.send("found", r.activeMatchOrdinal, r.matches);
     });
 
     // 浏览器大小适应
