@@ -1063,6 +1063,7 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            sandbox: false,
         },
     });
     renderer_path(recorder, "recorder.html");
