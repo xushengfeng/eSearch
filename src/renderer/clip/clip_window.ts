@@ -405,6 +405,9 @@ function tool_close_f() {
         记忆框选值[now_screen_id] = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]];
         store.set("框选.记忆.rects", 记忆框选值);
     }
+    if (uIOhook) {
+        uIOhook.stop();
+    }
     setTimeout(() => {
         ipcRenderer.send("clip_main_b", "window-close");
         location.reload();

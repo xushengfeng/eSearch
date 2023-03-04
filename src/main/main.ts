@@ -844,6 +844,7 @@ function create_clip_window() {
         switch (type) {
             case "window-close":
                 n_full_screen();
+                long_s_v = false;
                 break;
             case "ocr":
                 ocr(event, arg);
