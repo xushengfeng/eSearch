@@ -685,6 +685,8 @@ function tool_record_f() {
     });
 }
 
+let uIOhook;
+
 var log_o = {
     long_list: [] as [HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement][],
     l: [],
@@ -706,7 +708,7 @@ function tool_long_f() {
     o_canvas.width = final_rect[2];
     o_canvas.height = final_rect[3];
     log_o.l = [];
-    const { uIOhook } = require("uiohook-napi");
+    uIOhook = require("uiohook-napi").uIOhook;
     uIOhook.start();
     uIOhook.on("keyup", () => {
         ipcRenderer.send("clip_main_b", "long_r", now_screen_id);
@@ -717,6 +719,7 @@ function tool_long_f() {
     ipcRenderer.on("long", (event, x, w, h) => {
         if (!x) {
             uIOhook.stop();
+            uIOhook = null;
             pj_long();
             return;
         }
