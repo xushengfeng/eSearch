@@ -1175,7 +1175,7 @@ type screen_position = { x: number; y: number };
 
 var /** 先前坐标，用于框选的生成和调整 */ o_p = { x: NaN, y: NaN } as editor_position;
 var o_final_rect = null as rect;
-var the_color = null;
+var the_color: [number, number, number, number] = null;
 var the_text_color = [null, null];
 var clip_ctx = clip_canvas.getContext("2d");
 var undo_stack = [{ rect: 0, canvas: 0 }],
@@ -1532,7 +1532,7 @@ function mouse_bar(final_rect: rect, x: number, y: number) {
         .getImageData(x - (color_size - 1) / 2, y - (color_size - 1) / 2, color_size, color_size).data; // 取色器密度
     // 分开每个像素的颜色
     for (var i = 0, len = color.length; i < len; i += 4) {
-        var color_g = color.slice(i, i + 4);
+        let color_g = [...color.slice(i, i + 4)] as typeof the_color;
         color_g[3] /= 255;
         var ii = parseInt(String(i / 4));
         var xx = (ii % color_size) + (x - (color_size - 1) / 2);
@@ -1573,7 +1573,7 @@ document.getElementById("clip_xy").onclick = () => {
 };
 
 // 色彩空间转换
-function color_conversion(rgba, type) {
+function color_conversion(rgba, type: string) {
     var color = Color(rgba);
     if (color.alpha() != 1) return "/";
     switch (type) {
@@ -1594,14 +1594,14 @@ function color_conversion(rgba, type) {
 }
 
 // 改变颜色文字和样式
-function clip_color_text(l, type) {
-    var color = Color.rgb(l);
-    var clip_color_text_color = color.alpha() == 1 ? (color.isLight() ? "#000" : "#fff") : "";
+function clip_color_text(l: typeof the_color, type: string) {
+    let color = Color.rgb(l);
+    let clip_color_text_color = color.alpha() == 1 ? (color.isLight() ? "#000" : "#fff") : "";
     the_text_color = [color.hexa(), clip_color_text_color];
 
     (<HTMLDivElement>document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`)).style.backgroundColor =
         color.hexa();
-    var main_el = <HTMLElement>(
+    let main_el = <HTMLElement>(
         document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`)
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
@@ -1616,7 +1616,7 @@ function clip_color_text(l, type) {
 // 改变鼠标跟随栏形态，展示所有颜色格式
 function change_right_bar(v) {
     // 拼接坐标和颜色代码
-    var t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
+    let t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
     t += `<div style="background-color:${the_text_color[0]};color:${the_text_color[1]}">`;
     for (let i in all_color_format) {
         t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
@@ -1626,7 +1626,7 @@ function change_right_bar(v) {
     (<HTMLElement>document.querySelector("#clip_copy > div > div:nth-child(1)")).onclick = () => {
         copy(document.querySelector("#clip_copy > div > div:nth-child(1)"));
     };
-    var nodes = document.querySelectorAll("#clip_copy > div > div:not(:nth-child(1)) > div");
+    let nodes = document.querySelectorAll("#clip_copy > div > div:not(:nth-child(1)) > div");
     nodes.forEach((element: HTMLElement) => {
         ((e) => {
             e.onclick = () => {
