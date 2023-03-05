@@ -1575,6 +1575,7 @@ document.getElementById("clip_xy").onclick = () => {
 // 色彩空间转换
 function color_conversion(rgba, type) {
     var color = Color(rgba);
+    if (color.alpha() != 1) return "/";
     switch (type) {
         case "HEX":
             return color.hex();
@@ -1605,10 +1606,9 @@ function clip_color_text(l, type) {
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
     main_el.style.color = the_text_color[1];
+    main_el.innerText = color_conversion(the_color, type);
     if (color.alpha() != 1) {
-        main_el.innerText = "";
-    } else {
-        main_el.innerText = color_conversion(the_color, type);
+        main_el.style.color = "";
     }
     (<HTMLDivElement>document.querySelector("#clip_copy > div")).style.top = -32 * 取色器格式位置 + "px";
 }
