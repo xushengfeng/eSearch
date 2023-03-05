@@ -1596,8 +1596,8 @@ function color_conversion(rgba, type) {
 // 改变颜色文字和样式
 function clip_color_text(l, type) {
     var color = Color.rgb(l);
-    var clip_color_text_color = color.isLight() ? "#000" : "#fff";
-    the_text_color = [color.hex(), clip_color_text_color];
+    var clip_color_text_color = color.alpha() == 1 ? (color.isLight() ? "#000" : "#fff") : "";
+    the_text_color = [color.hexa(), clip_color_text_color];
 
     (<HTMLDivElement>document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`)).style.backgroundColor =
         color.hexa();
