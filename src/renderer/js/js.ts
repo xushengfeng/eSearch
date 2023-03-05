@@ -124,7 +124,6 @@ class xeditor {
 
         this.text.addEventListener("cut", (e) => {
             e.clipboardData.setData("text/plain", editor.selections.get());
-            editor.selections.replace("");
         });
 
         this.text.addEventListener("paste", (e) => {
