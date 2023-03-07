@@ -348,13 +348,17 @@ function get_linux_win() {
         for (let i of display.screen) {
             X.QueryTree(i.root, (err, tree) => {
                 for (let x of tree.children) {
-                    X.GetGeometry(x, function (err, clientGeom) {
-                        edge_rect.push({
-                            x: clientGeom.xPos,
-                            y: clientGeom.yPos,
-                            width: clientGeom.width,
-                            height: clientGeom.height,
-                        });
+                    X.GetWindowAttributes(x, function (err, attrs) {
+                        if (attrs.mapState == 2) {
+                            X.GetGeometry(x, function (err, clientGeom) {
+                                edge_rect.push({
+                                    x: clientGeom.xPos,
+                                    y: clientGeom.yPos,
+                                    width: clientGeom.width,
+                                    height: clientGeom.height,
+                                });
+                            });
+                        }
                     });
                 }
             });
@@ -1379,6 +1383,8 @@ var rect_in_rect = [];
  */
 function in_edge(p: editor_position) {
     if (rect_select) return;
+    console.log(1);
+
     rect_in_rect = [];
     for (const i of edge_rect) {
         let x0 = i.x,
