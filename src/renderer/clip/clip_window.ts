@@ -3,6 +3,7 @@
 const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
+const os = require("os");
 
 // 获取设置
 let config_path = new URLSearchParams(location.search).get("config_path");
@@ -137,6 +138,8 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             edge();
         }, 0);
     }
+
+    get_linux_win();
 
     draw_clip_rect();
     setTimeout(() => {
@@ -332,6 +335,31 @@ function edge() {
     hierarchy.delete();
 
     src = dst = contours = hierarchy = null;
+}
+
+function get_linux_win() {
+    if (os.platform() != "linux") return;
+    var x11 = require("x11");
+    var X = x11.createClient(function (err, display) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        for (let i of display.screen) {
+            X.QueryTree(i.root, (err, tree) => {
+                for (let x of tree.children) {
+                    X.GetGeometry(x, function (err, clientGeom) {
+                        edge_rect.push({
+                            x: clientGeom.xPos,
+                            y: clientGeom.yPos,
+                            width: clientGeom.width,
+                            height: clientGeom.height,
+                        });
+                    });
+                }
+            });
+        }
+    });
 }
 
 // 左边窗口工具栏弹出
@@ -1261,7 +1289,7 @@ clip_canvas.onmousemove = (e) => {
         is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
     }
 
-    if (auto_select_rect && edge_init) {
+    if (auto_select_rect) {
         in_edge({ x: e.offsetX, y: e.offsetY });
     }
 };
@@ -3135,6 +3163,7 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
+import { platform } from "os";
 var package_json = JSON.parse(pack);
 
 function check_update() {

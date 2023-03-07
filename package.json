@@ -29,7 +29,8 @@
     "onnxruntime-node": "^1.13.1",
     "opencv.js": "^1.2.1",
     "uiohook-napi": "^1.5.0",
-    "wordsninja": "^1.0.0"
+    "wordsninja": "^1.0.0",
+    "x11": "^2.3.0"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
