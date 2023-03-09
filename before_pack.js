@@ -21,4 +21,12 @@ exports.default = async function () {
             })
         );
     }
+    if (process.platform == "win32" && !fs.existsSync("./lib/win_rect.exe")) {
+        fs.writeFileSync(
+            "./lib/win_rect.exe",
+            await download("https://github.com/xushengfeng/win_rect/releases/download/0.1.0/win_rect.exe", {
+                rejectUnauthorized: false,
+            })
+        );
+    }
 };

@@ -8,3 +8,4 @@ ocr/ppocr
 .DS_Store
 build
 preload_config
+lib/win_rect.exe

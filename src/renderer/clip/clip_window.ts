@@ -140,6 +140,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     }
 
     get_linux_win();
+    get_win_win();
 
     draw_clip_rect();
     setTimeout(() => {
@@ -303,7 +304,7 @@ document.addEventListener("pointerup", (e) => {
 });
 
 var edge_init = false;
-var edge_rect = [];
+var edge_rect: { x: number; y: number; width: number; height: number }[] = [];
 function edge() {
     edge_init = true;
     let canvas = main_canvas;
@@ -362,6 +363,20 @@ function get_linux_win() {
                     });
                 }
             });
+        }
+    });
+}
+
+function get_win_win() {
+    if (process.platform != "win32") return;
+    let { exec } = require("child_process");
+    let run_path = ipcRenderer.sendSync("run_path");
+    exec(`${run_path}/lib/win_rect.exe`, (err, out) => {
+        console.log(out);
+        if (!err) {
+            out = out.replaceAll("\x00", "");
+            let r = JSON.parse(out);
+            for (let i of r) edge_rect.push({ x: i.x, y: i.y, width: i.width, height: i.height });
         }
     });
 }

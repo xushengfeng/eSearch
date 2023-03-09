@@ -60,11 +60,10 @@ try {
     }
 } catch (e) {}
 
-// 其他应用打开
-if (process.platform == "linux")
-    ipcMain.on("run_path", (event) => {
-        event.returnValue = run_path;
-    });
+// 获取运行位置
+ipcMain.on("run_path", (event) => {
+    event.returnValue = run_path;
+});
 
 var store = new Store();
 
