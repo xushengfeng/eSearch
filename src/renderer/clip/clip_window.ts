@@ -267,7 +267,7 @@ document.addEventListener("pointerup", (e) => {
 });
 
 var edge_init = false;
-var edge_rect: { x: number; y: number; width: number; height: number }[] = [];
+var edge_rect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
 function edge() {
     edge_init = true;
     let canvas = main_canvas;
@@ -288,7 +288,9 @@ function edge() {
 
     for (let i = 0; i < contours.size(); i++) {
         let cnt = contours.get(i);
-        edge_rect.push(cv.boundingRect(cnt));
+        let r = cv.boundingRect(cnt);
+        r["type"] = "image";
+        edge_rect.push(r);
     }
 
     // cv.imshow(canvas, dst);
@@ -320,6 +322,7 @@ function get_linux_win() {
                                     y: clientGeom.yPos,
                                     width: clientGeom.width,
                                     height: clientGeom.height,
+                                    type: "system",
                                 });
                             });
                         }
@@ -339,7 +342,7 @@ function get_win_win() {
         if (!err) {
             out = out.replaceAll("\x00", "");
             let r = JSON.parse(out);
-            for (let i of r) edge_rect.push({ x: i.x, y: i.y, width: i.width, height: i.height });
+            for (let i of r) edge_rect.push({ x: i.x, y: i.y, width: i.width, height: i.height, type: "system" });
         }
     });
 }
