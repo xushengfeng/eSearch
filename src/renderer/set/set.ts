@@ -247,6 +247,7 @@ function msk(t: string) {
 set_radio(document.getElementById("框选后默认操作"), old_store.框选后默认操作);
 
 (<HTMLInputElement>document.getElementById("自动框选")).checked = old_store.框选.自动框选.开启;
+(<HTMLInputElement>document.getElementById("自动框选图像识别")).checked = old_store.框选.图像识别;
 (<HTMLInputElement>document.getElementById("框选最小阈值")).value = old_store.框选.自动框选.最小阈值;
 (<HTMLInputElement>document.getElementById("框选最大阈值")).value = old_store.框选.自动框选.最大阈值;
 document.getElementById("框选最小阈值").oninput = () => {
@@ -742,6 +743,7 @@ function save_setting() {
     store_set("选区颜色", (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value);
     store_set("框选.自动框选", {
         开启: (<HTMLInputElement>document.getElementById("自动框选")).checked,
+        图像识别: (<HTMLInputElement>document.getElementById("自动框选图像识别")).checked,
         最小阈值: (<HTMLInputElement>document.getElementById("框选最小阈值")).value,
         最大阈值: (<HTMLInputElement>document.getElementById("框选最大阈值")).value,
     });

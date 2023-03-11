@@ -131,7 +131,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
             break;
     }
 
-    if (store.get("框选.自动框选.开启")) {
+    if (auto_photo_select_rect) {
         setTimeout(() => {
             edge();
         }, 0);
@@ -1195,6 +1195,7 @@ var undo_stack_i = 0;
 var now_canvas_position: number[];
 var direction;
 var auto_select_rect = store.get("框选.自动框选.开启");
+var auto_photo_select_rect = store.get("框选.自动框选.图像识别");
 var /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 var /**鼠标是否按住 */ down = false;
 var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rect_select = false;

@@ -1821,6 +1821,7 @@ var default_setting = {
     框选: {
         自动框选: {
             开启: false,
+            图像识别: false,
             最小阈值: 50,
             最大阈值: 150,
         },
