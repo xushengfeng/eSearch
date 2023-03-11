@@ -99,8 +99,6 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     console.log(data);
     for (let i of data) {
         screens_l.push(i);
-        let h = i.height * i.scaleFactor;
-        let w = i.width * i.scaleFactor;
         if (i) {
             if (i.main) {
                 set_screen(i);
@@ -109,7 +107,7 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
                 ratio = i.scaleFactor;
             }
             let c = document.createElement("canvas");
-            to_canvas(c, i.image, w, h);
+            to_canvas(c, i.image);
             let div = document.createElement("div");
             div.append(c);
             side_bar_screens.append(div);
@@ -150,47 +148,11 @@ ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
     change_right_bar(false);
 });
 
-/** 因式分解x并找到最接近a,b的因数 */
-function factorize(x: number, a: number, b: number) {
-    if (a * b == x) {
-        return [a, b];
-    } else {
-        // 因式分解找到最接近输入ab幅角的一对因数
-        let factors = 1;
-        let min_ab = [];
-        let min_datan = Infinity;
-        let num = x;
-        for (let i = 2; i <= num; i++) {
-            while (num % i === 0) {
-                factors *= i;
-                let f = r(factors, x / factors);
-                let datan = Math.abs(Math.atan(a / b) - Math.atan(f[0] / f[1]));
-                if (datan < min_datan) {
-                    min_ab = [factors, x / factors];
-                    min_datan = datan;
-                }
-                num /= i;
-            }
-        }
-        return r(min_ab[0], min_ab[1]);
-    }
-
-    /** 使输入的a1,b1大小顺序与a,b相同 */
-    function r(a1: number, b1: number) {
-        // 判断大小顺序
-        if ((a - b) * (a1 - b1) < 0) {
-            return [b1, a1];
-        } else {
-            return [a1, b1];
-        }
-    }
-}
-
-function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number) {
+function to_canvas(canvas: HTMLCanvasElement, img: Buffer) {
     let x = nativeImage.createFromBuffer(img).toBitmap();
-    let f = factorize(x.length / 4, w, h);
-    w = f[0];
-    h = f[1];
+    let size = nativeImage.createFromBuffer(img).getSize();
+    let w = size.width;
+    let h = size.height;
     canvas.width = w;
     canvas.height = h;
     for (let i = 0; i < x.length; i += 4) {
@@ -201,11 +163,12 @@ function to_canvas(canvas: HTMLCanvasElement, img: Buffer, w: number, h: number)
 }
 
 function set_screen(i) {
-    let w = i.width * i.scaleFactor;
-    let h = i.height * i.scaleFactor;
+    let size = nativeImage.createFromBuffer(i.image).getSize();
+    let w = size.width;
+    let h = size.height;
     main_canvas.width = clip_canvas.width = draw_canvas.width = w;
     main_canvas.height = clip_canvas.height = draw_canvas.height = h;
-    to_canvas(main_canvas, i.image, w, h);
+    to_canvas(main_canvas, i.image);
     fabric_canvas.setHeight(h);
     fabric_canvas.setWidth(w);
     final_rect = [0, 0, main_canvas.width, main_canvas.height];
