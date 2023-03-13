@@ -216,6 +216,14 @@ macOS Catalina 测试通过
 
 -   有这个打算，还很心动。不过主进程 2000 行代码迁移到 rust 还是有些费劲的，所以现在不会很快迁移。
 
+### A JavaScript error occurred in the main process
+
+这是主进程报错，可能由于各种原因导致，真正有用的错误信息是下面的具体错误，并且是代码错误。因此直接搜索“A JavaScript error occurred in the main process”很难解决问题。
+
+一般来说，重装软件，恢复设置能解决 99%的问题。最好的办法是记录详细报错信息，提交一个[issue](https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&template=bug_report.md&title=%E2%80%A6%E2%80%A6%E5%AD%98%E5%9C%A8%E2%80%A6%E2%80%A6%E9%94%99%E8%AF%AF)进行反馈。
+
+积累的错误及其讨论、解决方案：[#123](https://github.com/xushengfeng/eSearch/issues/123) [#133](https://github.com/xushengfeng/eSearch/issues/133)
+
 ## 贡献
 
 请查看[贡献指南](CONTRIBUTING.md)
