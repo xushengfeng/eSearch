@@ -82,6 +82,17 @@ body {
     background-color: var(--bg);
     margin-top: 32px;
 }
+
+#setting_item h1 {
+    font-size: 3rem;
+    font-weight: lighter;
+}
+
+#setting_item h2 {
+    font-size: 1.8rem;
+    margin-block-end: 1.2rem;
+}
+
 textarea {
     padding: 8px;
     width: 100%;
