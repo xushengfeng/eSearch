@@ -896,6 +896,7 @@ function find_() {
 function exit_find() {
     tmp_text = null;
     find_t.innerText = "";
+    editor.find.render([]);
 }
 // 跳转
 var find_l_n_i = 0;
@@ -942,10 +943,8 @@ document.getElementById("find_input").onkeydown = (e) => {
 // 全部替换
 document.getElementById("find_b_replace_all").onclick = () => {
     let m = editor.find.matchx(find_input.value, find_regex);
-    let l = editor.find.find(m);
-    for (let s of l) {
-        editor.find.replace(s, m, replace_input.value);
-    }
+    if (!editor.selections.get()) editor.select_all();
+    editor.selections.replace(editor.selections.get().replaceAll(m, replace_input.value));
     exit_find();
 
     stack_add();
