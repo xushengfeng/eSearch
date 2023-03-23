@@ -313,6 +313,13 @@ comment {
 }
 .hotkeys > span {
     text-align: right;
+    position: relative;
+}
+.hotkeys > span .icon {
+    left: auto;
+    right: 0;
+    width: 24px;
+    display: block;
 }
 
 #框选后默认操作 .icon {
