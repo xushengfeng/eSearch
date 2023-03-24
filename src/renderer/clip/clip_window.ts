@@ -1156,6 +1156,10 @@ document.querySelector("body").onkeydown = (e) => {
             }
             set_editor_p(editor_p.zoom, x, y);
             document.body.classList.add("editor_bg");
+            let c_x = (now_mouse_e.clientX - editor_p.x * editor_p.zoom) / editor_p.zoom;
+            let c_y = (now_mouse_e.clientY - editor_p.y * editor_p.zoom) / editor_p.zoom;
+            now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
+            mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
         }
     }
 };
