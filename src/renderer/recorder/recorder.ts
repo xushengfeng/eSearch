@@ -30,9 +30,9 @@ var store = new Store({
 
 var ratio = 1;
 
-var /**@type {MediaRecorder} */ recorder;
+var recorder: MediaRecorder;
 
-var tmp_path;
+var tmp_path: string;
 
 var start_stop = document.getElementById("start_stop");
 var s_s = false;
@@ -92,7 +92,7 @@ function get_time() {
     }
 }
 
-var /**@type {MediaStream} */ audio_stream, /**@type {MediaStream} */ stream;
+var audio_stream: MediaStream, stream: MediaStream;
 
 var audio = false,
     camera = false;
@@ -231,7 +231,7 @@ mic_el.onclick = () => {
     }
 };
 
-var /**@type {MediaStream} */ camera_stream;
+var camera_stream: MediaStream;
 async function camera_stream_f(v) {
     if (v) {
         camera_stream = await navigator.mediaDevices.getUserMedia({
@@ -364,9 +364,9 @@ document.getElementById("b_t_end").onclick = () => {
 
 /**
  *
- * @param {string} x 输入秒
+ * @param x 输入秒
  */
-function t_format(x) {
+function t_format(x: number) {
     let t = x;
     let s = Math.trunc(t / 1000);
     let m = Math.trunc(s / 60);
