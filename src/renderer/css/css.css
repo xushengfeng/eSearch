@@ -610,7 +610,7 @@ button > .icon {
     grid-template-columns: calc(2 * var(--b-button)) 1fr repeat(2, auto);
 }
 .fill_t_s #top {
-    grid-area: 1 / 1 / 2 / 5;
+    grid-area: 1 / 1 / 2 / 7;
 }
 .fill_t_s .main > #history {
     display: none;
