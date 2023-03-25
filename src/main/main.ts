@@ -1184,6 +1184,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
             break;
         case "close":
             recorder.close();
+            reload_clip();
             break;
         case "min":
             recorder.minimize();
