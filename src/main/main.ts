@@ -1191,6 +1191,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
         case "camera":
             switch (arg) {
                 case 0:
+                    // 摄像头
                     recorder.setBounds({
                         width: store.get("录屏.大小.width") || 800,
                         height: store.get("录屏.大小.height") || 600,
@@ -1200,6 +1201,7 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                     recorder.setResizable(true);
                     break;
                 case 1:
+                    // 摄像头关
                     recorder.setResizable(false);
                     recorder.setBounds({
                         width: 216,
@@ -1209,9 +1211,10 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                     });
                     break;
                 case 2:
+                    // 预览界面
                     recorder.setBounds({
-                        width: store.get("录屏.大小.width") || 800,
-                        height: store.get("录屏.大小.height") || 600,
+                        width: Math.max(store.get("录屏.大小.width"), 300) || 800,
+                        height: Math.max(store.get("录屏.大小.height"), 500) || 600,
                     });
                     recorder.setAlwaysOnTop(false);
                     recorder.setResizable(true);
