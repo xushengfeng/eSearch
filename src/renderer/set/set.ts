@@ -748,9 +748,7 @@ function save_setting() {
         最小阈值: (<HTMLInputElement>document.getElementById("框选最小阈值")).value,
         最大阈值: (<HTMLInputElement>document.getElementById("框选最大阈值")).value,
     });
-    store_set("框选.记忆", {
-        开启: (<HTMLInputElement>document.getElementById("记住框选大小")).checked,
-    });
+    store_set("框选.记忆.开启", (<HTMLInputElement>document.getElementById("记住框选大小")).checked);
     store_set("图像编辑.默认属性", {
         填充颜色: (<HTMLInputElement>document.getElementById("填充颜色")).value,
         边框颜色: (<HTMLInputElement>document.getElementById("边框颜色")).value,
