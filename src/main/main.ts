@@ -1918,6 +1918,7 @@ var default_setting = {
     贴图: {
         窗口: {
             变换: `transform: rotateY(180deg);`,
+            双击: "归位",
         },
     },
     代理: {

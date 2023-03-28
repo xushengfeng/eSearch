@@ -293,6 +293,7 @@ document.getElementById("plugin_b").onclick = () => {
 };
 
 (<HTMLInputElement>document.getElementById("tran_css")).value = old_store.贴图.窗口.变换;
+set_radio(document.getElementById("贴图双击"), old_store.贴图.窗口.双击);
 
 set_radio(document.getElementById("快速截屏"), old_store.快速截屏.模式);
 (<HTMLInputElement>document.getElementById("快速截屏路径")).value = old_store.快速截屏.路径;
@@ -763,6 +764,7 @@ function save_setting() {
     });
     store_set("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
     store_set("贴图.窗口.变换", (<HTMLInputElement>document.getElementById("tran_css")).value);
+    store_set("贴图.窗口.双击", get_radio(document.getElementById("贴图双击")));
     store_set("框选后默认操作", get_radio(document.getElementById("框选后默认操作")));
     store_set("快速截屏.模式", get_radio(<HTMLInputElement>document.getElementById("快速截屏")));
     store_set(

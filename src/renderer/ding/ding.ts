@@ -134,9 +134,10 @@ ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
     (<HTMLElement>tool_bar.querySelector("#edit")).onclick = () => {
         edit(div);
     };
-    // 双击归位
+    // 双击行为
     div.ondblclick = () => {
-        back(div);
+        if (store.get("贴图.窗口.双击") == "归位") back(div);
+        else close(div);
     };
     // 放到前面
     div.onclick = () => {
