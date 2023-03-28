@@ -1989,7 +1989,17 @@ function move_rect(o_final_rect: rect, old_position: editor_position, position: 
 
     final_rect_fix();
     draw_clip_rect();
+
+    if (dx == 0 && dy == 0) {
+        let now_time = new Date().getTime();
+        if (now_time - last_click_time <= 600) {
+            tool_copy_f();
+        }
+        last_click_time = now_time;
+    }
 }
+
+let last_click_time = 0;
 
 /**
  * 保存历史
