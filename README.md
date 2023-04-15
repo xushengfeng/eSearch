@@ -224,6 +224,12 @@ macOS Catalina 测试通过
 
 积累的错误及其讨论、解决方案：[#123](https://github.com/xushengfeng/eSearch/issues/123) [#133](https://github.com/xushengfeng/eSearch/issues/133)
 
+### 更新版本后出现了以前没有的错误
+
+一般是因为不同版本的配置不兼容，可以尝试在 设置-高级-高级设置 里 恢复默认设置。
+
+若未能解决问题，请提交 issue
+
 ## 贡献
 
 请查看[贡献指南](CONTRIBUTING.md)

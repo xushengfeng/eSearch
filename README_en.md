@@ -216,6 +216,20 @@ Tested on macOS Catalina
 
 -   I have such a plan, but I am still very excited. However, the migration of 2000 lines of code from the main process to rust is a bit laborious, so it will not be migrated any time soon.
 
+### A JavaScript error occurred in the main process
+
+This is an error in the main process, which can be caused by a variety of reasons, and the really useful error message is the following specific error, which is a code error. Therefore, it is difficult to solve the problem by directly searching for "A JavaScript error occurred in the main process".
+
+Generally speaking, reinstalling the software and restoring the settings will solve 99% of the problems. The best way is to record the detailed error message and submit an [issue](https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&template=bug_report.md&title=%) E2%80%A6%E2%80%A6%E5%AD%98%E5%9C%A8%E2%80%A6%E2%80%A6%E9%94%99%E8%AF%AF) for feedback.
+
+Accumulated errors and their discussion, solutions: [#123](https://github.com/xushengfeng/eSearch/issues/123) [#133](https://github.com/xushengfeng/eSearch/issues/133)
+
+### After updating the version, there is an error that was not there before
+
+You can try to restore the default settings in Settings - Advanced - Advanced Settings.
+
+If this does not solve the problem, please submit an issue
+
 ## Contribution
 
 Please see [contribution Guide](CONTRIBUTING.md)
