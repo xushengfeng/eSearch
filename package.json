@@ -36,10 +36,10 @@
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@types/color": "^3.0.3",
     "@types/node": "^18.8.4",
-    "electron": "^22.0.1",
+    "electron": "^22.3.6",
     "electron-builder": "^23.6.0",
     "electron-vite": "^1.0.16",
-    "typescript": "^4.9.4",
+    "typescript": "^5.0.4",
     "vite": "^4.0.4"
   },
   "optionalDependencies": {
