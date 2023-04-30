@@ -135,8 +135,7 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "include": "./installer.nsh"
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

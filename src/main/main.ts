@@ -36,7 +36,12 @@ type Screenshots = {
     captureAreaSync(x: number, y: number, width: number, height: number): Buffer | null;
     captureArea(x: number, y: number, width: number, height: number): Promise<Buffer>;
 };
-const { Screenshots } = require("node-screenshots") as { Screenshots: Screenshots };
+let Screenshots: Screenshots;
+try {
+    Screenshots = require("node-screenshots").Screenshots;
+} catch (error) {
+    shell.openExternal("https://esearch-app.netlify.app/download.html");
+}
 const Store = require("electron-store");
 import * as path from "path";
 const run_path = path.join(path.resolve(__dirname, ""), "../../");
