@@ -976,7 +976,7 @@ function full_screen(img_path?: string) {
                     scaleFactor: 1,
                     isPrimary: true,
                     main: true,
-                    id: screen.getPrimaryDisplay().id,
+                    id: null,
                 },
             ]);
         });

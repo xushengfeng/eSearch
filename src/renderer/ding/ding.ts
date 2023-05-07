@@ -51,6 +51,7 @@ var changing = null;
 var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
 ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
+    if (!screenid) screenid = screen_id;
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
     let div = document.createElement("div");
