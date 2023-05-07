@@ -176,6 +176,7 @@ function set_screen(i) {
         if (记忆框选值?.[i.id]?.[2]) {
             final_rect = 记忆框选值[i.id];
             rect_select = true;
+            final_rect_fix();
         } // 记忆框选边不为0时
     draw_clip_rect();
     now_screen_id = i.id;
