@@ -112,8 +112,9 @@ ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
     // 滚轮缩放
     div.onwheel = (e) => {
         if (e.deltaY != 0) {
-            var zoom =
-                (Number(div.querySelector("#size > span").innerHTML) - (e.deltaY / Math.abs(e.deltaY)) * 10) / 100;
+            let zoom = Number(div.querySelector("#size > span").innerHTML) / 100;
+            let zz = 1 + Math.abs(e.deltaY) / 300;
+            zoom = e.deltaY > 0 ? zoom / zz : zoom * zz;
             if (zoom < 0.05) zoom = 0.05;
             div_zoom(div, zoom, e.offsetX, e.offsetY, true);
             resize(div, zoom);
