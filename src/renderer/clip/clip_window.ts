@@ -194,7 +194,8 @@ document.onwheel = (e) => {
 
     document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
-        let z = zoom_w - e.deltaY / (800 / zoom_w);
+        let zz = 1 + Math.abs(e.deltaY) / 300;
+        let z = e.deltaY > 0 ? zoom_w / zz : zoom_w * zz;
         zoom_w = z;
         let ozoom = editor_p.zoom,
             nzoom = z / main_canvas.width;
