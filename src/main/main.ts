@@ -1041,7 +1041,7 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
     rect = rect.map((v) => v / ratio);
     let hx = s.bounds.x + rect[0] + rect[2] / 2,
         hy = s.bounds.y + rect[1] + rect[3] / 2,
-        w = 216,
+        w = 240,
         h = 24,
         sw = s.bounds.x + s.bounds.width * ratio,
         sh = s.bounds.y + s.bounds.height * ratio;

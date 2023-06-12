@@ -46,10 +46,12 @@ start_stop.onclick = () => {
         pause_recume.querySelector("img").src = pause_svg;
         document.getElementById("time").innerText = "0:00";
         recorder.start();
+        格式_el.style.display = "none";
+        type = 格式_el.value;
         p_time();
         setInterval(get_time, 500);
         s_s = false;
-        ipcRenderer.send("record", "start", time_l[0]);
+        ipcRenderer.send("record", "start", tmp_path, type);
     } else {
         stop = true;
         recorder.stop();
@@ -96,6 +98,9 @@ function get_time() {
         ).padStart(2, "0")}`;
     }
 }
+
+add_types();
+let type = (格式_el.value = store.get("录屏.转换.格式"));
 
 var audio_stream: MediaStream, stream: MediaStream;
 
@@ -343,7 +348,6 @@ function show_control() {
     document.getElementById("record_b").style.display = "none";
     document.getElementById("m").style.backgroundColor = "var(--bg)";
     document.getElementById("time").innerText = "";
-    add_types();
     document.querySelector("video").style.transform = "";
     document.querySelector("video").src = tmp_path;
     document.querySelector("video").style.left = -rect[0] * ratio + "px";
@@ -353,7 +357,6 @@ function show_control() {
         rect[3] * ratio + "px";
     clip_v();
     save_el.disabled = false;
-    格式_el.value = store.get("录屏.转换.格式");
     码率_el.value = store.get("录屏.转换.码率");
     帧率_el.value = store.get("录屏.转换.帧率");
     其他参数_el.value = store.get("录屏.转换.其他");
