@@ -36,6 +36,10 @@ var tmp_path: string;
 
 var start_stop = document.getElementById("start_stop");
 var s_s = false;
+let stop = false;
+
+const clip_time = 0.1 * 60 * 1000;
+
 start_stop.onclick = () => {
     if (s_s) {
         start_stop.querySelector("div").className = "stop";
@@ -47,6 +51,7 @@ start_stop.onclick = () => {
         s_s = false;
         ipcRenderer.send("record", "start", time_l[0]);
     } else {
+        stop = true;
         recorder.stop();
         p_time();
     }
@@ -165,24 +170,49 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
             recorder.ondataavailable = function (e) {
                 chunks.push(e.data);
             };
-            recorder.onstop = () => {
-                ipcRenderer.send("record", "stop");
+
+            const fs = require("fs") as typeof import("fs");
+            const os = require("os") as typeof import("os");
+            const path = require("path") as typeof import("path");
+            let file_name = String(new Date().getTime());
+            tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
+            fs.mkdirSync(tmp_path);
+            let clip_name = 0;
+            function save(f: () => void) {
+                clip_name++;
                 let b = new Blob(chunks, { type: "video/webm" });
+                console.log(chunks, b);
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(b);
                 reader.onloadend = (e) => {
-                    const fs = require("fs") as typeof import("fs");
-                    const os = require("os") as typeof import("os");
-                    const path = require("path") as typeof import("path");
-                    let file_name = String(new Date().getTime());
-                    tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
-                    fs.writeFile(tmp_path, Buffer.from(reader.result as string), (err) => {
-                        if (!err) {
-                            show_control();
+                    fs.writeFile(
+                        path.join(tmp_path, String(clip_name)),
+                        Buffer.from(reader.result as string),
+                        (err) => {
+                            chunks = [];
+                            f();
                         }
-                    });
+                    );
                 };
+            }
+
+            function c() {
+                setTimeout(() => {
+                    recorder.stop();
+                    if (!stop) c();
+                }, clip_time);
+            }
+
+            recorder.onstop = () => {
+                save(null);
+                recorder.start();
+                if (stop) {
+                    ipcRenderer.send("record", "stop");
+                    save(show_control);
+                }
             };
+
+            c();
 
             if (store.get("录屏.自动录制")) {
                 let t = store.get("录屏.自动录制");
