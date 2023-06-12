@@ -1033,6 +1033,7 @@ function image_search(event: Electron.IpcMainEvent, arg) {
 
 var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
 var o_rect;
+var createFFmpeg: typeof import("@ffmpeg/ffmpeg").createFFmpeg, fetchFile: typeof import("@ffmpeg/ffmpeg").fetchFile;
 function create_recorder_window(rect, screenx: { id: string; w: number; h: number; r: number }) {
     o_rect = rect;
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
@@ -1115,6 +1116,9 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
         setTimeout(mouse, 10);
     }
     if (store.get("录屏.提示.光标.开启")) mouse();
+
+    createFFmpeg = require("@ffmpeg/ffmpeg").createFFmpeg;
+    fetchFile = require("@ffmpeg/ffmpeg").fetchFile;
 }
 
 ipcMain.on("record", (event, type, arg, arg1) => {
@@ -1139,7 +1143,6 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                         if (!fpath.includes(".")) {
                             fpath += `.${arg.格式}`;
                         }
-                        const { createFFmpeg, fetchFile } = require("@ffmpeg/ffmpeg");
                         const ffmpeg = createFFmpeg({ log: false });
                         await ffmpeg.load();
                         let i_fn = path.basename(arg.源文件),
@@ -1186,6 +1189,29 @@ ipcMain.on("record", (event, type, arg, arg1) => {
                         }).show();
                     }
                 });
+            break;
+        case "ffmpeg":
+            (async () => {
+                let i_fn = path.basename(arg.源文件),
+                    o_fn = path.basename(arg.path);
+                const ffmpeg = createFFmpeg({ log: false });
+                await ffmpeg.load();
+                ffmpeg.setProgress(({ ratio }) => {
+                    if (!recorder.isDestroyed()) {
+                        recorder.webContents.send("ff", "p", ratio);
+                    }
+                });
+                ffmpeg.setLogger(({ type, message }) => {
+                    if (!recorder.isDestroyed()) {
+                        recorder.webContents.send("ff", "l", [type, message]);
+                    }
+                });
+                ffmpeg.FS("writeFile", i_fn, await fetchFile(arg.源文件));
+                await ffmpeg.run(...arg1);
+                await fs.promises.writeFile(arg.path, ffmpeg.FS("readFile", o_fn));
+                ffmpeg.exit();
+            })();
+
             break;
         case "close":
             recorder.close();
