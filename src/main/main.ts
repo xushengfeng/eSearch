@@ -1584,8 +1584,6 @@ ipcMain.on("open_url", (event, window_name, url) => {
 async function create_browser(window_name: number, url: string) {
     if (!window_name) window_name = await create_main_window("index.html");
 
-    var win_name = new Date().getTime();
-
     let main_window = main_window_l[window_name];
 
     if (main_window.isDestroyed()) return;
@@ -1611,21 +1609,21 @@ async function create_browser(window_name: number, url: string) {
         return { action: "deny" };
     });
     if (dev) search_view.webContents.openDevTools();
-    if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "new", url);
+    if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "new", url);
     search_view.webContents.on("page-title-updated", (event, title) => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "title", title);
+        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "title", title);
     });
     search_view.webContents.on("page-favicon-updated", (event, favlogo) => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "icon", favlogo);
+        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "icon", favlogo);
     });
     search_view.webContents.on("did-navigate", (event, url) => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "url", url);
+        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "url", url);
     });
     search_view.webContents.on("did-start-loading", () => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "load", true);
+        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "load", true);
     });
     search_view.webContents.on("did-stop-loading", () => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", win_name, view, "load", false);
+        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "load", false);
     });
     search_view.webContents.on("did-fail-load", (event, err_code, err_des) => {
         renderer_path(search_view.webContents, "browser_bg.html", {

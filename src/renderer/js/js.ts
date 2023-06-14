@@ -1438,7 +1438,7 @@ document.body.className = "fill_t";
 
 var li_list = [];
 
-ipcRenderer.on("url", (event, _pid: number, id: number, arg: string, arg1: any) => {
+ipcRenderer.on("url", (event, id: number, arg: string, arg1: any) => {
     if (arg == "new") {
         new_tab(id, arg1);
     }
