@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 // In the renderer process.
-const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
+const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 const os = require("os");
@@ -119,7 +119,7 @@ let Screenshots: Screenshots;
 try {
     Screenshots = require("node-screenshots").Screenshots;
 } catch (error) {
-    // shell.openExternal("https://esearch-app.netlify.app/download.html");
+    shell.openExternal("https://esearch-app.netlify.app/download.html");
 }
 
 function capturer(all: Screenshots[]) {
