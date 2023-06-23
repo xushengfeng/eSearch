@@ -19,29 +19,7 @@ import {
     session,
 } from "electron";
 import { Buffer } from "buffer";
-type Screenshots = {
-    id: number;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation: number;
-    scaleFactor: number;
-    isPrimary: boolean;
-    all(): Array<Screenshots> | null;
-    fromDisplay(id: number): Screenshots | null;
-    fromPoint(x: number, y: number): Screenshots | null;
-    captureSync(): Buffer | null;
-    capture(): Promise<Buffer>;
-    captureAreaSync(x: number, y: number, width: number, height: number): Buffer | null;
-    captureArea(x: number, y: number, width: number, height: number): Promise<Buffer>;
-};
-let Screenshots: Screenshots;
-try {
-    Screenshots = require("node-screenshots").Screenshots;
-} catch (error) {
-    shell.openExternal("https://esearch-app.netlify.app/download.html");
-}
+
 const Store = require("electron-store");
 import * as path from "path";
 const run_path = path.join(path.resolve(__dirname, ""), "../../");
@@ -932,7 +910,10 @@ function full_screen(img_path?: string) {
     clip_window.setSimpleFullScreen(true);
 }
 
-function send_capture_event(data?: (Screenshots | { image: Buffer; main: boolean })[], type?: "ocr" | "image_search") {
+function send_capture_event(
+    data?: (import("node-screenshots").Screenshots | { image: Buffer; main: boolean })[],
+    type?: "ocr" | "image_search"
+) {
     clip_window.webContents.send("reflash", data, screen.getAllDisplays(), screen.getCursorScreenPoint(), type);
 }
 
