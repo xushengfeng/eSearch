@@ -73,6 +73,8 @@ pause_recume.onclick = () => {
     }
 };
 
+var name_t: { s: number; e: number }[] = [{ s: 0, e: NaN }];
+
 var time_l = [];
 function p_time() {
     let t = new Date().getTime();
@@ -82,6 +84,14 @@ function p_time() {
         if (time_l[i + 1]) d += time_l[i + 1] - time_l[i];
     }
     ipcRenderer.send("record", "pause_time", { t, dt: d, pause: time_l.length % 2 == 0 });
+}
+function get_t() {
+    let t = 0;
+    for (let i = 1; i < time_l.length - 1; i += 2) {
+        t += time_l[i] - time_l[i - 1];
+    }
+    t += new Date().getTime() - time_l[time_l.length - 1];
+    return t;
 }
 function get_time() {
     if (recorder.state == "recording") {
@@ -209,12 +219,15 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
             }
 
             recorder.onstop = () => {
+                name_t.at(-1).e = get_t();
                 if (stop) {
                     ipcRenderer.send("record", "stop");
                     save(show_control);
+                    console.log(name_t);
                 } else {
                     save(null);
                     recorder.start();
+                    name_t.push({ s: get_t(), e: NaN });
                 }
             };
 
