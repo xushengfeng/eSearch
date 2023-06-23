@@ -205,7 +205,7 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
                         Buffer.from(reader.result as string),
                         (err) => {
                             chunks = [];
-                            f();
+                            if (f) f();
                         }
                     );
                 };
