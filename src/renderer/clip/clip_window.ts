@@ -94,6 +94,8 @@ var now_screen_id = 0;
 
 var screens_l = [];
 
+var screens = [];
+
 type Screenshots = {
     id: number;
     x: number;
@@ -165,6 +167,7 @@ function capture_all(displays: Electron.Display[], point: Electron.Point) {
     let all = Screenshots.all() ?? [];
 
     let x = capturer(all, displays);
+    screens = x;
 
     let have_main = false;
 
@@ -992,6 +995,8 @@ function tool_ding_f() {
         ding_window_setting[4] = c.toDataURL();
         // @ts-ignore
         ding_window_setting[5] = now_screen_id;
+        // @ts-ignore
+        ding_window_setting[6] = screens;
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
         tool_close_f();
     });

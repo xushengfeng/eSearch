@@ -897,7 +897,7 @@ function create_clip_window() {
                     });
                 break;
             case "ding":
-                create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5]);
+                create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]);
                 break;
             case "mac_app":
                 n_full_screen();
@@ -1353,10 +1353,9 @@ const isMac = process.platform === "darwin";
 
 // ding窗口
 var ding_window_list: { [key: string]: BrowserWindow } = {};
-function create_ding_window(x: number, y: number, w: number, h: number, img, screen_id: string) {
+function create_ding_window(x: number, y: number, w: number, h: number, img, screen_id: string, screens) {
     if (Object.keys(ding_window_list).length == 0) {
-        let all = Screenshots.all() ?? [];
-        let screen_l = capturer(all);
+        let screen_l = screens;
         const id = new Date().getTime();
         for (let i of screen_l) {
             let ding_window = (ding_window_list[i.id] = new BrowserWindow({
