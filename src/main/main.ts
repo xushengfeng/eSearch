@@ -244,52 +244,6 @@ async function rm_r(dir_path: string) {
     });
 }
 
-/**
- * 生成截屏s
- * @param { Screenshots[]} screen_list 截屏列表
- * @returns
- */
-function capturer(screen_list: Screenshots[]) {
-    let x: {
-        image: Buffer;
-        id: number;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        rotation: number;
-        scaleFactor: number;
-        isPrimary: boolean;
-    }[] = [];
-    screen_list.forEach((capturer) => {
-        let s = capturer.captureSync();
-        x.push({
-            image: s,
-            id: capturer.id,
-            x: capturer.x,
-            y: capturer.y,
-            width: capturer.width,
-            height: capturer.height,
-            rotation: capturer.rotation,
-            scaleFactor: capturer.scaleFactor,
-            isPrimary: capturer.isPrimary,
-        });
-    });
-    if (process.platform == "win32")
-        for (let s of screen.getAllDisplays()) {
-            for (let ss of x) {
-                if (ss.id == s.id) {
-                    ss.x = s.bounds.x;
-                    ss.y = s.bounds.y;
-                    ss.height = s.size.height;
-                    ss.width = s.size.width;
-                    ss.scaleFactor = s.scaleFactor;
-                }
-            }
-        }
-    return x;
-}
-
 var contextMenu: Electron.Menu, tray: Tray;
 
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
