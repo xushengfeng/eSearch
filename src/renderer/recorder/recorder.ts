@@ -194,7 +194,6 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
             fs.mkdirSync(tmp_path);
             let clip_name = 0;
             function save(f: () => void) {
-                clip_name++;
                 let b = new Blob(chunks, { type: "video/webm" });
                 console.log(chunks, b);
                 let reader = new FileReader();
@@ -206,6 +205,7 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
                         (err) => {
                             chunks = [];
                             if (f) f();
+                            clip_name++;
                         }
                     );
                 };
@@ -353,6 +353,29 @@ ipcRenderer.on("ff", (e, t, arg) => {
 
 var editting = false;
 
+function set_v(n: number) {
+    video.src = `${tmp_path}/${n}`;
+}
+
+function get_play_t() {
+    let t = 0;
+    for (let i = 0; i < play_name; i++) {
+        t += name_t[i].e - name_t[i].s;
+    }
+    t += video.currentTime * 1000;
+    return t;
+}
+
+function set_play_t(time: number) {
+    for (let i = 0; i < name_t.length; i++) {
+        if (name_t[i].s <= time && time < (name_t?.[i + 1]?.s || name_t[i].e)) {
+            set_v(i);
+            play_name = i;
+            video.currentTime = (time - name_t[i].s) / 1000;
+        }
+    }
+}
+
 function show_control() {
     editting = true;
     document.getElementById("v_play").querySelector("img").src = recume_svg;
@@ -363,7 +386,7 @@ function show_control() {
     document.getElementById("m").style.backgroundColor = "var(--bg)";
     document.getElementById("time").innerText = "";
     document.querySelector("video").style.transform = "";
-    document.querySelector("video").src = tmp_path;
+    set_v(0);
     document.querySelector("video").style.left = -rect[0] * ratio + "px";
     document.querySelector("video").style.top = -rect[1] * ratio + "px";
     document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] * ratio + "px";
@@ -386,6 +409,8 @@ function show_control() {
 }
 
 var video = document.querySelector("video");
+
+let play_name = 0;
 
 function clip_v() {
     t_start_el.value = 0;
@@ -442,27 +467,33 @@ video.onplay = () => {
 };
 
 function video_play() {
-    video.currentTime = t_start_el.value / 1000;
+    set_play_t(t_start_el.value);
     video.play();
 }
 
 video.ontimeupdate = () => {
     if (!editting) return;
-    document.getElementById("t_nt").innerText = t_format(video.currentTime * 1000 - t_start_el.value);
-    if (video.currentTime * 1000 > t_end_el.value) {
+    document.getElementById("t_nt").innerText = t_format(get_play_t() - t_start_el.value);
+    if (get_play_t() > t_end_el.value) {
         video.pause();
         document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
     }
-    jdt_el.value = video.currentTime * 1000;
+    jdt_el.value = get_play_t();
 };
 
 jdt_el.oninput = () => {
-    video.currentTime = jdt_el.value / 1000;
+    set_play_t(jdt_el.value);
 };
 
 video.onended = () => {
-    document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
-    jdt_el.value = jdt_el.max;
+    if (play_name < name_t.length - 1) {
+        play_name++;
+        set_v(play_name);
+        video.play();
+    } else {
+        document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
+        jdt_el.value = jdt_el.max;
+    }
 };
 
 function add_types() {
