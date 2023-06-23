@@ -265,8 +265,8 @@ function 识别前处理(resize_w, box) {
             now_width = i.img.width;
             boxes.push([i]);
         } else {
-            if (!boxes[boxes.length - 1]) boxes.push([]);
-            boxes[boxes.length - 1].push(i);
+            if (!boxes.at(-1)) boxes.push([]);
+            boxes.at(-1).push(i);
         }
     }
     let max_wh_ratio = 0;

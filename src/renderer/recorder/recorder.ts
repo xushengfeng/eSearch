@@ -90,7 +90,7 @@ function get_t() {
     for (let i = 1; i < time_l.length - 1; i += 2) {
         t += time_l[i] - time_l[i - 1];
     }
-    t += new Date().getTime() - time_l[time_l.length - 1];
+    t += new Date().getTime() - time_l.at(-1);
     return t;
 }
 function get_time() {
@@ -99,7 +99,7 @@ function get_time() {
         for (let i = 1; i < time_l.length - 1; i += 2) {
             t += time_l[i] - time_l[i - 1];
         }
-        t += new Date().getTime() - time_l[time_l.length - 1];
+        t += new Date().getTime() - time_l.at(-1);
         let s = Math.trunc(t / 1000);
         let m = Math.trunc(s / 60);
         let h = Math.trunc(m / 60);
@@ -431,7 +431,7 @@ t_end_el.oninput = () => {
 };
 
 document.getElementById("b_t_end").onclick = () => {
-    jdt_el.max = t_end_el.value = t_start_el.max = t_end_el.max = time_l[time_l.length - 1] - time_l[0];
+    jdt_el.max = t_end_el.value = t_start_el.max = t_end_el.max = time_l.at(-1) - time_l[0];
 };
 
 /**
@@ -527,7 +527,7 @@ function save() {
     if (帧率_el.value) t += `-r ${帧率_el.value} `;
     if (其他参数_el.value) t += `${其他参数_el.value} `;
     t += `-ss ${t_start_el.value / 1000} `;
-    if (t_end_el.value != (time_l[time_l.length - 1] - time_l[0]) / 1000) t += `-to ${t_end_el.value / 1000} `;
+    if (t_end_el.value != (time_l.at(-1) - time_l[0]) / 1000) t += `-to ${t_end_el.value / 1000} `;
     let 格式 = 格式_el.value;
     console.log(t);
     store.set("录屏.转换.格式", 格式_el.value);

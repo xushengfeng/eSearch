@@ -1590,7 +1590,7 @@ document.getElementById("buttons").onclick = (e) => {
     main_event(e);
 };
 function main_event(e: MouseEvent | any) {
-    var id = li_list[li_list.length - 1].id.replace("id", "");
+    var id = li_list.at(-1).id.replace("id", "");
     let el = <HTMLElement>e.target;
     if (el.id == "browser") {
         open_in_browser();

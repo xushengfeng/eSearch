@@ -1899,10 +1899,10 @@ function follow_bar(x?: number, y?: number) {
         zw = final_rect[2] * editor_p.zoom,
         zh = final_rect[3] * editor_p.zoom;
     if (!x && !y) {
-        var dx = undo_stack[undo_stack.length - 1][0] - undo_stack[undo_stack.length - 2][0];
-        var dy = undo_stack[undo_stack.length - 1][1] - undo_stack[undo_stack.length - 2][1];
-        x = follow_bar_list[follow_bar_list.length - 1][0] + dx / ratio;
-        y = follow_bar_list[follow_bar_list.length - 1][1] + dy / ratio;
+        var dx = undo_stack.at(-1)[0] - undo_stack[undo_stack.length - 2][0];
+        var dy = undo_stack.at(-1)[1] - undo_stack[undo_stack.length - 2][1];
+        x = follow_bar_list.at(-1)[0] + dx / ratio;
+        y = follow_bar_list.at(-1)[1] + dy / ratio;
     }
     follow_bar_list.push([x, y]);
     let [x1, y1] = [zx, zy];
@@ -2167,8 +2167,8 @@ function his_push() {
     let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]] as rect; // 防止引用源地址导致后续操作-2个被改变
     let canvas = fabric_canvas?.toJSON() || {};
 
-    if (rect_stack[rect_stack.length - 1] + "" != final_rect_v + "") rect_stack.push(final_rect_v);
-    if (JSON.stringify(canvas_stack[canvas_stack.length - 1]) != JSON.stringify(canvas)) canvas_stack.push(canvas);
+    if (rect_stack.at(-1) + "" != final_rect_v + "") rect_stack.push(final_rect_v);
+    if (JSON.stringify(canvas_stack.at(-1)) != JSON.stringify(canvas)) canvas_stack.push(canvas);
 
     undo_stack.push({ rect: rect_stack.length - 1, canvas: canvas_stack.length - 1 });
     undo_stack_i = undo_stack.length - 1;
@@ -2503,7 +2503,7 @@ fabric_canvas.on("mouse:down", (options) => {
             draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
         } else {
             // 定义最后一个点,双击,点重复,结束
-            var poly_o_p_l = poly_o_p[poly_o_p.length - 1];
+            var poly_o_p_l = poly_o_p.at(-1);
             if (!(options.e.offsetX == poly_o_p_l?.x && options.e.offsetY == poly_o_p_l?.y)) {
                 poly_o_p.push({ x: options.e.offsetX, y: options.e.offsetY });
                 if (shape == "number") {
@@ -2538,7 +2538,7 @@ fabric_canvas.on("mouse:up", (options) => {
         fabric_canvas.selection = true;
         fabric_canvas.defaultCursor = "auto";
         if (shape != "") {
-            fabric_canvas.setActiveObject(shapes[shapes.length - 1]);
+            fabric_canvas.setActiveObject(shapes.at(-1));
             his_push();
         }
         shape = "";
@@ -2566,7 +2566,7 @@ fabric_canvas.on("mouse:up", (options) => {
 // 画一般图形
 function draw(shape, v, x1, y1, x2, y2) {
     if (v == "move") {
-        fabric_canvas.remove(shapes[shapes.length - 1]);
+        fabric_canvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
     }
     let x = Math.min(x1, x2),
@@ -2633,12 +2633,12 @@ function draw(shape, v, x1, y1, x2, y2) {
         default:
             break;
     }
-    fabric_canvas.add(shapes[shapes.length - 1]);
+    fabric_canvas.add(shapes.at(-1));
 }
 // 多边形
 function draw_poly(shape) {
     if (poly_o_p.length != 1) {
-        fabric_canvas.remove(shapes[shapes.length - 1]);
+        fabric_canvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
     }
     if (shape == "polyline") {
@@ -2662,12 +2662,12 @@ function draw_poly(shape) {
             })
         );
     }
-    fabric_canvas.add(shapes[shapes.length - 1]);
+    fabric_canvas.add(shapes.at(-1));
 }
 
 function draw_number() {
-    draw_number_n = Number(shapes?.[shapes.length - 1]?.text) + 1 || draw_number_n;
-    let p = poly_o_p[poly_o_p.length - 1];
+    draw_number_n = Number(shapes?.at(-1)?.text) + 1 || draw_number_n;
+    let p = poly_o_p.at(-1);
 
     let txt = new Fabric.IText(String(draw_number_n), {
         left: p.x,
@@ -2690,8 +2690,8 @@ function draw_number() {
     });
     shapes.push(cr);
     shapes.push(txt);
-    fabric_canvas.add(shapes[shapes.length - 2]);
-    fabric_canvas.add(shapes[shapes.length - 1]);
+    fabric_canvas.add(shapes.at(-2));
+    fabric_canvas.add(shapes.at(-1));
     fabric_canvas.setActiveObject(txt);
     txt.enterEditing();
 
