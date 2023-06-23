@@ -123,7 +123,7 @@ async function copy_text(callback: (t: string) => void) {
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
         );
     } else if (process.platform == "win32") {
-        exec(`wscript "${path.join(run_path, "lib/copy.vbs")}"`);
+        exec(`"${path.join(run_path, "lib/copy.exe")}"`);
     } else if (process.platform == "linux") {
         exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
