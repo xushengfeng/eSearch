@@ -96,6 +96,8 @@ var screens_l = [];
 
 var screens = [];
 
+var displays: Electron.Display[];
+
 type Screenshots = {
     id: number;
     x: number;
@@ -120,7 +122,7 @@ try {
     // shell.openExternal("https://esearch-app.netlify.app/download.html");
 }
 
-function capturer(all: Screenshots[], displays: Electron.Display[]) {
+function capturer(all: Screenshots[]) {
     let x: {
         image: Buffer;
         id: number;
@@ -162,11 +164,13 @@ function capturer(all: Screenshots[], displays: Electron.Display[]) {
     return x;
 }
 
-function capture_all(displays: Electron.Display[], point: Electron.Point) {
+function capture_all(_displays: Electron.Display[], point: Electron.Point) {
     // 获取所有屏幕截图
     let all = Screenshots.all() ?? [];
 
-    let x = capturer(all, displays);
+    displays = _displays;
+
+    let x = capturer(all);
     screens = x;
 
     let have_main = false;
@@ -830,6 +834,13 @@ function tool_record_f() {
     });
 }
 
+function long_s() {
+    let s = Screenshots.fromDisplay(now_screen_id);
+    let x = nativeImage.createFromBuffer(capturer([s])[0].image);
+    add_long(x.getBitmap(), x.getSize().width, x.getSize().height);
+    s = x = null;
+}
+
 let uIOhook;
 
 var log_o = {
@@ -844,7 +855,8 @@ function tool_long_f() {
     let r = [...final_rect];
     r[0] += screen_position[now_screen_id].x;
     r[1] += screen_position[now_screen_id].y;
-    ipcRenderer.send("clip_main_b", "long_s", [...r, now_screen_id]);
+    long_s();
+    ipcRenderer.send("clip_main_b", "long_s", r);
     if (!cv) cv = require("opencv.js");
     log_o.o_canvas = document.createElement("canvas");
     let o_canvas = log_o.o_canvas;
@@ -856,63 +868,67 @@ function tool_long_f() {
     uIOhook = require("uiohook-napi").uIOhook;
     uIOhook.start();
     uIOhook.on("keyup", () => {
-        ipcRenderer.send("clip_main_b", "long_r", now_screen_id);
+        long_s();
     });
     uIOhook.on("wheel", () => {
-        ipcRenderer.send("clip_main_b", "long_r", now_screen_id);
+        long_s();
     });
-    ipcRenderer.on("long", (event, x, w, h) => {
-        if (!x) {
-            uIOhook.stop();
-            uIOhook = null;
-            pj_long();
-            return;
-        }
-        // 原始区域
-        let canvas = document.createElement("canvas");
-        // 对比模板
-        let canvas_top = document.createElement("canvas");
-        // 要拼接的图片
-        let canvas_after = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        for (let i = 0; i < x.length; i += 4) {
-            [x[i], x[i + 2]] = [x[i + 2], x[i]];
-        }
-        var d = new ImageData(Uint8ClampedArray.from(x), w, h);
-        canvas.getContext("2d").putImageData(d, 0, 0);
-        var gid = canvas.getContext("2d").getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
-        canvas.width = canvas_top.width = canvas_after.width = final_rect[2];
-        canvas.height = final_rect[3];
-        const rec_height = Math.min(200, final_rect[3]);
-        const rec_top = Math.floor(final_rect[3] / 2 - rec_height / 2);
-        canvas_top.height = rec_height; // 只是用于模板对比，小一点
-        canvas_after.height = final_rect[3] - rec_top; // 裁剪顶部
-        canvas.getContext("2d").putImageData(gid, 0, 0);
-        canvas_top.getContext("2d").putImageData(gid, 0, -rec_top);
-        canvas_after.getContext("2d").putImageData(gid, 0, -rec_top);
-        long_list.push([canvas, canvas_top, canvas_after]);
-        let i = long_list.length - 2;
-        if (i < 0) return;
-        let src = cv.imread(long_list[i][0]);
-        let templ = cv.imread(long_list[i + 1][1]);
-        let dst = new cv.Mat();
-        let mask = new cv.Mat();
-        cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
-        let result = cv.minMaxLoc(dst, mask);
-        let maxPoint = result.maxLoc;
-        o_canvas.width += maxPoint.x;
-        o_canvas.height += maxPoint.y;
-        p.x += maxPoint.x;
-        p.y += maxPoint.y;
-        log_o.l.push([p.x, p.y]);
-        o_canvas.height -= rec_top;
-        p.y -= rec_top;
-        src.delete();
-        dst.delete();
-        mask.delete();
-        long_list[i + 1][1] = null;
-    });
+}
+
+function add_long(x, w, h) {
+    let long_list = log_o.long_list;
+    let o_canvas = log_o.o_canvas;
+    let p = log_o.p;
+    if (!x) {
+        uIOhook.stop();
+        uIOhook = null;
+        pj_long();
+        return;
+    }
+    // 原始区域
+    let canvas = document.createElement("canvas");
+    // 对比模板
+    let canvas_top = document.createElement("canvas");
+    // 要拼接的图片
+    let canvas_after = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    for (let i = 0; i < x.length; i += 4) {
+        [x[i], x[i + 2]] = [x[i + 2], x[i]];
+    }
+    var d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    canvas.getContext("2d").putImageData(d, 0, 0);
+    var gid = canvas.getContext("2d").getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
+    canvas.width = canvas_top.width = canvas_after.width = final_rect[2];
+    canvas.height = final_rect[3];
+    const rec_height = Math.min(200, final_rect[3]);
+    const rec_top = Math.floor(final_rect[3] / 2 - rec_height / 2);
+    canvas_top.height = rec_height; // 只是用于模板对比，小一点
+    canvas_after.height = final_rect[3] - rec_top; // 裁剪顶部
+    canvas.getContext("2d").putImageData(gid, 0, 0);
+    canvas_top.getContext("2d").putImageData(gid, 0, -rec_top);
+    canvas_after.getContext("2d").putImageData(gid, 0, -rec_top);
+    long_list.push([canvas, canvas_top, canvas_after]);
+    let i = long_list.length - 2;
+    if (i < 0) return;
+    let src = cv.imread(long_list[i][0]);
+    let templ = cv.imread(long_list[i + 1][1]);
+    let dst = new cv.Mat();
+    let mask = new cv.Mat();
+    cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
+    let result = cv.minMaxLoc(dst, mask);
+    let maxPoint = result.maxLoc;
+    o_canvas.width += maxPoint.x;
+    o_canvas.height += maxPoint.y;
+    p.x += maxPoint.x;
+    p.y += maxPoint.y;
+    log_o.l.push([p.x, p.y]);
+    o_canvas.height -= rec_top;
+    p.y -= rec_top;
+    src.delete();
+    dst.delete();
+    mask.delete();
+    long_list[i + 1][1] = null;
 }
 
 var long_inited = false;
@@ -949,6 +965,7 @@ function init_long(rect: number[]) {
     document.getElementById("long_finish").onclick = () => {
         lr.style.opacity = "0";
         ipcRenderer.send("clip_main_b", "long_e", now_screen_id);
+        add_long(null, null, null);
         for (let i of l) {
             i.style.display = "";
         }
@@ -3259,6 +3276,7 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
+import { log } from "console";
 var package_json = JSON.parse(pack);
 
 function check_update() {
