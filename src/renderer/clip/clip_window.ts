@@ -94,8 +94,95 @@ var now_screen_id = 0;
 
 var screens_l = [];
 
+type Screenshots = {
+    id: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation: number;
+    scaleFactor: number;
+    isPrimary: boolean;
+    all(): Array<Screenshots> | null;
+    fromDisplay(id: number): Screenshots | null;
+    fromPoint(x: number, y: number): Screenshots | null;
+    captureSync(): Buffer | null;
+    capture(): Promise<Buffer>;
+    captureAreaSync(x: number, y: number, width: number, height: number): Buffer | null;
+    captureArea(x: number, y: number, width: number, height: number): Promise<Buffer>;
+};
+let Screenshots: Screenshots;
+try {
+    Screenshots = require("node-screenshots").Screenshots;
+} catch (error) {
+    // shell.openExternal("https://esearch-app.netlify.app/download.html");
+}
+
+function capturer(all: Screenshots[], displays: Electron.Display[]) {
+    let x: {
+        image: Buffer;
+        id: number;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        rotation: number;
+        scaleFactor: number;
+        isPrimary: boolean;
+    }[] = [];
+    all.forEach((capturer) => {
+        let s = capturer.captureSync();
+        x.push({
+            image: s,
+            id: capturer.id,
+            x: capturer.x,
+            y: capturer.y,
+            width: capturer.width,
+            height: capturer.height,
+            rotation: capturer.rotation,
+            scaleFactor: capturer.scaleFactor,
+            isPrimary: capturer.isPrimary,
+        });
+    });
+    if (process.platform == "win32")
+        for (let s of displays) {
+            for (let ss of x) {
+                if (ss.id == s.id) {
+                    ss.x = s.bounds.x;
+                    ss.y = s.bounds.y;
+                    ss.height = s.size.height;
+                    ss.width = s.size.width;
+                    ss.scaleFactor = s.scaleFactor;
+                }
+            }
+        }
+
+    return x;
+}
+
+function capture_all(displays: Electron.Display[], point: Electron.Point) {
+    // 获取所有屏幕截图
+    let all = Screenshots.all() ?? [];
+
+    let x = capturer(all, displays);
+
+    let have_main = false;
+
+    let p = point;
+    for (let i of x) {
+        if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
+            i["main"] = true;
+            have_main = true;
+            break;
+        }
+    }
+    if (!have_main) x[0]["main"] = true;
+    return x;
+}
+
 set_setting();
-ipcRenderer.on("reflash", (a, data, ww, hh, act) => {
+ipcRenderer.on("reflash", (a, data, displays, point, act) => {
+    if (!data) data = capture_all(displays, point);
     console.log(data);
     for (let i of data) {
         screens_l.push(i);

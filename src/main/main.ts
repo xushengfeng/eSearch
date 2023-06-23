@@ -341,17 +341,13 @@ app.whenReady().then(() => {
         {
             label: t("OCR(文字识别)"),
             click: () => {
-                let x = capture_all();
-                clip_window.webContents.send("reflash", x, null, null, "ocr");
-                x = null;
+                send_capture_event(null, "ocr");
             },
         },
         {
             label: t("以图搜图"),
             click: () => {
-                let x = capture_all();
-                clip_window.webContents.send("reflash", x, null, null, "image_search");
-                x = null;
+                send_capture_event(null, "image_search");
             },
         },
         {
@@ -968,7 +964,7 @@ function full_screen(img_path?: string) {
             if (err) console.error(err);
             let p = nativeImage.createFromBuffer(data);
             let s = p.getSize();
-            clip_window.webContents.send("reflash", [
+            send_capture_event([
                 {
                     image: data,
                     width: s.width,
@@ -981,30 +977,15 @@ function full_screen(img_path?: string) {
             ]);
         });
     } else {
-        let x = capture_all();
-        clip_window.webContents.send("reflash", x);
-        x = null;
+        send_capture_event();
     }
     clip_window.setBounds({ x: nearest_screen.bounds.x, y: nearest_screen.bounds.y });
     clip_window.show();
     clip_window.setSimpleFullScreen(true);
 }
 
-function capture_all() {
-    // 获取所有屏幕截图
-    let all = Screenshots.all() ?? [];
-    let x = capturer(all);
-    let have_main = false;
-    let p = screen.getCursorScreenPoint();
-    for (let i of x) {
-        if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
-            i["main"] = true;
-            have_main = true;
-            break;
-        }
-    }
-    if (!have_main) x[0]["main"] = true;
-    return x;
+function send_capture_event(data?: (Screenshots | { image: Buffer; main: boolean })[], type?: "ocr" | "image_search") {
+    clip_window.webContents.send("reflash", data, screen.getAllDisplays(), screen.getCursorScreenPoint(), type);
 }
 
 /** 隐藏截屏窗口 */
