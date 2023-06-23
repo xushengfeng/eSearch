@@ -209,11 +209,12 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
             }
 
             recorder.onstop = () => {
-                save(null);
-                recorder.start();
                 if (stop) {
                     ipcRenderer.send("record", "stop");
                     save(show_control);
+                } else {
+                    save(null);
+                    recorder.start();
                 }
             };
 
