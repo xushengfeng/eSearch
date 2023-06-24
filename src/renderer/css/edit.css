@@ -14,8 +14,8 @@ range-b {
     align-items: center;
 }
 #draw_color > div {
-    width: 52.5%;
-    height: 52.5%;
+    width: calc(var(--bar-size) * var(--bar-icon));
+    height: calc(var(--bar-size) * var(--bar-icon));
     border-radius: calc(var(--bar-size) / 10);
     border-width: calc(var(--bar-size) / 15);
     border-style: solid;
