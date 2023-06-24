@@ -589,13 +589,17 @@ if (auto_do != "no") {
     document.getElementById(`tool_${auto_do}`).style.backgroundColor = "var(--hover-color)";
 }
 
-// 关闭
-function tool_close_f() {
-    document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
+function 记忆框选_f() {
     if (记忆框选 && !long_inited) {
         记忆框选值[now_screen_id] = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]];
         store.set("框选.记忆.rects", 记忆框选值);
     }
+}
+
+// 关闭
+function tool_close_f() {
+    document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
+    记忆框选_f();
     if (uIOhook) {
         uIOhook.stop();
     }
@@ -877,6 +881,8 @@ function tool_record_f() {
                 break;
         }
     });
+
+    记忆框选_f();
 }
 
 function long_s() {
