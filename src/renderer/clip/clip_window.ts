@@ -1709,6 +1709,13 @@ document.querySelector("#point_color").innerHTML = inner_html;
 inner_html = null;
 var point_color_span_list = document.querySelectorAll("#point_color > span") as NodeListOf<HTMLSpanElement>;
 
+var mouse_bar_w =
+    Math.max(
+        color_size * color_i_size,
+        (String(window.innerWidth).length + String(window.innerHeight).length + 2 + 1) * 8
+    ) + 4;
+var mouse_bar_h = 4 + color_size * color_i_size + 32 * 2;
+
 var mouse_bar_el = document.getElementById("mouse_bar");
 // 鼠标跟随栏
 function mouse_bar(final_rect: rect, x: number, y: number) {
@@ -1857,8 +1864,8 @@ document.onmousemove = (e) => {
         const d = 16;
         const x = e.clientX + d;
         const y = e.clientY + d;
-        const w = mouse_bar_el.offsetWidth;
-        const h = mouse_bar_el.offsetHeight;
+        const w = mouse_bar_w;
+        const h = mouse_bar_h;
         const sw = window.innerWidth;
         const sh = window.innerHeight;
 
