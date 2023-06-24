@@ -1699,48 +1699,40 @@ var point_color_span_list = document.querySelectorAll("#point_color > span") as 
 var mouse_bar_el = document.getElementById("mouse_bar");
 // 鼠标跟随栏
 function mouse_bar(final_rect: rect, x: number, y: number) {
-    var x0 = final_rect[0],
-        x1 = final_rect[0] + final_rect[2],
-        y0 = final_rect[1],
-        y1 = final_rect[1] + final_rect[3];
-    var color = main_canvas
+    const x0 = final_rect[0];
+    const x1 = x0 + final_rect[2];
+    const y0 = final_rect[1];
+    const y1 = y0 + final_rect[3];
+
+    const color = main_canvas
         .getContext("2d")
         .getImageData(x - (color_size - 1) / 2, y - (color_size - 1) / 2, color_size, color_size).data; // 取色器密度
     // 分开每个像素的颜色
-    for (var i = 0, len = color.length; i < len; i += 4) {
-        let color_g = [...color.slice(i, i + 4)] as typeof the_color;
+    for (let i = 0; i < color.length; i += 4) {
+        const color_g = Array.from(color.slice(i, i + 4)) as typeof the_color;
         color_g[3] /= 255;
-        var ii = parseInt(String(i / 4));
-        var xx = (ii % color_size) + (x - (color_size - 1) / 2);
-        var yy = parseInt(String(ii / color_size)) + (y - (color_size - 1) / 2);
+
+        const ii = Math.floor(i / 4);
+        const xx = (ii % color_size) + (x - (color_size - 1) / 2);
+        const yy = Math.floor(ii / color_size) + (y - (color_size - 1) / 2);
         if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && ii != (color.length / 4 - 1) / 2) {
             // 框外
             point_color_span_list[ii].id = "point_color_t_b";
-            point_color_span_list[
-                ii
-            ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
         } else if (ii == (color.length / 4 - 1) / 2) {
             // 光标中心点
             point_color_span_list[ii].id = "point_color_t_c";
-            point_color_span_list[
-                ii
-            ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
-            // 颜色文字
             the_color = color_g;
             clip_color_text(the_color, 取色器默认格式);
         } else {
             point_color_span_list[ii].id = "point_color_t_t";
-            point_color_span_list[
-                ii
-            ].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
         }
+
+        point_color_span_list[ii].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
     }
 
-    if (光标 == "以(1,1)为起点") {
-        document.getElementById("clip_xy").innerHTML = `(${x + 1}, ${y + 1})`;
-    } else {
-        document.getElementById("clip_xy").innerHTML = `(${x}, ${y})`;
-    }
+    const clip_xy_el = document.getElementById("clip_xy");
+    const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+    clip_xy_el.innerText = `(${x + d}, ${y + d})`;
 }
 
 // 复制坐标
@@ -1841,45 +1833,38 @@ document.onmousemove = (e) => {
     if (!right_key) {
         if (clip_canvas.offsetWidth != 0) {
             // 鼠标位置文字
-            let c_x = (e.clientX - editor_p.x * editor_p.zoom) / editor_p.zoom;
-            let c_y = (e.clientY - editor_p.y * editor_p.zoom) / editor_p.zoom;
+            const c_x = (e.clientX - editor_p.x * editor_p.zoom) / editor_p.zoom;
+            const c_y = (e.clientY - editor_p.y * editor_p.zoom) / editor_p.zoom;
             now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
             // 鼠标跟随栏
             mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
         }
         // 鼠标跟随栏
 
-        var x = e.clientX + 16;
-        var y = e.clientY + 16;
-        var w = mouse_bar_el.offsetWidth;
-        var h = mouse_bar_el.offsetHeight;
-        var sw = window.innerWidth;
-        var sh = window.innerHeight;
-        if (x + w > sw) {
-            x = x - w - 32;
-        }
-        if (y + h > sh) {
-            y = y - h - 32;
-        }
+        const d = 16;
+        const x = e.clientX + d;
+        const y = e.clientY + d;
+        const w = mouse_bar_el.offsetWidth;
+        const h = mouse_bar_el.offsetHeight;
+        const sw = window.innerWidth;
+        const sh = window.innerHeight;
 
-        mouse_bar_el.style.left = `${x}px`;
-        mouse_bar_el.style.top = `${y}px`;
+        mouse_bar_el.style.left = `${Math.min(x, sw - w - d)}px`;
+        mouse_bar_el.style.top = `${Math.min(y, sh - h - d)}px`;
 
-        if (draw_bar.contains(e.target as HTMLElement) || tool_bar.contains(e.target as HTMLElement)) {
-            mouse_bar_el.classList.add("mouse_bar_hide");
-        } else {
-            mouse_bar_el.classList.remove("mouse_bar_hide");
-        }
+        const is_draw_bar = draw_bar.contains(e.target as HTMLElement);
+        const is_tool_bar = tool_bar.contains(e.target as HTMLElement);
+        mouse_bar_el.classList.toggle("mouse_bar_hide", is_draw_bar || is_tool_bar);
 
         // 画板栏移动
         if (draw_bar_moving) {
-            draw_bar.style.left = e.clientX - draw_bar_moving_xy[0] + "px";
-            draw_bar.style.top = e.clientY - draw_bar_moving_xy[1] + "px";
+            draw_bar.style.left = `${e.clientX - draw_bar_moving_xy[0]}px`;
+            draw_bar.style.top = `${e.clientY - draw_bar_moving_xy[1]}px`;
         }
     }
     if (tool_position.x) {
-        tool_bar.style.left = e.clientX - tool_position.x + "px";
-        tool_bar.style.top = e.clientY - tool_position.y + "px";
+        tool_bar.style.left = `${e.clientX - tool_position.x}px`;
+        tool_bar.style.top = `${e.clientY - tool_position.y}px`;
         track_location();
     }
 };
