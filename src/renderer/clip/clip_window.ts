@@ -1423,12 +1423,14 @@ clip_canvas.onmousemove = (e) => {
     }
 
     if (e.button == 0) {
-        if (selecting) {
-            // 画框
-            final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-            draw_clip_rect();
-        }
-        if (moving) move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
+        requestAnimationFrame(() => {
+            if (selecting) {
+                // 画框
+                final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
+                draw_clip_rect();
+            }
+            if (moving) move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
+        });
     }
     if (!selecting && !moving) {
         // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
@@ -1493,28 +1495,33 @@ function clip_end(p: editor_position) {
 
 /** 画框(遮罩) */
 function draw_clip_rect() {
-    clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
+    const cw = clip_canvas.width;
+    const ch = clip_canvas.height;
+
+    clip_ctx.clearRect(0, 0, cw, ch);
     clip_ctx.beginPath();
+
+    const x = final_rect[0];
+    const y = final_rect[1];
+    const width = final_rect[2];
+    const height = final_rect[3];
 
     // 框选为黑色遮罩
     clip_ctx.fillStyle = 遮罩颜色;
-    clip_ctx.fillRect(0, 0, clip_canvas.width, final_rect[1]);
-    clip_ctx.fillRect(0, final_rect[1], final_rect[0], final_rect[3]);
-    clip_ctx.fillRect(
-        final_rect[0] + final_rect[2],
-        final_rect[1],
-        clip_canvas.width - (final_rect[0] + final_rect[2]),
-        final_rect[3]
-    );
-    clip_ctx.fillRect(
-        0,
-        final_rect[1] + final_rect[3],
-        clip_canvas.width,
-        clip_canvas.height - (final_rect[1] + final_rect[3])
-    );
+
+    const topMaskHeight = y;
+    const leftMaskWidth = x;
+    const rightMaskWidth = cw - (x + width);
+    const bottomMaskHeight = ch - (y + height);
+
+    clip_ctx.fillRect(0, 0, cw, topMaskHeight);
+    clip_ctx.fillRect(0, y, leftMaskWidth, height);
+    clip_ctx.fillRect(x + width, y, rightMaskWidth, height);
+    clip_ctx.fillRect(0, y + height, cw, bottomMaskHeight);
 
     clip_ctx.fillStyle = 选区颜色;
-    clip_ctx.fillRect(final_rect[0], final_rect[1], final_rect[2], final_rect[3]);
+    clip_ctx.fillRect(x, y, width, height);
+
     // 大小栏
     wh_bar(final_rect);
 }
