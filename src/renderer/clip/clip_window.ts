@@ -3326,7 +3326,6 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
-import { log } from "console";
 var package_json = JSON.parse(pack);
 
 function check_update() {
