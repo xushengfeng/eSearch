@@ -2344,6 +2344,7 @@ function pencil_el_click() {
         fabric_canvas.freeDrawingBrush.width = free_width;
 
         color_m = "stroke";
+        set_draw_mode(color_m);
 
         free_shadow();
     }
@@ -2381,6 +2382,7 @@ free_spray_el.oninput = () => {
         fabric_canvas.freeDrawingBrush.width = free_width;
 
         color_m = "stroke";
+        set_draw_mode(color_m);
     }
     exit_shape();
     exit_filter();
@@ -2708,21 +2710,42 @@ function draw_number() {
 /** 规定当前色盘对应的是填充还是边框 */
 var color_m: "fill" | "stroke" = "fill";
 var color_fill_el = document.getElementById("draw_color_fill");
-color_fill_el.onfocus = () => {
-    color_m = "fill";
-};
 var color_stroke_el = document.getElementById("draw_color_stroke");
-color_stroke_el.onfocus = () => {
-    color_m = "stroke";
+
+set_draw_mode(color_m);
+document.getElementById("draw_color_switch").onclick = () => {
+    if (color_m == "fill") {
+        color_m = "stroke";
+    } else {
+        color_m = "fill";
+    }
+    set_draw_mode(color_m);
 };
+/** 切换当前颜色设定的ui */
+function set_draw_mode(m: typeof color_m) {
+    if (m == "fill") {
+        document.getElementById("draw_fill").style.height = "";
+        document.getElementById("draw_storke").style.height = "0";
+        document.getElementById("draw_stroke_width").style.height = "0";
+        document.getElementById("draw_fill_storke_mark").style.top = "0";
+        document.getElementById("draw_fill_storke_mark").title = "当前为填充";
+    } else {
+        document.getElementById("draw_fill").style.height = "0";
+        document.getElementById("draw_storke").style.height = "";
+        document.getElementById("draw_stroke_width").style.height = "";
+        document.getElementById("draw_fill_storke_mark").style.top = "calc(var(--bar-size) / 2)";
+        document.getElementById("draw_fill_storke_mark").title = "当前为描边";
+    }
+}
+
 // 输入颜色
-var color_alpha_input_1 = <HTMLInputElement>document.querySelector("#draw_color_alpha > range-b:nth-child(1)");
+var color_alpha_input_1 = <HTMLInputElement>document.querySelector("#draw_fill > range-b");
 color_fill_el.oninput = () => {
     change_color({ fill: color_fill_el.innerText }, true, false);
     var fill_a = Color(color_fill_el.innerText).alpha();
     color_alpha_input_1.value = String(Math.round(fill_a * 100));
 };
-var color_alpha_input_2 = <HTMLInputElement>document.querySelector("#draw_color_alpha > range-b:nth-child(2)");
+var color_alpha_input_2 = <HTMLInputElement>document.querySelector("#draw_storke > range-b");
 color_stroke_el.oninput = () => {
     change_color({ stroke: color_stroke_el.innerText }, true, false);
     var stroke_a = Color(color_stroke_el.innerText).alpha();
