@@ -588,3 +588,127 @@ body {
     height: 16px;
     border-radius: 0 4px 4px 0;
 }
+
+/* 编辑栏 */
+range-b {
+    font-size: calc(var(--bar-size) / 3.75);
+    border-radius: inherit;
+}
+#shadow_blur {
+    overflow: hidden;
+}
+#shadow_blur > range-b {
+    height: var(--bar-size);
+}
+#draw_color {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#draw_color > div {
+    width: calc(var(--bar-size) * var(--bar-icon));
+    height: calc(var(--bar-size) * var(--bar-icon));
+    border-radius: calc(var(--bar-size) / 10);
+    border-width: calc(var(--bar-size) / 15);
+    border-style: solid;
+    box-sizing: border-box;
+    border-color: #333;
+    background-color: #fff;
+}
+#draw_color_switch {
+    position: relative;
+}
+#draw_fill_storke_mark {
+    position: absolute;
+    height: 50%;
+    width: 100%;
+    background-color: var(--hover-color);
+    transition: var(--transition);
+    border-radius: inherit;
+}
+:is(#draw_fill, #draw_storke) {
+    overflow: hidden;
+}
+:is(#draw_fill, #draw_storke) > div {
+    outline: none;
+    font-family: var(--monospace);
+    font-size: calc(var(--bar-size) / 5);
+    height: 50%;
+    line-height: calc(var(--bar-size) / 5);
+    text-align: start;
+    border-radius: inherit;
+}
+:is(#draw_fill, #draw_storke) > range-b {
+    height: calc(var(--bar-size) / 2);
+}
+#draw_stroke_width {
+    overflow: hidden;
+}
+#draw_stroke_width > range-b {
+    height: var(--bar-size);
+}
+#draw_color_color {
+    overflow: scroll;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+.color_i {
+    transition: var(--transition);
+}
+.color_i:hover {
+    position: relative;
+    z-index: 2;
+    transform: scale(1.5);
+}
+
+#draw_filters_i > div {
+    overflow: hidden;
+}
+
+#draw_filters_i > div > range-b,
+#draw_filters_i > div > lock-b {
+    height: var(--bar-size);
+}
+
+#draw_filters_brightness:hover > .icon,
+#draw_filters_contrast:hover > .icon,
+#draw_filters_saturation:hover > .icon,
+#draw_filters_hue:hover > .icon {
+    transition: var(--transition);
+    opacity: 0;
+}
+#draw_filters_brightness > range-b,
+#draw_filters_contrast > range-b,
+#draw_filters_saturation > range-b,
+#draw_filters_hue > range-b {
+    transition: var(--transition);
+    opacity: 0;
+}
+#draw_filters_brightness:hover > range-b,
+#draw_filters_contrast:hover > range-b,
+#draw_filters_saturation:hover > range-b,
+#draw_filters_hue:hover > range-b {
+    opacity: 1;
+}
+
+#draw_filters_gamma > range-b {
+    height: calc(var(--bar-size) / 3) !important;
+}
+#draw_filters_grayscale > lock-b {
+    height: calc(var(--bar-size) / 3) !important;
+}
+#draw_filters_grayscale > lock-b:hover {
+    background-color: var(--hover-color);
+}
+
+#draw_filters_bs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+#draw_filters_bs > div > lock-b {
+    height: calc(var(--bar-size) / 3);
+}
+#draw_filters_bs > div:hover {
+    background-color: var(--hover-color);
+}
