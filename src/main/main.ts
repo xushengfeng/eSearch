@@ -146,7 +146,7 @@ async function copy_text(callback: (t: string) => void) {
 function auto_open() {
     copy_text((t) => {
         if (t) {
-            create_main_window("index.html", [t]);
+            create_main_window("editor.html", [t]);
         } else {
             full_screen();
         }
@@ -156,7 +156,7 @@ function auto_open() {
 /** 选区搜索 */
 function open_selection() {
     copy_text((t) => {
-        if (t) create_main_window("index.html", [t]);
+        if (t) create_main_window("editor.html", [t]);
     });
 }
 
@@ -165,7 +165,7 @@ function open_clip_board() {
     var t = clipboard.readText(
         process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
     );
-    create_main_window("index.html", [t]);
+    create_main_window("editor.html", [t]);
 }
 
 // cil参数重复启动;
@@ -200,7 +200,7 @@ function arg_run(c: string[]) {
             open_clip_board();
             break;
         case c.includes("-g"):
-            create_main_window("index.html", [""]);
+            create_main_window("editor.html", [""]);
             break;
         case c.includes("-q"):
             quick_clip();
@@ -299,7 +299,7 @@ app.whenReady().then(() => {
         {
             label: t("主页面"),
             click: () => {
-                create_main_window("index.html", [""]);
+                create_main_window("editor.html", [""]);
             },
         },
         {
@@ -358,7 +358,7 @@ app.whenReady().then(() => {
         选中搜索: { f: "open_selection()" },
         剪贴板搜索: { f: "open_clip_board()" },
         快速截屏: { f: "quick_clip()" },
-        主页面: { f: "create_main_window('index.html', [''])" },
+        主页面: { f: "create_main_window('editor.html', [''])" },
     };
     ipcMain.on("快捷键", (event, arg) => {
         var [name, key] = arg;
@@ -786,7 +786,7 @@ function create_clip_window() {
                 break;
             case "QR":
                 if (arg != "nothing") {
-                    create_main_window("index.html", [arg]);
+                    create_main_window("editor.html", [arg]);
                 } else {
                     dialog.showMessageBox({
                         title: t("警告"),
@@ -931,13 +931,13 @@ function reload_clip() {
 
 var ocr_event: Electron.IpcMainEvent;
 function ocr(event: Electron.IpcMainEvent, arg) {
-    create_main_window("index.html", ["ocr", ...arg]);
+    create_main_window("editor.html", ["ocr", ...arg]);
     ocr_event = event;
 }
 
 var image_search_event: Electron.IpcMainEvent;
 function image_search(event: Electron.IpcMainEvent, arg) {
-    create_main_window("index.html", ["image", arg[0], arg[1]]);
+    create_main_window("editor.html", ["image", arg[0], arg[1]]);
     image_search_event = event;
 }
 
@@ -1390,7 +1390,7 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
     if (m) main_window.maximize();
 
     // 自定义界面
-    renderer_path(main_window, web_page || "index.html");
+    renderer_path(main_window, web_page || "editor.html");
 
     await main_window.webContents.session.setProxy(store.get("代理"));
 
@@ -1484,7 +1484,7 @@ ipcMain.on("open_url", (event, window_name, url) => {
 
 /** 创建浏览器页面 */
 async function create_browser(window_name: number, url: string) {
-    if (!window_name) window_name = await create_main_window("index.html");
+    if (!window_name) window_name = await create_main_window("editor.html");
 
     let main_window = main_window_l[window_name];
 

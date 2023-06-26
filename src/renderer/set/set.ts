@@ -472,7 +472,7 @@ document.getElementById("clear_cache").onclick = () => {
 };
 
 document.getElementById("main_b").onclick = () => {
-    window.location.href = "index.html";
+    window.location.href = "editor.html";
 };
 
 function set_ocr() {
