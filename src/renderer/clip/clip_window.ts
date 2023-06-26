@@ -3248,7 +3248,7 @@ hotkeys("esc", "drawing_esc", () => {
 
 // fabric命令行
 var draw_edit_input_el = <HTMLInputElement>document.querySelector("#draw_edit input");
-document.getElementById("draw_edit_b").onclick = () => {
+hotkeys("f12", "normal", () => {
     s_center_bar("edit");
     if (center_bar_show) {
         draw_edit_input_el.focus();
@@ -3257,7 +3257,7 @@ document.getElementById("draw_edit_b").onclick = () => {
             s_center_bar("edit");
         });
     }
-};
+});
 document.getElementById("draw_edit_run").onclick = () => {
     fabric_api();
 };
