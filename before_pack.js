@@ -21,4 +21,12 @@ exports.default = async function () {
             })
         );
     }
+    if (process.platform == "win32" && !fs.existsSync("./lib/copy.exe")) {
+        fs.writeFileSync(
+            "./lib/copy.exe",
+            await download("https://github.com/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe", {
+                rejectUnauthorized: false,
+            })
+        );
+    }
 };
