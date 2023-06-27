@@ -120,7 +120,7 @@ var audio = false,
 var rect;
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
-ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, screen_ratio) => {
+ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, screen_ratio) => {
     switch (t) {
         case "init":
             rect = r;
@@ -198,11 +198,11 @@ ipcRenderer.on("record", async (event, t, sourceId, r, screen_w, screen_h, scree
                 console.log(chunks, b);
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(b);
-                reader.onloadend = (e) => {
+                reader.onloadend = (_e) => {
                     fs.writeFile(
                         path.join(tmp_path, String(clip_name)),
                         Buffer.from(reader.result as string),
-                        (err) => {
+                        (_err) => {
                             chunks = [];
                             if (f) f();
                             clip_name++;
@@ -336,7 +336,7 @@ function resize() {
     }
 }
 
-ipcRenderer.on("ff", (e, t, arg) => {
+ipcRenderer.on("ff", (_e, t, arg) => {
     if (t == "p") {
         document.getElementById("pro").style.width = arg * 100 + "%";
         if (arg == 1)

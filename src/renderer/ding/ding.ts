@@ -11,13 +11,13 @@ var store = new Store({
 });
 
 var screen_id = "";
-ipcRenderer.on("screen_id", (event, id) => {
+ipcRenderer.on("screen_id", (_event, id) => {
     screen_id = id;
 });
 
 var move: { id: string; screenid: string; more: move_type };
 
-ipcRenderer.on("ding", (event, type, id, screenid, more) => {
+ipcRenderer.on("ding", (_event, type, id, screenid, more) => {
     console.log(type, id, screenid, more);
     switch (type) {
         case "close":
@@ -50,7 +50,7 @@ var ratio = window.devicePixelRatio;
 var changing = null;
 var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
-ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
+ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
     if (!screenid) screenid = screen_id;
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
@@ -157,7 +157,7 @@ ipcRenderer.on("img", (event, screenid, wid, x, y, w, h, url) => {
     resize(div, 1);
 });
 
-ipcRenderer.on("mouse", (e, x, y) => {
+ipcRenderer.on("mouse", (_e, x, y) => {
     let els = document.elementsFromPoint(x, y);
     if (screen_id) {
         let ignorex = false;
@@ -314,7 +314,7 @@ document.onmousemove = (e) => {
         }
     }
 };
-document.onmouseup = (e) => {
+document.onmouseup = (_e) => {
     if (window_div != null)
         store.set("ding_dock", [document.getElementById("dock").offsetLeft, document.getElementById("dock").offsetTop]);
     o_ps = [];

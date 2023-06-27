@@ -437,7 +437,7 @@ class cursors {
     }
 
     input() {
-        for (let c of this.l) {
+        for (let _c of this.l) {
         }
     }
 }
@@ -588,7 +588,7 @@ document.getElementById("line_num").onmousedown = (e) => {
     cursor.of = editor.w_max(l_i);
     editor.cursors.set(cursor);
 };
-document.getElementById("line_num").onmouseup = (e) => {
+document.getElementById("line_num").onmouseup = (_e) => {
     let s = editor.selections.l[0];
     editor.text.setSelectionRange(s.start, s.end);
     editor.text.focus();
@@ -604,7 +604,7 @@ var insert = false;
 var Store;
 if (in_browser) {
     Store = class Store {
-        constructor(x?: Object) {}
+        constructor(_x?: Object) {}
         get(value: string) {
             var o = {
                 自动打开链接: false,
@@ -651,8 +651,8 @@ if (in_browser) {
 
             return eval(`o.${value}`);
         }
-        set(k, v) {}
-        delete(k) {}
+        set(_k, _v) {}
+        delete(_k) {}
     };
     var store = new Store();
     history_store = new Store();
@@ -706,7 +706,7 @@ function set_font_size(font_size: number) {
 
 /**编辑栏 */
 var edit_bar_s = false;
-function show_edit_bar(x: number, y: number, h: number, right: boolean) {
+function show_edit_bar(x: number, y: number, _h: number, right: boolean) {
     // 简易判断链接并显示按钮
     if (is_link(editor.selections.get(), false)) {
         document.getElementById("link_bar").style.width = "30px";
@@ -1216,9 +1216,9 @@ const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("
 const fs = require("fs") as typeof import("fs");
 const os = require("os") as typeof import("os");
 
-ipcRenderer.on("init", (event, name: number) => {});
+ipcRenderer.on("init", (_event, _name: number) => {});
 
-ipcRenderer.on("text", (event, name: string, list: Array<string>) => {
+ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
     window_name = name;
 
     if (list.length == 1) {
@@ -1329,7 +1329,7 @@ function write_edit_on_other() {
     fs.writeFile(tmp_text_path, data, () => {});
 }
 
-ipcRenderer.on("edit", (event, arg) => {
+ipcRenderer.on("edit", (_event, arg) => {
     switch (arg) {
         case "save":
             push_history();
@@ -1438,7 +1438,7 @@ document.body.className = "fill_t";
 
 var li_list = [];
 
-ipcRenderer.on("url", (event, id: number, arg: string, arg1: any) => {
+ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
     if (arg == "new") {
         new_tab(id, arg1);
     }
@@ -1457,7 +1457,7 @@ ipcRenderer.on("url", (event, id: number, arg: string, arg1: any) => {
     document.getElementById("tabs").classList.add("tabs_show");
 });
 
-ipcRenderer.on("html", (e, h: string) => {
+ipcRenderer.on("html", (_e, h: string) => {
     document.getElementById("tabs").innerHTML = h;
     document
         .getElementById("tabs")
@@ -1617,7 +1617,7 @@ function open_in_browser() {
     }
 }
 
-ipcRenderer.on("view_events", (event, arg) => {
+ipcRenderer.on("view_events", (_event, arg) => {
     var e = { target: { id: arg } };
     main_event(e);
 });
@@ -2042,11 +2042,11 @@ function run_ocr() {
     let type = ocr引擎.value;
     imgs_el.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
-            online_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
+            online_ocr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
                 add_ocr_text(r.raw, i);
             });
         } else {
-            local_ocr(type, el.src.replace("data:image/png;base64,", ""), (err, r) => {
+            local_ocr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
                 add_ocr_text(r.raw, i);
             });
         }

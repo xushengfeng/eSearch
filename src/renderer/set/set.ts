@@ -18,8 +18,8 @@ let old_store = JSON.parse(fs.readFileSync(path.join(config_path, "config.json")
 import { t, lan } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 document.body.innerHTML = document.body.innerHTML
-    .replace(/\{(.*?)\}/g, (m, v) => t(v))
-    .replace(/<t>(.*?)<\/t>/g, (m, v) => t(v));
+    .replace(/\{(.*?)\}/g, (_m, v) => t(v))
+    .replace(/<t>(.*?)<\/t>/g, (_m, v) => t(v));
 document.title = t(document.title);
 
 const xstore = old_store;
@@ -59,7 +59,7 @@ document.getElementById("menu").onclick = (e) => {
 };
 
 ipcRenderer.send("autostart", "get");
-ipcRenderer.on("开机启动状态", (event, v) => {
+ipcRenderer.on("开机启动状态", (_event, v) => {
     (<HTMLInputElement>document.getElementById("autostart")).checked = v;
 });
 document.getElementById("autostart").oninput = () => {
@@ -158,7 +158,7 @@ document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
         ipcRenderer.send("快捷键", [el.name, el.value]);
     });
 });
-ipcRenderer.on("状态", (event, name, arg) => {
+ipcRenderer.on("状态", (_event, name, arg) => {
     (<any>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
     if (t) store_set(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
@@ -299,7 +299,7 @@ set_radio(document.getElementById("快速截屏"), old_store.快速截屏.模式
 (<HTMLInputElement>document.getElementById("快速截屏路径")).value = old_store.快速截屏.路径;
 document.getElementById("获取保存路径").onclick = () => {
     ipcRenderer.send("get_save_path", (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "");
-    ipcRenderer.on("get_save_path", (e, a) => {
+    ipcRenderer.on("get_save_path", (_e, a) => {
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value = a;
     });
 };
@@ -995,7 +995,7 @@ document.getElementById("reload").onclick = () => {
     ipcRenderer.send("setting", "reload");
 };
 
-ipcRenderer.on("setting", (err, t, id, r) => {
+ipcRenderer.on("setting", (_err, t, id, r) => {
     if (t == "open_dialog") {
         switch (id) {
             case "ocr_det":
@@ -1141,7 +1141,7 @@ document.getElementById("about").onclick = (e) => {
     }
 };
 
-ipcRenderer.on("about", (event, arg) => {
+ipcRenderer.on("about", (_event, arg) => {
     if (arg != undefined) {
         location.hash = "#about";
     }

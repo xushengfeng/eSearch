@@ -188,7 +188,7 @@ function capture_all(_displays: Electron.Display[], point: Electron.Point) {
 }
 
 set_setting();
-ipcRenderer.on("reflash", (a, data, displays, point, act) => {
+ipcRenderer.on("reflash", (_a, data, displays, point, act) => {
     if (!data) data = capture_all(displays, point);
     console.log(data);
     for (let i of data) {
@@ -403,14 +403,12 @@ document.addEventListener("pointermove", (e) => {
         set_editor_p(editor_p.zoom, middle_p.x + dx / editor_p.zoom, middle_p.y + dy / editor_p.zoom);
     }
 });
-document.addEventListener("pointerup", (e) => {
+document.addEventListener("pointerup", (_e) => {
     middle_b = null;
 });
 
-var edge_init = false;
 var edge_rect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
 function edge() {
-    edge_init = true;
     let canvas = main_canvas;
     let src = cv.imread(canvas);
 
@@ -453,11 +451,11 @@ function get_linux_win() {
             return;
         }
         for (let i of display.screen) {
-            X.QueryTree(i.root, (err, tree) => {
+            X.QueryTree(i.root, (_err, tree) => {
                 for (let x of tree.children) {
-                    X.GetWindowAttributes(x, function (err, attrs) {
+                    X.GetWindowAttributes(x, function (_err, attrs) {
                         if (attrs.mapState == 2) {
-                            X.GetGeometry(x, function (err, clientGeom) {
+                            X.GetGeometry(x, function (_err, clientGeom) {
                                 edge_rect.push({
                                     x: clientGeom.xPos,
                                     y: clientGeom.yPos,
@@ -495,10 +493,10 @@ const side_bar_screens = document.getElementById("screens");
 hotkeys("z", windows_bar_c_o);
 function windows_bar_c_o() {
     if (!o) {
-        document.getElementById("windows_bar").style.transform = "translateX(0)";
+        side_bar.style.transform = "translateX(0)";
         o = true;
     } else {
-        document.getElementById("windows_bar").style.transform = "translateX(-100%)";
+        side_bar.style.transform = "translateX(-100%)";
         o = false;
     }
 }
@@ -635,7 +633,7 @@ function tool_ocr_f() {
 
     scan_line();
 
-    ipcRenderer.on("ocr_back", (event, arg) => {
+    ipcRenderer.on("ocr_back", (_event, arg) => {
         if (arg == "ok") {
             document.getElementById("waiting").style.display = "none";
             tool_close_f();
@@ -682,7 +680,7 @@ function tool_search_f() {
 
     scan_line();
 
-    ipcRenderer.on("search_back", (event, arg) => {
+    ipcRenderer.on("search_back", (_event, arg) => {
         if (arg == "ok") {
             tool_close_f();
             document.getElementById("waiting").style.display = "none";
@@ -709,7 +707,6 @@ function tool_QR_f() {
 }
 // 图片编辑
 var drawing = false;
-var draw_bar_height = `calc(var(--bar-size) * 6)`;
 function tool_draw_f() {
     drawing = drawing ? false : true; // 切换状态
     draw_m(drawing);
@@ -849,7 +846,7 @@ function tool_record_f() {
         });
 
         let time_out;
-        uIOhook.on("wheel", (e) => {
+        uIOhook.on("wheel", (_e) => {
             mouse_el[1].style.backgroundColor = "#0f0";
             clearTimeout(time_out);
             time_out = setTimeout(() => {
@@ -873,7 +870,7 @@ function tool_record_f() {
     recorder_rect_el.style.width = final_rect[2] / ratio + "px";
     recorder_rect_el.style.height = final_rect[3] / ratio + "px";
 
-    ipcRenderer.on("record", async (event, t, arg) => {
+    ipcRenderer.on("record", async (_event, t, arg) => {
         switch (t) {
             case "mouse":
                 recorder_mouse_el.style.left = arg.x + "px";
@@ -901,7 +898,7 @@ var log_o = {
     p: { x: 0, y: 0 },
 };
 function tool_long_f() {
-    let long_list = (log_o.long_list = []);
+    log_o.long_list = [];
     init_long(final_rect);
     let r = [...final_rect];
     r[0] += screen_position[now_screen_id].x;
@@ -912,7 +909,6 @@ function tool_long_f() {
     log_o.o_canvas = document.createElement("canvas");
     let o_canvas = log_o.o_canvas;
     log_o.p = { x: 0, y: 0 };
-    let p = log_o.p;
     o_canvas.width = final_rect[2];
     o_canvas.height = final_rect[3];
     log_o.l = [];
@@ -1124,7 +1120,7 @@ function tool_save_f() {
         s_center_bar("save");
     });
 }
-ipcRenderer.on("save_path", (event, message) => {
+ipcRenderer.on("save_path", (_event, message) => {
     console.log(message);
     save(message);
 });
@@ -1197,7 +1193,7 @@ function get_clip_photo(type: string) {
         image.setAttribute("xlink:href", main_canvas.toDataURL());
         svg.querySelector("svg").insertBefore(image, svg.querySelector("svg").firstChild);
         var svg_t = new XMLSerializer().serializeToString(svg.querySelector("svg"));
-        return new Promise((resolve, rejects) => {
+        return new Promise((resolve, _rejects) => {
             resolve(svg_t);
         });
     } else {
@@ -1215,14 +1211,14 @@ function get_clip_photo(type: string) {
                 height: final_rect[3],
                 format: type,
             });
-            return new Promise((resolve, rejects) => {
+            return new Promise((resolve, _rejects) => {
                 image.onload = () => {
                     tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
                     resolve(tmp_canvas);
                 };
             });
         } else {
-            return new Promise((resolve, rejects) => {
+            return new Promise((resolve, _rejects) => {
                 resolve(tmp_canvas);
             });
         }
@@ -1778,6 +1774,8 @@ function color_conversion(rgba, type: string) {
         case "CMYK":
             var [c, m, y, k] = color.cmyk().round().array();
             return `cmyk(${c}, ${m}, ${y}, ${k})`;
+        default:
+            return "";
     }
 }
 
@@ -2847,7 +2845,7 @@ function color_bar() {
             )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = tt;
-        document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, index) => {
+        document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, _index) => {
             el.onmousedown = (event) => {
                 if (event.button == 0) {
                     c_color(el);
@@ -3286,7 +3284,7 @@ document.getElementById("draw_edit_run").onclick = () => {
 };
 function fabric_api() {
     var e = draw_edit_input_el.value;
-    var $0 = fabric_canvas.getActiveObject();
+    window["$0"] = fabric_canvas.getActiveObject();
     if (!e.includes("$0")) {
         e = `fabric_canvas.getActiveObject().set({${e}})`;
     }

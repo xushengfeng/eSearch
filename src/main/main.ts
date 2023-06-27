@@ -104,7 +104,7 @@ ipcMain.on("autostart", (event, m, v) => {
         }
     } else {
         if (process.platform == "linux") {
-            exec("test -e ~/.config/autostart/e-search.desktop", (error, stdout, stderr) => {
+            exec("test -e ~/.config/autostart/e-search.desktop", (error, _stdout, _stderr) => {
                 error ? event.sender.send("开机启动状态", false) : event.sender.send("开机启动状态", true);
             });
         } else {
@@ -175,7 +175,7 @@ if (!isFirstInstance) {
     first_open = false;
     app.quit();
 } else {
-    app.on("second-instance", (event, commanLine, workingDirectory) => {
+    app.on("second-instance", (_event, commanLine, _workingDirectory) => {
         arg_run(commanLine);
     });
 }
@@ -436,7 +436,7 @@ app.whenReady().then(() => {
             submenu: [
                 {
                     label: t("保存到历史记录"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "save");
                     },
                     accelerator: "CmdOrCtrl+S",
@@ -456,13 +456,13 @@ app.whenReady().then(() => {
                       ]),
                 {
                     label: t("其他编辑器打开"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "edit_on_other");
                     },
                 },
                 {
                     label: t("打开方式..."),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "choose_editer");
                     },
                 },
@@ -476,21 +476,21 @@ app.whenReady().then(() => {
             submenu: [
                 {
                     label: t("打开链接"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "link");
                     },
                     accelerator: "CmdOrCtrl+Shift+L",
                 },
                 {
                     label: t("搜索"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "search");
                     },
                     accelerator: "CmdOrCtrl+Shift+S",
                 },
                 {
                     label: t("翻译"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "translate");
                     },
                     accelerator: "CmdOrCtrl+Shift+T",
@@ -498,7 +498,7 @@ app.whenReady().then(() => {
                 { type: "separator" },
                 {
                     label: t("撤销"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "undo");
                         w.webContents.undo();
                     },
@@ -506,7 +506,7 @@ app.whenReady().then(() => {
                 },
                 {
                     label: t("重做"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "redo");
                         w.webContents.redo();
                     },
@@ -515,7 +515,7 @@ app.whenReady().then(() => {
                 { type: "separator" },
                 {
                     label: t("剪切"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "cut");
                         w.webContents.cut();
                     },
@@ -523,7 +523,7 @@ app.whenReady().then(() => {
                 },
                 {
                     label: t("复制"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "copy");
                         w.webContents.copy();
                     },
@@ -531,7 +531,7 @@ app.whenReady().then(() => {
                 },
                 {
                     label: t("粘贴"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "paste");
                         w.webContents.paste();
                     },
@@ -539,14 +539,14 @@ app.whenReady().then(() => {
                 },
                 {
                     label: t("删除"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "delete");
                         w.webContents.delete();
                     },
                 },
                 {
                     label: t("全选"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "select_all");
                         w.webContents.selectAll();
                     },
@@ -554,21 +554,21 @@ app.whenReady().then(() => {
                 },
                 {
                     label: t("自动删除换行"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "delete_enter");
                     },
                 },
                 { type: "separator" },
                 {
                     label: t("查找"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "show_find");
                     },
                     accelerator: "CmdOrCtrl+F",
                 },
                 {
                     label: t("替换"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "show_find");
                     },
                     accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
@@ -576,13 +576,13 @@ app.whenReady().then(() => {
                 { type: "separator" },
                 {
                     label: t("自动换行"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "wrap");
                     },
                 },
                 {
                     label: t("拼写检查"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "spellcheck");
                     },
                 },
@@ -605,48 +605,48 @@ app.whenReady().then(() => {
             submenu: [
                 {
                     label: t("后退"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "back");
                     },
                     accelerator: isMac ? "Command+[" : "Alt+Left",
                 },
                 {
                     label: t("前进"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "forward");
                     },
                     accelerator: isMac ? "Command+]" : "Alt+Right",
                 },
                 {
                     label: t("刷新"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "reload");
                     },
                     accelerator: "F5",
                 },
                 {
                     label: t("停止加载"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "stop");
                     },
                     accelerator: "Esc",
                 },
                 {
                     label: t("浏览器打开"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "browser");
                     },
                 },
                 {
                     label: t("保存到历史记录"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "add_history");
                     },
                     accelerator: "CmdOrCtrl+D",
                 },
                 {
                     label: t("开发者工具"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         view_events(w, "dev");
                     },
                 },
@@ -662,7 +662,7 @@ app.whenReady().then(() => {
                 { type: "separator" },
                 {
                     label: t("历史记录"),
-                    click: (i, w) => {
+                    click: (_i, w) => {
                         main_edit(w, "show_history");
                     },
                     accelerator: "CmdOrCtrl+Shift+H",
@@ -1031,7 +1031,7 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
     fetchFile = require("@ffmpeg/ffmpeg").fetchFile;
 }
 
-ipcMain.on("record", (event, type, arg, arg1) => {
+ipcMain.on("record", (_event, type, arg, arg1) => {
     switch (type) {
         case "stop":
             reload_clip();
@@ -1329,10 +1329,10 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
     }
     ding_click_through();
 }
-ipcMain.on("ding_ignore", (event, id, v) => {
+ipcMain.on("ding_ignore", (_event, id, v) => {
     if (ding_window_list[id]) ding_window_list[id].setIgnoreMouseEvents(v);
 });
-ipcMain.on("ding_event", (event, type, id, screen_id, more) => {
+ipcMain.on("ding_event", (_event, type, id, screen_id, more) => {
     if (type == "close" && more) {
         for (let i in ding_window_list) {
             ding_window_list[i].close();
@@ -1345,7 +1345,7 @@ ipcMain.on("ding_event", (event, type, id, screen_id, more) => {
         ding_window_list[i].webContents.send("ding", type, id, screen_id, more);
     }
 });
-ipcMain.on("ding_edit", (event, img_path) => {
+ipcMain.on("ding_edit", (_event, img_path) => {
     full_screen(img_path);
 });
 
@@ -1400,7 +1400,7 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
         image_search_window = main_window;
     } else if (t?.[0] == "ocr") {
         ocr_run_window = main_window;
-        ocr_run_window.webContents.once("render-process-gone", (e, d) => {
+        ocr_run_window.webContents.once("render-process-gone", (_e, d) => {
             ocr_event.sender.send("ocr_back", d.reason);
         });
     }
@@ -1478,7 +1478,7 @@ function main_edit(window: BrowserWindow, m: string) {
 }
 
 var search_window_l: { [n: number]: BrowserView } = {};
-ipcMain.on("open_url", (event, window_name, url) => {
+ipcMain.on("open_url", (_event, window_name, url) => {
     create_browser(window_name, url);
 });
 
@@ -1512,13 +1512,13 @@ async function create_browser(window_name: number, url: string) {
     });
     if (dev) search_view.webContents.openDevTools();
     if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "new", url);
-    search_view.webContents.on("page-title-updated", (event, title) => {
+    search_view.webContents.on("page-title-updated", (_event, title) => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "title", title);
     });
-    search_view.webContents.on("page-favicon-updated", (event, favlogo) => {
+    search_view.webContents.on("page-favicon-updated", (_event, favlogo) => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "icon", favlogo);
     });
-    search_view.webContents.on("did-navigate", (event, url) => {
+    search_view.webContents.on("did-navigate", (_event, url) => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "url", url);
     });
     search_view.webContents.on("did-start-loading", () => {
@@ -1527,7 +1527,7 @@ async function create_browser(window_name: number, url: string) {
     search_view.webContents.on("did-stop-loading", () => {
         if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "load", false);
     });
-    search_view.webContents.on("did-fail-load", (event, err_code, err_des) => {
+    search_view.webContents.on("did-fail-load", (_event, err_code, err_des) => {
         renderer_path(search_view.webContents, "browser_bg.html", {
             query: { type: "did-fail-load", err_code: String(err_code), err_des },
         });
@@ -1649,7 +1649,7 @@ ipcMain.on("get_save_path", (event, path) => {
         });
 });
 
-ipcMain.on("theme", (e, v) => {
+ipcMain.on("theme", (_e, v) => {
     nativeTheme.themeSource = v;
     store.set("全局.深色模式", v);
 });
