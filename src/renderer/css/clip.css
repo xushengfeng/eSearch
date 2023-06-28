@@ -671,6 +671,7 @@ range-b {
 }
 
 :is(
+        #draw_filters_pixelate,
         #draw_filters_blur,
         #draw_filters_brightness,
         #draw_filters_contrast,
@@ -681,12 +682,20 @@ range-b {
     transition: var(--transition);
     opacity: 0;
 }
-:is(#draw_filters_blur, #draw_filters_brightness, #draw_filters_contrast, #draw_filters_saturation, #draw_filters_hue)
+:is(
+        #draw_filters_pixelate,
+        #draw_filters_blur,
+        #draw_filters_brightness,
+        #draw_filters_contrast,
+        #draw_filters_saturation,
+        #draw_filters_hue
+    )
     > range-b {
     transition: var(--transition);
     opacity: 0;
 }
 :is(
+        #draw_filters_pixelate,
         #draw_filters_blur,
         #draw_filters_brightness,
         #draw_filters_contrast,
