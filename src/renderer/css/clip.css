@@ -670,15 +670,30 @@ range-b {
     height: var(--bar-size);
 }
 
-:is(#draw_filters_brightness, #draw_filters_contrast, #draw_filters_saturation, #draw_filters_hue):hover > .icon {
+:is(
+        #draw_filters_blur,
+        #draw_filters_brightness,
+        #draw_filters_contrast,
+        #draw_filters_saturation,
+        #draw_filters_hue
+    ):hover
+    > .icon {
     transition: var(--transition);
     opacity: 0;
 }
-:is(#draw_filters_brightness, #draw_filters_contrast, #draw_filters_saturation, #draw_filters_hue) > range-b {
+:is(#draw_filters_blur, #draw_filters_brightness, #draw_filters_contrast, #draw_filters_saturation, #draw_filters_hue)
+    > range-b {
     transition: var(--transition);
     opacity: 0;
 }
-:is(#draw_filters_brightness, #draw_filters_contrast, #draw_filters_saturation, #draw_filters_hue):hover > range-b {
+:is(
+        #draw_filters_blur,
+        #draw_filters_brightness,
+        #draw_filters_contrast,
+        #draw_filters_saturation,
+        #draw_filters_hue
+    ):hover
+    > range-b {
     opacity: 1;
 }
 
