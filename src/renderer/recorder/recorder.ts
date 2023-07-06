@@ -32,7 +32,10 @@ var ratio = 1;
 
 var recorder: MediaRecorder;
 
+/** 临时保存的原始视频位置 */
 var tmp_path: string;
+/** 转换 */
+var output: string;
 
 var start_stop = document.getElementById("start_stop");
 var s_s = false;
@@ -211,7 +214,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
             const path = require("path") as typeof import("path");
             let file_name = String(new Date().getTime());
             tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
-            let output = path.join(tmp_path, "output");
+            output = path.join(tmp_path, "output");
             fs.mkdirSync(tmp_path);
             fs.mkdirSync(output);
             let clip_name = 0;
