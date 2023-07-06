@@ -1047,6 +1047,7 @@ ipcMain.on("record", (_event, type, arg, arg1) => {
                         if (!fpath.includes(".")) {
                             fpath += `.${arg.格式}`;
                         }
+                        recorder.webContents.send("ff", "save_path", fpath);
                     } else {
                         new Notification({
                             title: `${app.name} ${t("保存视频失败")}`,

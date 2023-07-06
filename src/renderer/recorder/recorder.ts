@@ -50,7 +50,7 @@ start_stop.onclick = () => {
         document.getElementById("time").innerText = "0:00";
         recorder.start();
         格式_el.style.display = "none";
-        type = 格式_el.value;
+        type = 格式_el.value as mimeType;
         p_time();
         setInterval(get_time, 500);
         s_s = false;
@@ -119,7 +119,8 @@ function get_time() {
 }
 
 add_types();
-let type = (格式_el.value = store.get("录屏.转换.格式"));
+type mimeType = "mp4" | "webm" | "gif" | "mkv" | "mov" | "avi" | "ts" | "mpeg" | "flv";
+let type = (格式_el.value = store.get("录屏.转换.格式")) as mimeType;
 
 var audio_stream: MediaStream, stream: MediaStream;
 
@@ -371,6 +372,9 @@ ipcRenderer.on("ff", (_e, t, arg) => {
         textarea.value += "\n" + arg[1];
         textarea.scrollTop = textarea.scrollHeight;
     }
+    if (t == "save_path") {
+        join_and_save(arg);
+    }
 });
 
 var editting = false;
@@ -528,7 +532,7 @@ video.onended = () => {
 };
 
 function add_types() {
-    let types = ["mp4", "webm", "gif", "mkv", "mov", "avi", "ts", "mpeg", "flv"];
+    let types: mimeType[] = ["mp4", "webm", "gif", "mkv", "mov", "avi", "ts", "mpeg", "flv"];
     let t = "";
     for (let i of types) {
         t += `<option value="${i}">${i}</option>`;
@@ -574,7 +578,43 @@ function clip() {
     }
 }
 
-function join() {}
+function join_and_save(path: string) {
+    let args = [];
+
+    switch (type) {
+        case "gif":
+            for (let i of clip_path) {
+                args.push("-i", i);
+            }
+            args.push("-filter_complex");
+            let t = "";
+            for (let i in clip_path) {
+                t += `[${i}:v:0]`;
+            }
+            t += `concat=n=${clip_path.length}:v=1[outv]`;
+            args.push(`"${t}"`, "-map", '"[outv]"');
+            break;
+        case "ts":
+            break;
+        case "mp4":
+            break;
+        case "webm":
+            break;
+        case "mkv":
+            break;
+        case "mov":
+            break;
+        case "avi":
+            break;
+        case "flv":
+            break;
+        case "mpeg":
+            break;
+    }
+    args.push(path);
+
+    const ffmpeg = spawn(pathToFfmpeg, args);
+}
 
 function save() {
     let t = "";
