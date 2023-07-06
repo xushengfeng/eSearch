@@ -231,11 +231,10 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
                             : `crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]}`;
                     let args = ["-i", p, "-vf", crop, path.join(output, base_name2)];
                     fs.writeFile(p, Buffer.from(reader.result as string), (_err) => {
-                        const ffmpeg = spawn(pathToFfmpeg, args);
+                        run_ffmpeg("ts", clip_name, args);
                         chunks = [];
                         if (f) f();
                         clip_name++;
-                        ffmpeg.on("exit", () => {});
                     });
                 };
             }
@@ -536,7 +535,7 @@ function add_types() {
 
 let clip_path = [];
 /** 获取要切割的视频和位置 */
-function clip() {
+async function clip() {
     let start = t_start_el.value;
     let end = t_end_el.value;
     let start_v = get_time_in_v(start);
@@ -557,10 +556,12 @@ function clip() {
         return args;
     }
     if (start_v.v == end_v.v) {
-        const ffmpeg1 = spawn(pathToFfmpeg, to_arg(start_v.v, start_v.time, "both", end_v.time));
+        await run_ffmpeg("clip", 0, to_arg(start_v.v, start_v.time, "both", end_v.time));
     } else {
-        const ffmpeg1 = spawn(pathToFfmpeg, to_arg(start_v.v, start_v.time, "start"));
-        const ffmpeg2 = spawn(pathToFfmpeg, to_arg(end_v.v, end_v.time, "end"));
+        await Promise.all([
+            run_ffmpeg("clip", 0, to_arg(start_v.v, start_v.time, "start")),
+            run_ffmpeg("clip", 1, to_arg(end_v.v, end_v.time, "end")),
+        ]);
         if (start_v.v + 1 != end_v.v) {
             for (let i = start_v.v + 1; i < end_v.v; i++) {
                 fs.copyFileSync(path.join(output, `${i}.${type}`), path.join(output1, `${i}.${type}`));
@@ -607,13 +608,50 @@ function join_and_save(path: string) {
     }
     args.push(path);
 
-    const ffmpeg = spawn(pathToFfmpeg, args);
+    run_ffmpeg("join", 0, args);
 }
 
-function save() {
-    clip();
+async function save() {
+    await clip();
     store.set("录屏.转换.格式", 格式_el.value);
     ipcRenderer.send("record", "ff", { 格式: type });
 }
 
 document.getElementById("save").onclick = save;
+
+let process: {
+    [type: string]: {
+        [k: number]: {
+            args: string[];
+            logs: { text: string; type: "log" | "err" }[];
+            finish: "ok" | "err" | "running";
+        };
+    };
+} = {
+    ts: {},
+    clip: {},
+    join: {},
+};
+
+function run_ffmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
+    const ffmpeg = spawn(pathToFfmpeg, args);
+    process[type][n] = { args, finish: "running", logs: [] };
+    return new Promise((re, rj) => {
+        ffmpeg.on("close", (code) => {
+            if (code == 0) {
+                process[type][n].finish = "ok";
+                re;
+            } else {
+                process[type][n].finish = "err";
+                rj;
+            }
+        });
+        ffmpeg.stdout.on("data", (data) => {
+            process[type][n].logs.push({ text: data, type: "log" });
+        });
+        ffmpeg.stderr.on("data", (data) => {
+            process[type][n].logs.push({ text: data, type: "err" });
+            rj;
+        });
+    });
+}
