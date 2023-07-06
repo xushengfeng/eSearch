@@ -555,6 +555,14 @@ async function clip() {
         args.push(path.join(output1, `${v}.${type}`));
         return args;
     }
+    if (start_v.v + 1 < end_v.v) {
+        for (let i = start_v.v + 1; i < end_v.v; i++) {
+            fs.copyFileSync(path.join(output, `${i}.${type}`), path.join(output1, `${i}.${type}`));
+        }
+    }
+    for (let i = start_v.v; i <= end_v.v; i++) {
+        clip_path.push(path.join(output1, `${i}.${type}`));
+    }
     if (start_v.v == end_v.v) {
         await run_ffmpeg("clip", 0, to_arg(start_v.v, start_v.time, "both", end_v.time));
     } else {
@@ -562,14 +570,6 @@ async function clip() {
             run_ffmpeg("clip", 0, to_arg(start_v.v, start_v.time, "start")),
             run_ffmpeg("clip", 1, to_arg(end_v.v, end_v.time, "end")),
         ]);
-        if (start_v.v + 1 != end_v.v) {
-            for (let i = start_v.v + 1; i < end_v.v; i++) {
-                fs.copyFileSync(path.join(output, `${i}.${type}`), path.join(output1, `${i}.${type}`));
-            }
-        }
-    }
-    for (let i = start_v.v; i <= end_v.v; i++) {
-        clip_path.push(path.join(output1, `${i}.${type}`));
     }
 }
 
