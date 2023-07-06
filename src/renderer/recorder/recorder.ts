@@ -52,6 +52,8 @@ start_stop.onclick = () => {
         setInterval(get_time, 500);
         s_s = false;
         ipcRenderer.send("record", "start", tmp_path, type);
+
+        c();
     } else {
         stop = true;
         recorder.stop();
@@ -123,6 +125,16 @@ const { ipcRenderer } = require("electron") as typeof import("electron");
 var pathToFfmpeg = require("@ffmpeg-installer/ffmpeg").path as string;
 const spawn = require("child_process").spawn as typeof import("child_process").spawn;
 console.log(pathToFfmpeg);
+
+/** 自动分段 */
+function c() {
+    setTimeout(() => {
+        if (!stop) {
+            recorder.stop();
+            c();
+        }
+    }, clip_time);
+}
 
 ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, screen_ratio) => {
     switch (t) {
@@ -223,13 +235,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
                 };
             }
 
-            function c() {
-                setTimeout(() => {
-                    recorder.stop();
-                    if (!stop) c();
-                }, clip_time);
-            }
-
             recorder.onstop = () => {
                 name_t.at(-1).e = get_t();
                 if (stop) {
@@ -242,8 +247,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
                     name_t.push({ s: get_t(), e: NaN });
                 }
             };
-
-            c();
 
             if (store.get("录屏.自动录制")) {
                 let t = store.get("录屏.自动录制");
