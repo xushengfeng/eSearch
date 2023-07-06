@@ -120,6 +120,10 @@ var audio = false,
 var rect;
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
+var pathToFfmpeg = require("@ffmpeg-installer/ffmpeg").path as string;
+const spawn = require("child_process").spawn as typeof import("child_process").spawn;
+console.log(pathToFfmpeg);
+
 ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, screen_ratio) => {
     switch (t) {
         case "init":
@@ -191,7 +195,9 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
             const path = require("path") as typeof import("path");
             let file_name = String(new Date().getTime());
             tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
+            let output = path.join(tmp_path, "output");
             fs.mkdirSync(tmp_path);
+            fs.mkdirSync(output);
             let clip_name = 0;
             function save(f: () => void) {
                 let b = new Blob(chunks, { type: "video/webm" });
@@ -199,15 +205,21 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(b);
                 reader.onloadend = (_e) => {
-                    fs.writeFile(
-                        path.join(tmp_path, String(clip_name)),
-                        Buffer.from(reader.result as string),
-                        (_err) => {
-                            chunks = [];
-                            if (f) f();
-                            clip_name++;
-                        }
-                    );
+                    const base_name = String(clip_name);
+                    const base_name2 = `${base_name}.${type}`;
+                    let p = path.join(tmp_path, base_name);
+                    let crop =
+                        type == "gif" && store.get("录屏.转换.高质量gif")
+                            ? `[in]crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1`
+                            : `crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]}`;
+                    let args = ["-i", p, "-vf", crop, path.join(output, base_name2)];
+                    fs.writeFile(p, Buffer.from(reader.result as string), (_err) => {
+                        const ffmpeg = spawn(pathToFfmpeg, args);
+                        chunks = [];
+                        if (f) f();
+                        clip_name++;
+                        ffmpeg.on("exit", () => {});
+                    });
                 };
             }
 
