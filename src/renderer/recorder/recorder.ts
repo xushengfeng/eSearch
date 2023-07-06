@@ -369,7 +369,7 @@ ipcRenderer.on("ff", (_e, t, arg) => {
         textarea.scrollTop = textarea.scrollHeight;
     }
     if (t == "save_path") {
-        join_and_save(arg);
+        clip().then(() => join_and_save(arg));
     }
 });
 
@@ -612,7 +612,6 @@ function join_and_save(path: string) {
 }
 
 async function save() {
-    await clip();
     store.set("录屏.转换.格式", 格式_el.value);
     ipcRenderer.send("record", "ff", { 格式: type });
 }
