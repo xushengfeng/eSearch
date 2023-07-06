@@ -376,6 +376,7 @@ function set_v(n: number) {
     video.src = `${tmp_path}/${n}`;
 }
 
+/** 获取绝对时间 */
 function get_play_t() {
     let t = 0;
     for (let i = 0; i < play_name; i++) {
@@ -385,14 +386,22 @@ function get_play_t() {
     return t;
 }
 
+/** 通过绝对时间设定视频和其相对时间 */
 function set_play_t(time: number) {
+    let x = get_time_in_v(time);
+    set_v(x.v);
+    play_name = x.v;
+    video.currentTime = x.time / 1000;
+}
+
+/** 获取绝对时间对应的视频和相对时间 */
+function get_time_in_v(time: number) {
     for (let i = 0; i < name_t.length; i++) {
         if (name_t[i].s <= time && time < (name_t?.[i + 1]?.s || name_t[i].e)) {
-            set_v(i);
-            play_name = i;
-            video.currentTime = (time - name_t[i].s) / 1000;
+            return { v: i, time: time - name_t[i].s };
         }
     }
+    return { v: 0, time: 0 };
 }
 
 function show_control() {
