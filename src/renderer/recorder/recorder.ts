@@ -9,9 +9,6 @@ const mic_el = document.getElementById("mic") as HTMLInputElement;
 const camera_el = document.getElementById("camera") as HTMLInputElement;
 const save_el = document.getElementById("save") as HTMLButtonElement;
 const 格式_el = document.getElementById("格式") as HTMLInputElement;
-const 码率_el = document.getElementById("码率") as HTMLInputElement;
-const 帧率_el = document.getElementById("帧率") as HTMLInputElement;
-const 其他参数_el = document.getElementById("其他参数") as HTMLInputElement;
 const t_start_el: time_el = document.getElementById("t_start") as unknown as time_el;
 const t_end_el = document.getElementById("t_end") as unknown as time_el;
 const jdt_el = document.getElementById("jdt") as unknown as time_el;
@@ -429,9 +426,6 @@ function show_control() {
         rect[3] * ratio + "px";
     clip_v();
     save_el.disabled = false;
-    码率_el.value = store.get("录屏.转换.码率");
-    帧率_el.value = store.get("录屏.转换.帧率");
-    其他参数_el.value = store.get("录屏.转换.其他");
     if (store.get("录屏.转换.自动转换")) {
         save();
     } else {
@@ -618,17 +612,11 @@ function join_and_save(path: string) {
 
 function save() {
     let t = "";
-    if (码率_el.value) t += `-b:v ${Number(码率_el.value) * 1000}k `;
-    if (帧率_el.value) t += `-r ${帧率_el.value} `;
-    if (其他参数_el.value) t += `${其他参数_el.value} `;
     t += `-ss ${t_start_el.value / 1000} `;
     if (t_end_el.value != (time_l.at(-1) - time_l[0]) / 1000) t += `-to ${t_end_el.value / 1000} `;
     let 格式 = 格式_el.value;
     console.log(t);
     store.set("录屏.转换.格式", 格式_el.value);
-    store.set("录屏.转换.码率", Number(码率_el.value));
-    store.set("录屏.转换.帧率", Number(帧率_el.value));
-    store.set("录屏.转换.其他", 其他参数_el.value);
     ipcRenderer.send("record", "ff", { 源文件: tmp_path, 参数: t.split(" "), 格式 });
     // ipcRenderer.send("record", "close");
 }
