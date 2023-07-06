@@ -92,7 +92,11 @@ function get_t() {
     for (let i = 1; i < time_l.length - 1; i += 2) {
         t += time_l[i] - time_l[i - 1];
     }
-    t += new Date().getTime() - time_l.at(-1);
+    if (time_l.length % 2 == 0) {
+        t += new Date().getTime() - time_l.at(-2);
+    } else {
+        t += new Date().getTime() - time_l.at(-1);
+    }
     return t;
 }
 function get_time() {
