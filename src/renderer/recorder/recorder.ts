@@ -611,14 +611,9 @@ function join_and_save(path: string) {
 }
 
 function save() {
-    let t = "";
-    t += `-ss ${t_start_el.value / 1000} `;
-    if (t_end_el.value != (time_l.at(-1) - time_l[0]) / 1000) t += `-to ${t_end_el.value / 1000} `;
-    let 格式 = 格式_el.value;
-    console.log(t);
+    clip();
     store.set("录屏.转换.格式", 格式_el.value);
-    ipcRenderer.send("record", "ff", { 源文件: tmp_path, 参数: t.split(" "), 格式 });
-    // ipcRenderer.send("record", "close");
+    ipcRenderer.send("record", "ff", { 格式: type });
 }
 
 document.getElementById("save").onclick = save;
