@@ -131,6 +131,9 @@ var rect;
 const { ipcRenderer } = require("electron") as typeof import("electron");
 var pathToFfmpeg = require("@ffmpeg-installer/ffmpeg").path as string;
 const spawn = require("child_process").spawn as typeof import("child_process").spawn;
+const fs = require("fs") as typeof import("fs");
+const os = require("os") as typeof import("os");
+const path = require("path") as typeof import("path");
 console.log(pathToFfmpeg);
 
 /** 自动分段 */
@@ -209,9 +212,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
                 chunks.push(e.data);
             };
 
-            const fs = require("fs") as typeof import("fs");
-            const os = require("os") as typeof import("os");
-            const path = require("path") as typeof import("path");
             let file_name = String(new Date().getTime());
             tmp_path = path.join(os.tmpdir(), "eSearch/", file_name);
             output = path.join(tmp_path, "output");
