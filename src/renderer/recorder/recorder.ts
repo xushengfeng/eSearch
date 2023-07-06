@@ -552,6 +552,46 @@ function add_types() {
     格式_el.innerHTML = t;
 }
 
+let clip_path = [];
+/** 获取要切割的视频和位置 */
+function clip() {
+    let start = t_start_el.value;
+    let end = t_end_el.value;
+    let start_v = get_time_in_v(start);
+    let end_v = get_time_in_v(end);
+    let output1 = path.join(tmp_path, "output1");
+    fs.mkdirSync(output1);
+    function to_arg(v: number, t: number, type: "start" | "end" | "both", t2?: number) {
+        let args = [];
+        args.push(path.join(output, `${v}.${type}`));
+        if (type == "start") {
+            args.push("-ss", t / 1000);
+        } else if (type == "end") {
+            args.push("-to", t / 1000);
+        } else {
+            args.push("-ss", t / 1000, "-to", t2 / 1000);
+        }
+        args.push(path.join(output1, `${v}.${type}`));
+        return args;
+    }
+    if (start_v.v == end_v.v) {
+        const ffmpeg1 = spawn(pathToFfmpeg, to_arg(start_v.v, start_v.time, "both", end_v.time));
+    } else {
+        const ffmpeg1 = spawn(pathToFfmpeg, to_arg(start_v.v, start_v.time, "start"));
+        const ffmpeg2 = spawn(pathToFfmpeg, to_arg(end_v.v, end_v.time, "end"));
+        if (start_v.v + 1 != end_v.v) {
+            for (let i = start_v.v + 1; i < end_v.v; i++) {
+                fs.copyFileSync(path.join(output, `${i}.${type}`), path.join(output1, `${i}.${type}`));
+            }
+        }
+    }
+    for (let i = start_v.v; i <= end_v.v; i++) {
+        clip_path.push(path.join(output1, `${i}.${type}`));
+    }
+}
+
+function join() {}
+
 function save() {
     let t = "";
     if (码率_el.value) t += `-b:v ${Number(码率_el.value) * 1000}k `;
