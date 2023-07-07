@@ -601,8 +601,15 @@ function join_and_save(filepath: string) {
         }
         t += `concat=n=${clip_path.length}:v=1[outv]`;
         args.push(`"${t}"`, "-map", '"[outv]"');
-    } else if (type == "ts") {
-    } else if (type == "webm" || type == "mp4") {
+    } else if (
+        type == "webm" ||
+        type == "mp4" ||
+        type == "ts" ||
+        type == "mkv" ||
+        type == "mov" ||
+        type == "flv" ||
+        type == "mpeg"
+    ) {
         let t = "";
         for (let i of clip_path) {
             t += `file ${i}\n`;
@@ -610,11 +617,7 @@ function join_and_save(filepath: string) {
         let text_path = path.join(tmp_path, "output1", "x.txt");
         fs.writeFileSync(text_path, t);
         args.push("-f", "concat", "-safe", "0", "-i", text_path, "-c", "copy");
-    } else if (type == "mkv") {
-    } else if (type == "mov") {
     } else if (type == "avi") {
-    } else if (type == "flv") {
-    } else if (type == "mpeg") {
     }
     args.push(filepath);
 
