@@ -602,8 +602,7 @@ function join_and_save(filepath: string) {
         t += `concat=n=${clip_path.length}:v=1[outv]`;
         args.push(`"${t}"`, "-map", '"[outv]"');
     } else if (type == "ts") {
-    } else if (type == "mp4") {
-    } else if (type == "webm") {
+    } else if (type == "webm" || type == "mp4") {
         let t = "";
         for (let i of clip_path) {
             t += `file ${i}\n`;
