@@ -652,11 +652,11 @@ function run_ffmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
             if (code == 0) {
                 ffprocess[type][n].finish = "ok";
                 console.log(ffprocess);
-                re;
+                re(true);
             } else {
                 ffprocess[type][n].finish = "err";
                 console.log(ffprocess);
-                rj;
+                rj(false);
             }
         });
         ffmpeg.stdout.on("data", (data: Uint8Array) => {
