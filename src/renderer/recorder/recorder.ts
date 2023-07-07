@@ -618,14 +618,17 @@ async function save() {
 
 document.getElementById("save").onclick = save;
 
-let process: {
-    [type: string]: {
-        [k: number]: {
-            args: string[];
-            logs: { text: string; type: "log" | "err" }[];
-            finish: "ok" | "err" | "running";
-        };
+type p = {
+    [k: number]: {
+        args: string[];
+        logs: { text: string; type: "log" | "err" }[];
+        finish: "ok" | "err" | "running";
     };
+};
+let process: {
+    ts: p;
+    clip: p;
+    join: p;
 } = {
     ts: {},
     clip: {},
