@@ -948,6 +948,8 @@ function image_search(event: Electron.IpcMainEvent, arg) {
     image_search_event = event;
 }
 
+var recording = false;
+
 var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
 function create_recorder_window(rect, screenx: { id: string; w: number; h: number; r: number }) {
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
@@ -1025,10 +1027,15 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
 
     function mouse() {
         if (clip_window.isDestroyed()) return;
+        if (!recording || recorder.isDestroyed()) {
+            clip_window.setIgnoreMouseEvents(false);
+            return;
+        }
         let n_xy = screen.getCursorScreenPoint();
         clip_window.webContents.send("record", "mouse", { x: n_xy.x - s.bounds.x, y: n_xy.y - s.bounds.y });
         setTimeout(mouse, 10);
     }
+    recording = true;
     if (store.get("录屏.提示.光标.开启")) mouse();
 }
 
@@ -1036,7 +1043,7 @@ ipcMain.on("record", (_event, type, arg, arg1) => {
     switch (type) {
         case "stop":
             reload_clip();
-            clip_window.setIgnoreMouseEvents(false);
+            recording = false;
             break;
         case "start":
             break;
