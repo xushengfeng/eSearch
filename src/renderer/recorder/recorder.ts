@@ -604,6 +604,13 @@ function join_and_save(filepath: string) {
     } else if (type == "ts") {
     } else if (type == "mp4") {
     } else if (type == "webm") {
+        let t = "";
+        for (let i of clip_path) {
+            t += `file ${i}\n`;
+        }
+        let text_path = path.join(output, "x.txt");
+        fs.appendFileSync(text_path, t);
+        args.push("-f", "concat", "-safe", "0", "-i", text_path, "-c", "copy");
     } else if (type == "mkv") {
     } else if (type == "mov") {
     } else if (type == "avi") {
