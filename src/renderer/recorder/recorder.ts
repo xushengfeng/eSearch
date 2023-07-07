@@ -551,12 +551,12 @@ async function clip() {
     let end_v = get_time_in_v(end);
     let output1 = path.join(tmp_path, "output1");
     fs.mkdirSync(output1);
-    function to_arg(v: number, t: number, type: "start" | "end" | "both", t2?: number) {
+    function to_arg(v: number, t: number, a: "start" | "end" | "both", t2?: number) {
         let args = [];
-        args.push(path.join(output, `${v}.${type}`));
-        if (type == "start") {
+        args.push("-i", path.join(output, `${v}.${type}`));
+        if (a == "start") {
             args.push("-ss", t / 1000);
-        } else if (type == "end") {
+        } else if (a == "end") {
             args.push("-to", t / 1000);
         } else {
             args.push("-ss", t / 1000, "-to", t2 / 1000);
