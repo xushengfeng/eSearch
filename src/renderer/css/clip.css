@@ -581,6 +581,18 @@ body {
     height: 100%;
 }
 
+.wheel_u {
+    clip-path: polygon(50% 0, 0% 100%, 100% 100%);
+}
+.wheel_d {
+    clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+}
+.wheel_l {
+    clip-path: polygon(0 50%, 100% 0%, 100% 100%);
+}
+.wheel_r {
+    clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
+}
 /* 编辑栏 */
 range-b {
     font-size: calc(var(--bar-size) / 3.75);

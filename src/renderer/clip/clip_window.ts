@@ -809,7 +809,7 @@ function tool_record_f() {
     document.body.classList.remove("editor_bg");
 
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
-        var { uIOhook, UiohookKey } = require("uiohook-napi");
+        var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 
     function r_key() {
         var keycode2key = {};
@@ -839,18 +839,23 @@ function tool_record_f() {
         var mouse_el = recorder_mouse_el.querySelectorAll("div");
 
         uIOhook.on("mousedown", (e) => {
-            mouse_el[m2m[e.button]].style.backgroundColor = "#00f";
+            mouse_el[m2m[e.button as number]].style.backgroundColor = "#00f";
         });
         uIOhook.on("mouseup", (e) => {
-            mouse_el[m2m[e.button]].style.backgroundColor = "";
+            mouse_el[m2m[e.button as number]].style.backgroundColor = "";
         });
 
         let time_out;
-        uIOhook.on("wheel", (_e) => {
-            mouse_el[1].style.backgroundColor = "#0f0";
+        uIOhook.on("wheel", (e) => {
+            console.log(e.direction, e.rotation);
+            let x = {
+                3: { 1: "wheel_u", "-1": "wheel_d" },
+                4: { 1: "wheel_l", "-1": "wheel_r" },
+            };
+            recorder_mouse_el.className = x[e.direction][e.rotation];
             clearTimeout(time_out);
             time_out = setTimeout(() => {
-                mouse_el[1].style.backgroundColor = "";
+                recorder_mouse_el.className = "";
             }, 200);
         });
     }
