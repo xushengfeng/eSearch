@@ -582,9 +582,9 @@ async function clip() {
     }
 }
 
-function join_and_save(path: string) {
+function join_and_save(filepath: string) {
     if (clip_path.length == 1) {
-        fs.cpSync(clip_path[0], path);
+        fs.cpSync(clip_path[0], filepath);
         return;
     }
     let args = [];
@@ -610,7 +610,7 @@ function join_and_save(path: string) {
     } else if (type == "flv") {
     } else if (type == "mpeg") {
     }
-    args.push(path);
+    args.push(filepath);
 
     run_ffmpeg("join", 0, args);
 }
