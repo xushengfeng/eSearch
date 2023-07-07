@@ -607,8 +607,8 @@ function join_and_save(filepath: string) {
         for (let i of clip_path) {
             t += `file ${i}\n`;
         }
-        let text_path = path.join(output, "x.txt");
-        fs.appendFileSync(text_path, t);
+        let text_path = path.join(tmp_path, "output1", "x.txt");
+        fs.writeFileSync(text_path, t);
         args.push("-f", "concat", "-safe", "0", "-i", text_path, "-c", "copy");
     } else if (type == "mkv") {
     } else if (type == "mov") {
