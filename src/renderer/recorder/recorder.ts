@@ -589,35 +589,26 @@ function join_and_save(path: string) {
     }
     let args = [];
 
-    switch (type) {
-        case "gif":
-            for (let i of clip_path) {
-                args.push("-i", i);
-            }
-            args.push("-filter_complex");
-            let t = "";
-            for (let i in clip_path) {
-                t += `[${i}:v:0]`;
-            }
-            t += `concat=n=${clip_path.length}:v=1[outv]`;
-            args.push(`"${t}"`, "-map", '"[outv]"');
-            break;
-        case "ts":
-            break;
-        case "mp4":
-            break;
-        case "webm":
-            break;
-        case "mkv":
-            break;
-        case "mov":
-            break;
-        case "avi":
-            break;
-        case "flv":
-            break;
-        case "mpeg":
-            break;
+    // 针对不同格式的合并（用switch还要加上作用域的话缩进就太多了）
+    if (type == "gif") {
+        for (let i of clip_path) {
+            args.push("-i", i);
+        }
+        args.push("-filter_complex");
+        let t = "";
+        for (let i in clip_path) {
+            t += `[${i}:v:0]`;
+        }
+        t += `concat=n=${clip_path.length}:v=1[outv]`;
+        args.push(`"${t}"`, "-map", '"[outv]"');
+    } else if (type == "ts") {
+    } else if (type == "mp4") {
+    } else if (type == "webm") {
+    } else if (type == "mkv") {
+    } else if (type == "mov") {
+    } else if (type == "avi") {
+    } else if (type == "flv") {
+    } else if (type == "mpeg") {
     }
     args.push(path);
 
