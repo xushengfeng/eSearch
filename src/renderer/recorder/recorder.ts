@@ -625,7 +625,7 @@ type p = {
         finish: "ok" | "err" | "running";
     };
 };
-let process: {
+let ffprocess: {
     ts: p;
     clip: p;
     join: p;
@@ -637,22 +637,22 @@ let process: {
 
 function run_ffmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
     const ffmpeg = spawn(pathToFfmpeg, args);
-    process[type][n] = { args, finish: "running", logs: [] };
+    ffprocess[type][n] = { args, finish: "running", logs: [] };
     return new Promise((re, rj) => {
         ffmpeg.on("close", (code) => {
             if (code == 0) {
-                process[type][n].finish = "ok";
+                ffprocess[type][n].finish = "ok";
                 re;
             } else {
-                process[type][n].finish = "err";
+                ffprocess[type][n].finish = "err";
                 rj;
             }
         });
         ffmpeg.stdout.on("data", (data) => {
-            process[type][n].logs.push({ text: data, type: "log" });
+            ffprocess[type][n].logs.push({ text: data, type: "log" });
         });
         ffmpeg.stderr.on("data", (data) => {
-            process[type][n].logs.push({ text: data, type: "err" });
+            ffprocess[type][n].logs.push({ text: data, type: "err" });
             rj;
         });
     });
