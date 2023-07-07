@@ -534,7 +534,7 @@ video.onended = () => {
 };
 
 function add_types() {
-    let types: mimeType[] = ["mp4", "webm", "gif", "mkv", "mov", "avi", "ts", "mpeg", "flv"];
+    let types: mimeType[] = ["mp4", "webm", "gif", "mkv", "mov", "ts", "mpeg", "flv"];
     let t = "";
     for (let i of types) {
         t += `<option value="${i}">${i}</option>`;
