@@ -1808,6 +1808,7 @@ var default_setting = {
             帧率: 30,
             其他: "",
             高质量gif: false,
+            分段: 10,
         },
         提示: {
             键盘: {

@@ -315,6 +315,7 @@ document.getElementById("获取保存路径").onclick = () => {
 (<HTMLInputElement>document.getElementById("记录音频开启状态")).checked = old_store.录屏.音频.记住开启状态;
 
 (<HTMLInputElement>document.getElementById("开启自动转换")).checked = old_store.录屏.转换.自动转换;
+(<HTMLInputElement>document.getElementById("分段")).value = old_store.录屏.转换.分段;
 (<HTMLInputElement>document.getElementById("格式")).value = old_store.录屏.转换.格式;
 (<HTMLInputElement>document.getElementById("码率")).value = old_store.录屏.转换.码率;
 (<HTMLInputElement>document.getElementById("帧率")).value = old_store.录屏.转换.帧率;
@@ -788,6 +789,7 @@ function save_setting() {
     });
     store_set("录屏.转换", {
         自动转换: (<HTMLInputElement>document.getElementById("开启自动转换")).checked,
+        分段: (<HTMLInputElement>document.getElementById("分段")).value,
         格式: (<HTMLInputElement>document.getElementById("格式")).value,
         码率: Number((<HTMLInputElement>document.getElementById("码率")).value),
         帧率: Number((<HTMLInputElement>document.getElementById("帧率")).value),

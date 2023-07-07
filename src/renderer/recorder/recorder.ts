@@ -38,7 +38,7 @@ var start_stop = document.getElementById("start_stop");
 var s_s = false;
 let stop = false;
 
-const clip_time = 0.1 * 60 * 1000;
+const clip_time = Number(store.get("录屏.转换.分段")) * 1000;
 
 start_stop.onclick = () => {
     if (s_s) {
@@ -145,6 +145,7 @@ console.log(pathToFfmpeg);
 
 /** 自动分段 */
 function c() {
+    if (clip_time == 0) return;
     setTimeout(() => {
         if (!stop) {
             recorder.stop();
