@@ -36,7 +36,7 @@ exports.default = async function () {
             },
             darwin: { x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip" },
         };
-        if (o[process.platform][process.arch]) {
+        if (o?.[process.platform]?.[process.arch]) {
             fs.mkdirSync("./lib/ffmpeg");
             await download(o[process.platform][process.arch], "./lib/ffmpeg/", {
                 extract: true,
