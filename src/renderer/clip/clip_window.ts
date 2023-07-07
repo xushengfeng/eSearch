@@ -836,7 +836,7 @@ function tool_record_f() {
 
     function r_mouse() {
         var m2m = { 1: 0, 3: 1, 2: 2 };
-        var mouse_el = document.getElementById("recorder_mouse").querySelectorAll("div");
+        var mouse_el = recorder_mouse_el.querySelectorAll("div");
 
         uIOhook.on("mousedown", (e) => {
             mouse_el[m2m[e.button]].style.backgroundColor = "#00f";
@@ -860,7 +860,7 @@ function tool_record_f() {
 
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启")) uIOhook.start();
 
-    if (store.get("录屏.提示.光标.开启")) recorder_mouse_el.style.display = "block";
+    if (store.get("录屏.提示.光标.开启")) recorder_mouse_el.style.display = "flex";
 
     var mouse_style = document.createElement("style");
     mouse_style.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
