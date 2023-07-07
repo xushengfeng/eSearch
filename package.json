@@ -23,7 +23,7 @@
     "hex-to-css-filter": "^5.4.0",
     "hotkeys-js": "^3.10.0",
     "jsqr": "^1.4.0",
-    "node-screenshots": "^0.0.14",
+    "node-screenshots": "^0.1.4",
     "onnxruntime-node": "^1.13.1",
     "opencv.js": "^1.2.1",
     "uiohook-napi": "^1.5.0",
@@ -35,19 +35,19 @@
     "@types/color": "^3.0.3",
     "@types/node": "^18.8.4",
     "electron": "^22.3.6",
-    "electron-builder": "^23.6.0",
-    "electron-vite": "^1.0.16",
-    "typescript": "^5.0.4",
-    "vite": "^4.0.4"
+    "electron-builder": "^24.4.0",
+    "electron-vite": "^1.0.24",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.1"
   },
   "optionalDependencies": {
-    "node-screenshots-darwin-arm64": "0.0.14",
-    "node-screenshots-darwin-x64": "0.0.14",
-    "node-screenshots-linux-x64-gnu": "0.0.14",
-    "node-screenshots-linux-x64-musl": "0.0.14",
-    "node-screenshots-win32-arm64-msvc": "0.0.14",
-    "node-screenshots-win32-ia32-msvc": "0.0.14",
-    "node-screenshots-win32-x64-msvc": "0.0.14"
+    "node-screenshots-darwin-arm64": "0.1.4",
+    "node-screenshots-darwin-x64": "0.1.4",
+    "node-screenshots-linux-x64-gnu": "0.1.4",
+    "node-screenshots-linux-x64-musl": "0.1.4",
+    "node-screenshots-win32-arm64-msvc": "0.1.4",
+    "node-screenshots-win32-ia32-msvc": "0.1.4",
+    "node-screenshots-win32-x64-msvc": "0.1.4"
   },
   "build": {
     "appId": "com.esearch.app",
