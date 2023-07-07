@@ -42,6 +42,13 @@ exports.default = async function () {
                 extract: true,
                 rejectUnauthorized: false,
             });
+            if (process.platform == "win32") {
+                fs.copyFileSync(
+                    path.join("./lib/ffmpeg/", "ffmpeg-n6.0-latest-win64-gpl-6.0", "bin", "ffmpeg.exe"),
+                    path.join("./lib/ffmpeg/", "ffmpeg.exe")
+                );
+                fs.rmSync(path.join("./lib/ffmpeg/", "ffmpeg-n6.0-latest-win64-gpl-6.0"), { recursive: true });
+            }
         }
     }
 };
