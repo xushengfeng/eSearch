@@ -771,6 +771,10 @@ function create_clip_window() {
 
     if (dev) clip_window.webContents.openDevTools();
 
+    clip_window.webContents.on("render-process-gone", (_e, d) => {
+        console.log(d);
+    });
+
     // * 监听截屏奇奇怪怪的事件
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
