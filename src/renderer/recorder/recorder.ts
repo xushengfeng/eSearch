@@ -583,6 +583,10 @@ async function clip() {
 }
 
 function join_and_save(path: string) {
+    if (clip_path.length == 1) {
+        fs.cpSync(clip_path[0], path);
+        return;
+    }
     let args = [];
 
     switch (type) {
