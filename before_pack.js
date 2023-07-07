@@ -29,4 +29,19 @@ exports.default = async function () {
             })
         );
     }
+    if (!fs.existsSync("./lib/ffmpeg")) {
+        let o = {
+            win32: {
+                x64: "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.0-latest-win64-gpl-6.0.zip",
+            },
+            darwin: { x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip" },
+        };
+        if (o[process.platform][process.arch]) {
+            fs.mkdirSync("./lib/ffmpeg");
+            await download(o[process.platform][process.arch], "./lib/ffmpeg/", {
+                extract: true,
+                rejectUnauthorized: false,
+            });
+        }
+    }
 };

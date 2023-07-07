@@ -17,7 +17,6 @@
   "homepage": "https://github.com/xushengfeng/eSearch/",
   "license": "GPL-3.0",
   "dependencies": {
-    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "color": "^4.2.3",
     "download": "^8.0.0",
     "electron-store": "^8.1.0",
@@ -97,6 +96,16 @@
         "!src",
         "!node_modules/onnxruntime-node/bin/napi-v3/win32",
         "!node_modules/onnxruntime-node/bin/napi-v3/darwin"
+      ]
+    },
+    "deb": {
+      "depends": [
+        "ffmpeg"
+      ]
+    },
+    "rpm": {
+      "depends": [
+        "ffmpeg"
       ]
     },
     "mac": {

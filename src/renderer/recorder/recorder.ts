@@ -126,12 +126,19 @@ var audio = false,
 
 var rect;
 
-const { ipcRenderer } = require("electron") as typeof import("electron");
-var pathToFfmpeg = require("@ffmpeg-installer/ffmpeg").path as string;
+const { ipcRenderer, shell } = require("electron") as typeof import("electron");
 const spawn = require("child_process").spawn as typeof import("child_process").spawn;
 const fs = require("fs") as typeof import("fs");
 const os = require("os") as typeof import("os");
 const path = require("path") as typeof import("path");
+let pathToFfmpeg = "ffmpeg";
+if (process.platform == "win32" || process.platform == "darwin") {
+    pathToFfmpeg = path.join(__dirname, "..", "..", "..", "lib", "ffmpeg", "ffmpeg");
+}
+let start = spawn(pathToFfmpeg, ["-version"]);
+start.on("error", () => {
+    shell.openExternal("https://esearch-app.netlify.app/download.html#ffmpeg");
+});
 console.log(pathToFfmpeg);
 
 /** 自动分段 */
