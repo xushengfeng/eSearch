@@ -17,6 +17,7 @@ import {
     screen,
     desktopCapturer,
     session,
+    crashReporter,
 } from "electron";
 import { Buffer } from "buffer";
 
@@ -227,6 +228,8 @@ var contextMenu: Electron.Menu, tray: Tray;
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
 
 app.whenReady().then(() => {
+    crashReporter.start({ uploadToServer: false });
+
     if (store.get("首次运行") === undefined) set_default_setting();
     fix_setting_tree();
 
