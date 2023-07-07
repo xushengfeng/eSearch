@@ -9,3 +9,4 @@ ocr/ppocr
 build
 preload_config
 lib/win_rect.exe
+lib/copy.exe
