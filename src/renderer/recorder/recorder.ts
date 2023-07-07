@@ -133,7 +133,9 @@ const os = require("os") as typeof import("os");
 const path = require("path") as typeof import("path");
 let pathToFfmpeg = "ffmpeg";
 if (process.platform == "win32" || process.platform == "darwin") {
-    pathToFfmpeg = path.join(__dirname, "..", "..", "..", "lib", "ffmpeg", "ffmpeg");
+    let p = path.join(__dirname, "..", "..", "lib", "ffmpeg");
+    let n = process.platform == "win32" ? "ffmpeg.exe" : "ffmpeg";
+    pathToFfmpeg = path.join(p, n);
 }
 let start = spawn(pathToFfmpeg, ["-version"]);
 start.on("error", () => {
