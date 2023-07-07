@@ -634,6 +634,7 @@ document.getElementById("save").onclick = save;
 type p = {
     [k: number]: {
         args: string[];
+        testCom: string;
         logs: { text: string }[];
         finish: "ok" | "err" | "running";
     };
@@ -650,7 +651,7 @@ let ffprocess: {
 
 function run_ffmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
     const ffmpeg = spawn(pathToFfmpeg, args);
-    ffprocess[type][n] = { args, finish: "running", logs: [] };
+    ffprocess[type][n] = { args, testCom: `ffmpeg ${args.join(" ")}`, finish: "running", logs: [] };
     return new Promise((re, rj) => {
         ffmpeg.on("close", (code) => {
             if (code == 0) {
