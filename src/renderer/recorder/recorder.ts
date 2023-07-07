@@ -630,7 +630,7 @@ document.getElementById("save").onclick = save;
 type p = {
     [k: number]: {
         args: string[];
-        logs: { text: string; type: "log" | "err" }[];
+        logs: { text: string }[];
         finish: "ok" | "err" | "running";
     };
 };
@@ -651,18 +651,21 @@ function run_ffmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
         ffmpeg.on("close", (code) => {
             if (code == 0) {
                 ffprocess[type][n].finish = "ok";
+                console.log(ffprocess);
                 re;
             } else {
                 ffprocess[type][n].finish = "err";
+                console.log(ffprocess);
                 rj;
             }
         });
-        ffmpeg.stdout.on("data", (data) => {
-            ffprocess[type][n].logs.push({ text: data, type: "log" });
+        ffmpeg.stdout.on("data", (data: Uint8Array) => {
+            ffprocess[type][n].logs.push({ text: data.toString() });
+            console.log(data.toString());
         });
-        ffmpeg.stderr.on("data", (data) => {
-            ffprocess[type][n].logs.push({ text: data, type: "err" });
-            rj;
+        ffmpeg.stderr.on("data", (data: Uint8Array) => {
+            ffprocess[type][n].logs.push({ text: data.toString() });
+            console.log(data.toString());
         });
     });
 }
