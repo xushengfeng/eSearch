@@ -147,10 +147,12 @@ function capturer(all: Screenshots[]) {
             isPrimary: capturer.isPrimary,
         });
     });
+    // 临时修复 https://github.com/nashaofu/node-screenshots/issues/18
     if (process.platform == "win32")
         for (let s of displays) {
             for (let ss of x) {
-                if (ss.id == s.id) {
+                // id对不上，只能用坐标，考虑精度，小于10认为是相等的
+                if (ss.x - s.bounds.x * s.scaleFactor < 10 && ss.y - s.bounds.y * s.scaleFactor < 10) {
                     ss.x = s.bounds.x;
                     ss.y = s.bounds.y;
                     ss.height = s.size.height;
