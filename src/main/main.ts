@@ -356,12 +356,12 @@ app.whenReady().then(() => {
 
     // 快捷键
     var 快捷键函数 = {
-        自动识别: { f: "auto_open()" },
-        截屏搜索: { f: "full_screen()" },
-        选中搜索: { f: "open_selection()" },
-        剪贴板搜索: { f: "open_clip_board()" },
-        快速截屏: { f: "quick_clip()" },
-        主页面: { f: "create_main_window('editor.html', [''])" },
+        自动识别: { f: "autoOpen()" },
+        截屏搜索: { f: "fullScreen()" },
+        选中搜索: { f: "openSelection()" },
+        剪贴板搜索: { f: "openClipBoard()" },
+        快速截屏: { f: "quickClip()" },
+        主页面: { f: "createMainWindow('editor.html', [''])" },
     };
     ipcMain.on("快捷键", (event, arg) => {
         var [name, key] = arg;
