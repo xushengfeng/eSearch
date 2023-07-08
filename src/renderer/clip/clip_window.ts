@@ -3,7 +3,6 @@
 const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
-const os = require("os");
 
 // 获取设置
 let config_path = new URLSearchParams(location.search).get("config_path");
@@ -16,15 +15,15 @@ if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");
 }
 
-var 工具栏跟随,
-    光标,
-    四角坐标,
-    遮罩颜色,
-    选区颜色,
-    取色器默认格式,
-    取色器格式位置,
-    color_size,
-    color_i_size,
+var 工具栏跟随: string,
+    光标: string,
+    四角坐标: boolean,
+    遮罩颜色: string,
+    选区颜色: string,
+    取色器默认格式: string,
+    取色器格式位置: number,
+    color_size: number,
+    color_i_size: number,
     记忆框选: boolean,
     记忆框选值: { [id: string]: rect },
     b_size: number;
@@ -443,7 +442,7 @@ function edge() {
 }
 
 function get_linux_win() {
-    if (os.platform() != "linux") return;
+    if (process.platform != "linux") return;
     var x11 = require("x11");
     var X = x11.createClient(function (err, display) {
         if (err) {
