@@ -4,15 +4,15 @@ const path = require("path") as typeof import("path");
 const os = require("os") as typeof import("os");
 import root_init from "../root/root";
 root_init();
-let config_path = new URLSearchParams(location.search).get("config_path");
+let configPath = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
 var store = new Store({
-    cwd: config_path || "",
+    cwd: configPath || "",
 });
 
-var screen_id = "";
+var screenId = "";
 ipcRenderer.on("screen_id", (_event, id) => {
-    screen_id = id;
+    screenId = id;
 });
 
 var move: { id: string; screenid: string; more: move_type };
@@ -30,15 +30,15 @@ ipcRenderer.on("ding", (_event, type, id, screenid, more) => {
             move = null;
             break;
         case "move_hide":
-            if (screen_id != screenid) {
+            if (screenId != screenid) {
                 document.getElementById(id).style.display = "none";
                 break;
             }
     }
 });
 
-function send_event(type: "close" | "move_start" | "move_end" | "move_hide", id: string, more?: any) {
-    ipcRenderer.send("ding_event", type, id, screen_id, more);
+function sendEvent(type: "close" | "move_start" | "move_end" | "move_hide", id: string, more?: any) {
+    ipcRenderer.send("ding_event", type, id, screenId, more);
 }
 
 /**
@@ -51,7 +51,7 @@ var changing = null;
 var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
 ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
-    if (!screenid) screenid = screen_id;
+    if (!screenid) screenid = screenId;
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
     let div = document.createElement("div");
@@ -63,32 +63,32 @@ ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
     div.style.top = y / ratio + "px";
     div.style.width = w / ratio + "px";
     div.style.height = h / ratio + "px";
-    if (screenid != screen_id) {
+    if (screenid != screenId) {
         div.style.display = "none";
     }
     var img = document.createElement("img");
     img.draggable = false;
     img.src = url;
     img.className = "img";
-    var tool_bar = document.querySelector("#tool_bar").cloneNode(true) as HTMLElement;
-    (<HTMLElement>tool_bar.querySelector("#tool_bar_c")).style.display = "flex";
+    var toolBar = document.querySelector("#tool_bar").cloneNode(true) as HTMLElement;
+    (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.display = "flex";
     // 顶栏
     div.onmouseenter = () => {
-        (<HTMLElement>tool_bar.querySelector("#tool_bar_c")).style.transform = "translateY(0)";
+        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform = "translateY(0)";
     };
     div.onmouseleave = () => {
-        (<HTMLElement>tool_bar.querySelector("#tool_bar_c")).style.transform = "translateY(-105%)";
+        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform = "translateY(-105%)";
     };
     // 透明
-    (<HTMLElement>tool_bar.querySelector("#透明度")).oninput = () => {
-        img.style.opacity = `${Number((<HTMLInputElement>tool_bar.querySelector("#透明度")).value) / 100}`;
-        (<HTMLElement>tool_bar.querySelector("#透明度_p")).innerHTML =
-            (<HTMLInputElement>tool_bar.querySelector("#透明度")).value + "%";
+    (<HTMLElement>toolBar.querySelector("#透明度")).oninput = () => {
+        img.style.opacity = `${Number((<HTMLInputElement>toolBar.querySelector("#透明度")).value) / 100}`;
+        (<HTMLElement>toolBar.querySelector("#透明度_p")).innerHTML =
+            (<HTMLInputElement>toolBar.querySelector("#透明度")).value + "%";
     };
     // 大小
-    (<HTMLElement>tool_bar.querySelector("#size > span")).onblur = () => {
-        if (isFinite(Number((<HTMLElement>tool_bar.querySelector("#size > span")).innerHTML))) {
-            var zoom = Number((<HTMLElement>tool_bar.querySelector("#size > span")).innerHTML) / 100;
+    (<HTMLElement>toolBar.querySelector("#size > span")).onblur = () => {
+        if (isFinite(Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML))) {
+            var zoom = Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML) / 100;
             if (zoom < 0.05) zoom = 0.05;
             div_zoom(div, zoom, 0, 0, false);
             setTimeout(() => {
@@ -96,11 +96,11 @@ ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
             }, 400);
         }
     };
-    (<HTMLElement>tool_bar.querySelector("#size > span")).onkeydown = (e) => {
+    (<HTMLElement>toolBar.querySelector("#size > span")).onkeydown = (e) => {
         if (e.key == "Enter") {
             e.preventDefault();
-            if (isFinite(Number((<HTMLElement>tool_bar.querySelector("#size > span")).innerHTML))) {
-                var zoom = Number((<HTMLElement>tool_bar.querySelector("#size > span")).innerHTML) / 100;
+            if (isFinite(Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML))) {
+                var zoom = Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML) / 100;
                 if (zoom < 0.05) zoom = 0.05;
                 div_zoom(div, zoom, 0, 0, false);
                 setTimeout(() => {
@@ -121,19 +121,19 @@ ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
         }
     };
     // 三个按钮
-    (<HTMLElement>tool_bar.querySelector("#minimize")).onclick = () => {
+    (<HTMLElement>toolBar.querySelector("#minimize")).onclick = () => {
         minimize(div);
     };
-    (<HTMLElement>tool_bar.querySelector("#back")).onclick = () => {
+    (<HTMLElement>toolBar.querySelector("#back")).onclick = () => {
         back(div);
     };
-    (<HTMLElement>tool_bar.querySelector("#close")).onclick = () => {
+    (<HTMLElement>toolBar.querySelector("#close")).onclick = () => {
         close(div);
     };
-    (<HTMLElement>tool_bar.querySelector("#copy")).onclick = () => {
+    (<HTMLElement>toolBar.querySelector("#copy")).onclick = () => {
         copy(div);
     };
-    (<HTMLElement>tool_bar.querySelector("#edit")).onclick = () => {
+    (<HTMLElement>toolBar.querySelector("#edit")).onclick = () => {
         edit(div);
     };
     // 双击行为
@@ -147,21 +147,21 @@ ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
         document.getElementById("dock").style.zIndex = String(toppest + 2);
         toppest += 1;
     };
-    div.appendChild(tool_bar);
+    div.appendChild(toolBar);
     div.appendChild(img);
     document.querySelector("#photo").appendChild(div);
 
     // dock
-    dock_i();
+    dockI();
 
     resize(div, 1);
 });
 
 ipcRenderer.on("mouse", (_e, x, y) => {
     let els = document.elementsFromPoint(x, y);
-    if (screen_id) {
+    if (screenId) {
         let ignorex = false;
-        for (let el of ignore_el) {
+        for (let el of ignoreEl) {
             if (els.includes(el)) {
                 ignorex = true;
                 break;
@@ -169,10 +169,10 @@ ipcRenderer.on("mouse", (_e, x, y) => {
         }
         if (els.length != 0) {
             if (move) {
-                if (move.screenid != screen_id) {
+                if (move.screenid != screenId) {
                     let el = document.getElementById(move.id);
                     el.style.display = "";
-                    send_event("move_hide", move.id);
+                    sendEvent("move_hide", move.id);
                     let xx = x - photos[move.id][2] * move.more.zoom * move.more.x;
                     let yy = y - photos[move.id][3] * move.more.zoom * move.more.y;
                     el.style.left = xx + "px";
@@ -184,9 +184,9 @@ ipcRenderer.on("mouse", (_e, x, y) => {
             }
         }
         if (els[0] == document.getElementById("photo") || ignorex) {
-            ipcRenderer.send("ding_ignore", screen_id, true);
+            ipcRenderer.send("ding_ignore", screenId, true);
         } else {
-            ipcRenderer.send("ding_ignore", screen_id, false);
+            ipcRenderer.send("ding_ignore", screenId, false);
         }
     }
 });
@@ -198,17 +198,17 @@ function minimize(el) {
     }, 400);
     el.classList.add("minimize");
 }
-var ignore_el = [];
+var ignoreEl = [];
 function ignore(el: HTMLElement, v: boolean) {
     if (v) {
-        ignore_el.push(el);
+        ignoreEl.push(el);
     } else {
-        ignore_el = ignore_el.filter((e) => e != el);
+        ignoreEl = ignoreEl.filter((e) => e != el);
     }
 }
-var tran_style = document.createElement("style");
-tran_style.innerHTML = `.tran{${store.get("贴图.窗口.变换")}}`;
-document.body.appendChild(tran_style);
+var tranStyle = document.createElement("style");
+tranStyle.innerHTML = `.tran{${store.get("贴图.窗口.变换")}}`;
+document.body.appendChild(tranStyle);
 /**
  * 窗口变换
  * @param {HTMLElement} el 窗口
@@ -227,25 +227,25 @@ function back(el) {
         el.style.transition = "";
         resize(el, 1);
     }, 400);
-    var p_s = photos[el.id];
-    el.style.left = p_s[0] / ratio + "px";
-    el.style.top = p_s[1] / ratio + "px";
-    el.style.width = p_s[2] / ratio + "px";
-    el.style.height = p_s[3] / ratio + "px";
-    ipcRenderer.send("ding_p_s", el.id, p_s);
+    var pS = photos[el.id];
+    el.style.left = pS[0] / ratio + "px";
+    el.style.top = pS[1] / ratio + "px";
+    el.style.width = pS[2] / ratio + "px";
+    el.style.height = pS[3] / ratio + "px";
+    ipcRenderer.send("ding_p_s", el.id, pS);
 
     el.querySelector("#透明度").value = "100";
     el.querySelector("#透明度_p").innerHTML = "100%";
     el.querySelector(".img").style.opacity = 1;
 }
 function close(el: HTMLElement) {
-    ipcRenderer.send("ding_event", "close", el.id, screen_id, Object.keys(photos).length == 1);
+    ipcRenderer.send("ding_event", "close", el.id, screenId, Object.keys(photos).length == 1);
 }
 function close2(el: HTMLElement) {
     el.remove();
     delete photos[el.id];
     delete urls[el.id];
-    dock_i();
+    dockI();
 }
 function copy(el: HTMLElement) {
     clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
@@ -260,16 +260,16 @@ function edit(el: HTMLElement) {
 
 // 最高窗口
 var toppest = 1;
-var o_ps: number[];
-var window_div = null;
+var oPs: number[];
+var windowDiv = null;
 var div: HTMLElement;
 document.onmousedown = (e) => {
     let el = e.target as HTMLElement;
     if (el.id == "dock" || el.offsetParent.id == "dock") {
-        if (!dock_show) {
+        if (!dockShow) {
             div = el;
-            window_div = div;
-            o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
+            windowDiv = div;
+            oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
             changing = e;
             div.style.transition = "none";
         }
@@ -279,11 +279,11 @@ document.onmousedown = (e) => {
             while (div.className != "ding_photo") {
                 div = div.offsetParent as HTMLElement;
             }
-        window_div = div;
-        o_ps = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
+        windowDiv = div;
+        oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
         changing = e;
 
-        send_event("move_start", div.id, {
+        sendEvent("move_start", div.id, {
             x: e.offsetX / div.offsetWidth,
             y: e.offsetY / div.offsetHeight,
             zoom: div.offsetWidth / photos[div.id][2],
@@ -293,16 +293,16 @@ document.onmousedown = (e) => {
 document.onmousemove = (e) => {
     let el = e.target as HTMLElement;
     if (!move && (el.id == "dock" || el.offsetParent.id == "dock")) {
-        if (!dock_show) {
-            if (window_div == null) {
+        if (!dockShow) {
+            if (windowDiv == null) {
                 div = el;
                 cursor(div, e);
             } else {
-                cursor(window_div, e);
+                cursor(windowDiv, e);
             }
         }
     } else {
-        if (window_div == null) {
+        if (windowDiv == null) {
             div = el;
             if (div.id != "photo")
                 while (div.className != "ding_photo") {
@@ -310,17 +310,17 @@ document.onmousemove = (e) => {
                 }
             cursor(div, e);
         } else {
-            cursor(window_div, e);
+            cursor(windowDiv, e);
         }
     }
 };
 document.onmouseup = (_e) => {
-    if (window_div != null)
+    if (windowDiv != null)
         store.set("ding_dock", [document.getElementById("dock").offsetLeft, document.getElementById("dock").offsetTop]);
-    o_ps = [];
+    oPs = [];
     changing = null;
-    send_event("move_end", window_div.id);
-    window_div = null;
+    sendEvent("move_end", windowDiv.id);
+    windowDiv = null;
     div.style.transition = ""; // 用于dock动画
 };
 
@@ -328,14 +328,14 @@ var direction = "";
 function cursor(el, e) {
     var width = el.offsetWidth,
         height = el.offsetHeight;
-    var p_x = e.clientX - el.offsetLeft,
-        p_y = e.clientY - el.offsetTop;
+    var pX = e.clientX - el.offsetLeft,
+        pY = e.clientY - el.offsetTop;
 
     var num = 8;
     // 光标样式
     if (el.id == "dock" || el.offsetParent?.id == "dock") {
-        if (window_div == null) {
-            if (0 < p_x && p_x < width && 0 < p_y && p_y < height) {
+        if (windowDiv == null) {
+            if (0 < pX && pX < width && 0 < pY && pY < height) {
                 document.querySelector("html").style.cursor = "default";
                 direction = "move";
             } else {
@@ -344,41 +344,41 @@ function cursor(el, e) {
         }
     } else {
         // 不等于null移动中,自锁;等于,随时变
-        if (window_div == null)
+        if (windowDiv == null)
             switch (true) {
-                case p_x <= num && p_y <= num:
+                case pX <= num && pY <= num:
                     document.querySelector("html").style.cursor = "nwse-resize";
                     direction = "西北";
                     break;
-                case p_x >= width - num && p_y >= height - num:
+                case pX >= width - num && pY >= height - num:
                     document.querySelector("html").style.cursor = "nwse-resize";
                     direction = "东南";
                     break;
-                case p_x >= width - num && p_y <= num:
+                case pX >= width - num && pY <= num:
                     document.querySelector("html").style.cursor = "nesw-resize";
                     direction = "东北";
                     break;
-                case p_x <= num && p_y >= height - num:
+                case pX <= num && pY >= height - num:
                     document.querySelector("html").style.cursor = "nesw-resize";
                     direction = "西南";
                     break;
-                case p_x <= num:
+                case pX <= num:
                     document.querySelector("html").style.cursor = "ew-resize";
                     direction = "西";
                     break;
-                case p_x >= width - num:
+                case pX >= width - num:
                     document.querySelector("html").style.cursor = "ew-resize";
                     direction = "东";
                     break;
-                case p_y <= num:
+                case pY <= num:
                     document.querySelector("html").style.cursor = "ns-resize";
                     direction = "北";
                     break;
-                case p_y >= height - num:
+                case pY >= height - num:
                     document.querySelector("html").style.cursor = "ns-resize";
                     direction = "南";
                     break;
-                case num < p_x && p_x < width - num && num < p_y && p_y < height - num:
+                case num < pX && pX < width - num && num < pY && pY < height - num:
                     document.querySelector("html").style.cursor = "default";
                     direction = "move";
                     break;
@@ -388,70 +388,70 @@ function cursor(el, e) {
                     break;
             }
     }
-    if (changing != null && o_ps.length != 0) {
-        var o_e = changing;
-        var dx = e.clientX - o_e.clientX,
-            dy = e.clientY - o_e.clientY;
-        var [ox, oy, ow, oh] = o_ps;
-        var p_s;
+    if (changing != null && oPs.length != 0) {
+        var oE = changing;
+        var dx = e.clientX - oE.clientX,
+            dy = e.clientY - oE.clientY;
+        var [ox, oy, ow, oh] = oPs;
+        var pS;
         switch (direction) {
             case "西北":
                 var k = -1 / (oh / ow);
                 var d = (k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
-                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
-                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
-                p_s = [ox + ow - w, oy + oh - h, w, h];
+                var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
+                var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
+                pS = [ox + ow - w, oy + oh - h, w, h];
                 break;
             case "东南":
                 var k = -1 / (oh / ow);
                 var d = -(k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
-                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
-                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
-                p_s = [ox, oy, w, h];
+                var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
+                var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
+                pS = [ox, oy, w, h];
                 break;
             case "东北":
                 var k = 1 / (oh / ow);
                 var d = (k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
-                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
-                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
-                p_s = [ox, oy + oh - h, w, h];
+                var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
+                var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
+                pS = [ox, oy + oh - h, w, h];
                 break;
             case "西南":
                 var k = 1 / (oh / ow);
                 var d = -(k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
-                var w = d * Math.cos(Math.atan(o_ps[3] / o_ps[2]));
-                var h = d * Math.sin(Math.atan(o_ps[3] / o_ps[2]));
-                p_s = [ox + ow - w, oy, w, h];
+                var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
+                var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
+                pS = [ox + ow - w, oy, w, h];
                 break;
             case "西":
                 var r = (ow - dx) / ow;
-                p_s = [ox + dx, oy, ow - dx, oh * r];
+                pS = [ox + dx, oy, ow - dx, oh * r];
                 break;
             case "东":
                 var r = (ow + dx) / ow;
-                p_s = [ox, oy, ow + dx, oh * r];
+                pS = [ox, oy, ow + dx, oh * r];
                 break;
             case "北":
-                var r = (o_ps[3] - dy) / oh;
-                p_s = [ox, oy + dy, ow * r, oh - dy];
+                var r = (oPs[3] - dy) / oh;
+                pS = [ox, oy + dy, ow * r, oh - dy];
                 break;
             case "南":
-                var r = (o_ps[3] + dy) / oh;
-                p_s = [ox, oy, ow * r, oh + dy];
+                var r = (oPs[3] + dy) / oh;
+                pS = [ox, oy, ow * r, oh + dy];
                 break;
             case "move":
-                p_s = [ox + dx, oy + dy, ow, oh];
+                pS = [ox + dx, oy + dy, ow, oh];
                 break;
         }
-        el.style.left = p_s[0] + "px";
-        el.style.top = p_s[1] + "px";
-        el.style.width = p_s[2] + "px";
-        el.style.height = p_s[3] + "px";
+        el.style.left = pS[0] + "px";
+        el.style.top = pS[1] + "px";
+        el.style.width = pS[2] + "px";
+        el.style.height = pS[3] + "px";
 
         if (el.id != "dock") {
             el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
 
-            resize(el, p_s[2] / photos[el.id][2]);
+            resize(el, pS[2] / photos[el.id][2]);
         }
     }
 }
@@ -465,17 +465,17 @@ function div_zoom(el, zoom, dx, dy, wheel) {
     // 以鼠标为中心缩放
     var x = el.offsetLeft + dx - w * zoom * (dx / nw);
     var y = el.offsetTop + dy - h * zoom * (dy / nh);
-    var p_s = [x, y, Math.round(w * zoom), Math.round(h * zoom)];
+    var pS = [x, y, Math.round(w * zoom), Math.round(h * zoom)];
     if (!wheel) {
         el.style.transition = "var(--transition)";
         setTimeout(() => {
             el.style.transition = "";
         }, 400);
     }
-    el.style.left = p_s[0] + "px";
-    el.style.top = p_s[1] + "px";
-    el.style.width = p_s[2] + "px";
-    el.style.height = p_s[3] + "px";
+    el.style.left = pS[0] + "px";
+    el.style.top = pS[1] + "px";
+    el.style.width = pS[2] + "px";
+    el.style.height = pS[3] + "px";
 }
 
 // 缩放文字实时更新,顶栏大小自适应
@@ -506,18 +506,18 @@ function resize(el, zoom) {
     }
 }
 
-var dock_p = store.get("ding_dock");
-const dock_el = document.getElementById("dock");
-dock_el.style.left = dock_p[0] + "px";
-dock_el.style.top = dock_p[1] + "px";
+var dockP = store.get("ding_dock");
+const dockEl = document.getElementById("dock");
+dockEl.style.left = dockP[0] + "px";
+dockEl.style.top = dockP[1] + "px";
 
-var dock_show = false;
-var dock_p_s = [];
-dock_el.onclick = () => {
-    var dock = dock_el;
-    dock_show = !dock_show;
-    if (dock_show) {
-        dock_p_s = [dock.offsetLeft, dock.offsetTop];
+var dockShow = false;
+var dockPS = [];
+dockEl.onclick = () => {
+    var dock = dockEl;
+    dockShow = !dockShow;
+    if (dockShow) {
+        dockPS = [dock.offsetLeft, dock.offsetTop];
         if (dock.offsetLeft + 5 <= document.querySelector("html").offsetWidth / 2) {
             dock.style.left = "0";
         } else {
@@ -529,20 +529,20 @@ dock_el.onclick = () => {
     } else {
         dock.style.transition = dock.className = "";
         dock.querySelector("div").style.display = "none";
-        dock.style.left = dock_p_s[0] + "px";
-        dock.style.top = dock_p_s[1] + "px";
+        dock.style.left = dockPS[0] + "px";
+        dock.style.top = dockPS[1] + "px";
     }
 };
 
 // 刷新dock
-function dock_i() {
+function dockI() {
     document.querySelector("#dock > div").innerHTML = "";
     for (let o in urls) {
         (function (i) {
-            var dock_item = document.querySelector("#dock_item").cloneNode(true) as HTMLElement;
-            dock_item.style.display = "block";
-            (<HTMLImageElement>dock_item.querySelector("#i_photo")).src = urls[i];
-            dock_item.onclick = (e) => {
+            var dockItem = document.querySelector("#dock_item").cloneNode(true) as HTMLElement;
+            dockItem.style.display = "block";
+            (<HTMLImageElement>dockItem.querySelector("#i_photo")).src = urls[i];
+            dockItem.onclick = (e) => {
                 let el = e.target as HTMLElement;
                 if (el.id != "i_close" && el.id != "i_ignore") {
                     var div = document.getElementById(i);
@@ -559,28 +559,28 @@ function dock_i() {
                     toppest += 1;
                 }
             };
-            const i_close = dock_item.querySelector("#i_close") as HTMLElement;
-            i_close.style.display = "block";
-            i_close.onclick = () => {
+            const iClose = dockItem.querySelector("#i_close") as HTMLElement;
+            iClose.style.display = "block";
+            iClose.onclick = () => {
                 close(document.getElementById(i));
             };
-            const i_ignore = dock_item.querySelector("#i_ignore") as HTMLElement;
-            i_ignore.style.display = "block";
-            i_ignore.setAttribute("data-ignore", "false");
-            var i_ignore_v = false;
-            i_ignore.onclick = () => {
-                i_ignore_v = !i_ignore_v;
-                ignore(document.getElementById(i), i_ignore_v);
+            const iIgnore = dockItem.querySelector("#i_ignore") as HTMLElement;
+            iIgnore.style.display = "block";
+            iIgnore.setAttribute("data-ignore", "false");
+            var iIgnore_v = false;
+            iIgnore.onclick = () => {
+                iIgnore_v = !iIgnore_v;
+                ignore(document.getElementById(i), iIgnore_v);
             };
-            var i_tran_v = false;
-            const i_tran = dock_item.querySelector("#i_tran") as HTMLElement;
-            i_tran.style.display = "block";
-            i_tran.onclick = () => {
-                i_tran_v = !i_tran_v;
-                transform(document.getElementById(i), i_tran_v);
+            var iTran_v = false;
+            const iTran = dockItem.querySelector("#i_tran") as HTMLElement;
+            iTran.style.display = "block";
+            iTran.onclick = () => {
+                iTran_v = !iTran_v;
+                transform(document.getElementById(i), iTran_v);
             };
 
-            document.querySelector("#dock > div").appendChild(dock_item);
+            document.querySelector("#dock > div").appendChild(dockItem);
         })(o);
     }
 }

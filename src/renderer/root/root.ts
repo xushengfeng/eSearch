@@ -1,10 +1,10 @@
-let config_path = new URLSearchParams(location.search).get("config_path");
+let configPath = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
 import { t, lan } from "../../../lib/translate/translate";
 
 function init() {
     var store = new Store({
-        cwd: config_path || "",
+        cwd: configPath || "",
     });
     var 模糊 = store.get("全局.模糊");
     if (模糊 != 0) {

@@ -23,7 +23,7 @@ import { Buffer } from "buffer";
 
 const Store = require("electron-store");
 import * as path from "path";
-const run_path = path.join(path.resolve(__dirname, ""), "../../");
+const runPath = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
@@ -33,12 +33,12 @@ import url from "node:url";
 
 // 自定义用户路径
 try {
-    var userDataPath = fs.readFileSync(path.join(run_path, "preload_config")).toString().trim();
+    var userDataPath = fs.readFileSync(path.join(runPath, "preload_config")).toString().trim();
     if (userDataPath) {
         if (app.isPackaged) {
-            userDataPath = path.join(run_path, "../../", userDataPath);
+            userDataPath = path.join(runPath, "../../", userDataPath);
         } else {
-            userDataPath = path.join(run_path, userDataPath);
+            userDataPath = path.join(runPath, userDataPath);
         }
         app.setPath("userData", userDataPath);
     }
@@ -46,7 +46,7 @@ try {
 
 // 获取运行位置
 ipcMain.on("run_path", (event) => {
-    event.returnValue = run_path;
+    event.returnValue = runPath;
 });
 
 var store = new Store();
@@ -60,7 +60,7 @@ if (process.argv.includes("-d") || import.meta.env.DEV) {
 }
 
 /** 加载网页 */
-function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: string, q?: Electron.LoadFileOptions) {
+function rendererPath(window: BrowserWindow | Electron.WebContents, fileName: string, q?: Electron.LoadFileOptions) {
     if (!q) {
         q = { query: { config_path: app.getPath("userData") } };
     } else if (!q.query) {
@@ -69,8 +69,8 @@ function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: 
         q.query["config_path"] = app.getPath("userData");
     }
     if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-        let main_url = `${process.env["ELECTRON_RENDERER_URL"]}/${file_name}`;
-        let x = new url.URL(main_url);
+        let mainUrl = `${process.env["ELECTRON_RENDERER_URL"]}/${fileName}`;
+        let x = new url.URL(mainUrl);
         if (q) {
             if (q.search) x.search = q.search;
             if (q.query) {
@@ -82,7 +82,7 @@ function renderer_path(window: BrowserWindow | Electron.WebContents, file_name: 
         }
         window.loadURL(x.toString());
     } else {
-        window.loadFile(path.join(__dirname, "../renderer", file_name), q);
+        window.loadFile(path.join(__dirname, "../renderer", fileName), q);
     }
 }
 
@@ -96,7 +96,7 @@ ipcMain.on("autostart", (event, m, v) => {
         if (process.platform == "linux") {
             if (v) {
                 exec("mkdir ~/.config/autostart");
-                exec(`cp ${run_path}/assets/e-search.desktop ~/.config/autostart/`);
+                exec(`cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`);
             } else {
                 exec("rm ~/.config/autostart/e-search.desktop");
             }
@@ -117,21 +117,21 @@ ipcMain.on("autostart", (event, m, v) => {
 /**
  * 复制选区，存在变化，回调
  */
-async function copy_text(callback: (t: string) => void) {
-    var o_clipboard = clipboard.readText();
+async function copyText(callback: (t: string) => void) {
+    var oClipboard = clipboard.readText();
     if (process.platform == "darwin") {
         exec(
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
         );
     } else if (process.platform == "win32") {
-        exec(`"${path.join(run_path, "lib/copy.exe")}"`);
+        exec(`"${path.join(runPath, "lib/copy.exe")}"`);
     } else if (process.platform == "linux") {
         exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
     setTimeout(() => {
         let t = clipboard.readText();
         let v = "";
-        if (o_clipboard != t) v = t;
+        if (oClipboard != t) v = t;
         for (let i of store.get("主搜索功能.自动搜索排除")) {
             if (t.match(i)) {
                 v = "";
@@ -139,45 +139,45 @@ async function copy_text(callback: (t: string) => void) {
             }
         }
         callback(v);
-        clipboard.writeText(o_clipboard);
+        clipboard.writeText(oClipboard);
     }, 300);
 }
 
 /** 自动判断选中搜索还是截屏搜索 */
-function auto_open() {
-    copy_text((t) => {
+function autoOpen() {
+    copyText((t) => {
         if (t) {
-            create_main_window("editor.html", [t]);
+            createMainWindow("editor.html", [t]);
         } else {
-            full_screen();
+            fullScreen();
         }
     });
 }
 
 /** 选区搜索 */
-function open_selection() {
-    copy_text((t) => {
-        if (t) create_main_window("editor.html", [t]);
+function openSelection() {
+    copyText((t) => {
+        if (t) createMainWindow("editor.html", [t]);
     });
 }
 
 /** 剪贴板搜索 */
-function open_clip_board() {
+function openClipBoard() {
     var t = clipboard.readText(
         process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
     );
-    create_main_window("editor.html", [t]);
+    createMainWindow("editor.html", [t]);
 }
 
 // cil参数重复启动;
-var first_open = true;
+var firstOpen = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
-    first_open = false;
+    firstOpen = false;
     app.quit();
 } else {
     app.on("second-instance", (_event, commanLine, _workingDirectory) => {
-        arg_run(commanLine);
+        argRun(commanLine);
     });
 }
 
@@ -185,31 +185,31 @@ if (!isFirstInstance) {
  * 根据命令运行
  * @param {string[]} c 命令
  */
-function arg_run(c: string[]) {
+function argRun(c: string[]) {
     if (c.includes("-d")) dev = true;
     switch (true) {
         case c.includes("-a"):
-            auto_open();
+            autoOpen();
             break;
         case c.includes("-c"):
-            full_screen();
+            fullScreen();
             break;
         case c.includes("-s"):
-            open_selection();
+            openSelection();
             break;
         case c.includes("-b"):
-            open_clip_board();
+            openClipBoard();
             break;
         case c.includes("-g"):
-            create_main_window("editor.html", [""]);
+            createMainWindow("editor.html", [""]);
             break;
         case c.includes("-q"):
-            quick_clip();
+            quickClip();
             break;
         default:
             for (let i of c) {
                 if (i.match(/(\.png)|(\.jpg)|(\.svg)$/i)) {
-                    full_screen(i);
+                    fullScreen(i);
                     break;
                 }
             }
@@ -217,7 +217,7 @@ function arg_run(c: string[]) {
     }
 }
 
-async function rm_r(dir_path: string) {
+async function rmR(dir_path: string) {
     fs.rm(dir_path, { recursive: true }, (err) => {
         if (err) console.error(err);
     });
@@ -241,33 +241,33 @@ app.whenReady().then(() => {
     // 托盘
     tray =
         process.platform == "linux"
-            ? new Tray(`${run_path}/assets/logo/32x32.png`)
-            : new Tray(`${run_path}/assets/logo/16x16.png`);
+            ? new Tray(`${runPath}/assets/logo/32x32.png`)
+            : new Tray(`${runPath}/assets/logo/16x16.png`);
     contextMenu = Menu.buildFromTemplate([
         {
             label: `${t("自动识别")}`,
             click: () => {
-                auto_open();
+                autoOpen();
             },
         },
         {
             label: t("截屏搜索"),
             click: () => {
                 setTimeout(() => {
-                    full_screen();
+                    fullScreen();
                 }, store.get("主搜索功能.截屏搜索延迟"));
             },
         },
         {
             label: t("选中搜索"),
             click: () => {
-                open_selection();
+                openSelection();
             },
         },
         {
             label: t("剪贴板搜索"),
             click: () => {
-                open_clip_board();
+                openClipBoard();
             },
         },
         {
@@ -276,13 +276,13 @@ app.whenReady().then(() => {
         {
             label: t("OCR(文字识别)"),
             click: () => {
-                send_capture_event(null, "ocr");
+                sendCaptureEvent(null, "ocr");
             },
         },
         {
             label: t("以图搜图"),
             click: () => {
-                send_capture_event(null, "image_search");
+                sendCaptureEvent(null, "image_search");
             },
         },
         {
@@ -302,20 +302,20 @@ app.whenReady().then(() => {
         {
             label: t("主页面"),
             click: () => {
-                create_main_window("editor.html", [""]);
+                createMainWindow("editor.html", [""]);
             },
         },
         {
             label: t("设置"),
             click: () => {
                 Store.initRenderer();
-                create_main_window("setting.html");
+                createMainWindow("setting.html");
             },
         },
         {
             label: t("教程帮助"),
             click: () => {
-                create_main_window("help.html");
+                createMainWindow("help.html");
             },
         },
         {
@@ -337,7 +337,7 @@ app.whenReady().then(() => {
     ]);
     if (store.get("点击托盘自动截图")) {
         tray.on("click", () => {
-            full_screen();
+            fullScreen();
         });
         tray.on("right-click", () => {
             tray.popUpContextMenu(contextMenu);
@@ -347,11 +347,11 @@ app.whenReady().then(() => {
     }
 
     // 启动时提示
-    if (first_open && store.get("启动提示"))
+    if (firstOpen && store.get("启动提示"))
         new Notification({
             title: app.name,
             body: `${app.name} ${t("已经在后台启动")}`,
-            icon: `${run_path}/assets/logo/64x64.png`,
+            icon: `${runPath}/assets/logo/64x64.png`,
         }).show();
 
     // 快捷键
@@ -400,7 +400,7 @@ app.whenReady().then(() => {
 
     // tmp目录
     if (!fs.existsSync(os.tmpdir() + "/eSearch")) fs.mkdir(os.tmpdir() + "/eSearch", () => {});
-    create_clip_window();
+    createClipWindow();
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
@@ -417,7 +417,7 @@ app.whenReady().then(() => {
                           {
                               label: t("设置"),
                               click: () => {
-                                  create_main_window("setting.html");
+                                  createMainWindow("setting.html");
                               },
                               accelerator: "CmdOrCtrl+,",
                           },
@@ -440,7 +440,7 @@ app.whenReady().then(() => {
                 {
                     label: t("保存到历史记录"),
                     click: (_i, w) => {
-                        main_edit(w, "save");
+                        mainEdit(w, "save");
                     },
                     accelerator: "CmdOrCtrl+S",
                 },
@@ -451,7 +451,7 @@ app.whenReady().then(() => {
                           {
                               label: t("设置"),
                               click: () => {
-                                  create_main_window("setting.html");
+                                  createMainWindow("setting.html");
                               },
                               accelerator: "CmdOrCtrl+,",
                           },
@@ -460,13 +460,13 @@ app.whenReady().then(() => {
                 {
                     label: t("其他编辑器打开"),
                     click: (_i, w) => {
-                        main_edit(w, "edit_on_other");
+                        mainEdit(w, "edit_on_other");
                     },
                 },
                 {
                     label: t("打开方式..."),
                     click: (_i, w) => {
-                        main_edit(w, "choose_editer");
+                        mainEdit(w, "choose_editer");
                     },
                 },
                 { type: "separator" },
@@ -480,21 +480,21 @@ app.whenReady().then(() => {
                 {
                     label: t("打开链接"),
                     click: (_i, w) => {
-                        main_edit(w, "link");
+                        mainEdit(w, "link");
                     },
                     accelerator: "CmdOrCtrl+Shift+L",
                 },
                 {
                     label: t("搜索"),
                     click: (_i, w) => {
-                        main_edit(w, "search");
+                        mainEdit(w, "search");
                     },
                     accelerator: "CmdOrCtrl+Shift+S",
                 },
                 {
                     label: t("翻译"),
                     click: (_i, w) => {
-                        main_edit(w, "translate");
+                        mainEdit(w, "translate");
                     },
                     accelerator: "CmdOrCtrl+Shift+T",
                 },
@@ -502,7 +502,7 @@ app.whenReady().then(() => {
                 {
                     label: t("撤销"),
                     click: (_i, w) => {
-                        main_edit(w, "undo");
+                        mainEdit(w, "undo");
                         w.webContents.undo();
                     },
                     accelerator: "CmdOrCtrl+Z",
@@ -510,7 +510,7 @@ app.whenReady().then(() => {
                 {
                     label: t("重做"),
                     click: (_i, w) => {
-                        main_edit(w, "redo");
+                        mainEdit(w, "redo");
                         w.webContents.redo();
                     },
                     accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
@@ -519,7 +519,7 @@ app.whenReady().then(() => {
                 {
                     label: t("剪切"),
                     click: (_i, w) => {
-                        main_edit(w, "cut");
+                        mainEdit(w, "cut");
                         w.webContents.cut();
                     },
                     accelerator: "CmdOrCtrl+X",
@@ -527,7 +527,7 @@ app.whenReady().then(() => {
                 {
                     label: t("复制"),
                     click: (_i, w) => {
-                        main_edit(w, "copy");
+                        mainEdit(w, "copy");
                         w.webContents.copy();
                     },
                     accelerator: "CmdOrCtrl+C",
@@ -535,7 +535,7 @@ app.whenReady().then(() => {
                 {
                     label: t("粘贴"),
                     click: (_i, w) => {
-                        main_edit(w, "paste");
+                        mainEdit(w, "paste");
                         w.webContents.paste();
                     },
                     accelerator: "CmdOrCtrl+V",
@@ -543,14 +543,14 @@ app.whenReady().then(() => {
                 {
                     label: t("删除"),
                     click: (_i, w) => {
-                        main_edit(w, "delete");
+                        mainEdit(w, "delete");
                         w.webContents.delete();
                     },
                 },
                 {
                     label: t("全选"),
                     click: (_i, w) => {
-                        main_edit(w, "select_all");
+                        mainEdit(w, "select_all");
                         w.webContents.selectAll();
                     },
                     accelerator: "CmdOrCtrl+A",
@@ -558,21 +558,21 @@ app.whenReady().then(() => {
                 {
                     label: t("自动删除换行"),
                     click: (_i, w) => {
-                        main_edit(w, "delete_enter");
+                        mainEdit(w, "delete_enter");
                     },
                 },
                 { type: "separator" },
                 {
                     label: t("查找"),
                     click: (_i, w) => {
-                        main_edit(w, "show_find");
+                        mainEdit(w, "show_find");
                     },
                     accelerator: "CmdOrCtrl+F",
                 },
                 {
                     label: t("替换"),
                     click: (_i, w) => {
-                        main_edit(w, "show_find");
+                        mainEdit(w, "show_find");
                     },
                     accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
                 },
@@ -580,13 +580,13 @@ app.whenReady().then(() => {
                 {
                     label: t("自动换行"),
                     click: (_i, w) => {
-                        main_edit(w, "wrap");
+                        mainEdit(w, "wrap");
                     },
                 },
                 {
                     label: t("拼写检查"),
                     click: (_i, w) => {
-                        main_edit(w, "spellcheck");
+                        mainEdit(w, "spellcheck");
                     },
                 },
                 { type: "separator" },
@@ -609,48 +609,48 @@ app.whenReady().then(() => {
                 {
                     label: t("后退"),
                     click: (_i, w) => {
-                        view_events(w, "back");
+                        viewEvents(w, "back");
                     },
                     accelerator: isMac ? "Command+[" : "Alt+Left",
                 },
                 {
                     label: t("前进"),
                     click: (_i, w) => {
-                        view_events(w, "forward");
+                        viewEvents(w, "forward");
                     },
                     accelerator: isMac ? "Command+]" : "Alt+Right",
                 },
                 {
                     label: t("刷新"),
                     click: (_i, w) => {
-                        view_events(w, "reload");
+                        viewEvents(w, "reload");
                     },
                     accelerator: "F5",
                 },
                 {
                     label: t("停止加载"),
                     click: (_i, w) => {
-                        view_events(w, "stop");
+                        viewEvents(w, "stop");
                     },
                     accelerator: "Esc",
                 },
                 {
                     label: t("浏览器打开"),
                     click: (_i, w) => {
-                        view_events(w, "browser");
+                        viewEvents(w, "browser");
                     },
                 },
                 {
                     label: t("保存到历史记录"),
                     click: (_i, w) => {
-                        view_events(w, "add_history");
+                        viewEvents(w, "add_history");
                     },
                     accelerator: "CmdOrCtrl+D",
                 },
                 {
                     label: t("开发者工具"),
                     click: (_i, w) => {
-                        view_events(w, "dev");
+                        viewEvents(w, "dev");
                     },
                 },
             ],
@@ -666,7 +666,7 @@ app.whenReady().then(() => {
                 {
                     label: t("历史记录"),
                     click: (_i, w) => {
-                        main_edit(w, "show_history");
+                        mainEdit(w, "show_history");
                     },
                     accelerator: "CmdOrCtrl+Shift+H",
                 },
@@ -701,14 +701,14 @@ app.whenReady().then(() => {
                 {
                     label: t("教程帮助"),
                     click: () => {
-                        create_main_window("help.html");
+                        createMainWindow("help.html");
                     },
                 },
                 { type: "separator" },
                 {
                     label: t("关于"),
                     click: () => {
-                        create_main_window("setting.html", null, true);
+                        createMainWindow("setting.html", null, true);
                     },
                 },
             ],
@@ -723,26 +723,26 @@ app.on("will-quit", () => {
     globalShortcut.unregisterAll();
 
     // 删除临时文件夹
-    rm_r(path.join(os.tmpdir(), "eSearch"));
+    rmR(path.join(os.tmpdir(), "eSearch"));
 });
 
-var the_icon = null;
+var theIcon = null;
 if (process.platform == "win32") {
-    the_icon = path.join(run_path, "assets/logo/icon.ico");
+    theIcon = path.join(runPath, "assets/logo/icon.ico");
 } else {
-    the_icon = path.join(run_path, "assets/logo/1024x1024.png");
+    theIcon = path.join(runPath, "assets/logo/1024x1024.png");
 }
 
 // 截屏窗口
 /**
  * @type BrowserWindow
  */
-var clip_window: BrowserWindow = null;
-var clip_window_loaded = false;
+var clipWindow: BrowserWindow = null;
+var clipWindowLoaded = false;
 /** 初始化截屏后台窗口 */
-function create_clip_window() {
-    clip_window = new BrowserWindow({
-        icon: the_icon,
+function createClipWindow() {
+    clipWindow = new BrowserWindow({
+        icon: theIcon,
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
@@ -762,19 +762,19 @@ function create_clip_window() {
         },
     });
 
-    if (!dev) clip_window.setAlwaysOnTop(true, "screen-saver");
+    if (!dev) clipWindow.setAlwaysOnTop(true, "screen-saver");
 
-    renderer_path(clip_window, "capture.html");
-    clip_window.webContents.on("did-finish-load", () => {
-        clip_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-        if (clip_window_loaded) return;
-        clip_window_loaded = true;
-        if (first_open) arg_run(process.argv);
+    rendererPath(clipWindow, "capture.html");
+    clipWindow.webContents.on("did-finish-load", () => {
+        clipWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+        if (clipWindowLoaded) return;
+        clipWindowLoaded = true;
+        if (firstOpen) argRun(process.argv);
     });
 
-    if (dev) clip_window.webContents.openDevTools();
+    if (dev) clipWindow.webContents.openDevTools();
 
-    clip_window.webContents.on("render-process-gone", (_e, d) => {
+    clipWindow.webContents.on("render-process-gone", (_e, d) => {
         console.log(d);
     });
 
@@ -782,23 +782,23 @@ function create_clip_window() {
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
             case "window-close":
-                n_full_screen();
-                long_s_v = false;
+                exitFullScreen();
+                isLongStart = false;
                 break;
             case "ocr":
                 ocr(event, arg);
                 break;
             case "search":
-                image_search(event, arg);
+                imageSearch(event, arg);
                 break;
             case "QR":
                 if (arg != "nothing") {
-                    create_main_window("editor.html", [arg]);
+                    createMainWindow("editor.html", [arg]);
                 } else {
                     dialog.showMessageBox({
                         title: t("警告"),
                         message: `${t("无法识别二维码")}\n${t("请尝试重新识别")}`,
-                        icon: `${run_path}/assets/logo/warning.png`,
+                        icon: `${runPath}/assets/logo/warning.png`,
                     });
                 }
                 break;
@@ -813,12 +813,12 @@ function create_clip_window() {
                     });
                 break;
             case "save":
-                var saved_path = store.get("保存.保存路径.图片") || "";
-                n_full_screen();
+                var savedPath = store.get("保存.保存路径.图片") || "";
+                exitFullScreen();
                 dialog
                     .showSaveDialog({
                         title: t("选择要保存的位置"),
-                        defaultPath: path.join(saved_path, `${get_file_name()}.${arg}`),
+                        defaultPath: path.join(savedPath, `${getFileName()}.${arg}`),
                         filters: [{ name: t("图像"), extensions: [arg] }],
                     })
                     .then((x) => {
@@ -828,26 +828,26 @@ function create_clip_window() {
                             new Notification({
                                 title: `${app.name} ${t("保存图像失败")}`,
                                 body: t("用户已取消保存"),
-                                icon: `${run_path}/assets/logo/64x64.png`,
+                                icon: `${runPath}/assets/logo/64x64.png`,
                             }).show();
-                            clip_window.show();
-                            clip_window.setSimpleFullScreen(true);
+                            clipWindow.show();
+                            clipWindow.setSimpleFullScreen(true);
                         }
                     });
                 break;
             case "ding":
-                create_ding_window(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]);
+                createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]);
                 break;
             case "mac_app":
-                n_full_screen();
+                exitFullScreen();
                 dialog
                     .showOpenDialog({
                         defaultPath: "/Applications",
                     })
                     .then((x) => {
                         if (x.canceled) {
-                            clip_window.show();
-                            clip_window.setSimpleFullScreen(true);
+                            clipWindow.show();
+                            clipWindow.setSimpleFullScreen(true);
                         }
                         event.sender.send("mac_app_path", x.canceled, x.filePaths);
                     });
@@ -857,21 +857,21 @@ function create_clip_window() {
                 store.set("保存.保存路径.图片", path.dirname(arg));
                 break;
             case "record":
-                create_recorder_window(arg.rect, { id: arg.id, w: arg.w, h: arg.h, r: arg.ratio });
+                createRecorderWindow(arg.rect, { id: arg.id, w: arg.w, h: arg.h, r: arg.ratio });
                 break;
             case "long_s":
                 // n_full_screen();
-                long_s_v = true;
-                long_win(arg);
+                isLongStart = true;
+                longWin(arg);
                 break;
             case "long_e":
-                long_s_v = false;
+                isLongStart = false;
                 break;
             case "new_version":
                 var notification = new Notification({
                     title: `${app.name} ${t("有新版本：")}${arg.v}`,
                     body: `${t("点击下载")}`,
-                    icon: `${run_path}/assets/logo/64x64.png`,
+                    icon: `${runPath}/assets/logo/64x64.png`,
                 });
                 notification.on("click", () => {
                     shell.openExternal(arg.url);
@@ -887,17 +887,17 @@ function create_clip_window() {
 
 /**
  * 获取图片并全屏
- * @param {?string} img_path 路径
+ * @param {?string} imgPath 路径
  */
-function full_screen(img_path?: string) {
-    let nearest_screen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    if (img_path) {
-        console.log(img_path);
-        fs.readFile(img_path, (err, data) => {
+function fullScreen(imgPath?: string) {
+    let nearestScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    if (imgPath) {
+        console.log(imgPath);
+        fs.readFile(imgPath, (err, data) => {
             if (err) console.error(err);
             let p = nativeImage.createFromBuffer(data);
             let s = p.getSize();
-            send_capture_event([
+            sendCaptureEvent([
                 {
                     image: data,
                     width: s.width,
@@ -910,48 +910,48 @@ function full_screen(img_path?: string) {
             ]);
         });
     } else {
-        send_capture_event();
+        sendCaptureEvent();
     }
-    clip_window.setBounds({ x: nearest_screen.bounds.x, y: nearest_screen.bounds.y });
-    clip_window.show();
-    clip_window.setSimpleFullScreen(true);
+    clipWindow.setBounds({ x: nearestScreen.bounds.x, y: nearestScreen.bounds.y });
+    clipWindow.show();
+    clipWindow.setSimpleFullScreen(true);
 }
 
-function send_capture_event(
+function sendCaptureEvent(
     data?: (import("node-screenshots").Screenshots | { image: Buffer; main: boolean })[],
     type?: "ocr" | "image_search"
 ) {
-    clip_window.webContents.send("reflash", data, screen.getAllDisplays(), screen.getCursorScreenPoint(), type);
+    clipWindow.webContents.send("reflash", data, screen.getAllDisplays(), screen.getCursorScreenPoint(), type);
 }
 
 /** 隐藏截屏窗口 */
-function n_full_screen() {
-    clip_window.setSimpleFullScreen(false);
-    clip_window.hide();
+function exitFullScreen() {
+    clipWindow.setSimpleFullScreen(false);
+    clipWindow.hide();
 }
 
 /** 刷新（初始化）截屏窗口 */
 function reload_clip() {
-    n_full_screen();
-    if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
+    exitFullScreen();
+    if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible()) clipWindow.reload();
 }
 
-var ocr_event: Electron.IpcMainEvent;
+var ocrEvent: Electron.IpcMainEvent;
 function ocr(event: Electron.IpcMainEvent, arg) {
-    create_main_window("editor.html", ["ocr", ...arg]);
-    ocr_event = event;
+    createMainWindow("editor.html", ["ocr", ...arg]);
+    ocrEvent = event;
 }
 
-var image_search_event: Electron.IpcMainEvent;
-function image_search(event: Electron.IpcMainEvent, arg) {
-    create_main_window("editor.html", ["image", arg[0], arg[1]]);
-    image_search_event = event;
+var imageSearchEvent: Electron.IpcMainEvent;
+function imageSearch(event: Electron.IpcMainEvent, arg) {
+    createMainWindow("editor.html", ["image", arg[0], arg[1]]);
+    imageSearchEvent = event;
 }
 
 var recording = false;
 
 var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
-function create_recorder_window(rect, screenx: { id: string; w: number; h: number; r: number }) {
+function createRecorderWindow(rect, screenx: { id: string; w: number; h: number; r: number }) {
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     let ratio = s.scaleFactor;
     let p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
@@ -971,7 +971,7 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
     x = Math.round(x);
     y = Math.round(y);
     recorder = new BrowserWindow({
-        icon: the_icon,
+        icon: theIcon,
         x,
         y,
         width: w,
@@ -987,7 +987,7 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
             sandbox: false,
         },
     });
-    renderer_path(recorder, "recorder.html");
+    rendererPath(recorder, "recorder.html");
     if (dev) recorder.webContents.openDevTools();
 
     recorder.setAlwaysOnTop(true, "screen-saver");
@@ -996,7 +996,7 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
         reload_clip();
-        clip_window.setIgnoreMouseEvents(false);
+        clipWindow.setIgnoreMouseEvents(false);
     });
 
     recorder.on("resize", () => {
@@ -1008,12 +1008,12 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
 
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
-            let d_id = "";
+            let dId = "";
             sources.forEach((s) => {
-                if (s.display_id == screenx.id) d_id = s.id;
+                if (s.display_id == screenx.id) dId = s.id;
             });
-            if (!d_id) d_id = sources[0].id;
-            recorder.webContents.send("record", "init", d_id, rect, screenx.w, screenx.h, screenx.r);
+            if (!dId) dId = sources[0].id;
+            recorder.webContents.send("record", "init", dId, rect, screenx.w, screenx.h, screenx.r);
         });
     });
 
@@ -1023,23 +1023,23 @@ function create_recorder_window(rect, screenx: { id: string; w: number; h: numbe
         }
     });
 
-    clip_window.setIgnoreMouseEvents(true);
+    clipWindow.setIgnoreMouseEvents(true);
 
     function mouse() {
-        if (clip_window.isDestroyed()) return;
+        if (clipWindow.isDestroyed()) return;
         if (!recording || recorder.isDestroyed()) {
-            clip_window.setIgnoreMouseEvents(false);
+            clipWindow.setIgnoreMouseEvents(false);
             return;
         }
-        let n_xy = screen.getCursorScreenPoint();
-        clip_window.webContents.send("record", "mouse", { x: n_xy.x - s.bounds.x, y: n_xy.y - s.bounds.y });
+        let nowXY = screen.getCursorScreenPoint();
+        clipWindow.webContents.send("record", "mouse", { x: nowXY.x - s.bounds.x, y: nowXY.y - s.bounds.y });
         setTimeout(mouse, 10);
     }
     recording = true;
     if (store.get("录屏.提示.光标.开启")) mouse();
 }
 
-ipcMain.on("record", (_event, type, arg, arg1) => {
+ipcMain.on("record", (_event, type, arg) => {
     switch (type) {
         case "stop":
             reload_clip();
@@ -1048,11 +1048,11 @@ ipcMain.on("record", (_event, type, arg, arg1) => {
         case "start":
             break;
         case "ff": // 处理视频
-            var saved_path = store.get("保存.保存路径.视频") || "";
+            var savedPath = store.get("保存.保存路径.视频") || "";
             dialog
                 .showSaveDialog({
                     title: t("选择要保存的位置"),
-                    defaultPath: path.join(saved_path, `${get_file_name()}.${arg.格式}`),
+                    defaultPath: path.join(savedPath, `${getFileName()}.${arg.格式}`),
                     filters: [{ name: t("视频"), extensions: null }],
                 })
                 .then(async (x) => {
@@ -1066,7 +1066,7 @@ ipcMain.on("record", (_event, type, arg, arg1) => {
                         new Notification({
                             title: `${app.name} ${t("保存视频失败")}`,
                             body: t("用户已取消保存"),
-                            icon: `${run_path}/assets/logo/64x64.png`,
+                            icon: `${runPath}/assets/logo/64x64.png`,
                         }).show();
                     }
                 });
@@ -1123,7 +1123,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             console.log("保存设置失败");
             break;
         case "reload_main":
-            if (clip_window && !clip_window.isDestroyed() && !clip_window.isVisible()) clip_window.reload();
+            if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible()) clipWindow.reload();
             contextMenu.items[8].checked = store.get("浏览器中打开");
             tray.popUpContextMenu(contextMenu);
             tray.closeContextMenu();
@@ -1179,40 +1179,40 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             break;
         case "move_user_data":
             if (!arg1) return;
-            const to_path = path.resolve(arg1);
-            const pre_path = app.getPath("userData");
-            fs.mkdirSync(to_path, { recursive: true });
+            const toPath = path.resolve(arg1);
+            const prePath = app.getPath("userData");
+            fs.mkdirSync(toPath, { recursive: true });
             if (process.platform == "win32") {
-                exec(`xcopy ${pre_path}\\** ${to_path} /Y /s`);
+                exec(`xcopy ${prePath}\\** ${toPath} /Y /s`);
             } else {
-                exec(`cp -r ${pre_path}/** ${to_path}`);
+                exec(`cp -r ${prePath}/** ${toPath}`);
             }
     }
 });
 
 // 长截屏
 
-var long_s_v = false;
+var isLongStart = false;
 
-function long_win(rect) {
-    clip_window.setIgnoreMouseEvents(true);
+function longWin(rect) {
+    clipWindow.setIgnoreMouseEvents(true);
     function mouse() {
-        if (!long_s_v) {
-            clip_window.setIgnoreMouseEvents(false);
+        if (!isLongStart) {
+            clipWindow.setIgnoreMouseEvents(false);
             return;
         }
-        if (clip_window.isDestroyed()) return;
-        let n_xy = screen.getCursorScreenPoint();
+        if (clipWindow.isDestroyed()) return;
+        let nowXY = screen.getCursorScreenPoint();
         let ratio = screen.getPrimaryDisplay().scaleFactor;
         if (
-            rect[0] + rect[2] - 16 <= n_xy.x * ratio &&
-            n_xy.x * ratio <= rect[0] + rect[2] &&
-            rect[1] + rect[3] - 16 <= n_xy.y * ratio &&
-            n_xy.y * ratio <= rect[1] + rect[3]
+            rect[0] + rect[2] - 16 <= nowXY.x * ratio &&
+            nowXY.x * ratio <= rect[0] + rect[2] &&
+            rect[1] + rect[3] - 16 <= nowXY.y * ratio &&
+            nowXY.y * ratio <= rect[1] + rect[3]
         ) {
-            clip_window.setIgnoreMouseEvents(false);
+            clipWindow.setIgnoreMouseEvents(false);
         } else {
-            clip_window.setIgnoreMouseEvents(true);
+            clipWindow.setIgnoreMouseEvents(true);
         }
         setTimeout(mouse, 10);
     }
@@ -1222,14 +1222,14 @@ function long_win(rect) {
 const isMac = process.platform === "darwin";
 
 // ding窗口
-var ding_window_list: { [key: string]: BrowserWindow } = {};
-function create_ding_window(x: number, y: number, w: number, h: number, img, screen_id: string, screens) {
-    if (Object.keys(ding_window_list).length == 0) {
-        let screen_l = screens;
+var dingwindowList: { [key: string]: BrowserWindow } = {};
+function createDingWindow(x: number, y: number, w: number, h: number, img, screenId: string, screens) {
+    if (Object.keys(dingwindowList).length == 0) {
+        let screenL = screens;
         const id = new Date().getTime();
-        for (let i of screen_l) {
-            let ding_window = (ding_window_list[i.id] = new BrowserWindow({
-                icon: the_icon,
+        for (let i of screenL) {
+            let dingWindow = (dingwindowList[i.id] = new BrowserWindow({
+                icon: theIcon,
                 transparent: true,
                 frame: false,
                 alwaysOnTop: true,
@@ -1247,84 +1247,84 @@ function create_ding_window(x: number, y: number, w: number, h: number, img, scr
                 height: i.height,
             }));
 
-            renderer_path(ding_window, "ding.html");
-            if (dev) ding_window.webContents.openDevTools();
-            ding_window.webContents.on("did-finish-load", () => {
-                ding_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-                ding_window.webContents.send("screen_id", i.id);
-                ding_window.webContents.send("img", screen_id, id, x, y, w, h, img);
+            rendererPath(dingWindow, "ding.html");
+            if (dev) dingWindow.webContents.openDevTools();
+            dingWindow.webContents.on("did-finish-load", () => {
+                dingWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+                dingWindow.webContents.send("screen_id", i.id);
+                dingWindow.webContents.send("img", screenId, id, x, y, w, h, img);
             });
-            ding_window_list[i.id].setIgnoreMouseEvents(true);
+            dingwindowList[i.id].setIgnoreMouseEvents(true);
 
-            ding_window.setAlwaysOnTop(true, "screen-saver");
+            dingWindow.setAlwaysOnTop(true, "screen-saver");
         }
     } else {
         const id = new Date().getTime();
-        for (let i in ding_window_list) {
-            ding_window_list[i].webContents.send("img", screen_id, id, x, y, w, h, img);
+        for (let i in dingwindowList) {
+            dingwindowList[i].webContents.send("img", screenId, id, x, y, w, h, img);
         }
     }
     // 自动改变鼠标穿透
-    function ding_click_through() {
-        let n_xy = screen.getCursorScreenPoint();
-        for (let i in ding_window_list) {
+    function dingClickThrough() {
+        let nowXY = screen.getCursorScreenPoint();
+        for (let i in dingwindowList) {
             try {
-                let b = ding_window_list[i].getBounds();
-                ding_window_list[i].webContents.send("mouse", n_xy.x - b.x, n_xy.y - b.y);
+                let b = dingwindowList[i].getBounds();
+                dingwindowList[i].webContents.send("mouse", nowXY.x - b.x, nowXY.y - b.y);
             } catch (error) {}
         }
-        setTimeout(ding_click_through, 10);
+        setTimeout(dingClickThrough, 10);
     }
-    ding_click_through();
+    dingClickThrough();
 }
 ipcMain.on("ding_ignore", (_event, id, v) => {
-    if (ding_window_list[id]) ding_window_list[id].setIgnoreMouseEvents(v);
+    if (dingwindowList[id]) dingwindowList[id].setIgnoreMouseEvents(v);
 });
 ipcMain.on("ding_event", (_event, type, id, screen_id, more) => {
     if (type == "close" && more) {
-        for (let i in ding_window_list) {
-            ding_window_list[i].close();
-            delete ding_window_list[i];
+        for (let i in dingwindowList) {
+            dingwindowList[i].close();
+            delete dingwindowList[i];
         }
         return;
     }
 
-    for (let i in ding_window_list) {
-        ding_window_list[i].webContents.send("ding", type, id, screen_id, more);
+    for (let i in dingwindowList) {
+        dingwindowList[i].webContents.send("ding", type, id, screen_id, more);
     }
 });
 ipcMain.on("ding_edit", (_event, img_path) => {
-    full_screen(img_path);
+    fullScreen(img_path);
 });
 
 // 主页面
-var main_window_l: { [n: number]: BrowserWindow } = {};
+var mainWindowL: { [n: number]: BrowserWindow } = {};
 
-var ocr_run_window: BrowserWindow;
+var ocrRunWindow: BrowserWindow;
 /**
  * @type {BrowserWindow}
  */
-var image_search_window: BrowserWindow;
+var imageSearchWindow: BrowserWindow;
 /**
  * @type {Object.<number, Array.<number>>}
  */
-var main_to_search_l: { [n: number]: Array<number> } = {};
-async function create_main_window(web_page: string, t?: boolean | Array<any>, about?: boolean) {
-    var window_name = new Date().getTime();
+var mainToSearchL: { [n: number]: Array<number> } = {};
+async function createMainWindow(webPage: string, t?: boolean | Array<any>, about?: boolean) {
+    var windowName = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
     let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,
         px = screen.getCursorScreenPoint().x,
         py = screen.getCursorScreenPoint().y;
     let x = px > vr.x + vr.width / 2 ? px - w : px,
         y = py > vr.y + vr.height / 2 ? py - h : py;
-    var main_window = (main_window_l[window_name] = new BrowserWindow({
+    var mainWindow = (mainWindowL[windowName] = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
         width: w,
         height: h,
         minWidth: 800,
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
-        icon: the_icon,
+        icon: theIcon,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -1333,70 +1333,70 @@ async function create_main_window(web_page: string, t?: boolean | Array<any>, ab
         show: t?.[0] != "image" && t?.[0] != "ocr", // 一般情况下true，识图和ocr为false
     })) as BrowserWindow & { html: string };
 
-    main_to_search_l[window_name] = [];
+    mainToSearchL[windowName] = [];
 
-    if (m) main_window.maximize();
+    if (m) mainWindow.maximize();
 
     // 自定义界面
-    renderer_path(main_window, web_page || "editor.html");
+    rendererPath(mainWindow, webPage || "editor.html");
 
-    await main_window.webContents.session.setProxy(store.get("代理"));
+    await mainWindow.webContents.session.setProxy(store.get("代理"));
 
-    if (dev) main_window.webContents.openDevTools();
+    if (dev) mainWindow.webContents.openDevTools();
 
     if (t?.[0] == "image") {
-        image_search_window = main_window;
+        imageSearchWindow = mainWindow;
     } else if (t?.[0] == "ocr") {
-        ocr_run_window = main_window;
-        ocr_run_window.webContents.once("render-process-gone", (_e, d) => {
-            ocr_event.sender.send("ocr_back", d.reason);
+        ocrRunWindow = mainWindow;
+        ocrRunWindow.webContents.once("render-process-gone", (_e, d) => {
+            ocrEvent.sender.send("ocr_back", d.reason);
         });
     }
 
-    main_window.webContents.on("did-finish-load", () => {
-        if (t?.[0] != "image" && t?.[0] != "ocr") main_window.show();
-        main_window.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+    mainWindow.webContents.on("did-finish-load", () => {
+        if (t?.[0] != "image" && t?.[0] != "ocr") mainWindow.show();
+        mainWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
-        main_window.webContents.send("text", window_name, t);
+        mainWindow.webContents.send("text", windowName, t);
 
-        if (web_page == "setting.html") {
-            main_window.webContents.send("about", about);
-            main_window.webContents.send("setting", main_window.id);
+        if (webPage == "setting.html") {
+            mainWindow.webContents.send("about", about);
+            mainWindow.webContents.send("setting", mainWindow.id);
         }
 
-        if (main_window.html) {
-            main_window.webContents.send("html", main_window.html);
+        if (mainWindow.html) {
+            mainWindow.webContents.send("html", mainWindow.html);
         }
     });
 
-    main_window.on("close", () => {
+    mainWindow.on("close", () => {
         store.set("主页面大小", [
-            main_window.getNormalBounds().width,
-            main_window.getNormalBounds().height,
-            main_window.isMaximized(),
+            mainWindow.getNormalBounds().width,
+            mainWindow.getNormalBounds().height,
+            mainWindow.isMaximized(),
         ]);
-        for (let i of main_window.getBrowserViews()) {
+        for (let i of mainWindow.getBrowserViews()) {
             // @ts-ignore
             i?.webContents?.destroy();
         }
     });
 
-    main_window.on("closed", () => {
-        delete main_window_l[window_name];
+    mainWindow.on("closed", () => {
+        delete mainWindowL[windowName];
     });
 
     // 浏览器大小适应
-    main_window.on("resize", () => {
+    mainWindow.on("resize", () => {
         setTimeout(() => {
-            var [w, h] = main_window.getContentSize();
-            for (let i of main_window.getBrowserViews()) {
+            var [w, h] = mainWindow.getContentSize();
+            for (let i of mainWindow.getBrowserViews()) {
                 if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
             }
         }, 0);
     });
 
-    return window_name;
+    return windowName;
 }
 
 ipcMain.on("main_win", (e, arg, arg1) => {
@@ -1405,14 +1405,14 @@ ipcMain.on("main_win", (e, arg, arg1) => {
             BrowserWindow.fromWebContents(e.sender).close();
             break;
         case "ocr":
-            ocr_event.sender.send("ocr_back", arg1);
-            ocr_run_window.show();
-            ocr_run_window = null;
+            ocrEvent.sender.send("ocr_back", arg1);
+            ocrRunWindow.show();
+            ocrRunWindow = null;
             break;
         case "image_search":
-            image_search_event.sender.send("search_back", "ok");
-            image_search_window.show();
-            image_search_window = null;
+            imageSearchEvent.sender.send("search_back", "ok");
+            imageSearchWindow.show();
+            imageSearchWindow = null;
             break;
     }
 });
@@ -1421,23 +1421,23 @@ ipcMain.on("main_win", (e, arg, arg1) => {
  * 向聚焦的主页面发送事件信息
  * @param {String} m
  */
-function main_edit(window: BrowserWindow, m: string) {
+function mainEdit(window: BrowserWindow, m: string) {
     window.webContents.send("edit", m);
 }
 
-var search_window_l: { [n: number]: BrowserView } = {};
+var searchWindowL: { [n: number]: BrowserView } = {};
 ipcMain.on("open_url", (_event, window_name, url) => {
-    create_browser(window_name, url);
+    createBrowser(window_name, url);
 });
 
 /** 创建浏览器页面 */
-async function create_browser(window_name: number, url: string) {
-    if (!window_name) window_name = await create_main_window("editor.html");
+async function createBrowser(windowName: number, url: string) {
+    if (!windowName) windowName = await createMainWindow("editor.html");
 
-    let main_window = main_window_l[window_name];
+    let mainWindow = mainWindowL[windowName];
 
-    if (main_window.isDestroyed()) return;
-    min_views(main_window);
+    if (mainWindow.isDestroyed()) return;
+    minViews(mainWindow);
     var view = new Date().getTime();
     let security = true;
     for (let i of store.get("nocors")) {
@@ -1446,55 +1446,55 @@ async function create_browser(window_name: number, url: string) {
             break;
         }
     }
-    var search_view = (search_window_l[view] = new BrowserView({ webPreferences: { webSecurity: security } }));
-    await search_view.webContents.session.setProxy(store.get("代理"));
-    main_window_l[window_name].addBrowserView(search_view);
-    search_view.webContents.loadURL(url);
-    var [w, h] = main_window.getContentSize();
-    search_view.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
-    main_window.setContentSize(w, h + 1);
-    main_window.setContentSize(w, h);
-    search_view.webContents.setWindowOpenHandler(({ url }) => {
-        create_browser(window_name, url);
+    var searchView = (searchWindowL[view] = new BrowserView({ webPreferences: { webSecurity: security } }));
+    await searchView.webContents.session.setProxy(store.get("代理"));
+    mainWindowL[windowName].addBrowserView(searchView);
+    searchView.webContents.loadURL(url);
+    var [w, h] = mainWindow.getContentSize();
+    searchView.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+    mainWindow.setContentSize(w, h + 1);
+    mainWindow.setContentSize(w, h);
+    searchView.webContents.setWindowOpenHandler(({ url }) => {
+        createBrowser(windowName, url);
         return { action: "deny" };
     });
-    if (dev) search_view.webContents.openDevTools();
-    if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "new", url);
-    search_view.webContents.on("page-title-updated", (_event, title) => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "title", title);
+    if (dev) searchView.webContents.openDevTools();
+    if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "new", url);
+    searchView.webContents.on("page-title-updated", (_event, title) => {
+        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "title", title);
     });
-    search_view.webContents.on("page-favicon-updated", (_event, favlogo) => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "icon", favlogo);
+    searchView.webContents.on("page-favicon-updated", (_event, favlogo) => {
+        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "icon", favlogo);
     });
-    search_view.webContents.on("did-navigate", (_event, url) => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "url", url);
+    searchView.webContents.on("did-navigate", (_event, url) => {
+        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "url", url);
     });
-    search_view.webContents.on("did-start-loading", () => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "load", true);
+    searchView.webContents.on("did-start-loading", () => {
+        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "load", true);
     });
-    search_view.webContents.on("did-stop-loading", () => {
-        if (!main_window.isDestroyed()) main_window.webContents.send("url", view, "load", false);
+    searchView.webContents.on("did-stop-loading", () => {
+        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "load", false);
     });
-    search_view.webContents.on("did-fail-load", (_event, err_code, err_des) => {
-        renderer_path(search_view.webContents, "browser_bg.html", {
+    searchView.webContents.on("did-fail-load", (_event, err_code, err_des) => {
+        rendererPath(searchView.webContents, "browser_bg.html", {
             query: { type: "did-fail-load", err_code: String(err_code), err_des },
         });
-        if (dev) search_view.webContents.openDevTools();
+        if (dev) searchView.webContents.openDevTools();
     });
-    search_view.webContents.on("render-process-gone", () => {
-        renderer_path(search_view.webContents, "browser_bg.html", { query: { type: "render-process-gone" } });
-        if (dev) search_view.webContents.openDevTools();
+    searchView.webContents.on("render-process-gone", () => {
+        rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "render-process-gone" } });
+        if (dev) searchView.webContents.openDevTools();
     });
-    search_view.webContents.on("unresponsive", () => {
-        renderer_path(search_view.webContents, "browser_bg.html", { query: { type: "unresponsive" } });
-        if (dev) search_view.webContents.openDevTools();
+    searchView.webContents.on("unresponsive", () => {
+        rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "unresponsive" } });
+        if (dev) searchView.webContents.openDevTools();
     });
-    search_view.webContents.on("responsive", () => {
-        search_view.webContents.loadURL(url);
+    searchView.webContents.on("responsive", () => {
+        searchView.webContents.loadURL(url);
     });
-    search_view.webContents.on("certificate-error", () => {
-        renderer_path(search_view.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
-        if (dev) search_view.webContents.openDevTools();
+    searchView.webContents.on("certificate-error", () => {
+        rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
+        if (dev) searchView.webContents.openDevTools();
     });
 }
 /**
@@ -1502,84 +1502,84 @@ async function create_browser(window_name: number, url: string) {
  * @param {BrowserWindow} w 浏览器
  * @param {String} arg 事件字符
  */
-function view_events(w: BrowserWindow, arg: string) {
+function viewEvents(w: BrowserWindow, arg: string) {
     w.webContents.send("view_events", arg);
 }
 
 ipcMain.on("tab_view", (e, id, arg, arg2) => {
-    let main_window = BrowserWindow.fromWebContents(e.sender);
-    let search_window = search_window_l[id];
+    let mainWindow = BrowserWindow.fromWebContents(e.sender);
+    let searchWindow = searchWindowL[id];
     switch (arg) {
         case "close":
-            main_window.removeBrowserView(search_window);
+            mainWindow.removeBrowserView(searchWindow);
             // @ts-ignore
-            search_window.webContents.destroy();
-            delete search_window_l[id];
+            searchWindow.webContents.destroy();
+            delete searchWindowL[id];
             break;
         case "top":
             // 有时直接把主页面当成浏览器打开，这时pid未初始化就触发top了，直接忽略
-            if (!main_window) return;
-            main_window.setTopBrowserView(search_window);
-            min_views(main_window);
-            search_window.setBounds({
+            if (!mainWindow) return;
+            mainWindow.setTopBrowserView(searchWindow);
+            minViews(mainWindow);
+            searchWindow.setBounds({
                 x: 0,
                 y: 0,
-                width: main_window.getContentBounds().width,
-                height: main_window.getContentBounds().height - 48,
+                width: mainWindow.getContentBounds().width,
+                height: mainWindow.getContentBounds().height - 48,
             });
             break;
         case "back":
-            search_window.webContents.goBack();
+            searchWindow.webContents.goBack();
             break;
         case "forward":
-            search_window.webContents.goForward();
+            searchWindow.webContents.goForward();
             break;
         case "stop":
-            search_window.webContents.stop();
+            searchWindow.webContents.stop();
             break;
         case "reload":
-            search_window.webContents.reload();
+            searchWindow.webContents.reload();
             break;
         case "home":
-            min_views(main_window);
+            minViews(mainWindow);
             break;
         case "save_html":
-            main_window["html"] = arg2;
-            min_views(main_window);
+            mainWindow["html"] = arg2;
+            minViews(mainWindow);
             break;
         case "dev":
-            search_window.webContents.openDevTools();
+            searchWindow.webContents.openDevTools();
             break;
     }
 });
 
 /** 最小化某个窗口的所有标签页 */
-function min_views(main_window: BrowserWindow) {
-    for (let v of main_window.getBrowserViews()) {
+function minViews(mainWindow: BrowserWindow) {
+    for (let v of mainWindow.getBrowserViews()) {
         v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     }
 }
 
 /** 生成一个文件名 */
-function get_file_name() {
-    var save_name_time = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
-    var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
-    return file_name;
+function getFileName() {
+    var saveNameTime = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
+    var fileName = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+    return fileName;
 }
 /** 快速截屏 */
-function quick_clip() {
-    if (clip_window.webContents) clip_window.webContents.send("quick");
+function quickClip() {
+    if (clipWindow.webContents) clipWindow.webContents.send("quick");
 }
 
 /** 提示保存成功 */
-function noti(file_path: string) {
+function noti(filePath: string) {
     var notification = new Notification({
         title: `${app.name} ${t("保存图像成功")}`,
-        body: `${t("已保存图像到")} ${file_path}`,
-        icon: `${run_path}/assets/logo/64x64.png`,
+        body: `${t("已保存图像到")} ${filePath}`,
+        icon: `${runPath}/assets/logo/64x64.png`,
     });
     notification.on("click", () => {
-        shell.showItemInFolder(file_path);
+        shell.showItemInFolder(filePath);
     });
     notification.show();
 }
@@ -1603,7 +1603,7 @@ ipcMain.on("theme", (_e, v) => {
 });
 
 // 默认设置
-var default_setting = {
+var defaultSetting = {
     首次运行: false,
     设置版本: app.getVersion(),
     启动提示: true,
@@ -1826,18 +1826,18 @@ var default_setting = {
     插件: { 加载前: [], 加载后: [] },
 };
 try {
-    default_setting.保存.保存路径.图片 = app.getPath("pictures");
-    default_setting.保存.保存路径.视频 = app.getPath("videos");
+    defaultSetting.保存.保存路径.图片 = app.getPath("pictures");
+    defaultSetting.保存.保存路径.视频 = app.getPath("videos");
 } catch (e) {
     console.error(e);
 }
 
 function set_default_setting() {
-    for (let i in default_setting) {
+    for (let i in defaultSetting) {
         if (i == "语言") {
             store.set(i, { 语言: app.getLocale() || "zh-HANS" });
         } else {
-            store.set(i, default_setting[i]);
+            store.set(i, defaultSetting[i]);
         }
     }
 }

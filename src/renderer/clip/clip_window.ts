@@ -5,10 +5,10 @@ import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 
 // 获取设置
-let config_path = new URLSearchParams(location.search).get("config_path");
+let configPath = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
 var store = new Store({
-    cwd: config_path || "",
+    cwd: configPath || "",
 });
 
 if (store.get("框选.自动框选.开启")) {
@@ -22,19 +22,19 @@ var 工具栏跟随: string,
     选区颜色: string,
     取色器默认格式: string,
     取色器格式位置: number,
-    color_size: number,
-    color_i_size: number,
+    colorSize: number,
+    colorISize: number,
     记忆框选: boolean,
     记忆框选值: { [id: string]: rect },
-    b_size: number;
-var all_color_format = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
-function set_setting() {
+    bSize: number;
+var allColorFormat = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+function setSetting() {
     工具栏跟随 = store.get("工具栏跟随");
     光标 = store.get("光标");
     四角坐标 = store.get("显示四角坐标");
     取色器默认格式 = store.get("取色器默认格式");
-    for (let i in all_color_format) {
-        if (取色器默认格式 == all_color_format[i]) {
+    for (let i in allColorFormat) {
+        if (取色器默认格式 == allColorFormat[i]) {
             取色器格式位置 = Number(i) + 1;
             break;
         }
@@ -57,14 +57,14 @@ function set_setting() {
 
     document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
 
-    color_size = store.get("取色器大小");
-    color_i_size = store.get("像素大小");
-    document.documentElement.style.setProperty("--color-size", `${color_size * color_i_size}px`);
-    document.documentElement.style.setProperty("--color-i-size", `${color_i_size}px`);
-    document.documentElement.style.setProperty("--color-i-i", `${color_size}`);
+    colorSize = store.get("取色器大小");
+    colorISize = store.get("像素大小");
+    document.documentElement.style.setProperty("--color-size", `${colorSize * colorISize}px`);
+    document.documentElement.style.setProperty("--color-i-size", `${colorISize}px`);
+    document.documentElement.style.setProperty("--color-i-i", `${colorSize}`);
     let 工具栏 = store.get("工具栏");
     document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
-    b_size = 工具栏.按钮大小;
+    bSize = 工具栏.按钮大小;
     document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
 
     记忆框选 = store.get("框选.记忆.开启");
@@ -75,23 +75,23 @@ var 全局缩放 = store.get("全局.缩放") || 1.0;
 var ratio = 1;
 const editor = document.getElementById("editor");
 editor.style.width = window.screen.width / 全局缩放 + "px";
-const main_canvas = <HTMLCanvasElement>document.getElementById("main_photo");
-const clip_canvas = <HTMLCanvasElement>document.getElementById("clip_photo");
-const draw_canvas = <HTMLCanvasElement>document.getElementById("draw_photo");
+const mainCanvas = <HTMLCanvasElement>document.getElementById("main_photo");
+const clipCanvas = <HTMLCanvasElement>document.getElementById("clip_photo");
+const drawCanvas = <HTMLCanvasElement>document.getElementById("draw_photo");
 // 第一次截的一定是桌面,所以可提前定义
-main_canvas.width = clip_canvas.width = draw_canvas.width = window.screen.width * window.devicePixelRatio;
-main_canvas.height = clip_canvas.height = draw_canvas.height = window.screen.height * window.devicePixelRatio;
-var zoom_w = 0;
+mainCanvas.width = clipCanvas.width = drawCanvas.width = window.screen.width * window.devicePixelRatio;
+mainCanvas.height = clipCanvas.height = drawCanvas.height = window.screen.height * window.devicePixelRatio;
+var zoomW = 0;
 type rect = [number, number, number, number];
-var final_rect = [0, 0, main_canvas.width, main_canvas.height] as rect;
-var screen_position: { [key: string]: { x: number; y: number } } = {};
+var finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
+var screenPosition: { [key: string]: { x: number; y: number } } = {};
 
-var tool_bar = document.getElementById("tool_bar");
-var draw_bar = document.getElementById("draw_bar");
+var toolBar = document.getElementById("tool_bar");
+var drawBar = document.getElementById("draw_bar");
 
-var now_screen_id = 0;
+var nowScreenId = 0;
 
-var screens_l = [];
+var screensL = [];
 
 var screens = [];
 
@@ -163,7 +163,7 @@ function capturer(all: Screenshots[]) {
     return x;
 }
 
-function capture_all(_displays: Electron.Display[], point: Electron.Point) {
+function captureAll(_displays: Electron.Display[], point: Electron.Point) {
     // 获取所有屏幕截图
     let all = Screenshots.all() ?? [];
 
@@ -172,42 +172,42 @@ function capture_all(_displays: Electron.Display[], point: Electron.Point) {
     let x = capturer(all);
     screens = x;
 
-    let have_main = false;
+    let haveMain = false;
 
     let p = point;
     for (let i of x) {
         if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
             i["main"] = true;
-            have_main = true;
+            haveMain = true;
             break;
         }
     }
-    if (!have_main) x[0]["main"] = true;
+    if (!haveMain) x[0]["main"] = true;
     return x;
 }
 
-set_setting();
+setSetting();
 ipcRenderer.on("reflash", (_a, data, displays, point, act) => {
-    if (!data) data = capture_all(displays, point);
+    if (!data) data = captureAll(displays, point);
     console.log(data);
     for (let i of data) {
-        screens_l.push(i);
+        screensL.push(i);
         if (i) {
             if (i.main) {
-                set_screen(i);
-                set_editor_p(1 / i.scaleFactor, 0, 0);
-                zoom_w = i.width;
+                setScreen(i);
+                setEditorP(1 / i.scaleFactor, 0, 0);
+                zoomW = i.width;
                 ratio = i.scaleFactor;
             }
             let c = document.createElement("canvas");
-            to_canvas(c, i.image);
+            toCanvas(c, i.image);
             let div = document.createElement("div");
             div.append(c);
-            side_bar_screens.append(div);
+            sideBarScreens.append(div);
             div.onclick = () => {
-                set_screen(i);
+                setScreen(i);
             };
-            screen_position[i.id] = { x: i.x, y: i.y };
+            screenPosition[i.id] = { x: i.x, y: i.y };
 
             if (i.width < window.innerWidth || i.height < window.innerHeight) document.body.classList.add("editor_bg");
         }
@@ -215,33 +215,33 @@ ipcRenderer.on("reflash", (_a, data, displays, point, act) => {
 
     switch (act) {
         case "ocr":
-            final_rect = [0, 0, main_canvas.width, main_canvas.height];
+            finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
             tool.ocr();
             break;
         case "image_search":
-            final_rect = [0, 0, main_canvas.width, main_canvas.height];
+            finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
             tool.search();
             break;
     }
 
-    if (auto_photo_select_rect) {
+    if (autoPhotoSelectRect) {
         setTimeout(() => {
             edge();
         }, 0);
     }
 
-    get_linux_win();
-    get_win_win();
+    getLinuxWin();
+    getWinWin();
 
-    draw_clip_rect();
+    drawClipRect();
     setTimeout(() => {
-        wh_bar(final_rect);
+        whBar(finalRect);
     }, 0);
-    right_key = false;
-    change_right_bar(false);
+    rightKey = false;
+    changeRightBar(false);
 });
 
-function to_canvas(canvas: HTMLCanvasElement, img: Buffer) {
+function toCanvas(canvas: HTMLCanvasElement, img: Buffer) {
     let x = nativeImage.createFromBuffer(img).toBitmap();
     let size = nativeImage.createFromBuffer(img).getSize();
     let w = size.width;
@@ -255,35 +255,35 @@ function to_canvas(canvas: HTMLCanvasElement, img: Buffer) {
     canvas.getContext("2d").putImageData(d, 0, 0);
 }
 
-function set_screen(i) {
+function setScreen(i) {
     let size = nativeImage.createFromBuffer(i.image).getSize();
     let w = size.width;
     let h = size.height;
-    main_canvas.width = clip_canvas.width = draw_canvas.width = w;
-    main_canvas.height = clip_canvas.height = draw_canvas.height = h;
-    to_canvas(main_canvas, i.image);
-    fabric_canvas.setHeight(h);
-    fabric_canvas.setWidth(w);
-    final_rect = [0, 0, main_canvas.width, main_canvas.height];
+    mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
+    mainCanvas.height = clipCanvas.height = drawCanvas.height = h;
+    toCanvas(mainCanvas, i.image);
+    fabricCanvas.setHeight(h);
+    fabricCanvas.setWidth(w);
+    finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     if (记忆框选)
         if (记忆框选值?.[i.id]?.[2]) {
-            final_rect = 记忆框选值[i.id];
-            rect_select = true;
-            final_rect_fix();
+            finalRect = 记忆框选值[i.id];
+            rectSelect = true;
+            finalRectFix();
         } // 记忆框选边不为0时
-    draw_clip_rect();
-    now_screen_id = i.id;
+    drawClipRect();
+    nowScreenId = i.id;
 }
 
 /** 生成一个文件名 */
-function get_file_name() {
-    var save_name_time = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
-    var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
-    return file_name;
+function getFileName() {
+    var saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
+    var filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+    return filename;
 }
 
 /** 快速截屏 */
-function quick_clip() {
+function quickClip() {
     const fs = require("fs");
     (Screenshots.all() ?? []).forEach((c) => {
         let image = nativeImage.createFromBuffer(c.captureSync());
@@ -291,24 +291,24 @@ function quick_clip() {
             clipboard.writeImage(image);
             image = null;
         } else if (store.get("快速截屏.模式") == "path" && store.get("快速截屏.路径")) {
-            var file_name = `${store.get("快速截屏.路径")}${get_file_name()}.png`;
-            check_file(1, file_name);
+            var filename = `${store.get("快速截屏.路径")}${getFileName()}.png`;
+            checkFile(1, filename);
         }
-        function check_file(n, name) {
+        function checkFile(n, name) {
             // 检查文件是否存在于当前目录中。
             fs.access(name, fs.constants.F_OK, (err) => {
                 if (!err) {
                     /* 存在文件，需要重命名 */
-                    name = file_name.replace(/\.png$/, `(${n}).png`);
-                    check_file(n + 1, name);
+                    name = filename.replace(/\.png$/, `(${n}).png`);
+                    checkFile(n + 1, name);
                 } else {
-                    file_name = name;
+                    filename = name;
                     fs.writeFile(
-                        file_name,
+                        filename,
                         Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
                         (err) => {
                             if (err) return;
-                            ipcRenderer.send("clip_main_b", "ok_save", file_name);
+                            ipcRenderer.send("clip_main_b", "ok_save", filename);
                             image = null;
                         }
                     );
@@ -318,30 +318,30 @@ function quick_clip() {
     });
 }
 
-ipcRenderer.on("quick", quick_clip);
+ipcRenderer.on("quick", quickClip);
 
-let now_mouse_e: MouseEvent = null;
+let nowMouseE: MouseEvent = null;
 document.addEventListener("mousemove", (e) => {
-    now_mouse_e = e;
+    nowMouseE = e;
 });
 
 document.onwheel = (e) => {
     if (!editor.contains(e.target as HTMLElement) && e.target != document.body) return;
-    if (long_inited) return;
-    if (record_inited) return;
+    if (longInited) return;
+    if (recordInited) return;
 
     document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
         let zz = 1 + Math.abs(e.deltaY) / 300;
-        let z = e.deltaY > 0 ? zoom_w / zz : zoom_w * zz;
-        zoom_w = z;
-        let ozoom = editor_p.zoom,
-            nzoom = z / main_canvas.width;
-        let dx = now_mouse_e.clientX - editor_p.x * ozoom,
-            dy = now_mouse_e.clientY - editor_p.y * ozoom;
-        let x = now_mouse_e.clientX - dx * (nzoom / ozoom),
-            y = now_mouse_e.clientY - dy * (nzoom / ozoom);
-        set_editor_p(nzoom, x / nzoom, y / nzoom);
+        let z = e.deltaY > 0 ? zoomW / zz : zoomW * zz;
+        zoomW = z;
+        let ozoom = editorP.zoom,
+            nzoom = z / mainCanvas.width;
+        let dx = nowMouseE.clientX - editorP.x * ozoom,
+            dy = nowMouseE.clientY - editorP.y * ozoom;
+        let x = nowMouseE.clientX - dx * (nzoom / ozoom),
+            y = nowMouseE.clientY - dy * (nzoom / ozoom);
+        setEditorP(nzoom, x / nzoom, y / nzoom);
     } else {
         let dx = 0,
             dy = 0;
@@ -351,73 +351,73 @@ document.onwheel = (e) => {
             dx = -e.deltaX;
             dy = -e.deltaY;
         }
-        set_editor_p(editor_p.zoom, editor_p.x + dx / editor_p.zoom, editor_p.y + dy / editor_p.zoom);
+        setEditorP(editorP.zoom, editorP.x + dx / editorP.zoom, editorP.y + dy / editorP.zoom);
     }
 };
 
-let editor_p = { zoom: 1, x: 0, y: 0 };
-function set_editor_p(zoom: number, x: number, y: number) {
+let editorP = { zoom: 1, x: 0, y: 0 };
+function setEditorP(zoom: number, x: number, y: number) {
     let t = [];
     if (zoom != null) {
         t.push(`scale(${zoom})`);
-        editor_p.zoom = zoom;
+        editorP.zoom = zoom;
     }
     if (x != null) {
         t.push(`translateX(${x}px)`);
-        editor_p.x = x;
+        editorP.x = x;
     }
     if (y != null) {
         t.push(`translateY(${y}px)`);
-        editor_p.y = y;
+        editorP.y = y;
     }
     editor.style.transform = t.join(" ");
-    watting_el.style.transform = t.join(" ");
-    watting_el.style.left = final_rect[0] * editor_p.zoom + "px";
-    watting_el.style.top = final_rect[1] * editor_p.zoom + "px";
+    wattingEl.style.transform = t.join(" ");
+    wattingEl.style.left = finalRect[0] * editorP.zoom + "px";
+    wattingEl.style.top = finalRect[1] * editorP.zoom + "px";
 }
 
 document.onkeyup = (e) => {
     if (e.key == "0") {
         if (e.ctrlKey) {
-            set_editor_p(1, 0, 0);
-            zoom_w = main_canvas.width;
+            setEditorP(1, 0, 0);
+            zoomW = mainCanvas.width;
         }
     }
 };
 
-let middle_b: PointerEvent;
-let middle_p = { x: 0, y: 0 };
+let middleB: PointerEvent;
+let middleP = { x: 0, y: 0 };
 document.addEventListener("pointerdown", (e) => {
     if (e.button == 1) {
-        middle_b = e;
-        middle_p.x = editor_p.x;
-        middle_p.y = editor_p.y;
+        middleB = e;
+        middleP.x = editorP.x;
+        middleP.y = editorP.y;
         document.body.classList.add("editor_bg");
     }
 });
 document.addEventListener("pointermove", (e) => {
-    if (middle_b) {
-        let dx = e.clientX - middle_b.clientX,
-            dy = e.clientY - middle_b.clientY;
-        set_editor_p(editor_p.zoom, middle_p.x + dx / editor_p.zoom, middle_p.y + dy / editor_p.zoom);
+    if (middleB) {
+        let dx = e.clientX - middleB.clientX,
+            dy = e.clientY - middleB.clientY;
+        setEditorP(editorP.zoom, middleP.x + dx / editorP.zoom, middleP.y + dy / editorP.zoom);
     }
 });
 document.addEventListener("pointerup", (_e) => {
-    middle_b = null;
+    middleB = null;
 });
 
-var edge_rect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
+var edgeRect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
 function edge() {
-    let canvas = main_canvas;
+    let canvas = mainCanvas;
     let src = cv.imread(canvas);
 
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
     // cv.imshow(canvas, src);
 
     let dst = new cv.Mat();
-    let c_min = store.get("框选.自动框选.最小阈值"),
-        c_max = store.get("框选.自动框选.最大阈值");
-    cv.Canny(src, dst, c_min, c_max, 3, true);
+    let cMin = store.get("框选.自动框选.最小阈值"),
+        cMax = store.get("框选.自动框选.最大阈值");
+    cv.Canny(src, dst, cMin, cMax, 3, true);
 
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
@@ -428,7 +428,7 @@ function edge() {
         let cnt = contours.get(i);
         let r = cv.boundingRect(cnt);
         r["type"] = "image";
-        edge_rect.push(r);
+        edgeRect.push(r);
     }
 
     // cv.imshow(canvas, dst);
@@ -441,7 +441,7 @@ function edge() {
     src = dst = contours = hierarchy = null;
 }
 
-function get_linux_win() {
+function getLinuxWin() {
     if (process.platform != "linux") return;
     var x11 = require("x11");
     var X = x11.createClient(function (err, display) {
@@ -455,7 +455,7 @@ function get_linux_win() {
                     X.GetWindowAttributes(x, function (_err, attrs) {
                         if (attrs.mapState == 2) {
                             X.GetGeometry(x, function (_err, clientGeom) {
-                                edge_rect.push({
+                                edgeRect.push({
                                     x: clientGeom.xPos,
                                     y: clientGeom.yPos,
                                     width: clientGeom.width,
@@ -471,63 +471,63 @@ function get_linux_win() {
     });
 }
 
-function get_win_win() {
+function getWinWin() {
     if (process.platform != "win32") return;
     let { exec } = require("child_process");
-    let run_path = ipcRenderer.sendSync("run_path");
-    exec(`${run_path}/lib/win_rect.exe`, (err, out) => {
+    let runPath = ipcRenderer.sendSync("run_path");
+    exec(`${runPath}/lib/win_rect.exe`, (err, out) => {
         console.log(out);
         if (!err) {
             out = out.replaceAll("\x00", "");
             let r = JSON.parse(out);
-            for (let i of r) edge_rect.push({ x: i.x, y: i.y, width: i.width, height: i.height, type: "system" });
+            for (let i of r) edgeRect.push({ x: i.x, y: i.y, width: i.width, height: i.height, type: "system" });
         }
     });
 }
 
 // 左边窗口工具栏弹出
 var o = false;
-const side_bar = document.getElementById("windows_bar");
-const side_bar_screens = document.getElementById("screens");
-hotkeys("z", windows_bar_c_o);
-function windows_bar_c_o() {
+const sideBar = document.getElementById("windows_bar");
+const sideBarScreens = document.getElementById("screens");
+hotkeys("z", windowsBarCO);
+function windowsBarCO() {
     if (!o) {
-        side_bar.style.transform = "translateX(0)";
+        sideBar.style.transform = "translateX(0)";
         o = true;
     } else {
-        side_bar.style.transform = "translateX(-100%)";
+        sideBar.style.transform = "translateX(-100%)";
         o = false;
     }
 }
 
-document.getElementById("windows_bar_close").onclick = windows_bar_c_o;
+document.getElementById("windows_bar_close").onclick = windowsBarCO;
 
-var b_scope = null;
-var center_bar_show = false;
-var center_bar_m = null;
-function s_center_bar(m) {
+var bScope = null;
+var centerBarShow = false;
+var centerBarM = null;
+function sCenterBar(m) {
     hotkeys.deleteScope("c_bar");
-    if (center_bar_m == m) {
-        center_bar_show = false;
-        center_bar_m = null;
+    if (centerBarM == m) {
+        centerBarShow = false;
+        centerBarM = null;
     } else {
-        center_bar_show = true;
-        center_bar_m = m;
+        centerBarShow = true;
+        centerBarM = m;
     }
-    if (m === false) center_bar_show = false;
-    if (center_bar_show) {
+    if (m === false) centerBarShow = false;
+    if (centerBarShow) {
         document.getElementById("save_type").style.height = "0";
         document.getElementById("draw_edit").style.height = "0";
         document.getElementById("save_type").style.width = "0";
         document.getElementById("draw_edit").style.width = "0";
         document.getElementById("center_bar").style.opacity = "1";
         document.getElementById("center_bar").style.pointerEvents = "auto";
-        if (hotkeys.getScope() != "all") b_scope = hotkeys.getScope();
+        if (hotkeys.getScope() != "all") bScope = hotkeys.getScope();
         hotkeys.setScope("c_bar");
     } else {
         document.getElementById("center_bar").style.opacity = "0";
         document.getElementById("center_bar").style.pointerEvents = "none";
-        hotkeys.setScope(b_scope || "normal");
+        hotkeys.setScope(bScope || "normal");
     }
     switch (m) {
         case "save":
@@ -542,33 +542,33 @@ function s_center_bar(m) {
 }
 
 var tool = {
-    close: () => close_win(),
-    ocr: () => run_ocr(),
-    search: () => run_search(),
-    QR: () => run_QR(),
-    draw: () => init_draw(),
-    open: () => open_app(),
-    record: () => init_record(),
-    long: () => start_long(),
+    close: () => closeWin(),
+    ocr: () => runOcr(),
+    search: () => runSearch(),
+    QR: () => runQr(),
+    draw: () => initDraw(),
+    open: () => openApp(),
+    record: () => initRecord(),
+    long: () => startLong(),
 
     // 钉在屏幕上
-    ding: () => run_ding(),
+    ding: () => runDing(),
     // 复制
-    copy: () => run_copy(),
-    save: () => run_save(),
+    copy: () => runCopy(),
+    save: () => runSave(),
 };
 
 // 工具栏按钮
-tool_bar.onmouseup = (e) => {
+toolBar.onmouseup = (e) => {
     var el = <HTMLElement>e.target;
-    if (el.parentElement != tool_bar) return;
+    if (el.parentElement != toolBar) return;
     if (e.button == 0) {
         tool[el.id.replace("tool_", "")]();
     }
     // 中键取消抬起操作
     if (e.button == 1) {
         el.style.backgroundColor = "";
-        auto_do = "no";
+        autoDo = "no";
     }
 };
 
@@ -597,22 +597,22 @@ hotkeys(store.get("其他快捷键.录屏"), "normal", tool.record);
 hotkeys(store.get("其他快捷键.复制"), "normal", tool.copy);
 hotkeys(store.get("其他快捷键.保存"), "normal", tool.save);
 
-var auto_do = store.get("框选后默认操作");
-if (auto_do != "no") {
-    document.getElementById(`tool_${auto_do}`).style.backgroundColor = "var(--hover-color)";
+var autoDo = store.get("框选后默认操作");
+if (autoDo != "no") {
+    document.getElementById(`tool_${autoDo}`).style.backgroundColor = "var(--hover-color)";
 }
 
-function 记忆框选_f() {
-    if (记忆框选 && !long_inited) {
-        记忆框选值[now_screen_id] = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]];
+function 记忆框选f() {
+    if (记忆框选 && !longInited) {
+        记忆框选值[nowScreenId] = [finalRect[0], finalRect[1], finalRect[2], finalRect[3]];
         store.set("框选.记忆.rects", 记忆框选值);
     }
 }
 
 // 关闭
-function close_win() {
+function closeWin() {
     document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
-    记忆框选_f();
+    记忆框选f();
     if (uIOhook) {
         uIOhook.stop();
     }
@@ -638,16 +638,16 @@ document.getElementById("ocr引擎").oninput = () => {
 };
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
 
-const ocr_err = document.getElementById("ocr_error");
-ocr_err.classList.add("ocr_err_hide");
+const ocrErrEl = document.getElementById("ocr_error");
+ocrErrEl.classList.add("ocr_err_hide");
 
-function run_ocr() {
+function runOcr() {
     const type = ocr引擎.value;
-    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+    getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
-    scan_line();
+    scanLine();
 
     ipcRenderer.on("ocr_back", (_event, arg) => {
         if (arg == "ok") {
@@ -655,28 +655,28 @@ function run_ocr() {
             tool.close;
         } else {
             document.getElementById("waiting").style.display = "none";
-            ocr_err.classList.remove("ocr_err_hide");
+            ocrErrEl.classList.remove("ocr_err_hide");
             let text = document.createElement("div");
             text.innerText = arg;
-            let close_el = document.createElement("div");
-            close_el.onclick = () => {
-                ocr_err.classList.add("ocr_err_hide");
+            let closeEl = document.createElement("div");
+            closeEl.onclick = () => {
+                ocrErrEl.classList.add("ocr_err_hide");
             };
-            ocr_err.append(text, close_el);
+            ocrErrEl.append(text, closeEl);
 
-            ocr_err.style.left = `calc(50% - ${ocr_err.offsetWidth / 2}px)`;
-            ocr_err.style.top = `calc(50% - ${ocr_err.offsetHeight / 2}px)`;
+            ocrErrEl.style.left = `calc(50% - ${ocrErrEl.offsetWidth / 2}px)`;
+            ocrErrEl.style.top = `calc(50% - ${ocrErrEl.offsetHeight / 2}px)`;
         }
     });
 }
 
-const watting_el = document.getElementById("waiting");
-function scan_line() {
-    watting_el.style.display = "block";
-    watting_el.style.left = final_rect[0] * editor_p.zoom + "px";
-    watting_el.style.top = final_rect[1] * editor_p.zoom + "px";
-    watting_el.style.width = final_rect[2] + "px";
-    watting_el.style.height = final_rect[3] + "px";
+const wattingEl = document.getElementById("waiting");
+function scanLine() {
+    wattingEl.style.display = "block";
+    wattingEl.style.left = finalRect[0] * editorP.zoom + "px";
+    wattingEl.style.top = finalRect[1] * editorP.zoom + "px";
+    wattingEl.style.width = finalRect[2] + "px";
+    wattingEl.style.height = finalRect[3] + "px";
     (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[0]).beginElement();
     (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[1]).beginElement();
 }
@@ -688,13 +688,13 @@ var 识图引擎 = <HTMLSelectElement>document.getElementById("识图引擎");
     tool.search();
 };
 document.getElementById("tool_search").title = `以图搜图 - ${识图引擎.value}`;
-function run_search() {
+function runSearch() {
     const type = 识图引擎.value;
-    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+    getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
 
-    scan_line();
+    scanLine();
 
     ipcRenderer.on("search_back", (_event, arg) => {
         if (arg == "ok") {
@@ -706,9 +706,9 @@ function run_search() {
     });
 }
 // 二维码
-function run_QR() {
+function runQr() {
     const jsqr = require("jsqr");
-    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+    getClipPhoto("png").then((c: HTMLCanvasElement) => {
         var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
         var code = jsqr(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
@@ -724,21 +724,21 @@ function run_QR() {
 // 图片编辑
 var drawing = false;
 
-function init_draw() {
+function initDraw() {
     drawing = drawing ? false : true; // 切换状态
-    draw_m(drawing);
+    drawM(drawing);
     if (!drawing) {
         document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
             ei.show = false;
         });
-        draw_bar.style.width = "var(--bar-size)";
+        drawBar.style.width = "var(--bar-size)";
         for (const ee of document.querySelectorAll("#draw_main > div")) {
             (<HTMLDivElement>ee).style.backgroundColor = "";
         }
     }
 }
 
-function draw_m(v: boolean) {
+function drawM(v: boolean) {
     drawing = v;
     if (v) {
         // 绘画模式
@@ -750,70 +750,70 @@ function draw_m(v: boolean) {
         document.getElementById("tool_draw").className = "";
         document.getElementById("clip_photo").style.pointerEvents = "auto";
         hotkeys.setScope("normal");
-        fabric_canvas.discardActiveObject();
-        fabric_canvas.renderAll();
-        mouse_bar_el.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "auto";
+        fabricCanvas.discardActiveObject();
+        fabricCanvas.renderAll();
+        mouseBarEl.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "auto";
     }
 }
-track_location();
+trackLocation();
 
 /**
  * 编辑栏跟踪工具栏
  */
-function track_location() {
-    let h = tool_bar.offsetTop;
-    let l = tool_bar.offsetLeft + tool_bar.offsetWidth + 8;
-    if (draw_bar_posi == "left") {
-        l = tool_bar.offsetLeft - draw_bar.offsetWidth - 8;
+function trackLocation() {
+    let h = toolBar.offsetTop;
+    let l = toolBar.offsetLeft + toolBar.offsetWidth + 8;
+    if (drawBarPosi == "left") {
+        l = toolBar.offsetLeft - drawBar.offsetWidth - 8;
     }
-    draw_bar.style.top = `${h}px`;
-    draw_bar.style.left = `${l}px`;
+    drawBar.style.top = `${h}px`;
+    drawBar.style.left = `${l}px`;
 }
 
 // 在其他应用打开
 
 import open_with from "../../../lib/open_with";
 
-function open_app() {
+function openApp() {
     const path = require("path");
     const os = require("os");
-    const tmp_photo = path.join(os.tmpdir(), "/eSearch/tmp.png");
+    const tmpPhoto = path.join(os.tmpdir(), "/eSearch/tmp.png");
     const fs = require("fs");
-    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+    getClipPhoto("png").then((c: HTMLCanvasElement) => {
         var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
         var dataBuffer = new Buffer(f, "base64");
-        fs.writeFile(tmp_photo, dataBuffer, () => {
-            open_with(tmp_photo);
+        fs.writeFile(tmpPhoto, dataBuffer, () => {
+            open_with(tmpPhoto);
         });
     });
 }
 
-const recorder_rect_el = document.getElementById("recorder_rect");
-const recorder_mouse_el = document.getElementById("mouse_c");
+const recorderRectEl = document.getElementById("recorder_rect");
+const recorderMouseEl = document.getElementById("mouse_c");
 
-var record_inited = false;
+var recordInited = false;
 
-function init_record() {
-    record_inited = true;
+function initRecord() {
+    recordInited = true;
     ipcRenderer.send("clip_main_b", "record", {
-        rect: final_rect,
-        id: now_screen_id,
-        w: main_canvas.width,
-        h: main_canvas.height,
+        rect: finalRect,
+        id: nowScreenId,
+        w: mainCanvas.width,
+        h: mainCanvas.height,
         ratio: ratio,
     });
     let l = [
-        tool_bar,
-        draw_bar,
-        main_canvas,
-        clip_canvas,
-        draw_canvas,
+        toolBar,
+        drawBar,
+        mainCanvas,
+        clipCanvas,
+        drawCanvas,
         document.getElementById("draw_photo_top"),
-        wh_el,
-        mouse_bar_el,
+        whEl,
+        mouseBarEl,
         lr,
-        loading_el,
-        ocr_err,
+        loadingEl,
+        ocrErrEl,
     ];
 
     for (let i of l) {
@@ -825,7 +825,7 @@ function init_record() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
         var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 
-    function r_key() {
+    function rKey() {
         var keycode2key = {};
 
         for (let i in UiohookKey) {
@@ -833,30 +833,30 @@ function init_record() {
         }
         console.log(keycode2key);
 
-        var key_o = [];
+        var keyO = [];
 
         uIOhook.on("keydown", (e) => {
-            if (!key_o.includes(e.keycode)) key_o.push(e.keycode);
-            document.getElementById("recorder_key").innerHTML = `<kbd>${key_o
+            if (!keyO.includes(e.keycode)) keyO.push(e.keycode);
+            document.getElementById("recorder_key").innerHTML = `<kbd>${keyO
                 .map((v) => keycode2key[v])
                 .join("</kbd>+<kbd>")}</kbd>`;
         });
         uIOhook.on("keyup", (e) => {
-            key_o = key_o.filter((i) => i != e.keycode);
+            keyO = keyO.filter((i) => i != e.keycode);
             document.getElementById("recorder_key").innerHTML =
-                key_o.length == 0 ? "" : `<kbd>${key_o.map((v) => keycode2key[v]).join("</kbd>+<kbd>")}</kbd>`;
+                keyO.length == 0 ? "" : `<kbd>${keyO.map((v) => keycode2key[v]).join("</kbd>+<kbd>")}</kbd>`;
         });
     }
 
-    function r_mouse() {
+    function rMouse() {
         var m2m = { 1: 0, 3: 1, 2: 2 };
-        var mouse_el = recorder_mouse_el.querySelectorAll("div");
+        var mouseEl = recorderMouseEl.querySelectorAll("div");
 
         uIOhook.on("mousedown", (e) => {
-            mouse_el[m2m[e.button as number]].style.backgroundColor = "#00f";
+            mouseEl[m2m[e.button as number]].style.backgroundColor = "#00f";
         });
         uIOhook.on("mouseup", (e) => {
-            mouse_el[m2m[e.button as number]].style.backgroundColor = "";
+            mouseEl[m2m[e.button as number]].style.backgroundColor = "";
         });
 
         let time_out;
@@ -866,72 +866,72 @@ function init_record() {
                 3: { 1: "wheel_u", "-1": "wheel_d" },
                 4: { 1: "wheel_l", "-1": "wheel_r" },
             };
-            recorder_mouse_el.className = x[e.direction][e.rotation];
+            recorderMouseEl.className = x[e.direction][e.rotation];
             clearTimeout(time_out);
             time_out = setTimeout(() => {
-                recorder_mouse_el.className = "";
+                recorderMouseEl.className = "";
             }, 200);
         });
     }
 
-    if (store.get("录屏.提示.键盘.开启")) r_key();
-    if (store.get("录屏.提示.鼠标.开启")) r_mouse();
+    if (store.get("录屏.提示.键盘.开启")) rKey();
+    if (store.get("录屏.提示.鼠标.开启")) rMouse();
 
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启")) uIOhook.start();
 
-    if (store.get("录屏.提示.光标.开启")) recorder_mouse_el.style.display = "flex";
+    if (store.get("录屏.提示.光标.开启")) recorderMouseEl.style.display = "flex";
 
-    var mouse_style = document.createElement("style");
-    mouse_style.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
-    document.body.appendChild(mouse_style);
-    recorder_rect_el.style.left = final_rect[0] / ratio + "px";
-    recorder_rect_el.style.top = final_rect[1] / ratio + "px";
-    recorder_rect_el.style.width = final_rect[2] / ratio + "px";
-    recorder_rect_el.style.height = final_rect[3] / ratio + "px";
+    var mouseStyle = document.createElement("style");
+    mouseStyle.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
+    document.body.appendChild(mouseStyle);
+    recorderRectEl.style.left = finalRect[0] / ratio + "px";
+    recorderRectEl.style.top = finalRect[1] / ratio + "px";
+    recorderRectEl.style.width = finalRect[2] / ratio + "px";
+    recorderRectEl.style.height = finalRect[3] / ratio + "px";
 
     ipcRenderer.on("record", async (_event, t, arg) => {
         switch (t) {
             case "mouse":
-                recorder_mouse_el.style.left = arg.x + "px";
-                recorder_mouse_el.style.top = arg.y + "px";
+                recorderMouseEl.style.left = arg.x + "px";
+                recorderMouseEl.style.top = arg.y + "px";
                 break;
         }
     });
 
-    记忆框选_f();
+    记忆框选f();
 }
 
 function long_s() {
-    let s = Screenshots.fromDisplay(now_screen_id);
+    let s = Screenshots.fromDisplay(nowScreenId);
     let x = nativeImage.createFromBuffer(capturer([s])[0].image);
-    add_long(x.getBitmap(), x.getSize().width, x.getSize().height);
+    addLong(x.getBitmap(), x.getSize().width, x.getSize().height);
     s = x = null;
 }
 
 let uIOhook;
 
-var log_o = {
-    long_list: [] as [HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement][],
+var logO = {
+    longList: [] as [HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement][],
     l: [],
-    o_canvas: null,
+    oCanvas: null,
     p: { x: 0, y: 0 },
 };
 
-function start_long() {
-    log_o.long_list = [];
-    init_long(final_rect);
-    let r = [...final_rect];
-    r[0] += screen_position[now_screen_id].x;
-    r[1] += screen_position[now_screen_id].y;
+function startLong() {
+    logO.longList = [];
+    initLong(finalRect);
+    let r = [...finalRect];
+    r[0] += screenPosition[nowScreenId].x;
+    r[1] += screenPosition[nowScreenId].y;
     long_s();
     ipcRenderer.send("clip_main_b", "long_s", r);
     if (!cv) cv = require("opencv.js");
-    log_o.o_canvas = document.createElement("canvas");
-    let o_canvas = log_o.o_canvas;
-    log_o.p = { x: 0, y: 0 };
-    o_canvas.width = final_rect[2];
-    o_canvas.height = final_rect[3];
-    log_o.l = [];
+    logO.oCanvas = document.createElement("canvas");
+    let oCanvas = logO.oCanvas;
+    logO.p = { x: 0, y: 0 };
+    oCanvas.width = finalRect[2];
+    oCanvas.height = finalRect[3];
+    logO.l = [];
     uIOhook = require("uiohook-napi").uIOhook;
     uIOhook.start();
     uIOhook.on("keyup", () => {
@@ -942,22 +942,22 @@ function start_long() {
     });
 }
 
-function add_long(x, w, h) {
-    let long_list = log_o.long_list;
-    let o_canvas = log_o.o_canvas;
-    let p = log_o.p;
+function addLong(x, w, h) {
+    let longList = logO.longList;
+    let oCanvas = logO.oCanvas;
+    let p = logO.p;
     if (!x) {
         uIOhook.stop();
         uIOhook = null;
-        pj_long();
+        pjLong();
         return;
     }
     // 原始区域
     let canvas = document.createElement("canvas");
     // 对比模板
-    let canvas_top = document.createElement("canvas");
+    let canvasTop = document.createElement("canvas");
     // 要拼接的图片
-    let canvas_after = document.createElement("canvas");
+    let canvasAfter = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
     for (let i = 0; i < x.length; i += 4) {
@@ -965,55 +965,55 @@ function add_long(x, w, h) {
     }
     var d = new ImageData(Uint8ClampedArray.from(x), w, h);
     canvas.getContext("2d").putImageData(d, 0, 0);
-    var gid = canvas.getContext("2d").getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
-    canvas.width = canvas_top.width = canvas_after.width = final_rect[2];
-    canvas.height = final_rect[3];
-    const rec_height = Math.min(200, final_rect[3]);
-    const rec_top = Math.floor(final_rect[3] / 2 - rec_height / 2);
-    canvas_top.height = rec_height; // 只是用于模板对比，小一点
-    canvas_after.height = final_rect[3] - rec_top; // 裁剪顶部
+    var gid = canvas.getContext("2d").getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
+    canvas.width = canvasTop.width = canvasAfter.width = finalRect[2];
+    canvas.height = finalRect[3];
+    const recHeight = Math.min(200, finalRect[3]);
+    const recTop = Math.floor(finalRect[3] / 2 - recHeight / 2);
+    canvasTop.height = recHeight; // 只是用于模板对比，小一点
+    canvasAfter.height = finalRect[3] - recTop; // 裁剪顶部
     canvas.getContext("2d").putImageData(gid, 0, 0);
-    canvas_top.getContext("2d").putImageData(gid, 0, -rec_top);
-    canvas_after.getContext("2d").putImageData(gid, 0, -rec_top);
-    long_list.push([canvas, canvas_top, canvas_after]);
-    let i = long_list.length - 2;
+    canvasTop.getContext("2d").putImageData(gid, 0, -recTop);
+    canvasAfter.getContext("2d").putImageData(gid, 0, -recTop);
+    longList.push([canvas, canvasTop, canvasAfter]);
+    let i = longList.length - 2;
     if (i < 0) return;
-    let src = cv.imread(long_list[i][0]);
-    let templ = cv.imread(long_list[i + 1][1]);
+    let src = cv.imread(longList[i][0]);
+    let templ = cv.imread(longList[i + 1][1]);
     let dst = new cv.Mat();
     let mask = new cv.Mat();
     cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
     let result = cv.minMaxLoc(dst, mask);
     let maxPoint = result.maxLoc;
-    o_canvas.width += maxPoint.x;
-    o_canvas.height += maxPoint.y;
+    oCanvas.width += maxPoint.x;
+    oCanvas.height += maxPoint.y;
     p.x += maxPoint.x;
     p.y += maxPoint.y;
-    log_o.l.push([p.x, p.y]);
-    o_canvas.height -= rec_top;
-    p.y -= rec_top;
+    logO.l.push([p.x, p.y]);
+    oCanvas.height -= recTop;
+    p.y -= recTop;
     src.delete();
     dst.delete();
     mask.delete();
-    long_list[i + 1][1] = null;
+    longList[i + 1][1] = null;
 }
 
-var long_inited = false;
+var longInited = false;
 
 const lr = document.getElementById("long_rect");
-function init_long(rect: number[]) {
-    long_inited = true;
+function initLong(rect: number[]) {
+    longInited = true;
     let l = [
-        tool_bar,
-        draw_bar,
-        main_canvas,
-        clip_canvas,
-        draw_canvas,
+        toolBar,
+        drawBar,
+        mainCanvas,
+        clipCanvas,
+        drawCanvas,
         document.getElementById("draw_photo_top"),
-        wh_el,
-        mouse_bar_el,
-        loading_el,
-        ocr_err,
+        whEl,
+        mouseBarEl,
+        loadingEl,
+        ocrErrEl,
     ];
 
     for (let i of l) {
@@ -1022,7 +1022,7 @@ function init_long(rect: number[]) {
 
     document.body.classList.remove("editor_bg");
 
-    记忆框选值[now_screen_id] = [rect[0], rect[1], rect[2], rect[3]];
+    记忆框选值[nowScreenId] = [rect[0], rect[1], rect[2], rect[3]];
     store.set("框选.记忆.rects", 记忆框选值);
 
     lr.style.left = rect[0] / ratio + "px";
@@ -1031,54 +1031,54 @@ function init_long(rect: number[]) {
     lr.style.height = rect[3] / ratio + "px";
     document.getElementById("long_finish").onclick = () => {
         lr.style.opacity = "0";
-        ipcRenderer.send("clip_main_b", "long_e", now_screen_id);
-        add_long(null, null, null);
+        ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
+        addLong(null, null, null);
         for (let i of l) {
             i.style.display = "";
         }
     };
 
-    show_loading("截屏拼接中");
-    main_canvas.style.filter = "blur(20px)";
+    showLoading("截屏拼接中");
+    mainCanvas.style.filter = "blur(20px)";
 }
 
-function pj_long() {
-    let l = log_o.l,
-        long_list = log_o.long_list,
-        o_canvas = log_o.o_canvas;
-    o_canvas.getContext("2d").drawImage(long_list[0][0], 0, 0); // 先画顶部图片，使用原始区域
-    for (let i = 0; i < long_list.length - 1; i++) {
-        o_canvas.getContext("2d").drawImage(long_list[i + 1][2], l[i][0], l[i][1]); // 每次拼接覆盖时底部总会被覆盖，所以不用管底部
+function pjLong() {
+    let l = logO.l,
+        longList = logO.longList,
+        oCanvas = logO.oCanvas;
+    oCanvas.getContext("2d").drawImage(longList[0][0], 0, 0); // 先画顶部图片，使用原始区域
+    for (let i = 0; i < longList.length - 1; i++) {
+        oCanvas.getContext("2d").drawImage(longList[i + 1][2], l[i][0], l[i][1]); // 每次拼接覆盖时底部总会被覆盖，所以不用管底部
     }
-    main_canvas.width = clip_canvas.width = draw_canvas.width = o_canvas.width;
-    main_canvas.height = clip_canvas.height = draw_canvas.height = o_canvas.height;
+    mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
+    mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
 
-    let ggid = o_canvas.getContext("2d").getImageData(0, 0, o_canvas.width, o_canvas.height);
-    main_canvas.getContext("2d").putImageData(ggid, 0, 0);
+    let ggid = oCanvas.getContext("2d").getImageData(0, 0, oCanvas.width, oCanvas.height);
+    mainCanvas.getContext("2d").putImageData(ggid, 0, 0);
 
-    final_rect = [0, 0, o_canvas.width, o_canvas.height];
+    finalRect = [0, 0, oCanvas.width, oCanvas.height];
 
-    fabric_canvas.setWidth(o_canvas.width);
-    fabric_canvas.setHeight(o_canvas.height);
+    fabricCanvas.setWidth(oCanvas.width);
+    fabricCanvas.setHeight(oCanvas.height);
 
-    main_canvas.style.filter = "";
-    hide_loading();
+    mainCanvas.style.filter = "";
+    hideLoading();
 
     document.body.classList.add("editor_bg");
 
     lr.style.width = lr.style.height = "0";
 
-    long_inited = false;
+    longInited = false;
 }
 
 // 钉在屏幕上
-function run_ding() {
-    var ding_window_setting = final_rect;
-    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+function runDing() {
+    var ding_window_setting = finalRect;
+    getClipPhoto("png").then((c: HTMLCanvasElement) => {
         // @ts-ignore
         ding_window_setting[4] = c.toDataURL();
         // @ts-ignore
-        ding_window_setting[5] = now_screen_id;
+        ding_window_setting[5] = nowScreenId;
         // @ts-ignore
         ding_window_setting[6] = screens;
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
@@ -1086,45 +1086,45 @@ function run_ding() {
     });
 }
 // 复制
-function run_copy() {
-    get_clip_photo("png").then((c: HTMLCanvasElement) => {
+function runCopy() {
+    getClipPhoto("png").then((c: HTMLCanvasElement) => {
         clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
         tool.close();
     });
 }
 // 保存
 var type;
-import time_format from "../../../lib/time_format";
-function run_save() {
+import timeFormat from "../../../lib/time_format";
+function runSave() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
         const path = require("path") as typeof import("path");
-        let saved_path = store.get("保存.保存路径.图片") || "";
-        let p = path.join(saved_path, `${get_file_name()}.${store.get("保存.默认格式")}`);
+        let savedPath = store.get("保存.保存路径.图片") || "";
+        let p = path.join(savedPath, `${get_file_name()}.${store.get("保存.默认格式")}`);
         function get_file_name() {
-            var save_name_time = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
-            var file_name = store.get("保存名称.前缀") + save_name_time + store.get("保存名称.后缀");
-            return file_name;
+            var saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
+            var filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+            return filename;
         }
         save(p);
         return;
     }
-    s_center_bar("save");
-    var t_to_n = { png: 0, jpg: 1, svg: 2 };
-    var i = t_to_n[store.get("保存.默认格式")];
+    sCenterBar("save");
+    var type2N = { png: 0, jpg: 1, svg: 2 };
+    var i = type2N[store.get("保存.默认格式")];
     document.querySelectorAll("#suffix > div")[i].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
         var el = <HTMLDivElement>e.target;
         if (el.dataset.value) {
             ipcRenderer.send("clip_main_b", "save", el.dataset.value);
             type = el.dataset.value;
-            s_center_bar("save");
+            sCenterBar("save");
         }
     };
     hotkeys.setScope("c_bar");
     hotkeys("enter", "c_bar", () => {
         (<HTMLDivElement>document.querySelector("#suffix > .suffix_h")).click();
-        s_center_bar("save");
+        sCenterBar("save");
     });
     hotkeys("up", "c_bar", () => {
         document.querySelectorAll("#suffix > div")[i % 3].className = "";
@@ -1137,7 +1137,7 @@ function run_save() {
         document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
     });
     hotkeys("esc", "c_bar", () => {
-        s_center_bar("save");
+        sCenterBar("save");
     });
 }
 ipcRenderer.on("save_path", (_event, message) => {
@@ -1147,7 +1147,7 @@ ipcRenderer.on("save_path", (_event, message) => {
 function save(message: string) {
     if (message) {
         const fs = require("fs");
-        get_clip_photo(type).then((c) => {
+        getClipPhoto(type).then((c) => {
             switch (type) {
                 case "svg":
                     var dataBuffer = Buffer.from(<string>c);
@@ -1188,87 +1188,87 @@ var svg;
  * @param type 格式
  * @returns promise svg base64|canvas element
  */
-function get_clip_photo(type: string) {
-    var main_ctx = main_canvas.getContext("2d");
-    if (!final_rect) final_rect = [0, 0, main_canvas.width, main_canvas.height];
+function getClipPhoto(type: string) {
+    var mainCtx = mainCanvas.getContext("2d");
+    if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
-    if (typeof fabric_canvas != "undefined") {
-        fabric_canvas.discardActiveObject();
-        fabric_canvas.renderAll();
+    if (typeof fabricCanvas != "undefined") {
+        fabricCanvas.discardActiveObject();
+        fabricCanvas.renderAll();
     }
 
     if (type == "svg") {
         svg = document.createElement("div");
-        if (typeof fabric_canvas == "undefined") {
+        if (typeof fabricCanvas == "undefined") {
             svg.innerHTML = `<!--?xml version="1.0" encoding="UTF-8" standalone="no" ?-->
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="${main_canvas.width}" height="${main_canvas.height}" viewBox="0 0 1920 1080" xml:space="preserve">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="${mainCanvas.width}" height="${mainCanvas.height}" viewBox="0 0 1920 1080" xml:space="preserve">
             <desc>Created with eSearch</desc>
             </svg>`;
         } else {
-            svg.innerHTML = fabric_canvas.toSVG();
+            svg.innerHTML = fabricCanvas.toSVG();
             svg.querySelector("desc").innerHTML = "Created with eSearch & Fabric.js";
         }
-        svg.querySelector("svg").setAttribute("viewBox", final_rect.join(" "));
+        svg.querySelector("svg").setAttribute("viewBox", finalRect.join(" "));
         let image = document.createElementNS("http://www.w3.org/2000/svg", "image");
-        image.setAttribute("xlink:href", main_canvas.toDataURL());
+        image.setAttribute("xlink:href", mainCanvas.toDataURL());
         svg.querySelector("svg").insertBefore(image, svg.querySelector("svg").firstChild);
-        var svg_t = new XMLSerializer().serializeToString(svg.querySelector("svg"));
+        var svgT = new XMLSerializer().serializeToString(svg.querySelector("svg"));
         return new Promise((resolve, _rejects) => {
-            resolve(svg_t);
+            resolve(svgT);
         });
     } else {
-        var tmp_canvas = document.createElement("canvas");
-        tmp_canvas.width = final_rect[2];
-        tmp_canvas.height = final_rect[3];
-        var gid = main_ctx.getImageData(final_rect[0], final_rect[1], final_rect[2], final_rect[3]); // 裁剪
-        tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
+        var tmpCanvas = document.createElement("canvas");
+        tmpCanvas.width = finalRect[2];
+        tmpCanvas.height = finalRect[3];
+        var gid = mainCtx.getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
+        tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
         let image = document.createElement("img");
-        if (typeof fabric_canvas != "undefined") {
-            image.src = fabric_canvas.toDataURL({
-                left: final_rect[0],
-                top: final_rect[1],
-                width: final_rect[2],
-                height: final_rect[3],
+        if (typeof fabricCanvas != "undefined") {
+            image.src = fabricCanvas.toDataURL({
+                left: finalRect[0],
+                top: finalRect[1],
+                width: finalRect[2],
+                height: finalRect[3],
                 format: type,
             });
             return new Promise((resolve, _rejects) => {
                 image.onload = () => {
-                    tmp_canvas.getContext("2d").drawImage(image, 0, 0, final_rect[2], final_rect[3]);
-                    resolve(tmp_canvas);
+                    tmpCanvas.getContext("2d").drawImage(image, 0, 0, finalRect[2], finalRect[3]);
+                    resolve(tmpCanvas);
                 };
             });
         } else {
             return new Promise((resolve, _rejects) => {
-                resolve(tmp_canvas);
+                resolve(tmpCanvas);
             });
         }
     }
 }
 
-var tool_position = { x: null, y: null };
-tool_bar.addEventListener("mousedown", (e) => {
-    tool_bar.style.transition = "none";
+var toolPosition = { x: null, y: null };
+toolBar.addEventListener("mousedown", (e) => {
+    toolBar.style.transition = "none";
     if (e.button == 2) {
-        tool_position.x = e.clientX - tool_bar.offsetLeft;
-        tool_position.y = e.clientY - tool_bar.offsetTop;
+        toolPosition.x = e.clientX - toolBar.offsetLeft;
+        toolPosition.y = e.clientY - toolBar.offsetTop;
     }
 });
-tool_bar.addEventListener("mouseup", (e) => {
-    tool_bar.style.transition = "";
-    if (e.button == 2) tool_position = { x: null, y: null };
+toolBar.addEventListener("mouseup", (e) => {
+    toolBar.style.transition = "";
+    if (e.button == 2) toolPosition = { x: null, y: null };
 });
 
-const loading_el = document.getElementById("loading");
-loading_el.classList.add("loading_hide");
-function show_loading(text: string) {
-    loading_el.innerText = text;
-    loading_el.classList.remove("loading_hide");
-    loading_el.style.left = `calc(50% - ${loading_el.offsetWidth / 2}px)`;
-    loading_el.style.top = `calc(50% - ${loading_el.offsetHeight / 2}px)`;
+const loadingEl = document.getElementById("loading");
+loadingEl.classList.add("loading_hide");
+function showLoading(text: string) {
+    loadingEl.innerText = text;
+    loadingEl.classList.remove("loading_hide");
+    loadingEl.style.left = `calc(50% - ${loadingEl.offsetWidth / 2}px)`;
+    loadingEl.style.top = `calc(50% - ${loadingEl.offsetHeight / 2}px)`;
 }
 
-function hide_loading() {
-    loading_el.classList.add("loading_hide");
+function hideLoading() {
+    loadingEl.classList.add("loading_hide");
 }
 
 import { t, lan } from "../../../lib/translate/translate";
@@ -1282,8 +1282,8 @@ document.querySelector("body").onkeydown = (e) => {
     let tagName = (<HTMLElement>e.target).tagName;
     if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
         return;
-    if (long_inited) return;
-    if (record_inited) return;
+    if (longInited) return;
+    if (recordInited) return;
     const o = {
         ArrowUp: "up",
         ArrowRight: "right",
@@ -1295,7 +1295,7 @@ document.querySelector("body").onkeydown = (e) => {
     if (e.shiftKey) v = v * 10;
     if (o[e.key]) {
         if (down) {
-            let op = now_mouse_e;
+            let op = nowMouseE;
             let x = op.offsetX,
                 y = op.offsetY,
                 d = v;
@@ -1313,44 +1313,44 @@ document.querySelector("body").onkeydown = (e) => {
                     x = op.offsetX - d;
                     break;
             }
-            move_rect(final_rect, { x: op.offsetX, y: op.offsetY }, { x, y });
+            moveRect(finalRect, { x: op.offsetX, y: op.offsetY }, { x, y });
         } else {
-            let x = editor_p.x,
-                y = editor_p.y,
-                d = (10 * v) / editor_p.zoom;
+            let x = editorP.x,
+                y = editorP.y,
+                d = (10 * v) / editorP.zoom;
             switch (o[e.key]) {
                 case "up":
-                    y = editor_p.y + d;
+                    y = editorP.y + d;
                     break;
                 case "down":
-                    y = editor_p.y - d;
+                    y = editorP.y - d;
                     break;
                 case "right":
-                    x = editor_p.x - d;
+                    x = editorP.x - d;
                     break;
                 case "left":
-                    x = editor_p.x + d;
+                    x = editorP.x + d;
                     break;
             }
-            set_editor_p(editor_p.zoom, x, y);
+            setEditorP(editorP.zoom, x, y);
             document.body.classList.add("editor_bg");
-            let c_x = (now_mouse_e.clientX - editor_p.x * editor_p.zoom) / editor_p.zoom;
-            let c_y = (now_mouse_e.clientY - editor_p.y * editor_p.zoom) / editor_p.zoom;
-            now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
-            mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+            let cX = (nowMouseE.clientX - editorP.x * editorP.zoom) / editorP.zoom;
+            let cY = (nowMouseE.clientY - editorP.y * editorP.zoom) / editorP.zoom;
+            nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
+            mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         }
     }
 };
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2): rect {
+function pXY2cXY(canvas, oX1, oY1, oX2, oY2): rect {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
     // 输入为边框像素坐标
     // 为了让canvas获取全屏，边框像素点要包括
     // 像素坐标转为点坐标后,左和上(小的)是不变的,大的少1
-    var x1 = Math.min(o_x1, o_x2);
-    var y1 = Math.min(o_y1, o_y2);
-    var x2 = Math.max(o_x1, o_x2) + 1;
-    var y2 = Math.max(o_y1, o_y2) + 1;
+    var x1 = Math.min(oX1, oX2);
+    var y1 = Math.min(oY1, oY2);
+    var x2 = Math.max(oX1, oX2) + 1;
+    var y2 = Math.max(oY1, oY2) + 1;
     // canvas缩放变换
     x1 = Math.round(canvas.width * (x1 / canvas.offsetWidth));
     y1 = Math.round(canvas.height * (y1 / canvas.offsetHeight));
@@ -1360,45 +1360,43 @@ function p_xy_to_c_xy(canvas, o_x1, o_y1, o_x2, o_y2): rect {
 }
 
 var /**是否在绘制新选区*/ selecting = false;
-var right_key = false;
-var canvas_rect = null;
-var /**是否在选区内*/ in_rect = false;
+var rightKey = false;
+var canvasRect = null;
+var /**是否在选区内*/ inRect = false;
 var /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
-type screen_position = { x: number; y: number };
 
-var /** 先前坐标，用于框选的生成和调整 */ o_p = { x: NaN, y: NaN } as editor_position;
-var o_final_rect = null as rect;
-var the_color: [number, number, number, number] = null;
-var the_text_color = [null, null];
-var clip_ctx = clip_canvas.getContext("2d");
-var undo_stack = [{ rect: 0, canvas: 0 }],
-    rect_stack = [[0, 0, main_canvas.width, main_canvas.height]] as rect[],
-    canvas_stack = [{}];
-var undo_stack_i = 0;
-var now_canvas_position: number[];
-var direction;
-var auto_select_rect = store.get("框选.自动框选.开启");
-var auto_photo_select_rect = store.get("框选.自动框选.图像识别");
+var /** 先前坐标，用于框选的生成和调整 */ oldP = { x: NaN, y: NaN } as editor_position;
+var oFinalRect = null as rect;
+var theColor: [number, number, number, number] = null;
+var theTextColor = [null, null];
+var clipCtx = clipCanvas.getContext("2d");
+var undoStack = [{ rect: 0, canvas: 0 }],
+    rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[],
+    canvasStack = [{}];
+var undoStackI = 0;
+var nowCanvasPosition: number[];
+var direction: "" | "move" | "东" | "西" | "南" | "北" | "东南" | "西南" | "东北" | "西北";
+var autoSelectRect = store.get("框选.自动框选.开启");
+var autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
 var /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 var /**鼠标是否按住 */ down = false;
-var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rect_select = false;
+var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
 
-// var /**@type {HTMLCanvasElement} */ clip_canvas = clip_canvas;
-clip_canvas.onmousedown = (e) => {
+clipCanvas.onmousedown = (e) => {
     o = true;
-    windows_bar_c_o();
-    is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
+    windowsBarCO();
+    isInClipRect({ x: e.offsetX, y: e.offsetY });
     if (e.button == 0) {
-        clip_start({ x: e.offsetX, y: e.offsetY });
+        clipStart({ x: e.offsetX, y: e.offsetY });
     }
     if (e.button == 2) {
-        pick_color({ x: e.offsetX, y: e.offsetY });
+        pickColor({ x: e.offsetX, y: e.offsetY });
     }
-    tool_bar.style.pointerEvents =
+    toolBar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
-        draw_bar.style.pointerEvents =
+        drawBar.style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "none";
 
@@ -1406,85 +1404,85 @@ clip_canvas.onmousedown = (e) => {
 };
 
 // 开始操纵框选
-function clip_start(p: editor_position) {
+function clipStart(p: editor_position) {
     // 在选区内，则调整，否则新建
-    if (in_rect) {
-        is_in_clip_rect(p);
-        o_p = { x: p.x, y: p.y };
-        o_final_rect = final_rect;
+    if (inRect) {
+        isInClipRect(p);
+        oldP = { x: p.x, y: p.y };
+        oFinalRect = finalRect;
         moving = true;
-        move_rect(o_final_rect, p, p);
+        moveRect(oFinalRect, p, p);
     } else {
         selecting = true;
-        canvas_rect = [p.x, p.y]; // 用于框选
-        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], p.x, p.y);
-        right_key = false;
-        change_right_bar(false);
+        canvasRect = [p.x, p.y]; // 用于框选
+        finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
+        rightKey = false;
+        changeRightBar(false);
     }
     // 隐藏
-    draw_bar.style.opacity = tool_bar.style.opacity = "0";
+    drawBar.style.opacity = toolBar.style.opacity = "0";
 }
 
-function pick_color(p: editor_position) {
-    right_key = right_key ? false : true;
+function pickColor(p: editor_position) {
+    rightKey = rightKey ? false : true;
     // 自由右键取色
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
-    mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+    nowCanvasPosition = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
+    mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
     // 改成多格式样式
-    if (right_key) {
-        change_right_bar(true);
+    if (rightKey) {
+        changeRightBar(true);
     } else {
-        change_right_bar(false);
+        changeRightBar(false);
     }
 }
 
-clip_canvas.onmousemove = (e) => {
+clipCanvas.onmousemove = (e) => {
     if (down) {
         moved = true;
-        rect_select = true; // 按下并移动，肯定手动选好选区了
+        rectSelect = true; // 按下并移动，肯定手动选好选区了
     }
 
     if (e.button == 0) {
         requestAnimationFrame(() => {
             if (selecting) {
                 // 画框
-                final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], e.offsetX, e.offsetY);
-                draw_clip_rect();
+                finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], e.offsetX, e.offsetY);
+                drawClipRect();
             }
-            if (moving) move_rect(o_final_rect, o_p, { x: e.offsetX, y: e.offsetY });
+            if (moving) moveRect(oFinalRect, oldP, { x: e.offsetX, y: e.offsetY });
         });
     }
     if (!selecting && !moving) {
         // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
-        is_in_clip_rect({ x: e.offsetX, y: e.offsetY });
+        isInClipRect({ x: e.offsetX, y: e.offsetY });
     }
 
-    if (auto_select_rect) {
-        in_edge({ x: e.offsetX, y: e.offsetY });
+    if (autoSelectRect) {
+        inEdge({ x: e.offsetX, y: e.offsetY });
     }
 };
 
-clip_canvas.onmouseup = (e) => {
+clipCanvas.onmouseup = (e) => {
     if (e.button == 0) {
         if (selecting) {
-            clip_end({ x: e.offsetX, y: e.offsetY });
+            clipEnd({ x: e.offsetX, y: e.offsetY });
             // 抬起鼠标后工具栏跟随
-            follow_bar(e.clientX, e.clientY);
+            followBar(e.clientX, e.clientY);
             // 框选后默认操作
-            if (auto_do != "no" && e.button == 0) {
-                tool[auto_do]();
+            if (autoDo != "no" && e.button == 0) {
+                tool[autoDo]();
             }
         }
         if (moving) {
             moving = false;
-            o_final_rect = null;
-            if (e.button == 0) follow_bar(e.clientX, e.clientY);
-            his_push();
+            oFinalRect = null;
+            if (e.button == 0) followBar(e.clientX, e.clientY);
+            hisPush();
         }
     }
-    tool_bar.style.pointerEvents =
+    toolBar.style.pointerEvents =
         document.getElementById("mouse_bar").style.pointerEvents =
-        draw_bar.style.pointerEvents =
+        drawBar.style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
 
@@ -1492,138 +1490,138 @@ clip_canvas.onmouseup = (e) => {
     moved = false;
 };
 
-function clip_end(p: editor_position) {
-    clip_ctx.closePath();
+function clipEnd(p: editor_position) {
+    clipCtx.closePath();
     selecting = false;
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
+    nowCanvasPosition = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
     if (!moved && down) {
-        rect_select = true;
+        rectSelect = true;
         let min = [],
-            min_n = Infinity;
-        for (let i of rect_in_rect) {
-            if (i[2] * i[3] < min_n) {
+            minN = Infinity;
+        for (let i of rectInRect) {
+            if (i[2] * i[3] < minN) {
                 min = i;
-                min_n = i[2] * i[3];
+                minN = i[2] * i[3];
             }
         }
-        if (min.length != 0) final_rect = min as rect;
-        draw_clip_rect();
+        if (min.length != 0) finalRect = min as rect;
+        drawClipRect();
     } else {
-        final_rect = p_xy_to_c_xy(clip_canvas, canvas_rect[0], canvas_rect[1], p.x, p.y);
-        draw_clip_rect();
+        finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
+        drawClipRect();
     }
-    his_push();
+    hisPush();
 }
 
 /** 画框(遮罩) */
-function draw_clip_rect() {
-    const cw = clip_canvas.width;
-    const ch = clip_canvas.height;
+function drawClipRect() {
+    const cw = clipCanvas.width;
+    const ch = clipCanvas.height;
 
-    clip_ctx.clearRect(0, 0, cw, ch);
-    clip_ctx.beginPath();
+    clipCtx.clearRect(0, 0, cw, ch);
+    clipCtx.beginPath();
 
-    const x = final_rect[0];
-    const y = final_rect[1];
-    const width = final_rect[2];
-    const height = final_rect[3];
+    const x = finalRect[0];
+    const y = finalRect[1];
+    const width = finalRect[2];
+    const height = finalRect[3];
 
     // 框选为黑色遮罩
-    clip_ctx.fillStyle = 遮罩颜色;
+    clipCtx.fillStyle = 遮罩颜色;
 
     const topMaskHeight = y;
     const leftMaskWidth = x;
     const rightMaskWidth = cw - (x + width);
     const bottomMaskHeight = ch - (y + height);
 
-    clip_ctx.fillRect(0, 0, cw, topMaskHeight);
-    clip_ctx.fillRect(0, y, leftMaskWidth, height);
-    clip_ctx.fillRect(x + width, y, rightMaskWidth, height);
-    clip_ctx.fillRect(0, y + height, cw, bottomMaskHeight);
+    clipCtx.fillRect(0, 0, cw, topMaskHeight);
+    clipCtx.fillRect(0, y, leftMaskWidth, height);
+    clipCtx.fillRect(x + width, y, rightMaskWidth, height);
+    clipCtx.fillRect(0, y + height, cw, bottomMaskHeight);
 
-    clip_ctx.fillStyle = 选区颜色;
-    clip_ctx.fillRect(x, y, width, height);
+    clipCtx.fillStyle = 选区颜色;
+    clipCtx.fillRect(x, y, width, height);
 
     // 大小栏
-    wh_bar(final_rect);
+    whBar(finalRect);
 }
 
-var rect_in_rect = [];
+var rectInRect = [];
 /**
  * 自动框选提示
  */
-function in_edge(p: editor_position) {
-    if (rect_select) return;
+function inEdge(p: editor_position) {
+    if (rectSelect) return;
     console.log(1);
 
-    rect_in_rect = [];
-    for (const i of edge_rect) {
+    rectInRect = [];
+    for (const i of edgeRect) {
         let x0 = i.x,
             y0 = i.y,
             x1 = i.x + i.width,
             y1 = i.y + i.height;
         if (x0 < p.x && p.x < x1 && y0 < p.y && p.y < y1) {
-            rect_in_rect.push([i.x, i.y, i.width, i.height]);
+            rectInRect.push([i.x, i.y, i.width, i.height]);
         }
     }
-    clip_ctx.clearRect(0, 0, clip_canvas.width, clip_canvas.height);
-    clip_ctx.beginPath();
-    clip_ctx.strokeStyle = "#000";
-    clip_ctx.lineWidth = 1;
-    for (let i of rect_in_rect) {
-        clip_ctx.strokeRect(i[0], i[1], i[2], i[3]);
+    clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
+    clipCtx.beginPath();
+    clipCtx.strokeStyle = "#000";
+    clipCtx.lineWidth = 1;
+    for (let i of rectInRect) {
+        clipCtx.strokeRect(i[0], i[1], i[2], i[3]);
     }
 }
 
 hotkeys("s", () => {
     // 重新启用自动框选提示
-    rect_select = false;
-    final_rect = [0, 0, clip_canvas.width, clip_canvas.height];
-    draw_clip_rect();
+    rectSelect = false;
+    finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
+    drawClipRect();
 });
 
-var wh_el = document.getElementById("clip_wh");
+var whEl = document.getElementById("clip_wh");
 // 大小栏
-function wh_bar(final_rect: rect) {
+function whBar(finalRect: rect) {
     // 大小文字
     if (四角坐标) {
         var x0, y0, x1, y1, d;
         d = 光标 == "以(1,1)为起点" ? 1 : 0;
-        x0 = final_rect[0] + d;
-        y0 = final_rect[1] + d;
-        x1 = final_rect[0] + d + final_rect[2];
-        y1 = final_rect[1] + d + final_rect[3];
+        x0 = finalRect[0] + d;
+        y0 = finalRect[1] + d;
+        x1 = finalRect[0] + d + finalRect[2];
+        y1 = finalRect[1] + d + finalRect[3];
         document.getElementById("x0y0").style.display = "block";
         document.getElementById("x1y1").style.display = "block";
         document.getElementById("x0y0").innerHTML = `${x0}, ${y0}`;
         document.getElementById("x1y1").innerHTML = `${x1}, ${y1}`;
     }
-    document.querySelector("#wh").innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+    document.querySelector("#wh").innerHTML = `${finalRect[2]} × ${finalRect[3]}`;
     // 位置
-    let zx = (final_rect[0] + editor_p.x) * editor_p.zoom,
-        zy = (final_rect[1] + editor_p.y) * editor_p.zoom,
-        zw = final_rect[2] * editor_p.zoom,
-        zh = final_rect[3] * editor_p.zoom;
-    let dw = wh_el.offsetWidth,
-        dh = wh_el.offsetHeight;
+    let zx = (finalRect[0] + editorP.x) * editorP.zoom,
+        zy = (finalRect[1] + editorP.y) * editorP.zoom,
+        zw = finalRect[2] * editorP.zoom,
+        zh = finalRect[3] * editorP.zoom;
+    let dw = whEl.offsetWidth,
+        dh = whEl.offsetHeight;
     let x: number;
     if (dw >= zw) {
         if (dw + zx <= window.innerWidth) {
             x = zx; // 对齐框的左边
-            wh_el.style.right = ``;
-            wh_el.style.left = `${x}px`;
+            whEl.style.right = ``;
+            whEl.style.left = `${x}px`;
         } else {
-            wh_el.style.left = ``;
-            wh_el.style.right = `0px`;
+            whEl.style.left = ``;
+            whEl.style.right = `0px`;
         }
     } else {
         x = zx + zw / 2 - dw / 2;
         if (x + dw <= window.innerWidth) {
-            wh_el.style.right = ``;
-            wh_el.style.left = `${x}px`;
+            whEl.style.right = ``;
+            whEl.style.left = `${x}px`;
         } else {
-            wh_el.style.left = ``;
-            wh_el.style.right = `0px`;
+            whEl.style.left = ``;
+            whEl.style.right = `0px`;
         }
     }
     let y: number;
@@ -1636,7 +1634,7 @@ function wh_bar(final_rect: rect) {
             y = zy + 10;
         }
     }
-    wh_el.style.top = `${y}px`;
+    whEl.style.top = `${y}px`;
 }
 
 /**
@@ -1654,39 +1652,39 @@ function 更改大小栏(arg: string) {
     if (l != null) {
         switch (arg) {
             case "x0y0":
-                final_rect[0] = Number(l[0]) - d;
-                final_rect[1] = Number(l[1]) - d;
+                finalRect[0] = Number(l[0]) - d;
+                finalRect[1] = Number(l[1]) - d;
                 break;
             case "x1y1":
-                final_rect[0] = Number(l[0]) - final_rect[2] - d;
-                final_rect[1] = Number(l[1]) - final_rect[3] - d;
+                finalRect[0] = Number(l[0]) - finalRect[2] - d;
+                finalRect[1] = Number(l[1]) - finalRect[3] - d;
                 break;
             case "wh":
-                final_rect[2] = Number(l[0]);
-                final_rect[3] = Number(l[1]);
+                finalRect[2] = Number(l[0]);
+                finalRect[3] = Number(l[1]);
                 break;
         }
-        final_rect_fix();
-        his_push();
-        draw_clip_rect();
-        follow_bar();
+        finalRectFix();
+        hisPush();
+        drawClipRect();
+        followBar();
     } else {
         var innerHTML = null;
         switch (arg) {
             case "x0y0":
-                innerHTML = `${final_rect[0] + d}, ${final_rect[1] + d}`;
+                innerHTML = `${finalRect[0] + d}, ${finalRect[1] + d}`;
                 break;
             case "x1y1":
-                innerHTML = `${final_rect[0] + d + final_rect[2]}, ${final_rect[1] + d + final_rect[3]}`;
+                innerHTML = `${finalRect[0] + d + finalRect[2]}, ${finalRect[1] + d + finalRect[3]}`;
                 break;
             case "wh":
-                innerHTML = `${final_rect[2]} × ${final_rect[3]}`;
+                innerHTML = `${finalRect[2]} × ${finalRect[3]}`;
                 break;
         }
         document.querySelector(`#${arg}`).innerHTML = innerHTML;
     }
 }
-wh_el.onkeydown = (e) => {
+whEl.onkeydown = (e) => {
     if (e.key == "Enter") {
         e.preventDefault();
         更改大小栏((<HTMLElement>e.target).id);
@@ -1704,71 +1702,71 @@ document.getElementById("wh").onblur = () => {
 
 // 快捷键全屏选择
 hotkeys("ctrl+a, command+a", () => {
-    final_rect = [0, 0, main_canvas.width, main_canvas.height];
-    his_push();
-    clip_canvas.style.cursor = "crosshair";
-    direction = "none";
-    draw_clip_rect();
+    finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
+    hisPush();
+    clipCanvas.style.cursor = "crosshair";
+    direction = "";
+    drawClipRect();
 });
 
 // 生成取色器
-var inner_html = "";
-for (let i = 1; i <= color_size ** 2; i++) {
-    if (i == (color_size ** 2 + 1) / 2) {
+var colorInnerHtml = "";
+for (let i = 1; i <= colorSize ** 2; i++) {
+    if (i == (colorSize ** 2 + 1) / 2) {
         // 光标中心点
-        inner_html += `<span id="point_color_t_c"></span>`;
+        colorInnerHtml += `<span id="point_color_t_c"></span>`;
     } else {
-        inner_html += `<span id="point_color_t"></span>`;
+        colorInnerHtml += `<span id="point_color_t"></span>`;
     }
 }
-document.querySelector("#point_color").innerHTML = inner_html;
-inner_html = null;
-var point_color_span_list = document.querySelectorAll("#point_color > span") as NodeListOf<HTMLSpanElement>;
+document.querySelector("#point_color").innerHTML = colorInnerHtml;
+colorInnerHtml = null;
+var pointColorSpanList = document.querySelectorAll("#point_color > span") as NodeListOf<HTMLSpanElement>;
 
-var mouse_bar_w =
+var mouseBarW =
     Math.max(
-        color_size * color_i_size,
+        colorSize * colorISize,
         (String(window.innerWidth).length + String(window.innerHeight).length + 2 + 1) * 8
     ) + 4;
-var mouse_bar_h = 4 + color_size * color_i_size + 32 * 2;
+var mouseBarH = 4 + colorSize * colorISize + 32 * 2;
 
-var mouse_bar_el = document.getElementById("mouse_bar");
+var mouseBarEl = document.getElementById("mouse_bar");
 // 鼠标跟随栏
-function mouse_bar(final_rect: rect, x: number, y: number) {
-    const x0 = final_rect[0];
-    const x1 = x0 + final_rect[2];
-    const y0 = final_rect[1];
-    const y1 = y0 + final_rect[3];
+function mouseBar(finalRect: rect, x: number, y: number) {
+    const x0 = finalRect[0];
+    const x1 = x0 + finalRect[2];
+    const y0 = finalRect[1];
+    const y1 = y0 + finalRect[3];
 
-    const color = main_canvas
+    const color = mainCanvas
         .getContext("2d")
-        .getImageData(x - (color_size - 1) / 2, y - (color_size - 1) / 2, color_size, color_size).data; // 取色器密度
+        .getImageData(x - (colorSize - 1) / 2, y - (colorSize - 1) / 2, colorSize, colorSize).data; // 取色器密度
     // 分开每个像素的颜色
     for (let i = 0; i < color.length; i += 4) {
-        const color_g = Array.from(color.slice(i, i + 4)) as typeof the_color;
-        color_g[3] /= 255;
+        const colorG = Array.from(color.slice(i, i + 4)) as typeof theColor;
+        colorG[3] /= 255;
 
         const ii = Math.floor(i / 4);
-        const xx = (ii % color_size) + (x - (color_size - 1) / 2);
-        const yy = Math.floor(ii / color_size) + (y - (color_size - 1) / 2);
+        const xx = (ii % colorSize) + (x - (colorSize - 1) / 2);
+        const yy = Math.floor(ii / colorSize) + (y - (colorSize - 1) / 2);
         if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && ii != (color.length / 4 - 1) / 2) {
             // 框外
-            point_color_span_list[ii].id = "point_color_t_b";
+            pointColorSpanList[ii].id = "point_color_t_b";
         } else if (ii == (color.length / 4 - 1) / 2) {
             // 光标中心点
-            point_color_span_list[ii].id = "point_color_t_c";
-            the_color = color_g;
-            clip_color_text(the_color, 取色器默认格式);
+            pointColorSpanList[ii].id = "point_color_t_c";
+            theColor = colorG;
+            clipColorText(theColor, 取色器默认格式);
         } else {
-            point_color_span_list[ii].id = "point_color_t_t";
+            pointColorSpanList[ii].id = "point_color_t_t";
         }
 
-        point_color_span_list[ii].style.background = `rgba(${color_g[0]}, ${color_g[1]}, ${color_g[2]}, ${color_g[3]})`;
+        pointColorSpanList[ii].style.background = `rgba(${colorG[0]}, ${colorG[1]}, ${colorG[2]}, ${colorG[3]})`;
     }
 
-    const clip_xy_el = document.getElementById("clip_xy");
+    const clipXYEl = document.getElementById("clip_xy");
     const d = 光标 === "以(1,1)为起点" ? 1 : 0;
-    clip_xy_el.innerText = `(${x + d}, ${y + d})`;
+    clipXYEl.innerText = `(${x + d}, ${y + d})`;
 }
 
 // 复制坐标
@@ -1777,7 +1775,7 @@ document.getElementById("clip_xy").onclick = () => {
 };
 
 // 色彩空间转换
-function color_conversion(rgba, type: string) {
+function colorConversion(rgba, type: string) {
     var color = Color(rgba);
     if (color.alpha() != 1) return "/";
     switch (type) {
@@ -1800,32 +1798,32 @@ function color_conversion(rgba, type: string) {
 }
 
 // 改变颜色文字和样式
-function clip_color_text(l: typeof the_color, type: string) {
+function clipColorText(l: typeof theColor, type: string) {
     let color = Color.rgb(l);
-    let clip_color_text_color = color.alpha() == 1 ? (color.isLight() ? "#000" : "#fff") : "";
-    the_text_color = [color.hexa(), clip_color_text_color];
+    let clipColorTextColor = color.alpha() == 1 ? (color.isLight() ? "#000" : "#fff") : "";
+    theTextColor = [color.hexa(), clipColorTextColor];
 
     (<HTMLDivElement>document.querySelector(`#clip_copy > div > div:not(:nth-child(1))`)).style.backgroundColor =
         color.hexa();
-    let main_el = <HTMLElement>(
+    let mainEl = <HTMLElement>(
         document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`)
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
-    main_el.style.color = the_text_color[1];
-    main_el.innerText = color_conversion(the_color, type);
+    mainEl.style.color = theTextColor[1];
+    mainEl.innerText = colorConversion(theColor, type);
     if (color.alpha() != 1) {
-        main_el.style.color = "";
+        mainEl.style.color = "";
     }
     (<HTMLDivElement>document.querySelector("#clip_copy > div")).style.top = -32 * 取色器格式位置 + "px";
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
-function change_right_bar(v) {
+function changeRightBar(v) {
     // 拼接坐标和颜色代码
-    let t = `<div>${final_rect[2]} × ${final_rect[3]}</div>`;
-    t += `<div style="background-color:${the_text_color[0]};color:${the_text_color[1]}">`;
-    for (let i in all_color_format) {
-        t += `<div>${color_conversion(the_color, all_color_format[i])}</div>`;
+    let t = `<div>${finalRect[2]} × ${finalRect[3]}</div>`;
+    t += `<div style="background-color:${theTextColor[0]};color:${theTextColor[1]}">`;
+    for (let i in allColorFormat) {
+        t += `<div>${colorConversion(theColor, allColorFormat[i])}</div>`;
     }
     document.querySelector("#clip_copy > div").innerHTML = t + "</div>";
     // 复制大小和颜色
@@ -1850,7 +1848,7 @@ function change_right_bar(v) {
         document.getElementById("mouse_bar").style.pointerEvents = "none";
     }
 }
-change_right_bar(false);
+changeRightBar(false);
 
 /**
  * 复制内容
@@ -1858,8 +1856,8 @@ change_right_bar(false);
  */
 function copy(e: HTMLElement) {
     clipboard.writeText(e.innerText);
-    right_key = false;
-    change_right_bar(false);
+    rightKey = false;
+    changeRightBar(false);
 }
 
 hotkeys(store.get("其他快捷键.复制颜色"), () => {
@@ -1868,169 +1866,169 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
 
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
-    if (!right_key) {
-        if (clip_canvas.offsetWidth != 0) {
+    if (!rightKey) {
+        if (clipCanvas.offsetWidth != 0) {
             // 鼠标位置文字
-            const c_x = (e.clientX - editor_p.x * editor_p.zoom) / editor_p.zoom;
-            const c_y = (e.clientY - editor_p.y * editor_p.zoom) / editor_p.zoom;
-            now_canvas_position = p_xy_to_c_xy(clip_canvas, c_x, c_y, c_x, c_y);
+            const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
+            const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
+            nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
             // 鼠标跟随栏
-            mouse_bar(final_rect, now_canvas_position[0], now_canvas_position[1]);
+            mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         }
         // 鼠标跟随栏
 
         const d = 16;
         const x = e.clientX + d;
         const y = e.clientY + d;
-        const w = mouse_bar_w;
-        const h = mouse_bar_h;
+        const w = mouseBarW;
+        const h = mouseBarH;
         const sw = window.innerWidth;
         const sh = window.innerHeight;
 
-        mouse_bar_el.style.left = `${Math.min(x, sw - w - d)}px`;
-        mouse_bar_el.style.top = `${Math.min(y, sh - h - d)}px`;
+        mouseBarEl.style.left = `${Math.min(x, sw - w - d)}px`;
+        mouseBarEl.style.top = `${Math.min(y, sh - h - d)}px`;
 
-        const is_draw_bar = draw_bar.contains(e.target as HTMLElement);
-        const is_tool_bar = tool_bar.contains(e.target as HTMLElement);
-        mouse_bar_el.classList.toggle("mouse_bar_hide", is_draw_bar || is_tool_bar);
+        const isDrawBar = drawBar.contains(e.target as HTMLElement);
+        const isToolBar = toolBar.contains(e.target as HTMLElement);
+        mouseBarEl.classList.toggle("mouse_bar_hide", isDrawBar || isToolBar);
 
         // 画板栏移动
-        if (draw_bar_moving) {
-            draw_bar.style.left = `${e.clientX - draw_bar_moving_xy[0]}px`;
-            draw_bar.style.top = `${e.clientY - draw_bar_moving_xy[1]}px`;
+        if (drawBarMoving) {
+            drawBar.style.left = `${e.clientX - drawBarMovingXY[0]}px`;
+            drawBar.style.top = `${e.clientY - drawBarMovingXY[1]}px`;
         }
     }
-    if (tool_position.x) {
-        tool_bar.style.left = `${e.clientX - tool_position.x}px`;
-        tool_bar.style.top = `${e.clientY - tool_position.y}px`;
-        track_location();
+    if (toolPosition.x) {
+        toolBar.style.left = `${e.clientX - toolPosition.x}px`;
+        toolBar.style.top = `${e.clientY - toolPosition.y}px`;
+        trackLocation();
     }
 };
 
 // 工具栏跟随
-var follow_bar_list = [[0, 0]];
-var draw_bar_posi: "right" | "left" = "right";
-const bar_gap = 8;
+var followBarList = [[0, 0]];
+var drawBarPosi: "right" | "left" = "right";
+const barGap = 8;
 /**
  * 工具栏自动跟随
  * @param x x坐标
  * @param y y坐标
  */
-function follow_bar(x?: number, y?: number) {
-    let zx = (final_rect[0] + editor_p.x) * editor_p.zoom,
-        zy = (final_rect[1] + editor_p.y) * editor_p.zoom,
-        zw = final_rect[2] * editor_p.zoom,
-        zh = final_rect[3] * editor_p.zoom;
+function followBar(x?: number, y?: number) {
+    let zx = (finalRect[0] + editorP.x) * editorP.zoom,
+        zy = (finalRect[1] + editorP.y) * editorP.zoom,
+        zw = finalRect[2] * editorP.zoom,
+        zh = finalRect[3] * editorP.zoom;
     if (!x && !y) {
-        var dx = undo_stack.at(-1)[0] - undo_stack[undo_stack.length - 2][0];
-        var dy = undo_stack.at(-1)[1] - undo_stack[undo_stack.length - 2][1];
-        x = follow_bar_list.at(-1)[0] + dx / ratio;
-        y = follow_bar_list.at(-1)[1] + dy / ratio;
+        var dx = undoStack.at(-1)[0] - undoStack[undoStack.length - 2][0];
+        var dy = undoStack.at(-1)[1] - undoStack[undoStack.length - 2][1];
+        x = followBarList.at(-1)[0] + dx / ratio;
+        y = followBarList.at(-1)[1] + dy / ratio;
     }
-    follow_bar_list.push([x, y]);
+    followBarList.push([x, y]);
     let [x1, y1] = [zx, zy];
     let x2 = x1 + zw;
     let y2 = y1 + zh;
-    let max_width = window.innerWidth;
-    let max_height = window.innerHeight;
-    const tool_w = tool_bar.offsetWidth;
-    const draw_w = draw_bar.offsetWidth;
-    const gap = bar_gap;
-    let group_w = tool_w + gap + draw_w;
+    let maxWidth = window.innerWidth;
+    let maxHeight = window.innerHeight;
+    const toolW = toolBar.offsetWidth;
+    const drawW = drawBar.offsetWidth;
+    const gap = barGap;
+    let groupW = toolW + gap + drawW;
 
     if ((x1 + x2) / 2 <= x) {
         // 向右
-        if (x2 + group_w + gap <= max_width) {
-            tool_bar.style.left = x2 + gap + "px"; // 贴右边
-            draw_bar_posi = "right";
+        if (x2 + groupW + gap <= maxWidth) {
+            toolBar.style.left = x2 + gap + "px"; // 贴右边
+            drawBarPosi = "right";
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴左边
-                if (x1 - group_w - gap >= 0) {
-                    tool_bar.style.left = x1 - tool_w - gap + "px";
-                    draw_bar_posi = "left";
+                if (x1 - groupW - gap >= 0) {
+                    toolBar.style.left = x1 - toolW - gap + "px";
+                    drawBarPosi = "left";
                 } else {
                     // 还超贴右内
-                    tool_bar.style.left = max_width - group_w + "px";
-                    draw_bar_posi = "right";
+                    toolBar.style.left = maxWidth - groupW + "px";
+                    drawBarPosi = "right";
                 }
             } else {
                 // 直接贴右边,即使遮挡
-                tool_bar.style.left = x2 - group_w - gap + "px";
-                draw_bar_posi = "right";
+                toolBar.style.left = x2 - groupW - gap + "px";
+                drawBarPosi = "right";
             }
         }
     } else {
         // 向左
-        if (x1 - group_w - gap >= 0) {
-            tool_bar.style.left = x1 - tool_w - gap + "px"; // 贴左边
-            draw_bar_posi = "left";
+        if (x1 - groupW - gap >= 0) {
+            toolBar.style.left = x1 - toolW - gap + "px"; // 贴左边
+            drawBarPosi = "left";
         } else {
             if (工具栏跟随 == "展示内容优先") {
                 // 超出屏幕贴右边
-                if (x2 + group_w <= max_width) {
-                    tool_bar.style.left = x2 + gap + "px";
-                    draw_bar_posi = "right";
+                if (x2 + groupW <= maxWidth) {
+                    toolBar.style.left = x2 + gap + "px";
+                    drawBarPosi = "right";
                 } else {
                     // 还超贴左内
-                    tool_bar.style.left = 0 + draw_w + gap + "px";
-                    draw_bar_posi = "left";
+                    toolBar.style.left = 0 + drawW + gap + "px";
+                    drawBarPosi = "left";
                 }
             } else {
-                tool_bar.style.left = x1 + gap + "px";
-                draw_bar_posi = "left";
+                toolBar.style.left = x1 + gap + "px";
+                drawBarPosi = "left";
             }
         }
     }
 
     if (y >= (y1 + y2) / 2) {
-        if (y2 - tool_bar.offsetHeight >= 0) {
-            tool_bar.style.top = y2 - tool_bar.offsetHeight + "px";
+        if (y2 - toolBar.offsetHeight >= 0) {
+            toolBar.style.top = y2 - toolBar.offsetHeight + "px";
         } else {
-            if (y1 + tool_bar.offsetHeight > max_height) {
-                tool_bar.style.top = max_height - tool_bar.offsetHeight + "px";
+            if (y1 + toolBar.offsetHeight > maxHeight) {
+                toolBar.style.top = maxHeight - toolBar.offsetHeight + "px";
             } else {
-                tool_bar.style.top = y1 + "px";
+                toolBar.style.top = y1 + "px";
             }
         }
     } else {
-        if (y1 + tool_bar.offsetHeight <= max_height) {
-            tool_bar.style.top = y1 + "px";
+        if (y1 + toolBar.offsetHeight <= maxHeight) {
+            toolBar.style.top = y1 + "px";
         } else {
-            tool_bar.style.top = max_height - tool_bar.offsetHeight + "px";
+            toolBar.style.top = maxHeight - toolBar.offsetHeight + "px";
         }
     }
-    draw_bar.style.opacity = tool_bar.style.opacity = "1";
-    track_location();
+    drawBar.style.opacity = toolBar.style.opacity = "1";
+    trackLocation();
 }
 
 // 移动画画栏
-var draw_bar_moving = false;
-var draw_bar_moving_xy = [];
+var drawBarMoving = false;
+var drawBarMovingXY = [];
 document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
     if (e.button != 0) {
-        draw_bar_moving = true;
-        draw_bar_moving_xy[0] = e.clientX - document.getElementById("draw_bar").offsetLeft;
-        draw_bar_moving_xy[1] = e.clientY - document.getElementById("draw_bar").offsetTop;
-        draw_bar.style.transition = "0s";
+        drawBarMoving = true;
+        drawBarMovingXY[0] = e.clientX - document.getElementById("draw_bar").offsetLeft;
+        drawBarMovingXY[1] = e.clientY - document.getElementById("draw_bar").offsetTop;
+        drawBar.style.transition = "0s";
     }
 });
 document.getElementById("draw_bar").addEventListener("mouseup", (e) => {
     if (e.button != 0) {
-        draw_bar_moving = false;
-        draw_bar_moving_xy = [];
-        draw_bar.style.transition = "";
+        drawBarMoving = false;
+        drawBarMovingXY = [];
+        drawBar.style.transition = "";
     }
 });
 
 // 修复final_rect负数
 // 超出屏幕处理
-function final_rect_fix() {
-    final_rect = final_rect.map((i) => Math.round(i)) as rect;
-    var x0 = final_rect[0];
-    var y0 = final_rect[1];
-    var x1 = final_rect[0] + final_rect[2];
-    var y1 = final_rect[1] + final_rect[3];
+function finalRectFix() {
+    finalRect = finalRect.map((i) => Math.round(i)) as rect;
+    var x0 = finalRect[0];
+    var y0 = finalRect[1];
+    var x1 = finalRect[0] + finalRect[2];
+    var y1 = finalRect[1] + finalRect[3];
     var x = Math.min(x0, x1),
         y = Math.min(y0, y1);
     var w = Math.max(x0, x1) - x,
@@ -2038,31 +2036,31 @@ function final_rect_fix() {
     // 移出去移回来保持原来大小
     if (x < 0) w = x = 0;
     if (y < 0) h = y = 0;
-    if (x > main_canvas.width) x = x % main_canvas.width;
-    if (y > main_canvas.height) y = y % main_canvas.height;
-    if (x + w > main_canvas.width) w = main_canvas.width - x;
-    if (y + h > main_canvas.height) h = main_canvas.height - y;
-    final_rect = [x, y, w, h];
+    if (x > mainCanvas.width) x = x % mainCanvas.width;
+    if (y > mainCanvas.height) y = y % mainCanvas.height;
+    if (x + w > mainCanvas.width) w = mainCanvas.width - x;
+    if (y + h > mainCanvas.height) h = mainCanvas.height - y;
+    finalRect = [x, y, w, h];
 }
 
 /**
  * 判断光标位置并更改样式,定义光标位置的移动方向
  */
-function is_in_clip_rect(p: editor_position) {
-    now_canvas_position = p_xy_to_c_xy(clip_canvas, p.x, p.y, p.x, p.y);
-    p.x = now_canvas_position[0];
-    p.y = now_canvas_position[1];
-    var x0 = final_rect[0],
-        x1 = final_rect[0] + final_rect[2],
-        y0 = final_rect[1],
-        y1 = final_rect[1] + final_rect[3];
+function isInClipRect(p: editor_position) {
+    nowCanvasPosition = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
+    p.x = nowCanvasPosition[0];
+    p.y = nowCanvasPosition[1];
+    var x0 = finalRect[0],
+        x1 = finalRect[0] + finalRect[2],
+        y0 = finalRect[1],
+        y1 = finalRect[1] + finalRect[3];
     // 如果全屏,那允许框选
-    if (!(final_rect[2] == main_canvas.width && final_rect[3] == main_canvas.height)) {
+    if (!(finalRect[2] == mainCanvas.width && finalRect[3] == mainCanvas.height)) {
         if (x0 <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1) {
             // 在框选区域内,不可框选,只可调整
-            in_rect = true;
+            inRect = true;
         } else {
-            in_rect = false;
+            inRect = false;
         }
 
         direction = "";
@@ -2072,130 +2070,130 @@ function is_in_clip_rect(p: editor_position) {
         // 光标样式
         switch (true) {
             case x0 <= p.x && p.x <= x0 + num && y0 <= p.y && p.y <= y0 + num:
-                clip_canvas.style.cursor = "nwse-resize";
+                clipCanvas.style.cursor = "nwse-resize";
                 direction = "西北";
                 break;
             case x1 - num <= p.x && p.x <= x1 && y1 - num <= p.y && p.y <= y1:
-                clip_canvas.style.cursor = "nwse-resize";
+                clipCanvas.style.cursor = "nwse-resize";
                 direction = "东南";
                 break;
             case y0 <= p.y && p.y <= y0 + num && x1 - num <= p.x && p.x <= x1:
-                clip_canvas.style.cursor = "nesw-resize";
+                clipCanvas.style.cursor = "nesw-resize";
                 direction = "东北";
                 break;
             case y1 - num <= p.y && p.y <= y1 && x0 <= p.x && p.x <= x0 + num:
-                clip_canvas.style.cursor = "nesw-resize";
+                clipCanvas.style.cursor = "nesw-resize";
                 direction = "西南";
                 break;
             case x0 <= p.x && p.x <= x0 + num:
-                clip_canvas.style.cursor = "ew-resize";
+                clipCanvas.style.cursor = "ew-resize";
                 direction = "西";
                 break;
             case x1 - num <= p.x && p.x <= x1:
-                clip_canvas.style.cursor = "ew-resize";
+                clipCanvas.style.cursor = "ew-resize";
                 direction = "东";
                 break;
             case y0 <= p.y && p.y <= y0 + num:
-                clip_canvas.style.cursor = "ns-resize";
+                clipCanvas.style.cursor = "ns-resize";
                 direction = "北";
                 break;
             case y1 - num <= p.y && p.y <= y1:
-                clip_canvas.style.cursor = "ns-resize";
+                clipCanvas.style.cursor = "ns-resize";
                 direction = "南";
                 break;
             case x0 + num < p.x && p.x < x1 - num && y0 + num < p.y && p.y < y1 - num:
-                clip_canvas.style.cursor = "move";
+                clipCanvas.style.cursor = "move";
                 direction = "move";
                 break;
             default:
-                clip_canvas.style.cursor = "crosshair";
+                clipCanvas.style.cursor = "crosshair";
                 direction = "";
                 break;
         }
     } else {
         // 全屏可框选
-        clip_canvas.style.cursor = "crosshair";
+        clipCanvas.style.cursor = "crosshair";
         direction = "";
-        in_rect = false;
+        inRect = false;
     }
 }
 
 /** 调整框选 */
-function move_rect(o_final_rect: rect, old_position: editor_position, position: editor_position) {
-    var op = p_xy_to_c_xy(clip_canvas, old_position.x, old_position.y, old_position.x, old_position.y);
-    var p = p_xy_to_c_xy(clip_canvas, position.x, position.y, position.x, position.y);
+function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: editor_position) {
+    var op = pXY2cXY(clipCanvas, oldPosition.x, oldPosition.y, oldPosition.x, oldPosition.y);
+    var p = pXY2cXY(clipCanvas, position.x, position.y, position.x, position.y);
     var dx = p[0] - op[0],
         dy = p[1] - op[1];
     switch (direction) {
         case "西北":
-            final_rect = [o_final_rect[0] + dx, o_final_rect[1] + dy, o_final_rect[2] - dx, o_final_rect[3] - dy];
+            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1] + dy, oldFinalRect[2] - dx, oldFinalRect[3] - dy];
             break;
         case "东南":
-            final_rect = [o_final_rect[0], o_final_rect[1], o_final_rect[2] + dx, o_final_rect[3] + dy];
+            finalRect = [oldFinalRect[0], oldFinalRect[1], oldFinalRect[2] + dx, oldFinalRect[3] + dy];
             break;
         case "东北":
-            final_rect = [o_final_rect[0], o_final_rect[1] + dy, o_final_rect[2] + dx, o_final_rect[3] - dy];
+            finalRect = [oldFinalRect[0], oldFinalRect[1] + dy, oldFinalRect[2] + dx, oldFinalRect[3] - dy];
             break;
         case "西南":
-            final_rect = [o_final_rect[0] + dx, o_final_rect[1], o_final_rect[2] - dx, o_final_rect[3] + dy];
+            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1], oldFinalRect[2] - dx, oldFinalRect[3] + dy];
             break;
         case "西":
-            final_rect = [o_final_rect[0] + dx, o_final_rect[1], o_final_rect[2] - dx, o_final_rect[3]];
+            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1], oldFinalRect[2] - dx, oldFinalRect[3]];
             break;
         case "东":
-            final_rect = [o_final_rect[0], o_final_rect[1], o_final_rect[2] + dx, o_final_rect[3]];
+            finalRect = [oldFinalRect[0], oldFinalRect[1], oldFinalRect[2] + dx, oldFinalRect[3]];
             break;
         case "北":
-            final_rect = [o_final_rect[0], o_final_rect[1] + dy, o_final_rect[2], o_final_rect[3] - dy];
+            finalRect = [oldFinalRect[0], oldFinalRect[1] + dy, oldFinalRect[2], oldFinalRect[3] - dy];
             break;
         case "南":
-            final_rect = [o_final_rect[0], o_final_rect[1], o_final_rect[2], o_final_rect[3] + dy];
+            finalRect = [oldFinalRect[0], oldFinalRect[1], oldFinalRect[2], oldFinalRect[3] + dy];
             break;
         case "move":
-            final_rect = [o_final_rect[0] + dx, o_final_rect[1] + dy, o_final_rect[2], o_final_rect[3]];
+            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1] + dy, oldFinalRect[2], oldFinalRect[3]];
             break;
     }
-    if (final_rect[0] < 0) {
-        final_rect[2] = final_rect[2] + final_rect[0];
-        final_rect[0] = 0;
+    if (finalRect[0] < 0) {
+        finalRect[2] = finalRect[2] + finalRect[0];
+        finalRect[0] = 0;
     }
-    if (final_rect[1] < 0) {
-        final_rect[3] = final_rect[3] + final_rect[1];
-        final_rect[1] = 0;
+    if (finalRect[1] < 0) {
+        finalRect[3] = finalRect[3] + finalRect[1];
+        finalRect[1] = 0;
     }
-    if (final_rect[0] + final_rect[2] > main_canvas.width) final_rect[2] = main_canvas.width - final_rect[0];
-    if (final_rect[1] + final_rect[3] > main_canvas.height) final_rect[3] = main_canvas.height - final_rect[1];
+    if (finalRect[0] + finalRect[2] > mainCanvas.width) finalRect[2] = mainCanvas.width - finalRect[0];
+    if (finalRect[1] + finalRect[3] > mainCanvas.height) finalRect[3] = mainCanvas.height - finalRect[1];
 
-    final_rect_fix();
-    draw_clip_rect();
+    finalRectFix();
+    drawClipRect();
 
     // 双击复制
     if (dx == 0 && dy == 0 && direction == "move") {
-        let now_time = new Date().getTime();
-        if (now_time - last_click_time <= 300) {
+        let nowTime = new Date().getTime();
+        if (nowTime - lastClickTime <= 300) {
             tool.copy();
         }
-        last_click_time = now_time;
+        lastClickTime = nowTime;
     }
 }
 
-let last_click_time = 0;
+let lastClickTime = 0;
 
 /**
  * 保存历史
  */
-function his_push() {
+function hisPush() {
     // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
-    if (undo_stack_i != undo_stack.length - 1 && undo_stack.length >= 2) undo_stack.push(undo_stack[undo_stack_i]);
+    if (undoStackI != undoStack.length - 1 && undoStack.length >= 2) undoStack.push(undoStack[undoStackI]);
 
-    let final_rect_v = [final_rect[0], final_rect[1], final_rect[2], final_rect[3]] as rect; // 防止引用源地址导致后续操作-2个被改变
-    let canvas = fabric_canvas?.toJSON() || {};
+    let finalRectV = [finalRect[0], finalRect[1], finalRect[2], finalRect[3]] as rect; // 防止引用源地址导致后续操作-2个被改变
+    let canvas = fabricCanvas?.toJSON() || {};
 
-    if (rect_stack.at(-1) + "" != final_rect_v + "") rect_stack.push(final_rect_v);
-    if (JSON.stringify(canvas_stack.at(-1)) != JSON.stringify(canvas)) canvas_stack.push(canvas);
+    if (rectStack.at(-1) + "" != finalRectV + "") rectStack.push(finalRectV);
+    if (JSON.stringify(canvasStack.at(-1)) != JSON.stringify(canvas)) canvasStack.push(canvas);
 
-    undo_stack.push({ rect: rect_stack.length - 1, canvas: canvas_stack.length - 1 });
-    undo_stack_i = undo_stack.length - 1;
+    undoStack.push({ rect: rectStack.length - 1, canvas: canvasStack.length - 1 });
+    undoStackI = undoStack.length - 1;
 }
 /**
  * 更改历史指针
@@ -2203,19 +2201,19 @@ function his_push() {
  */
 function undo(v: boolean) {
     if (v) {
-        if (undo_stack_i > 0) {
-            undo_stack_i--;
+        if (undoStackI > 0) {
+            undoStackI--;
         }
     } else {
-        if (undo_stack_i < undo_stack.length - 1) {
-            undo_stack_i++;
+        if (undoStackI < undoStack.length - 1) {
+            undoStackI++;
         }
     }
-    var c = undo_stack[undo_stack_i];
-    final_rect = rect_stack[c.rect];
-    draw_clip_rect();
-    follow_bar();
-    if (fabric_canvas) fabric_canvas.loadFromJSON(canvas_stack[c.canvas]);
+    var c = undoStack[undoStackI];
+    finalRect = rectStack[c.rect];
+    drawClipRect();
+    followBar();
+    if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
 }
 
 hotkeys("ctrl+z", "normal", () => {
@@ -2232,61 +2230,61 @@ document.getElementById("操作_重做").onclick = () => {
     undo(false);
 };
 document.getElementById("操作_复制").onclick = () => {
-    fabric_copy();
+    fabricCopy();
 };
 document.getElementById("操作_删除").onclick = () => {
-    fabric_delete();
+    fabricDelete();
 };
 
-import fabric_src from "../../../lib/fabric.min.js?raw";
-let fabric_el = document.createElement("script");
-fabric_el.innerHTML = fabric_src;
-document.body.append(fabric_el);
+import fabricSrc from "../../../lib/fabric.min.js?raw";
+let fabricEl = document.createElement("script");
+fabricEl.innerHTML = fabricSrc;
+document.body.append(fabricEl);
 // @ts-ignore
 Fabric = window.fabric;
 var Fabric;
 
-var fabric_canvas = new Fabric.Canvas("draw_photo");
+var fabricCanvas = new Fabric.Canvas("draw_photo");
 
-his_push();
+hisPush();
 
-var fill_color = store.get("图像编辑.默认属性.填充颜色");
-var stroke_color = store.get("图像编辑.默认属性.边框颜色");
-var stroke_width = store.get("图像编辑.默认属性.边框宽度");
-var free_color = store.get("图像编辑.默认属性.画笔颜色");
-var free_width = store.get("图像编辑.默认属性.画笔粗细");
-var shadow_blur = 0;
+var fillColor = store.get("图像编辑.默认属性.填充颜色");
+var strokeColor = store.get("图像编辑.默认属性.边框颜色");
+var strokeWidth = store.get("图像编辑.默认属性.边框宽度");
+var freeColor = store.get("图像编辑.默认属性.画笔颜色");
+var freeWidth = store.get("图像编辑.默认属性.画笔粗细");
+var shadowBlur = 0;
 
 // 编辑栏
 document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
     // (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
     e.addEventListener("click", () => {
-        draw_m(!e.show);
+        drawM(!e.show);
         if (e.show) {
             e.show = !e.show;
-            draw_bar.style.width = "var(--bar-size)";
-            reset_bar_posi();
+            drawBar.style.width = "var(--bar-size)";
+            resetBarPosi();
         } else {
             show();
         }
     });
     function show() {
-        draw_bar.style.width = "calc(var(--bar-size) * 2)";
-        draw_bar.style.transition = "var(--transition)";
-        if (draw_bar_posi == "right") {
-            if (draw_bar.offsetLeft + b_size * 2 > window.innerWidth) {
-                set_bar_group(true);
+        drawBar.style.width = "calc(var(--bar-size) * 2)";
+        drawBar.style.transition = "var(--transition)";
+        if (drawBarPosi == "right") {
+            if (drawBar.offsetLeft + bSize * 2 > window.innerWidth) {
+                setBarGroup(true);
             }
         } else {
-            if (draw_bar.offsetLeft - b_size < 0) {
-                set_bar_group(false);
+            if (drawBar.offsetLeft - bSize < 0) {
+                setBarGroup(false);
             } else {
-                before_bar_posi.draw = draw_bar.offsetLeft;
-                draw_bar.style.left = draw_bar.offsetLeft - b_size + "px";
+                beforeBarPosi.draw = drawBar.offsetLeft;
+                drawBar.style.left = drawBar.offsetLeft - bSize + "px";
             }
         }
         setTimeout(() => {
-            draw_bar.style.transition = "";
+            drawBar.style.transition = "";
         }, 400);
         document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
             ei.show = false;
@@ -2298,163 +2296,163 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
         )).offsetTop;
 
         if (index == 0) {
-            if (!fabric_canvas.isDrawingMode) {
-                pencil_el.checked = true;
-                pencil_el_click();
+            if (!fabricCanvas.isDrawingMode) {
+                pencilEl.checked = true;
+                pencilElClick();
             }
         }
     }
 });
 
-let before_bar_posi = { tool: NaN, draw: NaN };
+let beforeBarPosi = { tool: NaN, draw: NaN };
 /** 记录展开绘画栏前栏的位置 */
-function set_bar_group(right: boolean) {
-    if (draw_bar.offsetWidth == b_size * 2) return; // 已经展开就不记录了
-    tool_bar.style.transition = "var(--transition)";
-    before_bar_posi.tool = tool_bar.offsetLeft;
-    before_bar_posi.draw = draw_bar.offsetLeft;
+function setBarGroup(right: boolean) {
+    if (drawBar.offsetWidth == bSize * 2) return; // 已经展开就不记录了
+    toolBar.style.transition = "var(--transition)";
+    beforeBarPosi.tool = toolBar.offsetLeft;
+    beforeBarPosi.draw = drawBar.offsetLeft;
     if (right) {
-        tool_bar.style.left = window.innerWidth - b_size * 3 - bar_gap + "px";
-        draw_bar.style.left = window.innerWidth - b_size * 2 + "px";
+        toolBar.style.left = window.innerWidth - bSize * 3 - barGap + "px";
+        drawBar.style.left = window.innerWidth - bSize * 2 + "px";
     } else {
-        tool_bar.style.left = b_size * 2 + bar_gap + "px";
-        draw_bar.style.left = 0 + "px";
+        toolBar.style.left = bSize * 2 + barGap + "px";
+        drawBar.style.left = 0 + "px";
     }
     setTimeout(() => {
-        tool_bar.style.transition = "";
+        toolBar.style.transition = "";
     }, 400);
 }
 /** 根据以前记录的位置恢复栏位置 */
-function reset_bar_posi() {
-    if (before_bar_posi.draw) {
-        draw_bar.style.transition = "var(--transition)";
-        draw_bar.style.left = before_bar_posi.draw + "px";
+function resetBarPosi() {
+    if (beforeBarPosi.draw) {
+        drawBar.style.transition = "var(--transition)";
+        drawBar.style.left = beforeBarPosi.draw + "px";
         setTimeout(() => {
-            draw_bar.style.transition = "";
+            drawBar.style.transition = "";
         }, 400);
-        before_bar_posi.draw = NaN;
+        beforeBarPosi.draw = NaN;
     }
-    if (before_bar_posi.tool) {
-        tool_bar.style.transition = "var(--transition)";
-        tool_bar.style.left = before_bar_posi.tool + "px";
+    if (beforeBarPosi.tool) {
+        toolBar.style.transition = "var(--transition)";
+        toolBar.style.left = beforeBarPosi.tool + "px";
         setTimeout(() => {
-            tool_bar.style.transition = "";
+            toolBar.style.transition = "";
         }, 400);
-        before_bar_posi.tool = NaN;
+        beforeBarPosi.tool = NaN;
     }
 }
 
-var free_i_els = document.querySelectorAll("#draw_free_i > lock-b") as NodeListOf<HTMLInputElement>;
+var freeIEls = document.querySelectorAll("#draw_free_i > lock-b") as NodeListOf<HTMLInputElement>;
 
 var mode: "free" | "eraser" | "spray";
 
 // 笔
-var pencil_el = <HTMLInputElement>document.getElementById("draw_free_pencil");
-pencil_el.oninput = () => pencil_el_click;
-function pencil_el_click() {
-    fabric_canvas.isDrawingMode = pencil_el.checked;
-    free_init();
-    if (pencil_el.checked) {
-        free_i_els[1].checked = false;
-        free_i_els[2].checked = false;
+var pencilEl = <HTMLInputElement>document.getElementById("draw_free_pencil");
+pencilEl.oninput = () => pencilElClick;
+function pencilElClick() {
+    fabricCanvas.isDrawingMode = pencilEl.checked;
+    freeInit();
+    if (pencilEl.checked) {
+        freeIEls[1].checked = false;
+        freeIEls[2].checked = false;
 
-        fabric_canvas.freeDrawingBrush = new Fabric.PencilBrush(fabric_canvas);
-        fabric_canvas.freeDrawingBrush.color = free_color;
-        fabric_canvas.freeDrawingBrush.width = free_width;
+        fabricCanvas.freeDrawingBrush = new Fabric.PencilBrush(fabricCanvas);
+        fabricCanvas.freeDrawingBrush.color = freeColor;
+        fabricCanvas.freeDrawingBrush.width = freeWidth;
 
-        color_m = "stroke";
-        set_draw_mode(color_m);
+        colorM = "stroke";
+        setDrawMode(colorM);
 
-        free_shadow();
+        freeShadow();
     }
-    exit_shape();
-    exit_filter();
-    free_draw_cursor();
+    exitShape();
+    exitFilter();
+    freeDrawCursor();
 }
 // 橡皮
-var eraser_el = <HTMLInputElement>document.getElementById("draw_free_eraser");
-eraser_el.oninput = () => {
-    fabric_canvas.isDrawingMode = eraser_el.checked;
-    free_init();
-    if (eraser_el.checked) {
-        free_i_els[0].checked = false;
-        free_i_els[2].checked = false;
+var eraserEl = <HTMLInputElement>document.getElementById("draw_free_eraser");
+eraserEl.oninput = () => {
+    fabricCanvas.isDrawingMode = eraserEl.checked;
+    freeInit();
+    if (eraserEl.checked) {
+        freeIEls[0].checked = false;
+        freeIEls[2].checked = false;
 
-        fabric_canvas.freeDrawingBrush = new Fabric.EraserBrush(fabric_canvas);
-        fabric_canvas.freeDrawingBrush.width = free_width;
+        fabricCanvas.freeDrawingBrush = new Fabric.EraserBrush(fabricCanvas);
+        fabricCanvas.freeDrawingBrush.width = freeWidth;
     }
-    exit_shape();
-    exit_filter();
-    free_draw_cursor();
+    exitShape();
+    exitFilter();
+    freeDrawCursor();
 };
 // 刷
-var free_spray_el = <HTMLInputElement>document.getElementById("draw_free_spray");
-free_spray_el.oninput = () => {
-    fabric_canvas.isDrawingMode = free_spray_el.checked;
-    free_init();
-    if (free_spray_el.checked) {
-        free_i_els[0].checked = false;
-        free_i_els[1].checked = false;
+var freeSprayEl = <HTMLInputElement>document.getElementById("draw_free_spray");
+freeSprayEl.oninput = () => {
+    fabricCanvas.isDrawingMode = freeSprayEl.checked;
+    freeInit();
+    if (freeSprayEl.checked) {
+        freeIEls[0].checked = false;
+        freeIEls[1].checked = false;
 
-        fabric_canvas.freeDrawingBrush = new Fabric.SprayBrush(fabric_canvas);
-        fabric_canvas.freeDrawingBrush.color = free_color;
-        fabric_canvas.freeDrawingBrush.width = free_width;
+        fabricCanvas.freeDrawingBrush = new Fabric.SprayBrush(fabricCanvas);
+        fabricCanvas.freeDrawingBrush.color = freeColor;
+        fabricCanvas.freeDrawingBrush.width = freeWidth;
 
-        color_m = "stroke";
-        set_draw_mode(color_m);
+        colorM = "stroke";
+        setDrawMode(colorM);
     }
-    exit_shape();
-    exit_filter();
-    free_draw_cursor();
+    exitShape();
+    exitFilter();
+    freeDrawCursor();
 };
 // 阴影
-(<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = free_shadow;
+(<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
 
-function free_shadow() {
-    shadow_blur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
-    fabric_canvas.freeDrawingBrush.shadow = new Fabric.Shadow({
-        blur: shadow_blur,
-        color: free_color,
+function freeShadow() {
+    shadowBlur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
+    fabricCanvas.freeDrawingBrush.shadow = new Fabric.Shadow({
+        blur: shadowBlur,
+        color: freeColor,
     });
-    store.set(`图像编辑.形状属性.${mode}.shadow`, shadow_blur);
+    store.set(`图像编辑.形状属性.${mode}.shadow`, shadowBlur);
 }
 
-function free_draw_cursor() {
+function freeDrawCursor() {
     if (mode == "free" || mode == "eraser") {
-        var svg_w = free_width,
-            h_w = svg_w / 2,
-            r = free_width / 2;
-        if (svg_w < 10) {
-            svg_w = 10;
-            h_w = 5;
+        var svgW = freeWidth,
+            hW = svgW / 2,
+            r = freeWidth / 2;
+        if (svgW < 10) {
+            svgW = 10;
+            hW = 5;
         }
         if (mode == "free") {
-            var svg = `<svg width="${svg_w}" height="${svg_w}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svg_w}" y1="${h_w}" y2="${h_w}" stroke="#000"/><line y1="0" y2="${svg_w}" x1="${h_w}" x2="${h_w}" stroke="#000"/><circle style="fill:${free_color};" cx="${h_w}" cy="${h_w}" r="${r}"/></svg>`;
+            var svg = `<svg width="${svgW}" height="${svgW}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svgW}" y1="${hW}" y2="${hW}" stroke="#000"/><line y1="0" y2="${svgW}" x1="${hW}" x2="${hW}" stroke="#000"/><circle style="fill:${freeColor};" cx="${hW}" cy="${hW}" r="${r}"/></svg>`;
         } else {
-            var svg = `<svg width="${svg_w}" height="${svg_w}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svg_w}" y1="${h_w}" y2="${h_w}" stroke="#000"/><line y1="0" y2="${svg_w}" x1="${h_w}" x2="${h_w}" stroke="#000"/><circle style="stroke-width:1;stroke:#000;fill:none" cx="${h_w}" cy="${h_w}" r="${r}"/></svg>`;
+            var svg = `<svg width="${svgW}" height="${svgW}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svgW}" y1="${hW}" y2="${hW}" stroke="#000"/><line y1="0" y2="${svgW}" x1="${hW}" x2="${hW}" stroke="#000"/><circle style="stroke-width:1;stroke:#000;fill:none" cx="${hW}" cy="${hW}" r="${r}"/></svg>`;
         }
         var d = document.createElement("div");
         d.innerHTML = svg;
         var s = new XMLSerializer().serializeToString(d.querySelector("svg"));
         var cursorUrl = `data:image/svg+xml;base64,` + window.btoa(s);
-        fabric_canvas.freeDrawingCursor = `url(" ${cursorUrl} ") ${h_w} ${h_w}, auto`;
+        fabricCanvas.freeDrawingCursor = `url(" ${cursorUrl} ") ${hW} ${hW}, auto`;
     } else {
-        fabric_canvas.freeDrawingCursor = `auto`;
+        fabricCanvas.freeDrawingCursor = `auto`;
     }
 }
 
-function free_init() {
+function freeInit() {
     mode = "free";
-    if (pencil_el.checked) mode = "free";
-    if (eraser_el.checked) mode = "eraser";
-    if (free_spray_el.checked) mode = "spray";
+    if (pencilEl.checked) mode = "free";
+    if (eraserEl.checked) mode = "eraser";
+    if (freeSprayEl.checked) mode = "spray";
     let sc = store.get(`图像编辑.形状属性.${mode}.sc`);
     let sw = store.get(`图像编辑.形状属性.${mode}.sw`);
     let sb = store.get(`图像编辑.形状属性.${mode}.shadow`);
-    if (sc) free_color = sc;
-    if (sw) free_width = sw;
-    if (sb) shadow_blur = sb;
-    if (sc) change_color({ stroke: sc }, false, true);
+    if (sc) freeColor = sc;
+    if (sw) freeWidth = sw;
+    if (sb) shadowBlur = sb;
+    if (sc) changeColor({ stroke: sc }, false, true);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
     if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
 }
@@ -2479,26 +2477,26 @@ document.querySelectorAll("#draw_shapes_i > lock-b").forEach((el: HTMLInputEleme
                 let op = {};
                 if (f) {
                     op["fill"] = f;
-                    fill_color = f;
+                    fillColor = f;
                 }
                 if (s) {
                     op["stroke"] = s;
-                    fill_color = s;
+                    fillColor = s;
                 }
-                change_color(op, false, true);
+                changeColor(op, false, true);
                 let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
                 if (sw) {
-                    stroke_width = sw;
+                    strokeWidth = sw;
                     (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
                 }
             }
 
-            exit_free();
-            exit_filter();
-            fabric_canvas.defaultCursor = "crosshair";
+            exitFree();
+            exitFilter();
+            fabricCanvas.defaultCursor = "crosshair";
             hotkeys.setScope("drawing_esc");
         } else {
-            exit_shape();
+            exitShape();
         }
     };
 });
@@ -2506,108 +2504,108 @@ document.querySelectorAll("#draw_shapes_i > lock-b").forEach((el: HTMLInputEleme
 document.getElementById("draw_position_i").onclick = (e) => {
     switch ((<HTMLElement>e.target).id) {
         case "draw_position_front":
-            fabric_canvas.getActiveObject().bringToFront();
+            fabricCanvas.getActiveObject().bringToFront();
             break;
         case "draw_position_forwards":
-            fabric_canvas.getActiveObject().bringForward();
+            fabricCanvas.getActiveObject().bringForward();
             break;
         case "draw_position_backwards":
-            fabric_canvas.getActiveObject().sendBackwards();
+            fabricCanvas.getActiveObject().sendBackwards();
             break;
         case "draw_position_back":
-            fabric_canvas.getActiveObject().sendToBack();
+            fabricCanvas.getActiveObject().sendToBack();
             break;
     }
 };
 
 // 删除快捷键
-hotkeys("delete", fabric_delete);
-function fabric_delete() {
-    for (let o of fabric_canvas.getActiveObject()._objects || [fabric_canvas.getActiveObject()]) {
-        fabric_canvas.remove(o);
+hotkeys("delete", fabricDelete);
+function fabricDelete() {
+    for (let o of fabricCanvas.getActiveObject()._objects || [fabricCanvas.getActiveObject()]) {
+        fabricCanvas.remove(o);
     }
-    get_f_object_v();
-    get_filters();
-    his_push();
+    getFObjectV();
+    getFilters();
+    hisPush();
 }
 
-var drawing_shape = false;
+var drawingShape = false;
 var shapes = [];
-var unnormal_shapes = ["polyline", "polygon", "number"];
-var draw_o_p = []; // 首次按下的点
-var poly_o_p = []; // 多边形点
-var new_filter_o = null;
-var draw_number_n = 1;
+var unnormalShapes = ["polyline", "polygon", "number"];
+var drawOP = []; // 首次按下的点
+var polyOP = []; // 多边形点
+var newFilterO = null;
+var drawNumberN = 1;
 
-fabric_canvas.on("mouse:down", (options) => {
+fabricCanvas.on("mouse:down", (options) => {
     // 非常规状态下点击
     if (shape != "") {
-        drawing_shape = true;
-        fabric_canvas.selection = false;
+        drawingShape = true;
+        fabricCanvas.selection = false;
         // 折线与多边形要多次点击，在poly_o_p存储点
-        if (!unnormal_shapes.includes(shape)) {
-            draw_o_p = [options.e.offsetX, options.e.offsetY];
-            draw(shape, "start", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+        if (!unnormalShapes.includes(shape)) {
+            drawOP = [options.e.offsetX, options.e.offsetY];
+            draw(shape, "start", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
         } else {
             // 定义最后一个点,双击,点重复,结束
-            var poly_o_p_l = poly_o_p.at(-1);
-            if (!(options.e.offsetX == poly_o_p_l?.x && options.e.offsetY == poly_o_p_l?.y)) {
-                poly_o_p.push({ x: options.e.offsetX, y: options.e.offsetY });
+            var polyOPL = polyOP.at(-1);
+            if (!(options.e.offsetX == polyOPL?.x && options.e.offsetY == polyOPL?.y)) {
+                polyOP.push({ x: options.e.offsetX, y: options.e.offsetY });
                 if (shape == "number") {
-                    draw_number();
+                    drawNumber();
                 } else {
-                    draw_poly(shape);
+                    drawPoly(shape);
                 }
             } else {
-                his_push();
-                poly_o_p = [];
-                draw_number_n = 1;
+                hisPush();
+                polyOP = [];
+                drawNumberN = 1;
             }
         }
     }
 
-    if (new_filter_selecting) {
-        new_filter_o = fabric_canvas.getPointer(options.e);
+    if (newFilterSelecting) {
+        newFilterO = fabricCanvas.getPointer(options.e);
     }
 });
-fabric_canvas.on("mouse:move", (options) => {
-    if (drawing_shape) {
-        if (!unnormal_shapes.includes(shape)) {
-            draw(shape, "move", draw_o_p[0], draw_o_p[1], options.e.offsetX, options.e.offsetY);
+fabricCanvas.on("mouse:move", (options) => {
+    if (drawingShape) {
+        if (!unnormalShapes.includes(shape)) {
+            draw(shape, "move", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
         }
     }
 });
-fabric_canvas.on("mouse:up", (options) => {
-    if (!unnormal_shapes.includes(shape)) {
-        drawing_shape = false;
+fabricCanvas.on("mouse:up", (options) => {
+    if (!unnormalShapes.includes(shape)) {
+        drawingShape = false;
         if (shape != "") {
-            fabric_canvas.setActiveObject(shapes.at(-1));
-            his_push();
+            fabricCanvas.setActiveObject(shapes.at(-1));
+            hisPush();
         }
     }
 
-    get_f_object_v();
-    get_filters();
+    getFObjectV();
+    getFilters();
 
-    if (new_filter_selecting) {
-        new_filter_select(new_filter_o, fabric_canvas.getPointer(options.e));
-        new_filter_selecting = false;
+    if (newFilterSelecting) {
+        newFilterSelect(newFilterO, fabricCanvas.getPointer(options.e));
+        newFilterSelecting = false;
         (<HTMLInputElement>(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b"))).checked = false;
-        fabric_canvas.defaultCursor = "auto";
-        get_filters();
-        his_push();
+        fabricCanvas.defaultCursor = "auto";
+        getFilters();
+        hisPush();
         hotkeys.setScope("normal");
     }
 
-    if (fabric_canvas.isDrawingMode) {
-        his_push();
+    if (fabricCanvas.isDrawingMode) {
+        hisPush();
     }
 });
 
 // 画一般图形
 function draw(shape, v, x1, y1, x2, y2) {
     if (v == "move") {
-        fabric_canvas.remove(shapes.at(-1));
+        fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
     }
     let x = Math.min(x1, x2),
@@ -2617,7 +2615,7 @@ function draw(shape, v, x1, y1, x2, y2) {
     switch (shape) {
         case "line":
             shapes[shapes.length] = new Fabric.Line([x1, y1, x2, y2], {
-                stroke: stroke_color,
+                stroke: strokeColor,
                 形状: "line",
             });
             break;
@@ -2626,9 +2624,9 @@ function draw(shape, v, x1, y1, x2, y2) {
                 radius: Math.max(w, h) / 2,
                 left: x,
                 top: y,
-                fill: fill_color,
-                stroke: stroke_color,
-                strokeWidth: stroke_width,
+                fill: fillColor,
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
                 canChangeFill: true,
                 形状: "circle",
             });
@@ -2639,9 +2637,9 @@ function draw(shape, v, x1, y1, x2, y2) {
                 top: y,
                 width: w,
                 height: h,
-                fill: fill_color,
-                stroke: stroke_color,
-                strokeWidth: stroke_width,
+                fill: fillColor,
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
                 canChangeFill: true,
                 形状: "rect",
             });
@@ -2658,12 +2656,12 @@ function draw(shape, v, x1, y1, x2, y2) {
             break;
         case "arrow":
             let line = new Fabric.Line([x1, y1, x2, y2], {
-                stroke: stroke_color,
+                stroke: strokeColor,
             });
             let t = new Fabric.Triangle({
                 width: 20,
                 height: 25,
-                fill: stroke_color,
+                fill: strokeColor,
                 left: x2,
                 top: y2,
                 originX: "center",
@@ -2674,45 +2672,45 @@ function draw(shape, v, x1, y1, x2, y2) {
         default:
             break;
     }
-    fabric_canvas.add(shapes.at(-1));
+    fabricCanvas.add(shapes.at(-1));
 }
 // 多边形
-function draw_poly(shape) {
+function drawPoly(shape) {
     console.log(1111);
 
-    if (poly_o_p.length != 1) {
-        fabric_canvas.remove(shapes.at(-1));
+    if (polyOP.length != 1) {
+        fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
     }
     if (shape == "polyline") {
         shapes.push(
-            new Fabric.Polyline(poly_o_p, {
+            new Fabric.Polyline(polyOP, {
                 fill: "#0000",
-                stroke: stroke_color,
-                strokeWidth: stroke_width,
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
                 形状: "polyline",
             })
         );
     }
     if (shape == "polygon") {
         shapes.push(
-            new Fabric.Polygon(poly_o_p, {
-                fill: fill_color,
-                stroke: stroke_color,
-                strokeWidth: stroke_width,
+            new Fabric.Polygon(polyOP, {
+                fill: fillColor,
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
                 canChangeFill: true,
                 形状: "polygon",
             })
         );
     }
-    fabric_canvas.add(shapes.at(-1));
+    fabricCanvas.add(shapes.at(-1));
 }
 
-function draw_number() {
-    draw_number_n = Number(shapes?.at(-1)?.text) + 1 || draw_number_n;
-    let p = poly_o_p.at(-1);
+function drawNumber() {
+    drawNumberN = Number(shapes?.at(-1)?.text) + 1 || drawNumberN;
+    let p = polyOP.at(-1);
 
-    let txt = new Fabric.IText(String(draw_number_n), {
+    let txt = new Fabric.IText(String(drawNumberN), {
         left: p.x,
         top: p.y,
         fontSize: 16,
@@ -2726,39 +2724,39 @@ function draw_number() {
         top: p.y,
         originX: "center",
         originY: "center",
-        fill: fill_color,
-        stroke: stroke_color,
-        strokeWidth: stroke_width,
+        fill: fillColor,
+        stroke: strokeColor,
+        strokeWidth: strokeWidth,
         canChangeFill: true,
     });
     shapes.push(cr);
     shapes.push(txt);
-    fabric_canvas.add(shapes.at(-2));
-    fabric_canvas.add(shapes.at(-1));
-    fabric_canvas.setActiveObject(txt);
+    fabricCanvas.add(shapes.at(-2));
+    fabricCanvas.add(shapes.at(-1));
+    fabricCanvas.setActiveObject(txt);
     txt.enterEditing();
 
-    draw_number_n++;
+    drawNumberN++;
 }
 
 // 颜色选择
 
 /** 规定当前色盘对应的是填充还是边框 */
-var color_m: "fill" | "stroke" = "fill";
-var color_fill_el = document.getElementById("draw_color_fill");
-var color_stroke_el = document.getElementById("draw_color_stroke");
+var colorM: "fill" | "stroke" = "fill";
+var colorFillEl = document.getElementById("draw_color_fill");
+var colorStrokeEl = document.getElementById("draw_color_stroke");
 
-set_draw_mode(color_m);
+setDrawMode(colorM);
 document.getElementById("draw_color_switch").onclick = () => {
-    if (color_m == "fill") {
-        color_m = "stroke";
+    if (colorM == "fill") {
+        colorM = "stroke";
     } else {
-        color_m = "fill";
+        colorM = "fill";
     }
-    set_draw_mode(color_m);
+    setDrawMode(colorM);
 };
 /** 切换当前颜色设定的ui */
-function set_draw_mode(m: typeof color_m) {
+function setDrawMode(m: typeof colorM) {
     if (m == "fill") {
         document.getElementById("draw_fill").style.height = "";
         document.getElementById("draw_storke").style.height = "0";
@@ -2775,110 +2773,110 @@ function set_draw_mode(m: typeof color_m) {
 }
 
 // 输入颜色
-var color_alpha_input_1 = <HTMLInputElement>document.querySelector("#draw_fill > range-b");
-color_fill_el.oninput = () => {
-    change_color({ fill: color_fill_el.innerText }, true, false);
-    var fill_a = Color(color_fill_el.innerText).alpha();
-    color_alpha_input_1.value = String(Math.round(fill_a * 100));
+var colorAlphaInput1 = <HTMLInputElement>document.querySelector("#draw_fill > range-b");
+colorFillEl.oninput = () => {
+    changeColor({ fill: colorFillEl.innerText }, true, false);
+    var fillA = Color(colorFillEl.innerText).alpha();
+    colorAlphaInput1.value = String(Math.round(fillA * 100));
 };
-var color_alpha_input_2 = <HTMLInputElement>document.querySelector("#draw_storke > range-b");
-color_stroke_el.oninput = () => {
-    change_color({ stroke: color_stroke_el.innerText }, true, false);
-    var stroke_a = Color(color_stroke_el.innerText).alpha();
-    color_alpha_input_2.value = String(Math.round(stroke_a * 100));
+var colorAlphaInput2 = <HTMLInputElement>document.querySelector("#draw_storke > range-b");
+colorStrokeEl.oninput = () => {
+    changeColor({ stroke: colorStrokeEl.innerText }, true, false);
+    var strokeA = Color(colorStrokeEl.innerText).alpha();
+    colorAlphaInput2.value = String(Math.round(strokeA * 100));
 };
 
 // 改变透明度
-color_alpha_input_1.oninput = () => {
-    change_alpha(color_alpha_input_1.value, "fill");
+colorAlphaInput1.oninput = () => {
+    changeAlpha(colorAlphaInput1.value, "fill");
 };
-color_alpha_input_2.oninput = () => {
-    change_alpha(color_alpha_input_2.value, "stroke");
+colorAlphaInput2.oninput = () => {
+    changeAlpha(colorAlphaInput2.value, "stroke");
 };
-function change_alpha(v, m) {
+function changeAlpha(v, m) {
     var rgba = Color(document.getElementById(`draw_color_${m}`).style.backgroundColor)
         .rgb()
         .array();
     rgba[3] = v / 100;
-    change_color({ [m]: rgba }, true, true);
+    changeColor({ [m]: rgba }, true, true);
 }
 
 // 刷新控件颜色
 /**
  * 改变颜色
- * @param {{fill?: String, stroke?: String}} m_l
- * @param {Boolean} set_o 是否改变选中形状样式
+ * @param {{fill?: String, stroke?: String}} mL
+ * @param {Boolean} setO 是否改变选中形状样式
  * @param {Boolean} text 是否更改文字，仅在input时为true
  */
-function change_color(m_l: { fill?: string; stroke?: string }, set_o: boolean, text: boolean) {
-    for (let i in m_l) {
-        var color_m = i,
-            color = m_l[i];
+function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text: boolean) {
+    for (let i in mL) {
+        var colorM = i,
+            color = mL[i];
         if (color === null) color = "#0000";
-        var color_l = Color(color).rgb().array();
-        document.getElementById(`draw_color_${color_m}`).style.backgroundColor = Color(color_l).string();
-        if (color_m == "fill") {
+        var colorL = Color(color).rgb().array();
+        document.getElementById(`draw_color_${colorM}`).style.backgroundColor = Color(colorL).string();
+        if (colorM == "fill") {
             (<HTMLDivElement>document.querySelector("#draw_color > div")).style.backgroundColor =
-                Color(color_l).string();
-            if (set_o) set_f_object_v(Color(color_l).string(), null, null);
+                Color(colorL).string();
+            if (setO) setFObjectV(Color(colorL).string(), null, null);
         }
-        if (color_m == "stroke") {
-            (<HTMLDivElement>document.querySelector("#draw_color > div")).style.borderColor = Color(color_l).string();
-            if (set_o) set_f_object_v(null, Color(color_l).string(), null);
+        if (colorM == "stroke") {
+            (<HTMLDivElement>document.querySelector("#draw_color > div")).style.borderColor = Color(colorL).string();
+            if (setO) setFObjectV(null, Color(colorL).string(), null);
         }
 
         // 文字自适应
-        var t_color = Color(document.getElementById(`draw_color_${color_m}`).style.backgroundColor);
-        var bg_color = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
-        if (t_color.rgb().array()[3] >= 0.5 || t_color.rgb().array()[3] === undefined) {
-            if (t_color.isLight()) {
-                document.getElementById(`draw_color_${color_m}`).style.color = "#000";
+        var tColor = Color(document.getElementById(`draw_color_${colorM}`).style.backgroundColor);
+        var bgColor = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
+        if (tColor.rgb().array()[3] >= 0.5 || tColor.rgb().array()[3] === undefined) {
+            if (tColor.isLight()) {
+                document.getElementById(`draw_color_${colorM}`).style.color = "#000";
             } else {
-                document.getElementById(`draw_color_${color_m}`).style.color = "#fff";
+                document.getElementById(`draw_color_${colorM}`).style.color = "#fff";
             }
         } else {
             // 低透明度背景呈现栏的颜色
-            if (bg_color.isLight()) {
-                document.getElementById(`draw_color_${color_m}`).style.color = "#000";
+            if (bgColor.isLight()) {
+                document.getElementById(`draw_color_${colorM}`).style.color = "#000";
             } else {
-                document.getElementById(`draw_color_${color_m}`).style.color = "#fff";
+                document.getElementById(`draw_color_${colorM}`).style.color = "#fff";
             }
         }
 
         if (text) {
-            document.getElementById(`draw_color_${color_m}`).innerText = Color(color).hexa();
+            document.getElementById(`draw_color_${colorM}`).innerText = Color(color).hexa();
         }
     }
 }
 
 // 色盘
-function color_bar() {
+function colorBar() {
     // 主盘
-    var color_list = ["hsl(0, 0%, 100%)"];
-    var base_color = Color("hsl(0, 100%, 50%)");
+    var colorList = ["hsl(0, 0%, 100%)"];
+    var baseColor = Color("hsl(0, 100%, 50%)");
     for (let i = 0; i < 360; i += 15) {
-        color_list.push(base_color.rotate(i).string());
+        colorList.push(baseColor.rotate(i).string());
     }
-    show_color();
+    showColor();
     // 下一层级
-    function next_color(h) {
-        var next_color_list = [];
+    function nextColor(h) {
+        var nextColorList = [];
         if (h == "hsl(0, 0%, 100%)") {
             for (let i = 255; i >= 0; i = Number((i - 10.625).toFixed(3))) {
-                next_color_list.push(`rgb(${i}, ${i}, ${i})`);
+                nextColorList.push(`rgb(${i}, ${i}, ${i})`);
             }
         } else {
             h = h.match(/hsl\(([0-9]*)/)[1] - 0;
             for (let i = 90; i > 0; i -= 20) {
                 for (let j = 100; j > 0; j -= 20) {
-                    next_color_list.push(`hsl(${h}, ${j}%, ${i}%)`);
+                    nextColorList.push(`hsl(${h}, ${j}%, ${i}%)`);
                 }
             }
         }
         var tt = "";
-        for (let n in next_color_list) {
-            tt += `<div class="color_i" style="background-color: ${next_color_list[n]}" title="${color_conversion(
-                next_color_list[n],
+        for (let n in nextColorList) {
+            tt += `<div class="color_i" style="background-color: ${nextColorList[n]}" title="${colorConversion(
+                nextColorList[n],
                 取色器默认格式
             )}"></div>`;
         }
@@ -2886,19 +2884,19 @@ function color_bar() {
         document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, _index) => {
             el.onmousedown = (event) => {
                 if (event.button == 0) {
-                    c_color(el);
+                    cColor(el);
                 } else {
                     // 回到主盘
-                    show_color();
+                    showColor();
                 }
             };
         });
-        next_color_list = tt = null;
+        nextColorList = tt = null;
     }
-    function show_color() {
+    function showColor() {
         var t = "";
-        for (let x of color_list) {
-            t += `<div class="color_i" style="background-color: ${x}" title="${color_conversion(
+        for (let x of colorList) {
+            t += `<div class="color_i" style="background-color: ${x}" title="${colorConversion(
                 x,
                 取色器默认格式
             )}"></div>`;
@@ -2907,56 +2905,52 @@ function color_bar() {
         document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, index) => {
             el.onmousedown = (event) => {
                 if (event.button == 0) {
-                    c_color(el);
+                    cColor(el);
                 } else {
                     // 下一层级
-                    next_color(color_list[index]);
+                    nextColor(colorList[index]);
                 }
             };
         });
         t = null;
     }
     // 事件
-    function c_color(el) {
-        change_color({ [color_m]: el.style.backgroundColor }, true, true);
-        if (color_m == "fill") color_alpha_input_1.value = "100";
-        if (color_m == "stroke") color_alpha_input_2.value = "100";
+    function cColor(el) {
+        changeColor({ [colorM]: el.style.backgroundColor }, true, true);
+        if (colorM == "fill") colorAlphaInput1.value = "100";
+        if (colorM == "stroke") colorAlphaInput2.value = "100";
     }
 }
-color_bar();
+colorBar();
 
 (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).oninput = () => {
-    set_f_object_v(
-        null,
-        null,
-        Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value)
-    );
+    setFObjectV(null, null, Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value));
 };
 
 /** 鼠标点击后，改变栏文字样式 */
-function get_f_object_v() {
-    if (fabric_canvas.getActiveObject()) {
-        var n = fabric_canvas.getActiveObject();
+function getFObjectV() {
+    if (fabricCanvas.getActiveObject()) {
+        var n = fabricCanvas.getActiveObject();
         if (n._objects) {
             // 当线与形一起选中，确保形不会透明
             for (let i of n._objects) {
                 if (i.canChangeFill) n = i;
             }
         }
-        if (n.filters) n = { fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width };
-    } else if (fabric_canvas.isDrawingMode) {
-        n = { fill: "#0000", stroke: free_color, strokeWidth: free_width };
+        if (n.filters) n = { fill: fillColor, stroke: strokeColor, strokeWidth: strokeWidth };
+    } else if (fabricCanvas.isDrawingMode) {
+        n = { fill: "#0000", stroke: freeColor, strokeWidth: freeWidth };
     } else {
-        n = { fill: fill_color, stroke: stroke_color, strokeWidth: stroke_width };
+        n = { fill: fillColor, stroke: strokeColor, strokeWidth: strokeWidth };
     }
     console.log(n);
     var [fill, stroke, strokeWidth] = [n.fill, n.stroke, n.strokeWidth];
     (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = strokeWidth;
-    change_color({ fill: fill, stroke: stroke }, false, true);
-    var fill_a = Color(color_fill_el.innerText).alpha();
-    color_alpha_input_1.value = String(Math.round(fill_a * 100));
-    var stroke_a = Color(color_stroke_el.innerText).alpha();
-    color_alpha_input_2.value = String(Math.round(stroke_a * 100));
+    changeColor({ fill: fill, stroke: stroke }, false, true);
+    var fill_a = Color(colorFillEl.innerText).alpha();
+    colorAlphaInput1.value = String(Math.round(fill_a * 100));
+    var stroke_a = Color(colorStrokeEl.innerText).alpha();
+    colorAlphaInput2.value = String(Math.round(stroke_a * 100));
 }
 /**
  * 更改全局或选中形状的颜色
@@ -2964,11 +2958,11 @@ function get_f_object_v() {
  * @param {String} stroke 边框颜色
  * @param {Number} strokeWidth 边框宽度
  */
-function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
-    if (fabric_canvas.getActiveObject()) {
+function setFObjectV(fill: string, stroke: string, strokeWidth: number) {
+    if (fabricCanvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
-        var n = fabric_canvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
+        var n = fabricCanvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
         n = n._objects || [n];
         for (let i in n) {
             if (fill) {
@@ -2983,14 +2977,14 @@ function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
                 if (strokeWidth) store.set(`图像编辑.形状属性.${n[i].形状}.sw`, strokeWidth);
             }
         }
-        fabric_canvas.renderAll();
-    } else if (fabric_canvas.isDrawingMode) {
+        fabricCanvas.renderAll();
+    } else if (fabricCanvas.isDrawingMode) {
         console.log(1);
         /* 画笔 */
-        if (stroke) fabric_canvas.freeDrawingBrush.color = free_color = stroke;
-        if (strokeWidth) fabric_canvas.freeDrawingBrush.width = free_width = strokeWidth;
-        free_draw_cursor();
-        free_shadow();
+        if (stroke) fabricCanvas.freeDrawingBrush.color = freeColor = stroke;
+        if (strokeWidth) fabricCanvas.freeDrawingBrush.width = freeWidth = strokeWidth;
+        freeDrawCursor();
+        freeShadow();
         if (mode) {
             if (stroke) store.set(`图像编辑.形状属性.${mode}.sc`, stroke);
             if (strokeWidth) store.set(`图像编辑.形状属性.${mode}.sw`, strokeWidth);
@@ -2998,24 +2992,24 @@ function set_f_object_v(fill: string, stroke: string, strokeWidth: number) {
     } else {
         console.log(2);
         /* 非画笔非选中 */
-        if (fill) fill_color = fill;
-        if (stroke) stroke_color = free_color = stroke;
-        if (strokeWidth) stroke_width = strokeWidth;
+        if (fill) fillColor = fill;
+        if (stroke) strokeColor = freeColor = stroke;
+        if (strokeWidth) strokeWidth = strokeWidth;
     }
 }
 
 // 滤镜
-fabric_canvas.filterBackend = Fabric.initFilterBackend();
+fabricCanvas.filterBackend = Fabric.initFilterBackend();
 var webglBackend;
 try {
     webglBackend = new Fabric.WebglFilterBackend();
-    fabric_canvas.filterBackend = webglBackend;
+    fabricCanvas.filterBackend = webglBackend;
 } catch (e) {
     console.log(e);
 }
 
-var new_filter_selecting = false;
-function new_filter_select(o, no) {
+var newFilterSelecting = false;
+function newFilterSelect(o, no) {
     var x1 = o.x.toFixed(),
         y1 = o.y.toFixed(),
         x2 = no.x.toFixed(),
@@ -3025,13 +3019,13 @@ function new_filter_select(o, no) {
         w = Math.abs(x1 - x2),
         h = Math.abs(y1 - y2);
 
-    var main_ctx = main_canvas.getContext("2d");
-    var tmp_canvas = document.createElement("canvas");
-    tmp_canvas.width = w;
-    tmp_canvas.height = h;
-    var gid = main_ctx.getImageData(x, y, w, h); // 裁剪
-    tmp_canvas.getContext("2d").putImageData(gid, 0, 0);
-    var img = new Fabric.Image(tmp_canvas, {
+    var mainCtx = mainCanvas.getContext("2d");
+    var tmpCanvas = document.createElement("canvas");
+    tmpCanvas.width = w;
+    tmpCanvas.height = h;
+    var gid = mainCtx.getImageData(x, y, w, h); // 裁剪
+    tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
+    var img = new Fabric.Image(tmpCanvas, {
         left: x,
         top: y,
         lockMovementX: true,
@@ -3042,32 +3036,32 @@ function new_filter_select(o, no) {
         hasControls: false,
         hoverCursor: "auto",
     });
-    fabric_canvas.add(img);
-    fabric_canvas.setActiveObject(img);
+    fabricCanvas.add(img);
+    fabricCanvas.setActiveObject(img);
 }
 
 (<HTMLInputElement>(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b"))).oninput = () => {
-    exit_free();
-    exit_shape();
-    new_filter_selecting = true;
-    fabric_canvas.defaultCursor = "crosshair";
+    exitFree();
+    exitShape();
+    newFilterSelecting = true;
+    fabricCanvas.defaultCursor = "crosshair";
     hotkeys.setScope("drawing_esc");
 };
 
-function apply_filter(i, filter) {
-    var obj = fabric_canvas.getActiveObject();
+function applyFilter(i, filter) {
+    var obj = fabricCanvas.getActiveObject();
     obj.filters[i] = filter;
     obj.applyFilters();
-    fabric_canvas.renderAll();
+    fabricCanvas.renderAll();
 }
-function get_filters() {
-    if (fabric_canvas.getActiveObject()?.filters !== undefined) {
-        s_h_filters_div(false);
+function getFilters() {
+    if (fabricCanvas.getActiveObject()?.filters !== undefined) {
+        SHFiltersDiv(false);
     } else {
-        s_h_filters_div(true);
+        SHFiltersDiv(true);
         return;
     }
-    var f = fabric_canvas.getActiveObject().filters;
+    var f = fabricCanvas.getActiveObject().filters;
     console.log(f);
     (<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).value = String(f[0]?.blocksize || 0);
     (<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).value = String(f[1]?.blur * 100 || 0);
@@ -3113,7 +3107,7 @@ function get_filters() {
     (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked = f[15] ? true : false;
     (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked = f[16] ? true : false;
 }
-function s_h_filters_div(v) {
+function SHFiltersDiv(v) {
     var l = document.querySelectorAll("#draw_filters_i > div") as NodeListOf<HTMLDivElement>;
     if (v) {
         for (let i = 1; i < l.length; i++) {
@@ -3127,7 +3121,7 @@ function s_h_filters_div(v) {
         }
     }
 }
-s_h_filters_div(true);
+SHFiltersDiv(true);
 
 /**
  * 设置滤镜 滑块
@@ -3137,16 +3131,16 @@ s_h_filters_div(true);
  * @param i 滤镜索引
  * @param is_z 检查值是否为0
  */
-function check_filter_range_input(id: string, f: string, key: string, i: number, is_z?: boolean) {
+function checkFilterRangeInput(id: string, f: string, key: string, i: number, is_z?: boolean) {
     (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).oninput = () => {
         const value = Number((<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).value);
         if (!is_z || value != 0) {
             let filter = new Fabric.Image.filters[f]({
                 [key]: value,
             });
-            apply_filter(i, filter);
+            applyFilter(i, filter);
         } else {
-            apply_filter(i, null);
+            applyFilter(i, null);
         }
     };
 }
@@ -3157,24 +3151,24 @@ function check_filter_range_input(id: string, f: string, key: string, i: number,
  * @param f 函数名
  * @param i 滤镜索引
  */
-function check_filter_lock_input(id: string, f: string, i: number) {
+function checkFilterLockInput(id: string, f: string, i: number) {
     const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
     let filter = value ? new Fabric.Image.filters[f]() : null;
-    apply_filter(i, filter);
+    applyFilter(i, filter);
 }
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-check_filter_range_input("pixelate", "Pixelate", "blocksize", 0, true);
+checkFilterRangeInput("pixelate", "Pixelate", "blocksize", 0, true);
 // 模糊
-check_filter_range_input("blur", "Blur", "blur", 1, true);
+checkFilterRangeInput("blur", "Blur", "blur", 1, true);
 // 亮度
-check_filter_range_input("brightness", "Brightness", "brightness", 2);
+checkFilterRangeInput("brightness", "Brightness", "brightness", 2);
 // 对比度
-check_filter_range_input("contrast", "Contrast", "contrast", 3);
+checkFilterRangeInput("contrast", "Contrast", "contrast", 3);
 // 饱和度
-check_filter_range_input("saturation", "Saturation", "saturation", 4);
+checkFilterRangeInput("saturation", "Saturation", "saturation", 4);
 // 色调
-check_filter_range_input("hue", "HueRotation", "rotation", 5);
+checkFilterRangeInput("hue", "HueRotation", "rotation", 5);
 // 伽马
 (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
@@ -3186,94 +3180,94 @@ check_filter_range_input("hue", "HueRotation", "rotation", 5);
             var filter = new Fabric.Image.filters.Gamma({
                 gamma: [r, g, b],
             });
-            apply_filter(6, filter);
+            applyFilter(6, filter);
         };
 // 噪音
-check_filter_range_input("noise", "Noise", "noise", 7);
+checkFilterRangeInput("noise", "Noise", "noise", 7);
 // 灰度
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked)
         var filter = new Fabric.Image.filters.Grayscale({ mode: "average" });
-    apply_filter(8, filter);
+    applyFilter(8, filter);
 };
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked)
         var filter = new Fabric.Image.filters.Grayscale({ mode: "lightness" });
-    apply_filter(8, filter);
+    applyFilter(8, filter);
 };
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
     if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked)
         var filter = new Fabric.Image.filters.Grayscale({ mode: "luminosity" });
-    apply_filter(8, filter);
+    applyFilter(8, filter);
 };
 // 负片
-check_filter_lock_input("invert", "Invert", 9);
+checkFilterLockInput("invert", "Invert", 9);
 // 棕褐色
-check_filter_lock_input("sepia", "Sepia", 10);
+checkFilterLockInput("sepia", "Sepia", 10);
 // 黑白
-check_filter_lock_input("bw", "BlackWhite", 11);
+checkFilterLockInput("bw", "BlackWhite", 11);
 // 布朗尼
-check_filter_lock_input("brownie", "Brownie", 12);
+checkFilterLockInput("brownie", "Brownie", 12);
 // 老式
-check_filter_lock_input("vintage", "Vintage", 13);
+checkFilterLockInput("vintage", "Vintage", 13);
 // 柯达彩色胶片
-check_filter_lock_input("koda", "Kodachrome", 14);
+checkFilterLockInput("koda", "Kodachrome", 14);
 // 特艺色彩
-check_filter_lock_input("techni", "Technicolor", 15);
+checkFilterLockInput("techni", "Technicolor", 15);
 // 宝丽来
-check_filter_lock_input("polaroid", "Polaroid", 16);
+checkFilterLockInput("polaroid", "Polaroid", 16);
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
-function exit_free() {
-    fabric_canvas.isDrawingMode = false;
-    free_i_els[0].checked = false;
-    free_i_els[1].checked = false;
-    free_i_els[2].checked = false;
-    fabric_canvas.defaultCursor = "auto";
+function exitFree() {
+    fabricCanvas.isDrawingMode = false;
+    freeIEls[0].checked = false;
+    freeIEls[1].checked = false;
+    freeIEls[2].checked = false;
+    fabricCanvas.defaultCursor = "auto";
 }
-function exit_shape() {
+function exitShape() {
     shape = "";
-    drawing_shape = false;
-    fabric_canvas.selection = true;
-    fabric_canvas.defaultCursor = "auto";
-    poly_o_p = [];
+    drawingShape = false;
+    fabricCanvas.selection = true;
+    fabricCanvas.defaultCursor = "auto";
+    polyOP = [];
 }
-function exit_filter() {
-    new_filter_selecting = false;
+function exitFilter() {
+    newFilterSelecting = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b")).checked = false;
-    fabric_canvas.defaultCursor = "auto";
+    fabricCanvas.defaultCursor = "auto";
 }
 hotkeys("esc", "drawing_esc", () => {
-    exit_free();
-    exit_shape();
-    exit_filter();
+    exitFree();
+    exitShape();
+    exitFilter();
     hotkeys.setScope("normal");
 });
 
 // fabric命令行
-var draw_edit_input_el = <HTMLInputElement>document.querySelector("#draw_edit input");
+var drawEditInputEl = <HTMLInputElement>document.querySelector("#draw_edit input");
 hotkeys("f12", "normal", () => {
-    s_center_bar("edit");
-    if (center_bar_show) {
-        draw_edit_input_el.focus();
-        hotkeys("enter", "c_bar", fabric_api);
+    sCenterBar("edit");
+    if (centerBarShow) {
+        drawEditInputEl.focus();
+        hotkeys("enter", "c_bar", fabricApi);
         hotkeys("esc", "c_bar", () => {
-            s_center_bar("edit");
+            sCenterBar("edit");
         });
     }
 });
 document.getElementById("draw_edit_run").onclick = () => {
-    fabric_api();
+    fabricApi();
 };
-function fabric_api() {
-    var e = draw_edit_input_el.value;
-    window["$0"] = fabric_canvas.getActiveObject();
+function fabricApi() {
+    var e = drawEditInputEl.value;
+    window["$0"] = fabricCanvas.getActiveObject();
     if (!e.includes("$0")) {
         e = `fabric_canvas.getActiveObject().set({${e}})`;
     }
@@ -3281,42 +3275,42 @@ function fabric_api() {
     div.innerText = eval(e);
     document.getElementById("draw_edit_output").appendChild(div);
     document.getElementById("draw_edit_output").style.margin = "4px";
-    fabric_canvas.renderAll();
+    fabricCanvas.renderAll();
 }
 document.getElementById("draw_edit_clear").onclick = () => {
     document.getElementById("draw_edit_output").innerHTML = "";
     document.getElementById("draw_edit_output").style.margin = "";
 };
 
-var fabric_clipboard;
-function fabric_copy() {
+var fabricClipboard;
+function fabricCopy() {
     var dx = store.get("图像编辑.复制偏移.x"),
         dy = store.get("图像编辑.复制偏移.y");
-    fabric_canvas.getActiveObject().clone(function (cloned) {
-        fabric_clipboard = cloned;
+    fabricCanvas.getActiveObject().clone(function (cloned) {
+        fabricClipboard = cloned;
     });
-    fabric_clipboard.clone(function (clonedObj) {
-        fabric_canvas.discardActiveObject();
+    fabricClipboard.clone(function (clonedObj) {
+        fabricCanvas.discardActiveObject();
         clonedObj.set({
             left: clonedObj.left + dx,
             top: clonedObj.top + dy,
             evented: true,
         });
         if (clonedObj.type === "activeSelection") {
-            clonedObj.fabric_canvas = fabric_canvas;
+            clonedObj.fabric_canvas = fabricCanvas;
             clonedObj.forEachObject(function (obj) {
-                fabric_canvas.add(obj);
+                fabricCanvas.add(obj);
             });
             clonedObj.setCoords();
         } else {
-            fabric_canvas.add(clonedObj);
+            fabricCanvas.add(clonedObj);
         }
-        fabric_canvas.setActiveObject(clonedObj);
-        fabric_canvas.requestRenderAll();
+        fabricCanvas.setActiveObject(clonedObj);
+        fabricCanvas.requestRenderAll();
     });
-    his_push();
+    hisPush();
 }
-hotkeys("Ctrl+v", "normal", fabric_copy);
+hotkeys("Ctrl+v", "normal", fabricCopy);
 
 // 插件
 for (let p of store.get("插件.加载后")) {
@@ -3336,17 +3330,17 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
-var package_json = JSON.parse(pack);
+var packageJson = JSON.parse(pack);
 
-function check_update() {
+function checkUpdate() {
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
         .then((v) => v.json())
         .then((re) => {
             let l = [];
             for (let r of re) {
                 if (
-                    !package_json.version.includes("beta") &&
-                    !package_json.version.includes("alpha") &&
+                    !packageJson.version.includes("beta") &&
+                    !packageJson.version.includes("alpha") &&
                     !store.get("更新.dev")
                 ) {
                     if (!r.draft && !r.prerelease) l.push(r);
@@ -3356,7 +3350,7 @@ function check_update() {
             }
             for (let i in l) {
                 const r = l[i];
-                if (r.name == package_json.version) {
+                if (r.name == packageJson.version) {
                     if (i != "0") {
                         ipcRenderer.send("clip_main_b", "new_version", { v: l[0].name, url: l[0].html_url });
                     }
@@ -3366,11 +3360,11 @@ function check_update() {
         });
 }
 
-if (store.get("更新.频率") == "start") check_update();
+if (store.get("更新.频率") == "start") checkUpdate();
 if (store.get("更新.频率") == "weekly") {
     let time = new Date();
     if (time.getDay() == 6 && time.getTime() - store.get("更新.上次更新时间") > 24 * 60 * 60 * 1000) {
         store.set("更新.上次更新时间", time.getTime());
-        check_update();
+        checkUpdate();
     }
 }

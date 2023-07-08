@@ -1,74 +1,74 @@
 /// <reference types="vite/client" />
-var in_browser = typeof global == "undefined";
+var inBrowser = typeof global == "undefined";
 
-import close_svg from "../assets/icons/close.svg";
-import reload_svg from "../assets/icons/reload.svg";
+import closeSvg from "../assets/icons/close.svg";
+import reloadSvg from "../assets/icons/reload.svg";
 
 /**撤销 */
 // 定义撤销栈
-var undo_stack = [""];
+var undoStack = [""];
 // 定义位置
-var undo_stack_i = 0;
+var undoStackI = 0;
 /**
  * 添加到撤销栈
  * @returns none
  */
-function stack_add() {
-    if (undo_stack[undo_stack_i] == editor.get()) return;
+function stackAdd() {
+    if (undoStack[undoStackI] == editor.get()) return;
     // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
-    if (undo_stack_i != undo_stack.length - 1) undo_stack.push(undo_stack[undo_stack_i]);
-    undo_stack.push(editor.get());
-    undo_stack_i = undo_stack.length - 1;
+    if (undoStackI != undoStack.length - 1) undoStack.push(undoStack[undoStackI]);
+    undoStack.push(editor.get());
+    undoStackI = undoStack.length - 1;
 }
 function undo() {
-    if (undo_stack_i > 0) {
-        undo_stack_i--;
-        editor.push(undo_stack[undo_stack_i]);
-        if (find_show) {
-            exit_find();
+    if (undoStackI > 0) {
+        undoStackI--;
+        editor.push(undoStack[undoStackI]);
+        if (findShow) {
+            exitFind();
             find_();
         }
     }
 }
 function redo() {
-    if (undo_stack_i < undo_stack.length - 1) {
-        undo_stack_i++;
-        editor.push(undo_stack[undo_stack_i]);
-        if (find_show) {
-            exit_find();
+    if (undoStackI < undoStack.length - 1) {
+        undoStackI++;
+        editor.push(undoStack[undoStackI]);
+        if (findShow) {
+            exitFind();
             find_();
         }
     }
 }
 
 class xeditor {
-    renderer_el: HTMLElement;
+    rendererEl: HTMLElement;
     text: HTMLTextAreaElement;
-    selection_el: HTMLElement;
-    find_el: HTMLElement;
-    position_el: HTMLElement;
+    selectionEl: HTMLElement;
+    findEl: HTMLElement;
+    positionEl: HTMLElement;
     selections: selections;
     cursors: cursors;
     find: find;
     constructor(el: HTMLElement) {
-        this.renderer_el = el;
+        this.rendererEl = el;
         el.classList.add("text");
         this.text = document.createElement("textarea");
-        this.selection_el = document.createElement("div");
-        this.find_el = document.createElement("div");
-        this.position_el = document.createElement("div");
-        el.append(this.position_el, this.find_el, this.selection_el, this.text);
+        this.selectionEl = document.createElement("div");
+        this.findEl = document.createElement("div");
+        this.positionEl = document.createElement("div");
+        el.append(this.positionEl, this.findEl, this.selectionEl, this.text);
 
         this.selections = new selections(this);
         this.cursors = new cursors(this);
         this.find = new find(this);
 
         this.text.oninput = () => {
-            this.selection_el.innerText = this.text.value;
-            this.text.style.height = this.selection_el.offsetHeight + "px";
-            this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
-            if (!is_wrap) editor.text.style.width = editor.selection_el.offsetWidth + "px";
-            editor_change();
+            this.selectionEl.innerText = this.text.value;
+            this.text.style.height = this.selectionEl.offsetHeight + "px";
+            this.text.style.paddingBottom = el.offsetHeight - lineHeight + "px";
+            if (!isWrap) editor.text.style.width = editor.selectionEl.offsetWidth + "px";
+            editorChange();
         };
 
         this.text.addEventListener("keydown", (e) => {
@@ -78,7 +78,7 @@ class xeditor {
             switch (e.key) {
                 case "Tab":
                     this.text.setRangeText("\t");
-                    editor_change();
+                    editorChange();
                     break;
                 case "Insert":
                     insert = !insert;
@@ -91,26 +91,26 @@ class xeditor {
             }
         });
 
-        let pointer_start_from_this = false;
+        let pointerStartFromThis = false;
 
         this.text.addEventListener("pointerdown", (e) => {
-            pointer_start_from_this = true;
+            pointerStartFromThis = true;
             if (e.altKey) {
             } else {
-                this.selections.clear_all();
+                this.selections.clearAll();
             }
         });
 
         document.addEventListener("pointerup", (e) => {
-            if (pointer_start_from_this) {
+            if (pointerStartFromThis) {
                 setTimeout(() => {
                     if (e.altKey) {
                         this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
                     } else {
-                        this.selections.clear_all();
+                        this.selections.clearAll();
                         this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
                     }
-                    pointer_start_from_this = false;
+                    pointerStartFromThis = false;
                     this.text.dispatchEvent(
                         new CustomEvent("select2", { detail: { button: e.button, d: this.text.selectionDirection } })
                     );
@@ -136,10 +136,10 @@ class xeditor {
             } else {
                 editor.selections.replace(textl.join("\n"));
             }
-            this.text.style.height = this.selection_el.offsetHeight + "px";
-            this.text.style.paddingBottom = el.offsetHeight - line_height + "px";
-            if (!is_wrap) editor.text.style.width = editor.selection_el.offsetWidth + "px";
-            editor_change();
+            this.text.style.height = this.selectionEl.offsetHeight + "px";
+            this.text.style.paddingBottom = el.offsetHeight - lineHeight + "px";
+            if (!isWrap) editor.text.style.width = editor.selectionEl.offsetWidth + "px";
+            editorChange();
         });
     }
 
@@ -149,17 +149,17 @@ class xeditor {
      */
     push(value: string) {
         this.text.value = value;
-        this.selection_el.innerText = value;
-        this.text.style.height = this.selection_el.offsetHeight + "px";
-        this.text.style.paddingBottom = this.text.parentElement.offsetHeight - line_height + "px";
-        if (!is_wrap) editor.text.style.width = editor.selection_el.offsetWidth + "px";
+        this.selectionEl.innerText = value;
+        this.text.style.height = this.selectionEl.offsetHeight + "px";
+        this.text.style.paddingBottom = this.text.parentElement.offsetHeight - lineHeight + "px";
+        if (!isWrap) editor.text.style.width = editor.selectionEl.offsetWidth + "px";
         this.render();
-        editor_change();
+        editorChange();
 
-        if (editing_on_other) {
-            editing_on_other = false;
-            editor_change();
-            editing_on_other = true;
+        if (editingOnOther) {
+            editingOnOther = false;
+            editorChange();
+            editingOnOther = true;
         }
     }
 
@@ -176,24 +176,24 @@ class xeditor {
     }
 
     render() {
-        this.selection_el.innerText = this.text.value;
+        this.selectionEl.innerText = this.text.value;
     }
 
     l() {
         return this.text.value.split("\n");
     }
 
-    w_max(p: number) {
+    wMax(p: number) {
         return this.l()[p].length; // TODO
     }
 
     delete() {
         editor.selections.replace("");
-        hide_edit_bar();
+        hideEditBar();
     }
     copy() {
         var t = editor.selections.get();
-        if (in_browser) {
+        if (inBrowser) {
             navigator.clipboard.writeText(t);
         } else {
             clipboard.writeText(t);
@@ -204,7 +204,7 @@ class xeditor {
         this.delete();
     }
     paste() {
-        if (in_browser) {
+        if (inBrowser) {
             navigator.clipboard.readText().then((t) => {
                 editor.selections.replace(t);
             });
@@ -215,16 +215,16 @@ class xeditor {
             editor.selections.replace(t);
         }
     }
-    select_all() {
-        this.selections.clear_all();
+    selectAll() {
+        this.selections.clearAll();
         this.selections.add({
             start: 0,
             end: editor.get().length,
         });
         let r = this.selections.rect(this.selections.l[0])[0];
-        show_edit_bar(r.x, r.top + line_height, NaN, false);
+        showEditBar(r.x, r.top + lineHeight, NaN, false);
     }
-    delete_enter() {
+    deleteEnter() {
         for (let s of editor.selections.l) {
             var t = editor.selections.get(s);
             let ot = "";
@@ -250,7 +250,7 @@ class xeditor {
             editor.selections.replace(ot);
             editor.selections.render();
         }
-        line_num();
+        lineNum();
     }
 }
 
@@ -268,8 +268,8 @@ class selections {
     l: selection[] = [];
 
     add(new_s: selection) {
-        new_s = format_selection(new_s);
-        let new_l = [new_s];
+        new_s = formatSelection(new_s);
+        let newL = [new_s];
         for (let s of this.l) {
             if (s.start <= new_s.start && new_s.end <= s.end) {
                 // 新选区是选区的子集
@@ -285,21 +285,21 @@ class selections {
                 // 选区是新选区的子集
             } else {
                 // 交集为∅
-                new_l.push(s);
+                newL.push(s);
             }
         }
-        this.l = new_l;
+        this.l = newL;
         this.render();
         console.log(this.l);
     }
 
-    clear_all() {
+    clearAll() {
         this.l = [];
         this.render();
     }
 
     s2ns(s: selection2) {
-        s = format_selection2(s);
+        s = formatSelection2(s);
         let l = editor.l();
         let start = 0;
         for (let i = 0; i < s.start.pg; i++) {
@@ -362,7 +362,7 @@ class selections {
     }
 
     render() {
-        this.editor.selection_el.innerHTML = "";
+        this.editor.selectionEl.innerHTML = "";
         let text = this.editor.text.value;
         let ranges: selection[] = this.l;
         ranges = ranges.sort((a, b) => a.start - b.start);
@@ -372,41 +372,41 @@ class selections {
             span.innerText = text.slice(ranges[i].start, ranges[i].end);
             let after = "";
             if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
-            let before_el = document.createElement("span");
-            before_el.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
-            let after_el = document.createElement("span");
-            after_el.innerText = after;
-            this.editor.selection_el.append(before_el, span, after_el);
+            let beforeEl = document.createElement("span");
+            beforeEl.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
+            let afterEl = document.createElement("span");
+            afterEl.innerText = after;
+            this.editor.selectionEl.append(beforeEl, span, afterEl);
         }
     }
 
     rect(s: selection) {
-        let text_nodes: HTMLElement[] = [];
+        let textNodes: HTMLElement[] = [];
         let l = editor.text.value.split("\n");
-        editor.position_el.innerText = "";
+        editor.positionEl.innerText = "";
         for (let text of l) {
             let div = document.createElement("div");
             div.innerText = text;
-            div.style.minHeight = line_height + "px";
-            text_nodes.push(div);
-            editor.position_el.append(div);
+            div.style.minHeight = lineHeight + "px";
+            textNodes.push(div);
+            editor.positionEl.append(div);
         }
         let ps = this.ns2s(s.start, s.end);
         let range = new Range();
-        let rect_l: DOMRect[] = [];
-        set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.end.pg], ps.end.of);
-        set_r(text_nodes[ps.start.pg], ps.start.of, text_nodes[ps.start.pg], ps.start.of);
-        set_r(text_nodes[ps.end.pg], ps.end.of, text_nodes[ps.end.pg], ps.end.of);
-        function set_r(start: HTMLElement, so: number, end: HTMLElement, eo: number) {
+        let rectL: DOMRect[] = [];
+        setR(textNodes[ps.start.pg], ps.start.of, textNodes[ps.end.pg], ps.end.of);
+        setR(textNodes[ps.start.pg], ps.start.of, textNodes[ps.start.pg], ps.start.of);
+        setR(textNodes[ps.end.pg], ps.end.of, textNodes[ps.end.pg], ps.end.of);
+        function setR(start: HTMLElement, so: number, end: HTMLElement, eo: number) {
             range.setStart(start.firstChild || start, so);
             range.setEnd(end.firstChild || end, eo);
             document.getSelection().removeAllRanges();
             document.getSelection().addRange(range);
-            rect_l.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+            rectL.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
         }
         this.editor.text.setSelectionRange(s.start, s.end);
         this.editor.text.focus();
-        return rect_l as [DOMRect, DOMRect, DOMRect];
+        return rectL as [DOMRect, DOMRect, DOMRect];
     }
 }
 class cursors {
@@ -466,25 +466,25 @@ class find {
     }
 
     find(text: string | RegExp) {
-        if (!tmp_text) tmp_text = editor.get();
+        if (!tmpText) tmpText = editor.get();
         // 拆分
-        let match_l = tmp_text.match(text);
-        let text_l = tmp_text.split(text);
-        let t_l: selection[] = [];
+        let matchL = tmpText.match(text);
+        let textL = tmpText.split(text);
+        let tL: selection[] = [];
         let n = 0;
         // 交替插入
-        for (i in text_l) {
-            if (text_l[i]) n += text_l[i].length;
-            if (match_l[i]) {
-                t_l.push({ start: n, end: n + match_l[i].length });
-                n += match_l[i].length;
+        for (i in textL) {
+            if (textL[i]) n += textL[i].length;
+            if (matchL[i]) {
+                tL.push({ start: n, end: n + matchL[i].length });
+                n += matchL[i].length;
             }
         }
-        return t_l;
+        return tL;
     }
 
     render(s: selection[]) {
-        this.editor.find_el.innerHTML = "";
+        this.editor.findEl.innerHTML = "";
         let text = this.editor.text.value;
         let ranges = s.sort((a, b) => a.start - b.start);
         for (let i = 0; i < ranges.length; i++) {
@@ -493,16 +493,16 @@ class find {
             if (span.innerText) span.classList.add("find_h");
             let after = "";
             if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
-            let before_el = document.createElement("span");
-            before_el.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
-            let after_el = document.createElement("span");
-            after_el.innerText = after;
-            this.editor.find_el.append(before_el, span, after_el);
+            let beforeEl = document.createElement("span");
+            beforeEl.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
+            let afterEl = document.createElement("span");
+            afterEl.innerText = after;
+            this.editor.findEl.append(beforeEl, span, afterEl);
         }
     }
 
     replace(s: selection, match: string | RegExp, text: string) {
-        editor.selections.clear_all();
+        editor.selections.clearAll();
         editor.selections.add(s);
         let mtext = editor.get(s).replace(match, text);
         editor.selections.replace(mtext, editor.selections.l[0]);
@@ -513,10 +513,10 @@ const editor = new xeditor(document.getElementById("text"));
 
 editor.push("");
 
-function format_selection(s: selection) {
+function formatSelection(s: selection) {
     return { start: Math.min(s.start, s.end), end: Math.max(s.start, s.end) } as selection;
 }
-function format_selection2(s: selection2) {
+function formatSelection2(s: selection2) {
     var tmp: selection2 = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (s.end.pg == s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
@@ -530,7 +530,7 @@ function format_selection2(s: selection2) {
     return tmp;
 }
 
-var line_height = 24;
+var lineHeight = 24;
 
 var cursor = { pg: 0, of: 0 };
 
@@ -539,53 +539,53 @@ editor.cursors.set(cursor);
 /**
  * 每次更改光标触发
  */
-function editor_change() {
-    line_num();
-    stack_add();
-    if (find_show) {
-        exit_find();
+function editorChange() {
+    lineNum();
+    stackAdd();
+    if (findShow) {
+        exitFind();
         find_();
-        count_words();
+        countWords();
     }
-    if (editing_on_other) write_edit_on_other();
+    if (editingOnOther) writeEditOnOther();
 }
 
 /**
  * 行号
  */
-function line_num() {
+function lineNum() {
     document.getElementById("line_num").innerHTML = "";
     let l = editor.text.value.split("\n");
-    editor.position_el.innerText = "";
+    editor.positionEl.innerText = "";
     let t = "";
     let ly = document.getElementById("line_num").getBoundingClientRect().y;
     for (let i in l) {
         const text = l[i];
         let div = document.createElement("div");
         div.innerText = text;
-        div.style.minHeight = line_height + "px";
-        editor.position_el.append(div);
+        div.style.minHeight = lineHeight + "px";
+        editor.positionEl.append(div);
         let rect = div.getBoundingClientRect();
         t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
     }
     document.getElementById("line_num").innerHTML = t;
     document.getElementById("line_num").style.width = String(l.length).length / 2 + "em";
 }
-line_num();
+lineNum();
 
 document.getElementById("line_num").onmousedown = (e) => {
     e.stopPropagation();
     var el = <HTMLElement>e.target;
     if (el == document.getElementById("line_num")) return;
-    var l_i = Number(el.innerText) - 1;
+    var lI = Number(el.innerText) - 1;
 
-    var s = { start: { pg: l_i, of: 0 }, end: { pg: l_i, of: editor.w_max(l_i) } };
-    editor.selections.clear_all();
+    var s = { start: { pg: lI, of: 0 }, end: { pg: lI, of: editor.wMax(lI) } };
+    editor.selections.clearAll();
     editor.selections.add(editor.selections.s2ns(s));
     editor.selections.render();
 
-    cursor.pg = l_i;
-    cursor.of = editor.w_max(l_i);
+    cursor.pg = lI;
+    cursor.of = editor.wMax(lI);
     editor.cursors.set(cursor);
 };
 document.getElementById("line_num").onmouseup = (_e) => {
@@ -602,7 +602,7 @@ var insert = false;
 
 /************************************浏览器转换 */
 var Store;
-if (in_browser) {
+if (inBrowser) {
     Store = class Store {
         constructor(_x?: Object) {}
         get(value: string) {
@@ -655,12 +655,12 @@ if (in_browser) {
         delete(_k) {}
     };
     var store = new Store();
-    history_store = new Store();
+    historyStore = new Store();
 } else {
     Store = require("electron-store");
-    let config_path = new URLSearchParams(location.search).get("config_path");
+    let configPath = new URLSearchParams(location.search).get("config_path");
     var store = new Store({
-        cwd: config_path || "",
+        cwd: configPath || "",
     });
     document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
         let url = new URL(el.href);
@@ -671,8 +671,8 @@ if (in_browser) {
 
 /************************************主要 */
 
-var window_name = "",
-    main_text = "";
+var windowName = "",
+    mainText = "";
 var 自动搜索 = store.get("自动搜索"),
     自动打开链接 = store.get("自动打开链接"),
     自动搜索中文占比 = store.get("自动搜索中文占比");
@@ -690,25 +690,25 @@ document.onwheel = (e) => {
     if (e.ctrlKey) {
         var d = e.deltaY / Math.abs(e.deltaY);
         var size = Number(document.getElementById("text_out").style.fontSize.replace("px", ""));
-        set_font_size(size - d);
+        setFontSize(size - d);
     }
 };
-function set_font_size(font_size: number) {
+function setFontSize(font_size: number) {
     document.getElementById("text_out").style.fontSize = font_size + "px";
-    line_height = font_size * 1.5;
+    lineHeight = font_size * 1.5;
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
         editor.cursors.set(cursor);
         editor.selections.render();
-        line_num();
+        lineNum();
     }, 400);
 }
 
 /**编辑栏 */
-var edit_bar_s = false;
-function show_edit_bar(x: number, y: number, _h: number, right: boolean) {
+var editBarS = false;
+function showEditBar(x: number, y: number, _h: number, right: boolean) {
     // 简易判断链接并显示按钮
-    if (is_link(editor.selections.get(), false)) {
+    if (isLink(editor.selections.get(), false)) {
         document.getElementById("link_bar").style.width = "30px";
     } else {
         setTimeout(() => {
@@ -717,7 +717,7 @@ function show_edit_bar(x: number, y: number, _h: number, right: boolean) {
     }
     // 排除没选中
     if (editor.selections.get() != "" || right) {
-        if (edit_bar_s) {
+        if (editBarS) {
             document.getElementById("edit_b").style.transition = "var(--transition)";
         } else {
             document.getElementById("edit_b").style.transition = "opacity var(--transition)";
@@ -729,16 +729,16 @@ function show_edit_bar(x: number, y: number, _h: number, right: boolean) {
         var y = y < 0 ? 0 : y;
         document.getElementById("edit_b").style.left = `${x}px`;
         document.getElementById("edit_b").style.top = `${y}px`;
-        edit_bar_s = true;
+        editBarS = true;
     } else {
         document.getElementById("edit_b").className = "edit_h";
-        edit_bar_s = false;
+        editBarS = false;
     }
 }
 
-function hide_edit_bar() {
-    edit_bar_s = true;
-    show_edit_bar(0, 0, 0, false);
+function hideEditBar() {
+    editBarS = true;
+    showEditBar(0, 0, 0, false);
 }
 
 editor.text.addEventListener("select2", (e: CustomEvent) => {
@@ -750,16 +750,16 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     } else {
         r = rect[2];
     }
-    let d = editor.renderer_el.getBoundingClientRect();
+    let d = editor.rendererEl.getBoundingClientRect();
     let x = r.x - d.x;
     let y = r.y - d.y;
     if (e.detail.button == 2) {
-        show_edit_bar(x, y + line_height, 0, true);
+        showEditBar(x, y + lineHeight, 0, true);
     } else {
         if (editor.selections.get() == "") {
-            hide_edit_bar();
+            hideEditBar();
         } else {
-            show_edit_bar(x, y + line_height, 0, false);
+            showEditBar(x, y + lineHeight, 0, false);
         }
     }
 });
@@ -770,16 +770,16 @@ document.getElementById("edit_b").onmousedown = (e) => {
     switch ((<HTMLElement>e.target).id) {
         case "link_bar":
             let url = editor.selections.get();
-            open_link("url", url);
+            openLink("url", url);
             break;
         case "search_bar":
-            open_link("search");
+            openLink("search");
             break;
         case "translate_bar":
-            open_link("translate");
+            openLink("translate");
             break;
         case "selectAll_bar":
-            editor.select_all();
+            editor.selectAll();
             break;
         case "cut_bar":
             editor.cut();
@@ -791,21 +791,21 @@ document.getElementById("edit_b").onmousedown = (e) => {
             editor.paste();
             break;
         case "delete_enter_bar":
-            editor.delete_enter();
+            editor.deleteEnter();
             break;
     }
 };
 
-if (in_browser) {
+if (inBrowser) {
     document.body.oncontextmenu = (e) => {
         e.preventDefault();
     };
 }
-var is_wrap = !store.get("编辑器.自动换行");
+var isWrap = !store.get("编辑器.自动换行");
 wrap();
 function wrap() {
-    is_wrap = !is_wrap;
-    if (is_wrap) {
+    isWrap = !isWrap;
+    if (isWrap) {
         document.documentElement.style.setProperty("--wrap", "pre-wrap");
         document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
             el.style.width = "100%";
@@ -815,40 +815,40 @@ function wrap() {
         document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
             el.style.width = "";
         });
-        editor.text.style.width = editor.selection_el.offsetWidth + "px";
+        editor.text.style.width = editor.selectionEl.offsetWidth + "px";
     }
-    editor.text.style.paddingBottom = editor.text.parentElement.offsetHeight - line_height + "px";
-    line_num();
+    editor.text.style.paddingBottom = editor.text.parentElement.offsetHeight - lineHeight + "px";
+    lineNum();
 }
 
-var is_check = !store.get("编辑器.拼写检查");
+var isCheck = !store.get("编辑器.拼写检查");
 spellcheck();
 function spellcheck() {
-    is_check = !is_check;
-    document.getElementById("text").spellcheck = is_check;
+    isCheck = !isCheck;
+    document.getElementById("text").spellcheck = isCheck;
 }
 
 /**
  * 查找与替换
  */
 
-var find_input = <HTMLInputElement>document.getElementById("find_input");
-var replace_input = <HTMLInputElement>document.getElementById("replace_input");
-var find_t = <HTMLElement>document.querySelector(".find_t > span");
+var findInput = <HTMLInputElement>document.getElementById("find_input");
+var replaceInput = <HTMLInputElement>document.getElementById("replace_input");
+var findT = <HTMLElement>document.querySelector(".find_t > span");
 
 // 查找ui
-var find_show = false;
-function show_find() {
-    find_show = !find_show;
-    if (find_show) {
+var findShow = false;
+function showFind() {
+    findShow = !findShow;
+    if (findShow) {
         document.getElementById("top").style.marginTop = "48px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
-        find_input.value = editor.selections.get();
-        find_input.select();
-        find_input.focus();
+        findInput.value = editor.selections.get();
+        findInput.select();
+        findInput.focus();
         if (editor.selections.get() != "") find_();
-        count_words();
+        countWords();
     } else {
         document.getElementById("top").style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
@@ -857,83 +857,83 @@ function show_find() {
 }
 
 document.getElementById("find_b_close").onclick = () => {
-    show_find();
-    exit_find();
+    showFind();
+    exitFind();
 };
 
 // 正则
-var find_regex = false;
+var findRegex = false;
 document.getElementById("find_b_regex").onclick = () => {
-    find_regex = !find_regex;
-    if (find_regex) {
+    findRegex = !findRegex;
+    if (findRegex) {
         document.getElementById("find_b_regex").style.backgroundColor = "var(--hover-color)";
     } else {
         document.getElementById("find_b_regex").style.backgroundColor = "";
     }
     find_();
-    find_input.focus();
+    findInput.focus();
 };
 
-var tmp_text: string;
+var tmpText: string;
 document.getElementById("find_input").oninput = () => {
     // 清除样式后查找
-    exit_find();
+    exitFind();
     find_();
 };
 // 查找并突出
 function find_() {
-    let match = editor.find.matchx(find_input.value, find_regex);
+    let match = editor.find.matchx(findInput.value, findRegex);
     let find_l = editor.find.find(match);
     editor.find.render(find_l);
-    find_l_n_i = -1;
-    find_l_n("↓");
-    if (find_input.value == "") {
-        exit_find();
+    findLNI = -1;
+    findLN("↓");
+    if (findInput.value == "") {
+        exitFind();
     }
 }
 
 // 清除样式
-function exit_find() {
-    tmp_text = null;
-    find_t.innerText = "";
+function exitFind() {
+    tmpText = null;
+    findT.innerText = "";
     editor.find.render([]);
 }
 // 跳转
-var find_l_n_i = 0;
-function find_l_n(a: "↑" | "↓") {
+var findLNI = 0;
+function findLN(a: "↑" | "↓") {
     var l = document.querySelectorAll(".find_h");
     if (l.length == 0) {
-        find_t.innerText = `无结果`;
+        findT.innerText = `无结果`;
         return;
     }
-    if (l[find_l_n_i]) l[find_l_n_i].classList.remove("find_h_h");
+    if (l[findLNI]) l[findLNI].classList.remove("find_h_h");
     if (a == "↑") {
-        if (find_l_n_i > 0) {
-            find_l_n_i--;
+        if (findLNI > 0) {
+            findLNI--;
         } else {
-            find_l_n_i = l.length - 1;
+            findLNI = l.length - 1;
         }
     } else if (a == "↓") {
-        if (find_l_n_i < l.length - 1) {
-            find_l_n_i++;
+        if (findLNI < l.length - 1) {
+            findLNI++;
         } else {
-            find_l_n_i = 0;
+            findLNI = 0;
         }
     }
-    l[find_l_n_i].classList.add("find_h_h");
-    find_t.innerText = `${find_l_n_i + 1}/${l.length}`;
-    document.getElementById("text_out").scrollTop = (<HTMLElement>l[find_l_n_i]).offsetTop - 48 - 16;
+    l[findLNI].classList.add("find_h_h");
+    findT.innerText = `${findLNI + 1}/${l.length}`;
+    document.getElementById("text_out").scrollTop = (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
 }
 document.getElementById("find_b_last").onclick = () => {
-    find_l_n("↑");
+    findLN("↑");
 };
 document.getElementById("find_b_next").onclick = () => {
-    find_l_n("↓");
+    findLN("↓");
 };
 document.getElementById("find_input").onkeydown = (e) => {
     if (e.key == "Enter") {
         if (document.querySelector(".find_h_h")) {
-            find_l_n("↓");
+            findLN("↓");
         } else {
             find_();
         }
@@ -942,31 +942,31 @@ document.getElementById("find_input").onkeydown = (e) => {
 
 // 全部替换
 document.getElementById("find_b_replace_all").onclick = () => {
-    let m = editor.find.matchx(find_input.value, find_regex);
-    if (!editor.selections.get()) editor.select_all();
-    editor.selections.replace(editor.selections.get().replaceAll(m, replace_input.value));
-    exit_find();
+    let m = editor.find.matchx(findInput.value, findRegex);
+    if (!editor.selections.get()) editor.selectAll();
+    editor.selections.replace(editor.selections.get().replaceAll(m, replaceInput.value));
+    exitFind();
 
-    stack_add();
+    stackAdd();
 };
 // 替换选中
-document.getElementById("find_b_replace").onclick = find_replace;
-function find_replace() {
-    let m = editor.find.matchx(find_input.value, find_regex);
+document.getElementById("find_b_replace").onclick = findReplace;
+function findReplace() {
+    let m = editor.find.matchx(findInput.value, findRegex);
     let l = editor.find.find(m);
-    let s = l[find_l_n_i];
-    editor.find.replace(s, m, replace_input.value);
-    find_l_n_i = find_l_n_i - 1;
-    let ti = find_l_n_i;
+    let s = l[findLNI];
+    editor.find.replace(s, m, replaceInput.value);
+    findLNI = findLNI - 1;
+    let ti = findLNI;
     find_();
-    find_l_n_i = ti;
-    find_l_n("↓");
+    findLNI = ti;
+    findLN("↓");
 
-    stack_add();
+    stackAdd();
 }
 document.getElementById("replace_input").onkeydown = (e) => {
     if (e.key == "Enter") {
-        find_replace();
+        findReplace();
     }
 };
 
@@ -978,7 +978,7 @@ document.getElementById("replace_input").onkeydown = (e) => {
  * @param s 严格模式
  * @returns 是否为链接
  */
-function is_link(url: string, s: boolean) {
+function isLink(url: string, s: boolean) {
     if (s) {
         var regex =
             /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
@@ -1000,24 +1000,24 @@ function is_link(url: string, s: boolean) {
  * 展示文字
  * @param t 展示的文字
  */
-function show_t(t: string) {
+function showT(t: string) {
     t = t.replace(/[\r\n]$/, "");
     editor.push(t);
     // 严格模式
-    if (is_link(t, true)) {
-        if (自动打开链接) open_link("url", t);
+    if (isLink(t, true)) {
+        if (自动打开链接) openLink("url", t);
     } else {
         var language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
         if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
             if (language == "本地语言") {
-                open_link("search");
+                openLink("search");
             } else {
-                open_link("translate");
+                openLink("translate");
             }
         }
     }
 
-    editor.select_all();
+    editor.selectAll();
 }
 
 /**
@@ -1025,7 +1025,7 @@ function show_t(t: string) {
  * @param id 模式
  * @param link 链接
  */
-function open_link(id: "url" | "search" | "translate", link?: string) {
+function openLink(id: "url" | "search" | "translate", link?: string) {
     if (id == "url") {
         link = link.replace(/[(^\s)(\s$)]/g, "");
         if (link.match(/\/\//g) == null) {
@@ -1040,26 +1040,26 @@ function open_link(id: "url" | "search" | "translate", link?: string) {
         if (浏览器打开) {
             shell.openExternal(url);
         } else {
-            ipcRenderer.send("open_url", window_name, url);
+            ipcRenderer.send("open_url", windowName, url);
         }
     } else {
         window.open(url);
     }
 }
 
-var 搜索引擎_list = store.get("搜索引擎"),
-    翻译引擎_list = store.get("翻译引擎"),
+var 搜索引擎List = store.get("搜索引擎"),
+    翻译引擎List = store.get("翻译引擎"),
     引擎 = store.get("引擎");
 /**搜索翻译按钮 */
 document.getElementById("search_b").onclick = () => {
-    open_link("search");
+    openLink("search");
 };
 document.getElementById("translate_b").onclick = () => {
-    open_link("translate");
+    openLink("translate");
 };
 /**改变选项后搜索 */
 document.getElementById("search_s").oninput = () => {
-    open_link("search");
+    openLink("search");
     if (引擎.记住)
         store.set("引擎.记住", [
             (<HTMLSelectElement>document.getElementById("search_s")).selectedOptions[0].innerText,
@@ -1067,7 +1067,7 @@ document.getElementById("search_s").oninput = () => {
         ]);
 };
 document.getElementById("translate_s").oninput = () => {
-    open_link("translate");
+    openLink("translate");
     if (引擎.记住)
         store.set("引擎.记住", [
             store.get("引擎.记住")[0],
@@ -1075,110 +1075,110 @@ document.getElementById("translate_s").oninput = () => {
         ]);
 };
 /**展示搜索引擎选项 */
-var search_c = "";
-for (let i in 搜索引擎_list) {
-    search_c += `<option ${
+var searchC = "";
+for (let i in 搜索引擎List) {
+    searchC += `<option ${
         引擎.记住
-            ? 引擎.记住[0] == 搜索引擎_list[i][0]
+            ? 引擎.记住[0] == 搜索引擎List[i][0]
                 ? "selected"
                 : ""
-            : 引擎.默认搜索引擎 == 搜索引擎_list[i][0]
+            : 引擎.默认搜索引擎 == 搜索引擎List[i][0]
             ? "selected"
             : ""
-    } value="${搜索引擎_list[i][1]}">${搜索引擎_list[i][0]}</option>`;
+    } value="${搜索引擎List[i][1]}">${搜索引擎List[i][0]}</option>`;
 }
-document.querySelector("#search_s").innerHTML = search_c;
+document.querySelector("#search_s").innerHTML = searchC;
 /**展示翻译引擎选项 */
-var translate_c = "";
-for (let i in 翻译引擎_list) {
-    translate_c += `<option ${
+var translateC = "";
+for (let i in 翻译引擎List) {
+    translateC += `<option ${
         引擎.记住
-            ? 引擎.记住[1] == 翻译引擎_list[i][0]
+            ? 引擎.记住[1] == 翻译引擎List[i][0]
                 ? "selected"
                 : ""
-            : 引擎.默认翻译引擎 == 翻译引擎_list[i][0]
+            : 引擎.默认翻译引擎 == 翻译引擎List[i][0]
             ? "selected"
             : ""
-    } value="${翻译引擎_list[i][1]}">${翻译引擎_list[i][0]}</option>`;
+    } value="${翻译引擎List[i][1]}">${翻译引擎List[i][0]}</option>`;
 }
-document.querySelector("#translate_s").innerHTML = translate_c;
+document.querySelector("#translate_s").innerHTML = translateC;
 
 /************************************历史记录 */
 // 历史记录
 
-if (!in_browser) {
-    var history_store = new Store({ name: "history" });
+if (!inBrowser) {
+    var historyStore = new Store({ name: "history" });
 }
 
-var history_list = history_store.get("历史记录") || {};
+var historyList = historyStore.get("历史记录") || {};
 var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
-    var now_time = new Date().getTime();
-    var d_time = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
-    for (var i of Object.keys(history_list)) {
-        if (now_time - Number(i) > d_time) {
-            history_store.delete(`历史记录.${i}`);
+    var nowTime = new Date().getTime();
+    var dTime = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
+    for (var i of Object.keys(historyList)) {
+        if (nowTime - Number(i) > dTime) {
+            historyStore.delete(`历史记录.${i}`);
         }
     }
 }
 
-function push_history() {
+function pushHistory() {
     var t = editor.get();
     var i = new Date().getTime();
     var s = { text: t };
     if (t != "" && 历史记录设置.保留历史记录) {
-        history_store.set(`历史记录.${i}`, s);
-        history_list[i] = s;
+        historyStore.set(`历史记录.${i}`, s);
+        historyList[i] = s;
     }
-    render_history();
+    renderHistory();
 }
 // 历史记录界面
-var history_showed = false;
-document.getElementById("history_b").onclick = show_history;
+var historyShowed = false;
+document.getElementById("history_b").onclick = showHistory;
 // html转义
-function html_to_text(html: string) {
+function htmlToText(html: string) {
     return html.replace(
         /[<>& \'\"]/g,
         (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c])
     );
 }
 
-function show_history() {
-    if (history_showed) {
+function showHistory() {
+    if (historyShowed) {
         document.getElementById("history").className = "";
-        history_showed = false;
+        historyShowed = false;
         document.getElementById("history_list").style.top = "100%";
     } else {
         document.getElementById("history").className = "hover_b2";
-        history_showed = true;
+        historyShowed = true;
 
         document.getElementById("history_list").style.top = "0%";
 
-        render_history();
+        renderHistory();
     }
 }
 import time_format from "../../../lib/time_format";
-function render_history() {
+function renderHistory() {
     var n = {};
-    for (let i of Object.keys(history_list).sort()) {
-        n[i] = history_list[i];
+    for (let i of Object.keys(historyList).sort()) {
+        n[i] = historyList[i];
     }
-    history_list = n;
+    historyList = n;
     n = null;
     // 迁移历史记录
     if (store.get("历史记录")) {
         document.querySelector("#history_list").innerHTML = `<div id = "old_his_to_new">迁移旧历史</div>`;
-        document.getElementById("old_his_to_new").onclick = old_his_to_new;
+        document.getElementById("old_his_to_new").onclick = oldHisToNew;
     }
-    if (Object.keys(history_list).length == 0) document.querySelector("#history_list").innerHTML = "暂无历史记录";
-    for (let i in history_list) {
-        var t = html_to_text(history_list[i].text).split(/[\r\n]/g);
+    if (Object.keys(historyList).length == 0) document.querySelector("#history_list").innerHTML = "暂无历史记录";
+    for (let i in historyList) {
+        var t = htmlToText(historyList[i].text).split(/[\r\n]/g);
         var div = document.createElement("div");
         div.id = i;
         div.innerHTML = `<div class="history_title"><span>${time_format(
             store.get("时间格式"),
             new Date(Number(i) - 0)
-        )}</span><button><img src="${close_svg}" class="icon"></button></div><div class="history_text">${
+        )}</span><button><img src="${closeSvg}" class="icon"></button></div><div class="history_text">${
             t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
         }</div>`;
         document.querySelector("#history_list").prepend(div);
@@ -1187,28 +1187,28 @@ function render_history() {
     // 打开某项历史
     document.querySelectorAll("#history_list > div > .history_text").forEach((e) => {
         e.addEventListener("click", () => {
-            editor.push(history_list[e.parentElement.id].text);
-            show_history();
+            editor.push(historyList[e.parentElement.id].text);
+            showHistory();
         });
     });
     // 删除某项历史
     // TODO多选
     document.querySelectorAll("#history_list > div > .history_title > button").forEach((e) => {
         e.addEventListener("click", () => {
-            history_store.delete(`历史记录.${e.parentElement.parentElement.id}`);
+            historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
             e.parentElement.parentElement.style.display = "none";
         });
     });
 }
-if (main_text == "") render_history();
+if (mainText == "") renderHistory();
 
-function old_his_to_new() {
+function oldHisToNew() {
     for (let i of store.get("历史记录")) {
-        history_store.set(`历史记录.${i.time}`, { text: i.text });
-        history_list[i.time] = { text: i.text };
+        historyStore.set(`历史记录.${i.time}`, { text: i.text });
+        historyList[i.time] = { text: i.text };
     }
     store.delete("历史记录");
-    render_history();
+    renderHistory();
 }
 
 /************************************引入 */
@@ -1219,18 +1219,18 @@ const os = require("os") as typeof import("os");
 ipcRenderer.on("init", (_event, _name: number) => {});
 
 ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
-    window_name = name;
+    windowName = name;
 
     if (list.length == 1) {
-        main_text = list[0];
-        show_t(main_text);
+        mainText = list[0];
+        showT(mainText);
     }
 
     if (list.length == 3 && list[0] == "image") {
         editor.push(t("图片上传中……请等候"));
-        search_img(list[1], list[2] as any, (err: Error, url: string) => {
+        searchImg(list[1], list[2] as any, (err: Error, url: string) => {
             if (url) {
-                open_link("url", url);
+                openLink("url", url);
                 if (浏览器打开) {
                     ipcRenderer.send("main_win", "close");
                 }
@@ -1242,16 +1242,16 @@ ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
 
     if (list.length == 3 && list[0] == "ocr") {
         editor.push(t("图片识别中……请等候"));
-        ocr(list[1], list[2] as any, (err: Error, r: { raw: ocr_result; text: string }) => {
+        ocr(list[1], list[2] as any, (err: Error, r: { raw: ocrResult; text: string }) => {
             const text = r.text;
             if (text) {
                 ipcRenderer.send("main_win", "ocr", "ok");
                 console.log(text);
 
                 editor.push(text);
-                editor.select_all();
+                editor.selectAll();
 
-                add_ocr_text(r.raw, 0);
+                addOcrText(r.raw, 0);
                 return;
             } else if (err) {
                 console.log(err);
@@ -1277,37 +1277,37 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
 document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
 
-var edit_on_other_type = null;
-var file_watcher = null;
+var editOnOtherType = null;
+var fileWatcher = null;
 const path = require("path") as typeof import("path");
-var tmp_text_path = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
-var editing_on_other = false;
-import open_with from "../../../lib/open_with";
-function edit_on_other() {
-    editing_on_other = !editing_on_other;
-    if (editing_on_other) {
+var tmpTextPath = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
+var editingOnOther = false;
+import openWith from "../../../lib/open_with";
+function editOnOther() {
+    editingOnOther = !editingOnOther;
+    if (editingOnOther) {
         var data = Buffer.from(editor.get());
-        fs.writeFile(tmp_text_path, data, () => {
-            if (edit_on_other_type == "o") {
-                shell.openPath(tmp_text_path);
-            } else if (edit_on_other_type == "c") {
-                open_with(tmp_text_path);
+        fs.writeFile(tmpTextPath, data, () => {
+            if (editOnOtherType == "o") {
+                shell.openPath(tmpTextPath);
+            } else if (editOnOtherType == "c") {
+                openWith(tmpTextPath);
             }
-            file_watcher = fs.watch(tmp_text_path, () => {
-                fs.readFile(tmp_text_path, "utf8", (e, data) => {
+            fileWatcher = fs.watch(tmpTextPath, () => {
+                fs.readFile(tmpTextPath, "utf8", (e, data) => {
                     if (e) console.log(e);
                     let cu = cursor;
                     editor.push(data);
                     if (cu.pg > editor.l().length) cu.pg = editor.l().length;
-                    if (cu.of > editor.w_max(cu.pg)) cu.of = editor.w_max(cu.pg);
+                    if (cu.of > editor.wMax(cu.pg)) cu.of = editor.wMax(cu.pg);
                     cursor = cu;
                     editor.cursors.set(cursor);
                 });
             });
             document.getElementById("text_out").title = "正在外部编辑中，双击退出";
             document.addEventListener("dblclick", () => {
-                editing_on_other = true;
-                edit_on_other();
+                editingOnOther = true;
+                editOnOther();
             });
         });
         data = null;
@@ -1315,24 +1315,24 @@ function edit_on_other() {
         try {
             document.getElementById("text_out").title = "";
             document.removeEventListener("dblclick", () => {
-                editing_on_other = true;
-                edit_on_other();
+                editingOnOther = true;
+                editOnOther();
             });
-            file_watcher.close();
-            fs.unlink(tmp_text_path, () => {});
+            fileWatcher.close();
+            fs.unlink(tmpTextPath, () => {});
         } catch {}
     }
 }
 
-function write_edit_on_other() {
+function writeEditOnOther() {
     let data = Buffer.from(editor.get());
-    fs.writeFile(tmp_text_path, data, () => {});
+    fs.writeFile(tmpTextPath, data, () => {});
 }
 
 ipcRenderer.on("edit", (_event, arg) => {
     switch (arg) {
         case "save":
-            push_history();
+            pushHistory();
             break;
         case "undo":
             undo();
@@ -1353,24 +1353,24 @@ ipcRenderer.on("edit", (_event, arg) => {
             editor.delete();
             break;
         case "select_all":
-            editor.select_all();
+            editor.selectAll();
             break;
         case "delete_enter":
-            editor.delete_enter();
+            editor.deleteEnter();
             break;
         case "show_find":
-            show_find();
+            showFind();
             break;
         case "show_history":
-            show_history();
+            showHistory();
             break;
         case "edit_on_other":
-            edit_on_other_type = "o";
-            edit_on_other();
+            editOnOtherType = "o";
+            editOnOther();
             break;
         case "choose_editer":
-            edit_on_other_type = "c";
-            edit_on_other();
+            editOnOtherType = "c";
+            editOnOther();
             break;
         case "wrap":
             wrap();
@@ -1380,13 +1380,13 @@ ipcRenderer.on("edit", (_event, arg) => {
             break;
         case "link":
             var url = editor.selections.get();
-            open_link("url", url);
+            openLink("url", url);
             break;
         case "search":
-            open_link("search");
+            openLink("search");
             break;
         case "translate":
-            open_link("translate");
+            openLink("translate");
             break;
     }
 });
@@ -1398,7 +1398,7 @@ hotkeys.filter = () => {
     return true;
 };
 hotkeys("ctrl+0", () => {
-    set_font_size(默认字体大小);
+    setFontSize(默认字体大小);
 });
 
 import { t, lan } from "../../../lib/translate/translate";
@@ -1410,20 +1410,20 @@ const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
 /**
  * 统计字数
  */
-function count_words() {
+function countWords() {
     let text = editor.get();
     let p = text.trim().match(/\n+/g)?.length + 1 || 1;
     text = text.replace(/[\n\r]/g, "");
     let c = [...segmenter.segment(text)].length;
-    let c_space = c - text.match(/\s/g)?.length || 0;
-    let cjk_rg = /[\u2E80-\uFE4F]/g;
-    let cjk = text.match(cjk_rg)?.length || 0;
-    text = text.replace(cjk_rg, "").replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
-    let n_cjk = text.match(/\S+/g)?.length || 0;
-    document.getElementById("count").innerText = `${cjk + n_cjk} ${t("字")}`;
-    document.getElementById("count").title = `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${c_space}\n${t(
+    let cSpace = c - text.match(/\s/g)?.length || 0;
+    let cjkRg = /[\u2E80-\uFE4F]/g;
+    let cjk = text.match(cjkRg)?.length || 0;
+    text = text.replace(cjkRg, "").replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
+    let nCjk = text.match(/\S+/g)?.length || 0;
+    document.getElementById("count").innerText = `${cjk + nCjk} ${t("字")}`;
+    document.getElementById("count").title = `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${cSpace}\n${t(
         "汉字"
-    )} ${cjk}\n${t("非汉字词")} ${n_cjk}`;
+    )} ${cjk}\n${t("非汉字词")} ${nCjk}`;
 }
 
 /************************************失焦关闭 */
@@ -1436,11 +1436,11 @@ window.onblur = () => {
 
 document.body.className = "fill_t";
 
-var li_list = [];
+var liList = [];
 
 ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
     if (arg == "new") {
-        new_tab(id, arg1);
+        newTab(id, arg1);
     }
     if (arg == "title") {
         title(id, arg1);
@@ -1464,10 +1464,10 @@ ipcRenderer.on("html", (_e, h: string) => {
         .querySelectorAll("li")
         .forEach((li) => {
             绑定li(li);
-            li_list.push(li);
+            liList.push(li);
         });
     document.getElementById("buttons").onclick = (e) => {
-        main_event(e);
+        mainEvent(e);
     };
     if (document.getElementById("tabs").querySelector("li")) document.getElementById("tabs").classList.add("tabs_show");
 });
@@ -1476,27 +1476,27 @@ function 绑定li(li: HTMLLIElement) {
     let id = Number(li.id.replace("id", ""));
     li.onmouseup = (e) => {
         if (e.button == 0) {
-            focus_tab(li);
+            focusTab(li);
         } else {
-            close_tab(li, id);
+            closeTab(li, id);
         }
     };
     let button = li.querySelector("button");
     button.onclick = (e) => {
         e.stopPropagation();
-        close_tab(li, id);
+        closeTab(li, id);
     };
 }
 
-function new_tab(id: number, url: string) {
+function newTab(id: number, url: string) {
     let li = <HTMLLIElement>document.getElementById("tab").cloneNode(true);
-    li_list.push(li);
+    liList.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
     document.getElementById("tabs").appendChild(li);
     li.id = "id" + id;
     绑定li(li);
-    focus_tab(li);
+    focusTab(li);
 
     if (store.get("浏览器.标签页.小")) {
         li.classList.add("tab_small");
@@ -1506,16 +1506,16 @@ function new_tab(id: number, url: string) {
     }
 }
 
-function close_tab(li: HTMLElement, id: number) {
+function closeTab(li: HTMLElement, id: number) {
     ipcRenderer.send("tab_view", id, "close");
     var l = document.querySelectorAll("li");
     for (let i in l) {
         if (l[i] === li && document.querySelector(".tab_focus") === li) {
             // 模板排除
             if (Number(i) == l.length - 2) {
-                focus_tab(l[l.length - 3]);
+                focusTab(l[l.length - 3]);
             } else {
-                focus_tab(l[i + 1]);
+                focusTab(l[i + 1]);
             }
         }
     }
@@ -1525,7 +1525,7 @@ function close_tab(li: HTMLElement, id: number) {
     }
 }
 
-function focus_tab(li: HTMLElement) {
+function focusTab(li: HTMLElement) {
     var l = document.querySelectorAll("li");
     for (let i of l) {
         if (i === li) {
@@ -1534,10 +1534,10 @@ function focus_tab(li: HTMLElement) {
             i.classList.remove("tab_focus");
         }
     }
-    for (let j in li_list) {
-        if (li_list[j] === li) {
-            li_list.splice(Number(j), 1);
-            li_list.push(li);
+    for (let j in liList) {
+        if (liList[j] === li) {
+            liList.splice(Number(j), 1);
+            liList.push(li);
         }
     }
 
@@ -1572,7 +1572,7 @@ function url(id: number, url: string) {
 function load(id: number, loading: boolean) {
     if (loading) {
         document.querySelector(`#id${id} > img`).classList.add("loading");
-        document.getElementById(`id${id}`).querySelector(`img`).src = reload_svg;
+        document.getElementById(`id${id}`).querySelector(`img`).src = reloadSvg;
         document.getElementById("reload").style.display = "none";
         document.getElementById("stop").style.display = "block";
     } else {
@@ -1587,15 +1587,15 @@ function load(id: number, loading: boolean) {
 }
 
 document.getElementById("buttons").onclick = (e) => {
-    main_event(e);
+    mainEvent(e);
 };
-function main_event(e: MouseEvent | any) {
-    var id = li_list.at(-1).id.replace("id", "");
+function mainEvent(e: MouseEvent | any) {
+    var id = liList.at(-1).id.replace("id", "");
     let el = <HTMLElement>e.target;
     if (el.id == "browser") {
-        open_in_browser();
+        openInBrowser();
     } else if (el.id == "add_history") {
-        history_store.set(`历史记录.${new Date().getTime()}`, {
+        historyStore.set(`历史记录.${new Date().getTime()}`, {
             text: document.querySelector(".tab_focus").getAttribute("data-url"),
         });
     } else {
@@ -1608,18 +1608,18 @@ function main_event(e: MouseEvent | any) {
     }
 }
 
-function open_in_browser() {
+function openInBrowser() {
     var url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
     if (store.get("浏览器.标签页.自动关闭")) {
         var id = Number(document.querySelector(".tab_focus").id.replace("id", ""));
-        close_tab(document.querySelector(".tab_focus"), id);
+        closeTab(document.querySelector(".tab_focus"), id);
     }
 }
 
 ipcRenderer.on("view_events", (_event, arg) => {
     var e = { target: { id: arg } };
-    main_event(e);
+    mainEvent(e);
 });
 
 document.getElementById("tabs").onwheel = (e) => {
@@ -1636,7 +1636,7 @@ window.onbeforeunload = () => {
 
 /************************************以图搜图 */
 
-function search_img(img: string, type: "baidu" | "yandex" | "google", callback: Function) {
+function searchImg(img: string, type: "baidu" | "yandex" | "google", callback: Function) {
     switch (type) {
         case "baidu":
             baidu(img, (err, url) => {
@@ -1735,15 +1735,15 @@ function google(image, callback) {
 function ocr(
     img: string,
     type: string | "baidu" | "youdao",
-    callback: (error: any, r: { raw: ocr_result; text: string }) => void
+    callback: (error: any, r: { raw: ocrResult; text: string }) => void
 ) {
-    add_ocr_photo(img);
+    addOcrPhoto(img);
     if (type == "baidu" || type == "youdao") {
-        online_ocr(type, img, (err, r) => {
+        onlineOcr(type, img, (err, r) => {
             return callback(err, r);
         });
     } else {
-        local_ocr(type, img, (err, r) => {
+        localOcr(type, img, (err, r) => {
             return callback(err, r);
         });
     }
@@ -1754,18 +1754,18 @@ function ocr(
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-async function local_ocr(
+async function localOcr(
     type: string,
     arg: string,
-    callback: (error: Error, result: { raw: ocr_result; text: string }) => void
+    callback: (error: Error, result: { raw: ocrResult; text: string }) => void
 ) {
     let l: [string, string, string, string, any];
     for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
-    let ocr_path = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
-    let detp = path.join(ocr_path, l[1]),
-        recp = path.join(ocr_path, l[2]),
-        字典 = path.join(ocr_path, l[3]);
-    console.log(ocr_path);
+    let ocrPath = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
+    let detp = path.join(ocrPath, l[1]),
+        recp = path.join(ocrPath, l[2]),
+        字典 = path.join(ocrPath, l[3]);
+    console.log(ocrPath);
     const lo = (await import("../../../ocr/local_ocr")).default;
     await lo.init({
         det_path: detp,
@@ -1802,26 +1802,26 @@ async function local_ocr(
  * @param {String} arg 图片base64
  * @param {Function} callback 回调
  */
-function online_ocr(
+function onlineOcr(
     type: string,
     arg: string,
-    callback: (error: string, result: { raw: ocr_result; text: string }) => void
+    callback: (error: string, result: { raw: ocrResult; text: string }) => void
 ) {
-    var client_id = store.get(`在线OCR.${type}.id`),
-        client_secret = store.get(`在线OCR.${type}.secret`);
-    if (!client_id || !client_secret) return callback("未填写 API Key 或 Secret Key", null);
+    var clientId = store.get(`在线OCR.${type}.id`),
+        clientSecret = store.get(`在线OCR.${type}.secret`);
+    if (!clientId || !clientSecret) return callback("未填写 API Key 或 Secret Key", null);
     switch (type) {
         case "baidu":
-            baidu_ocr();
+            baiduOcr();
             break;
         case "youdao":
-            youdao_ocr();
+            youdaoOcr();
             break;
     }
 
-    function baidu_ocr() {
+    function baiduOcr() {
         fetch(
-            `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`,
+            `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
             { method: "GET" }
         )
             .then((t) => t.json())
@@ -1838,29 +1838,29 @@ function online_ocr(
                 })
                     .then((v) => v.json())
                     .then((result) => {
-                        baidu_format(result);
+                        baiduFormat(result);
                     });
             });
 
-        function baidu_format(result) {
+        function baiduFormat(result) {
             if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
 
-            var output_l = [];
+            var outputL = [];
             if (!result.paragraphs_result) {
                 for (i of result.words_result) {
-                    output_l.push((<any>i).words);
+                    outputL.push((<any>i).words);
                 }
             } else {
                 for (i in result.paragraphs_result) {
-                    output_l[i] = "";
+                    outputL[i] = "";
                     for (let ii in result.paragraphs_result[i]["words_result_idx"]) {
-                        output_l[i] += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
+                        outputL[i] += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
                     }
                 }
             }
-            let output = output_l.join("\n");
+            let output = outputL.join("\n");
             console.log(output);
-            let r: ocr_result = [];
+            let r: ocrResult = [];
             for (i of result.words_result) {
                 let l = (<any>i).location as { top: number; left: number; width: number; height: number };
                 r.push({
@@ -1878,21 +1878,21 @@ function online_ocr(
         }
     }
 
-    function youdao_ocr() {
+    function youdaoOcr() {
         const crypto = require("crypto") as typeof import("crypto");
         let input = arg.length >= 20 ? arg.slice(0, 10) + arg.length + arg.slice(-10) : arg;
         let curtime = String(Math.round(new Date().getTime() / 1000));
         let salt = crypto.randomUUID();
         let sign = crypto
             .createHash("sha256")
-            .update(client_id + input + salt + curtime + client_secret)
+            .update(clientId + input + salt + curtime + clientSecret)
             .digest("hex");
         let data = {
             img: arg,
             langType: "auto",
             detectType: "10012",
             imageType: "1",
-            appKey: client_id,
+            appKey: clientId,
             docType: "json",
             signType: "v3",
             salt,
@@ -1916,8 +1916,8 @@ function online_ocr(
             });
         function youdao_format(result) {
             if (result.errorCode != "0") return callback(JSON.stringify(result), null);
-            let r: ocr_result = [];
-            var text_l = [];
+            let r: ocrResult = [];
+            var textL = [];
             for (i of result.Result.regions) {
                 var t = "";
                 for (let j of (<any>i).lines) {
@@ -1934,9 +1934,9 @@ function online_ocr(
                     });
                     t += j.text;
                 }
-                text_l.push(t);
+                textL.push(t);
             }
-            let text = text_l.join("\n");
+            let text = textL.join("\n");
             console.log(text);
             return callback(null, { raw: r, text });
         }
@@ -1944,52 +1944,52 @@ function online_ocr(
 }
 // online_ocr();
 
-const image_b = document.getElementById("image_b");
-const drop_el = document.getElementById("drop");
-const imgs_el = document.getElementById("img_view");
-const upload_pel = document.getElementById("file_input");
-const upload_el = document.getElementById("upload") as HTMLInputElement;
-const run_el = document.getElementById("run");
+const imageB = document.getElementById("image_b");
+const dropEl = document.getElementById("drop");
+const imgsEl = document.getElementById("img_view");
+const uploadPel = document.getElementById("file_input");
+const uploadEl = document.getElementById("upload") as HTMLInputElement;
+const runEl = document.getElementById("run");
 const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 
-image_b.onclick = () => {
+imageB.onclick = () => {
     document.body.classList.toggle("image_main");
 };
 
-drop_el.ondragover = (e) => {
+dropEl.ondragover = (e) => {
     e.preventDefault();
 };
-drop_el.ondrop = (e) => {
+dropEl.ondrop = (e) => {
     e.preventDefault();
-    put_datatransfer(e.dataTransfer);
+    putDatatransfer(e.dataTransfer);
 };
-drop_el.onpaste = (e) => {
+dropEl.onpaste = (e) => {
     e.preventDefault();
-    put_datatransfer(e.clipboardData);
+    putDatatransfer(e.clipboardData);
 };
-upload_pel.onclick = () => {
-    upload_el.click();
+uploadPel.onclick = () => {
+    uploadEl.click();
 };
-upload_el.onchange = () => {
-    let files = upload_el.files;
+uploadEl.onchange = () => {
+    let files = uploadEl.files;
     for (let f of files) {
         let type = f.type.split("/")[0];
         if (type != "image") continue;
         let reader = new FileReader();
         reader.readAsDataURL(f);
         reader.onload = () => {
-            let el = create_img(reader.result as string);
-            imgs_el.append(el);
+            let el = createImg(reader.result as string);
+            imgsEl.append(el);
         };
     }
 };
-run_el.classList.add("no_run");
-run_el.onclick = () => {
-    run_ocr();
+runEl.classList.add("no_run");
+runEl.onclick = () => {
+    runOcr();
 };
 document.getElementById("close").onclick = () => {
     output = [];
-    imgs_el.innerHTML = "";
+    imgsEl.innerHTML = "";
 };
 
 for (let i of store.get("离线OCR")) {
@@ -2005,7 +2005,7 @@ document.getElementById("ocr引擎").oninput = () => {
 };
 
 /** 拖放数据处理 */
-function put_datatransfer(data: DataTransfer) {
+function putDatatransfer(data: DataTransfer) {
     if (data.files.length != 0) {
         for (let f of data.files) {
             let type = f.type.split("/")[0];
@@ -2013,15 +2013,15 @@ function put_datatransfer(data: DataTransfer) {
             let reader = new FileReader();
             reader.readAsDataURL(f);
             reader.onload = () => {
-                let el = create_img(reader.result as string);
-                imgs_el.append(el);
+                let el = createImg(reader.result as string);
+                imgsEl.append(el);
             };
         }
     } else {
     }
 }
 
-function create_img(src: string) {
+function createImg(src: string) {
     let div = document.createElement("div");
     div.classList.add("img_el");
     let image = document.createElement("img");
@@ -2034,32 +2034,32 @@ function create_img(src: string) {
     return div;
 }
 
-function run_ocr() {
+function runOcr() {
     output = [];
-    imgs_el.querySelectorAll(":scope > div > div").forEach((el: HTMLElement) => {
+    imgsEl.querySelectorAll(":scope > div > div").forEach((el: HTMLElement) => {
         el.innerHTML = "";
     });
     let type = ocr引擎.value;
-    imgs_el.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
+    imgsEl.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
-            online_ocr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
-                add_ocr_text(r.raw, i);
+            onlineOcr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
+                addOcrText(r.raw, i);
             });
         } else {
-            local_ocr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
-                add_ocr_text(r.raw, i);
+            localOcr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
+                addOcrText(r.raw, i);
             });
         }
     });
 }
 
-type ocr_result = {
+type ocrResult = {
     text: string;
     box: /** lt,rt,rb,lb */ [[number, number], [number, number], [number, number], [number, number]];
 }[];
 
-function add_ocr_text(r: ocr_result, i: number) {
-    let img = imgs_el.querySelectorAll("img")[i];
+function addOcrText(r: ocrResult, i: number) {
+    let img = imgsEl.querySelectorAll("img")[i];
     let canvas = document.createElement("canvas");
     let w = img.naturalWidth,
         h = img.naturalHeight;
@@ -2085,9 +2085,9 @@ function add_ocr_text(r: ocr_result, i: number) {
     img.parentElement.append(div);
 }
 
-function add_ocr_photo(base: string) {
-    let el = create_img("data:image/png;base64," + base);
-    imgs_el.append(el);
+function addOcrPhoto(base: string) {
+    let el = createImg("data:image/png;base64," + base);
+    imgsEl.append(el);
 }
 
 let output = [];

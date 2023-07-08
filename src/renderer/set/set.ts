@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-let config_path = new URLSearchParams(location.search).get("config_path");
+let configPath = new URLSearchParams(location.search).get("config_path");
 const path = require("path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
@@ -14,7 +14,7 @@ document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
     el.href = url.toString();
 });
 
-let old_store = JSON.parse(fs.readFileSync(path.join(config_path, "config.json"), "utf-8"));
+let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8"));
 import { t, lan } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 document.body.innerHTML = document.body.innerHTML
@@ -23,20 +23,20 @@ document.body.innerHTML = document.body.innerHTML
 document.title = t(document.title);
 
 const xstore = old_store;
-function store_set(path: string, value: any) {
+function storeSet(path: string, value: any) {
     let pathx = path.split(".");
     const lastp = pathx.pop();
     const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
     lastobj[lastp] = value;
 }
 
-let store = { path: path.join(config_path, "config.json") };
-let history_store = { path: path.join(config_path, "history.json") };
+let store = { path: path.join(configPath, "config.json") };
+let historyStore = { path: path.join(configPath, "history.json") };
 
 document.getElementById("set_default_setting").onclick = () => {
     if (confirm("将会把所有设置恢复成默认，无法撤销")) {
         ipcRenderer.send("setting", "set_default_setting");
-        give_up = true;
+        giveUp = true;
         location.reload();
     }
 };
@@ -68,19 +68,19 @@ document.getElementById("autostart").oninput = () => {
 
 (<HTMLInputElement>document.getElementById("启动提示")).checked = old_store.启动提示;
 
-function get_radio(el: HTMLElement) {
+function getRadio(el: HTMLElement) {
     return (<HTMLInputElement>el.querySelector("input[type=radio]:checked")).value;
 }
-function set_radio(el: HTMLElement, value: string) {
+function setRadio(el: HTMLElement, value: string) {
     (
         <HTMLInputElement>el.querySelector(`input[type=radio][value="${value}"]`) ||
         el.querySelector(`input[type=radio]`)
     ).checked = true;
 }
-set_radio(document.getElementById("语言"), old_store.语言.语言);
+setRadio(document.getElementById("语言"), old_store.语言.语言);
 document.getElementById("系统语言").onclick = () => {
     if (navigator.language.split("-")[0] == "zh") {
-        set_radio(
+        setRadio(
             document.getElementById("语言"),
             {
                 "zh-CN": "zh-HANS",
@@ -90,18 +90,18 @@ document.getElementById("系统语言").onclick = () => {
             }[navigator.language]
         );
     } else {
-        set_radio(document.getElementById("语言"), navigator.language.split("-")[0]);
+        setRadio(document.getElementById("语言"), navigator.language.split("-")[0]);
     }
-    lan(get_radio(document.getElementById("语言")));
+    lan(getRadio(document.getElementById("语言")));
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 document.getElementById("语言").onclick = () => {
-    lan(get_radio(document.getElementById("语言")));
+    lan(getRadio(document.getElementById("语言")));
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 
 document.getElementById("语言重启").onclick = () => {
-    store_set("语言.语言", get_radio(document.getElementById("语言")));
+    storeSet("语言.语言", getRadio(document.getElementById("语言")));
     ipcRenderer.send("setting", "reload");
 };
 
@@ -113,9 +113,9 @@ if (process.platform == "linux") {
 
 var 全局 = old_store.全局;
 
-set_radio(document.getElementById("深色模式"), old_store.全局.深色模式);
+setRadio(document.getElementById("深色模式"), old_store.全局.深色模式);
 document.getElementById("深色模式").onclick = () => {
-    ipcRenderer.send("theme", get_radio(document.getElementById("深色模式")));
+    ipcRenderer.send("theme", getRadio(document.getElementById("深色模式")));
 };
 
 var 模糊 = old_store.全局.模糊;
@@ -145,9 +145,9 @@ document.getElementById("不透明度").oninput = () => {
 
 // 单选项目设置加载
 function 选择器储存(id, 默认) {
-    set_radio(document.querySelector(`#${id}`), old_store[id] || 默认);
+    setRadio(document.querySelector(`#${id}`), old_store[id] || 默认);
     (<HTMLElement>document.querySelector(`#${id}`)).onclick = () => {
-        store_set(id, get_radio(<HTMLInputElement>document.querySelector(`#${id}`)));
+        storeSet(id, getRadio(<HTMLInputElement>document.querySelector(`#${id}`)));
     };
 }
 
@@ -160,7 +160,7 @@ document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
 });
 ipcRenderer.on("状态", (_event, name, arg) => {
     (<any>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
-    if (t) store_set(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
+    if (t) storeSet(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
 
 var 其他快捷键 = old_store.其他快捷键;
@@ -244,7 +244,7 @@ function msk(t: string) {
     );
 };
 
-set_radio(document.getElementById("框选后默认操作"), old_store.框选后默认操作);
+setRadio(document.getElementById("框选后默认操作"), old_store.框选后默认操作);
 
 (<HTMLInputElement>document.getElementById("自动框选")).checked = old_store.框选.自动框选.开启;
 (<HTMLInputElement>document.getElementById("自动框选图像识别")).checked = old_store.框选.图像识别;
@@ -293,9 +293,9 @@ document.getElementById("plugin_b").onclick = () => {
 };
 
 (<HTMLInputElement>document.getElementById("tran_css")).value = old_store.贴图.窗口.变换;
-set_radio(document.getElementById("贴图双击"), old_store.贴图.窗口.双击);
+setRadio(document.getElementById("贴图双击"), old_store.贴图.窗口.双击);
 
-set_radio(document.getElementById("快速截屏"), old_store.快速截屏.模式);
+setRadio(document.getElementById("快速截屏"), old_store.快速截屏.模式);
 (<HTMLInputElement>document.getElementById("快速截屏路径")).value = old_store.快速截屏.路径;
 document.getElementById("获取保存路径").onclick = () => {
     ipcRenderer.send("get_save_path", (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "");
@@ -333,19 +333,19 @@ document.getElementById("获取保存路径").onclick = () => {
 document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
     let el = <HTMLInputElement>e.target;
     el.style.width = `${el.value.length || 1}em`;
-    show_f_time();
+    showFTime();
 };
-document.getElementById("保存文件名称时间").oninput = show_f_time;
+document.getElementById("保存文件名称时间").oninput = showFTime;
 import time_format from "../../../lib/time_format";
-function show_f_time() {
-    var save_time = new Date();
+function showFTime() {
+    var saveTime = new Date();
     document.getElementById("保存文件名称_p").innerText = `${
         (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value
-    }${time_format((<HTMLInputElement>document.getElementById("保存文件名称时间")).value, save_time)}${
+    }${time_format((<HTMLInputElement>document.getElementById("保存文件名称时间")).value, saveTime)}${
         (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value
     }`;
 }
-show_f_time();
+showFTime();
 document.getElementById("保存文件名称前缀").style.width = `${
     (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value.length || 1
 }em`;
@@ -353,7 +353,7 @@ document.getElementById("保存文件名称后缀").style.width = `${
     (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value.length || 1
 }em`;
 
-set_radio(document.getElementById("默认格式"), old_store.保存.默认格式);
+setRadio(document.getElementById("默认格式"), old_store.保存.默认格式);
 
 (<HTMLInputElement>document.getElementById("jpg质量")).value = old_store.jpg质量;
 
@@ -397,67 +397,67 @@ document.documentElement.style.setProperty("--icon-color", old_store.全局.图�
 var o_搜索引擎 = old_store.搜索引擎;
 if (o_搜索引擎) {
     var text = "";
-    var default_en = `<div id="默认搜索引擎">`;
+    var defaultEn = `<div id="默认搜索引擎">`;
     for (let i in o_搜索引擎) {
         text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
-        default_en += `<label><input type="radio" name="默认搜索引擎" value="${o_搜索引擎[i][0]}">${o_搜索引擎[i][0]}</label>`;
+        defaultEn += `<label><input type="radio" name="默认搜索引擎" value="${o_搜索引擎[i][0]}">${o_搜索引擎[i][0]}</label>`;
     }
     (<HTMLInputElement>document.getElementById("搜索引擎")).value = text;
-    default_en += `</div>`;
-    document.getElementById("默认搜索引擎div").innerHTML = default_en;
-    set_radio(document.getElementById("默认搜索引擎"), old_store.引擎.默认搜索引擎);
+    defaultEn += `</div>`;
+    document.getElementById("默认搜索引擎div").innerHTML = defaultEn;
+    setRadio(document.getElementById("默认搜索引擎"), old_store.引擎.默认搜索引擎);
 }
 document.getElementById("搜索引擎").onchange = () => {
     o_搜索引擎 = [];
     var text = (<HTMLInputElement>document.getElementById("搜索引擎")).value;
-    var text_l = text.split("\n");
-    var default_en = `<div id="默认搜索引擎">`;
-    for (let i in text_l) {
+    var textL = text.split("\n");
+    var defaultEn = `<div id="默认搜索引擎">`;
+    for (let i in textL) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
-        var l = text_l[i].replace(r, "$1,$2").split(",");
+        var l = textL[i].replace(r, "$1,$2").split(",");
         if (l[0] != "") {
             o_搜索引擎[i] = [l[0], l[1]];
-            default_en += `<label><input type="radio" name="默认搜索引擎" value="${l[0]}">${l[0]}</label>`;
+            defaultEn += `<label><input type="radio" name="默认搜索引擎" value="${l[0]}">${l[0]}</label>`;
         }
     }
-    default_en += `</div>`;
-    document.getElementById("默认搜索引擎div").innerHTML = default_en;
-    set_radio(document.getElementById("默认搜索引擎"), o_搜索引擎[0][0]);
+    defaultEn += `</div>`;
+    document.getElementById("默认搜索引擎div").innerHTML = defaultEn;
+    setRadio(document.getElementById("默认搜索引擎"), o_搜索引擎[0][0]);
 };
 
-var o_翻译引擎 = old_store.翻译引擎;
-if (o_翻译引擎) {
+var o翻译引擎 = old_store.翻译引擎;
+if (o翻译引擎) {
     var text = "";
-    var default_en = `<div id="默认翻译引擎">`;
-    for (let i in o_翻译引擎) {
-        text += `${o_翻译引擎[i][0]}, ${o_翻译引擎[i][1]}\n`;
-        default_en += `<label><input type="radio" name="默认翻译引擎" value="${o_翻译引擎[i][0]}">${o_翻译引擎[i][0]}</label>`;
+    var defaultEn = `<div id="默认翻译引擎">`;
+    for (let i in o翻译引擎) {
+        text += `${o翻译引擎[i][0]}, ${o翻译引擎[i][1]}\n`;
+        defaultEn += `<label><input type="radio" name="默认翻译引擎" value="${o翻译引擎[i][0]}">${o翻译引擎[i][0]}</label>`;
     }
     (<HTMLInputElement>document.getElementById("翻译引擎")).value = text;
-    default_en += `</div>`;
-    document.getElementById("默认翻译引擎div").innerHTML = default_en;
-    set_radio(document.getElementById("默认翻译引擎"), old_store.引擎.默认翻译引擎);
+    defaultEn += `</div>`;
+    document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
+    setRadio(document.getElementById("默认翻译引擎"), old_store.引擎.默认翻译引擎);
 }
 document.getElementById("翻译引擎").onchange = () => {
-    o_翻译引擎 = [];
+    o翻译引擎 = [];
     var text = (<HTMLInputElement>document.getElementById("翻译引擎")).value;
-    var text_l = text.split("\n");
-    var default_en = `<div id="默认翻译引擎">`;
-    for (let i in text_l) {
+    var textL = text.split("\n");
+    var defaultEn = `<div id="默认翻译引擎">`;
+    for (let i in textL) {
         var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
-        var l = text_l[i].replace(r, "$1,$2").split(",");
+        var l = textL[i].replace(r, "$1,$2").split(",");
         if (l[0] != "") {
-            o_翻译引擎[i] = [l[0], l[1]];
-            default_en += `<label><input type="radio" name="默认翻译引擎" value="${l[0]}">${l[0]}</label>`;
+            o翻译引擎[i] = [l[0], l[1]];
+            defaultEn += `<label><input type="radio" name="默认翻译引擎" value="${l[0]}">${l[0]}</label>`;
         }
     }
-    default_en += `</div>`;
-    document.getElementById("默认翻译引擎div").innerHTML = default_en;
-    set_radio(document.getElementById("默认翻译引擎"), o_翻译引擎[0][0]);
+    defaultEn += `</div>`;
+    document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
+    setRadio(document.getElementById("默认翻译引擎"), o翻译引擎[0][0]);
 };
 (<HTMLInputElement>document.getElementById("记住引擎")).checked = old_store.引擎.记住;
 
-set_radio(document.getElementById("图像搜索引擎"), old_store.以图搜图.引擎);
+setRadio(document.getElementById("图像搜索引擎"), old_store.以图搜图.引擎);
 (<HTMLInputElement>document.getElementById("记住识图引擎")).checked = old_store.以图搜图.记住;
 
 (<HTMLInputElement>document.getElementById("浏览器中打开")).checked = old_store.浏览器中打开;
@@ -476,38 +476,38 @@ document.getElementById("main_b").onclick = () => {
     window.location.href = "editor.html";
 };
 
-function set_ocr() {
-    let ocr_in = "";
+function setOcr() {
+    let ocrIn = "";
     for (let i of old_store.离线OCR) {
-        ocr_in += `<label><input type="radio" name="OCR类型" value="${i[0]}">${i[0]}</label>`;
+        ocrIn += `<label><input type="radio" name="OCR类型" value="${i[0]}">${i[0]}</label>`;
     }
-    ocr_in += `
+    ocrIn += `
     <label><input type="radio" name="OCR类型" value="youdao">
         <t>有道</t>
     </label>
     <label><input type="radio" name="OCR类型" value="baidu">
         <t>百度</t>
     </label>`;
-    document.getElementById("OCR类型").outerHTML = `<div id="OCR类型">${ocr_in}</div>`;
-    set_radio(document.getElementById("OCR类型"), old_store.OCR.类型);
+    document.getElementById("OCR类型").outerHTML = `<div id="OCR类型">${ocrIn}</div>`;
+    setRadio(document.getElementById("OCR类型"), old_store.OCR.类型);
 }
 
-set_ocr();
+setOcr();
 
-function get_ocr_type() {
-    return get_radio(<HTMLInputElement>document.getElementById("OCR类型"));
+function getOcrType() {
+    return getRadio(<HTMLInputElement>document.getElementById("OCR类型"));
 }
-ocr_d_open();
-function ocr_d_open() {
+ocrDOpen();
+function ocrDOpen() {
     (<HTMLDetailsElement>document.getElementById("baidu_details")).open = false;
     (<HTMLDetailsElement>document.getElementById("youdao_details")).open = false;
-    if (get_ocr_type() == "baidu") {
+    if (getOcrType() == "baidu") {
         (<HTMLDetailsElement>document.getElementById("baidu_details")).open = true;
-    } else if (get_ocr_type() == "youdao") {
+    } else if (getOcrType() == "youdao") {
         (<HTMLDetailsElement>document.getElementById("youdao_details")).open = true;
     }
 }
-document.getElementById("OCR类型").onclick = ocr_d_open;
+document.getElementById("OCR类型").onclick = ocrDOpen;
 (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked = old_store.OCR.记住;
 (<HTMLInputElement>document.getElementById("离线切换")).checked = old_store.OCR.离线切换;
 
@@ -521,8 +521,8 @@ function OCR模型展示() {
         t.value = all[i][0];
         t.oninput = () => {
             all[i][0] = t.value;
-            store_set("离线OCR", all);
-            set_ocr();
+            storeSet("离线OCR", all);
+            setOcr();
         };
         d.append(t);
         let c = document.createElement("button");
@@ -531,8 +531,8 @@ function OCR模型展示() {
             if (all.length == 1) return;
             all.splice(Number(i), 1);
             d.remove();
-            store_set("离线OCR", all);
-            set_ocr();
+            storeSet("离线OCR", all);
+            setOcr();
         };
         d.append(c);
         document.getElementById("OCR模型列表").append(d);
@@ -568,13 +568,13 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     }
     let all = old_store.离线OCR;
     all.push(l);
-    store_set("离线OCR", all);
+    storeSet("离线OCR", all);
     OCR模型展示();
-    set_ocr();
+    setOcr();
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 
-set_radio(document.getElementById("baidu_ocr_url"), old_store.在线OCR.baidu.url);
+setRadio(document.getElementById("baidu_ocr_url"), old_store.在线OCR.baidu.url);
 (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value = old_store.在线OCR.baidu.id;
 (<HTMLInputElement>document.getElementById("baidu_ocr_secret")).value = old_store.在线OCR.baidu.secret;
 (<HTMLInputElement>document.getElementById("youdao_ocr_id")).value = old_store.在线OCR.youdao.id;
@@ -605,64 +605,64 @@ document.getElementById("清除历史记录").oninput = () => {
 };
 document.getElementById("clear_his").onclick = () => {
     var c = confirm("这将清除所有的历史记录\n且不能复原\n确定清除？");
-    if (c) fs.writeFileSync(path.join(config_path, "history.json"), JSON.stringify({ 历史记录: {} }, null, 2));
+    if (c) fs.writeFileSync(path.join(configPath, "history.json"), JSON.stringify({ 历史记录: {} }, null, 2));
 };
 
 (<HTMLInputElement>document.getElementById("时间格式")).value = old_store.时间格式;
 
-var proxy_l = ["http", "https", "ftp", "socks"];
+var proxyL = ["http", "https", "ftp", "socks"];
 
 var 代理 = old_store.代理;
-set_radio(document.getElementById("代理"), 代理.mode);
+setRadio(document.getElementById("代理"), 代理.mode);
 (<HTMLInputElement>document.getElementById("pacScript")).value = 代理.pacScript;
-get_proxy();
+getProxy();
 (<HTMLInputElement>document.getElementById("proxyBypassRules")).value = 代理.proxyBypassRules;
 
-set_proxy_el();
-document.getElementById("代理").onclick = set_proxy_el;
-function set_proxy_el() {
-    const m = get_radio(document.getElementById("代理"));
-    const pacScript_el = document.getElementById("pacScript_p");
-    const proxyRules_el = document.getElementById("proxyRules_p");
-    const proxyBypassRules_el = document.getElementById("proxyBypassRules_p");
+setProxyEl();
+document.getElementById("代理").onclick = setProxyEl;
+function setProxyEl() {
+    const m = getRadio(document.getElementById("代理"));
+    const pacScriptEl = document.getElementById("pacScript_p");
+    const proxyRulesEl = document.getElementById("proxyRules_p");
+    const proxyBypassRulesEl = document.getElementById("proxyBypassRules_p");
     switch (m) {
         case "direct":
-            pacScript_el.style.display = proxyRules_el.style.display = proxyBypassRules_el.style.display = "none";
+            pacScriptEl.style.display = proxyRulesEl.style.display = proxyBypassRulesEl.style.display = "none";
             break;
         case "auto_detect":
-            pacScript_el.style.display = proxyRules_el.style.display = "none";
-            proxyBypassRules_el.style.display = "block";
+            pacScriptEl.style.display = proxyRulesEl.style.display = "none";
+            proxyBypassRulesEl.style.display = "block";
             break;
         case "pac_script":
-            pacScript_el.style.display = "block";
-            proxyRules_el.style.display = "none";
-            proxyBypassRules_el.style.display = "block";
+            pacScriptEl.style.display = "block";
+            proxyRulesEl.style.display = "none";
+            proxyBypassRulesEl.style.display = "block";
             break;
         case "fixed_servers":
-            proxyRules_el.style.display = "block";
-            pacScript_el.style.display = "none";
-            proxyBypassRules_el.style.display = "block";
+            proxyRulesEl.style.display = "block";
+            pacScriptEl.style.display = "none";
+            proxyBypassRulesEl.style.display = "block";
             break;
         case "system":
-            pacScript_el.style.display = proxyRules_el.style.display = "none";
-            proxyBypassRules_el.style.display = "block";
+            pacScriptEl.style.display = proxyRulesEl.style.display = "none";
+            proxyBypassRulesEl.style.display = "block";
             break;
     }
 }
 
-function get_proxy() {
+function getProxy() {
     let l = 代理.proxyRules.split(";") as string[];
     for (let rule of l) {
-        for (let x of proxy_l) {
+        for (let x of proxyL) {
             if (rule.includes(x + "=")) {
                 (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value = rule.replace(x + "=", "");
             }
         }
     }
 }
-function set_proxy() {
+function setProxy() {
     let l = [];
-    for (let x of proxy_l) {
+    for (let x of proxyL) {
         let v = (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value;
         if (v) {
             l.push(`${x}=${v}`);
@@ -675,7 +675,7 @@ function set_proxy() {
 
 (<HTMLInputElement>document.getElementById("硬件加速")).checked = old_store.硬件加速;
 
-set_radio(<HTMLInputElement>document.getElementById("检查更新频率"), old_store.更新.频率);
+setRadio(<HTMLInputElement>document.getElementById("检查更新频率"), old_store.更新.频率);
 (<HTMLInputElement>document.getElementById("dev")).checked = old_store.更新.dev;
 
 document.getElementById("打开config").title = store.path;
@@ -683,28 +683,28 @@ document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
 };
 
-var give_up = false;
+var giveUp = false;
 document.getElementById("give_up_setting_b").oninput = () => {
-    give_up = (<HTMLInputElement>document.getElementById("give_up_setting_b")).checked;
-    if (give_up) fs.writeFileSync(store.path, JSON.stringify(old_store, null, 2));
+    giveUp = (<HTMLInputElement>document.getElementById("give_up_setting_b")).checked;
+    if (giveUp) fs.writeFileSync(store.path, JSON.stringify(old_store, null, 2));
 };
 
 window.onbeforeunload = () => {
     try {
-        save_setting();
+        saveSetting();
     } catch {
         ipcRenderer.send("setting", "save_err");
     }
     ipcRenderer.send("setting", "reload_main");
 };
 
-window.onblur = save_setting;
+window.onblur = saveSetting;
 
-function save_setting() {
-    if (give_up) return;
-    store_set("启动提示", (<HTMLInputElement>document.getElementById("启动提示")).checked);
-    store_set("语言.语言", get_radio(document.getElementById("语言")));
-    store_set("其他快捷键", {
+function saveSetting() {
+    if (giveUp) return;
+    storeSet("启动提示", (<HTMLInputElement>document.getElementById("启动提示")).checked);
+    storeSet("语言.语言", getRadio(document.getElementById("语言")));
+    storeSet("其他快捷键", {
         关闭: (<HTMLInputElement>document.querySelector(`hot-keys[name="关闭"]`)).value,
         OCR: (<HTMLInputElement>document.querySelector(`hot-keys[name="OCR(文字识别)"]`)).value,
         以图搜图: (<HTMLInputElement>document.querySelector(`hot-keys[name="以图搜图"]`)).value,
@@ -716,17 +716,17 @@ function save_setting() {
         保存: (<HTMLInputElement>document.querySelector(`hot-keys[name="保存"]`)).value,
         复制颜色: (<HTMLInputElement>document.querySelector(`hot-keys[name="复制颜色"]`)).value,
     });
-    store_set(
+    storeSet(
         "主搜索功能.自动搜索排除",
         (<HTMLInputElement>document.getElementById("自动搜索排除")).value.split(/\n/).filter((i) => i != "")
     );
-    store_set("主搜索功能.剪贴板选区搜索", (<HTMLInputElement>document.getElementById("剪贴板选区搜索")).checked);
+    storeSet("主搜索功能.剪贴板选区搜索", (<HTMLInputElement>document.getElementById("剪贴板选区搜索")).checked);
     var 模糊 = Number((<HTMLInputElement>document.getElementById("模糊")).value);
-    store_set("全局.模糊", 模糊);
-    store_set("全局.不透明度", Number((<HTMLInputElement>document.getElementById("不透明度")).value) / 100);
-    store_set("全局.缩放", (<HTMLInputElement>document.getElementById("全局缩放")).value);
+    storeSet("全局.模糊", 模糊);
+    storeSet("全局.不透明度", Number((<HTMLInputElement>document.getElementById("不透明度")).value) / 100);
+    storeSet("全局.缩放", (<HTMLInputElement>document.getElementById("全局缩放")).value);
     try {
-        store_set("全局.图标颜色", [
+        storeSet("全局.图标颜色", [
             (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value,
             hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter.replace(
                 ";",
@@ -734,60 +734,60 @@ function save_setting() {
             ),
         ]);
     } catch (e) {}
-    store_set("工具栏", {
+    storeSet("工具栏", {
         按钮大小: (<HTMLInputElement>document.getElementById("按钮大小")).value,
         按钮图标比例: (<HTMLInputElement>document.getElementById("按钮图标比例")).value,
     });
-    store_set("显示四角坐标", (<HTMLInputElement>document.getElementById("显示四角坐标")).checked);
-    store_set("取色器大小", (<HTMLInputElement>document.getElementById("取色器大小")).value);
-    store_set("像素大小", (<HTMLInputElement>document.getElementById("像素大小")).value);
-    store_set("遮罩颜色", (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value);
-    store_set("选区颜色", (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value);
-    store_set("框选.自动框选", {
+    storeSet("显示四角坐标", (<HTMLInputElement>document.getElementById("显示四角坐标")).checked);
+    storeSet("取色器大小", (<HTMLInputElement>document.getElementById("取色器大小")).value);
+    storeSet("像素大小", (<HTMLInputElement>document.getElementById("像素大小")).value);
+    storeSet("遮罩颜色", (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value);
+    storeSet("选区颜色", (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value);
+    storeSet("框选.自动框选", {
         开启: (<HTMLInputElement>document.getElementById("自动框选")).checked,
         图像识别: (<HTMLInputElement>document.getElementById("自动框选图像识别")).checked,
         最小阈值: (<HTMLInputElement>document.getElementById("框选最小阈值")).value,
         最大阈值: (<HTMLInputElement>document.getElementById("框选最大阈值")).value,
     });
-    store_set("框选.记忆.开启", (<HTMLInputElement>document.getElementById("记住框选大小")).checked);
-    store_set("图像编辑.默认属性", {
+    storeSet("框选.记忆.开启", (<HTMLInputElement>document.getElementById("记住框选大小")).checked);
+    storeSet("图像编辑.默认属性", {
         填充颜色: (<HTMLInputElement>document.getElementById("填充颜色")).value,
         边框颜色: (<HTMLInputElement>document.getElementById("边框颜色")).value,
         边框宽度: (<HTMLInputElement>document.getElementById("边框宽度")).value,
         画笔颜色: (<HTMLInputElement>document.getElementById("画笔颜色")).value,
         画笔粗细: (<HTMLInputElement>document.getElementById("画笔粗细")).value,
     });
-    store_set("图像编辑.复制偏移", {
+    storeSet("图像编辑.复制偏移", {
         x: (<HTMLInputElement>document.getElementById("复制dx")).value,
         y: (<HTMLInputElement>document.getElementById("复制dy")).value,
     });
-    store_set("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
-    store_set("贴图.窗口.变换", (<HTMLInputElement>document.getElementById("tran_css")).value);
-    store_set("贴图.窗口.双击", get_radio(document.getElementById("贴图双击")));
-    store_set("框选后默认操作", get_radio(document.getElementById("框选后默认操作")));
-    store_set("快速截屏.模式", get_radio(<HTMLInputElement>document.getElementById("快速截屏")));
-    store_set(
+    storeSet("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
+    storeSet("贴图.窗口.变换", (<HTMLInputElement>document.getElementById("tran_css")).value);
+    storeSet("贴图.窗口.双击", getRadio(document.getElementById("贴图双击")));
+    storeSet("框选后默认操作", getRadio(document.getElementById("框选后默认操作")));
+    storeSet("快速截屏.模式", getRadio(<HTMLInputElement>document.getElementById("快速截屏")));
+    storeSet(
         "快速截屏.路径",
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value
             ? ((<HTMLInputElement>document.getElementById("快速截屏路径")).value + "/").replace("//", "/")
             : ""
     );
-    store_set(
+    storeSet(
         "录屏.自动录制",
         (<HTMLInputElement>document.getElementById("开启自动录制")).checked &&
             (<HTMLInputElement>document.getElementById("自动录制延时")).value
     );
-    store_set("录屏.视频比特率", (<HTMLInputElement>document.getElementById("视频比特率")).value);
-    store_set("录屏.摄像头", {
+    storeSet("录屏.视频比特率", (<HTMLInputElement>document.getElementById("视频比特率")).value);
+    storeSet("录屏.摄像头", {
         默认开启: (<HTMLInputElement>document.getElementById("默认开启摄像头")).checked,
         记住开启状态: (<HTMLInputElement>document.getElementById("记录摄像头开启状态")).checked,
         镜像: (<HTMLInputElement>document.getElementById("摄像头镜像")).checked,
     });
-    store_set("录屏.音频", {
+    storeSet("录屏.音频", {
         默认开启: (<HTMLInputElement>document.getElementById("默认开启音频")).checked,
         记住开启状态: (<HTMLInputElement>document.getElementById("记录音频开启状态")).checked,
     });
-    store_set("录屏.转换", {
+    storeSet("录屏.转换", {
         自动转换: (<HTMLInputElement>document.getElementById("开启自动转换")).checked,
         分段: (<HTMLInputElement>document.getElementById("分段")).value,
         格式: (<HTMLInputElement>document.getElementById("格式")).value,
@@ -796,7 +796,7 @@ function save_setting() {
         其他: (<HTMLInputElement>document.getElementById("ff其他参数")).value,
         高质量gif: (<HTMLInputElement>document.getElementById("高质量gif")).checked,
     });
-    store_set("录屏.提示", {
+    storeSet("录屏.提示", {
         键盘: {
             开启: (<HTMLInputElement>document.getElementById("开启键盘按键提示")).checked,
         },
@@ -808,88 +808,88 @@ function save_setting() {
             样式: (<HTMLInputElement>document.getElementById("cursor_css")).value,
         },
     });
-    store_set("保存.默认格式", get_radio(<HTMLInputElement>document.getElementById("默认格式")));
-    store_set("保存.快速保存", (<HTMLInputElement>document.getElementById("快速保存")).checked);
-    store_set("保存名称", {
+    storeSet("保存.默认格式", getRadio(<HTMLInputElement>document.getElementById("默认格式")));
+    storeSet("保存.快速保存", (<HTMLInputElement>document.getElementById("快速保存")).checked);
+    storeSet("保存名称", {
         前缀: (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value,
         时间: (<HTMLInputElement>document.getElementById("保存文件名称时间")).value,
         后缀: (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value,
     });
-    store_set("jpg质量", (<HTMLInputElement>document.getElementById("jpg质量")).value);
+    storeSet("jpg质量", (<HTMLInputElement>document.getElementById("jpg质量")).value);
     字体.大小 = (<HTMLInputElement>document.getElementById("字体大小")).value;
     字体.记住 = (<HTMLInputElement>document.getElementById("记住字体大小")).checked
         ? typeof 字体.记住 === "number"
             ? 字体.记住
             : 字体.大小
         : false;
-    store_set("字体", 字体);
-    store_set("编辑器.自动换行", (<HTMLInputElement>document.getElementById("换行")).checked);
-    store_set("编辑器.拼写检查", (<HTMLInputElement>document.getElementById("拼写检查")).checked);
-    store_set("编辑器.行号", (<HTMLInputElement>document.getElementById("行号")).checked);
-    store_set("自动搜索", (<HTMLInputElement>document.getElementById("自动搜索")).checked);
-    store_set("自动打开链接", (<HTMLInputElement>document.getElementById("自动打开链接")).checked);
-    store_set("自动搜索中文占比", (<HTMLInputElement>document.getElementById("自动搜索中文占比")).value);
-    if (o_搜索引擎) store_set("搜索引擎", o_搜索引擎);
-    if (o_翻译引擎) store_set("翻译引擎", o_翻译引擎);
-    store_set("引擎", {
+    storeSet("字体", 字体);
+    storeSet("编辑器.自动换行", (<HTMLInputElement>document.getElementById("换行")).checked);
+    storeSet("编辑器.拼写检查", (<HTMLInputElement>document.getElementById("拼写检查")).checked);
+    storeSet("编辑器.行号", (<HTMLInputElement>document.getElementById("行号")).checked);
+    storeSet("自动搜索", (<HTMLInputElement>document.getElementById("自动搜索")).checked);
+    storeSet("自动打开链接", (<HTMLInputElement>document.getElementById("自动打开链接")).checked);
+    storeSet("自动搜索中文占比", (<HTMLInputElement>document.getElementById("自动搜索中文占比")).value);
+    if (o_搜索引擎) storeSet("搜索引擎", o_搜索引擎);
+    if (o翻译引擎) storeSet("翻译引擎", o翻译引擎);
+    storeSet("引擎", {
         记住: (<HTMLInputElement>document.getElementById("记住引擎")).checked
-            ? [get_radio(document.getElementById("默认搜索引擎")), get_radio(document.getElementById("默认翻译引擎"))]
+            ? [getRadio(document.getElementById("默认搜索引擎")), getRadio(document.getElementById("默认翻译引擎"))]
             : false,
-        默认搜索引擎: get_radio(document.getElementById("默认搜索引擎")),
-        默认翻译引擎: get_radio(document.getElementById("默认翻译引擎")),
+        默认搜索引擎: getRadio(document.getElementById("默认搜索引擎")),
+        默认翻译引擎: getRadio(document.getElementById("默认翻译引擎")),
     });
-    store_set("以图搜图", {
-        引擎: get_radio(<HTMLInputElement>document.getElementById("图像搜索引擎")),
+    storeSet("以图搜图", {
+        引擎: getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎")),
         记住: (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
-            ? old_store.以图搜图.记住 || get_radio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
+            ? old_store.以图搜图.记住 || getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
             : false,
     });
-    store_set("浏览器中打开", (<HTMLInputElement>document.getElementById("浏览器中打开")).checked);
-    store_set("浏览器.标签页", {
+    storeSet("浏览器中打开", (<HTMLInputElement>document.getElementById("浏览器中打开")).checked);
+    storeSet("浏览器.标签页", {
         自动关闭: (<HTMLInputElement>document.getElementById("搜索窗口自动关闭")).checked,
         小: (<HTMLInputElement>document.getElementById("标签缩小")).checked,
         灰度: (<HTMLInputElement>document.getElementById("标签灰度")).checked,
     });
     历史记录设置.d = Number((<HTMLInputElement>document.getElementById("his_d")).value);
     历史记录设置.h = Number((<HTMLInputElement>document.getElementById("his_h")).value);
-    store_set("历史记录设置", 历史记录设置);
-    store_set("时间格式", (<HTMLInputElement>document.getElementById("时间格式")).value);
-    store_set("OCR", {
-        类型: get_ocr_type(),
+    storeSet("历史记录设置", 历史记录设置);
+    storeSet("时间格式", (<HTMLInputElement>document.getElementById("时间格式")).value);
+    storeSet("OCR", {
+        类型: getOcrType(),
         离线切换: (<HTMLInputElement>document.getElementById("离线切换")).checked,
         记住: (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked
-            ? old_store.OCR.记住 || get_ocr_type()
+            ? old_store.OCR.记住 || getOcrType()
             : false,
         版本: old_store.OCR.版本,
     });
-    store_set("在线OCR.baidu", {
-        url: get_radio(document.getElementById("baidu_ocr_url")),
+    storeSet("在线OCR.baidu", {
+        url: getRadio(document.getElementById("baidu_ocr_url")),
         id: (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value,
         secret: (<HTMLInputElement>document.getElementById("baidu_ocr_secret")).value,
     });
-    store_set("在线OCR.youdao", {
+    storeSet("在线OCR.youdao", {
         id: (<HTMLInputElement>document.getElementById("youdao_ocr_id")).value,
         secret: (<HTMLInputElement>document.getElementById("youdao_ocr_secret")).value,
     });
-    store_set("代理", {
-        mode: get_radio(document.getElementById("代理")),
+    storeSet("代理", {
+        mode: getRadio(document.getElementById("代理")),
         pacScript: (<HTMLInputElement>document.getElementById("pacScript")).value,
-        proxyRules: set_proxy(),
+        proxyRules: setProxy(),
         proxyBypassRules: (<HTMLInputElement>document.getElementById("proxyBypassRules")).value,
     });
-    store_set("关闭窗口", {
+    storeSet("关闭窗口", {
         失焦: {
             主页面: (<HTMLInputElement>document.getElementById("主页面失焦")).checked,
         },
     });
-    store_set("硬件加速", (<HTMLInputElement>document.getElementById("硬件加速")).checked);
-    store_set("更新.dev", (<HTMLInputElement>document.getElementById("dev")).checked);
-    store_set("更新.频率", get_radio(document.getElementById("检查更新频率")));
-    if (user_data_path_inputed)
+    storeSet("硬件加速", (<HTMLInputElement>document.getElementById("硬件加速")).checked);
+    storeSet("更新.dev", (<HTMLInputElement>document.getElementById("dev")).checked);
+    storeSet("更新.频率", getRadio(document.getElementById("检查更新频率")));
+    if (userDataPathInputed)
         fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, (e) => {
             if (e) throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));
         });
-    fs.writeFileSync(path.join(config_path, "config.json"), JSON.stringify(xstore, null, 2));
+    fs.writeFileSync(path.join(configPath, "config.json"), JSON.stringify(xstore, null, 2));
 }
 
 // 查找
@@ -900,19 +900,19 @@ document.getElementById("find_input").oninput = () => {
     find((<HTMLInputElement>document.getElementById("find_input")).value);
 };
 document.getElementById("find_b_last").onclick = () => {
-    find_focus_i = (find_focus_i - 1) % find_ranges.length;
-    if (find_focus_i < 0) {
-        find_focus_i = find_ranges.length - 1;
+    findFocusI = (findFocusI - 1) % findRanges.length;
+    if (findFocusI < 0) {
+        findFocusI = findRanges.length - 1;
     }
-    jump_to_range(find_focus_i);
+    jumpToRange(findFocusI);
 };
 document.getElementById("find_b_next").onclick = () => {
-    find_focus_i = (find_focus_i + 1) % find_ranges.length;
-    jump_to_range(find_focus_i);
+    findFocusI = (findFocusI + 1) % findRanges.length;
+    jumpToRange(findFocusI);
 };
-function jump_to_range(i: number) {
-    let rect = find_ranges[i].getBoundingClientRect();
-    document.getElementById("find_t").innerText = `${i + 1} / ${find_ranges.length}`;
+function jumpToRange(i: number) {
+    let rect = findRanges[i].getBoundingClientRect();
+    document.getElementById("find_t").innerText = `${i + 1} / ${findRanges.length}`;
     document.documentElement.scrollTo(0, rect.top - document.body.getBoundingClientRect().top);
 }
 let allTextNodes = [];
@@ -926,8 +926,8 @@ window.onload = () => {
     }
     console.log(allTextNodes);
 };
-let find_ranges: Range[] = [];
-let find_focus_i = 0;
+let findRanges: Range[] = [];
+let findFocusI = 0;
 function find(t: string) {
     // @ts-ignore
     CSS.highlights.clear();
@@ -960,9 +960,9 @@ function find(t: string) {
             });
         });
 
-    find_ranges = ranges.flat();
-    find_focus_i = 0;
-    jump_to_range(find_focus_i);
+    findRanges = ranges.flat();
+    findFocusI = 0;
+    jumpToRange(findFocusI);
 
     // @ts-ignore
     const searchResultsHighlight = new Highlight(...ranges.flat());
@@ -970,30 +970,30 @@ function find(t: string) {
     CSS.highlights.set("search-results", searchResultsHighlight);
 }
 
-var path_info = `<br>
+var pathInfo = `<br>
                 ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>
-                ${t("文字记录：")}${history_store.path}<br>
+                ${t("文字记录：")}${historyStore.path}<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform() == "win32" ? "\\" : "/"}eSearch<br>
                 ${t("运行目录：")}${__dirname}`;
-document.createTextNode(path_info);
-document.getElementById("user_data_divs").insertAdjacentHTML("afterend", path_info);
+document.createTextNode(pathInfo);
+document.getElementById("user_data_divs").insertAdjacentHTML("afterend", pathInfo);
 try {
     (<HTMLInputElement>document.getElementById("user_data_path")).value =
         fs.readFileSync("preload_config").toString().trim() || store.path.replace(/[/\\]config\.json/, "");
 } catch (error) {
     (<HTMLInputElement>document.getElementById("user_data_path")).value = store.path.replace(/[/\\]config\.json/, "");
 }
-var user_data_path_inputed = false;
+var userDataPathInputed = false;
 document.getElementById("user_data_path").oninput = () => {
     document.getElementById("user_data_divs").classList.add("user_data_divs");
-    user_data_path_inputed = true;
+    userDataPathInputed = true;
 };
 document.getElementById("move_user_data").onclick = () => {
     ipcRenderer.send("setting", "move_user_data", (<HTMLInputElement>document.getElementById("user_data_path")).value);
 };
 
 document.getElementById("reload").onclick = () => {
-    save_setting();
+    saveSetting();
     ipcRenderer.send("setting", "reload");
 };
 
@@ -1026,18 +1026,18 @@ ipcRenderer.on("setting", (_err, t, id, r) => {
 });
 
 var version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
-var version_l = ["electron", "node", "chrome", "v8"];
-for (let i in version_l) {
-    version += `<div>${version_l[i]}: ${process.versions[version_l[i]]}</div>`;
+var versionL = ["electron", "node", "chrome", "v8"];
+for (let i in versionL) {
+    version += `<div>${versionL[i]}: ${process.versions[versionL[i]]}</div>`;
 }
 document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
 
 import pack from "../../../package.json?raw";
-var package_json = JSON.parse(pack);
+var packageJson = JSON.parse(pack);
 const download = require("download");
-document.getElementById("name").innerHTML = package_json.name;
-document.getElementById("version").innerHTML = package_json.version;
-document.getElementById("description").innerHTML = t(package_json.description);
+document.getElementById("name").innerHTML = packageJson.name;
+document.getElementById("version").innerHTML = packageJson.version;
+document.getElementById("description").innerHTML = t(packageJson.description);
 document.getElementById("version").onclick = () => {
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases", { method: "GET", redirect: "follow" })
         .then((response) => response.json())
@@ -1047,8 +1047,8 @@ document.getElementById("version").onclick = () => {
             let l = [];
             for (let r of re) {
                 if (
-                    !package_json.version.includes("beta") &&
-                    !package_json.version.includes("alpha") &&
+                    !packageJson.version.includes("beta") &&
+                    !packageJson.version.includes("alpha") &&
                     !old_store.更新.dev
                 ) {
                     if (!r.draft && !r.prerelease) l.push(r);
@@ -1072,18 +1072,18 @@ document.getElementById("version").onclick = () => {
                 div.append(tags, h, p);
                 document.getElementById("update_info").append(div);
                 if (i == "0") {
-                    let tag_el = tag("最新版本");
-                    tag_el.title = t("点击下载");
-                    tag_el.classList.add("download_tag");
-                    tags.append(tag_el);
-                    tag_el.onclick = () => {
+                    let tagEl = tag("最新版本");
+                    tagEl.title = t("点击下载");
+                    tagEl.classList.add("download_tag");
+                    tags.append(tagEl);
+                    tagEl.onclick = () => {
                         shell.openExternal(r.html_url);
                     };
                     for (let a of r.assets) {
                         if (a.name == "app") {
                             let el = document.createElement("span");
                             el.innerText = "增量更新";
-                            tag_el.after(el);
+                            tagEl.after(el);
                             el.onclick = async () => {
                                 download(a.browser_download_url, path.join(__dirname, "../../../"), {
                                     extract: true,
@@ -1106,7 +1106,7 @@ document.getElementById("version").onclick = () => {
                         }
                     }
                 }
-                if (r.name == package_json.version) {
+                if (r.name == packageJson.version) {
                     tags.append(tag("当前版本"));
                     if (i != "0") {
                         (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
@@ -1124,16 +1124,14 @@ if (old_store.更新.频率 == "setting") {
     }, 10);
 }
 
-document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${package_json.homepage}">${
-    package_json.homepage
+document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${packageJson.homepage}">${
+    packageJson.homepage
 }</a></div>
-    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${package_json.version}">${t(
-    "更新日志"
-)}</a></div>
+    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}">${t("更新日志")}</a></div>
     <div><a href="https://github.com/xushengfeng/eSearch/issues">${t("错误报告与建议")}</a></div>
-    <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${package_json.license}</a></div>
+    <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${packageJson.license}</a></div>
     <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
-    <div>Copyright (C) 2021 ${package_json.author.name} ${package_json.author.email}</div>`;
+    <div>Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}</div>`;
 
 document.getElementById("about").onclick = (e) => {
     console.log(e.target);
