@@ -2169,9 +2169,10 @@ function move_rect(o_final_rect: rect, old_position: editor_position, position: 
     final_rect_fix();
     draw_clip_rect();
 
-    if (dx == 0 && dy == 0) {
+    // 双击复制
+    if (dx == 0 && dy == 0 && direction == "move") {
         let now_time = new Date().getTime();
-        if (now_time - last_click_time <= 600) {
+        if (now_time - last_click_time <= 300) {
             tool.copy();
         }
         last_click_time = now_time;
