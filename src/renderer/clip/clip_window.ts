@@ -2460,11 +2460,21 @@ document.querySelectorAll("#draw_shapes_i > lock-b").forEach((el: HTMLInputEleme
             if (store.get(`图像编辑.形状属性.${shape}`)) {
                 let f = store.get(`图像编辑.形状属性.${shape}.fc`);
                 let s = store.get(`图像编辑.形状属性.${shape}.sc`);
-                change_color({ fill: f, stroke: s }, false, true);
-                fill_color = f;
-                stroke_color = s;
-                stroke_width = store.get(`图像编辑.形状属性.${shape}.sw`);
-                (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = stroke_width;
+                let op = {};
+                if (f) {
+                    op["fill"] = f;
+                    fill_color = f;
+                }
+                if (s) {
+                    op["stroke"] = s;
+                    fill_color = s;
+                }
+                change_color(op, false, true);
+                let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
+                if (sw) {
+                    stroke_width = sw;
+                    (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
+                }
             }
 
             exit_free();
@@ -2652,6 +2662,8 @@ function draw(shape, v, x1, y1, x2, y2) {
 }
 // 多边形
 function draw_poly(shape) {
+    console.log(1111);
+
     if (poly_o_p.length != 1) {
         fabric_canvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
