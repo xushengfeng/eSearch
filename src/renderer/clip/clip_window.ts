@@ -2444,27 +2444,38 @@ function free_init() {
 }
 
 // 几何
-var shape = "";
-document.getElementById("draw_shapes_i").onclick = (e) => {
-    let el = <HTMLElement>e.target;
-    exit_shape();
-    if (el.id != "draw_shapes_i") {
-        shape = el.id.replace("draw_shapes_", ""); // 根据元素id命名为shape赋值
-        if (store.get(`图像编辑.形状属性.${shape}`)) {
-            let f = store.get(`图像编辑.形状属性.${shape}.fc`);
-            let s = store.get(`图像编辑.形状属性.${shape}.sc`);
-            change_color({ fill: f, stroke: s }, false, true);
-            fill_color = f;
-            stroke_color = s;
-            stroke_width = store.get(`图像编辑.形状属性.${shape}.sw`);
-            (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = stroke_width;
+type shape = "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow" | "";
+var shape: shape = "";
+document.querySelectorAll("#draw_shapes_i > lock-b").forEach((el: HTMLInputElement) => {
+    el.oninput = () => {
+        document
+            .getElementById("draw_shapes_i")
+            .querySelectorAll("lock-b")
+            .forEach((iel: HTMLInputElement) => {
+                if (iel.id != el.id) iel.checked = false;
+            });
+
+        if (el.checked) {
+            shape = el.id.replace("draw_shapes_", "") as shape; // 根据元素id命名为shape赋值
+            if (store.get(`图像编辑.形状属性.${shape}`)) {
+                let f = store.get(`图像编辑.形状属性.${shape}.fc`);
+                let s = store.get(`图像编辑.形状属性.${shape}.sc`);
+                change_color({ fill: f, stroke: s }, false, true);
+                fill_color = f;
+                stroke_color = s;
+                stroke_width = store.get(`图像编辑.形状属性.${shape}.sw`);
+                (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = stroke_width;
+            }
+
+            exit_free();
+            exit_filter();
+            fabric_canvas.defaultCursor = "crosshair";
+            hotkeys.setScope("drawing_esc");
+        } else {
+            exit_shape();
         }
-    }
-    exit_free();
-    exit_filter();
-    fabric_canvas.defaultCursor = "crosshair";
-    hotkeys.setScope("drawing_esc");
-};
+    };
+});
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
     switch ((<HTMLElement>e.target).id) {
