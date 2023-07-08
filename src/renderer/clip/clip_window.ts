@@ -3154,9 +3154,11 @@ function checkFilterRangeInput(id: string, f: string, key: string, i: number, is
  * @param i 滤镜索引
  */
 function checkFilterLockInput(id: string, f: string, i: number) {
-    const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
-    let filter = value ? new Fabric.Image.filters[f]() : null;
-    applyFilter(i, filter);
+    (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).oninput = () => {
+        const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
+        let filter = value ? new Fabric.Image.filters[f]() : null;
+        applyFilter(i, filter);
+    };
 }
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
