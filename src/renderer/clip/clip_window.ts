@@ -3129,63 +3129,52 @@ function s_h_filters_div(v) {
 }
 s_h_filters_div(true);
 
+/**
+ * 设置滤镜 滑块
+ * @param id 元素名
+ * @param f 函数名
+ * @param key 参数key
+ * @param i 滤镜索引
+ * @param is_z 检查值是否为0
+ */
+function check_filter_range_input(id: string, f: string, key: string, i: number, is_z?: boolean) {
+    (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).oninput = () => {
+        const value = Number((<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).value);
+        if (!is_z || value != 0) {
+            let filter = new Fabric.Image.filters[f]({
+                [key]: value,
+            });
+            apply_filter(i, filter);
+        } else {
+            apply_filter(i, null);
+        }
+    };
+}
+
+/**
+ * 设置滤镜 选定
+ * @param id 元素名
+ * @param f 函数名
+ * @param i 滤镜索引
+ */
+function check_filter_lock_input(id: string, f: string, i: number) {
+    const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
+    let filter = value ? new Fabric.Image.filters[f]() : null;
+    apply_filter(i, filter);
+}
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-(<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).oninput = () => {
-    var value = Number((<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).value);
-    if (value != 0) {
-        var filter = new Fabric.Image.filters.Pixelate({
-            blocksize: value,
-        });
-        apply_filter(0, filter);
-    } else {
-        apply_filter(0, null);
-    }
-};
+check_filter_range_input("pixelate", "Pixelate", "blocksize", 0, true);
 // 模糊
-(<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).oninput = () => {
-    var value = Number((<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).value) / 100;
-    if (value != 0) {
-        var filter = new Fabric.Image.filters.Blur({
-            blur: value,
-        });
-        apply_filter(1, filter);
-    } else {
-        apply_filter(1, null);
-    }
-};
+check_filter_range_input("blur", "Blur", "blur", 1, true);
 // 亮度
-(<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).value;
-    var filter = new Fabric.Image.filters.Brightness({
-        brightness: value,
-    });
-    apply_filter(2, filter);
-};
+check_filter_range_input("brightness", "Brightness", "brightness", 2);
 // 对比度
-(<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).value;
-    var filter = new Fabric.Image.filters.Contrast({
-        contrast: value,
-    });
-    apply_filter(3, filter);
-};
+check_filter_range_input("contrast", "Contrast", "contrast", 3);
 // 饱和度
-(<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).value;
-    var filter = new Fabric.Image.filters.Saturation({
-        saturation: value,
-    });
-    apply_filter(4, filter);
-};
+check_filter_range_input("saturation", "Saturation", "saturation", 4);
 // 色调
-(<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).value;
-    var filter = new Fabric.Image.filters.HueRotation({
-        rotation: value,
-    });
-    apply_filter(5, filter);
-};
+check_filter_range_input("hue", "HueRotation", "rotation", 5);
 // 伽马
 (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
@@ -3200,13 +3189,7 @@ s_h_filters_div(true);
             apply_filter(6, filter);
         };
 // 噪音
-(<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).value;
-    var filter = new Fabric.Image.filters.Noise({
-        noise: value,
-    });
-    apply_filter(7, filter);
-};
+check_filter_range_input("noise", "Noise", "noise", 7);
 // 灰度
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
@@ -3230,53 +3213,21 @@ s_h_filters_div(true);
     apply_filter(8, filter);
 };
 // 负片
-(<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Invert() : null;
-    apply_filter(9, filter);
-};
+check_filter_lock_input("invert", "Invert", 9);
 // 棕褐色
-(<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Sepia() : null;
-    apply_filter(10, filter);
-};
+check_filter_lock_input("sepia", "Sepia", 10);
 // 黑白
-(<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.BlackWhite() : null;
-    apply_filter(11, filter);
-};
+check_filter_lock_input("bw", "BlackWhite", 11);
 // 布朗尼
-(<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Brownie() : null;
-    apply_filter(12, filter);
-};
+check_filter_lock_input("brownie", "Brownie", 12);
 // 老式
-(<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Vintage() : null;
-    apply_filter(13, filter);
-};
+check_filter_lock_input("vintage", "Vintage", 13);
 // 柯达彩色胶片
-(<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Kodachrome() : null;
-    apply_filter(14, filter);
-};
+check_filter_lock_input("koda", "Kodachrome", 14);
 // 特艺色彩
-(<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Technicolor() : null;
-    apply_filter(15, filter);
-};
+check_filter_lock_input("techni", "Technicolor", 15);
 // 宝丽来
-(<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).oninput = () => {
-    var value = (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked;
-    var filter = value ? new Fabric.Image.filters.Polaroid() : null;
-    apply_filter(16, filter);
-};
+check_filter_lock_input("polaroid", "Polaroid", 16);
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
 function exit_free() {
