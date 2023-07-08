@@ -2523,10 +2523,8 @@ fabric_canvas.on("mouse:down", (options) => {
                 }
             } else {
                 his_push();
-                shape = "";
                 poly_o_p = [];
                 draw_number_n = 1;
-                fabric_canvas.defaultCursor = "auto";
             }
         }
     }
@@ -2545,14 +2543,10 @@ fabric_canvas.on("mouse:move", (options) => {
 fabric_canvas.on("mouse:up", (options) => {
     if (!unnormal_shapes.includes(shape)) {
         drawing_shape = false;
-        fabric_canvas.selection = true;
-        fabric_canvas.defaultCursor = "auto";
         if (shape != "") {
             fabric_canvas.setActiveObject(shapes.at(-1));
             his_push();
         }
-        shape = "";
-        hotkeys.setScope("normal");
     }
 
     get_f_object_v();
