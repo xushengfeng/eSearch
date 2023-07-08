@@ -216,11 +216,11 @@ ipcRenderer.on("reflash", (_a, data, displays, point, act) => {
     switch (act) {
         case "ocr":
             final_rect = [0, 0, main_canvas.width, main_canvas.height];
-            tool_ocr_f();
+            tool.ocr();
             break;
         case "image_search":
             final_rect = [0, 0, main_canvas.width, main_canvas.height];
-            tool_search_f();
+            tool.search();
             break;
     }
 
@@ -541,13 +541,29 @@ function s_center_bar(m) {
     }
 }
 
+var tool = {
+    close: () => close_win(),
+    ocr: () => run_ocr(),
+    search: () => run_search(),
+    QR: () => run_QR(),
+    draw: () => init_draw(),
+    open: () => open_app(),
+    record: () => init_record(),
+    long: () => start_long(),
+
+    // 钉在屏幕上
+    ding: () => run_ding(),
+    // 复制
+    copy: () => run_copy(),
+    save: () => run_save(),
+};
+
 // 工具栏按钮
 tool_bar.onmouseup = (e) => {
     var el = <HTMLElement>e.target;
     if (el.parentElement != tool_bar) return;
     if (e.button == 0) {
-        // * 拼接函数名
-        eval(`${el.id}_f()`);
+        tool[el.id.replace("tool_", "")]();
     }
     // 中键取消抬起操作
     if (e.button == 1) {
@@ -569,17 +585,17 @@ hotkeys.filter = (event) => {
 };
 
 hotkeys.setScope("normal");
-hotkeys(store.get("其他快捷键.关闭"), "normal", tool_close_f);
-hotkeys(store.get("其他快捷键.OCR"), "normal", tool_ocr_f);
-hotkeys(store.get("其他快捷键.以图搜图"), "normal", tool_search_f);
-hotkeys(store.get("其他快捷键.QR码"), "normal", tool_QR_f);
-hotkeys(store.get("其他快捷键.图像编辑"), "normal", tool_draw_f);
-hotkeys(store.get("其他快捷键.其他应用打开"), "normal", tool_open_f);
-hotkeys(store.get("其他快捷键.放在屏幕上"), "normal", tool_ding_f);
-hotkeys(store.get("其他快捷键.长截屏"), "normal", tool_long_f);
-hotkeys(store.get("其他快捷键.录屏"), "normal", tool_record_f);
-hotkeys(store.get("其他快捷键.复制"), "normal", tool_copy_f);
-hotkeys(store.get("其他快捷键.保存"), "normal", tool_save_f);
+hotkeys(store.get("其他快捷键.关闭"), "normal", tool.close);
+hotkeys(store.get("其他快捷键.OCR"), "normal", tool.ocr);
+hotkeys(store.get("其他快捷键.以图搜图"), "normal", tool.search);
+hotkeys(store.get("其他快捷键.QR码"), "normal", tool.QR);
+hotkeys(store.get("其他快捷键.图像编辑"), "normal", tool.draw);
+hotkeys(store.get("其他快捷键.其他应用打开"), "normal", tool.open);
+hotkeys(store.get("其他快捷键.放在屏幕上"), "normal", tool.ding);
+hotkeys(store.get("其他快捷键.长截屏"), "normal", tool.long);
+hotkeys(store.get("其他快捷键.录屏"), "normal", tool.record);
+hotkeys(store.get("其他快捷键.复制"), "normal", tool.copy);
+hotkeys(store.get("其他快捷键.保存"), "normal", tool.save);
 
 var auto_do = store.get("框选后默认操作");
 if (auto_do != "no") {
@@ -594,7 +610,7 @@ function 记忆框选_f() {
 }
 
 // 关闭
-function tool_close_f() {
+function close_win() {
     document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
     记忆框选_f();
     if (uIOhook) {
@@ -605,6 +621,7 @@ function tool_close_f() {
         location.reload();
     }, 50);
 }
+
 // OCR
 var ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 for (let i of store.get("离线OCR")) {
@@ -617,15 +634,15 @@ ocr引擎.insertAdjacentHTML("beforeend", `<option value="baidu">百度</option>
 ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
 document.getElementById("ocr引擎").oninput = () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
-    tool_ocr_f();
+    tool.ocr();
 };
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
 
 const ocr_err = document.getElementById("ocr_error");
 ocr_err.classList.add("ocr_err_hide");
 
-function tool_ocr_f() {
-    var type = ocr引擎.value;
+function run_ocr() {
+    const type = ocr引擎.value;
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
@@ -635,7 +652,7 @@ function tool_ocr_f() {
     ipcRenderer.on("ocr_back", (_event, arg) => {
         if (arg == "ok") {
             document.getElementById("waiting").style.display = "none";
-            tool_close_f();
+            tool.close;
         } else {
             document.getElementById("waiting").style.display = "none";
             ocr_err.classList.remove("ocr_err_hide");
@@ -668,11 +685,11 @@ var 识图引擎 = <HTMLSelectElement>document.getElementById("识图引擎");
 识图引擎.value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
 识图引擎.oninput = () => {
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.value);
-    tool_search_f();
+    tool.search();
 };
 document.getElementById("tool_search").title = `以图搜图 - ${识图引擎.value}`;
-function tool_search_f() {
-    var type = 识图引擎.value;
+function run_search() {
+    const type = 识图引擎.value;
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
@@ -681,7 +698,7 @@ function tool_search_f() {
 
     ipcRenderer.on("search_back", (_event, arg) => {
         if (arg == "ok") {
-            tool_close_f();
+            tool.close();
             document.getElementById("waiting").style.display = "none";
         } else {
             document.getElementById("waiting").style.display = "none";
@@ -689,7 +706,7 @@ function tool_search_f() {
     });
 }
 // 二维码
-function tool_QR_f() {
+function run_QR() {
     const jsqr = require("jsqr");
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
         var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
@@ -698,7 +715,7 @@ function tool_QR_f() {
         });
         if (code) {
             ipcRenderer.send("clip_main_b", "QR", code.data);
-            tool_close_f();
+            tool.close();
         } else {
             ipcRenderer.send("clip_main_b", "QR", "nothing");
         }
@@ -706,7 +723,8 @@ function tool_QR_f() {
 }
 // 图片编辑
 var drawing = false;
-function tool_draw_f() {
+
+function init_draw() {
     drawing = drawing ? false : true; // 切换状态
     draw_m(drawing);
     if (!drawing) {
@@ -753,9 +771,6 @@ function track_location() {
 }
 
 // 在其他应用打开
-function tool_open_f() {
-    open_app();
-}
 
 import open_with from "../../../lib/open_with";
 
@@ -778,7 +793,7 @@ const recorder_mouse_el = document.getElementById("mouse_c");
 
 var record_inited = false;
 
-function tool_record_f() {
+function init_record() {
     record_inited = true;
     ipcRenderer.send("clip_main_b", "record", {
         rect: final_rect,
@@ -901,7 +916,8 @@ var log_o = {
     o_canvas: null,
     p: { x: 0, y: 0 },
 };
-function tool_long_f() {
+
+function start_long() {
     log_o.long_list = [];
     init_long(final_rect);
     let r = [...final_rect];
@@ -1056,7 +1072,7 @@ function pj_long() {
 }
 
 // 钉在屏幕上
-function tool_ding_f() {
+function run_ding() {
     var ding_window_setting = final_rect;
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
         // @ts-ignore
@@ -1066,20 +1082,20 @@ function tool_ding_f() {
         // @ts-ignore
         ding_window_setting[6] = screens;
         ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
-        tool_close_f();
+        tool.close();
     });
 }
 // 复制
-function tool_copy_f() {
+function run_copy() {
     get_clip_photo("png").then((c: HTMLCanvasElement) => {
         clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
-        tool_close_f();
+        tool.close();
     });
 }
 // 保存
 var type;
 import time_format from "../../../lib/time_format";
-function tool_save_f() {
+function run_save() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
         const path = require("path") as typeof import("path");
@@ -1163,7 +1179,7 @@ function save(message: string) {
                     break;
             }
         });
-        tool_close_f();
+        tool.close();
     }
 }
 var svg;
@@ -1456,7 +1472,7 @@ clip_canvas.onmouseup = (e) => {
             follow_bar(e.clientX, e.clientY);
             // 框选后默认操作
             if (auto_do != "no" && e.button == 0) {
-                eval(`tool_${auto_do}_f()`);
+                tool[auto_do]();
             }
         }
         if (moving) {
@@ -2156,7 +2172,7 @@ function move_rect(o_final_rect: rect, old_position: editor_position, position: 
     if (dx == 0 && dy == 0) {
         let now_time = new Date().getTime();
         if (now_time - last_click_time <= 600) {
-            tool_copy_f();
+            tool.copy();
         }
         last_click_time = now_time;
     }
