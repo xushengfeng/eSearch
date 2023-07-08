@@ -355,13 +355,13 @@ app.whenReady().then(() => {
         }).show();
 
     // 快捷键
-    var 快捷键函数 = {
-        自动识别: { f: "autoOpen()" },
-        截屏搜索: { f: "fullScreen()" },
-        选中搜索: { f: "openSelection()" },
-        剪贴板搜索: { f: "openClipBoard()" },
-        快速截屏: { f: "quickClip()" },
-        主页面: { f: "createMainWindow('editor.html', [''])" },
+    const 快捷键函数 = {
+        自动识别: autoOpen,
+        截屏搜索: fullScreen,
+        选中搜索: openSelection,
+        剪贴板搜索: openClipBoard,
+        快速截屏: quickClip,
+        主页面: createMainWindow.bind(this, "editor.html", [""]),
     };
     ipcMain.on("快捷键", (event, arg) => {
         var [name, key] = arg;
@@ -372,7 +372,7 @@ app.whenReady().then(() => {
             let ok = false;
             if (key) {
                 ok = globalShortcut.register(key, () => {
-                    eval(快捷键函数[arg[0]].f);
+                    快捷键函数[arg[0]]();
                 });
             }
             // key为空或成功注册时保存，否则存为空
@@ -390,7 +390,7 @@ app.whenReady().then(() => {
         try {
             if (m.key)
                 globalShortcut.register(m.key, () => {
-                    eval(快捷键函数[k].f);
+                    快捷键函数[k]();
                 });
         } catch (error) {
             delete 快捷键[k].key;
