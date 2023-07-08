@@ -230,7 +230,7 @@ app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enabl
 app.whenReady().then(() => {
     crashReporter.start({ uploadToServer: false });
 
-    if (store.get("首次运行") === undefined) set_default_setting();
+    if (store.get("首次运行") === undefined) setDefaultSetting();
     fix_setting_tree();
 
     // 初始化语言
@@ -1130,7 +1130,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             break;
         case "set_default_setting":
             store.clear();
-            set_default_setting();
+            setDefaultSetting();
             var resolve = await dialog.showMessageBox({
                 title: t("重启"),
                 message: `${t("已恢复默认设置，部分设置需要重启")} ${app.name} ${t("生效")}`,
@@ -1832,7 +1832,7 @@ try {
     console.error(e);
 }
 
-function set_default_setting() {
+function setDefaultSetting() {
     for (let i in defaultSetting) {
         if (i == "语言") {
             store.set(i, { 语言: app.getLocale() || "zh-HANS" });
@@ -1845,7 +1845,7 @@ function set_default_setting() {
 // 增加设置项后，防止undefined
 function fix_setting_tree() {
     if (store.get("设置版本") == app.getVersion()) return;
-    var tree = "default_setting";
+    var tree = "defaultSetting";
     walk(tree);
     function walk(path: string) {
         var x = eval(path);
