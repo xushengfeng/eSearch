@@ -20,6 +20,7 @@
     "color": "^4.2.3",
     "download": "^8.0.0",
     "electron-store": "^8.1.0",
+    "esearch-ocr": "^4.0.1",
     "hex-to-css-filter": "^5.4.0",
     "hotkeys-js": "^3.10.0",
     "jsqr": "^1.4.0",
@@ -27,7 +28,6 @@
     "onnxruntime-node": "^1.13.1",
     "opencv.js": "^1.2.1",
     "uiohook-napi": "^1.5.0",
-    "wordsninja": "^1.0.0",
     "x11": "^2.3.0"
   },
   "devDependencies": {

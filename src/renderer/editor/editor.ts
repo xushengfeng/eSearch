@@ -1766,10 +1766,10 @@ async function localOcr(
         recp = path.join(ocrPath, l[2]),
         字典 = path.join(ocrPath, l[3]);
     console.log(ocrPath);
-    const lo = (await import("../../../ocr/local_ocr")).default;
+    const lo = require("esearch-ocr") as typeof import("esearch-ocr");
     await lo.init({
-        det_path: detp,
-        rec_path: recp,
+        detPath: detp,
+        recPath: recp,
         dic: fs.readFileSync(字典).toString(),
         ...l[4],
         node: true,
@@ -1788,7 +1788,11 @@ async function localOcr(
                 for (let i of l) {
                     t += i.text + "\n";
                 }
-                callback(null, { raw: l, text: t });
+                let ll = [];
+                for (let i of l) {
+                    ll.push({ box: i.box, text: i.text });
+                }
+                callback(null, { raw: ll, text: t });
             })
             .catch((e) => {
                 callback(e, null);
@@ -2055,7 +2059,7 @@ function runOcr() {
 
 type ocrResult = {
     text: string;
-    box: /** lt,rt,rb,lb */ [[number, number], [number, number], [number, number], [number, number]];
+    box: /** lt,rt,rb,lb */ number[][];
 }[];
 
 function addOcrText(r: ocrResult, i: number) {
