@@ -1681,45 +1681,49 @@ async function localOcr(
     arg: string,
     callback: (error: Error, result: { raw: ocrResult; text: string }) => void
 ) {
-    let l: [string, string, string, string, any];
-    for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
-    let ocrPath = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
-    let detp = path.join(ocrPath, l[1]),
-        recp = path.join(ocrPath, l[2]),
-        字典 = path.join(ocrPath, l[3]);
-    console.log(ocrPath);
-    const lo = require("esearch-ocr") as typeof import("esearch-ocr");
-    await lo.init({
-        detPath: detp,
-        recPath: recp,
-        dic: fs.readFileSync(字典).toString(),
-        ...l[4],
-        node: true,
-    });
-    let img = document.createElement("img");
-    img.src = "data:image/png;base64," + arg;
-    img.onload = async () => {
-        let canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        canvas.getContext("2d").drawImage(img, 0, 0);
-        lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height))
-            .then((l) => {
-                console.log(l);
-                let t = "";
-                for (let i of l) {
-                    t += i.text + "\n";
-                }
-                let ll = [];
-                for (let i of l) {
-                    ll.push({ box: i.box, text: i.text });
-                }
-                callback(null, { raw: ll, text: t });
-            })
-            .catch((e) => {
-                callback(e, null);
-            });
-    };
+    try {
+        let l: [string, string, string, string, any];
+        for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
+        let ocrPath = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
+        let detp = path.join(ocrPath, l[1]),
+            recp = path.join(ocrPath, l[2]),
+            字典 = path.join(ocrPath, l[3]);
+        console.log(ocrPath);
+        const lo = require("esearch-ocr") as typeof import("esearch-ocr");
+        await lo.init({
+            detPath: detp,
+            recPath: recp,
+            dic: fs.readFileSync(字典).toString(),
+            ...l[4],
+            node: true,
+        });
+        let img = document.createElement("img");
+        img.src = "data:image/png;base64," + arg;
+        img.onload = async () => {
+            let canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext("2d").drawImage(img, 0, 0);
+            lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height))
+                .then((l) => {
+                    console.log(l);
+                    let t = "";
+                    for (let i of l) {
+                        t += i.text + "\n";
+                    }
+                    let ll = [];
+                    for (let i of l) {
+                        ll.push({ box: i.box, text: i.text });
+                    }
+                    callback(null, { raw: ll, text: t });
+                })
+                .catch((e) => {
+                    callback(e, null);
+                });
+        };
+    } catch (error) {
+        callback(error, null);
+    }
 }
 
 /**
