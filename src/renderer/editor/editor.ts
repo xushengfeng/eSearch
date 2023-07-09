@@ -1,5 +1,15 @@
 /// <reference types="vite/client" />
-var inBrowser = typeof global == "undefined";
+
+var Store = require("electron-store");
+var configPath = new URLSearchParams(location.search).get("config_path");
+var store = new Store({
+    cwd: configPath || "",
+});
+document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
+    let url = new URL(el.href);
+    url.search = location.search;
+    el.href = url.toString();
+});
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
@@ -193,27 +203,15 @@ class xeditor {
     }
     copy() {
         var t = editor.selections.get();
-        if (inBrowser) {
-            navigator.clipboard.writeText(t);
-        } else {
-            clipboard.writeText(t);
-        }
+        clipboard.writeText(t);
     }
     cut() {
         this.copy();
         this.delete();
     }
     paste() {
-        if (inBrowser) {
-            navigator.clipboard.readText().then((t) => {
-                editor.selections.replace(t);
-            });
-        } else {
-            console.log(1);
-
-            let t = clipboard.readText();
-            editor.selections.replace(t);
-        }
+        let t = clipboard.readText();
+        editor.selections.replace(t);
     }
     selectAll() {
         this.selections.clearAll();
@@ -600,75 +598,6 @@ document.getElementById("text").onscroll = () => {
 // 插入文字
 var insert = false;
 
-/************************************浏览器转换 */
-var Store;
-if (inBrowser) {
-    Store = class Store {
-        constructor(_x?: Object) {}
-        get(value: string) {
-            var o = {
-                自动打开链接: false,
-                自动搜索中文占比: 0.2,
-                浏览器中打开: false,
-                搜索引擎: [
-                    ["Google", "https://www.google.com/search?q=%s"],
-                    ["百度", "https://www.baidu.com/s?wd=%s"],
-                    ["必应", "https://cn.bing.com/search?q=%s"],
-                    ["Yandex", "https://yandex.com/search/?text=%s"],
-                ],
-                翻译引擎: [
-                    ["Google", "https://translate.google.com.hk/?op=translate&text=%s"],
-                    ["Deepl", "https://www.deepl.com/translator#any/any/%s"],
-                    ["金山词霸", "http://www.iciba.com/word?w=%s"],
-                    ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
-                    ["腾讯", "https://fanyi.qq.com/?text=%s"],
-                ],
-                引擎: {
-                    记住: false,
-                    默认搜索引擎: "百度",
-                    默认翻译引擎: "Google",
-                },
-                字体: {
-                    主要字体: "",
-                    等宽字体: "",
-                    记住: false,
-                    大小: 16,
-                },
-                编辑器: {
-                    自动换行: true,
-                    拼写检查: false,
-                    行号: true,
-                    tab: 2,
-                    光标动画: 0.05,
-                },
-                历史记录设置: {
-                    保留历史记录: true,
-                    自动清除历史记录: false,
-                    d: 14,
-                    h: 0,
-                },
-            };
-
-            return eval(`o.${value}`);
-        }
-        set(_k, _v) {}
-        delete(_k) {}
-    };
-    var store = new Store();
-    historyStore = new Store();
-} else {
-    Store = require("electron-store");
-    let configPath = new URLSearchParams(location.search).get("config_path");
-    var store = new Store({
-        cwd: configPath || "",
-    });
-    document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
-        let url = new URL(el.href);
-        url.search = location.search;
-        el.href = url.toString();
-    });
-}
-
 /************************************主要 */
 
 var windowName = "",
@@ -796,11 +725,6 @@ document.getElementById("edit_b").onmousedown = (e) => {
     }
 };
 
-if (inBrowser) {
-    document.body.oncontextmenu = (e) => {
-        e.preventDefault();
-    };
-}
 var isWrap = !store.get("编辑器.自动换行");
 wrap();
 function wrap() {
@@ -1106,9 +1030,7 @@ document.querySelector("#translate_s").innerHTML = translateC;
 /************************************历史记录 */
 // 历史记录
 
-if (!inBrowser) {
-    var historyStore = new Store({ name: "history" });
-}
+var historyStore = new Store({ name: "history" });
 
 var historyList = historyStore.get("历史记录") || {};
 var 历史记录设置 = store.get("历史记录设置");
@@ -2095,3 +2017,4 @@ function addOcrPhoto(base: string) {
 }
 
 let output = [];
+console.log(output);
