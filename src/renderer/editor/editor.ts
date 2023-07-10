@@ -1684,10 +1684,12 @@ async function localOcr(
     try {
         let l: [string, string, string, string, any];
         for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
-        let ocrPath = path.isAbsolute(l[1]) ? "" : path.join(__dirname, "../../ocr/ppocr"); // 默认模型路径
-        let detp = path.join(ocrPath, l[1]),
-            recp = path.join(ocrPath, l[2]),
-            字典 = path.join(ocrPath, l[3]);
+        function ocrPath(p: string) {
+            return path.join(path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"), p);
+        }
+        let detp = ocrPath(l[1]),
+            recp = ocrPath(l[2]),
+            字典 = ocrPath(l[3]);
         console.log(ocrPath);
         const lo = require("esearch-ocr") as typeof import("esearch-ocr");
         await lo.init({
