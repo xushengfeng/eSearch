@@ -971,7 +971,6 @@ function find(t: string) {
 }
 
 var pathInfo = `<br>
-                ${t("OCR 目录：")}${store.path.replace("config.json", "ocr")}<br>
                 ${t("文字记录：")}${historyStore.path}<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform() == "win32" ? "\\" : "/"}eSearch<br>
                 ${t("运行目录：")}${__dirname}`;
