@@ -558,9 +558,9 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     for (let f of fs) {
         // @ts-ignore
         let path = f.path as string;
-        if (path.includes("det")) {
+        if (path.split("/").at(-1).includes("det")) {
             l[1] = path;
-        } else if (path.includes("rec")) {
+        } else if (path.split("/").at(-1).includes("rec")) {
             l[2] = path;
         } else {
             l[3] = path;
