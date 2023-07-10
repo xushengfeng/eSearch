@@ -654,7 +654,7 @@ function runOcr() {
     ipcRenderer.on("ocr_back", (_event, arg) => {
         if (arg == "ok") {
             document.getElementById("waiting").style.display = "none";
-            tool.close;
+            tool.close();
         } else {
             document.getElementById("waiting").style.display = "none";
             ocrErrEl.classList.remove("ocr_err_hide");
