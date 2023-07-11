@@ -95,7 +95,8 @@
         "!assets/logo/icon.ico",
         "!src",
         "!node_modules/onnxruntime-node/bin/napi-v3/win32",
-        "!node_modules/onnxruntime-node/bin/napi-v3/darwin"
+        "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
+        "!node_modules/onnxruntime-web"
       ]
     },
     "deb": {
@@ -119,7 +120,8 @@
         "!assets/logo/icon.ico",
         "!src",
         "!node_modules/onnxruntime-node/bin/napi-v3/win32",
-        "!node_modules/onnxruntime-node/bin/napi-v3/linux"
+        "!node_modules/onnxruntime-node/bin/napi-v3/linux",
+        "!node_modules/onnxruntime-web"
       ]
     },
     "win": {
@@ -138,7 +140,8 @@
         "!assets/logo/512x512.png",
         "!src",
         "!node_modules/onnxruntime-node/bin/napi-v3/linux",
-        "!node_modules/onnxruntime-node/bin/napi-v3/darwin"
+        "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
+        "!node_modules/onnxruntime-web"
       ]
     },
     "nsis": {
