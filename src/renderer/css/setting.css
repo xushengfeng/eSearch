@@ -274,23 +274,15 @@ div:has(> label > input[type="radio"]) {
 label:has(input[type="radio"]) {
     border-radius: 8px;
     padding: 8px;
-    transition: background var(--transition), box-shadow var(--transition);
+    transition: outline-color var(--transition), box-shadow var(--transition);
     display: inline-block;
+    outline-color: transparent;
 }
 label:has(input[type="radio"]):hover {
     box-shadow: var(--shadow);
 }
 label:has(input[type="radio"]:checked) {
-    background: var(--m-color1);
-    color: #fff;
-}
-label:has(input[type="radio"]:checked) > .icon {
-    filter: invert(1) brightness(2);
-}
-@media (prefers-color-scheme: dark) {
-    label:has(input[type="radio"]) > .icon {
-        filter: invert(1) brightness(2);
-    }
+    outline: 2px dashed var(--m-color1);
 }
 
 summary {
