@@ -387,10 +387,10 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
 const { hexToCSSFilter } = require("hex-to-css-filter");
 (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value = old_store.全局.图标颜色[0];
-document.documentElement.style.setProperty("--icon-color", old_store.全局.图标颜色[1]);
+document.documentElement.style.setProperty("--icon-color1", old_store.全局.图标颜色[1]);
 (<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput = () => {
     document.documentElement.style.setProperty(
-        "--icon-color",
+        "--icon-color1",
         hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter.replace(";", "")
     );
 };

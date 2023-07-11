@@ -21,6 +21,7 @@
     --monospace: ;
     --main-font: sans-serif;
     --icon-color: none;
+    --icon-color1: none;
     --bar-size: 60px;
     --bar-icon: 0.7;
     --b-button: 32px;
@@ -39,7 +40,7 @@ body {
     pointer-events: none;
     left: 0;
     top: 0;
-    filter: var(--icon-color);
+    filter: var(--icon-color) var(--icon-color1);
     user-select: none;
 }
 
