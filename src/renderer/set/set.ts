@@ -175,6 +175,14 @@ var 其他快捷键 = old_store.其他快捷键;
 (<HTMLInputElement>document.querySelector(`hot-keys[name="复制"]`)).value = 其他快捷键.复制;
 (<HTMLInputElement>document.querySelector(`hot-keys[name="保存"]`)).value = 其他快捷键.保存;
 (<HTMLInputElement>document.querySelector(`hot-keys[name="复制颜色"]`)).value = 其他快捷键.复制颜色;
+(<HTMLInputElement>document.querySelector('hot-keys[name="line"')).value = 其他快捷键.line;
+(<HTMLInputElement>document.querySelector('hot-keys[name="circle"')).value = 其他快捷键.circle;
+(<HTMLInputElement>document.querySelector('hot-keys[name="rect"')).value = 其他快捷键.rect;
+(<HTMLInputElement>document.querySelector('hot-keys[name="polyline"')).value = 其他快捷键.polyline;
+(<HTMLInputElement>document.querySelector('hot-keys[name="polygon"')).value = 其他快捷键.polygon;
+(<HTMLInputElement>document.querySelector('hot-keys[name="text"')).value = 其他快捷键.text;
+(<HTMLInputElement>document.querySelector('hot-keys[name="number"')).value = 其他快捷键.number;
+(<HTMLInputElement>document.querySelector('hot-keys[name="arrow"')).value = 其他快捷键.arrow;
 
 选择器储存("工具栏跟随", "展示内容优先");
 选择器储存("光标", "以(1,1)为起点");
@@ -716,6 +724,14 @@ function saveSetting() {
         复制: (<HTMLInputElement>document.querySelector(`hot-keys[name="复制"]`)).value,
         保存: (<HTMLInputElement>document.querySelector(`hot-keys[name="保存"]`)).value,
         复制颜色: (<HTMLInputElement>document.querySelector(`hot-keys[name="复制颜色"]`)).value,
+        line: (<HTMLInputElement>document.querySelector(`hot-keys[name="line"]`)).value,
+        circle: (<HTMLInputElement>document.querySelector(`hot-keys[name="circle"]`)).value,
+        rect: (<HTMLInputElement>document.querySelector(`hot-keys[name="rect"]`)).value,
+        polyline: (<HTMLInputElement>document.querySelector(`hot-keys[name="polyline"]`)).value,
+        polygon: (<HTMLInputElement>document.querySelector(`hot-keys[name="polygon"]`)).value,
+        text: (<HTMLInputElement>document.querySelector(`hot-keys[name="text"]`)).value,
+        number: (<HTMLInputElement>document.querySelector(`hot-keys[name="number"]`)).value,
+        arrow: (<HTMLInputElement>document.querySelector(`hot-keys[name="arrow"]`)).value,
     });
     storeSet(
         "主搜索功能.自动搜索排除",
