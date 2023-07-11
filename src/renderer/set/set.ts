@@ -116,6 +116,7 @@ var 全局 = old_store.全局;
 setRadio(document.getElementById("深色模式"), old_store.全局.深色模式);
 document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", getRadio(document.getElementById("深色模式")));
+    storeSet("全局.深色模式", getRadio(document.getElementById("深色模式")));
 };
 
 var 模糊 = old_store.全局.模糊;
