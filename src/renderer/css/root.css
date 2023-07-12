@@ -21,7 +21,7 @@
     --monospace: ;
     --main-font: sans-serif;
     --icon-color: none;
-    --icon-color1: none;
+    --icon-color1: invert(1);
     --bar-size: 60px;
     --bar-icon: 0.7;
     --b-button: 32px;
@@ -40,7 +40,7 @@ body {
     pointer-events: none;
     left: 0;
     top: 0;
-    filter: var(--icon-color) var(--icon-color1);
+    filter: var(--icon-color);
     user-select: none;
 }
 
@@ -146,7 +146,7 @@ textarea {
         --color: #fff;
         --color2: #aaa;
         --border: 1px #fff solid;
-        --icon-color: invert(1);
+        --icon-color: var(--icon-color1) !important;
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;

@@ -385,14 +385,30 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 };
 
-const { hexToCSSFilter } = require("hex-to-css-filter");
+const { hexToCSSFilter } = require("hex-to-css-filter") as typeof import("hex-to-css-filter");
+function getFilter(hex: string) {
+    try {
+        return hexToCSSFilter(hex).filter.replace(";", "");
+    } catch (error) {
+        return null;
+    }
+}
 (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value = old_store.全局.图标颜色[0];
-document.documentElement.style.setProperty("--icon-color1", old_store.全局.图标颜色[1]);
+document.documentElement.style.setProperty("--icon-color", old_store.全局.图标颜色[1]);
+(<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value = old_store.全局.图标颜色[2] || "";
+if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty("--icon-color1", old_store.全局.图标颜色[3]);
 (<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput = () => {
     document.documentElement.style.setProperty(
-        "--icon-color1",
-        hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter.replace(";", "")
+        "--icon-color",
+        getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || ""
     );
+};
+(<HTMLInputElement>document.querySelector("#图标颜色1 > input")).oninput = () => {
+    if ((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value)
+        document.documentElement.style.setProperty(
+            "--icon-color1",
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || ""
+        );
 };
 
 (<HTMLInputElement>document.getElementById("换行")).checked = old_store.编辑器.自动换行;
@@ -745,10 +761,9 @@ function saveSetting() {
     try {
         storeSet("全局.图标颜色", [
             (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value,
-            hexToCSSFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value).filter.replace(
-                ";",
-                ""
-            ),
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || "",
+            (<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value,
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "",
         ]);
     } catch (e) {}
     storeSet("工具栏", {
