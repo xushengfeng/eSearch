@@ -73,7 +73,7 @@ document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
         (el as HTMLInputElement).oninput = () => {
             storeSet(path, (el as HTMLInputElement).value);
         };
-    } else if (el.tagName == "input") {
+    } else if (el.tagName == "INPUT") {
         let iel = el as HTMLInputElement;
         if (iel.type == "checkbox") {
             iel.checked = value;
@@ -86,6 +86,12 @@ document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
                 storeSet(path, iel.value);
             };
         }
+    } else if (el.tagName == "HOT-KEYS") {
+        let iel = el as HTMLInputElement;
+        iel.value = value;
+        iel.addEventListener("inputend", () => {
+            storeSet(path, iel.value);
+        });
     } else {
         if (el.querySelector("input[type=radio]")) {
             setRadio(el, value);
@@ -188,26 +194,6 @@ ipcRenderer.on("状态", (_event, name, arg) => {
     (<any>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
     if (t) storeSet(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
-
-var 其他快捷键 = old_store.其他快捷键;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="关闭"]`)).value = 其他快捷键.关闭;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="OCR(文字识别)"]`)).value = 其他快捷键.OCR;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="以图搜图"]`)).value = 其他快捷键.以图搜图;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="QR码"]`)).value = 其他快捷键.QR码;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="图像编辑"]`)).value = 其他快捷键.图像编辑;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="其他应用打开"]`)).value = 其他快捷键.其他应用打开;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="放在屏幕上"]`)).value = 其他快捷键.放在屏幕上;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="复制"]`)).value = 其他快捷键.复制;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="保存"]`)).value = 其他快捷键.保存;
-(<HTMLInputElement>document.querySelector(`hot-keys[name="复制颜色"]`)).value = 其他快捷键.复制颜色;
-(<HTMLInputElement>document.querySelector('hot-keys[name="line"')).value = 其他快捷键.line;
-(<HTMLInputElement>document.querySelector('hot-keys[name="circle"')).value = 其他快捷键.circle;
-(<HTMLInputElement>document.querySelector('hot-keys[name="rect"')).value = 其他快捷键.rect;
-(<HTMLInputElement>document.querySelector('hot-keys[name="polyline"')).value = 其他快捷键.polyline;
-(<HTMLInputElement>document.querySelector('hot-keys[name="polygon"')).value = 其他快捷键.polygon;
-(<HTMLInputElement>document.querySelector('hot-keys[name="text"')).value = 其他快捷键.text;
-(<HTMLInputElement>document.querySelector('hot-keys[name="number"')).value = 其他快捷键.number;
-(<HTMLInputElement>document.querySelector('hot-keys[name="arrow"')).value = 其他快捷键.arrow;
 
 document
     .getElementById("tool_bar_posi_b")
@@ -662,26 +648,6 @@ window.onblur = saveSetting;
 
 function saveSetting() {
     if (giveUp) return;
-    storeSet("其他快捷键", {
-        关闭: (<HTMLInputElement>document.querySelector(`hot-keys[name="关闭"]`)).value,
-        OCR: (<HTMLInputElement>document.querySelector(`hot-keys[name="OCR(文字识别)"]`)).value,
-        以图搜图: (<HTMLInputElement>document.querySelector(`hot-keys[name="以图搜图"]`)).value,
-        QR码: (<HTMLInputElement>document.querySelector(`hot-keys[name="QR码"]`)).value,
-        图像编辑: (<HTMLInputElement>document.querySelector(`hot-keys[name="图像编辑"]`)).value,
-        其他应用打开: (<HTMLInputElement>document.querySelector(`hot-keys[name="其他应用打开"]`)).value,
-        放在屏幕上: (<HTMLInputElement>document.querySelector(`hot-keys[name="放在屏幕上"]`)).value,
-        复制: (<HTMLInputElement>document.querySelector(`hot-keys[name="复制"]`)).value,
-        保存: (<HTMLInputElement>document.querySelector(`hot-keys[name="保存"]`)).value,
-        复制颜色: (<HTMLInputElement>document.querySelector(`hot-keys[name="复制颜色"]`)).value,
-        line: (<HTMLInputElement>document.querySelector(`hot-keys[name="line"]`)).value,
-        circle: (<HTMLInputElement>document.querySelector(`hot-keys[name="circle"]`)).value,
-        rect: (<HTMLInputElement>document.querySelector(`hot-keys[name="rect"]`)).value,
-        polyline: (<HTMLInputElement>document.querySelector(`hot-keys[name="polyline"]`)).value,
-        polygon: (<HTMLInputElement>document.querySelector(`hot-keys[name="polygon"]`)).value,
-        text: (<HTMLInputElement>document.querySelector(`hot-keys[name="text"]`)).value,
-        number: (<HTMLInputElement>document.querySelector(`hot-keys[name="number"]`)).value,
-        arrow: (<HTMLInputElement>document.querySelector(`hot-keys[name="arrow"]`)).value,
-    });
     storeSet(
         "主搜索功能.自动搜索排除",
         (<HTMLInputElement>document.getElementById("自动搜索排除")).value.split(/\n/).filter((i) => i != "")
