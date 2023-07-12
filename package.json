@@ -123,13 +123,41 @@
         "!node_modules/onnxruntime-node/bin/napi-v3/win32",
         "!node_modules/onnxruntime-node/bin/napi-v3/linux",
         "!node_modules/onnxruntime-web"
+      ],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ]
     },
     "win": {
       "icon": "./assets/logo/icon.ico",
       "target": [
-        "nsis",
-        "zip"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "files": [
         "!lib/gtk-open-with",
