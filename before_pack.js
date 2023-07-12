@@ -13,6 +13,14 @@ exports.default = async function () {
             }
         );
     }
+    if (!fs.existsSync("./assets/onnx/seg")) {
+        fs.mkdirSync("./assets/onnx/seg", { recursive: true });
+        await download(
+            "https://github.com/xushengfeng/eSearch-seg/releases/download/1.0.0/seg.onnx",
+            "./assets/onnx/seg/",
+            { rejectUnauthorized: false }
+        );
+    }
     if (process.platform == "win32" && !fs.existsSync("./lib/win_rect.exe")) {
         fs.writeFileSync(
             "./lib/win_rect.exe",
