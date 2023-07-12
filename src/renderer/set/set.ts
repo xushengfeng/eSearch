@@ -70,21 +70,21 @@ document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
     if (el.tagName == "RANGE-B") {
         // range-b
         (el as HTMLInputElement).value = value;
-        (el as HTMLInputElement).oninput = () => {
+        (el as HTMLInputElement).addEventListener("input", () => {
             storeSet(path, (el as HTMLInputElement).value);
-        };
+        });
     } else if (el.tagName == "INPUT") {
         let iel = el as HTMLInputElement;
         if (iel.type == "checkbox") {
             iel.checked = value;
-            iel.oninput = () => {
+            iel.addEventListener("input", () => {
                 storeSet(path, iel.checked);
-            };
+            });
         } else {
             iel.value = value;
-            iel.oninput = () => {
+            iel.addEventListener("input", () => {
                 storeSet(path, iel.value);
-            };
+            });
         }
     } else if (el.tagName == "HOT-KEYS") {
         let iel = el as HTMLInputElement;
@@ -95,9 +95,9 @@ document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
     } else {
         if (el.querySelector("input[type=radio]")) {
             setRadio(el, value);
-            el.onclick = () => {
+            el.addEventListener("click", () => {
                 storeSet(path, getRadio(el));
-            };
+            });
         }
     }
 });
