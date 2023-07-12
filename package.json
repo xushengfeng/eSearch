@@ -21,6 +21,7 @@
     "download": "^8.0.0",
     "electron-store": "^8.1.0",
     "esearch-ocr": "^4.1.0",
+    "esearch-seg": "^1.0.0",
     "hex-to-css-filter": "^5.4.0",
     "hotkeys-js": "^3.10.0",
     "jsqr": "^1.4.0",

@@ -433,6 +433,39 @@
                     <input type="checkbox" id="摄像头镜像">
                     <t>镜像</t>
                 </label>
+                <h3>
+                    <t>背景</t>
+                </h3>
+                <div id="seg">
+                    <label><input type="radio" name="seg" value="none">
+                        <t>正常</t>
+                    </label>
+                    <label><input type="radio" name="seg" value="hide">
+                        <t>隐藏</t>
+                    </label>
+                    <label><input type="radio" name="seg" value="blur">
+                        <t>模糊</t>
+                        <range-b out="true" id="seg_blur" min="1" max="120" step="1" text="px"
+                            style="display: inline-flex;"></range-b>
+                    </label>
+                    <label><input type="radio" name="seg" value="img">
+                        <t>图片</t>
+                        <input type="text" name="seg_img_url" id="seg_img_url" placeholder="url">
+                    </label>
+                    <label><input type="radio" name="seg" value="video">
+                        <t>视频</t>
+                        <input type="text" name="seg_video_url" id="seg_video_url" placeholder="url">
+                    </label>
+                </div>
+                <t>图片或视频填充模式</t>
+                <div id="seg_fit">
+                    <label><input type="radio" name="seg_fit" value="contain">contain</label>
+                    <label><input type="radio" name="seg_fit" value="cover">cover</label>
+                    <label><input type="radio" name="seg_fit" value="fill">fill</label>
+                    <label><input type="radio" name="seg_fit" value="none">none</label>
+                    <label><input type="radio" name="seg_fit" value="scale-down">scale-down</label>
+                </div>
+
 
                 <h2>
                     <t>音频</t>

@@ -17,6 +17,9 @@ dependencies:
   esearch-ocr:
     specifier: ^4.1.0
     version: 4.1.0(opencv.js@1.2.1)
+  esearch-seg:
+    specifier: ^1.0.0
+    version: registry.npmjs.org/esearch-seg@1.0.0(opencv.js@1.2.1)
   hex-to-css-filter:
     specifier: ^5.4.0
     version: 5.4.0
@@ -4228,3 +4231,17 @@ packages:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+
+  registry.npmjs.org/esearch-seg@1.0.0(opencv.js@1.2.1):
+    resolution: {integrity: sha512-TaemBIrrC6hyHmz59ranqt54tblt+c7QuHkGh572rJ3+JjE/axXQ0gyzzrjzGwGyufJLC8AmM4VZwgxZrk/BTw==, registry: https://registry.npmmirror.com/, tarball: https://registry.npmjs.org/esearch-seg/-/esearch-seg-1.0.0.tgz}
+    id: registry.npmjs.org/esearch-seg/1.0.0
+    name: esearch-seg
+    version: 1.0.0
+    peerDependencies:
+      opencv.js: ^1.2.1
+    dependencies:
+      opencv.js: 1.2.1
+    optionalDependencies:
+      onnxruntime-node: 1.13.1
+      onnxruntime-web: 1.15.1
+    dev: false

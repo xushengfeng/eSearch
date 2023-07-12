@@ -11,3 +11,4 @@ preload_config
 lib/win_rect.exe
 lib/copy.exe
 lib/ffmpeg
+assets/onnx

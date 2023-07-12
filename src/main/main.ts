@@ -1803,6 +1803,13 @@ var defaultSetting = {
             默认开启: false,
             记住开启状态: false,
             镜像: false,
+            背景: {
+                模式: "none",
+                模糊: 40,
+                imgUrl: "",
+                videoUrl: "",
+                fit: "contain",
+            },
         },
         音频: {
             默认开启: false,

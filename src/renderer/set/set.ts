@@ -319,6 +319,11 @@ document.getElementById("获取保存路径").onclick = () => {
 (<HTMLInputElement>document.getElementById("默认开启摄像头")).checked = old_store.录屏.摄像头.默认开启;
 (<HTMLInputElement>document.getElementById("记录摄像头开启状态")).checked = old_store.录屏.摄像头.记住开启状态;
 (<HTMLInputElement>document.getElementById("摄像头镜像")).checked = old_store.录屏.摄像头.镜像;
+setRadio(document.getElementById("seg"), old_store.录屏.摄像头.背景.模式);
+(<HTMLInputElement>document.getElementById("seg_blur")).value = old_store.录屏.摄像头.背景.模糊;
+(<HTMLInputElement>document.getElementById("seg_img_url")).value = old_store.录屏.摄像头.背景.imgUrl;
+(<HTMLInputElement>document.getElementById("seg_video_url")).value = old_store.录屏.摄像头.背景.videoUrl;
+setRadio(document.getElementById("seg_fit"), old_store.录屏.摄像头.背景.fit);
 
 (<HTMLInputElement>document.getElementById("默认开启音频")).checked = old_store.录屏.音频.默认开启;
 (<HTMLInputElement>document.getElementById("记录音频开启状态")).checked = old_store.录屏.音频.记住开启状态;
@@ -814,6 +819,13 @@ function saveSetting() {
         默认开启: (<HTMLInputElement>document.getElementById("默认开启摄像头")).checked,
         记住开启状态: (<HTMLInputElement>document.getElementById("记录摄像头开启状态")).checked,
         镜像: (<HTMLInputElement>document.getElementById("摄像头镜像")).checked,
+        背景: {
+            模式: getRadio(document.getElementById("seg")),
+            模糊: Number((<HTMLInputElement>document.getElementById("seg_blur")).value),
+            imgUrl: (<HTMLInputElement>document.getElementById("seg_img_url")).value,
+            videoUrl: (<HTMLInputElement>document.getElementById("seg_video_url")).value,
+            fit: getRadio(document.getElementById("seg_fit")),
+        },
     });
     storeSet("录屏.音频", {
         默认开启: (<HTMLInputElement>document.getElementById("默认开启音频")).checked,

@@ -309,8 +309,10 @@ micEl.onclick = () => {
     }
 };
 
+var videoEl = document.querySelector("video");
+
 var cameraStream: MediaStream;
-async function cameraStreamF(v) {
+async function cameraStreamF(v: boolean) {
     if (v) {
         cameraStream = await navigator.mediaDevices.getUserMedia({
             audio: false,
@@ -318,11 +320,13 @@ async function cameraStreamF(v) {
         });
         document.querySelector("video").srcObject = cameraStream;
         document.querySelector("video").play();
-        if (store.get("录屏.摄像头.镜像")) document.querySelector("video").style.transform = "rotateY(180deg)";
+        if (store.get("录屏.摄像头.镜像")) document.getElementById("video").style.transform = "rotateY(180deg)";
         ipcRenderer.send("record", "camera", 0);
         setTimeout(() => {
             resize();
         }, 400);
+
+        initSeg();
     } else {
         cameraStream.getVideoTracks()[0].stop();
         document.querySelector("video").srcObject = null;
@@ -363,6 +367,62 @@ function resize() {
         // @ts-ignore
         document.getElementById("v_p").style.zoom = p.h / c.h;
     }
+}
+
+var seg: typeof import("esearch-seg");
+
+let cameraCanvas: HTMLCanvasElement = document.createElement("canvas");
+let segCanvas: HTMLCanvasElement = document.createElement("canvas");
+let segEl = document.getElementById("seg");
+
+async function initSeg() {
+    let bgSetting = store.get("录屏.摄像头.背景");
+    if (bgSetting.模式 == "none") {
+        return;
+    } else {
+        videoEl.style.display = "";
+        segEl.innerHTML = "";
+    }
+    videoEl.style.display = "none";
+    cameraCanvas = document.createElement("canvas");
+    segCanvas = document.createElement("canvas");
+    let bgEl = document.createElement("div");
+    if (bgSetting.模式 == "img" || bgSetting.模式 == "video") {
+        let bg = bgSetting.模式 == "img" ? document.createElement("img") : document.createElement("video");
+        let url = bgSetting.模式 == "img" ? bgSetting.imgUrl : bgSetting.viedoUrl;
+        bg.src = url;
+        bgEl.append(bg);
+        bgEl.style.objectFit = bgSetting.fit;
+        cameraCanvas.style.display = "none";
+    }
+    if (bgSetting.模式 == "blur") {
+        cameraCanvas.style.filter = `blur(${bgSetting.模糊}px)`;
+        cameraCanvas.style.display = "";
+    }
+    if (bgSetting.模式 == "hide") {
+        cameraCanvas.style.display = "none";
+    }
+    segEl.append(cameraCanvas, bgEl, segCanvas);
+    seg = require("esearch-seg");
+    await seg.init({ segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx") });
+    drawCamera();
+    segEl.style.width = `${video.videoWidth}px`;
+    segEl.style.height = `${video.videoHeight}px`;
+}
+
+function drawCamera() {
+    const canvasCtx = cameraCanvas.getContext("2d");
+    cameraCanvas.width = videoEl.videoWidth;
+    cameraCanvas.height = videoEl.videoHeight;
+    canvasCtx.drawImage(videoEl, 0, 0, cameraCanvas.width, cameraCanvas.height);
+    seg.seg(cameraCanvas.getContext("2d").getImageData(0, 0, cameraCanvas.width, cameraCanvas.height)).then((data) => {
+        segCanvas.width = data.width;
+        segCanvas.height = data.height;
+        segCanvas.getContext("2d").putImageData(data, 0, 0);
+    });
+    setTimeout(() => {
+        if (cameraStream.active) drawCamera();
+    }, 10);
 }
 
 ipcRenderer.on("ff", (_e, t, arg) => {
@@ -426,7 +486,8 @@ function showControl() {
     document.getElementById("record_b").style.display = "none";
     document.getElementById("m").style.backgroundColor = "var(--bg)";
     document.getElementById("time").innerText = "";
-    document.querySelector("video").style.transform = "";
+    document.getElementById("video").style.transform = "";
+    segEl.remove();
     setVideo(0);
     document.querySelector("video").style.left = -rect[0] * ratio + "px";
     document.querySelector("video").style.top = -rect[1] * ratio + "px";
