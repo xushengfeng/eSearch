@@ -190,6 +190,22 @@ var 其他快捷键 = old_store.其他快捷键;
 
 (<HTMLInputElement>document.getElementById("按钮大小")).value = old_store.工具栏.按钮大小;
 (<HTMLInputElement>document.getElementById("按钮图标比例")).value = old_store.工具栏.按钮图标比例;
+(<HTMLInputElement>document.getElementById("tool_bar_left")).value = old_store.工具栏.初始位置.left;
+(<HTMLInputElement>document.getElementById("tool_bar_top")).value = old_store.工具栏.初始位置.top;
+document
+    .getElementById("tool_bar_posi_b")
+    .querySelectorAll("button")
+    .forEach((el, i) => {
+        el.onclick = () => {
+            let size = (<HTMLInputElement>document.getElementById("按钮大小")).value + "px";
+            let l: { left: string; top: string }[] = [
+                { left: "10px", top: "100px" },
+                { left: `calc(100vw - 10px - ${size} * 2 - 8px)`, top: "100px" },
+            ];
+            (<HTMLInputElement>document.getElementById("tool_bar_left")).value = l[i].left;
+            (<HTMLInputElement>document.getElementById("tool_bar_top")).value = l[i].top;
+        };
+    });
 
 (<HTMLInputElement>document.getElementById("显示四角坐标")).checked = old_store.显示四角坐标;
 
@@ -774,6 +790,10 @@ function saveSetting() {
     storeSet("工具栏", {
         按钮大小: (<HTMLInputElement>document.getElementById("按钮大小")).value,
         按钮图标比例: (<HTMLInputElement>document.getElementById("按钮图标比例")).value,
+        初始位置: {
+            left: (<HTMLInputElement>document.getElementById("tool_bar_left")).value,
+            top: (<HTMLInputElement>document.getElementById("tool_bar_top")).value,
+        },
     });
     storeSet("显示四角坐标", (<HTMLInputElement>document.getElementById("显示四角坐标")).checked);
     storeSet("取色器大小", (<HTMLInputElement>document.getElementById("取色器大小")).value);

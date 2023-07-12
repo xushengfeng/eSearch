@@ -71,6 +71,9 @@ function setSetting() {
 
     记忆框选 = store.get("框选.记忆.开启");
     记忆框选值 = store.get("框选.记忆.rects");
+
+    toolBar.style.left = store.get("工具栏.初始位置.left");
+    toolBar.style.top = store.get("工具栏.初始位置.top");
 }
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;
