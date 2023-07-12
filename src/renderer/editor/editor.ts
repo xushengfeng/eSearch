@@ -1700,6 +1700,7 @@ async function localOcr(
             dic: fs.readFileSync(字典).toString(),
             ...l[4],
             node: true,
+            detShape: [960, 960],
         });
         let img = document.createElement("img");
         img.src = "data:image/png;base64," + arg;
