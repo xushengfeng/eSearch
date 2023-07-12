@@ -949,6 +949,8 @@ function imageSearch(event: Electron.IpcMainEvent, arg) {
 }
 
 var recording = false;
+const recorderWinW = 240;
+const recorderWinH = 24;
 
 var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
 function createRecorderWindow(rect, screenx: { id: string; w: number; h: number; r: number }) {
@@ -958,8 +960,8 @@ function createRecorderWindow(rect, screenx: { id: string; w: number; h: number;
     rect = rect.map((v) => v / ratio);
     let hx = s.bounds.x + rect[0] + rect[2] / 2,
         hy = s.bounds.y + rect[1] + rect[3] / 2,
-        w = 240,
-        h = 24,
+        w = recorderWinW,
+        h = recorderWinH,
         sw = s.bounds.x + s.bounds.width * ratio,
         sh = s.bounds.y + s.bounds.height * ratio;
     let x = p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w,
@@ -1094,8 +1096,8 @@ ipcMain.on("record", (_event, type, arg) => {
                     // 摄像头关
                     recorder.setResizable(false);
                     recorder.setBounds({
-                        width: 216,
-                        height: 24,
+                        width: recorderWinW,
+                        height: recorderWinH,
                         x: recorder.getBounds().x,
                         y: recorder.getBounds().y,
                     });
