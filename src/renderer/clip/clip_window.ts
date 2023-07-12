@@ -600,6 +600,14 @@ hotkeys(store.get("其他快捷键.长截屏"), "normal", tool.long);
 hotkeys(store.get("其他快捷键.录屏"), "normal", tool.record);
 hotkeys(store.get("其他快捷键.复制"), "normal", tool.copy);
 hotkeys(store.get("其他快捷键.保存"), "normal", tool.save);
+let drawHotKey = ["line", "circle", "rect", "polyline", "polygon", "text", "number", "arrow"];
+for (let i of drawHotKey) {
+    hotkeys(store.get(`其他快捷键.${i}`), () => {
+        (<HTMLInputElement>document.getElementById(`draw_shapes_${i}`)).checked = true;
+        drawM(true);
+        clickDraw(`draw_shapes_${i}`);
+    });
+}
 
 var autoDo = store.get("框选后默认操作");
 if (autoDo != "no") {
@@ -2465,45 +2473,51 @@ function freeInit() {
 type shape = "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow" | "";
 var shape: shape = "";
 document.querySelectorAll("#draw_shapes_i > lock-b").forEach((el: HTMLInputElement) => {
-    el.oninput = () => {
-        document
-            .getElementById("draw_shapes_i")
-            .querySelectorAll("lock-b")
-            .forEach((iel: HTMLInputElement) => {
-                if (iel.id != el.id) iel.checked = false;
-            });
-
-        if (el.checked) {
-            shape = el.id.replace("draw_shapes_", "") as shape; // 根据元素id命名为shape赋值
-            if (store.get(`图像编辑.形状属性.${shape}`)) {
-                let f = store.get(`图像编辑.形状属性.${shape}.fc`);
-                let s = store.get(`图像编辑.形状属性.${shape}.sc`);
-                let op = {};
-                if (f) {
-                    op["fill"] = f;
-                    fillColor = f;
-                }
-                if (s) {
-                    op["stroke"] = s;
-                    fillColor = s;
-                }
-                changeColor(op, false, true);
-                let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
-                if (sw) {
-                    strokeWidth = sw;
-                    (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
-                }
-            }
-
-            exitFree();
-            exitFilter();
-            fabricCanvas.defaultCursor = "crosshair";
-            hotkeys.setScope("drawing_esc");
-        } else {
-            exitShape();
-        }
-    };
+    el.oninput = () => clickDraw(el.id);
 });
+function clickDraw(id: string) {
+    let el: HTMLInputElement;
+    document
+        .getElementById("draw_shapes_i")
+        .querySelectorAll("lock-b")
+        .forEach((iel: HTMLInputElement) => {
+            if (iel.id != id) {
+                iel.checked = false;
+            } else {
+                el = iel;
+            }
+        });
+
+    if (el.checked) {
+        shape = el.id.replace("draw_shapes_", "") as shape; // 根据元素id命名为shape赋值
+        if (store.get(`图像编辑.形状属性.${shape}`)) {
+            let f = store.get(`图像编辑.形状属性.${shape}.fc`);
+            let s = store.get(`图像编辑.形状属性.${shape}.sc`);
+            let op = {};
+            if (f) {
+                op["fill"] = f;
+                fillColor = f;
+            }
+            if (s) {
+                op["stroke"] = s;
+                fillColor = s;
+            }
+            changeColor(op, false, true);
+            let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
+            if (sw) {
+                strokeWidth = sw;
+                (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
+            }
+        }
+
+        exitFree();
+        exitFilter();
+        fabricCanvas.defaultCursor = "crosshair";
+        hotkeys.setScope("drawing_esc");
+    } else {
+        exitShape();
+    }
+}
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
     switch ((<HTMLElement>e.target).id) {
