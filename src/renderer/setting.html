@@ -80,7 +80,7 @@
                 <h3>
                     <t>工具栏跟随</t>
                 </h3>
-                <div id="工具栏跟随">
+                <div id="工具栏跟随" data-path="工具栏跟随">
                     <label><input type="radio" name="工具栏跟随" value="展示内容优先">
                         <t>展示内容优先</t>
                     </label>
@@ -93,16 +93,17 @@
                     <t>按钮大小</t>
                 </h3>
                 <t>按钮</t>
-                <range-b out="true" id="按钮大小" step="1" min="1" max="80" text="px"></range-b>
+                <range-b out="true" id="按钮大小" step="1" min="1" max="80" text="px" data-path="工具栏.按钮大小"></range-b>
                 </br>
                 <t>图标比例</t>
-                <range-b out="true" id="按钮图标比例" step="0.01" min="0.01" max="1" value="0.7"></range-b>
+                <range-b out="true" id="按钮图标比例" step="0.01" min="0.01" max="1" value="0.7"
+                    data-path="工具栏.按钮图标比例"></range-b>
 
                 <h3>
                     <t>位置</t>
                 </h3>
-                <input type="text" id="tool_bar_left">
-                <input type="text" id="tool_bar_top">
+                <input type="text" id="tool_bar_left" data-path="工具栏.初始位置.left">
+                <input type="text" id="tool_bar_top" data-path="工具栏.初始位置.top">
                 <div id="tool_bar_posi_b">
                     <button>
                         <t>左上</t>
@@ -121,17 +122,17 @@
                     <t>大小</t>
                 </h3>
                 <t>取色器大小</t>
-                <range-b out="true" id="取色器大小" step="2" min="1" max="31"></range-b>
+                <range-b out="true" id="取色器大小" step="2" min="1" max="31" data-path="取色器大小"></range-b>
                 </br>
                 <t>像素大小</t>
-                <range-b out="true" id="像素大小" min="1" max="10" text="px"></range-b>
+                <range-b out="true" id="像素大小" min="1" max="10" text="px" data-path="像素大小"></range-b>
                 <div class="point_color_f">
                     <div id="point_color"></div>
                 </div>
                 <h3>
                     <t>默认格式</t>
                 </h3>
-                <div id="取色器默认格式">
+                <div id="取色器默认格式" data-path="取色器默认格式">
                     <label><input type="radio" name="取色器默认格式" value="HEX">HEX</label>
                     <label><input type="radio" name="取色器默认格式" value="RGB">RGB</label>
                     <label><input type="radio" name="取色器默认格式" value="HSL">HSL</label>
@@ -148,14 +149,14 @@
                     <t>框选颜色</t>
                 </h3>
                 <t>遮罩颜色</t>
-                <div id="遮罩颜色"><span></span><input type="text" spellcheck="false"></div>
+                <div id="遮罩颜色"><span></span><input type="text" spellcheck="false" data-path="遮罩颜色"></div>
                 <t>选区颜色</t>
-                <div id="选区颜色"><span></span><input type="text" spellcheck="false"></div>
+                <div id="选区颜色"><span></span><input type="text" spellcheck="false" data-path="选区颜色"></div>
 
                 <h3>
                     <t>光标</t>
                 </h3>
-                <div id="光标">
+                <div id="光标" data-path="光标">
                     <label><input type="radio" name="光标" value="以(0,0)为起点">
                         <t>以(0,0)为起点</t>
                     </label>
@@ -168,7 +169,7 @@
                     <t>大小坐标</t>
                 </h3>
                 <label>
-                    <input type="checkbox" id="显示四角坐标">
+                    <input type="checkbox" id="显示四角坐标" data-path="显示四角坐标">
                     <t>显示四角坐标</t>
                 </label>
                 <comment>
@@ -181,7 +182,7 @@
                 <comment>
                     <t>框选完鼠标松开一瞬间，执行操作</t>
                 </comment>
-                <div id="框选后默认操作">
+                <div id="框选后默认操作" data-path="框选后默认操作">
                     <label><input type="radio" name="框选后默认操作" value="no">
                         <t>无</t>
                     </label>
@@ -221,12 +222,12 @@
                     <t>自动框选</t>
                 </h3>
                 <label>
-                    <input type="checkbox" id="自动框选">
+                    <input type="checkbox" id="自动框选" data-path="框选.自动框选.开启">
                     <t>启用自动框选</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="自动框选图像识别">
+                    <input type="checkbox" id="自动框选图像识别" data-path="框选.图像识别">
                     <t>启用图像识别</t>
                     <comment>
                         <t>使用OpenCV自动识别边缘轮廓</t>
@@ -237,17 +238,17 @@
                         <t>边缘识别高级设置</t>
                     </summary>
                     <t>最小阈值</t>
-                    <range-b out="true" id="框选最小阈值" min="0" max="255"></range-b>
+                    <range-b out="true" id="框选最小阈值" min="0" max="255" data-path="框选.自动框选.最小阈值"></range-b>
                     <br>
                     <t>最大阈值</t>
-                    <range-b out="true" id="框选最大阈值" min="0" max="255"></range-b>
+                    <range-b out="true" id="框选最大阈值" min="0" max="255" data-path="框选.自动框选.最大阈值"></range-b>
                 </details>
 
                 <h3>
                     <t>记住框选大小</t>
                 </h3>
                 <label>
-                    <input type="checkbox" id="记住框选大小">
+                    <input type="checkbox" id="记住框选大小" data-path="框选.记忆.开启">
                     <t>记住框选大小</t>
                 </label>
 
@@ -259,17 +260,17 @@
                 <h3>
                     <t>默认属性</t>
                 </h3>
-                <t>填充颜色</t><input id="填充颜色" type="text" spellcheck="false">
+                <t>填充颜色</t><input id="填充颜色" type="text" spellcheck="false" data-path="图像编辑.默认属性.填充颜色">
                 <br>
-                <t>边框颜色</t><input id="边框颜色" type="text" spellcheck="false">
+                <t>边框颜色</t><input id="边框颜色" type="text" spellcheck="false" data-path="图像编辑.默认属性.边框颜色">
                 <br>
                 <t>边框宽度</t>
-                <range-b out="true" id="边框宽度" min="0" max="20" text="px"></range-b>
+                <range-b out="true" id="边框宽度" min="0" max="20" text="px" data-path="图像编辑.默认属性.边框宽度"></range-b>
                 <br>
-                <t>画笔颜色</t><input id="画笔颜色" type="text" spellcheck="false">
+                <t>画笔颜色</t><input id="画笔颜色" type="text" spellcheck="false" data-path="图像编辑.默认属性.画笔颜色">
                 <br>
                 <t>画笔粗细</t>
-                <range-b out="true" id="画笔粗细" min="0" max="20" text="px"></range-b>
+                <range-b out="true" id="画笔粗细" min="0" max="20" text="px" data-path="图像编辑.默认属性.画笔粗细"></range-b>
 
                 <h3>
                     <t>复制偏移</t>
@@ -279,10 +280,10 @@
                 </comment>
                 <br>
                 <t>x轴</t>
-                <range-b out="true" id="复制dx" min="0" max="50" text="px"></range-b>
+                <range-b out="true" id="复制dx" min="0" max="50" text="px" data-path="图像编辑.复制偏移.x"></range-b>
                 <br>
                 <t>y轴</t>
-                <range-b out="true" id="复制dy" min="0" max="50" text="px"></range-b>
+                <range-b out="true" id="复制dy" min="0" max="50" text="px" data-path="图像编辑.复制偏移.y"></range-b>
 
 
                 <h2>
@@ -299,7 +300,7 @@
                 </h2>
 
                 <t>保存到</t>
-                <div id="快速截屏">
+                <div id="快速截屏" data-path="快速截屏.模式">
                     <label><input type="radio" name="快速截屏" value="clip">
                         <t>剪贴板</t>
                     </label>
@@ -325,7 +326,7 @@
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" checked id="离线切换">
+                    <input type="checkbox" checked id="离线切换" data-path="OCR.离线切换">
                     <t>离线时切换离线OCR</t>
                 </label>
 
@@ -350,7 +351,7 @@
                     <comment>
                         <t>位置版不起实质效果，但可以扩充免费使用次数:)</t>
                     </comment>
-                    <div id="baidu_ocr_url">
+                    <div id="baidu_ocr_url" data-path="在线OCR.baidu.url">
                         <label><input type="radio" name="baidu_ocr_url"
                                 value="https://aip.baidubce.com/rest/2.0/ocr/v1/formula">
                             <t>公式</t>
@@ -376,17 +377,19 @@
                             <t>高精度版</t>
                         </label>
                     </div>
-                    <t>API Key：</t><input type="text" spellcheck="false" id="baidu_ocr_id">
+                    <t>API Key：</t><input type="text" spellcheck="false" id="baidu_ocr_id" data-path="在线OCR.baidu.id">
                     <br>
-                    <t>Secret Key：</t><input type="text" spellcheck="false" id="baidu_ocr_secret">
+                    <t>Secret Key：</t><input type="text" spellcheck="false" id="baidu_ocr_secret"
+                        data-path="在线OCR.baidu.secret">
                 </details>
                 <details id="youdao_details">
                     <summary>
                         <t>有道</t>
                     </summary>
-                    <t>应用ID：</t><input type="text" spellcheck="false" id="youdao_ocr_id">
+                    <t>应用ID：</t><input type="text" spellcheck="false" id="youdao_ocr_id" data-path="在线OCR.youdao.id">
                     <br>
-                    <t>应用秘钥：</t><input type="text" spellcheck="false" id="youdao_ocr_secret">
+                    <t>应用秘钥：</t><input type="text" spellcheck="false" id="youdao_ocr_secret"
+                        data-path="在线OCR.youdao.secret">
                 </details>
             </div>
 
@@ -412,51 +415,51 @@
                     <t>录制</t>
                 </h2>
                 <t>视频比特率</t>
-                <range-b out="true" id="视频比特率" min="1" max="40" text="Mbps" step="0.5"></range-b>
+                <range-b out="true" id="视频比特率" min="1" max="40" text="Mbps" step="0.5" data-path="录屏.视频比特率"></range-b>
 
                 <h2>
                     <t>提示</t>
                 </h2>
                 <label>
-                    <input type="checkbox" id="开启键盘按键提示">
+                    <input type="checkbox" id="开启键盘按键提示" data-path="录屏.提示.键盘.开启">
                     <t>开启键盘按键提示</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="开启鼠标按键提示">
+                    <input type="checkbox" id="开启鼠标按键提示" data-path="录屏.提示.鼠标.开启">
                     <t>开启鼠标按键提示</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="开启光标提示">
+                    <input type="checkbox" id="开启光标提示" data-path="录屏.提示.光标.开启">
                     <t>开启光标提示</t>
                 </label>
                 <h3>
                     <t>光标提示样式</t>
                 </h3>
                 <textarea id="cursor_css" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                    placeholder="background-color: #ff08;"></textarea>
+                    placeholder="background-color: #ff08;" data-path="录屏.提示.光标.样式"></textarea>
 
                 <h2>
                     <t>摄像头</t>
                 </h2>
                 <label>
-                    <input type="checkbox" id="默认开启摄像头">
+                    <input type="checkbox" id="默认开启摄像头" data-path="录屏.摄像头.默认开启">
                     <t>默认开启</t>
                 </label>
                 <label>
-                    <input type="checkbox" id="记录摄像头开启状态">
+                    <input type="checkbox" id="记录摄像头开启状态" data-path="录屏.摄像头.记住开启状态">
                     <t>记录开启状态</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="摄像头镜像">
+                    <input type="checkbox" id="摄像头镜像" data-path="录屏.摄像头.镜像">
                     <t>镜像</t>
                 </label>
                 <h3>
                     <t>背景</t>
                 </h3>
-                <div id="seg">
+                <div id="seg" data-path="录屏.摄像头.背景.模式">
                     <label><input type="radio" name="seg" value="none">
                         <t>正常</t>
                     </label>
@@ -466,19 +469,21 @@
                     <label><input type="radio" name="seg" value="blur">
                         <t>模糊</t>
                         <range-b out="true" id="seg_blur" min="1" max="120" step="1" text="px"
-                            style="display: inline-flex;"></range-b>
+                            style="display: inline-flex;" data-path="录屏.摄像头.背景.模糊"></range-b>
                     </label>
                     <label><input type="radio" name="seg" value="img">
                         <t>图片</t>
-                        <input type="text" name="seg_img_url" id="seg_img_url" placeholder="url">
+                        <input type="text" name="seg_img_url" id="seg_img_url" placeholder="url"
+                            data-path="录屏.摄像头.背景.imgUrl">
                     </label>
                     <label><input type="radio" name="seg" value="video">
                         <t>视频</t>
-                        <input type="text" name="seg_video_url" id="seg_video_url" placeholder="url">
+                        <input type="text" name="seg_video_url" id="seg_video_url" placeholder="url"
+                            data-path="录屏.摄像头.背景.videoUrl">
                     </label>
                 </div>
                 <t>图片或视频填充模式</t>
-                <div id="seg_fit">
+                <div id="seg_fit" data-path="录屏.摄像头.背景.fit">
                     <label><input type="radio" name="seg_fit" value="contain">contain</label>
                     <label><input type="radio" name="seg_fit" value="cover">cover</label>
                     <label><input type="radio" name="seg_fit" value="fill">fill</label>
@@ -491,11 +496,11 @@
                     <t>音频</t>
                 </h2>
                 <label>
-                    <input type="checkbox" id="默认开启音频">
+                    <input type="checkbox" id="默认开启音频" data-path="录屏.音频.默认开启">
                     <t>默认开启</t>
                 </label>
                 <label>
-                    <input type="checkbox" id="记录音频开启状态">
+                    <input type="checkbox" id="记录音频开启状态" data-path="录屏.音频.记住开启状态">
                     <t>记录开启状态</t>
                 </label>
 
@@ -509,25 +514,25 @@
                     <t>自动转换</t>
                 </h3>
                 <label>
-                    <input type="checkbox" id="开启自动转换">
+                    <input type="checkbox" id="开启自动转换" data-path="录屏.转换.自动转换">
                     <t>开启自动转换</t>
                 </label>
                 <br>
-                <t>分段转换间隔时间</t><input type="number" name="分段" id="分段">s
+                <t>分段转换间隔时间</t><input type="number" name="分段" id="分段" data-path="录屏.转换.分段">s
                 <comment>
                     <t>（边录制边转换以提升效率，0为不分段）</t>
                 </comment>
                 <br>
-                <t>输出格式</t><input id="格式" type="text" spellcheck="false" name="格式">
+                <t>输出格式</t><input id="格式" type="text" spellcheck="false" name="格式" data-path="录屏.转换.格式">
                 <br>
-                <t>码率</t><input type="number" name="码率" id="码率">Mbps
+                <t>码率</t><input type="number" name="码率" id="码率" data-path="录屏.转换.码率">Mbps
                 <br>
-                <t>帧率</t><input type="number" name="帧率" id="帧率">
+                <t>帧率</t><input type="number" name="帧率" id="帧率" data-path="录屏.转换.帧率">
                 <br>
-                <t>其他参数</t><input type="text" name="其他参数" id="ff其他参数">
+                <t>其他参数</t><input type="text" name="其他参数" id="ff其他参数" data-path="录屏.转换.其他">
                 <h3>Gif</h3>
                 <label>
-                    <input type="checkbox" id="高质量gif">
+                    <input type="checkbox" id="高质量gif" data-path="录屏.转换.高质量gif">
                     <t>高质量 Gif</t>
                     <comment>
                         <t>（转换时速度会很慢）</t>
@@ -542,10 +547,10 @@
                     <t>保存</t>
                 </h1>
 
-                <t>文件名称</t><input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false"
-                    style="width: 1em;"><input type="text" name="保存文件名称时间" id="保存文件名称时间" placeholder="{时间}"
-                    spellcheck="false"><input type="text" name="保存文件名称后缀" id="保存文件名称后缀" style="width: 1em;"
-                    spellcheck="false">
+                <t>文件名称</t><input type="text" name="保存文件名称前缀" id="保存文件名称前缀" spellcheck="false" style="width: 1em;"
+                    data-path="保存名称.前缀"><input type="text" name="保存文件名称时间" id="保存文件名称时间" placeholder="{时间}"
+                    spellcheck="false" data-path="保存名称.时间"><input type="text" name="保存文件名称后缀" id="保存文件名称后缀"
+                    style="width: 1em;" spellcheck="false" data-path="保存名称.后缀">
                 <p>
                     <t>预览:</t>
                 </p>
@@ -575,14 +580,14 @@
                 <h2>
                     <t>默认格式</t>
                 </h2>
-                <div id="默认格式">
+                <div id="默认格式" data-path="保存.默认格式">
                     <label><input type="radio" name="默认格式" value="svg">svg</label>
                     <label><input type="radio" name="默认格式" value="jpg">jpg</label>
                     <label><input type="radio" name="默认格式" value="png">png</label>
                 </div>
                 <br>
                 <t>jpg质量</t>
-                <range-b out="true" id="jpg质量" min="0" max="1.00" step="0.01"></range-b>
+                <range-b out="true" id="jpg质量" min="0" max="1.00" step="0.01" data-path="jpg质量"></range-b>
 
                 <h2>
                     <t>快速保存</t>
@@ -592,7 +597,7 @@
                 </comment>
                 <br>
                 <label>
-                    <input type="checkbox" id="快速保存">
+                    <input type="checkbox" id="快速保存" data-path="保存.快速保存">
                     <t>启用快速保存</t>
                 </label>
 
@@ -610,7 +615,7 @@
                 <comment>
                     <t>设定双击窗口行为</t>
                 </comment>
-                <div id="贴图双击">
+                <div id="贴图双击" data-path="贴图.窗口.双击">
                     <label><input type="radio" name="贴图双击" value="归位">归位</label>
                     <label><input type="radio" name="贴图双击" value="关闭">关闭</label>
                 </div>
@@ -622,7 +627,7 @@
                     <t>变换使用 CSS 代码</t>
                 </comment>
                 <textarea id="tran_css" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                    placeholder="transform: rotateY(180deg);"></textarea>
+                    placeholder="transform: rotateY(180deg);" data-path="贴图.窗口.变换"></textarea>
             </div>
 
 
@@ -645,17 +650,17 @@
                     <t>更多</t>
                 </h2>
                 <label>
-                    <input type="checkbox" id="换行">
+                    <input type="checkbox" id="换行" data-path="编辑器.自动换行">
                     <t>自动换行</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="拼写检查">
+                    <input type="checkbox" id="拼写检查" data-path="编辑器.拼写检查">
                     <t>拼写检查</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="行号">
+                    <input type="checkbox" id="行号" data-path="编辑器.行号">
                     <t>行号</t>
                 </label>
 
@@ -672,8 +677,8 @@
                 <label>
                     <input type="checkbox" name="" id="清除历史记录">
                     <t>自动清除历史记录</t>
-                </label> <input type="number" min="0" id="his_d">
-                <t>天</t> <input type="number" min="1" id="his_h">
+                </label> <input type="number" min="0" id="his_d" data-path="历史记录设置.d">
+                <t>天</t> <input type="number" min="1" id="his_h" data-path="历史记录设置.h">
                 <t>小时</t>
                 <br>
                 <button id="clear_his">
@@ -683,7 +688,7 @@
                 <h3>
                     <t>日期格式</t>
                 </h3>
-                <input type="text" id="时间格式" placeholder="时间格式" spellcheck="false">
+                <input type="text" id="时间格式" placeholder="时间格式" spellcheck="false" data-path="时间格式">
 
 
                 <h2>
@@ -691,7 +696,7 @@
                 </h2>
 
                 <label>
-                    <input type="checkbox" name="" id="主页面失焦">
+                    <input type="checkbox" name="" id="主页面失焦" data-path="关闭窗口.失焦.主页面">
                     <t>失去焦点后自动关闭编辑器</t>
                 </label>
             </div>
@@ -706,7 +711,7 @@
                     <t>自动</t>
                 </h2>
                 <label>
-                    <input type="checkbox" id="自动搜索">
+                    <input type="checkbox" id="自动搜索" data-path="自动搜索">
                     <t>自动搜索</t>
                 </label>
                 <comment>
@@ -714,7 +719,7 @@
                 </comment>
                 </br>
                 <label>
-                    <input type="checkbox" id="自动打开链接">
+                    <input type="checkbox" id="自动打开链接" data-path="自动打开链接">
                     <t>自动打开链接</t>
                 </label>
                 </br>
@@ -722,7 +727,7 @@
                 <comment>
                     <t>（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）</t>
                 </comment>
-                <range-b out="true" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01"></range-b>
+                <range-b out="true" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01" data-path="自动搜索中文占比"></range-b>
 
                 <h2>
                     <t>文字搜索引擎</t>
@@ -753,7 +758,7 @@
                 <h2>
                     <t>图像搜索引擎</t>
                 </h2>
-                <div id="图像搜索引擎">
+                <div id="图像搜索引擎" data-path="以图搜图.引擎">
                     <label><input type="radio" name="图像搜索引擎" value="google">Google</label>
                     <label><input type="radio" name="图像搜索引擎" value="yandex">Yandex</label>
                     <label><input type="radio" name="图像搜索引擎" value="baidu">
@@ -769,7 +774,7 @@
                     <t>浏览器中打开</t>
                 </h2>
                 <label>
-                    <input type="checkbox" id="浏览器中打开">
+                    <input type="checkbox" id="浏览器中打开" data-path="浏览器中打开">
                     <t>浏览器中打开</t>
                 </label>
                 <comment>
@@ -777,12 +782,12 @@
                 </comment>
                 <br>
                 <label>
-                    <input type="checkbox" id="搜索窗口自动关闭">
+                    <input type="checkbox" id="搜索窗口自动关闭" data-path="浏览器.标签页.自动关闭">
                     <t>浏览器打开后自动关闭标签页</t>
                 </label>
                 <br>
                 <label>
-                    <input type="checkbox" id="标签缩小">
+                    <input type="checkbox" id="标签缩小" data-path="浏览器.标签页.小">
                     <t>标签缩小</t>
                 </label>
                 <comment>
@@ -790,7 +795,7 @@
                 </comment>
                 <br>
                 <label>
-                    <input type="checkbox" id="标签灰度">
+                    <input type="checkbox" id="标签灰度" data-path="浏览器.标签页.灰度">
                     <t>标签图标灰度</t>
                 </label>
                 <comment>
@@ -825,7 +830,7 @@
                     <t>启动提示</t>
                 </h3>
                 <label>
-                    <input type="checkbox" id="启动提示">
+                    <input type="checkbox" id="启动提示" data-path="启动提示">
                     <t>启动时系统通知提示启动</t>
                 </label>
 
@@ -840,7 +845,7 @@
                 <button id="语言重启">
                     <t>重启软件以生效</t>
                 </button>
-                <div id="语言">
+                <div id="语言" data-path="语言.语言">
                     <label><input type="radio" name="语言" value="zh-HANS">简体中文</label>
                     <label><input type="radio" name="语言" value="zh-HANT">繁体中文</label>
                     <label><input type="radio" name="语言" value="en">English</label>
@@ -985,7 +990,7 @@
                         <t>剪贴板搜索</t>
                     </h2>
                     <label>
-                        <input type="checkbox" id="剪贴板选区搜索">
+                        <input type="checkbox" id="剪贴板选区搜索" data-path="主搜索功能.剪贴板选区搜索">
                         <t>使用选区内容</t>
                     </label>
                 </div>
@@ -998,7 +1003,7 @@
                     <t>毛玻璃效果</t>
                 </h3>
                 <t>模糊</t>
-                <range-b out="true" id="模糊" step="1" min="0" max="50" text="px"></range-b>
+                <range-b out="true" id="模糊" step="1" min="0" max="50" text="px" data-path="全局.模糊"></range-b>
                 <br>
                 <t>不透明度</t>
                 <range-b out="true" id="不透明度" step="1" min="0" max="100" text="%"></range-b>
@@ -1010,7 +1015,7 @@
                 <h3>
                     <t>深色模式</t>
                 </h3>
-                <div id="深色模式">
+                <div id="深色模式" data-path="全局.深色模式">
                     <label><input type="radio" name="深色模式" value="system">
                         <t>跟随系统</t>
                     </label>
@@ -1025,7 +1030,7 @@
                 <h3>
                     <t>全局缩放</t>
                 </h3>
-                <range-b out="true" min="0.1" max="3" id="全局缩放" step="0.05"></range-b>
+                <range-b out="true" min="0.1" max="3" id="全局缩放" step="0.05" data-path="全局.缩放"></range-b>
 
                 <h3>
                     <t>字体</t>
@@ -1034,27 +1039,27 @@
                 <comment>
                     <t>（适用于主页面等文字字体）</t>
                 </comment>
-                <div id="主要字体"><input type="text" spellcheck="false"></div>
+                <div id="主要字体"><input type="text" spellcheck="false" data-path="字体.主要字体"></div>
                 <t>等宽字体</t>
                 <comment>
                     <t>（适用于截屏时数字、颜色代码等字体）</t>
                 </comment>
-                <div id="等宽字体"><input type="text" spellcheck="false"></div>
+                <div id="等宽字体"><input type="text" spellcheck="false" data-path="字体.等宽字体"></div>
 
                 <h3>
                     <t>图标颜色</t>
                 </h3>
                 <t>浅色模式</t>
-                <div id="图标颜色"><span></span><input type="text" spellcheck="false"></div>
+                <div id="图标颜色"><span></span><input type="text" spellcheck="false" data-path="全局.图标颜色.0"></div>
                 <t>深色模式</t>
-                <div id="图标颜色1"><span></span><input type="text" spellcheck="false"></div>
+                <div id="图标颜色1"><span></span><input type="text" spellcheck="false" data-path="全局.图标颜色.2"></div>
 
 
                 <h2>
                     <t>代理</t>
                 </h2>
 
-                <div id="代理">
+                <div id="代理" data-path="代理.mode">
                     <label><input type="radio" name="代理" value="system">系统代理</label>
                     <label><input type="radio" name="代理" value="fixed_servers">固定服务器</label>
                     <label><input type="radio" name="代理" value="pac_script">PAC脚本</label>
@@ -1064,7 +1069,7 @@
                 </br>
                 <div id="pacScript_p">
                     <t>PAC URL：</t>
-                    <input type="text" spellcheck="false" id="pacScript">
+                    <input type="text" spellcheck="false" id="pacScript" data-path="代理.pacScript">
                 </div>
                 <div id="proxyRules_p">
                     <t>HTTP：</t>
@@ -1081,7 +1086,7 @@
                 </div>
                 <div id="proxyBypassRules_p">
                     <t>排除规则：</t>
-                    <input type="text" spellcheck="false" id="proxyBypassRules">
+                    <input type="text" spellcheck="false" id="proxyBypassRules" data-path="代理.proxyBypassRules">
                 </div>
             </div>
 
@@ -1120,7 +1125,7 @@
                     <t>硬件加速</t>
                 </h2>
                 <label>
-                    <input type="checkbox" name="" id="硬件加速">
+                    <input type="checkbox" name="" id="硬件加速" data-path="硬件加速">
                     <t>启用硬件加速</t>
                 </label>
                 <comment>
@@ -1130,14 +1135,14 @@
                 <h2>
                     <t>检查更新</t>
                 </h2>
-                <div id="检查更新频率">
+                <div id="检查更新频率" data-path="更新.频率">
                     <label><input type="radio" name="检查更新频率" value="manual">手动检查</label>
                     <label><input type="radio" name="检查更新频率" value="setting">设置启动时检查</label>
                     <label><input type="radio" name="检查更新频率" value="weekly">每周检查</label>
                     <label><input type="radio" name="检查更新频率" value="start">启动时检查</label>
                 </div>
                 <label>
-                    <input type="checkbox" name="" id="dev">
+                    <input type="checkbox" name="" id="dev" data-path="更新.dev">
                     <t>检查测试版更新</t>
                 </label>
 

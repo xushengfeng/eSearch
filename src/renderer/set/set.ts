@@ -29,6 +29,12 @@ function storeSet(path: string, value: any) {
     const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
     lastobj[lastp] = value;
 }
+function storeGet(path: string) {
+    let pathx = path.split(".");
+    const lastp = pathx.pop();
+    const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
+    return lastobj[lastp];
+}
 
 let store = { path: path.join(configPath, "config.json") };
 let historyStore = { path: path.join(configPath, "history.json") };
@@ -57,6 +63,38 @@ document.getElementById("menu").onclick = (e) => {
         document.getElementsByTagName("html")[0].scrollTop = document.querySelectorAll("h1")[i].offsetTop;
     }
 };
+
+document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
+    const path = el.getAttribute("data-path");
+    let value = storeGet(path);
+    if (el.tagName == "RANGE-B") {
+        // range-b
+        (el as HTMLInputElement).value = value;
+        (el as HTMLInputElement).oninput = () => {
+            storeSet(path, (el as HTMLInputElement).value);
+        };
+    } else if (el.tagName == "input") {
+        let iel = el as HTMLInputElement;
+        if (iel.type == "checkbox") {
+            iel.checked = value;
+            iel.oninput = () => {
+                storeSet(path, iel.checked);
+            };
+        } else {
+            iel.value = value;
+            iel.oninput = () => {
+                storeSet(path, iel.value);
+            };
+        }
+    } else {
+        if (el.querySelector("input[type=radio]")) {
+            setRadio(el, value);
+            el.onclick = () => {
+                storeSet(path, getRadio(el));
+            };
+        }
+    }
+});
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (_event, v) => {
@@ -113,10 +151,8 @@ if (process.platform == "linux") {
 
 var 全局 = old_store.全局;
 
-setRadio(document.getElementById("深色模式"), old_store.全局.深色模式);
 document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", getRadio(document.getElementById("深色模式")));
-    storeSet("全局.深色模式", getRadio(document.getElementById("深色模式")));
 };
 
 var 模糊 = old_store.全局.模糊;
@@ -125,7 +161,6 @@ if (模糊 != 0) {
 } else {
     document.documentElement.style.setProperty("--blur", `none`);
 }
-(<HTMLInputElement>document.getElementById("模糊")).value = 模糊;
 document.getElementById("模糊").oninput = () => {
     var 模糊 = (<HTMLInputElement>document.getElementById("模糊")).value;
     if (Number(模糊) != 0) {
@@ -141,16 +176,6 @@ document.getElementById("不透明度").oninput = () => {
     var 不透明度 = (<HTMLInputElement>document.getElementById("不透明度")).value;
     document.documentElement.style.setProperty("--alpha", String(Number(不透明度) / 100));
 };
-
-(<HTMLInputElement>document.getElementById("全局缩放")).value = old_store.全局.缩放;
-
-// 单选项目设置加载
-function 选择器储存(id, 默认) {
-    setRadio(document.querySelector(`#${id}`), old_store[id] || 默认);
-    (<HTMLElement>document.querySelector(`#${id}`)).onclick = () => {
-        storeSet(id, getRadio(<HTMLInputElement>document.querySelector(`#${id}`)));
-    };
-}
 
 var 快捷键 = old_store.快捷键;
 document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
@@ -184,14 +209,6 @@ var 其他快捷键 = old_store.其他快捷键;
 (<HTMLInputElement>document.querySelector('hot-keys[name="number"')).value = 其他快捷键.number;
 (<HTMLInputElement>document.querySelector('hot-keys[name="arrow"')).value = 其他快捷键.arrow;
 
-选择器储存("工具栏跟随", "展示内容优先");
-选择器储存("光标", "以(1,1)为起点");
-选择器储存("取色器默认格式", "HEX");
-
-(<HTMLInputElement>document.getElementById("按钮大小")).value = old_store.工具栏.按钮大小;
-(<HTMLInputElement>document.getElementById("按钮图标比例")).value = old_store.工具栏.按钮图标比例;
-(<HTMLInputElement>document.getElementById("tool_bar_left")).value = old_store.工具栏.初始位置.left;
-(<HTMLInputElement>document.getElementById("tool_bar_top")).value = old_store.工具栏.初始位置.top;
 document
     .getElementById("tool_bar_posi_b")
     .querySelectorAll("button")
@@ -210,8 +227,6 @@ document
 (<HTMLInputElement>document.getElementById("显示四角坐标")).checked = old_store.显示四角坐标;
 
 // 取色器设置
-(<HTMLInputElement>document.getElementById("取色器大小")).value = old_store.取色器大小;
-(<HTMLInputElement>document.getElementById("像素大小")).value = old_store.像素大小;
 document.getElementById("取色器大小").oninput = () => {
     if (Number((<HTMLInputElement>document.getElementById("取色器大小")).value) % 2 == 0) {
         (<HTMLInputElement>document.getElementById("取色器大小")).value = String(
@@ -256,8 +271,6 @@ function msk(t: string) {
 }
 (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background = msk(old_store.遮罩颜色);
 (<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background = msk(old_store.选区颜色);
-(<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value = old_store.遮罩颜色;
-(<HTMLInputElement>document.querySelector("#选区颜色 > input")).value = old_store.选区颜色;
 (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).oninput = () => {
     (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background = msk(
         (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value
@@ -269,12 +282,6 @@ function msk(t: string) {
     );
 };
 
-setRadio(document.getElementById("框选后默认操作"), old_store.框选后默认操作);
-
-(<HTMLInputElement>document.getElementById("自动框选")).checked = old_store.框选.自动框选.开启;
-(<HTMLInputElement>document.getElementById("自动框选图像识别")).checked = old_store.框选.图像识别;
-(<HTMLInputElement>document.getElementById("框选最小阈值")).value = old_store.框选.自动框选.最小阈值;
-(<HTMLInputElement>document.getElementById("框选最大阈值")).value = old_store.框选.自动框选.最大阈值;
 document.getElementById("框选最小阈值").oninput = () => {
     if (
         (<HTMLInputElement>document.getElementById("框选最小阈值")).value >
@@ -296,17 +303,6 @@ document.getElementById("框选最大阈值").oninput = () => {
     }
 };
 
-(<HTMLInputElement>document.getElementById("记住框选大小")).checked = old_store.框选.记忆.开启;
-
-(<HTMLInputElement>document.getElementById("填充颜色")).value = old_store.图像编辑.默认属性.填充颜色;
-(<HTMLInputElement>document.getElementById("边框颜色")).value = old_store.图像编辑.默认属性.边框颜色;
-(<HTMLInputElement>document.getElementById("边框宽度")).value = old_store.图像编辑.默认属性.边框宽度;
-(<HTMLInputElement>document.getElementById("画笔颜色")).value = old_store.图像编辑.默认属性.画笔颜色;
-(<HTMLInputElement>document.getElementById("画笔粗细")).value = old_store.图像编辑.默认属性.画笔粗细;
-
-(<HTMLInputElement>document.getElementById("复制dx")).value = old_store.图像编辑.复制偏移.x;
-(<HTMLInputElement>document.getElementById("复制dy")).value = old_store.图像编辑.复制偏移.y;
-
 (<HTMLInputElement>document.getElementById("plugin")).value = old_store.插件.加载后.join("\n");
 document.getElementById("plugin_b").onclick = () => {
     ipcRenderer.send(
@@ -317,11 +313,6 @@ document.getElementById("plugin_b").onclick = () => {
     );
 };
 
-(<HTMLInputElement>document.getElementById("tran_css")).value = old_store.贴图.窗口.变换;
-setRadio(document.getElementById("贴图双击"), old_store.贴图.窗口.双击);
-
-setRadio(document.getElementById("快速截屏"), old_store.快速截屏.模式);
-(<HTMLInputElement>document.getElementById("快速截屏路径")).value = old_store.快速截屏.路径;
 document.getElementById("获取保存路径").onclick = () => {
     ipcRenderer.send("get_save_path", (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "");
     ipcRenderer.on("get_save_path", (_e, a) => {
@@ -331,35 +322,7 @@ document.getElementById("获取保存路径").onclick = () => {
 
 (<HTMLInputElement>document.getElementById("开启自动录制")).checked = old_store.录屏.自动录制 !== false;
 (<HTMLInputElement>document.getElementById("自动录制延时")).value = old_store.录屏.自动录制 || 0;
-(<HTMLInputElement>document.getElementById("视频比特率")).value = old_store.录屏.视频比特率;
-(<HTMLInputElement>document.getElementById("默认开启摄像头")).checked = old_store.录屏.摄像头.默认开启;
-(<HTMLInputElement>document.getElementById("记录摄像头开启状态")).checked = old_store.录屏.摄像头.记住开启状态;
-(<HTMLInputElement>document.getElementById("摄像头镜像")).checked = old_store.录屏.摄像头.镜像;
-setRadio(document.getElementById("seg"), old_store.录屏.摄像头.背景.模式);
-(<HTMLInputElement>document.getElementById("seg_blur")).value = old_store.录屏.摄像头.背景.模糊;
-(<HTMLInputElement>document.getElementById("seg_img_url")).value = old_store.录屏.摄像头.背景.imgUrl;
-(<HTMLInputElement>document.getElementById("seg_video_url")).value = old_store.录屏.摄像头.背景.videoUrl;
-setRadio(document.getElementById("seg_fit"), old_store.录屏.摄像头.背景.fit);
 
-(<HTMLInputElement>document.getElementById("默认开启音频")).checked = old_store.录屏.音频.默认开启;
-(<HTMLInputElement>document.getElementById("记录音频开启状态")).checked = old_store.录屏.音频.记住开启状态;
-
-(<HTMLInputElement>document.getElementById("开启自动转换")).checked = old_store.录屏.转换.自动转换;
-(<HTMLInputElement>document.getElementById("分段")).value = old_store.录屏.转换.分段;
-(<HTMLInputElement>document.getElementById("格式")).value = old_store.录屏.转换.格式;
-(<HTMLInputElement>document.getElementById("码率")).value = old_store.录屏.转换.码率;
-(<HTMLInputElement>document.getElementById("帧率")).value = old_store.录屏.转换.帧率;
-(<HTMLInputElement>document.getElementById("ff其他参数")).value = old_store.录屏.转换.其他;
-(<HTMLInputElement>document.getElementById("高质量gif")).checked = old_store.录屏.转换.高质量gif;
-
-(<HTMLInputElement>document.getElementById("开启键盘按键提示")).checked = old_store.录屏.提示.键盘.开启;
-(<HTMLInputElement>document.getElementById("开启鼠标按键提示")).checked = old_store.录屏.提示.鼠标.开启;
-(<HTMLInputElement>document.getElementById("开启光标提示")).checked = old_store.录屏.提示.光标.开启;
-(<HTMLInputElement>document.getElementById("cursor_css")).value = old_store.录屏.提示.光标.样式;
-
-(<HTMLInputElement>document.getElementById("保存文件名称前缀")).value = old_store.保存名称.前缀;
-(<HTMLInputElement>document.getElementById("保存文件名称时间")).value = old_store.保存名称.时间;
-(<HTMLInputElement>document.getElementById("保存文件名称后缀")).value = old_store.保存名称.后缀;
 document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
     let el = <HTMLInputElement>e.target;
     el.style.width = `${el.value.length || 1}em`;
@@ -383,19 +346,9 @@ document.getElementById("保存文件名称后缀").style.width = `${
     (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value.length || 1
 }em`;
 
-setRadio(document.getElementById("默认格式"), old_store.保存.默认格式);
-
-(<HTMLInputElement>document.getElementById("jpg质量")).value = old_store.jpg质量;
-
-(<HTMLInputElement>document.getElementById("快速保存")).checked = old_store.保存.快速保存;
-
 var 字体 = old_store.字体;
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
-(<HTMLInputElement>document.querySelector("#主要字体 > input")).value = 字体.主要字体;
-(<HTMLInputElement>document.querySelector("#等宽字体 > input")).value = 字体.等宽字体;
-(<HTMLInputElement>document.getElementById("字体大小")).value = 字体.大小;
-(<HTMLInputElement>document.getElementById("记住字体大小")).checked = 字体.记住;
 
 (<HTMLInputElement>document.querySelector("#主要字体 > input")).oninput = () => {
     字体.主要字体 = (<HTMLInputElement>document.querySelector("#主要字体 > input")).value;
@@ -414,9 +367,7 @@ function getFilter(hex: string) {
         return null;
     }
 }
-(<HTMLInputElement>document.querySelector("#图标颜色 > input")).value = old_store.全局.图标颜色[0];
 document.documentElement.style.setProperty("--icon-color", old_store.全局.图标颜色[1]);
-(<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value = old_store.全局.图标颜色[2] || "";
 if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty("--icon-color1", old_store.全局.图标颜色[3]);
 (<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput = () => {
     document.documentElement.style.setProperty(
@@ -431,14 +382,6 @@ if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty
             getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || ""
         );
 };
-
-(<HTMLInputElement>document.getElementById("换行")).checked = old_store.编辑器.自动换行;
-(<HTMLInputElement>document.getElementById("拼写检查")).checked = old_store.编辑器.拼写检查;
-(<HTMLInputElement>document.getElementById("行号")).checked = old_store.编辑器.行号;
-
-(<HTMLInputElement>document.getElementById("自动搜索")).checked = old_store.自动搜索;
-(<HTMLInputElement>document.getElementById("自动打开链接")).checked = old_store.自动打开链接;
-(<HTMLInputElement>document.getElementById("自动搜索中文占比")).value = old_store.自动搜索中文占比;
 
 var o_搜索引擎 = old_store.搜索引擎;
 if (o_搜索引擎) {
@@ -501,15 +444,6 @@ document.getElementById("翻译引擎").onchange = () => {
     document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
     setRadio(document.getElementById("默认翻译引擎"), o翻译引擎[0][0]);
 };
-(<HTMLInputElement>document.getElementById("记住引擎")).checked = old_store.引擎.记住;
-
-setRadio(document.getElementById("图像搜索引擎"), old_store.以图搜图.引擎);
-(<HTMLInputElement>document.getElementById("记住识图引擎")).checked = old_store.以图搜图.记住;
-
-(<HTMLInputElement>document.getElementById("浏览器中打开")).checked = old_store.浏览器中打开;
-(<HTMLInputElement>document.getElementById("搜索窗口自动关闭")).checked = old_store.浏览器.标签页.自动关闭;
-(<HTMLInputElement>document.getElementById("标签缩小")).checked = old_store.浏览器.标签页.小;
-(<HTMLInputElement>document.getElementById("标签灰度")).checked = old_store.浏览器.标签页.灰度;
 
 document.getElementById("clear_storage").onclick = () => {
     ipcRenderer.send("setting", "clear", "storage");
@@ -554,8 +488,6 @@ function ocrDOpen() {
     }
 }
 document.getElementById("OCR类型").onclick = ocrDOpen;
-(<HTMLInputElement>document.getElementById("记住OCR引擎")).checked = old_store.OCR.记住;
-(<HTMLInputElement>document.getElementById("离线切换")).checked = old_store.OCR.离线切换;
 
 function OCR模型展示() {
     document.getElementById("OCR模型列表").innerHTML = "";
@@ -620,19 +552,11 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 
-setRadio(document.getElementById("baidu_ocr_url"), old_store.在线OCR.baidu.url);
-(<HTMLInputElement>document.getElementById("baidu_ocr_id")).value = old_store.在线OCR.baidu.id;
-(<HTMLInputElement>document.getElementById("baidu_ocr_secret")).value = old_store.在线OCR.baidu.secret;
-(<HTMLInputElement>document.getElementById("youdao_ocr_id")).value = old_store.在线OCR.youdao.id;
-(<HTMLInputElement>document.getElementById("youdao_ocr_secret")).value = old_store.在线OCR.youdao.secret;
-
 var 历史记录设置 = old_store.历史记录设置;
 
 (<HTMLButtonElement>document.getElementById("清除历史记录")).disabled = !历史记录设置.保留历史记录;
 (<HTMLButtonElement>document.getElementById("his_d")).disabled = !历史记录设置.自动清除历史记录;
 (<HTMLButtonElement>document.getElementById("his_h")).disabled = !历史记录设置.自动清除历史记录;
-(<HTMLInputElement>document.getElementById("his_d")).value = 历史记录设置.d;
-(<HTMLInputElement>document.getElementById("his_h")).value = 历史记录设置.h;
 
 document.getElementById("历史记录_b").oninput = () => {
     历史记录设置.保留历史记录 = (<HTMLInputElement>document.getElementById("历史记录_b")).checked;
@@ -659,10 +583,7 @@ document.getElementById("clear_his").onclick = () => {
 var proxyL = ["http", "https", "ftp", "socks"];
 
 var 代理 = old_store.代理;
-setRadio(document.getElementById("代理"), 代理.mode);
-(<HTMLInputElement>document.getElementById("pacScript")).value = 代理.pacScript;
 getProxy();
-(<HTMLInputElement>document.getElementById("proxyBypassRules")).value = 代理.proxyBypassRules;
 
 setProxyEl();
 document.getElementById("代理").onclick = setProxyEl;
@@ -717,13 +638,6 @@ function setProxy() {
     return l.join(";");
 }
 
-(<HTMLInputElement>document.getElementById("主页面失焦")).checked = old_store.关闭窗口.失焦.主页面;
-
-(<HTMLInputElement>document.getElementById("硬件加速")).checked = old_store.硬件加速;
-
-setRadio(<HTMLInputElement>document.getElementById("检查更新频率"), old_store.更新.频率);
-(<HTMLInputElement>document.getElementById("dev")).checked = old_store.更新.dev;
-
 document.getElementById("打开config").title = store.path;
 document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
@@ -748,8 +662,6 @@ window.onblur = saveSetting;
 
 function saveSetting() {
     if (giveUp) return;
-    storeSet("启动提示", (<HTMLInputElement>document.getElementById("启动提示")).checked);
-    storeSet("语言.语言", getRadio(document.getElementById("语言")));
     storeSet("其他快捷键", {
         关闭: (<HTMLInputElement>document.querySelector(`hot-keys[name="关闭"]`)).value,
         OCR: (<HTMLInputElement>document.querySelector(`hot-keys[name="OCR(文字识别)"]`)).value,
@@ -774,55 +686,18 @@ function saveSetting() {
         "主搜索功能.自动搜索排除",
         (<HTMLInputElement>document.getElementById("自动搜索排除")).value.split(/\n/).filter((i) => i != "")
     );
-    storeSet("主搜索功能.剪贴板选区搜索", (<HTMLInputElement>document.getElementById("剪贴板选区搜索")).checked);
-    var 模糊 = Number((<HTMLInputElement>document.getElementById("模糊")).value);
-    storeSet("全局.模糊", 模糊);
     storeSet("全局.不透明度", Number((<HTMLInputElement>document.getElementById("不透明度")).value) / 100);
-    storeSet("全局.缩放", (<HTMLInputElement>document.getElementById("全局缩放")).value);
     try {
-        storeSet("全局.图标颜色", [
-            (<HTMLInputElement>document.querySelector("#图标颜色 > input")).value,
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || "",
-            (<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value,
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "",
-        ]);
+        storeSet(
+            "全局.图标颜色.1",
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || ""
+        );
+        storeSet(
+            "全局.图标颜色.3",
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || ""
+        );
     } catch (e) {}
-    storeSet("工具栏", {
-        按钮大小: (<HTMLInputElement>document.getElementById("按钮大小")).value,
-        按钮图标比例: (<HTMLInputElement>document.getElementById("按钮图标比例")).value,
-        初始位置: {
-            left: (<HTMLInputElement>document.getElementById("tool_bar_left")).value,
-            top: (<HTMLInputElement>document.getElementById("tool_bar_top")).value,
-        },
-    });
-    storeSet("显示四角坐标", (<HTMLInputElement>document.getElementById("显示四角坐标")).checked);
-    storeSet("取色器大小", (<HTMLInputElement>document.getElementById("取色器大小")).value);
-    storeSet("像素大小", (<HTMLInputElement>document.getElementById("像素大小")).value);
-    storeSet("遮罩颜色", (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value);
-    storeSet("选区颜色", (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value);
-    storeSet("框选.自动框选", {
-        开启: (<HTMLInputElement>document.getElementById("自动框选")).checked,
-        图像识别: (<HTMLInputElement>document.getElementById("自动框选图像识别")).checked,
-        最小阈值: (<HTMLInputElement>document.getElementById("框选最小阈值")).value,
-        最大阈值: (<HTMLInputElement>document.getElementById("框选最大阈值")).value,
-    });
-    storeSet("框选.记忆.开启", (<HTMLInputElement>document.getElementById("记住框选大小")).checked);
-    storeSet("图像编辑.默认属性", {
-        填充颜色: (<HTMLInputElement>document.getElementById("填充颜色")).value,
-        边框颜色: (<HTMLInputElement>document.getElementById("边框颜色")).value,
-        边框宽度: (<HTMLInputElement>document.getElementById("边框宽度")).value,
-        画笔颜色: (<HTMLInputElement>document.getElementById("画笔颜色")).value,
-        画笔粗细: (<HTMLInputElement>document.getElementById("画笔粗细")).value,
-    });
-    storeSet("图像编辑.复制偏移", {
-        x: (<HTMLInputElement>document.getElementById("复制dx")).value,
-        y: (<HTMLInputElement>document.getElementById("复制dy")).value,
-    });
     storeSet("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
-    storeSet("贴图.窗口.变换", (<HTMLInputElement>document.getElementById("tran_css")).value);
-    storeSet("贴图.窗口.双击", getRadio(document.getElementById("贴图双击")));
-    storeSet("框选后默认操作", getRadio(document.getElementById("框选后默认操作")));
-    storeSet("快速截屏.模式", getRadio(<HTMLInputElement>document.getElementById("快速截屏")));
     storeSet(
         "快速截屏.路径",
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value
@@ -834,52 +709,6 @@ function saveSetting() {
         (<HTMLInputElement>document.getElementById("开启自动录制")).checked &&
             (<HTMLInputElement>document.getElementById("自动录制延时")).value
     );
-    storeSet("录屏.视频比特率", (<HTMLInputElement>document.getElementById("视频比特率")).value);
-    storeSet("录屏.摄像头", {
-        默认开启: (<HTMLInputElement>document.getElementById("默认开启摄像头")).checked,
-        记住开启状态: (<HTMLInputElement>document.getElementById("记录摄像头开启状态")).checked,
-        镜像: (<HTMLInputElement>document.getElementById("摄像头镜像")).checked,
-        背景: {
-            模式: getRadio(document.getElementById("seg")),
-            模糊: Number((<HTMLInputElement>document.getElementById("seg_blur")).value),
-            imgUrl: (<HTMLInputElement>document.getElementById("seg_img_url")).value,
-            videoUrl: (<HTMLInputElement>document.getElementById("seg_video_url")).value,
-            fit: getRadio(document.getElementById("seg_fit")),
-        },
-    });
-    storeSet("录屏.音频", {
-        默认开启: (<HTMLInputElement>document.getElementById("默认开启音频")).checked,
-        记住开启状态: (<HTMLInputElement>document.getElementById("记录音频开启状态")).checked,
-    });
-    storeSet("录屏.转换", {
-        自动转换: (<HTMLInputElement>document.getElementById("开启自动转换")).checked,
-        分段: (<HTMLInputElement>document.getElementById("分段")).value,
-        格式: (<HTMLInputElement>document.getElementById("格式")).value,
-        码率: Number((<HTMLInputElement>document.getElementById("码率")).value),
-        帧率: Number((<HTMLInputElement>document.getElementById("帧率")).value),
-        其他: (<HTMLInputElement>document.getElementById("ff其他参数")).value,
-        高质量gif: (<HTMLInputElement>document.getElementById("高质量gif")).checked,
-    });
-    storeSet("录屏.提示", {
-        键盘: {
-            开启: (<HTMLInputElement>document.getElementById("开启键盘按键提示")).checked,
-        },
-        鼠标: {
-            开启: (<HTMLInputElement>document.getElementById("开启鼠标按键提示")).checked,
-        },
-        光标: {
-            开启: (<HTMLInputElement>document.getElementById("开启光标提示")).checked,
-            样式: (<HTMLInputElement>document.getElementById("cursor_css")).value,
-        },
-    });
-    storeSet("保存.默认格式", getRadio(<HTMLInputElement>document.getElementById("默认格式")));
-    storeSet("保存.快速保存", (<HTMLInputElement>document.getElementById("快速保存")).checked);
-    storeSet("保存名称", {
-        前缀: (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value,
-        时间: (<HTMLInputElement>document.getElementById("保存文件名称时间")).value,
-        后缀: (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value,
-    });
-    storeSet("jpg质量", (<HTMLInputElement>document.getElementById("jpg质量")).value);
     字体.大小 = (<HTMLInputElement>document.getElementById("字体大小")).value;
     字体.记住 = (<HTMLInputElement>document.getElementById("记住字体大小")).checked
         ? typeof 字体.记住 === "number"
@@ -887,12 +716,6 @@ function saveSetting() {
             : 字体.大小
         : false;
     storeSet("字体", 字体);
-    storeSet("编辑器.自动换行", (<HTMLInputElement>document.getElementById("换行")).checked);
-    storeSet("编辑器.拼写检查", (<HTMLInputElement>document.getElementById("拼写检查")).checked);
-    storeSet("编辑器.行号", (<HTMLInputElement>document.getElementById("行号")).checked);
-    storeSet("自动搜索", (<HTMLInputElement>document.getElementById("自动搜索")).checked);
-    storeSet("自动打开链接", (<HTMLInputElement>document.getElementById("自动打开链接")).checked);
-    storeSet("自动搜索中文占比", (<HTMLInputElement>document.getElementById("自动搜索中文占比")).value);
     if (o_搜索引擎) storeSet("搜索引擎", o_搜索引擎);
     if (o翻译引擎) storeSet("翻译引擎", o翻译引擎);
     storeSet("引擎", {
@@ -902,53 +725,19 @@ function saveSetting() {
         默认搜索引擎: getRadio(document.getElementById("默认搜索引擎")),
         默认翻译引擎: getRadio(document.getElementById("默认翻译引擎")),
     });
-    storeSet("以图搜图", {
-        引擎: getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎")),
+    storeSet("以图搜图.记住", {
         记住: (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
             ? old_store.以图搜图.记住 || getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
             : false,
     });
-    storeSet("浏览器中打开", (<HTMLInputElement>document.getElementById("浏览器中打开")).checked);
-    storeSet("浏览器.标签页", {
-        自动关闭: (<HTMLInputElement>document.getElementById("搜索窗口自动关闭")).checked,
-        小: (<HTMLInputElement>document.getElementById("标签缩小")).checked,
-        灰度: (<HTMLInputElement>document.getElementById("标签灰度")).checked,
-    });
-    历史记录设置.d = Number((<HTMLInputElement>document.getElementById("his_d")).value);
-    历史记录设置.h = Number((<HTMLInputElement>document.getElementById("his_h")).value);
     storeSet("历史记录设置", 历史记录设置);
-    storeSet("时间格式", (<HTMLInputElement>document.getElementById("时间格式")).value);
-    storeSet("OCR", {
-        类型: getOcrType(),
-        离线切换: (<HTMLInputElement>document.getElementById("离线切换")).checked,
-        记住: (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked
-            ? old_store.OCR.记住 || getOcrType()
-            : false,
-        版本: old_store.OCR.版本,
-    });
-    storeSet("在线OCR.baidu", {
-        url: getRadio(document.getElementById("baidu_ocr_url")),
-        id: (<HTMLInputElement>document.getElementById("baidu_ocr_id")).value,
-        secret: (<HTMLInputElement>document.getElementById("baidu_ocr_secret")).value,
-    });
-    storeSet("在线OCR.youdao", {
-        id: (<HTMLInputElement>document.getElementById("youdao_ocr_id")).value,
-        secret: (<HTMLInputElement>document.getElementById("youdao_ocr_secret")).value,
-    });
-    storeSet("代理", {
-        mode: getRadio(document.getElementById("代理")),
-        pacScript: (<HTMLInputElement>document.getElementById("pacScript")).value,
-        proxyRules: setProxy(),
-        proxyBypassRules: (<HTMLInputElement>document.getElementById("proxyBypassRules")).value,
-    });
-    storeSet("关闭窗口", {
-        失焦: {
-            主页面: (<HTMLInputElement>document.getElementById("主页面失焦")).checked,
-        },
-    });
-    storeSet("硬件加速", (<HTMLInputElement>document.getElementById("硬件加速")).checked);
-    storeSet("更新.dev", (<HTMLInputElement>document.getElementById("dev")).checked);
-    storeSet("更新.频率", getRadio(document.getElementById("检查更新频率")));
+    storeSet("OCR.类型", getOcrType());
+    storeSet(
+        "OCR.记住",
+        (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked ? old_store.OCR.记住 || getOcrType() : false
+    );
+    storeSet("OCR.版本", old_store.OCR.版本);
+    storeSet("代理.proxyRules", setProxy());
     if (userDataPathInputed)
         fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, (e) => {
             if (e) throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));
