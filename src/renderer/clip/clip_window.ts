@@ -2307,10 +2307,26 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
             document.querySelectorAll("#draw_side > div")[index]
         )).offsetTop;
 
-        if (index == 0) {
-            if (!fabricCanvas.isDrawingMode) {
-                pencilEl.checked = true;
-                pencilElClick();
+        if (!fabricCanvas.isDrawingMode) {
+            if (index == 0) {
+                let m = store.get("图像编辑.记忆.画笔") as typeof mode;
+                if (m == "free") {
+                    pencilEl.checked = true;
+                    pencilElClick();
+                } else if (m == "eraser") {
+                    eraserEl.checked = true;
+                    eraserElClick();
+                } else if (m == "spray") {
+                    freeSprayEl.checked = true;
+                    freeSprayElClick();
+                }
+            }
+            if (index == 1) {
+                let s = store.get("图像编辑.记忆.形状") as typeof shape;
+                if (s) {
+                    (<HTMLInputElement>document.getElementById(`draw_shapes_${s}`)).checked = true;
+                    clickDraw(`draw_shapes_${s}`);
+                }
             }
         }
     }
@@ -2360,7 +2376,7 @@ var mode: "free" | "eraser" | "spray";
 
 // 笔
 var pencilEl = <HTMLInputElement>document.getElementById("draw_free_pencil");
-pencilEl.oninput = () => pencilElClick;
+pencilEl.oninput = pencilElClick;
 function pencilElClick() {
     fabricCanvas.isDrawingMode = pencilEl.checked;
     freeInit();
@@ -2383,7 +2399,8 @@ function pencilElClick() {
 }
 // 橡皮
 var eraserEl = <HTMLInputElement>document.getElementById("draw_free_eraser");
-eraserEl.oninput = () => {
+eraserEl.oninput = eraserElClick;
+function eraserElClick() {
     fabricCanvas.isDrawingMode = eraserEl.checked;
     freeInit();
     if (eraserEl.checked) {
@@ -2396,10 +2413,11 @@ eraserEl.oninput = () => {
     exitShape();
     exitFilter();
     freeDrawCursor();
-};
+}
 // 刷
 var freeSprayEl = <HTMLInputElement>document.getElementById("draw_free_spray");
-freeSprayEl.oninput = () => {
+freeSprayEl.oninput = freeSprayElClick;
+function freeSprayElClick() {
     fabricCanvas.isDrawingMode = freeSprayEl.checked;
     freeInit();
     if (freeSprayEl.checked) {
@@ -2416,7 +2434,7 @@ freeSprayEl.oninput = () => {
     exitShape();
     exitFilter();
     freeDrawCursor();
-};
+}
 // 阴影
 (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
 
@@ -2467,6 +2485,8 @@ function freeInit() {
     if (sc) changeColor({ stroke: sc }, false, true);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
     if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
+
+    store.set("图像编辑.记忆.画笔", mode);
 }
 
 // 几何
@@ -2514,6 +2534,8 @@ function clickDraw(id: string) {
         exitFilter();
         fabricCanvas.defaultCursor = "crosshair";
         hotkeys.setScope("drawing_esc");
+
+        store.set("图像编辑.记忆.形状", shape);
     } else {
         exitShape();
     }
