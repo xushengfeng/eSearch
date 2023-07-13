@@ -67,8 +67,11 @@ export interface setting {
     自动搜索: boolean;
     遮罩颜色: string;
     选区颜色: string;
-    像素大小: number;
-    取色器大小: number;
+    取色器: {
+        显示: boolean;
+        像素大小: number;
+        大小: number;
+    };
     显示四角坐标: boolean;
     框选: {
         自动框选: {

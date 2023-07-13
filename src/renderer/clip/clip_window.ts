@@ -22,6 +22,7 @@ var 工具栏跟随: string,
     选区颜色: string,
     取色器默认格式: string,
     取色器格式位置: number,
+    取色器显示: boolean,
     colorSize: number,
     colorISize: number,
     记忆框选: boolean,
@@ -59,8 +60,9 @@ function setSetting() {
 
     document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
 
-    colorSize = store.get("取色器大小");
-    colorISize = store.get("像素大小");
+    取色器显示 = store.get("取色器.显示");
+    colorSize = store.get("取色器.大小");
+    colorISize = store.get("取色器.像素大小");
     document.documentElement.style.setProperty("--color-size", `${colorSize * colorISize}px`);
     document.documentElement.style.setProperty("--color-i-size", `${colorISize}px`);
     document.documentElement.style.setProperty("--color-i-i", `${colorSize}`);
@@ -1736,6 +1738,7 @@ for (let i = 1; i <= colorSize ** 2; i++) {
 }
 document.querySelector("#point_color").innerHTML = colorInnerHtml;
 colorInnerHtml = null;
+if (!取色器显示) document.getElementById("point_color").style.display = "none";
 var pointColorSpanList = document.querySelectorAll("#point_color > span") as NodeListOf<HTMLSpanElement>;
 
 var mouseBarW =
