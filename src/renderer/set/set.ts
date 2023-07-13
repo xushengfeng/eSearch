@@ -213,6 +213,80 @@ document
         };
     });
 
+let toolList = ["close", "ocr", "search", "QR", "draw", "open", "ding", "record", "long", "copy", "save"];
+let toolShow = old_store.工具栏.功能;
+const toolShowEl = document.getElementById("tool_show");
+const toolHideEl = document.getElementById("tool_hide");
+function addToolItem(e: DragEvent) {
+    let id = e.dataTransfer.getData("text");
+    if (id) {
+        toolShowEl.querySelector(`[data-id=${id}]`)?.remove();
+        toolHideEl.querySelector(`[data-id=${id}]`)?.remove();
+    }
+    return id;
+}
+function createToolItem(id: string) {
+    let el = document.createElement("div");
+    el.draggable = true;
+    let icon = document.querySelector(`#tool_icons > [data-id=${id}]`).innerHTML;
+    el.innerHTML = icon;
+    el.setAttribute("data-id", id);
+    el.ondragstart = (e) => {
+        e.dataTransfer.setData("text", id);
+    };
+    el.ondragover = (e) => {
+        e.preventDefault();
+    };
+    el.ondrop = (e) => {
+        e.stopPropagation();
+        let id = addToolItem(e);
+        if (id) {
+            if (e.offsetY < el.offsetHeight / 2) {
+                el.before(createToolItem(id));
+            } else {
+                el.after(createToolItem(id));
+            }
+            setToolL();
+        }
+    };
+    return el;
+}
+
+toolShowEl.ondragover = (e) => {
+    e.preventDefault();
+};
+toolHideEl.ondragover = (e) => {
+    e.preventDefault();
+};
+toolShowEl.ondrop = (e) => {
+    let id = addToolItem(e);
+    if (id) {
+        toolShowEl.append(createToolItem(id));
+        setToolL();
+    }
+};
+toolHideEl.ondrop = (e) => {
+    let id = addToolItem(e);
+    if (id) {
+        toolHideEl.append(createToolItem(id));
+        setToolL();
+    }
+};
+for (let i of toolList) {
+    if (toolShow.includes(i as (typeof toolShow)[0])) {
+        toolShowEl.append(createToolItem(i));
+    } else {
+        toolHideEl.append(createToolItem(i));
+    }
+}
+function setToolL() {
+    toolShow = [];
+    toolShowEl.querySelectorAll(":scope > [data-id]").forEach((el) => {
+        toolShow.push(el.getAttribute("data-id") as (typeof toolShow)[0]);
+    });
+    xstore.工具栏.功能 = toolShow;
+}
+
 (<HTMLInputElement>document.getElementById("显示四角坐标")).checked = old_store.显示四角坐标;
 
 // 取色器设置

@@ -204,6 +204,39 @@ range-b > div:nth-child(1):hover {
     background-color: var(--m-color1) !important;
 }
 
+#tool_order {
+    display: flex;
+    gap: 24px;
+}
+:is(#tool_show, #tool_hide) {
+    min-height: 24px;
+    min-width: 24px;
+    position: relative;
+}
+:is(#tool_show, #tool_hide) > .icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+    position: inherit;
+    margin: auto;
+}
+:is(#tool_show, #tool_hide) > div {
+    position: relative;
+    width: var(--bar-size);
+    height: var(--bar-size);
+    border-radius: calc(var(--bar-size) / 6);
+    transition: var(--transition);
+}
+:is(#tool_show, #tool_hide) > div:hover {
+    background-color: var(--hover-color);
+    transition: var(--transition);
+}
+:is(#tool_show, #tool_hide) > div > .icon {
+    width: calc(var(--bar-size) * var(--bar-icon));
+    left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
+    top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
+}
+
 .blur {
     margin-top: 8px;
 }
