@@ -198,6 +198,19 @@ ipcRenderer.on("状态", (_event, name, arg) => {
     if (t) storeSet(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
 
+document.getElementById("按钮大小").oninput = () => {
+    document.documentElement.style.setProperty(
+        "--bar-size",
+        (<RangeEl>document.getElementById("按钮大小")).value + "px"
+    );
+};
+document.getElementById("按钮图标比例").oninput = () => {
+    document.documentElement.style.setProperty(
+        "--bar-icon",
+        String((<RangeEl>document.getElementById("按钮图标比例")).value)
+    );
+};
+
 document
     .getElementById("tool_bar_posi_b")
     .querySelectorAll("button")
