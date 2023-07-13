@@ -22,6 +22,7 @@ import {
 import { Buffer } from "buffer";
 
 const Store = require("electron-store");
+import { setting } from "../ShareTypes";
 import * as path from "path";
 const runPath = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
@@ -1605,7 +1606,7 @@ ipcMain.on("theme", (_e, v) => {
 });
 
 // 默认设置
-var defaultSetting = {
+var defaultSetting: setting = {
     首次运行: false,
     设置版本: app.getVersion(),
     启动提示: true,
@@ -1670,8 +1671,6 @@ var defaultSetting = {
         自动换行: true,
         拼写检查: false,
         行号: true,
-        tab: 2,
-        光标动画: 0.05,
     },
     工具栏跟随: "展示内容优先",
     取色器默认格式: "HEX",
@@ -1681,7 +1680,6 @@ var defaultSetting = {
     像素大小: 10,
     取色器大小: 15,
     显示四角坐标: true,
-    其他应用打开: "",
     框选: {
         自动框选: {
             开启: false,
@@ -1823,7 +1821,6 @@ var defaultSetting = {
             记住开启状态: false,
         },
         转换: {
-            ffmpeg: "",
             自动转换: false,
             格式: "webm",
             码率: 2.5,
