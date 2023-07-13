@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 let configPath = new URLSearchParams(location.search).get("config_path");
+import { setting } from "../../ShareTypes";
 const path = require("path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
@@ -8,13 +9,15 @@ const os = require("os") as typeof import("os");
 const fs = require("fs") as typeof import("fs");
 import close_svg from "../assets/icons/close.svg";
 
+type RangeEl = HTMLElement & { value: number };
+
 document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
     let url = new URL(el.href);
     url.search = location.search;
     el.href = url.toString();
 });
 
-let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8"));
+let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
 import { t, lan } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 document.body.innerHTML = document.body.innerHTML
@@ -145,7 +148,7 @@ document.getElementById("语言").onclick = () => {
 };
 
 document.getElementById("语言重启").onclick = () => {
-    storeSet("语言.语言", getRadio(document.getElementById("语言")));
+    xstore.语言["语言"] = getRadio(document.getElementById("语言"));
     ipcRenderer.send("setting", "reload");
 };
 
@@ -176,7 +179,7 @@ document.getElementById("模糊").oninput = () => {
     }
 };
 
-document.documentElement.style.setProperty("--alpha", 全局.不透明度);
+document.documentElement.style.setProperty("--alpha", String(全局.不透明度));
 (<HTMLInputElement>document.getElementById("不透明度")).value = String(全局.不透明度 * 100);
 document.getElementById("不透明度").oninput = () => {
     var 不透明度 = (<HTMLInputElement>document.getElementById("不透明度")).value;
@@ -307,7 +310,7 @@ document.getElementById("获取保存路径").onclick = () => {
 };
 
 (<HTMLInputElement>document.getElementById("开启自动录制")).checked = old_store.录屏.自动录制 !== false;
-(<HTMLInputElement>document.getElementById("自动录制延时")).value = old_store.录屏.自动录制 || 0;
+(<RangeEl>document.getElementById("自动录制延时")).value = old_store.录屏.自动录制 || 0;
 
 document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
     let el = <HTMLInputElement>e.target;
@@ -477,7 +480,7 @@ document.getElementById("OCR类型").onclick = ocrDOpen;
 
 function OCR模型展示() {
     document.getElementById("OCR模型列表").innerHTML = "";
-    let all = old_store.离线OCR as any[];
+    let all = old_store.离线OCR;
     for (let i in all) {
         let d = document.createElement("div");
         let t = document.createElement("input");
@@ -485,7 +488,7 @@ function OCR模型展示() {
         t.value = all[i][0];
         t.oninput = () => {
             all[i][0] = t.value;
-            storeSet("离线OCR", all);
+            xstore.离线OCR = all;
             setOcr();
         };
         d.append(t);
@@ -495,7 +498,7 @@ function OCR模型展示() {
             if (all.length == 1) return;
             all.splice(Number(i), 1);
             d.remove();
-            storeSet("离线OCR", all);
+            xstore.离线OCR = all;
             setOcr();
         };
         d.append(c);
@@ -532,7 +535,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     }
     let all = old_store.离线OCR;
     all.push(l);
-    storeSet("离线OCR", all);
+    xstore.离线OCR = all;
     OCR模型展示();
     setOcr();
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
@@ -648,62 +651,51 @@ window.onblur = saveSetting;
 
 function saveSetting() {
     if (giveUp) return;
-    storeSet(
-        "主搜索功能.自动搜索排除",
-        (<HTMLInputElement>document.getElementById("自动搜索排除")).value.split(/\n/).filter((i) => i != "")
-    );
-    storeSet("全局.不透明度", Number((<HTMLInputElement>document.getElementById("不透明度")).value) / 100);
+    xstore.主搜索功能.自动搜索排除 = (<HTMLInputElement>document.getElementById("自动搜索排除")).value
+        .split(/\n/)
+        .filter((i) => i != "");
+    xstore.全局.不透明度 = (<RangeEl>document.getElementById("不透明度")).value / 100;
     try {
-        storeSet(
-            "全局.图标颜色.1",
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || ""
-        );
-        storeSet(
-            "全局.图标颜色.3",
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || ""
-        );
+        xstore.全局.图标颜色[1] =
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || "";
+
+        xstore.全局.图标颜色[3] =
+            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "";
     } catch (e) {}
-    storeSet("插件.加载后", (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n"));
-    storeSet(
-        "快速截屏.路径",
-        (<HTMLInputElement>document.getElementById("快速截屏路径")).value
-            ? ((<HTMLInputElement>document.getElementById("快速截屏路径")).value + "/").replace("//", "/")
-            : ""
-    );
-    storeSet(
-        "录屏.自动录制",
+    xstore.插件.加载后 = (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n");
+    xstore.快速截屏.路径 = (<HTMLInputElement>document.getElementById("快速截屏路径")).value
+        ? ((<HTMLInputElement>document.getElementById("快速截屏路径")).value + "/").replace("//", "/")
+        : "";
+
+    xstore.录屏.自动录制 =
         (<HTMLInputElement>document.getElementById("开启自动录制")).checked &&
-            (<HTMLInputElement>document.getElementById("自动录制延时")).value
-    );
-    字体.大小 = (<HTMLInputElement>document.getElementById("字体大小")).value;
+        (<RangeEl>document.getElementById("自动录制延时")).value;
+
+    字体.大小 = (<RangeEl>document.getElementById("字体大小")).value;
     字体.记住 = (<HTMLInputElement>document.getElementById("记住字体大小")).checked
         ? typeof 字体.记住 === "number"
             ? 字体.记住
             : 字体.大小
         : false;
-    storeSet("字体", 字体);
-    if (o_搜索引擎) storeSet("搜索引擎", o_搜索引擎);
-    if (o翻译引擎) storeSet("翻译引擎", o翻译引擎);
-    storeSet("引擎", {
+    xstore.字体 = 字体;
+    if (o_搜索引擎) xstore.搜索引擎 = o_搜索引擎;
+    if (o翻译引擎) xstore.翻译引擎 = o翻译引擎;
+    xstore.引擎 = {
         记住: (<HTMLInputElement>document.getElementById("记住引擎")).checked
             ? [getRadio(document.getElementById("默认搜索引擎")), getRadio(document.getElementById("默认翻译引擎"))]
             : false,
         默认搜索引擎: getRadio(document.getElementById("默认搜索引擎")),
         默认翻译引擎: getRadio(document.getElementById("默认翻译引擎")),
-    });
-    storeSet("以图搜图.记住", {
-        记住: (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
-            ? old_store.以图搜图.记住 || getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
-            : false,
-    });
-    storeSet("历史记录设置", 历史记录设置);
-    storeSet("OCR.类型", getOcrType());
-    storeSet(
-        "OCR.记住",
-        (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked ? old_store.OCR.记住 || getOcrType() : false
-    );
-    storeSet("OCR.版本", old_store.OCR.版本);
-    storeSet("代理.proxyRules", setProxy());
+    };
+    xstore.以图搜图.记住 = (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
+        ? old_store.以图搜图.记住 || getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
+        : false;
+    xstore.历史记录设置 = 历史记录设置;
+    xstore.OCR.类型 = getOcrType();
+    xstore.OCR.记住 = (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked
+        ? old_store.OCR.记住 || getOcrType()
+        : false;
+    xstore.代理.proxyRules = setProxy();
     if (userDataPathInputed)
         fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, (e) => {
             if (e) throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));

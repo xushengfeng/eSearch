@@ -2,7 +2,7 @@ export interface setting {
     首次运行: false;
     设置版本: string; // 用于新版本识别
     启动提示: true;
-    语言: {};
+    语言: { 语言?: string };
     快捷键: {
         自动识别: { key?: string };
         截屏搜索: { key?: string };
@@ -100,9 +100,9 @@ export interface setting {
     OCR: {
         类型: string;
         离线切换: boolean;
-        记住: false;
+        记住: string | false;
     };
-    离线OCR: [string, string, string, string][];
+    离线OCR: string[][];
     离线OCR配置: {
         node: boolean;
     };
@@ -119,7 +119,7 @@ export interface setting {
     };
     以图搜图: {
         引擎: string;
-        记住: false;
+        记住: string | false;
     };
     自动打开链接: boolean;
     自动搜索中文占比: number;
@@ -215,5 +215,5 @@ export interface setting {
             };
         };
     };
-    插件: { 加载前: []; 加载后: [] };
+    插件: { 加载前: string[]; 加载后: string[] };
 }
