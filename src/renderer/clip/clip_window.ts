@@ -33,7 +33,7 @@ function setSetting() {
     工具栏跟随 = store.get("工具栏跟随");
     光标 = store.get("光标");
     四角坐标 = store.get("显示四角坐标");
-    取色器默认格式 = store.get("取色器默认格式");
+    取色器默认格式 = store.get("取色器.默认格式");
     for (let i in allColorFormat) {
         if (取色器默认格式 == allColorFormat[i]) {
             取色器格式位置 = Number(i) + 1;

@@ -63,7 +63,6 @@ export interface setting {
         行号: boolean;
     };
     工具栏跟随: "展示内容优先" | "效率优先";
-    取色器默认格式: "HEX" | "RGB" | "HSL" | "HSV" | "CMYK";
     自动搜索: boolean;
     遮罩颜色: string;
     选区颜色: string;
@@ -71,6 +70,7 @@ export interface setting {
         显示: boolean;
         像素大小: number;
         大小: number;
+        默认格式: "HEX" | "RGB" | "HSL" | "HSV" | "CMYK";
     };
     鼠标跟随栏: {
         显示: boolean;
