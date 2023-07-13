@@ -1749,6 +1749,7 @@ var mouseBarW =
 var mouseBarH = 4 + colorSize * colorISize + 32 * 2;
 
 var mouseBarEl = document.getElementById("mouse_bar");
+if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
 function mouseBar(finalRect: rect, x: number, y: number) {
     const x0 = finalRect[0];

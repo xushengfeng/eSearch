@@ -72,6 +72,9 @@ export interface setting {
         像素大小: number;
         大小: number;
     };
+    鼠标跟随栏: {
+        显示: boolean;
+    };
     显示四角坐标: boolean;
     框选: {
         自动框选: {
