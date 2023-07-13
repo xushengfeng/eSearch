@@ -70,6 +70,18 @@ function setSetting() {
     document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
     bSize = 工具栏.按钮大小;
     document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
+    let toolsOrder = store.get("工具栏.功能") as string[];
+    toolBar.querySelectorAll(":scope > *").forEach((el: HTMLElement) => {
+        let id = el.id.replace("tool_", "");
+        let i = toolsOrder.indexOf(id);
+        if (i != -1) {
+            el.style.top = i * bSize + "px";
+        } else {
+            el.style.display = "none";
+        }
+    });
+
+    toolBar.style.height = toolsOrder.length * bSize + "px";
 
     记忆框选 = store.get("框选.记忆.开启");
     记忆框选值 = store.get("框选.记忆.rects");
@@ -3379,6 +3391,7 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
+import { setting } from "../../ShareTypes.js";
 var packageJson = JSON.parse(pack);
 
 function checkUpdate() {

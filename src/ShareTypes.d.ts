@@ -50,6 +50,7 @@ export interface setting {
         按钮大小: number;
         按钮图标比例: number;
         初始位置: { left: string; top: string };
+        功能: 功能[];
     };
     字体: {
         主要字体: string;
@@ -223,3 +224,5 @@ export interface setting {
     };
     插件: { 加载前: string[]; 加载后: string[] };
 }
+
+type 功能 = "close" | "ocr" | "search" | "QR" | "draw" | "open" | "ding" | "record" | "long" | "copy" | "save";

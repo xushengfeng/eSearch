@@ -1660,6 +1660,7 @@ var defaultSetting: setting = {
         按钮大小: 60,
         按钮图标比例: 0.7,
         初始位置: { left: "10px", top: "100px" },
+        功能: ["close", "ocr", "search", "QR", "draw", "open", "ding", "record", "long", "copy", "save"],
     },
     字体: {
         主要字体: "",
