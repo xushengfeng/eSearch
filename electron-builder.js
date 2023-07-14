@@ -1,4 +1,7 @@
-let build: import("electron-builder").Configuration = {
+/**
+ * @type import("electron-builder").Configuration
+ */
+let build = {
     appId: "com.esearch.app",
     directories: {
         output: "build",
@@ -106,4 +109,4 @@ let build: import("electron-builder").Configuration = {
     },
 };
 
-export default build;
+module.exports = build;
