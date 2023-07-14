@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 const download = require("download");
 exports.default = async function () {
     if (!fs.existsSync("./ocr/ppocr/默认")) {
@@ -21,6 +22,7 @@ exports.default = async function () {
             { rejectUnauthorized: false }
         );
     }
+    const arch = process.env["npm_config_arch"] || process.arch;
     if (process.platform == "win32" && !fs.existsSync("./lib/win_rect.exe")) {
         fs.writeFileSync(
             "./lib/win_rect.exe",
@@ -42,9 +44,12 @@ exports.default = async function () {
             win32: {
                 x64: "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.0-latest-win64-gpl-6.0.zip",
             },
-            darwin: { x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip" },
+            darwin: {
+                x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip",
+                arm64: "https://www.osxexperts.net/ffmpeg6arm.zip",
+            },
         };
-        if (o?.[process.platform]?.[process.arch]) {
+        if (o?.[process.platform]?.[arch]) {
             fs.mkdirSync("./lib/ffmpeg");
             await download(o[process.platform][process.arch], "./lib/ffmpeg/", {
                 extract: true,
@@ -58,5 +63,13 @@ exports.default = async function () {
                 fs.rmSync(path.join("./lib/ffmpeg/", "ffmpeg-n6.0-latest-win64-gpl-6.0"), { recursive: true });
             }
         }
+    }
+    if (process.platform == "win32" && arch == "arm64") {
+        execSync("npm i node-screenshots-win32-arm64-msvc");
+        execSync("npm uninstall node-screenshots-win32-x64-msvc");
+    }
+    if (process.platform == "darwin" && arch == "arm64") {
+        execSync("npm i node-screenshots-darwin-arm64");
+        execSync("npm uninstall node-screenshots-darwin-x64");
     }
 };
