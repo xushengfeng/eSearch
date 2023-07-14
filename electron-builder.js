@@ -69,11 +69,11 @@ let build = {
         target: [
             {
                 target: "dmg",
-                arch: ["x64", "arm64"],
+                arch: arch,
             },
             {
                 target: "zip",
-                arch: ["x64", "arm64"],
+                arch: arch,
             },
         ],
     },
@@ -82,11 +82,11 @@ let build = {
         target: [
             {
                 target: "nsis",
-                arch: ["x64", "arm64"],
+                arch: arch,
             },
             {
                 target: "zip",
-                arch: ["x64", "arm64"],
+                arch: arch,
             },
         ],
         files: [
@@ -110,3 +110,5 @@ let build = {
 };
 
 module.exports = build;
+
+var arch = (process.env["npm_config_arch"] || process.arch) == "arm64" ? ["arm64"] : ["x64"];
