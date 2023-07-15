@@ -1,3 +1,4 @@
+var arch = (process.env["npm_config_arch"] || process.arch) == "arm64" ? ["arm64"] : ["x64"];
 /**
  * @type import("electron-builder").Configuration
  */
@@ -30,7 +31,7 @@ let build = {
         },
     ],
     asar: false,
-    artifactName: "${productName}-${version}-${platform}-${arch}.${ext}",
+    artifactName: "${productName}-${version}-${platform}-" + arch[0] + ".${ext}",
     beforePack: "./before_pack.js",
     linux: {
         category: "Utility",
@@ -110,5 +111,3 @@ let build = {
 };
 
 module.exports = build;
-
-var arch = (process.env["npm_config_arch"] || process.arch) == "arm64" ? ["arm64"] : ["x64"];
