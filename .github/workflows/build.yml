@@ -14,6 +14,9 @@ jobs:
             matrix:
                 os: [macos-latest, ubuntu-latest, windows-latest]
                 arch: [x86, arm64]
+                exclude:
+                    - os: ubuntu-latest
+                      arch: arm64
 
         steps:
             - name: Check out Git repository
