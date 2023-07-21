@@ -13,7 +13,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [macos-latest, ubuntu-latest, windows-latest]
-                arch: [x86, arm64]
+                arch: [x64, arm64]
                 exclude:
                     - os: ubuntu-latest
                       arch: arm64
@@ -31,14 +31,6 @@ jobs:
               if: matrix.os == 'ubuntu-latest'
               run: sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
 
-            - name: set arm64 on win
-              if: matrix.arch == 'arm64' && matrix.os == 'windows-latest'
-              run: |
-                  set npm_config_arch=arm64
-            - name: set arm64 on mac
-              if: matrix.arch == 'arm64' && matrix.os == 'macos-latest'
-              run: |
-                  export npm_config_arch=arm64
             - name: ${{ matrix.os }} ${{ matrix.arch }} build
               run: |
                   npm install
