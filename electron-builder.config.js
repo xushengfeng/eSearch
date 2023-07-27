@@ -1,5 +1,5 @@
 var arch =
-    (process.env["npm_config_arch"] || process.env["RUNNER_ARCH"].toLowerCase() || process.arch) == "arm64"
+    (process.env["npm_config_arch"] || process.env["RUNNER_ARCH"]?.toLowerCase() || process.arch) == "arm64"
         ? ["arm64"]
         : ["x64"];
 /**
