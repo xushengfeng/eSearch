@@ -4,7 +4,7 @@
     "description": "识屏 · 搜索",
     "main": "./out/main/main.js",
     "scripts": {
-        "pack": "npm run build && electron-builder --dir",
+        "pack": "npm run build && electron-builder --dir -c electron-builder.config.js",
         "dist": "npm run build && electron-builder -p never -c electron-builder.config.js",
         "start": "electron-vite --ignoreConfigWarning preview",
         "dev": "electron-vite --ignoreConfigWarning dev",
