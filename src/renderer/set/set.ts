@@ -232,6 +232,7 @@ const toolShowEl = document.getElementById("tool_show");
 const toolHideEl = document.getElementById("tool_hide");
 function addToolItem(e: DragEvent) {
     let id = e.dataTransfer.getData("text");
+    if ((e.target as HTMLElement).dataset.id === id) return null;
     if (id) {
         toolShowEl.querySelector(`[data-id=${id}]`)?.remove();
         toolHideEl.querySelector(`[data-id=${id}]`)?.remove();
