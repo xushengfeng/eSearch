@@ -1893,6 +1893,10 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
     copy(document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`));
 });
 
+clipCanvas.ondblclick = () => {
+    tool.copy();
+};
+
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
     if (!rightKey) {
@@ -2195,18 +2199,7 @@ function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: ed
 
     finalRectFix();
     drawClipRect();
-
-    // 双击复制
-    if (dx == 0 && dy == 0 && direction == "move") {
-        let nowTime = new Date().getTime();
-        if (nowTime - lastClickTime <= 300) {
-            tool.copy();
-        }
-        lastClickTime = nowTime;
-    }
 }
-
-let lastClickTime = 0;
 
 /**
  * 保存历史
