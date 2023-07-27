@@ -735,15 +735,13 @@ function runSearch() {
     });
 }
 // 二维码
+import { scan } from "qr-scanner-wechat";
 function runQr() {
-    const jsqr = require("jsqr");
-    getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        var imageData = c.getContext("2d").getImageData(0, 0, c.width, c.height);
-        var code = jsqr(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: "dontInvert",
-        });
+    getClipPhoto("png").then(async (c: HTMLCanvasElement) => {
+        const result = await scan(c);
+        const code = result.text;
         if (code) {
-            ipcRenderer.send("clip_main_b", "QR", code.data);
+            ipcRenderer.send("clip_main_b", "QR", code);
             tool.close();
         } else {
             ipcRenderer.send("clip_main_b", "QR", "nothing");

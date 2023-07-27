@@ -24,10 +24,10 @@
         "esearch-seg": "^1.0.0",
         "hex-to-css-filter": "^5.4.0",
         "hotkeys-js": "^3.10.0",
-        "jsqr": "^1.4.0",
         "node-screenshots": "^0.1.4",
         "onnxruntime-node": "^1.13.1",
         "opencv.js": "^1.2.1",
+        "qr-scanner-wechat": "^0.1.2",
         "uiohook-napi": "^1.5.0",
         "x11": "^2.3.0"
     },
