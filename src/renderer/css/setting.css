@@ -218,7 +218,7 @@ range-b > div:nth-child(1):hover {
     height: 24px;
     display: block;
     position: inherit;
-    margin: auto;
+    margin: 8px auto;
 }
 :is(#tool_show, #tool_hide) > div {
     position: relative;
