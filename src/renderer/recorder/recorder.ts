@@ -749,6 +749,7 @@ function updataPrEl(pr: typeof ffprocess) {
                 };
             } else if (stI.ok === prILen) {
                 prEl[key].innerText = `${prText.ok[key]}`;
+                prEl[key].style.width = "100%";
                 prEl[key].classList.add("pro_ok");
                 if (key === "ts") {
                     isTsOk = true;
