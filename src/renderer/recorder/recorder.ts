@@ -745,7 +745,11 @@ function updataPrEl(pr: typeof ffprocess) {
                 prEl[key].innerText = `${prText.error[key]} 点击重试`;
                 prEl[key].classList.add("pro_error");
                 prEl[key].onclick = () => {
-                    // todo
+                    for (let i in pr[key]) {
+                        if (pr[key][i].finish === "err") {
+                            runFfmpeg(key, Number(i), pr[key][i].args);
+                        }
+                    }
                 };
             } else if (stI.ok === prILen) {
                 prEl[key].innerText = `${prText.ok[key]}`;
