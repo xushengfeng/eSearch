@@ -693,6 +693,70 @@ async function save() {
 
 document.getElementById("save").onclick = save;
 
+const prEl = {
+    ts: document.getElementById("pr_ts"),
+    clip: document.getElementById("pr_clip"),
+    join: document.getElementById("pr_join"),
+};
+
+let prText = {
+    wait: {
+        ts: "等待转换",
+        clip: "等待裁剪",
+        join: "等待合并",
+    },
+    running: {
+        ts: "正在转换",
+        clip: "正在裁剪",
+        join: "正在合并",
+    },
+    ok: {
+        ts: "转换完成",
+        clip: "裁剪完成",
+        join: "合并完成",
+    },
+    error: {
+        ts: "转换失败",
+        clip: "裁剪失败",
+        join: "合并失败",
+    },
+};
+
+function updataPrEl(pr: typeof ffprocess) {
+    for (let i in pr) {
+        let key = i as "ts" | "clip" | "join";
+        let prILen = Object.keys(pr[key]).length;
+        if (prILen === 0) {
+            prEl[key].innerText = `${prText.wait[key]}`;
+        } else {
+            let stI: { [key in prst]: number } = {
+                ok: 0,
+                err: 0,
+                running: 0,
+            };
+            for (let j in pr[key]) {
+                stI[pr[key][j].finish]++;
+            }
+            if (stI.err > 0) {
+                prEl[key].innerText = `${prText.error[key]} 点击重试`;
+                prEl[key].classList.add("pro_error");
+                prEl[key].onclick = () => {
+                    // todo
+                };
+            } else if (stI.ok === prILen) {
+                prEl[key].innerText = `${prText.ok[key]}`;
+                prEl[key].classList.add("pro_ok");
+            } else {
+                prEl[key].innerText = `${prText.running[key]} ${stI.running}/${prILen}`;
+                prEl[key].style.width = (stI.running / prILen) * 100 + "%";
+                prEl[key].classList.add("pro_running");
+            }
+        }
+    }
+}
+
+type prst = "ok" | "err" | "running";
+
 type p = {
     [k: number]: {
         args: string[];
@@ -702,26 +766,29 @@ type p = {
     };
 };
 let ffprocess: {
-    ts: p;
-    clip: p;
-    join: p;
+    [key in "ts" | "clip" | "join"]: p;
 } = {
     ts: {},
     clip: {},
     join: {},
 };
 
+updataPrEl(ffprocess);
+
 function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
     const ffmpeg = spawn(pathToFfmpeg, args);
     ffprocess[type][n] = { args, testCom: `ffmpeg ${args.join(" ")}`, finish: "running", logs: [] };
+    updataPrEl(ffprocess);
     return new Promise((re, rj) => {
         ffmpeg.on("close", (code) => {
             if (code == 0) {
                 ffprocess[type][n].finish = "ok";
+                updataPrEl(ffprocess);
                 console.log(ffprocess);
                 re(true);
             } else {
                 ffprocess[type][n].finish = "err";
+                updataPrEl(ffprocess);
                 console.log(ffprocess);
                 rj(false);
             }
