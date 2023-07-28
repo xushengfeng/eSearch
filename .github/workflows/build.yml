@@ -32,6 +32,8 @@ jobs:
               run: sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
 
             - name: ${{ matrix.os }} ${{ matrix.arch }} build
+              env:
+                  M_ARCH: ${{matrix.arch}}
               run: |
                   npm install
                   npm run dist
