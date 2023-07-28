@@ -694,6 +694,8 @@ async function save() {
 
 document.getElementById("save").onclick = save;
 
+const logText = <HTMLTextAreaElement>document.getElementById("log");
+
 var savePath = "";
 var isTsOk = false;
 
@@ -750,7 +752,15 @@ function updataPrEl(pr: typeof ffprocess) {
                             runFfmpeg(key, Number(i), pr[key][i].args);
                         }
                     }
+                    logText.value += "\n\n重试\n\n";
                 };
+                document.getElementById("log_p").classList.remove("hide_log");
+                for (let i in pr[key]) {
+                    if (pr[key][i].finish === "err") {
+                        logText.value += "\n" + pr[key][i].logs.join("\n");
+                    }
+                }
+                logText.scrollTop = logText.scrollHeight;
             } else if (stI.ok === prILen) {
                 prEl[key].innerText = `${prText.ok[key]}`;
                 prEl[key].style.width = "100%";

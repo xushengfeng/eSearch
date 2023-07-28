@@ -234,6 +234,10 @@ select {
     background-color: #ff9999;
 }
 
+.hide_log {
+    display: none;
+}
+
 textarea {
     margin-top: 4px;
     padding: 8px;
