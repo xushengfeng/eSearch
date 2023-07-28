@@ -439,7 +439,8 @@ ipcRenderer.on("ff", (_e, t, arg) => {
         textarea.scrollTop = textarea.scrollHeight;
     }
     if (t == "save_path") {
-        clip().then(() => joinAndSave(arg));
+        savePath = arg;
+        if (isTsOk) clip().then(() => joinAndSave(arg));
     }
 });
 
@@ -693,6 +694,9 @@ async function save() {
 
 document.getElementById("save").onclick = save;
 
+var savePath = "";
+var isTsOk = false;
+
 const prEl = {
     ts: document.getElementById("pr_ts"),
     clip: document.getElementById("pr_clip"),
@@ -746,6 +750,14 @@ function updataPrEl(pr: typeof ffprocess) {
             } else if (stI.ok === prILen) {
                 prEl[key].innerText = `${prText.ok[key]}`;
                 prEl[key].classList.add("pro_ok");
+                if (key === "ts") {
+                    isTsOk = true;
+                    if (savePath) {
+                        clip().then(() => joinAndSave(savePath));
+                    } else {
+                        prEl[key].innerText += ` 等待保存`;
+                    }
+                }
             } else {
                 prEl[key].innerText = `${prText.running[key]} ${stI.running}/${prILen}`;
                 prEl[key].style.width = (stI.running / prILen) * 100 + "%";
