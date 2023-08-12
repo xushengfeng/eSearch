@@ -2589,7 +2589,7 @@ var drawNumberN = 1;
 
 fabricCanvas.on("mouse:down", (options) => {
     // 非常规状态下点击
-    if (shape != "") {
+    if (shape != "" && (!options.target || options.target.length === 0)) {
         drawingShape = true;
         fabricCanvas.selection = false;
         // 折线与多边形要多次点击，在poly_o_p存储点
