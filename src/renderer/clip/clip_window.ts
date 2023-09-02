@@ -110,8 +110,6 @@ var drawBar = document.getElementById("draw_bar");
 
 var nowScreenId = 0;
 
-var screensL = [];
-
 var screens = [];
 
 var displays: Electron.Display[];
@@ -149,9 +147,9 @@ function fixCaptureInfo(all: import("node-screenshots").Screenshots[]) {
     return all;
 }
 
-function capturer(all: import("node-screenshots").Screenshots[]) {
+/** 用于ding */
+function cleanCaptureInfo(all: import("node-screenshots").Screenshots[]) {
     let x: {
-        image: Buffer;
         id: number;
         x: number;
         y: number;
@@ -162,9 +160,7 @@ function capturer(all: import("node-screenshots").Screenshots[]) {
         isPrimary: boolean;
     }[] = [];
     all.forEach((capturer) => {
-        let s = capturer.captureSync();
         x.push({
-            image: s,
             id: capturer.id,
             x: capturer.x,
             y: capturer.y,
@@ -179,45 +175,43 @@ function capturer(all: import("node-screenshots").Screenshots[]) {
     return x;
 }
 
-function captureAll(_displays: Electron.Display[], point: Electron.Point) {
-    // 获取所有屏幕截图
+function getMainScreen(point: Electron.Point) {
     let all = Screenshots.all() ?? [];
     all = fixCaptureInfo(all);
-
-    displays = _displays;
-
-    let x = capturer(all);
-    screens = x;
-
-    let haveMain = false;
-
     let p = point;
-    for (let i of x) {
+    for (let i of all) {
         if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
-            i["main"] = true;
-            haveMain = true;
-            break;
+            return i.id;
         }
     }
-    if (!haveMain) x[0]["main"] = true;
-    return x;
+
+    return all[0].id;
 }
 
 setSetting();
-ipcRenderer.on("reflash", (_a, data, displays, point, act) => {
-    if (!data) data = captureAll(displays, point);
+ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _displays, point, act) => {
+    displays = _displays;
+    if (!data) {
+        data = Screenshots.all() ?? [];
+        data = fixCaptureInfo(data);
+        screens = cleanCaptureInfo(data);
+    }
     console.log(data);
+    let mainId = getMainScreen(point);
     for (let i of data) {
-        screensL.push(i);
         if (i) {
-            if (i.main) {
+            if (i["main"] || i.id === mainId) {
+                if (!i["image"]) i["image"] = i.captureSync();
                 setScreen(i);
                 setEditorP(1 / i.scaleFactor, 0, 0);
                 zoomW = i.width;
                 ratio = i.scaleFactor;
             }
             let c = document.createElement("canvas");
-            toCanvas(c, i.image);
+            // 显示预览 但防止阻塞
+            setTimeout(() => {
+                toCanvas(c, i.captureSync());
+            }, 10);
             let div = document.createElement("div");
             div.append(c);
             sideBarScreens.append(div);
@@ -928,7 +922,7 @@ function long_s() {
     let all = Screenshots.all() ?? [];
     all = fixCaptureInfo(all);
     let s = all.find((i) => i.id === nowScreenId);
-    let x = nativeImage.createFromBuffer(capturer([s])[0].image);
+    let x = nativeImage.createFromBuffer(s.captureSync());
     addLong(x.getBitmap(), x.getSize().width, x.getSize().height);
     s = x = null;
 }
