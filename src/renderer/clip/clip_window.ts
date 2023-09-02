@@ -116,31 +116,40 @@ var screens = [];
 
 var displays: Electron.Display[];
 
-type Screenshots = {
-    id: number;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation: number;
-    scaleFactor: number;
-    isPrimary: boolean;
-    all(): Array<Screenshots> | null;
-    fromDisplay(id: number): Screenshots | null;
-    fromPoint(x: number, y: number): Screenshots | null;
-    captureSync(): Buffer | null;
-    capture(): Promise<Buffer>;
-    captureAreaSync(x: number, y: number, width: number, height: number): Buffer | null;
-    captureArea(x: number, y: number, width: number, height: number): Promise<Buffer>;
-};
-let Screenshots: Screenshots;
+let Screenshots: typeof import("node-screenshots").Screenshots;
 try {
     Screenshots = require("node-screenshots").Screenshots;
 } catch (error) {
     shell.openExternal("https://esearch-app.netlify.app/download.html");
 }
 
-function capturer(all: Screenshots[]) {
+/**
+ * 修复屏幕信息
+ * @see https://github.com/nashaofu/node-screenshots/issues/18
+ * @param all
+ * @returns
+ */
+function fixCaptureInfo(all: import("node-screenshots").Screenshots[]) {
+    if (process.platform == "win32")
+        for (let s of displays) {
+            for (let ss of all) {
+                // id对不上，只能用坐标，考虑精度，小于10认为是相等的
+                if (
+                    ss.x * ss.scaleFactor - s.bounds.x * s.scaleFactor < 10 &&
+                    ss.y * ss.scaleFactor - s.bounds.y * s.scaleFactor < 10
+                ) {
+                    ss.x = s.bounds.x;
+                    ss.y = s.bounds.y;
+                    ss.height = s.size.height;
+                    ss.width = s.size.width;
+                    ss.scaleFactor = s.scaleFactor;
+                }
+            }
+        }
+    return all;
+}
+
+function capturer(all: import("node-screenshots").Screenshots[]) {
     let x: {
         image: Buffer;
         id: number;
@@ -166,23 +175,6 @@ function capturer(all: Screenshots[]) {
             isPrimary: capturer.isPrimary,
         });
     });
-    // 临时修复 https://github.com/nashaofu/node-screenshots/issues/18
-    if (process.platform == "win32")
-        for (let s of displays) {
-            for (let ss of x) {
-                // id对不上，只能用坐标，考虑精度，小于10认为是相等的
-                if (
-                    ss.x * ss.scaleFactor - s.bounds.x * s.scaleFactor < 10 &&
-                    ss.y * ss.scaleFactor - s.bounds.y * s.scaleFactor < 10
-                ) {
-                    ss.x = s.bounds.x;
-                    ss.y = s.bounds.y;
-                    ss.height = s.size.height;
-                    ss.width = s.size.width;
-                    ss.scaleFactor = s.scaleFactor;
-                }
-            }
-        }
 
     return x;
 }
@@ -190,6 +182,7 @@ function capturer(all: Screenshots[]) {
 function captureAll(_displays: Electron.Display[], point: Electron.Point) {
     // 获取所有屏幕截图
     let all = Screenshots.all() ?? [];
+    all = fixCaptureInfo(all);
 
     displays = _displays;
 
@@ -932,7 +925,9 @@ function initRecord() {
 }
 
 function long_s() {
-    let s = Screenshots.fromDisplay(nowScreenId);
+    let all = Screenshots.all() ?? [];
+    all = fixCaptureInfo(all);
+    let s = all.find((i) => i.id === nowScreenId);
     let x = nativeImage.createFromBuffer(capturer([s])[0].image);
     addLong(x.getBitmap(), x.getSize().width, x.getSize().height);
     s = x = null;
