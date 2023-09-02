@@ -17,7 +17,7 @@ jobs:
                 exclude:
                     - os: ubuntu-latest
                       arch: arm64
-                max-parallel: 3
+            max-parallel: 3
 
         steps:
             - name: Check out Git repository
