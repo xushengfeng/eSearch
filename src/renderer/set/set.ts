@@ -460,6 +460,8 @@ if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty
         );
 };
 
+(<HTMLInputElement>document.getElementById("记住引擎")).checked = Boolean(old_store.引擎.记住);
+
 var o_搜索引擎 = old_store.搜索引擎;
 if (o_搜索引擎) {
     var text = "";
@@ -521,6 +523,8 @@ document.getElementById("翻译引擎").onchange = () => {
     document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
     setRadio(document.getElementById("默认翻译引擎"), o翻译引擎[0][0]);
 };
+
+(<HTMLInputElement>document.getElementById("记住识图引擎")).checked = Boolean(old_store.以图搜图.记住);
 
 document.getElementById("clear_storage").onclick = () => {
     ipcRenderer.send("setting", "clear", "storage");
