@@ -1049,6 +1049,9 @@ function initLong(rect: number[]) {
     lr.style.width = rect[2] / ratio + "px";
     lr.style.height = rect[3] / ratio + "px";
     document.getElementById("long_finish").onclick = () => {
+        // 再截屏以覆盖结束按钮
+        long_s();
+
         lr.style.opacity = "0";
         ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
         addLong(null, null, null);
