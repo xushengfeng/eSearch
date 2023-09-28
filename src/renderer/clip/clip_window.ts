@@ -930,8 +930,8 @@ function long_s() {
 let uIOhook;
 
 var logO = {
-    longList: [] as [HTMLCanvasElement, HTMLCanvasElement, HTMLCanvasElement][],
-    l: [],
+    longList: [] as { src: HTMLCanvasElement; temp: HTMLCanvasElement; after: HTMLCanvasElement }[],
+    l: [] as { x: number; y: number }[],
     oCanvas: null,
     p: { x: 0, y: 0 },
 };
@@ -961,7 +961,7 @@ function startLong() {
     });
 }
 
-function addLong(x, w, h) {
+function addLong(x: Buffer, w: number, h: number) {
     let longList = logO.longList;
     let oCanvas = logO.oCanvas;
     let p = logO.p;
@@ -982,9 +982,11 @@ function addLong(x, w, h) {
     for (let i = 0; i < x.length; i += 4) {
         [x[i], x[i + 2]] = [x[i + 2], x[i]];
     }
-    var d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    let d = new ImageData(Uint8ClampedArray.from(x), w, h);
     canvas.getContext("2d").putImageData(d, 0, 0);
-    var gid = canvas.getContext("2d").getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
+    let gid = canvas.getContext("2d").getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
+
+    // 设定canvas宽高并设置裁剪后的图像
     canvas.width = canvasTop.width = canvasAfter.width = finalRect[2];
     canvas.height = finalRect[3];
     const recHeight = Math.min(200, finalRect[3]);
@@ -994,11 +996,14 @@ function addLong(x, w, h) {
     canvas.getContext("2d").putImageData(gid, 0, 0);
     canvasTop.getContext("2d").putImageData(gid, 0, -recTop);
     canvasAfter.getContext("2d").putImageData(gid, 0, -recTop);
-    longList.push([canvas, canvasTop, canvasAfter]);
+
+    longList.push({ src: canvas, temp: canvasTop, after: canvasAfter });
+
+    // 对比
     let i = longList.length - 2;
     if (i < 0) return;
-    let src = cv.imread(longList[i][0]);
-    let templ = cv.imread(longList[i + 1][1]);
+    let src = cv.imread(longList[i].src);
+    let templ = cv.imread(longList[i + 1].temp);
     let dst = new cv.Mat();
     let mask = new cv.Mat();
     cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
@@ -1008,13 +1013,13 @@ function addLong(x, w, h) {
     oCanvas.height += maxPoint.y;
     p.x += maxPoint.x;
     p.y += maxPoint.y;
-    logO.l.push([p.x, p.y]);
+    logO.l.push({ x: p.x, y: p.y });
     oCanvas.height -= recTop;
     p.y -= recTop;
     src.delete();
     dst.delete();
     mask.delete();
-    longList[i + 1][1] = null;
+    longList[i + 1].temp = null;
 }
 
 var longInited = false;
@@ -1068,9 +1073,9 @@ function pjLong() {
     let l = logO.l,
         longList = logO.longList,
         oCanvas = logO.oCanvas;
-    oCanvas.getContext("2d").drawImage(longList[0][0], 0, 0); // 先画顶部图片，使用原始区域
+    oCanvas.getContext("2d").drawImage(longList[0].src, 0, 0); // 先画顶部图片，使用原始区域
     for (let i = 0; i < longList.length - 1; i++) {
-        oCanvas.getContext("2d").drawImage(longList[i + 1][2], l[i][0], l[i][1]); // 每次拼接覆盖时底部总会被覆盖，所以不用管底部
+        oCanvas.getContext("2d").drawImage(longList[i + 1].after, l[i].x, l[i].y); // 每次拼接覆盖时底部总会被覆盖，所以不用管底部
     }
     mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
