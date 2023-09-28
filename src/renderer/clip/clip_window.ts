@@ -338,7 +338,7 @@ document.addEventListener("mousemove", (e) => {
 
 document.onwheel = (e) => {
     if (!editor.contains(e.target as HTMLElement) && e.target != document.body) return;
-    if (longInited) return;
+    if (longRunning) return;
     if (recordInited) return;
 
     document.body.classList.add("editor_bg");
@@ -1022,10 +1022,12 @@ function addLong(x: Buffer, w: number, h: number) {
     longList[i + 1].temp = null;
 }
 
+var longRunning = false;
 var longInited = false;
 
 const lr = document.getElementById("long_rect");
 function initLong(rect: number[]) {
+    longRunning = true;
     longInited = true;
     let l = [
         toolBar,
@@ -1095,7 +1097,7 @@ function pjLong() {
 
     lr.style.width = lr.style.height = "0";
 
-    longInited = false;
+    longRunning = false;
 }
 
 // 钉在屏幕上
@@ -1309,7 +1311,7 @@ document.querySelector("body").onkeydown = (e) => {
     let tagName = (<HTMLElement>e.target).tagName;
     if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
         return;
-    if (longInited) return;
+    if (longRunning) return;
     if (recordInited) return;
     const o = {
         ArrowUp: "up",
