@@ -15,8 +15,8 @@ dependencies:
     specifier: ^8.1.0
     version: 8.1.0
   esearch-ocr:
-    specifier: ^4.1.0
-    version: 4.1.0(opencv.js@1.2.1)
+    specifier: ^4.1.1
+    version: 4.1.1(opencv.js@1.2.1)
   esearch-seg:
     specifier: ^1.0.0
     version: registry.npmjs.org/esearch-seg@1.0.0(opencv.js@1.2.1)
@@ -2111,8 +2111,8 @@ packages:
     dev: true
     optional: true
 
-  /esearch-ocr@4.1.0(opencv.js@1.2.1):
-    resolution: {integrity: sha512-AE3nQ0EzP/f0PJ5pEdGNhlBZ0IMAp7209GbX6MXS73PgMnm9ZowZR/0veZIvakrDruutcJ2vNmcgyHgFbs/oEg==}
+  /esearch-ocr@4.1.1(opencv.js@1.2.1):
+    resolution: {integrity: sha512-BVeV69FMDEDFSGi2h04NMuR+efImDELEvgPIyWsUFwePD4v7SaEBuTbk6wqeNv7kRNwg+Nr/NmJHW2fZ1sWCIA==}
     peerDependencies:
       opencv.js: ^1.2.1
     dependencies:
