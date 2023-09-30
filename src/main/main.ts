@@ -170,7 +170,7 @@ function openClipBoard() {
     createMainWindow("editor.html", [t]);
 }
 
-// cil参数重复启动;
+// cli参数重复启动;
 var firstOpen = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
@@ -206,6 +206,9 @@ function argRun(c: string[]) {
             break;
         case c.includes("-q"):
             quickClip();
+            break;
+        case c.includes("-t"):
+            createMainWindow("editor.html", [c[c.findIndex((t) => t === "-t") + 1]]);
             break;
         default:
             for (let i of c) {
