@@ -8,6 +8,9 @@ dependencies:
   color:
     specifier: ^4.2.3
     version: 4.2.3
+  diff-match-patch:
+    specifier: ^1.0.5
+    version: 1.0.5
   download:
     specifier: ^8.0.0
     version: 8.0.0
@@ -75,6 +78,9 @@ devDependencies:
   '@types/color':
     specifier: ^3.0.3
     version: 3.0.3
+  '@types/diff-match-patch':
+    specifier: ^1.0.34
+    version: 1.0.34
   '@types/node':
     specifier: ^18.8.4
     version: 18.8.4
@@ -1035,6 +1041,10 @@ packages:
       '@types/ms': 0.7.31
     dev: true
 
+  /@types/diff-match-patch@1.0.34:
+    resolution: {integrity: sha512-GPT65LkqMpttT0BrYBzSv4FYgiEh7TXYxxFW8ufxn3+d6PhEJKdD4OAS4s0n8reeEku1ki56J2zj5FIPi5unVQ==}
+    dev: true
+
   /@types/fs-extra@9.0.13:
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
     dependencies:
@@ -1830,6 +1840,10 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /diff-match-patch@1.0.5:
+    resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
+    dev: false
 
   /dir-compare@3.3.0:
     resolution: {integrity: sha512-J7/et3WlGUCxjdnD3HAAzQ6nsnc0WL6DD7WcwJb7c39iH1+AWfg+9OqzJNaI6PkBwBvm1mhZNL9iY/nRiZXlPg==}

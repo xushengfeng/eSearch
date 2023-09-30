@@ -18,6 +18,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "color": "^4.2.3",
+        "diff-match-patch": "^1.0.5",
         "download": "^8.0.0",
         "electron-store": "^8.1.0",
         "esearch-ocr": "^4.1.1",
@@ -34,6 +35,7 @@
     "devDependencies": {
         "@electron-toolkit/tsconfig": "^1.0.1",
         "@types/color": "^3.0.3",
+        "@types/diff-match-patch": "^1.0.34",
         "@types/node": "^18.8.4",
         "electron": "^22.3.6",
         "electron-builder": "^24.4.0",

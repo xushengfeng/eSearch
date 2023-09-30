@@ -2018,6 +2018,8 @@ function addOcrText(r: ocrResult, i: number) {
         xel.innerText = i.text;
     }
     img.parentElement.append(div);
+
+    addOcrSelect(div);
 }
 
 function addOcrPhoto(base: string) {
@@ -2027,3 +2029,98 @@ function addOcrPhoto(base: string) {
 
 let output = [];
 console.log(output);
+
+let ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
+function addOcrSelect(div: HTMLDivElement) {
+    let allTextNodes: Node[] = [];
+    const treeWalker = document.createTreeWalker(div, NodeFilter.SHOW_TEXT);
+    let currentNode = treeWalker.nextNode();
+    while (currentNode) {
+        allTextNodes.push(currentNode);
+        currentNode = treeWalker.nextNode();
+    }
+    console.log(allTextNodes);
+    ocrTextNodes.set(div, allTextNodes);
+}
+document.addEventListener("selectionchange", () => {
+    let range = document.getSelection().getRangeAt(0);
+    console.log(range);
+    let div = (
+        range.commonAncestorContainer.nodeName === "DIV"
+            ? range.commonAncestorContainer
+            : range.commonAncestorContainer.parentElement.parentElement
+    ) as HTMLDivElement;
+    let allTextNodes = ocrTextNodes.get(div);
+    if (!allTextNodes) return;
+    let start = 0;
+    let end = 0;
+    let startOk = false;
+    let endOk = false;
+    let sourceText = "";
+    allTextNodes.forEach((node) => {
+        if (range.startContainer === node) {
+            start += range.startOffset;
+            startOk = true;
+        } else {
+            if (!startOk) start += node.textContent.length;
+        }
+        if (range.endContainer === node) {
+            end += range.endOffset;
+            endOk = true;
+        } else {
+            if (!endOk) end += node.textContent.length;
+        }
+        sourceText += node.textContent;
+    });
+    if (start > end) [start, end] = [end, start];
+    console.log(start, end);
+
+    let diff = dmp.diff_main(sourceText, editor.get());
+    console.log(diff);
+    let source: number[] = [];
+    let map: number[] = [];
+    let p0 = 0,
+        p1 = 0;
+    for (let i = 0; i < diff.length; i++) {
+        let d = diff[i];
+        if (d[0] === -1 && diff[i + 1] && diff[i + 1][0] === 1) {
+            p0 += d[1].length;
+            p1 += d[1].length;
+            source.push(p0);
+            map.push(p1);
+            continue;
+        } else {
+            if (d[0] === 0) {
+                p0 += d[1].length;
+                p1 += d[1].length;
+                source.push(p0);
+                map.push(p1);
+            } else if (d[0] === 1) {
+                p1 += d[1].length;
+                source.push(p0);
+                map.push(p1);
+            } else if (d[0] === -1) {
+                p0 += d[1].length;
+                source.push(p0);
+                map.push(p1);
+            }
+        }
+    }
+    map.push(editor.get().length);
+    console.log(source, map);
+    let editorStart = 0,
+        editorEnd = 0;
+    for (let i = 0; i < source.length; i++) {
+        if (source[i] <= start && start <= source[i + 1]) {
+            editorStart = Math.min(map[i] + (start - source[i]), map[i + 1]);
+        }
+        if (source[i] <= end && end <= source[i + 1]) {
+            editorEnd = Math.min(map[i] + (end - source[i]), map[i + 1]);
+        }
+    }
+    editor.selections.clearAll();
+    editor.selections.add({ start: editorStart, end: editorEnd });
+});
+
+import diff_match_patch from "diff-match-patch";
+var dmp = new diff_match_patch();
