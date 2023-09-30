@@ -1584,7 +1584,7 @@ function searchImg(img: string, type: "baidu" | "yandex" | "google", callback: F
  * @param options
  * @param cb 回调
  */
-function post(url: string, options: RequestInit, cb: Function) {
+function post(url: string, options: RequestInit, cb: (err: Error, result: any) => {}) {
     fetch(url, Object.assign(options, { method: "POST" }))
         .then((r) => {
             console.log(r);
@@ -1600,18 +1600,22 @@ function post(url: string, options: RequestInit, cb: Function) {
         });
 }
 
-function baidu(image, callback) {
-    var data = new URLSearchParams({ from: "pc", image }).toString();
-    post(
-        "https://graph.baidu.com/upload",
-        { headers: { "content-type": "application/x-www-form-urlencoded" }, body: data },
-        (err, result) => {
-            if (err) return callback(err, null);
-            if (result.msg != "Success") return callback(new Error(JSON.stringify(err)), null);
-            console.log(result.data.url);
-            return callback(null, result.data.url);
-        }
-    );
+function baidu(image: string, callback: (err: Error, url: string) => {}) {
+    let form = new FormData();
+    let bstr = window.atob(image);
+    let n = bstr.length;
+    let u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    form.append("image", new Blob([u8arr], { type: "image/png" }), "eSearch.png");
+    form.append("from", "pc");
+    post("https://graph.baidu.com/upload", { body: form }, (err, result) => {
+        if (err) return callback(err, null);
+        if (result.msg != "Success") return callback(new Error(JSON.stringify(err)), null);
+        console.log(result.data.url);
+        return callback(null, result.data.url);
+    });
 }
 
 function yandex(image, callback) {
