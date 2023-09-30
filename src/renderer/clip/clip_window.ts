@@ -769,7 +769,7 @@ function drawM(v: boolean) {
         hotkeys.setScope("normal");
         fabricCanvas.discardActiveObject();
         fabricCanvas.renderAll();
-        mouseBarEl.style.pointerEvents = document.getElementById("clip_wh").style.pointerEvents = "auto";
+        document.getElementById("clip_wh").style.pointerEvents = "auto";
     }
 }
 trackLocation();
@@ -1424,7 +1424,6 @@ clipCanvas.onmousedown = (e) => {
         pickColor({ x: e.offsetX, y: e.offsetY });
     }
     toolBar.style.pointerEvents =
-        document.getElementById("mouse_bar").style.pointerEvents =
         drawBar.style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "none";
@@ -1510,7 +1509,6 @@ clipCanvas.onmouseup = (e) => {
         }
     }
     toolBar.style.pointerEvents =
-        document.getElementById("mouse_bar").style.pointerEvents =
         drawBar.style.pointerEvents =
         document.getElementById("clip_wh").style.pointerEvents =
             "auto";
