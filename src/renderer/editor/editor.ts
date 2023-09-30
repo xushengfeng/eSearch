@@ -1692,7 +1692,7 @@ async function localOcr(
         let detp = ocrPath(l[1]),
             recp = ocrPath(l[2]),
             字典 = ocrPath(l[3]);
-        console.log(ocrPath);
+        console.log(detp, recp, 字典);
         const lo = require("esearch-ocr") as typeof import("esearch-ocr");
         await lo.init({
             detPath: detp,
