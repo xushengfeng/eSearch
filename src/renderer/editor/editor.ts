@@ -1975,17 +1975,26 @@ function runOcr() {
         el.innerHTML = "";
     });
     let type = ocr引擎.value;
-    imgsEl.querySelectorAll(":scope > div > img").forEach((el: HTMLImageElement, i) => {
+    let imgList = imgsEl.querySelectorAll(":scope > div > img");
+    imgList.forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
             onlineOcr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
                 addOcrText(r.raw, i);
+                addOcrToEditor(r.text, i);
             });
         } else {
             localOcr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
                 addOcrText(r.raw, i);
+                addOcrToEditor(r.text, i);
             });
         }
     });
+    function addOcrToEditor(text: string, i: number) {
+        output[i] = text;
+        if (output.length === imgList.length) {
+            editor.push(output.join("\n"));
+        }
+    }
 }
 
 type ocrResult = {
