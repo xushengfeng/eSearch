@@ -1707,7 +1707,7 @@ async function localOcr(
             detShape: [960, 960],
         });
         let img = document.createElement("img");
-        img.src = "data:image/png;base64," + arg;
+        img.src = arg;
         img.onload = async () => {
             let canvas = document.createElement("canvas");
             canvas.width = img.width;
@@ -1746,6 +1746,8 @@ function onlineOcr(
     arg: string,
     callback: (error: string, result: { raw: ocrResult; text: string }) => void
 ) {
+    arg = arg.replace("data:image/png;base64,", "");
+
     var clientId = store.get(`在线OCR.${type}.id`),
         clientSecret = store.get(`在线OCR.${type}.secret`);
     if (!clientId || !clientSecret) return callback("未填写 API Key 或 Secret Key", null);
@@ -1982,12 +1984,12 @@ function runOcr() {
     let imgList = imgsEl.querySelectorAll(":scope > div > img");
     imgList.forEach((el: HTMLImageElement, i) => {
         if (type == "baidu" || type == "youdao") {
-            onlineOcr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
+            onlineOcr(type, el.src, (_err, r) => {
                 addOcrText(r.raw, i);
                 addOcrToEditor(r.text, i);
             });
         } else {
-            localOcr(type, el.src.replace("data:image/png;base64,", ""), (_err, r) => {
+            localOcr(type, el.src, (_err, r) => {
                 addOcrText(r.raw, i);
                 addOcrToEditor(r.text, i);
             });
@@ -2036,7 +2038,7 @@ function addOcrText(r: ocrResult, i: number) {
 }
 
 function addOcrPhoto(base: string) {
-    let el = createImg("data:image/png;base64," + base);
+    let el = createImg(base);
     imgsEl.append(el);
 }
 

@@ -663,7 +663,7 @@ ocrErrEl.classList.add("ocr_err_hide");
 function runOcr() {
     const type = ocr引擎.value;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
+        ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL(), type]);
     });
 
     scanLine();
