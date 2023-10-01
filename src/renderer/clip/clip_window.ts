@@ -632,6 +632,7 @@ function 记忆框选f() {
 function closeWin() {
     document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
     记忆框选f();
+    mainCanvas.width = clipCanvas.width = drawCanvas.width = mainCanvas.width; // 确保清空画布
     if (uIOhook) {
         uIOhook.stop();
     }
