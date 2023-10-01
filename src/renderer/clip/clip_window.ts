@@ -2533,7 +2533,7 @@ function clickDraw(id: string) {
             }
             if (s) {
                 op["stroke"] = s;
-                fillColor = s;
+                strokeColor = s;
             }
             changeColor(op, false, true);
             let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
@@ -3025,9 +3025,9 @@ function getFObjectV() {
  * 更改全局或选中形状的颜色
  * @param {String} fill 填充颜色
  * @param {String} stroke 边框颜色
- * @param {Number} strokeWidth 边框宽度
+ * @param {Number} sw 边框宽度
  */
-function setFObjectV(fill: string, stroke: string, strokeWidth: number) {
+function setFObjectV(fill: string, stroke: string, sw: number) {
     if (fabricCanvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
@@ -3039,11 +3039,11 @@ function setFObjectV(fill: string, stroke: string, strokeWidth: number) {
                 if (n[i].canChangeFill) n[i].set("fill", fill);
             }
             if (stroke) n[i].set("stroke", stroke);
-            if (strokeWidth) n[i].set("strokeWidth", strokeWidth);
+            if (sw) n[i].set("strokeWidth", sw);
             if (n[i].形状) {
-                if (fill) store.set(`图像编辑.形状属性.${n[i].形状}.fc`, fill);
-                if (stroke) store.set(`图像编辑.形状属性.${n[i].形状}.sc`, stroke);
-                if (strokeWidth) store.set(`图像编辑.形状属性.${n[i].形状}.sw`, strokeWidth);
+                store.set(`图像编辑.形状属性.${n[i].形状}.fc`, fill || fillColor);
+                store.set(`图像编辑.形状属性.${n[i].形状}.sc`, stroke || strokeColor);
+                store.set(`图像编辑.形状属性.${n[i].形状}.sw`, sw || strokeWidth);
             }
         }
         fabricCanvas.renderAll();
@@ -3051,19 +3051,19 @@ function setFObjectV(fill: string, stroke: string, strokeWidth: number) {
         console.log(1);
         /* 画笔 */
         if (stroke) fabricCanvas.freeDrawingBrush.color = freeColor = stroke;
-        if (strokeWidth) fabricCanvas.freeDrawingBrush.width = freeWidth = strokeWidth;
+        if (sw) fabricCanvas.freeDrawingBrush.width = freeWidth = sw;
         freeDrawCursor();
         freeShadow();
         if (mode) {
-            if (stroke) store.set(`图像编辑.形状属性.${mode}.sc`, stroke);
-            if (strokeWidth) store.set(`图像编辑.形状属性.${mode}.sw`, strokeWidth);
+            store.set(`图像编辑.形状属性.${mode}.sc`, stroke || strokeColor);
+            store.set(`图像编辑.形状属性.${mode}.sw`, sw || strokeWidth);
         }
     } else {
         console.log(2);
         /* 非画笔非选中 */
         if (fill) fillColor = fill;
         if (stroke) strokeColor = freeColor = stroke;
-        if (strokeWidth) strokeWidth = strokeWidth;
+        if (sw) strokeWidth = sw;
     }
 }
 
