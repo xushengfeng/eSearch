@@ -2406,6 +2406,7 @@ function pencilElClick() {
     exitShape();
     exitFilter();
     freeDrawCursor();
+    ableChangeColor();
 }
 // 橡皮
 var eraserEl = <HTMLInputElement>document.getElementById("draw_free_eraser");
@@ -2423,6 +2424,7 @@ function eraserElClick() {
     exitShape();
     exitFilter();
     freeDrawCursor();
+    ableChangeColor();
 }
 // 刷
 var freeSprayEl = <HTMLInputElement>document.getElementById("draw_free_spray");
@@ -2444,6 +2446,7 @@ function freeSprayElClick() {
     exitShape();
     exitFilter();
     freeDrawCursor();
+    ableChangeColor();
 }
 // 阴影
 (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
@@ -2549,6 +2552,8 @@ function clickDraw(id: string) {
     } else {
         exitShape();
     }
+
+    ableChangeColor();
 }
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
@@ -2851,6 +2856,18 @@ function changeAlpha(v, m) {
     changeColor({ [m]: rgba }, true, true);
 }
 
+const drawItemsEl = document.getElementById("draw_color_size_i");
+function ableChangeColor() {
+    if (fabricCanvas.isDrawingMode || shape || fabricCanvas.getActiveObject()) {
+        drawItemsEl.style.pointerEvents = "auto";
+        drawItemsEl.style.opacity = "1";
+    } else {
+        drawItemsEl.style.pointerEvents = "none";
+        drawItemsEl.style.opacity = "0.2";
+    }
+}
+ableChangeColor();
+
 // 刷新控件颜色
 /**
  * 改变颜色
@@ -3001,6 +3018,8 @@ function getFObjectV() {
     colorAlphaInput1.value = String(Math.round(fill_a * 100));
     var stroke_a = Color(colorStrokeEl.innerText).alpha();
     colorAlphaInput2.value = String(Math.round(stroke_a * 100));
+
+    ableChangeColor();
 }
 /**
  * 更改全局或选中形状的颜色
