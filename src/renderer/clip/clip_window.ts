@@ -2291,6 +2291,7 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
         }
     });
     function show() {
+        let isShow = bSize * 2 === drawBar.offsetWidth;
         drawBar.style.width = "calc(var(--bar-size) * 2)";
         drawBar.style.transition = "var(--transition)";
         if (drawBarPosi == "right") {
@@ -2301,8 +2302,11 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
             if (drawBar.offsetLeft - bSize < 0) {
                 setBarGroup(false);
             } else {
-                beforeBarPosi.draw = drawBar.offsetLeft;
-                drawBar.style.left = drawBar.offsetLeft - bSize + "px";
+                if (!isShow) {
+                    // 已经展开，防止继续位移
+                    beforeBarPosi.draw = drawBar.offsetLeft;
+                    drawBar.style.left = drawBar.offsetLeft - bSize + "px";
+                }
             }
         }
         setTimeout(() => {
