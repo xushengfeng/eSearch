@@ -2094,15 +2094,18 @@ document.addEventListener("selectionchange", () => {
     console.log(diff);
     let source: number[] = [];
     let map: number[] = [];
+    if (diff.at(-1)[0] === 1) diff.push([0, ""]);
     let p0 = 0,
         p1 = 0;
     for (let i = 0; i < diff.length; i++) {
         let d = diff[i];
-        if (d[0] === -1 && diff[i + 1] && diff[i + 1][0] === 1) {
+        let dn = diff[i + 1];
+        if (d[0] === -1 && dn && dn[0] === 1) {
             p0 += d[1].length;
-            p1 += d[1].length;
+            p1 += dn[1].length;
             source.push(p0);
             map.push(p1);
+            i++;
             continue;
         } else {
             if (d[0] === 0) {
