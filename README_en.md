@@ -151,13 +151,6 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Spell check
 -   [x] Wayland Desktop
 
-## plug-in
-
-[simple mini plug-ins](https://esearch-app.netlify.app/plugin.html)
-
--   hide the mouse follow bar (color picker and coordinates).
--   hide toolbar buttons (you can change them yourself)
-
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
 > Screenshot, free resizing of frames (video approx. 2.6MB)

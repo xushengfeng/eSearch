@@ -151,13 +151,6 @@ esearch (若找不到，请尝试e-search)
     -   [x] 拼写检查
 -   [x] Wayland 桌面
 
-## 插件
-
-[简单的小插件](https://esearch-app.netlify.app/plugin.html)
-
--   隐藏鼠标跟随栏（取色器和坐标）
--   隐藏工具栏按钮（可自行更改）
-
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
 > 截屏，自由调整框选大小（视频约 2.6MB）
