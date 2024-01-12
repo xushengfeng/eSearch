@@ -25,31 +25,31 @@
         "esearch-seg": "^1.0.0",
         "hex-to-css-filter": "^5.4.0",
         "hotkeys-js": "^3.10.0",
-        "node-screenshots": "^0.1.4",
-        "onnxruntime-node": "^1.13.1",
+        "node-screenshots": "^0.1.9",
+        "onnxruntime-node": "^1.16.3",
         "opencv.js": "^1.2.1",
         "qr-scanner-wechat": "^0.1.2",
-        "uiohook-napi": "^1.5.0",
+        "uiohook-napi": "^1.5.2",
         "x11": "^2.3.0"
     },
     "devDependencies": {
-        "@electron-toolkit/tsconfig": "^1.0.1",
         "@types/color": "^3.0.3",
         "@types/diff-match-patch": "^1.0.34",
         "@types/node": "^18.8.4",
         "electron": "^22.3.6",
         "electron-builder": "^24.4.0",
-        "electron-vite": "^1.0.24",
-        "typescript": "^5.1.6",
-        "vite": "^4.4.1"
+        "electron-vite": "^2.0.0",
+        "typescript": "^5.3.3",
+        "vite": "^5.0.11",
+        "vite-plugin-resolve": "^2.5.1"
     },
     "optionalDependencies": {
-        "node-screenshots-darwin-arm64": "0.1.4",
-        "node-screenshots-darwin-x64": "0.1.4",
-        "node-screenshots-linux-x64-gnu": "0.1.4",
-        "node-screenshots-linux-x64-musl": "0.1.4",
-        "node-screenshots-win32-arm64-msvc": "0.1.4",
-        "node-screenshots-win32-ia32-msvc": "0.1.4",
-        "node-screenshots-win32-x64-msvc": "0.1.4"
+        "node-screenshots-darwin-arm64": "0.1.9",
+        "node-screenshots-darwin-x64": "0.1.9",
+        "node-screenshots-linux-x64-gnu": "0.1.9",
+        "node-screenshots-linux-x64-musl": "0.1.9",
+        "node-screenshots-win32-arm64-msvc": "0.1.9",
+        "node-screenshots-win32-ia32-msvc": "0.1.9",
+        "node-screenshots-win32-x64-msvc": "0.1.9"
     }
 }
