@@ -50,7 +50,12 @@ ipcMain.on("run_path", (event) => {
     event.returnValue = runPath;
 });
 
-var store = new Store();
+try {
+    var store = new Store();
+} catch (error) {
+    fs.unlinkSync(path.join(app.getPath("userData"), "config.json"));
+    var store = new Store();
+}
 
 var /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
