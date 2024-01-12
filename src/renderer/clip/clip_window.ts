@@ -201,7 +201,7 @@ ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _
     for (let i of data) {
         if (i) {
             if (i["main"] || i.id === mainId) {
-                if (!i["image"]) i["image"] = i.captureSync();
+                if (!i["image"]) i["image"] = i.captureSync(true);
                 setScreen(i);
                 setEditorP(1 / i.scaleFactor, 0, 0);
                 zoomW = i.width;
@@ -210,7 +210,7 @@ ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _
             let c = document.createElement("canvas");
             // 显示预览 但防止阻塞
             setTimeout(() => {
-                toCanvas(c, i.captureSync());
+                toCanvas(c, i.captureSync(true));
             }, 10);
             let div = document.createElement("div");
             div.append(c);
@@ -297,7 +297,7 @@ function getFileName() {
 function quickClip() {
     const fs = require("fs");
     (Screenshots.all() ?? []).forEach((c) => {
-        let image = nativeImage.createFromBuffer(c.captureSync());
+        let image = nativeImage.createFromBuffer(c.captureSync(true));
         if (store.get("快速截屏.模式") == "clip") {
             clipboard.writeImage(image);
             image = null;
@@ -923,7 +923,7 @@ function long_s() {
     let all = Screenshots.all() ?? [];
     all = fixCaptureInfo(all);
     let s = all.find((i) => i.id === nowScreenId);
-    let x = nativeImage.createFromBuffer(s.captureSync());
+    let x = nativeImage.createFromBuffer(s.captureSync(true));
     addLong(x.getBitmap(), x.getSize().width, x.getSize().height);
     s = x = null;
 }
