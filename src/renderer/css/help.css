@@ -7,11 +7,6 @@ main {
     margin-left: 15%;
 }
 
-#tab_bar {
-    position: fixed;
-    bottom: 0;
-}
-
 img {
     width: 80%;
 }

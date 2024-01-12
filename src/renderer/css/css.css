@@ -15,7 +15,7 @@ body {
     display: grid;
     height: 100%;
     width: 100%;
-    grid-template-columns: calc(2 * var(--b-button)) 1fr var(--b-button) var(--b-button) repeat(2, auto);
+    grid-template-columns: 1fr var(--b-button) var(--b-button) repeat(2, auto);
     grid-template-rows: auto var(--b-button);
     grid-column-gap: var(--o-padding);
     grid-row-gap: var(--o-padding);
@@ -46,9 +46,6 @@ body {
     margin-top: 50vh;
 }
 
-#tab_bar {
-    margin: 0 !important;
-}
 .main > div:not(:first-child) {
     display: flex;
     align-items: center;

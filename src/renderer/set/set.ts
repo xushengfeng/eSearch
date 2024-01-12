@@ -11,12 +11,6 @@ import close_svg from "../assets/icons/close.svg";
 
 type RangeEl = HTMLElement & { value: number };
 
-document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
-    let url = new URL(el.href);
-    url.search = location.search;
-    el.href = url.toString();
-});
-
 let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
 import { t, lan } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);

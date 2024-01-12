@@ -44,36 +44,6 @@ body {
     user-select: none;
 }
 
-#tab_bar {
-    margin: 0 auto var(--o-padding) var(--o-padding);
-    display: flex;
-    align-items: center;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    background-color: var(--bg);
-    transition: var(--transition);
-}
-#tab_bar:hover {
-    box-shadow: var(--shadow);
-}
-#tab_bar a {
-    display: block;
-    text-decoration: none;
-}
-
-#tab_bar a div {
-    width: var(--b-button);
-    height: var(--b-button);
-    transition: var(--transition);
-    position: relative;
-}
-#tab_bar a div:hover {
-    background-color: var(--hover-color);
-}
-#tab_bar a div > .icon {
-    width: var(--b-button);
-}
-
 kbd {
     display: inline-block;
     padding: 2px 4px;

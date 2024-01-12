@@ -5,11 +5,6 @@ var configPath = new URLSearchParams(location.search).get("config_path");
 var store = new Store({
     cwd: configPath || "",
 });
-document.querySelectorAll("#tab_bar a").forEach((el: HTMLAnchorElement) => {
-    let url = new URL(el.href);
-    url.search = location.search;
-    el.href = url.toString();
-});
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";

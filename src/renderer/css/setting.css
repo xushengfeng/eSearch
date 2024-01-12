@@ -10,10 +10,6 @@ body {
     overflow: overlay;
     color: var(--color);
 }
-#tab_bar {
-    position: fixed;
-    bottom: 0;
-}
 #find {
     position: fixed;
     top: 0;
