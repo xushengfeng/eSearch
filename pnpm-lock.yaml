@@ -96,9 +96,6 @@ devDependencies:
   vite:
     specifier: ^5.0.11
     version: 5.0.11(@types/node@18.8.4)
-  vite-plugin-resolve:
-    specifier: ^2.5.1
-    version: 2.5.1
 
 packages:
 
@@ -2730,10 +2727,6 @@ packages:
     resolution: {integrity: sha512-0/BnGCCfyUMkBpeDgWihanIAF9JmZhHBgUhEqzvf+adhNGLoP6TaiI5oF8oyb3I45P+PcnrqihSf01M0l0G5+Q==}
     dev: true
 
-  /lib-esm@0.4.2:
-    resolution: {integrity: sha512-VGqaEGuryUbT7FLGxXg46nrSzkhLzyk+JQjYoYEORH5UtdIu3yf6DCOqh65FOR3bWOHHGINQH/vR5YGGIFBgJw==}
-    dev: true
-
   /locate-path@3.0.0:
     resolution: {integrity: sha512-7AO748wWnIhNqAuaty2ZWHkQHRSNfPVIsPIfwEOWO22AmaoVrWavlOcMR5nzTLNYvp36X220/maaRsrec1G65A==}
     engines: {node: '>=6'}
@@ -4051,12 +4044,6 @@ packages:
       extsprintf: 1.4.1
     dev: true
     optional: true
-
-  /vite-plugin-resolve@2.5.1:
-    resolution: {integrity: sha512-9dD0Yq5JT1RxHQGZOyhC7e/JlhyhMCftCpQ8TPzQa7KEB/3ERnoCPinH3VJk/0C8qHsA+l41bIcHh5BcHBTmAw==}
-    dependencies:
-      lib-esm: 0.4.2
-    dev: true
 
   /vite@5.0.11(@types/node@18.8.4):
     resolution: {integrity: sha512-XBMnDjZcNAw/G1gEiskiM1v6yzM4GE5aMGvhWTlHAYYhxb7S3/V1s3m2LDHa8Vh6yIWYYB0iJwsEaS523c4oYA==}
