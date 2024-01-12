@@ -757,7 +757,7 @@ function updataPrEl(pr: typeof ffprocess) {
                 document.getElementById("log_p").classList.remove("hide_log");
                 for (let i in pr[key]) {
                     if (pr[key][i].finish === "err") {
-                        logText.value += "\n" + pr[key][i].logs.join("\n");
+                        logText.value += "\n" + pr[key][i].logs.map((i) => i.text).join("\n");
                     }
                 }
                 logText.scrollTop = logText.scrollHeight;
