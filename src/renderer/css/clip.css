@@ -19,116 +19,6 @@ body {
     height: 100%;
 }
 
-/* 桌面切换 */
-#windows_bar {
-    background-color: var(--bar-bg);
-    width: 250px;
-    position: fixed;
-    z-index: 100;
-    backdrop-filter: var(--blur);
-    transition: var(--transition);
-    overflow: scroll;
-    height: 100%;
-    padding: 16px;
-    box-sizing: border-box;
-    transform: translateX(-100%);
-}
-#windows_bar > div {
-    margin-bottom: 16px;
-}
-#windows_bar_close {
-    border: none;
-    transition: var(--transition);
-    border-radius: var(--border-radius);
-    width: 36px;
-    height: 36px;
-    background-color: #0000;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    left: 200px;
-    z-index: 2;
-}
-#windows_bar_close > .icon {
-    width: 24px;
-    left: 6px;
-    top: 6px;
-}
-#windows_bar_close:hover {
-    background-color: var(--hover-color);
-}
-
-.window {
-    transition: var(--transition);
-    padding: 8px;
-}
-.window:hover {
-    background-color: var(--hover-color);
-    transition: var(--transition);
-}
-.window_icon {
-    height: 2rem;
-    vertical-align: middle;
-}
-.window_title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin: 0 0 0 8px;
-}
-#window_photo {
-    overflow: hidden;
-    border-radius: 8px;
-}
-.window_thumbnail {
-    width: 100%;
-    display: block;
-}
-#windows_bar > #screens {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
-#windows_bar > #screens > div > canvas {
-    width: 100%;
-}
-#img_history > div > img {
-    width: 100%;
-    display: block;
-    border-radius: 6px;
-}
-#img_history > div {
-    position: relative;
-    margin-bottom: 8px;
-    padding: 2px;
-    box-sizing: border-box;
-    background-color: var(--bar-bg);
-    backdrop-filter: var(--blur);
-    border-radius: var(--border-radius);
-}
-#img_history > div > button {
-    position: absolute;
-    right: 0;
-    top: 0;
-    border: none;
-    outline: none;
-    width: 16px;
-    height: 16px;
-    border-radius: var(--border-radius);
-    background: none;
-    transition: var(--transition);
-    background-color: var(--bar-bg);
-}
-#img_history > div > button > .icon {
-    width: 16px;
-}
-#img_history > div > button:hover {
-    background-color: #f00;
-}
-#img_history > div > button:hover > .icon {
-    filter: invert(1);
-}
-
 /* 居中栏 */
 #center_bar {
     position: fixed;
@@ -238,6 +128,28 @@ body {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
+
+#tool_screens {
+    cursor: default !important;
+}
+#tool_screens > div {
+    position: relative;
+    width: calc(var(--bar-size) * var(--bar-icon));
+    height: calc(var(--bar-size) * var(--bar-icon));
+    left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
+    top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
+}
+#tool_screens > div > div {
+    position: absolute;
+    border: 2px solid var(--color);
+    box-sizing: border-box;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.now_screen {
+    background-color: var(--bar-hover-color);
+}
+
 #tool_copy {
     cursor: copy !important;
 }

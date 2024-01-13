@@ -70,6 +70,7 @@ function setSetting() {
     document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
     bSize = 工具栏.按钮大小;
     document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
+    // todo 生成而不是更改
     let toolsOrder = store.get("工具栏.功能") as string[];
     toolBar.querySelectorAll(":scope > *").forEach((el: HTMLElement) => {
         let id = el.id.replace("tool_", "");
@@ -207,23 +208,43 @@ ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _
                 zoomW = i.width;
                 ratio = i.scaleFactor;
             }
-            if (displays.length > 1) {
-                let c = document.createElement("canvas");
-                // 显示预览 但防止阻塞
-                setTimeout(() => {
-                    toCanvas(c, i.captureSync(true));
-                }, 10);
-                let div = document.createElement("div");
-                div.append(c);
-                sideBarScreens.append(div);
-                div.onclick = () => {
-                    setScreen(i);
-                };
-            }
             screenPosition[i.id] = { x: i.x, y: i.y };
 
             if (i.width < window.innerWidth || i.height < window.innerHeight) document.body.classList.add("editor_bg");
         }
+    }
+    const screensEl = document.getElementById("tool_screens");
+    if (data.length >= 1) {
+        // todo 自动移除按钮
+        let tWidth = 0;
+        let tHeight = 0;
+        for (let i of data) {
+            let right = i.x + i.width;
+            let bottom = i.y + i.height;
+            tWidth = Math.max(tWidth, right);
+            tHeight = Math.max(tHeight, bottom);
+        }
+        let el = document.createElement("div");
+        for (let i of data) {
+            let x = i.x / tWidth;
+            let y = i.y / tHeight;
+            let width = i.width / tWidth;
+            let height = i.height / tHeight;
+            let div = document.createElement("div");
+            div.style.width = width * 100 + "%";
+            div.style.height = height * 100 + "%";
+            div.style.left = x * 100 + "%";
+            div.style.top = y * 100 + "%";
+            if (i.id === nowScreenId) {
+                div.classList.add("now_screen");
+            }
+            el.append(div);
+            div.onclick = () => {
+                setScreen(i);
+            };
+        }
+        screensEl.innerHTML = "";
+        screensEl.append(el);
     }
 
     switch (act) {
@@ -497,23 +518,6 @@ function getWinWin() {
         }
     });
 }
-
-// 左边窗口工具栏弹出
-var o = false;
-const sideBar = document.getElementById("windows_bar");
-const sideBarScreens = document.getElementById("screens");
-hotkeys("z", windowsBarCO);
-function windowsBarCO() {
-    if (!o) {
-        sideBar.style.transform = "translateX(0)";
-        o = true;
-    } else {
-        sideBar.style.transform = "translateX(-100%)";
-        o = false;
-    }
-}
-
-document.getElementById("windows_bar_close").onclick = windowsBarCO;
 
 var bScope = null;
 var centerBarShow = false;
@@ -1417,8 +1421,6 @@ var /**鼠标是否按住 */ down = false;
 var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
 
 clipCanvas.onmousedown = (e) => {
-    o = true;
-    windowsBarCO();
     isInClipRect({ x: e.offsetX, y: e.offsetY });
     if (e.button == 0) {
         clipStart({ x: e.offsetX, y: e.offsetY });
