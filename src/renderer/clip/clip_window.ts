@@ -70,19 +70,16 @@ function setSetting() {
     document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
     bSize = 工具栏.按钮大小;
     document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
-    // todo 生成而不是更改
     let toolsOrder = store.get("工具栏.功能") as string[];
     toolBar.querySelectorAll(":scope > *").forEach((el: HTMLElement) => {
         let id = el.id.replace("tool_", "");
         let i = toolsOrder.indexOf(id);
         if (i != -1) {
-            el.style.top = i * bSize + "px";
+            el.style.order = String(i);
         } else {
             el.style.display = "none";
         }
     });
-
-    toolBar.style.height = toolsOrder.length * bSize + "px";
 
     记忆框选 = store.get("框选.记忆.开启");
     记忆框选值 = store.get("框选.记忆.rects");

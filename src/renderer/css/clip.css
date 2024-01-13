@@ -99,6 +99,8 @@ body {
 
 /* 工具 */
 #tool_bar {
+    display: flex;
+    flex-direction: column;
     width: var(--bar-size);
     background: var(--bar-bg);
     position: fixed;
@@ -117,7 +119,7 @@ body {
     border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
     cursor: pointer;
-    position: absolute;
+    position: relative;
 }
 #tool_bar > div > .icon {
     width: calc(var(--bar-size) * var(--bar-icon));
