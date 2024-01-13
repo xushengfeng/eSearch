@@ -207,17 +207,19 @@ ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _
                 zoomW = i.width;
                 ratio = i.scaleFactor;
             }
-            let c = document.createElement("canvas");
-            // 显示预览 但防止阻塞
-            setTimeout(() => {
-                toCanvas(c, i.captureSync(true));
-            }, 10);
-            let div = document.createElement("div");
-            div.append(c);
-            sideBarScreens.append(div);
-            div.onclick = () => {
-                setScreen(i);
-            };
+            if (displays.length > 1) {
+                let c = document.createElement("canvas");
+                // 显示预览 但防止阻塞
+                setTimeout(() => {
+                    toCanvas(c, i.captureSync(true));
+                }, 10);
+                let div = document.createElement("div");
+                div.append(c);
+                sideBarScreens.append(div);
+                div.onclick = () => {
+                    setScreen(i);
+                };
+            }
             screenPosition[i.id] = { x: i.x, y: i.y };
 
             if (i.width < window.innerWidth || i.height < window.innerHeight) document.body.classList.add("editor_bg");
