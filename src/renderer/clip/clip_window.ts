@@ -211,8 +211,7 @@ ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _
         }
     }
     const screensEl = document.getElementById("tool_screens");
-    if (data.length >= 1) {
-        // todo 自动移除按钮
+    if (data.length > 1) {
         let tWidth = 0;
         let tHeight = 0;
         for (let i of data) {
@@ -242,6 +241,8 @@ ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _
         }
         screensEl.innerHTML = "";
         screensEl.append(el);
+    } else {
+        screensEl.style.display = "none";
     }
 
     switch (act) {
