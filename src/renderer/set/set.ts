@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 let configPath = new URLSearchParams(location.search).get("config_path");
-import { setting } from "../../ShareTypes";
+import { setting, 功能 } from "../../ShareTypes";
 const path = require("path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
@@ -220,7 +220,20 @@ document
         };
     });
 
-let toolList = ["close", "ocr", "search", "QR", "draw", "open", "ding", "record", "long", "copy", "save"];
+let toolList: 功能[] = [
+    "close",
+    "screens",
+    "ocr",
+    "search",
+    "QR",
+    "draw",
+    "open",
+    "ding",
+    "record",
+    "long",
+    "copy",
+    "save",
+];
 let toolShow = old_store.工具栏.功能;
 const toolShowEl = document.getElementById("tool_show");
 const toolHideEl = document.getElementById("tool_hide");
