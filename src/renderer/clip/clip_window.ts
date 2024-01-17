@@ -2202,6 +2202,16 @@ function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: ed
     drawClipRect();
 }
 
+document.getElementById("draw_select_rect").onclick = () => {
+    setEditType("select", "rect");
+};
+document.getElementById("draw_select_free").onclick = () => {
+    setEditType("select", "free");
+};
+document.getElementById("draw_select_draw").onclick = () => {
+    setEditType("select", "draw");
+};
+
 /**
  * 保存历史
  */
@@ -2284,7 +2294,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     editType[mainType] = type;
 
     let mainEl: { [key in keyof EditType]: HTMLElement } = {
-        select: null,
+        select: document.getElementById("draw_select"),
         draw: document.getElementById("draw_free"),
         shape: document.getElementById("draw_shapes"),
         filter: document.getElementById("draw_filters"),
@@ -2294,7 +2304,11 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
     });
     let typeEl: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
-        select: { rect: null, free: null, draw: null },
+        select: {
+            rect: document.getElementById("draw_select_rect"),
+            free: document.getElementById("draw_select_free"),
+            draw: document.getElementById("draw_select_draw"),
+        },
         draw: { free: pencilEl, eraser: eraserEl, spray: freeSprayEl },
         filter: { "": null },
         shape: shapeEl,
@@ -2319,11 +2333,18 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     }
 
     if (mainType === "select") {
-        exitFree();
-        exitShape();
-        exitFilter();
-        hotkeys.setScope("normal");
-        drawM(false);
+        if (type != "draw") {
+            exitFree();
+            exitShape();
+            exitFilter();
+            hotkeys.setScope("normal");
+            drawM(false);
+        } else {
+            drawM(true);
+            exitFree();
+            exitShape();
+            exitFilter();
+        }
     } else {
         drawM(true);
     }
