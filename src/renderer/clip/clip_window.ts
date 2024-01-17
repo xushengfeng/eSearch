@@ -586,6 +586,27 @@ toolBar.onmouseup = (e) => {
     }
 };
 
+var drawMainEls: { [key in keyof EditType]: HTMLElement } = {
+    select: document.getElementById("draw_select"),
+    draw: document.getElementById("draw_free"),
+    shape: document.getElementById("draw_shapes"),
+    filter: document.getElementById("draw_filters"),
+};
+var shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
+document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
+    shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
+});
+var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
+    select: {
+        rect: document.getElementById("draw_select_rect"),
+        free: document.getElementById("draw_select_free"),
+        draw: document.getElementById("draw_select_draw"),
+    },
+    draw: { free: pencilEl, eraser: eraserEl, spray: freeSprayEl },
+    filter: { "": null },
+    shape: shapeEl,
+};
+
 hotkeys.filter = (event) => {
     var tagName = (<HTMLElement>(event.target || event.srcElement)).tagName;
     var v =
@@ -607,10 +628,14 @@ let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷
 for (let i in drawHotKey) {
     let mainKey = i as keyof EditType;
     // todo hotkey tip
+    console.log(drawMainEls);
+
+    drawMainEls[mainKey].setAttribute("data-key", drawHotKey[mainKey].键);
     hotkeys(drawHotKey[mainKey].键, () => {
         setEditType(mainKey, editType[mainKey]);
     });
     for (let j in drawHotKey[mainKey].副) {
+        drawSideEls[mainKey][j]?.setAttribute("data-key", drawHotKey[mainKey].副[j]);
         hotkeys(drawHotKey[mainKey].副[j], () => {
             setEditType(mainKey, j as EditType[keyof EditType]);
         });
@@ -2276,41 +2301,20 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     nowType = mainType;
     editType[mainType] = type;
 
-    let mainEl: { [key in keyof EditType]: HTMLElement } = {
-        select: document.getElementById("draw_select"),
-        draw: document.getElementById("draw_free"),
-        shape: document.getElementById("draw_shapes"),
-        filter: document.getElementById("draw_filters"),
-    };
-    let shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
-    document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
-        shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
-    });
-    let typeEl: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
-        select: {
-            rect: document.getElementById("draw_select_rect"),
-            free: document.getElementById("draw_select_free"),
-            draw: document.getElementById("draw_select_draw"),
-        },
-        draw: { free: pencilEl, eraser: eraserEl, spray: freeSprayEl },
-        filter: { "": null },
-        shape: shapeEl,
-    };
-
     const SELECT = "select";
 
-    for (let i in mainEl) {
+    for (let i in drawMainEls) {
         if (i === mainType) {
-            mainEl[mainType].classList.add(SELECT);
-            if (mainType != "filter") mainEl[mainType].innerHTML = typeEl[mainType][type].innerHTML;
+            drawMainEls[mainType].classList.add(SELECT);
+            if (mainType != "filter") drawMainEls[mainType].innerHTML = drawSideEls[mainType][type].innerHTML;
         } else {
-            mainEl[i]?.classList?.remove(SELECT);
+            drawMainEls[i]?.classList?.remove(SELECT);
         }
-        for (let j in typeEl[i]) {
+        for (let j in drawSideEls[i]) {
             if (i === mainType && j === type) {
-                typeEl[i][j].classList.add(SELECT);
+                drawSideEls[i][j].classList.add(SELECT);
             } else {
-                typeEl[i][j]?.classList?.remove(SELECT);
+                drawSideEls[i][j]?.classList?.remove(SELECT);
             }
         }
     }

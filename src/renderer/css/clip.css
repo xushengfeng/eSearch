@@ -1,5 +1,6 @@
 :root {
     --hover-color: var(--bar-hover-color) !important;
+    --hotkey-show: none;
 }
 ::-webkit-scrollbar {
     display: none;
@@ -204,8 +205,10 @@ body {
 #draw_main > div::before,
 .draw_items > div::before,
 .draw_items > lock-b::before {
-    color: var(--icon-color);
-    vertical-align: middle;
+    content: attr(data-key);
+    right: 0;
+    bottom: 0;
+    display: var(--hotkey-show);
 }
 #draw_main > div > .icon,
 .draw_items > div > .icon,
