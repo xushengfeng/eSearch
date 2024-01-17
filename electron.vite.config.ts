@@ -2,6 +2,7 @@ import { defineConfig } from "electron-vite";
 import * as path from "path";
 
 export default defineConfig({
+    main: {},
     renderer: {
         build: {
             rollupOptions: {
