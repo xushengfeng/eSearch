@@ -627,9 +627,6 @@ for (let k of toolList) {
 let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
 for (let i in drawHotKey) {
     let mainKey = i as keyof EditType;
-    // todo hotkey tip
-    console.log(drawMainEls);
-
     drawMainEls[mainKey].setAttribute("data-key", drawHotKey[mainKey].键);
     hotkeys(drawHotKey[mainKey].键, () => {
         setEditType(mainKey, editType[mainKey]);
@@ -641,6 +638,18 @@ for (let i in drawHotKey) {
         });
     }
 }
+
+// alt显示快捷键
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Alt") {
+        document.documentElement.style.setProperty("--hotkey-show", "block");
+    }
+});
+document.addEventListener("keyup", (e) => {
+    if (e.key === "Alt") {
+        document.documentElement.style.setProperty("--hotkey-show", "none");
+    }
+});
 
 var autoDo = store.get("框选后默认操作");
 if (autoDo != "no") {
