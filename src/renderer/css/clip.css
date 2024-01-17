@@ -180,20 +180,17 @@ body {
     left: 80px;
     top: 100px;
     width: var(--bar-size);
-    height: calc(var(--bar-size) * 6);
-    background: var(--bar-bg);
+    height: calc(var(--bar-size) * 7);
     position: fixed;
-    z-index: 98;
-    backdrop-filter: var(--blur);
-    border-radius: calc(var(--bar-size) / 6);
-    overflow-y: scroll;
-    overflow-x: hidden;
+    z-index: 99;
     transition: width var(--transition), opacity var(--transition);
-    box-shadow: var(--shadow);
-    display: flex;
 }
 #draw_bar > div {
     width: var(--bar-size);
+    background: var(--bar-bg);
+    backdrop-filter: var(--blur);
+    border-radius: calc(var(--bar-size) / 6);
+    box-shadow: var(--shadow);
 }
 #draw_main > div,
 .draw_items > div,
@@ -222,13 +219,22 @@ body {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
+#draw_side {
+    position: absolute;
+    top: 0;
+    transition: var(--transition);
+    overflow: hidden;
+}
+.draw_side_hide {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
 .draw_items {
     transition: var(--transition);
-    overflow: scroll;
+    display: flex;
+    flex-wrap: wrap;
 }
-#draw_side {
-    overflow: scroll;
-    scroll-behavior: smooth;
+.draw_items > div {
     flex-shrink: 0;
 }
 

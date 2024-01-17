@@ -561,7 +561,6 @@ var tool = {
     ocr: () => runOcr(),
     search: () => runSearch(),
     QR: () => runQr(),
-    draw: () => initDraw(),
     open: () => openApp(),
     record: () => initRecord(),
     long: () => startLong(),
@@ -604,7 +603,6 @@ hotkeys(store.get("其他快捷键.关闭"), "normal", tool.close);
 hotkeys(store.get("其他快捷键.OCR"), "normal", tool.ocr);
 hotkeys(store.get("其他快捷键.以图搜图"), "normal", tool.search);
 hotkeys(store.get("其他快捷键.QR码"), "normal", tool.QR);
-hotkeys(store.get("其他快捷键.图像编辑"), "normal", tool.draw);
 hotkeys(store.get("其他快捷键.其他应用打开"), "normal", tool.open);
 hotkeys(store.get("其他快捷键.放在屏幕上"), "normal", tool.ding);
 hotkeys(store.get("其他快捷键.长截屏"), "normal", tool.long);
@@ -744,30 +742,14 @@ function runQr() {
 // 图片编辑
 var drawing = false;
 
-function initDraw() {
-    drawing = drawing ? false : true; // 切换状态
-    drawM(drawing);
-    if (!drawing) {
-        document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
-            ei.show = false;
-        });
-        drawBar.style.width = "var(--bar-size)";
-        for (const ee of document.querySelectorAll("#draw_main > div")) {
-            (<HTMLDivElement>ee).style.backgroundColor = "";
-        }
-    }
-}
-
 function drawM(v: boolean) {
     drawing = v;
     if (v) {
         // 绘画模式
-        document.getElementById("tool_draw").className = "hover_b";
         document.getElementById("clip_photo").style.pointerEvents = "none";
         document.getElementById("clip_wh").style.pointerEvents = "none";
     } else {
         // 裁切模式
-        document.getElementById("tool_draw").className = "";
         document.getElementById("clip_photo").style.pointerEvents = "auto";
         hotkeys.setScope("normal");
         fabricCanvas.discardActiveObject();
@@ -2411,97 +2393,48 @@ var freeWidth = store.get("图像编辑.默认属性.画笔粗细");
 var shadowBlur = 0;
 
 // 编辑栏
+const drawMainBar = document.getElementById("draw_main");
+const drawSideBar = document.getElementById("draw_side");
+showSideBar(false);
 document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
     // (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
-    e.addEventListener("click", () => {
-        drawM(!e.show);
-        if (e.show) {
-            e.show = !e.show;
-            drawBar.style.width = "var(--bar-size)";
-            resetBarPosi();
-        } else {
-            show();
-        }
-    });
-    function show() {
-        let isShow = bSize * 2 === drawBar.offsetWidth;
-        drawBar.style.width = "calc(var(--bar-size) * 2)";
-        drawBar.style.transition = "var(--transition)";
-        if (drawBarPosi == "right") {
-            if (drawBar.offsetLeft + bSize * 2 > window.innerWidth) {
-                setBarGroup(true);
-            }
-        } else {
-            if (drawBar.offsetLeft - bSize < 0) {
-                setBarGroup(false);
+    let ids = ["draw_select", "draw_free", "draw_shapes", "draw_filters", "draw_color", "draw_position", "draw_操作"];
+    let sises = [1, 1, 2, 3, 1, 1, 1];
+    let Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
+    e.addEventListener("mouseenter", () => {
+        document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement, i) => {
+            showSideBar(true);
+            if (index === i) {
+                el.style.display = "";
+                let height = Math.ceil(el.children.length / sises[index]);
+                let x = sises[index];
+                let y = height;
+                el.style.width = x * bSize + "px";
+                let left = bSize * 1;
+                if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth) left = -bSize * x;
+                drawSideBar.style.left = left + "px";
+                drawSideBar.style.top = bSize * Math.min(i, drawMainBar.children.length - y) + "px";
+                drawSideBar.style.width = bSize * x + "px";
+                drawSideBar.style.height = bSize * y + "px";
             } else {
-                if (!isShow) {
-                    // 已经展开，防止继续位移
-                    beforeBarPosi.draw = drawBar.offsetLeft;
-                    drawBar.style.left = drawBar.offsetLeft - bSize + "px";
-                }
+                el.style.display = "none";
             }
-        }
-        setTimeout(() => {
-            drawBar.style.transition = "";
-        }, 400);
-        document.querySelectorAll("#draw_main > div").forEach((ei: HTMLDivElement & { show: boolean }) => {
-            ei.show = false;
         });
-        e.show = !e.show;
-
-        document.querySelector("#draw_side").scrollTop = (<HTMLDivElement>(
-            document.querySelectorAll("#draw_side > div")[index]
-        )).offsetTop;
-
-        if (!fabricCanvas.isDrawingMode) {
-            if (index == 0) {
-                let m = store.get("图像编辑.记忆.画笔") as typeof mode;
-                if (m) setEditType("draw", m);
-            }
-            if (index == 1) {
-                let s = store.get("图像编辑.记忆.形状") as typeof shape;
-                if (s) setEditType("shape", s);
-            }
-        }
-    }
+    });
+    e.addEventListener("click", () => {
+        setEditType(Type[index], editType[Type[index]]);
+    });
 });
 
-let beforeBarPosi = { tool: NaN, draw: NaN };
-/** 记录展开绘画栏前栏的位置 */
-function setBarGroup(right: boolean) {
-    if (drawBar.offsetWidth == bSize * 2) return; // 已经展开就不记录了
-    toolBar.style.transition = "var(--transition)";
-    beforeBarPosi.tool = toolBar.offsetLeft;
-    beforeBarPosi.draw = drawBar.offsetLeft;
-    if (right) {
-        toolBar.style.left = window.innerWidth - bSize * 3 - barGap + "px";
-        drawBar.style.left = window.innerWidth - bSize * 2 + "px";
+drawBar.onpointerleave = () => {
+    showSideBar(false);
+};
+
+function showSideBar(show: boolean) {
+    if (show) {
+        drawSideBar.classList.remove("draw_side_hide");
     } else {
-        toolBar.style.left = bSize * 2 + barGap + "px";
-        drawBar.style.left = 0 + "px";
-    }
-    setTimeout(() => {
-        toolBar.style.transition = "";
-    }, 400);
-}
-/** 根据以前记录的位置恢复栏位置 */
-function resetBarPosi() {
-    if (beforeBarPosi.draw) {
-        drawBar.style.transition = "var(--transition)";
-        drawBar.style.left = beforeBarPosi.draw + "px";
-        setTimeout(() => {
-            drawBar.style.transition = "";
-        }, 400);
-        beforeBarPosi.draw = NaN;
-    }
-    if (beforeBarPosi.tool) {
-        toolBar.style.transition = "var(--transition)";
-        toolBar.style.left = beforeBarPosi.tool + "px";
-        setTimeout(() => {
-            toolBar.style.transition = "";
-        }, 400);
-        beforeBarPosi.tool = NaN;
+        drawSideBar.classList.add("draw_side_hide");
     }
 }
 

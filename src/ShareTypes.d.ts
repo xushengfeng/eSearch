@@ -225,19 +225,7 @@ export interface setting {
     插件: { 加载前: string[]; 加载后: string[] };
 }
 
-type 功能 =
-    | "close"
-    | "ocr"
-    | "search"
-    | "QR"
-    | "draw"
-    | "open"
-    | "ding"
-    | "record"
-    | "long"
-    | "copy"
-    | "save"
-    | "screens";
+type 功能 = "close" | "ocr" | "search" | "QR" | "open" | "ding" | "record" | "long" | "copy" | "save" | "screens";
 
 type EditType = {
     select: "rect" | "free" | "draw";
