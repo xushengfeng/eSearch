@@ -226,7 +226,6 @@ let toolList: 功能[] = [
     "ocr",
     "search",
     "QR",
-    "draw",
     "open",
     "ding",
     "record",
