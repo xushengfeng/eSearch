@@ -599,21 +599,22 @@ hotkeys.filter = (event) => {
 };
 
 hotkeys.setScope("normal");
-hotkeys(store.get("其他快捷键.关闭"), "normal", tool.close);
-hotkeys(store.get("其他快捷键.OCR"), "normal", tool.ocr);
-hotkeys(store.get("其他快捷键.以图搜图"), "normal", tool.search);
-hotkeys(store.get("其他快捷键.QR码"), "normal", tool.QR);
-hotkeys(store.get("其他快捷键.其他应用打开"), "normal", tool.open);
-hotkeys(store.get("其他快捷键.放在屏幕上"), "normal", tool.ding);
-hotkeys(store.get("其他快捷键.长截屏"), "normal", tool.long);
-hotkeys(store.get("其他快捷键.录屏"), "normal", tool.record);
-hotkeys(store.get("其他快捷键.复制"), "normal", tool.copy);
-hotkeys(store.get("其他快捷键.保存"), "normal", tool.save);
-let drawHotKey = ["line", "circle", "rect", "polyline", "polygon", "text", "number", "arrow"];
-for (let i of drawHotKey) {
-    hotkeys(store.get(`其他快捷键.${i}`), () => {
-        setEditType("shape", i as EditType["shape"]);
+let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
+for (let k of toolList) {
+    hotkeys(store.get(`工具快捷键.${k}`), "normal", tool[k]);
+}
+let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
+for (let i in drawHotKey) {
+    let mainKey = i as keyof EditType;
+    // todo hotkey tip
+    hotkeys(drawHotKey[mainKey].键, () => {
+        setEditType(mainKey, editType[mainKey]);
     });
+    for (let j in drawHotKey[mainKey].副) {
+        hotkeys(drawHotKey[mainKey].副[j], () => {
+            setEditType(mainKey, j as EditType[keyof EditType]);
+        });
+    }
 }
 
 var autoDo = store.get("框选后默认操作");
@@ -3376,7 +3377,7 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
-import { setting, EditType } from "../../ShareTypes.js";
+import { setting, EditType, 功能 } from "../../ShareTypes.js";
 var packageJson = JSON.parse(pack);
 
 function checkUpdate() {

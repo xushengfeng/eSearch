@@ -12,27 +12,10 @@ export interface setting {
         主页面: { key?: string };
     };
     点击托盘自动截图: boolean;
+    工具快捷键: { [key in 功能]: string };
+    截屏编辑快捷键: { [key in keyof EditType]: { 键: string; 副: { [key1 in EditType[key]]: string } } };
     其他快捷键: {
-        关闭: string;
-        OCR: string;
-        以图搜图: string;
-        QR码: string;
-        图像编辑: string;
-        其他应用打开: string;
-        放在屏幕上: string;
-        录屏: string;
-        长截屏: string;
-        复制: string;
-        保存: string;
         复制颜色: string;
-        line: string;
-        circle: string;
-        rect: string;
-        polyline: string;
-        polygon: string;
-        text: string;
-        number: string;
-        arrow: string;
     };
     主搜索功能: {
         自动搜索排除: string[];
@@ -99,10 +82,7 @@ export interface setting {
             y: number;
         };
         形状属性: {};
-        记忆: {
-            画笔: "";
-            形状: "";
-        };
+        记忆: EditType;
     };
     OCR: {
         类型: string;
