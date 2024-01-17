@@ -238,3 +238,10 @@ type 功能 =
     | "copy"
     | "save"
     | "screens";
+
+type EditType = {
+    select: "rect" | "free" | "draw";
+    draw: "free" | "eraser" | "spray";
+    shape: "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow";
+    filter: "";
+};

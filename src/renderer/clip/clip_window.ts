@@ -614,9 +614,7 @@ hotkeys(store.get("其他快捷键.保存"), "normal", tool.save);
 let drawHotKey = ["line", "circle", "rect", "polyline", "polygon", "text", "number", "arrow"];
 for (let i of drawHotKey) {
     hotkeys(store.get(`其他快捷键.${i}`), () => {
-        (<HTMLInputElement>document.getElementById(`draw_shapes_${i}`)).checked = true;
-        drawM(true);
-        clickDraw(`draw_shapes_${i}`);
+        setEditType("shape", i as EditType["shape"]);
     });
 }
 
@@ -2271,6 +2269,117 @@ var Fabric;
 
 var fabricCanvas = new Fabric.Canvas("draw_photo");
 
+let nowType: keyof EditType;
+nowType = "select";
+let editType: EditType = {
+    select: "rect",
+    draw: "free",
+    filter: "",
+    shape: "rect",
+};
+// todo 记忆
+
+function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): void {
+    nowType = mainType;
+    editType[mainType] = type;
+
+    let mainEl: { [key in keyof EditType]: HTMLElement } = {
+        select: null,
+        draw: document.getElementById("draw_free"),
+        shape: document.getElementById("draw_shapes"),
+        filter: document.getElementById("draw_filters"),
+    };
+    let shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
+    document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
+        shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
+    });
+    let typeEl: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
+        select: { rect: null, free: null, draw: null },
+        draw: { free: pencilEl, eraser: eraserEl, spray: freeSprayEl },
+        filter: { "": null },
+        shape: shapeEl,
+    };
+
+    const SELECT = "select";
+
+    for (let i in mainEl) {
+        if (i === mainType) {
+            mainEl[mainType].classList.add(SELECT);
+            if (mainType != "filter") mainEl[mainType].innerHTML = typeEl[mainType][type].innerHTML;
+        } else {
+            mainEl[i]?.classList?.remove(SELECT);
+        }
+        for (let j in typeEl[i]) {
+            if (i === mainType && j === type) {
+                typeEl[i][j].classList.add(SELECT);
+            } else {
+                typeEl[i][j]?.classList?.remove(SELECT);
+            }
+        }
+    }
+
+    if (mainType === "select") {
+        exitFree();
+        exitShape();
+        exitFilter();
+        hotkeys.setScope("normal");
+        drawM(false);
+    } else {
+        drawM(true);
+    }
+    if (mainType === "draw") {
+        fabricCanvas.isDrawingMode = true;
+        mode = type as EditType["draw"];
+        freeInit();
+        if (type === "free") {
+            pencilElClick();
+        }
+        if (type === "eraser") {
+            eraserElClick();
+        }
+        if (type === "spray") {
+            freeSprayElClick();
+        }
+        exitShape();
+        exitFilter();
+        freeDrawCursor();
+        ableChangeColor();
+    }
+    if (mainType === "filter") {
+    }
+    if (mainType === "shape") {
+        shape = type as shape;
+        if (store.get(`图像编辑.形状属性.${shape}`)) {
+            let f = store.get(`图像编辑.形状属性.${shape}.fc`);
+            let s = store.get(`图像编辑.形状属性.${shape}.sc`);
+            let op = {};
+            if (f) {
+                op["fill"] = f;
+                fillColor = f;
+            }
+            if (s) {
+                op["stroke"] = s;
+                strokeColor = s;
+            }
+            changeColor(op, false, true);
+            let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
+            if (sw) {
+                strokeWidth = sw;
+                (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
+            }
+        }
+
+        exitFree();
+        exitFilter();
+        fabricCanvas.defaultCursor = "crosshair";
+        hotkeys.setScope("drawing_esc");
+
+        store.set("图像编辑.记忆.形状", shape);
+
+        ableChangeColor();
+    }
+}
+
 hisPush();
 
 var fillColor = store.get("图像编辑.默认属性.填充颜色");
@@ -2327,23 +2436,11 @@ document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { sho
         if (!fabricCanvas.isDrawingMode) {
             if (index == 0) {
                 let m = store.get("图像编辑.记忆.画笔") as typeof mode;
-                if (m == "free") {
-                    pencilEl.checked = true;
-                    pencilElClick();
-                } else if (m == "eraser") {
-                    eraserEl.checked = true;
-                    eraserElClick();
-                } else if (m == "spray") {
-                    freeSprayEl.checked = true;
-                    freeSprayElClick();
-                }
+                if (m) setEditType("draw", m);
             }
             if (index == 1) {
                 let s = store.get("图像编辑.记忆.形状") as typeof shape;
-                if (s) {
-                    (<HTMLInputElement>document.getElementById(`draw_shapes_${s}`)).checked = true;
-                    clickDraw(`draw_shapes_${s}`);
-                }
+                if (s) setEditType("shape", s);
             }
         }
     }
@@ -2387,73 +2484,38 @@ function resetBarPosi() {
     }
 }
 
-var freeIEls = document.querySelectorAll("#draw_free_i > lock-b") as NodeListOf<HTMLInputElement>;
-
-var mode: "free" | "eraser" | "spray";
+var mode: EditType["draw"];
 
 // 笔
-var pencilEl = <HTMLInputElement>document.getElementById("draw_free_pencil");
-pencilEl.oninput = pencilElClick;
-function pencilElClick() {
-    fabricCanvas.isDrawingMode = pencilEl.checked;
-    freeInit();
-    if (pencilEl.checked) {
-        freeIEls[1].checked = false;
-        freeIEls[2].checked = false;
-
-        fabricCanvas.freeDrawingBrush = new Fabric.PencilBrush(fabricCanvas);
-        fabricCanvas.freeDrawingBrush.color = freeColor;
-        fabricCanvas.freeDrawingBrush.width = freeWidth;
-
-        colorM = "stroke";
-        setDrawMode(colorM);
-
-        freeShadow();
-    }
-    exitShape();
-    exitFilter();
-    freeDrawCursor();
-    ableChangeColor();
-}
+var pencilEl = document.getElementById("draw_free_pencil");
+pencilEl.onclick = () => setEditType("draw", "free");
 // 橡皮
-var eraserEl = <HTMLInputElement>document.getElementById("draw_free_eraser");
-eraserEl.oninput = eraserElClick;
-function eraserElClick() {
-    fabricCanvas.isDrawingMode = eraserEl.checked;
-    freeInit();
-    if (eraserEl.checked) {
-        freeIEls[0].checked = false;
-        freeIEls[2].checked = false;
-
-        fabricCanvas.freeDrawingBrush = new Fabric.EraserBrush(fabricCanvas);
-        fabricCanvas.freeDrawingBrush.width = freeWidth;
-    }
-    exitShape();
-    exitFilter();
-    freeDrawCursor();
-    ableChangeColor();
-}
+var eraserEl = document.getElementById("draw_free_eraser");
+eraserEl.onclick = () => setEditType("draw", "eraser");
 // 刷
-var freeSprayEl = <HTMLInputElement>document.getElementById("draw_free_spray");
-freeSprayEl.oninput = freeSprayElClick;
+var freeSprayEl = document.getElementById("draw_free_spray");
+freeSprayEl.onclick = () => setEditType("draw", "spray");
+function pencilElClick() {
+    fabricCanvas.freeDrawingBrush = new Fabric.PencilBrush(fabricCanvas);
+    fabricCanvas.freeDrawingBrush.color = freeColor;
+    fabricCanvas.freeDrawingBrush.width = freeWidth;
+
+    colorM = "stroke";
+    setDrawMode(colorM);
+
+    freeShadow();
+}
+function eraserElClick() {
+    fabricCanvas.freeDrawingBrush = new Fabric.EraserBrush(fabricCanvas);
+    fabricCanvas.freeDrawingBrush.width = freeWidth;
+}
 function freeSprayElClick() {
-    fabricCanvas.isDrawingMode = freeSprayEl.checked;
-    freeInit();
-    if (freeSprayEl.checked) {
-        freeIEls[0].checked = false;
-        freeIEls[1].checked = false;
+    fabricCanvas.freeDrawingBrush = new Fabric.SprayBrush(fabricCanvas);
+    fabricCanvas.freeDrawingBrush.color = freeColor;
+    fabricCanvas.freeDrawingBrush.width = freeWidth;
 
-        fabricCanvas.freeDrawingBrush = new Fabric.SprayBrush(fabricCanvas);
-        fabricCanvas.freeDrawingBrush.color = freeColor;
-        fabricCanvas.freeDrawingBrush.width = freeWidth;
-
-        colorM = "stroke";
-        setDrawMode(colorM);
-    }
-    exitShape();
-    exitFilter();
-    freeDrawCursor();
-    ableChangeColor();
+    colorM = "stroke";
+    setDrawMode(colorM);
 }
 // 阴影
 (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
@@ -2492,10 +2554,6 @@ function freeDrawCursor() {
 }
 
 function freeInit() {
-    mode = "free";
-    if (pencilEl.checked) mode = "free";
-    if (eraserEl.checked) mode = "eraser";
-    if (freeSprayEl.checked) mode = "spray";
     let sc = store.get(`图像编辑.形状属性.${mode}.sc`);
     let sw = store.get(`图像编辑.形状属性.${mode}.sw`);
     let sb = store.get(`图像编辑.形状属性.${mode}.shadow`);
@@ -2510,58 +2568,17 @@ function freeInit() {
 }
 
 // 几何
-type shape = "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow" | "";
+type shape = EditType["shape"] | "";
 var shape: shape = "";
-document.querySelectorAll("#draw_shapes_i > lock-b").forEach((el: HTMLInputElement) => {
-    el.oninput = () => clickDraw(el.id);
-});
-function clickDraw(id: string) {
-    let el: HTMLInputElement;
-    document
-        .getElementById("draw_shapes_i")
-        .querySelectorAll("lock-b")
-        .forEach((iel: HTMLInputElement) => {
-            if (iel.id != id) {
-                iel.checked = false;
-            } else {
-                el = iel;
-            }
-        });
-
-    if (el.checked) {
-        shape = el.id.replace("draw_shapes_", "") as shape; // 根据元素id命名为shape赋值
-        if (store.get(`图像编辑.形状属性.${shape}`)) {
-            let f = store.get(`图像编辑.形状属性.${shape}.fc`);
-            let s = store.get(`图像编辑.形状属性.${shape}.sc`);
-            let op = {};
-            if (f) {
-                op["fill"] = f;
-                fillColor = f;
-            }
-            if (s) {
-                op["stroke"] = s;
-                strokeColor = s;
-            }
-            changeColor(op, false, true);
-            let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
-            if (sw) {
-                strokeWidth = sw;
-                (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
-            }
-        }
-
-        exitFree();
-        exitFilter();
-        fabricCanvas.defaultCursor = "crosshair";
-        hotkeys.setScope("drawing_esc");
-
-        store.set("图像编辑.记忆.形状", shape);
+document.getElementById("draw_shapes_i").onclick = (e) => {
+    let el = e.target as HTMLElement;
+    if (el.id.startsWith("draw_shapes_")) {
+        let shape = el.id.replace("draw_shapes_", "") as EditType["shape"];
+        setEditType("shape", shape);
     } else {
-        exitShape();
+        return;
     }
-
-    ableChangeColor();
-}
+};
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
     switch ((<HTMLElement>e.target).id) {
@@ -3304,9 +3321,6 @@ checkFilterLockInput("polaroid", "Polaroid", 16);
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
 function exitFree() {
     fabricCanvas.isDrawingMode = false;
-    freeIEls[0].checked = false;
-    freeIEls[1].checked = false;
-    freeIEls[2].checked = false;
     fabricCanvas.defaultCursor = "auto";
 }
 function exitShape() {
@@ -3408,7 +3422,7 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
-import { setting } from "../../ShareTypes.js";
+import { setting, EditType } from "../../ShareTypes.js";
 var packageJson = JSON.parse(pack);
 
 function checkUpdate() {

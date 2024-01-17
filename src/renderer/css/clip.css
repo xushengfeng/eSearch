@@ -173,6 +173,9 @@ body {
 }
 
 /* 画 */
+.select {
+    background-color: var(--hover-color);
+}
 #draw_bar {
     left: 80px;
     top: 100px;
