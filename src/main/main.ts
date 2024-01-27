@@ -795,10 +795,10 @@ function createClipWindow() {
                 isLongStart = false;
                 break;
             case "ocr":
-                ocr(event, arg);
+                ocr(arg);
                 break;
             case "search":
-                imageSearch(event, arg);
+                imageSearch(arg);
                 break;
             case "QR":
                 if (arg != "nothing") {
@@ -945,16 +945,12 @@ function reload_clip() {
     if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible()) clipWindow.reload();
 }
 
-var ocrEvent: Electron.IpcMainEvent;
-function ocr(event: Electron.IpcMainEvent, arg) {
+function ocr(arg) {
     createMainWindow("editor.html", ["ocr", ...arg]);
-    ocrEvent = event;
 }
 
-var imageSearchEvent: Electron.IpcMainEvent;
-function imageSearch(event: Electron.IpcMainEvent, arg) {
+function imageSearch(arg) {
     createMainWindow("editor.html", ["image", arg[0], arg[1]]);
-    imageSearchEvent = event;
 }
 
 var recording = false;
@@ -1311,11 +1307,6 @@ ipcMain.on("ding_edit", (_event, img_path) => {
 // 主页面
 var mainWindowL: { [n: number]: BrowserWindow } = {};
 
-var ocrRunWindow: BrowserWindow;
-/**
- * @type {BrowserWindow}
- */
-var imageSearchWindow: BrowserWindow;
 /**
  * @type {Object.<number, Array.<number>>}
  */
@@ -1341,7 +1332,7 @@ async function createMainWindow(webPage: string, t?: boolean | Array<any>, about
             contextIsolation: false,
             webSecurity: false,
         },
-        show: t?.[0] != "image" && t?.[0] != "ocr", // 一般情况下true，识图和ocr为false
+        show: true,
     })) as BrowserWindow & { html: string };
 
     mainToSearchL[windowName] = [];
@@ -1355,17 +1346,7 @@ async function createMainWindow(webPage: string, t?: boolean | Array<any>, about
 
     if (dev) mainWindow.webContents.openDevTools();
 
-    if (t?.[0] == "image") {
-        imageSearchWindow = mainWindow;
-    } else if (t?.[0] == "ocr") {
-        ocrRunWindow = mainWindow;
-        ocrRunWindow.webContents.once("render-process-gone", (_e, d) => {
-            ocrEvent.sender.send("ocr_back", d.reason);
-        });
-    }
-
     mainWindow.webContents.on("did-finish-load", () => {
-        if (t?.[0] != "image" && t?.[0] != "ocr") mainWindow.show();
         mainWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         t = t || [""];
         // 确保切换到index时能传递window_name
@@ -1410,20 +1391,10 @@ async function createMainWindow(webPage: string, t?: boolean | Array<any>, about
     return windowName;
 }
 
-ipcMain.on("main_win", (e, arg, arg1) => {
+ipcMain.on("main_win", (e, arg) => {
     switch (arg) {
         case "close":
             BrowserWindow.fromWebContents(e.sender).close();
-            break;
-        case "ocr":
-            ocrEvent.sender.send("ocr_back", arg1);
-            ocrRunWindow.show();
-            ocrRunWindow = null;
-            break;
-        case "image_search":
-            imageSearchEvent.sender.send("search_back", "ok");
-            imageSearchWindow.show();
-            imageSearchWindow = null;
             break;
     }
 });

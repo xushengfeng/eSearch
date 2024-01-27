@@ -1151,7 +1151,6 @@ ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
                 if (浏览器打开) {
                     ipcRenderer.send("main_win", "close");
                 }
-                ipcRenderer.send("main_win", "image_search", true);
             }
             if (err) editor.push(t("上传错误，请打开开发者工具查看详细错误"));
         });
@@ -1162,7 +1161,6 @@ ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
         ocr(list[1], list[2] as any, (err: Error, r: { raw: ocrResult; text: string }) => {
             const text = r.text;
             if (text) {
-                ipcRenderer.send("main_win", "ocr", "ok");
                 console.log(text);
 
                 editor.push(text);
@@ -1174,7 +1172,6 @@ ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
                 console.log(err);
 
                 editor.push(t("识别错误，请打开开发者工具查看详细错误"));
-                ipcRenderer.send("main_win", "ocr", err);
             }
         });
     }

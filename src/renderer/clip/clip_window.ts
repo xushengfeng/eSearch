@@ -403,9 +403,6 @@ function setEditorP(zoom: number, x: number, y: number) {
         editorP.y = y;
     }
     editor.style.transform = t.join(" ");
-    wattingEl.style.transform = t.join(" ");
-    wattingEl.style.left = finalRect[0] * editorP.zoom + "px";
-    wattingEl.style.top = finalRect[1] * editorP.zoom + "px";
 }
 
 document.onkeyup = (e) => {
@@ -701,40 +698,9 @@ function runOcr() {
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL(), type]);
     });
-
-    scanLine();
-
-    ipcRenderer.on("ocr_back", (_event, arg) => {
-        if (arg == "ok") {
-            document.getElementById("waiting").style.display = "none";
-            tool.close();
-        } else {
-            document.getElementById("waiting").style.display = "none";
-            ocrErrEl.classList.remove("ocr_err_hide");
-            let text = document.createElement("div");
-            text.innerText = arg;
-            let closeEl = document.createElement("div");
-            closeEl.onclick = () => {
-                ocrErrEl.classList.add("ocr_err_hide");
-            };
-            ocrErrEl.append(text, closeEl);
-
-            ocrErrEl.style.left = `calc(50% - ${ocrErrEl.offsetWidth / 2}px)`;
-            ocrErrEl.style.top = `calc(50% - ${ocrErrEl.offsetHeight / 2}px)`;
-        }
-    });
+    tool.close();
 }
 
-const wattingEl = document.getElementById("waiting");
-function scanLine() {
-    wattingEl.style.display = "block";
-    wattingEl.style.left = finalRect[0] * editorP.zoom + "px";
-    wattingEl.style.top = finalRect[1] * editorP.zoom + "px";
-    wattingEl.style.width = finalRect[2] + "px";
-    wattingEl.style.height = finalRect[3] + "px";
-    (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[0]).beginElement();
-    (<SVGAnimateElement>document.querySelectorAll("#waiting line animate")[1]).beginElement();
-}
 // 以图搜图
 var 识图引擎 = <HTMLSelectElement>document.getElementById("识图引擎");
 识图引擎.value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
@@ -748,17 +714,7 @@ function runSearch() {
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
     });
-
-    scanLine();
-
-    ipcRenderer.on("search_back", (_event, arg) => {
-        if (arg == "ok") {
-            tool.close();
-            document.getElementById("waiting").style.display = "none";
-        } else {
-            document.getElementById("waiting").style.display = "none";
-        }
-    });
+    tool.close();
 }
 // 二维码
 import { scan } from "qr-scanner-wechat";
