@@ -906,17 +906,12 @@ function fullScreen(imgPath?: string) {
             if (err) console.error(err);
             let p = nativeImage.createFromBuffer(data);
             let s = p.getSize();
-            sendCaptureEvent([
-                {
-                    image: data,
-                    width: s.width,
-                    height: s.height,
-                    scaleFactor: 1,
-                    isPrimary: true,
-                    main: true,
-                    id: null,
-                },
-            ]);
+            let d = { ...screen.getPrimaryDisplay(), image: data, main: true };
+            d.id = null;
+            d.bounds = { x: 0, y: 0, width: s.width, height: s.height };
+            d.size = { width: s.width, height: s.height };
+            d.scaleFactor = 1;
+            sendCaptureEvent([d]);
         });
     } else {
         sendCaptureEvent();
@@ -927,10 +922,15 @@ function fullScreen(imgPath?: string) {
 }
 
 function sendCaptureEvent(
-    data?: (import("node-screenshots").Screenshots | { image: Buffer; main: boolean })[],
+    data?: (Electron.Display & { image: Buffer; main: boolean })[],
     type?: "ocr" | "image_search"
 ) {
-    clipWindow.webContents.send("reflash", data, screen.getAllDisplays(), screen.getCursorScreenPoint(), type);
+    clipWindow.webContents.send(
+        "reflash",
+        data || screen.getAllDisplays(),
+        screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id,
+        type
+    );
 }
 
 /** 隐藏截屏窗口 */
@@ -1230,7 +1230,15 @@ const isMac = process.platform === "darwin";
 
 // ding窗口
 var dingwindowList: { [key: string]: BrowserWindow } = {};
-function createDingWindow(x: number, y: number, w: number, h: number, img, screenId: string, screens) {
+function createDingWindow(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    img,
+    screenId: string,
+    screens: Electron.Display[]
+) {
     if (Object.keys(dingwindowList).length == 0) {
         let screenL = screens;
         const id = new Date().getTime();
@@ -1248,10 +1256,10 @@ function createDingWindow(x: number, y: number, w: number, h: number, img, scree
                     nodeIntegration: true,
                     contextIsolation: false,
                 },
-                x: i.x,
-                y: i.y,
-                width: i.width,
-                height: i.height,
+                x: i.bounds.x,
+                y: i.bounds.y,
+                width: i.bounds.width,
+                height: i.bounds.height,
             }));
 
             rendererPath(dingWindow, "ding.html");

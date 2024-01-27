@@ -108,6 +108,8 @@ var drawBar = document.getElementById("draw_bar");
 
 var nowScreenId = 0;
 
+var allScreens: (Electron.Display & { captureSync: import("node-screenshots").Screenshots["captureSync"] })[];
+
 var screens = [];
 
 var displays: Electron.Display[];
@@ -117,6 +119,21 @@ try {
     Screenshots = require("node-screenshots").Screenshots;
 } catch (error) {
     shell.openExternal("https://esearch-app.netlify.app/download.html");
+}
+
+function dispaly2screen(displays: Electron.Display[], screens: import("node-screenshots").Screenshots[]) {
+    allScreens = [];
+    if (!screens) return;
+    for (let d of displays) {
+        for (let s of screens) {
+            // todo to test
+            if (s.x === d.bounds.x && s.y === d.bounds.y) {
+                // 逻辑像素位置，应该不受bug影响
+                allScreens.push({ ...d, captureSync: s.captureSync });
+                break;
+            }
+        }
+    }
 }
 
 /**
@@ -146,86 +163,52 @@ function fixCaptureInfo(all: import("node-screenshots").Screenshots[]) {
 }
 
 /** 用于ding */
-function cleanCaptureInfo(all: import("node-screenshots").Screenshots[]) {
-    let x: {
-        id: number;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        rotation: number;
-        scaleFactor: number;
-        isPrimary: boolean;
-    }[] = [];
-    all.forEach((capturer) => {
-        x.push({
-            id: capturer.id,
-            x: capturer.x,
-            y: capturer.y,
-            width: capturer.width,
-            height: capturer.height,
-            rotation: capturer.rotation,
-            scaleFactor: capturer.scaleFactor,
-            isPrimary: capturer.isPrimary,
-        });
-    });
-
-    return x;
-}
-
-function getMainScreen(point: Electron.Point) {
-    let all = Screenshots.all() ?? [];
-    all = fixCaptureInfo(all);
-    let p = point;
-    for (let i of all) {
-        if (i.x <= p.x && p.x <= i.x + i.width && i.y <= p.y && p.y <= i.y + i.height) {
-            return i.id;
-        }
-    }
-
-    return all[0].id;
+function cleanCaptureInfo() {
+    let all = structuredClone(allScreens);
+    all.forEach((i) => delete i.captureSync);
+    return allScreens;
 }
 
 setSetting();
-ipcRenderer.on("reflash", (_a, data: import("node-screenshots").Screenshots[], _displays, point, act) => {
+ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act) => {
     displays = _displays;
-    if (!data) {
-        data = Screenshots.all() ?? [];
-        data = fixCaptureInfo(data);
-        screens = cleanCaptureInfo(data);
+    if (!_displays.find((i) => i["main"])) {
+        dispaly2screen(_displays, Screenshots.all());
+        screens = cleanCaptureInfo();
     }
-    console.log(data);
-    let mainId = getMainScreen(point);
-    for (let i of data) {
+    console.log(allScreens);
+    let mainId = mainid;
+    for (let i of allScreens) {
         if (i) {
             if (i["main"] || i.id === mainId) {
                 if (!i["image"]) i["image"] = i.captureSync(true);
                 setScreen(i);
                 setEditorP(1 / i.scaleFactor, 0, 0);
-                zoomW = i.width;
+                zoomW = i.size.width;
                 ratio = i.scaleFactor;
             }
-            screenPosition[i.id] = { x: i.x, y: i.y };
+            screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
-            if (i.width < window.innerWidth || i.height < window.innerHeight) document.body.classList.add("editor_bg");
+            if (i.bounds.width < window.innerWidth || i.bounds.height < window.innerHeight)
+                document.body.classList.add("editor_bg");
         }
     }
     const screensEl = document.getElementById("tool_screens");
-    if (data.length > 1) {
+    if (allScreens.length > 1) {
         let tWidth = 0;
         let tHeight = 0;
-        for (let i of data) {
-            let right = i.x + i.width;
-            let bottom = i.y + i.height;
+        for (let i of allScreens) {
+            let right = i.bounds.x + i.bounds.width;
+            let bottom = i.bounds.y + i.bounds.height;
             tWidth = Math.max(tWidth, right);
             tHeight = Math.max(tHeight, bottom);
         }
         let el = document.createElement("div");
-        for (let i of data) {
-            let x = i.x / tWidth;
-            let y = i.y / tHeight;
-            let width = i.width / tWidth;
-            let height = i.height / tHeight;
+        for (let i of allScreens) {
+            let x = i.bounds.x / tWidth;
+            let y = i.bounds.y / tHeight;
+            let width = i.bounds.width / tWidth;
+            let height = i.bounds.height / tHeight;
             let div = document.createElement("div");
             div.style.width = width * 100 + "%";
             div.style.height = height * 100 + "%";
