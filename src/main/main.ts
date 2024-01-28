@@ -309,6 +309,16 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
+            label: t("主页面模式"),
+            type: "submenu",
+            submenu: [
+                { label: t("自动"), type: "radio" },
+                { label: t("搜索"), type: "radio" },
+                { label: t("翻译"), type: "radio" },
+            ],
+        },
+        { type: "separator" },
+        {
             label: t("主页面"),
             click: () => {
                 createMainWindow("editor.html", [""]);
