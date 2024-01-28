@@ -4,6 +4,7 @@ var arch = (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.a
  */
 let build = {
     appId: "com.esearch.app",
+    executableName: "e-search",
     directories: {
         output: "build",
     },
