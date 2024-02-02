@@ -110,8 +110,6 @@ var nowScreenId = 0;
 
 var allScreens: (Electron.Display & { captureSync: import("node-screenshots").Screenshots["captureSync"] })[];
 
-var screens = [];
-
 var displays: Electron.Display[];
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
@@ -162,19 +160,11 @@ function fixCaptureInfo(all: import("node-screenshots").Screenshots[]) {
     return all;
 }
 
-/** 用于ding */
-function cleanCaptureInfo() {
-    let all = structuredClone(allScreens);
-    all.forEach((i) => delete i.captureSync);
-    return allScreens;
-}
-
 setSetting();
 ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act) => {
     displays = _displays;
     if (!_displays.find((i) => i["main"])) {
         dispaly2screen(_displays, Screenshots.all());
-        screens = cleanCaptureInfo();
     }
     console.log(allScreens);
     let mainId = mainid;
