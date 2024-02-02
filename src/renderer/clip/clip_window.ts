@@ -195,18 +195,24 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
     }
     const screensEl = document.getElementById("tool_screens");
     if (allScreens.length > 1) {
-        let tWidth = 0;
-        let tHeight = 0;
+        let minX = 0;
+        let maxX = 0;
+        let minY = 0;
+        let maxY = 0;
         for (let i of allScreens) {
             let right = i.bounds.x + i.bounds.width;
             let bottom = i.bounds.y + i.bounds.height;
-            tWidth = Math.max(tWidth, right);
-            tHeight = Math.max(tHeight, bottom);
+            maxX = Math.max(maxX, right);
+            maxY = Math.max(maxY, bottom);
+            minX = Math.min(minX, i.bounds.x);
+            minY = Math.min(minY, i.bounds.y);
         }
+        let tWidth = maxX - minX;
+        let tHeight = maxY - minY;
         let el = document.createElement("div");
         for (let i of allScreens) {
-            let x = i.bounds.x / tWidth;
-            let y = i.bounds.y / tHeight;
+            let x = (i.bounds.x - minX) / tWidth;
+            let y = (i.bounds.y - minY) / tHeight;
             let width = i.bounds.width / tWidth;
             let height = i.bounds.height / tHeight;
             let div = document.createElement("div");

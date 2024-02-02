@@ -1242,13 +1242,17 @@ const isMac = process.platform === "darwin";
 let dingWindow: BrowserWindow;
 function createDingWindow(x: number, y: number, w: number, h: number, img) {
     const allScreens = screen.getAllDisplays();
-    let tWidth = 0;
-    let tHeight = 0;
+    let minX = 0;
+    let maxX = 0;
+    let minY = 0;
+    let maxY = 0;
     for (let i of allScreens) {
         let right = i.bounds.x + i.bounds.width;
         let bottom = i.bounds.y + i.bounds.height;
-        tWidth = Math.max(tWidth, right);
-        tHeight = Math.max(tHeight, bottom);
+        maxX = Math.max(maxX, right);
+        maxY = Math.max(maxY, bottom);
+        minX = Math.min(minX, i.bounds.x);
+        minY = Math.min(minY, i.bounds.y);
     }
     const id = new Date().getTime();
     if (dingWindow) {
@@ -1265,10 +1269,10 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
                 nodeIntegration: true,
                 contextIsolation: false,
             },
-            x: 0,
-            y: 0,
-            width: tWidth,
-            height: tHeight,
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY,
         });
 
         rendererPath(dingWindow, "ding.html");
@@ -1286,7 +1290,7 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
     function dingClickThrough() {
         let nowXY = screen.getCursorScreenPoint();
         try {
-            dingWindow.webContents.send("mouse", nowXY.x, nowXY.y);
+            dingWindow.webContents.send("mouse", nowXY.x - minX, nowXY.y - minY);
         } catch (error) {}
         setTimeout(dingClickThrough, 10);
     }
