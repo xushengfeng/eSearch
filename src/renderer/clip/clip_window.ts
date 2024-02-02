@@ -108,7 +108,7 @@ var drawBar = document.getElementById("draw_bar");
 
 var nowScreenId = 0;
 
-var allScreens: (Electron.Display & { captureSync: import("node-screenshots").Screenshots["captureSync"] })[];
+var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
 
 var displays: Electron.Display[];
 
@@ -127,7 +127,7 @@ function dispaly2screen(displays: Electron.Display[], screens: import("node-scre
             // todo to test
             if (s.x === d.bounds.x && s.y === d.bounds.y) {
                 // 逻辑像素位置，应该不受bug影响
-                allScreens.push({ ...d, captureSync: s.captureSync });
+                allScreens.push({ ...d, captureSync: () => s.captureSync(true) });
                 break;
             }
         }
@@ -169,19 +169,17 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
     console.log(allScreens);
     let mainId = mainid;
     for (let i of allScreens) {
-        if (i) {
-            if (i["main"] || i.id === mainId) {
-                if (!i["image"]) i["image"] = i.captureSync(true);
-                setScreen(i);
-                setEditorP(1 / i.scaleFactor, 0, 0);
-                zoomW = i.size.width;
-                ratio = i.scaleFactor;
-            }
-            screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
-
-            if (i.bounds.width < window.innerWidth || i.bounds.height < window.innerHeight)
-                document.body.classList.add("editor_bg");
+        if (i["main"] || i.id === mainId) {
+            if (!i["image"]) i["image"] = i.captureSync();
+            setScreen(i);
+            setEditorP(1 / i.scaleFactor, 0, 0);
+            zoomW = i.size.width;
+            ratio = i.scaleFactor;
         }
+        screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
+
+        if (i.bounds.width < window.innerWidth || i.bounds.height < window.innerHeight)
+            document.body.classList.add("editor_bg");
     }
     const screensEl = document.getElementById("tool_screens");
     if (allScreens.length > 1) {
