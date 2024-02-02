@@ -1061,15 +1061,15 @@ function pjLong() {
 
 // 钉在屏幕上
 function runDing() {
-    var ding_window_setting = finalRect;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        // @ts-ignore
-        ding_window_setting[4] = c.toDataURL();
-        // @ts-ignore
-        ding_window_setting[5] = nowScreenId;
-        // @ts-ignore
-        ding_window_setting[6] = screens;
-        ipcRenderer.send("clip_main_b", "ding", ding_window_setting);
+        const dingWindowArg = [
+            finalRect[0] / ratio,
+            finalRect[1] / ratio,
+            finalRect[2] / ratio,
+            finalRect[3] / ratio,
+            c.toDataURL(),
+        ];
+        ipcRenderer.send("clip_main_b", "ding", dingWindowArg);
         tool.close();
     });
 }

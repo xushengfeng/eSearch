@@ -10,35 +10,17 @@ var store = new Store({
     cwd: configPath || "",
 });
 
-var screenId = "";
-ipcRenderer.on("screen_id", (_event, id) => {
-    screenId = id;
-});
-
-var move: { id: string; screenid: string; more: move_type };
-
 ipcRenderer.on("ding", (_event, type, id, screenid, more) => {
     console.log(type, id, screenid, more);
     switch (type) {
         case "close":
             close2(document.getElementById(id));
             break;
-        case "move_start":
-            move = { id, screenid, more };
-            break;
-        case "move_end":
-            move = null;
-            break;
-        case "move_hide":
-            if (screenId != screenid) {
-                document.getElementById(id).style.display = "none";
-                break;
-            }
     }
 });
 
 function sendEvent(type: "close" | "move_start" | "move_end" | "move_hide", id: string, more?: any) {
-    ipcRenderer.send("ding_event", type, id, screenId, more);
+    ipcRenderer.send("ding_event", type, id, more);
 }
 
 /**
@@ -46,26 +28,19 @@ function sendEvent(type: "close" | "move_start" | "move_end" | "move_hide", id: 
  */
 type move_type = { x: number; y: number; zoom: number };
 
-var ratio = window.devicePixelRatio;
 var changing = null;
 var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
-ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
-    if (!screenid) screenid = screenId;
+ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
     let div = document.createElement("div");
     div.id = wid;
     div.className = "ding_photo";
-    // 防止延迟
-    ratio = window.devicePixelRatio;
-    div.style.left = x / ratio + "px";
-    div.style.top = y / ratio + "px";
-    div.style.width = w / ratio + "px";
-    div.style.height = h / ratio + "px";
-    if (screenid != screenId) {
-        div.style.display = "none";
-    }
+    div.style.left = x + "px";
+    div.style.top = y + "px";
+    div.style.width = w + "px";
+    div.style.height = h + "px";
     var img = document.createElement("img");
     img.draggable = false;
     img.src = url;
@@ -159,35 +134,17 @@ ipcRenderer.on("img", (_event, screenid, wid, x, y, w, h, url) => {
 
 ipcRenderer.on("mouse", (_e, x, y) => {
     let els = document.elementsFromPoint(x, y);
-    if (screenId) {
-        let ignorex = false;
-        for (let el of ignoreEl) {
-            if (els.includes(el)) {
-                ignorex = true;
-                break;
-            }
+    let ignorex = false;
+    for (let el of ignoreEl) {
+        if (els.includes(el)) {
+            ignorex = true;
+            break;
         }
-        if (els.length != 0) {
-            if (move) {
-                if (move.screenid != screenId) {
-                    let el = document.getElementById(move.id);
-                    el.style.display = "";
-                    sendEvent("move_hide", move.id);
-                    let xx = x - photos[move.id][2] * move.more.zoom * move.more.x;
-                    let yy = y - photos[move.id][3] * move.more.zoom * move.more.y;
-                    el.style.left = xx + "px";
-                    el.style.top = yy + "px";
-                    el.style.width = photos[move.id][2] * move.more.zoom + "px";
-                    el.style.height = photos[move.id][3] * move.more.zoom + "px";
-                    resize(el, move.more.zoom);
-                }
-            }
-        }
-        if (els[0] == document.getElementById("photo") || ignorex) {
-            ipcRenderer.send("ding_ignore", screenId, true);
-        } else {
-            ipcRenderer.send("ding_ignore", screenId, false);
-        }
+    }
+    if (els[0] == document.getElementById("photo") || ignorex) {
+        ipcRenderer.send("ding_ignore", true);
+    } else {
+        ipcRenderer.send("ding_ignore", false);
     }
 });
 
@@ -228,10 +185,10 @@ function back(el) {
         resize(el, 1);
     }, 400);
     var pS = photos[el.id];
-    el.style.left = pS[0] / ratio + "px";
-    el.style.top = pS[1] / ratio + "px";
-    el.style.width = pS[2] / ratio + "px";
-    el.style.height = pS[3] / ratio + "px";
+    el.style.left = pS[0] + "px";
+    el.style.top = pS[1] + "px";
+    el.style.width = pS[2] + "px";
+    el.style.height = pS[3] + "px";
     ipcRenderer.send("ding_p_s", el.id, pS);
 
     el.querySelector("#透明度").value = "100";
@@ -239,7 +196,7 @@ function back(el) {
     el.querySelector(".img").style.opacity = 1;
 }
 function close(el: HTMLElement) {
-    ipcRenderer.send("ding_event", "close", el.id, screenId, Object.keys(photos).length == 1);
+    ipcRenderer.send("ding_event", "close", el.id, Object.keys(photos).length == 1);
 }
 function close2(el: HTMLElement) {
     el.remove();
@@ -292,7 +249,7 @@ document.onmousedown = (e) => {
 };
 document.onmousemove = (e) => {
     let el = e.target as HTMLElement;
-    if (!move && (el.id == "dock" || el.offsetParent.id == "dock")) {
+    if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dockShow) {
             if (windowDiv == null) {
                 div = el;
