@@ -1255,7 +1255,7 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
         minY = Math.min(minY, i.bounds.y);
     }
     const id = new Date().getTime();
-    if (dingWindow) {
+    if (!dingWindow) {
         dingWindow = new BrowserWindow({
             icon: theIcon,
             transparent: true,
