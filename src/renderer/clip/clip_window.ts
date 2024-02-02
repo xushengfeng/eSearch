@@ -679,9 +679,6 @@ document.getElementById("ocr引擎").oninput = () => {
 };
 document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
 
-const ocrErrEl = document.getElementById("ocr_error");
-ocrErrEl.classList.add("ocr_err_hide");
-
 function runOcr() {
     const type = ocr引擎.value;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
@@ -795,7 +792,6 @@ function initRecord() {
         mouseBarEl,
         lr,
         loadingEl,
-        ocrErrEl,
     ];
 
     for (let i of l) {
@@ -1004,7 +1000,6 @@ function initLong(rect: number[]) {
         whEl,
         mouseBarEl,
         loadingEl,
-        ocrErrEl,
     ];
 
     for (let i of l) {
