@@ -40,9 +40,10 @@ exports.default = async function () {
         );
     }
     if (!fs.existsSync("./lib/ffmpeg")) {
+        const winpath = "ffmpeg-n6.1-latest-win64-gpl-6.1";
         let o = {
             win32: {
-                x64: "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.1-latest-win64-gpl-6.1.zip",
+                x64: `https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${winpath}.zip`,
             },
             darwin: {
                 x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip",
@@ -57,10 +58,10 @@ exports.default = async function () {
             });
             if (process.platform == "win32") {
                 fs.copyFileSync(
-                    path.join("./lib/ffmpeg/", "ffmpeg-n6.0-latest-win64-gpl-6.0", "bin", "ffmpeg.exe"),
+                    path.join("./lib/ffmpeg/", winpath, "bin", "ffmpeg.exe"),
                     path.join("./lib/ffmpeg/", "ffmpeg.exe")
                 );
-                fs.rmSync(path.join("./lib/ffmpeg/", "ffmpeg-n6.0-latest-win64-gpl-6.0"), { recursive: true });
+                fs.rmSync(path.join("./lib/ffmpeg/", winpath), { recursive: true });
             }
         }
     }
