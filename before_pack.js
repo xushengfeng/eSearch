@@ -42,7 +42,7 @@ exports.default = async function () {
     if (!fs.existsSync("./lib/ffmpeg")) {
         let o = {
             win32: {
-                x64: "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.0-latest-win64-gpl-6.0.zip",
+                x64: "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.1-latest-win64-gpl-6.1.zip",
             },
             darwin: {
                 x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip",
