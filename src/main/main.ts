@@ -1362,6 +1362,12 @@ async function createMainWindow(op: MainWinType) {
         // 确保切换到index时能传递window_name
         mainWindow.webContents.send("text", windowName, op);
 
+        if (op.type === "image" && op.arg0 === "ai") {
+            createBrowser(windowName, "http://ai-v.netlify.app").then((c) => {
+                c.executeJavaScript(`setImg("${op.content}")`);
+            });
+        }
+
         if (mainWindow.html) {
             mainWindow.webContents.send("html", mainWindow.html);
         }
@@ -1527,6 +1533,11 @@ async function createBrowser(windowName: number, url: string) {
     searchView.webContents.on("certificate-error", () => {
         rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
         if (dev) searchView.webContents.openDevTools();
+    });
+    return new Promise((resolve: (x: Electron.WebContents) => void) => {
+        searchView.webContents.on("did-finish-load", () => {
+            resolve(searchView.webContents);
+        });
     });
 }
 /**

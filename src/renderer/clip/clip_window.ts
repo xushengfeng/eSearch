@@ -686,7 +686,7 @@ document.getElementById("tool_search").title = `以图搜图 - ${识图引擎.va
 function runSearch() {
     const type = 识图引擎.value;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        ipcRenderer.send("clip_main_b", "search", [c.toDataURL().replace(/^data:image\/\w+;base64,/, ""), type]);
+        ipcRenderer.send("clip_main_b", "search", [c.toDataURL(), type]);
     });
     tool.close();
 }

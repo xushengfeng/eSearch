@@ -1578,6 +1578,7 @@ window.onbeforeunload = () => {
 /************************************以图搜图 */
 
 function searchImg(img: string, type: "baidu" | "yandex" | "google", callback: Function) {
+    img = img.replace(/^data:image\/\w+;base64,/, "");
     switch (type) {
         case "baidu":
             baidu(img, (err, url) => {
