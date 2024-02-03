@@ -220,19 +220,7 @@ document
         };
     });
 
-let toolList: 功能[] = [
-    "close",
-    "screens",
-    "ocr",
-    "search",
-    "QR",
-    "open",
-    "ding",
-    "record",
-    "long",
-    "copy",
-    "save",
-];
+let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
 let toolShow = old_store.工具栏.功能;
 const toolShowEl = document.getElementById("tool_show");
 const toolHideEl = document.getElementById("tool_hide");
@@ -537,10 +525,6 @@ document.getElementById("clear_storage").onclick = () => {
 };
 document.getElementById("clear_cache").onclick = () => {
     ipcRenderer.send("setting", "clear", "cache");
-};
-
-document.getElementById("main_b").onclick = () => {
-    window.location.href = "editor.html";
 };
 
 function setOcr() {
