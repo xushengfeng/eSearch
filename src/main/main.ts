@@ -312,9 +312,24 @@ app.whenReady().then(() => {
             label: t("主页面模式"),
             type: "submenu",
             submenu: [
-                { label: t("自动"), type: "radio" },
-                { label: t("搜索"), type: "radio" },
-                { label: t("翻译"), type: "radio" },
+                {
+                    label: t("自动"),
+                    type: "radio",
+                    checked: store.get("主页面.模式") === "auto",
+                    click: () => store.set("主页面.模式", "auto"),
+                },
+                {
+                    label: t("搜索"),
+                    type: "radio",
+                    checked: store.get("主页面.模式") === "search",
+                    click: () => store.set("主页面.模式", "search"),
+                },
+                {
+                    label: t("翻译"),
+                    type: "radio",
+                    checked: store.get("主页面.模式") === "translate",
+                    click: () => store.set("主页面.模式", "translate"),
+                },
             ],
         },
         { type: "separator" },
@@ -1779,6 +1794,9 @@ var defaultSetting: setting = {
         pacScript: "",
         proxyRules: "",
         proxyBypassRules: "",
+    },
+    主页面: {
+        模式: "auto",
     },
     主页面大小: [800, 600, false],
     关闭窗口: {

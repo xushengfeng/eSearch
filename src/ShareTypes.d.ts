@@ -149,6 +149,9 @@ export interface setting {
         };
     };
     代理: Electron.Config;
+    主页面: {
+        模式: "auto" | "search" | "translate";
+    };
     主页面大小: [number, number, boolean];
     关闭窗口: {
         失焦: { 主页面: boolean };
