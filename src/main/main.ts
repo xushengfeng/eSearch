@@ -153,7 +153,7 @@ async function copyText(callback: (t: string) => void) {
 function autoOpen() {
     copyText((t) => {
         if (t) {
-            createMainWindow("editor.html", [t]);
+            createMainWindow([t]);
         } else {
             fullScreen();
         }
@@ -163,7 +163,7 @@ function autoOpen() {
 /** 选区搜索 */
 function openSelection() {
     copyText((t) => {
-        if (t) createMainWindow("editor.html", [t]);
+        if (t) createMainWindow([t]);
     });
 }
 
@@ -172,7 +172,7 @@ function openClipBoard() {
     var t = clipboard.readText(
         process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
     );
-    createMainWindow("editor.html", [t]);
+    createMainWindow([t]);
 }
 
 // cli参数重复启动;
@@ -207,13 +207,13 @@ function argRun(c: string[]) {
             openClipBoard();
             break;
         case c.includes("-g"):
-            createMainWindow("editor.html", [""]);
+            createMainWindow([""]);
             break;
         case c.includes("-q"):
             quickClip();
             break;
         case c.includes("-t"):
-            createMainWindow("editor.html", [c[c.findIndex((t) => t === "-t") + 1]]);
+            createMainWindow([c[c.findIndex((t) => t === "-t") + 1]]);
             break;
         default:
             for (let i of c) {
@@ -336,20 +336,20 @@ app.whenReady().then(() => {
         {
             label: t("主页面"),
             click: () => {
-                createMainWindow("editor.html", [""]);
+                createMainWindow([""]);
             },
         },
         {
             label: t("设置"),
             click: () => {
                 Store.initRenderer();
-                createMainWindow("setting.html");
+                createSettingWindow();
             },
         },
         {
             label: t("教程帮助"),
             click: () => {
-                createMainWindow("help.html");
+                createHelpWindow();
             },
         },
         {
@@ -395,7 +395,7 @@ app.whenReady().then(() => {
         选中搜索: openSelection,
         剪贴板搜索: openClipBoard,
         快速截屏: quickClip,
-        主页面: createMainWindow.bind(this, "editor.html", [""]),
+        主页面: createMainWindow.bind(this, [""]),
     };
     ipcMain.on("快捷键", (event, arg) => {
         var [name, key] = arg;
@@ -451,7 +451,7 @@ app.whenReady().then(() => {
                           {
                               label: t("设置"),
                               click: () => {
-                                  createMainWindow("setting.html");
+                                  createSettingWindow();
                               },
                               accelerator: "CmdOrCtrl+,",
                           },
@@ -485,7 +485,7 @@ app.whenReady().then(() => {
                           {
                               label: t("设置"),
                               click: () => {
-                                  createMainWindow("setting.html");
+                                  createSettingWindow();
                               },
                               accelerator: "CmdOrCtrl+,",
                           },
@@ -735,14 +735,14 @@ app.whenReady().then(() => {
                 {
                     label: t("教程帮助"),
                     click: () => {
-                        createMainWindow("help.html");
+                        createHelpWindow();
                     },
                 },
                 { type: "separator" },
                 {
                     label: t("关于"),
                     click: () => {
-                        createMainWindow("setting.html", null, true);
+                        createSettingWindow(true);
                     },
                 },
             ],
@@ -827,7 +827,7 @@ function createClipWindow() {
                 break;
             case "QR":
                 if (arg != "nothing") {
-                    createMainWindow("editor.html", [arg]);
+                    createMainWindow([arg]);
                 } else {
                     dialog.showMessageBox({
                         title: t("警告"),
@@ -971,11 +971,11 @@ function reload_clip() {
 }
 
 function ocr(arg) {
-    createMainWindow("editor.html", ["ocr", ...arg]);
+    createMainWindow(["ocr", ...arg]);
 }
 
 function imageSearch(arg) {
-    createMainWindow("editor.html", ["image", arg[0], arg[1]]);
+    createMainWindow(["image", arg[0], arg[1]]);
 }
 
 var recording = false;
@@ -1331,7 +1331,7 @@ var mainWindowL: { [n: number]: BrowserWindow } = {};
  * @type {Object.<number, Array.<number>>}
  */
 var mainToSearchL: { [n: number]: Array<number> } = {};
-async function createMainWindow(webPage: string, t?: boolean | Array<any>, about?: boolean) {
+async function createMainWindow(t?: boolean | Array<any>) {
     var windowName = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
     let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,
@@ -1359,8 +1359,7 @@ async function createMainWindow(webPage: string, t?: boolean | Array<any>, about
 
     if (m) mainWindow.maximize();
 
-    // 自定义界面
-    rendererPath(mainWindow, webPage || "editor.html");
+    rendererPath(mainWindow, "editor.html");
 
     await mainWindow.webContents.session.setProxy(store.get("代理"));
 
@@ -1371,11 +1370,6 @@ async function createMainWindow(webPage: string, t?: boolean | Array<any>, about
         t = t || [""];
         // 确保切换到index时能传递window_name
         mainWindow.webContents.send("text", windowName, t);
-
-        if (webPage == "setting.html") {
-            mainWindow.webContents.send("about", about);
-            mainWindow.webContents.send("setting", mainWindow.id);
-        }
 
         if (mainWindow.html) {
             mainWindow.webContents.send("html", mainWindow.html);
@@ -1411,6 +1405,51 @@ async function createMainWindow(webPage: string, t?: boolean | Array<any>, about
     return windowName;
 }
 
+async function createSettingWindow(about?: boolean) {
+    const settingWindow = new BrowserWindow({
+        minWidth: 800,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
+        icon: theIcon,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            webSecurity: false,
+        },
+        show: true,
+    });
+
+    rendererPath(settingWindow, "setting.html");
+
+    await settingWindow.webContents.session.setProxy(store.get("代理"));
+
+    if (dev) settingWindow.webContents.openDevTools();
+
+    settingWindow.webContents.on("did-finish-load", () => {
+        settingWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+        settingWindow.webContents.send("about", about);
+    });
+}
+
+async function createHelpWindow() {
+    const helpWindow = new BrowserWindow({
+        minWidth: 800,
+        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
+        icon: theIcon,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            webSecurity: false,
+        },
+        show: true,
+    }) as BrowserWindow & { html: string };
+
+    rendererPath(helpWindow, "help.html");
+
+    await helpWindow.webContents.session.setProxy(store.get("代理"));
+
+    if (dev) helpWindow.webContents.openDevTools();
+}
+
 ipcMain.on("main_win", (e, arg) => {
     switch (arg) {
         case "close":
@@ -1434,7 +1473,7 @@ ipcMain.on("open_url", (_event, window_name, url) => {
 
 /** 创建浏览器页面 */
 async function createBrowser(windowName: number, url: string) {
-    if (!windowName) windowName = await createMainWindow("editor.html");
+    if (!windowName) windowName = await createMainWindow();
 
     let mainWindow = mainWindowL[windowName];
 
