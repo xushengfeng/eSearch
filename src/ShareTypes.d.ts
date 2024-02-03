@@ -216,3 +216,5 @@ type EditType = {
     shape: "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow";
     filter: "";
 };
+
+type MainWinType = { type: "text" | "ocr" | "image" | "search" | "translate"; content: string; arg0?: string };

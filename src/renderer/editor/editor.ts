@@ -5,6 +5,7 @@ var configPath = new URLSearchParams(location.search).get("config_path");
 var store = new Store({
     cwd: configPath || "",
 });
+import { MainWinType } from "../../ShareTypes";
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
@@ -1135,17 +1136,17 @@ const os = require("os") as typeof import("os");
 
 ipcRenderer.on("init", (_event, _name: number) => {});
 
-ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
+ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     windowName = name;
 
-    if (list.length == 1) {
-        mainText = list[0];
+    if (list.type === "text") {
+        mainText = list.content;
         showT(mainText);
     }
 
-    if (list.length == 3 && list[0] == "image") {
+    if (list.type === "image") {
         editor.push(t("图片上传中……请等候"));
-        searchImg(list[1], list[2] as any, (err: Error, url: string) => {
+        searchImg(list.content, list.arg0 as any, (err: Error, url: string) => {
             if (url) {
                 openLink("url", url);
                 if (浏览器打开) {
@@ -1156,9 +1157,9 @@ ipcRenderer.on("text", (_event, name: string, list: Array<string>) => {
         });
     }
 
-    if (list.length == 3 && list[0] == "ocr") {
+    if (list.type === "ocr") {
         editor.push(t("图片识别中……请等候"));
-        ocr(list[1], list[2] as any, (err: Error, r: { raw: ocrResult; text: string }) => {
+        ocr(list.content, list.arg0 as any, (err: Error, r: { raw: ocrResult; text: string }) => {
             const text = r.text;
             if (text) {
                 console.log(text);

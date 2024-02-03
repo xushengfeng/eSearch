@@ -22,7 +22,7 @@ import {
 import { Buffer } from "buffer";
 
 const Store = require("electron-store");
-import { setting } from "../ShareTypes";
+import { setting, MainWinType } from "../ShareTypes";
 import * as path from "path";
 const runPath = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
@@ -153,7 +153,7 @@ async function copyText(callback: (t: string) => void) {
 function autoOpen() {
     copyText((t) => {
         if (t) {
-            createMainWindow([t]);
+            createMainWindow({ type: "text", content: t });
         } else {
             fullScreen();
         }
@@ -163,7 +163,7 @@ function autoOpen() {
 /** 选区搜索 */
 function openSelection() {
     copyText((t) => {
-        if (t) createMainWindow([t]);
+        if (t) createMainWindow({ type: "text", content: t });
     });
 }
 
@@ -172,7 +172,7 @@ function openClipBoard() {
     var t = clipboard.readText(
         process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
     );
-    createMainWindow([t]);
+    createMainWindow({ type: "text", content: t });
 }
 
 // cli参数重复启动;
@@ -207,13 +207,13 @@ function argRun(c: string[]) {
             openClipBoard();
             break;
         case c.includes("-g"):
-            createMainWindow([""]);
+            createMainWindow({ type: "text", content: "" });
             break;
         case c.includes("-q"):
             quickClip();
             break;
         case c.includes("-t"):
-            createMainWindow([c[c.findIndex((t) => t === "-t") + 1]]);
+            createMainWindow({ type: "text", content: c[c.findIndex((t) => t === "-t") + 1] });
             break;
         default:
             for (let i of c) {
@@ -336,7 +336,7 @@ app.whenReady().then(() => {
         {
             label: t("主页面"),
             click: () => {
-                createMainWindow([""]);
+                createMainWindow({ type: "text", content: "" });
             },
         },
         {
@@ -827,7 +827,7 @@ function createClipWindow() {
                 break;
             case "QR":
                 if (arg != "nothing") {
-                    createMainWindow([arg]);
+                    createMainWindow({ type: "text", content: arg });
                 } else {
                     dialog.showMessageBox({
                         title: t("警告"),
@@ -971,11 +971,11 @@ function reload_clip() {
 }
 
 function ocr(arg) {
-    createMainWindow(["ocr", ...arg]);
+    createMainWindow({ type: "ocr", content: arg[0], arg0: arg[1] });
 }
 
 function imageSearch(arg) {
-    createMainWindow(["image", arg[0], arg[1]]);
+    createMainWindow({ type: "image", content: arg[0], arg0: arg[1] });
 }
 
 var recording = false;
@@ -1331,7 +1331,7 @@ var mainWindowL: { [n: number]: BrowserWindow } = {};
  * @type {Object.<number, Array.<number>>}
  */
 var mainToSearchL: { [n: number]: Array<number> } = {};
-async function createMainWindow(t?: boolean | Array<any>) {
+async function createMainWindow(op: MainWinType) {
     var windowName = new Date().getTime();
     var [w, h, m] = store.get("主页面大小");
     let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,
@@ -1367,9 +1367,8 @@ async function createMainWindow(t?: boolean | Array<any>) {
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-        t = t || [""];
         // 确保切换到index时能传递window_name
-        mainWindow.webContents.send("text", windowName, t);
+        mainWindow.webContents.send("text", windowName, op);
 
         if (mainWindow.html) {
             mainWindow.webContents.send("html", mainWindow.html);
@@ -1473,7 +1472,7 @@ ipcMain.on("open_url", (_event, window_name, url) => {
 
 /** 创建浏览器页面 */
 async function createBrowser(windowName: number, url: string) {
-    if (!windowName) windowName = await createMainWindow();
+    if (!windowName) windowName = await createMainWindow({ type: "text", content: "" });
 
     let mainWindow = mainWindowL[windowName];
 
