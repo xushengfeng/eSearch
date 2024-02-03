@@ -1189,6 +1189,17 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             }
         });
     }
+
+    if (list.type === "qr") {
+        editor.push(t("QR码识别中……请等候"));
+        import("qr-scanner-wechat").then(async (qr) => {
+            let img = new Image();
+            img.src = list.content;
+            const result = await qr.scan(img);
+            const text = result.text;
+            showT(text);
+        });
+    }
 });
 var 模糊 = store.get("全局.模糊");
 if (模糊 != 0) {

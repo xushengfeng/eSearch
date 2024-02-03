@@ -826,15 +826,7 @@ function createClipWindow() {
                 imageSearch(arg);
                 break;
             case "QR":
-                if (arg != "nothing") {
-                    createMainWindow({ type: "text", content: arg });
-                } else {
-                    dialog.showMessageBox({
-                        title: t("警告"),
-                        message: `${t("无法识别二维码")}\n${t("请尝试重新识别")}`,
-                        icon: `${runPath}/assets/logo/warning.png`,
-                    });
-                }
+                createMainWindow({ type: "qr", content: arg });
                 break;
             case "open":
                 dialog

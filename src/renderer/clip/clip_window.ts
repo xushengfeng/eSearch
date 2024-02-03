@@ -691,17 +691,10 @@ function runSearch() {
     tool.close();
 }
 // 二维码
-import { scan } from "qr-scanner-wechat";
 function runQr() {
     getClipPhoto("png").then(async (c: HTMLCanvasElement) => {
-        const result = await scan(c);
-        const code = result.text;
-        if (code) {
-            ipcRenderer.send("clip_main_b", "QR", code);
-            tool.close();
-        } else {
-            ipcRenderer.send("clip_main_b", "QR", "nothing");
-        }
+        ipcRenderer.send("clip_main_b", "QR", c.toDataURL());
+        tool.close();
     });
 }
 // 图片编辑

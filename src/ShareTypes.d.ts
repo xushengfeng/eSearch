@@ -217,4 +217,4 @@ type EditType = {
     filter: "";
 };
 
-type MainWinType = { type: "text" | "ocr" | "image"; content: string; arg0?: string };
+type MainWinType = { type: "text" | "ocr" | "image" | "qr"; content: string; arg0?: string };
