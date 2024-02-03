@@ -1903,8 +1903,22 @@ try {
 
 function setDefaultSetting() {
     for (let i in defaultSetting) {
-        if (i == "语言") {
-            store.set(i, { 语言: app.getLocale() || "zh-HANS" });
+        if (i === "语言") {
+            const supportLan = ["zh-HANS", "zh-HANT", "ar", "en", "eo", "es", "fr", "ru"];
+            let lan = app.getLocale();
+            let mainLan = lan.split("-")[0];
+            if (mainLan === "zh") {
+                lan = {
+                    "zh-CN": "zh-HANS",
+                    "zh-SG": "zh-HANS",
+                    "zh-TW": "zh-HANT",
+                    "zh-HK": "zh-HANT",
+                }[lan];
+            }
+            let language = "";
+            if (!supportLan.includes(lan) && !supportLan.includes(mainLan)) language = "zh-HANS";
+            else language = lan;
+            store.set(i, { 语言: language });
         } else {
             store.set(i, defaultSetting[i]);
         }
