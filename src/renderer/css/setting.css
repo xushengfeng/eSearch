@@ -343,6 +343,14 @@ comment {
     display: block;
 }
 
+#hotkeys {
+    display: flex;
+    gap: 8px;
+}
+#hotkeys > div {
+    cursor: pointer;
+}
+
 #框选后默认操作 .icon {
     position: inherit;
 }
