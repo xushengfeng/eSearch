@@ -892,6 +892,8 @@ document.getElementById("replace_input").onkeydown = (e) => {
 
 /************************************搜索 */
 
+let mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
+
 /**
  * 判断是否为链接
  * @param url 链接
@@ -923,20 +925,25 @@ function isLink(url: string, s: boolean) {
 function showT(t: string) {
     t = t.replace(/[\r\n]$/, "");
     editor.push(t);
-    // 严格模式
-    if (isLink(t, true)) {
-        if (自动打开链接) openLink("url", t);
-    } else {
-        var language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
-        if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
-            if (language == "本地语言") {
-                openLink("search");
-            } else {
-                openLink("translate");
+    if (mainType === "auto") {
+        // 严格模式
+        if (isLink(t, true)) {
+            if (自动打开链接) openLink("url", t);
+        } else {
+            var language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
+            if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
+                if (language == "本地语言") {
+                    openLink("search");
+                } else {
+                    openLink("translate");
+                }
             }
         }
+    } else if (mainType === "search") {
+        openLink("search");
+    } else if (mainType === "translate") {
+        openLink("translate");
     }
-
     editor.selectAll();
 }
 
@@ -1166,6 +1173,12 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
                 editor.push(text);
                 editor.selectAll();
+
+                if (mainType === "search") {
+                    openLink("search");
+                } else if (mainType === "translate") {
+                    openLink("translate");
+                }
 
                 addOcrText(r.raw, 0);
                 return;
