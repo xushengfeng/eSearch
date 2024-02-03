@@ -604,7 +604,7 @@ button > .icon {
     opacity: 1;
 }
 .fill_t_s .main {
-    grid-template-columns: calc(2 * var(--b-button)) 1fr repeat(2, auto);
+    grid-template-columns: 1fr var(--b-button) repeat(2, auto);
 }
 .fill_t_s #top {
     grid-area: 1 / 1 / 2 / 7;
