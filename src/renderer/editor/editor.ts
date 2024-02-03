@@ -925,7 +925,7 @@ function isLink(url: string, s: boolean) {
 function showT(t: string) {
     t = t.replace(/[\r\n]$/, "");
     editor.push(t);
-    if (mainType === "auto") {
+    if (mainType === "auto" || t === "") {
         // 严格模式
         if (isLink(t, true)) {
             if (自动打开链接) openLink("url", t);
