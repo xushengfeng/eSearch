@@ -2085,20 +2085,29 @@ document.addEventListener("selectionchange", () => {
     ) as HTMLDivElement;
     let allTextNodes = ocrTextNodes.get(div);
     if (!allTextNodes) return;
+    let startNode = range.startContainer;
+    let endNode = range.endContainer;
+    let rStartOffset = range.startOffset;
+    let rEndOffset = range.endOffset;
+    if (endNode.nodeName === "P") {
+        let lastText = endNode.previousSibling.childNodes[0];
+        endNode = lastText;
+        rEndOffset = lastText.textContent?.length;
+    }
     let start = 0;
     let end = 0;
     let startOk = false;
     let endOk = false;
     let sourceText = "";
     allTextNodes.forEach((node) => {
-        if (range.startContainer === node) {
-            start += range.startOffset;
+        if (startNode === node) {
+            start += rStartOffset;
             startOk = true;
         } else {
             if (!startOk) start += node.textContent.length;
         }
-        if (range.endContainer === node) {
-            end += range.endOffset;
+        if (endNode === node) {
+            end += rEndOffset;
             endOk = true;
         } else {
             if (!endOk) end += node.textContent.length;
