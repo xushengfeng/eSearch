@@ -2110,8 +2110,8 @@ document.addEventListener("selectionchange", () => {
 
     let diff = dmp.diff_main(sourceText, editor.get());
     console.log(diff);
-    let source: number[] = [];
-    let map: number[] = [];
+    let source: number[] = [0];
+    let map: number[] = [0];
     if (diff.at(-1)[0] === 1) diff.push([0, ""]);
     let p0 = 0,
         p1 = 0;
