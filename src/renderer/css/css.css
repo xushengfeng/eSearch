@@ -286,7 +286,7 @@ body {
     background-color: var(--bg);
     transition: var(--transition);
     transform: translateY(-120%);
-    padding: 4px;
+    padding: var(--o-padding);
 }
 
 #image .icon {
