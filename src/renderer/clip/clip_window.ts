@@ -251,16 +251,22 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
 });
 
 function toCanvas(canvas: HTMLCanvasElement, img: Buffer) {
-    let x = nativeImage.createFromBuffer(img).toBitmap();
-    let size = nativeImage.createFromBuffer(img).getSize();
-    let w = size.width;
-    let h = size.height;
+    const image = nativeImage.createFromBuffer(img);
+    const { width: w, height: h } = image.getSize();
+
     canvas.width = w;
     canvas.height = h;
-    for (let i = 0; i < x.length; i += 4) {
-        [x[i], x[i + 2]] = [x[i + 2], x[i]];
+
+    let bitmap = image.toBitmap();
+    let x = new Uint8ClampedArray(bitmap.length);
+    for (let i = 0; i < bitmap.length; i += 4) {
+        // 交换R和B通道的值，同时复制G和Alpha通道的值
+        x[i] = bitmap[i + 2]; // B
+        x[i + 1] = bitmap[i + 1]; // G
+        x[i + 2] = bitmap[i]; // R
+        x[i + 3] = bitmap[i + 3]; // Alpha
     }
-    let d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    let d = new ImageData(x, w, h);
     canvas.getContext("2d").putImageData(d, 0, 0);
 }
 
