@@ -1710,41 +1710,41 @@ var mouseBarH = 4 + colorSize * colorISize + 32 * 2;
 var mouseBarEl = document.getElementById("mouse_bar");
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
+const mainCanvasContext = mainCanvas.getContext("2d");
+
 function mouseBar(finalRect: rect, x: number, y: number) {
-    const x0 = finalRect[0];
-    const x1 = x0 + finalRect[2];
-    const y0 = finalRect[1];
-    const y1 = y0 + finalRect[3];
+    const [x0, y0, width, height] = finalRect;
+    const x1 = x0 + width;
+    const y1 = y0 + height;
 
-    const color = mainCanvas
-        .getContext("2d")
-        .getImageData(x - (colorSize - 1) / 2, y - (colorSize - 1) / 2, colorSize, colorSize).data; // 取色器密度
-    // 分开每个像素的颜色
-    for (let i = 0; i < color.length; i += 4) {
-        const colorG = Array.from(color.slice(i, i + 4)) as typeof theColor;
-        colorG[3] /= 255;
+    const xOffset = x - (colorSize - 1) / 2;
+    const yOffset = y - (colorSize - 1) / 2;
 
-        const ii = Math.floor(i / 4);
-        const xx = (ii % colorSize) + (x - (colorSize - 1) / 2);
-        const yy = Math.floor(ii / colorSize) + (y - (colorSize - 1) / 2);
-        if (!(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && ii != (color.length / 4 - 1) / 2) {
-            // 框外
-            pointColorSpanList[ii].id = "point_color_t_b";
-        } else if (ii == (color.length / 4 - 1) / 2) {
-            // 光标中心点
-            pointColorSpanList[ii].id = "point_color_t_c";
-            theColor = colorG;
+    const imageData = mainCanvasContext.getImageData(xOffset, yOffset, colorSize, colorSize).data;
+
+    for (let i = 0; i < imageData.length; i += 4) {
+        let [r, g, b, a] = imageData.slice(i, i + 4);
+        a /= 255;
+
+        const pixelIndex = i / 4;
+        const xx = (pixelIndex % colorSize) + xOffset;
+        const yy = Math.floor(pixelIndex / colorSize) + yOffset;
+
+        const isCursorCenter = pixelIndex === (imageData.length / 4 - 1) / 2;
+        const isOutside = !(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && !isCursorCenter;
+
+        const pointColorSpan = pointColorSpanList[pixelIndex];
+        pointColorSpan.id = isOutside ? "point_color_t_b" : isCursorCenter ? "point_color_t_c" : "point_color_t_t";
+        pointColorSpan.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+
+        if (isCursorCenter) {
+            theColor = [r, g, b, a];
             clipColorText(theColor, 取色器默认格式);
-        } else {
-            pointColorSpanList[ii].id = "point_color_t_t";
         }
-
-        pointColorSpanList[ii].style.background = `rgba(${colorG[0]}, ${colorG[1]}, ${colorG[2]}, ${colorG[3]})`;
     }
 
-    const clipXYEl = document.getElementById("clip_xy");
     const d = 光标 === "以(1,1)为起点" ? 1 : 0;
-    clipXYEl.innerText = `(${x + d}, ${y + d})`;
+    document.getElementById("clip_xy").innerText = `(${x + d}, ${y + d})`;
 }
 
 // 复制坐标
