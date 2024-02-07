@@ -576,7 +576,11 @@ var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLEleme
         free: document.getElementById("draw_select_free"),
         draw: document.getElementById("draw_select_draw"),
     },
-    draw: { free: pencilEl, eraser: eraserEl, spray: freeSprayEl },
+    draw: {
+        free: document.getElementById("draw_free_pencil"),
+        eraser: document.getElementById("draw_free_eraser"),
+        spray: document.getElementById("draw_free_spray"),
+    },
     filter: { "": null },
     shape: shapeEl,
 };
@@ -2376,14 +2380,11 @@ function showSideBar(show: boolean) {
 var mode: EditType["draw"];
 
 // 笔
-var pencilEl = document.getElementById("draw_free_pencil");
-pencilEl.onclick = () => setEditType("draw", "free");
+drawSideEls.draw.free.onclick = () => setEditType("draw", "free");
 // 橡皮
-var eraserEl = document.getElementById("draw_free_eraser");
-eraserEl.onclick = () => setEditType("draw", "eraser");
+drawSideEls.draw.eraser.onclick = () => setEditType("draw", "eraser");
 // 刷
-var freeSprayEl = document.getElementById("draw_free_spray");
-freeSprayEl.onclick = () => setEditType("draw", "spray");
+drawSideEls.draw.spray.onclick = () => setEditType("draw", "spray");
 function pencilElClick() {
     fabricCanvas.freeDrawingBrush = new Fabric.PencilBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush.color = freeColor;
