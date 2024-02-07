@@ -2067,19 +2067,19 @@ function isInClipRect(p: editor_position) {
                 clipCanvas.style.cursor = "nesw-resize";
                 direction = "西南";
                 break;
-            case x0 <= p.x && p.x <= x0 + num:
+            case x0 <= p.x && p.x <= x0 + num && y0 <= p.y && p.y <= y1:
                 clipCanvas.style.cursor = "ew-resize";
                 direction = "西";
                 break;
-            case x1 - num <= p.x && p.x <= x1:
+            case x1 - num <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1:
                 clipCanvas.style.cursor = "ew-resize";
                 direction = "东";
                 break;
-            case y0 <= p.y && p.y <= y0 + num:
+            case y0 <= p.y && p.y <= y0 + num && x0 <= p.x && p.x <= x1:
                 clipCanvas.style.cursor = "ns-resize";
                 direction = "北";
                 break;
-            case y1 - num <= p.y && p.y <= y1:
+            case y1 - num <= p.y && p.y <= y1 && x0 <= p.x && p.x <= x1:
                 clipCanvas.style.cursor = "ns-resize";
                 direction = "南";
                 break;
