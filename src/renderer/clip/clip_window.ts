@@ -2025,17 +2025,25 @@ function finalRectFix() {
     finalRect = [x, y, w, h];
 }
 
+function inRange(min: number, value: number, max: number, type?: "[]" | "()" | "(]" | "[)") {
+    if (!type) type = "[]";
+    if (type === "[]") return min <= value && value <= max;
+    else if (type === "(]") return min < value && value <= max;
+    else if (type === "[)") return min <= value && value < max;
+    else return min < value && value < max;
+}
+
 /**
  * 判断光标位置并更改样式,定义光标位置的移动方向
  */
 function isInClipRect(p: editor_position) {
-    nowCanvasPosition = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
-    p.x = nowCanvasPosition[0];
-    p.y = nowCanvasPosition[1];
-    var x0 = finalRect[0],
-        x1 = finalRect[0] + finalRect[2],
-        y0 = finalRect[1],
-        y1 = finalRect[1] + finalRect[3];
+    const [canvasX, canvasY] = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
+    p.x = canvasX;
+    p.y = canvasY;
+
+    const [x0, y0, width, height] = finalRect;
+    const x1 = x0 + width;
+    const y1 = y0 + height;
     // 如果全屏,那允许框选
     if (!(finalRect[2] == mainCanvas.width && finalRect[3] == mainCanvas.height)) {
         if (x0 <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1) {
@@ -2047,50 +2055,39 @@ function isInClipRect(p: editor_position) {
 
         direction = "";
 
-        var num = 8;
+        const num = 8;
 
         // 光标样式
-        switch (true) {
-            case x0 <= p.x && p.x <= x0 + num && y0 <= p.y && p.y <= y0 + num:
-                clipCanvas.style.cursor = "nwse-resize";
-                direction = "西北";
-                break;
-            case x1 - num <= p.x && p.x <= x1 && y1 - num <= p.y && p.y <= y1:
-                clipCanvas.style.cursor = "nwse-resize";
-                direction = "东南";
-                break;
-            case y0 <= p.y && p.y <= y0 + num && x1 - num <= p.x && p.x <= x1:
-                clipCanvas.style.cursor = "nesw-resize";
-                direction = "东北";
-                break;
-            case y1 - num <= p.y && p.y <= y1 && x0 <= p.x && p.x <= x0 + num:
-                clipCanvas.style.cursor = "nesw-resize";
-                direction = "西南";
-                break;
-            case x0 <= p.x && p.x <= x0 + num && y0 <= p.y && p.y <= y1:
-                clipCanvas.style.cursor = "ew-resize";
-                direction = "西";
-                break;
-            case x1 - num <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1:
-                clipCanvas.style.cursor = "ew-resize";
-                direction = "东";
-                break;
-            case y0 <= p.y && p.y <= y0 + num && x0 <= p.x && p.x <= x1:
-                clipCanvas.style.cursor = "ns-resize";
-                direction = "北";
-                break;
-            case y1 - num <= p.y && p.y <= y1 && x0 <= p.x && p.x <= x1:
-                clipCanvas.style.cursor = "ns-resize";
-                direction = "南";
-                break;
-            case x0 + num < p.x && p.x < x1 - num && y0 + num < p.y && p.y < y1 - num:
-                clipCanvas.style.cursor = "move";
-                direction = "move";
-                break;
-            default:
-                clipCanvas.style.cursor = "crosshair";
-                direction = "";
-                break;
+        if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y0 + num)) {
+            clipCanvas.style.cursor = "nwse-resize";
+            direction = "西北";
+        } else if (inRange(x1 - num, p.x, x1) && inRange(y1 - num, p.y, y1)) {
+            clipCanvas.style.cursor = "nwse-resize";
+            direction = "东南";
+        } else if (inRange(y0, p.y, y0 + num) && inRange(x1 - num, p.x, x1)) {
+            clipCanvas.style.cursor = "nesw-resize";
+            direction = "东北";
+        } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x0 + num)) {
+            clipCanvas.style.cursor = "nesw-resize";
+            direction = "西南";
+        } else if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y1)) {
+            clipCanvas.style.cursor = "ew-resize";
+            direction = "西";
+        } else if (inRange(x1 - num, p.x, x1) && inRange(y0, p.y, y1)) {
+            clipCanvas.style.cursor = "ew-resize";
+            direction = "东";
+        } else if (inRange(y0, p.y, y0 + num) && inRange(x0, p.x, x1)) {
+            clipCanvas.style.cursor = "ns-resize";
+            direction = "北";
+        } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x1)) {
+            clipCanvas.style.cursor = "ns-resize";
+            direction = "南";
+        } else if (inRange(x0 + num, p.x, x1 - num, "()") && inRange(y0 + num, p.y, y1 - num, "()")) {
+            clipCanvas.style.cursor = "move";
+            direction = "move";
+        } else {
+            clipCanvas.style.cursor = "crosshair";
+            direction = "";
         }
     } else {
         // 全屏可框选
