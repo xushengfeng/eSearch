@@ -100,7 +100,9 @@ mainCanvas.width = clipCanvas.width = drawCanvas.width = window.screen.width * w
 mainCanvas.height = clipCanvas.height = drawCanvas.height = window.screen.height * window.devicePixelRatio;
 var zoomW = 0;
 type rect = [number, number, number, number];
+type point = { x: number; y: number };
 var finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
+var freeSelect: point[] = [];
 var screenPosition: { [key: string]: { x: number; y: number } } = {};
 
 var toolBar = document.getElementById("tool_bar");
@@ -1203,26 +1205,53 @@ function getClipPhoto(type: string) {
         var gid = mainCtx.getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
         tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
         let image = document.createElement("img");
-        if (typeof fabricCanvas != "undefined") {
-            image.src = fabricCanvas.toDataURL({
-                left: finalRect[0],
-                top: finalRect[1],
-                width: finalRect[2],
-                height: finalRect[3],
-                format: type,
-            });
-            return new Promise((resolve, _rejects) => {
-                image.onload = () => {
-                    tmpCanvas.getContext("2d").drawImage(image, 0, 0, finalRect[2], finalRect[3]);
-                    resolve(tmpCanvas);
-                };
-            });
-        } else {
-            return new Promise((resolve, _rejects) => {
+        image.src = fabricCanvas.toDataURL({
+            left: finalRect[0],
+            top: finalRect[1],
+            width: finalRect[2],
+            height: finalRect[3],
+            format: type,
+        });
+        return new Promise((resolve, _rejects) => {
+            image.onload = () => {
+                tmpCanvas.getContext("2d").drawImage(image, 0, 0, finalRect[2], finalRect[3]);
+                if (!isRect) {
+                    const ctx = tmpCanvas.getContext("2d");
+
+                    // 创建临时Canvas并保存原始内容
+                    const tempCanvas = createTemporaryCanvas(tmpCanvas);
+
+                    // 清除主Canvas
+                    ctx.clearRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+
+                    // 定义裁剪区域
+                    ctx.beginPath();
+                    freeSelect.forEach((point, index) => {
+                        if (index === 0) {
+                            ctx.moveTo(point.x - finalRect[0], point.y - finalRect[1]);
+                        } else {
+                            ctx.lineTo(point.x - finalRect[0], point.y - finalRect[1]);
+                        }
+                    });
+                    ctx.closePath();
+                    ctx.clip();
+
+                    // 将原始内容重新绘制到主Canvas上
+                    ctx.drawImage(tempCanvas, 0, 0);
+                }
                 resolve(tmpCanvas);
-            });
-        }
+            };
+        });
     }
+}
+
+function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = originalCanvas.width;
+    tempCanvas.height = originalCanvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.drawImage(originalCanvas, 0, 0);
+    return tempCanvas;
 }
 
 var toolPosition = { x: null, y: null };
@@ -1322,7 +1351,7 @@ document.querySelector("body").onkeydown = (e) => {
     }
 };
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function pXY2cXY(canvas, oX1, oY1, oX2, oY2): rect {
+function pXY2cXY(canvas: HTMLCanvasElement, oX1: number, oY1: number, oX2: number, oY2: number): rect {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
     // 输入为边框像素坐标
     // 为了让canvas获取全屏，边框像素点要包括
@@ -1339,16 +1368,48 @@ function pXY2cXY(canvas, oX1, oY1, oX2, oY2): rect {
     return [x1, y1, x2 - x1, y2 - y1];
 }
 
+function pXY2cXY2(canvas: HTMLCanvasElement, oX1: number, oY1: number): point {
+    // canvas缩放变换
+    const x1 = Math.round(canvas.width * (oX1 / canvas.offsetWidth));
+    const y1 = Math.round(canvas.height * (oY1 / canvas.offsetHeight));
+
+    return { x: x1, y: y1 };
+}
+
+function pointsOutRect(points: point[]): rect {
+    if (points.length === 0) {
+        return null; // 如果点集为空，返回null
+    }
+
+    let minX = points[0].x;
+    let maxX = points[0].x;
+    let minY = points[0].y;
+    let maxY = points[0].y;
+
+    // 遍历所有点，找到最小和最大的x,y坐标
+    for (const point of points) {
+        minX = Math.min(minX, point.x);
+        maxX = Math.max(maxX, point.x);
+        minY = Math.min(minY, point.y);
+        maxY = Math.max(maxY, point.y);
+    }
+
+    // 返回边框的左下角和右上角坐标
+    return [minX, minY, maxX - minX, maxY - minY];
+}
+
+/** 矩形还是自由 */
+var isRect = true;
 var /**是否在绘制新选区*/ selecting = false;
 var rightKey = false;
 var canvasRect = null;
-var /**是否在选区内*/ inRect = false;
 var /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
 
 var /** 先前坐标，用于框选的生成和调整 */ oldP = { x: NaN, y: NaN } as editor_position;
 var oFinalRect = null as rect;
+var oPoly = null as point[];
 var theColor: [number, number, number, number] = null;
 var theTextColor = [null, null];
 var clipCtx = clipCanvas.getContext("2d");
@@ -1365,9 +1426,14 @@ var /**鼠标是否按住 */ down = false;
 var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
 
 clipCanvas.onmousedown = (e) => {
-    isInClipRect({ x: e.offsetX, y: e.offsetY });
+    let inRect = false;
+    if (isRect) {
+        inRect = isInClipRect({ x: e.offsetX, y: e.offsetY });
+    } else {
+        inRect = isPointInPolygon({ x: e.offsetX, y: e.offsetY }, freeSelect);
+    }
     if (e.button == 0) {
-        clipStart({ x: e.offsetX, y: e.offsetY });
+        clipStart({ x: e.offsetX, y: e.offsetY }, inRect);
     }
     if (e.button == 2) {
         pickColor({ x: e.offsetX, y: e.offsetY });
@@ -1381,20 +1447,35 @@ clipCanvas.onmousedown = (e) => {
 };
 
 // 开始操纵框选
-function clipStart(p: editor_position) {
-    // 在选区内，则调整，否则新建
-    if (inRect) {
-        isInClipRect(p);
-        oldP = { x: p.x, y: p.y };
-        oFinalRect = finalRect;
-        moving = true;
-        moveRect(oFinalRect, p, p);
+function clipStart(p: editor_position, inRect: boolean) {
+    if (isRect) {
+        // 在选区内，则调整，否则新建
+        if (inRect) {
+            isInClipRect(p);
+            oldP = { x: p.x, y: p.y };
+            oFinalRect = finalRect;
+            moving = true;
+            moveRect(oFinalRect, p, p);
+        } else {
+            selecting = true;
+            canvasRect = [p.x, p.y]; // 用于框选
+            finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
+            rightKey = false;
+            changeRightBar(false);
+        }
     } else {
-        selecting = true;
-        canvasRect = [p.x, p.y]; // 用于框选
-        finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
-        rightKey = false;
-        changeRightBar(false);
+        if (inRect) {
+            oldP = { x: p.x, y: p.y };
+            oPoly = structuredClone(freeSelect);
+            moving = true;
+            movePoly(oPoly, p, p);
+        } else {
+            selecting = true;
+            freeSelect = [p];
+            finalRect = pointsOutRect(freeSelect);
+            rightKey = false;
+            changeRightBar(false);
+        }
     }
     // 隐藏
     drawBar.style.opacity = toolBar.style.opacity = "0";
@@ -1422,16 +1503,33 @@ clipCanvas.onmousemove = (e) => {
     if (e.button == 0) {
         requestAnimationFrame(() => {
             if (selecting) {
-                // 画框
-                finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], e.offsetX, e.offsetY);
-                drawClipRect();
+                if (isRect) {
+                    // 画框
+                    finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], e.offsetX, e.offsetY);
+                    drawClipRect();
+                } else {
+                    freeSelect.push(pXY2cXY2(clipCanvas, e.offsetX, e.offsetY));
+                    finalRect = pointsOutRect(freeSelect);
+                    // todo 化简多边形
+                    drawClipPoly(freeSelect);
+                }
             }
-            if (moving) moveRect(oFinalRect, oldP, { x: e.offsetX, y: e.offsetY });
+            if (moving) {
+                if (isRect) {
+                    moveRect(oFinalRect, oldP, { x: e.offsetX, y: e.offsetY });
+                } else {
+                    movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
+                }
+            }
         });
     }
     if (!selecting && !moving) {
         // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
-        isInClipRect({ x: e.offsetX, y: e.offsetY });
+        if (isRect) {
+            isInClipRect({ x: e.offsetX, y: e.offsetY });
+        } else {
+            isPointInPolygon({ x: e.offsetX, y: e.offsetY }, freeSelect);
+        }
     }
 
     if (autoSelectRect) {
@@ -1470,21 +1568,27 @@ function clipEnd(p: editor_position) {
     clipCtx.closePath();
     selecting = false;
     nowCanvasPosition = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
-    if (!moved && down) {
-        rectSelect = true;
-        let min = [],
-            minN = Infinity;
-        for (let i of rectInRect) {
-            if (i[2] * i[3] < minN) {
-                min = i;
-                minN = i[2] * i[3];
+    if (isRect) {
+        if (!moved && down) {
+            rectSelect = true;
+            let min = [],
+                minN = Infinity;
+            for (let i of rectInRect) {
+                if (i[2] * i[3] < minN) {
+                    min = i;
+                    minN = i[2] * i[3];
+                }
             }
+            if (min.length != 0) finalRect = min as rect;
+            drawClipRect();
+        } else {
+            finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
+            drawClipRect();
         }
-        if (min.length != 0) finalRect = min as rect;
-        drawClipRect();
     } else {
-        finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
-        drawClipRect();
+        freeSelect.push(pXY2cXY2(clipCanvas, p.x, p.y));
+        finalRect = pointsOutRect(freeSelect);
+        drawClipPoly(freeSelect);
     }
     hisPush();
 }
@@ -1520,6 +1624,43 @@ function drawClipRect() {
 
     // 大小栏
     whBar(finalRect);
+}
+
+/** 画多边形(遮罩) */
+function drawClipPoly(points: point[]) {
+    let ctx = clipCtx;
+    let canvas = clipCanvas;
+    if (points.length < 2) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 遮罩颜色;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 创建内部镂空效果
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.fillStyle = "#fff";
+    ctx.closePath();
+    ctx.fill();
+
+    // 恢复默认绘图模式
+    ctx.globalCompositeOperation = "source-over";
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.fillStyle = 选区颜色;
+    ctx.closePath();
+    ctx.fill();
+
+    // 大小栏
+    whBar(pointsOutRect(points));
 }
 
 var rectInRect = [];
@@ -2037,6 +2178,7 @@ function inRange(min: number, value: number, max: number, type?: "[]" | "()" | "
  * 判断光标位置并更改样式,定义光标位置的移动方向
  */
 function isInClipRect(p: editor_position) {
+    let inRect = false;
     const [canvasX, canvasY] = pXY2cXY(clipCanvas, p.x, p.y, p.x, p.y);
     p.x = canvasX;
     p.y = canvasY;
@@ -2095,6 +2237,7 @@ function isInClipRect(p: editor_position) {
         direction = "";
         inRect = false;
     }
+    return inRect;
 }
 
 /** 调整框选 */
@@ -2145,6 +2288,47 @@ function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: ed
 
     finalRectFix();
     drawClipRect();
+}
+function isPointInPolygon(p: point, polygon: point[]): boolean {
+    let inside = false;
+    const n = polygon.length;
+    if (n < 3) return false; // 多边形至少需要3个顶点
+
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+        const xi = polygon[i].x,
+            yi = polygon[i].y;
+        const xj = polygon[j].x,
+            yj = polygon[j].y;
+
+        // 检查点P的Y坐标是否在边ij的Y坐标范围内
+        const intersect = yi > p.y != yj > p.y && p.x < ((xj - xi) * (p.y - yi)) / (yj - yi) + xi;
+        if (intersect) inside = !inside;
+    }
+    if (inside) {
+        clipCanvas.style.cursor = "move";
+        direction = "move";
+    } else {
+        clipCanvas.style.cursor = "crosshair";
+        direction = "";
+    }
+    return inside;
+}
+
+/** 调整框选 */
+function movePoly(oldPoly: point[], oldPosition: editor_position, position: editor_position) {
+    const op = pXY2cXY2(clipCanvas, oldPosition.x, oldPosition.y);
+    const p = pXY2cXY2(clipCanvas, position.x, position.y);
+    const dx = p.x - op.x,
+        dy = p.y - op.y;
+    if (direction === "move") {
+        freeSelect = oldPoly.map((i) => {
+            let x = Math.round(i.x + dx);
+            let y = Math.round(i.y + dy);
+            return { x, y };
+        });
+
+        drawClipPoly(freeSelect);
+    }
 }
 
 document.getElementById("draw_select_rect").onclick = () => {
@@ -2263,6 +2447,11 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
             exitFilter();
             hotkeys.setScope("normal");
             drawM(false);
+            if (type === "free") {
+                isRect = false;
+            } else {
+                isRect = true;
+            }
         } else {
             drawM(true);
             exitFree();
