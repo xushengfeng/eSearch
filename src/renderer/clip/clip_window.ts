@@ -1521,6 +1521,7 @@ clipCanvas.onmousemove = (e) => {
                     movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
                 }
             }
+            if (down) mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         });
     }
     if (!selecting && !moving) {
@@ -2017,7 +2018,7 @@ document.onmousemove = (e) => {
             const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
             nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
             // 鼠标跟随栏
-            mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (!down) mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         }
         // 鼠标跟随栏
 
