@@ -294,19 +294,19 @@ body {
     height: var(--color-size);
     overflow: hidden;
     transition: var(--transition);
-    display: grid;
-    grid-template-columns: repeat(var(--color-i-i), var(--color-i-size));
-    grid-template-rows: repeat(var(--color-i-i), var(--color-i-size));
     border-radius: 6px;
-}
-#point_color_t_c {
-    box-shadow: #000 0 0 0 1px, #fff 0 0 0 2px;
     position: relative;
-    z-index: 2;
 }
-#point_color_t_b {
-    box-shadow: #0005 0 0 0 0.25px inset, #fff5 0 0 0 0.5px inset;
-    opacity: 0.5;
+#point_color > canvas {
+    image-rendering: pixelated;
+    width: var(--color-size);
+    height: var(--color-size);
+}
+#point_color > div {
+    position: absolute;
+    width: var(--color-i-size);
+    height: var(--color-i-size);
+    box-shadow: #000 0 0 0 1px, #fff 0 0 0 2px;
 }
 #clip_xy {
     font-family: var(--monospace);

@@ -1827,19 +1827,15 @@ hotkeys("ctrl+a, command+a", () => {
 });
 
 // 生成取色器
-var colorInnerHtml = "";
-for (let i = 1; i <= colorSize ** 2; i++) {
-    if (i == (colorSize ** 2 + 1) / 2) {
-        // 光标中心点
-        colorInnerHtml += `<span id="point_color_t_c"></span>`;
-    } else {
-        colorInnerHtml += `<span id="point_color_t"></span>`;
-    }
-}
-document.querySelector("#point_color").innerHTML = colorInnerHtml;
-colorInnerHtml = null;
 if (!取色器显示) document.getElementById("point_color").style.display = "none";
-var pointColorSpanList = document.querySelectorAll("#point_color > span") as NodeListOf<HTMLSpanElement>;
+
+const pointColorCanvas = document.createElement("canvas");
+pointColorCanvas.width = pointColorCanvas.height = colorSize;
+document.getElementById("point_color").append(pointColorCanvas);
+const pointCenter = document.createElement("div");
+document.getElementById("point_color").append(pointCenter);
+pointCenter.style.left = ((colorSize - 1) / 2) * colorISize + "px";
+pointCenter.style.top = ((colorSize - 1) / 2) * colorISize + "px";
 
 var mouseBarW =
     Math.max(
@@ -1855,34 +1851,59 @@ const mainCanvasContext = mainCanvas.getContext("2d");
 
 function mouseBar(finalRect: rect, x: number, y: number) {
     const [x0, y0, width, height] = finalRect;
-    const x1 = x0 + width;
-    const y1 = y0 + height;
 
-    const xOffset = x - (colorSize - 1) / 2;
-    const yOffset = y - (colorSize - 1) / 2;
+    const delta = (colorSize - 1) / 2;
+    const xOffset = x - delta;
+    const yOffset = y - delta;
 
-    const imageData = mainCanvasContext.getImageData(xOffset, yOffset, colorSize, colorSize).data;
+    const centerIndex = (colorSize * delta + delta) * 4;
 
-    for (let i = 0; i < imageData.length; i += 4) {
-        let [r, g, b, a] = imageData.slice(i, i + 4);
-        a /= 255;
+    const pointColorCtx = pointColorCanvas.getContext("2d");
 
-        const pixelIndex = i / 4;
-        const xx = (pixelIndex % colorSize) + xOffset;
-        const yy = Math.floor(pixelIndex / colorSize) + yOffset;
+    const imageData = mainCanvasContext.getImageData(xOffset, yOffset, colorSize, colorSize);
 
-        const isCursorCenter = pixelIndex === (imageData.length / 4 - 1) / 2;
-        const isOutside = !(x0 <= xx && xx <= x1 - 1 && y0 <= yy && yy <= y1 - 1) && !isCursorCenter;
+    pointColorCtx.clearRect(0, 0, colorSize, colorSize);
 
-        const pointColorSpan = pointColorSpanList[pixelIndex];
-        pointColorSpan.id = isOutside ? "point_color_t_b" : isCursorCenter ? "point_color_t_c" : "point_color_t_t";
-        pointColorSpan.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+    const imgC = document.createElement("canvas");
+    imgC.width = imgC.height = colorSize;
+    imgC.getContext("2d").putImageData(imageData, 0, 0);
 
-        if (isCursorCenter) {
-            theColor = [r, g, b, a];
-            clipColorText(theColor, 取色器默认格式);
-        }
+    const clipC = document.createElement("canvas");
+    clipC.width = clipC.height = colorSize;
+    const clipCtx = clipC.getContext("2d");
+    let points = [];
+
+    if (isRect || freeSelect.length < 3) {
+        points.push({ x: x0, y: y0 });
+        points.push({ x: x0, y: y0 + height });
+        points.push({ x: x0 + width, y: y0 + height });
+        points.push({ x: x0 + width, y: y0 });
+    } else {
+        points = freeSelect;
     }
+
+    clipCtx.beginPath();
+    clipCtx.moveTo(points[0].x - xOffset, points[0].y - yOffset);
+    for (let i = 1; i < points.length; i++) {
+        clipCtx.lineTo(points[i].x - xOffset, points[i].y - yOffset);
+    }
+    clipCtx.closePath();
+    clipCtx.clip();
+    clipCtx.drawImage(imgC, 0, 0);
+
+    // 未选
+    pointColorCtx.globalAlpha = 0.5;
+    pointColorCtx.drawImage(imgC, 0, 0);
+    // 选
+    pointColorCtx.globalAlpha = 1;
+    pointColorCtx.drawImage(clipC, 0, 0);
+
+    let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
+
+    a /= 255;
+    pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+    theColor = [r, g, b, a];
+    clipColorText(theColor, 取色器默认格式);
 
     const d = 光标 === "以(1,1)为起点" ? 1 : 0;
     document.getElementById("clip_xy").innerText = `(${x + d}, ${y + d})`;
