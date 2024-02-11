@@ -1830,9 +1830,15 @@ hotkeys("ctrl+a, command+a", () => {
 // 生成取色器
 if (!取色器显示) document.getElementById("point_color").style.display = "none";
 
+const pointColorCanvasBg = document.createElement("canvas");
+pointColorCanvasBg.style.opacity = "0.5";
+pointColorCanvasBg.width = pointColorCanvasBg.height = colorSize;
+document.getElementById("point_color").append(pointColorCanvasBg);
+const pointColorCanvasBgCtx = pointColorCanvasBg.getContext("2d");
 const pointColorCanvas = document.createElement("canvas");
 pointColorCanvas.width = pointColorCanvas.height = colorSize;
 document.getElementById("point_color").append(pointColorCanvas);
+const pointColorCanvasCtx = pointColorCanvas.getContext("2d");
 const pointCenter = document.createElement("div");
 document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = ((colorSize - 1) / 2) * colorISize + "px";
@@ -1851,63 +1857,56 @@ if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 const mainCanvasContext = mainCanvas.getContext("2d");
 
 function mouseBar(finalRect: rect, x: number, y: number) {
-    const [x0, y0, width, height] = finalRect;
+    requestAnimationFrame(() => {
+        const [x0, y0, width, height] = finalRect;
 
-    const delta = (colorSize - 1) / 2;
-    const xOffset = x - delta;
-    const yOffset = y - delta;
+        const delta = (colorSize - 1) / 2;
+        const xOffset = x - delta;
+        const yOffset = y - delta;
 
-    const centerIndex = (colorSize * delta + delta) * 4;
+        const centerIndex = (colorSize * delta + delta) * 4;
 
-    const pointColorCtx = pointColorCanvas.getContext("2d");
+        const imageData = mainCanvasContext.getImageData(xOffset, yOffset, colorSize, colorSize);
 
-    const imageData = mainCanvasContext.getImageData(xOffset, yOffset, colorSize, colorSize);
+        pointColorCanvasCtx.clearRect(0, 0, colorSize, colorSize);
+        pointColorCanvasBgCtx.clearRect(0, 0, colorSize, colorSize);
 
-    pointColorCtx.clearRect(0, 0, colorSize, colorSize);
+        pointColorCanvasBgCtx.putImageData(imageData, 0, 0);
 
-    const imgC = document.createElement("canvas");
-    imgC.width = imgC.height = colorSize;
-    imgC.getContext("2d").putImageData(imageData, 0, 0);
+        let points = [];
 
-    const clipC = document.createElement("canvas");
-    clipC.width = clipC.height = colorSize;
-    const clipCtx = clipC.getContext("2d");
-    let points = [];
+        if (isRect || freeSelect.length < 3) {
+            points.push({ x: x0, y: y0 });
+            points.push({ x: x0, y: y0 + height });
+            points.push({ x: x0 + width, y: y0 + height });
+            points.push({ x: x0 + width, y: y0 });
+        } else {
+            points = freeSelect;
+        }
 
-    if (isRect || freeSelect.length < 3) {
-        points.push({ x: x0, y: y0 });
-        points.push({ x: x0, y: y0 + height });
-        points.push({ x: x0 + width, y: y0 + height });
-        points.push({ x: x0 + width, y: y0 });
-    } else {
-        points = freeSelect;
-    }
+        pointColorCanvasCtx.save();
 
-    clipCtx.beginPath();
-    clipCtx.moveTo(points[0].x - xOffset, points[0].y - yOffset);
-    for (let i = 1; i < points.length; i++) {
-        clipCtx.lineTo(points[i].x - xOffset, points[i].y - yOffset);
-    }
-    clipCtx.closePath();
-    clipCtx.clip();
-    clipCtx.drawImage(imgC, 0, 0);
+        pointColorCanvasCtx.beginPath();
+        pointColorCanvasCtx.moveTo(points[0].x - xOffset, points[0].y - yOffset);
+        for (let i = 1; i < points.length; i++) {
+            pointColorCanvasCtx.lineTo(points[i].x - xOffset, points[i].y - yOffset);
+        }
+        pointColorCanvasCtx.closePath();
+        pointColorCanvasCtx.clip();
+        pointColorCanvasCtx.drawImage(pointColorCanvasBg, 0, 0);
 
-    // 未选
-    pointColorCtx.globalAlpha = 0.5;
-    pointColorCtx.drawImage(imgC, 0, 0);
-    // 选
-    pointColorCtx.globalAlpha = 1;
-    pointColorCtx.drawImage(clipC, 0, 0);
+        pointColorCanvasCtx.restore();
 
-    let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
+        let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
 
-    a /= 255;
-    pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
-    theColor = [r, g, b, a];
-    clipColorText(theColor, 取色器默认格式);
+        a /= 255;
+        pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+        theColor = [r, g, b, a];
+        clipColorText(theColor, 取色器默认格式);
 
-    const d = 光标 === "以(1,1)为起点" ? 1 : 0;
-    document.getElementById("clip_xy").innerText = `(${x + d}, ${y + d})`;
+        const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+        document.getElementById("clip_xy").innerText = `(${x + d}, ${y + d})`;
+    });
 }
 
 // 复制坐标
@@ -1916,23 +1915,23 @@ document.getElementById("clip_xy").onclick = () => {
 };
 
 // 色彩空间转换
-function colorConversion(rgba, type: string) {
-    var color = Color(rgba);
-    if (color.alpha() != 1) return "/";
+function colorConversion(rgba: number[] | string, type: string): string {
+    const color = new Color(rgba);
+    if (color.alpha() !== 1) return "/";
     switch (type) {
         case "HEX":
             return color.hex();
         case "RGB":
             return color.rgb().string();
         case "HSL":
-            var [h, s, l] = color.hsl().round().array();
-            return `hsl(${h}, ${s}%, ${l}%)`;
+            const hsl = color.hsl().round().array();
+            return `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
         case "HSV":
-            var [h, s, v] = color.hsv().round().array();
-            return `hsv(${h}, ${s}%, ${v}%)`;
+            const hsv = color.hsv().round().array();
+            return `hsv(${hsv[0]}, ${hsv[1]}%, ${hsv[2]}%)`;
         case "CMYK":
-            var [c, m, y, k] = color.cmyk().round().array();
-            return `cmyk(${c}, ${m}, ${y}, ${k})`;
+            const cmyk = color.cmyk().round().array();
+            return `cmyk(${cmyk[0]}, ${cmyk[1]}, ${cmyk[2]}, ${cmyk[3]})`;
         default:
             return "";
     }

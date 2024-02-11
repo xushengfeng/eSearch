@@ -298,6 +298,9 @@ body {
     position: relative;
 }
 #point_color > canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     image-rendering: pixelated;
     width: var(--color-size);
     height: var(--color-size);
