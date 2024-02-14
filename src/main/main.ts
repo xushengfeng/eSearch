@@ -1254,8 +1254,8 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
     let minY = 0;
     let maxY = 0;
     for (let i of allScreens) {
-        let right = i.bounds.x + i.bounds.width;
-        let bottom = i.bounds.y + i.bounds.height;
+        let right = i.bounds.x + i.bounds.width * i.scaleFactor;
+        let bottom = i.bounds.y + i.bounds.height * i.scaleFactor;
         maxX = Math.max(maxX, right);
         maxY = Math.max(maxY, bottom);
         minX = Math.min(minX, i.bounds.x);
@@ -1276,11 +1276,9 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
                 nodeIntegration: true,
                 contextIsolation: false,
             },
-            x: minX,
-            y: minY,
-            width: maxX - minX,
-            height: maxY - minY,
         });
+
+        dingWindow.setBounds({ x: minX, y: minX, width: maxX - minX, height: maxY - minY });
 
         rendererPath(dingWindow, "ding.html");
         if (dev) dingWindow.webContents.openDevTools();
