@@ -1308,12 +1308,6 @@ ipcMain.on("ding_ignore", (_event, v) => {
     }
 });
 ipcMain.on("ding_event", (_event, type, id, more) => {
-    const window = BrowserWindow.fromWebContents(_event.sender);
-    let screenId;
-    for (let i in dingwindowList) {
-        if (dingwindowList[i].win === window) screenId = i;
-        break;
-    }
     if (type == "close" && more) {
         for (let i in dingwindowList) {
             dingwindowList[i].win.close();
@@ -1323,16 +1317,13 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
     }
 
     if (type === "move_start") {
-        const display = dingwindowList[screenId].display;
-        const pX = more.x + display.bounds.x;
-        const pY = more.y + display.bounds.x;
+        let nowXY = screen.getCursorScreenPoint();
 
         for (let i in dingwindowList) {
             const display = dingwindowList[i].display;
-            dingwindowList[i].win.webContents.send("ding", type, id, {
-                x: pX - display.bounds.x,
-                y: pY - display.bounds.y,
-            });
+            more.x = nowXY.x - display.bounds.x;
+            more.y = nowXY.y - display.bounds.y;
+            dingwindowList[i].win.webContents.send("ding", type, id, more);
         }
         return;
     }

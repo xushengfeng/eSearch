@@ -1052,9 +1052,10 @@ function pjLong() {
 // 钉在屏幕上
 function runDing() {
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
+        const display = allScreens.find((i) => i.id === nowScreenId);
         const dingWindowArg = [
-            finalRect[0] / ratio,
-            finalRect[1] / ratio,
+            finalRect[0] / ratio + display.bounds.x,
+            finalRect[1] / ratio + display.bounds.y,
             finalRect[2] / ratio,
             finalRect[3] / ratio,
             c.toDataURL(),

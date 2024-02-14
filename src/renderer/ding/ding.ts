@@ -17,7 +17,7 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
             close2(document.getElementById(id));
             break;
         case "move_start":
-            mouseStart(document.elementsFromPoint(more.x, more.y)[0] as HTMLElement, more.x, more.y);
+            mouseStart(more);
             break;
         case "move_end":
             mouseEnd();
@@ -228,16 +228,24 @@ var toppest = 1;
 var oPs: number[];
 var windowDiv = null;
 var div: HTMLElement;
-document.onmousedown = (e) => {
-    sendEvent("move_start", null, { x: e.clientX, y: e.clientY });
+
+type start = {
+    id: string;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    d: string;
 };
-function mouseStart(el: HTMLElement, x: number, y: number) {
+
+document.onmousedown = (e) => {
+    const el = e.target as HTMLElement;
     if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dockShow) {
             div = el;
             windowDiv = div;
             oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
-            changing = { x, y };
+            changing = { x: e.clientX, y: e.clientY };
             div.style.transition = "none";
         }
     } else if (el.id != "透明度" && el.id != "size") {
@@ -246,12 +254,26 @@ function mouseStart(el: HTMLElement, x: number, y: number) {
             while (div.className != "ding_photo") {
                 div = div.offsetParent as HTMLElement;
             }
-        windowDiv = div;
-        oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
-        changing = { x, y };
+        sendEvent("move_start", null, {
+            id: div.id,
+            x: e.clientX,
+            y: e.clientY,
+            dx: e.offsetX / div.offsetWidth,
+            dy: e.offsetY / div.offsetHeight,
+            d: cursor(div, { x: e.clientX, y: e.clientY }),
+        } as start);
     }
+};
+function mouseStart(op: start) {
+    windowDiv = document.getElementById(op.id);
+    div = windowDiv as HTMLElement;
+    div.style.left = op.x - div.offsetWidth * op.dx + "px";
+    div.style.top = op.y - div.offsetHeight * op.dy + "px";
+    oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
+    changing = { x: op.x, y: op.y };
 }
 function mouseMove(el: HTMLElement, x: number, y: number) {
+    if (!el) return;
     if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dockShow) {
             if (windowDiv == null) {
@@ -270,7 +292,7 @@ function mouseMove(el: HTMLElement, x: number, y: number) {
                 }
             cursor(div, { x, y });
         } else {
-            cursor(windowDiv, { x, y });
+            move(windowDiv, { x, y });
         }
     }
 }
@@ -350,6 +372,10 @@ function cursor(el: HTMLElement, e: { x: number; y: number }) {
                     break;
             }
     }
+    return direction;
+}
+
+function move(el: HTMLElement, e: { x: number; y: number }) {
     if (changing != null && oPs.length != 0) {
         var oE = changing;
         var dx = e.x - oE.x,
