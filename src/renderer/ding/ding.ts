@@ -34,6 +34,8 @@ function sendEvent(type: "close" | "move_start" | "move_end", id: string, more?:
  */
 type move_type = { x: number; y: number; zoom: number };
 
+var dives: HTMLElement[] = [];
+
 var changing: { x: number; y: number } = null;
 var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
@@ -41,6 +43,7 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
     let div = document.createElement("div");
+    dives.push(div);
     div.id = wid;
     div.className = "ding_photo";
     div.style.left = x + "px";
@@ -157,9 +160,9 @@ ipcRenderer.on("mouse", (_e, x, y) => {
 });
 
 function minimize(el) {
-    div.style.transition = "var(--transition)";
+    windowDiv.style.transition = "var(--transition)";
     setTimeout(() => {
-        div.style.transition = "";
+        windowDiv.style.transition = "";
     }, 400);
     el.classList.add("minimize");
 }
@@ -227,7 +230,6 @@ function edit(el: HTMLElement) {
 var toppest = 1;
 var oPs: number[];
 var windowDiv = null;
-var div: HTMLElement;
 
 type start = {
     id: string;
@@ -240,64 +242,42 @@ type start = {
 
 document.onmousedown = (e) => {
     const el = e.target as HTMLElement;
-    if (el.id == "dock" || el.offsetParent.id == "dock") {
-        if (!dockShow) {
-            div = el;
-            windowDiv = div;
-            oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
-            changing = { x: e.clientX, y: e.clientY };
-            div.style.transition = "none";
-        }
-    } else if (el.id != "透明度" && el.id != "size") {
-        div = el;
-        if (div.id != "photo")
-            while (div.className != "ding_photo") {
-                div = div.offsetParent as HTMLElement;
-            }
+    const div = dives.find((d) => d.contains(el));
+    if (div && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
         sendEvent("move_start", null, {
             id: div.id,
             x: e.clientX,
             y: e.clientY,
             dx: e.offsetX / div.offsetWidth,
             dy: e.offsetY / div.offsetHeight,
-            d: cursor(div, { x: e.clientX, y: e.clientY }),
+            d: dire(div, { x: e.clientX, y: e.clientY }),
         } as start);
     }
 };
 function mouseStart(op: start) {
     windowDiv = document.getElementById(op.id);
-    div = windowDiv as HTMLElement;
+    const div = windowDiv as HTMLElement;
     div.style.left = op.x - div.offsetWidth * op.dx + "px";
     div.style.top = op.y - div.offsetHeight * op.dy + "px";
     oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
     changing = { x: op.x, y: op.y };
+    direction = op.d;
+    cursor(direction);
 }
 function mouseMove(el: HTMLElement, x: number, y: number) {
     if (!el) return;
-    if (el.id == "dock" || el.offsetParent.id == "dock") {
-        if (!dockShow) {
-            if (windowDiv == null) {
-                div = el;
-                cursor(div, { x, y });
-            } else {
-                cursor(windowDiv, { x, y });
-            }
-        }
+    if (direction) {
+        move(windowDiv, { x, y });
     } else {
-        if (windowDiv == null) {
-            div = el;
-            if (div.id != "photo")
-                while (div.className != "ding_photo") {
-                    div = div?.offsetParent as HTMLElement;
-                }
-            cursor(div, { x, y });
-        } else {
-            move(windowDiv, { x, y });
+        const div = dives.find((d) => d.contains(el));
+        if (div && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
+            let d = dire(div, { x, y });
+            cursor(d);
         }
     }
 }
 document.onmouseup = (_e) => {
-    sendEvent("move_end", windowDiv.id);
+    sendEvent("move_end", null);
 };
 function mouseEnd() {
     if (windowDiv != null)
@@ -305,74 +285,69 @@ function mouseEnd() {
     oPs = [];
     changing = null;
     windowDiv = null;
-    div.style.transition = ""; // 用于dock动画
+    direction = "";
+    cursor(direction);
 }
 
 var direction = "";
-function cursor(el: HTMLElement, e: { x: number; y: number }) {
-    var width = el.offsetWidth,
+function dire(el: HTMLElement, e: { x: number; y: number }) {
+    const width = el.offsetWidth,
         height = el.offsetHeight;
-    var pX = e.x - el.offsetLeft,
+    const pX = e.x - el.offsetLeft,
         pY = e.y - el.offsetTop;
+    let direction = "";
 
-    var num = 8;
+    const num = 8;
     // 光标样式
-    if (el.id == "dock" || el.offsetParent?.id == "dock") {
-        if (windowDiv == null) {
-            if (0 < pX && pX < width && 0 < pY && pY < height) {
-                document.querySelector("html").style.cursor = "default";
-                direction = "move";
-            } else {
-                direction = "";
-            }
-        }
-    } else {
-        // 不等于null移动中,自锁;等于,随时变
-        if (windowDiv == null)
-            switch (true) {
-                case pX <= num && pY <= num:
-                    document.querySelector("html").style.cursor = "nwse-resize";
-                    direction = "西北";
-                    break;
-                case pX >= width - num && pY >= height - num:
-                    document.querySelector("html").style.cursor = "nwse-resize";
-                    direction = "东南";
-                    break;
-                case pX >= width - num && pY <= num:
-                    document.querySelector("html").style.cursor = "nesw-resize";
-                    direction = "东北";
-                    break;
-                case pX <= num && pY >= height - num:
-                    document.querySelector("html").style.cursor = "nesw-resize";
-                    direction = "西南";
-                    break;
-                case pX <= num:
-                    document.querySelector("html").style.cursor = "ew-resize";
-                    direction = "西";
-                    break;
-                case pX >= width - num:
-                    document.querySelector("html").style.cursor = "ew-resize";
-                    direction = "东";
-                    break;
-                case pY <= num:
-                    document.querySelector("html").style.cursor = "ns-resize";
-                    direction = "北";
-                    break;
-                case pY >= height - num:
-                    document.querySelector("html").style.cursor = "ns-resize";
-                    direction = "南";
-                    break;
-                case num < pX && pX < width - num && num < pY && pY < height - num:
-                    document.querySelector("html").style.cursor = "default";
-                    direction = "move";
-                    break;
-                default:
-                    document.querySelector("html").style.cursor = "default";
-                    direction = "";
-                    break;
-            }
+    switch (true) {
+        case pX <= num && pY <= num:
+            direction = "西北";
+            break;
+        case pX >= width - num && pY >= height - num:
+            direction = "东南";
+            break;
+        case pX >= width - num && pY <= num:
+            direction = "东北";
+            break;
+        case pX <= num && pY >= height - num:
+            direction = "西南";
+            break;
+        case pX <= num:
+            direction = "西";
+            break;
+        case pX >= width - num:
+            direction = "东";
+            break;
+        case pY <= num:
+            direction = "北";
+            break;
+        case pY >= height - num:
+            direction = "南";
+            break;
+        case num < pX && pX < width - num && num < pY && pY < height - num:
+            direction = "move";
+            break;
+        default:
+            direction = "";
+            break;
     }
     return direction;
+}
+
+function cursor(d: string) {
+    const m = {
+        西北: "nwse-resize",
+        东南: "nwse-resize",
+        东北: "nesw-resize",
+        西南: "nesw-resize",
+        西: "ew-resize",
+        东: "ew-resize",
+        北: "ns-resize",
+        南: "ns-resize",
+        move: "default",
+        "": "default",
+    };
+    document.querySelector("html").style.cursor = m[d];
 }
 
 function move(el: HTMLElement, e: { x: number; y: number }) {
