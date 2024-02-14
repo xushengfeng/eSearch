@@ -10,16 +10,22 @@ var store = new Store({
     cwd: configPath || "",
 });
 
-ipcRenderer.on("ding", (_event, type, id, screenid, more) => {
-    console.log(type, id, screenid, more);
+ipcRenderer.on("ding", (_event, type, id, more) => {
+    console.log(type, id, more);
     switch (type) {
         case "close":
             close2(document.getElementById(id));
             break;
+        case "move_start":
+            mouseStart(document.elementsFromPoint(more.x, more.y)[0] as HTMLElement, more.x, more.y);
+            break;
+        case "move_end":
+            mouseEnd();
+            break;
     }
 });
 
-function sendEvent(type: "close" | "move_start" | "move_end" | "move_hide", id: string, more?: any) {
+function sendEvent(type: "close" | "move_start" | "move_end", id: string, more?: any) {
     ipcRenderer.send("ding_event", type, id, more);
 }
 
@@ -28,7 +34,7 @@ function sendEvent(type: "close" | "move_start" | "move_end" | "move_hide", id: 
  */
 type move_type = { x: number; y: number; zoom: number };
 
-var changing = null;
+var changing: { x: number; y: number } = null;
 var photos: { [key: string]: [number, number, number, number] } = {};
 var urls = {};
 ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
@@ -146,6 +152,8 @@ ipcRenderer.on("mouse", (_e, x, y) => {
     } else {
         ipcRenderer.send("ding_ignore", false);
     }
+
+    mouseMove(els[0] as HTMLElement, x, y);
 });
 
 function minimize(el) {
@@ -221,13 +229,15 @@ var oPs: number[];
 var windowDiv = null;
 var div: HTMLElement;
 document.onmousedown = (e) => {
-    let el = e.target as HTMLElement;
+    sendEvent("move_start", null, { x: e.clientX, y: e.clientY });
+};
+function mouseStart(el: HTMLElement, x: number, y: number) {
     if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dockShow) {
             div = el;
             windowDiv = div;
             oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
-            changing = e;
+            changing = { x, y };
             div.style.transition = "none";
         }
     } else if (el.id != "透明度" && el.id != "size") {
@@ -238,24 +248,17 @@ document.onmousedown = (e) => {
             }
         windowDiv = div;
         oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
-        changing = e;
-
-        sendEvent("move_start", div.id, {
-            x: e.offsetX / div.offsetWidth,
-            y: e.offsetY / div.offsetHeight,
-            zoom: div.offsetWidth / photos[div.id][2],
-        } as move_type);
+        changing = { x, y };
     }
-};
-document.onmousemove = (e) => {
-    let el = e.target as HTMLElement;
+}
+function mouseMove(el: HTMLElement, x: number, y: number) {
     if (el.id == "dock" || el.offsetParent.id == "dock") {
         if (!dockShow) {
             if (windowDiv == null) {
                 div = el;
-                cursor(div, e);
+                cursor(div, { x, y });
             } else {
-                cursor(windowDiv, e);
+                cursor(windowDiv, { x, y });
             }
         }
     } else {
@@ -265,28 +268,30 @@ document.onmousemove = (e) => {
                 while (div.className != "ding_photo") {
                     div = div?.offsetParent as HTMLElement;
                 }
-            cursor(div, e);
+            cursor(div, { x, y });
         } else {
-            cursor(windowDiv, e);
+            cursor(windowDiv, { x, y });
         }
     }
-};
+}
 document.onmouseup = (_e) => {
+    sendEvent("move_end", windowDiv.id);
+};
+function mouseEnd() {
     if (windowDiv != null)
         store.set("ding_dock", [document.getElementById("dock").offsetLeft, document.getElementById("dock").offsetTop]);
     oPs = [];
     changing = null;
-    sendEvent("move_end", windowDiv.id);
     windowDiv = null;
     div.style.transition = ""; // 用于dock动画
-};
+}
 
 var direction = "";
-function cursor(el, e) {
+function cursor(el: HTMLElement, e: { x: number; y: number }) {
     var width = el.offsetWidth,
         height = el.offsetHeight;
-    var pX = e.clientX - el.offsetLeft,
-        pY = e.clientY - el.offsetTop;
+    var pX = e.x - el.offsetLeft,
+        pY = e.y - el.offsetTop;
 
     var num = 8;
     // 光标样式
@@ -347,8 +352,8 @@ function cursor(el, e) {
     }
     if (changing != null && oPs.length != 0) {
         var oE = changing;
-        var dx = e.clientX - oE.clientX,
-            dy = e.clientY - oE.clientY;
+        var dx = e.x - oE.x,
+            dy = e.y - oE.y;
         var [ox, oy, ow, oh] = oPs;
         var pS;
         switch (direction) {
@@ -406,7 +411,7 @@ function cursor(el, e) {
         el.style.height = pS[3] + "px";
 
         if (el.id != "dock") {
-            el.querySelector("#tool_bar_c").style.transform = "translateY(0)";
+            (el.querySelector("#tool_bar_c") as HTMLElement).style.transform = "translateY(0)";
 
             resize(el, pS[2] / photos[el.id][2]);
         }

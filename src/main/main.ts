@@ -1246,68 +1246,99 @@ function longWin(rect) {
 const isMac = process.platform === "darwin";
 
 // ding窗口
-let dingWindow: BrowserWindow;
+var dingwindowList: { [key: string]: { win: BrowserWindow; display: Electron.Display } } = {};
 function createDingWindow(x: number, y: number, w: number, h: number, img) {
-    const allScreens = screen.getAllDisplays();
-    let minX = 0;
-    let maxX = 0;
-    let minY = 0;
-    let maxY = 0;
-    for (let i of allScreens) {
-        let right = i.bounds.x + i.bounds.width * i.scaleFactor;
-        let bottom = i.bounds.y + i.bounds.height * i.scaleFactor;
-        maxX = Math.max(maxX, right);
-        maxY = Math.max(maxY, bottom);
-        minX = Math.min(minX, i.bounds.x);
-        minY = Math.min(minY, i.bounds.y);
-    }
-    const id = new Date().getTime();
-    if (!dingWindow) {
-        dingWindow = new BrowserWindow({
-            icon: theIcon,
-            transparent: true,
-            frame: false,
-            alwaysOnTop: true,
-            skipTaskbar: true,
-            autoHideMenuBar: true,
-            enableLargerThanScreen: true, // mac
-            hasShadow: false,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-        });
+    if (Object.keys(dingwindowList).length == 0) {
+        const screenL = screen.getAllDisplays();
+        const id = new Date().getTime();
+        for (let i of screenL) {
+            dingwindowList[i.id] = { win: null, display: i };
+            let dingWindow = (dingwindowList[i.id].win = new BrowserWindow({
+                icon: theIcon,
+                transparent: true,
+                frame: false,
+                alwaysOnTop: true,
+                skipTaskbar: true,
+                autoHideMenuBar: true,
+                enableLargerThanScreen: true, // mac
+                hasShadow: false,
+                webPreferences: {
+                    nodeIntegration: true,
+                    contextIsolation: false,
+                },
+                x: i.bounds.x,
+                y: i.bounds.y,
+                width: i.bounds.width,
+                height: i.bounds.height,
+            }));
 
-        dingWindow.setBounds({ x: minX, y: minX, width: maxX - minX, height: maxY - minY });
+            rendererPath(dingWindow, "ding.html");
+            if (dev) dingWindow.webContents.openDevTools();
+            dingWindow.webContents.on("did-finish-load", () => {
+                dingWindow.webContents.send("screen_id", i.id);
+                dingWindow.webContents.send("img", id, x - i.bounds.x, y - i.bounds.y, w, h, img);
+            });
+            dingwindowList[i.id].win.setIgnoreMouseEvents(true);
 
-        rendererPath(dingWindow, "ding.html");
-        if (dev) dingWindow.webContents.openDevTools();
-        dingWindow.webContents.on("did-finish-load", () => {
-            dingWindow.webContents.send("img", id, x, y, w, h, img);
-        });
-        dingWindow.setIgnoreMouseEvents(true);
-
-        dingWindow.setAlwaysOnTop(true, "screen-saver");
+            dingWindow.setAlwaysOnTop(true, "screen-saver");
+        }
     } else {
-        dingWindow.webContents.send("img", id, x, y, w, h, img);
+        const id = new Date().getTime();
+        for (let i in dingwindowList) {
+            let b = dingwindowList[i].win.getBounds();
+            dingwindowList[i].win.webContents.send("img", id, x - b.x, y - b.y, w, h, img);
+        }
     }
     // 自动改变鼠标穿透
     function dingClickThrough() {
         let nowXY = screen.getCursorScreenPoint();
-        try {
-            dingWindow.webContents.send("mouse", nowXY.x - minX, nowXY.y - minY);
-        } catch (error) {}
+        for (let i in dingwindowList) {
+            try {
+                let b = dingwindowList[i].win.getBounds();
+                dingwindowList[i].win.webContents.send("mouse", nowXY.x - b.x, nowXY.y - b.y);
+            } catch (error) {}
+        }
         setTimeout(dingClickThrough, 10);
     }
     dingClickThrough();
 }
 ipcMain.on("ding_ignore", (_event, v) => {
-    if (dingWindow) dingWindow.setIgnoreMouseEvents(v);
+    for (let id in dingwindowList) {
+        dingwindowList[id]?.win?.setIgnoreMouseEvents(v);
+    }
 });
-ipcMain.on("ding_event", (_event, type, more) => {
+ipcMain.on("ding_event", (_event, type, id, more) => {
+    const window = BrowserWindow.fromWebContents(_event.sender);
+    let screenId;
+    for (let i in dingwindowList) {
+        if (dingwindowList[i].win === window) screenId = i;
+        break;
+    }
     if (type == "close" && more) {
-        dingWindow.close();
+        for (let i in dingwindowList) {
+            dingwindowList[i].win.close();
+            delete dingwindowList[i];
+        }
         return;
+    }
+
+    if (type === "move_start") {
+        const display = dingwindowList[screenId].display;
+        const pX = more.x + display.bounds.x;
+        const pY = more.y + display.bounds.x;
+
+        for (let i in dingwindowList) {
+            const display = dingwindowList[i].display;
+            dingwindowList[i].win.webContents.send("ding", type, id, {
+                x: pX - display.bounds.x,
+                y: pY - display.bounds.y,
+            });
+        }
+        return;
+    }
+
+    for (let i in dingwindowList) {
+        dingwindowList[i].win.webContents.send("ding", type, id, more);
     }
 });
 ipcMain.on("ding_edit", (_event, img_path) => {
