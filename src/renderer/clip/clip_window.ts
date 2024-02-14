@@ -124,15 +124,11 @@ try {
 function dispaly2screen(displays: Electron.Display[], screens: import("node-screenshots").Screenshots[]) {
     allScreens = [];
     if (!screens) return;
-    for (let d of displays) {
-        for (let s of screens) {
-            // todo to test
-            if (s.x === d.bounds.x && s.y === d.bounds.y) {
-                // 逻辑像素位置，应该不受bug影响
-                allScreens.push({ ...d, captureSync: () => s.captureSync(true) });
-                break;
-            }
-        }
+    // todo 更新算法
+    for (const i in displays) {
+        const d = displays[i];
+        const s = screens[i];
+        allScreens.push({ ...d, captureSync: () => s.captureSync(true) });
     }
 }
 
