@@ -300,8 +300,6 @@ document.onmouseup = (_e) => {
     resizeSender = false;
 };
 function mouseEnd() {
-    if (windowDiv != null)
-        store.set("ding_dock", [document.getElementById("dock").offsetLeft, document.getElementById("dock").offsetTop]);
     oPs = [];
     changing = null;
     windowDiv = null;
@@ -498,7 +496,45 @@ dockEl.style.top = dockP[1] + "px";
 
 var dockShow = false;
 var dockPS = [];
-dockEl.onclick = () => {
+
+var dockMoveStart: PointerEvent = null;
+var dockMoveStartP = [...dockP];
+var dockMoved = false;
+
+dockEl.addEventListener("pointerdown", (e) => {
+    dockMoveStartP = [dockEl.offsetLeft, dockEl.offsetTop];
+    dockMoveStart = e;
+    dockEl.style.transition = "0s";
+});
+document.addEventListener("pointermove", (e) => {
+    if (dockMoveStart) {
+        dockMoved = true;
+        moveDock(e);
+    }
+});
+document.addEventListener("pointerup", (e) => {
+    if (!dockMoveStart) return;
+    moveDock(e);
+    if (!dockMoved) {
+        showDock();
+    } else {
+        store.set("ding_dock", [dockEl.offsetLeft, dockEl.offsetTop]);
+    }
+
+    dockMoved = false;
+    dockMoveStart = null;
+    dockEl.style.transition = "var(--transition)";
+});
+
+function moveDock(e: PointerEvent) {
+    let x = e.clientX - dockMoveStart.clientX + dockMoveStartP[0];
+    let y = e.clientY - dockMoveStart.clientY + dockMoveStartP[1];
+
+    dockEl.style.left = x + "px";
+    dockEl.style.top = y + "px";
+}
+
+const showDock = () => {
     var dock = dockEl;
     dockShow = !dockShow;
     if (dockShow) {
