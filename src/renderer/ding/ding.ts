@@ -22,10 +22,16 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
         case "move_end":
             mouseEnd();
             break;
+        case "back":
+            back2(document.getElementById(id));
+            break;
+        case "resize":
+            if (!resizeSender) resize(document.getElementById(more.id), more.zoom, more.dx, more.dy);
+            break;
     }
 });
 
-function sendEvent(type: "close" | "move_start" | "move_end", id: string, more?: any) {
+function sendEvent(type: "close" | "move_start" | "move_end" | "back" | "resize", id: string, more?: any) {
     ipcRenderer.send("ding_event", type, id, more);
 }
 
@@ -74,10 +80,9 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
         if (isFinite(Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML))) {
             var zoom = Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML) / 100;
             if (zoom < 0.05) zoom = 0.05;
-            div_zoom(div, zoom, 0, 0, false);
-            setTimeout(() => {
-                resize(div, zoom);
-            }, 400);
+            resizeSender = true;
+            resize(div, zoom, 0, 0);
+            resizeSender = false;
         }
     };
     (<HTMLElement>toolBar.querySelector("#size > span")).onkeydown = (e) => {
@@ -86,10 +91,9 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
             if (isFinite(Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML))) {
                 var zoom = Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML) / 100;
                 if (zoom < 0.05) zoom = 0.05;
-                div_zoom(div, zoom, 0, 0, false);
-                setTimeout(() => {
-                    resize(div, zoom);
-                }, 400);
+                resizeSender = true;
+                resize(div, zoom, 0, 0);
+                resizeSender = false;
             }
         }
     };
@@ -100,8 +104,9 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
             let zz = 1 + Math.abs(e.deltaY) / 300;
             zoom = e.deltaY > 0 ? zoom / zz : zoom * zz;
             if (zoom < 0.05) zoom = 0.05;
-            div_zoom(div, zoom, e.offsetX, e.offsetY, true);
-            resize(div, zoom);
+            resizeSender = true;
+            resize(div, zoom, e.offsetX / div.offsetWidth, e.offsetY / div.offsetHeight);
+            resizeSender = false;
         }
     };
     // 三个按钮
@@ -138,7 +143,7 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     // dock
     dockI();
 
-    resize(div, 1);
+    resize(div, 1, 0, 0);
 });
 
 ipcRenderer.on("mouse", (_e, x, y) => {
@@ -189,11 +194,16 @@ function transform(el, v) {
         el.querySelector(".img").classList.remove("tran");
     }
 }
-function back(el) {
+function back(el: HTMLElement) {
+    sendEvent("back", el.id);
+}
+function back2(el: HTMLElement) {
     el.style.transition = "var(--transition)";
     setTimeout(() => {
         el.style.transition = "";
-        resize(el, 1);
+        resizeSender = true;
+        resize(el, 1, 0, 0);
+        resizeSender = false;
     }, 400);
     var pS = photos[el.id];
     el.style.left = pS[0] + "px";
@@ -202,9 +212,9 @@ function back(el) {
     el.style.height = pS[3] + "px";
     ipcRenderer.send("ding_p_s", el.id, pS);
 
-    el.querySelector("#透明度").value = "100";
+    (el.querySelector("#透明度") as HTMLInputElement).value = "100";
     el.querySelector("#透明度_p").innerHTML = "100%";
-    el.querySelector(".img").style.opacity = 1;
+    (el.querySelector(".img") as HTMLImageElement).style.opacity = "1";
 }
 function close(el: HTMLElement) {
     ipcRenderer.send("ding_event", "close", el.id, Object.keys(photos).length == 1);
@@ -231,6 +241,8 @@ var toppest = 1;
 var oPs: number[];
 var windowDiv = null;
 
+var resizeSender = false;
+
 type start = {
     id: string;
     x: number;
@@ -238,6 +250,13 @@ type start = {
     dx: number;
     dy: number;
     d: string;
+};
+
+type Resize = {
+    id: string;
+    zoom: number;
+    dx: number;
+    dy: number;
 };
 
 document.onmousedown = (e) => {
@@ -253,6 +272,7 @@ document.onmousedown = (e) => {
             d: dire(div, { x: e.clientX, y: e.clientY }),
         } as start);
     }
+    resizeSender = true;
 };
 function mouseStart(op: start) {
     windowDiv = document.getElementById(op.id);
@@ -265,7 +285,6 @@ function mouseStart(op: start) {
     cursor(direction);
 }
 function mouseMove(el: HTMLElement, x: number, y: number) {
-    if (!el) return;
     if (direction) {
         move(windowDiv, { x, y });
     } else {
@@ -278,6 +297,7 @@ function mouseMove(el: HTMLElement, x: number, y: number) {
 }
 document.onmouseup = (_e) => {
     sendEvent("move_end", null);
+    resizeSender = false;
 };
 function mouseEnd() {
     if (windowDiv != null)
@@ -357,6 +377,7 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
             dy = e.y - oE.y;
         var [ox, oy, ow, oh] = oPs;
         var pS;
+        let zp = { x: 0, y: 0 };
         switch (direction) {
             case "西北":
                 var k = -1 / (oh / ow);
@@ -364,6 +385,8 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
                 var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox + ow - w, oy + oh - h, w, h];
+                zp.x = 1;
+                zp.y = 1;
                 break;
             case "东南":
                 var k = -1 / (oh / ow);
@@ -378,6 +401,7 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
                 var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox, oy + oh - h, w, h];
+                zp.y = 1;
                 break;
             case "西南":
                 var k = 1 / (oh / ow);
@@ -385,10 +409,12 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
                 var w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 var h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox + ow - w, oy, w, h];
+                zp.x = 1;
                 break;
             case "西":
                 var r = (ow - dx) / ow;
                 pS = [ox + dx, oy, ow - dx, oh * r];
+                zp.x = 1;
                 break;
             case "东":
                 var r = (ow + dx) / ow;
@@ -397,6 +423,7 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
             case "北":
                 var r = (oPs[3] - dy) / oh;
                 pS = [ox, oy + dy, ow * r, oh - dy];
+                zp.y = 1;
                 break;
             case "南":
                 var r = (oPs[3] + dy) / oh;
@@ -404,69 +431,64 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
                 break;
             case "move":
                 pS = [ox + dx, oy + dy, ow, oh];
-                break;
+                el.style.left = pS[0] + "px";
+                el.style.top = pS[1] + "px";
+                el.style.width = pS[2] + "px";
+                el.style.height = pS[3] + "px";
+                return;
         }
-        el.style.left = pS[0] + "px";
-        el.style.top = pS[1] + "px";
-        el.style.width = pS[2] + "px";
-        el.style.height = pS[3] + "px";
-
-        if (el.id != "dock") {
-            (el.querySelector("#tool_bar_c") as HTMLElement).style.transform = "translateY(0)";
-
-            resize(el, pS[2] / photos[el.id][2]);
-        }
+        resize(el, pS[2] / photos[el.id][2], zp.x, zp.y);
     }
 }
 
-// 滚轮缩放
-function div_zoom(el, zoom, dx, dy, wheel) {
-    var w = photos[el.id][2];
-    var h = photos[el.id][3];
-    var nw = el.offsetWidth;
-    var nh = el.offsetHeight;
-    // 以鼠标为中心缩放
-    var x = el.offsetLeft + dx - w * zoom * (dx / nw);
-    var y = el.offsetTop + dy - h * zoom * (dy / nh);
-    var pS = [x, y, Math.round(w * zoom), Math.round(h * zoom)];
-    if (!wheel) {
-        el.style.transition = "var(--transition)";
-        setTimeout(() => {
-            el.style.transition = "";
-        }, 400);
+function resize(el: HTMLElement, zoom: number, dx: number, dy: number) {
+    (el.querySelector("#size > span") as HTMLElement).innerHTML = String(Math.round(zoom * 100));
+    const rect = [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight];
+    let toWidth = photos[el.id][2] * zoom;
+    let toHeight = photos[el.id][3] * zoom;
+    const point = { x: rect[0] + rect[2] * dx, y: rect[1] + rect[3] * dy };
+    const x = point.x - toWidth * dx,
+        y = point.y - toHeight * dy;
+    const pS = [x, y, toWidth, toHeight];
+    const bar = el.querySelector("#tool_bar_c") as HTMLElement;
+    const w = pS[2];
+    if (w <= 240) {
+        bar.style.flexDirection = "column";
+    } else {
+        bar.style.flexDirection = "";
     }
+    if (w <= 100) {
+        // @ts-ignore
+        bar.style.zoom = "0.3";
+    } else if (w <= 130) {
+        // @ts-ignore
+        bar.style.zoom = "0.4";
+    } else if (w <= 300) {
+        // @ts-ignore
+        bar.style.zoom = "0.5";
+    } else if (w <= 340) {
+        // @ts-ignore
+        bar.style.zoom = "0.6";
+    } else if (w <= 380) {
+        // @ts-ignore
+        bar.style.zoom = "0.7";
+    } else if (w <= 420) {
+        // @ts-ignore
+        bar.style.zoom = "0.8";
+    } else if (w <= 500) {
+        // @ts-ignore
+        bar.style.zoom = "0.9";
+    } else {
+        // @ts-ignore
+        bar.style.zoom = "";
+    }
+
     el.style.left = pS[0] + "px";
     el.style.top = pS[1] + "px";
     el.style.width = pS[2] + "px";
     el.style.height = pS[3] + "px";
-}
 
-// 缩放文字实时更新,顶栏大小自适应
-function resize(el, zoom) {
-    el.querySelector("#size > span").innerHTML = Math.round(zoom * 100);
-    var w = el.offsetWidth;
-    if (w <= 240) {
-        el.querySelector("#tool_bar_c").style.flexDirection = "column";
-    } else {
-        el.querySelector("#tool_bar_c").style.flexDirection = "";
-    }
-    if (w <= 100) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.3";
-    } else if (w <= 130) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.4";
-    } else if (w <= 300) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.5";
-    } else if (w <= 340) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.6";
-    } else if (w <= 380) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.7";
-    } else if (w <= 420) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.8";
-    } else if (w <= 500) {
-        el.querySelector("#tool_bar_c").style.zoom = "0.9";
-    } else {
-        el.querySelector("#tool_bar_c").style.zoom = "";
-    }
+    if (resizeSender) sendEvent("resize", null, { id: el.id, zoom, dx, dy } as Resize);
 }
 
 var dockP = store.get("ding_dock");
