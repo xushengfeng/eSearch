@@ -112,8 +112,6 @@ var nowScreenId = 0;
 
 var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
 
-var displays: Electron.Display[];
-
 let Screenshots: typeof import("node-screenshots").Screenshots;
 try {
     Screenshots = require("node-screenshots").Screenshots;
@@ -121,6 +119,10 @@ try {
     shell.openExternal("https://esearch-app.netlify.app/download.html");
 }
 
+/**
+ * 修复屏幕信息
+ * @see https://github.com/nashaofu/node-screenshots/issues/18
+ */
 function dispaly2screen(displays: Electron.Display[], screens: import("node-screenshots").Screenshots[]) {
     allScreens = [];
     if (!screens) return;
@@ -132,35 +134,8 @@ function dispaly2screen(displays: Electron.Display[], screens: import("node-scre
     }
 }
 
-/**
- * 修复屏幕信息
- * @see https://github.com/nashaofu/node-screenshots/issues/18
- * @param all
- * @returns
- */
-function fixCaptureInfo(all: import("node-screenshots").Screenshots[]) {
-    if (process.platform == "win32")
-        for (let s of displays) {
-            for (let ss of all) {
-                // id对不上，只能用坐标，考虑精度，小于10认为是相等的
-                if (
-                    ss.x * ss.scaleFactor - s.bounds.x * s.scaleFactor < 10 &&
-                    ss.y * ss.scaleFactor - s.bounds.y * s.scaleFactor < 10
-                ) {
-                    ss.x = s.bounds.x;
-                    ss.y = s.bounds.y;
-                    ss.height = s.size.height;
-                    ss.width = s.size.width;
-                    ss.scaleFactor = s.scaleFactor;
-                }
-            }
-        }
-    return all;
-}
-
 setSetting();
 ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act) => {
-    displays = _displays;
     if (!_displays.find((i) => i["main"])) {
         dispaly2screen(_displays, Screenshots.all());
     }
@@ -872,10 +847,8 @@ function initRecord() {
 }
 
 function long_s() {
-    let all = Screenshots.all() ?? [];
-    all = fixCaptureInfo(all);
-    let s = all.find((i) => i.id === nowScreenId);
-    let x = nativeImage.createFromBuffer(s.captureSync(true));
+    let s = allScreens.find((i) => i.id === nowScreenId);
+    let x = nativeImage.createFromBuffer(s.captureSync());
     addLong(x.getBitmap(), x.getSize().width, x.getSize().height);
     s = x = null;
 }
