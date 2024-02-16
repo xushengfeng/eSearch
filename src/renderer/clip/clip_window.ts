@@ -110,7 +110,7 @@ var drawBar = document.getElementById("draw_bar");
 
 var nowScreenId = 0;
 
-var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
+var allScreens: (Electron.Display & { captureSync: () => Buffer } & { image?: Buffer })[];
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
 try {
@@ -226,8 +226,8 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
     changeRightBar(false);
 });
 
-function toCanvas(canvas: HTMLCanvasElement, img: Buffer) {
-    const image = nativeImage.createFromBuffer(img);
+function toCanvas(canvas: HTMLCanvasElement, img: Electron.NativeImage) {
+    const image = img;
     const { width: w, height: h } = image.getSize();
 
     canvas.width = w;
@@ -246,13 +246,14 @@ function toCanvas(canvas: HTMLCanvasElement, img: Buffer) {
     canvas.getContext("2d").putImageData(d, 0, 0);
 }
 
-function setScreen(i) {
-    let size = nativeImage.createFromBuffer(i.image).getSize();
+function setScreen(i: (typeof allScreens)[0]) {
+    const img = nativeImage.createFromBuffer(i.image);
+    let size = img.getSize();
     let w = size.width;
     let h = size.height;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = h;
-    toCanvas(mainCanvas, i.image);
+    toCanvas(mainCanvas, img);
     fabricCanvas.setHeight(h);
     fabricCanvas.setWidth(w);
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
