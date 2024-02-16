@@ -211,6 +211,9 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
             }
             el.append(div);
             div.onclick = () => {
+                el.querySelector(".now_screen").classList.remove("now_screen");
+                div.classList.add("now_screen");
+                if (!i["image"]) i["image"] = i.captureSync();
                 setScreen(i);
             };
         }
