@@ -14,6 +14,7 @@ export default defineConfig({
                     ding: path.resolve(__dirname, "src/renderer/ding.html"),
                     recorder: path.resolve(__dirname, "src/renderer/recorder.html"),
                     browser_bg: path.resolve(__dirname, "src/renderer/browser_bg.html"),
+                    translator: path.resolve(__dirname, "src/renderer/translator.html"),
                 },
             },
         },

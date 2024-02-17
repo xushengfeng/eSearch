@@ -220,7 +220,20 @@ document
         };
     });
 
-let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
+let toolList: 功能[] = [
+    "close",
+    "screens",
+    "ocr",
+    "search",
+    "QR",
+    "open",
+    "ding",
+    "record",
+    "long",
+    "translate",
+    "copy",
+    "save",
+];
 let toolShow = old_store.工具栏.功能;
 const toolShowEl = document.getElementById("tool_show");
 const toolHideEl = document.getElementById("tool_hide");

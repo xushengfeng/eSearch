@@ -208,7 +208,19 @@ export interface setting {
     插件: { 加载前: string[]; 加载后: string[] };
 }
 
-type 功能 = "close" | "ocr" | "search" | "QR" | "open" | "ding" | "record" | "long" | "copy" | "save" | "screens";
+type 功能 =
+    | "close"
+    | "ocr"
+    | "search"
+    | "QR"
+    | "open"
+    | "ding"
+    | "record"
+    | "long"
+    | "translate"
+    | "copy"
+    | "save"
+    | "screens";
 
 type EditType = {
     select: "rect" | "free" | "draw";
@@ -218,3 +230,9 @@ type EditType = {
 };
 
 type MainWinType = { type: "text" | "ocr" | "image" | "qr"; content: string; arg0?: string };
+
+type translateWinType = {
+    rect: { x: number; y: number; w: number; h: number };
+    dipRect: { x: number; y: number; w: number; h: number };
+    displayId: number;
+};

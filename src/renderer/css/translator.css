@@ -1,0 +1,7 @@
+.main {
+    position: relative;
+}
+
+.main > div {
+    position: absolute;
+}

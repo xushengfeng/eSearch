@@ -29,8 +29,10 @@
         "onnxruntime-node": "^1.16.3",
         "opencv.js": "^1.2.1",
         "qr-scanner-wechat": "^0.1.2",
+        "redom": "^4.0.0",
         "uiohook-napi": "^1.5.2",
-        "x11": "^2.3.0"
+        "x11": "^2.3.0",
+        "xtranslator": "^1.0.6"
     },
     "devDependencies": {
         "@types/color": "^3.0.3",

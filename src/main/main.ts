@@ -22,7 +22,7 @@ import {
 import { Buffer } from "buffer";
 
 const Store = require("electron-store");
-import { setting, MainWinType } from "../ShareTypes";
+import { setting, MainWinType, translateWinType } from "../ShareTypes";
 import * as path from "path";
 const runPath = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
@@ -62,7 +62,7 @@ var /** 是否开启开发模式 */ dev: boolean;
 if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = true;
 } else {
-    dev = false;
+    dev = true;
 }
 
 /** 加载网页 */
@@ -907,6 +907,9 @@ function createClipWindow() {
             case "get_mouse":
                 event.returnValue = screen.getCursorScreenPoint();
                 break;
+            case "translate":
+                createTranslator(arg);
+                break;
         }
     });
 }
@@ -1336,6 +1339,28 @@ ipcMain.on("ding_edit", (_event, img_path) => {
     fullScreen(img_path);
 });
 
+function createTranslator(op: translateWinType) {
+    const win = new BrowserWindow({
+        transparent: true,
+        frame: false,
+        alwaysOnTop: true,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    win.setBounds({ x: op.dipRect.x, y: op.dipRect.y, width: op.dipRect.w, height: op.dipRect.h });
+
+    rendererPath(win, "translator.html");
+    if (dev) win.webContents.openDevTools();
+    win.webContents.on("did-finish-load", () => {
+        win.webContents.send("init", op.displayId, screen.getAllDisplays(), op.rect);
+    });
+
+    win.setAlwaysOnTop(true, "screen-saver");
+}
+
 // 主页面
 var mainWindowL: { [n: number]: BrowserWindow } = {};
 
@@ -1694,6 +1719,7 @@ var defaultSetting: setting = {
         copy: isMac ? "Command+C" : "Control+C",
         save: isMac ? "Command+S" : "Control+S",
         screens: "",
+        translate: "",
     },
     截屏编辑快捷键: {
         select: { 键: "", 副: { rect: "", free: "", draw: "" } },

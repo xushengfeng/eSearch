@@ -521,7 +521,7 @@ var tool = {
     open: () => openApp(),
     record: () => initRecord(),
     long: () => startLong(),
-
+    translate: () => translate(),
     // 钉在屏幕上
     ding: () => runDing(),
     // 复制
@@ -1041,6 +1041,27 @@ function runDing() {
         tool.close();
     });
 }
+
+function translate() {
+    const display = allScreens.find((i) => i.id === nowScreenId);
+    ipcRenderer.send("clip_main_b", "translate", {
+        rect: {
+            x: finalRect[0],
+            y: finalRect[1],
+            w: finalRect[2],
+            h: finalRect[3],
+        },
+        dipRect: {
+            x: finalRect[0] / ratio + display.bounds.x,
+            y: finalRect[1] / ratio + display.bounds.y,
+            w: finalRect[2] / ratio,
+            h: finalRect[3] / ratio,
+        },
+        displayId: nowScreenId,
+    } as translateWinType);
+    tool.close();
+}
+
 // 复制
 function runCopy() {
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
@@ -3499,7 +3520,7 @@ for (let p of store.get("插件.加载后")) {
 // 检查应用更新
 
 import pack from "../../../package.json?raw";
-import { setting, EditType, 功能 } from "../../ShareTypes.js";
+import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
 var packageJson = JSON.parse(pack);
 
 function checkUpdate() {
