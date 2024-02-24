@@ -1716,6 +1716,7 @@ async function localOcr(
             字典 = ocrPath(l[3]);
         console.log(detp, recp, 字典);
         const lo = require("esearch-ocr") as typeof import("esearch-ocr");
+        const ort = require("onnxruntime-node");
         await lo.init({
             detPath: detp,
             recPath: recp,
@@ -1723,6 +1724,7 @@ async function localOcr(
             ...l[4],
             node: true,
             detShape: [640, 640],
+            ort,
         });
         let img = document.createElement("img");
         img.src = arg;
