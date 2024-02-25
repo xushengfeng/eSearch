@@ -62,7 +62,7 @@ var /** 是否开启开发模式 */ dev: boolean;
 if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = true;
 } else {
-    dev = true;
+    dev = false;
 }
 
 /** 加载网页 */
