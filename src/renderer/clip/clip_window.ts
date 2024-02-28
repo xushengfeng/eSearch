@@ -2449,7 +2449,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         }
         for (let j in drawSideEls[i]) {
             if (i === mainType && j === type) {
-                drawSideEls[i][j].classList.add(SELECT);
+                drawSideEls[i][j]?.classList?.add(SELECT);
             } else {
                 drawSideEls[i][j]?.classList?.remove(SELECT);
             }
@@ -3237,6 +3237,7 @@ function newFilterSelect(o, no) {
     newFilterSelecting = true;
     fabricCanvas.defaultCursor = "crosshair";
     hotkeys.setScope("drawing_esc");
+    setEditType("filter", "");
 };
 
 function applyFilter(i, filter) {
