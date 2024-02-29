@@ -30,7 +30,7 @@ That is to have **Screenshot+OCR+Search+Translate+Paste Image +Search by Image+S
 
 ## Download and install
 
-Go to the website [eSearch](https://esearch.vercel.app/en.html#download) to download
+Go to the website [eSearch](https://esearch-app.netlify.app/#download) to download
 
 Or open the releases tab on the right, select the package that matches your system and download and install it
 
@@ -48,24 +48,25 @@ The local OCR service is enabled by default, but if you wish to use the online O
 
 ## Run & compile the source code
 
-Compiling requires `python` and `C++`, for Windows you need `python `and `visual studio` (to install C++)
-
 ```shell
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
-# Run
-npm run start
-# debug
-npm run dev
 # make
 npm run dist
 # The installation package and unzipped directory will be generated in the build directory
 ```
 
+```shell
+# Run
+npm run start
+# debug
+npm run dev
+```
+
 ## Launch
 
-Open eSearch in your launcher and it will appear in the tray. Gnome users need to install the [appindicator](https://extensions.gnome.org/extension/615/appindicator-support/) plugin
+Open eSearch in your launcher and it will appear in the tray. Gnome users need to install the [appindicator](https://extensions.gnome.org/extension/615/appindicator-support/) plugin to use tray.
 
 The default shortcut is <kbd>Alt</kbd>+<kbd>C</kbd> (you can also set the shortcut in the settings)
 
@@ -102,15 +103,15 @@ Features that have been ticked are the latest in the development process but may
     -   [x] Quick full screen capture to clipboard or custom directory
     -   [x] Screenshot history
     -   [x] Window and control selection (using OpenCV edge recognition)
-    -   [x] Long screen capture
-    -   [x] Multi-screen
+    -   [x] long screenshot (rolling screenshot)
+    -   [x] Multi-screen (separate screenshots. Currently, cross-screen screenshots of one image are not supported)
 -   [x] Record screen
     -   [x] Recording full screen
     -   [x] Customize size
     -   [x] Key prompt
     -   [x] Cursor Location Tips
     -   [x] Recorder bar
-    -   [ ] Stream Write
+    -   [x] Segmented write
     -   [x] Recording audio
     -   [x] Recording camera
     -   [x] Custom Bitrate

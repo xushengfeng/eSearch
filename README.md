@@ -30,7 +30,7 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 ## 下载安装
 
-到网站[eSearch](https://esearch.vercel.app/#download)下载
+到网站[eSearch](https://esearch-app.netlify.app/#download)下载
 
 或在右侧 releases 打开标签，选择符合你系统的包并下载安装
 
@@ -48,24 +48,25 @@ winget `winget install esearch`
 
 ## 源码运行&编译
 
-编译需要`python` 和 `C++`环境，Windows 下编译需要 `python` 和`visual studio`（安装 C++）
-
 ```shell
 git clone https://github.com/xushengfeng/eSearch.git
 cd eSearch
 npm install
-# 运行
-npm run start
-# 调试
-npm run dev
 # 编译
 npm run dist
 # 将在build目录产生安装包和解压的目录
 ```
 
+```shell
+# 运行
+npm run start
+# 调试
+npm run dev
+```
+
 ## 启动
 
-在你的启动器打开 eSearch，他将出现在托盘。Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件
+在你的启动器打开 eSearch，他将出现在托盘。Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件来使用托盘。
 
 默认快捷键为 <kbd>Alt</kbd>+<kbd>C</kbd>(你也可以在设置里设置快捷键)
 
@@ -102,15 +103,15 @@ esearch (若找不到，请尝试e-search)
     -   [x] 快速截取全屏到剪贴板或自定义的目录
     -   [x] 截屏历史记录
     -   [x] 窗口和控件选择（使用 OpenCV 边缘识别）
-    -   [x] 长截屏
-    -   [x] 多屏幕
+    -   [x] 长截屏（即滚动截屏）
+    -   [x] 多屏幕（分开屏幕截屏，目前不支持合成一张图的跨屏截屏）
 -   [x] 录屏
     -   [x] 录制全屏
     -   [x] 自定义大小
     -   [x] 按键提示
     -   [x] 光标位置提示
     -   [x] 录制栏
-    -   [ ] 流写入
+    -   [x] 分段写入
     -   [x] 录音
     -   [x] 录制摄像头
     -   [x] 自定义比特率
@@ -138,7 +139,6 @@ esearch (若找不到，请尝试e-search)
     -   [x] 搜索
     -   [x] 翻译
     -   [x] 自定义搜索翻译引擎
-    -   [x] 自定义搜索翻译引擎（POST 模式，可用 Api）
     -   [x] 软件自带浏览器打开
     -   [x] 跟随关闭、失焦关闭
     -   [x] 系统浏览器打开
