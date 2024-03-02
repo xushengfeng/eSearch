@@ -41,6 +41,7 @@ function initRecord() {
             Alt: { symble: "⌥" },
             Meta: { symble: "田" },
             Esc: { symble: "⎋" },
+            CapsLock: { symble: "⇪" },
 
             ArrowLeft: { primary: "←" },
             ArrowUp: { primary: "↑" },
@@ -113,6 +114,18 @@ function initRecord() {
             const mainKey = key.replace("Numpad", "");
             map[key] = { primary: map[mainKey]?.primary ?? mainKey, isNumpad: true };
         }
+
+        const macMap: typeof map = {
+            Ctrl: { primary: "Control" },
+            Alt: { primary: "Option" },
+            Meta: { primary: "Command", symble: "⌘" },
+            Enter: { primary: "Return" },
+        };
+
+        if (process.platform === "darwin")
+            for (let k in macMap) {
+                Object.assign(map[k], macMap[k]);
+            }
 
         let keyO: number[] = [];
 
