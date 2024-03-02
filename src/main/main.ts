@@ -1023,7 +1023,7 @@ function createRecorderWindow(rect0, screenx: { id: string; w: number; h: number
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
-        recorderTipWin.close();
+        if (!recorderTipWin.isDestroyed) recorderTipWin.close();
     });
 
     recorder.on("resize", () => {
