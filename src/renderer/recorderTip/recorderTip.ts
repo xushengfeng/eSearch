@@ -8,16 +8,11 @@ var store = new Store({
     cwd: configPath || "",
 });
 
-const recorderRectEl = document.getElementById("recorder_rect");
 const recorderMouseEl = document.getElementById("mouse_c");
-
-var recordInited = false;
 
 initRecord();
 
 function initRecord() {
-    recordInited = true;
-
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
         var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 
