@@ -39,9 +39,10 @@ function initRecord() {
             Shift: { symble: "⇧" },
             Ctrl: { symble: "⌃" },
             Alt: { symble: "⌥" },
-            Meta: { symble: "田" },
-            Esc: { symble: "⎋" },
+            Meta: { symble: "⊞" },
+            Escape: { primary: "Esc", symble: "⎋" },
             CapsLock: { symble: "⇪" },
+            Space: { symble: "␣" },
 
             ArrowLeft: { primary: "←" },
             ArrowUp: { primary: "↑" },
