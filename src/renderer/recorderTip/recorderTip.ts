@@ -172,13 +172,19 @@ function initRecord() {
             if (key.numpad) kbdEl.classList.add("numpad_key");
             if (key.right) kbdEl.classList.add("right_key");
             Array.from(keysEl.children)
-                .slice(0, -5)
+                .slice(0, -10)
                 .forEach((v) => v.remove());
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i != e.keycode);
-            lastKey.querySelector(`[data-k="${e.keycode}"]`)?.classList?.add("key_hidden");
+            lastKey.querySelectorAll(`[data-k="${e.keycode}"]`)?.forEach((el: HTMLElement) => {
+                el.classList.add("key_hidden");
+            });
             if (keyO.length === 0) {
+                let e = lastKey;
+                setTimeout(() => {
+                    e.style.opacity = "0";
+                }, 4000);
                 lastKey = null;
             }
         });
