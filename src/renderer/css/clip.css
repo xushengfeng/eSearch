@@ -434,55 +434,6 @@ body {
     background-color: #0000;
 }
 
-/* 录屏 */
-
-#recorder_rect {
-    position: fixed;
-    outline: 1px dashed #000;
-}
-
-#mouse_c {
-    display: none;
-    position: fixed;
-    width: 24px;
-    height: 24px;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background-color: #ff08;
-    overflow: hidden;
-}
-
-#recorder_bar {
-    position: absolute;
-    right: 4px;
-    bottom: 4px;
-}
-
-#mouse_c > div:nth-child(1) {
-    width: 10px;
-    height: 100%;
-}
-#mouse_c > div:nth-child(2) {
-    width: 4px;
-    height: 100%;
-}
-#mouse_c > div:nth-child(3) {
-    width: 10px;
-    height: 100%;
-}
-
-.wheel_u {
-    clip-path: polygon(50% 0, 0% 100%, 100% 100%);
-}
-.wheel_d {
-    clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
-}
-.wheel_l {
-    clip-path: polygon(0 50%, 100% 0%, 100% 100%);
-}
-.wheel_r {
-    clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
-}
 /* 编辑栏 */
 range-b {
     font-size: calc(var(--bar-size) / 3.75);

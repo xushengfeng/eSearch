@@ -320,7 +320,6 @@ document.addEventListener("mousemove", (e) => {
 document.onwheel = (e) => {
     if (!editor.contains(e.target as HTMLElement) && e.target != document.body) return;
     if (longRunning) return;
-    if (recordInited) return;
 
     document.body.classList.add("editor_bg");
     if (e.ctrlKey) {
@@ -735,13 +734,7 @@ function openApp() {
     });
 }
 
-const recorderRectEl = document.getElementById("recorder_rect");
-const recorderMouseEl = document.getElementById("mouse_c");
-
-var recordInited = false;
-
 function initRecord() {
-    recordInited = true;
     ipcRenderer.send("clip_main_b", "record", {
         rect: finalRect,
         id: nowScreenId,
@@ -749,102 +742,7 @@ function initRecord() {
         h: mainCanvas.height,
         ratio: ratio,
     });
-    let l = [
-        toolBar,
-        drawBar,
-        mainCanvas,
-        clipCanvas,
-        drawCanvas,
-        document.getElementById("draw_photo_top"),
-        whEl,
-        mouseBarEl,
-        lr,
-        loadingEl,
-    ];
-
-    for (let i of l) {
-        i.style.display = "none";
-    }
-
-    document.body.classList.remove("editor_bg");
-
-    if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
-        var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
-
-    function rKey() {
-        var keycode2key = {};
-
-        for (let i in UiohookKey) {
-            keycode2key[UiohookKey[i]] = i;
-        }
-        console.log(keycode2key);
-
-        var keyO = [];
-
-        uIOhook.on("keydown", (e) => {
-            if (!keyO.includes(e.keycode)) keyO.push(e.keycode);
-            document.getElementById("recorder_key").innerHTML = `<kbd>${keyO
-                .map((v) => keycode2key[v])
-                .join("</kbd>+<kbd>")}</kbd>`;
-        });
-        uIOhook.on("keyup", (e) => {
-            keyO = keyO.filter((i) => i != e.keycode);
-            document.getElementById("recorder_key").innerHTML =
-                keyO.length == 0 ? "" : `<kbd>${keyO.map((v) => keycode2key[v]).join("</kbd>+<kbd>")}</kbd>`;
-        });
-    }
-
-    function rMouse() {
-        var m2m = { 1: 0, 3: 1, 2: 2 };
-        var mouseEl = recorderMouseEl.querySelectorAll("div");
-
-        uIOhook.on("mousedown", (e) => {
-            mouseEl[m2m[e.button as number]].style.backgroundColor = "#00f";
-        });
-        uIOhook.on("mouseup", (e) => {
-            mouseEl[m2m[e.button as number]].style.backgroundColor = "";
-        });
-
-        let time_out;
-        uIOhook.on("wheel", (e) => {
-            console.log(e.direction, e.rotation);
-            let x = {
-                3: { 1: "wheel_u", "-1": "wheel_d" },
-                4: { 1: "wheel_l", "-1": "wheel_r" },
-            };
-            recorderMouseEl.className = x[e.direction][e.rotation];
-            clearTimeout(time_out);
-            time_out = setTimeout(() => {
-                recorderMouseEl.className = "";
-            }, 200);
-        });
-    }
-
-    if (store.get("录屏.提示.键盘.开启")) rKey();
-    if (store.get("录屏.提示.鼠标.开启")) rMouse();
-
-    if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启")) uIOhook.start();
-
-    if (store.get("录屏.提示.光标.开启")) recorderMouseEl.style.display = "flex";
-
-    var mouseStyle = document.createElement("style");
-    mouseStyle.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
-    document.body.appendChild(mouseStyle);
-    recorderRectEl.style.left = finalRect[0] / ratio + "px";
-    recorderRectEl.style.top = finalRect[1] / ratio + "px";
-    recorderRectEl.style.width = finalRect[2] / ratio + "px";
-    recorderRectEl.style.height = finalRect[3] / ratio + "px";
-
-    ipcRenderer.on("record", async (_event, t, arg) => {
-        switch (t) {
-            case "mouse":
-                recorderMouseEl.style.left = arg.x + "px";
-                recorderMouseEl.style.top = arg.y + "px";
-                break;
-        }
-    });
-
-    记忆框选f();
+    tool.close();
 }
 
 function long_s() {
@@ -1287,7 +1185,6 @@ document.querySelector("body").onkeydown = (e) => {
     if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
         return;
     if (longRunning) return;
-    if (recordInited) return;
     const o = {
         ArrowUp: "up",
         ArrowRight: "right",

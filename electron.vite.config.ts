@@ -13,6 +13,7 @@ export default defineConfig({
                     help: path.resolve(__dirname, "src/renderer/help.html"),
                     ding: path.resolve(__dirname, "src/renderer/ding.html"),
                     recorder: path.resolve(__dirname, "src/renderer/recorder.html"),
+                    recorderTip: path.resolve(__dirname, "src/renderer/recorderTip.html"),
                     browser_bg: path.resolve(__dirname, "src/renderer/browser_bg.html"),
                     translator: path.resolve(__dirname, "src/renderer/translator.html"),
                 },

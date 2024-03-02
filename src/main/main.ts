@@ -977,12 +977,13 @@ var recording = false;
 const recorderWinW = 240;
 const recorderWinH = 24;
 
-var /** @type {BrowserWindow}*/ recorder: BrowserWindow;
-function createRecorderWindow(rect, screenx: { id: string; w: number; h: number; r: number }) {
+var recorder: BrowserWindow;
+var recorderTipWin: BrowserWindow;
+function createRecorderWindow(rect0, screenx: { id: string; w: number; h: number; r: number }) {
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    let ratio = s.scaleFactor;
+    let ratio = screenx.r;
     let p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
-    rect = rect.map((v) => v / ratio);
+    const rect = rect0.map((v) => v / ratio);
     let hx = s.bounds.x + rect[0] + rect[2] / 2,
         hy = s.bounds.y + rect[1] + rect[3] / 2,
         w = recorderWinW,
@@ -1022,8 +1023,7 @@ function createRecorderWindow(rect, screenx: { id: string; w: number; h: number;
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);
-        reload_clip();
-        clipWindow.setIgnoreMouseEvents(false);
+        recorderTipWin.close();
     });
 
     recorder.on("resize", () => {
@@ -1050,16 +1050,40 @@ function createRecorderWindow(rect, screenx: { id: string; w: number; h: number;
         }
     });
 
-    clipWindow.setIgnoreMouseEvents(true);
+    const border = 2;
+    const rect1 = rect0.map((v) => Math.round(v / ratio));
+    recorderTipWin = new BrowserWindow({
+        x: rect1[0] - border,
+        y: rect1[1] - border,
+        width: rect1[2] + border * 2,
+        height: rect1[3] + border * 2,
+        transparent: true,
+        frame: false,
+        autoHideMenuBar: true,
+        resizable: process.platform == "linux",
+        titleBarStyle: "hiddenInset",
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false,
+        },
+    });
+    rendererPath(recorderTipWin, "recorderTip.html");
+    if (dev) recorderTipWin.webContents.openDevTools();
+
+    recorderTipWin.setAlwaysOnTop(true, "screen-saver");
+
+    recorderTipWin.setIgnoreMouseEvents(true);
+
+    const tipB = recorderTipWin.getBounds();
 
     function mouse() {
-        if (clipWindow.isDestroyed()) return;
+        if (recorderTipWin.isDestroyed()) return;
         if (!recording || recorder.isDestroyed()) {
-            clipWindow.setIgnoreMouseEvents(false);
             return;
         }
         let nowXY = screen.getCursorScreenPoint();
-        clipWindow.webContents.send("record", "mouse", { x: nowXY.x - s.bounds.x, y: nowXY.y - s.bounds.y });
+        recorderTipWin.webContents.send("record", "mouse", { x: nowXY.x - tipB.x, y: nowXY.y - tipB.y });
         setTimeout(mouse, 10);
     }
     recording = true;
@@ -1069,7 +1093,7 @@ function createRecorderWindow(rect, screenx: { id: string; w: number; h: number;
 ipcMain.on("record", (_event, type, arg) => {
     switch (type) {
         case "stop":
-            reload_clip();
+            recorderTipWin.close();
             recording = false;
             break;
         case "start":
