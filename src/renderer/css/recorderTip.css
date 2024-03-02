@@ -29,24 +29,32 @@
 
 #recorder_key > div {
     display: flex;
+    transition: var(--transition);
 }
 #recorder_key kbd {
     transition: var(--transition);
     display: flex;
     flex-direction: column-reverse;
-    min-width: 48px;
-    height: 48px;
-    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    justify-content: space-between;
 }
 
-.main_key {
-    font-size: 1em;
+.only_key {
+    font-size: 16px;
     font-weight: bold;
+    align-items: center;
+    justify-content: center !important;
+}
+.main_key {
+    font-size: 16px;
+    font-weight: bold;
+    height: 60%;
 }
 .top_key {
-    font-size: 0.8em;
-}
-.numpad_key {
+    font-size: 12px;
+    height: 30%;
+    line-height: 100%;
 }
 .right_key {
     align-items: end;

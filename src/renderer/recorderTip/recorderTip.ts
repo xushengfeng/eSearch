@@ -161,13 +161,14 @@ function initRecord() {
                 keysEl.append(lastKey);
             }
             const key = getKey(e.keycode);
-            const kbdEl = el(
-                "kbd",
-                [el("span", key.main, { class: "main_key" }), el("span", key.top, { class: "top_key" })],
-                {
-                    "data-k": e.keycode,
-                }
-            );
+            const kbdEl = el("kbd", el("span", key.main, { class: "main_key" }), {
+                "data-k": e.keycode,
+            });
+            if (key.top) kbdEl.append(el("span", key.top, { class: "top_key" }));
+            else {
+                kbdEl.querySelector("span").classList.remove("main_key");
+                kbdEl.classList.add("only_key");
+            }
             lastKey.append(kbdEl);
             if (key.numpad) kbdEl.classList.add("numpad_key");
             if (key.right) kbdEl.classList.add("right_key");
