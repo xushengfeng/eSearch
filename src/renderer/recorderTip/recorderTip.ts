@@ -128,6 +128,27 @@ function initRecord() {
                 Object.assign(map[k], macMap[k]);
             }
 
+        function getKey(keycode: number) {
+            let right = false;
+            let numpad = false;
+
+            let key = keycode2key[keycode];
+            if (["CtrlRight", "AltRight", "ShiftRight", "MetaRight"].includes(key)) {
+                key = key.replace("Right", "");
+                right = true;
+            }
+
+            if (numPad.includes(key)) {
+                key = key.replace("Numpad", "");
+                numpad = true;
+            }
+
+            let mainKey = map[key]?.primary ?? key;
+            let topKey = map[key]?.secondary ?? map[key]?.symble ?? "";
+            if (numpad) topKey = "";
+            return { main: mainKey, top: topKey, numpad: numpad, right: right };
+        }
+
         let keyO: number[] = [];
 
         const keysEl = document.getElementById("recorder_key");
@@ -139,19 +160,17 @@ function initRecord() {
                 lastKey = el("div");
                 keysEl.append(lastKey);
             }
-            const key = keycode2key[e.keycode];
-            const mainKey = map[key]?.primary ?? key;
-            const topKey = map[key]?.secondary ?? map[key]?.symble ?? "";
+            const key = getKey(e.keycode);
             const kbdEl = el(
                 "kbd",
-                [el("span", mainKey, { class: "main_key" }), el("span", topKey, { class: "top_key" })],
+                [el("span", key.main, { class: "main_key" }), el("span", key.top, { class: "top_key" })],
                 {
                     "data-k": e.keycode,
                 }
             );
             lastKey.append(kbdEl);
-            if (map[key]?.isNumpad) kbdEl.classList.add("numpad_key");
-            if (map[key]?.isRight) kbdEl.classList.add("right_key");
+            if (key.numpad) kbdEl.classList.add("numpad_key");
+            if (key.right) kbdEl.classList.add("right_key");
             Array.from(keysEl.children)
                 .slice(0, -5)
                 .forEach((v) => v.remove());
