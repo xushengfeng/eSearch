@@ -1,4 +1,5 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
+import { el } from "redom";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -28,18 +29,28 @@ function initRecord() {
         }
         console.log(keycode2key);
 
-        var keyO = [];
+        var keyO: number[] = [];
+
+        const keysEl = document.getElementById("recorder_key");
+        let lastKey = null as HTMLElement;
 
         uIOhook.on("keydown", (e) => {
             if (!keyO.includes(e.keycode)) keyO.push(e.keycode);
-            document.getElementById("recorder_key").innerHTML = `<kbd>${keyO
-                .map((v) => keycode2key[v])
-                .join("</kbd>+<kbd>")}</kbd>`;
+            if (!lastKey) {
+                lastKey = el("div");
+                keysEl.append(lastKey);
+            }
+            lastKey.append(el("kbd", keycode2key[e.keycode], { "data-k": e.keycode }));
+            Array.from(keysEl.children)
+                .slice(0, -5)
+                .forEach((v) => v.remove());
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i != e.keycode);
-            document.getElementById("recorder_key").innerHTML =
-                keyO.length == 0 ? "" : `<kbd>${keyO.map((v) => keycode2key[v]).join("</kbd>+<kbd>")}</kbd>`;
+            lastKey.querySelector(`[data-k="${e.keycode}"]`)?.classList?.add("key_hidden");
+            if (keyO.length === 0) {
+                lastKey = null;
+            }
         });
     }
 
