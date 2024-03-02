@@ -111,7 +111,7 @@ function initRecord() {
 
         for (let key of numPad) {
             const mainKey = key.replace("Numpad", "");
-            map[key] = { primary: map[mainKey].primary ?? mainKey, isNumpad: true };
+            map[key] = { primary: map[mainKey]?.primary ?? mainKey, isNumpad: true };
         }
 
         let keyO: number[] = [];
