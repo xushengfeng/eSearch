@@ -17,14 +17,104 @@ function initRecord() {
         var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 
     function rKey() {
-        var keycode2key = {};
+        const keycode2key = {};
 
         for (let i in UiohookKey) {
             keycode2key[UiohookKey[i]] = i;
         }
         console.log(keycode2key);
 
-        var keyO: number[] = [];
+        const map: {
+            [k: string]: {
+                primary?: string;
+                secondary?: string;
+                symble?: string;
+                isRight?: boolean;
+                isNumpad?: boolean;
+            };
+        } = {
+            Backspace: { symble: "⌫" },
+            Tab: { symble: "⇥" },
+            Enter: { symble: "⏎" },
+            Shift: { symble: "⇧" },
+            Ctrl: { symble: "⌃" },
+            Alt: { symble: "⌥" },
+            Meta: { symble: "田" },
+            Esc: { symble: "⎋" },
+
+            ArrowLeft: { primary: "←" },
+            ArrowUp: { primary: "↑" },
+            ArrowRight: { primary: "→" },
+            ArrowDown: { primary: "↓" },
+
+            Semicolon: { primary: ";", secondary: ":" },
+            Equal: { primary: "=", secondary: "+" },
+            Comma: { primary: ",", secondary: "<" },
+            Minus: { primary: "-", secondary: "_" },
+            Period: { primary: ".", secondary: ">" },
+            Slash: { primary: "/", secondary: "?" },
+            Backquote: { primary: "`", secondary: "~" },
+            BracketLeft: { primary: "[", secondary: "{" },
+            Backslash: { primary: "\\", secondary: "|" },
+            BracketRight: { primary: "]", secondary: "}" },
+            Quote: { primary: '"', secondary: "'" },
+
+            1: { secondary: "!" },
+            2: { secondary: "@" },
+            3: { secondary: "#" },
+            4: { secondary: "$" },
+            5: { secondary: "%" },
+            6: { secondary: "^" },
+            7: { secondary: "&" },
+            8: { secondary: "*" },
+            9: { secondary: "(" },
+            0: { secondary: ")" },
+
+            Multiply: { primary: "*" },
+            Add: { primary: "+" },
+            Subtract: { primary: "-" },
+            Decimal: { primary: "." },
+            Divide: { primary: "/" },
+        };
+
+        for (let k of ["CtrlRight", "AltRight", "ShiftRight", "MetaRight"]) {
+            const mainKey = k.replace("Right", "");
+            map[k] = { ...map[mainKey], isRight: true, primary: mainKey };
+        }
+        const numPad = [
+            "Numpad0",
+            "Numpad1",
+            "Numpad2",
+            "Numpad3",
+            "Numpad4",
+            "Numpad5",
+            "Numpad6",
+            "Numpad7",
+            "Numpad8",
+            "Numpad9",
+            "NumpadMultiply",
+            "NumpadAdd",
+            "NumpadSubtract",
+            "NumpadDecimal",
+            "NumpadDivide",
+            "NumpadEnd",
+            "NumpadArrowDown",
+            "NumpadPageDown",
+            "NumpadArrowLeft",
+            "NumpadArrowRight",
+            "NumpadHome",
+            "NumpadArrowUp",
+            "NumpadPageUp",
+            "NumpadInsert",
+            "NumpadDelete",
+        ];
+
+        for (let key of numPad) {
+            const mainKey = key.replace("Numpad", "");
+            map[key] = { primary: map[mainKey].primary ?? mainKey, isNumpad: true };
+        }
+
+        let keyO: number[] = [];
 
         const keysEl = document.getElementById("recorder_key");
         let lastKey = null as HTMLElement;
@@ -35,7 +125,19 @@ function initRecord() {
                 lastKey = el("div");
                 keysEl.append(lastKey);
             }
-            lastKey.append(el("kbd", keycode2key[e.keycode], { "data-k": e.keycode }));
+            const key = keycode2key[e.keycode];
+            const mainKey = map[key]?.primary ?? key;
+            const topKey = map[key]?.secondary ?? map[key]?.symble ?? "";
+            const kbdEl = el(
+                "kbd",
+                [el("span", mainKey, { class: "main_key" }), el("span", topKey, { class: "top_key" })],
+                {
+                    "data-k": e.keycode,
+                }
+            );
+            lastKey.append(kbdEl);
+            if (map[key]?.isNumpad) kbdEl.classList.add("numpad_key");
+            if (map[key]?.isRight) kbdEl.classList.add("right_key");
             Array.from(keysEl.children)
                 .slice(0, -5)
                 .forEach((v) => v.remove());

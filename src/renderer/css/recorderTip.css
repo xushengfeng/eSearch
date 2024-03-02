@@ -32,6 +32,24 @@
 }
 #recorder_key kbd {
     transition: var(--transition);
+    display: flex;
+    flex-direction: column-reverse;
+    min-width: 48px;
+    height: 48px;
+    justify-content: center;
+}
+
+.main_key {
+    font-size: 1em;
+    font-weight: bold;
+}
+.top_key {
+    font-size: 0.8em;
+}
+.numpad_key {
+}
+.right_key {
+    align-items: end;
 }
 
 #recorder_key .key_hidden {
