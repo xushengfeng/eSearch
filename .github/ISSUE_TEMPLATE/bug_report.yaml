@@ -1,0 +1,46 @@
+name: 错误报告 Bug Report
+description: "创建报告以帮助项目改进 Create a report to help us improve."
+title: "……存在……错误"
+labels: bug
+
+body:
+    - type: textarea
+      attributes:
+          label: 描述问题
+          description: "请描述您遇到的问题"
+      validations:
+          required: true
+    - type: textarea
+      attributes:
+          label: 重现步骤
+          description: "请描述如何重现问题"
+      validations:
+          required: true
+    - type: textarea
+      attributes:
+          label: 期望结果
+          description: "请描述您期望的结果"
+      validations:
+          required: false
+    - type: textarea
+      attributes:
+          label: 更多信息
+          description: "截屏、错误信息（按住Ctrl+Shift+I 唤出控制台，切换到console选项卡查看报错）等"
+      validations:
+          required: false
+    - type: input
+      attributes:
+          label: 设备
+      validations:
+          required: false
+    - type: input
+      attributes:
+          label: 软件版本
+      validations:
+          required: true
+    - type: input
+      attributes:
+          label: 屏幕参数
+          description: "屏幕分辨率、缩放，如果是多屏，请把各个屏幕的参数和屏幕排布写出"
+      validations:
+          required: false
