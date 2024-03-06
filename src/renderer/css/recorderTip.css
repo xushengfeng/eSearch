@@ -1,3 +1,8 @@
+body {
+    user-select: none;
+    pointer-events: none;
+}
+
 #recorder_rect {
     border: 1px dashed #000;
     box-sizing: border-box;
