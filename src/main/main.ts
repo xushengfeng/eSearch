@@ -86,10 +86,10 @@ function rendererPath(window: BrowserWindow, fileName: string) {
     } else {
         window.loadFile(mainUrl(fileName), q);
     }
-    window.webContents.on("will-navigate", (event, url) => {
+    window.webContents.on("will-navigate", (event) => {
         event.preventDefault();
     });
-    window.webContents.setWindowOpenHandler(({ url }) => {
+    window.webContents.setWindowOpenHandler(() => {
         return { action: "deny" };
     });
 }
@@ -1569,7 +1569,7 @@ async function createBrowser(windowName: number, url: string) {
 
     let mainWindow = mainWindowL[windowName];
 
-    if (mainWindow.isDestroyed()) return;
+    if (mainWindow.isDestroyed()) return null;
     minViews(mainWindow);
     var view = new Date().getTime();
     let security = true;
