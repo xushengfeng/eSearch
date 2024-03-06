@@ -65,8 +65,29 @@ if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = false;
 }
 
+function mainUrl(fileName: string) {
+    if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
+        let mainUrl = `${process.env["ELECTRON_RENDERER_URL"]}/${fileName}`;
+        return mainUrl;
+    } else {
+        return path.join(__dirname, "../renderer", fileName);
+    }
+}
+
 /** 加载网页 */
-function rendererPath(window: BrowserWindow | Electron.WebContents, fileName: string, q?: Electron.LoadFileOptions) {
+function rendererPath(window: BrowserWindow, fileName: string) {
+    const q = { query: { config_path: app.getPath("userData") } };
+    if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
+        let x = new url.URL(mainUrl(fileName));
+        for (let i in q.query) {
+            x.searchParams.set(i, q.query[i]);
+        }
+        window.loadURL(x.toString());
+    } else {
+        window.loadFile(mainUrl(fileName), q);
+    }
+}
+function rendererPath2(window: Electron.WebContents, fileName: string, q?: Electron.LoadFileOptions) {
     if (!q) {
         q = { query: { config_path: app.getPath("userData") } };
     } else if (!q.query) {
@@ -75,8 +96,7 @@ function rendererPath(window: BrowserWindow | Electron.WebContents, fileName: st
         q.query["config_path"] = app.getPath("userData");
     }
     if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-        let mainUrl = `${process.env["ELECTRON_RENDERER_URL"]}/${fileName}`;
-        let x = new url.URL(mainUrl);
+        let x = new url.URL(mainUrl(fileName));
         if (q) {
             if (q.search) x.search = q.search;
             if (q.query) {
@@ -88,7 +108,7 @@ function rendererPath(window: BrowserWindow | Electron.WebContents, fileName: st
         }
         window.loadURL(x.toString());
     } else {
-        window.loadFile(path.join(__dirname, "../renderer", fileName), q);
+        window.loadFile(mainUrl(fileName), q);
     }
 }
 
@@ -1583,24 +1603,24 @@ async function createBrowser(windowName: number, url: string) {
         if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "load", false);
     });
     searchView.webContents.on("did-fail-load", (_event, err_code, err_des) => {
-        rendererPath(searchView.webContents, "browser_bg.html", {
+        rendererPath2(searchView.webContents, "browser_bg.html", {
             query: { type: "did-fail-load", err_code: String(err_code), err_des },
         });
         if (dev) searchView.webContents.openDevTools();
     });
     searchView.webContents.on("render-process-gone", () => {
-        rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "render-process-gone" } });
+        rendererPath2(searchView.webContents, "browser_bg.html", { query: { type: "render-process-gone" } });
         if (dev) searchView.webContents.openDevTools();
     });
     searchView.webContents.on("unresponsive", () => {
-        rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "unresponsive" } });
+        rendererPath2(searchView.webContents, "browser_bg.html", { query: { type: "unresponsive" } });
         if (dev) searchView.webContents.openDevTools();
     });
     searchView.webContents.on("responsive", () => {
         searchView.webContents.loadURL(url);
     });
     searchView.webContents.on("certificate-error", () => {
-        rendererPath(searchView.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
+        rendererPath2(searchView.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
         if (dev) searchView.webContents.openDevTools();
     });
     return new Promise((resolve: (x: Electron.WebContents) => void) => {
