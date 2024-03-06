@@ -1,4 +1,5 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
+const { execSync } = require("child_process") as typeof import("child_process");
 import { el } from "redom";
 
 // 获取设置
@@ -132,7 +133,7 @@ function initRecord() {
             let right = false;
             let numpad = false;
 
-            let key = keycode2key[keycode];
+            let key = keycode2key[keycode] as string;
             if (["CtrlRight", "AltRight", "ShiftRight", "MetaRight"].includes(key)) {
                 key = key.replace("Right", "");
                 right = true;
@@ -161,13 +162,20 @@ function initRecord() {
                 keysEl.append(lastKey);
             }
             const key = getKey(e.keycode);
+            if (["Ctrl", "Alt", "Shift", "Meta"].includes(key.main)) lastKey.setAttribute("data-modi", "true");
             const kbdEl = el("kbd", el("span", key.main, { class: "main_key" }), {
                 "data-k": e.keycode,
             });
+            console.log(key);
+
             if (key.top) kbdEl.append(el("span", key.top, { class: "top_key" }));
             else {
                 kbdEl.querySelector("span").classList.remove("main_key");
                 kbdEl.classList.add("only_key");
+                if (key.main.match(/[A-Z]/))
+                    if (lastKey.getAttribute("data-modi") != "true" && !isCapsLock()) {
+                        kbdEl.querySelector("span").innerText = key.main.toLowerCase();
+                    }
             }
             lastKey.append(kbdEl);
             if (key.numpad) kbdEl.classList.add("numpad_key");
@@ -236,4 +244,11 @@ function initRecord() {
                 break;
         }
     });
+}
+
+function isCapsLock() {
+    if (process.platform === "linux") {
+        return execSync("xset -q | sed -n 's/^.*Caps Lock:\\s*\\(\\S*\\).*$/\\1/p'").toString().trim() === "on";
+    }
+    return true;
 }
