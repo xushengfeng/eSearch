@@ -86,6 +86,12 @@ function rendererPath(window: BrowserWindow, fileName: string) {
     } else {
         window.loadFile(mainUrl(fileName), q);
     }
+    window.webContents.on("will-navigate", (event, url) => {
+        event.preventDefault();
+    });
+    window.webContents.setWindowOpenHandler(({ url }) => {
+        return { action: "deny" };
+    });
 }
 function rendererPath2(window: Electron.WebContents, fileName: string, q?: Electron.LoadFileOptions) {
     if (!q) {
