@@ -1734,7 +1734,7 @@ const pointColorCanvasBgCtx = pointColorCanvasBg.getContext("2d");
 const pointColorCanvas = document.createElement("canvas");
 pointColorCanvas.width = pointColorCanvas.height = colorSize;
 document.getElementById("point_color").append(pointColorCanvas);
-const pointColorCanvasCtx = pointColorCanvas.getContext("2d");
+const pointColorCanvasCtx = pointColorCanvas.getContext("2d", { willReadFrequently: true });
 const pointCenter = document.createElement("div");
 document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = ((colorSize - 1) / 2) * colorISize + "px";
@@ -3153,11 +3153,23 @@ const startFilter = () => {
 
 // todo range
 
-let filtetMap: { [key in EditType["filter"]]: { f: string; i: number; key?: string; value?: number } } = {
+let filtetMap: {
+    [key in EditType["filter"]]: {
+        f: string;
+        i: number;
+        key?: string;
+        value?: {
+            default: number;
+            max: number;
+            min?: number;
+            text?: string;
+        };
+    };
+} = {
     // 马赛克
     // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: 4 },
-    blur: { f: "Blur", i: 1, key: "blur", value: 0.1 },
+    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: { default: 16, max: 20 } },
+    blur: { f: "Blur", i: 1, key: "blur", value: { default: 1, max: 500 } },
     brightness: { f: "Brightness", i: 2, key: "brightness" },
     contrast: { f: "Contrast", i: 3, key: "contrast" },
     saturation: { f: "Saturation", i: 4, key: "saturation" },
