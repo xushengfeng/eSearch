@@ -3137,7 +3137,27 @@ function newFilterSelect(o, no) {
     setEditType("filter", "");
 };
 
-function applyFilter(i, filter) {
+let filtetMap = {
+    Pixelate: 0,
+    Blur: 1,
+    Brightness: 2,
+    Contrast: 3,
+    Saturation: 4,
+    HueRotation: 5,
+    Noise: 7,
+    Invert: 9,
+    Sepia: 10,
+    BlackWhite: 11,
+    Brownie: 12,
+    Vintage: 13,
+    Kodachrome: 14,
+    Technicolor: 15,
+    Polaroid: 16,
+};
+
+function applyFilter(i: number, filter) {
+    console.log(i);
+
     var obj = fabricCanvas.getActiveObject();
     obj.filters[i] = filter;
     obj.applyFilters();
@@ -3220,9 +3240,10 @@ SHFiltersDiv(true);
  * @param i 滤镜索引
  * @param is_z 检查值是否为0
  */
-function checkFilterRangeInput(id: string, f: string, key: string, i: number, is_z?: boolean) {
+function checkFilterRangeInput(id: string, f: string, key: string, is_z?: boolean) {
     (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).oninput = () => {
         const value = Number((<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).value);
+        const i = filtetMap[f];
         if (!is_z || value != 0) {
             let filter = new Fabric.Image.filters[f]({
                 [key]: value,
@@ -3240,26 +3261,26 @@ function checkFilterRangeInput(id: string, f: string, key: string, i: number, is
  * @param f 函数名
  * @param i 滤镜索引
  */
-function checkFilterLockInput(id: string, f: string, i: number) {
+function checkFilterLockInput(id: string, f: string) {
     (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).oninput = () => {
         const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
         let filter = value ? new Fabric.Image.filters[f]() : null;
-        applyFilter(i, filter);
+        applyFilter(filtetMap[f], filter);
     };
 }
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-checkFilterRangeInput("pixelate", "Pixelate", "blocksize", 0, true);
+checkFilterRangeInput("pixelate", "Pixelate", "blocksize", true);
 // 模糊
-checkFilterRangeInput("blur", "Blur", "blur", 1, true);
+checkFilterRangeInput("blur", "Blur", "blur", true);
 // 亮度
-checkFilterRangeInput("brightness", "Brightness", "brightness", 2);
+checkFilterRangeInput("brightness", "Brightness", "brightness");
 // 对比度
-checkFilterRangeInput("contrast", "Contrast", "contrast", 3);
+checkFilterRangeInput("contrast", "Contrast", "contrast");
 // 饱和度
-checkFilterRangeInput("saturation", "Saturation", "saturation", 4);
+checkFilterRangeInput("saturation", "Saturation", "saturation");
 // 色调
-checkFilterRangeInput("hue", "HueRotation", "rotation", 5);
+checkFilterRangeInput("hue", "HueRotation", "rotation");
 // 伽马
 (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
@@ -3274,7 +3295,7 @@ checkFilterRangeInput("hue", "HueRotation", "rotation", 5);
             applyFilter(6, filter);
         };
 // 噪音
-checkFilterRangeInput("noise", "Noise", "noise", 7);
+checkFilterRangeInput("noise", "Noise", "noise");
 // 灰度
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
@@ -3298,21 +3319,21 @@ checkFilterRangeInput("noise", "Noise", "noise", 7);
     applyFilter(8, filter);
 };
 // 负片
-checkFilterLockInput("invert", "Invert", 9);
+checkFilterLockInput("invert", "Invert");
 // 棕褐色
-checkFilterLockInput("sepia", "Sepia", 10);
+checkFilterLockInput("sepia", "Sepia");
 // 黑白
-checkFilterLockInput("bw", "BlackWhite", 11);
+checkFilterLockInput("bw", "BlackWhite");
 // 布朗尼
-checkFilterLockInput("brownie", "Brownie", 12);
+checkFilterLockInput("brownie", "Brownie");
 // 老式
-checkFilterLockInput("vintage", "Vintage", 13);
+checkFilterLockInput("vintage", "Vintage");
 // 柯达彩色胶片
-checkFilterLockInput("koda", "Kodachrome", 14);
+checkFilterLockInput("koda", "Kodachrome");
 // 特艺色彩
-checkFilterLockInput("techni", "Technicolor", 15);
+checkFilterLockInput("techni", "Technicolor");
 // 宝丽来
-checkFilterLockInput("polaroid", "Polaroid", 16);
+checkFilterLockInput("polaroid", "Polaroid");
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
 function exitFree() {
