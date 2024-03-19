@@ -2669,6 +2669,18 @@ fabricCanvas.on("mouse:up", (options) => {
         getFilters();
         hisPush();
         hotkeys.setScope("normal");
+
+        if (willFilter) {
+            const i = filtetMap[willFilter];
+            if (i.key) {
+                let filter = new Fabric.Image.filters[willFilter]({ [i.key]: i.value ?? 1 });
+                applyFilter(i.i, filter);
+            } else {
+                let filter = new Fabric.Image.filters[willFilter]();
+                applyFilter(i.i, filter);
+            }
+            getFilters();
+        }
     }
 
     if (fabricCanvas.isDrawingMode) {
@@ -3128,7 +3140,7 @@ function newFilterSelect(o, no) {
     fabricCanvas.setActiveObject(img);
 }
 
-(<HTMLInputElement>(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b"))).oninput = () => {
+const startFilter = () => {
     exitFree();
     exitShape();
     newFilterSelecting = true;
@@ -3136,28 +3148,30 @@ function newFilterSelect(o, no) {
     hotkeys.setScope("drawing_esc");
     setEditType("filter", "");
 };
+(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b")).oninput = startFilter;
 
-let filtetMap = {
-    Pixelate: 0,
-    Blur: 1,
-    Brightness: 2,
-    Contrast: 3,
-    Saturation: 4,
-    HueRotation: 5,
-    Noise: 7,
-    Invert: 9,
-    Sepia: 10,
-    BlackWhite: 11,
-    Brownie: 12,
-    Vintage: 13,
-    Kodachrome: 14,
-    Technicolor: 15,
-    Polaroid: 16,
+let filtetMap: { [key: string]: { i: number; key?: string; value?: number } } = {
+    Pixelate: { i: 0, key: "blocksize", value: 4 },
+    Blur: { i: 1, key: "blur", value: 0.1 },
+    Brightness: { i: 2, key: "brightness" },
+    Contrast: { i: 3, key: "contrast" },
+    Saturation: { i: 4, key: "saturation" },
+    HueRotation: { i: 5, key: "rotation" },
+    Noise: { i: 7 },
+    Invert: { i: 9 },
+    Sepia: { i: 10 },
+    BlackWhite: { i: 11 },
+    Brownie: { i: 12 },
+    Vintage: { i: 13 },
+    Kodachrome: { i: 14 },
+    Technicolor: { i: 15 },
+    Polaroid: { i: 16 },
 };
 
-function applyFilter(i: number, filter) {
-    console.log(i);
+let willFilter = "";
+let selectedFilter = false;
 
+function applyFilter(i: number, filter) {
     var obj = fabricCanvas.getActiveObject();
     obj.filters[i] = filter;
     obj.applyFilters();
@@ -3216,19 +3230,8 @@ function getFilters() {
     (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked = f[15] ? true : false;
     (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked = f[16] ? true : false;
 }
-function SHFiltersDiv(v) {
-    var l = document.querySelectorAll("#draw_filters_i > div") as NodeListOf<HTMLDivElement>;
-    if (v) {
-        for (let i = 1; i < l.length; i++) {
-            l[i].style.pointerEvents = "none";
-            l[i].style.opacity = "0.2";
-        }
-    } else {
-        for (let i = 1; i < l.length; i++) {
-            l[i].style.pointerEvents = "auto";
-            l[i].style.opacity = "1";
-        }
-    }
+function SHFiltersDiv(v: boolean) {
+    selectedFilter = !v;
 }
 SHFiltersDiv(true);
 
@@ -3240,17 +3243,23 @@ SHFiltersDiv(true);
  * @param i 滤镜索引
  * @param is_z 检查值是否为0
  */
-function checkFilterRangeInput(id: string, f: string, key: string, is_z?: boolean) {
+function checkFilterRangeInput(id: string, f: string, is_z?: boolean) {
     (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).oninput = () => {
         const value = Number((<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).value);
+        if (!selectedFilter) {
+            willFilter = f;
+            filtetMap[f]["value"] = value;
+            startFilter();
+            return;
+        }
         const i = filtetMap[f];
         if (!is_z || value != 0) {
             let filter = new Fabric.Image.filters[f]({
-                [key]: value,
+                [i.key]: value,
             });
-            applyFilter(i, filter);
+            applyFilter(i.i, filter);
         } else {
-            applyFilter(i, null);
+            applyFilter(i.i, null);
         }
     };
 }
@@ -3263,24 +3272,29 @@ function checkFilterRangeInput(id: string, f: string, key: string, is_z?: boolea
  */
 function checkFilterLockInput(id: string, f: string) {
     (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).oninput = () => {
+        if (!selectedFilter) {
+            willFilter = f;
+            startFilter();
+            return;
+        }
         const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
         let filter = value ? new Fabric.Image.filters[f]() : null;
-        applyFilter(filtetMap[f], filter);
+        applyFilter(filtetMap[f].i, filter);
     };
 }
 // 马赛克
 // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-checkFilterRangeInput("pixelate", "Pixelate", "blocksize", true);
+checkFilterRangeInput("pixelate", "Pixelate", true);
 // 模糊
-checkFilterRangeInput("blur", "Blur", "blur", true);
+checkFilterRangeInput("blur", "Blur", true);
 // 亮度
-checkFilterRangeInput("brightness", "Brightness", "brightness");
+checkFilterRangeInput("brightness", "Brightness");
 // 对比度
-checkFilterRangeInput("contrast", "Contrast", "contrast");
+checkFilterRangeInput("contrast", "Contrast");
 // 饱和度
-checkFilterRangeInput("saturation", "Saturation", "saturation");
+checkFilterRangeInput("saturation", "Saturation");
 // 色调
-checkFilterRangeInput("hue", "HueRotation", "rotation");
+checkFilterRangeInput("hue", "HueRotation");
 // 伽马
 (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
@@ -3295,7 +3309,7 @@ checkFilterRangeInput("hue", "HueRotation", "rotation");
             applyFilter(6, filter);
         };
 // 噪音
-checkFilterRangeInput("noise", "Noise", "noise");
+checkFilterRangeInput("noise", "Noise");
 // 灰度
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
