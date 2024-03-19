@@ -59,10 +59,10 @@ try {
 
 var /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
-if (process.argv.includes("-d") || import.meta.env.DEV) {
+if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_DEV"]) {
     dev = true;
 } else {
-    dev = true;
+    dev = false;
 }
 
 function mainUrl(fileName: string) {
