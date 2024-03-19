@@ -1000,7 +1000,7 @@ function imageSearch(arg) {
 }
 
 var recording = false;
-const recorderWinW = 240;
+const recorderWinW = 264;
 const recorderWinH = 24;
 
 var recorder: BrowserWindow;
@@ -1956,6 +1956,7 @@ var defaultSetting: setting = {
             默认开启: false,
             记住开启状态: false,
             镜像: false,
+            设备: "",
             背景: {
                 模式: "none",
                 模糊: 40,
@@ -1967,6 +1968,7 @@ var defaultSetting: setting = {
         音频: {
             默认开启: false,
             记住开启状态: false,
+            设备: "",
         },
         转换: {
             自动转换: false,

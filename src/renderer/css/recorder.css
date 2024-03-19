@@ -50,7 +50,8 @@ body {
 }
 
 #main button,
-#main lock-b {
+#main lock-b,
+#main select {
     width: 24px;
     height: 24px;
     position: relative;
@@ -58,6 +59,9 @@ body {
     border: none;
     transition: var(--transition);
     border-radius: var(--border-radius);
+}
+#main > select:nth-last-of-type(1) {
+    width: auto;
 }
 
 #main button:hover,

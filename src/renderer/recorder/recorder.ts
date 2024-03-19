@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import rootInit from "../root/root";
+import { el } from "redom";
 rootInit();
 import "../../../lib/template2.js";
 import pauseSvg from "../assets/icons/pause.svg";
@@ -161,19 +162,59 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, scre
             ratio = screen_ratio;
             sS = true;
             let devices = await navigator.mediaDevices.enumerateDevices();
-            for (let i of devices) {
-                if (i.kind == "audioinput") audio = true;
-                if (i.kind == "videoinput") camera = true;
-            }
+            const audioL = devices.filter((i) => i.kind === "audioinput");
+            const videoL = devices.filter((i) => i.kind === "videoinput");
+            if (audioL.length) audio = true;
+            if (videoL.length) camera = true;
             if (audio) {
+                let id = audioL.find((i) => i.deviceId === store.get("录屏.音频.设备"))?.deviceId ?? audioL[0].deviceId;
                 audioStream = await navigator.mediaDevices.getUserMedia({
-                    audio: true,
+                    audio: { deviceId: id },
                     video: false,
                 });
+                if (audioL.length > 1) {
+                    const selectEl = el("select");
+                    audioL.forEach((i) => {
+                        const op = el("option", i.label, { value: i.deviceId });
+                        selectEl.append(op);
+                    });
+                    selectEl.value = id;
+                    selectEl.onchange = async () => {
+                        audioStream = await navigator.mediaDevices.getUserMedia({
+                            audio: { deviceId: selectEl.value },
+                            video: false,
+                        });
+                        store.set("录屏.音频.设备", selectEl.value);
+                    };
+                    micEl.after(selectEl);
+                }
             } else {
                 micEl.style.display = "none";
             }
             if (!camera) document.getElementById("camera").style.display = "none";
+            else {
+                let id =
+                    videoL.find((i) => i.deviceId === store.get("录屏.摄像头.设备"))?.deviceId ?? videoL[0].deviceId;
+                cameraDeviceId = id;
+                if (videoL.length > 1) {
+                    const selectEl = el("select");
+                    videoL.forEach((i) => {
+                        const op = el("option", i.label, { value: i.deviceId });
+                        selectEl.append(op);
+                    });
+                    selectEl.value = id;
+                    selectEl.onchange = async () => {
+                        cameraDeviceId = selectEl.value;
+                        if (cameraStream)
+                            cameraStream = await navigator.mediaDevices.getUserMedia({
+                                audio: false,
+                                video: { deviceId: selectEl.value },
+                            });
+                        store.set("录屏.摄像头.设备", selectEl.value);
+                    };
+                    cameraEl.after(selectEl);
+                }
+            }
             navigator.mediaDevices.ondevicechange = () => {
                 navigator.mediaDevices.enumerateDevices().then((d) => {
                     let video = false;
@@ -312,11 +353,12 @@ micEl.onclick = () => {
 var videoEl = document.querySelector("video");
 
 var cameraStream: MediaStream;
+var cameraDeviceId = "";
 async function cameraStreamF(v: boolean) {
     if (v) {
         cameraStream = await navigator.mediaDevices.getUserMedia({
             audio: false,
-            video: true,
+            video: { deviceId: cameraDeviceId },
         });
         document.querySelector("video").srcObject = cameraStream;
         document.querySelector("video").play();

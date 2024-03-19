@@ -170,6 +170,7 @@ export interface setting {
         摄像头: {
             默认开启: boolean;
             记住开启状态: boolean;
+            设备: string;
             镜像: boolean;
             背景: {
                 模式: "none";
@@ -182,6 +183,7 @@ export interface setting {
         音频: {
             默认开启: boolean;
             记住开启状态: boolean;
+            设备: string;
         };
         转换: {
             自动转换: boolean;
