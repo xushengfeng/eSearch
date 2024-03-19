@@ -552,6 +552,10 @@ var shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
 document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
     shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
 });
+var filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
+document.querySelectorAll("#draw_filters_i > div").forEach((el: HTMLInputElement) => {
+    filtersEl[el.id.replace("draw_filters_", "") as string] = el;
+});
 var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
     select: {
         rect: document.getElementById("draw_select_rect"),
@@ -563,7 +567,7 @@ var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLEleme
         eraser: document.getElementById("draw_free_eraser"),
         spray: document.getElementById("draw_free_spray"),
     },
-    filter: { "": null },
+    filter: filtersEl,
     shape: shapeEl,
 };
 
@@ -2326,7 +2330,7 @@ nowType = "select";
 let editType: EditType = {
     select: "rect",
     draw: "free",
-    filter: "",
+    filter: "pixelate",
     shape: "rect",
 };
 // todo 记忆
@@ -2340,7 +2344,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     for (let i in drawMainEls) {
         if (i === mainType) {
             drawMainEls[mainType].classList.add(SELECT);
-            if (mainType != "filter") drawMainEls[mainType].innerHTML = drawSideEls[mainType][type].innerHTML;
+            drawMainEls[mainType].innerHTML = drawSideEls[mainType][type].querySelector("img").outerHTML;
         } else {
             drawMainEls[i]?.classList?.remove(SELECT);
         }
@@ -2393,6 +2397,8 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         ableChangeColor();
     }
     if (mainType === "filter") {
+        willFilter = type;
+        startFilter();
     }
     if (mainType === "shape") {
         shape = type as shape;
@@ -2663,9 +2669,6 @@ fabricCanvas.on("mouse:up", (options) => {
 
     if (newFilterSelecting) {
         newFilterSelect(newFilterO, fabricCanvas.getPointer(options.e));
-        newFilterSelecting = false;
-        (<HTMLInputElement>(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b"))).checked = false;
-        fabricCanvas.defaultCursor = "auto";
         getFilters();
         hisPush();
         hotkeys.setScope("normal");
@@ -2673,10 +2676,10 @@ fabricCanvas.on("mouse:up", (options) => {
         if (willFilter) {
             const i = filtetMap[willFilter];
             if (i.key) {
-                let filter = new Fabric.Image.filters[willFilter]({ [i.key]: i.value ?? 1 });
+                let filter = new Fabric.Image.filters[i.f]({ [i.key]: i.value ?? 1 });
                 applyFilter(i.i, filter);
             } else {
-                let filter = new Fabric.Image.filters[willFilter]();
+                let filter = new Fabric.Image.filters[i.f]();
                 applyFilter(i.i, filter);
             }
             getFilters();
@@ -3146,30 +3149,32 @@ const startFilter = () => {
     newFilterSelecting = true;
     fabricCanvas.defaultCursor = "crosshair";
     hotkeys.setScope("drawing_esc");
-    setEditType("filter", "");
 };
-(<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b")).oninput = startFilter;
 
-let filtetMap: { [key: string]: { i: number; key?: string; value?: number } } = {
-    Pixelate: { i: 0, key: "blocksize", value: 4 },
-    Blur: { i: 1, key: "blur", value: 0.1 },
-    Brightness: { i: 2, key: "brightness" },
-    Contrast: { i: 3, key: "contrast" },
-    Saturation: { i: 4, key: "saturation" },
-    HueRotation: { i: 5, key: "rotation" },
-    Noise: { i: 7 },
-    Invert: { i: 9 },
-    Sepia: { i: 10 },
-    BlackWhite: { i: 11 },
-    Brownie: { i: 12 },
-    Vintage: { i: 13 },
-    Kodachrome: { i: 14 },
-    Technicolor: { i: 15 },
-    Polaroid: { i: 16 },
+// todo range
+
+let filtetMap: { [key in EditType["filter"]]: { f: string; i: number; key?: string; value?: number } } = {
+    // 马赛克
+    // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
+    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: 4 },
+    blur: { f: "Blur", i: 1, key: "blur", value: 0.1 },
+    brightness: { f: "Brightness", i: 2, key: "brightness" },
+    contrast: { f: "Contrast", i: 3, key: "contrast" },
+    saturation: { f: "Saturation", i: 4, key: "saturation" },
+    hue: { f: "HueRotation", i: 5, key: "rotation" },
+    noise: { f: "Noise", i: 7 },
+    invert: { f: "Invert", i: 9 },
+    sepia: { f: "Sepia", i: 10 },
+    // 黑白
+    bw: { f: "BlackWhite", i: 11 },
+    brownie: { f: "Brownie", i: 12 },
+    vintage: { f: "Vintage", i: 13 },
+    koda: { f: "Kodachrome", i: 14 },
+    techni: { f: "Technicolor", i: 15 },
+    polaroid: { f: "Polaroid", i: 16 },
 };
 
 let willFilter = "";
-let selectedFilter = false;
 
 function applyFilter(i: number, filter) {
     var obj = fabricCanvas.getActiveObject();
@@ -3185,17 +3190,6 @@ function getFilters() {
         return;
     }
     var f = fabricCanvas.getActiveObject().filters;
-    console.log(f);
-    (<HTMLInputElement>document.querySelector("#draw_filters_pixelate > range-b")).value = String(f[0]?.blocksize || 0);
-    (<HTMLInputElement>document.querySelector("#draw_filters_blur > range-b")).value = String(f[1]?.blur * 100 || 0);
-    (<HTMLInputElement>document.querySelector("#draw_filters_brightness > range-b")).value = String(
-        f[2]?.brightness || 0
-    );
-    (<HTMLInputElement>document.querySelector("#draw_filters_contrast > range-b")).value = String(f[3]?.contrast || 0);
-    (<HTMLInputElement>document.querySelector("#draw_filters_saturation > range-b")).value = String(
-        f[4]?.saturation || 0
-    );
-    (<HTMLInputElement>document.querySelector("#draw_filters_hue > range-b")).value = String(f[5]?.rotation || 0);
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value = String(
         f[6]?.gamma[0] || 1
     );
@@ -3205,7 +3199,6 @@ function getFilters() {
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value = String(
         f[6]?.gamma[2] || 1
     );
-    (<HTMLInputElement>document.querySelector("#draw_filters_noise > range-b")).value = String(f[7]?.noise || 0);
     var gray = f[8]?.mode;
     switch (gray) {
         case "average":
@@ -3221,80 +3214,18 @@ function getFilters() {
             (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
             (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     }
-    (<HTMLInputElement>document.querySelector("#draw_filters_invert > lock-b")).checked = f[9] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_sepia > lock-b")).checked = f[10] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_bw > lock-b")).checked = f[11] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_brownie > lock-b")).checked = f[12] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_vintage > lock-b")).checked = f[13] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_koda > lock-b")).checked = f[14] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_techni > lock-b")).checked = f[15] ? true : false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_polaroid > lock-b")).checked = f[16] ? true : false;
 }
 function SHFiltersDiv(v: boolean) {
-    selectedFilter = !v;
+    // todo 检测滤镜，生成icon和range
 }
 SHFiltersDiv(true);
 
-/**
- * 设置滤镜 滑块
- * @param id 元素名
- * @param f 函数名
- * @param key 参数key
- * @param i 滤镜索引
- * @param is_z 检查值是否为0
- */
-function checkFilterRangeInput(id: string, f: string, is_z?: boolean) {
-    (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).oninput = () => {
-        const value = Number((<HTMLInputElement>document.querySelector(`#draw_filters_${id} > range-b`)).value);
-        if (!selectedFilter) {
-            willFilter = f;
-            filtetMap[f]["value"] = value;
-            startFilter();
-            return;
-        }
-        const i = filtetMap[f];
-        if (!is_z || value != 0) {
-            let filter = new Fabric.Image.filters[f]({
-                [i.key]: value,
-            });
-            applyFilter(i.i, filter);
-        } else {
-            applyFilter(i.i, null);
-        }
+for (let id in filtetMap) {
+    (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick = () => {
+        setEditType("filter", id as any);
     };
 }
 
-/**
- * 设置滤镜 选定
- * @param id 元素名
- * @param f 函数名
- * @param i 滤镜索引
- */
-function checkFilterLockInput(id: string, f: string) {
-    (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).oninput = () => {
-        if (!selectedFilter) {
-            willFilter = f;
-            startFilter();
-            return;
-        }
-        const value = (<HTMLInputElement>document.querySelector(`#draw_filters_${id} > lock-b`)).checked;
-        let filter = value ? new Fabric.Image.filters[f]() : null;
-        applyFilter(filtetMap[f].i, filter);
-    };
-}
-// 马赛克
-// 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-checkFilterRangeInput("pixelate", "Pixelate", true);
-// 模糊
-checkFilterRangeInput("blur", "Blur", true);
-// 亮度
-checkFilterRangeInput("brightness", "Brightness");
-// 对比度
-checkFilterRangeInput("contrast", "Contrast");
-// 饱和度
-checkFilterRangeInput("saturation", "Saturation");
-// 色调
-checkFilterRangeInput("hue", "HueRotation");
 // 伽马
 (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
@@ -3308,8 +3239,6 @@ checkFilterRangeInput("hue", "HueRotation");
             });
             applyFilter(6, filter);
         };
-// 噪音
-checkFilterRangeInput("noise", "Noise");
 // 灰度
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
@@ -3332,22 +3261,6 @@ checkFilterRangeInput("noise", "Noise");
         var filter = new Fabric.Image.filters.Grayscale({ mode: "luminosity" });
     applyFilter(8, filter);
 };
-// 负片
-checkFilterLockInput("invert", "Invert");
-// 棕褐色
-checkFilterLockInput("sepia", "Sepia");
-// 黑白
-checkFilterLockInput("bw", "BlackWhite");
-// 布朗尼
-checkFilterLockInput("brownie", "Brownie");
-// 老式
-checkFilterLockInput("vintage", "Vintage");
-// 柯达彩色胶片
-checkFilterLockInput("koda", "Kodachrome");
-// 特艺色彩
-checkFilterLockInput("techni", "Technicolor");
-// 宝丽来
-checkFilterLockInput("polaroid", "Polaroid");
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
 function exitFree() {
@@ -3363,8 +3276,8 @@ function exitShape() {
 }
 function exitFilter() {
     newFilterSelecting = false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_select > lock-b")).checked = false;
     fabricCanvas.defaultCursor = "auto";
+    willFilter = "";
 }
 hotkeys("esc", "drawing_esc", () => {
     exitFree();

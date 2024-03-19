@@ -228,7 +228,22 @@ type EditType = {
     select: "rect" | "free" | "draw";
     draw: "free" | "eraser" | "spray";
     shape: "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow";
-    filter: "";
+    filter:
+        | "pixelate"
+        | "blur"
+        | "brightness"
+        | "contrast"
+        | "saturation"
+        | "hue"
+        | "noise"
+        | "invert"
+        | "sepia"
+        | "bw"
+        | "brownie"
+        | "vintage"
+        | "koda"
+        | "techni"
+        | "polaroid";
 };
 
 type MainWinType = { type: "text" | "ocr" | "image" | "qr"; content: string; arg0?: string };

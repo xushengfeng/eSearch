@@ -62,7 +62,7 @@ var /** 是否开启开发模式 */ dev: boolean;
 if (process.argv.includes("-d") || import.meta.env.DEV) {
     dev = true;
 } else {
-    dev = false;
+    dev = true;
 }
 
 function mainUrl(fileName: string) {
@@ -1780,7 +1780,26 @@ var defaultSetting: setting = {
             键: "",
             副: { arrow: "", circle: "", line: "", number: "", polygon: "", polyline: "", rect: "", text: "" },
         },
-        filter: { 键: "", 副: { "": "" } },
+        filter: {
+            键: "",
+            副: {
+                pixelate: "",
+                blur: "",
+                brightness: "",
+                contrast: "",
+                saturation: "",
+                hue: "",
+                noise: "",
+                invert: "",
+                sepia: "",
+                bw: "",
+                brownie: "",
+                vintage: "",
+                koda: "",
+                techni: "",
+                polaroid: "",
+            },
+        },
     },
     其他快捷键: {
         复制颜色: "K",
@@ -1849,7 +1868,7 @@ var defaultSetting: setting = {
             select: "rect",
             draw: "free",
             shape: "rect",
-            filter: "",
+            filter: "pixelate",
         },
     },
     OCR: {
