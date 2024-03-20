@@ -1804,7 +1804,7 @@ function onlineOcr(
                     headers: {
                         "content-type": "application/x-www-form-urlencoded",
                     },
-                    body: new URLSearchParams({ image: arg, paragraph: "true" }).toString(),
+                    body: new URLSearchParams({ image: arg, paragraph: "true", cell_contents: "true" }).toString(),
                 })
                     .then((v) => v.json())
                     .then((result) => {
@@ -1814,6 +1814,21 @@ function onlineOcr(
 
         function baiduFormat(result) {
             if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
+
+            if (result.tables_result) {
+                let tables: string[] = [];
+                for (let i of result.tables_result) {
+                    let m: string[][] = [];
+                    for (let c of i.body) {
+                        if (!m[c.col_start]) m[c.col_start] = [];
+                        m[c.col_start][c.row_start] = c.words;
+                    }
+                    let body = m.map((row) => row.join("\t")).join("\n");
+                    let r = [i.header.words, body, i.footer.words];
+                    tables.push(r.flat().join("\n"));
+                }
+                return callback(null, { raw: [], text: tables.join("\n") });
+            }
 
             var outputL = [];
             if (!result.paragraphs_result) {
