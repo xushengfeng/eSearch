@@ -1167,7 +1167,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     if (list.type === "ocr") {
         editor.push(t("图片识别中……请等候"));
         ocr(list.content, list.arg0 as any, (err: Error, r: { raw: ocrResult; text: string }) => {
-            const text = r.text;
+            const text = r?.text;
             if (text) {
                 console.log(text);
 
@@ -1182,10 +1182,10 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
                 addOcrText(r.raw, 0);
                 return;
-            } else if (err) {
-                console.log(err);
+            } else {
+                console.error(err);
 
-                editor.push(t("识别错误，请打开开发者工具查看详细错误"));
+                editor.push(t("识别错误") + "\n" + err + "\n" + t("请打开开发者工具（Ctrl+Shift+I）查看详细错误"));
             }
         });
     }
@@ -1787,9 +1787,18 @@ function onlineOcr(
         )
             .then((t) => t.json())
             .then((result) => {
-                var access_token = result.access_token;
+                var access_token = result?.access_token;
                 console.log(access_token);
-                if (!access_token) return callback(JSON.stringify(result), null);
+                if (!access_token) {
+                    if (result.error) {
+                        if (result["error_description"] === "unknown client id") {
+                            return callback("API Key 错误", null);
+                        }
+                        if (result["error_description"] === "Client authentication failed")
+                            return callback("Secret Key 错误", null);
+                    }
+                    return callback(JSON.stringify(result), null);
+                }
                 fetch(`${store.get(`在线OCR.${type}.url`)}?access_token=${access_token}`, {
                     method: "POST",
                     headers: {
