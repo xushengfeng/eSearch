@@ -1846,18 +1846,19 @@ function onlineOcr(
             let output = outputL.join("\n");
             console.log(output);
             let r: ocrResult = [];
-            for (i of result.words_result) {
-                let l = (<any>i).location as { top: number; left: number; width: number; height: number };
-                r.push({
-                    box: [
-                        [l.left, l.top],
-                        [l.left + l.width, l.top],
-                        [l.left + l.width, l.top + l.height],
-                        [l.left, l.top + l.height],
-                    ],
-                    text: (<any>i).words,
-                });
-            }
+            if (result.words_result[0]?.location)
+                for (i of result.words_result) {
+                    let l = (<any>i).location as { top: number; left: number; width: number; height: number };
+                    r.push({
+                        box: [
+                            [l.left, l.top],
+                            [l.left + l.width, l.top],
+                            [l.left + l.width, l.top + l.height],
+                            [l.left, l.top + l.height],
+                        ],
+                        text: (<any>i).words,
+                    });
+                }
 
             return callback(null, { raw: r, text: output });
         }
