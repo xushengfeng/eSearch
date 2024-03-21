@@ -553,8 +553,8 @@ document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement)
     shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
 });
 var filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
-document.querySelectorAll("#draw_filters_i > div").forEach((el: HTMLInputElement) => {
-    filtersEl[el.id.replace("draw_filters_", "") as string] = el;
+document.querySelectorAll("#draw_filters_i div").forEach((el: HTMLInputElement) => {
+    if (el.id.startsWith("draw_filters_")) filtersEl[el.id.replace("draw_filters_", "") as string] = el;
 });
 var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
     select: {
@@ -2344,7 +2344,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     for (let i in drawMainEls) {
         if (i === mainType) {
             drawMainEls[mainType].classList.add(SELECT);
-            drawMainEls[mainType].innerHTML = drawSideEls[mainType][type].querySelector("img").outerHTML;
+            drawMainEls[mainType].innerHTML = drawSideEls[mainType][type].innerHTML;
         } else {
             drawMainEls[i]?.classList?.remove(SELECT);
         }
@@ -2674,9 +2674,9 @@ fabricCanvas.on("mouse:up", (options) => {
         hotkeys.setScope("normal");
 
         if (willFilter) {
-            const i = filtetMap[willFilter];
+            const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
             if (i.key) {
-                let filter = new Fabric.Image.filters[i.f]({ [i.key]: i.value ?? 1 });
+                let filter = new Fabric.Image.filters[i.f]({ [i.key]: i.value.value ?? 1 });
                 applyFilter(i.i, filter);
             } else {
                 let filter = new Fabric.Image.filters[i.f]();
@@ -3153,28 +3153,31 @@ const startFilter = () => {
 
 // todo range
 
+const filterRangeEl = document.querySelector("#draw_filters_range");
+
 let filtetMap: {
     [key in EditType["filter"]]: {
         f: string;
         i: number;
         key?: string;
         value?: {
-            default: number;
+            value: number;
             max: number;
             min?: number;
+            step?: number;
             text?: string;
         };
     };
 } = {
     // 马赛克
     // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: { default: 16, max: 20 } },
-    blur: { f: "Blur", i: 1, key: "blur", value: { default: 1, max: 500 } },
-    brightness: { f: "Brightness", i: 2, key: "brightness" },
-    contrast: { f: "Contrast", i: 3, key: "contrast" },
-    saturation: { f: "Saturation", i: 4, key: "saturation" },
-    hue: { f: "HueRotation", i: 5, key: "rotation" },
-    noise: { f: "Noise", i: 7 },
+    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: { value: 16, max: 20, text: "px" } },
+    blur: { f: "Blur", i: 1, key: "blur", value: { value: 1, max: 5, text: "%", step: 0.1 } },
+    brightness: { f: "Brightness", i: 2, key: "brightness", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    contrast: { f: "Contrast", i: 3, key: "contrast", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    saturation: { f: "Saturation", i: 4, key: "saturation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    hue: { f: "HueRotation", i: 5, key: "rotation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    noise: { f: "Noise", i: 7, value: { value: 0, max: 1000 } },
     invert: { f: "Invert", i: 9 },
     sepia: { f: "Sepia", i: 10 },
     // 黑白
@@ -3201,7 +3204,30 @@ function getFilters() {
         SHFiltersDiv(true);
         return;
     }
-    var f = fabricCanvas.getActiveObject().filters;
+    const f = fabricCanvas.getActiveObject().filters;
+
+    for (let fl of Object.values(filtetMap)) {
+        if (fl.value) {
+            if (f[fl.i]) {
+                const name = Object.keys(filtetMap).find((f) => filtetMap[f].i === fl.i);
+                filterRangeEl.innerHTML = `<range-b min="${fl.value.min || 0}" max="${fl.value.max}" value="${
+                    f[fl.i][fl.key]
+                }" text="${fl.value.text || ""}" step="${fl.value.step || 1}"></range-b>`;
+                const range = filterRangeEl.querySelector("range-b") as HTMLInputElement;
+                range.oninput = () => {
+                    const filter = new Fabric.Image.filters[fl.f]({
+                        [fl.key]: Number(range.value),
+                    });
+                    applyFilter(fl.i, filter);
+                };
+                for (let i of Object.values(drawSideEls.filter)) {
+                    i.classList.remove("filter_select");
+                }
+                drawSideEls.filter[name].classList.add("filter_select");
+            }
+        }
+    }
+
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value = String(
         f[6]?.gamma[0] || 1
     );
