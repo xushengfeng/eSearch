@@ -687,11 +687,8 @@ function runQr() {
         tool.close();
     });
 }
-// 图片编辑
-var drawing = false;
 
 function drawM(v: boolean) {
-    drawing = v;
     if (v) {
         // 绘画模式
         document.getElementById("clip_photo").style.pointerEvents = "none";
@@ -2325,8 +2322,6 @@ var Fabric;
 
 var fabricCanvas = new Fabric.Canvas("draw_photo");
 
-let nowType: keyof EditType;
-nowType = "select";
 let editType: EditType = {
     select: "rect",
     draw: "free",
@@ -2336,7 +2331,6 @@ let editType: EditType = {
 // todo 记忆
 
 function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): void {
-    nowType = mainType;
     editType[mainType] = type;
 
     const SELECT = "select";
@@ -2447,8 +2441,6 @@ const drawMainBar = document.getElementById("draw_main");
 const drawSideBar = document.getElementById("draw_side");
 showSideBar(false);
 document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
-    // (<HTMLElement>document.querySelectorAll("#draw_side > div")[index]).style.height = "0";
-    let ids = ["draw_select", "draw_free", "draw_shapes", "draw_filters", "draw_color", "draw_position", "draw_操作"];
     let sises = [1, 1, 2, 3, 1, 1, 1];
     let Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
     e.addEventListener("mouseenter", () => {
@@ -3151,8 +3143,6 @@ const startFilter = () => {
     hotkeys.setScope("drawing_esc");
 };
 
-// todo range
-
 const filterRangeEl = document.querySelector("#draw_filters_range");
 
 let filtetMap: {
@@ -3198,12 +3188,7 @@ function applyFilter(i: number, filter) {
     fabricCanvas.renderAll();
 }
 function getFilters() {
-    if (fabricCanvas.getActiveObject()?.filters !== undefined) {
-        SHFiltersDiv(false);
-    } else {
-        SHFiltersDiv(true);
-        return;
-    }
+    if (!fabricCanvas.getActiveObject()?.filters) return;
     const f = fabricCanvas.getActiveObject().filters;
 
     for (let fl of Object.values(filtetMap)) {
@@ -3253,10 +3238,6 @@ function getFilters() {
             (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
     }
 }
-function SHFiltersDiv(v: boolean) {
-    // todo 检测滤镜，生成icon和range
-}
-SHFiltersDiv(true);
 
 for (let id in filtetMap) {
     (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick = () => {
@@ -3323,38 +3304,6 @@ hotkeys("esc", "drawing_esc", () => {
     exitFilter();
     hotkeys.setScope("normal");
 });
-
-// fabric命令行
-var drawEditInputEl = <HTMLInputElement>document.querySelector("#draw_edit input");
-hotkeys("f12", "normal", () => {
-    sCenterBar("edit");
-    if (centerBarShow) {
-        drawEditInputEl.focus();
-        hotkeys("enter", "c_bar", fabricApi);
-        hotkeys("esc", "c_bar", () => {
-            sCenterBar("edit");
-        });
-    }
-});
-document.getElementById("draw_edit_run").onclick = () => {
-    fabricApi();
-};
-function fabricApi() {
-    var e = drawEditInputEl.value;
-    window["$0"] = fabricCanvas.getActiveObject();
-    if (!e.includes("$0")) {
-        e = `fabric_canvas.getActiveObject().set({${e}})`;
-    }
-    var div = document.createElement("div");
-    div.innerText = eval(e);
-    document.getElementById("draw_edit_output").appendChild(div);
-    document.getElementById("draw_edit_output").style.margin = "4px";
-    fabricCanvas.renderAll();
-}
-document.getElementById("draw_edit_clear").onclick = () => {
-    document.getElementById("draw_edit_output").innerHTML = "";
-    document.getElementById("draw_edit_output").style.margin = "";
-};
 
 var fabricClipboard;
 function fabricCopy() {
