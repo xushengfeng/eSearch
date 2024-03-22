@@ -1781,36 +1781,46 @@ function onlineOcr(
     }
 
     function baiduOcr() {
-        fetch(
-            `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
-            { method: "GET" }
-        )
-            .then((t) => t.json())
-            .then((result) => {
-                var access_token = result?.access_token;
-                console.log(access_token);
-                if (!access_token) {
-                    if (result.error) {
-                        if (result["error_description"] === "unknown client id") {
-                            return callback("API Key 错误", null);
+        if (!store.get("在线OCR.baidu.token") || store.get("在线OCR.baidu.time") < new Date().getTime())
+            fetch(
+                `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
+                { method: "GET" }
+            )
+                .then((t) => t.json())
+                .then((result) => {
+                    const access_token = result?.access_token;
+                    console.log(access_token);
+                    if (!access_token) {
+                        if (result.error) {
+                            if (result["error_description"] === "unknown client id") {
+                                return callback("API Key 错误", null);
+                            }
+                            if (result["error_description"] === "Client authentication failed")
+                                return callback("Secret Key 错误", null);
                         }
-                        if (result["error_description"] === "Client authentication failed")
-                            return callback("Secret Key 错误", null);
+                        return callback(JSON.stringify(result), null);
                     }
-                    return callback(JSON.stringify(result), null);
-                }
-                fetch(`${store.get(`在线OCR.${type}.url`)}?access_token=${access_token}`, {
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/x-www-form-urlencoded",
-                    },
-                    body: new URLSearchParams({ image: arg, paragraph: "true", cell_contents: "true" }).toString(),
-                })
-                    .then((v) => v.json())
-                    .then((result) => {
-                        baiduFormat(result);
-                    });
-            });
+                    store.set("在线OCR.baidu.token", access_token);
+                    store.set("在线OCR.baidu.time", new Date().getTime() + result.expires_in * 1000);
+                    ocrGet(access_token);
+                });
+        else {
+            ocrGet(store.get("在线OCR.baidu.token"));
+        }
+
+        function ocrGet(token: string) {
+            fetch(`${store.get(`在线OCR.${type}.url`)}?access_token=${token}`, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({ image: arg, paragraph: "true", cell_contents: "true" }).toString(),
+            })
+                .then((v) => v.json())
+                .then((result) => {
+                    baiduFormat(result);
+                });
+        }
 
         function baiduFormat(result) {
             if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);

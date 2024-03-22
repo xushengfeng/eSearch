@@ -98,6 +98,8 @@ export interface setting {
             url: string;
             id: string;
             secret: string;
+            time: number;
+            token: string;
         };
         youdao: {
             id: string;
