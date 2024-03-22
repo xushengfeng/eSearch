@@ -18,6 +18,7 @@ export default defineConfig({
                     translator: path.resolve(__dirname, "src/renderer/translator.html"),
                 },
             },
+            assetsInlineLimit: 0,
         },
     },
 });
