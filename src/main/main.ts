@@ -1774,17 +1774,26 @@ var defaultSetting: setting = {
         translate: "",
     },
     截屏编辑快捷键: {
-        select: { 键: "", 副: { rect: "", free: "", draw: "" } },
-        draw: { 键: "", 副: { free: "", eraser: "", spray: "" } },
+        select: { 键: "1", 副: { rect: "1+2", free: "1+3", draw: "1+4" } },
+        draw: { 键: "2", 副: { free: "2+3", eraser: "2+4", spray: "2+5" } },
         shape: {
-            键: "",
-            副: { arrow: "", circle: "", line: "", number: "", polygon: "", polyline: "", rect: "", text: "" },
+            键: "3",
+            副: {
+                line: "3+4",
+                circle: "3+5",
+                rect: "3+6",
+                polyline: "5",
+                polygon: "6",
+                text: "7",
+                number: "8",
+                arrow: "9",
+            },
         },
         filter: {
-            键: "",
+            键: "4",
             副: {
-                pixelate: "",
-                blur: "",
+                pixelate: "4+5",
+                blur: "4+6",
                 brightness: "",
                 contrast: "",
                 saturation: "",
