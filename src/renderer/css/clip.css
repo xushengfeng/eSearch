@@ -206,8 +206,13 @@ body {
 .draw_items > div::before,
 .draw_items > lock-b::before {
     content: attr(data-key);
-    right: 0;
-    bottom: 0;
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    background-color: var(--bar-bg);
+    border-radius: 4px;
+    backdrop-filter: var(--blur);
+    z-index: 1;
     display: var(--hotkey-show);
 }
 #draw_main > div > .icon,
