@@ -66,6 +66,10 @@ body {
     margin-bottom: 8px;
 }
 
+.active{
+    color: var(--m-color1);
+}
+
 #setting_main {
     width: calc(100% - 200px);
     margin-left: 200px;
@@ -87,6 +91,10 @@ body {
 #setting_item h2 {
     font-size: 1.8rem;
     margin-block-end: 1.2rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 1;
 }
 
 textarea {

@@ -61,6 +61,27 @@ document.getElementById("menu").onclick = (e) => {
     }
 };
 
+document.getElementById("menu").querySelector("li").classList.add("active");
+document.onscroll = () => {
+    let h1s = document.querySelectorAll("h1");
+    let i = 0;
+    h1s.forEach((h1, n) => {
+        if (h1.offsetTop <= document.documentElement.scrollTop + 100) {
+            i = n;
+        }
+    });
+    document
+        .getElementById("menu")
+        .querySelectorAll("li")
+        .forEach((li, n) => {
+            if (i === n) {
+                li.classList.add("active");
+            } else {
+                li.classList.remove("active");
+            }
+        });
+};
+
 document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
     const path = el.getAttribute("data-path");
     let value = storeGet(path);
