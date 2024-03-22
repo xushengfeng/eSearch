@@ -47,6 +47,9 @@
                 <t>搜索</t>
             </li>
             <li>
+                <t>快捷键</t>
+            </li>
+            <li>
                 <t>全局</t>
             </li>
             <li>
@@ -825,63 +828,14 @@
                 <button id="clear_cache">缓存</button>
             </div>
 
-
             <div id="setting_item">
                 <h1>
-                    <t>全局</t>
+                    <t>快捷键</t>
                 </h1>
 
-
                 <h2>
-                    <t>启动</t>
-                </h2>
-
-                <h3>
-                    <t>开机自启动</t>
-                </h3>
-                <label>
-                    <input type="checkbox" id="autostart">
-                    <t>开机自启动</t>
-                </label>
-
-                <h3>
-                    <t>启动提示</t>
-                </h3>
-                <label>
-                    <input type="checkbox" id="启动提示" data-path="启动提示">
-                    <t>启动时系统通知提示启动</t>
-                </label>
-
-
-                <h2>
-                    <t>语言</t>
-                </h2>
-
-                <button id="系统语言">
-                    <t>使用系统语言</t>
-                </button>
-                <button id="语言重启">
-                    <t>重启软件以生效</t>
-                </button>
-                <div id="语言" data-path="语言.语言">
-                    <label><input type="radio" name="语言" value="zh-HANS">简体中文</label>
-                    <label><input type="radio" name="语言" value="zh-HANT">繁体中文</label>
-                    <label><input type="radio" name="语言" value="en">English</label>
-                    <label><input type="radio" name="语言" value="ar">عربي</label>
-                    <label><input type="radio" name="语言" value="eo">Esperanto</label>
-                    <label><input type="radio" name="语言" value="es">Español</label>
-                    <label><input type="radio" name="语言" value="fr">Français</label>
-                    <label><input type="radio" name="语言" value="ru">Русский</label>
-                </div>
-
-
-                <h2>
-                    <t>快捷键</t>
-                </h2>
-
-                <h3>
                     <t>全局</t>
-                </h3>
+                </h2>
                 <div id="快捷键">
                     <div class="hotkeys">
                         <span>
@@ -911,9 +865,9 @@
                     </div>
                 </div>
 
-                <h3>
+                <h2>
                     <t>截屏</t>
-                </h3>
+                </h2>
                 <div id="hotkeys">
                     <div>
                         <t>工具栏</t>
@@ -1067,7 +1021,56 @@
                     </span>
                     <hot-keys name="复制颜色" value="" data-path="其他快捷键.复制颜色"></hot-keys>
                 </div>
+            </div>
 
+
+            <div id="setting_item">
+                <h1>
+                    <t>全局</t>
+                </h1>
+
+
+                <h2>
+                    <t>启动</t>
+                </h2>
+
+                <h3>
+                    <t>开机自启动</t>
+                </h3>
+                <label>
+                    <input type="checkbox" id="autostart">
+                    <t>开机自启动</t>
+                </label>
+
+                <h3>
+                    <t>启动提示</t>
+                </h3>
+                <label>
+                    <input type="checkbox" id="启动提示" data-path="启动提示">
+                    <t>启动时系统通知提示启动</t>
+                </label>
+
+
+                <h2>
+                    <t>语言</t>
+                </h2>
+
+                <button id="系统语言">
+                    <t>使用系统语言</t>
+                </button>
+                <button id="语言重启">
+                    <t>重启软件以生效</t>
+                </button>
+                <div id="语言" data-path="语言.语言">
+                    <label><input type="radio" name="语言" value="zh-HANS">简体中文</label>
+                    <label><input type="radio" name="语言" value="zh-HANT">繁体中文</label>
+                    <label><input type="radio" name="语言" value="en">English</label>
+                    <label><input type="radio" name="语言" value="ar">عربي</label>
+                    <label><input type="radio" name="语言" value="eo">Esperanto</label>
+                    <label><input type="radio" name="语言" value="es">Español</label>
+                    <label><input type="radio" name="语言" value="fr">Français</label>
+                    <label><input type="radio" name="语言" value="ru">Русский</label>
+                </div>
 
                 <h2>
                     <t>主搜索功能</t>
