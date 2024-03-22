@@ -1885,6 +1885,8 @@ var defaultSetting: setting = {
             url: "",
             id: "",
             secret: "",
+            time: 0,
+            token: "",
         },
         youdao: {
             id: "",
