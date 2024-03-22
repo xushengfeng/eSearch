@@ -2328,7 +2328,11 @@ let editType: EditType = {
     filter: "pixelate",
     shape: "rect",
 };
-// todo 记忆
+let editTypeRecord = store.get("图像编辑.记忆") as EditType;
+editType.select = editTypeRecord.select || editType.select;
+editType.draw = editTypeRecord.draw || editType.draw;
+editType.filter = editTypeRecord.filter || editType.filter;
+editType.shape = editTypeRecord.shape || editType.shape;
 
 function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): void {
     editType[mainType] = type;
@@ -2425,6 +2429,8 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
 
         ableChangeColor();
     }
+
+    store.set(`图像编辑.记忆.${mainType}`, type);
 }
 
 hisPush();
