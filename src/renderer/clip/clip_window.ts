@@ -322,6 +322,15 @@ document.onwheel = (e) => {
     if (longRunning) return;
 
     document.body.classList.add("editor_bg");
+
+    if (nowType === "draw" || nowType === "shape") {
+        let v = strokeWidthF.get();
+        v += e.deltaY / 50;
+        v = Math.max(1, v);
+        strokeWidthF.set(v);
+        return;
+    }
+
     if (e.ctrlKey) {
         let zz = 1 + Math.abs(e.deltaY) / 300;
         let z = e.deltaY > 0 ? zoomW / zz : zoomW * zz;
@@ -1192,6 +1201,14 @@ document.querySelector("body").onkeydown = (e) => {
         ArrowDown: "down",
         ArrowLeft: "left",
     };
+    if (nowType === "draw" || nowType === "shape") {
+        if (!o[e.key]) return;
+        let v = strokeWidthF.get();
+        v += e.key === "ArrowUp" || e.key === "ArrowRight" ? 1 : -1;
+        v = Math.max(1, v);
+        strokeWidthF.set(v);
+        return;
+    }
     let v = 1;
     if (e.ctrlKey) v = v * 5;
     if (e.shiftKey) v = v * 10;
@@ -2322,6 +2339,8 @@ var Fabric;
 
 var fabricCanvas = new Fabric.Canvas("draw_photo");
 
+let nowType: keyof EditType;
+nowType = "select";
 let editType: EditType = {
     select: "rect",
     draw: "free",
@@ -2336,6 +2355,7 @@ editType.shape = editTypeRecord.shape || editType.shape;
 
 function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): void {
     editType[mainType] = type;
+    nowType = mainType;
 
     const SELECT = "select";
 
@@ -2530,27 +2550,38 @@ function freeShadow() {
 
 function freeDrawCursor() {
     if (mode == "free" || mode == "eraser") {
-        var svgW = freeWidth,
+        let svgW = freeWidth,
             hW = svgW / 2,
             r = freeWidth / 2;
         if (svgW < 10) {
             svgW = 10;
             hW = 5;
         }
+        let svg = "";
         if (mode == "free") {
-            var svg = `<svg width="${svgW}" height="${svgW}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svgW}" y1="${hW}" y2="${hW}" stroke="#000"/><line y1="0" y2="${svgW}" x1="${hW}" x2="${hW}" stroke="#000"/><circle style="fill:${freeColor};" cx="${hW}" cy="${hW}" r="${r}"/></svg>`;
+            svg = `<svg width="${svgW}" height="${svgW}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svgW}" y1="${hW}" y2="${hW}" stroke="#000"/><line y1="0" y2="${svgW}" x1="${hW}" x2="${hW}" stroke="#000"/><circle style="fill:${freeColor};" cx="${hW}" cy="${hW}" r="${r}"/></svg>`;
         } else {
-            var svg = `<svg width="${svgW}" height="${svgW}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svgW}" y1="${hW}" y2="${hW}" stroke="#000"/><line y1="0" y2="${svgW}" x1="${hW}" x2="${hW}" stroke="#000"/><circle style="stroke-width:1;stroke:#000;fill:none" cx="${hW}" cy="${hW}" r="${r}"/></svg>`;
+            svg = `<svg width="${svgW}" height="${svgW}" xmlns="http://www.w3.org/2000/svg"><line x1="0" x2="${svgW}" y1="${hW}" y2="${hW}" stroke="#000"/><line y1="0" y2="${svgW}" x1="${hW}" x2="${hW}" stroke="#000"/><circle style="stroke-width:1;stroke:#000;fill:none" cx="${hW}" cy="${hW}" r="${r}"/></svg>`;
         }
-        var d = document.createElement("div");
+        const d = document.createElement("div");
         d.innerHTML = svg;
-        var s = new XMLSerializer().serializeToString(d.querySelector("svg"));
-        var cursorUrl = `data:image/svg+xml;base64,` + window.btoa(s);
+        const s = new XMLSerializer().serializeToString(d.querySelector("svg"));
+        const cursorUrl = `data:image/svg+xml;base64,` + window.btoa(s);
         fabricCanvas.freeDrawingCursor = `url(" ${cursorUrl} ") ${hW} ${hW}, auto`;
     } else {
         fabricCanvas.freeDrawingCursor = `auto`;
     }
 }
+
+let strokeWidthF = {
+    set: (v: number) => {
+        (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = String(v);
+        setFObjectV(null, null, Math.floor(v));
+    },
+    get: () => {
+        return Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value);
+    },
+};
 
 function freeInit() {
     let sc = store.get(`图像编辑.形状属性.${mode}.sc`);
