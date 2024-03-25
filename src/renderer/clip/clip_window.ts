@@ -2528,37 +2528,60 @@ var shadowBlur = 0;
 const drawMainBar = document.getElementById("draw_main");
 const drawSideBar = document.getElementById("draw_side");
 showSideBar(false);
-document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement & { show: boolean }, index) => {
-    let sises = [1, 1, 2, 3, 1, 1, 1];
+let willShowITime: NodeJS.Timeout;
+document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement, index) => {
     let Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
     e.addEventListener("mouseenter", () => {
-        document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement, i) => {
-            showSideBar(true);
-            if (index === i) {
-                el.style.display = "";
-                let height = Math.ceil(el.children.length / sises[index]);
-                let x = sises[index];
-                let y = height;
-                el.style.width = x * bSize + "px";
-                let left = bSize * 1;
-                if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth) left = -bSize * x;
-                drawSideBar.style.left = left + "px";
-                drawSideBar.style.top = bSize * Math.min(i, drawMainBar.children.length - y) + "px";
-                drawSideBar.style.width = bSize * x + "px";
-                drawSideBar.style.height = bSize * y + "px";
-            } else {
-                el.style.display = "none";
+        // 用于防误触，防经过时误切换
+        willShowITime = setTimeout(() => {
+            showSideBarItem(index);
+        }, 100);
+    });
+    e.addEventListener("pointerleave", () => {
+        clearTimeout(willShowITime);
+        setTimeout(() => {
+            if (!isInDrawBar()) {
+                showSideBar(false);
             }
-        });
+        }, 100);
     });
     e.addEventListener("click", () => {
         setEditType(Type[index], editType[Type[index]]);
     });
 });
 
-drawBar.onpointerleave = () => {
-    showSideBar(false);
-};
+function showSideBarItem(index: number) {
+    let sises = [1, 1, 2, 3, 1, 1, 1];
+    showSideBar(true);
+    document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement, i) => {
+        if (index === i) {
+            el.style.display = "";
+            let height = Math.ceil(el.children.length / sises[index]);
+            let x = sises[index];
+            let y = height;
+            el.style.width = x * bSize + "px";
+            let left = bSize * 1;
+            if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth) left = -bSize * x;
+            drawSideBar.style.left = left + "px";
+            drawSideBar.style.top = bSize * Math.min(i, drawMainBar.children.length - y) + "px";
+            drawSideBar.style.width = bSize * x + "px";
+            drawSideBar.style.height = bSize * y + "px";
+        } else {
+            el.style.display = "none";
+        }
+    });
+}
+document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement) => {
+    el.onpointerleave = () => {
+        setTimeout(() => {
+            if (!isInDrawBar()) showSideBar(false);
+        }, 100);
+    };
+});
+
+function isInDrawBar() {
+    return drawBar.contains(document.elementFromPoint(nowMouseE.clientX, nowMouseE.clientY));
+}
 
 function showSideBar(show: boolean) {
     if (show) {
