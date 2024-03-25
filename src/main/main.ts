@@ -836,6 +836,14 @@ function createClipWindow() {
 
     clipWindow.webContents.on("render-process-gone", (_e, d) => {
         console.log(d);
+        const id = dialog.showMessageBoxSync({
+            message: t("截屏程序崩溃，是否重启？"),
+            buttons: [t("好的"), t("取消")],
+            defaultId: 0,
+            cancelId: 1,
+            detail: JSON.stringify(d),
+        });
+        if (id === 0) reloadClip();
     });
 
     // * 监听截屏奇奇怪怪的事件
@@ -986,7 +994,7 @@ function exitFullScreen() {
 }
 
 /** 刷新（初始化）截屏窗口 */
-function reload_clip() {
+function reloadClip() {
     exitFullScreen();
     if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible()) clipWindow.reload();
 }
@@ -1152,7 +1160,7 @@ ipcMain.on("record", (_event, type, arg) => {
             break;
         case "close":
             recorder.close();
-            reload_clip();
+            reloadClip();
             break;
         case "min":
             recorder.minimize();
