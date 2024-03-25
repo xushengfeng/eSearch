@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-// In the renderer process.
+import { el } from "redom";
 const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
@@ -595,7 +595,12 @@ hotkeys.filter = (event) => {
 hotkeys.setScope("normal");
 let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
 for (let k of toolList) {
-    hotkeys(store.get(`工具快捷键.${k}`), "normal", tool[k]);
+    let key = store.get(`工具快捷键.${k}`) as string;
+    hotkeys(key, "normal", tool[k]);
+    if (k === "copy") {
+        key += " 双击";
+    }
+    document.getElementById(`tool_${k}`).setAttribute("data-key", key.trim());
 }
 let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
 for (let i in drawHotKey) {
@@ -612,6 +617,17 @@ for (let i in drawHotKey) {
     }
 }
 
+const canvasControlKey = {
+    操作_撤回: "Ctrl+Z",
+    操作_重做: "Ctrl+Y",
+    操作_复制: "Ctrl+C",
+    操作_删除: "Delete",
+};
+
+for (let k in canvasControlKey) {
+    document.getElementById(k).setAttribute("data-key", canvasControlKey[k]);
+}
+
 // alt显示快捷键
 document.addEventListener("keydown", (e) => {
     if (e.key === "Alt") {
@@ -623,6 +639,52 @@ document.addEventListener("keyup", (e) => {
         document.documentElement.style.setProperty("--hotkey-show", "none");
     }
 });
+
+const hotkeyEl = document.getElementById("hotkeys_tip");
+type hotkeyTip = { name: string; keys: string[] }[];
+const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
+    {
+        name: "画布",
+        hotkey: [
+            { name: "移动", keys: ["方向键", "wheel"] },
+            { name: "缩放", keys: ["Ctrl+wheel"] },
+        ],
+    },
+    {
+        name: "框选",
+        hotkey: [
+            { name: "全选", keys: ["Ctrl+A"] },
+            { name: "移动和调节", keys: ["按住+方向键"] },
+        ],
+    },
+    {
+        name: "数值",
+        hotkey: [
+            { name: "大", keys: ["ArrorUp"] },
+            { name: "小", keys: ["ArrorDown"] },
+            { name: "取消更改", keys: ["RightKey"] },
+        ],
+    },
+    {
+        name: "取色器",
+        hotkey: [
+            { name: "展示所有颜色格式", keys: ["RightKey"] },
+            { name: "复制颜色", keys: [store.get("其他快捷键.复制颜色")] },
+        ],
+    },
+    { name: "快捷键", hotkey: [{ name: "展示", keys: ["Alt"] }] },
+];
+
+for (let m of hotkeyTipX) {
+    hotkeyEl.append(el("h2", m.name));
+    for (let k of m.hotkey) {
+        const x = el("div", el("span", k.name));
+        for (let s of k.keys) {
+            x.append(el("span", s));
+        }
+        hotkeyEl.append(x);
+    }
+}
 
 var autoDo = store.get("框选后默认操作");
 if (autoDo != "no") {

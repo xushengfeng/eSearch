@@ -2,9 +2,6 @@
     --hover-color: var(--bar-hover-color) !important;
     --hotkey-show: none;
 }
-::-webkit-scrollbar {
-    display: none;
-}
 html {
     cursor: none;
 }
@@ -54,48 +51,29 @@ body {
 .suffix_h {
     background-color: var(--hover-color);
 }
-/* 命令 */
-#draw_edit {
-    display: grid;
-    grid-template-columns: auto 36px;
-    grid-template-rows: 36px auto;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
-}
-#draw_edit > input {
-    border: none;
-    height: 36px;
-    padding: 0;
-    margin: 0 4px;
-    background-color: #0000;
-    width: 300px;
-    font-size: 1rem;
-}
-#draw_edit_run,
-#draw_edit_clear {
-    border: none;
+/* 快捷键 */
+#hotkeys_tip {
+    display: var(--hotkey-show);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-height: 400px;
+    overflow: scroll;
+    z-index: 111;
+    background-color: var(--bar-bg);
+    backdrop-filter: var(--blur);
     transition: var(--transition);
-    border-radius: 6px;
-    width: 36px;
-    height: 36px;
-    font-size: 36px;
-    padding: 0;
-    background-color: #0000;
-    flex-shrink: 0;
-    position: relative;
+    padding: 8px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
 }
-#draw_edit_run > .icon,
-#draw_edit_clear > .icon {
-    width: 36px;
-    left: 0;
-    top: 0;
+#hotkeys_tip > div {
+    display: flex;
+    gap: 4px;
 }
-#draw_edit_run:hover,
-#draw_edit_clear:hover {
-    background-color: var(--hover-color);
-}
-#draw_edit_output {
-    grid-area: 2 / 1 / 3 / 4;
+#hotkeys_tip > div > :first-child {
+    flex-grow: 1;
 }
 
 /* 工具 */
@@ -173,6 +151,21 @@ body {
     color: var(--color);
 }
 
+#tool_bar > div::before,
+#draw_main > div::before,
+.draw_items > div::before,
+.draw_items > lock-b::before {
+    content: attr(data-key);
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    background-color: var(--bar-bg);
+    border-radius: 4px;
+    backdrop-filter: var(--blur);
+    z-index: 1;
+    display: var(--hotkey-show);
+}
+
 /* 画 */
 .select {
     background-color: var(--hover-color);
@@ -201,19 +194,6 @@ body {
     border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
     position: relative;
-}
-#draw_main > div::before,
-.draw_items > div::before,
-.draw_items > lock-b::before {
-    content: attr(data-key);
-    position: absolute;
-    right: 2px;
-    bottom: 2px;
-    background-color: var(--bar-bg);
-    border-radius: 4px;
-    backdrop-filter: var(--blur);
-    z-index: 1;
-    display: var(--hotkey-show);
 }
 #draw_main > div > .icon,
 .draw_items > div > .icon,
