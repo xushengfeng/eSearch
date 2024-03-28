@@ -1030,7 +1030,7 @@ document.getElementById("version").onclick = () => {
                         shell.openExternal(r.html_url);
                     };
                     for (let a of r.assets) {
-                        if (a.name == "app") {
+                        if (a.name === `app-${process.platform}-${process.arch}`) {
                             let el = document.createElement("span");
                             el.innerText = "增量更新";
                             tagEl.after(el);

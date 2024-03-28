@@ -35,6 +35,7 @@
         "xtranslator": "^1.0.6"
     },
     "devDependencies": {
+        "archiver": "^7.0.1",
         "@types/color": "^3.0.3",
         "@types/diff-match-patch": "^1.0.34",
         "@types/node": "^18.8.4",

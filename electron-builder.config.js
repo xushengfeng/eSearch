@@ -1,3 +1,7 @@
+const fs = require("fs");
+const path = require("path");
+const archiver = require("archiver");
+
 var arch = (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.arch) == "arm64" ? ["arm64"] : ["x64"];
 /**
  * @type import("electron-builder").Configuration
@@ -108,6 +112,27 @@ let build = {
     nsis: {
         oneClick: false,
         allowToChangeInstallationDirectory: true,
+    },
+    afterPack: async (c) => {
+        const appPath = path.join(c.appOutDir, "resources/app");
+
+        const outputFilePath = path.join(c.outDir, `app-${process.platform}-${process.arch}`);
+
+        const output = fs.createWriteStream(outputFilePath);
+        const archive = archiver("zip", {
+            zlib: { level: 9 },
+        });
+
+        archive.pipe(output);
+        archive.directory(appPath, false);
+        archive.finalize();
+
+        return new Promise((rj) => {
+            output.on("close", () => {
+                console.log("生成核心包");
+                rj();
+            });
+        });
     },
 };
 
