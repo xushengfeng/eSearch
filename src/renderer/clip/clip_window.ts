@@ -153,9 +153,6 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
             document.body.style.opacity = "";
         }
         screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
-
-        if (i.bounds.width < window.innerWidth || i.bounds.height < window.innerHeight)
-            document.body.classList.add("editor_bg");
     }
     const screensEl = document.getElementById("tool_screens");
     if (allScreens.length > 1) {
@@ -268,6 +265,8 @@ function setScreen(i: (typeof allScreens)[0]) {
         } // 记忆框选边不为0时
     drawClipRect();
     nowScreenId = i.id;
+
+    if (w < window.innerWidth || h < window.innerHeight) document.body.classList.add("editor_bg");
 }
 
 /** 生成一个文件名 */
