@@ -136,4 +136,13 @@ let build = {
     },
 };
 
+let onnxFilter = arch[0] === "arm64" ? "x64" : "arm64";
+if (process.platform === "linux") {
+    build.linux.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/linux/${onnxFilter}`);
+} else if (process.platform === "win32") {
+    build.win.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/win32/${onnxFilter}`);
+} else if (process.platform === "darwin") {
+    build.mac.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/darwin/${onnxFilter}`);
+}
+
 module.exports = build;
