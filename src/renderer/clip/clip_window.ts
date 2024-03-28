@@ -708,7 +708,6 @@ function closeWin() {
     }
     setTimeout(() => {
         ipcRenderer.send("clip_main_b", "window-close");
-        location.reload();
     }, 50);
 }
 

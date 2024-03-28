@@ -991,6 +991,7 @@ function sendCaptureEvent(
 function exitFullScreen() {
     clipWindow.setSimpleFullScreen(false);
     clipWindow.hide();
+    clipWindow.reload();
 }
 
 /** 刷新（初始化）截屏窗口 */
