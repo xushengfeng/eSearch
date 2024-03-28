@@ -134,6 +134,8 @@ function dispaly2screen(displays: Electron.Display[], screens: import("node-scre
     }
 }
 
+document.body.style.opacity = "0";
+
 setSetting();
 ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act) => {
     if (!_displays.find((i) => i["main"])) {
@@ -148,6 +150,7 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
             setEditorP(1 / i.scaleFactor, 0, 0);
             zoomW = i.size.width;
             ratio = i.scaleFactor;
+            document.body.style.opacity = "";
         }
         screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
