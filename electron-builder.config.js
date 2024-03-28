@@ -83,6 +83,9 @@ let build = {
             },
         ],
     },
+    dmg: {
+        writeUpdateInfo: false,
+    },
     win: {
         icon: "./assets/logo/icon.ico",
         target: [
@@ -112,6 +115,7 @@ let build = {
     nsis: {
         oneClick: false,
         allowToChangeInstallationDirectory: true,
+        differentialPackage: false,
     },
     afterPack: async (c) => {
         const appPath = path.join(c.appOutDir, "resources/app");
