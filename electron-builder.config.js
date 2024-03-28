@@ -12,7 +12,6 @@ let build = {
     directories: {
         output: "build",
     },
-    compression: "maximum",
     icon: "./assets/logo",
     electronDownload: {
         mirror: "https://npmmirror.com/mirrors/electron/",
