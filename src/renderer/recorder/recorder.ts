@@ -446,7 +446,10 @@ async function initSeg() {
     }
     segEl.append(cameraCanvas, bgEl, segCanvas);
     seg = require("esearch-seg");
-    await seg.init({ segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx") });
+    await seg.init({
+        segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx"),
+        ort: require("onnxruntime-node"),
+    });
     drawCamera();
     segEl.style.width = `${video.videoWidth}px`;
     segEl.style.height = `${video.videoHeight}px`;
