@@ -818,6 +818,8 @@ function initRecord() {
     tool.close();
 }
 
+let lastLong = 0;
+
 function long_s() {
     let s = allScreens.find((i) => i.id === nowScreenId);
     let x = nativeImage.createFromBuffer(s.captureSync());
@@ -852,10 +854,18 @@ function startLong() {
     uIOhook = require("uiohook-napi").uIOhook;
     uIOhook.start();
     uIOhook.on("keyup", () => {
-        long_s();
+        const n = new Date().getTime();
+        if (n - lastLong > 400) {
+            lastLong = n;
+            long_s();
+        }
     });
     uIOhook.on("wheel", () => {
-        long_s();
+        const n = new Date().getTime();
+        if (n - lastLong > 500) {
+            lastLong = n;
+            long_s();
+        }
     });
 }
 
