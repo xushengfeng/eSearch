@@ -1221,7 +1221,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             setDefaultSetting();
             var resolve = await dialog.showMessageBox({
                 title: t("重启"),
-                message: `${t("已恢复默认设置，部分设置需要重启")} ${app.name} ${t("生效")}`,
+                message: `${t("已恢复默认设置，部分设置需要重启$1生效").replace("$1", ` ${app.name} `)}`,
                 buttons: [t("重启"), t("稍后")],
                 defaultId: 0,
                 cancelId: 1,

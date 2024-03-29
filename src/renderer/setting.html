@@ -1160,29 +1160,34 @@
                 </h2>
 
                 <div id="代理" data-path="代理.mode">
-                    <label><input type="radio" name="代理" value="system">系统代理</label>
-                    <label><input type="radio" name="代理" value="fixed_servers">固定服务器</label>
-                    <label><input type="radio" name="代理" value="pac_script">PAC脚本</label>
-                    <label><input type="radio" name="代理" value="auto_detect">自动检测</label>
-                    <label><input type="radio" name="代理" value="direct">无代理</label>
+                    <label><input type="radio" name="代理" value="system">
+                        <t>系统代理</t>
+                    </label>
+                    <label><input type="radio" name="代理" value="fixed_servers">
+                        <t>固定服务器</t>
+                    </label>
+                    <label><input type="radio" name="代理" value="pac_script">
+                        <t>PAC脚本</t>
+                    </label>
+                    <label><input type="radio" name="代理" value="auto_detect">
+                        <t>自动检测</t>
+                    </label>
+                    <label><input type="radio" name="代理" value="direct">
+                        <t>无代理</t>
+                    </label>
                 </div>
                 </br>
                 <div id="pacScript_p">
-                    <t>PAC URL：</t>
-                    <input type="text" spellcheck="false" id="pacScript" data-path="代理.pacScript">
+                    PAC URL：<input type="text" spellcheck="false" id="pacScript" data-path="代理.pacScript">
                 </div>
                 <div id="proxyRules_p">
-                    <t>HTTP：</t>
-                    <input type="text" spellcheck="false" id="proxy_http">
+                    HTTP：<input type="text" spellcheck="false" id="proxy_http">
                     <br>
-                    <t>HTTPS：</t>
-                    <input type="text" spellcheck="false" id="proxy_https">
+                    HTTPS：<input type="text" spellcheck="false" id="proxy_https">
                     <br>
-                    <t>FTP：</t>
-                    <input type="text" spellcheck="false" id="proxy_ftp">
+                    FTP：<input type="text" spellcheck="false" id="proxy_ftp">
                     <br>
-                    <t>SOCKS：</t>
-                    <input type="text" spellcheck="false" id="proxy_socks">
+                    SOCKS：<input type="text" spellcheck="false" id="proxy_socks">
                 </div>
                 <div id="proxyBypassRules_p">
                     <t>排除规则：</t>
