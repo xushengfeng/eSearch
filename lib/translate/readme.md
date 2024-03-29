@@ -17,8 +17,15 @@ node -l en -w
 
 编辑 edit
 
+> [!TIP]
+> AI prompt：以下是 csv 文件，把第二列翻译成 en 并复制到第三列
+
 保存 save:
 
 ```shell
 node -i en.csv
 ```
+
+只有在 source.json 里定义的文字才能被翻译。如果找不到需要翻译的文字，那可能是我没针对某些页面进行国际化，请在 issue 上提交 bug，指明需要国际化位置
+
+Only words defined in source.json can be translated. If you can't find the text that needs to be translated, it may be that I have not internationalized some pages. Please submit bug on issue to indicate the location where you need to be internationalized.
