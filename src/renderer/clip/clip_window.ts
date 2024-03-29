@@ -3087,9 +3087,10 @@ function colorBar() {
     for (let i = 0; i < 360; i += 15) {
         colorList.push(baseColor.rotate(i).string());
     }
+    let isNext = false;
     showColor();
     // 下一层级
-    function nextColor(h) {
+    function nextColor(h: string) {
         let nextColorList = [];
         if (h === "hsl(0, 0%, 100%)") {
             for (let i = 0; i < 25; i++) {
@@ -3097,10 +3098,10 @@ function colorBar() {
                 nextColorList.push(`hsl(0, 0%, ${x}%)`);
             }
         } else {
-            h = h.match(/hsl\(([0-9]*)/)[1] - 0;
+            let _h = Number(h.match(/hsl\(([0-9]*)/)[1]);
             for (let i = 90; i > 0; i -= 20) {
                 for (let j = 100; j > 0; j -= 20) {
-                    nextColorList.push(`hsl(${h}, ${j}%, ${i}%)`);
+                    nextColorList.push(`hsl(${_h}, ${j}%, ${i}%)`);
                 }
             }
         }
@@ -3112,45 +3113,40 @@ function colorBar() {
             )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = tt;
-        document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, _index) => {
-            el.onmousedown = (event) => {
-                if (event.button == 0) {
-                    cColor(el);
-                } else {
-                    // 回到主盘
-                    showColor();
-                }
-            };
-        });
         nextColorList = tt = null;
     }
     function showColor() {
-        var t = "";
-        for (let x of colorList) {
+        let t = "";
+        for (let i in colorList) {
+            const x = colorList[i];
             t += `<div class="color_i" style="background-color: ${x}" title="${colorConversion(
                 x,
                 取色器默认格式
-            )}"></div>`;
+            )}" data-i="${i}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = t;
-        document.querySelectorAll("#draw_color_color > div").forEach((el: HTMLElement, index) => {
-            el.onmousedown = (event) => {
-                if (event.button == 0) {
-                    cColor(el);
-                } else {
-                    // 下一层级
-                    nextColor(colorList[index]);
-                }
-            };
-        });
         t = null;
     }
     // 事件
-    function cColor(el) {
+    function cColor(el: HTMLElement) {
         changeColor({ [colorM]: el.style.backgroundColor }, true, true);
-        if (colorM == "fill") colorAlphaInput1.value = "100";
-        if (colorM == "stroke") colorAlphaInput2.value = "100";
+        if (colorM === "fill") colorAlphaInput1.value = "100";
+        if (colorM === "stroke") colorAlphaInput2.value = "100";
     }
+    document.getElementById("draw_color_color").onpointerdown = (e) => {
+        const el = e.target as HTMLElement;
+        if (e.button === 0) {
+            cColor(el);
+        } else {
+            isNext = !isNext;
+            if (isNext) {
+                const index = Number(el.getAttribute("data-i"));
+                nextColor(colorList[index]);
+            } else {
+                showColor();
+            }
+        }
+    };
 }
 colorBar();
 
