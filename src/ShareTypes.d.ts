@@ -179,7 +179,7 @@ export interface setting {
                 模糊: number;
                 imgUrl: string;
                 videoUrl: string;
-                fit: "contain";
+                fit: "cover" | "fit";
             };
         };
         音频: {

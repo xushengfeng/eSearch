@@ -2001,7 +2001,7 @@ var defaultSetting: setting = {
                 模糊: 40,
                 imgUrl: "",
                 videoUrl: "",
-                fit: "contain",
+                fit: "cover",
             },
         },
         音频: {
