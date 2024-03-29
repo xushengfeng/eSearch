@@ -1,6 +1,81 @@
 const fs = require("fs");
 const path = require("path");
 const archiver = require("archiver");
+const { execSync } = require("child_process");
+const download = require("download");
+
+const beforePack = async function () {
+    if (!fs.existsSync("./ocr/ppocr/默认")) {
+        fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
+        await download(
+            "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip",
+            "./ocr/ppocr/默认/",
+            {
+                extract: true,
+                rejectUnauthorized: false,
+            }
+        );
+    }
+    if (!fs.existsSync("./assets/onnx/seg")) {
+        fs.mkdirSync("./assets/onnx/seg", { recursive: true });
+        await download(
+            "https://github.com/xushengfeng/eSearch-seg/releases/download/1.0.0/seg.onnx",
+            "./assets/onnx/seg/",
+            { rejectUnauthorized: false }
+        );
+    }
+    const arch = process.env["npm_config_arch"] || process.arch;
+    if (process.platform === "win32" && !fs.existsSync("./lib/win_rect.exe")) {
+        fs.writeFileSync(
+            "./lib/win_rect.exe",
+            await download("https://github.com/xushengfeng/win_rect/releases/download/0.1.0/win_rect.exe", {
+                rejectUnauthorized: false,
+            })
+        );
+    }
+    if (process.platform === "win32" && !fs.existsSync("./lib/copy.exe")) {
+        fs.writeFileSync(
+            "./lib/copy.exe",
+            await download("https://github.com/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe", {
+                rejectUnauthorized: false,
+            })
+        );
+    }
+    if (!fs.existsSync("./lib/ffmpeg")) {
+        const winpath = "ffmpeg-n6.1-latest-win64-gpl-6.1";
+        let o = {
+            win32: {
+                x64: `https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${winpath}.zip`,
+            },
+            darwin: {
+                x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip",
+                arm64: "https://www.osxexperts.net/ffmpeg6arm.zip",
+            },
+        };
+        if (o?.[process.platform]?.[arch]) {
+            fs.mkdirSync("./lib/ffmpeg");
+            await download(o[process.platform][process.arch], "./lib/ffmpeg/", {
+                extract: true,
+                rejectUnauthorized: false,
+            });
+            if (process.platform === "win32") {
+                fs.copyFileSync(
+                    path.join("./lib/ffmpeg/", winpath, "bin", "ffmpeg.exe"),
+                    path.join("./lib/ffmpeg/", "ffmpeg.exe")
+                );
+                fs.rmSync(path.join("./lib/ffmpeg/", winpath), { recursive: true });
+            }
+        }
+    }
+    if (process.platform === "win32" && arch === "arm64") {
+        execSync("npm i node-screenshots-win32-arm64-msvc");
+        execSync("npm uninstall node-screenshots-win32-x64-msvc");
+    }
+    if (process.platform === "darwin" && arch === "arm64") {
+        execSync("npm i node-screenshots-darwin-arm64");
+        execSync("npm uninstall node-screenshots-darwin-x64");
+    }
+};
 
 var arch = (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.arch) == "arm64" ? ["arm64"] : ["x64"];
 /**
@@ -36,7 +111,7 @@ let build = {
     ],
     asar: false,
     artifactName: "${productName}-${version}-${platform}-" + arch[0] + ".${ext}",
-    beforePack: "./before_pack.js",
+    beforePack: beforePack,
     linux: {
         category: "Utility",
         target: ["tar.gz", "deb", "rpm", "AppImage"],
