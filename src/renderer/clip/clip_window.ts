@@ -2514,6 +2514,8 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     }
 
     store.set(`图像编辑.记忆.${mainType}`, type);
+
+    setOnlyStroke(mainType === "draw" || (mainType === "shape" && ["line"].includes(type)));
 }
 
 hisPush();
@@ -3062,6 +3064,18 @@ function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text
         if (text) {
             document.getElementById(`draw_color_${colorM}`).innerText = Color(color).hexa();
         }
+    }
+}
+
+/** 主编辑栏的属性预览显示为描边 */
+function setOnlyStroke(b: boolean) {
+    const el = <HTMLDivElement>document.querySelector("#draw_color > div");
+    if (b) {
+        el.style.width = "0";
+        el.style.rotate = "45deg";
+    } else {
+        el.style.width = "";
+        el.style.rotate = "";
     }
 }
 
