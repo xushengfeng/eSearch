@@ -3082,18 +3082,19 @@ function setOnlyStroke(b: boolean) {
 // 色盘
 function colorBar() {
     // 主盘
-    var colorList = ["hsl(0, 0%, 100%)"];
-    var baseColor = Color("hsl(0, 100%, 50%)");
+    const colorList = ["hsl(0, 0%, 100%)"];
+    const baseColor = Color("hsl(0, 100%, 50%)");
     for (let i = 0; i < 360; i += 15) {
         colorList.push(baseColor.rotate(i).string());
     }
     showColor();
     // 下一层级
     function nextColor(h) {
-        var nextColorList = [];
-        if (h == "hsl(0, 0%, 100%)") {
-            for (let i = 255; i >= 0; i = Number((i - 10.625).toFixed(3))) {
-                nextColorList.push(`rgb(${i}, ${i}, ${i})`);
+        let nextColorList = [];
+        if (h === "hsl(0, 0%, 100%)") {
+            for (let i = 0; i < 25; i++) {
+                const x = (100 / 24) * (24 - i);
+                nextColorList.push(`hsl(0, 0%, ${x}%)`);
             }
         } else {
             h = h.match(/hsl\(([0-9]*)/)[1] - 0;
@@ -3103,7 +3104,7 @@ function colorBar() {
                 }
             }
         }
-        var tt = "";
+        let tt = "";
         for (let n in nextColorList) {
             tt += `<div class="color_i" style="background-color: ${nextColorList[n]}" title="${colorConversion(
                 nextColorList[n],

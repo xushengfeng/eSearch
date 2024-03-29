@@ -478,7 +478,7 @@ range-b {
     height: var(--bar-size);
 }
 #draw_color_color {
-    overflow: scroll;
+    overflow: hidden;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
 }
