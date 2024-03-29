@@ -923,6 +923,8 @@ function addLong(x: Buffer, w: number, h: number) {
 var longRunning = false;
 var longInited = false;
 
+const finishLongB = document.getElementById("long_finish");
+
 const lr = document.getElementById("long_rect");
 function initLong(rect: number[]) {
     longRunning = true;
@@ -952,7 +954,20 @@ function initLong(rect: number[]) {
     lr.style.top = rect[1] / ratio + "px";
     lr.style.width = rect[2] / ratio + "px";
     lr.style.height = rect[3] / ratio + "px";
-    document.getElementById("long_finish").onclick = () => {
+    const w = 16;
+    let right = 0,
+        botton = 0;
+    if ((rect[2] + rect[3]) / ratio + w > window.innerHeight) {
+        if ((rect[0] + rect[2]) / ratio + w > window.innerWidth) {
+        } else {
+            right = -w;
+        }
+    } else {
+        botton = -w;
+    }
+    finishLongB.style.right = right + "px";
+    finishLongB.style.bottom = botton + "px";
+    finishLongB.onclick = () => {
         // 再截屏以覆盖结束按钮
         long_s();
 
@@ -967,6 +982,16 @@ function initLong(rect: number[]) {
     showLoading("截屏拼接中");
     mainCanvas.style.filter = "blur(20px)";
 }
+
+ipcRenderer.on("clip", (_event, type, mouse) => {
+    if (type === "mouse") {
+        let x = mouse.x;
+        let y = mouse.y;
+        let el = document.elementsFromPoint(x, y);
+        if (longRunning) ipcRenderer.send("clip_main_b", "ignore_mouse", !el.includes(finishLongB));
+        else ipcRenderer.send("clip_main_b", "ignore_mouse", false);
+    }
+});
 
 function pjLong() {
     let l = logO.l,

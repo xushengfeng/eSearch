@@ -922,9 +922,10 @@ function createClipWindow() {
             case "long_s":
                 // n_full_screen();
                 isLongStart = true;
-                longWin(arg);
+                longWin();
                 break;
             case "long_e":
+                clipWindow.setIgnoreMouseEvents(false);
                 isLongStart = false;
                 break;
             case "new_version":
@@ -943,6 +944,9 @@ function createClipWindow() {
                 break;
             case "translate":
                 createTranslator(arg);
+                break;
+            case "ignore_mouse":
+                clipWindow.setIgnoreMouseEvents(arg);
                 break;
         }
     });
@@ -1282,7 +1286,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
 
 var isLongStart = false;
 
-function longWin(rect) {
+function longWin() {
     clipWindow.setIgnoreMouseEvents(true);
     function mouse() {
         if (!isLongStart) {
@@ -1291,17 +1295,8 @@ function longWin(rect) {
         }
         if (clipWindow.isDestroyed()) return;
         let nowXY = screen.getCursorScreenPoint();
-        let ratio = screen.getPrimaryDisplay().scaleFactor;
-        if (
-            rect[0] + rect[2] - 16 <= nowXY.x * ratio &&
-            nowXY.x * ratio <= rect[0] + rect[2] &&
-            rect[1] + rect[3] - 16 <= nowXY.y * ratio &&
-            nowXY.y * ratio <= rect[1] + rect[3]
-        ) {
-            clipWindow.setIgnoreMouseEvents(false);
-        } else {
-            clipWindow.setIgnoreMouseEvents(true);
-        }
+        let tipB = clipWindow.getBounds();
+        clipWindow.webContents.send("clip", "mouse", { x: nowXY.x - tipB.x, y: nowXY.y - tipB.y });
         setTimeout(mouse, 10);
     }
     mouse();
