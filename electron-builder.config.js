@@ -4,6 +4,9 @@ const archiver = require("archiver");
 const { execSync } = require("child_process");
 const download = require("download");
 
+const arch =
+    (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.arch) === "arm64" ? ["arm64"] : ["x64"];
+
 const beforePack = async function () {
     if (!fs.existsSync("./ocr/ppocr/默认")) {
         fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
@@ -24,7 +27,6 @@ const beforePack = async function () {
             { rejectUnauthorized: false }
         );
     }
-    const arch = process.env["npm_config_arch"] || process.arch;
     if (process.platform === "win32" && !fs.existsSync("./lib/win_rect.exe")) {
         fs.writeFileSync(
             "./lib/win_rect.exe",
@@ -77,7 +79,6 @@ const beforePack = async function () {
     }
 };
 
-var arch = (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.arch) == "arm64" ? ["arm64"] : ["x64"];
 /**
  * @type import("electron-builder").Configuration
  */
