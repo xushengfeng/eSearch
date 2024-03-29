@@ -28,7 +28,7 @@ const runPath = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
-import { t, lan } from "../../lib/translate/translate";
+import { t, lan, getLans } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
 import url from "node:url";
 
@@ -2043,7 +2043,7 @@ try {
 function setDefaultSetting() {
     for (let i in defaultSetting) {
         if (i === "语言") {
-            const supportLan = ["zh-HANS", "zh-HANT", "ar", "en", "eo", "es", "fr", "ru"];
+            const supportLan = getLans();
             let lan = app.getLocale();
             let mainLan = lan.split("-")[0];
             if (mainLan === "zh") {
