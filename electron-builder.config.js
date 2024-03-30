@@ -195,7 +195,7 @@ let build = {
     afterPack: async (c) => {
         const appPath = path.join(c.appOutDir, "resources/app");
 
-        const outputFilePath = path.join(c.outDir, `app-${process.platform}-${process.arch}`);
+        const outputFilePath = path.join(c.outDir, `app-${process.platform}-${arch[0]}`);
 
         const output = fs.createWriteStream(outputFilePath);
         const archive = archiver("zip", {
