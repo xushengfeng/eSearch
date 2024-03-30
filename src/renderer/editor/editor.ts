@@ -1197,7 +1197,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             img.src = list.content;
             const result = await qr.scan(img);
             const text = result.text;
-            showT(text);
+            showT(text || "");
         });
     }
 });
