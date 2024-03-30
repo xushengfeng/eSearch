@@ -843,7 +843,7 @@ function createClipWindow() {
             cancelId: 1,
             detail: JSON.stringify(d),
         });
-        if (id === 0) reloadClip();
+        if (id === 0) exitFullScreen();
     });
 
     // * 监听截屏奇奇怪怪的事件
@@ -873,8 +873,8 @@ function createClipWindow() {
                     });
                 break;
             case "save":
-                var savedPath = store.get("保存.保存路径.图片") || "";
-                exitFullScreen();
+                const savedPath = store.get("保存.保存路径.图片") || "";
+                exitFullScreen(true);
                 dialog
                     .showSaveDialog({
                         title: t("选择要保存的位置"),
@@ -899,7 +899,7 @@ function createClipWindow() {
                 createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
             case "mac_app":
-                exitFullScreen();
+                exitFullScreen(true);
                 dialog
                     .showOpenDialog({
                         defaultPath: "/Applications",
@@ -992,16 +992,13 @@ function sendCaptureEvent(
 }
 
 /** 隐藏截屏窗口 */
-function exitFullScreen() {
+function exitFullScreen(xreload?: boolean) {
     clipWindow.setSimpleFullScreen(false);
     clipWindow.hide();
-    clipWindow.reload();
-}
-
-/** 刷新（初始化）截屏窗口 */
-function reloadClip() {
-    exitFullScreen();
-    if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible()) clipWindow.reload();
+    if (!xreload)
+        try {
+            clipWindow.reload();
+        } catch {}
 }
 
 function ocr(arg) {
@@ -1165,7 +1162,6 @@ ipcMain.on("record", (_event, type, arg) => {
             break;
         case "close":
             recorder.close();
-            reloadClip();
             break;
         case "min":
             recorder.minimize();

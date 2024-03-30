@@ -499,9 +499,7 @@ function sCenterBar(m) {
     if (m === false) centerBarShow = false;
     if (centerBarShow) {
         document.getElementById("save_type").style.height = "0";
-        document.getElementById("draw_edit").style.height = "0";
         document.getElementById("save_type").style.width = "0";
-        document.getElementById("draw_edit").style.width = "0";
         document.getElementById("center_bar").style.opacity = "1";
         document.getElementById("center_bar").style.pointerEvents = "auto";
         if (hotkeys.getScope() != "all") bScope = hotkeys.getScope();
@@ -515,10 +513,6 @@ function sCenterBar(m) {
         case "save":
             document.getElementById("save_type").style.height = "";
             document.getElementById("save_type").style.width = "";
-            break;
-        case "edit":
-            document.getElementById("draw_edit").style.height = "";
-            document.getElementById("draw_edit").style.width = "";
             break;
     }
 }
@@ -583,14 +577,13 @@ var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLEleme
 };
 
 hotkeys.filter = (event) => {
-    var tagName = (<HTMLElement>(event.target || event.srcElement)).tagName;
-    var v =
-        !(
-            (<HTMLElement>event.target).isContentEditable ||
-            tagName == "INPUT" ||
-            tagName == "SELECT" ||
-            tagName == "TEXTAREA"
-        ) || event.target === document.querySelector("#draw_edit input");
+    const tagName = (<HTMLElement>event.target).tagName;
+    const v = !(
+        (<HTMLElement>event.target).isContentEditable ||
+        tagName === "INPUT" ||
+        tagName === "SELECT" ||
+        tagName === "TEXTAREA"
+    );
     return v;
 };
 

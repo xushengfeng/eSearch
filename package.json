@@ -17,6 +17,7 @@
     "homepage": "https://github.com/xushengfeng/eSearch/",
     "license": "GPL-3.0",
     "dependencies": {
+        "@techstark/opencv-js": "4.9.0-release.3",
         "color": "^4.2.3",
         "diff-match-patch": "^1.0.5",
         "download": "^8.0.0",
