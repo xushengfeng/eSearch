@@ -847,11 +847,7 @@ function startLong() {
     uIOhook = require("uiohook-napi").uIOhook;
     uIOhook.start();
     uIOhook.on("keyup", () => {
-        const n = new Date().getTime();
-        if (n - lastLong > 400) {
-            lastLong = n;
-            long_s();
-        }
+        long_s();
     });
     uIOhook.on("wheel", () => {
         const n = new Date().getTime();
