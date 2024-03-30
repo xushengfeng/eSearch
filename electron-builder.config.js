@@ -117,14 +117,10 @@ let build = {
         category: "Utility",
         target: ["tar.gz", "deb", "rpm", "AppImage"],
         files: [
-            "!.vscode",
-            "!.github",
             "!assets/logo/icon.icns",
             "!assets/logo/icon.ico",
-            "!src",
             "!node_modules/onnxruntime-node/bin/napi-v3/win32",
             "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
-            "!node_modules/onnxruntime-web",
         ],
     },
     deb: {
@@ -137,15 +133,11 @@ let build = {
         files: [
             "!lib/gtk-open-with",
             "!lib/kde-open-with",
-            "!.vscode",
-            "!.github",
             "!assets/logo/1024x1024.png",
             "!assets/logo/512x512.png",
             "!assets/logo/icon.ico",
-            "!src",
             "!node_modules/onnxruntime-node/bin/napi-v3/win32",
             "!node_modules/onnxruntime-node/bin/napi-v3/linux",
-            "!node_modules/onnxruntime-web",
         ],
         target: [
             {
@@ -176,15 +168,11 @@ let build = {
         files: [
             "!lib/gtk-open-with",
             "!lib/kde-open-with",
-            "!.vscode",
-            "!.github",
             "!assets/logo/icon.icns",
             "!assets/logo/1024x1024.png",
             "!assets/logo/512x512.png",
-            "!src",
             "!node_modules/onnxruntime-node/bin/napi-v3/linux",
             "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
-            "!node_modules/onnxruntime-web",
         ],
     },
     nsis: {
@@ -232,6 +220,12 @@ if (process.platform === "linux") {
     build.win.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/win32/${onnxFilter}`);
 } else if (process.platform === "darwin") {
     build.mac.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/darwin/${onnxFilter}`);
+}
+
+for (let i of ["!src", "!node_modules/qr-scanner-wechat", "!lib/fabric.min.js"]) {
+    build.win.files.push(i);
+    build.linux.files.push(i);
+    build.mac.files.push(i);
 }
 
 module.exports = build;
