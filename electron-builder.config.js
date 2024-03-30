@@ -193,7 +193,10 @@ let build = {
         differentialPackage: false,
     },
     afterPack: async (c) => {
-        const appPath = path.join(c.appOutDir, "resources/app");
+        const appPath = path.join(
+            c.appOutDir,
+            process.platform === "darwin" ? "e-search.app/Contents/Resources/app" : "resources/app"
+        );
 
         const outputFilePath = path.join(c.outDir, `app-${process.platform}-${arch[0]}`);
 
