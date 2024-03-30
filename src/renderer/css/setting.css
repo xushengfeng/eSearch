@@ -457,6 +457,7 @@ comment {
 #update_info > div > div {
     display: flex;
     gap: 8px;
+    align-items: center;
 }
 #update_info > div > div > span {
     padding: 4px;

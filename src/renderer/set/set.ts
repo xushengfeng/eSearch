@@ -7,6 +7,7 @@ import "../../../lib/template2.js";
 const { shell, ipcRenderer } = require("electron") as typeof import("electron");
 const os = require("os") as typeof import("os");
 const fs = require("fs") as typeof import("fs");
+import { el } from "redom";
 import close_svg from "../assets/icons/close.svg";
 
 type RangeEl = HTMLElement & { value: number };
@@ -1031,26 +1032,33 @@ document.getElementById("version").onclick = () => {
                     };
                     for (let a of r.assets) {
                         if (a.name === `app-${process.platform}-${process.arch}`) {
-                            let el = document.createElement("span");
-                            el.innerText = "增量更新";
-                            tagEl.after(el);
-                            el.onclick = async () => {
+                            let xel = el("span");
+                            xel.innerText = t("增量更新");
+                            tagEl.after(xel);
+                            xel.onclick = async () => {
+                                xel.innerHTML = "";
+                                let pro = el("progress");
+                                let text = el("span");
+                                xel.append(pro, text);
                                 download(a.browser_download_url, path.join(__dirname, "../../../"), {
                                     extract: true,
                                     rejectUnauthorized: false,
                                 })
                                     .on("response", (res) => {
                                         let total = Number(res.headers["content-length"]);
+                                        let now = 0;
                                         res.on("data", (data) => {
-                                            let now = Number(data.length);
-                                            el.innerText = `${(now / total) * 100}%`;
-                                            if (now == total) {
-                                                el.innerText = t("正在覆盖中，稍后你可以重启软件以获取更新");
-                                            }
+                                            now += Number(data.length);
+                                            const percent = now / total;
+                                            text.innerText = `${(percent * 100).toFixed(2)}%`;
+                                            pro.value = percent;
+                                        });
+                                        res.on("end", () => {
+                                            xel.innerText = t("正在更新中");
                                         });
                                     })
                                     .then(() => {
-                                        el.innerText = t("覆盖完毕");
+                                        xel.innerText = t("更新完毕，你可以重启软件");
                                     });
                             };
                         }

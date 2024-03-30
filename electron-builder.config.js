@@ -198,6 +198,13 @@ let build = {
             process.platform === "darwin" ? "e-search.app/Contents/Resources/app" : "resources/app"
         );
 
+        const appDir = path.join(c.outDir, "app");
+        fs.cpSync(appPath, appDir, { recursive: true });
+        let ignoreDir = ["node_modules", "ocr"];
+        for (let i of ignoreDir) {
+            fs.rmdirSync(path.join(appDir, i), { recursive: true });
+        }
+
         const outputFilePath = path.join(c.outDir, `app-${process.platform}-${arch[0]}`);
 
         const output = fs.createWriteStream(outputFilePath);
@@ -206,7 +213,7 @@ let build = {
         });
 
         archive.pipe(output);
-        archive.directory(appPath, false);
+        archive.directory(appDir, "app");
         archive.finalize();
 
         return new Promise((rj) => {
