@@ -179,6 +179,8 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 大多数按钮使用图标，简少了不必要的翻译
 
+[添加新语言](./lib/translate/readme.md)
+
 -   [x] 简体中文
 -   [x] 繁体中文
 -   [x] 世界语
