@@ -4,15 +4,15 @@
 Create a csv, specify an existing language for editing or specify a new language
 
 > [!TIP]
-> 若要翻译未翻译的文字，可以添加`-w`输出部分 csv，程序会自动合并，你只需关心翻译。若要修改已翻译的文字，则不能添加`-w`。
+> 选项`-a`用于输出全部文字。如果你发现原来的翻译存在不足，需要修改，请使用这一选项。如果你需要跟进翻译，即 eSearch 的某些文字已经修改，但翻译未修改，请不使用这一选项
 >
-> To translate untranslated text, you can add the `- w` output part csv, the program will automatically merge, you only need to care about the translation. If you want to modify translated text, you cannot add `- w`.
+> The option `- a` is used to output all text. If you find that the original translation is inadequate and need to be modified, please use this option. If you need to follow up on the translation, that is, some text in eSearch has been modified, but the translation has not been modified, please do not use this option
 
 ```shell
 node -l en
 # en.csv
 # 或 or
-node -l en -w
+node -l en -a
 ```
 
 编辑 edit
@@ -32,6 +32,6 @@ Only words defined in source.json can be translated. If you can't find the text 
 
 ## 标记翻译进度
 
-`tool.js`定义了 srcCommit，借助 git 的 diff 功能，来方便地了解需要翻译什么内容。翻译完某个 id 后，将其添加到对应语言的`finishiId`，再次输出 csv 时，将忽略他，这样可以专注与未翻译/修改的翻译。如果全部翻译完，请把 srcCommit 的`id`改为当前提交的 commit id，并清空`finishiId`
+`tool.js`定义了 srcCommit，借助 git 的 diff 功能，来方便地了解需要翻译什么内容。翻译完某个 id 后，将其添加到对应语言的`finishId`，再次输出 csv 时，将忽略他，这样可以专注与未翻译/修改的翻译。如果全部翻译完，请把 srcCommit 的`id`改为当前提交的 commit id，并清空`finishId`
 
 `tool.js` defines srcCommit. With the diff feature of git, you can easily understand what needs to be translated. After translating an id, add it to the `finishiId` of the corresponding language, and ignore it when you output csv again, so that you can focus on the untranslated / modified translation. If you have finished the translation, please change the `id` of srcCommit to the currently submitted commit id and clear `finishiId`
