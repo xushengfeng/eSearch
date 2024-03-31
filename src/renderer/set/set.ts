@@ -13,7 +13,7 @@ import close_svg from "../assets/icons/close.svg";
 type RangeEl = HTMLElement & { value: number };
 
 let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
-import { t, lan } from "../../../lib/translate/translate";
+import { t, lan, getLans, getLanName } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 document.body.innerHTML = document.body.innerHTML
     .replace(/\{(.*?)\}/g, (_m, v) => t(v))
@@ -140,31 +140,48 @@ function setRadio(el: HTMLElement, value: string) {
         el.querySelector(`input[type=radio]`)
     ).checked = true;
 }
-setRadio(document.getElementById("语言"), old_store.语言.语言);
-document.getElementById("系统语言").onclick = () => {
-    if (navigator.language.split("-")[0] == "zh") {
-        setRadio(
-            document.getElementById("语言"),
+
+let lans: string[] = getLans();
+function getSystemLan() {
+    const sysL = navigator.language;
+    if (sysL.split("-")[0] === "zh") {
+        return (
             {
                 "zh-CN": "zh-HANS",
                 "zh-SG": "zh-HANS",
                 "zh-TW": "zh-HANT",
-                "zh-HK": "zh-HANT",
-            }[navigator.language]
+            }[sysL] || "zh-HANS"
         );
     } else {
-        setRadio(document.getElementById("语言"), navigator.language.split("-")[0]);
+        if (lans.includes(sysL)) return sysL;
+        else if (lans.includes(sysL.split("-")[0])) return sysL.split("-")[0];
+        else return "zh-HANS";
     }
-    lan(getRadio(document.getElementById("语言")));
+}
+const systemLan = getSystemLan();
+
+lans = [systemLan].concat(lans.filter((v) => v != systemLan));
+
+const lanEl = document.getElementById("语言");
+for (let i of lans) {
+    lanEl.append(el("label", el("input", { type: "radio", name: "语言", value: i }), getLanName(i)));
+}
+
+setRadio(lanEl, old_store.语言.语言);
+const systemLanEl = document.getElementById("系统语言");
+systemLanEl.innerText = t("使用系统语言", systemLan);
+systemLanEl.onclick = () => {
+    setRadio(lanEl, systemLan);
+    lan(getRadio(lanEl));
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
-document.getElementById("语言").onclick = () => {
-    lan(getRadio(document.getElementById("语言")));
+lanEl.onclick = () => {
+    lan(getRadio(lanEl));
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 
 document.getElementById("语言重启").onclick = () => {
-    xstore.语言["语言"] = getRadio(document.getElementById("语言"));
+    xstore.语言["语言"] = getRadio(lanEl);
     saveSetting();
     ipcRenderer.send("setting", "reload");
 };
