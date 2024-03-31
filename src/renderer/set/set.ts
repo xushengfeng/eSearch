@@ -165,6 +165,7 @@ document.getElementById("语言").onclick = () => {
 
 document.getElementById("语言重启").onclick = () => {
     xstore.语言["语言"] = getRadio(document.getElementById("语言"));
+    saveSetting();
     ipcRenderer.send("setting", "reload");
 };
 
