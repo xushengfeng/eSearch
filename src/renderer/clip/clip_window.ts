@@ -1702,26 +1702,22 @@ const whX1 = el("input");
 const whY1 = el("input");
 const whW = el("input");
 const whH = el("input");
-if (四角坐标) {
-    whEl.append(el("div", whX0, ", ", whY0), el("div", whX1, ", ", whY1));
-}
-whEl.append(el("div", whW, " × ", whH));
+const whXYStyle = { style: { display: 四角坐标 ? "block" : "none" } };
+whEl.append(el("div", whXYStyle, whX0, ", ", whY0), el("div", whXYStyle, whX1, ", ", whY1), el("div", whW, " × ", whH));
 
 // 大小栏
 function whBar(finalRect: rect) {
     // 大小文字
-    if (四角坐标) {
-        let x0: number, y0: number, x1: number, y1: number, d: number;
-        d = 光标 === "以(1,1)为起点" ? 1 : 0;
-        x0 = finalRect[0] + d;
-        y0 = finalRect[1] + d;
-        x1 = finalRect[0] + d + finalRect[2];
-        y1 = finalRect[1] + d + finalRect[3];
-        whX0.value = String(x0);
-        whY0.value = String(y0);
-        whX1.value = String(x1);
-        whY1.value = String(y1);
-    }
+    let x0: number, y0: number, x1: number, y1: number, d: number;
+    d = 光标 === "以(1,1)为起点" ? 1 : 0;
+    x0 = finalRect[0] + d;
+    y0 = finalRect[1] + d;
+    x1 = finalRect[0] + d + finalRect[2];
+    y1 = finalRect[1] + d + finalRect[3];
+    whX0.value = String(x0);
+    whY0.value = String(y0);
+    whX1.value = String(x1);
+    whY1.value = String(y1);
     whW.value = String(finalRect[2]);
     whH.value = String(finalRect[3]);
     checkWhBarWidth();
