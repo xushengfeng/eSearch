@@ -14,6 +14,14 @@ export interface setting {
     点击托盘自动截图: boolean;
     工具快捷键: { [key in 功能]: string };
     截屏编辑快捷键: { [key in keyof EditType]: { 键: string; 副: { [key1 in EditType[key]]: string } } };
+    大小栏快捷键: {
+        左上x: string;
+        左上y: string;
+        右下x: string;
+        右下y: string;
+        宽: string;
+        高: string;
+    };
     其他快捷键: {
         复制颜色: string;
     };

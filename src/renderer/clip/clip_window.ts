@@ -1705,6 +1705,23 @@ const whH = el("input");
 const whXYStyle = { style: { display: 四角坐标 ? "block" : "none" } };
 whEl.append(el("div", whXYStyle, whX0, ", ", whY0), el("div", whXYStyle, whX1, ", ", whY1), el("div", whW, " × ", whH));
 
+const whHotKeyMap = {
+    左上x: whX0,
+    左上y: whY0,
+    右下x: whX1,
+    右下y: whY1,
+    宽: whW,
+    高: whH,
+};
+
+const whHotkey = store.get("大小栏快捷键");
+for (let i in whHotkey) {
+    if (whHotkey[i])
+        hotkeys(whHotkey[i], { keyup: true, keydown: false }, () => {
+            whHotKeyMap[i].focus();
+        });
+}
+
 // 大小栏
 function whBar(finalRect: rect) {
     // 大小文字

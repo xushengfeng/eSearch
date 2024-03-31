@@ -710,6 +710,7 @@ let hotkeysEl = [
     document.getElementById("select_hotkey"),
     document.getElementById("draw_hotkey"),
     document.getElementById("shape_hotkey"),
+    document.getElementById("wh_hotkey"),
     document.getElementById("other_hotkey"),
 ];
 const hotkeysSelectEl = document.getElementById("hotkeys");
