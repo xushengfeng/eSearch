@@ -352,17 +352,16 @@ body {
     box-shadow: var(--shadow);
     display: flex;
 }
-#clip_wh > div:focus {
-    outline: none;
-}
 #clip_wh > div {
-    cursor: text;
     margin: 8px;
     font-family: var(--monospace);
 }
-#x0y0,
-#x1y1 {
-    display: none;
+#clip_wh > div > input {
+    outline: none;
+    border: none;
+    cursor: text;
+    font-family: var(--monospace);
+    font-size: 1rem;
 }
 
 #loading {

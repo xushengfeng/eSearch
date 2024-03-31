@@ -1696,22 +1696,35 @@ hotkeys("s", () => {
 });
 
 var whEl = document.getElementById("clip_wh");
+const whX0 = el("input");
+const whY0 = el("input");
+const whX1 = el("input");
+const whY1 = el("input");
+const whW = el("input");
+const whH = el("input");
+if (四角坐标) {
+    whEl.append(el("div", whX0, ", ", whY0), el("div", whX1, ", ", whY1));
+}
+whEl.append(el("div", whW, " × ", whH));
+
 // 大小栏
 function whBar(finalRect: rect) {
     // 大小文字
     if (四角坐标) {
-        var x0, y0, x1, y1, d;
-        d = 光标 == "以(1,1)为起点" ? 1 : 0;
+        let x0: number, y0: number, x1: number, y1: number, d: number;
+        d = 光标 === "以(1,1)为起点" ? 1 : 0;
         x0 = finalRect[0] + d;
         y0 = finalRect[1] + d;
         x1 = finalRect[0] + d + finalRect[2];
         y1 = finalRect[1] + d + finalRect[3];
-        document.getElementById("x0y0").style.display = "block";
-        document.getElementById("x1y1").style.display = "block";
-        document.getElementById("x0y0").innerHTML = `${x0}, ${y0}`;
-        document.getElementById("x1y1").innerHTML = `${x1}, ${y1}`;
+        whX0.value = String(x0);
+        whY0.value = String(y0);
+        whX1.value = String(x1);
+        whY1.value = String(y1);
     }
-    document.querySelector("#wh").innerHTML = `${finalRect[2]} × ${finalRect[3]}`;
+    whW.value = String(finalRect[2]);
+    whH.value = String(finalRect[3]);
+    checkWhBarWidth();
     // 位置
     let zx = (finalRect[0] + editorP.x) * editorP.zoom,
         zy = (finalRect[1] + editorP.y) * editorP.zoom,
@@ -1752,68 +1765,66 @@ function whBar(finalRect: rect) {
     whEl.style.top = `${y}px`;
 }
 
-/**
- * 更改x0y0 x1y1 wh
- * @param {string} arg 要改的位置
- */
-function 更改大小栏(arg: string) {
-    var l = document.querySelector(`#${arg}`).innerHTML.split(/[,×]/);
-    l = l.map((string) => {
-        // 排除（数字运算符空格）之外的非法输入
-        if (string.match(/[\d\+\-*/\.\s\(\)]/g).length != string.length) return null;
-        return eval(string);
-    });
-    var d = 光标 == "以(1,1)为起点" ? 1 : 0;
-    if (l != null) {
-        switch (arg) {
-            case "x0y0":
-                finalRect[0] = Number(l[0]) - d;
-                finalRect[1] = Number(l[1]) - d;
-                break;
-            case "x1y1":
-                finalRect[0] = Number(l[0]) - finalRect[2] - d;
-                finalRect[1] = Number(l[1]) - finalRect[3] - d;
-                break;
-            case "wh":
-                finalRect[2] = Number(l[0]);
-                finalRect[3] = Number(l[1]);
-                break;
+function checkWhBarWidth() {
+    whX0.style.width = whX0.value.length + "ch";
+    whY0.style.width = whY0.value.length + "ch";
+    whX1.style.width = whX1.value.length + "ch";
+    whY1.style.width = whY1.value.length + "ch";
+    whW.style.width = whW.value.length + "ch";
+    whH.style.width = whH.value.length + "ch";
+}
+
+let whL = [whX0, whY0, whX1, whY1, whW, whH];
+whL.forEach((el) => {
+    el.oninput = checkWhBarWidth;
+    el.onchange = () => {
+        let l = whL.map((i) => i.value);
+        l = l.map((string) => {
+            // 排除（数字运算符空格）之外的非法输入
+            if (string.match(/[\d\+\-*/\.\s\(\)]/g).length != string.length) return null;
+            return eval(string);
+        });
+
+        if (l.includes(null)) {
+            whBar(finalRect);
+            return;
+        }
+
+        const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+        if (el === whX0 || el === whY0) {
+            finalRect[0] = Number(l[0]) - d;
+            finalRect[1] = Number(l[1]) - d;
+        } else if (el === whX1 || el === whY1) {
+            finalRect[0] = Number(l[2]) - finalRect[2] - d;
+            finalRect[1] = Number(l[3]) - finalRect[3] - d;
+        } else {
+            finalRect[2] = Number(l[4]);
+            finalRect[3] = Number(l[5]);
         }
         finalRectFix();
         hisPush();
         drawClipRect();
         followBar();
-    } else {
-        var innerHTML = null;
-        switch (arg) {
-            case "x0y0":
-                innerHTML = `${finalRect[0] + d}, ${finalRect[1] + d}`;
-                break;
-            case "x1y1":
-                innerHTML = `${finalRect[0] + d + finalRect[2]}, ${finalRect[1] + d + finalRect[3]}`;
-                break;
-            case "wh":
-                innerHTML = `${finalRect[2]} × ${finalRect[3]}`;
-                break;
+    };
+    el.onkeydown = (e) => {
+        if (e.key === "ArrowRight" && el.value.length === el.selectionEnd) {
+            e.preventDefault();
+            const next = whL[whL.indexOf(el) + 1];
+            if (next) {
+                next.selectionStart = next.selectionEnd = 0;
+                next.focus();
+            }
         }
-        document.querySelector(`#${arg}`).innerHTML = innerHTML;
-    }
-}
-whEl.onkeydown = (e) => {
-    if (e.key == "Enter") {
-        e.preventDefault();
-        更改大小栏((<HTMLElement>e.target).id);
-    }
-};
-document.getElementById("x0y0").onblur = () => {
-    更改大小栏("x0y0");
-};
-document.getElementById("x1y1").onblur = () => {
-    更改大小栏("x1y1");
-};
-document.getElementById("wh").onblur = () => {
-    更改大小栏("wh");
-};
+        if (e.key === "ArrowLeft" && 0 === el.selectionStart) {
+            e.preventDefault();
+            const last = whL[whL.indexOf(el) - 1];
+            if (last) {
+                last.selectionStart = last.selectionEnd = last.value.length;
+                last.focus();
+            }
+        }
+    };
+});
 
 // 快捷键全屏选择
 hotkeys("ctrl+a, command+a", () => {
