@@ -704,16 +704,9 @@ document.getElementById("clear_his").onclick = () => {
 
 (<HTMLInputElement>document.getElementById("时间格式")).value = old_store.时间格式;
 
-let hotkeysEl = [
-    document.getElementById("tool_hotkey"),
-    document.getElementById("edit_bar_hotkey"),
-    document.getElementById("select_hotkey"),
-    document.getElementById("draw_hotkey"),
-    document.getElementById("shape_hotkey"),
-    document.getElementById("wh_hotkey"),
-    document.getElementById("other_hotkey"),
-];
 const hotkeysSelectEl = document.getElementById("hotkeys");
+const hotkeysContentEl = document.getElementById("hotkeys_content");
+let hotkeysEl = hotkeysContentEl.children as unknown as HTMLElement[];
 for (let i = 0; i < hotkeysSelectEl.childElementCount; i++) {
     (hotkeysSelectEl.children[i] as HTMLElement).onclick = () => {
         selectHotkey(i);
@@ -724,7 +717,7 @@ selectHotkey(0);
 
 function selectHotkey(i: number) {
     for (let j = 0; j < hotkeysEl.length; j++) {
-        if (j === i) hotkeysEl[j].style.display = "block";
+        if (j === i) hotkeysEl[j].style.display = "";
         else hotkeysEl[j].style.display = "none";
     }
 }

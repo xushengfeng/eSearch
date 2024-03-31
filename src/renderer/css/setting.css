@@ -340,20 +340,18 @@ comment {
     opacity: 0.6;
 }
 
-.hotkeys {
+:is(.hotkeys, #hotkeys_content > div) {
     display: grid;
-    grid-template-columns: 1fr 4fr;
+    grid-template-columns: auto 1fr;
     gap: 8px 16px;
 }
-.hotkeys > span {
+:is(.hotkeys, #hotkeys_content > div) > span {
     text-align: right;
-    position: relative;
 }
-.hotkeys > span .icon {
-    left: auto;
-    right: 0;
-    width: 24px;
+:is(.hotkeys, #hotkeys_content > div) > span .icon {
+    width: 32px;
     display: block;
+    position: initial;
 }
 
 #hotkeys {
