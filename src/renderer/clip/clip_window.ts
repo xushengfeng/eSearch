@@ -1775,36 +1775,39 @@ function checkWhBarWidth() {
 }
 
 let whL = [whX0, whY0, whX1, whY1, whW, whH];
+function changeWH(el: HTMLElement) {
+    let l = whL.map((i) => i.value);
+    l = l.map((string) => {
+        // 排除（数字运算符空格）之外的非法输入
+        if (string.match(/[\d\+\-*/\.\s\(\)]/g).length != string.length) return null;
+        return eval(string);
+    });
+
+    if (l.includes(null)) {
+        whBar(finalRect);
+        return;
+    }
+
+    const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+    if (el === whX0 || el === whY0) {
+        finalRect[0] = Number(l[0]) - d;
+        finalRect[1] = Number(l[1]) - d;
+    } else if (el === whX1 || el === whY1) {
+        finalRect[0] = Number(l[2]) - finalRect[2] - d;
+        finalRect[1] = Number(l[3]) - finalRect[3] - d;
+    } else {
+        finalRect[2] = Number(l[4]);
+        finalRect[3] = Number(l[5]);
+    }
+    finalRectFix();
+    hisPush();
+    drawClipRect();
+    followBar();
+}
 whL.forEach((el) => {
     el.oninput = checkWhBarWidth;
     el.onchange = () => {
-        let l = whL.map((i) => i.value);
-        l = l.map((string) => {
-            // 排除（数字运算符空格）之外的非法输入
-            if (string.match(/[\d\+\-*/\.\s\(\)]/g).length != string.length) return null;
-            return eval(string);
-        });
-
-        if (l.includes(null)) {
-            whBar(finalRect);
-            return;
-        }
-
-        const d = 光标 === "以(1,1)为起点" ? 1 : 0;
-        if (el === whX0 || el === whY0) {
-            finalRect[0] = Number(l[0]) - d;
-            finalRect[1] = Number(l[1]) - d;
-        } else if (el === whX1 || el === whY1) {
-            finalRect[0] = Number(l[2]) - finalRect[2] - d;
-            finalRect[1] = Number(l[3]) - finalRect[3] - d;
-        } else {
-            finalRect[2] = Number(l[4]);
-            finalRect[3] = Number(l[5]);
-        }
-        finalRectFix();
-        hisPush();
-        drawClipRect();
-        followBar();
+        changeWH(el);
     };
     el.onkeydown = (e) => {
         if (e.key === "ArrowRight" && el.value.length === el.selectionEnd) {
@@ -1822,6 +1825,19 @@ whL.forEach((el) => {
                 last.selectionStart = last.selectionEnd = last.value.length;
                 last.focus();
             }
+        }
+        if (e.key === "ArrowUp" && !isNaN(Number(el.value))) {
+            e.preventDefault();
+            el.value = String(Number(el.value) + 1);
+            changeWH(el);
+        }
+        if (e.key === "ArrowDown" && !isNaN(Number(el.value))) {
+            e.preventDefault();
+            el.value = String(Number(el.value) - 1);
+            changeWH(el);
+        }
+        if (e.key === "Escape") {
+            el.blur();
         }
     };
 });
