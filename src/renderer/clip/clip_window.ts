@@ -650,6 +650,8 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
         hotkey: [
             { name: "全选", keys: ["Ctrl+A"] },
             { name: "移动和调节", keys: ["按住+方向键"] },
+            { name: "×5", keys: ["+Ctrl+"] },
+            { name: "×10", keys: ["+Shift+"] },
             { name: "左上x", keys: [store.get("大小栏快捷键.左上x")] },
             { name: "左上y", keys: [store.get("大小栏快捷键.左上y")] },
             { name: "右下x", keys: [store.get("大小栏快捷键.右下x")] },
@@ -1812,8 +1814,8 @@ function changeWH(el: HTMLElement) {
         finalRect[0] = Number(l[0]) - d;
         finalRect[1] = Number(l[1]) - d;
     } else if (el === whX1 || el === whY1) {
-        finalRect[0] = Number(l[2]) - finalRect[2] - d;
-        finalRect[1] = Number(l[3]) - finalRect[3] - d;
+        finalRect[2] = Number(l[2]) - finalRect[0] - d;
+        finalRect[3] = Number(l[3]) - finalRect[1] - d;
     } else {
         finalRect[2] = Number(l[4]);
         finalRect[3] = Number(l[5]);
@@ -1845,14 +1847,17 @@ whL.forEach((el) => {
                 last.focus();
             }
         }
+        let v = 1;
+        if (e.ctrlKey) v = v * 5;
+        if (e.shiftKey) v = v * 10;
         if (e.key === "ArrowUp" && !isNaN(Number(el.value))) {
             e.preventDefault();
-            el.value = String(Number(el.value) + 1);
+            el.value = String(Number(el.value) + 1 * v);
             changeWH(el);
         }
         if (e.key === "ArrowDown" && !isNaN(Number(el.value))) {
             e.preventDefault();
-            el.value = String(Number(el.value) - 1);
+            el.value = String(Number(el.value) - 1 * v);
             changeWH(el);
         }
         if (e.key === "Escape") {
