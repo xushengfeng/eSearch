@@ -650,6 +650,12 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
         hotkey: [
             { name: "全选", keys: ["Ctrl+A"] },
             { name: "移动和调节", keys: ["按住+方向键"] },
+            { name: "左上x", keys: [store.get("大小栏快捷键.左上x")] },
+            { name: "左上y", keys: [store.get("大小栏快捷键.左上y")] },
+            { name: "右下x", keys: [store.get("大小栏快捷键.右下x")] },
+            { name: "右下y", keys: [store.get("大小栏快捷键.右下y")] },
+            { name: "宽", keys: [store.get("大小栏快捷键.宽")] },
+            { name: "高", keys: [store.get("大小栏快捷键.高")] },
         ],
     },
     {
