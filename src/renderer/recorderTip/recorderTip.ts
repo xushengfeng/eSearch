@@ -1,6 +1,7 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { execSync } = require("child_process") as typeof import("child_process");
 import { el } from "redom";
+import { jsKeyCodeDisplay } from "../../../lib/key";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -12,6 +13,8 @@ var store = new Store({
 const recorderMouseEl = document.getElementById("mouse_c");
 
 initRecord();
+
+window["x"] = jsKeyCodeDisplay;
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
@@ -25,129 +28,25 @@ function initRecord() {
         }
         console.log(keycode2key);
 
-        const map: {
-            [k: string]: {
-                primary?: string;
-                secondary?: string;
-                symble?: string;
-                isRight?: boolean;
-                isNumpad?: boolean;
-            };
-        } = {
-            Backspace: { symble: "⌫" },
-            Tab: { symble: "⇥" },
-            Enter: { symble: "⏎" },
-            Shift: { symble: "⇧" },
-            Ctrl: { symble: "⌃" },
-            Alt: { symble: "⌥" },
-            Meta: { symble: "⊞" },
-            Escape: { primary: "Esc", symble: "⎋" },
-            CapsLock: { symble: "⇪" },
-            Space: { symble: "␣" },
-
-            ArrowLeft: { primary: "←" },
-            ArrowUp: { primary: "↑" },
-            ArrowRight: { primary: "→" },
-            ArrowDown: { primary: "↓" },
-
-            Semicolon: { primary: ";", secondary: ":" },
-            Equal: { primary: "=", secondary: "+" },
-            Comma: { primary: ",", secondary: "<" },
-            Minus: { primary: "-", secondary: "_" },
-            Period: { primary: ".", secondary: ">" },
-            Slash: { primary: "/", secondary: "?" },
-            Backquote: { primary: "`", secondary: "~" },
-            BracketLeft: { primary: "[", secondary: "{" },
-            Backslash: { primary: "\\", secondary: "|" },
-            BracketRight: { primary: "]", secondary: "}" },
-            Quote: { primary: '"', secondary: "'" },
-
-            1: { secondary: "!" },
-            2: { secondary: "@" },
-            3: { secondary: "#" },
-            4: { secondary: "$" },
-            5: { secondary: "%" },
-            6: { secondary: "^" },
-            7: { secondary: "&" },
-            8: { secondary: "*" },
-            9: { secondary: "(" },
-            0: { secondary: ")" },
-
-            Multiply: { primary: "*" },
-            Add: { primary: "+" },
-            Subtract: { primary: "-" },
-            Decimal: { primary: "." },
-            Divide: { primary: "/" },
+        const map: { [k: string]: string } = {
+            Ctrl: "Control",
+            CtrlRight: "ControlRight",
         };
 
-        for (let k of ["CtrlRight", "AltRight", "ShiftRight", "MetaRight"]) {
-            const mainKey = k.replace("Right", "");
-            map[k] = { ...map[mainKey], isRight: true, primary: mainKey };
+        for (var i = 0; i < 25; i++) {
+            const k = String.fromCharCode(65 + i);
+            map[k] = `Key${k}`;
         }
-        const numPad = [
-            "Numpad0",
-            "Numpad1",
-            "Numpad2",
-            "Numpad3",
-            "Numpad4",
-            "Numpad5",
-            "Numpad6",
-            "Numpad7",
-            "Numpad8",
-            "Numpad9",
-            "NumpadMultiply",
-            "NumpadAdd",
-            "NumpadSubtract",
-            "NumpadDecimal",
-            "NumpadDivide",
-            "NumpadEnd",
-            "NumpadArrowDown",
-            "NumpadPageDown",
-            "NumpadArrowLeft",
-            "NumpadArrowRight",
-            "NumpadHome",
-            "NumpadArrowUp",
-            "NumpadPageUp",
-            "NumpadInsert",
-            "NumpadDelete",
-        ];
-
-        for (let key of numPad) {
-            const mainKey = key.replace("Numpad", "");
-            map[key] = { primary: map[mainKey]?.primary ?? mainKey, isNumpad: true };
-        }
-
-        const macMap: typeof map = {
-            Ctrl: { primary: "Control" },
-            Alt: { primary: "Option" },
-            Meta: { primary: "Command", symble: "⌘" },
-            Enter: { primary: "Return" },
-        };
-
-        if (process.platform === "darwin")
-            for (let k in macMap) {
-                Object.assign(map[k], macMap[k]);
-            }
 
         function getKey(keycode: number) {
-            let right = false;
-            let numpad = false;
-
             let key = keycode2key[keycode] as string;
-            if (["CtrlRight", "AltRight", "ShiftRight", "MetaRight"].includes(key)) {
-                key = key.replace("Right", "");
-                right = true;
-            }
 
-            if (numPad.includes(key)) {
-                key = key.replace("Numpad", "");
-                numpad = true;
-            }
+            let keyDisplay = jsKeyCodeDisplay(map[key] || key);
 
-            let mainKey = map[key]?.primary ?? key;
-            let topKey = map[key]?.secondary ?? map[key]?.symble ?? "";
-            if (numpad) topKey = "";
-            return { main: mainKey, top: topKey, numpad: numpad, right: right };
+            let mainKey = keyDisplay.primary ?? key;
+            let topKey = keyDisplay?.secondary ?? keyDisplay?.symble ?? "";
+            if (keyDisplay.isNum) topKey = "";
+            return { main: mainKey, top: topKey, numpad: keyDisplay.isNumpad, right: keyDisplay.isRight };
         }
 
         let keyO: number[] = [];

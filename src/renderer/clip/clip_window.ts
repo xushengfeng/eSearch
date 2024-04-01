@@ -3,6 +3,7 @@ import { el } from "redom";
 const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
+import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -592,6 +593,10 @@ let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "di
 for (let k of toolList) {
     let key = store.get(`工具快捷键.${k}`) as string;
     hotkeys(key, "normal", tool[k]);
+    key = key
+        .split("+")
+        .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
+        .join("");
     if (k === "copy") {
         key += " 双击";
     }
@@ -600,12 +605,12 @@ for (let k of toolList) {
 let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
 for (let i in drawHotKey) {
     let mainKey = i as keyof EditType;
-    drawMainEls[mainKey].setAttribute("data-key", drawHotKey[mainKey].键);
+    drawMainEls[mainKey].setAttribute("data-key", showShortKey(drawHotKey[mainKey].键));
     hotkeys(drawHotKey[mainKey].键, () => {
         setEditType(mainKey, editType[mainKey]);
     });
     for (let j in drawHotKey[mainKey].副) {
-        drawSideEls[mainKey][j]?.setAttribute("data-key", drawHotKey[mainKey].副[j]);
+        drawSideEls[mainKey][j]?.setAttribute("data-key", showShortKey(drawHotKey[mainKey].副[j]));
         hotkeys(drawHotKey[mainKey].副[j], () => {
             setEditType(mainKey, j as EditType[keyof EditType]);
         });
@@ -613,14 +618,21 @@ for (let i in drawHotKey) {
 }
 
 const canvasControlKey = {
-    操作_撤回: "Ctrl+Z",
-    操作_重做: "Ctrl+Y",
-    操作_复制: "Ctrl+C",
+    操作_撤回: "Control+Z",
+    操作_重做: "Control+Y",
+    操作_复制: "Control+C",
     操作_删除: "Delete",
 };
 
 for (let k in canvasControlKey) {
-    document.getElementById(k).setAttribute("data-key", canvasControlKey[k]);
+    document.getElementById(k).setAttribute("data-key", showShortKey(canvasControlKey[k]));
+}
+
+function showShortKey(k: string) {
+    return k
+        .split("+")
+        .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
+        .join("");
 }
 
 // alt显示快捷键
@@ -642,15 +654,15 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
         name: "画布",
         hotkey: [
             { name: "移动", keys: ["方向键", "wheel"] },
-            { name: "缩放", keys: ["Ctrl+wheel"] },
+            { name: "缩放", keys: ["Control+wheel"] },
         ],
     },
     {
         name: "框选",
         hotkey: [
-            { name: "全选", keys: ["Ctrl+A"] },
+            { name: "全选", keys: ["Control+A"] },
             { name: "移动和调节", keys: ["按住+方向键"] },
-            { name: "×5", keys: ["+Ctrl+"] },
+            { name: "×5", keys: ["+Control+"] },
             { name: "×10", keys: ["+Shift+"] },
             { name: "左上x", keys: [store.get("大小栏快捷键.左上x")] },
             { name: "左上y", keys: [store.get("大小栏快捷键.左上y")] },
@@ -663,8 +675,8 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
     {
         name: "数值",
         hotkey: [
-            { name: "大", keys: ["ArrorUp"] },
-            { name: "小", keys: ["ArrorDown"] },
+            { name: "大", keys: ["Up"] },
+            { name: "小", keys: ["Down"] },
             { name: "取消更改", keys: ["RightKey"] },
         ],
     },
@@ -683,6 +695,10 @@ for (let m of hotkeyTipX) {
     for (let k of m.hotkey) {
         const x = el("div", el("span", k.name));
         for (let s of k.keys) {
+            s = s
+                .split("+")
+                .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
+                .join("+");
             x.append(el("span", s));
         }
         hotkeyEl.append(x);
