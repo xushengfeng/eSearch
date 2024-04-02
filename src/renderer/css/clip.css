@@ -145,7 +145,21 @@ body {
     right: 2px;
     top: 2px;
     border-radius: 5px;
+    overflow: hidden;
+}
+.side_select::part(button) {
+    border: none;
+    appearance: none;
+    color: #0000;
     background-color: var(--bar-bg);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.side_select::part(listbox) {
+    padding: 0px;
+    background: var(--bar-bg);
+    backdrop-filter: var(--blur);
+    box-shadow: var(--shadow);
 }
 .side_select > option {
     color: var(--color);
