@@ -457,6 +457,9 @@ range-b {
 }
 :is(#draw_fill, #draw_storke) {
     overflow: hidden;
+    border-radius: inherit;
+    height: 100%;
+    transition: var(--transition);
 }
 :is(#draw_fill, #draw_storke) > div {
     outline: none;
