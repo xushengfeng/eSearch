@@ -54,6 +54,8 @@ jobs:
               uses: softprops/action-gh-release@v1
               with:
                   files: "build/*"
-                  draft: true
+                  draft: false
+                  prerelease: true
+                  generate_release_notes: true
               env:
                   GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
