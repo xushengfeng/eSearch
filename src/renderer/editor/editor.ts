@@ -1830,10 +1830,10 @@ function onlineOcr(
                 for (let i of result.tables_result) {
                     let m: string[][] = [];
                     for (let c of i.body) {
-                        if (!m[c.col_start]) m[c.col_start] = [];
-                        m[c.col_start][c.row_start] = c.words;
+                        if (!m[c.row_start]) m[c.row_start] = [];
+                        m[c.row_start][c.col_start] = c.words;
                     }
-                    let body = m.map((row) => row.join("\t")).join("\n");
+                    let body = m.map((row) => row.map((i) => i.replaceAll("\n", "")).join("\t")).join("\n");
                     let r = [i.header.words, body, i.footer.words];
                     tables.push(r.flat().join("\n"));
                 }
