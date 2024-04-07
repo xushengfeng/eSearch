@@ -52,30 +52,23 @@ function redo() {
 class xeditor {
     rendererEl: HTMLElement;
     text: HTMLTextAreaElement;
-    selectionEl: HTMLElement;
     findEl: HTMLElement;
     positionEl: HTMLElement;
     selections: selections;
-    cursors: cursors;
     find: find;
     constructor(el: HTMLElement) {
         this.rendererEl = el;
         el.classList.add("text");
         this.text = document.createElement("textarea");
-        this.selectionEl = document.createElement("div");
         this.findEl = document.createElement("div");
         this.positionEl = document.createElement("div");
-        el.append(this.positionEl, this.findEl, this.selectionEl, this.text);
+        el.append(this.positionEl, this.findEl, this.text);
 
         this.selections = new selections(this);
-        this.cursors = new cursors(this);
         this.find = new find(this);
 
         this.text.oninput = () => {
-            this.selectionEl.innerText = this.text.value;
-            this.text.style.height = this.selectionEl.offsetHeight + "px";
             this.text.style.paddingBottom = el.offsetHeight - lineHeight + "px";
-            if (!isWrap) editor.text.style.width = editor.selectionEl.offsetWidth + "px";
             editorChange();
         };
 
@@ -85,73 +78,28 @@ class xeditor {
             e.preventDefault();
             switch (e.key) {
                 case "Tab":
-                    console.log("tab");
                     this.text.setRangeText("\t");
-                    let cursor = this.cursors.l[0];
-                    cursor.pg++;
-                    this.cursors.set(cursor);
+                    this.text.selectionStart = this.text.selectionEnd = this.text.selectionStart + 1;
                     editorChange();
-                    break;
-                case "Insert":
-                    insert = !insert;
-                    if (insert) {
-                        document.getElementById("cursor").classList.add("cursor_insert");
-                    } else {
-                        document.getElementById("cursor").classList.remove("cursor_insert");
-                    }
                     break;
             }
         });
 
         let pointerStartFromThis = false;
 
-        this.text.addEventListener("pointerdown", (e) => {
+        this.text.addEventListener("pointerdown", () => {
             pointerStartFromThis = true;
-            if (e.altKey) {
-            } else {
-                this.selections.clearAll();
-            }
         });
 
         document.addEventListener("pointerup", (e) => {
             if (pointerStartFromThis) {
+                pointerStartFromThis = false;
                 setTimeout(() => {
-                    if (e.altKey) {
-                        this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
-                    } else {
-                        this.selections.clearAll();
-                        this.selections.add({ start: this.text.selectionStart, end: this.text.selectionEnd });
-                    }
-                    pointerStartFromThis = false;
                     this.text.dispatchEvent(
                         new CustomEvent("select2", { detail: { button: e.button, d: this.text.selectionDirection } })
                     );
                 }, 10);
             }
-        });
-
-        this.text.addEventListener("copy", (e) => {
-            e.clipboardData.setData("text/plain", editor.selections.get());
-        });
-
-        this.text.addEventListener("cut", (e) => {
-            e.clipboardData.setData("text/plain", editor.selections.get());
-        });
-
-        this.text.addEventListener("paste", (e) => {
-            e.preventDefault();
-            let textl = e.clipboardData.getData("text/plain").split("\n");
-            if (editor.selections.l.length == textl.length) {
-                for (let i in editor.selections.l) {
-                    editor.selections.replace(textl[i], editor.selections.l[i]);
-                }
-            } else {
-                editor.selections.replace(textl.join("\n"));
-            }
-            this.text.style.height = this.selectionEl.offsetHeight + "px";
-            this.text.style.paddingBottom = el.offsetHeight - lineHeight + "px";
-            if (!isWrap) editor.text.style.width = editor.selectionEl.offsetWidth + "px";
-            editorChange();
         });
     }
 
@@ -161,11 +109,7 @@ class xeditor {
      */
     push(value: string) {
         this.text.value = value;
-        this.selectionEl.innerText = value;
-        this.text.style.height = this.selectionEl.offsetHeight + "px";
         this.text.style.paddingBottom = this.text.parentElement.offsetHeight - lineHeight + "px";
-        if (!isWrap) editor.text.style.width = editor.selectionEl.offsetWidth + "px";
-        this.render();
         editorChange();
 
         if (editingOnOther) {
@@ -187,16 +131,12 @@ class xeditor {
         return t;
     }
 
-    render() {
-        this.selectionEl.innerText = this.text.value;
-    }
-
     l() {
         return this.text.value.split("\n");
     }
 
     wMax(p: number) {
-        return this.l()[p].length; // TODO
+        return this.l()[p].length;
     }
 
     delete() {
@@ -221,35 +161,34 @@ class xeditor {
             start: 0,
             end: editor.get().length,
         });
-        let r = this.selections.rect(this.selections.l[0])[0];
+        let r = this.selections.rect(this.selections.getS())[0];
         showEditBar(r.x, r.top + lineHeight, NaN, false);
     }
     deleteEnter() {
-        for (let s of editor.selections.l) {
-            var t = editor.selections.get(s);
-            let ot = "";
-            for (let i = 0; i < t.length; i++) {
-                if (t[i] == "\n") {
-                    // 换行
-                    if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
-                        // 结尾
-                        ot += t[i];
-                    } else {
-                        if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
-                            // 上一行末与此行首为中文字符
-                            ot += "";
-                        } else {
-                            ot += " ";
-                        }
-                    }
-                } else {
-                    // 正常行内字符
+        const s = editor.selections.getS();
+        var t = editor.selections.get(s);
+        let ot = "";
+        for (let i = 0; i < t.length; i++) {
+            if (t[i] == "\n") {
+                // 换行
+                if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
+                    // 结尾
                     ot += t[i];
+                } else {
+                    if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
+                        // 上一行末与此行首为中文字符
+                        ot += "";
+                    } else {
+                        ot += " ";
+                    }
                 }
+            } else {
+                // 正常行内字符
+                ot += t[i];
             }
-            editor.selections.replace(ot);
-            editor.selections.render();
         }
+        editor.selections.replace(ot);
+
         lineNum();
     }
 }
@@ -257,45 +196,22 @@ class xeditor {
 type selection2 = { start: { pg: number; of: number }; end: { pg: number; of: number } };
 type selection = { start: number; end: number };
 
-type cursor = { pg: number; of: number };
-
 class selections {
     editor: xeditor;
     constructor(editor: xeditor) {
         this.editor = editor;
     }
 
-    l: selection[] = [];
-
     add(new_s: selection) {
-        new_s = formatSelection(new_s);
-        let newL = [new_s];
-        for (let s of this.l) {
-            if (s.start <= new_s.start && new_s.end <= s.end) {
-                // 新选区是选区的子集
-                new_s.start = s.start;
-                new_s.end = s.end;
-            } else if (new_s.start <= s.start && s.start <= new_s.end) {
-                // 选区起始端在新选区内，选区末端一定在新选区外
-                new_s.end = s.end;
-            } else if (new_s.start <= s.end && s.end <= new_s.end) {
-                // 选区末端在新选区内，选区起始端一定在新选区外
-                new_s.start = s.start;
-            } else if (new_s.start <= s.start && s.end <= new_s.end) {
-                // 选区是新选区的子集
-            } else {
-                // 交集为∅
-                newL.push(s);
-            }
-        }
-        this.l = newL;
-        this.render();
-        console.log(this.l);
+        editor.text.setSelectionRange(new_s.start, new_s.end);
+    }
+
+    getS() {
+        return { start: editor.text.selectionStart, end: editor.text.selectionEnd };
     }
 
     clearAll() {
-        this.l = [];
-        this.render();
+        editor.text.setSelectionRange(0, 0);
     }
 
     s2ns(s: selection2) {
@@ -336,48 +252,15 @@ class selections {
 
     get(s?: selection) {
         let l = [];
-        if (s) {
-            l.push(editor.get(s));
-        } else {
-            for (let s of this.l) {
-                l.push(editor.get(s));
-            }
-        }
+        l.push(editor.get(s || this.getS()));
         return l.join("\n");
     }
 
     replace(text: string, s?: selection) {
-        if (s) {
-            editor.text.setSelectionRange(s.start, s.end);
-            editor.text.setRangeText(text);
-            s.end = s.start + text.length;
-        } else {
-            for (let s of this.l) {
-                editor.text.setSelectionRange(s.start, s.end);
-                editor.text.setRangeText(text);
-                s.end = s.start + text.length;
-            }
-        }
-        editor.render();
-    }
-
-    render() {
-        this.editor.selectionEl.innerHTML = "";
-        let text = this.editor.text.value;
-        let ranges: selection[] = this.l;
-        ranges = ranges.sort((a, b) => a.start - b.start);
-        for (let i = 0; i < ranges.length; i++) {
-            let span = document.createElement("span");
-            span.classList.add("selection");
-            span.innerText = text.slice(ranges[i].start, ranges[i].end);
-            let after = "";
-            if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
-            let beforeEl = document.createElement("span");
-            beforeEl.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
-            let afterEl = document.createElement("span");
-            afterEl.innerText = after;
-            this.editor.selectionEl.append(beforeEl, span, afterEl);
-        }
+        if (!s) s = this.getS();
+        editor.text.setSelectionRange(s.start, s.end);
+        editor.text.setRangeText(text);
+        s.end = s.start + text.length;
     }
 
     rect(s: selection) {
@@ -407,38 +290,6 @@ class selections {
         this.editor.text.setSelectionRange(s.start, s.end);
         this.editor.text.focus();
         return rectL as [DOMRect, DOMRect, DOMRect];
-    }
-}
-class cursors {
-    editor: xeditor;
-    constructor(editor: xeditor) {
-        this.editor = editor;
-    }
-
-    l: cursor[] = [];
-
-    c2nc(c: cursor) {
-        let l = editor.l();
-        let n = 0;
-        for (let i = 0; i < c.pg; i++) {
-            n += l[i].length;
-        }
-        n += c.of;
-        return n;
-    }
-
-    add(c: cursor) {
-        this.l.push(c);
-    }
-
-    set(c: cursor) {
-        let n = this.c2nc(c);
-        editor.text.setSelectionRange(n, n);
-    }
-
-    input() {
-        for (let _c of this.l) {
-        }
     }
 }
 
@@ -505,7 +356,7 @@ class find {
         editor.selections.clearAll();
         editor.selections.add(s);
         let mtext = editor.get(s).replace(match, text);
-        editor.selections.replace(mtext, editor.selections.l[0]);
+        editor.selections.replace(mtext, editor.selections.getS());
     }
 }
 
@@ -513,9 +364,6 @@ const editor = new xeditor(document.getElementById("text"));
 
 editor.push("");
 
-function formatSelection(s: selection) {
-    return { start: Math.min(s.start, s.end), end: Math.max(s.start, s.end) } as selection;
-}
 function formatSelection2(s: selection2) {
     var tmp: selection2 = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
     if (s.end.pg == s.start.pg) {
@@ -531,10 +379,6 @@ function formatSelection2(s: selection2) {
 }
 
 var lineHeight = 24;
-
-var cursor = { pg: 0, of: 0 };
-
-editor.cursors.set(cursor);
 
 /**
  * 每次更改光标触发
@@ -582,23 +426,15 @@ document.getElementById("line_num").onmousedown = (e) => {
     var s = { start: { pg: lI, of: 0 }, end: { pg: lI, of: editor.wMax(lI) } };
     editor.selections.clearAll();
     editor.selections.add(editor.selections.s2ns(s));
-    editor.selections.render();
-
-    cursor.pg = lI;
-    cursor.of = editor.wMax(lI);
-    editor.cursors.set(cursor);
 };
 document.getElementById("line_num").onmouseup = (_e) => {
-    let s = editor.selections.l[0];
+    let s = editor.selections.getS();
     editor.text.setSelectionRange(s.start, s.end);
     editor.text.focus();
 };
 document.getElementById("text").onscroll = () => {
     document.getElementById("line_num").style.top = `-${document.getElementById("text").scrollTop}px`;
 };
-
-// 插入文字
-var insert = false;
 
 /************************************主要 */
 
@@ -629,8 +465,6 @@ function setFontSize(font_size: number) {
     lineHeight = font_size * 1.5;
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
-        editor.cursors.set(cursor);
-        editor.selections.render();
         lineNum();
     }, 400);
 }
@@ -685,7 +519,7 @@ function hideEditBar() {
 
 editor.text.addEventListener("select2", (e: CustomEvent) => {
     let dir = e.detail.d as HTMLTextAreaElement["selectionDirection"];
-    let rect = editor.selections.rect(editor.selections.l[0]);
+    let rect = editor.selections.rect(editor.selections.getS());
     let r: DOMRect;
     if (dir == "backward") {
         r = rect[1];
@@ -713,7 +547,7 @@ document.getElementById("edit_b").onmousedown = (e) => {
         case "excel_bar":
             let text = editor.selections.get();
             let t: string[][] = [];
-            text.split("\n").forEach((v, i) => {
+            text.split("\n").forEach((v) => {
                 let l = v.split("\t");
                 t.push(l);
             });
@@ -781,7 +615,6 @@ function wrap() {
         document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
             el.style.width = "";
         });
-        editor.text.style.width = editor.selectionEl.offsetWidth + "px";
     }
     editor.text.style.paddingBottom = editor.text.parentElement.offsetHeight - lineHeight + "px";
     lineNum();
@@ -1283,12 +1116,7 @@ function editOnOther() {
             fileWatcher = fs.watch(tmpTextPath, () => {
                 fs.readFile(tmpTextPath, "utf8", (e, data) => {
                     if (e) console.log(e);
-                    let cu = cursor;
                     editor.push(data);
-                    if (cu.pg > editor.l().length) cu.pg = editor.l().length;
-                    if (cu.of > editor.wMax(cu.pg)) cu.of = editor.wMax(cu.pg);
-                    cursor = cu;
-                    editor.cursors.set(cursor);
                 });
             });
             document.getElementById("text_out").title = "正在外部编辑中，双击退出";
