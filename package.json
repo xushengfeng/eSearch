@@ -32,6 +32,7 @@
         "redom": "^4.0.0",
         "uiohook-napi": "^1.5.3",
         "x11": "^2.3.0",
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
         "xtranslator": "^1.0.6"
     },
     "devDependencies": {

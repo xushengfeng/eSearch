@@ -7,6 +7,8 @@ var store = new Store({
 });
 import { MainWinType } from "../../ShareTypes";
 
+import { utils as xlsxUtils, writeFile as xlsxWriteFile } from "xlsx";
+
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
 
@@ -83,7 +85,11 @@ class xeditor {
             e.preventDefault();
             switch (e.key) {
                 case "Tab":
+                    console.log("tab");
                     this.text.setRangeText("\t");
+                    let cursor = this.cursors.l[0];
+                    cursor.pg++;
+                    this.cursors.set(cursor);
                     editorChange();
                     break;
                 case "Insert":
@@ -629,19 +635,30 @@ function setFontSize(font_size: number) {
     }, 400);
 }
 
+const barLink = document.getElementById("link_bar");
+const barExcel = document.getElementById("excel_bar");
+const barMdTable = document.getElementById("md_table_bar");
+
 /**编辑栏 */
 var editBarS = false;
 function showEditBar(x: number, y: number, _h: number, right: boolean) {
+    const get = editor.selections.get();
     // 简易判断链接并显示按钮
-    if (isLink(editor.selections.get(), false)) {
-        document.getElementById("link_bar").style.width = "30px";
+    if (isLink(get, false)) {
+        barLink.style.width = "30px";
     } else {
-        setTimeout(() => {
-            document.getElementById("link_bar").style.width = "0";
-        }, 400);
+        barLink.style.width = "0";
     }
+    if (get.split("\n").every((i) => i.includes("\t"))) {
+        barExcel.style.width = "30px";
+        barMdTable.style.width = "30px";
+    } else {
+        barExcel.style.width = "0";
+        barMdTable.style.width = "0";
+    }
+
     // 排除没选中
-    if (editor.selections.get() != "" || right) {
+    if (get != "" || right) {
         if (editBarS) {
             document.getElementById("edit_b").style.transition = "var(--transition)";
         } else {
@@ -693,6 +710,35 @@ document.getElementById("edit_b").onmousedown = (e) => {
     e.stopPropagation();
     e.preventDefault();
     switch ((<HTMLElement>e.target).id) {
+        case "excel_bar":
+            let text = editor.selections.get();
+            let t: string[][] = [];
+            text.split("\n").forEach((v, i) => {
+                let l = v.split("\t");
+                t.push(l);
+            });
+            const worksheet = xlsxUtils.aoa_to_sheet(t);
+            const workbook = xlsxUtils.book_new();
+            xlsxUtils.book_append_sheet(workbook, worksheet, "Sheet1");
+            xlsxWriteFile(workbook, "eSearch.xlsx", { compression: true });
+            break;
+        case "md_table_bar":
+            let table = editor.selections.get();
+            let table2: string[] = [];
+            table.split("\n").forEach((v, i) => {
+                let l = `|${v.replaceAll("\t", "|")}|`;
+                table2.push(l);
+                if (i === 0) {
+                    const i = v.match(/\t/g).length + 1;
+                    let s = "|";
+                    for (let n = 0; n < i; n++) {
+                        s += "---|";
+                    }
+                    table2.push(s);
+                }
+            });
+            clipboard.writeText(table2.join("\n"));
+            break;
         case "link_bar":
             let url = editor.selections.get();
             openLink("url", url);

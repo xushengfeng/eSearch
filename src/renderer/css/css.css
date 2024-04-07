@@ -253,12 +253,11 @@ body {
 }
 #edit_b > div {
     height: 30px;
+    width: 30px;
+    overflow: hidden;
     font-size: 30px;
     position: relative;
     transition: var(--transition);
-}
-#edit_b > div:not(:nth-child(1)) {
-    width: 30px;
 }
 #edit_b > div:hover {
     background-color: var(--bar-hover-color);

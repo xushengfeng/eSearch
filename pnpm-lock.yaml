@@ -50,6 +50,9 @@ dependencies:
   x11:
     specifier: ^2.3.0
     version: 2.3.0
+  xlsx:
+    specifier: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz
+    version: '@cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz'
   xtranslator:
     specifier: ^1.0.6
     version: 1.0.6
@@ -4020,3 +4023,11 @@ packages:
       compress-commons: 6.0.2
       readable-stream: 4.5.2
     dev: true
+
+  '@cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz':
+    resolution: {tarball: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz}
+    name: xlsx
+    version: 0.20.2
+    engines: {node: '>=0.8'}
+    hasBin: true
+    dev: false
