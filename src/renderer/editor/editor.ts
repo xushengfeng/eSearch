@@ -7,8 +7,6 @@ var store = new Store({
 });
 import { MainWinType } from "../../ShareTypes";
 
-import { utils as xlsxUtils, writeFile as xlsxWriteFile } from "xlsx";
-
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
 
@@ -546,15 +544,20 @@ document.getElementById("edit_b").onmousedown = (e) => {
     switch ((<HTMLElement>e.target).id) {
         case "excel_bar":
             let text = editor.selections.get();
-            let t: string[][] = [];
+            let t: string[] = [];
             text.split("\n").forEach((v) => {
-                let l = v.split("\t");
+                let l = v
+                    .split("\t")
+                    .map((i) => `"${i}"`)
+                    .join(",");
                 t.push(l);
             });
-            const worksheet = xlsxUtils.aoa_to_sheet(t);
-            const workbook = xlsxUtils.book_new();
-            xlsxUtils.book_append_sheet(workbook, worksheet, "Sheet1");
-            xlsxWriteFile(workbook, "eSearch.xlsx", { compression: true });
+            // 下载csv
+            let blob = new Blob([t.join("\n")], { type: "text/csv" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "eSearch.csv";
+            a.click();
             break;
         case "md_table_bar":
             let table = editor.selections.get();
