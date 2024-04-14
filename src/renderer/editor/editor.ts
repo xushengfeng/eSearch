@@ -1999,7 +1999,8 @@ function addOcrSelect(div: HTMLDivElement) {
     console.log(allTextNodes);
     ocrTextNodes.set(div, allTextNodes);
 }
-document.addEventListener("selectionchange", () => {
+
+imgsEl.onpointerup = () => {
     let range = document.getSelection().getRangeAt(0);
     console.log(range);
     let div = (
@@ -2040,6 +2041,7 @@ document.addEventListener("selectionchange", () => {
     });
     if (start > end) [start, end] = [end, start];
     console.log(start, end);
+    if (start === end) return;
 
     let diff = dmp.diff_main(sourceText, editor.get());
     console.log(diff);
@@ -2089,7 +2091,8 @@ document.addEventListener("selectionchange", () => {
     }
     editor.selections.clearAll();
     editor.selections.add({ start: editorStart, end: editorEnd });
-});
+    editor.text.focus();
+};
 
 import diff_match_patch from "diff-match-patch";
 var dmp = new diff_match_patch();
