@@ -11,7 +11,7 @@ const beforePack = async function () {
     if (!fs.existsSync("./ocr/ppocr/默认")) {
         fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
         await download(
-            "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip",
+            "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch_v3.zip",
             "./ocr/ppocr/默认/",
             {
                 extract: true,
