@@ -358,6 +358,9 @@ body {
     text-align: justify;
     text-align-last: justify;
 }
+#img_view > div > div > p::selection {
+    background-color: #00f4;
+}
 
 #find {
     position: absolute;

@@ -1966,8 +1966,18 @@ function addOcrText(r: ocrResult, i: number) {
     }
     img.parentElement.append(div);
 
+    setOcrFontSize();
+
     addOcrSelect(div);
 }
+
+function setOcrFontSize() {
+    imgsEl.querySelectorAll("p").forEach((el) => {
+        el.style.lineHeight = el.style.fontSize = el.getBoundingClientRect().height + "px";
+    });
+}
+
+window.onresize = setOcrFontSize;
 
 function addOcrPhoto(base: string) {
     let el = createImg(base);
