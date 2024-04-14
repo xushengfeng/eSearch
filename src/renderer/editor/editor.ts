@@ -1047,7 +1047,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     }
 
     if (list.type === "ocr") {
-        editor.push(t("图片识别中……请等候"));
+        editor.push(t("文字识别中……请等候"));
         ocr(list.content, list.arg0 as any, (err: Error, r: { raw: ocrResult; text: string }) => {
             const text = r?.text;
             if (text) {
