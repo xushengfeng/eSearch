@@ -266,7 +266,7 @@ app.whenReady().then(() => {
     crashReporter.start({ uploadToServer: false });
 
     if (store.get("首次运行") === undefined) setDefaultSetting();
-    fix_setting_tree();
+    fixSettingTree();
 
     // 初始化语言
     lan(store.get("语言.语言"));
@@ -2115,25 +2115,20 @@ function setDefaultSetting() {
 }
 
 // 增加设置项后，防止undefined
-function fix_setting_tree() {
-    if (store.get("设置版本") == app.getVersion()) return;
-    var tree = "defaultSetting";
-    walk(tree);
-    function walk(path: string) {
-        var x = eval(path);
-        if (Object.keys(x).length == 0) {
-            path = path.slice(tree.length + 1); /* 去除开头主tree */
-            if (store.get(path) === undefined) store.set(path, x);
-        } else {
-            for (let i in x) {
-                var c_path = path + "." + i;
-                if (x[i].constructor === Object) {
-                    walk(c_path);
-                } else {
-                    c_path = c_path.slice(tree.length + 1); /* 去除开头主tree */
-                    if (store.get(c_path) === undefined) store.set(c_path, x[i]);
-                }
+function fixSettingTree() {
+    if (store.get("设置版本") === app.getVersion() && !dev) return;
+    walk([]);
+    function walk(path: string[]) {
+        const x = path.reduce((o, i) => o[i], defaultSetting);
+        for (let i in x) {
+            const cPath = path.concat([i]); // push
+            if (x[i].constructor === Object) {
+                walk(cPath);
+            } else {
+                const nPath = cPath.join(".");
+                if (store.get(nPath) === undefined) store.set(nPath, x[i]);
             }
         }
     }
+    store.set("设置版本", app.getVersion());
 }
