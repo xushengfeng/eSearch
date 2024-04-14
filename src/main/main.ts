@@ -465,7 +465,13 @@ app.whenReady().then(() => {
     nativeTheme.themeSource = store.get("全局.深色模式");
 
     // 菜单栏设置
-    const template = [
+    setMenu();
+});
+
+const isMac = process.platform === "darwin";
+
+function setMenu() {
+    const menuTemplate = [
         // { role: 'appMenu' }
         ...(isMac
             ? [
@@ -530,7 +536,7 @@ app.whenReady().then(() => {
                     },
                 },
                 { type: "separator" },
-                { label: t("关闭"), role: "close" },
+                { id: "close", label: t("关闭"), role: "close", accelerator: "CmdOrCtrl+W" },
             ],
         },
         // { role: 'editMenu' }
@@ -545,6 +551,7 @@ app.whenReady().then(() => {
                     accelerator: "CmdOrCtrl+Shift+L",
                 },
                 {
+                    id: "search",
                     label: t("搜索"),
                     click: (_i, w) => {
                         mainEdit(w, "search");
@@ -552,6 +559,7 @@ app.whenReady().then(() => {
                     accelerator: "CmdOrCtrl+Shift+S",
                 },
                 {
+                    id: "translate",
                     label: t("翻译"),
                     click: (_i, w) => {
                         mainEdit(w, "translate");
@@ -616,10 +624,20 @@ app.whenReady().then(() => {
                     accelerator: "CmdOrCtrl+A",
                 },
                 {
+                    id: "delete_enter",
                     label: t("自动删除换行"),
                     click: (_i, w) => {
                         mainEdit(w, "delete_enter");
                     },
+                    accelerator: "CmdOrCtrl+Enter",
+                },
+                {
+                    id: "add_space",
+                    label: t("自动添加空格"),
+                    click: (_i, w) => {
+                        mainEdit(w, "add_space");
+                    },
+                    accelerator: "CmdOrCtrl+/",
                 },
                 { type: "separator" },
                 {
@@ -634,7 +652,7 @@ app.whenReady().then(() => {
                     click: (_i, w) => {
                         mainEdit(w, "show_find");
                     },
-                    accelerator: isMac ? "CmdOrCtrl+Option+F" : "CmdOrCtrl+H",
+                    accelerator: "CmdOrCtrl+F",
                 },
                 { type: "separator" },
                 {
@@ -728,7 +746,15 @@ app.whenReady().then(() => {
                     click: (_i, w) => {
                         mainEdit(w, "show_history");
                     },
-                    accelerator: "CmdOrCtrl+Shift+H",
+                    accelerator: "CmdOrCtrl+H",
+                },
+                {
+                    id: "show_photo",
+                    label: t("图片区"),
+                    click: (_i, w) => {
+                        mainEdit(w, "show_photo");
+                    },
+                    accelerator: "CmdOrCtrl+P",
                 },
                 { type: "separator" },
                 { label: t("实际大小"), role: "resetZoom", accelerator: "" },
@@ -773,10 +799,29 @@ app.whenReady().then(() => {
                 },
             ],
         },
-    ] as (Electron.MenuItemConstructorOptions | Electron.MenuItem)[];
-    const menu = Menu.buildFromTemplate(template);
+    ] as Electron.MenuItemConstructorOptions[];
+    const map = {
+        search: "搜索",
+        translate: "翻译",
+        delete_enter: "删除换行",
+        add_space: "添加空格",
+        show_photo: "图片区",
+        close: "关闭",
+    };
+    const keys = Object.keys(map);
+    for (let i in menuTemplate) {
+        for (let j of menuTemplate[i].submenu as Electron.MenuItemConstructorOptions[]) {
+            if (keys.includes(j.id)) {
+                const k = store.get(`主页面快捷键.${map[j.id]}`);
+                if (k) {
+                    j.accelerator = k;
+                }
+            }
+        }
+    }
+    const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
-});
+}
 
 app.on("will-quit", () => {
     // Unregister all shortcuts.
@@ -1298,8 +1343,6 @@ function longWin() {
     mouse();
 }
 
-const isMac = process.platform === "darwin";
-
 // ding窗口
 var dingwindowList: { [key: string]: { win: BrowserWindow; display: Electron.Display } } = {};
 function createDingWindow(x: number, y: number, w: number, h: number, img) {
@@ -1817,6 +1860,14 @@ var defaultSetting: setting = {
         右下y: "",
         宽: "",
         高: "",
+    },
+    主页面快捷键: {
+        搜索: "CmdOrCtrl+Shift+S",
+        翻译: "CmdOrCtrl+Shift+T",
+        删除换行: "CmdOrCtrl+Enter",
+        添加空格: "CmdOrCtrl+/",
+        图片区: "CmdOrCtrl+P",
+        关闭: "CmdOrCtrl+W",
     },
     其他快捷键: {
         复制颜色: "K",

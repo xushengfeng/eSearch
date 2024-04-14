@@ -22,6 +22,14 @@ export interface setting {
         宽: string;
         高: string;
     };
+    主页面快捷键: {
+        搜索: string;
+        翻译: string;
+        删除换行: string;
+        添加空格: string;
+        图片区: string;
+        关闭: string;
+    };
     其他快捷键: {
         复制颜色: string;
     };
