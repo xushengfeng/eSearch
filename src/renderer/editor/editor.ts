@@ -66,7 +66,6 @@ class xeditor {
         this.find = new find(this);
 
         this.text.oninput = () => {
-            this.text.style.paddingBottom = el.offsetHeight - lineHeight + "px";
             editorChange();
         };
 
@@ -107,7 +106,6 @@ class xeditor {
      */
     push(value: string) {
         this.text.value = value;
-        this.text.style.paddingBottom = this.text.parentElement.offsetHeight - lineHeight + "px";
         editorChange();
 
         if (editingOnOther) {
@@ -384,6 +382,7 @@ var lineHeight = 24;
 function editorChange() {
     lineNum();
     stackAdd();
+    setTextAreaHeight();
     if (findShow) {
         exitFind();
         find_();
@@ -464,7 +463,13 @@ function setFontSize(font_size: number) {
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
         lineNum();
+        setTextAreaHeight();
     }, 400);
+}
+
+function setTextAreaHeight() {
+    editor.text.style.height = "";
+    editor.text.style.height = `calc(${editor.text.scrollHeight}px + 100% - 1em)`;
 }
 
 const barLink = document.getElementById("link_bar");
@@ -619,7 +624,7 @@ function wrap() {
             el.style.width = "";
         });
     }
-    editor.text.style.paddingBottom = editor.text.parentElement.offsetHeight - lineHeight + "px";
+    setTextAreaHeight();
     lineNum();
 }
 
