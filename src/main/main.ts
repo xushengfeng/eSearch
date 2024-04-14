@@ -1847,7 +1847,7 @@ var defaultSetting: setting = {
     },
     编辑器: {
         自动换行: true,
-        拼写检查: false,
+        拼写检查: true,
         行号: true,
     },
     工具栏跟随: "展示内容优先",
