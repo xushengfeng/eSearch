@@ -164,10 +164,10 @@ ipcRenderer.on("mouse", (_e, x, y) => {
     mouseMove(els[0] as HTMLElement, x, y);
 });
 
-function minimize(el) {
-    windowDiv.style.transition = "var(--transition)";
+function minimize(el: HTMLElement) {
+    el.style.transition = "var(--transition)";
     setTimeout(() => {
-        windowDiv.style.transition = "";
+        el.style.transition = "";
     }, 400);
     el.classList.add("minimize");
 }
