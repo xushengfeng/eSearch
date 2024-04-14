@@ -429,8 +429,8 @@ document.getElementById("line_num").onmouseup = (_e) => {
     editor.text.setSelectionRange(s.start, s.end);
     editor.text.focus();
 };
-document.getElementById("text").onscroll = () => {
-    document.getElementById("line_num").style.top = `-${document.getElementById("text").scrollTop}px`;
+document.getElementById("text").parentElement.onscroll = () => {
+    document.getElementById("line_num").style.top = `-${document.getElementById("text").parentElement.scrollTop}px`;
 };
 
 /************************************主要 */
@@ -468,9 +468,11 @@ function setFontSize(font_size: number) {
 }
 
 function setTextAreaHeight() {
-    editor.text.style.height = "";
-    editor.text.style.height = `calc(${editor.text.scrollHeight}px + 100% - 1em)`;
+    editor.text.parentElement.style.height = "";
+    editor.text.parentElement.style.height = `calc(${editor.text.scrollHeight}px + 100% - 1em)`;
 }
+
+const editBEl = document.getElementById("edit_b");
 
 const barLink = document.getElementById("link_bar");
 const barExcel = document.getElementById("excel_bar");
@@ -497,20 +499,20 @@ function showEditBar(x: number, y: number, _h: number, right: boolean) {
     // 排除没选中
     if (get != "" || right) {
         if (editBarS) {
-            document.getElementById("edit_b").style.transition = "var(--transition)";
+            editBEl.style.transition = "var(--transition)";
         } else {
-            document.getElementById("edit_b").style.transition = "opacity var(--transition)";
+            editBEl.style.transition = "opacity var(--transition)";
         }
-        document.getElementById("edit_b").className = "edit_s";
-        var x = x < 0 ? 0 : x;
-        if (document.getElementById("edit_b").offsetWidth + x > window.innerWidth)
-            x = window.innerWidth - document.getElementById("edit_b").offsetWidth;
-        var y = y < 0 ? 0 : y;
-        document.getElementById("edit_b").style.left = `${x}px`;
-        document.getElementById("edit_b").style.top = `${y}px`;
+        editBEl.className = "edit_s";
+        x = x < 0 ? 0 : x;
+        const pleft = editBEl.parentElement.getBoundingClientRect().left + 16;
+        if (editBEl.offsetWidth + pleft + x > window.innerWidth) x = window.innerWidth - editBEl.offsetWidth - pleft;
+        y = y < 0 ? 0 : y;
+        editBEl.style.left = `${x}px`;
+        editBEl.style.top = `${y}px`;
         editBarS = true;
     } else {
-        document.getElementById("edit_b").className = "edit_h";
+        editBEl.className = "edit_h";
         editBarS = false;
     }
 }

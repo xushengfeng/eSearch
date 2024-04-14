@@ -112,6 +112,9 @@ body {
     white-space: var(--wrap);
     overflow-wrap: break-word;
 }
+.text > textarea {
+    height: 100%;
+}
 .text > textarea::spelling-error {
     text-decoration: underline wavy #44f;
 }
