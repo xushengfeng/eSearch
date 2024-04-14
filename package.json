@@ -31,6 +31,7 @@
         "qr-scanner-wechat": "^0.1.3",
         "redom": "^4.0.0",
         "uiohook-napi": "^1.5.3",
+        "wordsninja": "^1.0.0",
         "x11": "^2.3.0",
         "xtranslator": "^1.0.6"
     },

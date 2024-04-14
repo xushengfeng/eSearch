@@ -543,7 +543,7 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     }
 });
 
-document.getElementById("edit_b").onmousedown = (e) => {
+document.getElementById("edit_b").onmousedown = async (e) => {
     e.stopPropagation();
     e.preventDefault();
     switch ((<HTMLElement>e.target).id) {
@@ -606,8 +606,25 @@ document.getElementById("edit_b").onmousedown = (e) => {
         case "delete_enter_bar":
             editor.deleteEnter();
             break;
+        case "add_space": {
+            const s = editor.selections.getS();
+            let t = editor.selections.get(s);
+            if (t.endsWith("\n")) {
+                t = t.slice(0, t.length - 1);
+                s.end--;
+            }
+            if (!isWordNinJaLoaded) {
+                await WordsNinja.loadDictionary();
+                isWordNinJaLoaded = true;
+            }
+            const n = WordsNinja.splitSentence(t).join(" ");
+            editor.selections.replace(n, s);
+            break;
+        }
     }
 };
+
+var isWordNinJaLoaded = false;
 
 var isWrap = !store.get("编辑器.自动换行");
 wrap();
@@ -1027,6 +1044,9 @@ function oldHisToNew() {
 const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
 const fs = require("fs") as typeof import("fs");
 const os = require("os") as typeof import("os");
+
+const WordsNinjaPack = require("wordsninja");
+const WordsNinja = new WordsNinjaPack();
 
 ipcRenderer.on("init", (_event, _name: number) => {});
 
