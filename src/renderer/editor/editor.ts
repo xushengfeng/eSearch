@@ -167,7 +167,7 @@ class xeditor {
         for (let i = 0; i < t.length; i++) {
             if (t[i] == "\n") {
                 // 换行
-                if (t?.[i - 1]?.match(/[。？！…….\?!]/)) {
+                if (t?.[i - 1]?.match(/[。？！……”】》）).?!"]/)) {
                     // 结尾
                     ot += t[i];
                 } else {
