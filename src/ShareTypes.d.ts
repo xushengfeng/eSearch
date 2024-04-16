@@ -61,6 +61,7 @@ export interface setting {
         自动换行: boolean;
         拼写检查: boolean;
         行号: boolean;
+        工具: { name: string; regex: { r: string; p: string }[] }[];// todo set
     };
     工具栏跟随: "展示内容优先" | "效率优先";
     自动搜索: boolean;

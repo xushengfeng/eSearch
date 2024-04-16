@@ -545,7 +545,28 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     }
 });
 
-document.getElementById("edit_b").onmousedown = async (e) => {
+const editTools: { name: string; regex: { r: string; p: string }[] }[] = store.get("编辑器.工具") || [];
+
+// todo hotkey
+
+for (let i of editTools) {
+    const iel = el("div");
+    iel.innerText = i.name;
+    iel.onclick = () => {
+        const s = editor.selections.getS();
+        let t = editor.selections.get(s);
+
+        for (let regex of i.regex) {
+            const r = new RegExp(regex.r, "g");
+            t = t.replace(r, regex.p);
+        }
+
+        editor.selections.replace(t, s);
+    };
+    editBEl.append(iel);
+}
+
+editBEl.onmousedown = async (e) => {
     e.stopPropagation();
     e.preventDefault();
     switch ((<HTMLElement>e.target).id) {
@@ -2122,4 +2143,5 @@ imgsEl.onpointerup = () => {
 };
 
 import diff_match_patch from "diff-match-patch";
+import { el } from "redom";
 var dmp = new diff_match_patch();
