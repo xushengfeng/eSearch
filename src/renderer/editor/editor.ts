@@ -468,8 +468,7 @@ function setFontSize(font_size: number) {
 }
 
 function setTextAreaHeight() {
-    editor.text.parentElement.style.height = "";
-    editor.text.parentElement.style.height = `calc(${editor.text.scrollHeight}px + 100% - 1em)`;
+    editor.text.parentElement.style.height = `calc(${editor.positionEl.offsetHeight}px + 100% - 1em)`;
 }
 
 const editBEl = document.getElementById("edit_b");
