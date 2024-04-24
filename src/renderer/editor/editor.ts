@@ -2024,7 +2024,10 @@ function setOcrFontSize() {
     });
 }
 
-window.onresize = setOcrFontSize;
+window.onresize = () => {
+    setOcrFontSize();
+    lineNum();
+};
 
 function addOcrPhoto(base: string) {
     let el = createImg(base);
