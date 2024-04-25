@@ -5,3 +5,18 @@
 .text > div {
     position: absolute;
 }
+
+.rect {
+    position: relative;
+}
+
+.tools {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: flex;
+}
+.tools > * {
+    min-width: 24px;
+    height: 24px;
+}

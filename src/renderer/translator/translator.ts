@@ -25,8 +25,7 @@ var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
 
 var screenId = NaN;
 
-/** auto为按时检测，scroll为滚动时才检测 */
-var mode: "auto" | "scroll" = "auto";
+var mode: "auto" | "manual" = "auto";
 
 var frequencyTime: number = 3000;
 
@@ -53,7 +52,7 @@ await lo.init({
 
 const mainEl = el("div", { class: "main" });
 const textEl = el("div", { class: "text" });
-const rectEl = el("div");
+const rectEl = el("div", { class: "rect" });
 mainEl.append(textEl, rectEl);
 
 /**
@@ -122,9 +121,6 @@ const sl = () =>
     });
 
 async function run() {
-    document.body.style.opacity = "0";
-    await sl();
-    await sl();
     const data = screenshot(screenId, rect);
     document.body.style.opacity = "1";
 
@@ -163,6 +159,7 @@ const runRun = () =>
             // runRun();
         }
     }, frequencyTime);
+// todo 立刻运行
 
 ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
     dispaly2screen(display, Screenshots.all());
@@ -175,3 +172,55 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
     rectEl.style.width = _rect.w + "px";
     rectEl.style.height = _rect.h + "px";
 });
+
+const switchEl = el("input", {
+    type: "checkbox",
+    onclick: () => {
+        if (mode === "auto") mode = "manual";
+        else mode = "auto";
+        if (mode === "manual") {
+            playEl.style.display = "none";
+            runEl.style.display = "";
+        } else {
+            playEl.style.display = "";
+            runEl.style.display = "none";
+        }
+        // todo save
+    },
+});
+
+const playEl = el("button", {
+    onclick: async () => {
+        if (mode === "auto") {
+            pause = !pause;
+            runRun();
+            // todo icon show
+        }
+    },
+});
+
+const runEl = el("button", {
+    onclick: async () => {
+        if (mode != "auto") {
+            mainEl.style.opacity = "0";
+            await sl();
+            await sl();
+            run();
+        }
+    },
+});
+
+rectEl.append(
+    el(
+        "div",
+        { class: "tools" },
+        switchEl,
+        playEl,
+        runEl,
+        el("button", {
+            onclick: () => {
+                // todo close
+            },
+        })
+    )
+);
