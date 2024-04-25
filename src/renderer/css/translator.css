@@ -1,7 +1,7 @@
-.main {
+.text {
     position: relative;
 }
 
-.main > div {
+.text > div {
     position: absolute;
 }

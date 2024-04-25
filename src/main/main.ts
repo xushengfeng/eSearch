@@ -1445,12 +1445,18 @@ function createTranslator(op: translateWinType) {
         },
     });
 
-    win.setBounds({ x: op.dipRect.x, y: op.dipRect.y, width: op.dipRect.w, height: op.dipRect.h });
+    const dh = op.dipRect.y - op.dipRect.h;
+    win.setBounds({
+        x: op.dipRect.x,
+        y: Math.max(0, dh),
+        width: op.dipRect.w,
+        height: op.dipRect.h * 2 + dh,
+    });
 
     rendererPath(win, "translator.html");
     if (dev) win.webContents.openDevTools();
     win.webContents.on("did-finish-load", () => {
-        win.webContents.send("init", op.displayId, screen.getAllDisplays(), op.rect);
+        win.webContents.send("init", op.displayId, screen.getAllDisplays(), op.rect, Math.min(0, dh));
     });
 
     win.setAlwaysOnTop(true, "screen-saver");

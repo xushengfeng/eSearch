@@ -33,6 +33,7 @@ var frequencyTime: number = 3000;
 var pause = false;
 
 const lo = require("esearch-ocr") as typeof import("esearch-ocr");
+const ort = require("onnxruntime-node");
 let l: [string, string, string, string, any];
 for (let i of store.get("离线OCR")) if (i[0] == "默认") l = i;
 function ocrPath(p: string) {
@@ -46,11 +47,14 @@ await lo.init({
     recPath: recp,
     dic: fs.readFileSync(字典).toString(),
     ...l[4],
-    node: true,
+    ort: ort,
     detShape: [640, 640],
 });
 
 const mainEl = el("div", { class: "main" });
+const textEl = el("div", { class: "text" });
+const rectEl = el("div");
+mainEl.append(textEl, rectEl);
 
 /**
  * 修复屏幕信息
@@ -126,7 +130,7 @@ async function run() {
 
     const ocrData = await ocr(data);
 
-    mainEl.innerHTML = "";
+    textEl.innerHTML = "";
     for (let i of ocrData) {
         const text = i.text;
         const item = el("div");
@@ -142,7 +146,8 @@ async function run() {
             "line-height": y1 - y0 + "px",
             "font-size": y1 - y0 + "px",
         });
-        mainEl.append(item);
+        textEl.append(item);
+        // item.innerText = text;
         translate(text).then((res) => {
             item.innerText = res;
         });
@@ -159,9 +164,14 @@ const runRun = () =>
         }
     }, frequencyTime);
 
-ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect) => {
+ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
     dispaly2screen(display, Screenshots.all());
     screenId = id;
     rect = _rect;
     runRun();
+    mainEl.style.top = dy + "px";
+    textEl.style.width = _rect.w + "px";
+    textEl.style.height = _rect.h + "px";
+    rectEl.style.width = _rect.w + "px";
+    rectEl.style.height = _rect.h + "px";
 });
