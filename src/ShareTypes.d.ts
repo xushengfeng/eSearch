@@ -61,7 +61,7 @@ export interface setting {
         自动换行: boolean;
         拼写检查: boolean;
         行号: boolean;
-        工具: { name: string; regex: { r: string; p: string }[] }[];// todo set
+        工具: { name: string; regex: { r: string; p: string }[] }[]; // todo set
     };
     工具栏跟随: "展示内容优先" | "效率优先";
     自动搜索: boolean;
@@ -226,7 +226,23 @@ export interface setting {
             };
         };
     };
-    插件: { 加载前: string[]; 加载后: string[] };
+    屏幕翻译: {
+        offsetY: -1;
+        mode: "auto" | "manual";
+        dTime: number;
+        css: {
+            bg: string;
+            text: string;
+        };
+        默认翻译: string; // todo set
+        翻译: {
+            id: string;
+            type: string;
+            keys: string[];
+            from: string;
+            to: string;
+        }[];
+    };
 }
 
 type 功能 =

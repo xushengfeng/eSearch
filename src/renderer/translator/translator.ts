@@ -1,3 +1,5 @@
+import { setting } from "../../ShareTypes";
+
 let Screenshots: typeof import("node-screenshots").Screenshots;
 
 Screenshots = require("node-screenshots").Screenshots;
@@ -5,7 +7,6 @@ Screenshots = require("node-screenshots").Screenshots;
 const { ipcRenderer, nativeImage } = require("electron") as typeof import("electron");
 
 import xtranslator from "xtranslator";
-xtranslator.e.caiyun.setKeys(["3975l6lr5pcbvidl6jl2"]);
 
 const path = require("path") as typeof import("path");
 const fs = require("fs") as typeof import("fs");
@@ -16,6 +17,16 @@ var store = new Store({
     cwd: configPath || "",
 });
 
+const transE = store.get("屏幕翻译.默认翻译");
+
+let translateE = async (input: string) => input;
+
+if (transE) {
+    let x = (store.get("屏幕翻译.翻译") as setting["屏幕翻译"]["翻译"]).find((i) => i.id === transE);
+    xtranslator.e[x.type].setKeys(x.keys);
+    translateE = (input: string) => xtranslator.e[x.type].run(input, x.from, x.to);
+}
+
 import { el, setStyle } from "redom";
 
 type Rect = { x: number; y: number; w: number; h: number };
@@ -25,9 +36,9 @@ var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
 
 var screenId = NaN;
 
-var mode: "auto" | "manual" = "auto";
+var mode: "auto" | "manual" = store.get("屏幕翻译.mode") || "manual";
 
-var frequencyTime: number = 3000;
+var frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
 
 var pause = false;
 
@@ -107,7 +118,7 @@ async function translate(text: string) {
             resolve(t);
         });
     else {
-        const t = await xtranslator.e.caiyun.run(text, "auto", "zh");
+        const t = await translateE(text);
         tCache.set(text, t);
         return t;
     }
@@ -156,7 +167,7 @@ const runRun = () =>
     setTimeout(() => {
         if (mode === "auto" && !pause) {
             run();
-            // runRun();
+            runRun();
         }
     }, frequencyTime);
 // todo 立刻运行
@@ -169,6 +180,7 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
     mainEl.style.top = dy + "px";
     textEl.style.width = _rect.w + "px";
     textEl.style.height = _rect.h + "px";
+    textEl.style.top = (store.get("屏幕翻译.offsetY") || -1) - -1 * _rect.h + "px";
     rectEl.style.width = _rect.w + "px";
     rectEl.style.height = _rect.h + "px";
 });
@@ -176,7 +188,7 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
 const switchEl = el("input", {
     type: "checkbox",
     onclick: () => {
-        if (mode === "auto") mode = "manual";
+        if (switchEl.checked) mode = "manual";
         else mode = "auto";
         if (mode === "manual") {
             playEl.style.display = "none";
@@ -185,9 +197,11 @@ const switchEl = el("input", {
             playEl.style.display = "";
             runEl.style.display = "none";
         }
-        // todo save
+        store.set("屏幕翻译.mode", mode);
     },
 });
+
+switchEl.checked = mode === "manual";
 
 const playEl = el("button", {
     onclick: async () => {

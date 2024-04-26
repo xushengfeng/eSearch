@@ -2088,7 +2088,14 @@ var defaultSetting: setting = {
             },
         },
     },
-    插件: { 加载前: [], 加载后: [] },
+    屏幕翻译: {
+        offsetY: -1,
+        mode: "manual",
+        dTime: 3000,
+        css: { bg: "", text: "" },
+        默认翻译: "",
+        翻译: [],
+    },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");
