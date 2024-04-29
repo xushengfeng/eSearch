@@ -29,6 +29,8 @@ function initRecord() {
         keysEl.parentElement.style[px] = posi.offsetX + "px";
         keysEl.parentElement.style[py] = posi.offsetY + "px";
 
+        keysEl.style.fontSize = store.get("录屏.提示.键盘.大小") * 16 + "px";
+
         const keycode2key = {};
 
         for (let i in UiohookKey) {

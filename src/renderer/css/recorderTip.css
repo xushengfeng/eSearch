@@ -38,24 +38,25 @@ body {
     transition: var(--transition);
     display: flex;
     flex-direction: column-reverse;
-    min-width: 32px;
-    height: 32px;
+    min-width: 2em;
+    height: 2em;
+    border-radius: 0.25em;
     justify-content: space-between;
 }
 
 .only_key {
-    font-size: 16px;
+    font-size: 1em;
     font-weight: bold;
     align-items: center;
     justify-content: center !important;
 }
 .main_key {
-    font-size: 16px;
+    font-size: 1em;
     font-weight: bold;
     height: 60%;
 }
 .top_key {
-    font-size: 12px;
+    font-size: 0.75em;
     height: 30%;
     line-height: 100%;
 }

@@ -217,6 +217,7 @@ export interface setting {
             键盘: {
                 开启: boolean;
                 位置: { x: "+" | "-"; y: "+" | "-"; offsetX: number; offsetY: number };
+                大小: number;
             };
             鼠标: {
                 开启: boolean;
