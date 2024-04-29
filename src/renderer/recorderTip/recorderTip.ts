@@ -1,5 +1,4 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
-const { execSync } = require("child_process") as typeof import("child_process");
 import { el } from "redom";
 import { jsKeyCodeDisplay } from "../../../lib/key";
 import { setting } from "../../ShareTypes";
@@ -81,10 +80,6 @@ function initRecord() {
             else {
                 kbdEl.querySelector("span").classList.remove("main_key");
                 kbdEl.classList.add("only_key");
-                if (key.main.match(/[A-Z]/))
-                    if (lastKey.getAttribute("data-modi") != "true" && !isCapsLock()) {
-                        kbdEl.querySelector("span").innerText = key.main.toLowerCase();
-                    }
             }
             lastKey.append(kbdEl);
             if (key.numpad) kbdEl.classList.add("numpad_key");
@@ -156,11 +151,4 @@ function initRecord() {
                 break;
         }
     });
-}
-
-function isCapsLock() {
-    if (process.platform === "linux") {
-        return execSync("xset -q | sed -n 's/^.*Caps Lock:\\s*\\(\\S*\\).*$/\\1/p'").toString().trim() === "on";
-    }
-    return true;
 }
