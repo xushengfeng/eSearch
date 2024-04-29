@@ -427,6 +427,32 @@ comment {
     display: block !important;
 }
 
+#screen_key_tip {
+    position: relative;
+    width: 400px;
+    height: 150px;
+    margin: 4px;
+    border: dashed 1px var(--color);
+}
+#screen_key_tip > div {
+    position: absolute;
+}
+#screen_key_tip > div:first-child > kbd {
+    min-width: 2em;
+    height: 2em;
+    border-radius: 0.25em;
+}
+#screen_key_tip > div:not(:first-child) {
+    width: 8px;
+    height: 8px;
+    border: 1px var(--color) solid;
+    border-radius: 4px;
+    background-color: var(--bg);
+}
+#screen_key_tip > div:not(:first-child).tip_select {
+    background-color: #335efe;
+}
+
 #about {
     width: 100%;
     display: flex;

@@ -441,16 +441,38 @@
                 <h2>
                     <t>提示</t>
                 </h2>
+                <h3>
+                    <t>键盘按键提示</t>
+                </h3>
                 <label>
                     <input type="checkbox" id="开启键盘按键提示" data-path="录屏.提示.键盘.开启">
                     <t>开启键盘按键提示</t>
                 </label>
                 <br>
+                <div id="screen_key_tip">
+                    <div><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>I</kbd></div>
+                </div>
+                <t>偏移x</t>
+                <range-b out="true" id="screen_key_tip_ox" min="0" step="1" data-path="录屏.提示.键盘.位置.offsetX"
+                    text="px"></range-b>
+                <br>
+                <t>偏移y</t>
+                <range-b out="true" id="screen_key_tip_oy" min="0" step="1" data-path="录屏.提示.键盘.位置.offsetY"
+                    text="px"></range-b>
+                <br>
+                <t>大小</t>
+                <range-b out="true" id="screen_key_tip_size" min="0.25" step="0.25" max="5" value="1"
+                    data-path="录屏.提示.键盘.大小"></range-b>
+                <h3>
+                    <t>鼠标按键提示</t>
+                </h3>
                 <label>
                     <input type="checkbox" id="开启鼠标按键提示" data-path="录屏.提示.鼠标.开启">
                     <t>开启鼠标按键提示</t>
                 </label>
-                <br>
+                <h3>
+                    <t>光标提示</t>
+                </h3>
                 <label>
                     <input type="checkbox" id="开启光标提示" data-path="录屏.提示.光标.开启">
                     <t>开启光标提示</t>

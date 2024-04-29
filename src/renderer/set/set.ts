@@ -427,7 +427,6 @@ document.getElementById("框选最大阈值").oninput = () => {
     }
 };
 
-(<HTMLInputElement>document.getElementById("plugin")).value = old_store.插件.加载后.join("\n");
 document.getElementById("plugin_b").onclick = () => {
     ipcRenderer.send(
         "setting",
@@ -676,6 +675,60 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 
+const screenKeyTipEl = document.getElementById("screen_key_tip");
+const screenKeyTipKBD = screenKeyTipEl.querySelector("div");
+const screenKeyTipOXEl = document.getElementById("screen_key_tip_ox") as RangeEl;
+const screenKeyTipOYEl = document.getElementById("screen_key_tip_oy") as RangeEl;
+const screenKeyTipSizeEl = document.getElementById("screen_key_tip_size") as RangeEl;
+
+function setKeyTip() {
+    const posi = xstore.录屏.提示.键盘.位置;
+    const px = posi.x === "+" ? "right" : "left";
+    const py = posi.y === "+" ? "bottom" : "top";
+    for (const x of ["left", "right", "top", "bottom"]) {
+        screenKeyTipKBD.style[x] = "";
+    }
+    screenKeyTipKBD.style[px] = posi.offsetX + "px";
+    screenKeyTipKBD.style[py] = posi.offsetY + "px";
+
+    screenKeyTipKBD.style.fontSize = xstore.录屏.提示.键盘.大小 * 16 + "px";
+}
+setKeyTip();
+
+screenKeyTipOXEl.addEventListener("input", () => {
+    xstore.录屏.提示.键盘.位置.offsetX = screenKeyTipOXEl.value;
+    setKeyTip();
+});
+screenKeyTipOYEl.addEventListener("input", () => {
+    xstore.录屏.提示.键盘.位置.offsetY = screenKeyTipOYEl.value;
+    setKeyTip();
+});
+screenKeyTipSizeEl.addEventListener("input", () => {
+    xstore.录屏.提示.键盘.大小 = screenKeyTipSizeEl.value;
+    setKeyTip();
+});
+
+for (const x of ["+", "-"] as const) {
+    for (const y of ["+", "-"] as const) {
+        const px = x === "+" ? "right" : "left";
+        const py = y === "+" ? "bottom" : "top";
+        const handle = el("div");
+        handle.style[px] = "-4px";
+        handle.style[py] = "-4px";
+        if (x === xstore.录屏.提示.键盘.位置.x && y === xstore.录屏.提示.键盘.位置.y) {
+            handle.classList.add("tip_select");
+        }
+        handle.onclick = () => {
+            screenKeyTipEl.querySelector(".tip_select").classList.remove("tip_select");
+            handle.classList.add("tip_select");
+            xstore.录屏.提示.键盘.位置.x = x;
+            xstore.录屏.提示.键盘.位置.y = y;
+            setKeyTip();
+        };
+        screenKeyTipEl.append(handle);
+    }
+}
+
 var 历史记录设置 = old_store.历史记录设置;
 
 (<HTMLButtonElement>document.getElementById("清除历史记录")).disabled = !历史记录设置.保留历史记录;
@@ -815,7 +868,6 @@ function saveSetting() {
         xstore.全局.图标颜色[3] =
             getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "";
     } catch (e) {}
-    xstore.插件.加载后 = (<HTMLInputElement>document.getElementById("plugin")).value.trim().split("\n");
     xstore.快速截屏.路径 = (<HTMLInputElement>document.getElementById("快速截屏路径")).value
         ? ((<HTMLInputElement>document.getElementById("快速截屏路径")).value + "/").replace("//", "/")
         : "";
