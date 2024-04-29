@@ -2078,6 +2078,7 @@ var defaultSetting: setting = {
         提示: {
             键盘: {
                 开启: false,
+                位置: { x: "+", y: "+", offsetX: 4, offsetY: 4 },
             },
             鼠标: {
                 开启: false,

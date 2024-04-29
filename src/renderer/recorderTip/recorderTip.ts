@@ -2,6 +2,7 @@ const { ipcRenderer } = require("electron") as typeof import("electron");
 const { execSync } = require("child_process") as typeof import("child_process");
 import { el } from "redom";
 import { jsKeyCodeDisplay } from "../../../lib/key";
+import { setting } from "../../ShareTypes";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -10,6 +11,7 @@ var store = new Store({
     cwd: configPath || "",
 });
 
+const keysEl = document.getElementById("recorder_key");
 const recorderMouseEl = document.getElementById("mouse_c");
 
 initRecord();
@@ -21,6 +23,12 @@ function initRecord() {
         var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 
     function rKey() {
+        const posi = store.get("录屏.提示.键盘.位置") as setting["录屏"]["提示"]["键盘"]["位置"];
+        const px = posi.x === "+" ? "right" : "left";
+        const py = posi.y === "+" ? "bottom" : "top";
+        keysEl.parentElement.style[px] = posi.offsetX + "px";
+        keysEl.parentElement.style[py] = posi.offsetY + "px";
+
         const keycode2key = {};
 
         for (let i in UiohookKey) {
@@ -51,14 +59,14 @@ function initRecord() {
 
         let keyO: number[] = [];
 
-        const keysEl = document.getElementById("recorder_key");
         let lastKey = null as HTMLElement;
 
         uIOhook.on("keydown", (e) => {
             if (!keyO.includes(e.keycode)) keyO.push(e.keycode);
             if (!lastKey) {
                 lastKey = el("div");
-                keysEl.append(lastKey);
+                if (posi.x === "+") keysEl.append(lastKey);
+                else keysEl.insertAdjacentElement("afterbegin", lastKey);
             }
             const key = getKey(e.keycode);
             if (["Ctrl", "Alt", "Shift", "Meta"].includes(key.main)) lastKey.setAttribute("data-modi", "true");
@@ -79,9 +87,12 @@ function initRecord() {
             lastKey.append(kbdEl);
             if (key.numpad) kbdEl.classList.add("numpad_key");
             if (key.right) kbdEl.classList.add("right_key");
-            Array.from(keysEl.children)
-                .slice(0, -10)
-                .forEach((v) => v.remove());
+            const l = Array.from(keysEl.children);
+            if (posi.x === "+") {
+                l.slice(0, -10).forEach((v) => v.remove());
+            } else {
+                l.slice(10).forEach((v) => v.remove());
+            }
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i != e.keycode);
