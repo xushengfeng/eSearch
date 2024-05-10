@@ -4,6 +4,7 @@ const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as ty
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
+import { MessageBoxSyncOptions } from "electron";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -117,7 +118,14 @@ let Screenshots: typeof import("node-screenshots").Screenshots;
 try {
     Screenshots = require("node-screenshots").Screenshots;
 } catch (error) {
-    shell.openExternal("https://esearch-app.netlify.app/download.html");
+    const id = ipcRenderer.sendSync("dialog", {
+        message: "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
+        buttons: ["取消", "下载"],
+        defaultId: 1,
+    } as MessageBoxSyncOptions);
+    if (id === 1) {
+        shell.openExternal("https://aka.ms/vs/17/release/vc_redist.x64.exe");
+    }
 }
 
 /**

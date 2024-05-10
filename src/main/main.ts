@@ -838,6 +838,11 @@ if (process.platform == "win32") {
     theIcon = path.join(runPath, "assets/logo/1024x1024.png");
 }
 
+ipcMain.on("dialog", (e, arg0) => {
+    const id = dialog.showMessageBoxSync(arg0);
+    e.returnValue = id;
+});
+
 // 截屏窗口
 /**
  * @type BrowserWindow

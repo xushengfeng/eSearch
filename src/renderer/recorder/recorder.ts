@@ -127,11 +127,12 @@ var audio = false,
 
 var rect;
 
-const { ipcRenderer, shell } = require("electron") as typeof import("electron");
+const { ipcRenderer } = require("electron") as typeof import("electron");
 const spawn = require("child_process").spawn as typeof import("child_process").spawn;
 const fs = require("fs") as typeof import("fs");
 const os = require("os") as typeof import("os");
 const path = require("path") as typeof import("path");
+import { MessageBoxSyncOptions } from "electron";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform == "win32" || process.platform == "darwin") {
     let p = path.join(__dirname, "..", "..", "lib", "ffmpeg");
@@ -140,7 +141,11 @@ if (process.platform == "win32" || process.platform == "darwin") {
 }
 let start = spawn(pathToFfmpeg, ["-version"]);
 start.on("error", () => {
-    shell.openExternal("https://esearch-app.netlify.app/download.html#ffmpeg");
+    const m = process.platform === "linux" ? "请安装FFmpeg，并确保软件可使用ffmpeg命令" : "请重新安装软件，或进行反馈";
+    ipcRenderer.send("dialog", {
+        message: `FFmpeg用于处理视频，但现在软件无法使用它\n${m}`,
+        buttons: ["取消"],
+    } as MessageBoxSyncOptions);
 });
 console.log(pathToFfmpeg);
 
