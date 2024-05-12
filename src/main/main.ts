@@ -1093,8 +1093,7 @@ function createRecorderWindow(rect0, screenx: { id: string; w: number; h: number
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
-        resizable: process.platform == "linux",
-        titleBarStyle: "hiddenInset",
+        resizable: process.platform === "linux",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -1148,8 +1147,7 @@ function createRecorderWindow(rect0, screenx: { id: string; w: number; h: number
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
-        resizable: process.platform == "linux",
-        titleBarStyle: "hiddenInset",
+        resizable: process.platform === "linux",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
