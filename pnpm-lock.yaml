@@ -111,6 +111,9 @@ devDependencies:
   vite:
     specifier: ^5.2.2
     version: 5.2.2(@types/node@18.8.4)
+  xtimelog:
+    specifier: ^1.0.4
+    version: 1.0.4
 
 packages:
 
@@ -3974,6 +3977,10 @@ packages:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
     dev: false
+
+  /xtimelog@1.0.4:
+    resolution: {integrity: sha512-1cAbSBgsunRSyN0wb4jnhaddnchRS+Ozcjc85x8NVsBn9qfyqIBvSQtvbPKQn78J5ltLPwdtzofjdqaY81isyA==}
+    dev: true
 
   /xtranslator@1.0.6:
     resolution: {integrity: sha512-tz1SJ+jcRTvk8Fvhe9l4rwu9iRSUodEyStnCUgI/R2NPrRhSzLLh/9aNTIjQdo8c3WzsC7O3lV+XmTHoNFNezQ==}

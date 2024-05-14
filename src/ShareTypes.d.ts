@@ -283,7 +283,7 @@ type EditType = {
         | "polaroid";
 };
 
-type MainWinType = { type: "text" | "ocr" | "image" | "qr"; content: string; arg0?: string };
+type MainWinType = { type: "text" | "ocr" | "image" | "qr"; content: string; arg0?: string; time?: number };
 
 type translateWinType = {
     rect: { x: number; y: number; w: number; h: number };

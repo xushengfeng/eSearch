@@ -1473,14 +1473,14 @@ var mainWindowL: { [n: number]: BrowserWindow } = {};
  */
 var mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
-    var windowName = new Date().getTime();
-    var [w, h, m] = store.get("主页面大小");
+    const windowName = new Date().getTime();
+    const [w, h, m] = store.get("主页面大小");
     let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,
         px = screen.getCursorScreenPoint().x,
         py = screen.getCursorScreenPoint().y;
     let x = px > vr.x + vr.width / 2 ? px - w : px,
         y = py > vr.y + vr.height / 2 ? py - h : py;
-    var mainWindow = (mainWindowL[windowName] = new BrowserWindow({
+    const mainWindow = (mainWindowL[windowName] = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
         width: w,
@@ -1505,6 +1505,8 @@ async function createMainWindow(op: MainWinType) {
     await mainWindow.webContents.session.setProxy(store.get("代理"));
 
     if (dev) mainWindow.webContents.openDevTools();
+
+    op["time"] = windowName;
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);

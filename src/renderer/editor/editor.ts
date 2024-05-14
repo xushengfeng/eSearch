@@ -6,6 +6,7 @@ var store = new Store({
     cwd: configPath || "",
 });
 import { MainWinType } from "../../ShareTypes";
+import { tLog } from "xtimelog";
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
@@ -1061,6 +1062,7 @@ function oldHisToNew() {
     store.delete("历史记录");
     renderHistory();
 }
+const task = new tLog("e");
 
 /************************************引入 */
 const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
@@ -1074,6 +1076,8 @@ ipcRenderer.on("init", (_event, _name: number) => {});
 
 ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     windowName = name;
+
+    task.l("窗口创建", list.time);
 
     if (list.type === "text") {
         mainText = list.content;
@@ -1630,6 +1634,7 @@ async function localOcr(
     callback: (error: Error, result: { raw: ocrResult; text: string }) => void
 ) {
     try {
+        task.l("ocr_load");
         let l: [string, string, string, string, any];
         for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
         function ocrPath(p: string) {
@@ -1650,6 +1655,7 @@ async function localOcr(
             detShape: [640, 640],
             ort,
         });
+        task.l("img_load");
         let img = document.createElement("img");
         img.src = arg;
         img.onload = async () => {
@@ -1657,6 +1663,7 @@ async function localOcr(
             canvas.width = img.width;
             canvas.height = img.height;
             canvas.getContext("2d").drawImage(img, 0, 0);
+            task.l("ocr_s");
             lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height))
                 .then((l) => {
                     console.log(l);
@@ -1669,6 +1676,7 @@ async function localOcr(
                         ll.push({ box: i.box, text: i.text });
                     }
                     callback(null, { raw: ll, text: t });
+                    task.l("ocr_e");
                 })
                 .catch((e) => {
                     callback(e, null);
