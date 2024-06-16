@@ -1,0 +1,13 @@
+name: Publish to WinGet
+on:
+    release:
+        types: [released]
+jobs:
+    publish:
+        runs-on: windows-latest
+        steps:
+            - uses: vedantmgoyal2009/winget-releaser@v2
+              with:
+                  identifier: xushengfeng.eSearch
+                  installers-regex: 'x64\.exe$' # Only .exe files
+                  token: ${{ secrets.ACCESS_TOKEN }}
