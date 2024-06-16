@@ -2502,7 +2502,6 @@ var Fabric;
 var fabricCanvas = new Fabric.Canvas("draw_photo");
 
 let nowType: keyof EditType;
-nowType = "select";
 let editType: EditType = {
     select: "rect",
     draw: "free",
@@ -3567,6 +3566,8 @@ function fabricCopy() {
     hisPush();
 }
 hotkeys("Ctrl+v", "normal", fabricCopy);
+
+setEditType("select", editType.select);
 
 // 插件
 for (let p of store.get("插件.加载后")) {
