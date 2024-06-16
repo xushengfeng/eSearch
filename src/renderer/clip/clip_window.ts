@@ -900,20 +900,20 @@ function addLong(x: Buffer, w: number, h: number) {
         pjLong();
         return;
     }
+    // 原始全屏
+    let srcCanvas = new OffscreenCanvas(w, h);
     // 原始区域
     let canvas = document.createElement("canvas");
     // 对比模板
     let canvasTop = document.createElement("canvas");
     // 要拼接的图片
     let canvasAfter = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
     for (let i = 0; i < x.length; i += 4) {
         [x[i], x[i + 2]] = [x[i + 2], x[i]];
     }
     let d = new ImageData(Uint8ClampedArray.from(x), w, h);
-    canvas.getContext("2d").putImageData(d, 0, 0);
-    let gid = canvas.getContext("2d").getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
+    srcCanvas.getContext("2d").putImageData(d, 0, 0);
+    let gid = srcCanvas.getContext("2d").getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
 
     // 设定canvas宽高并设置裁剪后的图像
     canvas.width = canvasTop.width = canvasAfter.width = finalRect[2];
