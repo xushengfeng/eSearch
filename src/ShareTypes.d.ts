@@ -169,7 +169,8 @@ export interface setting {
     };
     代理: Electron.Config;
     主页面: {
-        模式: "auto" | "search" | "translate" | "OCR";
+        模式: "auto" | "search" | "translate";
+        复用: boolean;
     };
     主页面大小: [number, number, boolean];
     关闭窗口: {

@@ -356,13 +356,14 @@ app.whenReady().then(() => {
                     checked: store.get("主页面.模式") === "translate",
                     click: () => store.set("主页面.模式", "translate"),
                 },
-                {
-                    label: t("OCR"),
-                    type: "radio",
-                    checked: store.get("主页面.模式") === "OCR",
-                    click: () => store.set("主页面.模式", "OCR"),
-                },
             ],
+        },
+        {
+            label: t("复用主页面"),
+            toolTip: t("可加快OCR加载"),
+            type: "checkbox",
+            checked: store.get("主页面.复用"),
+            click: (i) => store.set("主页面.复用", i.checked),
         },
         { type: "separator" },
         {
@@ -1479,7 +1480,7 @@ var mainWindowL: { [n: number]: BrowserWindow } = {};
  */
 var mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
-    if (op.type === "ocr" && store.get("主页面.模式") === "OCR" && Object.keys(mainWindowL).length > 0) {
+    if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
         const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
         const mainWindow = mainWindowL[name];
         op["time"] = new Date().getTime();
@@ -2052,6 +2053,7 @@ var defaultSetting: setting = {
     },
     主页面: {
         模式: "auto",
+        复用: true,
     },
     主页面大小: [800, 600, false],
     关闭窗口: {
