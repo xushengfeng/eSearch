@@ -1973,8 +1973,8 @@ var defaultSetting: setting = {
         记住: false,
     },
     离线OCR: [["默认", "默认/ppocr_det.onnx", "默认/ppocr_rec.onnx", "默认/ppocr_keys_v1.txt"]],
-    离线OCR配置: {
-        node: false,
+    AI: {
+        运行后端: "cpu",
     },
     在线OCR: {
         baidu: {

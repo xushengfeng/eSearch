@@ -107,8 +107,8 @@ export interface setting {
         记住: string | false;
     };
     离线OCR: string[][];
-    离线OCR配置: {
-        node: boolean;
+    AI: {
+        运行后端: "cpu" | "cuda" | "coreml" | "directml";
     };
     在线OCR: {
         baidu: {

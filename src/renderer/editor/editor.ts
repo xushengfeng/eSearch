@@ -1649,6 +1649,7 @@ async function localOcr(
         if (!lo) {
             const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
             const ort = require("onnxruntime-node");
+            const provider = store.get("AI.运行后端") || "cpu";
             lo = await localOCR.init({
                 detPath: detp,
                 recPath: recp,
@@ -1657,6 +1658,7 @@ async function localOcr(
                 node: true,
                 detShape: [640, 640],
                 ort,
+                ortOption: { executionProviders: [{ name: provider }] },
             });
         }
         task.l("img_load");

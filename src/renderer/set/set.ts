@@ -427,15 +427,6 @@ document.getElementById("框选最大阈值").oninput = () => {
     }
 };
 
-document.getElementById("plugin_b").onclick = () => {
-    ipcRenderer.send(
-        "setting",
-        "open_dialog",
-        { filters: [{ name: "js | css", extensions: ["js", "css"] }], properties: ["openFile"] },
-        "plugin"
-    );
-};
-
 document.getElementById("获取保存路径").onclick = () => {
     ipcRenderer.send("get_save_path", (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "");
     ipcRenderer.on("get_save_path", (_e, a) => {

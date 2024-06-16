@@ -450,10 +450,11 @@ async function initSeg() {
         cameraCanvas.style.display = "none";
     }
     segEl.append(cameraCanvas, bgEl, segCanvas);
-    seg = require("esearch-seg");
+    seg = require("esearch-seg") as typeof import("esearch-seg");
     await seg.init({
         segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx"),
         ort: require("onnxruntime-node"),
+        ortOption: { executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }] },
     });
     drawCamera();
     segEl.style.width = `${video.videoWidth}px`;
