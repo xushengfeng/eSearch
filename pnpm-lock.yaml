@@ -18,8 +18,8 @@ dependencies:
     specifier: ^8.1.0
     version: 8.1.0
   esearch-ocr:
-    specifier: ^4.2.0
-    version: 4.2.0(opencv.js@1.2.1)
+    specifier: ^4.2.3
+    version: 4.2.3(opencv.js@1.2.1)
   esearch-seg:
     specifier: ^1.1.0
     version: 1.1.0(opencv.js@1.2.1)
@@ -112,8 +112,8 @@ devDependencies:
     specifier: ^5.2.2
     version: 5.2.2(@types/node@18.8.4)
   xtimelog:
-    specifier: ^1.0.4
-    version: 1.0.4
+    specifier: ^1.0.5
+    version: 1.0.5
 
 packages:
 
@@ -2119,12 +2119,13 @@ packages:
     dev: true
     optional: true
 
-  /esearch-ocr@4.2.0(opencv.js@1.2.1):
-    resolution: {integrity: sha512-KJte+tfM0GBwzMSuoXM7qLw7UJEZDOqNUSiG3xjSeeUu5aAckCUWhmyLVf5vuP9gIl/G4PCUC2EhiF0qHIqOog==}
+  /esearch-ocr@4.2.3(opencv.js@1.2.1):
+    resolution: {integrity: sha512-LuEp076321esmTHEPrDa6PJFwwuXrQbjWg3ZY1+QSNrXWwG0Ww321nBN2LBYJaApJy8OVdSMM6k/d3cZrBa+ug==}
     peerDependencies:
       opencv.js: ^1.2.1
     dependencies:
       js-clipper: 1.0.1
+      onnxruntime-common: 1.17.0
       opencv.js: 1.2.1
     dev: false
 
@@ -3978,8 +3979,8 @@ packages:
     engines: {node: '>=0.4'}
     dev: false
 
-  /xtimelog@1.0.4:
-    resolution: {integrity: sha512-1cAbSBgsunRSyN0wb4jnhaddnchRS+Ozcjc85x8NVsBn9qfyqIBvSQtvbPKQn78J5ltLPwdtzofjdqaY81isyA==}
+  /xtimelog@1.0.5:
+    resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
     dev: true
 
   /xtranslator@1.0.6:

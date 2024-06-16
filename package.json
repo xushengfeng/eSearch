@@ -21,7 +21,7 @@
         "diff-match-patch": "^1.0.5",
         "download": "^8.0.0",
         "electron-store": "^8.1.0",
-        "esearch-ocr": "^4.2.0",
+        "esearch-ocr": "^4.2.3",
         "esearch-seg": "^1.1.0",
         "hex-to-css-filter": "^5.4.0",
         "hotkeys-js": "^3.13.7",
@@ -46,7 +46,7 @@
         "electron-vite": "^2.1.0",
         "typescript": "^5.3.3",
         "vite": "^5.2.2",
-        "xtimelog": "^1.0.4"
+        "xtimelog": "^1.0.5"
     },
     "optionalDependencies": {
         "node-screenshots-darwin-arm64": "0.1.9",

@@ -356,6 +356,12 @@ app.whenReady().then(() => {
                     checked: store.get("主页面.模式") === "translate",
                     click: () => store.set("主页面.模式", "translate"),
                 },
+                {
+                    label: t("OCR"),
+                    type: "radio",
+                    checked: store.get("主页面.模式") === "OCR",
+                    click: () => store.set("主页面.模式", "OCR"),
+                },
             ],
         },
         { type: "separator" },
@@ -1473,6 +1479,15 @@ var mainWindowL: { [n: number]: BrowserWindow } = {};
  */
 var mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
+    if (op.type === "ocr" && store.get("主页面.模式") === "OCR" && Object.keys(mainWindowL).length > 0) {
+        const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
+        const mainWindow = mainWindowL[name];
+        op["time"] = new Date().getTime();
+        mainWindow.webContents.send("text", name, op);
+        mainWindow.focus();
+        return name;
+    }
+
     const windowName = new Date().getTime();
     const [w, h, m] = store.get("主页面大小");
     let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,

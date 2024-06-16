@@ -1623,6 +1623,8 @@ function ocr(
     }
 }
 
+var lo: import("esearch-ocr").initType;
+
 /**
  * 离线OCR
  * @param {String} arg 图片base64
@@ -1644,17 +1646,19 @@ async function localOcr(
             recp = ocrPath(l[2]),
             字典 = ocrPath(l[3]);
         console.log(detp, recp, 字典);
-        const lo = require("esearch-ocr") as typeof import("esearch-ocr");
-        const ort = require("onnxruntime-node");
-        await lo.init({
-            detPath: detp,
-            recPath: recp,
-            dic: fs.readFileSync(字典).toString(),
-            ...l[4],
-            node: true,
-            detShape: [640, 640],
-            ort,
-        });
+        if (!lo) {
+            const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
+            const ort = require("onnxruntime-node");
+            lo = await localOCR.init({
+                detPath: detp,
+                recPath: recp,
+                dic: fs.readFileSync(字典).toString(),
+                ...l[4],
+                node: true,
+                detShape: [640, 640],
+                ort,
+            });
+        }
         task.l("img_load");
         let img = document.createElement("img");
         img.src = arg;
@@ -1677,6 +1681,7 @@ async function localOcr(
                     }
                     callback(null, { raw: ll, text: t });
                     task.l("ocr_e");
+                    task.clear();
                 })
                 .catch((e) => {
                     callback(e, null);
