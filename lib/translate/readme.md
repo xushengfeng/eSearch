@@ -18,7 +18,7 @@ node -l en -a
 编辑 edit
 
 > [!TIP]
-> AI prompt：以下是 csv 文件，把第二列翻译成 en 并复制到第三列
+> AI prompt：“以下是 csv 文件，把第二列翻译成 en 并复制到第三列”
 
 保存 save:
 
