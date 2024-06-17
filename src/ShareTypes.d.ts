@@ -50,6 +50,7 @@ export interface setting {
         按钮图标比例: number;
         初始位置: { left: string; top: string };
         功能: 功能[];
+        稍后出现: boolean;
     };
     字体: {
         主要字体: string;

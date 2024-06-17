@@ -1900,6 +1900,7 @@ var defaultSetting: setting = {
         按钮图标比例: 0.7,
         初始位置: { left: "10px", top: "100px" },
         功能: ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"],
+        稍后出现: false,
     },
     字体: {
         主要字体: "",

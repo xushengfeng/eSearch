@@ -1577,6 +1577,7 @@ clipCanvas.onmouseup = (e) => {
             if (autoDo != "no" && e.button == 0) {
                 tool[autoDo]();
             }
+            showBars(true);
         }
         if (moving) {
             moving = false;
@@ -2691,6 +2692,21 @@ function showSideBar(show: boolean) {
         drawSideBar.classList.add("draw_side_hide");
     }
 }
+
+function showBars(b: boolean) {
+    let l = [toolBar, drawBar];
+    for (let i of l) {
+        if (b) {
+            i.style.pointerEvents = "";
+            i.style.opacity = "";
+        } else {
+            i.style.pointerEvents = "none";
+            i.style.opacity = "0";
+        }
+    }
+}
+
+if (store.get("工具栏.稍后出现")) showBars(false);
 
 var mode: EditType["draw"];
 
