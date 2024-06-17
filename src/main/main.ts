@@ -1595,23 +1595,7 @@ async function createSettingWindow(about?: boolean) {
 }
 
 async function createHelpWindow() {
-    const helpWindow = new BrowserWindow({
-        minWidth: 800,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
-        icon: theIcon,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            webSecurity: false,
-        },
-        show: true,
-    }) as BrowserWindow & { html: string };
-
-    rendererPath(helpWindow, "help.html");
-
-    await helpWindow.webContents.session.setProxy(store.get("代理"));
-
-    if (dev) helpWindow.webContents.openDevTools();
+    shell.openExternal("https://github.com/xushengfeng/eSearch-website/docs/index.md");
 }
 
 ipcMain.on("main_win", (e, arg) => {
