@@ -15,9 +15,10 @@ type RangeEl = HTMLElement & { value: number };
 let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
 import { t, lan, getLans, getLanName } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
-document.body.innerHTML = document.body.innerHTML
-    .replace(/\{(.*?)\}/g, (_m, v) => t(v))
-    .replace(/<t>(.*?)<\/t>/g, (_m, v) => t(v));
+document.body.innerHTML = document.body.innerHTML.replace(/\{(.*?)\}/g, (_m, v) => t(v));
+document.querySelectorAll("li, h1, h2, h3, button, comment, t").forEach((el: HTMLElement) => {
+    el.innerText = t(el.innerText);
+});
 document.title = t(document.title);
 
 const xstore = old_store;
