@@ -21,7 +21,7 @@ document.querySelectorAll("[title],[placeholder]").forEach((el: HTMLElement) => 
     if (iel.placeholder?.includes("{")) iel.placeholder = t(iel.placeholder.slice(1, -1));
 });
 document.querySelectorAll("li, h1, h2, h3, button, comment, t").forEach((el: HTMLElement) => {
-    el.innerText = t(el.innerText);
+    if (el.innerText) el.innerText = t(el.innerText);
 });
 document.title = t(document.title);
 
