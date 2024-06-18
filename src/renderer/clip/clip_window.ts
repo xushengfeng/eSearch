@@ -2922,6 +2922,27 @@ fabricCanvas.on("mouse:up", (options) => {
     }
 });
 
+var mask = Fabric.util.createClass(Fabric.Rect, {
+    type: "mask",
+
+    initialize: function (options) {
+        options = options || {};
+        this.callSuper("initialize", options);
+    },
+
+    _render: function (ctx: CanvasRenderingContext2D) {
+        ctx.save();
+
+        ctx.fillStyle = this.fill;
+        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+
+        const r = this.rect;
+        ctx.clearRect(-this.width / 2 + r.x, -this.height / 2 + r.y, r.w, r.h);
+
+        ctx.restore();
+    },
+});
+
 // 画一般图形
 function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
     if (v === "move") {
@@ -2983,6 +3004,18 @@ function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: num
             angle: (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 90,
         });
         shapes.push(new Fabric.Group([line, t]));
+    } else if (shape === "mask") {
+        shapes.push(
+            new mask({
+                left: 0,
+                top: 0,
+                width: fabricCanvas.width,
+                height: fabricCanvas.height,
+                fill: fillColor,
+                rect: { x, y, w, h },
+                canChangeFill: true,
+            })
+        );
     }
     fabricCanvas.add(shapes.at(-1));
 }

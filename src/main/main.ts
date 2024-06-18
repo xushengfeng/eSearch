@@ -1841,6 +1841,7 @@ var defaultSetting: setting = {
                 text: "7",
                 number: "8",
                 arrow: "9",
+                mask: "3+e",
             },
         },
         filter: {

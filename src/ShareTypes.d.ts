@@ -266,7 +266,7 @@ type 功能 =
 type EditType = {
     select: "rect" | "free" | "draw";
     draw: "free" | "eraser" | "spray";
-    shape: "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow";
+    shape: "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow" | "mask";
     filter:
         | "pixelate"
         | "blur"
