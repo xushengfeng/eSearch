@@ -2862,7 +2862,7 @@ fabricCanvas.on("mouse:down", (options) => {
             var polyOPL = polyOP.at(-1);
             if (!(options.e.offsetX == polyOPL?.x && options.e.offsetY == polyOPL?.y)) {
                 polyOP.push({ x: options.e.offsetX, y: options.e.offsetY });
-                if (shape == "number") {
+                if (shape === "number") {
                     drawNumber();
                 } else {
                     drawPoly(shape);
@@ -2923,8 +2923,8 @@ fabricCanvas.on("mouse:up", (options) => {
 });
 
 // 画一般图形
-function draw(shape, v, x1, y1, x2, y2) {
-    if (v == "move") {
+function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
+    if (v === "move") {
         fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
     }
@@ -2932,77 +2932,69 @@ function draw(shape, v, x1, y1, x2, y2) {
         y = Math.min(y1, y2),
         w = Math.abs(x1 - x2),
         h = Math.abs(y1 - y2);
-    switch (shape) {
-        case "line":
-            shapes[shapes.length] = new Fabric.Line([x1, y1, x2, y2], {
-                stroke: strokeColor,
-                形状: "line",
-            });
-            break;
-        case "circle":
-            shapes[shapes.length] = new Fabric.Circle({
-                radius: Math.max(w, h) / 2,
+    if (shape === "line") {
+        shapes[shapes.length] = new Fabric.Line([x1, y1, x2, y2], {
+            stroke: strokeColor,
+            形状: "line",
+        });
+    } else if (shape === "circle") {
+        shapes[shapes.length] = new Fabric.Circle({
+            radius: Math.max(w, h) / 2,
+            left: x,
+            top: y,
+            fill: fillColor,
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            canChangeFill: true,
+            形状: "circle",
+        });
+    } else if (shape === "rect") {
+        shapes[shapes.length] = new Fabric.Rect({
+            left: x,
+            top: y,
+            width: w,
+            height: h,
+            fill: fillColor,
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            canChangeFill: true,
+            形状: "rect",
+        });
+    } else if (shape === "text") {
+        shapes.push(
+            new Fabric.IText("点击输入文字", {
                 left: x,
                 top: y,
-                fill: fillColor,
-                stroke: strokeColor,
-                strokeWidth: strokeWidth,
                 canChangeFill: true,
-                形状: "circle",
-            });
-            break;
-        case "rect":
-            shapes[shapes.length] = new Fabric.Rect({
-                left: x,
-                top: y,
-                width: w,
-                height: h,
-                fill: fillColor,
-                stroke: strokeColor,
-                strokeWidth: strokeWidth,
-                canChangeFill: true,
-                形状: "rect",
-            });
-            break;
-        case "text":
-            shapes.push(
-                new Fabric.IText("点击输入文字", {
-                    left: x,
-                    top: y,
-                    canChangeFill: true,
-                    形状: "text",
-                })
-            );
-            break;
-        case "arrow":
-            let line = new Fabric.Line([x1, y1, x2, y2], {
-                stroke: strokeColor,
-            });
-            let t = new Fabric.Triangle({
-                width: 20,
-                height: 25,
-                fill: strokeColor,
-                left: x2,
-                top: y2,
-                originX: "center",
-                angle: (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 90,
-            });
-            shapes.push(new Fabric.Group([line, t]));
-            break;
-        default:
-            break;
+                形状: "text",
+            })
+        );
+    } else if (shape === "arrow") {
+        let line = new Fabric.Line([x1, y1, x2, y2], {
+            stroke: strokeColor,
+        });
+        let t = new Fabric.Triangle({
+            width: 20,
+            height: 25,
+            fill: strokeColor,
+            left: x2,
+            top: y2,
+            originX: "center",
+            angle: (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 90,
+        });
+        shapes.push(new Fabric.Group([line, t]));
     }
     fabricCanvas.add(shapes.at(-1));
 }
 // 多边形
-function drawPoly(shape) {
+function drawPoly(shape: shape) {
     console.log(1111);
 
     if (polyOP.length != 1) {
         fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
     }
-    if (shape == "polyline") {
+    if (shape === "polyline") {
         shapes.push(
             new Fabric.Polyline(polyOP, {
                 fill: "#0000",
@@ -3012,7 +3004,7 @@ function drawPoly(shape) {
             })
         );
     }
-    if (shape == "polygon") {
+    if (shape === "polygon") {
         shapes.push(
             new Fabric.Polygon(polyOP, {
                 fill: fillColor,
