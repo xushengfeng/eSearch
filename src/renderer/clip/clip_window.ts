@@ -2612,7 +2612,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
 
     if (!(mainType === "select" && type === "draw")) store.set(`图像编辑.记忆.${mainType}`, type);
 
-    setOnlyStroke(mainType === "draw" || (mainType === "shape" && ["line"].includes(type)));
+    setOnlyStroke(mainType === "draw" || (mainType === "shape" && ["line", "polyline", "arrow"].includes(type)));
 }
 
 hisPush();
@@ -3101,7 +3101,7 @@ document.getElementById("draw_color_switch").onclick = () => {
 };
 /** 切换当前颜色设定的ui */
 function setDrawMode(m: typeof colorM) {
-    if (m == "fill") {
+    if (m === "fill") {
         document.getElementById("draw_fill").style.height = "";
         document.getElementById("draw_storke").style.height = "0";
         document.getElementById("draw_stroke_width").style.height = "0";
@@ -3215,6 +3215,7 @@ function setOnlyStroke(b: boolean) {
         el.style.width = "";
         el.style.rotate = "";
     }
+    setDrawMode(b ? "stroke" : "fill");
 }
 
 // 色盘
