@@ -2607,8 +2607,6 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         fabricCanvas.defaultCursor = "crosshair";
         hotkeys.setScope("drawing_esc");
 
-        store.set("图像编辑.记忆.形状", shape);
-
         ableChangeColor();
     }
 
@@ -3014,6 +3012,7 @@ function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: num
                 fill: fillColor,
                 rect: { x, y, w, h },
                 canChangeFill: true,
+                形状: "聚光灯",
             })
         );
     }
