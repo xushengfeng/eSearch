@@ -2612,7 +2612,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         ableChangeColor();
     }
 
-    store.set(`图像编辑.记忆.${mainType}`, type);
+    if (!(mainType === "select" && type === "draw")) store.set(`图像编辑.记忆.${mainType}`, type);
 
     setOnlyStroke(mainType === "draw" || (mainType === "shape" && ["line"].includes(type)));
 }
