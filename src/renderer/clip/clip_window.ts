@@ -2719,8 +2719,7 @@ function pencilElClick() {
     fabricCanvas.freeDrawingBrush.color = freeColor;
     fabricCanvas.freeDrawingBrush.width = freeWidth;
 
-    colorM = "stroke";
-    setDrawMode(colorM);
+    setDrawMode("stroke");
 
     freeShadow();
 }
@@ -2733,8 +2732,7 @@ function freeSprayElClick() {
     fabricCanvas.freeDrawingBrush.color = freeColor;
     fabricCanvas.freeDrawingBrush.width = freeWidth;
 
-    colorM = "stroke";
-    setDrawMode(colorM);
+    setDrawMode("stroke");
 }
 // 阴影
 (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
@@ -3150,15 +3148,11 @@ var colorStrokeEl = document.getElementById("draw_color_stroke");
 
 setDrawMode(colorM);
 document.getElementById("draw_color_switch").onclick = () => {
-    if (colorM == "fill") {
-        colorM = "stroke";
-    } else {
-        colorM = "fill";
-    }
-    setDrawMode(colorM);
+    setDrawMode(colorM === "fill" ? "stroke" : "fill");
 };
 /** 切换当前颜色设定的ui */
 function setDrawMode(m: typeof colorM) {
+    colorM = m;
     if (m === "fill") {
         document.getElementById("draw_fill").style.height = "";
         document.getElementById("draw_storke").style.height = "0";
