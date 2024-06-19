@@ -2941,6 +2941,33 @@ var mask = Fabric.util.createClass(Fabric.Rect, {
     },
 });
 
+Fabric.number = Fabric.util.createClass(Fabric.Circle, {
+    type: "number",
+
+    initialize: function (options) {
+        options = options || {};
+        console.log(options);
+
+        this.callSuper("initialize", options);
+    },
+
+    _render: function (ctx: CanvasRenderingContext2D) {
+        ctx.save();
+
+        this.callSuper("_render", ctx);
+        ctx.restore();
+
+        const x = 0;
+        const y = 5;
+
+        // 绘制数字
+        ctx.fillStyle = this.stroke || "#000";
+        ctx.font = `${this.fontSize}px Arial`;
+        ctx.textAlign = "center";
+        ctx.fillText(String(this.text), x, y);
+    },
+});
+
 // 画一般图形
 function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
     if (v === "move") {
@@ -3054,31 +3081,22 @@ function drawNumber() {
     drawNumberN = Number(shapes?.at(-1)?.text) + 1 || drawNumberN;
     let p = polyOP.at(-1);
 
-    let txt = new Fabric.IText(String(drawNumberN), {
+    let txt = new Fabric.number({
         left: p.x,
         top: p.y,
         fontSize: 16,
-        originX: "center",
-        originY: "center",
-        canChangeFill: true,
-    });
-    let cr = new Fabric.Circle({
-        radius: 10,
-        left: p.x,
-        top: p.y,
+        radius: 12,
         originX: "center",
         originY: "center",
         fill: fillColor,
         stroke: strokeColor,
         strokeWidth: strokeWidth,
         canChangeFill: true,
+        text: String(drawNumberN),
     });
-    shapes.push(cr);
     shapes.push(txt);
-    fabricCanvas.add(shapes.at(-2));
     fabricCanvas.add(shapes.at(-1));
     fabricCanvas.setActiveObject(txt);
-    txt.enterEditing();
 
     drawNumberN++;
 }
