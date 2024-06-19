@@ -3093,6 +3093,7 @@ function drawNumber() {
         strokeWidth: strokeWidth,
         canChangeFill: true,
         text: String(drawNumberN),
+        形状: "number",
     });
     shapes.push(txt);
     fabricCanvas.add(shapes.at(-1));
