@@ -2967,6 +2967,52 @@ Fabric.number = Fabric.util.createClass(Fabric.Circle, {
         ctx.fillText(String(this.text), x, y);
     },
 });
+Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
+    type: "arrow",
+
+    initialize: function (options, x) {
+        options = options || {};
+
+        this.callSuper("initialize", options, x);
+    },
+
+    _render: function (ctx: CanvasRenderingContext2D) {
+        ctx.save();
+
+        this.callSuper("_render", ctx);
+        ctx.restore();
+
+        let { x1, x2, y1, y2 } = this;
+
+        const angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
+        const w = 10;
+        const h = 16;
+
+        let [x3, y3] = rotate(-w / 2, h, angle);
+        let [x4, y4] = rotate(w / 2, h, angle);
+
+        const x0 = (x2 - x1) / 2;
+        const y0 = (y2 - y1) / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x0 + x3, y0 + y3);
+        ctx.lineTo(x0 + x4, y0 + y4);
+        ctx.closePath();
+
+        ctx.fillStyle = this.stroke;
+        ctx.lineWidth = this.strokeWidth || 1;
+        ctx.strokeStyle = this.stroke;
+        ctx.fill();
+        ctx.stroke();
+    },
+});
+
+function rotate(x: number, y: number, r: number) {
+    const s = Math.sin(r);
+    const c = Math.cos(r);
+    return [x * c - y * s, x * s + y * c];
+}
 
 // 画一般图形
 function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
@@ -3016,19 +3062,12 @@ function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: num
             })
         );
     } else if (shape === "arrow") {
-        let line = new Fabric.Line([x1, y1, x2, y2], {
+        let line = new Fabric.arrow([x1, y1, x2, y2], {
             stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            形状: "arrow",
         });
-        let t = new Fabric.Triangle({
-            width: 20,
-            height: 25,
-            fill: strokeColor,
-            left: x2,
-            top: y2,
-            originX: "center",
-            angle: (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI + 90,
-        });
-        shapes.push(new Fabric.Group([line, t]));
+        shapes.push(line);
     } else if (shape === "mask") {
         shapes.push(
             new mask({
