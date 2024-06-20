@@ -163,6 +163,7 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
         }
         screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
     }
+    ipcRenderer.send("clip_main_b", "window-show");
     const screensEl = document.getElementById("tool_screens");
     if (allScreens.length > 1) {
         let minX = 0;

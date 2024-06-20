@@ -181,7 +181,7 @@ function autoOpen() {
         if (t) {
             createMainWindow({ type: "text", content: t });
         } else {
-            fullScreen();
+            showPhoto();
         }
     });
 }
@@ -224,7 +224,7 @@ function argRun(c: string[]) {
             autoOpen();
             break;
         case c.includes("-c"):
-            fullScreen();
+            showPhoto();
             break;
         case c.includes("-s"):
             openSelection();
@@ -244,7 +244,7 @@ function argRun(c: string[]) {
         default:
             for (let i of c) {
                 if (i.match(/(\.png)|(\.jpg)|(\.svg)$/i)) {
-                    fullScreen(i);
+                    showPhoto(i);
                     break;
                 }
             }
@@ -289,7 +289,7 @@ app.whenReady().then(() => {
             label: t("截屏搜索"),
             click: () => {
                 setTimeout(() => {
-                    fullScreen();
+                    showPhoto();
                 }, store.get("主搜索功能.截屏搜索延迟"));
             },
         },
@@ -404,7 +404,7 @@ app.whenReady().then(() => {
     ]);
     if (store.get("点击托盘自动截图")) {
         tray.on("click", () => {
-            fullScreen();
+            showPhoto();
         });
         tray.on("right-click", () => {
             tray.popUpContextMenu(contextMenu);
@@ -424,7 +424,7 @@ app.whenReady().then(() => {
     // 快捷键
     const 快捷键函数 = {
         自动识别: autoOpen,
-        截屏搜索: fullScreen,
+        截屏搜索: showPhoto,
         选中搜索: openSelection,
         剪贴板搜索: openClipBoard,
         快速截屏: quickClip,
@@ -906,6 +906,9 @@ function createClipWindow() {
     // * 监听截屏奇奇怪怪的事件
     ipcMain.on("clip_main_b", (event, type, arg) => {
         switch (type) {
+            case "window-show":
+                fullScreen();
+                break;
             case "window-close":
                 exitFullScreen();
                 isLongStart = false;
@@ -1010,11 +1013,10 @@ function createClipWindow() {
 }
 
 /**
- * 获取图片并全屏
+ * 获取图片
  * @param {?string} imgPath 路径
  */
-function fullScreen(imgPath?: string) {
-    let nearestScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+function showPhoto(imgPath?: string) {
     if (imgPath) {
         console.log(imgPath);
         fs.readFile(imgPath, (err, data) => {
@@ -1031,6 +1033,10 @@ function fullScreen(imgPath?: string) {
     } else {
         sendCaptureEvent();
     }
+}
+
+function fullScreen() {
+    let nearestScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     clipWindow.setBounds({ x: nearestScreen.bounds.x, y: nearestScreen.bounds.y });
     clipWindow.show();
     clipWindow.setSimpleFullScreen(true);
@@ -1441,7 +1447,7 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
     }
 });
 ipcMain.on("ding_edit", (_event, img_path) => {
-    fullScreen(img_path);
+    showPhoto(img_path);
 });
 
 function createTranslator(op: translateWinType) {
