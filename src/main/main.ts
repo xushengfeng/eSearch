@@ -263,6 +263,8 @@ var contextMenu: Electron.Menu, tray: Tray;
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
 
 app.whenReady().then(() => {
+    console.log("eSearch 启动");
+
     crashReporter.start({ uploadToServer: false });
 
     if (store.get("首次运行") === undefined) setDefaultSetting();
