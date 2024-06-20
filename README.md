@@ -2,7 +2,7 @@
 
 (中文 | [English](README_en.md))
 
-![LOGO](https://esearch.vercel.app/readme/title_photo.svg)
+![LOGO](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/title_photo.svg)
 
 [![license](https://img.shields.io/github/license/xushengfeng/eSearch)](LICENSE)
 ![](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
@@ -22,11 +22,11 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 即拥有 **截屏+OCR+搜索+翻译+贴图+以图搜图+录屏**
 
-![截屏界面](https://esearch.vercel.app/readme/1.webp)
+![截屏界面](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/1.webp)
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
-![识别文字主页面](https://esearch.vercel.app/readme/2.webp)
+![识别文字主页面](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/2.webp)
 
 ## 下载安装
 
@@ -34,7 +34,7 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 或在右侧 releases 打开标签，选择符合你系统的包并下载安装
 
-国内可以用[GitHub Proxy](https://ghproxy.com)加速下载
+国内可以用[GitHub Proxy](https://mirror.ghproxy.com)加速下载
 
 ArchLinux 可在 AUR 查找安装 `e-search`或`e-search-git`
 
@@ -42,35 +42,17 @@ winget `winget install esearch`
 
 ## OCR 服务
 
-本地 OCR 由[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)的模型提供支持。
+本地 OCR 由[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)的模型提供支持。开箱即用。
 
 默认启用本地 OCR 服务，若想使用在线 OCR，目前提供了百度在线 OCR，需要依据[教程](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)获取*API KEY* 以及 _Secret KEY_，截止 2022 年 1 月，百度 OCR 还是可以[免费领取服务](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)。将获取到的*API KEY* 和*Secret KEY* 以及相应的你选择的文字识别服务[_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) 填入软件设置，去掉离线 OCR 的勾选即可使用在线 OCR。
 
-## 源码运行&编译
-
-```shell
-git clone https://github.com/xushengfeng/eSearch.git
-cd eSearch
-npm install
-# 编译
-npm run dist
-# 将在build目录产生安装包和解压的目录
-```
-
-```shell
-# 运行
-npm run start
-# 调试
-npm run dev
-```
-
 ## 启动
 
-在你的启动器打开 eSearch，他将出现在托盘。Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件来使用托盘。
+在你的启动器打开 eSearch，他将出现在托盘。
 
 默认快捷键为 <kbd>Alt</kbd>+<kbd>C</kbd>(你也可以在设置里设置快捷键)
 
-### cli
+### CLI
 
 **eSearch**支持 cli，可以通过命令行进行简单的截屏。
 
@@ -90,35 +72,31 @@ esearch (若找不到，请尝试e-search)
 已经勾选的功能是开发过程最新功能，但可能还没发布在最新版本
 
 -   [x] 截屏
-    -   [x] 框选裁切
-    -   [x] 框选大小位置可调整(支持方向键或 WASD)
+    -   [x] 框选裁切，快捷键调整
     -   [x] 框选大小栏可输入四则运算式调整
-    -   [x] 取色器
-    -   [x] 放大镜
+    -   [x] 取色器/放大镜
     -   [x] 画笔（自由画笔）
     -   [x] 几何形状（边框填充支持调节）
-    -   [x] 高级画板设置（使用 Fabric.js 的 api）
     -   [x] 图像滤镜（支持局部马赛克模糊和色彩调节）
-    -   [x] 自定义框选松开后的操作
+    -   [x] 自定义框选松开后的操作（如框选后自动 OCR）
     -   [x] 快速截取全屏到剪贴板或自定义的目录
-    -   [x] 截屏历史记录
     -   [x] 窗口和控件选择（使用 OpenCV 边缘识别）
     -   [x] 长截屏（即滚动截屏）
     -   [x] 多屏幕（分开屏幕截屏，目前不支持合成一张图的跨屏截屏）
 -   [x] 录屏
-    -   [x] 录制全屏
-    -   [x] 自定义大小
+    -   [x] 录制全屏/自定义大小
     -   [x] 按键提示
     -   [x] 光标位置提示
-    -   [x] 录制栏
-    -   [x] 分段写入
     -   [x] 录音
     -   [x] 录制摄像头
     -   [x] 自定义比特率
+    -   [x] 可后期裁剪
+    -   [x] gif、webm、mp4 等格式
+    -   [x] 虚拟背景
 -   [x] 保存（可选保存为 SVG 可编辑文件）
 -   [x] 其他应用打开
 -   [x] 复制到剪贴板
--   [x] 钉在屏幕上
+-   [x] 屏幕贴图
     -   [x] 滚轮缩放
     -   [x] 恢复默认大小位置
     -   [x] 透明度
@@ -130,9 +108,8 @@ esearch (若找不到，请尝试e-search)
     -   [x] 其他在线 OCR
     -   [x] 在线公式识别
     -   [x] 支持自己申请秘钥
-    -   [ ] 表格识别
+    -   [x] 表格识别（在线）
 -   [x] 以图搜图
--   [x] 托盘
 -   [x] 划词句来搜索
 -   [x] 识别展示
     -   [x] 自动搜索翻译
@@ -140,7 +117,7 @@ esearch (若找不到，请尝试e-search)
     -   [x] 翻译
     -   [x] 自定义搜索翻译引擎
     -   [x] 软件自带浏览器打开
-    -   [x] 跟随关闭、失焦关闭
+    -   [x] 失焦关闭
     -   [x] 系统浏览器打开
     -   [x] 链接识别
     -   [x] 历史记录
@@ -163,7 +140,7 @@ https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-
 
 > Ding 在屏幕上，透明度调节、归位以及鼠标操作（视频约 1.8MB）
 
-![3](https://esearch.vercel.app/readme/3.webp)
+![3](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/3.webp)
 
 > 绘图界面
 
@@ -171,7 +148,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 > 主页面搜索和其他应用编辑（视频约 1.6MB）
 
-![3](https://esearch.vercel.app/readme/4.webp)
+![3](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/4.webp)
 
 > 主页面查找替换（支持正则）
 
@@ -190,6 +167,24 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 -   [x] 法语
 -   [x] 俄语
 
+## 源码运行&编译
+
+```shell
+git clone https://github.com/xushengfeng/eSearch.git
+cd eSearch
+npm install
+# 编译
+npm run dist
+# 将在build目录产生安装包和解压的目录
+```
+
+```shell
+# 运行
+npm run start
+# 调试
+npm run dev
+```
+
 ## 测试
 
 在 ArchLinux,KDE plasma,Xorg 下测试通过
@@ -200,16 +195,16 @@ macOS Catalina 测试通过
 
 ## Q&A
 
+### Gnome 点击后无响应
+
+Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件来使用托盘。
+
 ### 为什么选择 electron
 
 -   跨平台需要，本来我是想在 Linux 上也能体验 Windows 下优秀的截屏工具，Linux 独占也不好，所以选择跨平台。
 -   qt 依赖 c++，学习成本太高。flutter 桌面版还不太成熟。我更擅长 js 开发。
 -   截屏依赖本地系统，这是目前浏览器做不到的。
 -   最后只有 js 类跨平台方案，我选择了较为成熟，使用最多的 electron。
-
-### [tauri](https://github.com/tauri-apps/tauri) 也支持跨平台，也使用 js 开发，会转为 tauri 开发吗
-
--   有这个打算，还很心动。不过主进程 2000 行代码迁移到 rust 还是有些费劲的，所以现在不会很快迁移。
 
 ### A JavaScript error occurred in the main process
 
@@ -231,7 +226,7 @@ macOS Catalina 测试通过
 
 ## 开发原因
 
-我在用 Windows 时一直用这个好用的截屏软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我现在切换到 Linux，Snipaste 不支持，所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。
+我在用 Windows 时一直用这个好用的截屏软件：[Snipaste - 截图 + 贴图](https://zh.snipaste.com/)，但我切换到 Linux，Snipaste 不支持（2019 年，现在已支持），所以我选择了[Flameshot](https://flameshot.org/)，很可惜它没有直观的取色器。
 
 促使我开发 eSearch 的另一个契机是我很享受在手机上使用[锤子大爆炸](https://www.smartisan.com/pr/videos/bigbang-introduction)或[小米传送门](https://www.miui.com/zt/miui9/index.html)这样的即时信息搜索工具，但我没有找到电脑上类似的代替品。
 
