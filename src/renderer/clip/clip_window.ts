@@ -146,7 +146,7 @@ function dispaly2screen(displays: Electron.Display[], screens: import("node-scre
 document.body.style.opacity = "0";
 
 setSetting();
-ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act) => {
+ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
     if (!_displays.find((i) => i["main"])) {
         dispaly2screen(_displays, Screenshots.all());
     }
@@ -208,16 +208,7 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
         screensEl.style.display = "none";
     }
 
-    switch (act) {
-        case "ocr":
-            finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
-            tool.ocr();
-            break;
-        case "image_search":
-            finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
-            tool.search();
-            break;
-    }
+    setDefaultAction(act);
 
     if (autoPhotoSelectRect) {
         setTimeout(() => {
@@ -726,10 +717,14 @@ for (let m of hotkeyTipX) {
     }
 }
 
-var autoDo = store.get("框选后默认操作");
-if (autoDo != "no") {
-    document.getElementById(`tool_${autoDo}`).style.backgroundColor = "var(--hover-color)";
+var autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
+function setDefaultAction(act: setting["框选后默认操作"]) {
+    autoDo = act;
+    if (autoDo != "no") {
+        document.getElementById(`tool_${autoDo}`).style.backgroundColor = "var(--hover-color)";
+    }
 }
+setDefaultAction(autoDo);
 
 function 记忆框选f() {
     if (记忆框选 && !longInited) {

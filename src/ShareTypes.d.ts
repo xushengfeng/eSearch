@@ -152,7 +152,7 @@ export interface setting {
     };
     保存名称: { 前缀: string; 时间: string; 后缀: string };
     jpg质量: number;
-    框选后默认操作: string;
+    框选后默认操作: "no" | 功能;
     快速截屏: { 模式: "clip" | "path"; 路径: string };
     搜索引擎: [string, string][];
     翻译引擎: [string, string][];
