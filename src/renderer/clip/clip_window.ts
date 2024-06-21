@@ -612,6 +612,7 @@ let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "di
 for (let k of toolList) {
     let key = store.get(`工具快捷键.${k}`) as string;
     if (["esc", "escape"].includes(key.toLowerCase())) hotkeys(key, "normal", tool[k]);
+    else if (key.toLowerCase() === "enter") hotkeys(key, "normal", tool[k]);
     else hotkeys(key, "all", tool[k]);
     key = key
         .split("+")
