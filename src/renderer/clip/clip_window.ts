@@ -494,7 +494,6 @@ function getWinWin() {
     });
 }
 
-var bScope = null;
 var centerBarShow = false;
 var centerBarM = null;
 function sCenterBar(m) {
@@ -512,12 +511,11 @@ function sCenterBar(m) {
         document.getElementById("save_type").style.width = "0";
         document.getElementById("center_bar").style.opacity = "1";
         document.getElementById("center_bar").style.pointerEvents = "auto";
-        if (hotkeys.getScope() != "all") bScope = hotkeys.getScope();
-        hotkeys.setScope("c_bar");
+        toHotkeyScope("c_bar");
     } else {
         document.getElementById("center_bar").style.opacity = "0";
         document.getElementById("center_bar").style.pointerEvents = "none";
-        hotkeys.setScope(bScope || "normal");
+        backHotkeyScope();
     }
     switch (m) {
         case "save":
@@ -597,11 +595,24 @@ hotkeys.filter = (event) => {
     return v;
 };
 
-hotkeys.setScope("normal");
+type hotkeyScope = "normal" | "c_bar" | "drawing";
+const hotkeyScopes: hotkeyScope[] = [];
+function toHotkeyScope(scope: hotkeyScope) {
+    if (hotkeyScopes.at(-1) != scope) hotkeyScopes.push(scope);
+    hotkeys.setScope(scope);
+}
+function backHotkeyScope() {
+    if (hotkeyScopes.length > 1) hotkeyScopes.pop();
+    hotkeys.setScope(hotkeyScopes.at(-1));
+    console.log(hotkeys.getScope(), hotkeyScopes);
+}
+
+toHotkeyScope("normal");
 let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
 for (let k of toolList) {
     let key = store.get(`工具快捷键.${k}`) as string;
-    hotkeys(key, "normal", tool[k]);
+    if (["esc", "escape"].includes(key.toLowerCase())) hotkeys(key, "normal", tool[k]);
+    else hotkeys(key, "all", tool[k]);
     key = key
         .split("+")
         .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
@@ -794,7 +805,6 @@ function drawM(v: boolean) {
     } else {
         // 裁切模式
         document.getElementById("clip_photo").style.pointerEvents = "auto";
-        hotkeys.setScope("normal");
         fabricCanvas.discardActiveObject();
         fabricCanvas.renderAll();
         document.getElementById("clip_wh").style.pointerEvents = "auto";
@@ -1126,7 +1136,7 @@ function runSave() {
             sCenterBar("save");
         }
     };
-    hotkeys.setScope("c_bar");
+    toHotkeyScope("c_bar");
     hotkeys("enter", "c_bar", () => {
         (<HTMLDivElement>document.querySelector("#suffix > .suffix_h")).click();
         sCenterBar("save");
@@ -2473,10 +2483,10 @@ function undo(v: boolean) {
     if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
 }
 
-hotkeys("ctrl+z", "normal", () => {
+hotkeys("ctrl+z", () => {
     undo(true);
 });
-hotkeys("ctrl+y", "normal", () => {
+hotkeys("ctrl+y", () => {
     undo(false);
 });
 
@@ -2543,7 +2553,6 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
             exitFree();
             exitShape();
             exitFilter();
-            hotkeys.setScope("normal");
             drawM(false);
             if (type === "free") {
                 isRect = false;
@@ -2556,8 +2565,10 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
             exitShape();
             exitFilter();
         }
+        backHotkeyScope();
     } else {
         drawM(true);
+        toHotkeyScope("drawing");
     }
     if (mainType === "draw") {
         fabricCanvas.isDrawingMode = true;
@@ -2606,7 +2617,6 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         exitFree();
         exitFilter();
         fabricCanvas.defaultCursor = "crosshair";
-        hotkeys.setScope("drawing_esc");
 
         ableChangeColor();
     }
@@ -2897,7 +2907,6 @@ fabricCanvas.on("mouse:up", (options) => {
         newFilterSelect(newFilterO, fabricCanvas.getPointer(options.e));
         getFilters();
         hisPush();
-        hotkeys.setScope("normal");
 
         if (willFilter) {
             const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
@@ -3464,7 +3473,6 @@ const startFilter = () => {
     exitShape();
     newFilterSelecting = true;
     fabricCanvas.defaultCursor = "crosshair";
-    hotkeys.setScope("drawing_esc");
 };
 
 const filterRangeEl = document.querySelector("#draw_filters_range");
@@ -3622,11 +3630,8 @@ function exitFilter() {
     fabricCanvas.defaultCursor = "auto";
     willFilter = "";
 }
-hotkeys("esc", "drawing_esc", () => {
-    exitFree();
-    exitShape();
-    exitFilter();
-    hotkeys.setScope("normal");
+hotkeys("esc", "drawing", () => {
+    setEditType("select", "draw");
 });
 
 var fabricClipboard;
@@ -3657,7 +3662,7 @@ function fabricCopy() {
     });
     hisPush();
 }
-hotkeys("Ctrl+v", "normal", fabricCopy);
+hotkeys("Ctrl+v", fabricCopy);
 
 setEditType("select", editType.select);
 
