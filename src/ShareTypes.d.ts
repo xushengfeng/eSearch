@@ -12,6 +12,7 @@ export interface setting {
         主页面: { key?: string };
     };
     点击托盘自动截图: boolean;
+    全局工具快捷键: { [key in 功能]: string };
     工具快捷键: { [key in 功能]: string };
     截屏编辑快捷键: { [key in keyof EditType]: { 键: string; 副: { [key1 in EditType[key]]: string } } };
     大小栏快捷键: {

@@ -340,15 +340,15 @@ comment {
     opacity: 0.6;
 }
 
-:is(.hotkeys, #hotkeys_content > div) {
+:is(.hotkeys, #hotkeys_content > div, #hotkeys_content2) {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 8px 16px;
 }
-:is(.hotkeys, #hotkeys_content > div) > span {
+:is(.hotkeys, #hotkeys_content > div, #hotkeys_content2) > span {
     text-align: right;
 }
-:is(.hotkeys, #hotkeys_content > div) > span .icon {
+:is(.hotkeys, #hotkeys_content > div, #hotkeys_content2) > span .icon {
     width: 32px;
     display: block;
     position: initial;

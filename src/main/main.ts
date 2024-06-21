@@ -22,7 +22,7 @@ import {
 import { Buffer } from "buffer";
 
 const Store = require("electron-store");
-import { setting, MainWinType, translateWinType } from "../ShareTypes";
+import { setting, MainWinType, translateWinType, 功能 } from "../ShareTypes";
 import * as path from "path";
 const runPath = path.join(path.resolve(__dirname, ""), "../../");
 import { exec } from "child_process";
@@ -319,7 +319,7 @@ app.whenReady().then(() => {
         {
             label: t("以图搜图"),
             click: () => {
-                sendCaptureEvent(null, "image_search");
+                sendCaptureEvent(null, "search");
             },
         },
         {
@@ -453,7 +453,7 @@ app.whenReady().then(() => {
         }
     });
 
-    var /**@type {Object} */ 快捷键: object = store.get("快捷键");
+    var 快捷键: object = store.get("快捷键");
     for (let k in 快捷键) {
         var m = 快捷键[k];
         try {
@@ -464,6 +464,19 @@ app.whenReady().then(() => {
         } catch (error) {
             delete 快捷键[k].key;
             store.set(`快捷键`, 快捷键);
+        }
+    }
+    const 工具快捷键 = store.get("全局工具快捷键");
+    for (const k in 工具快捷键) {
+        const m = 工具快捷键[k] as string;
+        try {
+            if (m)
+                globalShortcut.register(m, () => {
+                    sendCaptureEvent(null, k as 功能);
+                });
+        } catch (error) {
+            工具快捷键[k] = "";
+            store.set(`全局工具快捷键`, 工具快捷键);
         }
     }
 
@@ -1044,10 +1057,7 @@ function fullScreen() {
     clipWindow.setSimpleFullScreen(true);
 }
 
-function sendCaptureEvent(
-    data?: (Electron.Display & { image: Buffer; main: boolean })[],
-    type?: "ocr" | "image_search"
-) {
+function sendCaptureEvent(data?: (Electron.Display & { image: Buffer; main: boolean })[], type?: 功能) {
     clipWindow.webContents.send(
         "reflash",
         data || screen.getAllDisplays(),
@@ -1821,6 +1831,20 @@ var defaultSetting: setting = {
         主页面: {},
     },
     点击托盘自动截图: process.platform != "linux",
+    全局工具快捷键: {
+        close: "",
+        ocr: "",
+        search: "",
+        QR: "",
+        open: "",
+        ding: "",
+        record: "",
+        long: "",
+        copy: "",
+        save: "",
+        screens: "",
+        translate: "",
+    },
     工具快捷键: {
         close: "Escape",
         ocr: "Enter",
