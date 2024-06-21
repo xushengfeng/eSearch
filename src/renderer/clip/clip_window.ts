@@ -2527,8 +2527,10 @@ editType.filter = editTypeRecord.filter || editType.filter;
 editType.shape = editTypeRecord.shape || editType.shape;
 
 function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): void {
-    editType[mainType] = type;
-    nowType = mainType;
+    if (!(mainType === "select" && type === "draw")) {
+        editType[mainType] = type;
+        nowType = mainType;
+    }
 
     const SELECT = "select";
 
