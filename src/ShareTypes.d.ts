@@ -99,7 +99,14 @@ export interface setting {
             x: number;
             y: number;
         };
-        形状属性: {};
+        形状属性: {
+            [k in EditType["shape"]]?: {
+                fc?: string;
+                sc?: string;
+                sw?: number;
+                shadow?: number;
+            };
+        };
         记忆: EditType;
     };
     OCR: {

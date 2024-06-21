@@ -1953,7 +1953,10 @@ var defaultSetting: setting = {
             x: 10,
             y: 10,
         },
-        形状属性: {},
+        形状属性: {
+            arrow: { sw: 3 },
+            mask: { fc: "#0005" },
+        },
         记忆: {
             select: "rect",
             draw: "free",

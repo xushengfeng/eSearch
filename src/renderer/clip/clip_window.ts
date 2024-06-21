@@ -3086,7 +3086,7 @@ function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: num
                 fill: fillColor,
                 rect: { x, y, w, h },
                 canChangeFill: true,
-                形状: "聚光灯",
+                形状: "mask",
             })
         );
     }
