@@ -849,8 +849,6 @@ window.onbeforeunload = () => {
     ipcRenderer.send("setting", "reload_main");
 };
 
-window.onblur = saveSetting;
-
 function saveSetting() {
     if (giveUp) return;
     xstore.主搜索功能.自动搜索排除 = (<HTMLInputElement>document.getElementById("自动搜索排除")).value
