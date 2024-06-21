@@ -2792,8 +2792,6 @@ function freeInit() {
     if (sc) changeColor({ stroke: sc }, false, true);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
     if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
-
-    store.set("图像编辑.记忆.画笔", mode);
 }
 
 // 几何
