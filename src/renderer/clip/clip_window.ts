@@ -1466,7 +1466,7 @@ clipCanvas.onmousedown = (e) => {
     if (isRect) {
         inRect = isInClipRect({ x: e.offsetX, y: e.offsetY });
     } else {
-        inRect = isPointInPolygon({ x: e.offsetX, y: e.offsetY }, freeSelect);
+        inRect = isPointInPolygon({ x: e.offsetX, y: e.offsetY });
     }
     if (e.button == 0) {
         clipStart({ x: e.offsetX, y: e.offsetY }, inRect);
@@ -1565,7 +1565,7 @@ clipCanvas.onmousemove = (e) => {
         if (isRect) {
             isInClipRect({ x: e.offsetX, y: e.offsetY });
         } else {
-            isPointInPolygon({ x: e.offsetX, y: e.offsetY }, freeSelect);
+            isPointInPolygon({ x: e.offsetX, y: e.offsetY });
         }
     }
 
@@ -2390,21 +2390,11 @@ function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: ed
     finalRectFix();
     drawClipRect();
 }
-function isPointInPolygon(p: point, polygon: point[]): boolean {
+function isPointInPolygon(p: point): boolean {
     let inside = false;
-    const n = polygon.length;
-    if (n < 3) return false; // 多边形至少需要3个顶点
 
-    for (let i = 0, j = n - 1; i < n; j = i++) {
-        const xi = polygon[i].x,
-            yi = polygon[i].y;
-        const xj = polygon[j].x,
-            yj = polygon[j].y;
+    inside = clipCtx.isPointInPath(p.x, p.y);
 
-        // 检查点P的Y坐标是否在边ij的Y坐标范围内
-        const intersect = yi > p.y != yj > p.y && p.x < ((xj - xi) * (p.y - yi)) / (yj - yi) + xi;
-        if (intersect) inside = !inside;
-    }
     if (inside) {
         clipCanvas.style.cursor = "move";
         direction = "move";
