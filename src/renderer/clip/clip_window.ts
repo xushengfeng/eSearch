@@ -719,6 +719,7 @@ for (let m of hotkeyTipX) {
 
 var autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
 function setDefaultAction(act: setting["框选后默认操作"]) {
+    if (!act) return;
     autoDo = act;
     if (autoDo != "no") {
         document.getElementById(`tool_${autoDo}`).style.backgroundColor = "var(--hover-color)";
