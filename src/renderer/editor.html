@@ -11,100 +11,109 @@
     <link rel="stylesheet" type="text/css" href="css/css.css">
 </head>
 
-<body class="fill_t">
-    <div id="find">
-        <div id="count"></div>
-        <div class="find_buttons">
-            <button title="上一个匹配" id="find_b_last"><img src="./assets/icons/up.svg" class="icon"></button>
-            <button title="下一个匹配" id="find_b_next"><img src="./assets/icons/down.svg" class="icon"></button>
-            <button title="关闭" id="find_b_close"><img src="./assets/icons/close.svg" class="icon"></button>
-        </div>
-        <div class="find_f">
-            <input type="text" name="查找" id="find_input" title="查找" autocomplete="off" autocorrect="off"
-                autocapitalize="off" spellcheck="false"><button title="正则匹配" id="find_b_regex"><img
-                    src="./assets/icons/regex.svg" class="icon"></button>
-        </div>
-        <div class="find_s">
-            <input type="text" name="替换" id="replace_input" title="替换" autocomplete="off" autocorrect="off"
-                autocapitalize="off" spellcheck="false"><button title="替换" id="find_b_replace"><img
-                    src="./assets/icons/replace.svg" class="icon"></button><button title="全部替换"
-                id="find_b_replace_all"><img src="./assets/icons/replace_all.svg" class="icon"></button>
-        </div>
-        <div class="find_t"><span></span></div>
-    </div>
 
-    <div id="image">
-        <div id="img_input">
-            <input type="file" name="upload" id="upload" multiple>
-            <div id="drop">
-                <div id="file_input"><img src="./assets/icons/add.svg" class="icon"></div><span>拖拽或粘贴图像到此处</span>
+<body>
+    <nav>
+        <button id="top_b"><img src="./assets/icons/toptop.svg" class="icon"></button>
+        <button id="ding_b"><img src="./assets/icons/ding.svg" class="icon"></button>
+    </nav>
+    <div class="fill_t">
+        <div id="find">
+            <div id="count"></div>
+            <div class="find_buttons">
+                <button title="上一个匹配" id="find_b_last"><img src="./assets/icons/up.svg" class="icon"></button>
+                <button title="下一个匹配" id="find_b_next"><img src="./assets/icons/down.svg" class="icon"></button>
+                <button title="关闭" id="find_b_close"><img src="./assets/icons/close.svg" class="icon"></button>
             </div>
+            <div class="find_f">
+                <input type="text" name="查找" id="find_input" title="查找" autocomplete="off" autocorrect="off"
+                    autocapitalize="off" spellcheck="false"><button title="正则匹配" id="find_b_regex"><img
+                        src="./assets/icons/regex.svg" class="icon"></button>
+            </div>
+            <div class="find_s">
+                <input type="text" name="替换" id="replace_input" title="替换" autocomplete="off" autocorrect="off"
+                    autocapitalize="off" spellcheck="false"><button title="替换" id="find_b_replace"><img
+                        src="./assets/icons/replace.svg" class="icon"></button><button title="全部替换"
+                    id="find_b_replace_all"><img src="./assets/icons/replace_all.svg" class="icon"></button>
+            </div>
+            <div class="find_t"><span></span></div>
         </div>
-        <div id="text_output">
-            <select name="ocr引擎" id="ocr引擎"></select>
-            <div id="run"><img src="./assets/icons/ocr.svg" class="icon"></div>
-            <div id="close"><img src="./assets/icons/close.svg" class="icon"></div>
-        </div>
-        <div id="img_view"></div>
-    </div>
 
-    <div class="main">
-        <div id="top">
-            <div id="text_out">
-                <div id="line_num"></div>
-                <div id="main_text">
-                    <div id="text">
-                    </div>
-                    <div id="edit_b" class="edit_h">
-                        <div id="excel_bar" title="保存Excel"><img src="./assets/icons/excel.svg" class="icon"></div>
-                        <div id="md_table_bar" title="复制为md表格"><img src="./assets/icons/md.svg" class="icon"></div>
-                        <div id="link_bar" title="打开链接"><img src="./assets/icons/link.svg" class="icon"></div>
-                        <div id="search_bar" title="搜索"><img src="./assets/icons/search.svg" class="icon"></div>
-                        <div id="translate_bar" title="翻译"><img src="./assets/icons/translate.svg" class="icon"></div>
-                        <div id="selectAll_bar" title="全选"><img src="./assets/icons/select_all.svg" class="icon"></div>
-                        <div id="cut_bar" title="剪切"><img src="./assets/icons/cut.svg" class="icon"></div>
-                        <div id="copy_bar" title="复制"><img src="./assets/icons/copy.svg" class="icon"></div>
-                        <div id="paste_bar" title="粘贴"><img src="./assets/icons/paste.svg" class="icon"></div>
-                        <div id="delete_enter_bar" title="自动删除换行"><img src="./assets/icons/delete_enter.svg"
-                                class="icon"></div>
-                        <div id="add_space" title="自动添加空格"><img src="./assets/icons/space.svg" class="icon">
+        <div id="image">
+            <div id="img_input">
+                <input type="file" name="upload" id="upload" multiple>
+                <div id="drop">
+                    <div id="file_input"><img src="./assets/icons/add.svg" class="icon"></div><span>拖拽或粘贴图像到此处</span>
+                </div>
+            </div>
+            <div id="text_output">
+                <select name="ocr引擎" id="ocr引擎"></select>
+                <div id="run"><img src="./assets/icons/ocr.svg" class="icon"></div>
+                <div id="close"><img src="./assets/icons/close.svg" class="icon"></div>
+            </div>
+            <div id="img_view"></div>
+        </div>
+
+        <div class="main">
+            <div id="top">
+                <div id="text_out">
+                    <div id="line_num"></div>
+                    <div id="main_text">
+                        <div id="text">
+                        </div>
+                        <div id="edit_b" class="edit_h">
+                            <div id="excel_bar" title="保存Excel"><img src="./assets/icons/excel.svg" class="icon"></div>
+                            <div id="md_table_bar" title="复制为md表格"><img src="./assets/icons/md.svg" class="icon"></div>
+                            <div id="link_bar" title="打开链接"><img src="./assets/icons/link.svg" class="icon"></div>
+                            <div id="search_bar" title="搜索"><img src="./assets/icons/search.svg" class="icon"></div>
+                            <div id="translate_bar" title="翻译"><img src="./assets/icons/translate.svg" class="icon">
+                            </div>
+                            <div id="selectAll_bar" title="全选"><img src="./assets/icons/select_all.svg" class="icon">
+                            </div>
+                            <div id="cut_bar" title="剪切"><img src="./assets/icons/cut.svg" class="icon"></div>
+                            <div id="copy_bar" title="复制"><img src="./assets/icons/copy.svg" class="icon"></div>
+                            <div id="paste_bar" title="粘贴"><img src="./assets/icons/paste.svg" class="icon"></div>
+                            <div id="delete_enter_bar" title="自动删除换行"><img src="./assets/icons/delete_enter.svg"
+                                    class="icon"></div>
+                            <div id="add_space" title="自动添加空格"><img src="./assets/icons/space.svg" class="icon">
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div id="history_list"></div>
             </div>
-            <div id="history_list"></div>
-        </div>
 
-        <div id="tabs">
-            <div id="buttons">
-                <div id="home"><img src="./assets/icons/main.svg" class="icon"></div>
-                <div id="back"><img src="./assets/icons/left.svg" class="icon"></div>
-                <div id="forward"><img src="./assets/icons/right.svg" class="icon"></div>
-                <div id="reload" style="display: none;"><img src="./assets/icons/reload.svg" class="icon"></div>
-                <div id="stop"><img src="./assets/icons/close.svg" class="icon"></div>
-                <div id="browser"><img src="./assets/icons/browser.svg" class="icon"></div>
-                <div id="add_history"><img src="./assets/icons/add_history.svg" class="icon"></div>
+            <div id="tabs">
+                <div id="buttons">
+                    <div id="home"><img src="./assets/icons/main.svg" class="icon"></div>
+                    <div id="back"><img src="./assets/icons/left.svg" class="icon"></div>
+                    <div id="forward"><img src="./assets/icons/right.svg" class="icon"></div>
+                    <div id="reload" style="display: none;"><img src="./assets/icons/reload.svg" class="icon"></div>
+                    <div id="stop"><img src="./assets/icons/close.svg" class="icon"></div>
+                    <div id="browser"><img src="./assets/icons/browser.svg" class="icon"></div>
+                    <div id="add_history"><img src="./assets/icons/add_history.svg" class="icon"></div>
+                </div>
             </div>
-        </div>
-        <div>
-            <button id="image_b" title="图片"><img src="./assets/icons/img.svg" class="icon"></button>
-        </div>
-        <div id="history">
-            <button id="history_b" title="历史记录"><img src="./assets/icons/history.svg" class="icon"></button>
-        </div>
-        <div id="search">
-            <button id="search_b" title="搜索"><img src="./assets/icons/search.svg" class="icon"></button>
-            <select id="search_s" title="选择搜索引擎"></select>
-        </div>
-        <div id="translate">
-            <button id="translate_b" title="翻译"><img src="./assets/icons/translate.svg" class="icon"></button>
-            <select id="translate_s" title="选择翻译引擎"></select>
-        </div>
+            <div>
+                <button id="image_b" title="图片"><img src="./assets/icons/img.svg" class="icon"></button>
+            </div>
+            <div id="history">
+                <button id="history_b" title="历史记录"><img src="./assets/icons/history.svg" class="icon"></button>
+            </div>
+            <div id="search">
+                <button id="search_b" title="搜索"><img src="./assets/icons/search.svg" class="icon"></button>
+                <select id="search_s" title="选择搜索引擎"></select>
+            </div>
+            <div id="translate">
+                <button id="translate_b" title="翻译"><img src="./assets/icons/translate.svg" class="icon"></button>
+                <select id="translate_s" title="选择翻译引擎"></select>
+            </div>
 
+        </div>
+        <div id="browser_bg"></div>
+        <li id="tab" class="b_tab" style="display: none;"><img src="./assets/icons/reload.svg" class="loading"><span
+                id="title"></span><button><img src="./assets/icons/close.svg" class="icon"></button></li>
     </div>
-    <div id="browser_bg"></div>
-    <li id="tab" class="b_tab" style="display: none;"><img src="./assets/icons/reload.svg" class="loading"><span
-            id="title"></span><button><img src="./assets/icons/close.svg" class="icon"></button></li>
     <script src="editor/editor.ts" type="module"></script>
 </body>
 

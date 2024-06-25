@@ -181,11 +181,9 @@ export interface setting {
     主页面: {
         模式: "auto" | "search" | "translate";
         复用: boolean;
+        失焦关闭: boolean;
     };
     主页面大小: [number, number, boolean];
-    关闭窗口: {
-        失焦: { 主页面: boolean };
-    };
     时间格式: string;
     硬件加速: boolean;
     更新: {

@@ -444,6 +444,11 @@ var 自动搜索 = store.get("自动搜索"),
 
 /************************************UI */
 
+function setButtonHover(el: HTMLElement, b: boolean) {
+    if (b) el.classList.add("hover_b");
+    else el.classList.remove("hover_b");
+}
+
 var 浏览器打开 = store.get("浏览器中打开");
 
 /**字体大小 */
@@ -1298,12 +1303,32 @@ function countWords() {
 /************************************失焦关闭 */
 
 window.onblur = () => {
-    if (store.get("关闭窗口.失焦.主页面")) ipcRenderer.send("main_win", "close");
+    if (blurToClose && !alwaysOnTop) ipcRenderer.send("main_win", "close");
+};
+
+const alwaysOnTopEl = document.getElementById("top_b");
+const blurToCloseEl = document.getElementById("ding_b");
+
+let alwaysOnTop = false;
+alwaysOnTopEl.onclick = () => {
+    alwaysOnTop = !alwaysOnTop;
+    setButtonHover(alwaysOnTopEl, alwaysOnTop);
+    ipcRenderer.send("main_win", "top", alwaysOnTop);
+};
+
+let blurToClose = store.get("主页面.失焦关闭");
+setButtonHover(blurToCloseEl, !blurToClose);
+blurToCloseEl.onclick = () => {
+    blurToClose = !blurToClose;
+    store.set("主页面.失焦关闭", blurToClose);
+    setButtonHover(blurToCloseEl, !blurToClose);
 };
 
 /************************************浏览器 */
 
-document.body.className = "fill_t";
+const body = document.querySelector(".fill_t");
+
+body.className = "fill_t";
 
 var liList = [];
 
@@ -1413,9 +1438,9 @@ function focusTab(li: HTMLElement) {
     if (li) {
         ipcRenderer.send("tab_view", li.id.replace("id", ""), "top");
         document.title = `eSearch - ${li.querySelector("span").title}`;
-        document.body.classList.add("fill_t_s");
+        body.classList.add("fill_t_s");
     } else {
-        document.body.classList.remove("fill_t_s");
+        body.classList.remove("fill_t_s");
         document.title = t("eSearch - 主页面");
     }
 }
@@ -1471,7 +1496,7 @@ function mainEvent(e: MouseEvent | any) {
         if (el.id) ipcRenderer.send("tab_view", id, el.id);
         if (el.id == "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
-            document.body.classList.remove("fill_t_s");
+            body.classList.remove("fill_t_s");
             document.title = t("eSearch - 主页面");
         }
     }
@@ -1888,7 +1913,7 @@ const runEl = document.getElementById("run");
 const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 
 imageB.onclick = () => {
-    document.body.classList.toggle("image_main");
+    body.classList.toggle("image_main");
 };
 
 dropEl.ondragover = (e) => {

@@ -1522,6 +1522,9 @@ async function createMainWindow(op: MainWinType) {
         minWidth: 800,
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         icon: theIcon,
+        // frame: false,
+        titleBarStyle: "hidden",
+        titleBarOverlay: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -1616,10 +1619,14 @@ async function createHelpWindow() {
     shell.openExternal("https://github.com/xushengfeng/eSearch-website/docs/index.md");
 }
 
-ipcMain.on("main_win", (e, arg) => {
+ipcMain.on("main_win", (e, arg, arg2) => {
+    const window = BrowserWindow.fromWebContents(e.sender);
     switch (arg) {
         case "close":
-            BrowserWindow.fromWebContents(e.sender).close();
+            window.close();
+            break;
+        case "top":
+            window.setAlwaysOnTop(arg2);
             break;
     }
 });
@@ -2076,11 +2083,9 @@ var defaultSetting: setting = {
     主页面: {
         模式: "auto",
         复用: true,
+        失焦关闭: false,
     },
     主页面大小: [800, 600, false],
-    关闭窗口: {
-        失焦: { 主页面: false },
-    },
     时间格式: "MM/DD hh:mm:ss",
     硬件加速: true,
     更新: {
