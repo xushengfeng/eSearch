@@ -1585,7 +1585,8 @@ clipCanvas.onmouseup = (e) => {
             if (autoDo != "no" && e.button == 0) {
                 tool[autoDo]();
             }
-            showBars(true);
+            isShowBars = true;
+            showBars(isShowBars);
         }
         if (moving) {
             moving = false;
@@ -2704,7 +2705,14 @@ function showBars(b: boolean) {
     }
 }
 
-if (store.get("工具栏.稍后出现")) showBars(false);
+let isShowBars = !store.get("工具栏.稍后出现") as boolean;
+
+showBars(isShowBars);
+
+hotkeys(store.get("其他快捷键.隐藏或显示栏"), () => {
+    isShowBars = !isShowBars;
+    showBars(isShowBars);
+});
 
 var mode: EditType["draw"];
 

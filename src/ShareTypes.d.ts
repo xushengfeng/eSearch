@@ -33,6 +33,7 @@ export interface setting {
     };
     其他快捷键: {
         复制颜色: string;
+        隐藏或显示栏: string;
     };
     主搜索功能: {
         自动搜索排除: string[];
