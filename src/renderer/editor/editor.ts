@@ -1324,6 +1324,12 @@ blurToCloseEl.onclick = () => {
     setButtonHover(blurToCloseEl, !blurToClose);
 };
 
+if (!store.get("主页面.高级窗口按钮")) {
+    document.body.querySelector("nav").style.height = "0";
+    document.body.querySelector("div").style.height = "100%";
+    document.body.querySelector("div").style.top = "0";
+}
+
 /************************************浏览器 */
 
 const body = document.querySelector(".fill_t");

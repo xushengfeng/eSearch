@@ -2086,6 +2086,7 @@ var defaultSetting: setting = {
         模式: "auto",
         复用: true,
         失焦关闭: false,
+        高级窗口按钮: true,
     },
     主页面大小: [800, 600, false],
     时间格式: "MM/DD hh:mm:ss",
