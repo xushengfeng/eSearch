@@ -8,19 +8,28 @@ body {
     height: 100%;
 }
 
+:root {
+    --title-bar: calc(env(titlebar-area-height, 24px) - 4px);
+}
+
 nav {
-    width: 100%;
-    height: 24px;
+    left: calc(env(titlebar-area-x, 0) + 2px);
+    width: calc(env(titlebar-area-width, 100%) - 4px);
+    height: var(--title-bar);
+    -webkit-app-region: drag;
+    display: flex;
 }
 
 nav > button {
     border-radius: var(--border-radius);
-    height: 24px;
-    width: 24px;
+    height: var(--title-bar);
+    width: var(--title-bar);
+    display: block;
+    -webkit-app-region: no-drag;
 }
 nav > button > .icon {
-    height: 24px;
-    width: 24px;
+    height: var(--title-bar);
+    width: var(--title-bar);
 }
 
 .main {

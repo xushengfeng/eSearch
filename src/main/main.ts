@@ -1514,17 +1514,19 @@ async function createMainWindow(op: MainWinType) {
         py = screen.getCursorScreenPoint().y;
     let x = px > vr.x + vr.width / 2 ? px - w : px,
         y = py > vr.y + vr.height / 2 ? py - h : py;
+    const bg = nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff";
     const mainWindow = (mainWindowL[windowName] = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
         width: w,
         height: h,
         minWidth: 800,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
+        backgroundColor: bg,
         icon: theIcon,
-        // frame: false,
         titleBarStyle: "hidden",
-        titleBarOverlay: true,
+        titleBarOverlay: {
+            color: bg,
+        },
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
