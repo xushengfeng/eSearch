@@ -237,6 +237,8 @@ ipcRenderer.on("状态", (_event, name, arg) => {
     if (t) storeSet(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
 
+document.documentElement.style.setProperty("--bar-size", xstore.工具栏.按钮大小 + "px");
+document.documentElement.style.setProperty("--bar-icon", String(xstore.工具栏.按钮图标比例));
 document.getElementById("按钮大小").oninput = () => {
     document.documentElement.style.setProperty(
         "--bar-size",
