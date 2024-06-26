@@ -242,7 +242,7 @@ const toolsEl = el(
     runEl,
     el("button", {
         onclick: () => {
-            // todo close
+            ipcRenderer.send("translator", "close");
         },
     })
 );

@@ -1501,6 +1501,12 @@ function createTranslator(op: translateWinType) {
     win.setAlwaysOnTop(true, "screen-saver");
 }
 
+ipcMain.on("translator", (event, type: string) => {
+    if (type === "close") {
+        BrowserWindow.fromWebContents(event.sender).close();
+    }
+});
+
 ipcMain.on("ignore", (event, v) => {
     BrowserWindow.fromWebContents(event.sender).setIgnoreMouseEvents(v);
 });
