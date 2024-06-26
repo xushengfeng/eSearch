@@ -163,14 +163,12 @@ async function run() {
 
 document.body.append(mainEl);
 
-const runRun = () =>
-    setTimeout(() => {
-        if (mode === "auto" && !pause) {
-            run();
-            runRun();
-        }
-    }, frequencyTime);
-// todo 立刻运行
+const runRun = () => {
+    if (mode === "auto" && !pause) {
+        run();
+        setTimeout(() => runRun, frequencyTime);
+    }
+};
 
 ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
     dispaly2screen(display, Screenshots.all());
