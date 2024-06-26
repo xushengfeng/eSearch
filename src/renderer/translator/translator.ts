@@ -234,17 +234,22 @@ const runEl = el("button", {
     },
 });
 
-rectEl.append(
-    el(
-        "div",
-        { class: "tools" },
-        switchEl,
-        playEl,
-        runEl,
-        el("button", {
-            onclick: () => {
-                // todo close
-            },
-        })
-    )
+const toolsEl = el(
+    "div",
+    { class: "tools" },
+    switchEl,
+    playEl,
+    runEl,
+    el("button", {
+        onclick: () => {
+            // todo close
+        },
+    })
 );
+
+rectEl.append(toolsEl);
+
+ipcRenderer.on("mouse", (_e, x: number, y: number) => {
+    const El = document.elementFromPoint(x, y);
+    ipcRenderer.send("ignore", !toolsEl.contains(El));
+});

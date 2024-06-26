@@ -1481,14 +1481,29 @@ function createTranslator(op: translateWinType) {
         height: op.dipRect.h * 3 + Math.min(0, dh),
     });
 
+    win.setIgnoreMouseEvents(true);
+    function clickThrough() {
+        const nowXY = screen.getCursorScreenPoint();
+        try {
+            const b = win.getBounds();
+            win.webContents.send("mouse", nowXY.x - b.x, nowXY.y - b.y);
+            setTimeout(clickThrough, 10);
+        } catch (error) {}
+    }
+
     rendererPath(win, "translator.html");
     if (dev) win.webContents.openDevTools();
     win.webContents.on("did-finish-load", () => {
         win.webContents.send("init", op.displayId, screen.getAllDisplays(), op.rect, Math.min(0, dh));
+        clickThrough();
     });
 
     win.setAlwaysOnTop(true, "screen-saver");
 }
+
+ipcMain.on("ignore", (event, v) => {
+    BrowserWindow.fromWebContents(event.sender).setIgnoreMouseEvents(v);
+});
 
 // 主页面
 var mainWindowL: { [n: number]: BrowserWindow } = {};
