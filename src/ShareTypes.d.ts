@@ -245,14 +245,16 @@ export interface setting {
             bg: string;
             text: string;
         };
-        默认翻译: string; // todo set
+        默认翻译: string;
         翻译: {
             id: string;
-            type: string;
+            type: keyof typeof import("xtranslator")["default"]["e"];
             keys: string[];
+        }[];
+        语言: {
             from: string;
             to: string;
-        }[];
+        };
     };
 }
 

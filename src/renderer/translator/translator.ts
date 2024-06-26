@@ -24,7 +24,8 @@ let translateE = async (input: string) => input;
 if (transE) {
     let x = (store.get("屏幕翻译.翻译") as setting["屏幕翻译"]["翻译"]).find((i) => i.id === transE);
     xtranslator.e[x.type].setKeys(x.keys);
-    translateE = (input: string) => xtranslator.e[x.type].run(input, x.from, x.to);
+    const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
+    translateE = (input: string) => xtranslator.e[x.type].run(input, lan.from, lan.to);
 }
 
 import { el, setStyle } from "redom";

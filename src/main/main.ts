@@ -2169,6 +2169,10 @@ var defaultSetting: setting = {
         css: { bg: "", text: "" },
         默认翻译: "",
         翻译: [],
+        语言: {
+            from: "",
+            to: "",
+        },
     },
 };
 try {

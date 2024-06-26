@@ -504,6 +504,218 @@ if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty
         );
 };
 
+const translateES = document.getElementById("translate_es");
+const translatorEl = document.getElementById("translator_e");
+const translatorFrom = document.getElementById("translator_from");
+const translatorTo = document.getElementById("translator_to");
+
+const translatorList = el("div");
+const addTranslatorM = el("dialog") as HTMLDialogElement;
+const addTranslator = el("button", "+", {
+    onclick: async () => {
+        const v = await translatorD({ id: "", keys: [], type: null });
+        xstore.屏幕翻译.翻译.push(v);
+        reflashTran();
+    },
+});
+translateES.append(translatorList, addTranslator, addTranslatorM);
+
+function reflashTran() {
+    translatorList.innerHTML = "";
+    translatorEl.innerHTML = "";
+    xstore.屏幕翻译.翻译.forEach((v) => {
+        translatorList.append(
+            el("div", v.id, {
+                onclick: async () => {
+                    const nv = await translatorD(v);
+                    if (!nv.id) xstore.屏幕翻译.翻译 = xstore.屏幕翻译.翻译.filter((i) => i.id != v.id);
+                    else for (let i in nv) v[i] = nv[i];
+                    reflashTran();
+                },
+            })
+        );
+        translatorEl.append(
+            el(
+                "label",
+                el("input", {
+                    value: v.id,
+                    type: "radio",
+                    checked: xstore.屏幕翻译.默认翻译 === v.id,
+                    name: "defalut_translator",
+                }),
+                v.id,
+                {
+                    onclick: () => {
+                        xstore.屏幕翻译.默认翻译 = v.id;
+                        setTranLan(
+                            xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译).type,
+                            navigator.language
+                        );
+                    },
+                }
+            )
+        );
+    });
+}
+
+import translator from "xtranslator";
+type Engines = keyof typeof translator.e;
+let engineConfig: Partial<
+    Record<
+        Engines,
+        {
+            t: string;
+            key: { name: string; text?: string }[];
+            help?: { text: string; src: string };
+        }
+    >
+> = {
+    youdao: {
+        t: "有道",
+        key: [{ name: "appid" }, { name: "key" }],
+        help: { text: "有道api申请", src: "https://ai.youdao.com/product-fanyi-text.s" },
+    },
+    baidu: {
+        t: "百度",
+        key: [{ name: "appid" }, { name: "key" }],
+        help: { text: "百度api申请", src: "https://fanyi-api.baidu.com/product/11" },
+    },
+    deepl: {
+        t: "Deepl",
+        key: [{ name: "key" }],
+        help: { text: "Deepl api申请", src: "https://www.deepl.com/pro-api?cta=header-pro-api" },
+    },
+    deeplx: {
+        t: "DeeplX",
+        key: [{ name: "url" }],
+    },
+    caiyun: {
+        t: "彩云",
+        key: [{ name: "token" }],
+        help: { text: "彩云api申请", src: "https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/" },
+    },
+    bing: {
+        t: "必应",
+        key: [{ name: "key" }],
+        help: {
+            text: "必应api申请",
+            src: "https://learn.microsoft.com/zh-cn/azure/cognitive-services/translator/how-to-create-translator-resource#authentication-keys-and-endpoint-url",
+        },
+    },
+    chatgpt: {
+        t: "ChatGPT",
+        key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义" }],
+        help: { text: "ChatGPT api申请", src: "https://platform.openai.com/account/api-keys" },
+    },
+    gemini: {
+        t: "Gemini",
+        key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义" }],
+        help: { text: "Gemini api申请", src: "https://ai.google.dev/" },
+    },
+    niu: {
+        t: "小牛翻译",
+        key: [{ name: "key" }],
+        help: { text: "小牛api申请", src: "https://niutrans.com/documents/contents/beginning_guide/6" },
+    },
+};
+
+reflashTran();
+
+function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
+    const idEl = el("input", { value: v.id });
+    const selectEl = el("select");
+    const keys = el("div");
+    const help = el("p");
+
+    selectEl.append(el("option", t("选择引擎类型"), { value: "" }));
+    Object.entries(engineConfig).forEach((v) => {
+        const op = el("option", v[1].t, { value: v[0] });
+        selectEl.append(op);
+    });
+
+    selectEl.value = v.type || "";
+    selectEl.oninput = () => {
+        set(selectEl.value as Engines);
+    };
+
+    set(v.type as Engines);
+
+    function set(type: Engines) {
+        keys.innerHTML = "";
+        help.innerHTML = "";
+        if (!type) return;
+        const fig = engineConfig[type];
+        fig.key.forEach((x, i) => {
+            keys.append(
+                el("div", el("span", x.name), el("input", { placehoder: x.text || "", value: v.keys[i] || "" }))
+            );
+        });
+        if (fig.help) help.append(el("a", fig.help.text, { href: fig.help.src }));
+    }
+
+    addTranslatorM.innerHTML = "";
+    addTranslatorM.append(
+        idEl,
+        selectEl,
+        keys,
+        help,
+        el("button", "x", {
+            onclick: () => {
+                addTranslatorM.close();
+            },
+        })
+    );
+    addTranslatorM.showModal();
+
+    return new Promise((re: (nv: typeof v) => void) => {
+        addTranslatorM.append(
+            el("button", "ok", {
+                onclick: () => {
+                    const key = Array.from(keys.querySelectorAll("input")).map((el) => el.value);
+                    const nv: typeof v = {
+                        id: idEl.value,
+                        keys: key,
+                        type: selectEl.value as Engines,
+                    };
+                    re(nv);
+                    addTranslatorM.close();
+                },
+            })
+        );
+    });
+}
+
+function setTranLan(type: Engines, mainLan: string) {
+    const languageName = new Intl.DisplayNames(mainLan, { type: "language" });
+    const lan = (l: string) => {
+        if (l === "auto") {
+            return "*";
+        }
+        return languageName.of(l);
+    };
+    function motherLanFirst(lanList: string[]) {
+        let i = lanList.indexOf(mainLan);
+        if (i < 0) i = lanList.findIndex((l) => l.split("-")[0] === mainLan.split("-")[0]);
+        if (i < 0) return lanList;
+        lanList = structuredClone(lanList);
+        lanList.unshift(lanList.splice(Number(i), 1)[0]);
+        return lanList;
+    }
+    const e = translator.e[type];
+    if (!e) return;
+    translatorFrom.innerHTML = "";
+    translatorTo.innerHTML = "";
+    e.lan.forEach((v) => {
+        translatorFrom.append(el("option", lan(v), { value: v }));
+    });
+    const toLan = motherLanFirst(e.targetLan);
+    toLan.forEach((v) => {
+        translatorTo.append(el("option", lan(v), { value: v }));
+    });
+}
+
+setTranLan(xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译).type, navigator.language);
+
 (<HTMLInputElement>document.getElementById("记住引擎")).checked = Boolean(old_store.引擎.记住);
 
 var o_搜索引擎 = old_store.搜索引擎;
