@@ -36,7 +36,7 @@ var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
 
 var screenId = NaN;
 
-var mode: "auto" | "manual" = store.get("屏幕翻译.mode") || "manual";
+var mode: "auto" | "manual" = "manual";
 
 var frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
 
@@ -176,13 +176,13 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
     dispaly2screen(display, Screenshots.all());
     screenId = id;
     rect = _rect;
-    runRun();
+    run();
     mainEl.style.top = dy + "px";
     textEl.style.width = _rect.w + "px";
     textEl.style.height = _rect.h + "px";
-    textEl.style.top = (store.get("屏幕翻译.offsetY") || -1) - -1 * _rect.h + "px";
     rectEl.style.width = _rect.w + "px";
     rectEl.style.height = _rect.h + "px";
+    switchMode();
 });
 
 const switchEl = el("input", {
@@ -190,16 +190,25 @@ const switchEl = el("input", {
     onclick: () => {
         if (switchEl.checked) mode = "manual";
         else mode = "auto";
-        if (mode === "manual") {
-            playEl.style.display = "none";
-            runEl.style.display = "";
-        } else {
-            playEl.style.display = "";
-            runEl.style.display = "none";
-        }
-        store.set("屏幕翻译.mode", mode);
+        switchMode();
     },
 });
+
+function switchMode() {
+    if (mode === "manual") {
+        playEl.style.display = "none";
+        runEl.style.display = "";
+        setOffset(0);
+    } else {
+        playEl.style.display = "";
+        runEl.style.display = "none";
+        setOffset(store.get("屏幕翻译.offsetY") || -1);
+    }
+}
+
+function setOffset(offset: number) {
+    textEl.style.top = offset - -1 * textEl.offsetHeight + "px";
+}
 
 switchEl.checked = mode === "manual";
 
@@ -219,7 +228,8 @@ const runEl = el("button", {
             mainEl.style.opacity = "0";
             await sl();
             await sl();
-            run();
+            await run();
+            mainEl.style.opacity = "1";
         }
     },
 });

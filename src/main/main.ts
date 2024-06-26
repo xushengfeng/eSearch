@@ -1478,7 +1478,7 @@ function createTranslator(op: translateWinType) {
         x: op.dipRect.x,
         y: Math.max(0, dh),
         width: op.dipRect.w,
-        height: op.dipRect.h * 2 + dh,
+        height: op.dipRect.h * 3 + Math.min(0, dh),
     });
 
     rendererPath(win, "translator.html");
@@ -2144,7 +2144,6 @@ var defaultSetting: setting = {
     },
     屏幕翻译: {
         offsetY: -1,
-        mode: "manual",
         dTime: 3000,
         css: { bg: "", text: "" },
         默认翻译: "",

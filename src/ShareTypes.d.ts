@@ -240,7 +240,6 @@ export interface setting {
     };
     屏幕翻译: {
         offsetY: -1;
-        mode: "auto" | "manual";
         dTime: number;
         css: {
             bg: string;
