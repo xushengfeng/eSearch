@@ -166,6 +166,10 @@ a {
 
 select {
     outline: none;
+    border: none;
+    padding: 4px;
+    font-size: 1rem;
+    border-radius: var(--border-radius);
 }
 
 input[type="checkbox"] {
@@ -206,6 +210,11 @@ range-b > div:nth-child(1):hover {
 
 #range_thumb {
     background-color: var(--m-color1) !important;
+}
+
+dialog {
+    border-radius: var(--border-radius);
+    border: none;
 }
 
 #tool_order {
@@ -364,6 +373,22 @@ comment {
 
 #框选后默认操作 .icon {
     position: inherit;
+}
+
+#translate_es > :first-child {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+#translate_es > :first-child > div {
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+#translate_es > :first-child > div:hover {
+    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
 }
 
 #plugin_b {

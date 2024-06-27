@@ -622,7 +622,7 @@ let engineConfig: Partial<
 reflashTran();
 
 function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
-    const idEl = el("input", { value: v.id });
+    const idEl = el("input", { value: v.id, type: "text" });
     const selectEl = el("select");
     const keys = el("div");
     const help = el("p");
@@ -647,7 +647,11 @@ function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
         const fig = engineConfig[type];
         fig.key.forEach((x, i) => {
             keys.append(
-                el("div", el("span", x.name), el("input", { placehoder: x.text || "", value: v.keys[i] || "" }))
+                el(
+                    "div",
+                    el("span", `${x.name}: `),
+                    el("input", { placehoder: x.text || "", value: v.keys[i] || "", type: "text" })
+                )
             );
         });
         if (fig.help) help.append(el("a", fig.help.text, { href: fig.help.src }));
@@ -676,7 +680,7 @@ function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
         keys,
         help,
         testEl,
-        el("button", "x", {
+        el("button", t("关闭"), {
             onclick: () => {
                 addTranslatorM.close();
             },
@@ -697,7 +701,7 @@ function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
 
     return new Promise((re: (nv: typeof v) => void) => {
         addTranslatorM.append(
-            el("button", "ok", {
+            el("button", t("完成"), {
                 onclick: () => {
                     const nv = getV();
                     re(nv);
@@ -1387,9 +1391,8 @@ document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href=
     <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
     <div>Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}</div>`;
 
-document.getElementById("about").onclick = (e) => {
-    console.log(e.target);
-    if ((<HTMLElement>e.target).tagName == "A") {
+document.body.onclick = (e) => {
+    if ((<HTMLElement>e.target).tagName === "A") {
         e.preventDefault();
         shell.openExternal((<HTMLAnchorElement>e.target).href);
     }
