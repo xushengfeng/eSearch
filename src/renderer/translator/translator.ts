@@ -11,6 +11,15 @@ import xtranslator from "xtranslator";
 const path = require("path") as typeof import("path");
 const fs = require("fs") as typeof import("fs");
 
+import close_svg from "../assets/icons/close.svg";
+import pause_svg from "../assets/icons/pause.svg";
+import recume_svg from "../assets/icons/recume.svg";
+import ocr_svg from "../assets/icons/ocr.svg";
+
+function iconEl(img: string) {
+    return el("img", { src: img, class: "icon" });
+}
+
 var Store = require("electron-store");
 var configPath = new URLSearchParams(location.search).get("config_path");
 var store = new Store({
@@ -23,9 +32,11 @@ let translateE = async (input: string) => input;
 
 if (transE) {
     let x = (store.get("屏幕翻译.翻译") as setting["屏幕翻译"]["翻译"]).find((i) => i.id === transE);
-    xtranslator.e[x.type].setKeys(x.keys);
-    const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
-    translateE = (input: string) => xtranslator.e[x.type].run(input, lan.from, lan.to);
+    if (x) {
+        xtranslator.e[x.type].setKeys(x.keys);
+        const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
+        translateE = (input: string) => xtranslator.e[x.type].run(input, lan.from, lan.to);
+    }
 }
 
 import { el, setStyle } from "redom";
@@ -211,17 +222,18 @@ function setOffset(offset: number) {
 
 switchEl.checked = mode === "manual";
 
-const playEl = el("button", {
+const playIcon = iconEl(recume_svg);
+const playEl = el("button", playIcon, {
     onclick: async () => {
         if (mode === "auto") {
             pause = !pause;
+            playIcon.src = pause ? recume_svg : pause_svg;
             runRun();
-            // todo icon show
         }
     },
 });
 
-const runEl = el("button", {
+const runEl = el("button", iconEl(ocr_svg), {
     onclick: async () => {
         if (mode != "auto") {
             mainEl.style.opacity = "0";
@@ -239,7 +251,7 @@ const toolsEl = el(
     switchEl,
     playEl,
     runEl,
-    el("button", {
+    el("button", iconEl(close_svg), {
         onclick: () => {
             ipcRenderer.send("translator", "close");
         },

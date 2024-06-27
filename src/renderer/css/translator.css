@@ -16,7 +16,6 @@ body {
 
 .rect {
     position: relative;
-    border: 0.5px #000 solid;
     box-sizing: border-box;
 }
 
@@ -28,5 +27,18 @@ body {
 }
 .tools > * {
     min-width: 24px;
+    height: 24px;
+    position: relative;
+    background-color: var(--bg);
+    border: none;
+    transition: var(--transition);
+    border-radius: var(--border-radius);
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.tools > * > .icon {
+    width: 24px;
     height: 24px;
 }
