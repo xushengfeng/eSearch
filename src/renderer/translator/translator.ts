@@ -64,7 +64,7 @@ function ocrPath(p: string) {
 let detp = ocrPath(l[1]),
     recp = ocrPath(l[2]),
     字典 = ocrPath(l[3]);
-await lo.init({
+const OCR = await lo.init({
     detPath: detp,
     recPath: recp,
     dic: fs.readFileSync(字典).toString(),
@@ -117,7 +117,7 @@ function screenshot(id: number, rect: Rect) {
 }
 
 async function ocr(imgData: ImageData) {
-    const l = await lo.ocr(imgData);
+    const l = await OCR.ocr(imgData);
     return l;
 }
 
