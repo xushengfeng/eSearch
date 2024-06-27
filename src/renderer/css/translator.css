@@ -1,9 +1,11 @@
 body {
     margin: 0;
+    overflow: hidden;
 }
 
 .main {
     position: absolute;
+    overflow: hidden;
 }
 
 .text {

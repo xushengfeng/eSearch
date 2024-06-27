@@ -188,6 +188,7 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
     rect = _rect;
     run();
     mainEl.style.top = dy + "px";
+    mainEl.style.height = _rect.h * 3 + "px";
     textEl.style.width = _rect.w + "px";
     textEl.style.height = _rect.h + "px";
     rectEl.style.width = _rect.w + "px";
@@ -217,7 +218,7 @@ function switchMode() {
 }
 
 function setOffset(offset: number) {
-    textEl.style.top = offset - -1 * textEl.offsetHeight + "px";
+    textEl.style.top = (offset - -1) * textEl.offsetHeight + "px";
 }
 
 switchEl.checked = mode === "manual";
