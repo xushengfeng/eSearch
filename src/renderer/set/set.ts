@@ -670,6 +670,7 @@ function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
             if (r) testR.innerText = t("测试成功");
         } catch (error) {
             testR.innerText = error;
+            throw error;
         }
     };
 

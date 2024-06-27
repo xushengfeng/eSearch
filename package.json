@@ -33,7 +33,7 @@
         "uiohook-napi": "^1.5.3",
         "wordsninja": "^1.0.0",
         "x11": "^2.3.0",
-        "xtranslator": "^1.0.8"
+        "xtranslator": "^1.0.10"
     },
     "devDependencies": {
         "@types/color": "^3.0.3",
