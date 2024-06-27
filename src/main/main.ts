@@ -59,7 +59,7 @@ try {
 
 var /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
-if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_DEV"]) {
+if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_DEV"] || store.get("dev")) {
     dev = true;
 } else {
     dev = false;
@@ -390,6 +390,19 @@ app.whenReady().then(() => {
         {
             type: "separator",
         },
+        ...(dev
+            ? [
+                  {
+                      label: t("退出开发者模式"),
+                      click: () => {
+                          store.set("dev", false);
+                          app.relaunch();
+                          app.exit(0);
+                      },
+                  },
+              ]
+            : []),
+        ,
         {
             label: t("重启"),
             click: () => {
@@ -1850,6 +1863,7 @@ var defaultSetting: setting = {
     首次运行: false,
     设置版本: app.getVersion(),
     启动提示: true,
+    dev: false,
     语言: {},
     快捷键: {
         自动识别: {

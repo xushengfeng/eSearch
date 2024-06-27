@@ -2,6 +2,7 @@ export interface setting {
     首次运行: false;
     设置版本: string; // 用于新版本识别
     启动提示: true;
+    dev: boolean;
     语言: { 语言?: string };
     快捷键: {
         自动识别: { key?: string };
