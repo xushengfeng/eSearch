@@ -178,7 +178,7 @@ document.body.append(mainEl);
 const runRun = () => {
     if (mode === "auto" && !pause) {
         run();
-        setTimeout(() => runRun, frequencyTime);
+        setTimeout(runRun, frequencyTime);
     }
 };
 
@@ -214,6 +214,7 @@ function switchMode() {
         playEl.style.display = "";
         runEl.style.display = "none";
         setOffset(store.get("屏幕翻译.offsetY") || -1);
+        runRun();
     }
 }
 
@@ -223,7 +224,7 @@ function setOffset(offset: number) {
 
 switchEl.checked = mode === "manual";
 
-const playIcon = iconEl(recume_svg);
+const playIcon = iconEl(pause_svg);
 const playEl = el("button", playIcon, {
     onclick: async () => {
         if (mode === "auto") {
