@@ -653,30 +653,53 @@ function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
         if (fig.help) help.append(el("a", fig.help.text, { href: fig.help.src }));
     }
 
+    const testEl = el("div");
+    const testR = el("p");
+    const testB = el("button", t("测试"));
+    testEl.append(testB, testR);
+    testB.onclick = async () => {
+        const v = getV();
+        translator.e[v.type].setKeys(v.keys);
+        try {
+            const r = await translator.e[v.type].test();
+            console.log(r);
+            if (r) testR.innerText = t("测试成功");
+        } catch (error) {
+            testR.innerText = error;
+        }
+    };
+
     addTranslatorM.innerHTML = "";
     addTranslatorM.append(
         idEl,
         selectEl,
         keys,
         help,
+        testEl,
         el("button", "x", {
             onclick: () => {
                 addTranslatorM.close();
             },
         })
     );
+
+    function getV() {
+        const key = Array.from(keys.querySelectorAll("input")).map((el) => el.value);
+        const nv: typeof v = {
+            id: idEl.value,
+            keys: key,
+            type: selectEl.value as Engines,
+        };
+        return nv;
+    }
+
     addTranslatorM.showModal();
 
     return new Promise((re: (nv: typeof v) => void) => {
         addTranslatorM.append(
             el("button", "ok", {
                 onclick: () => {
-                    const key = Array.from(keys.querySelectorAll("input")).map((el) => el.value);
-                    const nv: typeof v = {
-                        id: idEl.value,
-                        keys: key,
-                        type: selectEl.value as Engines,
-                    };
+                    const nv = getV();
                     re(nv);
                     addTranslatorM.close();
                 },
