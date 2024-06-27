@@ -910,12 +910,13 @@ function createClipWindow() {
         console.log(d);
         const id = dialog.showMessageBoxSync({
             message: t("截屏程序崩溃，是否重启？"),
-            buttons: [t("好的"), t("取消")],
+            buttons: [t("重启"), t("退出应用")],
             defaultId: 0,
             cancelId: 1,
             detail: JSON.stringify(d),
         });
         if (id === 0) exitFullScreen();
+        if (id === 1) app.exit();
     });
 
     // * 监听截屏奇奇怪怪的事件
