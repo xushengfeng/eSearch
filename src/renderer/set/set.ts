@@ -548,8 +548,8 @@ function reflashTran() {
                     onclick: () => {
                         xstore.屏幕翻译.默认翻译 = v.id;
                         setTranLan(
-                            xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译).type,
-                            navigator.language
+                            xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type,
+                            xstore.语言.语言
                         );
                     },
                 }
@@ -702,9 +702,9 @@ function setTranLan(type: Engines, mainLan: string) {
         return lanList;
     }
     const e = translator.e[type];
-    if (!e) return;
     translatorFrom.innerHTML = "";
     translatorTo.innerHTML = "";
+    if (!e) return;
     e.lan.forEach((v) => {
         translatorFrom.append(el("option", lan(v), { value: v }));
     });
@@ -714,7 +714,7 @@ function setTranLan(type: Engines, mainLan: string) {
     });
 }
 
-setTranLan(xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译).type, navigator.language);
+setTranLan(xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type, xstore.语言.语言);
 
 (<HTMLInputElement>document.getElementById("记住引擎")).checked = Boolean(old_store.引擎.记住);
 
