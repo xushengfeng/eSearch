@@ -550,7 +550,7 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     }
 });
 
-const editTools: { name: string; regex: { r: string; p: string }[] }[] = store.get("编辑器.工具") || [];
+const editTools: setting["编辑器"]["工具"] = store.get("编辑器.工具") || [];
 
 const hotkeys = require("hotkeys-js") as typeof import("hotkeys-js").default;
 hotkeys.filter = () => {
@@ -578,10 +578,12 @@ for (let i in hotkeyMap) {
     }
 }
 
+const editToolsF: { [name: string]: () => void } = {};
+
 for (let i of editTools) {
     const iel = el("div");
     iel.innerText = i.name;
-    iel.onclick = () => {
+    const f = () => {
         const s = editor.selections.getS();
         let t = editor.selections.get(s);
 
@@ -592,14 +594,22 @@ for (let i of editTools) {
 
         editor.selections.replace(t, s);
     };
+    editToolsF[i.name] = f;
+    hotkeys(i.key, f);
     editBEl.append(iel);
 }
 
 editBEl.onmousedown = async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    const id = (<HTMLElement>e.target).id.replace("_bar", "");
-    edit(id);
+    const el = <HTMLElement>e.target;
+    const tool = editTools.find((i) => i.name === el.getAttribute("data-name"));
+    if (tool) {
+        editToolsF[tool.name]();
+    } else {
+        const id = el.id.replace("_bar", "");
+        edit(id);
+    }
 };
 
 var isWordNinJaLoaded = false;
