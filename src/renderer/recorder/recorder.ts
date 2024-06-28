@@ -362,18 +362,20 @@ async function cameraStreamF(v: boolean) {
             audio: false,
             video: { deviceId: cameraDeviceId },
         });
-        document.querySelector("video").srcObject = cameraStream;
-        document.querySelector("video").play();
+        videoEl.srcObject = cameraStream;
+        videoEl.play();
         if (store.get("录屏.摄像头.镜像")) document.getElementById("video").style.transform = "rotateY(180deg)";
         ipcRenderer.send("record", "camera", 0);
         setTimeout(() => {
             resize();
         }, 400);
 
-        initSeg();
+        videoEl.oncanplay = () => {
+            initSeg();
+        };
     } else {
         cameraStream.getVideoTracks()[0].stop();
-        document.querySelector("video").srcObject = null;
+        videoEl.srcObject = null;
         ipcRenderer.send("record", "camera", 1);
     }
 }
@@ -452,18 +454,20 @@ async function initSeg() {
         segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx"),
         ort: require("onnxruntime-node"),
         ortOption: { executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }] },
+        shape: [256, 144],
     });
     drawCamera();
-    segEl.style.width = `${video.videoWidth}px`;
-    segEl.style.height = `${video.videoHeight}px`;
+    segEl.style.width = `${videoEl.videoWidth}px`;
+    segEl.style.height = `${videoEl.videoHeight}px`;
 }
 
 function drawCamera() {
     const canvasCtx = cameraCanvas.getContext("2d");
     cameraCanvas.width = videoEl.videoWidth;
     cameraCanvas.height = videoEl.videoHeight;
+    console.log(videoEl.videoHeight);
     canvasCtx.drawImage(videoEl, 0, 0, cameraCanvas.width, cameraCanvas.height);
-    seg.seg(cameraCanvas.getContext("2d").getImageData(0, 0, cameraCanvas.width, cameraCanvas.height)).then((data) => {
+    seg.seg(canvasCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height)).then((data) => {
         segCanvas.width = data.width;
         segCanvas.height = data.height;
         segCanvas.getContext("2d").putImageData(data, 0, 0);
@@ -495,7 +499,7 @@ ipcRenderer.on("ff", (_e, t, arg) => {
 var editting = false;
 
 function setVideo(n: number) {
-    video.src = `${tmpPath}/${n}`;
+    videoEl.src = `${tmpPath}/${n}`;
 }
 
 /** 获取绝对时间 */
@@ -504,7 +508,7 @@ function getPlayT() {
     for (let i = 0; i < playName; i++) {
         t += nameT[i].e - nameT[i].s;
     }
-    t += video.currentTime * 1000;
+    t += videoEl.currentTime * 1000;
     return t;
 }
 
@@ -513,7 +517,7 @@ function setPlayT(time: number) {
     let x = getTimeInV(time);
     setVideo(x.v);
     playName = x.v;
-    video.currentTime = x.time / 1000;
+    videoEl.currentTime = x.time / 1000;
 }
 
 /** 获取绝对时间对应的视频和相对时间 */
@@ -555,8 +559,6 @@ function showControl() {
     }, 400);
 }
 
-var video = document.querySelector("video");
-
 let playName = 0;
 
 function clipV() {
@@ -569,11 +571,11 @@ function clipV() {
 }
 
 tStartEl.oninput = () => {
-    video.currentTime = (tEndEl.min = jdtEl.min = tStartEl.value) / 1000;
+    videoEl.currentTime = (tEndEl.min = jdtEl.min = tStartEl.value) / 1000;
     document.getElementById("t_t").innerText = tFormat(tEndEl.value - tStartEl.value);
 };
 tEndEl.oninput = () => {
-    video.currentTime = (tStartEl.max = jdtEl.max = tEndEl.value) / 1000;
+    videoEl.currentTime = (tStartEl.max = jdtEl.max = tEndEl.value) / 1000;
     document.getElementById("t_t").innerText = tFormat(tEndEl.value - tStartEl.value);
 };
 
@@ -597,32 +599,32 @@ function tFormat(x: number) {
 }
 
 document.getElementById("v_play").onclick = () => {
-    if (video.paused) {
+    if (videoEl.paused) {
         videoPlay();
         document.getElementById("v_play").querySelector("img").src = pauseSvg;
     } else {
-        video.pause();
+        videoEl.pause();
         document.getElementById("v_play").querySelector("img").src = recumeSvg;
     }
 };
 
-video.onpause = () => {
+videoEl.onpause = () => {
     document.getElementById("v_play").querySelector("img").src = recumeSvg;
 };
-video.onplay = () => {
+videoEl.onplay = () => {
     document.getElementById("v_play").querySelector("img").src = pauseSvg;
 };
 
 function videoPlay() {
     setPlayT(tStartEl.value);
-    video.play();
+    videoEl.play();
 }
 
-video.ontimeupdate = () => {
+videoEl.ontimeupdate = () => {
     if (!editting) return;
     document.getElementById("t_nt").innerText = tFormat(getPlayT() - tStartEl.value);
     if (getPlayT() > tEndEl.value) {
-        video.pause();
+        videoEl.pause();
         document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
     }
     jdtEl.value = getPlayT();
@@ -632,11 +634,11 @@ jdtEl.oninput = () => {
     setPlayT(jdtEl.value);
 };
 
-video.onended = () => {
+videoEl.onended = () => {
     if (playName < nameT.length - 1) {
         playName++;
         setVideo(playName);
-        video.play();
+        videoEl.play();
     } else {
         document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
         jdtEl.value = jdtEl.max;
