@@ -27,6 +27,7 @@ export interface setting {
     主页面快捷键: {
         搜索: string;
         翻译: string;
+        打开链接: string;
         删除换行: string;
         添加空格: string;
         图片区: string;

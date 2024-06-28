@@ -5,7 +5,7 @@ var configPath = new URLSearchParams(location.search).get("config_path");
 var store = new Store({
     cwd: configPath || "",
 });
-import { MainWinType } from "../../ShareTypes";
+import { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 
 import closeSvg from "../assets/icons/close.svg";
@@ -159,7 +159,7 @@ class xeditor {
             end: editor.get().length,
         });
         let r = this.selections.rect(this.selections.getS())[0];
-        showEditBar(r.x, r.top + lineHeight, NaN, false);
+        showEditBar(r.x, r.top + lineHeight, false);
     }
     deleteEnter() {
         const s = editor.selections.getS();
@@ -485,7 +485,7 @@ const barMdTable = document.getElementById("md_table_bar");
 
 /**编辑栏 */
 var editBarS = false;
-function showEditBar(x: number, y: number, _h: number, right: boolean) {
+function showEditBar(x: number, y: number, right: boolean) {
     const get = editor.selections.get();
     // 简易判断链接并显示按钮
     if (isLink(get, false)) {
@@ -524,7 +524,7 @@ function showEditBar(x: number, y: number, _h: number, right: boolean) {
 
 function hideEditBar() {
     editBarS = true;
-    showEditBar(0, 0, 0, false);
+    showEditBar(0, 0, false);
 }
 
 editor.text.addEventListener("select2", (e: CustomEvent) => {
@@ -540,19 +540,43 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     let x = r.x - d.x;
     let y = r.y - d.y;
     if (e.detail.button == 2) {
-        showEditBar(x, y + lineHeight, 0, true);
+        showEditBar(x, y + lineHeight, true);
     } else {
         if (editor.selections.get() == "") {
             hideEditBar();
         } else {
-            showEditBar(x, y + lineHeight, 0, false);
+            showEditBar(x, y + lineHeight, false);
         }
     }
 });
 
 const editTools: { name: string; regex: { r: string; p: string }[] }[] = store.get("编辑器.工具") || [];
 
-// todo hotkey
+const hotkeys = require("hotkeys-js") as typeof import("hotkeys-js").default;
+hotkeys.filter = () => {
+    return true;
+};
+
+hotkeys("ctrl+a", () => {
+    editor.selectAll();
+});
+
+const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = {
+    搜索: () => edit("search"),
+    翻译: () => edit("translate"),
+    打开链接: () => edit("link"),
+    删除换行: () => edit("delete_enter"),
+    添加空格: () => edit("add_space"),
+    图片区: () => imageB.click(),
+    关闭: closeWindow,
+};
+
+for (let i in hotkeyMap) {
+    const key = store.get(`主页面快捷键.${i}`);
+    if (key) {
+        hotkeys(key, hotkeyMap[i]);
+    }
+}
 
 for (let i of editTools) {
     const iel = el("div");
@@ -574,82 +598,8 @@ for (let i of editTools) {
 editBEl.onmousedown = async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    switch ((<HTMLElement>e.target).id) {
-        case "excel_bar":
-            let text = editor.selections.get();
-            let t: string[] = [];
-            text.split("\n").forEach((v) => {
-                let l = v
-                    .split("\t")
-                    .map((i) => `"${i}"`)
-                    .join(",");
-                t.push(l);
-            });
-            // 下载csv
-            let blob = new Blob([t.join("\n")], { type: "text/csv" });
-            let a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "eSearch.csv";
-            a.click();
-            break;
-        case "md_table_bar":
-            let table = editor.selections.get();
-            let table2: string[] = [];
-            table.split("\n").forEach((v, i) => {
-                let l = `|${v.replaceAll("\t", "|")}|`;
-                table2.push(l);
-                if (i === 0) {
-                    const i = v.match(/\t/g).length + 1;
-                    let s = "|";
-                    for (let n = 0; n < i; n++) {
-                        s += "---|";
-                    }
-                    table2.push(s);
-                }
-            });
-            clipboard.writeText(table2.join("\n"));
-            break;
-        case "link_bar":
-            let url = editor.selections.get();
-            openLink("url", url);
-            break;
-        case "search_bar":
-            openLink("search");
-            break;
-        case "translate_bar":
-            openLink("translate");
-            break;
-        case "selectAll_bar":
-            editor.selectAll();
-            break;
-        case "cut_bar":
-            editor.cut();
-            break;
-        case "copy_bar":
-            editor.copy();
-            break;
-        case "paste_bar":
-            editor.paste();
-            break;
-        case "delete_enter_bar":
-            editor.deleteEnter();
-            break;
-        case "add_space": {
-            const s = editor.selections.getS();
-            let t = editor.selections.get(s);
-            if (t.endsWith("\n")) {
-                t = t.slice(0, t.length - 1);
-                s.end--;
-            }
-            if (!isWordNinJaLoaded) {
-                await WordsNinja.loadDictionary();
-                isWordNinJaLoaded = true;
-            }
-            const n = WordsNinja.splitSentence(t).join(" ");
-            editor.selections.replace(n, s);
-            break;
-        }
-    }
+    const id = (<HTMLElement>e.target).id.replace("_bar", "");
+    edit(id);
 };
 
 var isWordNinJaLoaded = false;
@@ -1095,7 +1045,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             if (url) {
                 openLink("url", url);
                 if (浏览器打开) {
-                    ipcRenderer.send("main_win", "close");
+                    closeWindow();
                 }
             }
             if (err) editor.push(t("上传错误，请打开开发者工具查看详细错误"));
@@ -1203,7 +1153,7 @@ function writeEditOnOther() {
     fs.writeFile(tmpTextPath, data, () => {});
 }
 
-ipcRenderer.on("edit", (_event, arg) => {
+async function edit(arg: string) {
     switch (arg) {
         case "save":
             pushHistory();
@@ -1232,6 +1182,21 @@ ipcRenderer.on("edit", (_event, arg) => {
         case "delete_enter":
             editor.deleteEnter();
             break;
+        case "add_space": {
+            const s = editor.selections.getS();
+            let t = editor.selections.get(s);
+            if (t.endsWith("\n")) {
+                t = t.slice(0, t.length - 1);
+                s.end--;
+            }
+            if (!isWordNinJaLoaded) {
+                await WordsNinja.loadDictionary();
+                isWordNinJaLoaded = true;
+            }
+            const n = WordsNinja.splitSentence(t).join(" ");
+            editor.selections.replace(n, s);
+            break;
+        }
         case "show_find":
             showFind();
             break;
@@ -1252,8 +1217,42 @@ ipcRenderer.on("edit", (_event, arg) => {
         case "spellcheck":
             spellcheck();
             break;
+        case "excel":
+            let text = editor.selections.get();
+            let t: string[] = [];
+            text.split("\n").forEach((v) => {
+                let l = v
+                    .split("\t")
+                    .map((i) => `"${i}"`)
+                    .join(",");
+                t.push(l);
+            });
+            // 下载csv
+            let blob = new Blob([t.join("\n")], { type: "text/csv" });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "eSearch.csv";
+            a.click();
+            break;
+        case "md_table":
+            let table = editor.selections.get();
+            let table2: string[] = [];
+            table.split("\n").forEach((v, i) => {
+                let l = `|${v.replaceAll("\t", "|")}|`;
+                table2.push(l);
+                if (i === 0) {
+                    const i = v.match(/\t/g).length + 1;
+                    let s = "|";
+                    for (let n = 0; n < i; n++) {
+                        s += "---|";
+                    }
+                    table2.push(s);
+                }
+            });
+            clipboard.writeText(table2.join("\n"));
+            break;
         case "link":
-            var url = editor.selections.get();
+            const url = editor.selections.get();
             openLink("url", url);
             break;
         case "search":
@@ -1263,14 +1262,14 @@ ipcRenderer.on("edit", (_event, arg) => {
             openLink("translate");
             break;
     }
+}
+
+ipcRenderer.on("edit", (_event, arg) => {
+    edit(arg);
 });
 
 // ctrl滚轮控制字体大小
 
-const hotkeys = require("hotkeys-js");
-hotkeys.filter = () => {
-    return true;
-};
 hotkeys("ctrl+0", () => {
     setFontSize(默认字体大小);
 });
@@ -1302,8 +1301,12 @@ function countWords() {
 
 /************************************失焦关闭 */
 
+function closeWindow() {
+    ipcRenderer.send("main_win", "close");
+}
+
 window.onblur = () => {
-    if (blurToClose && !alwaysOnTop) ipcRenderer.send("main_win", "close");
+    if (blurToClose && !alwaysOnTop) closeWindow();
 };
 
 const alwaysOnTopEl = document.getElementById("top_b");

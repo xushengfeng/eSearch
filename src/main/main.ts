@@ -579,30 +579,6 @@ function setMenu() {
             label: t("编辑"),
             submenu: [
                 {
-                    label: t("打开链接"),
-                    click: (_i, w) => {
-                        mainEdit(w, "link");
-                    },
-                    accelerator: "CmdOrCtrl+Shift+L",
-                },
-                {
-                    id: "search",
-                    label: t("搜索"),
-                    click: (_i, w) => {
-                        mainEdit(w, "search");
-                    },
-                    accelerator: "CmdOrCtrl+Shift+S",
-                },
-                {
-                    id: "translate",
-                    label: t("翻译"),
-                    click: (_i, w) => {
-                        mainEdit(w, "translate");
-                    },
-                    accelerator: "CmdOrCtrl+Shift+T",
-                },
-                { type: "separator" },
-                {
                     label: t("撤销"),
                     click: (_i, w) => {
                         mainEdit(w, "undo");
@@ -657,22 +633,6 @@ function setMenu() {
                         w.webContents.selectAll();
                     },
                     accelerator: "CmdOrCtrl+A",
-                },
-                {
-                    id: "delete_enter",
-                    label: t("自动删除换行"),
-                    click: (_i, w) => {
-                        mainEdit(w, "delete_enter");
-                    },
-                    accelerator: "CmdOrCtrl+Enter",
-                },
-                {
-                    id: "add_space",
-                    label: t("自动添加空格"),
-                    click: (_i, w) => {
-                        mainEdit(w, "add_space");
-                    },
-                    accelerator: "CmdOrCtrl+/",
                 },
                 { type: "separator" },
                 {
@@ -835,25 +795,6 @@ function setMenu() {
             ],
         },
     ] as Electron.MenuItemConstructorOptions[];
-    const map = {
-        search: "搜索",
-        translate: "翻译",
-        delete_enter: "删除换行",
-        add_space: "添加空格",
-        show_photo: "图片区",
-        close: "关闭",
-    };
-    const keys = Object.keys(map);
-    for (let i in menuTemplate) {
-        for (let j of menuTemplate[i].submenu as Electron.MenuItemConstructorOptions[]) {
-            if (keys.includes(j.id)) {
-                const k = store.get(`主页面快捷键.${map[j.id]}`);
-                if (k) {
-                    j.accelerator = k;
-                }
-            }
-        }
-    }
     const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
 }
@@ -1951,12 +1892,13 @@ var defaultSetting: setting = {
         高: "",
     },
     主页面快捷键: {
-        搜索: "CmdOrCtrl+Shift+S",
-        翻译: "CmdOrCtrl+Shift+T",
-        删除换行: "CmdOrCtrl+Enter",
-        添加空格: "CmdOrCtrl+/",
-        图片区: "CmdOrCtrl+P",
-        关闭: "CmdOrCtrl+W",
+        搜索: "Ctrl+Shift+S",
+        翻译: "Ctrl+Shift+T",
+        打开链接: "Ctrl+Shift+L",
+        删除换行: "Ctrl+Enter",
+        添加空格: "Ctrl+/",
+        图片区: "Ctrl+P",
+        关闭: "Ctrl+W",
     },
     其他快捷键: {
         复制颜色: "K",
