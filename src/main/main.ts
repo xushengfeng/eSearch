@@ -1653,7 +1653,7 @@ async function createSettingWindow(about?: boolean) {
 }
 
 async function createHelpWindow() {
-    shell.openExternal("https://github.com/xushengfeng/eSearch-website/docs/index.md");
+    shell.openExternal("https://github.com/xushengfeng/eSearch-website/blob/master/docs/index.md");
 }
 
 ipcMain.on("main_win", (e, arg, arg2) => {
