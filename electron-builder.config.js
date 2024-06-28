@@ -188,7 +188,7 @@ let build = {
 
         const appDir = path.join(c.outDir, "app");
         fs.cpSync(appPath, appDir, { recursive: true });
-        let ignoreDir = ["node_modules", "ocr"];
+        let ignoreDir = ["node_modules/onnxruntime-node", "ocr"];
         for (let i of ignoreDir) {
             fs.rmdirSync(path.join(appDir, i), { recursive: true });
         }
