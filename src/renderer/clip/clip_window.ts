@@ -1107,7 +1107,7 @@ function runCopy() {
     });
 }
 // 保存
-var type: "svg" | "png" | "jpg";
+var type: setting["保存"]["默认格式"];
 import timeFormat from "../../../lib/time_format";
 function runSave() {
     if (store.get("保存.快速保存")) {
@@ -1167,10 +1167,13 @@ function save(message: string) {
                 dataBuffer = Buffer.from(<string>c);
             } else {
                 let f = "";
+                const nc = <HTMLCanvasElement>c;
                 if (type === "png") {
-                    f = (<HTMLCanvasElement>c).toDataURL();
+                    f = nc.toDataURL("image/png", 1);
                 } else if (type === "jpg") {
-                    f = (<HTMLCanvasElement>c).toDataURL("image/jpeg", store.get("jpg质量") - 0);
+                    f = nc.toDataURL("image/jpeg", 1);
+                } else if (type === "webp") {
+                    f = nc.toDataURL("image/webp", 1);
                 }
                 dataBuffer = Buffer.from(f.replace(/^data:image\/\w+;base64,/, ""), "base64");
                 if (store.get("保存.保存并复制")) {
