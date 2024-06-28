@@ -52,6 +52,7 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     dives.push(div);
     div.id = wid;
     div.className = "ding_photo";
+    if (store.get("贴图.窗口.提示")) div.classList.add("ding_photo_h");
     div.style.left = x + "px";
     div.style.top = y + "px";
     div.style.width = w + "px";

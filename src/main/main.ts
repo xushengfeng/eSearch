@@ -2110,6 +2110,7 @@ var defaultSetting: setting = {
         窗口: {
             变换: `transform: rotateY(180deg);`,
             双击: "归位",
+            提示: false,
         },
     },
     代理: {

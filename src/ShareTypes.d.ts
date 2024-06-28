@@ -176,6 +176,7 @@ export interface setting {
         窗口: {
             变换: string;
             双击: "归位" | "关闭";
+            提示: boolean;
         };
     };
     代理: Electron.Config;

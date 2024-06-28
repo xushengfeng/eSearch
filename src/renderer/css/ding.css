@@ -22,7 +22,8 @@ body > #dock_item {
     position: fixed;
     overflow: hidden;
 }
-.ding_photo:hover {
+.ding_photo:hover,
+.ding_photo_h {
     box-shadow: var(--shadow);
 }
 #tool_bar {
