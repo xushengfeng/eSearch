@@ -834,8 +834,8 @@ function openApp() {
     const tmpPhoto = path.join(os.tmpdir(), "/eSearch/tmp.png");
     const fs = require("fs");
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        var f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-        var dataBuffer = new Buffer(f, "base64");
+        const f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+        const dataBuffer = Buffer.from(f, "base64");
         fs.writeFile(tmpPhoto, dataBuffer, () => {
             open_with(tmpPhoto);
         });
