@@ -152,6 +152,7 @@ export interface setting {
         默认格式: "png" | "jpg" | "svg";
         保存路径: { 图片: string; 视频: string };
         快速保存: boolean;
+        保存并复制: boolean;
     };
     保存名称: { 前缀: string; 时间: string; 后缀: string };
     jpg质量: number;

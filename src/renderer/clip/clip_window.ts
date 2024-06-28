@@ -1107,7 +1107,7 @@ function runCopy() {
     });
 }
 // 保存
-var type;
+var type: "svg" | "png" | "jpg";
 import timeFormat from "../../../lib/time_format";
 function runSave() {
     if (store.get("保存.快速保存")) {
@@ -1131,7 +1131,7 @@ function runSave() {
         var el = <HTMLDivElement>e.target;
         if (el.dataset.value) {
             ipcRenderer.send("clip_main_b", "save", el.dataset.value);
-            type = el.dataset.value;
+            type = el.dataset.value as typeof type;
             sCenterBar("save");
         }
     };
@@ -1162,36 +1162,27 @@ function save(message: string) {
     if (message) {
         const fs = require("fs");
         getClipPhoto(type).then((c) => {
-            switch (type) {
-                case "svg":
-                    var dataBuffer = Buffer.from(<string>c);
-                    fs.writeFile(message, dataBuffer, (err) => {
-                        if (!err) {
-                            ipcRenderer.send("clip_main_b", "ok_save", message);
-                        }
-                    });
-                    break;
-                case "png":
-                    var f = (<HTMLCanvasElement>c).toDataURL().replace(/^data:image\/\w+;base64,/, "");
-                    var dataBuffer = Buffer.from(f, "base64");
-                    fs.writeFile(message, dataBuffer, (err) => {
-                        if (!err) {
-                            ipcRenderer.send("clip_main_b", "ok_save", message);
-                        }
-                    });
-                    break;
-                case "jpg":
-                    var f = (<HTMLCanvasElement>c)
-                        .toDataURL("image/jpeg", store.get("jpg质量") - 0)
-                        .replace(/^data:image\/\w+;base64,/, "");
-                    var dataBuffer = Buffer.from(f, "base64");
-                    fs.writeFile(message, dataBuffer, (err) => {
-                        if (!err) {
-                            ipcRenderer.send("clip_main_b", "ok_save", message);
-                        }
-                    });
-                    break;
+            let dataBuffer: Buffer;
+            if (type === "svg") {
+                dataBuffer = Buffer.from(<string>c);
+            } else {
+                let f = "";
+                if (type === "png") {
+                    f = (<HTMLCanvasElement>c).toDataURL();
+                } else if (type === "jpg") {
+                    f = (<HTMLCanvasElement>c).toDataURL("image/jpeg", store.get("jpg质量") - 0);
+                }
+                dataBuffer = Buffer.from(f.replace(/^data:image\/\w+;base64,/, ""), "base64");
+                if (store.get("保存.保存并复制")) {
+                    clipboard.writeImage(nativeImage.createFromDataURL(f));
+                }
             }
+
+            fs.writeFile(message, dataBuffer, (err) => {
+                if (!err) {
+                    ipcRenderer.send("clip_main_b", "ok_save", message);
+                }
+            });
         });
         tool.close();
     }
