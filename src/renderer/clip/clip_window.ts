@@ -112,7 +112,7 @@ var drawBar = document.getElementById("draw_bar");
 
 var nowScreenId = 0;
 
-var allScreens: (Electron.Display & { captureSync: () => Buffer } & { image?: Buffer })[];
+var allScreens: (Electron.Display & { captureSync?: () => Buffer; image?: Buffer })[] = [];
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
 try {
@@ -149,6 +149,8 @@ setSetting();
 ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
     if (!_displays.find((i) => i["main"])) {
         dispaly2screen(_displays, Screenshots.all());
+    } else {
+        allScreens = _displays;
     }
     console.log(allScreens);
     let mainId = mainid;
