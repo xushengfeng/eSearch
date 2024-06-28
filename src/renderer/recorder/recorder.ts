@@ -455,6 +455,8 @@ async function initSeg() {
         ort: require("onnxruntime-node"),
         ortOption: { executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }] },
         shape: [256, 144],
+        invertOpacity: true,
+        threshold: 0.7,
     });
     drawCamera();
     segEl.style.width = `${videoEl.videoWidth}px`;
