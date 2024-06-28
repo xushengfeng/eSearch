@@ -1104,7 +1104,7 @@ const recorderWinH = 24;
 
 var recorder: BrowserWindow;
 var recorderTipWin: BrowserWindow;
-function createRecorderWindow(rect0, screenx: { id: string; w: number; h: number; r: number }) {
+function createRecorderWindow(rect0: number[], screenx: { id: string; w: number; h: number; r: number }) {
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     let ratio = screenx.r;
     let p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
@@ -1166,7 +1166,7 @@ function createRecorderWindow(rect0, screenx: { id: string; w: number; h: number
                 if (s.display_id == screenx.id) dId = s.id;
             });
             if (!dId) dId = sources[0].id;
-            recorder.webContents.send("record", "init", dId, rect, screenx.w, screenx.h, screenx.r);
+            recorder.webContents.send("record", "init", dId, rect0, screenx.w, screenx.h);
         });
     });
 

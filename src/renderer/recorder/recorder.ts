@@ -26,8 +26,6 @@ var store = new Store({
     cwd: configPath || "",
 });
 
-var ratio = 1;
-
 var recorder: MediaRecorder;
 
 /** 临时保存的原始视频位置 */
@@ -160,11 +158,10 @@ function c() {
     }, clipTime);
 }
 
-ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h, screen_ratio) => {
+ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
     switch (t) {
         case "init":
             rect = r;
-            ratio = screen_ratio;
             sS = true;
             let devices = await navigator.mediaDevices.enumerateDevices();
             const audioL = devices.filter((i) => i.kind === "audioinput");
@@ -541,11 +538,10 @@ function showControl() {
     document.getElementById("video").style.transform = "";
     segEl.remove();
     setVideo(0);
-    document.querySelector("video").style.left = -rect[0] * ratio + "px";
-    document.querySelector("video").style.top = -rect[1] * ratio + "px";
-    document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] * ratio + "px";
-    document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight =
-        rect[3] * ratio + "px";
+    document.querySelector("video").style.left = -rect[0] + "px";
+    document.querySelector("video").style.top = -rect[1] + "px";
+    document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = rect[2] + "px";
+    document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight = rect[3] + "px";
     clipV();
     saveEl.disabled = false;
     if (store.get("录屏.转换.自动转换")) {
