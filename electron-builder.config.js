@@ -190,7 +190,7 @@ let build = {
         fs.cpSync(appPath, appDir, { recursive: true });
         let ignoreDir = ["node_modules/onnxruntime-node", "ocr"];
         for (let i of ignoreDir) {
-            fs.rmdirSync(path.join(appDir, i), { recursive: true });
+            fs.rmSync(path.join(appDir, i), { recursive: true });
         }
 
         const outputFilePath = path.join(c.outDir, `app-${process.platform}-${arch[0]}`);
