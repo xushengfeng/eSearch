@@ -514,7 +514,7 @@ const addTranslatorM = el("dialog") as HTMLDialogElement;
 const addTranslator = el("button", "+", {
     onclick: async () => {
         const v = await translatorD({ id: "", keys: [], type: null });
-        xstore.屏幕翻译.翻译.push(v);
+        xstore.翻译.翻译器.push(v);
         reflashTran();
     },
 });
@@ -523,12 +523,12 @@ translateES.append(translatorList, addTranslator, addTranslatorM);
 function reflashTran() {
     translatorList.innerHTML = "";
     translatorEl.innerHTML = "";
-    xstore.屏幕翻译.翻译.forEach((v) => {
+    xstore.翻译.翻译器.forEach((v) => {
         translatorList.append(
             el("div", v.id, {
                 onclick: async () => {
                     const nv = await translatorD(v);
-                    if (!nv.id) xstore.屏幕翻译.翻译 = xstore.屏幕翻译.翻译.filter((i) => i.id != v.id);
+                    if (!nv.id) xstore.翻译.翻译器 = xstore.翻译.翻译器.filter((i) => i.id != v.id);
                     else for (let i in nv) v[i] = nv[i];
                     reflashTran();
                 },
@@ -548,7 +548,7 @@ function reflashTran() {
                     onclick: () => {
                         xstore.屏幕翻译.默认翻译 = v.id;
                         setTranLan(
-                            xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type,
+                            xstore.翻译.翻译器.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type,
                             xstore.语言.语言
                         );
                     },
@@ -621,7 +621,7 @@ let engineConfig: Partial<
 
 reflashTran();
 
-function translatorD(v: setting["屏幕翻译"]["翻译"][0]) {
+function translatorD(v: setting["翻译"]["翻译器"][0]) {
     const idEl = el("input", { value: v.id, type: "text" });
     const selectEl = el("select");
     const keys = el("div");
@@ -742,7 +742,7 @@ function setTranLan(type: Engines, mainLan: string) {
     });
 }
 
-setTranLan(xstore.屏幕翻译.翻译.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type, xstore.语言.语言);
+setTranLan(xstore.翻译.翻译器.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type, xstore.语言.语言);
 
 (<HTMLInputElement>document.getElementById("记住引擎")).checked = Boolean(old_store.引擎.记住);
 

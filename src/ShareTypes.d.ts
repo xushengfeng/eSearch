@@ -250,15 +250,17 @@ export interface setting {
             text: string;
         };
         默认翻译: string;
-        翻译: {
-            id: string;
-            type: keyof typeof import("xtranslator")["default"]["e"];
-            keys: string[];
-        }[];
         语言: {
             from: string;
             to: string;
         };
+    };
+    翻译: {
+        翻译器: {
+            id: string;
+            type: keyof typeof import("xtranslator")["default"]["e"];
+            keys: string[];
+        }[];
     };
 }
 

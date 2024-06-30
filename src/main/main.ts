@@ -2127,12 +2127,12 @@ var defaultSetting: setting = {
         dTime: 3000,
         css: { bg: "", text: "" },
         默认翻译: "",
-        翻译: [],
         语言: {
             from: "",
             to: "",
         },
     },
+    翻译: { 翻译器: [] },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");

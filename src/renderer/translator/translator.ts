@@ -31,7 +31,7 @@ const transE = store.get("屏幕翻译.默认翻译");
 let translateE = async (input: string) => input;
 
 if (transE) {
-    let x = (store.get("屏幕翻译.翻译") as setting["屏幕翻译"]["翻译"]).find((i) => i.id === transE);
+    let x = (store.get("翻译.翻译器") as setting["翻译"]["翻译器"]).find((i) => i.id === transE);
     if (x) {
         xtranslator.e[x.type].setKeys(x.keys);
         const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
