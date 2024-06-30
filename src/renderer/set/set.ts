@@ -803,6 +803,9 @@ document.getElementById("翻译引擎").onchange = () => {
             defaultEn += `<label><input type="radio" name="默认翻译引擎" value="${l[0]}">${l[0]}</label>`;
         }
     }
+    if (!o翻译引擎.find((i) => i[1] === "translate/?text=%s")) {
+        o翻译引擎.push(["翻译", "translate/?text=%s"]);
+    }
     defaultEn += `</div>`;
     document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
     setRadio(document.getElementById("默认翻译引擎"), o翻译引擎[0][0]);
