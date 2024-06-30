@@ -185,6 +185,7 @@ export interface setting {
         模式: "auto" | "search" | "translate";
         复用: boolean;
         失焦关闭: boolean;
+        简洁模式: boolean;
         高级窗口按钮: boolean;
     };
     主页面大小: [number, number, boolean];

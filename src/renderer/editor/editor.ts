@@ -1321,6 +1321,7 @@ window.onblur = () => {
 
 const alwaysOnTopEl = document.getElementById("top_b");
 const blurToCloseEl = document.getElementById("ding_b");
+const conciseEl = document.getElementById("concise_b");
 
 let alwaysOnTop = false;
 alwaysOnTopEl.onclick = () => {
@@ -1336,6 +1337,30 @@ blurToCloseEl.onclick = () => {
     store.set("主页面.失焦关闭", blurToClose);
     setButtonHover(blurToCloseEl, !blurToClose);
 };
+
+const mainEl = document.querySelector(".main") as HTMLElement;
+let concise = store.get("主页面.简洁模式");
+mainEl.style.transition = "0s";
+setConciseMode(concise);
+mainEl.style.transition = "";
+setButtonHover(conciseEl, concise);
+conciseEl.onclick = () => {
+    concise = !concise;
+    store.set("主页面.简洁模式", concise);
+    setButtonHover(conciseEl, concise);
+    setConciseMode(concise);
+};
+
+function setConciseMode(m: boolean) {
+    if (m) {
+        mainEl.style.gridTemplateRows = "auto 0";
+        mainEl.style.gap = "0";
+    } else {
+        mainEl.style.gridTemplateRows = "";
+        mainEl.style.gap = "";
+    }
+    // todo 浏览器
+}
 
 if (!store.get("主页面.高级窗口按钮")) {
     document.body.querySelector("nav").style.height = "0";

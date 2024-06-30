@@ -39,10 +39,10 @@ nav > button > .icon {
     width: 100%;
     grid-template-columns: 1fr var(--b-button) var(--b-button) repeat(2, auto);
     grid-template-rows: auto var(--b-button);
-    grid-column-gap: var(--o-padding);
-    grid-row-gap: var(--o-padding);
+    gap: var(--o-padding);
     padding: var(--o-padding);
     box-sizing: border-box;
+    transition: var(--transition);
 }
 
 #top {
