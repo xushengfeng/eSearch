@@ -15,6 +15,7 @@ import close_svg from "../assets/icons/close.svg";
 import pause_svg from "../assets/icons/pause.svg";
 import recume_svg from "../assets/icons/recume.svg";
 import ocr_svg from "../assets/icons/ocr.svg";
+import updown_svg from "../assets/icons/updown.svg";
 
 function iconEl(img: string) {
     return el("img", { src: img, class: "icon" });
@@ -203,13 +204,23 @@ const switchEl = el("input", {
     },
 });
 
+const setPosi = el("button", iconEl(updown_svg), {
+    onclick: () => {
+        const y = -1 * store.get("屏幕翻译.offsetY");
+        setOffset(y);
+        store.set("屏幕翻译.offsetY", y);
+    },
+});
+
 function switchMode() {
     if (mode === "manual") {
         playEl.style.display = "none";
+        setPosi.style.display = "none";
         runEl.style.display = "";
         setOffset(0);
     } else {
         playEl.style.display = "";
+        setPosi.style.display = "";
         runEl.style.display = "none";
         setOffset(store.get("屏幕翻译.offsetY") || -1);
         runRun();
@@ -249,6 +260,7 @@ const toolsEl = el(
     "div",
     { class: "tools" },
     switchEl,
+    setPosi,
     playEl,
     runEl,
     el("button", iconEl(close_svg), {
