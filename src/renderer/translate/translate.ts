@@ -80,13 +80,12 @@ let composing = false;
 input.addEventListener("compositionstart", () => (composing = true));
 input.addEventListener("compositionend", () => (composing = false));
 
-let lastTrans = 0;
+let lastTrans: NodeJS.Timeout;
 
 input.oninput = () => {
     if (composing) return;
-    const now = new Date().getTime();
-    if (now - lastTrans < 2000) return;
-    else lastTrans = now;
-
-    translate(input.value);
+    if (lastTrans) clearTimeout(lastTrans);
+    lastTrans = setTimeout(() => {
+        translate(input.value);
+    }, 2000);
 };
