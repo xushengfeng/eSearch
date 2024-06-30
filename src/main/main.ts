@@ -1496,7 +1496,7 @@ async function createMainWindow(op: MainWinType) {
         y: Math.max(vr.y, y),
         width: w,
         height: h,
-        minWidth: 800,
+        minWidth: 400,
         backgroundColor: bg,
         icon: theIcon,
         titleBarStyle: "hidden",
@@ -1570,7 +1570,7 @@ async function createMainWindow(op: MainWinType) {
 
 async function createSettingWindow(about?: boolean) {
     const settingWindow = new BrowserWindow({
-        minWidth: 800,
+        minWidth: 600,
         backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
         icon: theIcon,
         webPreferences: {
