@@ -328,7 +328,7 @@ document.onwheel = (e) => {
 
     document.body.classList.add("editor_bg");
 
-    if (nowType === "draw" || nowType === "shape") {
+    if ((nowType === "draw" || nowType === "shape") && !e.ctrlKey) {
         let v = strokeWidthF.get();
         v += e.deltaY / 50;
         v = Math.max(1, v);
