@@ -4,6 +4,7 @@ textarea {
     padding: 8px;
     box-sizing: border-box;
     font-size: 1rem;
+    resize: vertical;
 }
 
 button {
