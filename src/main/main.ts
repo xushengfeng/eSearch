@@ -2032,7 +2032,7 @@ var defaultSetting: setting = {
     引擎: {
         记忆: {
             搜索: "必应",
-            翻译: "Google",
+            翻译: "Deepl",
         },
         搜索: [
             { name: "必应", url: "https://cn.bing.com/search?q=%s" },
@@ -2049,7 +2049,6 @@ var defaultSetting: setting = {
             { name: "翻译", url: "translate/?text=%s" },
         ],
     },
-    nocors: ["https://yuansou.netlify.app/"],
     历史记录设置: {
         保留历史记录: true,
         自动清除历史记录: false,

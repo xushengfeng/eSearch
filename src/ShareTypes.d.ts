@@ -166,7 +166,6 @@ export interface setting {
         搜索: { name: string; url: string }[];
         翻译: { name: string; url: string }[];
     };
-    nocors: [string];
     历史记录设置: {
         保留历史记录: boolean;
         自动清除历史记录: boolean;
