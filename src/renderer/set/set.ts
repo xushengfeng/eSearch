@@ -714,31 +714,15 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
 }
 
 function setTranLan(type: Engines, mainLan: string) {
-    const languageName = new Intl.DisplayNames(mainLan, { type: "language" });
-    const lan = (l: string) => {
-        if (l === "auto") {
-            return "*";
-        }
-        return languageName.of(l);
-    };
-    function motherLanFirst(lanList: string[]) {
-        let i = lanList.indexOf(mainLan);
-        if (i < 0) i = lanList.findIndex((l) => l.split("-")[0] === mainLan.split("-")[0]);
-        if (i < 0) return lanList;
-        lanList = structuredClone(lanList);
-        lanList.unshift(lanList.splice(Number(i), 1)[0]);
-        return lanList;
-    }
     const e = translator.e[type];
     translatorFrom.innerHTML = "";
     translatorTo.innerHTML = "";
     if (!e) return;
-    e.lan.forEach((v) => {
-        translatorFrom.append(el("option", lan(v), { value: v }));
+    e.getLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
+        translatorFrom.append(el("option", v.text, { value: v.lan }));
     });
-    const toLan = motherLanFirst(e.targetLan);
-    toLan.forEach((v) => {
-        translatorTo.append(el("option", lan(v), { value: v }));
+    e.getTargetLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
+        translatorTo.append(el("option", v.text, { value: v.lan }));
     });
 }
 

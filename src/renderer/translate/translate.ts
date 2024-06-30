@@ -23,16 +23,23 @@ const lansTo = el("select");
 
 const results = el("div", { class: "results" });
 
+lansFrom.onchange = () => {
+    translate(input.value);
+};
+lansTo.onchange = () => {
+    translate(input.value);
+};
 lans.append(lansFrom, lansTo);
 
 document.body.append(input, lans, results);
 
 const inputText = decodeURIComponent(new URLSearchParams(location.search).get("text"));
 
-function translate(text: string) {
-    const fyq = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
+const fyq = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
 
+function translate(text: string) {
     results.innerHTML = "";
+    if (!text.trim()) return;
     for (let i of fyq) {
         const copy = el("button", iconEl(copy_svg));
         const e = el("div", el("div", { class: "title" }, el("span", i.id), copy));
@@ -51,6 +58,17 @@ function translate(text: string) {
 function translateI(text: string, i: setting["翻译"]["翻译器"][0]) {
     xtranslator.e[i.type].setKeys(i.keys);
     return xtranslator.e[i.type].run(text, lansFrom.value, lansTo.value);
+}
+
+const e = xtranslator.e[fyq[0].type];
+if (e) {
+    const mainLan = store.get("语言.语言");
+    e.getLanT({ text: mainLan, sort: "text" }).forEach((v) => {
+        lansFrom.append(el("option", v.text, { value: v.lan }));
+    });
+    e.getTargetLanT({ text: mainLan, sort: "text" }).forEach((v) => {
+        lansTo.append(el("option", v.text, { value: v.lan }));
+    });
 }
 
 input.value = inputText;
