@@ -15,6 +15,7 @@ export default defineConfig({
                     recorderTip: path.resolve(__dirname, "src/renderer/recorderTip.html"),
                     browser_bg: path.resolve(__dirname, "src/renderer/browser_bg.html"),
                     translator: path.resolve(__dirname, "src/renderer/translator.html"),
+                    translate: path.resolve(__dirname, "src/renderer/translate.html"),
                 },
             },
             assetsInlineLimit: 0,

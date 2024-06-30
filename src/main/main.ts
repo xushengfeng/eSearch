@@ -1624,24 +1624,32 @@ ipcMain.on("open_url", (_event, window_name, url) => {
 
 /** 创建浏览器页面 */
 async function createBrowser(windowName: number, url: string) {
+    console.log(url);
+
     if (!windowName) windowName = await createMainWindow({ type: "text", content: "" });
 
     let mainWindow = mainWindowL[windowName];
 
     if (mainWindow.isDestroyed()) return null;
     minViews(mainWindow);
-    var view = new Date().getTime();
-    let security = true;
-    for (let i of store.get("nocors")) {
-        if (url.includes(i)) {
-            security = false;
-            break;
-        }
+    const view = new Date().getTime();
+    let webPreferences: Electron.WebPreferences = {};
+    if (url.startsWith("translate")) {
+        webPreferences = {
+            nodeIntegration: true,
+            contextIsolation: false,
+            webSecurity: false,
+        };
     }
-    var searchView = (searchWindowL[view] = new BrowserView({ webPreferences: { webSecurity: security } }));
+    const searchView = (searchWindowL[view] = new BrowserView({ webPreferences }));
     await searchView.webContents.session.setProxy(store.get("代理"));
     mainWindowL[windowName].addBrowserView(searchView);
-    searchView.webContents.loadURL(url);
+
+    if (url.startsWith("translate")) {
+        rendererPath2(searchView.webContents, "translate.html", {
+            query: { text: url.replace("translate/?text=", "") },
+        });
+    } else searchView.webContents.loadURL(url);
     var [w, h] = mainWindow.getContentSize();
     searchView.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
     mainWindow.setContentSize(w, h + 1);
@@ -2033,7 +2041,7 @@ var defaultSetting: setting = {
         ["金山词霸", "http://www.iciba.com/word?w=%s"],
         ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
         ["腾讯", "https://fanyi.qq.com/?text=%s"],
-        ["翻译树", "https://fanyishu.netlify.app/?text=%s"],
+        ["翻译树", "translate/?t=%s"],
     ],
     引擎: {
         记住: false,

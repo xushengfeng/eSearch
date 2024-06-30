@@ -1,0 +1,55 @@
+textarea {
+    width: 100%;
+    border: none;
+    padding: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+button {
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: #0000;
+    transition: var(--transition);
+    font-size: 1rem;
+    padding: 4px;
+    background-color: var(--m-color2);
+}
+button:hover {
+    background-color: var(--hover-color);
+    box-shadow: var(--shadow);
+}
+
+select {
+    outline: none;
+    border: none;
+    padding: 4px;
+    font-size: 1rem;
+    border-radius: var(--border-radius);
+}
+
+.results {
+    display: flex;
+    margin: 8px;
+    gap: 8px;
+}
+
+.results > div {
+    width: 100%;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+}
+
+.title > button {
+    position: relative;
+    width: 24px;
+    height: 24px;
+}
+
+button > .icon {
+    width: 24px;
+    height: 24px;
+}
