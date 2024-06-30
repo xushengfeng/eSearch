@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@types/sortablejs':
+    specifier: ^1.15.8
+    version: 1.15.8
   color:
     specifier: ^4.2.3
     version: 4.2.3
@@ -44,6 +47,9 @@ dependencies:
   redom:
     specifier: ^4.0.0
     version: 4.1.5
+  sortablejs:
+    specifier: ^1.15.2
+    version: 1.15.2
   uiohook-napi:
     specifier: ^1.5.3
     version: 1.5.4
@@ -938,6 +944,10 @@ packages:
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
     dependencies:
       '@types/node': 18.19.39
+
+  /@types/sortablejs@1.15.8:
+    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
+    dev: false
 
   /@types/verror@1.10.10:
     resolution: {integrity: sha512-l4MM0Jppn18hb9xmM6wwD1uTdShpf9Pn80aXTStnK1C94gtPvJcV2FrDmbOQUAQfJ1cKZHktkQUDwEqaAKXMMg==}
@@ -3551,6 +3561,10 @@ packages:
     engines: {node: '>=4'}
     dependencies:
       is-plain-obj: 1.1.0
+    dev: false
+
+  /sortablejs@1.15.2:
+    resolution: {integrity: sha512-FJF5jgdfvoKn1MAKSdGs33bIqLi3LmsgVTliuX6iITj834F+JRQZN90Z93yql8h0K2t0RwDPBmxwlbZfDcxNZA==}
     dev: false
 
   /source-map-js@1.2.0:

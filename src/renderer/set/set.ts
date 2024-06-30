@@ -8,7 +8,15 @@ const { shell, ipcRenderer } = require("electron") as typeof import("electron");
 const os = require("os") as typeof import("os");
 const fs = require("fs") as typeof import("fs");
 import { el } from "redom";
+
 import close_svg from "../assets/icons/close.svg";
+import delete_svg from "../assets/icons/delete.svg";
+import handle_svg from "../assets/icons/handle.svg";
+import add_svg from "../assets/icons/add.svg";
+
+function iconEl(img: string) {
+    return el("img", { src: img, class: "icon" });
+}
 
 type RangeEl = HTMLElement & { value: number };
 
@@ -728,72 +736,78 @@ function setTranLan(type: Engines, mainLan: string) {
 
 setTranLan(xstore.翻译.翻译器.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type, xstore.语言.语言);
 
-(<HTMLInputElement>document.getElementById("记住引擎")).checked = Boolean(old_store.引擎.记住);
+import Sortable from "sortablejs";
 
-var o_搜索引擎 = old_store.搜索引擎;
-if (o_搜索引擎) {
-    var text = "";
-    var defaultEn = `<div id="默认搜索引擎">`;
-    for (let i in o_搜索引擎) {
-        text += `${o_搜索引擎[i][0]}, ${o_搜索引擎[i][1]}\n`;
-        defaultEn += `<label><input type="radio" name="默认搜索引擎" value="${o_搜索引擎[i][0]}">${o_搜索引擎[i][0]}</label>`;
-    }
-    (<HTMLInputElement>document.getElementById("搜索引擎")).value = text;
-    defaultEn += `</div>`;
-    document.getElementById("默认搜索引擎div").innerHTML = defaultEn;
-    setRadio(document.getElementById("默认搜索引擎"), old_store.引擎.默认搜索引擎);
-}
-document.getElementById("搜索引擎").onchange = () => {
-    o_搜索引擎 = [];
-    var text = (<HTMLInputElement>document.getElementById("搜索引擎")).value;
-    var textL = text.split("\n");
-    var defaultEn = `<div id="默认搜索引擎">`;
-    for (let i in textL) {
-        var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
-        var l = textL[i].replace(r, "$1,$2").split(",");
-        if (l[0] != "") {
-            o_搜索引擎[i] = [l[0], l[1]];
-            defaultEn += `<label><input type="radio" name="默认搜索引擎" value="${l[0]}">${l[0]}</label>`;
-        }
-    }
-    defaultEn += `</div>`;
-    document.getElementById("默认搜索引擎div").innerHTML = defaultEn;
-    setRadio(document.getElementById("默认搜索引擎"), o_搜索引擎[0][0]);
-};
+const y搜索 = document.getElementById("搜索引擎");
+const y翻译 = document.getElementById("翻译引擎");
 
-var o翻译引擎 = old_store.翻译引擎;
-if (o翻译引擎) {
-    var text = "";
-    var defaultEn = `<div id="默认翻译引擎">`;
-    for (let i in o翻译引擎) {
-        text += `${o翻译引擎[i][0]}, ${o翻译引擎[i][1]}\n`;
-        defaultEn += `<label><input type="radio" name="默认翻译引擎" value="${o翻译引擎[i][0]}">${o翻译引擎[i][0]}</label>`;
-    }
-    (<HTMLInputElement>document.getElementById("翻译引擎")).value = text;
-    defaultEn += `</div>`;
-    document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
-    setRadio(document.getElementById("默认翻译引擎"), old_store.引擎.默认翻译引擎);
-}
-document.getElementById("翻译引擎").onchange = () => {
-    o翻译引擎 = [];
-    var text = (<HTMLInputElement>document.getElementById("翻译引擎")).value;
-    var textL = text.split("\n");
-    var defaultEn = `<div id="默认翻译引擎">`;
-    for (let i in textL) {
-        var r = /(\S+)\W*[,，:：]\W*(\S+)/g;
-        var l = textL[i].replace(r, "$1,$2").split(",");
-        if (l[0] != "") {
-            o翻译引擎[i] = [l[0], l[1]];
-            defaultEn += `<label><input type="radio" name="默认翻译引擎" value="${l[0]}">${l[0]}</label>`;
+new Sortable(y搜索, {
+    handle: ".sort_handle",
+});
+new Sortable(y翻译, {
+    handle: ".sort_handle",
+});
+
+function eSort(ele: HTMLElement, list: string[][]) {
+    ele.classList.add("sort_list");
+    const sEl = el("div");
+    new Sortable(sEl, {
+        handle: ".sort_handle",
+    });
+
+    function add(i: (typeof list)[0]) {
+        const e = el("li");
+        e.append(el("button", { class: "sort_handle" }, iconEl(handle_svg)));
+        for (let x of i) {
+            const input = el("input", { type: "text" });
+            input.value = x;
+            e.append(input);
         }
+        e.append(
+            el("button", iconEl(delete_svg), {
+                onclick: () => {
+                    e.remove();
+                },
+            })
+        );
+        return e;
     }
-    if (!o翻译引擎.find((i) => i[1] === "translate/?text=%s")) {
-        o翻译引擎.push(["翻译", "translate/?text=%s"]);
+
+    for (let i of list) {
+        sEl.append(add(i));
     }
-    defaultEn += `</div>`;
-    document.getElementById("默认翻译引擎div").innerHTML = defaultEn;
-    setRadio(document.getElementById("默认翻译引擎"), o翻译引擎[0][0]);
-};
+
+    const addEl = el("div");
+    for (let _x of list[0]) {
+        const input = el("input", { type: "text" });
+        addEl.append(input);
+    }
+    addEl.append(
+        el("button", iconEl(add_svg), {
+            onclick: () => {
+                sEl.append(add(Array.from(addEl.querySelectorAll("input")).map((i) => i.value)));
+                Array.from(addEl.querySelectorAll("input")).forEach((i) => (i.value = ""));
+            },
+        })
+    );
+
+    ele.append(sEl, addEl);
+
+    return () => {
+        return Array.from(sEl.children).map((d) => Array.from(d.querySelectorAll("input")).map((i) => i.value));
+    };
+}
+
+function engine2list(l: { name: string; url: string }[]) {
+    return l.map((i) => [i.name, i.url]);
+}
+
+function list2engine(list: string[][]) {
+    return list.map((i) => ({ name: i[0], url: i[1] }));
+}
+
+const y搜索引擎 = eSort(y搜索, engine2list(old_store.引擎.搜索));
+const y翻译引擎 = eSort(y翻译, engine2list(old_store.引擎.翻译));
 
 (<HTMLInputElement>document.getElementById("记住识图引擎")).checked = Boolean(old_store.以图搜图.记住);
 
@@ -1106,14 +1120,13 @@ function saveSetting() {
             : 字体.大小
         : false;
     xstore.字体 = 字体;
-    if (o_搜索引擎) xstore.搜索引擎 = o_搜索引擎;
-    if (o翻译引擎) xstore.翻译引擎 = o翻译引擎;
+    const yS = list2engine(y搜索引擎());
+    const yF = list2engine(y翻译引擎());
+    if (!yF.find((i) => i.url.startsWith("translate"))) yF.push({ name: "翻译", url: "translate/?text=%s" });
     xstore.引擎 = {
-        记住: (<HTMLInputElement>document.getElementById("记住引擎")).checked
-            ? [getRadio(document.getElementById("默认搜索引擎")), getRadio(document.getElementById("默认翻译引擎"))]
-            : false,
-        默认搜索引擎: getRadio(document.getElementById("默认搜索引擎")),
-        默认翻译引擎: getRadio(document.getElementById("默认翻译引擎")),
+        搜索: yS,
+        翻译: yF,
+        记忆: { 搜索: yS[0].name, 翻译: yF[0].name },
     };
     xstore.以图搜图.记住 = (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
         ? old_store.以图搜图.记住 || getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))

@@ -158,12 +158,13 @@ export interface setting {
     保存名称: { 前缀: string; 时间: string; 后缀: string };
     框选后默认操作: "no" | 功能;
     快速截屏: { 模式: "clip" | "path"; 路径: string };
-    搜索引擎: [string, string][];
-    翻译引擎: [string, string][];
     引擎: {
-        记住: false | [string, string];
-        默认搜索引擎: string;
-        默认翻译引擎: string;
+        记忆: {
+            搜索: string;
+            翻译: string;
+        };
+        搜索: { name: string; url: string }[];
+        翻译: { name: string; url: string }[];
     };
     nocors: [string];
     历史记录设置: {

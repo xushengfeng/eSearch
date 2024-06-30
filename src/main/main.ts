@@ -2029,24 +2029,25 @@ var defaultSetting: setting = {
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     框选后默认操作: "no",
     快速截屏: { 模式: "clip", 路径: "" },
-    搜索引擎: [
-        ["Google", "https://www.google.com/search?q=%s"],
-        ["百度", "https://www.baidu.com/s?wd=%s"],
-        ["必应", "https://cn.bing.com/search?q=%s"],
-        ["Yandex", "https://yandex.com/search/?text=%s"],
-    ],
-    翻译引擎: [
-        ["Google", "https://translate.google.com.hk/?op=translate&text=%s"],
-        ["Deepl", "https://www.deepl.com/translator#any/any/%s"],
-        ["金山词霸", "http://www.iciba.com/word?w=%s"],
-        ["百度", "https://fanyi.baidu.com/#auto/auto/%s"],
-        ["腾讯", "https://fanyi.qq.com/?text=%s"],
-        ["翻译", "translate/?text=%s"],
-    ],
     引擎: {
-        记住: false,
-        默认搜索引擎: "百度",
-        默认翻译引擎: "Google",
+        记忆: {
+            搜索: "必应",
+            翻译: "Google",
+        },
+        搜索: [
+            { name: "必应", url: "https://cn.bing.com/search?q=%s" },
+            { name: "Google", url: "https://www.google.com/search?q=%s" },
+            { name: "百度", url: "https://www.baidu.com/s?wd=%s" },
+            { name: "Yandex", url: "https://yandex.com/search/?text=%s" },
+        ],
+        翻译: [
+            { name: "Google", url: "https://translate.google.com.hk/?op=translate&text=%s" },
+            { name: "Deepl", url: "https://www.deepl.com/translator#any/any/%s" },
+            { name: "金山词霸", url: "http://www.iciba.com/word?w=%s" },
+            { name: "百度", url: "https://fanyi.baidu.com/#auto/auto/%s" },
+            { name: "腾讯", url: "https://fanyi.qq.com/?text=%s" },
+            { name: "翻译", url: "translate/?text=%s" },
+        ],
     },
     nocors: ["https://yuansou.netlify.app/"],
     历史记录设置: {

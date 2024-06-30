@@ -866,9 +866,9 @@ function openLink(id: "url" | "search" | "translate", link?: string) {
     }
 }
 
-var 搜索引擎List = store.get("搜索引擎"),
-    翻译引擎List = store.get("翻译引擎"),
-    引擎 = store.get("引擎");
+var 搜索引擎List = store.get("引擎.搜索") as setting["引擎"]["搜索"],
+    翻译引擎List = store.get("引擎.翻译") as setting["引擎"]["翻译"],
+    引擎 = store.get("引擎") as setting["引擎"];
 /**搜索翻译按钮 */
 document.getElementById("search_b").onclick = () => {
     openLink("search");
@@ -876,51 +876,29 @@ document.getElementById("search_b").onclick = () => {
 document.getElementById("translate_b").onclick = () => {
     openLink("translate");
 };
+const searchSelect = document.getElementById("search_s") as HTMLSelectElement;
+const translateSelect = document.getElementById("translate_s") as HTMLSelectElement;
 /**改变选项后搜索 */
 document.getElementById("search_s").oninput = () => {
     openLink("search");
-    if (引擎.记住)
-        store.set("引擎.记住", [
-            (<HTMLSelectElement>document.getElementById("search_s")).selectedOptions[0].innerText,
-            store.get("引擎.记住")[1],
-        ]);
+    store.set("引擎.记忆.搜索", searchSelect.selectedOptions[0].innerText);
 };
 document.getElementById("translate_s").oninput = () => {
     openLink("translate");
-    if (引擎.记住)
-        store.set("引擎.记住", [
-            store.get("引擎.记住")[0],
-            (<HTMLSelectElement>document.getElementById("translate_s")).selectedOptions[0].innerText,
-        ]);
+    store.set("引擎.记忆.翻译", translateSelect.selectedOptions[0].innerText);
 };
 /**展示搜索引擎选项 */
-var searchC = "";
-for (let i in 搜索引擎List) {
-    searchC += `<option ${
-        引擎.记住
-            ? 引擎.记住[0] == 搜索引擎List[i][0]
-                ? "selected"
-                : ""
-            : 引擎.默认搜索引擎 == 搜索引擎List[i][0]
-            ? "selected"
-            : ""
-    } value="${搜索引擎List[i][1]}">${搜索引擎List[i][0]}</option>`;
+for (let e of 搜索引擎List) {
+    const op = el("option", e.name, { value: e.url });
+    if (引擎.记忆.搜索 === e.name) op.selected = true;
+    searchSelect.append(op);
 }
-document.querySelector("#search_s").innerHTML = searchC;
 /**展示翻译引擎选项 */
-var translateC = "";
-for (let i in 翻译引擎List) {
-    translateC += `<option ${
-        引擎.记住
-            ? 引擎.记住[1] == 翻译引擎List[i][0]
-                ? "selected"
-                : ""
-            : 引擎.默认翻译引擎 == 翻译引擎List[i][0]
-            ? "selected"
-            : ""
-    } value="${翻译引擎List[i][1]}">${翻译引擎List[i][0]}</option>`;
+for (let e of 翻译引擎List) {
+    const op = el("option", e.name, { value: e.url });
+    if (引擎.记忆.翻译 === e.name) op.selected = true;
+    translateSelect.append(op);
 }
-document.querySelector("#translate_s").innerHTML = translateC;
 
 /************************************历史记录 */
 // 历史记录

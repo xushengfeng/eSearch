@@ -391,6 +391,29 @@ comment {
     box-shadow: var(--shadow);
 }
 
+.sort_list button {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    background-color: transparent;
+}
+.sort_list .sort_handle {
+    opacity: 0.5;
+}
+.sort_list button > .icon {
+    width: 24px;
+}
+.sort_list > :first-child > li,
+.sort_list > :last-child {
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+.sort_list > :last-child {
+    margin-left: 24px;
+}
+
 #plugin_b {
     width: 24px;
     height: 24px;
