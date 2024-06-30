@@ -385,10 +385,30 @@ comment {
     border-radius: 8px;
     cursor: pointer;
     transition: var(--transition);
+    display: flex;
+    align-items: center;
 }
 #translate_es > :first-child > div:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
+}
+#translate_es > :first-child > div > span {
+    min-width: 2rem;
+}
+#translate_es > :first-child button {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    background-color: transparent;
+}
+
+#translate_es > :first-child button > .icon {
+    width: 24px;
+}
+
+.sort_handle {
+    opacity: 0.5;
 }
 
 .sort_list button {
@@ -397,9 +417,6 @@ comment {
     height: 24px;
     margin: 0;
     background-color: transparent;
-}
-.sort_list .sort_handle {
-    opacity: 0.5;
 }
 .sort_list button > .icon {
     width: 24px;

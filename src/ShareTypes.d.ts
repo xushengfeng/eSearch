@@ -250,7 +250,6 @@ export interface setting {
             bg: string;
             text: string;
         };
-        默认翻译: string;
         语言: {
             from: string;
             to: string;
@@ -259,6 +258,7 @@ export interface setting {
     翻译: {
         翻译器: {
             id: string;
+            name: string;
             type: keyof typeof import("xtranslator")["default"]["e"];
             keys: string[];
         }[];

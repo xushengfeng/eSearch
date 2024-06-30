@@ -2135,7 +2135,6 @@ var defaultSetting: setting = {
         offsetY: -1,
         dTime: 3000,
         css: { bg: "", text: "" },
-        默认翻译: "",
         语言: {
             from: "",
             to: "",

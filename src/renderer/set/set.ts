@@ -513,57 +513,51 @@ if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty
 };
 
 const translateES = document.getElementById("translate_es");
-const translatorEl = document.getElementById("translator_e");
 const translatorFrom = document.getElementById("translator_from");
 const translatorTo = document.getElementById("translator_to");
+
+const transList: { [key: string]: (typeof xstore.翻译.翻译器)[0] } = {};
 
 const translatorList = el("div");
 const addTranslatorM = el("dialog") as HTMLDialogElement;
 const addTranslator = el("button", "+", {
     onclick: async () => {
-        const v = await translatorD({ id: "", keys: [], type: null });
-        xstore.翻译.翻译器.push(v);
-        reflashTran();
+        const v = await translatorD({ id: crypto.randomUUID().slice(0, 7), name: "", keys: [], type: null });
+        const iel = addTranslatorI(v);
+        translatorList.append(iel);
+        setTranLan();
     },
 });
 translateES.append(translatorList, addTranslator, addTranslatorM);
 
-function reflashTran() {
-    translatorList.innerHTML = "";
-    translatorEl.innerHTML = "";
-    xstore.翻译.翻译器.forEach((v) => {
-        translatorList.append(
-            el("div", v.id, {
-                onclick: async () => {
-                    const nv = await translatorD(v);
-                    if (!nv.id) xstore.翻译.翻译器 = xstore.翻译.翻译器.filter((i) => i.id != v.id);
-                    else for (let i in nv) v[i] = nv[i];
-                    reflashTran();
-                },
-            })
-        );
-        translatorEl.append(
-            el(
-                "label",
-                el("input", {
-                    value: v.id,
-                    type: "radio",
-                    checked: xstore.屏幕翻译.默认翻译 === v.id,
-                    name: "defalut_translator",
-                }),
-                v.id,
-                {
-                    onclick: () => {
-                        xstore.屏幕翻译.默认翻译 = v.id;
-                        setTranLan(
-                            xstore.翻译.翻译器.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type,
-                            xstore.语言.语言
-                        );
-                    },
-                }
-            )
-        );
+new Sortable(translatorList, {
+    handle: ".sort_handle",
+    onEnd: () => {
+        const id = (translatorList.firstChild as HTMLElement)?.getAttribute("data-id");
+        if (!id) return;
+        setTranLan();
+    },
+});
+
+function addTranslatorI(v: setting["翻译"]["翻译器"][0]) {
+    transList[v.id] = v;
+    const handle = el("button", iconEl(handle_svg), { class: "sort_handle" });
+    const text = el("span", v.name, {
+        onclick: async () => {
+            const nv = await translatorD(v);
+            text.innerText = nv.name;
+            transList[nv.id] = nv;
+        },
     });
+    const rm = el("button", iconEl(delete_svg), {
+        onclick: () => {
+            iel.remove();
+        },
+    });
+    const iel = el("div", handle, text, rm, {
+        "data-id": v.id,
+    });
+    return iel;
 }
 
 import translator from "xtranslator";
@@ -627,10 +621,12 @@ let engineConfig: Partial<
     },
 };
 
-reflashTran();
+xstore.翻译.翻译器.forEach((v) => {
+    translatorList.append(addTranslatorI(v));
+});
 
 function translatorD(v: setting["翻译"]["翻译器"][0]) {
-    const idEl = el("input", { value: v.id, type: "text" });
+    const idEl = el("input", { value: v.name, type: "text" });
     const selectEl = el("select");
     const keys = el("div");
     const help = el("p");
@@ -699,7 +695,8 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     function getV() {
         const key = Array.from(keys.querySelectorAll("input")).map((el) => el.value);
         const nv: typeof v = {
-            id: idEl.value,
+            id: v.id,
+            name: idEl.value,
             keys: key,
             type: selectEl.value as Engines,
         };
@@ -721,8 +718,12 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     });
 }
 
-function setTranLan(type: Engines, mainLan: string) {
+function setTranLan() {
+    const id = (translatorList.firstChild as HTMLElement)?.getAttribute("data-id");
+    if (!id) return;
+    const type = transList[id].type;
     const e = translator.e[type];
+    const mainLan = xstore.语言.语言;
     translatorFrom.innerHTML = "";
     translatorTo.innerHTML = "";
     if (!e) return;
@@ -734,7 +735,7 @@ function setTranLan(type: Engines, mainLan: string) {
     });
 }
 
-setTranLan(xstore.翻译.翻译器.find((i) => i.id === xstore.屏幕翻译.默认翻译)?.type, xstore.语言.语言);
+setTranLan();
 
 import Sortable from "sortablejs";
 
@@ -1120,6 +1121,9 @@ function saveSetting() {
             : 字体.大小
         : false;
     xstore.字体 = 字体;
+    xstore.翻译.翻译器 = Array.from(translatorList.children).map(
+        (i: HTMLElement) => transList[i.getAttribute("data-id")]
+    );
     const yS = list2engine(y搜索引擎());
     const yF = list2engine(y翻译引擎());
     if (!yF.find((i) => i.url.startsWith("translate"))) yF.push({ name: "翻译", url: "translate/?text=%s" });

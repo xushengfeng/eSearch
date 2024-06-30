@@ -42,7 +42,7 @@ function translate(text: string) {
     if (!text.trim()) return;
     for (let i of fyq) {
         const copy = el("button", iconEl(copy_svg));
-        const e = el("div", el("div", { class: "title" }, el("span", i.id), copy));
+        const e = el("div", el("div", { class: "title" }, el("span", i.name), copy));
         results.append(e);
         const t = el("p");
         e.append(t);
