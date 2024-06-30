@@ -1124,9 +1124,10 @@ function runSave() {
         return;
     }
     sCenterBar("save");
-    var type2N = { png: 0, jpg: 1, svg: 2 };
-    var i = type2N[store.get("保存.默认格式")];
-    document.querySelectorAll("#suffix > div")[i].className = "suffix_h";
+    const els = Array.from(document.querySelectorAll("#suffix > div")) as HTMLElement[];
+    const type2N = els.map((i) => i.getAttribute("data-value"));
+    let i = type2N.indexOf(store.get("保存.默认格式"));
+    els[i].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
         var el = <HTMLDivElement>e.target;
         if (el.dataset.value) {
@@ -1140,15 +1141,16 @@ function runSave() {
         (<HTMLDivElement>document.querySelector("#suffix > .suffix_h")).click();
         sCenterBar("save");
     });
+    const l = type2N.length;
     hotkeys("up", "c_bar", () => {
-        document.querySelectorAll("#suffix > div")[i % 3].className = "";
-        i = i == 0 ? 2 : i - 1;
-        document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
+        els[i % l].className = "";
+        i = i === 0 ? l - 1 : i - 1;
+        els[i % l].className = "suffix_h";
     });
     hotkeys("down", "c_bar", () => {
-        document.querySelectorAll("#suffix > div")[i % 3].className = "";
+        els[i % l].className = "";
         i++;
-        document.querySelectorAll("#suffix > div")[i % 3].className = "suffix_h";
+        els[i % l].className = "suffix_h";
     });
     hotkeys("esc", "c_bar", () => {
         sCenterBar("save");
@@ -1318,6 +1320,7 @@ document.querySelector("body").onkeydown = (e) => {
     if ((<HTMLElement>e.target).isContentEditable || tagName == "INPUT" || tagName == "SELECT" || tagName == "TEXTAREA")
         return;
     if (longRunning) return;
+    if (hotkeys.getScope() === "c_bar") return;
     const o = {
         ArrowUp: "up",
         ArrowRight: "right",
