@@ -1095,8 +1095,8 @@ function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
 
     if (longX.img) newCanvas.getContext("2d").drawImage(longX.img, srcDx, srcDy);
 
-    const nx = longX.imgXY.x + x;
-    const ny = longX.imgXY.y + y;
+    const nx = x - longX.imgXY.x;
+    const ny = y - longX.imgXY.y;
     newCanvas.getContext("2d").drawImage(img, nx, ny);
     longX.img = newCanvas;
 
