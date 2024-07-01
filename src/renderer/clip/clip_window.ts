@@ -955,15 +955,19 @@ function initLong(rect: number[]) {
         }
     };
 
+    let longWidth = 0;
     if (window.innerWidth - (rect[0] + rect[2]) / ratio >= rect[1] / ratio) {
         // 右边
         longPreview.style.right = "0";
         longPreview.style.left = "auto";
-        longPreview.style.width = `${window.innerWidth - (rect[0] + rect[2]) / ratio - w}px`;
+        longWidth = window.innerWidth - (rect[0] + rect[2]) / ratio - w;
     } else {
         longPreview.style.left = "0";
-        longPreview.style.width = `${rect[1] / ratio - w}px`;
+        longWidth = rect[1] / ratio - w;
     }
+    longPreview.style.width = longWidth + "px";
+    if (longWidth < 100) longPreview.style.display = "none";
+    else longPreview.style.display = "";
     longPreview.style.height = "100vh";
 
     showLoading("截屏拼接中");
