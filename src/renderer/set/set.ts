@@ -1310,7 +1310,7 @@ document.getElementById("version").onclick = () => {
                 if (
                     !packageJson.version.includes("beta") &&
                     !packageJson.version.includes("alpha") &&
-                    !old_store.更新.dev
+                    old_store.更新.模式 != "dev"
                 ) {
                     if (!r.draft && !r.prerelease) l.push(r);
                 } else {
@@ -1385,12 +1385,6 @@ document.getElementById("version").onclick = () => {
         })
         .catch((error) => console.log("error", error));
 };
-
-if (old_store.更新.频率 == "setting") {
-    setTimeout(() => {
-        document.getElementById("version").click();
-    }, 10);
-}
 
 document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${packageJson.homepage}">${
     packageJson.homepage

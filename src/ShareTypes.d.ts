@@ -193,9 +193,8 @@ export interface setting {
     硬件加速: boolean;
     更新: {
         检查更新: boolean;
-        频率: "manual" | "setting" | "weekly" | "start";
-        dev: boolean;
-        上次更新时间: number;
+        频率: "manual" | "start";
+        模式: "大版本" | "小版本" | "dev";
     };
     录屏: {
         自动录制: false | number;

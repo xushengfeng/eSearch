@@ -3738,38 +3738,34 @@ import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js
 var packageJson = JSON.parse(pack);
 
 function checkUpdate() {
+    const version = packageJson.version;
+    const m = store.get("更新.模式") as setting["更新"]["模式"];
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
         .then((v) => v.json())
         .then((re) => {
-            let l = [];
+            let first;
             for (let r of re) {
-                if (
-                    !packageJson.version.includes("beta") &&
-                    !packageJson.version.includes("alpha") &&
-                    !store.get("更新.dev")
-                ) {
-                    if (!r.draft && !r.prerelease) l.push(r);
+                if (first) break;
+                if (!version.includes("beta") && !version.includes("alpha") && m != "dev") {
+                    if (!r.draft && !r.prerelease) first = r;
                 } else {
-                    l.push(r);
+                    first = r;
                 }
             }
-            for (let i in l) {
-                const r = l[i];
-                if (r.name == packageJson.version) {
-                    if (i != "0") {
-                        ipcRenderer.send("clip_main_b", "new_version", { v: l[0].name, url: l[0].html_url });
-                    }
-                    break;
-                }
+            let update = false;
+            const firstName = first.name as string;
+            if (m === "dev") {
+                if (firstName != version) update = true;
+            } else if (m === "小版本") {
+                if (firstName.split(".").slice(0, 2).join(".") != version.split(".").slice(0, 2).join("."))
+                    update = true;
+            } else {
+                if (firstName.split(".").at(0) != version.split(".").at(0)) update = true;
+            }
+            if (update) {
+                ipcRenderer.send("clip_main_b", "new_version", { v: first.name, url: first.html_url });
             }
         });
 }
 
-if (store.get("更新.频率") == "start") checkUpdate();
-if (store.get("更新.频率") == "weekly") {
-    let time = new Date();
-    if (time.getDay() == 6 && time.getTime() - store.get("更新.上次更新时间") > 24 * 60 * 60 * 1000) {
-        store.set("更新.上次更新时间", time.getTime());
-        checkUpdate();
-    }
-}
+if (store.get("更新.频率") === "start") checkUpdate();

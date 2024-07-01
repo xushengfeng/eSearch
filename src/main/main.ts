@@ -959,7 +959,7 @@ function createClipWindow() {
                 isLongStart = false;
                 break;
             case "new_version":
-                var notification = new Notification({
+                const notification = new Notification({
                     title: `${app.name} ${t("有新版本：")}${arg.v}`,
                     body: `${t("点击下载")}`,
                     icon: `${runPath}/assets/logo/64x64.png`,
@@ -2081,9 +2081,8 @@ var defaultSetting: setting = {
     硬件加速: true,
     更新: {
         检查更新: true,
-        频率: "setting",
-        dev: false,
-        上次更新时间: 0,
+        频率: "start",
+        模式: "小版本",
     },
     录屏: {
         自动录制: 3,

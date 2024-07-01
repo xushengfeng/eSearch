@@ -1133,16 +1133,17 @@
                 <comment>（如果可用，且更改需要重启软件生效）</comment>
 
                 <h2>检查更新</h2>
+                <comment>更新频率</comment>
                 <div id="检查更新频率" data-path="更新.频率">
                     <label><input type="radio" name="检查更新频率" value="manual">手动检查</label>
-                    <label><input type="radio" name="检查更新频率" value="setting">设置启动时检查</label>
-                    <label><input type="radio" name="检查更新频率" value="weekly">每周检查</label>
                     <label><input type="radio" name="检查更新频率" value="start">启动时检查</label>
                 </div>
-                <label>
-                    <input type="checkbox" name="" id="dev" data-path="更新.dev">
-                    <t>检查测试版更新</t>
-                </label>
+                <comment>更新模式</comment>
+                <div data-path="更新.模式">
+                    <label><input type="radio" name="检查更新模式" value="大版本">大版本</label>
+                    <label><input type="radio" name="检查更新模式" value="小版本">小版本</label>
+                    <label><input type="radio" name="检查更新模式" value="dev">开发版</label>
+                </div>
 
                 <h2 id="path_info">位置信息</h2>
                 <t>配置目录：</t><input type="text" spellcheck="false" id="user_data_path">
