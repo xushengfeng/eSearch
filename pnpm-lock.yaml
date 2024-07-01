@@ -60,8 +60,8 @@ dependencies:
     specifier: ^2.3.0
     version: 2.3.0
   xtranslator:
-    specifier: ^1.0.12
-    version: 1.0.12
+    specifier: ^1.0.13
+    version: 1.0.13
 
 optionalDependencies:
   node-screenshots-darwin-arm64:
@@ -3979,8 +3979,8 @@ packages:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
     dev: true
 
-  /xtranslator@1.0.12:
-    resolution: {integrity: sha512-qMb+g5x/SB3iDVZmlniHGvAQJCxDheyrdAT4fSQG8J4yxmh3IzmQ6KKsZqy7HqQU1qool4wqNUe7dMXksrFCwg==}
+  /xtranslator@1.0.13:
+    resolution: {integrity: sha512-yip0yt3ivvyMlClOMN9DTi0xSELorP1Ev6iutiLhEZsjCT9IYTNak549Svx2qvvSlRWTZ8+jO1cXLS7gsntKGg==}
     dependencies:
       blueimp-md5: 2.19.0
       crypto-js: 4.2.0
