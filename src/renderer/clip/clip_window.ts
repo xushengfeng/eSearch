@@ -864,15 +864,14 @@ function long_s() {
 
 let uIOhook;
 
-var logO = {
-    longList: [] as { src: HTMLCanvasElement; temp: HTMLCanvasElement; after: HTMLCanvasElement }[],
-    l: [] as { x: number; y: number }[],
-    oCanvas: null,
-    p: { x: 0, y: 0 },
+let longX = {
+    img: null as HTMLCanvasElement,
+    imgXY: { x: 0, y: 0 },
+    lastImg: null as HTMLCanvasElement,
+    lastXY: { x: 0, y: 0 },
 };
 
 function startLong() {
-    logO.longList = [];
     initLong(finalRect);
     let r = [...finalRect];
     r[0] += screenPosition[nowScreenId].x;
@@ -880,12 +879,6 @@ function startLong() {
     long_s();
     ipcRenderer.send("clip_main_b", "long_s", r);
     if (!cv) cv = require("opencv.js");
-    logO.oCanvas = document.createElement("canvas");
-    let oCanvas = logO.oCanvas;
-    logO.p = { x: 0, y: 0 };
-    oCanvas.width = finalRect[2];
-    oCanvas.height = finalRect[3];
-    logO.l = [];
     uIOhook = require("uiohook-napi").uIOhook;
     uIOhook.start();
     uIOhook.on("keyup", () => {
@@ -900,66 +893,8 @@ function startLong() {
     });
 }
 
-function addLong(x: Buffer, w: number, h: number) {
-    let longList = logO.longList;
-    let oCanvas = logO.oCanvas;
-    let p = logO.p;
-    if (!x) {
-        uIOhook.stop();
-        uIOhook = null;
-        pjLong();
-        return;
-    }
-    // 原始全屏
-    let srcCanvas = new OffscreenCanvas(w, h);
-    // 原始区域
-    let canvas = document.createElement("canvas");
-    // 对比模板
-    let canvasTop = document.createElement("canvas");
-    // 要拼接的图片
-    let canvasAfter = document.createElement("canvas");
-    for (let i = 0; i < x.length; i += 4) {
-        [x[i], x[i + 2]] = [x[i + 2], x[i]];
-    }
-    let d = new ImageData(Uint8ClampedArray.from(x), w, h);
-    srcCanvas.getContext("2d").putImageData(d, 0, 0);
-    let gid = srcCanvas.getContext("2d").getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
-
-    // 设定canvas宽高并设置裁剪后的图像
-    canvas.width = canvasTop.width = canvasAfter.width = finalRect[2];
-    canvas.height = finalRect[3];
-    const recHeight = Math.min(200, finalRect[3]);
-    const recTop = Math.floor(finalRect[3] / 2 - recHeight / 2);
-    canvasTop.height = recHeight; // 只是用于模板对比，小一点
-    canvasAfter.height = finalRect[3] - recTop; // 裁剪顶部
-    canvas.getContext("2d").putImageData(gid, 0, 0);
-    canvasTop.getContext("2d").putImageData(gid, 0, -recTop);
-    canvasAfter.getContext("2d").putImageData(gid, 0, -recTop);
-
-    longList.push({ src: canvas, temp: canvasTop, after: canvasAfter });
-
-    // 对比
-    let i = longList.length - 2;
-    if (i < 0) return;
-    let src = cv.imread(longList[i].src);
-    let templ = cv.imread(longList[i + 1].temp);
-    let dst = new cv.Mat();
-    let mask = new cv.Mat();
-    cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
-    let result = cv.minMaxLoc(dst, mask);
-    let maxPoint = result.maxLoc;
-    oCanvas.width += maxPoint.x;
-    oCanvas.height += maxPoint.y;
-    p.x += maxPoint.x;
-    p.y += maxPoint.y;
-    logO.l.push({ x: p.x, y: p.y });
-    oCanvas.height -= recTop;
-    p.y -= recTop;
-    src.delete();
-    dst.delete();
-    mask.delete();
-    longList[i + 1].temp = null;
-}
+const longPreview = el("div", { style: { position: "fixed" } });
+document.body.append(longPreview);
 
 var longRunning = false;
 var longInited = false;
@@ -1020,6 +955,17 @@ function initLong(rect: number[]) {
         }
     };
 
+    if (window.innerWidth - (rect[0] + rect[2]) / ratio >= rect[1] / ratio) {
+        // 右边
+        longPreview.style.right = "0";
+        longPreview.style.left = "auto";
+        longPreview.style.width = `${window.innerWidth - (rect[0] + rect[2]) / ratio - w}px`;
+    } else {
+        longPreview.style.left = "0";
+        longPreview.style.width = `${rect[1] / ratio - w}px`;
+    }
+    longPreview.style.height = "100vh";
+
     showLoading("截屏拼接中");
     mainCanvas.style.filter = "blur(20px)";
 }
@@ -1034,14 +980,130 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
     }
 });
 
-function pjLong() {
-    let l = logO.l,
-        longList = logO.longList,
-        oCanvas = logO.oCanvas;
-    oCanvas.getContext("2d").drawImage(longList[0].src, 0, 0); // 先画顶部图片，使用原始区域
-    for (let i = 0; i < longList.length - 1; i++) {
-        oCanvas.getContext("2d").drawImage(longList[i + 1].after, l[i].x, l[i].y); // 每次拼接覆盖时底部总会被覆盖，所以不用管底部
+function addLong(x: Buffer, w: number, h: number) {
+    if (!x) {
+        uIOhook.stop();
+        uIOhook = null;
+        pjLong();
+        return;
     }
+    // 原始区域
+    let canvas = el("canvas");
+    for (let i = 0; i < x.length; i += 4) {
+        [x[i], x[i + 2]] = [x[i + 2], x[i]];
+    }
+    let d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    // 设定canvas宽高并设置裁剪后的图像
+    canvas.width = finalRect[2];
+    canvas.height = finalRect[3];
+    canvas.getContext("2d").putImageData(d, -finalRect[0], -finalRect[1]);
+
+    if (!longX.lastImg) {
+        longPutImg(canvas, 0, 0);
+        longX.lastImg = canvas;
+        return;
+    }
+
+    const match = longMatch(longX.lastImg, canvas);
+    console.log(match);
+
+    const dx = match.dx;
+    const dy = match.dy;
+    const putImg = match.clipedImg;
+    longPutImg(putImg, dx + longX.lastXY.x, dy + longX.lastXY.y);
+
+    longX.lastImg = canvas;
+    longX.lastXY.x += match.srcDX;
+    longX.lastXY.y += match.srcDY;
+}
+
+function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
+    // clip img1 “回”字中间的“口”
+    function clip(v: number) {
+        const x = v - Math.max((v / 3) * 1, 50);
+        return Math.floor(Math.max(x, 0) / 2);
+    }
+    const dw = clip(img1.width);
+    const dh = clip(img1.height);
+
+    const clip1Canvas = el("canvas");
+    clip1Canvas.width = img1.width - dw * 2;
+    clip1Canvas.height = img1.height - dh * 2;
+    clip1Canvas.getContext("2d").drawImage(img1, -dw, -dh);
+    // match
+    let src = cv.imread(img0);
+    let templ = cv.imread(clip1Canvas);
+    let dst = new cv.Mat();
+    let mask = new cv.Mat();
+    cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
+    let result = cv.minMaxLoc(dst, mask);
+    let maxPoint = result.maxLoc;
+    const dx = maxPoint.x;
+    const dy = maxPoint.y;
+    src.delete();
+    dst.delete();
+    mask.delete();
+    // clip img1
+    const ndx = dx - dw;
+    const ndy = dy - dh;
+    // 0:裁切九宫格边的三个格 !=0:裁出“田”字
+    const clip2Canvas = el("canvas");
+    clip2Canvas.width = ndx != 0 ? img1.width - dw : img1.width;
+    clip2Canvas.height = ndy != 0 ? img1.height - dh : img1.height;
+    // d>0需要-dw或-dh平移，<=0不需要平移
+    clip2Canvas.getContext("2d").drawImage(img1, ndx > 0 ? -dw : 0, ndy > 0 ? -dh : 0);
+
+    return { dx: ndx > 0 ? dx : ndx, dy: ndy > 0 ? dy : ndy, srcDX: ndx, srcDY: ndy, clipedImg: clip2Canvas };
+}
+
+function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
+    // 前提：img大小一定小于等于最终拼接canvas
+    const newCanvas = el("canvas");
+
+    const srcW = longX.img?.width || 0;
+    const srcH = longX.img?.height || 0;
+    const minX = longX.imgXY.x;
+    const minY = longX.imgXY.y;
+    const maxX = minX + srcW;
+    const maxY = minY + srcH;
+
+    let srcDx = 0;
+    let srcDy = 0;
+
+    if (x < minX) {
+        srcDx = minX - x;
+        newCanvas.width = srcDx + srcW;
+        longX.imgXY.x -= srcDx;
+    } else if (x + img.width > maxX) {
+        newCanvas.width = x + img.width - maxX + srcW;
+    } else {
+        newCanvas.width = srcW;
+    }
+    if (y < minY) {
+        srcDy = minY - y;
+        newCanvas.height = srcDy + srcH;
+        longX.imgXY.y -= srcDy;
+    } else if (y + img.height > maxY) {
+        newCanvas.height = y + img.height - maxY + srcH;
+    } else {
+        newCanvas.height = srcH;
+    }
+
+    if (longX.img) newCanvas.getContext("2d").drawImage(longX.img, srcDx, srcDy);
+
+    const nx = longX.imgXY.x + x;
+    const ny = longX.imgXY.y + y;
+    newCanvas.getContext("2d").drawImage(img, nx, ny);
+    longX.img = newCanvas;
+
+    longPreview.innerHTML = "";
+    newCanvas.style.maxWidth = "100%";
+    newCanvas.style.maxHeight = "100%";
+    longPreview.append(newCanvas);
+}
+
+function pjLong() {
+    const oCanvas = longX.img;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
 
@@ -1055,6 +1117,9 @@ function pjLong() {
 
     mainCanvas.style.filter = "";
     hideLoading();
+
+    longPreview.style.display = "none";
+    longPreview.innerHTML = "";
 
     document.body.classList.add("editor_bg");
 
