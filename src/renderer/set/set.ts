@@ -33,6 +33,16 @@ document.querySelectorAll("li, h1, h2, h3, button, comment, t").forEach((el: HTM
 });
 document.title = t(document.title);
 
+document.querySelectorAll("[data-platform]").forEach((el: HTMLElement) => {
+    const platforms = el
+        .getAttribute("data-platform")
+        .split(",")
+        .map((i) => i.trim());
+    if (!platforms.includes(process.platform)) {
+        el.style.display = "none";
+    }
+});
+
 const xstore = old_store;
 function storeSet(path: string, value: any) {
     let pathx = path.split(".");
@@ -200,10 +210,6 @@ document.getElementById("语言重启").onclick = () => {
 };
 
 (<HTMLInputElement>document.getElementById("自动搜索排除")).value = old_store.主搜索功能.自动搜索排除.join("\n");
-if (process.platform == "linux") {
-    document.getElementById("linux_selection").style.display = "block";
-    (<HTMLInputElement>document.getElementById("剪贴板选区搜索")).checked = old_store.主搜索功能.剪贴板选区搜索;
-}
 
 var 全局 = old_store.全局;
 

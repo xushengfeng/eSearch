@@ -341,10 +341,10 @@
                     <label><input type="radio" name="运行后端" value="cuda">
                         CUDA
                     </label>
-                    <label><input type="radio" name="运行后端" value="coreml">
+                    <label data-platform="darwin"><input type="radio" name="运行后端" value="coreml">
                         coreML
                     </label>
-                    <label><input type="radio" name="运行后端" value="directml">
+                    <label data-platform="win32"><input type="radio" name="运行后端" value="directml">
                         DirectML
                     </label>
                 </div>
@@ -1016,7 +1016,7 @@
                 <textarea id="自动搜索排除" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                     title="{换行新建项目，支持正则表达式}"></textarea>
 
-                <div id="linux_selection" style="display: none;">
+                <div id="linux_selection" data-platform="linux">
                     <h2>剪贴板搜索</h2>
                     <label>
                         <input type="checkbox" id="剪贴板选区搜索" data-path="主搜索功能.剪贴板选区搜索">
