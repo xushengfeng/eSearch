@@ -30,7 +30,7 @@ body:
           required: false
     - type: input
       attributes:
-          label: 设备
+          label: 操作系统
       validations:
           required: false
     - type: input
