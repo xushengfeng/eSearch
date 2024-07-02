@@ -181,6 +181,20 @@ let build = {
         differentialPackage: false,
     },
     afterPack: async (c) => {
+        const localsPath = path.join(
+            c.appOutDir,
+            process.platform === "darwin" ? "e-search.app/Contents/Locales" : "locales"
+        );
+        try {
+            const files = fs.readdirSync(localsPath).filter((i) => i != "zh-CN.pak" && i != "en-US.pak");
+            for (let i of files) {
+                fs.rmSync(path.join(localsPath, i));
+            }
+            console.log("移除原生语言包");
+        } catch (error) {
+            console.log(error);
+        }
+
         const appPath = path.join(
             c.appOutDir,
             process.platform === "darwin" ? "e-search.app/Contents/Resources/app" : "resources/app"
@@ -222,7 +236,9 @@ if (process.platform === "linux") {
     build.mac.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/darwin/${onnxFilter}`);
 }
 
-for (let i of ["!src", "!node_modules/qr-scanner-wechat", "!lib/fabric.min.js"]) {
+const ignoreDir = ["src", "node_modules/qr-scanner-wechat", "lib/fabric.min.js", "node_modules/tar"];
+for (let i of ignoreDir) {
+    i = "!" + i;
     build.win.files.push(i);
     build.linux.files.push(i);
     build.mac.files.push(i);
