@@ -1467,7 +1467,7 @@ ipcMain.on("ignore", (event, v) => {
 });
 
 // 主页面
-var mainWindowL: { [n: number]: BrowserWindow } = {};
+var mainWindowL: { [n: number]: { win: BrowserWindow; browser: { top: number; bottom: number } } } = {};
 
 /**
  * @type {Object.<number, Array.<number>>}
@@ -1476,7 +1476,7 @@ var mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
     if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
         const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
-        const mainWindow = mainWindowL[name];
+        const mainWindow = mainWindowL[name].win;
         op["time"] = new Date().getTime();
         mainWindow.webContents.send("text", name, op);
         mainWindow.focus();
@@ -1491,7 +1491,8 @@ async function createMainWindow(op: MainWinType) {
     let x = px > vr.x + vr.width / 2 ? px - w : px,
         y = py > vr.y + vr.height / 2 ? py - h : py;
     const bg = nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff";
-    const mainWindow = (mainWindowL[windowName] = new BrowserWindow({
+    mainWindowL[windowName] = { browser: { top: 0, bottom: 48 }, win: null };
+    const mainWindow = (mainWindowL[windowName]["win"] = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
         width: w,
@@ -1558,9 +1559,10 @@ async function createMainWindow(op: MainWinType) {
     // 浏览器大小适应
     mainWindow.on("resize", () => {
         setTimeout(() => {
-            var [w, h] = mainWindow.getContentSize();
+            const [w, h] = mainWindow.getContentSize();
+            const { top, bottom } = mainWindowL[windowName].browser;
             for (let i of mainWindow.getBrowserViews()) {
-                if (i.getBounds().width != 0) i.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+                if (i.getBounds().width != 0) i.setBounds({ x: 0, y: top, width: w, height: h - bottom });
             }
         }, 0);
     });
@@ -1628,7 +1630,7 @@ async function createBrowser(windowName: number, url: string) {
 
     if (!windowName) windowName = await createMainWindow({ type: "text", content: "" });
 
-    let mainWindow = mainWindowL[windowName];
+    const mainWindow = mainWindowL[windowName].win;
 
     if (mainWindow.isDestroyed()) return null;
     minViews(mainWindow);
@@ -1643,7 +1645,7 @@ async function createBrowser(windowName: number, url: string) {
     }
     const searchView = (searchWindowL[view] = new BrowserView({ webPreferences }));
     await searchView.webContents.session.setProxy(store.get("代理"));
-    mainWindowL[windowName].addBrowserView(searchView);
+    mainWindow.addBrowserView(searchView);
 
     if (url.startsWith("translate")) {
         rendererPath2(searchView.webContents, "translate.html", {
@@ -1651,7 +1653,8 @@ async function createBrowser(windowName: number, url: string) {
         });
     } else searchView.webContents.loadURL(url);
     var [w, h] = mainWindow.getContentSize();
-    searchView.setBounds({ x: 0, y: 0, width: w, height: h - 48 });
+    const bSize = mainWindowL[windowName].browser;
+    searchView.setBounds({ x: 0, y: bSize.top, width: w, height: h - bSize.bottom });
     mainWindow.setContentSize(w, h + 1);
     mainWindow.setContentSize(w, h);
     searchView.webContents.setWindowOpenHandler(({ url }) => {
@@ -1726,11 +1729,12 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             if (!mainWindow) return;
             mainWindow.setTopBrowserView(searchWindow);
             minViews(mainWindow);
+            const bSize = Object.values(mainWindowL).find((i) => i.win === mainWindow)?.browser;
             searchWindow.setBounds({
                 x: 0,
-                y: 0,
+                y: bSize?.top || 0,
                 width: mainWindow.getContentBounds().width,
-                height: mainWindow.getContentBounds().height - 48,
+                height: mainWindow.getContentBounds().height - (bSize?.bottom || 48),
             });
             break;
         case "back":
@@ -1755,6 +1759,22 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
         case "dev":
             searchWindow.webContents.openDevTools();
             break;
+        case "size": {
+            const bSize = Object.values(mainWindowL).find((i) => i.win === mainWindow)?.browser;
+            if (!bSize) break;
+            bSize.bottom = arg2.bottom;
+            bSize.top = arg2.top;
+            for (let w of mainWindow.getBrowserViews()) {
+                if (w.getBounds().width != 0)
+                    w.setBounds({
+                        x: 0,
+                        y: bSize?.top || 0,
+                        width: mainWindow.getContentBounds().width,
+                        height: mainWindow.getContentBounds().height - (bSize?.bottom || 48),
+                    });
+            }
+            break;
+        }
     }
 });
 

@@ -1337,7 +1337,12 @@ function setConciseMode(m: boolean) {
         mainEl.style.gridTemplateRows = "";
         mainEl.style.gap = "";
     }
-    // todo 浏览器
+    const bSize = { top: 0, bottom: 48 };
+    if (m) {
+        bSize.top = window.navigator["windowControlsOverlay"].getTitlebarAreaRect().height;
+        bSize.bottom = 0;
+    }
+    ipcRenderer.send("tab_view", null, "size", bSize);
 }
 
 if (!store.get("主页面.高级窗口按钮")) {
