@@ -232,6 +232,14 @@ Another reason I developed eSearch is that I enjoy using the "Immediate Informat
 
 So I simply developed my own "screenshot+OCR+search+pasting" software. I initially developed it with python+pyqt and created [Information-portal](https://github.com/xushengfeng/Information-portal.git), but because I am not familiar with pyqt, I switched to :electron: and developed this software. 😄
 
+## Appreciation and support
+
+Spiritual support: Light up the star🌟 in the upper right corner
+
+Material support: [Personal homepage Appreciation](https://github.com/xshengfeng)
+
+Actions: Feedback bugs, provide new function ideas,[Participate in development](CONTRIBUTING.md)
+
 ## License
 
 [GPL-3.0](LICENSE) © xushengfeng

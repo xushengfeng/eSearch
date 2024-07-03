@@ -232,6 +232,14 @@ Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/61
 
 所以我干脆自己开发一个“截屏+OCR+搜索+贴图”的软件。最开始用 python+pyqt 开发出[Information-portal](https://github.com/xushengfeng/Information-portal.git)，但因为我不熟悉 pyqt，所以我转战:electron:，开发出本软件。😄
 
+## 赞赏与支持
+
+精神支持：点亮右上角 star 星标 🌟
+
+物质支持：[个人主页赞赏](https://github.com/xushengfeng)
+
+行动：反馈 bug、提供新功能点子、[参与开发](CONTRIBUTING.md)
+
 ## License
 
 [GPL-3.0](LICENSE) © xushengfeng
