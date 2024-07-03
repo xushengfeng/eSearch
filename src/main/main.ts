@@ -417,6 +417,7 @@ app.whenReady().then(() => {
             },
         },
     ]);
+    tray.setToolTip(app.getName());
     if (store.get("点击托盘自动截图")) {
         tray.on("click", () => {
             showPhoto();
