@@ -1634,7 +1634,7 @@ function yandex(image, callback) {
 }
 
 function google(image, callback) {
-    var form = new FormData();
+    const form = new FormData();
     let bstr = window.atob(image);
     let n = bstr.length;
     let u8arr = new Uint8Array(n);
@@ -1643,16 +1643,19 @@ function google(image, callback) {
     }
     form.append("encoded_image", new Blob([u8arr], { type: "image/png" }), "eSearch.png");
     form.append("image_content", "");
-    var url = "https://www.google.com/searchbyimage/upload";
+    const url = `https://lens.google.com/v3/upload?hl=zh-CN&re=df&st=${new Date().getTime()}&vpw=1041&vph=779`;
     fetch(url, {
         method: "POST",
         body: form,
     })
-        .then((r) => {
-            return callback(null, r.url);
+        .then(async (r) => {
+            const text = await r.text();
+            const tmp = path.join(os.tmpdir(), "eSearch", "google.html");
+            fs.writeFileSync(tmp, text);
+            callback(null, "file://" + tmp);
         })
         .catch((err) => {
-            if (err) return callback(err, null);
+            if (err) callback(err, null);
         });
 }
 
