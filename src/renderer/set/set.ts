@@ -1386,15 +1386,28 @@ document.getElementById("version").onclick = () => {
         .catch((error) => console.log("error", error));
 };
 
-document.getElementById("info").innerHTML = `<div>${t("项目主页:")} <a href="${packageJson.homepage}">${
-    packageJson.homepage
-}</a></div>
-    <div><a href="https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}">${t("更新日志")}</a></div>
-    <div><a href="https://github.com/xushengfeng/eSearch/issues">${t("错误报告与建议")}</a></div>
-    <div><a href="https://github.com/xushengfeng/eSearch/tree/master/lib/translate">${t("改进翻译")}</a></div>
-    <div>${t("本软件遵循")} <a href="https://www.gnu.org/licenses/gpl-3.0.html">${packageJson.license}</a></div>
-    <div>${t("本软件基于")} <a href="https://esearch.vercel.app/readme/all_license.json">${t("这些软件")}</a></div>
-    <div>Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}</div>`;
+function a(str: string, href: string) {
+    return el("a", str || href, { href });
+}
+document
+    .getElementById("info")
+    .append(
+        el("div", t("项目主页:"), a(null, packageJson.homepage)),
+        el("div", t("支持改项目:"), a("为项目点亮星标🌟", packageJson.homepage)),
+        el("div", a(t("更新日志"), `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`)),
+        el("div", a(t("反馈错误 提供建议"), "https://github.com/xushengfeng/eSearch/issues/new/choose")),
+        el("div", a(t("改进翻译"), "https://github.com/xushengfeng/eSearch/tree/master/lib/translate")),
+        el("div", t("本软件遵循"), a(packageJson.license, `https://www.gnu.org/licenses/gpl-3.0.html`)),
+        el(
+            "div",
+            t("本软件基于"),
+            a(
+                t("这些软件"),
+                `https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json`
+            )
+        ),
+        el("div", t(`Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`))
+    );
 
 document.body.onclick = (e) => {
     if ((<HTMLElement>e.target).tagName === "A") {

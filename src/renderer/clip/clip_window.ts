@@ -982,6 +982,7 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
         if (longRunning) ipcRenderer.send("clip_main_b", "ignore_mouse", !el.includes(finishLongB));
         else ipcRenderer.send("clip_main_b", "ignore_mouse", false);
     }
+    if (type === "update") checkUpdate(true);
 });
 
 function addLong(x: Buffer, w: number, h: number) {
@@ -3737,7 +3738,7 @@ import pack from "../../../package.json?raw";
 import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
 var packageJson = JSON.parse(pack);
 
-function checkUpdate() {
+function checkUpdate(show?: boolean) {
     const version = packageJson.version;
     const m = store.get("更新.模式") as setting["更新"]["模式"];
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
@@ -3764,7 +3765,12 @@ function checkUpdate() {
             }
             if (update) {
                 ipcRenderer.send("clip_main_b", "new_version", { v: first.name, url: first.html_url });
+            } else if (show) {
+                ipcRenderer.send("clip_main_b", "new_version");
             }
+        })
+        .catch(() => {
+            ipcRenderer.send("clip_main_b", "new_version", "err");
         });
 }
 

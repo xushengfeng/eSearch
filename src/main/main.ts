@@ -263,7 +263,7 @@ var contextMenu: Electron.Menu, tray: Tray;
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
 
 app.whenReady().then(() => {
-    console.log("eSearch 启动");
+    console.log(`eSearch ${app.getVersion()} 启动\n项目地址：https://github.com/xushengfeng/eSearch`);
 
     crashReporter.start({ uploadToServer: false });
 
@@ -403,6 +403,18 @@ app.whenReady().then(() => {
               ]
             : []),
         ,
+        {
+            label: t("检查更新"),
+            click: () => {
+                clipWindow.webContents.send("clip", "update");
+            },
+        },
+        {
+            label: t("反馈"),
+            click: () => {
+                shell.openExternal("https://github.com/xushengfeng/eSearch/issues/new/choose");
+            },
+        },
         {
             label: t("重启"),
             click: () => {
@@ -960,13 +972,28 @@ function createClipWindow() {
                 isLongStart = false;
                 break;
             case "new_version":
+                let title = "";
+                let b = "";
+                let url = "https://github.com/xushengfeng/eSearch/releases";
+                if (arg) {
+                    if (arg === "err") {
+                        title = t("无法检查更新");
+                        b = t("请检查网络，稍后重试");
+                    } else {
+                        title = `${app.name} ${t("有新版本：")}${arg.v}`;
+                        b = `${t("点击下载")}`;
+                        url = arg.url;
+                    }
+                } else {
+                    title = t("已是最新版本");
+                }
                 const notification = new Notification({
-                    title: `${app.name} ${t("有新版本：")}${arg.v}`,
-                    body: `${t("点击下载")}`,
+                    title,
+                    body: b,
                     icon: `${runPath}/assets/logo/64x64.png`,
                 });
                 notification.on("click", () => {
-                    shell.openExternal(arg.url);
+                    shell.openExternal(url);
                 });
                 notification.show();
                 break;
