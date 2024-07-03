@@ -1031,6 +1031,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
         editor.push(t("图片上传中……请等候"));
         searchImg(list.content, list.arg0 as any, (err: Error, url: string) => {
             if (url) {
+                editor.push("");
                 openLink("url", url);
                 if (浏览器打开) {
                     closeWindow();
@@ -1441,9 +1442,13 @@ function closeTab(li: HTMLElement, id: number) {
         }
     }
     document.getElementById("tabs").removeChild(li);
-    if (document.getElementById("tabs").querySelectorAll("li").length == 0) {
+    if (isTabsEmpty()) {
         document.getElementById("tabs").classList.remove("tabs_show");
     }
+}
+
+function isTabsEmpty() {
+    return document.getElementById("tabs").querySelectorAll("li").length === 0;
 }
 
 function focusTab(li: HTMLElement) {
@@ -1530,11 +1535,12 @@ function mainEvent(e: MouseEvent | any) {
 }
 
 function openInBrowser() {
-    var url = document.querySelector(".tab_focus").getAttribute("data-url");
+    const url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
     if (store.get("浏览器.标签页.自动关闭")) {
-        var id = Number(document.querySelector(".tab_focus").id.replace("id", ""));
+        const id = Number(document.querySelector(".tab_focus").id.replace("id", ""));
         closeTab(document.querySelector(".tab_focus"), id);
+        if (isTabsEmpty() && editor.get().trim() === "") closeWindow();
     }
 }
 
