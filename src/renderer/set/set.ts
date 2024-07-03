@@ -1393,7 +1393,13 @@ document
     .getElementById("info")
     .append(
         el("div", t("项目主页:"), a(null, packageJson.homepage)),
-        el("div", t("支持改项目:"), a("为项目点亮星标🌟", packageJson.homepage)),
+        el(
+            "div",
+            t("支持该项目:"),
+            a("为项目点亮星标🌟", packageJson.homepage),
+            " ",
+            a("赞赏", "https://github.com/xushengfeng")
+        ),
         el("div", a(t("更新日志"), `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`)),
         el("div", a(t("反馈错误 提供建议"), "https://github.com/xushengfeng/eSearch/issues/new/choose")),
         el("div", a(t("改进翻译"), "https://github.com/xushengfeng/eSearch/tree/master/lib/translate")),
