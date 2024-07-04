@@ -1,7 +1,5 @@
 name: Publish to WinGet
-on:
-    release:
-        types: [released]
+on: workflow_dispatch
 jobs:
     publish:
         runs-on: windows-latest
