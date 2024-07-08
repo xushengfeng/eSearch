@@ -127,7 +127,7 @@ let build = {
         depends: ["ffmpeg"],
     },
     rpm: {
-        depends: ["ffmpeg"],
+        depends: ["ffmpeg-free"],
     },
     mac: {
         files: [
