@@ -494,7 +494,10 @@ ipcRenderer.on("ff", (_e, t, arg) => {
     }
     if (t == "save_path") {
         savePath = arg;
-        if (isTsOk) clip().then(() => joinAndSave(arg));
+        if (isTsOk)
+            clip()
+                .then(() => joinAndSave(arg))
+                .catch(() => (isClipRun = false));
     }
 });
 
@@ -657,13 +660,19 @@ function addTypes() {
 }
 
 let clipPath = [];
+let isClipRun = false;
 /** 获取要切割的视频和位置 */
 async function clip() {
+    if (isClipRun) return;
+    isClipRun = true;
     let start = tStartEl.value;
     let end = tEndEl.value;
     let startV = getTimeInV(start);
     let endV = getTimeInV(end);
     let output1 = path.join(tmpPath, "output1");
+    try {
+        fs.rmSync(output1, { recursive: true });
+    } catch (error) {}
     fs.mkdirSync(output1);
     function toArg(v: number, t: number, a: "start" | "end" | "both", t2?: number) {
         let args = [];
@@ -699,6 +708,8 @@ async function clip() {
 function joinAndSave(filepath: string) {
     if (clipPath.length == 1) {
         fs.cpSync(clipPath[0], filepath);
+        ffprocess.join[0] = { args: [], finish: "ok", logs: [], testCom: "" };
+        updataPrEl(ffprocess);
         return;
     }
     let args = [];
@@ -779,6 +790,17 @@ let prText = {
     },
 };
 
+function setFFState(type: keyof typeof prEl, n: number, state: prst) {
+    ffprocess[type][n].finish = state;
+    if (type === "ts" && Object.values(ffprocess[type]).every((i) => i.finish === "ok")) {
+        if (savePath) {
+            clip()
+                .then(() => joinAndSave(savePath))
+                .catch(() => (isClipRun = false));
+        }
+    }
+}
+
 function updataPrEl(pr: typeof ffprocess) {
     for (let i in pr) {
         let key = i as "ts" | "clip" | "join";
@@ -822,9 +844,7 @@ function updataPrEl(pr: typeof ffprocess) {
                 prEl[key].classList.add("pro_ok");
                 if (key === "ts") {
                     isTsOk = true;
-                    if (savePath) {
-                        clip().then(() => joinAndSave(savePath));
-                    } else {
+                    if (!savePath) {
                         prEl[key].innerText += ` 等待保存`;
                     }
                 }
@@ -864,12 +884,12 @@ function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
     return new Promise((re, rj) => {
         ffmpeg.on("close", (code) => {
             if (code == 0) {
-                ffprocess[type][n].finish = "ok";
+                setFFState(type, n, "ok");
                 updataPrEl(ffprocess);
                 console.log(ffprocess);
                 re(true);
             } else {
-                ffprocess[type][n].finish = "err";
+                setFFState(type, n, "err");
                 updataPrEl(ffprocess);
                 console.log(ffprocess);
                 rj(false);
