@@ -21,13 +21,13 @@ function iconEl(img: string) {
 function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
     requestIdleCallback((id) => {
         if (id.timeRemaining() > 0) {
-            i++;
             cb(l[i], i);
-            if (i < l.length - 1) {
+            i++;
+            if (i < l.length) {
                 _runTask(i, l, cb);
             }
         } else {
-            if (i < l.length - 1) {
+            if (i < l.length) {
                 _runTask(i, l, cb);
             }
         }
@@ -129,7 +129,17 @@ document.onscroll = () => {
         });
 };
 
+const renderTasks: (() => void)[] = [];
+
+function pushRender(v: () => void) {
+    renderTasks.push(v);
+}
+
 document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
+    renderTasks.push(() => setSetting(el));
+});
+
+const setSetting = (el: HTMLElement) => {
     const path = el.getAttribute("data-path");
     let value = storeGet(path);
     if (el.tagName == "RANGE-B") {
@@ -165,11 +175,11 @@ document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
             });
         }
     }
-});
+};
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (_event, v) => {
-    (<HTMLInputElement>document.getElementById("autostart")).checked = v;
+    pushRender(() => ((<HTMLInputElement>document.getElementById("autostart")).checked = v));
 });
 document.getElementById("autostart").oninput = () => {
     ipcRenderer.send("autostart", "set", (<HTMLInputElement>document.getElementById("autostart")).checked);
@@ -1049,7 +1059,7 @@ var proxyL = ["http", "https", "ftp", "socks"];
 var 代理 = old_store.代理;
 getProxy();
 
-setProxyEl();
+renderTasks.push(setProxyEl);
 document.getElementById("代理").onclick = setProxyEl;
 function setProxyEl() {
     const m = getRadio(document.getElementById("代理"));
@@ -1177,6 +1187,8 @@ function saveSetting() {
     fs.writeFileSync(path.join(configPath, "config.json"), JSON.stringify(xstore, null, 2));
 }
 
+_runTask(0, renderTasks, (v) => v());
+
 // 查找
 document.getElementById("find_b_close").onclick = () => {
     find((<HTMLInputElement>document.getElementById("find_input")).value);
@@ -1202,6 +1214,7 @@ function jumpToRange(i: number) {
 }
 let allTextNodes = [];
 window.onload = () => {
+    // todo 在翻译后行动
     const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
     let currentNode = treeWalker.nextNode();
     allTextNodes = [];
