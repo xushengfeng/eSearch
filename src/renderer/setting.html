@@ -13,7 +13,7 @@
     <link rel="stylesheet" type="text/css" href="css/template2.css">
 </head>
 
-<body>
+<body style="display: none;">
     <div id="find">
         <input type="text" name="查找" id="find_input" title="{查找}" autocomplete="off" autocorrect="off"
             autocapitalize="off" spellcheck="false">
@@ -344,7 +344,8 @@
                     <label data-platform="darwin"><input type="radio" name="运行后端" value="coreml">
                         coreML
                     </label>
-                    <label data-platform="win32" style="display: none;"><input type="radio" name="运行后端" value="directml">
+                    <label data-platform="win32" style="display: none;"><input type="radio" name="运行后端"
+                            value="directml">
                         DirectML
                     </label>
                 </div>

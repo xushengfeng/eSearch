@@ -46,13 +46,16 @@ document.querySelectorAll("[title],[placeholder]").forEach((el: HTMLElement) => 
 });
 
 const toTranslateEl = Array.from(document.querySelectorAll("li, h1, h2, h3, button, comment, t")) as HTMLElement[];
-function translate(el: HTMLElement) {
-    // todo 隐藏翻译过程
+function translate(el: HTMLElement, i: number) {
+    if (i === toTranslateEl.length - 1) initFind();
     const elT = el.innerText;
     if (elT) el.innerText = t(elT);
 }
 
-_runTask(0, toTranslateEl, translate);
+toTranslateEl.slice(0, 30).forEach((el) => translate(el, 0));
+document.body.style.display = "";
+
+_runTask(30, toTranslateEl, translate);
 
 document.title = t(document.title);
 
@@ -1213,8 +1216,8 @@ function jumpToRange(i: number) {
     document.documentElement.scrollTo(0, rect.top - document.body.getBoundingClientRect().top);
 }
 let allTextNodes = [];
-window.onload = () => {
-    // todo 在翻译后行动
+
+function initFind() {
     const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
     let currentNode = treeWalker.nextNode();
     allTextNodes = [];
@@ -1223,7 +1226,7 @@ window.onload = () => {
         currentNode = treeWalker.nextNode();
     }
     console.log(allTextNodes);
-};
+}
 let findRanges: Range[] = [];
 let findFocusI = 0;
 function find(t: string) {
