@@ -18,6 +18,22 @@ function iconEl(img: string) {
     return el("img", { src: img, class: "icon" });
 }
 
+function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
+    requestIdleCallback((id) => {
+        if (id.timeRemaining() > 0) {
+            i++;
+            cb(l[i], i);
+            if (i < l.length - 1) {
+                _runTask(i, l, cb);
+            }
+        } else {
+            if (i < l.length - 1) {
+                _runTask(i, l, cb);
+            }
+        }
+    });
+}
+
 type RangeEl = HTMLElement & { value: number };
 
 let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
@@ -28,9 +44,16 @@ document.querySelectorAll("[title],[placeholder]").forEach((el: HTMLElement) => 
     const iel = el as HTMLInputElement;
     if (iel.placeholder?.includes("{")) iel.placeholder = t(iel.placeholder.slice(1, -1));
 });
-document.querySelectorAll("li, h1, h2, h3, button, comment, t").forEach((el: HTMLElement) => {
-    if (el.innerText) el.innerText = t(el.innerText);
-});
+
+const toTranslateEl = Array.from(document.querySelectorAll("li, h1, h2, h3, button, comment, t")) as HTMLElement[];
+function translate(el: HTMLElement) {
+    // todo 隐藏翻译过程
+    const elT = el.innerText;
+    if (elT) el.innerText = t(elT);
+}
+
+_runTask(0, toTranslateEl, translate);
+
 document.title = t(document.title);
 
 document.querySelectorAll("[data-platform]").forEach((el: HTMLElement) => {
