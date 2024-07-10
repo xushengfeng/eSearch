@@ -2106,6 +2106,7 @@ window.onresize = () => {
 };
 
 function addOcrPhoto(base: string) {
+    imgsEl.innerHTML = "";
     let el = createImg(base);
     imgsEl.append(el);
 }
