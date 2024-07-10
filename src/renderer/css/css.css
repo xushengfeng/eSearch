@@ -391,6 +391,7 @@ nav > button > .icon {
     color: transparent;
     text-align: justify;
     text-align-last: justify;
+    white-space: nowrap;
 }
 #img_view > div > div > p::selection {
     background-color: #00f6;

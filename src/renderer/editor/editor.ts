@@ -2065,14 +2065,11 @@ type ocrResult = {
 
 function addOcrText(r: ocrResult, i: number) {
     let img = imgsEl.querySelectorAll("img")[i];
-    let canvas = document.createElement("canvas");
     let w = img.naturalWidth,
         h = img.naturalHeight;
-    canvas.width = w;
-    canvas.height = h;
-    canvas.getContext("2d").drawImage(img, 0, 0);
 
     let div = document.createElement("div");
+    img.parentElement.append(div);
     for (let i of r) {
         if (!i.text) continue;
         let x0 = i.box[0][0];
@@ -2086,8 +2083,16 @@ function addOcrText(r: ocrResult, i: number) {
         xel.style.height = `${((y1 - y0) / h) * 100}%`;
         div.append(xel);
         xel.innerText = i.text;
+        const nc = document.createElement("span");
+        nc.style.whiteSpace = "nowrap";
+        nc.style.fontSize = "16px";
+        nc.innerText = i.text;
+        xel.append(nc);
+        const size = nc.getBoundingClientRect();
+        xel.setAttribute("data-w", size.width + "");
+        xel.setAttribute("data-h", size.height + "");
+        nc.remove();
     }
-    img.parentElement.append(div);
 
     setOcrFontSize();
 
@@ -2096,7 +2101,16 @@ function addOcrText(r: ocrResult, i: number) {
 
 function setOcrFontSize() {
     imgsEl.querySelectorAll("p").forEach((el) => {
-        el.style.lineHeight = el.style.fontSize = el.getBoundingClientRect().height + "px";
+        const w = Number(el.getAttribute("data-w"));
+        const h = Number(el.getAttribute("data-h"));
+        const elSize = el.getBoundingClientRect();
+        let fontSize = 16;
+        if (w / h < elSize.width / elSize.height) {
+            fontSize = elSize.height;
+        } else {
+            fontSize = 16 * (elSize.width / w);
+        }
+        el.style.lineHeight = el.style.fontSize = fontSize + "px";
     });
 }
 
