@@ -577,12 +577,6 @@ comment {
 #version:hover {
     background-color: var(--hover-color);
 }
-#versions {
-    color: var(--color2);
-    opacity: 0;
-    overflow: hidden;
-    transition: var(--transition);
-}
 #info > div {
     text-align: center;
 }
