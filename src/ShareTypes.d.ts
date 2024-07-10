@@ -48,6 +48,13 @@ export interface setting {
         不透明度: number;
         深色模式: string;
         图标颜色: [string, string, string, string];
+        主题: {
+            [k in "light" | "dark"]: {
+                barbg: string;
+                bg: string;
+                emphasis: string;
+            };
+        };
     };
     工具栏: {
         按钮大小: number;

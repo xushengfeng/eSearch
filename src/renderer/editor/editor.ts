@@ -7,6 +7,7 @@ var store = new Store({
 });
 import { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
+import initStyle from "../root/root";
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
@@ -1078,22 +1079,8 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
         });
     }
 });
-var 模糊 = store.get("全局.模糊");
-if (模糊 != 0) {
-    document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
-} else {
-    document.documentElement.style.setProperty("--blur", `none`);
-}
 
-document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
-
-var 字体 = store.get("字体");
-document.documentElement.style.setProperty("--main-font", 字体.主要字体);
-document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
-
-document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
-if (store.get("全局.图标颜色")[3])
-    document.documentElement.style.setProperty("--icon-color1", store.get("全局.图标颜色")[3]);
+initStyle(store);
 
 var editOnOtherType = null;
 var fileWatcher = null;

@@ -5,6 +5,7 @@ import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import { MessageBoxSyncOptions } from "electron";
+import initStyle from "../root/root";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -45,22 +46,7 @@ function setSetting() {
     遮罩颜色 = store.get("遮罩颜色");
     选区颜色 = store.get("选区颜色");
 
-    var 字体 = store.get("字体");
-    document.documentElement.style.setProperty("--main-font", 字体.主要字体);
-    document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
-
-    document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
-    if (store.get("全局.图标颜色")[3])
-        document.documentElement.style.setProperty("--icon-color1", store.get("全局.图标颜色")[3]);
-
-    var 模糊 = store.get("全局.模糊");
-    if (模糊 != 0) {
-        document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
-    } else {
-        document.documentElement.style.setProperty("--blur", `none`);
-    }
-
-    document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
+    initStyle(store);
 
     取色器显示 = store.get("取色器.显示");
     colorSize = store.get("取色器.大小");

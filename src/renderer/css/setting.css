@@ -518,6 +518,15 @@ comment {
     background-color: #335efe;
 }
 
+.theme > input {
+    width: 10ch;
+}
+
+#themes > button {
+    width: 16px;
+    height: 16px;
+}
+
 #about {
     width: 100%;
     display: flex;

@@ -1,11 +1,9 @@
-let configPath = new URLSearchParams(location.search).get("config_path");
-const Store = require("electron-store");
-import { t, lan } from "../../../lib/translate/translate";
+import { setting } from "../../ShareTypes";
 
-function init() {
-    var store = new Store({
-        cwd: configPath || "",
-    });
+function initStyle(store) {
+    function setCSSVar(name: string, value: string) {
+        if (value) document.documentElement.style.setProperty(name, value);
+    }
     var 模糊 = store.get("全局.模糊");
     if (模糊 != 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
@@ -15,6 +13,14 @@ function init() {
 
     document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
 
+    const theme = store.get("全局.主题") as setting["全局"]["主题"];
+    setCSSVar("--bar-bg", theme.light.barbg);
+    setCSSVar("--bg", theme.light.bg);
+    setCSSVar("--hover-color", theme.light.emphasis);
+    setCSSVar("--d-bar-bg", theme.dark.barbg);
+    setCSSVar("--d-bg", theme.dark.bg);
+    setCSSVar("--d-hover-color", theme.dark.emphasis);
+
     var 字体 = store.get("字体");
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
@@ -22,8 +28,6 @@ function init() {
     document.documentElement.style.setProperty("--icon-color", store.get("全局.图标颜色")[1]);
     if (store.get("全局.图标颜色")[3])
         document.documentElement.style.setProperty("--icon-color1", store.get("全局.图标颜色")[3]);
-    lan(store.get("语言.语言"));
-    document.title = t(document.title);
 }
 
-export default init;
+export default initStyle;

@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 import rootInit from "../root/root";
 import { el } from "redom";
-rootInit();
 import "../../../lib/template2.js";
 import pauseSvg from "../assets/icons/pause.svg";
 import recumeSvg from "../assets/icons/recume.svg";
@@ -25,6 +24,7 @@ const Store = require("electron-store");
 var store = new Store({
     cwd: configPath || "",
 });
+rootInit(Store);
 
 var recorder: MediaRecorder;
 

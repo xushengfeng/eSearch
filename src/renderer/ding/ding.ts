@@ -2,13 +2,13 @@ const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof im
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 const os = require("os") as typeof import("os");
-import root_init from "../root/root";
-root_init();
+import initStyle from "../root/root";
 let configPath = new URLSearchParams(location.search).get("config_path");
 const Store = require("electron-store");
 var store = new Store({
     cwd: configPath || "",
 });
+initStyle(Store);
 
 ipcRenderer.on("ding", (_event, type, id, more) => {
     console.log(type, id, more);

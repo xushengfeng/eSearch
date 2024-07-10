@@ -1971,6 +1971,10 @@ var defaultSetting: setting = {
         不透明度: 0.4,
         深色模式: "system",
         图标颜色: ["", "", "", ""],
+        主题: {
+            light: { barbg: "#FFFFFF", bg: "#FFFFFF", emphasis: "#dfdfdf" },
+            dark: { barbg: "#000000", bg: "#000000", emphasis: "#333" },
+        },
     },
     工具栏: {
         按钮大小: 60,

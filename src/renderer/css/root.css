@@ -1,9 +1,16 @@
 :root {
     --alpha: 0.6;
+
     --bar-bg: rgba(255, 255, 255, var(--alpha));
     --bar-hover-color: #0002;
     --bg: #fff;
     --hover-color: #dfdfdf;
+
+    --d-bar-bg: rgba(0, 0, 0, var(--alpha));
+    --d-bar-hover-color: #fff2;
+    --d-bg: #000;
+    --d-hover-color: #333;
+
     --m-color1: hsl(224deg 100% 63%);
     --m-color2: hsl(0, 0%, 90%);
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -103,10 +110,10 @@ textarea {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bar-bg: rgba(0, 0, 0, var(--alpha));
-        --bar-hover-color: #fff2;
-        --bg: #000;
-        --hover-color: #333;
+        --bar-bg: var(--d-bar-bg);
+        --bar-hover-color: var(--d-bar-hover-color);
+        --bg: var(--d-bg);
+        --hover-color: var(--d-hover-color);
         --m-color1: hsl(224deg 100% 38%);
         --m-color2: hsl(0, 0%, 14%);
         --shadow: #fff9 0 0 2px;

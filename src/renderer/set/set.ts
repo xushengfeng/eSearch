@@ -249,6 +249,62 @@ document.getElementById("语言重启").onclick = () => {
 
 var 全局 = old_store.全局;
 
+const themesEl = document.getElementById("themes");
+const themeInput = Array.from(document.querySelectorAll(".theme input")) as HTMLInputElement[];
+
+const themes: setting["全局"]["主题"][] = [
+    {
+        light: { barbg: "#FFFFFF99", bg: "#FFFFFF", emphasis: "#DFDFDF" },
+        dark: { barbg: "#33333399", bg: "#000000", emphasis: "#333333" },
+    },
+    {
+        light: { barbg: "#D7E3F899", bg: "#FAFAFF", emphasis: "#D7E3F8" },
+        dark: { barbg: "#3B485899", bg: "#1A1C1E", emphasis: "#3B4858" },
+    },
+    {
+        light: { barbg: "#D5E8CF99", bg: "#FCFDF6", emphasis: "#D5E8CF" },
+        dark: { barbg: "#3B4B3899", bg: "#1A1C19", emphasis: "#3B4B38" },
+    },
+];
+function setCSSVar(name: string, value: string) {
+    if (value) document.documentElement.style.setProperty(name, value);
+}
+
+function setThemePreview() {
+    setCSSVar("--bar-bg", themeInput[2].value);
+    setCSSVar("--bg", themeInput[4].value);
+    setCSSVar("--hover-color", themeInput[0].value);
+    setCSSVar("--d-bar-bg", themeInput[3].value);
+    setCSSVar("--d-bg", themeInput[5].value);
+    setCSSVar("--d-hover-color", themeInput[1].value);
+    // todo all preview
+}
+
+for (let i of themeInput) {
+    i.onchange = setThemePreview;
+}
+
+for (let i of themes) {
+    themesEl.append(
+        el("button", {
+            // todo drak
+            style: { background: i.light.emphasis },
+            onclick: () => {
+                themeInput[0].value = i.light.emphasis;
+                themeInput[1].value = i.dark.emphasis;
+                themeInput[2].value = i.light.barbg;
+                themeInput[3].value = i.dark.barbg;
+                themeInput[4].value = i.light.bg;
+                themeInput[5].value = i.dark.bg;
+                setThemePreview();
+                for (let i of themeInput) {
+                    i.dispatchEvent(new Event("input"));
+                }
+            },
+        })
+    );
+}
+
 document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", getRadio(document.getElementById("深色模式")));
 };
