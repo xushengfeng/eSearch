@@ -1458,10 +1458,10 @@ function createTranslator(op: translateWinType) {
 
     const dh = op.dipRect.y - op.dipRect.h;
     win.setBounds({
-        x: op.dipRect.x,
-        y: Math.max(0, dh),
-        width: op.dipRect.w,
-        height: op.dipRect.h * 3 + Math.min(0, dh),
+        x: Math.floor(op.dipRect.x),
+        y: Math.floor(Math.max(0, dh)),
+        width: Math.floor(op.dipRect.w),
+        height: Math.floor(op.dipRect.h * 3 + Math.min(0, dh)),
     });
 
     win.setIgnoreMouseEvents(true);
