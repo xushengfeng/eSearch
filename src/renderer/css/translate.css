@@ -31,6 +31,7 @@ select {
 
 .results {
     display: flex;
+    flex-direction: column;
     margin: 8px;
     gap: 8px;
 }
