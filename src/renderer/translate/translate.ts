@@ -1,12 +1,15 @@
 import { setting } from "../../ShareTypes";
 
 import xtranslator from "xtranslator";
+import initStyle from "../root/root";
 
 var Store = require("electron-store");
 var configPath = new URLSearchParams(location.search).get("config_path");
 var store = new Store({
     cwd: configPath || "",
 });
+
+initStyle(store);
 
 import copy_svg from "../assets/icons/copy.svg";
 

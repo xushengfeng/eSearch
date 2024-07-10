@@ -1,3 +1,7 @@
+body {
+    background-color: var(--bg);
+}
+
 textarea {
     width: 100%;
     border: none;
