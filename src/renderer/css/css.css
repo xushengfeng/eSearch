@@ -393,10 +393,10 @@ nav > button > .icon {
     text-align: justify;
     text-align-last: justify;
     white-space: nowrap;
+    overflow: hidden;
 }
 #img_view > div > div > p::selection {
-    background-color: #00f6;
-    color: black;
+    background-color: #78a9fd99;
 }
 
 #find {

@@ -2089,14 +2089,9 @@ function addOcrText(r: ocrResult, i: number) {
 function setOcrFontSize() {
     imgsEl.querySelectorAll("p").forEach((el) => {
         const w = Number(el.getAttribute("data-w"));
-        const h = Number(el.getAttribute("data-h"));
         const elSize = el.getBoundingClientRect();
         let fontSize = 16;
-        if (w / h < elSize.width / elSize.height) {
-            fontSize = elSize.height;
-        } else {
-            fontSize = 16 * (elSize.width / w);
-        }
+        fontSize = 16 * (elSize.width / w);
         el.style.lineHeight = el.style.fontSize = fontSize + "px";
     });
 }
