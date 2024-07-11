@@ -37,7 +37,7 @@ function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
 type RangeEl = HTMLElement & { value: number };
 
 let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
-import { t, lan, getLans, getLanName } from "../../../lib/translate/translate";
+import { t, tLan, lan, getLans, getLanName } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 document.querySelectorAll("[title],[placeholder]").forEach((el: HTMLElement) => {
     if (el.title?.includes("{")) el.title = t(el.title.slice(1, -1));
@@ -228,7 +228,7 @@ for (let i of lans) {
 
 setRadio(lanEl, old_store.语言.语言);
 const systemLanEl = document.getElementById("系统语言");
-systemLanEl.innerText = t("使用系统语言", systemLan);
+systemLanEl.innerText = tLan("使用系统语言", systemLan);
 systemLanEl.onclick = () => {
     setRadio(lanEl, systemLan);
     lan(getRadio(lanEl));

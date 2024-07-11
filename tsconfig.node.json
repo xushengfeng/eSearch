@@ -23,6 +23,7 @@
   "include": [
     "electron.vite.config.*",
     "src/main/*",
-    "src/preload/*"
+    "src/preload/*",
+    "lib/**/*.ts",
   ],
 }

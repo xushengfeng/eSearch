@@ -24,6 +24,7 @@
   },
   "include": [
     "src/renderer/**/*.ts",
-    "src/preload/*.d.ts"
+    "src/preload/*.d.ts",
+    "lib/**/*.ts",
   ]
 }
