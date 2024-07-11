@@ -412,7 +412,7 @@ function lineNum() {
         t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
     }
     document.getElementById("line_num").innerHTML = t;
-    document.getElementById("line_num").style.width = String(l.length).length / 2 + "em";
+    document.getElementById("line_num").style.width = String(l.length).length + "ch";
 }
 lineNum();
 
