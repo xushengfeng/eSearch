@@ -2127,6 +2127,7 @@ var defaultSetting: setting = {
         失焦关闭: false,
         简洁模式: false,
         高级窗口按钮: true,
+        显示图片区: 10,
     },
     主页面大小: [800, 600, false],
     时间格式: "MM/DD hh:mm:ss",

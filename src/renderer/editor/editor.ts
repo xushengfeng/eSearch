@@ -1046,6 +1046,13 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                 }
 
                 addOcrText(r.raw, 0);
+
+                const maxLinePhotoShow = store.get("主页面.显示图片区");
+                if (maxLinePhotoShow && text.split("\n").length >= maxLinePhotoShow) {
+                    if (!body.classList.contains(imageShow)) {
+                        imageB.click();
+                    }
+                }
                 return;
             } else {
                 console.error(err);
@@ -1922,9 +1929,11 @@ const uploadEl = document.getElementById("upload") as HTMLInputElement;
 const runEl = document.getElementById("run");
 const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 
+const imageShow = "image_main";
+
 imageB.onclick = () => {
-    body.classList.toggle("image_main");
-    setButtonHover(imageB, body.classList.contains("image_main"));
+    body.classList.toggle(imageShow);
+    setButtonHover(imageB, body.classList.contains(imageShow));
 };
 
 dropEl.ondragover = (e) => {

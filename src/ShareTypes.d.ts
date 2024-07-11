@@ -194,6 +194,7 @@ export interface setting {
         失焦关闭: boolean;
         简洁模式: boolean;
         高级窗口按钮: boolean;
+        显示图片区: number;
     };
     主页面大小: [number, number, boolean];
     时间格式: string;
