@@ -18,6 +18,8 @@ if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");
 }
 
+var 字体 = store.get("字体") as setting["字体"];
+
 var 工具栏跟随: string,
     光标: string,
     四角坐标: boolean,
@@ -3020,7 +3022,7 @@ Fabric.number = Fabric.util.createClass(Fabric.Circle, {
 
         // 绘制数字
         ctx.fillStyle = this.stroke || "#000";
-        ctx.font = `${this.fontSize}px Arial`;
+        ctx.font = `${this.fontSize}px ${字体.等宽字体 || "Arial"}`;
         ctx.textAlign = "center";
         ctx.fillText(String(this.text), x, y);
     },
@@ -3121,6 +3123,7 @@ function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: num
                 top: y,
                 canChangeFill: true,
                 形状: "text",
+                fontFamily: 字体.主要字体,
             })
         );
     } else if (shape === "arrow") {
