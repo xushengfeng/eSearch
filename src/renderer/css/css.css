@@ -105,6 +105,7 @@ nav > button > .icon {
 #line_num > div {
     position: absolute;
     width: 100%;
+    font-family: var(--monospace);
 }
 #main_text {
     overflow: overlay;
@@ -127,7 +128,7 @@ nav > button > .icon {
     line-height: 1.5em;
     resize: none;
     height: max-content;
-    font-family: sans-serif;
+    font-family: var(--main-font);
     border: none;
     overflow: hidden;
     letter-spacing: normal;
