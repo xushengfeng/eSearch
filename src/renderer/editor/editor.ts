@@ -941,17 +941,16 @@ function htmlToText(html: string) {
 
 function showHistory() {
     if (historyShowed) {
-        document.getElementById("history").className = "";
         historyShowed = false;
         document.getElementById("history_list").style.top = "100%";
     } else {
-        document.getElementById("history").className = "hover_b2";
         historyShowed = true;
 
         document.getElementById("history_list").style.top = "0%";
 
         renderHistory();
     }
+    setButtonHover(document.getElementById("history_b"), historyShowed);
 }
 import time_format from "../../../lib/time_format";
 function renderHistory() {
@@ -1937,6 +1936,7 @@ const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 
 imageB.onclick = () => {
     body.classList.toggle("image_main");
+    setButtonHover(imageB, body.classList.contains("image_main"));
 };
 
 dropEl.ondragover = (e) => {
