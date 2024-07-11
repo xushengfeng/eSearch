@@ -906,7 +906,7 @@ for (let e of 翻译引擎List) {
 
 var historyStore = new Store({ name: "history" });
 
-var historyList = historyStore.get("历史记录") || {};
+var historyList: { [key: string]: { text: string } } = historyStore.get("历史记录") || {};
 var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     var nowTime = new Date().getTime();
@@ -931,22 +931,17 @@ function pushHistory() {
 // 历史记录界面
 var historyShowed = false;
 document.getElementById("history_b").onclick = showHistory;
-// html转义
-function htmlToText(html: string) {
-    return html.replace(
-        /[<>& \'\"]/g,
-        (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;", " ": "&nbsp;" }[c])
-    );
-}
+
+const historyListEl = document.getElementById("history_list");
 
 function showHistory() {
     if (historyShowed) {
         historyShowed = false;
-        document.getElementById("history_list").style.top = "100%";
+        historyListEl.style.top = "100%";
     } else {
         historyShowed = true;
 
-        document.getElementById("history_list").style.top = "0%";
+        historyListEl.style.top = "0%";
 
         renderHistory();
     }
@@ -960,23 +955,24 @@ function renderHistory() {
     }
     historyList = n;
     n = null;
-    // 迁移历史记录
-    if (store.get("历史记录")) {
-        document.querySelector("#history_list").innerHTML = `<div id = "old_his_to_new">迁移旧历史</div>`;
-        document.getElementById("old_his_to_new").onclick = oldHisToNew;
-    }
-    if (Object.keys(historyList).length == 0) document.querySelector("#history_list").innerHTML = "暂无历史记录";
+    if (Object.keys(historyList).length == 0) historyListEl.innerText = t("暂无历史记录");
     for (let i in historyList) {
-        var t = htmlToText(historyList[i].text).split(/[\r\n]/g);
-        var div = document.createElement("div");
+        const t = historyList[i].text.split(/[\r\n]/g);
+        const div = el("div");
         div.id = i;
-        div.innerHTML = `<div class="history_title"><span>${time_format(
-            store.get("时间格式"),
-            new Date(Number(i) - 0)
-        )}</span><button><img src="${closeSvg}" class="icon"></button></div><div class="history_text">${
-            t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "")
-        }</div>`;
-        document.querySelector("#history_list").prepend(div);
+        const text = t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "");
+        const textEl = el("div", { class: "history_text" }, text);
+        textEl.innerText = text;
+        div.append(
+            el(
+                "div",
+                { class: "history_title" },
+                el("span", time_format(store.get("时间格式"), new Date(Number(i) - 0))),
+                el("button", el("img", { src: closeSvg, class: "icon" }))
+            ),
+            textEl
+        );
+        historyListEl.prepend(div);
     }
 
     // 打开某项历史
@@ -997,14 +993,6 @@ function renderHistory() {
 }
 if (mainText == "") renderHistory();
 
-function oldHisToNew() {
-    for (let i of store.get("历史记录")) {
-        historyStore.set(`历史记录.${i.time}`, { text: i.text });
-        historyList[i.time] = { text: i.text };
-    }
-    store.delete("历史记录");
-    renderHistory();
-}
 const task = new tLog("e");
 
 /************************************引入 */
