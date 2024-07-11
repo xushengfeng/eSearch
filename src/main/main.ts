@@ -2035,6 +2035,11 @@ var defaultSetting: setting = {
             shape: "rect",
             filter: "pixelate",
         },
+        arrow: {
+            type: "stroke",
+            w: 10,
+            h: 16,
+        },
     },
     OCR: {
         类型: "默认",

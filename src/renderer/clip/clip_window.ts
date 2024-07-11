@@ -3025,6 +3025,9 @@ Fabric.number = Fabric.util.createClass(Fabric.Circle, {
         ctx.fillText(String(this.text), x, y);
     },
 });
+
+const arrowConfig = store.get("图像编辑.arrow") as setting["图像编辑"]["arrow"];
+
 Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
     type: "arrow",
 
@@ -3043,8 +3046,8 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
         let { x1, x2, y1, y2 } = this;
 
         const angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
-        const w = 10;
-        const h = 16;
+        const w = arrowConfig.w;
+        const h = arrowConfig.h;
 
         let [x3, y3] = rotate(-w / 2, h, angle);
         let [x4, y4] = rotate(w / 2, h, angle);
@@ -3055,6 +3058,7 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
         ctx.beginPath();
         ctx.moveTo(x0, y0);
         ctx.lineTo(x0 + x3, y0 + y3);
+        if (arrowConfig.type === "stroke") ctx.moveTo(x0, y0);
         ctx.lineTo(x0 + x4, y0 + y4);
         ctx.closePath();
 

@@ -119,6 +119,11 @@ export interface setting {
             };
         };
         记忆: EditType;
+        arrow: { // todo set
+            type: "fill" | "stroke";
+            w: number;
+            h: number;
+        };
     };
     OCR: {
         类型: string;
