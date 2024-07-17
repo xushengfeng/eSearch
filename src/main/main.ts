@@ -19,27 +19,29 @@ import {
     session,
     crashReporter,
 } from "electron";
-import { Buffer } from "buffer";
+import type { Buffer } from "buffer";
 
 const Store = require("electron-store");
 import { setting, MainWinType, translateWinType, 功能 } from "../ShareTypes";
-import * as path from "path";
-const runPath = path.join(path.resolve(__dirname, ""), "../../");
+import { join, resolve, dirname } from "path";
 import { exec } from "child_process";
-import * as fs from "fs";
-import * as os from "os";
+import { readFileSync, rmSync, existsSync, mkdir, readFile, mkdirSync } from "fs";
+import { tmpdir } from "os";
 import { t, lan, getLans } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
 import url from "node:url";
 
+const runPath = join(resolve(__dirname, ""), "../../");
+const tmpDir = join(tmpdir(), "eSearch");
+
 // 自定义用户路径
 try {
-    var userDataPath = fs.readFileSync(path.join(runPath, "preload_config")).toString().trim();
+    var userDataPath = readFileSync(join(runPath, "preload_config")).toString().trim();
     if (userDataPath) {
         if (app.isPackaged) {
-            userDataPath = path.join(runPath, "../../", userDataPath);
+            userDataPath = join(runPath, "../../", userDataPath);
         } else {
-            userDataPath = path.join(runPath, userDataPath);
+            userDataPath = join(runPath, userDataPath);
         }
         app.setPath("userData", userDataPath);
     }
@@ -53,7 +55,7 @@ ipcMain.on("run_path", (event) => {
 try {
     var store = new Store();
 } catch (error) {
-    fs.unlinkSync(path.join(app.getPath("userData"), "config.json"));
+    rmSync(join(app.getPath("userData"), "config.json"));
     var store = new Store();
 }
 
@@ -70,7 +72,7 @@ function mainUrl(fileName: string) {
         let mainUrl = `${process.env["ELECTRON_RENDERER_URL"]}/${fileName}`;
         return mainUrl;
     } else {
-        return path.join(__dirname, "../renderer", fileName);
+        return join(__dirname, "../renderer", fileName);
     }
 }
 
@@ -156,7 +158,7 @@ async function copyText(callback: (t: string) => void) {
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
         );
     } else if (process.platform == "win32") {
-        exec(`"${path.join(runPath, "lib/copy.exe")}"`);
+        exec(`"${join(runPath, "lib/copy.exe")}"`);
     } else if (process.platform == "linux") {
         exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
@@ -253,9 +255,7 @@ function argRun(c: string[]) {
 }
 
 async function rmR(dir_path: string) {
-    fs.rm(dir_path, { recursive: true }, (err) => {
-        if (err) console.error(err);
-    });
+    rmSync(dir_path, { recursive: true });
 }
 
 var contextMenu: Electron.Menu, tray: Tray;
@@ -507,7 +507,7 @@ app.whenReady().then(() => {
     }
 
     // tmp目录
-    if (!fs.existsSync(os.tmpdir() + "/eSearch")) fs.mkdir(os.tmpdir() + "/eSearch", () => {});
+    if (!existsSync(tmpDir)) mkdir(tmpDir, () => {});
     createClipWindow();
 
     nativeTheme.themeSource = store.get("全局.深色模式");
@@ -817,14 +817,14 @@ app.on("will-quit", () => {
     globalShortcut.unregisterAll();
 
     // 删除临时文件夹
-    rmR(path.join(os.tmpdir(), "eSearch"));
+    rmR(tmpDir);
 });
 
 var theIcon = null;
 if (process.platform == "win32") {
-    theIcon = path.join(runPath, "assets/logo/icon.ico");
+    theIcon = join(runPath, "assets/logo/icon.ico");
 } else {
-    theIcon = path.join(runPath, "assets/logo/1024x1024.png");
+    theIcon = join(runPath, "assets/logo/1024x1024.png");
 }
 
 ipcMain.on("dialog", (e, arg0) => {
@@ -921,7 +921,7 @@ function createClipWindow() {
                 dialog
                     .showSaveDialog({
                         title: t("选择要保存的位置"),
-                        defaultPath: path.join(savedPath, `${getFileName()}.${arg}`),
+                        defaultPath: join(savedPath, `${getFileName()}.${arg}`),
                         filters: [{ name: t("图像"), extensions: [arg] }],
                     })
                     .then((x) => {
@@ -957,7 +957,7 @@ function createClipWindow() {
                 break;
             case "ok_save":
                 noti(arg);
-                store.set("保存.保存路径.图片", path.dirname(arg));
+                store.set("保存.保存路径.图片", dirname(arg));
                 break;
             case "record":
                 createRecorderWindow(arg.rect, { id: arg.id, w: arg.w, h: arg.h, r: arg.ratio });
@@ -1017,7 +1017,7 @@ function createClipWindow() {
 function showPhoto(imgPath?: string) {
     if (imgPath) {
         console.log(imgPath);
-        fs.readFile(imgPath, (err, data) => {
+        readFile(imgPath, (err, data) => {
             if (err) console.error(err);
             let p = nativeImage.createFromBuffer(data);
             let s = p.getSize();
@@ -1197,7 +1197,7 @@ ipcMain.on("record", (_event, type, arg) => {
             dialog
                 .showSaveDialog({
                     title: t("选择要保存的位置"),
-                    defaultPath: path.join(savedPath, `${getFileName()}.${arg.格式}`),
+                    defaultPath: join(savedPath, `${getFileName()}.${arg.格式}`),
                     filters: [{ name: t("视频"), extensions: null }],
                 })
                 .then(async (x) => {
@@ -1275,14 +1275,14 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
         case "set_default_setting":
             store.clear();
             setDefaultSetting();
-            var resolve = await dialog.showMessageBox({
+            const dResolve = await dialog.showMessageBox({
                 title: t("重启"),
                 message: `${t("已恢复默认设置，部分设置需要重启$1生效").replace("$1", ` ${app.name} `)}`,
                 buttons: [t("重启"), t("稍后")],
                 defaultId: 0,
                 cancelId: 1,
             });
-            if (resolve.response == 0) {
+            if (dResolve.response == 0) {
                 app.relaunch();
                 app.exit(0);
             }
@@ -1323,9 +1323,9 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             break;
         case "move_user_data":
             if (!arg1) return;
-            const toPath = path.resolve(arg1);
+            const toPath = resolve(arg1);
             const prePath = app.getPath("userData");
-            fs.mkdirSync(toPath, { recursive: true });
+            mkdirSync(toPath, { recursive: true });
             if (process.platform == "win32") {
                 exec(`xcopy ${prePath}\\** ${toPath} /Y /s`);
             } else {
