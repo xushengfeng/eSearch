@@ -14,6 +14,9 @@ dependencies:
   diff-match-patch:
     specifier: ^1.0.5
     version: 1.0.5
+  dkh-ui:
+    specifier: ^0.2.0
+    version: 0.2.0
   download:
     specifier: ^8.0.0
     version: 8.0.0
@@ -1633,6 +1636,10 @@ packages:
     resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: false
 
+  /csstype@3.1.3:
+    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+    dev: false
+
   /csv-parse@5.5.6:
     resolution: {integrity: sha512-uNpm30m/AGSkLxxy7d9yRXpJQFrZzVWLFBkS+6ngPcZkw/5k3L/jjFuj7tVnEpRn+QgmiXr21nDlhCiUK4ij2A==}
     dev: true
@@ -1776,6 +1783,12 @@ packages:
       buffer-equal: 1.0.1
       minimatch: 3.1.2
     dev: true
+
+  /dkh-ui@0.2.0:
+    resolution: {integrity: sha512-TnAk0gKUnPHbQ+hsgN+Br3T385/96DdjPVUdTlTwQlo1SmY59MW6PRrNxg1U89buSF+hJPflciN+aiRgDSTr3w==, tarball: https://registry.npmjs.org/dkh-ui/-/dkh-ui-0.2.0.tgz}
+    dependencies:
+      csstype: 3.1.3
+    dev: false
 
   /dmg-builder@24.13.3(electron-builder-squirrel-windows@24.13.3):
     resolution: {integrity: sha512-rcJUkMfnJpfCboZoOOPf4L29TRtEieHNOeAbYPWPxlaBw/Z1RKrRA86dOI9rwaI4tQSc/RD82zTNHprfUHXsoQ==}
