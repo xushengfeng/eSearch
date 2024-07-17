@@ -3727,12 +3727,10 @@ setEditType("select", editType.select);
 
 // 检查应用更新
 
-import pack from "../../../package.json?raw";
 import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
-var packageJson = JSON.parse(pack);
 
 function checkUpdate(show?: boolean) {
-    const version = packageJson.version;
+    const version = store.get("设置版本");
     const m = store.get("更新.模式") as setting["更新"]["模式"];
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
         .then((v) => v.json())
