@@ -6,6 +6,13 @@ import "../../../lib/template2.js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import { MessageBoxSyncOptions } from "electron";
 import initStyle from "../root/root";
+import open_with from "../../../lib/open_with";
+import timeFormat from "../../../lib/time_format";
+import { t, lan } from "../../../lib/translate/translate";
+import Color from "color";
+import fabricSrc from "../../../lib/fabric.min.js?raw";
+
+import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
 
 // 获取设置
 let configPath = new URLSearchParams(location.search).get("config_path");
@@ -814,8 +821,6 @@ function trackLocation() {
 
 // 在其他应用打开
 
-import open_with from "../../../lib/open_with";
-
 function openApp() {
     const path = require("path");
     const os = require("os");
@@ -1166,7 +1171,6 @@ function runCopy() {
 }
 // 保存
 var type: setting["保存"]["默认格式"];
-import timeFormat from "../../../lib/time_format";
 function runSave() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
@@ -1366,11 +1370,8 @@ function hideLoading() {
     loadingEl.classList.add("loading_hide");
 }
 
-import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);
-
-import Color from "color";
 
 // 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {
@@ -2548,7 +2549,6 @@ document.getElementById("操作_删除").onclick = () => {
     fabricDelete();
 };
 
-import fabricSrc from "../../../lib/fabric.min.js?raw";
 let fabricEl = document.createElement("script");
 fabricEl.innerHTML = fabricSrc;
 document.body.append(fabricEl);
@@ -3726,8 +3726,6 @@ hotkeys("Ctrl+v", fabricCopy);
 setEditType("select", editType.select);
 
 // 检查应用更新
-
-import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
 
 function checkUpdate(show?: boolean) {
     const version = store.get("设置版本");
