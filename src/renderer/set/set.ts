@@ -631,8 +631,6 @@ translateES.append(translatorList, addTranslator, addTranslatorM);
 new Sortable(translatorList, {
     handle: ".sort_handle",
     onEnd: () => {
-        const id = (translatorList.firstChild as HTMLElement)?.getAttribute("data-id");
-        if (!id) return;
         setTranLan();
     },
 });
@@ -650,6 +648,7 @@ function addTranslatorI(v: setting["翻译"]["翻译器"][0]) {
     const rm = el("button", iconEl(delete_svg), {
         onclick: () => {
             iel.remove();
+            setTranLan();
         },
     });
     const iel = el("div", handle, text, rm, {
@@ -820,12 +819,12 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
 
 function setTranLan() {
     const id = (translatorList.firstChild as HTMLElement)?.getAttribute("data-id");
+    translatorFrom.innerText = "";
+    translatorTo.innerHTML = "";
     if (!id) return;
     const type = transList[id].type;
     const e = translator.e[type];
     const mainLan = xstore.语言.语言;
-    translatorFrom.innerHTML = "";
-    translatorTo.innerHTML = "";
     if (!e) return;
     e.getLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
         translatorFrom.append(el("option", v.text, { value: v.lan }));
