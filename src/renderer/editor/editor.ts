@@ -7,6 +7,7 @@ var store = new Store({
 });
 import { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
+import { view, txt, ele, button, image } from "dkh-ui";
 import initStyle from "../root/root";
 
 import closeSvg from "../assets/icons/close.svg";
@@ -582,8 +583,7 @@ for (let i in hotkeyMap) {
 const editToolsF: { [name: string]: () => void } = {};
 
 for (let i of editTools) {
-    const iel = el("div");
-    iel.innerText = i.name;
+    const iel = view().add(txt(i.name));
     const f = () => {
         const s = editor.selections.getS();
         let t = editor.selections.get(s);
@@ -597,7 +597,7 @@ for (let i of editTools) {
     };
     editToolsF[i.name] = f;
     hotkeys(i.key, f);
-    editBEl.append(iel);
+    editBEl.append(iel.el);
 }
 
 editBEl.onmousedown = async (e) => {
@@ -890,15 +890,15 @@ document.getElementById("translate_s").oninput = () => {
 };
 /**展示搜索引擎选项 */
 for (let e of 搜索引擎List) {
-    const op = el("option", e.name, { value: e.url });
-    if (引擎.记忆.搜索 === e.name) op.selected = true;
-    searchSelect.append(op);
+    const selected = 引擎.记忆.搜索 === e.name;
+    const op = ele("option").add(txt(e.name)).attr({ value: e.url, selected });
+    searchSelect.append(op.el);
 }
 /**展示翻译引擎选项 */
 for (let e of 翻译引擎List) {
-    const op = el("option", e.name, { value: e.url });
-    if (引擎.记忆.翻译 === e.name) op.selected = true;
-    translateSelect.append(op);
+    const selected = 引擎.记忆.翻译 === e.name;
+    const op = ele("option").add(txt(e.name)).attr({ value: e.url, selected });
+    translateSelect.append(op.el);
 }
 
 /************************************历史记录 */
@@ -958,21 +958,19 @@ function renderHistory() {
     if (Object.keys(historyList).length == 0) historyListEl.innerText = t("暂无历史记录");
     for (let i in historyList) {
         const t = historyList[i].text.split(/[\r\n]/g);
-        const div = el("div");
-        div.id = i;
-        const text = t.splice(0, 3).join("<br>") + (t.length > 3 ? "..." : "");
-        const textEl = el("div", { class: "history_text" }, text);
-        textEl.innerText = text;
-        div.append(
-            el(
-                "div",
-                { class: "history_title" },
-                el("span", time_format(store.get("时间格式"), new Date(Number(i) - 0))),
-                el("button", el("img", { src: closeSvg, class: "icon" }))
-            ),
-            textEl
-        );
-        historyListEl.prepend(div);
+        const div = view().attr({ id: i });
+        const text = t.splice(0, 3).join("\n") + (t.length > 3 ? "..." : "");
+        const textEl = view().class("history_text").add(txt(text));
+        div.add([
+            view()
+                .class("history_title")
+                .add([
+                    txt(time_format(store.get("时间格式"), new Date(Number(i) - 0))),
+                    button(image(closeSvg, "icon").class("icon")),
+                ]),
+            textEl,
+        ]);
+        historyListEl.prepend(div.el);
     }
 
     // 打开某项历史
@@ -2215,5 +2213,4 @@ imgsEl.onpointerup = () => {
 };
 
 import diff_match_patch from "diff-match-patch";
-import { el } from "redom";
 var dmp = new diff_match_patch();
