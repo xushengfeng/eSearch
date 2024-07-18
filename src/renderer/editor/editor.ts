@@ -1057,6 +1057,8 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
                 editor.push(t("识别错误") + "\n" + err + "\n" + t("请打开开发者工具（Ctrl+Shift+I）查看详细错误"));
             }
+
+            mainEvent("home");
         });
     }
 
@@ -1495,20 +1497,20 @@ document.getElementById("buttons").onclick = (e) => {
     mainEvent((e.target as HTMLElement).id);
 };
 function mainEvent(eid: string) {
-    const id = liList.at(-1).id.replace("id", "");
+    if (!eid) return;
     if (eid === "browser") {
         openInBrowser();
     } else if (eid === "add_history") {
         historyStore.set(`历史记录.${new Date().getTime()}`, {
             text: document.querySelector(".tab_focus").getAttribute("data-url"),
         });
+    } else if (eid === "home") {
+        document.querySelector(".tab_focus").classList.remove("tab_focus");
+        body.classList.remove("fill_t_s");
+        document.title = t("eSearch - 主页面");
     } else {
-        if (eid) ipcRenderer.send("tab_view", id, eid);
-        if (eid === "home") {
-            document.querySelector(".tab_focus").classList.remove("tab_focus");
-            body.classList.remove("fill_t_s");
-            document.title = t("eSearch - 主页面");
-        }
+        const id = liList.at(-1).id.replace("id", "");
+        ipcRenderer.send("tab_view", id, eid);
     }
 }
 
