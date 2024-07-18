@@ -8,6 +8,8 @@ const { ipcRenderer, nativeImage } = require("electron") as typeof import("elect
 
 import xtranslator from "xtranslator";
 
+import { button, check, image, view } from "dkh-ui";
+
 const path = require("path") as typeof import("path");
 const fs = require("fs") as typeof import("fs");
 
@@ -18,7 +20,7 @@ import ocr_svg from "../assets/icons/ocr.svg";
 import updown_svg from "../assets/icons/updown.svg";
 
 function iconEl(img: string) {
-    return el("img", { src: img, class: "icon" });
+    return image(img, "icon").class("icon");
 }
 
 var Store = require("electron-store");
@@ -37,8 +39,6 @@ if (transE.length > 0) {
     const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
     translateE = (input: string) => xtranslator.e[x.type].run(input, lan.from, lan.to);
 }
-
-import { el, setStyle } from "redom";
 
 type Rect = { x: number; y: number; w: number; h: number };
 let rect: Rect = { x: 0, y: 0, w: 0, h: 0 };
@@ -72,10 +72,10 @@ const OCR = await lo.init({
     detShape: [640, 640],
 });
 
-const mainEl = el("div", { class: "main" });
-const textEl = el("div", { class: "text" });
-const rectEl = el("div", { class: "rect" });
-mainEl.append(textEl, rectEl);
+const mainEl = view().class("main");
+const textEl = view().class("text");
+const rectEl = view().class("rect");
+mainEl.add([textEl, rectEl]);
 
 /**
  * 修复屏幕信息
@@ -94,7 +94,7 @@ function dispaly2screen(displays: Electron.Display[], screens: import("node-scre
 function screenshot(id: number, rect: Rect) {
     const screen = allScreens.find((i) => i.id === id);
     const img = screen.captureSync();
-    const canvas = el("canvas");
+    const canvas = document.createElement("canvas");
     const image = nativeImage.createFromBuffer(img);
     const { width: w, height: h } = image.getSize();
 
@@ -148,15 +148,14 @@ async function run() {
 
     const ocrData = await ocr(data);
 
-    textEl.innerHTML = "";
+    textEl.el.innerHTML = "";
     for (let i of ocrData) {
         const text = i.text;
-        const item = el("div");
         let x0 = i.box[0][0];
         let y0 = i.box[0][1];
         let x1 = i.box[2][0];
         let y1 = i.box[2][1];
-        setStyle(item, {
+        const item = view().style({
             left: x0 + "px",
             top: y0 + "px",
             width: x1 - x0 + "px",
@@ -164,15 +163,15 @@ async function run() {
             "line-height": y1 - y0 + "px",
             "font-size": y1 - y0 + "px",
         });
-        textEl.append(item);
+        textEl.add(item);
         // item.innerText = text;
         translate(text).then((res) => {
-            item.innerText = res;
+            item.el.innerText = res;
         });
     }
 }
 
-document.body.append(mainEl);
+document.body.append(mainEl.el);
 
 const runRun = () => {
     if (mode === "auto" && !pause) {
@@ -186,93 +185,77 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
     screenId = id;
     rect = _rect;
     run();
-    mainEl.style.top = dy + "px";
-    mainEl.style.height = _rect.h * 3 + "px";
-    textEl.style.width = _rect.w + "px";
-    textEl.style.height = _rect.h + "px";
-    rectEl.style.width = _rect.w + "px";
-    rectEl.style.height = _rect.h + "px";
+    mainEl.style({ top: dy + "px", height: _rect.h * 3 + "px" });
+    textEl.style({ width: _rect.w + "px", height: _rect.h + "px" });
+    rectEl.style({ width: _rect.w + "px", height: _rect.h + "px" });
     switchMode();
 });
 
-const switchEl = el("input", {
-    type: "checkbox",
-    onclick: () => {
-        if (switchEl.checked) mode = "manual";
-        else mode = "auto";
-        switchMode();
-    },
+const switchEl = check("manual").on("click", () => {
+    if (switchEl.gv()) mode = "manual";
+    else mode = "auto";
+    switchMode();
 });
 
-const setPosi = el("button", iconEl(updown_svg), {
-    onclick: () => {
-        const y = -1 * store.get("屏幕翻译.offsetY");
-        setOffset(y);
-        store.set("屏幕翻译.offsetY", y);
-    },
+const setPosi = button(iconEl(updown_svg)).on("click", () => {
+    const y = -1 * store.get("屏幕翻译.offsetY");
+    setOffset(y);
+    store.set("屏幕翻译.offsetY", y);
 });
 
 function switchMode() {
     if (mode === "manual") {
-        playEl.style.display = "none";
-        setPosi.style.display = "none";
-        runEl.style.display = "";
+        playEl.el.style.display = "none";
+        setPosi.el.style.display = "none";
+        runEl.el.style.display = "";
         setOffset(0);
     } else {
-        playEl.style.display = "";
-        setPosi.style.display = "";
-        runEl.style.display = "none";
+        playEl.el.style.display = "";
+        setPosi.el.style.display = "";
+        runEl.el.style.display = "none";
         setOffset(store.get("屏幕翻译.offsetY") || -1);
         runRun();
     }
 }
 
 function setOffset(offset: number) {
-    textEl.style.top = (offset - -1) * textEl.offsetHeight + "px";
+    textEl.el.style.top = (offset - -1) * textEl.el.offsetHeight + "px";
 }
 
-switchEl.checked = mode === "manual";
+switchEl.sv(mode === "manual");
 
 const playIcon = iconEl(pause_svg);
-const playEl = el("button", playIcon, {
-    onclick: async () => {
-        if (mode === "auto") {
-            pause = !pause;
-            playIcon.src = pause ? recume_svg : pause_svg;
-            runRun();
-        }
-    },
+const playEl = button(playIcon).on("click", () => {
+    if (mode === "auto") {
+        pause = !pause;
+        playIcon.el.src = pause ? recume_svg : pause_svg;
+        runRun();
+    }
 });
 
-const runEl = el("button", iconEl(ocr_svg), {
-    onclick: async () => {
-        if (mode != "auto") {
-            mainEl.style.opacity = "0";
-            await sl();
-            await sl();
-            await run();
-            mainEl.style.opacity = "1";
-        }
-    },
+const runEl = button(iconEl(ocr_svg)).on("click", async () => {
+    if (mode != "auto") {
+        mainEl.el.style.opacity = "0";
+        await sl();
+        await sl();
+        await run();
+        mainEl.el.style.opacity = "1";
+    }
 });
 
-const toolsEl = el(
-    "div",
-    { class: "tools" },
-    switchEl,
-    setPosi,
-    playEl,
-    runEl,
-    el("button", iconEl(close_svg), {
-        onclick: () => {
-            ipcRenderer.send("translator", "close");
-        },
-    })
-);
+const toolsEl = view()
+    .class("tools")
+    .add([
+        switchEl,
+        setPosi,
+        playEl,
+        runEl,
+        button(iconEl(close_svg)).on("click", () => ipcRenderer.send("translator", "close")),
+    ]);
 
-rectEl.append(toolsEl);
+rectEl.add(toolsEl);
 
 ipcRenderer.on("mouse", (_e, x: number, y: number) => {
     const El = document.elementFromPoint(x, y);
-    ipcRenderer.send("ignore", !toolsEl.contains(El));
+    ipcRenderer.send("ignore", !toolsEl.el.contains(El));
 });

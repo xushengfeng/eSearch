@@ -15,8 +15,8 @@ dependencies:
     specifier: ^1.0.5
     version: 1.0.5
   dkh-ui:
-    specifier: ^0.2.0
-    version: 0.2.0
+    specifier: ^0.2.1
+    version: 0.2.1
   download:
     specifier: ^8.0.0
     version: 8.0.0
@@ -1784,8 +1784,8 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /dkh-ui@0.2.0:
-    resolution: {integrity: sha512-TnAk0gKUnPHbQ+hsgN+Br3T385/96DdjPVUdTlTwQlo1SmY59MW6PRrNxg1U89buSF+hJPflciN+aiRgDSTr3w==, tarball: https://registry.npmjs.org/dkh-ui/-/dkh-ui-0.2.0.tgz}
+  /dkh-ui@0.2.1:
+    resolution: {integrity: sha512-ishPBTrHeGqXmGOgzxvRygjEbon8wJZEAqHhdpDpdFvo83HcbF/x5m8k82sMrtdPOBZ3Fp+0AcPeObolUoF4jw==}
     dependencies:
       csstype: 3.1.3
     dev: false
