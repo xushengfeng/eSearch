@@ -8,7 +8,7 @@ const Store = require("electron-store");
 var store = new Store({
     cwd: configPath || "",
 });
-initStyle(Store);
+initStyle(store);
 
 ipcRenderer.on("ding", (_event, type, id, more) => {
     console.log(type, id, more);

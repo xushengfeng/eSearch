@@ -24,7 +24,7 @@ const Store = require("electron-store");
 var store = new Store({
     cwd: configPath || "",
 });
-rootInit(Store);
+rootInit(store);
 
 var recorder: MediaRecorder;
 
