@@ -808,8 +808,10 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
             el("button", t("完成"), {
                 onclick: () => {
                     const nv = getV();
-                    re(nv);
-                    addTranslatorM.close();
+                    if (nv.type && nv.keys.every((i) => i)) {
+                        re(nv);
+                        addTranslatorM.close();
+                    }
                 },
             })
         );
