@@ -1368,7 +1368,7 @@ ipcRenderer.on("html", (_e, h: string) => {
             liList.push(li);
         });
     document.getElementById("buttons").onclick = (e) => {
-        mainEvent(e);
+        mainEvent((e.target as HTMLElement).id);
     };
     if (document.getElementById("tabs").querySelector("li")) document.getElementById("tabs").classList.add("tabs_show");
 });
@@ -1492,20 +1492,19 @@ function load(id: number, loading: boolean) {
 }
 
 document.getElementById("buttons").onclick = (e) => {
-    mainEvent(e);
+    mainEvent((e.target as HTMLElement).id);
 };
-function mainEvent(e: MouseEvent | any) {
-    var id = liList.at(-1).id.replace("id", "");
-    let el = <HTMLElement>e.target;
-    if (el.id == "browser") {
+function mainEvent(eid: string) {
+    const id = liList.at(-1).id.replace("id", "");
+    if (eid === "browser") {
         openInBrowser();
-    } else if (el.id == "add_history") {
+    } else if (eid === "add_history") {
         historyStore.set(`历史记录.${new Date().getTime()}`, {
             text: document.querySelector(".tab_focus").getAttribute("data-url"),
         });
     } else {
-        if (el.id) ipcRenderer.send("tab_view", id, el.id);
-        if (el.id == "home") {
+        if (eid) ipcRenderer.send("tab_view", id, eid);
+        if (eid === "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
             body.classList.remove("fill_t_s");
             document.title = t("eSearch - 主页面");
@@ -1524,8 +1523,7 @@ function openInBrowser() {
 }
 
 ipcRenderer.on("view_events", (_event, arg) => {
-    var e = { target: { id: arg } };
-    mainEvent(e);
+    mainEvent(arg);
 });
 
 document.getElementById("tabs").onwheel = (e) => {
