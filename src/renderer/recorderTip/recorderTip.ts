@@ -1,5 +1,5 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
-import { el } from "redom";
+import { ele, txt, view } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
 import { setting } from "../../ShareTypes";
 
@@ -60,30 +60,28 @@ function initRecord() {
 
         let keyO: number[] = [];
 
-        let lastKey = null as HTMLElement;
+        let lastKey = null as ReturnType<typeof view>;
 
         uIOhook.on("keydown", (e) => {
             if (!keyO.includes(e.keycode)) keyO.push(e.keycode);
             if (!lastKey) {
-                lastKey = el("div");
-                if (posi.x === "+") keysEl.append(lastKey);
-                else keysEl.insertAdjacentElement("afterbegin", lastKey);
+                lastKey = view();
+                if (posi.x === "+") keysEl.append(lastKey.el);
+                else keysEl.insertAdjacentElement("afterbegin", lastKey.el);
             }
             const key = getKey(e.keycode);
-            if (["Ctrl", "Alt", "Shift", "Meta"].includes(key.main)) lastKey.setAttribute("data-modi", "true");
-            const kbdEl = el("kbd", el("span", key.main, { class: "main_key" }), {
-                "data-k": e.keycode,
-            });
+            if (["Ctrl", "Alt", "Shift", "Meta"].includes(key.main)) lastKey.data({ modi: "true" });
+            const kbdEl = ele("kbd").add(txt(key.main).class("main_key").data({ k: e.keycode.toString() }));
             console.log(key);
 
-            if (key.top) kbdEl.append(el("span", key.top, { class: "top_key" }));
+            if (key.top) kbdEl.add(txt(key.top).class("top_key"));
             else {
-                kbdEl.querySelector("span").classList.remove("main_key");
-                kbdEl.classList.add("only_key");
+                kbdEl.el.querySelector("span").classList.remove("main_key");
+                kbdEl.el.classList.add("only_key");
             }
-            lastKey.append(kbdEl);
-            if (key.numpad) kbdEl.classList.add("numpad_key");
-            if (key.right) kbdEl.classList.add("right_key");
+            lastKey.add(kbdEl);
+            if (key.numpad) kbdEl.el.classList.add("numpad_key");
+            if (key.right) kbdEl.el.classList.add("right_key");
             const l = Array.from(keysEl.children);
             if (posi.x === "+") {
                 l.slice(0, -10).forEach((v) => v.remove());
@@ -93,13 +91,13 @@ function initRecord() {
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i != e.keycode);
-            lastKey.querySelectorAll(`[data-k="${e.keycode}"]`)?.forEach((el: HTMLElement) => {
+            lastKey.el.querySelectorAll(`[data-k="${e.keycode}"]`)?.forEach((el: HTMLElement) => {
                 el.classList.add("key_hidden");
             });
             if (keyO.length === 0) {
                 let e = lastKey;
                 setTimeout(() => {
-                    e.style.opacity = "0";
+                    e.style({ opacity: "0" });
                 }, 4000);
                 lastKey = null;
             }
