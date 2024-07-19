@@ -26,7 +26,7 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
-![识别文字主页面](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/2.webp)
+![识别文字主页面](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/8.webp)
 
 ## 下载安装
 

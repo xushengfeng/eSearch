@@ -26,7 +26,7 @@ Including **screenshot+OCR+search+translation+pasting+reverse image search+scree
 
 > The font used is [FiraCode](https://github.com/tonsky/FiraCode), and the font can be set in the settings.
 
-![Text recognition main page](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/2.webp)
+![Text recognition main page](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/8.webp)
 
 ## Download and Installation
 
