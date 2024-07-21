@@ -3687,15 +3687,6 @@ colorBar();
 };
 
 // 滤镜
-fabricCanvas.filterBackend = Fabric.initFilterBackend();
-var webglBackend;
-try {
-    webglBackend = new Fabric.WebglFilterBackend();
-    fabricCanvas.filterBackend = webglBackend;
-} catch (e) {
-    console.log(e);
-}
-
 var newFilterSelecting = false;
 
 const startFilter = () => {
