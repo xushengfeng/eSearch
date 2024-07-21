@@ -13,6 +13,34 @@ import Color from "color";
 import fabricSrc from "../../../lib/fabric.min.js?raw";
 
 import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
+import { ele, ElType, frame, image, input, p, setProperties, txt, view } from "dkh-ui";
+
+import close_svg from "../assets/icons/close.svg";
+import ocr_svg from "../assets/icons/ocr.svg";
+import search_svg from "../assets/icons/search.svg";
+import scan_svg from "../assets/icons/scan.svg";
+import open_svg from "../assets/icons/open.svg";
+import ding_svg from "../assets/icons/ding.svg";
+import record_svg from "../assets/icons/record.svg";
+import long_clip_svg from "../assets/icons/long_clip.svg";
+import translate_svg from "../assets/icons/translate.svg";
+import copy_svg from "../assets/icons/copy.svg";
+import save_svg from "../assets/icons/save.svg";
+
+function iconEl(src: string) {
+    return view().add(image(src, "icon").class("icon"));
+}
+
+function selectMenu() {
+    const select = ele("selectmenu")
+        .bindGet((el: HTMLSelectElement) => {
+            return el.value;
+        })
+        .bindSet((v, el: HTMLSelectElement) => {
+            el.value = v as string;
+        });
+    return select;
+}
 
 function setSetting() {
     工具栏跟随 = store.get("工具栏跟随");
@@ -33,29 +61,17 @@ function setSetting() {
     取色器显示 = store.get("取色器.显示");
     colorSize = store.get("取色器.大小");
     colorISize = store.get("取色器.像素大小");
-    document.documentElement.style.setProperty("--color-size", `${colorSize * colorISize}px`);
-    document.documentElement.style.setProperty("--color-i-size", `${colorISize}px`);
-    document.documentElement.style.setProperty("--color-i-i", `${colorSize}`);
     let 工具栏 = store.get("工具栏");
-    document.documentElement.style.setProperty("--bar-size", `${工具栏.按钮大小}px`);
-    bSize = 工具栏.按钮大小;
-    document.documentElement.style.setProperty("--bar-icon", `${工具栏.按钮图标比例}`);
-    let toolsOrder = store.get("工具栏.功能") as string[];
-    toolBar.querySelectorAll(":scope > *").forEach((el: HTMLElement) => {
-        let id = el.id.replace("tool_", "");
-        let i = toolsOrder.indexOf(id);
-        if (i != -1) {
-            el.style.order = String(i);
-        } else {
-            el.style.display = "none";
-        }
+    setProperties({
+        "--color-size": `${colorSize * colorISize}px`,
+        "--color-i-size": `${colorISize}px`,
+        "--color-i-i": `${colorSize}`,
+        "--bar-size": `${工具栏.按钮大小}px`,
+        "--bar-icon": `${工具栏.按钮图标比例}`,
     });
-
+    bSize = 工具栏.按钮大小;
     记忆框选 = store.get("框选.记忆.开启");
     记忆框选值 = store.get("框选.记忆.rects");
-
-    toolBar.style.left = store.get("工具栏.初始位置.left");
-    toolBar.style.top = store.get("工具栏.初始位置.top");
 }
 
 /**
@@ -297,7 +313,7 @@ function setDefaultAction(act: setting["框选后默认操作"]) {
     if (!act) return;
     autoDo = act;
     if (autoDo != "no") {
-        document.getElementById(`tool_${autoDo}`).style.backgroundColor = "var(--hover-color)";
+        toolBarEl.els[autoDo].el.style.backgroundColor = "var(--hover-color)";
     }
 }
 
@@ -322,7 +338,7 @@ function closeWin() {
 }
 
 function runOcr() {
-    const type = ocr引擎.value;
+    const type = ocr引擎.gv();
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL(), type]);
     });
@@ -330,7 +346,7 @@ function runOcr() {
 }
 
 function runSearch() {
-    const type = 识图引擎.value;
+    const type = 识图引擎.gv();
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL(), type]);
     });
@@ -437,7 +453,7 @@ function initLong(rect: number[]) {
         clipCanvas,
         drawCanvas,
         document.getElementById("draw_photo_top"),
-        whEl,
+        whEl.el,
         mouseBarEl,
     ];
 
@@ -450,10 +466,12 @@ function initLong(rect: number[]) {
     记忆框选值[nowScreenId] = [rect[0], rect[1], rect[2], rect[3]];
     store.set("框选.记忆.rects", 记忆框选值);
 
-    lr.style.left = rect[0] / ratio + "px";
-    lr.style.top = rect[1] / ratio + "px";
-    lr.style.width = rect[2] / ratio + "px";
-    lr.style.height = rect[3] / ratio + "px";
+    lr.style({
+        left: rect[0] / ratio + "px",
+        top: rect[1] / ratio + "px",
+        width: rect[2] / ratio + "px",
+        height: rect[3] / ratio + "px",
+    });
     const w = 16;
     let right = 0,
         botton = 0;
@@ -471,7 +489,7 @@ function initLong(rect: number[]) {
         // 再截屏以覆盖结束按钮
         long_s();
 
-        lr.style.opacity = "0";
+        lr.style({ opacity: "0" });
         ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
         addLong(null, null, null);
         for (let i of l) {
@@ -482,17 +500,13 @@ function initLong(rect: number[]) {
     let longWidth = 0;
     if (window.innerWidth - (rect[0] + rect[2]) / ratio >= rect[1] / ratio) {
         // 右边
-        longPreview.style.right = "0";
-        longPreview.style.left = "auto";
+        longPreview.style({ right: "0", left: "auto" });
         longWidth = window.innerWidth - (rect[0] + rect[2]) / ratio - w;
     } else {
-        longPreview.style.left = "0";
+        longPreview.style({ left: "0" });
         longWidth = rect[1] / ratio - w;
     }
-    longPreview.style.width = longWidth + "px";
-    if (longWidth < 100) longPreview.style.display = "none";
-    else longPreview.style.display = "";
-    longPreview.style.height = "100vh";
+    longPreview.style({ display: longWidth < 100 ? "none" : "", width: longWidth + "px", height: "100vh" });
 }
 
 function addLong(x: Buffer, w: number, h: number) {
@@ -611,10 +625,10 @@ function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
     newCanvas.getContext("2d").drawImage(img, nx, ny);
     longX.img = newCanvas;
 
-    longPreview.innerHTML = "";
+    longPreview.clear();
     newCanvas.style.maxWidth = "100%";
     newCanvas.style.maxHeight = "100%";
-    longPreview.append(newCanvas);
+    longPreview.add(newCanvas);
 }
 
 function pjLong() {
@@ -630,12 +644,12 @@ function pjLong() {
     fabricCanvas.setWidth(oCanvas.width);
     fabricCanvas.setHeight(oCanvas.height);
 
-    longPreview.style.display = "none";
-    longPreview.innerHTML = "";
+    longPreview.style({ display: "none" });
+    longPreview.clear();
 
     document.body.classList.add("editor_bg");
 
-    lr.style.width = lr.style.height = "0";
+    lr.style({ width: "0", height: "0" });
 
     longRunning = false;
 }
@@ -1082,38 +1096,40 @@ function whBar(finalRect: rect) {
     y0 = finalRect[1] + d;
     x1 = finalRect[0] + d + finalRect[2];
     y1 = finalRect[1] + d + finalRect[3];
-    whX0.value = String(x0);
-    whY0.value = String(y0);
-    whX1.value = String(x1);
-    whY1.value = String(y1);
-    whW.value = String(finalRect[2]);
-    whH.value = String(finalRect[3]);
+    whX0.el.value = String(x0);
+    whY0.el.value = String(y0);
+    whX1.el.value = String(x1);
+    whY1.el.value = String(y1);
+    whW.el.value = String(finalRect[2]);
+    whH.el.value = String(finalRect[3]);
     checkWhBarWidth();
     // 位置
     let zx = (finalRect[0] + editorP.x) * editorP.zoom,
         zy = (finalRect[1] + editorP.y) * editorP.zoom,
         zw = finalRect[2] * editorP.zoom,
         zh = finalRect[3] * editorP.zoom;
-    let dw = whEl.offsetWidth,
-        dh = whEl.offsetHeight;
+    const dw = whEl.el.offsetWidth,
+        dh = whEl.el.offsetHeight;
     let x: number;
+    function setLeft(l: number) {
+        whEl.style({ right: "", left: `${l}px` });
+    }
+    function setRight() {
+        whEl.style({ right: "0px", left: "" });
+    }
     if (dw >= zw) {
         if (dw + zx <= window.innerWidth) {
             x = zx; // 对齐框的左边
-            whEl.style.right = ``;
-            whEl.style.left = `${x}px`;
+            setLeft(x);
         } else {
-            whEl.style.left = ``;
-            whEl.style.right = `0px`;
+            setRight();
         }
     } else {
         x = zx + zw / 2 - dw / 2;
         if (x + dw <= window.innerWidth) {
-            whEl.style.right = ``;
-            whEl.style.left = `${x}px`;
+            setLeft(x);
         } else {
-            whEl.style.left = ``;
-            whEl.style.right = `0px`;
+            setRight();
         }
     }
     let y: number;
@@ -1126,20 +1142,17 @@ function whBar(finalRect: rect) {
             y = zy + 10;
         }
     }
-    whEl.style.top = `${y}px`;
+    whEl.style({ top: `${y}px` });
 }
 
 function checkWhBarWidth() {
-    whX0.style.width = whX0.value.length + "ch";
-    whY0.style.width = whY0.value.length + "ch";
-    whX1.style.width = whX1.value.length + "ch";
-    whY1.style.width = whY1.value.length + "ch";
-    whW.style.width = whW.value.length + "ch";
-    whH.style.width = whH.value.length + "ch";
+    whL.forEach((el) => {
+        el.style({ width: el.el.value.length + "ch" });
+    });
 }
 
-function changeWH(el: HTMLElement) {
-    let l = whL.map((i) => i.value);
+function changeWH(el: ElType<HTMLInputElement>) {
+    let l = whL.map((i) => i.el.value);
     l = l.map((string) => {
         // 排除（数字运算符空格）之外的非法输入
         if (string.match(/[\d\+\-*/\.\s\(\)]/g).length != string.length) return null;
@@ -2413,6 +2426,94 @@ var allColorFormat = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 
 var 全局缩放 = store.get("全局.缩放") || 1.0;
 var ratio = 1;
+
+setSetting();
+
+const tools: 功能[] = [
+    "close",
+    "screens",
+    "ocr",
+    "search",
+    "QR",
+    "open",
+    "ding",
+    "record",
+    "long",
+    "translate",
+    "copy",
+    "save",
+];
+
+const hotkeyTipEl = view().attr({ id: "hotkeys_tip" });
+
+const toolBarEl = frame("tool", {
+    _: view(),
+    close: iconEl(close_svg),
+    screens: view(),
+    ocr: { _: iconEl(ocr_svg), ocrE: selectMenu().class("side_select") },
+    search: { _: iconEl(search_svg), searchE: selectMenu().class("side_select") },
+    QR: iconEl(scan_svg),
+    open: iconEl(open_svg),
+    ding: iconEl(ding_svg),
+    record: iconEl(record_svg),
+    long: iconEl(long_clip_svg),
+    translate: iconEl(translate_svg),
+    copy: iconEl(copy_svg),
+    save: iconEl(save_svg),
+});
+
+toolBarEl.el.attr({ id: "tool_bar" });
+
+for (let i of [
+    { value: "baidu", t: "百度" },
+    { value: "yandex", t: "Yandex" },
+    { value: "google", t: "Google" },
+]) {
+    toolBarEl.els.searchE.add(ele("option").attr({ innerText: i.t, value: i.value }));
+}
+
+toolBarEl.el.style({ left: store.get("工具栏.初始位置.left"), top: store.get("工具栏.初始位置.top") });
+
+let toolsOrder = store.get("工具栏.功能") as string[];
+for (const g of tools) {
+    const id = g;
+    const i = toolsOrder.indexOf(id);
+    const el = toolBarEl.els[id];
+    if (i != -1) el.style({ order: String(i) });
+    else el.style({ display: "none" });
+}
+
+const whEl = view().attr({ id: "clip_wh" });
+const whX0 = input("x0");
+const whY0 = input("y0");
+const whX1 = input("x1");
+const whY1 = input("y1");
+const whW = input("w");
+const whH = input("h");
+const whXYStyle = { display: 四角坐标 ? "block" : "none" };
+whEl.add([
+    view()
+        .style(whXYStyle)
+        .add([whX0, txt(", "), whY0]),
+    view()
+        .style(whXYStyle)
+        .add([whX1, txt(", "), whY1]),
+    view().add([whW, txt(" × "), whH]),
+]);
+
+const longTip = frame("long_tip", {
+    _: view().attr({ id: "long_tip" }),
+    rect: { _: view().attr({ id: "long_rect" }), finish: view().attr({ id: "long_finish" }) },
+});
+
+const longPreview = view().style({ position: "fixed" });
+
+document.body.append(hotkeyTipEl.el);
+document.body.append(toolBarEl.el.el);
+document.body.append(whEl.el);
+document.body.append(longTip.el.el);
+document.body.append(longPreview.el);
+
 const editor = document.getElementById("editor");
 editor.style.width = window.screen.width / 全局缩放 + "px";
 const mainCanvas = <HTMLCanvasElement>document.getElementById("main_photo");
@@ -2428,7 +2529,7 @@ var finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
 var freeSelect: point[] = [];
 var screenPosition: { [key: string]: { x: number; y: number } } = {};
 
-var toolBar = document.getElementById("tool_bar");
+const toolBar = toolBarEl.el.el;
 var drawBar = document.getElementById("draw_bar");
 
 var nowScreenId = 0;
@@ -2451,7 +2552,6 @@ try {
 
 document.body.style.opacity = "0";
 
-setSetting();
 ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
     if (!_displays.find((i) => i["main"])) {
         dispaly2screen(_displays, Screenshots.all());
@@ -2472,7 +2572,7 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
         screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
     }
     ipcRenderer.send("clip_main_b", "window-show");
-    const screensEl = document.getElementById("tool_screens");
+    const screensEl = toolBarEl.els.screens;
     if (allScreens.length > 1) {
         let minX = 0;
         let maxX = 0;
@@ -2488,32 +2588,33 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
         }
         let tWidth = maxX - minX;
         let tHeight = maxY - minY;
-        let el = document.createElement("div");
+        let el = view();
         for (let i of allScreens) {
             let x = (i.bounds.x - minX) / tWidth;
             let y = (i.bounds.y - minY) / tHeight;
             let width = i.bounds.width / tWidth;
             let height = i.bounds.height / tHeight;
-            let div = document.createElement("div");
-            div.style.width = width * 100 + "%";
-            div.style.height = height * 100 + "%";
-            div.style.left = x * 100 + "%";
-            div.style.top = y * 100 + "%";
+            let div = view().style({
+                width: width * 100 + "%",
+                height: height * 100 + "%",
+                left: x * 100 + "%",
+                top: y * 100 + "%",
+            });
             if (i.id === nowScreenId) {
-                div.classList.add("now_screen");
+                div.el.classList.add("now_screen");
             }
-            el.append(div);
-            div.onclick = () => {
-                el.querySelector(".now_screen").classList.remove("now_screen");
-                div.classList.add("now_screen");
+            el.add(div);
+            div.on("input", () => {
+                el.el.querySelector(".now_screen").classList.remove("now_screen");
+                div.el.classList.add("now_screen");
                 if (!i["image"]) i["image"] = i.captureSync();
                 setScreen(i);
-            };
+            });
         }
-        screensEl.innerHTML = "";
-        screensEl.append(el);
+        screensEl.clear();
+        screensEl.add(el);
     } else {
-        screensEl.style.display = "none";
+        screensEl.el.style.display = "none";
     }
 
     setDefaultAction(act);
@@ -2704,7 +2805,7 @@ for (let k of toolList) {
     if (k === "copy") {
         key += " 双击";
     }
-    document.getElementById(`tool_${k}`).setAttribute("data-key", key.trim());
+    toolBarEl.els[k].data({ key: key.trim() });
 }
 let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
 for (let i in drawHotKey) {
@@ -2751,7 +2852,6 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
-const hotkeyEl = document.getElementById("hotkeys_tip");
 type hotkeyTip = { name: string; keys: string[] }[];
 const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
     {
@@ -2795,17 +2895,17 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
 ];
 
 for (let m of hotkeyTipX) {
-    hotkeyEl.append(el("h2", m.name));
+    hotkeyTipEl.add(p(m.name));
     for (let k of m.hotkey) {
-        const x = el("div", el("span", k.name));
+        const x = view().add(txt(k.name));
         for (let s of k.keys) {
             s = s
                 .split("+")
                 .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
                 .join("+");
-            x.append(el("span", s));
+            x.add(txt(s));
         }
-        hotkeyEl.append(x);
+        hotkeyTipEl.add(x);
     }
 }
 
@@ -2814,29 +2914,31 @@ var autoDo: setting["框选后默认操作"] = store.get("框选后默认操作"
 setDefaultAction(autoDo);
 
 // OCR
-var ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
+var ocr引擎 = toolBarEl.els.ocrE;
 for (let i of store.get("离线OCR")) {
-    let o = document.createElement("option");
-    o.innerText = `${i[0]}`;
-    o.value = `${i[0]}`;
-    ocr引擎.append(o);
+    ocr引擎.add(ele("option").attr({ innerText: i[0], value: i[0] }));
 }
-ocr引擎.insertAdjacentHTML("beforeend", `<option value="baidu">百度</option><option value="youdao">有道</option>`);
-ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
-document.getElementById("ocr引擎").oninput = () => {
-    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
+for (let i of [
+    { v: "baidu", t: "百度" },
+    { v: "youdao", t: "有道" },
+]) {
+    ocr引擎.add(ele("option").attr({ innerText: i.t, value: i.v }));
+}
+ocr引擎.sv(store.get("OCR.记住") || store.get("OCR.类型"));
+ocr引擎.on("input", () => {
+    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv());
     tool.ocr();
-};
-document.getElementById("tool_ocr").title = `OCR(文字识别) - ${ocr引擎.value}`;
+});
+toolBarEl.els.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv()}`;
 
 // 以图搜图
-var 识图引擎 = <HTMLSelectElement>document.getElementById("识图引擎");
-识图引擎.value = store.get("以图搜图.记住") || store.get("以图搜图.引擎");
-识图引擎.oninput = () => {
-    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.value);
+var 识图引擎 = toolBarEl.els.searchE;
+识图引擎.sv(store.get("以图搜图.记住") || store.get("以图搜图.引擎"));
+识图引擎.on("input", () => {
+    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv());
     tool.search();
-};
-document.getElementById("tool_search").title = `以图搜图 - ${识图引擎.value}`;
+});
+toolBarEl.els.search.el.title = `以图搜图 - ${识图引擎.gv()}`;
 
 trackLocation();
 
@@ -2851,15 +2953,12 @@ let longX = {
     lastXY: { x: 0, y: 0 },
 };
 
-const longPreview = el("div", { style: { position: "fixed" } });
-document.body.append(longPreview);
-
 var longRunning = false;
 var longInited = false;
 
-const finishLongB = document.getElementById("long_finish");
+const finishLongB = longTip.els.finish.el;
 
-const lr = document.getElementById("long_rect");
+const lr = longTip.els.rect;
 
 ipcRenderer.on("clip", (_event, type, mouse) => {
     if (type === "mouse") {
@@ -3100,16 +3199,6 @@ hotkeys("s", () => {
     drawClipRect();
 });
 
-var whEl = document.getElementById("clip_wh");
-const whX0 = el("input");
-const whY0 = el("input");
-const whX1 = el("input");
-const whY1 = el("input");
-const whW = el("input");
-const whH = el("input");
-const whXYStyle = { style: { display: 四角坐标 ? "block" : "none" } };
-whEl.append(el("div", whXYStyle, whX0, ", ", whY0), el("div", whXYStyle, whX1, ", ", whY1), el("div", whW, " × ", whH));
-
 const whHotKeyMap = {
     左上x: whX0,
     左上y: whY0,
@@ -3129,15 +3218,12 @@ for (let i in whHotkey) {
 
 let whL = [whX0, whY0, whX1, whY1, whW, whH];
 
-whL.forEach((el) => {
-    el.oninput = checkWhBarWidth;
-    el.onchange = () => {
-        changeWH(el);
-    };
-    el.onkeydown = (e) => {
+whL.forEach((xel) => {
+    const el = xel.el;
+    const kd = (e: KeyboardEvent) => {
         if (e.key === "ArrowRight" && el.value.length === el.selectionEnd) {
             e.preventDefault();
-            const next = whL[whL.indexOf(el) + 1];
+            const next = whL[whL.indexOf(xel) + 1]?.el;
             if (next) {
                 next.selectionStart = next.selectionEnd = 0;
                 next.focus();
@@ -3145,7 +3231,7 @@ whL.forEach((el) => {
         }
         if (e.key === "ArrowLeft" && 0 === el.selectionStart) {
             e.preventDefault();
-            const last = whL[whL.indexOf(el) - 1];
+            const last = whL[whL.indexOf(xel) - 1]?.el;
             if (last) {
                 last.selectionStart = last.selectionEnd = last.value.length;
                 last.focus();
@@ -3157,17 +3243,21 @@ whL.forEach((el) => {
         if (e.key === "ArrowUp" && !isNaN(Number(el.value))) {
             e.preventDefault();
             el.value = String(Number(el.value) + 1 * v);
-            changeWH(el);
+            changeWH(xel);
         }
         if (e.key === "ArrowDown" && !isNaN(Number(el.value))) {
             e.preventDefault();
             el.value = String(Number(el.value) - 1 * v);
-            changeWH(el);
+            changeWH(xel);
         }
         if (e.key === "Escape") {
             el.blur();
         }
     };
+
+    xel.on("input", checkWhBarWidth)
+        .on("change", () => changeWH(xel))
+        .on("keydown", kd);
 });
 
 // 快捷键全屏选择
