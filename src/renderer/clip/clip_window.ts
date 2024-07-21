@@ -439,7 +439,6 @@ function initLong(rect: number[]) {
         document.getElementById("draw_photo_top"),
         whEl,
         mouseBarEl,
-        loadingEl,
     ];
 
     for (let i of l) {
@@ -494,9 +493,6 @@ function initLong(rect: number[]) {
     if (longWidth < 100) longPreview.style.display = "none";
     else longPreview.style.display = "";
     longPreview.style.height = "100vh";
-
-    showLoading("截屏拼接中");
-    mainCanvas.style.filter = "blur(20px)";
 }
 
 function addLong(x: Buffer, w: number, h: number) {
@@ -633,9 +629,6 @@ function pjLong() {
 
     fabricCanvas.setWidth(oCanvas.width);
     fabricCanvas.setHeight(oCanvas.height);
-
-    mainCanvas.style.filter = "";
-    hideLoading();
 
     longPreview.style.display = "none";
     longPreview.innerHTML = "";
@@ -857,17 +850,6 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     const tempCtx = tempCanvas.getContext("2d");
     tempCtx.drawImage(originalCanvas, 0, 0);
     return tempCanvas;
-}
-
-function showLoading(text: string) {
-    loadingEl.innerText = text;
-    loadingEl.classList.remove("loading_hide");
-    loadingEl.style.left = `calc(50% - ${loadingEl.offsetWidth / 2}px)`;
-    loadingEl.style.top = `calc(50% - ${loadingEl.offsetHeight / 2}px)`;
-}
-
-function hideLoading() {
-    loadingEl.classList.add("loading_hide");
 }
 
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
@@ -2911,9 +2893,6 @@ toolBar.addEventListener("mouseup", (e) => {
     toolBar.style.transition = "";
     if (e.button == 2) toolPosition = { x: null, y: null };
 });
-
-const loadingEl = document.getElementById("loading");
-loadingEl.classList.add("loading_hide");
 
 lan(store.get("语言.语言"));
 document.title = t(document.title);
