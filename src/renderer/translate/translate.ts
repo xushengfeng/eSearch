@@ -48,8 +48,8 @@ function translate(text: string) {
     for (let i of fyq) {
         const copy = iconButton(copy_svg).style({ width: "24px", height: "24px" });
         const e = frame(`result${i.id}`, {
-            0: view().style({ width: "100%" }),
-            _: { title: view("x").style({ "align-items": "center" }), name: txt(i.name), copy },
+            _: view().style({ width: "100%" }),
+            title: { _: view("x").style({ "align-items": "center" }), name: txt(i.name), copy },
             content: p(""),
         });
         results.add(e.el);
