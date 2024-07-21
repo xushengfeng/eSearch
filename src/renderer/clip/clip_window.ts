@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { el } from "redom";
+
 const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
@@ -517,7 +517,7 @@ function addLong(x: Buffer, w: number, h: number) {
         return;
     }
     // 原始区域
-    let canvas = el("canvas");
+    let canvas = ele("canvas").el;
     for (let i = 0; i < x.length; i += 4) {
         [x[i], x[i + 2]] = [x[i + 2], x[i]];
     }
@@ -555,7 +555,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     const dw = clip(img1.width);
     const dh = clip(img1.height);
 
-    const clip1Canvas = el("canvas");
+    const clip1Canvas = ele("canvas").el;
     clip1Canvas.width = img1.width - dw * 2;
     clip1Canvas.height = img1.height - dh * 2;
     clip1Canvas.getContext("2d").drawImage(img1, -dw, -dh);
@@ -576,7 +576,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     const ndx = dx - dw;
     const ndy = dy - dh;
     // 0:裁切九宫格边的三个格 !=0:裁出“田”字
-    const clip2Canvas = el("canvas");
+    const clip2Canvas = ele("canvas").el;
     clip2Canvas.width = ndx != 0 ? img1.width - dw : img1.width;
     clip2Canvas.height = ndy != 0 ? img1.height - dh : img1.height;
     // d>0需要-dw或-dh平移，<=0不需要平移
@@ -587,7 +587,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
 
 function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
     // 前提：img大小一定小于等于最终拼接canvas
-    const newCanvas = el("canvas");
+    const newCanvas = ele("canvas").el;
 
     const srcW = longX.img?.width || 0;
     const srcH = longX.img?.height || 0;
