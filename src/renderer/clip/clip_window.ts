@@ -12,6 +12,26 @@ import { t, lan } from "../../../lib/translate/translate";
 import Color from "color";
 import fabricSrc from "../../../lib/fabric.min.js?raw";
 
+const configPath = new URLSearchParams(location.search).get("config_path");
+const Store = require("electron-store");
+const store = new Store({
+    cwd: configPath || "",
+});
+
+let Screenshots: typeof import("node-screenshots").Screenshots;
+try {
+    Screenshots = require("node-screenshots").Screenshots;
+} catch (error) {
+    const id = ipcRenderer.sendSync("dialog", {
+        message: "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
+        buttons: ["取消", "下载"],
+        defaultId: 1,
+    } as MessageBoxSyncOptions);
+    if (id === 1) {
+        shell.openExternal("https://aka.ms/vs/17/release/vc_redist.x64.exe");
+    }
+}
+
 import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
 import { ele, ElType, frame, image, input, p, setProperties, txt, view } from "dkh-ui";
 
@@ -2397,11 +2417,6 @@ function checkUpdate(show?: boolean) {
 }
 
 // 获取设置
-let configPath = new URLSearchParams(location.search).get("config_path");
-const Store = require("electron-store");
-var store = new Store({
-    cwd: configPath || "",
-});
 
 if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");
@@ -2535,20 +2550,6 @@ var drawBar = document.getElementById("draw_bar");
 var nowScreenId = 0;
 
 var allScreens: (Electron.Display & { captureSync?: () => Buffer; image?: Buffer })[] = [];
-
-let Screenshots: typeof import("node-screenshots").Screenshots;
-try {
-    Screenshots = require("node-screenshots").Screenshots;
-} catch (error) {
-    const id = ipcRenderer.sendSync("dialog", {
-        message: "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
-        buttons: ["取消", "下载"],
-        defaultId: 1,
-    } as MessageBoxSyncOptions);
-    if (id === 1) {
-        shell.openExternal("https://aka.ms/vs/17/release/vc_redist.x64.exe");
-    }
-}
 
 document.body.style.opacity = "0";
 
