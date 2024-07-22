@@ -154,8 +154,8 @@ function setScreen(i: (typeof allScreens)[0]) {
 
 /** 生成一个文件名 */
 function getFileName() {
-    var saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
-    var filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+    const saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
+    const filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
     return filename;
 }
 
@@ -168,24 +168,23 @@ function quickClip() {
             clipboard.writeImage(image);
             image = null;
         } else if (store.get("快速截屏.模式") == "path" && store.get("快速截屏.路径")) {
-            var filename = `${store.get("快速截屏.路径")}${getFileName()}.png`;
-            checkFile(1, filename);
+            const filename = `${store.get("快速截屏.路径")}${getFileName()}.png`;
+            checkFile(1, filename, filename);
         }
-        function checkFile(n, name) {
+        function checkFile(n: number, name: string, baseName: string) {
             // 检查文件是否存在于当前目录中。
             fs.access(name, fs.constants.F_OK, (err) => {
                 if (!err) {
                     /* 存在文件，需要重命名 */
-                    name = filename.replace(/\.png$/, `(${n}).png`);
-                    checkFile(n + 1, name);
+                    name = baseName.replace(/\.png$/, `(${n}).png`);
+                    checkFile(n + 1, name, baseName);
                 } else {
-                    filename = name;
                     fs.writeFile(
-                        filename,
+                        name,
                         Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
                         (err) => {
                             if (err) return;
-                            ipcRenderer.send("clip_main_b", "ok_save", filename);
+                            ipcRenderer.send("clip_main_b", "ok_save", name);
                             image = null;
                         }
                     );
@@ -248,8 +247,8 @@ function edge() {
 
 function getLinuxWin() {
     if (process.platform != "linux") return;
-    var x11 = require("x11");
-    var X = x11.createClient(function (err, display) {
+    const x11 = require("x11");
+    const X = x11.createClient(function (err, display) {
         if (err) {
             console.error(err);
             return;
@@ -725,8 +724,8 @@ function runSave() {
         let savedPath = store.get("保存.保存路径.图片") || "";
         let p = path.join(savedPath, `${get_file_name()}.${store.get("保存.默认格式")}`);
         function get_file_name() {
-            var saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
-            var filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+            const saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
+            const filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
             return filename;
         }
         save(p);
@@ -738,7 +737,7 @@ function runSave() {
     let i = type2N.indexOf(store.get("保存.默认格式"));
     els[i].className = "suffix_h";
     document.getElementById("suffix").onclick = (e) => {
-        var el = <HTMLDivElement>e.target;
+        const el = <HTMLDivElement>e.target;
         if (el.dataset.value) {
             ipcRenderer.send("clip_main_b", "save", el.dataset.value);
             type = el.dataset.value as typeof type;
@@ -803,7 +802,7 @@ function save(message: string) {
  * @returns promise svg base64|canvas element
  */
 function getClipPhoto(type: string) {
-    var mainCtx = mainCanvas.getContext("2d");
+    const mainCtx = mainCanvas.getContext("2d");
     if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
     if (typeof fabricCanvas != "undefined") {
@@ -812,7 +811,7 @@ function getClipPhoto(type: string) {
     }
 
     if (type == "svg") {
-        svg = document.createElement("div");
+        const svg = document.createElement("div");
         if (typeof fabricCanvas == "undefined") {
             svg.innerHTML = `<!--?xml version="1.0" encoding="UTF-8" standalone="no" ?-->
             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="${mainCanvas.width}" height="${mainCanvas.height}" viewBox="0 0 1920 1080" xml:space="preserve">
@@ -826,15 +825,15 @@ function getClipPhoto(type: string) {
         let image = document.createElementNS("http://www.w3.org/2000/svg", "image");
         image.setAttribute("xlink:href", mainCanvas.toDataURL());
         svg.querySelector("svg").insertBefore(image, svg.querySelector("svg").firstChild);
-        var svgT = new XMLSerializer().serializeToString(svg.querySelector("svg"));
+        const svgT = new XMLSerializer().serializeToString(svg.querySelector("svg"));
         return new Promise((resolve, _rejects) => {
             resolve(svgT);
         });
     } else {
-        var tmpCanvas = document.createElement("canvas");
+        const tmpCanvas = document.createElement("canvas");
         tmpCanvas.width = finalRect[2];
         tmpCanvas.height = finalRect[3];
-        var gid = mainCtx.getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
+        const gid = mainCtx.getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
         tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
         let image = document.createElement("img");
         image.src = fabricCanvas.toDataURL({
@@ -892,10 +891,10 @@ function pXY2cXY(canvas: HTMLCanvasElement, oX1: number, oY1: number, oX2: numbe
     // 输入为边框像素坐标
     // 为了让canvas获取全屏，边框像素点要包括
     // 像素坐标转为点坐标后,左和上(小的)是不变的,大的少1
-    var x1 = Math.min(oX1, oX2);
-    var y1 = Math.min(oY1, oY2);
-    var x2 = Math.max(oX1, oX2) + 1;
-    var y2 = Math.max(oY1, oY2) + 1;
+    let x1 = Math.min(oX1, oX2);
+    let y1 = Math.min(oY1, oY2);
+    let x2 = Math.max(oX1, oX2) + 1;
+    let y2 = Math.max(oY1, oY2) + 1;
     // canvas缩放变换
     x1 = Math.round(canvas.width * (x1 / canvas.offsetWidth));
     y1 = Math.round(canvas.height * (y1 / canvas.offsetHeight));
@@ -1350,8 +1349,8 @@ function followBar(x?: number, y?: number) {
         zw = finalRect[2] * editorP.zoom,
         zh = finalRect[3] * editorP.zoom;
     if (!x && !y) {
-        var dx = undoStack.at(-1)[0] - undoStack[undoStack.length - 2][0];
-        var dy = undoStack.at(-1)[1] - undoStack[undoStack.length - 2][1];
+        const dx = undoStack.at(-1)[0] - undoStack[undoStack.length - 2][0];
+        const dy = undoStack.at(-1)[1] - undoStack[undoStack.length - 2][1];
         x = followBarList.at(-1)[0] + dx / ratio;
         y = followBarList.at(-1)[1] + dy / ratio;
     }
@@ -1436,13 +1435,13 @@ function followBar(x?: number, y?: number) {
 // 超出屏幕处理
 function finalRectFix() {
     finalRect = finalRect.map((i) => Math.round(i)) as rect;
-    var x0 = finalRect[0];
-    var y0 = finalRect[1];
-    var x1 = finalRect[0] + finalRect[2];
-    var y1 = finalRect[1] + finalRect[3];
-    var x = Math.min(x0, x1),
+    const x0 = finalRect[0];
+    const y0 = finalRect[1];
+    const x1 = finalRect[0] + finalRect[2];
+    const y1 = finalRect[1] + finalRect[3];
+    let x = Math.min(x0, x1),
         y = Math.min(y0, y1);
-    var w = Math.max(x0, x1) - x,
+    let w = Math.max(x0, x1) - x,
         h = Math.max(y0, y1) - y;
     // 移出去移回来保持原来大小
     if (x < 0) w = x = 0;
@@ -1530,9 +1529,9 @@ function isInClipRect(p: editor_position) {
 
 /** 调整框选 */
 function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: editor_position) {
-    var op = pXY2cXY(clipCanvas, oldPosition.x, oldPosition.y, oldPosition.x, oldPosition.y);
-    var p = pXY2cXY(clipCanvas, position.x, position.y, position.x, position.y);
-    var dx = p[0] - op[0],
+    const op = pXY2cXY(clipCanvas, oldPosition.x, oldPosition.y, oldPosition.x, oldPosition.y);
+    const p = pXY2cXY(clipCanvas, position.x, position.y, position.x, position.y);
+    const dx = p[0] - op[0],
         dy = p[1] - op[1];
     switch (direction) {
         case "西北":
@@ -1639,7 +1638,7 @@ function undo(v: boolean) {
             undoStackI++;
         }
     }
-    var c = undoStack[undoStackI];
+    const c = undoStack[undoStackI];
     finalRect = rectStack[c.rect];
     drawClipRect();
     followBar();
@@ -1715,7 +1714,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         startFilter();
     }
     if (mainType === "shape") {
-        shape = type as shape;
+        shape = type as Shape;
         if (store.get(`图像编辑.形状属性.${shape}`)) {
             let f = store.get(`图像编辑.形状属性.${shape}.fc`);
             let s = store.get(`图像编辑.形状属性.${shape}.sc`);
@@ -1876,7 +1875,7 @@ function rotate(x: number, y: number, r: number) {
 }
 
 // 画一般图形
-function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
+function draw(shape: Shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
     if (v === "move") {
         fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
@@ -1947,7 +1946,7 @@ function draw(shape: shape, v: "start" | "move", x1: number, y1: number, x2: num
     fabricCanvas.add(shapes.at(-1));
 }
 // 多边形
-function drawPoly(shape: shape) {
+function drawPoly(shape: Shape) {
     console.log(1111);
 
     if (polyOP.length != 1) {
@@ -2022,7 +2021,7 @@ function setDrawMode(m: typeof colorM) {
 }
 
 function changeAlpha(v, m) {
-    var rgba = Color(document.getElementById(`draw_color_${m}`).style.backgroundColor)
+    const rgba = Color(document.getElementById(`draw_color_${m}`).style.backgroundColor)
         .rgb()
         .array();
     rgba[3] = v / 100;
@@ -2048,10 +2047,10 @@ function ableChangeColor() {
  */
 function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text: boolean) {
     for (let i in mL) {
-        var colorM = i,
-            color = mL[i];
+        colorM = i as "fill" | "stroke";
+        let color = mL[i];
         if (color === null) color = "#0000";
-        var colorL = Color(color).rgb().array();
+        const colorL = Color(color).rgb().array();
         document.getElementById(`draw_color_${colorM}`).style.backgroundColor = Color(colorL).string();
         if (colorM == "fill") {
             (<HTMLDivElement>document.querySelector("#draw_color > div")).style.backgroundColor =
@@ -2064,8 +2063,8 @@ function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text
         }
 
         // 文字自适应
-        var tColor = Color(document.getElementById(`draw_color_${colorM}`).style.backgroundColor);
-        var bgColor = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
+        const tColor = Color(document.getElementById(`draw_color_${colorM}`).style.backgroundColor);
+        const bgColor = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
         if (tColor.rgb().array()[3] >= 0.5 || tColor.rgb().array()[3] === undefined) {
             if (tColor.isLight()) {
                 document.getElementById(`draw_color_${colorM}`).style.color = "#000";
@@ -2207,7 +2206,7 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     if (fabricCanvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
-        var n = fabricCanvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
+        let n = fabricCanvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
         n = n._objects || [n];
         for (let i in n) {
             if (fill) {
@@ -2244,22 +2243,22 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
 }
 
 function newFilterSelect(o, no) {
-    var x1 = o.x.toFixed(),
+    const x1 = o.x.toFixed(),
         y1 = o.y.toFixed(),
         x2 = no.x.toFixed(),
         y2 = no.y.toFixed();
-    var x = Math.min(x1, x2),
+    const x = Math.min(x1, x2),
         y = Math.min(y1, y2),
         w = Math.abs(x1 - x2),
         h = Math.abs(y1 - y2);
 
-    var mainCtx = mainCanvas.getContext("2d");
-    var tmpCanvas = document.createElement("canvas");
+    const mainCtx = mainCanvas.getContext("2d");
+    const tmpCanvas = document.createElement("canvas");
     tmpCanvas.width = w;
     tmpCanvas.height = h;
-    var gid = mainCtx.getImageData(x, y, w, h); // 裁剪
+    const gid = mainCtx.getImageData(x, y, w, h); // 裁剪
     tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
-    var img = new Fabric.Image(tmpCanvas, {
+    const img = new Fabric.Image(tmpCanvas, {
         left: x,
         top: y,
         lockMovementX: true,
@@ -2275,7 +2274,7 @@ function newFilterSelect(o, no) {
 }
 
 function applyFilter(i: number, filter) {
-    var obj = fabricCanvas.getActiveObject();
+    const obj = fabricCanvas.getActiveObject();
     obj.filters[i] = filter;
     obj.applyFilters();
     fabricCanvas.renderAll();
@@ -2315,7 +2314,7 @@ function getFilters() {
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value = String(
         f[6]?.gamma[2] || 1
     );
-    var gray = f[8]?.mode;
+    const gray = f[8]?.mode;
     switch (gray) {
         case "average":
             (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = true;
@@ -2351,7 +2350,7 @@ function exitFilter() {
 }
 
 function fabricCopy() {
-    var dx = store.get("图像编辑.复制偏移.x"),
+    const dx = store.get("图像编辑.复制偏移.x"),
         dy = store.get("图像编辑.复制偏移.y");
     fabricCanvas.getActiveObject().clone(function (cloned) {
         fabricClipboard = cloned;
@@ -2422,9 +2421,9 @@ if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");
 }
 
-var 字体 = store.get("字体") as setting["字体"];
+let 字体 = store.get("字体") as setting["字体"];
 
-var 工具栏跟随: string,
+let 工具栏跟随: string,
     光标: string,
     四角坐标: boolean,
     遮罩颜色: string,
@@ -2437,10 +2436,10 @@ var 工具栏跟随: string,
     记忆框选: boolean,
     记忆框选值: { [id: string]: rect },
     bSize: number;
-var allColorFormat = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+let allColorFormat = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 
-var 全局缩放 = store.get("全局.缩放") || 1.0;
-var ratio = 1;
+let 全局缩放 = store.get("全局.缩放") || 1.0;
+let ratio = 1;
 
 setSetting();
 
@@ -2537,19 +2536,19 @@ const drawCanvas = <HTMLCanvasElement>document.getElementById("draw_photo");
 // 第一次截的一定是桌面,所以可提前定义
 mainCanvas.width = clipCanvas.width = drawCanvas.width = window.screen.width * window.devicePixelRatio;
 mainCanvas.height = clipCanvas.height = drawCanvas.height = window.screen.height * window.devicePixelRatio;
-var zoomW = 0;
+let zoomW = 0;
 type rect = [number, number, number, number];
 type point = { x: number; y: number };
-var finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
-var freeSelect: point[] = [];
-var screenPosition: { [key: string]: { x: number; y: number } } = {};
+let finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
+let freeSelect: point[] = [];
+let screenPosition: { [key: string]: { x: number; y: number } } = {};
 
 const toolBar = toolBarEl.el.el;
-var drawBar = document.getElementById("draw_bar");
+const drawBar = document.getElementById("draw_bar");
 
-var nowScreenId = 0;
+let nowScreenId = 0;
 
-var allScreens: (Electron.Display & { captureSync?: () => Buffer; image?: Buffer })[] = [];
+let allScreens: (Electron.Display & { captureSync?: () => Buffer; image?: Buffer })[] = [];
 
 document.body.style.opacity = "0";
 
@@ -2714,12 +2713,12 @@ document.addEventListener("pointerup", (_e) => {
     middleB = null;
 });
 
-var edgeRect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
+const edgeRect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
 
-var centerBarShow = false;
-var centerBarM = null;
+let centerBarShow = false;
+let centerBarM = null;
 
-var tool = {
+const tool = {
     close: () => closeWin(),
     ocr: () => runOcr(),
     search: () => runSearch(),
@@ -2737,7 +2736,7 @@ var tool = {
 
 // 工具栏按钮
 toolBar.onmouseup = (e) => {
-    var el = <HTMLElement>e.target;
+    const el = <HTMLElement>e.target;
     if (el.parentElement != toolBar) return;
     if (e.button == 0) {
         tool[el.id.replace("tool_", "")]();
@@ -2749,21 +2748,21 @@ toolBar.onmouseup = (e) => {
     }
 };
 
-var drawMainEls: { [key in keyof EditType]: HTMLElement } = {
+const drawMainEls: { [key in keyof EditType]: HTMLElement } = {
     select: document.getElementById("draw_select"),
     draw: document.getElementById("draw_free"),
     shape: document.getElementById("draw_shapes"),
     filter: document.getElementById("draw_filters"),
 };
-var shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
+const shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
 document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
-    shapeEl[el.id.replace("draw_shapes_", "") as shape] = el;
+    shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
 });
-var filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
+const filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
 document.querySelectorAll("#draw_filters_i div").forEach((el: HTMLInputElement) => {
     if (el.id.startsWith("draw_filters_")) filtersEl[el.id.replace("draw_filters_", "") as string] = el;
 });
-var drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
+const drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
     select: {
         rect: document.getElementById("draw_select_rect"),
         free: document.getElementById("draw_select_free"),
@@ -2910,12 +2909,12 @@ for (let m of hotkeyTipX) {
     }
 }
 
-var autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
+let autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
 
 setDefaultAction(autoDo);
 
 // OCR
-var ocr引擎 = toolBarEl.els.ocrE;
+const ocr引擎 = toolBarEl.els.ocrE;
 for (let i of store.get("离线OCR")) {
     ocr引擎.add(ele("option").attr({ innerText: i[0], value: i[0] }));
 }
@@ -2933,7 +2932,7 @@ ocr引擎.on("input", () => {
 toolBarEl.els.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv()}`;
 
 // 以图搜图
-var 识图引擎 = toolBarEl.els.searchE;
+const 识图引擎 = toolBarEl.els.searchE;
 识图引擎.sv(store.get("以图搜图.记住") || store.get("以图搜图.引擎"));
 识图引擎.on("input", () => {
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv());
@@ -2954,8 +2953,8 @@ let longX = {
     lastXY: { x: 0, y: 0 },
 };
 
-var longRunning = false;
-var longInited = false;
+let longRunning = false;
+let longInited = false;
 
 const finishLongB = longTip.els.finish.el;
 
@@ -2972,16 +2971,14 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
     if (type === "update") checkUpdate(true);
 });
 
-var type: setting["保存"]["默认格式"];
+let type: setting["保存"]["默认格式"];
 
 ipcRenderer.on("save_path", (_event, message) => {
     console.log(message);
     save(message);
 });
 
-var svg;
-
-var toolPosition = { x: null, y: null };
+let toolPosition = { x: null, y: null };
 toolBar.addEventListener("mousedown", (e) => {
     toolBar.style.transition = "none";
     if (e.button == 2) {
@@ -3071,31 +3068,31 @@ document.querySelector("body").onkeydown = (e) => {
 };
 
 /** 矩形还是自由 */
-var isRect = true;
-var /**是否在绘制新选区*/ selecting = false;
-var rightKey = false;
-var canvasRect = null;
-var /**是否在更改选区*/ moving = false;
+let isRect = true;
+let /**是否在绘制新选区*/ selecting = false;
+let rightKey = false;
+let canvasRect = null;
+let /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
 
-var /** 先前坐标，用于框选的生成和调整 */ oldP = { x: NaN, y: NaN } as editor_position;
-var oFinalRect = null as rect;
-var oPoly = null as point[];
-var theColor: [number, number, number, number] = null;
-var theTextColor = [null, null];
-var clipCtx = clipCanvas.getContext("2d");
-var undoStack = [{ rect: 0, canvas: 0 }],
+let /** 先前坐标，用于框选的生成和调整 */ oldP = { x: NaN, y: NaN } as editor_position;
+let oFinalRect = null as rect;
+let oPoly = null as point[];
+let theColor: [number, number, number, number] = null;
+let theTextColor = [null, null];
+let clipCtx = clipCanvas.getContext("2d");
+let undoStack = [{ rect: 0, canvas: 0 }],
     rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[],
     canvasStack = [{}];
-var undoStackI = 0;
-var nowCanvasPosition: number[];
-var direction: "" | "move" | "东" | "西" | "南" | "北" | "东南" | "西南" | "东北" | "西北";
-var autoSelectRect = store.get("框选.自动框选.开启");
-var autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
-var /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
-var /**鼠标是否按住 */ down = false;
-var /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
+let undoStackI = 0;
+let nowCanvasPosition: number[];
+let direction: "" | "move" | "东" | "西" | "南" | "北" | "东南" | "西南" | "东北" | "西北";
+let autoSelectRect = store.get("框选.自动框选.开启");
+let autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
+let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
+let /**鼠标是否按住 */ down = false;
+let /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
 
 clipCanvas.onmousedown = (e) => {
     let inRect = false;
@@ -3191,7 +3188,7 @@ clipCanvas.onmouseup = (e) => {
     moved = false;
 };
 
-var rectInRect = [];
+let rectInRect = [];
 
 hotkeys("s", () => {
     // 重新启用自动框选提示
@@ -3287,14 +3284,14 @@ document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = ((colorSize - 1) / 2) * colorISize + "px";
 pointCenter.style.top = ((colorSize - 1) / 2) * colorISize + "px";
 
-var mouseBarW =
+const mouseBarW =
     Math.max(
         colorSize * colorISize,
         (String(window.innerWidth).length + String(window.innerHeight).length + 2 + 1) * 8
     ) + 4;
-var mouseBarH = 4 + colorSize * colorISize + 32 * 2;
+const mouseBarH = 4 + colorSize * colorISize + 32 * 2;
 
-var mouseBarEl = document.getElementById("mouse_bar");
+const mouseBarEl = document.getElementById("mouse_bar");
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
 const mainCanvasContext = mainCanvas.getContext("2d");
@@ -3356,13 +3353,13 @@ document.onmousemove = (e) => {
 };
 
 // 工具栏跟随
-var followBarList = [[0, 0]];
-var drawBarPosi: "right" | "left" = "right";
+const followBarList = [[0, 0]];
+let drawBarPosi: "right" | "left" = "right";
 const barGap = 8;
 
 // 移动画画栏
-var drawBarMoving = false;
-var drawBarMovingXY = [];
+let drawBarMoving = false;
+let drawBarMovingXY = [];
 document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
     if (e.button != 0) {
         drawBarMoving = true;
@@ -3414,9 +3411,9 @@ fabricEl.innerHTML = fabricSrc;
 document.body.append(fabricEl);
 // @ts-ignore
 Fabric = window.fabric;
-var Fabric;
+let Fabric;
 
-var fabricCanvas = new Fabric.Canvas("draw_photo");
+const fabricCanvas = new Fabric.Canvas("draw_photo");
 
 let nowType: keyof EditType;
 let editType: EditType = {
@@ -3433,12 +3430,12 @@ editType.shape = editTypeRecord.shape || editType.shape;
 
 hisPush();
 
-var fillColor = store.get("图像编辑.默认属性.填充颜色");
-var strokeColor = store.get("图像编辑.默认属性.边框颜色");
-var strokeWidth = store.get("图像编辑.默认属性.边框宽度");
-var freeColor = store.get("图像编辑.默认属性.画笔颜色");
-var freeWidth = store.get("图像编辑.默认属性.画笔粗细");
-var shadowBlur = 0;
+let fillColor = store.get("图像编辑.默认属性.填充颜色");
+let strokeColor = store.get("图像编辑.默认属性.边框颜色");
+let strokeWidth = store.get("图像编辑.默认属性.边框宽度");
+let freeColor = store.get("图像编辑.默认属性.画笔颜色");
+let freeWidth = store.get("图像编辑.默认属性.画笔粗细");
+let shadowBlur = 0;
 
 // 编辑栏
 const drawMainBar = document.getElementById("draw_main");
@@ -3484,7 +3481,7 @@ hotkeys(store.get("其他快捷键.隐藏或显示栏"), () => {
     showBars(isShowBars);
 });
 
-var mode: EditType["draw"];
+let mode: EditType["draw"];
 
 // 笔
 drawSideEls.draw.free.onclick = () => setEditType("draw", "free");
@@ -3507,8 +3504,8 @@ let strokeWidthF = {
 };
 
 // 几何
-type shape = EditType["shape"] | "";
-var shape: shape = "";
+type Shape = EditType["shape"] | "";
+let shape: Shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
     let el = e.target as HTMLElement;
     if (el.id.startsWith("draw_shapes_")) {
@@ -3539,13 +3536,13 @@ document.getElementById("draw_position_i").onclick = (e) => {
 // 删除快捷键
 hotkeys("delete", fabricDelete);
 
-var drawingShape = false;
-var shapes = [];
-var unnormalShapes = ["polyline", "polygon", "number"];
-var drawOP = []; // 首次按下的点
-var polyOP = []; // 多边形点
-var newFilterO = null;
-var drawNumberN = 1;
+let drawingShape = false;
+const shapes = [];
+const unnormalShapes = ["polyline", "polygon", "number"];
+let drawOP = []; // 首次按下的点
+let polyOP = []; // 多边形点
+let newFilterO = null;
+let drawNumberN = 1;
 
 fabricCanvas.on("mouse:down", (options) => {
     // 非常规状态下点击
@@ -3558,7 +3555,7 @@ fabricCanvas.on("mouse:down", (options) => {
             draw(shape, "start", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
         } else {
             // 定义最后一个点,双击,点重复,结束
-            var polyOPL = polyOP.at(-1);
+            const polyOPL = polyOP.at(-1);
             if (!(options.e.offsetX == polyOPL?.x && options.e.offsetY == polyOPL?.y)) {
                 polyOP.push({ x: options.e.offsetX, y: options.e.offsetY });
                 if (shape === "number") {
@@ -3620,7 +3617,7 @@ fabricCanvas.on("mouse:up", (options) => {
     }
 });
 
-var mask = Fabric.util.createClass(Fabric.Rect, {
+const mask = Fabric.util.createClass(Fabric.Rect, {
     type: "mask",
 
     initialize: function (options) {
@@ -3715,9 +3712,9 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
 // 颜色选择
 
 /** 规定当前色盘对应的是填充还是边框 */
-var colorM: "fill" | "stroke" = "fill";
-var colorFillEl = document.getElementById("draw_color_fill");
-var colorStrokeEl = document.getElementById("draw_color_stroke");
+let colorM: "fill" | "stroke" = "fill";
+const colorFillEl = document.getElementById("draw_color_fill");
+const colorStrokeEl = document.getElementById("draw_color_stroke");
 
 setDrawMode(colorM);
 document.getElementById("draw_color_switch").onclick = () => {
@@ -3725,16 +3722,16 @@ document.getElementById("draw_color_switch").onclick = () => {
 };
 
 // 输入颜色
-var colorAlphaInput1 = <HTMLInputElement>document.querySelector("#draw_fill > range-b");
+const colorAlphaInput1 = <HTMLInputElement>document.querySelector("#draw_fill > range-b");
 colorFillEl.oninput = () => {
     changeColor({ fill: colorFillEl.innerText }, true, false);
-    var fillA = Color(colorFillEl.innerText).alpha();
+    const fillA = Color(colorFillEl.innerText).alpha();
     colorAlphaInput1.value = String(Math.round(fillA * 100));
 };
-var colorAlphaInput2 = <HTMLInputElement>document.querySelector("#draw_storke > range-b");
+const colorAlphaInput2 = <HTMLInputElement>document.querySelector("#draw_storke > range-b");
 colorStrokeEl.oninput = () => {
     changeColor({ stroke: colorStrokeEl.innerText }, true, false);
-    var strokeA = Color(colorStrokeEl.innerText).alpha();
+    const strokeA = Color(colorStrokeEl.innerText).alpha();
     colorAlphaInput2.value = String(Math.round(strokeA * 100));
 };
 
@@ -3757,7 +3754,7 @@ colorBar();
 };
 
 // 滤镜
-var newFilterSelecting = false;
+let newFilterSelecting = false;
 
 const startFilter = () => {
     exitFree();
@@ -3815,10 +3812,10 @@ for (let id in filtetMap) {
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
     (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).oninput =
         () => {
-            var r = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value;
-            var g = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value;
-            var b = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value;
-            var filter = new Fabric.Image.filters.Gamma({
+            const r = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value;
+            const g = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value;
+            const b = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value;
+            const filter = new Fabric.Image.filters.Gamma({
                 gamma: [r, g, b],
             });
             applyFilter(6, filter);
@@ -3827,30 +3824,33 @@ for (let id in filtetMap) {
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
-    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked)
-        var filter = new Fabric.Image.filters.Grayscale({ mode: "average" });
-    applyFilter(8, filter);
+    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked) {
+        const filter = new Fabric.Image.filters.Grayscale({ mode: "average" });
+        applyFilter(8, filter);
+    }
 };
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
-    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked)
-        var filter = new Fabric.Image.filters.Grayscale({ mode: "lightness" });
-    applyFilter(8, filter);
+    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked) {
+        const filter = new Fabric.Image.filters.Grayscale({ mode: "lightness" });
+        applyFilter(8, filter);
+    }
 };
 (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).oninput = () => {
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
     (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
-    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked)
-        var filter = new Fabric.Image.filters.Grayscale({ mode: "luminosity" });
-    applyFilter(8, filter);
+    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked) {
+        const filter = new Fabric.Image.filters.Grayscale({ mode: "luminosity" });
+        applyFilter(8, filter);
+    }
 };
 
 hotkeys("esc", "drawing", () => {
     setEditType("select", "draw");
 });
 
-var fabricClipboard;
+let fabricClipboard;
 
 hotkeys("Ctrl+v", fabricCopy);
 
