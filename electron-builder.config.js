@@ -7,6 +7,13 @@ const download = require("download");
 const arch =
     (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.arch) === "arm64" ? ["arm64"] : ["x64"];
 
+const platform = process.platform;
+const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
+/**
+ * @type {"linux"|"win"|"mac"}
+ */
+const platform2 = platformMap[platform];
+
 const beforePack = async function () {
     if (!fs.existsSync("./ocr/ppocr/默认")) {
         fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
@@ -225,21 +232,37 @@ let build = {
     },
 };
 
-let onnxFilter = arch[0] === "arm64" ? "x64" : "arm64";
-if (process.platform === "linux") {
-    build.linux.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/linux/${onnxFilter}`);
-} else if (process.platform === "win32") {
-    build.win.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/win32/${onnxFilter}`);
-} else if (process.platform === "darwin") {
-    build.mac.files.push(`!node_modules/onnxruntime-node/bin/napi-v3/darwin/${onnxFilter}`);
-}
+const archFilter = arch[0] === "arm64" ? "x64" : "arm64";
+const otherPlatform = Object.keys(platformMap).filter((i) => i != platform);
 
-const ignoreDir = ["src", "node_modules/qr-scanner-wechat", "lib/fabric.min.js", "node_modules/tar"];
+// 移除 onnxruntime-node/bin/napi-v3/
+build[platform2].files.push(`!node_modules/onnxruntime-node/bin/napi-v3/${platform}/${archFilter}`);
+
+// 移除 uiohook-napi/prebuilds
+otherPlatform.forEach((i) => {
+    build[platform2].files.push(`!node_modules/uiohook-napi/prebuilds/${i}-arm64`);
+    build[platform2].files.push(`!node_modules/uiohook-napi/prebuilds/${i}-x64`);
+});
+build[platform2].files.push(`!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`);
+
+const ignoreDir = [
+    ".*",
+    "tsconfig*",
+    "*.md",
+    "*.js",
+    "*.yaml",
+    "**/*.ts",
+    "src",
+    "node_modules/qr-scanner-wechat",
+    "lib/fabric.min.js",
+    "node_modules/tar",
+    "node_modules/**/*.flow",
+    "node_modules/**/*.md",
+    "node_modules/**/*.map",
+];
 for (let i of ignoreDir) {
     i = "!" + i;
-    build.win.files.push(i);
-    build.linux.files.push(i);
-    build.mac.files.push(i);
+    build[platform2].files.push(i);
 }
 
 module.exports = build;
