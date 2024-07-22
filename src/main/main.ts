@@ -35,8 +35,9 @@ const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
 
 // 自定义用户路径
+let userDataPath;
 try {
-    var userDataPath = readFileSync(join(runPath, "preload_config")).toString().trim();
+    userDataPath = readFileSync(join(runPath, "preload_config")).toString().trim();
     if (userDataPath) {
         if (app.isPackaged) {
             userDataPath = join(runPath, "../../", userDataPath);
@@ -52,14 +53,16 @@ ipcMain.on("run_path", (event) => {
     event.returnValue = runPath;
 });
 
+let store;
+
 try {
-    var store = new Store();
+    store = new Store();
 } catch (error) {
     rmSync(join(app.getPath("userData"), "config.json"));
-    var store = new Store();
+    store = new Store();
 }
 
-var /** 是否开启开发模式 */ dev: boolean;
+let /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
 if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_DEV"] || store.get("dev")) {
     dev = true;
@@ -152,7 +155,7 @@ ipcMain.on("autostart", (event, m, v) => {
  * 复制选区，存在变化，回调
  */
 async function copyText(callback: (t: string) => void) {
-    var oClipboard = clipboard.readText();
+    const oClipboard = clipboard.readText();
     if (process.platform == "darwin") {
         exec(
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
@@ -197,14 +200,14 @@ function openSelection() {
 
 /** 剪贴板搜索 */
 function openClipBoard() {
-    var t = clipboard.readText(
+    const t = clipboard.readText(
         process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
     );
     createMainWindow({ type: "text", content: t });
 }
 
 // cli参数重复启动;
-var firstOpen = true;
+let firstOpen = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
     firstOpen = false;
@@ -258,7 +261,7 @@ async function rmR(dir_path: string) {
     rmSync(dir_path, { recursive: true });
 }
 
-var contextMenu: Electron.Menu, tray: Tray;
+let contextMenu: Electron.Menu, tray: Tray;
 
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
 
@@ -459,7 +462,7 @@ app.whenReady().then(() => {
         主页面: createMainWindow.bind(this, [""]),
     };
     ipcMain.on("快捷键", (event, arg) => {
-        var [name, key] = arg;
+        const [name, key] = arg;
         try {
             try {
                 globalShortcut.unregister(store.get(`快捷键.${name}.key`));
@@ -479,9 +482,9 @@ app.whenReady().then(() => {
         }
     });
 
-    var 快捷键: object = store.get("快捷键");
+    const 快捷键: object = store.get("快捷键");
     for (let k in 快捷键) {
-        var m = 快捷键[k];
+        const m = 快捷键[k];
         try {
             if (m.key)
                 globalShortcut.register(m.key, () => {
@@ -820,7 +823,7 @@ app.on("will-quit", () => {
     rmR(tmpDir);
 });
 
-var theIcon = null;
+let theIcon = null;
 if (process.platform == "win32") {
     theIcon = join(runPath, "assets/logo/icon.ico");
 } else {
@@ -836,8 +839,8 @@ ipcMain.on("dialog", (e, arg0) => {
 /**
  * @type BrowserWindow
  */
-var clipWindow: BrowserWindow = null;
-var clipWindowLoaded = false;
+let clipWindow: BrowserWindow = null;
+let clipWindowLoaded = false;
 /** 初始化截屏后台窗口 */
 function createClipWindow() {
     clipWindow = new BrowserWindow({
@@ -1067,12 +1070,12 @@ function imageSearch(arg) {
     createMainWindow({ type: "image", content: arg[0], arg0: arg[1] });
 }
 
-var recording = false;
+let recording = false;
 const recorderWinW = 264;
 const recorderWinH = 24;
 
-var recorder: BrowserWindow;
-var recorderTipWin: BrowserWindow;
+let recorder: BrowserWindow;
+let recorderTipWin: BrowserWindow;
 function createRecorderWindow(rect0: number[], screenx: { id: string; w: number; h: number; r: number }) {
     let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     let ratio = screenx.r;
@@ -1193,7 +1196,7 @@ ipcMain.on("record", (_event, type, arg) => {
         case "start":
             break;
         case "ff": // 处理视频
-            var savedPath = store.get("保存.保存路径.视频") || "";
+            const savedPath = store.get("保存.保存路径.视频") || "";
             dialog
                 .showSaveDialog({
                     title: t("选择要保存的位置"),
@@ -1336,7 +1339,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
 
 // 长截屏
 
-var isLongStart = false;
+let isLongStart = false;
 
 function longWin() {
     clipWindow.setIgnoreMouseEvents(true);
@@ -1355,7 +1358,7 @@ function longWin() {
 }
 
 // ding窗口
-var dingwindowList: { [key: string]: { win: BrowserWindow; display: Electron.Display } } = {};
+const dingwindowList: { [key: string]: { win: BrowserWindow; display: Electron.Display } } = {};
 function createDingWindow(x: number, y: number, w: number, h: number, img) {
     if (Object.keys(dingwindowList).length == 0) {
         const screenL = screen.getAllDisplays();
@@ -1495,12 +1498,12 @@ ipcMain.on("ignore", (event, v) => {
 });
 
 // 主页面
-var mainWindowL: { [n: number]: { win: BrowserWindow; browser: { top: number; bottom: number } } } = {};
+const mainWindowL: { [n: number]: { win: BrowserWindow; browser: { top: number; bottom: number } } } = {};
 
 /**
  * @type {Object.<number, Array.<number>>}
  */
-var mainToSearchL: { [n: number]: Array<number> } = {};
+const mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
     if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
         const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
@@ -1647,7 +1650,7 @@ function mainEdit(window: BrowserWindow, m: string) {
     window.webContents.send("edit", m);
 }
 
-var searchWindowL: { [n: number]: BrowserView } = {};
+const searchWindowL: { [n: number]: BrowserView } = {};
 ipcMain.on("open_url", (_event, window_name, url) => {
     createBrowser(window_name, url);
 });
@@ -1680,7 +1683,7 @@ async function createBrowser(windowName: number, url: string) {
             query: { text: url.replace("translate/?text=", "") },
         });
     } else searchView.webContents.loadURL(url);
-    var [w, h] = mainWindow.getContentSize();
+    const [w, h] = mainWindow.getContentSize();
     const bSize = mainWindowL[windowName].browser;
     searchView.setBounds({ x: 0, y: bSize.top, width: w, height: h - bSize.bottom });
     mainWindow.setContentSize(w, h + 1);
@@ -1815,8 +1818,8 @@ function minViews(mainWindow: BrowserWindow) {
 
 /** 生成一个文件名 */
 function getFileName() {
-    var saveNameTime = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
-    var fileName = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+    const saveNameTime = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
+    const fileName = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
     return fileName;
 }
 /** 快速截屏 */
@@ -1826,7 +1829,7 @@ function quickClip() {
 
 /** 提示保存成功 */
 function noti(filePath: string) {
-    var notification = new Notification({
+    const notification = new Notification({
         title: `${app.name} ${t("保存图像成功")}`,
         body: `${t("已保存图像到")} ${filePath}`,
         icon: `${runPath}/assets/logo/64x64.png`,
@@ -1856,7 +1859,7 @@ ipcMain.on("theme", (_e, v) => {
 });
 
 // 默认设置
-var defaultSetting: setting = {
+const defaultSetting: setting = {
     首次运行: false,
     设置版本: app.getVersion(),
     启动提示: true,
