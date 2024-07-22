@@ -1711,7 +1711,10 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     }
     if (mainType === "filter") {
         willFilter = type;
-        startFilter();
+        exitFree();
+        exitShape();
+        newFilterSelecting = true;
+        fabricCanvas.defaultCursor = "crosshair";
     }
     if (mainType === "shape") {
         shape = type as Shape;
@@ -2550,6 +2553,264 @@ let nowScreenId = 0;
 
 let allScreens: (Electron.Display & { captureSync?: () => Buffer; image?: Buffer })[] = [];
 
+let nowMouseE: MouseEvent = null;
+
+let editorP = { zoom: 1, x: 0, y: 0 };
+
+let middleB: PointerEvent;
+let middleP = { x: 0, y: 0 };
+
+const edgeRect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
+
+let centerBarShow = false;
+let centerBarM = null;
+
+const tool = {
+    close: () => closeWin(),
+    ocr: () => runOcr(),
+    search: () => runSearch(),
+    QR: () => runQr(),
+    open: () => openApp(),
+    record: () => initRecord(),
+    long: () => startLong(),
+    translate: () => translate(),
+    // 钉在屏幕上
+    ding: () => runDing(),
+    // 复制
+    copy: () => runCopy(),
+    save: () => runSave(),
+};
+
+const drawMainEls: { [key in keyof EditType]: HTMLElement } = {
+    select: document.getElementById("draw_select"),
+    draw: document.getElementById("draw_free"),
+    shape: document.getElementById("draw_shapes"),
+    filter: document.getElementById("draw_filters"),
+};
+const shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
+const filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
+const drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
+    select: {
+        rect: document.getElementById("draw_select_rect"),
+        free: document.getElementById("draw_select_free"),
+        draw: document.getElementById("draw_select_draw"),
+    },
+    draw: {
+        free: document.getElementById("draw_free_pencil"),
+        eraser: document.getElementById("draw_free_eraser"),
+        spray: document.getElementById("draw_free_spray"),
+    },
+    filter: filtersEl,
+    shape: shapeEl,
+};
+
+type hotkeyScope = "normal" | "c_bar" | "drawing";
+const hotkeyScopes: hotkeyScope[] = [];
+
+const toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
+
+const drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
+
+const canvasControlKey = {
+    操作_撤回: "Control+Z",
+    操作_重做: "Control+Y",
+    操作_复制: "Control+C",
+    操作_删除: "Delete",
+};
+
+type hotkeyTip = { name: string; keys: string[] }[];
+const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
+    {
+        name: "画布",
+        hotkey: [
+            { name: "移动", keys: ["方向键", "wheel"] },
+            { name: "缩放", keys: ["Control+wheel"] },
+        ],
+    },
+    {
+        name: "框选",
+        hotkey: [
+            { name: "全选", keys: ["Control+A"] },
+            { name: "移动和调节", keys: ["按住+方向键"] },
+            { name: "×5", keys: ["+Control+"] },
+            { name: "×10", keys: ["+Shift+"] },
+            { name: "左上x", keys: [store.get("大小栏快捷键.左上x")] },
+            { name: "左上y", keys: [store.get("大小栏快捷键.左上y")] },
+            { name: "右下x", keys: [store.get("大小栏快捷键.右下x")] },
+            { name: "右下y", keys: [store.get("大小栏快捷键.右下y")] },
+            { name: "宽", keys: [store.get("大小栏快捷键.宽")] },
+            { name: "高", keys: [store.get("大小栏快捷键.高")] },
+        ],
+    },
+    {
+        name: "数值",
+        hotkey: [
+            { name: "大", keys: ["Up"] },
+            { name: "小", keys: ["Down"] },
+            { name: "取消更改", keys: ["RightKey"] },
+        ],
+    },
+    {
+        name: "取色器",
+        hotkey: [
+            { name: "展示所有颜色格式", keys: ["RightKey"] },
+            { name: "复制颜色", keys: [store.get("其他快捷键.复制颜色")] },
+        ],
+    },
+    { name: "快捷键", hotkey: [{ name: "展示", keys: ["Alt"] }] },
+];
+
+let autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
+
+let lastLong = 0;
+
+let uIOhook;
+
+let longX = {
+    img: null as HTMLCanvasElement,
+    imgXY: { x: 0, y: 0 },
+    lastImg: null as HTMLCanvasElement,
+    lastXY: { x: 0, y: 0 },
+};
+
+let longRunning = false;
+let longInited = false;
+
+let type: setting["保存"]["默认格式"];
+
+let toolPosition = { x: null, y: null };
+
+/** 矩形还是自由 */
+let isRect = true;
+let /**是否在绘制新选区*/ selecting = false;
+let rightKey = false;
+let canvasRect = null;
+let /**是否在更改选区*/ moving = false;
+
+type editor_position = { x: number; y: number };
+
+let /** 先前坐标，用于框选的生成和调整 */ oldP = { x: NaN, y: NaN } as editor_position;
+let oFinalRect = null as rect;
+let oPoly = null as point[];
+let theColor: [number, number, number, number] = null;
+let theTextColor = [null, null];
+let clipCtx = clipCanvas.getContext("2d");
+let undoStack = [{ rect: 0, canvas: 0 }],
+    rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[],
+    canvasStack = [{}];
+let undoStackI = 0;
+let nowCanvasPosition: number[];
+let direction: "" | "move" | "东" | "西" | "南" | "北" | "东南" | "西南" | "东北" | "西北";
+let autoSelectRect = store.get("框选.自动框选.开启");
+let autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
+let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
+let /**鼠标是否按住 */ down = false;
+let /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
+
+let rectInRect = [];
+
+const mouseBarW =
+    Math.max(
+        colorSize * colorISize,
+        (String(window.innerWidth).length + String(window.innerHeight).length + 2 + 1) * 8
+    ) + 4;
+const mouseBarH = 4 + colorSize * colorISize + 32 * 2;
+
+// 工具栏跟随
+const followBarList = [[0, 0]];
+let drawBarPosi: "right" | "left" = "right";
+const barGap = 8;
+
+// 移动画画栏
+let drawBarMoving = false;
+let drawBarMovingXY = [];
+
+let nowType: keyof EditType;
+let editType: EditType = {
+    select: "rect",
+    draw: "free",
+    filter: "pixelate",
+    shape: "rect",
+};
+let editTypeRecord = store.get("图像编辑.记忆") as EditType;
+
+editType.select = editTypeRecord.select || editType.select;
+editType.draw = editTypeRecord.draw || editType.draw;
+editType.filter = editTypeRecord.filter || editType.filter;
+editType.shape = editTypeRecord.shape || editType.shape;
+
+let willShowITime: NodeJS.Timeout;
+
+let isShowBars = !store.get("工具栏.稍后出现") as boolean;
+
+let mode: EditType["draw"];
+
+let strokeWidthF = {
+    set: (v: number) => {
+        (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = String(v);
+        setFObjectV(null, null, Math.floor(v));
+    },
+    get: () => {
+        return Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value);
+    },
+};
+
+type Shape = EditType["shape"] | "";
+let shape: Shape = "";
+
+let drawingShape = false;
+const shapes = [];
+const unnormalShapes = ["polyline", "polygon", "number"];
+let drawOP = []; // 首次按下的点
+let polyOP = []; // 多边形点
+let newFilterO = null;
+let drawNumberN = 1;
+
+/** 规定当前色盘对应的是填充还是边框 */
+let colorM: "fill" | "stroke" = "fill";
+
+let newFilterSelecting = false;
+
+let filtetMap: {
+    [key in EditType["filter"]]: {
+        f: string;
+        i: number;
+        key?: string;
+        value?: {
+            value: number;
+            max: number;
+            min?: number;
+            step?: number;
+            text?: string;
+        };
+    };
+} = {
+    // 马赛克
+    // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
+    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: { value: 16, max: 20, text: "px" } },
+    blur: { f: "Blur", i: 1, key: "blur", value: { value: 1, max: 5, text: "%", step: 0.1 } },
+    brightness: { f: "Brightness", i: 2, key: "brightness", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    contrast: { f: "Contrast", i: 3, key: "contrast", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    saturation: { f: "Saturation", i: 4, key: "saturation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    hue: { f: "HueRotation", i: 5, key: "rotation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    noise: { f: "Noise", i: 7, value: { value: 0, max: 1000 } },
+    invert: { f: "Invert", i: 9 },
+    sepia: { f: "Sepia", i: 10 },
+    // 黑白
+    bw: { f: "BlackWhite", i: 11 },
+    brownie: { f: "Brownie", i: 12 },
+    vintage: { f: "Vintage", i: 13 },
+    koda: { f: "Kodachrome", i: 14 },
+    techni: { f: "Technicolor", i: 15 },
+    polaroid: { f: "Polaroid", i: 16 },
+};
+
+let willFilter = "";
+
+let fabricClipboard;
+
+// ------
+
 document.body.style.opacity = "0";
 
 ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
@@ -2638,7 +2899,6 @@ ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, ac
 
 ipcRenderer.on("quick", quickClip);
 
-let nowMouseE: MouseEvent = null;
 document.addEventListener("mousemove", (e) => {
     nowMouseE = e;
 });
@@ -2681,8 +2941,6 @@ document.onwheel = (e) => {
     }
 };
 
-let editorP = { zoom: 1, x: 0, y: 0 };
-
 document.onkeyup = (e) => {
     if (e.key == "0") {
         if (e.ctrlKey) {
@@ -2692,8 +2950,6 @@ document.onkeyup = (e) => {
     }
 };
 
-let middleB: PointerEvent;
-let middleP = { x: 0, y: 0 };
 document.addEventListener("pointerdown", (e) => {
     if (e.button == 1) {
         middleB = e;
@@ -2713,27 +2969,6 @@ document.addEventListener("pointerup", (_e) => {
     middleB = null;
 });
 
-const edgeRect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
-
-let centerBarShow = false;
-let centerBarM = null;
-
-const tool = {
-    close: () => closeWin(),
-    ocr: () => runOcr(),
-    search: () => runSearch(),
-    QR: () => runQr(),
-    open: () => openApp(),
-    record: () => initRecord(),
-    long: () => startLong(),
-    translate: () => translate(),
-    // 钉在屏幕上
-    ding: () => runDing(),
-    // 复制
-    copy: () => runCopy(),
-    save: () => runSave(),
-};
-
 // 工具栏按钮
 toolBar.onmouseup = (e) => {
     const el = <HTMLElement>e.target;
@@ -2748,34 +2983,12 @@ toolBar.onmouseup = (e) => {
     }
 };
 
-const drawMainEls: { [key in keyof EditType]: HTMLElement } = {
-    select: document.getElementById("draw_select"),
-    draw: document.getElementById("draw_free"),
-    shape: document.getElementById("draw_shapes"),
-    filter: document.getElementById("draw_filters"),
-};
-const shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
 document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
     shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
 });
-const filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
 document.querySelectorAll("#draw_filters_i div").forEach((el: HTMLInputElement) => {
     if (el.id.startsWith("draw_filters_")) filtersEl[el.id.replace("draw_filters_", "") as string] = el;
 });
-const drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
-    select: {
-        rect: document.getElementById("draw_select_rect"),
-        free: document.getElementById("draw_select_free"),
-        draw: document.getElementById("draw_select_draw"),
-    },
-    draw: {
-        free: document.getElementById("draw_free_pencil"),
-        eraser: document.getElementById("draw_free_eraser"),
-        spray: document.getElementById("draw_free_spray"),
-    },
-    filter: filtersEl,
-    shape: shapeEl,
-};
 
 hotkeys.filter = (event) => {
     const tagName = (<HTMLElement>event.target).tagName;
@@ -2788,11 +3001,7 @@ hotkeys.filter = (event) => {
     return v;
 };
 
-type hotkeyScope = "normal" | "c_bar" | "drawing";
-const hotkeyScopes: hotkeyScope[] = [];
-
 toHotkeyScope("normal");
-let toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
 for (let k of toolList) {
     let key = store.get(`工具快捷键.${k}`) as string;
     if (["esc", "escape"].includes(key.toLowerCase())) hotkeys(key, "normal", tool[k]);
@@ -2807,7 +3016,6 @@ for (let k of toolList) {
     }
     toolBarEl.els[k].data({ key: key.trim() });
 }
-let drawHotKey: setting["截屏编辑快捷键"] = store.get(`截屏编辑快捷键`);
 for (let i in drawHotKey) {
     let mainKey = i as keyof EditType;
     drawMainEls[mainKey].setAttribute("data-key", showShortKey(drawHotKey[mainKey].键));
@@ -2821,13 +3029,6 @@ for (let i in drawHotKey) {
         });
     }
 }
-
-const canvasControlKey = {
-    操作_撤回: "Control+Z",
-    操作_重做: "Control+Y",
-    操作_复制: "Control+C",
-    操作_删除: "Delete",
-};
 
 for (let k in canvasControlKey) {
     document.getElementById(k).setAttribute("data-key", showShortKey(canvasControlKey[k]));
@@ -2852,48 +3053,6 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
-type hotkeyTip = { name: string; keys: string[] }[];
-const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
-    {
-        name: "画布",
-        hotkey: [
-            { name: "移动", keys: ["方向键", "wheel"] },
-            { name: "缩放", keys: ["Control+wheel"] },
-        ],
-    },
-    {
-        name: "框选",
-        hotkey: [
-            { name: "全选", keys: ["Control+A"] },
-            { name: "移动和调节", keys: ["按住+方向键"] },
-            { name: "×5", keys: ["+Control+"] },
-            { name: "×10", keys: ["+Shift+"] },
-            { name: "左上x", keys: [store.get("大小栏快捷键.左上x")] },
-            { name: "左上y", keys: [store.get("大小栏快捷键.左上y")] },
-            { name: "右下x", keys: [store.get("大小栏快捷键.右下x")] },
-            { name: "右下y", keys: [store.get("大小栏快捷键.右下y")] },
-            { name: "宽", keys: [store.get("大小栏快捷键.宽")] },
-            { name: "高", keys: [store.get("大小栏快捷键.高")] },
-        ],
-    },
-    {
-        name: "数值",
-        hotkey: [
-            { name: "大", keys: ["Up"] },
-            { name: "小", keys: ["Down"] },
-            { name: "取消更改", keys: ["RightKey"] },
-        ],
-    },
-    {
-        name: "取色器",
-        hotkey: [
-            { name: "展示所有颜色格式", keys: ["RightKey"] },
-            { name: "复制颜色", keys: [store.get("其他快捷键.复制颜色")] },
-        ],
-    },
-    { name: "快捷键", hotkey: [{ name: "展示", keys: ["Alt"] }] },
-];
-
 for (let m of hotkeyTipX) {
     hotkeyTipEl.add(p(m.name));
     for (let k of m.hotkey) {
@@ -2908,8 +3067,6 @@ for (let m of hotkeyTipX) {
         hotkeyTipEl.add(x);
     }
 }
-
-let autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
 
 setDefaultAction(autoDo);
 
@@ -2942,20 +3099,6 @@ toolBarEl.els.search.el.title = `以图搜图 - ${识图引擎.gv()}`;
 
 trackLocation();
 
-let lastLong = 0;
-
-let uIOhook;
-
-let longX = {
-    img: null as HTMLCanvasElement,
-    imgXY: { x: 0, y: 0 },
-    lastImg: null as HTMLCanvasElement,
-    lastXY: { x: 0, y: 0 },
-};
-
-let longRunning = false;
-let longInited = false;
-
 const finishLongB = longTip.els.finish.el;
 
 const lr = longTip.els.rect;
@@ -2971,14 +3114,11 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
     if (type === "update") checkUpdate(true);
 });
 
-let type: setting["保存"]["默认格式"];
-
 ipcRenderer.on("save_path", (_event, message) => {
     console.log(message);
     save(message);
 });
 
-let toolPosition = { x: null, y: null };
 toolBar.addEventListener("mousedown", (e) => {
     toolBar.style.transition = "none";
     if (e.button == 2) {
@@ -3066,33 +3206,6 @@ document.querySelector("body").onkeydown = (e) => {
         }
     }
 };
-
-/** 矩形还是自由 */
-let isRect = true;
-let /**是否在绘制新选区*/ selecting = false;
-let rightKey = false;
-let canvasRect = null;
-let /**是否在更改选区*/ moving = false;
-
-type editor_position = { x: number; y: number };
-
-let /** 先前坐标，用于框选的生成和调整 */ oldP = { x: NaN, y: NaN } as editor_position;
-let oFinalRect = null as rect;
-let oPoly = null as point[];
-let theColor: [number, number, number, number] = null;
-let theTextColor = [null, null];
-let clipCtx = clipCanvas.getContext("2d");
-let undoStack = [{ rect: 0, canvas: 0 }],
-    rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[],
-    canvasStack = [{}];
-let undoStackI = 0;
-let nowCanvasPosition: number[];
-let direction: "" | "move" | "东" | "西" | "南" | "北" | "东南" | "西南" | "东北" | "西北";
-let autoSelectRect = store.get("框选.自动框选.开启");
-let autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
-let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
-let /**鼠标是否按住 */ down = false;
-let /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
 
 clipCanvas.onmousedown = (e) => {
     let inRect = false;
@@ -3188,8 +3301,6 @@ clipCanvas.onmouseup = (e) => {
     moved = false;
 };
 
-let rectInRect = [];
-
 hotkeys("s", () => {
     // 重新启用自动框选提示
     rectSelect = false;
@@ -3284,13 +3395,6 @@ document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = ((colorSize - 1) / 2) * colorISize + "px";
 pointCenter.style.top = ((colorSize - 1) / 2) * colorISize + "px";
 
-const mouseBarW =
-    Math.max(
-        colorSize * colorISize,
-        (String(window.innerWidth).length + String(window.innerHeight).length + 2 + 1) * 8
-    ) + 4;
-const mouseBarH = 4 + colorSize * colorISize + 32 * 2;
-
 const mouseBarEl = document.getElementById("mouse_bar");
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
@@ -3352,14 +3456,6 @@ document.onmousemove = (e) => {
     }
 };
 
-// 工具栏跟随
-const followBarList = [[0, 0]];
-let drawBarPosi: "right" | "left" = "right";
-const barGap = 8;
-
-// 移动画画栏
-let drawBarMoving = false;
-let drawBarMovingXY = [];
 document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
     if (e.button != 0) {
         drawBarMoving = true;
@@ -3411,22 +3507,9 @@ fabricEl.innerHTML = fabricSrc;
 document.body.append(fabricEl);
 // @ts-ignore
 Fabric = window.fabric;
-let Fabric;
+var Fabric;
 
 const fabricCanvas = new Fabric.Canvas("draw_photo");
-
-let nowType: keyof EditType;
-let editType: EditType = {
-    select: "rect",
-    draw: "free",
-    filter: "pixelate",
-    shape: "rect",
-};
-let editTypeRecord = store.get("图像编辑.记忆") as EditType;
-editType.select = editTypeRecord.select || editType.select;
-editType.draw = editTypeRecord.draw || editType.draw;
-editType.filter = editTypeRecord.filter || editType.filter;
-editType.shape = editTypeRecord.shape || editType.shape;
 
 hisPush();
 
@@ -3441,7 +3524,6 @@ let shadowBlur = 0;
 const drawMainBar = document.getElementById("draw_main");
 const drawSideBar = document.getElementById("draw_side");
 showSideBar(false);
-let willShowITime: NodeJS.Timeout;
 
 document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement, index) => {
     let Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
@@ -3472,16 +3554,12 @@ document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement) => {
     };
 });
 
-let isShowBars = !store.get("工具栏.稍后出现") as boolean;
-
 showBars(isShowBars);
 
 hotkeys(store.get("其他快捷键.隐藏或显示栏"), () => {
     isShowBars = !isShowBars;
     showBars(isShowBars);
 });
-
-let mode: EditType["draw"];
 
 // 笔
 drawSideEls.draw.free.onclick = () => setEditType("draw", "free");
@@ -3493,19 +3571,7 @@ drawSideEls.draw.spray.onclick = () => setEditType("draw", "spray");
 // 阴影
 (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
 
-let strokeWidthF = {
-    set: (v: number) => {
-        (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = String(v);
-        setFObjectV(null, null, Math.floor(v));
-    },
-    get: () => {
-        return Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value);
-    },
-};
-
 // 几何
-type Shape = EditType["shape"] | "";
-let shape: Shape = "";
 document.getElementById("draw_shapes_i").onclick = (e) => {
     let el = e.target as HTMLElement;
     if (el.id.startsWith("draw_shapes_")) {
@@ -3535,14 +3601,6 @@ document.getElementById("draw_position_i").onclick = (e) => {
 
 // 删除快捷键
 hotkeys("delete", fabricDelete);
-
-let drawingShape = false;
-const shapes = [];
-const unnormalShapes = ["polyline", "polygon", "number"];
-let drawOP = []; // 首次按下的点
-let polyOP = []; // 多边形点
-let newFilterO = null;
-let drawNumberN = 1;
 
 fabricCanvas.on("mouse:down", (options) => {
     // 非常规状态下点击
@@ -3711,8 +3769,6 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
 
 // 颜色选择
 
-/** 规定当前色盘对应的是填充还是边框 */
-let colorM: "fill" | "stroke" = "fill";
 const colorFillEl = document.getElementById("draw_color_fill");
 const colorStrokeEl = document.getElementById("draw_color_stroke");
 
@@ -3754,52 +3810,7 @@ colorBar();
 };
 
 // 滤镜
-let newFilterSelecting = false;
-
-const startFilter = () => {
-    exitFree();
-    exitShape();
-    newFilterSelecting = true;
-    fabricCanvas.defaultCursor = "crosshair";
-};
-
 const filterRangeEl = document.querySelector("#draw_filters_range");
-
-let filtetMap: {
-    [key in EditType["filter"]]: {
-        f: string;
-        i: number;
-        key?: string;
-        value?: {
-            value: number;
-            max: number;
-            min?: number;
-            step?: number;
-            text?: string;
-        };
-    };
-} = {
-    // 马赛克
-    // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: { value: 16, max: 20, text: "px" } },
-    blur: { f: "Blur", i: 1, key: "blur", value: { value: 1, max: 5, text: "%", step: 0.1 } },
-    brightness: { f: "Brightness", i: 2, key: "brightness", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    contrast: { f: "Contrast", i: 3, key: "contrast", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    saturation: { f: "Saturation", i: 4, key: "saturation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    hue: { f: "HueRotation", i: 5, key: "rotation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    noise: { f: "Noise", i: 7, value: { value: 0, max: 1000 } },
-    invert: { f: "Invert", i: 9 },
-    sepia: { f: "Sepia", i: 10 },
-    // 黑白
-    bw: { f: "BlackWhite", i: 11 },
-    brownie: { f: "Brownie", i: 12 },
-    vintage: { f: "Vintage", i: 13 },
-    koda: { f: "Kodachrome", i: 14 },
-    techni: { f: "Technicolor", i: 15 },
-    polaroid: { f: "Polaroid", i: 16 },
-};
-
-let willFilter = "";
 
 for (let id in filtetMap) {
     (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick = () => {
@@ -3849,8 +3860,6 @@ for (let id in filtetMap) {
 hotkeys("esc", "drawing", () => {
     setEditType("select", "draw");
 });
-
-let fabricClipboard;
 
 hotkeys("Ctrl+v", fabricCopy);
 
