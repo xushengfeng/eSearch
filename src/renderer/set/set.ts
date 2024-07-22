@@ -7,7 +7,7 @@ import "../../../lib/template2.js";
 const { shell, ipcRenderer } = require("electron") as typeof import("electron");
 const os = require("os") as typeof import("os");
 const fs = require("fs") as typeof import("fs");
-import { el } from "redom";
+import { a, button, ele, image, input, p, radioGroup, select, txt, view, pack } from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
 import delete_svg from "../assets/icons/delete.svg";
@@ -15,7 +15,7 @@ import handle_svg from "../assets/icons/handle.svg";
 import add_svg from "../assets/icons/add.svg";
 
 function iconEl(img: string) {
-    return el("img", { src: img, class: "icon" });
+    return image(img, "icon").class("icon");
 }
 
 function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
@@ -222,25 +222,26 @@ const systemLan = getSystemLan();
 lans = [systemLan].concat(lans.filter((v) => v != systemLan));
 
 const lanEl = document.getElementById("语言");
+const lanRadio = radioGroup("语言");
 for (let i of lans) {
-    lanEl.append(el("label", el("input", { type: "radio", name: "语言", value: i }), getLanName(i)));
+    lanEl.append(lanRadio.new(i, txt(getLanName(i))).el);
 }
 
-setRadio(lanEl, old_store.语言.语言);
+lanRadio.set(old_store.语言.语言);
 const systemLanEl = document.getElementById("系统语言");
 systemLanEl.innerText = tLan("使用系统语言", systemLan);
 systemLanEl.onclick = () => {
-    setRadio(lanEl, systemLan);
-    lan(getRadio(lanEl));
+    lanRadio.set(systemLan);
+    lan(lanRadio.get());
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 lanEl.onclick = () => {
-    lan(getRadio(lanEl));
+    lan(lanRadio.get());
     document.getElementById("语言重启").innerText = t("重启软件以生效");
 };
 
 document.getElementById("语言重启").onclick = () => {
-    xstore.语言["语言"] = getRadio(lanEl);
+    xstore.语言["语言"] = lanRadio.get();
     saveSetting();
     ipcRenderer.send("setting", "reload");
 };
@@ -286,10 +287,9 @@ for (let i of themeInput) {
 
 for (let i of themes) {
     themesEl.append(
-        el("button", {
-            // todo drak
-            style: { background: i.light.emphasis },
-            onclick: () => {
+        button()
+            .style({ background: i.light.emphasis })
+            .on("click", () => {
                 themeInput[0].value = i.light.emphasis;
                 themeInput[1].value = i.dark.emphasis;
                 themeInput[2].value = i.light.barbg;
@@ -300,8 +300,7 @@ for (let i of themes) {
                 for (let i of themeInput) {
                     i.dispatchEvent(new Event("input"));
                 }
-            },
-        })
+            }).el
     );
 }
 
@@ -616,19 +615,17 @@ const translatorTo = document.getElementById("translator_to");
 
 const transList: { [key: string]: (typeof xstore.翻译.翻译器)[0] } = {};
 
-const translatorList = el("div");
-const addTranslatorM = el("dialog") as HTMLDialogElement;
-const addTranslator = el("button", "+", {
-    onclick: async () => {
-        const v = await translatorD({ id: crypto.randomUUID().slice(0, 7), name: "", keys: [], type: null });
-        const iel = addTranslatorI(v);
-        translatorList.append(iel);
-        setTranLan();
-    },
+const translatorList = view();
+const addTranslatorM = ele("dialog");
+const addTranslator = button(txt("+")).on("click", async () => {
+    const v = await translatorD({ id: crypto.randomUUID().slice(0, 7), name: "", keys: [], type: null });
+    const iel = addTranslatorI(v);
+    translatorList.add(iel);
+    setTranLan();
 });
-translateES.append(translatorList, addTranslator, addTranslatorM);
+translateES.append(translatorList.el, addTranslator.el, addTranslatorM.el);
 
-new Sortable(translatorList, {
+new Sortable(translatorList.el, {
     handle: ".sort_handle",
     onEnd: () => {
         setTranLan();
@@ -637,23 +634,19 @@ new Sortable(translatorList, {
 
 function addTranslatorI(v: setting["翻译"]["翻译器"][0]) {
     transList[v.id] = v;
-    const handle = el("button", iconEl(handle_svg), { class: "sort_handle" });
-    const text = el("span", v.name, {
-        onclick: async () => {
-            const nv = await translatorD(v);
-            text.innerText = nv.name;
-            transList[nv.id] = nv;
-        },
+    const handle = button().add(iconEl(handle_svg)).class("sort_handle");
+    const text = txt(v.name).on("click", async () => {
+        const nv = await translatorD(v);
+        text.el.innerText = nv.name;
+        transList[nv.id] = nv;
     });
-    const rm = el("button", iconEl(delete_svg), {
-        onclick: () => {
-            iel.remove();
+    const rm = button()
+        .add(iconEl(delete_svg))
+        .on("click", () => {
+            iel.el.remove();
             setTranLan();
-        },
-    });
-    const iel = el("div", handle, text, rm, {
-        "data-id": v.id,
-    });
+        });
+    const iel = view().add([handle, text, rm]).data({ id: v.id });
     return iel;
 }
 
@@ -719,106 +712,100 @@ let engineConfig: Partial<
 };
 
 xstore.翻译.翻译器.forEach((v) => {
-    translatorList.append(addTranslatorI(v));
+    translatorList.add(addTranslatorI(v));
 });
 
 function translatorD(v: setting["翻译"]["翻译器"][0]) {
-    const idEl = el("input", { value: v.name, type: "text" });
-    const selectEl = el("select");
-    const keys = el("div");
-    const help = el("p");
-
-    selectEl.append(el("option", t("选择引擎类型"), { value: "" }));
-    Object.entries(engineConfig).forEach((v) => {
-        const op = el("option", v[1].t, { value: v[0] });
-        selectEl.append(op);
-    });
-
-    selectEl.value = v.type || "";
-    selectEl.oninput = () => {
-        set(selectEl.value as Engines);
-    };
+    const idEl = input("name").attr({ value: v.name });
+    const selectEl = select(
+        [{ value: "", name: t("选择引擎类型") }].concat(
+            Object.entries(engineConfig).map((v) => ({ name: v[1].t, value: v[0] }))
+        )
+    )
+        .sv(v.type || "")
+        .on("input", () => {
+            set(selectEl.gv() as Engines);
+        });
+    const keys = view();
+    const help = p("");
 
     set(v.type as Engines);
 
     function set(type: Engines) {
-        keys.innerHTML = "";
-        help.innerHTML = "";
+        keys.clear();
+        help.clear();
         if (!type) return;
         const fig = engineConfig[type];
         fig.key.forEach((x, i) => {
-            keys.append(
-                el(
-                    "div",
-                    el("span", `${x.name}: `),
-                    el("input", { placehoder: x.text || "", value: v.keys[i] || "", type: "text" })
-                )
+            keys.add(
+                view().add([
+                    txt(`${x.name}: `),
+                    input(`key${i}`)
+                        .attr({ placeholder: x.text || "" })
+                        .sv(v.keys[i] || ""),
+                ])
             );
         });
-        if (fig.help) help.append(el("a", fig.help.text, { href: fig.help.src }));
+        if (fig.help) help.add(a(fig.help.src).add(fig.help.text));
     }
 
-    const testEl = el("div");
-    const testR = el("p");
-    const testB = el("button", t("测试"));
-    testEl.append(testB, testR);
-    testB.onclick = async () => {
+    const testEl = view();
+    const testR = p("");
+    const testB = button(txt("测试"));
+    testEl.add([testB, testR]);
+    testB.on("click", async () => {
         const v = getV();
         translator.e[v.type].setKeys(v.keys);
         try {
             const r = await translator.e[v.type].test();
             console.log(r);
-            if (r) testR.innerText = t("测试成功");
+            if (r) testR.el.innerText = t("测试成功");
         } catch (error) {
-            testR.innerText = error;
+            testR.el.innerText = error;
             throw error;
         }
-    };
+    });
 
-    addTranslatorM.innerHTML = "";
-    addTranslatorM.append(
+    addTranslatorM.clear();
+    addTranslatorM.add([
         idEl,
         selectEl,
         keys,
         help,
         testEl,
-        el("button", t("关闭"), {
-            onclick: () => {
-                addTranslatorM.close();
-            },
-        })
-    );
+        button(txt("关闭")).on("click", () => {
+            addTranslatorM.el.close();
+        }),
+    ]);
 
     function getV() {
-        const key = Array.from(keys.querySelectorAll("input")).map((el) => el.value);
+        const key = Array.from(keys.el.querySelectorAll("input")).map((el) => el.value);
         const nv: typeof v = {
             id: v.id,
-            name: idEl.value,
+            name: idEl.gv() as string,
             keys: key,
-            type: selectEl.value as Engines,
+            type: selectEl.gv() as Engines,
         };
         return nv;
     }
 
-    addTranslatorM.showModal();
+    addTranslatorM.el.showModal();
 
     return new Promise((re: (nv: typeof v) => void) => {
-        addTranslatorM.append(
-            el("button", t("完成"), {
-                onclick: () => {
-                    const nv = getV();
-                    if (nv.type && nv.keys.every((i) => i)) {
-                        re(nv);
-                        addTranslatorM.close();
-                    }
-                },
+        addTranslatorM.add(
+            button(txt("完成")).on("click", () => {
+                const nv = getV();
+                if (nv.type && nv.keys.every((i) => i)) {
+                    re(nv);
+                    addTranslatorM.el.close();
+                }
             })
         );
     });
 }
 
 function setTranLan() {
-    const id = (translatorList.firstChild as HTMLElement)?.getAttribute("data-id");
+    const id = (translatorList.el.firstChild as HTMLElement)?.getAttribute("data-id");
     translatorFrom.innerText = "";
     translatorTo.innerHTML = "";
     if (!id) return;
@@ -827,10 +814,10 @@ function setTranLan() {
     const mainLan = xstore.语言.语言;
     if (!e) return;
     e.getLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
-        translatorFrom.append(el("option", v.text, { value: v.lan }));
+        translatorFrom.append(ele("option").add(v.text).attr({ value: v.lan }).el);
     });
     e.getTargetLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
-        translatorTo.append(el("option", v.text, { value: v.lan }));
+        translatorTo.append(ele("option").add(v.text).attr({ value: v.lan }).el);
     });
 }
 
@@ -848,53 +835,44 @@ new Sortable(y翻译, {
     handle: ".sort_handle",
 });
 
-function eSort(ele: HTMLElement, list: string[][]) {
-    ele.classList.add("sort_list");
-    const sEl = el("div");
-    new Sortable(sEl, {
+function eSort(el: HTMLElement, list: string[][]) {
+    el.classList.add("sort_list");
+    const sEl = view();
+    new Sortable(sEl.el, {
         handle: ".sort_handle",
     });
 
     function add(i: (typeof list)[0]) {
-        const e = el("li");
-        e.append(el("button", { class: "sort_handle" }, iconEl(handle_svg)));
+        const e = ele("li");
+        e.add(button(iconEl(handle_svg)).class("sort_handle"));
         for (let x of i) {
-            const input = el("input", { type: "text" });
-            input.value = x;
-            e.append(input);
+            e.add(input(`url ${i}`).sv(x));
         }
-        e.append(
-            el("button", iconEl(delete_svg), {
-                onclick: () => {
-                    e.remove();
-                },
-            })
-        );
+        e.add(button(iconEl(delete_svg)).on("click", () => e.el.remove()));
         return e;
     }
 
     for (let i of list) {
-        sEl.append(add(i));
+        sEl.add(add(i));
     }
 
-    const addEl = el("div");
+    const addEl = view();
     for (let _x of list[0]) {
-        const input = el("input", { type: "text" });
-        addEl.append(input);
+        addEl.add(input("add url"));
     }
-    addEl.append(
-        el("button", iconEl(add_svg), {
-            onclick: () => {
-                sEl.append(add(Array.from(addEl.querySelectorAll("input")).map((i) => i.value)));
-                Array.from(addEl.querySelectorAll("input")).forEach((i) => (i.value = ""));
-            },
-        })
+    addEl.add(
+        button()
+            .add(iconEl(add_svg))
+            .on("click", () => {
+                sEl.add(add(Array.from(addEl.el.querySelectorAll("input")).map((i) => i.value)));
+                Array.from(addEl.el.querySelectorAll("input")).forEach((i) => (i.value = ""));
+            })
     );
 
-    ele.append(sEl, addEl);
+    el.append(sEl.el, addEl.el);
 
     return () => {
-        return Array.from(sEl.children).map((d) => Array.from(d.querySelectorAll("input")).map((i) => i.value));
+        return Array.from(sEl.el.children).map((d) => Array.from(d.querySelectorAll("input")).map((i) => i.value));
     };
 }
 
@@ -1051,7 +1029,7 @@ for (const x of ["+", "-"] as const) {
     for (const y of ["+", "-"] as const) {
         const px = x === "+" ? "right" : "left";
         const py = y === "+" ? "bottom" : "top";
-        const handle = el("div");
+        const handle = view().el;
         handle.style[px] = "-4px";
         handle.style[py] = "-4px";
         if (x === xstore.录屏.提示.键盘.位置.x && y === xstore.录屏.提示.键盘.位置.y) {
@@ -1220,7 +1198,7 @@ function saveSetting() {
             : 字体.大小
         : false;
     xstore.字体 = 字体;
-    xstore.翻译.翻译器 = Array.from(translatorList.children).map(
+    xstore.翻译.翻译器 = Array.from(translatorList.el.children).map(
         (i: HTMLElement) => transList[i.getAttribute("data-id")]
     );
     const yS = list2engine(y搜索引擎());
@@ -1389,8 +1367,8 @@ for (let i in versionL) {
 }
 document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
 
-import pack from "../../../package.json?raw";
-var packageJson = JSON.parse(pack);
+import _package from "../../../package.json?raw";
+var packageJson = JSON.parse(_package);
 const download = require("download");
 document.getElementById("name").innerHTML = packageJson.name;
 document.getElementById("version").innerHTML = packageJson.version;
@@ -1438,14 +1416,11 @@ document.getElementById("version").onclick = () => {
                     };
                     for (let a of r.assets) {
                         if (a.name === `app-${process.platform}-${process.arch}`) {
-                            let xel = el("span");
-                            xel.innerText = t("增量更新");
-                            tagEl.after(xel);
-                            xel.onclick = async () => {
-                                xel.innerHTML = "";
-                                let pro = el("progress");
-                                let text = el("span");
-                                xel.append(pro, text);
+                            let xel = txt("增量更新").on("click", async () => {
+                                xel.clear();
+                                let pro = ele("progress");
+                                let text = txt("");
+                                xel.add([pro, text]);
                                 download(a.browser_download_url, path.join(__dirname, "../../../"), {
                                     extract: true,
                                     rejectUnauthorized: false,
@@ -1456,17 +1431,18 @@ document.getElementById("version").onclick = () => {
                                         res.on("data", (data) => {
                                             now += Number(data.length);
                                             const percent = now / total;
-                                            text.innerText = `${(percent * 100).toFixed(2)}%`;
-                                            pro.value = percent;
+                                            text.el.innerText = `${(percent * 100).toFixed(2)}%`;
+                                            pro.el.value = percent;
                                         });
                                         res.on("end", () => {
-                                            xel.innerText = t("正在更新中");
+                                            xel.el.innerText = t("正在更新中");
                                         });
                                     })
                                     .then(() => {
-                                        xel.innerText = t("更新完毕，你可以重启软件");
+                                        xel.el.innerText = t("更新完毕，你可以重启软件");
                                     });
-                            };
+                            });
+                            tagEl.after(xel.el);
                         }
                     }
                 }
@@ -1482,34 +1458,26 @@ document.getElementById("version").onclick = () => {
         .catch((error) => console.log("error", error));
 };
 
-function a(str: string, href: string) {
-    return el("a", str || href, { href });
-}
-document
-    .getElementById("info")
-    .append(
-        el("div", t("项目主页:"), a(null, packageJson.homepage)),
-        el(
-            "div",
-            t("支持该项目:"),
-            a("为项目点亮星标🌟", packageJson.homepage),
-            " ",
-            a("赞赏", "https://github.com/xushengfeng")
-        ),
-        el("div", a(t("更新日志"), `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`)),
-        el("div", a(t("反馈错误 提供建议"), "https://github.com/xushengfeng/eSearch/issues/new/choose")),
-        el("div", a(t("改进翻译"), "https://github.com/xushengfeng/eSearch/tree/master/lib/translate")),
-        el("div", t("本软件遵循"), a(packageJson.license, `https://www.gnu.org/licenses/gpl-3.0.html`)),
-        el(
-            "div",
-            t("本软件基于"),
-            a(
-                t("这些软件"),
-                `https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json`
-            )
-        ),
-        el("div", t(`Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`))
-    );
+const infoEl = pack(document.getElementById("info"));
+
+infoEl.add([
+    view().add(["项目主页:", a(packageJson.homepage).add(packageJson.homepage)]),
+    view().add([
+        "支持该项目:",
+        a(packageJson.homepage).add("为项目点亮星标🌟"),
+        txt(" "),
+        a("https://github.com/xushengfeng").add("赞赏"),
+    ]),
+    view().add(a(`https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`).add("更新日志")),
+    view().add(a("https://github.com/xushengfeng/eSearch/issues/new/choose").add("反馈错误 提供建议")),
+    view().add(a("https://github.com/xushengfeng/eSearch/tree/master/lib/translate").add("改进翻译")),
+    view().add(["本软件遵循", a("https://www.gnu.org/licenses/gpl-3.0.html").add(packageJson.license)]),
+    view().add([
+        "本软件基于",
+        a("https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json").add("这些软件"),
+    ]),
+    view().add(`Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`),
+]);
 
 document.body.onclick = (e) => {
     if ((<HTMLElement>e.target).tagName === "A") {

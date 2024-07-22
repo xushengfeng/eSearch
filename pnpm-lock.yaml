@@ -18,8 +18,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       dkh-ui:
-        specifier: ^0.3.3
-        version: 0.3.3
+        specifier: ^0.3.5
+        version: 0.3.5
       download:
         specifier: ^8.0.0
         version: 8.0.0
@@ -50,9 +50,6 @@ importers:
       qr-scanner-wechat:
         specifier: ^0.1.3
         version: 0.1.3
-      redom:
-        specifier: ^4.0.0
-        version: 4.1.5
       sortablejs:
         specifier: ^1.15.2
         version: 1.15.2
@@ -1003,8 +1000,8 @@ packages:
   dir-compare@3.3.0:
     resolution: {integrity: sha512-J7/et3WlGUCxjdnD3HAAzQ6nsnc0WL6DD7WcwJb7c39iH1+AWfg+9OqzJNaI6PkBwBvm1mhZNL9iY/nRiZXlPg==}
 
-  dkh-ui@0.3.3:
-    resolution: {integrity: sha512-OdvGQyaCGl2A1AqpGZ+/wBQM0g+mAtR6Z/9OG+Kud0f6VgOPD2cvafX5qacHXyvNsfc6sjGnCVBHyhTqSh71lA==}
+  dkh-ui@0.3.5:
+    resolution: {integrity: sha512-ExSRiTvnFo48j8tvjfXpYWOLJTy1xdtdkOEZO5V1nJtJm/Yu4nXIXJ16k4t+zf+0gDFGjUWFCK1P58fYyOIgdw==}
 
   dmg-builder@24.13.3:
     resolution: {integrity: sha512-rcJUkMfnJpfCboZoOOPf4L29TRtEieHNOeAbYPWPxlaBw/Z1RKrRA86dOI9rwaI4tQSc/RD82zTNHprfUHXsoQ==}
@@ -1904,9 +1901,6 @@ packages:
 
   readdir-glob@1.1.3:
     resolution: {integrity: sha512-v05I2k7xN8zXvPD9N+z/uhXPaj0sUFCe2rcWZIpBsqxfP7xXFQ0tipAd/wjj1YxWyWtUS5IDJpOG82JKt2EAVA==}
-
-  redom@4.1.5:
-    resolution: {integrity: sha512-nTDHckFlzKhgli+gIHO943wmFkGeV1TT2jPdiuPqDiJekqj9XNyuxeHCUH1OJMa6bFGE8TB3EspTvV9d3UZyMw==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -3262,7 +3256,7 @@ snapshots:
       buffer-equal: 1.0.1
       minimatch: 3.1.2
 
-  dkh-ui@0.3.3:
+  dkh-ui@0.3.5:
     dependencies:
       csstype: 3.1.3
 
@@ -4177,8 +4171,6 @@ snapshots:
   readdir-glob@1.1.3:
     dependencies:
       minimatch: 5.1.6
-
-  redom@4.1.5: {}
 
   require-directory@2.1.1: {}
 
