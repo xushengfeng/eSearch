@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import rootInit from "../root/root";
-import { el } from "redom";
+import { select } from "dkh-ui";
 import "../../../lib/template2.js";
 import pauseSvg from "../assets/icons/pause.svg";
 import recumeSvg from "../assets/icons/recume.svg";
@@ -175,20 +175,16 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                     video: false,
                 });
                 if (audioL.length > 1) {
-                    const selectEl = el("select");
-                    audioL.forEach((i) => {
-                        const op = el("option", i.label, { value: i.deviceId });
-                        selectEl.append(op);
-                    });
-                    selectEl.value = id;
-                    selectEl.onchange = async () => {
-                        audioStream = await navigator.mediaDevices.getUserMedia({
-                            audio: { deviceId: selectEl.value },
-                            video: false,
+                    const selectEl = select(audioL.map((i) => ({ name: i.label, value: i.deviceId })))
+                        .sv(id)
+                        .on("change", async () => {
+                            audioStream = await navigator.mediaDevices.getUserMedia({
+                                audio: { deviceId: selectEl.gv() },
+                                video: false,
+                            });
+                            store.set("录屏.音频.设备", selectEl.gv());
                         });
-                        store.set("录屏.音频.设备", selectEl.value);
-                    };
-                    micEl.after(selectEl);
+                    micEl.after(selectEl.el);
                 }
             } else {
                 micEl.style.display = "none";
@@ -199,22 +195,18 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                     videoL.find((i) => i.deviceId === store.get("录屏.摄像头.设备"))?.deviceId ?? videoL[0].deviceId;
                 cameraDeviceId = id;
                 if (videoL.length > 1) {
-                    const selectEl = el("select");
-                    videoL.forEach((i) => {
-                        const op = el("option", i.label, { value: i.deviceId });
-                        selectEl.append(op);
-                    });
-                    selectEl.value = id;
-                    selectEl.onchange = async () => {
-                        cameraDeviceId = selectEl.value;
-                        if (cameraStream)
-                            cameraStream = await navigator.mediaDevices.getUserMedia({
-                                audio: false,
-                                video: { deviceId: selectEl.value },
-                            });
-                        store.set("录屏.摄像头.设备", selectEl.value);
-                    };
-                    cameraEl.after(selectEl);
+                    const selectEl = select(videoL.map((i) => ({ name: i.label, value: i.deviceId })))
+                        .sv(id)
+                        .on("change", async () => {
+                            cameraDeviceId = selectEl.el.value;
+                            if (cameraStream)
+                                cameraStream = await navigator.mediaDevices.getUserMedia({
+                                    audio: false,
+                                    video: { deviceId: selectEl.el.value },
+                                });
+                            store.set("录屏.摄像头.设备", selectEl.el.value);
+                        });
+                    cameraEl.after(selectEl.el);
                 }
             }
             navigator.mediaDevices.ondevicechange = () => {
