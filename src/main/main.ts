@@ -1976,7 +1976,6 @@ const defaultSetting: setting = {
         翻译: "Ctrl+Shift+T",
         打开链接: "Ctrl+Shift+L",
         删除换行: "Ctrl+Enter",
-        添加空格: "Ctrl+/",
         图片区: "Ctrl+P",
         关闭: "Ctrl+W",
     },

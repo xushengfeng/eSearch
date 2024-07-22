@@ -568,7 +568,6 @@ const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = 
     翻译: () => edit("translate"),
     打开链接: () => edit("link"),
     删除换行: () => edit("delete_enter"),
-    添加空格: () => edit("add_space"),
     图片区: () => imageB.click(),
     关闭: closeWindow,
 };
@@ -612,8 +611,6 @@ editBEl.onmousedown = async (e) => {
         edit(id);
     }
 };
-
-var isWordNinJaLoaded = false;
 
 var isWrap = !store.get("编辑器.自动换行");
 wrap();
@@ -998,9 +995,6 @@ const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("
 const fs = require("fs") as typeof import("fs");
 const os = require("os") as typeof import("os");
 
-const WordsNinjaPack = require("wordsninja");
-const WordsNinja = new WordsNinjaPack();
-
 ipcRenderer.on("init", (_event, _name: number) => {});
 
 ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
@@ -1152,21 +1146,6 @@ async function edit(arg: string) {
         case "delete_enter":
             editor.deleteEnter();
             break;
-        case "add_space": {
-            const s = editor.selections.getS();
-            let t = editor.selections.get(s);
-            if (t.endsWith("\n")) {
-                t = t.slice(0, t.length - 1);
-                s.end--;
-            }
-            if (!isWordNinJaLoaded) {
-                await WordsNinja.loadDictionary();
-                isWordNinJaLoaded = true;
-            }
-            const n = WordsNinja.splitSentence(t).join(" ");
-            editor.selections.replace(n, s);
-            break;
-        }
         case "show_find":
             showFind();
             break;

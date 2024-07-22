@@ -56,9 +56,6 @@ importers:
       uiohook-napi:
         specifier: ^1.5.3
         version: 1.5.4
-      wordsninja:
-        specifier: ^1.0.0
-        version: 1.0.0
       x11:
         specifier: ^2.3.0
         version: 2.3.0
@@ -2230,9 +2227,6 @@ packages:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
     hasBin: true
-
-  wordsninja@1.0.0:
-    resolution: {integrity: sha512-f9aKDZ01xCjBEVxqQ4+fbSw+Jksi0OlvWV4QeqFzX78FjwREk/7ARgk0PuKlOkxGPg1ylkTYMTcKpReMVi2z4A==}
 
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
@@ -4504,8 +4498,6 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
-
-  wordsninja@1.0.0: {}
 
   wrap-ansi@7.0.0:
     dependencies:
