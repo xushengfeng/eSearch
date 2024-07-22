@@ -12,11 +12,14 @@ import { t, lan } from "../../../lib/translate/translate";
 import Color from "color";
 import fabricSrc from "../../../lib/fabric.min.js?raw";
 
-const configPath = new URLSearchParams(location.search).get("config_path");
-const Store = require("electron-store");
-const store = new Store({
-    cwd: configPath || "",
-});
+const store = {
+    get: (path: string) => {
+        return ipcRenderer.sendSync("store", { type: "get", path });
+    },
+    set: (path: string, value: any) => {
+        ipcRenderer.send("store", { type: "set", path, value });
+    },
+};
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
 try {

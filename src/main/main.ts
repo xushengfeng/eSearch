@@ -62,6 +62,14 @@ try {
     store = new Store();
 }
 
+ipcMain.on("store", (e, x) => {
+    if (x.type === "get") {
+        e.returnValue = store.get(x.path);
+    } else {
+        store.set(x.path, x.value);
+    }
+});
+
 let /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
 if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_DEV"] || store.get("dev")) {
