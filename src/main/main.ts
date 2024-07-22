@@ -78,6 +78,19 @@ if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_D
     dev = false;
 }
 
+if (dev) {
+    setInterval(() => {
+        const usage = process.memoryUsage();
+        const main = usage.rss / 1024 / 1024;
+        let rander = 0;
+        app.getAppMetrics()
+            .filter((i) => i.type === "Tab")
+            .forEach((i) => (rander += i.memory.workingSetSize));
+        rander = rander / 1024;
+        console.log(`Memory： ${main.toFixed(7)} + ${rander.toFixed(7)} = ${main + rander}`);
+    }, 1500);
+}
+
 function mainUrl(fileName: string) {
     if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
         let mainUrl = `${process.env["ELECTRON_RENDERER_URL"]}/${fileName}`;
