@@ -48,7 +48,7 @@ importers:
         specifier: ^1.15.2
         version: 1.15.2
       uiohook-napi:
-        specifier: ^1.5.3
+        specifier: ^1.5.4
         version: 1.5.4
       x11:
         specifier: ^2.3.0

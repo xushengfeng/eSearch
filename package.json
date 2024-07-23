@@ -30,7 +30,7 @@
         "opencv.js": "^1.2.1",
         "qr-scanner-wechat": "^0.1.3",
         "sortablejs": "^1.15.2",
-        "uiohook-napi": "^1.5.3",
+        "uiohook-napi": "^1.5.4",
         "x11": "^2.3.0",
         "xtranslator": "^1.0.15"
     },
