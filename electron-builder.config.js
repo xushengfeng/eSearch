@@ -258,7 +258,7 @@ const ignoreDir = [
     "node_modules/**/*.md",
     "node_modules/**/*.map",
 ];
-const ignoreModule = ["qr-scanner-wechat", "tar"];
+const ignoreModule = ["qr-scanner-wechat", "tar", "sortablejs"];
 for (let i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
 }
