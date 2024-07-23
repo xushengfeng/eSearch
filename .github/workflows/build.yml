@@ -36,8 +36,9 @@ jobs:
               env:
                   M_ARCH: ${{matrix.arch}}
               run: |
-                  npm install
-                  npm run dist
+                  npm install -g pnpm
+                  pnpm install
+                  pnpm run dist
 
             - name: upload
               uses: actions/upload-artifact@v3
