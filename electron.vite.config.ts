@@ -2,7 +2,11 @@ import { defineConfig } from "electron-vite";
 import * as path from "path";
 
 export default defineConfig({
-    main: {},
+    main: {
+        build: {
+            minify: "esbuild",
+        },
+    },
     renderer: {
         build: {
             rollupOptions: {
@@ -19,6 +23,7 @@ export default defineConfig({
                 },
             },
             assetsInlineLimit: 0,
+            minify: "esbuild",
         },
     },
 });
