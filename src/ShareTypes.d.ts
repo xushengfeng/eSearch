@@ -110,7 +110,7 @@ export interface setting {
             y: number;
         };
         形状属性: {
-            [k in EditType["shape"]]?: {
+            [k in EditType["shape"] | EditType["draw"]]?: {
                 fc?: string;
                 sc?: string;
                 sw?: number;
@@ -118,7 +118,8 @@ export interface setting {
             };
         };
         记忆: EditType;
-        arrow: { // todo set
+        arrow: {
+            // todo set
             type: "fill" | "stroke";
             w: number;
             h: number;

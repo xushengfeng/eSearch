@@ -1713,22 +1713,28 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     }
     if (mainType === "shape") {
         shape = type as Shape;
-        if (store.get(`图像编辑.形状属性.${shape}`)) {
+        if (shape)
+            shapePro[shape] = {
+                fc: fillColor,
+                sc: strokeColor,
+                sw: strokeWidth,
+            };
+        if (shape && store.get(`图像编辑.形状属性.${shape}`)) {
             let f = store.get(`图像编辑.形状属性.${shape}.fc`);
             let s = store.get(`图像编辑.形状属性.${shape}.sc`);
             let op = {};
             if (f) {
                 op["fill"] = f;
-                fillColor = f;
+                shapePro[shape]["fc"] = f;
             }
             if (s) {
                 op["stroke"] = s;
-                strokeColor = s;
+                shapePro[shape]["sc"] = s;
             }
             changeColor(op, false, true);
             let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
             if (sw) {
-                strokeWidth = sw;
+                shapePro[shape]["sw"] = sw;
                 (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
             }
         }
@@ -1812,7 +1818,7 @@ function freeSprayElClick() {
     setDrawMode("stroke");
 }
 function freeShadow() {
-    shadowBlur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
+    const shadowBlur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
     fabricCanvas.freeDrawingBrush.shadow = new Fabric.Shadow({
         blur: shadowBlur,
         color: freeColor,
@@ -1849,9 +1855,10 @@ function freeInit() {
     let sc = store.get(`图像编辑.形状属性.${mode}.sc`);
     let sw = store.get(`图像编辑.形状属性.${mode}.sw`);
     let sb = store.get(`图像编辑.形状属性.${mode}.shadow`);
-    if (sc) freeColor = sc;
-    if (sw) freeWidth = sw;
-    if (sb) shadowBlur = sb;
+    if (!shapePro[mode]) shapePro[mode] = {};
+    if (sc) shapePro[mode]["sc"] = sc;
+    if (sw) shapePro[mode]["sw"] = sw;
+    if (sb) shapePro[mode]["shadow"] = sb;
     if (sc) changeColor({ stroke: sc }, false, true);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
     if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
@@ -1873,7 +1880,9 @@ function rotate(x: number, y: number, r: number) {
 }
 
 // 画一般图形
-function draw(shape: Shape, v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
+function draw(shape: EditType["shape"], v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
+    const pro = shapePro[shape];
+    const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (v === "move") {
         fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
@@ -1944,9 +1953,11 @@ function draw(shape: Shape, v: "start" | "move", x1: number, y1: number, x2: num
     fabricCanvas.add(shapes.at(-1));
 }
 // 多边形
-function drawPoly(shape: Shape) {
+function drawPoly(shape: EditType["shape"]) {
     console.log(1111);
 
+    const pro = shapePro[shape];
+    const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (polyOP.length != 1) {
         fabricCanvas.remove(shapes.at(-1));
         shapes.splice(shapes.length - 1, 1);
@@ -1986,9 +1997,9 @@ function drawNumber() {
         radius: 12,
         originX: "center",
         originY: "center",
-        fill: fillColor,
-        stroke: strokeColor,
-        strokeWidth: strokeWidth,
+        fill: shapePro.number.fc,
+        stroke: shapePro.number.sc,
+        strokeWidth: shapePro.number.sw,
         canChangeFill: true,
         text: String(drawNumberN),
         形状: "number",
@@ -2169,27 +2180,30 @@ function colorBar() {
 
 /** 鼠标点击后，改变栏文字样式 */
 function getFObjectV() {
+    let pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     if (fabricCanvas.getActiveObject()) {
-        var n = fabricCanvas.getActiveObject();
+        let n = fabricCanvas.getActiveObject();
         if (n._objects) {
             // 当线与形一起选中，确保形不会透明
             for (let i of n._objects) {
                 if (i.canChangeFill) n = i;
             }
         }
-        if (n.filters) n = { fill: fillColor, stroke: strokeColor, strokeWidth: strokeWidth };
+        if (n.fill) pro.fc = n.fill;
+        if (n.stroke) pro.sc = n.stroke;
+        if (n.strokeWidth) pro.sw = n.strokeWidth;
+        if (n.filters) pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     } else if (fabricCanvas.isDrawingMode) {
-        n = { fill: "#0000", stroke: freeColor, strokeWidth: freeWidth };
+        pro = { fc: "#0000", sc: freeColor, sw: freeWidth };
     } else {
-        n = { fill: fillColor, stroke: strokeColor, strokeWidth: strokeWidth };
+        pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     }
-    console.log(n);
-    var [fill, stroke, strokeWidth] = [n.fill, n.stroke, n.strokeWidth];
-    (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = strokeWidth;
-    changeColor({ fill: fill, stroke: stroke }, false, true);
-    var fill_a = Color(colorFillEl.innerText).alpha();
+    console.log(pro);
+    (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = pro.sw;
+    changeColor({ fill: pro.fc, stroke: pro.sc }, false, true);
+    const fill_a = Color(colorFillEl.innerText).alpha();
     colorAlphaInput1.value = String(Math.round(fill_a * 100));
-    var stroke_a = Color(colorStrokeEl.innerText).alpha();
+    const stroke_a = Color(colorStrokeEl.innerText).alpha();
     colorAlphaInput2.value = String(Math.round(stroke_a * 100));
 
     ableChangeColor();
@@ -2217,14 +2231,19 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
                 store.set(`图像编辑.形状属性.${n[i].形状}.fc`, fill || fillColor);
                 store.set(`图像编辑.形状属性.${n[i].形状}.sc`, stroke || strokeColor);
                 store.set(`图像编辑.形状属性.${n[i].形状}.sw`, sw || strokeWidth);
+                shapePro[n[i].形状] = {
+                    fc: fill || fillColor,
+                    sc: stroke || strokeColor,
+                    sw: sw || strokeWidth,
+                };
             }
         }
         fabricCanvas.renderAll();
     } else if (fabricCanvas.isDrawingMode) {
         console.log(1);
         /* 画笔 */
-        if (stroke) fabricCanvas.freeDrawingBrush.color = freeColor = stroke;
-        if (sw) fabricCanvas.freeDrawingBrush.width = freeWidth = sw;
+        if (stroke) fabricCanvas.freeDrawingBrush.color = shapePro[editType.draw].sc = stroke;
+        if (sw) fabricCanvas.freeDrawingBrush.width = shapePro[editType.draw].sw = sw;
         freeDrawCursor();
         freeShadow();
         if (mode) {
@@ -2234,9 +2253,10 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     } else {
         console.log(2);
         /* 非画笔非选中 */
-        if (fill) fillColor = fill;
-        if (stroke) strokeColor = freeColor = stroke;
-        if (sw) strokeWidth = sw;
+        const pro = shapePro[editType.shape];
+        if (fill) pro.fc = fill;
+        if (stroke) pro.sc = stroke;
+        if (sw) pro.sw = sw;
     }
 }
 
@@ -2727,7 +2747,7 @@ let editType: EditType = {
     filter: "pixelate",
     shape: "rect",
 };
-let editTypeRecord = store.get("图像编辑.记忆") as EditType;
+const editTypeRecord = store.get("图像编辑.记忆") as EditType;
 
 editType.select = editTypeRecord.select || editType.select;
 editType.draw = editTypeRecord.draw || editType.draw;
@@ -3508,12 +3528,13 @@ const fabricCanvas = new Fabric.Canvas("draw_photo");
 
 hisPush();
 
-let fillColor = store.get("图像编辑.默认属性.填充颜色");
-let strokeColor = store.get("图像编辑.默认属性.边框颜色");
-let strokeWidth = store.get("图像编辑.默认属性.边框宽度");
-let freeColor = store.get("图像编辑.默认属性.画笔颜色");
-let freeWidth = store.get("图像编辑.默认属性.画笔粗细");
-let shadowBlur = 0;
+const fillColor = store.get("图像编辑.默认属性.填充颜色");
+const strokeColor = store.get("图像编辑.默认属性.边框颜色");
+const strokeWidth = store.get("图像编辑.默认属性.边框宽度");
+const freeColor = store.get("图像编辑.默认属性.画笔颜色");
+const freeWidth = store.get("图像编辑.默认属性.画笔粗细");
+
+const shapePro: setting["图像编辑"]["形状属性"] = {};
 
 // 编辑栏
 const drawMainBar = document.getElementById("draw_main");
@@ -3631,7 +3652,7 @@ fabricCanvas.on("mouse:down", (options) => {
 fabricCanvas.on("mouse:move", (options) => {
     if (drawingShape) {
         if (!unnormalShapes.includes(shape)) {
-            draw(shape, "move", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
+            if (shape != "") draw(shape, "move", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
         }
     }
 });
