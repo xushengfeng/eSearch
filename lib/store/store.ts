@@ -2,6 +2,10 @@ const { app } = require("electron");
 const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 
+type data = {
+    [key: string]: any;
+};
+
 class Store {
     private configPath: string;
 
@@ -10,10 +14,10 @@ class Store {
     }
 
     private getStore() {
-        return JSON.parse(fs.readFileSync(this.configPath).toString() || "{}");
+        return JSON.parse(fs.readFileSync(this.configPath).toString() || "{}") as data;
     }
 
-    private setStore(data) {
+    private setStore(data: data) {
         fs.writeFileSync(this.configPath, JSON.stringify(data, null, 2));
     }
 
@@ -23,7 +27,7 @@ class Store {
         const lastp = pathx.pop();
         const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), store);
         lastobj[lastp] = value;
-        this.setStore(JSON.stringify(store, null, 2));
+        this.setStore(store);
     }
 
     public get(keyPath: string): any {
