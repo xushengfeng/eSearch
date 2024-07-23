@@ -17,14 +17,13 @@
     "homepage": "https://github.com/xushengfeng/eSearch/",
     "license": "GPL-3.0",
     "dependencies": {
-        "@types/sortablejs": "^1.15.8",
         "color": "^4.2.3",
         "diff-match-patch": "^1.0.5",
         "dkh-ui": "^0.3.5",
         "download": "^8.0.0",
         "electron-store": "^8.1.0",
-        "esearch-ocr": "^4.2.4",
-        "esearch-seg": "^1.1.2",
+        "esearch-ocr": "^4.2.5",
+        "esearch-seg": "^1.1.4",
         "hex-to-css-filter": "^5.4.0",
         "hotkeys-js": "^3.13.7",
         "node-screenshots": "^0.1.9",
@@ -34,12 +33,13 @@
         "sortablejs": "^1.15.2",
         "uiohook-napi": "^1.5.3",
         "x11": "^2.3.0",
-        "xtranslator": "^1.0.13"
+        "xtranslator": "^1.0.15"
     },
     "devDependencies": {
         "@types/color": "^3.0.3",
         "@types/diff-match-patch": "^1.0.34",
         "@types/node": "^18.8.4",
+        "@types/sortablejs": "^1.15.8",
         "archiver": "^7.0.1",
         "csv-parse": "^5.5.5",
         "electron": "^22.3.27",

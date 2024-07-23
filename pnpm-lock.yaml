@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@types/sortablejs':
-        specifier: ^1.15.8
-        version: 1.15.8
       color:
         specifier: ^4.2.3
         version: 4.2.3
@@ -27,11 +24,11 @@ importers:
         specifier: ^8.1.0
         version: 8.2.0
       esearch-ocr:
-        specifier: ^4.2.4
-        version: 4.2.4(opencv.js@1.2.1)
+        specifier: ^4.2.5
+        version: 4.2.5(opencv.js@1.2.1)
       esearch-seg:
-        specifier: ^1.1.2
-        version: 1.1.3(opencv.js@1.2.1)
+        specifier: ^1.1.4
+        version: 1.1.4(opencv.js@1.2.1)
       hex-to-css-filter:
         specifier: ^5.4.0
         version: 5.4.0
@@ -60,8 +57,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       xtranslator:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.15
+        version: 1.0.15
     optionalDependencies:
       node-screenshots-darwin-arm64:
         specifier: 0.1.9
@@ -94,6 +91,9 @@ importers:
       '@types/node':
         specifier: ^18.8.4
         version: 18.19.39
+      '@types/sortablejs':
+        specifier: ^1.15.8
+        version: 1.15.8
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -724,9 +724,6 @@ packages:
   bluebird@3.7.2:
     resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
 
-  blueimp-md5@2.19.0:
-    resolution: {integrity: sha512-DRQrD6gJyy8FbiE4s+bDoXS9hiW3Vbx5uCdwvcCf3zLHL+Iv7LtGHLpr+GZV8rHG8tK766FGYBwRbu8pELTt+w==}
-
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
 
@@ -917,9 +914,6 @@ packages:
   cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
-
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
@@ -1112,13 +1106,13 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  esearch-ocr@4.2.4:
-    resolution: {integrity: sha512-sJqZ8lW3OC+rg1YuUBKiBkx0i1MrU6qhjanPx5SzD80pFoYkom4lEMpwa7APGU3GeDfX4+0q6UPOu1CWPdtr3Q==}
+  esearch-ocr@4.2.5:
+    resolution: {integrity: sha512-8LRLNDtmt3dVbkHl9XQs0ctoM2IQi7IgGicOrPi04FWH2iX6E/RiN7l4C1Smy1GOZmADtWEj2OSgd+N1i/JC0Q==}
     peerDependencies:
       opencv.js: ^1.2.1
 
-  esearch-seg@1.1.3:
-    resolution: {integrity: sha512-MnpzYUcjoAxWBW7Ks/85Ms7EAqC+QqZ7CNdl/wIud1QOOWereJ8Gn5x2CEUJ6PZSwx15GbCJjkntiy+CdAO1Lw==}
+  esearch-seg@1.1.4:
+    resolution: {integrity: sha512-0hoN9JTKjImH29jh5fDOTOfxH4/R9ffT/B5mlP/dh7qMbu7oxFmfyv7nX7gpfb+B2bibCa00/eWdMOD3IkfM+Q==}
     peerDependencies:
       opencv.js: ^1.2.1
 
@@ -1158,9 +1152,6 @@ packages:
 
   fd-slicer@1.1.0:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
-
-  fetch-jsonp@1.3.0:
-    resolution: {integrity: sha512-hxCYGvmANEmpkHpeWY8Kawfa5Z1t2csTpIClIDG/0S92eALWHRU1RnGaj86Tf5Cc0QF+afSa4SQ4pFB2rFM5QA==}
 
   file-type@11.1.0:
     resolution: {integrity: sha512-rM0UO7Qm9K7TWTtA6AShI/t7H5BPjDeGVDaNyg9BjHAj3PysKy7+8C8D137R88jnR3rFJZQB/tFgydl5sN5m7g==}
@@ -2253,8 +2244,8 @@ packages:
   xtimelog@1.0.5:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
 
-  xtranslator@1.0.13:
-    resolution: {integrity: sha512-yip0yt3ivvyMlClOMN9DTi0xSELorP1Ev6iutiLhEZsjCT9IYTNak549Svx2qvvSlRWTZ8+jO1cXLS7gsntKGg==}
+  xtranslator@1.0.15:
+    resolution: {integrity: sha512-JnDqNcJrZqj1qLOWH8phMHcKxFSc6YCq2hmGr0Vj7IpCXzWShHSKDqumC05YVtPDme/p+wEdaw9+ro8u0T+0wQ==}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -2918,8 +2909,6 @@ snapshots:
 
   bluebird@3.7.2: {}
 
-  blueimp-md5@2.19.0: {}
-
   boolean@3.2.0:
     optional: true
 
@@ -3159,8 +3148,6 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  crypto-js@4.2.0: {}
 
   csstype@3.1.3: {}
 
@@ -3432,13 +3419,13 @@ snapshots:
   escape-string-regexp@4.0.0:
     optional: true
 
-  esearch-ocr@4.2.4(opencv.js@1.2.1):
+  esearch-ocr@4.2.5(opencv.js@1.2.1):
     dependencies:
       js-clipper: 1.0.1
       onnxruntime-common: 1.18.0
       opencv.js: 1.2.1
 
-  esearch-seg@1.1.3(opencv.js@1.2.1):
+  esearch-seg@1.1.4(opencv.js@1.2.1):
     dependencies:
       opencv.js: 1.2.1
 
@@ -3477,8 +3464,6 @@ snapshots:
   fd-slicer@1.1.0:
     dependencies:
       pend: 1.2.0
-
-  fetch-jsonp@1.3.0: {}
 
   file-type@11.1.0: {}
 
@@ -4523,11 +4508,7 @@ snapshots:
 
   xtimelog@1.0.5: {}
 
-  xtranslator@1.0.13:
-    dependencies:
-      blueimp-md5: 2.19.0
-      crypto-js: 4.2.0
-      fetch-jsonp: 1.3.0
+  xtranslator@1.0.15: {}
 
   y18n@5.0.8: {}
 
