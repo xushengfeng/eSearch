@@ -37,6 +37,7 @@ function lan(lan: string) {
  * @returns 翻译后的文字
  */
 function t(text: string) {
+    if (!language) return text;
     if (language === "zh-HANS") return text;
     return st(text, l);
 }
