@@ -2061,37 +2061,42 @@ function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text
         let color = mL[i];
         if (color === null) color = "#0000";
         const colorL = Color(color).rgb().array();
-        document.getElementById(`draw_color_${colorM}`).style.backgroundColor = Color(colorL).string();
-        if (colorM == "fill") {
+        if (i === colorM)
+            document.getElementById(`draw_color_${colorM}`).style.backgroundColor = Color(colorL).string();
+        if (i == "fill") {
             (<HTMLDivElement>document.querySelector("#draw_color > div")).style.backgroundColor =
                 Color(colorL).string();
             if (setO) setFObjectV(Color(colorL).string(), null, null);
         }
-        if (colorM == "stroke") {
+        if (i == "stroke") {
             (<HTMLDivElement>document.querySelector("#draw_color > div")).style.borderColor = Color(colorL).string();
             if (setO) setFObjectV(null, Color(colorL).string(), null);
         }
 
         // 文字自适应
-        const tColor = Color(document.getElementById(`draw_color_${colorM}`).style.backgroundColor);
-        const bgColor = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
-        if (tColor.rgb().array()[3] >= 0.5 || tColor.rgb().array()[3] === undefined) {
-            if (tColor.isLight()) {
-                document.getElementById(`draw_color_${colorM}`).style.color = "#000";
+        if (i === colorM) {
+            const tColor = Color(document.getElementById(`draw_color_${i}`).style.backgroundColor);
+            const bgColor = Color(
+                getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", "")
+            );
+            if (tColor.rgb().array()[3] >= 0.5 || tColor.rgb().array()[3] === undefined) {
+                if (tColor.isLight()) {
+                    document.getElementById(`draw_color_${i}`).style.color = "#000";
+                } else {
+                    document.getElementById(`draw_color_${i}`).style.color = "#fff";
+                }
             } else {
-                document.getElementById(`draw_color_${colorM}`).style.color = "#fff";
+                // 低透明度背景呈现栏的颜色
+                if (bgColor.isLight()) {
+                    document.getElementById(`draw_color_${i}`).style.color = "#000";
+                } else {
+                    document.getElementById(`draw_color_${i}`).style.color = "#fff";
+                }
             }
-        } else {
-            // 低透明度背景呈现栏的颜色
-            if (bgColor.isLight()) {
-                document.getElementById(`draw_color_${colorM}`).style.color = "#000";
-            } else {
-                document.getElementById(`draw_color_${colorM}`).style.color = "#fff";
-            }
-        }
 
-        if (text) {
-            document.getElementById(`draw_color_${colorM}`).innerText = Color(color).hexa();
+            if (text) {
+                document.getElementById(`draw_color_${i}`).innerText = Color(color).hexa();
+            }
         }
     }
 }
