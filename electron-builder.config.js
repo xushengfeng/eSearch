@@ -253,13 +253,15 @@ const ignoreDir = [
     "*.yaml",
     "**/*.ts",
     "src",
-    "node_modules/qr-scanner-wechat",
     "lib/fabric.min.js",
-    "node_modules/tar",
     "node_modules/**/*.flow",
     "node_modules/**/*.md",
     "node_modules/**/*.map",
 ];
+const ignoreModule = ["qr-scanner-wechat", "tar"];
+for (let i of ignoreModule) {
+    ignoreDir.push(`node_modules/${i}`);
+}
 for (let i of ignoreDir) {
     i = "!" + i;
     build[platform2].files.push(i);
