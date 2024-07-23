@@ -257,6 +257,14 @@ const ignoreDir = [
     "node_modules/**/*.flow",
     "node_modules/**/*.md",
     "node_modules/**/*.map",
+    "node_modules/**/*.h", // uiohook
+    "node_modules/**/*.c", // uiohook
+    "node_modules/**/demo*", // js-clipper
+    "node_modules/js-clipper/vendor",
+    "node_modules/onnxruntime-node/script",
+    "node_modules/**/**esm**",
+    "node_modules/**/*.es*",
+    "node_modules/esearch-ocr/dist/esearch-ocr.js",
 ];
 const ignoreModule = ["qr-scanner-wechat", "tar", "sortablejs"];
 for (let i of ignoreModule) {
