@@ -11,15 +11,7 @@ import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";
 import Color from "color";
 import fabricSrc from "../../../lib/fabric.min.js?raw";
-
-const store = {
-    get: (path: string) => {
-        return ipcRenderer.sendSync("store", { type: "get", path });
-    },
-    set: (path: string, value: any) => {
-        ipcRenderer.send("store", { type: "set", path, value });
-    },
-};
+import store from "../../../lib/store/renderStore";
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
 try {

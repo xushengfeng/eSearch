@@ -1,10 +1,6 @@
 /// <reference types="vite/client" />
 
-var Store = require("electron-store");
-var configPath = new URLSearchParams(location.search).get("config_path");
-var store = new Store({
-    cwd: configPath || "",
-});
+import store from "../../../lib/store/renderStore";
 import { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 import { view, txt, ele, button, image } from "dkh-ui";
@@ -901,16 +897,17 @@ for (let e of 翻译引擎List) {
 /************************************历史记录 */
 // 历史记录
 
-var historyStore = new Store({ name: "history" });
+// var historyStore = new Store({ name: "history" });
+// todo
 
-var historyList: { [key: string]: { text: string } } = historyStore.get("历史记录") || {};
+var historyList: { [key: string]: { text: string } } = {};
 var 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     var nowTime = new Date().getTime();
     var dTime = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
     for (var i of Object.keys(historyList)) {
         if (nowTime - Number(i) > dTime) {
-            historyStore.delete(`历史记录.${i}`);
+            // historyStore.delete(`历史记录.${i}`);
         }
     }
 }
@@ -920,7 +917,7 @@ function pushHistory() {
     var i = new Date().getTime();
     var s = { text: t };
     if (t != "" && 历史记录设置.保留历史记录) {
-        historyStore.set(`历史记录.${i}`, s);
+        // historyStore.set(`历史记录.${i}`, s);
         historyList[i] = s;
     }
     renderHistory();
@@ -981,7 +978,7 @@ function renderHistory() {
     // TODO多选
     document.querySelectorAll("#history_list > div > .history_title > button").forEach((e) => {
         e.addEventListener("click", () => {
-            historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
+            // historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
             e.parentElement.parentElement.style.display = "none";
         });
     });
@@ -1480,9 +1477,9 @@ function mainEvent(eid: string) {
     if (eid === "browser") {
         openInBrowser();
     } else if (eid === "add_history") {
-        historyStore.set(`历史记录.${new Date().getTime()}`, {
-            text: document.querySelector(".tab_focus").getAttribute("data-url"),
-        });
+        // historyStore.set(`历史记录.${new Date().getTime()}`, {
+        //     text: document.querySelector(".tab_focus").getAttribute("data-url"),
+        // });
     } else if (eid === "home") {
         document.querySelector(".tab_focus").classList.remove("tab_focus");
         body.classList.remove("fill_t_s");

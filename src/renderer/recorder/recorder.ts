@@ -19,11 +19,7 @@ type timeEl = {
     max: number;
 } & HTMLElement;
 
-let configPath = new URLSearchParams(location.search).get("config_path");
-const Store = require("electron-store");
-var store = new Store({
-    cwd: configPath || "",
-});
+import store from "../../../lib/store/renderStore";
 rootInit(store);
 
 var recorder: MediaRecorder;

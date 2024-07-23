@@ -3,11 +3,7 @@ import { setting } from "../../ShareTypes";
 import xtranslator from "xtranslator";
 import initStyle from "../root/root";
 
-var Store = require("electron-store");
-var configPath = new URLSearchParams(location.search).get("config_path");
-var store = new Store({
-    cwd: configPath || "",
-});
+import store from "../../../lib/store/renderStore";
 
 import { button, ele, frame, image, p, pureStyle, txt, view } from "dkh-ui";
 

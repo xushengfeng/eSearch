@@ -21,7 +21,8 @@ import {
 } from "electron";
 import type { Buffer } from "buffer";
 
-const Store = require("electron-store");
+// const Store = require("../../lib/store/store");
+import Store from "../../lib/store/store";
 import { setting, MainWinType, translateWinType, 功能 } from "../ShareTypes";
 import { join, resolve, dirname } from "path";
 import { exec } from "child_process";
@@ -298,7 +299,7 @@ app.whenReady().then(() => {
     lan(store.get("语言.语言"));
 
     // 初始化设置
-    Store.initRenderer();
+    // Store.initRenderer();
     // 托盘
     tray =
         process.platform == "linux"
@@ -401,7 +402,7 @@ app.whenReady().then(() => {
         {
             label: t("设置"),
             click: () => {
-                Store.initRenderer();
+                // Store.initRenderer();
                 createSettingWindow();
             },
         },

@@ -23,11 +23,7 @@ function iconEl(img: string) {
     return image(img, "icon").class("icon");
 }
 
-var Store = require("electron-store");
-var configPath = new URLSearchParams(location.search).get("config_path");
-var store = new Store({
-    cwd: configPath || "",
-});
+import store from "../../../lib/store/renderStore";
 
 const transE = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
 

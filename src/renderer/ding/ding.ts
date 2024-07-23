@@ -3,11 +3,7 @@ const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 const os = require("os") as typeof import("os");
 import initStyle from "../root/root";
-let configPath = new URLSearchParams(location.search).get("config_path");
-const Store = require("electron-store");
-var store = new Store({
-    cwd: configPath || "",
-});
+import store from "../../../lib/store/renderStore";
 initStyle(store);
 
 ipcRenderer.on("ding", (_event, type, id, more) => {

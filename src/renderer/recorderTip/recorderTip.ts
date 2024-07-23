@@ -4,11 +4,7 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 import { setting } from "../../ShareTypes";
 
 // 获取设置
-let configPath = new URLSearchParams(location.search).get("config_path");
-const Store = require("electron-store");
-var store = new Store({
-    cwd: configPath || "",
-});
+import store from "../../../lib/store/renderStore";
 
 const keysEl = document.getElementById("recorder_key");
 const recorderMouseEl = document.getElementById("mouse_c");
