@@ -1748,7 +1748,7 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
 
     if (!(mainType === "select" && type === "draw")) store.set(`图像编辑.记忆.${mainType}`, type);
 
-    setOnlyStroke(mainType === "draw" || (mainType === "shape" && ["line", "polyline", "arrow"].includes(type)));
+    setOnlyStroke(mainType === "draw" || (mainType === "shape" && strokeShapes.includes(type)));
 }
 
 function showSideBarItem(index: number) {
@@ -1859,6 +1859,7 @@ function freeInit() {
     if (sc) shapePro[mode]["sc"] = sc;
     if (sw) shapePro[mode]["sw"] = sw;
     if (sb) shapePro[mode]["shadow"] = sb;
+    setDrawMode("stroke");
     if (sc) changeColor({ stroke: sc }, false, true);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
     if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
@@ -2034,6 +2035,7 @@ function changeAlpha(v, m) {
         .rgb()
         .array();
     rgba[3] = v / 100;
+    setDrawMode(m);
     changeColor({ [m]: rgba }, true, true);
 }
 
@@ -2056,7 +2058,6 @@ function ableChangeColor() {
  */
 function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text: boolean) {
     for (let i in mL) {
-        colorM = i as "fill" | "stroke";
         let color = mL[i];
         if (color === null) color = "#0000";
         const colorL = Color(color).rgb().array();
@@ -2193,6 +2194,7 @@ function getFObjectV() {
         if (n.stroke) pro.sc = n.stroke;
         if (n.strokeWidth) pro.sw = n.strokeWidth;
         if (n.filters) pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
+        setOnlyStroke(!n.canChangeFill);
     } else if (fabricCanvas.isDrawingMode) {
         pro = { fc: "#0000", sc: freeColor, sw: freeWidth };
     } else {
@@ -2776,6 +2778,7 @@ let shape: Shape = "";
 let drawingShape = false;
 const shapes = [];
 const unnormalShapes = ["polyline", "polygon", "number"];
+const strokeShapes = ["line", "polyline", "arrow"];
 let drawOP = []; // 首次按下的点
 let polyOP = []; // 多边形点
 let newFilterO = null;
