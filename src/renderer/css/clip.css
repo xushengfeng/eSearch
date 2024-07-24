@@ -469,13 +469,16 @@ range-b {
     transition: var(--transition);
     border-radius: inherit;
 }
-:is(#draw_fill, #draw_storke) {
+#draw_color_p > div {
     overflow: hidden;
     border-radius: inherit;
     height: 100%;
     transition: var(--transition);
 }
-:is(#draw_fill, #draw_storke) > div {
+#draw_color_p > div > * {
+    width: 100%;
+}
+#draw_color_p > div > :first-child {
     outline: none;
     font-family: var(--monospace);
     font-size: calc(var(--bar-size) / 5);
@@ -484,7 +487,7 @@ range-b {
     text-align: start;
     border-radius: inherit;
 }
-:is(#draw_fill, #draw_storke) > range-b {
+#draw_color_p > div > :last-child {
     height: calc(var(--bar-size) / 2);
 }
 #draw_stroke_width {

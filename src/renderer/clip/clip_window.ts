@@ -28,7 +28,7 @@ try {
 }
 
 import { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
-import { ele, ElType, frame, image, input, p, setProperties, txt, view } from "dkh-ui";
+import { ele, elFromId, ElType, frame, image, input, p, pureStyle, setProperties, txt, view } from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
 import ocr_svg from "../assets/icons/ocr.svg";
@@ -1731,7 +1731,8 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
                 op["stroke"] = s;
                 shapePro[shape]["sc"] = s;
             }
-            changeColor(op, false, true);
+            colorFillEl.sv(shapePro[shape]["fc"]);
+            colorStrokeEl.sv(shapePro[shape]["sc"]);
             let sw = store.get(`图像编辑.形状属性.${shape}.sw`);
             if (sw) {
                 shapePro[shape]["sw"] = sw;
@@ -1860,7 +1861,7 @@ function freeInit() {
     if (sw) shapePro[mode]["sw"] = sw;
     if (sb) shapePro[mode]["shadow"] = sb;
     setDrawMode("stroke");
-    if (sc) changeColor({ stroke: sc }, false, true);
+    if (sc) colorStrokeEl.sv(sc);
     if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
     if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
 }
@@ -2016,27 +2017,18 @@ function drawNumber() {
 function setDrawMode(m: typeof colorM) {
     colorM = m;
     if (m === "fill") {
-        document.getElementById("draw_fill").style.height = "";
-        document.getElementById("draw_storke").style.height = "0";
+        colorFillEl.style({ height: "" });
+        colorStrokeEl.style({ height: "0" });
         document.getElementById("draw_stroke_width").style.height = "0";
         document.getElementById("draw_fill_storke_mark").style.top = "0";
         document.getElementById("draw_fill_storke_mark").title = "当前为填充";
     } else {
-        document.getElementById("draw_fill").style.height = "0";
-        document.getElementById("draw_storke").style.height = "";
+        colorFillEl.style({ height: "0" });
+        colorStrokeEl.style({ height: "" });
         document.getElementById("draw_stroke_width").style.height = "";
         document.getElementById("draw_fill_storke_mark").style.top = "calc(var(--bar-size) / 2)";
         document.getElementById("draw_fill_storke_mark").title = "当前为描边";
     }
-}
-
-function changeAlpha(v, m) {
-    const rgba = Color(document.getElementById(`draw_color_${m}`).style.backgroundColor)
-        .rgb()
-        .array();
-    rgba[3] = v / 100;
-    setDrawMode(m);
-    changeColor({ [m]: rgba }, true, true);
 }
 
 function ableChangeColor() {
@@ -2049,56 +2041,63 @@ function ableChangeColor() {
     }
 }
 
-// 刷新控件颜色
-/**
- * 改变颜色
- * @param {{fill?: String, stroke?: String}} mL
- * @param {Boolean} setO 是否改变选中形状样式
- * @param {Boolean} text 是否更改文字，仅在input时为true
- */
-function changeColor(mL: { fill?: string; stroke?: string }, setO: boolean, text: boolean) {
-    for (let i in mL) {
-        let color = mL[i];
-        if (color === null) color = "#0000";
-        const colorL = Color(color).rgb().array();
-        if (i === colorM)
-            document.getElementById(`draw_color_${colorM}`).style.backgroundColor = Color(colorL).string();
-        if (i == "fill") {
-            (<HTMLDivElement>document.querySelector("#draw_color > div")).style.backgroundColor =
-                Color(colorL).string();
-            if (setO) setFObjectV(Color(colorL).string(), null, null);
-        }
-        if (i == "stroke") {
-            (<HTMLDivElement>document.querySelector("#draw_color > div")).style.borderColor = Color(colorL).string();
-            if (setO) setFObjectV(null, Color(colorL).string(), null);
-        }
+function colorInput(type: "fill" | "stroke") {
+    const i = input("color").on("input", () => {
+        setC();
+        main.el.dispatchEvent(new Event("input"));
+    });
+    const alpha = ele("input") // todo range-b
+        .attr({ type: "number", max: "1", min: "0", step: "0.01" })
+        .on("input", () => {
+            setC();
+            main.el.dispatchEvent(new Event("input"));
+        });
+    function getInputV() {
+        return Color(i.gv()).alpha(Number(alpha.el.value));
+    }
+    function setC() {
+        const color = getInputV();
+        i.style({ "background-color": color.hexa() });
 
-        // 文字自适应
-        if (i === colorM) {
-            const tColor = Color(document.getElementById(`draw_color_${i}`).style.backgroundColor);
-            const bgColor = Color(
-                getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", "")
-            );
-            if (tColor.rgb().array()[3] >= 0.5 || tColor.rgb().array()[3] === undefined) {
-                if (tColor.isLight()) {
-                    document.getElementById(`draw_color_${i}`).style.color = "#000";
-                } else {
-                    document.getElementById(`draw_color_${i}`).style.color = "#fff";
-                }
+        let textColor = "#000";
+        const tColor = color;
+        const bgColor = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
+        if (tColor.alpha() >= 0.5 || tColor.alpha() === undefined) {
+            if (tColor.isLight()) {
+                textColor = "#000";
             } else {
-                // 低透明度背景呈现栏的颜色
-                if (bgColor.isLight()) {
-                    document.getElementById(`draw_color_${i}`).style.color = "#000";
-                } else {
-                    document.getElementById(`draw_color_${i}`).style.color = "#fff";
-                }
+                textColor = "#fff";
             }
+        } else {
+            // 低透明度背景呈现栏的颜色
+            if (bgColor.isLight()) {
+                textColor = "#000";
+            } else {
+                textColor = "#fff";
+            }
+        }
+        i.style({ color: textColor });
 
-            if (text) {
-                document.getElementById(`draw_color_${i}`).innerText = Color(color).hexa();
-            }
+        const mainSideBarEl = <HTMLDivElement>document.querySelector("#draw_color > div");
+        if (type === "fill") {
+            mainSideBarEl.style.backgroundColor = color.hexa();
+        }
+        if (type === "stroke") {
+            mainSideBarEl.style.borderColor = color.hexa();
         }
     }
+    const main = view()
+        .add([i, alpha])
+        .bindSet((v: string) => {
+            const color = Color(v);
+            i.sv(color.hex());
+            alpha.el.value = String(color.alpha());
+            setC();
+        })
+        .bindGet(() => {
+            return getInputV().hexa();
+        });
+    return main;
 }
 
 /** 主编辑栏的属性预览显示为描边 */
@@ -2164,9 +2163,15 @@ function colorBar() {
     }
     // 事件
     function cColor(el: HTMLElement) {
-        changeColor({ [colorM]: el.style.backgroundColor }, true, true);
-        if (colorM === "fill") colorAlphaInput1.value = "100";
-        if (colorM === "stroke") colorAlphaInput2.value = "100";
+        const color = el.style.backgroundColor;
+        if (colorM === "fill") {
+            colorFillEl.sv(color);
+            setFObjectV(color, null, null);
+        }
+        if (colorM === "stroke") {
+            colorStrokeEl.sv(color);
+            setFObjectV(null, color, null);
+        }
     }
     document.getElementById("draw_color_color").onpointerdown = (e) => {
         const el = e.target as HTMLElement;
@@ -2207,11 +2212,8 @@ function getFObjectV() {
     }
     console.log(pro);
     (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = pro.sw;
-    changeColor({ fill: pro.fc, stroke: pro.sc }, false, true);
-    const fill_a = Color(colorFillEl.innerText).alpha();
-    colorAlphaInput1.value = String(Math.round(fill_a * 100));
-    const stroke_a = Color(colorStrokeEl.innerText).alpha();
-    colorAlphaInput2.value = String(Math.round(stroke_a * 100));
+    colorFillEl.sv(pro.fc);
+    colorStrokeEl.sv(pro.sc);
 
     ableChangeColor();
 }
@@ -2483,6 +2485,8 @@ const tools: 功能[] = [
     "save",
 ];
 
+pureStyle();
+
 const hotkeyTipEl = view().attr({ id: "hotkeys_tip" });
 
 const toolBarEl = frame("tool", {
@@ -2552,6 +2556,15 @@ document.body.append(toolBarEl.el.el);
 document.body.append(whEl.el);
 document.body.append(longTip.el.el);
 document.body.append(longPreview.el);
+
+const colorFillEl = colorInput("fill").on("input", () => {
+    setFObjectV(colorFillEl.gv() as string, null, null);
+});
+const colorStrokeEl = colorInput("stroke").on("input", () => {
+    setFObjectV(colorStrokeEl.gv() as string, null, null);
+});
+
+elFromId("draw_color_p").add([colorFillEl, colorStrokeEl]);
 
 const editor = document.getElementById("editor");
 editor.style.width = window.screen.width / 全局缩放 + "px";
@@ -3793,34 +3806,9 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
 
 // 颜色选择
 
-const colorFillEl = document.getElementById("draw_color_fill");
-const colorStrokeEl = document.getElementById("draw_color_stroke");
-
 setDrawMode(colorM);
 document.getElementById("draw_color_switch").onclick = () => {
     setDrawMode(colorM === "fill" ? "stroke" : "fill");
-};
-
-// 输入颜色
-const colorAlphaInput1 = <HTMLInputElement>document.querySelector("#draw_fill > range-b");
-colorFillEl.oninput = () => {
-    changeColor({ fill: colorFillEl.innerText }, true, false);
-    const fillA = Color(colorFillEl.innerText).alpha();
-    colorAlphaInput1.value = String(Math.round(fillA * 100));
-};
-const colorAlphaInput2 = <HTMLInputElement>document.querySelector("#draw_storke > range-b");
-colorStrokeEl.oninput = () => {
-    changeColor({ stroke: colorStrokeEl.innerText }, true, false);
-    const strokeA = Color(colorStrokeEl.innerText).alpha();
-    colorAlphaInput2.value = String(Math.round(strokeA * 100));
-};
-
-// 改变透明度
-colorAlphaInput1.oninput = () => {
-    changeAlpha(colorAlphaInput1.value, "fill");
-};
-colorAlphaInput2.oninput = () => {
-    changeAlpha(colorAlphaInput2.value, "stroke");
 };
 
 const drawItemsEl = document.getElementById("draw_color_size_i");
