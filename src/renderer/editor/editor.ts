@@ -550,7 +550,7 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
 
 const editTools: setting["编辑器"]["工具"] = store.get("编辑器.工具") || [];
 
-const hotkeys = require("hotkeys-js") as typeof import("hotkeys-js").default;
+import hotkeys from "hotkeys-js";
 hotkeys.filter = () => {
     return true;
 };

@@ -191,7 +191,7 @@ let build = {
         const localsPath = path.join(c.appOutDir, "locales");
         if (process.platform != "darwin")
             try {
-                const files = fs.readdirSync(localsPath).filter((i) => i != "zh-CN.pak" && i != "en-US.pak");
+                const files = fs.readdirSync(localsPath).filter((i) => i != "en-US.pak");
                 for (let i of files) {
                     fs.rmSync(path.join(localsPath, i));
                 }
@@ -266,7 +266,15 @@ const ignoreDir = [
     "node_modules/**/*.es*",
     "node_modules/esearch-ocr/dist/esearch-ocr.js",
 ];
-const ignoreModule = ["qr-scanner-wechat", "tar", "sortablejs"];
+const ignoreModule = [
+    "qr-scanner-wechat",
+    "tar",
+    "sortablejs",
+    "hotkeys-js",
+    "hex-to-css-filter",
+    "dkh-ui",
+    "xtranslator",
+];
 for (let i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
 }

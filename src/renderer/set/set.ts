@@ -585,7 +585,8 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 };
 
-const { hexToCSSFilter } = require("hex-to-css-filter") as typeof import("hex-to-css-filter");
+import { hexToCSSFilter } from "hex-to-css-filter";
+
 function getFilter(hex: string) {
     try {
         return hexToCSSFilter(hex).filter.replace(";", "");
