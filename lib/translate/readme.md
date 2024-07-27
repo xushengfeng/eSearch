@@ -49,9 +49,9 @@ Only words defined in source.json can be translated. If you can't find the text 
 
 ## 标记翻译进度
 
-`tool.js`定义了 srcCommit，借助 git 的 diff 功能，来方便地了解需要翻译什么内容。翻译完某个 id 后，将其添加到对应语言的`finishId`，再次输出 csv 时，将忽略他，这样可以专注与未翻译/修改的翻译。如果全部翻译完，请把 srcCommit 的`id`改为当前提交的 commit id，并清空`finishId`
+`tool.js`定义了 srcCommit，借助 git 的 diff 功能，来方便地了解需要翻译什么内容。翻译完某个 id 后，将其添加到对应语言的`finishId`，再次输出 csv 时，将忽略他，这样可以专注与未翻译/修改的翻译。如果全部翻译完，请把 srcCommit 的`id`改为 latestSrcId，并清空`finishId`
 
-`tool.js` defines srcCommit. With the diff feature of git, you can easily understand what needs to be translated. After translating an id, add it to the `finishiId` of the corresponding language, and ignore it when you output csv again, so that you can focus on the untranslated / modified translation. If you have finished the translation, please change the `id` of srcCommit to the currently submitted commit id and clear `finishiId`
+`tool.js` defines srcCommit. With the diff feature of git, you can easily understand what needs to be translated. After translating an id, add it to the `finishiId` of the corresponding language, and ignore it when you output csv again, so that you can focus on the untranslated / modified translation. If you have finished the translation, please change the `id` of srcCommit to latestSrcId and clear `finishiId`
 
 ## 开发者
 
