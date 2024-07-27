@@ -18,6 +18,7 @@
     "512586": "Cursor hints",
     "512860": "Main search function",
     "520181": "Global styles",
+    "557370": "Major version",
     "630368": "eSearch - Recorder",
     "646136": "Remember selection size",
     "672727": "Arrow",
@@ -455,5 +456,10 @@
     "710ed1": "Theme color",
     "5da2d6": "Emphasis color",
     "05ffe0": "Screenshot background",
-    "9155d4": "Other interface background"
+    "9155d4": "Other interface background",
+    "1849f2": "Return to position",
+    "8691bd": "Manual inspection",
+    "448f2b": "Startup check",
+    "d82774": "Minor version",
+    "9f3273": "Development version"
 }
