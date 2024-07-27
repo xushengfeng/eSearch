@@ -7,7 +7,7 @@ import "../../../lib/template2.js";
 const { shell, ipcRenderer } = require("electron") as typeof import("electron");
 const os = require("os") as typeof import("os");
 const fs = require("fs") as typeof import("fs");
-import { a, button, ele, image, input, p, radioGroup, select, txt, view, pack } from "dkh-ui";
+import { a, button, ele, image, input, p, radioGroup, select, txt, view, pack, setTranslate } from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
 import delete_svg from "../assets/icons/delete.svg";
@@ -56,6 +56,8 @@ toTranslateEl.slice(0, 30).forEach((el) => translate(el, 0));
 document.body.style.display = "";
 
 _runTask(30, toTranslateEl, translate);
+
+setTranslate(t);
 
 document.title = t(document.title);
 
@@ -224,7 +226,7 @@ lans = [systemLan].concat(lans.filter((v) => v != systemLan));
 const lanEl = document.getElementById("语言");
 const lanRadio = radioGroup("语言");
 for (let i of lans) {
-    lanEl.append(lanRadio.new(i, txt(getLanName(i))).el);
+    lanEl.append(lanRadio.new(i, txt(getLanName(i), true)).el);
 }
 
 lanRadio.set(old_store.语言.语言);
@@ -815,10 +817,10 @@ function setTranLan() {
     const mainLan = xstore.语言.语言;
     if (!e) return;
     e.getLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
-        translatorFrom.append(ele("option").add(v.text).attr({ value: v.lan }).el);
+        translatorFrom.append(ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el);
     });
     e.getTargetLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
-        translatorTo.append(ele("option").add(v.text).attr({ value: v.lan }).el);
+        translatorTo.append(ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el);
     });
 }
 
