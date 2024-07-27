@@ -20,6 +20,13 @@ node -l en -a
 ...
 ```
 
+with arg `-e`,output Chinese with English
+
+```csv
+"abc","你好世界","Hello World",""
+...
+```
+
 编辑 edit
 
 > [!TIP]
