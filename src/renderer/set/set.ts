@@ -661,24 +661,24 @@ let engineConfig: Partial<
         {
             t: string;
             key: { name: string; text?: string }[];
-            help?: { text: string; src: string };
+            help?: { src: string };
         }
     >
 > = {
     youdao: {
         t: "有道",
         key: [{ name: "appid" }, { name: "key" }],
-        help: { text: "有道api申请", src: "https://ai.youdao.com/product-fanyi-text.s" },
+        help: { src: "https://ai.youdao.com/product-fanyi-text.s" },
     },
     baidu: {
         t: "百度",
         key: [{ name: "appid" }, { name: "key" }],
-        help: { text: "百度api申请", src: "https://fanyi-api.baidu.com/product/11" },
+        help: { src: "https://fanyi-api.baidu.com/product/11" },
     },
     deepl: {
         t: "Deepl",
         key: [{ name: "key" }],
-        help: { text: "Deepl api申请", src: "https://www.deepl.com/pro-api?cta=header-pro-api" },
+        help: { src: "https://www.deepl.com/pro-api?cta=header-pro-api" },
     },
     deeplx: {
         t: "DeeplX",
@@ -687,30 +687,29 @@ let engineConfig: Partial<
     caiyun: {
         t: "彩云",
         key: [{ name: "token" }],
-        help: { text: "彩云api申请", src: "https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/" },
+        help: { src: "https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/" },
     },
     bing: {
         t: "必应",
         key: [{ name: "key" }],
         help: {
-            text: "必应api申请",
             src: "https://learn.microsoft.com/zh-cn/azure/cognitive-services/translator/how-to-create-translator-resource#authentication-keys-and-endpoint-url",
         },
     },
     chatgpt: {
         t: "ChatGPT",
         key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义" }],
-        help: { text: "ChatGPT api申请", src: "https://platform.openai.com/account/api-keys" },
+        help: { src: "https://platform.openai.com/account/api-keys" },
     },
     gemini: {
         t: "Gemini",
         key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义" }],
-        help: { text: "Gemini api申请", src: "https://ai.google.dev/" },
+        help: { src: "https://ai.google.dev/" },
     },
     niu: {
         t: "小牛翻译",
         key: [{ name: "key" }],
-        help: { text: "小牛api申请", src: "https://niutrans.com/documents/contents/beginning_guide/6" },
+        help: { src: "https://niutrans.com/documents/contents/beginning_guide/6" },
     },
 };
 
@@ -742,14 +741,14 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         fig.key.forEach((x, i) => {
             keys.add(
                 view().add([
-                    txt(`${x.name}: `),
+                    txt(`${x.name}: `, true),
                     input(`key${i}`)
                         .attr({ placeholder: x.text || "" })
                         .sv(v.keys[i] || ""),
                 ])
             );
         });
-        if (fig.help) help.add(a(fig.help.src).add(fig.help.text));
+        if (fig.help) help.add(a(fig.help.src).add(txt("API申请")));
     }
 
     const testEl = view();
