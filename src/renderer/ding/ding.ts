@@ -37,15 +37,10 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
 function sendEvent(
     type: "close" | "move_start" | "move_end" | "back" | "resize",
     id: string,
-    more?: any,
+    more?: unknown,
 ) {
     ipcRenderer.send("ding_event", type, id, more);
 }
-
-/**
- * x,y都是小数百分比
- */
-type move_type = { x: number; y: number; zoom: number };
 
 const dives: HTMLElement[] = [];
 
@@ -427,7 +422,7 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
         const dx = e.x - oE.x;
         const dy = e.y - oE.y;
         const [ox, oy, ow, oh] = oPs;
-        let pS;
+        let pS: [number, number, number, number];
         const zp = { x: 0, y: 0 };
         switch (direction) {
             case "西北": {
