@@ -1,8 +1,7 @@
 import type { setting } from "../../ShareTypes";
 
-let Screenshots: typeof import("node-screenshots").Screenshots;
-
-Screenshots = require("node-screenshots").Screenshots;
+const Screenshots: typeof import("node-screenshots").Screenshots =
+    require("node-screenshots").Screenshots;
 
 const { ipcRenderer, nativeImage } =
     require("electron") as typeof import("electron");
@@ -54,7 +53,7 @@ let pause = false;
 
 const lo = require("esearch-ocr") as typeof import("esearch-ocr");
 const ort = require("onnxruntime-node");
-let l: [string, string, string, string, any];
+let l: [string, string, string, string];
 for (const i of store.get("离线OCR")) if (i[0] === "默认") l = i;
 function ocrPath(p: string) {
     return path.join(
@@ -69,7 +68,9 @@ const OCR = await lo.init({
     detPath: detp,
     recPath: recp,
     dic: fs.readFileSync(字典).toString(),
-    ...l[4],
+    ortOption: {
+        executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
+    },
     ort: ort,
     detShape: [640, 640],
 });
