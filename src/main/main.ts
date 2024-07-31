@@ -48,7 +48,7 @@ const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
 
 // 自定义用户路径
-let userDataPath;
+let userDataPath: string;
 try {
     userDataPath = readFileSync(join(runPath, "preload_config"))
         .toString()
@@ -68,14 +68,7 @@ ipcMain.on("run_path", (event) => {
     event.returnValue = runPath;
 });
 
-let store;
-
-try {
-    store = new Store();
-} catch (error) {
-    rmSync(join(app.getPath("userData"), "config.json"));
-    store = new Store();
-}
+const store = new Store();
 
 ipcMain.on("store", (e, x) => {
     if (x.type === "get") {
@@ -103,9 +96,9 @@ if (dev) {
         const usage = process.memoryUsage();
         const main = usage.rss / 1024 / 1024;
         let rander = 0;
-        app.getAppMetrics()
-            .filter((i) => i.type === "Tab")
-            .forEach((i) => (rander += i.memory.workingSetSize));
+        for (const i of app.getAppMetrics().filter((i) => i.type === "Tab")) {
+            rander += i.memory.workingSetSize;
+        }
         rander = rander / 1024;
         console.log(
             `Memory： ${main.toFixed(7)} + ${rander.toFixed(7)} = ${main + rander}`,
@@ -143,11 +136,11 @@ function rendererPath(window: BrowserWindow, fileName: string) {
 function rendererPath2(
     window: Electron.WebContents,
     fileName: string,
-    q?: Electron.LoadFileOptions,
+    q: Electron.LoadFileOptions = {
+        query: { config_path: app.getPath("userData") },
+    },
 ) {
-    if (!q) {
-        q = { query: { config_path: app.getPath("userData") } };
-    } else if (!q.query) {
+    if (!q.query) {
         q.query = { config_path: app.getPath("userData") };
     } else {
         q.query.config_path = app.getPath("userData");
@@ -1245,10 +1238,7 @@ function createRecorderWindow(
 
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
-            let dId = "";
-            sources.forEach((s) => {
-                if (s.display_id === screenx.id) dId = s.id;
-            });
+            let dId = sources.find((s) => s.display_id === screenx.id)?.id;
             if (!dId) dId = sources[0].id;
             recorder.webContents.send(
                 "record",
@@ -1507,7 +1497,7 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
         const id = new Date().getTime();
         for (const i of screenL) {
             dingwindowList[i.id] = { win: null, display: i };
-            const dingWindow = (dingwindowList[i.id].win = new BrowserWindow({
+            const dingWindow = new BrowserWindow({
                 icon: theIcon,
                 transparent: true,
                 frame: false,
@@ -1524,7 +1514,8 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
                 y: i.bounds.y,
                 width: i.bounds.width,
                 height: i.bounds.height,
-            }));
+            });
+            dingwindowList[i.id].win = dingWindow;
 
             rendererPath(dingWindow, "ding.html");
             if (dev) dingWindow.webContents.openDevTools();
@@ -1700,7 +1691,7 @@ async function createMainWindow(op: MainWinType) {
     const y = py > vr.y + vr.height / 2 ? py - h : py;
     const bg = nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff";
     mainWindowL[windowName] = { browser: { top: 0, bottom: 48 }, win: null };
-    const mainWindow = (mainWindowL[windowName].win = new BrowserWindow({
+    const mainWindow = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
         width: w,
@@ -1718,7 +1709,8 @@ async function createMainWindow(op: MainWinType) {
             webSecurity: false,
         },
         show: true,
-    })) as BrowserWindow & { html: string };
+    }) as BrowserWindow & { html: string };
+    mainWindowL[windowName].win = mainWindow;
 
     mainToSearchL[windowName] = [];
 
@@ -1842,6 +1834,7 @@ async function createBrowser(windowName: number, url: string) {
     console.log(url);
 
     if (!windowName)
+        // biome-ignore lint: init window
         windowName = await createMainWindow({ type: "text", content: "" });
 
     const mainWindow = mainWindowL[windowName].win;
@@ -1857,9 +1850,10 @@ async function createBrowser(windowName: number, url: string) {
             webSecurity: false,
         };
     }
-    const searchView = (searchWindowL[view] = new BrowserView({
+    const searchView = new BrowserView({
         webPreferences,
-    }));
+    });
+    searchWindowL[view] = searchView;
     await searchView.webContents.session.setProxy(store.get("代理"));
     mainWindow.addBrowserView(searchView);
 
@@ -1995,6 +1989,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             minViews(mainWindow);
             break;
         case "save_html":
+            // @ts-ignore
             mainWindow.html = arg2;
             minViews(mainWindow);
             break;
@@ -2059,8 +2054,7 @@ function noti(filePath: string) {
     notification.show();
 }
 
-ipcMain.on("get_save_path", (event, path) => {
-    if (!path) path = app.getPath("pictures");
+ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {
     dialog
         .showOpenDialog({
             title: t("选择要保存的位置"),
