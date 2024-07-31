@@ -128,7 +128,8 @@ type mimeType =
     | "ts"
     | "mpeg"
     | "flv";
-let type = (格式El.value = store.get("录屏.转换.格式")) as mimeType;
+let type = store.get("录屏.转换.格式") as mimeType;
+格式El.value = type;
 
 let audioStream: MediaStream;
 let stream: MediaStream;
@@ -136,7 +137,7 @@ let stream: MediaStream;
 let audio = false;
 let camera = false;
 
-let rect;
+let rect: [number, number, number, number];
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const spawn = require("node:child_process")
@@ -554,7 +555,9 @@ ipcRenderer.on("ff", (_e, t, arg) => {
         if (isTsOk)
             clip()
                 .then(() => joinAndSave(arg))
-                .catch(() => (isClipRun = false));
+                .catch(() => {
+                    isClipRun = false;
+                });
     }
 });
 
@@ -639,13 +642,13 @@ function clipV() {
 }
 
 tStartEl.oninput = () => {
-    videoEl.currentTime = (tEndEl.min = jdtEl.min = tStartEl.value) / 1000;
+    videoEl.currentTime = tEndEl.min = jdtEl.min = tStartEl.value / 1000;
     document.getElementById("t_t").innerText = tFormat(
         tEndEl.value - tStartEl.value,
     );
 };
 tEndEl.oninput = () => {
-    videoEl.currentTime = (tStartEl.max = jdtEl.max = tEndEl.value) / 1000;
+    videoEl.currentTime = tStartEl.max = jdtEl.max = tEndEl.value / 1000;
     document.getElementById("t_t").innerText = tFormat(
         tEndEl.value - tStartEl.value,
     );
@@ -894,7 +897,9 @@ function setFFState(type: keyof typeof prEl, n: number, state: prst) {
         if (savePath) {
             clip()
                 .then(() => joinAndSave(savePath))
-                .catch(() => (isClipRun = false));
+                .catch(() => {
+                    isClipRun = false;
+                });
         }
     }
 }
