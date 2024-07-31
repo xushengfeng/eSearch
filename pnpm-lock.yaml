@@ -54,8 +54,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       xtranslator:
-        specifier: ^1.0.15
-        version: 1.0.15
+        specifier: ^1.1.1
+        version: 1.1.1
     optionalDependencies:
       node-screenshots-darwin-arm64:
         specifier: 0.1.9
@@ -2153,8 +2153,8 @@ packages:
   xtimelog@1.0.5:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
 
-  xtranslator@1.0.15:
-    resolution: {integrity: sha512-JnDqNcJrZqj1qLOWH8phMHcKxFSc6YCq2hmGr0Vj7IpCXzWShHSKDqumC05YVtPDme/p+wEdaw9+ro8u0T+0wQ==}
+  xtranslator@1.1.1:
+    resolution: {integrity: sha512-cWzGHgm4XGhswjfc0ArZa0nUQu+pJuBgE2+gh2R4gwtqkePtchOS7UefSMaU+FU01t8T1w/+qIWGs+xYOC4k5w==}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -4335,7 +4335,7 @@ snapshots:
 
   xtimelog@1.0.5: {}
 
-  xtranslator@1.0.15: {}
+  xtranslator@1.1.1: {}
 
   y18n@5.0.8: {}
 

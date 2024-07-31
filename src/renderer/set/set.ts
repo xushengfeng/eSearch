@@ -214,9 +214,9 @@ function getSystemLan() {
             }[sysL] || "zh-HANS"
         );
     }
-        if (lans.includes(sysL)) return sysL;
-        if (lans.includes(sysL.split("-")[0])) return sysL.split("-")[0];
-        return "zh-HANS";
+    if (lans.includes(sysL)) return sysL;
+    if (lans.includes(sysL.split("-")[0])) return sysL.split("-")[0];
+    return "zh-HANS";
 }
 const systemLan = getSystemLan();
 
@@ -486,10 +486,12 @@ function show_color_picker() {
             (<HTMLInputElement>document.getElementById("像素大小")).value
         }px;height:${(<HTMLInputElement>document.getElementById("像素大小")).value}px"></span>`;
     }
-    document.getElementById("point_color").style.width =
-        `${Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size}px`;
-    document.getElementById("point_color").style.height =
-        `${Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size}px`;
+    document.getElementById("point_color").style.width = `${
+        Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size
+    }px`;
+    document.getElementById("point_color").style.height = `${
+        Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size
+    }px`;
     document.getElementById("point_color").innerHTML = inner_html;
 }
 
@@ -659,7 +661,7 @@ const engineConfig: Partial<
         Engines,
         {
             t: string;
-            key: { name: string; text?: string }[];
+            key: { name: string; text?: string; type?: "json" }[];
             help?: { src: string };
         }
     >
@@ -697,7 +699,7 @@ const engineConfig: Partial<
     },
     chatgpt: {
         t: "ChatGPT",
-        key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义" }],
+        key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义", type: "json" }],
         help: { src: "https://platform.openai.com/account/api-keys" },
     },
     gemini: {
@@ -738,12 +740,15 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         if (!type) return;
         const fig = engineConfig[type];
         fig.key.forEach((x, i) => {
+            const value = v.keys[x.name];
+
             keys.add(
                 view().add([
                     txt(`${x.name}: `, true),
                     input(`key${i}`)
                         .attr({ placeholder: x.text || "" })
-                        .sv(v.keys[i] || ""),
+                        .data({ key: x.name })
+                        .sv(x.type === "json" ? JSON.stringify(value, null, 2) : value || ""),
                 ])
             );
         });
@@ -756,6 +761,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     testEl.add([testB, testR]);
     testB.on("click", async () => {
         const v = getV();
+        // @ts-ignore
         translator.e[v.type].setKeys(v.keys);
         try {
             const r = await translator.e[v.type].test();
@@ -780,7 +786,12 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     ]);
 
     function getV() {
-        const key = Array.from(keys.el.querySelectorAll("input")).map((el) => el.value);
+        const key = {};
+        const e = engineConfig[selectEl.gv() as Engines].key;
+        for (const el of Array.from(keys.el.querySelectorAll("input"))) {
+            const type = e.find((i) => i.name === el.dataset.key).type;
+            key[el.dataset.key] = type === "json" ? JSON.parse(el.value) : el.value;
+        }
         const nv: typeof v = {
             id: v.id,
             name: idEl.gv() as string,
@@ -796,7 +807,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         addTranslatorM.add(
             button(txt("完成")).on("click", () => {
                 const nv = getV();
-                if (nv.type && nv.keys.every((i) => i)) {
+                if (nv.type && Object.values(nv.keys).every((i) => i)) {
                     re(nv);
                     addTranslatorM.el.close();
                 }
@@ -1185,7 +1196,7 @@ function saveSetting() {
             getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "";
     } catch (e) {}
     xstore.快速截屏.路径 = (<HTMLInputElement>document.getElementById("快速截屏路径")).value
-        ? (`${(<HTMLInputElement>document.getElementById("快速截屏路径")).value}/`).replace("//", "/")
+        ? `${(<HTMLInputElement>document.getElementById("快速截屏路径")).value}/`.replace("//", "/")
         : "";
 
     xstore.录屏.自动录制 =

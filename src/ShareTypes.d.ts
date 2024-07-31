@@ -271,7 +271,7 @@ export interface setting {
             id: string;
             name: string;
             type: keyof typeof import("xtranslator")["default"]["e"];
-            keys: string[];
+            keys: Record<string, unknown>;
         }[];
     };
 }

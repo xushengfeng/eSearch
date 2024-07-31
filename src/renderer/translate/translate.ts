@@ -60,6 +60,7 @@ function translate(text: string) {
 }
 
 function translateI(text: string, i: setting["翻译"]["翻译器"][0]) {
+    // @ts-ignore
     xtranslator.e[i.type].setKeys(i.keys);
     return xtranslator.e[i.type].run(text, lansFrom.el.value, lansTo.el.value);
 }

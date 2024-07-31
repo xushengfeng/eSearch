@@ -31,6 +31,7 @@ let translateE = async (input: string) => input;
 
 if (transE.length > 0) {
     const x = transE[0];
+    // @ts-ignore
     xtranslator.e[x.type].setKeys(x.keys);
     const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
     translateE = (input: string) => xtranslator.e[x.type].run(input, lan.from, lan.to);
@@ -125,9 +126,9 @@ async function translate(text: string) {
             resolve(t);
         });
 
-        const tt = await translateE(text);
-        tCache.set(text, tt);
-        return tt;
+    const tt = await translateE(text);
+    tCache.set(text, tt);
+    return tt;
 }
 
 const sl = () =>
