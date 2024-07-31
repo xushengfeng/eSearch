@@ -13,6 +13,7 @@ initRecord();
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
+        // biome-ignore lint: 部分引入
         var { uIOhook, UiohookKey } =
             require("uiohook-napi") as typeof import("uiohook-napi");
 
@@ -91,18 +92,18 @@ function initRecord() {
             if (key.right) kbdEl.el.classList.add("right_key");
             const l = Array.from(keysEl.children);
             if (posi.x === "+") {
-                l.slice(0, -10).forEach((v) => v.remove());
+                for (const v of l.slice(0, -10)) v.remove();
             } else {
-                l.slice(10).forEach((v) => v.remove());
+                for (const v of l.slice(10)) v.remove();
             }
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i !== e.keycode);
-            lastKey.el
+            for (const el of (lastKey.el
                 .querySelectorAll(`[data-k="${e.keycode}"]`)
-                ?.forEach((el: HTMLElement) => {
-                    el.classList.add("key_hidden");
-                });
+                ?.values() as Iterable<HTMLElement>) || []) {
+                el.classList.add("key_hidden");
+            }
             if (keyO.length === 0) {
                 const e = lastKey;
                 setTimeout(() => {
@@ -124,7 +125,7 @@ function initRecord() {
             mouseEl[m2m[e.button as number]].style.backgroundColor = "";
         });
 
-        let time_out;
+        let time_out: NodeJS.Timeout;
         uIOhook.on("wheel", (e) => {
             console.log(e.direction, e.rotation);
             const x = {
