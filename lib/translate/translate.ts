@@ -1,11 +1,14 @@
 export { t, tLan, lan, getLans, getLanName };
-const path = require("path") as typeof import("path");
-const fs = require("fs") as typeof import("fs");
-let rootDirL = __dirname.split(path.sep);
-let outDir = rootDirL.lastIndexOf("out");
-let rootDir = path.join(rootDirL.slice(0, outDir).join(path.sep), "./lib/translate");
+const path = require("node:path") as typeof import("path");
+const fs = require("node:fs") as typeof import("fs");
+const rootDirL = __dirname.split(path.sep);
+const outDir = rootDirL.lastIndexOf("out");
+const rootDir = path.join(
+    rootDirL.slice(0, outDir).join(path.sep),
+    "./lib/translate",
+);
 
-var language = "";
+let language = "";
 
 /**
  * 获取可用语言
@@ -13,11 +16,12 @@ var language = "";
  * @returns 仅限支持的语言
  */
 function parseLan(lan: string) {
-    let lans = getLans();
+    const lans = getLans();
     if (!lans.includes(lan)) {
         if (lans.includes(lan.split("-")[0])) return lan.split("-")[0];
-        else return "zh-HANS";
-    } else return lan;
+        return "zh-HANS";
+    }
+    return lan;
 }
 
 /**
@@ -26,8 +30,8 @@ function parseLan(lan: string) {
  */
 function lan(lan: string) {
     language = parseLan(lan);
-    if (language != "zh-HANS") {
-        l = require(path.join(rootDir, `./${language}.json`)) as any;
+    if (language !== "zh-HANS") {
+        l = require(path.join(rootDir, `./${language}.json`));
     }
 }
 
@@ -46,23 +50,34 @@ function st(text: string, map: typeof l) {
     const id = source[text];
     const t = map[id];
     if (!id) console.log(`%c"${text}":"",`, "color:#f00;background:#fdd");
-    else if (!t) console.log(`%c${id}%c: ${text}`, "color:bluecolor:#00f;background:#ddf", "");
+    else if (!t)
+        console.log(
+            `%c${id}%c: ${text}`,
+            "color:bluecolor:#00f;background:#ddf",
+            "",
+        );
     return t || text;
 }
 function tLan(text: string, lan: string) {
     if (parseLan(lan) === "zh-HANS") return text;
-    const map = require(path.join(rootDir, `./${parseLan(lan)}.json`)) as any;
+    const map = require(
+        path.join(rootDir, `./${parseLan(lan)}.json`),
+    ) as typeof l;
     return st(text, map);
 }
 
-let source = require(path.join(rootDir, "./source.json"));
-let l: { [key: string]: string };
+const source = require(path.join(rootDir, "./source.json"));
+let l: Record<string, string>;
 
 function getLans() {
     const lans = fs
         .readdirSync(rootDir)
         .filter((file: string) => {
-            return file.endsWith(".json") && !file.startsWith("source") && !file.startsWith(".");
+            return (
+                file.endsWith(".json") &&
+                !file.startsWith("source") &&
+                !file.startsWith(".")
+            );
         })
         .map((l: string) => l.replace(".json", ""));
     return ["zh-HANS"].concat(lans);
