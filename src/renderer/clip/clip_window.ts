@@ -185,7 +185,7 @@ function getFileName() {
 /** 快速截屏 */
 function quickClip() {
     const fs = require("node:fs");
-    (Screenshots.all() ?? []).forEach((c) => {
+    for (const c of Screenshots.all() ?? []) {
         let image = nativeImage.createFromBuffer(c.captureSync(true));
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);
@@ -202,7 +202,7 @@ function quickClip() {
             fs.access(name, fs.constants.F_OK, (err) => {
                 if (!err) {
                     /* 存在文件，需要重命名 */
-                    name = baseName.replace(/\.png$/, `(${n}).png`);
+                    const name = baseName.replace(/\.png$/, `(${n}).png`);
                     checkFile(n + 1, name, baseName);
                 } else {
                     fs.writeFile(
@@ -222,7 +222,7 @@ function quickClip() {
                 }
             });
         }
-    });
+    }
 }
 
 function setEditorP(zoom: number, x: number, y: number) {
@@ -319,8 +319,7 @@ function getWinWin() {
     exec(`${runPath}/lib/win_rect.exe`, (err, out) => {
         console.log(out);
         if (!err) {
-            out = out.replaceAll("\x00", "");
-            const r = JSON.parse(out);
+            const r = JSON.parse(out.replaceAll("\x00", ""));
             for (const i of r)
                 edgeRect.push({
                     x: i.x,
@@ -1227,16 +1226,11 @@ function inEdge(p: editor_position) {
 // 大小栏
 function whBar(finalRect: rect) {
     // 大小文字
-    let x0: number;
-    let y0: number;
-    let x1: number;
-    let y1: number;
-    let d: number;
-    d = 光标 === "以(1,1)为起点" ? 1 : 0;
-    x0 = finalRect[0] + d;
-    y0 = finalRect[1] + d;
-    x1 = finalRect[0] + d + finalRect[2];
-    y1 = finalRect[1] + d + finalRect[3];
+    const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+    const x0 = finalRect[0] + d;
+    const y0 = finalRect[1] + d;
+    const x1 = finalRect[0] + d + finalRect[2];
+    const y1 = finalRect[1] + d + finalRect[3];
     whX0.el.value = String(x0);
     whY0.el.value = String(y0);
     whX1.el.value = String(x1);
@@ -1287,9 +1281,9 @@ function whBar(finalRect: rect) {
 }
 
 function checkWhBarWidth() {
-    whL.forEach((el) => {
+    for (const el of whL) {
         el.style({ width: `${el.el.value.length}ch` });
-    });
+    }
 }
 
 function changeWH(el: ElType<HTMLInputElement>) {
@@ -1298,6 +1292,8 @@ function changeWH(el: ElType<HTMLInputElement>) {
         // 排除（数字运算符空格）之外的非法输入
         if (string.match(/[\d\+\-*/\.\s\(\)]/g).length !== string.length)
             return null;
+        // todo sandbox math
+        // biome-ignore lint: 已经过滤（？） 计算math
         return eval(string);
     });
 
@@ -1457,13 +1453,13 @@ function changeRightBar(v) {
     const nodes = document.querySelectorAll(
         "#clip_copy > div > div:not(:nth-child(1)) > div",
     );
-    nodes.forEach((element: HTMLElement) => {
+    for (const element of Array.from(nodes) as HTMLElement[]) {
         ((e) => {
             e.onclick = () => {
                 copy(e);
             };
         })(element);
-    });
+    }
     if (v) {
         document.getElementById("point_color").style.height = "0";
         document.getElementById("clip_copy").className = "clip_copy";
@@ -1498,7 +1494,9 @@ function followBar(x?: number, y?: number) {
     if (!x && !y) {
         const dx = undoStack.at(-1)[0] - undoStack[undoStack.length - 2][0];
         const dy = undoStack.at(-1)[1] - undoStack[undoStack.length - 2][1];
+        // biome-ignore lint: 只有这里重新赋值
         x = followBarList.at(-1)[0] + dx / ratio;
+        // biome-ignore lint: 只有这里重新赋值
         y = followBarList.at(-1)[1] + dy / ratio;
     }
     followBarList.push([x, y]);
@@ -1604,9 +1602,8 @@ function inRange(
     min: number,
     value: number,
     max: number,
-    type?: "[]" | "()" | "(]" | "[)",
+    type: `${"[" | "("}${")" | "]"}` = "[]",
 ) {
-    if (!type) type = "[]";
     if (type === "[]") return min <= value && value <= max;
     if (type === "(]") return min < value && value <= max;
     if (type === "[)") return min <= value && value < max;
@@ -1968,13 +1965,10 @@ function setEditType<T extends keyof EditType>(
         if (shape && store.get(`图像编辑.形状属性.${shape}`)) {
             const f = store.get(`图像编辑.形状属性.${shape}.fc`);
             const s = store.get(`图像编辑.形状属性.${shape}.sc`);
-            const op = {};
             if (f) {
-                op.fill = f;
                 shapePro[shape].fc = f;
             }
             if (s) {
-                op.stroke = s;
                 shapePro[shape].sc = s;
             }
             colorFillEl.sv(shapePro[shape].fc);
@@ -2666,6 +2660,7 @@ function getFilters() {
                     "#draw_filters_grayscale > lock-b:nth-child(3)",
                 )
             )).checked = true;
+            break;
         default:
             (<HTMLInputElement>(
                 document.querySelector(
@@ -2739,7 +2734,7 @@ function checkUpdate(show?: boolean) {
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
         .then((v) => v.json())
         .then((re) => {
-            let first;
+            let first: { name: string; html_url: string };
             for (const r of re) {
                 if (first) break;
                 if (
@@ -2753,7 +2748,7 @@ function checkUpdate(show?: boolean) {
                 }
             }
             let update = false;
-            const firstName = first.name as string;
+            const firstName = first.name;
             if (m === "dev") {
                 if (firstName !== version) update = true;
             } else if (m === "小版本") {
@@ -2783,6 +2778,7 @@ function checkUpdate(show?: boolean) {
 // 获取设置
 
 if (store.get("框选.自动框选.开启")) {
+    // biome-ignore lint: 为了部分引入
     var cv = require("opencv.js");
 }
 
@@ -2942,6 +2938,7 @@ const drawBar = document.getElementById("draw_bar");
 let nowScreenId = 0;
 
 let allScreens: (Electron.Display & {
+    main?: boolean;
     captureSync?: () => Buffer;
     image?: Buffer;
 })[] = [];
@@ -3077,7 +3074,7 @@ let autoDo: setting["框选后默认操作"] = store.get("框选后默认操作"
 
 let lastLong = 0;
 
-let uIOhook;
+let uIOhook: typeof import("uiohook-napi")["uIOhook"];
 
 const longX = {
     img: null as HTMLCanvasElement,
@@ -3274,6 +3271,7 @@ const filtetMap: {
 
 let willFilter = "";
 
+// biome-ignore lint: 以后更新fabric 现在先不改
 let fabricClipboard;
 
 // ------
@@ -3282,7 +3280,12 @@ document.body.style.opacity = "0";
 
 ipcRenderer.on(
     "reflash",
-    (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
+    (
+        _a,
+        _displays: (Electron.Display & { main?: boolean })[],
+        mainid: number,
+        act: 功能,
+    ) => {
         if (!_displays.find((i) => i.main)) {
             dispaly2screen(_displays, Screenshots.all());
         } else {
@@ -3464,17 +3467,16 @@ toolBar.onmouseup = (e) => {
     }
 };
 
-document
+for (const el of document
     .querySelectorAll("#draw_shapes_i > div")
-    .forEach((el: HTMLInputElement) => {
-        shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
-    });
-document
-    .querySelectorAll("#draw_filters_i div")
-    .forEach((el: HTMLInputElement) => {
-        if (el.id.startsWith("draw_filters_"))
-            filtersEl[el.id.replace("draw_filters_", "") as string] = el;
-    });
+    .values() as Iterable<HTMLInputElement>)
+    shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
+for (const el of document
+    .querySelectorAll("#draw_filters_i > div")
+    .values() as Iterable<HTMLInputElement>) {
+    if (el.id.startsWith("draw_filters_"))
+        filtersEl[el.id.replace("draw_filters_", "") as string] = el;
+}
 
 hotkeys.filter = (event) => {
     const tagName = (<HTMLElement>event.target).tagName;
@@ -3859,7 +3861,7 @@ for (const i in whHotkey) {
 
 const whL = [whX0, whY0, whX1, whY1, whW, whH];
 
-whL.forEach((xel) => {
+for (const xel of whL) {
     const el = xel.el;
     const kd = (e: KeyboardEvent) => {
         if (e.key === "ArrowRight" && el.value.length === el.selectionEnd) {
@@ -3899,7 +3901,7 @@ whL.forEach((xel) => {
     xel.on("input", checkWhBarWidth)
         .on("change", () => changeWH(xel))
         .on("keydown", kd);
-});
+}
 
 // 快捷键全屏选择
 hotkeys("ctrl+a, command+a", () => {
@@ -4047,7 +4049,9 @@ const fabricEl = document.createElement("script");
 fabricEl.innerHTML = fabricSrc;
 document.body.append(fabricEl);
 // @ts-ignore
+// biome-ignore lint: 使用script引入
 Fabric = window.fabric;
+// biome-ignore lint:
 var Fabric;
 
 const fabricCanvas = new Fabric.Canvas("draw_photo");
@@ -4090,13 +4094,15 @@ document
         });
     });
 
-document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement) => {
+for (const el of document
+    .querySelectorAll("#draw_side > div")
+    .values() as Iterable<HTMLElement>) {
     el.onpointerleave = () => {
         setTimeout(() => {
             if (!isInDrawBar()) showSideBar(false);
         }, 100);
     };
-});
+}
 
 showBars(isShowBars);
 
@@ -4245,8 +4251,7 @@ fabricCanvas.on("mouse:up", (options) => {
 const mask = Fabric.util.createClass(Fabric.Rect, {
     type: "mask",
 
-    initialize: function (options) {
-        options = options || {};
+    initialize: function (options = {}) {
         this.callSuper("initialize", options);
     },
 
@@ -4271,8 +4276,7 @@ const mask = Fabric.util.createClass(Fabric.Rect, {
 Fabric.number = Fabric.util.createClass(Fabric.Circle, {
     type: "number",
 
-    initialize: function (options) {
-        options = options || {};
+    initialize: function (options = {}) {
         console.log(options);
 
         this.callSuper("initialize", options);
@@ -4301,9 +4305,7 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
     type: "arrow",
 
     initialize: function (options, x) {
-        options = options || {};
-
-        this.callSuper("initialize", options, x);
+        this.callSuper("initialize", options || {}, x);
     },
 
     _render: function (ctx: CanvasRenderingContext2D) {
@@ -4372,7 +4374,8 @@ const filterRangeEl = document.querySelector("#draw_filters_range");
 for (const id in filtetMap) {
     (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick =
         () => {
-            setEditType("filter", id as any);
+            // @ts-ignore
+            setEditType("filter", id);
         };
 }
 
