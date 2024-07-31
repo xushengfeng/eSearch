@@ -106,8 +106,12 @@ if (inputText) {
 
 let composing = false;
 input
-    .on("compositionstart", () => (composing = true))
-    .on("compositionend", () => (composing = false));
+    .on("compositionstart", () => {
+        composing = true;
+    })
+    .on("compositionend", () => {
+        composing = false;
+    });
 
 let lastTrans: NodeJS.Timeout;
 
