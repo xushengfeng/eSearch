@@ -1,9 +1,9 @@
 const { app } = require("electron");
-const fs = require("fs") as typeof import("fs");
-const path = require("path") as typeof import("path");
+const fs = require("node:fs") as typeof import("fs");
+const path = require("node:path") as typeof import("path");
 
 type data = {
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 class Store {
@@ -34,20 +34,25 @@ class Store {
         fs.writeFileSync(this.configPath, JSON.stringify(data, null, 2));
     }
 
+    // biome-ignore lint: any input
     public set(keyPath: string, value: any): void {
         const store = this.getStore();
-        let pathx = keyPath.split(".");
+        const pathx = keyPath.split(".");
         const lastp = pathx.pop();
-        const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), store);
+        const lastobj = pathx.reduce((p, c) => {
+            return p[c] || {};
+        }, store);
         lastobj[lastp] = value;
         this.setStore(store);
     }
-
+    // biome-ignore lint: any out
     public get(keyPath: string): any {
         const store = this.getStore();
-        let pathx = keyPath.split(".");
+        const pathx = keyPath.split(".");
         const lastp = pathx.pop();
-        const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), store);
+        const lastobj = pathx.reduce((p, c) => {
+            return p[c] || {};
+        }, store);
         return lastobj[lastp];
     }
 
