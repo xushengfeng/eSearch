@@ -12,8 +12,12 @@ class Store {
     constructor() {
         this.configPath = path.join(app.getPath("userData"), "config.json");
         if (!fs.existsSync(this.configPath)) {
-            fs.writeFileSync(this.configPath, "{}");
+            this.init();
         }
+    }
+
+    private init() {
+        fs.writeFileSync(this.configPath, "{}");
     }
 
     private getStore() {
@@ -21,7 +25,7 @@ class Store {
         try {
             str = fs.readFileSync(this.configPath).toString() || "{}";
         } catch (error) {
-            fs.writeFileSync(this.configPath, "{}");
+            this.init();
         }
         return JSON.parse(str) as data;
     }
@@ -45,6 +49,10 @@ class Store {
         const lastp = pathx.pop();
         const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), store);
         return lastobj[lastp];
+    }
+
+    public clear() {
+        this.init();
     }
 }
 
