@@ -9,7 +9,7 @@ const { ipcRenderer, nativeImage } =
 
 import xtranslator from "xtranslator";
 
-import { button, check, image, view } from "dkh-ui";
+import { button, check, type ElType, image, view } from "dkh-ui";
 
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
@@ -28,14 +28,14 @@ import store from "../../../lib/store/renderStore";
 
 const transE = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
 
-let translateE = async (input: string) => input;
+let translateE = async (input: string[]) => input;
 
 if (transE.length > 0) {
     const x = transE[0];
     // @ts-ignore
     xtranslator.e[x.type].setKeys(x.keys);
     const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
-    translateE = (input: string) =>
+    translateE = (input: string[]) =>
         xtranslator.e[x.type].run(input, lan.from, lan.to);
 }
 
@@ -127,16 +127,24 @@ async function ocr(imgData: ImageData) {
 
 const tCache: Map<string, string> = new Map();
 
-async function translate(text: string) {
-    const t = tCache.get(text);
-    if (t)
-        return new Promise((resolve: (t: string) => void) => {
-            resolve(t);
-        });
+async function translate(text: { text: string; el: ElType<HTMLDivElement> }[]) {
+    const toTran: typeof text = [];
+    for (const i of text) {
+        const t = tCache.get(i.text);
+        if (t) {
+            i.el.el.innerText = t;
+        } else {
+            toTran.push(i);
+        }
+    }
 
-    const tt = await translateE(text);
-    tCache.set(text, tt);
-    return tt;
+    const tt = await translateE(toTran.map((i) => i.text));
+    for (let i = 0; i < tt.length; i++) {
+        const tran = tt[i];
+        const text = toTran[i].text;
+        tCache.set(text, tran);
+        toTran[i].el.el.innerText = tran;
+    }
 }
 
 const sl = () =>
@@ -153,6 +161,7 @@ async function run() {
     const ocrData = await ocr(data);
 
     textEl.el.innerHTML = "";
+    const textL: { text: string; el: ElType<HTMLDivElement> }[] = [];
     for (const i of ocrData) {
         const text = i.text;
         const x0 = i.box[0][0];
@@ -169,10 +178,9 @@ async function run() {
         });
         textEl.add(item);
         // item.innerText = text;
-        translate(text).then((res) => {
-            item.el.innerText = res;
-        });
+        textL.push({ el: item, text });
     }
+    translate(textL);
 }
 
 document.body.append(mainEl.el);
