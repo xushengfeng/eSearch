@@ -1,7 +1,7 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
 import { ele, txt, view } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
-import { setting } from "../../ShareTypes";
+import type { setting } from "../../ShareTypes";
 
 // 获取设置
 import store from "../../../lib/store/renderStore";
@@ -11,8 +11,6 @@ const recorderMouseEl = document.getElementById("mouse_c");
 
 initRecord();
 
-window["x"] = jsKeyCodeDisplay;
-
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
         var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -21,14 +19,14 @@ function initRecord() {
         const posi = store.get("录屏.提示.键盘.位置") as setting["录屏"]["提示"]["键盘"]["位置"];
         const px = posi.x === "+" ? "right" : "left";
         const py = posi.y === "+" ? "bottom" : "top";
-        keysEl.parentElement.style[px] = posi.offsetX + "px";
-        keysEl.parentElement.style[py] = posi.offsetY + "px";
+        keysEl.parentElement.style[px] = `${posi.offsetX}px`;
+        keysEl.parentElement.style[py] = `${posi.offsetY}px`;
 
-        keysEl.style.fontSize = store.get("录屏.提示.键盘.大小") * 16 + "px";
+        keysEl.style.fontSize = `${store.get("录屏.提示.键盘.大小") * 16}px`;
 
         const keycode2key = {};
 
-        for (let i in UiohookKey) {
+        for (const i in UiohookKey) {
             keycode2key[UiohookKey[i]] = i;
         }
         console.log(keycode2key);
@@ -38,17 +36,17 @@ function initRecord() {
             CtrlRight: "ControlRight",
         };
 
-        for (var i = 0; i < 25; i++) {
+        for (let i = 0; i < 25; i++) {
             const k = String.fromCharCode(65 + i);
             map[k] = `Key${k}`;
         }
 
         function getKey(keycode: number) {
-            let key = keycode2key[keycode] as string;
+            const key = keycode2key[keycode] as string;
 
-            let keyDisplay = jsKeyCodeDisplay(map[key] || key);
+            const keyDisplay = jsKeyCodeDisplay(map[key] || key);
 
-            let mainKey = keyDisplay.primary ?? key;
+            const mainKey = keyDisplay.primary ?? key;
             let topKey = keyDisplay?.secondary ?? keyDisplay?.symble ?? "";
             if (keyDisplay.isNum) topKey = "";
             return { main: mainKey, top: topKey, numpad: keyDisplay.isNumpad, right: keyDisplay.isRight };
@@ -86,12 +84,12 @@ function initRecord() {
             }
         });
         uIOhook.on("keyup", (e) => {
-            keyO = keyO.filter((i) => i != e.keycode);
+            keyO = keyO.filter((i) => i !== e.keycode);
             lastKey.el.querySelectorAll(`[data-k="${e.keycode}"]`)?.forEach((el: HTMLElement) => {
                 el.classList.add("key_hidden");
             });
             if (keyO.length === 0) {
-                let e = lastKey;
+                const e = lastKey;
                 setTimeout(() => {
                     e.style({ opacity: "0" });
                 }, 4000);
@@ -101,8 +99,8 @@ function initRecord() {
     }
 
     function rMouse() {
-        var m2m = { 1: 0, 3: 1, 2: 2 };
-        var mouseEl = recorderMouseEl.querySelectorAll("div");
+        const m2m = { 1: 0, 3: 1, 2: 2 };
+        const mouseEl = recorderMouseEl.querySelectorAll("div");
 
         uIOhook.on("mousedown", (e) => {
             mouseEl[m2m[e.button as number]].style.backgroundColor = "#00f";
@@ -114,7 +112,7 @@ function initRecord() {
         let time_out;
         uIOhook.on("wheel", (e) => {
             console.log(e.direction, e.rotation);
-            let x = {
+            const x = {
                 3: { 1: "wheel_u", "-1": "wheel_d" },
                 4: { 1: "wheel_l", "-1": "wheel_r" },
             };
@@ -133,15 +131,15 @@ function initRecord() {
 
     if (store.get("录屏.提示.光标.开启")) recorderMouseEl.style.display = "flex";
 
-    var mouseStyle = document.createElement("style");
+    const mouseStyle = document.createElement("style");
     mouseStyle.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;
     document.body.appendChild(mouseStyle);
 
     ipcRenderer.on("record", async (_event, t, arg) => {
         switch (t) {
             case "mouse":
-                recorderMouseEl.style.left = arg.x + "px";
-                recorderMouseEl.style.top = arg.y + "px";
+                recorderMouseEl.style.left = `${arg.x}px`;
+                recorderMouseEl.style.top = `${arg.y}px`;
                 break;
         }
     });

@@ -1,6 +1,6 @@
-var h1 = document.querySelector("h1");
+const h1 = document.querySelector("h1");
 
-var search = new URLSearchParams(location.search);
+const search = new URLSearchParams(location.search);
 
 if (navigator.onLine) {
     switch (search.get("type")) {

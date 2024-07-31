@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import store from "../../../lib/store/renderStore";
-import { MainWinType, setting } from "../../ShareTypes";
+import type { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 import { view, txt, ele, button, image } from "dkh-ui";
 import initStyle from "../root/root";
@@ -11,17 +11,17 @@ import reloadSvg from "../assets/icons/reload.svg";
 
 /**撤销 */
 // 定义撤销栈
-var undoStack = [""];
+const undoStack = [""];
 // 定义位置
-var undoStackI = 0;
+let undoStackI = 0;
 /**
  * 添加到撤销栈
  * @returns none
  */
 function stackAdd() {
-    if (undoStack[undoStackI] == editor.get()) return;
+    if (undoStack[undoStackI] === editor.get()) return;
     // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
-    if (undoStackI != undoStack.length - 1) undoStack.push(undoStack[undoStackI]);
+    if (undoStackI !== undoStack.length - 1) undoStack.push(undoStack[undoStackI]);
     undoStack.push(editor.get());
     undoStackI = undoStack.length - 1;
 }
@@ -69,7 +69,7 @@ class xeditor {
         };
 
         this.text.addEventListener("keydown", (e) => {
-            var l = ["Tab", "Insert"];
+            const l = ["Tab", "Insert"];
             if (!l.includes(e.key)) return;
             e.preventDefault();
             switch (e.key) {
@@ -139,7 +139,7 @@ class xeditor {
         hideEditBar();
     }
     copy() {
-        var t = editor.selections.get();
+        const t = editor.selections.get();
         clipboard.writeText(t);
     }
     cut() {
@@ -147,7 +147,7 @@ class xeditor {
         this.delete();
     }
     paste() {
-        let t = clipboard.readText();
+        const t = clipboard.readText();
         editor.selections.replace(t);
     }
     selectAll() {
@@ -156,15 +156,15 @@ class xeditor {
             start: 0,
             end: editor.get().length,
         });
-        let r = this.selections.rect(this.selections.getS())[0];
+        const r = this.selections.rect(this.selections.getS())[0];
         showEditBar(r.x, r.top + lineHeight, false);
     }
     deleteEnter() {
         const s = editor.selections.getS();
-        var t = editor.selections.get(s);
+        const t = editor.selections.get(s);
         let ot = "";
         for (let i = 0; i < t.length; i++) {
-            if (t[i] == "\n") {
+            if (t[i] === "\n") {
                 // 换行
                 if (t?.[i - 1]?.match(/[。？！……”】》）).?!";；]/)) {
                     // 结尾
@@ -211,7 +211,7 @@ class selections {
 
     s2ns(s: selection2) {
         s = formatSelection2(s);
-        let l = editor.l();
+        const l = editor.l();
         let start = 0;
         for (let i = 0; i < s.start.pg; i++) {
             start += l[i].length + 1;
@@ -226,8 +226,8 @@ class selections {
     }
 
     ns2s(start: number, end: number) {
-        let s = { pg: NaN, of: NaN },
-            e = { pg: NaN, of: NaN };
+        const s = { pg: Number.NaN, of: Number.NaN };
+        const e = { pg: Number.NaN, of: Number.NaN };
         let n = 0;
         const l = editor.l();
         for (let i = 0; i < l.length; i++) {
@@ -246,7 +246,7 @@ class selections {
     }
 
     get(s?: selection) {
-        let l = [];
+        const l = [];
         l.push(editor.get(s || this.getS()));
         return l.join("\n");
     }
@@ -259,19 +259,19 @@ class selections {
     }
 
     rect(s: selection) {
-        let textNodes: HTMLElement[] = [];
-        let l = editor.text.value.split("\n");
+        const textNodes: HTMLElement[] = [];
+        const l = editor.text.value.split("\n");
         editor.positionEl.innerText = "";
-        for (let text of l) {
-            let div = document.createElement("div");
+        for (const text of l) {
+            const div = document.createElement("div");
             div.innerText = text;
-            div.style.minHeight = lineHeight + "px";
+            div.style.minHeight = `${lineHeight}px`;
             textNodes.push(div);
             editor.positionEl.append(div);
         }
-        let ps = this.ns2s(s.start, s.end);
-        let range = new Range();
-        let rectL: DOMRect[] = [];
+        const ps = this.ns2s(s.start, s.end);
+        const range = new Range();
+        const rectL: DOMRect[] = [];
         setR(textNodes[ps.start.pg], ps.start.of, textNodes[ps.end.pg], ps.end.of);
         setR(textNodes[ps.start.pg], ps.start.of, textNodes[ps.start.pg], ps.start.of);
         setR(textNodes[ps.end.pg], ps.end.of, textNodes[ps.end.pg], ps.end.of);
@@ -299,7 +299,7 @@ class find {
         // 判断是找文字还是正则
         if (regex) {
             try {
-                text = eval("/" + stext + "/g");
+                text = eval(`/${stext}/g`);
                 document.getElementById("find_input").style.outline = "none";
             } catch (error) {
                 document.getElementById("find_input").style.outline = "red  solid 1px";
@@ -314,12 +314,12 @@ class find {
     find(text: string | RegExp) {
         if (!tmpText) tmpText = editor.get();
         // 拆分
-        let matchL = tmpText.match(text);
-        let textL = tmpText.split(text);
-        let tL: selection[] = [];
+        const matchL = tmpText.match(text);
+        const textL = tmpText.split(text);
+        const tL: selection[] = [];
         let n = 0;
         // 交替插入
-        for (i in textL) {
+        for (const i in textL) {
             if (textL[i]) n += textL[i].length;
             if (matchL[i]) {
                 tL.push({ start: n, end: n + matchL[i].length });
@@ -331,17 +331,17 @@ class find {
 
     render(s: selection[]) {
         this.editor.findEl.innerHTML = "";
-        let text = this.editor.text.value;
-        let ranges = s.sort((a, b) => a.start - b.start);
+        const text = this.editor.text.value;
+        const ranges = s.sort((a, b) => a.start - b.start);
         for (let i = 0; i < ranges.length; i++) {
-            let span = document.createElement("span");
+            const span = document.createElement("span");
             span.innerText = text.slice(ranges[i].start, ranges[i].end);
             if (span.innerText) span.classList.add("find_h");
             let after = "";
-            if (i == ranges.length - 1) after = text.slice(ranges[i].end, text.length);
-            let beforeEl = document.createElement("span");
+            if (i === ranges.length - 1) after = text.slice(ranges[i].end, text.length);
+            const beforeEl = document.createElement("span");
             beforeEl.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
-            let afterEl = document.createElement("span");
+            const afterEl = document.createElement("span");
             afterEl.innerText = after;
             this.editor.findEl.append(beforeEl, span, afterEl);
         }
@@ -350,7 +350,7 @@ class find {
     replace(s: selection, match: string | RegExp, text: string) {
         editor.selections.clearAll();
         editor.selections.add(s);
-        let mtext = editor.get(s).replace(match, text);
+        const mtext = editor.get(s).replace(match, text);
         editor.selections.replace(mtext, editor.selections.getS());
     }
 }
@@ -360,8 +360,8 @@ const editor = new xeditor(document.getElementById("text"));
 editor.push("");
 
 function formatSelection2(s: selection2) {
-    var tmp: selection2 = { start: { pg: NaN, of: NaN }, end: { pg: NaN, of: NaN } };
-    if (s.end.pg == s.start.pg) {
+    let tmp: selection2 = { start: { pg: Number.NaN, of: Number.NaN }, end: { pg: Number.NaN, of: Number.NaN } };
+    if (s.end.pg === s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
         tmp.start.of = Math.min(s.start.of, s.end.of);
         tmp.end.of = Math.max(s.start.of, s.end.of);
@@ -373,7 +373,7 @@ function formatSelection2(s: selection2) {
     return tmp;
 }
 
-var lineHeight = 24;
+let lineHeight = 24;
 
 /**
  * 每次更改光标触发
@@ -395,36 +395,36 @@ function editorChange() {
  */
 function lineNum() {
     document.getElementById("line_num").innerHTML = "";
-    let l = editor.text.value.split("\n");
+    const l = editor.text.value.split("\n");
     editor.positionEl.innerText = "";
     let t = "";
-    let ly = document.getElementById("line_num").getBoundingClientRect().y;
-    for (let i in l) {
+    const ly = document.getElementById("line_num").getBoundingClientRect().y;
+    for (const i in l) {
         const text = l[i];
-        let div = document.createElement("div");
+        const div = document.createElement("div");
         div.innerText = text;
-        div.style.minHeight = lineHeight + "px";
+        div.style.minHeight = `${lineHeight}px`;
         editor.positionEl.append(div);
-        let rect = div.getBoundingClientRect();
+        const rect = div.getBoundingClientRect();
         t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
     }
     document.getElementById("line_num").innerHTML = t;
-    document.getElementById("line_num").style.width = String(l.length).length + "ch";
+    document.getElementById("line_num").style.width = `${String(l.length).length}ch`;
 }
 lineNum();
 
 document.getElementById("line_num").onmousedown = (e) => {
     e.stopPropagation();
-    var el = <HTMLElement>e.target;
-    if (el == document.getElementById("line_num")) return;
-    var lI = Number(el.innerText) - 1;
+    const el = <HTMLElement>e.target;
+    if (el === document.getElementById("line_num")) return;
+    const lI = Number(el.innerText) - 1;
 
-    var s = { start: { pg: lI, of: 0 }, end: { pg: lI, of: editor.wMax(lI) } };
+    const s = { start: { pg: lI, of: 0 }, end: { pg: lI, of: editor.wMax(lI) } };
     editor.selections.clearAll();
     editor.selections.add(editor.selections.s2ns(s));
 };
 document.getElementById("line_num").onmouseup = (_e) => {
-    let s = editor.selections.getS();
+    const s = editor.selections.getS();
     editor.text.setSelectionRange(s.start, s.end);
     editor.text.focus();
 };
@@ -434,11 +434,11 @@ document.getElementById("text").parentElement.onscroll = () => {
 
 /************************************主要 */
 
-var windowName = "",
-    mainText = "";
-var 自动搜索 = store.get("自动搜索"),
-    自动打开链接 = store.get("自动打开链接"),
-    自动搜索中文占比 = store.get("自动搜索中文占比");
+let windowName = "";
+let mainText = "";
+const 自动搜索 = store.get("自动搜索");
+const 自动打开链接 = store.get("自动打开链接");
+const 自动搜索中文占比 = store.get("自动搜索中文占比");
 
 /************************************UI */
 
@@ -447,22 +447,23 @@ function setButtonHover(el: HTMLElement, b: boolean) {
     else el.classList.remove("hover_b");
 }
 
-var 浏览器打开 = store.get("浏览器中打开");
+const 浏览器打开 = store.get("浏览器中打开");
 
 /**字体大小 */
-var 默认字体大小 = store.get("字体.大小");
-document.getElementById("text_out").style.fontSize =
-    (store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小) + "px";
+const 默认字体大小 = store.get("字体.大小");
+document.getElementById("text_out").style.fontSize = `${
+    store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小
+}px`;
 
 document.onwheel = (e) => {
     if (e.ctrlKey) {
-        var d = e.deltaY / Math.abs(e.deltaY);
-        var size = Number(document.getElementById("text_out").style.fontSize.replace("px", ""));
+        const d = e.deltaY / Math.abs(e.deltaY);
+        const size = Number(document.getElementById("text_out").style.fontSize.replace("px", ""));
         setFontSize(size - d);
     }
 };
 function setFontSize(font_size: number) {
-    document.getElementById("text_out").style.fontSize = font_size + "px";
+    document.getElementById("text_out").style.fontSize = `${font_size}px`;
     lineHeight = font_size * 1.5;
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
@@ -482,7 +483,7 @@ const barExcel = document.getElementById("excel_bar");
 const barMdTable = document.getElementById("md_table_bar");
 
 /**编辑栏 */
-var editBarS = false;
+let editBarS = false;
 function showEditBar(x: number, y: number, right: boolean) {
     const get = editor.selections.get();
     // 简易判断链接并显示按钮
@@ -500,7 +501,7 @@ function showEditBar(x: number, y: number, right: boolean) {
     }
 
     // 排除没选中
-    if (get != "" || right) {
+    if (get !== "" || right) {
         if (editBarS) {
             editBEl.style.transition = "var(--transition)";
         } else {
@@ -526,21 +527,21 @@ function hideEditBar() {
 }
 
 editor.text.addEventListener("select2", (e: CustomEvent) => {
-    let dir = e.detail.d as HTMLTextAreaElement["selectionDirection"];
-    let rect = editor.selections.rect(editor.selections.getS());
+    const dir = e.detail.d as HTMLTextAreaElement["selectionDirection"];
+    const rect = editor.selections.rect(editor.selections.getS());
     let r: DOMRect;
-    if (dir == "backward") {
+    if (dir === "backward") {
         r = rect[1];
     } else {
         r = rect[2];
     }
-    let d = editor.rendererEl.getBoundingClientRect();
-    let x = r.x - d.x;
-    let y = r.y - d.y;
-    if (e.detail.button == 2) {
+    const d = editor.rendererEl.getBoundingClientRect();
+    const x = r.x - d.x;
+    const y = r.y - d.y;
+    if (e.detail.button === 2) {
         showEditBar(x, y + lineHeight, true);
     } else {
-        if (editor.selections.get() == "") {
+        if (editor.selections.get() === "") {
             hideEditBar();
         } else {
             showEditBar(x, y + lineHeight, false);
@@ -568,7 +569,7 @@ const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = 
     关闭: closeWindow,
 };
 
-for (let i in hotkeyMap) {
+for (const i in hotkeyMap) {
     const key = store.get(`主页面快捷键.${i}`);
     if (key) {
         hotkeys(key, hotkeyMap[i]);
@@ -577,13 +578,13 @@ for (let i in hotkeyMap) {
 
 const editToolsF: { [name: string]: () => void } = {};
 
-for (let i of editTools) {
+for (const i of editTools) {
     const iel = view().add(txt(i.name));
     const f = () => {
         const s = editor.selections.getS();
         let t = editor.selections.get(s);
 
-        for (let regex of i.regex) {
+        for (const regex of i.regex) {
             const r = new RegExp(regex.r, "g");
             t = t.replace(r, regex.p);
         }
@@ -608,7 +609,7 @@ editBEl.onmousedown = async (e) => {
     }
 };
 
-var isWrap = !store.get("编辑器.自动换行");
+let isWrap = !store.get("编辑器.自动换行");
 wrap();
 function wrap() {
     isWrap = !isWrap;
@@ -627,7 +628,7 @@ function wrap() {
     lineNum();
 }
 
-var isCheck = !store.get("编辑器.拼写检查");
+let isCheck = !store.get("编辑器.拼写检查");
 spellcheck();
 function spellcheck() {
     isCheck = !isCheck;
@@ -638,12 +639,12 @@ function spellcheck() {
  * 查找与替换
  */
 
-var findInput = <HTMLInputElement>document.getElementById("find_input");
-var replaceInput = <HTMLInputElement>document.getElementById("replace_input");
-var findT = <HTMLElement>document.querySelector(".find_t > span");
+const findInput = <HTMLInputElement>document.getElementById("find_input");
+const replaceInput = <HTMLInputElement>document.getElementById("replace_input");
+const findT = <HTMLElement>document.querySelector(".find_t > span");
 
 // 查找ui
-var findShow = false;
+let findShow = false;
 function showFind() {
     findShow = !findShow;
     if (findShow) {
@@ -653,7 +654,7 @@ function showFind() {
         findInput.value = editor.selections.get();
         findInput.select();
         findInput.focus();
-        if (editor.selections.get() != "") find_();
+        if (editor.selections.get() !== "") find_();
         countWords();
     } else {
         document.getElementById("top").style.marginTop = "";
@@ -668,7 +669,7 @@ document.getElementById("find_b_close").onclick = () => {
 };
 
 // 正则
-var findRegex = false;
+let findRegex = false;
 document.getElementById("find_b_regex").onclick = () => {
     findRegex = !findRegex;
     if (findRegex) {
@@ -680,7 +681,7 @@ document.getElementById("find_b_regex").onclick = () => {
     findInput.focus();
 };
 
-var tmpText: string;
+let tmpText: string;
 document.getElementById("find_input").oninput = () => {
     // 清除样式后查找
     exitFind();
@@ -688,12 +689,12 @@ document.getElementById("find_input").oninput = () => {
 };
 // 查找并突出
 function find_() {
-    let match = editor.find.matchx(findInput.value, findRegex);
-    let find_l = editor.find.find(match);
+    const match = editor.find.matchx(findInput.value, findRegex);
+    const find_l = editor.find.find(match);
     editor.find.render(find_l);
     findLNI = -1;
     findLN("↓");
-    if (findInput.value == "") {
+    if (findInput.value === "") {
         exitFind();
     }
 }
@@ -705,21 +706,21 @@ function exitFind() {
     editor.find.render([]);
 }
 // 跳转
-var findLNI = 0;
+let findLNI = 0;
 function findLN(a: "↑" | "↓") {
-    var l = document.querySelectorAll(".find_h");
-    if (l.length == 0) {
-        findT.innerText = `无结果`;
+    const l = document.querySelectorAll(".find_h");
+    if (l.length === 0) {
+        findT.innerText = "无结果";
         return;
     }
     if (l[findLNI]) l[findLNI].classList.remove("find_h_h");
-    if (a == "↑") {
+    if (a === "↑") {
         if (findLNI > 0) {
             findLNI--;
         } else {
             findLNI = l.length - 1;
         }
-    } else if (a == "↓") {
+    } else if (a === "↓") {
         if (findLNI < l.length - 1) {
             findLNI++;
         } else {
@@ -737,7 +738,7 @@ document.getElementById("find_b_next").onclick = () => {
     findLN("↓");
 };
 document.getElementById("find_input").onkeydown = (e) => {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
         if (document.querySelector(".find_h_h")) {
             findLN("↓");
         } else {
@@ -748,7 +749,7 @@ document.getElementById("find_input").onkeydown = (e) => {
 
 // 全部替换
 document.getElementById("find_b_replace_all").onclick = () => {
-    let m = editor.find.matchx(findInput.value, findRegex);
+    const m = editor.find.matchx(findInput.value, findRegex);
     if (!editor.selections.get()) editor.selectAll();
     editor.selections.replace(editor.selections.get().replaceAll(m, replaceInput.value));
     exitFind();
@@ -758,12 +759,12 @@ document.getElementById("find_b_replace_all").onclick = () => {
 // 替换选中
 document.getElementById("find_b_replace").onclick = findReplace;
 function findReplace() {
-    let m = editor.find.matchx(findInput.value, findRegex);
-    let l = editor.find.find(m);
-    let s = l[findLNI];
+    const m = editor.find.matchx(findInput.value, findRegex);
+    const l = editor.find.find(m);
+    const s = l[findLNI];
     editor.find.replace(s, m, replaceInput.value);
     findLNI = findLNI - 1;
-    let ti = findLNI;
+    const ti = findLNI;
     find_();
     findLNI = ti;
     findLN("↓");
@@ -771,14 +772,14 @@ function findReplace() {
     stackAdd();
 }
 document.getElementById("replace_input").onkeydown = (e) => {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
         findReplace();
     }
 };
 
 /************************************搜索 */
 
-let mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
+const mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
 
 /**
  * 判断是否为链接
@@ -788,21 +789,18 @@ let mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
  */
 function isLink(url: string, s: boolean) {
     if (s) {
-        var regex =
+        const regex =
             /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
         if (url.match(regex) != null) {
             return true;
-        } else {
-            return false;
         }
-    } else {
-        // 有.或://就行
-        if ((url.match(/\./g) != null || url.match(/:\/\//g) != null) && !url.match(/[\n\r]/g)) {
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
+    // 有.或://就行
+    if ((url.match(/\./g) != null || url.match(/:\/\//g) != null) && !url.match(/[\n\r]/g)) {
+        return true;
+    }
+    return false;
 }
 /**
  * 展示文字
@@ -816,9 +814,9 @@ function showT(t: string) {
         if (isLink(t, true)) {
             if (自动打开链接) openLink("url", t);
         } else {
-            var language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
-            if (自动搜索 && t.match(/[\r\n]/) == null && t != "") {
-                if (language == "本地语言") {
+            const language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
+            if (自动搜索 && t.match(/[\r\n]/) == null && t !== "") {
+                if (language === "本地语言") {
                     openLink("search");
                 } else {
                     openLink("translate");
@@ -839,17 +837,18 @@ function showT(t: string) {
  * @param link 链接
  */
 function openLink(id: "url" | "search" | "translate", link?: string) {
-    if (id == "url") {
+    let url = "";
+    if (id === "url") {
         link = link.replace(/[(^\s)(\s$)]/g, "");
         if (link.match(/\/\//g) == null) {
-            link = "https://" + link;
+            link = `https://${link}`;
         }
-        var url = link;
+        url = link;
     } else {
-        var s = editor.selections.get() || editor.get(); // 要么全部，要么选中
-        var url = (<HTMLSelectElement>document.querySelector(`#${id}_s`)).value.replace("%s", encodeURIComponent(s));
+        const s = editor.selections.get() || editor.get(); // 要么全部，要么选中
+        url = (<HTMLSelectElement>document.querySelector(`#${id}_s`)).value.replace("%s", encodeURIComponent(s));
     }
-    if (typeof global != "undefined") {
+    if (typeof global !== "undefined") {
         if (浏览器打开) {
             shell.openExternal(url);
         } else {
@@ -860,9 +859,9 @@ function openLink(id: "url" | "search" | "translate", link?: string) {
     }
 }
 
-var 搜索引擎List = store.get("引擎.搜索") as setting["引擎"]["搜索"],
-    翻译引擎List = store.get("引擎.翻译") as setting["引擎"]["翻译"],
-    引擎 = store.get("引擎") as setting["引擎"];
+const 搜索引擎List = store.get("引擎.搜索") as setting["引擎"]["搜索"];
+const 翻译引擎List = store.get("引擎.翻译") as setting["引擎"]["翻译"];
+const 引擎 = store.get("引擎") as setting["引擎"];
 /**搜索翻译按钮 */
 document.getElementById("search_b").onclick = () => {
     openLink("search");
@@ -882,13 +881,13 @@ document.getElementById("translate_s").oninput = () => {
     store.set("引擎.记忆.翻译", translateSelect.selectedOptions[0].innerText);
 };
 /**展示搜索引擎选项 */
-for (let e of 搜索引擎List) {
+for (const e of 搜索引擎List) {
     const selected = 引擎.记忆.搜索 === e.name;
     const op = ele("option").add(txt(e.name)).attr({ value: e.url, selected });
     searchSelect.append(op.el);
 }
 /**展示翻译引擎选项 */
-for (let e of 翻译引擎List) {
+for (const e of 翻译引擎List) {
     const selected = 引擎.记忆.翻译 === e.name;
     const op = ele("option").add(txt(e.name)).attr({ value: e.url, selected });
     translateSelect.append(op.el);
@@ -900,12 +899,12 @@ for (let e of 翻译引擎List) {
 // var historyStore = new Store({ name: "history" });
 // todo
 
-var historyList: { [key: string]: { text: string } } = {};
-var 历史记录设置 = store.get("历史记录设置");
+let historyList: { [key: string]: { text: string } } = {};
+const 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
-    var nowTime = new Date().getTime();
-    var dTime = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
-    for (var i of Object.keys(historyList)) {
+    const nowTime = new Date().getTime();
+    const dTime = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
+    for (const i of Object.keys(historyList)) {
         if (nowTime - Number(i) > dTime) {
             // historyStore.delete(`历史记录.${i}`);
         }
@@ -913,17 +912,17 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
 }
 
 function pushHistory() {
-    var t = editor.get();
-    var i = new Date().getTime();
-    var s = { text: t };
-    if (t != "" && 历史记录设置.保留历史记录) {
+    const t = editor.get();
+    const i = new Date().getTime();
+    const s = { text: t };
+    if (t !== "" && 历史记录设置.保留历史记录) {
         // historyStore.set(`历史记录.${i}`, s);
         historyList[i] = s;
     }
     renderHistory();
 }
 // 历史记录界面
-var historyShowed = false;
+let historyShowed = false;
 document.getElementById("history_b").onclick = showHistory;
 
 const historyListEl = document.getElementById("history_list");
@@ -943,14 +942,14 @@ function showHistory() {
 }
 import time_format from "../../../lib/time_format";
 function renderHistory() {
-    var n = {};
-    for (let i of Object.keys(historyList).sort()) {
+    let n = {};
+    for (const i of Object.keys(historyList).sort()) {
         n[i] = historyList[i];
     }
     historyList = n;
     n = null;
-    if (Object.keys(historyList).length == 0) historyListEl.innerText = t("暂无历史记录");
-    for (let i in historyList) {
+    if (Object.keys(historyList).length === 0) historyListEl.innerText = t("暂无历史记录");
+    for (const i in historyList) {
         const t = historyList[i].text.split(/[\r\n]/g);
         const div = view().attr({ id: i });
         const text = t.splice(0, 3).join("\n") + (t.length > 3 ? "..." : "");
@@ -983,14 +982,14 @@ function renderHistory() {
         });
     });
 }
-if (mainText == "") renderHistory();
+if (mainText === "") renderHistory();
 
 const task = new tLog("e");
 
 /************************************引入 */
 const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
-const fs = require("fs") as typeof import("fs");
-const os = require("os") as typeof import("os");
+const fs = require("node:fs") as typeof import("fs");
+const os = require("node:os") as typeof import("os");
 
 ipcRenderer.on("init", (_event, _name: number) => {});
 
@@ -1043,11 +1042,10 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                     }
                 }
                 return;
-            } else {
-                console.error(err);
-
-                editor.push(t("识别错误") + "\n" + err + "\n" + t("请打开开发者工具（Ctrl+Shift+I）查看详细错误"));
             }
+            console.error(err);
+
+            editor.push(`${t("识别错误")}\n${err}\n${t("请打开开发者工具（Ctrl+Shift+I）查看详细错误")}`);
 
             mainEvent("home");
         });
@@ -1056,7 +1054,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     if (list.type === "qr") {
         editor.push(t("QR码识别中……请等候"));
         import("qr-scanner-wechat").then(async (qr) => {
-            let img = new Image();
+            const img = new Image();
             img.src = list.content;
             const result = await qr.scan(img);
             const text = result.text;
@@ -1067,20 +1065,20 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
 initStyle(store);
 
-var editOnOtherType = null;
-var fileWatcher = null;
-const path = require("path") as typeof import("path");
-var tmpTextPath = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
-var editingOnOther = false;
+let editOnOtherType = null;
+let fileWatcher = null;
+const path = require("node:path") as typeof import("path");
+const tmpTextPath = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
+let editingOnOther = false;
 import openWith from "../../../lib/open_with";
 function editOnOther() {
     editingOnOther = !editingOnOther;
     if (editingOnOther) {
-        var data = Buffer.from(editor.get());
+        let data = Buffer.from(editor.get());
         fs.writeFile(tmpTextPath, data, () => {
-            if (editOnOtherType == "o") {
+            if (editOnOtherType === "o") {
                 shell.openPath(tmpTextPath);
-            } else if (editOnOtherType == "c") {
+            } else if (editOnOtherType === "c") {
                 openWith(tmpTextPath);
             }
             fileWatcher = fs.watch(tmpTextPath, () => {
@@ -1110,7 +1108,7 @@ function editOnOther() {
 }
 
 function writeEditOnOther() {
-    let data = Buffer.from(editor.get());
+    const data = Buffer.from(editor.get());
     fs.writeFile(tmpTextPath, data, () => {});
 }
 
@@ -1163,28 +1161,29 @@ async function edit(arg: string) {
         case "spellcheck":
             spellcheck();
             break;
-        case "excel":
-            let text = editor.selections.get();
-            let t: string[] = [];
+        case "excel": {
+            const text = editor.selections.get();
+            const t: string[] = [];
             text.split("\n").forEach((v) => {
-                let l = v
+                const l = v
                     .split("\t")
                     .map((i) => `"${i}"`)
                     .join(",");
                 t.push(l);
             });
             // 下载csv
-            let blob = new Blob([t.join("\n")], { type: "text/csv" });
-            let a = document.createElement("a");
+            const blob = new Blob([t.join("\n")], { type: "text/csv" });
+            const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
             a.download = "eSearch.csv";
             a.click();
             break;
-        case "md_table":
-            let table = editor.selections.get();
-            let table2: string[] = [];
+        }
+        case "md_table": {
+            const table = editor.selections.get();
+            const table2: string[] = [];
             table.split("\n").forEach((v, i) => {
-                let l = `|${v.replaceAll("\t", "|")}|`;
+                const l = `|${v.replaceAll("\t", "|")}|`;
                 table2.push(l);
                 if (i === 0) {
                     const i = v.match(/\t/g).length + 1;
@@ -1197,10 +1196,12 @@ async function edit(arg: string) {
             });
             clipboard.writeText(table2.join("\n"));
             break;
-        case "link":
+        }
+        case "link": {
             const url = editor.selections.get();
             openLink("url", url);
             break;
+        }
         case "search":
             openLink("search");
             break;
@@ -1231,14 +1232,14 @@ const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
  */
 function countWords() {
     let text = editor.get();
-    let p = text.trim().match(/\n+/g)?.length + 1 || 1;
+    const p = text.trim().match(/\n+/g)?.length + 1 || 1;
     text = text.replace(/[\n\r]/g, "");
-    let c = [...segmenter.segment(text)].length;
-    let cSpace = c - text.match(/\s/g)?.length || 0;
-    let cjkRg = /[\u2E80-\uFE4F]/g;
-    let cjk = text.match(cjkRg)?.length || 0;
+    const c = [...segmenter.segment(text)].length;
+    const cSpace = c - text.match(/\s/g)?.length || 0;
+    const cjkRg = /[\u2E80-\uFE4F]/g;
+    const cjk = text.match(cjkRg)?.length || 0;
     text = text.replace(cjkRg, "").replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
-    let nCjk = text.match(/\S+/g)?.length || 0;
+    const nCjk = text.match(/\S+/g)?.length || 0;
     document.getElementById("count").innerText = `${cjk + nCjk} ${t("字")}`;
     document.getElementById("count").title = `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${cSpace}\n${t(
         "汉字"
@@ -1297,7 +1298,7 @@ function setConciseMode(m: boolean) {
     }
     const bSize = { top: 0, bottom: 48 };
     if (m) {
-        bSize.top = window.navigator["windowControlsOverlay"].getTitlebarAreaRect().height;
+        bSize.top = window.navigator.windowControlsOverlay.getTitlebarAreaRect().height;
         bSize.bottom = 0;
     }
     ipcRenderer.send("tab_view", null, "size", bSize);
@@ -1315,22 +1316,22 @@ const body = document.querySelector(".fill_t");
 
 body.className = "fill_t";
 
-var liList = [];
+const liList = [];
 
 ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
-    if (arg == "new") {
+    if (arg === "new") {
         newTab(id, arg1);
     }
-    if (arg == "title") {
+    if (arg === "title") {
         title(id, arg1);
     }
-    if (arg == "icon") {
+    if (arg === "icon") {
         icon(id, arg1);
     }
-    if (arg == "url") {
+    if (arg === "url") {
         url(id, arg1);
     }
-    if (arg == "load") {
+    if (arg === "load") {
         load(id, arg1);
     }
     document.getElementById("tabs").classList.add("tabs_show");
@@ -1352,15 +1353,15 @@ ipcRenderer.on("html", (_e, h: string) => {
 });
 
 function 绑定li(li: HTMLLIElement) {
-    let id = Number(li.id.replace("id", ""));
+    const id = Number(li.id.replace("id", ""));
     li.onmouseup = (e) => {
-        if (e.button == 0) {
+        if (e.button === 0) {
             focusTab(li);
         } else {
             closeTab(li, id);
         }
     };
-    let button = li.querySelector("button");
+    const button = li.querySelector("button");
     button.onclick = (e) => {
         e.stopPropagation();
         closeTab(li, id);
@@ -1368,12 +1369,12 @@ function 绑定li(li: HTMLLIElement) {
 }
 
 function newTab(id: number, url: string) {
-    let li = <HTMLLIElement>document.getElementById("tab").cloneNode(true);
+    const li = <HTMLLIElement>document.getElementById("tab").cloneNode(true);
     liList.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
     document.getElementById("tabs").appendChild(li);
-    li.id = "id" + id;
+    li.id = `id${id}`;
     绑定li(li);
     focusTab(li);
 
@@ -1387,11 +1388,11 @@ function newTab(id: number, url: string) {
 
 function closeTab(li: HTMLElement, id: number) {
     ipcRenderer.send("tab_view", id, "close");
-    var l = document.querySelectorAll("li");
-    for (let i in l) {
+    const l = document.querySelectorAll("li");
+    for (const i in l) {
         if (l[i] === li && document.querySelector(".tab_focus") === li) {
             // 模板排除
-            if (Number(i) == l.length - 2) {
+            if (Number(i) === l.length - 2) {
                 focusTab(l[l.length - 3]);
             } else {
                 focusTab(l[i + 1]);
@@ -1409,15 +1410,15 @@ function isTabsEmpty() {
 }
 
 function focusTab(li: HTMLElement) {
-    var l = document.querySelectorAll("li");
-    for (let i of l) {
+    const l = document.querySelectorAll("li");
+    for (const i of l) {
         if (i === li) {
             i.classList.add("tab_focus");
         } else {
             i.classList.remove("tab_focus");
         }
     }
-    for (let j in liList) {
+    for (const j in liList) {
         if (liList[j] === li) {
             liList.splice(Number(j), 1);
             liList.push(li);
@@ -1436,8 +1437,8 @@ function focusTab(li: HTMLElement) {
 
 function title(id: number, arg: string) {
     document.querySelector(`#id${id} > span`).innerHTML =
-        document.getElementById(`id${id}`).querySelector(`span`).title =
-        document.getElementById(`id${id}`).querySelector(`img`).title =
+        document.getElementById(`id${id}`).querySelector("span").title =
+        document.getElementById(`id${id}`).querySelector("img").title =
             arg;
     if (document.getElementById(`id${id}`).className.split(" ").includes("tab_focus"))
         document.title = `eSearch - ${arg}`;
@@ -1445,7 +1446,7 @@ function title(id: number, arg: string) {
 
 function icon(id: number, arg: Array<string>) {
     document.getElementById(`id${id}`).setAttribute("data-icon", arg[0]);
-    document.getElementById(`id${id}`).querySelector(`img`).src = arg[0];
+    document.getElementById(`id${id}`).querySelector("img").src = arg[0];
 }
 
 function url(id: number, url: string) {
@@ -1455,13 +1456,13 @@ function url(id: number, url: string) {
 function load(id: number, loading: boolean) {
     if (loading) {
         document.querySelector(`#id${id} > img`).classList.add("loading");
-        document.getElementById(`id${id}`).querySelector(`img`).src = reloadSvg;
+        document.getElementById(`id${id}`).querySelector("img").src = reloadSvg;
         document.getElementById("reload").style.display = "none";
         document.getElementById("stop").style.display = "block";
     } else {
         document.querySelector(`#id${id} > img`).classList.remove("loading");
         if (document.getElementById(`id${id}`).getAttribute("data-icon"))
-            document.getElementById(`id${id}`).querySelector(`img`).src = document
+            document.getElementById(`id${id}`).querySelector("img").src = document
                 .getElementById(`id${id}`)
                 .getAttribute("data-icon");
         document.getElementById("reload").style.display = "block";
@@ -1506,13 +1507,13 @@ ipcRenderer.on("view_events", (_event, arg) => {
 
 document.getElementById("tabs").onwheel = (e) => {
     e.preventDefault();
-    var i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
+    const i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
     document.getElementById("tabs").scrollLeft += i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
 };
 
 window.onbeforeunload = () => {
     document.querySelector(".tab_focus").classList.remove("tab_focus");
-    let html = document.getElementById("tabs").innerHTML;
+    const html = document.getElementById("tabs").innerHTML;
     ipcRenderer.send("tab_view", null, "save_html", html);
 };
 
@@ -1560,10 +1561,10 @@ function post(url: string, options: RequestInit, cb: (err: Error, result: any) =
 }
 
 function baidu(image: string, callback: (err: Error, url: string) => {}) {
-    let form = new FormData();
-    let bstr = window.atob(image);
+    const form = new FormData();
+    const bstr = window.atob(image);
     let n = bstr.length;
-    let u8arr = new Uint8Array(n);
+    const u8arr = new Uint8Array(n);
     while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
@@ -1571,22 +1572,24 @@ function baidu(image: string, callback: (err: Error, url: string) => {}) {
     form.append("from", "pc");
     post("https://graph.baidu.com/upload", { body: form }, (err, result) => {
         if (err) return callback(err, null);
-        if (result.msg != "Success") return callback(new Error(JSON.stringify(err)), null);
+        if (result.msg !== "Success") return callback(new Error(JSON.stringify(err)), null);
         console.log(result.data.url);
         return callback(null, result.data.url);
     });
 }
 
 function yandex(image, callback) {
-    var b = Buffer.from(image, "base64");
-    var url =
+    const b = Buffer.from(image, "base64");
+    const url =
         "https://yandex.com/images-apphost/image-download?cbird=111&images_avatars_size=preview&images_avatars_namespace=images-cbir";
     post(url, { body: b }, (err, result) => {
         if (err) return callback(err, null);
         console.log(result);
-        var img_url = result.url;
+        const img_url = result.url;
         if (img_url) {
-            var b_url = `https://yandex.com/images/search?family=yes&rpt=imageview&url=${encodeURIComponent(img_url)}`;
+            const b_url = `https://yandex.com/images/search?family=yes&rpt=imageview&url=${encodeURIComponent(
+                img_url
+            )}`;
             callback(null, b_url);
         } else {
             callback(new Error(result), null);
@@ -1596,9 +1599,9 @@ function yandex(image, callback) {
 
 function google(image, callback) {
     const form = new FormData();
-    let bstr = window.atob(image);
+    const bstr = window.atob(image);
     let n = bstr.length;
-    let u8arr = new Uint8Array(n);
+    const u8arr = new Uint8Array(n);
     while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
@@ -1613,7 +1616,7 @@ function google(image, callback) {
             const text = await r.text();
             const tmp = path.join(os.tmpdir(), "eSearch", "google.html");
             fs.writeFileSync(tmp, text);
-            callback(null, "file://" + tmp);
+            callback(null, `file://${tmp}`);
         })
         .catch((err) => {
             if (err) callback(err, null);
@@ -1628,7 +1631,7 @@ function ocr(
     callback: (error: any, r: { raw: ocrResult; text: string }) => void
 ) {
     addOcrPhoto(img);
-    if (type == "baidu" || type == "youdao") {
+    if (type === "baidu" || type === "youdao") {
         onlineOcr(type, img, (err, r) => {
             return callback(err, r);
         });
@@ -1639,7 +1642,7 @@ function ocr(
     }
 }
 
-var lo: import("esearch-ocr").initType;
+let lo: import("esearch-ocr").initType;
 
 /**
  * 离线OCR
@@ -1654,13 +1657,13 @@ async function localOcr(
     try {
         task.l("ocr_load");
         let l: [string, string, string, string, any];
-        for (let i of store.get("离线OCR")) if (i[0] == type) l = i;
+        for (const i of store.get("离线OCR")) if (i[0] === type) l = i;
         function ocrPath(p: string) {
             return path.join(path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"), p);
         }
-        let detp = ocrPath(l[1]),
-            recp = ocrPath(l[2]),
-            字典 = ocrPath(l[3]);
+        const detp = ocrPath(l[1]);
+        const recp = ocrPath(l[2]);
+        const 字典 = ocrPath(l[3]);
         console.log(detp, recp, 字典);
         if (!lo) {
             const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
@@ -1678,10 +1681,10 @@ async function localOcr(
             });
         }
         task.l("img_load");
-        let img = document.createElement("img");
+        const img = document.createElement("img");
         img.src = arg;
         img.onload = async () => {
-            let canvas = document.createElement("canvas");
+            const canvas = document.createElement("canvas");
             canvas.width = img.width;
             canvas.height = img.height;
             canvas.getContext("2d").drawImage(img, 0, 0);
@@ -1690,11 +1693,11 @@ async function localOcr(
                 .then((l) => {
                     console.log(l);
                     let t = "";
-                    for (let i of l) {
-                        t += i.text + "\n";
+                    for (const i of l) {
+                        t += `${i.text}\n`;
                     }
-                    let ll = [];
-                    for (let i of l) {
+                    const ll = [];
+                    for (const i of l) {
                         ll.push({ box: i.box, text: i.text });
                     }
                     callback(null, { raw: ll, text: t });
@@ -1723,8 +1726,8 @@ function onlineOcr(
 ) {
     arg = arg.replace("data:image/png;base64,", "");
 
-    var clientId = store.get(`在线OCR.${type}.id`),
-        clientSecret = store.get(`在线OCR.${type}.secret`);
+    const clientId = store.get(`在线OCR.${type}.id`);
+    const clientSecret = store.get(`在线OCR.${type}.secret`);
     if (!clientId || !clientSecret) return callback("未填写 API Key 或 Secret Key", null);
     switch (type) {
         case "baidu":
@@ -1747,10 +1750,10 @@ function onlineOcr(
                     console.log(access_token);
                     if (!access_token) {
                         if (result.error) {
-                            if (result["error_description"] === "unknown client id") {
+                            if (result.error_description === "unknown client id") {
                                 return callback("API Key 错误", null);
                             }
-                            if (result["error_description"] === "Client authentication failed")
+                            if (result.error_description === "Client authentication failed")
                                 return callback("Secret Key 错误", null);
                         }
                         return callback(JSON.stringify(result), null);
@@ -1781,39 +1784,39 @@ function onlineOcr(
             if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
 
             if (result.tables_result) {
-                let tables: string[] = [];
-                for (let i of result.tables_result) {
-                    let m: string[][] = [];
-                    for (let c of i.body) {
+                const tables: string[] = [];
+                for (const i of result.tables_result) {
+                    const m: string[][] = [];
+                    for (const c of i.body) {
                         if (!m[c.row_start]) m[c.row_start] = [];
                         m[c.row_start][c.col_start] = c.words;
                     }
-                    let body = m.map((row) => row.map((i) => i.replaceAll("\n", "")).join("\t")).join("\n");
-                    let r = [i.header.words, body, i.footer.words];
+                    const body = m.map((row) => row.map((i) => i.replaceAll("\n", "")).join("\t")).join("\n");
+                    const r = [i.header.words, body, i.footer.words];
                     tables.push(r.flat().join("\n"));
                 }
                 return callback(null, { raw: [], text: tables.join("\n") });
             }
 
-            var outputL = [];
+            const outputL = [];
             if (!result.paragraphs_result) {
-                for (i of result.words_result) {
+                for (const i of result.words_result) {
                     outputL.push((<any>i).words);
                 }
             } else {
-                for (i in result.paragraphs_result) {
+                for (const i in result.paragraphs_result) {
                     outputL[i] = "";
-                    for (let ii in result.paragraphs_result[i]["words_result_idx"]) {
-                        outputL[i] += result.words_result[result.paragraphs_result[i]["words_result_idx"][ii]].words;
+                    for (const ii in result.paragraphs_result[i].words_result_idx) {
+                        outputL[i] += result.words_result[result.paragraphs_result[i].words_result_idx[ii]].words;
                     }
                 }
             }
-            let output = outputL.join("\n");
+            const output = outputL.join("\n");
             console.log(output);
-            let r: ocrResult = [];
+            const r: ocrResult = [];
             if (result.words_result[0]?.location)
-                for (i of result.words_result) {
-                    let l = (<any>i).location as { top: number; left: number; width: number; height: number };
+                for (const i of result.words_result) {
+                    const l = (<any>i).location as { top: number; left: number; width: number; height: number };
                     r.push({
                         box: [
                             [l.left, l.top],
@@ -1830,15 +1833,15 @@ function onlineOcr(
     }
 
     function youdaoOcr() {
-        const crypto = require("crypto") as typeof import("crypto");
-        let input = arg.length >= 20 ? arg.slice(0, 10) + arg.length + arg.slice(-10) : arg;
-        let curtime = String(Math.round(new Date().getTime() / 1000));
-        let salt = crypto.randomUUID();
-        let sign = crypto
+        const crypto = require("node:crypto") as typeof import("crypto");
+        const input = arg.length >= 20 ? arg.slice(0, 10) + arg.length + arg.slice(-10) : arg;
+        const curtime = String(Math.round(new Date().getTime() / 1000));
+        const salt = crypto.randomUUID();
+        const sign = crypto
             .createHash("sha256")
             .update(clientId + input + salt + curtime + clientSecret)
             .digest("hex");
-        let data = {
+        const data = {
             img: arg,
             langType: "auto",
             detectType: "10012",
@@ -1866,14 +1869,14 @@ function onlineOcr(
                 return callback(e, null);
             });
         function youdao_format(result) {
-            if (result.errorCode != "0") return callback(JSON.stringify(result), null);
-            let r: ocrResult = [];
-            var textL = [];
-            for (i of result.Result.regions) {
-                var t = "";
-                for (let j of (<any>i).lines) {
-                    let p = j.boundingBox as string;
-                    let pl = p.split(",").map((x) => Number(x));
+            if (result.errorCode !== "0") return callback(JSON.stringify(result), null);
+            const r: ocrResult = [];
+            const textL = [];
+            for (const i of result.Result.regions) {
+                let t = "";
+                for (const j of (<any>i).lines) {
+                    const p = j.boundingBox as string;
+                    const pl = p.split(",").map((x) => Number(x));
                     r.push({
                         box: [
                             [pl[0], pl[1]],
@@ -1887,7 +1890,7 @@ function onlineOcr(
                 }
                 textL.push(t);
             }
-            let text = textL.join("\n");
+            const text = textL.join("\n");
             console.log(text);
             return callback(null, { raw: r, text });
         }
@@ -1925,14 +1928,14 @@ uploadPel.onclick = () => {
     uploadEl.click();
 };
 uploadEl.onchange = () => {
-    let files = uploadEl.files;
-    for (let f of files) {
-        let type = f.type.split("/")[0];
-        if (type != "image") continue;
-        let reader = new FileReader();
+    const files = uploadEl.files;
+    for (const f of files) {
+        const type = f.type.split("/")[0];
+        if (type !== "image") continue;
+        const reader = new FileReader();
         reader.readAsDataURL(f);
         reader.onload = () => {
-            let el = createImg(reader.result as string);
+            const el = createImg(reader.result as string);
             imgsEl.append(el);
         };
     }
@@ -1946,8 +1949,8 @@ document.getElementById("close").onclick = () => {
     imgsEl.innerHTML = "";
 };
 
-for (let i of store.get("离线OCR")) {
-    let o = document.createElement("option");
+for (const i of store.get("离线OCR")) {
+    const o = document.createElement("option");
     o.innerText = `${i[0]}`;
     o.value = `${i[0]}`;
     ocr引擎.append(o);
@@ -1960,14 +1963,14 @@ document.getElementById("ocr引擎").oninput = () => {
 
 /** 拖放数据处理 */
 function putDatatransfer(data: DataTransfer) {
-    if (data.files.length != 0) {
-        for (let f of data.files) {
-            let type = f.type.split("/")[0];
-            if (type != "image") continue;
-            let reader = new FileReader();
+    if (data.files.length !== 0) {
+        for (const f of data.files) {
+            const type = f.type.split("/")[0];
+            if (type !== "image") continue;
+            const reader = new FileReader();
             reader.readAsDataURL(f);
             reader.onload = () => {
-                let el = createImg(reader.result as string);
+                const el = createImg(reader.result as string);
                 imgsEl.append(el);
             };
         }
@@ -1976,9 +1979,9 @@ function putDatatransfer(data: DataTransfer) {
 }
 
 function createImg(src: string) {
-    let div = document.createElement("div");
+    const div = document.createElement("div");
     div.classList.add("img_el");
-    let image = document.createElement("img");
+    const image = document.createElement("img");
     image.src = src;
     image.onload = () => {
         image.setAttribute("data-w", String(image.width));
@@ -1993,10 +1996,10 @@ function runOcr() {
     imgsEl.querySelectorAll(":scope > div > div").forEach((el: HTMLElement) => {
         el.innerHTML = "";
     });
-    let type = ocr引擎.value;
-    let imgList = imgsEl.querySelectorAll(":scope > div > img");
+    const type = ocr引擎.value;
+    const imgList = imgsEl.querySelectorAll(":scope > div > img");
     imgList.forEach((el: HTMLImageElement, i) => {
-        if (type == "baidu" || type == "youdao") {
+        if (type === "baidu" || type === "youdao") {
             onlineOcr(type, el.src, (_err, r) => {
                 addOcrText(r.raw, i);
                 addOcrToEditor(r.text, i);
@@ -2022,19 +2025,19 @@ type ocrResult = {
 }[];
 
 function addOcrText(r: ocrResult, i: number) {
-    let img = imgsEl.querySelectorAll("img")[i];
-    let w = img.naturalWidth,
-        h = img.naturalHeight;
+    const img = imgsEl.querySelectorAll("img")[i];
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
 
-    let div = document.createElement("div");
+    const div = document.createElement("div");
     img.parentElement.append(div);
-    for (let i of r) {
+    for (const i of r) {
         if (!i.text) continue;
-        let x0 = i.box[0][0];
-        let y0 = i.box[0][1];
-        let x1 = i.box[2][0];
-        let y1 = i.box[2][1];
-        let xel = document.createElement("p");
+        const x0 = i.box[0][0];
+        const y0 = i.box[0][1];
+        const x1 = i.box[2][0];
+        const y1 = i.box[2][1];
+        const xel = document.createElement("p");
         xel.style.left = `${(x0 / w) * 100}%`;
         xel.style.top = `${(y0 / h) * 100}%`;
         xel.style.width = `${((x1 - x0) / w) * 100}%`;
@@ -2047,8 +2050,8 @@ function addOcrText(r: ocrResult, i: number) {
         nc.innerText = i.text;
         xel.append(nc);
         const size = nc.getBoundingClientRect();
-        xel.setAttribute("data-w", size.width + "");
-        xel.setAttribute("data-h", size.height + "");
+        xel.setAttribute("data-w", `${size.width}`);
+        xel.setAttribute("data-h", `${size.height}`);
         nc.remove();
     }
 
@@ -2063,7 +2066,7 @@ function setOcrFontSize() {
         const elSize = el.getBoundingClientRect();
         let fontSize = 16;
         fontSize = 16 * (elSize.width / w);
-        el.style.lineHeight = el.style.fontSize = fontSize + "px";
+        el.style.lineHeight = el.style.fontSize = `${fontSize}px`;
     });
 }
 
@@ -2074,16 +2077,16 @@ window.onresize = () => {
 
 function addOcrPhoto(base: string) {
     imgsEl.innerHTML = "";
-    let el = createImg(base);
+    const el = createImg(base);
     imgsEl.append(el);
 }
 
 let output = [];
 console.log(output);
 
-let ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
+const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 function addOcrSelect(div: HTMLDivElement) {
-    let allTextNodes: Node[] = [];
+    const allTextNodes: Node[] = [];
     const treeWalker = document.createTreeWalker(div, NodeFilter.SHOW_TEXT);
     let currentNode = treeWalker.nextNode();
     while (currentNode) {
@@ -2095,21 +2098,21 @@ function addOcrSelect(div: HTMLDivElement) {
 }
 
 imgsEl.onpointerup = () => {
-    let range = document.getSelection().getRangeAt(0);
+    const range = document.getSelection().getRangeAt(0);
     console.log(range);
-    let div = (
+    const div = (
         range.commonAncestorContainer.nodeName === "DIV"
             ? range.commonAncestorContainer
             : range.commonAncestorContainer.parentElement.parentElement
     ) as HTMLDivElement;
-    let allTextNodes = ocrTextNodes.get(div);
+    const allTextNodes = ocrTextNodes.get(div);
     if (!allTextNodes) return;
-    let startNode = range.startContainer;
+    const startNode = range.startContainer;
     let endNode = range.endContainer;
-    let rStartOffset = range.startOffset;
+    const rStartOffset = range.startOffset;
     let rEndOffset = range.endOffset;
     if (endNode.nodeName === "P") {
-        let lastText = endNode.previousSibling.childNodes[0];
+        const lastText = endNode.previousSibling.childNodes[0];
         endNode = lastText;
         rEndOffset = lastText.textContent?.length;
     }
@@ -2137,23 +2140,22 @@ imgsEl.onpointerup = () => {
     console.log(start, end);
     if (start === end) return;
 
-    let diff = dmp.diff_main(sourceText, editor.get());
+    const diff = dmp.diff_main(sourceText, editor.get());
     console.log(diff);
-    let source: number[] = [0];
-    let map: number[] = [0];
+    const source: number[] = [0];
+    const map: number[] = [0];
     if (diff.at(-1)[0] === 1) diff.push([0, ""]);
-    let p0 = 0,
-        p1 = 0;
+    let p0 = 0;
+    let p1 = 0;
     for (let i = 0; i < diff.length; i++) {
-        let d = diff[i];
-        let dn = diff[i + 1];
+        const d = diff[i];
+        const dn = diff[i + 1];
         if (d[0] === -1 && dn && dn[0] === 1) {
             p0 += d[1].length;
             p1 += dn[1].length;
             source.push(p0);
             map.push(p1);
             i++;
-            continue;
         } else {
             if (d[0] === 0) {
                 p0 += d[1].length;
@@ -2173,8 +2175,8 @@ imgsEl.onpointerup = () => {
     }
     map.push(editor.get().length);
     console.log(source, map);
-    let editorStart = 0,
-        editorEnd = 0;
+    let editorStart = 0;
+    let editorEnd = 0;
     for (let i = 0; i < source.length; i++) {
         if (source[i] <= start && start <= source[i + 1]) {
             editorStart = Math.min(map[i] + (start - source[i]), map[i + 1]);
@@ -2189,4 +2191,4 @@ imgsEl.onpointerup = () => {
 };
 
 import diff_match_patch from "diff-match-patch";
-var dmp = new diff_match_patch();
+const dmp = new diff_match_patch();

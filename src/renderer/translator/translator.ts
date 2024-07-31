@@ -1,4 +1,4 @@
-import { setting } from "../../ShareTypes";
+import type { setting } from "../../ShareTypes";
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
 
@@ -10,8 +10,8 @@ import xtranslator from "xtranslator";
 
 import { button, check, image, view } from "dkh-ui";
 
-const path = require("path") as typeof import("path");
-const fs = require("fs") as typeof import("fs");
+const path = require("node:path") as typeof import("path");
+const fs = require("node:fs") as typeof import("fs");
 
 import close_svg from "../assets/icons/close.svg";
 import pause_svg from "../assets/icons/pause.svg";
@@ -39,26 +39,26 @@ if (transE.length > 0) {
 type Rect = { x: number; y: number; w: number; h: number };
 let rect: Rect = { x: 0, y: 0, w: 0, h: 0 };
 
-var allScreens: (Electron.Display & { captureSync: () => Buffer })[];
+let allScreens: (Electron.Display & { captureSync: () => Buffer })[];
 
-var screenId = NaN;
+let screenId = Number.NaN;
 
-var mode: "auto" | "manual" = "manual";
+let mode: "auto" | "manual" = "manual";
 
-var frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
+const frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
 
-var pause = false;
+let pause = false;
 
 const lo = require("esearch-ocr") as typeof import("esearch-ocr");
 const ort = require("onnxruntime-node");
 let l: [string, string, string, string, any];
-for (let i of store.get("离线OCR")) if (i[0] == "默认") l = i;
+for (const i of store.get("离线OCR")) if (i[0] === "默认") l = i;
 function ocrPath(p: string) {
     return path.join(path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"), p);
 }
-let detp = ocrPath(l[1]),
-    recp = ocrPath(l[2]),
-    字典 = ocrPath(l[3]);
+const detp = ocrPath(l[1]);
+const recp = ocrPath(l[2]);
+const 字典 = ocrPath(l[3]);
 const OCR = await lo.init({
     detPath: detp,
     recPath: recp,
@@ -97,8 +97,8 @@ function screenshot(id: number, rect: Rect) {
     canvas.width = w;
     canvas.height = h;
 
-    let bitmap = image.toBitmap();
-    let x = new Uint8ClampedArray(bitmap.length);
+    const bitmap = image.toBitmap();
+    const x = new Uint8ClampedArray(bitmap.length);
     for (let i = 0; i < bitmap.length; i += 4) {
         // 交换R和B通道的值，同时复制G和Alpha通道的值
         x[i] = bitmap[i + 2]; // B
@@ -106,7 +106,7 @@ function screenshot(id: number, rect: Rect) {
         x[i + 2] = bitmap[i]; // R
         x[i + 3] = bitmap[i + 3]; // Alpha
     }
-    let d = new ImageData(x, w, h);
+    const d = new ImageData(x, w, h);
     canvas.getContext("2d").putImageData(d, 0, 0);
     return canvas.getContext("2d").getImageData(rect.x, rect.y, rect.w, rect.h);
 }
@@ -116,7 +116,7 @@ async function ocr(imgData: ImageData) {
     return l;
 }
 
-var tCache: Map<string, string> = new Map();
+const tCache: Map<string, string> = new Map();
 
 async function translate(text: string) {
     const t = tCache.get(text);
@@ -124,11 +124,10 @@ async function translate(text: string) {
         return new Promise((resolve: (t: string) => void) => {
             resolve(t);
         });
-    else {
-        const t = await translateE(text);
-        tCache.set(text, t);
-        return t;
-    }
+
+        const tt = await translateE(text);
+        tCache.set(text, tt);
+        return tt;
 }
 
 const sl = () =>
@@ -145,19 +144,19 @@ async function run() {
     const ocrData = await ocr(data);
 
     textEl.el.innerHTML = "";
-    for (let i of ocrData) {
+    for (const i of ocrData) {
         const text = i.text;
-        let x0 = i.box[0][0];
-        let y0 = i.box[0][1];
-        let x1 = i.box[2][0];
-        let y1 = i.box[2][1];
+        const x0 = i.box[0][0];
+        const y0 = i.box[0][1];
+        const x1 = i.box[2][0];
+        const y1 = i.box[2][1];
         const item = view().style({
-            left: x0 + "px",
-            top: y0 + "px",
-            width: x1 - x0 + "px",
-            height: y1 - y0 + "px",
-            "line-height": y1 - y0 + "px",
-            "font-size": y1 - y0 + "px",
+            left: `${x0}px`,
+            top: `${y0}px`,
+            width: `${x1 - x0}px`,
+            height: `${y1 - y0}px`,
+            "line-height": `${y1 - y0}px`,
+            "font-size": `${y1 - y0}px`,
         });
         textEl.add(item);
         // item.innerText = text;
@@ -181,9 +180,9 @@ ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect
     screenId = id;
     rect = _rect;
     run();
-    mainEl.style({ top: dy + "px", height: _rect.h * 3 + "px" });
-    textEl.style({ width: _rect.w + "px", height: _rect.h + "px" });
-    rectEl.style({ width: _rect.w + "px", height: _rect.h + "px" });
+    mainEl.style({ top: `${dy}px`, height: `${_rect.h * 3}px` });
+    textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
+    rectEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
     switchMode();
 });
 
@@ -215,7 +214,7 @@ function switchMode() {
 }
 
 function setOffset(offset: number) {
-    textEl.el.style.top = (offset - -1) * textEl.el.offsetHeight + "px";
+    textEl.el.style.top = `${(offset - -1) * textEl.el.offsetHeight}px`;
 }
 
 switchEl.sv(mode === "manual");
@@ -230,7 +229,7 @@ const playEl = button(playIcon).on("click", () => {
 });
 
 const runEl = button(iconEl(ocr_svg)).on("click", async () => {
-    if (mode != "auto") {
+    if (mode !== "auto") {
         mainEl.el.style.opacity = "0";
         await sl();
         await sl();

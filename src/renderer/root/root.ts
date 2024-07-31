@@ -1,14 +1,14 @@
-import { setting } from "../../ShareTypes";
+import type { setting } from "../../ShareTypes";
 
 function initStyle(store) {
     function setCSSVar(name: string, value: string) {
         if (value) document.documentElement.style.setProperty(name, value);
     }
-    var 模糊 = store.get("全局.模糊");
-    if (模糊 != 0) {
+    const 模糊 = store.get("全局.模糊");
+    if (模糊 !== 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     } else {
-        document.documentElement.style.setProperty("--blur", `none`);
+        document.documentElement.style.setProperty("--blur", "none");
     }
 
     document.documentElement.style.setProperty("--alpha", store.get("全局.不透明度"));
@@ -21,7 +21,7 @@ function initStyle(store) {
     setCSSVar("--d-bg", theme.dark.bg);
     setCSSVar("--d-hover-color", theme.dark.emphasis);
 
-    var 字体 = store.get("字体");
+    const 字体 = store.get("字体");
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 

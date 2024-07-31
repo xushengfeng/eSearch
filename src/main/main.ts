@@ -19,15 +19,15 @@ import {
     session,
     crashReporter,
 } from "electron";
-import type { Buffer } from "buffer";
+import type { Buffer } from "node:buffer";
 
 // const Store = require("../../lib/store/store");
 import Store from "../../lib/store/store";
-import { setting, MainWinType, translateWinType, 功能 } from "../ShareTypes";
-import { join, resolve, dirname } from "path";
-import { exec } from "child_process";
-import { readFileSync, rmSync, existsSync, mkdir, readFile, mkdirSync } from "fs";
-import { tmpdir } from "os";
+import type { setting, MainWinType, translateWinType, 功能 } from "../ShareTypes";
+import { join, resolve, dirname } from "node:path";
+import { exec } from "node:child_process";
+import { readFileSync, rmSync, existsSync, mkdir, readFile, mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
 import url from "node:url";
@@ -73,7 +73,7 @@ ipcMain.on("store", (e, x) => {
 
 let /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
-if (process.argv.includes("-d") || import.meta.env.DEV || process.env["ESEARCH_DEV"] || store.get("dev")) {
+if (process.argv.includes("-d") || import.meta.env.DEV || process.env.ESEARCH_DEV || store.get("dev")) {
     dev = true;
 } else {
     dev = false;
@@ -93,20 +93,19 @@ if (dev) {
 }
 
 function mainUrl(fileName: string) {
-    if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-        let mainUrl = `${process.env["ELECTRON_RENDERER_URL"]}/${fileName}`;
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+        const mainUrl = `${process.env.ELECTRON_RENDERER_URL}/${fileName}`;
         return mainUrl;
-    } else {
-        return join(__dirname, "../renderer", fileName);
     }
+    return join(__dirname, "../renderer", fileName);
 }
 
 /** 加载网页 */
 function rendererPath(window: BrowserWindow, fileName: string) {
     const q = { query: { config_path: app.getPath("userData") } };
-    if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-        let x = new url.URL(mainUrl(fileName));
-        for (let i in q.query) {
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+        const x = new url.URL(mainUrl(fileName));
+        for (const i in q.query) {
             x.searchParams.set(i, q.query[i]);
         }
         window.loadURL(x.toString());
@@ -126,14 +125,14 @@ function rendererPath2(window: Electron.WebContents, fileName: string, q?: Elect
     } else if (!q.query) {
         q.query = { config_path: app.getPath("userData") };
     } else {
-        q.query["config_path"] = app.getPath("userData");
+        q.query.config_path = app.getPath("userData");
     }
-    if (!app.isPackaged && process.env["ELECTRON_RENDERER_URL"]) {
-        let x = new url.URL(mainUrl(fileName));
+    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
+        const x = new url.URL(mainUrl(fileName));
         if (q) {
             if (q.search) x.search = q.search;
             if (q.query) {
-                for (let i in q.query) {
+                for (const i in q.query) {
                     x.searchParams.set(i, q.query[i]);
                 }
             }
@@ -151,8 +150,8 @@ if (!store.get("硬件加速")) {
 
 // 自启动
 ipcMain.on("autostart", (event, m, v) => {
-    if (m == "set") {
-        if (process.platform == "linux") {
+    if (m === "set") {
+        if (process.platform === "linux") {
             if (v) {
                 exec("mkdir ~/.config/autostart");
                 exec(`cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`);
@@ -163,7 +162,7 @@ ipcMain.on("autostart", (event, m, v) => {
             app.setLoginItemSettings({ openAtLogin: v });
         }
     } else {
-        if (process.platform == "linux") {
+        if (process.platform === "linux") {
             exec("test -e ~/.config/autostart/e-search.desktop", (error, _stdout, _stderr) => {
                 error ? event.sender.send("开机启动状态", false) : event.sender.send("开机启动状态", true);
             });
@@ -178,20 +177,20 @@ ipcMain.on("autostart", (event, m, v) => {
  */
 async function copyText(callback: (t: string) => void) {
     const oClipboard = clipboard.readText();
-    if (process.platform == "darwin") {
+    if (process.platform === "darwin") {
         exec(
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
         );
-    } else if (process.platform == "win32") {
+    } else if (process.platform === "win32") {
         exec(`"${join(runPath, "lib/copy.exe")}"`);
-    } else if (process.platform == "linux") {
+    } else if (process.platform === "linux") {
         exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
     setTimeout(() => {
-        let t = clipboard.readText();
+        const t = clipboard.readText();
         let v = "";
-        if (oClipboard != t) v = t;
-        for (let i of store.get("主搜索功能.自动搜索排除")) {
+        if (oClipboard !== t) v = t;
+        for (const i of store.get("主搜索功能.自动搜索排除")) {
             if (t.match(i)) {
                 v = "";
                 break;
@@ -223,7 +222,7 @@ function openSelection() {
 /** 剪贴板搜索 */
 function openClipBoard() {
     const t = clipboard.readText(
-        process.platform == "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
+        process.platform === "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
     );
     createMainWindow({ type: "text", content: t });
 }
@@ -269,7 +268,7 @@ function argRun(c: string[]) {
             createMainWindow({ type: "text", content: c[c.findIndex((t) => t === "-t") + 1] });
             break;
         default:
-            for (let i of c) {
+            for (const i of c) {
                 if (i.match(/(\.png)|(\.jpg)|(\.svg)$/i)) {
                     showPhoto(i);
                     break;
@@ -283,7 +282,8 @@ async function rmR(dir_path: string) {
     rmSync(dir_path, { recursive: true });
 }
 
-let contextMenu: Electron.Menu, tray: Tray;
+let contextMenu: Electron.Menu;
+let tray: Tray;
 
 app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
 
@@ -302,7 +302,7 @@ app.whenReady().then(() => {
     // Store.initRenderer();
     // 托盘
     tray =
-        process.platform == "linux"
+        process.platform === "linux"
             ? new Tray(`${runPath}/assets/logo/32x32.png`)
             : new Tray(`${runPath}/assets/logo/16x16.png`);
     contextMenu = Menu.buildFromTemplate([
@@ -427,7 +427,6 @@ app.whenReady().then(() => {
                   },
               ]
             : []),
-        ,
         {
             label: t("检查更新"),
             click: () => {
@@ -505,7 +504,7 @@ app.whenReady().then(() => {
     });
 
     const 快捷键: object = store.get("快捷键");
-    for (let k in 快捷键) {
+    for (const k in 快捷键) {
         const m = 快捷键[k];
         try {
             if (m.key)
@@ -513,8 +512,8 @@ app.whenReady().then(() => {
                     快捷键函数[k]();
                 });
         } catch (error) {
-            delete 快捷键[k].key;
-            store.set(`快捷键`, 快捷键);
+            快捷键[k].key = undefined;
+            store.set("快捷键", 快捷键);
         }
     }
     const 工具快捷键 = store.get("全局工具快捷键");
@@ -527,7 +526,7 @@ app.whenReady().then(() => {
                 });
         } catch (error) {
             工具快捷键[k] = "";
-            store.set(`全局工具快捷键`, 工具快捷键);
+            store.set("全局工具快捷键", 工具快捷键);
         }
     }
 
@@ -846,7 +845,7 @@ app.on("will-quit", () => {
 });
 
 let theIcon = null;
-if (process.platform == "win32") {
+if (process.platform === "win32") {
     theIcon = join(runPath, "assets/logo/icon.ico");
 } else {
     theIcon = join(runPath, "assets/logo/1024x1024.png");
@@ -874,7 +873,7 @@ function createClipWindow() {
         fullscreenable: true,
         transparent: true,
         frame: false,
-        resizable: process.platform == "linux", // gnome下为false时无法全屏
+        resizable: process.platform === "linux", // gnome下为false时无法全屏
         skipTaskbar: true,
         autoHideMenuBar: true,
         movable: false,
@@ -940,7 +939,7 @@ function createClipWindow() {
                         event.sender.send("open_path", x.filePaths[0]);
                     });
                 break;
-            case "save":
+            case "save": {
                 const savedPath = store.get("保存.保存路径.图片") || "";
                 exitFullScreen(true);
                 dialog
@@ -963,6 +962,7 @@ function createClipWindow() {
                         }
                     });
                 break;
+            }
             case "ding":
                 createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4]);
                 break;
@@ -996,7 +996,7 @@ function createClipWindow() {
                 clipWindow.setIgnoreMouseEvents(false);
                 isLongStart = false;
                 break;
-            case "new_version":
+            case "new_version": {
                 let title = "";
                 let b = "";
                 let url = "https://github.com/xushengfeng/eSearch/releases";
@@ -1022,6 +1022,7 @@ function createClipWindow() {
                 });
                 notification.show();
                 break;
+            }
             case "get_mouse":
                 event.returnValue = screen.getCursorScreenPoint();
                 break;
@@ -1044,9 +1045,9 @@ function showPhoto(imgPath?: string) {
         console.log(imgPath);
         readFile(imgPath, (err, data) => {
             if (err) console.error(err);
-            let p = nativeImage.createFromBuffer(data);
-            let s = p.getSize();
-            let d = { ...screen.getPrimaryDisplay(), image: data, main: true };
+            const p = nativeImage.createFromBuffer(data);
+            const s = p.getSize();
+            const d = { ...screen.getPrimaryDisplay(), image: data, main: true };
             d.id = null;
             d.bounds = { x: 0, y: 0, width: s.width, height: s.height };
             d.size = { width: s.width, height: s.height };
@@ -1059,7 +1060,7 @@ function showPhoto(imgPath?: string) {
 }
 
 function fullScreen() {
-    let nearestScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const nearestScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     clipWindow.setBounds({ x: nearestScreen.bounds.x, y: nearestScreen.bounds.y });
     clipWindow.show();
     clipWindow.setSimpleFullScreen(true);
@@ -1099,18 +1100,18 @@ const recorderWinH = 24;
 let recorder: BrowserWindow;
 let recorderTipWin: BrowserWindow;
 function createRecorderWindow(rect0: number[], screenx: { id: string; w: number; h: number; r: number }) {
-    let s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    let ratio = screenx.r;
-    let p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
+    const s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const ratio = screenx.r;
+    const p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
     const rect = rect0.map((v) => v / ratio);
-    let hx = s.bounds.x + rect[0] + rect[2] / 2,
-        hy = s.bounds.y + rect[1] + rect[3] / 2,
-        w = recorderWinW,
-        h = recorderWinH,
-        sw = s.bounds.x + s.bounds.width * ratio,
-        sh = s.bounds.y + s.bounds.height * ratio;
-    let x = p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w,
-        y = p.y <= hy ? s.bounds.y + rect[1] - h - 8 : s.bounds.y + rect[1] + rect[3] + 8;
+    const hx = s.bounds.x + rect[0] + rect[2] / 2;
+    const hy = s.bounds.y + rect[1] + rect[3] / 2;
+    const w = recorderWinW;
+    const h = recorderWinH;
+    const sw = s.bounds.x + s.bounds.width * ratio;
+    const sh = s.bounds.y + s.bounds.height * ratio;
+    let x = p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w;
+    let y = p.y <= hy ? s.bounds.y + rect[1] - h - 8 : s.bounds.y + rect[1] + rect[3] + 8;
     x = x < s.bounds.x ? s.bounds.x : x;
     x = x + w > sw ? sw - w : x;
     y = y < s.bounds.y ? s.bounds.y : y;
@@ -1157,7 +1158,7 @@ function createRecorderWindow(rect0: number[], screenx: { id: string; w: number;
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
             let dId = "";
             sources.forEach((s) => {
-                if (s.display_id == screenx.id) dId = s.id;
+                if (s.display_id === screenx.id) dId = s.id;
             });
             if (!dId) dId = sources[0].id;
             recorder.webContents.send("record", "init", dId, rect0, screenx.w, screenx.h);
@@ -1201,7 +1202,7 @@ function createRecorderWindow(rect0: number[], screenx: { id: string; w: number;
         if (!recording || recorder.isDestroyed()) {
             return;
         }
-        let nowXY = screen.getCursorScreenPoint();
+        const nowXY = screen.getCursorScreenPoint();
         recorderTipWin.webContents.send("record", "mouse", { x: nowXY.x - tipB.x, y: nowXY.y - tipB.y });
         setTimeout(mouse, 10);
     }
@@ -1217,7 +1218,8 @@ ipcMain.on("record", (_event, type, arg) => {
             break;
         case "start":
             break;
-        case "ff": // 处理视频
+        case "ff": {
+            // 处理视频
             const savedPath = store.get("保存.保存路径.视频") || "";
             dialog
                 .showSaveDialog({
@@ -1241,6 +1243,7 @@ ipcMain.on("record", (_event, type, arg) => {
                     }
                 });
             break;
+        }
         case "close":
             recorder.close();
             break;
@@ -1297,7 +1300,7 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             tray.popUpContextMenu(contextMenu);
             tray.closeContextMenu();
             break;
-        case "set_default_setting":
+        case "set_default_setting": {
             store.clear();
             setDefaultSetting();
             const dResolve = await dialog.showMessageBox({
@@ -1307,18 +1310,19 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
                 defaultId: 0,
                 cancelId: 1,
             });
-            if (dResolve.response == 0) {
+            if (dResolve.response === 0) {
                 app.relaunch();
                 app.exit(0);
             }
             break;
+        }
         case "reload":
             app.relaunch();
             app.exit(0);
             break;
-        case "clear":
-            let ses = session.defaultSession;
-            if (arg1 == "storage") {
+        case "clear": {
+            const ses = session.defaultSession;
+            if (arg1 === "storage") {
                 ses.clearStorageData()
                     .then(() => {
                         event.sender.send("setting", "storage", true);
@@ -1341,21 +1345,23 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
                     });
             }
             break;
+        }
         case "open_dialog":
             dialog.showOpenDialog(arg1).then((x) => {
                 event.sender.send("setting", arg, arg2, x);
             });
             break;
-        case "move_user_data":
+        case "move_user_data": {
             if (!arg1) return;
             const toPath = resolve(arg1);
             const prePath = app.getPath("userData");
             mkdirSync(toPath, { recursive: true });
-            if (process.platform == "win32") {
+            if (process.platform === "win32") {
                 exec(`xcopy ${prePath}\\** ${toPath} /Y /s`);
             } else {
                 exec(`cp -r ${prePath}/** ${toPath}`);
             }
+        }
     }
 });
 
@@ -1371,8 +1377,8 @@ function longWin() {
             return;
         }
         if (clipWindow.isDestroyed()) return;
-        let nowXY = screen.getCursorScreenPoint();
-        let tipB = clipWindow.getBounds();
+        const nowXY = screen.getCursorScreenPoint();
+        const tipB = clipWindow.getBounds();
         clipWindow.webContents.send("clip", "mouse", { x: nowXY.x - tipB.x, y: nowXY.y - tipB.y });
         setTimeout(mouse, 10);
     }
@@ -1382,12 +1388,12 @@ function longWin() {
 // ding窗口
 const dingwindowList: { [key: string]: { win: BrowserWindow; display: Electron.Display } } = {};
 function createDingWindow(x: number, y: number, w: number, h: number, img) {
-    if (Object.keys(dingwindowList).length == 0) {
+    if (Object.keys(dingwindowList).length === 0) {
         const screenL = screen.getAllDisplays();
         const id = new Date().getTime();
-        for (let i of screenL) {
+        for (const i of screenL) {
             dingwindowList[i.id] = { win: null, display: i };
-            let dingWindow = (dingwindowList[i.id].win = new BrowserWindow({
+            const dingWindow = (dingwindowList[i.id].win = new BrowserWindow({
                 icon: theIcon,
                 transparent: true,
                 frame: false,
@@ -1418,17 +1424,17 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
         }
     } else {
         const id = new Date().getTime();
-        for (let i in dingwindowList) {
-            let b = dingwindowList[i].win.getBounds();
+        for (const i in dingwindowList) {
+            const b = dingwindowList[i].win.getBounds();
             dingwindowList[i].win.webContents.send("img", id, x - b.x, y - b.y, w, h, img);
         }
     }
     // 自动改变鼠标穿透
     function dingClickThrough() {
-        let nowXY = screen.getCursorScreenPoint();
-        for (let i in dingwindowList) {
+        const nowXY = screen.getCursorScreenPoint();
+        for (const i in dingwindowList) {
             try {
-                let b = dingwindowList[i].win.getBounds();
+                const b = dingwindowList[i].win.getBounds();
                 dingwindowList[i].win.webContents.send("mouse", nowXY.x - b.x, nowXY.y - b.y);
             } catch (error) {}
         }
@@ -1437,13 +1443,13 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
     dingClickThrough();
 }
 ipcMain.on("ding_ignore", (_event, v) => {
-    for (let id in dingwindowList) {
+    for (const id in dingwindowList) {
         dingwindowList[id]?.win?.setIgnoreMouseEvents(v);
     }
 });
 ipcMain.on("ding_event", (_event, type, id, more) => {
-    if (type == "close" && more) {
-        for (let i in dingwindowList) {
+    if (type === "close" && more) {
+        for (const i in dingwindowList) {
             dingwindowList[i].win.close();
             delete dingwindowList[i];
         }
@@ -1451,9 +1457,9 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
     }
 
     if (type === "move_start") {
-        let nowXY = screen.getCursorScreenPoint();
+        const nowXY = screen.getCursorScreenPoint();
 
-        for (let i in dingwindowList) {
+        for (const i in dingwindowList) {
             const display = dingwindowList[i].display;
             more.x = nowXY.x - display.bounds.x;
             more.y = nowXY.y - display.bounds.y;
@@ -1462,7 +1468,7 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
         return;
     }
 
-    for (let i in dingwindowList) {
+    for (const i in dingwindowList) {
         dingwindowList[i].win.webContents.send("ding", type, id, more);
     }
 });
@@ -1530,7 +1536,7 @@ async function createMainWindow(op: MainWinType) {
     if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
         const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
         const mainWindow = mainWindowL[name].win;
-        op["time"] = new Date().getTime();
+        op.time = new Date().getTime();
         mainWindow.webContents.send("text", name, op);
         mainWindow.focus();
         return name;
@@ -1538,14 +1544,14 @@ async function createMainWindow(op: MainWinType) {
 
     const windowName = new Date().getTime();
     const [w, h, m] = store.get("主页面大小");
-    let vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds,
-        px = screen.getCursorScreenPoint().x,
-        py = screen.getCursorScreenPoint().y;
-    let x = px > vr.x + vr.width / 2 ? px - w : px,
-        y = py > vr.y + vr.height / 2 ? py - h : py;
+    const vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds;
+    const px = screen.getCursorScreenPoint().x;
+    const py = screen.getCursorScreenPoint().y;
+    const x = px > vr.x + vr.width / 2 ? px - w : px;
+    const y = py > vr.y + vr.height / 2 ? py - h : py;
     const bg = nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff";
     mainWindowL[windowName] = { browser: { top: 0, bottom: 48 }, win: null };
-    const mainWindow = (mainWindowL[windowName]["win"] = new BrowserWindow({
+    const mainWindow = (mainWindowL[windowName].win = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
         width: w,
@@ -1575,7 +1581,7 @@ async function createMainWindow(op: MainWinType) {
 
     if (dev) mainWindow.webContents.openDevTools();
 
-    op["time"] = windowName;
+    op.time = windowName;
 
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
@@ -1599,7 +1605,7 @@ async function createMainWindow(op: MainWinType) {
             mainWindow.getNormalBounds().height,
             mainWindow.isMaximized(),
         ]);
-        for (let i of mainWindow.getBrowserViews()) {
+        for (const i of mainWindow.getBrowserViews()) {
             // @ts-ignore
             i?.webContents?.destroy();
         }
@@ -1614,8 +1620,8 @@ async function createMainWindow(op: MainWinType) {
         setTimeout(() => {
             const [w, h] = mainWindow.getContentSize();
             const { top, bottom } = mainWindowL[windowName].browser;
-            for (let i of mainWindow.getBrowserViews()) {
-                if (i.getBounds().width != 0) i.setBounds({ x: 0, y: top, width: w, height: h - bottom });
+            for (const i of mainWindow.getBrowserViews()) {
+                if (i.getBounds().width !== 0) i.setBounds({ x: 0, y: top, width: w, height: h - bottom });
             }
         }, 0);
     });
@@ -1768,8 +1774,8 @@ function viewEvents(w: BrowserWindow, arg: string) {
 }
 
 ipcMain.on("tab_view", (e, id, arg, arg2) => {
-    let mainWindow = BrowserWindow.fromWebContents(e.sender);
-    let searchWindow = searchWindowL[id];
+    const mainWindow = BrowserWindow.fromWebContents(e.sender);
+    const searchWindow = searchWindowL[id];
     switch (arg) {
         case "close":
             mainWindow.removeBrowserView(searchWindow);
@@ -1777,7 +1783,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             searchWindow.webContents.destroy();
             delete searchWindowL[id];
             break;
-        case "top":
+        case "top": {
             // 有时直接把主页面当成浏览器打开，这时pid未初始化就触发top了，直接忽略
             if (!mainWindow) return;
             mainWindow.setTopBrowserView(searchWindow);
@@ -1790,6 +1796,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
                 height: mainWindow.getContentBounds().height - (bSize?.bottom || 48),
             });
             break;
+        }
         case "back":
             searchWindow.webContents.goBack();
             break;
@@ -1806,7 +1813,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             minViews(mainWindow);
             break;
         case "save_html":
-            mainWindow["html"] = arg2;
+            mainWindow.html = arg2;
             minViews(mainWindow);
             break;
         case "dev":
@@ -1817,8 +1824,8 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             if (!bSize) break;
             bSize.bottom = arg2.bottom;
             bSize.top = arg2.top;
-            for (let w of mainWindow.getBrowserViews()) {
-                if (w.getBounds().width != 0)
+            for (const w of mainWindow.getBrowserViews()) {
+                if (w.getBounds().width !== 0)
                     w.setBounds({
                         x: 0,
                         y: bSize?.top || 0,
@@ -1833,7 +1840,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
 
 /** 最小化某个窗口的所有标签页 */
 function minViews(mainWindow: BrowserWindow) {
-    for (let v of mainWindow.getBrowserViews()) {
+    for (const v of mainWindow.getBrowserViews()) {
         v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     }
 }
@@ -1871,7 +1878,7 @@ ipcMain.on("get_save_path", (event, path) => {
             properties: ["openDirectory"],
         })
         .then((x) => {
-            if (x.filePaths[0]) event.sender.send("get_save_path", x.filePaths[0] + "/");
+            if (x.filePaths[0]) event.sender.send("get_save_path", `${x.filePaths[0]}/`);
         });
 });
 
@@ -1897,7 +1904,7 @@ const defaultSetting: setting = {
         快速截屏: {},
         主页面: {},
     },
-    点击托盘自动截图: process.platform != "linux",
+    点击托盘自动截图: process.platform !== "linux",
     全局工具快捷键: {
         close: "",
         ocr: "",
@@ -2139,7 +2146,7 @@ const defaultSetting: setting = {
     ding_dock: [0, 0],
     贴图: {
         窗口: {
-            变换: `transform: rotateY(180deg);`,
+            变换: "transform: rotateY(180deg);",
             双击: "归位",
             提示: false,
         },
@@ -2230,11 +2237,11 @@ try {
 }
 
 function setDefaultSetting() {
-    for (let i in defaultSetting) {
+    for (const i in defaultSetting) {
         if (i === "语言") {
             const supportLan = getLans();
             let lan = app.getLocale();
-            let mainLan = lan.split("-")[0];
+            const mainLan = lan.split("-")[0];
             if (mainLan === "zh") {
                 lan = {
                     "zh-CN": "zh-HANS",
@@ -2259,7 +2266,7 @@ function fixSettingTree() {
     walk([]);
     function walk(path: string[]) {
         const x = path.reduce((o, i) => o[i], defaultSetting);
-        for (let i in x) {
+        for (const i in x) {
             const cPath = path.concat([i]); // push
             if (x[i].constructor === Object) {
                 walk(cPath);

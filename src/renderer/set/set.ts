@@ -1,12 +1,12 @@
 /// <reference types="vite/client" />
-let configPath = new URLSearchParams(location.search).get("config_path");
-import { setting, 功能 } from "../../ShareTypes";
-const path = require("path") as typeof import("path");
+const configPath = new URLSearchParams(location.search).get("config_path");
+import type { setting, 功能 } from "../../ShareTypes";
+const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
 const { shell, ipcRenderer } = require("electron") as typeof import("electron");
-const os = require("os") as typeof import("os");
-const fs = require("fs") as typeof import("fs");
+const os = require("node:os") as typeof import("os");
+const fs = require("node:fs") as typeof import("fs");
 import { a, button, ele, image, input, p, radioGroup, select, txt, view, pack, setTranslate } from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
@@ -36,7 +36,7 @@ function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
 
 type RangeEl = HTMLElement & { value: number };
 
-let old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
+const old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
 import { t, tLan, lan, getLans, getLanName } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 document.querySelectorAll("[title],[placeholder]").forEach((el: HTMLElement) => {
@@ -73,20 +73,20 @@ document.querySelectorAll("[data-platform]").forEach((el: HTMLElement) => {
 
 const xstore = old_store;
 function storeSet(path: string, value: any) {
-    let pathx = path.split(".");
+    const pathx = path.split(".");
     const lastp = pathx.pop();
     const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
     lastobj[lastp] = value;
 }
 function storeGet(path: string) {
-    let pathx = path.split(".");
+    const pathx = path.split(".");
     const lastp = pathx.pop();
     const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
     return lastobj[lastp];
 }
 
-let store = { path: path.join(configPath, "config.json") };
-let historyStore = { path: path.join(configPath, "history.json") };
+const store = { path: path.join(configPath, "config.json") };
+const historyStore = { path: path.join(configPath, "history.json") };
 
 document.getElementById("set_default_setting").onclick = () => {
     if (confirm("将会把所有设置恢复成默认，无法撤销")) {
@@ -97,14 +97,14 @@ document.getElementById("set_default_setting").onclick = () => {
 };
 
 document.getElementById("menu").onclick = (e) => {
-    let el = <HTMLElement>e.target;
-    if (el.tagName == "LI") {
+    const el = <HTMLElement>e.target;
+    if (el.tagName === "LI") {
         let i = 0;
         document
             .getElementById("menu")
             .querySelectorAll("li")
             .forEach((lel, n) => {
-                if (lel == el) {
+                if (lel === el) {
                     i = n;
                     return;
                 }
@@ -115,7 +115,7 @@ document.getElementById("menu").onclick = (e) => {
 
 document.getElementById("menu").querySelector("li").classList.add("active");
 document.onscroll = () => {
-    let h1s = document.querySelectorAll("h1");
+    const h1s = document.querySelectorAll("h1");
     let i = 0;
     h1s.forEach((h1, n) => {
         if (h1.offsetTop <= document.documentElement.scrollTop + 100) {
@@ -146,16 +146,16 @@ document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
 
 const setSetting = (el: HTMLElement) => {
     const path = el.getAttribute("data-path");
-    let value = storeGet(path);
-    if (el.tagName == "RANGE-B") {
+    const value = storeGet(path);
+    if (el.tagName === "RANGE-B") {
         // range-b
         (el as HTMLInputElement).value = value;
         (el as HTMLInputElement).addEventListener("input", () => {
             storeSet(path, (el as HTMLInputElement).value);
         });
-    } else if (el.tagName == "INPUT") {
-        let iel = el as HTMLInputElement;
-        if (iel.type == "checkbox") {
+    } else if (el.tagName === "INPUT") {
+        const iel = el as HTMLInputElement;
+        if (iel.type === "checkbox") {
             iel.checked = value;
             iel.addEventListener("input", () => {
                 storeSet(path, iel.checked);
@@ -166,8 +166,8 @@ const setSetting = (el: HTMLElement) => {
                 storeSet(path, iel.value);
             });
         }
-    } else if (el.tagName == "HOT-KEYS") {
-        let iel = el as HTMLInputElement;
+    } else if (el.tagName === "HOT-KEYS") {
+        const iel = el as HTMLInputElement;
         iel.value = value;
         iel.addEventListener("inputend", () => {
             storeSet(path, iel.value);
@@ -198,7 +198,7 @@ function getRadio(el: HTMLElement) {
 function setRadio(el: HTMLElement, value: string) {
     (
         <HTMLInputElement>el.querySelector(`input[type=radio][value="${value}"]`) ||
-        el.querySelector(`input[type=radio]`)
+        el.querySelector("input[type=radio]")
     ).checked = true;
 }
 
@@ -213,19 +213,18 @@ function getSystemLan() {
                 "zh-TW": "zh-HANT",
             }[sysL] || "zh-HANS"
         );
-    } else {
-        if (lans.includes(sysL)) return sysL;
-        else if (lans.includes(sysL.split("-")[0])) return sysL.split("-")[0];
-        else return "zh-HANS";
     }
+        if (lans.includes(sysL)) return sysL;
+        if (lans.includes(sysL.split("-")[0])) return sysL.split("-")[0];
+        return "zh-HANS";
 }
 const systemLan = getSystemLan();
 
-lans = [systemLan].concat(lans.filter((v) => v != systemLan));
+lans = [systemLan].concat(lans.filter((v) => v !== systemLan));
 
 const lanEl = document.getElementById("语言");
 const lanRadio = radioGroup("语言");
-for (let i of lans) {
+for (const i of lans) {
     lanEl.append(lanRadio.new(i, txt(getLanName(i), true)).el);
 }
 
@@ -243,14 +242,14 @@ lanEl.onclick = () => {
 };
 
 document.getElementById("语言重启").onclick = () => {
-    xstore.语言["语言"] = lanRadio.get();
+    xstore.语言.语言 = lanRadio.get();
     saveSetting();
     ipcRenderer.send("setting", "reload");
 };
 
 (<HTMLInputElement>document.getElementById("自动搜索排除")).value = old_store.主搜索功能.自动搜索排除.join("\n");
 
-var 全局 = old_store.全局;
+const 全局 = old_store.全局;
 
 const themesEl = document.getElementById("themes");
 const themeInput = Array.from(document.querySelectorAll(".theme input")) as HTMLInputElement[];
@@ -283,11 +282,11 @@ function setThemePreview() {
     // todo all preview
 }
 
-for (let i of themeInput) {
+for (const i of themeInput) {
     i.onchange = setThemePreview;
 }
 
-for (let i of themes) {
+for (const i of themes) {
     themesEl.append(
         button()
             .style({ background: i.light.emphasis })
@@ -299,7 +298,7 @@ for (let i of themes) {
                 themeInput[4].value = i.light.bg;
                 themeInput[5].value = i.dark.bg;
                 setThemePreview();
-                for (let i of themeInput) {
+                for (const i of themeInput) {
                     i.dispatchEvent(new Event("input"));
                 }
             }).el
@@ -310,29 +309,29 @@ document.getElementById("深色模式").onclick = () => {
     ipcRenderer.send("theme", getRadio(document.getElementById("深色模式")));
 };
 
-var 模糊 = old_store.全局.模糊;
-if (模糊 != 0) {
+const 模糊 = old_store.全局.模糊;
+if (模糊 !== 0) {
     document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
 } else {
-    document.documentElement.style.setProperty("--blur", `none`);
+    document.documentElement.style.setProperty("--blur", "none");
 }
 document.getElementById("模糊").oninput = () => {
-    var 模糊 = (<HTMLInputElement>document.getElementById("模糊")).value;
-    if (Number(模糊) != 0) {
+    const 模糊 = (<HTMLInputElement>document.getElementById("模糊")).value;
+    if (Number(模糊) !== 0) {
         document.documentElement.style.setProperty("--blur", `blur(${模糊}px)`);
     } else {
-        document.documentElement.style.setProperty("--blur", `none`);
+        document.documentElement.style.setProperty("--blur", "none");
     }
 };
 
 document.documentElement.style.setProperty("--alpha", String(全局.不透明度));
 (<HTMLInputElement>document.getElementById("不透明度")).value = String(全局.不透明度 * 100);
 document.getElementById("不透明度").oninput = () => {
-    var 不透明度 = (<HTMLInputElement>document.getElementById("不透明度")).value;
+    const 不透明度 = (<HTMLInputElement>document.getElementById("不透明度")).value;
     document.documentElement.style.setProperty("--alpha", String(Number(不透明度) / 100));
 };
 
-var 快捷键 = old_store.快捷键;
+const 快捷键 = old_store.快捷键;
 document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
     el.value = 快捷键[el.name].key;
     el.addEventListener("inputend", () => {
@@ -344,12 +343,12 @@ ipcRenderer.on("状态", (_event, name, arg) => {
     if (t) storeSet(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
 });
 
-document.documentElement.style.setProperty("--bar-size", xstore.工具栏.按钮大小 + "px");
+document.documentElement.style.setProperty("--bar-size", `${xstore.工具栏.按钮大小}px`);
 document.documentElement.style.setProperty("--bar-icon", String(xstore.工具栏.按钮图标比例));
 document.getElementById("按钮大小").oninput = () => {
     document.documentElement.style.setProperty(
         "--bar-size",
-        (<RangeEl>document.getElementById("按钮大小")).value + "px"
+        `${(<RangeEl>document.getElementById("按钮大小")).value}px`
     );
 };
 document.getElementById("按钮图标比例").oninput = () => {
@@ -364,8 +363,8 @@ document
     .querySelectorAll("button")
     .forEach((el, i) => {
         el.onclick = () => {
-            let size = (<HTMLInputElement>document.getElementById("按钮大小")).value + "px";
-            let l: { left: string; top: string }[] = [
+            const size = `${(<HTMLInputElement>document.getElementById("按钮大小")).value}px`;
+            const l: { left: string; top: string }[] = [
                 { left: "10px", top: "100px" },
                 { left: `calc(100vw - 10px - ${size} * 2 - 8px)`, top: "100px" },
             ];
@@ -374,7 +373,7 @@ document
         };
     });
 
-let toolList: 功能[] = [
+const toolList: 功能[] = [
     "close",
     "screens",
     "ocr",
@@ -392,7 +391,7 @@ let toolShow = old_store.工具栏.功能;
 const toolShowEl = document.getElementById("tool_show");
 const toolHideEl = document.getElementById("tool_hide");
 function addToolItem(e: DragEvent) {
-    let id = e.dataTransfer.getData("text");
+    const id = e.dataTransfer.getData("text");
     if ((e.target as HTMLElement).dataset.id === id) return null;
     if (id) {
         toolShowEl.querySelector(`[data-id=${id}]`)?.remove();
@@ -401,9 +400,9 @@ function addToolItem(e: DragEvent) {
     return id;
 }
 function createToolItem(id: string) {
-    let el = document.createElement("div");
+    const el = document.createElement("div");
     el.draggable = true;
-    let icon = document.querySelector(`#tool_icons > [data-id=${id}]`).innerHTML;
+    const icon = document.querySelector(`#tool_icons > [data-id=${id}]`).innerHTML;
     el.innerHTML = icon;
     el.setAttribute("data-id", id);
     el.ondragstart = (e) => {
@@ -414,7 +413,7 @@ function createToolItem(id: string) {
     };
     el.ondrop = (e) => {
         e.stopPropagation();
-        let id = addToolItem(e);
+        const id = addToolItem(e);
         if (id) {
             if (e.offsetY < el.offsetHeight / 2) {
                 el.before(createToolItem(id));
@@ -434,20 +433,20 @@ toolHideEl.ondragover = (e) => {
     e.preventDefault();
 };
 toolShowEl.ondrop = (e) => {
-    let id = addToolItem(e);
+    const id = addToolItem(e);
     if (id) {
         toolShowEl.append(createToolItem(id));
         setToolL();
     }
 };
 toolHideEl.ondrop = (e) => {
-    let id = addToolItem(e);
+    const id = addToolItem(e);
     if (id) {
         toolHideEl.append(createToolItem(id));
         setToolL();
     }
 };
-for (let i of toolList) {
+for (const i of toolList) {
     if (toolShow.includes(i as (typeof toolShow)[0])) {
         toolShowEl.append(createToolItem(i));
     } else {
@@ -466,7 +465,7 @@ function setToolL() {
 
 // 取色器设置
 document.getElementById("取色器大小").oninput = () => {
-    if (Number((<HTMLInputElement>document.getElementById("取色器大小")).value) % 2 == 0) {
+    if (Number((<HTMLInputElement>document.getElementById("取色器大小")).value) % 2 === 0) {
         (<HTMLInputElement>document.getElementById("取色器大小")).value = String(
             Number((<HTMLInputElement>document.getElementById("取色器大小")).value) + 1
         );
@@ -479,18 +478,18 @@ document.getElementById("像素大小").oninput = () => {
 
 show_color_picker();
 function show_color_picker() {
-    let color_size = Number((<HTMLInputElement>document.getElementById("取色器大小")).value);
+    const color_size = Number((<HTMLInputElement>document.getElementById("取色器大小")).value);
     let inner_html = "";
     for (let i = 0; i < color_size ** 2; i++) {
-        var l = Math.random() * 40 + 60;
+        const l = Math.random() * 40 + 60;
         inner_html += `<span id="point_color_t"style="background:hsl(0,0%,${l}%);width:${
             (<HTMLInputElement>document.getElementById("像素大小")).value
         }px;height:${(<HTMLInputElement>document.getElementById("像素大小")).value}px"></span>`;
     }
     document.getElementById("point_color").style.width =
-        Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size + "px";
+        `${Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size}px`;
     document.getElementById("point_color").style.height =
-        Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size + "px";
+        `${Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size}px`;
     document.getElementById("point_color").innerHTML = inner_html;
 }
 
@@ -552,14 +551,14 @@ document.getElementById("获取保存路径").onclick = () => {
 (<RangeEl>document.getElementById("自动录制延时")).value = old_store.录屏.自动录制 || 0;
 
 document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
-    let el = <HTMLInputElement>e.target;
+    const el = <HTMLInputElement>e.target;
     el.style.width = `${el.value.length || 1}em`;
     showFTime();
 };
 document.getElementById("保存文件名称时间").oninput = showFTime;
 import time_format from "../../../lib/time_format";
 function showFTime() {
-    var saveTime = new Date();
+    const saveTime = new Date();
     document.getElementById("保存文件名称_p").innerText = `${
         (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value
     }${time_format((<HTMLInputElement>document.getElementById("保存文件名称时间")).value, saveTime)}${
@@ -574,7 +573,7 @@ document.getElementById("保存文件名称后缀").style.width = `${
     (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value.length || 1
 }em`;
 
-var 字体 = old_store.字体;
+const 字体 = old_store.字体;
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
@@ -655,7 +654,7 @@ function addTranslatorI(v: setting["翻译"]["翻译器"][0]) {
 
 import translator from "xtranslator";
 type Engines = keyof typeof translator.e;
-let engineConfig: Partial<
+const engineConfig: Partial<
     Record<
         Engines,
         {
@@ -847,19 +846,19 @@ function eSort(el: HTMLElement, list: string[][]) {
     function add(i: (typeof list)[0]) {
         const e = ele("li");
         e.add(button(iconEl(handle_svg)).class("sort_handle"));
-        for (let x of i) {
+        for (const x of i) {
             e.add(input(`url ${i}`).sv(x));
         }
         e.add(button(iconEl(delete_svg)).on("click", () => e.el.remove()));
         return e;
     }
 
-    for (let i of list) {
+    for (const i of list) {
         sEl.add(add(i));
     }
 
     const addEl = view();
-    for (let _x of list[0]) {
+    for (const _x of list[0]) {
         addEl.add(input("add url"));
     }
     addEl.add(
@@ -900,7 +899,7 @@ document.getElementById("clear_cache").onclick = () => {
 
 function setOcr() {
     let ocrIn = "";
-    for (let i of old_store.离线OCR) {
+    for (const i of old_store.离线OCR) {
         ocrIn += `<label><input type="radio" name="OCR类型" value="${i[0]}">${i[0]}</label>`;
     }
     ocrIn += `
@@ -923,9 +922,9 @@ ocrDOpen();
 function ocrDOpen() {
     (<HTMLDetailsElement>document.getElementById("baidu_details")).open = false;
     (<HTMLDetailsElement>document.getElementById("youdao_details")).open = false;
-    if (getOcrType() == "baidu") {
+    if (getOcrType() === "baidu") {
         (<HTMLDetailsElement>document.getElementById("baidu_details")).open = true;
-    } else if (getOcrType() == "youdao") {
+    } else if (getOcrType() === "youdao") {
         (<HTMLDetailsElement>document.getElementById("youdao_details")).open = true;
     }
 }
@@ -933,10 +932,10 @@ document.getElementById("OCR类型").onclick = ocrDOpen;
 
 function OCR模型展示() {
     document.getElementById("OCR模型列表").innerHTML = "";
-    let all = old_store.离线OCR;
-    for (let i in all) {
-        let d = document.createElement("div");
-        let t = document.createElement("input");
+    const all = old_store.离线OCR;
+    for (const i in all) {
+        const d = document.createElement("div");
+        const t = document.createElement("input");
         t.type = "text";
         t.value = all[i][0];
         t.oninput = () => {
@@ -945,10 +944,10 @@ function OCR模型展示() {
             setOcr();
         };
         d.append(t);
-        let c = document.createElement("button");
+        const c = document.createElement("button");
         c.innerHTML = `<img src="${close_svg}" class="icon">`;
         c.onclick = () => {
-            if (all.length == 1) return;
+            if (all.length === 1) return;
             all.splice(Number(i), 1);
             d.remove();
             xstore.离线OCR = all;
@@ -970,14 +969,14 @@ document.getElementById("OCR拖拽放置区").ondragleave = () => {
 document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     e.preventDefault();
     console.log(e);
-    let fs = e.dataTransfer.files;
-    let l = [`新模型${crypto.randomUUID().slice(0, 7)}`];
+    const fs = e.dataTransfer.files;
+    const l = [`新模型${crypto.randomUUID().slice(0, 7)}`];
     l[1] = "默认/ppocr_det.onnx";
     l[2] = "默认/ppocr_rec.onnx";
     l[3] = "默认/ppocr_keys_v1.txt";
-    for (let f of fs) {
+    for (const f of fs) {
         // @ts-ignore
-        let path = f.path as string;
+        const path = f.path as string;
         if (path.split("/").at(-1).includes("det")) {
             l[1] = path;
         } else if (path.split("/").at(-1).includes("rec")) {
@@ -986,7 +985,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
             l[3] = path;
         }
     }
-    let all = old_store.离线OCR;
+    const all = old_store.离线OCR;
     all.push(l);
     xstore.离线OCR = all;
     OCR模型展示();
@@ -1007,10 +1006,10 @@ function setKeyTip() {
     for (const x of ["left", "right", "top", "bottom"]) {
         screenKeyTipKBD.style[x] = "";
     }
-    screenKeyTipKBD.style[px] = posi.offsetX + "px";
-    screenKeyTipKBD.style[py] = posi.offsetY + "px";
+    screenKeyTipKBD.style[px] = `${posi.offsetX}px`;
+    screenKeyTipKBD.style[py] = `${posi.offsetY}px`;
 
-    screenKeyTipKBD.style.fontSize = xstore.录屏.提示.键盘.大小 * 16 + "px";
+    screenKeyTipKBD.style.fontSize = `${xstore.录屏.提示.键盘.大小 * 16}px`;
 }
 setKeyTip();
 
@@ -1048,7 +1047,7 @@ for (const x of ["+", "-"] as const) {
     }
 }
 
-var 历史记录设置 = old_store.历史记录设置;
+const 历史记录设置 = old_store.历史记录设置;
 
 (<HTMLButtonElement>document.getElementById("清除历史记录")).disabled = !历史记录设置.保留历史记录;
 (<HTMLButtonElement>document.getElementById("his_d")).disabled = !历史记录设置.自动清除历史记录;
@@ -1070,7 +1069,7 @@ document.getElementById("清除历史记录").oninput = () => {
     )).checked;
 };
 document.getElementById("clear_his").onclick = () => {
-    var c = confirm("这将清除所有的历史记录\n且不能复原\n确定清除？");
+    const c = confirm("这将清除所有的历史记录\n且不能复原\n确定清除？");
     if (c) fs.writeFileSync(path.join(configPath, "history.json"), JSON.stringify({ 历史记录: {} }, null, 2));
 };
 
@@ -1078,7 +1077,7 @@ document.getElementById("clear_his").onclick = () => {
 
 const hotkeysSelectEl = document.getElementById("hotkeys");
 const hotkeysContentEl = document.getElementById("hotkeys_content");
-let hotkeysEl = hotkeysContentEl.children as unknown as HTMLElement[];
+const hotkeysEl = hotkeysContentEl.children as unknown as HTMLElement[];
 for (let i = 0; i < hotkeysSelectEl.childElementCount; i++) {
     (hotkeysSelectEl.children[i] as HTMLElement).onclick = () => {
         selectHotkey(i);
@@ -1094,9 +1093,9 @@ function selectHotkey(i: number) {
     }
 }
 
-var proxyL = ["http", "https", "ftp", "socks"];
+const proxyL = ["http", "https", "ftp", "socks"];
 
-var 代理 = old_store.代理;
+const 代理 = old_store.代理;
 getProxy();
 
 renderTasks.push(setProxyEl);
@@ -1132,19 +1131,19 @@ function setProxyEl() {
 }
 
 function getProxy() {
-    let l = 代理.proxyRules.split(";") as string[];
-    for (let rule of l) {
-        for (let x of proxyL) {
-            if (rule.includes(x + "=")) {
-                (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value = rule.replace(x + "=", "");
+    const l = 代理.proxyRules.split(";") as string[];
+    for (const rule of l) {
+        for (const x of proxyL) {
+            if (rule.includes(`${x}=`)) {
+                (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value = rule.replace(`${x}=`, "");
             }
         }
     }
 }
 function setProxy() {
-    let l = [];
-    for (let x of proxyL) {
-        let v = (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value;
+    const l = [];
+    for (const x of proxyL) {
+        const v = (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value;
         if (v) {
             l.push(`${x}=${v}`);
         }
@@ -1157,7 +1156,7 @@ document.getElementById("打开config").onclick = () => {
     shell.openPath(store.path);
 };
 
-var giveUp = false;
+let giveUp = false;
 document.getElementById("give_up_setting_b").oninput = () => {
     giveUp = (<HTMLInputElement>document.getElementById("give_up_setting_b")).checked;
     if (giveUp) fs.writeFileSync(store.path, JSON.stringify(old_store, null, 2));
@@ -1176,7 +1175,7 @@ function saveSetting() {
     if (giveUp) return;
     xstore.主搜索功能.自动搜索排除 = (<HTMLInputElement>document.getElementById("自动搜索排除")).value
         .split(/\n/)
-        .filter((i) => i != "");
+        .filter((i) => i !== "");
     xstore.全局.不透明度 = (<RangeEl>document.getElementById("不透明度")).value / 100;
     try {
         xstore.全局.图标颜色[1] =
@@ -1186,7 +1185,7 @@ function saveSetting() {
             getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "";
     } catch (e) {}
     xstore.快速截屏.路径 = (<HTMLInputElement>document.getElementById("快速截屏路径")).value
-        ? ((<HTMLInputElement>document.getElementById("快速截屏路径")).value + "/").replace("//", "/")
+        ? (`${(<HTMLInputElement>document.getElementById("快速截屏路径")).value}/`).replace("//", "/")
         : "";
 
     xstore.录屏.自动录制 =
@@ -1248,7 +1247,7 @@ document.getElementById("find_b_next").onclick = () => {
     jumpToRange(findFocusI);
 };
 function jumpToRange(i: number) {
-    let rect = findRanges[i].getBoundingClientRect();
+    const rect = findRanges[i].getBoundingClientRect();
     document.getElementById("find_t").innerText = `${i + 1} / ${findRanges.length}`;
     document.documentElement.scrollTo(0, rect.top - document.body.getBoundingClientRect().top);
 }
@@ -1272,7 +1271,7 @@ function find(t: string) {
 
     const str = t.trim().toLowerCase();
     if (!str) {
-        document.getElementById("find_t").innerText = ``;
+        document.getElementById("find_t").innerText = "";
         return;
     }
 
@@ -1308,9 +1307,9 @@ function find(t: string) {
     CSS.highlights.set("search-results", searchResultsHighlight);
 }
 
-var pathInfo = `<br>
+const pathInfo = `<br>
                 ${t("文字记录：")}${historyStore.path}<br>
-                ${t("临时目录：")}${os.tmpdir()}${os.platform() == "win32" ? "\\" : "/"}eSearch<br>
+                ${t("临时目录：")}${os.tmpdir()}${os.platform() === "win32" ? "\\" : "/"}eSearch<br>
                 ${t("运行目录：")}${__dirname}`;
 document.createTextNode(pathInfo);
 document.getElementById("user_data_divs").insertAdjacentHTML("afterend", pathInfo);
@@ -1320,7 +1319,7 @@ try {
 } catch (error) {
     (<HTMLInputElement>document.getElementById("user_data_path")).value = store.path.replace(/[/\\]config\.json/, "");
 }
-var userDataPathInputed = false;
+let userDataPathInputed = false;
 document.getElementById("user_data_path").oninput = () => {
     document.getElementById("user_data_divs").classList.add("user_data_divs");
     userDataPathInputed = true;
@@ -1335,7 +1334,7 @@ document.getElementById("reload").onclick = () => {
 };
 
 ipcRenderer.on("setting", (_err, t, id, r) => {
-    if (t == "open_dialog") {
+    if (t === "open_dialog") {
         switch (id) {
             case "ocr_det":
                 if (!r.canceled) {
@@ -1362,15 +1361,15 @@ ipcRenderer.on("setting", (_err, t, id, r) => {
     }
 });
 
-var version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
-var versionL = ["electron", "node", "chrome", "v8"];
-for (let i in versionL) {
+let version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
+const versionL = ["electron", "node", "chrome", "v8"];
+for (const i in versionL) {
     version += `<div>${versionL[i]}: ${process.versions[versionL[i]]}</div>`;
 }
 document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
 
 import _package from "../../../package.json?raw";
-var packageJson = JSON.parse(_package);
+const packageJson = JSON.parse(_package);
 const download = require("download");
 document.getElementById("name").innerHTML = packageJson.name;
 document.getElementById("version").innerHTML = packageJson.version;
@@ -1381,12 +1380,12 @@ document.getElementById("version").onclick = () => {
         .then((re) => {
             console.log(re);
             if (document.getElementById("update_info").innerHTML) return;
-            let l = [];
-            for (let r of re) {
+            const l = [];
+            for (const r of re) {
                 if (
                     !packageJson.version.includes("beta") &&
                     !packageJson.version.includes("alpha") &&
-                    old_store.更新.模式 != "dev"
+                    old_store.更新.模式 !== "dev"
                 ) {
                     if (!r.draft && !r.prerelease) l.push(r);
                 } else {
@@ -1394,41 +1393,41 @@ document.getElementById("version").onclick = () => {
                 }
             }
             function tag(text: string) {
-                let tag = document.createElement("span");
+                const tag = document.createElement("span");
                 tag.innerText = t(text);
                 return tag;
             }
-            for (let i in l) {
+            for (const i in l) {
                 const r = l[i];
-                let div = document.createElement("div");
-                let tags = document.createElement("div");
-                let h = document.createElement("h1");
+                const div = document.createElement("div");
+                const tags = document.createElement("div");
+                const h = document.createElement("h1");
                 h.innerText = r.name;
-                let p = document.createElement("p");
+                const p = document.createElement("p");
                 p.innerHTML = r.body.replace(/\r\n/g, "<br>");
                 div.append(tags, h, p);
                 document.getElementById("update_info").append(div);
-                if (i == "0") {
-                    let tagEl = tag("最新版本");
+                if (i === "0") {
+                    const tagEl = tag("最新版本");
                     tagEl.title = t("点击下载");
                     tagEl.classList.add("download_tag");
                     tags.append(tagEl);
                     tagEl.onclick = () => {
                         shell.openExternal(r.html_url);
                     };
-                    for (let a of r.assets) {
+                    for (const a of r.assets) {
                         if (a.name === `app-${process.platform}-${process.arch}`) {
-                            let xel = txt("增量更新").on("click", async () => {
+                            const xel = txt("增量更新").on("click", async () => {
                                 xel.clear();
-                                let pro = ele("progress");
-                                let text = txt("");
+                                const pro = ele("progress");
+                                const text = txt("");
                                 xel.add([pro, text]);
                                 download(a.browser_download_url, path.join(__dirname, "../../../"), {
                                     extract: true,
                                     rejectUnauthorized: false,
                                 })
                                     .on("response", (res) => {
-                                        let total = Number(res.headers["content-length"]);
+                                        const total = Number(res.headers["content-length"]);
                                         let now = 0;
                                         res.on("data", (data) => {
                                             now += Number(data.length);
@@ -1448,9 +1447,9 @@ document.getElementById("version").onclick = () => {
                         }
                     }
                 }
-                if (r.name == packageJson.version) {
+                if (r.name === packageJson.version) {
                     tags.append(tag("当前版本"));
-                    if (i != "0") {
+                    if (i !== "0") {
                         (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
                     }
                     break;
@@ -1489,7 +1488,7 @@ document.body.onclick = (e) => {
 };
 
 ipcRenderer.on("about", (_event, arg) => {
-    if (arg != undefined) {
+    if (arg !== undefined) {
         location.hash = "#about";
     }
 });

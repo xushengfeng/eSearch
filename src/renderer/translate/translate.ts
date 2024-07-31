@@ -1,4 +1,4 @@
-import { setting } from "../../ShareTypes";
+import type { setting } from "../../ShareTypes";
 
 import xtranslator from "xtranslator";
 import initStyle from "../root/root";
@@ -41,7 +41,7 @@ const fyq = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
 function translate(text: string) {
     results.el.innerHTML = "";
     if (!text.trim()) return;
-    for (let i of fyq) {
+    for (const i of fyq) {
         const copy = iconButton(copy_svg).style({ width: "24px", height: "24px" });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
