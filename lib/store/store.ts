@@ -11,10 +11,19 @@ class Store {
 
     constructor() {
         this.configPath = path.join(app.getPath("userData"), "config.json");
+        if (!fs.existsSync(this.configPath)) {
+            fs.writeFileSync(this.configPath, "{}");
+        }
     }
 
     private getStore() {
-        return JSON.parse(fs.readFileSync(this.configPath).toString() || "{}") as data;
+        let str = "{}";
+        try {
+            str = fs.readFileSync(this.configPath).toString() || "{}";
+        } catch (error) {
+            fs.writeFileSync(this.configPath, "{}");
+        }
+        return JSON.parse(str) as data;
     }
 
     private setStore(data: data) {
