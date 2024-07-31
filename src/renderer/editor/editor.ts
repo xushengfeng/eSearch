@@ -21,7 +21,8 @@ let undoStackI = 0;
 function stackAdd() {
     if (undoStack[undoStackI] === editor.get()) return;
     // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
-    if (undoStackI !== undoStack.length - 1) undoStack.push(undoStack[undoStackI]);
+    if (undoStackI !== undoStack.length - 1)
+        undoStack.push(undoStack[undoStackI]);
     undoStack.push(editor.get());
     undoStackI = undoStack.length - 1;
 }
@@ -75,7 +76,8 @@ class xeditor {
             switch (e.key) {
                 case "Tab":
                     this.text.setRangeText("\t");
-                    this.text.selectionStart = this.text.selectionEnd = this.text.selectionStart + 1;
+                    this.text.selectionStart = this.text.selectionEnd =
+                        this.text.selectionStart + 1;
                     editorChange();
                     break;
             }
@@ -92,7 +94,12 @@ class xeditor {
                 pointerStartFromThis = false;
                 setTimeout(() => {
                     this.text.dispatchEvent(
-                        new CustomEvent("select2", { detail: { button: e.button, d: this.text.selectionDirection } })
+                        new CustomEvent("select2", {
+                            detail: {
+                                button: e.button,
+                                d: this.text.selectionDirection,
+                            },
+                        }),
                     );
                 }, 10);
             }
@@ -170,7 +177,10 @@ class xeditor {
                     // 结尾
                     ot += t[i];
                 } else {
-                    if (t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) && t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)) {
+                    if (
+                        t?.[i - 1]?.match(/[\u4e00-\u9fa5]/) &&
+                        t?.[i + 1]?.match(/[\u4e00-\u9fa5]/)
+                    ) {
                         // 上一行末与此行首为中文字符
                         ot += "";
                     } else {
@@ -188,7 +198,10 @@ class xeditor {
     }
 }
 
-type selection2 = { start: { pg: number; of: number }; end: { pg: number; of: number } };
+type selection2 = {
+    start: { pg: number; of: number };
+    end: { pg: number; of: number };
+};
 type selection = { start: number; end: number };
 
 class selections {
@@ -202,7 +215,10 @@ class selections {
     }
 
     getS() {
-        return { start: editor.text.selectionStart, end: editor.text.selectionEnd };
+        return {
+            start: editor.text.selectionStart,
+            end: editor.text.selectionEnd,
+        };
     }
 
     clearAll() {
@@ -222,7 +238,10 @@ class selections {
             end += l[i].length + 1;
         }
         end += s.end.of;
-        return { start: Math.min(start, end), end: Math.max(start, end) } as selection;
+        return {
+            start: Math.min(start, end),
+            end: Math.max(start, end),
+        } as selection;
     }
 
     ns2s(start: number, end: number) {
@@ -272,15 +291,32 @@ class selections {
         const ps = this.ns2s(s.start, s.end);
         const range = new Range();
         const rectL: DOMRect[] = [];
-        setR(textNodes[ps.start.pg], ps.start.of, textNodes[ps.end.pg], ps.end.of);
-        setR(textNodes[ps.start.pg], ps.start.of, textNodes[ps.start.pg], ps.start.of);
+        setR(
+            textNodes[ps.start.pg],
+            ps.start.of,
+            textNodes[ps.end.pg],
+            ps.end.of,
+        );
+        setR(
+            textNodes[ps.start.pg],
+            ps.start.of,
+            textNodes[ps.start.pg],
+            ps.start.of,
+        );
         setR(textNodes[ps.end.pg], ps.end.of, textNodes[ps.end.pg], ps.end.of);
-        function setR(start: HTMLElement, so: number, end: HTMLElement, eo: number) {
+        function setR(
+            start: HTMLElement,
+            so: number,
+            end: HTMLElement,
+            eo: number,
+        ) {
             range.setStart(start.firstChild || start, so);
             range.setEnd(end.firstChild || end, eo);
             document.getSelection().removeAllRanges();
             document.getSelection().addRange(range);
-            rectL.push(document.getSelection().getRangeAt(0).getBoundingClientRect());
+            rectL.push(
+                document.getSelection().getRangeAt(0).getBoundingClientRect(),
+            );
         }
         this.editor.text.setSelectionRange(s.start, s.end);
         this.editor.text.focus();
@@ -302,7 +338,8 @@ class find {
                 text = eval(`/${stext}/g`);
                 document.getElementById("find_input").style.outline = "none";
             } catch (error) {
-                document.getElementById("find_input").style.outline = "red  solid 1px";
+                document.getElementById("find_input").style.outline =
+                    "red  solid 1px";
             }
         } else {
             stext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
@@ -338,9 +375,13 @@ class find {
             span.innerText = text.slice(ranges[i].start, ranges[i].end);
             if (span.innerText) span.classList.add("find_h");
             let after = "";
-            if (i === ranges.length - 1) after = text.slice(ranges[i].end, text.length);
+            if (i === ranges.length - 1)
+                after = text.slice(ranges[i].end, text.length);
             const beforeEl = document.createElement("span");
-            beforeEl.innerText = text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start);
+            beforeEl.innerText = text.slice(
+                ranges?.[i - 1]?.end || 0,
+                ranges[i].start,
+            );
             const afterEl = document.createElement("span");
             afterEl.innerText = after;
             this.editor.findEl.append(beforeEl, span, afterEl);
@@ -360,7 +401,10 @@ const editor = new xeditor(document.getElementById("text"));
 editor.push("");
 
 function formatSelection2(s: selection2) {
-    let tmp: selection2 = { start: { pg: Number.NaN, of: Number.NaN }, end: { pg: Number.NaN, of: Number.NaN } };
+    let tmp: selection2 = {
+        start: { pg: Number.NaN, of: Number.NaN },
+        end: { pg: Number.NaN, of: Number.NaN },
+    };
     if (s.end.pg === s.start.pg) {
         tmp.start.pg = tmp.end.pg = s.end.pg;
         tmp.start.of = Math.min(s.start.of, s.end.of);
@@ -409,7 +453,8 @@ function lineNum() {
         t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
     }
     document.getElementById("line_num").innerHTML = t;
-    document.getElementById("line_num").style.width = `${String(l.length).length}ch`;
+    document.getElementById("line_num").style.width =
+        `${String(l.length).length}ch`;
 }
 lineNum();
 
@@ -419,7 +464,10 @@ document.getElementById("line_num").onmousedown = (e) => {
     if (el === document.getElementById("line_num")) return;
     const lI = Number(el.innerText) - 1;
 
-    const s = { start: { pg: lI, of: 0 }, end: { pg: lI, of: editor.wMax(lI) } };
+    const s = {
+        start: { pg: lI, of: 0 },
+        end: { pg: lI, of: editor.wMax(lI) },
+    };
     editor.selections.clearAll();
     editor.selections.add(editor.selections.s2ns(s));
 };
@@ -429,7 +477,8 @@ document.getElementById("line_num").onmouseup = (_e) => {
     editor.text.focus();
 };
 document.getElementById("text").parentElement.onscroll = () => {
-    document.getElementById("line_num").style.top = `-${document.getElementById("text").parentElement.scrollTop}px`;
+    document.getElementById("line_num").style.top =
+        `-${document.getElementById("text").parentElement.scrollTop}px`;
 };
 
 /************************************主要 */
@@ -458,7 +507,11 @@ document.getElementById("text_out").style.fontSize = `${
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         const d = e.deltaY / Math.abs(e.deltaY);
-        const size = Number(document.getElementById("text_out").style.fontSize.replace("px", ""));
+        const size = Number(
+            document
+                .getElementById("text_out")
+                .style.fontSize.replace("px", ""),
+        );
         setFontSize(size - d);
     }
 };
@@ -510,7 +563,8 @@ function showEditBar(x: number, y: number, right: boolean) {
         editBEl.className = "edit_s";
         x = x < 0 ? 0 : x;
         const pleft = editBEl.parentElement.getBoundingClientRect().left + 16;
-        if (editBEl.offsetWidth + pleft + x > window.innerWidth) x = window.innerWidth - editBEl.offsetWidth - pleft;
+        if (editBEl.offsetWidth + pleft + x > window.innerWidth)
+            x = window.innerWidth - editBEl.offsetWidth - pleft;
         y = y < 0 ? 0 : y;
         editBEl.style.left = `${x}px`;
         editBEl.style.top = `${y}px`;
@@ -673,7 +727,8 @@ let findRegex = false;
 document.getElementById("find_b_regex").onclick = () => {
     findRegex = !findRegex;
     if (findRegex) {
-        document.getElementById("find_b_regex").style.backgroundColor = "var(--hover-color)";
+        document.getElementById("find_b_regex").style.backgroundColor =
+            "var(--hover-color)";
     } else {
         document.getElementById("find_b_regex").style.backgroundColor = "";
     }
@@ -729,7 +784,8 @@ function findLN(a: "↑" | "↓") {
     }
     l[findLNI].classList.add("find_h_h");
     findT.innerText = `${findLNI + 1}/${l.length}`;
-    document.getElementById("text_out").scrollTop = (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
+    document.getElementById("text_out").scrollTop =
+        (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
 }
 document.getElementById("find_b_last").onclick = () => {
     findLN("↑");
@@ -751,7 +807,9 @@ document.getElementById("find_input").onkeydown = (e) => {
 document.getElementById("find_b_replace_all").onclick = () => {
     const m = editor.find.matchx(findInput.value, findRegex);
     if (!editor.selections.get()) editor.selectAll();
-    editor.selections.replace(editor.selections.get().replaceAll(m, replaceInput.value));
+    editor.selections.replace(
+        editor.selections.get().replaceAll(m, replaceInput.value),
+    );
     exitFind();
 
     stackAdd();
@@ -797,7 +855,10 @@ function isLink(url: string, s: boolean) {
         return false;
     }
     // 有.或://就行
-    if ((url.match(/\./g) != null || url.match(/:\/\//g) != null) && !url.match(/[\n\r]/g)) {
+    if (
+        (url.match(/\./g) != null || url.match(/:\/\//g) != null) &&
+        !url.match(/[\n\r]/g)
+    ) {
         return true;
     }
     return false;
@@ -814,7 +875,11 @@ function showT(t: string) {
         if (isLink(t, true)) {
             if (自动打开链接) openLink("url", t);
         } else {
-            const language = t.match(/[\u4e00-\u9fa5]/g)?.length >= t.length * 自动搜索中文占比 ? "本地语言" : "外语";
+            const language =
+                t.match(/[\u4e00-\u9fa5]/g)?.length >=
+                t.length * 自动搜索中文占比
+                    ? "本地语言"
+                    : "外语";
             if (自动搜索 && t.match(/[\r\n]/) == null && t !== "") {
                 if (language === "本地语言") {
                     openLink("search");
@@ -846,7 +911,9 @@ function openLink(id: "url" | "search" | "translate", link?: string) {
         url = link;
     } else {
         const s = editor.selections.get() || editor.get(); // 要么全部，要么选中
-        url = (<HTMLSelectElement>document.querySelector(`#${id}_s`)).value.replace("%s", encodeURIComponent(s));
+        url = (<HTMLSelectElement>(
+            document.querySelector(`#${id}_s`)
+        )).value.replace("%s", encodeURIComponent(s));
     }
     if (typeof global !== "undefined") {
         if (浏览器打开) {
@@ -870,7 +937,9 @@ document.getElementById("translate_b").onclick = () => {
     openLink("translate");
 };
 const searchSelect = document.getElementById("search_s") as HTMLSelectElement;
-const translateSelect = document.getElementById("translate_s") as HTMLSelectElement;
+const translateSelect = document.getElementById(
+    "translate_s",
+) as HTMLSelectElement;
 /**改变选项后搜索 */
 document.getElementById("search_s").oninput = () => {
     openLink("search");
@@ -903,7 +972,8 @@ let historyList: { [key: string]: { text: string } } = {};
 const 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     const nowTime = new Date().getTime();
-    const dTime = Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
+    const dTime =
+        Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
     for (const i of Object.keys(historyList)) {
         if (nowTime - Number(i) > dTime) {
             // historyStore.delete(`历史记录.${i}`);
@@ -948,7 +1018,8 @@ function renderHistory() {
     }
     historyList = n;
     n = null;
-    if (Object.keys(historyList).length === 0) historyListEl.innerText = t("暂无历史记录");
+    if (Object.keys(historyList).length === 0)
+        historyListEl.innerText = t("暂无历史记录");
     for (const i in historyList) {
         const t = historyList[i].text.split(/[\r\n]/g);
         const div = view().attr({ id: i });
@@ -958,7 +1029,12 @@ function renderHistory() {
             view()
                 .class("history_title")
                 .add([
-                    txt(time_format(store.get("时间格式"), new Date(Number(i) - 0))),
+                    txt(
+                        time_format(
+                            store.get("时间格式"),
+                            new Date(Number(i) - 0),
+                        ),
+                    ),
                     button(image(closeSvg, "icon").class("icon")),
                 ]),
             textEl,
@@ -967,27 +1043,32 @@ function renderHistory() {
     }
 
     // 打开某项历史
-    document.querySelectorAll("#history_list > div > .history_text").forEach((e) => {
-        e.addEventListener("click", () => {
-            editor.push(historyList[e.parentElement.id].text);
-            showHistory();
+    document
+        .querySelectorAll("#history_list > div > .history_text")
+        .forEach((e) => {
+            e.addEventListener("click", () => {
+                editor.push(historyList[e.parentElement.id].text);
+                showHistory();
+            });
         });
-    });
     // 删除某项历史
     // TODO多选
-    document.querySelectorAll("#history_list > div > .history_title > button").forEach((e) => {
-        e.addEventListener("click", () => {
-            // historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
-            e.parentElement.parentElement.style.display = "none";
+    document
+        .querySelectorAll("#history_list > div > .history_title > button")
+        .forEach((e) => {
+            e.addEventListener("click", () => {
+                // historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
+                e.parentElement.parentElement.style.display = "none";
+            });
         });
-    });
 }
 if (mainText === "") renderHistory();
 
 const task = new tLog("e");
 
 /************************************引入 */
-const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
+const { ipcRenderer, shell, clipboard } =
+    require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 
@@ -1019,36 +1100,45 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
     if (list.type === "ocr") {
         editor.push(t("文字识别中……请等候"));
-        ocr(list.content, list.arg0 as any, (err: Error, r: { raw: ocrResult; text: string }) => {
-            const text = r?.text;
-            if (text) {
-                console.log(text);
+        ocr(
+            list.content,
+            list.arg0 as any,
+            (err: Error, r: { raw: ocrResult; text: string }) => {
+                const text = r?.text;
+                if (text) {
+                    console.log(text);
 
-                editor.push(text);
-                editor.selectAll();
+                    editor.push(text);
+                    editor.selectAll();
 
-                if (mainType === "search") {
-                    openLink("search");
-                } else if (mainType === "translate") {
-                    openLink("translate");
-                }
-
-                addOcrText(r.raw, 0);
-
-                const maxLinePhotoShow = store.get("主页面.显示图片区");
-                if (maxLinePhotoShow && text.split("\n").length >= maxLinePhotoShow) {
-                    if (!body.classList.contains(imageShow)) {
-                        imageB.click();
+                    if (mainType === "search") {
+                        openLink("search");
+                    } else if (mainType === "translate") {
+                        openLink("translate");
                     }
+
+                    addOcrText(r.raw, 0);
+
+                    const maxLinePhotoShow = store.get("主页面.显示图片区");
+                    if (
+                        maxLinePhotoShow &&
+                        text.split("\n").length >= maxLinePhotoShow
+                    ) {
+                        if (!body.classList.contains(imageShow)) {
+                            imageB.click();
+                        }
+                    }
+                    return;
                 }
-                return;
-            }
-            console.error(err);
+                console.error(err);
 
-            editor.push(`${t("识别错误")}\n${err}\n${t("请打开开发者工具（Ctrl+Shift+I）查看详细错误")}`);
+                editor.push(
+                    `${t("识别错误")}\n${err}\n${t("请打开开发者工具（Ctrl+Shift+I）查看详细错误")}`,
+                );
 
-            mainEvent("home");
-        });
+                mainEvent("home");
+            },
+        );
     }
 
     if (list.type === "qr") {
@@ -1068,7 +1158,10 @@ initStyle(store);
 let editOnOtherType = null;
 let fileWatcher = null;
 const path = require("node:path") as typeof import("path");
-const tmpTextPath = path.join(os.tmpdir(), `/eSearch/eSearch_${new Date().getTime()}.txt`);
+const tmpTextPath = path.join(
+    os.tmpdir(),
+    `/eSearch/eSearch_${new Date().getTime()}.txt`,
+);
 let editingOnOther = false;
 import openWith from "../../../lib/open_with";
 function editOnOther() {
@@ -1087,7 +1180,8 @@ function editOnOther() {
                     editor.push(data);
                 });
             });
-            document.getElementById("text_out").title = "正在外部编辑中，双击退出";
+            document.getElementById("text_out").title =
+                "正在外部编辑中，双击退出";
             document.addEventListener("dblclick", () => {
                 editingOnOther = true;
                 editOnOther();
@@ -1238,12 +1332,15 @@ function countWords() {
     const cSpace = c - text.match(/\s/g)?.length || 0;
     const cjkRg = /[\u2E80-\uFE4F]/g;
     const cjk = text.match(cjkRg)?.length || 0;
-    text = text.replace(cjkRg, "").replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
+    text = text
+        .replace(cjkRg, "")
+        .replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
     const nCjk = text.match(/\S+/g)?.length || 0;
     document.getElementById("count").innerText = `${cjk + nCjk} ${t("字")}`;
-    document.getElementById("count").title = `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${cSpace}\n${t(
-        "汉字"
-    )} ${cjk}\n${t("非汉字词")} ${nCjk}`;
+    document.getElementById("count").title =
+        `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${cSpace}\n${t(
+            "汉字",
+        )} ${cjk}\n${t("非汉字词")} ${nCjk}`;
 }
 
 /************************************失焦关闭 */
@@ -1298,7 +1395,8 @@ function setConciseMode(m: boolean) {
     }
     const bSize = { top: 0, bottom: 48 };
     if (m) {
-        bSize.top = window.navigator.windowControlsOverlay.getTitlebarAreaRect().height;
+        bSize.top =
+            window.navigator.windowControlsOverlay.getTitlebarAreaRect().height;
         bSize.bottom = 0;
     }
     ipcRenderer.send("tab_view", null, "size", bSize);
@@ -1349,7 +1447,8 @@ ipcRenderer.on("html", (_e, h: string) => {
     document.getElementById("buttons").onclick = (e) => {
         mainEvent((e.target as HTMLElement).id);
     };
-    if (document.getElementById("tabs").querySelector("li")) document.getElementById("tabs").classList.add("tabs_show");
+    if (document.getElementById("tabs").querySelector("li"))
+        document.getElementById("tabs").classList.add("tabs_show");
 });
 
 function 绑定li(li: HTMLLIElement) {
@@ -1440,7 +1539,12 @@ function title(id: number, arg: string) {
         document.getElementById(`id${id}`).querySelector("span").title =
         document.getElementById(`id${id}`).querySelector("img").title =
             arg;
-    if (document.getElementById(`id${id}`).className.split(" ").includes("tab_focus"))
+    if (
+        document
+            .getElementById(`id${id}`)
+            .className.split(" ")
+            .includes("tab_focus")
+    )
         document.title = `eSearch - ${arg}`;
 }
 
@@ -1462,9 +1566,8 @@ function load(id: number, loading: boolean) {
     } else {
         document.querySelector(`#id${id} > img`).classList.remove("loading");
         if (document.getElementById(`id${id}`).getAttribute("data-icon"))
-            document.getElementById(`id${id}`).querySelector("img").src = document
-                .getElementById(`id${id}`)
-                .getAttribute("data-icon");
+            document.getElementById(`id${id}`).querySelector("img").src =
+                document.getElementById(`id${id}`).getAttribute("data-icon");
         document.getElementById("reload").style.display = "block";
         document.getElementById("stop").style.display = "none";
     }
@@ -1495,7 +1598,9 @@ function openInBrowser() {
     const url = document.querySelector(".tab_focus").getAttribute("data-url");
     shell.openExternal(url);
     if (store.get("浏览器.标签页.自动关闭")) {
-        const id = Number(document.querySelector(".tab_focus").id.replace("id", ""));
+        const id = Number(
+            document.querySelector(".tab_focus").id.replace("id", ""),
+        );
         closeTab(document.querySelector(".tab_focus"), id);
         if (isTabsEmpty() && editor.get().trim() === "") closeWindow();
     }
@@ -1508,7 +1613,8 @@ ipcRenderer.on("view_events", (_event, arg) => {
 document.getElementById("tabs").onwheel = (e) => {
     e.preventDefault();
     const i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
-    document.getElementById("tabs").scrollLeft += i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
+    document.getElementById("tabs").scrollLeft +=
+        i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
 };
 
 window.onbeforeunload = () => {
@@ -1519,7 +1625,11 @@ window.onbeforeunload = () => {
 
 /************************************以图搜图 */
 
-function searchImg(img: string, type: "baidu" | "yandex" | "google", callback: Function) {
+function searchImg(
+    img: string,
+    type: "baidu" | "yandex" | "google",
+    callback: Function,
+) {
     img = img.replace(/^data:image\/\w+;base64,/, "");
     switch (type) {
         case "baidu":
@@ -1544,7 +1654,11 @@ function searchImg(img: string, type: "baidu" | "yandex" | "google", callback: F
  * @param options
  * @param cb 回调
  */
-function post(url: string, options: RequestInit, cb: (err: Error, result: any) => {}) {
+function post(
+    url: string,
+    options: RequestInit,
+    cb: (err: Error, result: any) => {},
+) {
     fetch(url, Object.assign(options, { method: "POST" }))
         .then((r) => {
             console.log(r);
@@ -1568,11 +1682,16 @@ function baidu(image: string, callback: (err: Error, url: string) => {}) {
     while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    form.append("image", new Blob([u8arr], { type: "image/png" }), "eSearch.png");
+    form.append(
+        "image",
+        new Blob([u8arr], { type: "image/png" }),
+        "eSearch.png",
+    );
     form.append("from", "pc");
     post("https://graph.baidu.com/upload", { body: form }, (err, result) => {
         if (err) return callback(err, null);
-        if (result.msg !== "Success") return callback(new Error(JSON.stringify(err)), null);
+        if (result.msg !== "Success")
+            return callback(new Error(JSON.stringify(err)), null);
         console.log(result.data.url);
         return callback(null, result.data.url);
     });
@@ -1588,7 +1707,7 @@ function yandex(image, callback) {
         const img_url = result.url;
         if (img_url) {
             const b_url = `https://yandex.com/images/search?family=yes&rpt=imageview&url=${encodeURIComponent(
-                img_url
+                img_url,
             )}`;
             callback(null, b_url);
         } else {
@@ -1605,7 +1724,11 @@ function google(image, callback) {
     while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    form.append("encoded_image", new Blob([u8arr], { type: "image/png" }), "eSearch.png");
+    form.append(
+        "encoded_image",
+        new Blob([u8arr], { type: "image/png" }),
+        "eSearch.png",
+    );
     form.append("image_content", "");
     const url = `https://lens.google.com/v3/upload?hl=zh-CN&re=df&st=${new Date().getTime()}&vpw=1041&vph=779`;
     fetch(url, {
@@ -1628,7 +1751,7 @@ function google(image, callback) {
 function ocr(
     img: string,
     type: string | "baidu" | "youdao",
-    callback: (error: any, r: { raw: ocrResult; text: string }) => void
+    callback: (error: any, r: { raw: ocrResult; text: string }) => void,
 ) {
     addOcrPhoto(img);
     if (type === "baidu" || type === "youdao") {
@@ -1652,21 +1775,27 @@ let lo: import("esearch-ocr").initType;
 async function localOcr(
     type: string,
     arg: string,
-    callback: (error: Error, result: { raw: ocrResult; text: string }) => void
+    callback: (error: Error, result: { raw: ocrResult; text: string }) => void,
 ) {
     try {
         task.l("ocr_load");
         let l: [string, string, string, string, any];
         for (const i of store.get("离线OCR")) if (i[0] === type) l = i;
         function ocrPath(p: string) {
-            return path.join(path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"), p);
+            return path.join(
+                path.isAbsolute(p)
+                    ? ""
+                    : path.join(__dirname, "../../ocr/ppocr"),
+                p,
+            );
         }
         const detp = ocrPath(l[1]);
         const recp = ocrPath(l[2]);
         const 字典 = ocrPath(l[3]);
         console.log(detp, recp, 字典);
         if (!lo) {
-            const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
+            const localOCR =
+                require("esearch-ocr") as typeof import("esearch-ocr");
             const ort = require("onnxruntime-node");
             const provider = store.get("AI.运行后端") || "cpu";
             lo = await localOCR.init({
@@ -1689,7 +1818,11 @@ async function localOcr(
             canvas.height = img.height;
             canvas.getContext("2d").drawImage(img, 0, 0);
             task.l("ocr_s");
-            lo.ocr(canvas.getContext("2d").getImageData(0, 0, img.width, img.height))
+            lo.ocr(
+                canvas
+                    .getContext("2d")
+                    .getImageData(0, 0, img.width, img.height),
+            )
                 .then((l) => {
                     console.log(l);
                     let t = "";
@@ -1722,13 +1855,14 @@ async function localOcr(
 function onlineOcr(
     type: string,
     arg: string,
-    callback: (error: string, result: { raw: ocrResult; text: string }) => void
+    callback: (error: string, result: { raw: ocrResult; text: string }) => void,
 ) {
     arg = arg.replace("data:image/png;base64,", "");
 
     const clientId = store.get(`在线OCR.${type}.id`);
     const clientSecret = store.get(`在线OCR.${type}.secret`);
-    if (!clientId || !clientSecret) return callback("未填写 API Key 或 Secret Key", null);
+    if (!clientId || !clientSecret)
+        return callback("未填写 API Key 或 Secret Key", null);
     switch (type) {
         case "baidu":
             baiduOcr();
@@ -1739,10 +1873,13 @@ function onlineOcr(
     }
 
     function baiduOcr() {
-        if (!store.get("在线OCR.baidu.token") || store.get("在线OCR.baidu.time") < new Date().getTime())
+        if (
+            !store.get("在线OCR.baidu.token") ||
+            store.get("在线OCR.baidu.time") < new Date().getTime()
+        )
             fetch(
                 `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
-                { method: "GET" }
+                { method: "GET" },
             )
                 .then((t) => t.json())
                 .then((result) => {
@@ -1750,16 +1887,24 @@ function onlineOcr(
                     console.log(access_token);
                     if (!access_token) {
                         if (result.error) {
-                            if (result.error_description === "unknown client id") {
+                            if (
+                                result.error_description === "unknown client id"
+                            ) {
                                 return callback("API Key 错误", null);
                             }
-                            if (result.error_description === "Client authentication failed")
+                            if (
+                                result.error_description ===
+                                "Client authentication failed"
+                            )
                                 return callback("Secret Key 错误", null);
                         }
                         return callback(JSON.stringify(result), null);
                     }
                     store.set("在线OCR.baidu.token", access_token);
-                    store.set("在线OCR.baidu.time", new Date().getTime() + result.expires_in * 1000);
+                    store.set(
+                        "在线OCR.baidu.time",
+                        new Date().getTime() + result.expires_in * 1000,
+                    );
                     ocrGet(access_token);
                 });
         else {
@@ -1772,7 +1917,11 @@ function onlineOcr(
                 headers: {
                     "content-type": "application/x-www-form-urlencoded",
                 },
-                body: new URLSearchParams({ image: arg, paragraph: "true", cell_contents: "true" }).toString(),
+                body: new URLSearchParams({
+                    image: arg,
+                    paragraph: "true",
+                    cell_contents: "true",
+                }).toString(),
             })
                 .then((v) => v.json())
                 .then((result) => {
@@ -1781,7 +1930,8 @@ function onlineOcr(
         }
 
         function baiduFormat(result) {
-            if (result.error_msg || result.error_code) return callback(JSON.stringify(result), null);
+            if (result.error_msg || result.error_code)
+                return callback(JSON.stringify(result), null);
 
             if (result.tables_result) {
                 const tables: string[] = [];
@@ -1791,7 +1941,11 @@ function onlineOcr(
                         if (!m[c.row_start]) m[c.row_start] = [];
                         m[c.row_start][c.col_start] = c.words;
                     }
-                    const body = m.map((row) => row.map((i) => i.replaceAll("\n", "")).join("\t")).join("\n");
+                    const body = m
+                        .map((row) =>
+                            row.map((i) => i.replaceAll("\n", "")).join("\t"),
+                        )
+                        .join("\n");
                     const r = [i.header.words, body, i.footer.words];
                     tables.push(r.flat().join("\n"));
                 }
@@ -1806,8 +1960,12 @@ function onlineOcr(
             } else {
                 for (const i in result.paragraphs_result) {
                     outputL[i] = "";
-                    for (const ii in result.paragraphs_result[i].words_result_idx) {
-                        outputL[i] += result.words_result[result.paragraphs_result[i].words_result_idx[ii]].words;
+                    for (const ii in result.paragraphs_result[i]
+                        .words_result_idx) {
+                        outputL[i] +=
+                            result.words_result[
+                                result.paragraphs_result[i].words_result_idx[ii]
+                            ].words;
                     }
                 }
             }
@@ -1816,7 +1974,12 @@ function onlineOcr(
             const r: ocrResult = [];
             if (result.words_result[0]?.location)
                 for (const i of result.words_result) {
-                    const l = (<any>i).location as { top: number; left: number; width: number; height: number };
+                    const l = (<any>i).location as {
+                        top: number;
+                        left: number;
+                        width: number;
+                        height: number;
+                    };
                     r.push({
                         box: [
                             [l.left, l.top],
@@ -1834,7 +1997,10 @@ function onlineOcr(
 
     function youdaoOcr() {
         const crypto = require("node:crypto") as typeof import("crypto");
-        const input = arg.length >= 20 ? arg.slice(0, 10) + arg.length + arg.slice(-10) : arg;
+        const input =
+            arg.length >= 20
+                ? arg.slice(0, 10) + arg.length + arg.slice(-10)
+                : arg;
         const curtime = String(Math.round(new Date().getTime() / 1000));
         const salt = crypto.randomUUID();
         const sign = crypto
@@ -1869,7 +2035,8 @@ function onlineOcr(
                 return callback(e, null);
             });
         function youdao_format(result) {
-            if (result.errorCode !== "0") return callback(JSON.stringify(result), null);
+            if (result.errorCode !== "0")
+                return callback(JSON.stringify(result), null);
             const r: ocrResult = [];
             const textL = [];
             for (const i of result.Result.regions) {
@@ -1955,7 +2122,10 @@ for (const i of store.get("离线OCR")) {
     o.value = `${i[0]}`;
     ocr引擎.append(o);
 }
-ocr引擎.insertAdjacentHTML("beforeend", `<option value="baidu">百度</option><option value="youdao">有道</option>`);
+ocr引擎.insertAdjacentHTML(
+    "beforeend",
+    `<option value="baidu">百度</option><option value="youdao">有道</option>`,
+);
 ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
 document.getElementById("ocr引擎").oninput = () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);

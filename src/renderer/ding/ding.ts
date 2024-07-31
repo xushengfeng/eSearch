@@ -1,4 +1,5 @@
-const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
+const { ipcRenderer, clipboard, nativeImage } =
+    require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
@@ -22,12 +23,22 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
             back2(document.getElementById(id));
             break;
         case "resize":
-            if (!resizeSender) resize(document.getElementById(more.id), more.zoom, more.dx, more.dy);
+            if (!resizeSender)
+                resize(
+                    document.getElementById(more.id),
+                    more.zoom,
+                    more.dx,
+                    more.dy,
+                );
             break;
     }
 });
 
-function sendEvent(type: "close" | "move_start" | "move_end" | "back" | "resize", id: string, more?: any) {
+function sendEvent(
+    type: "close" | "move_start" | "move_end" | "back" | "resize",
+    id: string,
+    more?: any,
+) {
     ipcRenderer.send("ding_event", type, id, more);
 }
 
@@ -57,25 +68,41 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     img.draggable = false;
     img.src = url;
     img.className = "img";
-    const toolBar = document.querySelector("#tool_bar").cloneNode(true) as HTMLElement;
+    const toolBar = document
+        .querySelector("#tool_bar")
+        .cloneNode(true) as HTMLElement;
     (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.display = "flex";
     // 顶栏
     div.onmouseenter = () => {
-        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform = "translateY(0)";
+        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform =
+            "translateY(0)";
     };
     div.onmouseleave = () => {
-        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform = "translateY(-105%)";
+        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform =
+            "translateY(-105%)";
     };
     // 透明
     (<HTMLElement>toolBar.querySelector("#透明度")).oninput = () => {
         img.style.opacity = `${Number((<HTMLInputElement>toolBar.querySelector("#透明度")).value) / 100}`;
-        (<HTMLElement>toolBar.querySelector("#透明度_p")).innerHTML =
-            `${(<HTMLInputElement>toolBar.querySelector("#透明度")).value}%`;
+        (<HTMLElement>(
+            toolBar.querySelector("#透明度_p")
+        )).innerHTML = `${(<HTMLInputElement>toolBar.querySelector("#透明度")).value}%`;
     };
     // 大小
     (<HTMLElement>toolBar.querySelector("#size > span")).onblur = () => {
-        if (Number.isFinite(Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML))) {
-            let zoom = Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML) / 100;
+        if (
+            Number.isFinite(
+                Number(
+                    (<HTMLElement>toolBar.querySelector("#size > span"))
+                        .innerHTML,
+                ),
+            )
+        ) {
+            let zoom =
+                Number(
+                    (<HTMLElement>toolBar.querySelector("#size > span"))
+                        .innerHTML,
+                ) / 100;
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
             resize(div, zoom, 0, 0);
@@ -85,8 +112,19 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     (<HTMLElement>toolBar.querySelector("#size > span")).onkeydown = (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
-            if (Number.isFinite(Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML))) {
-                let zoom = Number((<HTMLElement>toolBar.querySelector("#size > span")).innerHTML) / 100;
+            if (
+                Number.isFinite(
+                    Number(
+                        (<HTMLElement>toolBar.querySelector("#size > span"))
+                            .innerHTML,
+                    ),
+                )
+            ) {
+                let zoom =
+                    Number(
+                        (<HTMLElement>toolBar.querySelector("#size > span"))
+                            .innerHTML,
+                    ) / 100;
                 if (zoom < 0.05) zoom = 0.05;
                 resizeSender = true;
                 resize(div, zoom, 0, 0);
@@ -97,12 +135,18 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     // 滚轮缩放
     div.onwheel = (e) => {
         if (e.deltaY !== 0) {
-            let zoom = Number(div.querySelector("#size > span").innerHTML) / 100;
+            let zoom =
+                Number(div.querySelector("#size > span").innerHTML) / 100;
             const zz = 1 + Math.abs(e.deltaY) / 300;
             zoom = e.deltaY > 0 ? zoom / zz : zoom * zz;
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
-            resize(div, zoom, e.offsetX / div.offsetWidth, e.offsetY / div.offsetHeight);
+            resize(
+                div,
+                zoom,
+                e.offsetX / div.offsetWidth,
+                e.offsetY / div.offsetHeight,
+            );
             resizeSender = false;
         }
     };
@@ -214,7 +258,12 @@ function back2(el: HTMLElement) {
     (el.querySelector(".img") as HTMLImageElement).style.opacity = "1";
 }
 function close(el: HTMLElement) {
-    ipcRenderer.send("ding_event", "close", el.id, Object.keys(photos).length === 1);
+    ipcRenderer.send(
+        "ding_event",
+        "close",
+        el.id,
+        Object.keys(photos).length === 1,
+    );
 }
 function close2(el: HTMLElement) {
     el.remove();
@@ -226,8 +275,15 @@ function copy(el: HTMLElement) {
     clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
 }
 function edit(el: HTMLElement) {
-    const b = Buffer.from(urls[el.id].replace(/^data:image\/\w+;base64,/, ""), "base64");
-    const save = path.join(os.tmpdir(), "eSearch", `${new Date().getTime()}.png`);
+    const b = Buffer.from(
+        urls[el.id].replace(/^data:image\/\w+;base64,/, ""),
+        "base64",
+    );
+    const save = path.join(
+        os.tmpdir(),
+        "eSearch",
+        `${new Date().getTime()}.png`,
+    );
     fs.writeFile(save, b, () => {
         ipcRenderer.send("ding_edit", save);
     });
@@ -376,7 +432,9 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
         switch (direction) {
             case "西北": {
                 const k = -1 / (oh / ow);
-                const d = (k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                const d =
+                    (k * dx - dy) / Math.sqrt(k ** 2 + 1) +
+                    Math.sqrt(ow ** 2 + oh ** 2);
                 const w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 const h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox + ow - w, oy + oh - h, w, h];
@@ -386,7 +444,9 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
             }
             case "东南": {
                 const k = -1 / (oh / ow);
-                const d = -(k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                const d =
+                    -(k * dx - dy) / Math.sqrt(k ** 2 + 1) +
+                    Math.sqrt(ow ** 2 + oh ** 2);
                 const w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 const h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox, oy, w, h];
@@ -394,7 +454,9 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
             }
             case "东北": {
                 const k = 1 / (oh / ow);
-                const d = (k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                const d =
+                    (k * dx - dy) / Math.sqrt(k ** 2 + 1) +
+                    Math.sqrt(ow ** 2 + oh ** 2);
                 const w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 const h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox, oy + oh - h, w, h];
@@ -403,7 +465,9 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
             }
             case "西南": {
                 const k = 1 / (oh / ow);
-                const d = -(k * dx - dy) / Math.sqrt(k ** 2 + 1) + Math.sqrt(ow ** 2 + oh ** 2);
+                const d =
+                    -(k * dx - dy) / Math.sqrt(k ** 2 + 1) +
+                    Math.sqrt(ow ** 2 + oh ** 2);
                 const w = d * Math.cos(Math.atan(oPs[3] / oPs[2]));
                 const h = d * Math.sin(Math.atan(oPs[3] / oPs[2]));
                 pS = [ox + ow - w, oy, w, h];
@@ -445,7 +509,9 @@ function move(el: HTMLElement, e: { x: number; y: number }) {
 }
 
 function resize(el: HTMLElement, zoom: number, dx: number, dy: number) {
-    (el.querySelector("#size > span") as HTMLElement).innerHTML = String(Math.round(zoom * 100));
+    (el.querySelector("#size > span") as HTMLElement).innerHTML = String(
+        Math.round(zoom * 100),
+    );
     const rect = [el.offsetLeft, el.offsetTop, el.offsetWidth, el.offsetHeight];
     const toWidth = photos[el.id][2] * zoom;
     const toHeight = photos[el.id][3] * zoom;
@@ -491,7 +557,8 @@ function resize(el: HTMLElement, zoom: number, dx: number, dy: number) {
     el.style.width = `${pS[2]}px`;
     el.style.height = `${pS[3]}px`;
 
-    if (resizeSender) sendEvent("resize", null, { id: el.id, zoom, dx, dy } as Resize);
+    if (resizeSender)
+        sendEvent("resize", null, { id: el.id, zoom, dx, dy } as Resize);
 }
 
 const dockP = store.get("ding_dock");
@@ -544,7 +611,10 @@ const showDock = () => {
     dockShow = !dockShow;
     if (dockShow) {
         dockPS = [dock.offsetLeft, dock.offsetTop];
-        if (dock.offsetLeft + 5 <= document.querySelector("html").offsetWidth / 2) {
+        if (
+            dock.offsetLeft + 5 <=
+            document.querySelector("html").offsetWidth / 2
+        ) {
             dock.style.left = "0";
         } else {
             dock.style.left = `${document.querySelector("html").offsetWidth - 200}px`;
@@ -565,9 +635,12 @@ function dockI() {
     document.querySelector("#dock > div").innerHTML = "";
     for (const o in urls) {
         ((i) => {
-            const dockItem = document.querySelector("#dock_item").cloneNode(true) as HTMLElement;
+            const dockItem = document
+                .querySelector("#dock_item")
+                .cloneNode(true) as HTMLElement;
             dockItem.style.display = "block";
-            (<HTMLImageElement>dockItem.querySelector("#i_photo")).src = urls[i];
+            (<HTMLImageElement>dockItem.querySelector("#i_photo")).src =
+                urls[i];
             dockItem.onclick = (e) => {
                 const el = e.target as HTMLElement;
                 if (el.id !== "i_close" && el.id !== "i_ignore") {

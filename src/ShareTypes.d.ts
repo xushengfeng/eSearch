@@ -15,7 +15,12 @@ export interface setting {
     点击托盘自动截图: boolean;
     全局工具快捷键: { [key in 功能]: string };
     工具快捷键: { [key in 功能]: string };
-    截屏编辑快捷键: { [key in keyof EditType]: { 键: string; 副: { [key1 in EditType[key]]: string } } };
+    截屏编辑快捷键: {
+        [key in keyof EditType]: {
+            键: string;
+            副: { [key1 in EditType[key]]: string };
+        };
+    };
     大小栏快捷键: {
         左上x: string;
         左上y: string;
@@ -72,7 +77,11 @@ export interface setting {
         自动换行: boolean;
         拼写检查: boolean;
         行号: boolean;
-        工具: { name: string; key: string; regex: { r: string; p: string }[] }[]; // todo set
+        工具: {
+            name: string;
+            key: string;
+            regex: { r: string; p: string }[];
+        }[]; // todo set
     };
     工具栏跟随: "展示内容优先" | "效率优先";
     自动搜索: boolean;
@@ -242,7 +251,12 @@ export interface setting {
         提示: {
             键盘: {
                 开启: boolean;
-                位置: { x: "+" | "-"; y: "+" | "-"; offsetX: number; offsetY: number };
+                位置: {
+                    x: "+" | "-";
+                    y: "+" | "-";
+                    offsetX: number;
+                    offsetY: number;
+                };
                 大小: number;
             };
             鼠标: {
@@ -293,7 +307,16 @@ type 功能 =
 type EditType = {
     select: "rect" | "free" | "draw";
     draw: "free" | "eraser" | "spray";
-    shape: "line" | "circle" | "rect" | "polyline" | "polygon" | "text" | "number" | "arrow" | "mask";
+    shape:
+        | "line"
+        | "circle"
+        | "rect"
+        | "polyline"
+        | "polygon"
+        | "text"
+        | "number"
+        | "arrow"
+        | "mask";
     filter:
         | "pixelate"
         | "blur"
@@ -312,7 +335,12 @@ type EditType = {
         | "polaroid";
 };
 
-type MainWinType = { type: "text" | "ocr" | "image" | "qr"; content: string; arg0?: string; time?: number };
+type MainWinType = {
+    type: "text" | "ocr" | "image" | "qr";
+    content: string;
+    arg0?: string;
+    time?: number;
+};
 
 type translateWinType = {
     rect: { x: number; y: number; w: number; h: number };

@@ -23,10 +23,22 @@ import type { Buffer } from "node:buffer";
 
 // const Store = require("../../lib/store/store");
 import Store from "../../lib/store/store";
-import type { setting, MainWinType, translateWinType, 功能 } from "../ShareTypes";
+import type {
+    setting,
+    MainWinType,
+    translateWinType,
+    功能,
+} from "../ShareTypes";
 import { join, resolve, dirname } from "node:path";
 import { exec } from "node:child_process";
-import { readFileSync, rmSync, existsSync, mkdir, readFile, mkdirSync } from "node:fs";
+import {
+    readFileSync,
+    rmSync,
+    existsSync,
+    mkdir,
+    readFile,
+    mkdirSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
@@ -38,7 +50,9 @@ const tmpDir = join(tmpdir(), "eSearch");
 // 自定义用户路径
 let userDataPath;
 try {
-    userDataPath = readFileSync(join(runPath, "preload_config")).toString().trim();
+    userDataPath = readFileSync(join(runPath, "preload_config"))
+        .toString()
+        .trim();
     if (userDataPath) {
         if (app.isPackaged) {
             userDataPath = join(runPath, "../../", userDataPath);
@@ -73,7 +87,12 @@ ipcMain.on("store", (e, x) => {
 
 let /** 是否开启开发模式 */ dev: boolean;
 // 自动开启开发者模式
-if (process.argv.includes("-d") || import.meta.env.DEV || process.env.ESEARCH_DEV || store.get("dev")) {
+if (
+    process.argv.includes("-d") ||
+    import.meta.env.DEV ||
+    process.env.ESEARCH_DEV ||
+    store.get("dev")
+) {
     dev = true;
 } else {
     dev = false;
@@ -88,7 +107,9 @@ if (dev) {
             .filter((i) => i.type === "Tab")
             .forEach((i) => (rander += i.memory.workingSetSize));
         rander = rander / 1024;
-        console.log(`Memory： ${main.toFixed(7)} + ${rander.toFixed(7)} = ${main + rander}`);
+        console.log(
+            `Memory： ${main.toFixed(7)} + ${rander.toFixed(7)} = ${main + rander}`,
+        );
     }, 1500);
 }
 
@@ -119,7 +140,11 @@ function rendererPath(window: BrowserWindow, fileName: string) {
         return { action: "deny" };
     });
 }
-function rendererPath2(window: Electron.WebContents, fileName: string, q?: Electron.LoadFileOptions) {
+function rendererPath2(
+    window: Electron.WebContents,
+    fileName: string,
+    q?: Electron.LoadFileOptions,
+) {
     if (!q) {
         q = { query: { config_path: app.getPath("userData") } };
     } else if (!q.query) {
@@ -154,7 +179,9 @@ ipcMain.on("autostart", (event, m, v) => {
         if (process.platform === "linux") {
             if (v) {
                 exec("mkdir ~/.config/autostart");
-                exec(`cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`);
+                exec(
+                    `cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`,
+                );
             } else {
                 exec("rm ~/.config/autostart/e-search.desktop");
             }
@@ -163,11 +190,19 @@ ipcMain.on("autostart", (event, m, v) => {
         }
     } else {
         if (process.platform === "linux") {
-            exec("test -e ~/.config/autostart/e-search.desktop", (error, _stdout, _stderr) => {
-                error ? event.sender.send("开机启动状态", false) : event.sender.send("开机启动状态", true);
-            });
+            exec(
+                "test -e ~/.config/autostart/e-search.desktop",
+                (error, _stdout, _stderr) => {
+                    error
+                        ? event.sender.send("开机启动状态", false)
+                        : event.sender.send("开机启动状态", true);
+                },
+            );
         } else {
-            event.sender.send("开机启动状态", app.getLoginItemSettings().openAtLogin);
+            event.sender.send(
+                "开机启动状态",
+                app.getLoginItemSettings().openAtLogin,
+            );
         }
     }
 });
@@ -179,7 +214,7 @@ async function copyText(callback: (t: string) => void) {
     const oClipboard = clipboard.readText();
     if (process.platform === "darwin") {
         exec(
-            `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`
+            `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`,
         );
     } else if (process.platform === "win32") {
         exec(`"${join(runPath, "lib/copy.exe")}"`);
@@ -222,7 +257,9 @@ function openSelection() {
 /** 剪贴板搜索 */
 function openClipBoard() {
     const t = clipboard.readText(
-        process.platform === "linux" && store.get("主搜索功能.剪贴板选区搜索") ? "selection" : "clipboard"
+        process.platform === "linux" && store.get("主搜索功能.剪贴板选区搜索")
+            ? "selection"
+            : "clipboard",
     );
     createMainWindow({ type: "text", content: t });
 }
@@ -265,7 +302,10 @@ function argRun(c: string[]) {
             quickClip();
             break;
         case c.includes("-t"):
-            createMainWindow({ type: "text", content: c[c.findIndex((t) => t === "-t") + 1] });
+            createMainWindow({
+                type: "text",
+                content: c[c.findIndex((t) => t === "-t") + 1],
+            });
             break;
         default:
             for (const i of c) {
@@ -285,10 +325,15 @@ async function rmR(dir_path: string) {
 let contextMenu: Electron.Menu;
 let tray: Tray;
 
-app.commandLine.appendSwitch("enable-experimental-web-platform-features", "enable");
+app.commandLine.appendSwitch(
+    "enable-experimental-web-platform-features",
+    "enable",
+);
 
 app.whenReady().then(() => {
-    console.log(`eSearch ${app.getVersion()} 启动\n项目地址：https://github.com/xushengfeng/eSearch`);
+    console.log(
+        `eSearch ${app.getVersion()} 启动\n项目地址：https://github.com/xushengfeng/eSearch`,
+    );
 
     crashReporter.start({ uploadToServer: false });
 
@@ -436,7 +481,9 @@ app.whenReady().then(() => {
         {
             label: t("反馈"),
             click: () => {
-                shell.openExternal("https://github.com/xushengfeng/eSearch/issues/new/choose");
+                shell.openExternal(
+                    "https://github.com/xushengfeng/eSearch/issues/new/choose",
+                );
             },
         },
         {
@@ -608,7 +655,12 @@ function setMenu() {
                     },
                 },
                 { type: "separator" },
-                { id: "close", label: t("关闭"), role: "close", accelerator: "CmdOrCtrl+W" },
+                {
+                    id: "close",
+                    label: t("关闭"),
+                    role: "close",
+                    accelerator: "CmdOrCtrl+W",
+                },
             ],
         },
         // { role: 'editMenu' }
@@ -705,8 +757,14 @@ function setMenu() {
                           {
                               label: t("朗读"),
                               submenu: [
-                                  { label: t("开始朗读"), role: "startSpeaking" },
-                                  { label: t("停止朗读"), role: "stopSpeaking" },
+                                  {
+                                      label: t("开始朗读"),
+                                      role: "startSpeaking",
+                                  },
+                                  {
+                                      label: t("停止朗读"),
+                                      role: "stopSpeaking",
+                                  },
                               ],
                           },
                       ]
@@ -977,7 +1035,11 @@ function createClipWindow() {
                             clipWindow.show();
                             clipWindow.setSimpleFullScreen(true);
                         }
-                        event.sender.send("mac_app_path", x.canceled, x.filePaths);
+                        event.sender.send(
+                            "mac_app_path",
+                            x.canceled,
+                            x.filePaths,
+                        );
                     });
                 break;
             case "ok_save":
@@ -985,7 +1047,12 @@ function createClipWindow() {
                 store.set("保存.保存路径.图片", dirname(arg));
                 break;
             case "record":
-                createRecorderWindow(arg.rect, { id: arg.id, w: arg.w, h: arg.h, r: arg.ratio });
+                createRecorderWindow(arg.rect, {
+                    id: arg.id,
+                    w: arg.w,
+                    h: arg.h,
+                    r: arg.ratio,
+                });
                 break;
             case "long_s":
                 // n_full_screen();
@@ -1047,7 +1114,11 @@ function showPhoto(imgPath?: string) {
             if (err) console.error(err);
             const p = nativeImage.createFromBuffer(data);
             const s = p.getSize();
-            const d = { ...screen.getPrimaryDisplay(), image: data, main: true };
+            const d = {
+                ...screen.getPrimaryDisplay(),
+                image: data,
+                main: true,
+            };
             d.id = null;
             d.bounds = { x: 0, y: 0, width: s.width, height: s.height };
             d.size = { width: s.width, height: s.height };
@@ -1060,18 +1131,26 @@ function showPhoto(imgPath?: string) {
 }
 
 function fullScreen() {
-    const nearestScreen = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    clipWindow.setBounds({ x: nearestScreen.bounds.x, y: nearestScreen.bounds.y });
+    const nearestScreen = screen.getDisplayNearestPoint(
+        screen.getCursorScreenPoint(),
+    );
+    clipWindow.setBounds({
+        x: nearestScreen.bounds.x,
+        y: nearestScreen.bounds.y,
+    });
     clipWindow.show();
     clipWindow.setSimpleFullScreen(true);
 }
 
-function sendCaptureEvent(data?: (Electron.Display & { image: Buffer; main: boolean })[], type?: 功能) {
+function sendCaptureEvent(
+    data?: (Electron.Display & { image: Buffer; main: boolean })[],
+    type?: 功能,
+) {
     clipWindow.webContents.send(
         "reflash",
         data || screen.getAllDisplays(),
         screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id,
-        type
+        type,
     );
 }
 
@@ -1099,10 +1178,16 @@ const recorderWinH = 24;
 
 let recorder: BrowserWindow;
 let recorderTipWin: BrowserWindow;
-function createRecorderWindow(rect0: number[], screenx: { id: string; w: number; h: number; r: number }) {
+function createRecorderWindow(
+    rect0: number[],
+    screenx: { id: string; w: number; h: number; r: number },
+) {
     const s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     const ratio = screenx.r;
-    const p = { x: screen.getCursorScreenPoint().x * ratio, y: screen.getCursorScreenPoint().y * ratio };
+    const p = {
+        x: screen.getCursorScreenPoint().x * ratio,
+        y: screen.getCursorScreenPoint().y * ratio,
+    };
     const rect = rect0.map((v) => v / ratio);
     const hx = s.bounds.x + rect[0] + rect[2] / 2;
     const hy = s.bounds.y + rect[1] + rect[3] / 2;
@@ -1110,8 +1195,12 @@ function createRecorderWindow(rect0: number[], screenx: { id: string; w: number;
     const h = recorderWinH;
     const sw = s.bounds.x + s.bounds.width * ratio;
     const sh = s.bounds.y + s.bounds.height * ratio;
-    let x = p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w;
-    let y = p.y <= hy ? s.bounds.y + rect[1] - h - 8 : s.bounds.y + rect[1] + rect[3] + 8;
+    let x =
+        p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w;
+    let y =
+        p.y <= hy
+            ? s.bounds.y + rect[1] - h - 8
+            : s.bounds.y + rect[1] + rect[3] + 8;
     x = x < s.bounds.x ? s.bounds.x : x;
     x = x + w > sw ? sw - w : x;
     y = y < s.bounds.y ? s.bounds.y : y;
@@ -1161,7 +1250,14 @@ function createRecorderWindow(rect0: number[], screenx: { id: string; w: number;
                 if (s.display_id === screenx.id) dId = s.id;
             });
             if (!dId) dId = sources[0].id;
-            recorder.webContents.send("record", "init", dId, rect0, screenx.w, screenx.h);
+            recorder.webContents.send(
+                "record",
+                "init",
+                dId,
+                rect0,
+                screenx.w,
+                screenx.h,
+            );
         });
     });
 
@@ -1203,7 +1299,10 @@ function createRecorderWindow(rect0: number[], screenx: { id: string; w: number;
             return;
         }
         const nowXY = screen.getCursorScreenPoint();
-        recorderTipWin.webContents.send("record", "mouse", { x: nowXY.x - tipB.x, y: nowXY.y - tipB.y });
+        recorderTipWin.webContents.send("record", "mouse", {
+            x: nowXY.x - tipB.x,
+            y: nowXY.y - tipB.y,
+        });
         setTimeout(mouse, 10);
     }
     recording = true;
@@ -1224,7 +1323,10 @@ ipcMain.on("record", (_event, type, arg) => {
             dialog
                 .showSaveDialog({
                     title: t("选择要保存的位置"),
-                    defaultPath: join(savedPath, `${getFileName()}.${arg.格式}`),
+                    defaultPath: join(
+                        savedPath,
+                        `${getFileName()}.${arg.格式}`,
+                    ),
                     filters: [{ name: t("视频"), extensions: null }],
                 })
                 .then(async (x) => {
@@ -1275,8 +1377,10 @@ ipcMain.on("record", (_event, type, arg) => {
                 case 2:
                     // 预览界面
                     recorder.setBounds({
-                        width: Math.max(store.get("录屏.大小.width"), 300) || 800,
-                        height: Math.max(store.get("录屏.大小.height"), 500) || 600,
+                        width:
+                            Math.max(store.get("录屏.大小.width"), 300) || 800,
+                        height:
+                            Math.max(store.get("录屏.大小.height"), 500) || 600,
                     });
                     recorder.setAlwaysOnTop(false);
                     recorder.setResizable(true);
@@ -1295,7 +1399,12 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             console.log("保存设置失败");
             break;
         case "reload_main":
-            if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible()) clipWindow.reload();
+            if (
+                clipWindow &&
+                !clipWindow.isDestroyed() &&
+                !clipWindow.isVisible()
+            )
+                clipWindow.reload();
             contextMenu.items[8].checked = store.get("浏览器中打开");
             tray.popUpContextMenu(contextMenu);
             tray.closeContextMenu();
@@ -1379,14 +1488,19 @@ function longWin() {
         if (clipWindow.isDestroyed()) return;
         const nowXY = screen.getCursorScreenPoint();
         const tipB = clipWindow.getBounds();
-        clipWindow.webContents.send("clip", "mouse", { x: nowXY.x - tipB.x, y: nowXY.y - tipB.y });
+        clipWindow.webContents.send("clip", "mouse", {
+            x: nowXY.x - tipB.x,
+            y: nowXY.y - tipB.y,
+        });
         setTimeout(mouse, 10);
     }
     mouse();
 }
 
 // ding窗口
-const dingwindowList: { [key: string]: { win: BrowserWindow; display: Electron.Display } } = {};
+const dingwindowList: {
+    [key: string]: { win: BrowserWindow; display: Electron.Display };
+} = {};
 function createDingWindow(x: number, y: number, w: number, h: number, img) {
     if (Object.keys(dingwindowList).length === 0) {
         const screenL = screen.getAllDisplays();
@@ -1416,7 +1530,15 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
             if (dev) dingWindow.webContents.openDevTools();
             dingWindow.webContents.on("did-finish-load", () => {
                 dingWindow.webContents.send("screen_id", i.id);
-                dingWindow.webContents.send("img", id, x - i.bounds.x, y - i.bounds.y, w, h, img);
+                dingWindow.webContents.send(
+                    "img",
+                    id,
+                    x - i.bounds.x,
+                    y - i.bounds.y,
+                    w,
+                    h,
+                    img,
+                );
             });
             dingwindowList[i.id].win.setIgnoreMouseEvents(true);
 
@@ -1426,7 +1548,15 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
         const id = new Date().getTime();
         for (const i in dingwindowList) {
             const b = dingwindowList[i].win.getBounds();
-            dingwindowList[i].win.webContents.send("img", id, x - b.x, y - b.y, w, h, img);
+            dingwindowList[i].win.webContents.send(
+                "img",
+                id,
+                x - b.x,
+                y - b.y,
+                w,
+                h,
+                img,
+            );
         }
     }
     // 自动改变鼠标穿透
@@ -1435,7 +1565,11 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
         for (const i in dingwindowList) {
             try {
                 const b = dingwindowList[i].win.getBounds();
-                dingwindowList[i].win.webContents.send("mouse", nowXY.x - b.x, nowXY.y - b.y);
+                dingwindowList[i].win.webContents.send(
+                    "mouse",
+                    nowXY.x - b.x,
+                    nowXY.y - b.y,
+                );
             } catch (error) {}
         }
         setTimeout(dingClickThrough, 10);
@@ -1508,7 +1642,13 @@ function createTranslator(op: translateWinType) {
     rendererPath(win, "translator.html");
     if (dev) win.webContents.openDevTools();
     win.webContents.on("did-finish-load", () => {
-        win.webContents.send("init", op.displayId, screen.getAllDisplays(), op.rect, Math.min(0, dh));
+        win.webContents.send(
+            "init",
+            op.displayId,
+            screen.getAllDisplays(),
+            op.rect,
+            Math.min(0, dh),
+        );
         clickThrough();
     });
 
@@ -1526,7 +1666,12 @@ ipcMain.on("ignore", (event, v) => {
 });
 
 // 主页面
-const mainWindowL: { [n: number]: { win: BrowserWindow; browser: { top: number; bottom: number } } } = {};
+const mainWindowL: {
+    [n: number]: {
+        win: BrowserWindow;
+        browser: { top: number; bottom: number };
+    };
+} = {};
 
 /**
  * @type {Object.<number, Array.<number>>}
@@ -1534,7 +1679,9 @@ const mainWindowL: { [n: number]: { win: BrowserWindow; browser: { top: number; 
 const mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
     if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
-        const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
+        const name = Math.max(
+            ...Object.keys(mainWindowL).map((i) => Number(i)),
+        );
         const mainWindow = mainWindowL[name].win;
         op.time = new Date().getTime();
         mainWindow.webContents.send("text", name, op);
@@ -1544,7 +1691,9 @@ async function createMainWindow(op: MainWinType) {
 
     const windowName = new Date().getTime();
     const [w, h, m] = store.get("主页面大小");
-    const vr = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).bounds;
+    const vr = screen.getDisplayNearestPoint(
+        screen.getCursorScreenPoint(),
+    ).bounds;
     const px = screen.getCursorScreenPoint().x;
     const py = screen.getCursorScreenPoint().y;
     const x = px > vr.x + vr.width / 2 ? px - w : px;
@@ -1621,7 +1770,8 @@ async function createMainWindow(op: MainWinType) {
             const [w, h] = mainWindow.getContentSize();
             const { top, bottom } = mainWindowL[windowName].browser;
             for (const i of mainWindow.getBrowserViews()) {
-                if (i.getBounds().width !== 0) i.setBounds({ x: 0, y: top, width: w, height: h - bottom });
+                if (i.getBounds().width !== 0)
+                    i.setBounds({ x: 0, y: top, width: w, height: h - bottom });
             }
         }, 0);
     });
@@ -1632,7 +1782,9 @@ async function createMainWindow(op: MainWinType) {
 async function createSettingWindow(about?: boolean) {
     const settingWindow = new BrowserWindow({
         minWidth: 600,
-        backgroundColor: nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff",
+        backgroundColor: nativeTheme.shouldUseDarkColors
+            ? "#0f0f0f"
+            : "#ffffff",
         icon: theIcon,
         webPreferences: {
             nodeIntegration: true,
@@ -1655,7 +1807,9 @@ async function createSettingWindow(about?: boolean) {
 }
 
 async function createHelpWindow() {
-    shell.openExternal("https://github.com/xushengfeng/eSearch-website/blob/master/docs/index.md");
+    shell.openExternal(
+        "https://github.com/xushengfeng/eSearch-website/blob/master/docs/index.md",
+    );
 }
 
 ipcMain.on("main_win", (e, arg, arg2) => {
@@ -1687,7 +1841,8 @@ ipcMain.on("open_url", (_event, window_name, url) => {
 async function createBrowser(windowName: number, url: string) {
     console.log(url);
 
-    if (!windowName) windowName = await createMainWindow({ type: "text", content: "" });
+    if (!windowName)
+        windowName = await createMainWindow({ type: "text", content: "" });
 
     const mainWindow = mainWindowL[windowName].win;
 
@@ -1702,7 +1857,9 @@ async function createBrowser(windowName: number, url: string) {
             webSecurity: false,
         };
     }
-    const searchView = (searchWindowL[view] = new BrowserView({ webPreferences }));
+    const searchView = (searchWindowL[view] = new BrowserView({
+        webPreferences,
+    }));
     await searchView.webContents.session.setProxy(store.get("代理"));
     mainWindow.addBrowserView(searchView);
 
@@ -1713,7 +1870,12 @@ async function createBrowser(windowName: number, url: string) {
     } else searchView.webContents.loadURL(url);
     const [w, h] = mainWindow.getContentSize();
     const bSize = mainWindowL[windowName].browser;
-    searchView.setBounds({ x: 0, y: bSize.top, width: w, height: h - bSize.bottom });
+    searchView.setBounds({
+        x: 0,
+        y: bSize.top,
+        width: w,
+        height: h - bSize.bottom,
+    });
     mainWindow.setContentSize(w, h + 1);
     mainWindow.setContentSize(w, h);
     searchView.webContents.setWindowOpenHandler(({ url }) => {
@@ -1721,41 +1883,57 @@ async function createBrowser(windowName: number, url: string) {
         return { action: "deny" };
     });
     if (dev) searchView.webContents.openDevTools();
-    if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "new", url);
+    if (!mainWindow.isDestroyed())
+        mainWindow.webContents.send("url", view, "new", url);
     searchView.webContents.on("page-title-updated", (_event, title) => {
-        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "title", title);
+        if (!mainWindow.isDestroyed())
+            mainWindow.webContents.send("url", view, "title", title);
     });
     searchView.webContents.on("page-favicon-updated", (_event, favlogo) => {
-        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "icon", favlogo);
+        if (!mainWindow.isDestroyed())
+            mainWindow.webContents.send("url", view, "icon", favlogo);
     });
     searchView.webContents.on("did-navigate", (_event, url) => {
-        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "url", url);
+        if (!mainWindow.isDestroyed())
+            mainWindow.webContents.send("url", view, "url", url);
     });
     searchView.webContents.on("did-start-loading", () => {
-        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "load", true);
+        if (!mainWindow.isDestroyed())
+            mainWindow.webContents.send("url", view, "load", true);
     });
     searchView.webContents.on("did-stop-loading", () => {
-        if (!mainWindow.isDestroyed()) mainWindow.webContents.send("url", view, "load", false);
+        if (!mainWindow.isDestroyed())
+            mainWindow.webContents.send("url", view, "load", false);
     });
     searchView.webContents.on("did-fail-load", (_event, err_code, err_des) => {
         rendererPath2(searchView.webContents, "browser_bg.html", {
-            query: { type: "did-fail-load", err_code: String(err_code), err_des },
+            query: {
+                type: "did-fail-load",
+                err_code: String(err_code),
+                err_des,
+            },
         });
         if (dev) searchView.webContents.openDevTools();
     });
     searchView.webContents.on("render-process-gone", () => {
-        rendererPath2(searchView.webContents, "browser_bg.html", { query: { type: "render-process-gone" } });
+        rendererPath2(searchView.webContents, "browser_bg.html", {
+            query: { type: "render-process-gone" },
+        });
         if (dev) searchView.webContents.openDevTools();
     });
     searchView.webContents.on("unresponsive", () => {
-        rendererPath2(searchView.webContents, "browser_bg.html", { query: { type: "unresponsive" } });
+        rendererPath2(searchView.webContents, "browser_bg.html", {
+            query: { type: "unresponsive" },
+        });
         if (dev) searchView.webContents.openDevTools();
     });
     searchView.webContents.on("responsive", () => {
         searchView.webContents.loadURL(url);
     });
     searchView.webContents.on("certificate-error", () => {
-        rendererPath2(searchView.webContents, "browser_bg.html", { query: { type: "certificate-error" } });
+        rendererPath2(searchView.webContents, "browser_bg.html", {
+            query: { type: "certificate-error" },
+        });
         if (dev) searchView.webContents.openDevTools();
     });
     return new Promise((resolve: (x: Electron.WebContents) => void) => {
@@ -1788,12 +1966,16 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             if (!mainWindow) return;
             mainWindow.setTopBrowserView(searchWindow);
             minViews(mainWindow);
-            const bSize = Object.values(mainWindowL).find((i) => i.win === mainWindow)?.browser;
+            const bSize = Object.values(mainWindowL).find(
+                (i) => i.win === mainWindow,
+            )?.browser;
             searchWindow.setBounds({
                 x: 0,
                 y: bSize?.top || 0,
                 width: mainWindow.getContentBounds().width,
-                height: mainWindow.getContentBounds().height - (bSize?.bottom || 48),
+                height:
+                    mainWindow.getContentBounds().height -
+                    (bSize?.bottom || 48),
             });
             break;
         }
@@ -1820,7 +2002,9 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             searchWindow.webContents.openDevTools();
             break;
         case "size": {
-            const bSize = Object.values(mainWindowL).find((i) => i.win === mainWindow)?.browser;
+            const bSize = Object.values(mainWindowL).find(
+                (i) => i.win === mainWindow,
+            )?.browser;
             if (!bSize) break;
             bSize.bottom = arg2.bottom;
             bSize.top = arg2.top;
@@ -1830,7 +2014,9 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
                         x: 0,
                         y: bSize?.top || 0,
                         width: mainWindow.getContentBounds().width,
-                        height: mainWindow.getContentBounds().height - (bSize?.bottom || 48),
+                        height:
+                            mainWindow.getContentBounds().height -
+                            (bSize?.bottom || 48),
                     });
             }
             break;
@@ -1847,8 +2033,12 @@ function minViews(mainWindow: BrowserWindow) {
 
 /** 生成一个文件名 */
 function getFileName() {
-    const saveNameTime = time_format(store.get("保存名称.时间"), new Date()).replace("\\", "");
-    const fileName = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+    const saveNameTime = time_format(
+        store.get("保存名称.时间"),
+        new Date(),
+    ).replace("\\", "");
+    const fileName =
+        store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
     return fileName;
 }
 /** 快速截屏 */
@@ -1878,7 +2068,8 @@ ipcMain.on("get_save_path", (event, path) => {
             properties: ["openDirectory"],
         })
         .then((x) => {
-            if (x.filePaths[0]) event.sender.send("get_save_path", `${x.filePaths[0]}/`);
+            if (x.filePaths[0])
+                event.sender.send("get_save_path", `${x.filePaths[0]}/`);
         });
 });
 
@@ -2011,7 +2202,19 @@ const defaultSetting: setting = {
         按钮大小: 60,
         按钮图标比例: 0.7,
         初始位置: { left: "10px", top: "100px" },
-        功能: ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"],
+        功能: [
+            "close",
+            "screens",
+            "ocr",
+            "search",
+            "QR",
+            "open",
+            "ding",
+            "record",
+            "long",
+            "copy",
+            "save",
+        ],
         稍后出现: false,
     },
     字体: {
@@ -2077,7 +2280,14 @@ const defaultSetting: setting = {
         离线切换: true,
         记住: false,
     },
-    离线OCR: [["默认", "默认/ppocr_det.onnx", "默认/ppocr_rec.onnx", "默认/ppocr_keys_v1.txt"]],
+    离线OCR: [
+        [
+            "默认",
+            "默认/ppocr_det.onnx",
+            "默认/ppocr_rec.onnx",
+            "默认/ppocr_keys_v1.txt",
+        ],
+    ],
     AI: {
         运行后端: "cpu",
     },
@@ -2129,8 +2339,14 @@ const defaultSetting: setting = {
             { name: "Yandex", url: "https://yandex.com/search/?text=%s" },
         ],
         翻译: [
-            { name: "Google", url: "https://translate.google.com.hk/?op=translate&text=%s" },
-            { name: "Deepl", url: "https://www.deepl.com/translator#any/any/%s" },
+            {
+                name: "Google",
+                url: "https://translate.google.com.hk/?op=translate&text=%s",
+            },
+            {
+                name: "Deepl",
+                url: "https://www.deepl.com/translator#any/any/%s",
+            },
             { name: "金山词霸", url: "http://www.iciba.com/word?w=%s" },
             { name: "百度", url: "https://fanyi.baidu.com/#auto/auto/%s" },
             { name: "腾讯", url: "https://fanyi.qq.com/?text=%s" },
@@ -2251,7 +2467,8 @@ function setDefaultSetting() {
                 }[lan];
             }
             let language = "";
-            if (!supportLan.includes(lan) && !supportLan.includes(mainLan)) language = "zh-HANS";
+            if (!supportLan.includes(lan) && !supportLan.includes(mainLan))
+                language = "zh-HANS";
             else language = lan;
             store.set(i, { 语言: language });
         } else {

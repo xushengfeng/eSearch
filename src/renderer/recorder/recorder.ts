@@ -9,7 +9,9 @@ const micEl = document.getElementById("mic") as HTMLInputElement;
 const cameraEl = document.getElementById("camera") as HTMLInputElement;
 const saveEl = document.getElementById("save") as HTMLButtonElement;
 const 格式El = document.getElementById("格式") as HTMLInputElement;
-const tStartEl: timeEl = document.getElementById("t_start") as unknown as timeEl;
+const tStartEl: timeEl = document.getElementById(
+    "t_start",
+) as unknown as timeEl;
 const tEndEl = document.getElementById("t_end") as unknown as timeEl;
 const jdtEl = document.getElementById("jdt") as unknown as timeEl;
 
@@ -80,7 +82,11 @@ function pTime() {
     for (let i = 0; i < timeL.length; i += 2) {
         if (timeL[i + 1]) d += timeL[i + 1] - timeL[i];
     }
-    ipcRenderer.send("record", "pause_time", { t, dt: d, pause: timeL.length % 2 === 0 });
+    ipcRenderer.send("record", "pause_time", {
+        t,
+        dt: d,
+        pause: timeL.length % 2 === 0,
+    });
 }
 function getT() {
     let t = 0;
@@ -104,14 +110,24 @@ function getTime() {
         const s = Math.trunc(t / 1000);
         const m = Math.trunc(s / 60);
         const h = Math.trunc(m / 60);
-        document.getElementById("time").innerText = `${h === 0 ? "" : `${h}:`}${m - 60 * h}:${String(
-            s - 60 * m
-        ).padStart(2, "0")}`;
+        document.getElementById("time").innerText =
+            `${h === 0 ? "" : `${h}:`}${m - 60 * h}:${String(
+                s - 60 * m,
+            ).padStart(2, "0")}`;
     }
 }
 
 addTypes();
-type mimeType = "mp4" | "webm" | "gif" | "mkv" | "mov" | "avi" | "ts" | "mpeg" | "flv";
+type mimeType =
+    | "mp4"
+    | "webm"
+    | "gif"
+    | "mkv"
+    | "mov"
+    | "avi"
+    | "ts"
+    | "mpeg"
+    | "flv";
 let type = (格式El.value = store.get("录屏.转换.格式")) as mimeType;
 
 let audioStream: MediaStream;
@@ -123,7 +139,8 @@ let camera = false;
 let rect;
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
-const spawn = require("node:child_process").spawn as typeof import("child_process").spawn;
+const spawn = require("node:child_process")
+    .spawn as typeof import("child_process").spawn;
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
@@ -136,7 +153,10 @@ if (process.platform === "win32" || process.platform === "darwin") {
 }
 const start = spawn(pathToFfmpeg, ["-version"]);
 start.on("error", () => {
-    const m = process.platform === "linux" ? "请安装FFmpeg，并确保软件可使用ffmpeg命令" : "请重新安装软件，或进行反馈";
+    const m =
+        process.platform === "linux"
+            ? "请安装FFmpeg，并确保软件可使用ffmpeg命令"
+            : "请重新安装软件，或进行反馈";
     ipcRenderer.send("dialog", {
         message: `FFmpeg用于处理视频，但现在软件无法使用它\n${m}`,
         buttons: ["取消"],
@@ -166,19 +186,28 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             if (audioL.length) audio = true;
             if (videoL.length) camera = true;
             if (audio) {
-                const id = audioL.find((i) => i.deviceId === store.get("录屏.音频.设备"))?.deviceId ?? audioL[0].deviceId;
+                const id =
+                    audioL.find(
+                        (i) => i.deviceId === store.get("录屏.音频.设备"),
+                    )?.deviceId ?? audioL[0].deviceId;
                 audioStream = await navigator.mediaDevices.getUserMedia({
                     audio: { deviceId: id },
                     video: false,
                 });
                 if (audioL.length > 1) {
-                    const selectEl = select(audioL.map((i) => ({ name: i.label, value: i.deviceId })))
+                    const selectEl = select(
+                        audioL.map((i) => ({
+                            name: i.label,
+                            value: i.deviceId,
+                        })),
+                    )
                         .sv(id)
                         .on("change", async () => {
-                            audioStream = await navigator.mediaDevices.getUserMedia({
-                                audio: { deviceId: selectEl.gv() },
-                                video: false,
-                            });
+                            audioStream =
+                                await navigator.mediaDevices.getUserMedia({
+                                    audio: { deviceId: selectEl.gv() },
+                                    video: false,
+                                });
                             store.set("录屏.音频.设备", selectEl.gv());
                         });
                     micEl.after(selectEl.el);
@@ -186,21 +215,30 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             } else {
                 micEl.style.display = "none";
             }
-            if (!camera) document.getElementById("camera").style.display = "none";
+            if (!camera)
+                document.getElementById("camera").style.display = "none";
             else {
                 const id =
-                    videoL.find((i) => i.deviceId === store.get("录屏.摄像头.设备"))?.deviceId ?? videoL[0].deviceId;
+                    videoL.find(
+                        (i) => i.deviceId === store.get("录屏.摄像头.设备"),
+                    )?.deviceId ?? videoL[0].deviceId;
                 cameraDeviceId = id;
                 if (videoL.length > 1) {
-                    const selectEl = select(videoL.map((i) => ({ name: i.label, value: i.deviceId })))
+                    const selectEl = select(
+                        videoL.map((i) => ({
+                            name: i.label,
+                            value: i.deviceId,
+                        })),
+                    )
                         .sv(id)
                         .on("change", async () => {
                             cameraDeviceId = selectEl.el.value;
                             if (cameraStream)
-                                cameraStream = await navigator.mediaDevices.getUserMedia({
-                                    audio: false,
-                                    video: { deviceId: selectEl.el.value },
-                                });
+                                cameraStream =
+                                    await navigator.mediaDevices.getUserMedia({
+                                        audio: false,
+                                        video: { deviceId: selectEl.el.value },
+                                    });
                             store.set("录屏.摄像头.设备", selectEl.el.value);
                         });
                     cameraEl.after(selectEl.el);
@@ -215,7 +253,8 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                     if (video) {
                         document.getElementById("camera").style.display = "";
                     } else {
-                        document.getElementById("camera").style.display = "none";
+                        document.getElementById("camera").style.display =
+                            "none";
                         cameraStreamF(false);
                     }
                 });
@@ -238,7 +277,8 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             }
             if (!stream) return;
             if (audioStream) {
-                for (const i of audioStream.getAudioTracks()) stream.addTrack(i);
+                for (const i of audioStream.getAudioTracks())
+                    stream.addTrack(i);
                 micStream(store.get("录屏.音频.默认开启"));
             }
             let chunks = [];
@@ -271,13 +311,23 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                         type === "gif" && store.get("录屏.转换.高质量gif")
                             ? `[in]crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1`
                             : `crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]}`;
-                    const args = ["-i", p, "-vf", crop, path.join(output, baseName2)];
-                    fs.writeFile(p, Buffer.from(reader.result as string), (_err) => {
-                        runFfmpeg("ts", clipName, args);
-                        chunks = [];
-                        if (f) f();
-                        clipName++;
-                    });
+                    const args = [
+                        "-i",
+                        p,
+                        "-vf",
+                        crop,
+                        path.join(output, baseName2),
+                    ];
+                    fs.writeFile(
+                        p,
+                        Buffer.from(reader.result as string),
+                        (_err) => {
+                            runFfmpeg("ts", clipName, args);
+                            chunks = [];
+                            if (f) f();
+                            clipName++;
+                        },
+                    );
                 };
             }
 
@@ -336,7 +386,8 @@ async function micStream(v) {
 micEl.onclick = () => {
     try {
         micStream(micEl.checked);
-        if (store.get("录屏.音频.记住开启状态")) store.set("录屏.音频.默认开启", micEl.checked);
+        if (store.get("录屏.音频.记住开启状态"))
+            store.set("录屏.音频.默认开启", micEl.checked);
     } catch (e) {
         console.error(e);
     }
@@ -354,7 +405,9 @@ async function cameraStreamF(v: boolean) {
         });
         videoEl.srcObject = cameraStream;
         videoEl.play();
-        if (store.get("录屏.摄像头.镜像")) document.getElementById("video").style.transform = "rotateY(180deg)";
+        if (store.get("录屏.摄像头.镜像"))
+            document.getElementById("video").style.transform =
+                "rotateY(180deg)";
         ipcRenderer.send("record", "camera", 0);
         setTimeout(() => {
             resize();
@@ -382,7 +435,8 @@ if (store.get("录屏.摄像头.默认开启")) {
 cameraEl.onclick = () => {
     try {
         cameraStreamF(cameraEl.checked);
-        if (store.get("录屏.摄像头.记住开启状态")) store.set("录屏.摄像头.默认开启", cameraEl.checked);
+        if (store.get("录屏.摄像头.记住开启状态"))
+            store.set("录屏.摄像头.默认开启", cameraEl.checked);
     } catch (e) {
         console.error(e);
     }
@@ -391,8 +445,14 @@ cameraEl.onclick = () => {
 document.body.onresize = resize;
 
 function resize() {
-    const p = { h: document.getElementById("video").offsetHeight, w: document.getElementById("video").offsetWidth };
-    const c = { h: document.getElementById("v_p").offsetHeight, w: document.getElementById("v_p").offsetWidth };
+    const p = {
+        h: document.getElementById("video").offsetHeight,
+        w: document.getElementById("video").offsetWidth,
+    };
+    const c = {
+        h: document.getElementById("v_p").offsetHeight,
+        w: document.getElementById("v_p").offsetWidth,
+    };
     const k0 = p.h / p.w;
     const k1 = c.h / c.w;
     if (k0 >= k1) {
@@ -416,15 +476,19 @@ async function initSeg() {
     if (bgSetting.模式 === "none") {
         return;
     }
-        videoEl.style.display = "";
-        segEl.innerHTML = "";
+    videoEl.style.display = "";
+    segEl.innerHTML = "";
     videoEl.style.display = "none";
     cameraCanvas = document.createElement("canvas");
     segCanvas = document.createElement("canvas");
     const bgEl = document.createElement("div");
     if (bgSetting.模式 === "img" || bgSetting.模式 === "video") {
-        const bg = bgSetting.模式 === "img" ? document.createElement("img") : document.createElement("video");
-        const url = bgSetting.模式 === "img" ? bgSetting.imgUrl : bgSetting.viedoUrl;
+        const bg =
+            bgSetting.模式 === "img"
+                ? document.createElement("img")
+                : document.createElement("video");
+        const url =
+            bgSetting.模式 === "img" ? bgSetting.imgUrl : bgSetting.viedoUrl;
         bg.src = url;
         bgEl.append(bg);
         bgEl.style.objectFit = bgSetting.fit;
@@ -442,7 +506,9 @@ async function initSeg() {
     await seg.init({
         segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx"),
         ort: require("onnxruntime-node"),
-        ortOption: { executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }] },
+        ortOption: {
+            executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
+        },
         shape: [256, 144],
         invertOpacity: true,
         threshold: 0.7,
@@ -458,7 +524,9 @@ function drawCamera() {
     cameraCanvas.height = videoEl.videoHeight;
     console.log(videoEl.videoHeight);
     canvasCtx.drawImage(videoEl, 0, 0, cameraCanvas.width, cameraCanvas.height);
-    seg.seg(canvasCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height)).then((data) => {
+    seg.seg(
+        canvasCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height),
+    ).then((data) => {
         segCanvas.width = data.width;
         segCanvas.height = data.height;
         segCanvas.getContext("2d").putImageData(data, 0, 0);
@@ -538,8 +606,12 @@ function showControl() {
     setVideo(0);
     document.querySelector("video").style.left = `${-rect[0]}px`;
     document.querySelector("video").style.top = `${-rect[1]}px`;
-    document.getElementById("v_p").style.width = document.getElementById("v_p").style.minWidth = `${rect[2]}px`;
-    document.getElementById("v_p").style.height = document.getElementById("v_p").style.minHeight = `${rect[3]}px`;
+    document.getElementById("v_p").style.width = document.getElementById(
+        "v_p",
+    ).style.minWidth = `${rect[2]}px`;
+    document.getElementById("v_p").style.height = document.getElementById(
+        "v_p",
+    ).style.minHeight = `${rect[3]}px`;
     clipV();
     saveEl.disabled = false;
     if (store.get("录屏.转换.自动转换")) {
@@ -559,22 +631,32 @@ function clipV() {
     tStartEl.value = 0;
     document.getElementById("b_t_end").click();
 
-    document.getElementById("t_t").innerText = tFormat(tEndEl.value - tStartEl.value);
+    document.getElementById("t_t").innerText = tFormat(
+        tEndEl.value - tStartEl.value,
+    );
 
     document.getElementById("t_nt").innerText = tFormat(0);
 }
 
 tStartEl.oninput = () => {
     videoEl.currentTime = (tEndEl.min = jdtEl.min = tStartEl.value) / 1000;
-    document.getElementById("t_t").innerText = tFormat(tEndEl.value - tStartEl.value);
+    document.getElementById("t_t").innerText = tFormat(
+        tEndEl.value - tStartEl.value,
+    );
 };
 tEndEl.oninput = () => {
     videoEl.currentTime = (tStartEl.max = jdtEl.max = tEndEl.value) / 1000;
-    document.getElementById("t_t").innerText = tFormat(tEndEl.value - tStartEl.value);
+    document.getElementById("t_t").innerText = tFormat(
+        tEndEl.value - tStartEl.value,
+    );
 };
 
 document.getElementById("b_t_end").onclick = () => {
-    jdtEl.max = tEndEl.value = tStartEl.max = tEndEl.max = timeL.at(-1) - timeL[0];
+    jdtEl.max =
+        tEndEl.value =
+        tStartEl.max =
+        tEndEl.max =
+            timeL.at(-1) - timeL[0];
 };
 
 /**
@@ -586,10 +668,9 @@ function tFormat(x: number) {
     const s = Math.trunc(t / 1000);
     const m = Math.trunc(s / 60);
     const h = Math.trunc(m / 60);
-    return `${h === 0 ? "" : `${h}:`}${m - 60 * h}:${String(s - 60 * m).padStart(2, "0")}.${String(t % 1000).slice(
-        0,
-        1
-    )}`;
+    return `${h === 0 ? "" : `${h}:`}${m - 60 * h}:${String(s - 60 * m).padStart(2, "0")}.${String(
+        t % 1000,
+    ).slice(0, 1)}`;
 }
 
 document.getElementById("v_play").onclick = () => {
@@ -616,10 +697,13 @@ function videoPlay() {
 
 videoEl.ontimeupdate = () => {
     if (!editting) return;
-    document.getElementById("t_nt").innerText = tFormat(getPlayT() - tStartEl.value);
+    document.getElementById("t_nt").innerText = tFormat(
+        getPlayT() - tStartEl.value,
+    );
     if (getPlayT() > tEndEl.value) {
         videoEl.pause();
-        document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
+        document.getElementById("t_nt").innerText =
+            document.getElementById("t_t").innerText;
     }
     jdtEl.value = getPlayT();
 };
@@ -634,13 +718,23 @@ videoEl.onended = () => {
         setVideo(playName);
         videoEl.play();
     } else {
-        document.getElementById("t_nt").innerText = document.getElementById("t_t").innerText;
+        document.getElementById("t_nt").innerText =
+            document.getElementById("t_t").innerText;
         jdtEl.value = jdtEl.max;
     }
 };
 
 function addTypes() {
-    const types: mimeType[] = ["mp4", "webm", "gif", "mkv", "mov", "ts", "mpeg", "flv"];
+    const types: mimeType[] = [
+        "mp4",
+        "webm",
+        "gif",
+        "mkv",
+        "mov",
+        "ts",
+        "mpeg",
+        "flv",
+    ];
     let t = "";
     for (const i of types) {
         t += `<option value="${i}">${i}</option>`;
@@ -663,7 +757,12 @@ async function clip() {
         fs.rmSync(output1, { recursive: true });
     } catch (error) {}
     fs.mkdirSync(output1);
-    function toArg(v: number, t: number, a: "start" | "end" | "both", t2?: number) {
+    function toArg(
+        v: number,
+        t: number,
+        a: "start" | "end" | "both",
+        t2?: number,
+    ) {
         const args = [];
         args.push("-i", path.join(output, `${v}.${type}`));
         if (a === "start") {
@@ -678,14 +777,21 @@ async function clip() {
     }
     if (startV.v + 1 < endV.v) {
         for (let i = startV.v + 1; i < endV.v; i++) {
-            fs.copyFileSync(path.join(output, `${i}.${type}`), path.join(output1, `${i}.${type}`));
+            fs.copyFileSync(
+                path.join(output, `${i}.${type}`),
+                path.join(output1, `${i}.${type}`),
+            );
         }
     }
     for (let i = startV.v; i <= endV.v; i++) {
         clipPath.push(path.join(output1, `${i}.${type}`));
     }
     if (startV.v === endV.v) {
-        await runFfmpeg("clip", 0, toArg(startV.v, startV.time, "both", endV.time));
+        await runFfmpeg(
+            "clip",
+            0,
+            toArg(startV.v, startV.time, "both", endV.time),
+        );
     } else {
         await Promise.all([
             runFfmpeg("clip", 0, toArg(startV.v, startV.time, "start")),
@@ -781,7 +887,10 @@ const prText = {
 
 function setFFState(type: keyof typeof prEl, n: number, state: prst) {
     ffprocess[type][n].finish = state;
-    if (type === "ts" && Object.values(ffprocess[type]).every((i) => i.finish === "ok")) {
+    if (
+        type === "ts" &&
+        Object.values(ffprocess[type]).every((i) => i.finish === "ok")
+    ) {
         if (savePath) {
             clip()
                 .then(() => joinAndSave(savePath))
@@ -819,8 +928,7 @@ function updataPrEl(pr: typeof ffprocess) {
                 document.getElementById("log_p").classList.remove("hide_log");
                 for (const i in pr[key]) {
                     if (pr[key][i].finish === "err") {
-                        logText.value +=
-                            `\n命令：\n${pr[key][i].testCom}\n\n输出：\n${pr[key][i].logs.map((i) => i.text).join("\n")}`;
+                        logText.value += `\n命令：\n${pr[key][i].testCom}\n\n输出：\n${pr[key][i].logs.map((i) => i.text).join("\n")}`;
                     }
                 }
                 logText.scrollTop = logText.scrollHeight;
@@ -835,7 +943,8 @@ function updataPrEl(pr: typeof ffprocess) {
                     }
                 }
             } else {
-                prEl[key].innerText = `${prText.running[key]} ${stI.running}/${prILen}`;
+                prEl[key].innerText =
+                    `${prText.running[key]} ${stI.running}/${prILen}`;
                 prEl[key].style.width = `${(stI.running / prILen) * 100}%`;
                 prEl[key].classList.add("pro_running");
             }
@@ -865,7 +974,12 @@ updataPrEl(ffprocess);
 
 function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
     const ffmpeg = spawn(pathToFfmpeg, args);
-    ffprocess[type][n] = { args, testCom: `ffmpeg ${args.join(" ")}`, finish: "running", logs: [] };
+    ffprocess[type][n] = {
+        args,
+        testCom: `ffmpeg ${args.join(" ")}`,
+        finish: "running",
+        logs: [],
+    };
     updataPrEl(ffprocess);
     return new Promise((re, rj) => {
         ffmpeg.on("close", (code) => {

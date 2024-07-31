@@ -4,7 +4,8 @@ let Screenshots: typeof import("node-screenshots").Screenshots;
 
 Screenshots = require("node-screenshots").Screenshots;
 
-const { ipcRenderer, nativeImage } = require("electron") as typeof import("electron");
+const { ipcRenderer, nativeImage } =
+    require("electron") as typeof import("electron");
 
 import xtranslator from "xtranslator";
 
@@ -34,7 +35,8 @@ if (transE.length > 0) {
     // @ts-ignore
     xtranslator.e[x.type].setKeys(x.keys);
     const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
-    translateE = (input: string) => xtranslator.e[x.type].run(input, lan.from, lan.to);
+    translateE = (input: string) =>
+        xtranslator.e[x.type].run(input, lan.from, lan.to);
 }
 
 type Rect = { x: number; y: number; w: number; h: number };
@@ -55,7 +57,10 @@ const ort = require("onnxruntime-node");
 let l: [string, string, string, string, any];
 for (const i of store.get("离线OCR")) if (i[0] === "默认") l = i;
 function ocrPath(p: string) {
-    return path.join(path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"), p);
+    return path.join(
+        path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"),
+        p,
+    );
 }
 const detp = ocrPath(l[1]);
 const recp = ocrPath(l[2]);
@@ -78,7 +83,10 @@ mainEl.add([textEl, rectEl]);
  * 修复屏幕信息
  * @see https://github.com/nashaofu/node-screenshots/issues/18
  */
-function dispaly2screen(displays: Electron.Display[], screens: import("node-screenshots").Screenshots[]) {
+function dispaly2screen(
+    displays: Electron.Display[],
+    screens: import("node-screenshots").Screenshots[],
+) {
     allScreens = [];
     if (!screens) return;
     for (const i in displays) {
@@ -176,16 +184,19 @@ const runRun = () => {
     }
 };
 
-ipcRenderer.on("init", (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
-    dispaly2screen(display, Screenshots.all());
-    screenId = id;
-    rect = _rect;
-    run();
-    mainEl.style({ top: `${dy}px`, height: `${_rect.h * 3}px` });
-    textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
-    rectEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
-    switchMode();
-});
+ipcRenderer.on(
+    "init",
+    (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
+        dispaly2screen(display, Screenshots.all());
+        screenId = id;
+        rect = _rect;
+        run();
+        mainEl.style({ top: `${dy}px`, height: `${_rect.h * 3}px` });
+        textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
+        rectEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
+        switchMode();
+    },
+);
 
 const switchEl = check("manual").on("click", () => {
     if (switchEl.gv()) mode = "manual";
@@ -246,7 +257,9 @@ const toolsEl = view()
         setPosi,
         playEl,
         runEl,
-        button(iconEl(close_svg)).on("click", () => ipcRenderer.send("translator", "close")),
+        button(iconEl(close_svg)).on("click", () =>
+            ipcRenderer.send("translator", "close"),
+        ),
     ]);
 
 rectEl.add(toolsEl);

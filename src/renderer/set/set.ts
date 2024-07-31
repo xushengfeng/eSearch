@@ -7,7 +7,20 @@ import "../../../lib/template2.js";
 const { shell, ipcRenderer } = require("electron") as typeof import("electron");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
-import { a, button, ele, image, input, p, radioGroup, select, txt, view, pack, setTranslate } from "dkh-ui";
+import {
+    a,
+    button,
+    ele,
+    image,
+    input,
+    p,
+    radioGroup,
+    select,
+    txt,
+    view,
+    pack,
+    setTranslate,
+} from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
 import delete_svg from "../assets/icons/delete.svg";
@@ -36,16 +49,29 @@ function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
 
 type RangeEl = HTMLElement & { value: number };
 
-const old_store = JSON.parse(fs.readFileSync(path.join(configPath, "config.json"), "utf-8")) as setting;
-import { t, tLan, lan, getLans, getLanName } from "../../../lib/translate/translate";
+const old_store = JSON.parse(
+    fs.readFileSync(path.join(configPath, "config.json"), "utf-8"),
+) as setting;
+import {
+    t,
+    tLan,
+    lan,
+    getLans,
+    getLanName,
+} from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
-document.querySelectorAll("[title],[placeholder]").forEach((el: HTMLElement) => {
-    if (el.title?.includes("{")) el.title = t(el.title.slice(1, -1));
-    const iel = el as HTMLInputElement;
-    if (iel.placeholder?.includes("{")) iel.placeholder = t(iel.placeholder.slice(1, -1));
-});
+document
+    .querySelectorAll("[title],[placeholder]")
+    .forEach((el: HTMLElement) => {
+        if (el.title?.includes("{")) el.title = t(el.title.slice(1, -1));
+        const iel = el as HTMLInputElement;
+        if (iel.placeholder?.includes("{"))
+            iel.placeholder = t(iel.placeholder.slice(1, -1));
+    });
 
-const toTranslateEl = Array.from(document.querySelectorAll("li, h1, h2, h3, button, comment, t")) as HTMLElement[];
+const toTranslateEl = Array.from(
+    document.querySelectorAll("li, h1, h2, h3, button, comment, t"),
+) as HTMLElement[];
 function translate(el: HTMLElement, i: number) {
     if (i === toTranslateEl.length - 1) initFind();
     const elT = el.innerText;
@@ -109,7 +135,8 @@ document.getElementById("menu").onclick = (e) => {
                     return;
                 }
             });
-        document.getElementsByTagName("html")[0].scrollTop = document.querySelectorAll("h1")[i].offsetTop;
+        document.getElementsByTagName("html")[0].scrollTop =
+            document.querySelectorAll("h1")[i].offsetTop;
     }
 };
 
@@ -184,21 +211,32 @@ const setSetting = (el: HTMLElement) => {
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (_event, v) => {
-    pushRender(() => ((<HTMLInputElement>document.getElementById("autostart")).checked = v));
+    pushRender(
+        () =>
+            ((<HTMLInputElement>document.getElementById("autostart")).checked =
+                v),
+    );
 });
 document.getElementById("autostart").oninput = () => {
-    ipcRenderer.send("autostart", "set", (<HTMLInputElement>document.getElementById("autostart")).checked);
+    ipcRenderer.send(
+        "autostart",
+        "set",
+        (<HTMLInputElement>document.getElementById("autostart")).checked,
+    );
 };
 
-(<HTMLInputElement>document.getElementById("启动提示")).checked = old_store.启动提示;
+(<HTMLInputElement>document.getElementById("启动提示")).checked =
+    old_store.启动提示;
 
 function getRadio(el: HTMLElement) {
-    return (<HTMLInputElement>el.querySelector("input[type=radio]:checked")).value;
+    return (<HTMLInputElement>el.querySelector("input[type=radio]:checked"))
+        .value;
 }
 function setRadio(el: HTMLElement, value: string) {
     (
-        <HTMLInputElement>el.querySelector(`input[type=radio][value="${value}"]`) ||
-        el.querySelector("input[type=radio]")
+        <HTMLInputElement>(
+            el.querySelector(`input[type=radio][value="${value}"]`)
+        ) || el.querySelector("input[type=radio]")
     ).checked = true;
 }
 
@@ -247,12 +285,15 @@ document.getElementById("语言重启").onclick = () => {
     ipcRenderer.send("setting", "reload");
 };
 
-(<HTMLInputElement>document.getElementById("自动搜索排除")).value = old_store.主搜索功能.自动搜索排除.join("\n");
+(<HTMLInputElement>document.getElementById("自动搜索排除")).value =
+    old_store.主搜索功能.自动搜索排除.join("\n");
 
 const 全局 = old_store.全局;
 
 const themesEl = document.getElementById("themes");
-const themeInput = Array.from(document.querySelectorAll(".theme input")) as HTMLInputElement[];
+const themeInput = Array.from(
+    document.querySelectorAll(".theme input"),
+) as HTMLInputElement[];
 
 const themes: setting["全局"]["主题"][] = [
     {
@@ -301,7 +342,7 @@ for (const i of themes) {
                 for (const i of themeInput) {
                     i.dispatchEvent(new Event("input"));
                 }
-            }).el
+            }).el,
     );
 }
 
@@ -325,10 +366,16 @@ document.getElementById("模糊").oninput = () => {
 };
 
 document.documentElement.style.setProperty("--alpha", String(全局.不透明度));
-(<HTMLInputElement>document.getElementById("不透明度")).value = String(全局.不透明度 * 100);
+(<HTMLInputElement>document.getElementById("不透明度")).value = String(
+    全局.不透明度 * 100,
+);
 document.getElementById("不透明度").oninput = () => {
-    const 不透明度 = (<HTMLInputElement>document.getElementById("不透明度")).value;
-    document.documentElement.style.setProperty("--alpha", String(Number(不透明度) / 100));
+    const 不透明度 = (<HTMLInputElement>document.getElementById("不透明度"))
+        .value;
+    document.documentElement.style.setProperty(
+        "--alpha",
+        String(Number(不透明度) / 100),
+    );
 };
 
 const 快捷键 = old_store.快捷键;
@@ -340,21 +387,31 @@ document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
 });
 ipcRenderer.on("状态", (_event, name, arg) => {
     (<any>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
-    if (t) storeSet(`快捷键.${name}.key`, (<any>document.querySelector(`hot-keys[name=${name}]`)).value);
+    if (t)
+        storeSet(
+            `快捷键.${name}.key`,
+            (<any>document.querySelector(`hot-keys[name=${name}]`)).value,
+        );
 });
 
-document.documentElement.style.setProperty("--bar-size", `${xstore.工具栏.按钮大小}px`);
-document.documentElement.style.setProperty("--bar-icon", String(xstore.工具栏.按钮图标比例));
+document.documentElement.style.setProperty(
+    "--bar-size",
+    `${xstore.工具栏.按钮大小}px`,
+);
+document.documentElement.style.setProperty(
+    "--bar-icon",
+    String(xstore.工具栏.按钮图标比例),
+);
 document.getElementById("按钮大小").oninput = () => {
     document.documentElement.style.setProperty(
         "--bar-size",
-        `${(<RangeEl>document.getElementById("按钮大小")).value}px`
+        `${(<RangeEl>document.getElementById("按钮大小")).value}px`,
     );
 };
 document.getElementById("按钮图标比例").oninput = () => {
     document.documentElement.style.setProperty(
         "--bar-icon",
-        String((<RangeEl>document.getElementById("按钮图标比例")).value)
+        String((<RangeEl>document.getElementById("按钮图标比例")).value),
     );
 };
 
@@ -366,10 +423,15 @@ document
             const size = `${(<HTMLInputElement>document.getElementById("按钮大小")).value}px`;
             const l: { left: string; top: string }[] = [
                 { left: "10px", top: "100px" },
-                { left: `calc(100vw - 10px - ${size} * 2 - 8px)`, top: "100px" },
+                {
+                    left: `calc(100vw - 10px - ${size} * 2 - 8px)`,
+                    top: "100px",
+                },
             ];
-            (<HTMLInputElement>document.getElementById("tool_bar_left")).value = l[i].left;
-            (<HTMLInputElement>document.getElementById("tool_bar_top")).value = l[i].top;
+            (<HTMLInputElement>document.getElementById("tool_bar_left")).value =
+                l[i].left;
+            (<HTMLInputElement>document.getElementById("tool_bar_top")).value =
+                l[i].top;
         };
     });
 
@@ -402,7 +464,9 @@ function addToolItem(e: DragEvent) {
 function createToolItem(id: string) {
     const el = document.createElement("div");
     el.draggable = true;
-    const icon = document.querySelector(`#tool_icons > [data-id=${id}]`).innerHTML;
+    const icon = document.querySelector(
+        `#tool_icons > [data-id=${id}]`,
+    ).innerHTML;
     el.innerHTML = icon;
     el.setAttribute("data-id", id);
     el.ondragstart = (e) => {
@@ -461,14 +525,25 @@ function setToolL() {
     xstore.工具栏.功能 = toolShow;
 }
 
-(<HTMLInputElement>document.getElementById("显示四角坐标")).checked = old_store.显示四角坐标;
+(<HTMLInputElement>document.getElementById("显示四角坐标")).checked =
+    old_store.显示四角坐标;
 
 // 取色器设置
 document.getElementById("取色器大小").oninput = () => {
-    if (Number((<HTMLInputElement>document.getElementById("取色器大小")).value) % 2 === 0) {
-        (<HTMLInputElement>document.getElementById("取色器大小")).value = String(
-            Number((<HTMLInputElement>document.getElementById("取色器大小")).value) + 1
-        );
+    if (
+        Number(
+            (<HTMLInputElement>document.getElementById("取色器大小")).value,
+        ) %
+            2 ===
+        0
+    ) {
+        (<HTMLInputElement>document.getElementById("取色器大小")).value =
+            String(
+                Number(
+                    (<HTMLInputElement>document.getElementById("取色器大小"))
+                        .value,
+                ) + 1,
+            );
     }
     show_color_picker();
 };
@@ -478,7 +553,9 @@ document.getElementById("像素大小").oninput = () => {
 
 show_color_picker();
 function show_color_picker() {
-    const color_size = Number((<HTMLInputElement>document.getElementById("取色器大小")).value);
+    const color_size = Number(
+        (<HTMLInputElement>document.getElementById("取色器大小")).value,
+    );
     let inner_html = "";
     for (let i = 0; i < color_size ** 2; i++) {
         const l = Math.random() * 40 + 60;
@@ -487,10 +564,12 @@ function show_color_picker() {
         }px;height:${(<HTMLInputElement>document.getElementById("像素大小")).value}px"></span>`;
     }
     document.getElementById("point_color").style.width = `${
-        Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size
+        Number((<HTMLInputElement>document.getElementById("像素大小")).value) *
+        color_size
     }px`;
     document.getElementById("point_color").style.height = `${
-        Number((<HTMLInputElement>document.getElementById("像素大小")).value) * color_size
+        Number((<HTMLInputElement>document.getElementById("像素大小")).value) *
+        color_size
     }px`;
     document.getElementById("point_color").innerHTML = inner_html;
 }
@@ -508,27 +587,37 @@ function msk(t: string) {
         )
         0% 0% / 8px 8px`;
 }
-(<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background = msk(old_store.遮罩颜色);
-(<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background = msk(old_store.选区颜色);
-(<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).oninput = () => {
-    (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background = msk(
-        (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).value
-    );
-};
-(<HTMLInputElement>document.querySelector("#选区颜色 > input")).oninput = () => {
-    (<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background = msk(
-        (<HTMLInputElement>document.querySelector("#选区颜色 > input")).value
-    );
-};
+(<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background =
+    msk(old_store.遮罩颜色);
+(<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background =
+    msk(old_store.选区颜色);
+(<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).oninput =
+    () => {
+        (<HTMLSpanElement>(
+            document.querySelector("#遮罩颜色 > span")
+        )).style.background = msk(
+            (<HTMLInputElement>document.querySelector("#遮罩颜色 > input"))
+                .value,
+        );
+    };
+(<HTMLInputElement>document.querySelector("#选区颜色 > input")).oninput =
+    () => {
+        (<HTMLSpanElement>(
+            document.querySelector("#选区颜色 > span")
+        )).style.background = msk(
+            (<HTMLInputElement>document.querySelector("#选区颜色 > input"))
+                .value,
+        );
+    };
 
 document.getElementById("框选最小阈值").oninput = () => {
     if (
         (<HTMLInputElement>document.getElementById("框选最小阈值")).value >
         (<HTMLInputElement>document.getElementById("框选最大阈值")).value
     ) {
-        (<HTMLInputElement>document.getElementById("框选最大阈值")).value = (<HTMLInputElement>(
-            document.getElementById("框选最小阈值")
-        )).value;
+        (<HTMLInputElement>document.getElementById("框选最大阈值")).value = (<
+            HTMLInputElement
+        >document.getElementById("框选最小阈值")).value;
     }
 };
 document.getElementById("框选最大阈值").oninput = () => {
@@ -536,23 +625,30 @@ document.getElementById("框选最大阈值").oninput = () => {
         (<HTMLInputElement>document.getElementById("框选最大阈值")).value <
         (<HTMLInputElement>document.getElementById("框选最小阈值")).value
     ) {
-        (<HTMLInputElement>document.getElementById("框选最小阈值")).value = (<HTMLInputElement>(
-            document.getElementById("框选最大阈值")
-        )).value;
+        (<HTMLInputElement>document.getElementById("框选最小阈值")).value = (<
+            HTMLInputElement
+        >document.getElementById("框选最大阈值")).value;
     }
 };
 
 document.getElementById("获取保存路径").onclick = () => {
-    ipcRenderer.send("get_save_path", (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "");
+    ipcRenderer.send(
+        "get_save_path",
+        (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "",
+    );
     ipcRenderer.on("get_save_path", (_e, a) => {
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value = a;
     });
 };
 
-(<HTMLInputElement>document.getElementById("开启自动录制")).checked = old_store.录屏.自动录制 !== false;
-(<RangeEl>document.getElementById("自动录制延时")).value = old_store.录屏.自动录制 || 0;
+(<HTMLInputElement>document.getElementById("开启自动录制")).checked =
+    old_store.录屏.自动录制 !== false;
+(<RangeEl>document.getElementById("自动录制延时")).value =
+    old_store.录屏.自动录制 || 0;
 
-document.getElementById("保存文件名称前缀").oninput = document.getElementById("保存文件名称后缀").oninput = (e) => {
+document.getElementById("保存文件名称前缀").oninput = document.getElementById(
+    "保存文件名称后缀",
+).oninput = (e) => {
     const el = <HTMLInputElement>e.target;
     el.style.width = `${el.value.length || 1}em`;
     showFTime();
@@ -569,24 +665,38 @@ function showFTime() {
 }
 showFTime();
 document.getElementById("保存文件名称前缀").style.width = `${
-    (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value.length || 1
+    (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value
+        .length || 1
 }em`;
 document.getElementById("保存文件名称后缀").style.width = `${
-    (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value.length || 1
+    (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value
+        .length || 1
 }em`;
 
 const 字体 = old_store.字体;
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
 document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
-(<HTMLInputElement>document.querySelector("#主要字体 > input")).oninput = () => {
-    字体.主要字体 = (<HTMLInputElement>document.querySelector("#主要字体 > input")).value;
-    document.documentElement.style.setProperty("--main-font", 字体.主要字体);
-};
-(<HTMLInputElement>document.querySelector("#等宽字体 > input")).oninput = () => {
-    字体.等宽字体 = (<HTMLInputElement>document.querySelector("#等宽字体 > input")).value;
-    document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
-};
+(<HTMLInputElement>document.querySelector("#主要字体 > input")).oninput =
+    () => {
+        字体.主要字体 = (<HTMLInputElement>(
+            document.querySelector("#主要字体 > input")
+        )).value;
+        document.documentElement.style.setProperty(
+            "--main-font",
+            字体.主要字体,
+        );
+    };
+(<HTMLInputElement>document.querySelector("#等宽字体 > input")).oninput =
+    () => {
+        字体.等宽字体 = (<HTMLInputElement>(
+            document.querySelector("#等宽字体 > input")
+        )).value;
+        document.documentElement.style.setProperty(
+            "--monospace",
+            字体.等宽字体,
+        );
+    };
 
 import { hexToCSSFilter } from "hex-to-css-filter";
 
@@ -597,21 +707,40 @@ function getFilter(hex: string) {
         return null;
     }
 }
-document.documentElement.style.setProperty("--icon-color", old_store.全局.图标颜色[1]);
-if (old_store.全局.图标颜色[3]) document.documentElement.style.setProperty("--icon-color1", old_store.全局.图标颜色[3]);
-(<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput = () => {
+document.documentElement.style.setProperty(
+    "--icon-color",
+    old_store.全局.图标颜色[1],
+);
+if (old_store.全局.图标颜色[3])
     document.documentElement.style.setProperty(
-        "--icon-color",
-        getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || ""
+        "--icon-color1",
+        old_store.全局.图标颜色[3],
     );
-};
-(<HTMLInputElement>document.querySelector("#图标颜色1 > input")).oninput = () => {
-    if ((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value)
+(<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput =
+    () => {
         document.documentElement.style.setProperty(
-            "--icon-color1",
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || ""
+            "--icon-color",
+            getFilter(
+                (<HTMLInputElement>document.querySelector("#图标颜色 > input"))
+                    .value,
+            ) || "",
         );
-};
+    };
+(<HTMLInputElement>document.querySelector("#图标颜色1 > input")).oninput =
+    () => {
+        if (
+            (<HTMLInputElement>document.querySelector("#图标颜色1 > input"))
+                .value
+        )
+            document.documentElement.style.setProperty(
+                "--icon-color1",
+                getFilter(
+                    (<HTMLInputElement>(
+                        document.querySelector("#图标颜色1 > input")
+                    )).value,
+                ) || "",
+            );
+    };
 
 const translateES = document.getElementById("translate_es");
 const translatorFrom = document.getElementById("translator_from");
@@ -622,7 +751,12 @@ const transList: { [key: string]: (typeof xstore.翻译.翻译器)[0] } = {};
 const translatorList = view();
 const addTranslatorM = ele("dialog");
 const addTranslator = button(txt("+")).on("click", async () => {
-    const v = await translatorD({ id: crypto.randomUUID().slice(0, 7), name: "", keys: [], type: null });
+    const v = await translatorD({
+        id: crypto.randomUUID().slice(0, 7),
+        name: "",
+        keys: [],
+        type: null,
+    });
     const iel = addTranslatorI(v);
     translatorList.add(iel);
     setTranLan();
@@ -688,7 +822,9 @@ const engineConfig: Partial<
     caiyun: {
         t: "彩云",
         key: [{ name: "token" }],
-        help: { src: "https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/" },
+        help: {
+            src: "https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/",
+        },
     },
     bing: {
         t: "必应",
@@ -699,18 +835,28 @@ const engineConfig: Partial<
     },
     chatgpt: {
         t: "ChatGPT",
-        key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义", type: "json" }],
+        key: [
+            { name: "key" },
+            { name: "url" },
+            { name: "config", text: "请求体自定义", type: "json" },
+        ],
         help: { src: "https://platform.openai.com/account/api-keys" },
     },
     gemini: {
         t: "Gemini",
-        key: [{ name: "key" }, { name: "url" }, { name: "config", text: "请求体自定义" }],
+        key: [
+            { name: "key" },
+            { name: "url" },
+            { name: "config", text: "请求体自定义" },
+        ],
         help: { src: "https://ai.google.dev/" },
     },
     niu: {
         t: "小牛翻译",
         key: [{ name: "key" }],
-        help: { src: "https://niutrans.com/documents/contents/beginning_guide/6" },
+        help: {
+            src: "https://niutrans.com/documents/contents/beginning_guide/6",
+        },
     },
 };
 
@@ -722,8 +868,11 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     const idEl = input("name").attr({ value: v.name });
     const selectEl = select(
         [{ value: "", name: t("选择引擎类型") }].concat(
-            Object.entries(engineConfig).map((v) => ({ name: v[1].t, value: v[0] }))
-        )
+            Object.entries(engineConfig).map((v) => ({
+                name: v[1].t,
+                value: v[0],
+            })),
+        ),
     )
         .sv(v.type || "")
         .on("input", () => {
@@ -748,8 +897,12 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
                     input(`key${i}`)
                         .attr({ placeholder: x.text || "" })
                         .data({ key: x.name })
-                        .sv(x.type === "json" ? JSON.stringify(value, null, 2) : value || ""),
-                ])
+                        .sv(
+                            x.type === "json"
+                                ? JSON.stringify(value, null, 2)
+                                : value || "",
+                        ),
+                ]),
             );
         });
         if (fig.help) help.add(a(fig.help.src).add(txt("API申请")));
@@ -790,7 +943,8 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         const e = engineConfig[selectEl.gv() as Engines].key;
         for (const el of Array.from(keys.el.querySelectorAll("input"))) {
             const type = e.find((i) => i.name === el.dataset.key).type;
-            key[el.dataset.key] = type === "json" ? JSON.parse(el.value) : el.value;
+            key[el.dataset.key] =
+                type === "json" ? JSON.parse(el.value) : el.value;
         }
         const nv: typeof v = {
             id: v.id,
@@ -811,13 +965,15 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
                     re(nv);
                     addTranslatorM.el.close();
                 }
-            })
+            }),
         );
     });
 }
 
 function setTranLan() {
-    const id = (translatorList.el.firstChild as HTMLElement)?.getAttribute("data-id");
+    const id = (translatorList.el.firstChild as HTMLElement)?.getAttribute(
+        "data-id",
+    );
     translatorFrom.innerText = "";
     translatorTo.innerHTML = "";
     if (!id) return;
@@ -826,11 +982,17 @@ function setTranLan() {
     const mainLan = xstore.语言.语言;
     if (!e) return;
     e.getLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
-        translatorFrom.append(ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el);
+        translatorFrom.append(
+            ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
+        );
     });
-    e.getTargetLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
-        translatorTo.append(ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el);
-    });
+    e.getTargetLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach(
+        (v) => {
+            translatorTo.append(
+                ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
+            );
+        },
+    );
 }
 
 setTranLan();
@@ -876,15 +1038,25 @@ function eSort(el: HTMLElement, list: string[][]) {
         button()
             .add(iconEl(add_svg))
             .on("click", () => {
-                sEl.add(add(Array.from(addEl.el.querySelectorAll("input")).map((i) => i.value)));
-                Array.from(addEl.el.querySelectorAll("input")).forEach((i) => (i.value = ""));
-            })
+                sEl.add(
+                    add(
+                        Array.from(addEl.el.querySelectorAll("input")).map(
+                            (i) => i.value,
+                        ),
+                    ),
+                );
+                Array.from(addEl.el.querySelectorAll("input")).forEach(
+                    (i) => (i.value = ""),
+                );
+            }),
     );
 
     el.append(sEl.el, addEl.el);
 
     return () => {
-        return Array.from(sEl.el.children).map((d) => Array.from(d.querySelectorAll("input")).map((i) => i.value));
+        return Array.from(sEl.el.children).map((d) =>
+            Array.from(d.querySelectorAll("input")).map((i) => i.value),
+        );
     };
 }
 
@@ -899,7 +1071,9 @@ function list2engine(list: string[][]) {
 const y搜索引擎 = eSort(y搜索, engine2list(old_store.引擎.搜索));
 const y翻译引擎 = eSort(y翻译, engine2list(old_store.引擎.翻译));
 
-(<HTMLInputElement>document.getElementById("记住识图引擎")).checked = Boolean(old_store.以图搜图.记住);
+(<HTMLInputElement>document.getElementById("记住识图引擎")).checked = Boolean(
+    old_store.以图搜图.记住,
+);
 
 document.getElementById("clear_storage").onclick = () => {
     ipcRenderer.send("setting", "clear", "storage");
@@ -920,7 +1094,8 @@ function setOcr() {
     <label><input type="radio" name="OCR类型" value="baidu">
         <t>百度</t>
     </label>`;
-    document.getElementById("OCR类型").outerHTML = `<div id="OCR类型">${ocrIn}</div>`;
+    document.getElementById("OCR类型").outerHTML =
+        `<div id="OCR类型">${ocrIn}</div>`;
     setRadio(document.getElementById("OCR类型"), old_store.OCR.类型);
 }
 
@@ -932,11 +1107,17 @@ function getOcrType() {
 ocrDOpen();
 function ocrDOpen() {
     (<HTMLDetailsElement>document.getElementById("baidu_details")).open = false;
-    (<HTMLDetailsElement>document.getElementById("youdao_details")).open = false;
+    (<HTMLDetailsElement>(
+        document.getElementById("youdao_details")
+    )).open = false;
     if (getOcrType() === "baidu") {
-        (<HTMLDetailsElement>document.getElementById("baidu_details")).open = true;
+        (<HTMLDetailsElement>(
+            document.getElementById("baidu_details")
+        )).open = true;
     } else if (getOcrType() === "youdao") {
-        (<HTMLDetailsElement>document.getElementById("youdao_details")).open = true;
+        (<HTMLDetailsElement>(
+            document.getElementById("youdao_details")
+        )).open = true;
     }
 }
 document.getElementById("OCR类型").onclick = ocrDOpen;
@@ -1006,9 +1187,15 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
 
 const screenKeyTipEl = document.getElementById("screen_key_tip");
 const screenKeyTipKBD = screenKeyTipEl.querySelector("div");
-const screenKeyTipOXEl = document.getElementById("screen_key_tip_ox") as RangeEl;
-const screenKeyTipOYEl = document.getElementById("screen_key_tip_oy") as RangeEl;
-const screenKeyTipSizeEl = document.getElementById("screen_key_tip_size") as RangeEl;
+const screenKeyTipOXEl = document.getElementById(
+    "screen_key_tip_ox",
+) as RangeEl;
+const screenKeyTipOYEl = document.getElementById(
+    "screen_key_tip_oy",
+) as RangeEl;
+const screenKeyTipSizeEl = document.getElementById(
+    "screen_key_tip_size",
+) as RangeEl;
 
 function setKeyTip() {
     const posi = xstore.录屏.提示.键盘.位置;
@@ -1044,11 +1231,16 @@ for (const x of ["+", "-"] as const) {
         const handle = view().el;
         handle.style[px] = "-4px";
         handle.style[py] = "-4px";
-        if (x === xstore.录屏.提示.键盘.位置.x && y === xstore.录屏.提示.键盘.位置.y) {
+        if (
+            x === xstore.录屏.提示.键盘.位置.x &&
+            y === xstore.录屏.提示.键盘.位置.y
+        ) {
             handle.classList.add("tip_select");
         }
         handle.onclick = () => {
-            screenKeyTipEl.querySelector(".tip_select").classList.remove("tip_select");
+            screenKeyTipEl
+                .querySelector(".tip_select")
+                .classList.remove("tip_select");
             handle.classList.add("tip_select");
             xstore.录屏.提示.键盘.位置.x = x;
             xstore.录屏.提示.键盘.位置.y = y;
@@ -1060,31 +1252,43 @@ for (const x of ["+", "-"] as const) {
 
 const 历史记录设置 = old_store.历史记录设置;
 
-(<HTMLButtonElement>document.getElementById("清除历史记录")).disabled = !历史记录设置.保留历史记录;
-(<HTMLButtonElement>document.getElementById("his_d")).disabled = !历史记录设置.自动清除历史记录;
-(<HTMLButtonElement>document.getElementById("his_h")).disabled = !历史记录设置.自动清除历史记录;
+(<HTMLButtonElement>document.getElementById("清除历史记录")).disabled =
+    !历史记录设置.保留历史记录;
+(<HTMLButtonElement>document.getElementById("his_d")).disabled =
+    !历史记录设置.自动清除历史记录;
+(<HTMLButtonElement>document.getElementById("his_h")).disabled =
+    !历史记录设置.自动清除历史记录;
 
 document.getElementById("历史记录_b").oninput = () => {
-    历史记录设置.保留历史记录 = (<HTMLInputElement>document.getElementById("历史记录_b")).checked;
-    (<HTMLButtonElement>document.getElementById("清除历史记录")).disabled = !(<HTMLInputElement>(
+    历史记录设置.保留历史记录 = (<HTMLInputElement>(
         document.getElementById("历史记录_b")
     )).checked;
+    (<HTMLButtonElement>document.getElementById("清除历史记录")).disabled = !(<
+        HTMLInputElement
+    >document.getElementById("历史记录_b")).checked;
 };
 document.getElementById("清除历史记录").oninput = () => {
-    历史记录设置.自动清除历史记录 = (<HTMLInputElement>document.getElementById("清除历史记录")).checked;
-    (<HTMLButtonElement>document.getElementById("his_d")).disabled = !(<HTMLInputElement>(
+    历史记录设置.自动清除历史记录 = (<HTMLInputElement>(
         document.getElementById("清除历史记录")
     )).checked;
-    (<HTMLButtonElement>document.getElementById("his_h")).disabled = !(<HTMLInputElement>(
-        document.getElementById("清除历史记录")
-    )).checked;
+    (<HTMLButtonElement>document.getElementById("his_d")).disabled = !(<
+        HTMLInputElement
+    >document.getElementById("清除历史记录")).checked;
+    (<HTMLButtonElement>document.getElementById("his_h")).disabled = !(<
+        HTMLInputElement
+    >document.getElementById("清除历史记录")).checked;
 };
 document.getElementById("clear_his").onclick = () => {
     const c = confirm("这将清除所有的历史记录\n且不能复原\n确定清除？");
-    if (c) fs.writeFileSync(path.join(configPath, "history.json"), JSON.stringify({ 历史记录: {} }, null, 2));
+    if (c)
+        fs.writeFileSync(
+            path.join(configPath, "history.json"),
+            JSON.stringify({ 历史记录: {} }, null, 2),
+        );
 };
 
-(<HTMLInputElement>document.getElementById("时间格式")).value = old_store.时间格式;
+(<HTMLInputElement>document.getElementById("时间格式")).value =
+    old_store.时间格式;
 
 const hotkeysSelectEl = document.getElementById("hotkeys");
 const hotkeysContentEl = document.getElementById("hotkeys_content");
@@ -1118,7 +1322,10 @@ function setProxyEl() {
     const proxyBypassRulesEl = document.getElementById("proxyBypassRules_p");
     switch (m) {
         case "direct":
-            pacScriptEl.style.display = proxyRulesEl.style.display = proxyBypassRulesEl.style.display = "none";
+            pacScriptEl.style.display =
+                proxyRulesEl.style.display =
+                proxyBypassRulesEl.style.display =
+                    "none";
             break;
         case "auto_detect":
             pacScriptEl.style.display = proxyRulesEl.style.display = "none";
@@ -1146,7 +1353,9 @@ function getProxy() {
     for (const rule of l) {
         for (const x of proxyL) {
             if (rule.includes(`${x}=`)) {
-                (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value = rule.replace(`${x}=`, "");
+                (<HTMLInputElement>(
+                    document.getElementById(`proxy_${x}`)
+                )).value = rule.replace(`${x}=`, "");
             }
         }
     }
@@ -1154,7 +1363,8 @@ function getProxy() {
 function setProxy() {
     const l = [];
     for (const x of proxyL) {
-        const v = (<HTMLInputElement>document.getElementById(`proxy_${x}`)).value;
+        const v = (<HTMLInputElement>document.getElementById(`proxy_${x}`))
+            .value;
         if (v) {
             l.push(`${x}=${v}`);
         }
@@ -1169,8 +1379,10 @@ document.getElementById("打开config").onclick = () => {
 
 let giveUp = false;
 document.getElementById("give_up_setting_b").oninput = () => {
-    giveUp = (<HTMLInputElement>document.getElementById("give_up_setting_b")).checked;
-    if (giveUp) fs.writeFileSync(store.path, JSON.stringify(old_store, null, 2));
+    giveUp = (<HTMLInputElement>document.getElementById("give_up_setting_b"))
+        .checked;
+    if (giveUp)
+        fs.writeFileSync(store.path, JSON.stringify(old_store, null, 2));
 };
 
 window.onbeforeunload = () => {
@@ -1184,19 +1396,33 @@ window.onbeforeunload = () => {
 
 function saveSetting() {
     if (giveUp) return;
-    xstore.主搜索功能.自动搜索排除 = (<HTMLInputElement>document.getElementById("自动搜索排除")).value
+    xstore.主搜索功能.自动搜索排除 = (<HTMLInputElement>(
+        document.getElementById("自动搜索排除")
+    )).value
         .split(/\n/)
         .filter((i) => i !== "");
-    xstore.全局.不透明度 = (<RangeEl>document.getElementById("不透明度")).value / 100;
+    xstore.全局.不透明度 =
+        (<RangeEl>document.getElementById("不透明度")).value / 100;
     try {
         xstore.全局.图标颜色[1] =
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色 > input")).value) || "";
+            getFilter(
+                (<HTMLInputElement>document.querySelector("#图标颜色 > input"))
+                    .value,
+            ) || "";
 
         xstore.全局.图标颜色[3] =
-            getFilter((<HTMLInputElement>document.querySelector("#图标颜色1 > input")).value) || "";
+            getFilter(
+                (<HTMLInputElement>document.querySelector("#图标颜色1 > input"))
+                    .value,
+            ) || "";
     } catch (e) {}
-    xstore.快速截屏.路径 = (<HTMLInputElement>document.getElementById("快速截屏路径")).value
-        ? `${(<HTMLInputElement>document.getElementById("快速截屏路径")).value}/`.replace("//", "/")
+    xstore.快速截屏.路径 = (<HTMLInputElement>(
+        document.getElementById("快速截屏路径")
+    )).value
+        ? `${(<HTMLInputElement>document.getElementById("快速截屏路径")).value}/`.replace(
+              "//",
+              "/",
+          )
         : "";
 
     xstore.录屏.自动录制 =
@@ -1204,37 +1430,55 @@ function saveSetting() {
         (<RangeEl>document.getElementById("自动录制延时")).value;
 
     字体.大小 = (<RangeEl>document.getElementById("字体大小")).value;
-    字体.记住 = (<HTMLInputElement>document.getElementById("记住字体大小")).checked
+    字体.记住 = (<HTMLInputElement>document.getElementById("记住字体大小"))
+        .checked
         ? typeof 字体.记住 === "number"
             ? 字体.记住
             : 字体.大小
         : false;
     xstore.字体 = 字体;
     xstore.翻译.翻译器 = Array.from(translatorList.el.children).map(
-        (i: HTMLElement) => transList[i.getAttribute("data-id")]
+        (i: HTMLElement) => transList[i.getAttribute("data-id")],
     );
     const yS = list2engine(y搜索引擎());
     const yF = list2engine(y翻译引擎());
-    if (!yF.find((i) => i.url.startsWith("translate"))) yF.push({ name: "翻译", url: "translate/?text=%s" });
+    if (!yF.find((i) => i.url.startsWith("translate")))
+        yF.push({ name: "翻译", url: "translate/?text=%s" });
     xstore.引擎 = {
         搜索: yS,
         翻译: yF,
         记忆: { 搜索: yS[0].name, 翻译: yF[0].name },
     };
-    xstore.以图搜图.记住 = (<HTMLInputElement>document.getElementById("记住识图引擎")).checked
-        ? old_store.以图搜图.记住 || getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
+    xstore.以图搜图.记住 = (<HTMLInputElement>(
+        document.getElementById("记住识图引擎")
+    )).checked
+        ? old_store.以图搜图.记住 ||
+          getRadio(<HTMLInputElement>document.getElementById("图像搜索引擎"))
         : false;
     xstore.历史记录设置 = 历史记录设置;
     xstore.OCR.类型 = getOcrType();
-    xstore.OCR.记住 = (<HTMLInputElement>document.getElementById("记住OCR引擎")).checked
+    xstore.OCR.记住 = (<HTMLInputElement>document.getElementById("记住OCR引擎"))
+        .checked
         ? old_store.OCR.记住 || getOcrType()
         : false;
     xstore.代理.proxyRules = setProxy();
     if (userDataPathInputed)
-        fs.writeFile("preload_config", (<HTMLInputElement>document.getElementById("user_data_path")).value, (e) => {
-            if (e) throw new Error(t("保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件"));
-        });
-    fs.writeFileSync(path.join(configPath, "config.json"), JSON.stringify(xstore, null, 2));
+        fs.writeFile(
+            "preload_config",
+            (<HTMLInputElement>document.getElementById("user_data_path")).value,
+            (e) => {
+                if (e)
+                    throw new Error(
+                        t(
+                            "保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件",
+                        ),
+                    );
+            },
+        );
+    fs.writeFileSync(
+        path.join(configPath, "config.json"),
+        JSON.stringify(xstore, null, 2),
+    );
 }
 
 _runTask(0, renderTasks, (v) => v());
@@ -1259,13 +1503,20 @@ document.getElementById("find_b_next").onclick = () => {
 };
 function jumpToRange(i: number) {
     const rect = findRanges[i].getBoundingClientRect();
-    document.getElementById("find_t").innerText = `${i + 1} / ${findRanges.length}`;
-    document.documentElement.scrollTo(0, rect.top - document.body.getBoundingClientRect().top);
+    document.getElementById("find_t").innerText =
+        `${i + 1} / ${findRanges.length}`;
+    document.documentElement.scrollTo(
+        0,
+        rect.top - document.body.getBoundingClientRect().top,
+    );
 }
 let allTextNodes = [];
 
 function initFind() {
-    const treeWalker = document.createTreeWalker(document.getElementById("main"), NodeFilter.SHOW_TEXT);
+    const treeWalker = document.createTreeWalker(
+        document.getElementById("main"),
+        NodeFilter.SHOW_TEXT,
+    );
     let currentNode = treeWalker.nextNode();
     allTextNodes = [];
     while (currentNode) {
@@ -1323,12 +1574,16 @@ const pathInfo = `<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform() === "win32" ? "\\" : "/"}eSearch<br>
                 ${t("运行目录：")}${__dirname}`;
 document.createTextNode(pathInfo);
-document.getElementById("user_data_divs").insertAdjacentHTML("afterend", pathInfo);
+document
+    .getElementById("user_data_divs")
+    .insertAdjacentHTML("afterend", pathInfo);
 try {
     (<HTMLInputElement>document.getElementById("user_data_path")).value =
-        fs.readFileSync("preload_config").toString().trim() || store.path.replace(/[/\\]config\.json/, "");
+        fs.readFileSync("preload_config").toString().trim() ||
+        store.path.replace(/[/\\]config\.json/, "");
 } catch (error) {
-    (<HTMLInputElement>document.getElementById("user_data_path")).value = store.path.replace(/[/\\]config\.json/, "");
+    (<HTMLInputElement>document.getElementById("user_data_path")).value =
+        store.path.replace(/[/\\]config\.json/, "");
 }
 let userDataPathInputed = false;
 document.getElementById("user_data_path").oninput = () => {
@@ -1336,7 +1591,11 @@ document.getElementById("user_data_path").oninput = () => {
     userDataPathInputed = true;
 };
 document.getElementById("move_user_data").onclick = () => {
-    ipcRenderer.send("setting", "move_user_data", (<HTMLInputElement>document.getElementById("user_data_path")).value);
+    ipcRenderer.send(
+        "setting",
+        "move_user_data",
+        (<HTMLInputElement>document.getElementById("user_data_path")).value,
+    );
 };
 
 document.getElementById("reload").onclick = () => {
@@ -1349,24 +1608,34 @@ ipcRenderer.on("setting", (_err, t, id, r) => {
         switch (id) {
             case "ocr_det":
                 if (!r.canceled) {
-                    (<HTMLInputElement>document.getElementById("ocr_det")).value = r.filePaths[0];
+                    (<HTMLInputElement>(
+                        document.getElementById("ocr_det")
+                    )).value = r.filePaths[0];
                 }
                 break;
             case "ocr_rec":
                 if (!r.canceled) {
-                    (<HTMLInputElement>document.getElementById("ocr_rec")).value = r.filePaths[0];
+                    (<HTMLInputElement>(
+                        document.getElementById("ocr_rec")
+                    )).value = r.filePaths[0];
                 }
                 break;
             case "ocr_字典":
                 if (!r.canceled) {
-                    (<HTMLInputElement>document.getElementById("ocr_字典")).value = r.filePaths[0];
+                    (<HTMLInputElement>(
+                        document.getElementById("ocr_字典")
+                    )).value = r.filePaths[0];
                 }
                 break;
             case "plugin":
                 if (!r.canceled) {
-                    let l = (<HTMLTextAreaElement>document.getElementById("plugin")).value.trim();
+                    let l = (<HTMLTextAreaElement>(
+                        document.getElementById("plugin")
+                    )).value.trim();
                     l += (l && "\n") + r.filePaths[0];
-                    (<HTMLTextAreaElement>document.getElementById("plugin")).value = l;
+                    (<HTMLTextAreaElement>(
+                        document.getElementById("plugin")
+                    )).value = l;
                 }
         }
     }
@@ -1377,7 +1646,9 @@ const versionL = ["electron", "node", "chrome", "v8"];
 for (const i in versionL) {
     version += `<div>${versionL[i]}: ${process.versions[versionL[i]]}</div>`;
 }
-document.getElementById("versions_info").insertAdjacentHTML("afterend", version);
+document
+    .getElementById("versions_info")
+    .insertAdjacentHTML("afterend", version);
 
 import _package from "../../../package.json?raw";
 const packageJson = JSON.parse(_package);
@@ -1386,7 +1657,10 @@ document.getElementById("name").innerHTML = packageJson.name;
 document.getElementById("version").innerHTML = packageJson.version;
 document.getElementById("description").innerHTML = t(packageJson.description);
 document.getElementById("version").onclick = () => {
-    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases", { method: "GET", redirect: "follow" })
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases", {
+        method: "GET",
+        redirect: "follow",
+    })
         .then((response) => response.json())
         .then((re) => {
             console.log(re);
@@ -1427,33 +1701,47 @@ document.getElementById("version").onclick = () => {
                         shell.openExternal(r.html_url);
                     };
                     for (const a of r.assets) {
-                        if (a.name === `app-${process.platform}-${process.arch}`) {
-                            const xel = txt("增量更新").on("click", async () => {
-                                xel.clear();
-                                const pro = ele("progress");
-                                const text = txt("");
-                                xel.add([pro, text]);
-                                download(a.browser_download_url, path.join(__dirname, "../../../"), {
-                                    extract: true,
-                                    rejectUnauthorized: false,
-                                })
-                                    .on("response", (res) => {
-                                        const total = Number(res.headers["content-length"]);
-                                        let now = 0;
-                                        res.on("data", (data) => {
-                                            now += Number(data.length);
-                                            const percent = now / total;
-                                            text.el.innerText = `${(percent * 100).toFixed(2)}%`;
-                                            pro.el.value = percent;
+                        if (
+                            a.name === `app-${process.platform}-${process.arch}`
+                        ) {
+                            const xel = txt("增量更新").on(
+                                "click",
+                                async () => {
+                                    xel.clear();
+                                    const pro = ele("progress");
+                                    const text = txt("");
+                                    xel.add([pro, text]);
+                                    download(
+                                        a.browser_download_url,
+                                        path.join(__dirname, "../../../"),
+                                        {
+                                            extract: true,
+                                            rejectUnauthorized: false,
+                                        },
+                                    )
+                                        .on("response", (res) => {
+                                            const total = Number(
+                                                res.headers["content-length"],
+                                            );
+                                            let now = 0;
+                                            res.on("data", (data) => {
+                                                now += Number(data.length);
+                                                const percent = now / total;
+                                                text.el.innerText = `${(percent * 100).toFixed(2)}%`;
+                                                pro.el.value = percent;
+                                            });
+                                            res.on("end", () => {
+                                                xel.el.innerText =
+                                                    t("正在更新中");
+                                            });
+                                        })
+                                        .then(() => {
+                                            xel.el.innerText = t(
+                                                "更新完毕，你可以重启软件",
+                                            );
                                         });
-                                        res.on("end", () => {
-                                            xel.el.innerText = t("正在更新中");
-                                        });
-                                    })
-                                    .then(() => {
-                                        xel.el.innerText = t("更新完毕，你可以重启软件");
-                                    });
-                            });
+                                },
+                            );
                             tagEl.after(xel.el);
                         }
                     }
@@ -1461,7 +1749,9 @@ document.getElementById("version").onclick = () => {
                 if (r.name === packageJson.version) {
                     tags.append(tag("当前版本"));
                     if (i !== "0") {
-                        (<HTMLElement>document.getElementById("menu").lastElementChild).style.color = "#335EFE";
+                        (<HTMLElement>(
+                            document.getElementById("menu").lastElementChild
+                        )).style.color = "#335EFE";
                     }
                     break;
                 }
@@ -1473,22 +1763,44 @@ document.getElementById("version").onclick = () => {
 const infoEl = pack(document.getElementById("info"));
 
 infoEl.add([
-    view().add(["项目主页:", a(packageJson.homepage).add(packageJson.homepage)]),
+    view().add([
+        "项目主页:",
+        a(packageJson.homepage).add(packageJson.homepage),
+    ]),
     view().add([
         "支持该项目:",
         a(packageJson.homepage).add("为项目点亮星标🌟"),
         txt(" "),
         a("https://github.com/xushengfeng").add("赞赏"),
     ]),
-    view().add(a(`https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`).add("更新日志")),
-    view().add(a("https://github.com/xushengfeng/eSearch/issues/new/choose").add("反馈错误 提供建议")),
-    view().add(a("https://github.com/xushengfeng/eSearch/tree/master/lib/translate").add("改进翻译")),
-    view().add(["本软件遵循", a("https://www.gnu.org/licenses/gpl-3.0.html").add(packageJson.license)]),
+    view().add(
+        a(
+            `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`,
+        ).add("更新日志"),
+    ),
+    view().add(
+        a("https://github.com/xushengfeng/eSearch/issues/new/choose").add(
+            "反馈错误 提供建议",
+        ),
+    ),
+    view().add(
+        a(
+            "https://github.com/xushengfeng/eSearch/tree/master/lib/translate",
+        ).add("改进翻译"),
+    ),
+    view().add([
+        "本软件遵循",
+        a("https://www.gnu.org/licenses/gpl-3.0.html").add(packageJson.license),
+    ]),
     view().add([
         "本软件基于",
-        a("https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json").add("这些软件"),
+        a(
+            "https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json",
+        ).add("这些软件"),
     ]),
-    view().add(`Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`),
+    view().add(
+        `Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`,
+    ),
 ]);
 
 document.body.onclick = (e) => {

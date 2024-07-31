@@ -13,10 +13,13 @@ initRecord();
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
-        var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
+        var { uIOhook, UiohookKey } =
+            require("uiohook-napi") as typeof import("uiohook-napi");
 
     function rKey() {
-        const posi = store.get("录屏.提示.键盘.位置") as setting["录屏"]["提示"]["键盘"]["位置"];
+        const posi = store.get(
+            "录屏.提示.键盘.位置",
+        ) as setting["录屏"]["提示"]["键盘"]["位置"];
         const px = posi.x === "+" ? "right" : "left";
         const py = posi.y === "+" ? "bottom" : "top";
         keysEl.parentElement.style[px] = `${posi.offsetX}px`;
@@ -49,7 +52,12 @@ function initRecord() {
             const mainKey = keyDisplay.primary ?? key;
             let topKey = keyDisplay?.secondary ?? keyDisplay?.symble ?? "";
             if (keyDisplay.isNum) topKey = "";
-            return { main: mainKey, top: topKey, numpad: keyDisplay.isNumpad, right: keyDisplay.isRight };
+            return {
+                main: mainKey,
+                top: topKey,
+                numpad: keyDisplay.isNumpad,
+                right: keyDisplay.isRight,
+            };
         }
 
         let keyO: number[] = [];
@@ -64,8 +72,13 @@ function initRecord() {
                 else keysEl.insertAdjacentElement("afterbegin", lastKey.el);
             }
             const key = getKey(e.keycode);
-            if (["Ctrl", "Alt", "Shift", "Meta"].includes(key.main)) lastKey.data({ modi: "true" });
-            const kbdEl = ele("kbd").add(txt(key.main).class("main_key").data({ k: e.keycode.toString() }));
+            if (["Ctrl", "Alt", "Shift", "Meta"].includes(key.main))
+                lastKey.data({ modi: "true" });
+            const kbdEl = ele("kbd").add(
+                txt(key.main)
+                    .class("main_key")
+                    .data({ k: e.keycode.toString() }),
+            );
             console.log(key);
 
             if (key.top) kbdEl.add(txt(key.top).class("top_key"));
@@ -85,9 +98,11 @@ function initRecord() {
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i !== e.keycode);
-            lastKey.el.querySelectorAll(`[data-k="${e.keycode}"]`)?.forEach((el: HTMLElement) => {
-                el.classList.add("key_hidden");
-            });
+            lastKey.el
+                .querySelectorAll(`[data-k="${e.keycode}"]`)
+                ?.forEach((el: HTMLElement) => {
+                    el.classList.add("key_hidden");
+                });
             if (keyO.length === 0) {
                 const e = lastKey;
                 setTimeout(() => {
@@ -127,9 +142,11 @@ function initRecord() {
     if (store.get("录屏.提示.键盘.开启")) rKey();
     if (store.get("录屏.提示.鼠标.开启")) rMouse();
 
-    if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启")) uIOhook.start();
+    if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
+        uIOhook.start();
 
-    if (store.get("录屏.提示.光标.开启")) recorderMouseEl.style.display = "flex";
+    if (store.get("录屏.提示.光标.开启"))
+        recorderMouseEl.style.display = "flex";
 
     const mouseStyle = document.createElement("style");
     mouseStyle.innerHTML = `.mouse{${store.get("录屏.提示.光标.样式").replaceAll(";", " !important;")}}`;

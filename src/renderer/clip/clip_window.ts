@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
-const { ipcRenderer, clipboard, nativeImage, shell } = require("electron") as typeof import("electron");
+const { ipcRenderer, clipboard, nativeImage, shell } =
+    require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
@@ -18,7 +19,8 @@ try {
     Screenshots = require("node-screenshots").Screenshots;
 } catch (error) {
     const id = ipcRenderer.sendSync("dialog", {
-        message: "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
+        message:
+            "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
         buttons: ["取消", "下载"],
         defaultId: 1,
     } as MessageBoxSyncOptions);
@@ -27,8 +29,26 @@ try {
     }
 }
 
-import type { setting, EditType, 功能, translateWinType } from "../../ShareTypes.js";
-import { ele, elFromId, type ElType, frame, image, input, p, pureStyle, setProperties, trackPoint, txt, view } from "dkh-ui";
+import type {
+    setting,
+    EditType,
+    功能,
+    translateWinType,
+} from "../../ShareTypes.js";
+import {
+    ele,
+    elFromId,
+    type ElType,
+    frame,
+    image,
+    input,
+    p,
+    pureStyle,
+    setProperties,
+    trackPoint,
+    txt,
+    view,
+} from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
 import ocr_svg from "../assets/icons/ocr.svg";
@@ -93,7 +113,10 @@ function setSetting() {
  * 修复屏幕信息
  * @see https://github.com/nashaofu/node-screenshots/issues/18
  */
-function dispaly2screen(displays: Electron.Display[], screens: import("node-screenshots").Screenshots[]) {
+function dispaly2screen(
+    displays: Electron.Display[],
+    screens: import("node-screenshots").Screenshots[],
+) {
     allScreens = [];
     if (!screens) return;
     // todo 更新算法
@@ -144,13 +167,18 @@ function setScreen(i: (typeof allScreens)[0]) {
     drawClipRect();
     nowScreenId = i.id;
 
-    if (w < window.innerWidth || h < window.innerHeight) document.body.classList.add("editor_bg");
+    if (w < window.innerWidth || h < window.innerHeight)
+        document.body.classList.add("editor_bg");
 }
 
 /** 生成一个文件名 */
 function getFileName() {
-    const saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
-    const filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+    const saveNameTime = timeFormat(
+        store.get("保存名称.时间"),
+        new Date(),
+    ).replace("\\", "");
+    const filename =
+        store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
     return filename;
 }
 
@@ -162,7 +190,10 @@ function quickClip() {
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);
             image = null;
-        } else if (store.get("快速截屏.模式") === "path" && store.get("快速截屏.路径")) {
+        } else if (
+            store.get("快速截屏.模式") === "path" &&
+            store.get("快速截屏.路径")
+        ) {
             const filename = `${store.get("快速截屏.路径")}${getFileName()}.png`;
             checkFile(1, filename, filename);
         }
@@ -176,12 +207,17 @@ function quickClip() {
                 } else {
                     fs.writeFile(
                         name,
-                        Buffer.from(image.toDataURL().replace(/^data:image\/\w+;base64,/, ""), "base64"),
+                        Buffer.from(
+                            image
+                                .toDataURL()
+                                .replace(/^data:image\/\w+;base64,/, ""),
+                            "base64",
+                        ),
                         (err) => {
                             if (err) return;
                             ipcRenderer.send("clip_main_b", "ok_save", name);
                             image = null;
-                        }
+                        },
                     );
                 }
             });
@@ -221,7 +257,13 @@ function edge() {
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
 
-    cv.findContours(dst, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    cv.findContours(
+        dst,
+        contours,
+        hierarchy,
+        cv.RETR_CCOMP,
+        cv.CHAIN_APPROX_SIMPLE,
+    );
 
     for (let i = 0; i < contours.size(); i++) {
         const cnt = contours.get(i);
@@ -279,7 +321,14 @@ function getWinWin() {
         if (!err) {
             out = out.replaceAll("\x00", "");
             const r = JSON.parse(out);
-            for (const i of r) edgeRect.push({ x: i.x, y: i.y, width: i.width, height: i.height, type: "system" });
+            for (const i of r)
+                edgeRect.push({
+                    x: i.x,
+                    y: i.y,
+                    width: i.width,
+                    height: i.height,
+                    type: "system",
+                });
         }
     });
 }
@@ -333,14 +382,20 @@ function setDefaultAction(act: setting["框选后默认操作"]) {
 
 function 记忆框选f() {
     if (记忆框选 && !longInited) {
-        记忆框选值[nowScreenId] = [finalRect[0], finalRect[1], finalRect[2], finalRect[3]];
+        记忆框选值[nowScreenId] = [
+            finalRect[0],
+            finalRect[1],
+            finalRect[2],
+            finalRect[3],
+        ];
         store.set("框选.记忆.rects", 记忆框选值);
     }
 }
 
 // 关闭
 function closeWin() {
-    document.querySelector("html").style.display = "none"; /* 退出时隐藏，透明窗口，动画不明显 */
+    document.querySelector("html").style.display =
+        "none"; /* 退出时隐藏，透明窗口，动画不明显 */
     记忆框选f();
     mainCanvas.width = clipCanvas.width = drawCanvas.width = mainCanvas.width; // 确保清空画布
     if (uIOhook) {
@@ -520,7 +575,11 @@ function initLong(rect: number[]) {
         longPreview.style({ left: "0" });
         longWidth = rect[1] / ratio - w;
     }
-    longPreview.style({ display: longWidth < 100 ? "none" : "", width: `${longWidth}px`, height: "100vh" });
+    longPreview.style({
+        display: longWidth < 100 ? "none" : "",
+        width: `${longWidth}px`,
+        height: "100vh",
+    });
 }
 
 function addLong(x: Buffer, w: number, h: number) {
@@ -594,9 +653,17 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     clip2Canvas.width = ndx !== 0 ? img1.width - dw : img1.width;
     clip2Canvas.height = ndy !== 0 ? img1.height - dh : img1.height;
     // d>0需要-dw或-dh平移，<=0不需要平移
-    clip2Canvas.getContext("2d").drawImage(img1, ndx > 0 ? -dw : 0, ndy > 0 ? -dh : 0);
+    clip2Canvas
+        .getContext("2d")
+        .drawImage(img1, ndx > 0 ? -dw : 0, ndy > 0 ? -dh : 0);
 
-    return { dx: ndx > 0 ? dx : ndx, dy: ndy > 0 ? dy : ndy, srcDX: ndx, srcDY: ndy, clipedImg: clip2Canvas };
+    return {
+        dx: ndx > 0 ? dx : ndx,
+        dy: ndy > 0 ? dy : ndy,
+        srcDX: ndx,
+        srcDY: ndy,
+        clipedImg: clip2Canvas,
+    };
 }
 
 function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
@@ -632,7 +699,8 @@ function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
         newCanvas.height = srcH;
     }
 
-    if (longX.img) newCanvas.getContext("2d").drawImage(longX.img, srcDx, srcDy);
+    if (longX.img)
+        newCanvas.getContext("2d").drawImage(longX.img, srcDx, srcDy);
 
     const nx = x - longX.imgXY.x;
     const ny = y - longX.imgXY.y;
@@ -650,7 +718,9 @@ function pjLong() {
     mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
 
-    const ggid = oCanvas.getContext("2d").getImageData(0, 0, oCanvas.width, oCanvas.height);
+    const ggid = oCanvas
+        .getContext("2d")
+        .getImageData(0, 0, oCanvas.width, oCanvas.height);
     mainCanvas.getContext("2d").putImageData(ggid, 0, 0);
 
     finalRect = [0, 0, oCanvas.width, oCanvas.height];
@@ -717,17 +787,28 @@ function runSave() {
         type = store.get("保存.默认格式");
         const path = require("node:path") as typeof import("path");
         const savedPath = store.get("保存.保存路径.图片") || "";
-        const p = path.join(savedPath, `${get_file_name()}.${store.get("保存.默认格式")}`);
+        const p = path.join(
+            savedPath,
+            `${get_file_name()}.${store.get("保存.默认格式")}`,
+        );
         function get_file_name() {
-            const saveNameTime = timeFormat(store.get("保存名称.时间"), new Date()).replace("\\", "");
-            const filename = store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
+            const saveNameTime = timeFormat(
+                store.get("保存名称.时间"),
+                new Date(),
+            ).replace("\\", "");
+            const filename =
+                store.get("保存名称.前缀") +
+                saveNameTime +
+                store.get("保存名称.后缀");
             return filename;
         }
         save(p);
         return;
     }
     sCenterBar("save");
-    const els = Array.from(document.querySelectorAll("#suffix > div")) as HTMLElement[];
+    const els = Array.from(
+        document.querySelectorAll("#suffix > div"),
+    ) as HTMLElement[];
     const type2N = els.map((i) => i.getAttribute("data-value"));
     let i = type2N.indexOf(store.get("保存.默认格式"));
     els[i].className = "suffix_h";
@@ -776,7 +857,10 @@ function save(message: string) {
                 } else if (type === "webp") {
                     f = nc.toDataURL("image/webp", 1);
                 }
-                dataBuffer = Buffer.from(f.replace(/^data:image\/\w+;base64,/, ""), "base64");
+                dataBuffer = Buffer.from(
+                    f.replace(/^data:image\/\w+;base64,/, ""),
+                    "base64",
+                );
                 if (store.get("保存.保存并复制")) {
                     clipboard.writeImage(nativeImage.createFromDataURL(f));
                 }
@@ -814,60 +898,82 @@ function getClipPhoto(type: string) {
             </svg>`;
         } else {
             svg.innerHTML = fabricCanvas.toSVG();
-            svg.querySelector("desc").innerHTML = "Created with eSearch & Fabric.js";
+            svg.querySelector("desc").innerHTML =
+                "Created with eSearch & Fabric.js";
         }
         svg.querySelector("svg").setAttribute("viewBox", finalRect.join(" "));
-        const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        const image = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "image",
+        );
         image.setAttribute("xlink:href", mainCanvas.toDataURL());
-        svg.querySelector("svg").insertBefore(image, svg.querySelector("svg").firstChild);
-        const svgT = new XMLSerializer().serializeToString(svg.querySelector("svg"));
+        svg.querySelector("svg").insertBefore(
+            image,
+            svg.querySelector("svg").firstChild,
+        );
+        const svgT = new XMLSerializer().serializeToString(
+            svg.querySelector("svg"),
+        );
         return new Promise((resolve, _rejects) => {
             resolve(svgT);
         });
     }
-        const tmpCanvas = document.createElement("canvas");
-        tmpCanvas.width = finalRect[2];
-        tmpCanvas.height = finalRect[3];
-        const gid = mainCtx.getImageData(finalRect[0], finalRect[1], finalRect[2], finalRect[3]); // 裁剪
-        tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
-        const image = document.createElement("img");
-        image.src = fabricCanvas.toDataURL({
-            left: finalRect[0],
-            top: finalRect[1],
-            width: finalRect[2],
-            height: finalRect[3],
-            format: type,
-        });
-        return new Promise((resolve, _rejects) => {
-            image.onload = () => {
-                tmpCanvas.getContext("2d").drawImage(image, 0, 0, finalRect[2], finalRect[3]);
-                if (!isRect) {
-                    const ctx = tmpCanvas.getContext("2d");
+    const tmpCanvas = document.createElement("canvas");
+    tmpCanvas.width = finalRect[2];
+    tmpCanvas.height = finalRect[3];
+    const gid = mainCtx.getImageData(
+        finalRect[0],
+        finalRect[1],
+        finalRect[2],
+        finalRect[3],
+    ); // 裁剪
+    tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
+    const image = document.createElement("img");
+    image.src = fabricCanvas.toDataURL({
+        left: finalRect[0],
+        top: finalRect[1],
+        width: finalRect[2],
+        height: finalRect[3],
+        format: type,
+    });
+    return new Promise((resolve, _rejects) => {
+        image.onload = () => {
+            tmpCanvas
+                .getContext("2d")
+                .drawImage(image, 0, 0, finalRect[2], finalRect[3]);
+            if (!isRect) {
+                const ctx = tmpCanvas.getContext("2d");
 
-                    // 创建临时Canvas并保存原始内容
-                    const tempCanvas = createTemporaryCanvas(tmpCanvas);
+                // 创建临时Canvas并保存原始内容
+                const tempCanvas = createTemporaryCanvas(tmpCanvas);
 
-                    // 清除主Canvas
-                    ctx.clearRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+                // 清除主Canvas
+                ctx.clearRect(0, 0, tmpCanvas.width, tmpCanvas.height);
 
-                    // 定义裁剪区域
-                    ctx.beginPath();
-                    freeSelect.forEach((point, index) => {
-                        if (index === 0) {
-                            ctx.moveTo(point.x - finalRect[0], point.y - finalRect[1]);
-                        } else {
-                            ctx.lineTo(point.x - finalRect[0], point.y - finalRect[1]);
-                        }
-                    });
-                    ctx.closePath();
-                    ctx.clip();
+                // 定义裁剪区域
+                ctx.beginPath();
+                freeSelect.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(
+                            point.x - finalRect[0],
+                            point.y - finalRect[1],
+                        );
+                    } else {
+                        ctx.lineTo(
+                            point.x - finalRect[0],
+                            point.y - finalRect[1],
+                        );
+                    }
+                });
+                ctx.closePath();
+                ctx.clip();
 
-                    // 将原始内容重新绘制到主Canvas上
-                    ctx.drawImage(tempCanvas, 0, 0);
-                }
-                resolve(tmpCanvas);
-            };
-        });
+                // 将原始内容重新绘制到主Canvas上
+                ctx.drawImage(tempCanvas, 0, 0);
+            }
+            resolve(tmpCanvas);
+        };
+    });
 }
 
 function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
@@ -880,7 +986,13 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
 }
 
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function pXY2cXY(canvas: HTMLCanvasElement, oX1: number, oY1: number, oX2: number, oY2: number): rect {
+function pXY2cXY(
+    canvas: HTMLCanvasElement,
+    oX1: number,
+    oY1: number,
+    oX2: number,
+    oY2: number,
+): rect {
     // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
     // 输入为边框像素坐标
     // 为了让canvas获取全屏，边框像素点要包括
@@ -940,7 +1052,13 @@ function clipStart(p: editor_position, inRect: boolean) {
         } else {
             selecting = true;
             canvasRect = [p.x, p.y]; // 用于框选
-            finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
+            finalRect = pXY2cXY(
+                clipCanvas,
+                canvasRect[0],
+                canvasRect[1],
+                p.x,
+                p.y,
+            );
             rightKey = false;
             changeRightBar(false);
         }
@@ -993,7 +1111,13 @@ function clipEnd(p: editor_position) {
             if (min.length !== 0) finalRect = min as rect;
             drawClipRect();
         } else {
-            finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], p.x, p.y);
+            finalRect = pXY2cXY(
+                clipCanvas,
+                canvasRect[0],
+                canvasRect[1],
+                p.x,
+                p.y,
+            );
             drawClipRect();
         }
     } else {
@@ -1172,7 +1296,8 @@ function changeWH(el: ElType<HTMLInputElement>) {
     let l = whL.map((i) => i.el.value);
     l = l.map((string) => {
         // 排除（数字运算符空格）之外的非法输入
-        if (string.match(/[\d\+\-*/\.\s\(\)]/g).length !== string.length) return null;
+        if (string.match(/[\d\+\-*/\.\s\(\)]/g).length !== string.length)
+            return null;
         return eval(string);
     });
 
@@ -1208,7 +1333,12 @@ function mouseBar(finalRect: rect, x: number, y: number) {
 
         const centerIndex = (colorSize * delta + delta) * 4;
 
-        const imageData = mainCanvasContext.getImageData(xOffset, yOffset, colorSize, colorSize);
+        const imageData = mainCanvasContext.getImageData(
+            xOffset,
+            yOffset,
+            colorSize,
+            colorSize,
+        );
 
         pointColorCanvasCtx.clearRect(0, 0, colorSize, colorSize);
         pointColorCanvasBgCtx.clearRect(0, 0, colorSize, colorSize);
@@ -1229,9 +1359,15 @@ function mouseBar(finalRect: rect, x: number, y: number) {
         pointColorCanvasCtx.save();
 
         pointColorCanvasCtx.beginPath();
-        pointColorCanvasCtx.moveTo(points[0].x - xOffset, points[0].y - yOffset);
+        pointColorCanvasCtx.moveTo(
+            points[0].x - xOffset,
+            points[0].y - yOffset,
+        );
         for (let i = 1; i < points.length; i++) {
-            pointColorCanvasCtx.lineTo(points[i].x - xOffset, points[i].y - yOffset);
+            pointColorCanvasCtx.lineTo(
+                points[i].x - xOffset,
+                points[i].y - yOffset,
+            );
         }
         pointColorCanvasCtx.closePath();
         pointColorCanvasCtx.clip();
@@ -1280,13 +1416,17 @@ function colorConversion(rgba: number[] | string, type: string): string {
 // 改变颜色文字和样式
 function clipColorText(l: typeof theColor, type: string) {
     const color = Color.rgb(l);
-    const clipColorTextColor = color.alpha() === 1 ? (color.isLight() ? "#000" : "#fff") : "";
+    const clipColorTextColor =
+        color.alpha() === 1 ? (color.isLight() ? "#000" : "#fff") : "";
     theTextColor = [color.hexa(), clipColorTextColor];
 
-    (<HTMLDivElement>document.querySelector("#clip_copy > div > div:not(:nth-child(1))")).style.backgroundColor =
-        color.hexa();
+    (<HTMLDivElement>(
+        document.querySelector("#clip_copy > div > div:not(:nth-child(1))")
+    )).style.backgroundColor = color.hexa();
     const mainEl = <HTMLElement>(
-        document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`)
+        document.querySelector(
+            `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`,
+        )
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
     mainEl.style.color = theTextColor[1];
@@ -1294,7 +1434,9 @@ function clipColorText(l: typeof theColor, type: string) {
     if (color.alpha() !== 1) {
         mainEl.style.color = "";
     }
-    (<HTMLDivElement>document.querySelector("#clip_copy > div")).style.top = `${-32 * 取色器格式位置}px`;
+    (<HTMLDivElement>(
+        document.querySelector("#clip_copy > div")
+    )).style.top = `${-32 * 取色器格式位置}px`;
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
@@ -1307,10 +1449,14 @@ function changeRightBar(v) {
     }
     document.querySelector("#clip_copy > div").innerHTML = `${t}</div>`;
     // 复制大小和颜色
-    (<HTMLElement>document.querySelector("#clip_copy > div > div:nth-child(1)")).onclick = () => {
+    (<HTMLElement>(
+        document.querySelector("#clip_copy > div > div:nth-child(1)")
+    )).onclick = () => {
         copy(document.querySelector("#clip_copy > div > div:nth-child(1)"));
     };
-    const nodes = document.querySelectorAll("#clip_copy > div > div:not(:nth-child(1)) > div");
+    const nodes = document.querySelectorAll(
+        "#clip_copy > div > div:not(:nth-child(1)) > div",
+    );
     nodes.forEach((element: HTMLElement) => {
         ((e) => {
             e.onclick = () => {
@@ -1454,7 +1600,12 @@ function finalRectFix() {
     finalRect = [x, y, w, h];
 }
 
-function inRange(min: number, value: number, max: number, type?: "[]" | "()" | "(]" | "[)") {
+function inRange(
+    min: number,
+    value: number,
+    max: number,
+    type?: "[]" | "()" | "(]" | "[)",
+) {
     if (!type) type = "[]";
     if (type === "[]") return min <= value && value <= max;
     if (type === "(]") return min < value && value <= max;
@@ -1475,7 +1626,12 @@ function isInClipRect(p: editor_position) {
     const x1 = x0 + width;
     const y1 = y0 + height;
     // 如果全屏,那允许框选
-    if (!(finalRect[2] === mainCanvas.width && finalRect[3] === mainCanvas.height)) {
+    if (
+        !(
+            finalRect[2] === mainCanvas.width &&
+            finalRect[3] === mainCanvas.height
+        )
+    ) {
         if (x0 <= p.x && p.x <= x1 && y0 <= p.y && p.y <= y1) {
             // 在框选区域内,不可框选,只可调整
             inRect = true;
@@ -1512,7 +1668,10 @@ function isInClipRect(p: editor_position) {
         } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x1)) {
             clipCanvas.style.cursor = "ns-resize";
             direction = "南";
-        } else if (inRange(x0 + num, p.x, x1 - num, "()") && inRange(y0 + num, p.y, y1 - num, "()")) {
+        } else if (
+            inRange(x0 + num, p.x, x1 - num, "()") &&
+            inRange(y0 + num, p.y, y1 - num, "()")
+        ) {
             clipCanvas.style.cursor = "move";
             direction = "move";
         } else {
@@ -1529,38 +1688,99 @@ function isInClipRect(p: editor_position) {
 }
 
 /** 调整框选 */
-function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: editor_position) {
-    const op = pXY2cXY(clipCanvas, oldPosition.x, oldPosition.y, oldPosition.x, oldPosition.y);
-    const p = pXY2cXY(clipCanvas, position.x, position.y, position.x, position.y);
+function moveRect(
+    oldFinalRect: rect,
+    oldPosition: editor_position,
+    position: editor_position,
+) {
+    const op = pXY2cXY(
+        clipCanvas,
+        oldPosition.x,
+        oldPosition.y,
+        oldPosition.x,
+        oldPosition.y,
+    );
+    const p = pXY2cXY(
+        clipCanvas,
+        position.x,
+        position.y,
+        position.x,
+        position.y,
+    );
     const dx = p[0] - op[0];
     const dy = p[1] - op[1];
     switch (direction) {
         case "西北":
-            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1] + dy, oldFinalRect[2] - dx, oldFinalRect[3] - dy];
+            finalRect = [
+                oldFinalRect[0] + dx,
+                oldFinalRect[1] + dy,
+                oldFinalRect[2] - dx,
+                oldFinalRect[3] - dy,
+            ];
             break;
         case "东南":
-            finalRect = [oldFinalRect[0], oldFinalRect[1], oldFinalRect[2] + dx, oldFinalRect[3] + dy];
+            finalRect = [
+                oldFinalRect[0],
+                oldFinalRect[1],
+                oldFinalRect[2] + dx,
+                oldFinalRect[3] + dy,
+            ];
             break;
         case "东北":
-            finalRect = [oldFinalRect[0], oldFinalRect[1] + dy, oldFinalRect[2] + dx, oldFinalRect[3] - dy];
+            finalRect = [
+                oldFinalRect[0],
+                oldFinalRect[1] + dy,
+                oldFinalRect[2] + dx,
+                oldFinalRect[3] - dy,
+            ];
             break;
         case "西南":
-            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1], oldFinalRect[2] - dx, oldFinalRect[3] + dy];
+            finalRect = [
+                oldFinalRect[0] + dx,
+                oldFinalRect[1],
+                oldFinalRect[2] - dx,
+                oldFinalRect[3] + dy,
+            ];
             break;
         case "西":
-            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1], oldFinalRect[2] - dx, oldFinalRect[3]];
+            finalRect = [
+                oldFinalRect[0] + dx,
+                oldFinalRect[1],
+                oldFinalRect[2] - dx,
+                oldFinalRect[3],
+            ];
             break;
         case "东":
-            finalRect = [oldFinalRect[0], oldFinalRect[1], oldFinalRect[2] + dx, oldFinalRect[3]];
+            finalRect = [
+                oldFinalRect[0],
+                oldFinalRect[1],
+                oldFinalRect[2] + dx,
+                oldFinalRect[3],
+            ];
             break;
         case "北":
-            finalRect = [oldFinalRect[0], oldFinalRect[1] + dy, oldFinalRect[2], oldFinalRect[3] - dy];
+            finalRect = [
+                oldFinalRect[0],
+                oldFinalRect[1] + dy,
+                oldFinalRect[2],
+                oldFinalRect[3] - dy,
+            ];
             break;
         case "南":
-            finalRect = [oldFinalRect[0], oldFinalRect[1], oldFinalRect[2], oldFinalRect[3] + dy];
+            finalRect = [
+                oldFinalRect[0],
+                oldFinalRect[1],
+                oldFinalRect[2],
+                oldFinalRect[3] + dy,
+            ];
             break;
         case "move":
-            finalRect = [oldFinalRect[0] + dx, oldFinalRect[1] + dy, oldFinalRect[2], oldFinalRect[3]];
+            finalRect = [
+                oldFinalRect[0] + dx,
+                oldFinalRect[1] + dy,
+                oldFinalRect[2],
+                oldFinalRect[3],
+            ];
             break;
     }
     if (finalRect[0] < 0) {
@@ -1571,8 +1791,10 @@ function moveRect(oldFinalRect: rect, oldPosition: editor_position, position: ed
         finalRect[3] = finalRect[3] + finalRect[1];
         finalRect[1] = 0;
     }
-    if (finalRect[0] + finalRect[2] > mainCanvas.width) finalRect[2] = mainCanvas.width - finalRect[0];
-    if (finalRect[1] + finalRect[3] > mainCanvas.height) finalRect[3] = mainCanvas.height - finalRect[1];
+    if (finalRect[0] + finalRect[2] > mainCanvas.width)
+        finalRect[2] = mainCanvas.width - finalRect[0];
+    if (finalRect[1] + finalRect[3] > mainCanvas.height)
+        finalRect[3] = mainCanvas.height - finalRect[1];
 
     finalRectFix();
     drawClipRect();
@@ -1593,7 +1815,11 @@ function isPointInPolygon(p: point): boolean {
 }
 
 /** 调整框选 */
-function movePoly(oldPoly: point[], oldPosition: editor_position, position: editor_position) {
+function movePoly(
+    oldPoly: point[],
+    oldPosition: editor_position,
+    position: editor_position,
+) {
     const op = pXY2cXY2(clipCanvas, oldPosition.x, oldPosition.y);
     const p = pXY2cXY2(clipCanvas, position.x, position.y);
     const dx = p.x - op.x;
@@ -1614,15 +1840,25 @@ function movePoly(oldPoly: point[], oldPosition: editor_position, position: edit
  */
 function hisPush() {
     // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
-    if (undoStackI !== undoStack.length - 1 && undoStack.length >= 2) undoStack.push(undoStack[undoStackI]);
+    if (undoStackI !== undoStack.length - 1 && undoStack.length >= 2)
+        undoStack.push(undoStack[undoStackI]);
 
-    const finalRectV = [finalRect[0], finalRect[1], finalRect[2], finalRect[3]] as rect; // 防止引用源地址导致后续操作-2个被改变
+    const finalRectV = [
+        finalRect[0],
+        finalRect[1],
+        finalRect[2],
+        finalRect[3],
+    ] as rect; // 防止引用源地址导致后续操作-2个被改变
     const canvas = fabricCanvas?.toJSON() || {};
 
     if (`${rectStack.at(-1)}` !== `${finalRectV}`) rectStack.push(finalRectV);
-    if (JSON.stringify(canvasStack.at(-1)) !== JSON.stringify(canvas)) canvasStack.push(canvas);
+    if (JSON.stringify(canvasStack.at(-1)) !== JSON.stringify(canvas))
+        canvasStack.push(canvas);
 
-    undoStack.push({ rect: rectStack.length - 1, canvas: canvasStack.length - 1 });
+    undoStack.push({
+        rect: rectStack.length - 1,
+        canvas: canvasStack.length - 1,
+    });
     undoStackI = undoStack.length - 1;
 }
 /**
@@ -1646,7 +1882,10 @@ function undo(v: boolean) {
     if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
 }
 
-function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): void {
+function setEditType<T extends keyof EditType>(
+    mainType: T,
+    type: EditType[T],
+): void {
     if (!(mainType === "select" && type === "draw")) {
         editType[mainType] = type;
         nowType = mainType;
@@ -1657,7 +1896,8 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
     for (const i in drawMainEls) {
         if (i === mainType) {
             drawMainEls[mainType].classList.add(SELECT);
-            drawMainEls[mainType].innerHTML = drawSideEls[mainType][type].innerHTML;
+            drawMainEls[mainType].innerHTML =
+                drawSideEls[mainType][type].innerHTML;
         } else {
             drawMainEls[i]?.classList?.remove(SELECT);
         }
@@ -1742,7 +1982,9 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
             const sw = store.get(`图像编辑.形状属性.${shape}.sw`);
             if (sw) {
                 shapePro[shape].sw = sw;
-                (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
+                (<HTMLInputElement>(
+                    document.querySelector("#draw_stroke_width > range-b")
+                )).value = sw;
             }
         }
 
@@ -1753,35 +1995,44 @@ function setEditType<T extends keyof EditType>(mainType: T, type: EditType[T]): 
         ableChangeColor();
     }
 
-    if (!(mainType === "select" && type === "draw")) store.set(`图像编辑.记忆.${mainType}`, type);
+    if (!(mainType === "select" && type === "draw"))
+        store.set(`图像编辑.记忆.${mainType}`, type);
 
-    setOnlyStroke(mainType === "draw" || (mainType === "shape" && strokeShapes.includes(type)));
+    setOnlyStroke(
+        mainType === "draw" ||
+            (mainType === "shape" && strokeShapes.includes(type)),
+    );
 }
 
 function showSideBarItem(index: number) {
     const sises = [1, 1, 2, 3, 1, 1, 1];
     showSideBar(true);
-    document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement, i) => {
-        if (index === i) {
-            el.style.display = "";
-            const height = Math.ceil(el.children.length / sises[index]);
-            const x = sises[index];
-            const y = height;
-            el.style.width = `${x * bSize}px`;
-            let left = bSize * 1;
-            if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth) left = -bSize * x;
-            drawSideBar.style.left = `${left}px`;
-            drawSideBar.style.top = `${bSize * Math.min(i, drawMainBar.children.length - y)}px`;
-            drawSideBar.style.width = `${bSize * x}px`;
-            drawSideBar.style.height = `${bSize * y}px`;
-        } else {
-            el.style.display = "none";
-        }
-    });
+    document
+        .querySelectorAll("#draw_side > div")
+        .forEach((el: HTMLElement, i) => {
+            if (index === i) {
+                el.style.display = "";
+                const height = Math.ceil(el.children.length / sises[index]);
+                const x = sises[index];
+                const y = height;
+                el.style.width = `${x * bSize}px`;
+                let left = bSize * 1;
+                if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth)
+                    left = -bSize * x;
+                drawSideBar.style.left = `${left}px`;
+                drawSideBar.style.top = `${bSize * Math.min(i, drawMainBar.children.length - y)}px`;
+                drawSideBar.style.width = `${bSize * x}px`;
+                drawSideBar.style.height = `${bSize * y}px`;
+            } else {
+                el.style.display = "none";
+            }
+        });
 }
 
 function isInDrawBar() {
-    return drawBar.contains(document.elementFromPoint(nowMouseE.clientX, nowMouseE.clientY));
+    return drawBar.contains(
+        document.elementFromPoint(nowMouseE.clientX, nowMouseE.clientY),
+    );
 }
 
 function showSideBar(show: boolean) {
@@ -1825,7 +2076,10 @@ function freeSprayElClick() {
     setDrawMode("stroke");
 }
 function freeShadow() {
-    const shadowBlur = Number((<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value);
+    const shadowBlur = Number(
+        (<HTMLInputElement>document.querySelector("#shadow_blur > range-b"))
+            .value,
+    );
     fabricCanvas.freeDrawingBrush.shadow = new Fabric.Shadow({
         blur: shadowBlur,
         color: freeColor,
@@ -1868,12 +2122,20 @@ function freeInit() {
     if (sb) shapePro[mode].shadow = sb;
     setDrawMode("stroke");
     if (sc) colorStrokeEl.sv(sc);
-    if (sw) (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = sw;
-    if (sb) (<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).value = sb;
+    if (sw)
+        (<HTMLInputElement>(
+            document.querySelector("#draw_stroke_width > range-b")
+        )).value = sw;
+    if (sb)
+        (<HTMLInputElement>(
+            document.querySelector("#shadow_blur > range-b")
+        )).value = sb;
 }
 
 function fabricDelete() {
-    for (const o of fabricCanvas.getActiveObject()._objects || [fabricCanvas.getActiveObject()]) {
+    for (const o of fabricCanvas.getActiveObject()._objects || [
+        fabricCanvas.getActiveObject(),
+    ]) {
         fabricCanvas.remove(o);
     }
     getFObjectV();
@@ -1888,7 +2150,14 @@ function rotate(x: number, y: number, r: number) {
 }
 
 // 画一般图形
-function draw(shape: EditType["shape"], v: "start" | "move", x1: number, y1: number, x2: number, y2: number) {
+function draw(
+    shape: EditType["shape"],
+    v: "start" | "move",
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+) {
     const pro = shapePro[shape];
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (v === "move") {
@@ -1935,7 +2204,7 @@ function draw(shape: EditType["shape"], v: "start" | "move", x1: number, y1: num
                 canChangeFill: true,
                 形状: "text",
                 fontFamily: 字体.主要字体,
-            })
+            }),
         );
     } else if (shape === "arrow") {
         const line = new Fabric.arrow([x1, y1, x2, y2], {
@@ -1955,7 +2224,7 @@ function draw(shape: EditType["shape"], v: "start" | "move", x1: number, y1: num
                 rect: { x, y, w, h },
                 canChangeFill: true,
                 形状: "mask",
-            })
+            }),
         );
     }
     fabricCanvas.add(shapes.at(-1));
@@ -1977,7 +2246,7 @@ function drawPoly(shape: EditType["shape"]) {
                 stroke: strokeColor,
                 strokeWidth: strokeWidth,
                 形状: "polyline",
-            })
+            }),
         );
     }
     if (shape === "polygon") {
@@ -1988,7 +2257,7 @@ function drawPoly(shape: EditType["shape"]) {
                 strokeWidth: strokeWidth,
                 canChangeFill: true,
                 形状: "polygon",
-            })
+            }),
         );
     }
     fabricCanvas.add(shapes.at(-1));
@@ -2032,7 +2301,8 @@ function setDrawMode(m: typeof colorM) {
         colorFillEl.style({ height: "0" });
         colorStrokeEl.style({ height: "" });
         document.getElementById("draw_stroke_width").style.height = "";
-        document.getElementById("draw_fill_storke_mark").style.top = "calc(var(--bar-size) / 2)";
+        document.getElementById("draw_fill_storke_mark").style.top =
+            "calc(var(--bar-size) / 2)";
         document.getElementById("draw_fill_storke_mark").title = "当前为描边";
     }
 }
@@ -2067,7 +2337,11 @@ function colorInput(type: "fill" | "stroke") {
 
         let textColor = "#000";
         const tColor = color;
-        const bgColor = Color(getComputedStyle(document.documentElement).getPropertyValue("--bar-bg").replace(" ", ""));
+        const bgColor = Color(
+            getComputedStyle(document.documentElement)
+                .getPropertyValue("--bar-bg")
+                .replace(" ", ""),
+        );
         if (tColor.alpha() >= 0.5 || tColor.alpha() === undefined) {
             if (tColor.isLight()) {
                 textColor = "#000";
@@ -2084,7 +2358,9 @@ function colorInput(type: "fill" | "stroke") {
         }
         i.style({ color: textColor });
 
-        const mainSideBarEl = <HTMLDivElement>document.querySelector("#draw_color > div");
+        const mainSideBarEl = <HTMLDivElement>(
+            document.querySelector("#draw_color > div")
+        );
         if (type === "fill") {
             mainSideBarEl.style.backgroundColor = color.hexa();
         }
@@ -2149,7 +2425,7 @@ function colorBar() {
         for (const n in nextColorList) {
             tt += `<div class="color_i" style="background-color: ${nextColorList[n]}" title="${colorConversion(
                 nextColorList[n],
-                取色器默认格式
+                取色器默认格式,
             )}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = tt;
@@ -2161,7 +2437,7 @@ function colorBar() {
             const x = colorList[i];
             t += `<div class="color_i" style="background-color: ${x}" title="${colorConversion(
                 x,
-                取色器默认格式
+                取色器默认格式,
             )}" data-i="${i}"></div>`;
         }
         document.querySelector("#draw_color_color").innerHTML = t;
@@ -2209,7 +2485,8 @@ function getFObjectV() {
         if (n.fill) pro.fc = n.fill;
         if (n.stroke) pro.sc = n.stroke;
         if (n.strokeWidth) pro.sw = n.strokeWidth;
-        if (n.filters) pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
+        if (n.filters)
+            pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
         setOnlyStroke(!n.canChangeFill);
     } else if (fabricCanvas.isDrawingMode) {
         pro = { fc: "#0000", sc: freeColor, sw: freeWidth };
@@ -2217,7 +2494,9 @@ function getFObjectV() {
         pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     }
     console.log(pro);
-    (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = pro.sw;
+    (<HTMLInputElement>(
+        document.querySelector("#draw_stroke_width > range-b")
+    )).value = pro.sw;
     colorFillEl.sv(pro.fc);
     colorStrokeEl.sv(pro.sc);
 
@@ -2233,7 +2512,8 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     if (fabricCanvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
-        let n = fabricCanvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
+        let n =
+            fabricCanvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
         n = n._objects || [n];
         for (const i in n) {
             if (fill) {
@@ -2243,9 +2523,18 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
             if (stroke) n[i].set("stroke", stroke);
             if (sw) n[i].set("strokeWidth", sw);
             if (n[i].形状) {
-                store.set(`图像编辑.形状属性.${n[i].形状}.fc`, fill || fillColor);
-                store.set(`图像编辑.形状属性.${n[i].形状}.sc`, stroke || strokeColor);
-                store.set(`图像编辑.形状属性.${n[i].形状}.sw`, sw || strokeWidth);
+                store.set(
+                    `图像编辑.形状属性.${n[i].形状}.fc`,
+                    fill || fillColor,
+                );
+                store.set(
+                    `图像编辑.形状属性.${n[i].形状}.sc`,
+                    stroke || strokeColor,
+                );
+                store.set(
+                    `图像编辑.形状属性.${n[i].形状}.sw`,
+                    sw || strokeWidth,
+                );
                 shapePro[n[i].形状] = {
                     fc: fill || fillColor,
                     sc: stroke || strokeColor,
@@ -2257,8 +2546,12 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     } else if (fabricCanvas.isDrawingMode) {
         console.log(1);
         /* 画笔 */
-        if (stroke) fabricCanvas.freeDrawingBrush.color = shapePro[editType.draw].sc = stroke;
-        if (sw) fabricCanvas.freeDrawingBrush.width = shapePro[editType.draw].sw = sw;
+        if (stroke)
+            fabricCanvas.freeDrawingBrush.color = shapePro[editType.draw].sc =
+                stroke;
+        if (sw)
+            fabricCanvas.freeDrawingBrush.width = shapePro[editType.draw].sw =
+                sw;
         freeDrawCursor();
         freeShadow();
         if (mode) {
@@ -2319,11 +2612,15 @@ function getFilters() {
     for (const fl of Object.values(filtetMap)) {
         if (fl.value) {
             if (f[fl.i]) {
-                const name = Object.keys(filtetMap).find((f) => filtetMap[f].i === fl.i);
+                const name = Object.keys(filtetMap).find(
+                    (f) => filtetMap[f].i === fl.i,
+                );
                 filterRangeEl.innerHTML = `<range-b min="${fl.value.min || 0}" max="${fl.value.max}" value="${
                     f[fl.i][fl.key]
                 }" text="${fl.value.text || ""}" step="${fl.value.step || 1}"></range-b>`;
-                const range = filterRangeEl.querySelector("range-b") as HTMLInputElement;
+                const range = filterRangeEl.querySelector(
+                    "range-b",
+                ) as HTMLInputElement;
                 range.oninput = () => {
                     const filter = new Fabric.Image.filters[fl.f]({
                         [fl.key]: Number(range.value),
@@ -2338,29 +2635,53 @@ function getFilters() {
         }
     }
 
-    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value = String(
-        f[6]?.gamma[0] || 1
-    );
-    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value = String(
-        f[6]?.gamma[1] || 1
-    );
-    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value = String(
-        f[6]?.gamma[2] || 1
-    );
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")
+    )).value = String(f[6]?.gamma[0] || 1);
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")
+    )).value = String(f[6]?.gamma[1] || 1);
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
+    )).value = String(f[6]?.gamma[2] || 1);
     const gray = f[8]?.mode;
     switch (gray) {
         case "average":
-            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = true;
+            (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_grayscale > lock-b:nth-child(1)",
+                )
+            )).checked = true;
             break;
         case "lightness":
-            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = true;
+            (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_grayscale > lock-b:nth-child(2)",
+                )
+            )).checked = true;
             break;
         case "luminosity":
-            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = true;
+            (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_grayscale > lock-b:nth-child(3)",
+                )
+            )).checked = true;
         default:
-            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
-            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
-            (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
+            (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_grayscale > lock-b:nth-child(1)",
+                )
+            )).checked = false;
+            (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_grayscale > lock-b:nth-child(2)",
+                )
+            )).checked = false;
+            (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_grayscale > lock-b:nth-child(3)",
+                )
+            )).checked = false;
     }
 }
 
@@ -2421,7 +2742,11 @@ function checkUpdate(show?: boolean) {
             let first;
             for (const r of re) {
                 if (first) break;
-                if (!version.includes("beta") && !version.includes("alpha") && m !== "dev") {
+                if (
+                    !version.includes("beta") &&
+                    !version.includes("alpha") &&
+                    m !== "dev"
+                ) {
                     if (!r.draft && !r.prerelease) first = r;
                 } else {
                     first = r;
@@ -2432,13 +2757,20 @@ function checkUpdate(show?: boolean) {
             if (m === "dev") {
                 if (firstName !== version) update = true;
             } else if (m === "小版本") {
-                if (firstName.split(".").slice(0, 2).join(".") !== version.split(".").slice(0, 2).join("."))
+                if (
+                    firstName.split(".").slice(0, 2).join(".") !==
+                    version.split(".").slice(0, 2).join(".")
+                )
                     update = true;
             } else {
-                if (firstName.split(".").at(0) !== version.split(".").at(0)) update = true;
+                if (firstName.split(".").at(0) !== version.split(".").at(0))
+                    update = true;
             }
             if (update) {
-                ipcRenderer.send("clip_main_b", "new_version", { v: first.name, url: first.html_url });
+                ipcRenderer.send("clip_main_b", "new_version", {
+                    v: first.name,
+                    url: first.html_url,
+                });
             } else if (show) {
                 ipcRenderer.send("clip_main_b", "new_version");
             }
@@ -2500,7 +2832,10 @@ const toolBarEl = frame("tool", {
     close: iconEl(close_svg),
     screens: view(),
     ocr: { _: iconEl(ocr_svg), ocrE: selectMenu().class("side_select") },
-    search: { _: iconEl(search_svg), searchE: selectMenu().class("side_select") },
+    search: {
+        _: iconEl(search_svg),
+        searchE: selectMenu().class("side_select"),
+    },
     QR: iconEl(scan_svg),
     open: iconEl(open_svg),
     ding: iconEl(ding_svg),
@@ -2518,10 +2853,15 @@ for (const i of [
     { value: "yandex", t: "Yandex" },
     { value: "google", t: "Google" },
 ]) {
-    toolBarEl.els.searchE.add(ele("option").attr({ innerText: i.t, value: i.value }));
+    toolBarEl.els.searchE.add(
+        ele("option").attr({ innerText: i.t, value: i.value }),
+    );
 }
 
-toolBarEl.el.style({ left: store.get("工具栏.初始位置.left"), top: store.get("工具栏.初始位置.top") });
+toolBarEl.el.style({
+    left: store.get("工具栏.初始位置.left"),
+    top: store.get("工具栏.初始位置.top"),
+});
 
 const toolsOrder = store.get("工具栏.功能") as string[];
 for (const g of tools) {
@@ -2552,7 +2892,10 @@ whEl.add([
 
 const longTip = frame("long_tip", {
     _: view().attr({ id: "long_tip" }),
-    rect: { _: view().attr({ id: "long_rect" }), finish: view().attr({ id: "long_finish" }) },
+    rect: {
+        _: view().attr({ id: "long_rect" }),
+        finish: view().attr({ id: "long_finish" }),
+    },
 });
 
 const longPreview = view().style({ position: "fixed" });
@@ -2578,8 +2921,14 @@ const mainCanvas = <HTMLCanvasElement>document.getElementById("main_photo");
 const clipCanvas = <HTMLCanvasElement>document.getElementById("clip_photo");
 const drawCanvas = <HTMLCanvasElement>document.getElementById("draw_photo");
 // 第一次截的一定是桌面,所以可提前定义
-mainCanvas.width = clipCanvas.width = drawCanvas.width = window.screen.width * window.devicePixelRatio;
-mainCanvas.height = clipCanvas.height = drawCanvas.height = window.screen.height * window.devicePixelRatio;
+mainCanvas.width =
+    clipCanvas.width =
+    drawCanvas.width =
+        window.screen.width * window.devicePixelRatio;
+mainCanvas.height =
+    clipCanvas.height =
+    drawCanvas.height =
+        window.screen.height * window.devicePixelRatio;
 let zoomW = 0;
 type rect = [number, number, number, number];
 type point = { x: number; y: number };
@@ -2592,7 +2941,10 @@ const drawBar = document.getElementById("draw_bar");
 
 let nowScreenId = 0;
 
-let allScreens: (Electron.Display & { captureSync?: () => Buffer; image?: Buffer })[] = [];
+let allScreens: (Electron.Display & {
+    captureSync?: () => Buffer;
+    image?: Buffer;
+})[] = [];
 
 let nowMouseE: MouseEvent = null;
 
@@ -2601,7 +2953,13 @@ const editorP = { zoom: 1, x: 0, y: 0 };
 let middleB: PointerEvent;
 const middleP = { x: 0, y: 0 };
 
-const edgeRect: { x: number; y: number; width: number; height: number; type: "system" | "image" }[] = [];
+const edgeRect: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    type: "system" | "image";
+}[] = [];
 
 let centerBarShow = false;
 let centerBarM = null;
@@ -2630,7 +2988,9 @@ const drawMainEls: { [key in keyof EditType]: HTMLElement } = {
 };
 const shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
 const filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
-const drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement } } = {
+const drawSideEls: {
+    [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement };
+} = {
     select: {
         rect: document.getElementById("draw_select_rect"),
         free: document.getElementById("draw_select_free"),
@@ -2648,7 +3008,19 @@ const drawSideEls: { [key in keyof EditType]: { [key1 in EditType[key]]: HTMLEle
 type hotkeyScope = "normal" | "c_bar" | "drawing";
 const hotkeyScopes: hotkeyScope[] = [];
 
-const toolList: 功能[] = ["close", "screens", "ocr", "search", "QR", "open", "ding", "record", "long", "copy", "save"];
+const toolList: 功能[] = [
+    "close",
+    "screens",
+    "ocr",
+    "search",
+    "QR",
+    "open",
+    "ding",
+    "record",
+    "long",
+    "copy",
+    "save",
+];
 
 const drawHotKey: setting["截屏编辑快捷键"] = store.get("截屏编辑快捷键");
 
@@ -2730,7 +3102,10 @@ let /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
 
-let /** 先前坐标，用于框选的生成和调整 */ oldP = { x: Number.NaN, y: Number.NaN } as editor_position;
+let /** 先前坐标，用于框选的生成和调整 */ oldP = {
+        x: Number.NaN,
+        y: Number.NaN,
+    } as editor_position;
 let oFinalRect = null as rect;
 let oPoly = null as point[];
 let theColor: [number, number, number, number] = null;
@@ -2741,7 +3116,17 @@ const rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[];
 const canvasStack = [{}];
 let undoStackI = 0;
 let nowCanvasPosition: number[];
-let direction: "" | "move" | "东" | "西" | "南" | "北" | "东南" | "西南" | "东北" | "西北";
+let direction:
+    | ""
+    | "move"
+    | "东"
+    | "西"
+    | "南"
+    | "北"
+    | "东南"
+    | "西南"
+    | "东北"
+    | "西北";
 const autoSelectRect = store.get("框选.自动框选.开启");
 const autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
 let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
@@ -2753,7 +3138,11 @@ let rectInRect = [];
 const mouseBarW =
     Math.max(
         colorSize * colorISize,
-        (String(window.innerWidth).length + String(window.innerHeight).length + 2 + 1) * 8
+        (String(window.innerWidth).length +
+            String(window.innerHeight).length +
+            2 +
+            1) *
+            8,
     ) + 4;
 const mouseBarH = 4 + colorSize * colorISize + 32 * 2;
 
@@ -2788,11 +3177,17 @@ let mode: EditType["draw"];
 
 const strokeWidthF = {
     set: (v: number) => {
-        (<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value = String(v);
+        (<HTMLInputElement>(
+            document.querySelector("#draw_stroke_width > range-b")
+        )).value = String(v);
         setFObjectV(null, null, Math.floor(v));
     },
     get: () => {
-        return Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value);
+        return Number(
+            (<HTMLInputElement>(
+                document.querySelector("#draw_stroke_width > range-b")
+            )).value,
+        );
     },
 };
 
@@ -2829,12 +3224,42 @@ const filtetMap: {
 } = {
     // 马赛克
     // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-    pixelate: { f: "Pixelate", i: 0, key: "blocksize", value: { value: 16, max: 20, text: "px" } },
-    blur: { f: "Blur", i: 1, key: "blur", value: { value: 1, max: 5, text: "%", step: 0.1 } },
-    brightness: { f: "Brightness", i: 2, key: "brightness", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    contrast: { f: "Contrast", i: 3, key: "contrast", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    saturation: { f: "Saturation", i: 4, key: "saturation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
-    hue: { f: "HueRotation", i: 5, key: "rotation", value: { min: -1, value: 0, max: 1, step: 0.01 } },
+    pixelate: {
+        f: "Pixelate",
+        i: 0,
+        key: "blocksize",
+        value: { value: 16, max: 20, text: "px" },
+    },
+    blur: {
+        f: "Blur",
+        i: 1,
+        key: "blur",
+        value: { value: 1, max: 5, text: "%", step: 0.1 },
+    },
+    brightness: {
+        f: "Brightness",
+        i: 2,
+        key: "brightness",
+        value: { min: -1, value: 0, max: 1, step: 0.01 },
+    },
+    contrast: {
+        f: "Contrast",
+        i: 3,
+        key: "contrast",
+        value: { min: -1, value: 0, max: 1, step: 0.01 },
+    },
+    saturation: {
+        f: "Saturation",
+        i: 4,
+        key: "saturation",
+        value: { min: -1, value: 0, max: 1, step: 0.01 },
+    },
+    hue: {
+        f: "HueRotation",
+        i: 5,
+        key: "rotation",
+        value: { min: -1, value: 0, max: 1, step: 0.01 },
+    },
     noise: { f: "Noise", i: 7, value: { value: 0, max: 1000 } },
     invert: { f: "Invert", i: 9 },
     sepia: { f: "Sepia", i: 10 },
@@ -2855,89 +3280,94 @@ let fabricClipboard;
 
 document.body.style.opacity = "0";
 
-ipcRenderer.on("reflash", (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
-    if (!_displays.find((i) => i.main)) {
-        dispaly2screen(_displays, Screenshots.all());
-    } else {
-        allScreens = _displays;
-    }
-    console.log(allScreens);
-    const mainId = mainid;
-    for (const i of allScreens) {
-        if (i.main || i.id === mainId) {
-            if (!i.image) i.image = i.captureSync();
-            setScreen(i);
-            setEditorP(1 / i.scaleFactor, 0, 0);
-            zoomW = i.size.width;
-            ratio = i.scaleFactor;
-            document.body.style.opacity = "";
+ipcRenderer.on(
+    "reflash",
+    (_a, _displays: Electron.Display[], mainid: number, act: 功能) => {
+        if (!_displays.find((i) => i.main)) {
+            dispaly2screen(_displays, Screenshots.all());
+        } else {
+            allScreens = _displays;
         }
-        screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
-    }
-    ipcRenderer.send("clip_main_b", "window-show");
-    const screensEl = toolBarEl.els.screens;
-    if (allScreens.length > 1) {
-        let minX = 0;
-        let maxX = 0;
-        let minY = 0;
-        let maxY = 0;
+        console.log(allScreens);
+        const mainId = mainid;
         for (const i of allScreens) {
-            const right = i.bounds.x + i.bounds.width;
-            const bottom = i.bounds.y + i.bounds.height;
-            maxX = Math.max(maxX, right);
-            maxY = Math.max(maxY, bottom);
-            minX = Math.min(minX, i.bounds.x);
-            minY = Math.min(minY, i.bounds.y);
-        }
-        const tWidth = maxX - minX;
-        const tHeight = maxY - minY;
-        const el = view();
-        for (const i of allScreens) {
-            const x = (i.bounds.x - minX) / tWidth;
-            const y = (i.bounds.y - minY) / tHeight;
-            const width = i.bounds.width / tWidth;
-            const height = i.bounds.height / tHeight;
-            const div = view().style({
-                width: `${width * 100}%`,
-                height: `${height * 100}%`,
-                left: `${x * 100}%`,
-                top: `${y * 100}%`,
-            });
-            if (i.id === nowScreenId) {
-                div.el.classList.add("now_screen");
-            }
-            el.add(div);
-            div.on("input", () => {
-                el.el.querySelector(".now_screen").classList.remove("now_screen");
-                div.el.classList.add("now_screen");
+            if (i.main || i.id === mainId) {
                 if (!i.image) i.image = i.captureSync();
                 setScreen(i);
-            });
+                setEditorP(1 / i.scaleFactor, 0, 0);
+                zoomW = i.size.width;
+                ratio = i.scaleFactor;
+                document.body.style.opacity = "";
+            }
+            screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
         }
-        screensEl.clear();
-        screensEl.add(el);
-    } else {
-        screensEl.el.style.display = "none";
-    }
+        ipcRenderer.send("clip_main_b", "window-show");
+        const screensEl = toolBarEl.els.screens;
+        if (allScreens.length > 1) {
+            let minX = 0;
+            let maxX = 0;
+            let minY = 0;
+            let maxY = 0;
+            for (const i of allScreens) {
+                const right = i.bounds.x + i.bounds.width;
+                const bottom = i.bounds.y + i.bounds.height;
+                maxX = Math.max(maxX, right);
+                maxY = Math.max(maxY, bottom);
+                minX = Math.min(minX, i.bounds.x);
+                minY = Math.min(minY, i.bounds.y);
+            }
+            const tWidth = maxX - minX;
+            const tHeight = maxY - minY;
+            const el = view();
+            for (const i of allScreens) {
+                const x = (i.bounds.x - minX) / tWidth;
+                const y = (i.bounds.y - minY) / tHeight;
+                const width = i.bounds.width / tWidth;
+                const height = i.bounds.height / tHeight;
+                const div = view().style({
+                    width: `${width * 100}%`,
+                    height: `${height * 100}%`,
+                    left: `${x * 100}%`,
+                    top: `${y * 100}%`,
+                });
+                if (i.id === nowScreenId) {
+                    div.el.classList.add("now_screen");
+                }
+                el.add(div);
+                div.on("input", () => {
+                    el.el
+                        .querySelector(".now_screen")
+                        .classList.remove("now_screen");
+                    div.el.classList.add("now_screen");
+                    if (!i.image) i.image = i.captureSync();
+                    setScreen(i);
+                });
+            }
+            screensEl.clear();
+            screensEl.add(el);
+        } else {
+            screensEl.el.style.display = "none";
+        }
 
-    setDefaultAction(act);
+        setDefaultAction(act);
 
-    if (autoPhotoSelectRect) {
+        if (autoPhotoSelectRect) {
+            setTimeout(() => {
+                edge();
+            }, 0);
+        }
+
+        getLinuxWin();
+        getWinWin();
+
+        drawClipRect();
         setTimeout(() => {
-            edge();
+            whBar(finalRect);
         }, 0);
-    }
-
-    getLinuxWin();
-    getWinWin();
-
-    drawClipRect();
-    setTimeout(() => {
-        whBar(finalRect);
-    }, 0);
-    rightKey = false;
-    changeRightBar(false);
-});
+        rightKey = false;
+        changeRightBar(false);
+    },
+);
 
 ipcRenderer.on("quick", quickClip);
 
@@ -2946,7 +3376,8 @@ document.addEventListener("mousemove", (e) => {
 });
 
 document.onwheel = (e) => {
-    if (!editor.contains(e.target as HTMLElement) && e.target !== document.body) return;
+    if (!editor.contains(e.target as HTMLElement) && e.target !== document.body)
+        return;
     if (longRunning) return;
 
     document.body.classList.add("editor_bg");
@@ -2979,7 +3410,11 @@ document.onwheel = (e) => {
             dx = -e.deltaX;
             dy = -e.deltaY;
         }
-        setEditorP(editorP.zoom, editorP.x + dx / editorP.zoom, editorP.y + dy / editorP.zoom);
+        setEditorP(
+            editorP.zoom,
+            editorP.x + dx / editorP.zoom,
+            editorP.y + dy / editorP.zoom,
+        );
     }
 };
 
@@ -3004,7 +3439,11 @@ document.addEventListener("pointermove", (e) => {
     if (middleB) {
         const dx = e.clientX - middleB.clientX;
         const dy = e.clientY - middleB.clientY;
-        setEditorP(editorP.zoom, middleP.x + dx / editorP.zoom, middleP.y + dy / editorP.zoom);
+        setEditorP(
+            editorP.zoom,
+            middleP.x + dx / editorP.zoom,
+            middleP.y + dy / editorP.zoom,
+        );
     }
 });
 document.addEventListener("pointerup", (_e) => {
@@ -3025,12 +3464,17 @@ toolBar.onmouseup = (e) => {
     }
 };
 
-document.querySelectorAll("#draw_shapes_i > div").forEach((el: HTMLInputElement) => {
-    shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
-});
-document.querySelectorAll("#draw_filters_i div").forEach((el: HTMLInputElement) => {
-    if (el.id.startsWith("draw_filters_")) filtersEl[el.id.replace("draw_filters_", "") as string] = el;
-});
+document
+    .querySelectorAll("#draw_shapes_i > div")
+    .forEach((el: HTMLInputElement) => {
+        shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
+    });
+document
+    .querySelectorAll("#draw_filters_i div")
+    .forEach((el: HTMLInputElement) => {
+        if (el.id.startsWith("draw_filters_"))
+            filtersEl[el.id.replace("draw_filters_", "") as string] = el;
+    });
 
 hotkeys.filter = (event) => {
     const tagName = (<HTMLElement>event.target).tagName;
@@ -3046,12 +3490,19 @@ hotkeys.filter = (event) => {
 toHotkeyScope("normal");
 for (const k of toolList) {
     let key = store.get(`工具快捷键.${k}`) as string;
-    if (["esc", "escape"].includes(key.toLowerCase())) hotkeys(key, "normal", tool[k]);
+    if (["esc", "escape"].includes(key.toLowerCase()))
+        hotkeys(key, "normal", tool[k]);
     else if (key.toLowerCase() === "enter") hotkeys(key, "normal", tool[k]);
     else hotkeys(key, "all", tool[k]);
     key = key
         .split("+")
-        .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
+        .map(
+            (k) =>
+                jsKeyCodeDisplay(
+                    ele2jsKeyCode(k),
+                    process.platform === "darwin",
+                ).primary,
+        )
         .join("");
     if (k === "copy") {
         key += " 双击";
@@ -3060,12 +3511,18 @@ for (const k of toolList) {
 }
 for (const i in drawHotKey) {
     const mainKey = i as keyof EditType;
-    drawMainEls[mainKey].setAttribute("data-key", showShortKey(drawHotKey[mainKey].键));
+    drawMainEls[mainKey].setAttribute(
+        "data-key",
+        showShortKey(drawHotKey[mainKey].键),
+    );
     hotkeys(drawHotKey[mainKey].键, () => {
         setEditType(mainKey, editType[mainKey]);
     });
     for (const j in drawHotKey[mainKey].副) {
-        drawSideEls[mainKey][j]?.setAttribute("data-key", showShortKey(drawHotKey[mainKey].副[j]));
+        drawSideEls[mainKey][j]?.setAttribute(
+            "data-key",
+            showShortKey(drawHotKey[mainKey].副[j]),
+        );
         hotkeys(drawHotKey[mainKey].副[j], () => {
             setEditType(mainKey, j as EditType[keyof EditType]);
         });
@@ -3073,13 +3530,21 @@ for (const i in drawHotKey) {
 }
 
 for (const k in canvasControlKey) {
-    document.getElementById(k).setAttribute("data-key", showShortKey(canvasControlKey[k]));
+    document
+        .getElementById(k)
+        .setAttribute("data-key", showShortKey(canvasControlKey[k]));
 }
 
 function showShortKey(k: string) {
     return k
         .split("+")
-        .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
+        .map(
+            (k) =>
+                jsKeyCodeDisplay(
+                    ele2jsKeyCode(k),
+                    process.platform === "darwin",
+                ).primary,
+        )
         .join("");
 }
 
@@ -3102,7 +3567,13 @@ for (const m of hotkeyTipX) {
         for (let s of k.keys) {
             s = s
                 .split("+")
-                .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k), process.platform === "darwin").primary)
+                .map(
+                    (k) =>
+                        jsKeyCodeDisplay(
+                            ele2jsKeyCode(k),
+                            process.platform === "darwin",
+                        ).primary,
+                )
                 .join("+");
             x.add(txt(s));
         }
@@ -3150,7 +3621,12 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
         const x = mouse.x;
         const y = mouse.y;
         const el = document.elementsFromPoint(x, y);
-        if (longRunning) ipcRenderer.send("clip_main_b", "ignore_mouse", !el.includes(finishLongB));
+        if (longRunning)
+            ipcRenderer.send(
+                "clip_main_b",
+                "ignore_mouse",
+                !el.includes(finishLongB),
+            );
         else ipcRenderer.send("clip_main_b", "ignore_mouse", false);
     }
     if (type === "update") checkUpdate(true);
@@ -3179,7 +3655,12 @@ document.title = t(document.title);
 // 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {
     const tagName = (<HTMLElement>e.target).tagName;
-    if ((<HTMLElement>e.target).isContentEditable || tagName === "INPUT" || tagName === "SELECT" || tagName === "TEXTAREA")
+    if (
+        (<HTMLElement>e.target).isContentEditable ||
+        tagName === "INPUT" ||
+        tagName === "SELECT" ||
+        tagName === "TEXTAREA"
+    )
         return;
     if (longRunning) return;
     if (hotkeys.getScope() === "c_bar") return;
@@ -3241,8 +3722,10 @@ document.querySelector("body").onkeydown = (e) => {
             }
             setEditorP(editorP.zoom, x, y);
             document.body.classList.add("editor_bg");
-            const cX = (nowMouseE.clientX - editorP.x * editorP.zoom) / editorP.zoom;
-            const cY = (nowMouseE.clientY - editorP.y * editorP.zoom) / editorP.zoom;
+            const cX =
+                (nowMouseE.clientX - editorP.x * editorP.zoom) / editorP.zoom;
+            const cY =
+                (nowMouseE.clientY - editorP.y * editorP.zoom) / editorP.zoom;
             nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
             mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         }
@@ -3281,7 +3764,13 @@ clipCanvas.onmousemove = (e) => {
             if (selecting) {
                 if (isRect) {
                     // 画框
-                    finalRect = pXY2cXY(clipCanvas, canvasRect[0], canvasRect[1], e.offsetX, e.offsetY);
+                    finalRect = pXY2cXY(
+                        clipCanvas,
+                        canvasRect[0],
+                        canvasRect[1],
+                        e.offsetX,
+                        e.offsetY,
+                    );
                     drawClipRect();
                 } else {
                     freeSelect.push(pXY2cXY2(clipCanvas, e.offsetX, e.offsetY));
@@ -3297,7 +3786,8 @@ clipCanvas.onmousemove = (e) => {
                     movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
                 }
             }
-            if (down) mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (down)
+                mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         });
     }
     if (!selecting && !moving) {
@@ -3431,7 +3921,9 @@ const pointColorCanvasBgCtx = pointColorCanvasBg.getContext("2d");
 const pointColorCanvas = document.createElement("canvas");
 pointColorCanvas.width = pointColorCanvas.height = colorSize;
 document.getElementById("point_color").append(pointColorCanvas);
-const pointColorCanvasCtx = pointColorCanvas.getContext("2d", { willReadFrequently: true });
+const pointColorCanvasCtx = pointColorCanvas.getContext("2d", {
+    willReadFrequently: true,
+});
 const pointCenter = document.createElement("div");
 document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
@@ -3450,7 +3942,11 @@ document.getElementById("clip_xy").onclick = () => {
 changeRightBar(false);
 
 hotkeys(store.get("其他快捷键.复制颜色"), () => {
-    copy(document.querySelector(`#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`));
+    copy(
+        document.querySelector(
+            `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`,
+        ),
+    );
 });
 
 clipCanvas.ondblclick = () => {
@@ -3466,7 +3962,8 @@ document.onmousemove = (e) => {
             const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
             nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
             // 鼠标跟随栏
-            if (!down) mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (!down)
+                mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
         }
         // 鼠标跟随栏
 
@@ -3501,8 +3998,10 @@ document.onmousemove = (e) => {
 document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
     if (e.button !== 0) {
         drawBarMoving = true;
-        drawBarMovingXY[0] = e.clientX - document.getElementById("draw_bar").offsetLeft;
-        drawBarMovingXY[1] = e.clientY - document.getElementById("draw_bar").offsetTop;
+        drawBarMovingXY[0] =
+            e.clientX - document.getElementById("draw_bar").offsetLeft;
+        drawBarMovingXY[1] =
+            e.clientY - document.getElementById("draw_bar").offsetTop;
         drawBar.style.transition = "0s";
     }
 });
@@ -3568,26 +4067,28 @@ const drawMainBar = document.getElementById("draw_main");
 const drawSideBar = document.getElementById("draw_side");
 showSideBar(false);
 
-document.querySelectorAll("#draw_main > div").forEach((e: HTMLDivElement, index) => {
-    const Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
-    e.addEventListener("mouseenter", () => {
-        // 用于防误触，防经过时误切换
-        willShowITime = setTimeout(() => {
-            showSideBarItem(index);
-        }, 100);
+document
+    .querySelectorAll("#draw_main > div")
+    .forEach((e: HTMLDivElement, index) => {
+        const Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
+        e.addEventListener("mouseenter", () => {
+            // 用于防误触，防经过时误切换
+            willShowITime = setTimeout(() => {
+                showSideBarItem(index);
+            }, 100);
+        });
+        e.addEventListener("pointerleave", () => {
+            clearTimeout(willShowITime);
+            setTimeout(() => {
+                if (!isInDrawBar()) {
+                    showSideBar(false);
+                }
+            }, 100);
+        });
+        e.addEventListener("click", () => {
+            setEditType(Type[index], editType[Type[index]]);
+        });
     });
-    e.addEventListener("pointerleave", () => {
-        clearTimeout(willShowITime);
-        setTimeout(() => {
-            if (!isInDrawBar()) {
-                showSideBar(false);
-            }
-        }, 100);
-    });
-    e.addEventListener("click", () => {
-        setEditType(Type[index], editType[Type[index]]);
-    });
-});
 
 document.querySelectorAll("#draw_side > div").forEach((el: HTMLElement) => {
     el.onpointerleave = () => {
@@ -3612,7 +4113,8 @@ drawSideEls.draw.eraser.onclick = () => setEditType("draw", "eraser");
 drawSideEls.draw.spray.onclick = () => setEditType("draw", "spray");
 
 // 阴影
-(<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput = freeShadow;
+(<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput =
+    freeShadow;
 
 // 几何
 document.getElementById("draw_shapes_i").onclick = (e) => {
@@ -3653,11 +4155,23 @@ fabricCanvas.on("mouse:down", (options) => {
         // 折线与多边形要多次点击，在poly_o_p存储点
         if (!unnormalShapes.includes(shape)) {
             drawOP = [options.e.offsetX, options.e.offsetY];
-            draw(shape, "start", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
+            draw(
+                shape,
+                "start",
+                drawOP[0],
+                drawOP[1],
+                options.e.offsetX,
+                options.e.offsetY,
+            );
         } else {
             // 定义最后一个点,双击,点重复,结束
             const polyOPL = polyOP.at(-1);
-            if (!(options.e.offsetX === polyOPL?.x && options.e.offsetY === polyOPL?.y)) {
+            if (
+                !(
+                    options.e.offsetX === polyOPL?.x &&
+                    options.e.offsetY === polyOPL?.y
+                )
+            ) {
                 polyOP.push({ x: options.e.offsetX, y: options.e.offsetY });
                 if (shape === "number") {
                     drawNumber();
@@ -3679,7 +4193,15 @@ fabricCanvas.on("mouse:down", (options) => {
 fabricCanvas.on("mouse:move", (options) => {
     if (drawingShape) {
         if (!unnormalShapes.includes(shape)) {
-            if (shape !== "") draw(shape, "move", drawOP[0], drawOP[1], options.e.offsetX, options.e.offsetY);
+            if (shape !== "")
+                draw(
+                    shape,
+                    "move",
+                    drawOP[0],
+                    drawOP[1],
+                    options.e.offsetX,
+                    options.e.offsetY,
+                );
         }
     }
 });
@@ -3703,7 +4225,9 @@ fabricCanvas.on("mouse:up", (options) => {
         if (willFilter) {
             const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
             if (i.key) {
-                const filter = new Fabric.Image.filters[i.f]({ [i.key]: i.value.value ?? 1 });
+                const filter = new Fabric.Image.filters[i.f]({
+                    [i.key]: i.value.value ?? 1,
+                });
                 applyFilter(i.i, filter);
             } else {
                 const filter = new Fabric.Image.filters[i.f]();
@@ -3730,7 +4254,12 @@ const mask = Fabric.util.createClass(Fabric.Rect, {
         ctx.save();
 
         ctx.fillStyle = this.fill;
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        ctx.fillRect(
+            -this.width / 2,
+            -this.height / 2,
+            this.width,
+            this.height,
+        );
 
         const r = this.rect;
         ctx.clearRect(-this.width / 2 + r.x, -this.height / 2 + r.y, r.w, r.h);
@@ -3823,54 +4352,123 @@ ableChangeColor();
 
 colorBar();
 
-(<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).oninput = () => {
-    setFObjectV(null, null, Number((<HTMLInputElement>document.querySelector("#draw_stroke_width > range-b")).value));
+(<HTMLInputElement>(
+    document.querySelector("#draw_stroke_width > range-b")
+)).oninput = () => {
+    setFObjectV(
+        null,
+        null,
+        Number(
+            (<HTMLInputElement>(
+                document.querySelector("#draw_stroke_width > range-b")
+            )).value,
+        ),
+    );
 };
 
 // 滤镜
 const filterRangeEl = document.querySelector("#draw_filters_range");
 
 for (const id in filtetMap) {
-    (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick = () => {
-        setEditType("filter", id as any);
-    };
+    (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick =
+        () => {
+            setEditType("filter", id as any);
+        };
 }
 
 // 伽马
-(<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).oninput =
-    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).oninput =
-    (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).oninput =
+(<HTMLInputElement>(
+    document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")
+)).oninput =
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")
+    )).oninput =
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
+    )).oninput =
         () => {
-            const r = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")).value;
-            const g = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")).value;
-            const b = (<HTMLInputElement>document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")).value;
+            const r = (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_gamma > range-b:nth-child(1)",
+                )
+            )).value;
+            const g = (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_gamma > range-b:nth-child(2)",
+                )
+            )).value;
+            const b = (<HTMLInputElement>(
+                document.querySelector(
+                    "#draw_filters_gamma > range-b:nth-child(3)",
+                )
+            )).value;
             const filter = new Fabric.Image.filters.Gamma({
                 gamma: [r, g, b],
             });
             applyFilter(6, filter);
         };
 // 灰度
-(<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).oninput = () => {
-    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
-    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked) {
+(<HTMLInputElement>(
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")
+)).oninput = () => {
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")
+    )).checked = false;
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")
+    )).checked = false;
+    if (
+        (<HTMLInputElement>(
+            document.querySelector(
+                "#draw_filters_grayscale > lock-b:nth-child(1)",
+            )
+        )).checked
+    ) {
         const filter = new Fabric.Image.filters.Grayscale({ mode: "average" });
         applyFilter(8, filter);
     }
 };
-(<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).oninput = () => {
-    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked = false;
-    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked) {
-        const filter = new Fabric.Image.filters.Grayscale({ mode: "lightness" });
+(<HTMLInputElement>(
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")
+)).oninput = () => {
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")
+    )).checked = false;
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")
+    )).checked = false;
+    if (
+        (<HTMLInputElement>(
+            document.querySelector(
+                "#draw_filters_grayscale > lock-b:nth-child(2)",
+            )
+        )).checked
+    ) {
+        const filter = new Fabric.Image.filters.Grayscale({
+            mode: "lightness",
+        });
         applyFilter(8, filter);
     }
 };
-(<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).oninput = () => {
-    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")).checked = false;
-    (<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")).checked = false;
-    if ((<HTMLInputElement>document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")).checked) {
-        const filter = new Fabric.Image.filters.Grayscale({ mode: "luminosity" });
+(<HTMLInputElement>(
+    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")
+)).oninput = () => {
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")
+    )).checked = false;
+    (<HTMLInputElement>(
+        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")
+    )).checked = false;
+    if (
+        (<HTMLInputElement>(
+            document.querySelector(
+                "#draw_filters_grayscale > lock-b:nth-child(3)",
+            )
+        )).checked
+    ) {
+        const filter = new Fabric.Image.filters.Grayscale({
+            mode: "luminosity",
+        });
         applyFilter(8, filter);
     }
 };
