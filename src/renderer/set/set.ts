@@ -35,9 +35,9 @@ function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
     requestIdleCallback((id) => {
         if (id.timeRemaining() > 0) {
             cb(l[i], i);
-            i++;
-            if (i < l.length) {
-                _runTask(i, l, cb);
+            const ii = i + 1;
+            if (ii < l.length) {
+                _runTask(ii, l, cb);
             }
         } else {
             if (i < l.length) {
@@ -60,14 +60,14 @@ import {
     getLanName,
 } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
-document
+for (const el of document
     .querySelectorAll("[title],[placeholder]")
-    .forEach((el: HTMLElement) => {
-        if (el.title?.includes("{")) el.title = t(el.title.slice(1, -1));
-        const iel = el as HTMLInputElement;
-        if (iel.placeholder?.includes("{"))
-            iel.placeholder = t(iel.placeholder.slice(1, -1));
-    });
+    .values() as Iterable<HTMLElement>) {
+    if (el.title?.includes("{")) el.title = t(el.title.slice(1, -1));
+    const iel = el as HTMLInputElement;
+    if (iel.placeholder?.includes("{"))
+        iel.placeholder = t(iel.placeholder.slice(1, -1));
+}
 
 const toTranslateEl = Array.from(
     document.querySelectorAll("li, h1, h2, h3, button, comment, t"),
@@ -78,7 +78,7 @@ function translate(el: HTMLElement, i: number) {
     if (elT) el.innerText = t(elT);
 }
 
-toTranslateEl.slice(0, 30).forEach((el) => translate(el, 0));
+for (const el of toTranslateEl.slice(0, 30)) translate(el, 0);
 document.body.style.display = "";
 
 _runTask(30, toTranslateEl, translate);
@@ -87,7 +87,9 @@ setTranslate(t);
 
 document.title = t(document.title);
 
-document.querySelectorAll("[data-platform]").forEach((el: HTMLElement) => {
+for (const el of document
+    .querySelectorAll("[data-platform]")
+    .values() as Iterable<HTMLElement>) {
     const platforms = el
         .getAttribute("data-platform")
         .split(",")
@@ -95,19 +97,19 @@ document.querySelectorAll("[data-platform]").forEach((el: HTMLElement) => {
     if (!platforms.includes(process.platform)) {
         el.style.display = "none";
     }
-});
+}
 
 const xstore = old_store;
-function storeSet(path: string, value: any) {
+function storeSet(path: string, value) {
     const pathx = path.split(".");
     const lastp = pathx.pop();
-    const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
+    const lastobj = pathx.reduce((p, c) => p[c] || {}, xstore);
     lastobj[lastp] = value;
 }
 function storeGet(path: string) {
     const pathx = path.split(".");
     const lastp = pathx.pop();
-    const lastobj = pathx.reduce((p, c) => (p[c] = p[c] || {}), xstore);
+    const lastobj = pathx.reduce((p, c) => p[c] || {}, xstore);
     return lastobj[lastp];
 }
 
@@ -167,9 +169,11 @@ function pushRender(v: () => void) {
     renderTasks.push(v);
 }
 
-document.querySelectorAll("[data-path]").forEach((el: HTMLElement) => {
+for (const el of document.querySelectorAll(
+    "[data-path]",
+) as Iterable<HTMLElement>) {
     renderTasks.push(() => setSetting(el));
-});
+}
 
 const setSetting = (el: HTMLElement) => {
     const path = el.getAttribute("data-path");
@@ -211,11 +215,9 @@ const setSetting = (el: HTMLElement) => {
 
 ipcRenderer.send("autostart", "get");
 ipcRenderer.on("开机启动状态", (_event, v) => {
-    pushRender(
-        () =>
-            ((<HTMLInputElement>document.getElementById("autostart")).checked =
-                v),
-    );
+    pushRender(() => {
+        (<HTMLInputElement>document.getElementById("autostart")).checked = v;
+    });
 });
 document.getElementById("autostart").oninput = () => {
     ipcRenderer.send(
@@ -379,18 +381,22 @@ document.getElementById("不透明度").oninput = () => {
 };
 
 const 快捷键 = old_store.快捷键;
-document.querySelectorAll("#快捷键 hot-keys").forEach((el: any) => {
+type hotkeyElType = HTMLInputElement & { t: boolean };
+for (const el of document.querySelectorAll(
+    "#快捷键 hot-keys",
+) as Iterable<hotkeyElType>) {
     el.value = 快捷键[el.name].key;
     el.addEventListener("inputend", () => {
         ipcRenderer.send("快捷键", [el.name, el.value]);
     });
-});
+}
 ipcRenderer.on("状态", (_event, name, arg) => {
-    (<any>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
+    (<hotkeyElType>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
     if (t)
         storeSet(
             `快捷键.${name}.key`,
-            (<any>document.querySelector(`hot-keys[name=${name}]`)).value,
+            (<hotkeyElType>document.querySelector(`hot-keys[name=${name}]`))
+                .value,
         );
 });
 
@@ -519,9 +525,11 @@ for (const i of toolList) {
 }
 function setToolL() {
     toolShow = [];
-    toolShowEl.querySelectorAll(":scope > [data-id]").forEach((el) => {
+    for (const el of toolShowEl
+        .querySelectorAll(":scope > [data-id]")
+        .values()) {
         toolShow.push(el.getAttribute("data-id") as (typeof toolShow)[0]);
-    });
+    }
     xstore.工具栏.功能 = toolShow;
 }
 
@@ -754,7 +762,7 @@ const addTranslator = button(txt("+")).on("click", async () => {
     const v = await translatorD({
         id: crypto.randomUUID().slice(0, 7),
         name: "",
-        keys: [],
+        keys: {},
         type: null,
     });
     const iel = addTranslatorI(v);
@@ -860,9 +868,9 @@ const engineConfig: Partial<
     },
 };
 
-xstore.翻译.翻译器.forEach((v) => {
+for (const v of xstore.翻译.翻译器) {
     translatorList.add(addTranslatorI(v));
-});
+}
 
 function translatorD(v: setting["翻译"]["翻译器"][0]) {
     const idEl = input("name").attr({ value: v.name });
@@ -981,18 +989,24 @@ function setTranLan() {
     const e = translator.e[type];
     const mainLan = xstore.语言.语言;
     if (!e) return;
-    e.getLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach((v) => {
+    for (const v of e.getLanT({
+        auto: t("自动"),
+        text: mainLan,
+        sort: "text",
+    })) {
         translatorFrom.append(
             ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
         );
-    });
-    e.getTargetLanT({ auto: t("自动"), text: mainLan, sort: "text" }).forEach(
-        (v) => {
-            translatorTo.append(
-                ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
-            );
-        },
-    );
+    }
+    for (const v of e.getTargetLanT({
+        auto: t("自动"),
+        text: mainLan,
+        sort: "text",
+    })) {
+        translatorTo.append(
+            ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
+        );
+    }
 }
 
 setTranLan();
@@ -1045,9 +1059,11 @@ function eSort(el: HTMLElement, list: string[][]) {
                         ),
                     ),
                 );
-                Array.from(addEl.el.querySelectorAll("input")).forEach(
-                    (i) => (i.value = ""),
-                );
+                for (const el of Array.from(
+                    addEl.el.querySelectorAll("input"),
+                )) {
+                    el.value = "";
+                }
             }),
     );
 
