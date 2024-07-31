@@ -5,6 +5,21 @@ import type { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 import { view, txt, ele, button, image } from "dkh-ui";
 import initStyle from "../root/root";
+import hotkeys from "hotkeys-js";
+import time_format from "../../../lib/time_format";
+import openWith from "../../../lib/open_with";
+import { t, lan } from "../../../lib/translate/translate";
+import diff_match_patch from "diff-match-patch";
+const { ipcRenderer, shell, clipboard } =
+    require("electron") as typeof import("electron");
+const fs = require("node:fs") as typeof import("fs");
+const os = require("node:os") as typeof import("os");
+const path = require("node:path") as typeof import("path");
+
+const tmpTextPath = path.join(
+    os.tmpdir(),
+    `/eSearch/eSearch_${new Date().getTime()}.txt`,
+);
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
@@ -14,6 +29,113 @@ import reloadSvg from "../assets/icons/reload.svg";
 const undoStack = [""];
 // 定义位置
 let undoStackI = 0;
+
+let lineHeight = 24;
+
+let windowName = "";
+let mainText = "";
+const 自动搜索 = store.get("自动搜索");
+const 自动打开链接 = store.get("自动打开链接");
+const 自动搜索中文占比 = store.get("自动搜索中文占比");
+
+let editBarS = false;
+let isWrap = !store.get("编辑器.自动换行");
+let isCheck = !store.get("编辑器.拼写检查");
+let findShow = false;
+let findRegex = false;
+
+let tmpText: string;
+
+let findLNI = 0;
+
+let historyList: { [key: string]: { text: string } } = {};
+
+let historyShowed = false;
+
+let editOnOtherType = null;
+let fileWatcher = null;
+
+let editingOnOther = false;
+
+let alwaysOnTop = false;
+
+let blurToClose = store.get("主页面.失焦关闭");
+
+let concise = store.get("主页面.简洁模式");
+
+let lo: import("esearch-ocr").initType;
+
+let output = [];
+
+const 浏览器打开 = store.get("浏览器中打开");
+
+const 默认字体大小 = store.get("字体.大小");
+
+const editBEl = document.getElementById("edit_b");
+
+const barLink = document.getElementById("link_bar");
+const barExcel = document.getElementById("excel_bar");
+const barMdTable = document.getElementById("md_table_bar");
+
+const editTools: setting["编辑器"]["工具"] = store.get("编辑器.工具") || [];
+
+const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = {
+    搜索: () => edit("search"),
+    翻译: () => edit("translate"),
+    打开链接: () => edit("link"),
+    删除换行: () => edit("delete_enter"),
+    图片区: () => imageB.click(),
+    关闭: closeWindow,
+};
+
+const editToolsF: { [name: string]: () => void } = {};
+
+const findInput = <HTMLInputElement>document.getElementById("find_input");
+const replaceInput = <HTMLInputElement>document.getElementById("replace_input");
+const findT = <HTMLElement>document.querySelector(".find_t > span");
+
+const mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
+
+const 搜索引擎List = store.get("引擎.搜索") as setting["引擎"]["搜索"];
+const 翻译引擎List = store.get("引擎.翻译") as setting["引擎"]["翻译"];
+const 引擎 = store.get("引擎") as setting["引擎"];
+
+const searchSelect = document.getElementById("search_s") as HTMLSelectElement;
+const translateSelect = document.getElementById(
+    "translate_s",
+) as HTMLSelectElement;
+
+const 历史记录设置 = store.get("历史记录设置");
+
+const historyListEl = document.getElementById("history_list");
+
+const task = new tLog("e");
+
+const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
+
+const alwaysOnTopEl = document.getElementById("top_b");
+const blurToCloseEl = document.getElementById("ding_b");
+const conciseEl = document.getElementById("concise_b");
+
+const mainEl = document.querySelector(".main") as HTMLElement;
+
+const body = document.querySelector(".fill_t");
+const liList = [];
+
+const imageB = document.getElementById("image_b");
+const dropEl = document.getElementById("drop");
+const imgsEl = document.getElementById("img_view");
+const uploadPel = document.getElementById("file_input");
+const uploadEl = document.getElementById("upload") as HTMLInputElement;
+const runEl = document.getElementById("run");
+const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
+
+const imageShow = "image_main";
+
+const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
+
+const dmp = new diff_match_patch();
+
 /**
  * 添加到撤销栈
  * @returns none
@@ -417,8 +539,6 @@ function formatSelection2(s: selection2) {
     return tmp;
 }
 
-let lineHeight = 24;
-
 /**
  * 每次更改光标触发
  */
@@ -483,12 +603,6 @@ document.getElementById("text").parentElement.onscroll = () => {
 
 /************************************主要 */
 
-let windowName = "";
-let mainText = "";
-const 自动搜索 = store.get("自动搜索");
-const 自动打开链接 = store.get("自动打开链接");
-const 自动搜索中文占比 = store.get("自动搜索中文占比");
-
 /************************************UI */
 
 function setButtonHover(el: HTMLElement, b: boolean) {
@@ -496,10 +610,7 @@ function setButtonHover(el: HTMLElement, b: boolean) {
     else el.classList.remove("hover_b");
 }
 
-const 浏览器打开 = store.get("浏览器中打开");
-
 /**字体大小 */
-const 默认字体大小 = store.get("字体.大小");
 document.getElementById("text_out").style.fontSize = `${
     store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小
 }px`;
@@ -529,14 +640,7 @@ function setTextAreaHeight() {
     editor.text.parentElement.style.height = `calc(${editor.positionEl.offsetHeight}px + 100% - 1em)`;
 }
 
-const editBEl = document.getElementById("edit_b");
-
-const barLink = document.getElementById("link_bar");
-const barExcel = document.getElementById("excel_bar");
-const barMdTable = document.getElementById("md_table_bar");
-
 /**编辑栏 */
-let editBarS = false;
 function showEditBar(x: number, y: number, right: boolean) {
     const get = editor.selections.get();
     // 简易判断链接并显示按钮
@@ -603,9 +707,6 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     }
 });
 
-const editTools: setting["编辑器"]["工具"] = store.get("编辑器.工具") || [];
-
-import hotkeys from "hotkeys-js";
 hotkeys.filter = () => {
     return true;
 };
@@ -614,23 +715,12 @@ hotkeys("ctrl+a", () => {
     editor.selectAll();
 });
 
-const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = {
-    搜索: () => edit("search"),
-    翻译: () => edit("translate"),
-    打开链接: () => edit("link"),
-    删除换行: () => edit("delete_enter"),
-    图片区: () => imageB.click(),
-    关闭: closeWindow,
-};
-
 for (const i in hotkeyMap) {
     const key = store.get(`主页面快捷键.${i}`);
     if (key) {
         hotkeys(key, hotkeyMap[i]);
     }
 }
-
-const editToolsF: { [name: string]: () => void } = {};
 
 for (const i of editTools) {
     const iel = view().add(txt(i.name));
@@ -663,7 +753,6 @@ editBEl.onmousedown = async (e) => {
     }
 };
 
-let isWrap = !store.get("编辑器.自动换行");
 wrap();
 function wrap() {
     isWrap = !isWrap;
@@ -679,7 +768,6 @@ function wrap() {
     lineNum();
 }
 
-let isCheck = !store.get("编辑器.拼写检查");
 spellcheck();
 function spellcheck() {
     isCheck = !isCheck;
@@ -690,12 +778,7 @@ function spellcheck() {
  * 查找与替换
  */
 
-const findInput = <HTMLInputElement>document.getElementById("find_input");
-const replaceInput = <HTMLInputElement>document.getElementById("replace_input");
-const findT = <HTMLElement>document.querySelector(".find_t > span");
-
 // 查找ui
-let findShow = false;
 function showFind() {
     findShow = !findShow;
     if (findShow) {
@@ -720,7 +803,6 @@ document.getElementById("find_b_close").onclick = () => {
 };
 
 // 正则
-let findRegex = false;
 document.getElementById("find_b_regex").onclick = () => {
     findRegex = !findRegex;
     if (findRegex) {
@@ -733,7 +815,6 @@ document.getElementById("find_b_regex").onclick = () => {
     findInput.focus();
 };
 
-let tmpText: string;
 document.getElementById("find_input").oninput = () => {
     // 清除样式后查找
     exitFind();
@@ -758,7 +839,6 @@ function exitFind() {
     editor.find.render([]);
 }
 // 跳转
-let findLNI = 0;
 function findLN(a: "↑" | "↓") {
     const l = document.querySelectorAll(".find_h");
     if (l.length === 0) {
@@ -833,8 +913,6 @@ document.getElementById("replace_input").onkeydown = (e) => {
 };
 
 /************************************搜索 */
-
-const mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
 
 /**
  * 判断是否为链接
@@ -923,9 +1001,6 @@ function openLink(id: "url" | "search" | "translate", slink?: string) {
     }
 }
 
-const 搜索引擎List = store.get("引擎.搜索") as setting["引擎"]["搜索"];
-const 翻译引擎List = store.get("引擎.翻译") as setting["引擎"]["翻译"];
-const 引擎 = store.get("引擎") as setting["引擎"];
 /**搜索翻译按钮 */
 document.getElementById("search_b").onclick = () => {
     openLink("search");
@@ -933,10 +1008,6 @@ document.getElementById("search_b").onclick = () => {
 document.getElementById("translate_b").onclick = () => {
     openLink("translate");
 };
-const searchSelect = document.getElementById("search_s") as HTMLSelectElement;
-const translateSelect = document.getElementById(
-    "translate_s",
-) as HTMLSelectElement;
 /**改变选项后搜索 */
 document.getElementById("search_s").oninput = () => {
     openLink("search");
@@ -965,8 +1036,6 @@ for (const e of 翻译引擎List) {
 // var historyStore = new Store({ name: "history" });
 // todo
 
-let historyList: { [key: string]: { text: string } } = {};
-const 历史记录设置 = store.get("历史记录设置");
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     const nowTime = new Date().getTime();
     const dTime =
@@ -989,10 +1058,7 @@ function pushHistory() {
     renderHistory();
 }
 // 历史记录界面
-let historyShowed = false;
 document.getElementById("history_b").onclick = showHistory;
-
-const historyListEl = document.getElementById("history_list");
 
 function showHistory() {
     if (historyShowed) {
@@ -1007,7 +1073,6 @@ function showHistory() {
     }
     setButtonHover(document.getElementById("history_b"), historyShowed);
 }
-import time_format from "../../../lib/time_format";
 function renderHistory() {
     let n = {};
     for (const i of Object.keys(historyList).sort()) {
@@ -1061,13 +1126,7 @@ function renderHistory() {
 }
 if (mainText === "") renderHistory();
 
-const task = new tLog("e");
-
 /************************************引入 */
-const { ipcRenderer, shell, clipboard } =
-    require("electron") as typeof import("electron");
-const fs = require("node:fs") as typeof import("fs");
-const os = require("node:os") as typeof import("os");
 
 ipcRenderer.on("init", (_event, _name: number) => {});
 
@@ -1152,15 +1211,6 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
 initStyle(store);
 
-let editOnOtherType = null;
-let fileWatcher = null;
-const path = require("node:path") as typeof import("path");
-const tmpTextPath = path.join(
-    os.tmpdir(),
-    `/eSearch/eSearch_${new Date().getTime()}.txt`,
-);
-let editingOnOther = false;
-import openWith from "../../../lib/open_with";
 function editOnOther() {
     editingOnOther = !editingOnOther;
     if (editingOnOther) {
@@ -1312,11 +1362,8 @@ hotkeys("ctrl+0", () => {
     setFontSize(默认字体大小);
 });
 
-import { t, lan } from "../../../lib/translate/translate";
 lan(store.get("语言.语言"));
 document.title = t(document.title);
-
-const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
 
 /**
  * 统计字数
@@ -1350,18 +1397,12 @@ window.onblur = () => {
     if (blurToClose && !alwaysOnTop) closeWindow();
 };
 
-const alwaysOnTopEl = document.getElementById("top_b");
-const blurToCloseEl = document.getElementById("ding_b");
-const conciseEl = document.getElementById("concise_b");
-
-let alwaysOnTop = false;
 alwaysOnTopEl.onclick = () => {
     alwaysOnTop = !alwaysOnTop;
     setButtonHover(alwaysOnTopEl, alwaysOnTop);
     ipcRenderer.send("main_win", "top", alwaysOnTop);
 };
 
-let blurToClose = store.get("主页面.失焦关闭");
 setButtonHover(blurToCloseEl, !blurToClose);
 blurToCloseEl.onclick = () => {
     blurToClose = !blurToClose;
@@ -1369,8 +1410,6 @@ blurToCloseEl.onclick = () => {
     setButtonHover(blurToCloseEl, !blurToClose);
 };
 
-const mainEl = document.querySelector(".main") as HTMLElement;
-let concise = store.get("主页面.简洁模式");
 mainEl.style.transition = "0s";
 setConciseMode(concise);
 mainEl.style.transition = "";
@@ -1408,11 +1447,7 @@ if (!store.get("主页面.高级窗口按钮")) {
 
 /************************************浏览器 */
 
-const body = document.querySelector(".fill_t");
-
 body.className = "fill_t";
-
-const liList = [];
 
 // biome-ignore lint: 不搞体操了
 ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
@@ -1769,8 +1804,6 @@ function ocr(
     }
 }
 
-let lo: import("esearch-ocr").initType;
-
 /**
  * 离线OCR
  * @param {String} arg 图片base64
@@ -2067,16 +2100,6 @@ function onlineOcr(
 }
 // online_ocr();
 
-const imageB = document.getElementById("image_b");
-const dropEl = document.getElementById("drop");
-const imgsEl = document.getElementById("img_view");
-const uploadPel = document.getElementById("file_input");
-const uploadEl = document.getElementById("upload") as HTMLInputElement;
-const runEl = document.getElementById("run");
-const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
-
-const imageShow = "image_main";
-
 imageB.onclick = () => {
     body.classList.toggle(imageShow);
     setButtonHover(imageB, body.classList.contains(imageShow));
@@ -2255,10 +2278,8 @@ function addOcrPhoto(base: string) {
     imgsEl.append(el);
 }
 
-let output = [];
 console.log(output);
 
-const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 function addOcrSelect(div: HTMLDivElement) {
     const allTextNodes: Node[] = [];
     const treeWalker = document.createTreeWalker(div, NodeFilter.SHOW_TEXT);
@@ -2363,6 +2384,3 @@ imgsEl.onpointerup = () => {
     editor.selections.add({ start: editorStart, end: editorEnd });
     editor.text.focus();
 };
-
-import diff_match_patch from "diff-match-patch";
-const dmp = new diff_match_patch();
