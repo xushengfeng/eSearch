@@ -225,8 +225,8 @@ class selections {
         editor.text.setSelectionRange(0, 0);
     }
 
-    s2ns(s: selection2) {
-        s = formatSelection2(s);
+    s2ns(rs: selection2) {
+        const s = formatSelection2(rs);
         const l = editor.l();
         let start = 0;
         for (let i = 0; i < s.start.pg; i++) {
@@ -270,8 +270,7 @@ class selections {
         return l.join("\n");
     }
 
-    replace(text: string, s?: selection) {
-        if (!s) s = this.getS();
+    replace(text: string, s: selection = this.getS()) {
         editor.text.setSelectionRange(s.start, s.end);
         editor.text.setRangeText(text);
         s.end = s.start + text.length;
@@ -335,6 +334,7 @@ class find {
         // 判断是找文字还是正则
         if (regex) {
             try {
+                // biome-ignore lint: regex解析
                 text = eval(`/${stext}/g`);
                 document.getElementById("find_input").style.outline = "none";
             } catch (error) {
@@ -342,8 +342,8 @@ class find {
                     "red  solid 1px";
             }
         } else {
-            stext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-            text = new RegExp(stext, "g"); // 自动转义，找文字
+            const sstext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+            text = new RegExp(sstext, "g"); // 自动转义，找文字
         }
         return text;
     }
@@ -561,13 +561,13 @@ function showEditBar(x: number, y: number, right: boolean) {
             editBEl.style.transition = "opacity var(--transition)";
         }
         editBEl.className = "edit_s";
-        x = x < 0 ? 0 : x;
+        let nx = x < 0 ? 0 : x;
         const pleft = editBEl.parentElement.getBoundingClientRect().left + 16;
-        if (editBEl.offsetWidth + pleft + x > window.innerWidth)
-            x = window.innerWidth - editBEl.offsetWidth - pleft;
-        y = y < 0 ? 0 : y;
-        editBEl.style.left = `${x}px`;
-        editBEl.style.top = `${y}px`;
+        if (editBEl.offsetWidth + pleft + nx > window.innerWidth)
+            nx = window.innerWidth - editBEl.offsetWidth - pleft;
+        const ny = y < 0 ? 0 : y;
+        editBEl.style.left = `${nx}px`;
+        editBEl.style.top = `${ny}px`;
         editBarS = true;
     } else {
         editBEl.className = "edit_h";
@@ -669,14 +669,11 @@ function wrap() {
     isWrap = !isWrap;
     if (isWrap) {
         document.documentElement.style.setProperty("--wrap", "pre-wrap");
-        document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
-            el.style.width = "100%";
-        });
-    } else {
-        document.documentElement.style.setProperty("--wrap", "nowrap");
-        document.querySelectorAll(".text > *").forEach((el: HTMLElement) => {
-            el.style.width = "";
-        });
+    }
+    for (const el of document
+        .querySelectorAll(".text > *")
+        .values() as Iterable<HTMLElement>) {
+        el.style.width = isWrap ? "100%" : "";
     }
     setTextAreaHeight();
     lineNum();
@@ -867,8 +864,8 @@ function isLink(url: string, s: boolean) {
  * 展示文字
  * @param t 展示的文字
  */
-function showT(t: string) {
-    t = t.replace(/[\r\n]$/, "");
+function showT(st: string) {
+    const t = st.replace(/[\r\n]$/, "");
     editor.push(t);
     if (mainType === "auto" || t === "") {
         // 严格模式
@@ -901,10 +898,10 @@ function showT(t: string) {
  * @param id 模式
  * @param link 链接
  */
-function openLink(id: "url" | "search" | "translate", link?: string) {
+function openLink(id: "url" | "search" | "translate", slink?: string) {
     let url = "";
     if (id === "url") {
-        link = link.replace(/[(^\s)(\s$)]/g, "");
+        let link = slink.replace(/[(^\s)(\s$)]/g, "");
         if (link.match(/\/\//g) == null) {
             link = `https://${link}`;
         }
@@ -1043,24 +1040,24 @@ function renderHistory() {
     }
 
     // 打开某项历史
-    document
+    for (const e of document
         .querySelectorAll("#history_list > div > .history_text")
-        .forEach((e) => {
-            e.addEventListener("click", () => {
-                editor.push(historyList[e.parentElement.id].text);
-                showHistory();
-            });
+        .values()) {
+        e.addEventListener("click", () => {
+            editor.push(historyList[e.parentElement.id].text);
+            showHistory();
         });
+    }
     // 删除某项历史
     // TODO多选
-    document
+    for (const e of document
         .querySelectorAll("#history_list > div > .history_title > button")
-        .forEach((e) => {
-            e.addEventListener("click", () => {
-                // historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
-                e.parentElement.parentElement.style.display = "none";
-            });
+        .values()) {
+        e.addEventListener("click", () => {
+            // historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
+            e.parentElement.parentElement.style.display = "none";
         });
+    }
 }
 if (mainText === "") renderHistory();
 
@@ -1086,7 +1083,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
     if (list.type === "image") {
         editor.push(t("图片上传中……请等候"));
-        searchImg(list.content, list.arg0 as any, (err: Error, url: string) => {
+        searchImg(list.content, list.arg0, (err: Error, url: string) => {
             if (url) {
                 editor.push("");
                 openLink("url", url);
@@ -1102,7 +1099,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
         editor.push(t("文字识别中……请等候"));
         ocr(
             list.content,
-            list.arg0 as any,
+            list.arg0,
             (err: Error, r: { raw: ocrResult; text: string }) => {
                 const text = r?.text;
                 if (text) {
@@ -1258,13 +1255,13 @@ async function edit(arg: string) {
         case "excel": {
             const text = editor.selections.get();
             const t: string[] = [];
-            text.split("\n").forEach((v) => {
+            for (const v of text.split("\n")) {
                 const l = v
                     .split("\t")
                     .map((i) => `"${i}"`)
                     .join(",");
                 t.push(l);
-            });
+            }
             // 下载csv
             const blob = new Blob([t.join("\n")], { type: "text/csv" });
             const a = document.createElement("a");
@@ -1396,6 +1393,7 @@ function setConciseMode(m: boolean) {
     const bSize = { top: 0, bottom: 48 };
     if (m) {
         bSize.top =
+            // @ts-ignore
             window.navigator.windowControlsOverlay.getTitlebarAreaRect().height;
         bSize.bottom = 0;
     }
@@ -1416,6 +1414,7 @@ body.className = "fill_t";
 
 const liList = [];
 
+// biome-ignore lint: 不搞体操了
 ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
     if (arg === "new") {
         newTab(id, arg1);
@@ -1437,13 +1436,13 @@ ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
 
 ipcRenderer.on("html", (_e, h: string) => {
     document.getElementById("tabs").innerHTML = h;
-    document
+    for (const li of document
         .getElementById("tabs")
         .querySelectorAll("li")
-        .forEach((li) => {
-            绑定li(li);
-            liList.push(li);
-        });
+        .values()) {
+        绑定li(li);
+        liList.push(li);
+    }
     document.getElementById("buttons").onclick = (e) => {
         mainEvent((e.target as HTMLElement).id);
     };
@@ -1626,25 +1625,25 @@ window.onbeforeunload = () => {
 /************************************以图搜图 */
 
 function searchImg(
-    img: string,
-    type: "baidu" | "yandex" | "google",
-    callback: Function,
+    simg: string,
+    type: "baidu" | "yandex" | "google" | (string & {}),
+    callback: (err: Error, url: string) => void,
 ) {
-    img = img.replace(/^data:image\/\w+;base64,/, "");
+    const img = simg.replace(/^data:image\/\w+;base64,/, "");
     switch (type) {
         case "baidu":
             baidu(img, (err, url) => {
-                return callback(err, url);
+                callback(err, url);
             });
             break;
         case "yandex":
             yandex(img, (err, url) => {
-                return callback(err, url);
+                callback(err, url);
             });
             break;
         case "google":
             google(img, (err, url) => {
-                return callback(err, url);
+                callback(err, url);
             });
     }
 }
@@ -1657,7 +1656,7 @@ function searchImg(
 function post(
     url: string,
     options: RequestInit,
-    cb: (err: Error, result: any) => {},
+    cb: (err: Error, result) => void,
 ) {
     fetch(url, Object.assign(options, { method: "POST" }))
         .then((r) => {
@@ -1666,15 +1665,15 @@ function post(
         })
         .then((r) => {
             console.log(r);
-            return cb(null, r);
+            cb(null, r);
         })
         .catch((e) => {
             console.error(e);
-            return cb(e, null);
+            cb(e, null);
         });
 }
 
-function baidu(image: string, callback: (err: Error, url: string) => {}) {
+function baidu(image: string, callback: (err: Error, url: string) => void) {
     const form = new FormData();
     const bstr = window.atob(image);
     let n = bstr.length;
@@ -1689,11 +1688,16 @@ function baidu(image: string, callback: (err: Error, url: string) => {}) {
     );
     form.append("from", "pc");
     post("https://graph.baidu.com/upload", { body: form }, (err, result) => {
-        if (err) return callback(err, null);
-        if (result.msg !== "Success")
-            return callback(new Error(JSON.stringify(err)), null);
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        if (result.msg !== "Success") {
+            callback(new Error(JSON.stringify(err)), null);
+            return;
+        }
         console.log(result.data.url);
-        return callback(null, result.data.url);
+        callback(null, result.data.url);
     });
 }
 
@@ -1750,17 +1754,17 @@ function google(image, callback) {
 
 function ocr(
     img: string,
-    type: string | "baidu" | "youdao",
-    callback: (error: any, r: { raw: ocrResult; text: string }) => void,
+    type: (string & {}) | "baidu" | "youdao",
+    callback: (error: Error, r: { raw: ocrResult; text: string }) => void,
 ) {
     addOcrPhoto(img);
     if (type === "baidu" || type === "youdao") {
         onlineOcr(type, img, (err, r) => {
-            return callback(err, r);
+            callback(new Error(err), r);
         });
     } else {
         localOcr(type, img, (err, r) => {
-            return callback(err, r);
+            callback(err, r);
         });
     }
 }
@@ -1779,7 +1783,7 @@ async function localOcr(
 ) {
     try {
         task.l("ocr_load");
-        let l: [string, string, string, string, any];
+        let l: [string, string, string, string];
         for (const i of store.get("离线OCR")) if (i[0] === type) l = i;
         function ocrPath(p: string) {
             return path.join(
@@ -1802,8 +1806,6 @@ async function localOcr(
                 detPath: detp,
                 recPath: recp,
                 dic: fs.readFileSync(字典).toString(),
-                ...l[4],
-                node: true,
                 detShape: [640, 640],
                 ort,
                 ortOption: { executionProviders: [{ name: provider }] },
@@ -1849,15 +1851,15 @@ async function localOcr(
 /**
  * 在线OCR
  * @param {String} type 服务提供者
- * @param {String} arg 图片base64
+ * @param {String} sarg 图片base64
  * @param {Function} callback 回调
  */
 function onlineOcr(
     type: string,
-    arg: string,
+    sarg: string,
     callback: (error: string, result: { raw: ocrResult; text: string }) => void,
 ) {
-    arg = arg.replace("data:image/png;base64,", "");
+    const arg = sarg.replace("data:image/png;base64,", "");
 
     const clientId = store.get(`在线OCR.${type}.id`);
     const clientSecret = store.get(`在线OCR.${type}.secret`);
@@ -1955,7 +1957,7 @@ function onlineOcr(
             const outputL = [];
             if (!result.paragraphs_result) {
                 for (const i of result.words_result) {
-                    outputL.push((<any>i).words);
+                    outputL.push(i.words);
                 }
             } else {
                 for (const i in result.paragraphs_result) {
@@ -1974,7 +1976,7 @@ function onlineOcr(
             const r: ocrResult = [];
             if (result.words_result[0]?.location)
                 for (const i of result.words_result) {
-                    const l = (<any>i).location as {
+                    const l = i.location as {
                         top: number;
                         left: number;
                         width: number;
@@ -1987,7 +1989,7 @@ function onlineOcr(
                             [l.left + l.width, l.top + l.height],
                             [l.left, l.top + l.height],
                         ],
-                        text: (<any>i).words,
+                        text: i.words,
                     });
                 }
 
@@ -2041,7 +2043,7 @@ function onlineOcr(
             const textL = [];
             for (const i of result.Result.regions) {
                 let t = "";
-                for (const j of (<any>i).lines) {
+                for (const j of i.lines) {
                     const p = j.boundingBox as string;
                     const pl = p.split(",").map((x) => Number(x));
                     r.push({
@@ -2163,9 +2165,11 @@ function createImg(src: string) {
 
 function runOcr() {
     output = [];
-    imgsEl.querySelectorAll(":scope > div > div").forEach((el: HTMLElement) => {
-        el.innerHTML = "";
-    });
+    for (const el of imgsEl
+        .querySelectorAll(":scope > div > div")
+        .values() as Iterable<HTMLDivElement>) {
+        el.innerText = "";
+    }
     const type = ocr引擎.value;
     const imgList = imgsEl.querySelectorAll(":scope > div > img");
     imgList.forEach((el: HTMLImageElement, i) => {
@@ -2231,13 +2235,13 @@ function addOcrText(r: ocrResult, i: number) {
 }
 
 function setOcrFontSize() {
-    imgsEl.querySelectorAll("p").forEach((el) => {
+    for (const el of imgsEl.querySelectorAll("p").values()) {
         const w = Number(el.getAttribute("data-w"));
         const elSize = el.getBoundingClientRect();
         let fontSize = 16;
         fontSize = 16 * (elSize.width / w);
         el.style.lineHeight = el.style.fontSize = `${fontSize}px`;
-    });
+    }
 }
 
 window.onresize = () => {
@@ -2291,7 +2295,7 @@ imgsEl.onpointerup = () => {
     let startOk = false;
     let endOk = false;
     let sourceText = "";
-    allTextNodes.forEach((node) => {
+    for (const node of allTextNodes) {
         if (startNode === node) {
             start += rStartOffset;
             startOk = true;
@@ -2305,7 +2309,7 @@ imgsEl.onpointerup = () => {
             if (!endOk) end += node.textContent.length;
         }
         sourceText += node.textContent;
-    });
+    }
     if (start > end) [start, end] = [end, start];
     console.log(start, end);
     if (start === end) return;
