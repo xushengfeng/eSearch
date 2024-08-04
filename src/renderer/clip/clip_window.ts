@@ -2316,14 +2316,23 @@ function colorInput(type: "fill" | "stroke") {
         setC();
         main.el.dispatchEvent(new Event("input"));
     });
-    const alpha = ele("input") // todo range-b
-        .attr({ type: "number", max: "1", min: "0", step: "0.01" })
+    const alpha = ele("range-b") // todo range-b
         .on("input", () => {
             setC();
             main.el.dispatchEvent(new Event("input"));
+        })
+        .bindGet((el: HTMLInputElement) => {
+            return el.value;
+        })
+        .bindSet((v, el: HTMLInputElement) => {
+            el.value = v;
         });
+    alpha.el.setAttribute("max", "1");
+    alpha.el.setAttribute("min", "0");
+    alpha.el.setAttribute("step", "0.01");
+
     function getInputV() {
-        return Color(i.gv()).alpha(Number(alpha.el.value));
+        return Color(i.gv()).alpha(Number(alpha.gv()));
     }
     function setC() {
         const color = getInputV();
@@ -2367,7 +2376,7 @@ function colorInput(type: "fill" | "stroke") {
         .bindSet((v: string) => {
             const color = Color(v);
             i.sv(color.hex());
-            alpha.el.value = String(color.alpha());
+            alpha.sv(String(color.alpha()));
             setC();
         })
         .bindGet(() => {

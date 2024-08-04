@@ -486,6 +486,7 @@ range-b {
     line-height: calc(var(--bar-size) / 5);
     text-align: start;
     border-radius: inherit;
+    display: block;
 }
 #draw_color_p > div > :last-child {
     height: calc(var(--bar-size) / 2);
