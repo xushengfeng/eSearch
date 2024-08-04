@@ -745,7 +745,7 @@ function addTypes() {
     格式El.innerHTML = t;
 }
 
-const clipPath = [];
+const clipPath: string[] = [];
 let isClipRun = false;
 /** 获取要切割的视频和位置 */
 async function clip() {
@@ -787,7 +787,11 @@ async function clip() {
         }
     }
     for (let i = startV.v; i <= endV.v; i++) {
-        clipPath.push(path.join(output1, `${i}.${type}`));
+        clipPath.push(
+            path
+                .join(output1, `${i}.${type}`)
+                .replaceAll(path.sep, path.posix.sep),
+        );
     }
     if (startV.v === endV.v) {
         await runFfmpeg(
