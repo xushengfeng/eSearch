@@ -3,7 +3,7 @@
 import store from "../../../lib/store/renderStore";
 import type { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
-import { view, txt, ele, button, image } from "dkh-ui";
+import { view, txt, ele, button, image, p } from "dkh-ui";
 import initStyle from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
@@ -2234,22 +2234,25 @@ function addOcrText(r: ocrResult, i: number) {
         const y0 = i.box[0][1];
         const x1 = i.box[2][0];
         const y1 = i.box[2][1];
-        const xel = document.createElement("p");
-        xel.style.left = `${(x0 / w) * 100}%`;
-        xel.style.top = `${(y0 / h) * 100}%`;
-        xel.style.width = `${((x1 - x0) / w) * 100}%`;
-        xel.style.height = `${((y1 - y0) / h) * 100}%`;
-        div.append(xel);
-        xel.innerText = i.text;
-        const nc = document.createElement("span");
-        nc.style.whiteSpace = "nowrap";
-        nc.style.fontSize = "16px";
-        nc.innerText = i.text;
-        xel.append(nc);
-        const size = nc.getBoundingClientRect();
-        xel.setAttribute("data-w", `${size.width}`);
-        xel.setAttribute("data-h", `${size.height}`);
-        nc.remove();
+        const xel = p(i.text).style({
+            left: `${(x0 / w) * 100}%`,
+            top: `${(y0 / h) * 100}%`,
+            width: `${((x1 - x0) / w) * 100}%`,
+            height: `${((y1 - y0) / h) * 100}%`,
+        });
+        div.append(xel.el);
+        const nc = txt(i.text).style({
+            "white-space": "nowrap",
+            "font-size": "16px",
+        });
+        xel.add(nc);
+        const size = nc.el.getBoundingClientRect();
+        xel.data({
+            w: `${size.width}`,
+            h: `${size.height}`,
+        });
+        xel.style({ "text-align": "justify", "text-align-last": "justify" });
+        nc.el.remove();
     }
 
     setOcrFontSize();

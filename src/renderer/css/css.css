@@ -390,8 +390,6 @@ nav > button > .icon {
     position: absolute;
     margin: 0;
     color: transparent;
-    text-align: justify;
-    text-align-last: justify;
     white-space: nowrap;
     overflow: hidden;
 }
