@@ -1,6 +1,6 @@
 {
     "name": "eSearch",
-    "version": "1.12.2-beta.3",
+    "version": "1.12.2-beta.4",
     "description": "识屏 · 搜索",
     "main": "./out/main/main.js",
     "scripts": {
