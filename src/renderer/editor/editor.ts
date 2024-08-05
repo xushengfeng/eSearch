@@ -705,6 +705,8 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
             showEditBar(x, y + lineHeight, false);
         }
     }
+
+    setImgSelect();
 });
 
 hotkeys.filter = () => {
@@ -2407,4 +2409,54 @@ function getDiff(text0: string, text1: string, start: number, end: number) {
         }
     }
     return { start: editorStart, end: editorEnd };
+}
+type rangeN = {
+    node: Node;
+    offset: number;
+};
+
+function editorS2ImgS(s: selection) {
+    let sourceText = "";
+    let start: rangeN = { node: null, offset: 0 };
+    let end: rangeN = { node: null, offset: 0 };
+    for (const allTextNodes of ocrTextNodes.values()) {
+        for (const node of allTextNodes) {
+            const i = sourceText.length;
+
+            if (i <= s.start && s.start < i + node.textContent.length) {
+                start = {
+                    node,
+                    offset: s.start - i,
+                };
+            }
+            if (i <= s.end && s.end < i + node.textContent.length) {
+                end = {
+                    node,
+                    offset: s.end - i,
+                };
+                return { start, end };
+            }
+            sourceText = `${sourceText + node.textContent}\n`;
+            // todo 更多换行
+        }
+    }
+    return { start, end };
+}
+
+function setImgSelect() {
+    const sss = editorS2ImgS(editor.selections.getS());
+    console.log(sss);
+
+    if (!sss.start.node || !sss.end.node) {
+        CSS.highlights.clear();
+        return;
+    }
+
+    const range = new Range();
+    range.setStart(sss.start.node, sss.start.offset);
+    range.setEnd(sss.end.node, sss.end.offset);
+
+    const myCustomHighlight = new Highlight(range);
+
+    CSS.highlights.set("img-highlight", myCustomHighlight);
 }

@@ -397,6 +397,10 @@ nav > button > .icon {
     background-color: #78a9fd99;
 }
 
+::highlight(img-highlight) {
+    background-color: #78a9fd99;
+}
+
 #find {
     position: absolute;
     top: 0;
