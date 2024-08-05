@@ -2295,7 +2295,26 @@ function addOcrSelect(div: HTMLDivElement) {
     ocrTextNodes.set(div, allTextNodes);
 }
 
+let imageS = false;
+imgsEl.onpointerdown = () => {
+    imageS = true;
+};
 imgsEl.onpointerup = () => {
+    imageS = false;
+    const s = getImgSelect();
+    if (!s) return;
+    editor.find.render([]);
+    editor.selections.clearAll();
+    editor.selections.add(s);
+    editor.text.focus();
+};
+imgsEl.onpointermove = () => {
+    if (!imageS) return;
+    const s = getImgSelect();
+    editor.find.render([s]);
+};
+
+function getImgSelect() {
     const range = document.getSelection().getRangeAt(0);
     console.log(range);
     const div = (
@@ -2304,7 +2323,7 @@ imgsEl.onpointerup = () => {
             : range.commonAncestorContainer.parentElement.parentElement
     ) as HTMLDivElement;
     const allTextNodes = ocrTextNodes.get(div);
-    if (!allTextNodes) return;
+    if (!allTextNodes) return null;
     const startNode = range.startContainer;
     let endNode = range.endContainer;
     const rStartOffset = range.startOffset;
@@ -2336,7 +2355,7 @@ imgsEl.onpointerup = () => {
     }
     if (start > end) [start, end] = [end, start];
     console.log(start, end);
-    if (start === end) return;
+    if (start === end) return null;
 
     const diff = dmp.diff_main(sourceText, editor.get());
     console.log(diff);
@@ -2383,7 +2402,5 @@ imgsEl.onpointerup = () => {
             editorEnd = Math.min(map[i] + (end - source[i]), map[i + 1]);
         }
     }
-    editor.selections.clearAll();
-    editor.selections.add({ start: editorStart, end: editorEnd });
-    editor.text.focus();
-};
+    return { start: editorStart, end: editorEnd };
+}
