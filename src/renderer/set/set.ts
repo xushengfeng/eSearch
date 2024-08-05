@@ -1544,7 +1544,6 @@ function initFind() {
 let findRanges: Range[] = [];
 let findFocusI = 0;
 function find(t: string) {
-    // @ts-ignore
     CSS.highlights.clear();
 
     const str = t.trim().toLowerCase();
@@ -1579,9 +1578,7 @@ function find(t: string) {
     findFocusI = 0;
     jumpToRange(findFocusI);
 
-    // @ts-ignore
     const searchResultsHighlight = new Highlight(...ranges.flat());
-    // @ts-ignore
     CSS.highlights.set("search-results", searchResultsHighlight);
 }
 
