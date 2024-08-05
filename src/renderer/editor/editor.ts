@@ -2357,7 +2357,11 @@ function getImgSelect() {
     console.log(start, end);
     if (start === end) return null;
 
-    const diff = dmp.diff_main(sourceText, editor.get());
+    return getDiff(sourceText, editor.get(), start, end);
+}
+
+function getDiff(text0: string, text1: string, start: number, end: number) {
+    const diff = dmp.diff_main(text0, text1);
     console.log(diff);
     const source: number[] = [0];
     const map: number[] = [0];
