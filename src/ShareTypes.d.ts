@@ -105,7 +105,6 @@ export interface setting {
         记忆: { 开启: boolean; rects: { [screenId: string]: number[] } };
         颜色: {
             遮罩: string;
-            选区: string;
         };
     };
     图像编辑: {

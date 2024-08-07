@@ -89,7 +89,6 @@ function setSetting() {
         }
     }
     遮罩颜色 = store.get("框选.颜色.遮罩");
-    选区颜色 = store.get("框选.颜色.选区");
 
     initStyle(store);
 
@@ -1153,7 +1152,7 @@ function drawClipRect() {
     clipCtx.fillRect(x + width, y, rightMaskWidth, height);
     clipCtx.fillRect(0, y + height, cw, bottomMaskHeight);
 
-    clipCtx.fillStyle = 选区颜色;
+    clipCtx.fillStyle = "#0000";
     clipCtx.fillRect(x, y, width, height);
 
     // 大小栏
@@ -1189,7 +1188,7 @@ function drawClipPoly(points: point[]) {
     for (let i = 1; i < points.length; i++) {
         ctx.lineTo(points[i].x, points[i].y);
     }
-    ctx.fillStyle = 选区颜色;
+    ctx.fillStyle = "#0000";
     ctx.closePath();
     ctx.fill();
 
@@ -2797,7 +2796,6 @@ let 工具栏跟随: string;
 let 光标: string;
 let 四角坐标: boolean;
 let 遮罩颜色: string;
-let 选区颜色: string;
 let 取色器默认格式: string;
 let 取色器格式位置: number;
 let 取色器显示: boolean;

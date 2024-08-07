@@ -2240,7 +2240,6 @@ const defaultSetting: setting = {
         记忆: { 开启: false, rects: {} },
         颜色: {
             遮罩: "#0008",
-            选区: "#0000",
         },
     },
     图像编辑: {

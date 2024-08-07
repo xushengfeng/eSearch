@@ -597,23 +597,12 @@ function msk(t: string) {
 }
 (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background =
     msk(old_store.框选.颜色.遮罩);
-(<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background =
-    msk(old_store.框选.颜色.选区);
 (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).oninput =
     () => {
         (<HTMLSpanElement>(
             document.querySelector("#遮罩颜色 > span")
         )).style.background = msk(
             (<HTMLInputElement>document.querySelector("#遮罩颜色 > input"))
-                .value,
-        );
-    };
-(<HTMLInputElement>document.querySelector("#选区颜色 > input")).oninput =
-    () => {
-        (<HTMLSpanElement>(
-            document.querySelector("#选区颜色 > span")
-        )).style.background = msk(
-            (<HTMLInputElement>document.querySelector("#选区颜色 > input"))
                 .value,
         );
     };
