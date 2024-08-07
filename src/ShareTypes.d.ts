@@ -85,8 +85,6 @@ export interface setting {
     };
     工具栏跟随: "展示内容优先" | "效率优先";
     自动搜索: boolean;
-    遮罩颜色: string;
-    选区颜色: string;
     取色器: {
         显示: boolean;
         像素大小: number;
@@ -105,6 +103,10 @@ export interface setting {
             最大阈值: number;
         };
         记忆: { 开启: boolean; rects: { [screenId: string]: number[] } };
+        颜色: {
+            遮罩: string;
+            选区: string;
+        };
     };
     图像编辑: {
         默认属性: {

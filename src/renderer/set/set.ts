@@ -596,9 +596,9 @@ function msk(t: string) {
         0% 0% / 8px 8px`;
 }
 (<HTMLSpanElement>document.querySelector("#遮罩颜色 > span")).style.background =
-    msk(old_store.遮罩颜色);
+    msk(old_store.框选.颜色.遮罩);
 (<HTMLSpanElement>document.querySelector("#选区颜色 > span")).style.background =
-    msk(old_store.选区颜色);
+    msk(old_store.框选.颜色.选区);
 (<HTMLInputElement>document.querySelector("#遮罩颜色 > input")).oninput =
     () => {
         (<HTMLSpanElement>(
