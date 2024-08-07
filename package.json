@@ -32,7 +32,7 @@
         "sortablejs": "^1.15.2",
         "uiohook-napi": "^1.5.4",
         "x11": "^2.3.0",
-        "xtranslator": "^1.1.3"
+        "xtranslator": "^1.1.4"
     },
     "devDependencies": {
         "@biomejs/biome": "^1.8.3",
