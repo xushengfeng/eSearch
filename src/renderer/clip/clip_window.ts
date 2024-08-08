@@ -2656,13 +2656,13 @@ function getFilters() {
 
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")
-    )).value = String(f[6]?.gamma[0] || 1);
+    )).value = String(f[30]?.gamma[0] || 1);
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")
-    )).value = String(f[6]?.gamma[1] || 1);
+    )).value = String(f[30]?.gamma[1] || 1);
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
-    )).value = String(f[6]?.gamma[2] || 1);
+    )).value = String(f[30]?.gamma[2] || 1);
 }
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
