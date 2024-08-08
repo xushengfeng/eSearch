@@ -20,6 +20,7 @@ import {
     view,
     pack,
     setTranslate,
+    elFromId,
 } from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
@@ -606,6 +607,33 @@ function msk(t: string) {
                 .value,
         );
     };
+
+const xqckxElx = elFromId<HTMLInputElement>("选区参考线x")
+    .bindSet((v, el) => {
+        el.value = v.join(", ");
+    })
+    .bindGet((el) => el.value.split(/[,，]/).map((i) => Number(i)))
+    .sv(old_store.框选.参考线.选区.x);
+const xqckxEly = elFromId<HTMLInputElement>("选区参考线y")
+    .bindSet((v, el) => {
+        el.value = v.join(", ");
+    })
+    .bindGet((el) => el.value.split(/[,，]/).map((i) => Number(i)))
+    .sv(old_store.框选.参考线.选区.y);
+
+const xqckxEl = elFromId("选区参考线");
+xqckxEl.add([
+    button(txt("九宫格")).on("click", () => {
+        const v = 0.333;
+        xqckxElx.sv([v, 1 - v]);
+        xqckxEly.sv([v, 1 - v]);
+    }),
+    button(txt("黄金比例")).on("click", () => {
+        const v = 0.618;
+        xqckxElx.sv([v, 1 - v]);
+        xqckxEly.sv([v, 1 - v]);
+    }),
+]);
 
 document.getElementById("框选最小阈值").oninput = () => {
     if (
@@ -1431,6 +1459,9 @@ function saveSetting() {
               "/",
           )
         : "";
+
+    xstore.框选.参考线.选区.x = xqckxElx.gv() as number[];
+    xstore.框选.参考线.选区.y = xqckxEly.gv() as number[];
 
     xstore.录屏.自动录制 =
         (<HTMLInputElement>document.getElementById("开启自动录制")).checked &&
