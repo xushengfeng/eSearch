@@ -1075,6 +1075,9 @@ function clipStart(p: editor_position, inRect: boolean) {
             changeRightBar(false);
         }
     }
+    drawClip();
+    if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
+
     // 隐藏
     drawBar.style.opacity = toolBar.style.opacity = "0";
 }
@@ -1108,7 +1111,6 @@ function clipEnd(p: editor_position) {
                 }
             }
             if (min.length !== 0) finalRect = min as rect;
-            drawClipRect();
         } else {
             finalRect = pXY2cXY(
                 clipCanvas,
@@ -1117,13 +1119,12 @@ function clipEnd(p: editor_position) {
                 p.x,
                 p.y,
             );
-            drawClipRect();
         }
     } else {
         freeSelect.push(pXY2cXY2(clipCanvas, p.x, p.y));
         finalRect = pointsOutRect(freeSelect);
-        drawClipPoly(freeSelect);
     }
+    drawClip();
     hisPush();
 }
 
@@ -1204,6 +1205,11 @@ function drawClipPoly(points: point[]) {
 
     // 大小栏
     whBar(pointsOutRect(points));
+}
+
+function drawClip() {
+    if (isRect) drawClipRect();
+    else drawClipPoly(freeSelect);
 }
 
 /**
@@ -1393,8 +1399,6 @@ function mouseBar(finalRect: rect, x: number, y: number) {
 }
 
 function ckx(x: number, y: number) {
-    if (isRect) drawClipRect();
-    else drawClipPoly(freeSelect);
     clipCtx.fillStyle = c参考线颜色.光标参考线;
     clipCtx.fillRect(0, y, x, 1);
     clipCtx.fillRect(x + 1, y, clipCanvas.width - x - 1, 1);
@@ -1814,7 +1818,6 @@ function moveRect(
         finalRect[3] = mainCanvas.height - finalRect[1];
 
     finalRectFix();
-    drawClipRect();
 }
 function isPointInPolygon(p: point): boolean {
     let inside = false;
@@ -1847,8 +1850,6 @@ function movePoly(
             const y = Math.round(i.y + dy);
             return { x, y };
         });
-
-        drawClipPoly(freeSelect);
     }
 }
 
@@ -3733,6 +3734,7 @@ document.querySelector("body").onkeydown = (e) => {
                     break;
             }
             moveRect(finalRect, { x: op.offsetX, y: op.offsetY }, { x, y });
+            drawClipRect();
         } else {
             let x = editorP.x;
             let y = editorP.y;
@@ -3772,7 +3774,6 @@ clipCanvas.onmousedown = (e) => {
     }
     if (e.button === 0) {
         clipStart({ x: e.offsetX, y: e.offsetY }, inRect);
-        if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
     }
     if (e.button === 2) {
         pickColor({ x: e.offsetX, y: e.offsetY });
@@ -3803,12 +3804,9 @@ clipCanvas.onmousemove = (e) => {
                         e.offsetX,
                         e.offsetY,
                     );
-                    drawClipRect();
                 } else {
                     freeSelect.push(pXY2cXY2(clipCanvas, e.offsetX, e.offsetY));
                     finalRect = pointsOutRect(freeSelect);
-                    // todo 化简多边形
-                    drawClipPoly(freeSelect);
                 }
             }
             if (moving) {
@@ -3820,6 +3818,7 @@ clipCanvas.onmousemove = (e) => {
             }
             if (down)
                 mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (selecting || moving) drawClip();
             if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
         });
     }
@@ -3997,7 +3996,10 @@ document.onmousemove = (e) => {
             // 鼠标跟随栏
             if (!down)
                 mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
-            if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (g光标参考线) {
+                drawClip();
+                ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
+            }
         }
         // 鼠标跟随栏
 
