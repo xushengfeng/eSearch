@@ -3472,9 +3472,13 @@ for (const el of document
     .querySelectorAll("#draw_shapes_i > div")
     .values() as Iterable<HTMLInputElement>)
     shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
-for (const el of document
-    .querySelectorAll("#draw_filters_i > div")
-    .values() as Iterable<HTMLInputElement>) {
+const filtersEls = []
+    .concat(Array.from(document.querySelectorAll("#draw_filters_i > div")))
+    .concat(
+        Array.from(document.querySelectorAll("#draw_filters_bs > div")),
+    ) as HTMLInputElement[];
+
+for (const el of filtersEls) {
     if (el.id.startsWith("draw_filters_"))
         filtersEl[el.id.replace("draw_filters_", "") as string] = el;
 }
