@@ -217,7 +217,7 @@ export interface setting {
         简洁模式: boolean;
         高级窗口按钮: boolean;
         显示图片区: number;
-        自动复制OCR: boolean; //todo set
+        自动复制OCR: boolean;
     };
     主页面大小: [number, number, boolean];
     时间格式: string;
