@@ -87,7 +87,7 @@ function setSetting() {
             break;
         }
     }
-    遮罩颜色 = store.get("框选.颜色.遮罩");
+    遮罩颜色 = store.get("框选.颜色.遮罩") || "#0008";
 
     initStyle(store);
 
