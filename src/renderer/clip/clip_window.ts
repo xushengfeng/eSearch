@@ -79,7 +79,6 @@ function selectMenu() {
 
 function setSetting() {
     工具栏跟随 = store.get("工具栏跟随");
-    光标 = store.get("光标");
     四角坐标 = store.get("显示四角坐标");
     取色器默认格式 = store.get("取色器.默认格式");
     for (const i in allColorFormat) {
@@ -105,7 +104,9 @@ function setSetting() {
     });
     bSize = 工具栏.按钮大小;
     记忆框选 = store.get("框选.记忆.开启");
-    记忆框选值 = store.get("框选.记忆.rects");
+    记忆框选值 = store.get("框选.记忆.rects") as {
+        [id: string]: rect;
+    };
 }
 
 /**
@@ -1225,7 +1226,7 @@ function inEdge(p: editor_position) {
 // 大小栏
 function whBar(finalRect: rect) {
     // 大小文字
-    const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+    const d = 0;
     const x0 = finalRect[0] + d;
     const y0 = finalRect[1] + d;
     const x1 = finalRect[0] + d + finalRect[2];
@@ -1301,7 +1302,7 @@ function changeWH(el: ElType<HTMLInputElement>) {
         return;
     }
 
-    const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+    const d = 0;
     if (el === whX0 || el === whY0) {
         finalRect[0] = Number(l[0]) - d;
         finalRect[1] = Number(l[1]) - d;
@@ -1377,7 +1378,7 @@ function mouseBar(finalRect: rect, x: number, y: number) {
         theColor = [r, g, b, a];
         clipColorText(theColor, 取色器默认格式);
 
-        const d = 光标 === "以(1,1)为起点" ? 1 : 0;
+        const d = 0;
         document.getElementById("clip_xy").innerText = `(${x + d}, ${y + d})`;
     });
 }
@@ -1878,6 +1879,8 @@ function undo(v: boolean) {
     if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
 }
 
+type rangeB = HTMLElement & { value: number };
+
 function setEditType<T extends keyof EditType>(
     mainType: T,
     type: EditType[T],
@@ -1975,7 +1978,7 @@ function setEditType<T extends keyof EditType>(
             const sw = store.get(`图像编辑.形状属性.${shape}.sw`);
             if (sw) {
                 shapePro[shape].sw = sw;
-                (<HTMLInputElement>(
+                (<rangeB>(
                     document.querySelector("#draw_stroke_width > range-b")
                 )).value = sw;
             }
@@ -2116,13 +2119,10 @@ function freeInit() {
     setDrawMode("stroke");
     if (sc) colorStrokeEl.sv(sc);
     if (sw)
-        (<HTMLInputElement>(
-            document.querySelector("#draw_stroke_width > range-b")
-        )).value = sw;
+        (<rangeB>document.querySelector("#draw_stroke_width > range-b")).value =
+            sw;
     if (sb)
-        (<HTMLInputElement>(
-            document.querySelector("#shadow_blur > range-b")
-        )).value = sb;
+        (<rangeB>document.querySelector("#shadow_blur > range-b")).value = sb;
 }
 
 function fabricDelete() {
@@ -2496,9 +2496,8 @@ function getFObjectV() {
         pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     }
     console.log(pro);
-    (<HTMLInputElement>(
-        document.querySelector("#draw_stroke_width > range-b")
-    )).value = pro.sw;
+    (<rangeB>document.querySelector("#draw_stroke_width > range-b")).value =
+        pro.sw;
     colorFillEl.sv(pro.fc);
     colorStrokeEl.sv(pro.sc);
 
@@ -2793,7 +2792,6 @@ if (store.get("框选.自动框选.开启")) {
 const 字体 = store.get("字体") as setting["字体"];
 
 let 工具栏跟随: string;
-let 光标: string;
 let 四角坐标: boolean;
 let 遮罩颜色: string;
 let 取色器默认格式: string;
