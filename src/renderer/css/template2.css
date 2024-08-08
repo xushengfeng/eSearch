@@ -64,26 +64,6 @@ range-b > div:nth-child(1) {
     pointer-events: none;
 }
 
-lock-b {
-    display: block;
-    position: relative;
-}
-
-lock-b > input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.lock-b-lock {
-    background-color: var(--hover-color);
-}
-
 time-i {
     font-family: var(--monospace);
 }
