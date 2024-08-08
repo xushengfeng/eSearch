@@ -167,8 +167,7 @@ body {
 
 #tool_bar > div::before,
 #draw_main > div::before,
-.draw_items > div::before,
-.draw_items > lock-b::before {
+.draw_items > div::before {
     content: attr(data-key);
     position: absolute;
     right: 2px;
@@ -201,8 +200,7 @@ body {
     box-shadow: var(--shadow);
 }
 #draw_main > div,
-.draw_items > div,
-.draw_items > lock-b {
+.draw_items > div {
     width: var(--bar-size);
     height: var(--bar-size);
     border-radius: calc(var(--bar-size) / 6);
@@ -210,8 +208,7 @@ body {
     position: relative;
 }
 #draw_main > div > .icon,
-.draw_items > div > .icon,
-.draw_items > lock-b > .icon {
+.draw_items > div > .icon {
     width: calc(var(--bar-size) * var(--bar-icon));
     left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
     top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
@@ -482,8 +479,7 @@ range-b {
     overflow: hidden;
 }
 
-#draw_filters_i > div > range-b,
-#draw_filters_i > div > lock-b {
+#draw_filters_i > div > range-b {
     height: var(--bar-size);
 }
 #draw_filters_i .filter_select::after {
@@ -499,10 +495,14 @@ range-b {
 #draw_filters_gamma > range-b {
     height: calc(var(--bar-size) / 3) !important;
 }
-#draw_filters_grayscale > lock-b {
+#draw_filters_grayscale > label {
     height: calc(var(--bar-size) / 3) !important;
+    display: block;
 }
-#draw_filters_grayscale > lock-b:hover {
+#draw_filters_grayscale > label:hover {
+    background-color: var(--hover-color);
+}
+#draw_filters_grayscale label:has(input:checked) {
     background-color: var(--hover-color);
 }
 
@@ -510,9 +510,6 @@ range-b {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-}
-#draw_filters_bs > div > lock-b {
-    height: calc(var(--bar-size) / 3);
 }
 #draw_filters_bs > div:hover {
     background-color: var(--hover-color);

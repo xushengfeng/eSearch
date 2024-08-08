@@ -44,6 +44,7 @@ import {
     input,
     p,
     pureStyle,
+    radioGroup,
     setProperties,
     trackPoint,
     txt,
@@ -2667,45 +2668,7 @@ function getFilters() {
         document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
     )).value = String(f[6]?.gamma[2] || 1);
     const gray = f[8]?.mode;
-    switch (gray) {
-        case "average":
-            (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_grayscale > lock-b:nth-child(1)",
-                )
-            )).checked = true;
-            break;
-        case "lightness":
-            (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_grayscale > lock-b:nth-child(2)",
-                )
-            )).checked = true;
-            break;
-        case "luminosity":
-            (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_grayscale > lock-b:nth-child(3)",
-                )
-            )).checked = true;
-            break;
-        default:
-            (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_grayscale > lock-b:nth-child(1)",
-                )
-            )).checked = false;
-            (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_grayscale > lock-b:nth-child(2)",
-                )
-            )).checked = false;
-            (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_grayscale > lock-b:nth-child(3)",
-                )
-            )).checked = false;
-    }
+    fGary.set(gray);
 }
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
@@ -2940,6 +2903,14 @@ const colorStrokeEl = colorInput("stroke").on("input", () => {
 });
 
 elFromId("draw_color_p").add([colorFillEl, colorStrokeEl]);
+
+const fGary = radioGroup<"average" | "lightness" | "luminosity">("gray");
+const fGary1 = fGary.new("average", view());
+const fGary2 = fGary.new("lightness", view());
+const fGary3 = fGary.new("luminosity", view());
+
+elFromId("draw_filters_grayscale").add([fGary1, fGary2, fGary3]);
+fGary.set(null);
 
 const editor = document.getElementById("editor");
 editor.style.width = `${window.screen.width / 全局缩放}px`;
@@ -4445,70 +4416,12 @@ for (const id in filtetMap) {
             applyFilter(6, filter);
         };
 // 灰度
-(<HTMLInputElement>(
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")
-)).oninput = () => {
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")
-    )).checked = false;
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")
-    )).checked = false;
-    if (
-        (<HTMLInputElement>(
-            document.querySelector(
-                "#draw_filters_grayscale > lock-b:nth-child(1)",
-            )
-        )).checked
-    ) {
-        const filter = new Fabric.Image.filters.Grayscale({ mode: "average" });
-        applyFilter(8, filter);
-    }
-};
-(<HTMLInputElement>(
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")
-)).oninput = () => {
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")
-    )).checked = false;
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")
-    )).checked = false;
-    if (
-        (<HTMLInputElement>(
-            document.querySelector(
-                "#draw_filters_grayscale > lock-b:nth-child(2)",
-            )
-        )).checked
-    ) {
-        const filter = new Fabric.Image.filters.Grayscale({
-            mode: "lightness",
-        });
-        applyFilter(8, filter);
-    }
-};
-(<HTMLInputElement>(
-    document.querySelector("#draw_filters_grayscale > lock-b:nth-child(3)")
-)).oninput = () => {
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(1)")
-    )).checked = false;
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_grayscale > lock-b:nth-child(2)")
-    )).checked = false;
-    if (
-        (<HTMLInputElement>(
-            document.querySelector(
-                "#draw_filters_grayscale > lock-b:nth-child(3)",
-            )
-        )).checked
-    ) {
-        const filter = new Fabric.Image.filters.Grayscale({
-            mode: "luminosity",
-        });
-        applyFilter(8, filter);
-    }
-};
+fGary.on(() => {
+    const filter = new Fabric.Image.filters.Grayscale({
+        mode: fGary.get(),
+    });
+    applyFilter(8, filter);
+});
 
 hotkeys("esc", "drawing", () => {
     setEditType("select", "draw");
