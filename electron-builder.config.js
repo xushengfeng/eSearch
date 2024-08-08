@@ -251,6 +251,7 @@ const ignoreDir = [
     "*.md",
     "*.js",
     "*.yaml",
+    "*.map",
     "**/*.ts",
     "src",
     "lib/fabric.min.js",
