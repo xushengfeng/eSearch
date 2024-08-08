@@ -1156,6 +1156,15 @@ function drawClipRect() {
     clipCtx.fillStyle = "#0000";
     clipCtx.fillRect(x, y, width, height);
 
+    for (const ix of x选区参考线.x) {
+        clipCtx.fillStyle = c参考线颜色.选区参考线;
+        clipCtx.fillRect(x + ix * width, y, 1, height);
+    }
+    for (const iy of x选区参考线.y) {
+        clipCtx.fillStyle = c参考线颜色.选区参考线;
+        clipCtx.fillRect(x, y + iy * height, width, 1);
+    }
+
     // 大小栏
     whBar(finalRect);
 }
