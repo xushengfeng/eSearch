@@ -1383,6 +1383,17 @@ function mouseBar(finalRect: rect, x: number, y: number) {
     });
 }
 
+function ckx(x: number, y: number) {
+    if (isRect) drawClipRect();
+    else drawClipPoly(freeSelect);
+    clipCtx.fillStyle = c参考线颜色.光标参考线;
+    clipCtx.fillRect(0, y, x, 1);
+    clipCtx.fillRect(x + 1, y, clipCanvas.width - x - 1, 1);
+
+    clipCtx.fillRect(x, 0, 1, y);
+    clipCtx.fillRect(x, y + 1, 1, clipCanvas.height - y - 1);
+}
+
 // 色彩空间转换
 function colorConversion(rgba: number[] | string, type: string): string {
     const color = new Color(rgba);
@@ -2804,6 +2815,10 @@ let 记忆框选值: { [id: string]: rect };
 let bSize: number;
 const allColorFormat = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 
+const g光标参考线 = store.get("框选.参考线.光标");
+const x选区参考线 = store.get("框选.参考线.选区");
+const c参考线颜色 = store.get("框选.颜色");
+
 const 全局缩放 = store.get("全局.缩放") || 1.0;
 let ratio = 1;
 
@@ -3748,6 +3763,7 @@ clipCanvas.onmousedown = (e) => {
     }
     if (e.button === 0) {
         clipStart({ x: e.offsetX, y: e.offsetY }, inRect);
+        if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
     }
     if (e.button === 2) {
         pickColor({ x: e.offsetX, y: e.offsetY });
@@ -3795,6 +3811,7 @@ clipCanvas.onmousemove = (e) => {
             }
             if (down)
                 mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
         });
     }
     if (!selecting && !moving) {
@@ -3971,6 +3988,7 @@ document.onmousemove = (e) => {
             // 鼠标跟随栏
             if (!down)
                 mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
         }
         // 鼠标跟随栏
 
