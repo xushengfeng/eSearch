@@ -146,7 +146,7 @@ export interface setting {
         离线切换: boolean;
         记住: string | false;
     };
-    离线OCR: string[][];
+    离线OCR: [string, string, string, string][];
     AI: {
         运行后端: "cpu" | "cuda" | "coreml" | "directml";
     };
