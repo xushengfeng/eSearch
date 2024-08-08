@@ -155,62 +155,10 @@ nav > button > .icon {
     background-color: var(--hover-color);
 }
 
-#text_bottom {
-    grid-area: 2 / 1 / 3 / 3;
-}
 @keyframes blink {
     50% {
         opacity: 0;
     }
-}
-#composition {
-    border-bottom: dotted var(--color) 1px;
-    height: 1.3em;
-}
-#cursor {
-    position: absolute;
-    width: 0.1em;
-    height: 1.5em;
-    background: var(--color);
-    background-size: cover;
-    opacity: 0.2;
-    overflow: hidden;
-    z-index: 3;
-    outline: none;
-    color: #0000;
-    white-space: nowrap;
-    transition-duration: var(--cursor-a);
-    transition-timing-function: linear;
-    pointer-events: none;
-}
-#cursor:focus {
-    opacity: 1;
-    animation: 1s blink 3 steps(1);
-    animation-iteration-count: infinite;
-}
-.cursor_insert {
-    width: 0.3em !important;
-}
-
-#find_area {
-    white-space: var(--wrap);
-    position: absolute;
-    top: 0px;
-    color: #0000;
-    user-select: none;
-    font-size: 1em;
-    line-height: 1.5em;
-    margin: 8px 8px 8px 0;
-    word-break: break-all;
-}
-
-.hover_b2 {
-    background-color: var(--hover-color);
-}
-
-/* 用于历史记录固定 */
-.hover_b2 > button {
-    background-color: var(--hover-color);
 }
 
 #history_list {

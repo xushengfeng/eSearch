@@ -23,7 +23,7 @@ body {
     border-bottom-left-radius: var(--border-radius);
     z-index: 2;
 }
-.find_t > span {
+#find_t > span {
     font-size: 14px;
     font-family: var(--monospace);
 }
@@ -308,9 +308,6 @@ dialog {
     display: block;
     float: left;
 }
-set-select {
-    width: 100%;
-}
 
 input[type="radio"] {
     display: none;
@@ -430,31 +427,6 @@ comment {
 }
 .sort_list > :last-child {
     margin-left: 24px;
-}
-
-#plugin_b {
-    width: 24px;
-    height: 24px;
-    position: relative;
-    margin: 0;
-    vertical-align: middle;
-}
-:is(#plugin_b) > .icon {
-    left: 2px;
-    top: 2px;
-    width: 20px;
-    height: 20px;
-}
-
-#plugin_b {
-    margin-bottom: 4px;
-}
-
-#自动运行命令 {
-    width: 100%;
-}
-#端口 {
-    width: 100px;
 }
 
 #OCR模型列表 > div {

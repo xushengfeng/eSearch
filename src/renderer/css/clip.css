@@ -378,39 +378,6 @@ body {
     font-size: 1rem;
 }
 
-#loading {
-    position: fixed;
-    z-index: 100;
-    padding: 4px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    backdrop-filter: var(--blur);
-    background: var(--bar-bg);
-    transition: var(--transition);
-}
-#loading::after {
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    border: 0.125em solid;
-    border-radius: 1em;
-    border-right-color: transparent;
-    content: "";
-    animation: spinner 0.75s linear infinite;
-    box-sizing: border-box;
-    margin-left: 0.25em;
-}
-@keyframes spinner {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loading_hide {
-    pointer-events: none;
-    opacity: 0;
-}
-
 /* long */
 #long_rect {
     position: fixed;

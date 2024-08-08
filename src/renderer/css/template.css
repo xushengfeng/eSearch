@@ -3,25 +3,6 @@
     flex-wrap: wrap;
     align-items: center;
 }
-.文字 {
-    margin: 0;
-}
-.选项 {
-    margin: 8px 8px 8px 0;
-    border-radius: 8px;
-    padding: 8px;
-    transition: background var(--transition), box-shadow var(--transition);
-}
-.选项:hover {
-    box-shadow: var(--shadow);
-}
-.选中 {
-    background: var(--m-color1);
-    color: #fff;
-}
-.选中 > .icon {
-    filter: invert(1) brightness(2);
-}
 
 hot-keys {
     display: flex;
