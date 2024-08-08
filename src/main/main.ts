@@ -1653,7 +1653,7 @@ ipcMain.on("translator", (event, type: string) => {
 });
 
 ipcMain.on("ignore", (event, v) => {
-    BrowserWindow.fromWebContents(event.sender).setIgnoreMouseEvents(v);
+    BrowserWindow.fromWebContents(event.sender)?.setIgnoreMouseEvents(v);
 });
 
 // 主页面
