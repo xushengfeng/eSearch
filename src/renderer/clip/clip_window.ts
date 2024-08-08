@@ -2630,23 +2630,21 @@ function getFilters() {
     if (!fabricCanvas.getActiveObject()?.filters) return;
     const f = fabricCanvas.getActiveObject().filters;
 
-    for (const fl of Object.values(filtetMap)) {
+    const values = Object.values(filtetMap);
+    for (const fl of values) {
+        const i = values.indexOf(fl);
         if (fl.value) {
-            if (f[fl.i]) {
-                const name = Object.keys(filtetMap).find(
-                    (f) => filtetMap[f].i === fl.i,
-                );
+            if (f[i]) {
+                const name = Object.keys(filtetMap)[i];
                 filterRangeEl.innerHTML = `<range-b min="${fl.value.min || 0}" max="${fl.value.max}" value="${
-                    f[fl.i][fl.key]
+                    Object.values(f[i])[0]
                 }" text="${fl.value.text || ""}" step="${fl.value.step || 1}"></range-b>`;
                 const range = filterRangeEl.querySelector(
                     "range-b",
                 ) as HTMLInputElement;
                 range.oninput = () => {
-                    const filter = new Fabric.Image.filters[fl.f]({
-                        [fl.key]: Number(range.value),
-                    });
-                    applyFilter(fl.i, filter);
+                    const filter = fl.fun(Number(range.value));
+                    applyFilter(i, filter);
                 };
                 for (const i of Object.values(drawSideEls.filter)) {
                     i.classList.remove("filter_select");
@@ -3202,9 +3200,6 @@ let newFilterSelecting = false;
 
 const filtetMap: {
     [key in EditType["filter"]]: {
-        f?: string;
-        i: number;
-        key?: string;
         value?: {
             value: number;
             max: number;
@@ -3212,74 +3207,62 @@ const filtetMap: {
             step?: number;
             text?: string;
         };
-        fun?: () => void;
+        fun: (v?: number) => void;
     };
 } = {
     // 马赛克
     // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
     pixelate: {
-        f: "Pixelate",
-        i: 0,
-        key: "blocksize",
         value: { value: 16, max: 20, text: "px" },
+        fun: (v) => new Filters.Pixelate({ blocksize: v }),
     },
     blur: {
-        f: "Blur",
-        i: 1,
-        key: "blur",
         value: { value: 1, max: 5, text: "%", step: 0.1 },
+        fun: (v) => new Filters.Blur({ blur: v }),
     },
     brightness: {
-        f: "Brightness",
-        i: 2,
-        key: "brightness",
         value: { min: -1, value: 0, max: 1, step: 0.01 },
+        fun: (v) => new Filters.Brightness({ brightness: v }),
     },
     contrast: {
-        f: "Contrast",
-        i: 3,
-        key: "contrast",
         value: { min: -1, value: 0, max: 1, step: 0.01 },
+        fun: (v) => new Filters.Contrast({ contrast: v }),
     },
     saturation: {
-        f: "Saturation",
-        i: 4,
-        key: "saturation",
         value: { min: -1, value: 0, max: 1, step: 0.01 },
+        fun: (v) => new Filters.Saturation({ saturation: v }),
     },
     hue: {
-        f: "HueRotation",
-        i: 5,
-        key: "rotation",
         value: { min: -1, value: 0, max: 1, step: 0.01 },
+        fun: (v) => new Filters.HueRotation({ rotation: v }),
     },
-    noise: { f: "Noise", i: 7, value: { value: 0, max: 1000 } },
-    invert: { f: "Invert", i: 9 },
-    sepia: { f: "Sepia", i: 10 },
-    bw: { f: "BlackWhite", i: 11 },
-    brownie: { f: "Brownie", i: 12 },
-    vintage: { f: "Vintage", i: 13 },
-    koda: { f: "Kodachrome", i: 14 },
-    techni: { f: "Technicolor", i: 15 },
-    polaroid: { f: "Polaroid", i: 16 },
+    noise: {
+        value: { value: 0, max: 1000 },
+        fun: (v) => new Filters.Noise({ value: v }),
+    },
+    invert: { fun: () => new Filters.Invert() },
+    sepia: { fun: () => new Filters.Sepia() },
+    bw: { fun: () => new Filters.BlackWhite() },
+    brownie: { fun: () => new Filters.Brownie() },
+    vintage: { fun: () => new Filters.Vintage() },
+    koda: { fun: () => new Filters.Kodachrome() },
+    techni: { fun: () => new Filters.Technicolor() },
+    polaroid: { fun: () => new Filters.Polaroid() },
     gray_average: {
-        i: 17,
         fun: () =>
-            new Fabric.Image.filters.Grayscale({
+            new Filters.Grayscale({
                 mode: "average",
             }),
     },
     gray_lightness: {
-        i: 18,
         fun: () =>
-            new Fabric.Image.filters.Grayscale({
+            new Filters.Grayscale({
                 mode: "lightness",
             }),
     },
     gray_luminosity: {
-        i: 19,
         fun: () =>
-            new Fabric.Image.filters.Grayscale({
+            new Filters.Grayscale({
                 mode: "luminosity",
             }),
     },
@@ -4079,6 +4062,8 @@ Fabric = window.fabric;
 // biome-ignore lint:
 var Fabric;
 
+const Filters = Fabric.Image.filters;
+
 const fabricCanvas = new Fabric.Canvas("draw_photo");
 
 hisPush();
@@ -4255,21 +4240,10 @@ fabricCanvas.on("mouse:up", (options) => {
 
         if (willFilter) {
             const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
-            // todo
-            // biome-ignore lint/suspicious/noImplicitAnyLet: 待fabric v6
-            let filter;
-            if (i.key) {
-                filter = new Fabric.Image.filters[i.f]({
-                    [i.key]: i.value.value ?? 1,
-                });
-                applyFilter(i.i, filter);
-            } else if (i.fun) {
-                filter = i.fun();
-                applyFilter(i.i, filter);
-            } else {
-                filter = new Fabric.Image.filters[i.f]();
-            }
-            applyFilter(i.i, filter);
+            const index = Object.keys(filtetMap).indexOf(willFilter);
+            const filter = i.fun(i.value.value ?? 1);
+            applyFilter(index, filter);
+            applyFilter(index, filter);
             getFilters();
         }
     }
@@ -4439,7 +4413,7 @@ for (const id in filtetMap) {
             const filter = new Fabric.Image.filters.Gamma({
                 gamma: [r, g, b],
             });
-            applyFilter(6, filter);
+            applyFilter(30, filter);
         };
 
 hotkeys("esc", "drawing", () => {
