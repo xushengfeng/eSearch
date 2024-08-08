@@ -44,9 +44,7 @@ import {
     input,
     p,
     pureStyle,
-    radioGroup,
     setProperties,
-    trackPoint,
     txt,
     view,
 } from "dkh-ui";
@@ -2667,8 +2665,6 @@ function getFilters() {
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
     )).value = String(f[6]?.gamma[2] || 1);
-    const gray = f[8]?.mode;
-    fGary.set(gray);
 }
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
@@ -2904,13 +2900,11 @@ const colorStrokeEl = colorInput("stroke").on("input", () => {
 
 elFromId("draw_color_p").add([colorFillEl, colorStrokeEl]);
 
-const fGary = radioGroup<"average" | "lightness" | "luminosity">("gray");
-const fGary1 = fGary.new("average", view());
-const fGary2 = fGary.new("lightness", view());
-const fGary3 = fGary.new("luminosity", view());
-
-elFromId("draw_filters_grayscale").add([fGary1, fGary2, fGary3]);
-fGary.set(null);
+elFromId("draw_filters_grayscale").add([
+    view().attr({ id: "draw_filters_gray_average" }),
+    view().attr({ id: "draw_filters_gray_lightness" }),
+    view().attr({ id: "draw_filters_gray_luminosity" }),
+]);
 
 const editor = document.getElementById("editor");
 editor.style.width = `${window.screen.width / 全局缩放}px`;
@@ -3208,7 +3202,7 @@ let newFilterSelecting = false;
 
 const filtetMap: {
     [key in EditType["filter"]]: {
-        f: string;
+        f?: string;
         i: number;
         key?: string;
         value?: {
@@ -3218,6 +3212,7 @@ const filtetMap: {
             step?: number;
             text?: string;
         };
+        fun?: () => void;
     };
 } = {
     // 马赛克
@@ -3261,13 +3256,33 @@ const filtetMap: {
     noise: { f: "Noise", i: 7, value: { value: 0, max: 1000 } },
     invert: { f: "Invert", i: 9 },
     sepia: { f: "Sepia", i: 10 },
-    // 黑白
     bw: { f: "BlackWhite", i: 11 },
     brownie: { f: "Brownie", i: 12 },
     vintage: { f: "Vintage", i: 13 },
     koda: { f: "Kodachrome", i: 14 },
     techni: { f: "Technicolor", i: 15 },
     polaroid: { f: "Polaroid", i: 16 },
+    gray_average: {
+        i: 17,
+        fun: () =>
+            new Fabric.Image.filters.Grayscale({
+                mode: "average",
+            }),
+    },
+    gray_lightness: {
+        i: 18,
+        fun: () =>
+            new Fabric.Image.filters.Grayscale({
+                mode: "lightness",
+            }),
+    },
+    gray_luminosity: {
+        i: 19,
+        fun: () =>
+            new Fabric.Image.filters.Grayscale({
+                mode: "luminosity",
+            }),
+    },
 };
 
 let willFilter = "";
@@ -3474,8 +3489,9 @@ for (const el of document
     shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
 const filtersEls = []
     .concat(Array.from(document.querySelectorAll("#draw_filters_i > div")))
+    .concat(Array.from(document.querySelectorAll("#draw_filters_bs > div")))
     .concat(
-        Array.from(document.querySelectorAll("#draw_filters_bs > div")),
+        Array.from(document.querySelectorAll("#draw_filters_grayscale > div")),
     ) as HTMLInputElement[];
 
 for (const el of filtersEls) {
@@ -4239,15 +4255,21 @@ fabricCanvas.on("mouse:up", (options) => {
 
         if (willFilter) {
             const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
+            // todo
+            // biome-ignore lint/suspicious/noImplicitAnyLet: 待fabric v6
+            let filter;
             if (i.key) {
-                const filter = new Fabric.Image.filters[i.f]({
+                filter = new Fabric.Image.filters[i.f]({
                     [i.key]: i.value.value ?? 1,
                 });
                 applyFilter(i.i, filter);
-            } else {
-                const filter = new Fabric.Image.filters[i.f]();
+            } else if (i.fun) {
+                filter = i.fun();
                 applyFilter(i.i, filter);
+            } else {
+                filter = new Fabric.Image.filters[i.f]();
             }
+            applyFilter(i.i, filter);
             getFilters();
         }
     }
@@ -4419,13 +4441,6 @@ for (const id in filtetMap) {
             });
             applyFilter(6, filter);
         };
-// 灰度
-fGary.on(() => {
-    const filter = new Fabric.Image.filters.Grayscale({
-        mode: fGary.get(),
-    });
-    applyFilter(8, filter);
-});
 
 hotkeys("esc", "drawing", () => {
     setEditType("select", "draw");

@@ -339,7 +339,10 @@ type EditType = {
         | "vintage"
         | "koda"
         | "techni"
-        | "polaroid";
+        | "polaroid"
+        | "gray_average"
+        | "gray_lightness"
+        | "gray_luminosity";
 };
 
 type MainWinType = {

@@ -495,14 +495,10 @@ range-b {
 #draw_filters_gamma > range-b {
     height: calc(var(--bar-size) / 3) !important;
 }
-#draw_filters_grayscale > label {
+#draw_filters_grayscale > div {
     height: calc(var(--bar-size) / 3) !important;
-    display: block;
 }
-#draw_filters_grayscale > label:hover {
-    background-color: var(--hover-color);
-}
-#draw_filters_grayscale label:has(input:checked) {
+#draw_filters_grayscale > div:hover {
     background-color: var(--hover-color);
 }
 
