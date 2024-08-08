@@ -348,14 +348,17 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             if (store.get("录屏.自动录制")) {
                 let t = store.get("录屏.自动录制");
                 function d() {
+                    if (t === false) return;
                     if (recorder.state !== "inactive") return;
-                    document.getElementById("time").innerText = t;
+                    document.getElementById("time").innerText = String(t);
                     setTimeout(() => {
                         if (t === 0) {
                             startStop.click();
                         } else {
-                            t--;
-                            d();
+                            if (t !== false) {
+                                t--;
+                                d();
+                            }
                         }
                     }, 1000);
                 }
@@ -489,7 +492,7 @@ async function initSeg() {
                 ? document.createElement("img")
                 : document.createElement("video");
         const url =
-            bgSetting.模式 === "img" ? bgSetting.imgUrl : bgSetting.viedoUrl;
+            bgSetting.模式 === "img" ? bgSetting.imgUrl : bgSetting.videoUrl;
         bg.src = url;
         bgEl.append(bg);
         bgEl.style.objectFit = bgSetting.fit;
