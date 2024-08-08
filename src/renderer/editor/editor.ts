@@ -1186,6 +1186,10 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                             imageB.click();
                         }
                     }
+
+                    if (store.get("主页面.自动复制OCR")) {
+                        clipboard.writeText(text);
+                    }
                     return;
                 }
                 console.error(err);
