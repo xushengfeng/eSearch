@@ -50,11 +50,12 @@ body {
 }
 
 #main button,
-#main lock-b,
+#main label,
 #main select {
     width: 24px;
     height: 24px;
     position: relative;
+    display: block;
     background-color: var(--bg);
     border: none;
     transition: var(--transition);
@@ -65,11 +66,13 @@ body {
 }
 
 #main button:hover,
-#main lock-b:hover {
+#main label:hover {
     background-color: var(--hover-color);
 }
-
-.lock-b-lock {
+#main label > input {
+    display: none;
+}
+#main label:has(input:checked) {
     background-color: var(--hover-color) !important;
 }
 
@@ -82,7 +85,7 @@ body {
 }
 
 #main button > .icon,
-#main lock-b > .icon {
+#main label > .icon {
     width: 20px;
     left: 2px;
     top: 2px;
