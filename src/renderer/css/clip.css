@@ -190,7 +190,7 @@ body {
     width: var(--bar-size);
     height: calc(var(--bar-size) * 7);
     position: fixed;
-    z-index: 99;
+    z-index: 100;
     transition: width var(--transition), opacity var(--transition);
 }
 #draw_bar > div {
