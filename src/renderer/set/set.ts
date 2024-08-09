@@ -623,6 +623,10 @@ const xqckxEly = elFromId<HTMLInputElement>("选区参考线y")
 
 const xqckxEl = elFromId("选区参考线");
 xqckxEl.add([
+    button(txt("无")).on("click", () => {
+        xqckxElx.sv([]);
+        xqckxEly.sv([]);
+    }),
     button(txt("九宫格")).on("click", () => {
         const v = 0.333;
         xqckxElx.sv([v, 1 - v]);
