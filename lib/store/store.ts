@@ -38,11 +38,22 @@ class Store {
     public set(keyPath: string, value: any): void {
         const store = this.getStore();
         const pathx = keyPath.split(".");
-        const lastp = pathx.pop();
-        const lastobj = pathx.reduce((p, c) => {
-            return p[c] || {};
-        }, store);
-        lastobj[lastp] = value;
+        let obj = store;
+        for (let i = 0; i < pathx.length; i++) {
+            const p = pathx[i];
+            if (i === pathx.length - 1) obj[p] = value;
+            else {
+                if (obj[p]?.constructor !== Object) {
+                    if (!Number.isNaN(Number(pathx[i + 1]))) {
+                        obj[p] = [];
+                    } else {
+                        obj[p] = {};
+                    }
+                }
+                // @ts-ignore
+                obj = obj[p];
+            }
+        }
         this.setStore(store);
     }
     // biome-ignore lint: any out
