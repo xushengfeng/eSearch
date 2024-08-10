@@ -2423,30 +2423,36 @@ type rangeN = {
 
 function editorS2ImgS(s: selection) {
     let sourceText = "";
-    let start: rangeN = { node: null, offset: 0 };
-    let end: rangeN = { node: null, offset: 0 };
+    let startN: rangeN = { node: null, offset: 0 };
+    let endN: rangeN = { node: null, offset: 0 };
+    for (const allTextNodes of ocrTextNodes.values()) {
+        for (const node of allTextNodes) {
+            sourceText = `${sourceText + node.textContent}`;
+        }
+    }
+    const { start, end } = getDiff(editor.get(), sourceText, s.start, s.end);
+    sourceText = "";
     for (const allTextNodes of ocrTextNodes.values()) {
         for (const node of allTextNodes) {
             const i = sourceText.length;
 
-            if (i <= s.start && s.start < i + node.textContent.length) {
-                start = {
+            if (i <= start && start < i + node.textContent.length) {
+                startN = {
                     node,
-                    offset: s.start - i,
+                    offset: start - i,
                 };
             }
-            if (i <= s.end && s.end < i + node.textContent.length) {
-                end = {
+            if (i <= end && end < i + node.textContent.length) {
+                endN = {
                     node,
-                    offset: s.end - i,
+                    offset: end - i,
                 };
-                return { start, end };
+                return { start: startN, end: endN };
             }
-            sourceText = `${sourceText + node.textContent}\n`;
-            // todo 更多换行
+            sourceText = `${sourceText + node.textContent}`;
         }
     }
-    return { start, end };
+    return { start: startN, end: endN };
 }
 
 function setImgSelect() {
