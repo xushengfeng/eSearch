@@ -465,5 +465,19 @@
     "80758c": "Seleccione el tipo de motor",
     "bcc484": "Solicitud de API",
     "2ca158": "Prueba",
-    "ce15ca": "Completar"
+    "ce15ca": "Completar",
+    "864db5": "Copiar automáticamente el resultado de OCR",
+    "f5916c": "Estilo de flecha",
+    "8d2717": "Sólido",
+    "a6a57e": "Hueco",
+    "d9ef88": "Altura",
+    "700ce2": "Ancho",
+    "14d3cc": "Línea de referencia",
+    "84c360": "Línea de referencia del cursor",
+    "e92a94": "Color de la línea de referencia del cursor",
+    "ca39e5": "Línea de referencia de la selección x",
+    "58236a": "Línea de referencia de la selección y",
+    "e3b197": "Color de la línea de referencia de la selección",
+    "bf2411": "Rejilla de nueve casillas",
+    "79d1ab": "Proporción áurea"
 }

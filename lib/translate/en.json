@@ -465,5 +465,19 @@
     "80758c": "Select Engine Type",
     "bcc484": "API Application",
     "2ca158": "Test",
-    "ce15ca": "Complete"
+    "ce15ca": "Complete",
+    "864db5": "Auto copy OCR result",
+    "f5916c": "Arrow Style",
+    "8d2717": "Solid",
+    "a6a57e": "Hollow",
+    "d9ef88": "Height",
+    "700ce2": "Width",
+    "14d3cc": "Guideline",
+    "84c360": "Cursor Guideline",
+    "e92a94": "Cursor Guideline Color",
+    "ca39e5": "Selection Guideline X",
+    "58236a": "Selection Guideline Y",
+    "e3b197": "Selection Guideline Color",
+    "bf2411": "Grid",
+    "79d1ab": "Golden Ratio"
 }
