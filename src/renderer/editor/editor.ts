@@ -1175,6 +1175,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                         openLink("translate");
                     }
 
+                    ocrTextNodes.clear();
                     addOcrText(r.raw, 0);
 
                     const maxLinePhotoShow = store.get("主页面.显示图片区");
@@ -2201,6 +2202,7 @@ function runOcr() {
     }
     const type = ocr引擎.value;
     const imgList = imgsEl.querySelectorAll(":scope > div > img");
+    ocrTextNodes.clear();
     imgList.forEach((el: HTMLImageElement, i) => {
         if (type === "baidu" || type === "youdao") {
             onlineOcr(type, el.src, (_err, r) => {
