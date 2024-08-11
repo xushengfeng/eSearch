@@ -40,48 +40,57 @@
             <div class="find_t"><span></span></div>
         </div>
 
-        <div id="image">
-            <div id="img_input">
-                <input type="file" name="upload" id="upload" multiple>
-                <div id="drop">
-                    <div id="file_input"><img src="./assets/icons/add.svg" class="icon"></div><span>拖拽或粘贴图像到此处</span>
-                </div>
-            </div>
-            <div id="text_output">
-                <select name="ocr引擎" id="ocr引擎"></select>
-                <div id="run"><img src="./assets/icons/ocr.svg" class="icon"></div>
-                <div id="close"><img src="./assets/icons/close.svg" class="icon"></div>
-            </div>
-            <div id="img_view"></div>
-        </div>
-
-        <div class="main">
-            <div id="top">
-                <div id="text_out">
-                    <div id="line_num"></div>
-                    <div id="main_text">
-                        <div id="text">
-                        </div>
-                        <div id="edit_b" class="edit_h">
-                            <div id="excel_bar" title="保存Excel"><img src="./assets/icons/excel.svg" class="icon"></div>
-                            <div id="md_table_bar" title="复制为md表格"><img src="./assets/icons/md.svg" class="icon"></div>
-                            <div id="link_bar" title="打开链接"><img src="./assets/icons/link.svg" class="icon"></div>
-                            <div id="search_bar" title="搜索"><img src="./assets/icons/search.svg" class="icon"></div>
-                            <div id="translate_bar" title="翻译"><img src="./assets/icons/translate.svg" class="icon">
-                            </div>
-                            <div id="select_all_bar" title="全选"><img src="./assets/icons/select_all.svg" class="icon">
-                            </div>
-                            <div id="cut_bar" title="剪切"><img src="./assets/icons/cut.svg" class="icon"></div>
-                            <div id="copy_bar" title="复制"><img src="./assets/icons/copy.svg" class="icon"></div>
-                            <div id="paste_bar" title="粘贴"><img src="./assets/icons/paste.svg" class="icon"></div>
-                            <div id="delete_enter_bar" title="自动删除换行"><img src="./assets/icons/delete_enter.svg"
-                                    class="icon"></div>
-                        </div>
+        <div id="edit">
+            <div id="image">
+                <div id="img_input">
+                    <input type="file" name="upload" id="upload" multiple>
+                    <div id="drop">
+                        <div id="file_input"><img src="./assets/icons/add.svg" class="icon"></div>
+                        <span>拖拽或粘贴图像到此处</span>
                     </div>
                 </div>
-                <div id="history_list"></div>
+                <div id="text_output">
+                    <select name="ocr引擎" id="ocr引擎"></select>
+                    <div id="run"><img src="./assets/icons/ocr.svg" class="icon"></div>
+                    <div id="close"><img src="./assets/icons/close.svg" class="icon"></div>
+                </div>
+                <div id="img_view"></div>
             </div>
 
+            <div class="main">
+                <div id="top">
+                    <div id="text_out">
+                        <div id="line_num"></div>
+                        <div id="main_text">
+                            <div id="text">
+                            </div>
+                            <div id="edit_b" class="edit_h">
+                                <div id="excel_bar" title="保存Excel"><img src="./assets/icons/excel.svg" class="icon">
+                                </div>
+                                <div id="md_table_bar" title="复制为md表格"><img src="./assets/icons/md.svg" class="icon">
+                                </div>
+                                <div id="link_bar" title="打开链接"><img src="./assets/icons/link.svg" class="icon"></div>
+                                <div id="search_bar" title="搜索"><img src="./assets/icons/search.svg" class="icon"></div>
+                                <div id="translate_bar" title="翻译"><img src="./assets/icons/translate.svg" class="icon">
+                                </div>
+                                <div id="select_all_bar" title="全选"><img src="./assets/icons/select_all.svg"
+                                        class="icon">
+                                </div>
+                                <div id="cut_bar" title="剪切"><img src="./assets/icons/cut.svg" class="icon"></div>
+                                <div id="copy_bar" title="复制"><img src="./assets/icons/copy.svg" class="icon"></div>
+                                <div id="paste_bar" title="粘贴"><img src="./assets/icons/paste.svg" class="icon"></div>
+                                <div id="delete_enter_bar" title="自动删除换行"><img src="./assets/icons/delete_enter.svg"
+                                        class="icon"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="history_list"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="bottoms">
             <div id="tabs">
                 <div id="buttons">
                     <div id="home"><img src="./assets/icons/main.svg" class="icon"></div>
@@ -107,8 +116,8 @@
                 <button id="translate_b" title="翻译"><img src="./assets/icons/translate.svg" class="icon"></button>
                 <select id="translate_s" title="选择翻译引擎"></select>
             </div>
-
         </div>
+
         <div id="browser_bg"></div>
         <li id="tab" class="b_tab" style="display: none;"><img src="./assets/icons/reload.svg" class="loading"><span
                 id="title"></span><button><img src="./assets/icons/close.svg" class="icon"></button></li>

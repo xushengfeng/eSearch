@@ -132,6 +132,8 @@ const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 
 const imageShow = "image_main";
 
+const editMainEl = document.getElementById("edit");
+
 const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 
 const dmp = new diff_match_patch();
@@ -784,7 +786,7 @@ function spellcheck() {
 function showFind() {
     findShow = !findShow;
     if (findShow) {
-        document.getElementById("top").style.marginTop = "48px";
+        editMainEl.style.marginTop = "48px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
         findInput.value = editor.selections.get();
@@ -793,7 +795,7 @@ function showFind() {
         if (editor.selections.get() !== "") find_();
         countWords();
     } else {
-        document.getElementById("top").style.marginTop = "";
+        editMainEl.style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
         document.getElementById("find").style.pointerEvents = "none";
     }
@@ -1183,7 +1185,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                         maxLinePhotoShow &&
                         text.split("\n").length >= maxLinePhotoShow
                     ) {
-                        if (!body.classList.contains(imageShow)) {
+                        if (!editMainEl.classList.contains(imageShow)) {
                             imageB.click();
                         }
                     }
@@ -2108,8 +2110,8 @@ function onlineOcr(
 // online_ocr();
 
 imageB.onclick = () => {
-    body.classList.toggle(imageShow);
-    setButtonHover(imageB, body.classList.contains(imageShow));
+    editMainEl.classList.toggle(imageShow);
+    setButtonHover(imageB, editMainEl.classList.contains(imageShow));
 };
 
 dropEl.ondragover = (e) => {

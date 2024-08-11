@@ -35,14 +35,18 @@ nav > button > .icon {
     width: var(--title-bar);
 }
 
+#edit {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    padding: var(--o-padding);
+}
+
 .main {
-    display: grid;
     height: 100%;
     width: 100%;
-    grid-template-columns: 1fr var(--b-button) var(--b-button) repeat(2, auto);
-    grid-template-rows: auto var(--b-button);
     gap: var(--o-padding);
-    padding: var(--o-padding);
     box-sizing: border-box;
     transition: var(--transition);
 }
@@ -52,7 +56,7 @@ nav > button > .icon {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    grid-area: 1 / 1 / 2 / 7;
+    height: 100%;
     border-radius: var(--border-radius);
     transition: var(--transition);
     position: relative;
@@ -63,22 +67,14 @@ nav > button > .icon {
 #top:hover {
     box-shadow: var(--shadow);
 }
+.image_main {
+    gap: var(--o-padding);
+}
 .image_main > #image {
-    transform: translateY(0);
+    height: 100%;
 }
-.image_main > .main > #top {
-    margin-top: 50vh;
-}
-
-.main > div:not(:first-child) {
-    display: flex;
-    align-items: center;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    transition: var(--transition);
-}
-.main > div:not(:first-child):hover {
-    box-shadow: var(--shadow);
+.image_main > .main {
+    height: 100%;
 }
 
 #text_out {
@@ -255,20 +251,16 @@ nav > button > .icon {
 }
 
 #image {
-    position: absolute;
-    top: 0;
-    left: 0;
     display: grid;
     gap: var(--o-padding);
     width: 100%;
-    height: 50vh;
+    height: 0%;
+    overflow: hidden;
     box-sizing: border-box;
     grid-template-columns: auto min-content;
     grid-template-rows: auto auto;
     background-color: var(--bg);
     transition: var(--transition);
-    transform: translateY(-120%);
-    padding: var(--o-padding);
 }
 
 #image .icon {
@@ -411,6 +403,24 @@ nav > button > .icon {
     background-color: #00000040;
 }
 
+#bottoms {
+    display: flex;
+    padding: var(--o-padding);
+    gap: var(--o-padding);
+    height: 32px;
+}
+
+#bottoms > div {
+    display: flex;
+    align-items: center;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+}
+#bottoms > div:hover {
+    box-shadow: var(--shadow);
+}
+
 button {
     border-radius: 0;
     background-color: var(--bg);
@@ -468,6 +478,7 @@ button > .icon {
     overflow-x: scroll;
     opacity: 0;
     pointer-events: none;
+    flex-grow: 1;
 }
 #tabs::-webkit-scrollbar {
     display: none;
