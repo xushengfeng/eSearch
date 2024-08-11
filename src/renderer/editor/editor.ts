@@ -119,7 +119,7 @@ const conciseEl = document.getElementById("concise_b");
 
 const mainEl = document.querySelector(".main") as HTMLElement;
 
-const body = document.querySelector(".fill_t");
+const body = document.querySelector(".fill_t") as HTMLElement;
 const liList = [];
 
 const imageB = document.getElementById("image_b");
@@ -133,6 +133,8 @@ const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
 const imageShow = "image_main";
 
 const editMainEl = document.getElementById("edit");
+
+const bottomEls = document.getElementById("bottoms");
 
 const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 
@@ -1433,11 +1435,11 @@ conciseEl.onclick = () => {
 
 function setConciseMode(m: boolean) {
     if (m) {
-        mainEl.style.gridTemplateRows = "auto 0";
-        mainEl.style.gap = "0";
+        bottomEls.style.height = "0";
+        body.style.gap = "0";
     } else {
-        mainEl.style.gridTemplateRows = "";
-        mainEl.style.gap = "";
+        bottomEls.style.height = "";
+        body.style.gap = "";
     }
     const bSize = { top: 0, bottom: 48 };
     if (m) {

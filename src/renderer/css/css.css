@@ -406,6 +406,7 @@ nav > button > .icon {
     display: flex;
     gap: var(--o-padding);
     height: 32px;
+    transition: var(--transition);
 }
 
 #bottoms > div {
