@@ -2458,6 +2458,7 @@ function editorS2ImgS(s: selection) {
 }
 
 function setImgSelect() {
+    if (ocrTextNodes.size === 0) return;
     const sss = editorS2ImgS(editor.selections.getS());
     console.log(sss);
 
