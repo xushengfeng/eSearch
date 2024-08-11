@@ -798,12 +798,13 @@ function showFind() {
         editMainEl.style.marginTop = "";
         document.getElementById("find").style.transform = "translateY(-120%)";
         document.getElementById("find").style.pointerEvents = "none";
+        exitFind();
+        editor.text.focus();
     }
 }
 
 document.getElementById("find_b_close").onclick = () => {
     showFind();
-    exitFind();
 };
 
 // 正则
