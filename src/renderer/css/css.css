@@ -40,7 +40,6 @@ nav > button > .icon {
     display: flex;
     flex-direction: column;
     transition: var(--transition);
-    padding: var(--o-padding);
 }
 
 .main {
@@ -405,7 +404,6 @@ nav > button > .icon {
 
 #bottoms {
     display: flex;
-    padding: var(--o-padding);
     gap: var(--o-padding);
     height: 32px;
 }
@@ -593,6 +591,10 @@ body > div {
     overflow: hidden;
     position: absolute;
     top: 32px;
+    box-sizing: border-box;
+    padding: var(--o-padding);
+    box-sizing: border-box;
+    gap: var(--o-padding);
 }
 
 .fill_t {
