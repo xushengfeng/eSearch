@@ -469,7 +469,7 @@ class find {
             }
         } else {
             const sstext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-            text = new RegExp(sstext, "g"); // 自动转义，找文字
+            text = new RegExp(sstext, "gi"); // 自动转义，找文字
         }
         return text;
     }
