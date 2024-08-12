@@ -238,11 +238,16 @@ class xeditor {
      */
     push(value: string) {
         this.text.value = value;
-        editorChange();
+        lineNum();
+        setTextAreaHeight();
+        if (findShow) {
+            showFind();
+            exitFind();
+        }
 
         if (editingOnOther) {
             editingOnOther = false;
-            editorChange();
+            writeEditOnOther();
             editingOnOther = true;
         }
     }
