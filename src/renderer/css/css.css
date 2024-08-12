@@ -38,6 +38,7 @@ nav > button > .icon {
 #edit {
     flex-grow: 1;
     display: flex;
+    overflow: auto;
     flex-direction: column;
     transition: var(--transition);
 }
@@ -60,12 +61,7 @@ nav > button > .icon {
     transition: var(--transition);
     position: relative;
 }
-#top:focus-within {
-    box-shadow: var(--shadow);
-}
-#top:hover {
-    box-shadow: var(--shadow);
-}
+
 .image_main {
     gap: var(--o-padding);
 }
@@ -586,7 +582,6 @@ button > .icon {
 body > div {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     height: calc(100vh - 32px);
     width: 100%;
     overflow: hidden;
