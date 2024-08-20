@@ -609,13 +609,13 @@ function msk(t: string) {
     };
 
 const xqckxElx = elFromId<HTMLInputElement>("选区参考线x")
-    .bindSet((v, el) => {
+    .bindSet((v: number[], el) => {
         el.value = v.join(", ");
     })
     .bindGet((el) => el.value.split(/[,，]/).map((i) => Number(i)))
     .sv(old_store.框选.参考线.选区.x);
 const xqckxEly = elFromId<HTMLInputElement>("选区参考线y")
-    .bindSet((v, el) => {
+    .bindSet((v: number[], el) => {
         el.value = v.join(", ");
     })
     .bindGet((el) => el.value.split(/[,，]/).map((i) => Number(i)))
@@ -895,30 +895,30 @@ for (const v of xstore.翻译.翻译器) {
 
 function translatorD(v: setting["翻译"]["翻译器"][0]) {
     const idEl = input("name").attr({ value: v.name });
-    const selectEl = select(
+    const selectEl = select<Engines | "">(
         [{ value: "", name: t("选择引擎类型") }].concat(
             Object.entries(engineConfig).map((v) => ({
                 name: v[1].t,
                 value: v[0],
             })),
-        ),
+        ) as { value: Engines }[],
     )
         .sv(v.type || "")
         .on("input", () => {
-            set(selectEl.gv() as Engines);
+            set(selectEl.gv);
         });
     const keys = view();
     const help = p("");
 
-    set(v.type as Engines);
+    set(v.type);
 
-    function set(type: Engines) {
+    function set(type: Engines | "") {
         keys.clear();
         help.clear();
         if (!type) return;
         const fig = engineConfig[type];
         fig.key.forEach((x, i) => {
-            const value = v.keys[x.name];
+            const value = v.keys[x.name] as string;
 
             keys.add(
                 view().add([
@@ -943,6 +943,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     testEl.add([testB, testR]);
     testB.on("click", async () => {
         const v = getV();
+        if (!v) return;
         // @ts-ignore
         translator.e[v.type].setKeys(v.keys);
         try {
@@ -968,8 +969,9 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     ]);
 
     function getV() {
+        if (!selectEl.gv) return null;
         const key = {};
-        const e = engineConfig[selectEl.gv() as Engines].key;
+        const e = engineConfig[selectEl.gv].key;
         for (const el of Array.from(keys.el.querySelectorAll("input"))) {
             const type = e.find((i) => i.name === el.dataset.key).type;
             key[el.dataset.key] =
@@ -977,9 +979,9 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         }
         const nv: typeof v = {
             id: v.id,
-            name: idEl.gv() as string,
+            name: idEl.gv,
             keys: key,
-            type: selectEl.gv() as Engines,
+            type: selectEl.gv,
         };
         return nv;
     }
@@ -1464,8 +1466,8 @@ function saveSetting() {
           )
         : "";
 
-    xstore.框选.参考线.选区.x = xqckxElx.gv() as number[];
-    xstore.框选.参考线.选区.y = xqckxEly.gv() as number[];
+    xstore.框选.参考线.选区.x = xqckxElx.gv;
+    xstore.框选.参考线.选区.y = xqckxEly.gv;
 
     xstore.录屏.自动录制 =
         (<HTMLInputElement>document.getElementById("开启自动录制")).checked &&

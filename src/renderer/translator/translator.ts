@@ -208,7 +208,7 @@ ipcRenderer.on(
 );
 
 const switchEl = check("manual").on("click", () => {
-    if (switchEl.gv()) mode = "manual";
+    if (switchEl.gv) mode = "manual";
     else mode = "auto";
     switchMode();
 });

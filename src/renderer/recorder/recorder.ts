@@ -206,10 +206,10 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                         .on("change", async () => {
                             audioStream =
                                 await navigator.mediaDevices.getUserMedia({
-                                    audio: { deviceId: selectEl.gv() },
+                                    audio: { deviceId: selectEl.gv },
                                     video: false,
                                 });
-                            store.set("录屏.音频.设备", selectEl.gv());
+                            store.set("录屏.音频.设备", selectEl.gv);
                         });
                     micEl.after(selectEl.el);
                 }

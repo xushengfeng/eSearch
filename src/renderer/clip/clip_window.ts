@@ -88,7 +88,7 @@ function selectMenu() {
         .bindGet((el: HTMLSelectElement) => {
             return el.value;
         })
-        .bindSet((v, el: HTMLSelectElement) => {
+        .bindSet((v:string, el: HTMLSelectElement) => {
             el.value = v as string;
         });
     return select;
@@ -423,7 +423,7 @@ function closeWin() {
 }
 
 function runOcr() {
-    const type = ocr引擎.gv();
+    const type = ocr引擎.gv;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL(), type]);
     });
@@ -431,7 +431,7 @@ function runOcr() {
 }
 
 function runSearch() {
-    const type = 识图引擎.gv();
+    const type = 识图引擎.gv;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         ipcRenderer.send("clip_main_b", "search", [c.toDataURL(), type]);
     });
@@ -2362,7 +2362,7 @@ function colorInput(type: "fill" | "stroke") {
         .bindGet((el: HTMLInputElement) => {
             return el.value;
         })
-        .bindSet((v, el: HTMLInputElement) => {
+        .bindSet((v:string, el: HTMLInputElement) => {
             el.value = v;
         });
     alpha.el.setAttribute("max", "1");
@@ -2370,7 +2370,7 @@ function colorInput(type: "fill" | "stroke") {
     alpha.el.setAttribute("step", "0.01");
 
     function getInputV() {
-        return Color(i.gv()).alpha(Number(alpha.gv()));
+        return Color(i.gv).alpha(Number(alpha.gv));
     }
     function setC() {
         const color = getInputV();
@@ -2895,10 +2895,10 @@ document.body.append(longTip.el.el);
 document.body.append(longPreview.el);
 
 const colorFillEl = colorInput("fill").on("input", () => {
-    setFObjectV(colorFillEl.gv() as string, null, null);
+    setFObjectV(colorFillEl.gv, null, null);
 });
 const colorStrokeEl = colorInput("stroke").on("input", () => {
-    setFObjectV(colorStrokeEl.gv() as string, null, null);
+    setFObjectV(colorStrokeEl.gv, null, null);
 });
 
 elFromId("draw_color_p").add([colorFillEl, colorStrokeEl]);
@@ -3617,19 +3617,19 @@ for (const i of [
 }
 ocr引擎.sv(store.get("OCR.记住") || store.get("OCR.类型"));
 ocr引擎.on("input", () => {
-    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv());
+    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv);
     tool.ocr();
 });
-toolBarEl.els.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv()}`;
+toolBarEl.els.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv}`;
 
 // 以图搜图
 const 识图引擎 = toolBarEl.els.searchE;
 识图引擎.sv(store.get("以图搜图.记住") || store.get("以图搜图.引擎"));
 识图引擎.on("input", () => {
-    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv());
+    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv);
     tool.search();
 });
-toolBarEl.els.search.el.title = `以图搜图 - ${识图引擎.gv()}`;
+toolBarEl.els.search.el.title = `以图搜图 - ${识图引擎.gv}`;
 
 trackLocation();
 
