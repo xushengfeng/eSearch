@@ -11,8 +11,26 @@ import open_with from "../../../lib/open_with";
 import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";
 import Color from "color";
-import fabricSrc from "../../../lib/fabric.min.js?raw";
 import store from "../../../lib/store/renderStore";
+import {
+    ActiveSelection,
+    Canvas,
+    Circle,
+    type CircleProps,
+    FabricImage,
+    IText,
+    Line,
+    PencilBrush,
+    Polygon,
+    Polyline,
+    Rect,
+    type RectProps,
+    Shadow,
+    SprayBrush,
+    classRegistry,
+    filters,
+} from "fabric";
+import { EraserBrush } from "@erase2d/fabric";
 
 let Screenshots: typeof import("node-screenshots").Screenshots;
 try {
@@ -154,8 +172,8 @@ function setScreen(i: (typeof allScreens)[0]) {
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = h;
     toCanvas(mainCanvas, img);
-    fabricCanvas.setHeight(h);
-    fabricCanvas.setWidth(w);
+    fabricCanvas.height = h;
+    fabricCanvas.width = w;
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     if (记忆框选)
         if (记忆框选值?.[i.id]?.[2]) {
@@ -878,7 +896,7 @@ function save(message: string) {
  * @param type 格式
  * @returns promise svg base64|canvas element
  */
-function getClipPhoto(type: string) {
+function getClipPhoto(type: "png" | "svg" | "jpg" | "webp") {
     const mainCtx = mainCanvas.getContext("2d");
     if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
@@ -932,7 +950,8 @@ function getClipPhoto(type: string) {
         top: finalRect[1],
         width: finalRect[2],
         height: finalRect[3],
-        format: type,
+        format: "png",
+        multiplier: 1,
     });
     return new Promise((resolve, _rejects) => {
         image.onload = () => {
@@ -2072,7 +2091,7 @@ function showBars(b: boolean) {
     }
 }
 function pencilElClick() {
-    fabricCanvas.freeDrawingBrush = new Fabric.PencilBrush(fabricCanvas);
+    fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush.color = freeColor;
     fabricCanvas.freeDrawingBrush.width = freeWidth;
 
@@ -2081,11 +2100,13 @@ function pencilElClick() {
     freeShadow();
 }
 function eraserElClick() {
-    fabricCanvas.freeDrawingBrush = new Fabric.EraserBrush(fabricCanvas);
+    // todo
+    const eraser = new EraserBrush(fabricCanvas);
+    fabricCanvas.freeDrawingBrush = eraser;
     fabricCanvas.freeDrawingBrush.width = freeWidth;
 }
 function freeSprayElClick() {
-    fabricCanvas.freeDrawingBrush = new Fabric.SprayBrush(fabricCanvas);
+    fabricCanvas.freeDrawingBrush = new SprayBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush.color = freeColor;
     fabricCanvas.freeDrawingBrush.width = freeWidth;
 
@@ -2096,7 +2117,7 @@ function freeShadow() {
         (<HTMLInputElement>document.querySelector("#shadow_blur > range-b"))
             .value,
     );
-    fabricCanvas.freeDrawingBrush.shadow = new Fabric.Shadow({
+    fabricCanvas.freeDrawingBrush.shadow = new Shadow({
         blur: shadowBlur,
         color: freeColor,
     });
@@ -2146,9 +2167,7 @@ function freeInit() {
 }
 
 function fabricDelete() {
-    for (const o of fabricCanvas.getActiveObject()._objects || [
-        fabricCanvas.getActiveObject(),
-    ]) {
+    for (const o of fabricCanvas.getActiveObjects()) {
         fabricCanvas.remove(o);
     }
     getFObjectV();
@@ -2182,12 +2201,12 @@ function draw(
     const w = Math.abs(x1 - x2);
     const h = Math.abs(y1 - y2);
     if (shape === "line") {
-        shapes[shapes.length] = new Fabric.Line([x1, y1, x2, y2], {
+        shapes[shapes.length] = new Line([x1, y1, x2, y2], {
             stroke: strokeColor,
             形状: "line",
         });
     } else if (shape === "circle") {
-        shapes[shapes.length] = new Fabric.Circle({
+        shapes[shapes.length] = new Circle({
             radius: Math.max(w, h) / 2,
             left: x,
             top: y,
@@ -2198,7 +2217,7 @@ function draw(
             形状: "circle",
         });
     } else if (shape === "rect") {
-        shapes[shapes.length] = new Fabric.Rect({
+        shapes[shapes.length] = new Rect({
             left: x,
             top: y,
             width: w,
@@ -2211,7 +2230,7 @@ function draw(
         });
     } else if (shape === "text") {
         shapes.push(
-            new Fabric.IText("点击输入文字", {
+            new IText("点击输入文字", {
                 left: x,
                 top: y,
                 canChangeFill: true,
@@ -2220,7 +2239,7 @@ function draw(
             }),
         );
     } else if (shape === "arrow") {
-        const line = new Fabric.arrow([x1, y1, x2, y2], {
+        const line = new arrow([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
             形状: "arrow",
@@ -2254,7 +2273,7 @@ function drawPoly(shape: EditType["shape"]) {
     }
     if (shape === "polyline") {
         shapes.push(
-            new Fabric.Polyline(polyOP, {
+            new Polyline(polyOP, {
                 fill: "#0000",
                 stroke: strokeColor,
                 strokeWidth: strokeWidth,
@@ -2264,7 +2283,7 @@ function drawPoly(shape: EditType["shape"]) {
     }
     if (shape === "polygon") {
         shapes.push(
-            new Fabric.Polygon(polyOP, {
+            new Polygon(polyOP, {
                 fill: fillColor,
                 stroke: strokeColor,
                 strokeWidth: strokeWidth,
@@ -2280,7 +2299,7 @@ function drawNumber() {
     drawNumberN = Number(shapes?.at(-1)?.text) + 1 || drawNumberN;
     const p = polyOP.at(-1);
 
-    const txt = new Fabric.number({
+    const txt = new xnumber({
         left: p.x,
         top: p.y,
         fontSize: 16,
@@ -2497,17 +2516,12 @@ function colorBar() {
 function getFObjectV() {
     let pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     if (fabricCanvas.getActiveObject()) {
-        let n = fabricCanvas.getActiveObject();
-        if (n._objects) {
-            // 当线与形一起选中，确保形不会透明
-            for (const i of n._objects) {
-                if (i.canChangeFill) n = i;
-            }
-        }
-        if (n.fill) pro.fc = n.fill;
-        if (n.stroke) pro.sc = n.stroke;
+        const n = fabricCanvas.getActiveObject();
+        // todo 当线与形一起选中，确保形不会透明
+        if (n.fill) pro.fc = n.fill.toString();
+        if (n.stroke) pro.sc = n.stroke.toString();
         if (n.strokeWidth) pro.sw = n.strokeWidth;
-        if (n.filters)
+        if ((n as FabricImage).filters)
             pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
         setOnlyStroke(!n.canChangeFill);
     } else if (fabricCanvas.isDrawingMode) {
@@ -2533,30 +2547,22 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     if (fabricCanvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
-        let n =
-            fabricCanvas.getActiveObject(); /* 选中多个时，n下有_Object<形状>数组，1个时，n就是形状 */
-        n = n._objects || [n];
-        for (const i in n) {
+        const n = fabricCanvas.getActiveObjects();
+        for (const i of n) {
             if (fill) {
                 // 只改变形的颜色
-                if (n[i].canChangeFill) n[i].set("fill", fill);
+                if (i.canChangeFill) i.set("fill", fill);
             }
-            if (stroke) n[i].set("stroke", stroke);
-            if (sw) n[i].set("strokeWidth", sw);
-            if (n[i].形状) {
+            if (stroke) i.set("stroke", stroke);
+            if (sw) i.set("strokeWidth", sw);
+            if (i.形状) {
+                store.set(`图像编辑.形状属性.${i.形状}.fc`, fill || fillColor);
                 store.set(
-                    `图像编辑.形状属性.${n[i].形状}.fc`,
-                    fill || fillColor,
-                );
-                store.set(
-                    `图像编辑.形状属性.${n[i].形状}.sc`,
+                    `图像编辑.形状属性.${i.形状}.sc`,
                     stroke || strokeColor,
                 );
-                store.set(
-                    `图像编辑.形状属性.${n[i].形状}.sw`,
-                    sw || strokeWidth,
-                );
-                shapePro[n[i].形状] = {
+                store.set(`图像编辑.形状属性.${i.形状}.sw`, sw || strokeWidth);
+                shapePro[i.形状] = {
                     fc: fill || fillColor,
                     sc: stroke || strokeColor,
                     sw: sw || strokeWidth,
@@ -2605,7 +2611,7 @@ function newFilterSelect(o, no) {
     tmpCanvas.height = h;
     const gid = mainCtx.getImageData(x, y, w, h); // 裁剪
     tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
-    const img = new Fabric.Image(tmpCanvas, {
+    const img = new FabricImage(tmpCanvas, {
         left: x,
         top: y,
         lockMovementX: true,
@@ -2620,15 +2626,16 @@ function newFilterSelect(o, no) {
     fabricCanvas.setActiveObject(img);
 }
 
-function applyFilter(i: number, filter) {
-    const obj = fabricCanvas.getActiveObject();
+function applyFilter(i: number, filter: filters.BaseFilter<string, unknown>) {
+    const obj = fabricCanvas.getActiveObject() as FabricImage;
     obj.filters[i] = filter;
     obj.applyFilters();
     fabricCanvas.renderAll();
 }
 function getFilters() {
-    if (!fabricCanvas.getActiveObject()?.filters) return;
-    const f = fabricCanvas.getActiveObject().filters;
+    const obj = fabricCanvas.getActiveObject() as FabricImage;
+    if (!obj?.filters) return;
+    const f = obj.filters;
 
     const values = Object.values(filtetMap);
     for (const fl of values) {
@@ -2654,15 +2661,16 @@ function getFilters() {
         }
     }
 
+    const gamma = f[30] as filters.Gamma;
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")
-    )).value = String(f[30]?.gamma[0] || 1);
+    )).value = String(gamma?.gamma[0] || 1);
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")
-    )).value = String(f[30]?.gamma[1] || 1);
+    )).value = String(gamma?.gamma[1] || 1);
     (<HTMLInputElement>(
         document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
-    )).value = String(f[30]?.gamma[2] || 1);
+    )).value = String(gamma?.gamma[2] || 1);
 }
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
@@ -2683,31 +2691,28 @@ function exitFilter() {
     willFilter = "";
 }
 
-function fabricCopy() {
+async function fabricCopy() {
     const dx = store.get("图像编辑.复制偏移.x");
     const dy = store.get("图像编辑.复制偏移.y");
-    fabricCanvas.getActiveObject().clone((cloned) => {
-        fabricClipboard = cloned;
+    const fabricClipboard = await fabricCanvas.getActiveObject().clone();
+    const clonedObj = await fabricClipboard.clone();
+    fabricCanvas.discardActiveObject();
+    clonedObj.set({
+        left: clonedObj.left + dx,
+        top: clonedObj.top + dy,
+        evented: true,
     });
-    fabricClipboard.clone((clonedObj) => {
-        fabricCanvas.discardActiveObject();
-        clonedObj.set({
-            left: clonedObj.left + dx,
-            top: clonedObj.top + dy,
-            evented: true,
+    if (clonedObj instanceof ActiveSelection) {
+        clonedObj.canvas = fabricCanvas;
+        clonedObj.forEachObject((obj) => {
+            fabricCanvas.add(obj);
         });
-        if (clonedObj.type === "activeSelection") {
-            clonedObj.fabric_canvas = fabricCanvas;
-            clonedObj.forEachObject((obj) => {
-                fabricCanvas.add(obj);
-            });
-            clonedObj.setCoords();
-        } else {
-            fabricCanvas.add(clonedObj);
-        }
-        fabricCanvas.setActiveObject(clonedObj);
-        fabricCanvas.requestRenderAll();
-    });
+        clonedObj.setCoords();
+    } else {
+        fabricCanvas.add(clonedObj);
+    }
+    fabricCanvas.setActiveObject(clonedObj);
+    fabricCanvas.requestRenderAll();
     hisPush();
 }
 
@@ -3188,10 +3193,22 @@ let drawingShape = false;
 const shapes = [];
 const unnormalShapes = ["polyline", "polygon", "number"];
 const strokeShapes = ["line", "polyline", "arrow"];
-let drawOP = []; // 首次按下的点
-let polyOP = []; // 多边形点
+let drawOP: [number, number] = [0, 0]; // 首次按下的点
+let polyOP: point[] = []; // 多边形点
 let newFilterO = null;
 let drawNumberN = 1;
+declare module "fabric" {
+    // to have the properties recognized on the instance and in the constructor
+    interface FabricObject {
+        canChangeFill?: boolean;
+        形状?: Shape;
+    }
+    // to have the properties typed in the exported object
+    interface SerializedObjectProps {
+        canChangeFill?: boolean;
+        形状?: Shape;
+    }
+}
 
 /** 规定当前色盘对应的是填充还是边框 */
 let colorM: "fill" | "stroke" = "fill";
@@ -3207,11 +3224,12 @@ const filtetMap: {
             step?: number;
             text?: string;
         };
-        fun: (v?: number) => void;
+        fun: (v?: number) => filters.BaseFilter<string, unknown>;
     };
 } = {
     // 马赛克
     // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
+    // todo v6
     pixelate: {
         value: { value: 16, max: 20, text: "px" },
         fun: (v) => new Filters.Pixelate({ blocksize: v }),
@@ -3269,9 +3287,6 @@ const filtetMap: {
 };
 
 let willFilter = "";
-
-// biome-ignore lint: 以后更新fabric 现在先不改
-let fabricClipboard;
 
 // ------
 
@@ -4053,18 +4068,9 @@ document.getElementById("操作_删除").onclick = () => {
     fabricDelete();
 };
 
-const fabricEl = document.createElement("script");
-fabricEl.innerHTML = fabricSrc;
-document.body.append(fabricEl);
-// @ts-ignore
-// biome-ignore lint: 使用script引入
-Fabric = window.fabric;
-// biome-ignore lint:
-var Fabric;
+const Filters = filters;
 
-const Filters = Fabric.Image.filters;
-
-const fabricCanvas = new Fabric.Canvas("draw_photo");
+const fabricCanvas = new Canvas("draw_photo");
 
 hisPush();
 
@@ -4144,19 +4150,22 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
 };
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
-    switch ((<HTMLElement>e.target).id) {
-        case "draw_position_front":
-            fabricCanvas.getActiveObject().bringToFront();
-            break;
-        case "draw_position_forwards":
-            fabricCanvas.getActiveObject().bringForward();
-            break;
-        case "draw_position_backwards":
-            fabricCanvas.getActiveObject().sendBackwards();
-            break;
-        case "draw_position_back":
-            fabricCanvas.getActiveObject().sendToBack();
-            break;
+    switch (
+        (<HTMLElement>e.target).id
+        // todo v6
+        // case "draw_position_front":
+        //     fabricCanvas.getActiveObject().bringToFront();
+        //     break;
+        // case "draw_position_forwards":
+        //     fabricCanvas.getActiveObject().bringForward();
+        //     break;
+        // case "draw_position_backwards":
+        //     fabricCanvas.getActiveObject().sendBackwards();
+        //     break;
+        // case "draw_position_back":
+        //     fabricCanvas.getActiveObject().sendToBack();
+        //     break;
+    ) {
     }
 };
 
@@ -4165,30 +4174,20 @@ hotkeys("delete", fabricDelete);
 
 fabricCanvas.on("mouse:down", (options) => {
     // 非常规状态下点击
-    if (shape !== "" && (!options.target || options.target.length === 0)) {
+    if (shape !== "" && !options.target) {
         drawingShape = true;
         fabricCanvas.selection = false;
+        const x = options.viewportPoint.x;
+        const y = options.viewportPoint.y;
         // 折线与多边形要多次点击，在poly_o_p存储点
         if (!unnormalShapes.includes(shape)) {
-            drawOP = [options.e.offsetX, options.e.offsetY];
-            draw(
-                shape,
-                "start",
-                drawOP[0],
-                drawOP[1],
-                options.e.offsetX,
-                options.e.offsetY,
-            );
+            drawOP = [x, y];
+            draw(shape, "start", drawOP[0], drawOP[1], x, y);
         } else {
             // 定义最后一个点,双击,点重复,结束
             const polyOPL = polyOP.at(-1);
-            if (
-                !(
-                    options.e.offsetX === polyOPL?.x &&
-                    options.e.offsetY === polyOPL?.y
-                )
-            ) {
-                polyOP.push({ x: options.e.offsetX, y: options.e.offsetY });
+            if (!(x === polyOPL?.x && y === polyOPL?.y)) {
+                polyOP.push({ x: x, y: y });
                 if (shape === "number") {
                     drawNumber();
                 } else {
@@ -4203,7 +4202,7 @@ fabricCanvas.on("mouse:down", (options) => {
     }
 
     if (newFilterSelecting) {
-        newFilterO = fabricCanvas.getPointer(options.e);
+        newFilterO = fabricCanvas.getViewportPoint(options.e);
     }
 });
 fabricCanvas.on("mouse:move", (options) => {
@@ -4215,8 +4214,8 @@ fabricCanvas.on("mouse:move", (options) => {
                     "move",
                     drawOP[0],
                     drawOP[1],
-                    options.e.offsetX,
-                    options.e.offsetY,
+                    options.viewportPoint.x,
+                    options.viewportPoint.y,
                 );
         }
     }
@@ -4243,7 +4242,6 @@ fabricCanvas.on("mouse:up", (options) => {
             const index = Object.keys(filtetMap).indexOf(willFilter);
             const filter = i.fun(i.value.value ?? 1);
             applyFilter(index, filter);
-            applyFilter(index, filter);
             getFilters();
         }
     }
@@ -4253,71 +4251,69 @@ fabricCanvas.on("mouse:up", (options) => {
     }
 });
 
-const mask = Fabric.util.createClass(Fabric.Rect, {
-    type: "mask",
-
-    initialize: function (options = {}) {
-        this.callSuper("initialize", options);
-    },
-
-    _render: function (ctx: CanvasRenderingContext2D) {
+class mask extends Rect {
+    static type = "mask";
+    declare rect: { x: number; y: number; w: number; h: number };
+    constructor(
+        options?: Partial<
+            RectProps & { rect: { x: number; y: number; w: number; h: number } }
+        >,
+    ) {
+        super();
+        this.setOptions(options);
+    }
+    render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
 
-        ctx.fillStyle = this.fill;
-        ctx.fillRect(
-            -this.width / 2,
-            -this.height / 2,
-            this.width,
-            this.height,
-        );
+        ctx.fillStyle = this.fill.toString();
+        ctx.fillRect(0, 0, this.width, this.height);
 
         const r = this.rect;
-        ctx.clearRect(-this.width / 2 + r.x, -this.height / 2 + r.y, r.w, r.h);
+        ctx.clearRect(r.x, r.y, r.w, r.h);
 
         ctx.restore();
-    },
-});
+    }
+}
 
-Fabric.number = Fabric.util.createClass(Fabric.Circle, {
-    type: "number",
+classRegistry.setClass(mask);
+classRegistry.setSVGClass(mask);
 
-    initialize: function (options = {}) {
-        console.log(options);
-
-        this.callSuper("initialize", options);
-    },
-
-    _render: function (ctx: CanvasRenderingContext2D) {
+class xnumber extends Circle {
+    static type = "number";
+    declare fontSize: number;
+    declare text: string;
+    constructor(
+        options?: Partial<CircleProps & { fontSize: number; text: string }>,
+    ) {
+        super();
+        this.setOptions(options);
+    }
+    render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
-
-        this.callSuper("_render", ctx);
-        ctx.restore();
+        ctx.translate(this.left, this.top);
+        this._render(ctx);
 
         const x = 0;
         const y = 5;
 
         // 绘制数字
-        ctx.fillStyle = this.stroke || "#000";
+        ctx.fillStyle = this.stroke.toString() || "#000";
         ctx.font = `${this.fontSize}px ${字体.等宽字体 || "Arial"}`;
         ctx.textAlign = "center";
         ctx.fillText(String(this.text), x, y);
-    },
-});
+        ctx.restore();
+    }
+}
+
+classRegistry.setClass(xnumber);
+classRegistry.setSVGClass(xnumber);
 
 const arrowConfig = store.get("图像编辑.arrow") as setting["图像编辑"]["arrow"];
 
-Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
-    type: "arrow",
-
-    initialize: function (options, x) {
-        this.callSuper("initialize", options || {}, x);
-    },
-
-    _render: function (ctx: CanvasRenderingContext2D) {
+class arrow extends Line {
+    static type = "arrow";
+    render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
-
-        this.callSuper("_render", ctx);
-        ctx.restore();
 
         const { x1, x2, y1, y2 } = this;
 
@@ -4331,6 +4327,10 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
         const x0 = (x2 - x1) / 2;
         const y0 = (y2 - y1) / 2;
 
+        ctx.translate(x1 + x0, y1 + y0);
+
+        this._render(ctx);
+
         ctx.beginPath();
         ctx.moveTo(x0, y0);
         ctx.lineTo(x0 + x3, y0 + y3);
@@ -4338,13 +4338,15 @@ Fabric.arrow = Fabric.util.createClass(Fabric.Line, {
         ctx.lineTo(x0 + x4, y0 + y4);
         ctx.closePath();
 
-        ctx.fillStyle = this.stroke;
+        ctx.fillStyle = this.stroke.toString();
         ctx.lineWidth = this.strokeWidth || 1;
-        ctx.strokeStyle = this.stroke;
+        ctx.strokeStyle = this.stroke.toString();
         ctx.fill();
         ctx.stroke();
-    },
-});
+
+        ctx.restore();
+    }
+}
 
 // 颜色选择
 
@@ -4410,8 +4412,8 @@ for (const id in filtetMap) {
                     "#draw_filters_gamma > range-b:nth-child(3)",
                 )
             )).value;
-            const filter = new Fabric.Image.filters.Gamma({
-                gamma: [r, g, b],
+            const filter = new Filters.Gamma({
+                gamma: [Number(r), Number(g), Number(b)],
             });
             applyFilter(30, filter);
         };
@@ -4420,7 +4422,9 @@ hotkeys("esc", "drawing", () => {
     setEditType("select", "draw");
 });
 
-hotkeys("Ctrl+v", fabricCopy);
+hotkeys("Ctrl+v", () => {
+    fabricCopy();
+});
 
 setEditType("select", editType.select);
 
