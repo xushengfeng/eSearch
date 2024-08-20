@@ -207,7 +207,7 @@ export interface setting {
             提示: boolean;
         };
     };
-    代理: Electron.Config;
+    代理: Electron.ProxyConfig;
     主页面: {
         模式: "auto" | "search" | "translate";
         复用: boolean;
