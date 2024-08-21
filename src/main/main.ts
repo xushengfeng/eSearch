@@ -11,7 +11,6 @@ import {
     dialog,
     Notification,
     shell,
-    nativeImage,
     nativeTheme,
     BrowserView,
     screen,
@@ -1105,18 +1104,7 @@ function showPhoto(imgPath?: string) {
         console.log(imgPath);
         readFile(imgPath, (err, data) => {
             if (err) console.error(err);
-            const p = nativeImage.createFromBuffer(data);
-            const s = p.getSize();
-            const d = {
-                ...screen.getPrimaryDisplay(),
-                image: data,
-                main: true,
-            };
-            d.id = null;
-            d.bounds = { x: 0, y: 0, width: s.width, height: s.height };
-            d.size = { width: s.width, height: s.height };
-            d.scaleFactor = 1;
-            sendCaptureEvent([d]);
+            sendCaptureEvent(data);
         });
     } else {
         sendCaptureEvent();
@@ -1135,13 +1123,11 @@ function fullScreen() {
     clipWindow.setSimpleFullScreen(true);
 }
 
-function sendCaptureEvent(
-    data?: (Electron.Display & { image: Buffer; main: boolean })[],
-    type?: 功能,
-) {
+function sendCaptureEvent(data?: Buffer, type?: 功能) {
     clipWindow.webContents.send(
         "reflash",
-        data || screen.getAllDisplays(),
+        screen.getAllDisplays(),
+        data,
         screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id,
         type,
     );

@@ -1,8 +1,6 @@
-const Screenshots: typeof import("node-screenshots").Screenshots =
-    require("node-screenshots").Screenshots;
+const { ipcRenderer } = require("electron") as typeof import("electron");
 
-const { ipcRenderer, nativeImage } =
-    require("electron") as typeof import("electron");
+import screenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
 
@@ -39,9 +37,9 @@ if (transE.length > 0) {
 type Rect = { x: number; y: number; w: number; h: number };
 let rect: Rect = { x: 0, y: 0, w: 0, h: 0 };
 
-let allScreens: (Electron.Display & { captureSync: () => Buffer })[];
-
 let screenId = Number.NaN;
+
+let display: Electron.Display[];
 
 let mode: "auto" | "manual" = "manual";
 
@@ -63,44 +61,15 @@ const detp = ocrPath(l[1]);
 const recp = ocrPath(l[2]);
 const 字典 = ocrPath(l[3]);
 
-/**
- * 修复屏幕信息
- * @see https://github.com/nashaofu/node-screenshots/issues/18
- */
-function dispaly2screen(
-    displays: Electron.Display[],
-    screens: import("node-screenshots").Screenshots[],
-) {
-    allScreens = [];
-    if (!screens) return;
-    for (const i in displays) {
-        const d = displays[i];
-        const s = screens[i];
-        allScreens.push({ ...d, captureSync: () => s.captureSync(true) });
-    }
-}
-
 function screenshot(id: number, rect: Rect) {
-    const screen = allScreens.find((i) => i.id === id);
+    const screen = screenShots(display).find((i) => i.id === id);
     const img = screen.captureSync();
     const canvas = document.createElement("canvas");
-    const image = nativeImage.createFromBuffer(img);
-    const { width: w, height: h } = image.getSize();
 
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = img.width;
+    canvas.height = img.height;
 
-    const bitmap = image.toBitmap();
-    const x = new Uint8ClampedArray(bitmap.length);
-    for (let i = 0; i < bitmap.length; i += 4) {
-        // 交换R和B通道的值，同时复制G和Alpha通道的值
-        x[i] = bitmap[i + 2]; // B
-        x[i + 1] = bitmap[i + 1]; // G
-        x[i + 2] = bitmap[i]; // R
-        x[i + 3] = bitmap[i + 3]; // Alpha
-    }
-    const d = new ImageData(x, w, h);
-    canvas.getContext("2d").putImageData(d, 0, 0);
+    canvas.getContext("2d").putImageData(img, 0, 0);
     return canvas.getContext("2d").getImageData(rect.x, rect.y, rect.w, rect.h);
 }
 
@@ -265,8 +234,8 @@ rectEl.add(toolsEl);
 
 ipcRenderer.on(
     "init",
-    (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
-        dispaly2screen(display, Screenshots.all());
+    (_e, id: number, _display: Electron.Display[], _rect: Rect, dy: number) => {
+        display = _display;
         screenId = id;
         rect = _rect;
         run();

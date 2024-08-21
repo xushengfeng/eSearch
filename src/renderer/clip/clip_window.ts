@@ -47,6 +47,8 @@ try {
     }
 }
 
+import screenShots from "../screenShot/screenShot";
+
 import type {
     setting,
     EditType,
@@ -126,49 +128,14 @@ function setSetting() {
     };
 }
 
-/**
- * 修复屏幕信息
- * @see https://github.com/nashaofu/node-screenshots/issues/18
- */
-function dispaly2screen(
-    displays: Electron.Display[],
-    screens: import("node-screenshots").Screenshots[],
-) {
-    allScreens = [];
-    if (!screens) return;
-    // todo 更新算法
-    for (const i in displays) {
-        const d = displays[i];
-        const s = screens[i];
-        allScreens.push({ ...d, captureSync: () => s.captureSync(true) });
-    }
-}
-
-function toCanvas(canvas: HTMLCanvasElement, img: Electron.NativeImage) {
-    const image = img;
-    const { width: w, height: h } = image.getSize();
-
-    canvas.width = w;
-    canvas.height = h;
-
-    const bitmap = image.toBitmap();
-    const x = new Uint8ClampedArray(bitmap.length);
-    for (let i = 0; i < bitmap.length; i += 4) {
-        // 交换R和B通道的值，同时复制G和Alpha通道的值
-        x[i] = bitmap[i + 2]; // B
-        x[i + 1] = bitmap[i + 1]; // G
-        x[i + 2] = bitmap[i]; // R
-        x[i + 3] = bitmap[i + 3]; // Alpha
-    }
-    const d = new ImageData(x, w, h);
-    canvas.getContext("2d").putImageData(d, 0, 0);
+function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
+    canvas.getContext("2d").putImageData(img, 0, 0);
 }
 
 function setScreen(i: (typeof allScreens)[0]) {
-    const img = nativeImage.createFromBuffer(i.image);
-    const size = img.getSize();
-    const w = size.width;
-    const h = size.height;
+    const img = i.captureSync();
+    const w = img.width;
+    const h = img.height;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = h;
     toCanvas(mainCanvas, img);
@@ -501,9 +468,8 @@ function initRecord() {
 
 function long_s() {
     let s = allScreens.find((i) => i.id === nowScreenId);
-    let x = nativeImage.createFromBuffer(s.captureSync());
-    addLong(x.getBitmap(), x.getSize().width, x.getSize().height);
-    s = x = null;
+    addLong(s.captureSync());
+    s = null;
 }
 
 function startLong() {
@@ -576,7 +542,7 @@ function initLong(rect: number[]) {
 
         lr.style({ opacity: "0" });
         ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
-        addLong(null, null, null);
+        addLong(null);
         for (const i of l) {
             i.style.display = "";
         }
@@ -598,7 +564,7 @@ function initLong(rect: number[]) {
     });
 }
 
-function addLong(x: Buffer, w: number, h: number) {
+function addLong(x: ImageData) {
     if (!x) {
         uIOhook.stop();
         uIOhook = null;
@@ -607,10 +573,7 @@ function addLong(x: Buffer, w: number, h: number) {
     }
     // 原始区域
     const canvas = ele("canvas").el;
-    for (let i = 0; i < x.length; i += 4) {
-        [x[i], x[i + 2]] = [x[i + 2], x[i]];
-    }
-    const d = new ImageData(Uint8ClampedArray.from(x), w, h);
+    const d = x;
     // 设定canvas宽高并设置裁剪后的图像
     canvas.width = finalRect[2];
     canvas.height = finalRect[3];
@@ -2936,9 +2899,8 @@ const drawBar = document.getElementById("draw_bar");
 let nowScreenId = 0;
 
 let allScreens: (Electron.Display & {
-    main?: boolean;
-    captureSync?: () => Buffer;
-    image?: Buffer;
+    captureSync?: () => ImageData;
+    image?: ImageData;
 })[] = [];
 
 let nowMouseE: MouseEvent = null;
@@ -3297,27 +3259,22 @@ ipcRenderer.on(
     (
         _a,
         _displays: (Electron.Display & { main?: boolean })[],
+        imgBuffer: Buffer,
         mainid: number,
         act: 功能,
     ) => {
-        if (!_displays.find((i) => i.main)) {
-            dispaly2screen(_displays, Screenshots.all());
-        } else {
-            allScreens = _displays;
-        }
+        allScreens = screenShots(_displays, imgBuffer);
         console.log(allScreens);
         const mainId = mainid;
-        for (const i of allScreens) {
-            if (i.main || i.id === mainId) {
-                if (!i.image) i.image = i.captureSync();
-                setScreen(i);
-                setEditorP(1 / i.scaleFactor, 0, 0);
-                zoomW = i.size.width;
-                ratio = i.scaleFactor;
-                document.body.style.opacity = "";
-            }
-            screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
-        }
+        const i = allScreens.find((i) => i.id === mainId) || allScreens[0];
+        setScreen(i);
+        setEditorP(1 / i.scaleFactor, 0, 0);
+        zoomW = i.size.width;
+        ratio = i.scaleFactor;
+        document.body.style.opacity = "";
+
+        screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
+
         ipcRenderer.send("clip_main_b", "window-show");
         const screensEl = toolBarEl.els.screens;
         if (allScreens.length > 1) {
