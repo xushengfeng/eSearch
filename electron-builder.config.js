@@ -5,7 +5,11 @@ const { execSync } = require("child_process");
 const download = require("download");
 
 const arch =
-    (process.env["npm_config_arch"] || process.env["M_ARCH"] || process.arch) === "arm64" ? ["arm64"] : ["x64"];
+    (process.env["npm_config_arch"] ||
+        process.env["M_ARCH"] ||
+        process.arch) === "arm64"
+        ? ["arm64"]
+        : ["x64"];
 
 const platform = process.platform;
 const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
@@ -23,7 +27,7 @@ const beforePack = async function () {
             {
                 extract: true,
                 rejectUnauthorized: false,
-            }
+            },
         );
     }
     if (!fs.existsSync("./assets/onnx/seg")) {
@@ -31,23 +35,29 @@ const beforePack = async function () {
         await download(
             "https://github.com/xushengfeng/eSearch-seg/releases/download/1.0.0/seg.onnx",
             "./assets/onnx/seg/",
-            { rejectUnauthorized: false }
+            { rejectUnauthorized: false },
         );
     }
     if (process.platform === "win32" && !fs.existsSync("./lib/win_rect.exe")) {
         fs.writeFileSync(
             "./lib/win_rect.exe",
-            await download("https://github.com/xushengfeng/win_rect/releases/download/0.1.0/win_rect.exe", {
-                rejectUnauthorized: false,
-            })
+            await download(
+                "https://github.com/xushengfeng/win_rect/releases/download/0.1.0/win_rect.exe",
+                {
+                    rejectUnauthorized: false,
+                },
+            ),
         );
     }
     if (process.platform === "win32" && !fs.existsSync("./lib/copy.exe")) {
         fs.writeFileSync(
             "./lib/copy.exe",
-            await download("https://github.com/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe", {
-                rejectUnauthorized: false,
-            })
+            await download(
+                "https://github.com/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe",
+                {
+                    rejectUnauthorized: false,
+                },
+            ),
         );
     }
     if (!fs.existsSync("./lib/ffmpeg")) {
@@ -70,9 +80,11 @@ const beforePack = async function () {
             if (process.platform === "win32") {
                 fs.copyFileSync(
                     path.join("./lib/ffmpeg/", winpath, "bin", "ffmpeg.exe"),
-                    path.join("./lib/ffmpeg/", "ffmpeg.exe")
+                    path.join("./lib/ffmpeg/", "ffmpeg.exe"),
                 );
-                fs.rmSync(path.join("./lib/ffmpeg/", winpath), { recursive: true });
+                fs.rmSync(path.join("./lib/ffmpeg/", winpath), {
+                    recursive: true,
+                });
             }
         }
     }
@@ -118,7 +130,8 @@ let build = {
         },
     ],
     asar: false,
-    artifactName: "${productName}-${version}-${platform}-" + arch[0] + ".${ext}",
+    artifactName:
+        "${productName}-${version}-${platform}-" + arch[0] + ".${ext}",
     beforePack: beforePack,
     linux: {
         category: "Utility",
@@ -191,7 +204,9 @@ let build = {
         const localsPath = path.join(c.appOutDir, "locales");
         if (process.platform != "darwin")
             try {
-                const files = fs.readdirSync(localsPath).filter((i) => i != "en-US.pak");
+                const files = fs
+                    .readdirSync(localsPath)
+                    .filter((i) => i != "en-US.pak");
                 for (let i of files) {
                     fs.rmSync(path.join(localsPath, i));
                 }
@@ -202,7 +217,9 @@ let build = {
 
         const appPath = path.join(
             c.appOutDir,
-            process.platform === "darwin" ? "e-search.app/Contents/Resources/app" : "resources/app"
+            process.platform === "darwin"
+                ? "e-search.app/Contents/Resources/app"
+                : "resources/app",
         );
 
         const appDir = path.join(c.outDir, "app");
@@ -212,7 +229,10 @@ let build = {
             fs.rmSync(path.join(appDir, i), { recursive: true });
         }
 
-        const outputFilePath = path.join(c.outDir, `app-${process.platform}-${arch[0]}`);
+        const outputFilePath = path.join(
+            c.outDir,
+            `app-${process.platform}-${arch[0]}`,
+        );
 
         const output = fs.createWriteStream(outputFilePath);
         const archive = archiver("zip", {
@@ -236,14 +256,22 @@ const archFilter = arch[0] === "arm64" ? "x64" : "arm64";
 const otherPlatform = Object.keys(platformMap).filter((i) => i != platform);
 
 // 移除 onnxruntime-node/bin/napi-v3/
-build[platform2].files.push(`!node_modules/onnxruntime-node/bin/napi-v3/${platform}/${archFilter}`);
+build[platform2].files.push(
+    `!node_modules/onnxruntime-node/bin/napi-v3/${platform}/${archFilter}`,
+);
 
 // 移除 uiohook-napi/prebuilds
 otherPlatform.forEach((i) => {
-    build[platform2].files.push(`!node_modules/uiohook-napi/prebuilds/${i}-arm64`);
-    build[platform2].files.push(`!node_modules/uiohook-napi/prebuilds/${i}-x64`);
+    build[platform2].files.push(
+        `!node_modules/uiohook-napi/prebuilds/${i}-arm64`,
+    );
+    build[platform2].files.push(
+        `!node_modules/uiohook-napi/prebuilds/${i}-x64`,
+    );
 });
-build[platform2].files.push(`!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`);
+build[platform2].files.push(
+    `!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`,
+);
 
 const ignoreDir = [
     ".*",
@@ -285,3 +313,40 @@ for (let i of ignoreDir) {
 }
 
 module.exports = build;
+
+/**
+ * @type {Record<string,Record<string,string[]>>}
+ */
+const release = {
+    win32: { x64: ['exe', "zip",], arm64: ["exe","zip" ] },
+    linux: { x64: ["AppImage", "deb", "rpm", "tar.gz"] },
+    darwin: { x64: ["dmg", "zip"], arm64: ["dmg", "zip"] },
+};
+
+/**
+ *
+ * @param {string} url
+ */
+function getUrl(url) {
+    let t = "| | Windows | macOS | Linux|\n| --- | --- | --- | --- |\n";
+    for (const arch of ["x64", "arm64"]) {
+        t += `|${arch}| `;
+        for (const p of ["win32", "darwin", "linux"]) {
+            t += `${(release[p][arch] || []).map((i) => `[${i}](${url.replace("$arch", arch).replace("$p", p).replace("$h", i)})`).join(" ")}|`;
+        }
+        t += "\n";
+    }
+    return t;
+}
+
+console.log(
+    getUrl(
+        "https://github.com/xushengfeng/eSearch/releases/download/1.12.3/eSearch-1.12.3-$p-$arch.$h",
+    ),
+);
+
+console.log(
+    getUrl(
+        "https://mirror.ghproxy.com/https://github.com/xushengfeng/eSearch/releases/download/1.12.3/eSearch-1.12.3-$p-$arch.$h",
+    ),
+);
