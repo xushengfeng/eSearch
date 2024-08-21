@@ -1215,7 +1215,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     }
 
     if (list.type === "qr") {
-        editor.push(t("QR码识别中……请等候"));
+        editor.push(t("二维码识别中……请等候"));
         import("qr-scanner-wechat").then(async (qr) => {
             const img = new Image();
             img.src = list.content;
