@@ -77,7 +77,7 @@ const barLink = document.getElementById("link_bar");
 const barExcel = document.getElementById("excel_bar");
 const barMdTable = document.getElementById("md_table_bar");
 
-const editTools: setting["编辑器"]["工具"] = store.get("编辑器.工具") || [];
+const editTools = store.get("编辑器.工具") || [];
 
 const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = {
     搜索: () => edit("search"),
@@ -94,11 +94,11 @@ const findInput = <HTMLInputElement>document.getElementById("find_input");
 const replaceInput = <HTMLInputElement>document.getElementById("replace_input");
 const findT = <HTMLElement>document.querySelector(".find_t > span");
 
-const mainType: "auto" | "search" | "translate" = store.get("主页面.模式");
+const mainType = store.get("主页面.模式");
 
-const 搜索引擎List = store.get("引擎.搜索") as setting["引擎"]["搜索"];
-const 翻译引擎List = store.get("引擎.翻译") as setting["引擎"]["翻译"];
-const 引擎 = store.get("引擎") as setting["引擎"];
+const 搜索引擎List = store.get("引擎.搜索");
+const 翻译引擎List = store.get("引擎.翻译");
+const 引擎 = store.get("引擎");
 
 const searchSelect = document.getElementById("search_s") as HTMLSelectElement;
 const translateSelect = document.getElementById(
