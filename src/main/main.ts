@@ -2435,6 +2435,7 @@ const defaultSetting: setting = {
         },
     },
     翻译: { 翻译器: [] },
+    额外截屏器: { 命令: "" },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");

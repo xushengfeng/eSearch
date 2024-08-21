@@ -33,10 +33,13 @@ function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
         const x: (typeof allScreens)[0] = {
             ...displays[0],
             captureSync: () => {
-                const command = "";
+                const command = ipcRenderer.sendSync("store", {
+                    type: "get",
+                    path: "额外截屏器.命令",
+                });
                 try {
                     if (!command) throw "";
-                    execSync(command); // todo
+                    execSync(command, {});
                     buffer = fs.readFileSync(path.join(os.tmpdir(), "img.png"));
                 } catch (error) {
                     if (!command) {
@@ -45,8 +48,12 @@ function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
                             buttons: ["确定"],
                         } as MessageBoxSyncOptions);
                     } else {
-                        return null;
+                        ipcRenderer.send("dialog", {
+                            message: "命令运行出错，无法读取截屏，请检查设置",
+                            buttons: ["确定"],
+                        } as MessageBoxSyncOptions);
                     }
+                    return null;
                 }
 
                 const image = nativeImage.createFromBuffer(buffer);

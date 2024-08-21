@@ -295,6 +295,9 @@ export interface setting {
             keys: Record<string, unknown>;
         }[];
     };
+    额外截屏器: {
+        命令: string;
+    };
 }
 
 type 功能 =
