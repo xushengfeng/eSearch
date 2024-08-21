@@ -84,11 +84,11 @@ function iconEl(src: string) {
 }
 
 function selectMenu() {
-    const select = ele("selectmenu")
+    const select = ele("selectlist")
         .bindGet((el: HTMLSelectElement) => {
             return el.value;
         })
-        .bindSet((v:string, el: HTMLSelectElement) => {
+        .bindSet((v: string, el: HTMLSelectElement) => {
             el.value = v as string;
         });
     return select;
@@ -2362,7 +2362,7 @@ function colorInput(type: "fill" | "stroke") {
         .bindGet((el: HTMLInputElement) => {
             return el.value;
         })
-        .bindSet((v:string, el: HTMLInputElement) => {
+        .bindSet((v: string, el: HTMLInputElement) => {
             el.value = v;
         });
     alpha.el.setAttribute("max", "1");

@@ -160,9 +160,16 @@ body {
     background: var(--bar-bg);
     backdrop-filter: var(--blur);
     box-shadow: var(--shadow);
+    border: none;
 }
+
 .side_select > option {
     color: var(--color);
+    transition: var(--transition);
+    font-size: 1rem;
+    &:hover {
+        background-color: var(--hover-color);
+    }
 }
 
 #tool_bar > div::before,
