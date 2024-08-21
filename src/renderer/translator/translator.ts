@@ -1,5 +1,3 @@
-import type { setting } from "../../ShareTypes";
-
 const Screenshots: typeof import("node-screenshots").Screenshots =
     require("node-screenshots").Screenshots;
 
@@ -25,7 +23,7 @@ function iconEl(img: string) {
 
 import store from "../../../lib/store/renderStore";
 
-const transE = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
+const transE = store.get("翻译.翻译器");
 
 let translateE = async (input: string[]) => input;
 
@@ -33,7 +31,7 @@ if (transE.length > 0) {
     const x = transE[0];
     // @ts-ignore
     xtranslator.e[x.type].setKeys(x.keys);
-    const lan = store.get("屏幕翻译.语言") as setting["屏幕翻译"]["语言"];
+    const lan = store.get("屏幕翻译.语言");
     translateE = (input: string[]) =>
         xtranslator.e[x.type].run(input, lan.from, lan.to);
 }
@@ -64,21 +62,6 @@ function ocrPath(p: string) {
 const detp = ocrPath(l[1]);
 const recp = ocrPath(l[2]);
 const 字典 = ocrPath(l[3]);
-const OCR = await lo.init({
-    detPath: detp,
-    recPath: recp,
-    dic: fs.readFileSync(字典).toString(),
-    ortOption: {
-        executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
-    },
-    ort: ort,
-    detShape: [640, 640],
-});
-
-const mainEl = view().class("main");
-const textEl = view().class("text");
-const rectEl = view().class("rect");
-mainEl.add([textEl, rectEl]);
 
 /**
  * 修复屏幕信息
@@ -161,7 +144,7 @@ async function run() {
 
     const ocrData = await ocr(data);
 
-    textEl.el.innerHTML = "";
+    textEl.clear();
     const textL: { text: string; el: ElType<HTMLDivElement> }[] = [];
     for (const i of ocrData) {
         const text = i.text;
@@ -184,28 +167,12 @@ async function run() {
     translate(textL);
 }
 
-document.body.append(mainEl.el);
-
 const runRun = () => {
     if (mode === "auto" && !pause) {
         run();
         setTimeout(runRun, frequencyTime);
     }
 };
-
-ipcRenderer.on(
-    "init",
-    (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
-        dispaly2screen(display, Screenshots.all());
-        screenId = id;
-        rect = _rect;
-        run();
-        mainEl.style({ top: `${dy}px`, height: `${_rect.h * 3}px` });
-        textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
-        rectEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
-        switchMode();
-    },
-);
 
 const switchEl = check("manual").on("click", () => {
     if (switchEl.gv) mode = "manual";
@@ -238,8 +205,6 @@ function setOffset(offset: number) {
     textEl.el.style.top = `${(offset - -1) * textEl.el.offsetHeight}px`;
 }
 
-switchEl.sv(mode === "manual");
-
 const playIcon = iconEl(pause_svg);
 const playEl = button(playIcon).on("click", () => {
     if (mode === "auto") {
@@ -271,9 +236,43 @@ const toolsEl = view()
         ),
     ]);
 
-rectEl.add(toolsEl);
-
 ipcRenderer.on("mouse", (_e, x: number, y: number) => {
     const El = document.elementFromPoint(x, y);
     ipcRenderer.send("ignore", !toolsEl.el.contains(El));
 });
+
+const OCR = await lo.init({
+    detPath: detp,
+    recPath: recp,
+    dic: fs.readFileSync(字典).toString(),
+    ortOption: {
+        executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
+    },
+    ort: ort,
+    detShape: [640, 640],
+});
+
+const mainEl = view().class("main");
+const textEl = view().class("text");
+const rectEl = view().class("rect");
+mainEl.add([textEl, rectEl]);
+
+document.body.append(mainEl.el);
+
+switchEl.sv(mode === "manual");
+
+rectEl.add(toolsEl);
+
+ipcRenderer.on(
+    "init",
+    (_e, id: number, display: Electron.Display[], _rect: Rect, dy: number) => {
+        dispaly2screen(display, Screenshots.all());
+        screenId = id;
+        rect = _rect;
+        run();
+        mainEl.style({ top: `${dy}px`, height: `${_rect.h * 3}px` });
+        textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
+        rectEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
+        switchMode();
+    },
+);
