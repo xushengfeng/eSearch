@@ -1,5 +1,3 @@
-import type { setting } from "../../ShareTypes";
-
 import xtranslator from "xtranslator";
 import initStyle from "../root/root";
 
@@ -46,7 +44,7 @@ const inputText = decodeURIComponent(
     new URLSearchParams(location.search).get("text"),
 );
 
-const fyq = store.get("翻译.翻译器") as setting["翻译"]["翻译器"];
+const fyq = store.get("翻译.翻译器");
 
 function translate(text: string) {
     results.el.innerHTML = "";
@@ -76,7 +74,7 @@ function translate(text: string) {
     }
 }
 
-function translateI(text: string, i: setting["翻译"]["翻译器"][0]) {
+function translateI(text: string, i: (typeof fyq)[0]) {
     // @ts-ignore
     xtranslator.e[i.type].setKeys(i.keys);
     return xtranslator.e[i.type].run(text, lansFrom.el.value, lansTo.el.value);

@@ -1,5 +1,3 @@
-import type { setting } from "../../ShareTypes";
-
 function initStyle(
     store: typeof import("../../../lib/store/renderStore")["default"],
 ) {
@@ -18,7 +16,7 @@ function initStyle(
         `${store.get("全局.不透明度") * 100}%`,
     );
 
-    const theme = store.get("全局.主题") as setting["全局"]["主题"];
+    const theme = store.get("全局.主题");
     setCSSVar(
         "--bar-bg",
         `color-mix(in srgb, ${theme.light.barbg} var(--alpha), #0000)`,

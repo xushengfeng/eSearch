@@ -2720,7 +2720,7 @@ async function fabricCopy() {
 
 function checkUpdate(show?: boolean) {
     const version = store.get("设置版本");
-    const m = store.get("更新.模式") as setting["更新"]["模式"];
+    const m = store.get("更新.模式");
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
         .then((v) => v.json())
         .then((re) => {
@@ -2772,7 +2772,7 @@ if (store.get("框选.自动框选.开启")) {
     var cv = require("opencv.js");
 }
 
-const 字体 = store.get("字体") as setting["字体"];
+const 字体 = store.get("字体");
 
 let 工具栏跟随: string;
 let 四角坐标: boolean;
@@ -3017,7 +3017,7 @@ const toolList: 功能[] = [
     "save",
 ];
 
-const drawHotKey: setting["截屏编辑快捷键"] = store.get("截屏编辑快捷键");
+const drawHotKey = store.get("截屏编辑快捷键");
 
 const canvasControlKey = {
     操作_撤回: "Control+Z",
@@ -3068,7 +3068,7 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
     { name: "快捷键", hotkey: [{ name: "展示", keys: ["Alt"] }] },
 ];
 
-let autoDo: setting["框选后默认操作"] = store.get("框选后默认操作");
+let autoDo = store.get("框选后默认操作");
 
 let lastLong = 0;
 
@@ -4308,7 +4308,7 @@ class xnumber extends Circle {
 classRegistry.setClass(xnumber);
 classRegistry.setSVGClass(xnumber);
 
-const arrowConfig = store.get("图像编辑.arrow") as setting["图像编辑"]["arrow"];
+const arrowConfig = store.get("图像编辑.arrow");
 
 class arrow extends Line {
     static type = "arrow";

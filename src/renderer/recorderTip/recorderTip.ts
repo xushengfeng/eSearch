@@ -1,7 +1,6 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
 import { ele, txt, view } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
-import type { setting } from "../../ShareTypes";
 
 // 获取设置
 import store from "../../../lib/store/renderStore";
@@ -18,9 +17,7 @@ function initRecord() {
             require("uiohook-napi") as typeof import("uiohook-napi");
 
     function rKey() {
-        const posi = store.get(
-            "录屏.提示.键盘.位置",
-        ) as setting["录屏"]["提示"]["键盘"]["位置"];
+        const posi = store.get("录屏.提示.键盘.位置");
         const px = posi.x === "+" ? "right" : "left";
         const py = posi.y === "+" ? "bottom" : "top";
         keysEl.parentElement.style[px] = `${posi.offsetX}px`;
