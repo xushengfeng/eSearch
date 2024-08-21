@@ -1,6 +1,8 @@
 import type { setting } from "../../ShareTypes";
 
-function initStyle(store) {
+function initStyle(
+    store: typeof import("../../../lib/store/renderStore")["default"],
+) {
     function setCSSVar(name: string, value: string) {
         if (value) document.documentElement.style.setProperty(name, value);
     }
@@ -13,14 +15,20 @@ function initStyle(store) {
 
     document.documentElement.style.setProperty(
         "--alpha",
-        store.get("全局.不透明度"),
+        `${store.get("全局.不透明度") * 100}%`,
     );
 
     const theme = store.get("全局.主题") as setting["全局"]["主题"];
-    setCSSVar("--bar-bg", theme.light.barbg);
+    setCSSVar(
+        "--bar-bg",
+        `color-mix(in srgb, ${theme.light.barbg} var(--alpha), #0000)`,
+    );
     setCSSVar("--bg", theme.light.bg);
     setCSSVar("--hover-color", theme.light.emphasis);
-    setCSSVar("--d-bar-bg", theme.dark.barbg);
+    setCSSVar(
+        "--d-bar-bg",
+        `color-mix(in srgb, ${theme.dark.barbg} var(--alpha), #0000)`,
+    );
     setCSSVar("--d-bg", theme.dark.bg);
     setCSSVar("--d-hover-color", theme.dark.emphasis);
 
