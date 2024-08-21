@@ -1,13 +1,12 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 const archiver = require("archiver");
-const { execSync } = require("child_process");
+const { execSync } = require("node:child_process");
 const download = require("download");
 
 const arch =
-    (process.env["npm_config_arch"] ||
-        process.env["M_ARCH"] ||
-        process.arch) === "arm64"
+    (process.env.npm_config_arch || process.env.M_ARCH || process.arch) ===
+    "arm64"
         ? ["arm64"]
         : ["x64"];
 
@@ -18,7 +17,7 @@ const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
  */
 const platform2 = platformMap[platform];
 
-const beforePack = async function () {
+const beforePack = async () => {
     if (!fs.existsSync("./ocr/ppocr/默认")) {
         fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
         await download(
@@ -62,7 +61,7 @@ const beforePack = async function () {
     }
     if (!fs.existsSync("./lib/ffmpeg")) {
         const winpath = "ffmpeg-n6.1-latest-win64-gpl-6.1";
-        let o = {
+        const o = {
             win32: {
                 x64: `https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${winpath}.zip`,
             },
@@ -101,7 +100,7 @@ const beforePack = async function () {
 /**
  * @type import("electron-builder").Configuration
  */
-let build = {
+const build = {
     appId: "com.esearch.app",
     executableName: "e-search",
     directories: {
@@ -130,8 +129,7 @@ let build = {
         },
     ],
     asar: false,
-    artifactName:
-        "${productName}-${version}-${platform}-" + arch[0] + ".${ext}",
+    artifactName: `\${productName}-\${version}-\${platform}-${arch[0]}.\${ext}`,
     beforePack: beforePack,
     linux: {
         category: "Utility",
@@ -202,12 +200,12 @@ let build = {
     },
     afterPack: async (c) => {
         const localsPath = path.join(c.appOutDir, "locales");
-        if (process.platform != "darwin")
+        if (process.platform !== "darwin")
             try {
                 const files = fs
                     .readdirSync(localsPath)
-                    .filter((i) => i != "en-US.pak");
-                for (let i of files) {
+                    .filter((i) => i !== "en-US.pak");
+                for (const i of files) {
                     fs.rmSync(path.join(localsPath, i));
                 }
                 console.log("移除原生语言包");
@@ -224,8 +222,8 @@ let build = {
 
         const appDir = path.join(c.outDir, "app");
         fs.cpSync(appPath, appDir, { recursive: true });
-        let ignoreDir = ["node_modules/onnxruntime-node", "ocr"];
-        for (let i of ignoreDir) {
+        const ignoreDir = ["node_modules/onnxruntime-node", "ocr"];
+        for (const i of ignoreDir) {
             fs.rmSync(path.join(appDir, i), { recursive: true });
         }
 
@@ -253,7 +251,7 @@ let build = {
 };
 
 const archFilter = arch[0] === "arm64" ? "x64" : "arm64";
-const otherPlatform = Object.keys(platformMap).filter((i) => i != platform);
+const otherPlatform = Object.keys(platformMap).filter((i) => i !== platform);
 
 // 移除 onnxruntime-node/bin/napi-v3/
 build[platform2].files.push(
@@ -261,14 +259,14 @@ build[platform2].files.push(
 );
 
 // 移除 uiohook-napi/prebuilds
-otherPlatform.forEach((i) => {
+for (const i of otherPlatform) {
     build[platform2].files.push(
         `!node_modules/uiohook-napi/prebuilds/${i}-arm64`,
     );
     build[platform2].files.push(
         `!node_modules/uiohook-napi/prebuilds/${i}-x64`,
     );
-});
+}
 build[platform2].files.push(
     `!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`,
 );
@@ -304,11 +302,11 @@ const ignoreModule = [
     "dkh-ui",
     "xtranslator",
 ];
-for (let i of ignoreModule) {
+for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
 }
 for (let i of ignoreDir) {
-    i = "!" + i;
+    i = `!${i}`;
     build[platform2].files.push(i);
 }
 
@@ -318,7 +316,7 @@ module.exports = build;
  * @type {Record<string,Record<string,string[]>>}
  */
 const release = {
-    win32: { x64: ['exe', "zip",], arm64: ["exe","zip" ] },
+    win32: { x64: ["exe", "zip"], arm64: ["exe", "zip"] },
     linux: { x64: ["AppImage", "deb", "rpm", "tar.gz"] },
     darwin: { x64: ["dmg", "zip"], arm64: ["dmg", "zip"] },
 };
