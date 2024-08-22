@@ -361,3 +361,11 @@ type translateWinType = {
     dipRect: { x: number; y: number; w: number; h: number };
     displayId: number;
 };
+
+type superRecording = {
+    time: number;
+    posi: { x: number; y: number };
+    mouse?: 0 | 1 | 2;
+    keydown?: string;
+    keyup?: string;
+}[];
