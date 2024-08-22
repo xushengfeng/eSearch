@@ -1,14 +1,16 @@
 :root {
-    --alpha: 0.6;
+    --alpha: 60%;
 
-    --bar-bg: rgba(255, 255, 255, var(--alpha));
+    --bar-bg0: #fff;
+    --bar-bg: color-mix(in srgb, var(--bar-bg0) var(--alpha), transparent);
     --bar-hover-color: color-mix(in srgb, var(--hover-color) 25%, transparent);
     --bg: #fff;
     --hover-color: #dfdfdf;
-    --font-color: "#000";
+    --font-color: #000;
     --icon-color: none;
 
-    --d-bar-bg: rgba(0, 0, 0, var(--alpha));
+    --d-bar-bg0: #000;
+    --d-bar-bg: color-mix(in srgb, var(--d-bar-bg0) var(--alpha), transparent);
     --d-bar-hover-color: color-mix(
         in srgb,
         var(--d-hover-color) 25%,
@@ -16,7 +18,7 @@
     );
     --d-bg: #000;
     --d-hover-color: #333;
-    --d-font-color: "#fff";
+    --d-font-color: #fff;
     --d-icon-color: invert(1);
 
     --m-color1: hsl(224deg 100% 63%);

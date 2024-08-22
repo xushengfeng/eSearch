@@ -17,16 +17,10 @@ function initStyle(
     );
 
     const theme = store.get("全局.主题");
-    setCSSVar(
-        "--bar-bg",
-        `color-mix(in srgb, ${theme.light.barbg} var(--alpha), #0000)`,
-    );
+    setCSSVar("--bar-bg0", theme.light.barbg);
     setCSSVar("--bg", theme.light.bg);
     setCSSVar("--hover-color", theme.light.emphasis);
-    setCSSVar(
-        "--d-bar-bg",
-        `color-mix(in srgb, ${theme.dark.barbg} var(--alpha), #0000)`,
-    );
+    setCSSVar("--d-bar-bg0", theme.dark.barbg);
     setCSSVar("--d-bg", theme.dark.bg);
     setCSSVar("--d-hover-color", theme.dark.emphasis);
     setCSSVar("--font-color", theme.light.fontColor);

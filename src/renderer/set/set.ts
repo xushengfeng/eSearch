@@ -353,10 +353,10 @@ function setCSSVar(name: string, value: string) {
 }
 
 function setThemePreview() {
-    setCSSVar("--bar-bg", themeInput[2].value);
+    setCSSVar("--bar-bg0", themeInput[2].value);
     setCSSVar("--bg", themeInput[4].value);
     setCSSVar("--hover-color", themeInput[0].value);
-    setCSSVar("--d-bar-bg", themeInput[3].value);
+    setCSSVar("--d-bar-bg0", themeInput[3].value);
     setCSSVar("--d-bg", themeInput[5].value);
     setCSSVar("--d-hover-color", themeInput[1].value);
     setCSSVar("--font-color", themeInput[6].value);
@@ -367,16 +367,10 @@ function setThemePreview() {
 }
 
 const theme = old_store.全局.主题;
-setCSSVar(
-    "--bar-bg",
-    `color-mix(in srgb, ${theme.light.barbg} var(--alpha), #0000)`,
-);
+setCSSVar("--bar-bg0", theme.light.barbg);
 setCSSVar("--bg", theme.light.bg);
 setCSSVar("--hover-color", theme.light.emphasis);
-setCSSVar(
-    "--d-bar-bg",
-    `color-mix(in srgb, ${theme.dark.barbg} var(--alpha), #0000)`,
-);
+setCSSVar("--d-bar-bg0", theme.dark.barbg);
 setCSSVar("--d-bg", theme.dark.bg);
 setCSSVar("--d-hover-color", theme.dark.emphasis);
 setCSSVar("--font-color", theme.light.fontColor);
@@ -428,7 +422,10 @@ document.getElementById("模糊").oninput = () => {
     }
 };
 
-document.documentElement.style.setProperty("--alpha", String(全局.不透明度));
+document.documentElement.style.setProperty(
+    "--alpha",
+    `${全局.不透明度 * 100}%`,
+);
 (<HTMLInputElement>document.getElementById("不透明度")).value = String(
     全局.不透明度 * 100,
 );
@@ -437,7 +434,7 @@ document.getElementById("不透明度").oninput = () => {
         .value;
     document.documentElement.style.setProperty(
         "--alpha",
-        String(Number(不透明度) / 100),
+        `${Number(不透明度)}%`,
     );
 };
 
