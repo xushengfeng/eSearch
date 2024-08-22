@@ -2177,8 +2177,20 @@ const defaultSetting: setting = {
         深色模式: "system",
         图标颜色: ["", "", "", ""],
         主题: {
-            light: { barbg: "#FFFFFF", bg: "#FFFFFF", emphasis: "#dfdfdf" },
-            dark: { barbg: "#000000", bg: "#000000", emphasis: "#333" },
+            light: {
+                barbg: "#FFFFFF",
+                bg: "#FFFFFF",
+                emphasis: "#dfdfdf",
+                fontColor: "#000",
+                iconColor: "none",
+            },
+            dark: {
+                barbg: "#000000",
+                bg: "#000000",
+                emphasis: "#333",
+                fontColor: "#fff",
+                iconColor: "invert(1)",
+            },
         },
     },
     工具栏: {

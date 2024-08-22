@@ -300,16 +300,52 @@ const themeInput = Array.from(
 
 const themes: setting["全局"]["主题"][] = [
     {
-        light: { barbg: "#FFFFFF99", bg: "#FFFFFF", emphasis: "#DFDFDF" },
-        dark: { barbg: "#33333399", bg: "#000000", emphasis: "#333333" },
+        light: {
+            barbg: "#FFFFFF99",
+            bg: "#FFFFFF",
+            emphasis: "#DFDFDF",
+            fontColor: "#000",
+            iconColor: "none",
+        },
+        dark: {
+            barbg: "#33333399",
+            bg: "#000000",
+            emphasis: "#333333",
+            fontColor: "#fff",
+            iconColor: "invert(1)",
+        },
     },
     {
-        light: { barbg: "#D7E3F899", bg: "#FAFAFF", emphasis: "#D7E3F8" },
-        dark: { barbg: "#3B485899", bg: "#1A1C1E", emphasis: "#3B4858" },
+        light: {
+            barbg: "#D7E3F899",
+            bg: "#FAFAFF",
+            emphasis: "#D7E3F8",
+            fontColor: "#1A1C1E",
+            iconColor: getIconColor("#1A1C1E"),
+        },
+        dark: {
+            barbg: "#3B485899",
+            bg: "#1A1C1E",
+            emphasis: "#3B4858",
+            fontColor: "#FAFAFF",
+            iconColor: getIconColor("#FAFAFF"),
+        },
     },
     {
-        light: { barbg: "#D5E8CF99", bg: "#FCFDF6", emphasis: "#D5E8CF" },
-        dark: { barbg: "#3B4B3899", bg: "#1A1C19", emphasis: "#3B4B38" },
+        light: {
+            barbg: "#D5E8CF99",
+            bg: "#FCFDF6",
+            emphasis: "#D5E8CF",
+            fontColor: "#1A1C19",
+            iconColor: getIconColor("#1A1C19"),
+        },
+        dark: {
+            barbg: "#3B4B3899",
+            bg: "#1A1C19",
+            emphasis: "#3B4B38",
+            fontColor: "#FCFDF6",
+            iconColor: getIconColor("#FCFDF6"),
+        },
     },
 ];
 function setCSSVar(name: string, value: string) {
@@ -324,6 +360,7 @@ function setThemePreview() {
     setCSSVar("--d-bg", themeInput[5].value);
     setCSSVar("--d-hover-color", themeInput[1].value);
     // todo all preview
+    // todo setting init
 }
 
 for (const i of themeInput) {
@@ -341,6 +378,8 @@ for (const i of themes) {
                 themeInput[3].value = i.dark.barbg;
                 themeInput[4].value = i.light.bg;
                 themeInput[5].value = i.dark.bg;
+                themeInput[6].value = i.light.fontColor;
+                themeInput[7].value = i.dark.fontColor;
                 setThemePreview();
                 for (const i of themeInput) {
                     i.dispatchEvent(new Event("input"));
@@ -729,7 +768,7 @@ document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
 
 import { hexToCSSFilter } from "hex-to-css-filter";
 
-function getFilter(hex: string) {
+function getIconColor(hex: string) {
     try {
         return hexToCSSFilter(hex).filter.replace(";", "");
     } catch (error) {
@@ -749,7 +788,7 @@ if (old_store.全局.图标颜色[3])
     () => {
         document.documentElement.style.setProperty(
             "--icon-color",
-            getFilter(
+            getIconColor(
                 (<HTMLInputElement>document.querySelector("#图标颜色 > input"))
                     .value,
             ) || "",
@@ -763,7 +802,7 @@ if (old_store.全局.图标颜色[3])
         )
             document.documentElement.style.setProperty(
                 "--icon-color1",
-                getFilter(
+                getIconColor(
                     (<HTMLInputElement>(
                         document.querySelector("#图标颜色1 > input")
                     )).value,
@@ -1445,17 +1484,10 @@ function saveSetting() {
     xstore.全局.不透明度 =
         (<RangeEl>document.getElementById("不透明度")).value / 100;
     try {
-        xstore.全局.图标颜色[1] =
-            getFilter(
-                (<HTMLInputElement>document.querySelector("#图标颜色 > input"))
-                    .value,
-            ) || "";
-
-        xstore.全局.图标颜色[3] =
-            getFilter(
-                (<HTMLInputElement>document.querySelector("#图标颜色1 > input"))
-                    .value,
-            ) || "";
+        xstore.全局.主题.light.iconColor =
+            getIconColor(themeInput[6].value) || themes[0].light.iconColor;
+        xstore.全局.主题.dark.iconColor =
+            getIconColor(themeInput[7].value) || themes[0].dark.iconColor;
     } catch (e) {}
     xstore.快速截屏.路径 = (<HTMLInputElement>(
         document.getElementById("快速截屏路径")

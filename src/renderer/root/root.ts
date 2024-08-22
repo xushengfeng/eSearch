@@ -29,20 +29,14 @@ function initStyle(
     );
     setCSSVar("--d-bg", theme.dark.bg);
     setCSSVar("--d-hover-color", theme.dark.emphasis);
+    setCSSVar("--font-color", theme.light.fontColor);
+    setCSSVar("--d-font-color", theme.dark.fontColor);
+    setCSSVar("--icon-color", theme.light.iconColor);
+    setCSSVar("--d-icon-color", theme.dark.iconColor);
 
     const 字体 = store.get("字体");
     document.documentElement.style.setProperty("--main-font", 字体.主要字体);
     document.documentElement.style.setProperty("--monospace", 字体.等宽字体);
-
-    document.documentElement.style.setProperty(
-        "--icon-color",
-        store.get("全局.图标颜色")[1],
-    );
-    if (store.get("全局.图标颜色")[3])
-        document.documentElement.style.setProperty(
-            "--icon-color1",
-            store.get("全局.图标颜色")[3],
-        );
 }
 
 export default initStyle;

@@ -5,11 +5,15 @@
     --bar-hover-color: #0002;
     --bg: #fff;
     --hover-color: #dfdfdf;
+    --font-color: "#000";
+    --icon-color: none;
 
     --d-bar-bg: rgba(0, 0, 0, var(--alpha));
     --d-bar-hover-color: #fff2;
     --d-bg: #000;
     --d-hover-color: #333;
+    --d-font-color: "#fff";
+    --d-icon-color: invert(1);
 
     --m-color1: hsl(224deg 100% 63%);
     --m-color2: hsl(0, 0%, 90%);
@@ -25,8 +29,6 @@
     --color-i-size: 10px;
     --monospace: ;
     --main-font: sans-serif;
-    --icon-color: none;
-    --icon-color1: invert(1);
     --bar-size: 60px;
     --bar-icon: 0.7;
     --b-button: 32px;
@@ -114,12 +116,12 @@ textarea {
         --bar-hover-color: var(--d-bar-hover-color);
         --bg: var(--d-bg);
         --hover-color: var(--d-hover-color);
+        --icon-color: var(--d-icon-color) !important;
         --m-color1: hsl(224deg 100% 38%);
         --m-color2: hsl(0, 0%, 14%);
         --shadow: #fff9 0 0 2px;
         --color: #fff;
         --border: 1px #fff solid;
-        --icon-color: var(--icon-color1) !important;
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;

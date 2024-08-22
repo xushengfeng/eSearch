@@ -57,6 +57,8 @@ export interface setting {
                 barbg: string;
                 bg: string;
                 emphasis: string;
+                fontColor: string;
+                iconColor: string; // filters
             };
         };
     };
