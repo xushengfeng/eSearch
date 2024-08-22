@@ -359,9 +359,30 @@ function setThemePreview() {
     setCSSVar("--d-bar-bg", themeInput[3].value);
     setCSSVar("--d-bg", themeInput[5].value);
     setCSSVar("--d-hover-color", themeInput[1].value);
+    setCSSVar("--font-color", themeInput[6].value);
+    setCSSVar("--d-font-color", themeInput[7].value);
+    setCSSVar("--icon-color", getIconColor(themeInput[6].value));
+    setCSSVar("--d-icon-color", getIconColor(themeInput[7].value));
     // todo all preview
-    // todo setting init
 }
+
+const theme = old_store.全局.主题;
+setCSSVar(
+    "--bar-bg",
+    `color-mix(in srgb, ${theme.light.barbg} var(--alpha), #0000)`,
+);
+setCSSVar("--bg", theme.light.bg);
+setCSSVar("--hover-color", theme.light.emphasis);
+setCSSVar(
+    "--d-bar-bg",
+    `color-mix(in srgb, ${theme.dark.barbg} var(--alpha), #0000)`,
+);
+setCSSVar("--d-bg", theme.dark.bg);
+setCSSVar("--d-hover-color", theme.dark.emphasis);
+setCSSVar("--font-color", theme.light.fontColor);
+setCSSVar("--d-font-color", theme.dark.fontColor);
+setCSSVar("--icon-color", theme.light.iconColor);
+setCSSVar("--d-icon-color", theme.dark.iconColor);
 
 for (const i of themeInput) {
     i.onchange = setThemePreview;
