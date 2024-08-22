@@ -64,10 +64,13 @@ body {
 #menu > li {
     cursor: pointer;
     margin-bottom: 8px;
+    opacity: 0.5;
+    transition: var(--transition);
 }
 
 .active {
-    color: var(--m-color1);
+    font-weight: bold;
+    opacity: 1 !important;
 }
 
 #setting_main {
