@@ -668,13 +668,23 @@ const xqckxElx = elFromId<HTMLInputElement>("选区参考线x")
     .bindSet((v: number[], el) => {
         el.value = v.join(", ");
     })
-    .bindGet((el) => el.value.split(/[,，]/).map((i) => Number(i)))
+    .bindGet((el) =>
+        el.value
+            .split(/[,，]/)
+            .filter(Boolean)
+            .map((i) => Number(i)),
+    )
     .sv(old_store.框选.参考线.选区.x);
 const xqckxEly = elFromId<HTMLInputElement>("选区参考线y")
     .bindSet((v: number[], el) => {
         el.value = v.join(", ");
     })
-    .bindGet((el) => el.value.split(/[,，]/).map((i) => Number(i)))
+    .bindGet((el) =>
+        el.value
+            .split(/[,，]/)
+            .filter(Boolean)
+            .map((i) => Number(i)),
+    )
     .sv(old_store.框选.参考线.选区.y);
 
 const xqckxEl = elFromId("选区参考线");
