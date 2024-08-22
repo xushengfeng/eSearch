@@ -1,4 +1,4 @@
-:root {
+body {
     --hover-color: var(--bar-hover-color) !important;
 }
 ::-webkit-scrollbar {
