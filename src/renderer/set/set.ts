@@ -301,14 +301,14 @@ const themeInput = Array.from(
 const themes: setting["全局"]["主题"][] = [
     {
         light: {
-            barbg: "#FFFFFF99",
+            barbg: "#FFFFFF",
             bg: "#FFFFFF",
             emphasis: "#DFDFDF",
             fontColor: "#000",
             iconColor: "none",
         },
         dark: {
-            barbg: "#33333399",
+            barbg: "#333333",
             bg: "#000000",
             emphasis: "#333333",
             fontColor: "#fff",
@@ -317,14 +317,14 @@ const themes: setting["全局"]["主题"][] = [
     },
     {
         light: {
-            barbg: "#D7E3F899",
+            barbg: "#D7E3F8",
             bg: "#FAFAFF",
             emphasis: "#D7E3F8",
             fontColor: "#1A1C1E",
             iconColor: getIconColor("#1A1C1E"),
         },
         dark: {
-            barbg: "#3B485899",
+            barbg: "#3B4858",
             bg: "#1A1C1E",
             emphasis: "#3B4858",
             fontColor: "#FAFAFF",
@@ -333,14 +333,14 @@ const themes: setting["全局"]["主题"][] = [
     },
     {
         light: {
-            barbg: "#D5E8CF99",
+            barbg: "#D5E8CF",
             bg: "#FCFDF6",
             emphasis: "#D5E8CF",
             fontColor: "#1A1C19",
             iconColor: getIconColor("#1A1C19"),
         },
         dark: {
-            barbg: "#3B4B3899",
+            barbg: "#3B4B38",
             bg: "#1A1C19",
             emphasis: "#3B4B38",
             fontColor: "#FCFDF6",
