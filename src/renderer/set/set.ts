@@ -363,7 +363,6 @@ function setThemePreview() {
     setCSSVar("--d-font-color", themeInput[7].value);
     setCSSVar("--icon-color", getIconColor(themeInput[6].value));
     setCSSVar("--d-icon-color", getIconColor(themeInput[7].value));
-    // todo all preview
 }
 
 const theme = old_store.全局.主题;
