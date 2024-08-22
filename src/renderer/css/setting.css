@@ -497,7 +497,7 @@ comment {
     background-color: var(--bg);
 }
 #screen_key_tip > div:not(:first-child).tip_select {
-    background-color: #335efe;
+    background-color: var(--m-color1);
 }
 
 .theme > input {
