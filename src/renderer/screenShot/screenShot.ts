@@ -28,8 +28,6 @@ function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
         const fs = require("node:fs") as typeof import("node:fs");
         const { execSync } =
             require("node:child_process") as typeof import("node:child_process");
-        const os = require("node:os") as typeof import("os");
-        const path = require("node:path") as typeof import("path");
         const x: (typeof allScreens)[0] = {
             ...displays[0],
             captureSync: () => {
@@ -40,7 +38,10 @@ function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
                 try {
                     if (!command) throw "";
                     execSync(command, {});
-                    buffer = fs.readFileSync(path.join(os.tmpdir(), "img.png"));
+                    const path = "/dev/shm/esearch-img.png";
+                    fs.rm(path, () => {});
+                    buffer = fs.readFileSync(path);
+                    fs.rm(path, () => {});
                 } catch (error) {
                     if (!command) {
                         ipcRenderer.send("dialog", {
