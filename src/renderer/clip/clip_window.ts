@@ -1643,7 +1643,7 @@ function isInClipRect(p: editor_position) {
 
         direction = "";
 
-        const num = 8;
+        const num = (8 / editorP.zoom) * window.devicePixelRatio;
 
         // 光标样式
         if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y0 + num)) {
