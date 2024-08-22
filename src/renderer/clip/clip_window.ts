@@ -1,11 +1,10 @@
 /// <reference types="vite/client" />
 
-const { ipcRenderer, clipboard, nativeImage, shell } =
+const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import "../../../lib/template2.js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import type { MessageBoxSyncOptions } from "electron";
 import initStyle from "../root/root";
 import open_with from "../../../lib/open_with";
 import timeFormat from "../../../lib/time_format";
@@ -31,21 +30,6 @@ import {
     filters,
 } from "fabric";
 import { EraserBrush } from "@erase2d/fabric";
-
-let Screenshots: typeof import("node-screenshots").Screenshots;
-try {
-    Screenshots = require("node-screenshots").Screenshots;
-} catch (error) {
-    const id = ipcRenderer.sendSync("dialog", {
-        message:
-            "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
-        buttons: ["取消", "下载"],
-        defaultId: 1,
-    } as MessageBoxSyncOptions);
-    if (id === 1) {
-        shell.openExternal("https://aka.ms/vs/17/release/vc_redist.x64.exe");
-    }
-}
 
 import screenShots from "../screenShot/screenShot";
 
@@ -133,7 +117,7 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
 }
 
 function setScreen(i: (typeof allScreens)[0]) {
-    const img = i.captureSync();
+    const img = i.captureSync().data;
     const w = img.width;
     const h = img.height;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
@@ -169,8 +153,8 @@ function getFileName() {
 /** 快速截屏 */
 function quickClip() {
     const fs = require("node:fs");
-    for (const c of Screenshots.all() ?? []) {
-        let image = nativeImage.createFromBuffer(c.captureSync(true));
+    for (const c of screenShots()) {
+        let image = c.captureSync().image;
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);
             image = null;
@@ -468,7 +452,7 @@ function initRecord() {
 
 function long_s() {
     let s = allScreens.find((i) => i.id === nowScreenId);
-    addLong(s.captureSync());
+    addLong(s.captureSync().data);
     s = null;
 }
 
@@ -2898,10 +2882,7 @@ const drawBar = document.getElementById("draw_bar");
 
 let nowScreenId = 0;
 
-let allScreens: (Electron.Display & {
-    captureSync?: () => ImageData;
-    image?: ImageData;
-})[] = [];
+let allScreens: ReturnType<typeof screenShots>;
 
 let nowMouseE: MouseEvent = null;
 
@@ -3313,7 +3294,6 @@ ipcRenderer.on(
                         .querySelector(".now_screen")
                         .classList.remove("now_screen");
                     div.el.classList.add("now_screen");
-                    if (!i.image) i.image = i.captureSync();
                     setScreen(i);
                 });
             }

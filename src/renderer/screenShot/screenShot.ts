@@ -17,10 +17,10 @@ try {
     }
 }
 
-function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
-    let allScreens: (Electron.Display & {
-        captureSync?: () => ImageData;
-        image?: ImageData; // 缓存，在切换屏幕时不重新截屏
+function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
+    let allScreens: (Partial<Electron.Display> & {
+        captureSync?: () => ReturnType<typeof toCanvas>;
+        image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
     })[] = [];
     allScreens = [];
     let buffer = imgBuffer;
@@ -57,27 +57,28 @@ function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
                     return null;
                 }
 
-                const image = nativeImage.createFromBuffer(buffer);
+                const data = toCanvas(buffer);
+                x.image = data;
+                const image = data.image;
                 const s = image.getSize();
                 x.bounds = { x: 0, y: 0, width: s.width, height: s.height };
                 x.size = { width: s.width, height: s.height };
                 x.scaleFactor = 1;
-                const data = toCanvas(buffer);
-                x.image = data;
                 return data;
             },
         };
         return [x];
     }
     if (buffer) {
-        const image = nativeImage.createFromBuffer(buffer);
+        const data = toCanvas(buffer); // 闭包，这里就不用缓存到image了
+        const image = data.image;
         const s = image.getSize();
         return [
             {
                 bounds: { x: 0, y: 0, width: s.width, height: s.height },
                 size: { width: s.width, height: s.height },
                 scaleFactor: 1,
-                captureSync: () => toCanvas(buffer), // 闭包，这里就不用缓存到image了
+                captureSync: () => data,
             },
         ] as typeof allScreens;
     }
@@ -88,8 +89,8 @@ function dispaly2screen(displays: Electron.Display[], imgBuffer?: Buffer) {
      * 修复屏幕信息
      * @see https://github.com/nashaofu/node-screenshots/issues/18
      */
-    for (const i in displays) {
-        const d = displays[i];
+    for (const i in displays || screens) {
+        const d = displays[i] || {};
         const s = screens[i];
         const x: (typeof allScreens)[0] = {
             ...d,
@@ -119,7 +120,7 @@ function toCanvas(img: Buffer) {
         x[i + 3] = bitmap[i + 3];
     }
     const d = new ImageData(x, w, h);
-    return d;
+    return { data: d, image };
 }
 
 export default dispaly2screen;

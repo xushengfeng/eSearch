@@ -63,7 +63,7 @@ const 字典 = ocrPath(l[3]);
 
 function screenshot(id: number, rect: Rect) {
     const screen = screenShots(display).find((i) => i.id === id);
-    const img = screen.captureSync();
+    const img = screen.captureSync().data;
     const canvas = document.createElement("canvas");
 
     canvas.width = img.width;
