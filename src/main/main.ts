@@ -90,6 +90,8 @@ if (
     dev = false;
 }
 
+const devCSS = "[data-dev]{display:none}";
+
 if (dev) {
     setInterval(() => {
         const usage = process.memoryUsage();
@@ -934,6 +936,10 @@ function createClipWindow() {
             contextIsolation: false,
         },
     });
+
+    if (!dev) {
+        clipWindow.webContents.insertCSS(devCSS);
+    }
 
     if (!dev) clipWindow.setAlwaysOnTop(true, "screen-saver");
 
