@@ -125,6 +125,7 @@ input[type="text"] {
     transition: var(--transition);
     font-size: 1rem;
     width: 300px;
+    font-family: var(--monospace);
 }
 input[type="text"]:focus {
     border: none;
@@ -139,6 +140,7 @@ input[type="number"] {
     border-bottom: 1px solid var(--hover-color);
     font-size: 1rem;
     transition: var(--transition);
+    font-family: var(--monospace);
 }
 input[type="number"]:focus {
     border: none;
@@ -344,6 +346,10 @@ details {
 
 comment {
     opacity: 0.6;
+}
+
+#主要字体 > input {
+    font-family: var(--main-font);
 }
 
 :is(.hotkeys, #hotkeys_content > div, #hotkeys_content2) {
