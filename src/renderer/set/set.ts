@@ -775,40 +775,6 @@ function getIconColor(hex: string) {
         return null;
     }
 }
-document.documentElement.style.setProperty(
-    "--icon-color",
-    old_store.全局.图标颜色[1],
-);
-if (old_store.全局.图标颜色[3])
-    document.documentElement.style.setProperty(
-        "--icon-color1",
-        old_store.全局.图标颜色[3],
-    );
-(<HTMLInputElement>document.querySelector("#图标颜色 > input")).oninput =
-    () => {
-        document.documentElement.style.setProperty(
-            "--icon-color",
-            getIconColor(
-                (<HTMLInputElement>document.querySelector("#图标颜色 > input"))
-                    .value,
-            ) || "",
-        );
-    };
-(<HTMLInputElement>document.querySelector("#图标颜色1 > input")).oninput =
-    () => {
-        if (
-            (<HTMLInputElement>document.querySelector("#图标颜色1 > input"))
-                .value
-        )
-            document.documentElement.style.setProperty(
-                "--icon-color1",
-                getIconColor(
-                    (<HTMLInputElement>(
-                        document.querySelector("#图标颜色1 > input")
-                    )).value,
-                ) || "",
-            );
-    };
 
 const translateES = document.getElementById("translate_es");
 const translatorFrom = document.getElementById("translator_from");

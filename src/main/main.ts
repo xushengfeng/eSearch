@@ -2175,7 +2175,6 @@ const defaultSetting: setting = {
         缩放: 1,
         不透明度: 0.4,
         深色模式: "system",
-        图标颜色: ["", "", "", ""],
         主题: {
             light: {
                 barbg: "#FFFFFF",
