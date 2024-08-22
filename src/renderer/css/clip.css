@@ -1,6 +1,8 @@
 :root {
-    --hover-color: var(--bar-hover-color) !important;
     --hotkey-show: none;
+}
+body {
+    --hover-color: var(--bar-hover-color) !important;
 }
 html {
     cursor: none;
