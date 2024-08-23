@@ -50,7 +50,7 @@ export interface setting {
         模糊: number;
         缩放: number;
         不透明度: number;
-        深色模式: string;
+        深色模式: Electron.NativeTheme["themeSource"];
         主题: {
             [k in "light" | "dark"]: {
                 barbg: string;
@@ -274,6 +274,12 @@ export interface setting {
                 开启: boolean;
                 样式: string;
             };
+        };
+        大小: {
+            x: number;
+            y: number;
+            width: number;
+            height: number;
         };
     };
     屏幕翻译: {

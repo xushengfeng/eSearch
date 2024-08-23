@@ -213,6 +213,7 @@ async function copyText(callback: (t: string) => void) {
     } else if (process.platform === "win32") {
         exec(`"${join(runPath, "lib/copy.exe")}"`);
     } else if (process.platform === "linux") {
+        // @ts-ignore
         exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
     setTimeout(() => {
@@ -527,6 +528,7 @@ app.whenReady().then(() => {
         const [name, key] = arg;
         try {
             try {
+                // @ts-ignore
                 globalShortcut.unregister(store.get(`快捷键.${name}.key`));
             } catch {}
             let ok = false;
@@ -2440,6 +2442,12 @@ const defaultSetting: setting = {
                 开启: false,
                 样式: "width: 24px;\nheight: 24px;\nborder-radius: 50%;\nbackground-color: #ff08;",
             },
+        },
+        大小: {
+            x: 0,
+            y: 0,
+            width: 800,
+            height: 600,
         },
     },
     屏幕翻译: {

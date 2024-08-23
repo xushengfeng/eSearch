@@ -40,3 +40,5 @@ const store = {
 };
 
 export default store;
+
+export type { SettingPath, GetValue };
