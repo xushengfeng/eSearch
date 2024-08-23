@@ -2326,9 +2326,9 @@ function colorInput(type: "fill" | "stroke") {
         let textColor = "#000";
         const tColor = color;
         const bgColor = Color(
-            getComputedStyle(document.documentElement)
-                .getPropertyValue("--bar-bg")
-                .replace(" ", ""),
+            window
+                .getComputedStyle(document.documentElement)
+                .getPropertyValue("--bar-bg0"),
         );
         if (tColor.alpha() >= 0.5 || tColor.alpha() === undefined) {
             if (tColor.isLight()) {
