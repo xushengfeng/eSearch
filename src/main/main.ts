@@ -2216,6 +2216,7 @@ const defaultSetting: setting = {
             "ding",
             "record",
             "long",
+            "translate",
             "copy",
             "save",
         ],
