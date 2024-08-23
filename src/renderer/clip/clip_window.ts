@@ -3289,16 +3289,13 @@ ipcRenderer.on(
                     div.el.classList.add("now_screen");
                 }
                 el.add(div);
-                div.on("input", () => {
-                    el.el
-                        .querySelector(".now_screen")
-                        .classList.remove("now_screen");
-                    div.el.classList.add("now_screen");
+                div.on("click", () => {
+                    el.query(".now_screen").el.classList.remove("now_screen");
+                    div.class("now_screen");
                     setScreen(i);
                 });
             }
-            screensEl.clear();
-            screensEl.add(el);
+            screensEl.clear().add(el);
         } else {
             screensEl.el.style.display = "none";
         }
