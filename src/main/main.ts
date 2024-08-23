@@ -1683,7 +1683,9 @@ async function createMainWindow(op: MainWinType) {
     const py = screen.getCursorScreenPoint().y;
     const x = px > vr.x + vr.width / 2 ? px - w : px;
     const y = py > vr.y + vr.height / 2 ? py - h : py;
-    const bg = nativeTheme.shouldUseDarkColors ? "#0f0f0f" : "#ffffff";
+    const bg = nativeTheme.shouldUseDarkColors
+        ? store.get("全局.主题.dark.bg")
+        : store.get("全局.主题.light.bg");
     mainWindowL[windowName] = { browser: { top: 0, bottom: 48 }, win: null };
     const mainWindow = new BrowserWindow({
         x: Math.max(vr.x, x),
@@ -1769,8 +1771,8 @@ async function createSettingWindow(about?: boolean) {
     const settingWindow = new BrowserWindow({
         minWidth: 600,
         backgroundColor: nativeTheme.shouldUseDarkColors
-            ? "#0f0f0f"
-            : "#ffffff",
+            ? store.get("全局.主题.dark.bg")
+            : store.get("全局.主题.light.bg"),
         icon: theIcon,
         webPreferences: {
             nodeIntegration: true,
