@@ -4084,22 +4084,20 @@ document.getElementById("draw_shapes_i").onclick = (e) => {
 };
 // 层叠位置
 document.getElementById("draw_position_i").onclick = (e) => {
-    switch (
-        (<HTMLElement>e.target).id
-        // todo v6
-        // case "draw_position_front":
-        //     fabricCanvas.getActiveObject().bringToFront();
-        //     break;
-        // case "draw_position_forwards":
-        //     fabricCanvas.getActiveObject().bringForward();
-        //     break;
-        // case "draw_position_backwards":
-        //     fabricCanvas.getActiveObject().sendBackwards();
-        //     break;
-        // case "draw_position_back":
-        //     fabricCanvas.getActiveObject().sendToBack();
-        //     break;
-    ) {
+    const obj = fabricCanvas.getActiveObject();
+    switch ((<HTMLElement>e.target).id) {
+        case "draw_position_front":
+            fabricCanvas.bringObjectToFront(obj);
+            break;
+        case "draw_position_forwards":
+            fabricCanvas.bringObjectForward(obj);
+            break;
+        case "draw_position_backwards":
+            fabricCanvas.sendObjectBackwards(obj);
+            break;
+        case "draw_position_back":
+            fabricCanvas.sendObjectToBack(obj);
+            break;
     }
 };
 
