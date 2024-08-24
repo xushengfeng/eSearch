@@ -110,10 +110,10 @@ textarea {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bar-bg: var(--d-bar-bg);
-        --bar-hover-color: var(--d-bar-hover-color);
-        --bg: var(--d-bg);
-        --hover-color: var(--d-hover-color);
+        --bar-bg: var(--d-bar-bg) !important;
+        --bar-hover-color: var(--d-bar-hover-color) !important;
+        --bg: var(--d-bg) !important;
+        --hover-color: var(--d-hover-color) !important;
         --m-color1: hsl(224deg 100% 38%);
         --m-color2: hsl(0, 0%, 14%);
         --shadow: #fff9 0 0 2px;
