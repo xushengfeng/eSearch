@@ -926,7 +926,7 @@ for (const v of xstore.翻译.翻译器) {
 }
 
 function translatorD(v: setting["翻译"]["翻译器"][0]) {
-    const idEl = input("name").attr({ value: v.name });
+    const idEl = input().sv(v.name);
     const selectEl = select<Engines | "">(
         [{ value: "", name: t("选择引擎类型") }].concat(
             Object.entries(engineConfig).map((v) => ({
@@ -949,13 +949,13 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         help.clear();
         if (!type) return;
         const fig = engineConfig[type];
-        fig.key.forEach((x, i) => {
+        for (const x of fig.key) {
             const value = v.keys[x.name] as string;
 
             keys.add(
                 view().add([
                     txt(`${x.name}: `, true),
-                    input(`key${i}`)
+                    input()
                         .attr({ placeholder: x.text || "" })
                         .data({ key: x.name })
                         .sv(
@@ -965,7 +965,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
                         ),
                 ]),
             );
-        });
+        }
         if (fig.help) help.add(a(fig.help.src).add(txt("API申请")));
     }
 
@@ -1089,7 +1089,7 @@ function eSort(el: HTMLElement, list: string[][]) {
         const e = ele("li");
         e.add(button(iconEl(handle_svg)).class("sort_handle"));
         for (const x of i) {
-            e.add(input(`url ${i}`).sv(x));
+            e.add(input().sv(x));
         }
         e.add(button(iconEl(delete_svg)).on("click", () => e.el.remove()));
         return e;
@@ -1101,7 +1101,7 @@ function eSort(el: HTMLElement, list: string[][]) {
 
     const addEl = view();
     for (const _x of list[0]) {
-        addEl.add(input("add url"));
+        addEl.add(input());
     }
     addEl.add(
         button()

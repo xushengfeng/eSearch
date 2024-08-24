@@ -18,8 +18,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       dkh-ui:
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.2
       download:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1106,8 +1106,8 @@ packages:
   dir-compare@3.3.0:
     resolution: {integrity: sha512-J7/et3WlGUCxjdnD3HAAzQ6nsnc0WL6DD7WcwJb7c39iH1+AWfg+9OqzJNaI6PkBwBvm1mhZNL9iY/nRiZXlPg==}
 
-  dkh-ui@0.6.0:
-    resolution: {integrity: sha512-X+BXUFeQz+IaMrlqlwSb06HbpLB/K8v2WpOo/L9EWvZLlEdrE+Ya9DbzG8fq/RTKRImIeoj2/g9E5mKwXEUcUg==}
+  dkh-ui@0.7.2:
+    resolution: {integrity: sha512-lKQvCYonV3/TndACQxzZB0wFHQ7ivinRRpLjjWgWQCF4agq9ur8mG7jEwyeAzo947F1QjM41VU++4zjUqOUF/A==}
 
   dmg-builder@24.13.3:
     resolution: {integrity: sha512-rcJUkMfnJpfCboZoOOPf4L29TRtEieHNOeAbYPWPxlaBw/Z1RKrRA86dOI9rwaI4tQSc/RD82zTNHprfUHXsoQ==}
@@ -2319,6 +2319,9 @@ packages:
   type-fest@0.13.1:
     resolution: {integrity: sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg==}
     engines: {node: '>=10'}
+
+  typed-query-selector@2.12.0:
+    resolution: {integrity: sha512-SbklCd1F0EiZOyPiW192rrHZzZ5sBijB6xM+cpmrwDqObvdtunOHHIk9fCGsoK5JVIYXoyEp4iEdE3upFH3PAg==}
 
   typescript@5.5.2:
     resolution: {integrity: sha512-NcRtPEOsPFFWjobJEtfihkLCZCXZt/os3zf8nTxjVH3RvTSxjrCamJpbExGvYOF+tFHc3pA65qpdwPbzjohhew==}
@@ -3583,9 +3586,10 @@ snapshots:
       buffer-equal: 1.0.1
       minimatch: 3.1.2
 
-  dkh-ui@0.6.0:
+  dkh-ui@0.7.2:
     dependencies:
       csstype: 3.1.3
+      typed-query-selector: 2.12.0
 
   dmg-builder@24.13.3(electron-builder-squirrel-windows@24.13.3):
     dependencies:
@@ -4907,6 +4911,8 @@ snapshots:
 
   type-fest@0.13.1:
     optional: true
+
+  typed-query-selector@2.12.0: {}
 
   typescript@5.5.2: {}
 

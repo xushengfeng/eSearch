@@ -2808,12 +2808,12 @@ for (const g of tools) {
 }
 
 const whEl = view().attr({ id: "clip_wh" });
-const whX0 = input("x0");
-const whY0 = input("y0");
-const whX1 = input("x1");
-const whY1 = input("y1");
-const whW = input("w");
-const whH = input("h");
+const whX0 = input();
+const whY0 = input();
+const whX1 = input();
+const whY1 = input();
+const whW = input();
+const whH = input();
 const whXYStyle = { display: 四角坐标 ? "block" : "none" };
 whEl.add([
     view()
