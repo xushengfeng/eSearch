@@ -214,16 +214,15 @@ const setSetting = (el: HTMLElement) => {
     }
 };
 
-ipcRenderer.send("autostart", "get");
-ipcRenderer.on("开机启动状态", (_event, v) => {
-    pushRender(() => {
-        (<HTMLInputElement>document.getElementById("autostart")).checked = v;
-    });
+ipcRenderer.send("setting", "get_autostart");
+pushRender(() => {
+    (<HTMLInputElement>document.getElementById("autostart")).checked =
+        ipcRenderer.sendSync("setting", "get_autostart");
 });
 document.getElementById("autostart").oninput = () => {
     ipcRenderer.send(
-        "autostart",
-        "set",
+        "setting",
+        "set_autostart",
         (<HTMLInputElement>document.getElementById("autostart")).checked,
     );
 };

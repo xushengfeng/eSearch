@@ -167,40 +167,6 @@ if (!store.get("硬件加速")) {
     app.disableHardwareAcceleration();
 }
 
-// 自启动
-ipcMain.on("autostart", (event, m, v) => {
-    if (m === "set") {
-        if (process.platform === "linux") {
-            if (v) {
-                exec("mkdir ~/.config/autostart");
-                exec(
-                    `cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`,
-                );
-            } else {
-                exec("rm ~/.config/autostart/e-search.desktop");
-            }
-        } else {
-            app.setLoginItemSettings({ openAtLogin: v });
-        }
-    } else {
-        if (process.platform === "linux") {
-            exec(
-                "test -e ~/.config/autostart/e-search.desktop",
-                (error, _stdout, _stderr) => {
-                    error
-                        ? event.sender.send("开机启动状态", false)
-                        : event.sender.send("开机启动状态", true);
-                },
-            );
-        } else {
-            event.sender.send(
-                "开机启动状态",
-                app.getLoginItemSettings().openAtLogin,
-            );
-        }
-    }
-});
-
 /**
  * 复制选区，存在变化，回调
  */
@@ -1375,7 +1341,7 @@ ipcMain.on("record", (_event, type, arg) => {
     }
 });
 
-ipcMain.on("setting", async (event, arg, arg1, arg2) => {
+ipcMain.on("setting", async (event, arg, arg1) => {
     switch (arg) {
         case "save_err":
             console.log("保存设置失败");
@@ -1437,11 +1403,6 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
             }
             break;
         }
-        case "open_dialog":
-            dialog.showOpenDialog(arg1).then((x) => {
-                event.sender.send("setting", arg, arg2, x);
-            });
-            break;
         case "move_user_data": {
             if (!arg1) return;
             const toPath = resolve(arg1);
@@ -1451,6 +1412,34 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
                 exec(`xcopy ${prePath}\\** ${toPath} /Y /s`);
             } else {
                 exec(`cp -r ${prePath}/** ${toPath}`);
+            }
+            break;
+        }
+        case "get_autostart": {
+            if (process.platform === "linux") {
+                exec(
+                    "test -e ~/.config/autostart/e-search.desktop",
+                    (error, _stdout, _stderr) => {
+                        event.returnValue = !error;
+                    },
+                );
+            } else {
+                event.returnValue = app.getLoginItemSettings().openAtLogin;
+            }
+            break;
+        }
+        case "set_autostart": {
+            if (process.platform === "linux") {
+                if (arg1) {
+                    exec("mkdir ~/.config/autostart");
+                    exec(
+                        `cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`,
+                    );
+                } else {
+                    exec("rm ~/.config/autostart/e-search.desktop");
+                }
+            } else {
+                app.setLoginItemSettings({ openAtLogin: arg1 });
             }
         }
     }
