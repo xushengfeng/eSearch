@@ -123,8 +123,8 @@ function setScreen(i: (typeof allScreens)[0]) {
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = h;
     toCanvas(mainCanvas, img);
-    fabricCanvas.height = h;
-    fabricCanvas.width = w;
+    fabricCanvas.setHeight(h);
+    fabricCanvas.setWidth(w);
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     if (记忆框选)
         if (记忆框选值?.[i.id]?.[2]) {
