@@ -305,6 +305,10 @@ export interface setting {
     额外截屏器: {
         命令: string;
     };
+    连拍: {
+        数: number;
+        间隔: number;
+    };
 }
 
 type 功能 =

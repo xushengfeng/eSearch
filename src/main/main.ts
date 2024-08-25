@@ -546,6 +546,10 @@ app.whenReady().then(() => {
         }
     });
 
+    globalShortcut.register("win+r", () => {
+        clipWindow.webContents.send("lianpai");
+    });
+
     const 快捷键: object = store.get("快捷键");
     for (const k in 快捷键) {
         const m = 快捷键[k];
@@ -2464,6 +2468,10 @@ const defaultSetting: setting = {
     },
     翻译: { 翻译器: [] },
     额外截屏器: { 命令: "" },
+    连拍: {
+        数: 5,
+        间隔: 100,
+    },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");
