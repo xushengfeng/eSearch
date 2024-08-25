@@ -203,7 +203,8 @@ function lianPai() {
     const path = require("node:path") as typeof import("path");
     const d = store.get("连拍.间隔");
     const maxN = store.get("连拍.数");
-    const basePath = store.get("保存.保存路径.图片");
+    const basePath = store.get("快速截屏.路径");
+    if (!basePath) return;
     const dirPath = path.join(basePath, String(new Date().getTime()));
     fs.mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
