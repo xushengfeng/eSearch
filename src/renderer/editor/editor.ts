@@ -482,7 +482,7 @@ class find {
     find(text: string | RegExp) {
         if (!tmpText) tmpText = editor.get();
         // 拆分
-        const matchL = tmpText.match(text);
+        const matchL = tmpText.match(text) || [];
         const textL = tmpText.split(text);
         const tL: selection[] = [];
         let n = 0;
