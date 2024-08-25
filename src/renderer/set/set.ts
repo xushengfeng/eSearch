@@ -1570,10 +1570,18 @@ document.getElementById("find_b_next").onclick = () => {
     findFocusI = (findFocusI + 1) % findRanges.length;
     jumpToRange(findFocusI);
 };
+
+const findCont = elFromId("find_t").bindSet((v: [number, number], el) => {
+    el.innerText = `${v[0]} / ${v[1]}`;
+});
+
 function jumpToRange(i: number) {
+    if (findRanges.length === 0) {
+        findCont.sv([0, 0]);
+        return;
+    }
     const rect = findRanges[i].getBoundingClientRect();
-    document.getElementById("find_t").innerText =
-        `${i + 1} / ${findRanges.length}`;
+    findCont.sv([i + 1, findRanges.length]);
     document.documentElement.scrollTo(
         0,
         rect.top - document.body.getBoundingClientRect().top,
