@@ -283,6 +283,16 @@ async function rmR(dir_path: string) {
     rmSync(dir_path, { recursive: true });
 }
 
+// 快捷键
+const 快捷键函数 = {
+    自动识别: autoOpen,
+    截屏搜索: showPhoto,
+    选中搜索: openSelection,
+    剪贴板搜索: openClipBoard,
+    快速截屏: quickClip,
+    主页面: () => createMainWindow({ type: "text", content: "" }),
+};
+
 let contextMenu: Electron.Menu;
 let tray: Tray;
 
@@ -480,37 +490,6 @@ app.whenReady().then(() => {
             body: `${app.name} ${t("已经在后台启动")}`,
             icon: `${runPath}/assets/logo/64x64.png`,
         }).show();
-
-    // 快捷键
-    const 快捷键函数 = {
-        自动识别: autoOpen,
-        截屏搜索: showPhoto,
-        选中搜索: openSelection,
-        剪贴板搜索: openClipBoard,
-        快速截屏: quickClip,
-        主页面: () => createMainWindow({ type: "text", content: "" }),
-    };
-    ipcMain.on("快捷键", (event, arg) => {
-        const [name, key] = arg;
-        try {
-            try {
-                // @ts-ignore
-                globalShortcut.unregister(store.get(`快捷键.${name}.key`));
-            } catch {}
-            let ok = false;
-            if (key) {
-                ok = globalShortcut.register(key, () => {
-                    快捷键函数[arg[0]]();
-                });
-            }
-            // key为空或成功注册时保存，否则存为空
-            store.set(`快捷键.${name}.key`, key === "" || ok ? key : "");
-            event.sender.send("状态", name, key ? ok : true);
-        } catch (error) {
-            event.sender.send("状态", name, false);
-            store.set(`快捷键.${name}.key`, "");
-        }
-    });
 
     const 快捷键: object = store.get("快捷键");
     for (const k in 快捷键) {
@@ -1447,6 +1426,28 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             nativeTheme.themeSource = arg1;
             store.set("全局.深色模式", arg1);
             break;
+        case "快捷键": {
+            const [name, key] = arg1;
+            try {
+                try {
+                    // @ts-ignore
+                    globalShortcut.unregister(store.get(`快捷键.${name}.key`));
+                } catch {}
+                let ok = false;
+                if (key) {
+                    ok = globalShortcut.register(key, () => {
+                        快捷键函数[arg1[0]]();
+                    });
+                }
+                // key为空或成功注册时保存，否则存为空
+                store.set(`快捷键.${name}.key`, key === "" || ok ? key : "");
+                event.returnValue = key ? ok : true;
+            } catch (error) {
+                event.returnValue = false;
+                store.set(`快捷键.${name}.key`, "");
+            }
+            break;
+        }
     }
 });
 

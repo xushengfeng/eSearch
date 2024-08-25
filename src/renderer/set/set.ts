@@ -447,18 +447,14 @@ for (const el of document.querySelectorAll(
 ) as Iterable<hotkeyElType>) {
     el.value = 快捷键[el.name].key;
     el.addEventListener("inputend", () => {
-        ipcRenderer.send("快捷键", [el.name, el.value]);
+        const arg = ipcRenderer.sendSync("setting", "快捷键", [
+            el.name,
+            el.value,
+        ]);
+        el.t = arg;
+        if (arg) storeSet(`快捷键.${el.name}.key`, el.value);
     });
 }
-ipcRenderer.on("状态", (_event, name, arg) => {
-    (<hotkeyElType>document.querySelector(`hot-keys[name=${name}]`)).t = arg;
-    if (t)
-        storeSet(
-            `快捷键.${name}.key`,
-            (<hotkeyElType>document.querySelector(`hot-keys[name=${name}]`))
-                .value,
-        );
-});
 
 document.documentElement.style.setProperty(
     "--bar-size",
