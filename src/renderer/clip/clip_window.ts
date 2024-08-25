@@ -3395,7 +3395,7 @@ document.onwheel = (e) => {
 document.onkeyup = (e) => {
     if (e.key === "0") {
         if (e.ctrlKey) {
-            setEditorP(1, 0, 0);
+            setEditorP(1 / window.devicePixelRatio, 0, 0);
             zoomW = mainCanvas.width;
         }
     }
