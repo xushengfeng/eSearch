@@ -200,6 +200,8 @@ function lianPai() {
     const d = store.get("连拍.间隔");
     const maxN = store.get("连拍.数");
     const basePath = store.get("保存.保存路径.图片");
+    const dirPath = path.join(basePath, String(new Date().getTime()));
+    fs.mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
         setTimeout(() => {
             const image = screenShots()[0].captureSync().image;
@@ -207,10 +209,8 @@ function lianPai() {
                 image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
                 "base64",
             );
-            const filePath = path.join(basePath, String(i), "x.png");
-            console.log(path);
-
-            fs.writeFile(buffer, filePath, () => {});
+            const filePath = path.join(dirPath, `${i}.png`);
+            fs.writeFile(filePath, buffer, () => {});
         }, d * maxN);
     }
 }
