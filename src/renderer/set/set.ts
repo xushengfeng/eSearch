@@ -733,6 +733,9 @@ document.getElementById("获取保存路径").onclick = () => {
     );
     ipcRenderer.on("get_save_path", (_e, a) => {
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value = a;
+        (<HTMLInputElement>(
+            document.getElementById("快速截屏路径")
+        )).dispatchEvent(new Event("input"));
     });
 };
 
@@ -1482,14 +1485,6 @@ function saveSetting() {
         xstore.全局.主题.dark.iconColor =
             getIconColor(themeInput[7].value) || themes[0].dark.iconColor;
     } catch (e) {}
-    xstore.快速截屏.路径 = (<HTMLInputElement>(
-        document.getElementById("快速截屏路径")
-    )).value
-        ? `${(<HTMLInputElement>document.getElementById("快速截屏路径")).value}/`.replace(
-              "//",
-              "/",
-          )
-        : "";
 
     xstore.框选.参考线.选区.x = xqckxElx.gv;
     xstore.框选.参考线.选区.y = xqckxEly.gv;

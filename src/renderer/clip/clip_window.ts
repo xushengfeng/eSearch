@@ -152,7 +152,8 @@ function getFileName() {
 
 /** 快速截屏 */
 function quickClip() {
-    const fs = require("node:fs");
+    const fs = require("node:fs") as typeof import("fs");
+    const path = require("node:path") as typeof import("path");
     for (const c of screenShots()) {
         let image = c.captureSync().image;
         if (store.get("快速截屏.模式") === "clip") {
@@ -162,7 +163,10 @@ function quickClip() {
             store.get("快速截屏.模式") === "path" &&
             store.get("快速截屏.路径")
         ) {
-            const filename = `${store.get("快速截屏.路径")}${getFileName()}.png`;
+            const filename = path.join(
+                store.get("快速截屏.路径"),
+                `${getFileName()}.png`,
+            );
             checkFile(1, filename, filename);
         }
         function checkFile(n: number, name: string, baseName: string) {
