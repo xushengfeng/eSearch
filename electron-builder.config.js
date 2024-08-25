@@ -63,11 +63,11 @@ const beforePack = async () => {
         const winpath = "ffmpeg-n6.1-latest-win64-gpl-6.1";
         const o = {
             win32: {
-                x64: `https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${winpath}.zip`,
+                x64: "https://github.com/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-win32-x64.zip",
             },
             darwin: {
-                x64: "https://evermeet.cx/ffmpeg/ffmpeg-6.0.zip",
-                arm64: "https://www.osxexperts.net/ffmpeg6arm.zip",
+                x64: "https://github.com/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-x64.zip",
+                arm64: "https://github.com/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-arm64.zip",
             },
         };
         if (o?.[process.platform]?.[arch]) {
