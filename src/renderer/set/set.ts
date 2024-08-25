@@ -727,16 +727,15 @@ document.getElementById("框选最大阈值").oninput = () => {
 };
 
 document.getElementById("获取保存路径").onclick = () => {
-    ipcRenderer.send(
+    const path = ipcRenderer.sendSync(
         "get_save_path",
         (<HTMLInputElement>document.getElementById("快速截屏路径")).value || "",
     );
-    ipcRenderer.on("get_save_path", (_e, a) => {
-        (<HTMLInputElement>document.getElementById("快速截屏路径")).value = a;
-        (<HTMLInputElement>(
-            document.getElementById("快速截屏路径")
-        )).dispatchEvent(new Event("input"));
-    });
+    if (!path) return;
+    (<HTMLInputElement>document.getElementById("快速截屏路径")).value = path;
+    (<HTMLInputElement>document.getElementById("快速截屏路径")).dispatchEvent(
+        new Event("input"),
+    );
 };
 
 (<HTMLInputElement>document.getElementById("开启自动录制")).checked =

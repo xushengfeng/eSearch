@@ -2061,8 +2061,7 @@ ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {
             properties: ["openDirectory"],
         })
         .then((x) => {
-            if (x.filePaths[0])
-                event.sender.send("get_save_path", `${x.filePaths[0]}/`);
+            if (x.filePaths[0]) event.returnValue = x.filePaths[0];
         });
 });
 
