@@ -3,7 +3,7 @@
 import store from "../../../lib/store/renderStore";
 import type { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
-import { view, txt, ele, button, image, p } from "dkh-ui";
+import { view, txt, ele, button, image, p, pack } from "dkh-ui";
 import initStyle from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
@@ -92,7 +92,15 @@ const editToolsF: { [name: string]: () => void } = {};
 
 const findInput = <HTMLInputElement>document.getElementById("find_input");
 const replaceInput = <HTMLInputElement>document.getElementById("replace_input");
-const findT = <HTMLElement>document.querySelector(".find_t > span");
+const findT = pack(
+    <HTMLElement>document.querySelector(".find_t > span"),
+).bindSet((v: [number, number], el) => {
+    if (v) {
+        el.innerText = `${v[0]} / ${v[1]}`;
+    } else {
+        el.innerText = "";
+    }
+});
 
 const mainType = store.get("主页面.模式");
 
@@ -847,14 +855,14 @@ function find_() {
 // 清除样式
 function exitFind() {
     tmpText = null;
-    findT.innerText = "";
+    findT.sv();
     editor.find.render([]);
 }
 // 跳转
 function findLN(a: "↑" | "↓") {
     const l = document.querySelectorAll(".find_h");
     if (l.length === 0) {
-        findT.innerText = "无结果";
+        findT.sv([0, 0]);
         return;
     }
     if (l[findLNI]) l[findLNI].classList.remove("find_h_h");
@@ -872,7 +880,7 @@ function findLN(a: "↑" | "↓") {
         }
     }
     l[findLNI].classList.add("find_h_h");
-    findT.innerText = `${findLNI + 1}/${l.length}`;
+    findT.sv([findLNI + 1, l.length]);
     document.getElementById("text_out").scrollTop =
         (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
 }
