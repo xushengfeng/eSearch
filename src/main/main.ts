@@ -336,7 +336,7 @@ app.whenReady().then(() => {
     fixSettingTree();
 
     // 初始化语言
-    lan(store.get("语言.语言"));
+    lan(store.get("语言.语言") || "");
 
     // 初始化设置
     // Store.initRenderer();
@@ -378,13 +378,13 @@ app.whenReady().then(() => {
         {
             label: t("OCR(文字识别)"),
             click: () => {
-                sendCaptureEvent(null, "ocr");
+                sendCaptureEvent(undefined, "ocr");
             },
         },
         {
             label: t("以图搜图"),
             click: () => {
-                sendCaptureEvent(null, "search");
+                sendCaptureEvent(undefined, "search");
             },
         },
         {
@@ -470,7 +470,7 @@ app.whenReady().then(() => {
         {
             label: t("检查更新"),
             click: () => {
-                clipWindow.webContents.send("clip", "update");
+                clipWindow?.webContents.send("clip", "update");
             },
         },
         {
@@ -522,7 +522,7 @@ app.whenReady().then(() => {
         选中搜索: openSelection,
         剪贴板搜索: openClipBoard,
         快速截屏: quickClip,
-        主页面: createMainWindow.bind(this, [""]),
+        主页面: () => createMainWindow({ type: "text", content: "" }),
     };
     ipcMain.on("快捷键", (event, arg) => {
         const [name, key] = arg;
@@ -565,7 +565,7 @@ app.whenReady().then(() => {
         try {
             if (m)
                 globalShortcut.register(m, () => {
-                    sendCaptureEvent(null, k as 功能);
+                    sendCaptureEvent(undefined, k as 功能);
                 });
         } catch (error) {
             工具快捷键[k] = "";
@@ -667,7 +667,7 @@ function setMenu() {
                     label: t("撤销"),
                     click: (_i, w) => {
                         mainEdit(w, "undo");
-                        w.webContents.undo();
+                        w?.webContents.undo();
                     },
                     accelerator: "CmdOrCtrl+Z",
                 },
@@ -675,7 +675,7 @@ function setMenu() {
                     label: t("重做"),
                     click: (_i, w) => {
                         mainEdit(w, "redo");
-                        w.webContents.redo();
+                        w?.webContents.redo();
                     },
                     accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
                 },
@@ -684,7 +684,7 @@ function setMenu() {
                     label: t("剪切"),
                     click: (_i, w) => {
                         mainEdit(w, "cut");
-                        w.webContents.cut();
+                        w?.webContents.cut();
                     },
                     accelerator: "CmdOrCtrl+X",
                 },
@@ -692,7 +692,7 @@ function setMenu() {
                     label: t("复制"),
                     click: (_i, w) => {
                         mainEdit(w, "copy");
-                        w.webContents.copy();
+                        w?.webContents.copy();
                     },
                     accelerator: "CmdOrCtrl+C",
                 },
@@ -700,7 +700,7 @@ function setMenu() {
                     label: t("粘贴"),
                     click: (_i, w) => {
                         mainEdit(w, "paste");
-                        w.webContents.paste();
+                        w?.webContents.paste();
                     },
                     accelerator: "CmdOrCtrl+V",
                 },
@@ -708,14 +708,14 @@ function setMenu() {
                     label: t("删除"),
                     click: (_i, w) => {
                         mainEdit(w, "delete");
-                        w.webContents.delete();
+                        w?.webContents.delete();
                     },
                 },
                 {
                     label: t("全选"),
                     click: (_i, w) => {
                         mainEdit(w, "select_all");
-                        w.webContents.selectAll();
+                        w?.webContents.selectAll();
                     },
                     accelerator: "CmdOrCtrl+A",
                 },
@@ -898,12 +898,10 @@ app.on("will-quit", () => {
     rmR(tmpDir);
 });
 
-let theIcon = null;
-if (process.platform === "win32") {
-    theIcon = join(runPath, "assets/logo/icon.ico");
-} else {
-    theIcon = join(runPath, "assets/logo/1024x1024.png");
-}
+const theIcon =
+    process.platform === "win32"
+        ? join(runPath, "assets/logo/icon.ico")
+        : join(runPath, "assets/logo/1024x1024.png");
 
 ipcMain.on("dialog", (e, arg0) => {
     const id = dialog.showMessageBoxSync(arg0);
@@ -914,7 +912,7 @@ ipcMain.on("dialog", (e, arg0) => {
 /**
  * @type BrowserWindow
  */
-let clipWindow: BrowserWindow = null;
+let clipWindow: BrowserWindow | null = null;
 let clipWindowLoaded = false;
 /** 初始化截屏后台窗口 */
 function createClipWindow() {
@@ -947,7 +945,7 @@ function createClipWindow() {
 
     rendererPath(clipWindow, "capture.html");
     clipWindow.webContents.on("did-finish-load", () => {
-        clipWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+        clipWindow?.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         if (clipWindowLoaded) return;
         clipWindowLoaded = true;
         if (firstOpen) argRun(process.argv);
@@ -1015,8 +1013,8 @@ function createClipWindow() {
                                 body: t("用户已取消保存"),
                                 icon: `${runPath}/assets/logo/64x64.png`,
                             }).show();
-                            clipWindow.show();
-                            clipWindow.setSimpleFullScreen(true);
+                            clipWindow?.show();
+                            clipWindow?.setSimpleFullScreen(true);
                         }
                     });
                 break;
@@ -1032,8 +1030,8 @@ function createClipWindow() {
                     })
                     .then((x) => {
                         if (x.canceled) {
-                            clipWindow.show();
-                            clipWindow.setSimpleFullScreen(true);
+                            clipWindow?.show();
+                            clipWindow?.setSimpleFullScreen(true);
                         }
                         event.sender.send(
                             "mac_app_path",
@@ -1060,7 +1058,7 @@ function createClipWindow() {
                 longWin();
                 break;
             case "long_e":
-                clipWindow.setIgnoreMouseEvents(false);
+                clipWindow?.setIgnoreMouseEvents(false);
                 isLongStart = false;
                 break;
             case "new_version": {
@@ -1097,7 +1095,7 @@ function createClipWindow() {
                 createTranslator(arg);
                 break;
             case "ignore_mouse":
-                clipWindow.setIgnoreMouseEvents(arg);
+                clipWindow?.setIgnoreMouseEvents(arg);
                 break;
         }
     });
@@ -1123,16 +1121,16 @@ function fullScreen() {
     const nearestScreen = screen.getDisplayNearestPoint(
         screen.getCursorScreenPoint(),
     );
-    clipWindow.setBounds({
+    clipWindow?.setBounds({
         x: nearestScreen.bounds.x,
         y: nearestScreen.bounds.y,
     });
-    clipWindow.show();
-    clipWindow.setSimpleFullScreen(true);
+    clipWindow?.show();
+    clipWindow?.setSimpleFullScreen(true);
 }
 
 function sendCaptureEvent(data?: Buffer, type?: 功能) {
-    clipWindow.webContents.send(
+    clipWindow?.webContents.send(
         "reflash",
         screen.getAllDisplays(),
         data,
@@ -1143,11 +1141,11 @@ function sendCaptureEvent(data?: Buffer, type?: 功能) {
 
 /** 隐藏截屏窗口 */
 function exitFullScreen(xreload?: boolean) {
-    clipWindow.setSimpleFullScreen(false);
-    clipWindow.hide();
+    clipWindow?.setSimpleFullScreen(false);
+    clipWindow?.hide();
     if (!xreload)
         try {
-            clipWindow.reload();
+            clipWindow?.reload();
         } catch {}
 }
 
@@ -1311,7 +1309,7 @@ ipcMain.on("record", (_event, type, arg) => {
                         savedPath,
                         `${getFileName()}.${arg.格式}`,
                     ),
-                    filters: [{ name: t("视频"), extensions: null }],
+                    filters: [{ name: t("视频"), extensions: [] }],
                 })
                 .then(async (x) => {
                     if (x.filePath) {
@@ -1463,12 +1461,13 @@ ipcMain.on("setting", async (event, arg, arg1, arg2) => {
 let isLongStart = false;
 
 function longWin() {
-    clipWindow.setIgnoreMouseEvents(true);
+    clipWindow?.setIgnoreMouseEvents(true);
     function mouse() {
         if (!isLongStart) {
-            clipWindow.setIgnoreMouseEvents(false);
+            clipWindow?.setIgnoreMouseEvents(false);
             return;
         }
+        if (!clipWindow) return;
         if (clipWindow.isDestroyed()) return;
         const nowXY = screen.getCursorScreenPoint();
         const tipB = clipWindow.getBounds();
@@ -1490,7 +1489,6 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
         const screenL = screen.getAllDisplays();
         const id = new Date().getTime();
         for (const i of screenL) {
-            dingwindowList[i.id] = { win: null, display: i };
             const dingWindow = new BrowserWindow({
                 icon: theIcon,
                 transparent: true,
@@ -1509,7 +1507,7 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
                 width: i.bounds.width,
                 height: i.bounds.height,
             });
-            dingwindowList[i.id].win = dingWindow;
+            dingwindowList[i.id] = { win: dingWindow, display: i };
 
             rendererPath(dingWindow, "ding.html");
             if (dev) dingWindow.webContents.openDevTools();
@@ -1525,7 +1523,7 @@ function createDingWindow(x: number, y: number, w: number, h: number, img) {
                     img,
                 );
             });
-            dingwindowList[i.id].win.setIgnoreMouseEvents(true);
+            dingWindow.setIgnoreMouseEvents(true);
 
             dingWindow.setAlwaysOnTop(true, "screen-saver");
         }
@@ -1642,7 +1640,7 @@ function createTranslator(op: translateWinType) {
 
 ipcMain.on("translator", (event, type: string) => {
     if (type === "close") {
-        BrowserWindow.fromWebContents(event.sender).close();
+        BrowserWindow.fromWebContents(event.sender)?.close();
     }
 });
 
@@ -1686,7 +1684,6 @@ async function createMainWindow(op: MainWinType) {
     const bg = nativeTheme.shouldUseDarkColors
         ? store.get("全局.主题.dark.bg")
         : store.get("全局.主题.light.bg");
-    mainWindowL[windowName] = { browser: { top: 0, bottom: 48 }, win: null };
     const mainWindow = new BrowserWindow({
         x: Math.max(vr.x, x),
         y: Math.max(vr.y, y),
@@ -1706,7 +1703,10 @@ async function createMainWindow(op: MainWinType) {
         },
         show: true,
     }) as BrowserWindow & { html: string };
-    mainWindowL[windowName].win = mainWindow;
+    mainWindowL[windowName] = {
+        browser: { top: 0, bottom: 48 },
+        win: mainWindow,
+    };
 
     mainToSearchL[windowName] = [];
 
@@ -1727,7 +1727,7 @@ async function createMainWindow(op: MainWinType) {
 
         if (op.type === "image" && op.arg0 === "ai") {
             createBrowser(windowName, "http://ai-v.netlify.app").then((c) => {
-                c.executeJavaScript(`setImg("${op.content}")`);
+                c?.executeJavaScript(`setImg("${op.content}")`);
             });
         }
 
@@ -1802,6 +1802,7 @@ async function createHelpWindow() {
 
 ipcMain.on("main_win", (e, arg, arg2) => {
     const window = BrowserWindow.fromWebContents(e.sender);
+    if (!window) return;
     switch (arg) {
         case "close":
             window.close();
@@ -1816,8 +1817,8 @@ ipcMain.on("main_win", (e, arg, arg2) => {
  * 向聚焦的主页面发送事件信息
  * @param {String} m
  */
-function mainEdit(window: BrowserWindow, m: string) {
-    window.webContents.send("edit", m);
+function mainEdit(window?: BrowserWindow, m?: string) {
+    window?.webContents.send("edit", m);
 }
 
 const searchWindowL: { [n: number]: BrowserView } = {};
@@ -1937,13 +1938,14 @@ async function createBrowser(windowName: number, url: string) {
  * @param {BrowserWindow} w 浏览器
  * @param {String} arg 事件字符
  */
-function viewEvents(w: BrowserWindow, arg: string) {
-    w.webContents.send("view_events", arg);
+function viewEvents(w?: BrowserWindow, arg?: string) {
+    w?.webContents.send("view_events", arg);
 }
 
 ipcMain.on("tab_view", (e, id, arg, arg2) => {
     const mainWindow = BrowserWindow.fromWebContents(e.sender);
     const searchWindow = searchWindowL[id];
+    if (!mainWindow) return;
     switch (arg) {
         case "close":
             mainWindow.removeBrowserView(searchWindow);
@@ -2016,7 +2018,8 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
 });
 
 /** 最小化某个窗口的所有标签页 */
-function minViews(mainWindow: BrowserWindow) {
+function minViews(mainWindow?: BrowserWindow) {
+    if (!mainWindow) return;
     for (const v of mainWindow.getBrowserViews()) {
         v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     }
@@ -2034,7 +2037,7 @@ function getFileName() {
 }
 /** 快速截屏 */
 function quickClip() {
-    if (clipWindow.webContents) clipWindow.webContents.send("quick");
+    if (clipWindow?.webContents) clipWindow.webContents.send("quick");
 }
 
 /** 提示保存成功 */
@@ -2484,12 +2487,13 @@ function setDefaultSetting() {
             let lan = app.getLocale();
             const mainLan = lan.split("-")[0];
             if (mainLan === "zh") {
-                lan = {
-                    "zh-CN": "zh-HANS",
-                    "zh-SG": "zh-HANS",
-                    "zh-TW": "zh-HANT",
-                    "zh-HK": "zh-HANT",
-                }[lan];
+                lan =
+                    {
+                        "zh-CN": "zh-HANS",
+                        "zh-SG": "zh-HANS",
+                        "zh-TW": "zh-HANT",
+                        "zh-HK": "zh-HANT",
+                    }[lan] || "zh-HANS";
             }
             let language = "";
             if (!supportLan.includes(lan) && !supportLan.includes(mainLan))
