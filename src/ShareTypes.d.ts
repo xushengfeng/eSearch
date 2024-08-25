@@ -10,6 +10,7 @@ export interface setting {
         选中搜索: { key?: string };
         剪贴板搜索: { key?: string };
         快速截屏: { key?: string };
+        连拍: { key: string };
         主页面: { key?: string };
     };
     点击托盘自动截图: boolean;

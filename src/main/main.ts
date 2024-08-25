@@ -546,10 +546,6 @@ app.whenReady().then(() => {
         }
     });
 
-    globalShortcut.register("win+r", () => {
-        clipWindow.webContents.send("lianpai");
-    });
-
     const 快捷键: object = store.get("快捷键");
     for (const k in 快捷键) {
         const m = 快捷键[k];
@@ -2087,6 +2083,7 @@ const defaultSetting: setting = {
         选中搜索: {},
         剪贴板搜索: {},
         快速截屏: {},
+        连拍: { key: "" },
         主页面: {},
     },
     点击托盘自动截图: process.platform !== "linux",

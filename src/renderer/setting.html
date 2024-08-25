@@ -269,6 +269,13 @@
                     </label>
                 </div>
                 <input type="text" name="快速截屏路径" id="快速截屏路径" spellcheck="false"><button id="获取保存路径">获取保存路径</button>
+
+                <h2>连拍</h2>
+                <t>单次数量</t>
+                <range-b out="true" min="2" max="25" data-path="连拍.数"></range-b>
+                <br>
+                <t>间隔时间</t>
+                <range-b out="true" min="10" max="1000" data-path="连拍.间隔"></range-b>
             </div>
 
 
@@ -768,6 +775,10 @@
                             <t>快速截屏</t>
                         </span>
                         <hot-keys name="快速截屏" value=""></hot-keys>
+                        <span>
+                            <t>连拍</t>
+                        </span>
+                        <hot-keys name="连拍" value=""></hot-keys>
                         <span>
                             <t>主页面</t>
                         </span>
