@@ -222,12 +222,24 @@ function setEditorP(zoom: number, x: number, y: number) {
         editorP.zoom = zoom;
     }
     if (x != null) {
-        t.push(`translateX(${x}px)`);
-        editorP.x = x;
+        let limitX = x;
+        const min = -mainCanvas.width;
+        const max =
+            (window.innerWidth * window.devicePixelRatio) / editorP.zoom;
+        if (x < min) limitX = min;
+        if (x > max) limitX = max;
+        t.push(`translateX(${limitX}px)`);
+        editorP.x = limitX;
     }
     if (y != null) {
-        t.push(`translateY(${y}px)`);
-        editorP.y = y;
+        let limitY = y;
+        const min = -mainCanvas.height;
+        const max =
+            (window.innerHeight * window.devicePixelRatio) / editorP.zoom;
+        if (y < min) limitY = min;
+        if (y > max) limitY = max;
+        t.push(`translateY(${limitY}px)`);
+        editorP.y = limitY;
     }
     editor.style.transform = t.join(" ");
 }
