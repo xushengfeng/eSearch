@@ -3271,7 +3271,15 @@ ipcRenderer.on(
         const mainId = mainid;
         const i = allScreens.find((i) => i.id === mainId) || allScreens[0];
         setScreen(i);
-        setEditorP(1 / i.scaleFactor, 0, 0);
+        if (i.size.width < window.innerWidth * window.devicePixelRatio) {
+            const x =
+                (window.innerWidth * window.devicePixelRatio) / 2 -
+                i.size.width / 2;
+            const y =
+                (window.innerHeight * window.devicePixelRatio) / 2 -
+                i.size.height / 2;
+            setEditorP(1 / i.scaleFactor, x, y);
+        } else setEditorP(1 / i.scaleFactor, 0, 0);
         zoomW = i.size.width;
         ratio = i.scaleFactor;
         document.body.style.opacity = "";
