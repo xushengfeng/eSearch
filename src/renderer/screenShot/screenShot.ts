@@ -90,7 +90,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
      * @see https://github.com/nashaofu/node-screenshots/issues/18
      */
     for (const i in displays || screens) {
-        const d = displays[i] || {};
+        const d = displays?.[i] || {};
         const s = screens[i];
         const x: (typeof allScreens)[0] = {
             ...d,
