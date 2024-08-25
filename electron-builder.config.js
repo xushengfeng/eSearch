@@ -316,9 +316,9 @@ module.exports = build;
  * @type {Record<string,Record<string,string[]>>}
  */
 const release = {
-    win32: { x64: ["exe", "zip"], arm64: ["exe", "zip"] },
-    linux: { x64: ["AppImage", "deb", "rpm", "tar.gz"] },
-    darwin: { x64: ["dmg", "zip"], arm64: ["dmg", "zip"] },
+    win32: { gh: ["exe", "zip"], arch: ["x64", "arm64"] },
+    linux: { gh: ["AppImage", "deb", "rpm", "tar.gz"], arch: ["x64", "arm64"] },
+    darwin: { gh: ["dmg", "zip"], arch: ["x64", "arm64"] },
 };
 
 /**
@@ -330,7 +330,8 @@ function getUrl(url) {
     for (const arch of ["x64", "arm64"]) {
         t += `|${arch}| `;
         for (const p of ["win32", "darwin", "linux"]) {
-            t += `${(release[p][arch] || []).map((i) => `[${i}](${url.replace("$arch", arch).replace("$p", p).replace("$h", i)})`).join(" ")}|`;
+            if (!release[p].arch.includes(arch)) continue;
+            t += `${(release[p].gh || []).map((i) => `[${i}](${url.replace("$arch", arch).replace("$p", p).replace("$h", i)})`).join(" ")}|`;
         }
         t += "\n";
     }
