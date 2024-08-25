@@ -402,7 +402,11 @@ for (const i of themes) {
 }
 
 document.getElementById("深色模式").onclick = () => {
-    ipcRenderer.send("theme", getRadio(document.getElementById("深色模式")));
+    ipcRenderer.send(
+        "setting",
+        "theme",
+        getRadio(document.getElementById("深色模式")),
+    );
 };
 
 const 模糊 = old_store.全局.模糊;

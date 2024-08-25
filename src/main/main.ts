@@ -1441,7 +1441,12 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             } else {
                 app.setLoginItemSettings({ openAtLogin: arg1 });
             }
+            break;
         }
+        case "theme":
+            nativeTheme.themeSource = arg1;
+            store.set("全局.深色模式", arg1);
+            break;
     }
 });
 
@@ -2052,11 +2057,6 @@ ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {
         .then((x) => {
             if (x.filePaths[0]) event.returnValue = x.filePaths[0];
         });
-});
-
-ipcMain.on("theme", (_e, v) => {
-    nativeTheme.themeSource = v;
-    store.set("全局.深色模式", v);
 });
 
 // 默认设置
