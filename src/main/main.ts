@@ -284,12 +284,14 @@ async function rmR(dir_path: string) {
 }
 
 // 快捷键
-const 快捷键函数 = {
+const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
     自动识别: autoOpen,
     截屏搜索: showPhoto,
     选中搜索: openSelection,
     剪贴板搜索: openClipBoard,
     快速截屏: quickClip,
+    连拍: () => {},
+    结束广截屏: () => {},
     主页面: () => createMainWindow({ type: "text", content: "" }),
 };
 
@@ -2077,6 +2079,7 @@ const defaultSetting: setting = {
         快速截屏: {},
         连拍: { key: "" },
         主页面: {},
+        结束广截屏: { key: "" },
     },
     点击托盘自动截图: process.platform !== "linux",
     全局工具快捷键: {

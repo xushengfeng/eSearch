@@ -12,6 +12,7 @@ export interface setting {
         快速截屏: { key?: string };
         连拍: { key: string };
         主页面: { key?: string };
+        结束广截屏: { key: string };
     };
     点击托盘自动截图: boolean;
     全局工具快捷键: { [key in 功能]: string };
