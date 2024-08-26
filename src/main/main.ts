@@ -2471,6 +2471,7 @@ const defaultSetting: setting = {
     广截屏: {
         模式: "自动",
         t: 800,
+        方向: "y",
     },
 };
 try {

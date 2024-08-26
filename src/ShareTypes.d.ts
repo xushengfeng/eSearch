@@ -314,6 +314,7 @@ export interface setting {
     广截屏: {
         模式: "自动" | "定时";
         t: number;
+        方向: "y" | "xy";
     };
 }
 

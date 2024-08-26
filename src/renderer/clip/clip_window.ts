@@ -69,13 +69,13 @@ function iconEl(src: string) {
     return view().add(image(src, "icon").class("icon"));
 }
 
-function selectMenu() {
+function selectMenu<i extends string>() {
     const select = ele("selectlist")
         .bindGet((el: HTMLSelectElement) => {
             return el.value;
         })
-        .bindSet((v: string, el: HTMLSelectElement) => {
-            el.value = v as string;
+        .bindSet((v: i, el: HTMLSelectElement) => {
+            el.value = v;
         });
     return select;
 }
@@ -610,13 +610,13 @@ function addLong(x: ImageData) {
     const match = longMatch(longX.lastImg, canvas);
     console.log(match);
 
-    const dx = match.dx;
+    const dx = longFX === "xy" ? match.dx : 0;
     const dy = match.dy;
     const putImg = match.clipedImg;
     longPutImg(putImg, dx + longX.lastXY.x, dy + longX.lastXY.y);
 
     longX.lastImg = canvas;
-    longX.lastXY.x += match.srcDX;
+    longX.lastXY.x += longFX === "xy" ? match.srcDX : 0;
     longX.lastXY.y += match.srcDY;
 }
 
@@ -2813,7 +2813,10 @@ const toolBarEl = frame("tool", {
     open: iconEl(open_svg),
     ding: iconEl(ding_svg),
     record: iconEl(record_svg),
-    long: iconEl(long_clip_svg),
+    long: {
+        _: iconEl(long_clip_svg),
+        longm: selectMenu<"y" | "xy">().class("side_select"),
+    },
     translate: iconEl(translate_svg),
     copy: iconEl(copy_svg),
     save: iconEl(save_svg),
@@ -2830,6 +2833,14 @@ for (const i of [
         ele("option").attr({ innerText: i.t, value: i.value }),
     );
 }
+toolBarEl.els.longm.add([
+    ele("option").attr({ innerText: "长截屏 y", value: "y" }),
+    ele("option").attr({ innerText: "广截屏 xy", value: "xy" }),
+]);
+toolBarEl.els.longm.on("change", () => {
+    store.set("广截屏.方向", toolBarEl.els.longm.gv);
+    longFX = toolBarEl.els.longm.gv;
+});
 
 toolBarEl.el.style({
     left: store.get("工具栏.初始位置.left"),
@@ -3078,6 +3089,8 @@ const longX = {
 
 let longRunning = false;
 let longInited = false;
+
+let longFX: typeof toolBarEl.els.longm.gv = "y";
 
 let type: setting["保存"]["默认格式"];
 
