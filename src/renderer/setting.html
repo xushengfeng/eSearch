@@ -272,13 +272,29 @@
                     id="获取保存路径">获取保存路径</button>
 
                 <h3>连拍</h3>
-                <br>
                 <comment>保存到上面的路径</comment>
+                <br>
                 <t>单次数量</t>
                 <range-b out="true" min="2" max="25" data-path="连拍.数"></range-b>
                 <br>
                 <t>间隔时间</t>
-                <range-b out="true" min="10" max="1000" data-path="连拍.间隔"></range-b>
+                <range-b out="true" min="10" max="1000" data-path="连拍.间隔" text="ms"></range-b>
+
+                <h2>广截屏</h2>
+                <comment>万向滚动截屏</comment>
+                <br>
+                <t>模式</t>
+                <div data-path="广截屏.模式">
+                    <label><input type="radio" name="广截屏模式" value="自动">
+                        <t>自动</t>
+                    </label>
+                    <label><input type="radio" name="广截屏模式" value="定时">
+                        <t>定时</t>
+                    </label>
+                </div>
+                <t>间隔时间</t>
+                <range-b out="true" min="10" max="1000" data-path="广截屏.t" text="ms"></range-b>
+
             </div>
 
 
