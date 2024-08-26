@@ -558,13 +558,13 @@ function initLong(rect: number[]) {
     finishLongB.onclick = stopLong;
 
     let longWidth = 0;
-    if (window.innerWidth - (rect[0] + rect[2]) / ratio >= rect[1] / ratio) {
+    if (window.innerWidth / 2 > (rect[0] + rect[2] / 2) / ratio) {
         // 右边
         longPreview.style({ right: "0", left: "auto" });
         longWidth = window.innerWidth - (rect[0] + rect[2]) / ratio - w;
     } else {
         longPreview.style({ left: "0" });
-        longWidth = rect[1] / ratio - w;
+        longWidth = rect[0] / ratio - w;
     }
     longPreview.style({
         display: longWidth < 100 ? "none" : "",
