@@ -503,18 +503,24 @@ function startLong() {
     long_s();
     ipcRenderer.send("clip_main_b", "long_s", r);
     if (!cv) cv = require("opencv.js");
-    uIOhook = require("uiohook-napi").uIOhook;
-    uIOhook.start();
-    uIOhook.on("keyup", () => {
-        long_s();
-    });
-    uIOhook.on("wheel", () => {
-        const n = new Date().getTime();
-        if (n - lastLong > 500) {
-            lastLong = n;
+    if (store.get("广截屏.模式") === "自动") {
+        uIOhook = require("uiohook-napi").uIOhook;
+        uIOhook.start();
+        uIOhook.on("keyup", () => {
             long_s();
-        }
-    });
+        });
+        uIOhook.on("wheel", () => {
+            const n = new Date().getTime();
+            if (n - lastLong > 500) {
+                lastLong = n;
+                long_s();
+            }
+        });
+    } else {
+        longClipTime = setInterval(() => {
+            long_s();
+        }, store.get("广截屏.t"));
+    }
 }
 
 function initLong(rect: number[]) {
@@ -589,8 +595,9 @@ function initLong(rect: number[]) {
 
 function addLong(x: ImageData) {
     if (!x) {
-        uIOhook.stop();
+        uIOhook?.stop();
         uIOhook = null;
+        clearInterval(longClipTime);
         pjLong();
         return;
     }
@@ -3055,6 +3062,7 @@ let autoDo = store.get("框选后默认操作");
 let lastLong = 0;
 
 let uIOhook: typeof import("uiohook-napi")["uIOhook"];
+let longClipTime: NodeJS.Timeout;
 
 const longX = {
     img: null as HTMLCanvasElement,

@@ -310,6 +310,10 @@ export interface setting {
         数: number;
         间隔: number;
     };
+    广截屏: {
+        模式: "自动" | "定时";
+        t: number;
+    };
 }
 
 type 功能 =

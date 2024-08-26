@@ -2461,6 +2461,10 @@ const defaultSetting: setting = {
         数: 5,
         间隔: 100,
     },
+    广截屏: {
+        模式: "自动",
+        t: 800,
+    },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");
