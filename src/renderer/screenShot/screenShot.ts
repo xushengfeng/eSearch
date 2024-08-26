@@ -19,7 +19,7 @@ try {
 
 function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
     let allScreens: (Partial<Electron.Display> & {
-        captureSync?: (force?: boolean) => ReturnType<typeof toCanvas>;
+        captureSync?: (keep?: boolean) => ReturnType<typeof toCanvas>;
         image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
     })[] = [];
     allScreens = [];
@@ -30,8 +30,8 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
             require("node:child_process") as typeof import("node:child_process");
         const x: (typeof allScreens)[0] = {
             ...displays[0],
-            captureSync: (force?: boolean) => {
-                if (!force && x.image) return x.image;
+            captureSync: (keep?: boolean) => {
+                if (x.image && keep) return x.image;
                 const command = ipcRenderer.sendSync("store", {
                     type: "get",
                     path: "额外截屏器.命令",
@@ -59,7 +59,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                 }
 
                 const data = toCanvas(buffer);
-                x.image = data;
+                if (keep) x.image = data;
                 const image = data.image;
                 const s = image.getSize();
                 x.bounds = { x: 0, y: 0, width: s.width, height: s.height };
@@ -95,10 +95,10 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
         const s = screens[i];
         const x: (typeof allScreens)[0] = {
             ...d,
-            captureSync: (force?: boolean) => {
-                if (x.image && !force) return x.image;
+            captureSync: (keep?: boolean) => {
+                if (x.image && keep) return x.image;
                 const data = toCanvas(s.captureSync(true));
-                x.image = data;
+                if (keep) x.image = data;
                 return data;
             },
         };

@@ -117,7 +117,7 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
 }
 
 function setScreen(i: (typeof allScreens)[0]) {
-    const img = i.captureSync().data;
+    const img = i.captureSync(true).data;
     const w = img.width;
     const h = img.height;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
@@ -209,7 +209,7 @@ function lianPai() {
     fs.mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
         setTimeout(() => {
-            const image = screenShots()[0].captureSync(true).image;
+            const image = screenShots()[0].captureSync().image;
             const buffer = Buffer.from(
                 image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
                 "base64",
@@ -491,7 +491,7 @@ function initRecord() {
 
 function long_s() {
     let s = allScreens.find((i) => i.id === nowScreenId);
-    addLong(s.captureSync(true).data);
+    addLong(s.captureSync().data);
     s = null;
 }
 
