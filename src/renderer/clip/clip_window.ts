@@ -3567,7 +3567,7 @@ function showShortKey(k: string) {
 
 // alt显示快捷键
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Alt") {
+    if (e.key === "Alt" && !longRunning) {
         document.documentElement.style.setProperty("--hotkey-show", "block");
     }
 });
