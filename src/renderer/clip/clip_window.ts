@@ -526,18 +526,8 @@ function startLong() {
 function initLong(rect: number[]) {
     longRunning = true;
     longInited = true;
-    const l = [
-        toolBar,
-        drawBar,
-        mainCanvas,
-        clipCanvas,
-        drawCanvas,
-        document.getElementById("draw_photo_top"),
-        whEl.el,
-        mouseBarEl,
-    ];
 
-    for (const i of l) {
+    for (const i of longHide) {
         i.style.display = "none";
     }
 
@@ -565,17 +555,7 @@ function initLong(rect: number[]) {
     }
     finishLongB.style.right = `${right}px`;
     finishLongB.style.bottom = `${botton}px`;
-    finishLongB.onclick = () => {
-        // 再截屏以覆盖结束按钮
-        long_s();
-
-        lr.style({ opacity: "0" });
-        ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
-        addLong(null);
-        for (const i of l) {
-            i.style.display = "";
-        }
-    };
+    finishLongB.onclick = stopLong;
 
     let longWidth = 0;
     if (window.innerWidth - (rect[0] + rect[2]) / ratio >= rect[1] / ratio) {
@@ -591,6 +571,18 @@ function initLong(rect: number[]) {
         width: `${longWidth}px`,
         height: "100vh",
     });
+}
+
+function stopLong() {
+    // 再截屏以覆盖结束按钮
+    long_s();
+
+    lr.style({ opacity: "0" });
+    ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
+    addLong(null);
+    for (const i of longHide) {
+        i.style.display = "";
+    }
 }
 
 function addLong(x: ImageData) {
@@ -2989,6 +2981,8 @@ const drawSideEls: {
     shape: shapeEl,
 };
 
+const mouseBarEl = document.getElementById("mouse_bar");
+
 type hotkeyScope = "normal" | "c_bar" | "drawing";
 const hotkeyScopes: hotkeyScope[] = [];
 
@@ -3063,6 +3057,17 @@ let lastLong = 0;
 
 let uIOhook: typeof import("uiohook-napi")["uIOhook"];
 let longClipTime: NodeJS.Timeout;
+
+const longHide = [
+    toolBar,
+    drawBar,
+    mainCanvas,
+    clipCanvas,
+    drawCanvas,
+    document.getElementById("draw_photo_top"),
+    whEl.el,
+    mouseBarEl,
+];
 
 const longX = {
     img: null as HTMLCanvasElement,
@@ -3377,6 +3382,7 @@ ipcRenderer.on(
 
 ipcRenderer.on("quick", quickClip);
 ipcRenderer.on("lianpai", lianPai);
+ipcRenderer.on("long_e", stopLong);
 
 document.addEventListener("mousemove", (e) => {
     nowMouseE = e;
@@ -3940,7 +3946,6 @@ document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
 pointCenter.style.top = `${((colorSize - 1) / 2) * colorISize}px`;
 
-const mouseBarEl = document.getElementById("mouse_bar");
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
 const mainCanvasContext = mainCanvas.getContext("2d");

@@ -290,8 +290,12 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
     选中搜索: openSelection,
     剪贴板搜索: openClipBoard,
     快速截屏: quickClip,
-    连拍: () => {},
-    结束广截屏: () => {},
+    连拍: () => {
+        clipWindow?.webContents.send("lianpai");
+    },
+    结束广截屏: () => {
+        clipWindow?.webContents.send("long_e");
+    },
     主页面: () => createMainWindow({ type: "text", content: "" }),
 };
 
