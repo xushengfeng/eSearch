@@ -209,7 +209,7 @@ function lianPai() {
     fs.mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
         setTimeout(() => {
-            const image = screenShots()[0].captureSync().image;
+            const image = screenShots()[0].captureSync(true).image;
             const buffer = Buffer.from(
                 image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
                 "base64",
@@ -491,7 +491,7 @@ function initRecord() {
 
 function long_s() {
     let s = allScreens.find((i) => i.id === nowScreenId);
-    addLong(s.captureSync().data);
+    addLong(s.captureSync(true).data);
     s = null;
 }
 
