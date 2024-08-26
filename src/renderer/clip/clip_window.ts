@@ -626,7 +626,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
         const x = v - Math.max((v / 3) * 1, 50);
         return Math.floor(Math.max(x, 0) / 2);
     }
-    const dw = clip(img1.width);
+    const dw = longFX === "xy" ? clip(img1.width) : 0; // “目”中间的“口”
     const dh = clip(img1.height);
 
     const clip1Canvas = ele("canvas").el;
