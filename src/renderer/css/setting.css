@@ -139,7 +139,7 @@ input[type="text"]:disabled {
     opacity: 0.2;
 }
 input[type="number"] {
-    width: 50px;
+    field-sizing: content;
     border: none;
     border-bottom: 1px solid var(--hover-color);
     font-size: 1rem;
@@ -176,6 +176,7 @@ select {
     padding: 4px;
     font-size: 1rem;
     border-radius: var(--border-radius);
+    field-sizing: content;
 }
 
 input[type="checkbox"] {
@@ -415,6 +416,15 @@ comment {
     width: 24px;
 }
 
+.add_translator {
+    & textarea {
+        field-sizing: content;
+        height: auto;
+        max-height: calc(16px + 6rem * 1.5);
+        resize: none;
+    }
+}
+
 .sort_handle {
     opacity: 0.5;
 }
@@ -508,6 +518,12 @@ comment {
 #themes > button {
     width: 16px;
     height: 16px;
+}
+
+.save_file_name {
+    field-sizing: content;
+    width: auto !important;
+    min-width: 1em;
 }
 
 #about {

@@ -745,9 +745,7 @@ document.getElementById("获取保存路径").onclick = () => {
 
 document.getElementById("保存文件名称前缀").oninput = document.getElementById(
     "保存文件名称后缀",
-).oninput = (e) => {
-    const el = <HTMLInputElement>e.target;
-    el.style.width = `${el.value.length || 1}em`;
+).oninput = () => {
     showFTime();
 };
 document.getElementById("保存文件名称时间").oninput = showFTime;
@@ -760,15 +758,9 @@ function showFTime() {
         (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value
     }`;
 }
-showFTime();
-document.getElementById("保存文件名称前缀").style.width = `${
-    (<HTMLInputElement>document.getElementById("保存文件名称前缀")).value
-        .length || 1
-}em`;
-document.getElementById("保存文件名称后缀").style.width = `${
-    (<HTMLInputElement>document.getElementById("保存文件名称后缀")).value
-        .length || 1
-}em`;
+pushRender(() => {
+    showFTime();
+});
 
 const 字体 = old_store.字体;
 document.documentElement.style.setProperty("--main-font", 字体.主要字体);
@@ -812,7 +804,7 @@ const translatorTo = document.getElementById("translator_to");
 const transList: { [key: string]: (typeof xstore.翻译.翻译器)[0] } = {};
 
 const translatorList = view();
-const addTranslatorM = ele("dialog");
+const addTranslatorM = ele("dialog").class("add_translator");
 const addTranslator = button(txt("+")).on("click", async () => {
     const v = await translatorD({
         id: crypto.randomUUID().slice(0, 7),
@@ -967,7 +959,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
                     txt(`${x.name}`, true),
                     ele("br"),
                     (x.area ? textarea() : input())
-                        .attr({ placeholder: x.text || "" })
+                        .attr({ placeholder: x.text || "", spellcheck: false })
                         .data({ key: x.name })
                         .sv(
                             x.type === "json"
