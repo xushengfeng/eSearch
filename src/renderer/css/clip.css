@@ -24,7 +24,7 @@ body {
     position: fixed;
     left: 50%;
     top: 35%;
-    transform: translateX(-50%);
+    transform: translate(round(-50%, 1px));
     z-index: 111;
     pointer-events: none;
     background-color: var(--bar-bg);
@@ -59,7 +59,7 @@ body {
     position: fixed;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(round(-50%, 1px), round(-50%, 1px));
     max-height: 400px;
     overflow: scroll;
     z-index: 111;
