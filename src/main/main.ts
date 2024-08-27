@@ -107,6 +107,8 @@ if (dev) {
     }, 1500);
 }
 
+const keepClip = store.get("保留截屏窗口");
+
 function mainUrl(fileName: string) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
         const mainUrl = `${process.env.ELECTRON_RENDERER_URL}/${fileName}`;
@@ -290,8 +292,8 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
     选中搜索: openSelection,
     剪贴板搜索: openClipBoard,
     快速截屏: quickClip,
-    连拍: () => {
-        clipWindow?.webContents.send("lianpai");
+    连拍: async () => {
+        (await getClipWin()).webContents.send("lianpai");
     },
     结束广截屏: () => {
         clipWindow?.webContents.send("long_e");
@@ -451,8 +453,8 @@ app.whenReady().then(() => {
             : []),
         {
             label: t("检查更新"),
-            click: () => {
-                clipWindow?.webContents.send("clip", "update");
+            click: async () => {
+                (await getClipWin()).webContents.send("clip", "update");
             },
         },
         {
@@ -526,7 +528,13 @@ app.whenReady().then(() => {
 
     // tmp目录
     if (!existsSync(tmpDir)) mkdir(tmpDir, () => {});
-    createClipWindow();
+    if (keepClip) {
+        clipWindow = createClipWindow();
+    } else {
+        new BrowserWindow({ show: false });
+    }
+    // todo
+    // if (firstOpen) argRun(process.argv);
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
@@ -860,14 +868,22 @@ ipcMain.on("dialog", (e, arg0) => {
 });
 
 // 截屏窗口
-/**
- * @type BrowserWindow
- */
 let clipWindow: BrowserWindow | null = null;
 let clipWindowLoaded = false;
+const getClipWin = async () => {
+    if (clipWindowLoaded) return clipWindow as BrowserWindow;
+    if (!clipWindow) clipWindow = createClipWindow();
+
+    return new Promise((re: (v: BrowserWindow) => void) => {
+        clipWindow?.webContents.once("did-finish-load", () => {
+            clipWindowLoaded = true;
+            return re(clipWindow as BrowserWindow);
+        });
+    });
+};
 /** 初始化截屏后台窗口 */
 function createClipWindow() {
-    clipWindow = new BrowserWindow({
+    const _clipWindow = new BrowserWindow({
         icon: theIcon,
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
@@ -885,26 +901,21 @@ function createClipWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            zoomFactor: store.get("全局.缩放") || 1.0,
         },
     });
 
     if (!dev) {
-        clipWindow.webContents.insertCSS(devCSS);
+        _clipWindow.webContents.insertCSS(devCSS);
     }
 
-    if (!dev) clipWindow.setAlwaysOnTop(true, "screen-saver");
+    if (!dev) _clipWindow.setAlwaysOnTop(true, "screen-saver");
 
-    rendererPath(clipWindow, "capture.html");
-    clipWindow.webContents.on("did-finish-load", () => {
-        clipWindow?.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-        if (clipWindowLoaded) return;
-        clipWindowLoaded = true;
-        if (firstOpen) argRun(process.argv);
-    });
+    rendererPath(_clipWindow, "capture.html");
 
-    if (dev) clipWindow.webContents.openDevTools();
+    if (dev) _clipWindow.webContents.openDevTools();
 
-    clipWindow.webContents.on("render-process-gone", (_e, d) => {
+    _clipWindow.webContents.on("render-process-gone", (_e, d) => {
         console.log(d);
         const id = dialog.showMessageBoxSync({
             message: t("截屏程序崩溃，是否重启？"),
@@ -916,6 +927,10 @@ function createClipWindow() {
         if (id === 0) exitFullScreen();
         if (id === 1) app.exit();
     });
+    _clipWindow.webContents.once("did-finish-load", () => {
+        clipWindowLoaded = true;
+    });
+    return _clipWindow;
 }
 
 // * 监听截屏奇奇怪怪的事件
@@ -1064,20 +1079,21 @@ function showPhoto(imgPath?: string) {
     }
 }
 
-function fullScreen() {
+async function fullScreen() {
     const nearestScreen = screen.getDisplayNearestPoint(
         screen.getCursorScreenPoint(),
     );
-    clipWindow?.setBounds({
+    const win = await getClipWin();
+    win.setBounds({
         x: nearestScreen.bounds.x,
         y: nearestScreen.bounds.y,
     });
-    clipWindow?.show();
-    clipWindow?.setSimpleFullScreen(true);
+    win.show();
+    win.setSimpleFullScreen(true);
 }
 
-function sendCaptureEvent(data?: Buffer, type?: 功能) {
-    clipWindow?.webContents.send(
+async function sendCaptureEvent(data?: Buffer, type?: 功能) {
+    (await getClipWin())?.webContents.send(
         "reflash",
         screen.getAllDisplays(),
         data,
@@ -1088,12 +1104,18 @@ function sendCaptureEvent(data?: Buffer, type?: 功能) {
 
 /** 隐藏截屏窗口 */
 function exitFullScreen(xreload?: boolean) {
-    clipWindow?.setSimpleFullScreen(false);
-    clipWindow?.hide();
-    if (!xreload)
-        try {
-            clipWindow?.reload();
-        } catch {}
+    if (keepClip) {
+        clipWindow?.setSimpleFullScreen(false);
+        clipWindow?.hide();
+        if (!xreload)
+            try {
+                clipWindow?.reload();
+            } catch {}
+    } else {
+        clipWindow?.close();
+        clipWindow = null;
+        clipWindowLoaded = false;
+    }
 }
 
 function ocr(arg) {
@@ -2033,8 +2055,8 @@ function getFileName() {
     return fileName;
 }
 /** 快速截屏 */
-function quickClip() {
-    if (clipWindow?.webContents) clipWindow.webContents.send("quick");
+async function quickClip() {
+    (await getClipWin()).webContents.send("quick");
 }
 
 /** 提示保存成功 */
@@ -2068,6 +2090,7 @@ const defaultSetting: setting = {
     设置版本: app.getVersion(),
     启动提示: true,
     dev: false,
+    保留截屏窗口: true,
     语言: {},
     快捷键: {
         自动识别: {
