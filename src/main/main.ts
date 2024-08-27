@@ -916,141 +916,137 @@ function createClipWindow() {
         if (id === 0) exitFullScreen();
         if (id === 1) app.exit();
     });
-
-    // * 监听截屏奇奇怪怪的事件
-    ipcMain.on("clip_main_b", (event, type, arg) => {
-        switch (type) {
-            case "window-show":
-                fullScreen();
-                break;
-            case "window-close":
-                exitFullScreen();
-                isLongStart = false;
-                break;
-            case "ocr":
-                ocr(arg);
-                break;
-            case "search":
-                imageSearch(arg);
-                break;
-            case "QR":
-                createMainWindow({ type: "qr", content: arg });
-                break;
-            case "open":
-                dialog
-                    .showOpenDialog({
-                        title: t("选择要打开应用的位置"),
-                    })
-                    .then((x) => {
-                        console.log(x);
-                        event.sender.send("open_path", x.filePaths[0]);
-                    });
-                break;
-            case "save": {
-                const savedPath = store.get("保存.保存路径.图片") || "";
-                exitFullScreen(true);
-                dialog
-                    .showSaveDialog({
-                        title: t("选择要保存的位置"),
-                        defaultPath: join(savedPath, `${getFileName()}.${arg}`),
-                        filters: [{ name: t("图像"), extensions: [arg] }],
-                    })
-                    .then((x) => {
-                        event.sender.send("save_path", x.filePath);
-                        if (x.filePath) {
-                        } else {
-                            new Notification({
-                                title: `${app.name} ${t("保存图像失败")}`,
-                                body: t("用户已取消保存"),
-                                icon: `${runPath}/assets/logo/64x64.png`,
-                            }).show();
-                            clipWindow?.show();
-                            clipWindow?.setSimpleFullScreen(true);
-                        }
-                    });
-                break;
-            }
-            case "ding":
-                createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4]);
-                break;
-            case "mac_app":
-                exitFullScreen(true);
-                dialog
-                    .showOpenDialog({
-                        defaultPath: "/Applications",
-                    })
-                    .then((x) => {
-                        if (x.canceled) {
-                            clipWindow?.show();
-                            clipWindow?.setSimpleFullScreen(true);
-                        }
-                        event.sender.send(
-                            "mac_app_path",
-                            x.canceled,
-                            x.filePaths,
-                        );
-                    });
-                break;
-            case "ok_save":
-                noti(arg);
-                store.set("保存.保存路径.图片", dirname(arg));
-                break;
-            case "record":
-                createRecorderWindow(arg.rect, {
-                    id: arg.id,
-                    w: arg.w,
-                    h: arg.h,
-                    r: arg.ratio,
-                });
-                break;
-            case "long_s":
-                // n_full_screen();
-                isLongStart = true;
-                longWin();
-                break;
-            case "long_e":
-                clipWindow?.setIgnoreMouseEvents(false);
-                isLongStart = false;
-                break;
-            case "new_version": {
-                let title = "";
-                let b = "";
-                let url = "https://github.com/xushengfeng/eSearch/releases";
-                if (arg) {
-                    if (arg === "err") {
-                        title = t("无法检查更新");
-                        b = t("请检查网络，稍后重试");
-                    } else {
-                        title = `${app.name} ${t("有新版本：")}${arg.v}`;
-                        b = `${t("点击下载")}`;
-                        url = arg.url;
-                    }
-                } else {
-                    title = t("已是最新版本");
-                }
-                const notification = new Notification({
-                    title,
-                    body: b,
-                    icon: `${runPath}/assets/logo/64x64.png`,
-                });
-                notification.on("click", () => {
-                    shell.openExternal(url);
-                });
-                notification.show();
-                break;
-            }
-            case "get_mouse":
-                event.returnValue = screen.getCursorScreenPoint();
-                break;
-            case "translate":
-                createTranslator(arg);
-                break;
-            case "ignore_mouse":
-                clipWindow?.setIgnoreMouseEvents(arg);
-                break;
-        }
-    });
 }
+
+// * 监听截屏奇奇怪怪的事件
+ipcMain.on("clip_main_b", (event, type, arg) => {
+    switch (type) {
+        case "window-show":
+            fullScreen();
+            break;
+        case "window-close":
+            exitFullScreen();
+            isLongStart = false;
+            break;
+        case "ocr":
+            ocr(arg);
+            break;
+        case "search":
+            imageSearch(arg);
+            break;
+        case "QR":
+            createMainWindow({ type: "qr", content: arg });
+            break;
+        case "open":
+            dialog
+                .showOpenDialog({
+                    title: t("选择要打开应用的位置"),
+                })
+                .then((x) => {
+                    console.log(x);
+                    event.sender.send("open_path", x.filePaths[0]);
+                });
+            break;
+        case "save": {
+            const savedPath = store.get("保存.保存路径.图片") || "";
+            exitFullScreen(true);
+            dialog
+                .showSaveDialog({
+                    title: t("选择要保存的位置"),
+                    defaultPath: join(savedPath, `${getFileName()}.${arg}`),
+                    filters: [{ name: t("图像"), extensions: [arg] }],
+                })
+                .then((x) => {
+                    event.sender.send("save_path", x.filePath);
+                    if (x.filePath) {
+                    } else {
+                        new Notification({
+                            title: `${app.name} ${t("保存图像失败")}`,
+                            body: t("用户已取消保存"),
+                            icon: `${runPath}/assets/logo/64x64.png`,
+                        }).show();
+                        clipWindow?.show();
+                        clipWindow?.setSimpleFullScreen(true);
+                    }
+                });
+            break;
+        }
+        case "ding":
+            createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4]);
+            break;
+        case "mac_app":
+            exitFullScreen(true);
+            dialog
+                .showOpenDialog({
+                    defaultPath: "/Applications",
+                })
+                .then((x) => {
+                    if (x.canceled) {
+                        clipWindow?.show();
+                        clipWindow?.setSimpleFullScreen(true);
+                    }
+                    event.sender.send("mac_app_path", x.canceled, x.filePaths);
+                });
+            break;
+        case "ok_save":
+            noti(arg);
+            store.set("保存.保存路径.图片", dirname(arg));
+            break;
+        case "record":
+            createRecorderWindow(arg.rect, {
+                id: arg.id,
+                w: arg.w,
+                h: arg.h,
+                r: arg.ratio,
+            });
+            break;
+        case "long_s":
+            // n_full_screen();
+            isLongStart = true;
+            longWin();
+            break;
+        case "long_e":
+            clipWindow?.setIgnoreMouseEvents(false);
+            isLongStart = false;
+            break;
+        case "new_version": {
+            let title = "";
+            let b = "";
+            let url = "https://github.com/xushengfeng/eSearch/releases";
+            if (arg) {
+                if (arg === "err") {
+                    title = t("无法检查更新");
+                    b = t("请检查网络，稍后重试");
+                } else {
+                    title = `${app.name} ${t("有新版本：")}${arg.v}`;
+                    b = `${t("点击下载")}`;
+                    url = arg.url;
+                }
+            } else {
+                title = t("已是最新版本");
+            }
+            const notification = new Notification({
+                title,
+                body: b,
+                icon: `${runPath}/assets/logo/64x64.png`,
+            });
+            notification.on("click", () => {
+                shell.openExternal(url);
+            });
+            notification.show();
+            break;
+        }
+        case "get_mouse":
+            event.returnValue = screen.getCursorScreenPoint();
+            break;
+        case "translate":
+            createTranslator(arg);
+            break;
+        case "ignore_mouse":
+            clipWindow?.setIgnoreMouseEvents(arg);
+            break;
+    }
+});
 
 /**
  * 获取图片
