@@ -111,6 +111,7 @@ textarea {
     font-family: var(--main-font);
     resize: vertical;
     transition: var(--transition);
+    box-sizing: border-box;
 }
 textarea:hover {
     box-shadow: var(--shadow);
@@ -218,7 +219,7 @@ range-b > div:nth-child(1):hover {
 }
 
 dialog {
-    border-radius: var(--border-radius);
+    border-radius: calc(var(--border-radius) + 1em);
     border: none;
 }
 

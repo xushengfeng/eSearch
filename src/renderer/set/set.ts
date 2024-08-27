@@ -21,6 +21,7 @@ import {
     pack,
     setTranslate,
     elFromId,
+    textarea,
 } from "dkh-ui";
 
 import close_svg from "../assets/icons/close.svg";
@@ -857,7 +858,12 @@ const engineConfig: Partial<
         Engines,
         {
             t: string;
-            key: { name: string; text?: string; type?: "json" }[];
+            key: {
+                name: string;
+                text?: string;
+                type?: "json";
+                area?: boolean;
+            }[];
             help?: { src: string };
         }
     >
@@ -900,7 +906,7 @@ const engineConfig: Partial<
         key: [
             { name: "key" },
             { name: "url" },
-            { name: "config", text: "请求体自定义", type: "json" },
+            { name: "config", text: "请求体自定义", type: "json", area: true },
             { name: "sysPrompt", text: "系统提示词，$t为文字，$to，$from" },
             { name: "userPrompt", text: "用户提示词，$t为文字，$to，$from" },
         ],
@@ -911,7 +917,7 @@ const engineConfig: Partial<
         key: [
             { name: "key" },
             { name: "url" },
-            { name: "config", text: "请求体自定义" },
+            { name: "config", text: "请求体自定义", area: true },
             { name: "userPrompt", text: "用户提示词，$t为文字，$to，$from" },
         ],
         help: { src: "https://ai.google.dev/" },
@@ -943,7 +949,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         .on("input", () => {
             set(selectEl.gv);
         });
-    const keys = view();
+    const keys = view("y").style({ gap: "8px" });
     const help = p("");
 
     set(v.type);
@@ -958,15 +964,17 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
 
             keys.add(
                 view().add([
-                    txt(`${x.name}: `, true),
-                    input()
+                    txt(`${x.name}`, true),
+                    ele("br"),
+                    (x.area ? textarea() : input())
                         .attr({ placeholder: x.text || "" })
                         .data({ key: x.name })
                         .sv(
                             x.type === "json"
                                 ? JSON.stringify(value, null, 2)
                                 : value || "",
-                        ),
+                        )
+                        .style({ width: "100%" }),
                 ]),
             );
         }
