@@ -70,9 +70,19 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
 }
+#hotkeys_tip > p {
+    font-size: large;
+    font-weight: bold;
+}
 #hotkeys_tip > div {
     display: flex;
     gap: 4px;
+    padding: 0 4px;
+    border-radius: 4px;
+    transition: var(--transition);
+    &:hover {
+        background-color: var(--hover-color);
+    }
 }
 #hotkeys_tip > div > :first-child {
     flex-grow: 1;
