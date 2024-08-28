@@ -38,6 +38,9 @@ importers:
       hotkeys-js:
         specifier: ^3.13.7
         version: 3.13.7
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       node-screenshots:
         specifier: ^0.1.9
         version: 0.1.9
@@ -94,6 +97,9 @@ importers:
       '@types/diff-match-patch':
         specifier: ^1.0.34
         version: 1.0.36
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
       '@types/node':
         specifier: ^18.8.4
         version: 18.19.39
@@ -633,6 +639,9 @@ packages:
 
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
+
+  '@types/minimist@1.2.5':
+    resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
   '@types/ms@0.7.34':
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
@@ -2992,6 +3001,8 @@ snapshots:
   '@types/keyv@3.1.4':
     dependencies:
       '@types/node': 18.19.39
+
+  '@types/minimist@1.2.5': {}
 
   '@types/ms@0.7.34': {}
 

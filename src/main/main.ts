@@ -20,6 +20,8 @@ import {
 } from "electron";
 import type { Buffer } from "node:buffer";
 
+import minimist from "minimist";
+
 // const Store = require("../../lib/store/store");
 import Store from "../../lib/store/store";
 import type {
@@ -228,10 +230,8 @@ function openClipBoard() {
 }
 
 // cli参数重复启动;
-let firstOpen = true;
 const isFirstInstance = app.requestSingleInstanceLock();
 if (!isFirstInstance) {
-    firstOpen = false;
     app.quit();
 } else {
     app.on("second-instance", (_event, commanLine, _workingDirectory) => {
@@ -244,40 +244,31 @@ if (!isFirstInstance) {
  * @param {string[]} c 命令
  */
 function argRun(c: string[]) {
-    if (c.includes("-d")) dev = true;
-    switch (true) {
-        case c.includes("-a"):
-            autoOpen();
-            break;
-        case c.includes("-c"):
-            showPhoto();
-            break;
-        case c.includes("-s"):
-            openSelection();
-            break;
-        case c.includes("-b"):
-            openClipBoard();
-            break;
-        case c.includes("-g"):
-            createMainWindow({ type: "text", content: "" });
-            break;
-        case c.includes("-q"):
-            quickClip();
-            break;
-        case c.includes("-t"):
-            createMainWindow({
-                type: "text",
-                content: c[c.findIndex((t) => t === "-t") + 1],
-            });
-            break;
-        default:
-            for (const i of c) {
-                if (i.match(/(\.png)|(\.jpg)|(\.svg)$/i)) {
-                    showPhoto(i);
-                    break;
-                }
-            }
-            break;
+    const argv = minimist(c.slice(1));
+    if (argv.d) {
+        dev = true;
+    }
+    if (argv.a) {
+        autoOpen();
+    } else if (argv.c) {
+        showPhoto();
+    } else if (argv.s) {
+        openSelection();
+    } else if (argv.b) {
+        openClipBoard();
+    } else if (argv.g) {
+        createMainWindow({ type: "text", content: "" });
+    } else if (argv.q) {
+        quickClip();
+    } else if (argv.t) {
+        createMainWindow({
+            type: "text",
+            content: argv.t,
+        });
+    }
+
+    if (argv._.length) {
+        showPhoto(argv._.find((i) => i.match(/(\.png)|(\.jpg)|(\.svg)$/i)));
     }
 }
 
@@ -492,7 +483,7 @@ app.whenReady().then(() => {
     }
 
     // 启动时提示
-    if (firstOpen && store.get("启动提示"))
+    if (store.get("启动提示"))
         new Notification({
             title: app.name,
             body: `${app.name} ${t("已经在后台启动")}`,
@@ -533,8 +524,8 @@ app.whenReady().then(() => {
     } else {
         new BrowserWindow({ show: false });
     }
-    // todo
-    // if (firstOpen) argRun(process.argv);
+
+    argRun(process.argv);
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
