@@ -19,7 +19,7 @@ try {
 
 function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
     let allScreens: (Partial<Electron.Display> & {
-        captureSync?: (keep?: boolean) => ReturnType<typeof toCanvas>;
+        captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
         image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
     })[] = [];
     allScreens = [];
@@ -111,6 +111,7 @@ function toCanvas(img: Buffer) {
     const image = nativeImage.createFromBuffer(img);
     const { width: w, height: h } = image.getSize();
 
+    if (typeof ImageData === "undefined") return { data: null, image };
     const bitmap = image.toBitmap();
     const x = new Uint8ClampedArray(bitmap.length);
     for (let i = 0; i < bitmap.length; i += 4) {

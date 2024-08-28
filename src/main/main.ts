@@ -20,9 +20,11 @@ import {
     nativeImage,
     type NativeImage,
 } from "electron";
-import type { Buffer } from "node:buffer";
+import { Buffer } from "node:buffer";
 
 import minimist from "minimist";
+
+import screenShots from "../renderer/screenShot/screenShot";
 
 // const Store = require("../../lib/store/store");
 import Store from "../../lib/store/store";
@@ -289,6 +291,7 @@ function argRun(c: string[], first?: boolean) {
 
         if (n) {
             if (!sp) return;
+            lianPai(dt, n);
         } else {
             if (!img) return;
             if (argv.clipboard) {
@@ -337,7 +340,7 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
     剪贴板搜索: openClipBoard,
     快速截屏: quickClip,
     连拍: async () => {
-        (await getClipWin()).webContents.send("lianpai");
+        lianPai();
     },
     结束广截屏: () => {
         clipWindow?.webContents.send("long_e");
@@ -1159,6 +1162,75 @@ function exitFullScreen(xreload?: boolean) {
         clipWindow?.close();
         clipWindow = null;
         clipWindowLoaded = false;
+    }
+}
+
+/** 快速截屏 */
+function quickClip() {
+    const fs = require("node:fs") as typeof import("fs");
+    const path = require("node:path") as typeof import("path");
+    for (const c of screenShots()) {
+        let image: NativeImage | null = c.captureSync().image;
+        if (store.get("快速截屏.模式") === "clip") {
+            clipboard.writeImage(image);
+            image = null;
+        } else if (
+            store.get("快速截屏.模式") === "path" &&
+            store.get("快速截屏.路径")
+        ) {
+            const filename = path.join(
+                store.get("快速截屏.路径"),
+                `${getFileName()}.png`,
+            );
+            checkFile(1, filename, filename);
+        }
+        function checkFile(n: number, name: string, baseName: string) {
+            // 检查文件是否存在于当前目录中。
+            fs.access(name, fs.constants.F_OK, (err) => {
+                if (!err) {
+                    /* 存在文件，需要重命名 */
+                    const name = baseName.replace(/\.png$/, `(${n}).png`);
+                    checkFile(n + 1, name, baseName);
+                } else {
+                    if (!image) return;
+                    fs.writeFile(
+                        name,
+                        Buffer.from(
+                            image
+                                .toDataURL()
+                                .replace(/^data:image\/\w+;base64,/, ""),
+                            "base64",
+                        ),
+                        (err) => {
+                            if (err) return;
+                            noti(name);
+                            image = null;
+                        },
+                    );
+                }
+            });
+        }
+    }
+}
+
+/** 连拍 */
+function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数")) {
+    const fs = require("node:fs") as typeof import("fs");
+    const path = require("node:path") as typeof import("path");
+    const basePath = store.get("快速截屏.路径");
+    if (!basePath) return;
+    const dirPath = path.join(basePath, String(new Date().getTime()));
+    fs.mkdirSync(dirPath, { recursive: true });
+    for (let i = 0; i < maxN; i++) {
+        setTimeout(() => {
+            const image = screenShots()[0].captureSync().image;
+            const buffer = Buffer.from(
+                image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
+                "base64",
+            );
+            const filePath = path.join(dirPath, `${i}.png`);
+            fs.writeFile(filePath, buffer, () => {});
+        }, d * maxN);
     }
 }
 
@@ -2097,10 +2169,6 @@ function getFileName() {
     const fileName =
         store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
     return fileName;
-}
-/** 快速截屏 */
-async function quickClip() {
-    (await getClipWin()).webContents.send("quick");
 }
 
 /** 提示保存成功 */

@@ -139,87 +139,6 @@ function setScreen(i: (typeof allScreens)[0]) {
         document.body.classList.add("editor_bg");
 }
 
-/** 生成一个文件名 */
-function getFileName() {
-    const saveNameTime = timeFormat(
-        store.get("保存名称.时间"),
-        new Date(),
-    ).replace("\\", "");
-    const filename =
-        store.get("保存名称.前缀") + saveNameTime + store.get("保存名称.后缀");
-    return filename;
-}
-
-/** 快速截屏 */
-function quickClip() {
-    const fs = require("node:fs") as typeof import("fs");
-    const path = require("node:path") as typeof import("path");
-    for (const c of screenShots()) {
-        let image = c.captureSync().image;
-        if (store.get("快速截屏.模式") === "clip") {
-            clipboard.writeImage(image);
-            image = null;
-        } else if (
-            store.get("快速截屏.模式") === "path" &&
-            store.get("快速截屏.路径")
-        ) {
-            const filename = path.join(
-                store.get("快速截屏.路径"),
-                `${getFileName()}.png`,
-            );
-            checkFile(1, filename, filename);
-        }
-        function checkFile(n: number, name: string, baseName: string) {
-            // 检查文件是否存在于当前目录中。
-            fs.access(name, fs.constants.F_OK, (err) => {
-                if (!err) {
-                    /* 存在文件，需要重命名 */
-                    const name = baseName.replace(/\.png$/, `(${n}).png`);
-                    checkFile(n + 1, name, baseName);
-                } else {
-                    fs.writeFile(
-                        name,
-                        Buffer.from(
-                            image
-                                .toDataURL()
-                                .replace(/^data:image\/\w+;base64,/, ""),
-                            "base64",
-                        ),
-                        (err) => {
-                            if (err) return;
-                            ipcRenderer.send("clip_main_b", "ok_save", name);
-                            image = null;
-                        },
-                    );
-                }
-            });
-        }
-    }
-}
-
-/** 连拍 */
-function lianPai() {
-    const fs = require("node:fs") as typeof import("fs");
-    const path = require("node:path") as typeof import("path");
-    const d = store.get("连拍.间隔");
-    const maxN = store.get("连拍.数");
-    const basePath = store.get("快速截屏.路径");
-    if (!basePath) return;
-    const dirPath = path.join(basePath, String(new Date().getTime()));
-    fs.mkdirSync(dirPath, { recursive: true });
-    for (let i = 0; i < maxN; i++) {
-        setTimeout(() => {
-            const image = screenShots()[0].captureSync().image;
-            const buffer = Buffer.from(
-                image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
-                "base64",
-            );
-            const filePath = path.join(dirPath, `${i}.png`);
-            fs.writeFile(filePath, buffer, () => {});
-        }, d * maxN);
-    }
-}
-
 function setEditorP(zoom: number, x: number, y: number) {
     const t = [];
     if (zoom != null) {
@@ -3393,8 +3312,6 @@ ipcRenderer.on(
     },
 );
 
-ipcRenderer.on("quick", quickClip);
-ipcRenderer.on("lianpai", lianPai);
 ipcRenderer.on("long_e", stopLong);
 
 document.addEventListener("mousemove", (e) => {
