@@ -1168,50 +1168,39 @@ function exitFullScreen(xreload?: boolean) {
 
 /** 快速截屏 */
 function quickClip() {
-    const fs = require("node:fs") as typeof import("fs");
-    const path = require("node:path") as typeof import("path");
     for (const c of screenShots()) {
-        let image: NativeImage | null = c.captureSync().image;
+        const image: NativeImage = c.captureSync().image;
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);
-            image = null;
         } else if (
             store.get("快速截屏.模式") === "path" &&
             store.get("快速截屏.路径")
         ) {
-            const filename = path.join(
+            const filename = join(
                 store.get("快速截屏.路径"),
                 `${getFileName()}.png`,
             );
-            checkFile(1, filename, filename);
-        }
-        function checkFile(n: number, name: string, baseName: string) {
-            // 检查文件是否存在于当前目录中。
-            fs.access(name, fs.constants.F_OK, (err) => {
-                if (!err) {
-                    /* 存在文件，需要重命名 */
-                    const name = baseName.replace(/\.png$/, `(${n}).png`);
-                    checkFile(n + 1, name, baseName);
-                } else {
-                    if (!image) return;
-                    fs.writeFile(
-                        name,
-                        Buffer.from(
-                            image
-                                .toDataURL()
-                                .replace(/^data:image\/\w+;base64,/, ""),
-                            "base64",
-                        ),
-                        (err) => {
-                            if (err) return;
-                            noti(name);
-                            image = null;
-                        },
-                    );
-                }
-            });
+            const nf = checkFile(1, filename, filename);
+            if (!image) return;
+            writeFileSync(
+                nf,
+                Buffer.from(
+                    image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
+                    "base64",
+                ),
+            );
+            noti(nf);
         }
     }
+}
+function checkFile(n: number, name: string, baseName: string) {
+    // 检查文件是否存在于当前目录中。
+    if (existsSync(name)) {
+        /* 存在文件，需要重命名 */
+        const name = baseName.replace(/\.(\w+$)/, `(${n}).$1`);
+        return checkFile(n + 1, name, baseName);
+    }
+    return name;
 }
 
 /** 连拍 */
