@@ -45,6 +45,7 @@ import {
     mkdirSync,
     writeFile,
     writeFileSync,
+    statSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
@@ -298,8 +299,16 @@ async function argRun(c: string[], first?: boolean) {
         const savePath = argv.p || argv.path;
         const sp =
             typeof savePath !== "string"
-                ? store.get("快速截屏.路径") || store.get("保存.保存路径.图片")
-                : savePath;
+                ? checkFile(
+                      join(
+                          store.get("快速截屏.路径") ||
+                              store.get("保存.保存路径.图片"),
+                          getFileName(),
+                      ),
+                  )
+                : statSync(savePath).isDirectory()
+                  ? checkFile(join(savePath, getFileName()))
+                  : savePath;
 
         if (n) {
             if (!sp) return;
@@ -309,7 +318,7 @@ async function argRun(c: string[], first?: boolean) {
             if (argv.clipboard) {
                 clipboard.writeImage(img);
             } else {
-                writeFileSync(savePath, img.toPNG());
+                writeFileSync(`${sp}.png`, img.toPNG());
             }
         }
     } else if (argv.o || argv.ocr) {
