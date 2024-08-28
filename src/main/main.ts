@@ -246,20 +246,23 @@ if (!isFirstInstance) {
  * 根据命令运行
  * @param {string[]} c 命令
  */
-function argRun(c: string[]) {
+function argRun(c: string[], first?: boolean) {
     const argv = minimist(c.slice(1));
     if (argv.d) {
         dev = true;
     }
-    // todo app exit
+
     if (argv.v || argv.version) {
         console.log(app.getVersion());
+        if (first) app.exit();
     }
     if (argv.h || argv.help) {
         console.log("");
+        if (first) app.exit();
     }
     if (argv.config) {
         shell.openExternal(join(app.getPath("userData"), "config.json"));
+        if (first) app.exit();
     }
 
     const path = argv.i || argv.input;
@@ -575,7 +578,7 @@ app.whenReady().then(() => {
         new BrowserWindow({ show: false });
     }
 
-    argRun(process.argv);
+    argRun(process.argv, true);
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
