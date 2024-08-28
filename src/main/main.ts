@@ -17,6 +17,8 @@ import {
     desktopCapturer,
     session,
     crashReporter,
+    nativeImage,
+    type NativeImage,
 } from "electron";
 import type { Buffer } from "node:buffer";
 
@@ -39,6 +41,7 @@ import {
     mkdir,
     readFile,
     mkdirSync,
+    writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
@@ -248,26 +251,66 @@ function argRun(c: string[]) {
     if (argv.d) {
         dev = true;
     }
-    if (argv.a) {
-        autoOpen();
-    } else if (argv.c) {
-        showPhoto();
-    } else if (argv.s) {
-        openSelection();
-    } else if (argv.b) {
-        openClipBoard();
-    } else if (argv.g) {
-        createMainWindow({ type: "text", content: "" });
-    } else if (argv.q) {
-        quickClip();
-    } else if (argv.t) {
-        createMainWindow({
-            type: "text",
-            content: argv.t,
-        });
+    // todo app exit
+    if (argv.v || argv.version) {
+        console.log(app.getVersion());
+    }
+    if (argv.h || argv.help) {
+        console.log("");
+    }
+    if (argv.config) {
+        shell.openExternal(join(app.getPath("userData"), "config.json"));
     }
 
-    if (argv._.length) {
+    const path = argv.i || argv.input;
+    let img: NativeImage | null = null;
+    if (!path) setTimeout(() => {}, argv.delay || 0);
+    else {
+        img = nativeImage.createFromBuffer(readFileSync(path));
+    }
+    const textMode = argv.trans ? "trans" : argv.search ? "search" : "";
+    const e = argv.engine;
+    if (argv.s || argv.save) {
+        const n = argv.n as number;
+        const dt = argv.dt as number;
+
+        const savePath = argv.p || argv.path;
+        const sp =
+            typeof savePath !== "string"
+                ? store.get("快速截屏.路径") || store.get("保存.保存路径.图片")
+                : savePath;
+
+        if (n) {
+            if (!sp) return;
+        } else {
+            if (!img) return;
+            if (argv.clipboard) {
+                clipboard.writeImage(img);
+            } else {
+                writeFileSync(savePath, img.toPNG());
+            }
+        }
+    } else if (argv.o || argv.ocr) {
+        if (!img) return;
+        createMainWindow({
+            type: "ocr",
+            content: img.toDataURL(),
+            arg0: e,
+        });
+    } else if (argv.d || argv.ding) {
+    } else if (argv.m || argv.img) {
+        if (!img) return;
+        createMainWindow({
+            type: "image",
+            content: img.toDataURL(),
+            arg0: e,
+        });
+    } else if (argv.t || argv.text) {
+        createMainWindow({
+            type: "text",
+            content: argv.t || argv.text,
+        });
+    } else {
         showPhoto(argv._.find((i) => i.match(/(\.png)|(\.jpg)|(\.svg)$/i)));
     }
 }
