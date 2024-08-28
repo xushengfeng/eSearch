@@ -324,7 +324,8 @@ function argRun(c: string[], first?: boolean) {
             mode: textMode,
         });
     } else {
-        showPhoto(argv._.find((i) => i.match(/(\.png)|(\.jpg)|(\.svg)$/i)));
+        const path = argv._.find((i) => i.match(/(\.png)|(\.jpg)|(\.svg)$/i));
+        if (path) showPhoto(path);
     }
 }
 
