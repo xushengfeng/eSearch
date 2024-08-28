@@ -102,8 +102,6 @@ const findT = pack(
     }
 });
 
-const mainType = store.get("主页面.模式");
-
 const 搜索引擎List = store.get("引擎.搜索");
 const 翻译引擎List = store.get("引擎.翻译");
 const 引擎 = store.get("引擎");
@@ -962,10 +960,10 @@ function isLink(url: string, s: boolean) {
  * 展示文字
  * @param t 展示的文字
  */
-function showT(st: string) {
+function showT(st: string, m: setting["主页面"]["模式"]) {
     const t = st.replace(/[\r\n]$/, "");
     editor.push(t);
-    if (mainType === "auto" || t === "") {
+    if (m === "auto" || t === "") {
         // 严格模式
         if (isLink(t, true)) {
             if (自动打开链接) openLink("url", t);
@@ -983,9 +981,9 @@ function showT(st: string) {
                 }
             }
         }
-    } else if (mainType === "search") {
+    } else if (m === "search") {
         openLink("search");
-    } else if (mainType === "translate") {
+    } else if (m === "translate") {
         openLink("translate");
     }
     editor.selectAll();
@@ -1155,9 +1153,11 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
     task.l("窗口创建", list.time);
 
+    const mainType = list.mode || store.get("主页面.模式") || "auto";
+
     if (list.type === "text") {
         mainText = list.content;
-        showT(mainText);
+        showT(mainText, mainType);
     }
 
     if (list.type === "image") {
@@ -1229,7 +1229,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             img.src = list.content;
             const result = await qr.scan(img);
             const text = result.text;
-            showT(text || "");
+            showT(text || "", mainType);
         });
     }
 });

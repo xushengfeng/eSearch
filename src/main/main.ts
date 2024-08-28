@@ -268,7 +268,11 @@ function argRun(c: string[]) {
     else {
         img = nativeImage.createFromBuffer(readFileSync(path));
     }
-    const textMode = argv.trans ? "trans" : argv.search ? "search" : "";
+    const textMode: setting["主页面"]["模式"] = argv.trans
+        ? "translate"
+        : argv.search
+          ? "search"
+          : "auto";
     const e = argv.engine;
     if (argv.s || argv.save) {
         const n = argv.n as number;
@@ -296,6 +300,7 @@ function argRun(c: string[]) {
             type: "ocr",
             content: img.toDataURL(),
             arg0: e,
+            mode: textMode,
         });
     } else if (argv.d || argv.ding) {
     } else if (argv.m || argv.img) {
@@ -304,11 +309,13 @@ function argRun(c: string[]) {
             type: "image",
             content: img.toDataURL(),
             arg0: e,
+            mode: textMode,
         });
     } else if (argv.t || argv.text) {
         createMainWindow({
             type: "text",
             content: argv.t || argv.text,
+            mode: textMode,
         });
     } else {
         showPhoto(argv._.find((i) => i.match(/(\.png)|(\.jpg)|(\.svg)$/i)));

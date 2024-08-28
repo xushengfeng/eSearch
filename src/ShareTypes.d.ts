@@ -370,6 +370,7 @@ type EditType = {
 type MainWinType = {
     type: "text" | "ocr" | "image" | "qr";
     content: string;
+    mode?: setting["主页面"]["模式"];
     arg0?: string;
     time?: number;
 };
