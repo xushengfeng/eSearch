@@ -43,6 +43,7 @@ import {
     mkdir,
     readFile,
     mkdirSync,
+    writeFile,
     writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -244,11 +245,20 @@ if (!isFirstInstance) {
     });
 }
 
+function sleep(time: number) {
+    if (!time) return;
+    return new Promise((rj: (v: boolean) => void) => {
+        setTimeout(() => {
+            rj(true);
+        }, time);
+    });
+}
+
 /**
  * 根据命令运行
  * @param {string[]} c 命令
  */
-function argRun(c: string[], first?: boolean) {
+async function argRun(c: string[], first?: boolean) {
     const argv = minimist(c.slice(1));
     if (argv.d) {
         dev = true;
@@ -268,9 +278,11 @@ function argRun(c: string[], first?: boolean) {
     }
 
     const path = argv.i || argv.input;
-    let img: NativeImage | null = null;
-    if (!path) setTimeout(() => {}, argv.delay || 0);
-    else {
+    let img: NativeImage | undefined = undefined;
+    if (!path) {
+        await sleep(argv.delay || 0);
+        img = screenShots().at(0)?.captureSync().image;
+    } else {
         img = nativeImage.createFromBuffer(readFileSync(path));
     }
     const textMode: setting["主页面"]["模式"] = argv.trans
@@ -1176,41 +1188,37 @@ function quickClip() {
             store.get("快速截屏.模式") === "path" &&
             store.get("快速截屏.路径")
         ) {
-            const filename = join(
-                store.get("快速截屏.路径"),
-                `${getFileName()}.png`,
+            const filename = checkFile(
+                join(store.get("快速截屏.路径"), `${getFileName()}.png`),
             );
-            const nf = checkFile(1, filename, filename);
             if (!image) return;
             writeFileSync(
-                nf,
+                filename,
                 Buffer.from(
                     image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
                     "base64",
                 ),
             );
-            noti(nf);
+            noti(filename);
         }
     }
 }
-function checkFile(n: number, name: string, baseName: string) {
+function checkFile(name: string, baseName = name, n = 1) {
     // 检查文件是否存在于当前目录中。
     if (existsSync(name)) {
         /* 存在文件，需要重命名 */
         const name = baseName.replace(/\.(\w+$)/, `(${n}).$1`);
-        return checkFile(n + 1, name, baseName);
+        return checkFile(name, baseName, n + 1);
     }
     return name;
 }
 
 /** 连拍 */
 function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数")) {
-    const fs = require("node:fs") as typeof import("fs");
-    const path = require("node:path") as typeof import("path");
     const basePath = store.get("快速截屏.路径");
     if (!basePath) return;
-    const dirPath = path.join(basePath, String(new Date().getTime()));
-    fs.mkdirSync(dirPath, { recursive: true });
+    const dirPath = checkFile(join(basePath, getFileName()));
+    mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
         setTimeout(() => {
             const image = screenShots()[0].captureSync().image;
@@ -1218,8 +1226,8 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
                 image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
                 "base64",
             );
-            const filePath = path.join(dirPath, `${i}.png`);
-            fs.writeFile(filePath, buffer, () => {});
+            const filePath = join(dirPath, `${i}.png`);
+            writeFile(filePath, buffer, () => {});
         }, d * maxN);
     }
 }
