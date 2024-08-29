@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@erase2d/fabric':
         specifier: ^1.1.6
-        version: 1.1.6(fabric@6.3.0)
+        version: 1.1.6(fabric@6.4.0)
       color:
         specifier: ^4.2.3
         version: 4.2.3
@@ -30,8 +30,8 @@ importers:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
       fabric:
-        specifier: ^6.3.0
-        version: 6.3.0
+        specifier: ^6.4.0
+        version: 6.4.0
       hex-to-css-filter:
         specifier: ^5.4.0
         version: 5.4.0
@@ -1285,8 +1285,8 @@ packages:
     resolution: {integrity: sha512-Wrk35e8ydCKDj/ArClo1VrPVmN8zph5V4AtHwIuHhvMXsKf73UT3BOD+azBIW+3wOJ4FhEH7zyaJCFvChjYvMA==}
     engines: {'0': node >=0.6.0}
 
-  fabric@6.3.0:
-    resolution: {integrity: sha512-sbuEb+WBjISVKq+Rtwc8+tdQRVpCDUj0XvFu3n+Iw33uydkAYspMaFX0DU32AglLTPPKFqx4/b4CYgApPyfrzA==}
+  fabric@6.4.0:
+    resolution: {integrity: sha512-A93bGcQxY6sg9aovqfPc/KunkqRSZBVV0pun72qaQcEA4fJnCtK5yqd5W/OaowO7II5sgEYYWy45xgVXaI05PA==}
     engines: {node: '>=16.20.0'}
 
   fast-deep-equal@3.1.3:
@@ -2774,9 +2774,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@erase2d/fabric@1.1.6(fabric@6.3.0)':
+  '@erase2d/fabric@1.1.6(fabric@6.4.0)':
     dependencies:
-      fabric: 6.3.0
+      fabric: 6.4.0
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
@@ -3833,7 +3833,7 @@ snapshots:
   extsprintf@1.4.1:
     optional: true
 
-  fabric@6.3.0:
+  fabric@6.4.0:
     optionalDependencies:
       canvas: 2.11.2
       jsdom: 20.0.3(canvas@2.11.2)
