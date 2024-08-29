@@ -38,6 +38,10 @@ export default defineConfig({
                         __dirname,
                         "src/renderer/translate.html",
                     ),
+                    photoEditor: path.resolve(
+                        __dirname,
+                        "src/renderer/photoEditor.html",
+                    ),
                 },
             },
             assetsInlineLimit: 0,
