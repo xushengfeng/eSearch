@@ -1043,7 +1043,7 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
             break;
         case "save": {
             const savedPath = store.get("保存.保存路径.图片") || "";
-            exitFullScreen(true);
+            hideClip();
             dialog
                 .showSaveDialog({
                     title: t("选择要保存的位置"),
@@ -1069,7 +1069,7 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
             createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4]);
             break;
         case "mac_app":
-            exitFullScreen(true);
+            hideClip();
             dialog
                 .showOpenDialog({
                     defaultPath: "/Applications",
@@ -1181,20 +1181,25 @@ async function sendCaptureEvent(data?: Buffer, type?: 功能) {
     );
 }
 
-/** 隐藏截屏窗口 */
-function exitFullScreen(xreload?: boolean) {
+/** 关闭或隐藏截屏 */
+function exitFullScreen() {
     if (keepClip) {
         clipWindow?.setSimpleFullScreen(false);
         clipWindow?.hide();
-        if (!xreload)
-            try {
-                clipWindow?.reload();
-            } catch {}
+        try {
+            clipWindow?.reload();
+        } catch {}
     } else {
         clipWindow?.close();
         clipWindow = null;
         clipWindowLoaded = false;
     }
+}
+
+/** 隐藏截屏窗口 */
+function hideClip() {
+    clipWindow?.setSimpleFullScreen(false);
+    clipWindow?.hide();
 }
 
 /** 快速截屏 */
