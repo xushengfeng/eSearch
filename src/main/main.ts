@@ -270,7 +270,61 @@ async function argRun(c: string[], first?: boolean) {
         if (first) app.exit();
     }
     if (argv.h || argv.help) {
-        console.log("");
+        const list: (string | [string | [string, string], number, string])[] = [
+            [["v", "version"], 0, app.getVersion()],
+            [["h", "help"], 0, "帮助"],
+            ["config", 0, "打开配置"],
+            "",
+            [["i", "input"], 0, "输入图片，如果空，则截屏"],
+            ["delay", 0, "延时截屏"],
+            "",
+            `[${t("动作")}] [i] [more]`,
+            t("动作"),
+            [["s", "save"], 0, "保存到路径或剪贴板"],
+            [["p", "path"], 1, "保存的路径"],
+            ["n", 1, "连拍数"],
+            ["dt", 1, "连拍间隔（ms）"],
+            ["clipborad", 1, "保存到剪贴板"],
+            [["o", "ocr"], 0, "文字识别"],
+            ["engine", 1, "引擎"], // todo list
+            ["[mode]", 1, ""],
+            [["m", "img"], 0, "以图搜图"],
+            ["engine", 1, "引擎"], // todo list
+            ["[mode]", 1, ""],
+            [["t", "text"], 0, "主页面打开文字"],
+            ["[mode]", 1, ""],
+            "",
+            "文字处理模式，不设置则自动判断",
+            ["trans", 0, "翻译"],
+            ["search", 0, "搜索"],
+        ];
+        function add(t: string) {
+            return t.length === 1 ? `-${t}` : t.startsWith("[") ? t : `--${t}`;
+        }
+        const list1: (string | [string, string])[] = list.map((i) => {
+            if (typeof i === "string") {
+                return i;
+            }
+            const t =
+                typeof i[0] === "string"
+                    ? add(i[0])
+                    : i[0].map((x) => add(x)).join(",");
+            return [`${" ".repeat(i[1] * 2)}${t}`, i[2]];
+        });
+        const maxWidth =
+            Math.max(
+                ...list1
+                    .filter((i) => typeof i !== "string")
+                    .map((i) => i[0].length),
+            ) + 8;
+        console.log(
+            list1
+                .map((i) => {
+                    if (typeof i === "string") return i;
+                    return `${i[0]}${" ".repeat(maxWidth - i[0].length)}${t(i[1])}`;
+                })
+                .join("\n"),
+        );
         if (first) app.exit();
     }
     if (argv.config) {
