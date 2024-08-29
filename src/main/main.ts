@@ -312,7 +312,17 @@ async function argRun(c: string[], first?: boolean) {
 
         if (n) {
             if (!sp) return;
-            lianPai(dt, n);
+            try {
+                mkdirSync(sp, { recursive: true });
+            } catch (error) {}
+            for (let i = 0; i < n; i++) {
+                setTimeout(() => {
+                    const image = screenShots()[0].captureSync().image;
+                    const buffer = image.toPNG();
+                    const filePath = join(sp, `${i}.png`);
+                    writeFile(filePath, buffer, () => {});
+                }, dt * n);
+            }
         } else {
             if (!img) return;
             if (argv.clipboard) {
