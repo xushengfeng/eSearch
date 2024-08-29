@@ -20,7 +20,7 @@ import {
     nativeImage,
     type NativeImage,
 } from "electron";
-import { Buffer } from "node:buffer";
+import type { Buffer } from "node:buffer";
 
 import minimist from "minimist";
 
@@ -1211,13 +1211,7 @@ function quickClip() {
                 join(store.get("快速截屏.路径"), `${getFileName()}.png`),
             );
             if (!image) return;
-            writeFileSync(
-                filename,
-                Buffer.from(
-                    image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
-                    "base64",
-                ),
-            );
+            writeFileSync(filename, image.toPNG());
             noti(filename);
         }
     }
@@ -1241,10 +1235,7 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
     for (let i = 0; i < maxN; i++) {
         setTimeout(() => {
             const image = screenShots()[0].captureSync().image;
-            const buffer = Buffer.from(
-                image.toDataURL().replace(/^data:image\/\w+;base64,/, ""),
-                "base64",
-            );
+            const buffer = image.toPNG();
             const filePath = join(dirPath, `${i}.png`);
             writeFile(filePath, buffer, () => {});
         }, d * maxN);
