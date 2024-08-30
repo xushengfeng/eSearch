@@ -1,0 +1,16 @@
+body {
+    display: flex;
+}
+
+#sidebar_sidebar {
+    width: 200px;
+}
+
+canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+input[type="number"] {
+    field-sizing: content;
+}
