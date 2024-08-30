@@ -1658,6 +1658,31 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             }
             break;
         }
+        case "快捷键2": {
+            const [name, key] = arg1;
+            try {
+                try {
+                    globalShortcut.unregister(
+                        store.get(`全局工具快捷键.${name}`) as string,
+                    );
+                } catch {}
+                let ok = true;
+                if (key) {
+                    ok = globalShortcut.register(key, () => {
+                        sendCaptureEvent(undefined, name as 功能);
+                    });
+                }
+                store.set(
+                    `全局工具快捷键.${name}`,
+                    key === "" || ok ? key : "",
+                );
+                event.returnValue = ok;
+            } catch (error) {
+                event.returnValue = false;
+                store.set(`全局工具快捷键.${name}`, "");
+            }
+            break;
+        }
     }
 });
 

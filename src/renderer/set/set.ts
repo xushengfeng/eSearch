@@ -453,7 +453,19 @@ for (const el of document.querySelectorAll(
             el.value,
         ]);
         el.t = arg;
-        if (arg) storeSet(`快捷键.${el.name}.key`, el.value);
+        storeSet(`快捷键.${el.name}.key`, arg ? el.value : "");
+    });
+}
+for (const el of document.querySelectorAll(
+    "#hotkeys_content2 hot-keys",
+) as Iterable<hotkeyElType>) {
+    el.addEventListener("inputend", () => {
+        const arg = ipcRenderer.sendSync("setting", "快捷键2", [
+            el.name,
+            el.value,
+        ]);
+        el.t = arg;
+        storeSet(`全局工具快捷键.${el.name}`, arg ? el.value : "");
     });
 }
 
