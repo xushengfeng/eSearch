@@ -321,13 +321,13 @@ export interface setting {
         配置: {
             name: string;
             raduis: number;
-            shardow: {
-                x: number;
-                y: number;
-                blur: number;
-                color: string;
-            };
-            padding: { x: number; y: number } | "auto";
+            "shadow.x": number;
+            "shadow.y": number;
+            "shadow.blur": number;
+            "shadow.color": string;
+            "padding.x": number;
+            "padding.y": number;
+            autoPadding: boolean;
             background: string;
         }[];
         默认配置: string;
