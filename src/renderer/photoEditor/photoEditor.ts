@@ -109,18 +109,18 @@ function updatePreview() {
             ctx.fillRect(0, 0, finalWidth, finalHeight);
         }
 
-        // Draw the photo
-        ctx.beginPath();
-        ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
-        ctx.clip();
-        ctx.save();
         ctx.globalCompositeOperation = "source-over";
         ctx.shadowOffsetX = x;
         ctx.shadowOffsetY = y;
         ctx.shadowBlur = blur;
         ctx.shadowColor = color;
-        ctx.drawImage(photo, padX, padY);
-        ctx.restore();
+
+        const matrix = new DOMMatrix();
+        const f = ctx.createPattern(photo, "repeat");
+        f.setTransform(matrix.translate(padX, padY));
+        ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
+        ctx.fillStyle = f;
+        ctx.fill();
     }
 }
 
