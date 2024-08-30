@@ -509,6 +509,7 @@ const toolList: 功能[] = [
     "record",
     "long",
     "translate",
+    "editor",
     "copy",
     "save",
 ];
