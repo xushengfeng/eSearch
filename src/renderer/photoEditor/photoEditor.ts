@@ -4,7 +4,7 @@ import store from "../../../lib/store/renderStore";
 const { ipcRenderer } = window.require("electron") as typeof import("electron");
 
 const pz = store.get("高级图片编辑.配置");
-const styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.find(
+let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.find(
     (i) => i.name === store.get("高级图片编辑.默认配置"),
 ) || {
     raduis: 0,
@@ -23,13 +23,44 @@ const controls = frame("sidebar", {
     _: view("y"),
     configs: {
         _: view("x"),
-        select: select(
-            [{ value: "", name: "添加" }].concat(
-                pz.map((i) => ({ value: i.name, name: i.name })),
-            ),
-        ),
-        addConf: button("添加配置"),
-        delConf: button("删除配置"),
+        select: select([]).on("input", (_, el) => {
+            if (!el.gv) return;
+            styleData = pz.find((i) => i.name === el.gv);
+            setConfig();
+            updatePreview();
+            store.set("高级图片编辑.默认配置", el.gv);
+        }),
+        addConf: button("添加配置").on("click", () => {
+            const id = `新配置${crypto.randomUUID().slice(0, 5)}`;
+            pz.push({
+                name: id,
+                ...styleData,
+            });
+            store.set("高级图片编辑.配置", pz);
+            setSelect(id);
+        }),
+        updataConf: button("更新配置").on("click", () => {
+            const name = controls.els.select.gv;
+            if (!name) return;
+            const index = pz.findIndex((i) => i.name === name);
+            if (index === -1) return;
+            pz[index] = {
+                name,
+                ...styleData,
+            };
+            store.set("高级图片编辑.配置", pz);
+            setSelect(name);
+        }),
+        delConf: button("删除配置").on("click", () => {
+            const name = controls.els.select.gv;
+            if (!name) return;
+            pz.splice(
+                pz.findIndex((i) => i.name === name),
+                1,
+            );
+            store.set("高级图片编辑.配置", pz);
+            setSelect();
+        }),
     },
     controls: {
         _: view("y"),
@@ -52,6 +83,18 @@ const controls = frame("sidebar", {
         },
     },
 });
+function setSelect(id?: string) {
+    controls.els.select.clear();
+    controls.els.select.add(
+        [{ value: "", name: "添加" }]
+            .concat(pz.map((i) => ({ value: i.name, name: i.name })))
+            .map((i) => ele("option").attr({ value: i.value, text: i.name })),
+    );
+    const nid = id || "";
+
+    controls.els.select.sv(nid);
+    if (nid) store.set("高级图片编辑.默认配置", nid);
+}
 const canvas = ele("canvas");
 
 preview.add(canvas);
@@ -143,6 +186,8 @@ for (const key in configMap) {
         controls.els.select.sv("");
     });
 }
+
+setSelect();
 
 setConfig();
 
