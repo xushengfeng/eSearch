@@ -92,6 +92,7 @@ const controls = frame("sidebar", {
             if (!path) return;
             const img = getImg();
             writeFileSync(path, img.toPNG());
+            ipcRenderer.send("window", "close");
         }),
         copy: button("复制").on("click", () => {
             const img = getImg();

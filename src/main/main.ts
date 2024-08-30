@@ -2270,6 +2270,12 @@ function noti(filePath: string) {
     notification.show();
 }
 
+ipcMain.on("window", (event, type: string) => {
+    if (type === "close") {
+        BrowserWindow.fromWebContents(event.sender)?.close();
+    }
+});
+
 ipcMain.on("get_save_file_path", (event, arg: string) => {
     const savedPath = store.get("保存.保存路径.图片") || "";
     dialog
