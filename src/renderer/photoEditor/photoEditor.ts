@@ -1,4 +1,4 @@
-import { button, ele, frame, input, select, view } from "dkh-ui";
+import { button, ele, frame, input, pureStyle, select, view } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
 import store from "../../../lib/store/renderStore";
 const { ipcRenderer } = window.require("electron") as typeof import("electron");
@@ -123,6 +123,8 @@ function updatePreview() {
         ctx.fill();
     }
 }
+
+pureStyle();
 
 document.body.appendChild(controls.el.el);
 document.body.appendChild(preview.el);
