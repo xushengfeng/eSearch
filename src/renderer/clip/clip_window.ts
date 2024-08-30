@@ -64,6 +64,7 @@ import long_clip_svg from "../assets/icons/long_clip.svg";
 import translate_svg from "../assets/icons/translate.svg";
 import copy_svg from "../assets/icons/copy.svg";
 import save_svg from "../assets/icons/save.svg";
+import super_edit_svg from "../assets/icons/super_edit.svg";
 
 function iconEl(src: string) {
     return view().add(image(src, "icon").class("icon"));
@@ -2740,7 +2741,7 @@ const toolBarEl = frame("tool", {
         longm: selectMenu<"y" | "xy">().class("side_select"),
     },
     translate: iconEl(translate_svg),
-    editor: iconEl(open_svg),
+    editor: iconEl(super_edit_svg),
     copy: iconEl(copy_svg),
     save: iconEl(save_svg),
 });
