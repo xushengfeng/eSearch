@@ -201,13 +201,13 @@ const toolsEl = view()
         playEl,
         runEl,
         button(iconEl(close_svg)).on("click", () =>
-            ipcRenderer.send("translator", "close"),
+            ipcRenderer.send("window", "close"),
         ),
     ]);
 
 ipcRenderer.on("mouse", (_e, x: number, y: number) => {
     const El = document.elementFromPoint(x, y);
-    ipcRenderer.send("ignore", !toolsEl.el.contains(El));
+    ipcRenderer.send("window", "ignore", !toolsEl.el.contains(El));
 });
 
 const OCR = await lo.init({

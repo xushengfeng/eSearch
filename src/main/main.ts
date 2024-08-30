@@ -1843,16 +1843,6 @@ function createTranslator(op: translateWinType) {
     win.setAlwaysOnTop(true, "screen-saver");
 }
 
-ipcMain.on("translator", (event, type: string) => {
-    if (type === "close") {
-        BrowserWindow.fromWebContents(event.sender)?.close();
-    }
-});
-
-ipcMain.on("ignore", (event, v) => {
-    BrowserWindow.fromWebContents(event.sender)?.setIgnoreMouseEvents(v);
-});
-
 function createPhotoEditor(img: string) {
     const win = new BrowserWindow({
         webPreferences: {
@@ -2020,19 +2010,6 @@ async function createHelpWindow() {
         "https://github.com/xushengfeng/eSearch-website/blob/master/docs/index.md",
     );
 }
-
-ipcMain.on("main_win", (e, arg, arg2) => {
-    const window = BrowserWindow.fromWebContents(e.sender);
-    if (!window) return;
-    switch (arg) {
-        case "close":
-            window.close();
-            break;
-        case "top":
-            window.setAlwaysOnTop(arg2);
-            break;
-    }
-});
 
 /**
  * 向聚焦的主页面发送事件信息
@@ -2270,9 +2247,17 @@ function noti(filePath: string) {
     notification.show();
 }
 
-ipcMain.on("window", (event, type: string) => {
+ipcMain.on("window", (event, type: string, v) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return;
     if (type === "close") {
-        BrowserWindow.fromWebContents(event.sender)?.close();
+        win.close();
+    }
+    if (type === "ignore") {
+        win.setIgnoreMouseEvents(v);
+    }
+    if (type === "top") {
+        win.setAlwaysOnTop(v);
     }
 });
 

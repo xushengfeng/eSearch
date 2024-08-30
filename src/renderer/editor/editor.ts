@@ -1415,7 +1415,7 @@ function countWords() {
 /************************************失焦关闭 */
 
 function closeWindow() {
-    ipcRenderer.send("main_win", "close");
+    ipcRenderer.send("window", "close");
 }
 
 window.onblur = () => {
@@ -1425,7 +1425,7 @@ window.onblur = () => {
 alwaysOnTopEl.onclick = () => {
     alwaysOnTop = !alwaysOnTop;
     setButtonHover(alwaysOnTopEl, alwaysOnTop);
-    ipcRenderer.send("main_win", "top", alwaysOnTop);
+    ipcRenderer.send("window", "top", alwaysOnTop);
 };
 
 setButtonHover(blurToCloseEl, !blurToClose);
