@@ -760,37 +760,34 @@ function runSave() {
         sCenterBar("save");
     });
 }
-function save(message: string) {
+async function save(message: string) {
     if (message) {
         const fs = require("node:fs");
-        getClipPhoto(type).then((c) => {
-            let dataBuffer: Buffer;
-            if (type === "svg") {
-                dataBuffer = Buffer.from(<string>c);
-            } else {
-                let f = "";
-                const nc = <HTMLCanvasElement>c;
-                if (type === "png") {
-                    f = nc.toDataURL("image/png", 1);
-                } else if (type === "jpg") {
-                    f = nc.toDataURL("image/jpeg", 1);
-                } else if (type === "webp") {
-                    f = nc.toDataURL("image/webp", 1);
-                }
-                dataBuffer = Buffer.from(
-                    f.replace(/^data:image\/\w+;base64,/, ""),
-                    "base64",
-                );
-                if (store.get("保存.保存并复制")) {
-                    clipboard.writeImage(nativeImage.createFromDataURL(f));
-                }
+        let dataBuffer: Buffer;
+        if (type === "svg") dataBuffer = Buffer.from(await getClipPhoto("svg"));
+        else {
+            let f = "";
+            const nc = await getClipPhoto(type);
+            if (type === "png") {
+                f = nc.toDataURL("image/png", 1);
+            } else if (type === "jpg") {
+                f = nc.toDataURL("image/jpeg", 1);
+            } else if (type === "webp") {
+                f = nc.toDataURL("image/webp", 1);
             }
+            dataBuffer = Buffer.from(
+                f.replace(/^data:image\/\w+;base64,/, ""),
+                "base64",
+            );
+            if (store.get("保存.保存并复制")) {
+                clipboard.writeImage(nativeImage.createFromDataURL(f));
+            }
+        }
 
-            fs.writeFile(message, dataBuffer, (err) => {
-                if (!err) {
-                    ipcRenderer.send("clip_main_b", "ok_save", message);
-                }
-            });
+        fs.writeFile(message, dataBuffer, (err) => {
+            if (!err) {
+                ipcRenderer.send("clip_main_b", "ok_save", message);
+            }
         });
         tool.close();
     }
@@ -800,7 +797,11 @@ function save(message: string) {
  * @param type 格式
  * @returns promise svg base64|canvas element
  */
-function getClipPhoto(type: "png" | "svg" | "jpg" | "webp") {
+function getClipPhoto(type: "svg"): Promise<string>;
+function getClipPhoto(type: "png" | "jpg" | "webp"): Promise<HTMLCanvasElement>;
+function getClipPhoto(
+    type: "png" | "jpg" | "webp" | "svg",
+): Promise<string | HTMLCanvasElement> {
     const mainCtx = mainCanvas.getContext("2d");
     if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
@@ -834,9 +835,10 @@ function getClipPhoto(type: "png" | "svg" | "jpg" | "webp") {
         const svgT = new XMLSerializer().serializeToString(
             svg.querySelector("svg"),
         );
-        return new Promise((resolve, _rejects) => {
-            resolve(svgT);
-        });
+        if (type === "svg")
+            return new Promise((resolve: (value: string) => void, _rejects) => {
+                resolve(svgT);
+            });
     }
     const tmpCanvas = document.createElement("canvas");
     tmpCanvas.width = finalRect[2];
