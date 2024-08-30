@@ -1,7 +1,9 @@
 import { button, ele, frame, input, pureStyle, select, view } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
 import store from "../../../lib/store/renderStore";
-const { ipcRenderer } = window.require("electron") as typeof import("electron");
+const { ipcRenderer, nativeImage, clipboard } = window.require(
+    "electron",
+) as typeof import("electron");
 
 const pz = store.get("高级图片编辑.配置");
 let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.find(
@@ -82,6 +84,14 @@ const controls = frame("sidebar", {
             py: input("number"),
         },
     },
+    export: {
+        _: view(),
+        save: button("保存").on("click", () => {}), // todo
+        copy: button("复制").on("click", () => {
+            const img = getImg();
+            clipboard.writeImage(img);
+        }),
+    },
 });
 function setSelect(id?: string) {
     controls.els.select.clear();
@@ -95,6 +105,11 @@ function setSelect(id?: string) {
     controls.els.select.sv(nid);
     if (nid) store.set("高级图片编辑.默认配置", nid);
 }
+
+function getImg() {
+    return nativeImage.createFromDataURL(canvas.el.toDataURL("image/png", 1));
+}
+
 const canvas = ele("canvas");
 
 preview.add(canvas);
