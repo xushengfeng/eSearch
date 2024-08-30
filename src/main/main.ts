@@ -2270,6 +2270,19 @@ function noti(filePath: string) {
     notification.show();
 }
 
+ipcMain.on("get_save_file_path", (event, arg: string) => {
+    const savedPath = store.get("保存.保存路径.图片") || "";
+    dialog
+        .showSaveDialog({
+            title: t("选择要保存的位置"),
+            defaultPath: join(savedPath, `${getFileName()}.${arg}`),
+            filters: [{ name: t("图像"), extensions: [arg] }],
+        })
+        .then((x) => {
+            event.returnValue = x.filePath;
+        });
+});
+
 ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {
     dialog
         .showOpenDialog({

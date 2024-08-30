@@ -4,6 +4,7 @@ import store from "../../../lib/store/renderStore";
 const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
 ) as typeof import("electron");
+const { writeFileSync } = require("node:fs") as typeof import("fs");
 
 const pz = store.get("高级图片编辑.配置");
 let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.find(
@@ -86,7 +87,12 @@ const controls = frame("sidebar", {
     },
     export: {
         _: view(),
-        save: button("保存").on("click", () => {}), // todo
+        save: button("保存").on("click", () => {
+            const path = ipcRenderer.sendSync("get_save_file_path", "png");
+            if (!path) return;
+            const img = getImg();
+            writeFileSync(path, img.toPNG());
+        }),
         copy: button("复制").on("click", () => {
             const img = getImg();
             clipboard.writeImage(img);
