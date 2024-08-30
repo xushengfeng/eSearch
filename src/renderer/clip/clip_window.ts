@@ -2713,6 +2713,7 @@ const tools: 功能[] = [
     "translate",
     "copy",
     "save",
+    "editor",
 ];
 
 pureStyle();
@@ -2737,6 +2738,7 @@ const toolBarEl = frame("tool", {
         longm: selectMenu<"y" | "xy">().class("side_select"),
     },
     translate: iconEl(translate_svg),
+    editor: iconEl(open_svg),
     copy: iconEl(copy_svg),
     save: iconEl(save_svg),
 });
@@ -2884,6 +2886,12 @@ const tool = {
     // 复制
     copy: () => runCopy(),
     save: () => runSave(),
+    editor: () => {
+        getClipPhoto("png").then((c: HTMLCanvasElement) => {
+            ipcRenderer.send("clip_main_b", "editor", c.toDataURL());
+        });
+        tool.close();
+    },
 };
 
 const drawMainEls: { [key in keyof EditType]: HTMLElement } = {
@@ -2915,20 +2923,6 @@ const mouseBarEl = document.getElementById("mouse_bar");
 
 type hotkeyScope = "normal" | "c_bar" | "drawing";
 const hotkeyScopes: hotkeyScope[] = [];
-
-const toolList: 功能[] = [
-    "close",
-    "screens",
-    "ocr",
-    "search",
-    "QR",
-    "open",
-    "ding",
-    "record",
-    "long",
-    "copy",
-    "save",
-];
 
 const drawHotKey = store.get("截屏编辑快捷键");
 
@@ -3435,7 +3429,7 @@ hotkeys.filter = (event) => {
 };
 
 toHotkeyScope("normal");
-for (const k of toolList) {
+for (const k of tools) {
     let key = store.get(`工具快捷键.${k}`) as string;
     if (["esc", "escape"].includes(key.toLowerCase()))
         hotkeys(key, "normal", tool[k]);

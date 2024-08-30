@@ -1193,6 +1193,9 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
         case "ignore_mouse":
             clipWindow?.setIgnoreMouseEvents(arg);
             break;
+        case "editor":
+            createPhotoEditor(arg);
+            break;
     }
 });
 
@@ -1850,6 +1853,22 @@ ipcMain.on("ignore", (event, v) => {
     BrowserWindow.fromWebContents(event.sender)?.setIgnoreMouseEvents(v);
 });
 
+function createPhotoEditor(img: string) {
+    const win = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+
+    rendererPath(win, "photoEditor.html");
+    if (dev) win.webContents.openDevTools();
+
+    win.webContents.on("did-finish-load", () => {
+        win.webContents.send("img", img);
+    });
+}
+
 // 主页面
 const mainWindowL: {
     [n: number]: {
@@ -2297,6 +2316,7 @@ const defaultSetting: setting = {
         save: "",
         screens: "",
         translate: "",
+        editor: "",
     },
     工具快捷键: {
         close: "Escape",
@@ -2311,6 +2331,7 @@ const defaultSetting: setting = {
         save: isMac ? "Command+S" : "Control+S",
         screens: "",
         translate: "",
+        editor: "",
     },
     截屏编辑快捷键: {
         select: { 键: "1", 副: { rect: "1+2", free: "1+3", draw: "1+4" } },
@@ -2671,6 +2692,7 @@ const defaultSetting: setting = {
         t: 800,
         方向: "y",
     },
+    高级图片编辑: { 配置: [], 默认配置: "" },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");

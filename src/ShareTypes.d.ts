@@ -317,6 +317,21 @@ export interface setting {
         t: number;
         方向: "y" | "xy";
     };
+    高级图片编辑: {
+        配置: {
+            name: string;
+            raduis: number;
+            shardow: {
+                x: number;
+                y: number;
+                blur: number;
+                color: string;
+            };
+            padding: { x: number; y: number } | "auto";
+            background: string;
+        }[];
+        默认配置: string;
+    };
 }
 
 type 功能 =
@@ -331,7 +346,8 @@ type 功能 =
     | "translate"
     | "copy"
     | "save"
-    | "screens";
+    | "screens"
+    | "editor";
 
 type EditType = {
     select: "rect" | "free" | "draw";
