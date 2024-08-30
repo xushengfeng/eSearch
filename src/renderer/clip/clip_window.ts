@@ -3151,9 +3151,6 @@ const filtetMap: {
         fun: (v?: number) => filters.BaseFilter<string, unknown>;
     };
 } = {
-    // 马赛克
-    // 在fabric源码第二个uBlocksize * uStepW改为uBlocksize * uStepH
-    // todo v6
     pixelate: {
         value: { value: 16, max: 20, text: "px" },
         fun: (v) => new Filters.Pixelate({ blocksize: v }),
