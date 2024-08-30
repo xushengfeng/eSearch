@@ -14,7 +14,7 @@ let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.fin
     "shadow.x": 0,
     "shadow.y": 0,
     "shadow.blur": 0,
-    "shadow.color": "rgba(0,0,0,0.5)",
+    "shadow.color": "",
     "padding.x": 0,
     "padding.y": 0,
     autoPadding: false,
