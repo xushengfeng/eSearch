@@ -30,19 +30,20 @@ function icon(src: string) {
 initStyle(store);
 
 const pz = store.get("高级图片编辑.配置");
-let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.find(
-    (i) => i.name === store.get("高级图片编辑.默认配置"),
-) || {
-    raduis: 0,
-    background: "",
-    "shadow.x": 0,
-    "shadow.y": 0,
-    "shadow.blur": 0,
-    "shadow.color": "",
-    "padding.x": 0,
-    "padding.y": 0,
-    autoPadding: false,
-};
+let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> =
+    structuredClone(
+        pz.find((i) => i.name === store.get("高级图片编辑.默认配置")),
+    ) || {
+        raduis: 0,
+        background: "",
+        "shadow.x": 0,
+        "shadow.y": 0,
+        "shadow.blur": 0,
+        "shadow.color": "",
+        "padding.x": 0,
+        "padding.y": 0,
+        autoPadding: false,
+    };
 
 const preview = view().style({ margin: "auto" });
 const controls = frame("sidebar", {
@@ -51,7 +52,7 @@ const controls = frame("sidebar", {
         _: view("x").style({ "--b-button": "24px" }),
         select: select([]).on("input", (_, el) => {
             if (!el.gv) return;
-            styleData = pz.find((i) => i.name === el.gv);
+            styleData = structuredClone(pz.find((i) => i.name === el.gv));
             setConfig();
             updatePreview();
             store.set("高级图片编辑.默认配置", el.gv);
