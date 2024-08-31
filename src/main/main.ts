@@ -289,6 +289,7 @@ async function argRun(c: string[], first?: boolean) {
             [["m", "img"], 0, "以图搜图"],
             ["engine", 1, "baidu, yandex, google"],
             ["[mode]", 1, ""],
+            [["d", "ding"], 0, "贴图"],
             [["t", "text"], 0, "主页面打开文字"],
             ["[mode]", 1, ""],
             "",
@@ -392,6 +393,16 @@ async function argRun(c: string[], first?: boolean) {
             mode: textMode,
         });
     } else if (argv.d || argv.ding) {
+        if (!img) return;
+        const nowPoint = screen.getCursorScreenPoint();
+        const size = img.getSize();
+        createDingWindow(
+            nowPoint.x,
+            nowPoint.y,
+            size.width,
+            size.height,
+            img.toDataURL(),
+        );
     } else if (argv.m || argv.img) {
         if (!img) return;
         createMainWindow({
@@ -1700,7 +1711,13 @@ function longWin() {
 const dingwindowList: {
     [key: string]: { win: BrowserWindow; display: Electron.Display };
 } = {};
-function createDingWindow(x: number, y: number, w: number, h: number, img) {
+function createDingWindow(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    img: string,
+) {
     if (Object.keys(dingwindowList).length === 0) {
         const screenL = screen.getAllDisplays();
         const id = new Date().getTime();
