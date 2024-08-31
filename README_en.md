@@ -71,62 +71,62 @@ It is not recommended to use automatic or selection search in the terminal, as *
 
 The checked features are the latest features in the development process, but may not yet be released in the latest version.
 
--   [x] Screenshot
-    -   [x] Select and crop, shortcut key adjustment
-    -   [x] Input arithmetic expressions in the select and crop size bar to adjust
-    -   [x] Color picker/magnifier
-    -   [x] Pen (freehand drawing)
-    -   [x] Geometric shapes (support adjustable border fill)
-    -   [x] Image filters (supports local mosaic blur and color adjustment)
-    -   [x] Customize the operation after releasing the select box (such as automatic OCR after selection)
-    -   [x] Quickly capture full screen to clipboard or custom directory
-    -   [x] Window and control selection (using OpenCV edge recognition)
-    -   [x] Long screenshot (i.e. scrolling screenshot)
-    -   [x] Multiple screens (screenshot separately, but currently does not support cross-screen screenshots)
--   [x] Screen recording
-    -   [x] Record full screen/custom size
-    -   [x] Key prompts
-    -   [x] Cursor position prompt
-    -   [x] Audio recording
-    -   [x] Record camera
-    -   [x] Custom bitrate
-    -   [x] Can be cropped later
-    -   [x] Formats such as gif, webm, mp4
-    -   [x] Virtual background
--   [x] Save (optional save as SVG editable file)
--   [x] Open in other applications
--   [x] Copy to clipboard
--   [x] Screen pasting
-    -   [x] Zoom with scroll wheel
-    -   [x] Restore default size and position
-    -   [x] Transparency
-    -   [x] Mouse penetration
--   [x] QR code recognition
--   [x] OCR recognition
-    -   [x] Offline OCR ([eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR))
-    -   [x] Custom offline OCR model and dictionary
-    -   [x] Other online OCR
-    -   [x] Online formula recognition
-    -   [x] Support for applying for your own key
-    -   [x] Table recognition (online)
--   [x] Reverse image search
--   [x] Select and search by swiping words or sentences
--   [x] Recognition display
-    -   [x] Automatic search and translation
-    -   [x] Search
-    -   [x] Translation
-    -   [x] Custom search and translation engines
-    -   [x] Open in built-in browser
-    -   [x] Defocus close
-    -   [x] Open in system browser
-    -   [x] Link recognition
-    -   [x] History
-    -   [x] Automatic line break deletion (for automatic typesetting)
-    -   [x] Find and replace (supports regular expression matching)
-    -   [x] Editing in other editors (supports automatic reload)
-    -   [x] Line number
-    -   [x] Spell check
--   [x] Wayland desktop
+- [x] Screenshot
+  - [x] Select and crop, shortcut key adjustment
+  - [x] Input arithmetic expressions in the select and crop size bar to adjust
+  - [x] Color picker/magnifier
+  - [x] Pen (freehand drawing)
+  - [x] Geometric shapes (support adjustable border fill)
+  - [x] Image filters (supports local mosaic blur and color adjustment)
+  - [x] Customize the operation after releasing the select box (such as automatic OCR after selection)
+  - [x] Quickly capture full screen to clipboard or custom directory
+  - [x] Window and control selection (using OpenCV edge recognition)
+  - [x] Long screenshot (i.e. scrolling screenshot)
+  - [x] Multiple screens (screenshot separately, but currently does not support cross-screen screenshots)
+- [x] Screen recording
+  - [x] Record full screen/custom size
+  - [x] Key prompts
+  - [x] Cursor position prompt
+  - [x] Audio recording
+  - [x] Record camera
+  - [x] Custom bitrate
+  - [x] Can be cropped later
+  - [x] Formats such as gif, webm, mp4
+  - [x] Virtual background
+- [x] Save (optional save as SVG editable file)
+- [x] Open in other applications
+- [x] Copy to clipboard
+- [x] Screen pasting
+  - [x] Zoom with scroll wheel
+  - [x] Restore default size and position
+  - [x] Transparency
+  - [x] Mouse penetration
+- [x] QR code recognition
+- [x] OCR recognition
+  - [x] Offline OCR ([eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR))
+  - [x] Custom offline OCR model and dictionary
+  - [x] Other online OCR
+  - [x] Online formula recognition
+  - [x] Support for applying for your own key
+  - [x] Table recognition (online)
+- [x] Reverse image search
+- [x] Select and search by swiping words or sentences
+- [x] Recognition display
+  - [x] Automatic search and translation
+  - [x] Search
+  - [x] Translation
+  - [x] Custom search and translation engines
+  - [x] Open in built-in browser
+  - [x] Defocus close
+  - [x] Open in system browser
+  - [x] Link recognition
+  - [x] History
+  - [x] Automatic line break deletion (for automatic typesetting)
+  - [x] Find and replace (supports regular expression matching)
+  - [x] Editing in other editors (supports automatic reload)
+  - [x] Line number
+  - [x] Spell check
+- [x] Wayland desktop
 
 https://user-images.githubusercontent.com/28475549/155870834-34ffa59f-9eac-4eea-9d82-135681d7dfa9.mp4
 
@@ -158,14 +158,14 @@ Most buttons use icons, reducing unnecessary translation.
 
 [Add new language](./lib/translate/readme.md)
 
--   [x] Simplified Chinese
--   [x] Traditional Chinese
--   [x] Esperanto
--   [x] Spanish
--   [x] Arabic
--   [x] English
--   [x] French
--   [x] Russian
+- [x] Simplified Chinese
+- [x] Traditional Chinese
+- [x] Esperanto
+- [x] Spanish
+- [x] Arabic
+- [x] English
+- [x] French
+- [x] Russian
 
 ## Running & Compiling from Source Code
 
@@ -185,6 +185,8 @@ npm run start
 npm run dev
 ```
 
+[Specific technical instructions](docs/index.md)
+
 ## Testing
 
 Tested successfully on ArchLinux, KDE plasma, Xorg.
@@ -201,10 +203,10 @@ Gnome users need to install the [appindicator](https://extensions.gnome.org/exte
 
 ### Why choose electron
 
--   The need for cross-platform support. I wanted to experience the excellent screenshot tools on Windows on Linux, and it's not good for Linux to be left out, so I chose cross-platform support.
--   Qt relies on c++, and the learning cost is too high. Flutter for desktop is not yet mature. I am more proficient in js development.
--   Screenshot relies on the local system, which is something current browsers cannot do.
--   Ultimately, there is only one cross-platform solution similar to JavaScript. I chose the more mature and widely used electron.
+- The need for cross-platform support. I wanted to experience the excellent screenshot tools on Windows on Linux, and it's not good for Linux to be left out, so I chose cross-platform support.
+- Qt relies on c++, and the learning cost is too high. Flutter for desktop is not yet mature. I am more proficient in js development.
+- Screenshot relies on the local system, which is something current browsers cannot do.
+- Ultimately, there is only one cross-platform solution similar to JavaScript. I chose the more mature and widely used electron.
 
 ### A JavaScript error occurred in the main process
 
