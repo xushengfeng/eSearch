@@ -124,6 +124,7 @@ const controls = frame("sidebar", {
         copy: button(icon(copy_svg)).on("click", () => {
             const img = getImg();
             clipboard.writeImage(img);
+            ipcRenderer.send("window", "close");
         }),
     },
 });
