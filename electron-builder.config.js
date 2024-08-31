@@ -280,7 +280,6 @@ const ignoreDir = [
     "*.map",
     "**/*.ts",
     "src",
-    "lib/fabric.min.js",
     "node_modules/**/*.flow",
     "node_modules/**/*.md",
     "node_modules/**/*.map",
@@ -301,6 +300,8 @@ const ignoreModule = [
     "hex-to-css-filter",
     "dkh-ui",
     "xtranslator",
+    "fabric",
+    "jsdom"
 ];
 for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
