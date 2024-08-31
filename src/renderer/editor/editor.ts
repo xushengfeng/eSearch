@@ -2139,7 +2139,6 @@ function onlineOcr(
         }
     }
 }
-// online_ocr();
 
 imageB.onclick = () => {
     editMainEl.classList.toggle(imageShow);

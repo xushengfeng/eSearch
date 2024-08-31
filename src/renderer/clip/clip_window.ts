@@ -174,7 +174,6 @@ function edge() {
     let src = cv.imread(canvas);
 
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
-    // cv.imshow(canvas, src);
 
     let dst = new cv.Mat();
     const cMin = store.get("框选.自动框选.最小阈值");
@@ -198,8 +197,6 @@ function edge() {
         r.type = "image";
         edgeRect.push(r);
     }
-
-    // cv.imshow(canvas, dst);
 
     src.delete();
     dst.delete();

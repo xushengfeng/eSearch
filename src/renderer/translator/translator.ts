@@ -130,7 +130,6 @@ async function run() {
             "font-size": `${y1 - y0}px`,
         });
         textEl.add(item);
-        // item.innerText = text;
         textL.push({ el: item, text });
     }
     translate(textL);

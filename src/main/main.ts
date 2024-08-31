@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-// Modules to control application life and create native browser window
+
 import {
     app,
     Tray,
@@ -26,7 +26,6 @@ import minimist from "minimist";
 
 import screenShots from "../renderer/screenShot/screenShot";
 
-// const Store = require("../../lib/store/store");
 import Store from "../../lib/store/store";
 import type {
     setting,
@@ -448,8 +447,6 @@ app.whenReady().then(() => {
 
     argRun(process.argv, true);
 
-    // 初始化设置
-    // Store.initRenderer();
     // 托盘
     tray =
         process.platform === "linux"
@@ -552,7 +549,6 @@ app.whenReady().then(() => {
         {
             label: t("设置"),
             click: () => {
-                // Store.initRenderer();
                 createSettingWindow();
             },
         },
@@ -670,7 +666,6 @@ const isMac = process.platform === "darwin";
 
 function setMenu() {
     const menuTemplate = [
-        // { role: 'appMenu' }
         ...(isMac
             ? [
                   {
@@ -697,7 +692,6 @@ function setMenu() {
                   },
               ]
             : []),
-        // { role: 'fileMenu' }
         {
             label: t("文件"),
             submenu: [
@@ -742,7 +736,6 @@ function setMenu() {
                 },
             ],
         },
-        // { role: 'editMenu' }
         {
             label: t("编辑"),
             submenu: [
@@ -902,7 +895,6 @@ function setMenu() {
                 },
             ],
         },
-        // { role: 'viewMenu' }
         {
             label: t("视图"),
             submenu: [
@@ -933,7 +925,6 @@ function setMenu() {
                 { label: t("全屏"), role: "togglefullscreen" },
             ],
         },
-        // { role: 'windowMenu' }
         {
             label: t("窗口"),
             submenu: [
@@ -974,10 +965,7 @@ function setMenu() {
 }
 
 app.on("will-quit", () => {
-    // Unregister all shortcuts.
     globalShortcut.unregisterAll();
-
-    // 删除临时文件夹
     rmR(tmpDir);
 });
 
@@ -1140,7 +1128,6 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
             });
             break;
         case "long_s":
-            // n_full_screen();
             isLongStart = true;
             longWin();
             break;
@@ -1883,9 +1870,6 @@ const mainWindowL: {
     };
 } = {};
 
-/**
- * @type {Object.<number, Array.<number>>}
- */
 const mainToSearchL: { [n: number]: Array<number> } = {};
 async function createMainWindow(op: MainWinType) {
     if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
