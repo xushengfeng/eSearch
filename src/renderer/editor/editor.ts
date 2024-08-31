@@ -1014,7 +1014,7 @@ function openLink(id: "url" | "search" | "translate", slink?: string) {
         )).value.replace("%s", encodeURIComponent(s));
     }
     if (typeof global !== "undefined") {
-        if (浏览器打开) {
+        if (浏览器打开 || concise) {
             shell.openExternal(url);
         } else {
             ipcRenderer.send("open_url", windowName, url);
@@ -1182,7 +1182,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             if (url) {
                 editor.push("");
                 openLink("url", url);
-                if (浏览器打开) {
+                if (浏览器打开 || concise) {
                     closeWindow();
                 }
             }
