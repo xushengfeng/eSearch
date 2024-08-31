@@ -526,6 +526,11 @@ comment {
     min-width: 1em;
 }
 
+#seg > label {
+    display: flex;
+    align-items: center;
+}
+
 #about {
     width: 100%;
     display: flex;
