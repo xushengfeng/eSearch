@@ -1999,8 +1999,8 @@ function showBars(b: boolean) {
 }
 function pencilElClick() {
     fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = freeColor;
-    fabricCanvas.freeDrawingBrush.width = freeWidth;
+    fabricCanvas.freeDrawingBrush.color = shapePro.free.sc;
+    fabricCanvas.freeDrawingBrush.width = shapePro.free.sw;
 
     setDrawMode("stroke");
 
@@ -2010,12 +2010,12 @@ function eraserElClick() {
     // todo
     const eraser = new EraserBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush = eraser;
-    fabricCanvas.freeDrawingBrush.width = freeWidth;
+    fabricCanvas.freeDrawingBrush.width = shapePro.eraser.sw;
 }
 function freeSprayElClick() {
     fabricCanvas.freeDrawingBrush = new SprayBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = freeColor;
-    fabricCanvas.freeDrawingBrush.width = freeWidth;
+    fabricCanvas.freeDrawingBrush.color = shapePro.spray.sc;
+    fabricCanvas.freeDrawingBrush.width = shapePro.spray.sw;
 
     setDrawMode("stroke");
 }
@@ -2026,7 +2026,7 @@ function freeShadow() {
     );
     fabricCanvas.freeDrawingBrush.shadow = new Shadow({
         blur: shadowBlur,
-        color: freeColor,
+        color: shapePro.free.sc,
     });
     store.set(`图像编辑.形状属性.${mode}.shadow`, shadowBlur);
 }
@@ -2061,8 +2061,8 @@ function freeInit() {
     const sw = store.get(`图像编辑.形状属性.${mode}.sw`);
     const sb = store.get(`图像编辑.形状属性.${mode}.shadow`);
     if (!shapePro[mode]) shapePro[mode] = {};
-    if (sc) shapePro[mode].sc = sc;
-    if (sw) shapePro[mode].sw = sw;
+    if (sc) shapePro[mode].sc = sc ?? freeColor;
+    if (sw) shapePro[mode].sw = sw ?? freeWidth;
     if (sb) shapePro[mode].shadow = sb;
     setDrawMode("stroke");
     if (sc) colorStrokeEl.sv(sc);
@@ -2432,9 +2432,18 @@ function getFObjectV() {
             pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
         setOnlyStroke(!n.canChangeFill);
     } else if (fabricCanvas.isDrawingMode) {
-        pro = { fc: "#0000", sc: freeColor, sw: freeWidth };
+        pro = {
+            fc: shapePro.free.sc,
+            sc: shapePro.free.sc,
+            sw: shapePro.free.sw,
+        };
     } else {
-        pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
+        if (nowType === "shape" || nowType === "draw") {
+            const p = shapePro[editType[nowType]];
+            if (p.fc) pro.fc = p.fc;
+            if (p.sc) pro.sc = p.sc;
+            if (p.sw) pro.sw = p.sw;
+        }
     }
     console.log(pro);
     (<rangeB>document.querySelector("#draw_stroke_width > range-b")).value =
