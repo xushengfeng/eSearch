@@ -276,10 +276,18 @@ async function argRun(c: string[], first?: boolean) {
             ["dt", 1, "连拍间隔（ms）"],
             ["clipborad", 1, "保存到剪贴板"],
             [["o", "ocr"], 0, "文字识别"],
-            ["engine", 1, "引擎"], // todo list
+            [
+                "engine",
+                1,
+                store
+                    .get("离线OCR")
+                    .map((i) => i[0])
+                    .concat(["baidu", "youdao"])
+                    .join(", "),
+            ],
             ["[mode]", 1, ""],
             [["m", "img"], 0, "以图搜图"],
-            ["engine", 1, "引擎"], // todo list
+            ["engine", 1, "baidu, yandex, google"],
             ["[mode]", 1, ""],
             [["t", "text"], 0, "主页面打开文字"],
             ["[mode]", 1, ""],
