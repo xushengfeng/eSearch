@@ -81,8 +81,10 @@ const store = new Store();
 ipcMain.on("store", (e, x) => {
     if (x.type === "get") {
         e.returnValue = store.get(x.path);
-    } else {
+    } else if (x.type === "set") {
         store.set(x.path, x.value);
+    } else if (x.type === "path") {
+        e.returnValue = app.getPath("userData");
     }
 });
 

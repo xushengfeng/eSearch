@@ -48,7 +48,12 @@ let tmpText: string;
 
 let findLNI = 0;
 
-let historyList: { [key: string]: { text: string } } = {};
+const historyPath = path.join(
+    ipcRenderer.sendSync("store", { type: "path" }),
+    "history.json",
+);
+let historyList: { [key: string]: { text: string } } =
+    JSON.parse(fs.readFileSync(historyPath).toString() || "{}").历史记录 || {};
 
 let historyShowed = false;
 
@@ -1060,7 +1065,8 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
         Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
     for (const i of Object.keys(historyList)) {
         if (nowTime - Number(i) > dTime) {
-            // historyStore.delete(`历史记录.${i}`);
+            delete historyList[i];
+            storeHistory();
         }
     }
 }
@@ -1070,8 +1076,8 @@ function pushHistory() {
     const i = new Date().getTime();
     const s = { text: t };
     if (t !== "" && 历史记录设置.保留历史记录) {
-        // historyStore.set(`历史记录.${i}`, s);
         historyList[i] = s;
+        storeHistory();
     }
     renderHistory();
 }
@@ -1137,12 +1143,21 @@ function renderHistory() {
         .querySelectorAll("#history_list > div > .history_title > button")
         .values()) {
         e.addEventListener("click", () => {
-            // historyStore.delete(`历史记录.${e.parentElement.parentElement.id}`);
+            delete historyList[e.parentElement.parentElement.id];
+            storeHistory();
             e.parentElement.parentElement.style.display = "none";
         });
     }
 }
 if (mainText === "") renderHistory();
+
+function storeHistory() {
+    fs.writeFile(
+        historyPath,
+        JSON.stringify({ 历史记录: historyList }),
+        () => {},
+    );
+}
 
 /************************************引入 */
 
