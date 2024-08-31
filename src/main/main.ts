@@ -446,6 +446,8 @@ app.whenReady().then(() => {
     // 初始化语言
     lan(store.get("语言.语言") || "");
 
+    argRun(process.argv, true);
+
     // 初始化设置
     // Store.initRenderer();
     // 托盘
@@ -657,8 +659,6 @@ app.whenReady().then(() => {
     } else {
         new BrowserWindow({ show: false });
     }
-
-    argRun(process.argv, true);
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
