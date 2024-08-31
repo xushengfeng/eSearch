@@ -2257,7 +2257,7 @@ function ableChangeColor() {
 }
 
 function colorInput(type: "fill" | "stroke") {
-    const i = input("color").on("input", () => {
+    const i = input().on("input", () => {
         setC();
         main.el.dispatchEvent(new Event("input"));
     });
