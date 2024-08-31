@@ -237,7 +237,7 @@ for (const key in configMap) {
     });
 }
 
-setSelect();
+setSelect(store.get("高级图片编辑.默认配置"));
 
 setConfig();
 
