@@ -6,6 +6,7 @@ import {
     input,
     pureStyle,
     select,
+    txt,
     view,
 } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
@@ -89,11 +90,14 @@ const controls = frame("sidebar", {
     },
     controls: {
         _: view("y"),
+        _0: txt("圆角"),
         raduis: input("number"),
+        _1: txt("背景颜色"),
         background: {
             _: view("x"),
             bgText: input(),
         },
+        _2: txt("阴影"),
         shardow: {
             _: view("x"),
             sx: input("number"),
@@ -101,6 +105,7 @@ const controls = frame("sidebar", {
             blur: input("number"),
             scolor: input(),
         },
+        _3: txt("边距"),
         padding: {
             _: view("x"),
             px: input("number"),
