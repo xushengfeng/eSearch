@@ -1106,6 +1106,7 @@ function renderHistory() {
     n = null;
     if (Object.keys(historyList).length === 0)
         historyListEl.innerText = t("暂无历史记录");
+    else historyListEl.innerText = "";
     for (const i in historyList) {
         const t = historyList[i].text.split(/[\r\n]/g);
         const div = view().attr({ id: i });
