@@ -338,7 +338,7 @@ async function argRun(c: string[], first?: boolean) {
     const e = argv.engine;
     if (argv.s || argv.save) {
         const n = argv.n as number;
-        const dt = argv.dt as number;
+        const dt = (argv.dt as number) || 100;
 
         const savePath = argv.p || argv.path;
         const sp =
