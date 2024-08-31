@@ -280,6 +280,7 @@ const ignoreDir = [
     "*.map",
     "**/*.ts",
     "src",
+    "docs",
     "node_modules/**/*.flow",
     "node_modules/**/*.md",
     "node_modules/**/*.map",
@@ -301,7 +302,7 @@ const ignoreModule = [
     "dkh-ui",
     "xtranslator",
     "fabric",
-    "jsdom"
+    "jsdom",
 ];
 for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
