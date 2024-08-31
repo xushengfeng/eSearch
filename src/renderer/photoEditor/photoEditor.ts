@@ -1,10 +1,32 @@
-import { button, ele, frame, input, pureStyle, select, view } from "dkh-ui";
+import {
+    button,
+    ele,
+    frame,
+    image,
+    input,
+    pureStyle,
+    select,
+    view,
+} from "dkh-ui";
 import type { setting } from "../../ShareTypes";
+import initStyle from "../root/root";
 import store from "../../../lib/store/renderStore";
 const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
 ) as typeof import("electron");
 const { writeFileSync } = require("node:fs") as typeof import("fs");
+
+import add_svg from "../assets/icons/add.svg";
+import reload_svg from "../assets/icons/reload.svg";
+import close_svg from "../assets/icons/close.svg";
+import save_svg from "../assets/icons/save.svg";
+import copy_svg from "../assets/icons/copy.svg";
+
+function icon(src: string) {
+    return image(src, "icon").class("icon");
+}
+
+initStyle(store);
 
 const pz = store.get("高级图片编辑.配置");
 let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.find(
@@ -21,11 +43,11 @@ let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> = pz.fin
     autoPadding: false,
 };
 
-const preview = view();
+const preview = view().style({ margin: "auto" });
 const controls = frame("sidebar", {
     _: view("y"),
     configs: {
-        _: view("x"),
+        _: view("x").style({ "--b-button": "24px" }),
         select: select([]).on("input", (_, el) => {
             if (!el.gv) return;
             styleData = pz.find((i) => i.name === el.gv);
@@ -33,7 +55,7 @@ const controls = frame("sidebar", {
             updatePreview();
             store.set("高级图片编辑.默认配置", el.gv);
         }),
-        addConf: button("添加配置").on("click", () => {
+        addConf: button(icon(add_svg)).on("click", () => {
             const id = `新配置${crypto.randomUUID().slice(0, 5)}`;
             pz.push({
                 name: id,
@@ -42,7 +64,7 @@ const controls = frame("sidebar", {
             store.set("高级图片编辑.配置", pz);
             setSelect(id);
         }),
-        updataConf: button("更新配置").on("click", () => {
+        updataConf: button(icon(reload_svg)).on("click", () => {
             const name = controls.els.select.gv;
             if (!name) return;
             const index = pz.findIndex((i) => i.name === name);
@@ -54,7 +76,7 @@ const controls = frame("sidebar", {
             store.set("高级图片编辑.配置", pz);
             setSelect(name);
         }),
-        delConf: button("删除配置").on("click", () => {
+        delConf: button(icon(close_svg)).on("click", () => {
             const name = controls.els.select.gv;
             if (!name) return;
             pz.splice(
@@ -86,15 +108,15 @@ const controls = frame("sidebar", {
         },
     },
     export: {
-        _: view(),
-        save: button("保存").on("click", () => {
+        _: view("x").style({ gap: "var(--o-padding)" }),
+        save: button(icon(save_svg)).on("click", () => {
             const path = ipcRenderer.sendSync("get_save_file_path", "png");
             if (!path) return;
             const img = getImg();
             writeFileSync(path, img.toPNG());
             ipcRenderer.send("window", "close");
         }),
-        copy: button("复制").on("click", () => {
+        copy: button(icon(copy_svg)).on("click", () => {
             const img = getImg();
             clipboard.writeImage(img);
         }),
