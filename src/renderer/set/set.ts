@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-const configPath = new URLSearchParams(location.search).get("config_path");
 import type { setting, 功能 } from "../../ShareTypes";
 const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";
@@ -23,6 +22,8 @@ import {
     elFromId,
     textarea,
 } from "dkh-ui";
+
+const configPath = ipcRenderer.sendSync("store", { type: "path" });
 
 import close_svg from "../assets/icons/close.svg";
 import delete_svg from "../assets/icons/delete.svg";

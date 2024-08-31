@@ -130,15 +130,11 @@ function mainUrl(fileName: string) {
 
 /** 加载网页 */
 function rendererPath(window: BrowserWindow, fileName: string) {
-    const q = { query: { config_path: app.getPath("userData") } };
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
         const x = new url.URL(mainUrl(fileName));
-        for (const i in q.query) {
-            x.searchParams.set(i, q.query[i]);
-        }
         window.loadURL(x.toString());
     } else {
-        window.loadFile(mainUrl(fileName), q);
+        window.loadFile(mainUrl(fileName));
     }
     window.webContents.on("will-navigate", (event) => {
         event.preventDefault();
@@ -150,15 +146,8 @@ function rendererPath(window: BrowserWindow, fileName: string) {
 function rendererPath2(
     window: Electron.WebContents,
     fileName: string,
-    q: Electron.LoadFileOptions = {
-        query: { config_path: app.getPath("userData") },
-    },
+    q: Electron.LoadFileOptions,
 ) {
-    if (!q.query) {
-        q.query = { config_path: app.getPath("userData") };
-    } else {
-        q.query.config_path = app.getPath("userData");
-    }
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
         const x = new url.URL(mainUrl(fileName));
         if (q) {
