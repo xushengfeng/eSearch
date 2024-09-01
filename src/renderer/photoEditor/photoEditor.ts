@@ -5,6 +5,7 @@ import {
     frame,
     image,
     input,
+    label,
     pureStyle,
     select,
     textarea,
@@ -102,11 +103,7 @@ const controls = frame("sidebar", {
         _: view("y"),
         _0: txt("圆角"),
         raduis: input("number"),
-        _outerRadius: {
-            _: view("x"),
-            outerRadius: check(""),
-            _ot: txt("外圆角"),
-        },
+        outerRadius: label([check(""), "外圆角"]),
         _1: txt("背景"),
         background: {
             _: view("y"),
@@ -126,7 +123,7 @@ const controls = frame("sidebar", {
                 // repeatSize: input("number"),
                 gx: input("number").attr({ max: "1", min: "0", step: "0.01" }),
                 gy: input("number").attr({ max: "1", min: "0", step: "0.01" }),
-                gColors: textarea(),
+                gColors: textarea(), // todo
             },
         },
         _2: txt("阴影"),
