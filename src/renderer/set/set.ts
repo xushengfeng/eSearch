@@ -869,6 +869,7 @@ const engineConfig: Partial<
                 text?: string;
                 type?: "json";
                 area?: boolean;
+                optional?: boolean;
             }[];
             help?: { src: string };
         }
@@ -910,11 +911,25 @@ const engineConfig: Partial<
     chatgpt: {
         t: "ChatGPT",
         key: [
-            { name: "key" },
-            { name: "url" },
-            { name: "config", text: "请求体自定义", type: "json", area: true },
-            { name: "sysPrompt", text: "系统提示词，$t为文字，$to，$from" },
-            { name: "userPrompt", text: "用户提示词，$t为文字，$to，$from" },
+            { name: "key", optional: true },
+            { name: "url", optional: true },
+            {
+                name: "config",
+                text: "请求体自定义",
+                type: "json",
+                area: true,
+                optional: true,
+            },
+            {
+                name: "sysPrompt",
+                text: "系统提示词，$t为文字，$to，$from",
+                optional: true,
+            },
+            {
+                name: "userPrompt",
+                text: "用户提示词，$t为文字，$to，$from",
+                optional: true,
+            },
         ],
         help: { src: "https://platform.openai.com/account/api-keys" },
     },
@@ -922,9 +937,13 @@ const engineConfig: Partial<
         t: "Gemini",
         key: [
             { name: "key" },
-            { name: "url" },
+            { name: "url", optional: true },
             { name: "config", text: "请求体自定义", area: true },
-            { name: "userPrompt", text: "用户提示词，$t为文字，$to，$from" },
+            {
+                name: "userPrompt",
+                text: "用户提示词，$t为文字，$to，$from",
+                optional: true,
+            },
         ],
         help: { src: "https://ai.google.dev/" },
     },
@@ -1042,7 +1061,15 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         addTranslatorM.add(
             button(txt("完成")).on("click", () => {
                 const nv = getV();
-                if (nv.type && Object.values(nv.keys).every((i) => i)) {
+                if (
+                    nv.type &&
+                    Object.entries(nv.keys).every(
+                        (i) =>
+                            engineConfig[nv.type].key.find(
+                                (j) => j.name === i[0],
+                            ).optional || i[1],
+                    )
+                ) {
                     re(nv);
                     addTranslatorM.el.close();
                 }
