@@ -19,7 +19,6 @@ const { ipcRenderer, nativeImage, clipboard } = window.require(
 const { writeFileSync } = require("node:fs") as typeof import("fs");
 
 import add_svg from "../assets/icons/add.svg";
-import reload_svg from "../assets/icons/reload.svg";
 import close_svg from "../assets/icons/close.svg";
 import save_svg from "../assets/icons/save.svg";
 import copy_svg from "../assets/icons/copy.svg";
@@ -31,12 +30,8 @@ function icon(src: string) {
 initStyle(store);
 
 const pz = store.get("高级图片编辑.配置");
-let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> =
-    structuredClone(
-        pz.find((i) => i.name === store.get("高级图片编辑.默认配置")),
-    );
-
 const defaultConfig: typeof styleData = {
+    name: "0",
     raduis: 0,
     bgType: "color",
     bgColor: "",
@@ -55,11 +50,19 @@ const defaultConfig: typeof styleData = {
     "padding.y": 0,
     autoPadding: false,
 };
+let styleData: setting["高级图片编辑"]["配置"][0] = getStyleData(
+    store.get("高级图片编辑.默认配置"),
+);
 
-for (const key in defaultConfig) {
-    if (!(key in styleData)) {
-        styleData[key] = defaultConfig[key];
+function getStyleData(id: string) {
+    const data = structuredClone(pz.find((i) => i.name === id));
+    if (!data) return defaultConfig;
+    for (const key in defaultConfig) {
+        if (!(key in data)) {
+            data[key] = defaultConfig[key];
+        }
     }
+    return data;
 }
 
 const preview = view().style({ margin: "auto" });
@@ -69,31 +72,18 @@ const controls = frame("sidebar", {
         _: view("x").style({ "--b-button": "24px" }),
         select: select([]).on("input", (_, el) => {
             if (!el.gv) return;
-            styleData = structuredClone(pz.find((i) => i.name === el.gv));
+            styleData = getStyleData(el.gv);
             setConfig();
             updatePreview();
             store.set("高级图片编辑.默认配置", el.gv);
         }),
         addConf: button(icon(add_svg)).on("click", () => {
             const id = `新配置${crypto.randomUUID().slice(0, 5)}`;
-            pz.push({
-                name: id,
-                ...styleData,
-            });
+            const newData = structuredClone(styleData);
+            newData.name = id;
+            pz.push(newData);
             store.set("高级图片编辑.配置", pz);
             setSelect(id);
-        }),
-        updataConf: button(icon(reload_svg)).on("click", () => {
-            const name = controls.els.select.gv;
-            if (!name) return;
-            const index = pz.findIndex((i) => i.name === name);
-            if (index === -1) return;
-            pz[index] = {
-                name,
-                ...styleData,
-            };
-            store.set("高级图片编辑.配置", pz);
-            setSelect(name);
         }),
         delConf: button(icon(close_svg)).on("click", () => {
             const name = controls.els.select.gv;
