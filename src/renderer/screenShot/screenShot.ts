@@ -78,7 +78,6 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
             {
                 bounds: { x: 0, y: 0, width: s.width, height: s.height },
                 size: { width: s.width, height: s.height },
-                scaleFactor: 1,
                 captureSync: () => data,
             },
         ] as typeof allScreens;
