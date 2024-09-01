@@ -113,7 +113,14 @@ const controls = frame("sidebar", {
                 { value: "linear-gradient", name: "线性渐变" },
                 { value: "radial-gradient", name: "径向渐变" },
                 { value: "conic-gradient", name: "圆锥渐变" },
-            ]),
+            ])
+                .on("input", (_, el) => {
+                    setBgUI(el.gv);
+                })
+                .bindSet((v: (typeof styleData)["bgType"], el) => {
+                    setBgUI(v);
+                    el.value = v;
+                }),
             bgColor: input(),
             bgUrl: input(),
             bgGradient: {
@@ -168,6 +175,22 @@ function setSelect(id?: string) {
 
     controls.els.select.sv(nid);
     if (nid) store.set("高级图片编辑.默认配置", nid);
+}
+
+function setBgUI(type: (typeof styleData)["bgType"]) {
+    if (type === "image") {
+        controls.els.bgUrl.style({ display: "" });
+        controls.els.bgGradient.style({ display: "none" });
+        controls.els.bgColor.style({ display: "none" });
+    } else if (type === "color") {
+        controls.els.bgUrl.style({ display: "none" });
+        controls.els.bgGradient.style({ display: "none" });
+        controls.els.bgColor.style({ display: "" });
+    } else {
+        controls.els.bgUrl.style({ display: "none" });
+        controls.els.bgGradient.style({ display: "" });
+        controls.els.bgColor.style({ display: "none" });
+    }
 }
 
 function getImg() {
