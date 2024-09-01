@@ -976,9 +976,9 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
                         .attr({ placeholder: x.text || "", spellcheck: false })
                         .data({ key: x.name })
                         .sv(
-                            x.type === "json"
+                            (x.type === "json"
                                 ? JSON.stringify(value, null, 2)
-                                : value || "",
+                                : value) || "",
                         )
                         .style({ width: "100%" }),
                 ]),
