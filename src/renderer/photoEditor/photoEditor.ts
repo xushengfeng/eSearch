@@ -272,9 +272,10 @@ function updatePreview() {
             ctx.fillRect(0, 0, finalWidth, finalHeight);
         } else if (bgType === "image") {
             const bgImg = new Image();
-            // todo
             bgImg.onload = () => {
+                // todo contain center
                 ctx.drawImage(bgImg, 0, 0, finalWidth, finalHeight);
+                setPhoto();
             };
             bgImg.src = bgUrl;
         } else {
@@ -311,18 +312,22 @@ function updatePreview() {
             ctx.fillRect(0, 0, finalWidth, finalHeight);
         }
 
-        ctx.globalCompositeOperation = "source-over";
-        ctx.shadowOffsetX = x;
-        ctx.shadowOffsetY = y;
-        ctx.shadowBlur = blur;
-        ctx.shadowColor = color;
+        function setPhoto() {
+            ctx.globalCompositeOperation = "source-over";
+            ctx.shadowOffsetX = x;
+            ctx.shadowOffsetY = y;
+            ctx.shadowBlur = blur;
+            ctx.shadowColor = color;
 
-        const matrix = new DOMMatrix();
-        const f = ctx.createPattern(photo, "repeat");
-        f.setTransform(matrix.translate(padX, padY));
-        ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
-        ctx.fillStyle = f;
-        ctx.fill();
+            const matrix = new DOMMatrix();
+            const f = ctx.createPattern(photo, "repeat");
+            f.setTransform(matrix.translate(padX, padY));
+            ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
+            ctx.fillStyle = f;
+            ctx.fill();
+        }
+
+        setPhoto();
     }
 }
 
