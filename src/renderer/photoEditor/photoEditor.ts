@@ -273,8 +273,17 @@ function updatePreview() {
         } else if (bgType === "image") {
             const bgImg = new Image();
             bgImg.onload = () => {
-                // todo contain center
-                ctx.drawImage(bgImg, 0, 0, finalWidth, finalHeight);
+                let scale = finalWidth / bgImg.naturalWidth;
+                if (bgImg.naturalHeight * scale < finalHeight) {
+                    scale = finalHeight / bgImg.naturalHeight;
+                }
+
+                const w = bgImg.naturalWidth * scale;
+                const h = bgImg.naturalHeight * scale;
+                const x = (finalWidth - w) / 2;
+                const y = (finalHeight - h) / 2;
+
+                ctx.drawImage(bgImg, x, y, w, h);
                 setPhoto();
             };
             bgImg.src = bgUrl;
