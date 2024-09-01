@@ -102,14 +102,8 @@ const controls = frame("sidebar", {
         raduis: input("number"),
         _1: txt("背景"),
         background: {
-            _: view("x"),
-            bgType: select<
-                | "color"
-                | "image"
-                | "linear-gradient"
-                | "radial-gradient"
-                | "conic-gradient"
-            >([
+            _: view("y"),
+            bgType: select<(typeof styleData)["bgType"]>([
                 { value: "color", name: "纯色" },
                 { value: "image", name: "图片" },
                 { value: "linear-gradient", name: "线性渐变" },
@@ -119,7 +113,7 @@ const controls = frame("sidebar", {
             bgColor: input(),
             bgUrl: input(),
             bgGradient: {
-                _: view("x"),
+                _: view("y"),
                 angle: input("number"),
                 // repeat: input("checkbox"),
                 // repeatSize: input("number"),
