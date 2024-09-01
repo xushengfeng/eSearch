@@ -52,8 +52,12 @@ const historyPath = path.join(
     ipcRenderer.sendSync("store", { type: "path" }),
     "history.json",
 );
-let historyList: { [key: string]: { text: string } } =
-    JSON.parse(fs.readFileSync(historyPath).toString() || "{}").历史记录 || {};
+let historyList: { [key: string]: { text: string } } = {};
+try {
+    historyList =
+        JSON.parse(fs.readFileSync(historyPath).toString() || "{}").历史记录 ||
+        {};
+} catch (error) {}
 
 let historyShowed = false;
 
