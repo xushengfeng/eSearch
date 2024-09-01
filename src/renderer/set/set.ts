@@ -1022,10 +1022,10 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         if (!selectEl.gv) return null;
         const key = {};
         const e = engineConfig[selectEl.gv].key;
-        for (const el of Array.from(keys.el.querySelectorAll("input"))) {
-            const type = e.find((i) => i.name === el.dataset.key).type;
-            key[el.dataset.key] =
-                type === "json" ? JSON.parse(el.value) : el.value;
+        for (const el of keys.queryAll("input, textarea")) {
+            const type = e.find((i) => i.name === el.el.dataset.key).type;
+            key[el.el.dataset.key] =
+                type === "json" ? JSON.parse(el.el.value) : el.el.value;
         }
         const nv: typeof v = {
             id: v.id,
