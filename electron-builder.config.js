@@ -303,6 +303,7 @@ const ignoreModule = [
     "xtranslator",
     "fabric",
     "jsdom",
+    "canvas",
 ];
 for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
