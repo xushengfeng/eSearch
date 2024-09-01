@@ -6,6 +6,7 @@ import {
     input,
     pureStyle,
     select,
+    textarea,
     txt,
     view,
 } from "dkh-ui";
@@ -33,17 +34,33 @@ const pz = store.get("高级图片编辑.配置");
 let styleData: Omit<setting["高级图片编辑"]["配置"][0], "name"> =
     structuredClone(
         pz.find((i) => i.name === store.get("高级图片编辑.默认配置")),
-    ) || {
-        raduis: 0,
-        background: "",
-        "shadow.x": 0,
-        "shadow.y": 0,
-        "shadow.blur": 0,
-        "shadow.color": "",
-        "padding.x": 0,
-        "padding.y": 0,
-        autoPadding: false,
-    };
+    );
+
+const defaultConfig: typeof styleData = {
+    raduis: 0,
+    bgType: "color",
+    bgColor: "",
+    bgUrl: "",
+    "bg.gradient.angle": 0,
+    "bg.gradient.repeat": false,
+    "bg.gradient.repeatSize": 0,
+    "bg.gradient.x": 0,
+    "bg.gradient.y": 0,
+    "bg.gradient": [],
+    "shadow.x": 0,
+    "shadow.y": 0,
+    "shadow.blur": 0,
+    "shadow.color": "",
+    "padding.x": 0,
+    "padding.y": 0,
+    autoPadding: false,
+};
+
+for (const key in defaultConfig) {
+    if (!(key in styleData)) {
+        styleData[key] = defaultConfig[key];
+    }
+}
 
 const preview = view().style({ margin: "auto" });
 const controls = frame("sidebar", {
@@ -93,10 +110,33 @@ const controls = frame("sidebar", {
         _: view("y"),
         _0: txt("圆角"),
         raduis: input("number"),
-        _1: txt("背景颜色"),
+        _1: txt("背景"),
         background: {
             _: view("x"),
-            bgText: input(),
+            bgType: select<
+                | "color"
+                | "image"
+                | "linear-gradient"
+                | "radial-gradient"
+                | "conic-gradient"
+            >([
+                { value: "color", name: "纯色" },
+                { value: "image", name: "图片" },
+                { value: "linear-gradient", name: "线性渐变" },
+                { value: "radial-gradient", name: "径向渐变" },
+                { value: "conic-gradient", name: "圆锥渐变" },
+            ]),
+            bgColor: input(),
+            bgUrl: input(),
+            bgGradient: {
+                _: view("x"),
+                angle: input("number"),
+                // repeat: input("checkbox"),
+                // repeatSize: input("number"),
+                gx: input("number").attr({ max: "1", min: "0", step: "0.01" }),
+                gy: input("number").attr({ max: "1", min: "0", step: "0.01" }),
+                gColors: textarea(),
+            },
         },
         _2: txt("阴影"),
         shardow: {
@@ -153,11 +193,35 @@ preview.add(canvas);
 const configMap: Partial<
     Record<
         keyof typeof controls.els,
-        { path: keyof typeof styleData; parse?: (v: string) => unknown }
+        {
+            path: keyof typeof styleData;
+            parse?: (v: string) => unknown;
+            init?: (v: unknown) => string;
+        }
     >
 > = {
     raduis: { path: "raduis", parse: Number },
-    bgText: { path: "background" },
+    bgType: { path: "bgType" },
+    bgColor: { path: "bgColor" },
+    bgUrl: { path: "bgUrl" },
+    angle: { path: "bg.gradient.angle", parse: Number },
+    // repeat: { path: "bg.gradient.repeat" },
+    // repeatSize: { path: "bg.gradient.repeatSize", parse: Number },
+    gx: { path: "bg.gradient.x", parse: Number },
+    gy: { path: "bg.gradient.y", parse: Number },
+    gColors: {
+        path: "bg.gradient",
+        parse: (v) =>
+            v
+                .trim()
+                .split("\n")
+                .map((i) => ({
+                    offset: Number(i.split(" ")[0]),
+                    color: i.split(" ")[1],
+                })),
+        init: (v: (typeof styleData)["bg.gradient"]) =>
+            v.map((i) => `${i.offset} ${i.color}`).join("\n"),
+    },
     sx: { path: "shadow.x", parse: Number },
     sy: { path: "shadow.y", parse: Number },
     blur: { path: "shadow.blur", parse: Number },
@@ -172,7 +236,11 @@ function setConfig() {
     for (const key in configMap) {
         const k = key as keyof typeof configMap;
         const el = controls.els[k];
-        el.sv(String(styleData[configMap[k].path]));
+        const value = configMap[k].init
+            ? configMap[k].init(styleData[configMap[k].path])
+            : String(styleData[configMap[k].path]);
+        // @ts-ignore
+        el.sv(value);
     }
 }
 
@@ -181,7 +249,18 @@ function updatePreview() {
         const ctx = canvas.el.getContext("2d");
 
         const { naturalWidth: photoWidth, naturalHeight: photoHeight } = photo;
-        const { raduis, background } = styleData;
+        const raduis = styleData.raduis;
+        const {
+            bgType,
+            bgColor,
+            bgUrl,
+            "bg.gradient.angle": gAngle,
+            // "bg.gradient.repeat": repeat,
+            // "bg.gradient.repeatSize": repeatSize,
+            "bg.gradient.x": gx,
+            "bg.gradient.y": gy,
+            "bg.gradient": gradient,
+        } = styleData;
         const {
             "shadow.x": x,
             "shadow.y": y,
@@ -198,8 +277,47 @@ function updatePreview() {
         canvas.el.width = finalWidth;
         canvas.el.height = finalHeight;
 
-        if (background) {
-            ctx.fillStyle = background;
+        if (bgType === "color") {
+            ctx.fillStyle = bgColor || "#0000";
+            ctx.fillRect(0, 0, finalWidth, finalHeight);
+        } else if (bgType === "image") {
+            const bgImg = new Image();
+            // todo
+            bgImg.onload = () => {
+                ctx.drawImage(bgImg, 0, 0, finalWidth, finalHeight);
+            };
+            bgImg.src = bgUrl;
+        } else {
+            let grd: CanvasGradient;
+            const angle = (gAngle * Math.PI) / 180;
+            if (bgType === "linear-gradient") {
+                const r =
+                    Math.sin(angle + Math.atan(finalHeight / finalWidth)) *
+                    Math.sqrt(finalWidth ** 2 + finalHeight ** 2);
+                grd = ctx.createLinearGradient(
+                    0,
+                    finalHeight,
+                    r * Math.sin(angle),
+                    finalHeight - r * Math.cos(angle), // angle 基于y轴
+                );
+            } else if (bgType === "radial-gradient") {
+                grd = ctx.createRadialGradient(
+                    gx,
+                    gy,
+                    0,
+                    gx,
+                    gy,
+                    Math.max(finalWidth, finalHeight) / 2,
+                );
+            } else if (bgType === "conic-gradient") {
+                grd = ctx.createConicGradient(angle, gx, gy);
+            }
+            try {
+                for (const item of gradient) {
+                    grd.addColorStop(item.offset, item.color);
+                }
+            } catch (error) {}
+            ctx.fillStyle = grd;
             ctx.fillRect(0, 0, finalWidth, finalHeight);
         }
 

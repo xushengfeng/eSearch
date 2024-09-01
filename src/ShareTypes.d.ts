@@ -328,7 +328,20 @@ export interface setting {
             "padding.x": number;
             "padding.y": number;
             autoPadding: boolean;
-            background: string;
+            bgType:
+                | "color"
+                | "image"
+                | "linear-gradient"
+                | "radial-gradient"
+                | "conic-gradient";
+            bgColor: string;
+            bgUrl: string;
+            "bg.gradient.repeat": boolean;
+            "bg.gradient.repeatSize": number | `${number}px`;
+            "bg.gradient.angle": number;
+            "bg.gradient.x": number; // 0-1
+            "bg.gradient.y": number; // 0-1
+            "bg.gradient": { offset: number; color: string }[];
         }[];
         默认配置: string;
     };
