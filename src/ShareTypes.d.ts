@@ -321,6 +321,7 @@ export interface setting {
         配置: {
             name: string;
             raduis: number;
+            outerRadius: boolean;
             "shadow.x": number;
             "shadow.y": number;
             "shadow.blur": number;

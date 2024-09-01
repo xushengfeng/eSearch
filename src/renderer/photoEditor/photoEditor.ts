@@ -1,5 +1,6 @@
 import {
     button,
+    check,
     ele,
     frame,
     image,
@@ -33,6 +34,7 @@ const pz = store.get("高级图片编辑.配置");
 const defaultConfig: typeof styleData = {
     name: "0",
     raduis: 0,
+    outerRadius: false,
     bgType: "color",
     bgColor: "",
     bgUrl: "",
@@ -100,6 +102,11 @@ const controls = frame("sidebar", {
         _: view("y"),
         _0: txt("圆角"),
         raduis: input("number"),
+        _outerRadius: {
+            _: view("x"),
+            outerRadius: check(""),
+            _ot: txt("外圆角"),
+        },
         _1: txt("背景"),
         background: {
             _: view("y"),
@@ -185,6 +192,7 @@ const configMap: Partial<
     >
 > = {
     raduis: { path: "raduis", parse: Number },
+    outerRadius: { path: "outerRadius" },
     bgType: { path: "bgType" },
     bgColor: { path: "bgColor" },
     bgUrl: { path: "bgUrl" },
@@ -222,7 +230,7 @@ function setConfig() {
         const el = controls.els[k];
         const value = configMap[k].init
             ? configMap[k].init(styleData[configMap[k].path])
-            : String(styleData[configMap[k].path]);
+            : styleData[configMap[k].path];
         // @ts-ignore
         el.sv(value);
     }
@@ -255,11 +263,21 @@ function updatePreview() {
             ? { x: 0, y: 0 }
             : { x: styleData["padding.x"], y: styleData["padding.y"] };
 
+        const outerRadius = styleData.outerRadius
+            ? raduis + Math.min(padX, padY)
+            : 0;
+
         const finalWidth = photoWidth + 2 * padX;
         const finalHeight = photoHeight + 2 * padY;
 
         canvas.el.width = finalWidth;
         canvas.el.height = finalHeight;
+
+        if (outerRadius) {
+            ctx.beginPath();
+            ctx.roundRect(0, 0, finalWidth, finalHeight, outerRadius);
+            ctx.clip();
+        }
 
         if (bgType === "color") {
             ctx.fillStyle = bgColor || "#0000";
@@ -323,11 +341,14 @@ function updatePreview() {
             ctx.shadowColor = color;
 
             const matrix = new DOMMatrix();
-            const f = ctx.createPattern(photo, "repeat");
+            const f = ctx.createPattern(photo, "no-repeat");
             f.setTransform(matrix.translate(padX, padY));
-            ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
             ctx.fillStyle = f;
+            ctx.beginPath();
+            ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
             ctx.fill();
+
+            canvas.style({ "border-radius": `${outerRadius}px` });
         }
 
         setPhoto();
