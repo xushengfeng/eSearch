@@ -1931,6 +1931,9 @@ async function createMainWindow(op: MainWinType) {
         titleBarStyle: "hidden",
         titleBarOverlay: {
             color: bg,
+            symbolColor: nativeTheme.shouldUseDarkColors
+                ? store.get("全局.主题.dark.fontColor")
+                : store.get("全局.主题.light.fontColor"),
         },
         webPreferences: {
             nodeIntegration: true,
