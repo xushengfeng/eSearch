@@ -8,6 +8,15 @@
 
 除了通过托盘截屏，你还可以通过快捷键（默认是<kbd>Alt</kbd>+<kbd>C</kbd>或<kbd>⌥</kbd><kbd>C</kbd>）打开截屏窗口。
 
+## 自动搜索
+
+当你选中一段文字时，**eSearch** 在主页面打开这个文字。如果没有选中文字，**eSearch** 会打开截屏。
+
+<details>
+<summary>Wayland</summary>
+Wayland 环境下无法获取选中文字，在KDE下甚至会造成按键锁定，见[GitHub issue](https://github.com/xushengfeng/eSearch/issues/248#issuecomment-2236211435)
+</details>
+
 ---
 
 下面是复杂用法，一般很少接触。
