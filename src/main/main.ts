@@ -251,7 +251,7 @@ function sleep(time: number) {
  */
 async function argRun(c: string[], first?: boolean) {
     const argv = minimist(c.slice(1));
-    if (argv.d) {
+    if (argv.dev) {
         dev = true;
     }
 
