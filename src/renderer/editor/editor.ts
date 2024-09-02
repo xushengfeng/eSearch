@@ -972,6 +972,7 @@ function isLink(url: string, s: boolean) {
 function showT(st: string, m: setting["主页面"]["模式"]) {
     const t = st.replace(/[\r\n]$/, "");
     editor.push(t);
+    const openOuterBrowser = 浏览器打开 || (m === "auto" && concise);
     if (m === "auto" || t === "") {
         // 严格模式
         if (isLink(t, true)) {
@@ -984,16 +985,16 @@ function showT(st: string, m: setting["主页面"]["模式"]) {
                     : "外语";
             if (自动搜索 && t.match(/[\r\n]/) == null && t !== "") {
                 if (language === "本地语言") {
-                    openLink("search");
+                    openLink("search", null, openOuterBrowser);
                 } else {
-                    openLink("translate");
+                    openLink("translate", null, openOuterBrowser);
                 }
             }
         }
     } else if (m === "search") {
-        openLink("search");
+        openLink("search", null, openOuterBrowser);
     } else if (m === "translate") {
-        openLink("translate");
+        openLink("translate", null, openOuterBrowser);
     }
     editor.selectAll();
 }
@@ -1003,7 +1004,11 @@ function showT(st: string, m: setting["主页面"]["模式"]) {
  * @param id 模式
  * @param link 链接
  */
-function openLink(id: "url" | "search" | "translate", slink?: string) {
+function openLink(
+    id: "url" | "search" | "translate",
+    slink?: string,
+    outerBrowser?: boolean,
+) {
     let url = "";
     if (id === "url") {
         let link = slink.replace(/[(^\s)(\s$)]/g, "");
@@ -1017,14 +1022,11 @@ function openLink(id: "url" | "search" | "translate", slink?: string) {
             document.querySelector(`#${id}_s`)
         )).value.replace("%s", encodeURIComponent(s));
     }
-    if (typeof global !== "undefined") {
-        if (浏览器打开 || concise) {
-            shell.openExternal(url);
-        } else {
-            ipcRenderer.send("open_url", windowName, url);
-        }
+
+    if (outerBrowser) {
+        shell.openExternal(url);
     } else {
-        window.open(url);
+        ipcRenderer.send("open_url", windowName, url);
     }
 }
 
