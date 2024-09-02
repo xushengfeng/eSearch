@@ -2035,7 +2035,7 @@ async function createSettingWindow(about?: boolean) {
 
 async function createHelpWindow() {
     shell.openExternal(
-        "https://github.com/xushengfeng/eSearch-website/blob/master/docs/index.md",
+        "https://github.com/xushengfeng/eSearch/blob/master/docs/use/index.md",
     );
 }
 
