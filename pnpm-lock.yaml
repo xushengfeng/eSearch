@@ -4,13 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: 7qyfbdpb7zu3rkrzmddjgn4j7e
+
 importers:
 
   .:
     dependencies:
       '@erase2d/fabric':
         specifier: ^1.1.6
-        version: 1.1.6(fabric@6.4.0)
+        version: 1.1.6(fabric@6.4.0(canvas@2.11.2))
       color:
         specifier: ^4.2.3
         version: 4.2.3
@@ -31,7 +33,7 @@ importers:
         version: 1.1.4(opencv.js@1.2.1)
       fabric:
         specifier: ^6.4.0
-        version: 6.4.0
+        version: 6.4.0(canvas@2.11.2)
       hex-to-css-filter:
         specifier: ^5.4.0
         version: 5.4.0
@@ -2774,9 +2776,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@erase2d/fabric@1.1.6(fabric@6.4.0)':
+  '@erase2d/fabric@1.1.6(fabric@6.4.0(canvas@2.11.2))':
     dependencies:
-      fabric: 6.4.0
+      fabric: 6.4.0(canvas@2.11.2)
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
@@ -3833,13 +3835,12 @@ snapshots:
   extsprintf@1.4.1:
     optional: true
 
-  fabric@6.4.0:
+  fabric@6.4.0(canvas@2.11.2):
     optionalDependencies:
-      canvas: 2.11.2
       jsdom: 20.0.3(canvas@2.11.2)
     transitivePeerDependencies:
       - bufferutil
-      - encoding
+      - canvas
       - supports-color
       - utf-8-validate
 
