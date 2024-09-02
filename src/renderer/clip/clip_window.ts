@@ -2753,6 +2753,23 @@ const toolBarEl = frame("tool", {
     save: iconEl(save_svg),
 });
 
+// 仅仅是为了确保功能的值都存在，在更改功能时能类型检查
+const toolList: Record<功能, ElType<HTMLElement>> = {
+    close: toolBarEl.els.close,
+    screens: toolBarEl.els.screens,
+    ocr: toolBarEl.els.ocr,
+    search: toolBarEl.els.search,
+    QR: toolBarEl.els.QR,
+    open: toolBarEl.els.open,
+    ding: toolBarEl.els.ding,
+    record: toolBarEl.els.record,
+    long: toolBarEl.els.long,
+    translate: toolBarEl.els.translate,
+    editor: toolBarEl.els.editor,
+    copy: toolBarEl.els.copy,
+    save: toolBarEl.els.save,
+};
+
 toolBarEl.el.attr({ id: "tool_bar" });
 
 for (const i of [
@@ -2882,7 +2899,8 @@ const edgeRect: {
 let centerBarShow = false;
 let centerBarM = null;
 
-const tool = {
+const tool: Record<功能, () => void> = {
+    screens: () => {},
     close: () => closeWin(),
     ocr: () => runOcr(),
     search: () => runSearch(),
@@ -3255,7 +3273,7 @@ ipcRenderer.on(
         screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
         ipcRenderer.send("clip_main_b", "window-show");
-        const screensEl = toolBarEl.els.screens;
+        const screensEl = toolList.screens;
         if (allScreens.length > 1) {
             let minX = 0;
             let maxX = 0;
@@ -3552,7 +3570,7 @@ ocr引擎.on("input", () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv);
     tool.ocr();
 });
-toolBarEl.els.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv}`;
+toolList.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv}`;
 
 // 以图搜图
 const 识图引擎 = toolBarEl.els.searchE;
@@ -3561,7 +3579,7 @@ const 识图引擎 = toolBarEl.els.searchE;
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv);
     tool.search();
 });
-toolBarEl.els.search.el.title = `以图搜图 - ${识图引擎.gv}`;
+toolList.search.el.title = `以图搜图 - ${识图引擎.gv}`;
 
 trackLocation();
 
