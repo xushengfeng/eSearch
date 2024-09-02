@@ -1981,8 +1981,11 @@ infoEl.add([
 
 document.body.onclick = (e) => {
     if ((<HTMLElement>e.target).tagName === "A") {
-        e.preventDefault();
-        shell.openExternal((<HTMLAnchorElement>e.target).href);
+        const el = <HTMLAnchorElement>e.target;
+        if (el.href.startsWith("http") || el.href.startsWith("https")) {
+            e.preventDefault();
+            shell.openExternal(el.href);
+        }
     }
 };
 
