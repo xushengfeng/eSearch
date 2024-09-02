@@ -348,20 +348,23 @@ export interface setting {
     };
 }
 
-type 功能 =
-    | "close"
-    | "ocr"
-    | "search"
-    | "QR"
-    | "open"
-    | "ding"
-    | "record"
-    | "long"
-    | "translate"
-    | "copy"
-    | "save"
-    | "screens"
-    | "editor";
+type 功能列表 = [
+    "close",
+    "screens",
+    "ocr",
+    "search",
+    "QR",
+    "open",
+    "ding",
+    "record",
+    "long",
+    "translate",
+    "editor",
+    "copy",
+    "save",
+];
+
+type 功能 = 功能列表[number];
 
 type EditType = {
     select: "rect" | "free" | "draw";

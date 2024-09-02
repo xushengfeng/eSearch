@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import type { setting, 功能 } from "../../ShareTypes";
+import type { setting, 功能列表 } from "../../ShareTypes";
 const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
@@ -511,7 +511,7 @@ document
         };
     });
 
-const toolList: 功能[] = [
+const toolList: 功能列表 = [
     "close",
     "screens",
     "ocr",

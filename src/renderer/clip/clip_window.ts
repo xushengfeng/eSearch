@@ -38,6 +38,7 @@ import type {
     EditType,
     功能,
     translateWinType,
+    功能列表,
 } from "../../ShareTypes.js";
 import {
     ele,
@@ -2709,7 +2710,7 @@ let ratio = 1;
 
 setSetting();
 
-const tools: 功能[] = [
+const tools: 功能列表 = [
     "close",
     "screens",
     "ocr",
@@ -2720,9 +2721,9 @@ const tools: 功能[] = [
     "record",
     "long",
     "translate",
+    "editor",
     "copy",
     "save",
-    "editor",
 ];
 
 pureStyle();
@@ -2777,7 +2778,7 @@ toolBarEl.el.style({
     top: store.get("工具栏.初始位置.top"),
 });
 
-const toolsOrder = store.get("工具栏.功能") as string[];
+const toolsOrder = store.get("工具栏.功能");
 for (const g of tools) {
     const id = g;
     const i = toolsOrder.indexOf(id);
