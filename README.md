@@ -54,22 +54,13 @@ winget `winget install esearch`
 
 ### CLI
 
-**eSearch**支持 cli，可以通过命令行进行简单的截屏。
-
-```shell
-esearch (若找不到，请尝试e-search)
-	-a # 自动识别
-	-c # 截屏搜索
-	-s # 选中搜索
-	-b # 剪贴板搜索
-	-q # 快速截屏
-```
-
-不建议在终端进行自动或选中搜索，否则**eSearch**会执行<kbd>Ctrl</kbd>+<kbd>C</kbd>，从而导致终止终端程序
+**eSearch**支持 cli，可以通过命令行进行简单的操作。见[文档](./docs/use/main.md#cli)
 
 ## 功能
 
 已经勾选的功能是开发过程最新功能，但可能还没发布在最新版本
+
+更多介绍见[文档](./docs/use/start.md)
 
 - [x] 截屏
   - [x] 框选裁切，快捷键调整
@@ -156,16 +147,16 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 大多数按钮使用图标，简少了不必要的翻译
 
-[添加新语言](./lib/translate/readme.md)
+[+添加新语言](./lib/translate/readme.md)
 
 - [x] 简体中文
 - [x] 繁体中文
-- [x] 世界语
-- [x] 西班牙语
-- [x] 阿拉伯语
-- [x] 英语
-- [x] 法语
-- [x] 俄语
+- [x] 世界语（Esperanto）
+- [x] 西班牙语（Español）
+- [x] 阿拉伯语（عربي）
+- [x] 英语（English）
+- [x] 法语（Français）
+- [x] 俄语（Русский）
 
 ## 源码运行&编译
 

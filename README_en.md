@@ -54,22 +54,13 @@ The default shortcut key is <kbd>Alt</kbd>+<kbd>C</kbd> (you can also set the sh
 
 ### CLI
 
-**eSearch** supports cli, allowing for simple screenshot operations through command line.
-
-```shell
-esearch (if not found, try e-search)
-	-a # Automatic recognition
-	-c # Screenshot search
-	-s # Select and search
-	-b # Clipboard search
-	-q # Quick screenshot
-```
-
-It is not recommended to use automatic or selection search in the terminal, as **eSearch** will execute <kbd>Ctrl</kbd>+<kbd>C</kbd, which can terminate the terminal program.
+**eSearch** supports cli, allowing for simple screenshot operations through command line. See [Documentation](./docs/use/main.md#cli)
 
 ## Features
 
 The checked features are the latest features in the development process, but may not yet be released in the latest version.
+
+For more introduction, see [Documentation](./docs/use/start.md)
 
 - [x] Screenshot
   - [x] Select and crop, shortcut key adjustment
@@ -156,16 +147,16 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 Most buttons use icons, reducing unnecessary translation.
 
-[Add new language](./lib/translate/readme.md)
+[+Add new language](./lib/translate/readme.md)
 
 - [x] Simplified Chinese
 - [x] Traditional Chinese
-- [x] Esperanto
-- [x] Spanish
-- [x] Arabic
+- [x] Esperanto（Esperanto）
+- [x] Spanish（Español）
+- [x] Arabic（عربي）
 - [x] English
-- [x] French
-- [x] Russian
+- [x] French（Français）
+- [x] Russian（Русский）
 
 ## Running & Compiling from Source Code
 
