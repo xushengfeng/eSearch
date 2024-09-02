@@ -1026,7 +1026,9 @@ for (const v of xstore.翻译.翻译器) {
 }
 
 function translatorD(v: setting["翻译"]["翻译器"][0]) {
-    const idEl = input().sv(v.name);
+    const idEl = input()
+        .sv(v.name)
+        .attr({ placeholder: t("请为翻译器命名") });
     const selectEl = select<Engines | "">(
         [{ value: "", name: t("选择引擎类型") }].concat(
             Object.entries(engineConfig).map((v) => ({
