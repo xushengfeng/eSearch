@@ -14,7 +14,7 @@
 
 <details>
 <summary>Wayland</summary>
-Wayland 环境下无法获取选中文字，在KDE下甚至会造成按键锁定，见[GitHub issue](https://github.com/xushengfeng/eSearch/issues/248#issuecomment-2236211435)
+Wayland 环境下无法获取选中文字，在KDE下甚至会造成按键锁定，见 https://github.com/xushengfeng/eSearch/issues/248#issuecomment-2236211435"> GitHub issue
 </details>
 
 ---
