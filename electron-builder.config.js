@@ -277,13 +277,12 @@ const ignoreDir = [
     "*.md",
     "*.js",
     "*.yaml",
-    "*.map",
+    "**/*.map",
     "**/*.ts",
     "src",
     "docs",
     "node_modules/**/*.flow",
     "node_modules/**/*.md",
-    "node_modules/**/*.map",
     "node_modules/**/*.h", // uiohook
     "node_modules/**/*.c", // uiohook
     "node_modules/**/demo*", // js-clipper
