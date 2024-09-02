@@ -14,15 +14,13 @@
 
 <img height="16" src="../../src/renderer/assets/icons/scan.svg">扫描二维码
 
-<img height="16" src="../../src/renderer/assets/icons/draw.svg">图像编辑
-
 <img height="16" src="../../src/renderer/assets/icons/open.svg">其他应用打开
 
 <img height="16" src="../../src/renderer/assets/icons/ding.svg">[固定在屏幕上](ding.md)
 
 <img height="16" src="../../src/renderer/assets/icons/record.svg">录屏
 
-<img height="16" src="../../src/renderer/assets/icons/long_clip.svg">广截屏
+<img height="16" src="../../src/renderer/assets/icons/long_clip.svg">[广截屏](long_clip.md)
 
 <img height="16" src="../../src/renderer/assets/icons/translate.svg">[屏幕翻译](translate.md)
 
