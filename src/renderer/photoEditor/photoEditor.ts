@@ -322,6 +322,8 @@ function updatePreview() {
         } else {
             let grd: CanvasGradient;
             const angle = (gAngle * Math.PI) / 180;
+            const x = gx * finalWidth;
+            const y = gy * finalHeight;
             if (bgType === "linear-gradient") {
                 const r =
                     Math.sin(angle + Math.atan(finalHeight / finalWidth)) *
@@ -334,15 +336,15 @@ function updatePreview() {
                 );
             } else if (bgType === "radial-gradient") {
                 grd = ctx.createRadialGradient(
-                    gx,
-                    gy,
+                    x,
+                    y,
                     0,
-                    gx,
-                    gy,
+                    x,
+                    y,
                     Math.max(finalWidth, finalHeight) / 2,
                 );
             } else if (bgType === "conic-gradient") {
-                grd = ctx.createConicGradient(angle, gx, gy);
+                grd = ctx.createConicGradient(angle, x, y);
             }
             try {
                 for (const item of gradient) {
