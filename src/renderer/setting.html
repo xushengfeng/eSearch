@@ -139,42 +139,7 @@
                     <label><input type="radio" name="框选后默认操作" value="no">
                         <t>无</t>
                     </label>
-                    <label><input type="radio" name="框选后默认操作" value="ocr" title="{OCR(文字识别)}">
-                        <img src="./assets/icons/ocr.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="search" title="{以图搜图}">
-                        <img src="./assets/icons/search.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="QR" title="{二维码}">
-                        <img src="./assets/icons/scan.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="draw" title="{标记}">
-                        <img src="./assets/icons/draw.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="open" title="{其他应用打开}">
-                        <img src="./assets/icons/open.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="ding" title="{放在屏幕上}">
-                        <img src="./assets/icons/ding.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="record" title="{录屏}">
-                        <img src="./assets/icons/record.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="long" title="{长截屏}">
-                        <img src="./assets/icons/long_clip.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="long" title="{屏幕翻译}">
-                        <img src="./assets/icons/translate.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="long" title="{高级图片编辑}">
-                        <img src="./assets/icons/super_edit.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="copy" title="{复制}">
-                        <img src="./assets/icons/copy.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
-                    <label><input type="radio" name="框选后默认操作" value="save" title="{保存}">
-                        <img src="./assets/icons/save.svg" class="icon" style="height: 24px;display: block;">
-                    </label>
+                    <!-- 在脚本中添加更多 -->
                 </div>
 
                 <h3>自动框选</h3>
@@ -837,56 +802,7 @@
                     </div>
                 </div>
                 <div id="hotkeys_content">
-                    <div>
-                        <span title="{关闭}">
-                            <img src="./assets/icons/close.svg" class="icon">
-                        </span>
-                        <hot-keys name="关闭" value="" data-path="工具快捷键.close"></hot-keys>
-                        <span title="{OCR(文字识别)}">
-                            <img src="./assets/icons/ocr.svg" class="icon">
-                        </span>
-                        <hot-keys name="OCR(文字识别)" value="" data-path="工具快捷键.ocr"></hot-keys>
-                        <span title="{以图搜图}">
-                            <img src="./assets/icons/search.svg" class="icon">
-                        </span>
-                        <hot-keys name="以图搜图" value="" data-path="工具快捷键.search"></hot-keys>
-                        <span title="{QR码}">
-                            <img src="./assets/icons/scan.svg" class="icon">
-                        </span>
-                        <hot-keys name="QR码" value="" data-path="工具快捷键.QR"></hot-keys>
-                        <span title="{其他应用打开}">
-                            <img src="./assets/icons/open.svg" class="icon">
-                        </span>
-                        <hot-keys name="其他应用打开" value="" data-path="工具快捷键.open"></hot-keys>
-                        <span title="{放在屏幕上}">
-                            <img src="./assets/icons/ding.svg" class="icon">
-                        </span>
-                        <hot-keys name="放在屏幕上" value="" data-path="工具快捷键.ding"></hot-keys>
-                        <span title="{录屏}">
-                            <img src="./assets/icons/record.svg" class="icon">
-                        </span>
-                        <hot-keys name="录屏" value="" data-path="工具快捷键.record"></hot-keys>
-                        <span title="{长截屏}">
-                            <img src="./assets/icons/long_clip.svg" class="icon">
-                        </span>
-                        <hot-keys name="长截屏" value="" data-path="工具快捷键.long"></hot-keys>
-                        <span title="{屏幕翻译}">
-                            <img src="./assets/icons/translate.svg" class="icon">
-                        </span>
-                        <hot-keys name="屏幕翻译" value="" data-path="工具快捷键.translate"></hot-keys>
-                        <span title="{高级图片编辑}">
-                            <img src="./assets/icons/super_edit.svg" class="icon">
-                        </span>
-                        <hot-keys value="" data-path="工具快捷键.editor"></hot-keys>
-                        <span title="{复制}">
-                            <img src="./assets/icons/copy.svg" class="icon">
-                        </span>
-                        <hot-keys name="复制" value="" data-path="工具快捷键.copy"></hot-keys>
-                        <span title="{保存}">
-                            <img src="./assets/icons/save.svg" class="icon">
-                        </span>
-                        <hot-keys name="保存" value="" data-path="工具快捷键.save"></hot-keys>
-                    </div>
+                    <div id="hotkeys_screen_shot"> </div>
 
                     <div>
                         <span title="{选择与控制}">
@@ -1012,62 +928,7 @@
                 </div>
 
                 <h2>框选后默认操作</h2>
-                <div id="hotkeys_content2">
-                    <span title="{OCR(文字识别)}">
-                        <img src="./assets/icons/ocr.svg" class="icon">
-                    </span>
-                    <hot-keys name="ocr" value="" data-path="全局工具快捷键.ocr"></hot-keys>
-
-                    <span title="{以图搜图}">
-                        <img src="./assets/icons/search.svg" class="icon">
-                    </span>
-                    <hot-keys name="search" value="" data-path="全局工具快捷键.search"></hot-keys>
-
-                    <span title="{二维码}">
-                        <img src="./assets/icons/scan.svg" class="icon">
-                    </span>
-                    <hot-keys name="QR" value="" data-path="全局工具快捷键.QR"></hot-keys>
-
-                    <span title="{其他应用打开}">
-                        <img src="./assets/icons/open.svg" class="icon">
-                    </span>
-                    <hot-keys name="open" value="" data-path="全局工具快捷键.open"></hot-keys>
-
-                    <span title="{放在屏幕上}">
-                        <img src="./assets/icons/ding.svg" class="icon">
-                    </span>
-                    <hot-keys name="ding" value="" data-path="全局工具快捷键.ding"></hot-keys>
-
-                    <span title="{录屏}">
-                        <img src="./assets/icons/record.svg" class="icon">
-                    </span>
-                    <hot-keys name="record" value="" data-path="全局工具快捷键.record"></hot-keys>
-
-                    <span title="{长截屏}">
-                        <img src="./assets/icons/long_clip.svg" class="icon">
-                    </span>
-                    <hot-keys name="long" value="" data-path="全局工具快捷键.long"></hot-keys>
-
-                    <span title="{屏幕翻译}">
-                        <img src="./assets/icons/translate.svg" class="icon">
-                    </span>
-                    <hot-keys name="translate" value="" data-path="全局工具快捷键.translate"></hot-keys>
-
-                    <span title="{高级图片编辑}">
-                        <img src="./assets/icons/super_edit.svg" class="icon">
-                    </span>
-                    <hot-keys name="editor" data-path="全局工具快捷键.editor"></hot-keys>
-
-                    <span title="{复制}">
-                        <img src="./assets/icons/copy.svg" class="icon">
-                    </span>
-                    <hot-keys name="copy" value="" data-path="全局工具快捷键.copy"></hot-keys>
-
-                    <span title="{保存}">
-                        <img src="./assets/icons/save.svg" class="icon">
-                    </span>
-                    <hot-keys name="save" value="" data-path="全局工具快捷键.save"></hot-keys>
-                </div>
+                <div id="hotkeys_content2"> </div>
 
                 <h2>主页面</h2>
                 <div class="hotkeys">
@@ -1335,52 +1196,6 @@
                     <div id="info"></div>
                 </div>
             </div>
-        </div>
-    </div>
-
-
-    <div id="tool_icons" style="display: none;">
-        <div data-id="close">
-            <img src="./assets/icons/close.svg" class="icon">
-        </div>
-        <div data-id="screens">
-            <img src="./assets/icons/screen.svg" class="icon">
-        </div>
-        <div data-id="ocr">
-            <img src="./assets/icons/ocr.svg" class="icon">
-        </div>
-        <div data-id="search">
-            <img src="./assets/icons/search.svg" class="icon">
-        </div>
-        <div data-id="QR">
-            <img src="./assets/icons/scan.svg" class="icon">
-        </div>
-        <div data-id="draw">
-            <img src="./assets/icons/draw.svg" class="icon">
-        </div>
-        <div data-id="open">
-            <img src="./assets/icons/open.svg" class="icon">
-        </div>
-        <div data-id="ding">
-            <img src="./assets/icons/ding.svg" class="icon">
-        </div>
-        <div data-id="record">
-            <img src="./assets/icons/record.svg" class="icon">
-        </div>
-        <div data-id="long">
-            <img src="./assets/icons/long_clip.svg" class="icon">
-        </div>
-        <div data-id="translate">
-            <img src="./assets/icons/translate.svg" class="icon">
-        </div>
-        <div data-id="copy">
-            <img src="./assets/icons/copy.svg" class="icon">
-        </div>
-        <div data-id="save">
-            <img src="./assets/icons/save.svg" class="icon">
-        </div>
-        <div data-id="editor">
-            <img src="./assets/icons/super_edit.svg" class="icon">
         </div>
     </div>
 

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import type { setting, 功能列表 } from "../../ShareTypes";
+import type { setting, 功能, 功能列表 } from "../../ShareTypes";
 const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
@@ -25,10 +25,23 @@ import {
 
 const configPath = ipcRenderer.sendSync("store", { type: "path" });
 
-import close_svg from "../assets/icons/close.svg";
 import delete_svg from "../assets/icons/delete.svg";
 import handle_svg from "../assets/icons/handle.svg";
 import add_svg from "../assets/icons/add.svg";
+
+import close_svg from "../assets/icons/close.svg";
+import screen_svg from "../assets/icons/screen.svg";
+import ocr_svg from "../assets/icons/ocr.svg";
+import search_svg from "../assets/icons/search.svg";
+import scan_svg from "../assets/icons/scan.svg";
+import open_svg from "../assets/icons/open.svg";
+import ding_svg from "../assets/icons/ding.svg";
+import record_svg from "../assets/icons/record.svg";
+import long_clip_svg from "../assets/icons/long_clip.svg";
+import translate_svg from "../assets/icons/translate.svg";
+import copy_svg from "../assets/icons/copy.svg";
+import save_svg from "../assets/icons/save.svg";
+import super_edit_svg from "../assets/icons/super_edit.svg";
 
 function iconEl(img: string) {
     return image(img, "icon").class("icon");
@@ -170,6 +183,61 @@ const renderTasks: (() => void)[] = [];
 
 function pushRender(v: () => void) {
     renderTasks.push(v);
+}
+
+const tools: Record<功能, { icon: string; title: string }> = {
+    close: { icon: close_svg, title: t("关闭") },
+    screens: { icon: screen_svg, title: t("屏幕管理") },
+    ocr: { icon: ocr_svg, title: t("文字识别") },
+    search: { icon: search_svg, title: t("以图搜图") },
+    QR: { icon: scan_svg, title: t("二维码") },
+    open: { icon: open_svg, title: t("其他应用打开") },
+    ding: { icon: ding_svg, title: t("屏幕贴图") },
+    record: { icon: record_svg, title: t("录屏") },
+    long: { icon: long_clip_svg, title: t("广截屏") },
+    translate: { icon: translate_svg, title: t("屏幕翻译") },
+    editor: { icon: super_edit_svg, title: t("高级图片编辑") },
+    copy: { icon: copy_svg, title: t("复制") },
+    save: { icon: save_svg, title: t("保存") },
+};
+
+const kxActionEl = elFromId("框选后默认操作");
+const kxAction = radioGroup("框选后默认操作");
+
+for (const i in tools) {
+    if (i === "close" || i === "screens") continue;
+
+    kxActionEl.add(
+        kxAction.new(
+            i,
+            iconEl(tools[i].icon).style({
+                height: "24px",
+                display: "block",
+            }),
+        ),
+    );
+}
+
+const hotkeys_screen_shotEl = elFromId("hotkeys_screen_shot");
+for (const i in tools) {
+    if (i === "screens") continue;
+    const xel = document.createElement("div");
+    hotkeys_screen_shotEl.add([
+        ele("span").add(iconEl(tools[i].icon)).attr({ title: tools[i].title }),
+        xel,
+    ]);
+    xel.outerHTML = `<hot-keys data-path="工具快捷键.${i}"></hot-keys>`;
+}
+
+const hotkeysKxActionEl = elFromId("hotkeys_content2");
+for (const i in tools) {
+    if (i === "close" || i === "screens") continue;
+    const xel = document.createElement("div");
+    hotkeysKxActionEl.add([
+        ele("span").add(iconEl(tools[i].icon)).attr({ title: tools[i].title }),
+        xel,
+    ]);
+    xel.outerHTML = `<hot-keys name="${i}"  data-path="全局工具快捷键.${i}"></hot-keys>`;
 }
 
 for (const el of document.querySelectorAll(
@@ -541,10 +609,7 @@ function addToolItem(e: DragEvent) {
 function createToolItem(id: string) {
     const el = document.createElement("div");
     el.draggable = true;
-    const icon = document.querySelector(
-        `#tool_icons > [data-id=${id}]`,
-    ).innerHTML;
-    el.innerHTML = icon;
+    el.append(iconEl(tools[id].icon).el);
     el.setAttribute("data-id", id);
     el.ondragstart = (e) => {
         e.dataTransfer.setData("text", id);
