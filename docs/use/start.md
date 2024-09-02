@@ -24,7 +24,7 @@
 
 <img height="16" src="../../src/renderer/assets/icons/long_clip.svg">广截屏
 
-<img height="16" src="../../src/renderer/assets/icons/translate.svg">屏幕翻译
+<img height="16" src="../../src/renderer/assets/icons/translate.svg">[屏幕翻译](translate.md)
 
 <img height="16" src="../../src/renderer/assets/icons/super_edit.svg">高级图像编辑
 
