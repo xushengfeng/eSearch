@@ -18,13 +18,13 @@
 
 <img height="16" src="../../src/renderer/assets/icons/ding.svg">[固定在屏幕上](ding.md)
 
-<img height="16" src="../../src/renderer/assets/icons/record.svg">录屏
+<img height="16" src="../../src/renderer/assets/icons/record.svg">[录屏](record.md)
 
 <img height="16" src="../../src/renderer/assets/icons/long_clip.svg">[广截屏](long_clip.md)
 
 <img height="16" src="../../src/renderer/assets/icons/translate.svg">[屏幕翻译](translate.md)
 
-<img height="16" src="../../src/renderer/assets/icons/super_edit.svg">高级图像编辑
+<img height="16" src="../../src/renderer/assets/icons/super_edit.svg">[高级图像编辑](super_editor.md)
 
 <img height="16" src="../../src/renderer/assets/icons/copy.svg">复制图片到剪贴板
 
@@ -38,5 +38,7 @@
 除了工具栏，你还会注意到其他栏，这些可以在[截屏](clip.md)查看。
 
 应用托盘、后台等说明，请见[软件主体](main.md)。
+
+[设置](setting.md)
 
 点击蓝色超链接，由更详细的使用说明。
