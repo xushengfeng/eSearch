@@ -8,6 +8,7 @@ ocr/ppocr
 .DS_Store
 build
 preload_config
+portable
 lib/win_rect.exe
 lib/copy.exe
 lib/ffmpeg
