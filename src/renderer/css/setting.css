@@ -352,6 +352,7 @@ details {
 comment {
     opacity: 0.6;
     display: block;
+    margin-block: 8px;
 }
 comment[data-inline] {
     display: inline;

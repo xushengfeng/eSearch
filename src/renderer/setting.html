@@ -82,7 +82,6 @@
 
                 <h3>稍后显示</h3>
                 <comment>截屏时，工具栏和绘制栏都会隐藏，直到调整完框选</comment>
-                <br>
                 <label>
                     <input type="checkbox" data-path="工具栏.稍后出现">
                     <t>启用</t>
@@ -135,7 +134,6 @@
 
                 <h3>框选后默认操作</h3>
                 <comment>框选完鼠标松开一瞬间，执行操作</comment>
-                <br>
                 <a href="#hotkeys_content2">
                     <t>快捷键设置</t>
                 </a>
@@ -205,7 +203,6 @@
 
                 <h3>复制偏移</h3>
                 <comment>复制完一个元素后，为了分辨，可以让其偏移</comment>
-                <br>
                 <t>x轴</t>
                 <range-b out="true" id="复制dx" min="0" max="50" text="px" data-path="图像编辑.复制偏移.x"></range-b>
                 <br>
@@ -245,7 +242,6 @@
 
                 <h3>连拍</h3>
                 <comment>保存到上面的路径</comment>
-                <br>
                 <t>单次数量</t>
                 <range-b out="true" min="2" max="25" data-path="连拍.数"></range-b>
                 <br>
@@ -254,7 +250,6 @@
 
                 <h2>广截屏</h2>
                 <comment>万向滚动截屏</comment>
-                <br>
                 <t>模式</t>
                 <div data-path="广截屏.模式">
                     <label><input type="radio" name="广截屏模式" value="自动">
@@ -551,7 +546,6 @@
 
                 <h2>快速保存</h2>
                 <comment>按下保存键后，默认保存到上次保存的位置，无需选择</comment>
-                <br>
                 <label>
                     <input type="checkbox" id="快速保存" data-path="保存.快速保存">
                     <t>启用快速保存</t>
@@ -655,7 +649,6 @@
 
                 <h2>高级窗口按钮</h2>
                 <comment>如置于最顶层、失去焦点自动关闭按钮等</comment>
-                <br>
                 <label>
                     <input type="checkbox" name="" data-path="主页面.高级窗口按钮">
                     <t>显示</t>
@@ -1136,9 +1129,7 @@
                 <div data-platform="linux">
                     <h2>外部截屏器</h2>
                     <comment>Linux arm64临时解决方案</comment>
-                    <br>
                     <comment>需要保存到 /dev/shm/esearch-img.png</comment>
-                    <br>
                     <t>命令</t><input type="text" spellcheck="false" data-path="额外截屏器.命令">
                 </div>
 
