@@ -56,27 +56,21 @@ const tmpDir = join(tmpdir(), "eSearch");
 
 // 自定义用户路径
 try {
-    let userDataPath = readFileSync(join(runPath, "preload_config"))
-        .toString()
-        .trim();
-    if (userDataPath) {
-        if (app.isPackaged) {
-            userDataPath = join(runPath, "../../", userDataPath);
-        } else {
-            userDataPath = join(runPath, userDataPath);
-        }
-        app.setPath("userData", userDataPath);
-    } else {
-        const portable = "portable";
-        if (statSync(join(runPath, portable)).isDirectory()) {
-            if (app.isPackaged) {
-                userDataPath = join(runPath, "../../", portable);
-            } else {
-                userDataPath = join(runPath, portable);
-            }
-        }
-        app.setPath("userData", userDataPath);
-    }
+    let preloadConfig = "";
+    try {
+        preloadConfig = readFileSync(join(runPath, "preload_config"))
+            .toString()
+            .trim();
+    } catch (error) {}
+    const portable = "portable";
+    const userDataPath = preloadConfig
+        ? join(runPath, preloadConfig)
+        : statSync(join(runPath, portable)).isDirectory()
+          ? join(runPath, portable)
+          : "";
+    console.log(`userDataPath: ${userDataPath}`);
+
+    if (userDataPath) app.setPath("userData", userDataPath);
 } catch (e) {}
 
 // 获取运行位置
