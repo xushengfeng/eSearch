@@ -893,7 +893,7 @@ new Sortable(translatorList.el, {
 function addTranslatorI(v: setting["翻译"]["翻译器"][0]) {
     transList[v.id] = v;
     const handle = button().add(iconEl(handle_svg)).class("sort_handle");
-    const text = txt(v.name).on("click", async () => {
+    const text = txt(v.name, true).on("click", async () => {
         const nv = await translatorD(v);
         text.el.innerText = nv.name;
         transList[nv.id] = nv;
