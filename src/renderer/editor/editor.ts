@@ -126,7 +126,9 @@ const historyListEl = document.getElementById("history_list");
 
 const task = new tLog("e");
 
-const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
+const language = store.get("语言.语言");
+const chartSeg = new Intl.Segmenter(language, { granularity: "grapheme" });
+const wordSeg = new Intl.Segmenter(language, { granularity: "word" });
 
 const alwaysOnTopEl = document.getElementById("top_b");
 const blurToCloseEl = document.getElementById("ding_b");
@@ -1409,29 +1411,22 @@ hotkeys("ctrl+0", () => {
     setFontSize(默认字体大小);
 });
 
-lan(store.get("语言.语言"));
+lan(language);
 document.title = t(document.title);
 
 /**
  * 统计字数
  */
 function countWords() {
-    let text = editor.get();
+    const text = editor.get();
     const p = text.trim().match(/\n+/g)?.length + 1 || 1;
-    text = text.replace(/[\n\r]/g, "");
-    const c = [...segmenter.segment(text)].length;
-    const cSpace = c - text.match(/\s/g)?.length || 0;
-    const cjkRg = /[\u2E80-\uFE4F]/g;
-    const cjk = text.match(cjkRg)?.length || 0;
-    text = text
-        .replace(cjkRg, "")
-        .replace(/['";:,.?¿\-!¡，。？！、……：“‘【《》】’”]+/g, " ");
-    const nCjk = text.match(/\S+/g)?.length || 0;
-    document.getElementById("count").innerText = `${cjk + nCjk} ${t("字")}`;
+    const chart = Array.from(chartSeg.segment(text));
+    const words = Array.from(wordSeg.segment(text));
+
+    document.getElementById("count").innerText =
+        `${chart.filter((i) => i.isWordLike).length} ${t("字")}`;
     document.getElementById("count").title =
-        `${t("段落")} ${p}\n${t("字符")} ${c}\n${t("非空格字符")} ${cSpace}\n${t(
-            "汉字",
-        )} ${cjk}\n${t("非汉字词")} ${nCjk}`;
+        `${t("段落")} ${p}\n${t("字符")} ${chart.length}\n${t("非空格字符")} ${chart.filter((i) => !i.segment.match(/\s/)).length}\n${t("词")} ${words.filter((i) => i.isWordLike).length}`;
 }
 
 /************************************失焦关闭 */
