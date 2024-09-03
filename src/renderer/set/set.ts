@@ -1733,14 +1733,25 @@ function find(t: string) {
     CSS.highlights.set("search-results", searchResultsHighlight);
 }
 
-const pathInfo = `<br>
-                ${t("文字记录：")}${historyStore.path}<br>
-                ${t("临时目录：")}${os.tmpdir()}${os.platform() === "win32" ? "\\" : "/"}eSearch<br>
-                ${t("运行目录：")}${ipcRenderer.sendSync("run_path")}`;
-document.createTextNode(pathInfo);
-document
-    .getElementById("user_data_divs")
-    .insertAdjacentHTML("afterend", pathInfo);
+function pathEl(path: string) {
+    return txt(path, true)
+        .style({ "font-family": "var(--monospace)", cursor: "pointer" })
+        .on("click", () => shell.openPath(path));
+}
+const pathInfo = view().add([
+    view().add([t("文字记录："), " ", pathEl(historyStore.path)]),
+    view().add([
+        t("临时目录："),
+        " ",
+        pathEl(path.join(os.tmpdir(), "eSearch")),
+    ]),
+    view().add([
+        t("运行目录："),
+        " ",
+        pathEl(ipcRenderer.sendSync("run_path")),
+    ]),
+]);
+document.getElementById("user_data_divs").after(pathInfo.el);
 try {
     (<HTMLInputElement>document.getElementById("user_data_path")).value =
         fs.readFileSync("preload_config").toString().trim() ||
@@ -1767,14 +1778,21 @@ document.getElementById("reload").onclick = () => {
     ipcRenderer.send("setting", "reload");
 };
 
-let version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
 const versionL = ["electron", "node", "chrome", "v8"];
-for (const i in versionL) {
-    version += `<div>${versionL[i]}: ${process.versions[versionL[i]]}</div>`;
-}
-document
-    .getElementById("versions_info")
-    .insertAdjacentHTML("afterend", version);
+const moreVersion = view()
+    .style({ "font-family": "var(--monospace)" })
+    .add(
+        view()
+            .add(
+                txt(`${t("本机系统内核:")} ${os.type()} ${os.release()}`, true),
+            )
+            .add(
+                versionL.map((i) =>
+                    view().add(txt(`${i}: ${process.versions[i]}`, true)),
+                ),
+            ),
+    );
+document.getElementById("versions_info").after(moreVersion.el);
 
 import _package from "../../../package.json?raw";
 const packageJson = JSON.parse(_package);
