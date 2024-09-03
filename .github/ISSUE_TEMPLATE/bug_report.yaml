@@ -4,43 +4,53 @@ title: "……存在……错误"
 labels: bug
 
 body:
-    - type: textarea
-      attributes:
-          label: 描述问题
-          description: "请描述您遇到的问题"
-      validations:
-          required: true
-    - type: textarea
-      attributes:
-          label: 重现步骤
-          description: "请描述如何重现问题"
-      validations:
-          required: true
-    - type: textarea
-      attributes:
-          label: 期望结果
-          description: "请描述您期望的结果"
-      validations:
-          required: false
-    - type: textarea
-      attributes:
-          label: 更多信息
-          description: "截屏、错误信息（按住Ctrl+Shift+I 唤出控制台，切换到console选项卡查看报错）等"
-      validations:
-          required: false
-    - type: input
-      attributes:
-          label: 操作系统
-      validations:
-          required: false
-    - type: input
-      attributes:
-          label: 软件版本
-      validations:
-          required: true
-    - type: input
-      attributes:
-          label: 屏幕参数
-          description: "屏幕分辨率、缩放，如果是多屏，请把各个屏幕的参数和屏幕排布写出"
-      validations:
-          required: false
+  - type: markdown
+    attributes:
+      value: |
+        在提交新问题之前，请在[GitHub issues](https://github.com/xushengfeng/eSearch/issues?q=is%3Aissue)中搜索，避免重复提交。
+        如果有多个问题，请分开在多个issues中提交。
+        我会对问题尽快分析并回复，请耐心等待。
+        有时候会向您提问更多信息，这有助于问题的解决。
+  - type: textarea
+    attributes:
+      label: 描述问题 Description of the problem
+      description: "请描述您遇到的问题"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 重现步骤 Steps to reproduce
+      description: "请描述如何重现问题"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 期望结果 Expected behavior
+      description: "请描述您期望的结果"
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: 更多信息 Additional context
+      description: "截屏、错误信息（按住 Ctrl+Shift+I 唤出控制台，切换到console选项卡查看报错）等"
+    validations:
+      required: false
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统 OS
+      description: "必要时附带架构（x64/arm64），来自软件的反馈会自动附带"
+    validations:
+      required: false
+  - type: input
+    id: v
+    attributes:
+      label: 软件版本 Software version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 屏幕参数 Screen parameters
+      description: "屏幕分辨率、缩放，如果是多屏，请把各个屏幕的参数和屏幕排布写出"
+    validations:
+      required: false
