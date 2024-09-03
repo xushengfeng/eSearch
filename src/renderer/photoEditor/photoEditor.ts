@@ -8,7 +8,6 @@ import {
     label,
     pureStyle,
     select,
-    textarea,
     txt,
     view,
 } from "dkh-ui";
@@ -130,7 +129,7 @@ const controls = frame("sidebar", {
                 // repeatSize: input("number"),
                 gx: input("number").attr({ max: "1", min: "0", step: "0.01" }),
                 gy: input("number").attr({ max: "1", min: "0", step: "0.01" }),
-                gColors: textarea(), // todo
+                gColors: gColors(),
             },
         },
         _2: txt("阴影"),
@@ -197,6 +196,47 @@ function getImg() {
     return nativeImage.createFromDataURL(canvas.el.toDataURL("image/png", 1));
 }
 
+function gColors() {
+    const div = view("y");
+    const list = view("y");
+    const add = button("+");
+
+    function createI(color: string, offset: number) {
+        console.log(color, offset);
+
+        return view("x").add([
+            input().sv(color).on("input", binput),
+            input("number")
+                .attr({ max: "1", min: "0", step: "0.01" })
+                .sv(String(offset))
+                .on("input", binput),
+        ]);
+    }
+
+    add.on("click", () => {
+        list.add(createI("#0000", 0.5));
+    });
+
+    function binput() {
+        div.el.dispatchEvent(new Event("input"));
+    }
+
+    return div
+        .add([list, add])
+        .bindGet(() => {
+            return list.queryAll("div").map((i) => {
+                const l = i.queryAll("input");
+                return { offset: Number(l[1].el.value), color: l[0].el.value };
+            });
+        })
+        .bindSet((v: (typeof styleData)["bg.gradient"]) => {
+            list.clear();
+            for (const item of v) {
+                list.add(createI(item.color, item.offset));
+            }
+        });
+}
+
 const canvas = ele("canvas");
 
 preview.add(canvas);
@@ -221,19 +261,7 @@ const configMap: Partial<
     // repeatSize: { path: "bg.gradient.repeatSize", parse: Number },
     gx: { path: "bg.gradient.x", parse: Number },
     gy: { path: "bg.gradient.y", parse: Number },
-    gColors: {
-        path: "bg.gradient",
-        parse: (v) =>
-            v
-                .trim()
-                .split("\n")
-                .map((i) => ({
-                    offset: Number(i.split(" ")[0]),
-                    color: i.split(" ")[1],
-                })),
-        init: (v: (typeof styleData)["bg.gradient"]) =>
-            v.map((i) => `${i.offset} ${i.color}`).join("\n"),
-    },
+    gColors: { path: "bg.gradient" },
     sx: { path: "shadow.x", parse: Number },
     sy: { path: "shadow.y", parse: Number },
     blur: { path: "shadow.blur", parse: Number },
