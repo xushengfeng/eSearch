@@ -1163,53 +1163,63 @@ function inEdge(p: editor_position) {
 
 // 大小栏
 function whBar(finalRect: rect) {
+    const winWidth = window.innerWidth;
+    const winHeight = window.innerHeight;
+
     // 大小文字
     const d = 0;
-    const x0 = finalRect[0] + d;
-    const y0 = finalRect[1] + d;
-    const x1 = finalRect[0] + d + finalRect[2];
-    const y1 = finalRect[1] + d + finalRect[3];
-    whX0.el.value = String(x0);
-    whY0.el.value = String(y0);
-    whX1.el.value = String(x1);
-    whY1.el.value = String(y1);
-    whW.el.value = String(finalRect[2]);
-    whH.el.value = String(finalRect[3]);
+    const x0 = String(finalRect[0] + d);
+    const y0 = String(finalRect[1] + d);
+    const x1 = String(finalRect[0] + d + finalRect[2]);
+    const y1 = String(finalRect[1] + d + finalRect[3]);
+    const w = String(finalRect[2]);
+    const h = String(finalRect[3]);
+    const ch =
+        x0.length +
+        2 + // ", "
+        y0.length +
+        x1.length +
+        2 + // ", "
+        y1.length +
+        w.length +
+        3 + // " × "
+        h.length;
+    const width = ch * chPX + 16 * 3;
+    whX0.el.value = x0;
+    whY0.el.value = y0;
+    whX1.el.value = x1;
+    whY1.el.value = y1;
+    whW.el.value = w;
+    whH.el.value = h;
     checkWhBarWidth();
     // 位置
     const zx = (finalRect[0] + editorP.x) * editorP.zoom;
     const zy = (finalRect[1] + editorP.y) * editorP.zoom;
     const zw = finalRect[2] * editorP.zoom;
     const zh = finalRect[3] * editorP.zoom;
-    const dw = whEl.el.offsetWidth;
-    const dh = whEl.el.offsetHeight;
+    const dw = width;
+    const dh = 40;
     let x: number;
-    function setLeft(l: number) {
-        whEl.style({ right: "", left: `${l}px` });
-    }
-    function setRight() {
-        whEl.style({ right: "0px", left: "" });
-    }
     if (dw >= zw) {
-        if (dw + zx <= window.innerWidth) {
+        if (dw + zx <= winWidth) {
             x = zx; // 对齐框的左边
-            setLeft(x);
+            whEl.style({ right: "", left: `${x}px` });
         } else {
-            setRight();
+            whEl.style({ right: "0px", left: "" });
         }
     } else {
         x = zx + zw / 2 - dw / 2;
-        if (x + dw <= window.innerWidth) {
-            setLeft(x);
+        if (x + dw <= winWidth) {
+            whEl.style({ right: "", left: `${x}px` });
         } else {
-            setRight();
+            whEl.style({ right: "0px", left: "" });
         }
     }
     let y: number;
     if (zy - (dh + 10) >= 0) {
         y = zy - (dh + 10); // 不超出时在外
     } else {
-        if (zy + zh + 10 + dh <= window.innerHeight) {
+        if (zy + zh + 10 + dh <= winHeight) {
             y = zy + zh + 10;
         } else {
             y = zy + 10;
@@ -2821,6 +2831,11 @@ whEl.add([
         .add([whX1, txt(", "), whY1]),
     view().add([whW, txt(" × "), whH]),
 ]);
+
+let chPX = 0;
+const chCal = txt("0").style({ width: "1ch" });
+document.body.append(chCal.el);
+chPX = chCal.el.offsetWidth;
 
 const longTip = frame("long_tip", {
     _: view().attr({ id: "long_tip" }),
