@@ -200,11 +200,28 @@ const build = {
     },
     afterPack: async (c) => {
         const localsPath = path.join(c.appOutDir, "locales");
+        const suportLan = fs
+            .readdirSync(path.join(__dirname, "lib/translate"))
+            .filter((file) => {
+                return (
+                    file.endsWith(".json") &&
+                    !file.startsWith("source") &&
+                    !file.startsWith(".")
+                );
+            })
+            .map((i) => i.replace(".json", ""))
+            .concat("zh-HANS")
+            .map((i) => i.split("-")[0]);
         if (process.platform !== "darwin")
             try {
                 const files = fs
                     .readdirSync(localsPath)
-                    .filter((i) => i !== "en-US.pak");
+                    .filter(
+                        (i) =>
+                            !suportLan.includes(
+                                i.replace(".pak", "").split("-")[0],
+                            ),
+                    );
                 for (const i of files) {
                     fs.rmSync(path.join(localsPath, i));
                 }

@@ -72,14 +72,14 @@ let l: Record<string, string>;
 function getLans() {
     const lans = fs
         .readdirSync(rootDir)
-        .filter((file: string) => {
+        .filter((file) => {
             return (
                 file.endsWith(".json") &&
                 !file.startsWith("source") &&
                 !file.startsWith(".")
             );
         })
-        .map((l: string) => l.replace(".json", ""));
+        .map((l) => l.replace(".json", ""));
     return ["zh-HANS"].concat(lans);
 }
 

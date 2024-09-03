@@ -2317,6 +2317,12 @@ ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {
         });
 });
 
+ipcMain.on("app", (e, type) => {
+    if (type === "systemLan") {
+        e.returnValue = matchBestLan();
+    }
+});
+
 // 默认设置
 const defaultSetting: setting = {
     首次运行: false,
@@ -2736,25 +2742,30 @@ try {
     console.error(e);
 }
 
+function matchBestLan() {
+    const supportLan = getLans();
+
+    for (const lan of app.getPreferredSystemLanguages()) {
+        const mainLan = lan.split("-")[0];
+        const fullLanCode =
+            mainLan === "zh"
+                ? {
+                      "zh-CN": "zh-HANS",
+                      "zh-SG": "zh-HANS",
+                      "zh-TW": "zh-HANT",
+                      "zh-HK": "zh-HANT",
+                  }[lan] || "zh-HANS"
+                : lan;
+        if (supportLan.includes(fullLanCode)) return fullLanCode;
+        if (supportLan.includes(mainLan)) return fullLanCode;
+    }
+    return "zh-HANS";
+}
+
 function setDefaultSetting() {
     for (const i in defaultSetting) {
         if (i === "语言") {
-            const supportLan = getLans();
-            let lan = app.getLocale();
-            const mainLan = lan.split("-")[0];
-            if (mainLan === "zh") {
-                lan =
-                    {
-                        "zh-CN": "zh-HANS",
-                        "zh-SG": "zh-HANS",
-                        "zh-TW": "zh-HANT",
-                        "zh-HK": "zh-HANT",
-                    }[lan] || "zh-HANS";
-            }
-            let language = "";
-            if (!supportLan.includes(lan) && !supportLan.includes(mainLan))
-                language = "zh-HANS";
-            else language = lan;
+            const language = matchBestLan();
             store.set(i, { 语言: language });
         } else {
             store.set(i, defaultSetting[i]);

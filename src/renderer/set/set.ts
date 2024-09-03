@@ -313,22 +313,8 @@ function setRadio(el: HTMLElement, value: string) {
 }
 
 let lans: string[] = getLans();
-function getSystemLan() {
-    const sysL = navigator.language;
-    if (sysL.split("-")[0] === "zh") {
-        return (
-            {
-                "zh-CN": "zh-HANS",
-                "zh-SG": "zh-HANS",
-                "zh-TW": "zh-HANT",
-            }[sysL] || "zh-HANS"
-        );
-    }
-    if (lans.includes(sysL)) return sysL;
-    if (lans.includes(sysL.split("-")[0])) return sysL.split("-")[0];
-    return "zh-HANS";
-}
-const systemLan = getSystemLan();
+
+const systemLan = ipcRenderer.sendSync("app", "systemLan");
 
 lans = [systemLan].concat(lans.filter((v) => v !== systemLan));
 
@@ -1750,7 +1736,7 @@ function find(t: string) {
 const pathInfo = `<br>
                 ${t("文字记录：")}${historyStore.path}<br>
                 ${t("临时目录：")}${os.tmpdir()}${os.platform() === "win32" ? "\\" : "/"}eSearch<br>
-                ${t("运行目录：")}${__dirname}`;
+                ${t("运行目录：")}${ipcRenderer.sendSync("run_path")}`;
 document.createTextNode(pathInfo);
 document
     .getElementById("user_data_divs")

@@ -17,3 +17,7 @@
 根据编译出来的 js 文件深度，可以通过`path.join(__dirname, 向上目录深度)`获取你想要的运行目录，**eSearch**编译的目录为`eSearch/out/main/main.js`和`eSearch/out/renderer/*.html`，定义的`runPath`为`join(__dirname, '../../')`也就是项目目录。
 
 需要注意**eSearch**不使用 asar 打包，`app.isPackaged`时的`__dirname`应该有所不同，具体请自己实验。
+
+## 系统语言
+
+一般可以通过`app.getLocale()`获取当前语言。然而，为了减小打包体积，**eSearch**移除了`locales`目录，而`app.getLocale()`依赖于`locales`目录。更好的方法是`app.getPreferredSystemLanguages()`，这是真正的获取系统语言的 api。
