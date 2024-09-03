@@ -158,6 +158,9 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
     (<HTMLElement>toolBar.querySelector("#copy")).onclick = () => {
         copy(div);
     };
+    (<HTMLElement>toolBar.querySelector("#save")).onclick = () => {
+        save(div);
+    };
     (<HTMLElement>toolBar.querySelector("#edit")).onclick = () => {
         edit(div);
     };
@@ -268,6 +271,15 @@ function close2(el: HTMLElement) {
 }
 function copy(el: HTMLElement) {
     clipboard.writeImage(nativeImage.createFromDataURL(urls[el.id]));
+}
+function save(el: HTMLElement) {
+    const b = Buffer.from(
+        urls[el.id].replace(/^data:image\/\w+;base64,/, ""),
+        "base64",
+    );
+    // todo 自动保存
+    const save = ipcRenderer.sendSync("get_save_file_path", "png");
+    fs.writeFileSync(save, b);
 }
 function edit(el: HTMLElement) {
     const b = Buffer.from(
