@@ -1,0 +1,31 @@
+name: 新需求 Feature Request
+description: "请描述你想要实现的功能。"
+title: "建议在……添加……功能/改进"
+labels: 新需求
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        一个issue最好只描述一个问题或想法，如果有很多（特别是问题），最好分成几个issue，便于搜索。
+        在提交新问题之前，请在[GitHub issues](https://github.com/xushengfeng/eSearch/issues?q=is%3Aissue)中搜索，避免重复提交。
+        看看设置或[文档](https://github.com/xushengfeng/eSearch/blob/master/docs/use/start.md)，是不是已经有了。
+  - type: textarea
+    attributes:
+      label: 描述 Description
+      description: "请自由地描述你的提议，可以提供图片或其他软件来更好描述"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统 OS
+      description: "必要时附带架构（x64/arm64），来自软件的反馈会自动附带"
+    validations:
+      required: false
+  - type: input
+    id: v
+    attributes:
+      label: 当前软件版本 Current Version
+    validations:
+      required: false
