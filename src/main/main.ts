@@ -1007,8 +1007,10 @@ ipcMain.on("dialog", (e, arg0) => {
 let clipWindow: BrowserWindow | null = null;
 let clipWindowLoaded = false;
 const getClipWin = async () => {
-    if (clipWindowLoaded) return clipWindow as BrowserWindow;
-    if (!clipWindow) clipWindow = createClipWindow();
+    if (clipWindowLoaded && !clipWindow?.isDestroyed())
+        return clipWindow as BrowserWindow;
+    if (!clipWindow || clipWindow.isDestroyed())
+        clipWindow = createClipWindow();
 
     return new Promise((re: (v: BrowserWindow) => void) => {
         clipWindow?.webContents.once("did-finish-load", () => {
