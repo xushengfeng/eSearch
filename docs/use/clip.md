@@ -169,3 +169,15 @@ SVG 格式是一种可编辑矢量格式，但保存到文件里的截屏是栅�
 撤销是恢复到当下之前的状态，可以看成回到过去。重做是在撤销后恢复到之后的状态，可以看成回到现在。
 
 <table><tbody><tr><td>假设你的编辑过程</td><td>A =&gt; AB =&gt; <strong>ABC</strong></td></tr><tr><td>撤销</td><td>A =&gt; <strong>AB</strong> =&gt; ABC</td></tr><tr><td>再次撤销</td><td><strong>A</strong> =&gt; AB =&gt; ABC</td></tr><tr><td>重做</td><td>A =&gt; <strong>AB</strong> =&gt; ABC</td></tr></tbody></table>
+
+## Linux arm64
+
+由于目前截屏库暂不支持 Linux arm64，为了使用截屏功能，需要在 设置-高级 设置截屏命令
+
+```shell
+flameshot full -p /dev/shm/esearch-img.png
+```
+
+你可以使用 flameshot 或桌面环境的截屏工具，将截屏保存到`/dev/shm/esearch-img.png`，**eSearch**会自动识别并打开。
+
+既然都用 flameshot，那用 eSearch 岂不是画蛇添足？虽然 eSearch 在一些方面还比不过 flameshot，但在取色器、OCR 校对、广截屏、搜索翻译等方面我用得还是挺顺手的，建议选择适合自己的工具。
