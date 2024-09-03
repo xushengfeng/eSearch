@@ -1739,17 +1739,9 @@ function pathEl(path: string) {
         .on("click", () => shell.openPath(path));
 }
 const pathInfo = view().add([
-    view().add([t("文字记录："), " ", pathEl(historyStore.path)]),
-    view().add([
-        t("临时目录："),
-        " ",
-        pathEl(path.join(os.tmpdir(), "eSearch")),
-    ]),
-    view().add([
-        t("运行目录："),
-        " ",
-        pathEl(ipcRenderer.sendSync("run_path")),
-    ]),
+    view().add(["文字记录：", " ", pathEl(historyStore.path)]),
+    view().add(["临时目录：", " ", pathEl(path.join(os.tmpdir(), "eSearch"))]),
+    view().add(["运行目录：", " ", pathEl(ipcRenderer.sendSync("run_path"))]),
 ]);
 document.getElementById("user_data_divs").after(pathInfo.el);
 try {

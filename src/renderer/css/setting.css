@@ -351,6 +351,16 @@ details {
 
 comment {
     opacity: 0.6;
+    display: block;
+}
+comment[data-inline] {
+    display: inline;
+}
+comment[data-inline]::before {
+    content: "(";
+}
+comment[data-inline]::after {
+    content: ")";
 }
 
 #主要字体 > input {

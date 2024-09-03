@@ -131,7 +131,7 @@
                     <input type="checkbox" id="显示四角坐标" data-path="显示四角坐标">
                     <t>显示四角坐标</t>
                 </label>
-                <comment>（截屏框选附近除了框选大小，还会加上左上角和右下角坐标）</comment>
+                <comment data-inline>截屏框选附近除了框选大小，还会加上左上角和右下角坐标</comment>
 
                 <h3>框选后默认操作</h3>
                 <comment>框选完鼠标松开一瞬间，执行操作</comment>
@@ -484,7 +484,7 @@
                 </label>
                 <br>
                 <t>分段转换间隔时间</t><input type="number" name="分段" id="分段" data-path="录屏.转换.分段">s
-                <comment>（边录制边转换以提升效率，0为不分段）</comment>
+                <comment data-inline>边录制边转换以提升效率，0为不分段</comment>
                 <br>
                 <t>输出格式</t><input id="格式" type="text" spellcheck="false" name="格式" data-path="录屏.转换.格式">
                 <br>
@@ -497,7 +497,7 @@
                 <label>
                     <input type="checkbox" id="高质量gif" data-path="录屏.转换.高质量gif">
                     <t>高质量 Gif</t>
-                    <comment>（转换时速度会很慢）</comment>
+                    <comment data-inline>转换时速度会很慢</comment>
                 </label>
 
             </div>
@@ -681,7 +681,7 @@
                     <input type="checkbox" id="自动搜索" data-path="自动搜索">
                     <t>自动搜索</t>
                 </label>
-                <comment>（识屏或直接打开主页面，若文字为一行，则自动搜索）</comment>
+                <comment data-inline>识屏或直接打开主页面，若文字为一行，则自动搜索</comment>
                 </br>
                 <label>
                     <input type="checkbox" id="自动打开链接" data-path="自动打开链接">
@@ -689,7 +689,7 @@
                 </label>
                 </br>
                 <t>自动搜索中文占比</t>
-                <comment>（在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要）</comment>
+                <comment data-inline>在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要</comment>
                 <range-b out="true" id="自动搜索中文占比" min="0.02" max="1.00" step="0.01" data-path="自动搜索中文占比"></range-b>
 
                 <h2>文字搜索引擎</h2>
@@ -716,7 +716,7 @@
                     <input type="checkbox" id="浏览器中打开" data-path="浏览器中打开">
                     <t>浏览器中打开</t>
                 </label>
-                <comment>（点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开）</comment>
+                <comment data-inline>点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开</comment>
                 <br>
                 <label>
                     <input type="checkbox" id="搜索窗口自动关闭" data-path="浏览器.标签页.自动关闭">
@@ -727,13 +727,13 @@
                     <input type="checkbox" id="标签缩小" data-path="浏览器.标签页.小">
                     <t>标签缩小</t>
                 </label>
-                <comment>（标签将只显示图标，悬浮查看标题，中键或右键关闭）</comment>
+                <comment data-inline>标签将只显示图标，悬浮查看标题，中键或右键关闭</comment>
                 <br>
                 <label>
                     <input type="checkbox" id="标签灰度" data-path="浏览器.标签页.灰度">
                     <t>标签图标灰度</t>
                 </label>
-                <comment>（标签图标将以灰度图片展示，减少多余颜色的干扰）</comment>
+                <comment data-inline>标签图标将以灰度图片展示，减少多余颜色的干扰</comment>
 
                 <h2>清除数据</h2>
                 <button id="clear_storage">Cookie 等存储数据</button>
@@ -1063,10 +1063,10 @@
 
                 <h3>字体</h3>
                 <t>主要字体</t>
-                <comment>（适用于主页面等文字字体）</comment>
+                <comment data-inline>适用于主页面等文字字体</comment>
                 <div id="主要字体"><input type="text" spellcheck="false" data-path="字体.主要字体"></div>
                 <t>等宽字体</t>
-                <comment>（适用于截屏时数字、颜色代码等字体）</comment>
+                <comment data-inline>适用于截屏时数字、颜色代码等字体</comment>
                 <div id="等宽字体"><input type="text" spellcheck="false" data-path="字体.等宽字体"></div>
 
                 <h2>代理</h2>
@@ -1114,7 +1114,7 @@
 
                 <h2>高级设置</h2>
                 <t>直接编辑设置源文件，更多自定义设置</t>
-                <comment>（需要JSON知识）</comment>
+                <comment data-inline>需要JSON知识</comment>
                 <br>
                 <button id="打开config">打开设置源文件</button>
                 <br>
@@ -1124,14 +1124,14 @@
                     <input type="checkbox" id="give_up_setting_b">
                     <t>不保存本次设置值</t>
                 </label>
-                <comment>（若不清楚刚才更改了什么设置，请选中）</comment>
+                <comment data-inline>若不清楚刚才更改了什么设置，请选中</comment>
 
                 <h2>硬件加速</h2>
                 <label>
                     <input type="checkbox" name="" id="硬件加速" data-path="硬件加速">
                     <t>启用硬件加速</t>
                 </label>
-                <comment>（如果可用，且更改需要重启软件生效）</comment>
+                <comment data-inline>如果可用，且更改需要重启软件生效</comment>
 
                 <div data-platform="linux">
                     <h2>外部截屏器</h2>
@@ -1146,7 +1146,7 @@
                 <label>
                     <input type="checkbox" data-path="保留截屏窗口">
                     <t>保留截屏窗口</t>
-                    <comment>（内存占用多，截屏快；反之内存占用少，但截屏慢）</comment>
+                    <comment data-inline>内存占用多，截屏快；反之内存占用少，但截屏慢</comment>
                 </label>
 
                 <h2>检查更新</h2>
