@@ -55,9 +55,8 @@ const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
 
 // 自定义用户路径
-let userDataPath: string;
 try {
-    userDataPath = readFileSync(join(runPath, "preload_config"))
+    let userDataPath = readFileSync(join(runPath, "preload_config"))
         .toString()
         .trim();
     if (userDataPath) {
@@ -65,6 +64,16 @@ try {
             userDataPath = join(runPath, "../../", userDataPath);
         } else {
             userDataPath = join(runPath, userDataPath);
+        }
+        app.setPath("userData", userDataPath);
+    } else {
+        const portable = "portable";
+        if (statSync(join(runPath, portable)).isDirectory()) {
+            if (app.isPackaged) {
+                userDataPath = join(runPath, "../../", portable);
+            } else {
+                userDataPath = join(runPath, portable);
+            }
         }
         app.setPath("userData", userDataPath);
     }
