@@ -46,7 +46,7 @@ import {
     writeFileSync,
     statSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { release, tmpdir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
 import url from "node:url";
@@ -604,9 +604,7 @@ app.whenReady().then(() => {
         {
             label: t("反馈"),
             click: () => {
-                shell.openExternal(
-                    "https://github.com/xushengfeng/eSearch/issues/new/choose",
-                );
+                shell.openExternal(feedbackUrl());
             },
         },
         {
@@ -990,6 +988,10 @@ app.on("will-quit", () => {
     globalShortcut.unregisterAll();
     rmR(tmpDir);
 });
+
+function feedbackUrl() {
+    return `https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=...存在...的错误&v=${app.getVersion()}&os=${process.platform} ${release()} (${process.arch})`;
+}
 
 const theIcon =
     process.platform === "win32"
@@ -1683,6 +1685,9 @@ ipcMain.on("setting", async (event, arg, arg1) => {
             }
             break;
         }
+        case "feedback":
+            event.returnValue = feedbackUrl();
+            break;
     }
 });
 

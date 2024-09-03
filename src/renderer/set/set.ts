@@ -1891,12 +1891,14 @@ const infoEl = pack(document.getElementById("info"));
 infoEl.add([
     view().add([
         "项目主页:",
+        " ",
         a(packageJson.homepage).add(packageJson.homepage),
     ]),
     view().add([
         "支持该项目:",
+        " ",
         a(packageJson.homepage).add("为项目点亮星标🌟"),
-        txt(" "),
+        " ",
         a("https://github.com/xushengfeng").add("赞赏"),
     ]),
     view().add(
@@ -1904,11 +1906,13 @@ infoEl.add([
             `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`,
         ).add("更新日志"),
     ),
-    view().add(
-        a("https://github.com/xushengfeng/eSearch/issues/new/choose").add(
-            "反馈错误 提供建议",
-        ),
-    ),
+    view().add([
+        a(ipcRenderer.sendSync("setting", "feedback")).add("反馈问题"),
+        " ",
+        a(
+            `https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=新需求&template=feature_request.yaml&title=建议在……添加……功能/改进&v=${packageJson.version}&os=${process.platform} ${os.release()} (${process.arch})`,
+        ).add("提供建议"),
+    ]),
     view().add(
         a(
             "https://github.com/xushengfeng/eSearch/tree/master/lib/translate",
@@ -1916,10 +1920,12 @@ infoEl.add([
     ),
     view().add([
         "本软件遵循",
+        " ",
         a("https://www.gnu.org/licenses/gpl-3.0.html").add(packageJson.license),
     ]),
     view().add([
         "本软件基于",
+        " ",
         a(
             "https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json",
         ).add("这些软件"),
