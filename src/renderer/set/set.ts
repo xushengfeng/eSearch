@@ -1781,44 +1781,6 @@ document.getElementById("reload").onclick = () => {
     ipcRenderer.send("setting", "reload");
 };
 
-ipcRenderer.on("setting", (_err, t, id, r) => {
-    if (t === "open_dialog") {
-        switch (id) {
-            case "ocr_det":
-                if (!r.canceled) {
-                    (<HTMLInputElement>(
-                        document.getElementById("ocr_det")
-                    )).value = r.filePaths[0];
-                }
-                break;
-            case "ocr_rec":
-                if (!r.canceled) {
-                    (<HTMLInputElement>(
-                        document.getElementById("ocr_rec")
-                    )).value = r.filePaths[0];
-                }
-                break;
-            case "ocr_字典":
-                if (!r.canceled) {
-                    (<HTMLInputElement>(
-                        document.getElementById("ocr_字典")
-                    )).value = r.filePaths[0];
-                }
-                break;
-            case "plugin":
-                if (!r.canceled) {
-                    let l = (<HTMLTextAreaElement>(
-                        document.getElementById("plugin")
-                    )).value.trim();
-                    l += (l && "\n") + r.filePaths[0];
-                    (<HTMLTextAreaElement>(
-                        document.getElementById("plugin")
-                    )).value = l;
-                }
-        }
-    }
-});
-
 let version = `<div>${t("本机系统内核:")} ${os.type()} ${os.release()}</div>`;
 const versionL = ["electron", "node", "chrome", "v8"];
 for (const i in versionL) {
