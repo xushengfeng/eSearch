@@ -3941,19 +3941,18 @@ clipCanvas.ondblclick = () => {
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
     if (!rightKey) {
-        if (clipCanvas.offsetWidth !== 0) {
-            // 鼠标位置文字
-            const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
-            const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
-            nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
-            // 鼠标跟随栏
-            if (!down)
-                mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
-            if (g光标参考线) {
-                drawClip();
-                ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
-            }
+        // 鼠标位置文字
+        const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
+        const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
+        nowCanvasPosition = pXY2cXY(clipCanvas, cX, cY, cX, cY);
+        // 鼠标跟随栏
+        if (!down)
+            mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+        if (g光标参考线) {
+            drawClip();
+            ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
         }
+
         // 鼠标跟随栏
 
         const d = 16;
