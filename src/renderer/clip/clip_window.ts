@@ -3758,7 +3758,7 @@ clipCanvas.onmousemove = (e) => {
     }
 };
 
-clipCanvas.onmouseup = (e) => {
+document.onmouseup = (e) => {
     if (e.button === 0) {
         if (selecting) {
             clipEnd(e);
