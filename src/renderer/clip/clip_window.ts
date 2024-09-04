@@ -992,7 +992,7 @@ function clipStart(e: MouseEvent, inRect: boolean) {
         }
     }
     drawClip();
-    if (g光标参考线) ckx(p);
+    if (g光标参考线) ckx(e);
 
     // 隐藏
     drawBar.style.opacity = toolBar.style.opacity = "0";
@@ -1324,8 +1324,8 @@ function mouseBar(finalRect: rect, e: MouseEvent, type: "select" | "pick") {
     });
 }
 
-function ckx(p: editor_position) {
-    const { x, y } = p;
+function ckx(e: MouseEvent) {
+    const { x, y } = e2cXY(e);
     clipCtx.fillStyle = c参考线颜色.光标参考线;
     clipCtx.fillRect(0, y, x, 1);
     clipCtx.fillRect(x + 1, y, clipCanvas.width - x - 1, 1);
@@ -3741,7 +3741,7 @@ clipCanvas.onmousemove = (e) => {
             }
             if (down) mouseBar(finalRect, e, "select");
             if (selecting || moving) drawClip();
-            if (g光标参考线) ckx(e2pXY(e));
+            if (g光标参考线) ckx(e);
         });
     }
     if (!selecting && !moving) {
@@ -3909,13 +3909,11 @@ clipCanvas.ondblclick = () => {
 // 鼠标栏实时跟踪
 document.onmousemove = (e) => {
     if (!rightKey) {
-        // 鼠标位置文字
-        const p = e2pXY(e);
         // 鼠标跟随栏
         if (!down) mouseBar(finalRect, e, "pick");
         if (g光标参考线) {
             drawClip();
-            ckx(p);
+            ckx(e);
         }
 
         // 鼠标跟随栏
