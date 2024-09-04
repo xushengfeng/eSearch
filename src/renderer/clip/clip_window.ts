@@ -907,10 +907,15 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     return tempCanvas;
 }
 
-function e2pXY(e: MouseEvent | PointerEvent) {
+function e2pXYdb(e: MouseEvent | PointerEvent) {
     const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
     const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
-    return { x: Math.round(cX), y: Math.round(cY) } as editor_position;
+    return { x: cX, y: cY };
+}
+
+function e2pXY(e: MouseEvent | PointerEvent) {
+    const { x, y } = e2pXYdb(e);
+    return { x: Math.round(x), y: Math.round(y) } as editor_position;
 }
 
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
@@ -927,7 +932,7 @@ function p2Rect(oX1: number, oY1: number, oX2: number, oY2: number): rect {
 }
 
 function e2cXY(e: MouseEvent | PointerEvent) {
-    const { x, y } = e2pXY(e);
+    const { x, y } = e2pXYdb(e);
     if (editorP.zoom === 1 / window.devicePixelRatio) {
         return { x: Math.ceil(x), y: Math.ceil(y) } as px_position; // 确保获取到最后的像素
     }
