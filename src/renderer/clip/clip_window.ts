@@ -2811,6 +2811,7 @@ let chPX = 0;
 const chCal = txt("0").style({ width: "1ch" });
 document.body.append(chCal.el);
 chPX = chCal.el.offsetWidth;
+chCal.remove();
 
 const longTip = frame("long_tip", {
     _: view().attr({ id: "long_tip" }),
