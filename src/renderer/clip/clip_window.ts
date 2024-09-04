@@ -1001,7 +1001,7 @@ function clipStart(e: MouseEvent, inRect: boolean) {
 function pickColor(e: MouseEvent | PointerEvent) {
     rightKey = !rightKey;
     // 自由右键取色
-    mouseBar(finalRect, e, "pick");
+    mouseBar(finalRect, e);
     // 改成多格式样式
     if (rightKey) {
         changeRightBar(true);
@@ -1253,7 +1253,7 @@ function changeWH(el: ElType<HTMLInputElement>) {
     followBar();
 }
 
-function mouseBar(finalRect: rect, e: MouseEvent, type: "select" | "pick") {
+function mouseBar(finalRect: rect, e: MouseEvent) {
     requestAnimationFrame(() => {
         const { x, y } = e2cXY(e);
         const [x0, y0, width, height] = finalRect;
@@ -1304,21 +1304,13 @@ function mouseBar(finalRect: rect, e: MouseEvent, type: "select" | "pick") {
 
         pointColorCanvasCtx.restore();
 
-        if (type === "pick") {
-            const centerIndex = (colorSize * delta + delta) * 4;
-            let [r, g, b, a] = imageData.data.slice(
-                centerIndex,
-                centerIndex + 4,
-            );
+        const centerIndex = (colorSize * delta + delta) * 4;
+        let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
 
-            a /= 255;
-            pointCenter.style.display = "";
-            pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
-            theColor = [r, g, b, a];
-            clipColorText(theColor, 取色器默认格式);
-        } else {
-            pointCenter.style.display = "none";
-        }
+        a /= 255;
+        pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+        theColor = [r, g, b, a];
+        clipColorText(theColor, 取色器默认格式);
 
         document.getElementById("clip_xy").innerText = `(${x}, ${y})`;
     });
@@ -3689,7 +3681,7 @@ document.querySelector("body").onkeydown = (e) => {
             }
             setEditorP(editorP.zoom, x, y);
             document.body.classList.add("editor_bg");
-            mouseBar(finalRect, nowMouseE, "pick");
+            mouseBar(finalRect, nowMouseE);
         }
     }
 };
@@ -3739,7 +3731,7 @@ clipCanvas.onmousemove = (e) => {
                     movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
                 }
             }
-            if (down) mouseBar(finalRect, e, "select");
+            if (down) mouseBar(finalRect, e);
             if (selecting || moving) drawClip();
             if (g光标参考线) ckx(e);
         });
@@ -3910,7 +3902,7 @@ clipCanvas.ondblclick = () => {
 document.onmousemove = (e) => {
     if (!rightKey) {
         // 鼠标跟随栏
-        if (!down) mouseBar(finalRect, e, "pick");
+        if (!down) mouseBar(finalRect, e);
         if (g光标参考线) {
             drawClip();
             ckx(e);
