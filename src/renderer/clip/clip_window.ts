@@ -919,15 +919,13 @@ function e2pXY(e: MouseEvent | PointerEvent) {
 }
 
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function p2Rect(oX1: number, oY1: number, oX2: number, oY2: number): rect {
-    let x1 = Math.min(oX1, oX2);
-    let y1 = Math.min(oY1, oY2);
-    let x2 = Math.max(oX1, oX2);
-    let y2 = Math.max(oY1, oY2);
-    x1 = Math.round(x1);
-    y1 = Math.round(y1);
-    x2 = Math.round(x2);
-    y2 = Math.round(y2);
+function p2Rect(p1: px_position, p2: px_position): rect {
+    const { x: oX1, y: oY1 } = p1;
+    const { x: oX2, y: oY2 } = p2;
+    const x1 = Math.min(oX1, oX2);
+    const y1 = Math.min(oY1, oY2);
+    const x2 = Math.max(oX1, oX2) + 1;
+    const y2 = Math.max(oY1, oY2) + 1;
     return [x1, y1, x2 - x1, y2 - y1];
 }
 
@@ -962,7 +960,8 @@ function pointsOutRect(points: point[]): rect {
 }
 
 // 开始操纵框选
-function clipStart(p: editor_position, inRect: boolean) {
+function clipStart(e: MouseEvent, inRect: boolean) {
+    const p = e2pXY(e);
     if (isRect) {
         // 在选区内，则调整，否则新建
         if (inRect) {
@@ -973,8 +972,8 @@ function clipStart(p: editor_position, inRect: boolean) {
             moveRect(oFinalRect, p, p);
         } else {
             selecting = true;
-            canvasRect = [p.x, p.y]; // 用于框选
-            finalRect = p2Rect(canvasRect[0], canvasRect[1], p.x, p.y);
+            rectStartE = e2cXY(e);
+            finalRect = p2Rect(rectStartE, rectStartE);
             rightKey = false;
             changeRightBar(false);
         }
@@ -1002,8 +1001,7 @@ function clipStart(p: editor_position, inRect: boolean) {
 function pickColor(e: MouseEvent | PointerEvent) {
     rightKey = !rightKey;
     // 自由右键取色
-    const c = e2cXY(e);
-    mouseBar(finalRect, c.x, c.y, "pick");
+    mouseBar(finalRect, e, "pick");
     // 改成多格式样式
     if (rightKey) {
         changeRightBar(true);
@@ -1012,7 +1010,8 @@ function pickColor(e: MouseEvent | PointerEvent) {
     }
 }
 
-function clipEnd(p: editor_position) {
+function clipEnd(e: MouseEvent) {
+    const p = e2pXY(e);
     clipCtx.closePath();
     selecting = false;
     if (isRect) {
@@ -1028,7 +1027,7 @@ function clipEnd(p: editor_position) {
             }
             if (min.length !== 0) finalRect = min as rect;
         } else {
-            finalRect = p2Rect(canvasRect[0], canvasRect[1], p.x, p.y);
+            finalRect = p2Rect(rectStartE, e2cXY(e));
         }
     } else {
         freeSelect.push(p);
@@ -1254,13 +1253,9 @@ function changeWH(el: ElType<HTMLInputElement>) {
     followBar();
 }
 
-function mouseBar(
-    finalRect: rect,
-    x: number,
-    y: number,
-    type: "select" | "pick",
-) {
+function mouseBar(finalRect: rect, e: MouseEvent, type: "select" | "pick") {
     requestAnimationFrame(() => {
+        const { x, y } = e2cXY(e);
         const [x0, y0, width, height] = finalRect;
 
         const delta = (colorSize - 1) / 2;
@@ -1318,24 +1313,14 @@ function mouseBar(
 
             a /= 255;
             pointCenter.style.display = "";
-            pointXX.style({ display: "none" });
-            pointXY.style({ display: "none" });
             pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
             theColor = [r, g, b, a];
             clipColorText(theColor, 取色器默认格式);
         } else {
             pointCenter.style.display = "none";
-            pointXX.style({ display: "" });
-            pointXY.style({ display: "" });
         }
 
-        if (type === "select") {
-            document.getElementById("clip_xy").innerText = `(${x}, ${y})`;
-        } else {
-            const d = 0; // todo set
-            document.getElementById("clip_xy").innerText =
-                `(${x + d}, ${y + d})`;
-        }
+        document.getElementById("clip_xy").innerText = `(${x}, ${y})`;
     });
 }
 
@@ -3051,7 +3036,7 @@ let toolPosition = { x: null, y: null };
 let isRect = true;
 let /**是否在绘制新选区*/ selecting = false;
 let rightKey = false;
-let canvasRect = null;
+let rectStartE: px_position = null;
 let /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
@@ -3704,8 +3689,7 @@ document.querySelector("body").onkeydown = (e) => {
             }
             setEditorP(editorP.zoom, x, y);
             document.body.classList.add("editor_bg");
-            const c = e2cXY(nowMouseE);
-            mouseBar(finalRect, c.x, c.y, "pick");
+            mouseBar(finalRect, nowMouseE, "pick");
         }
     }
 };
@@ -3718,7 +3702,7 @@ clipCanvas.onmousedown = (e) => {
         inRect = isPointInPolygon({ x: e.offsetX, y: e.offsetY });
     }
     if (e.button === 0) {
-        clipStart({ x: e.offsetX, y: e.offsetY }, inRect);
+        clipStart(e, inRect);
     }
     if (e.button === 2) {
         pickColor(e);
@@ -3742,12 +3726,7 @@ clipCanvas.onmousemove = (e) => {
             if (selecting) {
                 if (isRect) {
                     // 画框
-                    finalRect = p2Rect(
-                        canvasRect[0],
-                        canvasRect[1],
-                        e.offsetX,
-                        e.offsetY,
-                    );
+                    finalRect = p2Rect(rectStartE, e2cXY(e));
                 } else {
                     freeSelect.push(e2pXY(e));
                     finalRect = pointsOutRect(freeSelect);
@@ -3760,7 +3739,7 @@ clipCanvas.onmousemove = (e) => {
                     movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
                 }
             }
-            if (down) mouseBar(finalRect, e.offsetX, e.offsetY, "select");
+            if (down) mouseBar(finalRect, e, "select");
             if (selecting || moving) drawClip();
             if (g光标参考线) ckx(e2pXY(e));
         });
@@ -3782,7 +3761,7 @@ clipCanvas.onmousemove = (e) => {
 clipCanvas.onmouseup = (e) => {
     if (e.button === 0) {
         if (selecting) {
-            clipEnd(e2pXY(e));
+            clipEnd(e);
             // 抬起鼠标后工具栏跟随
             followBar(e.clientX, e.clientY);
             // 框选后默认操作
@@ -3903,25 +3882,6 @@ const pointCenter = document.createElement("div");
 document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
 pointCenter.style.top = `${((colorSize - 1) / 2) * colorISize}px`;
-const pointXX = view();
-const pointXY = view();
-document.getElementById("point_color").append(pointXX.el, pointXY.el);
-pointXX.style({
-    left: 0,
-    top: `${((colorSize - 1) / 2) * colorISize}px`,
-    width: `${colorSize * colorISize}px`,
-    height: "1px",
-    background: "black",
-    "box-shadow": "none",
-});
-pointXY.style({
-    top: 0,
-    left: `${((colorSize - 1) / 2) * colorISize}px`,
-    width: "1px",
-    height: `${colorSize * colorISize}px`,
-    background: "black",
-    "box-shadow": "none",
-});
 
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
@@ -3951,9 +3911,8 @@ document.onmousemove = (e) => {
     if (!rightKey) {
         // 鼠标位置文字
         const p = e2pXY(e);
-        const c = e2cXY(e);
         // 鼠标跟随栏
-        if (!down) mouseBar(finalRect, c.x, c.y, "pick");
+        if (!down) mouseBar(finalRect, e, "pick");
         if (g光标参考线) {
             drawClip();
             ckx(p);
