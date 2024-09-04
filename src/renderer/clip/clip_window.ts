@@ -907,17 +907,18 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     return tempCanvas;
 }
 
+function e2pXY(e: MouseEvent | PointerEvent) {
+    const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
+    const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
+    return { x: Math.round(cX), y: Math.round(cY) } as editor_position;
+}
+
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function pXY2cXY(oX1: number, oY1: number, oX2: number, oY2: number): rect {
-    // 0_零_1_一_2_二_3 阿拉伯数字为点坐标（canvas），汉字为像素坐标（html）
-    // 输入为边框像素坐标
-    // 为了让canvas获取全屏，边框像素点要包括
-    // 像素坐标转为点坐标后,左和上(小的)是不变的,大的少1
+function p2Rect(oX1: number, oY1: number, oX2: number, oY2: number): rect {
     let x1 = Math.min(oX1, oX2);
     let y1 = Math.min(oY1, oY2);
     let x2 = Math.max(oX1, oX2);
     let y2 = Math.max(oY1, oY2);
-    // canvas缩放变换
     x1 = Math.round(x1);
     y1 = Math.round(y1);
     x2 = Math.round(x2);
@@ -925,19 +926,12 @@ function pXY2cXY(oX1: number, oY1: number, oX2: number, oY2: number): rect {
     return [x1, y1, x2 - x1, y2 - y1];
 }
 
-function pXY2cXY2(oX1: number, oY1: number): point {
-    // canvas缩放变换
-    const x1 = Math.round(oX1);
-    const y1 = Math.round(oY1);
-
-    return { x: x1, y: y1 };
-}
-
-function pXY2cXY0(x: number, y: number): point {
+function e2cXY(e: MouseEvent | PointerEvent) {
+    const { x, y } = e2pXY(e);
     if (editorP.zoom === 1 / window.devicePixelRatio) {
-        return { x: Math.ceil(x), y: Math.ceil(y) }; // 确保获取到最后的像素
+        return { x: Math.ceil(x), y: Math.ceil(y) } as px_position; // 确保获取到最后的像素
     }
-    return { x: Math.floor(x), y: Math.floor(y) }; // 放大后，可以进行高精度计算来获取所有像素，缩写后，看的是放大镜，这就无关紧要了
+    return { x: Math.floor(x), y: Math.floor(y) } as px_position; // 放大后，可以进行高精度计算来获取所有像素，缩写后，看的是放大镜，这就无关紧要了
 }
 
 function pointsOutRect(points: point[]): rect {
@@ -975,7 +969,7 @@ function clipStart(p: editor_position, inRect: boolean) {
         } else {
             selecting = true;
             canvasRect = [p.x, p.y]; // 用于框选
-            finalRect = pXY2cXY(canvasRect[0], canvasRect[1], p.x, p.y);
+            finalRect = p2Rect(canvasRect[0], canvasRect[1], p.x, p.y);
             rightKey = false;
             changeRightBar(false);
         }
@@ -994,17 +988,16 @@ function clipStart(p: editor_position, inRect: boolean) {
         }
     }
     drawClip();
-    if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
+    if (g光标参考线) ckx(p);
 
     // 隐藏
     drawBar.style.opacity = toolBar.style.opacity = "0";
 }
 
-function pickColor(p: editor_position) {
+function pickColor(e: MouseEvent | PointerEvent) {
     rightKey = !rightKey;
     // 自由右键取色
-    nowCanvasPosition = pXY2cXY(p.x, p.y, p.x, p.y);
-    const c = pXY2cXY0(p.x, p.y);
+    const c = e2cXY(e);
     mouseBar(finalRect, c.x, c.y, "pick");
     // 改成多格式样式
     if (rightKey) {
@@ -1017,7 +1010,6 @@ function pickColor(p: editor_position) {
 function clipEnd(p: editor_position) {
     clipCtx.closePath();
     selecting = false;
-    nowCanvasPosition = pXY2cXY(p.x, p.y, p.x, p.y);
     if (isRect) {
         if (!moved && down) {
             rectSelect = true;
@@ -1031,10 +1023,10 @@ function clipEnd(p: editor_position) {
             }
             if (min.length !== 0) finalRect = min as rect;
         } else {
-            finalRect = pXY2cXY(canvasRect[0], canvasRect[1], p.x, p.y);
+            finalRect = p2Rect(canvasRect[0], canvasRect[1], p.x, p.y);
         }
     } else {
-        freeSelect.push(pXY2cXY2(p.x, p.y));
+        freeSelect.push(p);
         finalRect = pointsOutRect(freeSelect);
     }
     drawClip();
@@ -1342,7 +1334,8 @@ function mouseBar(
     });
 }
 
-function ckx(x: number, y: number) {
+function ckx(p: editor_position) {
+    const { x, y } = p;
     clipCtx.fillStyle = c参考线颜色.光标参考线;
     clipCtx.fillRect(0, y, x, 1);
     clipCtx.fillRect(x + 1, y, clipCanvas.width - x - 1, 1);
@@ -1583,9 +1576,6 @@ function inRange(
  */
 function isInClipRect(p: editor_position) {
     let inRect = false;
-    const [canvasX, canvasY] = pXY2cXY(p.x, p.y, p.x, p.y);
-    p.x = canvasX;
-    p.y = canvasY;
 
     const [x0, y0, width, height] = finalRect;
     const x1 = x0 + width;
@@ -1658,15 +1648,10 @@ function moveRect(
     oldPosition: editor_position,
     position: editor_position,
 ) {
-    const op = pXY2cXY(
-        oldPosition.x,
-        oldPosition.y,
-        oldPosition.x,
-        oldPosition.y,
-    );
-    const p = pXY2cXY(position.x, position.y, position.x, position.y);
-    const dx = p[0] - op[0];
-    const dy = p[1] - op[1];
+    const op = oldPosition;
+    const p = position;
+    const dx = p.x - op.x;
+    const dy = p.y - op.y;
     switch (direction) {
         case "西北":
             finalRect = [
@@ -1777,8 +1762,8 @@ function movePoly(
     oldPosition: editor_position,
     position: editor_position,
 ) {
-    const op = pXY2cXY2(oldPosition.x, oldPosition.y);
-    const p = pXY2cXY2(position.x, position.y);
+    const op = oldPosition;
+    const p = position;
     const dx = p.x - op.x;
     const dy = p.y - op.y;
     if (direction === "move") {
@@ -3065,6 +3050,7 @@ let canvasRect = null;
 let /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
+type px_position = { x: number; y: number } & symbol;
 
 let /** 先前坐标，用于框选的生成和调整 */ oldP = {
         x: Number.NaN,
@@ -3079,7 +3065,6 @@ const undoStack = [{ rect: 0, canvas: 0 }];
 const rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[];
 const canvasStack = [{}];
 let undoStackI = 0;
-let nowCanvasPosition: number[];
 let direction:
     | ""
     | "move"
@@ -3714,12 +3699,7 @@ document.querySelector("body").onkeydown = (e) => {
             }
             setEditorP(editorP.zoom, x, y);
             document.body.classList.add("editor_bg");
-            const cX =
-                (nowMouseE.clientX - editorP.x * editorP.zoom) / editorP.zoom;
-            const cY =
-                (nowMouseE.clientY - editorP.y * editorP.zoom) / editorP.zoom;
-            nowCanvasPosition = pXY2cXY(cX, cY, cX, cY);
-            const c = pXY2cXY0(cX, cY);
+            const c = e2cXY(nowMouseE);
             mouseBar(finalRect, c.x, c.y, "pick");
         }
     }
@@ -3736,7 +3716,7 @@ clipCanvas.onmousedown = (e) => {
         clipStart({ x: e.offsetX, y: e.offsetY }, inRect);
     }
     if (e.button === 2) {
-        pickColor({ x: e.offsetX, y: e.offsetY });
+        pickColor(e);
     }
     toolBar.style.pointerEvents =
         drawBar.style.pointerEvents =
@@ -3757,14 +3737,14 @@ clipCanvas.onmousemove = (e) => {
             if (selecting) {
                 if (isRect) {
                     // 画框
-                    finalRect = pXY2cXY(
+                    finalRect = p2Rect(
                         canvasRect[0],
                         canvasRect[1],
                         e.offsetX,
                         e.offsetY,
                     );
                 } else {
-                    freeSelect.push(pXY2cXY2(e.offsetX, e.offsetY));
+                    freeSelect.push(e2pXY(e));
                     finalRect = pointsOutRect(freeSelect);
                 }
             }
@@ -3777,7 +3757,7 @@ clipCanvas.onmousemove = (e) => {
             }
             if (down) mouseBar(finalRect, e.offsetX, e.offsetY, "select");
             if (selecting || moving) drawClip();
-            if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (g光标参考线) ckx(e2pXY(e));
         });
     }
     if (!selecting && !moving) {
@@ -3797,7 +3777,7 @@ clipCanvas.onmousemove = (e) => {
 clipCanvas.onmouseup = (e) => {
     if (e.button === 0) {
         if (selecting) {
-            clipEnd({ x: e.offsetX, y: e.offsetY });
+            clipEnd(e2pXY(e));
             // 抬起鼠标后工具栏跟随
             followBar(e.clientX, e.clientY);
             // 框选后默认操作
@@ -3965,15 +3945,13 @@ clipCanvas.ondblclick = () => {
 document.onmousemove = (e) => {
     if (!rightKey) {
         // 鼠标位置文字
-        const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
-        const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
-        nowCanvasPosition = pXY2cXY(cX, cY, cX, cY);
-        const c = pXY2cXY0(cX, cY);
+        const p = e2pXY(e);
+        const c = e2cXY(e);
         // 鼠标跟随栏
         if (!down) mouseBar(finalRect, c.x, c.y, "pick");
         if (g光标参考线) {
             drawClip();
-            ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
+            ckx(p);
         }
 
         // 鼠标跟随栏
