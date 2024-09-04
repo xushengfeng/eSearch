@@ -3672,7 +3672,7 @@ document.querySelector("body").onkeydown = (e) => {
         } else {
             let x = editorP.x;
             let y = editorP.y;
-            const d = (10 * v) / editorP.zoom;
+            const d = v / editorP.zoom;
             switch (o[e.key]) {
                 case "up":
                     y = editorP.y + d;
