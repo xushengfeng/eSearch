@@ -3648,7 +3648,7 @@ document.querySelector("body").onkeydown = (e) => {
     if (e.ctrlKey) v = v * 5;
     if (e.shiftKey) v = v * 10;
     if (o[e.key]) {
-        if (down) {
+        if (direction) {
             const op = nowMouseE;
             let x = op.offsetX;
             let y = op.offsetY;
