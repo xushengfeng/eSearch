@@ -915,8 +915,8 @@ function pXY2cXY(oX1: number, oY1: number, oX2: number, oY2: number): rect {
     // 像素坐标转为点坐标后,左和上(小的)是不变的,大的少1
     let x1 = Math.min(oX1, oX2);
     let y1 = Math.min(oY1, oY2);
-    let x2 = Math.max(oX1, oX2) + 1;
-    let y2 = Math.max(oY1, oY2) + 1;
+    let x2 = Math.max(oX1, oX2);
+    let y2 = Math.max(oY1, oY2);
     // canvas缩放变换
     x1 = Math.round(x1);
     y1 = Math.round(y1);
@@ -931,6 +931,13 @@ function pXY2cXY2(oX1: number, oY1: number): point {
     const y1 = Math.round(oY1);
 
     return { x: x1, y: y1 };
+}
+
+function pXY2cXY0(x: number, y: number): point {
+    if (editorP.zoom === 1 / window.devicePixelRatio) {
+        return { x: Math.ceil(x), y: Math.ceil(y) }; // 确保获取到最后的像素
+    }
+    return { x: Math.floor(x), y: Math.floor(y) }; // 放大后，可以进行高精度计算来获取所有像素，缩写后，看的是放大镜，这就无关紧要了
 }
 
 function pointsOutRect(points: point[]): rect {
@@ -997,7 +1004,8 @@ function pickColor(p: editor_position) {
     rightKey = !rightKey;
     // 自由右键取色
     nowCanvasPosition = pXY2cXY(p.x, p.y, p.x, p.y);
-    mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+    const c = pXY2cXY0(p.x, p.y);
+    mouseBar(finalRect, c.x, c.y, "pick");
     // 改成多格式样式
     if (rightKey) {
         changeRightBar(true);
@@ -1249,15 +1257,18 @@ function changeWH(el: ElType<HTMLInputElement>) {
     followBar();
 }
 
-function mouseBar(finalRect: rect, x: number, y: number) {
+function mouseBar(
+    finalRect: rect,
+    x: number,
+    y: number,
+    type: "select" | "pick",
+) {
     requestAnimationFrame(() => {
         const [x0, y0, width, height] = finalRect;
 
         const delta = (colorSize - 1) / 2;
         const xOffset = x - delta;
         const yOffset = y - delta;
-
-        const centerIndex = (colorSize * delta + delta) * 4;
 
         const imageData = mainCanvasContext.getImageData(
             xOffset,
@@ -1301,15 +1312,33 @@ function mouseBar(finalRect: rect, x: number, y: number) {
 
         pointColorCanvasCtx.restore();
 
-        let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
+        if (type === "pick") {
+            const centerIndex = (colorSize * delta + delta) * 4;
+            let [r, g, b, a] = imageData.data.slice(
+                centerIndex,
+                centerIndex + 4,
+            );
 
-        a /= 255;
-        pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
-        theColor = [r, g, b, a];
-        clipColorText(theColor, 取色器默认格式);
+            a /= 255;
+            pointCenter.style.display = "";
+            pointXX.style({ display: "none" });
+            pointXY.style({ display: "none" });
+            pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+            theColor = [r, g, b, a];
+            clipColorText(theColor, 取色器默认格式);
+        } else {
+            pointCenter.style.display = "none";
+            pointXX.style({ display: "" });
+            pointXY.style({ display: "" });
+        }
 
-        const d = 0;
-        document.getElementById("clip_xy").innerText = `(${x + d}, ${y + d})`;
+        if (type === "select") {
+            document.getElementById("clip_xy").innerText = `(${x}, ${y})`;
+        } else {
+            const d = 0; // todo set
+            document.getElementById("clip_xy").innerText =
+                `(${x + d}, ${y + d})`;
+        }
     });
 }
 
@@ -3690,7 +3719,8 @@ document.querySelector("body").onkeydown = (e) => {
             const cY =
                 (nowMouseE.clientY - editorP.y * editorP.zoom) / editorP.zoom;
             nowCanvasPosition = pXY2cXY(cX, cY, cX, cY);
-            mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            const c = pXY2cXY0(cX, cY);
+            mouseBar(finalRect, c.x, c.y, "pick");
         }
     }
 };
@@ -3745,8 +3775,7 @@ clipCanvas.onmousemove = (e) => {
                     movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
                 }
             }
-            if (down)
-                mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+            if (down) mouseBar(finalRect, e.offsetX, e.offsetY, "select");
             if (selecting || moving) drawClip();
             if (g光标参考线) ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
         });
@@ -3889,6 +3918,25 @@ const pointCenter = document.createElement("div");
 document.getElementById("point_color").append(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
 pointCenter.style.top = `${((colorSize - 1) / 2) * colorISize}px`;
+const pointXX = view();
+const pointXY = view();
+document.getElementById("point_color").append(pointXX.el, pointXY.el);
+pointXX.style({
+    left: 0,
+    top: `${((colorSize - 1) / 2) * colorISize}px`,
+    width: `${colorSize * colorISize}px`,
+    height: "1px",
+    background: "black",
+    "box-shadow": "none",
+});
+pointXY.style({
+    top: 0,
+    left: `${((colorSize - 1) / 2) * colorISize}px`,
+    width: "1px",
+    height: `${colorSize * colorISize}px`,
+    background: "black",
+    "box-shadow": "none",
+});
 
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
 // 鼠标跟随栏
@@ -3920,9 +3968,9 @@ document.onmousemove = (e) => {
         const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
         const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
         nowCanvasPosition = pXY2cXY(cX, cY, cX, cY);
+        const c = pXY2cXY0(cX, cY);
         // 鼠标跟随栏
-        if (!down)
-            mouseBar(finalRect, nowCanvasPosition[0], nowCanvasPosition[1]);
+        if (!down) mouseBar(finalRect, c.x, c.y, "pick");
         if (g光标参考线) {
             drawClip();
             ckx(nowCanvasPosition[0], nowCanvasPosition[1]);
