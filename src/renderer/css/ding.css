@@ -107,8 +107,11 @@ input[type="range"]::-webkit-slider-thumb {
 .size > .icon {
     width: 32px;
 }
-#size > span {
+#size > input {
     outline: none;
+    font-size: 1rem;
+    border: none;
+    field-sizing: content;
 }
 
 #b {

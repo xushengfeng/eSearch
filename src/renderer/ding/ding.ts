@@ -5,8 +5,31 @@ const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
 import initStyle from "../root/root";
 import store from "../../../lib/store/renderStore";
-import { elFromId, type ElType, image, pack, view } from "dkh-ui";
+import {
+    button,
+    ele,
+    elFromId,
+    type ElType,
+    frame,
+    image,
+    input,
+    txt,
+    view,
+} from "dkh-ui";
 initStyle(store);
+
+import opacity_svg from "../assets/icons/opacity.svg";
+import size_svg from "../assets/icons/size.svg";
+import free_draw_svg from "../assets/icons/free_draw.svg";
+import save_svg from "../assets/icons/save.svg";
+import copy_svg from "../assets/icons/copy.svg";
+import minimize_svg from "../assets/icons/minimize.svg";
+import back_svg from "../assets/icons/back.svg";
+import close_svg from "../assets/icons/close.svg";
+
+function iconEl(src: string) {
+    return image(src, "").class("icon");
+}
 
 ipcRenderer.on("ding", (_event, type, id, more) => {
     console.log(type, id, more);
@@ -21,7 +44,7 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
             mouseEnd();
             break;
         case "back":
-            back2(elFromId(id));
+            back2(id);
             break;
         case "resize":
             if (!resizeSender)
@@ -42,8 +65,16 @@ const dives: ElType<HTMLElement>[] = [];
 
 let changing: { x: number; y: number } = null;
 const photos: { [key: string]: [number, number, number, number] } = {};
+let elMap: ReturnType<typeof setNewDing>[] = [];
 const urls = {};
-ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
+const setNewDing = (
+    wid: string,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    url: string,
+) => {
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
     const div = view().attr({ id: wid }).class("ding_photo");
@@ -56,75 +87,67 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
         height: `${h}px`,
     });
     const img = image(url, "").attr({ draggable: false }).class("img");
-    const toolBar = document
-        .querySelector("#tool_bar")
-        .cloneNode(true) as HTMLElement;
-    (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.display = "flex";
+    const toolBar = view().attr({ id: "tool_bar" });
+    const toolBarC = view("x").attr({ id: "tool_bar_c" });
+    toolBar.add(toolBarC);
     // 顶栏
     div.el.onmouseenter = () => {
-        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform =
-            "translateY(0)";
+        toolBarC.el.style.transform = "translateY(0)";
     };
     div.el.onmouseleave = () => {
-        (<HTMLElement>toolBar.querySelector("#tool_bar_c")).style.transform =
-            "translateY(-105%)";
+        toolBarC.el.style.transform = "translateY(-105%)";
     };
     // 透明
-    (<HTMLElement>toolBar.querySelector("#透明度")).oninput = () => {
-        img.el.style.opacity = `${Number((<HTMLInputElement>toolBar.querySelector("#透明度")).value) / 100}`;
-        (<HTMLElement>(
-            toolBar.querySelector("#透明度_p")
-        )).innerHTML = `${(<HTMLInputElement>toolBar.querySelector("#透明度")).value}%`;
-    };
+    const opacityEl = frame("opacity", {
+        _: view().attr({ id: "opacity" }),
+        icon: view().class("opacity").add(iconEl(opacity_svg)),
+        input: input("range")
+            .attr({ id: "透明度", min: "0", max: "100" })
+            .on("input", (_, el) => {
+                opacityElP.sv(el.gv);
+            }),
+        p: txt()
+            .attr({ id: "透明度_p" })
+            .bindSet((v: string, el) => {
+                el.innerText = `${v}%`;
+            }),
+    });
+
+    const opacityElP = opacityEl.el
+        .bindSet((v: string) => {
+            img.el.style.opacity = `${Number(v) / 100}`;
+            opacityEl.els.input.sv(v);
+            opacityEl.els.p.sv(v);
+        })
+        .sv("100");
+    toolBarC.add(opacityElP);
     // 大小
-    (<HTMLElement>toolBar.querySelector("#size > span")).onblur = () => {
-        if (
-            Number.isFinite(
-                Number(
-                    (<HTMLElement>toolBar.querySelector("#size > span"))
-                        .innerHTML,
-                ),
-            )
-        ) {
-            let zoom =
-                Number(
-                    (<HTMLElement>toolBar.querySelector("#size > span"))
-                        .innerHTML,
-                ) / 100;
+    const sizeEl = view()
+        .attr({ id: "window_size" })
+        .add(view().class("size").add(iconEl(size_svg)));
+    const sizeInput = input("number")
+        .on("blur", sizeChange)
+        .on("change", sizeChange)
+        .sv("100");
+
+    function sizeChange() {
+        if (Number.isFinite(Number(sizeInput.gv))) {
+            let zoom = Number(sizeInput.gv) / 100;
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
             resize(div, zoom, 0, 0);
             resizeSender = false;
         }
-    };
-    (<HTMLElement>toolBar.querySelector("#size > span")).onkeydown = (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            if (
-                Number.isFinite(
-                    Number(
-                        (<HTMLElement>toolBar.querySelector("#size > span"))
-                            .innerHTML,
-                    ),
-                )
-            ) {
-                let zoom =
-                    Number(
-                        (<HTMLElement>toolBar.querySelector("#size > span"))
-                            .innerHTML,
-                    ) / 100;
-                if (zoom < 0.05) zoom = 0.05;
-                resizeSender = true;
-                resize(div, zoom, 0, 0);
-                resizeSender = false;
-            }
-        }
-    };
+    }
+
+    toolBarC.add(
+        sizeEl.add(ele("span").attr({ id: "size" }).add([sizeInput, "%"])),
+    );
+
     // 滚轮缩放
     div.el.onwheel = (e) => {
         if (e.deltaY !== 0) {
-            let zoom =
-                Number(div.el.querySelector("#size > span").innerHTML) / 100;
+            let zoom = Number(sizeInput.gv) / 100;
             const zz = 1 + Math.abs(e.deltaY) / 300;
             zoom = e.deltaY > 0 ? zoom / zz : zoom * zz;
             if (zoom < 0.05) zoom = 0.05;
@@ -138,24 +161,31 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
             resizeSender = false;
         }
     };
-    (<HTMLElement>toolBar.querySelector("#minimize")).onclick = () => {
-        minimize(div.el);
-    };
-    (<HTMLElement>toolBar.querySelector("#back")).onclick = () => {
-        back(wid);
-    };
-    (<HTMLElement>toolBar.querySelector("#close")).onclick = () => {
-        close(wid);
-    };
-    (<HTMLElement>toolBar.querySelector("#copy")).onclick = () => {
-        copy(wid);
-    };
-    (<HTMLElement>toolBar.querySelector("#save")).onclick = () => {
-        save(wid);
-    };
-    (<HTMLElement>toolBar.querySelector("#edit")).onclick = () => {
-        edit(wid);
-    };
+    // 工具栏
+    toolBarC.add(
+        view()
+            .attr({ id: "b" })
+            .add([
+                button(iconEl(free_draw_svg)).on("click", () => {
+                    edit(wid);
+                }),
+                button(iconEl(save_svg)).on("click", () => {
+                    save(wid);
+                }),
+                button(iconEl(copy_svg)).on("click", () => {
+                    copy(wid);
+                }),
+                button(iconEl(minimize_svg)).on("click", () => {
+                    minimize(div.el);
+                }),
+                button(iconEl(back_svg)).on("click", () => {
+                    back(wid);
+                }),
+                button(iconEl(close_svg)).on("click", () => {
+                    close(wid);
+                }),
+            ]),
+    );
     // 双击行为
     div.el.ondblclick = () => {
         if (store.get("贴图.窗口.双击") === "归位") back(wid);
@@ -167,15 +197,20 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
         document.getElementById("dock").style.zIndex = String(toppest + 2);
         toppest += 1;
     };
-    div.add(toolBar);
-    div.add(img);
+    div.add(toolBar).add(img);
     document.querySelector("#photo").appendChild(div.el);
 
     // dock
     dockI();
 
     resize(div, 1, 0, 0);
-});
+
+    return {
+        opacity: (v: string) => opacityElP.sv(v),
+        size: (v: string) => sizeInput.sv(v),
+        id: wid,
+    };
+};
 
 ipcRenderer.on("mouse", (_e, x, y) => {
     const els = document.elementsFromPoint(x, y);
@@ -228,7 +263,8 @@ function transform(el, v) {
 function back(id: string) {
     sendEvent("back", id);
 }
-function back2(el: ElType<HTMLElement>) {
+function back2(id: string) {
+    const el = elFromId(id);
     el.el.style.transition = "var(--transition)";
     setTimeout(() => {
         el.el.style.transition = "";
@@ -245,9 +281,9 @@ function back2(el: ElType<HTMLElement>) {
     });
     ipcRenderer.send("ding_p_s", el.el.id, pS);
 
-    (el.el.querySelector("#透明度") as HTMLInputElement).value = "100";
-    el.el.querySelector("#透明度_p").innerHTML = "100%";
-    (el.el.querySelector(".img") as HTMLImageElement).style.opacity = "1";
+    const x = elMap.find((e) => e.id === id);
+    if (!x) return;
+    x.opacity("100");
 }
 function close(id: string) {
     ipcRenderer.send(
@@ -261,6 +297,7 @@ function close2(el: HTMLElement) {
     el.remove();
     delete photos[el.id];
     delete urls[el.id];
+    elMap = elMap.filter((e) => e.id !== el.id);
     dockI();
 }
 function copy(id: string) {
@@ -520,7 +557,7 @@ function move(el: ElType<HTMLElement>, e: { x: number; y: number }) {
 
 function resize(el: ElType<HTMLElement>, zoom: number, dx: number, dy: number) {
     const id = el.el.id;
-    el.query("#size > span").el.innerHTML = String(Math.round(zoom * 100));
+    elMap.find((i) => i.id === id)?.size(String(Math.round(zoom * 100)));
     const rect = [
         el.el.offsetLeft,
         el.el.offsetTop,
@@ -693,3 +730,6 @@ function dockI() {
         })(o);
     }
 }
+ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
+    elMap.push(setNewDing(String(wid), x, y, w, h, url));
+});
