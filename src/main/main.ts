@@ -2117,11 +2117,8 @@ async function createBrowser(windowName: number, url: string) {
             query: { text: url.replace("translate/?text=", "") },
         });
     } else searchView.webContents.loadURL(url);
-    const [w, h] = mainWindow.getContentSize();
     const bSize = mainWindowL[windowName].browser;
     setViewSize(searchView, mainWindow, bSize);
-    mainWindow.setContentSize(w, h + 1);
-    mainWindow.setContentSize(w, h);
     searchView.webContents.setWindowOpenHandler(({ url }) => {
         createBrowser(windowName, url);
         return { action: "deny" };
