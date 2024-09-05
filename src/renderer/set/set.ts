@@ -1251,6 +1251,146 @@ document.getElementById("clear_cache").onclick = () => {
     ipcRenderer.send("setting", "clear", "cache");
 };
 
+const ocrUrl =
+    "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/";
+const ocrUrls: { name: string; url: string }[] = [
+    { name: "GitHub", url: ocrUrl },
+    { name: "ghMirror", url: `https://mirror.ghproxy.com/${ocrUrl}` },
+];
+
+const ocrModels: Record<
+    string,
+    { url: string; name: string; supportLang: string[] }
+> = {
+    ch: { url: "ch.zip", name: "中英混合", supportLang: ["zh-HANS", "en"] },
+    en: { url: "en.zip", name: "英文", supportLang: ["en"] },
+    chinese_cht: {
+        url: "chinese_cht.zip",
+        name: "中文繁体",
+        supportLang: ["zh-HANT"],
+    },
+    korean: { url: "korean.zip", name: "韩文", supportLang: ["ko"] },
+    japan: { url: "japan.zip", name: "日文", supportLang: ["ja"] },
+    te: { url: "te.zip", name: "泰卢固文", supportLang: ["te"] },
+    ka: { url: "ka.zip", name: "卡纳达文", supportLang: ["ka"] },
+    ta: { url: "ta.zip", name: "泰米尔文", supportLang: ["ta"] },
+    latin: {
+        url: "latin.zip",
+        name: "拉丁文",
+        supportLang: [
+            "af",
+            "az",
+            "bs",
+            "cs",
+            "cy",
+            "da",
+            "de",
+            "es",
+            "et",
+            "fr",
+            "ga",
+            "hr",
+            "hu",
+            "id",
+            "is",
+            "it",
+            "ku",
+            "la",
+            "lt",
+            "lv",
+            "mi",
+            "ms",
+            "mt",
+            "nl",
+            "no",
+            "oc",
+            "pi",
+            "pl",
+            "pt",
+            "ro",
+            "sr-Latn",
+            "sk",
+            "sl",
+            "sq",
+            "sv",
+            "sw",
+            "tl",
+            "tr",
+            "uz",
+            "vi",
+            "fr",
+            "de",
+        ],
+    },
+    arabic: {
+        url: "arabic.zip",
+        name: "阿拉伯字母",
+        supportLang: ["ar", "fa", "ug", "ur"],
+    },
+    cyrillic: {
+        url: "cyrillic.zip",
+        name: "斯拉夫字母",
+        supportLang: [
+            "ru",
+            "sr-Cyrl",
+            "be",
+            "bg",
+            "uk",
+            "mn",
+            "abq",
+            "ady",
+            "kbd",
+            "ava",
+            "dar",
+            "inh",
+            "che",
+            "lbe",
+            "lez",
+            "tab",
+        ],
+    },
+    devanagari: {
+        url: "devanagari.zip",
+        name: "梵文字母",
+        supportLang: [
+            "hi",
+            "mr",
+            "ne",
+            "bh",
+            "mai",
+            "ang",
+            "bho",
+            "mah",
+            "sck",
+            "new",
+            "gom",
+            "sa",
+            "bgc",
+        ],
+    },
+};
+
+const langMap = {
+    pi: "巴利语",
+    abq: "阿布哈兹语",
+    ady: "阿迪格语",
+    kbd: "卡巴尔达语",
+    ava: "阿瓦尔语",
+    dar: "达尔格瓦语",
+    inh: "印古什语",
+    che: "车臣语",
+    lbe: "列兹金语",
+    lez: "雷兹语",
+    tab: "塔巴萨兰语",
+    bh: "比哈里语",
+    ang: "古英语",
+    mah: "马拉提语",
+    sck: "西卡语",
+    new: "尼瓦尔语",
+    gom: "孔卡尼语",
+    bgc: "哈尔穆克语",
+};
+
 function setOcr() {
     let ocrIn = "";
     for (const i of old_store.离线OCR) {
@@ -1331,15 +1471,116 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     e.preventDefault();
     console.log(e);
     const fs = e.dataTransfer.files;
+    addOCRFromPaths(Array.from(fs).map((i) => i.path));
+    document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
+};
+
+const ocrModelListEl = button("add ocr");
+const addOCRModel = ele("dialog");
+const ocrLanMap: Record<string, string> = {};
+for (const i in ocrModels) {
+    for (const j of ocrModels[i].supportLang) {
+        ocrLanMap[j] = i;
+    }
+}
+const langName = new Intl.DisplayNames(xstore.语言.语言, { type: "language" });
+
+const OCRListEl = view("x").style({ "flex-wrap": "wrap" });
+for (const i in ocrModels) {
+    OCRListEl.add(
+        button(ocrModels[i].name)
+            .on("click", () => {
+                OCRDetailsEl.clear().add([
+                    ele("h2").add(ocrModels[i].name),
+                    view("y")
+                        .add(
+                            ocrModels[i].supportLang.map((i) =>
+                                langMap[i]
+                                    ? txt(langMap[i])
+                                    : txt(langName.of(i), true),
+                            ),
+                        )
+                        .style({ overflow: "scroll" }),
+                ]);
+                ocrDownloadEl.style({ display: "block" });
+                downloadButton.on("click", () => {
+                    const url = mirrorSelect.gv + ocrModels[i].url;
+                    const p = path.join(configPath, "models", i);
+                    download(url, p, {
+                        extract: true,
+                        rejectUnauthorized: false,
+                    })
+                        .on("response", (res) => {
+                            const total = Number(res.headers["content-length"]);
+                            let now = 0;
+                            res.on("data", (data) => {
+                                now += Number(data.length);
+                                const percent = now / total;
+                                console.log(percent);
+                                // todo ui显示
+                            });
+                            res.on("end", () => {});
+                        })
+                        .then(() => {
+                            console.log("end");
+                            addOCR(p);
+                        });
+                    // todo 可取消
+                });
+            })
+            .data({ name: i }),
+    );
+}
+
+const OCRDetailsEl = view("y").style({ "max-height": "50vh" });
+
+const downloadButton = button("下载");
+const mirrorSelect = select(
+    ocrUrls.map((i) => ({ name: i.name, value: i.url })),
+);
+const ocrDownloadEl = view()
+    .add([mirrorSelect, downloadButton])
+    .style({ display: "none" });
+addOCRModel.add([
+    OCRListEl,
+    OCRDetailsEl,
+    ocrDownloadEl,
+    button(txt("取消")).on("click", () => addOCRModel.el.close()),
+]);
+document
+    .getElementById("OCR拖拽放置区")
+    .after(ocrModelListEl.el, addOCRModel.el);
+
+ocrModelListEl.on("click", () => {
+    addOCRModel.el.showModal();
+});
+
+function addOCR(p: string) {
+    const stat = fs.statSync(p);
+    if (stat.isDirectory()) {
+        const files = fs.readdirSync(p);
+        const downPath = path.join(p, files[0]);
+        if (fs.statSync(downPath).isDirectory()) {
+            addOCRFromPaths(
+                fs.readdirSync(downPath).map((i) => path.join(downPath, i)),
+            );
+        } else {
+            addOCRFromPaths(files.map((i) => path.join(p, i)));
+        }
+    } else {
+        const files = fs.readdirSync(path.join(p, "../"));
+        addOCRFromPaths(files.map((i) => path.join(p, "../", i)));
+    }
+}
+
+function addOCRFromPaths(paths: string[]) {
     const l: [string, string, string, string] = [
         `新模型${crypto.randomUUID().slice(0, 7)}`,
         "默认/ppocr_det.onnx",
         "默认/ppocr_rec.onnx",
         "默认/ppocr_keys_v1.txt",
     ];
-    for (const f of fs) {
-        // @ts-ignore
-        const path = f.path as string;
+    for (const path of paths) {
         if (path.split("/").at(-1).includes("det")) {
             l[1] = path;
         } else if (path.split("/").at(-1).includes("rec")) {
@@ -1353,8 +1594,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     xstore.离线OCR = all;
     OCR模型展示();
     setOcr();
-    document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
-};
+}
 
 const screenKeyTipEl = document.getElementById("screen_key_tip");
 const screenKeyTipKBD = screenKeyTipEl.querySelector("div");
