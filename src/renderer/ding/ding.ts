@@ -293,7 +293,7 @@ function edit(id: string) {
 // 最高窗口
 let toppest = 1;
 let oPs: number[];
-let windowDiv = null;
+let windowDiv: ElType<HTMLElement> = null;
 
 let resizeSender = false;
 
@@ -329,18 +329,25 @@ document.onmousedown = (e) => {
     resizeSender = true;
 };
 function mouseStart(op: start) {
-    windowDiv = document.getElementById(op.id);
-    const div = windowDiv as HTMLElement;
-    div.style.left = `${op.x - div.offsetWidth * op.dx}px`;
-    div.style.top = `${op.y - div.offsetHeight * op.dy}px`;
-    oPs = [div.offsetLeft, div.offsetTop, div.offsetWidth, div.offsetHeight];
+    windowDiv = elFromId(op.id);
+    const div = windowDiv;
+    div.style({
+        left: `${op.x - div.el.offsetWidth * op.dx}px`,
+        top: `${op.y - div.el.offsetHeight * op.dy}px`,
+    });
+    oPs = [
+        div.el.offsetLeft,
+        div.el.offsetTop,
+        div.el.offsetWidth,
+        div.el.offsetHeight,
+    ];
     changing = { x: op.x, y: op.y };
     direction = op.d;
     cursor(direction);
 }
 function mouseMove(el: HTMLElement, x: number, y: number) {
     if (direction) {
-        move(pack(windowDiv), { x, y });
+        move(windowDiv, { x, y });
     } else {
         const div = dives.find((d) => d.el.contains(el));
         if (div && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
