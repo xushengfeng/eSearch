@@ -597,27 +597,6 @@ body > div {
     background-color: var(--bg);
 }
 
-.fill_t #browser_bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 48px);
-    background-color: var(--bg);
-    pointer-events: none;
-    z-index: 10;
-    opacity: 0;
-}
-
-.fill_t_s #browser_bg {
-    opacity: 1;
-}
-.fill_t_s .main {
-    grid-template-columns: 1fr var(--b-button) repeat(2, auto);
-}
-.fill_t_s #top {
-    grid-area: 1 / 1 / 2 / 7;
-}
-.fill_t_s .main > #history {
-    display: none;
+.fill_t_s .fill_t :is(#find, #edit) {
+    visibility: hidden;
 }

@@ -1471,11 +1471,14 @@ function setConciseMode(m: boolean) {
         bottomEls.style.height = "";
         body.style.gap = "";
     }
-    const bSize = { top: 0, bottom: 48 };
-    if (m) {
-        bSize.top =
+    const bSize = {
+        top:
             // @ts-ignore
-            window.navigator.windowControlsOverlay.getTitlebarAreaRect().height;
+            window.navigator?.windowControlsOverlay.getTitlebarAreaRect()
+                .height || 0,
+        bottom: 48,
+    };
+    if (m) {
         bSize.bottom = 0;
     }
     ipcRenderer.send("tab_view", null, "size", bSize);

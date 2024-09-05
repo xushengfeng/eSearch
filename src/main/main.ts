@@ -2004,11 +2004,9 @@ async function createMainWindow(op: MainWinType) {
     // 浏览器大小适应
     mainWindow.on("resize", () => {
         setTimeout(() => {
-            const [w, h] = mainWindow.getContentSize();
-            const { top, bottom } = mainWindowL[windowName].browser;
             for (const i of mainWindow.getBrowserViews()) {
                 if (i.getBounds().width !== 0)
-                    i.setBounds({ x: 0, y: top, width: w, height: h - bottom });
+                    setViewSize(i, mainWindow, mainWindowL[windowName].browser);
             }
         }, 0);
     });
@@ -2097,12 +2095,7 @@ async function createBrowser(windowName: number, url: string) {
     } else searchView.webContents.loadURL(url);
     const [w, h] = mainWindow.getContentSize();
     const bSize = mainWindowL[windowName].browser;
-    searchView.setBounds({
-        x: 0,
-        y: bSize.top,
-        width: w,
-        height: h - bSize.bottom,
-    });
+    setViewSize(searchView, mainWindow, bSize);
     mainWindow.setContentSize(w, h + 1);
     mainWindow.setContentSize(w, h);
     searchView.webContents.setWindowOpenHandler(({ url }) => {
@@ -2239,19 +2232,25 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             bSize.top = arg2.top;
             for (const w of mainWindow.getBrowserViews()) {
                 if (w.getBounds().width !== 0)
-                    w.setBounds({
-                        x: 0,
-                        y: bSize?.top || 0,
-                        width: mainWindow.getContentBounds().width,
-                        height:
-                            mainWindow.getContentBounds().height -
-                            (bSize?.bottom || 48),
-                    });
+                    setViewSize(w, mainWindow, bSize);
             }
             break;
         }
     }
 });
+
+function setViewSize(
+    w: BrowserView,
+    window: BrowserWindow,
+    size: (typeof mainWindowL)[0]["browser"],
+) {
+    w.setBounds({
+        x: 0,
+        y: size.top,
+        width: window.getBounds().width,
+        height: window.getBounds().height - size.bottom - size.top,
+    });
+}
 
 /** 最小化某个窗口的所有标签页 */
 function minViews(mainWindow?: BrowserWindow) {
