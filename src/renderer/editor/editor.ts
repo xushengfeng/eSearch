@@ -1064,9 +1064,6 @@ for (const e of 翻译引擎List) {
 /************************************历史记录 */
 // 历史记录
 
-// var historyStore = new Store({ name: "history" });
-// todo
-
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     const nowTime = new Date().getTime();
     const dTime =
@@ -1660,9 +1657,10 @@ function mainEvent(eid: string) {
     if (eid === "browser") {
         openInBrowser();
     } else if (eid === "add_history") {
-        // historyStore.set(`历史记录.${new Date().getTime()}`, {
-        //     text: document.querySelector(".tab_focus").getAttribute("data-url"),
-        // });
+        historyList[new Date().getTime()] = {
+            text: document.querySelector(".tab_focus").getAttribute("data-url"),
+        };
+        storeHistory();
     } else if (eid === "home") {
         document.querySelector(".tab_focus").classList.remove("tab_focus");
         body.classList.remove("fill_t_s");
