@@ -7,13 +7,13 @@
 
 你可以进一步了解 eSearch 的功能
 
-本文档基于最新的 eSearch 进行说明
+你现在看到的版本可能是与软件相适应的版本，如果你想看最新的文档版本（包括开发版甚至是正在开发的未发布的版本），请访问[GitHub master 分支](https://github.com/xushengfeng/eSearch/blob/master/docs/use/index.md)。
 
 在这之前，你需要安装 eSearch，如果有运行库按钮提示，请下载并按照提示安装。
 
 由于 eSearch 是电脑软件，你还需要了解电脑操作的基本知识，包括鼠标左中右键的点击、快捷键的使用等。
 
-在[使用说明](start.md)中，你将了解到 eSearch 的基本使用方法，各个功能的具体用法、提示技巧和高级功能。
+在[使用说明（点击打开）](start.md)中，你将了解到 eSearch 的基本使用方法，各个功能的具体用法、提示技巧和高级功能。
 
 尽管 eSearch 尽量避免的一些问题并给予提示，但仍有一些[常见问题](qa.md)需要给出来参考。
 
@@ -22,3 +22,7 @@
 > [!TIP]
 >
 > 如果你很难访问 GitHub，可以使用[Watt Toolkit](https://steampp.net/)进行免费的 GitHub 加速，也可以通过[Gitee](https://gitee.com/xsf-root/eSearch/blob/master/docs/use/index.md#/xsf-root/eSearch/blob/master/docs/use/start.md)访问本文档的镜像。
+
+> [!NOTE]
+>
+> 本人文字水平有限，文档尚未涵盖所有功能，欢迎大家补充。
