@@ -435,6 +435,7 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
     结束广截屏: () => {
         clipWindow?.webContents.send("long_e");
     },
+    剪贴板贴图: () => dingFromClipBoard(),
     主页面: () => createMainWindow({ type: "text", content: "" }),
 };
 
@@ -525,11 +526,7 @@ app.whenReady().then(() => {
         {
             label: t("从剪贴板贴图"),
             click: () => {
-                const img = clipboard.readImage();
-                if (img.getSize().height && img.getSize().width) {
-                    console.log("ding img");
-                    ding(img);
-                }
+                dingFromClipBoard();
             },
         },
         {
@@ -1727,6 +1724,14 @@ const dingwindowList: {
     [key: string]: { win: BrowserWindow; display: Electron.Display };
 } = {};
 
+function dingFromClipBoard() {
+    const img = clipboard.readImage();
+    if (img.getSize().height && img.getSize().width) {
+        console.log("ding img");
+        ding(img);
+    }
+}
+
 function ding(img: NativeImage) {
     const nowPoint = screen.getCursorScreenPoint();
     const size = img.getSize();
@@ -2367,6 +2372,7 @@ const defaultSetting: setting = {
         连拍: { key: "" },
         主页面: {},
         结束广截屏: { key: "" },
+        剪贴板贴图: { key: "" },
     },
     点击托盘自动截图: process.platform !== "linux",
     全局工具快捷键: {

@@ -14,6 +14,7 @@ export interface setting {
         连拍: { key: string };
         主页面: { key?: string };
         结束广截屏: { key: string };
+        剪贴板贴图: { key: string };
     };
     点击托盘自动截图: boolean;
     全局工具快捷键: { [key in 功能]: string };
