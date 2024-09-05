@@ -2483,6 +2483,7 @@ const defaultSetting: setting = {
             "record",
             "long",
             "translate",
+            "editor",
             "copy",
             "save",
         ],
