@@ -974,7 +974,7 @@ function isLink(url: string, s: boolean) {
 function showT(st: string, m: setting["主页面"]["模式"]) {
     const t = st.replace(/[\r\n]$/, "");
     editor.push(t);
-    const openOuterBrowser = 浏览器打开 || (m === "auto" && concise);
+    const openOuterBrowser = 浏览器打开;
     if (m === "auto" || t === "") {
         // 严格模式
         if (isLink(t, true)) {
