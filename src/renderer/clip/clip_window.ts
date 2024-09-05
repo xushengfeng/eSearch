@@ -3229,29 +3229,29 @@ ipcRenderer.on(
     "reflash",
     (
         _a,
-        _displays: (Electron.Display & { main?: boolean })[],
+        _displays: Electron.Display[],
         imgBuffer: Buffer,
         mainid: number,
         act: 功能,
     ) => {
-        allScreens = screenShots(_displays, imgBuffer);
+        allScreens = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
         console.log(allScreens);
         const mainId = mainid;
         const i = allScreens.find((i) => i.id === mainId) || allScreens[0];
         setScreen(i);
+        const nowScreen =
+            _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
         if (
-            i.size.width < window.innerWidth ||
-            i.size.height < window.innerHeight
+            i.size.width < nowScreen.size.width ||
+            i.size.height < nowScreen.size.height
         ) {
-            setTimeout(() => {
-                const x =
-                    (window.innerWidth * window.devicePixelRatio) / 2 -
-                    i.size.width / 2;
-                const y =
-                    (window.innerHeight * window.devicePixelRatio) / 2 -
-                    i.size.height / 2;
-                setEditorP(1 / (i.scaleFactor || devicePixelRatio), x, y);
-            }, 100); // 等待窗口打开
+            const x =
+                (nowScreen.size.width * window.devicePixelRatio) / 2 -
+                i.size.width / 2;
+            const y =
+                (nowScreen.size.height * window.devicePixelRatio) / 2 -
+                i.size.height / 2;
+            setEditorP(1 / (i.scaleFactor || devicePixelRatio), x, y);
         } else setEditorP(1 / i.scaleFactor, 0, 0);
         zoomW = i.size.width;
         ratio = i.scaleFactor;
