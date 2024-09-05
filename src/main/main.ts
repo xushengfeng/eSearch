@@ -397,15 +397,7 @@ async function argRun(c: string[], first?: boolean) {
         });
     } else if (argv.d || argv.ding) {
         if (!img) return;
-        const nowPoint = screen.getCursorScreenPoint();
-        const size = img.getSize();
-        createDingWindow(
-            nowPoint.x,
-            nowPoint.y,
-            size.width,
-            size.height,
-            img.toDataURL(),
-        );
+        ding(img);
     } else if (argv.m || argv.img) {
         if (!img) return;
         createMainWindow({
@@ -525,6 +517,19 @@ app.whenReady().then(() => {
             checked: store.get("浏览器中打开"),
             click: (i) => {
                 store.set("浏览器中打开", i.checked);
+            },
+        },
+        {
+            type: "separator",
+        },
+        {
+            label: t("从剪贴板贴图"),
+            click: () => {
+                const img = clipboard.readImage();
+                if (img.getSize().height && img.getSize().width) {
+                    console.log("ding img");
+                    ding(img);
+                }
             },
         },
         {
@@ -1721,6 +1726,20 @@ function longWin() {
 const dingwindowList: {
     [key: string]: { win: BrowserWindow; display: Electron.Display };
 } = {};
+
+function ding(img: NativeImage) {
+    const nowPoint = screen.getCursorScreenPoint();
+    const size = img.getSize();
+    if (!size.width || !size.height) return;
+    createDingWindow(
+        nowPoint.x,
+        nowPoint.y,
+        size.width,
+        size.height,
+        img.toDataURL(),
+    );
+}
+
 function createDingWindow(
     x: number,
     y: number,
