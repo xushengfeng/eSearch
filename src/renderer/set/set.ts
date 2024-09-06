@@ -3,7 +3,8 @@ import type { setting, 功能, 功能列表 } from "../../ShareTypes";
 const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
-const { shell, ipcRenderer } = require("electron") as typeof import("electron");
+const { shell, ipcRenderer, webUtils } =
+    require("electron") as typeof import("electron");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
 import {
@@ -1471,7 +1472,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     e.preventDefault();
     console.log(e);
     const fs = e.dataTransfer.files;
-    addOCRFromPaths(Array.from(fs).map((i) => i.path));
+    addOCRFromPaths(Array.from(fs).map((i) => webUtils.getPathForFile(i)));
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 
