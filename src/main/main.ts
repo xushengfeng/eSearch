@@ -2791,7 +2791,7 @@ function fixSettingTree() {
     store.set("设置版本", app.getVersion());
 }
 
-function checkUpdate(show?: boolean) {
+function checkUpdate(s手动检查?: boolean) {
     const version = store.get("设置版本");
     const m = store.get("更新.模式");
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
@@ -2808,7 +2808,7 @@ function checkUpdate(show?: boolean) {
             const firstName = first.name;
             if (m === "dev") {
                 if (firstName !== version) update = true;
-            } else if (m === "小版本") {
+            } else if (m === "小版本" || s手动检查) {
                 if (
                     firstName.split(".").slice(0, 2).join(".") !==
                     version.split(".").slice(0, 2).join(".")
@@ -2823,7 +2823,7 @@ function checkUpdate(show?: boolean) {
                     v: first.name,
                     url: first.html_url,
                 });
-            } else if (show) {
+            } else if (s手动检查) {
                 showVersion();
             }
         })
