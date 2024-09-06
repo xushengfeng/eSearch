@@ -3548,13 +3548,20 @@ function showShortKey(k: string) {
 }
 
 // alt显示快捷键
+let altT: number;
 document.addEventListener("keydown", (e) => {
     if (e.key === "Alt" && !longRunning) {
-        document.documentElement.style.setProperty("--hotkey-show", "block");
+        altT = window.setTimeout(() => {
+            document.documentElement.style.setProperty(
+                "--hotkey-show",
+                "block",
+            );
+        }, 400);
     }
 });
 document.addEventListener("keyup", (e) => {
     if (e.key === "Alt") {
+        clearTimeout(altT);
         document.documentElement.style.setProperty("--hotkey-show", "none");
     }
 });
