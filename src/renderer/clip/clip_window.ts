@@ -101,32 +101,23 @@ function rangeBar(min: number, max: number, step: number, text = "") {
         // @ts-ignore
         .style({ "filed-size": "content" })
         .on("input", () => {
-            value = vFix(Number.parseFloat(i.gv));
-            inputEvent();
+            setV(Number.parseFloat(i.gv), true);
         })
         .on("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
-                value = vFix(Number.parseFloat(i.gv));
-                i.sv(value.toString());
-                inputEvent();
+                setV(Number.parseFloat(i.gv));
                 useI(false);
             } else if (e.key === "ArrowUp") {
                 e.preventDefault();
-                value = vFix(value + step);
-                i.sv(value.toString());
-                inputEvent();
+                setV(value + step);
             } else if (e.key === "ArrowDown") {
                 e.preventDefault();
-                value = vFix(value - step);
-                i.sv(value.toString());
-                inputEvent();
+                setV(value - step);
             }
         })
         .on("blur", () => {
-            value = vFix(Number.parseFloat(i.gv));
-            i.sv(value.toString());
-            inputEvent();
+            setV(Number.parseFloat(i.gv));
             useI(false);
         });
 
@@ -145,17 +136,20 @@ function rangeBar(min: number, max: number, step: number, text = "") {
 
     const range = max - min;
 
+    function setV(v: number, noInput = false, event = true) {
+        value = vFix(v);
+        setBar(v);
+        if (!noInput) i.sv(String(v));
+        if (event) inputEvent();
+    }
+
     trackPoint(p, {
         start: () => {
             if (type === "edit") return null;
             return { x: 0, y: 0, data: value };
         },
         ing: (p, _, _e, oldV) => {
-            const v = vFix(oldV + (p.x / 200) * range);
-            value = v;
-            setBar(v);
-            i.sv(String(v));
-            inputEvent();
+            setV(oldV + (p.x / 200) * range);
         },
         end(moved) {
             if (!moved) useI(true);
@@ -187,9 +181,7 @@ function rangeBar(min: number, max: number, step: number, text = "") {
             return vFix(value);
         })
         .bindSet((v: number) => {
-            value = vFix(v);
-            setBar(value);
-            i.sv(String(value));
+            setV(v, false, false);
         })
         .sv(min);
 }
