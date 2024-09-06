@@ -2611,55 +2611,6 @@ async function fabricCopy() {
     hisPush();
 }
 
-// 检查应用更新
-
-function checkUpdate(show?: boolean) {
-    const version = store.get("设置版本");
-    const m = store.get("更新.模式");
-    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
-        .then((v) => v.json())
-        .then((re) => {
-            let first: { name: string; html_url: string };
-            for (const r of re) {
-                if (first) break;
-                if (
-                    !version.includes("beta") &&
-                    !version.includes("alpha") &&
-                    m !== "dev"
-                ) {
-                    if (!r.draft && !r.prerelease) first = r;
-                } else {
-                    first = r;
-                }
-            }
-            let update = false;
-            const firstName = first.name;
-            if (m === "dev") {
-                if (firstName !== version) update = true;
-            } else if (m === "小版本") {
-                if (
-                    firstName.split(".").slice(0, 2).join(".") !==
-                    version.split(".").slice(0, 2).join(".")
-                )
-                    update = true;
-            } else {
-                if (firstName.split(".").at(0) !== version.split(".").at(0))
-                    update = true;
-            }
-            if (update) {
-                ipcRenderer.send("clip_main_b", "new_version", {
-                    v: first.name,
-                    url: first.html_url,
-                });
-            } else if (show) {
-                ipcRenderer.send("clip_main_b", "new_version");
-            }
-        })
-        .catch(() => {
-            ipcRenderer.send("clip_main_b", "new_version", "err");
-        });
-}
-
 // 获取设置
 
 if (store.get("框选.自动框选.开启")) {
@@ -3587,7 +3538,6 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
             );
         else ipcRenderer.send("clip_main_b", "ignore_mouse", false);
     }
-    if (type === "update") checkUpdate(true);
 });
 
 ipcRenderer.on("save_path", (_event, message) => {
@@ -4343,5 +4293,3 @@ hotkeys("Ctrl+v", () => {
 });
 
 setEditType("select", editType.select);
-
-if (store.get("更新.频率") === "start") checkUpdate();

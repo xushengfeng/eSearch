@@ -597,7 +597,7 @@ app.whenReady().then(() => {
         {
             label: t("检查更新"),
             click: async () => {
-                (await getClipWin()).webContents.send("clip", "update");
+                checkUpdate(true);
             },
         },
         {
@@ -1160,33 +1160,6 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
             clipWindow?.setIgnoreMouseEvents(false);
             isLongStart = false;
             break;
-        case "new_version": {
-            let title = "";
-            let b = "";
-            let url = "https://github.com/xushengfeng/eSearch/releases";
-            if (arg) {
-                if (arg === "err") {
-                    title = t("无法检查更新");
-                    b = t("请检查网络，稍后重试");
-                } else {
-                    title = `${app.name} ${t("有新版本：")}${arg.v}`;
-                    b = `${t("点击下载")}`;
-                    url = arg.url;
-                }
-            } else {
-                title = t("已是最新版本");
-            }
-            const notification = new Notification({
-                title,
-                body: b,
-                icon: `${runPath}/assets/logo/64x64.png`,
-            });
-            notification.on("click", () => {
-                shell.openExternal(url);
-            });
-            notification.show();
-            break;
-        }
         case "get_mouse":
             event.returnValue = screen.getCursorScreenPoint();
             break;
@@ -2817,3 +2790,73 @@ function fixSettingTree() {
     }
     store.set("设置版本", app.getVersion());
 }
+
+function checkUpdate(show?: boolean) {
+    const version = store.get("设置版本");
+    const m = store.get("更新.模式");
+    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
+        .then((v) => v.json())
+        .then((re) => {
+            const isDev =
+                version.includes("beta") ||
+                version.includes("alpha") ||
+                m === "dev";
+            const first = re.find((r) =>
+                isDev ? true : !r.draft && !r.prerelease,
+            );
+            let update = false;
+            const firstName = first.name;
+            if (m === "dev") {
+                if (firstName !== version) update = true;
+            } else if (m === "小版本") {
+                if (
+                    firstName.split(".").slice(0, 2).join(".") !==
+                    version.split(".").slice(0, 2).join(".")
+                )
+                    update = true;
+            } else {
+                if (firstName.split(".").at(0) !== version.split(".").at(0))
+                    update = true;
+            }
+            if (update) {
+                showVersion({
+                    v: first.name,
+                    url: first.html_url,
+                });
+            } else if (show) {
+                showVersion();
+            }
+        })
+        .catch(() => {
+            showVersion("err");
+        });
+}
+
+function showVersion(arg?: { v: string; url: string } | "err") {
+    let title = "";
+    let b = "";
+    let url = "https://github.com/xushengfeng/eSearch/releases";
+    if (arg) {
+        if (arg === "err") {
+            title = t("无法检查更新");
+            b = t("请检查网络，稍后重试");
+        } else {
+            title = `${app.name} ${t("有新版本：")}${arg.v}`;
+            b = `${t("点击下载")}`;
+            url = arg.url;
+        }
+    } else {
+        title = t("已是最新版本");
+    }
+    const notification = new Notification({
+        title,
+        body: b,
+        icon: `${runPath}/assets/logo/64x64.png`,
+    });
+    notification.on("click", () => {
+        shell.openExternal(url);
+    });
+    notification.show();
+}
+
+if (store.get("更新.频率") === "start") checkUpdate();
