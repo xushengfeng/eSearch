@@ -3,7 +3,6 @@
 const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
-import "../../../lib/template2.js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import initStyle from "../root/root";
 import open_with from "../../../lib/open_with";
@@ -83,7 +82,11 @@ function selectMenu<i extends string>() {
     return select;
 }
 
-function rangeBar(min: number, max: number, step: number, text = "") {
+function rangeBar(_min: number, _max: number, _step: number, text = "") {
+    const min = _min ?? 0;
+    const max = _max ?? 100;
+    const step = _step ?? 1;
+
     let type: "edit" | "move" = "move";
 
     const p = view().style({
@@ -99,7 +102,7 @@ function rangeBar(min: number, max: number, step: number, text = "") {
     });
     const i = input()
         // @ts-ignore
-        .style({ "filed-size": "content" })
+        .style({ "field-size": "content" })
         .on("input", () => {
             setV(Number.parseFloat(i.gv), true);
         })
@@ -122,7 +125,7 @@ function rangeBar(min: number, max: number, step: number, text = "") {
         });
 
     useI(false);
-    p.add(view().add([i, text])).add(bar);
+    p.add(view("x").add([i, text])).add(bar);
 
     function useI(b: boolean) {
         i.attr({ disabled: !b }).style({
@@ -162,9 +165,7 @@ function rangeBar(min: number, max: number, step: number, text = "") {
             const r = 1 / step;
             return (Math.round(vv * r - min * r) + min * r) / r;
         }
-        const x = (vv % step) * step;
-        if (vv >= x + step / 2) return x + step;
-        return x;
+        return Math.round((vv - min) / step) * step + min;
     }
 
     function setBar(v: number) {
@@ -1908,8 +1909,6 @@ function undo(v: boolean) {
     if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
 }
 
-type rangeB = HTMLElement & { value: number };
-
 function setEditType<T extends keyof EditType>(
     mainType: T,
     type: EditType[T],
@@ -2007,9 +2006,7 @@ function setEditType<T extends keyof EditType>(
             const sw = store.get(`图像编辑.形状属性.${shape}.sw`);
             if (sw) {
                 shapePro[shape].sw = sw;
-                (<rangeB>(
-                    document.querySelector("#draw_stroke_width > range-b")
-                )).value = sw;
+                strokeWidthEl.sv(sw);
             }
         }
 
@@ -2103,10 +2100,7 @@ function freeSprayElClick() {
     setDrawMode("stroke");
 }
 function freeShadow() {
-    const shadowBlur = Number(
-        (<HTMLInputElement>document.querySelector("#shadow_blur > range-b"))
-            .value,
-    );
+    const shadowBlur = shadowBlurEl.gv;
     fabricCanvas.freeDrawingBrush.shadow = new Shadow({
         blur: shadowBlur,
         color: shapePro.free.sc,
@@ -2149,11 +2143,8 @@ function freeInit() {
     if (sb) shapePro[mode].shadow = sb;
     setDrawMode("stroke");
     if (sc) colorStrokeEl.sv(sc);
-    if (sw)
-        (<rangeB>document.querySelector("#draw_stroke_width > range-b")).value =
-            sw;
-    if (sb)
-        (<rangeB>document.querySelector("#shadow_blur > range-b")).value = sb;
+    if (sw) strokeWidthEl.sv(sw);
+    if (sb) shadowBlurEl.sv(sb);
 }
 
 function fabricDelete() {
@@ -2519,8 +2510,7 @@ function getFObjectV() {
         }
     }
     console.log(pro);
-    (<rangeB>document.querySelector("#draw_stroke_width > range-b")).value =
-        pro.sw;
+    strokeWidthEl.sv(pro.sw);
     colorFillEl.sv(pro.fc);
     colorStrokeEl.sv(pro.sc);
 
@@ -2632,16 +2622,18 @@ function getFilters() {
         if (fl.value) {
             if (f[i]) {
                 const name = Object.keys(filtetMap)[i];
-                filterRangeEl.innerHTML = `<range-b min="${fl.value.min || 0}" max="${fl.value.max}" value="${
-                    Object.values(f[i])[0]
-                }" text="${fl.value.text || ""}" step="${fl.value.step || 1}"></range-b>`;
-                const range = filterRangeEl.querySelector(
-                    "range-b",
-                ) as HTMLInputElement;
-                range.oninput = () => {
-                    const filter = fl.fun(Number(range.value));
-                    applyFilter(i, filter);
-                };
+                const range = rangeBar(
+                    fl.value.min,
+                    fl.value.max,
+                    fl.value.step,
+                    fl.value.text,
+                )
+                    .on("input", () => {
+                        const filter = fl.fun(range.gv);
+                        applyFilter(i, filter);
+                    })
+                    .sv(Object.values(f[i])[0]);
+                filterRangeEl.clear().add(range);
                 for (const i of Object.values(drawSideEls.filter)) {
                     i.classList.remove("filter_select");
                 }
@@ -2651,15 +2643,9 @@ function getFilters() {
     }
 
     const gamma = f[30] as filters.Gamma;
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")
-    )).value = String(gamma?.gamma[0] || 1);
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")
-    )).value = String(gamma?.gamma[1] || 1);
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
-    )).value = String(gamma?.gamma[2] || 1);
+    gammaElr.sv(gamma?.gamma[0] || 1);
+    gammaElg.sv(gamma?.gamma[1] || 1);
+    gammaElb.sv(gamma?.gamma[2] || 1);
 }
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
@@ -3151,22 +3137,6 @@ let isShowBars = !store.get("工具栏.稍后出现") as boolean;
 
 let mode: EditType["draw"];
 
-const strokeWidthF = {
-    set: (v: number) => {
-        (<HTMLInputElement>(
-            document.querySelector("#draw_stroke_width > range-b")
-        )).value = String(v);
-        setFObjectV(null, null, Math.floor(v));
-    },
-    get: () => {
-        return Number(
-            (<HTMLInputElement>(
-                document.querySelector("#draw_stroke_width > range-b")
-            )).value,
-        );
-    },
-};
-
 type Shape = EditType["shape"] | "";
 let shape: Shape = "";
 
@@ -3382,7 +3352,7 @@ document.onwheel = (e) => {
     document.body.classList.add("editor_bg");
 
     if ((nowType === "draw" || nowType === "shape") && !e.ctrlKey) {
-        let v = strokeWidthF.get();
+        let v = strokeWidthEl.gv;
         v += e.deltaY / 50;
         v = Math.max(1, v);
         strokeWidthF.set(v);
@@ -3674,7 +3644,7 @@ document.querySelector("body").onkeydown = (e) => {
     };
     if (nowType === "draw" || nowType === "shape") {
         if (!o[e.key]) return;
-        let v = strokeWidthF.get();
+        let v = strokeWidthEl.gv;
         v += e.key === "ArrowUp" || e.key === "ArrowRight" ? 1 : -1;
         v = Math.max(1, v);
         strokeWidthF.set(v);
@@ -4097,8 +4067,8 @@ drawSideEls.draw.eraser.onclick = () => setEditType("draw", "eraser");
 drawSideEls.draw.spray.onclick = () => setEditType("draw", "spray");
 
 // 阴影
-(<HTMLInputElement>document.querySelector("#shadow_blur > range-b")).oninput =
-    freeShadow;
+const shadowBlurEl = rangeBar(0, 20, 1, "px").on("input", freeShadow);
+elFromId("shadow_blur").add(shadowBlurEl);
 
 // 几何
 document.getElementById("draw_shapes_i").onclick = (e) => {
@@ -4321,22 +4291,21 @@ ableChangeColor();
 
 colorBar();
 
-(<HTMLInputElement>(
-    document.querySelector("#draw_stroke_width > range-b")
-)).oninput = () => {
-    setFObjectV(
-        null,
-        null,
-        Number(
-            (<HTMLInputElement>(
-                document.querySelector("#draw_stroke_width > range-b")
-            )).value,
-        ),
-    );
+const strokeWidthEl = rangeBar(0, 25, 1, "px").on("input", () => {
+    setFObjectV(null, null, strokeWidthEl.gv);
+});
+
+elFromId("draw_stroke_width").add(strokeWidthEl);
+
+const strokeWidthF = {
+    set: (v: number) => {
+        strokeWidthEl.sv(v);
+        setFObjectV(null, null, Math.floor(v));
+    },
 };
 
 // 滤镜
-const filterRangeEl = document.querySelector("#draw_filters_range");
+const filterRangeEl = elFromId("draw_filters_range");
 
 for (const id in filtetMap) {
     (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick =
@@ -4347,36 +4316,21 @@ for (const id in filtetMap) {
 }
 
 // 伽马
-(<HTMLInputElement>(
-    document.querySelector("#draw_filters_gamma > range-b:nth-child(1)")
-)).oninput =
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_gamma > range-b:nth-child(2)")
-    )).oninput =
-    (<HTMLInputElement>(
-        document.querySelector("#draw_filters_gamma > range-b:nth-child(3)")
-    )).oninput =
-        () => {
-            const r = (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_gamma > range-b:nth-child(1)",
-                )
-            )).value;
-            const g = (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_gamma > range-b:nth-child(2)",
-                )
-            )).value;
-            const b = (<HTMLInputElement>(
-                document.querySelector(
-                    "#draw_filters_gamma > range-b:nth-child(3)",
-                )
-            )).value;
-            const filter = new Filters.Gamma({
-                gamma: [Number(r), Number(g), Number(b)],
-            });
-            applyFilter(30, filter);
-        };
+
+const gammaElr = rangeBar(0.01, 2.2, 0.01).on("input", setGamma);
+const gammaElg = rangeBar(0.01, 2.2, 0.01).on("input", setGamma);
+const gammaElb = rangeBar(0.01, 2.2, 0.01).on("input", setGamma);
+elFromId("draw_filters_gamma").add([gammaElr, gammaElg, gammaElb]);
+
+function setGamma() {
+    const r = gammaElr.gv;
+    const g = gammaElg.gv;
+    const b = gammaElb.gv;
+    const filter = new Filters.Gamma({
+        gamma: [r, g, b],
+    });
+    applyFilter(30, filter);
+}
 
 hotkeys("esc", "drawing", () => {
     setEditType("select", "draw");
