@@ -138,8 +138,8 @@ function rangeBar(min: number, max: number, step: number, text = "") {
 
     function setV(v: number, noInput = false, event = true) {
         value = vFix(v);
-        setBar(v);
-        if (!noInput) i.sv(String(v));
+        setBar(value);
+        if (!noInput) i.sv(String(value));
         if (event) inputEvent();
     }
 
