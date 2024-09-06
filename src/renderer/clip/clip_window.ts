@@ -50,6 +50,7 @@ import {
     p,
     pureStyle,
     setProperties,
+    trackPoint,
     txt,
     view,
 } from "dkh-ui";
@@ -80,6 +81,117 @@ function selectMenu<i extends string>() {
             el.value = v;
         });
     return select;
+}
+
+function rangeBar(min: number, max: number, step: number, text = "") {
+    let type: "edit" | "move" = "move";
+
+    const p = view().style({
+        "align-content": "center",
+        position: "relative",
+        cursor: "ew-resize",
+    });
+    const bar = view().style({
+        position: "absolute",
+        top: "0",
+        height: "100%",
+        background: "var(--hover-color)",
+    });
+    const i = input()
+        // @ts-ignore
+        .style({ "filed-size": "content" })
+        .on("input", () => {
+            value = vFix(Number.parseFloat(i.gv));
+            inputEvent();
+        })
+        .on("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                value = vFix(Number.parseFloat(i.gv));
+                i.sv(value.toString());
+                inputEvent();
+                useI(false);
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                value = vFix(value + step);
+                i.sv(value.toString());
+                inputEvent();
+            } else if (e.key === "ArrowDown") {
+                e.preventDefault();
+                value = vFix(value - step);
+                i.sv(value.toString());
+                inputEvent();
+            }
+        })
+        .on("blur", () => {
+            value = vFix(Number.parseFloat(i.gv));
+            i.sv(value.toString());
+            inputEvent();
+            useI(false);
+        });
+
+    useI(false);
+    p.add(view().add([i, text])).add(bar);
+
+    function useI(b: boolean) {
+        i.attr({ disabled: !b }).style({
+            "pointer-events": b ? "all" : "none",
+        });
+        type = b ? "edit" : "move";
+        if (b) i.el.focus();
+    }
+
+    let value = min;
+
+    const range = max - min;
+
+    trackPoint(p, {
+        start: () => {
+            if (type === "edit") return null;
+            return { x: 0, y: 0, data: value };
+        },
+        ing: (p, _, _e, oldV) => {
+            const v = vFix(oldV + (p.x / 200) * range);
+            value = v;
+            setBar(v);
+            i.sv(String(v));
+            inputEvent();
+        },
+        end(moved) {
+            if (!moved) useI(true);
+        },
+    });
+
+    function vFix(v: number) {
+        const vv = Math.max(min, Math.min(max, v));
+        if (step < 1) {
+            const r = 1 / step;
+            return (Math.round(vv * r - min * r) + min * r) / r;
+        }
+        const x = (vv % step) * step;
+        if (vv >= x + step / 2) return x + step;
+        return x;
+    }
+
+    function setBar(v: number) {
+        const p = (v - min) / range;
+        bar.style({ width: `${p * 100}%` });
+    }
+
+    function inputEvent() {
+        p.el.dispatchEvent(new Event("input"));
+    }
+
+    return p
+        .bindGet(() => {
+            return vFix(value);
+        })
+        .bindSet((v: number) => {
+            value = vFix(v);
+            setBar(value);
+            i.sv(String(value));
+        })
+        .sv(min);
 }
 
 function setSetting() {
@@ -2240,20 +2352,10 @@ function colorInput(type: "fill" | "stroke") {
         setC();
         main.el.dispatchEvent(new Event("input"));
     });
-    const alpha = ele("range-b") // todo range-b
-        .on("input", () => {
-            setC();
-            main.el.dispatchEvent(new Event("input"));
-        })
-        .bindGet((el: HTMLInputElement) => {
-            return el.value;
-        })
-        .bindSet((v: string, el: HTMLInputElement) => {
-            el.value = v;
-        });
-    alpha.el.setAttribute("max", "1");
-    alpha.el.setAttribute("min", "0");
-    alpha.el.setAttribute("step", "0.01");
+    const alpha = rangeBar(0, 1, 0.01).on("input", () => {
+        setC();
+        main.el.dispatchEvent(new Event("input"));
+    });
 
     function getInputV() {
         return Color(i.gv).alpha(Number(alpha.gv));
@@ -2300,7 +2402,7 @@ function colorInput(type: "fill" | "stroke") {
         .bindSet((v: string) => {
             const color = Color(v);
             i.sv(color.hex());
-            alpha.sv(String(color.alpha()));
+            alpha.sv(color.alpha());
             setC();
         })
         .bindGet(() => {
