@@ -113,6 +113,7 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
                 e.preventDefault();
                 setV(Number.parseFloat(i.gv));
                 useI(false);
+                valueHistory.push(value);
             } else if (e.key === "ArrowUp") {
                 e.preventDefault();
                 setV(value + step);
@@ -124,6 +125,14 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         .on("blur", () => {
             setV(Number.parseFloat(i.gv));
             useI(false);
+            valueHistory.push(value);
+        })
+        .on("mousedown", (e) => {
+            if (e.button === 2) {
+                e.preventDefault();
+                valueHistory.pop();
+                setV(valueHistory.pop());
+            }
         });
 
     useI(false);
@@ -146,6 +155,8 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
 
     let value = min;
 
+    const valueHistory: number[] = [value];
+
     const range = max - min;
 
     function setV(v: number, noInput = false, event = true) {
@@ -163,8 +174,14 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         ing: (p, _, _e, oldV) => {
             setV(oldV + (p.x / 200) * range);
         },
-        end(moved) {
-            if (!moved) useI(true);
+        end(moved, e) {
+            if (!moved) {
+                if (e.button === 2 && valueHistory.length) {
+                    setV(valueHistory.pop());
+                } else useI(true);
+            } else {
+                valueHistory.push(value);
+            }
         },
     });
 
@@ -193,7 +210,7 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         .bindSet((v: number) => {
             setV(v, false, false);
         })
-        .sv(min);
+        .sv(value);
 }
 
 function setSetting() {
