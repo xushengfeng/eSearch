@@ -422,14 +422,14 @@ body {
 }
 
 /* 编辑栏 */
-range-b {
+.range-b {
     font-size: calc(var(--bar-size) / 3.75);
     border-radius: inherit;
 }
 #shadow_blur {
     overflow: hidden;
 }
-#shadow_blur > range-b {
+#shadow_blur > .range-b {
     height: var(--bar-size);
 }
 #draw_color {
@@ -483,7 +483,7 @@ range-b {
 #draw_stroke_width {
     overflow: hidden;
 }
-#draw_stroke_width > range-b {
+#draw_stroke_width > .range-b {
     height: var(--bar-size);
 }
 #draw_color_color {
@@ -504,7 +504,7 @@ range-b {
     overflow: hidden;
 }
 
-#draw_filters_i > div > range-b {
+#draw_filters_i > div > .range-b {
     height: var(--bar-size);
 }
 #draw_filters_i .filter_select::after {
@@ -517,7 +517,7 @@ range-b {
     content: "";
     background-color: var(--bar-bg);
 }
-#draw_filters_gamma > range-b {
+#draw_filters_gamma > .range-b {
     height: calc(var(--bar-size) / 3) !important;
 }
 #draw_filters_grayscale > div {

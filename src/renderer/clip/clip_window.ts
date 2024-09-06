@@ -99,10 +99,12 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         top: "0",
         height: "100%",
         background: "var(--hover-color)",
+        "border-radius": "inherit",
+        "z-index": "-1",
     });
     const i = input()
         // @ts-ignore
-        .style({ "field-size": "content" })
+        .style({ "field-sizing": "content" })
         .on("input", () => {
             setV(Number.parseFloat(i.gv), true);
         })
@@ -125,7 +127,14 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         });
 
     useI(false);
-    p.add(view("x").add([i, text])).add(bar);
+    p.add(
+        view("x").add([i, text]).style({
+            "justify-content": "center",
+            "font-family": "var(--monospace)",
+        }),
+    )
+        .add(bar)
+        .class("range-b");
 
     function useI(b: boolean) {
         i.attr({ disabled: !b }).style({
