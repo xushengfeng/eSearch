@@ -111,6 +111,9 @@ body {
     transition: var(--transition);
     cursor: pointer;
     position: relative;
+    &:active {
+        transform: scale(0.8);
+    }
 }
 #tool_bar > div > .icon {
     width: calc(var(--bar-size) * var(--bar-icon));
@@ -225,6 +228,9 @@ body {
     border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
     position: relative;
+    &:active {
+        transform: scale(0.8);
+    }
 }
 #draw_main > div > .icon,
 .draw_items > div > .icon {
