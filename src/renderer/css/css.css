@@ -405,15 +405,23 @@ nav > button > .icon {
     transition: var(--transition);
 }
 
-#bottoms > div {
+#bottoms > * {
     display: flex;
     align-items: center;
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: var(--transition);
 }
-#bottoms > div:hover {
+#bottoms > *:hover {
     box-shadow: var(--shadow);
+}
+
+#bottoms > div > button:active {
+    transform: none;
+}
+
+#bottoms > div:not(#tabs):has(> button:active) {
+    transform: scale(0.8);
 }
 
 button {
