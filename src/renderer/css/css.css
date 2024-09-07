@@ -270,6 +270,9 @@ nav > button > .icon {
     align-items: center;
     border-radius: var(--border-radius);
     transition: var(--transition);
+    &:active {
+        transform: var(--button-active);
+    }
 }
 #drop:hover {
     background-color: var(--hover-color);
@@ -421,7 +424,7 @@ nav > button > .icon {
 }
 
 #bottoms > div:not(#tabs):has(> button:active) {
-    transform: scale(0.8);
+    transform: var(--button-active);
 }
 
 button {

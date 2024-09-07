@@ -112,7 +112,7 @@ body {
     cursor: pointer;
     position: relative;
     &:active {
-        transform: scale(0.8);
+        transform: var(--button-active);
     }
 }
 #tool_bar > div > .icon {
@@ -229,7 +229,7 @@ body {
     transition: var(--transition);
     position: relative;
     &:active {
-        transform: scale(0.8);
+        transform: var(--button-active);
     }
 }
 #draw_main > div > .icon,

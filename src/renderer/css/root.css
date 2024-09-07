@@ -24,6 +24,7 @@
     --m-color1: color-mix(in srgb, var(--hover-color) 85%, var(--font-color));
     --m-color2: color-mix(in srgb, var(--hover-color) 55%, transparent);
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    --button-active: scale(0.85);
     --border-radius: 8px;
     --blur: blur(10px);
     --shadow: #0003 0 0 4px;
@@ -101,7 +102,7 @@ button {
 }
 
 button:active {
-    transform: scale(0.8);
+    transform: var(--button-active);
 }
 
 input {
