@@ -2067,6 +2067,15 @@ document.getElementById("version").onclick = () => {
                 h.innerText = r.name;
                 const p = document.createElement("p");
                 p.innerHTML = r.body.replace(/\r\n/g, "<br>");
+                fetch("https://api.github.com/markdown", {
+                    body: JSON.stringify({ text: r.body, mode: "gfm" }),
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                })
+                    .then((r) => r.text())
+                    .then((data) => {
+                        p.innerHTML = data;
+                    });
                 div.append(tags, h, p);
                 document.getElementById("update_info").append(div);
                 if (i === "0") {
