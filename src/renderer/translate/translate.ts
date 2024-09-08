@@ -1,15 +1,27 @@
 import xtranslator from "xtranslator";
 import initStyle from "../root/root";
+const fs = require("node:fs") as typeof import("fs");
 
 import store from "../../../lib/store/renderStore";
 
-import { button, ele, frame, image, p, pureStyle, txt, view } from "dkh-ui";
+import {
+    button,
+    ele,
+    frame,
+    image,
+    p,
+    pureStyle,
+    spacer,
+    txt,
+    view,
+} from "dkh-ui";
 
 pureStyle();
 
 initStyle(store);
 
 import copy_svg from "../assets/icons/copy.svg";
+import star_svg from "../assets/icons/star.svg";
 
 function iconButton(img: string) {
     return button(
@@ -54,21 +66,36 @@ function translate(text: string) {
             width: "24px",
             height: "24px",
         });
+        const save = iconButton(star_svg).style({
+            width: "24px",
+            height: "24px",
+        });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
             title: {
                 _: view("x").style({ "align-items": "center" }),
+                _spacer: spacer(),
                 name: txt(i.name),
                 copy,
+                save,
             },
             content: p(""),
         });
         results.add(e.el);
         const c = e.els.content;
-        translateI(text, i).then((text) => {
-            c.el.innerText = text;
+        translateI(text, i).then((ttext) => {
+            c.el.innerText = ttext;
             copy.on("click", () => {
-                navigator.clipboard.writeText(text);
+                navigator.clipboard.writeText(ttext);
+            });
+            save.on("click", () => {
+                saveW({
+                    from: lansFrom.el.value,
+                    to: lansTo.el.value,
+                    fromT: text,
+                    toT: ttext,
+                    engine: i.name,
+                });
             });
         });
     }
@@ -78,6 +105,46 @@ function translateI(text: string, i: (typeof fyq)[0]) {
     // @ts-ignore
     xtranslator.e[i.type].setKeys(i.keys);
     return xtranslator.e[i.type].run(text, lansFrom.el.value, lansTo.el.value);
+}
+
+type saveData = {
+    from: string;
+    to: string;
+    fromT: string;
+    toT: string;
+    engine: string;
+};
+
+function saveW(obj: saveData) {
+    saveFile(obj);
+    saveFetch(obj);
+}
+
+function saveTemplate(t: string, obj: saveData) {
+    return t
+        .replaceAll("${from}", obj.from)
+        .replaceAll("${to}", obj.to)
+        .replaceAll("${fromT}", obj.fromT)
+        .replaceAll("${toT}", obj.toT)
+        .replaceAll("${engine}", obj.engine);
+}
+
+function saveFile(obj: saveData) {
+    const filesx = store.get("翻译.收藏.文件");
+    for (const i of filesx) {
+        fs.appendFile(i.path, `\n${saveTemplate(i.template, obj)}`, () => {});
+    }
+}
+
+function saveFetch(obj: saveData) {
+    const webx = store.get("翻译.收藏.fetch");
+    for (const i of webx) {
+        fetch(saveTemplate(i.url, obj), {
+            method: i.method,
+            body: saveTemplate(i.body, obj),
+            headers: i.headers,
+        });
+    }
 }
 
 const e = xtranslator.e[fyq[0].type];

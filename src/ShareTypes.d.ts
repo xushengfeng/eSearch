@@ -305,6 +305,10 @@ export interface setting {
             type: keyof typeof import("xtranslator")["default"]["e"];
             keys: Record<string, unknown>;
         }[];
+        收藏: {
+            文件: { path: string; template: string }[];
+            fetch: myFetch[];
+        };
     };
     额外截屏器: {
         命令: string;
@@ -413,6 +417,15 @@ type translateWinType = {
     rect: { x: number; y: number; w: number; h: number };
     dipRect: { x: number; y: number; w: number; h: number };
     displayId: number;
+};
+
+type myFetch = {
+    name: string;
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body: string;
+    getter: (string | number)[];
 };
 
 type superRecording = {
