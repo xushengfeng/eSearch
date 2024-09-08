@@ -1214,9 +1214,10 @@ function drawClipRect() {
 function drawClipPoly(points: point[]) {
     const ctx = clipCtx;
     const canvas = clipCanvas;
-    if (points.length < 2) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (points.length < 2) return;
 
     ctx.fillStyle = 遮罩颜色;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
