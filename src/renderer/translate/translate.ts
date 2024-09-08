@@ -65,9 +65,10 @@ const inputText = decodeURIComponent(
 const fyq = store.get("翻译.翻译器");
 const showCang = store.get("翻译.收藏");
 
-function translate(text: string) {
+function translate(_text: string) {
     results.el.innerHTML = "";
-    if (!text.trim()) return;
+    const text = _text.trim();
+    if (!text) return;
     for (const i of fyq) {
         const copy = iconButton(copy_svg).style({
             width: "24px",
@@ -94,7 +95,8 @@ function translate(text: string) {
         });
         results.add(e.el);
         const c = e.els.content;
-        translateI(text, i).then((ttext) => {
+        translateI(text, i).then((_ttext) => {
+            const ttext = _ttext.trim();
             c.el.innerText = ttext;
             copy.on("click", () => {
                 navigator.clipboard.writeText(ttext);
