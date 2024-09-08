@@ -20,7 +20,15 @@ button:hover {
 select {
     padding: 4px;
     border-radius: var(--border-radius);
+    background-color: #0000;
+    transition: var(--transition);
+    field-sizing: content;
     &:hover {
         background-color: var(--hover-color);
+        box-shadow: var(--shadow);
     }
+}
+
+option {
+    background-color: var(--bg);
 }
