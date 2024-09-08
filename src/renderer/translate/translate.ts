@@ -39,6 +39,7 @@ const input = ele("textarea").style({
     resize: "vertical",
     // @ts-ignore
     "field-sizing": "content",
+    "min-height": "4lh",
 });
 const lans = view("x");
 const lansFrom = ele("select").on("change", () => {
