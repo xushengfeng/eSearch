@@ -459,6 +459,7 @@ select {
     padding: 0 var(--o-padding) 0 var(--o-padding);
     transition: var(--transition);
     user-select: none;
+    field-sizing: content;
 }
 select:hover {
     background-color: var(--hover-color);
