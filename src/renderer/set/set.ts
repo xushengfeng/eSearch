@@ -974,12 +974,12 @@ const engineConfig: Partial<
             },
             {
                 name: "sysPrompt",
-                text: "系统提示词，$t为文字，$to，$from",
+                text: "系统提示词，${t}为文字，${to}，${from}",
                 optional: true,
             },
             {
                 name: "userPrompt",
-                text: "用户提示词，$t为文字，$to，$from",
+                text: "用户提示词，${t}为文字，${to}，${from}",
                 optional: true,
             },
         ],
@@ -993,7 +993,7 @@ const engineConfig: Partial<
             { name: "config", text: "请求体自定义", area: true },
             {
                 name: "userPrompt",
-                text: "用户提示词，$t为文字，$to，$from",
+                text: "用户提示词，${t}为文字，${to}，${from}",
                 optional: true,
             },
         ],
