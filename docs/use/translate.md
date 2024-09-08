@@ -54,7 +54,103 @@ Deepl, https://www.deepl.com/translator#any/any/%s
 
 你可以切换模式，屏幕翻译将定时截取屏幕并翻译。
 
-### 使用本地 LLM 模型翻译
+---
+
+高级技巧：
+
+## 生词本
+
+设置生词本，在主页面翻译时，把翻译结果添加到生词本。
+
+生词本分为文件生词本和网络生词本。文件生词本可以把生词和翻译添加到指定文件，网络生词本可以把生词和翻译上传到网络服务器，与 Anki 的记忆软件联动。
+
+目前生词本功能还在开发中，需要在[设置源文件](setting.md#源文件配置)的`翻译`-`收藏`中添加相关配置。
+
+模板用来格式化生词本的输出，`${from}`表示原始语言，`${to}`表示目标语言，`${fromT}`表示翻译前的文字，`${toT}`表示翻译后的文字，`${engine}`表示使用的翻译引擎。
+
+模板示例：
+
+```
+${fromT} -> ${toT} (${engine})
+```
+
+以`Hello World`为例，翻译结果为`你好，世界`，模板输出为：
+
+```
+Hello World -> 你好，世界 (ChatGPT)
+```
+
+注意在一些格式中，如 JSON，请不要忘了双引号。
+
+### 文件生词本
+
+文件生词本只需要指定路径`path`和模板`template`。由于文件生词本使用文本追加模式，所以不支持 JSON 格式，可以使用 JSONL、csv、txt 等格式。
+
+csv 格式示例：
+
+```csv
+"${fromT}", "${from}", "${toT}", "${to}", "${engine}"
+```
+
+文件示例内容如下，可以使用 Excel 等表格软件打开：
+
+```csv
+...
+"Hello World", "en", "你好，世界", "zh", "ChatGPT"
+...
+```
+
+### 网络生词本
+
+Url 和请求体(body)可以使用模板。
+
+以 Anki 为例：
+
+安装 AnkiConnect 插件，并在 Anki 中启用插件。
+
+URL：`http://127.0.0.1:8765`
+
+请求体（`body`）
+
+```json
+{
+  "action": "addNote",
+  "version": 6,
+  "params": {
+    "note": {
+      "deckName": "你的牌组",
+      "modelName": "类型名称",
+      "fields": {
+        "Front": "${fromT}",
+        "Back": "${toT}"
+      },
+      "options": {
+        "allowDuplicate": false
+      }
+    }
+  }
+}
+```
+
+### 设置
+
+设置源文件示例：
+
+```json
+"翻译":{
+    ...
+    "收藏":{
+        "文件":[
+            {"path":"生词本文件路径","template":"模板"}
+        ],
+        "fetch":[
+            {"url":"生词本网络地址","body":"请求体模板","method":"POST","headers":{}}
+        ]
+    }
+}
+```
+
+## 使用本地 LLM 模型翻译
 
 你可以使用任何技术栈部署 LLM，但需要兼容 OpenAI 的 API。下面以 ollama 为例。
 
