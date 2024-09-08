@@ -1,5 +1,8 @@
 body {
     background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 button {
@@ -17,4 +20,7 @@ button:hover {
 select {
     padding: 4px;
     border-radius: var(--border-radius);
+    &:hover {
+        background-color: var(--hover-color);
+    }
 }

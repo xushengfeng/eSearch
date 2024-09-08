@@ -37,6 +37,8 @@ const input = ele("textarea").style({
     width: "100%",
     padding: "8px",
     resize: "vertical",
+    // @ts-ignore
+    "field-sizing": "content",
 });
 const lans = view("x");
 const lansFrom = ele("select").on("change", () => {
@@ -46,7 +48,11 @@ const lansTo = ele("select").on("change", () => {
     translate(input.el.value);
 });
 
-const results = view("y").style({ gap: "8px", margin: "8px" });
+const results = view("y").style({
+    gap: "16px",
+    padding: "8px",
+    overflow: "auto",
+});
 
 lans.add([lansFrom, lansTo]);
 
@@ -80,7 +86,7 @@ function translate(text: string) {
             title: {
                 _: view("x").style({ "align-items": "center" }),
                 _spacer: spacer(),
-                name: txt(i.name),
+                name: txt(i.name).style({ "margin-right": "4px" }),
                 copy,
                 save,
             },
