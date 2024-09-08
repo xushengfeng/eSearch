@@ -57,6 +57,7 @@ const inputText = decodeURIComponent(
 );
 
 const fyq = store.get("翻译.翻译器");
+const showCang = store.get("翻译.收藏");
 
 function translate(text: string) {
     results.el.innerHTML = "";
@@ -69,6 +70,10 @@ function translate(text: string) {
         const save = iconButton(star_svg).style({
             width: "24px",
             height: "24px",
+            display:
+                showCang.fetch.length && showCang.文件.length
+                    ? "block"
+                    : "none",
         });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
@@ -130,14 +135,14 @@ function saveTemplate(t: string, obj: saveData) {
 }
 
 function saveFile(obj: saveData) {
-    const filesx = store.get("翻译.收藏.文件");
+    const filesx = showCang.文件;
     for (const i of filesx) {
         fs.appendFile(i.path, `\n${saveTemplate(i.template, obj)}`, () => {});
     }
 }
 
 function saveFetch(obj: saveData) {
-    const webx = store.get("翻译.收藏.fetch");
+    const webx = showCang.fetch;
     for (const i of webx) {
         fetch(saveTemplate(i.url, obj), {
             method: i.method,
