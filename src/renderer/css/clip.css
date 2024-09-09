@@ -228,7 +228,7 @@ body {
     border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
     position: relative;
-    &:active {
+    &:not(:has(.range-b)):active {
         transform: var(--button-active);
     }
 }
