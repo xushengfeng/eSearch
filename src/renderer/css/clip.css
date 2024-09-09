@@ -238,8 +238,8 @@ body {
     left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
     top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
 }
-#draw_main > div:hover,
-.draw_items > div:hover {
+#draw_main > div:not(:has(.range-b)):hover,
+.draw_items > div:not(:has(.range-b)):hover {
     background-color: var(--hover-color);
     transition: var(--transition);
 }
@@ -522,9 +522,6 @@ body {
     border-radius: 5px;
     content: "";
     background-color: var(--bar-bg);
-}
-#draw_filters_gamma > .range-b {
-    height: calc(var(--bar-size) / 3) !important;
 }
 #draw_filters_grayscale > div {
     height: calc(var(--bar-size) / 3) !important;
