@@ -29,6 +29,7 @@ const configPath = ipcRenderer.sendSync("store", { type: "path" });
 import delete_svg from "../assets/icons/delete.svg";
 import handle_svg from "../assets/icons/handle.svg";
 import add_svg from "../assets/icons/add.svg";
+import down_svg from "../assets/icons/down.svg";
 
 import close_svg from "../assets/icons/close.svg";
 import screen_svg from "../assets/icons/screen.svg";
@@ -1476,7 +1477,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
     document.getElementById("OCR拖拽放置区").classList.remove("拖拽突出");
 };
 
-const ocrModelListEl = button("add ocr");
+const ocrModelListEl = button(iconEl(down_svg));
 const addOCRModel = ele("dialog");
 const ocrLanMap: Record<string, string> = {};
 for (const i in ocrModels) {
