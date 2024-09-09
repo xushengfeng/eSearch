@@ -402,7 +402,8 @@ type EditType = {
         | "polaroid"
         | "gray_average"
         | "gray_lightness"
-        | "gray_luminosity";
+        | "gray_luminosity"
+        | "gamma";
 };
 
 type MainWinType = {

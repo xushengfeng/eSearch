@@ -2410,6 +2410,7 @@ const defaultSetting: setting = {
                 gray_average: "",
                 gray_lightness: "",
                 gray_luminosity: "",
+                gamma: "",
             },
         },
     },

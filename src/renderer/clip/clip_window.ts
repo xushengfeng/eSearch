@@ -2642,14 +2642,20 @@ function getFilters() {
         if (fl.value) {
             if (f[i]) {
                 const name = Object.keys(filtetMap)[i];
-                const range = rangeBar(
-                    fl.value.min,
-                    fl.value.max,
-                    fl.value.step,
-                    fl.value.text,
+                const range = (
+                    fl.el() ??
+                    rangeBar(
+                        fl.value.min,
+                        fl.value.max,
+                        fl.value.step,
+                        fl.value.text,
+                    )
                 )
                     .on("input", () => {
+                        // @ts-ignore
                         const filter = fl.fun(range.gv);
+                        console.log(range.gv);
+
                         applyFilter(i, filter);
                     })
                     .sv(Object.values(f[i])[0]);
@@ -2661,11 +2667,6 @@ function getFilters() {
             }
         }
     }
-
-    const gamma = f[30] as filters.Gamma;
-    gammaElr.sv(gamma?.gamma[0] || 1);
-    gammaElg.sv(gamma?.gamma[1] || 1);
-    gammaElb.sv(gamma?.gamma[2] || 1);
 }
 
 // 确保退出其他需要鼠标事件的东西，以免多个东西一起出现
@@ -3196,6 +3197,7 @@ const filtetMap: {
             text?: string;
         };
         fun: (v?: number) => filters.BaseFilter<string, unknown>;
+        el?: () => ElType<HTMLElement>;
     };
 } = {
     pixelate: {
@@ -3251,6 +3253,15 @@ const filtetMap: {
             new Filters.Grayscale({
                 mode: "luminosity",
             }),
+    },
+    gamma: {
+        fun: (v) =>
+            new Filters.Gamma({
+                gamma: v as unknown as [number, number, number],
+            }),
+        // @ts-ignore
+        value: { value: [1, 1, 1] },
+        el: gammaEl,
     },
 };
 
@@ -4344,19 +4355,23 @@ for (const id in filtetMap) {
 
 // 伽马
 
-const gammaElr = rangeBar(0.01, 2.2, 0.01).on("input", setGamma);
-const gammaElg = rangeBar(0.01, 2.2, 0.01).on("input", setGamma);
-const gammaElb = rangeBar(0.01, 2.2, 0.01).on("input", setGamma);
-elFromId("draw_filters_gamma").add([gammaElr, gammaElg, gammaElb]);
-
-function setGamma() {
-    const r = gammaElr.gv;
-    const g = gammaElg.gv;
-    const b = gammaElb.gv;
-    const filter = new Filters.Gamma({
-        gamma: [r, g, b],
-    });
-    applyFilter(30, filter);
+function gammaEl() {
+    const g = new Array(3)
+        .fill(0)
+        .map(() =>
+            rangeBar(0.01, 2.2, 0.01).on("input", () =>
+                p.el.dispatchEvent(new Event("input")),
+            ),
+        );
+    const p = view()
+        .add(g)
+        .bindGet(() => g.map((el) => el.gv))
+        .bindSet((v: [number, number, number]) => {
+            g[0].sv(v[0]);
+            g[1].sv(v[1]);
+            g[2].sv(v[2]);
+        });
+    return p;
 }
 
 hotkeys("esc", "drawing", () => {
