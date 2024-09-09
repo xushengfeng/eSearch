@@ -2643,7 +2643,7 @@ function getFilters() {
             if (f[i]) {
                 const name = Object.keys(filtetMap)[i];
                 const range = (
-                    fl.el() ??
+                    fl.el?.() ??
                     rangeBar(
                         fl.value.min,
                         fl.value.max,
