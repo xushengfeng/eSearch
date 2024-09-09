@@ -1320,31 +1320,22 @@ function whBar(finalRect: rect) {
     const dw = width;
     const dh = 40;
     let x: number;
-    if (dw >= zw) {
-        if (dw + zx <= winWidth) {
-            x = zx; // 对齐框的左边
-            whEl.style({ right: "", left: `${x}px` });
-        } else {
-            whEl.style({ right: "0px", left: "" });
-        }
-    } else {
-        x = zx + zw / 2 - dw / 2;
-        if (x + dw <= winWidth) {
-            whEl.style({ right: "", left: `${x}px` });
-        } else {
-            whEl.style({ right: "0px", left: "" });
-        }
-    }
+    x = zx + zw / 2 - dw / 2;
+    x = Math.max(0, Math.min(winWidth - dw, x));
+    whEl.style({ right: "", left: `${x}px` });
+
     let y: number;
-    if (zy - (dh + 10) >= 0) {
-        y = zy - (dh + 10); // 不超出时在外
+    const yGap = 10;
+    if (zy - (dh + yGap) >= 0) {
+        y = zy - (dh + yGap); // 不超出时在外
     } else {
-        if (zy + zh + 10 + dh <= winHeight) {
-            y = zy + zh + 10;
+        if (zy + zh + yGap + dh <= winHeight) {
+            y = zy + zh + yGap;
         } else {
-            y = zy + 10;
+            y = zy + yGap;
         }
     }
+    y = Math.max(0, Math.min(winHeight - dh, y));
     whEl.style({ top: `${y}px` });
 }
 
