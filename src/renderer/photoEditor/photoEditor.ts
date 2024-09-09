@@ -204,13 +204,18 @@ function gColors() {
     function createI(color: string, offset: number) {
         console.log(color, offset);
 
-        return view("x").add([
-            input().sv(color).on("input", binput),
+        const el = view("x").add([
+            input().sv(color).on("input", binput).style({ width: "100%" }),
             input("number")
                 .attr({ max: "1", min: "0", step: "0.01" })
                 .sv(String(offset))
                 .on("input", binput),
+            button("-").on("click", () => {
+                el.remove();
+                binput();
+            }),
         ]);
+        return el;
     }
 
     add.on("click", () => {

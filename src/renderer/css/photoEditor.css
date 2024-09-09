@@ -35,15 +35,18 @@ select {
     border-radius: var(--border-radius);
 }
 
-button:has(.icon) {
-    position: relative;
-    width: var(--b-button);
-    height: var(--b-button);
-    flex-shrink: 0;
+button {
     transition: var(--transition);
     border-radius: var(--border-radius);
     &:hover {
         background-color: var(--hover-color);
         box-shadow: var(--shadow);
     }
+}
+
+button:has(.icon) {
+    position: relative;
+    width: var(--b-button);
+    height: var(--b-button);
+    flex-shrink: 0;
 }
