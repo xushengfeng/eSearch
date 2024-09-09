@@ -232,6 +232,9 @@ nav > button > .icon {
     font-size: 30px;
     position: relative;
     transition: var(--transition);
+    &:active {
+        transform: var(--button-active);
+    }
 }
 #edit_b > div:hover {
     background-color: var(--bar-hover-color);
