@@ -213,6 +213,12 @@ This is generally due to the incompatibility of configurations in different vers
 
 If the problem is not solved, please submit an issue.
 
+### Win7 and Win8 are no longer supported
+
+Electron officially no longer supports Win7 and Win8, so eSearch no longer supports it either.
+
+But you can compile it yourself, see [Documentation](./docs/use/qa.md#兼容性), some features may not be available.
+
 ## Contributions
 
 Please refer to the [contributing guidelines](CONTRIBUTING.md)

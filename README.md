@@ -213,6 +213,12 @@ Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/61
 
 若未能解决问题，请提交 issue
 
+### 不再支持 Win7、Win8
+
+Electron 官方不再支持 Win7、Win8，所以 eSearch 也不再支持。
+
+但可以自己编译，见[文档](./docs/use/qa.md#兼容性)，部分功能可能无法使用。
+
 ## 贡献
 
 请查看[贡献指南](CONTRIBUTING.md)
