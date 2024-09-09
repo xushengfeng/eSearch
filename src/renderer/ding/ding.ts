@@ -48,7 +48,13 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
             break;
         case "resize":
             if (!resizeSender)
-                resize(elFromId(more.id), more.zoom, more.dx, more.dy);
+                resize(
+                    elFromId(more.id),
+                    more.zoom,
+                    more.dx,
+                    more.dy,
+                    more.clip,
+                );
             break;
     }
 });
@@ -152,12 +158,8 @@ const setNewDing = (
             zoom = e.deltaY > 0 ? zoom / zz : zoom * zz;
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
-            resize(
-                div,
-                zoom,
-                e.offsetX / div.el.offsetWidth,
-                e.offsetY / div.el.offsetHeight,
-            );
+            const d = dxdy(e, e.ctrlKey ? img : div);
+            resize(div, zoom, d.dx, d.dy, e.ctrlKey);
             resizeSender = false;
         }
     };
@@ -279,6 +281,12 @@ function back2(id: string) {
         width: `${pS[2]}px`,
         height: `${pS[3]}px`,
     });
+    el.query(".img").style({
+        left: "0",
+        top: "0",
+        width: "100%",
+        height: "",
+    });
     ipcRenderer.send("ding_p_s", el.el.id, pS);
 
     const x = elMap.find((e) => e.id === id);
@@ -348,18 +356,20 @@ type Resize = {
     zoom: number;
     dx: number;
     dy: number;
+    clip: boolean;
 };
 
 document.onmousedown = (e) => {
     const el = e.target as HTMLElement;
     const div = dives.find((d) => d.el.contains(el));
     if (div && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
+        const { dx, dy } = dxdy(e, div);
         sendEvent("move_start", null, {
             id: div.el.id,
             x: e.clientX,
             y: e.clientY,
-            dx: e.offsetX / div.el.offsetWidth,
-            dy: e.offsetY / div.el.offsetHeight,
+            dx,
+            dy,
             d: dire(div.el, { x: e.clientX, y: e.clientY }),
         } as start);
     }
@@ -555,7 +565,21 @@ function move(el: ElType<HTMLElement>, e: { x: number; y: number }) {
     }
 }
 
-function resize(el: ElType<HTMLElement>, zoom: number, dx: number, dy: number) {
+function dxdy(e: MouseEvent, el: ElType<HTMLElement>) {
+    const r = el.el.getBoundingClientRect();
+    return {
+        dx: (e.clientX - r.left) / el.el.offsetWidth,
+        dy: (e.clientY - r.top) / el.el.offsetHeight,
+    };
+}
+
+function resize(
+    el: ElType<HTMLElement>,
+    zoom: number,
+    dx: number,
+    dy: number,
+    _clip?: boolean,
+) {
     const id = el.el.id;
     elMap.find((i) => i.id === id)?.size(String(Math.round(zoom * 100)));
     const rect = [
@@ -570,9 +594,11 @@ function resize(el: ElType<HTMLElement>, zoom: number, dx: number, dy: number) {
     const x = point.x - toWidth * dx;
     const y = point.y - toHeight * dy;
     const pS = [x, y, toWidth, toHeight];
+    const clip = toWidth < rect[2] ? false : _clip;
+
     const bar = el.query("#tool_bar_c");
     const w = pS[2];
-    if (w <= 240) {
+    if (!clip && w <= 240) {
         bar.el.style.flexDirection = "column";
     } else {
         bar.el.style.flexDirection = "";
@@ -595,21 +621,36 @@ function resize(el: ElType<HTMLElement>, zoom: number, dx: number, dy: number) {
     } else {
         zoomN = "";
     }
-    bar.style({ zoom: zoomN });
+    if (!clip) bar.style({ zoom: zoomN });
 
-    el.style({
-        left: `${pS[0]}px`,
-        top: `${pS[1]}px`,
-        width: `${pS[2]}px`,
-        height: `${pS[3]}px`,
-    });
+    if (clip) {
+        el.query(".img").style({
+            left: `${pS[0] - rect[0]}px`,
+            top: `${pS[1] - rect[1]}px`,
+            width: `${pS[2]}px`,
+            height: `${pS[3]}px`,
+        });
+    } else {
+        el.query(".img").style({
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "",
+        });
+        el.style({
+            left: `${pS[0]}px`,
+            top: `${pS[1]}px`,
+            width: `${pS[2]}px`,
+            height: `${pS[3]}px`,
+        });
+    }
 
     el.query(".img").style({
         "image-rendering": zoom > 1 ? "pixelated" : "initial",
     });
 
     if (resizeSender)
-        sendEvent("resize", null, { id: id, zoom, dx, dy } as Resize);
+        sendEvent("resize", null, { id: id, zoom, dx, dy, clip } as Resize);
 }
 
 const dockP = store.get("ding_dock");
