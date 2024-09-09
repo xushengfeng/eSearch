@@ -124,17 +124,11 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: var(--shadow);
 }
 #b > button {
-    border: none;
     transition: var(--transition);
     background-color: #0000;
     padding: 0;
     width: 32px;
     height: 32px;
-    cursor: pointer;
-    position: relative;
-}
-#b > button:hover {
-    background-color: var(--hover-color);
 }
 #b > button > .icon {
     width: 32px;

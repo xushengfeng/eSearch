@@ -5,21 +5,6 @@ body {
     height: 100vh;
 }
 
-button {
-    border-radius: var(--border-radius);
-    background-color: #0000;
-    transition: var(--transition);
-    padding: 4px;
-    background-color: var(--m-color2);
-}
-button:hover {
-    background-color: var(--hover-color);
-    box-shadow: var(--shadow);
-}
-
 select {
-    padding: 4px;
-    border-radius: var(--border-radius);
-    background-color: #0000;
     field-sizing: content;
 }

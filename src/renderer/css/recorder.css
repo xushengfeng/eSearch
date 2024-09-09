@@ -57,7 +57,6 @@ body {
     position: relative;
     display: block;
     background-color: var(--bg);
-    border: none;
     transition: var(--transition);
     border-radius: var(--border-radius);
 }
@@ -86,9 +85,7 @@ body {
 
 #main button > .icon,
 #main label > .icon {
-    width: 20px;
-    left: 2px;
-    top: 2px;
+    width: 24px;
     user-select: none;
 }
 
@@ -194,20 +191,13 @@ select {
 }
 
 .b {
-    width: 24px;
-    height: 18px;
-    position: relative;
-    border: none;
+    width: 24px !important;
+    height: 18px !important;
     box-shadow: var(--shadow);
-    border-radius: var(--border-radius);
     background-color: #0000;
-    transition: var(--transition);
     font-size: 1rem;
     padding: 4px;
     vertical-align: middle;
-}
-.b:hover {
-    background-color: var(--hover-color);
 }
 .b > .icon {
     width: 18px;

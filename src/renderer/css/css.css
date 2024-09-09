@@ -25,8 +25,8 @@ nav {
 
 nav > button {
     border-radius: var(--border-radius);
-    height: var(--title-bar);
-    width: var(--title-bar);
+    height: var(--title-bar) !important;
+    width: var(--title-bar) !important;
     display: block;
     -webkit-app-region: no-drag;
 }
@@ -181,8 +181,8 @@ nav > button > .icon {
     justify-content: flex-end;
 }
 .history_title > button {
-    height: 16px;
-    width: 16px;
+    height: 16px !important;
+    width: 16px !important;
     padding: 0;
     margin-left: 4px;
     background-color: var(--hover-color);
@@ -382,7 +382,6 @@ nav > button > .icon {
     padding: 0;
     border-radius: 4px;
     font-size: 20px;
-    position: relative;
 }
 #find button > .icon {
     width: 20px;
@@ -428,46 +427,19 @@ nav > button > .icon {
 }
 
 button {
-    border-radius: 0;
-    background-color: var(--bg);
     height: var(--height);
-    border: none;
-    outline: none;
     margin: 0px;
     color: var(--color);
     padding: 0;
-    transition: var(--transition);
-    cursor: pointer;
-    background-position: center;
-    background-size: cover;
-    width: var(--b-button);
-    height: var(--b-button);
-    position: relative;
-}
-button:hover {
-    background-color: var(--hover-color);
 }
 select {
-    border-radius: 0;
-    background-color: var(--bg);
     height: var(--height);
-    border: none;
-    outline: none;
     margin: 0px;
     color: var(--color);
-    font-size: var(--font-size);
     padding: 0 var(--o-padding) 0 var(--o-padding);
-    transition: var(--transition);
-    user-select: none;
     field-sizing: content;
 }
-select:hover {
-    background-color: var(--hover-color);
-}
-option {
-    font-size: var(--font-size);
-    background-color: var(--bg);
-}
+
 button > .icon {
     width: var(--b-button);
 }
@@ -579,7 +551,6 @@ button > .icon {
     transition: var(--transition);
     margin: 2px;
     padding: 0;
-    position: relative;
 }
 
 .b_tab > button > .icon {
@@ -587,7 +558,6 @@ button > .icon {
 }
 
 .b_tab > button:hover {
-    background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
 

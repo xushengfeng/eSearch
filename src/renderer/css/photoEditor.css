@@ -10,14 +10,6 @@ body {
     gap: var(--o-padding);
 }
 
-select {
-    background-color: var(--bg);
-    transition: var(--transition);
-    &:hover {
-        background-color: var(--hover-color);
-    }
-}
-
 canvas {
     max-width: 100%;
     max-height: 100%;
@@ -29,24 +21,4 @@ canvas {
 
 input[type="number"] {
     field-sizing: content;
-}
-
-select {
-    border-radius: var(--border-radius);
-}
-
-button {
-    transition: var(--transition);
-    border-radius: var(--border-radius);
-    &:hover {
-        background-color: var(--hover-color);
-        box-shadow: var(--shadow);
-    }
-}
-
-button:has(.icon) {
-    position: relative;
-    width: var(--b-button);
-    height: var(--b-button);
-    flex-shrink: 0;
 }
