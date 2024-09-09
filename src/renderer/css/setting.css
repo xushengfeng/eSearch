@@ -452,6 +452,16 @@ comment[data-inline]::after {
     box-shadow: var(--shadow);
 }
 
+.add_ocr_model button {
+    margin-top: 0;
+}
+
+.add_ocr_model[open] {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 #user_data_divs {
     display: none;
 }

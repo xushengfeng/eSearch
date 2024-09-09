@@ -1256,8 +1256,8 @@ document.getElementById("clear_cache").onclick = () => {
 const ocrUrl =
     "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/";
 const ocrUrls: { name: string; url: string }[] = [
+    { name: "ghproxy", url: `https://mirror.ghproxy.com/${ocrUrl}` },
     { name: "GitHub", url: ocrUrl },
-    { name: "ghMirror", url: `https://mirror.ghproxy.com/${ocrUrl}` },
 ];
 
 const ocrModels: Record<
@@ -1478,7 +1478,7 @@ document.getElementById("OCR拖拽放置区").ondrop = (e) => {
 };
 
 const ocrModelListEl = button(iconEl(down_svg));
-const addOCRModel = ele("dialog");
+const addOCRModel = ele("dialog").class("add_ocr_model");
 const ocrLanMap: Record<string, string> = {};
 for (const i in ocrModels) {
     for (const j of ocrModels[i].supportLang) {
@@ -1487,67 +1487,69 @@ for (const i in ocrModels) {
 }
 const langName = new Intl.DisplayNames(xstore.语言.语言, { type: "language" });
 
-const OCRListEl = view("x").style({ "flex-wrap": "wrap" });
+const OCRListEl = view("y").style({ overflow: "auto", gap: "8px" });
 for (const i in ocrModels) {
+    const pro = ele("progress").attr({ value: 0 }).style({ display: "none" });
+    const lans = view("x").style({ "column-gap": "16px", "flex-wrap": "wrap" });
+    const p = path.join(configPath, "models", i);
+    const exists = fs.existsSync(p);
+    const downloadButton = button(exists ? "重新下载" : "下载").on(
+        "click",
+        () => {
+            pro.el.style.display = "block";
+            const url = mirrorSelect.gv + ocrModels[i].url;
+            download(url, p, {
+                extract: true,
+                rejectUnauthorized: false,
+            })
+                .on("response", (res) => {
+                    const total = Number(res.headers["content-length"]);
+                    let now = 0;
+                    res.on("data", (data) => {
+                        now += Number(data.length);
+                        const percent = now / total;
+                        console.log(percent);
+                        pro.attr({ value: percent });
+                    });
+                    res.on("end", () => {});
+                })
+                .then(() => {
+                    console.log("end");
+                    addOCR(p);
+                });
+        },
+    );
     OCRListEl.add(
-        button(ocrModels[i].name)
-            .on("click", () => {
-                OCRDetailsEl.clear().add([
-                    ele("h2").add(ocrModels[i].name),
-                    view("y")
-                        .add(
+        view("y").add([
+            view("x")
+                .add([
+                    button(ocrModels[i].name).on("click", () => {
+                        lans.clear().add(
                             ocrModels[i].supportLang.map((i) =>
                                 langMap[i]
                                     ? txt(langMap[i])
                                     : txt(langName.of(i), true),
                             ),
-                        )
-                        .style({ overflow: "scroll" }),
-                ]);
-                ocrDownloadEl.style({ display: "block" });
-                downloadButton.on("click", () => {
-                    const url = mirrorSelect.gv + ocrModels[i].url;
-                    const p = path.join(configPath, "models", i);
-                    download(url, p, {
-                        extract: true,
-                        rejectUnauthorized: false,
-                    })
-                        .on("response", (res) => {
-                            const total = Number(res.headers["content-length"]);
-                            let now = 0;
-                            res.on("data", (data) => {
-                                now += Number(data.length);
-                                const percent = now / total;
-                                console.log(percent);
-                                // todo ui显示
-                            });
-                            res.on("end", () => {});
-                        })
-                        .then(() => {
-                            console.log("end");
-                            addOCR(p);
-                        });
-                    // todo 可取消
-                });
-            })
-            .data({ name: i }),
+                        );
+                    }),
+                    downloadButton,
+                    pro,
+                ])
+                .style({ "align-items": "center" }),
+            lans,
+        ]),
     );
 }
 
-const OCRDetailsEl = view("y").style({ "max-height": "50vh" });
-
-const downloadButton = button("下载");
 const mirrorSelect = select(
     ocrUrls.map((i) => ({ name: i.name, value: i.url })),
 );
-const ocrDownloadEl = view()
-    .add([mirrorSelect, downloadButton])
-    .style({ display: "none" });
+const ocrDownloadEl = view().add([mirrorSelect]);
 addOCRModel.add([
     OCRListEl,
-    OCRDetailsEl,
     ocrDownloadEl,
-    button(txt("取消")).on("click", () => addOCRModel.el.close()),
+    view().add(["将保存到：", " ", pathEl(path.join(configPath, "models"))]),
+    button(txt("关闭")).on("click", () => addOCRModel.el.close()),
 ]);
 document
     .getElementById("OCR拖拽放置区")
