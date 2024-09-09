@@ -151,10 +151,9 @@ input[type="number"]:focus {
 }
 
 button {
-    background-color: #0000;
     margin-top: 8px;
     padding: 4px;
-    background-color: var(--m-color2);
+    background-color: var(--m-color2) !important;
 }
 
 a {

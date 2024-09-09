@@ -105,6 +105,7 @@ button {
     font-size: 1rem;
     transition: var(--transition);
     border-radius: var(--border-radius);
+    background-color: var(--bg);
     &:hover {
         background-color: var(--hover-color);
         box-shadow: var(--shadow);
