@@ -104,7 +104,7 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
     });
     const i = input()
         // @ts-ignore
-        .style({ "field-sizing": "content" })
+        .style({ "field-sizing": "content", "line-height": "1" })
         .on("input", () => {
             setV(Number.parseFloat(i.gv), true);
         })
