@@ -299,6 +299,8 @@ function setEditorP(zoom: number, x: number, y: number) {
         editorP.y = limitY;
     }
     editor.style.transform = t.join(" ");
+
+    whBar(finalRect);
 }
 
 function edge() {
