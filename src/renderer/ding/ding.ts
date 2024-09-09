@@ -604,6 +604,10 @@ function resize(el: ElType<HTMLElement>, zoom: number, dx: number, dy: number) {
         height: `${pS[3]}px`,
     });
 
+    el.query(".img").style({
+        "image-rendering": zoom > 1 ? "pixelated" : "initial",
+    });
+
     if (resizeSender)
         sendEvent("resize", null, { id: id, zoom, dx, dy } as Resize);
 }
