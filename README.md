@@ -176,7 +176,7 @@ npm run start
 npm run dev
 ```
 
-[具体技术说明](docs/index.md)
+[具体技术说明](docs/develop/index.md)
 
 ## 测试
 
