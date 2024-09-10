@@ -2,10 +2,11 @@
 
 (中文 | [English](README_en.md))
 
-![LOGO](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/title_photo.svg)
+![LOGO](https://esearch-app.netlify.app/readme/title_photo.svg)
 
 [![license](https://img.shields.io/github/license/xushengfeng/eSearch)](LICENSE)
-![](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+![platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+![commit-activity](https://img.shields.io/github/commit-activity/m/xushengfeng/eSearch)
 [![release-date](https://img.shields.io/github/release-date/xushengfeng/eSearch)](https://github.com/xushengfeng/eSearch/releases/latest)
 [![release](https://img.shields.io/github/v/release/xushengfeng/eSearch)](https://github.com/xushengfeng/eSearch/releases/latest)
 [![](https://img.shields.io/github/downloads/xushengfeng/eSearch/total?color=brightgreen&label=总下载量)](https://github.com/xushengfeng/eSearch/releases/latest)
@@ -22,17 +23,17 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 即拥有 **截屏+OCR+搜索+翻译+贴图+以图搜图+录屏**
 
-![截屏界面](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/1.webp)
+![截屏界面](https://esearch-app.netlify.app/readme/1.webp)
 
 > 字体是[FiraCode](https://github.com/tonsky/FiraCode)，字体可在设置里设置
 
-![识别文字主页面](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/8.webp)
+![识别文字主页面](https://esearch-app.netlify.app/readme/8.webp)
 
 ## 下载安装
 
 到网站[eSearch](https://esearch-app.netlify.app/#download)下载
 
-或在右侧 releases 打开标签，选择符合你系统的包并下载安装
+或在右侧 [releases](https://github.com/xushengfeng/eSearch/releases) 打开标签，选择符合你系统的包并下载安装
 
 国内可以用[GitHub Proxy](https://mirror.ghproxy.com)加速下载
 
@@ -131,7 +132,7 @@ https://user-images.githubusercontent.com/28475549/155870867-fb0d31f0-2e06-431c-
 
 > Ding 在屏幕上，透明度调节、归位以及鼠标操作（视频约 1.8MB）
 
-![3](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/3.webp)
+![3](https://esearch-app.netlify.app/readme/3.webp)
 
 > 绘图界面
 
@@ -139,7 +140,7 @@ https://user-images.githubusercontent.com/28475549/155870881-9b2fc1b3-77de-4a99-
 
 > 主页面搜索和其他应用编辑（视频约 1.6MB）
 
-![3](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/4.webp)
+![3](https://esearch-app.netlify.app/readme/4.webp)
 
 > 主页面查找替换（支持正则）
 

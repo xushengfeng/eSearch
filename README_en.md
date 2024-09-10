@@ -5,7 +5,8 @@
 ![LOGO](https://raw.githubusercontent.com/xushengfeng/eSearch-website/master/public/readme/title_photo.svg)
 
 [![license](https://img.shields.io/github/license/xushengfeng/eSearch)](LICENSE)
-![](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+![platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+![commit-activity](https://img.shields.io/github/commit-activity/m/xushengfeng/eSearch)
 [![release-date](https://img.shields.io/github/release-date/xushengfeng/eSearch)](https://github.com/xushengfeng/eSearch/releases/latest)
 [![release](https://img.shields.io/github/v/release/xushengfeng/eSearch)](https://github.com/xushengfeng/eSearch/releases/latest)
 [![](https://img.shields.io/github/downloads/xushengfeng/eSearch/total?color=brightgreen&label=Total%20downloads)](https://github.com/xushengfeng/eSearch/releases/latest)
@@ -32,7 +33,7 @@ Including **screenshot+OCR+search+translation+pasting+reverse image search+scree
 
 Download from the website [eSearch](https://esearch-app.netlify.app/#download)
 
-or open the releases tab on the right, select the package that suits your system, and download and install it.
+or open the [releases](https://github.com/xushengfeng/eSearch/releases) tab on the right, select the package that suits your system, and download and install it.
 
 For users in China, you can use [GitHub Proxy](https://mirror.ghproxy.com) to accelerate the download.
 
