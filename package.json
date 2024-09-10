@@ -18,6 +18,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "@erase2d/fabric": "^1.1.6",
+        "@webav/av-cliper": "^0.14.15",
         "color": "^4.2.3",
         "diff-match-patch": "^1.0.5",
         "dkh-ui": "^0.8.4",
