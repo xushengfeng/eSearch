@@ -1,3 +1,4 @@
+// @ts-check
 const fs = require("node:fs");
 const path = require("node:path");
 const archiver = require("archiver");
@@ -7,8 +8,8 @@ const download = require("download");
 const arch =
     (process.env.npm_config_arch || process.env.M_ARCH || process.arch) ===
     "arm64"
-        ? ["arm64"]
-        : ["x64"];
+        ? "arm64"
+        : "x64";
 
 const platform = process.platform;
 const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
@@ -88,12 +89,12 @@ const beforePack = async () => {
         }
     }
     if (process.platform === "win32" && arch === "arm64") {
-        execSync("npm i node-screenshots-win32-arm64-msvc");
-        execSync("npm uninstall node-screenshots-win32-x64-msvc");
+        execSync("pnpm i node-screenshots-win32-arm64-msvc");
+        execSync("pnpm uninstall node-screenshots-win32-x64-msvc");
     }
     if (process.platform === "darwin" && arch === "arm64") {
-        execSync("npm i node-screenshots-darwin-arm64");
-        execSync("npm uninstall node-screenshots-darwin-x64");
+        execSync("pnpm i node-screenshots-darwin-arm64");
+        execSync("pnpm uninstall node-screenshots-darwin-x64");
     }
 };
 
@@ -129,7 +130,7 @@ const build = {
         },
     ],
     asar: false,
-    artifactName: `\${productName}-\${version}-\${platform}-${arch[0]}.\${ext}`,
+    artifactName: `\${productName}-\${version}-\${platform}-${arch}.\${ext}`,
     beforePack: beforePack,
     linux: {
         category: "Utility",
@@ -246,7 +247,7 @@ const build = {
 
         const outputFilePath = path.join(
             c.outDir,
-            `app-${process.platform}-${arch[0]}`,
+            `app-${process.platform}-${arch}`,
         );
 
         const output = fs.createWriteStream(outputFilePath);
@@ -261,32 +262,30 @@ const build = {
         return new Promise((rj) => {
             output.on("close", () => {
                 console.log("生成核心包");
-                rj();
+                rj(true);
             });
         });
     },
 };
 
-const archFilter = arch[0] === "arm64" ? "x64" : "arm64";
+const archFilter = arch === "arm64" ? "x64" : "arm64";
 const otherPlatform = Object.keys(platformMap).filter((i) => i !== platform);
 
+/** @type {string[]|undefined} */
+// @ts-ignore
+const files = build[platform2]?.files;
+
 // 移除 onnxruntime-node/bin/napi-v3/
-build[platform2].files.push(
+files?.push(
     `!node_modules/onnxruntime-node/bin/napi-v3/${platform}/${archFilter}`,
 );
 
 // 移除 uiohook-napi/prebuilds
 for (const i of otherPlatform) {
-    build[platform2].files.push(
-        `!node_modules/uiohook-napi/prebuilds/${i}-arm64`,
-    );
-    build[platform2].files.push(
-        `!node_modules/uiohook-napi/prebuilds/${i}-x64`,
-    );
+    files?.push(`!node_modules/uiohook-napi/prebuilds/${i}-arm64`);
+    files?.push(`!node_modules/uiohook-napi/prebuilds/${i}-x64`);
 }
-build[platform2].files.push(
-    `!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`,
-);
+files?.push(`!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`);
 
 const ignoreDir = [
     ".*",
@@ -326,7 +325,7 @@ for (const i of ignoreModule) {
 }
 for (let i of ignoreDir) {
     i = `!${i}`;
-    build[platform2].files.push(i);
+    files?.push(i);
 }
 
 module.exports = build;
