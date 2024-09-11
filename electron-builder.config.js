@@ -112,7 +112,9 @@ const beforePack = async () => {
         }
         console.log(`移除${rmList.join(", ")}`);
         for (const i of rmList) {
-            execSync(`pnpm uninstall node-screenshots-${i}`);
+            try {
+                execSync(`pnpm uninstall node-screenshots-${i}`);
+            } catch (error) {}
         }
     }
 };
