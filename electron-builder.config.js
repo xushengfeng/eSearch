@@ -88,13 +88,32 @@ const beforePack = async () => {
             }
         }
     }
-    if (process.platform === "win32" && arch === "arm64") {
-        execSync("pnpm i node-screenshots-win32-arm64-msvc");
-        execSync("pnpm uninstall node-screenshots-win32-x64-msvc");
-    }
-    if (process.platform === "darwin" && arch === "arm64") {
-        execSync("pnpm i node-screenshots-darwin-arm64");
-        execSync("pnpm uninstall node-screenshots-darwin-x64");
+    // 指定arch pnpm似乎不支持，手动安装和剔除
+    if ((platform === "win32" || platform === "darwin") && arch === "arm64") {
+        execSync("pnpm add node-screenshots --force");
+        const list = [
+            "darwin-arm64",
+            "darwin-x64",
+            "darwin-universal",
+            "linux-x64-gnu",
+            "linux-x64-musl",
+            "win32-ia32-msvc",
+            "win32-x64-msvc",
+            "win32-arm64-msvc",
+        ];
+        let rmList = [];
+        if (platform === "win32") {
+            rmList = list.filter((i) => !i.startsWith("win32"));
+            rmList.push("win32-ia32-msvc", "win32-x64-msvc");
+        }
+        if (platform === "darwin") {
+            rmList = list.filter((i) => !i.startsWith("darwin"));
+            rmList.push("darwin-x64");
+        }
+        console.log(`移除${rmList.join(", ")}`);
+        for (const i of rmList) {
+            execSync(`pnpm uninstall node-screenshots-${i}`);
+        }
     }
 };
 
