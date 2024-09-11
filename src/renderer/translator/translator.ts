@@ -1,6 +1,6 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
 
-import screenShots from "../screenShot/screenShot";
+import initScreenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
 
@@ -20,6 +20,8 @@ function iconEl(img: string) {
 }
 
 import store from "../../../lib/store/renderStore";
+
+const screenShots = initScreenShots(store.get("额外截屏器.命令"));
 
 const transE = store.get("翻译.翻译器");
 

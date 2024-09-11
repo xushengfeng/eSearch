@@ -24,7 +24,7 @@ import type { Buffer } from "node:buffer";
 
 import minimist from "minimist";
 
-import screenShots from "../renderer/screenShot/screenShot";
+import initScreenShots from "../renderer/screenShot/screenShot";
 
 import Store from "../../lib/store/store";
 import type {
@@ -119,6 +119,8 @@ if (dev) {
         );
     }, 1500);
 }
+
+const exScreenShotCommad = store.get("额外截屏器.命令");
 
 const keepClip = store.get("保留截屏窗口");
 
@@ -337,6 +339,7 @@ async function argRun(c: string[], first?: boolean) {
     const path = argv.i || argv.input;
     let img: NativeImage | undefined = undefined;
     if (!path) {
+        const screenShots = initScreenShots(exScreenShotCommad);
         await sleep(argv.delay || 0);
         img = screenShots().at(0)?.captureSync().image;
     } else {
@@ -371,6 +374,7 @@ async function argRun(c: string[], first?: boolean) {
             try {
                 mkdirSync(sp, { recursive: true });
             } catch (error) {}
+            const screenShots = initScreenShots(exScreenShotCommad);
             for (let i = 0; i < n; i++) {
                 setTimeout(() => {
                     const image = screenShots()[0].captureSync().image;
@@ -1240,6 +1244,7 @@ function hideClip() {
 
 /** 快速截屏 */
 function quickClip() {
+    const screenShots = initScreenShots(exScreenShotCommad);
     for (const c of screenShots()) {
         const image: NativeImage = c.captureSync().image;
         if (store.get("快速截屏.模式") === "clip") {
@@ -1271,6 +1276,7 @@ function checkFile(name: string, baseName = name, n = 1) {
 function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数")) {
     const basePath = store.get("快速截屏.路径");
     if (!basePath) return;
+    const screenShots = initScreenShots(exScreenShotCommad);
     const dirPath = checkFile(join(basePath, getFileName()));
     mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {

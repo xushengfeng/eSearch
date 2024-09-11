@@ -1,22 +1,36 @@
-const { ipcRenderer, nativeImage, shell } =
+const { ipcRenderer, nativeImage, shell, dialog } =
     require("electron") as typeof import("electron");
 import type { MessageBoxSyncOptions } from "electron";
 
-let Screenshots: typeof import("node-screenshots").Screenshots;
-try {
-    Screenshots = require("node-screenshots").Screenshots;
-} catch (error) {
-    const id = ipcRenderer.sendSync("dialog", {
-        message:
-            "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
-        buttons: ["取消", "下载"],
-        defaultId: 1,
-    } as MessageBoxSyncOptions);
-    if (id === 1) {
-        shell.openExternal(
-            `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
-        );
+function d(op: MessageBoxSyncOptions) {
+    if (ipcRenderer) {
+        return ipcRenderer.send("dialog", op);
     }
+    return dialog.showMessageBoxSync(op);
+}
+
+let Screenshots: typeof import("node-screenshots").Screenshots;
+
+let _command: string | undefined;
+
+function init(command?: string) {
+    _command = command;
+    try {
+        Screenshots = require("node-screenshots").Screenshots;
+    } catch (error) {
+        const id = d({
+            message:
+                "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
+            buttons: ["取消", "下载"],
+            defaultId: 1,
+        } as MessageBoxSyncOptions);
+        if (id === 1) {
+            shell.openExternal(
+                `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
+            );
+        }
+    }
+    return dispaly2screen;
 }
 
 function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
@@ -34,10 +48,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
             ...displays[0],
             captureSync: (keep?: boolean) => {
                 if (x.image && keep) return x.image;
-                const command = ipcRenderer.sendSync("store", {
-                    type: "get",
-                    path: "额外截屏器.命令",
-                });
+                const command = _command;
                 try {
                     if (!command) throw "";
                     execSync(command, {});
@@ -47,12 +58,12 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                     fs.rm(path, () => {});
                 } catch (error) {
                     if (!command) {
-                        ipcRenderer.send("dialog", {
+                        d({
                             message: "Linux arm64 平台需要额外截屏软件",
                             buttons: ["确定"],
                         } as MessageBoxSyncOptions);
                     } else {
-                        ipcRenderer.send("dialog", {
+                        d({
                             message: "命令运行出错，无法读取截屏，请检查设置",
                             buttons: ["确定"],
                         } as MessageBoxSyncOptions);
@@ -126,4 +137,4 @@ function toCanvas(img: Buffer) {
     return { data: d, image };
 }
 
-export default dispaly2screen;
+export default init;

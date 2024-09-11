@@ -30,7 +30,8 @@ import {
 } from "fabric";
 import { EraserBrush } from "@erase2d/fabric";
 
-import screenShots from "../screenShot/screenShot";
+import initScreenShots from "../screenShot/screenShot";
+const screenShots = initScreenShots(store.get("额外截屏器.命令"));
 
 import type {
     setting,
