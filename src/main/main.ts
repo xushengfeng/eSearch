@@ -337,13 +337,16 @@ async function argRun(c: string[], first?: boolean) {
     }
 
     const path = argv.i || argv.input;
-    let img: NativeImage | undefined = undefined;
-    if (!path) {
-        const screenShots = initScreenShots(exScreenShotCommad);
-        await sleep(argv.delay || 0);
-        img = screenShots().at(0)?.captureSync().image;
-    } else {
-        img = nativeImage.createFromBuffer(readFileSync(path));
+    async function getImg() {
+        let img: NativeImage | undefined = undefined;
+        if (!path) {
+            const screenShots = initScreenShots(exScreenShotCommad);
+            await sleep(argv.delay || 0);
+            img = screenShots().at(0)?.captureSync().image;
+        } else {
+            img = nativeImage.createFromBuffer(readFileSync(path));
+        }
+        return img;
     }
     const textMode: setting["主页面"]["模式"] = argv.trans
         ? "translate"
@@ -384,6 +387,7 @@ async function argRun(c: string[], first?: boolean) {
                 }, dt * n);
             }
         } else {
+            const img = await getImg();
             if (!img) return;
             if (argv.clipboard) {
                 clipboard.writeImage(img);
@@ -392,6 +396,7 @@ async function argRun(c: string[], first?: boolean) {
             }
         }
     } else if (argv.o || argv.ocr) {
+        const img = await getImg();
         if (!img) return;
         createMainWindow({
             type: "ocr",
@@ -400,9 +405,11 @@ async function argRun(c: string[], first?: boolean) {
             mode: textMode,
         });
     } else if (argv.d || argv.ding) {
+        const img = await getImg();
         if (!img) return;
         ding(img);
     } else if (argv.m || argv.img) {
+        const img = await getImg();
         if (!img) return;
         createMainWindow({
             type: "image",
