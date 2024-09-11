@@ -231,6 +231,7 @@ export interface setting {
         模式: "大版本" | "小版本" | "dev";
     };
     录屏: {
+        模式: "normal" | "super";
         自动录制: false | number;
         视频比特率: number;
         摄像头: {
@@ -431,8 +432,11 @@ type myFetch = {
 
 type superRecording = {
     time: number;
-    posi: { x: number; y: number };
-    mouse?: 0 | 1 | 2;
+    isStart?: boolean;
+    posi?: { x: number; y: number };
+    mousedown?: 0 | 1 | 2;
+    mouseup?: 0 | 1 | 2;
+    wheel?: boolean;
     keydown?: string;
     keyup?: string;
 }[];

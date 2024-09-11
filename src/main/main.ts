@@ -1172,6 +1172,9 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
         case "editor":
             createPhotoEditor(arg);
             break;
+        case "recordx":
+            createSuperRecorderWindow();
+            break;
     }
 });
 
@@ -1505,6 +1508,27 @@ ipcMain.on("record", (_event, type, arg) => {
             break;
     }
 });
+
+function createSuperRecorderWindow() {
+    const recorder = new BrowserWindow({
+        icon: theIcon,
+        transparent: true,
+        show: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false,
+        },
+    });
+    rendererPath(recorder, "videoEditor.html");
+    if (dev) recorder.webContents.openDevTools();
+    recorder.webContents.on("did-finish-load", () => {
+        desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
+            const dId = sources[0].id;
+            recorder.webContents.send("record", "init", dId);
+        });
+    });
+}
 
 ipcMain.on("setting", async (event, arg, arg1) => {
     switch (arg) {
@@ -2663,6 +2687,7 @@ const defaultSetting: setting = {
         模式: "小版本",
     },
     录屏: {
+        模式: "normal",
         自动录制: 3,
         视频比特率: 2.5,
         摄像头: {

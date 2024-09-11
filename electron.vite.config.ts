@@ -42,6 +42,10 @@ export default defineConfig({
                         __dirname,
                         "src/renderer/photoEditor.html",
                     ),
+                    videoEditor: path.resolve(
+                        __dirname,
+                        "src/renderer/videoEditor.html",
+                    ),
                 },
             },
             assetsInlineLimit: 0,

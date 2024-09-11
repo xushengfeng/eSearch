@@ -530,13 +530,17 @@ function openApp() {
 }
 
 function initRecord() {
-    ipcRenderer.send("clip_main_b", "record", {
-        rect: finalRect,
-        id: nowScreenId,
-        w: mainCanvas.width,
-        h: mainCanvas.height,
-        ratio: ratio,
-    });
+    if (toolBarEl.els.recordm.gv === "normal") {
+        ipcRenderer.send("clip_main_b", "record", {
+            rect: finalRect,
+            id: nowScreenId,
+            w: mainCanvas.width,
+            h: mainCanvas.height,
+            ratio: ratio,
+        });
+    } else {
+        ipcRenderer.send("clip_main_b", "recordx");
+    }
     tool.close();
 }
 
@@ -2775,7 +2779,10 @@ const toolBarEl = frame("tool", {
     QR: iconEl(scan_svg),
     open: iconEl(open_svg),
     ding: iconEl(ding_svg),
-    record: iconEl(record_svg),
+    record: {
+        _: iconEl(record_svg),
+        recordm: selectMenu<"normal" | "super">().class("side_select"),
+    },
     long: {
         _: iconEl(long_clip_svg),
         longm: selectMenu<"y" | "xy">().class("side_select"),
@@ -2821,6 +2828,14 @@ toolBarEl.els.longm.add([
 toolBarEl.els.longm.on("change", () => {
     store.set("广截屏.方向", toolBarEl.els.longm.gv);
     longFX = toolBarEl.els.longm.gv;
+});
+
+toolBarEl.els.recordm.add([
+    ele("option").attr({ innerText: "normal", value: "traditional" }),
+    ele("option").attr({ innerText: "super", value: "super" }),
+]);
+toolBarEl.els.recordm.on("change", () => {
+    store.set("录屏.模式", toolBarEl.els.recordm.gv);
 });
 
 toolBarEl.el.style({
