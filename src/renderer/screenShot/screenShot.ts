@@ -13,7 +13,9 @@ try {
         defaultId: 1,
     } as MessageBoxSyncOptions);
     if (id === 1) {
-        shell.openExternal("https://aka.ms/vs/17/release/vc_redist.x64.exe");
+        shell.openExternal(
+            `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
+        );
     }
 }
 
