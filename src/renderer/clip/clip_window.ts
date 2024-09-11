@@ -2782,7 +2782,9 @@ const toolBarEl = frame("tool", {
     ding: iconEl(ding_svg),
     record: {
         _: iconEl(record_svg),
-        recordm: selectMenu<"normal" | "super">().class("side_select"),
+        recordm: selectMenu<"normal" | "super">()
+            .class("side_select")
+            .data({ dev: "" }),
     },
     long: {
         _: iconEl(long_clip_svg),
@@ -2832,7 +2834,7 @@ toolBarEl.els.longm.on("change", () => {
 });
 
 toolBarEl.els.recordm.add([
-    ele("option").attr({ innerText: "normal", value: "traditional" }),
+    ele("option").attr({ innerText: "normal", value: "normal" }),
     ele("option").attr({ innerText: "super", value: "super" }),
 ]);
 toolBarEl.els.recordm.on("change", () => {
