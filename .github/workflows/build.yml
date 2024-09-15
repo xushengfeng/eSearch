@@ -25,9 +25,11 @@ jobs:
               with:
                   node-version: 20
 
-            - name: Install Ubuntu X11
+            - name: Install Linux Lib
               if: matrix.os == 'ubuntu-latest'
-              run: sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev rpm
 
             - name: ${{ matrix.os }} ${{ matrix.arch }} build
               env:
