@@ -155,7 +155,12 @@ const build = {
     beforePack: beforePack,
     linux: {
         category: "Utility",
-        target: ["tar.gz", "deb", "rpm", "AppImage"],
+        target: [
+            { target: "tar.gz", arch },
+            { target: "deb", arch },
+            { target: "rpm", arch },
+            { target: "AppImage", arch },
+        ],
         files: [
             "!assets/logo/icon.icns",
             "!assets/logo/icon.ico",
