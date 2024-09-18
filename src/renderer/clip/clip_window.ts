@@ -9,6 +9,7 @@ import open_with from "../../../lib/open_with";
 import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";
 import Color from "color";
+import chroma from "chroma-js";
 import store from "../../../lib/store/renderStore";
 import {
     ActiveSelection,
@@ -1438,9 +1439,10 @@ function mouseBar(finalRect: rect, e: MouseEvent) {
         let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
 
         a /= 255;
-        pointCenter.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+        const cssColor = `rgb(${r} ${g} ${b} / ${a})`;
+        pointCenter.style.background = cssColor;
         theColor = [r, g, b, a];
-        clipColorText(theColor, 取色器默认格式);
+        clipColorText([r, g, b, a], 取色器默认格式);
 
         document.getElementById("clip_xy").innerText = `(${x}, ${y})`;
     });
@@ -1456,26 +1458,29 @@ function ckx(e: MouseEvent) {
     clipCtx.fillRect(x, y + 1, 1, clipCanvas.height - y - 1);
 }
 
+function numberFormat(num: number) {
+    return num.toFixed(1).replace(/\.?0+$/, "");
+}
+
 // 色彩空间转换
-function colorConversion(rgba: number[] | string, type: string): string {
-    const color = new Color(rgba);
+function colorConversion(rgba: colorRGBA, type: colorFormat): string {
+    const color = chroma(rgba || [0, 0, 0, 0]);
     if (color.alpha() !== 1) return "/";
     switch (type) {
         case "HEX":
             return color.hex();
         case "RGB":
-            return color.rgb().string();
+            return color.css();
         case "HSL": {
-            const hsl = color.hsl().round().array();
-            return `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
+            return color.css("hsl");
         }
         case "HSV": {
-            const hsv = color.hsv().round().array();
-            return `hsv(${hsv[0]}, ${hsv[1]}%, ${hsv[2]}%)`;
+            const hsv = color.hsv();
+            return `hsv(${numberFormat(hsv[0])} ${numberFormat(hsv[1] * 100)}% ${numberFormat(hsv[2] * 100)}%)`;
         }
         case "CMYK": {
-            const cmyk = color.cmyk().round().array();
-            return `cmyk(${cmyk[0]}, ${cmyk[1]}, ${cmyk[2]}, ${cmyk[3]})`;
+            const cmyk = color.cmyk();
+            return `cmyk(${numberFormat(cmyk[0] * 100)}% ${numberFormat(cmyk[1] * 100)}% ${numberFormat(cmyk[2] * 100)}% ${numberFormat(cmyk[3] * 100)}%)`;
         }
         default:
             return "";
@@ -1483,7 +1488,7 @@ function colorConversion(rgba: number[] | string, type: string): string {
 }
 
 // 改变颜色文字和样式
-function clipColorText(l: typeof theColor, type: string) {
+function clipColorText(l: colorRGBA, type: colorFormat) {
     const color = Color.rgb(l);
     const clipColorTextColor =
         color.alpha() === 1 ? (color.isLight() ? "#000" : "#fff") : "";
@@ -1499,7 +1504,7 @@ function clipColorText(l: typeof theColor, type: string) {
     );
     // 只改变默认格式的字体颜色和内容，并定位展示
     mainEl.style.color = theTextColor[1];
-    mainEl.innerText = colorConversion(theColor, type);
+    mainEl.innerText = colorConversion(l, type);
     if (color.alpha() !== 1) {
         mainEl.style.color = "";
     }
@@ -2473,7 +2478,7 @@ function colorBar() {
         for (const i in colorList) {
             const x = colorList[i];
             t += `<div class="color_i" style="background-color: ${x}" title="${colorConversion(
-                x,
+                [0, 0, 0, 0], // todo
                 取色器默认格式,
             )}" data-i="${i}"></div>`;
         }
@@ -2729,7 +2734,7 @@ const 字体 = store.get("字体");
 let 工具栏跟随: string;
 let 四角坐标: boolean;
 let 遮罩颜色: string;
-let 取色器默认格式: string;
+let 取色器默认格式: colorFormat;
 let 取色器格式位置: number;
 let 取色器显示: boolean;
 let colorSize: number;
@@ -2737,7 +2742,7 @@ let colorISize: number;
 let 记忆框选: boolean;
 let 记忆框选值: { [id: string]: rect };
 let bSize: number;
-const allColorFormat = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+const allColorFormat: colorFormat[] = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
 
 const g光标参考线 = store.get("框选.参考线.光标");
 const x选区参考线 = store.get("框选.参考线.选区");
@@ -3112,6 +3117,8 @@ let oFinalRect = null as rect;
 let oPoly = null as point[];
 let theColor: [number, number, number, number] = null;
 let theTextColor = [null, null];
+type colorFormat = setting["取色器"]["默认格式"];
+type colorRGBA = [number, number, number, number];
 const clipCtx = clipCanvas.getContext("2d");
 const undoStack = [{ rect: 0, canvas: 0 }];
 const rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[];

@@ -13,6 +13,9 @@ importers:
       '@erase2d/fabric':
         specifier: ^1.1.6
         version: 1.1.6(fabric@6.4.0(canvas@2.11.2))
+      chroma-js:
+        specifier: ^3.1.1
+        version: 3.1.1
       color:
         specifier: ^4.2.3
         version: 4.2.3
@@ -93,6 +96,9 @@ importers:
       '@biomejs/biome':
         specifier: ^1.8.3
         version: 1.8.3
+      '@types/chroma-js':
+        specifier: ^2.4.4
+        version: 2.4.4
       '@types/color':
         specifier: ^3.0.3
         version: 3.0.6
@@ -615,6 +621,9 @@ packages:
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
+  '@types/chroma-js@2.4.4':
+    resolution: {integrity: sha512-/DTccpHTaKomqussrn+ciEvfW4k6NAHzNzs/sts1TCqg333qNxOhy8TNIoQCmbGG3Tl8KdEhkGAssb1n3mTXiQ==}
+
   '@types/color-convert@2.0.3':
     resolution: {integrity: sha512-2Q6wzrNiuEvYxVQqhh7sXM2mhIhvZR/Paq4FdsQkOMgWsCIkKvSGj8Le1/XalulrmgOzPMqNa0ix+ePY4hTrfg==}
 
@@ -906,6 +915,9 @@ packages:
   chownr@3.0.0:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
+
+  chroma-js@3.1.1:
+    resolution: {integrity: sha512-CGr6w73Gi86142RWqZ1RjED/CyduYw2vMTikQZUvr2jGIihnZlMo/Kzm9rYHWDP2pJc6eebwc8CkX0iteBon+A==}
 
   chromium-pickle-js@0.2.0:
     resolution: {integrity: sha512-1R5Fho+jBq0DDydt+/vHWj5KJNJCKdARKOCwZUen84I5BreWoLqRLANH1U87eJy1tiASPtMnGqJJq0ZsLoRPOw==}
@@ -2976,6 +2988,8 @@ snapshots:
       '@types/node': 18.19.39
       '@types/responselike': 1.0.3
 
+  '@types/chroma-js@2.4.4': {}
+
   '@types/color-convert@2.0.3':
     dependencies:
       '@types/color-name': 1.1.4
@@ -3364,6 +3378,8 @@ snapshots:
   chownr@2.0.0: {}
 
   chownr@3.0.0: {}
+
+  chroma-js@3.1.1: {}
 
   chromium-pickle-js@0.2.0: {}
 
