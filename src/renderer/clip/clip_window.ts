@@ -8,7 +8,6 @@ import initStyle from "../root/root";
 import open_with from "../../../lib/open_with";
 import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";
-import Color from "color";
 import chroma from "chroma-js";
 import store from "../../../lib/store/renderStore";
 import {
@@ -1502,14 +1501,13 @@ function colorConversion(rgba: colorRGBA, type: colorFormat): string {
 
 // 改变颜色文字和样式
 function clipColorText(l: colorRGBA, type: colorFormat) {
-    const color = Color.rgb(l);
-    const clipColorTextColor =
-        color.alpha() === 1 ? (color.isLight() ? "#000" : "#fff") : "";
-    theTextColor = [color.hexa(), clipColorTextColor];
+    const color = chroma(l);
+    const clipColorTextColor = color.alpha() === 1 ? pickTextColor(color) : "";
+    theTextColor = [color.hex(), clipColorTextColor];
 
     (<HTMLDivElement>(
         document.querySelector("#clip_copy > div > div:not(:nth-child(1))")
-    )).style.backgroundColor = color.hexa();
+    )).style.backgroundColor = color.hex();
     const mainEl = <HTMLElement>(
         document.querySelector(
             `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`,
@@ -2373,6 +2371,14 @@ function ableChangeColor() {
     }
 }
 
+function pickTextColor(bg: chroma.Color, c1 = "#fff", c2 = "#000") {
+    // todo 主题色
+    if (chroma.contrast(bg, c1) > chroma.contrast(bg, c2)) {
+        return c1;
+    }
+    return c2;
+}
+
 function colorInput(type: "fill" | "stroke") {
     const i = input().on("input", () => {
         setC();
@@ -2384,32 +2390,24 @@ function colorInput(type: "fill" | "stroke") {
     });
 
     function getInputV() {
-        return Color(i.gv).alpha(Number(alpha.gv));
+        return chroma(i.gv).alpha(Number(alpha.gv));
     }
     function setC() {
         const color = getInputV();
-        i.style({ "background-color": color.hexa() });
+        i.style({ "background-color": color.hex() });
 
         let textColor = "#000";
         const tColor = color;
-        const bgColor = Color(
+        const bgColor = chroma(
             window
                 .getComputedStyle(document.documentElement)
                 .getPropertyValue("--bar-bg0"),
         );
         if (tColor.alpha() >= 0.5 || tColor.alpha() === undefined) {
-            if (tColor.isLight()) {
-                textColor = "#000";
-            } else {
-                textColor = "#fff";
-            }
+            textColor = pickTextColor(tColor); // todo 直接混合
         } else {
             // 低透明度背景呈现栏的颜色
-            if (bgColor.isLight()) {
-                textColor = "#000";
-            } else {
-                textColor = "#fff";
-            }
+            textColor = pickTextColor(bgColor);
         }
         i.style({ color: textColor });
 
@@ -2417,22 +2415,22 @@ function colorInput(type: "fill" | "stroke") {
             document.querySelector("#draw_color > div")
         );
         if (type === "fill") {
-            mainSideBarEl.style.backgroundColor = color.hexa();
+            mainSideBarEl.style.backgroundColor = color.hex();
         }
         if (type === "stroke") {
-            mainSideBarEl.style.borderColor = color.hexa();
+            mainSideBarEl.style.borderColor = color.hex();
         }
     }
     const main = view()
         .add([i, alpha])
         .bindSet((v: string) => {
-            const color = Color(v);
+            const color = chroma(v);
             i.sv(color.hex());
             alpha.sv(color.alpha());
             setC();
         })
         .bindGet(() => {
-            return getInputV().hexa();
+            return getInputV().hex();
         });
     return main;
 }
@@ -2454,15 +2452,14 @@ function setOnlyStroke(b: boolean) {
 function colorBar() {
     // 主盘
     const colorList = ["hsl(0, 0%, 100%)"];
-    const baseColor = Color("hsl(0, 100%, 50%)");
     for (let i = 0; i < 360; i += 15) {
-        colorList.push(baseColor.rotate(i).string());
+        colorList.push(`hsl(${i}, 100%, 50%)`);
     }
     let isNext = false;
     showColor();
     // 下一层级
     function nextColor(h: string) {
-        let nextColorList = [];
+        let nextColorList: string[] = [];
         if (h === "hsl(0, 0%, 100%)") {
             for (let i = 0; i < 25; i++) {
                 const x = (100 / 24) * (24 - i);
@@ -2479,7 +2476,7 @@ function colorBar() {
         let tt = "";
         for (const n in nextColorList) {
             tt += `<div class="color_i" style="background-color: ${nextColorList[n]}" title="${colorConversion(
-                nextColorList[n],
+                chroma(nextColorList[n]).rgba(),
                 取色器默认格式,
             )}"></div>`;
         }
@@ -2491,7 +2488,7 @@ function colorBar() {
         for (const i in colorList) {
             const x = colorList[i];
             t += `<div class="color_i" style="background-color: ${x}" title="${colorConversion(
-                [0, 0, 0, 0], // todo
+                chroma(x).rgba(),
                 取色器默认格式,
             )}" data-i="${i}"></div>`;
         }
