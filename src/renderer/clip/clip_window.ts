@@ -1482,6 +1482,19 @@ function colorConversion(rgba: colorRGBA, type: colorFormat): string {
             const cmyk = color.cmyk();
             return `cmyk(${numberFormat(cmyk[0] * 100)}% ${numberFormat(cmyk[1] * 100)}% ${numberFormat(cmyk[2] * 100)}% ${numberFormat(cmyk[3] * 100)}%)`;
         }
+        // todo hwb
+        case "LAB":
+            // @ts-ignore
+            return color.css("lab");
+        case "LCH":
+            // @ts-ignore
+            return color.css("lch");
+        case "OKLAB":
+            // @ts-ignore
+            return color.css("oklab");
+        case "OKLCH":
+            // @ts-ignore
+            return color.css("oklch");
         default:
             return "";
     }
@@ -2742,7 +2755,17 @@ let colorISize: number;
 let 记忆框选: boolean;
 let 记忆框选值: { [id: string]: rect };
 let bSize: number;
-const allColorFormat: colorFormat[] = ["HEX", "RGB", "HSL", "HSV", "CMYK"];
+const allColorFormat: colorFormat[] = [
+    "HEX",
+    "RGB",
+    "HSL",
+    "HSV",
+    "LAB",
+    "LCH",
+    "OKLAB",
+    "OKLCH",
+    "CMYK",
+];
 
 const g光标参考线 = store.get("框选.参考线.光标");
 const x选区参考线 = store.get("框选.参考线.选区");

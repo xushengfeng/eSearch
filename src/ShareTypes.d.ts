@@ -94,7 +94,16 @@ export interface setting {
         显示: boolean;
         像素大小: number;
         大小: number;
-        默认格式: "HEX" | "RGB" | "HSL" | "HSV" | "CMYK";
+        默认格式:
+            | "HEX"
+            | "RGB"
+            | "HSL"
+            | "HSV"
+            | "LAB"
+            | "LCH"
+            | "OKLAB"
+            | "OKLCH"
+            | "CMYK";
     };
     鼠标跟随栏: {
         显示: boolean;
