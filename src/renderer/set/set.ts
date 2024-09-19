@@ -1049,6 +1049,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     function set(type: Engines | "") {
         keys.clear();
         help.clear();
+        testR.clear();
         if (!type) return;
         const fig = engineConfig[type];
         for (const x of fig.key) {
@@ -1078,6 +1079,7 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     const testB = button(txt("测试"));
     testEl.add([testB, testR]);
     testB.on("click", async () => {
+        testR.el.innerText = t("正在测试...");
         const v = getV();
         if (!v) return;
         // @ts-ignore
