@@ -928,6 +928,18 @@ const engineConfig: Partial<
         }
     >
 > = {
+    tencentTransmart: {
+        t: "腾讯交互式翻译",
+        key: [],
+    },
+    google: {
+        t: "谷歌翻译",
+        key: [],
+    },
+    yandex: {
+        t: "Yandex",
+        key: [],
+    },
     youdao: {
         t: "有道",
         key: [{ name: "appid" }, { name: "key" }],
