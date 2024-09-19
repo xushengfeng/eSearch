@@ -496,9 +496,15 @@ body {
     overflow: hidden;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    &:active {
+        transform: none !important;
+    }
 }
 .color_i {
     transition: var(--transition);
+    &:active {
+        transform: scale(1) !important;
+    }
 }
 .color_i:hover {
     position: relative;
