@@ -57,7 +57,7 @@ function initKeys() {
     uIOhook.start();
 }
 
-function transform() {
+async function transform() {
     // todo diff chunks，更改部分帧
     transformed = [];
     const decoder = new VideoDecoder({
@@ -81,9 +81,14 @@ function transform() {
         height: 100,
         framerate: 30,
     });
+    decoder.configure({
+        codec: "vp8",
+    });
     for (const chunk of src) {
         decoder.decode(chunk);
     }
+    await encoder.flush();
+    await decoder.flush();
 }
 
 function transformX(frame: VideoFrame) {
@@ -100,8 +105,8 @@ function transformX(frame: VideoFrame) {
     return nFrame;
 }
 
-function save() {
-    // transform();
+async function save() {
+    await transform();
 
     saveImages();
 }
