@@ -99,6 +99,7 @@ export interface setting {
             | "RGB"
             | "HSL"
             | "HSV"
+            | "HWB"
             | "LAB"
             | "LCH"
             | "OKLAB"

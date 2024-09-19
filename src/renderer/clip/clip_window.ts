@@ -1481,7 +1481,10 @@ function colorConversion(rgba: colorRGBA, type: colorFormat): string {
             const cmyk = color.cmyk();
             return `cmyk(${numberFormat(cmyk[0] * 100)}% ${numberFormat(cmyk[1] * 100)}% ${numberFormat(cmyk[2] * 100)}% ${numberFormat(cmyk[3] * 100)}%)`;
         }
-        // todo hwb
+        case "HWB": {
+            const [h, s, v] = color.hsv();
+            return `hwb(${numberFormat(h)} ${numberFormat((1 - s) * v * 100)}% ${numberFormat((1 - v) * 100)}%)`;
+        }
         case "LAB":
             // @ts-ignore
             return color.css("lab");
@@ -2757,6 +2760,7 @@ const allColorFormat: colorFormat[] = [
     "RGB",
     "HSL",
     "HSV",
+    "HWB",
     "LAB",
     "LCH",
     "OKLAB",
