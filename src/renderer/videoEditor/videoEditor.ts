@@ -10,22 +10,57 @@ const keys: superRecording = [];
 let src: EncodedVideoChunk[] = [];
 let transformed: EncodedVideoChunk[] = [];
 
+const clipList: Map<
+    number, // src id
+    clip
+> = new Map();
+
+let transformedClip: Map<number, clip> = new Map();
+
+type clip = {
+    time: number;
+    rect: { x: number; y: number; w: number; h: number };
+    point: { x: number; y: number };
+    // todo key events
+    isRemoved?: boolean;
+};
+
+// todo 自适应分辨率/用户设定分辨率
+const outputV = {
+    width: 100,
+    height: 100,
+};
+
+// 原始分辨率
+// todo 节省内存，可以降低原始分辨率，像鼠标坐标也要缩小
+const v = {
+    width: 100,
+    height: 100,
+};
+
 const canvas = ele("canvas").el;
 
 const timeLineMain = view("x");
 const timeLineFrame = view("x");
 
+let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
+
 function initKeys() {
-    uIOhook.on("keydown", (e) => {
+    function push(x: Omit<superRecording[0], "time" | "posi">) {
         keys.push({
             time: performance.now(),
+            posi: mousePosi,
+            ...x,
+        });
+    }
+    uIOhook.on("keydown", (e) => {
+        push({
             keydown: e.keycode.toString(),
         });
     });
 
     uIOhook.on("keyup", (e) => {
-        keys.push({
-            time: performance.now(),
+        push({
             keyup: e.keycode.toString(),
         });
     });
@@ -33,28 +68,58 @@ function initKeys() {
     const map = { 1: 0, 2: 1, 3: 2 } as const;
 
     uIOhook.on("mousedown", (e) => {
-        keys.push({
-            time: performance.now(),
+        push({
             mousedown: map[e.button as number],
         });
     });
     uIOhook.on("mouseup", (e) => {
-        keys.push({
-            time: performance.now(),
+        push({
             mouseup: map[e.button as number],
         });
     });
 
     uIOhook.on("wheel", (e) => {
         console.log(e.direction, e.rotation);
-        keys.push({ time: performance.now(), wheel: true });
+        push({ wheel: true });
     });
 
     uIOhook.on("mousemove", (e) => {
-        keys.push({ time: performance.now(), posi: { x: e.x, y: e.y } });
+        mousePosi = { x: e.x, y: e.y };
+        push({});
     });
 
     uIOhook.start();
+}
+
+function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
+    const startTime = keys.find((k) => k.isStart).time;
+    const newKeys = keys
+        .map((i) => ({ ...i, time: i.time - startTime }))
+        .filter((i) => i.time > 0);
+
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const key = newKeys.filter(
+            (k) =>
+                k.time * 1000 >= chunk.timestamp &&
+                k.time * 1000 <
+                    (chunk[i + 1]?.timestamp || Number.POSITIVE_INFINITY),
+        );
+        if (key.length === 0) continue;
+        const w = v.width / 3;
+        const h = v.height / 3;
+        const x = Math.max(0, Math.min(v.width - w, key[0].posi.x - w / 2));
+        const y = Math.max(0, Math.min(v.height - h, key[0].posi.y - h / 2));
+        const clip: clip = {
+            point: key[0].posi,
+            rect: { x, y, w: x + w, h: y + h },
+            time: chunk.timestamp,
+            isRemoved: false,
+        };
+        clipList.set(chunk.timestamp, clip);
+    }
+    transformedClip = structuredClone(clipList);
+    console.log(clipList);
 }
 
 async function transform() {
@@ -71,14 +136,15 @@ async function transform() {
     });
     const encoder = new VideoEncoder({
         output: (c: EncodedVideoChunk) => {
+            // todo 这里有点难获取id，时间戳也是不保证的
             transformed.push(c);
         },
         error: (e) => console.error("Encode error:", e),
     });
     encoder.configure({
         codec: "vp8",
-        width: 100, // todo 自适应分辨率/用户设定分辨率
-        height: 100,
+        width: outputV.width,
+        height: outputV.height,
         framerate: 30,
     });
     decoder.configure({
@@ -92,14 +158,22 @@ async function transform() {
 }
 
 function transformX(frame: VideoFrame) {
-    const canvas = new OffscreenCanvas(
-        frame.displayWidth / 2,
-        frame.displayHeight / 2,
-    );
+    const clip = clipList.get(frame.timestamp);
+    const canvas = new OffscreenCanvas(v.width, v.height);
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(frame, 0, 0);
+    ctx.drawImage(
+        frame,
+        clip.rect.x,
+        clip.rect.y,
+        clip.rect.w,
+        clip.rect.h,
+        0,
+        0,
+        v.width,
+        v.height,
+    );
     const nFrame = new VideoFrame(canvas, {
-        timestamp: frame.timestamp,
+        timestamp: clip.time,
     });
     frame.close();
     return nFrame;
@@ -185,6 +259,8 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         height: videoTrack.getSettings().height,
         framerate: 30,
     });
+    v.width = videoTrack.getSettings().width;
+    v.height = videoTrack.getSettings().height;
 
     // @ts-ignore
     const reader = new MediaStreamTrackProcessor({
@@ -196,7 +272,7 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
     const encodedChunks = [];
 
     initKeys();
-    keys.push({ time: performance.now(), isStart: true });
+    keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
 
     setTimeout(async () => {
         console.log("stop");
@@ -208,7 +284,7 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         console.log(encodedChunks);
         console.log(keys);
         src = encodedChunks;
-        transformed = encodedChunks;
+        mapKeysOnFrames(encodedChunks);
         save();
     }, 3 * 1000);
 
