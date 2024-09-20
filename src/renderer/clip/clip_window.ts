@@ -2853,19 +2853,23 @@ for (const i of [
         ele("option").attr({ innerText: i.t, value: i.value }),
     );
 }
-toolBarEl.els.longm.add([
-    ele("option").attr({ innerText: "长截屏 y", value: "y" }),
-    ele("option").attr({ innerText: "广截屏 xy", value: "xy" }),
-]);
+toolBarEl.els.longm
+    .add([
+        ele("option").attr({ innerText: "长截屏 y", value: "y" }),
+        ele("option").attr({ innerText: "广截屏 xy", value: "xy" }),
+    ])
+    .sv(store.get("广截屏.方向"));
 toolBarEl.els.longm.on("change", () => {
     store.set("广截屏.方向", toolBarEl.els.longm.gv);
     longFX = toolBarEl.els.longm.gv;
 });
 
-toolBarEl.els.recordm.add([
-    ele("option").attr({ innerText: "normal", value: "normal" }),
-    ele("option").attr({ innerText: "super", value: "super" }),
-]);
+toolBarEl.els.recordm
+    .add([
+        ele("option").attr({ innerText: "normal", value: "normal" }),
+        ele("option").attr({ innerText: "super", value: "super" }),
+    ])
+    .sv(store.get("录屏.模式"));
 toolBarEl.els.recordm.on("change", () => {
     store.set("录屏.模式", toolBarEl.els.recordm.gv);
 });
