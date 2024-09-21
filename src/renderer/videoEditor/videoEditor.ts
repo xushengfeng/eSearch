@@ -17,12 +17,20 @@ const clipList: Map<
 
 let transformedClip: Map<number, clip> = new Map();
 
+const removedFrames: Map<number, boolean> = new Map();
+
+const eventList: Map<number, eventX> = new Map();
+
+// 关键帧
 type clip = {
     time: number;
     rect: { x: number; y: number; w: number; h: number };
+};
+
+type eventX = {
+    time: number;
     point: { x: number; y: number };
     // todo key events
-    isRemoved?: boolean;
 };
 
 // todo 自适应分辨率/用户设定分辨率
@@ -138,12 +146,14 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const x = Math.max(0, Math.min(v.width - w, key[0].posi.x - w / 2));
         const y = Math.max(0, Math.min(v.height - h, key[0].posi.y - h / 2));
         const clip: clip = {
-            point: key[0].posi,
             rect: { x, y, w: x + w, h: y + h },
             time: chunk.timestamp,
-            isRemoved: false,
         };
         clipList.set(chunk.timestamp, clip);
+        eventList.set(chunk.timestamp, {
+            time: chunk.timestamp,
+            point: key[0].posi,
+        });
     }
     transformedClip = structuredClone(clipList);
     console.log(clipList);
@@ -184,23 +194,54 @@ async function transform() {
     await decoder.flush();
 }
 
+function getClip(n: number) {
+    if (transformedClip.has(n) && !removedFrames.has(n))
+        return transformedClip.get(n).rect;
+    const keys = Array.from(transformedClip.keys()).filter(
+        (k) => !removedFrames.has(k),
+    );
+    const i = keys.findIndex((k) => transformedClip.get(k).time > n);
+
+    function get(min: clip, t: number, max: clip) {
+        const v = (t - min.time) / (max.time - min.time); // todo 非线性插值
+        return {
+            x: v * min.rect.x + (1 - v) * max.rect.x,
+            y: v * min.rect.y + (1 - v) * max.rect.y,
+            w: v * min.rect.w + (1 - v) * max.rect.w,
+            h: v * min.rect.h + (1 - v) * max.rect.h,
+        };
+    }
+
+    if (i === -1)
+        return get(
+            transformedClip.get(keys[0]),
+            n,
+            transformedClip.get(keys[0]),
+        );
+    return get(
+        transformedClip.get(keys[i]),
+        n,
+        transformedClip.get(keys[i + 1] || keys[i]),
+    );
+}
+
 function transformX(frame: VideoFrame) {
-    const clip = clipList.get(frame.timestamp);
+    const clip = getClip(frame.timestamp);
     const canvas = new OffscreenCanvas(v.width, v.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(
         frame,
-        clip.rect.x,
-        clip.rect.y,
-        clip.rect.w,
-        clip.rect.h,
+        clip.x,
+        clip.y,
+        clip.w,
+        clip.h,
         0,
         0,
         v.width,
         v.height,
     );
     const nFrame = new VideoFrame(canvas, {
-        timestamp: clip.time,
+        timestamp: frame.timestamp,
     });
     frame.close();
     return nFrame;
