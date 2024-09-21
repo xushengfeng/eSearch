@@ -1525,7 +1525,6 @@ ipcMain.on("record", (_event, type, arg) => {
 function createSuperRecorderWindow() {
     const recorder = new BrowserWindow({
         icon: theIcon,
-        transparent: true,
         show: false,
         webPreferences: {
             nodeIntegration: true,
@@ -2323,6 +2322,9 @@ ipcMain.on("window", (event, type: string, v) => {
     }
     if (type === "top") {
         win.setAlwaysOnTop(v);
+    }
+    if (type === "show") {
+        win.show();
     }
 });
 

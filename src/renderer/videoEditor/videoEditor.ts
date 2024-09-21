@@ -27,8 +27,8 @@ type clip = {
 
 // todo 自适应分辨率/用户设定分辨率
 const outputV = {
-    width: 100,
-    height: 100,
+    width: 1920 / 2,
+    height: 1080 / 2,
 };
 
 // 原始分辨率
@@ -38,7 +38,34 @@ const v = {
     height: 100,
 };
 
+let isPlaying = false;
+let playI = 0;
+let playTime = 0;
+
 const canvas = ele("canvas").el;
+
+const playDecoder = new VideoDecoder({
+    output: (frame: VideoFrame) => {
+        // todo 正常速度播放
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(
+            frame,
+            0,
+            0,
+            frame.codedWidth,
+            frame.codedHeight,
+            0,
+            0,
+            outputV.width,
+            outputV.height,
+        );
+        frame.close();
+    },
+    error: (e) => console.error("Decode error:", e),
+});
+playDecoder.configure({
+    codec: "vp8",
+});
 
 const timeLineMain = view("x");
 const timeLineFrame = view("x");
@@ -179,6 +206,31 @@ function transformX(frame: VideoFrame) {
     return nFrame;
 }
 
+async function playId(i: number) {
+    // todo 修复乱码
+    for (let n = playI + 1; n < i; n++) {
+        playDecoder.decode(transformed[n]);
+    }
+    playDecoder.decode(transformed[i]);
+    playI = i;
+}
+
+function play() {
+    requestAnimationFrame(() => {
+        const dTime = (performance.now() - playTime) * 1000;
+
+        if (isPlaying) {
+            for (let i = playI; i < transformed.length; i++) {
+                if (transformed[i].timestamp > dTime) {
+                    playId(i);
+                    break;
+                }
+            }
+            play();
+        }
+    });
+}
+
 async function save() {
     await transform();
 
@@ -285,7 +337,7 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         console.log(keys);
         src = encodedChunks;
         mapKeysOnFrames(encodedChunks);
-        save();
+        ipcRenderer.send("window", "show");
     }, 3 * 1000);
 
     while (true) {
@@ -299,3 +351,17 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         }
     }
 });
+
+canvas.onclick = async () => {
+    await transform();
+    isPlaying = true;
+    playTime = performance.now();
+    canvas.width = outputV.width;
+    canvas.height = outputV.height;
+    playI = 0;
+    await playDecoder.flush();
+    playId(0);
+    play();
+};
+
+document.body.appendChild(canvas);
