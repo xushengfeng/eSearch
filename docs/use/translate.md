@@ -164,14 +164,16 @@ URL：`http://127.0.0.1:8765`
 
 翻译引擎类型均为“ChatGPT”，记得设置 model。
 
-[SiliconCloud](https://siliconflow.cn/zh-cn/siliconcloud)
+[SiliconCloud](https://siliconflow.cn/zh-cn/siliconcloud)，需要注册
 
 url: `https://api.siliconflow.cn/v1/chat/completions`
 
-[GPT_API_free](https://github.com/chatanywhere/GPT_API_free)
+[GPT_API_free](https://github.com/chatanywhere/GPT_API_free)，需要 GitHub 账号绑定
 
 url: `https://api.chatanywhere.tech/v1/chat/completions`
 
-### 其他免费翻译服务
+## 其他免费翻译服务
+
+谷歌翻译、Yandex 翻译、腾讯交互式翻译，直接在软件设置中添加翻译器，测试通过即可。
 
 [DeeplX](https://deeplx.owo.network/)
