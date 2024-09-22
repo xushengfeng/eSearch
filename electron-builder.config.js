@@ -38,6 +38,14 @@ const beforePack = async () => {
             { rejectUnauthorized: false },
         );
     }
+    if (!fs.existsSync("./assets/onnx/inpaint")) {
+        fs.mkdirSync("./assets/onnx/inpaint", { recursive: true });
+        await download(
+            "https://github.com/xushengfeng/eSearch/releases/download/13.1.6/migan_pipeline_v2.onnx",
+            "./assets/onnx/inpaint/",
+            { rejectUnauthorized: false },
+        );
+    }
     if (process.platform === "win32" && !fs.existsSync("./lib/win_rect.exe")) {
         fs.writeFileSync(
             "./lib/win_rect.exe",

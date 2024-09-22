@@ -18,6 +18,7 @@ const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
 ) as typeof import("electron");
 const { writeFileSync } = require("node:fs") as typeof import("fs");
+const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
 
@@ -450,7 +451,11 @@ setConfig();
 controls.els.magicPen.on("click", async () => {
     if (!maskOrt) {
         maskOrt = await ort.InferenceSession.create(
-            "/home/xsf/Downloads/migan_pipeline_v2.onnx",
+            join(
+                __dirname,
+                "../../assets/onnx/inpaint",
+                "migan_pipeline_v2.onnx",
+            ),
         );
     }
     const w = photo.naturalWidth;
