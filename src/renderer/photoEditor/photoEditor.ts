@@ -18,6 +18,7 @@ const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
 ) as typeof import("electron");
 const { writeFileSync } = require("node:fs") as typeof import("fs");
+const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 
 import add_svg from "../assets/icons/add.svg";
 import close_svg from "../assets/icons/close.svg";
@@ -29,6 +30,12 @@ function icon(src: string) {
 }
 
 initStyle(store);
+
+const maskPens: Map<string, { w: number; ps: { x: number; y: number }[] }> =
+    new Map();
+
+let maskOrt: Awaited<ReturnType<typeof ort.InferenceSession.create>> | null =
+    null;
 
 const pz = store.get("高级图片编辑.配置");
 const defaultConfig: typeof styleData = {
@@ -145,6 +152,11 @@ const controls = frame("sidebar", {
             _: view("x"),
             px: input("number"),
             py: input("number"),
+        },
+        _4: txt("魔法消除"),
+        magic: {
+            _: view("x"),
+            magicPen: button("魔法笔"),
         },
     },
     export: {
@@ -433,6 +445,70 @@ for (const key in configMap) {
 setSelect(store.get("高级图片编辑.默认配置"));
 
 setConfig();
+
+controls.els.magicPen.on("click", async () => {
+    const w = photo.naturalWidth;
+    const h = photo.naturalHeight;
+    const imputImg = ele("canvas")
+        .attr({ width: w, height: h })
+        .el.getContext("2d");
+    imputImg.drawImage(photo, 0, 0);
+    const imgData = imputImg.getImageData(0, 0, w, h);
+    const maskImg = new OffscreenCanvas(w, h);
+    const maskCtx = maskImg.getContext("2d");
+    maskCtx.fillStyle = "#fff";
+    maskCtx.fillRect(0, 0, w, h);
+    maskCtx.fillStyle = "#000";
+    maskCtx.fillRect(0, 0, 100, 100);
+    const mask = maskCtx.getImageData(0, 0, w, h);
+
+    if (!maskOrt) {
+        maskOrt = await ort.InferenceSession.create(
+            "/home/xsf/Downloads/migan_pipeline_v2.onnx",
+        );
+    }
+    const r = new Uint8Array(w * h);
+    const g = new Uint8Array(w * h);
+    const b = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+        r[i] = imgData.data[4 * i];
+        g[i] = imgData.data[4 * i + 1];
+        b[i] = imgData.data[4 * i + 2];
+    }
+    const input = new ort.Tensor("uint8", [...r, ...g, ...b], [1, 3, h, w]);
+    const m = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+        m[i] = mask.data[4 * i];
+    }
+    const maskInput = new ort.Tensor("uint8", m, [1, 1, h, w]);
+    const output = await maskOrt.run({
+        [maskOrt.inputNames[0]]: input,
+        [maskOrt.inputNames[1]]: maskInput,
+    });
+    console.log(output);
+    const outputData0 = output[maskOrt.outputNames[0]].data as Uint8Array;
+    const outputData = new ImageData(w, h);
+    const wh = w * h;
+    for (let i = 0; i < w * h; i++) {
+        outputData.data[4 * i] = outputData0[i];
+        outputData.data[4 * i + 1] = outputData0[i + wh];
+        outputData.data[4 * i + 2] = outputData0[i + wh * 2];
+        outputData.data[4 * i + 3] = 255;
+    }
+    // imagedata to image element
+    const outputImg = new Image();
+    outputImg.onload = () => {
+        photo = outputImg;
+        updatePreview();
+    };
+    const outputCanvas = ele("canvas").attr({
+        width: w,
+        height: h,
+    });
+    const outputCtx = outputCanvas.el.getContext("2d");
+    outputCtx.putImageData(outputData, 0, 0);
+    outputImg.src = outputCanvas.el.toDataURL("image/png", 1);
+});
 
 ipcRenderer.on("img", (_e, data: string) => {
     const img = new Image();
