@@ -8,6 +8,7 @@ import {
     label,
     pureStyle,
     select,
+    trackPoint,
     txt,
     view,
 } from "dkh-ui";
@@ -76,7 +77,7 @@ function getStyleData(id: string) {
     return data;
 }
 
-const preview = view().style({ margin: "auto" });
+const preview = view().style({ margin: "auto", position: "relative" });
 const controls = frame("sidebar", {
     _: view("y"),
     configs: {
@@ -157,8 +158,12 @@ const controls = frame("sidebar", {
         },
         _4: txt("魔法消除"),
         magic: {
-            _: view("x"),
-            magicPen: button("魔法笔"),
+            _: view("y"),
+            magicPen: label([check(""), "魔法笔"]),
+            magicPenList: view("y").style({
+                "max-height": "200px",
+                "overflow-y": "auto",
+            }),
         },
     },
     export: {
@@ -257,8 +262,10 @@ function gColors() {
 }
 
 const canvas = ele("canvas");
+const magicPenPreview = ele("canvas");
+const magicPenPreviewCtx = magicPenPreview.el.getContext("2d");
 
-preview.add(canvas);
+preview.add([canvas, magicPenPreview]);
 
 const configMap: Partial<
     Record<
@@ -289,6 +296,7 @@ const configMap: Partial<
     py: { path: "padding.y", parse: Number },
 };
 
+let photoSrc: HTMLImageElement | null = null;
 let photo: HTMLImageElement | null = null;
 
 function setConfig() {
@@ -339,6 +347,13 @@ function updatePreview() {
 
         canvas.el.width = finalWidth;
         canvas.el.height = finalHeight;
+
+        magicPenPreview
+            .style({
+                top: 0,
+                position: "absolute",
+            })
+            .attr({ width: finalWidth, height: finalHeight });
 
         if (outerRadius) {
             ctx.beginPath();
@@ -424,6 +439,66 @@ function updatePreview() {
     }
 }
 
+async function magicPen() {
+    if (!maskOrt) {
+        maskOrt = await ort.InferenceSession.create(
+            join(
+                __dirname,
+                "../../assets/onnx/inpaint",
+                "migan_pipeline_v2.onnx",
+            ),
+        );
+    }
+    const w = photo.naturalWidth;
+    const h = photo.naturalHeight;
+
+    const outW = magicPenPreview.el.width;
+    const outH = magicPenPreview.el.height;
+    const maskImg = new OffscreenCanvas(outW, outH);
+    const maskCtx = maskImg.getContext("2d");
+    maskCtx.clearRect(0, 0, outW, outH);
+    maskCtx.fillStyle = "#fff";
+    maskCtx.fillRect(0, 0, outW, outH);
+    maskCtx.lineCap = "round";
+    maskCtx.lineJoin = "round";
+    maskCtx.strokeStyle = "#000";
+    console.log("magicPen", maskPens);
+
+    for (const x of maskPens.values()) {
+        maskCtx.lineWidth = x.w;
+        maskCtx.moveTo(x.ps[0].x, x.ps[0].y);
+        for (const p of x.ps) {
+            maskCtx.lineTo(p.x, p.y);
+        }
+        maskCtx.stroke();
+    }
+    const mask = maskCtx.getImageData(
+        styleData["padding.x"],
+        styleData["padding.y"],
+        w,
+        h,
+    );
+    const outputData = await removeobj({
+        ort,
+        session: maskOrt,
+        img: photoSrc,
+        mask: mask,
+    });
+    // imagedata to image element
+    const outputImg = new Image();
+    outputImg.onload = () => {
+        photo = outputImg;
+        updatePreview();
+    };
+    const outputCanvas = ele("canvas").attr({
+        width: w,
+        height: h,
+    });
+    const outputCtx = outputCanvas.el.getContext("2d");
+    outputCtx.putImageData(outputData, 0, 0);
+    outputImg.src = outputCanvas.el.toDataURL("image/png", 1);
+}
+
 pureStyle();
 
 document.body.appendChild(controls.el.el);
@@ -448,50 +523,69 @@ setSelect(store.get("高级图片编辑.默认配置"));
 
 setConfig();
 
-controls.els.magicPen.on("click", async () => {
-    if (!maskOrt) {
-        maskOrt = await ort.InferenceSession.create(
-            join(
-                __dirname,
-                "../../assets/onnx/inpaint",
-                "migan_pipeline_v2.onnx",
-            ),
+trackPoint(magicPenPreview, {
+    start: (e) => {
+        if (!controls.els.magicPen.gv) return null;
+        const id = crypto.randomUUID();
+        maskPens.set(id, {
+            ps: [],
+            w: 10,
+        });
+        const ctx = magicPenPreviewCtx;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "#0005";
+        const x =
+            (e.offsetX / magicPenPreview.el.offsetWidth) *
+            magicPenPreview.el.width;
+        const y =
+            (e.offsetY / magicPenPreview.el.offsetHeight) *
+            magicPenPreview.el.height;
+        ctx.moveTo(x, y);
+        return {
+            x: x,
+            y: y,
+            data: id,
+        };
+    },
+    ing: (_, __, e, id) => {
+        const x =
+            (e.offsetX / magicPenPreview.el.offsetWidth) *
+            magicPenPreview.el.width;
+        const y =
+            (e.offsetY / magicPenPreview.el.offsetHeight) *
+            magicPenPreview.el.height;
+        maskPens.get(id).ps.push({ x, y });
+        magicPenPreviewCtx.lineTo(x, y);
+        magicPenPreviewCtx.stroke();
+        return id;
+    },
+    end: (_, __, id) => {
+        magicPenPreviewCtx.clearRect(
+            0,
+            0,
+            magicPenPreview.el.width,
+            magicPenPreview.el.height,
         );
-    }
-    const w = photo.naturalWidth;
-    const h = photo.naturalHeight;
-    const maskImg = new OffscreenCanvas(w, h);
-    const maskCtx = maskImg.getContext("2d");
-    maskCtx.fillStyle = "#fff";
-    maskCtx.fillRect(0, 0, w, h);
-    maskCtx.fillStyle = "#000";
-    maskCtx.fillRect(0, 0, 100, 100);
-    const mask = maskCtx.getImageData(0, 0, w, h);
-    const outputData = await removeobj({
-        ort,
-        session: maskOrt,
-        img: photo,
-        mask: mask,
-    });
-    // imagedata to image element
-    const outputImg = new Image();
-    outputImg.onload = () => {
-        photo = outputImg;
-        updatePreview();
-    };
-    const outputCanvas = ele("canvas").attr({
-        width: w,
-        height: h,
-    });
-    const outputCtx = outputCanvas.el.getContext("2d");
-    outputCtx.putImageData(outputData, 0, 0);
-    outputImg.src = outputCanvas.el.toDataURL("image/png", 1);
+        const items = view("x").add([
+            button("x").on("click", () => {
+                maskPens.delete(id);
+                items.remove();
+                magicPen();
+            }),
+            // todo hover preview
+        ]);
+        controls.els.magicPenList.add(items);
+        magicPen();
+    },
 });
 
 ipcRenderer.on("img", (_e, data: string) => {
     const img = new Image();
     img.onload = () => {
         photo = img;
+        photoSrc = img;
         updatePreview();
     };
     img.src = data;
