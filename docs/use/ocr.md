@@ -64,28 +64,29 @@ OCR把他们视为5个段
 
 目前 paddleOCR 还预训练了多种文字识别模型：
 
-    - 中英混合
-    - 中文繁体
-    - 英文
-    - 韩文
-    - 日文
-    - 泰卢固文
-    - 卡纳达文
-    - 泰米尔文
-    - 拉丁文
-    - 阿拉伯字母
-    - 斯拉夫字母
-    - 梵文字母
+- 中英混合
+- 中文繁体
+- 英文
+- 韩文
+- 日文
+- 泰卢固文
+- 卡纳达文
+- 泰米尔文
+- 拉丁文
+- 阿拉伯字母
+- 斯拉夫字母
+- 梵文字母
 
-你可以在 [这里](https://esearch-app.netlify.app/ocr.html)下载，网站提供了语言到文字的对应，还可以在 [GitHub](https://github.com/xushengfeng/eSearch-OCR/releases/tag/4.0.0)下载，模型都是一样的，GitHub 上没有文字提示。
+你可以直接在设置里下载，那里提供了文字与语言的对应，比如德语对应拉丁文。下载后自动添加到 OCR 模型列表。
 
-下载完毕后，解压到文件夹里，你会看到 1~3 个文件，打开 设置-OCR 在一旁准备。选择下载的**全部文件**，**一起**拖拽到设置里，添加完毕。之后你可以更改 OCR 名字。
+也可以在[这里](https://esearch-app.netlify.app/ocr.html)下载，都提供了语言到文字的对应，还可以在 [GitHub](https://github.com/xushengfeng/eSearch-OCR/releases/tag/4.0.0)下载，模型都是一样的，GitHub 上没有文字提示。下载完毕后，解压到文件夹里，你会看到 1~3 个文件，打开 设置-OCR 在一旁准备。选择下载的**全部文件**，**一起**拖拽到设置里，添加完毕。之后你可以更改 OCR 名字。
 
 自己训练：
 
 - 使用 paddleocr 训练模型
 - 在[paddle2onnx](https://www.paddlepaddle.org.cn/paddle/visualdl/modelconverter/x2paddle)在线转换为 onnx 模型，也可以使用[Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX)本地转换
 - 将检测模型命名为包含 `det` 的文件，将识别模型命名为包含 `rec` 的文件
+- 全选，拖拽到设置 OCR 的位置，添加完毕。
 
 ## AI 后端
 
