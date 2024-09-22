@@ -14,7 +14,7 @@
 - 如果原来的代码过于抽象，可以联系我一起理解
 - electron 版本一般不会太旧，我还开启了"enable-experimental-web-platform-features"，用些新语法能减轻心智负担
 
-你可以在[开发文档](docs/develop/index.md)查阅更多代码说明。
+你可以在[开发文档](docs/develop/readme.md)查阅更多代码说明。
 
 ## 提交
 

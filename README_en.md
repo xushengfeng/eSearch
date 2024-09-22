@@ -177,7 +177,7 @@ npm run start
 npm run dev
 ```
 
-[Specific technical instructions](docs/develop/index.md)
+[Specific technical instructions](docs/develop/readme.md)
 
 ## Testing
 

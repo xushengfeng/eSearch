@@ -7,7 +7,7 @@
 
 你可以进一步了解 eSearch 的功能
 
-你现在看到的版本可能是与软件相适应的版本，如果你想看最新的文档版本（包括开发版甚至是正在开发的未发布的版本），请访问[GitHub master 分支](https://github.com/xushengfeng/eSearch/blob/master/docs/use/index.md)。
+你现在看到的版本可能是与软件相适应的版本，如果你想看最新的文档版本（包括开发版甚至是正在开发的未发布的版本），请访问[GitHub master 分支](https://github.com/xushengfeng/eSearch/blob/master/docs/use/readme.md)。
 
 在这之前，你需要安装 eSearch，如果有运行库按钮提示，请下载并按照提示安装。
 
@@ -21,7 +21,7 @@
 
 > [!TIP]
 >
-> 如果你很难访问 GitHub，可以使用[Watt Toolkit](https://steampp.net/)进行免费的 GitHub 加速，也可以通过[Gitee](https://gitee.com/xsf-root/eSearch/blob/master/docs/use/index.md#/xsf-root/eSearch/blob/master/docs/use/start.md)访问本文档的镜像。
+> 如果你很难访问 GitHub，可以使用[Watt Toolkit](https://steampp.net/)进行免费的 GitHub 加速，也可以通过[Gitee](https://gitee.com/xsf-root/eSearch/blob/master/docs/use/readme.md)访问本文档的镜像。
 
 > [!NOTE]
 >
