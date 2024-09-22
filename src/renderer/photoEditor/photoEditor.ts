@@ -447,6 +447,11 @@ async function magicPen() {
                 "../../assets/onnx/inpaint",
                 "migan_pipeline_v2.onnx",
             ),
+            {
+                executionProviders: [
+                    { name: store.get("AI.运行后端") || "cpu" },
+                ],
+            },
         );
     }
     const w = photo.naturalWidth;
