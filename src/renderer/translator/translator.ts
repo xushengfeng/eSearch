@@ -33,6 +33,7 @@ if (transE.length > 0) {
     xtranslator.e[x.type].setKeys(x.keys);
     const lan = store.get("屏幕翻译.语言");
     translateE = (input: string[]) =>
+        // @ts-ignore
         xtranslator.e[x.type].run(input, lan.from, lan.to);
 }
 

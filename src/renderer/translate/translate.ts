@@ -118,6 +118,7 @@ function translate(_text: string) {
 function translateI(text: string, i: (typeof fyq)[0]) {
     // @ts-ignore
     xtranslator.e[i.type].setKeys(i.keys);
+    // @ts-ignore
     return xtranslator.e[i.type].run(text, lansFrom.el.value, lansTo.el.value);
 }
 
