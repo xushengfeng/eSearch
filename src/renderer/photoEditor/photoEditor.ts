@@ -198,12 +198,21 @@ const controls = frame("sidebar", {
                 .attr({ max: "1", min: "0", step: "0.1" })
                 .sv("1"),
             phScale: {
-                _: view("x").style({ gap: "var(--o-padding)" }),
+                _: view("x").style({
+                    gap: "var(--o-padding)",
+                    "flex-wrap": "wrap",
+                }),
                 _s1: button("3/4").on("click", () => scale(0.75)),
                 _s2: button("1/2").on("click", () => scale(0.5)),
                 _s3: button("1/3").on("click", () => scale(0.333)),
                 _s4: button("1/4").on("click", () => scale(0.25)),
                 _s5: button("1/5").on("click", () => scale(0.2)),
+                _autoW: button("自动宽度").on("click", () => {
+                    autoScale("width");
+                }),
+                _autoH: button("自动高度").on("click", () => {
+                    autoScale("height");
+                }),
             },
             _phWH: {
                 _: view("x").style({ gap: "var(--o-padding)" }),
@@ -266,6 +275,18 @@ function setBgUI(type: (typeof styleData)["bgType"]) {
 function scale(num: number) {
     controls.els.photoH.sv(String(Math.round(canvas.el.height * num)));
     controls.els.photoW.sv(String(Math.round(canvas.el.width * num)));
+}
+
+function autoScale(type: "width" | "height") {
+    const sw = canvas.el.width;
+    const sh = canvas.el.height;
+    const wEl = controls.els.photoW;
+    const hEl = controls.els.photoH;
+    if (type === "width") {
+        wEl.sv(String(Math.round((Number(hEl.gv) / sh) * sw)));
+    } else {
+        hEl.sv(String(Math.round((Number(wEl.gv) / sw) * sh)));
+    }
 }
 
 function getImg(): Electron.NativeImage;
@@ -430,8 +451,12 @@ function updatePreview() {
         const finalWidth = photoWidth + 2 * padX;
         const finalHeight = photoHeight + 2 * padY;
 
-        controls.els.photoW.sv(String(finalWidth));
-        controls.els.photoH.sv(String(finalHeight));
+        controls.els.photoW
+            .sv(finalWidth.toString())
+            .attr({ max: finalWidth.toString() });
+        controls.els.photoH
+            .sv(finalHeight.toString())
+            .attr({ max: finalHeight.toString() });
 
         canvas.el.width = finalWidth;
         canvas.el.height = finalHeight;
