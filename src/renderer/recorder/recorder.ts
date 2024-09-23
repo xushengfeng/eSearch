@@ -2,6 +2,7 @@
 import rootInit from "../root/root";
 import { select } from "dkh-ui";
 import "../../../lib/template2.js";
+import { t, lan } from "../../../lib/translate/translate";
 import pauseSvg from "../assets/icons/pause.svg";
 import recumeSvg from "../assets/icons/recume.svg";
 
@@ -23,6 +24,8 @@ type timeEl = {
 
 import store from "../../../lib/store/renderStore";
 rootInit(store);
+
+lan(store.get("语言.语言"));
 
 let recorder: MediaRecorder;
 
@@ -895,6 +898,12 @@ const prText = {
     },
 };
 
+for (const i in prText) {
+    for (const j in prText[i]) {
+        prText[i][j] = t(prText[i][j]);
+    }
+}
+
 function setFFState(type: keyof typeof prEl, n: number, state: prst) {
     ffprocess[type][n].finish = state;
     if (
@@ -927,7 +936,7 @@ function updataPrEl(pr: typeof ffprocess) {
                 stI[pr[key][j].finish]++;
             }
             if (stI.err > 0) {
-                prEl[key].innerText = `${prText.error[key]} 点击重试`;
+                prEl[key].innerText = `${prText.error[key]} ${t("点击重试")}`;
                 prEl[key].classList.add("pro_error");
                 prEl[key].onclick = () => {
                     for (const i in pr[key]) {
@@ -951,7 +960,7 @@ function updataPrEl(pr: typeof ffprocess) {
                 if (key === "ts") {
                     isTsOk = true;
                     if (!savePath) {
-                        prEl[key].innerText += " 等待保存";
+                        prEl[key].innerText += ` ${t("等待保存")}`;
                     }
                 }
             } else {
