@@ -208,6 +208,7 @@ const controls = frame("sidebar", {
                     gap: "var(--o-padding)",
                     "flex-wrap": "wrap",
                 }),
+                _s0: button("原始").on("click", () => scale(1)),
                 _s1: button("3/4").on("click", () => scale(0.75)),
                 _s2: button("1/2").on("click", () => scale(0.5)),
                 _s3: button("1/3").on("click", () => scale(0.333)),
