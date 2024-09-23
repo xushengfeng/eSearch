@@ -1,4 +1,4 @@
-import { button, frame, image, input, textarea, view } from "dkh-ui";
+import { button, frame, image, input, pureStyle, textarea, view } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 
 type aiData = {
@@ -159,6 +159,8 @@ fileInputEl.on("change", async (e) => {
         newChatItem(id);
     };
 });
+
+pureStyle();
 
 document.body.append(
     view("y")
