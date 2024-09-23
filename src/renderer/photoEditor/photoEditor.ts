@@ -667,7 +667,7 @@ trackPoint(magicPenPreview, {
             data: id,
         };
     },
-    ing: (_, __, e, id) => {
+    ing: (_, e, { startData: id }) => {
         const x =
             (e.offsetX / magicPenPreview.el.offsetWidth) *
             magicPenPreview.el.width;
@@ -677,9 +677,8 @@ trackPoint(magicPenPreview, {
         maskPens.get(id).ps.push({ x, y });
         magicPenPreviewCtx.lineTo(x, y);
         magicPenPreviewCtx.stroke();
-        return id;
     },
-    end: (_, __, id) => {
+    end: (_, { startData: id }) => {
         magicPenPreviewCtx.clearRect(
             0,
             0,

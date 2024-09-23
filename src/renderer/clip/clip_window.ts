@@ -172,10 +172,10 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
             if (type === "edit") return null;
             return { x: 0, y: 0, data: value };
         },
-        ing: (p, _, _e, oldV) => {
+        ing: (p, _e, { startData: oldV }) => {
             setV(oldV + (p.x / 200) * range);
         },
-        end(moved, e) {
+        end(e, { moved }) {
             if (!moved) {
                 if (e.button === 2 && valueHistory.length) {
                     setV(valueHistory.pop());
