@@ -164,6 +164,7 @@ export interface setting {
     AI: {
         运行后端: "cpu" | "cuda" | "coreml" | "directml";
         在线模型: {
+            name: string;
             type: "chatgpt";
             url: string;
             key: string;
