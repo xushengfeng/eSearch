@@ -482,8 +482,7 @@ class find {
         // 判断是找文字还是正则
         if (regex) {
             try {
-                // biome-ignore lint: regex解析
-                text = eval(`/${stext}/g`);
+                text = new RegExp(stext, "g");
                 document.getElementById("find_input").style.outline = "none";
             } catch (error) {
                 document.getElementById("find_input").style.outline =
