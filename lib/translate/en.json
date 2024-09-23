@@ -5,6 +5,7 @@
     "187632": "Keep screenshot window",
     "200053": "Dark",
     "226064": "Refresh",
+    "256264": "Waiting to Merge",
     "294128": "Japanese",
     "296773": "Conversion will be very slow",
     "311887": "X-axis",
@@ -524,5 +525,18 @@
     "49da6d": "Arabic script",
     "cf241a": "Slavic script",
     "1e33e5": "Sanskrit",
-    "c4e7af": "Will be saved to:"
+    "c4e7af": "Will be saved to:",
+    "80266c": "Click to Retry",
+    "b90a9d": "Waiting to Save",
+    "a531ce": "Waiting to Convert",
+    "a71528": "Waiting to Crop",
+    "ba9f14": "Converting",
+    "80ba9c": "Cropping",
+    "97ac97": "Merging",
+    "622eec": "Conversion Complete",
+    "91cc9c": "Cropping Complete",
+    "2859dc": "Merging Complete",
+    "b032a3": "Conversion Failed",
+    "1ddda3": "Cropping Failed",
+    "3500bb": "Merging Failed"
 }

@@ -5,6 +5,7 @@
     "187632": "Conserver la fenêtre de capture d'écran",
     "200053": "Dark",
     "226064": "Rafraîchir",
+    "256264": "En attente de fusion",
     "294128": "Japonais",
     "296773": "La vitesse sera très lente lors de la conversion",
     "311887": "Axe x",
@@ -524,5 +525,18 @@
     "49da6d": "Alphabet arabe",
     "cf241a": "Alphabet cyrillique",
     "1e33e5": "Alphabet devanagari",
-    "c4e7af": "Sera enregistré dans :"
+    "c4e7af": "Sera enregistré dans :",
+    "80266c": "Cliquez pour réessayer",
+    "b90a9d": "En attente de sauvegarde",
+    "a531ce": "En attente de conversion",
+    "a71528": "En attente de découpe",
+    "ba9f14": "Conversion en cours",
+    "80ba9c": "Découpe en cours",
+    "97ac97": "Fusion en cours",
+    "622eec": "Conversion terminée",
+    "91cc9c": "Découpe terminée",
+    "2859dc": "Fusion terminée",
+    "b032a3": "Échec de la conversion",
+    "1ddda3": "Échec de la découpe",
+    "3500bb": "Échec de la fusion"
 }
