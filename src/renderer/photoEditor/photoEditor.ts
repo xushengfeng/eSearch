@@ -159,7 +159,7 @@ const controls = frame("sidebar", {
         _4: txt("魔法消除"),
         magic: {
             _: view("y"),
-            magicPen: label([check(""), "魔法笔"]),
+            magicPen: label([check(""), "魔法橡皮"]),
             magicPenList: view("y").style({
                 "max-height": "200px",
                 "overflow-y": "auto",
