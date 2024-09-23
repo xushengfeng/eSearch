@@ -87,7 +87,13 @@ const preview = view().style({
     height: "100%",
 });
 const controls = frame("sidebar", {
-    _: view("y"),
+    _: view("y").style({
+        width: "200px",
+        padding: "var(--o-padding)",
+        gap: "var(--o-padding)",
+        "overflow-y": "auto",
+        "overflow-x": "hidden",
+    }),
     configs: {
         _: view("x").style({ "--b-button": "24px" }),
         select: select([]).on("input", (_, el) => {

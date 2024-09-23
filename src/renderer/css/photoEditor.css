@@ -4,12 +4,6 @@ body {
     background: var(--bg);
 }
 
-#sidebar_sidebar {
-    width: 200px;
-    padding: var(--o-padding);
-    gap: var(--o-padding);
-}
-
 canvas {
     max-width: 100%;
     max-height: 100%;
