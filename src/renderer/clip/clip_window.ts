@@ -2848,6 +2848,7 @@ for (const i of [
     { value: "baidu", t: "百度" },
     { value: "yandex", t: "Yandex" },
     { value: "google", t: "Google" },
+    { value: "ai", t: "AI" },
 ]) {
     toolBarEl.els.searchE.add(
         ele("option").attr({ innerText: i.t, value: i.value }),

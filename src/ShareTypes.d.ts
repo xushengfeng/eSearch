@@ -163,6 +163,12 @@ export interface setting {
     离线OCR: [string, string, string, string][];
     AI: {
         运行后端: "cpu" | "cuda" | "coreml" | "directml";
+        在线模型: {
+            type: "chatgpt";
+            url: string;
+            key: string;
+            config: Record<string, unknown>;
+        }[];
     };
     在线OCR: {
         baidu: {

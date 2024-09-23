@@ -46,6 +46,10 @@ export default defineConfig({
                         __dirname,
                         "src/renderer/videoEditor.html",
                     ),
+                    aiVision: path.resolve(
+                        __dirname,
+                        "src/renderer/aiVision.html",
+                    ),
                 },
             },
             assetsInlineLimit: 0,

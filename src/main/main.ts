@@ -2005,7 +2005,7 @@ async function createMainWindow(op: MainWinType) {
         mainWindow.webContents.send("text", windowName, op);
 
         if (op.type === "image" && op.arg0 === "ai") {
-            createBrowser(windowName, "http://ai-v.netlify.app").then((c) => {
+            createBrowser(windowName, "./aiVision.html").then((c) => {
                 c?.executeJavaScript(`setImg("${op.content}")`);
             });
         }
@@ -2104,7 +2104,7 @@ async function createBrowser(windowName: number, url: string) {
     minViews(mainWindow);
     const view = new Date().getTime();
     let webPreferences: Electron.WebPreferences = {};
-    if (url.startsWith("translate")) {
+    if (url.startsWith("translate") || url === "./aiVision.html") {
         webPreferences = {
             nodeIntegration: true,
             contextIsolation: false,
@@ -2122,6 +2122,8 @@ async function createBrowser(windowName: number, url: string) {
         rendererPath2(searchView.webContents, "translate.html", {
             query: { text: url.replace("translate/?text=", "") },
         });
+    } else if (url === "./aiVision.html") {
+        rendererPath2(searchView.webContents, "aiVision.html", {});
     } else searchView.webContents.loadURL(url);
     const bSize = mainWindowL[windowName].browser;
     setViewSize(searchView, mainWindow, bSize);
@@ -2601,6 +2603,7 @@ const defaultSetting: setting = {
     ],
     AI: {
         运行后端: "cpu",
+        在线模型: [],
     },
     在线OCR: {
         baidu: {
