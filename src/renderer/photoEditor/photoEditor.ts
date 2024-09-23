@@ -77,7 +77,15 @@ function getStyleData(id: string) {
     return data;
 }
 
-const preview = view().style({ margin: "auto", position: "relative" });
+function subTitle(text: string) {
+    return txt(text).class("sub-title");
+}
+
+const preview = view().style({
+    margin: "auto",
+    position: "relative",
+    height: "100%",
+});
 const controls = frame("sidebar", {
     _: view("y"),
     configs: {
@@ -109,13 +117,16 @@ const controls = frame("sidebar", {
         }),
     },
     controls: {
-        _: view("y"),
-        _0: txt("圆角"),
-        raduis: input("number"),
-        outerRadius: label([check(""), "外圆角"]),
-        _1: txt("背景"),
+        _: view("y").style({ gap: "var(--o-padding)" }),
+        _raduis: {
+            _: view("y"),
+            _0: subTitle("圆角"),
+            raduis: input("number"),
+            outerRadius: label([check(""), "外圆角"]),
+        },
         background: {
             _: view("y"),
+            _1: subTitle("背景"),
             bgType: select<(typeof styleData)["bgType"]>([
                 { value: "color", name: "纯色" },
                 { value: "image", name: "图片" },
@@ -142,23 +153,25 @@ const controls = frame("sidebar", {
                 gColors: gColors(),
             },
         },
-        _2: txt("阴影"),
-        shardow: {
-            _: view("x"),
-            sx: input("number"),
-            sy: input("number"),
-            blur: input("number"),
-            scolor: input(),
+        _shadow: {
+            _: view("y"),
+            _2: subTitle("阴影"),
+            shadow: {
+                _: view("x"),
+                sx: input("number"),
+                sy: input("number"),
+                blur: input("number"),
+                scolor: input(),
+            },
         },
-        _3: txt("边距"),
-        padding: {
-            _: view("x"),
-            px: input("number"),
-            py: input("number"),
+        _padding: {
+            _: view("y"),
+            _3: subTitle("边距"),
+            padding: { _: view("x"), px: input("number"), py: input("number") },
         },
-        _4: txt("魔法消除"),
         magic: {
             _: view("y"),
+            _4: subTitle("魔法消除"),
             magicPen: label([check(""), "魔法橡皮"]),
             magicPenList: view("y").style({
                 "max-height": "200px",

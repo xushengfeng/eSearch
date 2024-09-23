@@ -22,3 +22,8 @@ canvas {
 input[type="number"] {
     field-sizing: content;
 }
+
+.sub-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
