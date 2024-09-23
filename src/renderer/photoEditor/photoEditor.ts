@@ -180,19 +180,58 @@ const controls = frame("sidebar", {
         },
     },
     export: {
-        _: view("x").style({ gap: "var(--o-padding)" }),
-        save: button(icon(save_svg)).on("click", () => {
-            const path = ipcRenderer.sendSync("get_save_file_path", "png");
-            if (!path) return;
-            const img = getImg();
-            writeFileSync(path, img.toPNG());
-            ipcRenderer.send("window", "close");
-        }),
-        copy: button(icon(copy_svg)).on("click", () => {
-            const img = getImg();
-            clipboard.writeImage(img);
-            ipcRenderer.send("window", "close");
-        }),
+        _: view("y").style({ gap: "var(--o-padding)" }),
+        _ex_edit: {
+            _: view("y").style({ gap: "var(--o-padding)" }),
+            formart: select([
+                { value: "png", name: "PNG" },
+                { value: "jpg", name: "JPEG" },
+                { value: "webp", name: "WebP" },
+            ]).sv(
+                (() => {
+                    const format = store.get("保存.默认格式");
+                    if (format === "svg") return "png";
+                    return format;
+                })(),
+            ),
+            quality: input("number")
+                .attr({ max: "1", min: "0", step: "0.1" })
+                .sv("1"),
+            phScale: {
+                _: view("x").style({ gap: "var(--o-padding)" }),
+                _s1: button("3/4").on("click", () => scale(0.75)),
+                _s2: button("1/2").on("click", () => scale(0.5)),
+                _s3: button("1/3").on("click", () => scale(0.333)),
+                _s4: button("1/4").on("click", () => scale(0.25)),
+                _s5: button("1/5").on("click", () => scale(0.2)),
+            },
+            _phWH: {
+                _: view("x").style({ gap: "var(--o-padding)" }),
+                photoW: input("number"),
+                photoH: input("number"),
+            },
+        },
+        _ex_save: {
+            _: view("x").style({ gap: "var(--o-padding)" }),
+            save: button(icon(save_svg)).on("click", () => {
+                const path = ipcRenderer.sendSync(
+                    "get_save_file_path",
+                    controls.els.formart.gv,
+                );
+                if (!path) return;
+                const img = getImg(true).replace(
+                    /^data:image\/\w+;base64,/,
+                    "",
+                );
+                writeFileSync(path, Buffer.from(img, "base64"));
+                ipcRenderer.send("window", "close");
+            }),
+            copy: button(icon(copy_svg)).on("click", () => {
+                const img = getImg();
+                clipboard.writeImage(img);
+                ipcRenderer.send("window", "close");
+            }),
+        },
     },
 });
 function setSelect(id?: string) {
@@ -224,8 +263,41 @@ function setBgUI(type: (typeof styleData)["bgType"]) {
     }
 }
 
-function getImg() {
-    return nativeImage.createFromDataURL(canvas.el.toDataURL("image/png", 1));
+function scale(num: number) {
+    controls.els.photoH.sv(String(Math.round(canvas.el.height * num)));
+    controls.els.photoW.sv(String(Math.round(canvas.el.width * num)));
+}
+
+function getImg(): Electron.NativeImage;
+function getImg(base64: true): string;
+function getImg(base64 = false) {
+    const x = ele("canvas").attr({
+        width: Number(controls.els.photoW.gv),
+        height: Number(controls.els.photoH.gv),
+    }).el;
+    const ctx = x.getContext("2d");
+    ctx.drawImage(
+        canvas.el,
+        0,
+        0,
+        canvas.el.width,
+        canvas.el.height,
+        0,
+        0,
+        x.width,
+        x.height,
+    );
+    const type = {
+        png: "image/png",
+        jpg: "image/jpeg",
+        webp: "image/webp",
+    };
+    const url = x.toDataURL(
+        type[controls.els.formart.gv],
+        Number(controls.els.quality.gv),
+    );
+    if (base64) return url;
+    return nativeImage.createFromDataURL(url);
 }
 
 function gColors() {
@@ -357,6 +429,9 @@ function updatePreview() {
 
         const finalWidth = photoWidth + 2 * padX;
         const finalHeight = photoHeight + 2 * padY;
+
+        controls.els.photoW.sv(String(finalWidth));
+        controls.els.photoH.sv(String(finalHeight));
 
         canvas.el.width = finalWidth;
         canvas.el.height = finalHeight;
