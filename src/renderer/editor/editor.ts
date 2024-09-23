@@ -1661,13 +1661,14 @@ function mainEvent(eid: string) {
             text: document.querySelector(".tab_focus").getAttribute("data-url"),
         };
         storeHistory();
-    } else if (eid === "home") {
-        document.querySelector(".tab_focus").classList.remove("tab_focus");
-        body.classList.remove("fill_t_s");
-        document.title = t("eSearch - 主页面");
     } else {
         const id = liList.at(-1).id.replace("id", "");
         ipcRenderer.send("tab_view", id, eid);
+        if (eid === "home") {
+            document.querySelector(".tab_focus").classList.remove("tab_focus");
+            body.classList.remove("fill_t_s");
+            document.title = t("eSearch - 主页面");
+        }
     }
 }
 
