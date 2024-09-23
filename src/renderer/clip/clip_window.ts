@@ -3838,8 +3838,12 @@ clipCanvas.onmousemove = (e) => {
                 }
             }
             if (down) mouseBar(finalRect, e);
-            if (selecting || moving) drawClip();
-            if (g光标参考线) ckx(e);
+            if (g光标参考线) {
+                drawClip();
+                ckx(e);
+            } else {
+                if (selecting || moving) drawClip();
+            }
         });
     }
     if (!selecting && !moving) {
