@@ -545,8 +545,8 @@ button > .icon {
     flex-grow: 1;
 }
 .b_tab > button {
-    width: 20px;
-    height: 20px;
+    width: 20px !important;
+    height: 20px !important;
     flex-shrink: 0;
     background: none;
     border: none;
