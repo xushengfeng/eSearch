@@ -12,6 +12,9 @@ import {
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import initStyle from "../root/root";
+import { Remarkable } from "remarkable";
+
+const md = new Remarkable({ breaks: true });
 
 import close_svg from "../assets/icons/close.svg";
 import reflash_svg from "../assets/icons/reload.svg";
@@ -124,7 +127,9 @@ function newChatItem(id: string) {
             }),
         );
     }
-    contentEl.add(c.content.text);
+    const div = view().el;
+    div.innerHTML = md.render(c.content.text);
+    contentEl.add(div);
 }
 
 function toChatgptm(data: aiData): chatgptm {
@@ -308,6 +313,13 @@ addStyle({
     },
     ".user :not(button)>img": {
         "margin-left": "auto",
+    },
+    ".chat-item>:nth-child(2) ul": {
+        "list-style-type": "circle",
+        "padding-inline-start": "20px",
+    },
+    ".chat-item>:nth-child(2) p": {
+        "margin-block": "0.5em",
     },
 });
 
