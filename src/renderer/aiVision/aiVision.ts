@@ -1,5 +1,19 @@
-import { button, frame, image, input, pureStyle, textarea, view } from "dkh-ui";
+import {
+    button,
+    frame,
+    image,
+    input,
+    pureStyle,
+    textarea,
+    view,
+    addStyle,
+    label,
+} from "dkh-ui";
 import store from "../../../lib/store/renderStore";
+import initStyle from "../root/root";
+
+import close_svg from "../assets/icons/close.svg";
+import edit_svg from "../assets/icons/super_edit.svg";
 
 type aiData = {
     role: "system" | "user" | "assistant";
@@ -21,12 +35,28 @@ type chatgptm = {
 
 const content: Map<string, aiData> = new Map();
 
-const inputEl = textarea();
+function iconEl(src: string) {
+    return button().add(image(src, "icon").class("icon"));
+}
+
+const paddingVar = "var(--o-padding)";
+const inputEl = textarea().style({
+    width: "100%",
+    "max-height": "3lh",
+    // @ts-ignore
+    "field-sizing": "content",
+    padding: paddingVar,
+});
 const fileInputEl = input("file");
 
 let currentId = uuid();
 
-const showList = view("y");
+const showList = view("y").style({
+    "flex-grow": 1,
+    "overflow-y": "auto",
+    "padding-inline": paddingVar,
+    gap: paddingVar,
+});
 
 function uuid() {
     return crypto.randomUUID().slice(0, 8);
@@ -35,13 +65,15 @@ function uuid() {
 function newChatItem(id: string) {
     let chatItem = showList.query(`[data-id="${id}"]`);
     if (!chatItem) {
-        chatItem = view().data({ id });
+        chatItem = view().data({ id }).class("chat-item");
         showList.add(chatItem);
     }
     const toolBar = frame("tool", {
-        _: view("x"),
-        edit: button("edit"),
-        delete: button("delete"),
+        _: view("x").style({
+            transition: "var(--transition)",
+        }),
+        edit: iconEl(edit_svg),
+        delete: iconEl(close_svg),
     });
 
     const contentEl = view();
@@ -50,8 +82,14 @@ function newChatItem(id: string) {
 
     const c = content.get(id);
     if (!c) return;
+    chatItem.class(c.role);
     if (c.content.img) {
-        contentEl.add(image(c.content.img, ""));
+        contentEl.add(
+            image(c.content.img, "").style({
+                "max-width": "300px",
+                "max-height": "300px",
+            }),
+        );
     }
     contentEl.add(c.content.text);
 }
@@ -162,8 +200,45 @@ fileInputEl.on("change", async (e) => {
 
 pureStyle();
 
+initStyle(store);
+
+addStyle({
+    body: {
+        background: "var(--bg)",
+    },
+    button: {
+        width: "20px !important",
+        height: "20px !important",
+    },
+    ".chat-item": {
+        "max-width": "80%",
+    },
+    ".system": {
+        width: "100%",
+    },
+    ".user": {
+        "margin-left": "auto",
+    },
+    ".assistant": {
+        "margin-right": "auto",
+    },
+    ".chat-item:not(:hover) #tool_tool": {
+        opacity: 0,
+        "pointer-events": "none",
+    },
+    ".user :not(button)>img": {
+        "margin-left": "auto",
+    },
+});
+
 document.body.append(
     view("y")
-        .style({ height: "100vh", "flex-grow": 1, "overflow-y": "auto" })
-        .add([showList, view("x").add([inputEl, fileInputEl])]).el,
+        .style({ height: "100vh" })
+        .add([
+            showList,
+            view("y").add([
+                label([fileInputEl.style({ display: "none" }), "上传图片"]),
+                inputEl,
+            ]),
+        ]).el,
 );
