@@ -8,6 +8,7 @@ import {
     view,
     addStyle,
     label,
+    select,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import initStyle from "../root/root";
@@ -39,6 +40,8 @@ function iconEl(src: string) {
     return button().add(image(src, "icon").class("icon"));
 }
 
+const model = store.get("AI.在线模型").filter((x) => x.supportVision);
+
 const paddingVar = "var(--o-padding)";
 const inputEl = textarea()
     .style({
@@ -50,6 +53,9 @@ const inputEl = textarea()
     })
     .attr({ autofocus: true });
 const fileInputEl = input("file");
+const selectModelEl = select(
+    model.map((x) => ({ value: x.name, label: x.name })),
+);
 
 let currentId = uuid();
 
@@ -114,7 +120,7 @@ function toChatgptm(data: aiData): chatgptm {
 }
 
 async function runAI() {
-    const x = store.get("AI.在线模型")[0];
+    const x = model.find((x) => x.name === selectModelEl.gv) || model[0];
     const m = {
         messages: Array.from(content.values()).map(toChatgptm),
         stream: false,
@@ -250,7 +256,10 @@ document.body.append(
         .add([
             showList,
             view("y").add([
-                label([fileInputEl.style({ display: "none" }), "上传图片"]),
+                view("x").add([
+                    label([fileInputEl.style({ display: "none" }), "上传图片"]),
+                    selectModelEl,
+                ]),
                 inputEl,
             ]),
         ]).el,

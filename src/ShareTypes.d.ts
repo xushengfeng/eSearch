@@ -166,6 +166,7 @@ export interface setting {
         在线模型: {
             name: string;
             type: "chatgpt";
+            supportVision: boolean;
             url: string;
             key: string;
             config: Record<string, unknown>;
