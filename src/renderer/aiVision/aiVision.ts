@@ -14,6 +14,7 @@ import store from "../../../lib/store/renderStore";
 import initStyle from "../root/root";
 
 import close_svg from "../assets/icons/close.svg";
+import reflash_svg from "../assets/icons/reload.svg";
 import edit_svg from "../assets/icons/super_edit.svg";
 
 type aiData = {
@@ -71,6 +72,8 @@ function uuid() {
 }
 
 function newChatItem(id: string) {
+    const c = content.get(id);
+
     let chatItem = showList.query(`[data-id="${id}"]`);
     if (!chatItem) {
         chatItem = view().data({ id }).class("chat-item");
@@ -79,6 +82,9 @@ function newChatItem(id: string) {
     const toolBar = frame("tool", {
         _: view("x").style({
             transition: "var(--transition)",
+        }),
+        reflash: iconEl(reflash_svg).style({
+            display: c.role === "assistant" ? "block" : "none",
         }),
         edit: iconEl(edit_svg),
         delete: iconEl(close_svg),
@@ -93,12 +99,21 @@ function newChatItem(id: string) {
         inputEl.sv(c.content.text);
         currentId = id;
     });
+    toolBar.els.reflash.on("click", () => {
+        const keys = Array.from(content.keys());
+        for (let i = 0; i < content.size; i++) {
+            if (keys[i + 1] === id) {
+                currentId = keys[i];
+                runAI(id);
+                break;
+            }
+        }
+    });
 
     const contentEl = view();
 
     chatItem.clear().add([toolBar.el, contentEl]);
 
-    const c = content.get(id);
     if (!c) return;
     chatItem.class(c.role);
     if (c.content.img) {
@@ -129,7 +144,7 @@ function toChatgptm(data: aiData): chatgptm {
     };
 }
 
-async function runAI() {
+async function runAI(targetId?: string) {
     const x = model.find((x) => x.name === selectModelEl.gv) || model[0];
     const clipContent: typeof content = new Map();
     for (const [id, c] of content) {
@@ -162,7 +177,7 @@ async function runAI() {
 
     const res = data.message?.content || data.choices[0].message.content;
 
-    const id = uuid();
+    const id = targetId ?? uuid();
     content.set(id, {
         role: "assistant",
         content: { text: res },
