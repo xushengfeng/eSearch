@@ -8,3 +8,4 @@
 - [截屏](clip.md)
 - [OCR](ocr.md)
 - [高级图片编辑](photoEditor.md)
+- [超级录屏](superRecorder.md)
