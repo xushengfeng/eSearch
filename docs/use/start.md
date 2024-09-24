@@ -10,7 +10,7 @@
 
 <img height="16" src="../../src/renderer/assets/icons/ocr.svg"><a href="ocr.md" target="_blank">文字识别</a>
 
-<img height="16" src="../../src/renderer/assets/icons/search.svg">以图搜图
+<img height="16" src="../../src/renderer/assets/icons/search.svg">[图片识别](search.md)
 
 <img height="16" src="../../src/renderer/assets/icons/scan.svg">扫描二维码
 
