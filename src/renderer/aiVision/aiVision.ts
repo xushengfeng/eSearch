@@ -158,33 +158,56 @@ async function runAI(targetId?: string) {
     }
     const m = {
         messages: message.map(toChatgptm),
-        stream: false,
+        stream: true,
     };
     for (const i in x.config) {
         m[i] = x.config[i];
     }
-    const data = await (
-        await fetch(x.url, {
-            method: "POST",
-            headers: {
-                authorization: `Bearer ${x.key}`,
-                "content-type": "application/json",
-            },
-            body: JSON.stringify(m),
-        })
-    ).json();
-    console.log(data);
-
-    const res = data.message?.content || data.choices[0].message.content;
-
     const id = targetId ?? uuid();
-    content.set(id, {
-        role: "assistant",
-        content: { text: res },
-    });
-    newChatItem(id);
+    let resultText = "";
+    fetch(x.url, {
+        method: "POST",
+        headers: {
+            authorization: `Bearer ${x.key}`,
+            "content-type": "application/json",
+        },
+        body: JSON.stringify(m),
+    }).then((res) => {
+        const reader = res.body.getReader();
+        const textDecoder = new TextDecoder();
+        reader.read().then(function readBody(result) {
+            const text = textDecoder
+                .decode(result.value)
+                .split("\n")
+                .map((i) =>
+                    i
+                        .trim()
+                        .replace(/^data:/, "")
+                        .trim(),
+                )
+                .filter((i) => i !== "");
+            for (const i of text) {
+                if (i === "[DONE]") return;
+                parse(i);
+            }
 
-    pickLastItem();
+            reader.read().then(readBody);
+        });
+    });
+    function parse(text: string) {
+        const data = JSON.parse(text);
+        const res =
+            data.message?.content ||
+            data.choices[0].message?.content ||
+            data.choices[0].delta.content;
+        resultText += res;
+        content.set(id, {
+            role: "assistant",
+            content: { text: resultText },
+        });
+        newChatItem(id);
+        pickLastItem();
+    }
 }
 
 function pickLastItem() {
