@@ -141,6 +141,15 @@ async function runAI() {
         content: { text: res },
     });
     newChatItem(id);
+
+    const lastId = Array.from(content.keys()).at(-1);
+    if (content.get(lastId).role === "user") {
+        currentId = lastId;
+    } else {
+        const userId = uuid();
+        currentId = userId;
+        setItem("", "text");
+    }
 }
 
 function setItem(data: string, type: "text" | "image_url") {
