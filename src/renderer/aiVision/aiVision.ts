@@ -40,13 +40,15 @@ function iconEl(src: string) {
 }
 
 const paddingVar = "var(--o-padding)";
-const inputEl = textarea().style({
-    width: "100%",
-    "max-height": "3lh",
-    // @ts-ignore
-    "field-sizing": "content",
-    padding: paddingVar,
-});
+const inputEl = textarea()
+    .style({
+        width: "100%",
+        "max-height": "3lh",
+        // @ts-ignore
+        "field-sizing": "content",
+        padding: paddingVar,
+    })
+    .attr({ autofocus: true });
 const fileInputEl = input("file");
 
 let currentId = uuid();
@@ -189,8 +191,10 @@ inputEl
         newChatItem(id);
     })
     .on("keyup", (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
             runAI();
+            inputEl.sv("");
         }
     });
 
