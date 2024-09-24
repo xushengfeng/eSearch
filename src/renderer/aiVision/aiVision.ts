@@ -84,6 +84,16 @@ function newChatItem(id: string) {
         delete: iconEl(close_svg),
     });
 
+    toolBar.els.delete.on("click", () => {
+        content.delete(id);
+        chatItem.remove();
+    });
+    toolBar.els.edit.on("click", () => {
+        const c = content.get(id);
+        inputEl.sv(c.content.text);
+        currentId = id;
+    });
+
     const contentEl = view();
 
     chatItem.clear().add([toolBar.el, contentEl]);
@@ -121,8 +131,18 @@ function toChatgptm(data: aiData): chatgptm {
 
 async function runAI() {
     const x = model.find((x) => x.name === selectModelEl.gv) || model[0];
+    const clipContent: typeof content = new Map();
+    for (const [id, c] of content) {
+        clipContent.set(id, c);
+        if (id === currentId) break;
+    }
+    const message = Array.from(clipContent.values());
+    if (message.length === 0 || message.at(-1).role !== "user") {
+        pickLastItem();
+        return;
+    }
     const m = {
-        messages: Array.from(content.values()).map(toChatgptm),
+        messages: message.map(toChatgptm),
         stream: false,
     };
     for (const i in x.config) {
@@ -143,13 +163,16 @@ async function runAI() {
     const res = data.message?.content || data.choices[0].message.content;
 
     const id = uuid();
-    currentId = id;
     content.set(id, {
         role: "assistant",
         content: { text: res },
     });
     newChatItem(id);
 
+    pickLastItem();
+}
+
+function pickLastItem() {
     const lastId = Array.from(content.keys()).at(-1);
     if (content.get(lastId).role === "user") {
         currentId = lastId;
