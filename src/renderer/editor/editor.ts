@@ -2347,6 +2347,7 @@ function addOcrSelect(div: HTMLDivElement) {
 let imageS = false;
 imgsEl.onpointerdown = () => {
     imageS = true;
+    CSS.highlights.clear();
 };
 imgsEl.onpointerup = () => {
     imageS = false;
@@ -2511,6 +2512,8 @@ function setImgSelect() {
     range.setEnd(sss.end.node, sss.end.offset);
 
     const myCustomHighlight = new Highlight(range);
+
+    CSS.highlights.clear();
 
     CSS.highlights.set("img-highlight", myCustomHighlight);
 }
