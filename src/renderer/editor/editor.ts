@@ -1914,7 +1914,7 @@ async function localOcr(
                         }
                     }
                     const ll = [];
-                    for (const i of l.src) {
+                    for (const i of l.columns.flatMap((i) => i.src)) {
                         ll.push({ box: i.box, text: i.text });
                     }
                     callback(null, { raw: ll, text: t });
