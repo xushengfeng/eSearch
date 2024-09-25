@@ -107,22 +107,27 @@ function translate(_text: string) {
         results.add(e.el);
         const c = e.els.content;
         const f = () =>
-            translateI(text, i).then((_ttext) => {
-                const ttext = _ttext.trim();
-                c.el.innerText = ttext;
-                copy.on("click", () => {
-                    navigator.clipboard.writeText(ttext);
-                });
-                save.on("click", () => {
-                    saveW({
-                        from: lansFrom.el.value,
-                        to: lansTo.el.value,
-                        fromT: text,
-                        toT: ttext,
-                        engine: i.name,
+            translateI(text, i)
+                .then((_ttext) => {
+                    const ttext = _ttext.trim();
+                    c.el.innerText = ttext;
+                    copy.on("click", () => {
+                        navigator.clipboard.writeText(ttext);
                     });
+                    save.on("click", () => {
+                        saveW({
+                            from: lansFrom.el.value,
+                            to: lansTo.el.value,
+                            fromT: text,
+                            toT: ttext,
+                            engine: i.name,
+                        });
+                    });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    c.el.innerText = "翻译失败，请重试";
                 });
-            });
         f();
     }
 }
