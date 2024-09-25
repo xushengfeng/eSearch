@@ -118,7 +118,7 @@ async function run() {
 
     textEl.clear();
     const textL: { text: string; el: ElType<HTMLDivElement> }[] = [];
-    for (const i of ocrData) {
+    for (const i of ocrData.parragraphs) {
         const text = i.text;
         const x0 = i.box[0][0];
         const y0 = i.box[0][1];

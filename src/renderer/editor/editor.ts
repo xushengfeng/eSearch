@@ -1904,11 +1904,17 @@ async function localOcr(
                 .then((l) => {
                     console.log(l);
                     let t = "";
-                    for (const i of l) {
-                        t += `${i.text}\n`;
+                    if (store.get("OCR.识别段落")) {
+                        for (const i of l.parragraphs) {
+                            t += `${i.text}\n`;
+                        }
+                    } else {
+                        for (const i of l.src) {
+                            t += `${i.text}\n`;
+                        }
                     }
                     const ll = [];
-                    for (const i of l) {
+                    for (const i of l.src) {
                         ll.push({ box: i.box, text: i.text });
                     }
                     callback(null, { raw: ll, text: t });

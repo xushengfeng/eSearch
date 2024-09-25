@@ -159,6 +159,7 @@ export interface setting {
         类型: string;
         离线切换: boolean;
         记住: string | false;
+        识别段落: boolean;
     };
     离线OCR: [string, string, string, string][];
     AI: {

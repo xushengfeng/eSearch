@@ -2592,6 +2592,7 @@ const defaultSetting: setting = {
         类型: "默认",
         离线切换: true,
         记住: false,
+        识别段落: true,
     },
     离线OCR: [
         [
