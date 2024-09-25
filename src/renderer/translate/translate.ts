@@ -22,6 +22,7 @@ initStyle(store);
 
 import copy_svg from "../assets/icons/copy.svg";
 import star_svg from "../assets/icons/star.svg";
+import reflash_svg from "../assets/icons/reload.svg";
 
 function iconButton(img: string) {
     return button(
@@ -83,6 +84,14 @@ function translate(_text: string) {
                     ? "block"
                     : "none",
         });
+        const reTry = iconButton(reflash_svg)
+            .style({
+                width: "24px",
+                height: "24px",
+            })
+            .on("click", () => {
+                f();
+            });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
             title: {
@@ -91,31 +100,34 @@ function translate(_text: string) {
                 name: txt(i.name).style({ "margin-right": "4px" }),
                 copy,
                 save,
+                reTry,
             },
             content: p(""),
         });
         results.add(e.el);
         const c = e.els.content;
-        translateI(text, i).then((_ttext) => {
-            const ttext = _ttext.trim();
-            c.el.innerText = ttext;
-            copy.on("click", () => {
-                navigator.clipboard.writeText(ttext);
-            });
-            save.on("click", () => {
-                saveW({
-                    from: lansFrom.el.value,
-                    to: lansTo.el.value,
-                    fromT: text,
-                    toT: ttext,
-                    engine: i.name,
+        const f = () =>
+            translateI(text, i).then((_ttext) => {
+                const ttext = _ttext.trim();
+                c.el.innerText = ttext;
+                copy.on("click", () => {
+                    navigator.clipboard.writeText(ttext);
+                });
+                save.on("click", () => {
+                    saveW({
+                        from: lansFrom.el.value,
+                        to: lansTo.el.value,
+                        fromT: text,
+                        toT: ttext,
+                        engine: i.name,
+                    });
                 });
             });
-        });
+        f();
     }
 }
 
-function translateI(text: string, i: (typeof fyq)[0]) {
+function translateI(text: string, i: (typeof fyq)[0]): Promise<string> {
     // @ts-ignore
     xtranslator.e[i.type].setKeys(i.keys);
     // @ts-ignore
