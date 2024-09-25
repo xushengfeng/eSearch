@@ -179,9 +179,10 @@ const controls = frame("sidebar", {
             _: view("y"),
             _4: subTitle("魔法消除"),
             magicPen: label([check(""), "魔法橡皮"]),
-            magicPenList: view("y").style({
+            magicPenList: view("x", "wrap").style({
                 "max-height": "200px",
                 "overflow-y": "auto",
+                gap: "var(--o-padding)",
             }),
         },
     },
@@ -624,6 +625,24 @@ async function magicPen() {
     outputImg.src = outputCanvas.el.toDataURL("image/png", 1);
 }
 
+function previewPen(id: string) {
+    const ctx = magicPenPreviewCtx;
+    ctx.clearRect(0, 0, magicPenPreview.el.width, magicPenPreview.el.height);
+    if (!id) return;
+    const x = maskPens.get(id);
+    if (!x) return;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = x.w;
+    ctx.strokeStyle = "#0005";
+    ctx.beginPath();
+    ctx.moveTo(x.ps[0].x, x.ps[0].y);
+    for (const p of x.ps) {
+        ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+}
+
 pureStyle();
 
 document.body.appendChild(controls.el.el);
@@ -692,14 +711,15 @@ trackPoint(magicPenPreview, {
             magicPenPreview.el.width,
             magicPenPreview.el.height,
         );
-        const items = view("x").add([
-            button("x").on("click", () => {
+        const items = button(icon(close_svg))
+            .style({ width: "24px", height: "24px" })
+            .on("click", () => {
                 maskPens.delete(id);
                 items.remove();
                 magicPen();
-            }),
-            // todo hover preview
-        ]);
+            })
+            .on("pointerenter", () => previewPen(id))
+            .on("pointerleave", () => previewPen(""));
         controls.els.magicPenList.add(items);
         magicPen();
     },
