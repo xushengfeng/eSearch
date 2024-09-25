@@ -15,21 +15,30 @@ let _command: string | undefined;
 
 function init(command?: string) {
     _command = command;
-    try {
-        Screenshots = require("node-screenshots").Screenshots;
-    } catch (error) {
-        const id = d({
-            message:
-                "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
-            buttons: ["取消", "下载"],
-            defaultId: 1,
-        } as MessageBoxSyncOptions);
-        if (id === 1) {
-            shell.openExternal(
-                `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
-            );
+    if (process.platform === "linux" && process.arch === "arm64") {
+        if (!command) {
+            d({
+                message:
+                    "Linux arm64 平台需要额外截屏软件\n请在 设置-高级 中设置截屏命令",
+                buttons: ["确定"],
+            } as MessageBoxSyncOptions);
         }
-    }
+    } else
+        try {
+            Screenshots = require("node-screenshots").Screenshots;
+        } catch (error) {
+            const id = d({
+                message:
+                    "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
+                buttons: ["取消", "下载"],
+                defaultId: 1,
+            } as MessageBoxSyncOptions);
+            if (id === 1) {
+                shell.openExternal(
+                    `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
+                );
+            }
+        }
     return dispaly2screen;
 }
 
