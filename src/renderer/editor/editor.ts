@@ -1909,7 +1909,7 @@ async function localOcr(
                             t += `${i.text}\n`;
                         }
                     } else {
-                        for (const i of l.src) {
+                        for (const i of l.columns.flatMap((i) => i.src)) {
                             t += `${i.text}\n`;
                         }
                     }
