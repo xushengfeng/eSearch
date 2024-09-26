@@ -23,6 +23,7 @@ import {
     elFromId,
     textarea,
     type ElType,
+    noI18n,
 } from "dkh-ui";
 
 const configPath = ipcRenderer.sendSync("store", { type: "path" });
@@ -973,7 +974,7 @@ const engineConfig: Partial<
     Record<
         Engines,
         {
-            t: string;
+            t: string | ReturnType<typeof noI18n>;
             key: {
                 name: string;
                 text?: string;
@@ -994,7 +995,7 @@ const engineConfig: Partial<
         key: [],
     },
     yandex: {
-        t: "Yandex",
+        t: noI18n("Yandex"),
         key: [],
     },
     youdao: {
@@ -1008,12 +1009,12 @@ const engineConfig: Partial<
         help: { src: "https://fanyi-api.baidu.com/product/11" },
     },
     deepl: {
-        t: "Deepl",
+        t: noI18n("Deepl"),
         key: [{ name: "key" }],
         help: { src: "https://www.deepl.com/pro-api?cta=header-pro-api" },
     },
     deeplx: {
-        t: "DeeplX",
+        t: noI18n("DeeplX"),
         key: [{ name: "url" }],
     },
     caiyun: {
@@ -1031,39 +1032,39 @@ const engineConfig: Partial<
         },
     },
     chatgpt: {
-        t: "ChatGPT",
+        t: noI18n("ChatGPT"),
         key: [
             { name: "key", optional: true },
             { name: "url", optional: true },
             {
                 name: "config",
-                text: "请求体自定义",
+                text: t("请求体自定义"),
                 type: "json",
                 area: true,
                 optional: true,
             },
             {
                 name: "sysPrompt",
-                text: "系统提示词，${t}为文字，${to}，${from}",
+                text: t("系统提示词，${t}为文字，${to}，${from}"),
                 optional: true,
             },
             {
                 name: "userPrompt",
-                text: "用户提示词，${t}为文字，${to}，${from}",
+                text: t("用户提示词，${t}为文字，${to}，${from}"),
                 optional: true,
             },
         ],
         help: { src: "https://platform.openai.com/account/api-keys" },
     },
     gemini: {
-        t: "Gemini",
+        t: noI18n("Gemini"),
         key: [
             { name: "key" },
             { name: "url", optional: true },
-            { name: "config", text: "请求体自定义", area: true },
+            { name: "config", text: t("请求体自定义"), area: true },
             {
                 name: "userPrompt",
-                text: "用户提示词，${t}为文字，${to}，${from}",
+                text: t("用户提示词，${t}为文字，${to}，${from}"),
                 optional: true,
             },
         ],
@@ -1095,7 +1096,8 @@ function translatorD(
         .sv(v.name)
         .attr({ placeholder: t("请为翻译器命名") });
     const selectEl = select<Engines | "">(
-        [{ value: "", name: t("选择引擎类型") }].concat(
+        [{ value: "", name: "选择引擎类型" }].concat(
+            // @ts-ignore
             Object.entries(engineConfig).map((v) => ({
                 name: v[1].t,
                 value: v[0],
@@ -1326,12 +1328,11 @@ function z在线生词本Dialog(
     const name = input().attr({ placeholder: "名称" }).sv(v.name);
     const url = input().sv(v.url);
     const method = select([
-        { value: "get", name: "GET" },
-        { value: "post", name: "POST" },
+        { value: "get", name: noI18n("GET") },
+        { value: "post", name: noI18n("POST") },
     ]).sv(v.method);
 
-    const headers = textarea()
-        .attr({ placeholder: "按行输入，每行一个header，格式为key:value" })
+    const headers = textarea("按行输入，每行一个header，格式为key:value")
         .style(textStyle(6))
         .bindSet((v: Record<string, string>, el) => {
             el.value = Object.entries(v)
@@ -1360,7 +1361,7 @@ function z在线生词本Dialog(
         view("y")
             .style({ gap: "8px" })
             .add([
-                view().add(["URL", url, ele("br"), url]),
+                view().add([noI18n("URL"), url, ele("br"), url]),
                 view().add(["请求方式", method, ele("br"), method]),
                 view().add(["请求头", headers, ele("br"), headers]),
                 view().add(["请求体", body, ele("br"), body]),
@@ -1762,7 +1763,7 @@ for (const i in ocrModels) {
 }
 
 const mirrorSelect = select(
-    ocrUrls.map((i) => ({ name: i.name, value: i.url })),
+    ocrUrls.map((i) => ({ name: noI18n(i.name), value: i.url })),
 );
 const ocrDownloadEl = view().add([mirrorSelect]);
 addOCRModel.add([
@@ -2375,7 +2376,7 @@ infoEl.add([
     view().add([
         "项目主页:",
         " ",
-        a(packageJson.homepage).add(packageJson.homepage),
+        a(packageJson.homepage).add(noI18n(packageJson.homepage)),
     ]),
     view().add([
         "支持该项目:",
@@ -2404,7 +2405,9 @@ infoEl.add([
     view().add([
         "本软件遵循",
         " ",
-        a("https://www.gnu.org/licenses/gpl-3.0.html").add(packageJson.license),
+        a("https://www.gnu.org/licenses/gpl-3.0.html").add(
+            noI18n(packageJson.license),
+        ),
     ]),
     view().add([
         "本软件基于",
@@ -2414,7 +2417,9 @@ infoEl.add([
         ).add("这些软件"),
     ]),
     view().add(
-        `Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`,
+        noI18n(
+            `Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`,
+        ),
     ),
 ]);
 
