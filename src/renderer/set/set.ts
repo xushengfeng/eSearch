@@ -1231,6 +1231,25 @@ function setTranLan() {
 
 setTranLan();
 
+const w文件生词本 = elFromId("文件生词本");
+const z在线生词本 = elFromId("在线生词本");
+
+const w文件生词本List = sortList(
+    xstore.翻译.收藏.文件,
+    w文件生词本,
+    (v) => path.basename(v.path),
+    (v) => {},
+    () => {},
+);
+
+const z在线生词本List = sortList(
+    xstore.翻译.收藏.fetch,
+    z在线生词本,
+    (v) => v.name || new URL(v.url).host,
+    (v) => {},
+    () => {},
+);
+
 import Sortable from "sortablejs";
 
 const y搜索 = document.getElementById("搜索引擎");
@@ -1906,6 +1925,8 @@ function saveSetting() {
         : false;
     xstore.字体 = 字体;
     xstore.翻译.翻译器 = translateList();
+    xstore.翻译.收藏.fetch = z在线生词本List();
+    xstore.翻译.收藏.文件 = w文件生词本List();
     const yS = list2engine(y搜索引擎());
     const yF = list2engine(y翻译引擎());
     if (!yF.find((i) => i.url.startsWith("translate")))
