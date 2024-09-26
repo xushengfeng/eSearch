@@ -22,6 +22,7 @@ import {
     setTranslate,
     elFromId,
     textarea,
+    type ElType,
 } from "dkh-ui";
 
 const configPath = ipcRenderer.sendSync("store", { type: "path" });
@@ -864,51 +865,98 @@ function getIconColor(hex: string) {
     }
 }
 
+function sortList<t>(
+    list: t[],
+    el: ElType<HTMLElement>,
+    name: (el: t) => string,
+    item: (el: t | null) => Promise<t>,
+    onChange: () => void,
+) {
+    const listEl = view("x", "wrap");
+    new Sortable(listEl.el, {
+        handle: ".sort_handle",
+        onEnd: () => {
+            onChange();
+        },
+    });
+    const newData: Map<string, { "sort-name": string; data: t }> = new Map();
+    for (const el of list) {
+        const uid = crypto.randomUUID().slice(0, 7);
+        newData.set(uid, {
+            "sort-name": name(el),
+            data: el,
+        });
+    }
+
+    function addItem(id: string) {
+        const itemEl = view().class("sort-item").data({ id: id });
+        const nameEl = txt(newData.get(id)["sort-name"], true).on(
+            "click",
+            async () => {
+                const nv = await item(newData.get(id).data);
+                newData.get(id).data = nv;
+                nameEl.sv(name(nv));
+                onChange();
+            },
+        );
+        const sortHandle = button()
+            .class("sort_handle")
+            .add(iconEl(handle_svg));
+        const rm = button()
+            .class("rm")
+            .add(iconEl(delete_svg))
+            .on("click", () => {
+                itemEl.remove();
+                onChange();
+            });
+        itemEl.add([sortHandle, nameEl, rm]);
+        listEl.add(itemEl);
+    }
+
+    const addBtn = button(iconEl(add_svg)).on("click", async () => {
+        const nv = await item(null);
+        const uid = crypto.randomUUID().slice(0, 7);
+        newData.set(uid, {
+            "sort-name": name(nv),
+            data: nv,
+        });
+        addItem(uid);
+        onChange();
+    });
+
+    for (const id of newData.keys()) {
+        addItem(id);
+    }
+
+    el.add([listEl, addBtn]);
+
+    return () => {
+        const list = listEl
+            .queryAll("[data-id]")
+            .map((i) => newData.get(i.el.dataset.id).data);
+        return list;
+    };
+}
+
 const translateES = document.getElementById("translate_es");
 const translatorFrom = document.getElementById("translator_from");
 const translatorTo = document.getElementById("translator_to");
 
-const transList: { [key: string]: (typeof xstore.翻译.翻译器)[0] } = {};
-
 const translatorList = view();
 const addTranslatorM = ele("dialog").class("add_translator");
-const addTranslator = button(iconEl(add_svg)).on("click", async () => {
-    const v = await translatorD({
-        id: crypto.randomUUID().slice(0, 7),
-        name: "",
-        keys: {},
-        type: null,
-    });
-    const iel = addTranslatorI(v);
-    translatorList.add(iel);
-    setTranLan();
-});
-translateES.append(translatorList.el, addTranslator.el, addTranslatorM.el);
+translateES.append(translatorList.el, addTranslatorM.el);
 
-new Sortable(translatorList.el, {
-    handle: ".sort_handle",
-    onEnd: () => {
+const translateList = sortList(
+    xstore.翻译.翻译器,
+    translatorList,
+    (v) => v.name,
+    (v) => {
+        return translatorD(v);
+    },
+    () => {
         setTranLan();
     },
-});
-
-function addTranslatorI(v: setting["翻译"]["翻译器"][0]) {
-    transList[v.id] = v;
-    const handle = button().add(iconEl(handle_svg)).class("sort_handle");
-    const text = txt(v.name, true).on("click", async () => {
-        const nv = await translatorD(v);
-        text.el.innerText = nv.name;
-        transList[nv.id] = nv;
-    });
-    const rm = button()
-        .add(iconEl(delete_svg))
-        .on("click", () => {
-            iel.el.remove();
-            setTranLan();
-        });
-    const iel = view().add([handle, text, rm]).data({ id: v.id });
-    return iel;
-}
+);
 
 import translator from "xtranslator";
 type Engines = keyof typeof translator.e;
@@ -1021,11 +1069,16 @@ const engineConfig: Partial<
     },
 };
 
-for (const v of xstore.翻译.翻译器) {
-    translatorList.add(addTranslatorI(v));
-}
-
-function translatorD(v: setting["翻译"]["翻译器"][0]) {
+function translatorD(_v: setting["翻译"]["翻译器"][0]) {
+    let v = _v;
+    if (!v) {
+        v = {
+            id: crypto.randomUUID().slice(0, 7),
+            name: "",
+            keys: {},
+            type: null,
+        };
+    }
     const idEl = input()
         .sv(v.name)
         .attr({ placeholder: t("请为翻译器命名") });
@@ -1148,13 +1201,11 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
 }
 
 function setTranLan() {
-    const id = (translatorList.el.firstChild as HTMLElement)?.getAttribute(
-        "data-id",
-    );
+    const firstItem = translateList().at(0);
     translatorFrom.innerText = "";
     translatorTo.innerHTML = "";
-    if (!id) return;
-    const type = transList[id].type;
+    if (!firstItem) return;
+    const type = firstItem.type;
     const e = translator.e[type];
     const mainLan = xstore.语言.语言;
     if (!e) return;
@@ -1854,9 +1905,7 @@ function saveSetting() {
             : 字体.大小
         : false;
     xstore.字体 = 字体;
-    xstore.翻译.翻译器 = Array.from(translatorList.el.children).map(
-        (i: HTMLElement) => transList[i.getAttribute("data-id")],
-    );
+    xstore.翻译.翻译器 = translateList();
     const yS = list2engine(y搜索引擎());
     const yF = list2engine(y翻译引擎());
     if (!yF.find((i) => i.url.startsWith("translate")))

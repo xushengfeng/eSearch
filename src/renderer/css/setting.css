@@ -359,12 +359,11 @@ comment[data-inline]::after {
     position: inherit;
 }
 
-#translate_es > :first-child {
+div:has(> .sort-item) {
     margin-top: 8px;
-    display: flex;
     gap: 8px;
 }
-#translate_es > :first-child > div {
+.sort-item {
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
@@ -372,23 +371,23 @@ comment[data-inline]::after {
     display: flex;
     align-items: center;
 }
-#translate_es > :first-child > div:hover {
+.sort-item:hover {
     background-color: var(--hover-color);
     box-shadow: var(--shadow);
 }
-#translate_es > :first-child > div > span {
+.sort-item > span {
     min-width: 2rem;
 }
-#translate_es > :first-child button {
+.sort-item button {
     position: relative;
-    width: 24px;
-    height: 24px;
+    width: 24px !important;
+    height: 24px !important;
     margin: 0;
     background-color: transparent;
 }
 
-#translate_es > :first-child button > .icon {
-    width: 24px;
+.sort-item button > .icon {
+    width: 24px !important;
 }
 
 .add_translator {
