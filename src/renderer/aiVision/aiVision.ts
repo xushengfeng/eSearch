@@ -108,7 +108,7 @@ function newChatItem(id: string) {
             const endIndex = nowIndex - 1;
             if (endIndex < 0) return;
             currentId = keys[endIndex];
-            runAI(id);
+            runAI(id, true); // 由于删除，currentId可能为assistant
         }
         // 在用户信息上重载，从用户信息开始，覆盖下一条信息
         if (content.get(id).role === "user") {
@@ -154,7 +154,7 @@ function toChatgptm(data: aiData): chatgptm {
     };
 }
 
-async function runAI(targetId?: string) {
+async function runAI(targetId?: string, force = false) {
     const x = model.find((x) => x.name === selectModelEl.gv) || model[0];
     const clipContent: typeof content = new Map();
     for (const [id, c] of content) {
@@ -162,7 +162,7 @@ async function runAI(targetId?: string) {
         if (id === currentId) break;
     }
     const message = Array.from(clipContent.values());
-    if (message.length === 0 || message.at(-1).role !== "user") {
+    if (message.length === 0 || (!force && message.at(-1).role !== "user")) {
         pickLastItem();
         return;
     }
