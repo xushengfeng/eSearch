@@ -1264,6 +1264,12 @@ const textStyle = (mh: number) =>
         resize: "none",
     }) as const;
 
+const transSaveHelp = () => {
+    return a(
+        `https://github.com/xushengfeng/eSearch/blob/${packageJson.version}/docs/use/translate.md#生词本`,
+    ).add("教程帮助");
+};
+
 function w文件生词本Dialog(
     _v: setting["翻译"]["收藏"]["文件"][0],
     addDialog: ElType<HTMLDialogElement>,
@@ -1282,6 +1288,7 @@ function w文件生词本Dialog(
             .style({ gap: "8px" })
             .add([
                 view().add(["路径", ele("br"), filePath]),
+                transSaveHelp(),
                 view().add(["模板", ele("br"), template]),
             ]),
         button(txt("关闭")).on("click", () => {
@@ -1349,6 +1356,7 @@ function z在线生词本Dialog(
 
     addDialog.add([
         name,
+        transSaveHelp(),
         view("y")
             .style({ gap: "8px" })
             .add([
