@@ -1044,8 +1044,6 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
     const keys = view("y").style({ gap: "8px" });
     const help = p("");
 
-    set(v.type);
-
     function set(type: Engines | "") {
         keys.clear();
         help.clear();
@@ -1123,6 +1121,8 @@ function translatorD(v: setting["翻译"]["翻译器"][0]) {
         };
         return nv;
     }
+
+    set(v.type);
 
     addTranslatorM.el.showModal();
 
