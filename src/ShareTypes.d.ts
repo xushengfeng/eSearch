@@ -443,7 +443,7 @@ type translateWinType = {
 type myFetch = {
     name: string;
     url: string;
-    method: string;
+    method: "get" | "post";
     headers: Record<string, string>;
     body: string;
     getter: (string | number)[];

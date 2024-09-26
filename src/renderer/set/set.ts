@@ -1244,7 +1244,7 @@ const w文件生词本List = sortList(
     xstore.翻译.收藏.文件,
     w文件生词本,
     (v) => path.basename(v.path),
-    (v) => {},
+    w文件生词本Dialog,
     () => {},
 );
 
@@ -1252,9 +1252,131 @@ const z在线生词本List = sortList(
     xstore.翻译.收藏.fetch,
     z在线生词本,
     (v) => v.name || new URL(v.url).host,
-    (v) => {},
+    z在线生词本Dialog,
     () => {},
 );
+
+const textStyle = (mh: number) =>
+    ({
+        "field-sizing": "content",
+        height: "auto",
+        "max-height": `${mh}lh`,
+        resize: "none",
+    }) as const;
+
+function w文件生词本Dialog(
+    _v: setting["翻译"]["收藏"]["文件"][0],
+    addDialog: ElType<HTMLDialogElement>,
+) {
+    let v = _v;
+    if (!v) {
+        v = { path: "", template: "" };
+    }
+    const filePath = input().sv(v.path);
+    const template = textarea().sv(v.template).style(textStyle(6));
+
+    const { promise, resolve } = Promise.withResolvers<typeof v>();
+
+    addDialog.add([
+        view("y")
+            .style({ gap: "8px" })
+            .add([
+                view().add(["路径", ele("br"), filePath]),
+                view().add(["模板", ele("br"), template]),
+            ]),
+        button(txt("关闭")).on("click", () => {
+            addDialog.el.close();
+            resolve(null);
+        }),
+        button(txt("完成")).on("click", () => {
+            const nv = {
+                path: filePath.gv,
+                template: template.gv,
+            };
+            resolve(nv);
+            addDialog.el.close();
+        }),
+    ]);
+
+    return promise;
+}
+
+function z在线生词本Dialog(
+    _v: setting["翻译"]["收藏"]["fetch"][0],
+    addDialog: ElType<HTMLDialogElement>,
+) {
+    let v = _v;
+    if (!v) {
+        v = {
+            name: "",
+            body: "",
+            url: "",
+            method: "get",
+            headers: {},
+            getter: null,
+        };
+    }
+    const name = input().attr({ placeholder: "名称" }).sv(v.name);
+    const url = input().sv(v.url);
+    const method = select([
+        { value: "get", name: "GET" },
+        { value: "post", name: "POST" },
+    ]).sv(v.method);
+
+    const headers = textarea()
+        .attr({ placeholder: "按行输入，每行一个header，格式为key:value" })
+        .style(textStyle(6))
+        .bindSet((v: Record<string, string>, el) => {
+            el.value = Object.entries(v)
+                .map(([k, v]) => `${k} : ${v}`)
+                .join("\n");
+        })
+        .bindGet((el) => {
+            const v = el.value;
+            const obj: Record<string, string> = {};
+            for (const line of v.split("\n")) {
+                if (line.trim() === "") continue;
+                const [k, v] = line.split(":").map((i) => i.trim());
+                obj[k] = v;
+            }
+            return obj;
+        })
+        .sv(v.headers);
+
+    const body = textarea().style(textStyle(6)).sv(v.body);
+
+    const { promise, resolve } = Promise.withResolvers<typeof v>();
+
+    addDialog.add([
+        name,
+        view("y")
+            .style({ gap: "8px" })
+            .add([
+                view().add(["URL", url, ele("br"), url]),
+                view().add(["请求方式", method, ele("br"), method]),
+                view().add(["请求头", headers, ele("br"), headers]),
+                view().add(["请求体", body, ele("br"), body]),
+            ]),
+        button(txt("关闭")).on("click", () => {
+            addDialog.el.close();
+            resolve(null);
+        }),
+        button(txt("完成")).on("click", () => {
+            const nv = {
+                name: name.gv,
+                body: body.gv,
+                url: url.gv,
+                method: method.gv,
+                headers: headers.gv,
+                getter: null,
+            };
+            resolve(nv);
+            addDialog.el.close();
+        }),
+    ]);
+
+    return promise;
+}
 
 import Sortable from "sortablejs";
 
