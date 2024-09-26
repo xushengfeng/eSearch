@@ -869,7 +869,10 @@ function sortList<t>(
     list: t[],
     el: ElType<HTMLElement>,
     name: (el: t) => string,
-    item: (el: t | null) => Promise<t>,
+    item: (
+        el: t | null,
+        dialog: ElType<HTMLDialogElement>,
+    ) => Promise<t | null>,
     onChange: () => void,
 ) {
     const listEl = view("x", "wrap");
@@ -888,12 +891,18 @@ function sortList<t>(
         });
     }
 
+    function getItem(id: string) {
+        dialog.clear().el.showModal();
+        return item(id ? newData.get(id).data : null, dialog);
+    }
+
     function addItem(id: string) {
         const itemEl = view().class("sort-item").data({ id: id });
         const nameEl = txt(newData.get(id)["sort-name"], true).on(
             "click",
             async () => {
-                const nv = await item(newData.get(id).data);
+                const nv = await getItem(id);
+                if (!nv) return;
                 newData.get(id).data = nv;
                 nameEl.sv(name(nv));
                 onChange();
@@ -914,7 +923,8 @@ function sortList<t>(
     }
 
     const addBtn = button(iconEl(add_svg)).on("click", async () => {
-        const nv = await item(null);
+        const nv = await getItem(null);
+        if (!nv) return;
         const uid = crypto.randomUUID().slice(0, 7);
         newData.set(uid, {
             "sort-name": name(nv),
@@ -924,11 +934,13 @@ function sortList<t>(
         onChange();
     });
 
+    const dialog = ele("dialog");
+
     for (const id of newData.keys()) {
         addItem(id);
     }
 
-    el.add([listEl, addBtn]);
+    el.add([listEl, addBtn, dialog]);
 
     return () => {
         const list = listEl
@@ -943,16 +955,13 @@ const translatorFrom = document.getElementById("translator_from");
 const translatorTo = document.getElementById("translator_to");
 
 const translatorList = view();
-const addTranslatorM = ele("dialog").class("add_translator");
-translateES.append(translatorList.el, addTranslatorM.el);
+translateES.append(translatorList.el);
 
 const translateList = sortList(
     xstore.翻译.翻译器,
     translatorList,
     (v) => v.name,
-    (v) => {
-        return translatorD(v);
-    },
+    translatorD,
     () => {
         setTranLan();
     },
@@ -1069,7 +1078,10 @@ const engineConfig: Partial<
     },
 };
 
-function translatorD(_v: setting["翻译"]["翻译器"][0]) {
+function translatorD(
+    _v: setting["翻译"]["翻译器"][0],
+    addTranslatorM: ElType<HTMLDialogElement>,
+) {
     let v = _v;
     if (!v) {
         v = {
@@ -1145,17 +1157,9 @@ function translatorD(_v: setting["翻译"]["翻译器"][0]) {
         }
     });
 
-    addTranslatorM.clear();
-    addTranslatorM.add([
-        idEl,
-        selectEl,
-        keys,
-        help,
-        testEl,
-        button(txt("关闭")).on("click", () => {
-            addTranslatorM.el.close();
-        }),
-    ]);
+    addTranslatorM
+        .add([idEl, selectEl, keys, help, testEl])
+        .class("add_translator");
 
     function getV() {
         if (!selectEl.gv) return null;
@@ -1177,10 +1181,12 @@ function translatorD(_v: setting["翻译"]["翻译器"][0]) {
 
     set(v.type);
 
-    addTranslatorM.el.showModal();
-
     return new Promise((re: (nv: typeof v) => void) => {
-        addTranslatorM.add(
+        addTranslatorM.add([
+            button(txt("关闭")).on("click", () => {
+                addTranslatorM.el.close();
+                re(null);
+            }),
             button(txt("完成")).on("click", () => {
                 const nv = getV();
                 if (
@@ -1196,7 +1202,7 @@ function translatorD(_v: setting["翻译"]["翻译器"][0]) {
                     addTranslatorM.el.close();
                 }
             }),
-        );
+        ]);
     });
 }
 
