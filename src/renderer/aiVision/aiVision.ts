@@ -86,9 +86,7 @@ function newChatItem(id: string) {
         _: view("x").style({
             transition: "var(--transition)",
         }),
-        reflash: iconEl(reflash_svg).style({
-            display: c.role === "assistant" ? "block" : "none",
-        }),
+        reflash: iconEl(reflash_svg),
         edit: iconEl(edit_svg),
         delete: iconEl(close_svg),
     });
@@ -104,12 +102,19 @@ function newChatItem(id: string) {
     });
     toolBar.els.reflash.on("click", () => {
         const keys = Array.from(content.keys());
-        for (let i = 0; i < content.size; i++) {
-            if (keys[i + 1] === id) {
-                currentId = keys[i];
-                runAI(id);
-                break;
-            }
+        const nowIndex = keys.indexOf(id);
+        // 在ai回答上重载，从上一个信息开始生成，覆盖当前信息
+        if (content.get(id).role === "assistant") {
+            const endIndex = nowIndex - 1;
+            if (endIndex < 0) return;
+            currentId = keys[endIndex];
+            runAI(id);
+        }
+        // 在用户信息上重载，从用户信息开始，覆盖下一条信息
+        if (content.get(id).role === "user") {
+            currentId = id;
+            const nextId = keys[nowIndex + 1] || uuid();
+            runAI(nextId);
         }
     });
 
