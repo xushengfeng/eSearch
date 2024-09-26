@@ -377,6 +377,7 @@ div:has(> .sort-item) {
 }
 .sort-item > span {
     min-width: 2rem;
+    min-height: 1em;
 }
 .sort-item button {
     position: relative;
