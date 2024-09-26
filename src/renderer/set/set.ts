@@ -872,7 +872,7 @@ const transList: { [key: string]: (typeof xstore.翻译.翻译器)[0] } = {};
 
 const translatorList = view();
 const addTranslatorM = ele("dialog").class("add_translator");
-const addTranslator = button(txt("+")).on("click", async () => {
+const addTranslator = button(iconEl(add_svg)).on("click", async () => {
     const v = await translatorD({
         id: crypto.randomUUID().slice(0, 7),
         name: "",
