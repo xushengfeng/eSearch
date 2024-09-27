@@ -2123,8 +2123,8 @@ function showBars(b: boolean) {
 }
 function pencilElClick() {
     fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = shapePro.free.sc;
-    fabricCanvas.freeDrawingBrush.width = shapePro.free.sw;
+    fabricCanvas.freeDrawingBrush.color = shapePro.free.sc || strokeColor;
+    fabricCanvas.freeDrawingBrush.width = shapePro.free.sw || strokeWidth;
 
     setDrawMode("stroke");
 
@@ -2134,12 +2134,12 @@ function eraserElClick() {
     // todo
     const eraser = new EraserBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush = eraser;
-    fabricCanvas.freeDrawingBrush.width = shapePro.eraser.sw;
+    fabricCanvas.freeDrawingBrush.width = shapePro.eraser.sw || strokeWidth;
 }
 function freeSprayElClick() {
     fabricCanvas.freeDrawingBrush = new SprayBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = shapePro.spray.sc;
-    fabricCanvas.freeDrawingBrush.width = shapePro.spray.sw;
+    fabricCanvas.freeDrawingBrush.color = shapePro.spray.sc || strokeColor;
+    fabricCanvas.freeDrawingBrush.width = shapePro.spray.sw || strokeWidth;
 
     setDrawMode("stroke");
 }
