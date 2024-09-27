@@ -557,5 +557,7 @@
     "a42ae8": "Request Body",
     "404cd4": "Custom Request Body",
     "b22a4e": "System Prompt, ${t} for text, ${to}, ${from}",
-    "6e0f9b": "Input by Line, one header per line, format is key:value"
+    "6e0f9b": "Input by Line, one header per line, format is key:value",
+    "6b06bc": "Online model",
+    "fff136": "Support image recognition"
 }

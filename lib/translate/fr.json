@@ -557,5 +557,7 @@
     "a42ae8": "Corps de requête",
     "404cd4": "Corps de requête personnalisé",
     "b22a4e": "Instructions système, ${t} pour le texte, ${to}, ${from}",
-    "6e0f9b": "Saisie ligne par ligne, une en-tête par ligne, format key:value"
+    "6e0f9b": "Saisie ligne par ligne, une en-tête par ligne, format key:value",
+    "6b06bc": "Modèle en ligne",
+    "fff136": "Support de la reconnaissance d'images"
 }

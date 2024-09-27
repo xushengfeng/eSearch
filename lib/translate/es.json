@@ -557,5 +557,7 @@
     "a42ae8": "Cuerpo de la solicitud",
     "404cd4": "Cuerpo de la solicitud personalizado",
     "b22a4e": "Palabras de aviso del sistema, ${t} para texto, ${to}，${from}",
-    "6e0f9b": "Ingresar por línea, cada línea un header, formato key:value"
+    "6e0f9b": "Ingresar por línea, cada línea un header, formato key:value",
+    "6b06bc": "Modelo en línea",
+    "fff136": "Soporte para reconocimiento de imágenes"
 }
