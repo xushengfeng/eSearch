@@ -1181,7 +1181,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     }
 
     if (list.type === "image") {
-        editor.push(t("图片上传中……请等候"));
+        editor.push(`${t("图片上传中……")} ${t("请等候")}`);
         searchImg(list.content, list.arg0, (err: Error, url: string) => {
             if (url) {
                 editor.push("");
@@ -1190,12 +1190,15 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                     closeWindow();
                 }
             }
-            if (err) editor.push(t("上传错误，请打开开发者工具查看详细错误"));
+            if (err)
+                editor.push(
+                    `${t("上传错误")}\n${t("请打开开发者工具（Ctrl+Shift+I）查看详细错误")}`,
+                );
         });
     }
 
     if (list.type === "ocr") {
-        editor.push(t("文字识别中……请等候"));
+        editor.push(`${t("文字识别中……")} ${t("请等候")}`);
         ocr(
             list.content,
             list.arg0,
@@ -1243,7 +1246,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
     }
 
     if (list.type === "qr") {
-        editor.push(t("二维码识别中……请等候"));
+        editor.push(`${t("二维码识别中……")} ${t("请等候")}`);
         import("qr-scanner-wechat").then(async (qr) => {
             const img = new Image();
             img.src = list.content;
