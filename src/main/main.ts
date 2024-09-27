@@ -47,7 +47,7 @@ import {
     statSync,
 } from "node:fs";
 import { release, tmpdir } from "node:os";
-import { t, lan, getLans } from "../../lib/translate/translate";
+import { t, lan, getLans, matchFitLan } from "../../lib/translate/translate";
 import time_format from "../../lib/time_format";
 import url from "node:url";
 
@@ -2796,18 +2796,8 @@ function matchBestLan() {
     const supportLan = getLans();
 
     for (const lan of app.getPreferredSystemLanguages()) {
-        const mainLan = lan.split("-")[0];
-        const fullLanCode =
-            mainLan === "zh"
-                ? {
-                      "zh-CN": "zh-HANS",
-                      "zh-SG": "zh-HANS",
-                      "zh-TW": "zh-HANT",
-                      "zh-HK": "zh-HANT",
-                  }[lan] || "zh-HANS"
-                : lan;
-        if (supportLan.includes(fullLanCode)) return fullLanCode;
-        if (supportLan.includes(mainLan)) return fullLanCode;
+        const l = matchFitLan(lan, supportLan, "");
+        if (l) return l;
     }
     return "zh-HANS";
 }
