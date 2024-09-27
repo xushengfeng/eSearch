@@ -13,6 +13,7 @@ async function removeObj(op: {
             ? op.img.naturalHeight
             : op.img.height;
     const imputImg = new OffscreenCanvas(w, h).getContext("2d");
+    if (!imputImg) throw new Error("imputImg is null");
     imputImg.drawImage(op.img, 0, 0);
     const imgData = imputImg.getImageData(0, 0, w, h);
 
