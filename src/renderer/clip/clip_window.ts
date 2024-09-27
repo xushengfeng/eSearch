@@ -2123,8 +2123,8 @@ function showBars(b: boolean) {
 }
 function pencilElClick() {
     fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = shapePro.free.sc || strokeColor;
-    fabricCanvas.freeDrawingBrush.width = shapePro.free.sw || strokeWidth;
+    fabricCanvas.freeDrawingBrush.color = shapePro.free.sc;
+    fabricCanvas.freeDrawingBrush.width = shapePro.free.sw;
 
     setDrawMode("stroke");
 
@@ -2134,12 +2134,12 @@ function eraserElClick() {
     // todo
     const eraser = new EraserBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush = eraser;
-    fabricCanvas.freeDrawingBrush.width = shapePro.eraser.sw || strokeWidth;
+    fabricCanvas.freeDrawingBrush.width = shapePro.eraser.sw;
 }
 function freeSprayElClick() {
     fabricCanvas.freeDrawingBrush = new SprayBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = shapePro.spray.sc || strokeColor;
-    fabricCanvas.freeDrawingBrush.width = shapePro.spray.sw || strokeWidth;
+    fabricCanvas.freeDrawingBrush.color = shapePro.spray.sc;
+    fabricCanvas.freeDrawingBrush.width = shapePro.spray.sw;
 
     setDrawMode("stroke");
 }
@@ -2178,17 +2178,17 @@ function freeDrawCursor() {
 }
 
 function freeInit() {
-    const sc = store.get(`图像编辑.形状属性.${mode}.sc`);
-    const sw = store.get(`图像编辑.形状属性.${mode}.sw`);
-    const sb = store.get(`图像编辑.形状属性.${mode}.shadow`);
+    const sc = store.get(`图像编辑.形状属性.${mode}.sc`) ?? freeColor;
+    const sw = store.get(`图像编辑.形状属性.${mode}.sw`) ?? freeWidth;
+    const sb = store.get(`图像编辑.形状属性.${mode}.shadow`) ?? 0;
     if (!shapePro[mode]) shapePro[mode] = {};
-    if (sc) shapePro[mode].sc = sc ?? freeColor;
-    if (sw) shapePro[mode].sw = sw ?? freeWidth;
-    if (sb) shapePro[mode].shadow = sb;
+    shapePro[mode].sc = sc;
+    shapePro[mode].sw = sw;
+    shapePro[mode].shadow = sb;
     setDrawMode("stroke");
-    if (sc) colorStrokeEl.sv(sc);
-    if (sw) strokeWidthEl.sv(sw);
-    if (sb) shadowBlurEl.sv(sb);
+    colorStrokeEl.sv(sc);
+    strokeWidthEl.sv(sw);
+    shadowBlurEl.sv(sb);
 }
 
 function fabricDelete() {
@@ -2542,15 +2542,15 @@ function getFObjectV() {
         }
         setOnlyStroke(!n.canChangeFill);
     } else if (fabricCanvas.isDrawingMode) {
-        pro.fc = shapePro.free.sc;
-        pro.sc = shapePro.free.sc;
-        pro.sw = shapePro.free.sw;
+        pro.fc = shapePro.free?.sc;
+        pro.sc = shapePro.free?.sc;
+        pro.sw = shapePro.free?.sw;
     } else {
         if (nowType === "shape" || nowType === "draw") {
             const p = shapePro[editType[nowType]];
-            pro.fc = p.fc;
-            pro.sc = p.sc;
-            pro.sw = p.sw;
+            pro.fc = p?.fc;
+            pro.sc = p?.sc;
+            pro.sw = p?.sw;
         }
     }
     if (!pro.fc) pro.fc = fillColor;
