@@ -24,6 +24,8 @@ import {
     textarea,
     type ElType,
     noI18n,
+    check,
+    label,
 } from "dkh-ui";
 
 const configPath = ipcRenderer.sendSync("store", { type: "path" });
@@ -874,7 +876,7 @@ function sortList<t>(
         el: t | null,
         dialog: ElType<HTMLDialogElement>,
     ) => Promise<t | null>,
-    onChange: () => void,
+    onChange: () => void = () => {},
 ) {
     const listEl = view("x", "wrap");
     new Sortable(listEl.el, {
@@ -1247,7 +1249,6 @@ const w文件生词本List = sortList(
     w文件生词本,
     (v) => path.basename(v.path),
     w文件生词本Dialog,
-    () => {},
 );
 
 const z在线生词本List = sortList(
@@ -1255,7 +1256,6 @@ const z在线生词本List = sortList(
     z在线生词本,
     (v) => v.name || new URL(v.url).host,
     z在线生词本Dialog,
-    () => {},
 );
 
 const textStyle = (mh: number) =>
@@ -1821,6 +1821,58 @@ function addOCRFromPaths(paths: string[]) {
     setOcr();
 }
 
+const onlineAIModelEl = elFromId("online_ai_model");
+
+const onlineAIModel = sortList(
+    xstore.AI.在线模型,
+    onlineAIModelEl,
+    (v) => v.name,
+    (item, dialog) => {
+        const { promise, resolve } = Promise.withResolvers<typeof item>();
+
+        const nameEl = input().sv(item.name);
+        const urlEl = input().sv(item.url);
+        const keyEl = input().sv(item.key);
+        const configEl = textarea()
+            .bindSet((v, el) => {
+                el.value = JSON.stringify(v, null, 2);
+            })
+            .bindGet((el) => JSON.parse(el.value) as Record<string, unknown>)
+            .sv(item.config)
+            .style(textStyle(6));
+        const supportVision = check("vision");
+
+        dialog.add([
+            nameEl,
+            view("y")
+                .style({ gap: "8px" })
+                .add([
+                    view().add([noI18n("URL"), ele("br"), urlEl]),
+                    view().add([noI18n("key"), ele("br"), keyEl]),
+                    view().add(["请求体自定义", ele("br"), configEl]),
+                    label([supportVision, "支持图像识别"]),
+                ]),
+            button(txt("关闭")).on("click", () => {
+                resolve(null);
+                dialog.el.close();
+            }),
+            button(txt("完成")).on("click", () => {
+                resolve({
+                    name: nameEl.gv,
+                    type: "chatgpt",
+                    url: urlEl.gv,
+                    key: keyEl.gv,
+                    config: configEl.gv,
+                    supportVision: supportVision.gv,
+                });
+                dialog.el.close();
+            }),
+        ]);
+
+        return promise;
+    },
+);
+
 const screenKeyTipEl = document.getElementById("screen_key_tip");
 const screenKeyTipKBD = screenKeyTipEl.querySelector("div");
 const screenKeyTipOXEl = document.getElementById(
@@ -2085,6 +2137,7 @@ function saveSetting() {
         .checked
         ? old_store.OCR.记住 || getOcrType()
         : false;
+    xstore.AI.在线模型 = onlineAIModel();
     xstore.代理.proxyRules = setProxy();
     if (userDataPathInputed)
         fs.writeFile(
