@@ -26,8 +26,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       esearch-ocr:
-        specifier: ^5.0.0
-        version: 5.0.0(opencv.js@1.2.1)
+        specifier: ^5.1.0
+        version: 5.1.0(opencv.js@1.2.1)
       esearch-seg:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
@@ -764,7 +764,6 @@ packages:
   are-we-there-yet@2.0.0:
     resolution: {integrity: sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==}
     engines: {node: '>=10'}
-    deprecated: This package is no longer supported.
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -1237,8 +1236,8 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@5.0.0:
-    resolution: {integrity: sha512-bDrrp+cmze9MBdzrSw1cBkmaUu8AfbrN3ycOHqAJJFXCy4Hjmg2kocjQPG4LzWUKn3v34yzzFaiDdXh1QqroXg==}
+  esearch-ocr@5.1.0:
+    resolution: {integrity: sha512-lajNonxTgb3cNHfUnZRvxtEav+mLyVVvAPIjCXjRaQByI2/yejED4/KZXFtBrjKiSW+mt9cHhz9W3YYlXaf/dA==}
     peerDependencies:
       opencv.js: ^1.2.1
 
@@ -1376,7 +1375,6 @@ packages:
   gauge@3.0.2:
     resolution: {integrity: sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==}
     engines: {node: '>=10'}
-    deprecated: This package is no longer supported.
 
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -3788,7 +3786,7 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@5.0.0(opencv.js@1.2.1):
+  esearch-ocr@5.1.0(opencv.js@1.2.1):
     dependencies:
       js-clipper: 1.0.1
       onnxruntime-common: 1.18.0

@@ -22,7 +22,7 @@
         "diff-match-patch": "^1.0.5",
         "dkh-ui": "^0.9.0",
         "download": "^8.0.0",
-        "esearch-ocr": "^5.0.0",
+        "esearch-ocr": "^5.1.0",
         "esearch-seg": "^1.1.4",
         "fabric": "^6.4.0",
         "hex-to-css-filter": "^5.4.0",
