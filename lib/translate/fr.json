@@ -22,6 +22,7 @@
     "512586": "Indications du curseur",
     "512860": "Fonction de recherche principale",
     "520181": "Styles mondiaux",
+    "549644": "Reconnaissance de texte en cours...",
     "557370": "Grande version",
     "630368": "eSearch - Écran d'enregistrement",
     "646136": "Mémoriser la taille de la sélection",
@@ -559,5 +560,12 @@
     "b22a4e": "Instructions système, ${t} pour le texte, ${to}, ${from}",
     "6e0f9b": "Saisie ligne par ligne, une en-tête par ligne, format key:value",
     "6b06bc": "Modèle en ligne",
-    "fff136": "Support de la reconnaissance d'images"
+    "fff136": "Support de la reconnaissance d'images",
+    "6c249b": "Aucun historique disponible",
+    "f6510d": "Téléchargement de l'image en cours...",
+    "c4bd13": "Veuillez patienter",
+    "27c7a7": "Erreur de téléchargement",
+    "ec1353": "Erreur de reconnaissance",
+    "7b84bc": "Veuillez ouvrir les outils de développement (Ctrl+Shift+I) pour voir les erreurs détaillées",
+    "98c7f8": "Reconnaissance de code QR en cours..."
 }

@@ -22,6 +22,7 @@
     "512586": "Cursor hints",
     "512860": "Main search function",
     "520181": "Global styles",
+    "549644": "Text recognition in progress...",
     "557370": "Major version",
     "630368": "eSearch - Recorder",
     "646136": "Remember selection size",
@@ -559,5 +560,12 @@
     "b22a4e": "System Prompt, ${t} for text, ${to}, ${from}",
     "6e0f9b": "Input by Line, one header per line, format is key:value",
     "6b06bc": "Online model",
-    "fff136": "Support image recognition"
+    "fff136": "Support image recognition",
+    "6c249b": "No history records",
+    "f6510d": "Image uploading...",
+    "c4bd13": "Please wait",
+    "27c7a7": "Upload error",
+    "ec1353": "Recognition error",
+    "7b84bc": "Please open the developer tools (Ctrl+Shift+I) to see detailed errors",
+    "98c7f8": "QR code recognition in progress..."
 }

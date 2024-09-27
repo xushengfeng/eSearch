@@ -22,6 +22,7 @@
     "512586": "Sugerencias de cursor",
     "512860": "Función de búsqueda principal",
     "520181": "Estilos globales",
+    "549644": "Reconociendo texto…",
     "557370": "Versión mayor",
     "630368": "eSearch - Pantalla de registro",
     "646136": "Recordar tamaño de selección",
@@ -559,5 +560,12 @@
     "b22a4e": "Palabras de aviso del sistema, ${t} para texto, ${to}，${from}",
     "6e0f9b": "Ingresar por línea, cada línea un header, formato key:value",
     "6b06bc": "Modelo en línea",
-    "fff136": "Soporte para reconocimiento de imágenes"
+    "fff136": "Soporte para reconocimiento de imágenes",
+    "6c249b": "Sin historial disponible",
+    "f6510d": "Cargando imagen…",
+    "c4bd13": "Por favor, espera",
+    "27c7a7": "Error de carga",
+    "ec1353": "Error de reconocimiento",
+    "7b84bc": "Por favor, abre las herramientas de desarrollador (Ctrl+Shift+I) para ver el error detallado",
+    "98c7f8": "Reconociendo código QR…"
 }

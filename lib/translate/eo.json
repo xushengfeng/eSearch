@@ -22,6 +22,7 @@
     "512586": "kurzoraj sugestoj",
     "512860": "ĉefa serĉfunkcio",
     "520181": "tutmonda stilo",
+    "549644": "Teksto-rekono estas en progreso…",
     "557370": "granda versio",
     "630368": "eSearch - Ekranregistrado",
     "646136": "Memoru la grandon de la arelekto",
@@ -559,5 +560,12 @@
     "b22a4e": "sistemo sugestoj, ${t} estas teksto, ${to}, ${from}",
     "6e0f9b": "eniri per linioj, unu header po linio, formato key:value",
     "6b06bc": "Interreta modelo",
-    "fff136": "Subteno de bildokono"
+    "fff136": "Subteno de bildokono",
+    "6c249b": "Neniuj historioj",
+    "f6510d": "Bildoj estas alŝutataj…",
+    "c4bd13": "Bonvolu atendi",
+    "27c7a7": "Eraro dum alŝutado",
+    "ec1353": "Eraro en rekono",
+    "7b84bc": "Bonvolu malfermi la disvolviga ilaro (Ctrl+Shift+I) por vidi pli da detaloj",
+    "98c7f8": "QR-kodo-rekono estas en progreso…"
 }
