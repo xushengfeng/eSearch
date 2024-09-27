@@ -61,7 +61,7 @@ lans.add([lansFrom, lansTo]);
 document.body.append(input.el, lans.el, results.el);
 
 const inputText = decodeURIComponent(
-    new URLSearchParams(location.search).get("text"),
+    new URLSearchParams(location.search).get("text") || "",
 );
 
 const fyq = store.get("翻译.翻译器");
