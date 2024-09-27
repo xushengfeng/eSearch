@@ -80,6 +80,7 @@ import {
     lan,
     getLans,
     getLanName,
+    matchFitLan,
 } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 for (const el of document
@@ -954,8 +955,12 @@ function sortList<t>(
 }
 
 const translateES = document.getElementById("translate_es");
-const translatorFrom = document.getElementById("translator_from");
-const translatorTo = document.getElementById("translator_to");
+const translatorFrom = document.getElementById(
+    "translator_from",
+) as HTMLSelectElement;
+const translatorTo = document.getElementById(
+    "translator_to",
+) as HTMLSelectElement;
 
 const translatorList = view();
 translateES.append(translatorList.el);
@@ -1212,6 +1217,8 @@ function translatorD(
 
 function setTranLan() {
     const firstItem = translateList().at(0);
+    const oldFrom = translatorFrom.value;
+    const oldTo = translatorTo.value;
     translatorFrom.innerText = "";
     translatorTo.innerHTML = "";
     if (!firstItem) return;
@@ -1237,9 +1244,23 @@ function setTranLan() {
             ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
         );
     }
+    setLan(oldFrom, oldTo);
+}
+
+function setLan(from: string, to: string) {
+    const fromList = Array.from(translatorFrom.querySelectorAll("option")).map(
+        (i) => i.value,
+    );
+    const toList = Array.from(translatorTo.querySelectorAll("option")).map(
+        (i) => i.value,
+    );
+    translatorFrom.value = matchFitLan(from, fromList, fromList[0]);
+    translatorTo.value = matchFitLan(to, toList, toList[0]);
 }
 
 setTranLan();
+
+setLan(xstore.屏幕翻译.语言.from, xstore.屏幕翻译.语言.to);
 
 const w文件生词本 = elFromId("文件生词本");
 const z在线生词本 = elFromId("在线生词本");
@@ -2114,6 +2135,8 @@ function saveSetting() {
         : false;
     xstore.字体 = 字体;
     xstore.翻译.翻译器 = translateList();
+    xstore.屏幕翻译.语言.from = translatorFrom.value;
+    xstore.屏幕翻译.语言.to = translatorTo.value;
     xstore.翻译.收藏.fetch = z在线生词本List();
     xstore.翻译.收藏.文件 = w文件生词本List();
     const yS = list2engine(y搜索引擎());
