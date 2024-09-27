@@ -1,4 +1,6 @@
-const h1 = document.querySelector("h1");
+const h1 = document.createElement("h1");
+const details = document.createElement("'div");
+document.body.append(h1, details);
 
 const search = new URLSearchParams(location.search);
 
@@ -6,8 +8,7 @@ if (navigator.onLine) {
     switch (search.get("type")) {
         case "did-fail-load":
             h1.innerText = "加载失败";
-            document.getElementById("details").innerHTML =
-                `<p>${"错误代码："}${search.get("err_code")}</p>
+            details.innerHTML = `<p>${"错误代码："}${search.get("err_code")}</p>
             <p>${"错误描述："}${search.get("err_des")}</p>`;
             break;
         case "render-process-gone":
