@@ -2528,30 +2528,34 @@ function colorBar() {
 
 /** 鼠标点击后，改变栏文字样式 */
 function getFObjectV() {
-    let pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
+    const pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
     if (fabricCanvas.getActiveObject()) {
         const n = fabricCanvas.getActiveObject();
         // todo 当线与形一起选中，确保形不会透明
-        if (n.fill) pro.fc = n.fill.toString();
-        if (n.stroke) pro.sc = n.stroke.toString();
-        if (n.strokeWidth) pro.sw = n.strokeWidth;
-        if ((n as FabricImage).filters)
-            pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
+        pro.fc = n.fill?.toString();
+        pro.sc = n.stroke?.toString();
+        pro.sw = n.strokeWidth;
+        if ((n as FabricImage).filters) {
+            pro.fc = fillColor;
+            pro.sc = strokeColor;
+            pro.sw = strokeWidth;
+        }
         setOnlyStroke(!n.canChangeFill);
     } else if (fabricCanvas.isDrawingMode) {
-        pro = {
-            fc: shapePro.free.sc,
-            sc: shapePro.free.sc,
-            sw: shapePro.free.sw,
-        };
+        pro.fc = shapePro.free.sc;
+        pro.sc = shapePro.free.sc;
+        pro.sw = shapePro.free.sw;
     } else {
         if (nowType === "shape" || nowType === "draw") {
             const p = shapePro[editType[nowType]];
-            if (p.fc) pro.fc = p.fc;
-            if (p.sc) pro.sc = p.sc;
-            if (p.sw) pro.sw = p.sw;
+            pro.fc = p.fc;
+            pro.sc = p.sc;
+            pro.sw = p.sw;
         }
     }
+    if (!pro.fc) pro.fc = fillColor;
+    if (!pro.sc) pro.sc = strokeColor;
+    if (!pro.sw) pro.sw = strokeWidth;
     console.log(pro);
     strokeWidthEl.sv(pro.sw);
     colorFillEl.sv(pro.fc);
