@@ -52,8 +52,12 @@ let pause = false;
 
 const lo = require("esearch-ocr") as typeof import("esearch-ocr");
 const ort = require("onnxruntime-node");
-let l: [string, string, string, string];
-for (const i of store.get("离线OCR")) if (i[0] === "默认") l = i;
+const l: [string, string, string, string] = [
+    "默认",
+    "默认/ppocr_det.onnx",
+    "默认/ppocr_rec.onnx",
+    "默认/ppocr_keys_v1.txt",
+];
 function ocrPath(p: string) {
     return path.join(
         path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"),
@@ -65,15 +69,20 @@ const recp = ocrPath(l[2]);
 const 字典 = ocrPath(l[3]);
 
 function screenshot(id: number, rect: Rect) {
-    const screen = screenShots(display).find((i) => i.id === id);
+    const l = screenShots(display);
+    const screen = l.find((i) => i.id === id) || l[0];
+    if (!screen) return;
     const img = screen.captureSync().data;
+    if (!img) return;
     const canvas = document.createElement("canvas");
 
     canvas.width = img.width;
     canvas.height = img.height;
 
-    canvas.getContext("2d").putImageData(img, 0, 0);
-    return canvas.getContext("2d").getImageData(rect.x, rect.y, rect.w, rect.h);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("can get canvas context");
+    ctx.putImageData(img, 0, 0);
+    return ctx.getImageData(rect.x, rect.y, rect.w, rect.h);
 }
 
 async function ocr(imgData: ImageData) {
@@ -112,6 +121,7 @@ const sl = () =>
 
 async function run() {
     const data = screenshot(screenId, rect);
+    if (!data) return;
     document.body.style.opacity = "1";
 
     const ocrData = await ocr(data);
