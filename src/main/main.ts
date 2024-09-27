@@ -2869,7 +2869,7 @@ function checkUpdate(s手动检查?: boolean) {
             }
         })
         .catch(() => {
-            showVersion("err");
+            if (s手动检查) showVersion("err");
         });
 }
 
