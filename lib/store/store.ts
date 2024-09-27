@@ -65,7 +65,7 @@ class Store {
     ): GetValue<setting, P> {
         const store = this.getStore();
         const pathx = keyPath.split(".");
-        const lastp = pathx.pop();
+        const lastp = pathx.pop() ?? "";
         const lastobj = pathx.reduce((p, c) => {
             return p[c] || {};
         }, store);
