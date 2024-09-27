@@ -118,7 +118,11 @@ async function run() {
 
     textEl.clear();
     const textL: { text: string; el: ElType<HTMLDivElement> }[] = [];
-    for (const i of ocrData.parragraphs) {
+    for (const _i of ocrData.columns.flatMap((c) => c.parragraphs)) {
+        const lineHeight = _i.src
+            .map((i) => i.box[3][1] - i.box[0][1])
+            .reduce((a, b) => (a + b) / 2);
+        const i = _i.parse;
         const text = i.text;
         const x0 = i.box[0][0];
         const y0 = i.box[0][1];
@@ -129,8 +133,8 @@ async function run() {
             top: `${y0}px`,
             width: `${x1 - x0}px`,
             height: `${y1 - y0}px`,
-            "line-height": `${y1 - y0}px`,
-            "font-size": `${y1 - y0}px`,
+            "line-height": `${lineHeight}px`,
+            "font-size": `${lineHeight}px`,
         });
         textEl.add(item);
         textL.push({ el: item, text });
