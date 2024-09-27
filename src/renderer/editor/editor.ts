@@ -3,7 +3,17 @@
 import store from "../../../lib/store/renderStore";
 import type { MainWinType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
-import { view, txt, ele, button, image, p, pack } from "dkh-ui";
+import {
+    view,
+    txt,
+    ele,
+    button,
+    image,
+    p,
+    pack,
+    setTranslate,
+    noI18n,
+} from "dkh-ui";
 import initStyle from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
@@ -156,6 +166,10 @@ const bottomEls = document.getElementById("bottoms");
 const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 
 const dmp = new diff_match_patch();
+
+lan(language);
+
+setTranslate(t);
 
 /**
  * 添加到撤销栈
@@ -1050,13 +1064,17 @@ document.getElementById("translate_s").oninput = () => {
 /**展示搜索引擎选项 */
 for (const e of 搜索引擎List) {
     const selected = 引擎.记忆.搜索 === e.name;
-    const op = ele("option").add(txt(e.name)).attr({ value: e.url, selected });
+    const op = ele("option")
+        .add(noI18n(e.name))
+        .attr({ value: e.url, selected });
     searchSelect.append(op.el);
 }
 /**展示翻译引擎选项 */
 for (const e of 翻译引擎List) {
     const selected = 引擎.记忆.翻译 === e.name;
-    const op = ele("option").add(txt(e.name)).attr({ value: e.url, selected });
+    const op = ele("option")
+        .add(e.url.startsWith("translate") ? t(e.name) : noI18n(e.name))
+        .attr({ value: e.url, selected });
     translateSelect.append(op.el);
 }
 
@@ -1115,7 +1133,7 @@ function renderHistory() {
         const t = historyList[i].text.split(/[\r\n]/g);
         const div = view().attr({ id: i });
         const text = t.splice(0, 3).join("\n") + (t.length > 3 ? "..." : "");
-        const textEl = view().class("history_text").add(txt(text));
+        const textEl = view().class("history_text").add(txt(text, true));
         div.add([
             view()
                 .class("history_title")
@@ -1125,6 +1143,7 @@ function renderHistory() {
                             store.get("时间格式"),
                             new Date(Number(i) - 0),
                         ),
+                        true,
                     ),
                     button(image(closeSvg, "icon").class("icon")),
                 ]),
@@ -1410,7 +1429,6 @@ hotkeys("ctrl+0", () => {
     setFontSize(默认字体大小);
 });
 
-lan(language);
 document.title = t(document.title);
 
 /**
