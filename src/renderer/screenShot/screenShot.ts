@@ -54,7 +54,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
         const { execSync } =
             require("node:child_process") as typeof import("node:child_process");
         const x: (typeof allScreens)[0] = {
-            ...displays[0],
+            ...displays?.[0],
             captureSync: (keep?: boolean) => {
                 if (x.image && keep) return x.image;
                 const command = _command;
@@ -77,7 +77,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                             buttons: ["确定"],
                         } as MessageBoxSyncOptions);
                     }
-                    return null;
+                    return { data: null, image: nativeImage.createEmpty() };
                 }
 
                 const data = toCanvas(buffer);
