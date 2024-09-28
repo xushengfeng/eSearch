@@ -5,8 +5,8 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 // 获取设置
 import store from "../../../lib/store/renderStore";
 
-const keysEl = document.getElementById("recorder_key");
-const recorderMouseEl = document.getElementById("mouse_c");
+const keysEl = document.getElementById("recorder_key") as HTMLElement;
+const recorderMouseEl = document.getElementById("mouse_c") as HTMLElement;
 
 initRecord();
 
@@ -20,8 +20,9 @@ function initRecord() {
         const posi = store.get("录屏.提示.键盘.位置");
         const px = posi.x === "+" ? "right" : "left";
         const py = posi.y === "+" ? "bottom" : "top";
-        keysEl.parentElement.style[px] = `${posi.offsetX}px`;
-        keysEl.parentElement.style[py] = `${posi.offsetY}px`;
+        const pel = keysEl.parentElement as HTMLElement;
+        pel.style[px] = `${posi.offsetX}px`;
+        pel.style[py] = `${posi.offsetY}px`;
 
         keysEl.style.fontSize = `${store.get("录屏.提示.键盘.大小") * 16}px`;
 
@@ -60,7 +61,7 @@ function initRecord() {
 
         let keyO: number[] = [];
 
-        let lastKey = null as ReturnType<typeof view>;
+        let lastKey = null as ReturnType<typeof view> | null;
 
         uIOhook.on("keydown", (e) => {
             if (!keyO.includes(e.keycode)) keyO.push(e.keycode);
@@ -81,7 +82,7 @@ function initRecord() {
 
             if (key.top) kbdEl.add(txt(key.top).class("top_key"));
             else {
-                kbdEl.el.querySelector("span").classList.remove("main_key");
+                kbdEl.el.querySelector("span")?.classList.remove("main_key");
                 kbdEl.el.classList.add("only_key");
             }
             lastKey.add(kbdEl);
@@ -96,7 +97,7 @@ function initRecord() {
         });
         uIOhook.on("keyup", (e) => {
             keyO = keyO.filter((i) => i !== e.keycode);
-            for (const el of (lastKey.el
+            for (const el of (lastKey?.el
                 .querySelectorAll(`[data-k="${e.keycode}"]`)
                 ?.values() as Iterable<HTMLElement>) || []) {
                 el.classList.add("key_hidden");
@@ -104,7 +105,7 @@ function initRecord() {
             if (keyO.length === 0) {
                 const e = lastKey;
                 setTimeout(() => {
-                    e.style({ opacity: "0" });
+                    e?.style({ opacity: "0" });
                 }, 4000);
                 lastKey = null;
             }
@@ -141,6 +142,7 @@ function initRecord() {
     if (store.get("录屏.提示.鼠标.开启")) rMouse();
 
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
+        // @ts-ignore
         uIOhook.start();
 
     if (store.get("录屏.提示.光标.开启"))
