@@ -20,8 +20,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       dkh-ui:
-        specifier: ^0.9.0
-        version: 0.9.0
+        specifier: ^0.10.0
+        version: 0.10.0
       download:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1114,8 +1114,8 @@ packages:
   dir-compare@3.3.0:
     resolution: {integrity: sha512-J7/et3WlGUCxjdnD3HAAzQ6nsnc0WL6DD7WcwJb7c39iH1+AWfg+9OqzJNaI6PkBwBvm1mhZNL9iY/nRiZXlPg==}
 
-  dkh-ui@0.9.0:
-    resolution: {integrity: sha512-kVwkotPMGOjA17MmamDZarQ+fTPR4qEp+D+88aQNjg+Shhj51Fpc+9zJh1fvb6jpC+Yk8yTA5T6ae0zSYEr05A==}
+  dkh-ui@0.10.0:
+    resolution: {integrity: sha512-G8T/Jpo/WZhFZnMHId/wIZVQxfftTK9FP6UJvmTUMUjym/XW8SlvM+kC6fJVXpF5Gzo81XzC6aKO227oQgd2Yg==}
 
   dmg-builder@24.13.3:
     resolution: {integrity: sha512-rcJUkMfnJpfCboZoOOPf4L29TRtEieHNOeAbYPWPxlaBw/Z1RKrRA86dOI9rwaI4tQSc/RD82zTNHprfUHXsoQ==}
@@ -3595,7 +3595,7 @@ snapshots:
       buffer-equal: 1.0.1
       minimatch: 3.1.2
 
-  dkh-ui@0.9.0:
+  dkh-ui@0.10.0:
     dependencies:
       csstype: 3.1.3
       typed-query-selector: 2.12.0
