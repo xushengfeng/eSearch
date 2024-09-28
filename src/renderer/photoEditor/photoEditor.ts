@@ -305,6 +305,7 @@ function getImg(base64 = false) {
         height: Number(controls.els.photoH.gv),
     }).el;
     const ctx = x.getContext("2d");
+    if (!ctx) throw new Error("canvas context is null");
     ctx.drawImage(
         canvas.el,
         0,
@@ -377,7 +378,9 @@ function gColors() {
 
 const canvas = ele("canvas");
 const magicPenPreview = ele("canvas");
-const magicPenPreviewCtx = magicPenPreview.el.getContext("2d");
+const magicPenPreviewCtx = magicPenPreview.el.getContext(
+    "2d",
+) as CanvasRenderingContext2D;
 
 preview.add([canvas, magicPenPreview]);
 
@@ -417,147 +420,154 @@ function setConfig() {
     for (const key in configMap) {
         const k = key as keyof typeof configMap;
         const el = controls.els[k];
+        // @ts-ignore
         const value = configMap[k].init
-            ? configMap[k].init(styleData[configMap[k].path])
-            : styleData[configMap[k].path];
+            ? // @ts-ignore
+              configMap[k].init(styleData[configMap[k].path])
+            : // @ts-ignore
+              styleData[configMap[k].path];
         // @ts-ignore
         el.sv(value);
     }
 }
 
 function updatePreview() {
-    if (photo) {
-        const ctx = canvas.el.getContext("2d");
+    if (!photo) return;
+    const ctx = canvas.el.getContext("2d");
+    if (!ctx) throw new Error("canvas context is null");
 
-        const { naturalWidth: photoWidth, naturalHeight: photoHeight } = photo;
-        const raduis = styleData.raduis;
-        const {
-            bgType,
-            bgColor,
-            bgUrl,
-            "bg.gradient.angle": gAngle,
-            // "bg.gradient.repeat": repeat,
-            // "bg.gradient.repeatSize": repeatSize,
-            "bg.gradient.x": gx,
-            "bg.gradient.y": gy,
-            "bg.gradient": gradient,
-        } = styleData;
-        const {
-            "shadow.x": x,
-            "shadow.y": y,
-            "shadow.blur": blur,
-            "shadow.color": color,
-        } = styleData;
-        const { x: padX, y: padY } = styleData.autoPadding
-            ? { x: 0, y: 0 }
-            : { x: styleData["padding.x"], y: styleData["padding.y"] };
+    const { naturalWidth: photoWidth, naturalHeight: photoHeight } = photo;
+    const raduis = styleData.raduis;
+    const {
+        bgType,
+        bgColor,
+        bgUrl,
+        "bg.gradient.angle": gAngle,
+        // "bg.gradient.repeat": repeat,
+        // "bg.gradient.repeatSize": repeatSize,
+        "bg.gradient.x": gx,
+        "bg.gradient.y": gy,
+        "bg.gradient": gradient,
+    } = styleData;
+    const {
+        "shadow.x": x,
+        "shadow.y": y,
+        "shadow.blur": blur,
+        "shadow.color": color,
+    } = styleData;
+    const { x: padX, y: padY } = styleData.autoPadding
+        ? { x: 0, y: 0 }
+        : { x: styleData["padding.x"], y: styleData["padding.y"] };
 
-        const outerRadius = styleData.outerRadius
-            ? raduis + Math.min(padX, padY)
-            : 0;
+    const outerRadius = styleData.outerRadius
+        ? raduis + Math.min(padX, padY)
+        : 0;
 
-        const finalWidth = photoWidth + 2 * padX;
-        const finalHeight = photoHeight + 2 * padY;
+    const finalWidth = photoWidth + 2 * padX;
+    const finalHeight = photoHeight + 2 * padY;
 
-        controls.els.photoW
-            .sv(finalWidth.toString())
-            .attr({ max: finalWidth.toString() });
-        controls.els.photoH
-            .sv(finalHeight.toString())
-            .attr({ max: finalHeight.toString() });
+    controls.els.photoW
+        .sv(finalWidth.toString())
+        .attr({ max: finalWidth.toString() });
+    controls.els.photoH
+        .sv(finalHeight.toString())
+        .attr({ max: finalHeight.toString() });
 
-        canvas.el.width = finalWidth;
-        canvas.el.height = finalHeight;
+    canvas.el.width = finalWidth;
+    canvas.el.height = finalHeight;
 
-        magicPenPreview
-            .style({
-                top: 0,
-                position: "absolute",
-            })
-            .attr({ width: finalWidth, height: finalHeight });
+    magicPenPreview
+        .style({
+            top: 0,
+            position: "absolute",
+        })
+        .attr({ width: finalWidth, height: finalHeight });
 
-        if (outerRadius) {
-            ctx.beginPath();
-            ctx.roundRect(0, 0, finalWidth, finalHeight, outerRadius);
-            ctx.clip();
-        }
+    if (outerRadius) {
+        ctx.beginPath();
+        ctx.roundRect(0, 0, finalWidth, finalHeight, outerRadius);
+        ctx.clip();
+    }
 
-        if (bgType === "color") {
-            ctx.fillStyle = bgColor || "#0000";
-            ctx.fillRect(0, 0, finalWidth, finalHeight);
-        } else if (bgType === "image") {
-            const bgImg = new Image();
-            bgImg.onload = () => {
-                let scale = finalWidth / bgImg.naturalWidth;
-                if (bgImg.naturalHeight * scale < finalHeight) {
-                    scale = finalHeight / bgImg.naturalHeight;
-                }
-
-                const w = bgImg.naturalWidth * scale;
-                const h = bgImg.naturalHeight * scale;
-                const x = (finalWidth - w) / 2;
-                const y = (finalHeight - h) / 2;
-
-                ctx.drawImage(bgImg, x, y, w, h);
-                setPhoto();
-            };
-            bgImg.src = bgUrl;
-        } else {
-            let grd: CanvasGradient;
-            const angle = (gAngle * Math.PI) / 180;
-            const x = gx * finalWidth;
-            const y = gy * finalHeight;
-            if (bgType === "linear-gradient") {
-                const r =
-                    Math.sin(angle + Math.atan(finalHeight / finalWidth)) *
-                    Math.sqrt(finalWidth ** 2 + finalHeight ** 2);
-                grd = ctx.createLinearGradient(
-                    0,
-                    finalHeight,
-                    r * Math.sin(angle),
-                    finalHeight - r * Math.cos(angle), // angle 基于y轴
-                );
-            } else if (bgType === "radial-gradient") {
-                grd = ctx.createRadialGradient(
-                    x,
-                    y,
-                    0,
-                    x,
-                    y,
-                    Math.max(finalWidth, finalHeight) / 2,
-                );
-            } else if (bgType === "conic-gradient") {
-                grd = ctx.createConicGradient(angle, x, y);
+    if (bgType === "color") {
+        ctx.fillStyle = bgColor || "#0000";
+        ctx.fillRect(0, 0, finalWidth, finalHeight);
+    } else if (bgType === "image") {
+        const bgImg = new Image();
+        bgImg.onload = () => {
+            let scale = finalWidth / bgImg.naturalWidth;
+            if (bgImg.naturalHeight * scale < finalHeight) {
+                scale = finalHeight / bgImg.naturalHeight;
             }
-            try {
-                for (const item of gradient) {
-                    grd.addColorStop(item.offset, item.color);
-                }
-            } catch (error) {}
-            ctx.fillStyle = grd;
-            ctx.fillRect(0, 0, finalWidth, finalHeight);
+
+            const w = bgImg.naturalWidth * scale;
+            const h = bgImg.naturalHeight * scale;
+            const x = (finalWidth - w) / 2;
+            const y = (finalHeight - h) / 2;
+
+            ctx.drawImage(bgImg, x, y, w, h);
+            setPhoto();
+        };
+        bgImg.src = bgUrl;
+    } else {
+        let grd: CanvasGradient;
+        const angle = (gAngle * Math.PI) / 180;
+        const x = gx * finalWidth;
+        const y = gy * finalHeight;
+        if (bgType === "linear-gradient") {
+            const r =
+                Math.sin(angle + Math.atan(finalHeight / finalWidth)) *
+                Math.sqrt(finalWidth ** 2 + finalHeight ** 2);
+            grd = ctx.createLinearGradient(
+                0,
+                finalHeight,
+                r * Math.sin(angle),
+                finalHeight - r * Math.cos(angle), // angle 基于y轴
+            );
+        } else if (bgType === "radial-gradient") {
+            grd = ctx.createRadialGradient(
+                x,
+                y,
+                0,
+                x,
+                y,
+                Math.max(finalWidth, finalHeight) / 2,
+            );
+        } else {
+            grd = ctx.createConicGradient(angle, x, y);
         }
+        try {
+            for (const item of gradient) {
+                grd.addColorStop(item.offset, item.color);
+            }
+        } catch (error) {}
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, finalWidth, finalHeight);
+    }
 
-        function setPhoto() {
-            ctx.globalCompositeOperation = "source-over";
-            ctx.shadowOffsetX = x;
-            ctx.shadowOffsetY = y;
-            ctx.shadowBlur = blur;
-            ctx.shadowColor = color;
+    function setPhoto() {
+        if (!ctx) throw new Error("canvas context is null");
+        if (!photo) return;
+        ctx.globalCompositeOperation = "source-over";
+        ctx.shadowOffsetX = x;
+        ctx.shadowOffsetY = y;
+        ctx.shadowBlur = blur;
+        ctx.shadowColor = color;
 
-            const matrix = new DOMMatrix();
-            const f = ctx.createPattern(photo, "no-repeat");
+        const matrix = new DOMMatrix();
+        const f = ctx.createPattern(photo, "no-repeat");
+        if (f) {
             f.setTransform(matrix.translate(padX, padY));
             ctx.fillStyle = f;
-            ctx.beginPath();
-            ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
-            ctx.fill();
-
-            canvas.style({ "border-radius": `${outerRadius}px` });
         }
+        ctx.beginPath();
+        ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
+        ctx.fill();
 
-        setPhoto();
+        canvas.style({ "border-radius": `${outerRadius}px` });
     }
+
+    setPhoto();
 }
 
 async function magicPen() {
@@ -575,13 +585,16 @@ async function magicPen() {
             },
         );
     }
+    if (!photo || !photoSrc) return;
     const w = photo.naturalWidth;
     const h = photo.naturalHeight;
 
     const outW = magicPenPreview.el.width;
     const outH = magicPenPreview.el.height;
     const maskImg = new OffscreenCanvas(outW, outH);
-    const maskCtx = maskImg.getContext("2d");
+    const maskCtx = maskImg.getContext(
+        "2d",
+    ) as OffscreenCanvasRenderingContext2D;
     maskCtx.clearRect(0, 0, outW, outH);
     maskCtx.fillStyle = "#fff";
     maskCtx.fillRect(0, 0, outW, outH);
@@ -620,7 +633,9 @@ async function magicPen() {
         width: w,
         height: h,
     });
-    const outputCtx = outputCanvas.el.getContext("2d");
+    const outputCtx = outputCanvas.el.getContext(
+        "2d",
+    ) as CanvasRenderingContext2D;
     outputCtx.putImageData(outputData, 0, 0);
     outputImg.src = outputCanvas.el.toDataURL("image/png", 1);
 }
@@ -653,11 +668,12 @@ for (const key in configMap) {
     const el = controls.els[k];
     el.on("input", () => {
         const v = el.gv as string;
-        if (configMap[k].parse) {
-            styleData[configMap[k].path as string] = configMap[k].parse(v);
-        } else {
-            styleData[configMap[k].path as string] = v;
-        }
+        if (configMap[k])
+            if (configMap[k].parse) {
+                styleData[configMap[k].path as string] = configMap[k].parse(v);
+            } else {
+                styleData[configMap[k].path as string] = v;
+            }
         updatePreview();
         controls.els.select.sv("");
     });
@@ -700,6 +716,7 @@ trackPoint(magicPenPreview, {
         const y =
             (e.offsetY / magicPenPreview.el.offsetHeight) *
             magicPenPreview.el.height;
+        // @ts-ignore
         maskPens.get(id).ps.push({ x, y });
         magicPenPreviewCtx.lineTo(x, y);
         magicPenPreviewCtx.stroke();
