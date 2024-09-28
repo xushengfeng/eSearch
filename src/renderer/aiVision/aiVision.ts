@@ -97,6 +97,7 @@ function newChatItem(id: string) {
     });
     toolBar.els.edit.on("click", () => {
         const c = content.get(id);
+        if (!c) return;
         inputEl.sv(c.content.text);
         currentId = id;
     });
@@ -104,14 +105,14 @@ function newChatItem(id: string) {
         const keys = Array.from(content.keys());
         const nowIndex = keys.indexOf(id);
         // 在ai回答上重载，从上一个信息开始生成，覆盖当前信息
-        if (content.get(id).role === "assistant") {
+        if (content.get(id)?.role === "assistant") {
             const endIndex = nowIndex - 1;
             if (endIndex < 0) return;
             currentId = keys[endIndex];
             runAI(id, true); // 由于删除，currentId可能为assistant
         }
         // 在用户信息上重载，从用户信息开始，覆盖下一条信息
-        if (content.get(id).role === "user") {
+        if (content.get(id)?.role === "user") {
             currentId = id;
             const nextId = keys[nowIndex + 1] || uuid();
             runAI(nextId);
@@ -162,7 +163,7 @@ async function runAI(targetId?: string, force = false) {
         if (id === currentId) break;
     }
     const message = Array.from(clipContent.values());
-    if (message.length === 0 || (!force && message.at(-1).role !== "user")) {
+    if (message.length === 0 || (!force && message.at(-1)?.role !== "user")) {
         pickLastItem();
         return;
     }
@@ -183,6 +184,7 @@ async function runAI(targetId?: string, force = false) {
         },
         body: JSON.stringify(m),
     }).then((res) => {
+        if (!res.body) return;
         const reader = res.body.getReader();
         const textDecoder = new TextDecoder();
         reader.read().then(function readBody(result) {
@@ -222,7 +224,7 @@ async function runAI(targetId?: string, force = false) {
 
 function pickLastItem() {
     const lastId = Array.from(content.keys()).at(-1);
-    if (content.get(lastId).role === "user") {
+    if (lastId && content.get(lastId)?.role === "user") {
         currentId = lastId;
     } else {
         const userId = uuid();
@@ -235,6 +237,7 @@ function setItem(data: string, type: "text" | "image_url") {
     const id = currentId;
     let oldData: aiData;
     if (content.has(id)) {
+        // @ts-ignore
         oldData = content.get(id);
     } else {
         oldData = {
@@ -282,6 +285,7 @@ fileInputEl.on("change", async (e) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async (e) => {
+        if (!e.target) return;
         const url = e.target.result as string;
         setItem(url, "image_url");
         newChatItem(id);
