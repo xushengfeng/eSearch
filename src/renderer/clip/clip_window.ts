@@ -1953,6 +1953,33 @@ function undo(v: boolean) {
     if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
 }
 
+function getShapePro(name: keyof typeof shapePro) {
+    const v = {
+        fc: fillColor,
+        sc: strokeColor,
+        sw: strokeWidth,
+        shadow: 0,
+    };
+    const free: (typeof name)[] = ["free", "eraser", "spray"];
+    if (free.includes(name)) {
+        v.sc = freeColor;
+        v.sw = freeWidth;
+    }
+    if (!shapePro[name]) shapePro[name] = {};
+
+    for (const x of ["fc", "sc", "sw", "shadow"] as const) {
+        if (shapePro[name][x]) {
+            // @ts-ignore
+            v[x] = shapePro[name][x];
+        } else {
+            // @ts-ignore
+            shapePro[name][x] = v[x] =
+                store.get(`图像编辑.形状属性.${name}.${x}`) ?? v[x];
+        }
+    }
+    return v;
+}
+
 function setEditType<T extends keyof EditType>(
     mainType: T,
     type: EditType[T],
@@ -2030,28 +2057,11 @@ function setEditType<T extends keyof EditType>(
     }
     if (mainType === "shape") {
         shape = type as Shape;
-        if (shape)
-            shapePro[shape] = {
-                fc: fillColor,
-                sc: strokeColor,
-                sw: strokeWidth,
-            };
-        if (shape && store.get(`图像编辑.形状属性.${shape}`)) {
-            const f = store.get(`图像编辑.形状属性.${shape}.fc`);
-            const s = store.get(`图像编辑.形状属性.${shape}.sc`);
-            if (f) {
-                shapePro[shape].fc = f;
-            }
-            if (s) {
-                shapePro[shape].sc = s;
-            }
-            colorFillEl.sv(shapePro[shape].fc);
-            colorStrokeEl.sv(shapePro[shape].sc);
-            const sw = store.get(`图像编辑.形状属性.${shape}.sw`);
-            if (sw) {
-                shapePro[shape].sw = sw;
-                strokeWidthEl.sv(sw);
-            }
+        if (shape) {
+            const sPro = getShapePro(shape);
+            colorFillEl.sv(sPro.fc);
+            colorStrokeEl.sv(sPro.sc);
+            strokeWidthEl.sv(sPro.sw);
         }
 
         exitFree();
@@ -2123,10 +2133,8 @@ function showBars(b: boolean) {
 }
 function pencilElClick() {
     fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = shapePro.free.sc;
-    fabricCanvas.freeDrawingBrush.width = shapePro.free.sw;
-
-    setDrawMode("stroke");
+    fabricCanvas.freeDrawingBrush.color = getShapePro("free").sc;
+    fabricCanvas.freeDrawingBrush.width = getShapePro("free").sw;
 
     freeShadow();
 }
@@ -2134,22 +2142,18 @@ function eraserElClick() {
     // todo
     const eraser = new EraserBrush(fabricCanvas);
     fabricCanvas.freeDrawingBrush = eraser;
-    fabricCanvas.freeDrawingBrush.width = shapePro.eraser.sw;
+    fabricCanvas.freeDrawingBrush.width = getShapePro("eraser").sw;
 }
 function freeSprayElClick() {
     fabricCanvas.freeDrawingBrush = new SprayBrush(fabricCanvas);
-    fabricCanvas.freeDrawingBrush.color = shapePro.spray.sc;
-    fabricCanvas.freeDrawingBrush.width = shapePro.spray.sw;
-
-    setDrawMode("stroke");
+    fabricCanvas.freeDrawingBrush.color = getShapePro("spray").sc;
+    fabricCanvas.freeDrawingBrush.width = getShapePro("spray").sw;
 }
 function freeShadow() {
-    const shadowBlur = shadowBlurEl.gv;
     fabricCanvas.freeDrawingBrush.shadow = new Shadow({
-        blur: shadowBlur,
-        color: shapePro.free.sc,
+        blur: getShapePro("free").shadow,
+        color: getShapePro("free").sc,
     });
-    store.set(`图像编辑.形状属性.${mode}.shadow`, shadowBlur);
 }
 
 function freeDrawCursor() {
@@ -2178,17 +2182,11 @@ function freeDrawCursor() {
 }
 
 function freeInit() {
-    const sc = store.get(`图像编辑.形状属性.${mode}.sc`) ?? freeColor;
-    const sw = store.get(`图像编辑.形状属性.${mode}.sw`) ?? freeWidth;
-    const sb = store.get(`图像编辑.形状属性.${mode}.shadow`) ?? 0;
-    if (!shapePro[mode]) shapePro[mode] = {};
-    shapePro[mode].sc = sc;
-    shapePro[mode].sw = sw;
-    shapePro[mode].shadow = sb;
+    const { sc, sw, shadow } = getShapePro(mode);
     setDrawMode("stroke");
     colorStrokeEl.sv(sc);
     strokeWidthEl.sv(sw);
-    shadowBlurEl.sv(sb);
+    shadowBlurEl.sv(shadow);
 }
 
 function fabricDelete() {
@@ -2215,7 +2213,7 @@ function draw(
     x2: number,
     y2: number,
 ) {
-    const pro = shapePro[shape];
+    const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (v === "move") {
         fabricCanvas.remove(shapes.at(-1));
@@ -2290,7 +2288,7 @@ function draw(
 function drawPoly(shape: EditType["shape"]) {
     console.log(1111);
 
-    const pro = shapePro[shape];
+    const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (polyOP.length !== 1) {
         fabricCanvas.remove(shapes.at(-1));
@@ -2331,9 +2329,9 @@ function drawNumber() {
         radius: 12,
         originX: "center",
         originY: "center",
-        fill: shapePro.number.fc,
-        stroke: shapePro.number.sc,
-        strokeWidth: shapePro.number.sw,
+        fill: getShapePro("number").fc,
+        stroke: getShapePro("number").sc,
+        strokeWidth: getShapePro("number").sw,
         canChangeFill: true,
         text: String(drawNumberN),
         形状: "number",
