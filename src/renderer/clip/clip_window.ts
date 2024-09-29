@@ -2911,7 +2911,7 @@ whEl.add([
 
 let chPX = 0;
 const chCal = txt("0").style({ width: "1ch" });
-document.body.append(chCal.el);
+chCal.addInto();
 chPX = chCal.el.offsetWidth;
 chCal.remove();
 
@@ -2925,11 +2925,11 @@ const longTip = frame("long_tip", {
 
 const longPreview = view().style({ position: "fixed" });
 
-document.body.append(hotkeyTipEl.el);
-document.body.append(toolBarEl.el.el);
-document.body.append(whEl.el);
-document.body.append(longTip.el.el);
-document.body.append(longPreview.el);
+hotkeyTipEl.addInto();
+toolBarEl.el.addInto();
+whEl.addInto();
+longTip.el.addInto();
+longPreview.addInto();
 
 const colorFillEl = colorInput("fill").on("input", () => {
     setFObjectV(colorFillEl.gv, null, null);

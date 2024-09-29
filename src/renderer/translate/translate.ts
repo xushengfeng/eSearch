@@ -58,7 +58,9 @@ const results = view("y").style({
 
 lans.add([lansFrom, lansTo]);
 
-document.body.append(input.el, lans.el, results.el);
+input.addInto();
+lans.addInto();
+results.addInto();
 
 const inputText = decodeURIComponent(
     new URLSearchParams(location.search).get("text") || "",

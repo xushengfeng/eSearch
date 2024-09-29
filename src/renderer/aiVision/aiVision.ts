@@ -332,17 +332,16 @@ addStyle({
     },
 });
 
-document.body.append(
-    view("y")
-        .style({ height: "100vh" })
-        .add([
-            showList,
-            view("y").add([
-                view("x").add([
-                    label([fileInputEl.style({ display: "none" }), "上传图片"]),
-                    selectModelEl,
-                ]),
-                inputEl,
+view("y")
+    .style({ height: "100vh" })
+    .add([
+        showList,
+        view("y").add([
+            view("x").add([
+                label([fileInputEl.style({ display: "none" }), "上传图片"]),
+                selectModelEl,
             ]),
-        ]).el,
-);
+            inputEl,
+        ]),
+    ])
+    .addInto();

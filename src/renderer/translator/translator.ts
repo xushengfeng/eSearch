@@ -71,9 +71,9 @@ const 字典 = ocrPath(l[3]);
 function screenshot(id: number, rect: Rect) {
     const l = screenShots(display);
     const screen = l.find((i) => i.id === id) || l[0];
-    if (!screen) return;
+    if (!screen) return null;
     const img = screen.captureSync().data;
-    if (!img) return;
+    if (!img) return null;
     const canvas = document.createElement("canvas");
 
     canvas.width = img.width;
@@ -242,7 +242,7 @@ const textEl = view().class("text");
 const rectEl = view().class("rect");
 mainEl.add([textEl, rectEl]);
 
-document.body.append(mainEl.el);
+mainEl.addInto();
 
 switchEl.sv(mode === "manual");
 

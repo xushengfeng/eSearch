@@ -660,8 +660,8 @@ function previewPen(id: string) {
 
 pureStyle();
 
-document.body.appendChild(controls.el.el);
-document.body.appendChild(preview.el);
+controls.el.addInto();
+preview.addInto();
 
 for (const key in configMap) {
     const k = key as keyof typeof configMap;
