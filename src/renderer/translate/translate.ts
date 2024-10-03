@@ -1,5 +1,5 @@
 import xtranslator from "xtranslator";
-import initStyle from "../root/root";
+import { initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 
 import store from "../../../lib/store/renderStore";

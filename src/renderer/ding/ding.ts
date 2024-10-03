@@ -3,7 +3,7 @@ const { ipcRenderer, clipboard, nativeImage } =
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
-import initStyle from "../root/root";
+import { initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import {
     button,

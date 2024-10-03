@@ -4,7 +4,7 @@ const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import initStyle from "../root/root";
+import { initStyle } from "../root/root";
 import open_with from "../../../lib/open_with";
 import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";

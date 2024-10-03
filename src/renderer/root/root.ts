@@ -30,4 +30,4 @@ function initStyle(
     setCSSVar("--monospace", 字体.等宽字体);
 }
 
-export default initStyle;
+export { initStyle };

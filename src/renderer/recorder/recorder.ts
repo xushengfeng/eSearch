@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import rootInit from "../root/root";
+import { initStyle } from "../root/root";
 import { select } from "dkh-ui";
 import "../../../lib/template2.js";
 import { t, lan } from "../../../lib/translate/translate";
@@ -23,7 +23,7 @@ type timeEl = {
 } & HTMLElement;
 
 import store from "../../../lib/store/renderStore";
-rootInit(store);
+initStyle(store);
 
 lan(store.get("语言.语言"));
 

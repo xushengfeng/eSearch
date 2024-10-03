@@ -11,7 +11,7 @@ import {
     select,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
-import initStyle from "../root/root";
+import { initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
 
 const md = new Remarkable({ breaks: true });

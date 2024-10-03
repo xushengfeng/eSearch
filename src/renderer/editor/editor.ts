@@ -14,7 +14,7 @@ import {
     setTranslate,
     noI18n,
 } from "dkh-ui";
-import initStyle from "../root/root";
+import { initStyle } from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
 import openWith from "../../../lib/open_with";

@@ -13,7 +13,7 @@ import {
     view,
 } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
-import initStyle from "../root/root";
+import { initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
