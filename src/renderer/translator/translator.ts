@@ -9,17 +9,13 @@ import { button, check, type ElType, image, view } from "dkh-ui";
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 
-import close_svg from "../assets/icons/close.svg";
-import pause_svg from "../assets/icons/pause.svg";
-import recume_svg from "../assets/icons/recume.svg";
-import ocr_svg from "../assets/icons/ocr.svg";
-import updown_svg from "../assets/icons/updown.svg";
-
-function iconEl(img: string) {
-    return image(img, "icon").class("icon");
+// @auto-path:../assets/icons/$.svg
+function iconEl(src: string) {
+    return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
 import store from "../../../lib/store/renderStore";
+import { getImgUrl } from "../root/root";
 
 const screenShots = initScreenShots(store.get("额外截屏器.命令"));
 
@@ -165,7 +161,7 @@ const switchEl = check("manual").on("click", () => {
     switchMode();
 });
 
-const setPosi = button(iconEl(updown_svg)).on("click", () => {
+const setPosi = button(iconEl("updown")).on("click", () => {
     const y = -1 * store.get("屏幕翻译.offsetY");
     setOffset(y);
     store.set("屏幕翻译.offsetY", y);
@@ -190,16 +186,18 @@ function setOffset(offset: number) {
     textEl.el.style.top = `${(offset - -1) * textEl.el.offsetHeight}px`;
 }
 
-const playIcon = iconEl(pause_svg);
+const playIcon = iconEl("paste");
 const playEl = button(playIcon).on("click", () => {
     if (mode === "auto") {
         pause = !pause;
-        playIcon.el.src = pause ? recume_svg : pause_svg;
+        playIcon.el.src = pause
+            ? getImgUrl("recume.svg")
+            : getImgUrl("pause.svg");
         runRun();
     }
 });
 
-const runEl = button(iconEl(ocr_svg)).on("click", async () => {
+const runEl = button(iconEl("ocr")).on("click", async () => {
     if (mode !== "auto") {
         mainEl.el.style.opacity = "0";
         await sl();
@@ -216,7 +214,7 @@ const toolsEl = view()
         setPosi,
         playEl,
         runEl,
-        button(iconEl(close_svg)).on("click", () =>
+        button(iconEl("close")).on("click", () =>
             ipcRenderer.send("window", "close"),
         ),
     ]);
