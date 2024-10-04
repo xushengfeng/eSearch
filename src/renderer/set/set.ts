@@ -27,6 +27,7 @@ import {
     check,
     label,
 } from "dkh-ui";
+import { getImgUrl } from "../root/root";
 
 const configPath = ipcRenderer.sendSync("store", { type: "path" });
 
@@ -36,18 +37,6 @@ import add_svg from "../assets/icons/add.svg";
 import down_svg from "../assets/icons/down.svg";
 
 import close_svg from "../assets/icons/close.svg";
-import screen_svg from "../assets/icons/screen.svg";
-import ocr_svg from "../assets/icons/ocr.svg";
-import search_svg from "../assets/icons/search.svg";
-import scan_svg from "../assets/icons/scan.svg";
-import open_svg from "../assets/icons/open.svg";
-import ding_svg from "../assets/icons/ding.svg";
-import record_svg from "../assets/icons/record.svg";
-import long_clip_svg from "../assets/icons/long_clip.svg";
-import translate_svg from "../assets/icons/translate.svg";
-import copy_svg from "../assets/icons/copy.svg";
-import save_svg from "../assets/icons/save.svg";
-import super_edit_svg from "../assets/icons/super_edit.svg";
 
 function iconEl(img: string) {
     return image(img, "icon").class("icon");
@@ -193,19 +182,19 @@ function pushRender(v: () => void) {
 }
 
 const tools: Record<功能, { icon: string; title: string }> = {
-    close: { icon: close_svg, title: t("关闭") },
-    screens: { icon: screen_svg, title: t("屏幕管理") },
-    ocr: { icon: ocr_svg, title: t("文字识别") },
-    search: { icon: search_svg, title: t("以图搜图") },
-    QR: { icon: scan_svg, title: t("二维码") },
-    open: { icon: open_svg, title: t("其他应用打开") },
-    ding: { icon: ding_svg, title: t("屏幕贴图") },
-    record: { icon: record_svg, title: t("录屏") },
-    long: { icon: long_clip_svg, title: t("广截屏") },
-    translate: { icon: translate_svg, title: t("屏幕翻译") },
-    editor: { icon: super_edit_svg, title: t("高级图片编辑") },
-    copy: { icon: copy_svg, title: t("复制") },
-    save: { icon: save_svg, title: t("保存") },
+    close: { icon: getImgUrl("close.svg"), title: t("关闭") },
+    screens: { icon: getImgUrl("screen.svg"), title: t("屏幕管理") },
+    ocr: { icon: getImgUrl("ocr.svg"), title: t("文字识别") },
+    search: { icon: getImgUrl("search.svg"), title: t("以图搜图") },
+    QR: { icon: getImgUrl("scan.svg"), title: t("二维码扫描") },
+    open: { icon: getImgUrl("open.svg"), title: t("其他应用打开") },
+    ding: { icon: getImgUrl("ding.svg"), title: t("屏幕贴图") },
+    record: { icon: getImgUrl("record.svg"), title: t("录屏") },
+    long: { icon: getImgUrl("long_clip.svg"), title: t("广截屏") },
+    translate: { icon: getImgUrl("translate.svg"), title: t("屏幕翻译") },
+    editor: { icon: getImgUrl("super_edit.svg"), title: t("高级图片编辑") },
+    copy: { icon: getImgUrl("copy.svg"), title: t("复制") },
+    save: { icon: getImgUrl("save.svg"), title: t("保存") },
 };
 
 const kxActionEl = elFromId("框选后默认操作");

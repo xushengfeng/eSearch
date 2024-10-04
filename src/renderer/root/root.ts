@@ -30,4 +30,9 @@ function initStyle(
     setCSSVar("--monospace", 字体.等宽字体);
 }
 
-export { initStyle };
+// @auto-path:../assets/icons
+function getImgUrl(name: string) {
+    return new URL(`../assets/icons/${name}`, import.meta.url).href;
+}
+
+export { initStyle, getImgUrl };
