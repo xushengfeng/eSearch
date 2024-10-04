@@ -1,5 +1,5 @@
 import xtranslator from "xtranslator";
-import { initStyle } from "../root/root";
+import { getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 
 import store from "../../../lib/store/renderStore";
@@ -20,13 +20,10 @@ pureStyle();
 
 initStyle(store);
 
-import copy_svg from "../assets/icons/copy.svg";
-import star_svg from "../assets/icons/star.svg";
-import reflash_svg from "../assets/icons/reload.svg";
-
+// @auto-path:../assets/icons/$.svg
 function iconButton(img: string) {
     return button(
-        image(img, "icon")
+        image(getImgUrl(`${img}.svg`), "icon")
             .class("icon")
             .style({ width: "100%", height: "100%" }),
     ).style({
@@ -74,11 +71,11 @@ function translate(_text: string) {
     const text = _text.trim();
     if (!text) return;
     for (const i of fyq) {
-        const copy = iconButton(copy_svg).style({
+        const copy = iconButton("copy").style({
             width: "24px",
             height: "24px",
         });
-        const save = iconButton(star_svg).style({
+        const save = iconButton("star").style({
             width: "24px",
             height: "24px",
             display:
@@ -86,7 +83,7 @@ function translate(_text: string) {
                     ? "block"
                     : "none",
         });
-        const reTry = iconButton(reflash_svg)
+        const reTry = iconButton("reload")
             .style({
                 width: "24px",
                 height: "24px",
