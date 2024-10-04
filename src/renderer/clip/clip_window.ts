@@ -4,7 +4,7 @@ const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import { initStyle } from "../root/root";
+import { getImgUrl, initStyle } from "../root/root";
 import open_with from "../../../lib/open_with";
 import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";
@@ -55,21 +55,9 @@ import {
     view,
 } from "dkh-ui";
 
-import close_svg from "../assets/icons/close.svg";
-import ocr_svg from "../assets/icons/ocr.svg";
-import search_svg from "../assets/icons/search.svg";
-import scan_svg from "../assets/icons/scan.svg";
-import open_svg from "../assets/icons/open.svg";
-import ding_svg from "../assets/icons/ding.svg";
-import record_svg from "../assets/icons/record.svg";
-import long_clip_svg from "../assets/icons/long_clip.svg";
-import translate_svg from "../assets/icons/translate.svg";
-import copy_svg from "../assets/icons/copy.svg";
-import save_svg from "../assets/icons/save.svg";
-import super_edit_svg from "../assets/icons/super_edit.svg";
-
+// @auto-path:../assets/icons/$.svg
 function iconEl(src: string) {
-    return view().add(image(src, "icon").class("icon"));
+    return view().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
 function selectMenu<i extends string>() {
@@ -2801,30 +2789,30 @@ const hotkeyTipEl = view().attr({ id: "hotkeys_tip" });
 
 const toolBarEl = frame("tool", {
     _: view(),
-    close: iconEl(close_svg),
+    close: iconEl("close"),
     screens: view(),
-    ocr: { _: iconEl(ocr_svg), ocrE: selectMenu().class("side_select") },
+    ocr: { _: iconEl("ocr"), ocrE: selectMenu().class("side_select") },
     search: {
-        _: iconEl(search_svg),
+        _: iconEl("search"),
         searchE: selectMenu().class("side_select"),
     },
-    QR: iconEl(scan_svg),
-    open: iconEl(open_svg),
-    ding: iconEl(ding_svg),
+    QR: iconEl("scan"),
+    open: iconEl("open"),
+    ding: iconEl("ding"),
     record: {
-        _: iconEl(record_svg),
+        _: iconEl("record"),
         recordm: selectMenu<"normal" | "super">()
             .class("side_select")
             .data({ dev: "" }),
     },
     long: {
-        _: iconEl(long_clip_svg),
+        _: iconEl("long_clip"),
         longm: selectMenu<"y" | "xy">().class("side_select"),
     },
-    translate: iconEl(translate_svg),
-    editor: iconEl(super_edit_svg),
-    copy: iconEl(copy_svg),
-    save: iconEl(save_svg),
+    translate: iconEl("translate"),
+    editor: iconEl("super_edit"),
+    copy: iconEl("copy"),
+    save: iconEl("save"),
 });
 
 // 仅仅是为了确保功能的值都存在，在更改功能时能类型检查
