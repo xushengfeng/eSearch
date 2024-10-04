@@ -13,7 +13,7 @@ import {
     view,
 } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
-import { initStyle } from "../root/root";
+import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
@@ -23,13 +23,9 @@ const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
 
-import add_svg from "../assets/icons/add.svg";
-import close_svg from "../assets/icons/close.svg";
-import save_svg from "../assets/icons/save.svg";
-import copy_svg from "../assets/icons/copy.svg";
-
+// @auto-path:../assets/icons/$.svg
 function icon(src: string) {
-    return image(src, "icon").class("icon");
+    return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
 initStyle(store);
@@ -103,7 +99,7 @@ const controls = frame("sidebar", {
             updatePreview();
             store.set("高级图片编辑.默认配置", el.gv);
         }),
-        addConf: button(icon(add_svg)).on("click", () => {
+        addConf: button(icon("add")).on("click", () => {
             const id = `新配置${crypto.randomUUID().slice(0, 5)}`;
             const newData = structuredClone(styleData);
             newData.name = id;
@@ -111,7 +107,7 @@ const controls = frame("sidebar", {
             store.set("高级图片编辑.配置", pz);
             setSelect(id);
         }),
-        delConf: button(icon(close_svg)).on("click", () => {
+        delConf: button(icon("close")).on("click", () => {
             const name = controls.els.select.gv;
             if (!name) return;
             pz.splice(
@@ -230,7 +226,7 @@ const controls = frame("sidebar", {
         },
         _ex_save: {
             _: view("x").style({ gap: "var(--o-padding)" }),
-            save: button(icon(save_svg)).on("click", () => {
+            save: button(icon("save")).on("click", () => {
                 const path = ipcRenderer.sendSync(
                     "get_save_file_path",
                     controls.els.formart.gv,
@@ -243,7 +239,7 @@ const controls = frame("sidebar", {
                 writeFileSync(path, Buffer.from(img, "base64"));
                 ipcRenderer.send("window", "close");
             }),
-            copy: button(icon(copy_svg)).on("click", () => {
+            copy: button(icon("copy")).on("click", () => {
                 const img = getImg();
                 clipboard.writeImage(img);
                 ipcRenderer.send("window", "close");
@@ -728,7 +724,7 @@ trackPoint(magicPenPreview, {
             magicPenPreview.el.width,
             magicPenPreview.el.height,
         );
-        const items = button(icon(close_svg))
+        const items = button(icon("close"))
             .style({ width: "24px", height: "24px" })
             .on("click", () => {
                 maskPens.delete(id);
