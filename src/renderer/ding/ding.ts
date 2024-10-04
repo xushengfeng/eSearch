@@ -3,7 +3,7 @@ const { ipcRenderer, clipboard, nativeImage } =
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
-import { initStyle } from "../root/root";
+import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import {
     button,
@@ -18,17 +18,9 @@ import {
 } from "dkh-ui";
 initStyle(store);
 
-import opacity_svg from "../assets/icons/opacity.svg";
-import size_svg from "../assets/icons/size.svg";
-import free_draw_svg from "../assets/icons/free_draw.svg";
-import save_svg from "../assets/icons/save.svg";
-import copy_svg from "../assets/icons/copy.svg";
-import minimize_svg from "../assets/icons/minimize.svg";
-import back_svg from "../assets/icons/back.svg";
-import close_svg from "../assets/icons/close.svg";
-
+// @auto-path:../assets/icons/$.svg
 function iconEl(src: string) {
-    return image(src, "").class("icon");
+    return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
 ipcRenderer.on("ding", (_event, type, id, more) => {
@@ -106,7 +98,7 @@ const setNewDing = (
     // 透明
     const opacityEl = frame("opacity", {
         _: view().attr({ id: "opacity" }),
-        icon: view().class("opacity").add(iconEl(opacity_svg)),
+        icon: view().class("opacity").add(iconEl("opacity")),
         input: input("range")
             .attr({ id: "透明度", min: "0", max: "100" })
             .on("input", (_, el) => {
@@ -130,7 +122,7 @@ const setNewDing = (
     // 大小
     const sizeEl = view()
         .attr({ id: "window_size" })
-        .add(view().class("size").add(iconEl(size_svg)));
+        .add(view().class("size").add(iconEl("size")));
     const sizeInput = input("number")
         .on("blur", sizeChange)
         .on("change", sizeChange)
@@ -168,22 +160,22 @@ const setNewDing = (
         view()
             .attr({ id: "b" })
             .add([
-                button(iconEl(free_draw_svg)).on("click", () => {
+                button(iconEl("free_draw")).on("click", () => {
                     edit(wid);
                 }),
-                button(iconEl(save_svg)).on("click", () => {
+                button(iconEl("save")).on("click", () => {
                     save(wid);
                 }),
-                button(iconEl(copy_svg)).on("click", () => {
+                button(iconEl("copy")).on("click", () => {
                     copy(wid);
                 }),
-                button(iconEl(minimize_svg)).on("click", () => {
+                button(iconEl("minimize")).on("click", () => {
                     minimize(div.el);
                 }),
-                button(iconEl(back_svg)).on("click", () => {
+                button(iconEl("back")).on("click", () => {
                     back(wid);
                 }),
-                button(iconEl(close_svg)).on("click", () => {
+                button(iconEl("close")).on("click", () => {
                     close(wid);
                 }),
             ]),
