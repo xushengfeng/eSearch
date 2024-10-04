@@ -11,14 +11,10 @@ import {
     select,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
-import { initStyle } from "../root/root";
+import { getImgUrl, initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
 
 const md = new Remarkable({ breaks: true });
-
-import close_svg from "../assets/icons/close.svg";
-import reflash_svg from "../assets/icons/reload.svg";
-import edit_svg from "../assets/icons/super_edit.svg";
 
 type aiData = {
     role: "system" | "user" | "assistant";
@@ -40,8 +36,9 @@ type chatgptm = {
 
 const content: Map<string, aiData> = new Map();
 
+// @auto-path:../assets/icons/$.svg
 function iconEl(src: string) {
-    return button().add(image(src, "icon").class("icon"));
+    return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
 const model = store.get("AI.在线模型").filter((x) => x.supportVision);
@@ -86,9 +83,9 @@ function newChatItem(id: string) {
         _: view("x").style({
             transition: "var(--transition)",
         }),
-        reflash: iconEl(reflash_svg),
-        edit: iconEl(edit_svg),
-        delete: iconEl(close_svg),
+        reflash: iconEl("reload"),
+        edit: iconEl("super_edit"),
+        delete: iconEl("close"),
     });
 
     toolBar.els.delete.on("click", () => {
