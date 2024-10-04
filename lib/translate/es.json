@@ -567,5 +567,10 @@
     "27c7a7": "Error de carga",
     "ec1353": "Error de reconocimiento",
     "7b84bc": "Por favor, abre las herramientas de desarrollador (Ctrl+Shift+I) para ver el error detallado",
-    "98c7f8": "Reconociendo código QR…"
+    "98c7f8": "Reconociendo código QR…",
+    "a679e2": "No se pueden comprobar las actualizaciones",
+    "02afd2": "Por favor, compruebe la red y vuelva a intentarlo más tarde",
+    "1da177": "Hay una nueva versión:",
+    "6ba85d": "Ignorar versión",
+    "8b72d1": "Ignorar número de versión para omitir la actualización"
 }

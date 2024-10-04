@@ -567,5 +567,10 @@
     "27c7a7": "Erreur de téléchargement",
     "ec1353": "Erreur de reconnaissance",
     "7b84bc": "Veuillez ouvrir les outils de développement (Ctrl+Shift+I) pour voir les erreurs détaillées",
-    "98c7f8": "Reconnaissance de code QR en cours..."
+    "98c7f8": "Reconnaissance de code QR en cours...",
+    "a679e2": "Impossible de vérifier les mises à jour",
+    "02afd2": "Veuillez vérifier votre réseau, réessayez plus tard",
+    "1da177": "Nouvelle version :",
+    "6ba85d": "Ignorer la version",
+    "8b72d1": "Ignorer le numéro de version pour sauter la mise à jour"
 }

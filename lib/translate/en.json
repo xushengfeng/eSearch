@@ -567,5 +567,10 @@
     "27c7a7": "Upload error",
     "ec1353": "Recognition error",
     "7b84bc": "Please open the developer tools (Ctrl+Shift+I) to see detailed errors",
-    "98c7f8": "QR code recognition in progress..."
+    "98c7f8": "QR code recognition in progress...",
+    "a679e2": "Unable to check for updates",
+    "02afd2": "Please check the network and try again later",
+    "1da177": "New version available:",
+    "6ba85d": "Ignore version",
+    "8b72d1": "Skip update by ignoring version number"
 }
