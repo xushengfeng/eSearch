@@ -474,7 +474,9 @@ app.whenReady().then(() => {
     argRun(process.argv, true);
 
     // 托盘
-    tray = new Tray(`${runPath}/assets/logo/32x32.png`);
+    tray = isMac
+        ? new Tray(`${runPath}/assets/logo/macIconTemplate.png`)
+        : new Tray(`${runPath}/assets/logo/32x32.png`);
     contextMenu = Menu.buildFromTemplate([
         {
             label: `${t("自动识别")}`,
