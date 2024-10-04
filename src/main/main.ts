@@ -2706,6 +2706,7 @@ const defaultSetting: setting = {
         检查更新: true,
         频率: "start",
         模式: "小版本",
+        忽略版本: "",
     },
     录屏: {
         模式: "normal",
@@ -2861,14 +2862,15 @@ function checkUpdate(s手动检查?: boolean) {
                 if (firstName.split(".").at(0) !== version.split(".").at(0))
                     update = true;
             }
-            if (update) {
-                showVersion({
-                    v: first.name,
-                    url: first.html_url,
-                });
-            } else if (s手动检查) {
-                showVersion();
-            }
+            if (store.get("更新.忽略版本") !== firstName)
+                if (update) {
+                    showVersion({
+                        v: first.name,
+                        url: first.html_url,
+                    });
+                } else if (s手动检查) {
+                    showVersion();
+                }
         })
         .catch(() => {
             if (s手动检查) showVersion("err");

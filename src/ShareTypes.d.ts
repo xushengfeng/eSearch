@@ -248,6 +248,7 @@ export interface setting {
         检查更新: boolean;
         频率: "manual" | "start";
         模式: "大版本" | "小版本" | "dev";
+        忽略版本: string;
     };
     录屏: {
         模式: "normal" | "super";
