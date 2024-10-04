@@ -186,7 +186,7 @@ const tools: Record<功能, { icon: string; title: string }> = {
     screens: { icon: getImgUrl("screen.svg"), title: t("屏幕管理") },
     ocr: { icon: getImgUrl("ocr.svg"), title: t("文字识别") },
     search: { icon: getImgUrl("search.svg"), title: t("以图搜图") },
-    QR: { icon: getImgUrl("scan.svg"), title: t("二维码扫描") },
+    QR: { icon: getImgUrl("scan.svg"), title: t("二维码") },
     open: { icon: getImgUrl("open.svg"), title: t("其他应用打开") },
     ding: { icon: getImgUrl("ding.svg"), title: t("屏幕贴图") },
     record: { icon: getImgUrl("record.svg"), title: t("录屏") },
