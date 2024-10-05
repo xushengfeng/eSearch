@@ -353,6 +353,14 @@ const ignoreModule = [
     "fabric",
     "jsdom",
     "canvas",
+    "remarkable",
+    "autolinker",
+    "chroma-js",
+    "parse5",
+    "source-map",
+    "acorn",
+    "cssstyle",
+    "psl",
 ];
 for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
