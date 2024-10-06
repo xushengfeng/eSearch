@@ -370,6 +370,8 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
     setTimeout(async () => {
         console.log("stop");
 
+        uIOhook.stop();
+
         reader.cancel();
 
         await encoder.flush();
