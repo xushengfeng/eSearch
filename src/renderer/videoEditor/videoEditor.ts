@@ -190,8 +190,10 @@ async function transform() {
     for (const chunk of src) {
         decoder.decode(chunk);
     }
-    await encoder.flush();
     await decoder.flush();
+    await encoder.flush();
+    decoder.close();
+    encoder.close();
 }
 
 function getClip(n: number) {
