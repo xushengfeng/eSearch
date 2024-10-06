@@ -146,7 +146,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const x = Math.max(0, Math.min(v.width - w, key[0].posi.x - w / 2));
         const y = Math.max(0, Math.min(v.height - h, key[0].posi.y - h / 2));
         const clip: clip = {
-            rect: { x, y, w: x + w, h: y + h },
+            rect: { x, y, w: w, h: h },
             time: chunk.timestamp,
         };
         clipList.set(chunk.timestamp, clip);
