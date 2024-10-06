@@ -15,3 +15,43 @@
 > 一分钟的高清视频需要 14.93 GB 的存储空间。
 
 视频编码其实就是一个压缩过程，把相同像素合并，还有其他高级的压缩操作。这样，我们借助视频编码压缩存储帧，编辑时解码成 ctx，编辑后再次编码压缩，导出时也使用了编码。
+
+## WebCodecs
+
+具体请见[MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/WebCodecs_API)、[chrome dev 博客](https://developer.chrome.google.cn/docs/web-platform/best-practices/webcodecs?hl=zh-cn)、[w3c](https://w3c.github.io/webcodecs)等文档，或者学习[WebAV](https://github.com/bilibili/WebAV)这个项目，由于这个 API 复杂且新，网络上的文档不多，我也在学习中，下面是我的部分总结。
+
+这里主要使用`VideoDecoder`和`VideoEncoder`，通过`new`确定回调（类似`reader`之类的 api），然后必须`configure`。使用时调用各自的`decode`和`encode`即可。
+
+`VideoFrame`是原始帧数据，需要及时`close`。
+
+`flush`方法可以理解为 Promise `onend`之类的方法，需要注意的是，`for`循环后用`flush`能正常等待完成操作，但其他异步的循环会提前结束（与其是结束，其实的处理队列*暂时*为空），所以要确保异步循环完毕再`flush`。
+
+`close`也要注意调用。
+
+## 转换（编辑）
+
+我们处理一个视频，需要解码（解压缩）->编辑处理->编码（压缩）
+
+```ts
+const decoder = new VideoDecoder({
+  output: (frame: VideoFrame) => {
+    // 解码 处理 编码
+    const nFrame = transformX(frame);
+    encoder.encode(nFrame);
+    nFrame.close();
+  },
+  error: (e) => console.error("Decode error:", e),
+});
+```
+
+`decoder`解码后再编码，`output`可以视为异步循环，所以要注意`flush`的调用问题。
+
+```ts
+for (const chunk of src) {
+  decoder.decode(chunk);
+}
+await decoder.flush();
+await encoder.flush();
+```
+
+这里先对`decoder` `flush`，因为 decode 用的是`for`同步循环，确保把所有任务都放到 encode 处理队列后，再对`encoder`进行`flush`。不能交换两者顺序，否则导致提前结束，代码提交 [944a8a0](https://github.com/xushengfeng/eSearch/commit/944a8a0f27cb488a6c6b62d61c74901dfa7b812a)就是解决这个 bug 的。
