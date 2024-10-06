@@ -28,8 +28,8 @@ body {
     display: flex;
 }
 .tools > * {
-    min-width: 24px;
-    height: 24px;
+    width: 24px !important;
+    height: 24px !important;
     position: relative;
     background-color: var(--bg);
     border: none;
