@@ -1,5 +1,5 @@
 import type { superRecording } from "../../ShareTypes";
-import { ele, view } from "dkh-ui";
+import { button, ele, frame, select, view } from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -294,22 +294,38 @@ function play() {
 async function save() {
     await transform();
 
-    saveImages();
+    if (exportEl.els.type.gv === "png") saveImages();
+}
+
+function getSavePath(type: exportType) {
+    return `./output/${new Date().getTime()}.${type}`;
 }
 
 async function saveImages() {
-    const datas = [];
     console.log(transformed);
+
+    const exportPath = getSavePath("png");
+
+    try {
+        fs.mkdirSync(exportPath, { recursive: true });
+    } catch (error) {}
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            console.log(frame.codedHeight);
-
-            const canvas = ele("canvas").attr({ width: 100, height: 100 }).el;
+            const canvas = ele("canvas").attr({
+                width: frame.codedWidth,
+                height: frame.codedHeight,
+            }).el;
             const ctx = canvas.getContext("2d");
             ctx.drawImage(frame, 0, 0);
-            datas.push(canvas.toDataURL());
+            const data = canvas.toDataURL();
             frame.close();
+            fs.writeFile(
+                `${exportPath}/${frame.timestamp}.png`,
+                data.replace(/^data:image\/\w+;base64,/, ""),
+                "base64",
+                (_err) => {},
+            );
         },
         error: (e) => console.error("Decode error:", e),
     });
@@ -323,18 +339,6 @@ async function saveImages() {
     await decoder.flush();
 
     console.log("decoded");
-
-    fs.mkdirSync("./images");
-    console.log(datas);
-
-    for (const data of datas.slice(0, 10)) {
-        fs.writeFile(
-            `./images/${new Date().getTime()}.png`,
-            data.replace(/^data:image\/\w+;base64,/, ""),
-            "base64",
-            (_err) => {},
-        );
-    }
 }
 
 ipcRenderer.on("record", async (e, t, sourceId) => {
@@ -427,3 +431,21 @@ canvas.onclick = async () => {
 };
 
 document.body.appendChild(canvas);
+
+const exportEl = frame("export", {
+    _: view("x"),
+    export: button("导出").on("click", save),
+    type: select([
+        { value: "png" },
+        { value: "gif" },
+        { value: "webp" },
+        { value: "apng" },
+        { value: "avif" },
+        { value: "webm" },
+        { value: "mp4" },
+    ]),
+});
+
+type exportType = typeof exportEl.els.type.gv;
+
+exportEl.el.addInto();
