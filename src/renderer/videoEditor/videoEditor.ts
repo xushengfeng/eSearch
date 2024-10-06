@@ -190,6 +190,7 @@ async function transform() {
     for (const chunk of src) {
         decoder.decode(chunk);
     }
+    /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
     await decoder.flush();
     await encoder.flush();
     decoder.close();
@@ -250,12 +251,28 @@ function transformX(frame: VideoFrame) {
 }
 
 async function playId(i: number) {
-    // todo 修复乱码
-    for (let n = playI + 1; n < i; n++) {
+    if (i === playI) return;
+    if (transformed[i].type === "key") {
+        playDecoder.decode(transformed[i]);
+        playI = i;
+        return;
+    }
+    const beforeId = transformed
+        .slice(0, i)
+        .findLastIndex((c) => c.type === "key");
+
+    const fillI = playI <= beforeId ? beforeId : playI + 1;
+
+    for (let n = fillI; n < i; n++) {
         playDecoder.decode(transformed[n]);
     }
     playDecoder.decode(transformed[i]);
     playI = i;
+    console.log("play", playI);
+}
+
+async function getFrame(n: number) {
+    // todo 非播放，随机读取
 }
 
 function play() {
@@ -405,7 +422,7 @@ canvas.onclick = async () => {
     canvas.height = outputV.height;
     playI = 0;
     await playDecoder.flush();
-    playId(0);
+    await playId(0);
     play();
 };
 
