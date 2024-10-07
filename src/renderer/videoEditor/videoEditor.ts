@@ -235,6 +235,15 @@ function getClip(n: number) {
 }
 
 function transformX(frame: VideoFrame) {
+    const t = transformXRaw(frame);
+    const canvas = t.canvas;
+    const nFrame = new VideoFrame(canvas, {
+        timestamp: t.time,
+    });
+    return nFrame;
+}
+
+function transformXRaw(frame: VideoFrame) {
     const clip = getClip(frame.timestamp);
     const canvas = new OffscreenCanvas(v.width, v.height);
     const ctx = canvas.getContext("2d");
@@ -249,11 +258,9 @@ function transformX(frame: VideoFrame) {
         v.width,
         v.height,
     );
-    const nFrame = new VideoFrame(canvas, {
-        timestamp: frame.timestamp,
-    });
+    const time = frame.timestamp;
     frame.close();
-    return nFrame;
+    return { canvas, time };
 }
 
 async function playId(i: number) {
@@ -320,21 +327,16 @@ async function saveImages() {
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const nFrame = transformX(frame);
-            const canvas = ele("canvas").attr({
-                width: nFrame.codedWidth,
-                height: nFrame.codedHeight,
-            }).el;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(nFrame, 0, 0);
-            const data = canvas.toDataURL();
-            nFrame.close();
-            fs.writeFile(
-                `${exportPath}/${nFrame.timestamp}.png`,
-                data.replace(/^data:image\/\w+;base64,/, ""),
-                "base64",
-                (_err) => {},
-            );
+            const t = transformXRaw(frame);
+            t.canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
+                const buffer = Buffer.from(await blob.arrayBuffer());
+                fs.writeFile(
+                    `${exportPath}/${t.time}.png`,
+                    // @ts-ignore
+                    buffer,
+                    (_err) => {},
+                );
+            });
         },
         error: (e) => console.error("Decode error:", e),
     });
@@ -359,22 +361,14 @@ async function saveGif() {
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const nFrame = transformX(frame);
-            const width = nFrame.codedWidth;
-            const height = nFrame.codedHeight;
-            const canvas = ele("canvas").attr({
-                width,
-                height,
-            }).el;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(nFrame, 0, 0);
-            const data = ctx.getImageData(0, 0, width, height).data;
+            const { data, width, height } = transformXRaw(frame)
+                .canvas.getContext("2d")
+                .getImageData(0, 0, outputV.width, outputV.height);
             const palette = quantize(data, 256);
             const index = applyPalette(data, palette);
             gif.writeFrame(index, width, height, {
                 palette,
             });
-            nFrame.close();
         },
         error: (e) => console.error("Decode error:", e),
     });
