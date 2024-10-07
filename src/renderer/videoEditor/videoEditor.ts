@@ -49,6 +49,9 @@ const v = {
     height: 100,
 };
 
+const codec = "vp8";
+const srcRate = 30;
+
 let isPlaying = false;
 let playI = 0;
 let playTime = 0;
@@ -75,7 +78,7 @@ const playDecoder = new VideoDecoder({
     error: (e) => console.error("Decode error:", e),
 });
 playDecoder.configure({
-    codec: "vp8",
+    codec: codec,
 });
 
 const timeLineMain = view("x");
@@ -182,13 +185,13 @@ async function transform() {
         error: (e) => console.error("Encode error:", e),
     });
     encoder.configure({
-        codec: "vp8",
+        codec: codec,
         width: outputV.width,
         height: outputV.height,
-        framerate: 30,
+        framerate: srcRate,
     });
     decoder.configure({
-        codec: "vp8",
+        codec: codec,
     });
     for (const chunk of src) {
         decoder.decode(chunk);
@@ -339,7 +342,7 @@ async function saveImages() {
         error: (e) => console.error("Decode error:", e),
     });
     decoder.configure({
-        codec: "vp8",
+        codec: codec,
     });
     for (const chunk of transformed) {
         decoder.decode(chunk);
@@ -380,7 +383,7 @@ async function saveGif() {
         error: (e) => console.error("Decode error:", e),
     });
     decoder.configure({
-        codec: "vp8",
+        codec: codec,
     });
     for (const chunk of transformed) {
         decoder.decode(chunk);
@@ -443,10 +446,10 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
     });
 
     encoder.configure({
-        codec: "vp8",
+        codec: codec,
         width: videoTrack.getSettings().width,
         height: videoTrack.getSettings().height,
-        framerate: 30,
+        framerate: srcRate,
     });
     v.width = videoTrack.getSettings().width;
     v.height = videoTrack.getSettings().height;
