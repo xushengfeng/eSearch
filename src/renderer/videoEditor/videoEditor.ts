@@ -4,6 +4,9 @@ import { button, ele, frame, select, view } from "dkh-ui";
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
 const fs = require("node:fs") as typeof import("fs");
+const path = require("node:path") as typeof import("path");
+
+import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 const keys: superRecording = [];
 
@@ -295,10 +298,15 @@ async function save() {
     await transform();
 
     if (exportEl.els.type.gv === "png") saveImages();
+    else if (exportEl.els.type.gv === "gif") saveGif();
 }
 
 function getSavePath(type: exportType) {
-    return `./output/${new Date().getTime()}.${type}`;
+    const dir = "./output";
+    try {
+        fs.mkdirSync(dir, { recursive: true });
+    } catch (error) {}
+    return path.join(dir, `${new Date().getTime()}.${type}`);
 }
 
 async function saveImages() {
@@ -338,7 +346,51 @@ async function saveImages() {
 
     await decoder.flush();
 
+    decoder.close();
+
     console.log("decoded");
+}
+
+async function saveGif() {
+    console.log(transformed);
+
+    const exportPath = getSavePath("gif");
+
+    const gif = GIFEncoder();
+
+    const decoder = new VideoDecoder({
+        output: (frame: VideoFrame) => {
+            const width = frame.codedWidth;
+            const height = frame.codedHeight;
+            const canvas = ele("canvas").attr({
+                width,
+                height,
+            }).el;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(frame, 0, 0);
+            const data = ctx.getImageData(0, 0, width, height).data;
+            const palette = quantize(data, 256);
+            const index = applyPalette(data, palette);
+            gif.writeFrame(index, width, height, {
+                palette,
+            });
+            frame.close();
+        },
+        error: (e) => console.error("Decode error:", e),
+    });
+    decoder.configure({
+        codec: "vp8",
+    });
+    for (const chunk of transformed) {
+        decoder.decode(chunk);
+    }
+
+    await decoder.flush();
+    decoder.close();
+    gif.finish();
+    const bytes = gif.bytes();
+    // @ts-ignore
+    fs.writeFileSync(exportPath, Buffer.from(bytes));
 }
 
 ipcRenderer.on("record", async (e, t, sourceId) => {

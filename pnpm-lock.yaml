@@ -34,6 +34,9 @@ importers:
       fabric:
         specifier: ^6.4.0
         version: 6.4.0(canvas@2.11.2)
+      gifenc:
+        specifier: ^1.0.3
+        version: 1.0.3
       hex-to-css-filter:
         specifier: ^5.4.0
         version: 5.4.0
@@ -1456,6 +1459,9 @@ packages:
   get-stream@5.2.0:
     resolution: {integrity: sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA==}
     engines: {node: '>=8'}
+
+  gifenc@1.0.3:
+    resolution: {integrity: sha512-xdr6AdrfGBcfzncONUOlXMBuc5wJDtOueE3c5rdG0oNgtINLD+f2iFZltrBRZYzACRbKr+mSVU/x98zv2u3jmw==}
 
   glob@10.4.2:
     resolution: {integrity: sha512-GwMlUF6PkPo3Gk21UxkCohOv0PLcIXVtKyLlpEI28R/cO/4eNOdmLk3CMW1wROV/WR/EsZOWAfBbBOqYvs88/w==}
@@ -4086,6 +4092,8 @@ snapshots:
   get-stream@5.2.0:
     dependencies:
       pump: 3.0.0
+
+  gifenc@1.0.3: {}
 
   glob@10.4.2:
     dependencies:
