@@ -52,6 +52,21 @@ const v = {
 const codec = "vp8";
 const srcRate = 30;
 
+const outputType = [
+    { type: "png", name: "png" },
+    { type: "gif", name: "gif" },
+    { type: "webp", name: "webp" },
+    { type: "apng", name: "apng" },
+    { type: "avif", name: "avif" },
+    { type: "webm", codec: "vp8", name: "webm-vp8" },
+    { type: "webm", codec: "vp9", name: "webm-vp9" },
+    { type: "webm", codec: "av1", name: "webm-av1" },
+    { type: "mp4", codec: "avc", name: "mp4-avc" },
+    { type: "mp4", codec: "vp9", name: "mp4-vp9" },
+    { type: "mp4", codec: "av1", name: "mp4-av1" },
+] as const;
+type baseType = (typeof outputType)[number]["type"];
+
 let isPlaying = false;
 let playI = 0;
 let playTime = 0;
@@ -165,8 +180,12 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     console.log(clipList);
 }
 
-async function transform() {
+async function transform(_codec: string = codec) {
     // todo diff chunks，更改部分帧
+    // todo diff 时注意codec
+    // todo diff 有的不变，有的变frame，有的变时间戳
+    // todo keyframe diff
+    // todo keyframe webm 32s mp4 5-10s
     transformed = [];
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
@@ -184,8 +203,15 @@ async function transform() {
         },
         error: (e) => console.error("Encode error:", e),
     });
+    const codecMap = {
+        vp8: "vp8",
+        vp9: "vp09.00.10.08",
+        av1: "av01.0.04M.08",
+        avc: "avc1.42001E",
+    };
+    // todo 回退
     encoder.configure({
-        codec: codec,
+        codec: codecMap[_codec],
         width: outputV.width,
         height: outputV.height,
         framerate: srcRate,
@@ -307,10 +333,12 @@ function play() {
 async function save() {
     if (exportEl.els.type.gv === "png") saveImages();
     else if (exportEl.els.type.gv === "gif") saveGif();
-    else if (exportEl.els.type.gv === "webm") saveWebm();
+    else if (exportEl.els.type.gv === "webm-av1") saveWebm("av1");
+    else if (exportEl.els.type.gv === "webm-vp9") saveWebm("vp9");
+    else if (exportEl.els.type.gv === "webm-vp8") saveWebm("vp8");
 }
 
-function getSavePath(type: exportType) {
+function getSavePath(type: baseType) {
     const dir = "./output";
     try {
         fs.mkdirSync(dir, { recursive: true });
@@ -387,18 +415,22 @@ async function saveGif() {
     fs.writeFileSync(exportPath, Buffer.from(bytes));
 }
 
-async function saveWebm() {
-    await transform();
+async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     const { Muxer, ArrayBufferTarget } =
         require("webm-muxer") as typeof import("webm-muxer");
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
-        video: { codec: "V_VP8", width: outputV.width, height: outputV.height },
+        video: {
+            codec: `V_${_codec.toUpperCase()}`,
+            width: outputV.width,
+            height: outputV.height,
+        },
     });
+
+    await transform(_codec);
+
     for (const chunk of transformed) {
         muxer.addVideoChunk(chunk);
-        // todo 其他编码
-        // todo 至少32s有一个关键帧
     }
     muxer.finalize();
     const { buffer } = muxer.target;
@@ -502,17 +534,7 @@ document.body.appendChild(canvas);
 const exportEl = frame("export", {
     _: view("x"),
     export: button("导出").on("click", save),
-    type: select([
-        { value: "png" },
-        { value: "gif" },
-        { value: "webp" },
-        { value: "apng" },
-        { value: "avif" },
-        { value: "webm" },
-        { value: "mp4" },
-    ]),
+    type: select(outputType.map((t) => ({ value: t.name }))),
 });
-
-type exportType = typeof exportEl.els.type.gv;
 
 exportEl.el.addInto();
