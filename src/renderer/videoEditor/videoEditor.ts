@@ -51,6 +51,7 @@ const v = {
 
 const codec = "vp8";
 const srcRate = 30;
+const bitrate = 16 * 1024 * 1024;
 
 const outputType = [
     { type: "png", name: "png" },
@@ -215,6 +216,7 @@ async function transform(_codec: string = codec) {
         width: outputV.width,
         height: outputV.height,
         framerate: srcRate,
+        bitrate: bitrate,
     });
     decoder.configure({
         codec: codec,
@@ -473,6 +475,7 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         width: videoTrack.getSettings().width,
         height: videoTrack.getSettings().height,
         framerate: srcRate,
+        bitrate: bitrate,
     });
     v.width = videoTrack.getSettings().width;
     v.height = videoTrack.getSettings().height;
