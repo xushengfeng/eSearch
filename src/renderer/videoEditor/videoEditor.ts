@@ -298,8 +298,6 @@ function play() {
 }
 
 async function save() {
-    await transform();
-
     if (exportEl.els.type.gv === "png") saveImages();
     else if (exportEl.els.type.gv === "gif") saveGif();
     else if (exportEl.els.type.gv === "webm") saveWebm();
@@ -314,8 +312,6 @@ function getSavePath(type: exportType) {
 }
 
 async function saveImages() {
-    console.log(transformed);
-
     const exportPath = getSavePath("png");
 
     try {
@@ -324,16 +320,17 @@ async function saveImages() {
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
+            const nFrame = transformX(frame);
             const canvas = ele("canvas").attr({
-                width: frame.codedWidth,
-                height: frame.codedHeight,
+                width: nFrame.codedWidth,
+                height: nFrame.codedHeight,
             }).el;
             const ctx = canvas.getContext("2d");
-            ctx.drawImage(frame, 0, 0);
+            ctx.drawImage(nFrame, 0, 0);
             const data = canvas.toDataURL();
-            frame.close();
+            nFrame.close();
             fs.writeFile(
-                `${exportPath}/${frame.timestamp}.png`,
+                `${exportPath}/${nFrame.timestamp}.png`,
                 data.replace(/^data:image\/\w+;base64,/, ""),
                 "base64",
                 (_err) => {},
@@ -344,7 +341,7 @@ async function saveImages() {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of transformed) {
+    for (const chunk of src) {
         decoder.decode(chunk);
     }
 
@@ -356,36 +353,35 @@ async function saveImages() {
 }
 
 async function saveGif() {
-    console.log(transformed);
-
     const exportPath = getSavePath("gif");
 
     const gif = GIFEncoder();
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const width = frame.codedWidth;
-            const height = frame.codedHeight;
+            const nFrame = transformX(frame);
+            const width = nFrame.codedWidth;
+            const height = nFrame.codedHeight;
             const canvas = ele("canvas").attr({
                 width,
                 height,
             }).el;
             const ctx = canvas.getContext("2d");
-            ctx.drawImage(frame, 0, 0);
+            ctx.drawImage(nFrame, 0, 0);
             const data = ctx.getImageData(0, 0, width, height).data;
             const palette = quantize(data, 256);
             const index = applyPalette(data, palette);
             gif.writeFrame(index, width, height, {
                 palette,
             });
-            frame.close();
+            nFrame.close();
         },
         error: (e) => console.error("Decode error:", e),
     });
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of transformed) {
+    for (const chunk of src) {
         decoder.decode(chunk);
     }
 
@@ -398,6 +394,7 @@ async function saveGif() {
 }
 
 async function saveWebm() {
+    await transform();
     const { Muxer, ArrayBufferTarget } =
         require("webm-muxer") as typeof import("webm-muxer");
     const muxer = new Muxer({
