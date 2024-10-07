@@ -245,7 +245,7 @@ function transformX(frame: VideoFrame) {
 
 function transformXRaw(frame: VideoFrame) {
     const clip = getClip(frame.timestamp);
-    const canvas = new OffscreenCanvas(v.width, v.height);
+    const canvas = new OffscreenCanvas(outputV.width, outputV.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(
         frame,
@@ -255,8 +255,8 @@ function transformXRaw(frame: VideoFrame) {
         clip.h,
         0,
         0,
-        v.width,
-        v.height,
+        outputV.width,
+        outputV.height,
     );
     const time = frame.timestamp;
     frame.close();
