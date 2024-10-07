@@ -55,3 +55,11 @@ await encoder.flush();
 ```
 
 这里先对`decoder` `flush`，因为 decode 用的是`for`同步循环，确保把所有任务都放到 encode 处理队列后，再对`encoder`进行`flush`。不能交换两者顺序，否则导致提前结束，代码提交 [944a8a0](https://github.com/xushengfeng/eSearch/commit/944a8a0f27cb488a6c6b62d61c74901dfa7b812a)就是解决这个 bug 的。
+
+## 打包
+
+我们平时接触的视频格式：mp4、webm 等记录了不止视频，还有帧率、声音、甚至字幕等信息。他们被成为容器。
+
+不同容器支持的视频格式也不同，参考[mdn](https://developer.mozilla.org/zh-CN/docs/Web/Media/Formats/Video_codecs#%E7%BC%96%E8%A7%A3%E7%A0%81%E5%99%A8%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF)
+
+浏览器并没有提供容器包装器，只提供了编码器，所以我们需要其他的库，如 mp4box.js，我使用 mp4-muxer 和 wemb-muxer。
