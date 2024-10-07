@@ -29,6 +29,7 @@
         "hex-to-css-filter": "^5.4.0",
         "hotkeys-js": "^3.13.7",
         "minimist": "^1.2.8",
+        "mp4-muxer": "^5.1.3",
         "node-screenshots": "^0.1.9",
         "onnxruntime-node": "^1.18.0",
         "opencv.js": "^1.2.1",

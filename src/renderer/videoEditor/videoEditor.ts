@@ -208,7 +208,7 @@ async function transform(_codec: string = codec) {
         vp8: "vp8",
         vp9: "vp09.00.10.08",
         av1: "av01.0.04M.08",
-        avc: "avc1.42001E",
+        avc: "avc1.42001F",
     };
     // todo 回退
     encoder.configure({
@@ -338,6 +338,9 @@ async function save() {
     else if (exportEl.els.type.gv === "webm-av1") saveWebm("av1");
     else if (exportEl.els.type.gv === "webm-vp9") saveWebm("vp9");
     else if (exportEl.els.type.gv === "webm-vp8") saveWebm("vp8");
+    else if (exportEl.els.type.gv === "mp4-av1") saveMp4("av1");
+    else if (exportEl.els.type.gv === "mp4-vp9") saveMp4("vp9");
+    else if (exportEl.els.type.gv === "mp4-avc") saveMp4("avc");
 }
 
 function getSavePath(type: baseType) {
@@ -440,6 +443,32 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     // @ts-ignore
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved webm");
+}
+
+async function saveMp4(_codec: "avc" | "vp9" | "av1") {
+    const { Muxer, ArrayBufferTarget } =
+        require("mp4-muxer") as typeof import("mp4-muxer");
+    const muxer = new Muxer({
+        target: new ArrayBufferTarget(),
+        video: {
+            codec: _codec,
+            width: outputV.width,
+            height: outputV.height,
+        },
+        fastStart: false,
+    });
+
+    await transform(_codec);
+
+    for (const chunk of transformed) {
+        muxer.addVideoChunk(chunk);
+    }
+    muxer.finalize();
+    const { buffer } = muxer.target;
+    const exportPath = getSavePath("mp4");
+    // @ts-ignore
+    fs.writeFileSync(exportPath, Buffer.from(buffer));
+    console.log("saved mp4");
 }
 
 ipcRenderer.on("record", async (e, t, sourceId) => {
