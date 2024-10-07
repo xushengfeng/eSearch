@@ -299,6 +299,7 @@ async function save() {
 
     if (exportEl.els.type.gv === "png") saveImages();
     else if (exportEl.els.type.gv === "gif") saveGif();
+    else if (exportEl.els.type.gv === "webm") saveWebm();
 }
 
 function getSavePath(type: exportType) {
@@ -391,6 +392,26 @@ async function saveGif() {
     const bytes = gif.bytes();
     // @ts-ignore
     fs.writeFileSync(exportPath, Buffer.from(bytes));
+}
+
+async function saveWebm() {
+    const { Muxer, ArrayBufferTarget } =
+        require("webm-muxer") as typeof import("webm-muxer");
+    const muxer = new Muxer({
+        target: new ArrayBufferTarget(),
+        video: { codec: "V_VP8", width: outputV.width, height: outputV.height },
+    });
+    for (const chunk of transformed) {
+        muxer.addVideoChunk(chunk);
+        // todo 其他编码
+        // todo 至少32s有一个关键帧
+    }
+    muxer.finalize();
+    const { buffer } = muxer.target;
+    const exportPath = getSavePath("webm");
+    // @ts-ignore
+    fs.writeFileSync(exportPath, Buffer.from(buffer));
+    console.log("saved webm");
 }
 
 ipcRenderer.on("record", async (e, t, sourceId) => {
