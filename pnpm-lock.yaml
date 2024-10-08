@@ -26,8 +26,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       esearch-ocr:
-        specifier: ^5.1.1
-        version: 5.1.1(opencv.js@1.2.1)
+        specifier: ^5.1.2
+        version: 5.1.2(opencv.js@1.2.1)
       esearch-seg:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
@@ -1301,8 +1301,8 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@5.1.1:
-    resolution: {integrity: sha512-MeoCDxrTAX27Unk6D5AwWADsPYHDj42w4+7SQzXhBgrGO/PrubVz9zwhQ1z1QHpVf9P29s0l0DcM/kWEn1RB+w==}
+  esearch-ocr@5.1.2:
+    resolution: {integrity: sha512-EMhqe/FlwU3KAh8qRIlkHhTWHUYLj7R0M4rHCasvKJaj0XO4cwroa6wkhoZwEjFwcERKD8ta57sOgsPk8v5OYQ==}
     peerDependencies:
       opencv.js: ^1.2.1
 
@@ -3929,7 +3929,7 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@5.1.1(opencv.js@1.2.1):
+  esearch-ocr@5.1.2(opencv.js@1.2.1):
     dependencies:
       js-clipper: 1.0.1
       onnxruntime-common: 1.18.0
