@@ -230,6 +230,7 @@ export interface setting {
             双击: "归位" | "关闭";
             提示: boolean;
         };
+        强制鼠标穿透: string;
     };
     代理: Electron.ProxyConfig;
     主页面: {

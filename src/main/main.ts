@@ -1802,6 +1802,7 @@ function createDingWindow(
 
             dingWindow.setAlwaysOnTop(true, "screen-saver");
         }
+        forceDingThrogh();
     } else {
         const id = new Date().getTime();
         for (const i in dingwindowList) {
@@ -1834,11 +1835,26 @@ function createDingWindow(
     }
     dingClickThrough();
 }
+let dingThrogh: null | boolean = null;
 ipcMain.on("ding_ignore", (_event, v) => {
     for (const id in dingwindowList) {
-        dingwindowList[id]?.win?.setIgnoreMouseEvents(v);
+        dingwindowList[id]?.win?.setIgnoreMouseEvents(
+            dingThrogh === null ? v : dingThrogh,
+        );
     }
 });
+
+function forceDingThrogh() {
+    if (store.get("贴图.强制鼠标穿透")) {
+        globalShortcut.register(store.get("贴图.强制鼠标穿透"), () => {
+            dingThrogh = !dingThrogh;
+            for (const id in dingwindowList) {
+                dingwindowList[id]?.win?.setIgnoreMouseEvents(dingThrogh);
+            }
+        });
+    }
+}
+
 ipcMain.on("ding_event", (_event, type, id, more) => {
     if (type === "close" && more) {
         for (const i in dingwindowList) {
@@ -2683,6 +2699,7 @@ const defaultSetting: setting = {
             双击: "归位",
             提示: false,
         },
+        强制鼠标穿透: "",
     },
     代理: {
         mode: "direct",
