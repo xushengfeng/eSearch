@@ -799,7 +799,7 @@ function runDing() {
     });
 }
 
-function translate() {
+async function translate() {
     const display = allScreens.find((i) => i.id === nowScreenId);
     ipcRenderer.send("clip_main_b", "translate", {
         rect: {
@@ -815,6 +815,8 @@ function translate() {
             h: finalRect[3] / ratio,
         },
         displayId: nowScreenId,
+        img: (await getClipPhoto("png")).toDataURL(),
+        type: "ding", // todo 可切换
     } as translateWinType);
     tool.close();
 }

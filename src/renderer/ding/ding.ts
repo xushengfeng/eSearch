@@ -5,6 +5,7 @@ const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
 import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
+import xtranslator from "xtranslator";
 import {
     button,
     ele,
@@ -17,6 +18,9 @@ import {
     view,
 } from "dkh-ui";
 initStyle(store);
+
+let lo: import("esearch-ocr").initType;
+let translateE = async (input: string[]) => input;
 
 // @auto-path:../assets/icons/$.svg
 function iconEl(src: string) {
@@ -72,6 +76,7 @@ const setNewDing = (
     w: number,
     h: number,
     url: string,
+    type: "translate" | "ding",
 ) => {
     photos[wid] = [x, y, w, h];
     urls[wid] = url;
@@ -199,12 +204,56 @@ const setNewDing = (
 
     resize(div, 1, 0, 0);
 
+    if (type === "translate") {
+        const transE = store.get("翻译.翻译器");
+
+        if (transE.length > 0) {
+            const x = transE[0];
+            // @ts-ignore
+            xtranslator.e[x.type].setKeys(x.keys);
+            const lan = store.get("屏幕翻译.语言");
+            translateE = (input: string[]) =>
+                // @ts-ignore
+                xtranslator.e[x.type].run(input, lan.from, lan.to);
+        }
+        initOCR().then(async () => {
+            const p = await ocr(url);
+            transAndDraw(div, p);
+        });
+    }
+
     return {
         opacity: (v: string) => opacityElP.sv(v),
         size: (v: string) => sizeInput.sv(v),
         id: wid,
     };
 };
+
+async function initOCR() {
+    const l = store.get("离线OCR").find((i) => i[0] === "默认");
+    function ocrPath(p: string) {
+        return path.join(
+            path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"),
+            p,
+        );
+    }
+    const detp = ocrPath(l[1]);
+    const recp = ocrPath(l[2]);
+    const 字典 = ocrPath(l[3]);
+    if (!lo) {
+        const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
+        const ort = require("onnxruntime-node");
+        const provider = store.get("AI.运行后端") || "cpu";
+        lo = await localOCR.init({
+            detPath: detp,
+            recPath: recp,
+            dic: fs.readFileSync(字典).toString(),
+            detShape: [640, 640],
+            ort,
+            ortOption: { executionProviders: [{ name: provider }] },
+        });
+    }
+}
 
 ipcRenderer.on("mouse", (_e, x, y) => {
     const els = document.elementsFromPoint(x, y);
@@ -325,6 +374,25 @@ function edit(id: string) {
     fs.writeFile(save, b, () => {
         ipcRenderer.send("ding_edit", save);
     });
+}
+
+async function ocr(img: string) {
+    const p = await lo.ocr(img);
+    return p.parragraphs;
+}
+
+function transAndDraw(
+    el: ElType<HTMLElement>,
+    p: Awaited<ReturnType<typeof ocr>>,
+) {
+    const canvas = ele("canvas")
+        .attr({
+            width: photos[el.el.id][2],
+            height: photos[el.el.id][3],
+        })
+        .addInto(el).el;
+    const ctx = canvas.getContext("2d");
+    console.log(p);
 }
 
 // 最高窗口
@@ -767,6 +835,6 @@ function dockI() {
         })(o);
     }
 }
-ipcRenderer.on("img", (_event, wid, x, y, w, h, url) => {
-    elMap.push(setNewDing(String(wid), x, y, w, h, url));
+ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
+    elMap.push(setNewDing(String(wid), x, y, w, h, url, type));
 });

@@ -1759,6 +1759,7 @@ function createDingWindow(
     w: number,
     h: number,
     img: string,
+    type: "translate" | "ding" = "ding",
 ) {
     if (Object.keys(dingwindowList).length === 0) {
         const screenL = screen.getAllDisplays();
@@ -1796,6 +1797,7 @@ function createDingWindow(
                     w,
                     h,
                     img,
+                    type,
                 );
             });
             dingWindow.setIgnoreMouseEvents(true);
@@ -1885,6 +1887,17 @@ ipcMain.on("ding_edit", (_event, img_path) => {
 });
 
 function createTranslator(op: translateWinType) {
+    if (op.type === "ding") {
+        createDingWindow(
+            op.rect.x,
+            op.rect.y,
+            op.rect.w,
+            op.rect.h,
+            op.img,
+            "translate",
+        );
+        return;
+    }
     const win = new BrowserWindow({
         transparent: true,
         frame: false,
