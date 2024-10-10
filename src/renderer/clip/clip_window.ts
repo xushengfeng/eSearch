@@ -1317,7 +1317,6 @@ function whBar(finalRect: rect) {
     let x: number;
     x = zx + zw / 2 - dw / 2;
     x = Math.max(0, Math.min(winWidth - dw, x));
-    whEl.style({ right: "", left: `${x}px` });
 
     let y: number;
     const yGap = 10;
@@ -1331,7 +1330,8 @@ function whBar(finalRect: rect) {
         }
     }
     y = Math.max(0, Math.min(winHeight - dh, y));
-    whEl.style({ top: `${y}px` });
+
+    whEl.style({ top: `${y}px`, right: "", left: `${x}px` });
 }
 
 function checkWhBarWidth() {
