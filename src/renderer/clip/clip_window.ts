@@ -60,14 +60,22 @@ function iconEl(src: string) {
     return view().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
-function selectMenu<i extends string>() {
+function selectMenu<i extends string>(data?: { name: string; value: i }[]) {
     const select = ele("selectlist")
         .bindGet((el: HTMLSelectElement) => {
             return el.value;
         })
         .bindSet((v: i, el: HTMLSelectElement) => {
             el.value = v;
-        });
+        })
+        .add(
+            data?.map((i) => {
+                return ele("option").attr({
+                    innerText: i.name,
+                    value: i.value,
+                });
+            }) || [],
+        );
     return select;
 }
 
@@ -2784,24 +2792,38 @@ const toolBarEl = frame("tool", {
     ocr: { _: iconEl("ocr"), ocrE: selectMenu().class("side_select") },
     search: {
         _: iconEl("search"),
-        searchE: selectMenu().class("side_select"),
+        searchE: selectMenu<string>([
+            { value: "baidu", name: "百度" },
+            { value: "yandex", name: "Yandex" },
+            { value: "google", name: "Google" },
+            { value: "ai", name: "AI" },
+        ]).class("side_select"),
     },
     QR: iconEl("scan"),
     open: iconEl("open"),
     ding: iconEl("ding"),
     record: {
         _: iconEl("record"),
-        recordm: selectMenu<"normal" | "super">()
+        recordm: selectMenu<"normal" | "super">([
+            { name: "标准录屏", value: "normal" },
+            { name: "超级录屏", value: "super" },
+        ])
             .class("side_select")
             .data({ dev: "" }),
     },
     long: {
         _: iconEl("long_clip"),
-        longm: selectMenu<"y" | "xy">().class("side_select"),
+        longm: selectMenu<"y" | "xy">([
+            { name: "长截屏 y", value: "y" },
+            { name: "广截屏 xy", value: "xy" },
+        ]).class("side_select"),
     },
     translate: {
         _: iconEl("translate"),
-        translatem: selectMenu<translateWinType["type"]>().class("side_select"),
+        translatem: selectMenu<translateWinType["type"]>([
+            { name: "贴图", value: "ding" },
+            { name: "自动翻译", value: "live" },
+        ]).class("side_select"),
     },
     editor: iconEl("super_edit"),
     copy: iconEl("copy"),
@@ -2827,43 +2849,18 @@ const toolList: Record<功能, ElType<HTMLElement>> = {
 
 toolBarEl.el.attr({ id: "tool_bar" });
 
-for (const i of [
-    { value: "baidu", t: "百度" },
-    { value: "yandex", t: "Yandex" },
-    { value: "google", t: "Google" },
-    { value: "ai", t: "AI" },
-]) {
-    toolBarEl.els.searchE.add(
-        ele("option").attr({ innerText: i.t, value: i.value }),
-    );
-}
-toolBarEl.els.longm
-    .add([
-        ele("option").attr({ innerText: "长截屏 y", value: "y" }),
-        ele("option").attr({ innerText: "广截屏 xy", value: "xy" }),
-    ])
-    .sv(store.get("广截屏.方向"));
+toolBarEl.els.longm.sv(store.get("广截屏.方向"));
 toolBarEl.els.longm.on("change", () => {
     store.set("广截屏.方向", toolBarEl.els.longm.gv);
     longFX = toolBarEl.els.longm.gv;
 });
 
-toolBarEl.els.recordm
-    .add([
-        ele("option").attr({ innerText: "normal", value: "normal" }), // todo text
-        ele("option").attr({ innerText: "super", value: "super" }), // TODO 在原位定义
-    ])
-    .sv(store.get("录屏.模式"));
+toolBarEl.els.recordm.sv(store.get("录屏.模式"));
 toolBarEl.els.recordm.on("change", () => {
     store.set("录屏.模式", toolBarEl.els.recordm.gv);
 });
 
-toolBarEl.els.translatem
-    .add([
-        ele("option").attr({ innerText: "ding", value: "ding" }),
-        ele("option").attr({ innerText: "live", value: "live" }),
-    ])
-    .sv(store.get("屏幕翻译.type"));
+toolBarEl.els.translatem.sv(store.get("屏幕翻译.type"));
 toolBarEl.els.translatem.on("change", () => {
     store.set("屏幕翻译.type", toolBarEl.els.translatem.gv);
 });
