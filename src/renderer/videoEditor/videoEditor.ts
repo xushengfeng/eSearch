@@ -71,12 +71,12 @@ type baseType = (typeof outputType)[number]["type"];
 let isPlaying = false;
 let playI = 0;
 let playTime = 0;
+let playTotalTime = 0;
 
 const canvas = ele("canvas").el;
 
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
-        // todo 正常速度播放
         const ctx = canvas.getContext("2d");
         ctx.drawImage(
             frame,
@@ -97,8 +97,23 @@ playDecoder.configure({
     codec: codec,
 });
 
-const timeLineMain = view("x");
-const timeLineFrame = view("x");
+let lastDecodeFrame: OffscreenCanvas | null = null;
+const frameDecoder = new VideoDecoder({
+    output: (frame: VideoFrame) => {
+        const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(frame, 0, 0);
+        lastDecodeFrame = canvas;
+        frame.close();
+    },
+    error: (e) => console.error("Decode error:", e),
+});
+frameDecoder.configure({
+    codec: codec,
+});
+
+const timeLineMain = view("x").addInto();
+const timeLineFrame = view("x").addInto();
 
 let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 
@@ -312,8 +327,20 @@ async function playId(i: number) {
     console.log("play", playI);
 }
 
-async function getFrame(n: number) {
-    // todo 非播放，随机读取
+async function getFrame(i: number) {
+    await frameDecoder.flush();
+    const beforeId = transformed
+        .slice(0, i + 1)
+        .findLastIndex((c) => c.type === "key");
+
+    console.log(i);
+
+    for (let n = beforeId; n < i; n++) {
+        frameDecoder.decode(transformed[n]);
+    }
+    frameDecoder.decode(transformed[i]);
+    await frameDecoder.flush();
+    return lastDecodeFrame;
 }
 
 function play() {
@@ -330,6 +357,39 @@ function play() {
             play();
         }
     });
+}
+
+function pause() {}
+
+async function showThumbnails() {
+    await transform();
+    for (let i = 0; i < 6; i++) {
+        const id = Math.floor((i / 6) * transformed.length);
+        const canvas = await getFrame(id);
+        const tW = 300;
+        const tH = Math.floor((tW * outputV.height) / outputV.width);
+
+        const canvasEl = ele("canvas")
+            .attr({
+                width: tW,
+                height: tH,
+            })
+            .style({ width: "calc(100% / 6)" });
+        canvasEl.el
+            .getContext("2d")
+            .drawImage(
+                canvas,
+                0,
+                0,
+                outputV.width,
+                outputV.height,
+                0,
+                0,
+                tW,
+                tH,
+            );
+        timeLineMain.add(canvasEl);
+    }
 }
 
 async function save() {
@@ -528,6 +588,8 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
 
         reader.cancel();
 
+        playTotalTime = performance.now() - keys.find((k) => k.isStart).time;
+
         await encoder.flush();
         encoder.close();
         console.log(encodedChunks);
@@ -535,6 +597,8 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         src = encodedChunks;
         mapKeysOnFrames(encodedChunks);
         ipcRenderer.send("window", "show");
+
+        showThumbnails();
     }, 3 * 1000);
 
     while (true) {
