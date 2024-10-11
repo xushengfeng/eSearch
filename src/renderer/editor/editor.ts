@@ -1909,7 +1909,7 @@ async function localOcr(
                 onProgress: (type, a, n) => {
                     if (type === "det") {
                         ocrProgress([
-                            { name: t("检测"), num: 1 },
+                            { name: t("检测"), num: n / a },
                             { name: t("识别"), num: 0 },
                         ]);
                     }
