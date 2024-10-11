@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const clipCanvas = document.createElement("canvas");
+        document.body.appendChild(clipCanvas);
+        const clipCtx = clipCanvas.getContext("2d");
+        clipCanvas.width = 1980 * 2;
+        clipCanvas.height = 1080 * 2;
+
+        const 遮罩颜色 = '#0005'
+
+        function get() {
+            const x = Math.floor(Math.random() * (1980 * 2));
+            const y = Math.floor(Math.random() * (1080 * 2));
+            const width = Math.floor(Math.random() * (1980 * 2 - x));
+            const height = Math.floor(Math.random() * (1080 * 2 - y));
+            finalRect = [x, y, width, height];
+        }
+
+
+        function drawClipRect() {
+            const cw = clipCanvas.width;
+            const ch = clipCanvas.height;
+
+            clipCtx.clearRect(0, 0, cw, ch);
+
+            const x = finalRect[0];
+            const y = finalRect[1];
+            const width = finalRect[2];
+            const height = finalRect[3];
+
+            clipCtx.fillStyle = 遮罩颜色;
+
+            const topMaskHeight = y;
+            const leftMaskWidth = x;
+            const rightMaskWidth = cw - (x + width);
+            const bottomMaskHeight = ch - (y + height);
+
+            clipCtx.fillRect(0, 0, cw, topMaskHeight);
+            clipCtx.fillRect(0, y, leftMaskWidth, height);
+            clipCtx.fillRect(x + width, y, rightMaskWidth, height);
+            clipCtx.fillRect(0, y + height, cw, bottomMaskHeight);
+        }
+
+
+        function drawClipRect2() {
+            const cw = clipCanvas.width;
+            const ch = clipCanvas.height;
+
+            clipCtx.clearRect(0, 0, cw, ch);
+
+            const x = finalRect[0];
+            const y = finalRect[1];
+            const width = finalRect[2];
+            const height = finalRect[3];
+
+            clipCtx.fillStyle = 遮罩颜色;
+
+            clipCtx.fillRect(0, 0, cw, ch);
+            clipCtx.clearRect(x, y, width, height);
+        }
+
+        const n = 100000
+
+        performance.mark('start');
+        for (let i = 0; i < n; i++) {
+            get();
+            drawClipRect();
+        }
+        performance.mark('end');
+        performance.measure('clip', 'start', 'end');
+        console.log(performance.getEntriesByName('clip'));
+
+        performance.mark('start2');
+        for (let i = 0; i < n; i++) {
+            get();
+            drawClipRect2();
+        }
+        performance.mark('end2');
+        performance.measure('clip2', 'start2', 'end2');
+        console.log(performance.getEntriesByName('clip2'));
+    </script>
+</body>
+
+</html>

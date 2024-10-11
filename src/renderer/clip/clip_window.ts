@@ -1177,18 +1177,10 @@ function drawClipRect() {
     const width = finalRect[2];
     const height = finalRect[3];
 
-    // 框选为黑色遮罩
     clipCtx.fillStyle = 遮罩颜色;
 
-    const topMaskHeight = y;
-    const leftMaskWidth = x;
-    const rightMaskWidth = cw - (x + width);
-    const bottomMaskHeight = ch - (y + height);
-
-    clipCtx.fillRect(0, 0, cw, topMaskHeight);
-    clipCtx.fillRect(0, y, leftMaskWidth, height);
-    clipCtx.fillRect(x + width, y, rightMaskWidth, height);
-    clipCtx.fillRect(0, y + height, cw, bottomMaskHeight);
+    clipCtx.fillRect(0, 0, cw, ch);
+    clipCtx.clearRect(x, y, width, height);
 
     for (const ix of x选区参考线.x) {
         clipCtx.fillStyle = c参考线颜色.选区参考线;
