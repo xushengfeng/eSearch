@@ -1171,7 +1171,6 @@ function drawClipRect() {
     const ch = clipCanvas.height;
 
     clipCtx.clearRect(0, 0, cw, ch);
-    clipCtx.beginPath();
 
     const x = finalRect[0];
     const y = finalRect[1];
@@ -1190,9 +1189,6 @@ function drawClipRect() {
     clipCtx.fillRect(0, y, leftMaskWidth, height);
     clipCtx.fillRect(x + width, y, rightMaskWidth, height);
     clipCtx.fillRect(0, y + height, cw, bottomMaskHeight);
-
-    clipCtx.fillStyle = "#0000";
-    clipCtx.fillRect(x, y, width, height);
 
     for (const ix of x选区参考线.x) {
         clipCtx.fillStyle = c参考线颜色.选区参考线;
