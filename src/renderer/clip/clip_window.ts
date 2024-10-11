@@ -816,7 +816,7 @@ async function translate() {
         },
         displayId: nowScreenId,
         img: (await getClipPhoto("png")).toDataURL(),
-        type: "ding", // todo 可切换
+        type: toolBarEl.els.translatem.gv,
     } as translateWinType);
     tool.close();
 }
@@ -2799,7 +2799,10 @@ const toolBarEl = frame("tool", {
         _: iconEl("long_clip"),
         longm: selectMenu<"y" | "xy">().class("side_select"),
     },
-    translate: iconEl("translate"),
+    translate: {
+        _: iconEl("translate"),
+        translatem: selectMenu<translateWinType["type"]>().class("side_select"),
+    },
     editor: iconEl("super_edit"),
     copy: iconEl("copy"),
     save: iconEl("save"),
@@ -2847,12 +2850,22 @@ toolBarEl.els.longm.on("change", () => {
 
 toolBarEl.els.recordm
     .add([
-        ele("option").attr({ innerText: "normal", value: "normal" }),
-        ele("option").attr({ innerText: "super", value: "super" }),
+        ele("option").attr({ innerText: "normal", value: "normal" }), // todo text
+        ele("option").attr({ innerText: "super", value: "super" }), // TODO 在原位定义
     ])
     .sv(store.get("录屏.模式"));
 toolBarEl.els.recordm.on("change", () => {
     store.set("录屏.模式", toolBarEl.els.recordm.gv);
+});
+
+toolBarEl.els.translatem
+    .add([
+        ele("option").attr({ innerText: "ding", value: "ding" }),
+        ele("option").attr({ innerText: "live", value: "live" }),
+    ])
+    .sv(store.get("屏幕翻译.type"));
+toolBarEl.els.translatem.on("change", () => {
+    store.set("屏幕翻译.type", toolBarEl.els.translatem.gv);
 });
 
 toolBarEl.el.style({
