@@ -1906,6 +1906,20 @@ async function localOcr(
                 detShape: [640, 640],
                 ort,
                 ortOption: { executionProviders: [{ name: provider }] },
+                onProgress: (type, a, n) => {
+                    if (type === "det") {
+                        ocrProgress([
+                            { name: t("检测"), num: 1 },
+                            { name: t("识别"), num: 0 },
+                        ]);
+                    }
+                    if (type === "rec") {
+                        ocrProgress([
+                            { name: t("检测"), num: 1 },
+                            { name: t("识别"), num: n / a },
+                        ]);
+                    }
+                },
             });
         }
         task.l("img_load");
@@ -1949,6 +1963,22 @@ async function localOcr(
     } catch (error) {
         callback(error, null);
     }
+}
+
+function ocrProgress(x: { name: string; num: number }[]) {
+    editor.text.style.fontFamily = "monospace";
+    const text: string[] = [];
+    const nameLenght = Math.max(...x.map((i) => i.name.length));
+    const w = 20;
+    for (const i of x) {
+        let t = "";
+        t += i.name.padEnd(nameLenght + 1);
+        t += "#".repeat(Math.floor(w * i.num)).padEnd(w, "-");
+        t += ` ${(i.num * 100).toFixed(0)}%`;
+        text.push(t);
+    }
+    editor.push(text.join("\n"));
+    if (x.every((i) => i.num === 1)) editor.text.style.fontFamily = "";
 }
 
 /**
