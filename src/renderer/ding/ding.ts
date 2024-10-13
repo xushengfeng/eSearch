@@ -783,19 +783,23 @@ function resize(
     if (!clip) bar.style({ zoom: zoomN });
 
     if (clip) {
-        el.query(".img").style({
+        const style = {
             left: `${pS[0] - rect[0]}px`,
             top: `${pS[1] - rect[1]}px`,
             width: `${pS[2]}px`,
             height: `${pS[3]}px`,
-        });
+        };
+        el.query(".img").style(style);
+        el.query("canvas")?.style(style);
     } else {
-        el.query(".img").style({
+        const style = {
             left: 0,
             top: 0,
             width: "100%",
             height: "",
-        });
+        } as const;
+        el.query(".img").style(style);
+        el.query("canvas")?.style(style);
         el.style({
             left: `${pS[0]}px`,
             top: `${pS[1]}px`,
@@ -805,6 +809,9 @@ function resize(
     }
 
     el.query(".img").style({
+        "image-rendering": zoom > 1 ? "pixelated" : "initial",
+    });
+    el.query("canvas")?.style({
         "image-rendering": zoom > 1 ? "pixelated" : "initial",
     });
 
