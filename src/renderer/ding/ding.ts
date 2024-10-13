@@ -68,7 +68,8 @@ const dives: ElType<HTMLElement>[] = [];
 let changing: { x: number; y: number } = null;
 const photos: { [key: string]: [number, number, number, number] } = {};
 let elMap: ReturnType<typeof setNewDing>[] = [];
-const urls: Record<string, string> = {};
+const urls: Record<string, { src: string; translation: string }> = {};
+const isTranslate: Record<string, boolean> = {};
 const setNewDing = (
     wid: string,
     x: number,
@@ -79,7 +80,7 @@ const setNewDing = (
     type: "translate" | "ding",
 ) => {
     photos[wid] = [x, y, w, h];
-    urls[wid] = url;
+    urls[wid] = { src: url, translation: "" };
     const div = view().attr({ id: wid }).class("ding_photo");
     dives.push(div);
     if (store.get("贴图.窗口.提示")) div.class("ding_photo_h");
@@ -221,7 +222,6 @@ const setNewDing = (
             transAndDraw(div, p);
         });
         // todo 切换原图
-        // todo 保存等跟随切换
     }
 
     return {
@@ -352,7 +352,8 @@ function close2(el: HTMLElement) {
     dockI();
 }
 function getUrl(id: string) {
-    return urls[id];
+    const _isTranslate = isTranslate[id];
+    return _isTranslate ? urls[id].translation : urls[id].src;
 }
 function copy(id: string) {
     clipboard.writeImage(nativeImage.createFromDataURL(getUrl(id)));
@@ -390,14 +391,16 @@ async function transAndDraw(
     el: ElType<HTMLElement>,
     p: Awaited<ReturnType<typeof ocr>>,
 ) {
+    const id = el.el.id;
     const canvas = ele("canvas")
         .attr({
-            width: photos[el.el.id][2],
-            height: photos[el.el.id][3],
+            width: photos[id][2],
+            height: photos[id][3],
         })
         .style({ position: "absolute", pointerEvents: "none" })
         .addInto(el).el;
     const ctx = canvas.getContext("2d");
+    ctx.drawImage(el.query(".img").el as HTMLImageElement, 0, 0);
     console.log(p);
     const tr = await translateE(p.map((i) => i.parse.text));
     console.log(tr);
@@ -407,7 +410,8 @@ async function transAndDraw(
         drawText(t, ctx, x.parse.box, x.src);
     }
     // todo 多屏
-    // todo add to url
+    urls[id].translation = canvas.toDataURL("image/png", 1);
+    isTranslate[id] = true;
 }
 
 function drawText(
