@@ -68,7 +68,7 @@ const dives: ElType<HTMLElement>[] = [];
 let changing: { x: number; y: number } = null;
 const photos: { [key: string]: [number, number, number, number] } = {};
 let elMap: ReturnType<typeof setNewDing>[] = [];
-const urls = {};
+const urls: Record<string, string> = {};
 const setNewDing = (
     wid: string,
     x: number,
@@ -351,12 +351,15 @@ function close2(el: HTMLElement) {
     elMap = elMap.filter((e) => e.id !== el.id);
     dockI();
 }
+function getUrl(id: string) {
+    return urls[id];
+}
 function copy(id: string) {
-    clipboard.writeImage(nativeImage.createFromDataURL(urls[id]));
+    clipboard.writeImage(nativeImage.createFromDataURL(getUrl(id)));
 }
 function save(id: string) {
     const b = Buffer.from(
-        urls[id].replace(/^data:image\/\w+;base64,/, ""),
+        getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
     // todo 自动保存
@@ -365,7 +368,7 @@ function save(id: string) {
 }
 function edit(id: string) {
     const b = Buffer.from(
-        urls[id].replace(/^data:image\/\w+;base64,/, ""),
+        getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
     const save = path.join(
@@ -879,7 +882,7 @@ function dockI() {
                 .cloneNode(true) as HTMLElement;
             dockItem.style.display = "block";
             (<HTMLImageElement>dockItem.querySelector("#i_photo")).src =
-                urls[i];
+                getUrl(i);
             dockItem.onclick = (e) => {
                 const el = e.target as HTMLElement;
                 if (el.id !== "i_close" && el.id !== "i_ignore") {
