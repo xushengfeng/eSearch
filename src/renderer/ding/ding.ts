@@ -66,10 +66,16 @@ function sendEvent(
 const dives: ElType<HTMLElement>[] = [];
 
 let changing: { x: number; y: number } = null;
-const photos: { [key: string]: [number, number, number, number] } = {};
+const dingData: Map<
+    string,
+    {
+        rect: [number, number, number, number];
+        url: string;
+        translation: string;
+        isTranslate: boolean;
+    }
+> = new Map();
 let elMap: ReturnType<typeof setNewDing>[] = [];
-const urls: Record<string, { src: string; translation: string }> = {};
-const isTranslate: Record<string, boolean> = {};
 const setNewDing = (
     wid: string,
     x: number,
@@ -79,8 +85,12 @@ const setNewDing = (
     url: string,
     type: "translate" | "ding",
 ) => {
-    photos[wid] = [x, y, w, h];
-    urls[wid] = { src: url, translation: "" };
+    dingData.set(wid, {
+        rect: [x, y, w, h],
+        url,
+        translation: "",
+        isTranslate: false,
+    });
     const div = view().attr({ id: wid }).class("ding_photo");
     dives.push(div);
     if (store.get("贴图.窗口.提示")) div.class("ding_photo_h");
@@ -317,7 +327,7 @@ function back2(id: string) {
         resize(el, 1, 0, 0);
         resizeSender = false;
     }, 400);
-    const pS = photos[el.el.id];
+    const pS = dingData.get(el.el.id).rect;
     el.style({
         left: `${pS[0]}px`,
         top: `${pS[1]}px`,
@@ -337,23 +347,18 @@ function back2(id: string) {
     x.opacity("100");
 }
 function close(id: string) {
-    ipcRenderer.send(
-        "ding_event",
-        "close",
-        id,
-        Object.keys(photos).length === 1,
-    );
+    ipcRenderer.send("ding_event", "close", id, dingData.size === 1);
 }
 function close2(el: HTMLElement) {
     el.remove();
-    delete photos[el.id];
-    delete urls[el.id];
+    dingData.delete(el.id);
     elMap = elMap.filter((e) => e.id !== el.id);
     dockI();
 }
 function getUrl(id: string) {
-    const _isTranslate = isTranslate[id];
-    return _isTranslate ? urls[id].translation : urls[id].src;
+    const data = dingData.get(id);
+    const _isTranslate = data.isTranslate;
+    return _isTranslate ? data.translation : data.url;
 }
 function copy(id: string) {
     clipboard.writeImage(nativeImage.createFromDataURL(getUrl(id)));
@@ -391,11 +396,11 @@ async function transAndDraw(
     el: ElType<HTMLElement>,
     p: Awaited<ReturnType<typeof ocr>>,
 ) {
-    const id = el.el.id;
+    const data = dingData.get(el.el.id);
     const canvas = ele("canvas")
         .attr({
-            width: photos[id][2],
-            height: photos[id][3],
+            width: data.rect[2],
+            height: data.rect[3],
         })
         .style({ position: "absolute", pointerEvents: "none" })
         .addInto(el).el;
@@ -410,8 +415,8 @@ async function transAndDraw(
         drawText(t, ctx, x.parse.box, x.src);
     }
     // todo 多屏
-    urls[id].translation = canvas.toDataURL("image/png", 1);
-    isTranslate[id] = true;
+    data.translation = canvas.toDataURL("image/png", 1);
+    data.isTranslate = true;
 }
 
 function drawText(
@@ -715,7 +720,7 @@ function move(el: ElType<HTMLElement>, e: { x: number; y: number }) {
                 });
                 return;
         }
-        resize(el, pS[2] / photos[el.el.id][2], zp.x, zp.y);
+        resize(el, pS[2] / dingData.get(el.el.id).rect[2], zp.x, zp.y);
     }
 }
 
@@ -742,8 +747,8 @@ function resize(
         el.el.offsetWidth,
         el.el.offsetHeight,
     ];
-    const toWidth = photos[id][2] * zoom;
-    const toHeight = photos[id][3] * zoom;
+    const toWidth = dingData.get(id).rect[2] * zoom;
+    const toHeight = dingData.get(id).rect[3] * zoom;
     const point = { x: rect[0] + rect[2] * dx, y: rect[1] + rect[3] * dy };
     const x = point.x - toWidth * dx;
     const y = point.y - toHeight * dy;
@@ -879,7 +884,7 @@ const showDock = () => {
 // 刷新dock
 function dockI() {
     document.querySelector("#dock > div").innerHTML = "";
-    for (const o in urls) {
+    for (const o in dingData.values().map((i) => i.url)) {
         ((i) => {
             const dockItem = document
                 .querySelector("#dock_item")
