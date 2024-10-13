@@ -220,6 +220,8 @@ const setNewDing = (
             const p = await ocr(url);
             transAndDraw(div, p);
         });
+        // todo 切换原图
+        // todo 保存等跟随切换
     }
 
     return {
@@ -378,10 +380,10 @@ function edit(id: string) {
 
 async function ocr(img: string) {
     const p = await lo.ocr(img);
-    return p.parragraphs;
+    return p.columns.flatMap((c) => c.parragraphs);
 }
 
-function transAndDraw(
+async function transAndDraw(
     el: ElType<HTMLElement>,
     p: Awaited<ReturnType<typeof ocr>>,
 ) {
@@ -390,9 +392,94 @@ function transAndDraw(
             width: photos[el.el.id][2],
             height: photos[el.el.id][3],
         })
+        .style({ position: "absolute", pointerEvents: "none" })
         .addInto(el).el;
     const ctx = canvas.getContext("2d");
     console.log(p);
+    const tr = await translateE(p.map((i) => i.parse.text));
+    console.log(tr);
+
+    for (const [i, t] of tr.entries()) {
+        const x = p[i];
+        drawText(t, ctx, x.parse.box, x.src);
+    }
+    // todo 多屏
+    // todo add to url
+}
+
+function drawText(
+    text: string,
+    ctx: CanvasRenderingContext2D,
+    box: Awaited<ReturnType<typeof ocr>>[0]["parse"]["box"],
+    boxSrc: Awaited<ReturnType<typeof ocr>>[0]["src"],
+) {
+    const textList = Array.from(seg.segment(text));
+
+    const firstline = boxSrc[0].box;
+    const lineHeight = firstline[2][1] - firstline[0][1];
+    const lineNum = boxSrc.length;
+    let fontSize = lineHeight;
+    ctx.font = `${fontSize}px serif`;
+    const textWidth = ctx.measureText(text).width;
+    const boxWidth = box[2][0] - box[0][0];
+    const oneLineWidth = boxWidth * lineNum;
+    if (textWidth > oneLineWidth) {
+        fontSize = Math.floor((fontSize * oneLineWidth) / textWidth);
+        ctx.font = `${fontSize}px serif`;
+    }
+
+    const gap =
+        lineNum === 1
+            ? 0
+            : (box[2][1] - box[0][1] - lineHeight * lineNum) / (lineNum - 1);
+    const lines = splitText(textList, ctx, boxWidth); // todo 严格等于lineNum
+
+    for (const b of boxSrc) {
+        ctx.fillStyle = color2rgb(b.style.bg);
+        ctx.fillRect(
+            b.box[0][0],
+            b.box[0][1],
+            b.box[2][0] - b.box[0][0],
+            b.box[2][1] - b.box[0][1],
+        );
+    }
+
+    const x = box[0][0];
+    ctx.textBaseline = "top";
+    ctx.fillStyle = color2rgb(boxSrc[0].style.text);
+    for (const [i, line] of lines.entries()) {
+        const y = box[0][1] + i * lineHeight + i * gap;
+        ctx.fillText(line, x, y, boxWidth);
+    }
+}
+
+function color2rgb(color: number[]) {
+    return `rgb(${color.join(",")})`;
+}
+
+function splitText(
+    text: Intl.SegmentData[],
+    ctx: CanvasRenderingContext2D,
+    maxWidth: number,
+) {
+    // todo 性能
+    // todo 符号不能在开头
+    let line = "";
+    const lines: string[] = [];
+    for (let i = 0; i < text.length; i++) {
+        const t = text[i].segment;
+        if (ctx.measureText(line + t).width < maxWidth) {
+            line += t;
+        } else {
+            lines.push(line);
+            line = t;
+        }
+    }
+    if (line) {
+        lines.push(line);
+    }
+
+    return lines;
 }
 
 // 最高窗口
@@ -838,3 +925,5 @@ function dockI() {
 ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
     elMap.push(setNewDing(String(wid), x, y, w, h, url, type));
 });
+
+const seg = new Intl.Segmenter(store.get("屏幕翻译.语言.to"));
