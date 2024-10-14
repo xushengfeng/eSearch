@@ -10,6 +10,7 @@ body {
 
 .text {
     position: relative;
+    -webkit-app-region: drag;
 }
 
 .text > div {
@@ -33,6 +34,7 @@ body {
     display: block;
     margin: 0;
     padding: 0;
+    -webkit-app-region: no-drag;
 }
 
 .tools > * > .icon {
