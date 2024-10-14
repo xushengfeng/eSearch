@@ -491,7 +491,7 @@ function splitText(
         lines.push(line);
     }
 
-    return lines;
+    return lines.map((l) => l.trimEnd());
 }
 
 // 最高窗口
