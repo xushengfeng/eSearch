@@ -309,7 +309,6 @@ export interface setting {
         };
     };
     屏幕翻译: {
-        offsetY: -1;
         type: translateWinType["type"];
         dTime: number;
         css: {

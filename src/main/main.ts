@@ -1908,23 +1908,41 @@ function createTranslator(op: translateWinType) {
         },
     });
 
-    const dh = op.dipRect.y - op.dipRect.h;
-    win.setBounds({
-        x: Math.floor(op.dipRect.x),
-        y: Math.floor(Math.max(0, dh)),
-        width: Math.floor(op.dipRect.w),
-        height: Math.floor(op.dipRect.h * 3 + Math.min(0, dh)),
-    });
-
-    win.setIgnoreMouseEvents(true);
-    function clickThrough() {
-        const nowXY = screen.getCursorScreenPoint();
-        try {
-            const b = win.getBounds();
-            win.webContents.send("mouse", nowXY.x - b.x, nowXY.y - b.y);
-            setTimeout(clickThrough, 10);
-        } catch (error) {}
+    const screenSize = (
+        screen.getAllDisplays().find((i) => i.id === op.displayId) ||
+        screen.getPrimaryDisplay()
+    ).bounds;
+    let x = Math.floor(op.dipRect.x);
+    let y = Math.floor(op.dipRect.y);
+    const w = Math.floor(op.dipRect.w);
+    const h = Math.floor(op.dipRect.h);
+    if (w > h) {
+        const y1 = Math.max(0, op.dipRect.y - op.dipRect.h);
+        const y2 = Math.min(
+            screenSize.height - op.dipRect.h,
+            op.dipRect.y + op.dipRect.h,
+        );
+        y =
+            Math.abs(y1 - y) > Math.abs(y2 - y)
+                ? Math.floor(y1)
+                : Math.floor(y2);
+    } else {
+        const x1 = Math.max(0, op.dipRect.x - op.dipRect.w);
+        const x2 = Math.min(
+            screenSize.width - op.dipRect.w,
+            op.dipRect.x + op.dipRect.w,
+        );
+        x =
+            Math.abs(x1 - x) > Math.abs(x2 - x)
+                ? Math.floor(x1)
+                : Math.floor(x2);
     }
+    win.setBounds({
+        x: x,
+        y: y,
+        width: w,
+        height: h,
+    });
 
     rendererPath(win, "translator.html");
     if (dev) win.webContents.openDevTools();
@@ -1934,9 +1952,7 @@ function createTranslator(op: translateWinType) {
             op.displayId,
             screen.getAllDisplays(),
             op.rect,
-            Math.min(0, dh),
         );
-        clickThrough();
     });
 
     win.setAlwaysOnTop(true, "screen-saver");
@@ -2791,7 +2807,7 @@ const defaultSetting: setting = {
         },
     },
     屏幕翻译: {
-        offsetY: -1,
+        type: "ding",
         dTime: 3000,
         css: { bg: "", text: "" },
         语言: {

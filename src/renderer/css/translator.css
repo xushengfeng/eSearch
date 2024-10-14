@@ -16,11 +16,6 @@ body {
     position: absolute;
 }
 
-.rect {
-    position: relative;
-    box-sizing: border-box;
-}
-
 .tools {
     position: absolute;
     right: 0;

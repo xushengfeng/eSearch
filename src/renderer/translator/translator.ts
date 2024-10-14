@@ -4,7 +4,7 @@ import initScreenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
 
-import { button, check, type ElType, image, view } from "dkh-ui";
+import { button, type ElType, image, view } from "dkh-ui";
 
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
@@ -39,8 +39,6 @@ let rect: Rect = { x: 0, y: 0, w: 0, h: 0 };
 let screenId = Number.NaN;
 
 let display: Electron.Display[];
-
-let mode: "auto" | "manual" = "manual";
 
 const frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
 
@@ -149,80 +147,36 @@ async function run() {
 }
 
 const runRun = () => {
-    if (mode === "auto" && !pause) {
+    if (!pause) {
         run();
         setTimeout(runRun, frequencyTime);
     }
 };
 
-const switchEl = check("manual").on("click", () => {
-    if (switchEl.gv) mode = "manual";
-    else mode = "auto";
-    switchMode();
-});
-
-const setPosi = button(iconEl("updown")).on("click", () => {
-    const y = -1 * store.get("屏幕翻译.offsetY");
-    setOffset(y);
-    store.set("屏幕翻译.offsetY", y);
-});
-
-function switchMode() {
-    if (mode === "manual") {
-        playEl.el.style.display = "none";
-        setPosi.el.style.display = "none";
-        runEl.el.style.display = "";
-        setOffset(0);
-    } else {
-        playEl.el.style.display = "";
-        setPosi.el.style.display = "";
-        runEl.el.style.display = "none";
-        setOffset(store.get("屏幕翻译.offsetY") || -1);
-        runRun();
-    }
-}
-
-function setOffset(offset: number) {
-    textEl.el.style.top = `${(offset - -1) * textEl.el.offsetHeight}px`;
-}
-
-const playIcon = iconEl("paste");
+const playIcon = iconEl("recume");
 const playEl = button(playIcon).on("click", () => {
-    if (mode === "auto") {
-        pause = !pause;
-        playIcon.el.src = pause
-            ? getImgUrl("recume.svg")
-            : getImgUrl("pause.svg");
-        runRun();
-    }
+    pause = !pause;
+    playIcon.el.src = pause ? getImgUrl("recume.svg") : getImgUrl("pause.svg");
+    runRun();
 });
 
 const runEl = button(iconEl("ocr")).on("click", async () => {
-    if (mode !== "auto") {
-        mainEl.el.style.opacity = "0";
-        await sl();
-        await sl();
-        await run();
-        mainEl.el.style.opacity = "1";
-    }
+    mainEl.el.style.opacity = "0";
+    await sl();
+    await sl();
+    await run();
+    mainEl.el.style.opacity = "1";
 });
 
 const toolsEl = view()
     .class("tools")
     .add([
-        switchEl,
-        setPosi,
         playEl,
         runEl,
         button(iconEl("close")).on("click", () =>
             ipcRenderer.send("window", "close"),
         ),
     ]);
-
-ipcRenderer.on("mouse", (_e, x: number, y: number) => {
-    const El = document.elementFromPoint(x, y);
-    ipcRenderer.send("window", "ignore", !toolsEl.el.contains(El));
-});
 
 const OCR = await lo.init({
     detPath: detp,
@@ -237,25 +191,19 @@ const OCR = await lo.init({
 
 const mainEl = view().class("main");
 const textEl = view().class("text");
-const rectEl = view().class("rect");
-mainEl.add([textEl, rectEl]);
+mainEl.add([textEl]);
 
 mainEl.addInto();
 
-switchEl.sv(mode === "manual");
-
-rectEl.add(toolsEl);
+mainEl.add(toolsEl);
 
 ipcRenderer.on(
     "init",
-    (_e, id: number, _display: Electron.Display[], _rect: Rect, dy: number) => {
+    (_e, id: number, _display: Electron.Display[], _rect: Rect) => {
         display = _display;
         screenId = id;
         rect = _rect;
-        run();
-        mainEl.style({ top: `${dy}px`, height: `${_rect.h * 3}px` });
+        mainEl.style({ height: `${_rect.h}px` });
         textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
-        rectEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
-        switchMode();
     },
 );
