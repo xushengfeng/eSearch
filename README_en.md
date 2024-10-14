@@ -71,6 +71,14 @@ Supports executing operations immediately after custom selection, such as automa
 
 Also supports scrolling screenshots, can stitch together horizontally, vertically, or in any direction
 
+### Screenshot Beautification
+
+You can set backgrounds (gradient, image), rounded corners, shadows for screenshots.
+
+Change image resolution for export.
+
+Erase objects and repair images.
+
 ### Screen Recording
 
 Record screen, custom size, camera
