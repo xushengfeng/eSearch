@@ -386,12 +386,13 @@ const release = {
  * @param {string} url
  */
 function getUrl(url) {
+    const version = require("./package.json").version;
     let t = "| | Windows | macOS | Linux|\n| --- | --- | --- | --- |\n";
     for (const arch of ["x64", "arm64"]) {
         t += `|${arch}| `;
         for (const p of ["win32", "darwin", "linux"]) {
             if (!release[p].arch.includes(arch)) continue;
-            t += `${(release[p].gh || []).map((i) => `[${i}](${url.replace("$arch", arch).replace("$p", p).replace("$h", i)})`).join(" ")}|`;
+            t += `${(release[p].gh || []).map((i) => `[${i}](${url.replaceAll("$v", version).replace("$arch", arch).replace("$p", p).replace("$h", i)})`).join(" ")}|`;
         }
         t += "\n";
     }
@@ -399,13 +400,8 @@ function getUrl(url) {
 }
 
 console.log(
+    "⚡镜像下载：\n",
     getUrl(
-        "https://github.com/xushengfeng/eSearch/releases/download/1.12.3/eSearch-1.12.3-$p-$arch.$h",
-    ),
-);
-
-console.log(
-    getUrl(
-        "https://mirror.ghproxy.com/https://github.com/xushengfeng/eSearch/releases/download/1.12.3/eSearch-1.12.3-$p-$arch.$h",
+        "https://mirror.ghproxy.com/https://github.com/xushengfeng/eSearch/releases/download/$v/eSearch-$v-$p-$arch.$h",
     ),
 );
