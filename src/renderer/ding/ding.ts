@@ -945,4 +945,6 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
     elMap.push(setNewDing(String(wid), x, y, w, h, url, type));
 });
 
-const seg = new Intl.Segmenter(store.get("屏幕翻译.语言.to"));
+const seg = new Intl.Segmenter(store.get("屏幕翻译.语言.to"), {
+    granularity: "word",
+});
