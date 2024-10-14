@@ -39,7 +39,7 @@
         "uiohook-napi": "^1.5.4",
         "webm-muxer": "^5.0.2",
         "x11": "^2.3.0",
-        "xtranslator": "^1.1.9"
+        "xtranslator": "^1.1.11"
     },
     "devDependencies": {
         "@biomejs/biome": "^1.8.3",

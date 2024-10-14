@@ -77,8 +77,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       xtranslator:
-        specifier: ^1.1.9
-        version: 1.1.9
+        specifier: ^1.1.11
+        version: 1.1.11
     optionalDependencies:
       node-screenshots-darwin-arm64:
         specifier: 0.1.9
@@ -790,6 +790,7 @@ packages:
   are-we-there-yet@2.0.0:
     resolution: {integrity: sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==}
     engines: {node: '>=10'}
+    deprecated: This package is no longer supported.
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -2588,8 +2589,8 @@ packages:
   xtimelog@1.0.5:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
 
-  xtranslator@1.1.9:
-    resolution: {integrity: sha512-a4nuvipeX90rxtpE94/YLWTZqDz0FFvKnnFC7s7F/FQ5jC8jlSUeSlhmqF8g3awdhsV3ryrXaKh11DwXebVFJA==}
+  xtranslator@1.1.11:
+    resolution: {integrity: sha512-k/k+MwJx9rVrr4KfP2Kuibs7qgFCyP0eYjRYqH5xt72GcIFx7PsrlGOfLWx49KJ1c5i3Y1E8X/Pje2vU5JeiEw==}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -5239,7 +5240,7 @@ snapshots:
 
   xtimelog@1.0.5: {}
 
-  xtranslator@1.1.9: {}
+  xtranslator@1.1.11: {}
 
   y18n@5.0.8: {}
 
