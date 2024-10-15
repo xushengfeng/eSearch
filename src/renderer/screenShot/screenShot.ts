@@ -9,18 +9,24 @@ function d(op: MessageBoxSyncOptions) {
     return dialog.showMessageBoxSync(op);
 }
 
+let _t: (t: string) => string = (t) => t;
+
 let Screenshots: typeof import("node-screenshots").Screenshots;
 
 let _command: string | undefined;
 
-function init(command: string, feedback?: (m: string) => string) {
+function init(
+    command: string,
+    feedback?: (m: string) => string,
+    t?: (t: string) => string,
+) {
     _command = command;
+    if (t) _t = t;
     if (process.platform === "linux" && process.arch === "arm64") {
         if (!command) {
             d({
-                message:
-                    "Linux arm64 平台需要额外截屏软件\n请在 设置-高级 中设置截屏命令",
-                buttons: ["确定"],
+                message: `${_t("Linux arm64 平台需要额外截屏软件")}\n${_t("请在 设置-高级 中设置截屏命令")}`,
+                buttons: [_t("确定")],
             } as MessageBoxSyncOptions);
         }
     } else
@@ -29,9 +35,8 @@ function init(command: string, feedback?: (m: string) => string) {
         } catch (error) {
             if (process.platform === "win32") {
                 const id = d({
-                    message:
-                        "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
-                    buttons: ["取消", "下载"],
+                    message: `${_t("截屏需要VS运行库才能正常使用")}\n${_t("是否需要从微软官网（https://aka.ms/vs）下载？")}`,
+                    buttons: [_t("取消"), _t("下载")],
                     defaultId: 1,
                 } as MessageBoxSyncOptions);
                 if (id === 1) {
@@ -41,8 +46,8 @@ function init(command: string, feedback?: (m: string) => string) {
                 }
             } else {
                 const id = d({
-                    message: `截屏库加载时遇到错误：\n${error.message}`,
-                    buttons: ["取消", "反馈"],
+                    message: `${_t("截屏库加载时遇到错误：")}\n${error.message}`,
+                    buttons: [_t("取消"), _t("反馈")],
                     defaultId: 1,
                 });
                 const f =
@@ -89,13 +94,15 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                 } catch (error) {
                     if (!command) {
                         d({
-                            message: "Linux arm64 平台需要额外截屏软件",
-                            buttons: ["确定"],
+                            message: _t("Linux arm64 平台需要额外截屏软件"),
+                            buttons: [_t("确定")],
                         } as MessageBoxSyncOptions);
                     } else {
                         d({
-                            message: "命令运行出错，无法读取截屏，请检查设置",
-                            buttons: ["确定"],
+                            message: _t(
+                                "命令运行出错，无法读取截屏，请检查设置",
+                            ),
+                            buttons: [_t("确定")],
                         } as MessageBoxSyncOptions);
                     }
                     return { data: null, image: nativeImage.createEmpty() };
