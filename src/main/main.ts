@@ -1001,8 +1001,27 @@ app.on("will-quit", () => {
     rmR(tmpDir);
 });
 
-function feedbackUrl() {
-    return `https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=...存在...的错误&v=${app.getVersion()}&os=${process.platform} ${release()} (${process.arch})`;
+function feedbackUrl(op?: {
+    title?: string;
+    main?: string;
+    steps?: string;
+    expected?: string;
+    more?: string;
+}) {
+    const url = new URL(
+        "https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml",
+    );
+    url.searchParams.append("title", op?.title || "...存在...的错误");
+    url.searchParams.append("main", op?.main || "");
+    url.searchParams.append("steps", op?.steps || "");
+    url.searchParams.append("expected", op?.expected || "");
+    url.searchParams.append("more", op?.more || "");
+    url.searchParams.append("v", app.getVersion());
+    url.searchParams.append(
+        "os",
+        `${process.platform} ${release()} (${process.arch})`,
+    );
+    return url.toString();
 }
 
 const theIcon =

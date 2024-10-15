@@ -11,25 +11,30 @@ body:
         如果有多个问题，请分开在多个issues中提交。
         我会对问题尽快分析并回复，请耐心等待。
         有时候会向您提问更多信息，这有助于问题的解决。
+        通过软件托盘的反馈，可以自动添加软件版本等信息。
   - type: textarea
+    id: main
     attributes:
       label: 描述问题 Description of the problem
       description: "请描述您遇到的问题"
     validations:
       required: true
   - type: textarea
+    id: steps
     attributes:
       label: 重现步骤 Steps to reproduce
       description: "请描述如何重现问题"
     validations:
       required: true
   - type: textarea
+    id: expected
     attributes:
       label: 期望结果 Expected behavior
       description: "请描述您期望的结果"
     validations:
       required: false
   - type: textarea
+    id: more
     attributes:
       label: 更多信息 Additional context
       description: "截屏、错误信息（按住 Ctrl+Shift+I 唤出控制台，切换到console选项卡查看报错）等"
