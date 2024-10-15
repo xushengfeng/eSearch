@@ -41,21 +41,11 @@ For ArchLinux, you can search and install `e-search` or `e-search-git` from the 
 
 Using winget: `winget install esearch`
 
-## OCR Service
-
-Local OCR is supported by the model from [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR), and it works out of the box.
-
-The local OCR service is enabled by default. If you want to use online OCR, currently it provides support for Baidu online OCR. You need to obtain an _API KEY_ and _Secret KEY_ according to the [tutorial](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51). As of January 2022, Baidu OCR can still be [obtained for free](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51). Enter the obtained _API KEY_ and _Secret KEY_, as well as the corresponding OCR service [_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) in the software settings, and uncheck the offline OCR option to use online OCR.
-
 ## Launch
 
 Open eSearch from your launcher, and it will appear in the system tray.
 
 The default shortcut key is <kbd>Alt</kbd>+<kbd>C</kbd> (you can also set the shortcut key in the settings).
-
-### CLI
-
-**eSearch** supports cli, allowing for simple screenshot operations through command line. See [Documentation](./docs/use/main.md#cli)
 
 ## Features
 

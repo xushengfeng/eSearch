@@ -41,21 +41,11 @@ ArchLinux 可在 AUR 查找安装 `e-search`或`e-search-git`
 
 winget `winget install esearch`
 
-## OCR 服务
-
-本地 OCR 由[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)的模型提供支持。开箱即用。
-
-默认启用本地 OCR 服务，若想使用在线 OCR，目前提供了百度在线 OCR，需要依据[教程](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)获取*API KEY* 以及 _Secret KEY_，截止 2022 年 1 月，百度 OCR 还是可以[免费领取服务](https://cloud.baidu.com/doc/OCR/s/dk3iqnq51)。将获取到的*API KEY* 和*Secret KEY* 以及相应的你选择的文字识别服务[_URL_](https://cloud.baidu.com/doc/OCR/s/zk3h7xz52#%E8%AF%B7%E6%B1%82%E8%AF%B4%E6%98%8E) 填入软件设置，去掉离线 OCR 的勾选即可使用在线 OCR。
-
 ## 启动
 
 在你的启动器打开 eSearch，他将出现在托盘。
 
 默认快捷键为 <kbd>Alt</kbd>+<kbd>C</kbd>(你也可以在设置里设置快捷键)
-
-### CLI
-
-**eSearch**支持 cli，可以通过命令行进行简单的操作。见[文档](./docs/use/main.md#cli)
 
 ## 功能
 
