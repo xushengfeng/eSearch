@@ -12,6 +12,7 @@ body:
         我会对问题尽快分析并回复，请耐心等待。
         有时候会向您提问更多信息，这有助于问题的解决。
         通过软件托盘的反馈，可以自动添加软件版本等信息。
+        if you are NOT Chinese speaker, using English is welcome.
   - type: textarea
     id: main
     attributes:
