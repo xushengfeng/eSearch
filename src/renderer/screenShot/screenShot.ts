@@ -4,7 +4,7 @@ import type { MessageBoxSyncOptions } from "electron";
 
 function d(op: MessageBoxSyncOptions) {
     if (ipcRenderer) {
-        return ipcRenderer.send("dialog", op);
+        return ipcRenderer.sendSync("dialog", op);
     }
     return dialog.showMessageBoxSync(op);
 }
@@ -13,7 +13,7 @@ let Screenshots: typeof import("node-screenshots").Screenshots;
 
 let _command: string | undefined;
 
-function init(command?: string) {
+function init(command: string, feedback?: (m: string) => string) {
     _command = command;
     if (process.platform === "linux" && process.arch === "arm64") {
         if (!command) {
@@ -27,16 +27,37 @@ function init(command?: string) {
         try {
             Screenshots = require("node-screenshots").Screenshots;
         } catch (error) {
-            const id = d({
-                message:
-                    "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
-                buttons: ["取消", "下载"],
-                defaultId: 1,
-            } as MessageBoxSyncOptions);
-            if (id === 1) {
-                shell.openExternal(
-                    `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
-                );
+            if (process.platform === "win32") {
+                const id = d({
+                    message:
+                        "截屏需要VS运行库才能正常使用\n是否需要从微软官网（https://aka.ms/vs）下载？",
+                    buttons: ["取消", "下载"],
+                    defaultId: 1,
+                } as MessageBoxSyncOptions);
+                if (id === 1) {
+                    shell.openExternal(
+                        `https://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`,
+                    );
+                }
+            } else {
+                const id = d({
+                    message: `截屏库加载时遇到错误：\n${error.message}`,
+                    buttons: ["取消", "反馈"],
+                    defaultId: 1,
+                });
+                const f =
+                    feedback ??
+                    ((m: string) =>
+                        ipcRenderer?.sendSync("app", "feedback", {
+                            title: "截屏库调用错误",
+                            main: "截屏库调用错误",
+                            steps: "截屏",
+                            more: m,
+                        }) as string);
+
+                if (id === 1) {
+                    shell.openExternal(f(error.message));
+                }
             }
         }
     return dispaly2screen;
