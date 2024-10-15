@@ -2756,7 +2756,7 @@ const defaultSetting: setting = {
     ding_dock: [0, 0],
     贴图: {
         窗口: {
-            变换: "transform: rotateY(180deg);",
+            变换: ["transform: rotateY(180deg);"],
             双击: "归位",
             提示: false,
         },

@@ -301,20 +301,26 @@ function ignore(el: HTMLElement, v: boolean) {
     }
 }
 const tranStyle = document.createElement("style");
-tranStyle.innerHTML = `.tran{${store.get("贴图.窗口.变换")}}`;
+for (const [i, t] of store.get("贴图.窗口.变换").entries()) {
+    tranStyle.innerHTML += `.tran${i}{${t}}`;
+}
 document.body.appendChild(tranStyle);
 /**
  * 窗口变换
- * @param {HTMLElement} el 窗口
- * @param {boolean} v 是否变换
  */
-function transform(el, v) {
-    if (v) {
-        el.querySelector(".img").classList.add("tran");
+function transform(el: HTMLElement, i: number) {
+    if (i >= 0) {
+        el.querySelector(".img").classList.add(`tran${i}`);
     } else {
-        el.querySelector(".img").classList.remove("tran");
+        const l = Array.from(el.querySelector(".img").classList.values());
+        for (const t of l) {
+            if (t.startsWith("tran")) {
+                el.querySelector(".img").classList.remove(t);
+            }
+        }
     }
 }
+// todo 快捷键
 function back(id: string) {
     sendEvent("back", id);
 }
@@ -929,11 +935,11 @@ function dockI() {
                 iIgnore_v = !iIgnore_v;
                 ignore(document.getElementById(i), iIgnore_v);
             };
-            let iTran_v = false;
+            let iTran_v = -1;
             const iTran = dockItem.querySelector("#i_tran") as HTMLElement;
             iTran.style.display = "block";
             iTran.onclick = () => {
-                iTran_v = !iTran_v;
+                iTran_v = iTran_v === -1 ? 0 : -1;
                 transform(document.getElementById(i), iTran_v);
             };
 

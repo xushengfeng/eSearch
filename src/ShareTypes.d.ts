@@ -226,7 +226,7 @@ export interface setting {
     ding_dock: [number, number];
     贴图: {
         窗口: {
-            变换: string;
+            变换: string[]; // todo set
             双击: "归位" | "关闭";
             提示: boolean;
         };
