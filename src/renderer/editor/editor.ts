@@ -1239,10 +1239,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
                     addOcrText(r.raw, 0);
 
                     const maxLinePhotoShow = store.get("主页面.显示图片区");
-                    if (
-                        maxLinePhotoShow &&
-                        text.split("\n").length >= maxLinePhotoShow
-                    ) {
+                    if (maxLinePhotoShow && r.raw.length >= maxLinePhotoShow) {
                         if (!editMainEl.classList.contains(imageShow)) {
                             imageB.click();
                         }
