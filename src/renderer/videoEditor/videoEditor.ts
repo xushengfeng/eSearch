@@ -1,5 +1,5 @@
 import type { superRecording } from "../../ShareTypes";
-import { button, ele, frame, select, view } from "dkh-ui";
+import { button, check, ele, frame, select, view } from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -73,8 +73,6 @@ let playI = 0;
 let playTime = 0;
 let playTotalTime = 0;
 
-const canvas = ele("canvas").el;
-
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
         const ctx = canvas.getContext("2d");
@@ -112,8 +110,37 @@ frameDecoder.configure({
     codec: codec,
 });
 
+const canvas = ele("canvas").addInto().el;
+
+const actionsEl = view("x").addInto();
+const playEl = check("", ["||", "|>"])
+    .addInto(actionsEl)
+    .on("input", async () => {
+        if (playEl.gv) {
+            await transform();
+            isPlaying = true;
+            if (playI === transformed.length - 1) {
+                playI = 0;
+            }
+            resetPlayTime();
+            canvas.width = outputV.width;
+            canvas.height = outputV.height;
+            play();
+        } else {
+            pause();
+        }
+    });
+
 const timeLineMain = view("x").addInto();
 const timeLineFrame = view("x").addInto();
+
+const exportEl = frame("export", {
+    _: view("x"),
+    export: button("导出").on("click", save),
+    type: select(outputType.map((t) => ({ value: t.name }))),
+});
+
+exportEl.el.addInto();
 
 let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 
@@ -325,6 +352,10 @@ async function playId(i: number) {
     playDecoder.decode(transformed[i]);
     playI = i;
     console.log("play", playI);
+
+    if (playI === transformed.length - 1) {
+        playEnd();
+    }
 }
 
 async function getFrame(i: number) {
@@ -359,7 +390,20 @@ function play() {
     });
 }
 
-function pause() {}
+function resetPlayTime() {
+    const dTime = transformed[playI].timestamp / 1000;
+    playTime = performance.now() - dTime;
+}
+
+function pause() {
+    isPlaying = false;
+}
+
+function playEnd() {
+    isPlaying = false;
+    playI = 0;
+    playEl.sv(false);
+}
 
 async function showThumbnails() {
     await transform();
@@ -612,25 +656,3 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         }
     }
 });
-
-canvas.onclick = async () => {
-    await transform();
-    isPlaying = true;
-    playTime = performance.now();
-    canvas.width = outputV.width;
-    canvas.height = outputV.height;
-    playI = 0;
-    await playDecoder.flush();
-    await playId(0);
-    play();
-};
-
-document.body.appendChild(canvas);
-
-const exportEl = frame("export", {
-    _: view("x"),
-    export: button("导出").on("click", save),
-    type: select(outputType.map((t) => ({ value: t.name }))),
-});
-
-exportEl.el.addInto();
