@@ -59,3 +59,12 @@ jobs:
                   generate_release_notes: true
               env:
                   GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+            - name: winget release
+              if: matrix.os == 'windows-latest'
+              uses: michidk/winget-updater@latest
+              with:
+                  komac-token: ${{ secrets.ACCESS_TOKEN }}
+                  repo: "xushengfeng/eSearch"
+                  url: "https://github.com/xushengfeng/eSearch/releases/download/{VERSION}/eSearch-{VERSION}-win32-x64.exe"
+
