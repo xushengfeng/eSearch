@@ -28,6 +28,7 @@ const eventList: Map<number, eventX> = new Map();
 type clip = {
     time: number;
     rect: { x: number; y: number; w: number; h: number };
+    transition: number; // 往前数
 };
 
 type eventX = {
@@ -212,6 +213,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const clip: clip = {
             rect: { x, y, w: w, h: h },
             time: chunk.timestamp,
+            transition: 0,
         };
         clipList.set(chunk.timestamp, clip);
         eventList.set(chunk.timestamp, {
@@ -224,6 +226,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
 }
 
 async function transform(_codec: string = codec) {
+    // todo 无操作时直接返回
     // todo diff chunks，更改部分帧
     // todo diff 时注意codec
     // todo diff 有的不变，有的变frame，有的变时间戳
@@ -281,13 +284,17 @@ function getClip(n: number) {
     );
     const i = keys.findIndex((k) => transformedClip.get(k).time > n);
 
-    function get(min: clip, t: number, max: clip) {
-        const v = (t - min.time) / (max.time - min.time); // todo 非线性插值
+    function get(last: clip, t: number, next: clip) {
+        const transition = Math.min(next.transition, next.time - last.time);
+        if (t < next.time - transition) {
+            return last.rect;
+        }
+        const v = (t - (next.time - transition)) / transition; // todo 非线性插值
         return {
-            x: v * min.rect.x + (1 - v) * max.rect.x,
-            y: v * min.rect.y + (1 - v) * max.rect.y,
-            w: v * min.rect.w + (1 - v) * max.rect.w,
-            h: v * min.rect.h + (1 - v) * max.rect.h,
+            x: v * last.rect.x + (1 - v) * next.rect.x,
+            y: v * last.rect.y + (1 - v) * next.rect.y,
+            w: v * last.rect.w + (1 - v) * next.rect.w,
+            h: v * last.rect.h + (1 - v) * next.rect.h,
         };
     }
 
