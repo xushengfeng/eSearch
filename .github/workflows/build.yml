@@ -39,21 +39,12 @@ jobs:
                   pnpm install
                   pnpm run dist
 
-            - name: upload
-              uses: actions/upload-artifact@v3
-              with:
-                  path: |
-                      build/*.exe
-                      build/*.zip
-                      build/*.tar.gz
-                      build/*.deb
-                      build/*.rpm
-                      build/*.dmg
-
             - name: release
               uses: softprops/action-gh-release@v1
               with:
-                  files: "build/*"
+                  files: |
+                      "build/app-*"
+                      "build/eSearch-*"
                   draft: false
                   prerelease: true
                   generate_release_notes: true
