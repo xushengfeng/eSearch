@@ -2910,7 +2910,32 @@ function fixSettingTree() {
             }
         }
     }
+    versionTrans();
     store.set("设置版本", app.getVersion());
+}
+
+function versionTrans() {
+    const version = store.get("设置版本");
+    if (versionCompare(version, "14.1.0") <= 0) {
+        const oldSetting = store.get("贴图.窗口.变换");
+        if (typeof oldSetting === "string") {
+            store.set("贴图.窗口.变换", [oldSetting]);
+        }
+    }
+}
+
+function versionCompare(v1: string, v2: string) {
+    const v1Arr = v1.split(".");
+    const v2Arr = v2.split(".");
+    for (let i = 0; i < v1Arr.length; i++) {
+        if (v1Arr[i] > v2Arr[i]) {
+            return 1;
+        }
+        if (v1Arr[i] < v2Arr[i]) {
+            return -1;
+        }
+    }
+    return 0;
 }
 
 function checkUpdate(s手动检查?: boolean) {
