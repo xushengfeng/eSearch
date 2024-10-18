@@ -191,6 +191,8 @@ function initKeys() {
     uIOhook.start();
 }
 
+let stopRecord = () => {};
+
 function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     const startTime = keys.find((k) => k.isStart).time;
     const newKeys = keys
@@ -632,7 +634,7 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
     initKeys();
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
 
-    setTimeout(async () => {
+    stopRecord = async () => {
         console.log("stop");
 
         uIOhook.stop();
@@ -650,7 +652,9 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
         ipcRenderer.send("window", "show");
 
         showThumbnails();
-    }, 3 * 1000);
+    };
+
+    setTimeout(() => stopRecord(), 5 * 1000);
 
     while (true) {
         const { done, value: videoFrame } = await reader.read();
