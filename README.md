@@ -194,9 +194,25 @@ macOS Catalina 测试通过
 
 ## Q&A
 
+### 不再支持 Win7、Win8
+
+Electron 官方不再支持 Win7、Win8，所以 eSearch 也不再支持。
+
+但可以自己编译，见[文档](./docs/use/qa.md#兼容性)，部分功能可能无法使用。
+
+### 下载依赖库
+
+大部分 Windows 在安装后会提示下载依赖库，这是因为截屏库需要，点击下载，将自动打开微软官网下载，安装完成后可能需要重启。
+
 ### Gnome 点击后无响应
 
 Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/615/appindicator-support/)插件来使用托盘。
+
+### mac 提示文件已损坏
+
+mac 对互联网下载的 dmg 做了部分限制。
+
+可以在互联网上搜索“mac”、“文件损坏”等关键词。不同版本的系统适用的方法也不同。
 
 ### 为什么选择 electron
 
@@ -205,25 +221,17 @@ Gnome 用户需要安装[appindicator](https://extensions.gnome.org/extension/61
 - 截屏依赖本地系统，这是目前浏览器做不到的。
 - 最后只有 js 类跨平台方案，我选择了较为成熟，使用最多的 electron。
 
-### A JavaScript error occurred in the main process
+在其他平台没有类似 Arch Linux 单独打包作为库的情况下，软件占用的存储空间是比较多的，但几十行 js 脚本的增加不多，带来的功能却显著地感知到，所以我会尽力发挥其潜力，做到更精美的 UI、更丰富的功能。
 
-这是主进程报错，可能由于各种原因导致，真正有用的错误信息是下面的具体错误，并且是代码错误。因此直接搜索“A JavaScript error occurred in the main process”很难解决问题。
+### 为什么安装包这么大
 
-一般来说，重装软件，恢复设置能解决 99%的问题。最好的办法是记录详细报错信息，提交一个[issue](https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&template=bug_report.md&title=%E2%80%A6%E2%80%A6%E5%AD%98%E5%9C%A8%E2%80%A6%E2%80%A6%E9%94%99%E8%AF%AF)进行反馈。
-
-积累的错误及其讨论、解决方案：[#123](https://github.com/xushengfeng/eSearch/issues/123) [#133](https://github.com/xushengfeng/eSearch/issues/133)
+除了 Electron 的占用，还有 onnx 运行库（用于运行 AI 模型）、离线文字识别模型、录屏人像识别模型、高级编辑的物体移除模型、FFmpeg（用于录屏格式转换，Linux 有库所以不附带）等。
 
 ### 更新版本后出现了以前没有的错误
 
 一般是因为不同版本的配置不兼容，可以尝试在 设置-高级-高级设置 里 恢复默认设置。
 
 若未能解决问题，请提交 issue
-
-### 不再支持 Win7、Win8
-
-Electron 官方不再支持 Win7、Win8，所以 eSearch 也不再支持。
-
-但可以自己编译，见[文档](./docs/use/qa.md#兼容性)，部分功能可能无法使用。
 
 ## 贡献
 

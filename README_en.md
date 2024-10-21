@@ -194,9 +194,25 @@ Tested successfully on macOS Catalina.
 
 ## Q&A
 
+### Win7 and Win8 are no longer supported
+
+Electron officially no longer supports Win7 and Win8, so eSearch no longer supports it either.
+
+But you can compile it yourself, see [Documentation](./docs/use/qa.md#兼容性), some features may not be available.
+
+### Download the dependency library
+
+Most Windows will prompt you to download the dependent library after installation. This is because the screenshot library is needed. Clicking Download will automatically open Microsoft's official website for download. It may need to be restarted after installation is complete.
+
 ### No response when clicking on Gnome
 
 Gnome users need to install the [appindicator](https://extensions.gnome.org/extension/615/appindicator-support/) plugin to use the system tray.
+
+### mac alert file is corrupt
+
+Mac has put some restrictions on dmg downloads from the Internet.
+
+You can search for keywords such as "mac" and "file corruption" on the Internet. Different versions of the system apply different methods.
 
 ### Why choose electron
 
@@ -205,25 +221,17 @@ Gnome users need to install the [appindicator](https://extensions.gnome.org/exte
 - Screenshot relies on the local system, which is something current browsers cannot do.
 - Ultimately, there is only one cross-platform solution similar to JavaScript. I chose the more mature and widely used electron.
 
-### A JavaScript error occurred in the main process
+In the case that other platforms do not have a separate package as a library like Arch Linux, the software occupies a lot of storage space, but the increase in dozens of js scripts is not much, but the functions brought are significantly felt, so I will try my best to give full play to its potential to achieve a more beautiful UI and richer features.
 
-This is a main process error, which may be caused by various reasons. The specific error below is the real useful error information, and it is a code error. Therefore, searching "A JavaScript error occurred in the main process" is difficult to solve the problem.
+### Why is the installation package so big
 
-Generally, reinstalling the software and restoring settings can solve 99% of the problems. The best way is to record detailed error information and submit an [issue](https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=bug&template=bug_report.md&title=%E2%80%A6%E2%80%A6%E5%AD%98%E5%9C%A8%E2%80%A6%E2%80%A6%E9%94%99%E8%AF%AF) for feedback.
-
-Accumulated errors and their discussions and solutions: [#123](https://github.com/xushengfeng/eSearch/issues/123) [#133](https://github.com/xushengfeng/eSearch/issues/133)
+In addition to the use of Electron, there are also onnx runtime libraries (used to run AI models), offline Optical Character Recognition models, screen recording portrait recognition models, object removal models for advanced editing, FFmpeg (used for screen recording format conversion, Linux has libraries so it is not included), etc.
 
 ### After updating, new errors appear that didn't exist before
 
 This is generally due to the incompatibility of configurations in different versions. You can try to restore the default settings in Settings-Advanced-Advanced settings.
 
 If the problem is not solved, please submit an issue.
-
-### Win7 and Win8 are no longer supported
-
-Electron officially no longer supports Win7 and Win8, so eSearch no longer supports it either.
-
-But you can compile it yourself, see [Documentation](./docs/use/qa.md#兼容性), some features may not be available.
 
 ## Contributions
 
