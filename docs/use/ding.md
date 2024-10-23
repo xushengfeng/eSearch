@@ -30,3 +30,22 @@
 通过滚轮可以缩放窗口大小，但有时候我们需要放大来看清贴图，但一起放大的窗口会遮挡住我们的视线，如何只放大图片而不改变窗口大小呢？
 
 按<kbd>Ctrl</kbd>+鼠标滚轮，就可以做到。
+
+### 变换
+
+在设置中添加变换，可通过数字键切换不同的变换效果。
+
+变换使用 CSS，你可以在[mdn transform](https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform)或[mdn filter](https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter)了解更多信息。
+
+常见变换（可直接复制到设置）：
+
+| 效果     | css                          |
+| -------- | ---------------------------- |
+| 水平翻转 | `transform: rotateY(180deg)` |
+| 竖直翻转 | `transform: rotateX(180deg)` |
+| 灰度     | `filter: grayscale(100%)`    |
+| 反色     | `filter: invert(100%)`       |
+
+> [!NOTE]
+>
+> filter 函数可以传入 svg 滤镜，包括柏林噪音、转置滤镜等你可以在互联网上获取更多资料
