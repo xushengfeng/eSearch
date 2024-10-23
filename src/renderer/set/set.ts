@@ -943,6 +943,33 @@ function sortList<t>(
     };
 }
 
+const dingTrans = elFromId("tran_css");
+const dingTransList = sortList(
+    xstore.贴图.窗口.变换,
+    dingTrans,
+    (v) => v.split("\n").at(0),
+    (v, m) => {
+        const { promise, resolve } = Promise.withResolvers<typeof v>();
+        const t = textarea().sv(v ?? "");
+
+        m.add([
+            t,
+            button("关闭").on("click", () => {
+                resolve(null);
+                m.el.close();
+            }),
+            button("完成").on("click", () => {
+                resolve(t.gv);
+                m.el.close();
+            }),
+        ]);
+        // todo 预览
+
+        return promise;
+    },
+    () => {},
+);
+
 const translateES = document.getElementById("translate_es");
 const translatorFrom = document.getElementById(
     "translator_from",
@@ -2123,6 +2150,7 @@ function saveSetting() {
             : 字体.大小
         : false;
     xstore.字体 = 字体;
+    xstore.贴图.窗口.变换 = dingTransList();
     xstore.翻译.翻译器 = translateList();
     xstore.屏幕翻译.语言.from = translatorFrom.value;
     xstore.屏幕翻译.语言.to = translatorTo.value;
