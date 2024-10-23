@@ -43,15 +43,14 @@ jobs:
               uses: actions/upload-artifact@v3
               with:
                 path: |
-                    build/*
+                    "build/app-*"
+                    "build/eSearch-*"
 
 
             - name: release
               uses: softprops/action-gh-release@v2
               with:
-                  files: |
-                      "build/app-*"
-                      "build/eSearch-*"
+                  files: "build/*"
                   draft: false
                   prerelease: true
                   generate_release_notes: true
