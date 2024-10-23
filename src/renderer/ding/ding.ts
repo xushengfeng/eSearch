@@ -212,6 +212,9 @@ const setNewDing = (
         if (e.key === "Escape") {
             close(wid);
         }
+        if (!Number.isNaN(Number(e.key))) {
+            transform(div.el, Number(e.key) - 1);
+        }
     });
     div.add(toolBar).add(img);
     document.querySelector("#photo").appendChild(div.el);
@@ -315,14 +318,14 @@ document.body.appendChild(tranStyle);
  * 窗口变换
  */
 function transform(el: HTMLElement, i: number) {
-    if (i >= 0) {
-        el.querySelector(".img").classList.add(`tran${i}`);
-    } else {
-        const l = Array.from(el.querySelector(".img").classList.values());
-        for (const t of l) {
-            if (t.startsWith("tran")) {
-                el.querySelector(".img").classList.remove(t);
-            }
+    const c = `tran${i}`;
+    if (i >= 0 && i < store.get("贴图.窗口.变换").length) {
+        el.querySelector(".img").classList.toggle(c);
+    }
+    const l = Array.from(el.querySelector(".img").classList.values());
+    for (const t of l) {
+        if (t.startsWith("tran") && t !== c) {
+            el.querySelector(".img").classList.remove(t);
         }
     }
 }
