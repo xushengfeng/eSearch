@@ -897,54 +897,51 @@ const showDock = () => {
 // 刷新dock
 function dockI() {
     document.querySelector("#dock > div").innerHTML = "";
-    for (const o in dingData.values().map((i) => i.url)) {
-        ((i) => {
-            const dockItem = document
-                .querySelector("#dock_item")
-                .cloneNode(true) as HTMLElement;
-            dockItem.style.display = "block";
-            (<HTMLImageElement>dockItem.querySelector("#i_photo")).src =
-                getUrl(i);
-            dockItem.onclick = (e) => {
-                const el = e.target as HTMLElement;
-                if (el.id !== "i_close" && el.id !== "i_ignore") {
-                    const div = document.getElementById(i);
-                    if (div.classList.contains("minimize")) {
-                        div.style.transition = "var(--transition)";
-                        setTimeout(() => {
-                            div.style.transition = "";
-                        }, 400);
-                        div.classList.remove("minimize");
-                    } else {
-                        back(div.id);
-                    }
-                    div.style.zIndex = String(toppest + 1);
-                    toppest += 1;
+    for (const i of dingData.keys()) {
+        const dockItem = document
+            .querySelector("#dock_item")
+            .cloneNode(true) as HTMLElement;
+        dockItem.style.display = "block";
+        (<HTMLImageElement>dockItem.querySelector("#i_photo")).src = getUrl(i);
+        dockItem.onclick = (e) => {
+            const el = e.target as HTMLElement;
+            if (el.id !== "i_close" && el.id !== "i_ignore") {
+                const div = document.getElementById(i);
+                if (div.classList.contains("minimize")) {
+                    div.style.transition = "var(--transition)";
+                    setTimeout(() => {
+                        div.style.transition = "";
+                    }, 400);
+                    div.classList.remove("minimize");
+                } else {
+                    back(div.id);
                 }
-            };
-            const iClose = dockItem.querySelector("#i_close") as HTMLElement;
-            iClose.style.display = "block";
-            iClose.onclick = () => {
-                close(i);
-            };
-            const iIgnore = dockItem.querySelector("#i_ignore") as HTMLElement;
-            iIgnore.style.display = "block";
-            iIgnore.setAttribute("data-ignore", "false");
-            let iIgnore_v = false;
-            iIgnore.onclick = () => {
-                iIgnore_v = !iIgnore_v;
-                ignore(document.getElementById(i), iIgnore_v);
-            };
-            let iTran_v = -1;
-            const iTran = dockItem.querySelector("#i_tran") as HTMLElement;
-            iTran.style.display = "block";
-            iTran.onclick = () => {
-                iTran_v = iTran_v === -1 ? 0 : -1;
-                transform(document.getElementById(i), iTran_v);
-            };
+                div.style.zIndex = String(toppest + 1);
+                toppest += 1;
+            }
+        };
+        const iClose = dockItem.querySelector("#i_close") as HTMLElement;
+        iClose.style.display = "block";
+        iClose.onclick = () => {
+            close(i);
+        };
+        const iIgnore = dockItem.querySelector("#i_ignore") as HTMLElement;
+        iIgnore.style.display = "block";
+        iIgnore.setAttribute("data-ignore", "false");
+        let iIgnore_v = false;
+        iIgnore.onclick = () => {
+            iIgnore_v = !iIgnore_v;
+            ignore(document.getElementById(i), iIgnore_v);
+        };
+        let iTran_v = -1;
+        const iTran = dockItem.querySelector("#i_tran") as HTMLElement;
+        iTran.style.display = "block";
+        iTran.onclick = () => {
+            iTran_v = iTran_v === -1 ? 0 : -1;
+            transform(document.getElementById(i), iTran_v);
+        };
 
-            document.querySelector("#dock > div").appendChild(dockItem);
-        })(o);
+        document.querySelector("#dock > div").appendChild(dockItem);
     }
 }
 ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
