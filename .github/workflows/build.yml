@@ -39,14 +39,6 @@ jobs:
                   pnpm install
                   pnpm run dist
 
-            - name: upload
-              uses: actions/upload-artifact@v3
-              with:
-                path: |
-                    "build/app-*"
-                    "build/eSearch-*"
-
-
             - name: release
               uses: softprops/action-gh-release@v2
               with:
