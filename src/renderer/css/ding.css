@@ -21,6 +21,9 @@ body > #dock_item {
 .ding_photo {
     position: fixed;
     overflow: hidden;
+    &:focus {
+        outline: none;
+    }
 }
 .ding_photo:hover,
 .ding_photo_h {

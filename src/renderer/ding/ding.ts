@@ -91,7 +91,7 @@ const setNewDing = (
         translation: "",
         isTranslate: false,
     });
-    const div = view().attr({ id: wid }).class("ding_photo");
+    const div = view().attr({ id: wid, tabIndex: 0 }).class("ding_photo");
     dives.push(div);
     if (store.get("贴图.窗口.提示")) div.class("ding_photo_h");
     div.style({
@@ -207,6 +207,12 @@ const setNewDing = (
         document.getElementById("dock").style.zIndex = String(toppest + 2);
         toppest += 1;
     };
+    // 快捷键
+    div.on("keydown", (e) => {
+        if (e.key === "Escape") {
+            close(wid);
+        }
+    });
     div.add(toolBar).add(img);
     document.querySelector("#photo").appendChild(div.el);
 
