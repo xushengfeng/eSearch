@@ -198,29 +198,47 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     const newKeys = keys
         .map((i) => ({ ...i, time: i.time - startTime }))
         .filter((i) => i.time > 0);
+    // 获取关键时间
+    let lastK: (typeof newKeys)[0] | undefined = undefined;
+    const nk = newKeys.filter(
+        (k) =>
+            "keydown" in k ||
+            "keyup" in k ||
+            "mousedown" in k ||
+            "mouseup" in k,
+    );
+    const nk2: typeof newKeys = [];
+    for (const k of nk) {
+        if (k.time - lastK?.time < 500) {
+            lastK = k;
+            nk2.push(k);
+            continue;
+        }
+        lastK = k;
+    }
 
-    for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        const key = newKeys.filter(
-            (k) =>
-                k.time * 1000 >= chunk.timestamp &&
-                k.time * 1000 <
-                    (chunk[i + 1]?.timestamp || Number.POSITIVE_INFINITY),
+    for (const k of nk2) {
+        const t = k.time * 1000;
+        const chunk = chunks.find(
+            (c, i) =>
+                c.timestamp <= t &&
+                t < (chunks[i + 1]?.timestamp ?? Number.POSITIVE_INFINITY),
         );
-        if (key.length === 0) continue;
+        if (!chunk) continue;
+        const nt = chunk.timestamp;
         const w = v.width / 3;
         const h = v.height / 3;
-        const x = Math.max(0, Math.min(v.width - w, key[0].posi.x - w / 2));
-        const y = Math.max(0, Math.min(v.height - h, key[0].posi.y - h / 2));
+        const x = Math.max(0, Math.min(v.width - w, k.posi.x - w / 2));
+        const y = Math.max(0, Math.min(v.height - h, k.posi.y - h / 2));
         const clip: clip = {
             rect: { x, y, w: w, h: h },
-            time: chunk.timestamp,
-            transition: 0,
+            time: nt,
+            transition: 600 * 1000,
         };
-        clipList.set(chunk.timestamp, clip);
-        eventList.set(chunk.timestamp, {
-            time: chunk.timestamp,
-            point: key[0].posi,
+        clipList.set(nt, clip);
+        eventList.set(nt, {
+            time: nt,
+            point: k.posi,
         });
     }
     transformedClip = structuredClone(clipList);
