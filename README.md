@@ -4,7 +4,6 @@
 
 ![LOGO](https://esearch-app.netlify.app/readme/title_photo.svg)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fxushengfeng%2FeSearch.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fxushengfeng%2FeSearch?ref=badge_shield)
-
 [![license](https://img.shields.io/github/license/xushengfeng/eSearch)](LICENSE)
 ![platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 ![commit-activity](https://img.shields.io/github/commit-activity/m/xushengfeng/eSearch)
