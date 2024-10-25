@@ -300,6 +300,10 @@ async function transform(_codec: string = codec) {
     encoder.close();
 }
 
+function easeOutQuint(x: number): number {
+    return 1 - (1 - x) ** 5; // todo 更多 easing
+}
+
 function getClip(n: number) {
     if (transformedClip.has(n) && !removedFrames.has(n))
         return transformedClip.get(n).rect;
@@ -314,7 +318,7 @@ function getClip(n: number) {
         if (t < next.time - transition || t > next.time) {
             return last.rect;
         }
-        const v = (t - (next.time - transition)) / transition; // todo 非线性插值
+        const v = easeOutQuint((t - (next.time - transition)) / transition);
         return {
             x: (1 - v) * last.rect.x + v * next.rect.x,
             y: (1 - v) * last.rect.y + v * next.rect.y,
