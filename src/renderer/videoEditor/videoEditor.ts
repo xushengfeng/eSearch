@@ -213,10 +213,8 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     );
     const nk2: typeof newKeys = [];
     for (const k of nk) {
-        if (k.time - lastK?.time < 500) {
-            lastK = k;
+        if (k.time - (lastK?.time ?? 0) > 500) {
             nk2.push(k);
-            continue;
         }
         lastK = k;
     }
