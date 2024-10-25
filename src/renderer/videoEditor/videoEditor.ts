@@ -193,6 +193,10 @@ function initKeys() {
 
 let stopRecord = () => {};
 
+function ms2timestamp(t: number) {
+    return t * 1000;
+}
+
 function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     const startTime = keys.find((k) => k.isStart).time;
     const newKeys = keys
@@ -218,14 +222,14 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     }
 
     for (const k of nk2) {
-        const t = k.time * 1000;
+        const t = ms2timestamp(k.time);
         const chunk = chunks.find(
             (c, i) =>
                 c.timestamp <= t &&
                 t < (chunks[i + 1]?.timestamp ?? Number.POSITIVE_INFINITY),
         );
         if (!chunk) continue;
-        const nt = chunk.timestamp;
+        const nt = chunk.timestamp - ms2timestamp(200);
         const w = v.width / 3;
         const h = v.height / 3;
         const x = Math.max(0, Math.min(v.width - w, k.posi.x - w / 2));
@@ -233,7 +237,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const clip: clip = {
             rect: { x, y, w: w, h: h },
             time: nt,
-            transition: 400 * 1000,
+            transition: ms2timestamp(400),
         };
         clipList.set(nt, clip);
         eventList.set(nt, {
@@ -404,7 +408,7 @@ async function getFrame(i: number) {
 
 function play() {
     requestAnimationFrame(() => {
-        const dTime = (performance.now() - playTime) * 1000;
+        const dTime = ms2timestamp(performance.now() - playTime);
 
         if (isPlaying) {
             for (let i = playI; i < transformed.length; i++) {
