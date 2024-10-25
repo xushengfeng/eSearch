@@ -233,7 +233,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const clip: clip = {
             rect: { x, y, w: w, h: h },
             time: nt,
-            transition: 600 * 1000,
+            transition: 400 * 1000,
         };
         clipList.set(nt, clip);
         eventList.set(nt, {
@@ -307,28 +307,28 @@ function getClip(n: number) {
 
     function get(last: clip, t: number, next: clip) {
         const transition = Math.min(next.transition, next.time - last.time);
-        if (t < next.time - transition) {
+        if (t < next.time - transition || t > next.time) {
             return last.rect;
         }
         const v = (t - (next.time - transition)) / transition; // todo 非线性插值
         return {
-            x: v * last.rect.x + (1 - v) * next.rect.x,
-            y: v * last.rect.y + (1 - v) * next.rect.y,
-            w: v * last.rect.w + (1 - v) * next.rect.w,
-            h: v * last.rect.h + (1 - v) * next.rect.h,
+            x: (1 - v) * last.rect.x + v * next.rect.x,
+            y: (1 - v) * last.rect.y + v * next.rect.y,
+            w: (1 - v) * last.rect.w + v * next.rect.w,
+            h: (1 - v) * last.rect.h + v * next.rect.h,
         };
     }
 
     if (i === -1)
         return get(
-            transformedClip.get(keys[0]),
+            transformedClip.get(keys.at(-1)),
             n,
-            transformedClip.get(keys[0]),
+            transformedClip.get(keys.at(-1)),
         );
     return get(
-        transformedClip.get(keys[i]),
+        transformedClip.get(keys[i - 1] || keys[0]),
         n,
-        transformedClip.get(keys[i + 1] || keys[i]),
+        transformedClip.get(keys[i]),
     );
 }
 
