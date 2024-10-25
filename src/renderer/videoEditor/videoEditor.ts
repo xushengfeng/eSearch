@@ -302,6 +302,7 @@ function getClip(n: number) {
     const keys = Array.from(transformedClip.keys()).filter(
         (k) => !removedFrames.has(k),
     );
+    if (keys.length === 0) return { x: 0, y: 0, w: v.width, h: v.height };
     const i = keys.findIndex((k) => transformedClip.get(k).time > n);
 
     function get(last: clip, t: number, next: clip) {
