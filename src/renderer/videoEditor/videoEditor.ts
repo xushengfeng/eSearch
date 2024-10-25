@@ -431,12 +431,20 @@ function resetPlayTime() {
 
 function pause() {
     isPlaying = false;
+
+    onPause();
 }
 
 function playEnd() {
     isPlaying = false;
     playI = 0;
     playEl.sv(false);
+
+    onPause();
+}
+
+function onPause() {
+    getNowFrames();
 }
 
 async function showThumbnails() {
@@ -467,6 +475,42 @@ async function showThumbnails() {
                 tH,
             );
         timeLineMain.add(canvasEl);
+    }
+}
+
+async function getNowFrames() {
+    await transform();
+    timeLineFrame.clear();
+    for (
+        let i = Math.max(playI - 3, 0);
+        i < Math.min(playI + 3, transformed.length);
+        i++
+    ) {
+        const id = i;
+        const canvas = await getFrame(id); // todo get slice
+        const tW = 300;
+        const tH = Math.floor((tW * outputV.height) / outputV.width);
+
+        const canvasEl = ele("canvas")
+            .attr({
+                width: tW,
+                height: tH,
+            })
+            .style({ width: "calc(100% / 6)" });
+        canvasEl.el
+            .getContext("2d")
+            .drawImage(
+                canvas,
+                0,
+                0,
+                outputV.width,
+                outputV.height,
+                0,
+                0,
+                tW,
+                tH,
+            );
+        timeLineFrame.add(canvasEl);
     }
 }
 
