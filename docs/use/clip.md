@@ -196,9 +196,11 @@
 
 <table><tbody><tr><td>假设你的编辑过程</td><td>A =&gt; AB =&gt; <strong>ABC</strong></td></tr><tr><td>撤销</td><td>A =&gt; <strong>AB</strong> =&gt; ABC</td></tr><tr><td>再次撤销</td><td><strong>A</strong> =&gt; AB =&gt; ABC</td></tr><tr><td>重做</td><td>A =&gt; <strong>AB</strong> =&gt; ABC</td></tr></tbody></table>
 
-## Linux arm64
+## 外部截屏器
 
-由于目前截屏库暂不支持 Linux arm64，为了使用截屏功能，需要在 设置-高级 设置截屏命令
+用于解决部分 Linux glibc 版本过低或截屏库不支持 arm64 架构问题
+
+为了使用截屏功能，需要在 设置-高级 设置截屏命令
 
 ```shell
 flameshot full -p /dev/shm/esearch-img.png
