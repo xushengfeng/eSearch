@@ -75,7 +75,17 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
     })[] = [];
     allScreens = [];
     let buffer = imgBuffer;
+
     if (!buffer && process.platform === "linux" && process.arch === "arm64") {
+        if (!_command) {
+            d({
+                message: _t("Linux arm64 平台需要额外截屏软件"),
+                buttons: [_t("确定")],
+            } as MessageBoxSyncOptions);
+            return [];
+        }
+    }
+    if (!buffer && _command) {
         const fs = require("node:fs") as typeof import("node:fs");
         const { execSync } =
             require("node:child_process") as typeof import("node:child_process");
@@ -83,28 +93,19 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
             ...displays?.[0],
             captureSync: (keep?: boolean) => {
                 if (x.image && keep) return x.image;
-                const command = _command;
+                const command = _command as string;
                 try {
-                    if (!command) throw "";
                     execSync(command, {});
                     const path = "/dev/shm/esearch-img.png";
                     fs.rm(path, () => {});
                     buffer = fs.readFileSync(path);
                     fs.rm(path, () => {});
                 } catch (error) {
-                    if (!command) {
-                        d({
-                            message: _t("Linux arm64 平台需要额外截屏软件"),
-                            buttons: [_t("确定")],
-                        } as MessageBoxSyncOptions);
-                    } else {
-                        d({
-                            message: _t(
-                                "命令运行出错，无法读取截屏，请检查设置",
-                            ),
-                            buttons: [_t("确定")],
-                        } as MessageBoxSyncOptions);
-                    }
+                    d({
+                        message: _t("命令运行出错，无法读取截屏，请检查设置"),
+                        buttons: [_t("确定")],
+                    } as MessageBoxSyncOptions);
+
                     return { data: null, image: nativeImage.createEmpty() };
                 }
 
