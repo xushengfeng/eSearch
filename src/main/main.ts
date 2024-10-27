@@ -121,7 +121,7 @@ if (dev) {
 }
 
 const screenShotArgs = [
-    store.get("额外截屏器.命令"),
+    { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
     (m: string) =>
         feedbackUrl({
             title: "截屏库调用错误",
@@ -2854,7 +2854,7 @@ const defaultSetting: setting = {
             文件: [],
         },
     },
-    额外截屏器: { 命令: "" },
+    额外截屏器: { 命令: "", 位置: "" },
     连拍: {
         数: 5,
         间隔: 100,

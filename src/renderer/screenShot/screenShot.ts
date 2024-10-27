@@ -14,13 +14,15 @@ let _t: (t: string) => string = (t) => t;
 let Screenshots: typeof import("node-screenshots").Screenshots;
 
 let _command: string | undefined;
+let commandSavePath = "/dev/shm/esearch-img.png";
 
 function init(
-    command: string,
+    command: { c: string; path?: string },
     feedback?: (m: string) => string,
     t?: (t: string) => string,
 ) {
-    _command = command;
+    _command = command.c;
+    if (command.path) commandSavePath = command.path;
     if (t) _t = t;
     if (process.platform === "linux" && process.arch === "arm64") {
         if (!command) {
@@ -95,7 +97,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                 if (x.image && keep) return x.image;
                 const command = _command as string;
                 try {
-                    const path = "/dev/shm/esearch-img.png";
+                    const path = commandSavePath;
                     fs.rm(path, () => {});
                     execSync(command, {});
                     buffer = fs.readFileSync(path);

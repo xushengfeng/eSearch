@@ -334,6 +334,7 @@ export interface setting {
     };
     额外截屏器: {
         命令: string;
+        位置: string;
     };
     连拍: {
         数: number;
