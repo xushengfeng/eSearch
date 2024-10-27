@@ -31,7 +31,7 @@ function init(
                 buttons: [_t("确定")],
             } as MessageBoxSyncOptions);
         }
-    } else
+    } else if (!command)
         try {
             Screenshots = require("node-screenshots").Screenshots;
         } catch (error) {
