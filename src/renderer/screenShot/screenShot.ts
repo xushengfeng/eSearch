@@ -47,8 +47,16 @@ function init(
                     );
                 }
             } else {
+                const me =
+                    error && typeof error === "object" && "message" in error
+                        ? (error.message as string)
+                        : String(error);
+                let m = `${_t("截屏库加载时遇到错误：")}\n${me}`;
+                if (me.includes("GLIBC_")) {
+                    m = `${_t("需要glibc")}${me.match(/GLIBC_([0-9.]+)/)?.[1]}\n${_t("请尝试更新glibc版本")}\n${_t("或者设置外部截屏器")}`;
+                }
                 const id = d({
-                    message: `${_t("截屏库加载时遇到错误：")}\n${error.message}`,
+                    message: m,
                     buttons: [_t("取消"), _t("反馈")],
                     defaultId: 1,
                 });
@@ -63,7 +71,7 @@ function init(
                         }) as string);
 
                 if (id === 1) {
-                    shell.openExternal(f(error.message));
+                    shell.openExternal(f(me));
                 }
             }
         }
