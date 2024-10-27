@@ -114,23 +114,36 @@ frameDecoder.configure({
 const canvas = ele("canvas").addInto().el;
 
 const actionsEl = view("x").addInto();
-const playEl = check("", ["||", "|>"])
-    .addInto(actionsEl)
-    .on("input", async () => {
-        if (playEl.gv) {
-            await transform();
-            isPlaying = true;
-            if (playI === transformed.length - 1) {
-                playI = 0;
-            }
-            resetPlayTime();
-            canvas.width = outputV.width;
-            canvas.height = outputV.height;
-            play();
-        } else {
-            pause();
+const playEl = check("", ["||", "|>"]).on("input", async () => {
+    if (playEl.gv) {
+        await transform();
+        isPlaying = true;
+        if (playI === transformed.length - 1) {
+            playI = 0;
         }
-    });
+        resetPlayTime();
+        canvas.width = outputV.width;
+        canvas.height = outputV.height;
+        play();
+    } else {
+        pause();
+    }
+});
+
+const lastFrame = button("<").on("click", () => {
+    const id = Math.max(playI - 1, 0);
+    jump2id(id);
+    getNowFrames();
+});
+const nextFrame = button(">").on("click", () => {
+    const id = Math.min(playI + 1, transformed.length - 1);
+    jump2id(id);
+    getNowFrames();
+});
+const lastKey = button("<<");
+const nextKey = button(">>");
+
+actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey]);
 
 const timeLineMain = view("x").addInto();
 const timeLineFrame = view("x").addInto();
@@ -392,6 +405,9 @@ async function playId(i: number) {
     }
 }
 
+/**
+ * **注意先调用transform**
+ */
 async function getFrame(i: number) {
     await frameDecoder.flush();
     const beforeId = transformed
@@ -427,6 +443,25 @@ function play() {
 function resetPlayTime() {
     const dTime = transformed[playI].timestamp / 1000;
     playTime = performance.now() - dTime;
+}
+
+async function jump2id(id: number) {
+    await transform();
+    playI = id;
+    const xcanvas = await getFrame(id);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(
+        xcanvas,
+        0,
+        0,
+        xcanvas.width,
+        xcanvas.height,
+        0,
+        0,
+        outputV.width,
+        outputV.height,
+    );
+    resetPlayTime(); // todo 修复中间播放
 }
 
 function pause() {
@@ -480,6 +515,7 @@ async function showThumbnails() {
 
 async function getNowFrames() {
     await transform();
+    // todo cache
     timeLineFrame.clear();
     for (
         let i = Math.max(playI - 3, 0);
