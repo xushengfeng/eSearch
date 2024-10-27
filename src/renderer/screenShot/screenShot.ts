@@ -95,9 +95,9 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                 if (x.image && keep) return x.image;
                 const command = _command as string;
                 try {
-                    execSync(command, {});
                     const path = "/dev/shm/esearch-img.png";
                     fs.rm(path, () => {});
+                    execSync(command, {});
                     buffer = fs.readFileSync(path);
                     fs.rm(path, () => {});
                 } catch (error) {
