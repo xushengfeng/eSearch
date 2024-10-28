@@ -197,6 +197,7 @@ function saveFetch(obj: saveData) {
 
 const e = xtranslator.e[fyq[0].type];
 if (e) {
+    // todo 所有翻译器支持的集合
     const mainLan = store.get("语言.语言");
     lansFrom.add(
         e
