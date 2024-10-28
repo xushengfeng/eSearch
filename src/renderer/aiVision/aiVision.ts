@@ -57,6 +57,22 @@ const fileInputEl = input("file");
 const selectModelEl = select(
     model.map((x) => ({ value: x.name, label: x.name })),
 );
+const promptsEl = view("x")
+    .style({ gap: paddingVar })
+    .add(
+        [{ name: "文字识别", p: "识别图片上的文字" }].map((x) =>
+            button(x.name).on("click", (e) => {
+                if (e.ctrlKey) {
+                    inputEl.el.setRangeText(x.p);
+                } else {
+                    setItem(x.p, "text");
+                    newChatItem(currentId);
+                    runAI();
+                }
+            }),
+        ),
+    );
+// todo 自定义
 
 let currentId = uuid();
 
@@ -337,6 +353,7 @@ view("y")
             view("x").add([
                 label([fileInputEl.style({ display: "none" }), "上传图片"]),
                 selectModelEl,
+                promptsEl,
             ]),
             inputEl,
         ]),
