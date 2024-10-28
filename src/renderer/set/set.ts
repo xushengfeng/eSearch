@@ -2448,6 +2448,17 @@ document.getElementById("version").onclick = () => {
                             tagEl.after(xel.el);
                         }
                     }
+                    tags.append(
+                        txt("忽略此版本").on("click", () => {
+                            (<HTMLInputElement>(
+                                document.querySelector(
+                                    '[data-path="更新.忽略版本"]',
+                                )
+                            )).value = r.name;
+                            old_store.更新.忽略版本 === r.name;
+                            saveSetting();
+                        }).el,
+                    );
                 }
                 if (r.name === packageJson.version) {
                     tags.append(tag("当前版本"));
