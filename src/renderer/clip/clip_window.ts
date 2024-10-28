@@ -2606,6 +2606,7 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
         if (fill) pro.fc = fill;
         if (stroke) pro.sc = stroke;
         if (sw) pro.sw = sw;
+        store.set(`图像编辑.形状属性.${editType.shape}`, pro);
     }
 }
 
