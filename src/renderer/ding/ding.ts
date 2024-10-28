@@ -171,11 +171,24 @@ const setNewDing = (
             resizeSender = false;
         }
     };
+
+    const transB = button(iconEl("translate"))
+        .style({ display: "none" })
+        .on("click", () => {
+            const t = dingData.get(wid).isTranslate;
+            dingData.get(wid).isTranslate = !t;
+            if (t) {
+                div.query("canvas").style({ display: "none" });
+            } else {
+                div.query("canvas").style({ display: "" });
+            }
+        });
     // 工具栏
     toolBarC.add(
         view()
             .attr({ id: "b" })
             .add([
+                transB,
                 button(iconEl("free_draw")).on("click", () => {
                     edit(wid);
                 }),
@@ -240,7 +253,7 @@ const setNewDing = (
             const p = await ocr(url);
             transAndDraw(div, p);
         });
-        // todo 切换原图
+        transB.style({ display: "" });
     }
 
     return {
@@ -329,7 +342,6 @@ function transform(el: HTMLElement, i: number) {
         }
     }
 }
-// todo 快捷键
 function back(id: string) {
     sendEvent("back", id);
 }
