@@ -625,8 +625,12 @@ app.whenReady().then(() => {
         },
         {
             label: t("反馈"),
-            click: () => {
-                shell.openExternal(feedbackUrl());
+            click: (_i, win) => {
+                shell.openExternal(
+                    feedbackUrl({
+                        title: `[${win?.getTitle()?.replace("eSearch - ", "") ?? "……界面"}] 存在……问题`,
+                    }),
+                );
             },
         },
         {
