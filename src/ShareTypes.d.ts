@@ -154,6 +154,16 @@ export interface setting {
             w: number;
             h: number;
         };
+        收藏: {
+            color: string[];
+            形状: {
+                type: keyof EditType["shape"] | EditType["draw"];
+                fc?: string;
+                sc?: string;
+                sw?: number;
+                shadow?: number;
+            }[];
+        }; // todo set
     };
     OCR: {
         类型: string;
