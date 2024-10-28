@@ -77,8 +77,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
       xtranslator:
-        specifier: ^1.1.11
-        version: 1.1.11
+        specifier: ^1.1.12
+        version: 1.1.12
     optionalDependencies:
       node-screenshots-darwin-arm64:
         specifier: 0.1.9
@@ -1440,7 +1440,6 @@ packages:
   gauge@3.0.2:
     resolution: {integrity: sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==}
     engines: {node: '>=10'}
-    deprecated: This package is no longer supported.
 
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -1534,7 +1533,7 @@ packages:
     resolution: {integrity: sha512-vdbKfmw+3LoOYVr+mtxHaX5a96+0f3DljYd8JOqvOLsf5mw2Otda2qCDT9qRqLAhrjyQ0h7ual5nOiASpsGNFw==}
 
   has-unicode@2.0.1:
-    resolution: {integrity: sha1-4Ob+aijPUROIVeCG0Wkedx3iqLk=}
+    resolution: {integrity: sha512-8Rf9Y83NBReMnx0gFzA8JImQACstCYWUplepDa9xprwwtmgEZUF0h/i5xSA625zB/I37EtrswSST6OXxwaaIJQ==}
 
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
@@ -2589,8 +2588,8 @@ packages:
   xtimelog@1.0.5:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
 
-  xtranslator@1.1.11:
-    resolution: {integrity: sha512-k/k+MwJx9rVrr4KfP2Kuibs7qgFCyP0eYjRYqH5xt72GcIFx7PsrlGOfLWx49KJ1c5i3Y1E8X/Pje2vU5JeiEw==}
+  xtranslator@1.1.12:
+    resolution: {integrity: sha512-oCEOf55UVRdxTMbrHYnXEXdnVpB2iFMRVXoBj14EYAQy7p4fnElC0Y9G4lQXspoGxapvsOr89XXslvGui+/cPA==}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -5240,7 +5239,7 @@ snapshots:
 
   xtimelog@1.0.5: {}
 
-  xtranslator@1.1.11: {}
+  xtranslator@1.1.12: {}
 
   y18n@5.0.8: {}
 

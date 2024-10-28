@@ -64,6 +64,15 @@ const inputText = decodeURIComponent(
 );
 
 const fyq = store.get("翻译.翻译器");
+const fanyiqi = new Map(
+    fyq.map((f) => {
+        const e = xtranslator.es[f.type]();
+        // @ts-ignore
+        e.setKeys(f.keys);
+        return [f.id, e];
+    }),
+);
+
 const showCang = store.get("翻译.收藏");
 
 function translate(_text: string) {
@@ -112,8 +121,11 @@ function translate(_text: string) {
         results.add(e.el);
         const c = e.els.content;
         const f = () =>
-            translateI(text, i)
-                .then((_ttext) => {
+            fanyiqi
+                .get(i.id)
+                // @ts-ignore
+                .run(text, lansFrom.el.value, lansTo.el.value)
+                .then((_ttext: string) => {
                     const ttext = _ttext.trim();
                     c.el.innerText = ttext;
                     copy.on("click", () => {
@@ -130,9 +142,7 @@ function translate(_text: string) {
                     });
                     checkEl.on("click", async () => {
                         // @ts-ignore
-                        xtranslator.e[i.type].setKeys(i.keys);
-                        // @ts-ignore
-                        const t = await xtranslator.e[i.type].run(
+                        const t = await fanyiqi.get(i.id).run(
                             text,
                             lansTo.el.value,
                             "zh", // todo 识别后的语言，因为有可能是自动
@@ -146,13 +156,6 @@ function translate(_text: string) {
                 });
         f();
     }
-}
-
-function translateI(text: string, i: (typeof fyq)[0]): Promise<string> {
-    // @ts-ignore
-    xtranslator.e[i.type].setKeys(i.keys);
-    // @ts-ignore
-    return xtranslator.e[i.type].run(text, lansFrom.el.value, lansTo.el.value);
 }
 
 type saveData = {
