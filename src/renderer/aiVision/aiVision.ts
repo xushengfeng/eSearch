@@ -9,6 +9,7 @@ import {
     addStyle,
     label,
     select,
+    pack,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle } from "../root/root";
@@ -73,6 +74,17 @@ const promptsEl = view("x")
         ),
     );
 // todo 自定义
+
+const stopEl = iconEl("close")
+    .bindSet((show: boolean, el) => {
+        const El = pack(el);
+        if (show) {
+            El.style({ display: "" });
+        } else {
+            El.style({ display: "none" });
+        }
+    })
+    .sv(false);
 
 let currentId = uuid();
 
@@ -189,12 +201,21 @@ async function runAI(targetId?: string, force = false) {
     }
     const id = targetId ?? uuid();
     let resultText = "";
+
+    const abortController = new AbortController();
+    stopEl.sv(true);
+    stopEl.el.onclick = () => {
+        abortController.abort();
+        stopEl.sv(false);
+    };
+
     fetch(x.url, {
         method: "POST",
         headers: {
             authorization: `Bearer ${x.key}`,
             "content-type": "application/json",
         },
+        signal: abortController.signal,
         body: JSON.stringify(m),
     }).then((res) => {
         if (!res.body) return;
@@ -212,7 +233,10 @@ async function runAI(targetId?: string, force = false) {
                 )
                 .filter((i) => i !== "");
             for (const i of text) {
-                if (i === "[DONE]") return;
+                if (i === "[DONE]") {
+                    stopEl.sv(false);
+                    return;
+                }
                 parse(i);
             }
 
@@ -350,11 +374,14 @@ view("y")
     .add([
         showList,
         view("y").add([
-            view("x").add([
-                label([fileInputEl.style({ display: "none" }), "上传图片"]),
-                selectModelEl,
-                promptsEl,
-            ]),
+            view("x")
+                .style({ gap: paddingVar })
+                .add([
+                    label([fileInputEl.style({ display: "none" }), "上传图片"]),
+                    selectModelEl,
+                    promptsEl,
+                    stopEl,
+                ]),
             inputEl,
         ]),
     ])
