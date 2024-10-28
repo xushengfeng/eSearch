@@ -25,13 +25,13 @@ function init(
     if (command.path) commandSavePath = command.path;
     if (t) _t = t;
     if (process.platform === "linux" && process.arch === "arm64") {
-        if (!command) {
+        if (!_command) {
             d({
                 message: `${_t("Linux arm64 平台需要额外截屏软件")}\n${_t("请在 设置-高级 中设置截屏命令")}`,
                 buttons: [_t("确定")],
             } as MessageBoxSyncOptions);
         }
-    } else if (!command)
+    } else if (!_command)
         try {
             Screenshots = require("node-screenshots").Screenshots;
         } catch (error) {
