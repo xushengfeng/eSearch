@@ -1967,7 +1967,13 @@ function getShapePro(name: keyof typeof shapePro) {
                 store.get(`图像编辑.形状属性.${name}.${x}`) ?? v[x];
         }
     }
-    return v;
+    const nv: { fc: string; sc: string; sw: number; shadow?: number } = {
+        fc: v.fc,
+        sc: v.sc,
+        sw: v.sw,
+    };
+    if (free.includes(name)) nv.shadow = v.shadow;
+    return nv;
 }
 
 function setEditType<T extends keyof EditType>(
