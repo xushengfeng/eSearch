@@ -10,6 +10,7 @@ import {
     label,
     select,
     pack,
+    ele,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle } from "../root/root";
@@ -42,7 +43,7 @@ function iconEl(src: string) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
-const model = store.get("AI.在线模型").filter((x) => x.supportVision);
+const model = store.get("AI.在线模型");
 
 const paddingVar = "var(--o-padding)";
 const inputEl = textarea()
@@ -119,6 +120,7 @@ function newChatItem(id: string) {
     toolBar.els.delete.on("click", () => {
         content.delete(id);
         chatItem.remove();
+        setModelList(content.values().some((x) => x.content.img));
     });
     toolBar.els.edit.on("click", () => {
         const c = content.get(id);
@@ -178,6 +180,19 @@ function toChatgptm(data: aiData): chatgptm {
         role,
         content: content.text,
     };
+}
+
+function setModelList(isVision: boolean) {
+    const oldData = selectModelEl.gv ?? model[0].name;
+    const list = isVision ? model.filter((x) => x.supportVision) : model;
+    const elList = list.map((x) =>
+        ele("option").attr({
+            value: x.name,
+            innerText: x.name,
+            selected: x.name === oldData,
+        }),
+    );
+    selectModelEl.clear().add(elList);
 }
 
 async function runAI(targetId?: string, force = false) {
@@ -290,6 +305,8 @@ function setItem(data: string, type: "text" | "image_url") {
     } else {
         oldData.content.text = data;
     }
+
+    if (type === "image_url") setModelList(true);
 }
 
 // @ts-ignore
