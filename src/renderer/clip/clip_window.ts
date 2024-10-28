@@ -1448,7 +1448,7 @@ function ckx(e: MouseEvent) {
 }
 
 function numberFormat(num: number) {
-    return num.toFixed(1).replace(/\.?0+$/, "");
+    return (num || 0).toFixed(1).replace(/\.?0+$/, "");
 }
 
 // 色彩空间转换
