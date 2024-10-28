@@ -1877,7 +1877,7 @@ const onlineAIModel = sortList(
             .bindGet((el) => JSON.parse(el.value) as Record<string, unknown>)
             .sv(item.config)
             .style(textStyle(6));
-        const supportVision = check("vision");
+        const supportVision = check("vision").sv(item.supportVision);
 
         dialog.add([
             nameEl,
