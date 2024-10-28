@@ -313,7 +313,7 @@ addStyle({
     body: {
         background: "var(--bg)",
     },
-    button: {
+    "button:has(.icon)": {
         width: "20px !important",
         height: "20px !important",
     },
