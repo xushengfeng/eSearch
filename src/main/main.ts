@@ -2670,6 +2670,10 @@ const defaultSetting: setting = {
             w: 10,
             h: 16,
         },
+        收藏: {
+            color: [],
+            形状: [],
+        },
     },
     OCR: {
         类型: "默认",
