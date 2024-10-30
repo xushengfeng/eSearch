@@ -14,6 +14,7 @@ import {
     frame,
     image,
     input,
+    trackPoint,
     txt,
     view,
 } from "dkh-ui";
@@ -113,13 +114,8 @@ const setNewDing = (
     };
     // 透明
     const opacityEl = frame("opacity", {
-        _: view().attr({ id: "opacity" }),
+        _: view().attr({ id: "opacity" }).style({ cursor: "ew-resize" }),
         icon: view().class("opacity").add(iconEl("opacity")),
-        input: input("range")
-            .attr({ id: "透明度", min: "0", max: "100" })
-            .on("input", (_, el) => {
-                opacityElP.sv(el.gv);
-            }),
         p: txt()
             .attr({ id: "透明度_p" })
             .bindSet((v: string, el) => {
@@ -127,10 +123,21 @@ const setNewDing = (
             }),
     });
 
+    trackPoint(opacityEl.el, {
+        start: () => {
+            // todo keep toolbar show
+            return { x: 0, y: 0, data: Number.parseInt(opacityEl.els.p.gv) };
+        },
+        ing: (p, _e, { startData }) => {
+            const d = Math.round(p.x / 2);
+            const newOp = Math.max(0, Math.min(100, startData + d));
+            opacityElP.sv(newOp.toString());
+        },
+    });
+
     const opacityElP = opacityEl.el
         .bindSet((v: string) => {
             img.el.style.opacity = `${Number(v) / 100}`;
-            opacityEl.els.input.sv(v);
             opacityEl.els.p.sv(v);
         })
         .sv("100");
