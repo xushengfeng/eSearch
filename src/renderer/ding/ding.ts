@@ -584,9 +584,11 @@ function mouseMove(el: HTMLElement, x: number, y: number) {
         move(windowDiv, { x, y });
     } else {
         const div = dives.find((d) => d.el.contains(el));
-        if (div && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
+        if (div) {
             const d = dire(div.el, { x, y });
             cursor(d);
+        } else {
+            cursor("");
         }
     }
 }
@@ -603,46 +605,53 @@ function mouseEnd() {
 }
 
 let direction = "";
-function dire(el: HTMLElement, e: { x: number; y: number }) {
+function dire(el: HTMLElement, p: { x: number; y: number }) {
     const width = el.offsetWidth;
     const height = el.offsetHeight;
-    const pX = e.x - el.offsetLeft;
-    const pY = e.y - el.offsetTop;
+    const pX = p.x - el.offsetLeft;
+    const pY = p.y - el.offsetTop;
     let direction = "";
 
     const num = 8;
-    // 光标样式
-    switch (true) {
-        case pX <= num && pY <= num:
+
+    function w() {
+        return 0 <= pX && pX <= num;
+    }
+
+    function e() {
+        return width - num <= pX && pX <= width;
+    }
+
+    function n() {
+        return 0 <= pY && pY <= num;
+    }
+
+    function s() {
+        return height - num <= pY && pY <= height;
+    }
+
+    if (0 <= pX && pX <= width && 0 <= pY && pY <= height) {
+        if (w() && n()) {
             direction = "西北";
-            break;
-        case pX >= width - num && pY >= height - num:
-            direction = "东南";
-            break;
-        case pX >= width - num && pY <= num:
-            direction = "东北";
-            break;
-        case pX <= num && pY >= height - num:
+        } else if (w() && s()) {
             direction = "西南";
-            break;
-        case pX <= num:
+        } else if (e() && n()) {
+            direction = "东北";
+        } else if (e() && s()) {
+            direction = "东南";
+        } else if (w()) {
             direction = "西";
-            break;
-        case pX >= width - num:
+        } else if (e()) {
             direction = "东";
-            break;
-        case pY <= num:
+        } else if (n()) {
             direction = "北";
-            break;
-        case pY >= height - num:
+        } else if (s()) {
             direction = "南";
-            break;
-        case num < pX && pX < width - num && num < pY && pY < height - num:
+        } else {
             direction = "move";
-            break;
-        default:
-            direction = "";
-            break;
+        }
+    } else {
+        direction = "";
     }
     return direction;
 }
