@@ -222,6 +222,7 @@ const setNewDing = (
     };
     // 快捷键
     div.on("keydown", (e) => {
+        if ((e.target as HTMLElement).tagName === "INPUT") return;
         if (e.key === "Escape") {
             close(wid);
         }
