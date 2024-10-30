@@ -535,7 +535,7 @@ type start = {
     y: number;
     dx: number;
     dy: number;
-    d: string;
+    d: Dire;
 };
 
 type Resize = {
@@ -604,13 +604,26 @@ function mouseEnd() {
     cursor(direction);
 }
 
-let direction = "";
+type Dire =
+    | "move"
+    | "西北"
+    | "东南"
+    | "东北"
+    | "西南"
+    | "西"
+    | "东"
+    | "北"
+    | "南"
+    | "";
+
+let direction: Dire = "";
+
 function dire(el: HTMLElement, p: { x: number; y: number }) {
     const width = el.offsetWidth;
     const height = el.offsetHeight;
     const pX = p.x - el.offsetLeft;
     const pY = p.y - el.offsetTop;
-    let direction = "";
+    let direction: Dire = "";
 
     const num = 8;
 
@@ -656,8 +669,12 @@ function dire(el: HTMLElement, p: { x: number; y: number }) {
     return direction;
 }
 
-function cursor(d: string) {
-    const m = {
+let lastCursor: Dire = "";
+
+function cursor(d: Dire) {
+    if (d === lastCursor) return;
+    lastCursor = d;
+    const m: Record<Dire, string> = {
         西北: "nwse-resize",
         东南: "nwse-resize",
         东北: "nesw-resize",
