@@ -100,7 +100,16 @@ const setNewDing = (
         width: `${w}px`,
         height: `${h}px`,
     });
-    const img = image(url, "").attr({ draggable: false }).class("img");
+    const img = image(url, "").attr({ draggable: false });
+    const imageP = view()
+        .class("img")
+        .add(img)
+        .class(
+            addClass(
+                { position: "relative" },
+                { "&>*": { width: "100%", top: 0, left: 0 } },
+            ),
+        );
     const toolBar = view().attr({ id: "tool_bar" });
     const toolBarC = view("x")
         .attr({ id: "tool_bar_c" })
@@ -215,7 +224,7 @@ const setNewDing = (
             zoom = e.deltaY > 0 ? zoom / zz : zoom * zz;
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
-            const d = dxdy(e, e.ctrlKey ? img : div);
+            const d = dxdy(e, e.ctrlKey ? imageP : div);
             resize(div, zoom, d.dx, d.dy, e.ctrlKey);
             resizeSender = false;
         }
@@ -279,7 +288,7 @@ const setNewDing = (
             transform(div.el, Number(e.key) - 1);
         }
     });
-    div.add(toolBar).add(img);
+    div.add(toolBar).add(imageP);
     document.querySelector("#photo").appendChild(div.el);
 
     // dock
@@ -480,9 +489,9 @@ async function transAndDraw(
             height: data.rect[3],
         })
         .style({ position: "absolute", pointerEvents: "none" })
-        .addInto(el).el;
+        .addInto(el.query(".img")).el;
     const ctx = canvas.getContext("2d");
-    ctx.drawImage(el.query(".img").el as HTMLImageElement, 0, 0);
+    ctx.drawImage(el.query(".img > img").el, 0, 0);
     console.log(p);
     const tr = await translateE(p.map((i) => i.parse.text));
     console.log(tr);
@@ -893,7 +902,6 @@ function resize(
             height: `${pS[3]}px`,
         };
         el.query(".img").style(style);
-        el.query("canvas")?.style(style);
     } else {
         const style = {
             left: 0,
@@ -902,7 +910,6 @@ function resize(
             height: "",
         } as const;
         el.query(".img").style(style);
-        el.query("canvas")?.style(style);
         el.style({
             left: `${pS[0]}px`,
             top: `${pS[1]}px`,
@@ -911,12 +918,9 @@ function resize(
         });
     }
 
-    el.query(".img").style({
-        "image-rendering": zoom > 1 ? "pixelated" : "initial",
-    });
-    el.query("canvas")?.style({
-        "image-rendering": zoom > 1 ? "pixelated" : "initial",
-    });
+    for (const i of el.queryAll(".img>*")) {
+        i.style({ "image-rendering": zoom > 1.5 ? "pixelated" : "initial" });
+    }
 
     if (resizeSender)
         sendEvent("resize", null, { id: id, zoom, dx, dy, clip } as Resize);
