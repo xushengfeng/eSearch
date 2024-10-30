@@ -102,14 +102,29 @@ const setNewDing = (
     });
     const img = image(url, "").attr({ draggable: false }).class("img");
     const toolBar = view().attr({ id: "tool_bar" });
-    const toolBarC = view("x").attr({ id: "tool_bar_c" });
+    const toolBarC = view("x")
+        .attr({ id: "tool_bar_c" })
+        .bindSet((v: { forceShow?: boolean; show?: boolean }, el) => {
+            if (v.forceShow !== undefined)
+                el.setAttribute("data-force-show", String(v.forceShow));
+            if (v.show !== undefined)
+                el.setAttribute("data-show", String(v.show));
+            if (el.getAttribute("data-force-show") === "true") {
+                el.style.transform = "translateY(0)";
+            } else {
+                el.style.transform =
+                    el.getAttribute("data-show") === "true"
+                        ? "translateY(0)"
+                        : "translateY(-105%)";
+            }
+        });
     toolBar.add(toolBarC);
     // 顶栏
     div.el.onmouseenter = () => {
-        toolBarC.el.style.transform = "translateY(0)";
+        toolBarC.sv({ show: true });
     };
     div.el.onmouseleave = () => {
-        toolBarC.el.style.transform = "translateY(-105%)";
+        toolBarC.sv({ show: false });
     };
 
     const concorlClass = addClass(
@@ -137,13 +152,16 @@ const setNewDing = (
 
     trackPoint(opacityElP, {
         start: () => {
-            // todo keep toolbar show
+            toolBarC.sv({ forceShow: true });
             return { x: 0, y: 0, data: Number.parseInt(opacityEl.gv) };
         },
         ing: (p, _e, { startData }) => {
             const d = Math.round(p.x / 2);
             const newOp = Math.max(0, Math.min(100, startData + d));
             opacityEl.sv(newOp.toString());
+        },
+        end: () => {
+            toolBarC.sv({ forceShow: false });
         },
     });
 
@@ -163,7 +181,7 @@ const setNewDing = (
 
     trackPoint(sizeEl, {
         start: () => {
-            // todo keep toolbar show
+            toolBarC.sv({ forceShow: true });
             return { x: 0, y: 0, data: sizeInput.gv };
         },
         ing: (p, _e, { startData }) => {
@@ -171,6 +189,9 @@ const setNewDing = (
             const newS = Math.max(0, startData + d);
             sizeInput.sv(newS.toString());
             sizeChange();
+        },
+        end: () => {
+            toolBarC.sv({ forceShow: false });
         },
     });
 
