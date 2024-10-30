@@ -143,13 +143,34 @@ const setNewDing = (
         .sv("100");
     toolBarC.add(opacityElP);
     // 大小
-    const sizeEl = view()
-        .attr({ id: "window_size" })
-        .add(view().class("size").add(iconEl("size")));
-    const sizeInput = input("number")
-        .on("blur", sizeChange)
-        .on("change", sizeChange)
+    const sizeInput = txt()
+        .bindSet((v: string, el) => {
+            el.innerText = `${v}%`;
+        })
+        .bindGet((el) => {
+            return Number.parseInt(el.innerText);
+        })
         .sv("100");
+    const sizeEl = view("x")
+        .style({ cursor: "ew-resize" })
+        .attr({ id: "window_size" })
+        .add([
+            iconEl("size").style({ width: "32px", position: "initial" }),
+            sizeInput,
+        ]);
+
+    trackPoint(sizeEl, {
+        start: () => {
+            // todo keep toolbar show
+            return { x: 0, y: 0, data: sizeInput.gv };
+        },
+        ing: (p, _e, { startData }) => {
+            const d = Math.round(p.x / 2);
+            const newS = Math.max(0, startData + d);
+            sizeInput.sv(newS.toString());
+            sizeChange();
+        },
+    });
 
     function sizeChange() {
         if (Number.isFinite(Number(sizeInput.gv))) {
@@ -161,9 +182,7 @@ const setNewDing = (
         }
     }
 
-    toolBarC.add(
-        sizeEl.add(ele("span").attr({ id: "size" }).add([sizeInput, "%"])),
-    );
+    toolBarC.add(sizeEl);
 
     // 滚轮缩放
     div.el.onwheel = (e) => {
