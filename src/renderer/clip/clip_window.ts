@@ -30,6 +30,8 @@ import {
 } from "fabric";
 import { EraserBrush } from "@erase2d/fabric";
 
+lan(store.get("语言.语言"));
+
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
@@ -2805,7 +2807,7 @@ const toolBarEl = frame("tool", {
     search: {
         _: iconEl("search"),
         searchE: selectMenu<string>([
-            { value: "baidu", name: "百度" },
+            { value: "baidu", name: t("百度") },
             { value: "yandex", name: "Yandex" },
             { value: "google", name: "Google" },
             { value: "ai", name: "AI" },
@@ -2817,8 +2819,8 @@ const toolBarEl = frame("tool", {
     record: {
         _: iconEl("record"),
         recordm: selectMenu<"normal" | "super">([
-            { name: "标准录屏", value: "normal" },
-            { name: "超级录屏", value: "super" },
+            { name: t("标准录屏"), value: "normal" },
+            { name: t("超级录屏"), value: "super" },
         ])
             .class("side_select")
             .data({ dev: "" }),
@@ -2826,15 +2828,15 @@ const toolBarEl = frame("tool", {
     long: {
         _: iconEl("long_clip"),
         longm: selectMenu<"y" | "xy">([
-            { name: "长截屏 y", value: "y" },
-            { name: "广截屏 xy", value: "xy" },
+            { name: t("长截屏 y"), value: "y" },
+            { name: t("广截屏 xy"), value: "xy" },
         ]).class("side_select"),
     },
     translate: {
         _: iconEl("translate"),
         translatem: selectMenu<translateWinType["type"]>([
-            { name: "贴图", value: "ding" },
-            { name: "自动翻译", value: "live" },
+            { name: t("贴图"), value: "ding" },
+            { name: t("自动翻译"), value: "live" },
         ]).class("side_select"),
     },
     editor: iconEl("super_edit"),
@@ -3659,8 +3661,8 @@ for (const i of store.get("离线OCR")) {
     ocr引擎.add(ele("option").attr({ innerText: i[0], value: i[0] }));
 }
 for (const i of [
-    { v: "baidu", t: "百度" },
-    { v: "youdao", t: "有道" },
+    { v: "baidu", t: t("百度") },
+    { v: "youdao", t: t("有道") },
 ]) {
     ocr引擎.add(ele("option").attr({ innerText: i.t, value: i.v }));
 }
@@ -3669,7 +3671,6 @@ ocr引擎.on("change", () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv);
     tool.ocr();
 });
-toolList.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv}`;
 
 // 以图搜图
 const 识图引擎 = toolBarEl.els.searchE;
@@ -3678,7 +3679,6 @@ const 识图引擎 = toolBarEl.els.searchE;
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv);
     tool.search();
 });
-toolList.search.el.title = `以图搜图 - ${识图引擎.gv}`;
 
 trackLocation();
 
@@ -3718,7 +3718,6 @@ toolBar.addEventListener("mouseup", (e) => {
     if (e.button === 2) toolPosition = { x: null, y: null };
 });
 
-lan(store.get("语言.语言"));
 document.title = t(document.title);
 
 // 键盘控制光标
