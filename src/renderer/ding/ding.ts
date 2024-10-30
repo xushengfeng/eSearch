@@ -7,13 +7,12 @@ import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import xtranslator from "xtranslator";
 import {
+    addClass,
     button,
     ele,
     elFromId,
     type ElType,
-    frame,
     image,
-    input,
     trackPoint,
     txt,
     view,
@@ -112,35 +111,42 @@ const setNewDing = (
     div.el.onmouseleave = () => {
         toolBarC.el.style.transform = "translateY(-105%)";
     };
-    // 透明
-    const opacityEl = frame("opacity", {
-        _: view().attr({ id: "opacity" }).style({ cursor: "ew-resize" }),
-        icon: view().class("opacity").add(iconEl("opacity")),
-        p: txt()
-            .attr({ id: "透明度_p" })
-            .bindSet((v: string, el) => {
-                el.innerText = `${v}%`;
-            }),
-    });
 
-    trackPoint(opacityEl.el, {
+    const concorlClass = addClass(
+        {
+            cursor: "ew-resize",
+        },
+        {
+            "& .icon": {
+                width: "32px",
+                position: "initial",
+            },
+        },
+    );
+
+    // 透明
+    const opacityEl = txt()
+        .bindSet((v: string, el) => {
+            el.innerText = `${v}%`;
+            img.el.style.opacity = `${Number(v) / 100}`;
+        })
+        .sv("100");
+    const opacityElP = view("x")
+        .class(concorlClass)
+        .add([iconEl("opacity"), opacityEl]);
+
+    trackPoint(opacityElP, {
         start: () => {
             // todo keep toolbar show
-            return { x: 0, y: 0, data: Number.parseInt(opacityEl.els.p.gv) };
+            return { x: 0, y: 0, data: Number.parseInt(opacityEl.gv) };
         },
         ing: (p, _e, { startData }) => {
             const d = Math.round(p.x / 2);
             const newOp = Math.max(0, Math.min(100, startData + d));
-            opacityElP.sv(newOp.toString());
+            opacityEl.sv(newOp.toString());
         },
     });
 
-    const opacityElP = opacityEl.el
-        .bindSet((v: string) => {
-            img.el.style.opacity = `${Number(v) / 100}`;
-            opacityEl.els.p.sv(v);
-        })
-        .sv("100");
     toolBarC.add(opacityElP);
     // 大小
     const sizeInput = txt()
@@ -152,12 +158,8 @@ const setNewDing = (
         })
         .sv("100");
     const sizeEl = view("x")
-        .style({ cursor: "ew-resize" })
-        .attr({ id: "window_size" })
-        .add([
-            iconEl("size").style({ width: "32px", position: "initial" }),
-            sizeInput,
-        ]);
+        .class(concorlClass)
+        .add([iconEl("size"), sizeInput]);
 
     trackPoint(sizeEl, {
         start: () => {
@@ -284,7 +286,7 @@ const setNewDing = (
     }
 
     return {
-        opacity: (v: string) => opacityElP.sv(v),
+        opacity: (v: string) => opacityEl.sv(v),
         size: (v: string) => sizeInput.sv(v),
         id: wid,
     };

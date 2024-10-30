@@ -50,71 +50,10 @@ body > #dock_item {
     display: flex;
     align-items: center;
 }
-#size > span {
-    cursor: text;
-}
 .img {
     position: absolute;
     width: 100%;
     user-select: none;
-}
-#size_main_p {
-    display: none;
-    pointer-events: none;
-    position: absolute;
-    z-index: 3;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: var(--border-radius);
-    backdrop-filter: var(--blur);
-    background: var(--bar-bg);
-    padding: 8px;
-    transition: var(--transition);
-}
-
-input[type="range"] {
-    -webkit-appearance: none;
-    width: 150px;
-    border-radius: 10px;
-    height: 20px;
-    box-shadow: var(--shadow);
-    cursor: ew-resize;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-}
-
-input[type="range"]::-webkit-slider-runnable-track {
-    height: 20px;
-    border-radius: 10px;
-    background-color: #0000;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 20px;
-    width: 20px;
-    background: var(--color);
-    border-radius: 10px;
-}
-
-.opacity,
-.size {
-    width: 32px;
-    height: 32px;
-    position: relative;
-}
-.opacity > .icon,
-.size > .icon {
-    width: 32px;
-}
-#size > input {
-    outline: none;
-    font-size: 1rem;
-    border: none;
-    field-sizing: content;
 }
 
 #b {
