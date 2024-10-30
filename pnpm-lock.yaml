@@ -20,8 +20,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       dkh-ui:
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.11.1
+        version: 0.11.1
       download:
         specifier: ^8.0.0
         version: 8.0.0
@@ -1166,8 +1166,8 @@ packages:
   dir-compare@3.3.0:
     resolution: {integrity: sha512-J7/et3WlGUCxjdnD3HAAzQ6nsnc0WL6DD7WcwJb7c39iH1+AWfg+9OqzJNaI6PkBwBvm1mhZNL9iY/nRiZXlPg==}
 
-  dkh-ui@0.11.0:
-    resolution: {integrity: sha512-x55vkr61ZelxS7idpap8XzzZ/ixuh5r2tUd5s/IzVPzvk10JPD7Ydntt6rkqH5mBB4aXIRd6kpDc7rUadMGTfQ==}
+  dkh-ui@0.11.1:
+    resolution: {integrity: sha512-UZ27lwasfTFXA4f6aQPnt72VtRv4kMFBXuSAdJKjrGFucGFM9NX/hUlmJfyghzKYa/1zlTguT6nJaTgHOsCvgg==}
 
   dmg-builder@24.13.3:
     resolution: {integrity: sha512-rcJUkMfnJpfCboZoOOPf4L29TRtEieHNOeAbYPWPxlaBw/Z1RKrRA86dOI9rwaI4tQSc/RD82zTNHprfUHXsoQ==}
@@ -1953,6 +1953,7 @@ packages:
 
   npmlog@5.0.1:
     resolution: {integrity: sha512-AqZtDUWOMKs1G/8lwylVjrdYgqA4d9nu8hc+0gzRxlDb1I10+FHBGMXs6aiQHFdCUUlqH99MUMuLfzWDNDtfxw==}
+    deprecated: This package is no longer supported.
 
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
@@ -3721,7 +3722,7 @@ snapshots:
       buffer-equal: 1.0.1
       minimatch: 3.1.2
 
-  dkh-ui@0.11.0:
+  dkh-ui@0.11.1:
     dependencies:
       csstype: 3.1.3
       typed-query-selector: 2.12.0

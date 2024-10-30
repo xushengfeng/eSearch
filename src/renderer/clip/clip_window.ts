@@ -54,6 +54,7 @@ import {
     image,
     input,
     p,
+    pack,
     pureStyle,
     setProperties,
     trackPoint,
@@ -3136,8 +3137,6 @@ let longFX: typeof toolBarEl.els.longm.gv = "y";
 
 let type: setting["保存"]["默认格式"];
 
-let toolPosition = { x: null, y: null };
-
 /** 矩形还是自由 */
 let isRect = true;
 let /**是否在绘制新选区*/ selecting = false;
@@ -3709,16 +3708,25 @@ ipcRenderer.on("save_path", (_event, message) => {
     save(message);
 });
 
-toolBar.addEventListener("mousedown", (e) => {
-    toolBar.style.transition = "none";
-    if (e.button === 2) {
-        toolPosition.x = e.clientX - toolBar.offsetLeft;
-        toolPosition.y = e.clientY - toolBar.offsetTop;
-    }
-});
-toolBar.addEventListener("mouseup", (e) => {
-    toolBar.style.transition = "";
-    if (e.button === 2) toolPosition = { x: null, y: null };
+trackPoint(pack(toolBar), {
+    start: (e) => {
+        if (e.ctrlKey) {
+            toolBar.style.transition = "none";
+            return {
+                x: toolBar.offsetLeft,
+                y: toolBar.offsetTop,
+            };
+        }
+        return null;
+    },
+    ing: (p) => {
+        toolBar.style.left = `${p.x}px`;
+        toolBar.style.top = `${p.y}px`;
+        trackLocation();
+    },
+    end: () => {
+        toolBar.style.transition = "";
+    },
 });
 
 document.title = t(document.title);
@@ -4047,11 +4055,6 @@ document.onmousemove = (e) => {
             drawBar.style.left = `${e.clientX - drawBarMovingXY[0]}px`;
             drawBar.style.top = `${e.clientY - drawBarMovingXY[1]}px`;
         }
-    }
-    if (toolPosition.x) {
-        toolBar.style.left = `${e.clientX - toolPosition.x}px`;
-        toolBar.style.top = `${e.clientY - toolPosition.y}px`;
-        trackLocation();
     }
 };
 
