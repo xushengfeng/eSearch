@@ -1,6 +1,7 @@
 import { defineConfig } from "electron-vite";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 import * as path from "node:path";
+import { tmpdir } from "node:os";
 
 export default defineConfig({
     main: {
@@ -57,6 +58,12 @@ export default defineConfig({
             minify: "esbuild",
             sourcemap: true,
         },
-        plugins: [ViteImageOptimizer()],
+        plugins: [
+            ViteImageOptimizer({
+                cache: true,
+                cacheLocation: path.join(tmpdir(), "eSearch_build"),
+                logStats: false,
+            }),
+        ],
     },
 });
