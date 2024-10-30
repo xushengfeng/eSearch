@@ -2864,16 +2864,19 @@ toolBarEl.els.longm.sv(store.get("广截屏.方向"));
 toolBarEl.els.longm.on("change", () => {
     store.set("广截屏.方向", toolBarEl.els.longm.gv);
     longFX = toolBarEl.els.longm.gv;
+    tool.long();
 });
 
 toolBarEl.els.recordm.sv(store.get("录屏.模式"));
 toolBarEl.els.recordm.on("change", () => {
     store.set("录屏.模式", toolBarEl.els.recordm.gv);
+    tool.record();
 });
 
 toolBarEl.els.translatem.sv(store.get("屏幕翻译.type"));
 toolBarEl.els.translatem.on("change", () => {
     store.set("屏幕翻译.type", toolBarEl.els.translatem.gv);
+    tool.translate();
 });
 
 toolBarEl.el.style({
@@ -3661,7 +3664,7 @@ for (const i of [
     ocr引擎.add(ele("option").attr({ innerText: i.t, value: i.v }));
 }
 ocr引擎.sv(store.get("OCR.记住") || store.get("OCR.类型"));
-ocr引擎.on("input", () => {
+ocr引擎.on("change", () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv);
     tool.ocr();
 });
@@ -3670,7 +3673,7 @@ toolList.ocr.el.title = `OCR(文字识别) - ${ocr引擎.gv}`;
 // 以图搜图
 const 识图引擎 = toolBarEl.els.searchE;
 识图引擎.sv(store.get("以图搜图.记住") || store.get("以图搜图.引擎"));
-识图引擎.on("input", () => {
+识图引擎.on("change", () => {
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv);
     tool.search();
 });
