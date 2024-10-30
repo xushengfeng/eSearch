@@ -2801,11 +2801,14 @@ const hotkeyTipEl = view().attr({ id: "hotkeys_tip" });
 
 const toolBarEl = frame("tool", {
     _: view(),
-    close: iconEl("close"),
-    screens: view(),
-    ocr: { _: iconEl("ocr"), ocrE: selectMenu().class("side_select") },
+    close: iconEl("close").attr({ title: t("关闭") }),
+    screens: view().attr({ title: t("屏幕管理") }),
+    ocr: {
+        _: iconEl("ocr").attr({ title: t("文字识别") }),
+        ocrE: selectMenu().class("side_select"),
+    },
     search: {
-        _: iconEl("search"),
+        _: iconEl("search").attr({ title: t("以图搜图") }),
         searchE: selectMenu<string>([
             { value: "baidu", name: t("百度") },
             { value: "yandex", name: "Yandex" },
@@ -2813,11 +2816,11 @@ const toolBarEl = frame("tool", {
             { value: "ai", name: "AI" },
         ]).class("side_select"),
     },
-    QR: iconEl("scan"),
-    open: iconEl("open"),
-    ding: iconEl("ding"),
+    QR: iconEl("scan").attr({ title: t("二维码") }),
+    open: iconEl("open").attr({ title: t("其他应用打开") }),
+    ding: iconEl("ding").attr({ title: t("屏幕贴图") }),
     record: {
-        _: iconEl("record"),
+        _: iconEl("record").attr({ title: t("录屏") }),
         recordm: selectMenu<"normal" | "super">([
             { name: t("标准录屏"), value: "normal" },
             { name: t("超级录屏"), value: "super" },
@@ -2826,22 +2829,22 @@ const toolBarEl = frame("tool", {
             .data({ dev: "" }),
     },
     long: {
-        _: iconEl("long_clip"),
+        _: iconEl("long_clip").attr({ title: t("广截屏") }),
         longm: selectMenu<"y" | "xy">([
             { name: t("长截屏 y"), value: "y" },
             { name: t("广截屏 xy"), value: "xy" },
         ]).class("side_select"),
     },
     translate: {
-        _: iconEl("translate"),
+        _: iconEl("translate").attr({ title: t("屏幕翻译") }),
         translatem: selectMenu<translateWinType["type"]>([
             { name: t("贴图"), value: "ding" },
             { name: t("自动翻译"), value: "live" },
         ]).class("side_select"),
     },
-    editor: iconEl("super_edit"),
-    copy: iconEl("copy"),
-    save: iconEl("save"),
+    editor: iconEl("super_edit").attr({ title: t("高级图片编辑") }),
+    copy: iconEl("copy").attr({ title: t("复制") }),
+    save: iconEl("save").attr({ title: t("保存") }),
 });
 
 // 仅仅是为了确保功能的值都存在，在更改功能时能类型检查
