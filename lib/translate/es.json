@@ -572,5 +572,19 @@
     "02afd2": "Por favor, compruebe la red y vuelva a intentarlo más tarde",
     "1da177": "Hay una nueva versión:",
     "6ba85d": "Ignorar versión",
-    "8b72d1": "Ignorar número de versión para omitir la actualización"
+    "8b72d1": "Ignorar número de versión para omitir la actualización",
+    "e18f86": "La plataforma Linux arm64 necesita un software adicional para capturas de pantalla",
+    "b44eca": "Por favor, configura el comando de captura de pantalla en Configuración - Avanzado",
+    "4a7183": "Confirmar",
+    "deee52": "La captura de pantalla requiere la biblioteca de ejecución de VS para funcionar correctamente",
+    "f6cf8b": "¿Necesitas descargarla desde el sitio oficial de Microsoft (https://aka.ms/vs)?",
+    "0d9ab9": "Se encontró un error al cargar la biblioteca de captura de pantalla:",
+    "0887ee": "Error al ejecutar el comando, no se puede leer la captura de pantalla, por favor verifica la configuración",
+    "2fbee9": "Se necesita glibc",
+    "70f5f4": "Por favor intenta actualizar la versión de glibc",
+    "d99644": "o configura un capturador externo",
+    "6482d6": "Grabación estándar",
+    "91b8c6": "Grabación súper",
+    "06429a": "Captura larga y",
+    "b54f25": "Captura amplia xy"
 }

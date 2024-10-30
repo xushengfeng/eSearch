@@ -572,5 +572,19 @@
     "02afd2": "Bonvolu kontroli la retkonneciton kaj reprovi poste",
     "1da177": "Estas nova versio:",
     "6ba85d": "Ignori version",
-    "8b72d1": "Ignori versionnumeron por preteratenti ĝisdatigon"
+    "8b72d1": "Ignori versionnumeron por preteratenti ĝisdatigon",
+    "e18f86": "Linux arm64 platformo bezonas kroman ekranu softvaron",
+    "b44eca": "Bonvolu agordi la ekranu komandon en Agordoj - Avancitaj",
+    "4a7183": "Konfirmi",
+    "deee52": "Ekrana kaptado bezonas VS funkciilojn por funkcii ĝuste",
+    "f6cf8b": "Ĉu vi bezonas elŝuti de la oficiala retejo de Microsoft (https://aka.ms/vs)?",
+    "0d9ab9": "Eraro okazis dum ŝargado de la ekrana biblioteko:",
+    "0887ee": "Komanda plenumado malsukcesis, ne eblas legi ekranojn, bonvolu kontroli la agordojn",
+    "2fbee9": "Necesas glibc",
+    "70f5f4": "Bonvolu prova ĝisdatigi la glibc version",
+    "d99644": "Aŭ agordi eksternan ekranu kaptiston",
+    "6482d6": "Norma ekranu kaptado",
+    "91b8c6": "Super ekranu kaptado",
+    "06429a": "Longa ekranu kaptado y",
+    "b54f25": "Larga ekranu kaptado xy"
 }

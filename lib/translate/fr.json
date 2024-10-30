@@ -572,5 +572,19 @@
     "02afd2": "Veuillez vérifier votre réseau, réessayez plus tard",
     "1da177": "Nouvelle version :",
     "6ba85d": "Ignorer la version",
-    "8b72d1": "Ignorer le numéro de version pour sauter la mise à jour"
+    "8b72d1": "Ignorer le numéro de version pour sauter la mise à jour",
+    "e18f86": "La plateforme Linux arm64 nécessite un logiciel de capture d'écran supplémentaire",
+    "b44eca": "Veuillez définir la commande de capture d'écran dans Paramètres - Avancé",
+    "4a7183": "Confirmer",
+    "deee52": "La capture d'écran nécessite la bibliothèque d'exécution VS pour fonctionner correctement",
+    "f6cf8b": "Devez-vous télécharger à partir du site officiel de Microsoft (https://aka.ms/vs) ?",
+    "0d9ab9": "Une erreur est survenue lors du chargement de la bibliothèque de capture d'écran :",
+    "0887ee": "Erreur d'exécution de la commande, impossible de lire la capture d'écran, veuillez vérifier les paramètres",
+    "2fbee9": "Nécessite glibc",
+    "70f5f4": "Veuillez essayer de mettre à jour la version de glibc",
+    "d99644": "ou configurer un captureur d'écran externe",
+    "6482d6": "Enregistrement standard",
+    "91b8c6": "Enregistrement super",
+    "06429a": "Capture d'écran longue y",
+    "b54f25": "Capture d'écran large xy"
 }

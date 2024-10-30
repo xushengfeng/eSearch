@@ -572,5 +572,19 @@
     "02afd2": "Please check the network and try again later",
     "1da177": "New version available:",
     "6ba85d": "Ignore version",
-    "8b72d1": "Skip update by ignoring version number"
+    "8b72d1": "Skip update by ignoring version number",
+    "e18f86": "Additional screenshot software is required for the Linux arm64 platform",
+    "b44eca": "Please set the screenshot command in Settings - Advanced",
+    "4a7183": "Confirm",
+    "deee52": "Screenshot requires the VS runtime library to function properly",
+    "f6cf8b": "Do you need to download from the Microsoft official website (https://aka.ms/vs)?",
+    "0d9ab9": "Error encountered while loading the screenshot library:",
+    "0887ee": "Command execution error, unable to read screenshot, please check settings",
+    "2fbee9": "glibc is required",
+    "70f5f4": "Please try updating the glibc version",
+    "d99644": "Or set an external screencapture tool",
+    "6482d6": "Standard screen recording",
+    "91b8c6": "Super screen recording",
+    "06429a": "Long screenshot y",
+    "b54f25": "Wide screenshot xy"
 }
