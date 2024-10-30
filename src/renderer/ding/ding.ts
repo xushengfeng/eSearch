@@ -13,6 +13,7 @@ import {
     elFromId,
     type ElType,
     image,
+    spacer,
     trackPoint,
     txt,
     view,
@@ -113,6 +114,7 @@ const setNewDing = (
     const toolBar = view().attr({ id: "tool_bar" });
     const toolBarC = view("x")
         .attr({ id: "tool_bar_c" })
+        .style({ padding: "4px", gap: "4px", boxSizing: "border-box" })
         .bindSet((v: { forceShow?: boolean; show?: boolean }, el) => {
             if (v.forceShow !== undefined)
                 el.setAttribute("data-force-show", String(v.forceShow));
@@ -242,7 +244,8 @@ const setNewDing = (
             }
         });
     // 工具栏
-    toolBarC.add(
+    toolBarC.add([
+        spacer(),
         view()
             .attr({ id: "b" })
             .add([
@@ -266,7 +269,7 @@ const setNewDing = (
                     close(wid);
                 }),
             ]),
-    );
+    ]);
     // 双击行为
     div.el.ondblclick = () => {
         if (store.get("贴图.窗口.双击") === "归位") back(wid);
@@ -869,26 +872,9 @@ function resize(
 
     const bar = el.query("#tool_bar_c");
     const w = pS[2];
-    if (!clip && w <= 240) {
-        bar.el.style.flexDirection = "column";
-    } else {
-        bar.el.style.flexDirection = "";
-    }
     let zoomN = "";
-    if (w <= 100) {
-        zoomN = "0.3";
-    } else if (w <= 130) {
-        zoomN = "0.4";
-    } else if (w <= 300) {
-        zoomN = "0.5";
-    } else if (w <= 340) {
-        zoomN = "0.6";
-    } else if (w <= 380) {
-        zoomN = "0.7";
-    } else if (w <= 420) {
-        zoomN = "0.8";
-    } else if (w <= 500) {
-        zoomN = "0.9";
+    if (w <= 360) {
+        zoomN = String(w / 360);
     } else {
         zoomN = "";
     }

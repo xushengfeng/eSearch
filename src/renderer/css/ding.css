@@ -46,7 +46,6 @@ body > #dock_item {
     user-select: none;
 }
 #tool_bar_c > div {
-    margin: 0 4px;
     display: flex;
     align-items: center;
 }
@@ -57,7 +56,6 @@ body > #dock_item {
 }
 
 #b {
-    margin: 4px 4px 4px auto !important;
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: var(--transition);
