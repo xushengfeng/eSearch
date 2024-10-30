@@ -152,14 +152,14 @@ body {
 
 .side_select {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border: none;
     appearance: none;
     color: #0000;
-    right: 2px;
-    top: 2px;
-    border-radius: 5px;
+    right: 0px;
+    top: 0px;
+    border-radius: 6px;
     overflow: hidden;
 }
 .side_select::part(button) {
@@ -167,7 +167,7 @@ body {
     appearance: none;
     color: #0000;
     background-color: var(--bar-bg);
-    border-radius: 5px;
+    border-radius: 50%;
     overflow: hidden;
 }
 .side_select::part(listbox) {
