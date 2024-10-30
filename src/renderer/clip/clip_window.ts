@@ -71,6 +71,7 @@ function selectMenu<i extends string>(data?: { name: string; value: i }[]) {
         })
         .bindSet((v: i, el: HTMLSelectElement) => {
             el.value = v;
+            el.title = el.querySelector(`option[value="${v}"]`)?.textContent;
         })
         .add(
             data?.map((i) => {
