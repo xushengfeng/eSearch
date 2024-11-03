@@ -16,4 +16,6 @@
 - macOS: `~/Library/Application Support/eSearch`
 - Linux: `~/.config/eSearch`
 
-你可以在设置里设置自定义配置目录，这个选项是配置的配置，单独作为一个文件`preload_config`保存在运行目录下。支持相对路径和绝对路径。
+你可以在设置里设置自定义配置目录，这个选项是配置的配置，会自动生成`preload_config`保存在运行目录下。支持相对路径和绝对路径。
+
+如果你想要便携版，保存配置到运行目录，可以参考[另一篇文档](main.md#便携版绿色版)，简而言之是新建`portable`文件夹到运行目录。
