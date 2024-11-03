@@ -37,6 +37,22 @@ type eventX = {
     // todo key events
 };
 
+type uiData = {
+    clipList: Map<number, clip>;
+    speed: { start: number; end: number; value: number }[];
+    eventList: { start: number; end: number; value: unknown }[]; // todo
+    remove: { start: number; end: number }[];
+};
+
+type Frame = {
+    rect: { x: number; y: number; w: number; h: number };
+    timestamp: number;
+    event: unknown[];
+    isRemoved: boolean;
+};
+
+const history: uiData[] = [];
+
 // todo 自适应分辨率/用户设定分辨率
 const outputV = {
     width: 1920 / 2,
@@ -258,6 +274,11 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     }
     transformedClip = structuredClone(clipList);
     console.log(clipList);
+}
+
+function getFrameX(data: uiData) {
+    const frameList: Frame[] = [];
+    // todo
 }
 
 async function transform(_codec: string = codec) {
