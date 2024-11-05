@@ -61,13 +61,15 @@ try {
         preloadConfig = readFileSync(join(runPath, "preload_config"))
             .toString()
             .trim();
+        if (preloadConfig.startsWith("."))
+            preloadConfig = join(runPath, preloadConfig);
     } catch (error) {}
     const portable = "portable";
-    const userDataPath = preloadConfig
-        ? join(runPath, preloadConfig)
-        : statSync(join(runPath, portable)).isDirectory()
-          ? join(runPath, portable)
-          : "";
+    const userDataPath =
+        preloadConfig ??
+        (statSync(join(runPath, portable)).isDirectory()
+            ? join(runPath, portable)
+            : "");
     console.log(`userDataPath: ${userDataPath}`);
 
     if (userDataPath) app.setPath("userData", userDataPath);
