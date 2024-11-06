@@ -13,43 +13,27 @@ const keys: superRecording = [];
 let src: EncodedVideoChunk[] = [];
 let transformed: EncodedVideoChunk[] = [];
 
-const clipList: Map<
-    number, // src id
-    clip
-> = new Map();
-
-let transformedClip: Map<number, clip> = new Map();
-
-const removedFrames: Map<number, boolean> = new Map();
-
-const eventList: Map<number, eventX> = new Map();
-
-// 关键帧
 type clip = {
-    time: number;
+    i: number;
     rect: { x: number; y: number; w: number; h: number };
     transition: number; // 往前数
 };
 
-type eventX = {
-    time: number;
-    point: { x: number; y: number };
-    // todo key events
-};
-
 type uiData = {
-    clipList: Map<number, clip>;
+    clipList: clip[];
     speed: { start: number; end: number; value: number }[];
     eventList: { start: number; end: number; value: unknown }[]; // todo
     remove: { start: number; end: number }[];
 };
 
-type Frame = {
+type FrameX = {
     rect: { x: number; y: number; w: number; h: number };
     timestamp: number;
     event: unknown[];
     isRemoved: boolean;
 };
+
+// let lastUiData: uiData | null = null;
 
 const history: uiData[] = [];
 
@@ -88,7 +72,6 @@ type baseType = (typeof outputType)[number]["type"];
 let isPlaying = false;
 let playI = 0;
 let playTime = 0;
-let playTotalTime = 0;
 
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
@@ -250,35 +233,102 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
 
     for (const k of nk2) {
         const t = ms2timestamp(k.time);
-        const chunk = chunks.find(
+        const chunk = chunks.findIndex(
             (c, i) =>
                 c.timestamp <= t &&
                 t < (chunks[i + 1]?.timestamp ?? Number.POSITIVE_INFINITY),
         );
-        if (!chunk) continue;
-        const nt = chunk.timestamp - ms2timestamp(200);
+        if (chunk === -1) continue;
         const w = v.width / 3;
         const h = v.height / 3;
         const x = Math.max(0, Math.min(v.width - w, k.posi.x - w / 2));
         const y = Math.max(0, Math.min(v.height - h, k.posi.y - h / 2));
-        const clip: clip = {
+        getNowUiData().clipList.push({
+            i: chunk,
             rect: { x, y, w: w, h: h },
-            time: nt,
             transition: ms2timestamp(400),
-        };
-        clipList.set(nt, clip);
-        eventList.set(nt, {
-            time: nt,
-            point: k.posi,
         });
     }
-    transformedClip = structuredClone(clipList);
-    console.log(clipList);
+}
+
+function getNowUiData() {
+    return history.at(-1) as uiData;
+}
+
+function frame2Id(frame: VideoFrame) {
+    return src.findIndex((c) => c.timestamp === frame.timestamp);
 }
 
 function getFrameX(data: uiData) {
-    const frameList: Frame[] = [];
-    // todo
+    const frameList: FrameX[] = [];
+    // todo speed map
+    for (const [i, c] of src.entries()) {
+        const f: FrameX = {
+            rect: { x: 0, y: 0, w: v.width, h: v.height },
+            timestamp: c.timestamp,
+            event: [],
+            isRemoved: false,
+        };
+
+        f.isRemoved = data.remove.some((r) => r.start <= i && i <= r.end);
+        if (f.isRemoved) {
+            frameList.push(f);
+            continue;
+        }
+
+        // clip
+        if (data.clipList.length > 0) {
+            const bmClip = data.clipList.find((c) => c.i === i);
+            if (bmClip) {
+                f.rect = bmClip.rect;
+                continue;
+            }
+            const firstClip = structuredClone(
+                data.clipList.at(0) as uiData["clipList"][0],
+            );
+            firstClip.i = 0;
+            const lastClip = structuredClone(
+                data.clipList.at(-1) as uiData["clipList"][0],
+            );
+            lastClip.i = Number.POSITIVE_INFINITY;
+            const l = structuredClone(data.clipList);
+            l.unshift(firstClip);
+            l.push(lastClip);
+
+            const clipI = l.findIndex((c) => c.i < i);
+            const clip = l[clipI];
+            const nextClip = l[clipI + 1];
+            const clipTime = src[clip.i].timestamp; // todo map
+            const nextClipTime = src[nextClip.i].timestamp;
+            const t = c.timestamp;
+            f.rect = getClip(clip, clipTime, t, nextClip, nextClipTime);
+        }
+    }
+    return frameList;
+}
+
+function getClip(
+    last: clip,
+    lastT: number,
+    t: number,
+    next: clip,
+    nextT: number,
+) {
+    const transition = Math.min(next.transition, nextT - lastT);
+    if (t < nextT - transition || t > nextT) {
+        return last.rect;
+    }
+    const v = easeOutQuint((t - (nextT - transition)) / transition);
+    return {
+        x: (1 - v) * last.rect.x + v * next.rect.x,
+        y: (1 - v) * last.rect.y + v * next.rect.y,
+        w: (1 - v) * last.rect.w + v * next.rect.w,
+        h: (1 - v) * last.rect.h + v * next.rect.h,
+    };
+}
+
+function easeOutQuint(x: number): number {
+    return 1 - (1 - x) ** 5; // todo 更多 easing
 }
 
 async function transform(_codec: string = codec) {
@@ -332,48 +382,8 @@ async function transform(_codec: string = codec) {
     encoder.close();
 }
 
-function easeOutQuint(x: number): number {
-    return 1 - (1 - x) ** 5; // todo 更多 easing
-}
-
-function getClip(n: number) {
-    if (transformedClip.has(n) && !removedFrames.has(n))
-        return transformedClip.get(n).rect;
-    const keys = Array.from(transformedClip.keys()).filter(
-        (k) => !removedFrames.has(k),
-    );
-    if (keys.length === 0) return { x: 0, y: 0, w: v.width, h: v.height };
-    const i = keys.findIndex((k) => transformedClip.get(k).time > n);
-
-    function get(last: clip, t: number, next: clip) {
-        const transition = Math.min(next.transition, next.time - last.time);
-        if (t < next.time - transition || t > next.time) {
-            return last.rect;
-        }
-        const v = easeOutQuint((t - (next.time - transition)) / transition);
-        return {
-            x: (1 - v) * last.rect.x + v * next.rect.x,
-            y: (1 - v) * last.rect.y + v * next.rect.y,
-            w: (1 - v) * last.rect.w + v * next.rect.w,
-            h: (1 - v) * last.rect.h + v * next.rect.h,
-        };
-    }
-
-    if (i === -1)
-        return get(
-            transformedClip.get(keys.at(-1)),
-            n,
-            transformedClip.get(keys.at(-1)),
-        );
-    return get(
-        transformedClip.get(keys[i - 1] || keys[0]),
-        n,
-        transformedClip.get(keys[i]),
-    );
-}
-
 function transformX(frame: VideoFrame) {
-    const t = transformXRaw(frame);
+    const t = renderFrameX(frame);
     const canvas = t.canvas;
     const nFrame = new VideoFrame(canvas, {
         timestamp: t.time,
@@ -381,8 +391,10 @@ function transformX(frame: VideoFrame) {
     return nFrame;
 }
 
-function transformXRaw(frame: VideoFrame) {
-    const clip = getClip(frame.timestamp);
+function renderFrameX(frame: VideoFrame) {
+    const nowUi = getNowUiData();
+    const frameX = getFrameX(nowUi).at(frame2Id(frame));
+    const clip = frameX.rect;
     const canvas = new OffscreenCanvas(outputV.width, outputV.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(
@@ -396,7 +408,7 @@ function transformXRaw(frame: VideoFrame) {
         outputV.width,
         outputV.height,
     );
-    const time = frame.timestamp;
+    const time = frameX.timestamp;
     frame.close();
     return { canvas, time };
 }
@@ -599,7 +611,7 @@ async function saveImages() {
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const t = transformXRaw(frame);
+            const t = renderFrameX(frame);
             t.canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
                 const buffer = Buffer.from(await blob.arrayBuffer());
                 fs.writeFile(
@@ -633,7 +645,7 @@ async function saveGif() {
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const { data, width, height } = transformXRaw(frame)
+            const { data, width, height } = renderFrameX(frame)
                 .canvas.getContext("2d")
                 .getImageData(0, 0, outputV.width, outputV.height);
             const palette = quantize(data, 256);
@@ -710,7 +722,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     console.log("saved mp4");
 }
 
-ipcRenderer.on("record", async (e, t, sourceId) => {
+ipcRenderer.on("record", async (_e, _t, sourceId) => {
     // return
     let stream: MediaStream | undefined;
     try {
@@ -767,12 +779,13 @@ ipcRenderer.on("record", async (e, t, sourceId) => {
 
         reader.cancel();
 
-        playTotalTime = performance.now() - keys.find((k) => k.isStart).time;
-
         await encoder.flush();
         encoder.close();
         console.log(encodedChunks);
         console.log(keys);
+
+        history.push({ clipList: [], eventList: [], remove: [], speed: [] });
+
         src = encodedChunks;
         mapKeysOnFrames(encodedChunks);
         ipcRenderer.send("window", "show");
