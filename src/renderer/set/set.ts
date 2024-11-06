@@ -2179,19 +2179,6 @@ function saveSetting() {
         : false;
     xstore.AI.在线模型 = onlineAIModel();
     xstore.代理.proxyRules = setProxy();
-    if (userDataPathInputed)
-        fs.writeFile(
-            "preload_config",
-            (<HTMLInputElement>document.getElementById("user_data_path")).value,
-            (e) => {
-                if (e)
-                    throw new Error(
-                        t(
-                            "保存失败，请确保软件拥有运行目录的修改权限，或重新使用管理员模式打开软件",
-                        ),
-                    );
-            },
-        );
     fs.writeFileSync(
         path.join(configPath, "config.json"),
         JSON.stringify(xstore, null, 2),
@@ -2302,24 +2289,30 @@ const pathInfo = view().add([
     view().add(["运行目录：", " ", pathEl(ipcRenderer.sendSync("run_path"))]),
 ]);
 document.getElementById("user_data_divs").after(pathInfo.el);
-try {
-    (<HTMLInputElement>document.getElementById("user_data_path")).value =
-        fs.readFileSync("preload_config").toString().trim() ||
-        store.path.replace(/[/\\]config\.json/, "");
-} catch (error) {
-    (<HTMLInputElement>document.getElementById("user_data_path")).value =
-        store.path.replace(/[/\\]config\.json/, "");
-}
-let userDataPathInputed = false;
-document.getElementById("user_data_path").oninput = () => {
+const userDataPathEl = elFromId("user_data_path");
+pathEl(store.path.replace(/[/\\]config\.json/, "")).addInto(userDataPathEl);
+const portableConfigBtn = elFromId("portable"); // todo 存在则提示
+portableConfigBtn.on("click", () => {
     document.getElementById("user_data_divs").classList.add("user_data_divs");
-    userDataPathInputed = true;
-};
+    const userDataPath = path.join(
+        ipcRenderer.sendSync("run_path"),
+        "portable",
+    );
+    console.log(userDataPath);
+    try {
+        fs.mkdirSync(userDataPath, { recursive: true });
+    } catch (error) {
+        if (error.code !== "EEXIST") {
+            throw error;
+        }
+    }
+    // todo 错误提示
+});
 document.getElementById("move_user_data").onclick = () => {
     ipcRenderer.send(
         "setting",
         "move_user_data",
-        (<HTMLInputElement>document.getElementById("user_data_path")).value,
+        path.join(ipcRenderer.sendSync("run_path"), "portable"),
     );
 };
 

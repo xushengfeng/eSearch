@@ -66,7 +66,7 @@ try {
     } catch (error) {}
     const portable = "portable";
     const userDataPath =
-        preloadConfig ??
+        preloadConfig ||
         (statSync(join(runPath, portable)).isDirectory()
             ? join(runPath, portable)
             : "");
