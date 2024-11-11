@@ -1035,6 +1035,16 @@ ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
     elMap.push(setNewDing(String(wid), x, y, w, h, url, type));
 });
 
-const seg = new Intl.Segmenter(store.get("屏幕翻译.语言.to"), {
-    granularity: "word",
-});
+let seg: Intl.Segmenter;
+try {
+    seg = new Intl.Segmenter(
+        store.get("屏幕翻译.语言.to") ?? navigator.language ?? "zh-HANS",
+        {
+            granularity: "word",
+        },
+    );
+} catch (error) {
+    seg = new Intl.Segmenter("zh-HANS", {
+        granularity: "word",
+    });
+}
