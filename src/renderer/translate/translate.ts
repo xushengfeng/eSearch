@@ -198,20 +198,30 @@ function saveFetch(obj: saveData) {
     }
 }
 
+function getLansName(l: string[]) {
+    const mainLan = store.get("语言.语言");
+    const trans = new Intl.DisplayNames(mainLan, { type: "language" });
+    const lansName = l.map((i) => ({
+        text: i === "auto" ? "自动" : trans.of(i),
+        lan: i,
+    }));
+    return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
+}
+
 const e = xtranslator.e[fyq[0].type];
 if (e) {
     // todo 所有翻译器支持的集合
-    const mainLan = store.get("语言.语言");
+    // todo 常用排序在前
     lansFrom.add(
-        e
-            .getLanT({ text: mainLan, sort: "text" })
-            .map((v) => ele("option").add(txt(v.text)).attr({ value: v.lan })),
+        getLansName(e.lan).map((v) =>
+            ele("option").add(txt(v.text)).attr({ value: v.lan }),
+        ),
         10,
     );
     lansTo.add(
-        e
-            .getTargetLanT({ text: mainLan, sort: "text" })
-            .map((v) => ele("option").add(txt(v.text)).attr({ value: v.lan })),
+        getLansName(e.targetLan).map((v) =>
+            ele("option").add(txt(v.text)).attr({ value: v.lan }),
+        ),
         10,
     );
 }

@@ -1231,6 +1231,16 @@ function translatorD(
     });
 }
 
+function getLansName(l: string[]) {
+    const mainLan = xstore.语言.语言;
+    const trans = new Intl.DisplayNames(mainLan, { type: "language" });
+    const lansName = l.map((i) => ({
+        text: i === "auto" ? t("自动") : trans.of(i),
+        lan: i,
+    }));
+    return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
+}
+
 function setTranLan() {
     const firstItem = translateList().at(0);
     const oldFrom = translatorFrom.value;
@@ -1240,22 +1250,13 @@ function setTranLan() {
     if (!firstItem) return;
     const type = firstItem.type;
     const e = translator.e[type];
-    const mainLan = xstore.语言.语言;
     if (!e) return;
-    for (const v of e.getLanT({
-        auto: t("自动"),
-        text: mainLan,
-        sort: "text",
-    })) {
+    for (const v of getLansName(e.lan)) {
         translatorFrom.append(
             ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
         );
     }
-    for (const v of e.getTargetLanT({
-        auto: t("自动"),
-        text: mainLan,
-        sort: "text",
-    })) {
+    for (const v of getLansName(e.targetLan)) {
         translatorTo.append(
             ele("option").add(txt(v.text, true)).attr({ value: v.lan }).el,
         );
