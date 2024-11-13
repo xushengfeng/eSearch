@@ -40,12 +40,27 @@ const input = ele("textarea").style({
     "min-height": "4lh",
 });
 const lans = view("x");
-const lansFrom = ele("select").on("change", () => {
-    translate(input.el.value);
-});
-const lansTo = ele("select").on("change", () => {
-    translate(input.el.value);
-});
+
+const setLan = (el: HTMLSelectElement, lan: string) => {
+    const supportLans = Array.from(el.querySelectorAll("option")).map(
+        (i) => i.value,
+    );
+    const matchLan = matchFitLan(lan, supportLans) ?? supportLans[0];
+    el.value = matchLan;
+};
+
+const lansFrom = ele("select")
+    .on("change", () => {
+        translate(input.el.value);
+    })
+    .bindGet((el) => el.value)
+    .bindSet((lan: string, el) => setLan(el, lan));
+const lansTo = ele("select")
+    .on("change", () => {
+        translate(input.el.value);
+    })
+    .bindGet((el) => el.value)
+    .bindSet((lan: string, el) => setLan(el, lan));
 
 const results = view("y").style({
     gap: "16px",
@@ -72,8 +87,8 @@ function translate(_text: string) {
     const text = _text.trim();
     if (!text) return;
 
-    const fromLan = lansFrom.el.value;
-    const toLan = lansTo.el.value;
+    const fromLan = lansFrom.gv;
+    const toLan = lansTo.gv;
 
     for (const i of fyq) {
         const copy = iconButton("copy").style({
@@ -99,7 +114,7 @@ function translate(_text: string) {
         const checkEl = iconButton("replace").style({
             width: "24px",
             height: "24px",
-            display: lansFrom.el.value === "zh-xxx" ? "" : "none", // todo === 母语
+            display: fromLan === "zh-xxx" ? "" : "none", // todo === 母语
         });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
@@ -239,13 +254,11 @@ lansFrom.add(
     pick2First(getLansName(allFromLan), ["auto", ...c常用语言]).map((v) =>
         ele("option").add(txt(v.text)).attr({ value: v.lan }),
     ),
-    10,
 );
 lansTo.add(
     pick2First(getLansName(allToLan), c常用语言).map((v) =>
         ele("option").add(txt(v.text)).attr({ value: v.lan }),
     ),
-    10,
 );
 
 input.el.value = inputText;
@@ -254,12 +267,12 @@ if (inputText) {
     const m = matchFitLan(fromLan, c常用语言);
     const toLan =
         c常用语言.filter((i) => i !== m).at(0) ?? store.get("语言.语言");
-    lansFrom.el.value = fromLan;
-    lansTo.el.value = toLan;
+    lansFrom.sv(fromLan);
+    lansTo.sv(toLan);
     translate(inputText);
 } else {
-    lansFrom.el.value = "auto";
-    lansTo.el.value = store.get("语言.语言");
+    lansFrom.sv("auto");
+    lansTo.sv(store.get("语言.语言"));
 }
 
 let composing = false;
