@@ -341,6 +341,7 @@ export interface setting {
             文件: { path: string; template: string }[];
             fetch: myFetch[];
         };
+        常用语言: string[];
     };
     额外截屏器: {
         命令: string;

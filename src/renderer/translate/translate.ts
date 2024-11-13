@@ -1,4 +1,4 @@
-import xtranslator from "xtranslator";
+import xtranslator, { matchFitLan } from "xtranslator";
 import { getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 
@@ -71,6 +71,10 @@ function translate(_text: string) {
     results.el.innerHTML = "";
     const text = _text.trim();
     if (!text) return;
+
+    const fromLan = lansFrom.el.value;
+    const toLan = lansTo.el.value;
+
     for (const i of fyq) {
         const copy = iconButton("copy").style({
             width: "24px",
@@ -116,7 +120,7 @@ function translate(_text: string) {
             fanyiqi
                 .get(i.id)
                 // @ts-ignore
-                .run(text, lansFrom.el.value, lansTo.el.value)
+                .run(text, fromLan, toLan)
                 .then((_ttext: string) => {
                     const ttext = _ttext.trim();
                     c.el.innerText = ttext;
@@ -125,8 +129,8 @@ function translate(_text: string) {
                     });
                     save.on("click", () => {
                         saveW({
-                            from: lansFrom.el.value,
-                            to: lansTo.el.value,
+                            from: fromLan,
+                            to: toLan,
                             fromT: text,
                             toT: ttext,
                             engine: i.name,
@@ -136,7 +140,7 @@ function translate(_text: string) {
                         // @ts-ignore
                         const t = await fanyiqi.get(i.id).run(
                             text,
-                            lansTo.el.value,
+                            toLan,
                             "zh", // todo 识别后的语言，因为有可能是自动
                         );
                         c.el.innerText += `\n${t}`;
@@ -148,6 +152,11 @@ function translate(_text: string) {
                 });
         f();
     }
+    const cl = c常用语言.filter((i) => i !== fromLan && i !== toLan);
+    store.set(
+        "翻译.常用语言",
+        [toLan, fromLan, ...cl].filter((i) => i !== "auto"),
+    );
 }
 
 function saveW(obj: saveData) {
@@ -192,9 +201,15 @@ function getLansName(l: string[]) {
     return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
 }
 
+function pick2First(list: { text: string; lan: string }[], toPick: string[]) {
+    const baseList = list.filter((i) => !toPick.includes(i.lan));
+    const first = toPick.map((i) => list.find((j) => j.lan === i));
+    return first.concat(baseList);
+}
+
 const inputText = decodeURIComponent(
     new URLSearchParams(location.search).get("text") || "",
-);
+).trim();
 
 const fyq = store.get("翻译.翻译器");
 const fanyiqi = new Map(
@@ -208,27 +223,43 @@ const fanyiqi = new Map(
 
 const showCang = store.get("翻译.收藏");
 
-const e = xtranslator.e[fyq[0].type];
-if (e) {
-    // todo 所有翻译器支持的集合
-    // todo 常用排序在前
-    lansFrom.add(
-        getLansName(e.lan).map((v) =>
-            ele("option").add(txt(v.text)).attr({ value: v.lan }),
-        ),
-        10,
-    );
-    lansTo.add(
-        getLansName(e.targetLan).map((v) =>
-            ele("option").add(txt(v.text)).attr({ value: v.lan }),
-        ),
-        10,
-    );
-}
+const allFromLan = Array.from(
+    new Set(fyq.flatMap((f) => xtranslator.e[f.type]?.lan)),
+);
+const allToLan = Array.from(
+    new Set(fyq.flatMap((f) => xtranslator.e[f.type]?.targetLan)),
+);
+
+console.log("allFromLan", allFromLan);
+console.log("allToLan", allToLan);
+
+const c常用语言 = store.get("翻译.常用语言");
+
+lansFrom.add(
+    pick2First(getLansName(allFromLan), ["auto", ...c常用语言]).map((v) =>
+        ele("option").add(txt(v.text)).attr({ value: v.lan }),
+    ),
+    10,
+);
+lansTo.add(
+    pick2First(getLansName(allToLan), c常用语言).map((v) =>
+        ele("option").add(txt(v.text)).attr({ value: v.lan }),
+    ),
+    10,
+);
 
 input.el.value = inputText;
 if (inputText) {
+    const fromLan = "auto"; // todo 检测
+    const m = matchFitLan(fromLan, c常用语言);
+    const toLan =
+        c常用语言.filter((i) => i !== m).at(0) ?? store.get("语言.语言");
+    lansFrom.el.value = fromLan;
+    lansTo.el.value = toLan;
     translate(inputText);
+} else {
+    lansFrom.el.value = "auto";
+    lansTo.el.value = store.get("语言.语言");
 }
 
 let composing = false;

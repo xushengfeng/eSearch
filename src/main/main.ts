@@ -2866,6 +2866,7 @@ const defaultSetting: setting = {
             fetch: [],
             文件: [],
         },
+        常用语言: [],
     },
     额外截屏器: { 命令: "", 位置: "" },
     连拍: {
