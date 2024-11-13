@@ -59,21 +59,13 @@ input.addInto();
 lans.addInto();
 results.addInto();
 
-const inputText = decodeURIComponent(
-    new URLSearchParams(location.search).get("text") || "",
-);
-
-const fyq = store.get("翻译.翻译器");
-const fanyiqi = new Map(
-    fyq.map((f) => {
-        const e = xtranslator.es[f.type]();
-        // @ts-ignore
-        e.setKeys(f.keys);
-        return [f.id, e];
-    }),
-);
-
-const showCang = store.get("翻译.收藏");
+type saveData = {
+    from: string;
+    to: string;
+    fromT: string;
+    toT: string;
+    engine: string;
+};
 
 function translate(_text: string) {
     results.el.innerHTML = "";
@@ -158,14 +150,6 @@ function translate(_text: string) {
     }
 }
 
-type saveData = {
-    from: string;
-    to: string;
-    fromT: string;
-    toT: string;
-    engine: string;
-};
-
 function saveW(obj: saveData) {
     saveFile(obj);
     saveFetch(obj);
@@ -207,6 +191,22 @@ function getLansName(l: string[]) {
     }));
     return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
 }
+
+const inputText = decodeURIComponent(
+    new URLSearchParams(location.search).get("text") || "",
+);
+
+const fyq = store.get("翻译.翻译器");
+const fanyiqi = new Map(
+    fyq.map((f) => {
+        const e = xtranslator.es[f.type]();
+        // @ts-ignore
+        e.setKeys(f.keys);
+        return [f.id, e];
+    }),
+);
+
+const showCang = store.get("翻译.收藏");
 
 const e = xtranslator.e[fyq[0].type];
 if (e) {
