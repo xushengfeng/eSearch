@@ -170,7 +170,7 @@ function translate(_text: string) {
     const cl = c常用语言.filter((i) => i !== fromLan && i !== toLan);
     store.set(
         "翻译.常用语言",
-        [toLan, fromLan, ...cl].filter((i) => i !== "auto"),
+        [toLan, fromLan, ...cl].filter((i) => i !== "auto").slice(0, 5),
     );
 }
 
