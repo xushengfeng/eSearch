@@ -1,6 +1,8 @@
 import xtranslator, { matchFitLan } from "xtranslator";
 import { getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
+import { franc, francAll } from "franc";
+import convert3To1 from "iso-639-3-to-1";
 
 import store from "../../../lib/store/renderStore";
 
@@ -220,6 +222,21 @@ function pick2First(list: { text: string; lan: string }[], toPick: string[]) {
     return first.concat(baseList);
 }
 
+function detectLan(text: string) {
+    const fromLan =
+        francAll(text)
+            .map((i) => convert3To1(i[0]))
+            .filter((i) => i)
+            .at(0) ?? "auto";
+    console.log("检测语言：", fromLan);
+
+    const m = matchFitLan(fromLan, c常用语言);
+    const toLan =
+        c常用语言.filter((i) => i !== m).at(0) ?? store.get("语言.语言");
+    lansFrom.sv(fromLan);
+    lansTo.sv(toLan);
+}
+
 const inputText = decodeURIComponent(
     new URLSearchParams(location.search).get("text") || "",
 ).trim();
@@ -261,12 +278,7 @@ lansTo.add(
 
 input.el.value = inputText;
 if (inputText) {
-    const fromLan = "auto"; // todo 检测
-    const m = matchFitLan(fromLan, c常用语言);
-    const toLan =
-        c常用语言.filter((i) => i !== m).at(0) ?? store.get("语言.语言");
-    lansFrom.sv(fromLan);
-    lansTo.sv(toLan);
+    detectLan(inputText);
     translate(inputText);
 } else {
     lansFrom.sv("auto");
@@ -288,6 +300,7 @@ input.on("input", () => {
     if (composing) return;
     if (lastTrans) clearTimeout(lastTrans);
     lastTrans = setTimeout(() => {
-        translate(input.el.value);
+        // translate(input.el.value);
     }, 2000);
+    detectLan(input.el.value);
 });
