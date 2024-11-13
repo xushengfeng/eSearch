@@ -69,7 +69,6 @@ import {
     lan,
     getLans,
     getLanName,
-    matchFitLan,
 } from "../../../lib/translate/translate";
 lan(old_store.语言.语言);
 for (const el of document
@@ -991,7 +990,7 @@ const translateList = sortList(
     },
 );
 
-import translator from "xtranslator";
+import translator, { matchFitLan } from "xtranslator";
 type Engines = keyof typeof translator.e;
 const engineConfig: Partial<
     Record<
@@ -1271,8 +1270,8 @@ function setLan(from: string, to: string) {
     const toList = Array.from(translatorTo.querySelectorAll("option")).map(
         (i) => i.value,
     );
-    translatorFrom.value = matchFitLan(from, fromList, fromList[0]);
-    translatorTo.value = matchFitLan(to, toList, toList[0]);
+    translatorFrom.value = matchFitLan(from, fromList) ?? fromList[0];
+    translatorTo.value = matchFitLan(to, toList) ?? toList[0];
 }
 
 setTranLan();

@@ -1,4 +1,5 @@
-export { t, tLan, lan, getLans, getLanName, matchFitLan };
+export { t, tLan, lan, getLans, getLanName };
+import { matchFitLan } from "xtranslator";
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 const rootDirL = __dirname.split(path.sep);
@@ -17,24 +18,7 @@ let language = "";
  */
 function parseLan(lan: string) {
     const lans = getLans();
-    return matchFitLan(lan, lans);
-}
-
-function matchFitLan(lan: string, lanList: string[], defaultLan = "zh-HANS") {
-    const zhMap = {
-        "zh-CN": "zh-HANS",
-        "zh-SG": "zh-HANS",
-        "zh-TW": "zh-HANT",
-        "zh-HK": "zh-HANT",
-    };
-    const supportLan = lanList.map((i) => zhMap[i] || i);
-    const mainLan = lan.split("-")[0];
-    const filterLans = supportLan.filter(
-        (i) => i.startsWith(`${mainLan}-`) || i === mainLan,
-    );
-    if (filterLans.length === 0) return defaultLan;
-    if (filterLans.includes(lan)) return lan;
-    return filterLans[0];
+    return matchFitLan(lan, lans) ?? "zh-HANS";
 }
 
 /**
