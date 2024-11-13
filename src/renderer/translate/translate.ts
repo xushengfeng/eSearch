@@ -114,7 +114,7 @@ function translate(_text: string) {
         const checkEl = iconButton("replace").style({
             width: "24px",
             height: "24px",
-            display: fromLan === "zh-xxx" ? "" : "none", // todo === 母语
+            display: fromLan === "auto" ? "none" : "",
         });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
@@ -152,13 +152,11 @@ function translate(_text: string) {
                         });
                     });
                     checkEl.on("click", async () => {
-                        // @ts-ignore
-                        const t = await fanyiqi.get(i.id).run(
-                            text,
-                            toLan,
-                            "zh", // todo 识别后的语言，因为有可能是自动
-                        );
-                        c.el.innerText += `\n${t}`;
+                        const t = await fanyiqi
+                            .get(i.id)
+                            // @ts-ignore
+                            .run(text, toLan, fromLan);
+                        c.el.innerText += `\n---\n${t}`;
                     });
                 })
                 .catch((err) => {
