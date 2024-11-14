@@ -163,8 +163,22 @@ function translate(_text: string) {
                 })
                 .catch((err) => {
                     console.error(err);
-                    // todo 报错识别
-                    c.sv("翻译失败，请重试");
+                    if (err.message.includes("[1]")) {
+                        c.sv(
+                            `${"不支持输入语言："} ${getLansName([fromLan])[0].text}`,
+                        );
+                    } else if (err.message.includes("[2]")) {
+                        c.sv(
+                            `${"不支持输出语言："} ${getLansName([toLan])[0].text}`,
+                        );
+                    } else
+                        c.sv("翻译失败，请重试，点击查看错误信息").on(
+                            "click",
+                            () => {
+                                c.sv(String(err));
+                            },
+                            { once: true },
+                        );
                 });
         f();
     }
