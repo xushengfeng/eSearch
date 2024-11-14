@@ -300,7 +300,7 @@ input.on("input", () => {
     if (composing) return;
     if (lastTrans) clearTimeout(lastTrans);
     lastTrans = setTimeout(() => {
-        // translate(input.el.value);
+        translate(input.el.value);
     }, 2000);
     detectLan(input.el.value);
 });
