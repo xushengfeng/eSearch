@@ -1,7 +1,7 @@
 import xtranslator, { matchFitLan } from "xtranslator";
 import { getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
-import { franc, francAll } from "franc";
+import { francAll } from "franc";
 import convert3To1 from "iso-639-3-to-1";
 
 import store from "../../../lib/store/renderStore";
@@ -140,7 +140,7 @@ function translate(_text: string) {
                 .run(text, fromLan, toLan)
                 .then((_ttext: string) => {
                     const ttext = _ttext.trim();
-                    c.el.innerText = ttext;
+                    c.sv(ttext);
                     copy.on("click", () => {
                         navigator.clipboard.writeText(ttext);
                     });
@@ -158,12 +158,13 @@ function translate(_text: string) {
                             .get(i.id)
                             // @ts-ignore
                             .run(text, toLan, fromLan);
-                        c.el.innerText += `\n---\n${t}`;
+                        c.sv(`${ttext}\n<->\n${t}`);
                     });
                 })
                 .catch((err) => {
                     console.error(err);
-                    c.el.innerText = "翻译失败，请重试";
+                    // todo 报错识别
+                    c.sv("翻译失败，请重试");
                 });
         f();
     }
