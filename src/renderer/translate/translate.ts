@@ -139,6 +139,7 @@ function translate(_text: string) {
                 // @ts-ignore
                 .run(text, fromLan, toLan)
                 .then((_ttext: string) => {
+                    e.el.style({ order: 0 });
                     const ttext = _ttext.trim();
                     c.sv(ttext);
                     copy.on("click", () => {
@@ -163,6 +164,7 @@ function translate(_text: string) {
                 })
                 .catch((err) => {
                     console.error(err);
+                    e.el.style({ order: 1 });
                     if (err.message.includes("[1]")) {
                         c.sv(
                             `${"不支持输入语言："} ${getLansName([fromLan])[0].text}`,
