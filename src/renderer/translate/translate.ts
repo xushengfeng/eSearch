@@ -157,7 +157,7 @@ function translate(_text: string) {
                         const t = await fanyiqi
                             .get(i.id)
                             // @ts-ignore
-                            .run(text, toLan, fromLan);
+                            .run(ttext, toLan, fromLan);
                         c.sv(`${ttext}\n<->\n${t}`);
                     });
                 })
