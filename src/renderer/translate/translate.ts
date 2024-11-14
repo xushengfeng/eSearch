@@ -41,7 +41,7 @@ const input = ele("textarea").style({
     "field-sizing": "content",
     "min-height": "4lh",
 });
-const lans = view("x");
+const lans = view("x").style({ justifyContent: "center" });
 
 const setLan = (el: HTMLSelectElement, lan: string) => {
     const supportLans = Array.from(el.querySelectorAll("option")).map(
@@ -85,7 +85,7 @@ type saveData = {
 };
 
 function translate(_text: string) {
-    results.el.innerHTML = "";
+    results.clear();
     const text = _text.trim();
     if (!text) return;
 
@@ -122,12 +122,12 @@ function translate(_text: string) {
             _: view().style({ width: "100%" }),
             title: {
                 _: view("x").style({ "align-items": "center" }),
-                _spacer: spacer(),
-                name: txt(i.name).style({ "margin-right": "4px" }),
                 copy,
                 save,
                 reTry,
                 checkEl,
+                _spacer: spacer(),
+                name: txt(i.name).style({ opacity: 0.5 }),
             },
             content: p(""),
         });
