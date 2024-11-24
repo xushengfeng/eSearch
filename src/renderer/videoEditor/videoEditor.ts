@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import type { superRecording } from "../../ShareTypes";
 import { button, check, ele, frame, select, view } from "dkh-ui";
 

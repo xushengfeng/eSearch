@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+// @ts-strict-ignore
 import { initStyle } from "../root/root";
 import { select } from "dkh-ui";
 import "../../../lib/template2.js";

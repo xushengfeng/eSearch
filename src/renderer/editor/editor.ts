@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+// @ts-strict-ignore
 
 import store from "../../../lib/store/renderStore";
 import type { MainWinType, setting } from "../../ShareTypes";

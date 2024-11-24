@@ -20,6 +20,14 @@
       "ESNext",
       "DOM",
       "DOM.Iterable"
+    ],
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin",
+        "path": [
+          "src/renderer/**/*.ts"
+        ]
+      }
     ]
   },
   "include": [

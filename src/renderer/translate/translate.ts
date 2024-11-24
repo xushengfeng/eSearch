@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 import xtranslator, { matchFitLan } from "xtranslator";
 import { getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");

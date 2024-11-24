@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+// @ts-strict-ignore
 
 const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");

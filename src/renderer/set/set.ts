@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+// @ts-strict-ignore
 import type { setting, 功能, 功能列表 } from "../../ShareTypes";
 const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";

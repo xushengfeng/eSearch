@@ -1,3 +1,4 @@
+// @ts-strict-ignore
 const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
