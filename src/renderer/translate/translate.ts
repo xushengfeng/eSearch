@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import xtranslator, { matchFitLan } from "xtranslator";
 import { getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
@@ -134,9 +133,10 @@ function translate(_text: string) {
         });
         results.add(e.el);
         const c = e.els.content;
-        const f = () =>
-            fanyiqi
-                .get(i.id)
+        const f = () => {
+            const ff = fanyiqi.get(i.id);
+            if (!ff) throw `翻译器"${i.id}"不存在`;
+            ff
                 // @ts-ignore
                 .run(text, fromLan, toLan)
                 .then((_ttext: string) => {
@@ -156,8 +156,7 @@ function translate(_text: string) {
                         });
                     });
                     checkEl.on("click", async () => {
-                        const t = await fanyiqi
-                            .get(i.id)
+                        const t = await ff
                             // @ts-ignore
                             .run(ttext, toLan, fromLan);
                         c.sv(`${ttext}\n<->\n${t}`);
@@ -183,6 +182,7 @@ function translate(_text: string) {
                             { once: true },
                         );
                 });
+        };
         f();
     }
     const cl = c常用语言.filter((i) => i !== fromLan && i !== toLan);
@@ -228,7 +228,7 @@ function getLansName(l: string[]) {
     const mainLan = store.get("语言.语言");
     const trans = new Intl.DisplayNames(mainLan, { type: "language" });
     const lansName = l.map((i) => ({
-        text: i === "auto" ? "自动" : trans.of(i),
+        text: i === "auto" ? "自动" : trans.of(i) ?? i,
         lan: i,
     }));
     return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
@@ -236,7 +236,9 @@ function getLansName(l: string[]) {
 
 function pick2First(list: { text: string; lan: string }[], toPick: string[]) {
     const baseList = list.filter((i) => !toPick.includes(i.lan));
-    const first = toPick.map((i) => list.find((j) => j.lan === i));
+    const first = toPick.map(
+        (i) => list.find((j) => j.lan === i) || { text: i, lan: i },
+    );
     return first.concat(baseList);
 }
 
