@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import type { superRecording } from "../../ShareTypes";
 import { button, check, ele, frame, select, view } from "dkh-ui";
 
@@ -76,7 +75,7 @@ let playTime = 0;
 
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
         ctx.drawImage(
             frame,
             0,
@@ -100,7 +99,9 @@ let lastDecodeFrame: OffscreenCanvas | null = null;
 const frameDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
         const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext(
+            "2d",
+        ) as OffscreenCanvasRenderingContext2D;
         ctx.drawImage(frame, 0, 0);
         lastDecodeFrame = canvas;
         frame.close();
@@ -211,7 +212,11 @@ function ms2timestamp(t: number) {
 }
 
 function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
-    const startTime = keys.find((k) => k.isStart).time;
+    const startTime = keys.find((k) => k.isStart)?.time;
+    if (!startTime) {
+        console.log(keys);
+        throw new Error("no start key");
+    }
     const newKeys = keys
         .map((i) => ({ ...i, time: i.time - startTime }))
         .filter((i) => i.time > 0);
@@ -395,9 +400,15 @@ function transformX(frame: VideoFrame) {
 function renderFrameX(frame: VideoFrame) {
     const nowUi = getNowUiData();
     const frameX = getFrameX(nowUi).at(frame2Id(frame));
-    const clip = frameX.rect;
     const canvas = new OffscreenCanvas(outputV.width, outputV.height);
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+    if (!frameX) {
+        console.log(
+            `frame ${frame.timestamp} ${frame2Id(frame)} not found in uiData`,
+        );
+        return { canvas, time: frame.timestamp };
+    }
+    const clip = frameX.rect;
     ctx.drawImage(
         frame,
         clip.x,
@@ -483,7 +494,11 @@ async function jump2id(id: number) {
     await transform();
     playI = id;
     const xcanvas = await getFrame(id);
-    const ctx = canvas.getContext("2d");
+    if (!xcanvas) {
+        console.log("no frame", id);
+        return;
+    }
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.drawImage(
         xcanvas,
         0,
@@ -521,6 +536,10 @@ async function showThumbnails() {
     for (let i = 0; i < 6; i++) {
         const id = Math.floor((i / 6) * transformed.length);
         const canvas = await getFrame(id);
+        if (!canvas) {
+            console.log("no frame", id);
+            continue;
+        }
         const tW = 300;
         const tH = Math.floor((tW * outputV.height) / outputV.width);
 
@@ -530,19 +549,17 @@ async function showThumbnails() {
                 height: tH,
             })
             .style({ width: "calc(100% / 6)" });
-        canvasEl.el
-            .getContext("2d")
-            .drawImage(
-                canvas,
-                0,
-                0,
-                outputV.width,
-                outputV.height,
-                0,
-                0,
-                tW,
-                tH,
-            );
+        (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
+            canvas,
+            0,
+            0,
+            outputV.width,
+            outputV.height,
+            0,
+            0,
+            tW,
+            tH,
+        );
         timeLineMain.add(canvasEl);
     }
 }
@@ -558,6 +575,10 @@ async function getNowFrames() {
     ) {
         const id = i;
         const canvas = await getFrame(id); // todo get slice
+        if (!canvas) {
+            console.log("no frame", id);
+            continue;
+        }
         const tW = 300;
         const tH = Math.floor((tW * outputV.height) / outputV.width);
 
@@ -567,19 +588,17 @@ async function getNowFrames() {
                 height: tH,
             })
             .style({ width: "calc(100% / 6)" });
-        canvasEl.el
-            .getContext("2d")
-            .drawImage(
-                canvas,
-                0,
-                0,
-                outputV.width,
-                outputV.height,
-                0,
-                0,
-                tW,
-                tH,
-            );
+        (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
+            canvas,
+            0,
+            0,
+            outputV.width,
+            outputV.height,
+            0,
+            0,
+            tW,
+            tH,
+        );
         timeLineFrame.add(canvasEl);
     }
 }
@@ -646,9 +665,11 @@ async function saveGif() {
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const { data, width, height } = renderFrameX(frame)
-                .canvas.getContext("2d")
-                .getImageData(0, 0, outputV.width, outputV.height);
+            const { data, width, height } = (
+                renderFrameX(frame).canvas.getContext(
+                    "2d",
+                ) as OffscreenCanvasRenderingContext2D
+            ).getImageData(0, 0, outputV.width, outputV.height);
             const palette = quantize(data, 256);
             const index = applyPalette(data, palette);
             gif.writeFrame(index, width, height, {
@@ -751,15 +772,18 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         error: (e) => console.error("Encode error:", e),
     });
 
+    const videoWidth = videoTrack.getSettings().width ?? screen.width;
+    const videoHeight = videoTrack.getSettings().height ?? screen.height;
+
     encoder.configure({
         codec: codec,
-        width: videoTrack.getSettings().width,
-        height: videoTrack.getSettings().height,
+        width: videoWidth,
+        height: videoHeight,
         framerate: srcRate,
         bitrate: bitrate,
     });
-    v.width = videoTrack.getSettings().width;
-    v.height = videoTrack.getSettings().height;
+    v.width = videoWidth;
+    v.height = videoHeight;
 
     // @ts-ignore
     const reader = new MediaStreamTrackProcessor({
@@ -768,7 +792,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
     // 读取视频帧并编码
 
-    const encodedChunks = [];
+    const encodedChunks: EncodedVideoChunk[] = [];
 
     initKeys();
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
