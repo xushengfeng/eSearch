@@ -1355,26 +1355,24 @@ function createRecorderWindow(
     const s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     const ratio = screenx.r;
     const p = {
-        x: screen.getCursorScreenPoint().x * ratio,
-        y: screen.getCursorScreenPoint().y * ratio,
+        x: screen.getCursorScreenPoint().x,
+        y: screen.getCursorScreenPoint().y,
     };
     const rect = rect0.map((v) => v / ratio);
-    const hx = s.bounds.x + rect[0] + rect[2] / 2;
-    const hy = s.bounds.y + rect[1] + rect[3] / 2;
+    const sx = s.bounds.x;
+    const sy = s.bounds.y;
+    const sx1 = sx + s.bounds.width;
+    const sy1 = sy + s.bounds.height;
+    const hx = sx + rect[0] + rect[2] / 2;
+    const hy = sy + rect[1] + rect[3] / 2;
     const w = recorderWinW;
     const h = recorderWinH;
-    const sw = s.bounds.x + s.bounds.width * ratio;
-    const sh = s.bounds.y + s.bounds.height * ratio;
-    let x =
-        p.x <= hx ? s.bounds.x + rect[0] : s.bounds.x + rect[0] + rect[2] - w;
-    let y =
-        p.y <= hy
-            ? s.bounds.y + rect[1] - h - 8
-            : s.bounds.y + rect[1] + rect[3] + 8;
-    x = x < s.bounds.x ? s.bounds.x : x;
-    x = x + w > sw ? sw - w : x;
-    y = y < s.bounds.y ? s.bounds.y : y;
-    y = y + h > sh ? sh - h : y;
+    let x = p.x <= hx ? sx + rect[0] : sx + rect[0] + rect[2] - w;
+    let y = p.y <= hy ? sy + rect[1] - h - 8 : sy + rect[1] + rect[3] + 8;
+    x = Math.max(x, sx);
+    x = Math.min(x, sx1 - w);
+    y = Math.max(y, sy);
+    y = Math.min(y, sy1 - h);
     x = Math.round(x);
     y = Math.round(y);
     recorder = new BrowserWindow({
