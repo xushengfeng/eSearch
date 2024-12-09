@@ -1206,7 +1206,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             if (url) {
                 editor.push("");
                 openLink("url", url, 浏览器打开);
-                if (浏览器打开 || concise) {
+                if (浏览器打开) {
                     closeWindow();
                 }
             }
