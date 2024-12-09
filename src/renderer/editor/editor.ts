@@ -1205,7 +1205,7 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
         searchImg(list.content, list.arg0, (err: Error, url: string) => {
             if (url) {
                 editor.push("");
-                openLink("url", url);
+                openLink("url", url, 浏览器打开);
                 if (浏览器打开 || concise) {
                     closeWindow();
                 }
