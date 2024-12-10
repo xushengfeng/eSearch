@@ -99,6 +99,14 @@ body > #dock_item {
     border-radius: 0 !important;
 }
 
+.dock_left {
+    left: 0 !important;
+}
+
+.dock_right {
+    left: calc(100vw - 200px) !important;
+}
+
 #dock > div {
     overflow: hidden;
     width: 100%;

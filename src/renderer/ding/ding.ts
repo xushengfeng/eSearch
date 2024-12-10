@@ -279,7 +279,7 @@ const setNewDing = (
     // 放到前面
     div.el.onclick = () => {
         div.el.style.zIndex = String(toppest + 1);
-        document.getElementById("dock").style.zIndex = String(toppest + 2);
+        dockEl.el.style.zIndex = String(toppest + 2);
         toppest += 1;
     };
     // 快捷键
@@ -914,77 +914,61 @@ function resize(
 }
 
 const dockP = store.get("ding_dock");
-const dockEl = document.getElementById("dock");
-dockEl.style.left = `${dockP[0]}px`;
-dockEl.style.top = `${dockP[1]}px`;
+const dockEl = view()
+    .attr({ id: "dock" })
+    .style({ left: `${dockP[0]}px`, top: `${dockP[1]}px` })
+    .addInto();
+const dockView = view().addInto(dockEl);
 
 let dockShow = false;
-let dockPS = [];
 
-let dockMoveStart: PointerEvent = null;
-let dockMoveStartP = [...dockP];
-let dockMoved = false;
-
-dockEl.addEventListener("pointerdown", (e) => {
-    dockMoveStartP = [dockEl.offsetLeft, dockEl.offsetTop];
-    dockMoveStart = e;
-    dockEl.style.transition = "0s";
+trackPoint(dockEl, {
+    start: () => {
+        dockEl.el.style.transition = "0s";
+        return { x: dockEl.el.offsetLeft, y: dockEl.el.offsetTop };
+    },
+    ing: (p) => {
+        dockEl.style({
+            left: `${p.x}px`,
+            top: `${p.y}px`,
+        });
+        return p;
+    },
+    end: (_, { moved, ingData }) => {
+        if (!moved) {
+            showDock();
+        } else {
+            store.set("ding_dock", [ingData.x, ingData.y]);
+        }
+        dockEl.el.style.transition = "var(--transition)";
+    },
 });
-document.addEventListener("pointermove", (e) => {
-    if (dockMoveStart) {
-        dockMoved = true;
-        moveDock(e);
-    }
-});
-document.addEventListener("pointerup", (e) => {
-    if (!dockMoveStart) return;
-    moveDock(e);
-    if (!dockMoved) {
-        showDock();
-    } else {
-        store.set("ding_dock", [dockEl.offsetLeft, dockEl.offsetTop]);
-    }
-
-    dockMoved = false;
-    dockMoveStart = null;
-    dockEl.style.transition = "var(--transition)";
-});
-
-function moveDock(e: PointerEvent) {
-    const x = e.clientX - dockMoveStart.clientX + dockMoveStartP[0];
-    const y = e.clientY - dockMoveStart.clientY + dockMoveStartP[1];
-
-    dockEl.style.left = `${x}px`;
-    dockEl.style.top = `${y}px`;
-}
 
 const showDock = () => {
-    const dock = dockEl;
     dockShow = !dockShow;
     if (dockShow) {
-        dockPS = [dock.offsetLeft, dock.offsetTop];
         if (
-            dock.offsetLeft + 5 <=
+            dockEl.el.offsetLeft + 5 <=
             document.querySelector("html").offsetWidth / 2
         ) {
-            dock.style.left = "0";
+            dockEl.el.classList.remove("dock_right");
+            dockEl.el.classList.add("dock_left");
         } else {
-            dock.style.left = `${document.querySelector("html").offsetWidth - 200}px`;
+            dockEl.el.classList.remove("dock_left");
+            dockEl.el.classList.add("dock_right");
         }
-
-        dock.className = "dock";
-        dock.querySelector("div").style.display = "block";
+        dockEl.el.classList.add("dock");
+        dockView.style({ display: "block" });
     } else {
-        dock.style.transition = dock.className = "";
-        dock.querySelector("div").style.display = "none";
-        dock.style.left = `${dockPS[0]}px`;
-        dock.style.top = `${dockPS[1]}px`;
+        dockEl.el.className = "";
+        dockEl.el.style.transition = "";
+        dockView.style({ display: "none" });
     }
 };
 
 // 刷新dock
 function dockI() {
-    document.querySelector("#dock > div").innerHTML = "";
+    dockView.clear();
     for (const i of dingData.keys()) {
         let iIgnore_v = false;
         let iTran_v = -1;
@@ -1030,7 +1014,7 @@ function dockI() {
                 view("x").add([iTran, iIgnore, iClose]).class("i_bar"),
                 iPhoto,
             ])
-            .addInto(document.querySelector("#dock > div") as HTMLElement);
+            .addInto(dockView);
     }
 }
 ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
