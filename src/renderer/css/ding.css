@@ -111,14 +111,12 @@ body > #dock_item {
 #dock img {
     width: 100%;
 }
-#i_bar {
-    display: flex;
+.i_bar {
     gap: 4px;
     position: absolute;
     right: 8px;
 }
-#i_bar > div {
-    display: none;
+.i_bar > div {
     width: 24px;
     height: 24px;
     background-color: var(--bar-bg);
@@ -129,17 +127,6 @@ body > #dock_item {
     font-size: 24px;
 }
 
-#i_bar > #i_close:hover {
-    background-color: #f00;
-}
-#i_bar > #i_close:hover > .icon {
-    filter: invert(1);
-}
-
-#i_bar > #i_ignore:hover {
-    background-color: var(--hover-color);
-}
-
-#i_bar > #i_tran:hover {
+.i_bar > div:hover {
     background-color: var(--hover-color);
 }

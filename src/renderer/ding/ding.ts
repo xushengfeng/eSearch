@@ -986,50 +986,51 @@ const showDock = () => {
 function dockI() {
     document.querySelector("#dock > div").innerHTML = "";
     for (const i of dingData.keys()) {
-        const dockItem = document
-            .querySelector("#dock_item")
-            .cloneNode(true) as HTMLElement;
-        dockItem.style.display = "block";
-        (<HTMLImageElement>dockItem.querySelector("#i_photo")).src = getUrl(i);
-        dockItem.onclick = (e) => {
-            const el = e.target as HTMLElement;
-            if (el.id !== "i_close" && el.id !== "i_ignore") {
-                const div = document.getElementById(i);
-                if (div.classList.contains("minimize")) {
-                    div.style.transition = "var(--transition)";
-                    setTimeout(() => {
-                        div.style.transition = "";
-                    }, 400);
-                    div.classList.remove("minimize");
-                } else {
-                    back(div.id);
-                }
-                div.style.zIndex = String(toppest + 1);
-                toppest += 1;
-            }
-        };
-        const iClose = dockItem.querySelector("#i_close") as HTMLElement;
-        iClose.style.display = "block";
-        iClose.onclick = () => {
-            close(i);
-        };
-        const iIgnore = dockItem.querySelector("#i_ignore") as HTMLElement;
-        iIgnore.style.display = "block";
-        iIgnore.setAttribute("data-ignore", "false");
         let iIgnore_v = false;
-        iIgnore.onclick = () => {
-            iIgnore_v = !iIgnore_v;
-            ignore(document.getElementById(i), iIgnore_v);
-        };
         let iTran_v = -1;
-        const iTran = dockItem.querySelector("#i_tran") as HTMLElement;
-        iTran.style.display = "block";
-        iTran.onclick = () => {
-            iTran_v = iTran_v === -1 ? 0 : -1;
-            transform(document.getElementById(i), iTran_v);
-        };
 
-        document.querySelector("#dock > div").appendChild(dockItem);
+        const dockItem = view();
+        const iPhoto = image(getUrl(i), "预览").on("click", () => {
+            const div = document.getElementById(i);
+            if (div.classList.contains("minimize")) {
+                div.style.transition = "var(--transition)";
+                setTimeout(() => {
+                    div.style.transition = "";
+                }, 400);
+                div.classList.remove("minimize");
+            } else {
+                back(div.id);
+            }
+            div.style.zIndex = String(toppest + 1);
+            toppest += 1;
+        });
+        const iClose = view()
+            .add(iconEl("close"))
+            .attr({ title: "关闭" })
+            .on("click", () => {
+                close(i);
+            });
+        const iIgnore = view()
+            .add(iconEl("ignore"))
+            .attr({ title: "鼠标穿透" })
+            .on("click", () => {
+                iIgnore_v = !iIgnore_v;
+                ignore(document.getElementById(i), iIgnore_v);
+            });
+        const iTran = view()
+            .add(iconEl("replace"))
+            .attr({ title: "窗口变换" })
+            .on("click", () => {
+                iTran_v = iTran_v === -1 ? 0 : -1;
+                transform(document.getElementById(i), iTran_v);
+            });
+
+        dockItem
+            .add([
+                view("x").add([iTran, iIgnore, iClose]).class("i_bar"),
+                iPhoto,
+            ])
+            .addInto(document.querySelector("#dock > div") as HTMLElement);
     }
 }
 ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
