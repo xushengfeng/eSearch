@@ -293,7 +293,7 @@ const setNewDing = (
         }
     });
     div.add(toolBar).add(imageP);
-    document.querySelector("#photo").appendChild(div.el);
+    photoEl.add(div);
 
     // dock
     dockI();
@@ -361,7 +361,7 @@ ipcRenderer.on("mouse", (_e, x, y) => {
             break;
         }
     }
-    if (els[0] === document.getElementById("photo") || ignorex) {
+    if (els[0] === photoEl.el || ignorex) {
         ipcRenderer.send("ding_ignore", true);
     } else {
         ipcRenderer.send("ding_ignore", false);
@@ -912,6 +912,8 @@ function resize(
     if (resizeSender)
         sendEvent("resize", null, { id: id, zoom, dx, dy, clip } as Resize);
 }
+
+const photoEl = view().attr({ id: "photo" }).addInto();
 
 const dockP = store.get("ding_dock");
 const dockEl = view()
