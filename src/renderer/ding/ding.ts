@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
@@ -33,7 +32,7 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
     console.log(type, id, more);
     switch (type) {
         case "close":
-            close2(document.getElementById(id));
+            close2(id);
             break;
         case "move_start":
             mouseStart(more);
@@ -46,20 +45,14 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
             break;
         case "resize":
             if (!resizeSender)
-                resize(
-                    elFromId(more.id),
-                    more.zoom,
-                    more.dx,
-                    more.dy,
-                    more.clip,
-                );
+                resize(more.id, more.zoom, more.dx, more.dy, more.clip);
             break;
     }
 });
 
 function sendEvent(
     type: "close" | "move_start" | "move_end" | "back" | "resize",
-    id: string,
+    id: string | null,
     more?: unknown,
 ) {
     ipcRenderer.send("ding_event", type, id, more);
@@ -67,7 +60,7 @@ function sendEvent(
 
 const dives: ElType<HTMLElement>[] = [];
 
-let changing: { x: number; y: number } = null;
+let changing: { x: number; y: number } | null = null;
 const dingData: Map<
     string,
     {
@@ -212,7 +205,7 @@ const setNewDing = (
             let zoom = Number(sizeInput.gv) / 100;
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
-            resize(div, zoom, 0, 0);
+            resize(wid, zoom, 0, 0);
             resizeSender = false;
         }
     }
@@ -228,7 +221,7 @@ const setNewDing = (
             if (zoom < 0.05) zoom = 0.05;
             resizeSender = true;
             const d = dxdy(e, e.ctrlKey ? imageP : div);
-            resize(div, zoom, d.dx, d.dy, e.ctrlKey);
+            resize(wid, zoom, d.dx, d.dy, e.ctrlKey);
             resizeSender = false;
         }
     };
@@ -236,12 +229,15 @@ const setNewDing = (
     const transB = button(iconEl("translate"))
         .style({ display: "none" })
         .on("click", () => {
-            const t = dingData.get(wid).isTranslate;
-            dingData.get(wid).isTranslate = !t;
-            if (t) {
-                div.query("canvas").style({ display: "none" });
-            } else {
-                div.query("canvas").style({ display: "" });
+            const d = dingData.get(wid);
+            if (d) {
+                const t = d.isTranslate;
+                d.isTranslate = !t;
+                if (t) {
+                    div.query("canvas")?.style({ display: "none" });
+                } else {
+                    div.query("canvas")?.style({ display: "" });
+                }
             }
         });
     // 工具栏
@@ -289,7 +285,7 @@ const setNewDing = (
             close(wid);
         }
         if (!Number.isNaN(Number(e.key))) {
-            transform(div.el, Number(e.key) - 1);
+            transform(wid, Number(e.key) - 1);
         }
     });
     div.add(toolBar).add(imageP);
@@ -298,7 +294,7 @@ const setNewDing = (
     // dock
     dockI();
 
-    resize(div, 1, 0, 0);
+    resize(wid, 1, 0, 0);
 
     if (type === "translate") {
         const transE = store.get("翻译.翻译器");
@@ -327,7 +323,12 @@ const setNewDing = (
 };
 
 async function initOCR() {
-    const l = store.get("离线OCR").find((i) => i[0] === "默认");
+    const l = store.get("离线OCR").find((i) => i[0] === "默认") as [
+        string,
+        string,
+        string,
+        string,
+    ];
     function ocrPath(p: string) {
         return path.join(
             path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"),
@@ -377,8 +378,10 @@ function minimize(el: HTMLElement) {
     }, 400);
     el.classList.add("minimize");
 }
-let ignoreEl = [];
-function ignore(el: HTMLElement, v: boolean) {
+let ignoreEl: HTMLElement[] = [];
+function ignore(id: string, v: boolean) {
+    const el = elFromId(id)?.el;
+    if (!el) return;
     if (v) {
         ignoreEl.push(el);
     } else {
@@ -393,15 +396,17 @@ document.body.appendChild(tranStyle);
 /**
  * 窗口变换
  */
-function transform(el: HTMLElement, i: number) {
+function transform(id: string, i: number) {
     const c = `tran${i}`;
+    const img = elFromId(id)?.query(".img")?.el;
+    if (!img) return;
     if (i >= 0 && i < store.get("贴图.窗口.变换").length) {
-        el.querySelector(".img").classList.toggle(c);
+        img.classList.toggle(c);
     }
-    const l = Array.from(el.querySelector(".img").classList.values());
+    const l = Array.from(img.classList.values());
     for (const t of l) {
         if (t.startsWith("tran") && t !== c) {
-            el.querySelector(".img").classList.remove(t);
+            img.classList.remove(t);
         }
     }
 }
@@ -410,21 +415,23 @@ function back(id: string) {
 }
 function back2(id: string) {
     const el = elFromId(id);
+    if (!el) return;
+    const pS = dingData.get(id)?.rect;
+    if (!pS) return;
     el.el.style.transition = "var(--transition)";
     setTimeout(() => {
         el.el.style.transition = "";
         resizeSender = true;
-        resize(el, 1, 0, 0);
+        resize(id, 1, 0, 0);
         resizeSender = false;
     }, 400);
-    const pS = dingData.get(el.el.id).rect;
     el.style({
         left: `${pS[0]}px`,
         top: `${pS[1]}px`,
         width: `${pS[2]}px`,
         height: `${pS[3]}px`,
     });
-    el.query(".img").style({
+    el.query(".img")?.style({
         left: "0",
         top: "0",
         width: "100%",
@@ -439,14 +446,15 @@ function back2(id: string) {
 function close(id: string) {
     ipcRenderer.send("ding_event", "close", id, dingData.size === 1);
 }
-function close2(el: HTMLElement) {
-    el.remove();
-    dingData.delete(el.id);
-    elMap = elMap.filter((e) => e.id !== el.id);
+function close2(id: string) {
+    elFromId(id)?.remove();
+    dingData.delete(id);
+    elMap = elMap.filter((e) => e.id !== id);
     dockI();
 }
 function getUrl(id: string) {
     const data = dingData.get(id);
+    if (!data) return "";
     const _isTranslate = data.isTranslate;
     return _isTranslate ? data.translation : data.url;
 }
@@ -487,14 +495,17 @@ async function transAndDraw(
     p: Awaited<ReturnType<typeof ocr>>,
 ) {
     const data = dingData.get(el.el.id);
+    if (!data) return;
     const canvas = ele("canvas")
         .attr({
             width: data.rect[2],
             height: data.rect[3],
         })
         .style({ position: "absolute", pointerEvents: "none" })
+        // @ts-ignore
         .addInto(el.query(".img")).el;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    // @ts-ignore
     ctx.drawImage(el.query(".img > img").el, 0, 0);
     console.log(p);
     const tr = await translateE(p.map((i) => i.parse.text));
@@ -587,7 +598,7 @@ function splitText(
 // 最高窗口
 let toppest = 1;
 let oPs: number[];
-let windowDiv: ElType<HTMLElement> = null;
+let windowDiv: ElType<HTMLElement> | null = null; // todo 使用id代替
 
 let resizeSender = false;
 
@@ -626,7 +637,7 @@ document.onmousedown = (e) => {
 };
 function mouseStart(op: start) {
     windowDiv = elFromId(op.id);
-    const div = windowDiv;
+    const div = windowDiv as ElType<HTMLElement>;
     div.style({
         left: `${op.x - div.el.offsetWidth * op.dx}px`,
         top: `${op.y - div.el.offsetHeight * op.dy}px`,
@@ -643,7 +654,7 @@ function mouseStart(op: start) {
 }
 function mouseMove(el: HTMLElement, x: number, y: number) {
     if (direction) {
-        move(windowDiv, { x, y });
+        if (windowDiv) move(windowDiv, { x, y });
     } else {
         const div = dives.find((d) => d.el.contains(el));
         if (div) {
@@ -748,7 +759,7 @@ function cursor(d: Dire) {
         move: "default",
         "": "default",
     };
-    document.querySelector("html").style.cursor = m[d];
+    (document.querySelector("html") as HTMLElement).style.cursor = m[d];
 }
 
 function move(el: ElType<HTMLElement>, e: { x: number; y: number }) {
@@ -757,7 +768,12 @@ function move(el: ElType<HTMLElement>, e: { x: number; y: number }) {
         const dx = e.x - oE.x;
         const dy = e.y - oE.y;
         const [ox, oy, ow, oh] = oPs;
-        let pS: [number, number, number, number];
+        let pS: [number, number, number, number] = [
+            Number.NaN,
+            Number.NaN,
+            Number.NaN,
+            Number.NaN,
+        ];
         const zp = { x: 0, y: 0 };
         switch (direction) {
             case "西北": {
@@ -836,7 +852,8 @@ function move(el: ElType<HTMLElement>, e: { x: number; y: number }) {
                 });
                 return;
         }
-        resize(el, pS[2] / dingData.get(el.el.id).rect[2], zp.x, zp.y);
+        // @ts-ignore
+        resize(el.el.id, pS[2] / dingData.get(el.el.id).rect[2], zp.x, zp.y);
     }
 }
 
@@ -849,13 +866,16 @@ function dxdy(e: MouseEvent, el: ElType<HTMLElement>) {
 }
 
 function resize(
-    el: ElType<HTMLElement>,
+    id: string,
     zoom: number,
     dx: number,
     dy: number,
     _clip?: boolean,
 ) {
-    const id = el.el.id;
+    const el = elFromId(id);
+    if (!el) return;
+    const d = dingData.get(id);
+    if (!d) return;
     elMap.find((i) => i.id === id)?.size(String(Math.round(zoom * 100)));
     const rect = [
         el.el.offsetLeft,
@@ -863,15 +883,15 @@ function resize(
         el.el.offsetWidth,
         el.el.offsetHeight,
     ];
-    const toWidth = dingData.get(id).rect[2] * zoom;
-    const toHeight = dingData.get(id).rect[3] * zoom;
+    const toWidth = d.rect[2] * zoom;
+    const toHeight = d.rect[3] * zoom;
     const point = { x: rect[0] + rect[2] * dx, y: rect[1] + rect[3] * dy };
     const x = point.x - toWidth * dx;
     const y = point.y - toHeight * dy;
     const pS = [x, y, toWidth, toHeight];
     const clip = toWidth < rect[2] ? false : _clip;
 
-    const bar = el.query("#tool_bar_c");
+    const bar = el.query("#tool_bar_c") as ElType<HTMLElement>;
     const w = pS[2];
     let zoomN = "";
     if (w <= 360) {
@@ -888,7 +908,7 @@ function resize(
             width: `${pS[2]}px`,
             height: `${pS[3]}px`,
         };
-        el.query(".img").style(style);
+        el.query(".img")?.style(style);
     } else {
         const style = {
             left: 0,
@@ -896,7 +916,7 @@ function resize(
             width: "100%",
             height: "",
         } as const;
-        el.query(".img").style(style);
+        el.query(".img")?.style(style);
         el.style({
             left: `${pS[0]}px`,
             top: `${pS[1]}px`,
@@ -951,6 +971,7 @@ const showDock = () => {
     if (dockShow) {
         if (
             dockEl.el.offsetLeft + 5 <=
+            // @ts-ignore
             document.querySelector("html").offsetWidth / 2
         ) {
             dockEl.el.classList.remove("dock_right");
@@ -978,16 +999,16 @@ function dockI() {
         const dockItem = view();
         const iPhoto = image(getUrl(i), "预览").on("click", () => {
             const div = document.getElementById(i);
-            if (div.classList.contains("minimize")) {
+            if (div?.classList.contains("minimize")) {
                 div.style.transition = "var(--transition)";
                 setTimeout(() => {
                     div.style.transition = "";
                 }, 400);
                 div.classList.remove("minimize");
             } else {
-                back(div.id);
+                back(i);
             }
-            div.style.zIndex = String(toppest + 1);
+            if (div) div.style.zIndex = String(toppest + 1);
             toppest += 1;
         });
         const iClose = view()
@@ -1001,14 +1022,14 @@ function dockI() {
             .attr({ title: "鼠标穿透" })
             .on("click", () => {
                 iIgnore_v = !iIgnore_v;
-                ignore(document.getElementById(i), iIgnore_v);
+                ignore(i, iIgnore_v);
             });
         const iTran = view()
             .add(iconEl("replace"))
             .attr({ title: "窗口变换" })
             .on("click", () => {
                 iTran_v = iTran_v === -1 ? 0 : -1;
-                transform(document.getElementById(i), iTran_v);
+                transform(i, iTran_v);
             });
 
         dockItem
