@@ -12,13 +12,14 @@ import {
     Notification,
     shell,
     nativeTheme,
-    BrowserView,
+    WebContentsView,
     screen,
     desktopCapturer,
     session,
     crashReporter,
     nativeImage,
     type NativeImage,
+    type View,
 } from "electron";
 import type { Buffer } from "node:buffer";
 
@@ -2102,9 +2103,8 @@ async function createMainWindow(op: MainWinType) {
             mainWindow.getNormalBounds().height,
             mainWindow.isMaximized(),
         ]);
-        for (const i of mainWindow.getBrowserViews()) {
-            // @ts-ignore
-            i?.webContents?.destroy();
+        for (const i of mainWindow.contentView.children) {
+            if (i instanceof WebContentsView) i.webContents.close();
         }
     });
 
@@ -2115,7 +2115,7 @@ async function createMainWindow(op: MainWinType) {
     // 浏览器大小适应
     mainWindow.on("resize", () => {
         setTimeout(() => {
-            for (const i of mainWindow.getBrowserViews()) {
+            for (const i of mainWindow.contentView.children) {
                 if (i.getBounds().width !== 0)
                     setViewSize(i, mainWindow, mainWindowL[windowName].browser);
             }
@@ -2166,7 +2166,7 @@ function mainEdit(window?: BrowserWindow, m?: string) {
     window?.webContents.send("edit", m);
 }
 
-const searchWindowL: { [n: number]: BrowserView } = {};
+const searchWindowL: { [n: number]: WebContentsView } = {};
 ipcMain.on("open_url", (_event, window_name, url) => {
     createBrowser(window_name, url);
 });
@@ -2192,12 +2192,12 @@ async function createBrowser(windowName: number, url: string) {
             webSecurity: false,
         };
     }
-    const searchView = new BrowserView({
+    const searchView = new WebContentsView({
         webPreferences,
     });
     searchWindowL[view] = searchView;
     await searchView.webContents.session.setProxy(store.get("代理"));
-    mainWindow.addBrowserView(searchView);
+    mainWindow.contentView.addChildView(searchView);
 
     if (url.startsWith("translate")) {
         rendererPath2(searchView.webContents, "translate.html", {
@@ -2287,16 +2287,15 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
     if (!mainWindow) return;
     switch (arg) {
         case "close":
-            mainWindow.removeBrowserView(searchWindow);
-            // @ts-ignore
-            searchWindow.webContents.destroy();
+            mainWindow.contentView.removeChildView(searchWindow);
+            searchWindow.webContents.close();
             delete searchWindowL[id];
             break;
         case "top": {
             // 有时直接把主页面当成浏览器打开，这时pid未初始化就触发top了，直接忽略
             if (!mainWindow) return;
-            mainWindow.setTopBrowserView(searchWindow);
             minViews(mainWindow);
+            searchWindow.setVisible(true);
             const bSize = Object.values(mainWindowL).find(
                 (i) => i.win === mainWindow,
             )?.browser;
@@ -2340,7 +2339,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             if (!bSize) break;
             bSize.bottom = arg2.bottom;
             bSize.top = arg2.top;
-            for (const w of mainWindow.getBrowserViews()) {
+            for (const w of mainWindow.contentView.children) {
                 if (w.getBounds().width !== 0)
                     setViewSize(w, mainWindow, bSize);
             }
@@ -2350,7 +2349,7 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
 });
 
 function setViewSize(
-    w: BrowserView,
+    w: View,
     window: BrowserWindow,
     size: (typeof mainWindowL)[0]["browser"],
 ) {
@@ -2365,8 +2364,8 @@ function setViewSize(
 /** 最小化某个窗口的所有标签页 */
 function minViews(mainWindow?: BrowserWindow) {
     if (!mainWindow) return;
-    for (const v of mainWindow.getBrowserViews()) {
-        v.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    for (const v of mainWindow.contentView.children) {
+        v.setVisible(false);
     }
 }
 
