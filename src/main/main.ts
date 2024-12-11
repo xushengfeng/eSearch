@@ -2296,17 +2296,6 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
             if (!mainWindow) return;
             minViews(mainWindow);
             searchWindow.setVisible(true);
-            const bSize = Object.values(mainWindowL).find(
-                (i) => i.win === mainWindow,
-            )?.browser;
-            searchWindow.setBounds({
-                x: 0,
-                y: bSize?.top || 0,
-                width: mainWindow.getContentBounds().width,
-                height:
-                    mainWindow.getContentBounds().height -
-                    (bSize?.bottom || 48),
-            });
             break;
         }
         case "back":
