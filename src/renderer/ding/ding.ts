@@ -101,7 +101,7 @@ const setNewDing = (
         .add(img)
         .class(
             addClass(
-                { position: "relative" },
+                { position: "relative", transition: "var(--transition)" },
                 { "&>*": { width: "100%", top: 0, left: 0 } },
             ),
         );
