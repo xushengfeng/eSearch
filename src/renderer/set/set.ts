@@ -39,6 +39,8 @@ import down_svg from "../assets/icons/down.svg";
 
 import close_svg from "../assets/icons/close.svg";
 
+import logo from "../assets/icon.svg";
+
 function iconEl(img: string) {
     return image(img, "icon").class("icon");
 }
@@ -950,10 +952,24 @@ const dingTransList = sortList(
     (v) => v.split("\n").at(0),
     (v, m) => {
         const { promise, resolve } = Promise.withResolvers<typeof v>();
-        const t = textarea().sv(v ?? "");
+
+        function setStyle() {
+            const style = t.gv;
+            preview.el.setAttribute("style", style);
+        }
+
+        const t = textarea()
+            .sv(v ?? "")
+            .on("input", () => {
+                setStyle();
+            });
+        const preview = view().add(
+            image(logo, "logo").style({ width: "200px" }),
+        );
 
         m.add([
             t,
+            preview,
             button("关闭").on("click", () => {
                 resolve(null);
                 m.el.close();
@@ -963,7 +979,7 @@ const dingTransList = sortList(
                 m.el.close();
             }),
         ]);
-        // todo 预览
+        setStyle();
 
         return promise;
     },
