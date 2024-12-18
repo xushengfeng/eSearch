@@ -287,29 +287,32 @@ function getFrameX(data: uiData) {
             const bmClip = data.clipList.find((c) => c.i === i);
             if (bmClip) {
                 f.rect = bmClip.rect;
-                continue;
-            }
-            const firstClip = structuredClone(
-                data.clipList.at(0) as uiData["clipList"][0],
-            );
-            firstClip.i = 0;
-            const lastClip = structuredClone(
-                data.clipList.at(-1) as uiData["clipList"][0],
-            );
-            lastClip.i = Number.POSITIVE_INFINITY;
-            const l = structuredClone(data.clipList);
-            l.unshift(firstClip);
-            l.push(lastClip);
+            } else {
+                const firstClip = structuredClone(
+                    data.clipList.at(0) as uiData["clipList"][0],
+                );
+                firstClip.i = 0;
+                const lastClip = structuredClone(
+                    data.clipList.at(-1) as uiData["clipList"][0],
+                );
+                lastClip.i = Number.POSITIVE_INFINITY;
+                const l = structuredClone(data.clipList);
+                l.unshift(firstClip);
+                l.push(lastClip);
 
-            const clipI = l.findIndex((c) => c.i <= i);
-            const clip = l[clipI];
-            const nextClip = l[clipI + 1];
-            const clipTime = src[clip.i].timestamp; // todo map
-            const nextClipTime = src[nextClip.i].timestamp;
-            const t = c.timestamp;
-            f.rect = getClip(clip, clipTime, t, nextClip, nextClipTime);
+                const clipI = l.findIndex((c) => c.i <= i);
+                const clip = l[clipI];
+                const nextClip = l[clipI + 1];
+                const clipTime = src[clip.i].timestamp; // todo map
+                const nextClipTime = src[nextClip.i].timestamp;
+                const t = c.timestamp;
+                f.rect = getClip(clip, clipTime, t, nextClip, nextClipTime);
+            }
         }
+
+        frameList.push(f);
     }
+
     return frameList;
 }
 
