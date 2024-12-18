@@ -114,6 +114,23 @@ frameDecoder.configure({
     codec: codec,
 });
 
+let lastDecodeSrc: OffscreenCanvas | null = null;
+const srcDecoder = new VideoDecoder({
+    output: (frame: VideoFrame) => {
+        const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
+        const ctx = canvas.getContext(
+            "2d",
+        ) as OffscreenCanvasRenderingContext2D;
+        ctx.drawImage(frame, 0, 0);
+        lastDecodeSrc = canvas;
+        frame.close();
+    },
+    error: (e) => console.error("Decode error:", e),
+});
+srcDecoder.configure({
+    codec: codec,
+});
+
 const canvas = ele("canvas").addInto().el;
 
 const actionsEl = view("x").addInto();
@@ -604,6 +621,19 @@ async function getNowFrames() {
         );
         timeLineFrame.add(canvasEl);
     }
+}
+
+async function getSrc(i: number) {
+    const beforeId = src.slice(0, i + 1).findLastIndex((c) => c.type === "key");
+
+    console.log(i);
+
+    for (let n = beforeId; n < i; n++) {
+        srcDecoder.decode(src[n]);
+    }
+    srcDecoder.decode(src[i]);
+    await srcDecoder.flush();
+    return lastDecodeSrc;
 }
 
 async function save() {
