@@ -1,5 +1,5 @@
 import type { superRecording } from "../../ShareTypes";
-import { button, check, ele, frame, select, view } from "dkh-ui";
+import { button, check, ele, frame, select, trackPoint, view } from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -150,20 +150,25 @@ const playEl = check("", ["||", "|>"]).on("input", async () => {
 
 const lastFrame = button("<").on("click", () => {
     const id = Math.max(playI - 1, 0);
-    jump2id(id);
-    getNowFrames();
+    jump2idUi(id);
 });
 const nextFrame = button(">").on("click", () => {
     const id = Math.min(playI + 1, transformed.length - 1);
-    jump2id(id);
-    getNowFrames();
+    jump2idUi(id);
 });
 const lastKey = button("<<");
 const nextKey = button(">>");
 
 actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey]);
 
-const timeLineMain = view("x").addInto();
+const timeLineMain = view("x")
+    .addInto()
+    .on("click", (e) => {
+        const p = e.offsetX / timeLineMain.el.offsetWidth;
+        const id = Math.min(Math.floor(p * src.length), src.length - 1);
+        jump2idUi(id);
+    });
+
 const timeLineFrame = view("x").addInto();
 
 const exportEl = frame("export", {
@@ -533,6 +538,11 @@ async function jump2id(id: number) {
     resetPlayTime();
 }
 
+async function jump2idUi(id: number) {
+    jump2id(id);
+    getNowFrames();
+}
+
 function pause() {
     isPlaying = false;
 
@@ -568,7 +578,7 @@ async function showThumbnails() {
                 width: tW,
                 height: tH,
             })
-            .style({ width: "calc(100% / 6)" });
+            .style({ width: "calc(100% / 6)", pointerEvents: "none" });
         (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
             canvas,
             0,
@@ -607,7 +617,10 @@ async function getNowFrames() {
                 width: tW,
                 height: tH,
             })
-            .style({ width: "calc(100% / 6)" });
+            .style({ width: "calc(100% / 6)" })
+            .on("click", () => {
+                jump2idUi(id);
+            });
         (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
             canvas,
             0,
