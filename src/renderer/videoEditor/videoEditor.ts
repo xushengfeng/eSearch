@@ -492,25 +492,8 @@ function resetPlayTime() {
 
 async function jump2id(id: number) {
     await transform();
-    playI = id;
-    const xcanvas = await getFrame(id);
-    if (!xcanvas) {
-        console.log("no frame", id);
-        return;
-    }
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    ctx.drawImage(
-        xcanvas,
-        0,
-        0,
-        xcanvas.width,
-        xcanvas.height,
-        0,
-        0,
-        outputV.width,
-        outputV.height,
-    );
-    resetPlayTime(); // todo 修复中间播放
+    playId(id);
+    resetPlayTime();
 }
 
 function pause() {
