@@ -444,10 +444,6 @@ async function playId(i: number) {
     playDecoder.decode(transformed[i]);
     playI = i;
     console.log("play", playI);
-
-    if (playI === transformed.length - 1) {
-        playEnd();
-    }
 }
 
 /**
@@ -477,6 +473,10 @@ function play() {
             for (let i = playI; i < transformed.length; i++) {
                 if (transformed[i].timestamp > dTime) {
                     playId(i);
+
+                    if (playI === transformed.length - 1) {
+                        playEnd();
+                    }
                     break;
                 }
             }
