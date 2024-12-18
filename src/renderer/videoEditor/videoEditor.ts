@@ -286,23 +286,24 @@ function getFrameXs(data: uiData) {
 
         // clip
         if (data.clipList.length > 0) {
-            const bmClip = data.clipList.find((c) => c.i === i);
+            // 补充首尾，方便查找区间
+            const firstClip = structuredClone(
+                data.clipList.at(0) as uiData["clipList"][0],
+            );
+            firstClip.i = 0;
+            const lastClip = structuredClone(
+                data.clipList.at(-1) as uiData["clipList"][0],
+            );
+            lastClip.i = src.length - 1;
+            const l = structuredClone(data.clipList);
+            l.unshift(firstClip);
+            l.push(lastClip);
+
+            const bmClip = l.find((c) => c.i === i);
             if (bmClip) {
                 f.rect = bmClip.rect;
             } else {
-                const firstClip = structuredClone(
-                    data.clipList.at(0) as uiData["clipList"][0],
-                );
-                firstClip.i = 0;
-                const lastClip = structuredClone(
-                    data.clipList.at(-1) as uiData["clipList"][0],
-                );
-                lastClip.i = Number.POSITIVE_INFINITY;
-                const l = structuredClone(data.clipList);
-                l.unshift(firstClip);
-                l.push(lastClip);
-
-                const clipI = l.findIndex((c) => c.i <= i);
+                const clipI = l.findLastIndex((c) => c.i < i);
                 const clip = l[clipI];
                 const nextClip = l[clipI + 1];
                 const clipTime = src[clip.i].timestamp; // todo map
