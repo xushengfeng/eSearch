@@ -125,8 +125,6 @@ const playEl = check("", ["||", "|>"]).on("input", async () => {
             playI = 0;
         }
         resetPlayTime();
-        canvas.width = outputV.width;
-        canvas.height = outputV.height;
         play();
     } else {
         pause();
@@ -497,6 +495,11 @@ function play() {
     });
 }
 
+function setPlaySize() {
+    canvas.width = outputV.width;
+    canvas.height = outputV.height;
+}
+
 async function flushPlay() {
     await playDecoder.flush();
     playI = 0;
@@ -810,6 +813,13 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         src = encodedChunks;
         mapKeysOnFrames(encodedChunks);
         ipcRenderer.send("window", "show");
+
+        await transform();
+
+        setPlaySize();
+
+        playI = -1;
+        await playId(0);
 
         showThumbnails();
     };
