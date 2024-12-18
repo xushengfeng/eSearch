@@ -636,7 +636,6 @@ async function saveImages() {
                 const buffer = Buffer.from(await blob.arrayBuffer());
                 fs.writeFile(
                     `${exportPath}/${t.time}.png`,
-                    // @ts-ignore
                     buffer,
                     (_err) => {},
                 );
@@ -689,7 +688,6 @@ async function saveGif() {
     decoder.close();
     gif.finish();
     const bytes = gif.bytes();
-    // @ts-ignore
     fs.writeFileSync(exportPath, Buffer.from(bytes));
 }
 
@@ -713,7 +711,6 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     muxer.finalize();
     const { buffer } = muxer.target;
     const exportPath = getSavePath("webm");
-    // @ts-ignore
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved webm");
 }
@@ -739,7 +736,6 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     muxer.finalize();
     const { buffer } = muxer.target;
     const exportPath = getSavePath("mp4");
-    // @ts-ignore
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved mp4");
 }
