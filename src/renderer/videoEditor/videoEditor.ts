@@ -497,13 +497,18 @@ function play() {
     });
 }
 
+async function flushPlay() {
+    await playDecoder.flush();
+    playI = 0;
+}
+
 function resetPlayTime() {
     const dTime = transformed[playI].timestamp / 1000;
     playTime = performance.now() - dTime;
 }
 
 async function jump2id(id: number) {
-    await transform();
+    await flushPlay();
     playId(id);
     resetPlayTime();
 }
