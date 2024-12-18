@@ -301,7 +301,7 @@ function getFrameX(data: uiData) {
             l.unshift(firstClip);
             l.push(lastClip);
 
-            const clipI = l.findIndex((c) => c.i < i);
+            const clipI = l.findIndex((c) => c.i <= i);
             const clip = l[clipI];
             const nextClip = l[clipI + 1];
             const clipTime = src[clip.i].timestamp; // todo map
