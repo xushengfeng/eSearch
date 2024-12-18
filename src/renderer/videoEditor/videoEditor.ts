@@ -37,6 +37,8 @@ type FrameX = {
 
 const history: uiData[] = [];
 
+let nowFrameX: FrameX[] = [];
+
 // todo 自适应分辨率/用户设定分辨率
 const outputV = {
     width: 1920 / 2,
@@ -265,7 +267,7 @@ function frame2Id(frame: VideoFrame) {
     return src.findIndex((c) => c.timestamp === frame.timestamp);
 }
 
-function getFrameX(data: uiData) {
+function getFrameXs(data: uiData) {
     const frameList: FrameX[] = [];
     // todo speed map
     for (const [i, c] of src.entries()) {
@@ -341,13 +343,18 @@ function easeOutQuint(x: number): number {
 }
 
 async function transform(_codec: string = codec) {
+    const nowUi = getNowUiData();
+    const frameXs = getFrameXs(nowUi);
+    nowFrameX = frameXs;
+
     // todo 无操作时直接返回
-    // todo diff chunks，更改部分帧
+    // todo diff 关键帧之间为单位，如果frameX在直接变动，则重新生成关键帧之后的chunck
     // todo diff 时注意codec
     // todo diff 有的不变，有的变frame，有的变时间戳
-    // todo keyframe diff
     // todo keyframe webm 32s mp4 5-10s
+
     transformed = [];
+
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             // 解码 处理 编码
@@ -401,8 +408,7 @@ function transformX(frame: VideoFrame) {
 }
 
 function renderFrameX(frame: VideoFrame) {
-    const nowUi = getNowUiData();
-    const frameX = getFrameX(nowUi).at(frame2Id(frame));
+    const frameX = nowFrameX.at(frame2Id(frame));
     const canvas = new OffscreenCanvas(outputV.width, outputV.height);
     const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
     if (!frameX) {
