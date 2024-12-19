@@ -199,6 +199,50 @@ const timeLineMain = view("x")
         jump2idUi(id);
     });
 
+const timeLineControl = view("y")
+    .style({ height: "64px", position: "relative" })
+    .class(
+        addClass(
+            {},
+            {
+                "& > *": {
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                },
+                "& > * > *": {
+                    position: "absolute",
+                    minWidth: "4px",
+                    height: "100%",
+                },
+            },
+        ),
+    )
+    .addInto()
+    .on("click", (e) => {
+        const p = e.offsetX / timeLineMain.el.offsetWidth;
+        const id = Math.floor(p * transformCs.length);
+        timeLineControlPoint.sv(id);
+    });
+const timeLineControlPoint = view()
+    .style({
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "2px",
+        height: "100%",
+        backgroundColor: "red",
+    })
+    .addInto(timeLineControl)
+    .bindSet((i: number, el) => {
+        el.style.left = `${(i / transformCs.length) * 100}%`;
+    });
+
+const timeLineClipEl = view().addInto(timeLineControl);
+const timeLineSpeedEl = view().addInto(timeLineControl);
+const timeLineEventEl = view().addInto(timeLineControl);
+const timeLineRemoveEl = view().addInto(timeLineControl);
+
 const timeLineFrame = view("x").addInto();
 const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
 
@@ -339,6 +383,54 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
 
 function getNowUiData() {
     return history.at(-1) as uiData;
+}
+
+function renderUiData(data: uiData) {
+    // 均匀index分布显示
+    timeLineClipEl.clear();
+    timeLineSpeedEl.clear();
+    timeLineEventEl.clear();
+    timeLineRemoveEl.clear();
+
+    function ipx(n: number) {
+        return `${(n / listLength()) * 100}%`;
+    }
+
+    for (const c of data.clipList) {
+        const el = view().addInto(timeLineClipEl);
+        el.style({
+            left: ipx(c.i),
+            width: ipx(2),
+            backgroundColor: "red",
+        });
+    }
+
+    for (const c of data.speed) {
+        const el = view().addInto(timeLineSpeedEl);
+        el.style({
+            left: ipx(c.start),
+            width: ipx(c.end - c.start),
+            backgroundColor: "blue",
+        });
+    }
+
+    for (const c of data.eventList) {
+        const el = view().addInto(timeLineEventEl);
+        el.style({
+            left: ipx(c.start),
+            width: ipx(c.end - c.start),
+            backgroundColor: "green",
+        });
+    }
+
+    for (const c of data.remove) {
+        const el = view().addInto(timeLineRemoveEl);
+        el.style({
+            left: ipx(c.start),
+            width: ipx(c.end - c.start),
+            backgroundColor: "black",
+        });
+    }
 }
 
 function getFrameXs(data: uiData) {
@@ -539,7 +631,7 @@ async function playId(i: number, force = false) {
 
 async function play() {
     const dTime = performance.now() - playTime;
-    playTimeEl.sv(dTime);
+    onPlay(dTime);
 
     if (isPlaying) {
         const i = transformCs.time2Id(dTime);
@@ -553,6 +645,11 @@ async function play() {
             play();
         });
     }
+}
+
+function onPlay(dTime: number) {
+    playTimeEl.sv(dTime);
+    timeLineControlPoint.sv(transformCs.time2Id(dTime));
 }
 
 function setPlaySize() {
@@ -927,6 +1024,9 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         await showThumbnails();
         await showNowFrames(0);
+
+        const nowUi = getNowUiData();
+        renderUiData(nowUi);
     };
 
     setTimeout(() => stopRecord(), 5 * 1000);
