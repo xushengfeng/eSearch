@@ -50,8 +50,16 @@ class videoChunk {
     frame2Id(frame: VideoFrame) {
         return this.list.findIndex((c) => c.timestamp === frame.timestamp);
     }
+    time2Id(time: number) {
+        const i = this.list.findIndex((c) => c.timestamp >= ms2timestamp(time));
+        if (i === -1) return this.length - 1;
+        return i;
+    }
     getTime(id: number) {
         return timestamp2ms(this.list.at(id)?.timestamp ?? 0);
+    }
+    getDuration() {
+        return this.getTime(-1);
     }
 }
 
@@ -178,7 +186,7 @@ const lastKey = button("<<");
 const nextKey = button(">>");
 
 const playTimeEl = txt().bindSet((t: number, el) => {
-    el.innerText = `${formatTime(t)} / ${formatTime(transformCs.getTime(-1))}`;
+    el.innerText = `${formatTime(t)} / ${formatTime(transformCs.getDuration())}`;
 });
 
 actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
@@ -187,7 +195,7 @@ const timeLineMain = view("x")
     .addInto()
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = Math.min(Math.floor(p * listLength()), listLength() - 1);
+        const id = transformCs.time2Id(p * transformCs.getDuration());
         jump2idUi(id);
     });
 
@@ -534,16 +542,13 @@ async function play() {
     playTimeEl.sv(dTime);
 
     if (isPlaying) {
-        for (let i = playI; i < listLength(); i++) {
-            if (transformCs.list[i].timestamp > ms2timestamp(dTime)) {
-                await playId(i);
+        const i = transformCs.time2Id(dTime);
+        await playId(i);
 
-                if (playI === listLength() - 1) {
-                    playEnd();
-                }
-                break;
-            }
+        if (playI === listLength() - 1) {
+            playEnd();
         }
+
         requestAnimationFrame(() => {
             play();
         });
