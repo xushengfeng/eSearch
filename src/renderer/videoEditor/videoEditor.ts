@@ -536,19 +536,19 @@ function resetPlayTime() {
 }
 
 async function jump2id(id: number) {
-    const canvas = await transformCs.getFrame(id);
-    if (!canvas) {
+    const fcanvas = await transformCs.getFrame(id);
+    if (!fcanvas) {
         console.log("no frame", id);
         return;
     }
     canvas
         .getContext("2d")
         ?.drawImage(
-            canvas,
+            fcanvas,
             0,
             0,
-            canvas.width,
-            canvas.height,
+            fcanvas.width,
+            fcanvas.height,
             0,
             0,
             outputV.width,
