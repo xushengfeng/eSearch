@@ -1,5 +1,5 @@
 import type { superRecording } from "../../ShareTypes";
-import { button, check, ele, frame, select, trackPoint, view } from "dkh-ui";
+import { button, check, ele, frame, select, view } from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -8,10 +8,51 @@ const path = require("node:path") as typeof import("path");
 
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
-const keys: superRecording = [];
+class videoChunk {
+    list: EncodedVideoChunk[] = [];
 
-let src: EncodedVideoChunk[] = [];
-let transformed: EncodedVideoChunk[] = [];
+    private lastDecodeFrame: OffscreenCanvas | null = null;
+    private frameDecoder = new VideoDecoder({
+        output: (frame: VideoFrame) => {
+            this.lastDecodeFrame = frame2Canvas(frame); // todo 减少调用
+            frame.close();
+        },
+        error: (e) => console.error("Decode error:", e),
+    });
+
+    constructor(_list: EncodedVideoChunk[]) {
+        this.list = _list;
+        this.frameDecoder.configure({
+            codec: codec,
+        });
+    }
+    setList(_list: EncodedVideoChunk[]) {
+        this.list = _list;
+    }
+    get length() {
+        return this.list.length;
+    }
+    async getFrame(index: number) {
+        await this.frameDecoder.flush();
+        const beforeId = this.list
+            .slice(0, index + 1)
+            .findLastIndex((c) => c.type === "key");
+
+        console.log("getFrame", index, beforeId);
+
+        for (let n = beforeId; n < index; n++) {
+            this.frameDecoder.decode(this.list[n]);
+        }
+        this.frameDecoder.decode(this.list[index]);
+        await this.frameDecoder.flush();
+        return this.lastDecodeFrame;
+    }
+    frame2Id(frame: VideoFrame) {
+        return this.list.findIndex((c) => c.timestamp === frame.timestamp);
+    }
+}
+
+const keys: superRecording = [];
 
 type clip = {
     i: number;
@@ -73,6 +114,7 @@ type baseType = (typeof outputType)[number]["type"];
 
 let isPlaying = false;
 let playI = 0;
+let willPlayI = 0;
 let playTime = 0;
 
 const playDecoder = new VideoDecoder({
@@ -97,39 +139,8 @@ playDecoder.configure({
     codec: codec,
 });
 
-let lastDecodeFrame: OffscreenCanvas | null = null;
-const frameDecoder = new VideoDecoder({
-    output: (frame: VideoFrame) => {
-        const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
-        const ctx = canvas.getContext(
-            "2d",
-        ) as OffscreenCanvasRenderingContext2D;
-        ctx.drawImage(frame, 0, 0);
-        lastDecodeFrame = canvas;
-        frame.close();
-    },
-    error: (e) => console.error("Decode error:", e),
-});
-frameDecoder.configure({
-    codec: codec,
-});
-
-let lastDecodeSrc: OffscreenCanvas | null = null;
-const srcDecoder = new VideoDecoder({
-    output: (frame: VideoFrame) => {
-        const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
-        const ctx = canvas.getContext(
-            "2d",
-        ) as OffscreenCanvasRenderingContext2D;
-        ctx.drawImage(frame, 0, 0);
-        lastDecodeSrc = canvas;
-        frame.close();
-    },
-    error: (e) => console.error("Decode error:", e),
-});
-srcDecoder.configure({
-    codec: codec,
-});
+const transformCs = new videoChunk([]);
+const srcCs = new videoChunk([]);
 
 const canvas = ele("canvas").addInto().el;
 
@@ -138,9 +149,14 @@ const playEl = check("", ["||", "|>"]).on("input", async () => {
     if (playEl.gv) {
         await transform();
         isPlaying = true;
-        if (playI === transformed.length - 1) {
+        if (playI === transformCs.length - 1) {
             playI = 0;
         }
+        if (willPlayI !== playI) {
+            await playDecoder.flush();
+            playId(willPlayI);
+        }
+
         resetPlayTime();
         play();
     } else {
@@ -149,11 +165,11 @@ const playEl = check("", ["||", "|>"]).on("input", async () => {
 });
 
 const lastFrame = button("<").on("click", () => {
-    const id = Math.max(playI - 1, 0);
+    const id = Math.max(willPlayI - 1, 0);
     jump2idUi(id);
 });
 const nextFrame = button(">").on("click", () => {
-    const id = Math.min(playI + 1, transformed.length - 1);
+    const id = Math.min(willPlayI + 1, transformCs.length - 1);
     jump2idUi(id);
 });
 const lastKey = button("<<");
@@ -165,7 +181,7 @@ const timeLineMain = view("x")
     .addInto()
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = Math.min(Math.floor(p * src.length), src.length - 1);
+        const id = Math.min(Math.floor(p * listLength()), listLength() - 1);
         jump2idUi(id);
     });
 
@@ -180,6 +196,17 @@ const exportEl = frame("export", {
 exportEl.el.addInto();
 
 let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
+
+function frame2Canvas(frame: VideoFrame) {
+    const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
+    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+    ctx.drawImage(frame, 0, 0);
+    return canvas;
+}
+
+function listLength() {
+    return srcCs.length;
+}
 
 function initKeys() {
     function push(x: Omit<superRecording[0], "time" | "posi">) {
@@ -283,14 +310,10 @@ function getNowUiData() {
     return history.at(-1) as uiData;
 }
 
-function frame2Id(frame: VideoFrame) {
-    return src.findIndex((c) => c.timestamp === frame.timestamp);
-}
-
 function getFrameXs(data: uiData) {
     const frameList: FrameX[] = [];
     // todo speed map
-    for (const [i, c] of src.entries()) {
+    for (const [i, c] of srcCs.list.entries()) {
         const f: FrameX = {
             rect: { x: 0, y: 0, w: v.width, h: v.height },
             timestamp: c.timestamp,
@@ -314,7 +337,7 @@ function getFrameXs(data: uiData) {
             const lastClip = structuredClone(
                 data.clipList.at(-1) as uiData["clipList"][0],
             );
-            lastClip.i = src.length - 1;
+            lastClip.i = listLength() - 1;
             const l = structuredClone(data.clipList);
             l.unshift(firstClip);
             l.push(lastClip);
@@ -326,8 +349,8 @@ function getFrameXs(data: uiData) {
                 const clipI = l.findLastIndex((c) => c.i < i);
                 const clip = l[clipI];
                 const nextClip = l[clipI + 1];
-                const clipTime = src[clip.i].timestamp; // todo map
-                const nextClipTime = src[nextClip.i].timestamp;
+                const clipTime = srcCs.list[clip.i].timestamp; // todo map
+                const nextClipTime = srcCs.list[nextClip.i].timestamp;
                 const t = c.timestamp;
                 f.rect = getClip(clip, clipTime, t, nextClip, nextClipTime);
             }
@@ -376,7 +399,7 @@ async function transform(_codec: string = codec) {
     // todo diff 有的不变，有的变frame，有的变时间戳
     // todo keyframe webm 32s mp4 5-10s
 
-    transformed = [];
+    const transformed: EncodedVideoChunk[] = [];
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
@@ -411,7 +434,7 @@ async function transform(_codec: string = codec) {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of src) {
+    for (const chunk of srcCs.list) {
         decoder.decode(chunk);
     }
     /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
@@ -419,6 +442,7 @@ async function transform(_codec: string = codec) {
     await encoder.flush();
     decoder.close();
     encoder.close();
+    transformCs.setList(transformed);
 }
 
 function transformX(frame: VideoFrame) {
@@ -431,12 +455,12 @@ function transformX(frame: VideoFrame) {
 }
 
 function renderFrameX(frame: VideoFrame) {
-    const frameX = nowFrameX.at(frame2Id(frame));
+    const frameX = nowFrameX.at(srcCs.frame2Id(frame));
     const canvas = new OffscreenCanvas(outputV.width, outputV.height);
     const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
     if (!frameX) {
         console.log(
-            `frame ${frame.timestamp} ${frame2Id(frame)} not found in uiData`,
+            `frame ${frame.timestamp} ${srcCs.frame2Id(frame)} not found in uiData`,
         );
         return { canvas, time: frame.timestamp };
     }
@@ -459,9 +483,11 @@ function renderFrameX(frame: VideoFrame) {
 
 async function playId(i: number) {
     if (i === playI) return;
+    const transformed = transformCs.list;
     if (transformed[i].type === "key") {
         playDecoder.decode(transformed[i]);
         playI = i;
+        willPlayI = i;
         return;
     }
     const beforeId = transformed
@@ -475,26 +501,8 @@ async function playId(i: number) {
     }
     playDecoder.decode(transformed[i]);
     playI = i;
+    willPlayI = i;
     console.log("play", playI);
-}
-
-/**
- * **注意先调用transform**
- */
-async function getFrame(i: number) {
-    await frameDecoder.flush();
-    const beforeId = transformed
-        .slice(0, i + 1)
-        .findLastIndex((c) => c.type === "key");
-
-    console.log(i);
-
-    for (let n = beforeId; n < i; n++) {
-        frameDecoder.decode(transformed[n]);
-    }
-    frameDecoder.decode(transformed[i]);
-    await frameDecoder.flush();
-    return lastDecodeFrame;
 }
 
 function play() {
@@ -502,11 +510,11 @@ function play() {
         const dTime = ms2timestamp(performance.now() - playTime);
 
         if (isPlaying) {
-            for (let i = playI; i < transformed.length; i++) {
-                if (transformed[i].timestamp > dTime) {
+            for (let i = playI; i < listLength(); i++) {
+                if (transformCs.list[i].timestamp > dTime) {
                     playId(i);
 
-                    if (playI === transformed.length - 1) {
+                    if (playI === listLength() - 1) {
                         playEnd();
                     }
                     break;
@@ -522,25 +530,36 @@ function setPlaySize() {
     canvas.height = outputV.height;
 }
 
-async function flushPlay() {
-    await playDecoder.flush();
-    playI = 0;
-}
-
 function resetPlayTime() {
-    const dTime = transformed[playI].timestamp / 1000;
+    const dTime = transformCs.list[playI].timestamp / 1000;
     playTime = performance.now() - dTime;
 }
 
 async function jump2id(id: number) {
-    await flushPlay();
-    playId(id);
-    resetPlayTime();
+    const canvas = await transformCs.getFrame(id);
+    if (!canvas) {
+        console.log("no frame", id);
+        return;
+    }
+    canvas
+        .getContext("2d")
+        ?.drawImage(
+            canvas,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+            0,
+            0,
+            outputV.width,
+            outputV.height,
+        );
+    willPlayI = id;
 }
 
 async function jump2idUi(id: number) {
     jump2id(id);
-    getNowFrames();
+    getNowFrames(id);
 }
 
 function pause() {
@@ -558,14 +577,14 @@ function playEnd() {
 }
 
 function onPause() {
-    getNowFrames();
+    getNowFrames(playI);
 }
 
 async function showThumbnails() {
     await transform();
     for (let i = 0; i < 6; i++) {
-        const id = Math.floor((i / 6) * transformed.length);
-        const canvas = await getFrame(id);
+        const id = Math.floor((i / 6) * listLength());
+        const canvas = await transformCs.getFrame(id);
         if (!canvas) {
             console.log("no frame", id);
             continue;
@@ -594,17 +613,13 @@ async function showThumbnails() {
     }
 }
 
-async function getNowFrames() {
+async function getNowFrames(id: number) {
     await transform();
     // todo cache
     timeLineFrame.clear();
-    for (
-        let i = Math.max(playI - 3, 0);
-        i < Math.min(playI + 3, transformed.length);
-        i++
-    ) {
+    for (let i = Math.max(id - 3, 0); i < Math.min(id + 3, listLength()); i++) {
         const id = i;
-        const canvas = await getFrame(id); // todo get slice
+        const canvas = await transformCs.getFrame(id); // todo get slice
         if (!canvas) {
             console.log("no frame", id);
             continue;
@@ -634,19 +649,6 @@ async function getNowFrames() {
         );
         timeLineFrame.add(canvasEl);
     }
-}
-
-async function getSrc(i: number) {
-    const beforeId = src.slice(0, i + 1).findLastIndex((c) => c.type === "key");
-
-    console.log(i);
-
-    for (let n = beforeId; n < i; n++) {
-        srcDecoder.decode(src[n]);
-    }
-    srcDecoder.decode(src[i]);
-    await srcDecoder.flush();
-    return lastDecodeSrc;
 }
 
 async function save() {
@@ -692,7 +694,7 @@ async function saveImages() {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of src) {
+    for (const chunk of srcCs.list) {
         decoder.decode(chunk);
     }
 
@@ -726,7 +728,7 @@ async function saveGif() {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of src) {
+    for (const chunk of srcCs.list) {
         decoder.decode(chunk);
     }
 
@@ -751,7 +753,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
 
     await transform(_codec);
 
-    for (const chunk of transformed) {
+    for (const chunk of transformCs.list) {
         muxer.addVideoChunk(chunk);
     }
     muxer.finalize();
@@ -776,7 +778,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
 
     await transform(_codec);
 
-    for (const chunk of transformed) {
+    for (const chunk of transformCs.list) {
         muxer.addVideoChunk(chunk);
     }
     muxer.finalize();
@@ -853,7 +855,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         history.push({ clipList: [], eventList: [], remove: [], speed: [] });
 
-        src = encodedChunks;
+        srcCs.setList(encodedChunks);
+
         mapKeysOnFrames(encodedChunks);
         ipcRenderer.send("window", "show");
 
