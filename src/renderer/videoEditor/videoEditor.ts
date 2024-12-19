@@ -500,8 +500,8 @@ function renderFrameX(frame: VideoFrame) {
     return { canvas, time };
 }
 
-async function playId(i: number) {
-    if (i === playI) return;
+async function playId(i: number, force = false) {
+    if (i === playI && !force) return;
 
     const transformed = transformCs.list;
     if (transformed[i].type === "key") {
@@ -592,7 +592,7 @@ async function playEnd() {
     isPlaying = false;
     playEl.sv(false);
 
-    await playId(0);
+    await playId(0, true);
 
     onPause();
 }
@@ -912,7 +912,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         setPlaySize();
 
-        await playId(0);
+        await playId(0, true);
 
         await showThumbnails();
         await showNowFrames(0);
