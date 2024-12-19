@@ -1015,6 +1015,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         mapKeysOnFrames(encodedChunks);
         ipcRenderer.send("window", "show");
+        ipcRenderer.send("window", "max");
 
         await transform();
 

@@ -2397,6 +2397,9 @@ ipcMain.on("window", (event, type: string, v) => {
     if (type === "show") {
         win.show();
     }
+    if (type === "max") {
+        win.maximize();
+    }
 });
 
 ipcMain.on("get_save_file_path", (event, arg: string) => {
