@@ -50,6 +50,9 @@ class videoChunk {
     frame2Id(frame: VideoFrame) {
         return this.list.findIndex((c) => c.timestamp === frame.timestamp);
     }
+    getTime(id: number) {
+        return timestamp2ms(this.list[id].timestamp);
+    }
 }
 
 const keys: superRecording = [];
@@ -258,6 +261,22 @@ let stopRecord = () => {};
 
 function ms2timestamp(t: number) {
     return t * 1000;
+}
+
+function timestamp2ms(t: number) {
+    return t / 1000;
+}
+
+function numberPad(n: number, length = 2) {
+    return n.toString().padStart(length, "0");
+}
+
+function formatTime(t: number) {
+    const h = Math.floor(t / 3600000);
+    const m = Math.floor((t % 3600000) / 60000);
+    const s = Math.floor((t % 60000) / 1000);
+    const ms = Math.floor(t % 1000);
+    return `${numberPad(h)}:${numberPad(m)}:${numberPad(s)}.${numberPad(ms, 3)}`;
 }
 
 function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
@@ -532,7 +551,7 @@ function setPlaySize() {
 }
 
 function resetPlayTime() {
-    const dTime = transformCs.list[playI].timestamp / 1000;
+    const dTime = timestamp2ms(transformCs.list[playI].timestamp);
     playTime = performance.now() - dTime;
 }
 
@@ -665,6 +684,7 @@ async function showNowFrames(centerId: number) {
                 tH,
             );
             c.add(canvasEl);
+            c.add(formatTime(transformCs.getTime(id)));
         }
         timeLineFrame.add(c);
     }
