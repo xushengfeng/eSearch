@@ -569,10 +569,13 @@ function pause() {
     onPause();
 }
 
-function playEnd() {
+async function playEnd() {
     isPlaying = false;
     playI = 0;
+    willPlayI = 0;
     playEl.sv(false);
+
+    await playDecoder.flush();
 
     onPause();
 }
