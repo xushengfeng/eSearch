@@ -1,5 +1,5 @@
 import type { superRecording } from "../../ShareTypes";
-import { button, check, ele, frame, select, view } from "dkh-ui";
+import { addClass, button, check, ele, frame, select, view } from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -186,6 +186,7 @@ const timeLineMain = view("x")
     });
 
 const timeLineFrame = view("x").addInto();
+const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
 
 const exportEl = frame("export", {
     _: view("x"),
@@ -559,7 +560,7 @@ async function jump2id(id: number) {
 
 async function jump2idUi(id: number) {
     jump2id(id);
-    getNowFrames(id);
+    showNowFrames(id);
 }
 
 function pause() {
@@ -577,7 +578,7 @@ function playEnd() {
 }
 
 function onPause() {
-    getNowFrames(playI);
+    showNowFrames(playI);
 }
 
 async function showThumbnails() {
@@ -613,41 +614,67 @@ async function showThumbnails() {
     }
 }
 
-async function getNowFrames(id: number) {
+async function showNowFrames(centerId: number) {
     await transform();
-    // todo cache
-    timeLineFrame.clear();
-    for (let i = Math.max(id - 3, 0); i < Math.min(id + 3, listLength()); i++) {
-        const id = i;
-        const canvas = await transformCs.getFrame(id); // todo get slice
-        if (!canvas) {
-            console.log("no frame", id);
-            continue;
+    const hasI: number[] = [];
+    for (const c of timeLineFrame.queryAll(":scope > *")) {
+        const i = Number(c.el.getAttribute("data-i"));
+        if (i < centerId - 3 || centerId + 4 <= i) {
+            c.remove();
+        } else {
+            hasI.push(i);
         }
+    }
+    for (let i = centerId - 3; i < centerId + 4; i++) {
+        if (hasI.includes(i)) continue;
+        const id = i;
+        const c = view()
+            .style({ width: "calc(100% / 7)", order: i })
+            .data({ i: String(i) });
+
         const tW = 300;
         const tH = Math.floor((tW * outputV.height) / outputV.width);
 
-        const canvasEl = ele("canvas")
-            .attr({
-                width: tW,
-                height: tH,
-            })
-            .style({ width: "calc(100% / 6)" })
-            .on("click", () => {
-                jump2idUi(id);
-            });
-        (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
-            canvas,
-            0,
-            0,
-            outputV.width,
-            outputV.height,
-            0,
-            0,
-            tW,
-            tH,
-        );
-        timeLineFrame.add(canvasEl);
+        if (0 <= i && i < listLength()) {
+            const canvas = await transformCs.getFrame(id);
+            if (!canvas) {
+                console.log("no frame", id);
+                continue;
+            }
+            const canvasEl = ele("canvas")
+                .attr({
+                    width: tW,
+                    height: tH,
+                })
+                .style({ maxWidth: "100%" })
+                .on("click", () => {
+                    jump2idUi(id);
+                });
+            (
+                canvasEl.el.getContext("2d") as CanvasRenderingContext2D
+            ).drawImage(
+                canvas,
+                0,
+                0,
+                outputV.width,
+                outputV.height,
+                0,
+                0,
+                tW,
+                tH,
+            );
+            c.add(canvasEl);
+        }
+        timeLineFrame.add(c);
+    }
+
+    for (const c of timeLineFrame.queryAll(":scope > *")) {
+        const i = Number(c.el.getAttribute("data-i"));
+        if (i === centerId) {
+            c.class(timeLineFrameHl);
+        } else {
+            c.el.classList.remove(timeLineFrameHl);
+        }
     }
 }
 
@@ -867,7 +894,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         playI = -1;
         await playId(0);
 
-        showThumbnails();
+        await showThumbnails();
+        await showNowFrames(0);
     };
 
     setTimeout(() => stopRecord(), 5 * 1000);
