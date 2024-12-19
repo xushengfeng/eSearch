@@ -483,7 +483,6 @@ function renderFrameX(frame: VideoFrame) {
 
 async function playId(i: number) {
     if (i === playI) return;
-    if (i < playI) await playDecoder.flush();
 
     const transformed = transformCs.list;
     if (transformed[i].type === "key") {
@@ -496,7 +495,7 @@ async function playId(i: number) {
         .slice(0, i)
         .findLastIndex((c) => c.type === "key");
 
-    const fillI = i < playI ? beforeId : playI + 1;
+    const fillI = i < playI || playI < beforeId ? beforeId : playI + 1;
 
     for (let n = fillI; n < i; n++) {
         playDecoder.decode(transformed[n]);
@@ -507,24 +506,24 @@ async function playId(i: number) {
     console.log("play", playI);
 }
 
-function play() {
-    requestAnimationFrame(() => {
-        const dTime = ms2timestamp(performance.now() - playTime);
+async function play() {
+    const dTime = ms2timestamp(performance.now() - playTime);
 
-        if (isPlaying) {
-            for (let i = playI; i < listLength(); i++) {
-                if (transformCs.list[i].timestamp > dTime) {
-                    playId(i);
+    if (isPlaying) {
+        for (let i = playI; i < listLength(); i++) {
+            if (transformCs.list[i].timestamp > dTime) {
+                await playId(i);
 
-                    if (playI === listLength() - 1) {
-                        playEnd();
-                    }
-                    break;
+                if (playI === listLength() - 1) {
+                    playEnd();
                 }
+                break;
             }
-            play();
         }
-    });
+        requestAnimationFrame(() => {
+            play();
+        });
+    }
 }
 
 function setPlaySize() {
@@ -572,11 +571,9 @@ function pause() {
 
 async function playEnd() {
     isPlaying = false;
-    playI = 0;
-    willPlayI = 0;
     playEl.sv(false);
 
-    await playDecoder.flush();
+    await playId(0);
 
     onPause();
 }
@@ -895,7 +892,6 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         setPlaySize();
 
-        playI = -1;
         await playId(0);
 
         await showThumbnails();
