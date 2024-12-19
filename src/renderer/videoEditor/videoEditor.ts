@@ -153,8 +153,7 @@ const playEl = check("", ["||", "|>"]).on("input", async () => {
             playI = 0;
         }
         if (willPlayI !== playI) {
-            await playDecoder.flush();
-            playId(willPlayI);
+            await playId(willPlayI);
         }
 
         resetPlayTime();
@@ -484,6 +483,8 @@ function renderFrameX(frame: VideoFrame) {
 
 async function playId(i: number) {
     if (i === playI) return;
+    if (i < playI) await playDecoder.flush();
+
     const transformed = transformCs.list;
     if (transformed[i].type === "key") {
         playDecoder.decode(transformed[i]);
@@ -495,7 +496,7 @@ async function playId(i: number) {
         .slice(0, i)
         .findLastIndex((c) => c.type === "key");
 
-    const fillI = playI <= beforeId ? beforeId : playI + 1;
+    const fillI = i < playI ? beforeId : playI + 1;
 
     for (let n = fillI; n < i; n++) {
         playDecoder.decode(transformed[n]);
