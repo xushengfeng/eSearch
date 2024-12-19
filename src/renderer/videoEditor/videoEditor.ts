@@ -1,5 +1,5 @@
 import type { superRecording } from "../../ShareTypes";
-import { addClass, button, check, ele, frame, select, view } from "dkh-ui";
+import { addClass, button, check, ele, frame, select, txt, view } from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -51,7 +51,7 @@ class videoChunk {
         return this.list.findIndex((c) => c.timestamp === frame.timestamp);
     }
     getTime(id: number) {
-        return timestamp2ms(this.list[id].timestamp);
+        return timestamp2ms(this.list.at(id)?.timestamp ?? 0);
     }
 }
 
@@ -177,7 +177,11 @@ const nextFrame = button(">").on("click", () => {
 const lastKey = button("<<");
 const nextKey = button(">>");
 
-actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey]);
+const playTimeEl = txt().bindSet((t: number, el) => {
+    el.innerText = `${formatTime(t)} / ${formatTime(transformCs.getTime(-1))}`;
+});
+
+actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
 
 const timeLineMain = view("x")
     .addInto()
@@ -526,11 +530,12 @@ async function playId(i: number, force = false) {
 }
 
 async function play() {
-    const dTime = ms2timestamp(performance.now() - playTime);
+    const dTime = performance.now() - playTime;
+    playTimeEl.sv(dTime);
 
     if (isPlaying) {
         for (let i = playI; i < listLength(); i++) {
-            if (transformCs.list[i].timestamp > dTime) {
+            if (transformCs.list[i].timestamp > ms2timestamp(dTime)) {
                 await playId(i);
 
                 if (playI === listLength() - 1) {
@@ -580,6 +585,7 @@ async function jump2id(id: number) {
 async function jump2idUi(id: number) {
     jump2id(id);
     showNowFrames(id);
+    playTimeEl.sv(transformCs.getTime(id));
 }
 
 function pause() {
