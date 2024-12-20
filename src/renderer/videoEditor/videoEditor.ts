@@ -1,5 +1,15 @@
 import type { superRecording } from "../../ShareTypes";
-import { addClass, button, check, ele, frame, select, txt, view } from "dkh-ui";
+import {
+    addClass,
+    button,
+    check,
+    ele,
+    frame,
+    pack,
+    select,
+    txt,
+    view,
+} from "dkh-ui";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -132,6 +142,8 @@ let playI = 0;
 let willPlayI = 0;
 let playTime = 0;
 
+// let isEditClip = false;
+
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
         const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -157,7 +169,24 @@ playDecoder.configure({
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
 
-const canvas = ele("canvas").addInto().el;
+const canvasEl = ele("canvas");
+const canvas = canvasEl.el;
+
+const clipEditor = view("y");
+
+const canvasView = view()
+    .add([canvasEl, clipEditor])
+    .addInto()
+    .bindSet((type: "play" | "clip") => {
+        if (type === "play") {
+            canvasEl.style({ display: "block" });
+            clipEditor.style({ display: "none" });
+        } else {
+            canvasEl.style({ display: "none" });
+            clipEditor.style({ display: "block" });
+        }
+    })
+    .sv("play");
 
 const actionsEl = view("x").addInto();
 const playEl = check("", ["||", "|>"]).on("input", async () => {
@@ -386,7 +415,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
 }
 
 function getNowUiData() {
-    return history.at(-1) as uiData;
+    return history.at(-1) as uiData; // todo 撤回指针等
 }
 
 function renderUiData(data: uiData) {
@@ -400,13 +429,17 @@ function renderUiData(data: uiData) {
         return `${(n / listLength()) * 100}%`;
     }
 
-    for (const c of data.clipList) {
-        const el = view().addInto(timeLineClipEl);
-        el.style({
-            left: ipx(c.i),
-            width: ipx(2),
-            backgroundColor: "red",
-        });
+    for (const [i, c] of data.clipList.entries()) {
+        view()
+            .addInto(timeLineClipEl)
+            .style({
+                left: ipx(c.i),
+                width: ipx(2),
+                backgroundColor: "red",
+            })
+            .on("click", () => {
+                editClip(i);
+            });
     }
 
     for (const c of data.speed) {
@@ -809,6 +842,87 @@ async function showNowFrames(centerId: number) {
             c.el.classList.remove(timeLineFrameHl);
         }
     }
+}
+
+function editClip(i: number) {
+    const data = structuredClone(getNowUiData());
+
+    const clip = data.clipList.at(i);
+    if (!clip) return;
+
+    const rect = clip.rect;
+
+    async function jump2id(id: number) {
+        const src = await srcCs.getFrame(id);
+        if (!src) return;
+        clipCanvas.width = v.width;
+        clipCanvas.height = v.height;
+        clipCanvas.getContext("2d")?.drawImage(src, 0, 0);
+        clipControl.sv(rect);
+    }
+
+    function save() {
+        canvasView.sv("play");
+        history.push(data);
+        transform();
+        // todo 更新预览
+    }
+
+    const clipMoveLast = button("<").on("click", () => {
+        // todo 跳过其他clip
+        const i = Math.max(0, clip.i - 1);
+        clip.i = i;
+        jump2id(i);
+        // todo 更新ui
+    });
+    const clipMoveNext = button(">").on("click", () => {
+        // todo 跳过其他clip
+        const i = Math.min(listLength() - 1, clip.i + 1);
+        clip.i = i;
+        jump2id(i);
+    });
+    const clipRemove = button("x").on("click", () => {
+        save();
+    });
+    const clipSave = button("save").on("click", () => {
+        save();
+    });
+
+    const clipCanvasEl = ele("canvas");
+    const clipCanvas = clipCanvasEl.el;
+    const clipControl = view()
+        .style({ position: "absolute", border: "1px solid black" })
+        .bindSet((rect: clip["rect"], el) => {
+            const w = v.width;
+            const h = v.height;
+            pack(el).style({
+                left: `${(rect.x / w) * 100}%`,
+                top: `${(rect.y / h) * 100}%`,
+                width: `${(rect.w / w) * 100}%`,
+                height: `${(rect.h / h) * 100}%`,
+            });
+        })
+        .on("dblclick", () => {
+            // todo track
+            rect.x = 0;
+            rect.y = 0;
+            rect.w = v.width;
+            rect.h = v.height;
+            clipControl.sv(rect);
+        });
+
+    clipEditor
+        .clear()
+        .add([
+            view()
+                .style({ position: "relative" })
+                .add([clipCanvas, clipControl]),
+            view("x").add([clipMoveLast, clipMoveNext, clipRemove, clipSave]),
+        ]);
+
+    canvasView.sv("clip");
+
+    jump2id(clip.i);
 }
 
 async function save() {
