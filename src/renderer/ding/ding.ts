@@ -466,7 +466,6 @@ function save(id: string) {
         getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
-    // todo 自动保存
     const save = ipcRenderer.sendSync("get_save_file_path", "png");
     fs.writeFileSync(save, b);
 }
