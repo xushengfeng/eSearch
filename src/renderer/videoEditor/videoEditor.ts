@@ -1015,11 +1015,7 @@ async function save() {
 }
 
 function getSavePath(type: baseType) {
-    const dir = "./output";
-    try {
-        fs.mkdirSync(dir, { recursive: true });
-    } catch (error) {}
-    return path.join(dir, `${new Date().getTime()}.${type}`);
+    return ipcRenderer.sendSync("get_save_file_path", type);
 }
 
 async function saveImages() {
