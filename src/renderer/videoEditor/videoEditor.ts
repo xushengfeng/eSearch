@@ -106,17 +106,17 @@ const history: uiData[] = [];
 
 let nowFrameX: FrameX[] = [];
 
-// todo 自适应分辨率/用户设定分辨率
+// 播放、导出
 const outputV = {
-    width: 1920 / 2,
-    height: 1080 / 2,
+    width: 0,
+    height: 0,
 };
 
-// 原始分辨率
 // todo 节省内存，可以降低原始分辨率，像鼠标坐标也要缩小
+// src原始分辨率
 const v = {
-    width: 100,
-    height: 100,
+    width: 0,
+    height: 0,
 };
 
 const codec = "vp8";
@@ -280,10 +280,13 @@ const timeLineRemoveEl = view().addInto(timeLineControl);
 const timeLineFrame = view("x").addInto();
 const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
 
+const exportPx = select([]);
+
 const exportEl = frame("export", {
     _: view("x"),
     export: button("导出").on("click", save),
     type: select(outputType.map((t) => ({ value: t.name }))),
+    px: exportPx,
 });
 
 exportEl.el.addInto();
@@ -1154,6 +1157,27 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     });
     v.width = videoWidth;
     v.height = videoHeight;
+
+    for (const x of [1, 2, 4, 8]) {
+        exportPx.add(
+            ele("option").attr({
+                value: String(x),
+                text: `/${x} ${Math.round(v.width / x)} x ${Math.round(v.height / x)}`,
+            }),
+        );
+    }
+    exportPx
+        .on("change", () => {
+            const x = Number(exportPx.gv);
+            outputV.width = Math.round(v.width / x);
+            outputV.height = Math.round(v.height / x);
+            setPlaySize();
+            transform();
+        })
+        .sv("2");
+
+    outputV.width = Math.round(videoWidth / 2);
+    outputV.height = Math.round(videoHeight / 2);
 
     // @ts-ignore
     const reader = new MediaStreamTrackProcessor({
