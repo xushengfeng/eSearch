@@ -468,6 +468,7 @@ function save(id: string) {
     );
     const save = ipcRenderer.sendSync("get_save_file_path", "png");
     fs.writeFileSync(save, b);
+    ipcRenderer.send("ok_save", save);
 }
 function edit(id: string) {
     const b = Buffer.from(

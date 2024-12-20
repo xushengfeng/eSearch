@@ -1163,7 +1163,7 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
                     if (x.filePath) {
                     } else {
                         new Notification({
-                            title: `${app.name} ${t("保存图像失败")}`,
+                            title: `${app.name} ${t("保存文件失败")}`,
                             body: t("用户已取消保存"),
                             icon: `${runPath}/assets/logo/64x64.png`,
                         }).show();
@@ -1189,10 +1189,6 @@ ipcMain.on("clip_main_b", (event, type, arg) => {
                     }
                     event.sender.send("mac_app_path", x.canceled, x.filePaths);
                 });
-            break;
-        case "ok_save":
-            noti(arg);
-            store.set("保存.保存路径.图片", dirname(arg));
             break;
         case "record":
             createRecorderWindow(arg.rect, {
@@ -2372,8 +2368,8 @@ function getFileName() {
 /** 提示保存成功 */
 function noti(filePath: string) {
     const notification = new Notification({
-        title: `${app.name} ${t("保存图像成功")}`,
-        body: `${t("已保存图像到")} ${filePath}`,
+        title: `${app.name} ${t("保存文件成功")}`,
+        body: `${t("已保存文件到")} ${filePath}`,
         icon: `${runPath}/assets/logo/64x64.png`,
     });
     notification.on("click", () => {
@@ -2422,6 +2418,15 @@ ipcMain.on("get_save_file_path", (event, arg: string, isVideo: boolean) => {
         .then((x) => {
             event.returnValue = x.filePath;
         });
+});
+
+ipcMain.on("ok_save", (_event, arg: string, isVideo: boolean) => {
+    noti(arg);
+    if (isVideo) {
+        store.set("保存.保存路径.视频", dirname(arg));
+    } else {
+        store.set("保存.保存路径.图片", dirname(arg));
+    }
 });
 
 ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {

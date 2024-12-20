@@ -237,6 +237,7 @@ const controls = frame("sidebar", {
                     "",
                 );
                 writeFileSync(path, Buffer.from(img, "base64"));
+                ipcRenderer.send("ok_save", path);
                 ipcRenderer.send("window", "close");
             }),
             copy: button(icon("copy")).on("click", () => {

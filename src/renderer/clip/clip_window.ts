@@ -914,7 +914,7 @@ async function save(message: string) {
 
         fs.writeFile(message, dataBuffer, (err) => {
             if (!err) {
-                ipcRenderer.send("clip_main_b", "ok_save", message);
+                ipcRenderer.send("ok_save", message);
             }
         });
         tool.close();

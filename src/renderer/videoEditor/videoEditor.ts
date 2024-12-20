@@ -1051,6 +1051,7 @@ async function saveImages() {
     }
 
     await decoder.flush();
+    ipcRenderer.send("ok_save", exportPath);
 
     decoder.close();
 
@@ -1089,6 +1090,7 @@ async function saveGif() {
     gif.finish();
     const bytes = gif.bytes();
     fs.writeFileSync(exportPath, Buffer.from(bytes));
+    ipcRenderer.send("ok_save", exportPath);
 }
 
 async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
@@ -1113,6 +1115,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     const exportPath = getSavePath("webm");
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved webm");
+    ipcRenderer.send("ok_save", exportPath);
 }
 
 async function saveMp4(_codec: "avc" | "vp9" | "av1") {
@@ -1138,6 +1141,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     const exportPath = getSavePath("mp4");
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved mp4");
+    ipcRenderer.send("ok_save", exportPath);
 }
 
 ipcRenderer.on("record", async (_e, _t, sourceId) => {
