@@ -849,23 +849,7 @@ function runCopy() {
 function runSave() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
-        const path = require("node:path") as typeof import("path");
-        const savedPath = store.get("保存.保存路径.图片") || "";
-        const p = path.join(
-            savedPath,
-            `${get_file_name()}.${store.get("保存.默认格式")}`,
-        );
-        function get_file_name() {
-            const saveNameTime = timeFormat(
-                store.get("保存名称.时间"),
-                new Date(),
-            ).replace("\\", "");
-            const filename =
-                store.get("保存名称.前缀") +
-                saveNameTime +
-                store.get("保存名称.后缀");
-            return filename;
-        }
+        const p = ipcRenderer.sendSync("get_save_file_path", type);
         save(p);
         return;
     }
