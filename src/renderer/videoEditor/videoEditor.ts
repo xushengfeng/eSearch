@@ -12,9 +12,11 @@ class videoChunk {
     list: EncodedVideoChunk[] = [];
 
     private lastDecodeFrame: OffscreenCanvas | null = null;
+    private targetTime = 0;
     private frameDecoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            this.lastDecodeFrame = frame2Canvas(frame); // todo 减少调用
+            if (this.targetTime === frame.timestamp)
+                this.lastDecodeFrame = frame2Canvas(frame);
             frame.close();
         },
         error: (e) => console.error("Decode error:", e),
@@ -40,12 +42,14 @@ class videoChunk {
 
         console.log("getFrame", index, beforeId);
 
+        this.targetTime = this.list[index].timestamp;
+        this.lastDecodeFrame = null;
         for (let n = beforeId; n < index; n++) {
             this.frameDecoder.decode(this.list[n]);
         }
         this.frameDecoder.decode(this.list[index]);
         await this.frameDecoder.flush();
-        return this.lastDecodeFrame;
+        return this.lastDecodeFrame as OffscreenCanvas | null;
     }
     frame2Id(frame: VideoFrame) {
         return this.list.findIndex((c) => c.timestamp === frame.timestamp);
@@ -685,8 +689,8 @@ async function jump2id(id: number) {
 }
 
 async function jump2idUi(id: number) {
-    jump2id(id);
-    showNowFrames(id);
+    await jump2id(id);
+    await showNowFrames(id);
     playTimeEl.sv(transformCs.getTime(id));
 }
 
