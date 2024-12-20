@@ -1015,7 +1015,11 @@ async function save() {
 }
 
 function getSavePath(type: baseType) {
-    return ipcRenderer.sendSync("get_save_file_path", type);
+    return ipcRenderer.sendSync(
+        "get_save_file_path",
+        type,
+        type === "mp4" || type === "webm",
+    );
 }
 
 async function saveImages() {
