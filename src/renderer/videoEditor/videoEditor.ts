@@ -124,17 +124,17 @@ const srcRate = 30;
 const bitrate = 16 * 1024 * 1024;
 
 const outputType = [
-    { type: "png", name: "png" },
     { type: "gif", name: "gif" },
-    { type: "webp", name: "webp" },
-    { type: "apng", name: "apng" },
-    { type: "avif", name: "avif" },
+    // { type: "webp", name: "webp" }, // todo
+    // { type: "apng", name: "apng" }, // todo
+    // { type: "avif", name: "avif" }, // todo
     { type: "webm", codec: "vp8", name: "webm-vp8" },
     { type: "webm", codec: "vp9", name: "webm-vp9" },
     { type: "webm", codec: "av1", name: "webm-av1" },
     { type: "mp4", codec: "avc", name: "mp4-avc" },
     { type: "mp4", codec: "vp9", name: "mp4-vp9" },
     { type: "mp4", codec: "av1", name: "mp4-av1" },
+    { type: "png", name: "png" },
 ] as const;
 type baseType = (typeof outputType)[number]["type"];
 
