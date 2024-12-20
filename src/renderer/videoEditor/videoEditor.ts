@@ -7,6 +7,7 @@ import {
     frame,
     pack,
     select,
+    trackPoint,
     txt,
     view,
 } from "dkh-ui";
@@ -845,12 +846,32 @@ async function showNowFrames(centerId: number) {
 }
 
 function editClip(i: number) {
+    type center = { x: number; y: number; ratio: number };
+
     const data = structuredClone(getNowUiData());
 
     const clip = data.clipList.at(i);
     if (!clip) return;
 
     const rect = clip.rect;
+
+    function rect2center(rect: clip["rect"]) {
+        return {
+            x: rect.x + rect.w / 2,
+            y: rect.y + rect.h / 2,
+            ratio: rect.w / v.width,
+        };
+    }
+
+    function center2rect(center: center) {
+        const w = v.width * center.ratio;
+        const h = v.height * center.ratio;
+        let x = center.x - w / 2;
+        let y = center.y - h / 2;
+        x = Math.min(Math.max(0, x), v.width - w);
+        y = Math.min(Math.max(0, y), v.height - h);
+        return { x, y, w, h };
+    }
 
     async function jump2id(id: number) {
         const src = await srcCs.getFrame(id);
@@ -867,6 +888,8 @@ function editClip(i: number) {
         transform();
         // todo 更新预览
     }
+
+    const centerPoint = rect2center(rect);
 
     const clipMoveLast = button("<").on("click", () => {
         // todo 跳过其他clip
@@ -902,14 +925,43 @@ function editClip(i: number) {
                 height: `${(rect.h / h) * 100}%`,
             });
         })
-        .on("dblclick", () => {
-            // todo track
-            rect.x = 0;
-            rect.y = 0;
-            rect.w = v.width;
-            rect.h = v.height;
-            clipControl.sv(rect);
+        .on("wheel", (e) => {
+            e.preventDefault();
+            centerPoint.ratio *= Math.sqrt(1 - e.deltaY / 1000);
+            const r = center2rect(centerPoint);
+            clipControl.sv(r);
+            rect.x = r.x;
+            rect.y = r.y;
+            rect.w = r.w;
+            rect.h = r.h;
         });
+
+    trackPoint(clipControl, {
+        start: () => {
+            return { x: centerPoint.x, y: centerPoint.y };
+        },
+        ing: (p) => {
+            const r = v.width / clipCanvas.width;
+            const x = p.x * r;
+            const y = p.y * r;
+            centerPoint.x = x;
+            centerPoint.y = y;
+            const rect = center2rect(centerPoint);
+            clipControl.sv(rect);
+            return rect;
+        },
+        end: (_, { ingData }) => {
+            if (ingData) {
+                rect.x = ingData.x;
+                rect.y = ingData.y;
+                rect.w = ingData.w;
+                rect.h = ingData.h;
+                const cp = rect2center(rect);
+                centerPoint.x = cp.x;
+                centerPoint.y = cp.y;
+            }
+        },
+    });
 
     clipEditor
         .clear()
