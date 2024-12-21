@@ -923,6 +923,10 @@ function editClip(i: number) {
         // todo 更新预览
     }
 
+    function reRener() {
+        renderUiData(data); // todo 部分更新
+    }
+
     const centerPoint = rect2center(rect);
 
     const clipMoveLast = button("移到上一帧").on("click", () => {
@@ -930,13 +934,14 @@ function editClip(i: number) {
         const i = Math.max(0, clip.i - 1);
         clip.i = i;
         jump2id(i);
-        // todo 更新ui
+        reRener();
     });
     const clipMoveNext = button("移到下一帧").on("click", () => {
         // todo 跳过其他clip
         const i = Math.min(listLength() - 1, clip.i + 1);
         clip.i = i;
         jump2id(i);
+        reRener();
     });
     const clipTransition = label(
         [
@@ -962,6 +967,7 @@ function editClip(i: number) {
     );
     const clipRemove = button("删除").on("click", () => {
         data.clipList.splice(i, 1);
+        reRener();
         save();
     });
     const clipSave = button("保存").on("click", () => {
@@ -969,7 +975,8 @@ function editClip(i: number) {
     });
     const clipGiveUp = button("放弃").on("click", () => {
         canvasView.sv("play");
-        // todo 更新ui
+        const nowUi = getNowUiData();
+        renderUiData(nowUi);
     });
 
     const clipCanvasEl = ele("canvas");
