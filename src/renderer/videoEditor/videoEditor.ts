@@ -23,6 +23,76 @@ const os = require("node:os") as typeof import("os");
 
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
+type clip = {
+    i: number;
+    rect: { x: number; y: number; w: number; h: number };
+    transition: number; // 往前数
+};
+
+type uiData = {
+    clipList: clip[];
+    speed: { start: number; end: number; value: number }[];
+    eventList: { start: number; end: number; value: unknown }[]; // todo
+    remove: { start: number; end: number }[];
+};
+
+type FrameX = {
+    rect: { x: number; y: number; w: number; h: number };
+    timestamp: number;
+    event: unknown[];
+    isRemoved: boolean;
+};
+
+type baseType = (typeof outputType)[number]["type"];
+
+const keys: superRecording = [];
+
+let lastUiData: uiData | null = null;
+
+const history: uiData[] = [];
+
+let nowFrameX: FrameX[] = [];
+
+// 播放、导出
+const outputV = {
+    width: 0,
+    height: 0,
+};
+
+// todo 节省内存，可以降低原始分辨率，像鼠标坐标也要缩小
+// src原始分辨率
+const v = {
+    width: 0,
+    height: 0,
+};
+
+const codec = "vp8";
+const srcRate = 30;
+const bitrate = 16 * 1024 * 1024;
+
+const outputType = [
+    { type: "gif", name: "gif" },
+    // { type: "webp", name: "webp" }, // todo
+    // { type: "apng", name: "apng" }, // todo
+    // { type: "avif", name: "avif" }, // todo
+    { type: "webm", codec: "vp8", name: "webm-vp8" },
+    { type: "webm", codec: "vp9", name: "webm-vp9" },
+    { type: "webm", codec: "av1", name: "webm-av1" },
+    { type: "mp4", codec: "avc", name: "mp4-avc" },
+    { type: "mp4", codec: "vp9", name: "mp4-vp9" },
+    { type: "mp4", codec: "av1", name: "mp4-av1" },
+    { type: "png", name: "png" },
+] as const;
+
+let isPlaying = false;
+let playI = 0;
+let willPlayI = 0;
+let playTime = 0;
+
+// let isEditClip = false;
+
+let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
+
 class videoChunk {
     list: EncodedVideoChunk[] = [];
 
@@ -81,243 +151,6 @@ class videoChunk {
         return this.getTime(-1);
     }
 }
-
-const keys: superRecording = [];
-
-type clip = {
-    i: number;
-    rect: { x: number; y: number; w: number; h: number };
-    transition: number; // 往前数
-};
-
-type uiData = {
-    clipList: clip[];
-    speed: { start: number; end: number; value: number }[];
-    eventList: { start: number; end: number; value: unknown }[]; // todo
-    remove: { start: number; end: number }[];
-};
-
-type FrameX = {
-    rect: { x: number; y: number; w: number; h: number };
-    timestamp: number;
-    event: unknown[];
-    isRemoved: boolean;
-};
-
-let lastUiData: uiData | null = null;
-
-const history: uiData[] = [];
-
-let nowFrameX: FrameX[] = [];
-
-// 播放、导出
-const outputV = {
-    width: 0,
-    height: 0,
-};
-
-// todo 节省内存，可以降低原始分辨率，像鼠标坐标也要缩小
-// src原始分辨率
-const v = {
-    width: 0,
-    height: 0,
-};
-
-const codec = "vp8";
-const srcRate = 30;
-const bitrate = 16 * 1024 * 1024;
-
-const outputType = [
-    { type: "gif", name: "gif" },
-    // { type: "webp", name: "webp" }, // todo
-    // { type: "apng", name: "apng" }, // todo
-    // { type: "avif", name: "avif" }, // todo
-    { type: "webm", codec: "vp8", name: "webm-vp8" },
-    { type: "webm", codec: "vp9", name: "webm-vp9" },
-    { type: "webm", codec: "av1", name: "webm-av1" },
-    { type: "mp4", codec: "avc", name: "mp4-avc" },
-    { type: "mp4", codec: "vp9", name: "mp4-vp9" },
-    { type: "mp4", codec: "av1", name: "mp4-av1" },
-    { type: "png", name: "png" },
-] as const;
-type baseType = (typeof outputType)[number]["type"];
-
-let isPlaying = false;
-let playI = 0;
-let willPlayI = 0;
-let playTime = 0;
-
-// let isEditClip = false;
-
-const playDecoder = new VideoDecoder({
-    output: (frame: VideoFrame) => {
-        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-        ctx.drawImage(
-            frame,
-            0,
-            0,
-            frame.codedWidth,
-            frame.codedHeight,
-            0,
-            0,
-            outputV.width,
-            outputV.height,
-        );
-        frame.close();
-    },
-    error: (e) => console.error("Decode error:", e),
-});
-playDecoder.configure({
-    codec: codec,
-});
-
-const transformCs = new videoChunk([]);
-const srcCs = new videoChunk([]);
-
-const canvasEl = ele("canvas");
-const canvas = canvasEl.el;
-
-const clipEditor = view("y");
-
-const canvasView = view()
-    .add([canvasEl, clipEditor])
-    .addInto()
-    .bindSet((type: "play" | "clip") => {
-        if (type === "play") {
-            canvasEl.style({ display: "block" });
-            clipEditor.style({ display: "none" });
-        } else {
-            canvasEl.style({ display: "none" });
-            clipEditor.style({ display: "block" });
-        }
-    })
-    .sv("play");
-
-const actionsEl = view("x").addInto();
-const playEl = check("", ["||", "|>"]).on("input", async () => {
-    if (playEl.gv) {
-        await transform();
-        isPlaying = true;
-        if (playI === transformCs.length - 1) {
-            playI = 0;
-        }
-        if (willPlayI !== playI) {
-            await playId(willPlayI);
-        }
-
-        resetPlayTime();
-        play();
-    } else {
-        pause();
-    }
-});
-
-const lastFrame = button("<").on("click", () => {
-    const id = Math.max(willPlayI - 1, 0);
-    jump2idUi(id);
-});
-const nextFrame = button(">").on("click", () => {
-    const id = Math.min(willPlayI + 1, transformCs.length - 1);
-    jump2idUi(id);
-});
-const lastKey = button("<<");
-const nextKey = button(">>");
-
-const playTimeEl = txt().bindSet((t: number, el) => {
-    el.innerText = `${formatTime(t)} / ${formatTime(transformCs.getDuration())}`;
-});
-
-actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
-
-const timeLineMain = view("x")
-    .addInto()
-    .on("click", (e) => {
-        const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = transformCs.time2Id(p * transformCs.getDuration());
-        jump2idUi(id);
-    });
-
-const timeLineControl = view("y")
-    .style({ height: "64px", position: "relative" })
-    .class(
-        addClass(
-            {},
-            {
-                "& > *": {
-                    position: "relative",
-                    width: "100%",
-                    height: "100%",
-                },
-                "& > * > *": {
-                    position: "absolute",
-                    minWidth: "4px",
-                    height: "100%",
-                },
-            },
-        ),
-    )
-    .addInto()
-    .on("click", (e) => {
-        const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = Math.floor(p * transformCs.length);
-        timeLineControlPoint.sv(id);
-    });
-const timeLineControlPoint = view()
-    .style({
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "2px",
-        height: "100%",
-        backgroundColor: "red",
-    })
-    .addInto(timeLineControl)
-    .bindSet((i: number, el) => {
-        el.style.left = `${(i / transformCs.length) * 100}%`;
-    });
-
-const timeLineClipEl = view().addInto(timeLineControl);
-const timeLineSpeedEl = view().addInto(timeLineControl);
-const timeLineEventEl = view().addInto(timeLineControl);
-const timeLineRemoveEl = view().addInto(timeLineControl);
-
-const timeLineFrame = view("x").addInto();
-const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
-
-const exportPx = select([]);
-
-const exportEl = frame("export", {
-    _: view("x"),
-    export: button("导出").on("click", save),
-    type: select(outputType.map((t) => ({ value: t.name }))),
-    px: exportPx,
-    editClip: button("编辑").on("click", async () => {
-        const canvas = await transformCs.getFrame(willPlayI);
-        if (!canvas) return;
-        const savePath = path.join(os.tmpdir(), "eSearch", "edit.png");
-        canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
-            const buffer = Buffer.from(await blob.arrayBuffer());
-            fs.writeFile(savePath, buffer, (_err) => {
-                if (!_err) ipcRenderer.send("ding_edit", savePath);
-            });
-        });
-    }),
-    editSrc: button("编辑原图").on("click", async () => {
-        const canvas = await srcCs.getFrame(willPlayI);
-        if (!canvas) return;
-        const savePath = path.join(os.tmpdir(), "eSearch", "edit.png");
-        canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
-            const buffer = Buffer.from(await blob.arrayBuffer());
-            fs.writeFile(savePath, buffer, (_err) => {
-                if (!_err) ipcRenderer.send("ding_edit", savePath);
-            });
-        });
-    }),
-});
-
-exportEl.el.addInto();
-
-let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 
 function frame2Canvas(frame: VideoFrame) {
     const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
@@ -1197,6 +1030,174 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     console.log("saved mp4");
     ipcRenderer.send("ok_save", exportPath);
 }
+
+const transformCs = new videoChunk([]);
+const srcCs = new videoChunk([]);
+
+const playDecoder = new VideoDecoder({
+    output: (frame: VideoFrame) => {
+        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+        ctx.drawImage(
+            frame,
+            0,
+            0,
+            frame.codedWidth,
+            frame.codedHeight,
+            0,
+            0,
+            outputV.width,
+            outputV.height,
+        );
+        frame.close();
+    },
+    error: (e) => console.error("Decode error:", e),
+});
+playDecoder.configure({
+    codec: codec,
+});
+
+const canvasEl = ele("canvas");
+const canvas = canvasEl.el;
+
+const clipEditor = view("y");
+
+const canvasView = view()
+    .add([canvasEl, clipEditor])
+    .addInto()
+    .bindSet((type: "play" | "clip") => {
+        if (type === "play") {
+            canvasEl.style({ display: "block" });
+            clipEditor.style({ display: "none" });
+        } else {
+            canvasEl.style({ display: "none" });
+            clipEditor.style({ display: "block" });
+        }
+    })
+    .sv("play");
+
+const actionsEl = view("x").addInto();
+const playEl = check("", ["||", "|>"]).on("input", async () => {
+    if (playEl.gv) {
+        await transform();
+        isPlaying = true;
+        if (playI === transformCs.length - 1) {
+            playI = 0;
+        }
+        if (willPlayI !== playI) {
+            await playId(willPlayI);
+        }
+
+        resetPlayTime();
+        play();
+    } else {
+        pause();
+    }
+});
+
+const lastFrame = button("<").on("click", () => {
+    const id = Math.max(willPlayI - 1, 0);
+    jump2idUi(id);
+});
+const nextFrame = button(">").on("click", () => {
+    const id = Math.min(willPlayI + 1, transformCs.length - 1);
+    jump2idUi(id);
+});
+const lastKey = button("<<");
+const nextKey = button(">>");
+
+const playTimeEl = txt().bindSet((t: number, el) => {
+    el.innerText = `${formatTime(t)} / ${formatTime(transformCs.getDuration())}`;
+});
+
+actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
+
+const timeLineMain = view("x")
+    .addInto()
+    .on("click", (e) => {
+        const p = e.offsetX / timeLineMain.el.offsetWidth;
+        const id = transformCs.time2Id(p * transformCs.getDuration());
+        jump2idUi(id);
+    });
+
+const timeLineControl = view("y")
+    .style({ height: "64px", position: "relative" })
+    .class(
+        addClass(
+            {},
+            {
+                "& > *": {
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                },
+                "& > * > *": {
+                    position: "absolute",
+                    minWidth: "4px",
+                    height: "100%",
+                },
+            },
+        ),
+    )
+    .addInto()
+    .on("click", (e) => {
+        const p = e.offsetX / timeLineMain.el.offsetWidth;
+        const id = Math.floor(p * transformCs.length);
+        timeLineControlPoint.sv(id);
+    });
+const timeLineControlPoint = view()
+    .style({
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "2px",
+        height: "100%",
+        backgroundColor: "red",
+    })
+    .addInto(timeLineControl)
+    .bindSet((i: number, el) => {
+        el.style.left = `${(i / transformCs.length) * 100}%`;
+    });
+
+const timeLineClipEl = view().addInto(timeLineControl);
+const timeLineSpeedEl = view().addInto(timeLineControl);
+const timeLineEventEl = view().addInto(timeLineControl);
+const timeLineRemoveEl = view().addInto(timeLineControl);
+
+const timeLineFrame = view("x").addInto();
+const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
+
+const exportPx = select([]);
+
+const exportEl = frame("export", {
+    _: view("x"),
+    export: button("导出").on("click", save),
+    type: select(outputType.map((t) => ({ value: t.name }))),
+    px: exportPx,
+    editClip: button("编辑").on("click", async () => {
+        const canvas = await transformCs.getFrame(willPlayI);
+        if (!canvas) return;
+        const savePath = path.join(os.tmpdir(), "eSearch", "edit.png");
+        canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
+            const buffer = Buffer.from(await blob.arrayBuffer());
+            fs.writeFile(savePath, buffer, (_err) => {
+                if (!_err) ipcRenderer.send("ding_edit", savePath);
+            });
+        });
+    }),
+    editSrc: button("编辑原图").on("click", async () => {
+        const canvas = await srcCs.getFrame(willPlayI);
+        if (!canvas) return;
+        const savePath = path.join(os.tmpdir(), "eSearch", "edit.png");
+        canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
+            const buffer = Buffer.from(await blob.arrayBuffer());
+            fs.writeFile(savePath, buffer, (_err) => {
+                if (!_err) ipcRenderer.send("ding_edit", savePath);
+            });
+        });
+    }),
+});
+
+exportEl.el.addInto();
 
 pureStyle();
 
