@@ -5,7 +5,10 @@ import {
     check,
     ele,
     frame,
+    input,
+    label,
     pack,
+    pureStyle,
     select,
     trackPoint,
     txt,
@@ -457,11 +460,16 @@ function renderUiData(data: uiData) {
     }
 
     for (const [i, c] of data.clipList.entries()) {
+        const beforeId = transformCs.time2Id(
+            timestamp2ms(
+                (transformCs.list.at(c.i - 1)?.timestamp ?? 0) - c.transition,
+            ),
+        );
         view()
             .addInto(timeLineClipEl)
             .style({
-                left: ipx(c.i),
-                width: ipx(2),
+                left: ipx(beforeId),
+                width: ipx(c.i - beforeId),
                 backgroundColor: "red",
             })
             .on("click", () => {
@@ -930,6 +938,28 @@ function editClip(i: number) {
         clip.i = i;
         jump2id(i);
     });
+    const clipTransition = label(
+        [
+            input("number")
+                .attr({ min: "0", step: "100" })
+                .style({
+                    // @ts-ignore
+                    "field-sizing": "content",
+                })
+                .bindSet((v: number, el) => {
+                    el.value = timestamp2ms(v).toFixed(0);
+                })
+                .bindGet((el) => {
+                    return ms2timestamp(Number(el.value));
+                })
+                .sv(clip.transition)
+                .on("input", (_, el) => {
+                    clip.transition = el.gv;
+                }),
+            "过渡",
+        ],
+        1,
+    );
     const clipRemove = button("删除").on("click", () => {
         data.clipList.splice(i, 1);
         save();
@@ -1004,6 +1034,7 @@ function editClip(i: number) {
                 clipMoveLast,
                 clipMoveNext,
                 clipRemove,
+                clipTransition,
                 clipSave,
                 clipGiveUp,
             ]),
@@ -1154,6 +1185,8 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     console.log("saved mp4");
     ipcRenderer.send("ok_save", exportPath);
 }
+
+pureStyle();
 
 ipcRenderer.on("record", async (_e, _t, sourceId) => {
     // return
