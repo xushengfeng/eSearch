@@ -975,7 +975,10 @@ function editClip(i: number) {
     const clipCanvasEl = ele("canvas");
     const clipCanvas = clipCanvasEl.el;
     const clipControl = view()
-        .style({ position: "absolute", border: "1px solid black" })
+        .style({
+            position: "absolute",
+            boxShadow: "0px 0px 0 1px #fff, 0px 0px 0 2px #000",
+        })
         .bindSet((rect: clip["rect"], el) => {
             const w = v.width;
             const h = v.height;
