@@ -593,6 +593,7 @@ async function jump2idUi(id: number) {
     await jump2id(id);
     await showNowFrames(id);
     playTimeEl.sv(transformCs.getTime(id));
+    timeLineControlPoint.sv(id);
 }
 
 function pause() {
@@ -1142,7 +1143,7 @@ const timeLineControl = view("y")
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
         const id = Math.floor(p * transformCs.length);
-        timeLineControlPoint.sv(id);
+        jump2idUi(id);
     });
 const timeLineControlPoint = view()
     .style({
