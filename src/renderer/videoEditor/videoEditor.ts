@@ -783,6 +783,7 @@ function onPause() {
 
 async function showThumbnails() {
     await transform();
+    timeLineMain.clear();
     for (let i = 0; i < 6; i++) {
         const id = Math.floor((i / 6) * listLength());
         const canvas = await transformCs.getFrame(id);
@@ -916,11 +917,12 @@ function editClip(i: number) {
         clipControl.sv(rect);
     }
 
-    function save() {
+    async function save() {
         canvasView.sv("play");
         history.push(data);
-        transform();
-        // todo 更新预览
+        await transform();
+        await showThumbnails();
+        await showNowFrames(willPlayI);
     }
 
     function reRener() {
