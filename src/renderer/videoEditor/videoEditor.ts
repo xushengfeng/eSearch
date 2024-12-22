@@ -413,6 +413,19 @@ function getFrameXs(_data: uiData) {
         frameList.push(f);
     }
 
+    const dt: number[] = [];
+    let lastT = 0;
+    for (const f of frameList.filter((f) => !f.isRemoved)) {
+        dt.push(timestamp2ms(f.timestamp) - lastT);
+        lastT = timestamp2ms(f.timestamp);
+    }
+
+    const avgDt = dt.reduce((a, b) => a + b) / dt.length;
+    const fps = 1000 / avgDt;
+    const maxDt = Math.max(...dt);
+    const minDt = Math.min(...dt.filter((d) => d > 0));
+    console.log("fps", fps, "minFps", 1000 / maxDt, "maxFps", 1000 / minDt);
+
     return frameList;
 }
 
