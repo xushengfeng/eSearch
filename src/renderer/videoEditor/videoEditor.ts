@@ -309,6 +309,24 @@ function renderUiData(data: uiData) {
                 editClip(i);
             });
     }
+    timeLineClipEl.el.ondblclick = (e) => {
+        if (e.target === e.currentTarget) {
+            const data = structuredClone(getNowUiData());
+            const i = Math.floor(
+                (e.offsetX / timeLineClipEl.el.offsetWidth) * listLength(),
+            );
+            const newClip: clip = {
+                i: i,
+                rect: { x: 0, y: 0, w: v.width, h: v.height },
+                transition: ms2timestamp(400),
+            };
+            data.clipList.push(newClip);
+
+            history.push(data);
+            renderUiData(data);
+            editClip(data.clipList.length - 1);
+        }
+    };
 
     for (const c of data.speed) {
         const el = view().addInto(timeLineSpeedEl);
@@ -338,7 +356,15 @@ function renderUiData(data: uiData) {
     }
 }
 
-function getFrameXs(data: uiData) {
+function getFrameXs(_data: uiData) {
+    const data: uiData = {
+        clipList: _data.clipList.toSorted((a, b) => a.i - b.i),
+        speed: _data.speed.toSorted((a, b) => a.start - b.start),
+        eventList: _data.eventList.toSorted((a, b) => a.start - b.start),
+        remove: _data.remove.toSorted((a, b) => a.start - b.start),
+    };
+    console.log(data);
+
     const frameList: FrameX[] = [];
     // todo speed map
     for (const [i, c] of srcCs.list.entries()) {
