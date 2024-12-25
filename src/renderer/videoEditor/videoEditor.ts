@@ -1083,7 +1083,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     const exportPath = getSavePath("webm");
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved webm");
-    ipcRenderer.send("ok_save", exportPath);
+    ipcRenderer.send("ok_save", exportPath, true);
 }
 
 async function saveMp4(_codec: "avc" | "vp9" | "av1") {
@@ -1109,7 +1109,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     const exportPath = getSavePath("mp4");
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved mp4");
-    ipcRenderer.send("ok_save", exportPath);
+    ipcRenderer.send("ok_save", exportPath, true);
 }
 
 const transformCs = new videoChunk([]);
