@@ -1070,6 +1070,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
             codec: `V_${_codec.toUpperCase()}`,
             width: outputV.width,
             height: outputV.height,
+            frameRate: srcRate,
         },
     });
 
@@ -1095,6 +1096,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
             codec: _codec,
             width: outputV.width,
             height: outputV.height,
+            frameRate: srcRate,
         },
         fastStart: false,
     });
