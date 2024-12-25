@@ -209,6 +209,60 @@ function initKeys() {
     uIOhook.start();
 }
 
+async function afterRecord(chunks: EncodedVideoChunk[]) {
+    // 补帧
+    // todo 插入关键帧
+    const m = new Map<number, number>();
+    const d = Math.floor(ms2timestamp(1000 / srcRate));
+    const encodedChunks: EncodedVideoChunk[] = [];
+    const decoder = new VideoDecoder({
+        output: (frame: VideoFrame) => {
+            const t = frame.timestamp;
+            encoder.encode(frame);
+            for (let i = 1; i <= (m.get(frame.timestamp) ?? 0); i++) {
+                const f = new VideoFrame(frame, { timestamp: t + d * i });
+                encoder.encode(f);
+                f.close();
+            }
+            frame.close();
+        },
+        error: (e) => console.error("Encode error:", e),
+    });
+    const encoder = new VideoEncoder({
+        output: (c: EncodedVideoChunk) => {
+            encodedChunks.push(c);
+        },
+        error: (e) => console.error("Encode error:", e),
+    });
+
+    encoder.configure({
+        codec: codec,
+        framerate: srcRate,
+        bitrate: bitrate,
+        width: v.width,
+        height: v.height,
+    });
+    decoder.configure({
+        codec: codec,
+    });
+    let lastTime = 0;
+    for (const c of chunks) {
+        const count = Math.round((c.timestamp - lastTime) / d);
+        if (count > 1) {
+            m.set(lastTime, count - 1);
+        }
+        lastTime = c.timestamp;
+    }
+    for (const c of chunks) {
+        decoder.decode(c);
+    }
+    await decoder.flush();
+    await encoder.flush();
+    decoder.close();
+    encoder.close();
+    return encodedChunks;
+}
+
 let stopRecord = () => {};
 
 function ms2timestamp(t: number) {
@@ -412,19 +466,6 @@ function getFrameXs(_data: uiData) {
 
         frameList.push(f);
     }
-
-    const dt: number[] = [];
-    let lastT = 0;
-    for (const f of frameList.filter((f) => !f.isRemoved)) {
-        dt.push(timestamp2ms(f.timestamp) - lastT);
-        lastT = timestamp2ms(f.timestamp);
-    }
-
-    const avgDt = dt.reduce((a, b) => a + b) / dt.length;
-    const fps = 1000 / avgDt;
-    const maxDt = Math.max(...dt);
-    const minDt = Math.min(...dt.filter((d) => d > 0));
-    console.log("fps", fps, "minFps", 1000 / maxDt, "maxFps", 1000 / minDt);
 
     return frameList;
 }
@@ -1324,14 +1365,17 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         await encoder.flush();
         encoder.close();
-        console.log(encodedChunks);
+
+        const afterCuncks = await afterRecord(encodedChunks);
+
+        console.log(afterCuncks);
         console.log(keys);
 
         history.push({ clipList: [], eventList: [], remove: [], speed: [] });
 
-        srcCs.setList(encodedChunks);
+        srcCs.setList(afterCuncks);
 
-        mapKeysOnFrames(encodedChunks);
+        mapKeysOnFrames(afterCuncks);
         ipcRenderer.send("window", "show");
         ipcRenderer.send("window", "max");
 
