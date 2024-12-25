@@ -876,6 +876,7 @@ function editClip(i: number) {
                 .sv(clip.transition)
                 .on("input", (_, el) => {
                     clip.transition = el.gv;
+                    reRener();
                 }),
             "过渡",
         ],
