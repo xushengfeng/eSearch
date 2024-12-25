@@ -66,7 +66,32 @@ const v = {
     height: 0,
 };
 
-const codec = "vp8";
+const codecMap = {
+    vp8: "vp8",
+    vp9: "vp09.00.10.08",
+    av1: "av01.0.04M.08",
+    avc: "avc1.42001F",
+}; // todo 找到能用的编码
+
+const codec = await (async () => {
+    const codecs = ["av1", "vp9", "avc", "vp8"];
+    for (const c of codecs) {
+        const mc = codecMap[c];
+        if (
+            (await VideoDecoder.isConfigSupported({ codec: mc })) &&
+            (await VideoEncoder.isConfigSupported({
+                codec: mc,
+                width: screen.width,
+                height: screen.height,
+            }))
+        ) {
+            return mc;
+        }
+    }
+    return "vp8";
+})();
+console.log("codec", codec);
+
 const srcRate = 30;
 const bitrate = 16 * 1024 * 1024;
 
@@ -494,7 +519,7 @@ function easeOutQuint(x: number): number {
     return 1 - (1 - x) ** 5; // todo 更多 easing
 }
 
-async function transform(_codec: string = codec) {
+async function transform(_codec = "") {
     const nowUi = getNowUiData();
 
     if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
@@ -525,15 +550,8 @@ async function transform(_codec: string = codec) {
         },
         error: (e) => console.error("Encode error:", e),
     });
-    const codecMap = {
-        vp8: "vp8",
-        vp9: "vp09.00.10.08",
-        av1: "av01.0.04M.08",
-        avc: "avc1.42001F",
-    };
-    // todo 回退
     encoder.configure({
-        codec: codecMap[_codec],
+        codec: codecMap[_codec] ?? codec,
         width: outputV.width,
         height: outputV.height,
         framerate: srcRate,
