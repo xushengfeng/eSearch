@@ -346,7 +346,7 @@ async function initOCR() {
             detPath: detp,
             recPath: recp,
             dic: fs.readFileSync(字典).toString(),
-            detShape: [640, 640],
+            detRatio: 0.75,
             ort,
             ortOption: { executionProviders: [{ name: provider }] },
         });

@@ -189,7 +189,7 @@ const OCR = await lo.init({
         executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
     },
     ort: ort,
-    detShape: [640, 640],
+    detRatio: 0.75,
 });
 
 const mainEl = view().class("main");
