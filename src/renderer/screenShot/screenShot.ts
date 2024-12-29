@@ -11,7 +11,7 @@ function d(op: MessageBoxSyncOptions) {
 
 let _t: (t: string) => string = (t) => t;
 
-let Screenshots: typeof import("node-screenshots").Screenshots;
+let Screenshots: typeof import("node-screenshots");
 
 let _command: string | undefined;
 let commandSavePath = "/dev/shm/esearch-img.png";
@@ -33,7 +33,7 @@ function init(
         }
     } else if (!_command)
         try {
-            Screenshots = require("node-screenshots").Screenshots;
+            Screenshots = require("node-screenshots");
         } catch (error) {
             if (process.platform === "win32") {
                 const id = d({
@@ -97,8 +97,9 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
     }
     if (!buffer && _command) {
         const fs = require("node:fs") as typeof import("node:fs");
-        const { execSync } =
-            require("node:child_process") as typeof import("node:child_process");
+        const { execSync } = require("node:child_process") as typeof import(
+            "node:child_process"
+        );
         const x: (typeof allScreens)[0] = {
             ...displays?.[0],
             captureSync: (keep?: boolean) => {
@@ -144,7 +145,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
         ] as typeof allScreens;
     }
 
-    const screens = Screenshots.all();
+    const screens = Screenshots.Monitor.all();
     // todo 更新算法
     /**
      * 修复屏幕信息
@@ -157,7 +158,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
             ...d,
             captureSync: (keep?: boolean) => {
                 if (x.image && keep) return x.image;
-                const data = toCanvas(s.captureSync(true));
+                const data = toCanvas(s.captureImageSync().toPngSync(true));
                 if (keep) x.image = data;
                 return data;
             },
