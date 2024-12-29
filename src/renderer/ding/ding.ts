@@ -2,7 +2,6 @@ const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
-const os = require("node:os") as typeof import("os");
 import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import xtranslator from "xtranslator";
@@ -475,14 +474,7 @@ function edit(id: string) {
         getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
-    const save = path.join(
-        os.tmpdir(),
-        "eSearch",
-        `${new Date().getTime()}.png`,
-    );
-    fs.writeFile(save, b, () => {
-        ipcRenderer.send("ding_edit", save);
-    });
+    ipcRenderer.send("ding_edit", b);
 }
 
 async function ocr(img: string) {

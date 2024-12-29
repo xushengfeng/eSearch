@@ -1913,8 +1913,8 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
         dingwindowList[i].win.webContents.send("ding", type, id, more);
     }
 });
-ipcMain.on("ding_edit", (_event, img_path) => {
-    showPhoto(img_path);
+ipcMain.on("ding_edit", (_event, img_path:Buffer<ArrayBufferLike>) => {
+    sendCaptureEvent(img_path);
 });
 
 function createTranslator(op: translateWinType) {

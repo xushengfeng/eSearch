@@ -18,8 +18,6 @@ import {
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
 const fs = require("node:fs") as typeof import("fs");
-const path = require("node:path") as typeof import("path");
-const os = require("node:os") as typeof import("os");
 
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
@@ -1081,8 +1079,9 @@ async function saveGif() {
 }
 
 async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
-    const { Muxer, ArrayBufferTarget } =
-        require("webm-muxer") as typeof import("webm-muxer");
+    const { Muxer, ArrayBufferTarget } = require("webm-muxer") as typeof import(
+        "webm-muxer"
+    );
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
         video: {
@@ -1107,8 +1106,9 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
 }
 
 async function saveMp4(_codec: "avc" | "vp9" | "av1") {
-    const { Muxer, ArrayBufferTarget } =
-        require("mp4-muxer") as typeof import("mp4-muxer");
+    const { Muxer, ArrayBufferTarget } = require("mp4-muxer") as typeof import(
+        "mp4-muxer"
+    );
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
         video: {
@@ -1278,23 +1278,17 @@ const exportEl = frame("export", {
     editClip: button("编辑").on("click", async () => {
         const canvas = await transformCs.getFrame(willPlayI);
         if (!canvas) return;
-        const savePath = path.join(os.tmpdir(), "eSearch", "edit.png");
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
-            fs.writeFile(savePath, buffer, (_err) => {
-                if (!_err) ipcRenderer.send("ding_edit", savePath);
-            });
+            ipcRenderer.send("ding_edit", buffer);
         });
     }),
     editSrc: button("编辑原图").on("click", async () => {
         const canvas = await srcCs.getFrame(willPlayI);
         if (!canvas) return;
-        const savePath = path.join(os.tmpdir(), "eSearch", "edit.png");
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
-            fs.writeFile(savePath, buffer, (_err) => {
-                if (!_err) ipcRenderer.send("ding_edit", savePath);
-            });
+            ipcRenderer.send("ding_edit", buffer);
         });
     }),
 });
