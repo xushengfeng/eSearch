@@ -2892,11 +2892,8 @@ try {
 
 function matchBestLan() {
     const supportLan = getLans();
-
-    for (const lan of app.getPreferredSystemLanguages()) {
-        const l = matchFitLan(lan, supportLan);
-        if (l) return l;
-    }
+    const l = matchFitLan(app.getLocale(), supportLan);
+    if (l) return l;
     return "zh-HANS";
 }
 
