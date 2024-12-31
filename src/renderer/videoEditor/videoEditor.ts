@@ -90,7 +90,7 @@ const codec = await (async () => {
 })();
 console.log("codec", codec);
 
-const srcRate = 30;
+const srcRate = 60;
 const bitrate = 16 * 1024 * 1024;
 
 const outputType = [
@@ -237,14 +237,18 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     // todo 插入关键帧
     const m = new Map<number, number>();
     const d = Math.floor(ms2timestamp(1000 / srcRate));
+    let index = 0;
+    const frames = 150;
     const encodedChunks: EncodedVideoChunk[] = [];
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             const t = frame.timestamp;
-            encoder.encode(frame);
+            encoder.encode(frame, { keyFrame: index % frames === 0 });
+            index++;
             for (let i = 1; i <= (m.get(frame.timestamp) ?? 0); i++) {
                 const f = new VideoFrame(frame, { timestamp: t + d * i });
-                encoder.encode(f);
+                encoder.encode(f, { keyFrame: index % frames === 0 });
+                index++;
                 f.close();
             }
             frame.close();
@@ -536,7 +540,7 @@ async function transform(_codec = "") {
         output: (frame: VideoFrame) => {
             // 解码 处理 编码
             const nFrame = transformX(frame);
-            encoder.encode(nFrame);
+            encoder.encode(nFrame); // todo key frame
             nFrame.close();
         },
         error: (e) => console.error("Decode error:", e),
