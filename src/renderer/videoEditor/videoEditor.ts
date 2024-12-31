@@ -46,6 +46,7 @@ type baseType = (typeof outputType)[number]["type"];
 const keys: superRecording = [];
 
 let lastUiData: uiData | null = null;
+let lastCodec = "";
 
 const history: uiData[] = [];
 
@@ -524,13 +525,15 @@ function easeOutQuint(x: number): number {
 async function transform(_codec = "") {
     const nowUi = getNowUiData();
 
-    if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
+    if (_codec === lastCodec) {
+        if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
+    }
+    lastCodec = _codec;
     lastUiData = nowUi;
     const frameXs = getFrameXs(nowUi);
     nowFrameX = frameXs;
 
     // todo diff 关键帧之间为单位，如果frameX在直接变动，则重新生成关键帧之后的chunck
-    // todo diff 时注意codec
     // todo diff 有的不变，有的变frame，有的变时间戳
     // todo keyframe webm 32s mp4 5-10s
 
