@@ -43,6 +43,8 @@ type FrameX = {
 
 type baseType = (typeof outputType)[number]["type"];
 
+const zeroPoint = [0, 0] as const;
+
 const keys: superRecording = [];
 
 let lastUiData: uiData | null = null;
@@ -602,8 +604,7 @@ function renderFrameX(frame: VideoFrame) {
         clip.y,
         clip.w,
         clip.h,
-        0,
-        0,
+        ...zeroPoint,
         outputV.width,
         outputV.height,
     );
@@ -680,12 +681,10 @@ async function jump2id(id: number) {
         .getContext("2d")
         ?.drawImage(
             fcanvas,
-            0,
-            0,
+            ...zeroPoint,
             fcanvas.width,
             fcanvas.height,
-            0,
-            0,
+            ...zeroPoint,
             outputV.width,
             outputV.height,
         );
@@ -739,12 +738,10 @@ async function showThumbnails() {
             .style({ width: "calc(100% / 6)", pointerEvents: "none" });
         (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
             canvas,
-            0,
-            0,
+            ...zeroPoint,
             outputV.width,
             outputV.height,
-            0,
-            0,
+            ...zeroPoint,
             tW,
             tH,
         );
@@ -792,12 +789,10 @@ async function showNowFrames(centerId: number) {
                 canvasEl.el.getContext("2d") as CanvasRenderingContext2D
             ).drawImage(
                 canvas,
-                0,
-                0,
+                ...zeroPoint,
                 outputV.width,
                 outputV.height,
-                0,
-                0,
+                ...zeroPoint,
                 tW,
                 tH,
             );
@@ -1148,12 +1143,10 @@ const playDecoder = new VideoDecoder({
         const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
         ctx.drawImage(
             frame,
-            0,
-            0,
+            ...zeroPoint,
             frame.codedWidth,
             frame.codedHeight,
-            0,
-            0,
+            ...zeroPoint,
             outputV.width,
             outputV.height,
         );
