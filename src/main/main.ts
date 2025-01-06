@@ -1913,7 +1913,7 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
         dingwindowList[i].win.webContents.send("ding", type, id, more);
     }
 });
-ipcMain.on("ding_edit", (_event, img_path:Buffer<ArrayBufferLike>) => {
+ipcMain.on("ding_edit", (_event, img_path: Buffer<ArrayBufferLike>) => {
     sendCaptureEvent(img_path);
 });
 
@@ -2635,7 +2635,6 @@ const defaultSetting: setting = {
     显示四角坐标: true,
     框选: {
         自动框选: {
-            开启: false,
             图像识别: false,
             最小阈值: 50,
             最大阈值: 150,

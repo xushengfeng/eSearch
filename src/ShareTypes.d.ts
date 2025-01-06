@@ -112,7 +112,6 @@ export interface setting {
     显示四角坐标: boolean;
     框选: {
         自动框选: {
-            开启: boolean;
             图像识别: boolean;
             最小阈值: number;
             最大阈值: number;

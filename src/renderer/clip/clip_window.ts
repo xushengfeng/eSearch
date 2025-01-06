@@ -1261,13 +1261,11 @@ function renderClip(e: MouseEvent) {
         }
     }
 
-    if (g光标参考线 || autoSelectRect || selecting || moving) {
+    if (g光标参考线 || selecting || moving) {
         requestAnimationFrame(() => {
             clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
             drawClip();
-            if (autoSelectRect) {
-                inEdge({ x: e.offsetX, y: e.offsetY });
-            }
+            inEdge({ x: e.offsetX, y: e.offsetY });
             if (g光标参考线) {
                 ckx(e);
             }
@@ -2744,7 +2742,7 @@ async function fabricCopy() {
 
 // 获取设置
 
-if (store.get("框选.自动框选.开启")) {
+if (store.get("框选.自动框选.图像识别")) {
     // biome-ignore lint: 为了部分引入
     var cv = require("opencv.js");
 }
@@ -3178,7 +3176,6 @@ let direction:
     | "西南"
     | "东北"
     | "西北";
-let autoSelectRect = store.get("框选.自动框选.开启");
 const autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
 let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 let /**鼠标是否按住 */ down = false;
@@ -3862,7 +3859,6 @@ document.onmouseup = (e) => {
 hotkeys("s", () => {
     // 重新启用自动框选提示
     rectSelect = false;
-    autoSelectRect = true;
     finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
     drawClipRect();
 });
