@@ -66,7 +66,7 @@ const recp = ocrPath(l[2]);
 const 字典 = ocrPath(l[3]);
 
 function screenshot(id: number, rect: Rect) {
-    const l = screenShots(display);
+    const l = screenShots(display).screen;
     const screen = l.find((i) => i.id === id) || l[0];
     if (!screen) return null;
     const img = screen.captureSync().data;

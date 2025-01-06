@@ -356,7 +356,7 @@ async function argRun(c: string[], first?: boolean) {
         if (!path) {
             const screenShots = initScreenShots(...screenShotArgs);
             await sleep(argv.delay || 0);
-            img = screenShots().at(0)?.captureSync().image;
+            img = screenShots().screen.at(0)?.captureSync().image;
         } else {
             img = nativeImage.createFromBuffer(readFileSync(path));
         }
@@ -1287,7 +1287,7 @@ function hideClip() {
 /** 快速截屏 */
 function quickClip() {
     const screenShots = initScreenShots(...screenShotArgs);
-    for (const c of screenShots()) {
+    for (const c of screenShots().screen) {
         const image: NativeImage = c.captureSync().image;
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);

@@ -78,7 +78,16 @@ function init(
     return dispaly2screen;
 }
 
-function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
+function dispaly2screen(
+    displays?: Electron.Display[],
+    imgBuffer?: Buffer,
+): {
+    screen: (Partial<Electron.Display> & {
+        captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
+        image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
+    })[];
+    window: { rect: { x: number; y: number; w: number; h: number } }[];
+} {
     let allScreens: (Partial<Electron.Display> & {
         captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
         image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
@@ -92,7 +101,7 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                 message: _t("Linux arm64 平台需要额外截屏软件"),
                 buttons: [_t("确定")],
             } as MessageBoxSyncOptions);
-            return [];
+            return { screen: [], window: [] };
         }
     }
     if (!buffer && _command) {
@@ -130,22 +139,26 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
                 return data;
             },
         };
-        return [x];
+        return { screen: [x], window: [] };
     }
     if (buffer) {
         const data = toCanvas(buffer); // 闭包，这里就不用缓存到image了
         const image = data.image;
         const s = image.getSize();
-        return [
-            {
-                bounds: { x: 0, y: 0, width: s.width, height: s.height },
-                size: { width: s.width, height: s.height },
-                captureSync: () => data,
-            },
-        ] as typeof allScreens;
+        return {
+            screen: [
+                {
+                    bounds: { x: 0, y: 0, width: s.width, height: s.height },
+                    size: { width: s.width, height: s.height },
+                    captureSync: () => data,
+                },
+            ],
+            window: [],
+        };
     }
 
     const screens = Screenshots.Monitor.all();
+    const windows = Screenshots.Window.all();
     // todo 更新算法
     /**
      * 修复屏幕信息
@@ -165,7 +178,12 @@ function dispaly2screen(displays?: Electron.Display[], imgBuffer?: Buffer) {
         };
         allScreens.push(x);
     }
-    return allScreens;
+    return {
+        screen: allScreens,
+        window: windows.map((w) => ({
+            rect: { x: w.x, y: w.y, w: w.width, h: w.height },
+        })),
+    };
 }
 
 function toCanvas(img: Buffer) {

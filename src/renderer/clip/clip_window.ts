@@ -346,54 +346,16 @@ function edge() {
     src = dst = contours = hierarchy = null;
 }
 
-function getLinuxWin() {
-    if (process.platform !== "linux") return;
-    const x11 = require("x11");
-    const X = x11.createClient((err, display) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        for (const i of display.screen) {
-            X.QueryTree(i.root, (_err, tree) => {
-                for (const x of tree.children) {
-                    X.GetWindowAttributes(x, (_err, attrs) => {
-                        if (attrs.mapState === 2) {
-                            X.GetGeometry(x, (_err, clientGeom) => {
-                                edgeRect.push({
-                                    x: clientGeom.xPos,
-                                    y: clientGeom.yPos,
-                                    width: clientGeom.width,
-                                    height: clientGeom.height,
-                                    type: "system",
-                                });
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    });
-}
-
-function getWinWin() {
-    if (process.platform !== "win32") return;
-    const { exec } = require("node:child_process");
-    const runPath = ipcRenderer.sendSync("run_path");
-    exec(`${runPath}/lib/win_rect.exe`, (err, out) => {
-        console.log(out);
-        if (!err) {
-            const r = JSON.parse(out.replaceAll("\x00", ""));
-            for (const i of r)
-                edgeRect.push({
-                    x: i.x,
-                    y: i.y,
-                    width: i.width,
-                    height: i.height,
-                    type: "system",
-                });
-        }
-    });
+function getWin() {
+    for (const w of windows) {
+        edgeRect.push({
+            x: w.rect.x,
+            y: w.rect.y,
+            width: w.rect.w,
+            height: w.rect.h,
+            type: "system",
+        });
+    }
 }
 
 function sCenterBar(m) {
@@ -2966,7 +2928,8 @@ const drawBar = document.getElementById("draw_bar");
 
 let nowScreenId = 0;
 
-let allScreens: ReturnType<typeof screenShots>;
+let allScreens: ReturnType<typeof screenShots>["screen"];
+let windows: ReturnType<typeof screenShots>["window"];
 
 let nowMouseE: MouseEvent = null;
 
@@ -3328,8 +3291,10 @@ ipcRenderer.on(
         mainid: number,
         act: 功能,
     ) => {
-        allScreens = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
-        console.log(allScreens);
+        const wx = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
+        allScreens = wx.screen;
+        windows = wx.window;
+        console.log(allScreens, windows);
         const mainId = mainid;
         const i = allScreens.find((i) => i.id === mainId) || allScreens[0];
         setScreen(i);
@@ -3405,8 +3370,7 @@ ipcRenderer.on(
             }, 0);
         }
 
-        getLinuxWin();
-        getWinWin();
+        getWin();
 
         drawClipRect();
         setTimeout(() => {
