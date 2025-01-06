@@ -1114,9 +1114,15 @@ function clipEnd(e: MouseEvent) {
                     y: rect[1] + rect[3] / 2,
                 };
                 const center2 = { x: r[0] + r[2] / 2, y: r[1] + r[3] / 2 };
-                const l = Math.sqrt(
-                    (center1.x - center2.x) ** 2 + (center1.y - center2.y) ** 2,
-                );
+                const l =
+                    Math.sqrt(
+                        (center1.x - center2.x) ** 2 +
+                            (center1.y - center2.y) ** 2,
+                    ) +
+                    Math.abs(rect[0] - r[0]) +
+                    Math.abs(rect[1] - r[1]) +
+                    Math.abs(rect[0] + rect[2] - (r[0] + r[2])) +
+                    Math.abs(rect[1] + rect[3] - (r[1] + r[3]));
                 if (l < nearestL) {
                     nearestL = l;
                     nr = rect;
