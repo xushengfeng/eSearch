@@ -1104,19 +1104,32 @@ function clipEnd(e: MouseEvent) {
     clipCtx.closePath();
     selecting = false;
     if (isRect) {
-        if (!moved && down) {
-            rectSelect = true;
-            let min = [];
-            let minN = Number.POSITIVE_INFINITY;
-            for (const i of rectInRect) {
-                if (i[2] * i[3] < minN) {
-                    min = i;
-                    minN = i[2] * i[3];
+        const r = p2Rect(rectStartE, e2cXY(e));
+        if (rectInRect.length !== 0) {
+            let nearestL = Number.POSITIVE_INFINITY;
+            let nr: rect = null;
+            for (const rect of rectInRect) {
+                const center1 = {
+                    x: rect[0] + rect[2] / 2,
+                    y: rect[1] + rect[3] / 2,
+                };
+                const center2 = { x: r[0] + r[2] / 2, y: r[1] + r[3] / 2 };
+                const l = Math.sqrt(
+                    (center1.x - center2.x) ** 2 + (center1.y - center2.y) ** 2,
+                );
+                if (l < nearestL) {
+                    nearestL = l;
+                    nr = rect;
                 }
             }
-            if (min.length !== 0) finalRect = min as rect;
+            if (nr && (e.shiftKey || (!moved && down))) {
+                rectSelect = true;
+                finalRect = nr;
+            } else {
+                finalRect = r;
+            }
         } else {
-            finalRect = p2Rect(rectStartE, e2cXY(e));
+            finalRect = r;
         }
     } else {
         freeSelect.push(p);
