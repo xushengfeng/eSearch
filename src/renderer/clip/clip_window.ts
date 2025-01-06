@@ -7,7 +7,6 @@ import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import { getImgUrl, initStyle } from "../root/root";
 import open_with from "../../../lib/open_with";
-import timeFormat from "../../../lib/time_format";
 import { t, lan } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
 import store from "../../../lib/store/renderStore";
@@ -1082,8 +1081,7 @@ function clipStart(e: MouseEvent, inRect: boolean) {
             changeRightBar(false);
         }
     }
-    drawClip();
-    if (g光标参考线) ckx(e);
+    renderClip(e);
 
     // 隐藏
     drawBar.style.opacity = toolBar.style.opacity = "0";
@@ -1124,7 +1122,7 @@ function clipEnd(e: MouseEvent) {
         freeSelect.push(p);
         finalRect = pointsOutRect(freeSelect);
     }
-    drawClip();
+    renderClip(e);
     hisPush();
 }
 
@@ -1132,8 +1130,6 @@ function clipEnd(e: MouseEvent) {
 function drawClipRect() {
     const cw = clipCanvas.width;
     const ch = clipCanvas.height;
-
-    clipCtx.clearRect(0, 0, cw, ch);
 
     const x = finalRect[0];
     const y = finalRect[1];
@@ -1162,8 +1158,6 @@ function drawClipRect() {
 function drawClipPoly(points: point[]) {
     const ctx = clipCtx;
     const canvas = clipCanvas;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (points.length < 2) return;
 
@@ -1218,8 +1212,6 @@ function inEdge(p: editor_position) {
             rectInRect.push([i.x, i.y, i.width, i.height]);
         }
     }
-    clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
-    clipCtx.beginPath();
     clipCtx.strokeStyle = "#000";
     clipCtx.lineWidth = 1;
     for (const i of rectInRect) {
@@ -1249,11 +1241,18 @@ function renderClip(e: MouseEvent) {
             movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
         }
     }
-    if (g光标参考线) {
-        drawClip();
-        ckx(e);
-    } else {
-        if (selecting || moving) drawClip();
+
+    if (g光标参考线 || autoSelectRect || selecting || moving) {
+        requestAnimationFrame(() => {
+            clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
+            drawClip();
+            if (autoSelectRect) {
+                inEdge({ x: e.offsetX, y: e.offsetY });
+            }
+            if (g光标参考线) {
+                ckx(e);
+            }
+        });
     }
 
     if (!selecting && !moving) {
@@ -1263,10 +1262,6 @@ function renderClip(e: MouseEvent) {
         } else {
             isPointInPolygon({ x: e.offsetX, y: e.offsetY });
         }
-    }
-
-    if (autoSelectRect) {
-        inEdge({ x: e.offsetX, y: e.offsetY });
     }
 }
 
