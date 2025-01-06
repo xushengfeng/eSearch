@@ -3121,7 +3121,7 @@ let direction:
     | "西南"
     | "东北"
     | "西北";
-const autoSelectRect = store.get("框选.自动框选.开启");
+let autoSelectRect = store.get("框选.自动框选.开启");
 const autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
 let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 let /**鼠标是否按住 */ down = false;
@@ -3856,6 +3856,7 @@ document.onmouseup = (e) => {
 hotkeys("s", () => {
     // 重新启用自动框选提示
     rectSelect = false;
+    autoSelectRect = true;
     finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
     drawClipRect();
 });
