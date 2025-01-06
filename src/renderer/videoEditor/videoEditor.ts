@@ -855,6 +855,10 @@ function editClip(i: number) {
         await transform();
         await showThumbnails();
         await showNowFrames(willPlayI);
+        await playDecoder.flush()
+        await playId(0, true)
+        playId(playI, true)
+
     }
 
     function reRener() {
