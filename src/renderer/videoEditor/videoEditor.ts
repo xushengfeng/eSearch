@@ -855,10 +855,9 @@ function editClip(i: number) {
         await transform();
         await showThumbnails();
         await showNowFrames(willPlayI);
-        await playDecoder.flush()
-        await playId(0, true)
-        playId(playI, true)
-
+        await playDecoder.flush();
+        await playId(0, true);
+        playId(playI, true);
     }
 
     function reRener() {
@@ -1162,6 +1161,30 @@ playDecoder.configure({
     codec: codec,
 });
 
+const stopPEl = view()
+    .style({
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "white",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 9,
+    })
+    .addInto();
+view()
+    .style({
+        width: "32px",
+        height: "32px",
+        borderRadius: "4px",
+        backgroundColor: "red",
+    })
+    .addInto(stopPEl)
+    .on("click", () => {
+        stopPEl.remove();
+        stopRecord();
+    });
+
 const canvasEl = ele("canvas");
 const canvas = canvasEl.el;
 
@@ -1409,9 +1432,11 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         const nowUi = getNowUiData();
         renderUiData(nowUi);
+
+        stopRecord = () => {}; // 只运行一次
     };
 
-    setTimeout(() => stopRecord(), 5 * 1000);
+    setTimeout(() => stopRecord(), 5 * 60 * 1000); // 5分钟后自动停止录制
 
     while (true) {
         const { done, value: videoFrame } = await reader.read();

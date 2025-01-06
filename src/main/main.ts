@@ -1558,13 +1558,15 @@ ipcMain.on("record", (_event, type, arg) => {
 function createSuperRecorderWindow() {
     const recorder = new BrowserWindow({
         icon: theIcon,
-        show: false,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
             sandbox: false,
         },
+        width: 64,
+        height: 64,
     });
+    recorder.minimize();
     rendererPath(recorder, "videoEditor.html");
     if (dev) recorder.webContents.openDevTools();
     recorder.webContents.on("did-finish-load", () => {
