@@ -1227,6 +1227,49 @@ function inEdge(p: editor_position) {
     }
 }
 
+function renderClip(e: MouseEvent) {
+    if (down) {
+        moved = true;
+        rectSelect = true; // 按下并移动，肯定手动选好选区了
+    }
+
+    if (selecting) {
+        if (isRect) {
+            // 画框
+            finalRect = p2Rect(rectStartE, e2cXY(e));
+        } else {
+            freeSelect.push(e2pXY(e));
+            finalRect = pointsOutRect(freeSelect);
+        }
+    }
+    if (moving) {
+        if (isRect) {
+            moveRect(oFinalRect, oldP, { x: e.offsetX, y: e.offsetY });
+        } else {
+            movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
+        }
+    }
+    if (g光标参考线) {
+        drawClip();
+        ckx(e);
+    } else {
+        if (selecting || moving) drawClip();
+    }
+
+    if (!selecting && !moving) {
+        // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
+        if (isRect) {
+            isInClipRect({ x: e.offsetX, y: e.offsetY });
+        } else {
+            isPointInPolygon({ x: e.offsetX, y: e.offsetY });
+        }
+    }
+
+    if (autoSelectRect) {
+        inEdge({ x: e.offsetX, y: e.offsetY });
+    }
+}
+
 // 大小栏
 function whBar(finalRect: rect) {
     const winWidth = window.innerWidth;
@@ -3383,10 +3426,6 @@ ipcRenderer.on(
 
 ipcRenderer.on("long_e", stopLong);
 
-document.addEventListener("mousemove", (e) => {
-    nowMouseE = e;
-});
-
 document.onwheel = (e) => {
     if (!editor.contains(e.target as HTMLElement) && e.target !== document.body)
         return;
@@ -3777,53 +3816,6 @@ clipCanvas.onmousedown = (e) => {
     down = true;
 };
 
-clipCanvas.onmousemove = (e) => {
-    if (down) {
-        moved = true;
-        rectSelect = true; // 按下并移动，肯定手动选好选区了
-    }
-
-    if (e.button === 0) {
-        requestAnimationFrame(() => {
-            if (selecting) {
-                if (isRect) {
-                    // 画框
-                    finalRect = p2Rect(rectStartE, e2cXY(e));
-                } else {
-                    freeSelect.push(e2pXY(e));
-                    finalRect = pointsOutRect(freeSelect);
-                }
-            }
-            if (moving) {
-                if (isRect) {
-                    moveRect(oFinalRect, oldP, { x: e.offsetX, y: e.offsetY });
-                } else {
-                    movePoly(oPoly, oldP, { x: e.offsetX, y: e.offsetY });
-                }
-            }
-            if (down) mouseBar(finalRect, e);
-            if (g光标参考线) {
-                drawClip();
-                ckx(e);
-            } else {
-                if (selecting || moving) drawClip();
-            }
-        });
-    }
-    if (!selecting && !moving) {
-        // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
-        if (isRect) {
-            isInClipRect({ x: e.offsetX, y: e.offsetY });
-        } else {
-            isPointInPolygon({ x: e.offsetX, y: e.offsetY });
-        }
-    }
-
-    if (autoSelectRect) {
-        inEdge({ x: e.offsetX, y: e.offsetY });
-    }
-};
-
 document.onmouseup = (e) => {
     if (e.button === 0) {
         if (selecting) {
@@ -3973,17 +3965,13 @@ clipCanvas.ondblclick = () => {
     tool.copy();
 };
 
-// 鼠标栏实时跟踪
 document.onmousemove = (e) => {
+    nowMouseE = e;
+
+    renderClip(e);
     if (!rightKey) {
         // 鼠标跟随栏
-        if (!down) mouseBar(finalRect, e);
-        if (g光标参考线) {
-            drawClip();
-            ckx(e);
-        }
-
-        // 鼠标跟随栏
+        mouseBar(finalRect, e);
 
         const d = 16;
         const x = e.clientX + d;
