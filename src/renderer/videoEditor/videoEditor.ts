@@ -1399,6 +1399,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
 
     stopRecord = async () => {
+        stopRecord = () => {}; // 只运行一次
+
         console.log("stop");
 
         uIOhook.stop();
@@ -1432,8 +1434,6 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         const nowUi = getNowUiData();
         renderUiData(nowUi);
-
-        stopRecord = () => {}; // 只运行一次
     };
 
     setTimeout(() => stopRecord(), 5 * 60 * 1000); // 5分钟后自动停止录制
