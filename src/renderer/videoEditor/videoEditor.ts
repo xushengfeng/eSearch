@@ -546,6 +546,7 @@ async function transform(_codec = "") {
     if (_codec === lastCodec) {
         if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
     }
+    console.trace("transform");
     lastCodec = _codec;
     lastUiData = nowUi;
     const frameXs = getFrameXs(nowUi);
