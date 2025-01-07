@@ -1579,20 +1579,27 @@ if (testMode) {
 
     // 性能测试
     const t0 = performance.now();
+    for (let i = 140; i < 160; i++) {
+        console.log("test", String(i));
+        await x.getFrame(i);
+    }
+    const t1 = performance.now();
+    console.log("顺序解码", (t1 - t0) / 20);
+    const t2 = performance.now();
     for (let i = 0; i < 20; i++) {
         console.log("test", String(i));
         const index = Math.floor(Math.random() * x.length);
         await x.getFrame(index);
     }
-    const t1 = performance.now();
-    console.log(t1 - t0);
+    const t3 = performance.now();
+    console.log("随机解码", (t3 - t2) / 20);
     // 正确解码
     const show = view().addInto();
     for (let i = 0; i < 10; i++) {
-        const i = Math.floor(Math.random() * x.length);
-        const canvas = await x.getFrame(i);
+        const index = i === 0 ? 150 : Math.floor(Math.random() * x.length);
+        const canvas = await x.getFrame(index);
         if (!canvas) continue;
-        show.add(String(i));
+        show.add(String(index));
         const c = ele("canvas")
             .attr({ width: canvas.width, height: canvas.height })
             .addInto(show);
