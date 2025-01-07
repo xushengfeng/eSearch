@@ -848,8 +848,8 @@ function editClip(i: number) {
     }
 
     function center2rect(center: center) {
-        const w = v.width * center.ratio;
-        const h = v.height * center.ratio;
+        const w = Math.min(v.width * center.ratio, v.width);
+        const h = Math.min(v.height * center.ratio, v.height);
         let x = center.x - w / 2;
         let y = center.y - h / 2;
         x = Math.min(Math.max(0, x), v.width - w);
