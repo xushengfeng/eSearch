@@ -236,6 +236,7 @@ function initKeys() {
 }
 
 async function afterRecord(chunks: EncodedVideoChunk[]) {
+    transformTimeEl.sv("补帧中...");
     // 补帧
     // todo 插入关键帧
     const m = new Map<number, number>();
@@ -261,6 +262,7 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     const encoder = new VideoEncoder({
         output: (c: EncodedVideoChunk) => {
             encodedChunks.push(c);
+            transformProgressEl.sv(encodedChunks.length / totalFrameCount);
         },
         error: (e) => console.error("Encode error:", e),
     });
@@ -283,6 +285,8 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
         }
         lastTime = c.timestamp;
     }
+    const totalFrameCount =
+        chunks.length + m.values().reduce((a, b) => a + b, 0);
     for (const c of chunks) {
         decoder.decode(c);
     }
@@ -525,6 +529,8 @@ function easeOutQuint(x: number): number {
 }
 
 async function transform(_codec = "") {
+    const Tstart = performance.now();
+
     const nowUi = getNowUiData();
 
     if (_codec === lastCodec) {
@@ -538,6 +544,9 @@ async function transform(_codec = "") {
     // todo diff 关键帧之间为单位，如果frameX在直接变动，则重新生成关键帧之后的chunck
     // todo diff 有的不变，有的变frame，有的变时间戳
     // todo keyframe webm 32s mp4 5-10s
+
+    transformTimeEl.sv("开始处理");
+    const Tdiff = performance.now();
 
     const transformed: EncodedVideoChunk[] = [];
 
@@ -554,6 +563,7 @@ async function transform(_codec = "") {
         output: (c: EncodedVideoChunk) => {
             // todo 这里有点难获取id，时间戳也是不保证的
             transformed.push(c);
+            transformProgressEl.sv(transformed.length / srcCs.list.length);
         },
         error: (e) => console.error("Encode error:", e),
     });
@@ -575,6 +585,13 @@ async function transform(_codec = "") {
     await encoder.flush();
     decoder.close();
     encoder.close();
+
+    const Tend = performance.now();
+
+    transformTimeEl.sv(
+        `处理帧数：${srcCs.list.length} 分析：${(Tdiff - Tstart).toFixed(0)}ms 处理：${(Tend - Tdiff).toFixed(0)}ms`,
+    );
+
     transformCs.setList(transformed);
 }
 
@@ -1240,6 +1257,32 @@ const playTimeEl = txt().bindSet((t: number, el) => {
 
 actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
 
+const transformLogEl = view("x").addInto();
+
+const transformProgressEl = (() => {
+    const el = view("x");
+    const p = view().style({
+        width: "200px",
+        height: "20px",
+        borderRadius: "4px",
+        backgroundColor: "#eee",
+        overflow: "hidden",
+    });
+    const pi = view()
+        .addInto(p)
+        .style({ width: "0%", height: "100%", backgroundColor: "#000" });
+    const t = txt();
+
+    return el.add([p, t]).bindSet((progress: number) => {
+        pi.style({ width: `${progress * 100}%` });
+        t.sv(`${(progress * 100).toFixed(2)}%`);
+    });
+})();
+
+const transformTimeEl = txt();
+
+transformLogEl.add([transformProgressEl, transformTimeEl]);
+
 const timeLineMain = view("x")
     .addInto()
     .on("click", (e) => {
@@ -1403,6 +1446,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         console.log("stop");
 
+        ipcRenderer.send("window", "max");
+
         uIOhook.stop();
 
         reader.cancel();
@@ -1420,8 +1465,6 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         srcCs.setList(afterCuncks);
 
         mapKeysOnFrames(afterCuncks);
-        ipcRenderer.send("window", "show");
-        ipcRenderer.send("window", "max");
 
         await transform();
 
