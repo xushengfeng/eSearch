@@ -141,6 +141,8 @@ class videoChunk {
     }
     setList(_list: EncodedVideoChunk[]) {
         this.list = _list;
+
+        console.log("size", `${this.#byte2mb(this.#sumChunckSize(this.list))}mb`);
     }
     get length() {
         return this.list.length;
@@ -175,6 +177,14 @@ class videoChunk {
     }
     getDuration() {
         return this.getTime(-1);
+    }
+
+    #sumChunckSize(chunks: EncodedVideoChunk[]) {
+        return chunks.reduce((acc, cur) => acc + cur.byteLength, 0);
+    }
+
+    #byte2mb(byte: number) {
+        return (byte / 1024 / 1024).toFixed(2);
     }
 }
 
