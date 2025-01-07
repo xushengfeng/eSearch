@@ -43,6 +43,8 @@ type FrameX = {
 
 type baseType = (typeof outputType)[number]["type"];
 
+const testMode = false;
+
 const zeroPoint = [0, 0] as const;
 
 const keys: superRecording = [];
@@ -122,47 +124,83 @@ let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 class videoChunk {
     list: EncodedVideoChunk[] = [];
 
-    private lastDecodeFrame: OffscreenCanvas | null = null;
-    private targetTime = 0;
+    private timestamp2Id = new Map<number, number>();
+    private tasks = new Map<number, ((OffscreenCanvas) => void)[]>();
+    private willDecodeIs = new Set<number>();
+    private lastAddDecodeI = -1;
     private frameDecoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            if (this.targetTime === frame.timestamp)
-                this.lastDecodeFrame = frame2Canvas(frame);
+            const id = this.timestamp2Id.get(frame.timestamp) as number;
+            const tasks = this.tasks.get(id) ?? [];
+            for (const task of tasks) {
+                task(frame2Canvas(frame)); // 克隆 // todo 优化
+            }
+            if (tasks.length > 0) this.tasks.delete(id);
+            this.willDecodeIs.delete(id);
             frame.close();
         },
         error: (e) => console.error("Decode error:", e),
     });
 
     constructor(_list: EncodedVideoChunk[]) {
-        this.list = _list;
         this.frameDecoder.configure({
             codec: codec,
         });
+        this.setList(_list);
     }
-    setList(_list: EncodedVideoChunk[]) {
+    async setList(_list: EncodedVideoChunk[]) {
         this.list = _list;
+        this.timestamp2Id.clear();
+        for (const [i, c] of this.list.entries()) {
+            this.timestamp2Id.set(c.timestamp, i);
+        }
 
-        console.log("size", `${this.#byte2mb(this.#sumChunckSize(this.list))}mb`);
+        await this.frameDecoder.flush();
+        this.lastAddDecodeI = -1;
+
+        console.log(
+            "size",
+            `${this.#byte2mb(this.#sumChunckSize(this.list))}mb`,
+        );
     }
     get length() {
         return this.list.length;
     }
-    async getFrame(index: number) {
-        await this.frameDecoder.flush();
-        const beforeId = this.list
-            .slice(0, index + 1)
-            .findLastIndex((c) => c.type === "key");
+    #on(i: number, cb: (OffscreenCanvas: OffscreenCanvas) => void) {
+        const task = this.tasks.get(i) ?? [];
+        task.push(cb);
+        this.tasks.set(i, task);
+        if (!this.willDecodeIs.has(i)) {
+            // 要么在当前解码序列之后，要么在其他片段
+            // 在当前解码序列之后，可以补充序列，在其他片段，则要重新添加序列（因为k帧已经不同了）
+            // todo 延迟decode的调用，那就有可能补救
+            // todo 缓存部分帧
+            const thisKey = this.list
+                .slice(0, i + 1)
+                .findLastIndex((c) => c.type === "key");
 
-        console.log("getFrame", index, beforeId);
+            const nowDecodingKey = this.list
+                .slice(0, this.lastAddDecodeI + 1)
+                .findLastIndex((c) => c.type === "key");
 
-        this.targetTime = this.list[index].timestamp;
-        this.lastDecodeFrame = null;
-        for (let n = beforeId; n < index; n++) {
-            this.frameDecoder.decode(this.list[n]);
+            const startI =
+                thisKey === nowDecodingKey ? this.lastAddDecodeI : thisKey;
+
+            for (let j = startI; j <= i; j++) {
+                const c = this.list[j];
+                this.frameDecoder.decode(c);
+                this.willDecodeIs.add(j);
+            }
+
+            this.lastAddDecodeI = i;
         }
-        this.frameDecoder.decode(this.list[index]);
-        await this.frameDecoder.flush();
-        return this.lastDecodeFrame as OffscreenCanvas | null;
+    }
+    async getFrame(index: number) {
+        const { promise, resolve } = Promise.withResolvers<OffscreenCanvas>();
+        this.#on(index, (c) => resolve(c));
+        await this.frameDecoder.flush(); // 不调用总有4个帧没解码完
+        this.lastAddDecodeI = -1;
+        return promise;
     }
     frame2Id(frame: VideoFrame) {
         return this.list.findIndex((c) => c.timestamp === frame.timestamp);
@@ -1379,7 +1417,7 @@ exportEl.el.addInto();
 pureStyle();
 
 ipcRenderer.on("record", async (_e, _t, sourceId) => {
-    // return
+    if (testMode) return;
     let stream: MediaStream | undefined;
     try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -1503,3 +1541,62 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         }
     }
 });
+
+if (testMode) {
+    ipcRenderer.send("window", "max");
+    stopPEl.remove();
+    const s: EncodedVideoChunk[] = [];
+    const encoder = new VideoEncoder({
+        output: (c: EncodedVideoChunk) => {
+            s.push(c);
+        },
+        error: (e) => console.error("Encode error:", e),
+    });
+    encoder.configure({
+        codec: codec,
+        width: 1920,
+        height: 1080,
+    });
+    for (let i = 0; i < 600; i++) {
+        const canvas = new OffscreenCanvas(1920, 1080);
+        const ctx = canvas.getContext(
+            "2d",
+        ) as OffscreenCanvasRenderingContext2D;
+        // 写数字
+        ctx.font = "80px Arial";
+        ctx.fillStyle = "red";
+        ctx.fillText(String(i), 100, 100);
+        const frame = new VideoFrame(canvas, {
+            timestamp: i * (1000 / srcRate),
+        });
+        encoder.encode(frame, { keyFrame: i % 150 === 0 });
+        frame.close();
+    }
+    await encoder.flush();
+    encoder.close();
+    const x = new videoChunk([]);
+    await x.setList(s);
+
+    // 性能测试
+    const t0 = performance.now();
+    for (let i = 0; i < 20; i++) {
+        console.log("test", String(i));
+        const index = Math.floor(Math.random() * x.length);
+        await x.getFrame(index);
+    }
+    const t1 = performance.now();
+    console.log(t1 - t0);
+    // 正确解码
+    const show = view().addInto();
+    for (let i = 0; i < 10; i++) {
+        const i = Math.floor(Math.random() * x.length);
+        const canvas = await x.getFrame(i);
+        if (!canvas) continue;
+        show.add(String(i));
+        const c = ele("canvas")
+            .attr({ width: canvas.width, height: canvas.height })
+            .addInto(show);
+        const ctx = c.el.getContext("2d") as CanvasRenderingContext2D;
+        ctx.drawImage(canvas, 0, 0);
+    }
+}
