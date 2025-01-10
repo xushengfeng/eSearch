@@ -520,7 +520,7 @@ function getFrameXs(_data: uiData | null) {
     }
 
     for (let i = 0; i < frameList.length; i += 150) {
-        for (let j = i; j < i + 150; j++) {
+        for (let j = i; j < i + 150 && j < frameList.length; j++) {
             const f = frameList[j];
             if (!f.isRemoved) {
                 f.isKey = true;
