@@ -29,6 +29,7 @@ type clip = {
 
 type uiData = {
     clipList: clip[];
+    // [start, end]闭区间
     speed: { start: number; end: number; value: number }[];
     eventList: { start: number; end: number; value: unknown }[]; // todo
     remove: { start: number; end: number }[];
@@ -508,16 +509,39 @@ function getFrameXs(_data: uiData | null) {
     console.log(data);
 
     const frameList: FrameX[] = [];
-    // todo speed map
+
+    const speedMap = new Map<number, number>();
+    for (const s of data.speed) {
+        for (let i = s.start; i <= s.end; i++) speedMap.set(i, s.value);
+    }
+
+    const removeSet = new Set<number>();
+    for (const r of data.remove) {
+        for (let i = r.start; i <= r.end; i++) removeSet.add(i);
+    }
+
+    let nowTime = 0;
+    const timeMap = new Map<number, number>();
+    for (const [i, c] of srcCs.list.entries()) {
+        const next = srcCs.list[i + 1];
+        const duration = next ? next.timestamp - c.timestamp : 0;
+        const speed = speedMap.get(i) ?? 1;
+        const nd = duration / speed;
+        timeMap.set(c.timestamp, nowTime);
+        if (!removeSet.has(i)) nowTime += nd;
+    }
+
+    const getTime = (t: number) => timeMap.get(t) as number;
+
     for (const [i, c] of srcCs.list.entries()) {
         const f: FrameX = {
             rect: { x: 0, y: 0, w: v.width, h: v.height },
-            timestamp: c.timestamp,
+            timestamp: getTime(c.timestamp) ?? 0,
             event: [],
             isRemoved: false,
         };
 
-        f.isRemoved = data.remove.some((r) => r.start <= i && i <= r.end);
+        f.isRemoved = removeSet.has(i);
         if (f.isRemoved) {
             frameList.push(f);
             continue;
@@ -545,9 +569,9 @@ function getFrameXs(_data: uiData | null) {
                 const clipI = l.findLastIndex((c) => c.i < i);
                 const clip = l[clipI];
                 const nextClip = l[clipI + 1];
-                const clipTime = srcCs.list[clip.i].timestamp; // todo map
-                const nextClipTime = srcCs.list[nextClip.i].timestamp;
-                const t = c.timestamp;
+                const clipTime = getTime(srcCs.list[clip.i].timestamp);
+                const nextClipTime = getTime(srcCs.list[nextClip.i].timestamp);
+                const t = getTime(c.timestamp);
                 f.rect = getClip(clip, clipTime, t, nextClip, nextClipTime);
             }
         }
