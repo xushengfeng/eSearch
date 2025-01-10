@@ -695,7 +695,7 @@ function diffFrameXs(old: FrameX[], now: FrameX[]) {
     for (const x of needReRender) {
         if (needEncode.has(x)) continue;
         const sI = keys.findLastIndex((i) => i <= x);
-        for (let i = sI; i < keys[sI + 1]; i++) needEncode.add(i);
+        for (let i = keys[sI]; i < keys[sI + 1]; i++) needEncode.add(i);
     }
     console.log(needReRender, needEncode);
 
