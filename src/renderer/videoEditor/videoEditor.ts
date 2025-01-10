@@ -4,6 +4,7 @@ import {
     button,
     check,
     ele,
+    type ElType,
     frame,
     input,
     label,
@@ -233,6 +234,10 @@ class videoChunk {
     }
 }
 
+function uuid() {
+    return crypto.randomUUID();
+}
+
 function frame2Canvas(frame: VideoFrame) {
     const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
     const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
@@ -424,78 +429,13 @@ function getNowUiData() {
 }
 
 function renderUiData(data: uiData) {
-    // 均匀index分布显示
-    timeLineClipEl.clear();
-    timeLineSpeedEl.clear();
-    timeLineEventEl.clear();
-    timeLineRemoveEl.clear();
-
-    function ipx(n: number) {
-        return `${(n / listLength()) * 100}%`;
-    }
-
-    for (const [i, c] of data.clipList.entries()) {
-        const beforeId = transformCs.time2Id(
-            timestamp2ms(
-                (transformCs.list.at(c.i - 1)?.timestamp ?? 0) - c.transition,
-            ),
-        );
-        view()
-            .addInto(timeLineClipEl)
-            .style({
-                left: ipx(beforeId),
-                width: ipx(c.i - beforeId),
-                backgroundColor: "red",
-            })
-            .on("click", () => {
-                editClip(i);
-            });
-    }
-    timeLineClipEl.el.ondblclick = (e) => {
-        if (e.target === e.currentTarget) {
-            const data = structuredClone(getNowUiData());
-            const i = Math.floor(
-                (e.offsetX / timeLineClipEl.el.offsetWidth) * listLength(),
-            );
-            const newClip: clip = {
-                i: i,
-                rect: { x: 0, y: 0, w: v.width, h: v.height },
-                transition: ms2timestamp(400),
-            };
-            data.clipList.push(newClip);
-
-            history.push(data);
-            renderUiData(data);
-            editClip(data.clipList.length - 1);
-        }
-    };
-
-    for (const c of data.speed) {
-        const el = view().addInto(timeLineSpeedEl);
-        el.style({
-            left: ipx(c.start),
-            width: ipx(c.end - c.start),
-            backgroundColor: "blue",
-        });
-    }
-
-    for (const c of data.eventList) {
-        const el = view().addInto(timeLineEventEl);
-        el.style({
-            left: ipx(c.start),
-            width: ipx(c.end - c.start),
-            backgroundColor: "green",
-        });
-    }
-
-    for (const c of data.remove) {
-        const el = view().addInto(timeLineRemoveEl);
-        el.style({
-            left: ipx(c.start),
-            width: ipx(c.end - c.start),
-            backgroundColor: "black",
-        });
-    }
+    timeLineClipEl.setData(data.clipList);
+    timeLineSpeedEl.setData(data.speed);
+    // @ts-ignore
+    timeLineEventEl.setData(data.eventList);
+    timeLineRemoveEl.setData(
+        data.remove.map((r) => ({ start: r.start, end: r.end, value: null })),
+    );
 }
 
 function getFrameXs(_data: uiData | null) {
@@ -1182,6 +1122,15 @@ function editClip(i: number) {
     jump2id(clip.i);
 }
 
+async function uiDataSave() {
+    await transform();
+    await showThumbnails();
+    await showNowFrames(willPlayI);
+    await playDecoder.flush();
+    await playId(0, true);
+    playId(playI, true);
+}
+
 async function save() {
     if (exportEl.els.type.gv === "png") saveImages();
     else if (exportEl.els.type.gv === "gif") saveGif();
@@ -1465,7 +1414,7 @@ const timeLineMain = view("x")
     });
 
 const timeLineControl = view("y")
-    .style({ height: "64px", position: "relative" })
+    .style({ height: "80px", position: "relative" })
     .class(
         addClass(
             {},
@@ -1483,12 +1432,7 @@ const timeLineControl = view("y")
             },
         ),
     )
-    .addInto()
-    .on("click", (e) => {
-        const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = Math.floor(p * transformCs.length);
-        jump2idUi(id);
-    });
+    .addInto();
 const timeLineControlPoint = view()
     .style({
         position: "absolute",
@@ -1503,10 +1447,238 @@ const timeLineControlPoint = view()
         el.style.left = `${(i / transformCs.length) * 100}%`;
     });
 
-const timeLineClipEl = view().addInto(timeLineControl);
-const timeLineSpeedEl = view().addInto(timeLineControl);
-const timeLineEventEl = view().addInto(timeLineControl);
-const timeLineRemoveEl = view().addInto(timeLineControl);
+view()
+    .addInto(timeLineControl)
+    .on("click", (e) => {
+        const p = e.offsetX / timeLineMain.el.offsetWidth;
+        const id = Math.floor(p * transformCs.length);
+        jump2idUi(id);
+    });
+
+const timeLineClip = () => {
+    const el = view().addInto(timeLineControl);
+
+    function ipx(n: number) {
+        return `${(n / listLength()) * 100}%`;
+    }
+
+    function render(data: uiData["clipList"]) {
+        el.clear();
+
+        for (const [i, c] of data.entries()) {
+            const beforeId = transformCs.time2Id(
+                timestamp2ms(
+                    (transformCs.list.at(c.i - 1)?.timestamp ?? 0) -
+                        c.transition,
+                ),
+            );
+            view()
+                .addInto(el)
+                .style({
+                    left: ipx(beforeId),
+                    width: ipx(c.i - beforeId),
+                    backgroundColor: "red",
+                })
+                .on("click", () => {
+                    editClip(i);
+                });
+        }
+    }
+
+    function setData(data: uiData["clipList"]) {
+        render(data);
+    }
+
+    el.el.ondblclick = (e) => {
+        if (e.target === e.currentTarget) {
+            const data = structuredClone(getNowUiData());
+            const i = Math.floor(
+                (e.offsetX / el.el.offsetWidth) * listLength(),
+            );
+            const newClip: clip = {
+                i: i,
+                rect: { x: 0, y: 0, w: v.width, h: v.height },
+                transition: ms2timestamp(400),
+            };
+            data.clipList.push(newClip);
+
+            history.push(data);
+            renderUiData(data);
+            editClip(data.clipList.length - 1);
+        }
+    };
+
+    return { setData, el };
+};
+
+const timeLineTrack = <D>(op: {
+    el: (el: ElType<HTMLElement>, data: unknown) => void;
+    newValue: () => D;
+    on: (data: { start: number; end: number; value: D }[]) => void;
+}) => {
+    let data: { start: number; end: number; id: string; value: D }[] = [];
+    const track = view().addInto(timeLineControl);
+
+    function setData(d: { start: number; end: number; value: D }[]) {
+        data = d.map((d) => ({ ...d, id: uuid() }));
+        render();
+    }
+    function ipx(n: number) {
+        return `${(n / listLength()) * 100}%`;
+    }
+    function i2px(i: number) {
+        return (i / listLength()) * track.el.offsetWidth;
+    }
+    function px2i(px: number) {
+        return Math.floor((px / track.el.offsetWidth) * listLength());
+    }
+    function getX(e: PointerEvent) {
+        const x = e.screenX - track.el.getBoundingClientRect().left;
+        return x;
+    }
+    function itemEl(d: (typeof data)[0]) {
+        const el = view().data({ id: d.id });
+        setItemEl(d, el);
+        op.el(el, d);
+        track.add(el);
+    }
+    function setItemEl(d: (typeof data)[0], el: ElType<HTMLElement>) {
+        el.style({
+            left: ipx(d.start),
+            width: ipx(d.end - d.start),
+        });
+    }
+    function render() {
+        track.clear();
+        for (const d of data) {
+            itemEl(d);
+        }
+    }
+
+    // todo 删除
+    // todo 编辑value
+    trackPoint(track, {
+        start: (e) => {
+            const x = getX(e);
+            let type: "start" | "center" | "end" | "none" = "none";
+            let itemId = "";
+            for (const d of data) {
+                const s = i2px(d.start);
+                const e = i2px(d.end);
+                if (s <= x && x <= s + 2) {
+                    type = "start";
+                    itemId = d.id;
+                    break;
+                }
+                if (s <= x && x <= e) {
+                    type = "center";
+                    itemId = d.id;
+                    break;
+                }
+                if (e - 2 <= x && x <= e) {
+                    type = "end";
+                    itemId = d.id;
+                    break;
+                }
+            }
+            if (type === "none") {
+                const i = px2i(x);
+                const d = {
+                    start: i,
+                    end: i,
+                    id: uuid(),
+                    value: op.newValue(),
+                };
+                data.push(d);
+                itemEl(d);
+                type = "end";
+                itemId = d.id;
+            }
+            return {
+                x: 0,
+                y: 0,
+                data: {
+                    type: type,
+                    d: data.find((d) => d.id === itemId),
+                    el: track.query(`[data-id="${itemId}"]`),
+                },
+            };
+        },
+        ing: (p, _e, { startData: sd }) => {
+            const pi = px2i(p.x);
+            if (!sd.d || !sd.el) return;
+            const d = structuredClone(sd.d);
+            if (sd.type === "start") {
+                d.start = sd.d.start + pi;
+            }
+            if (sd.type === "center") {
+                // todo 限制+跳跃
+                d.start = sd.d.start + pi;
+                d.end = sd.d.end + pi;
+            }
+            if (sd.type === "end") {
+                d.end = sd.d.end + pi;
+            }
+            setItemEl(d, sd.el);
+            return d;
+        },
+        end: (_, { ingData }) => {
+            console.log(ingData);
+            if (!ingData) return;
+            const d = data.find((d) => d.id === ingData.id);
+            if (!d) return;
+            d.start = ingData.start;
+            d.end = ingData.end;
+            op.on(data);
+        },
+    });
+
+    return { setData, el: track };
+};
+
+const timeLineClipEl = timeLineClip();
+const timeLineSpeedEl = timeLineTrack({
+    el: (el) => {
+        el.style({
+            backgroundColor: "blue",
+        });
+    },
+    newValue: () => 2,
+    on: (data) => {
+        const uiData = structuredClone(getNowUiData());
+        uiData.speed = data;
+        history.push(uiData);
+        uiDataSave();
+    },
+});
+const timeLineEventEl = timeLineTrack({
+    el: (el) => {
+        el.style({
+            backgroundColor: "green",
+        });
+    },
+    newValue: () => null,
+    on: (data) => {
+        const uiData = structuredClone(getNowUiData());
+        uiData.eventList = data;
+        history.push(uiData);
+        uiDataSave();
+    },
+});
+const timeLineRemoveEl = timeLineTrack({
+    el: (el) => {
+        el.style({
+            backgroundColor: "black",
+        });
+    },
+    newValue: () => null,
+    on: (data) => {
+        const uiData = structuredClone(getNowUiData());
+        uiData.remove = data.map((d) => ({ start: d.start, end: d.end }));
+        history.push(uiData);
+        uiDataSave();
+    },
+});
 
 const timeLineFrame = view("x").addInto();
 const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
