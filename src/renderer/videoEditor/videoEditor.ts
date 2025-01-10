@@ -573,67 +573,73 @@ async function transform(_codec = "") {
 
     const needEncode = diffFrameXs(lastFrameXs, frameXs);
 
-    if (needEncode.size === 0) return;
-
-    transformTimeEl.sv("开始处理");
-    const Tdiff = performance.now();
-
     const needDecode = new Set<number>();
 
     const transformed = structuredClone(lastEncodedChunks);
 
-    let runCount = 0;
+    if (needEncode.size > 0) {
+        transformTimeEl.sv("开始处理");
+        const Tdiff = performance.now();
 
-    const decoder = new VideoDecoder({
-        output: (frame: VideoFrame) => {
-            // 解码 处理 编码
-            const nFrame = transformX(frame);
-            encoder.encode(nFrame.frame, { keyFrame: nFrame.isKey });
-            nFrame.frame.close();
-        },
-        error: (e) => console.error("Decode error:", e),
-    });
-    const encoder = new VideoEncoder({
-        output: (c: EncodedVideoChunk) => {
-            const id = srcCs.timestamp2Id(c.timestamp);
-            if (id === -1) {
-                console.log("no id", c.timestamp);
-                return;
-            }
-            transformed[id] = c;
-            runCount++;
-            transformProgressEl.sv(runCount / needDecode.size);
-        },
-        error: (e) => console.error("Encode error:", e),
-    });
-    encoder.configure({
-        codec: codecMap[_codec] ?? codec,
-        width: outputV.width,
-        height: outputV.height,
-        framerate: srcRate,
-        bitrate: bitrate,
-    });
-    decoder.configure({
-        codec: codec,
-    });
+        let runCount = 0;
 
-    let inThisClip = false;
-    for (let i = srcCs.list.length - 1; i >= 0; i--) {
-        if (needEncode.has(i)) inThisClip = true;
-        if (inThisClip) needDecode.add(i);
-        if (srcCs.list[i].type === "key") inThisClip = false;
+        const decoder = new VideoDecoder({
+            output: (frame: VideoFrame) => {
+                // 解码 处理 编码
+                const nFrame = transformX(frame);
+                encoder.encode(nFrame.frame, { keyFrame: nFrame.isKey });
+                nFrame.frame.close();
+            },
+            error: (e) => console.error("Decode error:", e),
+        });
+        const encoder = new VideoEncoder({
+            output: (c: EncodedVideoChunk) => {
+                const id = srcCs.timestamp2Id(c.timestamp);
+                if (id === -1) {
+                    console.log("no id", c.timestamp);
+                    return;
+                }
+                transformed[id] = c;
+                runCount++;
+                transformProgressEl.sv(runCount / needDecode.size);
+            },
+            error: (e) => console.error("Encode error:", e),
+        });
+        encoder.configure({
+            codec: codecMap[_codec] ?? codec,
+            width: outputV.width,
+            height: outputV.height,
+            framerate: srcRate,
+            bitrate: bitrate,
+        });
+        decoder.configure({
+            codec: codec,
+        });
+
+        let inThisClip = false;
+        for (let i = srcCs.list.length - 1; i >= 0; i--) {
+            if (needEncode.has(i)) inThisClip = true;
+            if (inThisClip) needDecode.add(i);
+            if (srcCs.list[i].type === "key") inThisClip = false;
+        }
+
+        for (const chunk of Array.from(needDecode)
+            .toSorted((a, b) => a - b)
+            .map((i) => srcCs.list[i])) {
+            decoder.decode(chunk);
+        }
+        /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
+        await decoder.flush();
+        await encoder.flush();
+        decoder.close();
+        encoder.close();
+
+        const Tend = performance.now();
+
+        transformTimeEl.sv(
+            `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${(Tend - Tdiff).toFixed(0)}ms`,
+        );
     }
-
-    for (const chunk of Array.from(needDecode)
-        .toSorted((a, b) => a - b)
-        .map((i) => srcCs.list[i])) {
-        decoder.decode(chunk);
-    }
-    /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
-    await decoder.flush();
-    await encoder.flush();
-    decoder.close();
-    encoder.close();
 
     for (const [i, f] of frameXs.entries()) {
         if (f.isRemoved) transformed[i] = null;
@@ -655,12 +661,6 @@ async function transform(_codec = "") {
             });
         });
 
-    const Tend = performance.now();
-
-    transformTimeEl.sv(
-        `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${(Tend - Tdiff).toFixed(0)}ms`,
-    );
-
     transformCs.setList(finalData);
 }
 
@@ -674,15 +674,24 @@ function diffFrameXs(old: FrameX[], now: FrameX[]) {
             needReRender.add(i);
             continue;
         }
-        if (nid.isRemoved) continue;
         if (nid.id !== oid.id) {
             needReRender.add(i);
         }
     }
-    // 某个帧变，encode需要，前面的帧们要渲染，后面的帧们依赖前面的，所以整个clip都重新渲染
-    const needEncode = new Set<number>();
     const keys = now.flatMap((f, i) => (f.isKey ? i : []));
     keys.push(now.length);
+    // gop结尾是remove，那就不用渲染那块，进行trim
+    for (let i = 0; i < keys.length - 1; i++) {
+        for (let j = keys[i + 1] - 1; j >= keys[i]; j--) {
+            if (now[j].isRemoved) {
+                needReRender.delete(j);
+            } else {
+                break;
+            }
+        }
+    }
+    // 某个帧变，encode需要，前面的帧们要渲染，后面的帧们依赖前面的，所以整个gop都重新渲染
+    const needEncode = new Set<number>();
     for (const x of needReRender) {
         if (needEncode.has(x)) continue;
         const sI = keys.findLastIndex((i) => i <= x);
