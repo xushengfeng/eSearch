@@ -37,6 +37,7 @@ type uiData = {
 type FrameX = {
     rect: { x: number; y: number; w: number; h: number };
     timestamp: number;
+    isKey?: true;
     event: unknown[];
     isRemoved: boolean;
 };
@@ -55,6 +56,8 @@ let lastCodec = "";
 const history: uiData[] = [];
 
 let nowFrameX: FrameX[] = [];
+
+let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
 
 // 播放、导出
 const outputV = {
@@ -124,13 +127,13 @@ let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 class videoChunk {
     list: EncodedVideoChunk[] = [];
 
-    private timestamp2Id = new Map<number, number>();
+    private _timestamp2Id = new Map<number, number>();
     private tasks = new Map<number, ((OffscreenCanvas) => void)[]>();
     private willDecodeIs = new Set<number>();
     private lastAddDecodeI = -1;
     private frameDecoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const id = this.timestamp2Id.get(frame.timestamp) as number;
+            const id = this._timestamp2Id.get(frame.timestamp) as number;
             const tasks = this.tasks.get(id) ?? [];
             for (const task of tasks) {
                 task(frame2Canvas(frame)); // 克隆 // todo 优化
@@ -150,9 +153,9 @@ class videoChunk {
     }
     async setList(_list: EncodedVideoChunk[]) {
         this.list = _list;
-        this.timestamp2Id.clear();
+        this._timestamp2Id.clear();
         for (const [i, c] of this.list.entries()) {
-            this.timestamp2Id.set(c.timestamp, i);
+            this._timestamp2Id.set(c.timestamp, i);
         }
 
         await this.frameDecoder.flush();
@@ -203,7 +206,10 @@ class videoChunk {
         return promise;
     }
     frame2Id(frame: VideoFrame) {
-        return this.list.findIndex((c) => c.timestamp === frame.timestamp);
+        return this.timestamp2Id(frame.timestamp);
+    }
+    timestamp2Id(timestamp: number) {
+        return this._timestamp2Id.get(timestamp) ?? -1;
     }
     time2Id(time: number) {
         const i = this.list.findIndex((c) => c.timestamp >= ms2timestamp(time));
@@ -286,7 +292,6 @@ function initKeys() {
 async function afterRecord(chunks: EncodedVideoChunk[]) {
     transformTimeEl.sv("补帧中...");
     // 补帧
-    // todo 插入关键帧
     const m = new Map<number, number>();
     const d = Math.floor(ms2timestamp(1000 / srcRate));
     let index = 0;
@@ -492,7 +497,8 @@ function renderUiData(data: uiData) {
     }
 }
 
-function getFrameXs(_data: uiData) {
+function getFrameXs(_data: uiData | null) {
+    if (!_data) return [];
     const data: uiData = {
         clipList: _data.clipList.toSorted((a, b) => a.i - b.i),
         speed: _data.speed.toSorted((a, b) => a.start - b.start),
@@ -549,6 +555,18 @@ function getFrameXs(_data: uiData) {
         frameList.push(f);
     }
 
+    for (let i = 0; i < frameList.length; i += 150) {
+        for (let j = i; j < i + 150; j++) {
+            const f = frameList[j];
+            if (!f.isRemoved) {
+                f.isKey = true;
+                break;
+            }
+        }
+    }
+
+    console.log(frameList);
+
     return frameList;
 }
 
@@ -577,8 +595,6 @@ function easeOutQuint(x: number): number {
 }
 
 async function transform(_codec = "") {
-    const Tstart = performance.now();
-
     const nowUi = getNowUiData();
 
     if (_codec === lastCodec) {
@@ -586,33 +602,43 @@ async function transform(_codec = "") {
     }
     console.trace("transform");
     lastCodec = _codec;
+    const lastFrameXs = getFrameXs(lastUiData);
     lastUiData = nowUi;
     const frameXs = getFrameXs(nowUi);
     nowFrameX = frameXs;
 
-    // todo diff 关键帧之间为单位，如果frameX在直接变动，则重新生成关键帧之后的chunck
-    // todo diff 有的不变，有的变frame，有的变时间戳
-    // todo keyframe webm 32s mp4 5-10s
+    const needEncode = diffFrameXs(lastFrameXs, frameXs);
+
+    if (needEncode.size === 0) return;
 
     transformTimeEl.sv("开始处理");
     const Tdiff = performance.now();
 
-    const transformed: EncodedVideoChunk[] = [];
+    const needDecode = new Set<number>();
+
+    const transformed = structuredClone(lastEncodedChunks);
+
+    let runCount = 0;
 
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             // 解码 处理 编码
             const nFrame = transformX(frame);
-            encoder.encode(nFrame); // todo key frame
-            nFrame.close();
+            encoder.encode(nFrame.frame, { keyFrame: nFrame.isKey });
+            nFrame.frame.close();
         },
         error: (e) => console.error("Decode error:", e),
     });
     const encoder = new VideoEncoder({
         output: (c: EncodedVideoChunk) => {
-            // todo 这里有点难获取id，时间戳也是不保证的
-            transformed.push(c);
-            transformProgressEl.sv(transformed.length / srcCs.list.length);
+            const id = srcCs.timestamp2Id(c.timestamp);
+            if (id === -1) {
+                console.log("no id", c.timestamp);
+                return;
+            }
+            transformed[id] = c;
+            runCount++;
+            transformProgressEl.sv(runCount / needDecode.size);
         },
         error: (e) => console.error("Encode error:", e),
     });
@@ -626,7 +652,17 @@ async function transform(_codec = "") {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of srcCs.list) {
+
+    let inThisClip = false;
+    for (let i = srcCs.list.length - 1; i >= 0; i--) {
+        if (needEncode.has(i)) inThisClip = true;
+        if (inThisClip) needDecode.add(i);
+        if (srcCs.list[i].type === "key") inThisClip = false;
+    }
+
+    for (const chunk of Array.from(needDecode)
+        .toSorted((a, b) => a - b)
+        .map((i) => srcCs.list[i])) {
         decoder.decode(chunk);
     }
     /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
@@ -635,22 +671,86 @@ async function transform(_codec = "") {
     decoder.close();
     encoder.close();
 
+    for (const [i, f] of frameXs.entries()) {
+        if (f.isRemoved) transformed[i] = null;
+    }
+
+    lastEncodedChunks = transformed;
+
+    const finalData = transformed
+        .filter((c) => c !== null)
+        .map((chunk) => {
+            const data = new Uint8Array(chunk.byteLength);
+            chunk.copyTo(data);
+            return new EncodedVideoChunk({
+                data: data,
+                timestamp:
+                    frameXs.at(srcCs.timestamp2Id(chunk.timestamp))
+                        ?.timestamp ?? 0,
+                type: chunk.type,
+            });
+        });
+
     const Tend = performance.now();
 
     transformTimeEl.sv(
-        `处理帧数：${srcCs.list.length} 分析：${(Tdiff - Tstart).toFixed(0)}ms 处理：${(Tend - Tdiff).toFixed(0)}ms`,
+        `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${(Tend - Tdiff).toFixed(0)}ms`,
     );
 
-    transformCs.setList(transformed);
+    transformCs.setList(finalData);
+}
+
+function diffFrameXs(old: FrameX[], now: FrameX[]) {
+    const oldIds = getFrameXsIds(old);
+    const nowIds = getFrameXsIds(now);
+    const needReRender = new Set<number>();
+    for (const [i, nid] of nowIds.entries()) {
+        const oid = oldIds.at(i);
+        if (!oid) {
+            needReRender.add(i);
+            continue;
+        }
+        if (nid.isRemoved) continue;
+        if (nid.id !== oid.id) {
+            needReRender.add(i);
+        }
+    }
+    // 某个帧变，encode需要，前面的帧们要渲染，后面的帧们依赖前面的，所以整个clip都重新渲染
+    const needEncode = new Set<number>();
+    const keys = now.flatMap((f, i) => (f.isKey ? i : []));
+    keys.push(now.length);
+    for (const x of needReRender) {
+        if (needEncode.has(x)) continue;
+        const sI = keys.findLastIndex((i) => i <= x);
+        for (let i = sI; i < keys[sI + 1]; i++) needEncode.add(i);
+    }
+    console.log(needReRender, needEncode);
+
+    return needEncode;
+}
+
+function getFrameXsIds(frameXs: FrameX[]) {
+    const ids: Omit<FrameX, "timestamp">[] = [];
+    for (const f of frameXs) {
+        ids.push({
+            event: f.event,
+            isRemoved: f.isRemoved,
+            rect: f.rect,
+        });
+    }
+    return ids.map((i) => {
+        const id = JSON.stringify(i);
+        return { id, isRemoved: i.isRemoved };
+    });
 }
 
 function transformX(frame: VideoFrame) {
     const t = renderFrameX(frame);
     const canvas = t.canvas;
     const nFrame = new VideoFrame(canvas, {
-        timestamp: t.time,
+        timestamp: frame.timestamp,
     });
-    return nFrame;
+    return { frame: nFrame, isKey: t.isKey };
 }
 
 function renderFrameX(frame: VideoFrame) {
@@ -661,7 +761,7 @@ function renderFrameX(frame: VideoFrame) {
         console.log(
             `frame ${frame.timestamp} ${srcCs.frame2Id(frame)} not found in uiData`,
         );
-        return { canvas, time: frame.timestamp };
+        return { canvas, isKey: false };
     }
     const clip = frameX.rect;
     ctx.drawImage(
@@ -674,9 +774,8 @@ function renderFrameX(frame: VideoFrame) {
         outputV.width,
         outputV.height,
     );
-    const time = frameX.timestamp;
     frame.close();
-    return { canvas, time };
+    return { canvas, isKey: Boolean(frameX.isKey) };
 }
 
 async function playId(i: number, force = false) {
@@ -1080,6 +1179,7 @@ function getSavePath(type: baseType) {
 
 async function saveImages() {
     const exportPath = getSavePath("png");
+    // todo 适配transform
 
     try {
         fs.mkdirSync(exportPath, { recursive: true });
@@ -1091,7 +1191,7 @@ async function saveImages() {
             t.canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
                 const buffer = Buffer.from(await blob.arrayBuffer());
                 fs.writeFile(
-                    `${exportPath}/${t.time}.png`,
+                    `${exportPath}/${frame.timestamp}.png`,
                     buffer,
                     (_err) => {},
                 );
