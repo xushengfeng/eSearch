@@ -909,7 +909,6 @@ async function showThumbnails() {
             .style({
                 maxWidth: "100%",
                 maxHeight: "100%",
-                pointerEvents: "none",
             });
         (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
             canvas,
@@ -922,7 +921,11 @@ async function showThumbnails() {
         );
         timeLineMain.add(
             view()
-                .style({ width: "calc(100% / 6)", height: "100%" })
+                .style({
+                    width: "calc(100% / 6)",
+                    height: "100%",
+                    pointerEvents: "none",
+                })
                 .add(canvasEl),
         );
     }
@@ -962,7 +965,7 @@ async function showNowFrames(centerId: number) {
                 })
                 .style({ width: "fit-content", overflow: "hidden" })
                 .on("click", () => {
-                    jump2idUi(id);
+                    jump2idUi(trans2src.get(id) ?? 0);
                 });
             (
                 canvasEl.el.getContext("2d") as CanvasRenderingContext2D
@@ -1506,7 +1509,7 @@ const timeLineMain = view("x")
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
         const id = transformCs.time2Id(p * transformCs.getDuration());
-        jump2idUi(id);
+        jump2idUi(trans2src.get(id) ?? 0);
     });
 
 const timeLineControl = view("y")
