@@ -3351,10 +3351,14 @@ ipcRenderer.on(
     ) => {
         const wx = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
         allScreens = wx.screen;
-        windows = wx.window;
-        console.log(allScreens, windows);
         const mainId = mainid;
         const i = allScreens.find((i) => i.id === mainId) || allScreens[0];
+        windows = wx.window.map((w) => {
+            w.rect.x -= i.bounds?.x ?? 0;
+            w.rect.y -= i.bounds?.y ?? 0;
+            return w;
+        });
+        console.log(allScreens, windows);
         setScreen(i);
         const nowScreen =
             _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
