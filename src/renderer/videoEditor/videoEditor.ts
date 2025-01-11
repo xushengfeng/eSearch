@@ -1445,6 +1445,7 @@ const timeLineControl = view("y")
                     position: "absolute",
                     minWidth: "4px",
                     height: "100%",
+                    borderRadius: "4px",
                 },
             },
         ),
@@ -1687,7 +1688,7 @@ const timeLineClipEl = timeLineClip();
 const timeLineSpeedEl = timeLineTrack({
     el: (el) => {
         el.style({
-            backgroundColor: "blue",
+            backgroundColor: "#00f",
         });
     },
     newValue: () => 2,
@@ -1698,10 +1699,13 @@ const timeLineSpeedEl = timeLineTrack({
         uiDataSave();
     },
 });
+timeLineSpeedEl.el.style({
+    backgroundColor: "#00f1",
+});
 const timeLineEventEl = timeLineTrack({
     el: (el) => {
         el.style({
-            backgroundColor: "green",
+            backgroundColor: "#0f0",
         });
     },
     newValue: () => null,
@@ -1712,10 +1716,13 @@ const timeLineEventEl = timeLineTrack({
         uiDataSave();
     },
 });
+timeLineEventEl.el.style({
+    backgroundColor: "#0f01",
+});
 const timeLineRemoveEl = timeLineTrack({
     el: (el) => {
         el.style({
-            backgroundColor: "black",
+            backgroundColor: "#000",
         });
     },
     newValue: () => null,
@@ -1725,6 +1732,9 @@ const timeLineRemoveEl = timeLineTrack({
         history.push(uiData);
         uiDataSave();
     },
+});
+timeLineRemoveEl.el.style({
+    backgroundColor: "#0001",
 });
 
 const timeLineFrame = view("x").addInto();
