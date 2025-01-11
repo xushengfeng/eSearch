@@ -436,7 +436,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
 }
 
 function getNowUiData() {
-    return history.at(-1) as uiData; // todo 撤回指针等
+    return structuredClone(history.at(-1)) as uiData; // todo 撤回指针等
 }
 
 function renderUiData(data: uiData) {
@@ -997,7 +997,7 @@ async function showNowFrames(centerId: number) {
 function editClip(i: number) {
     type center = { x: number; y: number; ratio: number };
 
-    const data = structuredClone(getNowUiData());
+    const data = getNowUiData();
 
     const clip = data.clipList.at(i);
     if (!clip) return;
@@ -1591,7 +1591,7 @@ const timeLineClip = () => {
 
     el.el.ondblclick = (e) => {
         if (e.target === e.currentTarget) {
-            const data = structuredClone(getNowUiData());
+            const data = getNowUiData();
             const i = Math.floor(
                 (e.offsetX / el.el.offsetWidth) * listLength(),
             );
@@ -1812,7 +1812,7 @@ const timeLineSpeedEl = timeLineTrack({
     },
     newValue: () => 2,
     on: (data) => {
-        const uiData = structuredClone(getNowUiData());
+        const uiData = getNowUiData();
         uiData.speed = data;
         history.push(uiData);
         uiDataSave();
@@ -1829,7 +1829,7 @@ const timeLineEventEl = timeLineTrack({
     },
     newValue: () => null,
     on: (data) => {
-        const uiData = structuredClone(getNowUiData());
+        const uiData = getNowUiData();
         uiData.eventList = data;
         history.push(uiData);
         uiDataSave();
@@ -1846,7 +1846,7 @@ const timeLineRemoveEl = timeLineTrack({
     },
     newValue: () => null,
     on: (data) => {
-        const uiData = structuredClone(getNowUiData());
+        const uiData = getNowUiData();
         uiData.remove = data.map((d) => ({ start: d.start, end: d.end }));
         history.push(uiData);
         uiDataSave();
