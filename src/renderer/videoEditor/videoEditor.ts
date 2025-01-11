@@ -1096,7 +1096,10 @@ function editClip(i: number) {
         renderUiData(nowUi);
     });
 
-    const clipCanvasEl = ele("canvas");
+    const clipCanvasEl = ele("canvas").style({
+        maxWidth: "100%",
+        maxHeight: "100%",
+    });
     const clipCanvas = clipCanvasEl.el;
     const clipControl = view()
         .style({
@@ -1126,14 +1129,14 @@ function editClip(i: number) {
 
     trackPoint(clipControl, {
         start: () => {
-            return { x: centerPoint.x, y: centerPoint.y };
+            return { x: 0, y: 0, data: { x: centerPoint.x, y: centerPoint.y } };
         },
-        ing: (p) => {
-            const r = v.width / clipCanvas.width;
+        ing: (p, _, { startData: sd }) => {
+            const r = clipCanvas.width / clipCanvas.offsetWidth;
             const x = p.x * r;
             const y = p.y * r;
-            centerPoint.x = x;
-            centerPoint.y = y;
+            centerPoint.x = sd.x + x;
+            centerPoint.y = sd.y + y;
             const rect = center2rect(centerPoint);
             clipControl.sv(rect);
             return rect;
@@ -1152,11 +1155,12 @@ function editClip(i: number) {
     });
 
     clipEditor.clear().add([
-        view("y")
+        view()
             .style({
                 position: "relative",
-                alignItems: "center",
                 overflow: "hidden",
+                maxWidth: "100%",
+                maxHeight: "100%",
             })
             .add([clipCanvas, clipControl]),
         view("x").add([
@@ -1400,7 +1404,10 @@ const canvasEl = ele("canvas").style({
 });
 const canvas = canvasEl.el;
 
-const clipEditor = view("y").style({ alignItems: "center" });
+const clipEditor = view("y").style({
+    alignItems: "center",
+    overflow: "hidden",
+});
 
 const canvasView = view("y")
     .style({ flexGrow: 1, overflow: "hidden", alignItems: "center" })
