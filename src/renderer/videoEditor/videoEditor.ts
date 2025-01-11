@@ -1562,7 +1562,7 @@ const timeLineTrack = <D>(op: {
     function setItemEl(d: (typeof data)[0], el: ElType<HTMLElement>) {
         el.style({
             left: ipx(d.start),
-            width: ipx(d.end - d.start),
+            width: ipx(d.end - d.start + 1),
         });
     }
     function render() {
