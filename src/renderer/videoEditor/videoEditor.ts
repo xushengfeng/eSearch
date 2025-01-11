@@ -1631,7 +1631,7 @@ const timeLineTrack = <D>(op: {
                     ...data.map((d) => d.end).filter((s) => s < oldStart),
                     -1,
                 );
-                d.start = MathClamp(left + 1, oldStart + pi, listLength() - 1);
+                d.start = MathClamp(left + 1, oldStart + pi, sd.d.end);
             }
             if (sd.type === "center") {
                 // todo 限制+跳跃
@@ -1644,7 +1644,7 @@ const timeLineTrack = <D>(op: {
                     ...data.map((d) => d.start).filter((e) => e > oldEnd),
                     listLength(),
                 );
-                d.end = MathClamp(0, oldEnd + pi, right - 1);
+                d.end = MathClamp(sd.d.start, oldEnd + pi, right - 1);
             }
             setItemEl(d, sd.el);
             return d;
