@@ -1728,29 +1728,66 @@ const timeLineTrack = <D>(op: {
             const pi = px2i(p.x);
             if (!sd.d || !sd.el) return;
             const d = structuredClone(sd.d);
+            const newD = structuredClone(d);
             if (sd.type === "start") {
                 const oldStart = sd.d.start;
                 const left = Math.max(
                     ...data.map((d) => d.end).filter((s) => s < oldStart),
                     -1,
                 );
-                d.start = MathClamp(left + 1, oldStart + pi, sd.d.end);
-            }
-            if (sd.type === "center") {
-                // todo 限制+跳跃
-                d.start = sd.d.start + pi;
-                d.end = sd.d.end + pi;
+                newD.start = MathClamp(left + 1, oldStart + pi, d.end);
             }
             if (sd.type === "end") {
-                const oldEnd = sd.d.end;
+                const oldEnd = d.end;
                 const right = Math.min(
                     ...data.map((d) => d.start).filter((e) => e > oldEnd),
                     listLength(),
                 );
-                d.end = MathClamp(sd.d.start, oldEnd + pi, right - 1);
+                newD.end = MathClamp(d.start, oldEnd + pi, right - 1);
             }
-            setItemEl(d, sd.el);
-            return d;
+            if (sd.type === "center") {
+                const width = d.end - d.start;
+                const newS = d.start + pi;
+                const newE = d.end + pi;
+
+                const l = data
+                    .filter((i) => i.id !== d.id)
+                    .toSorted((a, b) => a.start - b.start);
+                const canIn0: { start: number; end: number }[] = [];
+                for (let i = 0; i < l.length; i++) {
+                    const e = l[i].start - 1;
+                    const s = (l[i - 1]?.end ?? -1) + 1;
+                    canIn0.push({ start: s, end: e });
+                }
+                canIn0.push({
+                    start: (l.at(-1)?.end ?? -1) + 1,
+                    end: listLength() - 1,
+                });
+                const canIn = canIn0.filter(
+                    (i) => i.start <= i.end && i.end - i.start >= width,
+                );
+                const canInSpread = canIn.map((x, i) => {
+                    const last = canIn[i - 1];
+                    const next = canIn[i + 1];
+                    const s = last ? (last.end + x.start) / 2 : x.start;
+                    const e = next ? (next.start + x.end) / 2 : x.end;
+                    return { start: s, end: e };
+                });
+
+                const inI =
+                    canIn[
+                        canInSpread.findIndex(
+                            (i) =>
+                                i.start <= newS + width / 2 &&
+                                newS + width / 2 <= i.end,
+                        )
+                    ];
+
+                newD.start = MathClamp(inI.start, newS, inI.end - width);
+                newD.end = MathClamp(inI.start + width, newE, inI.end);
+            }
+            setItemEl(newD, sd.el);
+            return newD;
         },
         end: (_, { ingData }) => {
             console.log(ingData);
