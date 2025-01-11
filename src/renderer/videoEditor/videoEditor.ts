@@ -171,7 +171,10 @@ class videoChunk {
     get length() {
         return this.list.length;
     }
-    #on(i: number, cb: (OffscreenCanvas: OffscreenCanvas) => void) {
+    #on(i: number, cb: (OffscreenCanvas: OffscreenCanvas | null) => void) {
+        if (i >= this.length) {
+            cb(null);
+        }
         const task = this.tasks.get(i) ?? [];
         task.push(cb);
         this.tasks.set(i, task);
@@ -201,7 +204,8 @@ class videoChunk {
         }
     }
     async getFrame(index: number) {
-        const { promise, resolve } = Promise.withResolvers<OffscreenCanvas>();
+        const { promise, resolve } =
+            Promise.withResolvers<OffscreenCanvas | null>();
         this.#on(index, (c) => resolve(c));
         await this.frameDecoder.flush(); // 不调用总有4个帧没解码完
         this.lastAddDecodeI = -1;
@@ -784,7 +788,7 @@ async function play() {
         const i = transformCs.time2Id(dTime);
         await playId(i);
 
-        if (playI === listLength() - 1) {
+        if (playI === transformCs.length - 1) {
             playEnd();
         }
 
@@ -859,7 +863,7 @@ async function showThumbnails() {
     await transform();
     timeLineMain.clear();
     for (let i = 0; i < 6; i++) {
-        const id = Math.floor((i / 6) * listLength());
+        const id = Math.floor((i / 6) * transformCs.length);
         const canvas = await transformCs.getFrame(id);
         if (!canvas) {
             console.log("no frame", id);
@@ -908,7 +912,7 @@ async function showNowFrames(centerId: number) {
         const tW = 300;
         const tH = Math.floor((tW * outputV.height) / outputV.width);
 
-        if (0 <= i && i < listLength()) {
+        if (0 <= i && i < transformCs.length) {
             const canvas = await transformCs.getFrame(id);
             if (!canvas) {
                 console.log("no frame", id);
