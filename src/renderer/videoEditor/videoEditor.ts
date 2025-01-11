@@ -652,9 +652,18 @@ async function transform(_codec = "") {
         );
     }
 
+    trans2src.clear();
+    src2trans.clear();
+
+    let transCount = 0;
     for (const [i, f] of frameXs.entries()) {
+        trans2src.set(transCount, i);
+        src2trans.set(i, transCount);
         if (f.isRemoved) transformed[i] = null;
+        else transCount++;
     }
+
+    console.log(trans2src, src2trans);
 
     lastEncodedChunks = transformed;
 
@@ -807,7 +816,7 @@ async function play() {
 
 function onPlay(dTime: number) {
     playTimeEl.sv(dTime);
-    timeLineControlPoint.sv(transformCs.time2Id(dTime));
+    timeLineControlPoint.sv(trans2src.get(transformCs.time2Id(dTime)));
 }
 
 function setPlaySize() {
@@ -841,9 +850,11 @@ async function jump2id(id: number) {
 }
 
 async function jump2idUi(id: number) {
-    await jump2id(id);
-    await showNowFrames(id);
-    playTimeEl.sv(transformCs.getTime(id));
+    const transId = src2trans.get(id);
+    if (transId === undefined) return;
+    await jump2id(transId);
+    await showNowFrames(transId);
+    playTimeEl.sv(transformCs.getTime(transId));
     timeLineControlPoint.sv(id);
 }
 
@@ -1322,6 +1333,9 @@ function timeEl() {
 
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
+
+const trans2src = new Map<number, number>();
+const src2trans = new Map<number, number>();
 
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
