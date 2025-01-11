@@ -1571,33 +1571,53 @@ const timeLineTrack = <D>(op: {
             itemEl(d);
         }
     }
+    function getMouseType(x: number) {
+        let type: "start" | "center" | "end" | "none" = "none";
+        let itemId = "";
+        for (const d of data) {
+            const s = i2px(d.start);
+            const e = i2px(d.end);
+            if (s - 2 <= x && x <= s + 2) {
+                type = "start";
+                itemId = d.id;
+                break;
+            }
+            if (e - 2 <= x && x <= e + 2) {
+                type = "end";
+                itemId = d.id;
+                break;
+            }
+            if (s <= x && x <= e) {
+                type = "center";
+                itemId = d.id;
+                break;
+            }
+        }
+        return {
+            type: type,
+            itemId: itemId,
+        };
+    }
 
     // todo 删除
     // todo 编辑value
     trackPoint(track, {
+        all: (e) => {
+            const x = getX(e);
+            const { type } = getMouseType(x);
+            if (type === "center") {
+                track.style({ cursor: "grabbing" });
+            } else if (type === "end") {
+                track.style({ cursor: "w-resize" });
+            } else if (type === "start") {
+                track.style({ cursor: "e-resize" });
+            } else {
+                track.style({ cursor: "default" });
+            }
+        },
         start: (e) => {
             const x = getX(e);
-            let type: "start" | "center" | "end" | "none" = "none";
-            let itemId = "";
-            for (const d of data) {
-                const s = i2px(d.start);
-                const e = i2px(d.end);
-                if (s <= x && x <= s + 2) {
-                    type = "start";
-                    itemId = d.id;
-                    break;
-                }
-                if (s <= x && x <= e) {
-                    type = "center";
-                    itemId = d.id;
-                    break;
-                }
-                if (e - 2 <= x && x <= e) {
-                    type = "end";
-                    itemId = d.id;
-                    break;
-                }
-            }
+            let { type, itemId } = getMouseType(x);
             if (type === "none") {
                 const i = px2i(x);
                 const d = {
