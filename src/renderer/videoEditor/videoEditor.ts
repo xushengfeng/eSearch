@@ -594,9 +594,20 @@ async function transform(_codec = "") {
 
         let runCount = 0;
 
+        function run() {
+            runCount++;
+            transformProgressEl.sv(runCount / needDecode.size);
+        }
+
         const decoder = new VideoDecoder({
             output: (frame: VideoFrame) => {
                 // 解码 处理 编码
+                const id = srcCs.timestamp2Id(frame.timestamp);
+                if (frameXs[id].isRemoved) {
+                    run();
+                    frame.close();
+                    return;
+                }
                 const nFrame = transformX(frame);
                 encoder.encode(nFrame.frame, { keyFrame: nFrame.isKey });
                 nFrame.frame.close();
@@ -611,8 +622,7 @@ async function transform(_codec = "") {
                     return;
                 }
                 transformed[id] = c;
-                runCount++;
-                transformProgressEl.sv(runCount / needDecode.size);
+                run();
             },
             error: (e) => console.error("Encode error:", e),
         });
@@ -729,6 +739,7 @@ function getFrameXsIds(frameXs: FrameX[]) {
             event: f.event,
             isRemoved: f.isRemoved,
             rect: f.rect,
+            isKey: f.isKey,
         });
     }
     return ids.map((i) => {
