@@ -14,7 +14,10 @@ import {
     trackPoint,
     txt,
     view,
+    image,
 } from "dkh-ui";
+import { getImgUrl, initStyle } from "../root/root";
+import store from "../../../lib/store/renderStore";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
 const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
@@ -881,7 +884,11 @@ async function showThumbnails() {
                 width: tW,
                 height: tH,
             })
-            .style({ width: "calc(100% / 6)", pointerEvents: "none" });
+            .style({
+                maxWidth: "100%",
+                maxHeight: "100%",
+                pointerEvents: "none",
+            });
         (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
             canvas,
             ...zeroPoint,
@@ -891,7 +898,11 @@ async function showThumbnails() {
             tW,
             tH,
         );
-        timeLineMain.add(canvasEl);
+        timeLineMain.add(
+            view()
+                .style({ width: "calc(100% / 6)", height: "100%" })
+                .add(canvasEl),
+        );
     }
 }
 
@@ -909,7 +920,7 @@ async function showNowFrames(centerId: number) {
     for (let i = centerId - 3; i < centerId + 4; i++) {
         if (hasI.includes(i)) continue;
         const id = i;
-        const c = view()
+        const c = view("y")
             .style({ width: "calc(100% / 7)", order: i })
             .data({ i: String(i) });
 
@@ -927,7 +938,7 @@ async function showNowFrames(centerId: number) {
                     width: tW,
                     height: tH,
                 })
-                .style({ maxWidth: "100%" })
+                .style({ width: "fit-content", overflow: "hidden" })
                 .on("click", () => {
                     jump2idUi(id);
                 });
@@ -943,7 +954,7 @@ async function showNowFrames(centerId: number) {
                 tH,
             );
             c.add(canvasEl);
-            c.add(formatTime(transformCs.getTime(id)));
+            c.add(timeEl().sv(transformCs.getTime(id)));
         }
         timeLineFrame.add(c);
     }
@@ -1118,21 +1129,23 @@ function editClip(i: number) {
         },
     });
 
-    clipEditor
-        .clear()
-        .add([
-            view()
-                .style({ position: "relative" })
-                .add([clipCanvas, clipControl]),
-            view("x").add([
-                clipMoveLast,
-                clipMoveNext,
-                clipRemove,
-                clipTransition,
-                clipSave,
-                clipGiveUp,
-            ]),
-        ]);
+    clipEditor.clear().add([
+        view("y")
+            .style({
+                position: "relative",
+                alignItems: "center",
+                overflow: "hidden",
+            })
+            .add([clipCanvas, clipControl]),
+        view("x").add([
+            clipMoveLast,
+            clipMoveNext,
+            clipRemove,
+            clipTransition,
+            clipSave,
+            clipGiveUp,
+        ]),
+    ]);
 
     canvasView.sv("clip");
 
@@ -1294,6 +1307,19 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     ipcRenderer.send("ok_save", exportPath, true);
 }
 
+// @auto-path:../assets/icons/$.svg
+function iconBEl(src: string) {
+    return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
+}
+
+function timeEl() {
+    return txt()
+        .style({ fontFamily: "var(--monospace)" })
+        .bindSet((t: number, el) => {
+            el.innerText = formatTime(t);
+        });
+}
+
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
 
@@ -1316,6 +1342,8 @@ const playDecoder = new VideoDecoder({
 playDecoder.configure({
     codec: codec,
 });
+
+initStyle(store);
 
 const stopPEl = view()
     .style({
@@ -1341,12 +1369,16 @@ view()
         stopRecord();
     });
 
-const canvasEl = ele("canvas");
+const canvasEl = ele("canvas").style({
+    overflow: "hidden",
+    width: "fit-content",
+});
 const canvas = canvasEl.el;
 
-const clipEditor = view("y");
+const clipEditor = view("y").style({ alignItems: "center" });
 
-const canvasView = view()
+const canvasView = view("y")
+    .style({ flexGrow: 1, overflow: "hidden", alignItems: "center" })
     .add([canvasEl, clipEditor])
     .addInto()
     .bindSet((type: "play" | "clip") => {
@@ -1355,13 +1387,18 @@ const canvasView = view()
             clipEditor.style({ display: "none" });
         } else {
             canvasEl.style({ display: "none" });
-            clipEditor.style({ display: "block" });
+            clipEditor.style({ display: "flex" });
         }
     })
     .sv("play");
 
-const actionsEl = view("x").addInto();
-const playEl = check("", ["||", "|>"]).on("input", async () => {
+const actionsEl = view("x")
+    .style({ justifyContent: "center", alignItems: "center" })
+    .addInto();
+const playEl = check("", [
+    iconBEl("pause").style({ display: "block" }),
+    iconBEl("recume").style({ display: "block" }),
+]).on("input", async () => {
     if (playEl.gv) {
         await transform();
         isPlaying = true;
@@ -1379,22 +1416,31 @@ const playEl = check("", ["||", "|>"]).on("input", async () => {
     }
 });
 
-const lastFrame = button("<").on("click", () => {
+const lastFrame = iconBEl("last").on("click", () => {
     const id = Math.max(willPlayI - 1, 0);
     jump2idUi(id);
 });
-const nextFrame = button(">").on("click", () => {
+const nextFrame = iconBEl("next").on("click", () => {
     const id = Math.min(willPlayI + 1, transformCs.length - 1);
     jump2idUi(id);
 });
-const lastKey = button("<<");
-const nextKey = button(">>");
+// const lastKey = button("<<");
+// const nextKey = button(">>");
 
-const playTimeEl = txt().bindSet((t: number, el) => {
-    el.innerText = `${formatTime(t)} / ${formatTime(transformCs.getDuration())}`;
-});
+const playTimeEl = (() => {
+    const el = view("x");
+    const t = timeEl().sv(0);
+    const all = timeEl().sv(0);
+    let tt = 0;
+    return el.add([t, "/", all]).bindSet((time: number | null) => {
+        const nt = time ?? tt;
+        tt = nt;
+        t.sv(nt);
+        all.sv(transformCs.getDuration());
+    });
+})();
 
-actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
+actionsEl.add([lastFrame, playEl, nextFrame, playTimeEl]);
 
 const transformLogEl = view("x").addInto();
 
@@ -1423,6 +1469,7 @@ const transformTimeEl = txt();
 transformLogEl.add([transformProgressEl, transformTimeEl]);
 
 const timeLineMain = view("x")
+    .style({ height: "80px" })
     .addInto()
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
@@ -1431,7 +1478,7 @@ const timeLineMain = view("x")
     });
 
 const timeLineControl = view("y")
-    .style({ height: "80px", position: "relative" })
+    .style({ height: "80px", position: "relative", flexShrink: 0 })
     .class(
         addClass(
             {},
@@ -1737,17 +1784,17 @@ timeLineRemoveEl.el.style({
     backgroundColor: "#0001",
 });
 
-const timeLineFrame = view("x").addInto();
+const timeLineFrame = view("x").style({ height: "150px" }).addInto();
 const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
 
 const exportPx = select([]);
 
 const exportEl = frame("export", {
     _: view("x"),
-    export: button("导出").on("click", save),
+    export: iconBEl("save").on("click", save),
     type: select(outputType.map((t) => ({ value: t.name }))),
     px: exportPx,
-    editClip: button("编辑").on("click", async () => {
+    editClip: iconBEl("draw").on("click", async () => {
         const canvas = await transformCs.getFrame(willPlayI);
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
@@ -1756,7 +1803,7 @@ const exportEl = frame("export", {
         });
     }),
     editSrc: button("编辑原图").on("click", async () => {
-        const canvas = await srcCs.getFrame(willPlayI);
+        const canvas = await srcCs.getFrame(willPlayI); // todo 删除帧后的映射
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
@@ -1768,6 +1815,13 @@ const exportEl = frame("export", {
 exportEl.el.addInto();
 
 pureStyle();
+
+pack(document.body).style({
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    overflow: "hidden",
+});
 
 ipcRenderer.on("record", async (_e, _t, sourceId) => {
     if (testMode) return;
