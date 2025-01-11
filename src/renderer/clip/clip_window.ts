@@ -346,12 +346,16 @@ function edge() {
 }
 
 function getWin() {
-    for (const w of windows) {
+    for (const win of windows) {
+        const x = Math.max(win.rect.x, 0);
+        const y = Math.max(win.rect.y, 0);
+        const w = Math.min(win.rect.w, mainCanvas.width - x);
+        const h = Math.min(win.rect.h, mainCanvas.height - y);
         edgeRect.push({
-            x: w.rect.x,
-            y: w.rect.y,
-            width: w.rect.w,
-            height: w.rect.h,
+            x: x,
+            y: y,
+            width: w,
+            height: h,
             type: "system",
         });
     }
