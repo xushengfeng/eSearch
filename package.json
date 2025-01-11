@@ -20,7 +20,7 @@
         "@erase2d/fabric": "^1.1.6",
         "chroma-js": "^3.1.1",
         "diff-match-patch": "^1.0.5",
-        "dkh-ui": "^0.12.1",
+        "dkh-ui": "^0.12.2",
         "download": "^8.0.0",
         "esearch-ocr": "^6.0.0",
         "esearch-seg": "^1.1.4",
