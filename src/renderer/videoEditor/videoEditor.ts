@@ -242,6 +242,10 @@ function uuid() {
     return crypto.randomUUID();
 }
 
+function MathClamp(min: number, value: number, max: number) {
+    return Math.min(Math.max(min, value), max);
+}
+
 function frame2Canvas(frame: VideoFrame) {
     const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
     const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
@@ -418,8 +422,8 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         if (chunk === -1) continue;
         const w = v.width / 3;
         const h = v.height / 3;
-        const x = Math.max(0, Math.min(v.width - w, k.posi.x - w / 2));
-        const y = Math.max(0, Math.min(v.height - h, k.posi.y - h / 2));
+        const x = MathClamp(0, k.posi.x - w / 2, v.width - w);
+        const y = MathClamp(0, k.posi.y - h / 2, v.height - h);
         getNowUiData().clipList.push({
             i: chunk,
             rect: { x, y, w: w, h: h },
@@ -977,8 +981,8 @@ function editClip(i: number) {
         const h = Math.min(v.height * center.ratio, v.height);
         let x = center.x - w / 2;
         let y = center.y - h / 2;
-        x = Math.min(Math.max(0, x), v.width - w);
-        y = Math.min(Math.max(0, y), v.height - h);
+        x = MathClamp(0, x, v.width - w);
+        y = MathClamp(0, y, v.height - h);
         return { x, y, w, h };
     }
 
@@ -1629,10 +1633,7 @@ const timeLineTrack = <D>(op: {
                         .map((d) => d.end + 1),
                     0,
                 );
-                d.start = Math.min(
-                    Math.max(left, oldStart + pi),
-                    listLength() - 1,
-                );
+                d.start = MathClamp(left, oldStart + pi, listLength() - 1);
             }
             if (sd.type === "center") {
                 // todo 限制+跳跃
@@ -1647,7 +1648,7 @@ const timeLineTrack = <D>(op: {
                         .map((d) => d.start - 1),
                     listLength() - 1,
                 );
-                d.end = Math.min(Math.max(0, oldEnd + pi), right);
+                d.end = MathClamp(0, oldEnd + pi, right);
             }
             setItemEl(d, sd.el);
             return d;
