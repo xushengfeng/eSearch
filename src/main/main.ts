@@ -1873,6 +1873,7 @@ function createDingWindow(
 let dingThrogh: null | boolean = null;
 ipcMain.on("ding_ignore", (_event, v) => {
     for (const id in dingwindowList) {
+        if (dingwindowList[id]?.win.isDestroyed()) continue;
         dingwindowList[id]?.win?.setIgnoreMouseEvents(
             dingThrogh === null ? v : dingThrogh,
         );
