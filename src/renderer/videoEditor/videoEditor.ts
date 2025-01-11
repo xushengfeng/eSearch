@@ -672,7 +672,7 @@ async function transform(_codec = "") {
             });
         });
 
-    transformCs.setList(finalData);
+    await transformCs.setList(finalData);
 }
 
 function diffFrameXs(old: FrameX[], now: FrameX[]) {
