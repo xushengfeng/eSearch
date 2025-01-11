@@ -1443,11 +1443,11 @@ const playEl = check("", [
 
 const lastFrame = iconBEl("last").on("click", () => {
     const id = Math.max(willPlayI - 1, 0);
-    jump2idUi(id);
+    jump2idUi(trans2src.get(id) ?? willPlayI);
 });
 const nextFrame = iconBEl("next").on("click", () => {
     const id = Math.min(willPlayI + 1, transformCs.length - 1);
-    jump2idUi(id);
+    jump2idUi(trans2src.get(id) ?? willPlayI);
 });
 // const lastKey = button("<<");
 // const nextKey = button(">>");
@@ -1534,14 +1534,14 @@ const timeLineControlPoint = view()
     })
     .addInto(timeLineControl)
     .bindSet((i: number, el) => {
-        el.style.left = `${(i / transformCs.length) * 100}%`;
+        el.style.left = `${(i / listLength()) * 100}%`;
     });
 
 view()
     .addInto(timeLineControl)
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = Math.floor(p * transformCs.length);
+        const id = Math.floor(p * listLength());
         jump2idUi(id);
     });
 
