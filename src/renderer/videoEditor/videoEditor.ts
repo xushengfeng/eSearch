@@ -414,13 +414,16 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     const totalFrameCount =
         chunks.length + m.values().reduce((a, b) => a + b, 0);
     for (const c of chunks) {
+        if (c.type === "key") {
+            await decoder.flush();
+            await encoder.flush();
+        }
         decoder.decode(c);
     }
     await decoder.flush();
     await encoder.flush();
     decoder.close();
     encoder.close();
-    console.log(encodedChunks.length);
     return encodedChunks;
 }
 
