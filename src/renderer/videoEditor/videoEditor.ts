@@ -74,32 +74,6 @@ const v = {
     height: 0,
 };
 
-const codecMap = {
-    vp8: "vp8",
-    vp9: "vp09.00.10.08",
-    av1: "av01.0.04M.08",
-    avc: "avc1.42001F",
-}; // todo 找到能用的编码
-
-const codec = await (async () => {
-    const codecs = ["av1", "vp9", "avc", "vp8"];
-    for (const c of codecs) {
-        const mc = codecMap[c];
-        if (
-            (await VideoDecoder.isConfigSupported({ codec: mc })) &&
-            (await VideoEncoder.isConfigSupported({
-                codec: mc,
-                width: screen.width,
-                height: screen.height,
-            }))
-        ) {
-            return mc;
-        }
-    }
-    return "vp8";
-})();
-console.log("codec", codec);
-
 const frameLength = store.get("录屏.超级录屏.关键帧间隔");
 
 const srcRate = 60;
@@ -151,9 +125,7 @@ class videoChunk {
     });
 
     constructor(_list: (EncodedVideoChunk | null)[]) {
-        this.frameDecoder.configure({
-            codec: codec,
-        });
+        this.frameDecoder.configure(videoConfig);
         this.setList(_list);
     }
     async setList(_list: (EncodedVideoChunk | null)[]) {
@@ -401,15 +373,13 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     });
 
     encoder.configure({
-        codec: codec,
+        ...videoConfig,
         framerate: srcRate,
         bitrate: bitrate,
         width: v.width,
         height: v.height,
     });
-    decoder.configure({
-        codec: codec,
-    });
+    decoder.configure(videoConfig);
     let lastTime = 0;
     for (const c of chunks) {
         const count = Math.round((c.timestamp - lastTime) / d);
@@ -731,14 +701,13 @@ async function runTransform(
         });
         encoder.configure({
             codec: codecMap[_codec] ?? codec,
+            hardwareAcceleration: videoConfig.hardwareAcceleration,
             width: outputV.width,
             height: outputV.height,
             framerate: srcRate,
             bitrate: bitrate,
         });
-        decoder.configure({
-            codec: codec,
-        });
+        decoder.configure(videoConfig);
 
         let inThisClip = false;
         for (let i = srcCs.list.length - 1; i >= 0; i--) {
@@ -1352,9 +1321,7 @@ async function saveImages() {
         },
         error: (e) => console.error("Decode error:", e),
     });
-    decoder.configure({
-        codec: codec,
-    });
+    decoder.configure(videoConfig);
     for (const chunk of transformCs.list) {
         decoder.decode(chunk);
     }
@@ -1389,9 +1356,7 @@ async function saveGif() {
         },
         error: (e) => console.error("Decode error:", e),
     });
-    decoder.configure({
-        codec: codec,
-    });
+    decoder.configure(videoConfig);
     for (const chunk of transformCs.list) {
         decoder.decode(chunk);
     }
@@ -1479,6 +1444,50 @@ const history = new xhistory<uiData>([], {
     remove: [],
 });
 
+const codecMap: Record<string, string> = {
+    vp8: "vp8",
+    vp9: "vp09.00.10.08",
+    av1: "av01.0.04M.08",
+    avc: "avc1.42001F",
+}; // todo 找到能用的编码
+
+const [codec, isHwAcc] = await (async () => {
+    const codecs = ["av1", "vp9", "avc", "vp8"].map((c) => codecMap[c]);
+    async function isSupported(mc: string, acc: boolean) {
+        return (
+            (await VideoDecoder.isConfigSupported({
+                codec: mc,
+                hardwareAcceleration: acc ? "prefer-hardware" : "no-preference",
+            })).supported &&
+            (await VideoEncoder.isConfigSupported({
+                codec: mc,
+                hardwareAcceleration: acc ? "prefer-hardware" : "no-preference",
+                width: screen.width,
+                height: screen.height,
+            })).supported
+        );
+    }
+    if (store.get("录屏.超级录屏.编码选择") === "性能优先") {
+        for (const c of codecs) {
+            if (await isSupported(c, true)) return [c, true];
+        }
+        for (const c of codecs) {
+            if (await isSupported(c, false)) return [c, false];
+        }
+    } else {
+        for (const c of codecs) {
+            if (await isSupported(c, true)) return [c, true];
+            if (await isSupported(c, false)) return [c, false];
+        }
+    }
+    return ["vp8", false];
+})();
+const videoConfig = {
+    codec: codec,
+    hardwareAcceleration: isHwAcc ? "prefer-hardware" : "no-preference",
+} as const;
+console.log("codec", videoConfig);
+
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
 
@@ -1504,9 +1513,7 @@ const playDecoder = new VideoDecoder({
     },
     error: (e) => console.error("Decode error:", e),
 });
-playDecoder.configure({
-    codec: codec,
-});
+playDecoder.configure(videoConfig);
 
 initStyle(store);
 
@@ -2172,7 +2179,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     const videoHeight = videoTrack.getSettings().height ?? screen.height;
 
     encoder.configure({
-        codec: codec,
+        ...videoConfig,
         width: videoWidth,
         height: videoHeight,
         framerate: srcRate,
@@ -2285,7 +2292,7 @@ if (testMode === "getFrame") {
         error: (e) => console.error("Encode error:", e),
     });
     encoder.configure({
-        codec: codec,
+        ...videoConfig,
         width: 1920,
         height: 1080,
     });
