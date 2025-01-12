@@ -1267,16 +1267,18 @@ function getSavePath(type: baseType) {
 
 async function saveImages() {
     const exportPath = getSavePath("png");
-    // todo 适配transform
+    // todo 大小警告
 
     try {
         fs.mkdirSync(exportPath, { recursive: true });
     } catch (error) {}
 
+    await transform(); // todo 不可取消
+
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const t = renderFrameX(frame);
-            t.canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
+            const t = frame2Canvas(frame);
+            t.convertToBlob({ type: "image/png" }).then(async (blob) => {
                 const buffer = Buffer.from(await blob.arrayBuffer());
                 fs.writeFile(
                     `${exportPath}/${frame.timestamp}.png`,
@@ -1290,7 +1292,7 @@ async function saveImages() {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of srcCs.list) {
+    for (const chunk of transformCs.list) {
         decoder.decode(chunk);
     }
 
@@ -1307,10 +1309,12 @@ async function saveGif() {
 
     const gif = GIFEncoder();
 
+    await transform();
+
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             const { data, width, height } = (
-                renderFrameX(frame).canvas.getContext(
+                frame2Canvas(frame).getContext(
                     "2d",
                 ) as OffscreenCanvasRenderingContext2D
             ).getImageData(0, 0, outputV.width, outputV.height);
@@ -1325,7 +1329,7 @@ async function saveGif() {
     decoder.configure({
         codec: codec,
     });
-    for (const chunk of srcCs.list) {
+    for (const chunk of transformCs.list) {
         decoder.decode(chunk);
     }
 
