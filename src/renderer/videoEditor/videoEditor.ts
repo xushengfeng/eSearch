@@ -15,6 +15,7 @@ import {
     txt,
     view,
     image,
+    dynamicSelect,
 } from "dkh-ui";
 import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
@@ -246,7 +247,7 @@ class xhistory<Data> {
     constructor(datas: typeof this.history, _initData: Data) {
         this.history = datas;
         this.history.unshift({
-            des: "",
+            des: "初始化",
             data: _initData,
             time: new Date().getTime(),
         });
@@ -494,7 +495,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     history.setDataF((uidata) => {
         uidata.clipList = clipList;
         return uidata;
-    });
+    }, "分析创建镜头位置");
     history.apply();
 }
 
@@ -1136,7 +1137,7 @@ function editClip(i: number) {
 
     async function save() {
         canvasView.sv("play");
-        history.setData(data);
+        history.setData(data, "更新镜头位置");
         history.apply();
         await transform();
         await showThumbnails();
@@ -1623,27 +1624,42 @@ const transformProgressEl = (() => {
 const transformTimeEl = txt();
 
 const actionUndo = iconBEl("left")
-    .style({ width: "24px" })
+    .style({ width: "24px", height: "24px" })
     .on("click", async () => {
         history.undo();
-        await transform();
         renderUiData(history.getData());
+        await transform();
     });
-// const actionList
+const actionList = dynamicSelect();
+actionList.el
+    .on("change", async () => {
+        history.jump(Number(actionList.el.gv));
+        renderUiData(history.getData());
+        await transform();
+    })
+    .style({
+        height: "24px",
+        // @ts-ignore
+        fieldSizing: "content",
+    });
 const actionUnundo = iconBEl("right")
-    .style({ width: "24px" })
+    .style({ width: "24px", height: "24xp" })
     .on("click", async () => {
         history.unundo();
-        await transform();
         renderUiData(history.getData());
+        await transform();
     });
 
 history.on("change", () => {
     console.log("h", history.getData());
+    actionList.setList(
+        history.history.map((h, i) => ({ value: String(i), name: h.des })),
+    );
+    actionList.el.sv(String(history.i));
 });
 
 transformLogEl.add([
-    view("x").add([actionUndo, actionUnundo]),
+    view("x").add([actionUndo, actionList.el, actionUnundo]),
     transformProgressEl,
     transformTimeEl,
 ]);
@@ -2026,7 +2042,7 @@ const timeLineSpeedEl = timeLineTrack({
         history.setDataF((uiData) => {
             uiData.speed = data;
             return uiData;
-        });
+        }, "更新速度");
         history.apply();
         uiDataSave();
     },
@@ -2045,7 +2061,7 @@ const timeLineEventEl = timeLineTrack({
         history.setDataF((uiData) => {
             uiData.eventList = data;
             return uiData;
-        });
+        }, "更新事件");
         history.apply();
         uiDataSave();
     },
@@ -2064,7 +2080,7 @@ const timeLineRemoveEl = timeLineTrack({
         history.setDataF((uiData) => {
             uiData.remove = data.map((d) => ({ start: d.start, end: d.end }));
             return uiData;
-        });
+        }, "更新移除");
         history.apply();
         uiDataSave();
     },
