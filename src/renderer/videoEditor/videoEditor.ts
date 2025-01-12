@@ -49,7 +49,7 @@ type FrameX = {
 
 type baseType = (typeof outputType)[number]["type"];
 
-const testMode: "getFrame" | "history" | false = "history";
+const testMode: "getFrame" | "history" | false = false;
 
 const zeroPoint = [0, 0] as const;
 
@@ -239,9 +239,10 @@ class videoChunk {
 
 class xhistory<Data> {
     history: { data: Data; time: number; des: string }[];
+    i = -1;
     private tmpData: Data | null = null;
     private des = "";
-    i = -1;
+    private changeEvent = new Set<() => void>();
     constructor(datas: typeof this.history, _initData: Data) {
         this.history = datas;
         this.history.unshift({
@@ -269,6 +270,9 @@ class xhistory<Data> {
         this.history.push({ data, time: new Date().getTime(), des });
         this.i = this.history.length - 1;
         this.des = "";
+        for (const f of this.changeEvent) {
+            f();
+        }
     }
     giveup() {
         this.tmpData = null;
@@ -285,6 +289,10 @@ class xhistory<Data> {
     }
     jump(i: number) {
         this.i = MathClamp(0, i, this.history.length - 1);
+    }
+
+    on(name: "change", fun: () => void) {
+        if (name === "change") this.changeEvent.add(fun);
     }
 }
 
@@ -1614,7 +1622,31 @@ const transformProgressEl = (() => {
 
 const transformTimeEl = txt();
 
-transformLogEl.add([transformProgressEl, transformTimeEl]);
+const actionUndo = iconBEl("left")
+    .style({ width: "24px" })
+    .on("click", async () => {
+        history.undo();
+        await transform();
+        renderUiData(history.getData());
+    });
+// const actionList
+const actionUnundo = iconBEl("right")
+    .style({ width: "24px" })
+    .on("click", async () => {
+        history.unundo();
+        await transform();
+        renderUiData(history.getData());
+    });
+
+history.on("change", () => {
+    console.log("h", history.getData());
+});
+
+transformLogEl.add([
+    view("x").add([actionUndo, actionUnundo]),
+    transformProgressEl,
+    transformTimeEl,
+]);
 
 const timeLineMain = view("x")
     .style({ height: "80px" })
@@ -2278,6 +2310,7 @@ if (testMode === "getFrame") {
     }
 }
 
+// @ts-ignore
 if (testMode === "history") {
     const history = new xhistory<string>([], "");
 
