@@ -60,8 +60,6 @@ let lastCodec = "";
 
 const history: uiData[] = [];
 
-let nowFrameX: FrameX[] = [];
-
 let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
 
 // 播放、导出
@@ -616,7 +614,6 @@ async function runTransform(
     console.trace("transform");
     const lastFrameXs = getFrameXs(lastUiData);
     const frameXs = getFrameXs(nowUi);
-    nowFrameX = frameXs;
 
     const needEncode = diffFrameXs(lastFrameXs, frameXs);
 
@@ -639,12 +636,18 @@ async function runTransform(
             output: (frame: VideoFrame) => {
                 // 解码 处理 编码
                 const id = srcCs.timestamp2Id(frame.timestamp);
-                if (frameXs[id].isRemoved) {
+                const frameX = frameXs.at(id);
+                if (!frameX || frameX?.isRemoved) {
+                    if (!frameX) {
+                        console.log(
+                            `frame ${frame.timestamp} ${id} not found in uiData`,
+                        );
+                    }
                     run();
                     frame.close();
                     return;
                 }
-                const nFrame = transformX(frame);
+                const nFrame = transformX(frame, frameX);
                 encoder.encode(nFrame.frame, { keyFrame: nFrame.isKey });
                 nFrame.frame.close();
             },
@@ -801,8 +804,8 @@ function getFrameXsIds(frameXs: FrameX[]) {
     });
 }
 
-function transformX(frame: VideoFrame) {
-    const t = renderFrameX(frame);
+function transformX(frame: VideoFrame, frameX: FrameX) {
+    const t = renderFrameX(frame, frameX);
     const canvas = t.canvas;
     const nFrame = new VideoFrame(canvas, {
         timestamp: frame.timestamp,
@@ -810,16 +813,9 @@ function transformX(frame: VideoFrame) {
     return { frame: nFrame, isKey: t.isKey };
 }
 
-function renderFrameX(frame: VideoFrame) {
-    const frameX = nowFrameX.at(srcCs.frame2Id(frame));
+function renderFrameX(frame: VideoFrame, frameX: FrameX) {
     const canvas = new OffscreenCanvas(outputV.width, outputV.height);
     const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
-    if (!frameX) {
-        console.log(
-            `frame ${frame.timestamp} ${srcCs.frame2Id(frame)} not found in uiData`,
-        );
-        return { canvas, isKey: false };
-    }
     const clip = frameX.rect;
     ctx.drawImage(
         frame,
