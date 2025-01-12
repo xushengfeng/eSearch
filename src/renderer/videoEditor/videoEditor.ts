@@ -420,6 +420,7 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     await encoder.flush();
     decoder.close();
     encoder.close();
+    console.log(encodedChunks.length);
     return encodedChunks;
 }
 
@@ -2198,7 +2199,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
     // 读取视频帧并编码
 
-    const encodedChunks: EncodedVideoChunk[] = [];
+    let encodedChunks: EncodedVideoChunk[] = [];
 
     initKeys();
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
@@ -2218,6 +2219,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         encoder.close();
 
         const afterCuncks = await afterRecord(encodedChunks);
+        // @ts-ignore
+        encodedChunks = null;
 
         console.log(afterCuncks);
         console.log(keys);
