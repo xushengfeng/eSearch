@@ -2831,9 +2831,7 @@ const toolBarEl = frame("tool", {
         recordm: selectMenu<"normal" | "super">([
             { name: t("标准录屏"), value: "normal" },
             { name: t("超级录屏"), value: "super" },
-        ])
-            .class("side_select")
-            .data({ dev: "" }),
+        ]).class("side_select"),
     },
     long: {
         _: iconEl("long_clip").attr({ title: t("广截屏") }),
