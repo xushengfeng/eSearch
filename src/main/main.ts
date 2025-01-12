@@ -2855,6 +2855,10 @@ const defaultSetting: setting = {
             width: 800,
             height: 600,
         },
+        超级录屏: {
+            编码选择: "性能优先",
+            关键帧间隔: 150,
+        },
     },
     屏幕翻译: {
         type: "ding",

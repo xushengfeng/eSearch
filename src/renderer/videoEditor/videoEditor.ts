@@ -100,6 +100,8 @@ const codec = await (async () => {
 })();
 console.log("codec", codec);
 
+const frameLength = store.get("录屏.超级录屏.关键帧间隔");
+
 const srcRate = 60;
 const bitrate = 16 * 1024 * 1024;
 
@@ -373,7 +375,7 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     const m = new Map<number, number>();
     const d = Math.floor(ms2timestamp(1000 / srcRate));
     let index = 0;
-    const frames = 150;
+    const frames = frameLength;
     const encodedChunks: EncodedVideoChunk[] = [];
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
@@ -599,8 +601,8 @@ function getFrameXs(_data: uiData | null) {
         frameList.push(f);
     }
 
-    for (let i = 0; i < frameList.length; i += 150) {
-        for (let j = i; j < i + 150 && j < frameList.length; j++) {
+    for (let i = 0; i < frameList.length; i += frameLength) {
+        for (let j = i; j < i + frameLength && j < frameList.length; j++) {
             const f = frameList[j];
             if (!f.isRemoved) {
                 f.isKey = true;
@@ -2299,7 +2301,7 @@ if (testMode === "getFrame") {
         const frame = new VideoFrame(canvas, {
             timestamp: i * (1000 / srcRate),
         });
-        encoder.encode(frame, { keyFrame: i % 150 === 0 });
+        encoder.encode(frame, { keyFrame: i % frameLength === 0 });
         frame.close();
     }
     await encoder.flush();
@@ -2326,7 +2328,8 @@ if (testMode === "getFrame") {
     // 正确解码
     const show = view().addInto();
     for (let i = 0; i < 10; i++) {
-        const index = i === 0 ? 150 : Math.floor(Math.random() * x.length);
+        const index =
+            i === 0 ? frameLength : Math.floor(Math.random() * x.length);
         const canvas = await x.getFrame(index);
         if (!canvas) continue;
         show.add(String(index));
