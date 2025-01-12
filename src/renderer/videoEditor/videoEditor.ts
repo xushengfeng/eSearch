@@ -415,6 +415,8 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         lastK = k;
     }
 
+    const clipList: uiData["clipList"] = [];
+
     for (const k of nk2) {
         const t = ms2timestamp(k.time);
         const chunk = chunks.findIndex(
@@ -427,16 +429,23 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const h = v.height / 3;
         const x = MathClamp(0, k.posi.x - w / 2, v.width - w);
         const y = MathClamp(0, k.posi.y - h / 2, v.height - h);
-        getNowUiData().clipList.push({
+        clipList.push({
             i: chunk,
             rect: { x, y, w: w, h: h },
             transition: ms2timestamp(400),
         });
     }
+
+    const uidata = getNowUiData();
+    uidata.clipList = clipList;
+    history.push(uidata);
 }
 
 function getNowUiData() {
-    return structuredClone(history.at(-1)) as uiData; // todo 撤回指针等
+    return structuredClone(
+        history.at(-1) ??
+            ({ clipList: [], eventList: [], remove: [], speed: [] } as uiData),
+    ); // todo 撤回指针等
 }
 
 function renderUiData(data: uiData) {
@@ -2039,8 +2048,6 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         console.log(afterCuncks);
         console.log(keys);
-
-        history.push({ clipList: [], eventList: [], remove: [], speed: [] });
 
         srcCs.setList(afterCuncks);
 
