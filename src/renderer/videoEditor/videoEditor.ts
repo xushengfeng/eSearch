@@ -570,15 +570,42 @@ function easeOutQuint(x: number): number {
 }
 
 async function transform(_codec = "") {
+    // todo cancel last transform
+    lastTransformAbort?.abort();
+    const { promise, resolve } = Promise.withResolvers<true | null>();
+    for (const task of transformTask) {
+        task(null);
+    }
+    transformTask.clear();
+    transformTask.add(resolve);
+
+    lastTransformAbort = new AbortController();
+    runTransform(_codec, lastTransformAbort.signal)
+        .then(() => {
+            for (const task of transformTask) {
+                task(true);
+            }
+        })
+        .catch((e) => {
+            console.log(e);
+        });
+
+    return promise;
+}
+
+async function runTransform(
+    _codec = "",
+    signal = new AbortController().signal,
+) {
+    if (signal.aborted) return;
+
     const nowUi = getNowUiData();
 
     if (_codec === lastCodec) {
         if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
     }
     console.trace("transform");
-    lastCodec = _codec;
     const lastFrameXs = getFrameXs(lastUiData);
-    lastUiData = nowUi;
     const frameXs = getFrameXs(nowUi);
     nowFrameX = frameXs;
 
@@ -649,18 +676,35 @@ async function transform(_codec = "") {
             .map((i) => srcCs.list[i])) {
             decoder.decode(chunk);
         }
-        /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
-        await decoder.flush();
-        await encoder.flush();
-        decoder.close();
-        encoder.close();
 
-        const Tend = performance.now();
+        function abort() {
+            console.log("transform abort");
+            decoder.close();
+            encoder.close();
+        }
 
-        transformTimeEl.sv(
-            `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${(Tend - Tdiff).toFixed(0)}ms`,
-        );
+        signal.addEventListener("abort", abort);
+
+        if (!signal.aborted) {
+            /**@see {@link ../../docs/develop/superRecorder.md#转换（编辑）} */
+            await decoder.flush();
+            await encoder.flush();
+            signal.removeEventListener("abort", abort);
+            decoder.close();
+            encoder.close();
+
+            const Tend = performance.now();
+
+            transformTimeEl.sv(
+                `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${(Tend - Tdiff).toFixed(0)}ms`,
+            );
+        }
     }
+
+    if (signal.aborted) return;
+
+    lastCodec = _codec;
+    lastUiData = nowUi;
 
     trans2src.clear();
     src2trans.clear();
@@ -889,7 +933,8 @@ function onPause() {
 }
 
 async function showThumbnails() {
-    await transform();
+    const transR = await transform();
+    if (!transR) return;
     timeLineMain.clear();
     for (let i = 0; i < 6; i++) {
         const id = Math.floor((i / 6) * transformCs.length);
@@ -932,7 +977,8 @@ async function showThumbnails() {
 }
 
 async function showNowFrames(centerId: number) {
-    await transform();
+    const transR = await transform();
+    if (!transR) return;
     const hasI: number[] = [];
     for (const c of timeLineFrame.queryAll(":scope > *")) {
         const i = Number(c.el.getAttribute("data-i"));
@@ -1182,7 +1228,8 @@ function editClip(i: number) {
 }
 
 async function uiDataSave() {
-    await transform();
+    const transR = await transform();
+    if (!transR) return;
     await showThumbnails();
     await showNowFrames(willPlayI);
     await playDecoder.flush();
@@ -1355,6 +1402,9 @@ const srcCs = new videoChunk([]);
 const trans2src = new Map<number, number>();
 const src2trans = new Map<number, number>();
 
+const transformTask = new Set<(value: true | null) => void>();
+let lastTransformAbort: AbortController | undefined;
+
 const playDecoder = new VideoDecoder({
     output: (frame: VideoFrame) => {
         const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -1435,7 +1485,8 @@ const playEl = check("", [
     iconBEl("recume").style({ display: "block" }),
 ]).on("input", async () => {
     if (playEl.gv) {
-        await transform();
+        const transR = await transform();
+        if (!transR) return;
         isPlaying = true;
         if (playI === transformCs.length - 1) {
             playI = 0;
@@ -1945,12 +1996,13 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         );
     }
     exportPx
-        .on("change", () => {
+        .on("change", async () => {
             const x = Number(exportPx.gv);
             outputV.width = Math.round(v.width / x);
             outputV.height = Math.round(v.height / x);
             setPlaySize();
-            transform();
+            const transR = await transform();
+            if (!transR) return;
         })
         .sv("2");
 
@@ -1994,14 +2046,16 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         mapKeysOnFrames(afterCuncks);
 
-        await transform();
+        const transR = await transform();
 
         setPlaySize();
 
-        await playId(0, true);
+        if (transR) {
+            await playId(0, true);
 
-        await showThumbnails();
-        await showNowFrames(0);
+            await showThumbnails();
+            await showNowFrames(0);
+        }
 
         const nowUi = getNowUiData();
         renderUiData(nowUi);
