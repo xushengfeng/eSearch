@@ -1551,7 +1551,7 @@ const transformProgressEl = (() => {
     const pi = view()
         .addInto(p)
         .style({ width: "0%", height: "100%", backgroundColor: "#000" });
-    const t = txt();
+    const t = txt().style({ fontFamily: "var(--monospace)" });
 
     return el.add([p, t]).bindSet((progress: number) => {
         pi.style({ width: `${progress * 100}%` });
