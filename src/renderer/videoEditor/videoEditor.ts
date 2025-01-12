@@ -740,6 +740,11 @@ async function runTransform(
         for (const chunk of Array.from(needDecode)
             .toSorted((a, b) => a - b)
             .map((i) => srcCs.list[i])) {
+            if (chunk.type === "key") {
+                if (signal.aborted) break;
+                await decoder.flush();
+                await encoder.flush();
+            }
             decoder.decode(chunk);
         }
 
