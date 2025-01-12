@@ -1573,7 +1573,7 @@ const timeLineMain = view("x")
     });
 
 const timeLineControl = view("y")
-    .style({ height: "80px", position: "relative", flexShrink: 0 })
+    .style({ position: "relative", flexShrink: 0 })
     .class(
         addClass(
             {},
@@ -1581,13 +1581,14 @@ const timeLineControl = view("y")
                 "& > *": {
                     position: "relative",
                     width: "100%",
-                    height: "100%",
+                    height: "20px",
                 },
                 "& > * > *": {
                     position: "absolute",
                     minWidth: "4px",
                     height: "100%",
                     borderRadius: "4px",
+                    color: "white",
                 },
             },
         ),
@@ -1672,8 +1673,12 @@ const timeLineClip = () => {
 };
 
 const timeLineTrack = <D>(op: {
-    el: (el: ElType<HTMLElement>, data: unknown) => void;
+    el: (
+        el: ElType<HTMLElement>,
+        data: { start: number; end: number; value: D },
+    ) => void;
     newValue: () => D;
+    setValue?: (el: ElType<HTMLElement>, data: D) => Promise<D>;
     on: (data: { start: number; end: number; value: D }[]) => void;
 }) => {
     let data: { start: number; end: number; id: string; value: D }[] = [];
@@ -1741,9 +1746,16 @@ const timeLineTrack = <D>(op: {
             itemId: itemId,
         };
     }
+    function on(_data: typeof data) {
+        data = structuredClone(_data);
+        op.on(
+            _data.map((i) => {
+                const { id, ...x } = i;
+                return x;
+            }),
+        );
+    }
 
-    // todo 删除
-    // todo 编辑value
     trackPoint(track, {
         all: (e) => {
             const x = getX(e);
@@ -1779,8 +1791,10 @@ const timeLineTrack = <D>(op: {
                 y: 0,
                 data: {
                     type: type,
-                    d: data.find((d) => d.id === itemId),
-                    el: track.query(`[data-id="${itemId}"]`),
+                    d: data.find((d) => d.id === itemId) as (typeof data)[0],
+                    el: track.query(
+                        `[data-id="${itemId}"]`,
+                    ) as ElType<HTMLElement>,
                 },
             };
         },
@@ -1849,14 +1863,37 @@ const timeLineTrack = <D>(op: {
             setItemEl(newD, sd.el);
             return newD;
         },
-        end: (_, { ingData }) => {
-            console.log(ingData);
-            if (!ingData) return;
+        end: (e, { ingData, startData }) => {
+            if (!ingData) {
+                if (startData.type === "center") {
+                    if (op.setValue && e.button === 0) {
+                        op.setValue(startData.el, startData.d.value).then(
+                            (newValue) => {
+                                const d = data.find(
+                                    (d) => d.id === startData.d.id,
+                                );
+                                if (!d) return;
+                                d.value = newValue;
+                                op.el(startData.el, d);
+                                on(data);
+                            },
+                        );
+                    }
+                    if (e.button !== 0) {
+                        startData.el.remove();
+                        const ndata = data.filter(
+                            (i) => i.id !== startData.d.id,
+                        );
+                        on(ndata);
+                    }
+                }
+                return;
+            }
             const d = data.find((d) => d.id === ingData.id);
             if (!d) return;
             d.start = ingData.start;
             d.end = ingData.end;
-            op.on(data);
+            on(data);
         },
     });
 
@@ -1865,12 +1902,41 @@ const timeLineTrack = <D>(op: {
 
 const timeLineClipEl = timeLineClip();
 const timeLineSpeedEl = timeLineTrack({
-    el: (el) => {
+    el: (el, data) => {
         el.style({
             backgroundColor: "#00f",
-        });
+            fontSize: "min(100%, 16px)",
+            lineHeight: "100%",
+        })
+            .clear()
+            .class(
+                addClass(
+                    {},
+                    {
+                        "&>select": { background: "inherit" },
+                        "&>select>option": { background: "inherit" },
+                    },
+                ),
+            )
+            .add(txt(`${data.value}x`));
     },
     newValue: () => 2,
+    setValue: (el, data) => {
+        const speedList = [1.25, 1.5, 2, 2.25, 2.5, 3, 6, 8, 10];
+        const { promise, resolve } = Promise.withResolvers<number>();
+        const s = select(
+            speedList.map((i) => ({ value: String(i), name: `${i}x` })),
+        )
+            .style({ maxHeight: "100%" })
+            .sv(String(data))
+            .on("input", () => {
+                resolve(Number(s.gv));
+            })
+            .on("pointerdown", (e) => e.stopPropagation());
+        el.clear().add(s);
+        s.el.showPicker();
+        return promise;
+    },
     on: (data) => {
         const uiData = getNowUiData();
         uiData.speed = data;
