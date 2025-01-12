@@ -49,7 +49,7 @@ type FrameX = {
 
 type baseType = (typeof outputType)[number]["type"];
 
-const testMode = false;
+const testMode: "getFrame" | "history" | false = "history";
 
 const zeroPoint = [0, 0] as const;
 
@@ -57,8 +57,6 @@ const keys: superRecording = [];
 
 let lastUiData: uiData | null = null;
 let lastCodec = "";
-
-const history: uiData[] = [];
 
 let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
 
@@ -236,6 +234,57 @@ class videoChunk {
 
     #byte2mb(byte: number) {
         return (byte / 1024 / 1024).toFixed(2);
+    }
+}
+
+class xhistory<Data> {
+    history: { data: Data; time: number; des: string }[];
+    private tmpData: Data | null = null;
+    private des = "";
+    i = -1;
+    constructor(datas: typeof this.history, _initData: Data) {
+        this.history = datas;
+        this.history.unshift({
+            des: "",
+            data: _initData,
+            time: new Date().getTime(),
+        });
+    }
+
+    getTmpData() {
+        return structuredClone(this.tmpData) ?? this.getData();
+    }
+
+    setDataF(fun: (data: Data) => Data, des?: string) {
+        this.tmpData = fun(this.getTmpData());
+        if (des) this.des += ` ${des}`;
+    }
+    setData(data: Data, des?: string) {
+        this.tmpData = data;
+        if (des) this.des += ` ${des}`;
+    }
+
+    apply(des = this.des) {
+        const data = this.getTmpData();
+        this.history.push({ data, time: new Date().getTime(), des });
+        this.i = this.history.length - 1;
+        this.des = "";
+    }
+    giveup() {
+        this.tmpData = null;
+    }
+
+    getData() {
+        return structuredClone(this.history.at(this.i) as Data);
+    }
+    undo() {
+        this.jump(this.i - 1);
+    }
+    unundo() {
+        this.jump(this.i + 1);
+    }
+    jump(i: number) {
+        this.i = MathClamp(0, i, this.history.length - 1);
     }
 }
 
@@ -434,16 +483,11 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         });
     }
 
-    const uidata = getNowUiData();
-    uidata.clipList = clipList;
-    history.push(uidata);
-}
-
-function getNowUiData() {
-    return structuredClone(
-        history.at(-1) ??
-            ({ clipList: [], eventList: [], remove: [], speed: [] } as uiData),
-    ); // todo 撤回指针等
+    history.setDataF((uidata) => {
+        uidata.clipList = clipList;
+        return uidata;
+    });
+    history.apply();
 }
 
 function renderUiData(data: uiData) {
@@ -606,7 +650,7 @@ async function runTransform(
 ) {
     if (signal.aborted) return;
 
-    const nowUi = getNowUiData();
+    const nowUi = history.getData();
 
     if (_codec === lastCodec) {
         if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
@@ -1048,7 +1092,7 @@ async function showNowFrames(centerId: number) {
 function editClip(i: number) {
     type center = { x: number; y: number; ratio: number };
 
-    const data = getNowUiData();
+    const data = history.getData();
 
     const clip = data.clipList.at(i);
     if (!clip) return;
@@ -1084,7 +1128,8 @@ function editClip(i: number) {
 
     async function save() {
         canvasView.sv("play");
-        history.push(data);
+        history.setData(data);
+        history.apply();
         await transform();
         await showThumbnails();
         await showNowFrames(willPlayI);
@@ -1146,7 +1191,8 @@ function editClip(i: number) {
     });
     const clipGiveUp = button("放弃").on("click", () => {
         canvasView.sv("play");
-        const nowUi = getNowUiData();
+        history.giveup();
+        const nowUi = history.getData();
         renderUiData(nowUi);
     });
 
@@ -1405,6 +1451,13 @@ function timeEl() {
         });
 }
 
+const history = new xhistory<uiData>([], {
+    clipList: [],
+    eventList: [],
+    speed: [],
+    remove: [],
+});
+
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
 
@@ -1652,7 +1705,7 @@ const timeLineClip = () => {
 
     el.el.ondblclick = (e) => {
         if (e.target === e.currentTarget) {
-            const data = getNowUiData();
+            const data = history.getData();
             const i = Math.floor(
                 (e.offsetX / el.el.offsetWidth) * listLength(),
             );
@@ -1663,7 +1716,7 @@ const timeLineClip = () => {
             };
             data.clipList.push(newClip);
 
-            history.push(data);
+            history.setData(data);
             renderUiData(data);
             editClip(data.clipList.length - 1);
         }
@@ -1938,9 +1991,11 @@ const timeLineSpeedEl = timeLineTrack({
         return promise;
     },
     on: (data) => {
-        const uiData = getNowUiData();
-        uiData.speed = data;
-        history.push(uiData);
+        history.setDataF((uiData) => {
+            uiData.speed = data;
+            return uiData;
+        });
+        history.apply();
         uiDataSave();
     },
 });
@@ -1955,9 +2010,11 @@ const timeLineEventEl = timeLineTrack({
     },
     newValue: () => null,
     on: (data) => {
-        const uiData = getNowUiData();
-        uiData.eventList = data;
-        history.push(uiData);
+        history.setDataF((uiData) => {
+            uiData.eventList = data;
+            return uiData;
+        });
+        history.apply();
         uiDataSave();
     },
 });
@@ -1972,9 +2029,11 @@ const timeLineRemoveEl = timeLineTrack({
     },
     newValue: () => null,
     on: (data) => {
-        const uiData = getNowUiData();
-        uiData.remove = data.map((d) => ({ start: d.start, end: d.end }));
-        history.push(uiData);
+        history.setDataF((uiData) => {
+            uiData.remove = data.map((d) => ({ start: d.start, end: d.end }));
+            return uiData;
+        });
+        history.apply();
         uiDataSave();
     },
 });
@@ -2130,7 +2189,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
             await showNowFrames(0);
         }
 
-        const nowUi = getNowUiData();
+        const nowUi = history.getData();
         renderUiData(nowUi);
     };
 
@@ -2148,9 +2207,14 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     }
 });
 
-if (testMode) {
+// @ts-ignore
+if (testMode !== false) {
     ipcRenderer.send("window", "max");
     stopPEl.remove();
+}
+
+// @ts-ignore
+if (testMode === "getFrame") {
     const s: EncodedVideoChunk[] = [];
     const encoder = new VideoEncoder({
         output: (c: EncodedVideoChunk) => {
@@ -2212,4 +2276,49 @@ if (testMode) {
         const ctx = c.el.getContext("2d") as CanvasRenderingContext2D;
         ctx.drawImage(canvas, 0, 0);
     }
+}
+
+if (testMode === "history") {
+    const history = new xhistory<string>([], "");
+
+    function logList() {
+        const l = structuredClone(history.history);
+        console.log(l);
+        return l;
+    }
+
+    console.assert(history.getData() === "");
+    logList();
+
+    history.setData("hi");
+    console.assert(history.getData() === "");
+    logList();
+
+    history.apply();
+    console.assert(history.getData() === "hi");
+    logList();
+
+    history.setData("hello");
+    history.apply();
+
+    history.setData("world");
+    history.apply();
+
+    history.undo();
+    console.assert(history.getData() === "hello");
+
+    history.undo();
+    console.assert(history.getData() === "hi");
+
+    history.unundo();
+    console.assert(history.getData() === "hello");
+    logList();
+
+    history.setData("end");
+    history.apply();
+    const l = logList();
+    console.assert(
+        JSON.stringify(["", "hi", "hello", "world"]),
+        JSON.stringify(l.map((i) => i.data)),
+    );
 }
