@@ -127,6 +127,7 @@ let playTime = 0;
 let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 
 class videoChunk {
+    private srcList: (EncodedVideoChunk | null)[] = [];
     list: EncodedVideoChunk[] = [];
 
     private _timestamp2Id = new Map<number, number>();
@@ -147,14 +148,18 @@ class videoChunk {
         error: (e) => console.error("Decode error:", e),
     });
 
-    constructor(_list: EncodedVideoChunk[]) {
+    constructor(_list: (EncodedVideoChunk | null)[]) {
         this.frameDecoder.configure({
             codec: codec,
         });
         this.setList(_list);
     }
-    async setList(_list: EncodedVideoChunk[]) {
-        this.list = _list;
+    async setList(_list: (EncodedVideoChunk | null)[]) {
+        this.srcList = _list;
+        this.list = [];
+        for (const s of this.srcList) {
+            if (s !== null) this.list.push(s);
+        }
         this._timestamp2Id.clear();
         for (const [i, c] of this.list.entries()) {
             this._timestamp2Id.set(c.timestamp, i);
@@ -793,23 +798,19 @@ async function runTransform(
 
     console.log(trans2src, src2trans);
 
-    lastEncodedChunks = transformed;
-
-    const finalData = transformed
-        .filter((c) => c !== null)
-        .map((chunk) => {
-            const data = new Uint8Array(chunk.byteLength);
-            chunk.copyTo(data);
-            return new EncodedVideoChunk({
-                data: data,
-                timestamp:
-                    frameXs.at(srcCs.timestamp2Id(chunk.timestamp))
-                        ?.timestamp ?? 0,
-                type: chunk.type,
-            });
+    lastEncodedChunks = transformed.map((chunk) => {
+        if (chunk === null) return null;
+        const data = new Uint8Array(chunk.byteLength);
+        chunk.copyTo(data);
+        return new EncodedVideoChunk({
+            data: data,
+            timestamp:
+                frameXs.at(srcCs.timestamp2Id(chunk.timestamp))?.timestamp ?? 0,
+            type: chunk.type,
         });
+    });
 
-    await transformCs.setList(finalData);
+    await transformCs.setList(lastEncodedChunks);
 }
 
 function diffFrameXs(old: FrameX[], now: FrameX[]) {
