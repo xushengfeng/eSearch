@@ -279,7 +279,7 @@ class xhistory<Data> {
     }
 
     getData() {
-        return structuredClone(this.history.at(this.i) as Data);
+        return structuredClone(this.history.at(this.i)?.data as Data);
     }
     undo() {
         this.jump(this.i - 1);
