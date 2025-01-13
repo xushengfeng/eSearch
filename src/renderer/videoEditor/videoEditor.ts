@@ -1384,6 +1384,18 @@ async function saveGif() {
 
     let i = 0;
 
+    const delayMap = new Map<number, number>();
+    for (const [i, chunk] of transformCs.entries()) {
+        if (i === 0) delayMap.set(chunk.timestamp, 0);
+        else {
+            const delay =
+                chunk.timestamp -
+                (transformCs.at((i - 1) as TransId) as EncodedVideoChunk)
+                    .timestamp;
+            delayMap.set(chunk.timestamp, timestamp2ms(delay));
+        }
+    }
+
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             const { data, width, height } = (
@@ -1395,6 +1407,7 @@ async function saveGif() {
             const index = applyPalette(data, palette);
             gif.writeFrame(index, width, height, {
                 palette,
+                delay: delayMap.get(frame.timestamp) ?? 1000 / srcRate,
             });
             i++;
             gifProgress.sv(i / transformCs.length);
