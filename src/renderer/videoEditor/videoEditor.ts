@@ -1662,7 +1662,7 @@ const playTimeEl = (() => {
         const nt = time ?? tt;
         tt = nt;
         t.sv(nt);
-        all.sv(transformCs.getDuration());
+        all.sv(transformCs.getDuration() || srcCs.getDuration());
     });
 })();
 
@@ -2306,6 +2306,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         srcCs.setList(afterCuncks);
 
         mapKeysOnFrames(afterCuncks);
+
+        onPlay(0);
 
         const transR = await transform();
 
