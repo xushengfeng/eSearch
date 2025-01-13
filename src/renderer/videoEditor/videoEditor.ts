@@ -1553,7 +1553,7 @@ playDecoder.configure(videoConfig);
 
 initStyle(store);
 
-const stopPEl = view()
+const stopPEl = view("x")
     .style({
         width: "100vw",
         height: "100vh",
@@ -1562,13 +1562,15 @@ const stopPEl = view()
         top: 0,
         left: 0,
         zIndex: 9,
+        justifyContent: "center",
+        alignItems: "center",
     })
     .addInto();
 view()
     .style({
-        width: "32px",
-        height: "32px",
-        borderRadius: "4px",
+        width: "64px",
+        height: "64px",
+        borderRadius: "16px",
         backgroundColor: "red",
     })
     .addInto(stopPEl)

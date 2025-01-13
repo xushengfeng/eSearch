@@ -1563,8 +1563,6 @@ function createSuperRecorderWindow() {
             contextIsolation: false,
             sandbox: false,
         },
-        width: 64,
-        height: 64,
     });
     recorder.minimize();
     rendererPath(recorder, "videoEditor.html");
