@@ -27,7 +27,7 @@ const fs = require("node:fs") as typeof import("fs");
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 type clip = {
-    i: number;
+    i: SrcId;
     rect: { x: number; y: number; w: number; h: number };
     transition: number; // 往前数
 };
@@ -35,9 +35,9 @@ type clip = {
 type uiData = {
     clipList: clip[];
     // [start, end]闭区间
-    speed: { start: number; end: number; value: number }[];
-    eventList: { start: number; end: number; value: unknown }[]; // todo
-    remove: { start: number; end: number }[];
+    speed: { start: SrcId; end: SrcId; value: number }[];
+    eventList: { start: SrcId; end: SrcId; value: unknown }[]; // todo
+    remove: { start: SrcId; end: SrcId }[];
 };
 
 type FrameX = {
@@ -474,7 +474,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         const x = MathClamp(0, k.posi.x - w / 2, v.width - w);
         const y = MathClamp(0, k.posi.y - h / 2, v.height - h);
         clipList.push({
-            i: chunk,
+            i: chunk as SrcId,
             rect: { x, y, w: w, h: h },
             transition: ms2timestamp(400),
         });
@@ -552,11 +552,11 @@ function getFrameXs(_data: uiData | null) {
             const firstClip = structuredClone(
                 data.clipList.at(0) as uiData["clipList"][0],
             );
-            firstClip.i = 0;
+            firstClip.i = 0 as SrcId;
             const lastClip = structuredClone(
                 data.clipList.at(-1) as uiData["clipList"][0],
             );
-            lastClip.i = listLength() - 1;
+            lastClip.i = (listLength() - 1) as SrcId;
             const l = structuredClone(data.clipList);
             l.unshift(firstClip);
             l.push(lastClip);
@@ -1129,7 +1129,7 @@ function editClip(i: number) {
         return { x, y, w, h };
     }
 
-    async function jump2id(id: number) {
+    async function jump2id(id: SrcId) {
         const src = await srcCs.getFrame(id);
         if (!src) return;
         clipCanvas.width = v.width;
@@ -1153,14 +1153,14 @@ function editClip(i: number) {
 
     const clipMoveLast = button("移到上一帧").on("click", () => {
         // todo 跳过其他clip
-        const i = Math.max(0, clip.i - 1);
+        const i = Math.max(0, clip.i - 1) as SrcId;
         clip.i = i;
         jump2id(i);
         reRener();
     });
     const clipMoveNext = button("移到下一帧").on("click", () => {
         // todo 跳过其他clip
-        const i = Math.min(listLength() - 1, clip.i + 1);
+        const i = Math.min(listLength() - 1, clip.i + 1) as SrcId;
         clip.i = i;
         jump2id(i);
         reRener();
@@ -1884,7 +1884,7 @@ const timeLineClip = () => {
                 (e.offsetX / el.el.offsetWidth) * listLength(),
             );
             const newClip: clip = {
-                i: i,
+                i: i as SrcId,
                 rect: { x: 0, y: 0, w: v.width, h: v.height },
                 transition: ms2timestamp(400),
             };
@@ -1902,16 +1902,16 @@ const timeLineClip = () => {
 const timeLineTrack = <D>(op: {
     el: (
         el: ElType<HTMLElement>,
-        data: { start: number; end: number; value: D },
+        data: { start: SrcId; end: SrcId; value: D },
     ) => void;
     newValue: () => D;
     setValue?: (el: ElType<HTMLElement>, data: D) => Promise<D>;
-    on: (data: { start: number; end: number; value: D }[]) => void;
+    on: (data: { start: SrcId; end: SrcId; value: D }[]) => void;
 }) => {
-    let data: { start: number; end: number; id: string; value: D }[] = [];
+    let data: { start: SrcId; end: SrcId; id: string; value: D }[] = [];
     const track = view().addInto(timeLineControl);
 
-    function setData(d: { start: number; end: number; value: D }[]) {
+    function setData(d: { start: SrcId; end: SrcId; value: D }[]) {
         data = d.map((d) => ({ ...d, id: uuid() }));
         render();
     }
@@ -1922,7 +1922,7 @@ const timeLineTrack = <D>(op: {
         return (i / listLength()) * track.el.offsetWidth;
     }
     function px2i(px: number) {
-        return Math.floor((px / track.el.offsetWidth) * listLength());
+        return Math.floor((px / track.el.offsetWidth) * listLength()) as SrcId;
     }
     function getX(e: PointerEvent) {
         const x = e.screenX - track.el.getBoundingClientRect().left;
@@ -2036,7 +2036,7 @@ const timeLineTrack = <D>(op: {
                     ...data.map((d) => d.end).filter((s) => s < oldStart),
                     -1,
                 );
-                newD.start = MathClamp(left + 1, oldStart + pi, d.end);
+                newD.start = MathClamp(left + 1, oldStart + pi, d.end) as SrcId;
             }
             if (sd.type === "end") {
                 const oldEnd = d.end;
@@ -2044,7 +2044,7 @@ const timeLineTrack = <D>(op: {
                     ...data.map((d) => d.start).filter((e) => e > oldEnd),
                     listLength(),
                 );
-                newD.end = MathClamp(d.start, oldEnd + pi, right - 1);
+                newD.end = MathClamp(d.start, oldEnd + pi, right - 1) as SrcId;
             }
             if (sd.type === "center") {
                 const width = d.end - d.start;
@@ -2084,8 +2084,12 @@ const timeLineTrack = <D>(op: {
                         )
                     ];
 
-                newD.start = MathClamp(inI.start, newS, inI.end - width);
-                newD.end = MathClamp(inI.start + width, newE, inI.end);
+                newD.start = MathClamp(
+                    inI.start,
+                    newS,
+                    inI.end - width,
+                ) as SrcId;
+                newD.end = MathClamp(inI.start + width, newE, inI.end) as SrcId;
             }
             setItemEl(newD, sd.el);
             return newD;
