@@ -128,7 +128,7 @@ class videoChunk {
     });
 
     constructor(_list: (EncodedVideoChunk | null)[]) {
-        this.frameDecoder.configure(videoConfig);
+        this.frameDecoder.configure(decoderVideoConfig);
         this.setList(_list);
     }
     async setList(_list: (EncodedVideoChunk | null)[]) {
@@ -377,13 +377,13 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     });
 
     encoder.configure({
-        ...videoConfig,
+        ...encoderVideoConfig,
         framerate: srcRate,
         bitrate: bitrate,
         width: v.width,
         height: v.height,
     });
-    decoder.configure(videoConfig);
+    decoder.configure(decoderVideoConfig);
     let lastTime = 0;
     for (const c of chunks) {
         const count = Math.round((c.timestamp - lastTime) / d);
@@ -703,15 +703,22 @@ async function runTransform(
             },
             error: (e) => console.error("Encode error:", e),
         });
+        const c = codecMap.get(_codec);
         encoder.configure({
-            codec: codecMap[_codec] ?? codec,
-            hardwareAcceleration: videoConfig.hardwareAcceleration,
+            ...(c
+                ? {
+                      codec: c.codec,
+                      hardwareAcceleration: c.isEnAcc
+                          ? "prefer-hardware"
+                          : "no-preference",
+                  }
+                : encoderVideoConfig),
             width: outputV.width,
             height: outputV.height,
             framerate: srcRate,
             bitrate: bitrate,
         });
-        decoder.configure(videoConfig);
+        decoder.configure(decoderVideoConfig);
 
         let inThisClip = false;
         for (let i = srcCs.list.length - 1; i >= 0; i--) {
@@ -1331,7 +1338,7 @@ async function saveImages() {
 
     const imgProgress = progressEl().addInto(transformLogEl);
 
-    decoder.configure(videoConfig);
+    decoder.configure(decoderVideoConfig);
     for (const chunk of transformCs.list) {
         if (chunk.type === "key") await decoder.flush();
         decoder.decode(chunk);
@@ -1378,7 +1385,7 @@ async function saveGif() {
 
     const gifProgress = progressEl().addInto(transformLogEl);
 
-    decoder.configure(videoConfig);
+    decoder.configure(decoderVideoConfig);
     for (const chunk of transformCs.list) {
         if (chunk.type === "key") await decoder.flush();
         decoder.decode(chunk);
@@ -1474,57 +1481,89 @@ const history = new xhistory<uiData>([], {
     remove: [],
 });
 
-const codecMap: Record<string, string> = {
-    vp8: "vp8",
-    vp9: "vp09.00.10.08",
-    av1: "av01.1.04M.08",
-    avc: "avc1.42001F",
-}; // todo 找到能用的编码
+const codecMap = new Map<
+    string,
+    { codec: string; isDeAcc: boolean; isEnAcc: boolean }
+>();
 
-const [codec, isHwAcc] = await (async () => {
-    const codecs = ["av1", "vp9", "avc", "vp8"].map((c) => codecMap[c]);
-    async function isSupported(mc: string, acc: boolean) {
-        return (
-            (
-                await VideoDecoder.isConfigSupported({
-                    codec: mc,
-                    hardwareAcceleration: acc
-                        ? "prefer-hardware"
-                        : "no-preference",
-                })
-            ).supported &&
-            (
-                await VideoEncoder.isConfigSupported({
-                    codec: mc,
-                    hardwareAcceleration: acc
-                        ? "prefer-hardware"
-                        : "no-preference",
-                    width: screen.width,
-                    height: screen.height,
-                })
-            ).supported
-        );
+await (async () => {
+    const codecM = new Map([
+        ["av1", "av01.1.04M.08"],
+        ["vp9", "vp09.00.10.08"],
+        ["avc", "avc1.42001F"],
+        ["vp8", "vp8"],
+    ]);
+    // todo 找到能用的具体编码
+    async function deSupported(mc: string): Promise<0 | 2 | 1> {
+        const soft = (
+            await VideoDecoder.isConfigSupported({
+                codec: mc,
+                hardwareAcceleration: "no-preference",
+            })
+        ).supported;
+        if (!soft) return 0;
+        const acc = (
+            await VideoDecoder.isConfigSupported({
+                codec: mc,
+                hardwareAcceleration: "prefer-hardware",
+            })
+        ).supported;
+        return acc ? 2 : 1;
     }
-    if (store.get("录屏.超级录屏.编码选择") === "性能优先") {
-        for (const c of codecs) {
-            if (await isSupported(c, true)) return [c, true];
-        }
-        for (const c of codecs) {
-            if (await isSupported(c, false)) return [c, false];
-        }
-    } else {
-        for (const c of codecs) {
-            if (await isSupported(c, true)) return [c, true];
-            if (await isSupported(c, false)) return [c, false];
-        }
+    async function enSupported(mc: string): Promise<0 | 2 | 1> {
+        const soft = (
+            await VideoEncoder.isConfigSupported({
+                codec: mc,
+                hardwareAcceleration: "no-preference",
+                width: screen.width,
+                height: screen.height,
+            })
+        ).supported;
+        if (!soft) return 0;
+        const acc = (
+            await VideoEncoder.isConfigSupported({
+                codec: mc,
+                hardwareAcceleration: "prefer-hardware",
+                width: screen.width,
+                height: screen.height,
+            })
+        ).supported;
+        return acc ? 2 : 1;
     }
-    return ["vp8", false];
+    for (const [k, c] of codecM.entries()) {
+        const de = await deSupported(c);
+        const en = await enSupported(c);
+        if (de >= 1 || en >= 1)
+            codecMap.set(k, { codec: c, isDeAcc: de === 2, isEnAcc: en === 2 });
+    }
 })();
-const videoConfig = {
+
+const [codec, isDeAcc, isEnAcc] = (() => {
+    const l = Array.from(codecMap.values());
+    if (store.get("录屏.超级录屏.编码选择") === "性能优先") {
+        l.toSorted(
+            (a, b) =>
+                Number(b.isDeAcc) +
+                Number(b.isEnAcc) -
+                Number(a.isDeAcc) -
+                Number(a.isEnAcc),
+        );
+        return [l[0].codec, l[0].isDeAcc, l[0].isEnAcc];
+    }
+    for (const c of codecMap.values()) {
+        if (c.isDeAcc || c.isEnAcc) return [c.codec, c.isDeAcc, c.isEnAcc];
+    }
+    return ["vp8", false, false];
+})();
+const decoderVideoConfig = {
     codec: codec,
-    hardwareAcceleration: isHwAcc ? "prefer-hardware" : "no-preference",
+    hardwareAcceleration: isDeAcc ? "prefer-hardware" : "no-preference",
 } as const;
-console.log("codec", videoConfig);
+const encoderVideoConfig = {
+    codec: codec,
+    hardwareAcceleration: isEnAcc ? "prefer-hardware" : "no-preference",
+} as const;
+console.log("codec", codecMap, decoderVideoConfig, encoderVideoConfig);
 
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
@@ -1559,7 +1598,7 @@ const playDecoder = new VideoDecoder({
     },
     error: (e) => console.error("Decode error:", e),
 });
-playDecoder.configure(videoConfig);
+playDecoder.configure(decoderVideoConfig);
 
 initStyle(store);
 
@@ -2247,7 +2286,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     const videoHeight = videoTrack.getSettings().height ?? screen.height;
 
     encoder.configure({
-        ...videoConfig,
+        ...encoderVideoConfig,
         width: videoWidth,
         height: videoHeight,
         framerate: srcRate,
@@ -2372,7 +2411,7 @@ if (testMode === "getFrame") {
         error: (e) => console.error("Encode error:", e),
     });
     encoder.configure({
-        ...videoConfig,
+        ...encoderVideoConfig,
         width: 1920,
         height: 1080,
     });
