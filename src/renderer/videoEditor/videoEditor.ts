@@ -1447,7 +1447,7 @@ const history = new xhistory<uiData>([], {
 const codecMap: Record<string, string> = {
     vp8: "vp8",
     vp9: "vp09.00.10.08",
-    av1: "av01.0.04M.08",
+    av1: "av01.1.04M.08",
     avc: "avc1.42001F",
 }; // todo 找到能用的编码
 
