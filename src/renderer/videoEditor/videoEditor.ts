@@ -532,6 +532,8 @@ function getFrameXs(_data: uiData | null) {
 
     const getTime = (t: number) => timeMap.get(t) as number;
 
+    const clipList = data.clipList.filter((c) => !removeSet.has(c.i));
+
     for (const [i, c] of srcCs.list.entries()) {
         const f: FrameX = {
             rect: { x: 0, y: 0, w: v.width, h: v.height },
@@ -547,17 +549,17 @@ function getFrameXs(_data: uiData | null) {
         }
 
         // clip
-        if (data.clipList.length > 0) {
+        if (clipList.length > 0) {
             // 补充首尾，方便查找区间
             const firstClip = structuredClone(
-                data.clipList.at(0) as uiData["clipList"][0],
+                clipList.at(0) as uiData["clipList"][0],
             );
             firstClip.i = 0 as SrcId;
             const lastClip = structuredClone(
-                data.clipList.at(-1) as uiData["clipList"][0],
+                clipList.at(-1) as uiData["clipList"][0],
             );
             lastClip.i = (listLength() - 1) as SrcId;
-            const l = structuredClone(data.clipList);
+            const l = structuredClone(clipList);
             l.unshift(firstClip);
             l.push(lastClip);
 
