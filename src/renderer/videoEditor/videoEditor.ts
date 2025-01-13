@@ -770,14 +770,13 @@ async function runTransform(
 
     console.log(trans2src, src2trans);
 
-    lastEncodedChunks = transformed.map((chunk) => {
+    lastEncodedChunks = transformed.map((chunk, i) => {
         if (chunk === null) return null;
         const data = new Uint8Array(chunk.byteLength);
         chunk.copyTo(data);
         return new EncodedVideoChunk({
             data: data,
-            timestamp:
-                frameXs.at(srcCs.timestamp2Id(chunk.timestamp))?.timestamp ?? 0,
+            timestamp: frameXs.at(i)?.timestamp ?? 0,
             type: chunk.type,
         });
     });
