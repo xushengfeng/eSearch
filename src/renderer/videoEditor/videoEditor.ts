@@ -1856,17 +1856,25 @@ const timeLineClip = () => {
         el.clear();
 
         for (const [i, c] of data.entries()) {
-            const beforeId = transformCs.time2Id(
-                timestamp2ms(
-                    (transformCs.list.at(c.i - 1)?.timestamp ?? 0) -
-                        c.transition,
-                ),
-            );
+            const isRemoved = history
+                .getData()
+                .remove.find((r) => r.start <= c.i && r.end >= c.i);
+            const transId = src2trans(c.i);
+            const beforeId = isRemoved
+                ? c.i
+                : trans2src(
+                      transformCs.time2Id(
+                          timestamp2ms(
+                              (transformCs.list.at(transId)?.timestamp ?? 0) -
+                                  c.transition,
+                          ),
+                      ) as TransId,
+                  );
             view()
                 .addInto(el)
                 .style({
                     left: ipx(beforeId),
-                    width: ipx(c.i - beforeId),
+                    width: ipx(c.i - beforeId + 1),
                     backgroundColor: "red",
                 })
                 .on("click", () => {
