@@ -115,7 +115,7 @@ class videoChunk {
             const id = this._timestamp2Id.get(frame.timestamp) as number;
             const tasks = this.tasks.get(id) ?? [];
             for (const task of tasks) {
-                task(frame2Canvas(frame)); // 克隆 // todo 优化
+                task(frameTrans2Canvas(frame)); // 克隆 // todo 优化
             }
             if (tasks.length > 0) this.tasks.delete(id);
             this.willDecodeIs.delete(id);
@@ -284,10 +284,11 @@ function MathClamp(min: number, value: number, max: number) {
     return Math.min(Math.max(min, value), max);
 }
 
-function frame2Canvas(frame: VideoFrame) {
+function frameTrans2Canvas(frame: VideoFrame) {
     const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
     const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
     ctx.drawImage(frame, 0, 0);
+    frame.close();
     return canvas;
 }
 
@@ -1307,9 +1308,10 @@ async function saveImages() {
 
     await transform(); // todo 不可取消
 
+    let i = 0;
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const t = frame2Canvas(frame);
+            const t = frameTrans2Canvas(frame);
             t.convertToBlob({ type: "image/png" }).then(async (blob) => {
                 const buffer = Buffer.from(await blob.arrayBuffer());
                 fs.writeFile(
@@ -1318,15 +1320,24 @@ async function saveImages() {
                     (_err) => {},
                 );
             });
+            i++;
+            imgProgress.sv(i / transformCs.length);
         },
         error: (e) => console.error("Decode error:", e),
     });
+
+    const imgProgress = progressEl().addInto(transformLogEl);
+
     decoder.configure(videoConfig);
     for (const chunk of transformCs.list) {
+        if (chunk.type === "key") await decoder.flush();
         decoder.decode(chunk);
     }
 
     await decoder.flush();
+
+    imgProgress.remove();
+
     ipcRenderer.send("ok_save", exportPath);
 
     decoder.close();
@@ -1341,10 +1352,12 @@ async function saveGif() {
 
     await transform();
 
+    let i = 0;
+
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             const { data, width, height } = (
-                frame2Canvas(frame).getContext(
+                frameTrans2Canvas(frame).getContext(
                     "2d",
                 ) as OffscreenCanvasRenderingContext2D
             ).getImageData(0, 0, outputV.width, outputV.height);
@@ -1353,11 +1366,17 @@ async function saveGif() {
             gif.writeFrame(index, width, height, {
                 palette,
             });
+            i++;
+            gifProgress.sv(i / transformCs.length);
         },
         error: (e) => console.error("Decode error:", e),
     });
+
+    const gifProgress = progressEl().addInto(transformLogEl);
+
     decoder.configure(videoConfig);
     for (const chunk of transformCs.list) {
+        if (chunk.type === "key") await decoder.flush();
         decoder.decode(chunk);
     }
 
@@ -1366,6 +1385,9 @@ async function saveGif() {
     gif.finish();
     const bytes = gif.bytes();
     fs.writeFileSync(exportPath, Buffer.from(bytes));
+
+    gifProgress.remove();
+
     ipcRenderer.send("ok_save", exportPath);
 }
 
@@ -1455,16 +1477,24 @@ const [codec, isHwAcc] = await (async () => {
     const codecs = ["av1", "vp9", "avc", "vp8"].map((c) => codecMap[c]);
     async function isSupported(mc: string, acc: boolean) {
         return (
-            (await VideoDecoder.isConfigSupported({
-                codec: mc,
-                hardwareAcceleration: acc ? "prefer-hardware" : "no-preference",
-            })).supported &&
-            (await VideoEncoder.isConfigSupported({
-                codec: mc,
-                hardwareAcceleration: acc ? "prefer-hardware" : "no-preference",
-                width: screen.width,
-                height: screen.height,
-            })).supported
+            (
+                await VideoDecoder.isConfigSupported({
+                    codec: mc,
+                    hardwareAcceleration: acc
+                        ? "prefer-hardware"
+                        : "no-preference",
+                })
+            ).supported &&
+            (
+                await VideoEncoder.isConfigSupported({
+                    codec: mc,
+                    hardwareAcceleration: acc
+                        ? "prefer-hardware"
+                        : "no-preference",
+                    width: screen.width,
+                    height: screen.height,
+                })
+            ).supported
         );
     }
     if (store.get("录屏.超级录屏.编码选择") === "性能优先") {
@@ -1620,7 +1650,7 @@ actionsEl.add([lastFrame, playEl, nextFrame, playTimeEl]);
 
 const transformLogEl = view("x").addInto();
 
-const transformProgressEl = (() => {
+const progressEl = () => {
     const el = view("x");
     const p = view().style({
         width: "200px",
@@ -1638,7 +1668,9 @@ const transformProgressEl = (() => {
         pi.style({ width: `${progress * 100}%` });
         t.sv(`${(progress * 100).toFixed(2)}%`);
     });
-})();
+};
+
+const transformProgressEl = progressEl();
 
 const transformTimeEl = txt();
 
