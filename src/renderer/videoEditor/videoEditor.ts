@@ -405,7 +405,7 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     return encodedChunks;
 }
 
-let stopRecord = () => {};
+let stopRecord: (cancel?: boolean) => void = () => {};
 
 function ms2timestamp(t: number) {
     return t * 1000;
@@ -1553,7 +1553,7 @@ playDecoder.configure(videoConfig);
 
 initStyle(store);
 
-const stopPEl = view("x")
+const stopPEl = view("y")
     .style({
         width: "100vw",
         height: "100vh",
@@ -1578,6 +1578,19 @@ view()
         stopPEl.remove();
         stopRecord();
     });
+
+const recordTime = timeEl().sv(0);
+
+stopPEl.add(
+    view("x")
+        .add([
+            recordTime,
+            iconBEl("close").on("click", () => {
+                stopRecord(true);
+            }),
+        ])
+        .style({ alignItems: "center" }),
+);
 
 const canvasEl = ele("canvas").style({
     overflow: "hidden",
@@ -2262,16 +2275,21 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     initKeys();
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
 
-    stopRecord = async () => {
+    stopRecord = async (cancel?: boolean) => {
         stopRecord = () => {}; // 只运行一次
 
         console.log("stop");
 
-        ipcRenderer.send("window", "max");
-
         uIOhook.stop();
 
         reader.cancel();
+
+        if (cancel) {
+            ipcRenderer.send("window", "close");
+            return;
+        }
+
+        ipcRenderer.send("window", "max");
 
         await encoder.flush();
         encoder.close();
@@ -2304,6 +2322,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
     setTimeout(() => stopRecord(), 5 * 60 * 1000); // 5分钟后自动停止录制
 
+    let lastTime = performance.now();
+
     while (true) {
         const { done, value: videoFrame } = await reader.read();
         if (done) break;
@@ -2312,6 +2332,12 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         } else {
             encoder.encode(videoFrame);
             videoFrame.close();
+        }
+
+        const nowTime = performance.now();
+        if (nowTime - lastTime > 300) {
+            lastTime = nowTime;
+            recordTime.sv(nowTime - keys[0].time);
         }
     }
 });
