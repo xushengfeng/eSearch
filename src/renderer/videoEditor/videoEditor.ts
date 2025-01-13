@@ -48,6 +48,9 @@ type FrameX = {
     isRemoved: boolean;
 };
 
+type SrcId = number & { readonly __tag: unique symbol };
+type TransId = number & { readonly __tag: unique symbol };
+
 type baseType = (typeof outputType)[number]["type"];
 
 const testMode: "getFrame" | "history" | false = false;
@@ -94,8 +97,8 @@ const outputType = [
 ] as const;
 
 let isPlaying = false;
-let playI = 0;
-let willPlayI = 0;
+let playI: TransId = 0 as TransId;
+let willPlayI: TransId = 0 as TransId;
 let playTime = 0;
 
 // let isEditClip = false;
@@ -757,18 +760,18 @@ async function runTransform(
     lastCodec = _codec;
     lastUiData = nowUi;
 
-    trans2src.clear();
-    src2trans.clear();
+    trans2srcM.clear();
+    src2transM.clear();
 
     let transCount = 0;
     for (const [i, f] of frameXs.entries()) {
-        trans2src.set(transCount, i);
-        src2trans.set(i, transCount);
+        trans2srcM.set(transCount, i);
+        src2transM.set(i, transCount);
         if (f.isRemoved) transformed[i] = null;
         else transCount++;
     }
 
-    console.log(trans2src, src2trans);
+    console.log(trans2srcM, src2transM);
 
     lastEncodedChunks = transformed.map((chunk, i) => {
         if (chunk === null) return null;
@@ -866,16 +869,16 @@ function renderFrameX(frame: VideoFrame, frameX: FrameX) {
 }
 
 async function afterTrans() {
-    const oldI = Math.min(willPlayI, transformCs.length - 1);
+    const oldI = Math.min(willPlayI, transformCs.length - 1) as TransId;
     await showThumbnails();
     await showNowFrames(oldI);
     await playDecoder.flush();
-    await playId(0, true);
+    await playId(0 as TransId, true);
     await playId(oldI, true);
     onPlay(transformCs.getTime(oldI));
 }
 
-async function playId(i: number, force = false) {
+async function playId(i: TransId, force = false) {
     if (i === playI && !force) return;
 
     const transformed = transformCs.list;
@@ -906,7 +909,7 @@ async function play() {
     const dTime = performance.now() - playTime;
     onPlay(dTime);
 
-    const i = transformCs.time2Id(dTime);
+    const i = transformCs.time2Id(dTime) as TransId;
     await playId(i);
 
     if (playI === transformCs.length - 1) {
@@ -920,7 +923,7 @@ async function play() {
 
 function onPlay(dTime: number) {
     playTimeEl.sv(dTime);
-    timeLineControlPoint.sv(trans2src.get(transformCs.time2Id(dTime)));
+    timeLineControlPoint.sv(trans2src(transformCs.time2Id(dTime) as TransId));
 }
 
 function setPlaySize() {
@@ -933,7 +936,7 @@ function resetPlayTime() {
     playTime = performance.now() - dTime;
 }
 
-async function jump2id(id: number) {
+async function jump2id(id: TransId) {
     const fcanvas = await transformCs.getFrame(id);
     if (!fcanvas) {
         console.log("no frame", id);
@@ -953,8 +956,8 @@ async function jump2id(id: number) {
     willPlayI = id;
 }
 
-async function jump2idUi(id: number) {
-    const transId = src2trans.get(id);
+async function jump2idUi(id: SrcId) {
+    const transId = src2trans(id);
     if (transId === undefined) return;
     playTimeEl.sv(transformCs.getTime(transId));
     timeLineControlPoint.sv(id);
@@ -972,8 +975,8 @@ async function playEnd() {
     isPlaying = false;
     playEl.sv(false);
 
-    await playId(0, true);
-    await jump2idUi(trans2src.get(0) ?? 0);
+    await playId(0 as TransId, true);
+    await jump2idUi(trans2src(0 as TransId) ?? 0);
 }
 
 function onPause() {
@@ -1024,7 +1027,7 @@ async function showThumbnails() {
     }
 }
 
-async function showNowFrames(centerId: number, force = false) {
+async function showNowFrames(centerId: TransId, force = false) {
     const transR = await transform();
     if (!transR) return;
     const hasI: number[] = [];
@@ -1038,7 +1041,7 @@ async function showNowFrames(centerId: number, force = false) {
     }
     for (let i = centerId - 3; i < centerId + 4; i++) {
         if (hasI.includes(i)) continue;
-        const id = i;
+        const id = i as TransId;
         const c = view("y")
             .style({ width: "calc(100% / 7)", order: i })
             .data({ i: String(i) });
@@ -1059,7 +1062,7 @@ async function showNowFrames(centerId: number, force = false) {
                 })
                 .style({ width: "fit-content", overflow: "hidden" })
                 .on("click", () => {
-                    jump2idUi(trans2src.get(id) ?? 0);
+                    jump2idUi(trans2src(id) ?? 0);
                 });
             (
                 canvasEl.el.getContext("2d") as CanvasRenderingContext2D
@@ -1526,8 +1529,16 @@ console.log("codec", videoConfig);
 const transformCs = new videoChunk([]);
 const srcCs = new videoChunk([]);
 
-const trans2src = new Map<number, number>();
-const src2trans = new Map<number, number>();
+const trans2srcM = new Map<number, number>();
+const src2transM = new Map<number, number>();
+const trans2src = (id: TransId) => {
+    const nid = MathClamp(0, id, transformCs.length - 1);
+    return trans2srcM.get(nid) as SrcId;
+};
+const src2trans = (id: SrcId) => {
+    const nid = MathClamp(0, id, srcCs.length - 1);
+    return src2transM.get(nid) as TransId;
+};
 
 const transformTask = new Set<(value: true | null) => void>();
 let lastTransformAbort: AbortController | undefined;
@@ -1629,7 +1640,7 @@ const playEl = check("", [
         if (!transR) return;
         isPlaying = true;
         if (playI === transformCs.length - 1) {
-            playI = 0;
+            playI = 0 as TransId;
         }
         if (willPlayI !== playI) {
             await playId(willPlayI);
@@ -1643,12 +1654,12 @@ const playEl = check("", [
 });
 
 const lastFrame = iconBEl("last").on("click", () => {
-    const id = Math.max(willPlayI - 1, 0);
-    jump2idUi(trans2src.get(id) ?? willPlayI);
+    const id = Math.max(willPlayI - 1, 0) as TransId;
+    jump2idUi(trans2src(id) ?? willPlayI);
 });
 const nextFrame = iconBEl("next").on("click", () => {
-    const id = Math.min(willPlayI + 1, transformCs.length - 1);
-    jump2idUi(trans2src.get(id) ?? willPlayI);
+    const id = Math.min(willPlayI + 1, transformCs.length - 1) as TransId;
+    jump2idUi(trans2src(id) ?? willPlayI);
 });
 // const lastKey = button("<<");
 // const nextKey = button(">>");
@@ -1740,8 +1751,10 @@ const timeLineMain = view("x")
     .addInto()
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = transformCs.time2Id(p * transformCs.getDuration());
-        jump2idUi(trans2src.get(id) ?? 0);
+        const id = transformCs.time2Id(
+            p * transformCs.getDuration(),
+        ) as TransId;
+        jump2idUi(trans2src(id) ?? 0);
     });
 
 const timeLineControl = view("y")
@@ -1776,7 +1789,7 @@ const timeLineControlPoint = view()
         backgroundColor: "red",
     })
     .addInto(timeLineControl)
-    .bindSet((i: number, el) => {
+    .bindSet((i: SrcId, el) => {
         el.style.left = `${(i / listLength()) * 100}%`;
     });
 
@@ -1784,7 +1797,7 @@ view()
     .addInto(timeLineControl)
     .on("click", (e) => {
         const p = e.offsetX / timeLineMain.el.offsetWidth;
-        const id = Math.floor(p * listLength());
+        const id = Math.floor(p * listLength()) as SrcId;
         jump2idUi(id);
     });
 
