@@ -947,10 +947,10 @@ async function jump2id(id: number) {
 async function jump2idUi(id: number) {
     const transId = src2trans.get(id);
     if (transId === undefined) return;
-    await jump2id(transId);
-    await showNowFrames(transId);
     playTimeEl.sv(transformCs.getTime(transId));
     timeLineControlPoint.sv(id);
+    await jump2id(transId);
+    await showNowFrames(transId);
 }
 
 function pause() {
