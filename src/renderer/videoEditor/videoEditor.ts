@@ -2173,7 +2173,9 @@ const timeLineSpeedEl = timeLineTrack({
             return uiData;
         }, "更新速度");
         history.apply();
-        uiDataSave();
+        uiDataSave().then(() => {
+            timeLineClipEl.setData(history.getData().clipList);
+        });
     },
 });
 timeLineSpeedEl.el.style({
@@ -2211,7 +2213,9 @@ const timeLineRemoveEl = timeLineTrack({
             return uiData;
         }, "更新移除");
         history.apply();
-        uiDataSave();
+        uiDataSave().then(() => {
+            timeLineClipEl.setData(history.getData().clipList);
+        });
     },
 });
 timeLineRemoveEl.el.style({
