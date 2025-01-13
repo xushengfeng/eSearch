@@ -249,8 +249,10 @@ class xhistory<Data> {
     }
 
     apply(des = this.des) {
-        const data = this.getTmpData();
-        this.history.push({ data, time: new Date().getTime(), des });
+        const data = structuredClone(this.tmpData);
+        if (data) {
+            this.history.push({ data, time: new Date().getTime(), des });
+        }
         this.i = this.history.length - 1;
         this.des = "";
         for (const f of this.changeEvent) {
@@ -259,6 +261,7 @@ class xhistory<Data> {
     }
     giveup() {
         this.tmpData = null;
+        this.des = "";
     }
 
     getData() {
@@ -2354,6 +2357,8 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         await encoder.flush();
         encoder.close();
+
+        history.apply();
 
         const afterCuncks = await afterRecord(encodedChunks);
         // @ts-ignore
