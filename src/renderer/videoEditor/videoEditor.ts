@@ -79,8 +79,8 @@ const v = {
 
 const frameLength = store.get("录屏.超级录屏.关键帧间隔");
 
-const srcRate = 60;
-const bitrate = 16 * 1024 * 1024;
+const srcRate = store.get("录屏.转换.帧率");
+const bitrate = store.get("录屏.转换.码率") * 1024 * 1024;
 
 const outputType = [
     { type: "gif", name: "gif" },
@@ -388,7 +388,6 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     encoder.configure({
         ...encoderVideoConfig,
         framerate: srcRate,
-        bitrate: bitrate,
         width: v.width,
         height: v.height,
     });
@@ -731,7 +730,6 @@ async function runTransform(
             width: outputV.width,
             height: outputV.height,
             framerate: srcRate,
-            bitrate: bitrate,
         });
         decoder.configure(decoderVideoConfig);
 
