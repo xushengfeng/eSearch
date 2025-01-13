@@ -105,7 +105,7 @@ let playTime = 0;
 
 let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 
-class videoChunk {
+class videoChunk<Id extends number> {
     private srcList: (EncodedVideoChunk | null)[] = [];
     list: EncodedVideoChunk[] = [];
 
@@ -185,7 +185,7 @@ class videoChunk {
             this.lastAddDecodeI = i;
         }
     }
-    async getFrame(index: number) {
+    async getFrame(index: Id) {
         const { promise, resolve } =
             Promise.withResolvers<OffscreenCanvas | null>();
         this.#on(index, (c) => resolve(c));
@@ -197,18 +197,24 @@ class videoChunk {
         return this.timestamp2Id(frame.timestamp);
     }
     timestamp2Id(timestamp: number) {
-        return this._timestamp2Id.get(timestamp) ?? -1;
+        return (this._timestamp2Id.get(timestamp) ?? -1) as Id;
     }
     time2Id(time: number) {
         const i = this.list.findIndex((c) => c.timestamp >= ms2timestamp(time));
-        if (i === -1) return this.length - 1;
-        return i;
+        if (i === -1) return (this.length - 1) as Id;
+        return i as Id;
     }
-    getTime(id: number) {
+    getTime(id: Id) {
         return timestamp2ms(this.list.at(id)?.timestamp ?? 0);
     }
     getDuration() {
-        return this.getTime(-1);
+        return this.getTime(-1 as Id);
+    }
+    entries() {
+        return this.list.entries() as ArrayIterator<[Id, EncodedVideoChunk]>;
+    }
+    at(i: Id) {
+        return this.list.at(i);
     }
 
     #sumChunckSize(chunks: EncodedVideoChunk[]) {
@@ -521,8 +527,8 @@ function getFrameXs(_data: uiData | null) {
 
     let nowTime = 0;
     const timeMap = new Map<number, number>();
-    for (const [i, c] of srcCs.list.entries()) {
-        const next = srcCs.list[i + 1];
+    for (const [i, c] of srcCs.entries()) {
+        const next = srcCs.at((i + 1) as SrcId);
         const duration = next ? next.timestamp - c.timestamp : 0;
         const speed = speedMap.get(i) ?? 1;
         const nd = duration / speed;
@@ -534,7 +540,7 @@ function getFrameXs(_data: uiData | null) {
 
     const clipList = data.clipList.filter((c) => !removeSet.has(c.i));
 
-    for (const [i, c] of srcCs.list.entries()) {
+    for (const [i, c] of srcCs.entries()) {
         const f: FrameX = {
             rect: { x: 0, y: 0, w: v.width, h: v.height },
             timestamp: getTime(c.timestamp) ?? 0,
@@ -570,8 +576,12 @@ function getFrameXs(_data: uiData | null) {
                 const clipI = l.findLastIndex((c) => c.i < i);
                 const clip = l[clipI];
                 const nextClip = l[clipI + 1];
-                const clipTime = getTime(srcCs.list[clip.i].timestamp);
-                const nextClipTime = getTime(srcCs.list[nextClip.i].timestamp);
+                const clipTime = getTime(
+                    (srcCs.at(clip.i) as EncodedVideoChunk).timestamp,
+                );
+                const nextClipTime = getTime(
+                    (srcCs.at(nextClip.i) as EncodedVideoChunk).timestamp,
+                );
                 const t = getTime(c.timestamp);
                 f.rect = getClip(clip, clipTime, t, nextClip, nextClipTime);
             }
@@ -726,15 +736,15 @@ async function runTransform(
         decoder.configure(decoderVideoConfig);
 
         let inThisClip = false;
-        for (let i = srcCs.list.length - 1; i >= 0; i--) {
+        for (let i = srcCs.length - 1; i >= 0; i--) {
             if (needEncode.has(i)) inThisClip = true;
             if (inThisClip) needDecode.add(i);
-            if (srcCs.list[i].type === "key") inThisClip = false;
+            if (srcCs.at(i as SrcId)?.type === "key") inThisClip = false;
         }
 
         for (const chunk of Array.from(needDecode)
             .toSorted((a, b) => a - b)
-            .map((i) => srcCs.list[i])) {
+            .map((i) => srcCs.at(i as SrcId) as EncodedVideoChunk)) {
             if (chunk.type === "key") {
                 if (signal.aborted) break;
                 await decoder.flush();
@@ -893,23 +903,27 @@ async function afterTrans() {
 async function playId(i: TransId, force = false) {
     if (i === playI && !force) return;
 
-    const transformed = transformCs.list;
-    if (transformed[i].type === "key") {
-        playDecoder.decode(transformed[i]);
+    const c = transformCs.at(i);
+    if (!c) {
+        console.log("no chunk", i);
+        return;
+    }
+    if (c.type === "key") {
+        playDecoder.decode(c);
         playI = i;
         willPlayI = i;
         return;
     }
-    const beforeId = transformed
+    const beforeId = transformCs.list
         .slice(0, i)
         .findLastIndex((c) => c.type === "key");
 
     const fillI = i < playI || playI < beforeId ? beforeId : playI + 1;
 
     for (let n = fillI; n < i; n++) {
-        playDecoder.decode(transformed[n]);
+        playDecoder.decode(transformCs.at(n as TransId) as EncodedVideoChunk);
     }
-    playDecoder.decode(transformed[i]);
+    playDecoder.decode(c);
     playI = i;
     willPlayI = i;
     console.log("play", playI);
@@ -921,7 +935,7 @@ async function play() {
     const dTime = performance.now() - playTime;
     onPlay(dTime);
 
-    const i = transformCs.time2Id(dTime) as TransId;
+    const i = transformCs.time2Id(dTime);
     await playId(i);
 
     if (playI === transformCs.length - 1) {
@@ -935,7 +949,7 @@ async function play() {
 
 function onPlay(dTime: number) {
     playTimeEl.sv(dTime);
-    timeLineControlPoint.sv(trans2src(transformCs.time2Id(dTime) as TransId));
+    timeLineControlPoint.sv(trans2src(transformCs.time2Id(dTime)));
 }
 
 function setPlaySize() {
@@ -944,7 +958,7 @@ function setPlaySize() {
 }
 
 function resetPlayTime() {
-    const dTime = timestamp2ms(transformCs.list[playI].timestamp);
+    const dTime = timestamp2ms(transformCs.at(playI)?.timestamp ?? 0);
     playTime = performance.now() - dTime;
 }
 
@@ -1000,7 +1014,7 @@ async function showThumbnails() {
     if (!transR) return;
     timeLineMain.clear();
     for (let i = 0; i < 6; i++) {
-        const id = Math.floor((i / 6) * transformCs.length);
+        const id = Math.floor((i / 6) * transformCs.length) as TransId;
         const canvas = await transformCs.getFrame(id);
         if (!canvas) {
             console.log("no frame", id);
@@ -1344,7 +1358,7 @@ async function saveImages() {
     const imgProgress = progressEl().addInto(transformLogEl);
 
     decoder.configure(decoderVideoConfig);
-    for (const chunk of transformCs.list) {
+    for (const [_, chunk] of transformCs.entries()) {
         if (chunk.type === "key") await decoder.flush();
         decoder.decode(chunk);
     }
@@ -1391,7 +1405,7 @@ async function saveGif() {
     const gifProgress = progressEl().addInto(transformLogEl);
 
     decoder.configure(decoderVideoConfig);
-    for (const chunk of transformCs.list) {
+    for (const [_, chunk] of transformCs.entries()) {
         if (chunk.type === "key") await decoder.flush();
         decoder.decode(chunk);
     }
@@ -1426,7 +1440,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
 
     await transform(_codec);
 
-    for (const chunk of transformCs.list) {
+    for (const [_, chunk] of transformCs.entries()) {
         muxer.addVideoChunk(chunk);
     }
     muxer.finalize();
@@ -1456,7 +1470,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
 
     await transform(_codec);
 
-    for (const chunk of transformCs.list) {
+    for (const [_, chunk] of transformCs.entries()) {
         muxer.addVideoChunk(chunk);
     }
     muxer.finalize();
@@ -1570,8 +1584,8 @@ const encoderVideoConfig = {
 } as const;
 console.log("codec", codecMap, decoderVideoConfig, encoderVideoConfig);
 
-const transformCs = new videoChunk([]);
-const srcCs = new videoChunk([]);
+const transformCs = new videoChunk<TransId>([]);
+const srcCs = new videoChunk<SrcId>([]);
 
 const trans2srcM = new Map<number, number>();
 const src2transM = new Map<number, number>();
@@ -1865,7 +1879,7 @@ const timeLineClip = () => {
                 : trans2src(
                       transformCs.time2Id(
                           timestamp2ms(
-                              (transformCs.list.at(transId)?.timestamp ?? 0) -
+                              (transformCs.at(transId)?.timestamp ?? 0) -
                                   c.transition,
                           ),
                       ) as TransId,
@@ -2262,7 +2276,7 @@ const exportEl = frame("export", {
         });
     }),
     editSrc: button("编辑原图").on("click", async () => {
-        const canvas = await srcCs.getFrame(willPlayI); // todo 删除帧后的映射
+        const canvas = await srcCs.getFrame(trans2src(willPlayI));
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
