@@ -2074,6 +2074,9 @@ const timeLineTrack = <D>(op: {
 };
 
 const timeLineClipEl = timeLineClip();
+timeLineClipEl.el.style({
+    backgroundColor: "#f001",
+});
 const timeLineSpeedEl = timeLineTrack({
     el: (el, data) => {
         el.style({
