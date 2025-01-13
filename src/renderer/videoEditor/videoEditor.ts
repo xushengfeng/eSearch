@@ -865,6 +865,16 @@ function renderFrameX(frame: VideoFrame, frameX: FrameX) {
     return { canvas, isKey: Boolean(frameX.isKey) };
 }
 
+async function afterTrans() {
+    const oldI = Math.min(willPlayI, transformCs.length - 1);
+    await showThumbnails();
+    await showNowFrames(oldI);
+    await playDecoder.flush();
+    await playId(0, true);
+    await playId(oldI, true);
+    onPlay(transformCs.getTime(oldI));
+}
+
 async function playId(i: number, force = false) {
     if (i === playI && !force) return;
 
@@ -891,21 +901,21 @@ async function playId(i: number, force = false) {
 }
 
 async function play() {
+    if (!isPlaying) return;
+
     const dTime = performance.now() - playTime;
     onPlay(dTime);
 
-    if (isPlaying) {
-        const i = transformCs.time2Id(dTime);
-        await playId(i);
+    const i = transformCs.time2Id(dTime);
+    await playId(i);
 
-        if (playI === transformCs.length - 1) {
-            playEnd();
-        }
-
-        requestAnimationFrame(() => {
-            play();
-        });
+    if (playI === transformCs.length - 1) {
+        playEnd();
     }
+
+    requestAnimationFrame(() => {
+        play();
+    });
 }
 
 function onPlay(dTime: number) {
@@ -963,8 +973,7 @@ async function playEnd() {
     playEl.sv(false);
 
     await playId(0, true);
-
-    onPause();
+    await jump2idUi(trans2src.get(0) ?? 0);
 }
 
 function onPause() {
@@ -1015,13 +1024,13 @@ async function showThumbnails() {
     }
 }
 
-async function showNowFrames(centerId: number) {
+async function showNowFrames(centerId: number, force = false) {
     const transR = await transform();
     if (!transR) return;
     const hasI: number[] = [];
     for (const c of timeLineFrame.queryAll(":scope > *")) {
         const i = Number(c.el.getAttribute("data-i"));
-        if (i < centerId - 3 || centerId + 4 <= i) {
+        if (force || i < centerId - 3 || centerId + 4 <= i) {
             c.remove();
         } else {
             hasI.push(i);
@@ -1120,12 +1129,7 @@ function editClip(i: number) {
         canvasView.sv("play");
         history.setData(data, "更新镜头位置");
         history.apply();
-        await transform();
-        await showThumbnails();
-        await showNowFrames(willPlayI);
-        await playDecoder.flush();
-        await playId(0, true);
-        playId(playI, true);
+        uiDataSave();
     }
 
     function reRener() {
@@ -1271,11 +1275,7 @@ function editClip(i: number) {
 async function uiDataSave() {
     const transR = await transform();
     if (!transR) return;
-    await showThumbnails();
-    await showNowFrames(willPlayI);
-    await playDecoder.flush();
-    await playId(0, true);
-    playId(playI, true);
+    afterTrans();
 }
 
 async function save() {
@@ -2314,10 +2314,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         setPlaySize();
 
         if (transR) {
-            await playId(0, true);
-
-            await showThumbnails();
-            await showNowFrames(0);
+            afterTrans();
         }
 
         const nowUi = history.getData();
