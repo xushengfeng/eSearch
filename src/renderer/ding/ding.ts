@@ -466,6 +466,7 @@ function save(id: string) {
         "base64",
     );
     const save = ipcRenderer.sendSync("get_save_file_path", "png");
+    if (!save) return;
     fs.writeFileSync(save, b);
     ipcRenderer.send("ok_save", save);
 }

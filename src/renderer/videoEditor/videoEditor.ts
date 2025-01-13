@@ -1299,8 +1299,9 @@ function getSavePath(type: baseType) {
 }
 
 async function saveImages() {
-    const exportPath = getSavePath("png");
     // todo 大小警告
+    const exportPath = getSavePath("png");
+    if (!exportPath) return;
 
     try {
         fs.mkdirSync(exportPath, { recursive: true });
@@ -1347,6 +1348,7 @@ async function saveImages() {
 
 async function saveGif() {
     const exportPath = getSavePath("gif");
+    if (!exportPath) return;
 
     const gif = GIFEncoder();
 
@@ -1392,6 +1394,9 @@ async function saveGif() {
 }
 
 async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
+    const exportPath = getSavePath("webm");
+    if (!exportPath) return;
+
     const { Muxer, ArrayBufferTarget } = require("webm-muxer") as typeof import(
         "webm-muxer"
     );
@@ -1412,13 +1417,15 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     }
     muxer.finalize();
     const { buffer } = muxer.target;
-    const exportPath = getSavePath("webm");
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved webm");
     ipcRenderer.send("ok_save", exportPath, true);
 }
 
 async function saveMp4(_codec: "avc" | "vp9" | "av1") {
+    const exportPath = getSavePath("mp4");
+    if (!exportPath) return;
+
     const { Muxer, ArrayBufferTarget } = require("mp4-muxer") as typeof import(
         "mp4-muxer"
     );
@@ -1440,7 +1447,6 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     }
     muxer.finalize();
     const { buffer } = muxer.target;
-    const exportPath = getSavePath("mp4");
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved mp4");
     ipcRenderer.send("ok_save", exportPath, true);
