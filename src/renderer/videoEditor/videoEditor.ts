@@ -2223,7 +2223,14 @@ const exportPx = select([]);
 const exportEl = frame("export", {
     _: view("x"),
     export: iconBEl("save").on("click", save),
-    type: select(outputType.map((t) => ({ value: t.name }))),
+    type: select(
+        outputType
+            .filter(
+                (i) =>
+                    !("codec" in i) || ("codec" in i && codecMap.has(i.codec)),
+            )
+            .map((t) => ({ value: t.name })),
+    ),
     px: exportPx,
     editClip: iconBEl("draw").on("click", async () => {
         const canvas = await transformCs.getFrame(willPlayI);
