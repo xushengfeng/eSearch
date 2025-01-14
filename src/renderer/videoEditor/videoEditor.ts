@@ -453,11 +453,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         .filter((i) => i.time > 0);
     // 获取关键时间
     let lastK: (typeof newKeys)[0] | undefined = undefined;
-    const nk = newKeys.filter(
-        (k) =>
-            "mousedown" in k ||
-            "mouseup" in k,
-    );
+    const nk = newKeys.filter((k) => "mousedown" in k || "mouseup" in k);
     const nk2: typeof newKeys = [];
     for (const k of nk) {
         if (k.time - (lastK?.time ?? 0) > 500) {
@@ -1892,8 +1888,28 @@ const timeLineMain = view("x")
         jump2idUi(trans2src(id) ?? 0);
     });
 
+const timeLineControlP = view()
+    .style({
+        overflowX: "scroll",
+        flexShrink: 0,
+        paddingRight: "calc(100% - 300px)",
+    })
+    .addInto()
+    .on("wheel", (e) => {
+        e.preventDefault();
+        const dx = e.deltaX;
+        const dy = e.deltaY;
+        timeLineControlP.el.scrollLeft += dx;
+        const x = e.clientX - timeLineControl.el.getBoundingClientRect().left;
+        const zoom = timeLineControl.gv;
+        const dz = Math.sqrt(1 + dy / 1000);
+        const nz = zoom * dz;
+        const nx = x * dz;
+        timeLineControlP.el.scrollLeft += nx - x;
+        timeLineControl.sv(nz);
+    });
 const timeLineControl = view("y")
-    .style({ position: "relative", flexShrink: 0 })
+    .style({ position: "relative" })
     .class(
         addClass(
             {},
@@ -1913,7 +1929,16 @@ const timeLineControl = view("y")
             },
         ),
     )
-    .addInto();
+    .addInto(timeLineControlP)
+    .bindSet((zoom: number) => {
+        const nz = Math.max(300 / listLength(), zoom);
+        timeLineControl
+            .style({ width: `${nz * listLength()}px` })
+            .data({ zoom: String(nz) });
+    })
+    .bindGet((el) => {
+        return Number(el.getAttribute("data-zoom"));
+    });
 const timeLineControlPoint = view()
     .style({
         position: "absolute",
@@ -1932,7 +1957,7 @@ const timeLineControlPoint = view()
 view()
     .addInto(timeLineControl)
     .on("click", (e) => {
-        const p = e.offsetX / timeLineMain.el.offsetWidth;
+        const p = e.offsetX / timeLineControl.el.offsetWidth;
         const id = Math.floor(p * listLength()) as SrcId;
         jump2idUi(id);
     });
@@ -2506,6 +2531,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         const nowUi = history.getData();
         renderUiData(nowUi);
+        timeLineControl.sv(20);
     };
 
     setTimeout(() => stopRecord(), 5 * 60 * 1000); // 5分钟后自动停止录制
