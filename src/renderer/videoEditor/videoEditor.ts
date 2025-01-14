@@ -60,7 +60,10 @@ const zeroPoint = [0, 0] as const;
 const keys: superRecording = [];
 
 let lastUiData: uiData | null = null;
-let lastCodec = "";
+const lastTransOpt: { codec: string; size: string } = {
+    codec: "",
+    size: "0x0",
+};
 
 let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
 
@@ -628,7 +631,7 @@ function easeOutQuint(x: number): number {
     return 1 - (1 - x) ** 5; // todo 更多 easing
 }
 
-async function transform(_codec = "") {
+async function transform(op?: Partial<typeof lastTransOpt>) {
     // todo cancel last transform
     lastTransformAbort?.abort();
     const { promise, resolve } = Promise.withResolvers<true | null>();
@@ -639,7 +642,7 @@ async function transform(_codec = "") {
     transformTask.add(resolve);
 
     lastTransformAbort = new AbortController();
-    runTransform(_codec, lastTransformAbort.signal)
+    runTransform(op, lastTransformAbort.signal)
         .then(() => {
             for (const task of transformTask) {
                 task(true);
@@ -653,21 +656,29 @@ async function transform(_codec = "") {
 }
 
 async function runTransform(
-    _codec = "",
+    op?: Partial<typeof lastTransOpt>,
     signal = new AbortController().signal,
 ) {
     if (signal.aborted) return;
 
     const nowUi = history.getData();
 
-    if (_codec === lastCodec) {
+    const forceRerendAll = (() => {
+        for (const [i, v] of Object.entries(op ?? {})) {
+            if (v !== lastTransOpt[i]) return true;
+        }
+        return false;
+    })();
+    if (!forceRerendAll) {
         if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
     }
     console.trace("transform");
     const lastFrameXs = getFrameXs(lastUiData);
     const frameXs = getFrameXs(nowUi);
 
-    const needEncode = diffFrameXs(lastFrameXs, frameXs);
+    const needEncode = forceRerendAll
+        ? new Set(Array.from({ length: frameXs.length }, (_, i) => i))
+        : diffFrameXs(lastFrameXs, frameXs);
 
     const needDecode = new Set<number>();
 
@@ -717,7 +728,7 @@ async function runTransform(
             },
             error: (e) => console.error("Encode error:", e),
         });
-        const c = codecMap.get(_codec);
+        const c = codecMap.get(op?.codec ?? "");
         encoder.configure({
             ...(c
                 ? {
@@ -777,7 +788,7 @@ async function runTransform(
 
     if (signal.aborted) return;
 
-    lastCodec = _codec;
+    for (const i in op) lastTransOpt[i] = op[i];
     lastUiData = nowUi;
 
     trans2srcM.clear();
@@ -1449,7 +1460,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
         },
     });
 
-    await transform(_codec);
+    await transform({ codec: _codec });
 
     for (const [_, chunk] of transformCs.entries()) {
         muxer.addVideoChunk(chunk);
@@ -1479,7 +1490,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
         fastStart: false,
     });
 
-    await transform(_codec);
+    await transform({ codec: _codec });
 
     for (const [_, chunk] of transformCs.entries()) {
         muxer.addVideoChunk(chunk);
@@ -2362,8 +2373,11 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
             outputV.width = Math.round(v.width / x);
             outputV.height = Math.round(v.height / x);
             setPlaySize();
-            const transR = await transform();
+            const transR = await transform({
+                size: `${outputV.width}x${outputV.height}`,
+            });
             if (!transR) return;
+            afterTrans();
         })
         .sv("2");
 
