@@ -1325,6 +1325,7 @@ async function save() {
     else if (exportEl.els.type.gv === "mp4-av1") saveMp4("av1");
     else if (exportEl.els.type.gv === "mp4-vp9") saveMp4("vp9");
     else if (exportEl.els.type.gv === "mp4-avc") saveMp4("avc");
+    else saveGif();
 }
 
 function getSavePath(type: baseType) {
@@ -2275,7 +2276,7 @@ timeLineRemoveEl.el.style({
 const timeLineFrame = view("x").style({ height: "150px" }).addInto();
 const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
 
-const exportPx = select([]);
+const exportPx = dynamicSelect();
 
 const exportEl = frame("export", {
     _: view("x"),
@@ -2287,8 +2288,11 @@ const exportEl = frame("export", {
                     !("codec" in i) || ("codec" in i && codecMap.has(i.codec)),
             )
             .map((t) => ({ value: t.name })),
-    ),
-    px: exportPx,
+    ).on("change", (_, el) => {
+        const type = el.gv;
+        store.set("录屏.超级录屏.格式", type);
+    }),
+    px: exportPx.el,
     editClip: iconBEl("draw").on("click", async () => {
         const canvas = await transformCs.getFrame(willPlayI);
         if (!canvas) return;
@@ -2306,6 +2310,9 @@ const exportEl = frame("export", {
         });
     }),
 });
+
+// @ts-ignore
+exportEl.els.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
 
 exportEl.el.addInto();
 
@@ -2359,30 +2366,32 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     v.width = videoWidth;
     v.height = videoHeight;
 
-    for (const x of [1, 2, 4, 8]) {
-        exportPx.add(
-            ele("option").attr({
-                value: String(x),
-                text: `/${x} ${Math.round(v.width / x)} x ${Math.round(v.height / x)}`,
-            }),
-        );
-    }
-    exportPx
-        .on("change", async () => {
-            const x = Number(exportPx.gv);
-            outputV.width = Math.round(v.width / x);
-            outputV.height = Math.round(v.height / x);
-            setPlaySize();
-            const transR = await transform({
-                size: `${outputV.width}x${outputV.height}`,
-            });
-            if (!transR) return;
-            afterTrans();
-        })
-        .sv("2");
+    exportPx.setList(
+        [1, 2, 3, 4, 8].map((i) => ({
+            value: String(i),
+            name: `/${i} ${Math.round(v.width / i)} x ${Math.round(v.height / i)}`,
+        })),
+    );
 
-    outputV.width = Math.round(videoWidth / 2);
-    outputV.height = Math.round(videoHeight / 2);
+    exportPx.el.on("change", async () => {
+        const x = Number(exportPx.el.gv);
+        store.set("录屏.超级录屏.缩放", x);
+        outputV.width = Math.round(v.width / x);
+        outputV.height = Math.round(v.height / x);
+        setPlaySize();
+        const transR = await transform({
+            size: `${outputV.width}x${outputV.height}`,
+        });
+        if (!transR) return;
+        afterTrans();
+    });
+
+    const lastR = store.get("录屏.超级录屏.缩放") ?? 1;
+
+    exportPx.el.sv(String(lastR));
+
+    outputV.width = Math.round(videoWidth / lastR);
+    outputV.height = Math.round(videoHeight / lastR);
 
     // @ts-ignore
     const reader = new MediaStreamTrackProcessor({
