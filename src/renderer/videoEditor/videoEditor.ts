@@ -1786,6 +1786,24 @@ const transformProgressEl = progressEl();
 
 const transformTimeEl = txt();
 
+const transformCodec = txt()
+    .style({ fontFamily: "var(--monospace)" })
+    .bindSet((x: [string, boolean, boolean], el) => {
+        let c = "未知编码";
+        for (const [k, v] of codecMap.entries()) {
+            if (v.codec === x[0]) {
+                c = k;
+                break;
+            }
+        }
+        el.innerText = c;
+        el.title = `${x[0]} ${x[1] ? "硬解" : "软解"} ${x[2] ? "硬编" : "软编"}`;
+        el.onclick = () => {
+            navigator.clipboard.writeText(x[0]);
+        };
+    })
+    .sv([codec, isDeAcc, isEnAcc]);
+
 const actionUndo = iconBEl("left")
     .style({ width: "24px", height: "24px" })
     .on("click", async () => {
@@ -1821,11 +1839,14 @@ history.on("change", () => {
     actionList.el.sv(String(history.i));
 });
 
-transformLogEl.add([
-    view("x").add([actionUndo, actionList.el, actionUnundo]),
-    transformProgressEl,
-    transformTimeEl,
-]);
+transformLogEl
+    .style({ gap: "4px" })
+    .add([
+        view("x").add([actionUndo, actionList.el, actionUnundo]),
+        transformProgressEl,
+        transformTimeEl,
+        transformCodec,
+    ]);
 
 const timeLineMain = view("x")
     .style({ height: "80px" })
