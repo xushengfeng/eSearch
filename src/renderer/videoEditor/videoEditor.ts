@@ -455,8 +455,6 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     let lastK: (typeof newKeys)[0] | undefined = undefined;
     const nk = newKeys.filter(
         (k) =>
-            "keydown" in k ||
-            "keyup" in k ||
             "mousedown" in k ||
             "mouseup" in k,
     );
