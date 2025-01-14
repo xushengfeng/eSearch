@@ -1129,7 +1129,7 @@ async function showNowFrames(centerId: TransId, force = false) {
 function editClip(i: number) {
     type center = { x: number; y: number; ratio: number };
 
-    const data = history.getData();
+    const data = history.getTmpData();
 
     const clip = data.clipList.at(i);
     if (!clip) return;
