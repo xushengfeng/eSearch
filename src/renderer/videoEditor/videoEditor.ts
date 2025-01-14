@@ -1655,7 +1655,16 @@ const playDecoder = new VideoDecoder({
         );
         frame.close();
     },
-    error: (e) => console.error("Decode error:", e),
+    error: (e) => {
+        console.error("Decode error:", e);
+        const el = iconBEl("reload")
+            .attr({ title: "重新加载播放器" })
+            .on("click", () => {
+                playDecoder.configure(decoderVideoConfig);
+                el.remove();
+            });
+        transformLogEl.add(el);
+    },
 });
 playDecoder.configure(decoderVideoConfig);
 
