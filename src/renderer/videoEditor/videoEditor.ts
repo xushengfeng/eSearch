@@ -1079,7 +1079,12 @@ async function showNowFrames(centerId: TransId, force = false) {
         if (hasI.includes(i)) continue;
         const id = i as TransId;
         const c = view("y")
-            .style({ width: "calc(100% / 7)", order: i })
+            .style({
+                width: "calc(100% / 7)",
+                order: i,
+                padding: "4px",
+                alignItems: "center",
+            })
             .data({ i: String(i) });
 
         const tW = 300;
@@ -1116,7 +1121,7 @@ async function showNowFrames(centerId: TransId, force = false) {
 
             c.add(
                 view("x")
-                    .style({ gap: "1em" })
+                    .style({ gap: "1em", width: "100%" })
                     .add([
                         timeEl().sv(transformCs.getTime(id)),
                         spacer(),
@@ -2324,7 +2329,9 @@ timeLineRemoveEl.el.style({
     backgroundColor: "#0001",
 });
 
-const timeLineFrame = view("x").style({ height: "150px" }).addInto();
+const timeLineFrame = view("x")
+    .style({ height: "150px", gap: "8px" })
+    .addInto();
 const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
 
 const exportPx = dynamicSelect();
