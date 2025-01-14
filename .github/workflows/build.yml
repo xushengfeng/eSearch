@@ -35,7 +35,7 @@ jobs:
               env:
                   M_ARCH: ${{matrix.arch}}
               run: |
-                  npm install -g pnpm
+                  npm install -g pnpm@10.0.0
                   pnpm install
                   pnpm run dist
 
