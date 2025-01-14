@@ -1889,6 +1889,7 @@ const timeLineControlPoint = view()
         width: "2px",
         height: "100%",
         backgroundColor: "red",
+        pointerEvents: "none",
     })
     .addInto(timeLineControl)
     .bindSet((i: SrcId, el) => {
