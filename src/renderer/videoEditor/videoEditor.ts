@@ -16,6 +16,7 @@ import {
     view,
     image,
     dynamicSelect,
+    spacer,
 } from "dkh-ui";
 import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
@@ -1090,6 +1091,7 @@ async function showNowFrames(centerId: TransId, force = false) {
                 console.log("no frame", id);
                 continue;
             }
+            const srcId = trans2src(id) ?? 0;
             const canvasEl = ele("canvas")
                 .attr({
                     width: tW,
@@ -1097,7 +1099,7 @@ async function showNowFrames(centerId: TransId, force = false) {
                 })
                 .style({ width: "fit-content", overflow: "hidden" })
                 .on("click", () => {
-                    jump2idUi(trans2src(id) ?? 0);
+                    jump2idUi(srcId);
                 });
             (
                 canvasEl.el.getContext("2d") as CanvasRenderingContext2D
@@ -1111,7 +1113,20 @@ async function showNowFrames(centerId: TransId, force = false) {
                 tH,
             );
             c.add(canvasEl);
-            c.add(timeEl().sv(transformCs.getTime(id)));
+
+            c.add(
+                view("x")
+                    .style({ gap: "1em" })
+                    .add([
+                        timeEl().sv(transformCs.getTime(id)),
+                        spacer(),
+                        // @ts-ignore
+                        String(srcId) !== String(id)
+                            ? monoTxt(String(srcId))
+                            : null,
+                        monoTxt(String(id)),
+                    ]),
+            );
         }
         timeLineFrame.add(c);
     }
@@ -1508,12 +1523,14 @@ function iconBEl(src: string) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
+function monoTxt(text?: string) {
+    return txt(text).style({ fontFamily: "var(--monospace)" });
+}
+
 function timeEl() {
-    return txt()
-        .style({ fontFamily: "var(--monospace)" })
-        .bindSet((t: number, el) => {
-            el.innerText = formatTime(t);
-        });
+    return monoTxt().bindSet((t: number, el) => {
+        el.innerText = formatTime(t);
+    });
 }
 
 const history = new xhistory<uiData>([], {
@@ -1787,7 +1804,7 @@ const progressEl = () => {
     const pi = view()
         .addInto(p)
         .style({ width: "0%", height: "100%", backgroundColor: "#000" });
-    const t = txt().style({ fontFamily: "var(--monospace)" });
+    const t = monoTxt();
 
     return el.add([p, t]).bindSet((progress: number) => {
         pi.style({ width: `${progress * 100}%` });
@@ -1799,8 +1816,7 @@ const transformProgressEl = progressEl();
 
 const transformTimeEl = txt();
 
-const transformCodec = txt()
-    .style({ fontFamily: "var(--monospace)" })
+const transformCodec = monoTxt()
     .bindSet((x: [string, boolean, boolean], el) => {
         let c = "未知编码";
         for (const [k, v] of codecMap.entries()) {
