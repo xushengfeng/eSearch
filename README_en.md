@@ -77,6 +77,12 @@ Can indicate cursor position and keyboard keystrokes
 
 Can set a virtual background
 
+### Super Screen Recording
+
+Automatically zoom and focus to the mouse position for more vivid screen recording
+
+Accelerate, delete, operate every frame
+
 ### Screen Overlay
 
 Scroll zooming, opacity, auto repositioning, mouse transparency
@@ -256,6 +262,5 @@ Actions: Feedback bugs, provide new function ideas,[Participate in development](
 ## License
 
 [GPL-3.0](LICENSE) © xushengfeng
-
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fxushengfeng%2FeSearch.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fxushengfeng%2FeSearch?ref=badge_large)

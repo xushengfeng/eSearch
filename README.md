@@ -77,6 +77,12 @@ winget `winget install esearch`
 
 可设置虚拟背景
 
+### 超级录屏
+
+自动缩放聚焦到鼠标位置，录屏更生动
+
+加速、删除，操作每个帧
+
 ### 屏幕贴图
 
 滚轮缩放、透明度、自动归位、鼠标穿透
@@ -256,6 +262,5 @@ mac 对互联网下载的 dmg 做了部分限制。
 ## License
 
 [GPL-3.0](LICENSE) © xushengfeng
-
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fxushengfeng%2FeSearch.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fxushengfeng%2FeSearch?ref=badge_large)
