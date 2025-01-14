@@ -902,8 +902,9 @@ function renderFrameX(frame: VideoFrame, frameX: FrameX) {
 
 async function afterTrans() {
     const oldI = Math.min(willPlayI, transformCs.length - 1) as TransId;
+    await jump2id(oldI);
     await showThumbnails();
-    await showNowFrames(oldI);
+    await showNowFrames(oldI, true);
     await playDecoder.flush();
     await playId(0 as TransId, true);
     await playId(oldI, true);
