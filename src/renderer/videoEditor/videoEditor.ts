@@ -1734,16 +1734,29 @@ const playEl = check("", [
     }
 });
 
-const lastFrame = iconBEl("last").on("click", () => {
-    const id = Math.max(willPlayI - 1, 0) as TransId;
+const lastFrame = iconBEl("last").on("click", (e) => {
+    const x = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
+    const id = Math.max(willPlayI - x, 0) as TransId;
     jump2idUi(trans2src(id) ?? willPlayI);
 });
-const nextFrame = iconBEl("next").on("click", () => {
-    const id = Math.min(willPlayI + 1, transformCs.length - 1) as TransId;
+const nextFrame = iconBEl("next").on("click", (e) => {
+    const x = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
+    const id = Math.min(willPlayI + x, transformCs.length - 1) as TransId;
     jump2idUi(trans2src(id) ?? willPlayI);
 });
-// const lastKey = button("<<");
-// const nextKey = button(">>");
+const lastKey = iconBEl("last_last").on("click", (e) => {
+    const x = e.shiftKey ? 60 : e.ctrlKey ? 10 : 1;
+    const id = Math.max(willPlayI - srcRate * x, 0) as TransId;
+    jump2idUi(trans2src(id) ?? willPlayI);
+});
+const nextKey = iconBEl("next_next").on("click", (e) => {
+    const x = e.shiftKey ? 60 : e.ctrlKey ? 10 : 1;
+    const id = Math.min(
+        willPlayI + srcRate * x,
+        transformCs.length - 1,
+    ) as TransId;
+    jump2idUi(trans2src(id) ?? willPlayI);
+});
 
 const playTimeEl = (() => {
     const el = view("x");
@@ -1758,7 +1771,7 @@ const playTimeEl = (() => {
     });
 })();
 
-actionsEl.add([lastFrame, playEl, nextFrame, playTimeEl]);
+actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
 
 const transformLogEl = view("x").addInto();
 
