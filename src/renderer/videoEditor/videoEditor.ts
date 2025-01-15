@@ -38,6 +38,8 @@ type superRecording = {
     wheel?: boolean;
     keydown?: KeyCode;
     keyup?: KeyCode;
+    wFoucus?: true;
+    wBlur?: true;
 }[];
 
 type clip = {
@@ -575,11 +577,32 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[], keys: superRecording) {
         }
     }
 
+    const removeList: uiData["remove"] = [];
+    let wFoucus = false;
+    for (const i of newKeys) {
+        const index = time2Id.get(i.time) as SrcId;
+        if (i.wFoucus) {
+            removeList.push({ start: index, end: index });
+            wFoucus = true;
+        }
+        if (i.wBlur) {
+            if (removeList.length > 0) {
+                (removeList.at(-1) as uiData["remove"][0]).end = index;
+                wFoucus = false;
+            }
+        }
+    }
+    if (wFoucus && removeList.length > 0) {
+        (removeList.at(-1) as uiData["remove"][0]).end = (chunks.length -
+            1) as SrcId;
+    }
+
     history.setDataF((uidata) => {
         uidata.clipList = clipList;
         uidata.speed = speedList;
+        uidata.remove = removeList;
         return uidata;
-    }, "分析镜头位置、速度");
+    }, "分析镜头位置、速度、删除");
     history.apply();
 }
 
@@ -2581,6 +2604,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
     let encodedChunks: EncodedVideoChunk[] = [];
 
     const keys: superRecording = [];
+    keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
     initKeys((x) => {
         keys.push({
             time: performance.now(),
@@ -2588,7 +2612,29 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
             ...x,
         });
     });
-    keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
+    const lisenerS = new AbortController();
+    window.addEventListener(
+        "focus",
+        () => {
+            keys.push({
+                time: performance.now(),
+                posi: mousePosi,
+                wFoucus: true,
+            });
+        },
+        { signal: lisenerS.signal },
+    );
+    window.addEventListener(
+        "blur",
+        () => {
+            keys.push({
+                time: performance.now(),
+                posi: mousePosi,
+                wBlur: true,
+            });
+        },
+        { signal: lisenerS.signal },
+    );
 
     stopRecord = async (cancel?: boolean) => {
         stopRecord = () => {}; // 只运行一次
@@ -2596,6 +2642,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         console.log("stop");
 
         uIOhook.stop();
+        lisenerS.abort();
 
         reader.cancel();
 
