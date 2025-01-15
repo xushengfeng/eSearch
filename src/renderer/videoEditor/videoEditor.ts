@@ -21,9 +21,8 @@ import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
-const { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import(
-    "uiohook-napi"
-);
+// biome-ignore format:
+const { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 type KeyCode = `${keyof typeof UiohookKey}`;
 const fs = require("node:fs") as typeof import("fs");
 
@@ -1529,29 +1528,47 @@ async function saveGif() {
     let i = 0;
 
     const delayMap = new Map<number, number>();
+    const heightDt = ms2timestamp(1000 / srcRate);
+    const lowDt = ms2timestamp(1000 / 15); // todo 设置
+    let lastT = 0;
+    const zeroByte = (transformCs.at(0 as TransId) as EncodedVideoChunk)
+        .byteLength;
     for (const [i, chunk] of transformCs.entries()) {
-        if (i === 0) delayMap.set(chunk.timestamp, 0);
-        else {
-            const delay =
-                chunk.timestamp -
-                (transformCs.at((i - 1) as TransId) as EncodedVideoChunk)
-                    .timestamp;
-            delayMap.set(chunk.timestamp, timestamp2ms(delay));
+        if (i === 0) {
+            delayMap.set(chunk.timestamp, 0);
+        } else {
+            const delay = chunk.timestamp - lastT;
+            if (chunk.byteLength < 0.3 * zeroByte) {
+                if (delay < lowDt) continue;
+                delayMap.set(chunk.timestamp, timestamp2ms(delay));
+                lastT = chunk.timestamp;
+            } else if (delay >= heightDt * 0.8) {
+                // 容错，快0.8都是可接受的
+                delayMap.set(chunk.timestamp, timestamp2ms(delay));
+                lastT = chunk.timestamp;
+            }
         }
     }
 
+    console.log(delayMap);
+
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
+            const delay = delayMap.get(frame.timestamp);
+            if (delay === undefined) {
+                frame.close();
+                return;
+            }
             const { data, width, height } = (
                 frameTrans2Canvas(frame).getContext(
                     "2d",
                 ) as OffscreenCanvasRenderingContext2D
-            ).getImageData(0, 0, outputV.width, outputV.height);
+            ).getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
             const palette = quantize(data, 256);
             const index = applyPalette(data, palette);
             gif.writeFrame(index, width, height, {
                 palette,
-                delay: delayMap.get(frame.timestamp) ?? 1000 / srcRate,
+                delay: delayMap.get(frame.timestamp),
             });
             i++;
             gifProgress.sv(i / transformCs.length);
@@ -1582,9 +1599,8 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     const exportPath = getSavePath("webm");
     if (!exportPath) return;
 
-    const { Muxer, ArrayBufferTarget } = require("webm-muxer") as typeof import(
-        "webm-muxer"
-    );
+    // biome-ignore format:
+    const { Muxer, ArrayBufferTarget } = require("webm-muxer") as typeof import("webm-muxer");
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
         video: {
@@ -1611,9 +1627,8 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     const exportPath = getSavePath("mp4");
     if (!exportPath) return;
 
-    const { Muxer, ArrayBufferTarget } = require("mp4-muxer") as typeof import(
-        "mp4-muxer"
-    );
+    // biome-ignore format:
+    const { Muxer, ArrayBufferTarget } = require("mp4-muxer") as typeof import("mp4-muxer");
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
         video: {
