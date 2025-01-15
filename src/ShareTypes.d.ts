@@ -469,14 +469,3 @@ type myFetch = {
     body: string;
     getter: (string | number)[];
 };
-
-type superRecording = {
-    time: number;
-    isStart?: boolean;
-    posi: { x: number; y: number };
-    mousedown?: 0 | 1 | 2;
-    mouseup?: 0 | 1 | 2;
-    wheel?: boolean;
-    keydown?: string;
-    keyup?: string;
-}[];

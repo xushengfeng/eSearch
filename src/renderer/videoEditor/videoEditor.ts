@@ -1,4 +1,3 @@
-import type { superRecording } from "../../ShareTypes";
 import {
     addClass,
     button,
@@ -22,10 +21,24 @@ import { getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
-const { uIOhook } = require("uiohook-napi") as typeof import("uiohook-napi");
+const { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import(
+    "uiohook-napi"
+);
+type KeyCode = `${keyof typeof UiohookKey}`;
 const fs = require("node:fs") as typeof import("fs");
 
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
+
+type superRecording = {
+    time: number;
+    isStart?: boolean;
+    posi: { x: number; y: number };
+    mousedown?: 0 | 1 | 2;
+    mouseup?: 0 | 1 | 2;
+    wheel?: boolean;
+    keydown?: KeyCode;
+    keyup?: KeyCode;
+}[];
 
 type clip = {
     i: SrcId;
@@ -320,16 +333,26 @@ function initKeys() {
             ...x,
         });
     }
+
+    const keyCodeMap = new Map<number, KeyCode>();
+    for (const i in UiohookKey) {
+        keyCodeMap.set(UiohookKey[i], i as KeyCode);
+    }
+
     uIOhook.on("keydown", (e) => {
-        push({
-            keydown: e.keycode.toString(),
-        });
+        const k = keyCodeMap.get(e.keycode);
+        if (k)
+            push({
+                keydown: k,
+            });
     });
 
     uIOhook.on("keyup", (e) => {
-        push({
-            keyup: e.keycode.toString(),
-        });
+        const k = keyCodeMap.get(e.keycode);
+        if (k)
+            push({
+                keyup: k,
+            });
     });
 
     const map = { 1: 0, 2: 1, 3: 2 } as const;
@@ -451,6 +474,19 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     const newKeys = keys
         .map((i) => ({ ...i, time: i.time - startTime }))
         .filter((i) => i.time > 0);
+
+    const time2Id = new Map<number, SrcId>();
+    for (const k of newKeys) {
+        const t = ms2timestamp(k.time);
+        const chunk = chunks.findIndex(
+            (c, i) =>
+                c.timestamp <= t &&
+                t < (chunks[i + 1]?.timestamp ?? Number.POSITIVE_INFINITY),
+        );
+        if (chunk === -1) continue;
+        time2Id.set(k.time, chunk as SrcId);
+    }
+
     // 获取关键时间
     let lastK: (typeof newKeys)[0] | undefined = undefined;
     const nk = newKeys.filter((k) => "mousedown" in k || "mouseup" in k);
@@ -465,13 +501,8 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
     const clipList: uiData["clipList"] = [];
 
     for (const k of nk2) {
-        const t = ms2timestamp(k.time);
-        const chunk = chunks.findIndex(
-            (c, i) =>
-                c.timestamp <= t &&
-                t < (chunks[i + 1]?.timestamp ?? Number.POSITIVE_INFINITY),
-        );
-        if (chunk === -1) continue;
+        const chunk = time2Id.get(k.time);
+        if (!chunk) continue;
         const w = v.width / 3;
         const h = v.height / 3;
         const x = MathClamp(0, k.posi.x - w / 2, v.width - w);
@@ -483,10 +514,82 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
         });
     }
 
+    const keyList = newKeys.filter((k) => "keydown" in k || "keyup" in k);
+    const keyL: { key: KeyCode; start: number; end: number }[] = [];
+
+    for (const k of keyList) {
+        if (k.keydown) {
+            keyL.push({ key: k.keydown, start: k.time, end: k.time });
+        }
+        if (k.keyup) {
+            const kk = keyL.findLast((i) => i.key === k.keyup);
+            if (kk) kk.end = k.time;
+            else keyL.push({ key: k.keyup, start: k.time, end: k.time });
+        }
+    }
+
+    // 区分输入和快捷键
+    const isCtrl = (k: KeyCode) =>
+        (
+            [
+                "Ctrl",
+                "CtrlRight",
+                "Alt",
+                "AltRight",
+                "Shift",
+                "ShiftRight",
+            ] as KeyCode[]
+        ).includes(k);
+    const ctrlKeys: (typeof keyL)[] = [];
+    const normalKeys: typeof keyL = [];
+    let ctrlLike: null | { start: number; end: number } = null;
+    for (const i of keyL) {
+        // 以第一个修饰键区间为快捷键区间，其他的键start在此都合并
+        if (i.start > (ctrlLike?.end ?? Number.NEGATIVE_INFINITY))
+            ctrlLike = null;
+        if (isCtrl(i.key)) {
+            if (!ctrlLike) {
+                ctrlKeys.push([]);
+                ctrlLike = { start: i.start, end: i.end };
+            }
+        }
+        if (ctrlLike && ctrlLike.start <= i.start && i.start <= ctrlLike.end) {
+            (ctrlKeys.at(-1) as typeof keyL).push(structuredClone(i));
+        } else {
+            normalKeys.push(i);
+        }
+    }
+    const nCtrlKeys: { key: KeyCode[]; start: number; end: number }[] = [];
+    for (const ks of ctrlKeys) {
+        const l = ks.flatMap((i) => i.key ?? []);
+        const start = Math.min(...ks.map((i) => i.start));
+        const end = Math.max(...ks.map((i) => i.end));
+        nCtrlKeys.push({ key: l, start, end });
+    }
+    console.log(keyL, ctrlKeys, nCtrlKeys, normalKeys);
+
+    const speedList: uiData["speed"] = [];
+
+    for (const [i, k] of normalKeys.entries()) {
+        const lastKeyTime = normalKeys[i - 1]?.end ?? Number.NEGATIVE_INFINITY;
+        if (k.start - lastKeyTime > 1000) {
+            speedList.push({
+                start: time2Id.get(k.start) as SrcId,
+                end: time2Id.get(k.end) as SrcId,
+                value: 3,
+            });
+        } else {
+            const last = speedList.at(-1);
+            if (!last) continue;
+            last.end = time2Id.get(k.end) as SrcId;
+        }
+    }
+
     history.setDataF((uidata) => {
         uidata.clipList = clipList;
+        uidata.speed = speedList;
         return uidata;
-    }, "分析创建镜头位置");
+    }, "分析镜头位置、速度");
     history.apply();
 }
 
