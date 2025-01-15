@@ -71,8 +71,6 @@ const testMode: "getFrame" | "history" | false = false;
 
 const zeroPoint = [0, 0] as const;
 
-const keys: superRecording = [];
-
 let lastUiData: uiData | null = null;
 const lastTransOpt: { codec: string; size: string } = {
     codec: "",
@@ -325,15 +323,7 @@ function listLength() {
     return srcCs.length;
 }
 
-function initKeys() {
-    function push(x: Omit<superRecording[0], "time" | "posi">) {
-        keys.push({
-            time: performance.now(),
-            posi: mousePosi,
-            ...x,
-        });
-    }
-
+function initKeys(push: (x: Omit<superRecording[0], "time" | "posi">) => void) {
     const keyCodeMap = new Map<number, KeyCode>();
     for (const i in UiohookKey) {
         keyCodeMap.set(UiohookKey[i], i as KeyCode);
@@ -465,7 +455,7 @@ function formatTime(t: number) {
     return `${numberPad(h)}:${numberPad(m)}:${numberPad(s)}.${numberPad(ms, 3)}`;
 }
 
-function mapKeysOnFrames(chunks: EncodedVideoChunk[]) {
+function mapKeysOnFrames(chunks: EncodedVideoChunk[], keys: superRecording) {
     const startTime = keys.find((k) => k.isStart)?.time;
     if (!startTime) {
         console.log(keys);
@@ -2590,7 +2580,14 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
     let encodedChunks: EncodedVideoChunk[] = [];
 
-    initKeys();
+    const keys: superRecording = [];
+    initKeys((x) => {
+        keys.push({
+            time: performance.now(),
+            posi: mousePosi,
+            ...x,
+        });
+    });
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
 
     stopRecord = async (cancel?: boolean) => {
@@ -2623,7 +2620,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         srcCs.setList(afterCuncks);
 
-        mapKeysOnFrames(afterCuncks);
+        mapKeysOnFrames(afterCuncks, keys);
 
         onPlay(0);
 
@@ -2637,7 +2634,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         const nowUi = history.getData();
         renderUiData(nowUi);
-        timeLineControl.sv((window.innerWidth / listLength()));
+        timeLineControl.sv(window.innerWidth / listLength());
     };
 
     const finalTime = store.get("录屏.超级录屏.自动停止录制") * 60 * 1000;
