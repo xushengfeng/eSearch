@@ -2634,7 +2634,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
         const nowUi = history.getData();
         renderUiData(nowUi);
-        timeLineControl.sv(20);
+        timeLineControl.sv((window.innerWidth / listLength()));
     };
 
     const finalTime = store.get("录屏.超级录屏.自动停止录制") * 60 * 1000;
