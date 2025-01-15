@@ -1435,15 +1435,18 @@ async function uiDataSave() {
 }
 
 async function save() {
-    if (exportEl.els.type.gv === "png") saveImages();
-    else if (exportEl.els.type.gv === "gif") saveGif();
-    else if (exportEl.els.type.gv === "webm-av1") saveWebm("av1");
-    else if (exportEl.els.type.gv === "webm-vp9") saveWebm("vp9");
-    else if (exportEl.els.type.gv === "webm-vp8") saveWebm("vp8");
-    else if (exportEl.els.type.gv === "mp4-av1") saveMp4("av1");
-    else if (exportEl.els.type.gv === "mp4-vp9") saveMp4("vp9");
-    else if (exportEl.els.type.gv === "mp4-avc") saveMp4("avc");
-    else saveGif();
+    if (exportEl.els.type.gv === "png") await saveImages();
+    else if (exportEl.els.type.gv === "gif") await saveGif();
+    else if (exportEl.els.type.gv === "webm-av1") await saveWebm("av1");
+    else if (exportEl.els.type.gv === "webm-vp9") await saveWebm("vp9");
+    else if (exportEl.els.type.gv === "webm-vp8") await saveWebm("vp8");
+    else if (exportEl.els.type.gv === "mp4-av1") await saveMp4("av1");
+    else if (exportEl.els.type.gv === "mp4-vp9") await saveMp4("vp9");
+    else if (exportEl.els.type.gv === "mp4-avc") await saveMp4("avc");
+    else await saveGif();
+    if (store.get("录屏.超级录屏.导出后关闭")) {
+        ipcRenderer.send("window", "close");
+    }
 }
 
 function getSavePath(type: baseType) {

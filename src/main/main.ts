@@ -2859,6 +2859,7 @@ const defaultSetting: setting = {
             格式: "gif",
             缩放: 2,
             自动停止录制: 5,
+            导出后关闭: false,
         },
     },
     屏幕翻译: {

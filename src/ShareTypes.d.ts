@@ -322,6 +322,7 @@ export interface setting {
             缩放: number;
             格式: string;
             自动停止录制: number;
+            导出后关闭: boolean;
         };
     };
     屏幕翻译: {
