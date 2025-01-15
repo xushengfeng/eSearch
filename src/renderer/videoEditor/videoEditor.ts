@@ -879,7 +879,7 @@ async function runTransform(
             const Tend = performance.now();
 
             transformTimeEl.sv(
-                `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${(Tend - Tdiff).toFixed(0)}ms`,
+                `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${((Tend - Tdiff) / 1000).toFixed(0)}s`,
             );
         }
     }
