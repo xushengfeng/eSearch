@@ -2858,6 +2858,7 @@ const defaultSetting: setting = {
             关键帧间隔: 150,
             格式: "gif",
             缩放: 2,
+            自动停止录制: 5,
         },
     },
     屏幕翻译: {

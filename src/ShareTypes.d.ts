@@ -321,6 +321,7 @@ export interface setting {
             关键帧间隔: number;
             缩放: number;
             格式: string;
+            自动停止录制: number;
         };
     };
     屏幕翻译: {

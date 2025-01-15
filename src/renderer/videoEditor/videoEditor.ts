@@ -1799,19 +1799,6 @@ view()
         stopRecord();
     });
 
-const recordTime = timeEl().sv(0);
-
-stopPEl.add(
-    view("x")
-        .add([
-            recordTime,
-            iconBEl("close").on("click", () => {
-                stopRecord(true);
-            }),
-        ])
-        .style({ alignItems: "center" }),
-);
-
 const canvasEl = ele("canvas").style({
     overflow: "hidden",
     width: "fit-content",
@@ -1887,7 +1874,7 @@ const nextKey = iconBEl("next_next").on("click", (e) => {
     jump2idUi(trans2src(id) ?? willPlayI);
 });
 
-const playTimeEl = (() => {
+const nowTimeEl = (total: () => number) => {
     const el = view("x");
     const t = timeEl().sv(0);
     const all = timeEl().sv(0);
@@ -1896,9 +1883,13 @@ const playTimeEl = (() => {
         const nt = time ?? tt;
         tt = nt;
         t.sv(nt);
-        all.sv(transformCs.getDuration() || srcCs.getDuration());
+        all.sv(total());
     });
-})();
+};
+
+const playTimeEl = nowTimeEl(() => {
+    return transformCs.getDuration() || srcCs.getDuration();
+});
 
 actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
 
@@ -2646,7 +2637,21 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         timeLineControl.sv(20);
     };
 
-    setTimeout(() => stopRecord(), 5 * 60 * 1000); // 5分钟后自动停止录制
+    const finalTime = store.get("录屏.超级录屏.自动停止录制") * 60 * 1000;
+
+    setTimeout(() => stopRecord(), finalTime);
+
+    const recordTime = nowTimeEl(() => finalTime);
+    stopPEl.add(
+        view("x")
+            .add([
+                recordTime,
+                iconBEl("close").on("click", () => {
+                    stopRecord(true);
+                }),
+            ])
+            .style({ alignItems: "center" }),
+    );
 
     let lastTime = performance.now();
 
