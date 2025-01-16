@@ -82,6 +82,8 @@ await decoder.flush();
 await encoder.flush();
 ```
 
+如果 encode 和 decode 的关键帧索引不同，理论上会错位，但 encoder 即使 `flush` 也能正确编码，似乎 `flush` 不会清空相关的帧，而 decoder 在 `flush` 后需要重新传入 keyFrame。在规范中 decoder 有[key chunk required](https://www.w3.org/TR/webcodecs/#dom-videodecoder-key-chunk-required-slot)这一说法，但 encode 确实没有，也没有规定。
+
 ## 优化
 
 处理视频的成本很高，所以我们需要进行优化。

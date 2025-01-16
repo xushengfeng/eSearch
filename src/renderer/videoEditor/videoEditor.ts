@@ -2717,13 +2717,17 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
     let lastTime = performance.now();
 
+    let encodedI = 0;
     while (true) {
         const { done, value: videoFrame } = await reader.read();
         if (done) break;
         if (encoder.encodeQueueSize > 2) {
             videoFrame.close();
         } else {
-            encoder.encode(videoFrame);
+            encoder.encode(videoFrame, {
+                keyFrame: encodedI % frameLength === 0,
+            });
+            encodedI++;
             videoFrame.close();
         }
 
