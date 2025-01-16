@@ -13,51 +13,6 @@
 </head>
 
 <body>
-    <div id="m">
-        <div id="main">
-            <div id="record_b">
-                <button id="start_stop">
-                    <div id="start_stop_icon"></div>
-                </button>
-                <button id="pause_recume"><img src="./assets/icons/recume.svg" class="icon"></button>
-                <label><input type="checkbox" id="mic"><img src="./assets/icons/mic.svg" class="icon"></label>
-                <label><input type="checkbox" id="camera"><img src="./assets/icons/camera.svg" class="icon"></label>
-            </div>
-            <div id="time"></div>
-            <select id="格式" name="格式"></select>
-            <button id="min"><img src="./assets/icons/minimize.svg" class="icon"></button>
-            <button id="close"><img src="./assets/icons/close.svg" class="icon"></button>
-        </div>
-        <div id="video">
-            <div id="v_p">
-                <video></video>
-                <div id="seg"></div>
-            </div>
-        </div>
-        <div id="s">
-            <input type="range" name="" id="jdt" value="0">
-            <br>
-            开始时间：<time-i name="t_start" id="t_start" min="0"></time-i>
-            <span id="t_nt"></span> / <span id="t_t"></span>
-            <button id="v_play" class="b"><img src="./assets/icons/recume.svg" class="icon"></button>
-            结束时间：<time-i name="t_end" id="t_end"></time-i>
-            <button id="b_t_end" class="b"><img src="./assets/icons/right.svg" class="icon"></button>
-            <button id="save" disabled="true" class="b"><img src="./assets/icons/save.svg" class="icon"></button>
-            <div class="pro_p">
-                <div class="pro" id="pr_ts"></div>
-            </div>
-            <div class="pro_p">
-                <div class="pro" id="pr_clip"></div>
-            </div>
-            <div class="pro_p">
-                <div class="pro" id="pr_join"></div>
-            </div>
-            <details id="log_p" class="hide_log">
-                <summary>FFmpeg 错误日志</summary>
-                <textarea name="" id="log" cols="30" rows="10"></textarea>
-            </details>
-        </div>
-    </div>
     <script src="recorder/recorder.ts" type="module"></script>
 </body>
 
