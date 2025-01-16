@@ -506,6 +506,27 @@
                     <comment data-inline>转换时速度会很慢</comment>
                 </label>
 
+                <h2>超级录屏</h2>
+                <t>编码选择</t>
+                <comment>视具体硬件支持</comment>
+                <div data-path="录屏.超级录屏.编码选择">
+                    <label><input type="radio" name="seg" value="none">
+                        <t>性能优先</t>
+                    </label>
+                    <label><input type="radio" name="seg" value="hide">
+                        <t>内存优先</t>
+                    </label>
+                </div>
+                <br>
+                <t>关键帧间隔</t><input type="number" data-path="录屏.超级录屏.关键帧间隔" max="500" min="1">
+                <comment data-inline>越小处理速度越快，但会增加内存占用</comment>
+                <br>
+                <t>自动停止录制</t><input type="number" data-path="录屏.超级录屏.自动停止录制" min="1" max="60">min
+                <br>
+                <label>
+                    <input type="checkbox" data-path="录屏.超级录屏.导出后关闭">
+                    <t>导出后关闭</t>
+                </label>
             </div>
 
 

@@ -317,7 +317,7 @@ export interface setting {
             height: number;
         };
         超级录屏: {
-            编码选择: "性能优先" | "内存优先"; // todo set
+            编码选择: "性能优先" | "内存优先";
             关键帧间隔: number;
             缩放: number;
             格式: string;
