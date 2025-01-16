@@ -2031,8 +2031,8 @@ const timeLineControlP = view()
     .addInto()
     .on("wheel", (e) => {
         e.preventDefault();
-        const dx = e.deltaX;
-        const dy = e.deltaY;
+        const dx = e.shiftKey ? e.deltaY : e.deltaX;
+        const dy = e.shiftKey ? 0 : e.deltaY;
         timeLineControlP.el.scrollLeft += dx;
         const x = e.clientX - timeLineControl.el.getBoundingClientRect().left;
         const zoom = timeLineControl.gv;
