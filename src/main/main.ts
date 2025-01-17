@@ -2137,7 +2137,10 @@ async function createSettingWindow(about?: boolean) {
         show: true,
     });
 
-    rendererPath(settingWindow, "setting.html");
+    rendererPath(
+        settingWindow,
+        store.get("新版设置") ? "new_setting.html" : "setting.html",
+    );
 
     await settingWindow.webContents.session.setProxy(store.get("代理"));
 
@@ -2457,6 +2460,7 @@ const defaultSetting: setting = {
     设置版本: app.getVersion(),
     启动提示: true,
     dev: false,
+    新版设置: Math.random() <= 0.2,
     保留截屏窗口: true,
     语言: {},
     快捷键: {

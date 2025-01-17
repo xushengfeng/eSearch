@@ -19,6 +19,10 @@ export default defineConfig({
                         __dirname,
                         "src/renderer/setting.html",
                     ),
+                    newsetting: path.resolve(
+                        __dirname,
+                        "src/renderer/new_setting.html",
+                    ),
                     ding: path.resolve(__dirname, "src/renderer/ding.html"),
                     recorder: path.resolve(
                         __dirname,
