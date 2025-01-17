@@ -263,7 +263,8 @@ export interface setting {
     };
     录屏: {
         模式: "normal" | "super";
-        自动录制: false | number;
+        自动录制: boolean;
+        自动录制延时: number;
         视频比特率: number;
         摄像头: {
             默认开启: boolean;

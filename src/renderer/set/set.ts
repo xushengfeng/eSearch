@@ -801,11 +801,6 @@ document.getElementById("获取保存路径").onclick = () => {
     );
 };
 
-(<HTMLInputElement>document.getElementById("开启自动录制")).checked =
-    old_store.录屏.自动录制 !== false;
-(<RangeEl>document.getElementById("自动录制延时")).value =
-    old_store.录屏.自动录制 || 0;
-
 document.getElementById("保存文件名称前缀").oninput = document.getElementById(
     "保存文件名称后缀",
 ).oninput = () => {
@@ -2154,10 +2149,6 @@ function saveSetting() {
 
     xstore.框选.参考线.选区.x = xqckxElx.gv;
     xstore.框选.参考线.选区.y = xqckxEly.gv;
-
-    xstore.录屏.自动录制 =
-        (<HTMLInputElement>document.getElementById("开启自动录制")).checked &&
-        (<RangeEl>document.getElementById("自动录制延时")).value;
 
     字体.大小 = (<RangeEl>document.getElementById("字体大小")).value;
     字体.记住 = (<HTMLInputElement>document.getElementById("记住字体大小"))

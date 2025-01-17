@@ -2808,7 +2808,8 @@ const defaultSetting: setting = {
     },
     录屏: {
         模式: "normal",
-        自动录制: 3,
+        自动录制: true,
+        自动录制延时: 3,
         视频比特率: 2.5,
         摄像头: {
             默认开启: false,

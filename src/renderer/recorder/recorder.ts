@@ -675,20 +675,17 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                 }
             };
 
-            if (store.get("录屏.自动录制")) {
-                let t = store.get("录屏.自动录制");
+            if (store.get("录屏.自动录制") === true) {
+                let t = store.get("录屏.自动录制延时");
                 function d() {
-                    if (t === false) return;
                     if (recorder.state !== "inactive") return;
                     timeEl.sv(String(t));
                     setTimeout(() => {
                         if (t === 0) {
                             startStop.el.click();
                         } else {
-                            if (t !== false) {
-                                t--;
-                                d();
-                            }
+                            t--;
+                            d();
                         }
                     }, 1000);
                 }
