@@ -16,6 +16,8 @@ import {
     addStyle,
     p,
     noI18n,
+    pack,
+    addClass,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
@@ -1199,6 +1201,25 @@ function xSecret() {
     return input();
 }
 
+function showPage(page: (typeof main)[0]) {
+    mainView.clear();
+    mainView.add(ele("h1").add(noI18n(page.pageName)));
+    if (page.desc) mainView.add(comment(page.desc));
+    if (page.settings) {
+        for (const setting of page.settings) {
+            mainView.add(renderSetting(setting));
+        }
+    }
+    if (page.items) {
+        for (const item of page.items) {
+            mainView.add(ele("h2").add(noI18n(item.title)));
+            for (const setting of item.settings) {
+                mainView.add(renderSetting(setting));
+            }
+        }
+    }
+}
+
 lan(store.get("语言.语言") as string);
 setTranslate((text) => t(text));
 
@@ -1225,11 +1246,33 @@ for (const p of main) {
         }
 }
 
-const sideBar = view().addInto();
-const searchBar = view().addInto();
+pack(document.body).style({ display: "flex" });
+
+addStyle({
+    h1: {
+        fontSize: "3rem",
+        fontWeight: 100,
+    },
+    h2: {
+        fontSize: "1.8rem",
+        position: "sticky",
+        top: 0,
+        background: "var(--bg)",
+    },
+});
+
+const sideBar = view().addInto().style({ padding: "1em" });
+const sideBarG = radioGroup("侧栏");
+const searchBar = view()
+    .addInto()
+    .style({ position: "fixed", right: 0, top: 0, zIndex: 1 });
 const searchI = input()
     .addInto(searchBar)
     .on("input", () => {
+        if (!searchI.gv) {
+            showPage(main[sideBarG.get()]);
+            return;
+        }
         const l = Object.entries(s)
             .filter(
                 (i) =>
@@ -1243,41 +1286,47 @@ const searchI = input()
             const title = getTitles.get(i);
             mainView.add(
                 view().add([
-                    title ? txt("", true).sv(title.join(" > ")) : t("未知路径"),
+                    txt("", true)
+                        .sv(title ? title.join(" > ") : t("未知路径"))
+                        .style({
+                            color: "#0004",
+                        }),
                     // @ts-ignore
                     renderSetting(i),
                 ]),
             );
         }
     });
-const mainView = view().addInto();
+const mainView = view()
+    .addInto()
+    .style({
+        overflow: "scroll",
+        height: "100vh",
+        flexGrow: "1",
+    })
+    .class(
+        addClass(
+            {},
+            {
+                "&>div": {
+                    marginBlock: "16px",
+                },
+            },
+        ),
+    );
 
 for (const [i, page] of main.entries()) {
-    const sideEl = view()
-        .add(txt(page.pageName, true))
-        .on("click", () => {
-            mainView.clear();
-            mainView.add(ele("h1").add(noI18n(page.pageName)));
-            if (page.desc) mainView.add(comment(page.desc));
-            if (page.settings) {
-                for (const setting of page.settings) {
-                    mainView.add(renderSetting(setting));
-                }
-            }
-            if (page.items) {
-                for (const item of page.items) {
-                    mainView.add(ele("h2").add(noI18n(item.title)));
-                    for (const setting of item.settings) {
-                        mainView.add(renderSetting(setting));
-                    }
-                }
-            }
-        });
-    if (i === 0) {
-        sideEl.el.click();
-    }
+    const sideEl = view().add(
+        sideBarG.new(String(i), txt(page.pageName, true)),
+    );
     sideBar.add(sideEl);
 }
+
+sideBarG.on(() => {
+    showPage(main[sideBarG.get()]);
+});
+
+showPage(main[0]);
 
 button(t("使用旧版设置"))
     .style({ position: "fixed", bottom: "16px", right: "16px" })
