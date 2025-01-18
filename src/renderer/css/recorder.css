@@ -56,6 +56,7 @@ body {
     height: 24px;
     position: relative;
     display: block;
+    color: var(--color);
     background-color: var(--bg);
     transition: var(--transition);
     border-radius: var(--border-radius);
