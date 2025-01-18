@@ -1074,6 +1074,26 @@ const tools: { key: 功能; icon: string; title: string }[] = [
     { key: "save", icon: getImgUrl("save.svg"), title: t("保存") },
 ];
 
+const xselectClass = addClass(
+    {
+        borderRadius: "8px",
+        padding: "8px",
+        margin: "2px",
+        transition:
+            "outline-color var(--transition), box-shadow var(--transition)",
+        display: "inline-block",
+        outlineColor: "transparent",
+    },
+    {
+        "&:hover": {
+            boxShadow: "var(--shadow)",
+        },
+        '&:has(input[type="radio"]:checked)': {
+            outline: "2px dashed var(--m-color1)",
+        },
+    },
+);
+
 function renderSetting(settingPath: SettingPath) {
     const setting = s[settingPath];
     if (!setting) {
@@ -1109,7 +1129,7 @@ function xSelect<T extends string>(
     const el = view("x", "wrap");
     const r = radioGroup(name);
     for (const option of options) {
-        el.add(r.new(option.value, option.name));
+        el.add(r.new(option.value, option.name).class(xselectClass));
     }
     r.on(() => el.el.dispatchEvent(new CustomEvent("input")));
     return el.bindGet(() => r.get()).bindSet((value: T) => r.set(value));
@@ -1128,9 +1148,22 @@ function xRange(
         const nv1 = Math.max(min, Math.min(max, nv));
         return nv1;
     }
-    const el = view();
-    const track = view().addInto(el);
+    const el = view("x").style({ alignItems: "center" });
+    const track = view()
+        .style({
+            width: "200px",
+            height: "16px",
+            borderRadius: "6px",
+            overflow: "hidden",
+            background: "var(--m-color2)",
+        })
+        .addInto(el);
     const thumb = view()
+        .style({
+            "background-color": "var(--m-color1)",
+            borderRadius: "6px",
+            height: "100%",
+        })
         .addInto(track)
         .bindSet((v: number, el) => {
             el.style.width = `${((v - min) / (max - min)) * 100}%`;
@@ -1259,9 +1292,30 @@ addStyle({
         top: 0,
         background: "var(--bg)",
     },
+    'input[type="text"]': {
+        border: "none",
+        borderBottom: "1px solid var(--hover-color)",
+        transition: "var(--transition)",
+        fontSize: "1rem",
+        width: "300px",
+        fontFamily: "var(--monospace)",
+    },
+    'input[type="number"]': {
+        // @ts-ignore
+        fieldSizing: "content",
+        border: "none",
+        borderBottom: "1px solid var(--hover-color)",
+        fontSize: "1rem",
+        transition: "var(--transition)",
+        fontFamily: "var(--monospace)",
+    },
+    button: {
+        padding: "4px",
+        backgroundColor: "var(--m-color2)",
+    },
 });
 
-const sideBar = view().addInto().style({ padding: "1em" });
+const sideBar = view().addInto().style({ padding: "1em", flexShrink: 0 });
 const sideBarG = radioGroup("侧栏");
 const searchBar = view()
     .addInto()
