@@ -541,7 +541,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                                 });
                             store.set("录屏.音频.设备", selectEl.gv);
                         });
-                    micEl.el.after(selectEl.el);
+                    micEl.el.parentElement.after(selectEl.el);
                 }
             } else {
                 micEl.style({ display: "none" });
@@ -571,7 +571,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                                     });
                             store.set("录屏.摄像头.设备", selectEl.el.value);
                         });
-                    cameraEl.el.after(selectEl.el);
+                    cameraEl.el.parentElement.after(selectEl.el);
                 }
             }
             navigator.mediaDevices.ondevicechange = () => {
