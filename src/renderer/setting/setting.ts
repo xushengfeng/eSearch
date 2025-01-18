@@ -1142,10 +1142,11 @@ function xRange(
     const min = op?.min ?? 0;
     const max = op?.max ?? 100;
     const step = op?.step ?? 1;
+    const p = Math.max(...[min, max, step].map((i) => Math.abs(Math.log10(i))));
     let value = min;
     function sv(v: number) {
-        const nv = Math.round((v - min) / step) * step + min;
-        const nv1 = Math.max(min, Math.min(max, nv));
+        const nv = (Math.round((v - min) / step) * step + min).toFixed(p);
+        const nv1 = Math.max(min, Math.min(max, Number.parseFloat(nv)));
         return nv1;
     }
     const el = view("x").style({ alignItems: "center" });
