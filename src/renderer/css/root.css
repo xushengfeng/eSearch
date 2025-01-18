@@ -48,26 +48,6 @@ body {
     color: var(--color);
 }
 
-.icon {
-    position: absolute;
-    pointer-events: none;
-    left: 0;
-    top: 0;
-    max-width: 100%;
-    max-height: 100%;
-    filter: var(--icon-color);
-    user-select: none;
-}
-
-kbd {
-    display: inline-block;
-    padding: 2px 4px;
-    border-radius: var(--border-radius);
-    background: linear-gradient(315deg, #e6e6e6, #ffffff);
-    font-family: var(--monospace);
-    border: 1px solid #ddd;
-}
-
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -96,16 +76,22 @@ kbd {
     background-color: var(--hover-color);
 }
 
-button {
-    outline: none;
-    border: none;
-    color: var(--color);
-    user-select: none;
+body button,
+body input,
+body select {
     font-family: var(--main-font);
+    padding-inline: 8px;
+    height: var(--b-button);
+    background-color: var(--m-color2);
+    border-radius: var(--border-radius);
+    color: var(--color);
     font-size: 1rem;
     transition: var(--transition);
-    border-radius: var(--border-radius);
-    background-color: var(--bg);
+    user-select: none;
+}
+
+body button,
+body select {
     &:hover {
         background-color: var(--hover-color);
         box-shadow: var(--shadow);
@@ -116,30 +102,26 @@ button:active {
     transform: var(--button-active);
 }
 
+.icon {
+    pointer-events: none;
+    max-width: 100%;
+    max-height: 100%;
+    filter: var(--icon-color);
+    user-select: none;
+    display: block;
+}
+
 button:has(.icon) {
-    position: relative;
+    display: flex;
+    padding-inline: 0;
     width: var(--b-button);
-    height: var(--b-button);
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
 }
 
-input {
-    outline: none;
-    background-color: #0000;
-    color: var(--color);
-}
-
-select {
-    outline: none;
-    border: none;
-    user-select: none;
-    border-radius: var(--border-radius);
-    background-color: var(--bg);
-    font-size: 1rem;
-    transition: var(--transition);
-    &:hover {
-        background-color: var(--hover-color);
-    }
+body input:focus {
+    outline: var(--m-color1) solid 0.5px;
 }
 
 option {
@@ -151,6 +133,15 @@ textarea {
     outline: none;
     background-color: #0000;
     color: var(--color);
+}
+
+kbd {
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: var(--border-radius);
+    background: linear-gradient(315deg, #e6e6e6, #ffffff);
+    font-family: var(--monospace);
+    border: 1px solid #ddd;
 }
 
 input[type="checkbox"] {
@@ -173,6 +164,17 @@ input[type="checkbox"]:checked {
     background-position: center;
     background-size: 0.75em auto;
     background-repeat: no-repeat;
+}
+
+.bar {
+    background-color: var(--bar-bg);
+    backdrop-filter: var(--blur);
+    & button {
+        background: transparent;
+        &:hover {
+            background: var(--bar-hover-color);
+        }
+    }
 }
 
 @media (prefers-color-scheme: dark) {

@@ -88,6 +88,11 @@ body {
     flex-grow: 1;
 }
 
+body input {
+    padding-inline: 0 !important;
+    background-color: transparent !important;
+}
+
 /* 工具 */
 #tool_bar {
     display: flex;
@@ -116,6 +121,7 @@ body {
     }
 }
 #tool_bar > div > .icon {
+    position: absolute;
     width: calc(var(--bar-size) * var(--bar-icon));
     left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
     top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
@@ -234,6 +240,7 @@ body {
 }
 #draw_main > div > .icon,
 .draw_items > div > .icon {
+    position: absolute;
     width: calc(var(--bar-size) * var(--bar-icon));
     left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
     top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);

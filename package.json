@@ -8,7 +8,8 @@
         "dist": "npm run build && electron-builder -p never -c electron-builder.config.js",
         "start": "electron-vite --ignoreConfigWarning preview",
         "dev": "electron-vite --ignoreConfigWarning dev",
-        "build": "electron-vite --ignoreConfigWarning build"
+        "build": "electron-vite --ignoreConfigWarning build",
+        "uitest": "electron-vite -c electron.vite.config_test.ts"
     },
     "author": {
         "name": "xsf",

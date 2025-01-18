@@ -4,8 +4,7 @@ import type { setting, 功能, 功能列表 } from "../../ShareTypes";
 const path = require("node:path") as typeof import("path");
 import "../../../lib/template.js";
 import "../../../lib/template2.js";
-const { shell, ipcRenderer, webUtils } =
-    require("electron") as typeof import("electron");
+const { shell, ipcRenderer, webUtils } = require("electron") as typeof import("electron");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
 import {
@@ -27,6 +26,7 @@ import {
     noI18n,
     check,
     label,
+    pureStyle,
 } from "dkh-ui";
 import { getImgUrl } from "../root/root";
 
@@ -62,6 +62,8 @@ function _runTask<t>(i: number, l: t[], cb: (t: t, i?: number) => void) {
 }
 
 type RangeEl = HTMLElement & { value: number };
+
+pureStyle();
 
 const old_store = JSON.parse(
     fs.readFileSync(path.join(configPath, "config.json"), "utf-8"),

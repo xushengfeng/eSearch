@@ -9,6 +9,7 @@ import {
     image,
     input,
     label,
+    pureStyle,
     select,
     txt,
 } from "dkh-ui";
@@ -28,6 +29,8 @@ function iconEl(src: string) {
 function iconBEl(src: string) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
+
+pureStyle();
 
 class time_i extends HTMLElement {
     _value: number;

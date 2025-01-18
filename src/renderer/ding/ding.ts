@@ -12,12 +12,14 @@ import {
     elFromId,
     type ElType,
     image,
+    pureStyle,
     spacer,
     trackPoint,
     txt,
     view,
 } from "dkh-ui";
 initStyle(store);
+pureStyle();
 
 let lo: import("esearch-ocr").initType;
 let translateE = async (input: string[]) => input;

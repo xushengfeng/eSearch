@@ -4,7 +4,7 @@ import initScreenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
 
-import { button, type ElType, image, view } from "dkh-ui";
+import { button, type ElType, image, pureStyle, view } from "dkh-ui";
 
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
@@ -155,6 +155,8 @@ const runRun = () => {
         setTimeout(runRun, frequencyTime);
     }
 };
+
+pureStyle();
 
 const playIcon = iconEl("recume");
 const playEl = button(playIcon).on("click", () => {

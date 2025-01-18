@@ -14,6 +14,7 @@ import {
     pack,
     setTranslate,
     noI18n,
+    pureStyle,
 } from "dkh-ui";
 import { initStyle } from "../root/root";
 import hotkeys from "hotkeys-js";
@@ -171,6 +172,8 @@ const dmp = new diff_match_patch();
 lan(language);
 
 setTranslate(t);
+
+pureStyle();
 
 /**
  * 添加到撤销栈
