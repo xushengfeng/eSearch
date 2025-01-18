@@ -272,7 +272,7 @@ export interface setting {
             设备: string;
             镜像: boolean;
             背景: {
-                模式: "none";
+                模式: "none" | "hide" | "blur" | "img" | "video";
                 模糊: number;
                 imgUrl: string;
                 videoUrl: string;
