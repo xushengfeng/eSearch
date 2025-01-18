@@ -1231,7 +1231,14 @@ function xPath() {
 }
 
 function xSecret() {
-    return input();
+    const el = input("password")
+        .on("focus", () => {
+            el.attr({ type: "text" });
+        })
+        .on("blur", () => {
+            el.attr({ type: "password" });
+        });
+    return el;
 }
 
 function showPage(page: (typeof main)[0]) {
@@ -1292,7 +1299,7 @@ addStyle({
         top: 0,
         background: "var(--bg)",
     },
-    'input[type="text"]': {
+    'input[type="text"],input[type="password"]': {
         border: "none",
         borderBottom: "1px solid var(--hover-color)",
         transition: "var(--transition)",
