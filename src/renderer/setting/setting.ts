@@ -1351,12 +1351,16 @@ const searchI = input()
             );
         }
     });
+const mainViewP = view().addInto().style({
+    overflow: "scroll",
+    height: "100vh",
+    flexGrow: "1",
+});
 const mainView = view()
-    .addInto()
+    .addInto(mainViewP)
     .style({
-        overflow: "scroll",
-        height: "100vh",
-        flexGrow: "1",
+        maxWidth: "680px",
+        margin: "auto",
     })
     .class(
         addClass(
