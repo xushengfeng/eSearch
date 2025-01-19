@@ -62,15 +62,15 @@ body {
     background: #ccc;
 }
 ::-webkit-scrollbar-track {
-    background: #0000;
+    background: transparent;
 }
 ::-webkit-scrollbar-button {
     height: 8px;
     width: 8px;
-    background-color: #0000;
+    background-color: transparent;
 }
 ::-webkit-scrollbar-corner {
-    background-color: #0000;
+    background-color: transparent;
 }
 
 /* 用于截屏界面固定 */
@@ -146,7 +146,7 @@ option {
 
 textarea {
     outline: none;
-    background-color: #0000;
+    background-color: transparent;
     color: var(--color);
 }
 

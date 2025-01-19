@@ -67,7 +67,7 @@ body > #dock_item {
 }
 #b > button {
     transition: var(--transition);
-    background-color: #0000;
+    background-color: transparent;
     padding: 0;
     width: 32px;
     height: 32px;

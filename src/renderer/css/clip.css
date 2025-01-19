@@ -155,7 +155,7 @@ body input {
     height: 12px;
     border: none;
     appearance: none;
-    color: #0000;
+    color: transparent;
     right: 0px;
     top: 0px;
     border-radius: 6px;
@@ -164,7 +164,7 @@ body input {
 .side_select::part(button) {
     border: none;
     appearance: none;
-    color: #0000;
+    color: transparent;
     background-color: var(--bar-focus-color);
     border-radius: 50%;
     overflow: hidden;
@@ -415,7 +415,7 @@ body input {
 }
 
 #long_finish:hover {
-    background-color: #0000;
+    background-color: transparent;
 }
 
 /* 编辑栏 */

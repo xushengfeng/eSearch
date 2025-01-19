@@ -174,7 +174,7 @@ input[type="number"]:focus {
 
 select {
     border: none;
-    background-color: #0000;
+    background-color: transparent;
     font-size: 1em;
 }
 

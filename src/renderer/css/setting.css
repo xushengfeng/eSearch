@@ -564,7 +564,7 @@ div:has(> .sort-item) {
 #version {
     box-shadow: var(--shadow);
     border-radius: var(--border-radius);
-    background-color: #0000;
+    background-color: transparent;
     transition: var(--transition);
     font-size: 2rem;
 }
