@@ -24,13 +24,7 @@ initStyle(store);
 
 // @auto-path:../assets/icons/$.svg
 function iconButton(img: string) {
-    return button(
-        image(getImgUrl(`${img}.svg`), "icon")
-            .class("icon")
-            .style({ width: "100%", height: "100%" }),
-    ).style({
-        position: "relative",
-    });
+    return button(image(getImgUrl(`${img}.svg`), "icon").class("icon"));
 }
 
 const input = ele("textarea").style({
@@ -93,35 +87,25 @@ function translate(_text: string) {
     const toLan = lansTo.gv;
 
     for (const i of fyq) {
-        const copy = iconButton("copy").style({
-            width: "24px",
-            height: "24px",
-        });
+        const copy = iconButton("copy");
         const save = iconButton("star").style({
-            width: "24px",
-            height: "24px",
             display:
                 showCang.fetch.length && showCang.文件.length
                     ? "block"
                     : "none",
         });
-        const reTry = iconButton("reload")
-            .style({
-                width: "24px",
-                height: "24px",
-            })
-            .on("click", () => {
-                f();
-            });
+        const reTry = iconButton("reload").on("click", () => {
+            f();
+        });
         const checkEl = iconButton("replace").style({
-            width: "24px",
-            height: "24px",
             display: fromLan === "auto" ? "none" : "",
         });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
             title: {
-                _: view("x").style({ "align-items": "center" }),
+                _: view("x")
+                    .style({ "align-items": "center" })
+                    .class("small-size"),
                 copy,
                 save,
                 reTry,
@@ -228,7 +212,7 @@ function getLansName(l: string[]) {
     const mainLan = store.get("语言.语言");
     const trans = new Intl.DisplayNames(mainLan, { type: "language" });
     const lansName = l.map((i) => ({
-        text: i === "auto" ? "自动" : trans.of(i) ?? i,
+        text: i === "auto" ? "自动" : (trans.of(i) ?? i),
         lan: i,
     }));
     return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));

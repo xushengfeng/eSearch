@@ -109,9 +109,11 @@ function newChatItem(id: string) {
         showList.add(chatItem);
     }
     const toolBar = frame("tool", {
-        _: view("x").style({
-            transition: "var(--transition)",
-        }),
+        _: view("x")
+            .style({
+                transition: "var(--transition)",
+            })
+            .class("small-size"),
         reflash: iconEl("reload"),
         edit: iconEl("super_edit"),
         delete: iconEl("close"),
@@ -354,10 +356,6 @@ addStyle({
     body: {
         background: "var(--bg)",
     },
-    "button:has(.icon)": {
-        width: "20px !important",
-        height: "20px !important",
-    },
     ".chat-item": {
         "max-width": "80%",
     },
@@ -393,6 +391,7 @@ view("y")
         view("y").add([
             view("x")
                 .style({ gap: paddingVar })
+                .class("small-size")
                 .add([
                     label([fileInputEl.style({ display: "none" }), "上传图片"]),
                     selectModelEl,

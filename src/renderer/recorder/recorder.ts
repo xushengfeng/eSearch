@@ -195,11 +195,12 @@ window.customElements.define("time-i", time_i);
 
 const mEl = view().attr({ id: "m" }).addInto();
 
-const recordBar = view().attr({ id: "main" }).addInto(mEl);
+const recordBar = view().attr({ id: "main" }).class("small-size").addInto(mEl);
 const recordBEls = view().attr({ id: "record_b" }).addInto(recordBar);
 const startStop = button()
     .attr({ id: "start_stop" })
     .addInto(recordBEls)
+    .style({ width: "var(--b-button)" })
     .on("click", () => {
         if (sS) {
             startStopElIcon.el.className = "stop";
@@ -290,7 +291,7 @@ const vpEl = view().attr({ id: "v_p" }).addInto(videoPEl);
 const videoEl = ele("video").addInto(vpEl).el;
 const segEl = view().attr({ id: "seg" }).addInto(vpEl);
 
-const sEl = view().attr({ id: "s" }).addInto(mEl);
+const sEl = view().attr({ id: "s" }).class("small-size").addInto(mEl);
 
 const jdtEl = input("range")
     .attr({ id: "jdt" })
@@ -325,11 +326,7 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
     .attr({ id: "v_play" })
     .style({
         display: "inline-block",
-        position: "relative",
-        boxSizing: "border-box",
-        borderRadius: "16px",
     })
-    .class("b")
     .on("change", () => {
         if (playEl.gv) {
             videoEl.pause();
@@ -339,7 +336,6 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
     });
 const setEndEl = iconBEl("right")
     .attr({ id: "b_t_end" })
-    .class("b")
     .on("click", () => {
         const max = timeL.at(-1) - timeL[0];
         jdtEl.attr({ max: String(max) });
@@ -348,7 +344,6 @@ const setEndEl = iconBEl("right")
 
 const saveEl = iconBEl("save")
     .attr({ id: "save", disabled: true })
-    .class("b")
     .on("click", () => save());
 
 const proEl = (id: string) =>

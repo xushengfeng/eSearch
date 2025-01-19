@@ -110,6 +110,7 @@ const setNewDing = (
     const toolBarC = view("x")
         .attr({ id: "tool_bar_c" })
         .style({ padding: "4px", gap: "4px", boxSizing: "border-box" })
+        .class("bar")
         .bindSet((v: { forceShow?: boolean; show?: boolean }, el) => {
             if (v.forceShow !== undefined)
                 el.setAttribute("data-force-show", String(v.forceShow));
@@ -1029,7 +1030,11 @@ function dockI() {
 
         dockItem
             .add([
-                view("x").add([iTran, iIgnore, iClose]).class("i_bar"),
+                view("x")
+                    .add([iTran, iIgnore, iClose])
+                    .class("i_bar")
+                    .class("small-size")
+                    .class("bar"),
                 iPhoto,
             ])
             .addInto(dockView);

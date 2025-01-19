@@ -28,14 +28,11 @@ body {
     font-family: var(--monospace);
 }
 #find button {
-    width: 20px;
-    height: 20px;
+    width: var(--base-size2);
+    height: var(--base-size2);
     padding: 0;
     margin: 0 0 0 4px;
     border-radius: 4px;
-}
-#find button > .icon {
-    width: 20px;
 }
 #find input {
     border: none;

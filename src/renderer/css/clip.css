@@ -27,8 +27,6 @@ body {
     transform: translate(round(-50%, 1px));
     z-index: 111;
     pointer-events: none;
-    background-color: var(--bar-bg);
-    backdrop-filter: var(--blur);
     opacity: 0;
     transition: var(--transition);
     padding: 2px;
@@ -63,8 +61,6 @@ body {
     max-height: 400px;
     overflow: scroll;
     z-index: 111;
-    background-color: var(--bar-bg);
-    backdrop-filter: var(--blur);
     transition: var(--transition);
     padding: 8px;
     border-radius: var(--border-radius);
@@ -98,12 +94,10 @@ body input {
     display: flex;
     flex-direction: column;
     width: var(--bar-size);
-    background: var(--bar-bg);
     position: fixed;
     z-index: 99;
     left: 10px;
     top: 100px;
-    backdrop-filter: var(--blur);
     border-radius: calc(var(--bar-size) / 6);
     overflow: hidden;
     transition: opacity var(--transition);
@@ -121,10 +115,7 @@ body input {
     }
 }
 #tool_bar > div > .icon {
-    position: absolute;
     width: calc(var(--bar-size) * var(--bar-icon));
-    left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
-    top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
 }
 #tool_bar > div:hover {
     background-color: var(--hover-color);
@@ -222,8 +213,6 @@ body input {
 }
 #draw_bar > div {
     width: var(--bar-size);
-    background: var(--bar-bg);
-    backdrop-filter: var(--blur);
     border-radius: calc(var(--bar-size) / 6);
     box-shadow: var(--shadow);
 }
@@ -233,17 +222,13 @@ body input {
     height: var(--bar-size);
     border-radius: calc(var(--bar-size) / 6);
     transition: var(--transition);
-    position: relative;
     &:not(:has(.range-b)):active {
         transform: var(--button-active);
     }
 }
 #draw_main > div > .icon,
 .draw_items > div > .icon {
-    position: absolute;
     width: calc(var(--bar-size) * var(--bar-icon));
-    left: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
-    top: calc(var(--bar-size) * (1 - var(--bar-icon)) / 2);
 }
 #draw_main > div:not(:has(.range-b)):hover,
 .draw_items > div:not(:has(.range-b)):hover {
@@ -306,8 +291,6 @@ body input {
     padding: 2px;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    backdrop-filter: var(--blur);
-    background: var(--bar-bg);
     overflow: hidden;
     pointer-events: none;
     left: 100%;
@@ -395,8 +378,6 @@ body input {
 #clip_wh {
     position: absolute;
     z-index: 11;
-    backdrop-filter: var(--blur);
-    background: var(--bar-bg);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     display: flex;
@@ -411,6 +392,7 @@ body input {
     cursor: text;
     font-family: var(--monospace);
     font-size: 1rem;
+    height: auto;
 }
 
 /* long */

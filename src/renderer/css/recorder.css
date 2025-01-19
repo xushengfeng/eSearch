@@ -49,26 +49,13 @@ body {
     border-radius: 4px !important;
 }
 
-#main button,
-#main label,
-#main select {
-    width: 24px;
-    height: 24px;
-    position: relative;
-    display: block;
-    color: var(--color);
-    background-color: var(--bg);
-    transition: var(--transition);
-    border-radius: var(--border-radius);
-}
 #main > select:nth-last-of-type(1) {
     width: auto;
 }
-
-#main button:hover,
-#main label:hover {
-    background-color: var(--hover-color);
+#main > select {
+    width: var(--b-button);
 }
+
 #main label > input {
     display: none;
 }
@@ -189,21 +176,6 @@ select {
     border: none;
     background-color: #0000;
     font-size: 1em;
-}
-
-.b {
-    width: 24px !important;
-    height: 18px !important;
-    box-shadow: var(--shadow);
-    background-color: #0000;
-    font-size: 1rem;
-    padding: 4px;
-    vertical-align: middle;
-}
-.b > .icon {
-    width: 18px;
-    height: 18px;
-    left: 3px;
 }
 
 .pro_p {

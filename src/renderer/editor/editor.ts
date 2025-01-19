@@ -827,7 +827,7 @@ function spellcheck() {
 function showFind() {
     findShow = !findShow;
     if (findShow) {
-        editMainEl.style.marginTop = "48px";
+        editMainEl.style.marginTop = "52px";
         document.getElementById("find").style.transform = "translateY(0)";
         document.getElementById("find").style.pointerEvents = "auto";
         findInput.value = editor.selections.get();

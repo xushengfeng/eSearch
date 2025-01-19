@@ -175,6 +175,7 @@ const runEl = button(iconEl("ocr")).on("click", async () => {
 
 const toolsEl = view()
     .class("tools")
+    .class("small-size")
     .add([
         playEl,
         runEl,

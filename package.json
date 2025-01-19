@@ -73,8 +73,6 @@
         "node-screenshots-win32-x64-msvc": "0.1.9"
     },
     "pnpm": {
-        "neverBuiltDependencies": [
-            "canvas"
-        ]
+        "neverBuiltDependencies": ["canvas"]
     }
 }

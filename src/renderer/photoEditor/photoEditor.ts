@@ -83,15 +83,17 @@ const preview = view().style({
     height: "100%",
 });
 const controls = frame("sidebar", {
-    _: view("y").style({
-        width: "200px",
-        padding: "var(--o-padding)",
-        gap: "var(--o-padding)",
-        "overflow-y": "auto",
-        "overflow-x": "hidden",
-    }),
+    _: view("y")
+        .style({
+            width: "200px",
+            padding: "var(--o-padding)",
+            gap: "var(--o-padding)",
+            "overflow-y": "auto",
+            "overflow-x": "hidden",
+        })
+        .class("small-size"),
     configs: {
-        _: view("x").style({ "--b-button": "24px" }),
+        _: view("x"),
         select: select([]).on("input", (_, el) => {
             if (!el.gv) return;
             styleData = getStyleData(el.gv);
@@ -726,7 +728,6 @@ trackPoint(magicPenPreview, {
             magicPenPreview.el.height,
         );
         const items = button(icon("close"))
-            .style({ width: "24px", height: "24px" })
             .on("click", () => {
                 maskPens.delete(id);
                 items.remove();

@@ -24,9 +24,6 @@ body {
     display: flex;
 }
 .tools > * {
-    width: 24px !important;
-    height: 24px !important;
-    position: relative;
     background-color: var(--bg);
     border: none;
     transition: var(--transition);
@@ -35,9 +32,4 @@ body {
     margin: 0;
     padding: 0;
     -webkit-app-region: no-drag;
-}
-
-.tools > * > .icon {
-    width: 24px;
-    height: 24px;
 }

@@ -348,7 +348,7 @@ nav > button > .icon {
     right: 0;
     display: grid;
     grid-template-columns: auto auto;
-    grid-template-rows: auto auto;
+    grid-template-rows: var(--base-size2) var(--base-size2);
     background-color: var(--bg);
     transition: var(--transition);
     transform: translateY(-120%);
@@ -361,7 +361,7 @@ nav > button > .icon {
     align-items: center;
 }
 #count {
-    grid-area: 1/ 1/ 2/ 2;
+    grid-area: 1 / 1 / 2 / 2;
     font-size: 14px;
     margin-right: 8px;
     opacity: 0.5;
@@ -380,20 +380,18 @@ nav > button > .icon {
     font-family: var(--monospace);
 }
 #find button {
-    width: 20px;
-    height: 20px;
-    padding: 0;
+    width: var(--base-size2);
+    height: var(--base-size2);
     border-radius: 4px;
-    font-size: 20px;
 }
 #find button > .icon {
-    width: 20px;
+    width: var(--base-size2);
 }
 #find input {
-    border: none;
-    background-color: var(--bar-color);
-    backdrop-filter: var(--blur);
     border-radius: 4px;
+    font-size: 12px;
+    padding-inline: 4px;
+    height: 100%;
 }
 .find_h {
     background-color: var(--hover-color);

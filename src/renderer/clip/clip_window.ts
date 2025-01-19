@@ -108,8 +108,12 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         "z-index": "-1",
     });
     const i = input()
-        // @ts-ignore
-        .style({ "field-sizing": "content", "line-height": "1" })
+        .style({
+            // @ts-ignore
+            "field-sizing": "content",
+            "line-height": "1",
+            height: "auto",
+        })
         .on("input", () => {
             setV(Number.parseFloat(i.gv), true);
         })
@@ -2804,10 +2808,10 @@ const tools: 功能列表 = [
 
 pureStyle();
 
-const hotkeyTipEl = view().attr({ id: "hotkeys_tip" });
+const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class("bar");
 
 const toolBarEl = frame("tool", {
-    _: view(),
+    _: view().class("bar"),
     close: iconEl("close").attr({ title: t("关闭") }),
     screens: view().attr({ title: t("屏幕管理") }),
     ocr: {
@@ -2904,7 +2908,7 @@ for (const g of tools) {
     else el.style({ display: "none" });
 }
 
-const whEl = view().attr({ id: "clip_wh" });
+const whEl = view().attr({ id: "clip_wh" }).class("bar");
 const whX0 = input();
 const whY0 = input();
 const whX1 = input();

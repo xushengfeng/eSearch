@@ -39,6 +39,8 @@
     --bar-icon: 0.7;
     --b-button: 32px;
     --o-padding: 8px;
+    --base-size2: 24px;
+    --space2: 4px;
 }
 
 html,
@@ -78,16 +80,29 @@ body {
 
 body button,
 body input,
-body select {
+body select,
+*:has(> .icon) {
     font-family: var(--main-font);
-    padding-inline: 8px;
     height: var(--b-button);
     background-color: var(--m-color2);
     border-radius: var(--border-radius);
     color: var(--color);
-    font-size: 1rem;
+    font-size: inherit;
     transition: var(--transition);
     user-select: none;
+    outline: none;
+    border: none;
+    &:focus-visible {
+        outline: none;
+    }
+}
+*:has(> .icon) {
+    cursor: pointer;
+}
+body button,
+body input,
+body select {
+    padding-inline: var(--o-padding);
 }
 
 body button,
@@ -111,7 +126,7 @@ button:active {
     display: block;
 }
 
-button:has(.icon) {
+*:has(> .icon) {
     display: flex;
     padding-inline: 0;
     width: var(--b-button);
@@ -144,10 +159,14 @@ kbd {
     border: 1px solid #ddd;
 }
 
+input[type="number"] {
+    font-family: var(--monospace);
+}
+
 input[type="checkbox"] {
     appearance: none;
     top: 2px;
-    display: inline-block !important;
+    display: inline-block;
     width: 16px;
     height: 16px;
     margin-right: 4px;
@@ -169,12 +188,26 @@ input[type="checkbox"]:checked {
 .bar {
     background-color: var(--bar-bg);
     backdrop-filter: var(--blur);
-    & button {
+    & :is(button, *:has(> .icon)) {
         background: transparent;
         &:hover {
             background: var(--bar-hover-color);
         }
     }
+}
+
+.group {
+    background: transparent;
+    & > :is(button, select, *:has(> .icon)) {
+        background: transparent;
+    }
+    background-color: var(--m-color2);
+    border-radius: var(--border-radius);
+}
+
+.small-size {
+    --b-button: var(--base-size2);
+    --o-padding: var(var(--space2));
 }
 
 @media (prefers-color-scheme: dark) {

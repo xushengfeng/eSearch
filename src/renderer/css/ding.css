@@ -48,6 +48,7 @@ body > #dock_item {
 #tool_bar_c > div {
     display: flex;
     align-items: center;
+    width: auto;
 }
 .img {
     position: absolute;
@@ -120,21 +121,7 @@ body > #dock_item {
     width: 100%;
 }
 .i_bar {
-    gap: 4px;
     position: absolute;
     right: 8px;
-}
-.i_bar > div {
-    width: 24px;
-    height: 24px;
-    background-color: var(--bar-bg);
-    transition: var(--transition);
-    border-radius: 50%;
-    backdrop-filter: var(--blur);
-    cursor: pointer;
-    font-size: 24px;
-}
-
-.i_bar > div:hover {
-    background-color: var(--hover-color);
+    border-radius: var(--o-padding);
 }
