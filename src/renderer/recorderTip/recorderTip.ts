@@ -1,8 +1,10 @@
 const { ipcRenderer } = require("electron") as typeof import("electron");
 import {
     addClass,
+    button,
     dynamicSelect,
     ele,
+    image,
     pureStyle,
     trackPoint,
     txt,
@@ -10,7 +12,8 @@ import {
 } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
 
-// 获取设置
+import { getImgUrl } from "../root/root";
+
 import store from "../../../lib/store/renderStore";
 
 function initRecord() {
@@ -275,6 +278,11 @@ function drawCamera() {
     }, 10);
 }
 
+// @auto-path:../assets/icons/$.svg
+function iconEl(src: string) {
+    return image(getImgUrl(`${src}.svg`), "icon").class("icon");
+}
+
 pureStyle();
 
 const rectEl = view().addInto().attr({ id: "recorder_rect" });
@@ -314,6 +322,23 @@ cameraSelect.el.on("change", async () => {
 let cameraCanvas: HTMLCanvasElement = document.createElement("canvas");
 let segCanvas: HTMLCanvasElement = document.createElement("canvas");
 
+const stop = button(iconEl("stop_record").style({ filter: "none" })).on(
+    "click",
+    () => {
+        ipcRenderer.send("record", "state", "stop");
+    },
+);
+const pause = button(iconEl("play_pause")).on("click", () => {
+    ipcRenderer.send("record", "state", "pause");
+});
+const timeEl = txt();
+const controlBar = view("x")
+    .class("small-size")
+    .class("bar")
+    .add([stop, pause, timeEl])
+    .addInto()
+    .style({ position: "fixed", bottom: 0, right: 0 });
+
 initRecord();
 
 navigator.mediaDevices.ondevicechange = async () => {
@@ -338,7 +363,11 @@ ipcRenderer.on("record", async (_event, t, arg) => {
                 recorderMouseEl.style.left = `${arg.x}px`;
                 recorderMouseEl.style.top = `${arg.y}px`;
                 const l = document.elementsFromPoint(arg.x, arg.y);
-                ipcRenderer.send("window", "ignore", !l.includes(cEl.el));
+                ipcRenderer.send(
+                    "window",
+                    "ignore",
+                    !(l.includes(cEl.el) || l.includes(controlBar.el)),
+                );
             }
             break;
         case "camera":
@@ -349,6 +378,9 @@ ipcRenderer.on("record", async (_event, t, arg) => {
             } else {
                 cameraStreamF(null);
             }
+            break;
+        case "time":
+            timeEl.sv(arg);
             break;
     }
 });

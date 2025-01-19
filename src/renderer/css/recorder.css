@@ -13,10 +13,6 @@ body {
     transition: var(--transition);
 }
 
-#m:hover {
-    box-shadow: inset 0 0 1px 1px #fff;
-}
-
 #main {
     display: flex;
     background-color: var(--bg);

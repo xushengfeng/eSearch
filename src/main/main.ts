@@ -1374,12 +1374,6 @@ function createRecorderWindow(
     y = Math.round(y);
     recorder = new BrowserWindow({
         icon: theIcon,
-        x,
-        y,
-        width: w,
-        height: h,
-        transparent: true,
-        frame: false,
         autoHideMenuBar: true,
         resizable: process.platform === "linux",
         webPreferences: {
@@ -1435,7 +1429,7 @@ function createRecorderWindow(
         x: rect1[0] - border,
         y: rect1[1] - border,
         width: rect1[2] + border * 2,
-        height: rect1[3] + border * 2,
+        height: rect1[3] + border * 2 + 24,
         transparent: true,
         frame: false,
         autoHideMenuBar: true,
@@ -1476,8 +1470,13 @@ ipcMain.on("record", (_event, type, arg) => {
         case "stop":
             recorderTipWin.close();
             recording = false;
+
             break;
         case "start":
+            recorder.minimize();
+            break;
+        case "time":
+            recorderTipWin.webContents.send("record", "time", arg);
             break;
         case "ff": {
             // 处理视频
@@ -1508,11 +1507,8 @@ ipcMain.on("record", (_event, type, arg) => {
                 });
             break;
         }
-        case "close":
-            recorder.close();
-            break;
-        case "min":
-            recorder.minimize();
+        case "state":
+            recorder.webContents.send("record", "state", arg);
             break;
         case "camera":
             switch (arg) {

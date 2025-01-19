@@ -16,9 +16,6 @@ import {
 import { t, lan } from "../../../lib/translate/translate";
 import { view } from "dkh-ui";
 
-import pauseSvg from "../assets/icons/pause.svg";
-import recumeSvg from "../assets/icons/recume.svg";
-
 // todo 把ui设定移到底部
 
 // @auto-path:../assets/icons/$.svg
@@ -194,18 +191,12 @@ class time_i extends HTMLElement {
 window.customElements.define("time-i", time_i);
 
 const mEl = view().attr({ id: "m" }).addInto();
-
-const recordBar = view().attr({ id: "main" }).class("small-size").addInto(mEl);
-const recordBEls = view().attr({ id: "record_b" }).addInto(recordBar);
 const startStop = button()
+    .add(iconEl("start_record").style({ filter: "none" }))
     .attr({ id: "start_stop" })
-    .addInto(recordBEls)
-    .style({ width: "var(--b-button)" })
+    .style({ width: "80px", height: "80px" })
     .on("click", () => {
         if (sS) {
-            startStopElIcon.el.className = "stop";
-            pauseRecume.query("img").el.src = pauseSvg;
-            timeEl.sv("0:00");
             recorder.start();
             格式El.el.style({ display: "none" });
             type = 格式El.el.gv as mimeType;
@@ -218,24 +209,6 @@ const startStop = button()
         } else {
             stop = true;
             recorder.stop();
-            pTime();
-        }
-    });
-const startStopElIcon = view()
-    .attr({ id: "start_stop_icon" })
-    .addInto(startStop);
-const pauseRecume = iconBEl("recume")
-    .attr({ id: "pause_recume" })
-    .addInto(recordBEls)
-    .on("click", () => {
-        if (recorder.state === "inactive") return;
-        if (recorder.state === "recording") {
-            pauseRecume.query("img").el.src = recumeSvg;
-            recorder.pause();
-            pTime();
-        } else if (recorder.state === "paused") {
-            pauseRecume.query("img").el.src = recumeSvg;
-            recorder.resume();
             pTime();
         }
     });
@@ -261,34 +234,31 @@ const cameraEl = check("camera")
             console.error(e);
         }
     });
-recordBEls.add([
-    label([micEl, iconEl("mic")]),
-    label([cameraEl, iconEl("camera")]),
-]);
-const timeEl = view()
-    .attr({ id: "time" })
-    .addInto(recordBar)
-    .bindSet((v: string, el) => {
-        el.innerText = v;
-    });
+
 const 格式El = dynamicSelect();
-recordBar.add(格式El.el.attr({ id: "格式", name: "格式" }));
-iconBEl("minimize")
-    .attr({ id: "min" })
-    .addInto(recordBar)
-    .on("click", () => {
-        ipcRenderer.send("record", "min");
-    });
-iconBEl("close")
-    .attr({ id: "close" })
-    .addInto(recordBar)
-    .on("click", () => {
-        ipcRenderer.send("record", "close");
-    });
+
+const settingEl = view("y")
+    .style({
+        position: "fixed",
+        left: 0,
+        top: 0,
+        width: "100vw",
+        height: "100vh",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "var(--o-padding)",
+    })
+    .add([
+        startStop,
+        格式El.el,
+        view().add([label([micEl, iconEl("mic")])]),
+        label([cameraEl, iconEl("camera")]),
+    ])
+    .addInto();
 
 const videoPEl = view().attr({ id: "video" }).addInto(mEl);
 const vpEl = view().attr({ id: "v_p" }).addInto(videoPEl);
-const videoEl = ele("video").addInto(vpEl).el;
+const videoEl = ele("video").style({ maxWidth: "none" }).addInto(vpEl).el;
 const segEl = view().attr({ id: "seg" }).addInto(vpEl);
 
 const sEl = view().attr({ id: "s" }).class("small-size").addInto(mEl);
@@ -427,6 +397,9 @@ function getT() {
     }
     return t;
 }
+function setTime(t: string) {
+    ipcRenderer.send("record", "time", t);
+}
 function getTime() {
     if (recorder.state === "recording") {
         let t = 0;
@@ -437,7 +410,7 @@ function getTime() {
         const s = Math.trunc(t / 1000);
         const m = Math.trunc(s / 60);
         const h = Math.trunc(m / 60);
-        timeEl.sv(
+        setTime(
             `${h === 0 ? "" : `${h}:`}${m - 60 * h}:${String(
                 s - 60 * m,
             ).padStart(2, "0")}`,
@@ -569,10 +542,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                 videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
                 mimeType: "video/webm",
             });
-            recordBEls.style({
-                opacity: "1",
-                pointerEvents: "auto",
-            });
             recorder.ondataavailable = (e) => {
                 chunks.push(e.data);
             };
@@ -633,7 +602,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                 let t = store.get("录屏.自动录制延时");
                 function d() {
                     if (recorder.state !== "inactive") return;
-                    timeEl.sv(String(t));
+                    setTime(String(t));
                     setTimeout(() => {
                         if (t === 0) {
                             startStop.el.click();
@@ -650,6 +619,19 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
         case "start_stop":
             startStop.el.click();
             break;
+        case "state":
+            if (sourceId === "stop") {
+                startStop.el.click();
+            } else if (sourceId === "pause") {
+                if (recorder.state === "inactive") return;
+                if (recorder.state === "recording") {
+                    recorder.pause();
+                    pTime();
+                } else if (recorder.state === "paused") {
+                    recorder.resume();
+                    pTime();
+                }
+            }
     }
 });
 
@@ -759,9 +741,8 @@ function showControl() {
     if (micEl.gv) micStream(false);
     if (cameraEl.gv) cameraStreamF(false);
     sEl.class("s_show");
-    recordBEls.style({ display: "none" });
+    settingEl.style({ display: "none" });
     mEl.style({ backgroundColor: "var(--bg)" });
-    timeEl.sv("");
     videoPEl.style({ transform: "" });
     segEl.remove();
     setVideo(0);
