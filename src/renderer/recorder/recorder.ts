@@ -208,6 +208,14 @@ const startStop = button()
         } else {
             stop = true;
             recorder.stop();
+            for (const i of stream.getTracks()) {
+                i.stop();
+            }
+            for (const s of audioStreamS.values())
+                for (const t of s.getTracks()) {
+                    t.stop();
+                }
+
             pTime();
         }
     });
