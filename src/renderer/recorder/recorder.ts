@@ -10,7 +10,6 @@ import {
     input,
     label,
     pureStyle,
-    select,
     txt,
 } from "dkh-ui";
 import { t, lan } from "../../../lib/translate/translate";
@@ -212,17 +211,7 @@ const startStop = button()
             pTime();
         }
     });
-const micEl = check("mic")
-    .attr({ id: "mic" })
-    .on("click", () => {
-        try {
-            micStream(micEl.gv);
-            if (store.get("录屏.音频.记住开启状态"))
-                store.set("录屏.音频.默认开启", micEl.gv);
-        } catch (e) {
-            console.error(e);
-        }
-    });
+
 const cameraEl = check("camera")
     .attr({ id: "camera" })
     .on("click", () => {
@@ -234,6 +223,7 @@ const cameraEl = check("camera")
             console.error(e);
         }
     });
+const micList = view("y");
 
 const 格式El = dynamicSelect();
 
@@ -250,8 +240,10 @@ const settingEl = view("y")
     })
     .add([
         startStop,
-        格式El.el,
-        view().add([label([micEl, iconEl("mic")])]),
+        view("x")
+            .style({ alignItems: "center" })
+            .add([t("格式"), 格式El.el]),
+        view().add([t("选择输入音频"), micList]),
         label([cameraEl, iconEl("camera")]),
     ])
     .addInto();
@@ -432,10 +424,8 @@ type mimeType =
 let type = store.get("录屏.转换.格式") as mimeType;
 格式El.el.el.value = type;
 
-let audioStream: MediaStream;
+const audioStreamS = new Map<string, MediaStream>();
 let stream: MediaStream;
-
-let audio = false;
 
 let rect: [number, number, number, number];
 
@@ -481,40 +471,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
         case "init": {
             rect = r;
             sS = true;
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const audioL = devices.filter((i) => i.kind === "audioinput");
-            if (audioL.length) audio = true;
-            if (audio) {
-                const id =
-                    audioL.find(
-                        (i) => i.deviceId === store.get("录屏.音频.设备"),
-                    )?.deviceId ?? audioL[0].deviceId;
-                audioStream = await navigator.mediaDevices.getUserMedia({
-                    audio: { deviceId: id },
-                    video: false,
-                });
-                if (audioL.length > 1) {
-                    const selectEl = select(
-                        audioL.map((i) => ({
-                            name: i.label,
-                            value: i.deviceId,
-                        })),
-                    )
-                        .style({ width: "24px" })
-                        .sv(id)
-                        .on("change", async () => {
-                            audioStream =
-                                await navigator.mediaDevices.getUserMedia({
-                                    audio: { deviceId: selectEl.gv },
-                                    video: false,
-                                });
-                            store.set("录屏.音频.设备", selectEl.gv);
-                        });
-                    micEl.el.parentElement.after(selectEl.el);
-                }
-            } else {
-                micEl.style({ display: "none" });
-            }
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
@@ -532,10 +488,8 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                 console.error(e);
             }
             if (!stream) return;
-            if (audioStream) {
-                for (const i of audioStream.getAudioTracks())
-                    stream.addTrack(i);
-                micStream(store.get("录屏.音频.默认开启"));
+            for (const a of audioStreamS.values()) {
+                for (const i of a.getAudioTracks()) stream.addTrack(i);
             }
             let chunks = [];
             recorder = new MediaRecorder(stream, {
@@ -635,12 +589,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
     }
 });
 
-async function micStream(v: boolean) {
-    for (const i of audioStream.getAudioTracks()) {
-        i.enabled = v;
-    }
-    if (v !== micEl.gv) micEl.sv(v);
-}
 function cameraStreamF(b: boolean) {
     if (b) ipcRenderer.send("record", "camera", 0);
     else ipcRenderer.send("record", "camera", 1);
@@ -738,7 +686,6 @@ function getTimeInV(time: number) {
 function showControl() {
     editting = true;
     playEl.sv(true);
-    if (micEl.gv) micStream(false);
     if (cameraEl.gv) cameraStreamF(false);
     sEl.class("s_show");
     settingEl.style({ display: "none" });
@@ -1122,4 +1069,32 @@ function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
             console.log(data.toString());
         });
     });
+}
+
+const devices = await navigator.mediaDevices.enumerateDevices();
+const audioL = devices.filter((i) => i.kind === "audioinput");
+for (const i of audioL) {
+    const el = label([check(""), i.label || i.deviceId]);
+    el.on("input", async () => {
+        if (el.gv) {
+            const audioStream = await navigator.mediaDevices.getUserMedia({
+                audio: { deviceId: i.deviceId },
+                video: false,
+            });
+            audioStreamS.set(i.deviceId, audioStream);
+        } else {
+            const s = audioStreamS.get(i.deviceId);
+            if (s) {
+                for (const t of s.getTracks()) {
+                    t.stop();
+                }
+            }
+            audioStreamS.delete(i.deviceId);
+        }
+    });
+    micList.add(el);
+}
+// todo store.set("录屏.音频.设备", selectEl.gv);
+if (audioL.length === 0) {
+    micList.add("无音频输入设备");
 }
