@@ -463,7 +463,6 @@ let audioStream: MediaStream;
 let stream: MediaStream;
 
 let audio = false;
-let camera = false;
 
 let rect: [number, number, number, number];
 
@@ -511,9 +510,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             sS = true;
             const devices = await navigator.mediaDevices.enumerateDevices();
             const audioL = devices.filter((i) => i.kind === "audioinput");
-            const videoL = devices.filter((i) => i.kind === "videoinput");
             if (audioL.length) audio = true;
-            if (videoL.length) camera = true;
             if (audio) {
                 const id =
                     audioL.find(
@@ -530,6 +527,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                             value: i.deviceId,
                         })),
                     )
+                        .style({ width: "24px" })
                         .sv(id)
                         .on("change", async () => {
                             audioStream =
@@ -544,48 +542,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             } else {
                 micEl.style({ display: "none" });
             }
-            if (!camera) cameraEl.style({ display: "none" });
-            else {
-                const id =
-                    videoL.find(
-                        (i) => i.deviceId === store.get("录屏.摄像头.设备"),
-                    )?.deviceId ?? videoL[0].deviceId;
-                cameraDeviceId = id;
-                if (videoL.length > 1) {
-                    const selectEl = select(
-                        videoL.map((i) => ({
-                            name: i.label,
-                            value: i.deviceId,
-                        })),
-                    )
-                        .sv(id)
-                        .on("change", async () => {
-                            cameraDeviceId = selectEl.el.value;
-                            if (cameraStream)
-                                cameraStream =
-                                    await navigator.mediaDevices.getUserMedia({
-                                        audio: false,
-                                        video: { deviceId: selectEl.el.value },
-                                    });
-                            store.set("录屏.摄像头.设备", selectEl.el.value);
-                        });
-                    cameraEl.el.parentElement.after(selectEl.el);
-                }
-            }
-            navigator.mediaDevices.ondevicechange = () => {
-                navigator.mediaDevices.enumerateDevices().then((d) => {
-                    let video = false;
-                    for (const i of d) {
-                        if (i.kind === "videoinput") video = true;
-                    }
-                    if (video) {
-                        cameraEl.style({ display: "" });
-                    } else {
-                        cameraEl.style({ display: "none" });
-                        cameraStreamF(false);
-                    }
-                });
-            };
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     audio: false,
@@ -703,32 +659,9 @@ async function micStream(v: boolean) {
     }
     if (v !== micEl.gv) micEl.sv(v);
 }
-
-let cameraStream: MediaStream;
-let cameraDeviceId = "";
-async function cameraStreamF(v: boolean) {
-    if (v) {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: { deviceId: cameraDeviceId },
-        });
-        videoEl.srcObject = cameraStream;
-        videoEl.play();
-        if (store.get("录屏.摄像头.镜像"))
-            videoEl.style.transform = "rotateY(180deg)";
-        ipcRenderer.send("record", "camera", 0);
-        setTimeout(() => {
-            resize();
-        }, 400);
-
-        videoEl.oncanplay = () => {
-            initSeg();
-        };
-    } else {
-        cameraStream.getVideoTracks()[0].stop();
-        videoEl.srcObject = null;
-        ipcRenderer.send("record", "camera", 1);
-    }
+function cameraStreamF(b: boolean) {
+    if (b) ipcRenderer.send("record", "camera", 0);
+    else ipcRenderer.send("record", "camera", 1);
 }
 
 if (store.get("录屏.摄像头.默认开启")) {
@@ -761,78 +694,6 @@ function resize() {
         // @ts-ignore
         vpEl.el.style.zoom = p.h / c.h;
     }
-}
-
-let seg: typeof import("esearch-seg");
-
-let cameraCanvas: HTMLCanvasElement = document.createElement("canvas");
-let segCanvas: HTMLCanvasElement = document.createElement("canvas");
-
-async function initSeg() {
-    const bgSetting = store.get("录屏.摄像头.背景");
-    if (bgSetting.模式 === "none") {
-        return;
-    }
-    videoEl.style.display = "";
-    segEl.clear();
-    videoEl.style.display = "none";
-    cameraCanvas = document.createElement("canvas");
-    segCanvas = document.createElement("canvas");
-    const bgEl = document.createElement("div");
-    if (bgSetting.模式 === "img" || bgSetting.模式 === "video") {
-        const bg =
-            bgSetting.模式 === "img"
-                ? document.createElement("img")
-                : document.createElement("video");
-        const url =
-            bgSetting.模式 === "img" ? bgSetting.imgUrl : bgSetting.videoUrl;
-        bg.src = url;
-        bgEl.append(bg);
-        bgEl.style.objectFit = bgSetting.fit;
-        cameraCanvas.style.display = "none";
-    }
-    if (bgSetting.模式 === "blur") {
-        cameraCanvas.style.filter = `blur(${bgSetting.模糊}px)`;
-        cameraCanvas.style.display = "";
-    }
-    if (bgSetting.模式 === "hide") {
-        cameraCanvas.style.display = "none";
-    }
-    segEl.add([cameraCanvas, bgEl, segCanvas]);
-    seg = require("esearch-seg") as typeof import("esearch-seg");
-    await seg.init({
-        segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx"),
-        ort: require("onnxruntime-node"),
-        ortOption: {
-            executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
-        },
-        shape: [256, 144],
-        invertOpacity: true,
-        threshold: 0.7,
-    });
-    drawCamera();
-    segEl.style({
-        width: `${videoEl.videoWidth}px`,
-        height: `${videoEl.videoHeight}px`,
-    });
-}
-
-function drawCamera() {
-    const canvasCtx = cameraCanvas.getContext("2d");
-    cameraCanvas.width = videoEl.videoWidth;
-    cameraCanvas.height = videoEl.videoHeight;
-    console.log(videoEl.videoHeight);
-    canvasCtx.drawImage(videoEl, 0, 0, cameraCanvas.width, cameraCanvas.height);
-    seg.seg(
-        canvasCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height),
-    ).then((data) => {
-        segCanvas.width = data.width;
-        segCanvas.height = data.height;
-        segCanvas.getContext("2d").putImageData(data, 0, 0);
-    });
-    setTimeout(() => {
-        if (cameraStream.active) drawCamera();
-    }, 10);
 }
 
 ipcRenderer.on("ff", (_e, t, arg) => {
@@ -917,7 +778,7 @@ function showControl() {
     if (store.get("录屏.转换.自动转换")) {
         save();
     } else {
-        ipcRenderer.send("record", "camera", 2);
+        ipcRenderer.send("window", "max");
     }
     setTimeout(() => {
         resize();

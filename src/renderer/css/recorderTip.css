@@ -1,6 +1,5 @@
 body {
     user-select: none;
-    pointer-events: none;
     background-color: transparent !important;
 }
 

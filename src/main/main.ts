@@ -1518,35 +1518,11 @@ ipcMain.on("record", (_event, type, arg) => {
             switch (arg) {
                 case 0:
                     // 摄像头
-                    recorder.setBounds({
-                        width: store.get("录屏.大小.width") || 800,
-                        height: store.get("录屏.大小.height") || 600,
-                        x: recorder.getBounds().x,
-                        y: recorder.getBounds().y,
-                    });
-                    recorder.setResizable(true);
+                    recorderTipWin.webContents.send("record", "camera", true);
                     break;
                 case 1:
                     // 摄像头关
-                    recorder.setResizable(false);
-                    recorder.setBounds({
-                        width: recorderWinW,
-                        height: recorderWinH,
-                        x: recorder.getBounds().x,
-                        y: recorder.getBounds().y,
-                    });
-                    break;
-                case 2:
-                    // 预览界面
-                    recorder.setBounds({
-                        width:
-                            Math.max(store.get("录屏.大小.width"), 300) || 800,
-                        height:
-                            Math.max(store.get("录屏.大小.height"), 500) || 600,
-                    });
-                    recorder.setAlwaysOnTop(false);
-                    recorder.setResizable(true);
-                    recorder.center();
+                    recorderTipWin.webContents.send("record", "camera", true);
                     break;
             }
             break;
