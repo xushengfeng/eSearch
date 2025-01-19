@@ -1,5 +1,6 @@
 body {
     --hover-color: var(--bar-hover-color) !important;
+    background-color: transparent !important;
 }
 ::-webkit-scrollbar {
     display: none;

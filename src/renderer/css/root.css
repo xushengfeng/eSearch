@@ -2,22 +2,23 @@
     --alpha: 60%;
 
     --bar-bg0: #fff;
-    --bar-bg: color-mix(in srgb, var(--bar-bg0) var(--alpha), transparent);
-    --bar-hover-color: color-mix(in srgb, var(--hover-color) 25%, transparent);
     --bg: #fff;
-    --hover-color: #dfdfdf;
+    --emphasis-color: #dfdfdf;
     --font-color: #000;
     --icon-color: none;
 
-    --d-bar-bg0: #000;
-    --d-bar-bg: color-mix(in srgb, var(--d-bar-bg0) var(--alpha), transparent);
-    --d-bar-hover-color: color-mix(
+    --bar-bg: color-mix(in srgb, var(--bar-bg0) var(--alpha), transparent);
+    --hover-color: var(--emphasis-color);
+    --bar-hover-color: color-mix(
         in srgb,
-        var(--d-hover-color) 25%,
+        var(--emphasis-color) 25%,
         transparent
     );
+    --bar-focus-color: var(--emphasis-color);
+
+    --d-bar-bg0: #000;
     --d-bg: #000;
-    --d-hover-color: #333;
+    --d-emphasis-color: #333;
     --d-font-color: #fff;
     --d-icon-color: invert(1);
 
@@ -43,11 +44,10 @@
     --space2: 4px;
 }
 
-html,
 body {
-    margin: 0;
     font-family: var(--main-font);
-    color: var(--color);
+    color: var(--font-color);
+    background-color: var(--bg);
 }
 
 ::-webkit-scrollbar {
@@ -207,16 +207,17 @@ input[type="checkbox"]:checked {
 
 .small-size {
     --b-button: var(--base-size2);
-    --o-padding: var(var(--space2));
+    --o-padding: var(--space2);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bar-bg: var(--d-bar-bg) !important;
-        --bar-hover-color: var(--d-bar-hover-color) !important;
+        --bar-bg0: var(--d-bar-bg0) !important;
         --bg: var(--d-bg) !important;
-        --hover-color: var(--d-hover-color) !important;
+        --emphasis-color: var(--d-emphasis-color) !important;
         --icon-color: var(--d-icon-color) !important;
+        --font-color: var(--d-font-color) !important;
+
         --shadow: #fff9 0 0 2px;
         --color: #fff;
         --border: 1px #fff solid;

@@ -127,7 +127,7 @@ video {
 
 #jdt::-webkit-slider-thumb {
     -webkit-appearance: none;
-    background-color: var(--color);
+    background-color: var(--font-color);
     border-radius: 2px;
     height: 16px;
     width: 4px;

@@ -47,9 +47,11 @@ body {
     border-radius: 6px;
     transition: var(--transition);
 }
-#save_type > #suffix > div:hover,
-.suffix_h {
+#save_type > #suffix > div:hover {
     background-color: var(--hover-color);
+}
+.suffix_h {
+    background-color: var(--bar-focus-color);
 }
 /* 快捷键 */
 #hotkeys_tip {
@@ -134,7 +136,7 @@ body input {
 }
 #tool_screens > div > div {
     position: absolute;
-    border: 2px solid var(--color);
+    border: 2px solid var(--font-color);
     box-sizing: border-box;
     border-radius: 4px;
     cursor: pointer;
@@ -163,7 +165,7 @@ body input {
     border: none;
     appearance: none;
     color: #0000;
-    background-color: var(--bar-bg);
+    background-color: var(--bar-focus-color);
     border-radius: 50%;
     overflow: hidden;
 }
@@ -176,7 +178,7 @@ body input {
 }
 
 .side_select > option {
-    color: var(--color);
+    color: var(--font-color);
     transition: var(--transition);
     font-size: 1rem;
     &:hover {
@@ -200,7 +202,7 @@ body input {
 
 /* 画 */
 .select {
-    background-color: var(--hover-color);
+    background-color: var(--bar-focus-color);
 }
 #draw_bar {
     left: 80px;
@@ -449,7 +451,7 @@ body input {
     position: absolute;
     height: 50%;
     width: 100%;
-    background-color: var(--hover-color);
+    background-color: var(--bar-focus-color);
     transition: var(--transition);
     border-radius: inherit;
 }

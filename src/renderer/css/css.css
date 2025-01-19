@@ -427,22 +427,8 @@ nav > button > .icon {
     transform: var(--button-active);
 }
 
-button {
-    height: var(--height);
-    margin: 0px;
-    color: var(--color);
-    padding: 0;
-}
 select {
-    height: var(--height);
-    margin: 0px;
-    color: var(--color);
-    padding: 0 var(--o-padding) 0 var(--o-padding);
     field-sizing: content;
-}
-
-button > .icon {
-    width: var(--b-button);
 }
 
 @media (prefers-color-scheme: dark) {

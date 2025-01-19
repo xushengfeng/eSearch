@@ -16,10 +16,10 @@ function initStyle(
     const theme = store.get("全局.主题");
     setCSSVar("--bar-bg0", theme.light.barbg);
     setCSSVar("--bg", theme.light.bg);
-    setCSSVar("--hover-color", theme.light.emphasis);
+    setCSSVar("--emphasis-color", theme.light.emphasis);
     setCSSVar("--d-bar-bg0", theme.dark.barbg);
     setCSSVar("--d-bg", theme.dark.bg);
-    setCSSVar("--d-hover-color", theme.dark.emphasis);
+    setCSSVar("--d-emphasis-color", theme.dark.emphasis);
     setCSSVar("--font-color", theme.light.fontColor);
     setCSSVar("--d-font-color", theme.dark.fontColor);
     setCSSVar("--icon-color", theme.light.iconColor);

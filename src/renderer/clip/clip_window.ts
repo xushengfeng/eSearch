@@ -103,7 +103,7 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         position: "absolute",
         top: "0",
         height: "100%",
-        background: "var(--hover-color)",
+        background: "var(--bar-focus-color)",
         "border-radius": "inherit",
         "z-index": "-1",
     });
@@ -408,7 +408,7 @@ function setDefaultAction(act: setting["框选后默认操作"]) {
     if (!act) return;
     autoDo = act;
     if (autoDo !== "no") {
-        toolBarEl.els[autoDo].el.style.backgroundColor = "var(--hover-color)";
+        toolBarEl.els[autoDo].el.style.backgroundColor = "var(--bar-focus-color)";
     }
 }
 

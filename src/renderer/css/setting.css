@@ -8,7 +8,6 @@ body {
 }
 body {
     overflow: overlay;
-    color: var(--color);
 }
 #find {
     position: fixed;
