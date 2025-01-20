@@ -25,13 +25,14 @@ import {
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
 import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
-const { ipcRenderer } = require("electron") as typeof import("electron");
+const { ipcRenderer, shell } = require("electron") as typeof import("electron");
 const path = require("node:path") as typeof import("path");
+const os = require("node:os") as typeof import("os");
 import Sortable from "sortablejs";
 
 import logo from "../assets/icon.svg";
 
-import translator, { matchFitLan } from "xtranslator";
+import translator from "xtranslator";
 
 import { hexToCSSFilter } from "hex-to-css-filter";
 
@@ -1086,7 +1087,6 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "开发者模式",
         el: () => xSwitch(),
     },
-    // todo 版本信息
 };
 
 // todo log没创建的key
@@ -2274,6 +2274,69 @@ function showPage(page: (typeof main)[0]) {
     }
 }
 
+function about() {
+    const el = view("y").style({ alignItems: "center", marginTop: "120px" });
+    const logoEl = image(logo, "logo").style({ width: "200px" });
+    const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
+    const version = button(noI18n(packageJson.version));
+    const desc = p(packageJson.description);
+
+    const infoEl = view("y").style({ alignItems: "center" });
+
+    infoEl.add([
+        view().add([
+            "项目主页:",
+            " ",
+            a(packageJson.homepage).add(noI18n(packageJson.homepage)),
+        ]),
+        view().add([
+            "支持该项目:",
+            " ",
+            a(packageJson.homepage).add("为项目点亮星标🌟"),
+            " ",
+            a("https://github.com/xushengfeng").add("赞赏"),
+        ]),
+        view().add(
+            a(
+                `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`,
+            ).add("更新日志"),
+        ),
+        view().add([
+            a(ipcRenderer.sendSync("setting", "feedback")).add("反馈问题"),
+            " ",
+            a(
+                `https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=新需求&template=feature_request.yaml&title=建议在……添加……功能/改进&v=${packageJson.version}&os=${process.platform} ${os.release()} (${process.arch})`,
+            ).add("提供建议"),
+        ]),
+        view().add(
+            a(
+                "https://github.com/xushengfeng/eSearch/tree/master/lib/translate",
+            ).add("改进翻译"),
+        ),
+        view().add([
+            "本软件遵循",
+            " ",
+            a("https://www.gnu.org/licenses/gpl-3.0.html").add(
+                noI18n(packageJson.license),
+            ),
+        ]),
+        view().add([
+            "本软件基于",
+            " ",
+            a(
+                "https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json",
+            ).add("这些软件"),
+        ]),
+        view().add(
+            noI18n(
+                `Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`,
+            ),
+        ),
+    ]);
+
+    return el.add([logoEl, nameEl, version, desc, infoEl]);
+}
+
 lan(store.get("语言.语言") as string);
 setTranslate((text) => t(text));
 
@@ -2394,6 +2457,8 @@ const mainView = view()
         ),
     );
 
+mainViewP.add(about());
+
 for (const [i, page] of main.entries()) {
     const sideEl = view().add(
         sideBarG.new(String(i), txt(page.pageName, true)),
@@ -2414,3 +2479,13 @@ button(t("使用旧版设置"))
         ipcRenderer.send("window", "close");
     })
     .addInto();
+
+document.body.onclick = (e) => {
+    if ((<HTMLElement>e.target).tagName === "A") {
+        const el = <HTMLAnchorElement>e.target;
+        if (el.href.startsWith("http") || el.href.startsWith("https")) {
+            e.preventDefault();
+            shell.openExternal(el.href);
+        }
+    }
+};
