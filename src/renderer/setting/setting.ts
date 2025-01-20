@@ -39,6 +39,13 @@ import { hexToCSSFilter } from "hex-to-css-filter";
 import _package from "../../../package.json?raw";
 const packageJson = JSON.parse(_package);
 
+import {
+    macKeyFomat,
+    jsKey2ele,
+    jsKeyCodeDisplay,
+    ele2jsKeyCode,
+} from "../../../lib/key.js";
+
 type Engines = keyof typeof translator.e;
 
 type settingItem<t extends SettingPath> = {
@@ -53,6 +60,34 @@ const mainLan = store.get("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
     type: "language",
 });
+
+const tools: { key: 功能; icon: string; title: string }[] = [
+    { key: "close", icon: getImgUrl("close.svg"), title: t("关闭") },
+    { key: "screens", icon: getImgUrl("screen.svg"), title: t("屏幕管理") },
+    { key: "ocr", icon: getImgUrl("ocr.svg"), title: t("文字识别") },
+    { key: "search", icon: getImgUrl("search.svg"), title: t("以图搜图") },
+    { key: "QR", icon: getImgUrl("scan.svg"), title: t("二维码") },
+    { key: "open", icon: getImgUrl("open.svg"), title: t("其他应用打开") },
+    { key: "ding", icon: getImgUrl("ding.svg"), title: t("屏幕贴图") },
+    { key: "record", icon: getImgUrl("record.svg"), title: t("录屏") },
+    { key: "long", icon: getImgUrl("long_clip.svg"), title: t("广截屏") },
+    {
+        key: "translate",
+        icon: getImgUrl("translate.svg"),
+        title: t("屏幕翻译"),
+    },
+    {
+        key: "editor",
+        icon: getImgUrl("super_edit.svg"),
+        title: t("高级图片编辑"),
+    },
+    { key: "copy", icon: getImgUrl("copy.svg"), title: t("复制") },
+    { key: "save", icon: getImgUrl("save.svg"), title: t("保存") },
+];
+
+function getToolsN(k: 功能) {
+    return (tools.find((i) => i.key === k) as (typeof tools)[0]).title;
+}
 
 const s: Partial<settingItem<SettingPath>> = {
     工具栏跟随: {
@@ -800,7 +835,262 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => xSwitch(),
     },
     // todo 清除数据
-    // todo 快捷键😱
+    "快捷键.自动识别.key": {
+        name: "自动识别",
+        el: () => hotkeyX("自动识别", "快捷键"),
+    },
+    "快捷键.截屏搜索.key": {
+        name: "截屏搜索",
+        el: () => hotkeyX("截屏搜索", "快捷键"),
+    },
+    "快捷键.选中搜索.key": {
+        name: "选中搜索",
+        el: () => hotkeyX("选中搜索", "快捷键"),
+    },
+    "快捷键.剪贴板搜索.key": {
+        name: "剪贴板搜索",
+        el: () => hotkeyX("剪贴板搜索", "快捷键"),
+    },
+    "快捷键.快速截屏.key": {
+        name: "快速截屏",
+        el: () => hotkeyX("快速截屏", "快捷键"),
+    },
+    "快捷键.连拍.key": {
+        name: "连拍",
+        el: () => hotkeyX("连拍", "快捷键"),
+    },
+    "快捷键.结束广截屏.key": {
+        name: "结束广截屏",
+        el: () => hotkeyX("结束广截屏", "快捷键"),
+    },
+    "快捷键.剪贴板贴图.key": {
+        name: "剪贴板贴图",
+        el: () => hotkeyX("剪贴板贴图", "快捷键"),
+    },
+    "快捷键.主页面.key": {
+        name: "主页面",
+        el: () => hotkeyX("主页面", "快捷键"),
+    },
+    "全局工具快捷键.ocr": {
+        name: getToolsN("ocr"),
+        el: () => hotkeyX("ocr", "快捷键2", "ocr"),
+    },
+    "全局工具快捷键.search": {
+        name: getToolsN("search"),
+        el: () => hotkeyX("search", "快捷键2", "search"),
+    },
+    "全局工具快捷键.QR": {
+        name: getToolsN("QR"),
+        el: () => hotkeyX("QR", "快捷键2", "scan"),
+    },
+    "全局工具快捷键.open": {
+        name: getToolsN("open"),
+        el: () => hotkeyX("open", "快捷键2", "open"),
+    },
+    "全局工具快捷键.ding": {
+        name: getToolsN("ding"),
+        el: () => hotkeyX("ding", "快捷键2", "ding"),
+    },
+    "全局工具快捷键.record": {
+        name: getToolsN("record"),
+        el: () => hotkeyX("record", "快捷键2", "record"),
+    },
+    "全局工具快捷键.long": {
+        name: getToolsN("long"),
+        el: () => hotkeyX("long", "快捷键2", "long_clip"),
+    },
+    "全局工具快捷键.copy": {
+        name: getToolsN("copy"),
+        el: () => hotkeyX("copy", "快捷键2", "copy"),
+    },
+    "全局工具快捷键.save": {
+        name: getToolsN("save"),
+        el: () => hotkeyX("save", "快捷键2", "save"),
+    },
+    "全局工具快捷键.translate": {
+        name: getToolsN("translate"),
+        el: () => hotkeyX("translate", "快捷键2", "translate"),
+    },
+    "全局工具快捷键.editor": {
+        name: getToolsN("editor"),
+        el: () => hotkeyX("editor", "快捷键2", "super_edit"),
+    },
+    "工具快捷键.close": {
+        name: getToolsN("close"),
+        el: () => hotkeyP("close"),
+    },
+    "工具快捷键.ocr": {
+        name: getToolsN("ocr"),
+        el: () => hotkeyP("ocr"),
+    },
+    "工具快捷键.search": {
+        name: getToolsN("search"),
+        el: () => hotkeyP("search"),
+    },
+    "工具快捷键.QR": {
+        name: getToolsN("QR"),
+        el: () => hotkeyP("scan"),
+    },
+    "工具快捷键.open": {
+        name: getToolsN("open"),
+        el: () => hotkeyP("open"),
+    },
+    "工具快捷键.ding": {
+        name: getToolsN("ding"),
+        el: () => hotkeyP("ding"),
+    },
+    "工具快捷键.record": {
+        name: getToolsN("record"),
+        el: () => hotkeyP("record"),
+    },
+    "工具快捷键.long": {
+        name: getToolsN("long"),
+        el: () => hotkeyP("long_clip"),
+    },
+    "工具快捷键.copy": {
+        name: getToolsN("copy"),
+        el: () => hotkeyP("copy"),
+    },
+    "工具快捷键.save": {
+        name: getToolsN("save"),
+        el: () => hotkeyP("save"),
+    },
+    "工具快捷键.translate": {
+        name: getToolsN("translate"),
+        el: () => hotkeyP("translate"),
+    },
+    "工具快捷键.editor": {
+        name: getToolsN("editor"),
+        el: () => hotkeyP("super_edit"),
+    },
+    "截屏编辑快捷键.select.键": {
+        name: "选择与控制",
+        el: () => hotkeyP("rect_select"),
+    },
+    "截屏编辑快捷键.draw.键": {
+        name: "自由绘画",
+        el: () => hotkeyP("free_draw"),
+    },
+    "截屏编辑快捷键.shape.键": {
+        name: "形状和文字",
+        el: () => hotkeyP("shapes"),
+    },
+    "截屏编辑快捷键.filter.键": {
+        name: "滤镜",
+        el: () => hotkeyP("filters"),
+    },
+    "截屏编辑快捷键.select.副.rect": {
+        name: "矩形框选",
+        el: () => hotkeyP("rect_select"),
+    },
+    "截屏编辑快捷键.select.副.free": {
+        name: "自由框选",
+        el: () => hotkeyP("free_select"),
+    },
+    "截屏编辑快捷键.select.副.draw": {
+        name: "绘制",
+        el: () => hotkeyP("draw_select"),
+    },
+    "截屏编辑快捷键.draw.副.free": {
+        name: "画笔",
+        el: () => hotkeyP("draw"),
+    },
+    "截屏编辑快捷键.draw.副.eraser": {
+        name: "橡皮",
+        el: () => hotkeyP("eraser"),
+    },
+    // "截屏编辑快捷键.draw.副.spary": {
+    //     name: "喷刷",
+    //     el: () => hotkeyP(),
+    // },
+    "截屏编辑快捷键.shape.副.line": {
+        name: "线条",
+        el: () => hotkeyP("line"),
+    },
+    "截屏编辑快捷键.shape.副.circle": {
+        name: "圆",
+        el: () => hotkeyP("circle"),
+    },
+    "截屏编辑快捷键.shape.副.rect": {
+        name: "矩形",
+        el: () => hotkeyP("rect"),
+    },
+    "截屏编辑快捷键.shape.副.polyline": {
+        name: "折线",
+        el: () => hotkeyP("polyline"),
+    },
+    "截屏编辑快捷键.shape.副.polygon": {
+        name: "多边形",
+        el: () => hotkeyP("polygon"),
+    },
+    "截屏编辑快捷键.shape.副.text": {
+        name: "文字",
+        el: () => hotkeyP("text"),
+    },
+    "截屏编辑快捷键.shape.副.number": {
+        name: "序号",
+        el: () => hotkeyP("number"),
+    },
+    "截屏编辑快捷键.shape.副.arrow": {
+        name: "箭头",
+        el: () => hotkeyP("arrow"),
+    },
+    "大小栏快捷键.左上x": {
+        name: "左上x",
+        el: () => hotkeyP(),
+    },
+    "大小栏快捷键.左上y": {
+        name: "左上y",
+        el: () => hotkeyP(),
+    },
+    "大小栏快捷键.右下x": {
+        name: "右下x",
+        el: () => hotkeyP(),
+    },
+    "大小栏快捷键.右下y": {
+        name: "右下y",
+        el: () => hotkeyP(),
+    },
+    "大小栏快捷键.宽": {
+        name: "宽",
+        el: () => hotkeyP(),
+    },
+    "大小栏快捷键.高": {
+        name: "高",
+        el: () => hotkeyP(),
+    },
+    "其他快捷键.复制颜色": {
+        name: "复制颜色",
+        el: () => hotkeyP(),
+    },
+    "其他快捷键.隐藏或显示栏": {
+        name: "显示/隐藏工具栏、绘制栏",
+        el: () => hotkeyP(),
+    },
+    "主页面快捷键.搜索": {
+        name: "搜索",
+        el: () => hotkeyP("search"),
+    },
+    "主页面快捷键.翻译": {
+        name: "翻译",
+        el: () => hotkeyP("translate"),
+    },
+    "主页面快捷键.打开链接": {
+        name: "打开链接",
+        el: () => hotkeyP("link"),
+    },
+    "主页面快捷键.删除换行": {
+        name: "删除换行",
+        el: () => hotkeyP("delete_enter"),
+    },
+    "主页面快捷键.图片区": {
+        name: "图片区",
+        el: () => hotkeyP("img"),
+    },
+    "主页面快捷键.关闭": {
+        name: "关闭",
+        el: () => hotkeyP("close"),
+    },
     // todo auto start
     启动提示: {
         name: "启动提示",
@@ -1095,7 +1385,7 @@ const main: {
     pageName: string;
     settings?: SettingPath[];
     desc?: string;
-    items?: { title: string; settings: SettingPath[] }[];
+    items?: { title: string; desc?: string; settings: SettingPath[] }[];
 }[] = [
     {
         pageName: "截屏",
@@ -1339,6 +1629,122 @@ const main: {
         ],
     },
     {
+        pageName: "快捷键",
+        items: [
+            {
+                title: "全局功能",
+                settings: [
+                    "快捷键.自动识别.key",
+                    "快捷键.截屏搜索.key",
+                    "快捷键.选中搜索.key",
+                    "快捷键.剪贴板搜索.key",
+                    "快捷键.快速截屏.key",
+                    "快捷键.连拍.key",
+                    "快捷键.结束广截屏.key",
+                    "快捷键.剪贴板贴图.key",
+                    "快捷键.主页面.key",
+                ],
+            },
+            {
+                title: "截屏工具栏",
+                settings: [
+                    "工具快捷键.close",
+                    "工具快捷键.ocr",
+                    "工具快捷键.search",
+                    "工具快捷键.QR",
+                    "工具快捷键.open",
+                    "工具快捷键.ding",
+                    "工具快捷键.record",
+                    "工具快捷键.long",
+                    "工具快捷键.copy",
+                    "工具快捷键.save",
+                    "工具快捷键.translate",
+                    "工具快捷键.editor",
+                ],
+            },
+            {
+                title: "截屏编辑栏",
+                settings: [
+                    "截屏编辑快捷键.select.键",
+                    "截屏编辑快捷键.draw.键",
+                    "截屏编辑快捷键.shape.键",
+                    "截屏编辑快捷键.filter.键",
+                ],
+            },
+            {
+                title: "截屏选择与控制",
+                settings: [
+                    "截屏编辑快捷键.select.副.rect",
+                    "截屏编辑快捷键.select.副.free",
+                    "截屏编辑快捷键.select.副.draw",
+                ],
+            },
+            {
+                title: "截屏自由绘画",
+                settings: [
+                    "截屏编辑快捷键.draw.副.free",
+                    "截屏编辑快捷键.draw.副.eraser",
+                ],
+            },
+            {
+                title: "截屏形状和文字",
+                settings: [
+                    "截屏编辑快捷键.shape.副.line",
+                    "截屏编辑快捷键.shape.副.circle",
+                    "截屏编辑快捷键.shape.副.rect",
+                    "截屏编辑快捷键.shape.副.polyline",
+                    "截屏编辑快捷键.shape.副.polygon",
+                    "截屏编辑快捷键.shape.副.text",
+                    "截屏编辑快捷键.shape.副.number",
+                    "截屏编辑快捷键.shape.副.arrow",
+                ],
+            },
+            {
+                title: "截屏大小栏",
+                settings: [
+                    "大小栏快捷键.左上x",
+                    "大小栏快捷键.左上y",
+                    "大小栏快捷键.右下x",
+                    "大小栏快捷键.右下y",
+                    "大小栏快捷键.宽",
+                    "大小栏快捷键.高",
+                ],
+            },
+            {
+                title: "截屏其他",
+                settings: ["其他快捷键.复制颜色", "其他快捷键.隐藏或显示栏"],
+            },
+            {
+                title: "框选后默认操作",
+                desc: "与工具栏快捷键不同，此快捷键全局生效",
+                settings: [
+                    "全局工具快捷键.ocr",
+                    "全局工具快捷键.search",
+                    "全局工具快捷键.QR",
+                    "全局工具快捷键.open",
+                    "全局工具快捷键.ding",
+                    "全局工具快捷键.record",
+                    "全局工具快捷键.long",
+                    "全局工具快捷键.copy",
+                    "全局工具快捷键.save",
+                    "全局工具快捷键.translate",
+                    "全局工具快捷键.editor",
+                ],
+            },
+            {
+                title: "主页面",
+                settings: [
+                    "主页面快捷键.搜索",
+                    "主页面快捷键.翻译",
+                    "主页面快捷键.打开链接",
+                    "主页面快捷键.删除换行",
+                    "主页面快捷键.图片区",
+                    "主页面快捷键.关闭",
+                ],
+            },
+        ],
+    },
+    {
         pageName: "全局",
         items: [
             { title: "启动", settings: ["启动提示"] },
@@ -1395,7 +1801,6 @@ const main: {
             { title: "开发者模式", settings: ["dev"] },
         ],
     },
-    // 关于
 ];
 
 const sKeys = new Set(Object.keys(s));
@@ -1426,30 +1831,6 @@ const bind: { [k in SettingPath]?: SettingPath[] } = {
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
     return store.get(k);
 }
-
-const tools: { key: 功能; icon: string; title: string }[] = [
-    { key: "close", icon: getImgUrl("close.svg"), title: t("关闭") },
-    { key: "screens", icon: getImgUrl("screen.svg"), title: t("屏幕管理") },
-    { key: "ocr", icon: getImgUrl("ocr.svg"), title: t("文字识别") },
-    { key: "search", icon: getImgUrl("search.svg"), title: t("以图搜图") },
-    { key: "QR", icon: getImgUrl("scan.svg"), title: t("二维码") },
-    { key: "open", icon: getImgUrl("open.svg"), title: t("其他应用打开") },
-    { key: "ding", icon: getImgUrl("ding.svg"), title: t("屏幕贴图") },
-    { key: "record", icon: getImgUrl("record.svg"), title: t("录屏") },
-    { key: "long", icon: getImgUrl("long_clip.svg"), title: t("广截屏") },
-    {
-        key: "translate",
-        icon: getImgUrl("translate.svg"),
-        title: t("屏幕翻译"),
-    },
-    {
-        key: "editor",
-        icon: getImgUrl("super_edit.svg"),
-        title: t("高级图片编辑"),
-    },
-    { key: "copy", icon: getImgUrl("copy.svg"), title: t("复制") },
-    { key: "save", icon: getImgUrl("save.svg"), title: t("保存") },
-];
 
 const themes: setting["全局"]["主题"][] = [
     {
@@ -1565,6 +1946,7 @@ function tIconEl(img: string) {
     return image(img, "icon").class("icon");
 }
 
+// @auto-path:../assets/icons/$.svg
 function iconEl(img: string) {
     return image(getImgUrl(`${img}.svg`), "icon").class("icon");
 }
@@ -2238,6 +2620,114 @@ function searchEngineDialog(
     return promise;
 }
 
+function hotkey() {
+    const isMac = process.platform === "darwin";
+    const keyList = new Set<string>();
+    let mainKey = "";
+    let typing = 0;
+    let isFocus = false;
+    function cvalue(l: string[]) {
+        const nl = l
+            .filter((i) => i !== "")
+            .map((k) => {
+                const key = jsKeyCodeDisplay(ele2jsKeyCode(k));
+                return isMac ? (key.symble ?? key.primary) : key.primary;
+            });
+        nl.length
+            ? i.clear().add(nl.map((i) => view().add(i)))
+            : i.clear().add("点击录入");
+        mainKey = l.join("+");
+    }
+
+    function ev() {
+        el.el.dispatchEvent(new CustomEvent("input"));
+    }
+    const el = view("x");
+    const i = view("x")
+        .style({
+            background: "var(--m-color2)",
+            alignItems: "center",
+            gap: "var(--o-padding)",
+            borderRadius: "var(--border-radius)",
+            paddingInline: "var(--o-padding)",
+            cursor: "pointer",
+        })
+        .attr({ tabIndex: 0 })
+        .on("focus", () => {
+            isFocus = true;
+            i.clear().add("按下快捷键");
+        })
+        .on("blur", () => {
+            isFocus = false;
+            cvalue((mainKey ?? "").split("+"));
+        })
+        .on("keydown", (e) => {
+            if (!isFocus) return;
+            e.preventDefault();
+            if (typing === 0) {
+                i.clear();
+                keyList.clear();
+                ev();
+            }
+            typing++;
+
+            const key = jsKey2ele(macKeyFomat(e.key));
+            if (!keyList.has(key)) keyList.add(key);
+            cvalue(Array.from(keyList));
+        })
+        .on("keyup", (e) => {
+            e.preventDefault();
+            const key = jsKey2ele(macKeyFomat(e.key));
+            if (!keyList.has(key)) {
+                // 针对 PrintScreen 这样的只在keyup触发的按键
+                keyList.add(key);
+                cvalue(Array.from(keyList));
+            } else {
+                typing--;
+            }
+            if (typing === 0) {
+                ev();
+            }
+        });
+    const b = button(iconEl("delete")).on("click", () => {
+        i.clear();
+        mainKey = "";
+        keyList.clear();
+        ev();
+    });
+    return el
+        .add([i, b])
+        .bindSet((v: string) => cvalue((v ?? "").split("+")))
+        .bindGet(() => mainKey);
+}
+
+// @auto-path:../assets/icons/$.svg
+function hotkeyP(icon = "") {
+    const h = hotkey();
+    const el = view("x")
+        .add([icon ? view().add(iconEl(icon)) : "", h])
+        .bindGet(() => h.gv)
+        .bindSet((v: string) => h.sv(v));
+    h.on("input", () => el.el.dispatchEvent(new CustomEvent("input")));
+    return el;
+}
+function hotkeyX(name: string, p: "快捷键" | "快捷键2", icon = "") {
+    const h = hotkey();
+    const el = view("x")
+        .add([icon ? view().add(iconEl(icon)) : "", h])
+        .bindGet(() => h.gv)
+        .bindSet((v: string) => h.sv(v));
+    h.on("input", () => {
+        const arg = ipcRenderer.sendSync("setting", p, [name, h.gv]);
+        if (arg) {
+        } else {
+            h.sv("");
+        }
+        el.el.dispatchEvent(new CustomEvent("input"));
+    });
+    return el;
+}
+
 function getLansName(l: string[]) {
     const lansName = l.map((i) => ({
         text: i === "auto" ? t("自动") : (displayLan.of(i) ?? i),
@@ -2267,6 +2757,7 @@ function showPage(page: (typeof main)[0]) {
     if (page.items) {
         for (const item of page.items) {
             mainView.add(ele("h2").add(noI18n(item.title)));
+            if (item.desc) mainView.add(comment(item.desc));
             for (const setting of item.settings) {
                 mainView.add(renderSetting(setting));
             }

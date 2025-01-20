@@ -1664,12 +1664,9 @@ ipcMain.on("setting", async (event, arg, arg1) => {
                         快捷键函数[arg1[0]]();
                     });
                 }
-                // key为空或成功注册时保存，否则存为空
-                store.set(`快捷键.${name}.key`, key === "" || ok ? key : "");
                 event.returnValue = key ? ok : true;
             } catch (error) {
                 event.returnValue = false;
-                store.set(`快捷键.${name}.key`, "");
             }
             break;
         }
@@ -1687,14 +1684,9 @@ ipcMain.on("setting", async (event, arg, arg1) => {
                         sendCaptureEvent(undefined, name as 功能);
                     });
                 }
-                store.set(
-                    `全局工具快捷键.${name}`,
-                    key === "" || ok ? key : "",
-                );
                 event.returnValue = ok;
             } catch (error) {
                 event.returnValue = false;
-                store.set(`全局工具快捷键.${name}`, "");
             }
             break;
         }
