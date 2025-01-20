@@ -312,7 +312,7 @@ const segEl = view()
         ),
     );
 const cameraSelect = dynamicSelect();
-cEl.add(cameraSelect.el);
+cEl.class("small-size").add(cameraSelect.el.style({ display: "none" }));
 cameraSelect.el.on("change", async () => {
     const id = cameraSelect.el.gv;
     cameraStreamF(id);
@@ -337,7 +337,12 @@ const controlBar = view("x")
     .class("bar")
     .add([stop, pause, timeEl])
     .addInto()
-    .style({ position: "fixed", bottom: 0, right: 0 });
+    .style({
+        position: "fixed",
+        bottom: 0,
+        right: 0,
+        borderRadius: "var(--o-padding)",
+    });
 
 initRecord();
 

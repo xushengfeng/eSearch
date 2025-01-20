@@ -1385,8 +1385,6 @@ function createRecorderWindow(
     rendererPath(recorder, "recorder.html");
     if (dev) recorder.webContents.openDevTools();
 
-    recorder.setAlwaysOnTop(true, "screen-saver");
-
     recorder.on("close", () => {
         store.set("录屏.大小.x", recorder.getBounds().x);
         store.set("录屏.大小.y", recorder.getBounds().y);

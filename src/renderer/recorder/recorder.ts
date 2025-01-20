@@ -248,11 +248,17 @@ const settingEl = view("y")
     })
     .add([
         startStop,
-        view("x")
-            .style({ alignItems: "center" })
-            .add([t("格式"), 格式El.el]),
-        view().add([t("选择输入音频"), micList]),
-        label([cameraEl, iconEl("camera")]),
+        view("y")
+            .add([
+                view("x")
+                    .style({ alignItems: "center" })
+                    .add([t("格式"), 格式El.el]),
+                view("y").add([t("选择输入音频"), micList]),
+                view("y").add([t("摄像头"), label([cameraEl, t("开启")])]),
+            ])
+            .style({
+                gap: "var(--o-padding)",
+            }),
     ])
     .addInto();
 
