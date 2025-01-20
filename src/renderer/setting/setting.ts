@@ -18,11 +18,27 @@ import {
     noI18n,
     pack,
     addClass,
+    textarea,
+    a,
+    select,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
-import { t, lan } from "../../../lib/translate/translate";
+import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
 const { ipcRenderer } = require("electron") as typeof import("electron");
+const path = require("node:path") as typeof import("path");
+import Sortable from "sortablejs";
+
+import logo from "../assets/icon.svg";
+
+import translator, { matchFitLan } from "xtranslator";
+
+import { hexToCSSFilter } from "hex-to-css-filter";
+
+import _package from "../../../package.json?raw";
+const packageJson = JSON.parse(_package);
+
+type Engines = keyof typeof translator.e;
 
 type settingItem<t extends SettingPath> = {
     [key in t]: {
@@ -31,6 +47,11 @@ type settingItem<t extends SettingPath> = {
         el: (value: GetValue<setting, key>) => ElType<HTMLElement>;
     };
 };
+
+const mainLan = store.get("语言.语言");
+const displayLan = new Intl.DisplayNames(mainLan, {
+    type: "language",
+});
 
 const s: Partial<settingItem<SettingPath>> = {
     工具栏跟随: {
@@ -49,7 +70,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "图标比例",
         el: () => xRange({ min: 0.01, max: 1, step: 0.01 }),
     },
-    // todo 排序
+    "工具栏.功能": {
+        name: "按钮显示和排序",
+        el: () => sortTool(),
+    },
     "工具栏.初始位置": {
         name: "工具栏位置",
         el: (v) => {
@@ -147,7 +171,7 @@ const s: Partial<settingItem<SettingPath>> = {
                         .filter((i) => i.key !== "close" && i.key !== "screens")
                         .map((i) => ({
                             value: i.key,
-                            name: iconEl(i.icon).style({
+                            name: tIconEl(i.icon).style({
                                 width: "24px",
                                 position: "initial",
                             }),
@@ -161,7 +185,14 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "使用OpenCV自动识别边缘轮廓",
         el: () => xSwitch(),
     },
-    // todo 边缘识别高级设置
+    "框选.自动框选.最小阈值": {
+        name: "最小阈值",
+        el: () => xRange({ min: 0, max: 255 }),
+    },
+    "框选.自动框选.最大阈值": {
+        name: "最大阈值",
+        el: () => xRange({ min: 0, max: 255 }),
+    },
     "框选.记忆.开启": {
         name: "记住框选大小",
         desc: "开启后默认不启用自动框选",
@@ -292,6 +323,21 @@ const s: Partial<settingItem<SettingPath>> = {
     "图像编辑.arrow.h": {
         name: "箭头宽度",
         el: () => xRange({ min: 0, max: 50, text: "px" }),
+    },
+    "OCR.类型": {
+        name: "OCR类型",
+        el: () =>
+            xSelect(
+                [
+                    ...getSet("离线OCR").map((i) => ({
+                        value: i[0],
+                        name: i[0],
+                    })),
+                    { value: "youdao", name: "有道" },
+                    { value: "baidu", name: "百度" },
+                ],
+                "OCR类型",
+            ),
     },
     "OCR.离线切换": {
         name: "OCR离线切换",
@@ -544,20 +590,121 @@ const s: Partial<settingItem<SettingPath>> = {
                 "设定双击窗口行为",
             ),
     },
-    // todo 窗口变换
+    "贴图.窗口.变换": {
+        name: "窗口变换",
+        desc: "变换使用 CSS 代码",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => v.split("\n").at(0) ?? "",
+                (v, m) => {
+                    const { promise, resolve } =
+                        Promise.withResolvers<typeof v>();
+
+                    function setStyle() {
+                        const style = t.gv;
+                        preview.el.setAttribute("style", style);
+                    }
+
+                    const t = textarea()
+                        .sv(v ?? "")
+                        .on("input", () => {
+                            setStyle();
+                        });
+                    const preview = view().add(
+                        image(logo, "logo").style({ width: "200px" }),
+                    );
+
+                    m.add([
+                        t,
+                        preview,
+                        button("关闭").on("click", () => {
+                            resolve(null);
+                            m.el.close();
+                        }),
+                        button("完成").on("click", () => {
+                            resolve(t.gv);
+                            m.el.close();
+                        }),
+                    ]);
+                    setStyle();
+
+                    return promise;
+                },
+            ),
+    },
     "贴图.窗口.提示": {
         name: "提示",
         desc: "使用阴影提示贴图窗口",
         el: () => xSwitch(),
     },
-    // todo 翻译引擎选择与编辑
-    // todo 翻译语言
+    "翻译.翻译器": {
+        name: "翻译引擎",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => v.name,
+                // @ts-ignore
+                (el, d) => translatorD(el, d),
+            ),
+    },
+    "屏幕翻译.语言.from": {
+        name: "屏幕翻译语言来源",
+        el: () => {
+            const firstItem = getSet("翻译.翻译器").at(0);
+            const e = translator.e[firstItem?.type ?? ""];
+            if (!e) return select([]);
+            const list = select(
+                getLansName(e.lan).map((i) => ({
+                    value: i.lan,
+                    name: noI18n(i.text),
+                })),
+            );
+            return list;
+        },
+    },
+    "屏幕翻译.语言.to": {
+        name: "屏幕翻译语言目标",
+        el: () => {
+            const firstItem = getSet("翻译.翻译器").at(0);
+            const e = translator.e[firstItem?.type ?? ""];
+            if (!e) return select([]);
+            const list = select(
+                getLansName(e.targetLan).map((i) => ({
+                    value: i.lan,
+                    name: noI18n(i.text),
+                })),
+            );
+            return list;
+        },
+    },
     "屏幕翻译.dTime": {
         name: "自动屏幕翻译定时",
         el: () => xNumber("ms"),
     },
-    // todo 生词本
-    // todo 移除记住字体大小
+    "翻译.收藏.文件": {
+        name: "文件生词本",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => path.basename(v.path),
+                (el, d) => w文件生词本Dialog(el, d),
+            ),
+    },
+    "翻译.收藏.fetch": {
+        name: "在线生词本",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => v.name || new URL(v.url).host,
+                (el, d) => z在线生词本Dialog(el, d),
+            ),
+    },
+    // todo 记住字体大小类型
+    "字体.大小": {
+        name: "字体大小",
+        el: () => xRange({ min: 1, max: 100 }),
+    },
+    "字体.记住": {
+        name: "记住主页面字体大小",
+        el: () => xSwitch(),
+    },
     "编辑器.自动换行": {
         name: "自动换行",
         el: () => xSwitch(),
@@ -614,7 +761,22 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要", // todo 用语言库 区分母语
         el: () => xRange({ min: 0.002, max: 1, step: 0.01 }),
     },
-    // todo 搜索引擎与翻译引擎
+    "引擎.搜索": {
+        name: "搜索引擎",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => v.name,
+                (_v, d) => searchEngineDialog(_v, d),
+            ),
+    },
+    "引擎.翻译": {
+        name: "翻译引擎",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => v.name,
+                (_v, d) => searchEngineDialog(_v, d),
+            ),
+    },
     // todo 移除识图引擎
     浏览器中打开: {
         name: "浏览器中打开",
@@ -644,15 +806,149 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "将通过系统通知提示启动",
         el: () => xSwitch(),
     },
-    // todo 语言
-    // todo 自动搜索排除
+    "语言.语言": {
+        name: "语言",
+        el: () => {
+            let lans: string[] = getLans();
+            const systemLan = ipcRenderer.sendSync("app", "systemLan");
+            // 提前系统语言
+            lans = [systemLan].concat(lans.filter((v) => v !== systemLan));
+            const el = view();
+            const b = button()
+                .style({ display: "none" })
+                .on("click", () => {
+                    ipcRenderer.send("setting", "reload");
+                });
+            const list = xSelect(
+                lans.map((i) => ({ value: i, name: getLanName(i) })), // todo noi18n
+                "语言",
+            ).on("input", () => {
+                lan(list.gv);
+                b.style({ display: "" }).el.innerText = t("重启软件以生效");
+                el.el.dispatchEvent(new CustomEvent("input"));
+            });
+            return el
+                .add([b, list])
+                .bindGet(() => list.gv)
+                .bindSet((v) => list.sv(v));
+        },
+    },
+    "主搜索功能.自动搜索排除": {
+        name: "自动搜索排除",
+        desc: "若选中的文字符合文本框的规则，将使用截屏搜索而不是选择搜索",
+        el: (_v) =>
+            textarea()
+                .bindGet((el) => el.value.split("\n").filter((i) => i !== ""))
+                .bindSet((v: typeof _v, el) => {
+                    el.value = v.join("\n");
+                }),
+    },
     "主搜索功能.剪贴板选区搜索": {
         name: "剪贴板选区搜索",
         desc: "使用选区内容",
         el: () => xSwitch(),
     },
-    // todo 主题
-    // todo 模糊和透明
+    "全局.主题": {
+        name: "主题色",
+        el: () => {
+            function change() {
+                el.el.dispatchEvent(new CustomEvent("input"));
+                function setCSSVar(name: string, value: string) {
+                    if (value)
+                        document.documentElement.style.setProperty(name, value);
+                }
+                const theme = el.gv;
+                setCSSVar("--bar-bg0", theme.light.barbg);
+                setCSSVar("--bg", theme.light.bg);
+                setCSSVar("--hover-color", theme.light.emphasis);
+                setCSSVar("--d-bar-bg0", theme.dark.barbg);
+                setCSSVar("--d-bg", theme.dark.bg);
+                setCSSVar("--d-hover-color", theme.dark.emphasis);
+                setCSSVar("--font-color", theme.light.fontColor);
+                setCSSVar("--d-font-color", theme.dark.fontColor);
+                setCSSVar("--icon-color", theme.light.iconColor);
+                setCSSVar("--d-icon-color", theme.dark.iconColor);
+            }
+            const themeSelect = view("x").add(
+                themes.map((i) =>
+                    button()
+                        .style({
+                            width: "var(--base-size2)",
+                            height: "var(--base-size2)",
+                            backgroundColor: `light-dark(${i.light.emphasis}, ${i.dark.emphasis})`,
+                        })
+                        .on("click", () => {
+                            el.sv(i);
+                            change();
+                        }),
+                ),
+            );
+            const emL = xColor();
+            const emD = xColor();
+            const brL = xColor();
+            const brD = xColor();
+            const bL = xColor();
+            const bD = xColor();
+            const fL = xColor();
+            const fD = xColor();
+            type Theme = setting["全局"]["主题"];
+            const el = view()
+                .add([
+                    view().add([
+                        view().add(["强调色", view().add([emL, emD])]),
+                        view().add(["透明背景", view().add([brL, brD])]),
+                        view().add(["普通背景", view().add([bL, bD])]),
+                        view().add(["文字和图标颜色", view().add([fL, fD])]),
+                    ]),
+                    themeSelect,
+                ])
+                .bindGet(() => {
+                    const x = {
+                        light: {
+                            emphasis: emL.gv,
+                            barbg: brL.gv,
+                            bg: bL.gv,
+                            fontColor: fL.gv,
+                            iconColor: "",
+                        },
+                        dark: {
+                            emphasis: emD.gv,
+                            barbg: brD.gv,
+                            bg: bD.gv,
+                            fontColor: fD.gv,
+                            iconColor: "",
+                        },
+                    } as Theme;
+                    x.light.iconColor = getIconColor(x.light.fontColor);
+                    x.dark.iconColor = getIconColor(x.dark.fontColor);
+                    return x;
+                })
+                .bindSet((v: Theme) => {
+                    emL.sv(v.light.emphasis);
+                    emD.sv(v.dark.emphasis);
+                    brL.sv(v.light.barbg);
+                    brD.sv(v.dark.barbg);
+                    bL.sv(v.light.bg);
+                    bD.sv(v.dark.bg);
+                    fL.sv(v.light.fontColor);
+                    fD.sv(v.dark.fontColor);
+                });
+
+            for (const i of [emL, emD, brL, brD, bL, bD, fL, fD]) {
+                i.on("input", () => change());
+            }
+
+            return el;
+        },
+    },
+    "全局.模糊": {
+        name: "模糊",
+        el: () => xRange({ min: 0, max: 50, text: "px" }),
+    },
+    "全局.不透明度": {
+        name: "不透明度",
+        el: () => xRange({ min: 0, max: 1, step: 0.05 }),
+    },
     "全局.深色模式": {
         name: "深色模式",
         el: (v) =>
@@ -663,7 +959,9 @@ const s: Partial<settingItem<SettingPath>> = {
                     { value: "dark", name: "深色" },
                 ],
                 "深色模式",
-            ),
+            ).on("input", (_, el) => {
+                ipcRenderer.send("setting", "theme", el.gv);
+            }),
     },
     "全局.缩放": {
         name: "全局缩放",
@@ -698,7 +996,40 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "PAC URL",
         el: () => input(), // todo 跟随上面设置
     },
-    // todo rule
+    "代理.proxyRules": {
+        name: "规则",
+        el: () => {
+            const els = {
+                http: label([input(), noI18n("HTTP")], 1),
+                https: label([input(), noI18n("HTTPS")], 1),
+                ftp: label([input(), noI18n("FTP")], 1),
+                socks: label([input(), noI18n("SOCKS")], 1),
+            } as const;
+
+            const el = view("y")
+                .add(Object.values(els))
+                .bindGet(() => {
+                    return Object.entries(els)
+                        .flatMap(([k, el]) => (el.gv ? `${k}=${el.gv}` : []))
+                        .join(";");
+                })
+                .bindSet((v: string) => {
+                    for (const rule of v.split(";")) {
+                        for (const [x, el] of Object.entries(els)) {
+                            if (rule.includes(`${x}=`)) {
+                                el.sv(rule.replace(`${x}=`, ""));
+                            }
+                        }
+                    }
+                });
+            for (const e of Object.values(els)) {
+                e.on("input", () =>
+                    el.el.dispatchEvent(new CustomEvent("input")),
+                );
+            }
+            return el;
+        },
+    },
     "代理.proxyBypassRules": {
         name: "排除规则",
         el: () => input(),
@@ -775,6 +1106,7 @@ const main: {
                     "工具栏跟随",
                     "工具栏.按钮大小",
                     "工具栏.按钮图标比例",
+                    "工具栏.功能",
                     "工具栏.初始位置",
                     "工具栏.稍后出现",
                 ],
@@ -796,6 +1128,8 @@ const main: {
                     "显示四角坐标",
                     "框选后默认操作",
                     "框选.自动框选.图像识别",
+                    "框选.自动框选.最小阈值",
+                    "框选.自动框选.最大阈值",
                     "框选.记忆.开启",
                     "框选.参考线.选区",
                     "框选.颜色.选区参考线",
@@ -842,7 +1176,7 @@ const main: {
     },
     {
         pageName: "OCR",
-        settings: ["OCR.离线切换", "主页面.自动复制OCR"],
+        settings: ["OCR.类型", "OCR.离线切换", "主页面.自动复制OCR"],
         items: [
             { title: "离线OCR", settings: ["OCR.识别段落"] },
             {
@@ -935,13 +1269,26 @@ const main: {
             "保存.快速保存",
         ],
     },
-    { pageName: "贴图", settings: ["贴图.窗口.双击", "贴图.窗口.提示"] },
+    {
+        pageName: "贴图",
+        settings: ["贴图.窗口.双击", "贴图.窗口.变换", "贴图.窗口.提示"],
+    },
     {
         pageName: "翻译",
-        settings: [],
+        settings: ["翻译.翻译器"],
         items: [
-            { title: "屏幕翻译", settings: ["屏幕翻译.dTime"] },
-            { title: "生词本", settings: [] },
+            {
+                title: "屏幕翻译",
+                settings: [
+                    "屏幕翻译.语言.from",
+                    "屏幕翻译.语言.to",
+                    "屏幕翻译.dTime",
+                ],
+            },
+            {
+                title: "生词本",
+                settings: ["翻译.收藏.文件", "翻译.收藏.fetch"],
+            },
         ],
     },
     {
@@ -949,7 +1296,13 @@ const main: {
         items: [
             {
                 title: "编辑器",
-                settings: ["编辑器.自动换行", "编辑器.拼写检查", "编辑器.行号"],
+                settings: [
+                    "字体.大小",
+                    "字体.记住",
+                    "编辑器.自动换行",
+                    "编辑器.拼写检查",
+                    "编辑器.行号",
+                ],
             },
             {
                 title: "历史记录",
@@ -973,7 +1326,7 @@ const main: {
                 title: "自动",
                 settings: ["自动搜索", "自动打开链接", "自动搜索中文占比"],
             },
-            { title: "引擎", settings: [] },
+            { title: "引擎", settings: ["引擎.搜索", "引擎.翻译"] },
             {
                 title: "浏览",
                 settings: [
@@ -989,15 +1342,12 @@ const main: {
         pageName: "全局",
         items: [
             { title: "启动", settings: ["启动提示"] },
-            { title: "语言", settings: [] },
-            { title: "主搜索功能", settings: ["主搜索功能.剪贴板选区搜索"] },
+            { title: "语言", settings: ["语言.语言"] },
             {
-                title: "全局样式",
+                title: "主搜索功能",
                 settings: [
-                    "全局.深色模式",
-                    "全局.缩放",
-                    "字体.主要字体",
-                    "字体.等宽字体",
+                    "主搜索功能.自动搜索排除",
+                    "主搜索功能.剪贴板选区搜索",
                 ],
             },
             {
@@ -1005,15 +1355,34 @@ const main: {
                 settings: [
                     "代理.mode",
                     "代理.pacScript",
+                    "代理.proxyRules",
                     "代理.proxyBypassRules",
                 ],
             },
         ],
     },
     {
+        pageName: "样式",
+        settings: ["全局.缩放"],
+        items: [
+            {
+                title: "颜色",
+                settings: ["全局.主题", "全局.深色模式"],
+            },
+            {
+                title: "毛玻璃效果",
+                settings: ["全局.模糊", "全局.不透明度"],
+            },
+            {
+                title: "字体",
+                settings: ["字体.主要字体", "字体.等宽字体"],
+            },
+        ],
+    },
+    {
         pageName: "高级",
         items: [
-            { title: "高级设置", settings: [] },
+            { title: "高级设置", settings: ["硬件加速"] },
             {
                 title: "外部截屏器",
                 settings: ["额外截屏器.命令", "额外截屏器.位置"],
@@ -1050,6 +1419,14 @@ for (const p of main) {
 
 console.log("s-m", sKeys.difference(mKeys), "m-s", mKeys.difference(sKeys));
 
+const bind: { [k in SettingPath]?: SettingPath[] } = {
+    "翻译.翻译器": ["屏幕翻译.语言.from", "屏幕翻译.语言.to"],
+};
+
+function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
+    return store.get(k);
+}
+
 const tools: { key: 功能; icon: string; title: string }[] = [
     { key: "close", icon: getImgUrl("close.svg"), title: t("关闭") },
     { key: "screens", icon: getImgUrl("screen.svg"), title: t("屏幕管理") },
@@ -1072,6 +1449,57 @@ const tools: { key: 功能; icon: string; title: string }[] = [
     },
     { key: "copy", icon: getImgUrl("copy.svg"), title: t("复制") },
     { key: "save", icon: getImgUrl("save.svg"), title: t("保存") },
+];
+
+const themes: setting["全局"]["主题"][] = [
+    {
+        light: {
+            barbg: "#FFFFFF",
+            bg: "#FFFFFF",
+            emphasis: "#DFDFDF",
+            fontColor: "#000",
+            iconColor: "none",
+        },
+        dark: {
+            barbg: "#333333",
+            bg: "#000000",
+            emphasis: "#333333",
+            fontColor: "#fff",
+            iconColor: "invert(1)",
+        },
+    },
+    {
+        light: {
+            barbg: "#D7E3F8",
+            bg: "#FAFAFF",
+            emphasis: "#D7E3F8",
+            fontColor: "#1A1C1E",
+            iconColor: getIconColor("#1A1C1E"),
+        },
+        dark: {
+            barbg: "#3B4858",
+            bg: "#1A1C1E",
+            emphasis: "#3B4858",
+            fontColor: "#FAFAFF",
+            iconColor: getIconColor("#FAFAFF"),
+        },
+    },
+    {
+        light: {
+            barbg: "#D5E8CF",
+            bg: "#FCFDF6",
+            emphasis: "#D5E8CF",
+            fontColor: "#1A1C19",
+            iconColor: getIconColor("#1A1C19"),
+        },
+        dark: {
+            barbg: "#3B4B38",
+            bg: "#1A1C19",
+            emphasis: "#3B4B38",
+            fontColor: "#FCFDF6",
+            iconColor: getIconColor("#FCFDF6"),
+        },
+    },
 ];
 
 const xselectClass = addClass(
@@ -1105,17 +1533,40 @@ function renderSetting(settingPath: SettingPath) {
         // @ts-ignore
         .el(store.get(settingPath))
         .sv(store.get(settingPath))
-        .on("input", () => {
-            if (el.gv) {
-                store.set(settingPath, el.gv);
-                console.log(`Setting ${settingPath} updated to "${el.gv}"`);
+        .on("input", (e) => {
+            if (e.target === e.currentTarget) {
+                const value = el.gv;
+                if (value !== null && value !== undefined) {
+                    store.set(settingPath, value);
+                    console.log(
+                        `Setting ${settingPath} updated to`,
+                        structuredClone(value),
+                    );
+                    for (const p of bind[settingPath] ?? []) {
+                        reRenderSetting(p);
+                    }
+                }
             }
         });
-    return view().add([p(setting.name, true), comment(setting.desc || ""), el]);
+    return view()
+        .data({ name: settingPath })
+        .add([p(setting.name, true), comment(setting.desc || ""), el]);
+}
+
+function reRenderSetting(settingPath: SettingPath) {
+    const el = document.querySelector(`[data-name="${settingPath}"`);
+    if (!el) return;
+    console.log("rerender", settingPath);
+    const nel = renderSetting(settingPath);
+    if (nel) el.replaceWith(nel.el);
+}
+
+function tIconEl(img: string) {
+    return image(img, "icon").class("icon");
 }
 
 function iconEl(img: string) {
-    return image(img, "icon").class("icon");
+    return image(getImgUrl(`${img}.svg`), "icon").class("icon");
 }
 
 function comment(str: string) {
@@ -1138,11 +1589,14 @@ function xSelect<T extends string>(
 function xRange(
     op?: Partial<{ min: number; max: number; step: number; text: string }>,
 ) {
-    // todo 非整数时精度
     const min = op?.min ?? 0;
     const max = op?.max ?? 100;
     const step = op?.step ?? 1;
-    const p = Math.max(...[min, max, step].map((i) => Math.abs(Math.log10(i))));
+    const p = Math.max(
+        ...[min, max, step]
+            .map((i) => (i === 0 ? 1 : i < 0 ? Math.abs(i) : i))
+            .map((i) => Math.abs(Math.log10(i))),
+    );
     let value = min;
     function sv(v: number) {
         const nv = (Math.round((v - min) / step) * step + min).toFixed(p);
@@ -1215,12 +1669,15 @@ function xNumber(
 }
 
 function xSwitch(name = "启用") {
-    const i = input("checkbox");
-    return label([i, name])
+    const i = input("checkbox").on("input", () => {
+        el.el.dispatchEvent(new CustomEvent("input"));
+    });
+    const el = label([i, name])
         .bindGet(() => i.el.checked)
         .bindSet((v: boolean) => {
             i.el.checked = v;
         });
+    return el;
 }
 
 function xColor() {
@@ -1240,6 +1697,562 @@ function xSecret() {
             el.attr({ type: "password" });
         });
     return el;
+}
+
+function sortTool() {
+    const pel = view("x");
+    const toolShowEl = view().class("bar").style({
+        minWidth: "var(--b-button)",
+        minHeight: "var(--b-button)",
+    });
+    const toolHideEl = view().class("bar").style({
+        minWidth: "var(--b-button)",
+        minHeight: "var(--b-button)",
+    });
+    new Sortable(toolShowEl.el, {
+        group: "tools",
+        onChange: () => {
+            pel.el.dispatchEvent(new CustomEvent("input"));
+        },
+    });
+    new Sortable(toolHideEl.el, {
+        group: "tools",
+    });
+    pel.add([toolShowEl, view().add([view().add(iconEl("hide")), toolHideEl])]);
+    function getItems(v: string[]) {
+        return v.flatMap((i) => {
+            const x = tools.find((x) => x.key === i);
+            if (!x) {
+                console.log(`${i} is udf`);
+                return [];
+            }
+            return view().data({ n: i }).add(tIconEl(x.icon));
+        });
+    }
+    return pel
+        .bindGet(() => {
+            const l = toolShowEl
+                .queryAll("&>div")
+                .map((i) => i.el.getAttribute("data-n"));
+            return l;
+        })
+        .bindSet((v: string[]) => {
+            toolShowEl.clear().add(getItems(v));
+            toolHideEl
+                .clear()
+                .add(
+                    getItems(
+                        tools.map((i) => i.key).filter((i) => !v.includes(i)),
+                    ),
+                );
+        });
+}
+
+function sortList<t>(
+    name: (el: t) => string,
+    item: (
+        el: t | null,
+        dialog: ElType<HTMLDialogElement>,
+    ) => Promise<t | null>,
+) {
+    function onChange() {
+        el.el.dispatchEvent(new CustomEvent("input"));
+    }
+    const el = view();
+    const listEl = view("x", "wrap");
+    new Sortable(listEl.el, {
+        handle: ".sort_handle",
+        onEnd: () => {
+            onChange();
+        },
+    });
+    const newData: Map<string, { "sort-name": string; data: t }> = new Map();
+
+    function getItem(id: string | null) {
+        dialog.clear().el.showModal();
+        return item(id ? (newData.get(id)?.data ?? null) : null, dialog);
+    }
+
+    function addItem(id: string) {
+        const itemEl = view("x")
+            .style({ alignItems: "center" })
+            .data({ id: id });
+        const nameEl = txt(newData.get(id)?.["sort-name"] ?? "", true).on(
+            "click",
+            async () => {
+                const nv = await getItem(id);
+                const oldData = newData.get(id);
+                if (!nv || !oldData) return;
+                oldData.data = nv;
+                nameEl.sv(name(nv));
+                onChange();
+            },
+        );
+        const sortHandle = button().class("sort_handle").add(iconEl("handle"));
+        const rm = button()
+            .class("rm")
+            .add(iconEl("delete"))
+            .on("click", () => {
+                itemEl.remove();
+                onChange();
+            });
+        itemEl.add([sortHandle, nameEl, rm]);
+        listEl.add(itemEl);
+    }
+
+    const addBtn = button(iconEl("add")).on("click", async () => {
+        const nv = await getItem(null);
+        if (!nv) return;
+        const uid = crypto.randomUUID().slice(0, 7);
+        newData.set(uid, {
+            "sort-name": name(nv),
+            data: nv,
+        });
+        addItem(uid);
+        onChange();
+    });
+
+    const dialog = ele("dialog");
+
+    return el
+        .add([listEl, addBtn, dialog])
+        .bindGet(() => {
+            const list = listEl
+                .queryAll("[data-id]")
+                .flatMap((i) => newData.get(i.el.dataset.id ?? "")?.data || []);
+            return list;
+        })
+        .bindSet((list: t[]) => {
+            listEl.clear();
+            newData.clear();
+            for (const el of list) {
+                const uid = crypto.randomUUID().slice(0, 7);
+                newData.set(uid, {
+                    "sort-name": name(el),
+                    data: el,
+                });
+            }
+            for (const id of newData.keys()) {
+                addItem(id);
+            }
+        });
+}
+
+function translatorD(
+    _v: setting["翻译"]["翻译器"][0] | null,
+    addTranslatorM: ElType<HTMLDialogElement>,
+) {
+    const v = _v ?? {
+        id: crypto.randomUUID().slice(0, 7),
+        name: "",
+        keys: {},
+        type: "",
+    };
+
+    const engineConfig: Partial<
+        Record<
+            Engines,
+            {
+                t: string | ReturnType<typeof noI18n>;
+                key: {
+                    name: string;
+                    text?: string;
+                    type?: "json";
+                    area?: boolean;
+                    optional?: boolean;
+                }[];
+                help?: { src: string };
+            }
+        >
+    > = {
+        tencentTransmart: {
+            t: "腾讯交互式翻译",
+            key: [],
+        },
+        google: {
+            t: "谷歌翻译",
+            key: [],
+        },
+        yandex: {
+            t: noI18n("Yandex"),
+            key: [],
+        },
+        youdao: {
+            t: "有道",
+            key: [{ name: "appid" }, { name: "key" }],
+            help: { src: "https://ai.youdao.com/product-fanyi-text.s" },
+        },
+        baidu: {
+            t: "百度",
+            key: [{ name: "appid" }, { name: "key" }],
+            help: { src: "https://fanyi-api.baidu.com/product/11" },
+        },
+        deepl: {
+            t: noI18n("Deepl"),
+            key: [{ name: "key" }],
+            help: { src: "https://www.deepl.com/pro-api?cta=header-pro-api" },
+        },
+        deeplx: {
+            t: noI18n("DeeplX"),
+            key: [{ name: "url" }],
+        },
+        caiyun: {
+            t: "彩云",
+            key: [{ name: "token" }],
+            help: {
+                src: "https://docs.caiyunapp.com/blog/2018/09/03/lingocloud-api/",
+            },
+        },
+        bing: {
+            t: "必应",
+            key: [{ name: "key" }],
+            help: {
+                src: "https://learn.microsoft.com/zh-cn/azure/cognitive-services/translator/how-to-create-translator-resource#authentication-keys-and-endpoint-url",
+            },
+        },
+        chatgpt: {
+            t: noI18n("ChatGPT"),
+            key: [
+                { name: "key", optional: true },
+                { name: "url", optional: true },
+                {
+                    name: "config",
+                    text: t("请求体自定义"),
+                    type: "json",
+                    area: true,
+                    optional: true,
+                },
+                {
+                    name: "sysPrompt",
+                    text: t("系统提示词，${t}为文字，${to}，${from}"),
+                    optional: true,
+                },
+                {
+                    name: "userPrompt",
+                    text: t("用户提示词，${t}为文字，${to}，${from}"),
+                    optional: true,
+                },
+            ],
+            help: { src: "https://platform.openai.com/account/api-keys" },
+        },
+        gemini: {
+            t: noI18n("Gemini"),
+            key: [
+                { name: "key" },
+                { name: "url", optional: true },
+                { name: "config", text: t("请求体自定义"), area: true },
+                {
+                    name: "userPrompt",
+                    text: t("用户提示词，${t}为文字，${to}，${from}"),
+                    optional: true,
+                },
+            ],
+            help: { src: "https://ai.google.dev/" },
+        },
+        niu: {
+            t: "小牛翻译",
+            key: [{ name: "key" }],
+            help: {
+                src: "https://niutrans.com/documents/contents/beginning_guide/6",
+            },
+        },
+    };
+
+    const idEl = input()
+        .sv(v.name)
+        .attr({ placeholder: t("请为翻译器命名") });
+    const selectEl = select<Engines | "">(
+        [{ value: "", name: "选择引擎类型" }].concat(
+            // @ts-ignore
+            Object.entries(engineConfig).map((v) => ({
+                name: v[1].t,
+                value: v[0],
+            })),
+        ) as { value: Engines }[],
+    )
+        .sv(v.type || "")
+        .on("input", () => {
+            set(selectEl.gv);
+        });
+    const keys = view("y").style({ gap: "8px" });
+    const help = p("");
+
+    function set(type: Engines | "") {
+        keys.clear();
+        help.clear();
+        testR.clear();
+        if (!type) return;
+        const fig = engineConfig[type];
+        if (!fig) return;
+        for (const x of fig.key) {
+            const value = v.keys[x.name] as string;
+
+            keys.add(
+                view().add([
+                    txt(`${x.name}`, true),
+                    ele("br"),
+                    (x.area ? textarea() : input())
+                        .attr({ placeholder: x.text || "", spellcheck: false })
+                        .data({ key: x.name })
+                        .sv(
+                            (x.type === "json"
+                                ? JSON.stringify(value, null, 2)
+                                : value) || "",
+                        )
+                        .style({ width: "100%" }),
+                ]),
+            );
+        }
+        if (fig.help) help.add(a(fig.help.src).add(txt("API申请")));
+    }
+
+    const testEl = view();
+    const testR = p("");
+    const testB = button(txt("测试"));
+    testEl.add([testB, testR]);
+    testB.on("click", async () => {
+        testR.el.innerText = t("正在测试...");
+        const v = getV();
+        if (!v) return;
+        // @ts-ignore
+        translator.e[v.type].setKeys(v.keys);
+        try {
+            const r = await translator.e[v.type].test();
+            console.log(r);
+            if (r) testR.el.innerText = t("测试成功");
+        } catch (error) {
+            testR.el.innerText = String(error);
+            throw error;
+        }
+    });
+
+    addTranslatorM
+        .add([idEl, selectEl, keys, help, testEl])
+        .class("add_translator");
+
+    function getV() {
+        if (!selectEl.gv) return null;
+        const key = {};
+        const ee = engineConfig[selectEl.gv];
+        if (!ee) return null;
+        const e = ee.key;
+        for (const el of keys.queryAll("input, textarea")) {
+            const type = e.find((i) => i.name === el.el.dataset.key)?.type;
+            key[el.el.dataset?.key ?? ""] =
+                type === "json" ? JSON.parse(el.el.value) : el.el.value;
+        }
+        const nv: typeof v = {
+            id: v.id,
+            name: idEl.gv,
+            keys: key,
+            type: selectEl.gv,
+        };
+        return nv;
+    }
+
+    set(v.type);
+
+    return new Promise((re: (nv: typeof v | null) => void) => {
+        addTranslatorM.add([
+            button(txt("关闭")).on("click", () => {
+                addTranslatorM.el.close();
+                re(null);
+            }),
+            button(txt("完成")).on("click", () => {
+                const nv = getV();
+                if (
+                    nv?.type &&
+                    Object.entries(nv.keys).every(
+                        (i) =>
+                            engineConfig[nv.type]?.key.find(
+                                (j) => j.name === i[0],
+                            )?.optional || i[1],
+                    )
+                ) {
+                    re(nv);
+                    addTranslatorM.el.close();
+                }
+            }),
+        ]);
+    });
+}
+
+function transSaveHelp() {
+    return a(
+        `https://github.com/xushengfeng/eSearch/blob/${packageJson.version}/docs/use/translate.md#生词本`,
+    ).add("教程帮助");
+}
+
+function textStyle(mh: number) {
+    return {
+        "field-sizing": "content",
+        height: "auto",
+        "max-height": `${mh}lh`,
+        resize: "none",
+    } as const;
+}
+
+function w文件生词本Dialog(
+    _v: setting["翻译"]["收藏"]["文件"][0] | null,
+    addDialog: ElType<HTMLDialogElement>,
+) {
+    let v = _v;
+    if (!v) {
+        v = { path: "", template: "" };
+    }
+    const filePath = input().sv(v.path);
+    const template = textarea().sv(v.template).style(textStyle(6));
+
+    const { promise, resolve } = Promise.withResolvers<typeof v | null>();
+
+    addDialog.add([
+        view("y")
+            .style({ gap: "8px" })
+            .add([
+                view().add(["路径", ele("br"), filePath]),
+                transSaveHelp(),
+                view().add(["模板", ele("br"), template]),
+            ]),
+        button(txt("关闭")).on("click", () => {
+            addDialog.el.close();
+            resolve(null);
+        }),
+        button(txt("完成")).on("click", () => {
+            const nv = {
+                path: filePath.gv,
+                template: template.gv,
+            };
+            resolve(nv);
+            addDialog.el.close();
+        }),
+    ]);
+
+    return promise;
+}
+
+function z在线生词本Dialog(
+    _v: setting["翻译"]["收藏"]["fetch"][0] | null,
+    addDialog: ElType<HTMLDialogElement>,
+) {
+    const v = _v ?? {
+        name: "",
+        body: "",
+        url: "",
+        method: "get",
+        headers: {},
+        getter: [],
+    };
+    const name = input().attr({ placeholder: "名称" }).sv(v.name);
+    const url = input().sv(v.url);
+    const method = select([
+        { value: "get", name: noI18n("GET") },
+        { value: "post", name: noI18n("POST") },
+    ]).sv(v.method);
+
+    const headers = textarea("按行输入，每行一个header，格式为key:value")
+        .style(textStyle(6))
+        .bindSet((v: Record<string, string>, el) => {
+            el.value = Object.entries(v)
+                .map(([k, v]) => `${k} : ${v}`)
+                .join("\n");
+        })
+        .bindGet((el) => {
+            const v = el.value;
+            const obj: Record<string, string> = {};
+            for (const line of v.split("\n")) {
+                if (line.trim() === "") continue;
+                const [k, v] = line.split(":").map((i) => i.trim());
+                obj[k] = v;
+            }
+            return obj;
+        })
+        .sv(v.headers);
+
+    const body = textarea().style(textStyle(6)).sv(v.body);
+
+    const { promise, resolve } = Promise.withResolvers<typeof v | null>();
+
+    addDialog.add([
+        name,
+        transSaveHelp(),
+        view("y")
+            .style({ gap: "8px" })
+            .add([
+                view().add([noI18n("URL"), url, ele("br"), url]),
+                view().add(["请求方式", method, ele("br"), method]),
+                view().add(["请求头", headers, ele("br"), headers]),
+                view().add(["请求体", body, ele("br"), body]),
+            ]),
+        button(txt("关闭")).on("click", () => {
+            addDialog.el.close();
+            resolve(null);
+        }),
+        button(txt("完成")).on("click", () => {
+            const nv = {
+                name: name.gv,
+                body: body.gv,
+                url: url.gv,
+                method: method.gv,
+                headers: headers.gv,
+                getter: [],
+            };
+            resolve(nv);
+            addDialog.el.close();
+        }),
+    ]);
+
+    return promise;
+}
+
+function searchEngineDialog(
+    _v: { url: string; name: string } | null,
+    d: ElType<HTMLDialogElement>,
+) {
+    const v = _v ?? { name: "", url: "" };
+    const nameEl = input().sv(v.name);
+    const urlEl = input().sv(v.url);
+
+    const { promise, resolve } = Promise.withResolvers<typeof v | null>();
+
+    d.add([
+        view("y")
+            .style({ gap: "8px" })
+            .add([
+                view().add(["引擎名称", ele("br"), nameEl]),
+                view().add(["引擎URL", ele("br"), urlEl]),
+            ]),
+        button(txt("关闭")).on("click", () => {
+            d.el.close();
+            resolve(null);
+        }),
+        button(txt("完成")).on("click", () => {
+            const nv = {
+                name: nameEl.gv,
+                url: urlEl.gv,
+            };
+            resolve(nv);
+            d.el.close();
+        }),
+    ]);
+
+    return promise;
+}
+
+function getLansName(l: string[]) {
+    const lansName = l.map((i) => ({
+        text: i === "auto" ? t("自动") : (displayLan.of(i) ?? i),
+        lan: i,
+    }));
+    // todo 额外翻译其他少见的语言
+    return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
+}
+
+function getIconColor(hex: string) {
+    try {
+        return hexToCSSFilter(hex).filter.replace(";", "");
+    } catch (error) {
+        return "none";
+    }
 }
 
 function showPage(page: (typeof main)[0]) {
