@@ -1974,7 +1974,7 @@ function translatorD(
         .on("input", () => {
             set(selectEl.gv);
         });
-    const keys = view("y").style({ gap: "8px" });
+    const keys = view("y").style({ gap: "var(--o-padding)" });
     const help = p("");
 
     function set(type: Engines | "") {
@@ -2107,7 +2107,7 @@ function w文件生词本Dialog(
 
     addDialog.add([
         view("y")
-            .style({ gap: "8px" })
+            .style({ gap: "var(--o-padding)" })
             .add([
                 view().add(["路径", ele("br"), filePath]),
                 transSaveHelp(),
@@ -2176,7 +2176,7 @@ function z在线生词本Dialog(
         name,
         transSaveHelp(),
         view("y")
-            .style({ gap: "8px" })
+            .style({ gap: "var(--o-padding)" })
             .add([
                 view().add([noI18n("URL"), url, ele("br"), url]),
                 view().add(["请求方式", method, ele("br"), method]),
@@ -2216,7 +2216,7 @@ function searchEngineDialog(
 
     d.add([
         view("y")
-            .style({ gap: "8px" })
+            .style({ gap: "var(--o-padding)" })
             .add([
                 view().add(["引擎名称", ele("br"), nameEl]),
                 view().add(["引擎URL", ele("br"), urlEl]),
@@ -2343,12 +2343,6 @@ setTranslate((text) => t(text));
 pureStyle();
 initStyle(store);
 
-addStyle({
-    ":has(>.icon)": {
-        position: "relative",
-    },
-});
-
 for (const v of Object.values(s)) {
     if (!v) continue;
     v.name = t(v.name);
@@ -2375,35 +2369,30 @@ addStyle({
         position: "sticky",
         top: 0,
         background: "var(--bg)",
+        zIndex: 1,
     },
     'input[type="text"],input[type="password"]': {
-        border: "none",
-        borderBottom: "1px solid var(--hover-color)",
         transition: "var(--transition)",
-        fontSize: "1rem",
         width: "300px",
         fontFamily: "var(--monospace)",
     },
     'input[type="number"]': {
         // @ts-ignore
         fieldSizing: "content",
-        border: "none",
-        borderBottom: "1px solid var(--hover-color)",
-        fontSize: "1rem",
         transition: "var(--transition)",
         fontFamily: "var(--monospace)",
     },
-    button: {
-        padding: "4px",
-        backgroundColor: "var(--m-color2)",
-    },
 });
 
-const sideBar = view().addInto().style({ padding: "1em", flexShrink: 0 });
+const sideBar = view("y").addInto().style({
+    padding: "var(--o-padding)",
+    flexShrink: 0,
+    gap: "var(--o-padding)",
+});
 const sideBarG = radioGroup("侧栏");
 const searchBar = view()
     .addInto()
-    .style({ position: "fixed", right: 0, top: 0, zIndex: 1 });
+    .style({ position: "fixed", right: 0, top: 0, zIndex: 2 });
 const searchI = input()
     .addInto(searchBar)
     .on("input", () => {
@@ -2445,6 +2434,8 @@ const mainView = view()
     .style({
         maxWidth: "680px",
         margin: "auto",
+        padding: "var(--o-padding)",
+        minHeight: "100vh",
     })
     .class(
         addClass(
