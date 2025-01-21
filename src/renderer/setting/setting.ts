@@ -22,6 +22,7 @@ import {
     a,
     select,
     setProperty,
+    check,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
@@ -459,7 +460,85 @@ const s: Partial<settingItem<SettingPath>> = {
                 "运行后端",
             ),
     },
-    // todo 在线模型
+    "AI.在线模型": {
+        name: "在线模型",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => v.name,
+                (_item, dialog) => {
+                    const { promise, resolve } =
+                        Promise.withResolvers<typeof _item>();
+                    const item = _item || {
+                        name: "",
+                        url: "",
+                        key: "",
+                        supportVision: false,
+                        type: "chatgpt",
+                        config: {},
+                    };
+
+                    const nameEl = input().sv(item.name);
+                    const urlEl = input().sv(item.url);
+                    const keyEl = input().sv(item.key);
+                    const configEl = textarea()
+                        .bindSet((v, el) => {
+                            try {
+                                el.value = JSON.stringify(v, null, 2);
+                            } catch (e) {
+                                el.value = "{}";
+                            }
+                        })
+                        .bindGet((el) => {
+                            try {
+                                return JSON.parse(el.value) as Record<
+                                    string,
+                                    unknown
+                                >;
+                            } catch (e) {
+                                return {};
+                            }
+                        })
+                        .sv(item.config)
+                        .style(textStyle(6));
+                    const supportVision = check("vision").sv(
+                        item.supportVision,
+                    );
+
+                    dialog.add([
+                        nameEl,
+                        view("y")
+                            .style({ gap: "8px" })
+                            .add([
+                                view().add([noI18n("URL"), ele("br"), urlEl]),
+                                view().add([noI18n("key"), ele("br"), keyEl]),
+                                view().add([
+                                    "请求体自定义",
+                                    ele("br"),
+                                    configEl,
+                                ]),
+                                label([supportVision, "支持图像识别"]),
+                            ]),
+                        button(txt("关闭")).on("click", () => {
+                            resolve(null);
+                            dialog.el.close();
+                        }),
+                        button(txt("完成")).on("click", () => {
+                            resolve({
+                                name: nameEl.gv,
+                                type: "chatgpt",
+                                url: urlEl.gv,
+                                key: keyEl.gv,
+                                config: configEl.gv,
+                                supportVision: supportVision.gv,
+                            });
+                            dialog.el.close();
+                        }),
+                    ]);
+
+                    return promise;
+                },
+            ),
+    },
     "录屏.自动录制": {
         name: "自动录制",
         desc: "超级录屏默认开启",
@@ -1496,7 +1575,7 @@ const main: {
     {
         pageName: "人工智能",
         desc: "配置OCR、录屏背景移除等人工智能",
-        settings: ["AI.运行后端"],
+        settings: ["AI.运行后端", "AI.在线模型"],
     },
     {
         pageName: "录屏",
