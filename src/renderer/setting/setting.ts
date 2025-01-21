@@ -21,6 +21,7 @@ import {
     textarea,
     a,
     select,
+    setProperty,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
@@ -207,10 +208,7 @@ const s: Partial<settingItem<SettingPath>> = {
                         .filter((i) => i.key !== "close" && i.key !== "screens")
                         .map((i) => ({
                             value: i.key,
-                            name: tIconEl(i.icon).style({
-                                width: "24px",
-                                position: "initial",
-                            }),
+                            name: tIconEl(i.icon),
                         })),
                 ],
                 "框选后默认操作",
@@ -1828,6 +1826,11 @@ const bind: { [k in SettingPath]?: SettingPath[] } = {
     "翻译.翻译器": ["屏幕翻译.语言.from", "屏幕翻译.语言.to"],
 };
 
+const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
+    "工具栏.按钮大小": (v) => setProperty("--bar-size", `${v}px`),
+    "工具栏.按钮图标比例": (v) => setProperty("--bar-icon", String(v)),
+};
+
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
     return store.get(k);
 }
@@ -1885,20 +1888,41 @@ const themes: setting["全局"]["主题"][] = [
 
 const xselectClass = addClass(
     {
-        borderRadius: "8px",
-        padding: "8px",
+        borderRadius: "var(--border-radius)",
         margin: "2px",
         transition:
             "outline-color var(--transition), box-shadow var(--transition)",
         display: "inline-block",
         outlineColor: "transparent",
+        cursor: "pointer",
     },
     {
+        "&:not(:has(.icon))": {
+            paddingInline: "var(--o-padding)",
+        },
         "&:hover": {
             boxShadow: "var(--shadow)",
         },
         '&:has(input[type="radio"]:checked)': {
             outline: "2px dashed var(--m-color1)",
+        },
+    },
+);
+
+const toolBarClass = addClass(
+    {
+        borderRadius: "calc(var(--bar-size) / 6)",
+        boxShadow: "var(--shadow)",
+    },
+    {
+        "&>div": {
+            width: "var(--bar-size)",
+            height: "var(--bar-size)",
+            borderRadius: "calc(var(--bar-size) / 6)",
+        },
+        "&>div>.icon": {
+            width: "calc(var(--bar-size) * var(--bar-icon))",
+            transition: "var(--transition)",
         },
     },
 );
@@ -1926,6 +1950,8 @@ function renderSetting(settingPath: SettingPath) {
                     for (const p of bind[settingPath] ?? []) {
                         reRenderSetting(p);
                     }
+                    // @ts-ignore
+                    bindF[settingPath]?.(value);
                 }
             }
         });
@@ -1952,7 +1978,7 @@ function iconEl(img: string) {
 }
 
 function comment(str: string) {
-    return p(str, true).style({ color: "#0006" });
+    return p(str, true).style({ color: "var(--font-color-l)" });
 }
 
 function xSelect<T extends string>(
@@ -1993,6 +2019,7 @@ function xRange(
             borderRadius: "6px",
             overflow: "hidden",
             background: "var(--m-color2)",
+            cursor: "ew-resize",
         })
         .addInto(el);
     const thumb = view()
@@ -2082,12 +2109,12 @@ function xSecret() {
 }
 
 function sortTool() {
-    const pel = view("x");
-    const toolShowEl = view().class("bar").style({
+    const pel = view("x").style({ gap: "var(--o-padding)" });
+    const toolShowEl = view().class("bar").class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
     });
-    const toolHideEl = view().class("bar").style({
+    const toolHideEl = view().class("bar").class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
     });
@@ -2100,7 +2127,12 @@ function sortTool() {
     new Sortable(toolHideEl.el, {
         group: "tools",
     });
-    pel.add([toolShowEl, view().add([view().add(iconEl("hide")), toolHideEl])]);
+    pel.add([
+        toolShowEl,
+        view("y")
+            .style({ gap: "var(--o-padding)" })
+            .add([view().add(iconEl("hide")), toolHideEl]),
+    ]);
     function getItems(v: string[]) {
         return v.flatMap((i) => {
             const x = tools.find((x) => x.key === i);
@@ -2769,7 +2801,9 @@ function about() {
     const el = view("y").style({ alignItems: "center", marginTop: "120px" });
     const logoEl = image(logo, "logo").style({ width: "200px" });
     const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
-    const version = button(noI18n(packageJson.version));
+    const version = button(noI18n(packageJson.version)).style({
+        fontFamily: "var(--monospace)",
+    });
     const desc = p(packageJson.description);
 
     const infoEl = view("y").style({ alignItems: "center" });
@@ -2907,7 +2941,7 @@ const searchI = input()
                     txt("", true)
                         .sv(title ? title.join(" > ") : t("未知路径"))
                         .style({
-                            color: "#0004",
+                            color: "var(--font-color-ll)",
                         }),
                     // @ts-ignore
                     renderSetting(i),
@@ -2916,7 +2950,7 @@ const searchI = input()
         }
     });
 const mainViewP = view().addInto().style({
-    overflow: "scroll",
+    overflowY: "scroll",
     height: "100vh",
     flexGrow: "1",
 });
@@ -2951,6 +2985,12 @@ for (const [i, page] of main.entries()) {
 sideBarG.on(() => {
     showPage(main[sideBarG.get()]);
 });
+
+for (const [k, f] of Object.entries(bindF)) {
+    const v = store.get(k);
+    // @ts-ignore
+    if (v !== undefined) f?.(v);
+}
 
 showPage(main[0]);
 

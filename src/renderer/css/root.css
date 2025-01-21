@@ -31,6 +31,8 @@
     --shadow: #0003 0 0 4px;
     --height: 40px;
     --color: #000;
+    --font-color-l: color-mix(in srgb, var(--font-color) 50%, var(--bg));
+    --font-color-ll: color-mix(in srgb, var(--font-color) 30%, var(--bg));
     --border: 1px #000 solid;
     --color-size: 150px;
     --color-i-size: 10px;
@@ -150,6 +152,11 @@ textarea {
     color: var(--color);
 }
 
+body dialog {
+    padding: var(--o-padding);
+    border-radius: calc(var(--border-radius) + var(--o-padding));
+}
+
 kbd {
     display: inline-block;
     padding: 2px 4px;
@@ -161,6 +168,10 @@ kbd {
 
 input[type="number"] {
     font-family: var(--monospace);
+}
+
+label:has(> input[type="checkbox"]) {
+    cursor: pointer;
 }
 
 input[type="checkbox"] {
