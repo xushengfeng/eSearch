@@ -19,6 +19,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "@erase2d/fabric": "^1.1.6",
+        "@techstark/opencv-js": "4.10.0-release.1",
         "chroma-js": "^3.1.1",
         "diff-match-patch": "^1.0.5",
         "dkh-ui": "^0.12.4",
@@ -35,7 +36,6 @@
         "mp4-muxer": "^5.1.3",
         "node-screenshots": "^0.2.1",
         "onnxruntime-node": "^1.18.0",
-        "opencv.js": "^1.2.1",
         "qr-scanner-wechat": "^0.1.3",
         "remarkable": "^2.0.1",
         "sortablejs": "^1.15.2",
@@ -73,6 +73,8 @@
         "node-screenshots-win32-x64-msvc": "0.1.9"
     },
     "pnpm": {
-        "neverBuiltDependencies": ["canvas"]
+        "neverBuiltDependencies": [
+            "canvas"
+        ]
     }
 }

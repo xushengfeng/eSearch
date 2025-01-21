@@ -337,8 +337,7 @@ function edge() {
     for (let i = 0; i < contours.size(); i++) {
         const cnt = contours.get(i);
         const r = cv.boundingRect(cnt);
-        r.type = "image";
-        edgeRect.push(r);
+        edgeRect.push({ ...r, type: "image" });
     }
 
     src.delete();
@@ -408,7 +407,8 @@ function setDefaultAction(act: setting["框选后默认操作"]) {
     if (!act) return;
     autoDo = act;
     if (autoDo !== "no") {
-        toolBarEl.els[autoDo].el.style.backgroundColor = "var(--bar-focus-color)";
+        toolBarEl.els[autoDo].el.style.backgroundColor =
+            "var(--bar-focus-color)";
     }
 }
 
@@ -525,14 +525,14 @@ function long_s() {
     s = null;
 }
 
-function startLong() {
+async function startLong() {
     initLong(finalRect);
     const r = [...finalRect];
     r[0] += screenPosition[nowScreenId].x;
     r[1] += screenPosition[nowScreenId].y;
     long_s();
     ipcRenderer.send("clip_main_b", "long_s", r);
-    if (!cv) cv = require("opencv.js");
+    if (!cv) cv = require("@techstark/opencv-js");
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
         uIOhook.start();
@@ -2752,7 +2752,7 @@ async function fabricCopy() {
 
 if (store.get("框选.自动框选.图像识别")) {
     // biome-ignore lint: 为了部分引入
-    var cv = require("opencv.js");
+    var cv = require("@techstark/opencv-js");
 }
 
 const 字体 = store.get("字体");
