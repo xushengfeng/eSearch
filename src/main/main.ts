@@ -2395,15 +2395,18 @@ ipcMain.on("ok_save", (_event, arg: string, isVideo: boolean) => {
     }
 });
 
-ipcMain.on("get_save_path", (event, path = app.getPath("pictures")) => {
+ipcMain.on("get_save_path", (event, path = app.getPath("pictures"), p?) => {
     dialog
         .showOpenDialog({
             title: t("选择要保存的位置"),
             defaultPath: path,
-            properties: ["openDirectory"],
+            properties: p || ["openDirectory"],
         })
         .then((x) => {
-            if (x.filePaths[0]) event.returnValue = x.filePaths[0];
+            event.returnValue = x.filePaths[0] || "";
+        })
+        .catch(() => {
+            event.returnValue = "";
         });
 });
 

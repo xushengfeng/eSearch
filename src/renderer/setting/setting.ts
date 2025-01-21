@@ -26,6 +26,7 @@ import {
     confirm,
     alert,
     setProperties,
+    dynamicSelect,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
@@ -690,8 +691,11 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "背景模糊程度",
         el: () => xRange({ min: 1, max: 120, text: "px" }),
     },
-    "录屏.摄像头.背景.imgUrl": { name: "背景图片路径", el: () => xPath() },
-    "录屏.摄像头.背景.videoUrl": { name: "背景视频路径", el: () => xPath() },
+    "录屏.摄像头.背景.imgUrl": { name: "背景图片路径", el: () => xPath(false) },
+    "录屏.摄像头.背景.videoUrl": {
+        name: "背景视频路径",
+        el: () => xPath(false),
+    },
     "录屏.摄像头.背景.fit": {
         name: "图片或视频填充模式",
         el: (v) =>
@@ -1410,12 +1414,12 @@ const s: Partial<settingItem<SettingPath>> = {
     "字体.主要字体": {
         name: "主要字体",
         desc: "适用于大部分文字字体",
-        el: () => input(), // todo api选择
+        el: () => xFont(),
     },
     "字体.等宽字体": {
         name: "等宽字体",
         desc: "适用于数字、颜色代码等字体",
-        el: () => input(),
+        el: () => xFont(),
     },
     "代理.mode": {
         name: "代理",
@@ -1485,7 +1489,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "额外截屏器.位置": {
         name: "位置",
-        el: () => xPath(),
+        el: () => xPath(false),
     },
     保留截屏窗口: {
         name: "保留截屏窗口",
@@ -2472,11 +2476,11 @@ function xNumber(
         });
 }
 
-function xSwitch(name = "启用") {
+function xSwitch() {
     const i = input("checkbox").on("input", () => {
         el.el.dispatchEvent(new CustomEvent("input"));
     });
-    const el = label([i, name])
+    const el = label([i, "启用"])
         .bindGet(() => i.el.checked)
         .bindSet((v: boolean) => {
             i.el.checked = v;
@@ -2485,11 +2489,63 @@ function xSwitch(name = "启用") {
 }
 
 function xColor() {
-    return input();
+    function msk(t: string) {
+        return `linear-gradient(${t},${t}),
+        conic-gradient(
+                rgb(204, 204, 204) 25%,
+                rgb(255, 255, 255) 0deg,
+                rgb(255, 255, 255) 50%,
+                rgb(204, 204, 204) 0deg,
+                rgb(204, 204, 204) 75%,
+                rgb(255, 255, 255) 0deg
+            )
+            0% 0% / 8px 8px`;
+    }
+    const i = input()
+        .on("input", () => {
+            p.sv(i.gv);
+            el.el.dispatchEvent(new CustomEvent("input"));
+        })
+        .style({
+            // @ts-ignore
+            "field-sizing": "content",
+            width: "auto",
+        });
+    const p = view()
+        .style({
+            width: "var(--b-button)",
+            height: "var(--b-button)",
+            borderRadius: "var(--border-radius)",
+        })
+        .bindSet((v: string) => p.style({ background: msk(v) }));
+    const el = view("x");
+    return el
+        .add([p, i])
+        .bindGet(() => i.gv)
+        .bindSet((v: string) => {
+            i.sv(v);
+            p.sv(v);
+        });
 }
 
-function xPath() {
-    return input();
+function xPath(dir = true) {
+    const el = view("x");
+    const i = input();
+    const b = button(iconEl("file")).on("click", () => {
+        const path = ipcRenderer.sendSync(
+            "get_save_path",
+            i.gv,
+            dir ? ["openDirectory"] : [],
+        );
+        if (path) {
+            i.sv(path);
+            el.el.dispatchEvent(new CustomEvent("input"));
+        }
+    });
+    return el
+        .add([i, b])
+        .bindGet(() => i.gv)
+        .bindSet((v: string) => i.sv(v));
 }
 
 function xSecret() {
@@ -2501,6 +2557,50 @@ function xSecret() {
             el.attr({ type: "password" });
         });
     return el;
+}
+
+function xFont() {
+    const el = view("x");
+    const i = input().on("input", () =>
+        el.el.dispatchEvent(new CustomEvent("input")),
+    );
+    const s = select([]);
+    s.on("input", () => {
+        i.sv(s.gv);
+        el.el.dispatchEvent(new CustomEvent("input"));
+    }).style({
+        // @ts-ignore
+        "field-sizing": "content",
+    });
+    const q = button(iconEl("reload")).on("click", async () => {
+        // @ts-ignore
+        const fonts = await window.queryLocalFonts();
+        const list = Array.from(
+            new Set([
+                ...fonts.map((i) => i.fullName),
+                ...fonts.map((i) => i.family),
+            ]),
+        ).sort() as string[];
+        s.clear()
+            .add(
+                list.map((i) =>
+                    ele("option")
+                        .attr({ value: i })
+                        .style({ fontFamily: i })
+                        .add(noI18n(i)),
+                ), // todo 虚拟列表
+            )
+            .sv(i.gv);
+        el.add(s);
+        q.remove();
+    });
+    return el
+        .add([i, q])
+        .bindGet(() => i.gv)
+        .bindSet((v: string) => {
+            i.sv(v);
+            s.sv(v);
+        });
 }
 
 function pathEl(path: string) {
