@@ -23,6 +23,9 @@ import {
     select,
     setProperty,
     check,
+    confirm,
+    alert,
+    setProperties,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
@@ -36,6 +39,7 @@ const fs = require("node:fs") as typeof import("fs");
 import Sortable from "sortablejs";
 
 import logo from "../assets/icon.svg";
+import testPhoto from "../assets/sample_picture.svg";
 
 import translator from "xtranslator";
 
@@ -51,9 +55,25 @@ import {
     ele2jsKeyCode,
 } from "../../../lib/key.js";
 
+import time_format from "../../../lib/time_format";
+
 const download = require("download");
 
 type Engines = keyof typeof translator.e;
+
+type JustElmentK =
+    | "_autostart"
+    | "_qsq"
+    | "_theme"
+    | "_filename"
+    | "_clear_history"
+    | "_clear_browswer"
+    | "_setting_file"
+    | "_default_setting"
+    | "_location"
+    | "_version";
+
+type KeyPath = JustElmentK | SettingPath;
 
 type settingItem<t extends SettingPath> = {
     [key in t]: {
@@ -175,7 +195,6 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "取色器像素大小",
         el: () => xRange({ min: 1, max: 10, text: "px" }),
     },
-    // todo 取色器预览
     "取色器.默认格式": {
         name: "取色器默认格式",
         el: () =>
@@ -749,7 +768,6 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "文件名称后缀",
         el: () => input(),
     },
-    // todo 预览
     // 代码提示
     // todo 移除保存格式，使用上次记住的
     // todo 根据文件后缀识别
@@ -911,7 +929,6 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "历史记录保存天数",
         el: () => xNumber(t("天"), { step: 0.5 }), // todo 移除小时设置
     },
-    // todo 清空所有文字记录
     时间格式: {
         name: "时间格式",
         el: () => input(),
@@ -980,7 +997,6 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "标签图标将以灰度图片展示，减少多余颜色的干扰",
         el: () => xSwitch(),
     },
-    // todo 清除数据
     "快捷键.自动识别.key": {
         name: "自动识别",
         el: () => hotkeyX("自动识别", "快捷键"),
@@ -1237,7 +1253,6 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "关闭",
         el: () => hotkeyP("close"),
     },
-    // todo auto start
     启动提示: {
         name: "启动提示",
         desc: "将通过系统通知提示启动",
@@ -1293,21 +1308,6 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => {
             function change() {
                 el.el.dispatchEvent(new CustomEvent("input"));
-                function setCSSVar(name: string, value: string) {
-                    if (value)
-                        document.documentElement.style.setProperty(name, value);
-                }
-                const theme = el.gv;
-                setCSSVar("--bar-bg0", theme.light.barbg);
-                setCSSVar("--bg", theme.light.bg);
-                setCSSVar("--hover-color", theme.light.emphasis);
-                setCSSVar("--d-bar-bg0", theme.dark.barbg);
-                setCSSVar("--d-bg", theme.dark.bg);
-                setCSSVar("--d-hover-color", theme.dark.emphasis);
-                setCSSVar("--font-color", theme.light.fontColor);
-                setCSSVar("--d-font-color", theme.dark.fontColor);
-                setCSSVar("--icon-color", theme.light.iconColor);
-                setCSSVar("--d-icon-color", theme.dark.iconColor);
             }
             const themeSelect = view("x").add(
                 themes.map((i) =>
@@ -1474,7 +1474,6 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "排除规则",
         el: () => input(),
     },
-    // todo 高级设置
     硬件加速: {
         name: "硬件加速",
         desc: "如果可用，且更改需要重启软件生效",
@@ -1498,7 +1497,7 @@ const s: Partial<settingItem<SettingPath>> = {
         el: (v) =>
             xSelect<typeof v>(
                 [
-                    { value: "manual", name: "手动" },
+                    { value: "manual", name: "手动检查" },
                     { value: "start", name: "启动时检查" },
                 ],
                 "检查更新频率",
@@ -1521,10 +1520,203 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "忽略版本号以跳过更新",
         el: () => input(),
     },
-    // todo 位置信息
     dev: {
         name: "开发者模式",
         el: () => xSwitch(),
+    },
+};
+
+const xs: Record<
+    JustElmentK,
+    { name: string; desc?: string; el: () => ElType<HTMLElement> }
+> = {
+    _autostart: {
+        name: "开机自启动",
+        el: () =>
+            xSwitch()
+                .on("input", (_e, el) => {
+                    ipcRenderer.send("setting", "set_autostart", el.gv);
+                })
+                .sv(ipcRenderer.sendSync("setting", "get_autostart")),
+    },
+    _qsq: {
+        name: "取色器预览",
+        el: () => {
+            const colorSize = getSet("取色器.大小");
+            const iSize = getSet("取色器.像素大小");
+            const el = view("x", "wrap")
+                .add(
+                    Array.from({ length: colorSize ** 2 }).map(() => {
+                        const l = Math.random() * 40 + 50;
+                        return view().style({
+                            backgroundColor: `hsl(0,0%,${l}%)`,
+                            width: `${iSize}px`,
+                            height: `${iSize}px`,
+                        });
+                    }),
+                )
+                .style({
+                    width: `${iSize * colorSize}px`,
+                    height: `${iSize * colorSize}px`,
+                });
+            return el;
+        },
+    },
+    _theme: {
+        name: "样式预览",
+        el: () =>
+            view("x")
+                .style({
+                    boxShadow: "var(--shadow)",
+                    width: "max-content",
+                    borderRadius: "var(--border-radius)",
+                    overflow: "hidden",
+                })
+                .add([
+                    view()
+                        .style({
+                            height: "80px",
+                            backgroundColor: "var(--bg)",
+                        })
+                        .add([
+                            view().style({
+                                width: "20px",
+                                height: "20px",
+                                backgroundColor: "var(--emphasis-color)",
+                            }),
+                            view()
+                                .add(iconEl("search"))
+                                .style({ background: "transparent" }),
+                            txt("测试文字"),
+                            txt("42", true).style({
+                                fontFamily: "var(--monospace)",
+                            }),
+                        ]),
+                    view()
+                        .add([
+                            image(testPhoto, "").style({ width: "80px" }),
+                            view().class("bar").style({
+                                width: "80px",
+                                height: "80px",
+                                position: "absolute",
+                                top: 0,
+                            }),
+                        ])
+                        .style({ position: "relative" }),
+                ]),
+    },
+    _filename: {
+        name: "文件名预览",
+        el: () => {
+            const saveTime = new Date();
+            return txt(
+                `${getSet("保存名称.前缀")}${time_format(getSet("保存名称.时间"), saveTime)}${getSet("保存名称.后缀")}`,
+                true,
+            ).style({ fontFamily: "var(--monospace)" });
+        },
+    },
+    _clear_history: {
+        name: "清空所有文字记录",
+        el: () =>
+            button("清空").on("click", async () => {
+                const c = await confirm(
+                    "这将清除所有的历史记录\n且不能复原\n确定清除？",
+                );
+                const configPath = ipcRenderer.sendSync("store", {
+                    type: "path",
+                });
+                if (c)
+                    fs.writeFileSync(
+                        path.join(configPath, "history.json"),
+                        JSON.stringify({ 历史记录: {} }, null, 2),
+                    );
+            }),
+    },
+    _clear_browswer: {
+        name: "清除数据",
+        el: () =>
+            view().add([
+                button("Cookie 等存储数据").on("click", () => {
+                    ipcRenderer.send("setting", "clear", "storage");
+                }),
+                button("缓存").on("click", () => {
+                    ipcRenderer.send("setting", "clear", "cache");
+                }),
+            ]),
+    },
+    _setting_file: {
+        name: "设置源文件",
+        desc: "直接编辑设置源文件，更多自定义设置",
+        el: () => button("打开设置源文件").on("click", () => {}),
+    },
+    _default_setting: {
+        name: "恢复默认设置",
+        el: () => button("恢复"),
+    },
+    _location: {
+        name: "位置信息",
+        el: () => {
+            const configPath = ipcRenderer.sendSync("store", { type: "path" });
+            const runPath = ipcRenderer.sendSync("run_path");
+            const portablePath = path.join(runPath, "portable");
+
+            const portableConfigBtn = button("改为便携版");
+            const pathInfo = view().add([
+                view().add([
+                    "配置目录：",
+                    "",
+                    pathEl(configPath),
+                    fs.existsSync(portablePath) ? "便携版" : portableConfigBtn,
+                ]),
+                view().add([
+                    "文字记录：",
+                    " ",
+                    pathEl(path.join(configPath, "history.json")),
+                ]),
+                view().add([
+                    "临时目录：",
+                    " ",
+                    pathEl(path.join(os.tmpdir(), "eSearch")),
+                ]),
+                view().add(["运行目录：", " ", pathEl(runPath)]),
+            ]);
+            portableConfigBtn.on("click", async () => {
+                const c = await confirm("将转为便携版，并迁移数据，重启软件");
+                if (!c) return;
+                console.log(portablePath);
+                try {
+                    fs.mkdirSync(portablePath, { recursive: true });
+                    ipcRenderer.send("setting", "move_user_data", portablePath);
+                    ipcRenderer.send("setting", "reload");
+                } catch (error) {
+                    // @ts-ignore
+                    if (error.code !== "EEXIST") {
+                        throw error;
+                    }
+                    // @ts-ignore
+                    alert(`${t("错误")}\n${error.toString()}`);
+                }
+            });
+            return pathInfo;
+        },
+    },
+    _version: {
+        name: "版本信息",
+        el: () => {
+            const versionL = ["electron", "node", "chrome", "v8"];
+            const moreVersion = view()
+                .style({ "font-family": "var(--monospace)" })
+                .add([
+                    p(
+                        `${t("本机系统内核:")} ${os.type()} ${os.release()}`,
+                        true,
+                    ),
+                    ...versionL.map((i) =>
+                        p(`${i}: ${process.versions[i]}`, true),
+                    ),
+                ]);
+            return moreVersion;
+        },
     },
 };
 
@@ -1532,9 +1724,9 @@ const s: Partial<settingItem<SettingPath>> = {
 
 const main: {
     pageName: string;
-    settings?: SettingPath[];
+    settings?: KeyPath[];
     desc?: string;
-    items?: { title: string; desc?: string; settings: SettingPath[] }[];
+    items?: { title: string; desc?: string; settings: KeyPath[] }[];
 }[] = [
     {
         pageName: "截屏",
@@ -1557,6 +1749,7 @@ const main: {
                     "取色器.显示",
                     "取色器.大小",
                     "取色器.像素大小",
+                    "_qsq",
                     "取色器.默认格式",
                 ],
             },
@@ -1705,6 +1898,7 @@ const main: {
             "保存名称.前缀",
             "保存名称.时间",
             "保存名称.后缀",
+            "_filename",
             "保存.保存并复制",
             "保存.快速保存",
         ],
@@ -1751,6 +1945,7 @@ const main: {
                     "历史记录设置.自动清除历史记录",
                     "历史记录设置.d",
                     "时间格式",
+                    "_clear_history",
                 ],
             },
             {
@@ -1774,6 +1969,7 @@ const main: {
                     "浏览器.标签页.自动关闭",
                     "浏览器.标签页.小",
                     "浏览器.标签页.灰度",
+                    "_clear_browswer",
                 ],
             },
         ],
@@ -1897,7 +2093,7 @@ const main: {
     {
         pageName: "全局",
         items: [
-            { title: "启动", settings: ["启动提示"] },
+            { title: "启动", settings: ["_autostart", "启动提示"] },
             { title: "语言", settings: ["语言.语言"] },
             {
                 title: "主搜索功能",
@@ -1919,7 +2115,7 @@ const main: {
     },
     {
         pageName: "样式",
-        settings: ["全局.缩放"],
+        settings: ["全局.缩放", "_theme"],
         items: [
             {
                 title: "颜色",
@@ -1938,7 +2134,10 @@ const main: {
     {
         pageName: "高级",
         items: [
-            { title: "高级设置", settings: ["硬件加速"] },
+            {
+                title: "高级设置",
+                settings: ["_setting_file", "_default_setting", "硬件加速"],
+            },
             {
                 title: "外部截屏器",
                 settings: ["额外截屏器.命令", "额外截屏器.位置"],
@@ -1949,11 +2148,13 @@ const main: {
                 settings: ["更新.频率", "更新.模式", "更新.忽略版本"],
             },
             { title: "开发者模式", settings: ["dev"] },
+            { title: "位置信息", settings: ["_location"] },
+            { title: "版本信息", settings: ["_version"] },
         ],
     },
 ];
 
-const sKeys = new Set(Object.keys(s));
+const sKeys = new Set([...Object.keys(s), ...Object.keys(xs)]);
 const mKeys = new Set();
 
 const getTitles = new Map<string, string[]>();
@@ -1974,17 +2175,40 @@ for (const p of main) {
 
 console.log("s-m", sKeys.difference(mKeys), "m-s", mKeys.difference(sKeys));
 
-const bind: { [k in SettingPath]?: SettingPath[] } = {
+const bind: { [k in KeyPath]?: KeyPath[] } = {
     离线OCR: ["OCR.类型"],
     "翻译.翻译器": ["屏幕翻译.语言.from", "屏幕翻译.语言.to"],
     "录屏.提示.键盘.位置.offsetX": ["录屏.提示.键盘.位置"],
     "录屏.提示.键盘.位置.offsetY": ["录屏.提示.键盘.位置"],
     "录屏.提示.键盘.大小": ["录屏.提示.键盘.位置"],
+    "保存名称.前缀": ["_filename"],
+    "保存名称.时间": ["_filename"],
+    "保存名称.后缀": ["_filename"],
+    "取色器.大小": ["_qsq"],
+    "取色器.像素大小": ["_qsq"],
 };
 
 const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
     "工具栏.按钮大小": (v) => setProperty("--bar-size", `${v}px`),
     "工具栏.按钮图标比例": (v) => setProperty("--bar-icon", String(v)),
+    "全局.主题": (theme) => {
+        setProperties({
+            "--bar-bg0": theme.light.barbg,
+            "--bg": theme.light.bg,
+            "--emphasis-color": theme.light.emphasis,
+            "--d-bar-bg0": theme.dark.barbg,
+            "--d-bg": theme.dark.bg,
+            "--d-emphasis-color": theme.dark.emphasis,
+            "--font-color": theme.light.fontColor,
+            "--d-font-color": theme.dark.fontColor,
+            "--icon-color": theme.light.iconColor,
+            "--d-icon-color": theme.dark.iconColor,
+        });
+    },
+    "全局.模糊": (v) => setProperty("--blur", `blur(${v}px)`),
+    "全局.不透明度": (v) => setProperty("--alpha", String(v)),
+    "字体.主要字体": (v) => setProperty("--main-font", v),
+    "字体.等宽字体": (v) => setProperty("--monospace", v),
 };
 
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
@@ -2092,8 +2316,8 @@ const dialogFlexClass = addClass(
     },
 );
 
-function renderSetting(settingPath: SettingPath) {
-    const setting = s[settingPath];
+function renderSetting(settingPath: KeyPath) {
+    const setting = s[settingPath] || xs[settingPath];
     if (!setting) {
         const err = new Error(`Setting ${settingPath} not found`);
         console.error(err);
@@ -2103,30 +2327,32 @@ function renderSetting(settingPath: SettingPath) {
     const el = setting.el();
     // @ts-ignore
     scheduler.postTask(() =>
-        el.sv(store.get(settingPath)).on("input", (e) => {
-            if (e.target === e.currentTarget) {
-                const value = el.gv;
-                if (value !== null && value !== undefined) {
-                    store.set(settingPath, value);
-                    console.log(
-                        `Setting ${settingPath} updated to`,
-                        structuredClone(value),
-                    );
-                    for (const p of bind[settingPath] ?? []) {
-                        reRenderSetting(p);
-                    }
-                    // @ts-ignore
-                    bindF[settingPath]?.(value);
-                }
-            }
-        }),
+        s[settingPath]
+            ? el.sv(store.get(settingPath)).on("input", (e) => {
+                  if (e.target === e.currentTarget) {
+                      const value = el.gv;
+                      if (value !== null && value !== undefined) {
+                          store.set(settingPath, value);
+                          console.log(
+                              `Setting ${settingPath} updated to`,
+                              structuredClone(value),
+                          );
+                          for (const p of bind[settingPath] ?? []) {
+                              reRenderSetting(p);
+                          }
+                          // @ts-ignore
+                          bindF[settingPath]?.(value);
+                      }
+                  }
+              })
+            : null,
     );
     return view()
         .data({ name: settingPath })
         .add([p(setting.name, true), comment(setting.desc || ""), el]);
 }
 
-function reRenderSetting(settingPath: SettingPath) {
+function reRenderSetting(settingPath: KeyPath) {
     const el = document.querySelector(`[data-name="${settingPath}"`);
     if (!el) return;
     console.log("rerender", settingPath);
@@ -3341,6 +3567,11 @@ pureStyle();
 initStyle(store);
 
 for (const v of Object.values(s)) {
+    if (!v) continue;
+    v.name = t(v.name);
+    if (v.desc) v.desc = t(v.desc);
+}
+for (const v of Object.values(xs)) {
     if (!v) continue;
     v.name = t(v.name);
     if (v.desc) v.desc = t(v.desc);
