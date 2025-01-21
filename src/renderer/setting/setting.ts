@@ -556,7 +556,67 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "录屏键盘提示",
         el: () => xSwitch(),
     },
-    // todo 位置
+    "录屏.提示.键盘.位置": {
+        name: "键盘提示位置",
+        el: (v) => {
+            let nv: typeof v = { x: "+", y: "-", offsetX: 0, offsetY: 0 };
+            const screenKeyTipEl = view().style({
+                width: "500px",
+                height: "200px",
+                outline: "2px dashed var(--m-color1)",
+                position: "relative",
+            });
+            const screenKeyTipKBD = view()
+                .style({ position: "absolute", cursor: "move" })
+                .add([
+                    ele("kbd").add(noI18n("Ctrl")),
+                    ele("kbd").add(noI18n("Shift")),
+                    ele("kbd").add(noI18n("I")),
+                ])
+                .addInto(screenKeyTipEl);
+
+            function setKeyTip() {
+                const posi = nv;
+                const px = posi.x === "+" ? "right" : "left";
+                const py = posi.y === "+" ? "bottom" : "top";
+                for (const x of ["left", "right", "top", "bottom"]) {
+                    screenKeyTipKBD.el.style[x] = "";
+                }
+                screenKeyTipKBD.style({
+                    [px]: `${posi.offsetX}px`,
+                    [py]: `${posi.offsetY}px`,
+                    fontSize: `${getSet("录屏.提示.键盘.大小") * 16}px`,
+                });
+            }
+
+            trackPoint(screenKeyTipKBD, {
+                start: () => {
+                    return {
+                        x: 0,
+                        y: 0,
+                        data: screenKeyTipEl.el.getBoundingClientRect(),
+                    };
+                },
+                ing: (_p, e, { startData: pr }) => {
+                    const x = (e.clientX - pr.left) / pr.width;
+                    const y = (e.clientY - pr.top) / pr.height;
+                    nv.x = x < 0.5 ? "-" : "+";
+                    nv.y = y < 0.5 ? "-" : "+";
+                    setKeyTip();
+                },
+                end: () => {
+                    screenKeyTipEl.el.dispatchEvent(new CustomEvent("input"));
+                },
+            });
+
+            return screenKeyTipEl
+                .bindGet(() => nv)
+                .bindSet((v) => {
+                    nv = v;
+                    setKeyTip();
+                });
+        },
+    },
     "录屏.提示.键盘.位置.offsetX": {
         name: "键盘提示偏移x",
         el: () => xRange({ min: 0, text: "px" }),
@@ -1590,6 +1650,7 @@ const main: {
                 title: "提示",
                 settings: [
                     "录屏.提示.键盘.开启",
+                    "录屏.提示.键盘.位置",
                     "录屏.提示.键盘.位置.offsetX",
                     "录屏.提示.键盘.位置.offsetY",
                     "录屏.提示.键盘.大小",
@@ -1916,6 +1977,9 @@ console.log("s-m", sKeys.difference(mKeys), "m-s", mKeys.difference(sKeys));
 const bind: { [k in SettingPath]?: SettingPath[] } = {
     离线OCR: ["OCR.类型"],
     "翻译.翻译器": ["屏幕翻译.语言.from", "屏幕翻译.语言.to"],
+    "录屏.提示.键盘.位置.offsetX": ["录屏.提示.键盘.位置"],
+    "录屏.提示.键盘.位置.offsetY": ["录屏.提示.键盘.位置"],
+    "录屏.提示.键盘.大小": ["录屏.提示.键盘.位置"],
 };
 
 const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
