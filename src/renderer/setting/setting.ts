@@ -26,9 +26,12 @@ import {
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
 import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
-const { ipcRenderer, shell } = require("electron") as typeof import("electron");
+// biome-ignore format:
+const { ipcRenderer, shell, webUtils } = require("electron") as typeof import("electron");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
+const fs = require("node:fs") as typeof import("fs");
+
 import Sortable from "sortablejs";
 
 import logo from "../assets/icon.svg";
@@ -46,6 +49,8 @@ import {
     jsKeyCodeDisplay,
     ele2jsKeyCode,
 } from "../../../lib/key.js";
+
+const download = require("download");
 
 type Engines = keyof typeof translator.e;
 
@@ -383,7 +388,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "识别段落",
         el: () => xSwitch(),
     },
-    // todo 模型拖拽与下载
+    离线OCR: {
+        name: "离线OCR",
+        el: () => ocrEl(),
+    },
     "在线OCR.baidu.url": {
         name: "百度OCR类型",
         desc: "位置版不起实质效果，但可以扩充免费使用次数:)",
@@ -1470,7 +1478,7 @@ const main: {
         pageName: "文字识别（OCR）",
         settings: ["OCR.类型", "OCR.离线切换", "主页面.自动复制OCR"],
         items: [
-            { title: "离线OCR", settings: ["OCR.识别段落"] },
+            { title: "离线OCR", settings: ["离线OCR", "OCR.识别段落"] },
             {
                 title: "百度OCR",
                 settings: [
@@ -1827,6 +1835,7 @@ for (const p of main) {
 console.log("s-m", sKeys.difference(mKeys), "m-s", mKeys.difference(sKeys));
 
 const bind: { [k in SettingPath]?: SettingPath[] } = {
+    离线OCR: ["OCR.类型"],
     "翻译.翻译器": ["屏幕翻译.语言.from", "屏幕翻译.语言.to"],
 };
 
@@ -1927,6 +1936,15 @@ const toolBarClass = addClass(
         "&>div>.icon": {
             width: "calc(var(--bar-size) * var(--bar-icon))",
             transition: "var(--transition)",
+        },
+    },
+);
+
+const dialogFlexClass = addClass(
+    {},
+    {
+        "&[open]": {
+            display: "flex",
         },
     },
 );
@@ -2114,6 +2132,12 @@ function xSecret() {
             el.attr({ type: "password" });
         });
     return el;
+}
+
+function pathEl(path: string) {
+    return txt(path, true)
+        .style({ "font-family": "var(--monospace)", cursor: "pointer" })
+        .on("click", () => shell.openPath(path));
 }
 
 function sortTool() {
@@ -2739,6 +2763,301 @@ function hotkey() {
         .add([i, b])
         .bindSet((v: string) => cvalue((v ?? "").split("+")))
         .bindGet(() => mainKey);
+}
+
+function ocrEl() {
+    let ocrValue: setting["离线OCR"] = [];
+
+    const ocrUrl =
+        "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/";
+    const ocrUrls: { name: string; url: string }[] = [
+        { name: "ghproxy", url: `https://mirror.ghproxy.com/${ocrUrl}` },
+        { name: "GitHub", url: ocrUrl },
+    ];
+
+    const ocrModels: Record<
+        string,
+        { url: string; name: string; supportLang: string[] }
+    > = {
+        ch: { url: "ch.zip", name: "中英混合", supportLang: ["zh-HANS", "en"] },
+        en: { url: "en.zip", name: "英文", supportLang: ["en"] },
+        chinese_cht: {
+            url: "chinese_cht.zip",
+            name: "中文繁体",
+            supportLang: ["zh-HANT"],
+        },
+        korean: { url: "korean.zip", name: "韩文", supportLang: ["ko"] },
+        japan: { url: "japan.zip", name: "日文", supportLang: ["ja"] },
+        te: { url: "te.zip", name: "泰卢固文", supportLang: ["te"] },
+        ka: { url: "ka.zip", name: "卡纳达文", supportLang: ["ka"] },
+        ta: { url: "ta.zip", name: "泰米尔文", supportLang: ["ta"] },
+        latin: {
+            url: "latin.zip",
+            name: "拉丁文",
+            supportLang: [
+                "af",
+                "az",
+                "bs",
+                "cs",
+                "cy",
+                "da",
+                "de",
+                "es",
+                "et",
+                "fr",
+                "ga",
+                "hr",
+                "hu",
+                "id",
+                "is",
+                "it",
+                "ku",
+                "la",
+                "lt",
+                "lv",
+                "mi",
+                "ms",
+                "mt",
+                "nl",
+                "no",
+                "oc",
+                "pi",
+                "pl",
+                "pt",
+                "ro",
+                "sr-Latn",
+                "sk",
+                "sl",
+                "sq",
+                "sv",
+                "sw",
+                "tl",
+                "tr",
+                "uz",
+                "vi",
+                "fr",
+                "de",
+            ],
+        },
+        arabic: {
+            url: "arabic.zip",
+            name: "阿拉伯字母",
+            supportLang: ["ar", "fa", "ug", "ur"],
+        },
+        cyrillic: {
+            url: "cyrillic.zip",
+            name: "斯拉夫字母",
+            supportLang: [
+                "ru",
+                "sr-Cyrl",
+                "be",
+                "bg",
+                "uk",
+                "mn",
+                "abq",
+                "ady",
+                "kbd",
+                "ava",
+                "dar",
+                "inh",
+                "che",
+                "lbe",
+                "lez",
+                "tab",
+            ],
+        },
+        devanagari: {
+            url: "devanagari.zip",
+            name: "梵文字母",
+            supportLang: [
+                "hi",
+                "mr",
+                "ne",
+                "bh",
+                "mai",
+                "ang",
+                "bho",
+                "mah",
+                "sck",
+                "new",
+                "gom",
+                "sa",
+                "bgc",
+            ],
+        },
+    };
+
+    const langMap = {
+        pi: "巴利语",
+        abq: "阿布哈兹语",
+        ady: "阿迪格语",
+        kbd: "卡巴尔达语",
+        ava: "阿瓦尔语",
+        dar: "达尔格瓦语",
+        inh: "印古什语",
+        che: "车臣语",
+        lbe: "列兹金语",
+        lez: "雷兹语",
+        tab: "塔巴萨兰语",
+        bh: "比哈里语",
+        ang: "古英语",
+        mah: "马拉提语",
+        sck: "西卡语",
+        new: "尼瓦尔语",
+        gom: "孔卡尼语",
+        bgc: "哈尔穆克语",
+    };
+
+    const configPath = ipcRenderer.sendSync("store", { type: "path" });
+
+    function addOCR(p: string) {
+        const stat = fs.statSync(p);
+        if (stat.isDirectory()) {
+            const files = fs.readdirSync(p);
+            const downPath = path.join(p, files[0]);
+            if (fs.statSync(downPath).isDirectory()) {
+                addOCRFromPaths(
+                    fs.readdirSync(downPath).map((i) => path.join(downPath, i)),
+                );
+            } else {
+                addOCRFromPaths(files.map((i) => path.join(p, i)));
+            }
+        } else {
+            const files = fs.readdirSync(path.join(p, "../"));
+            addOCRFromPaths(files.map((i) => path.join(p, "../", i)));
+        }
+    }
+    function addOCRFromPaths(paths: string[]) {
+        const l: [string, string, string, string] = [
+            `新模型${crypto.randomUUID().slice(0, 7)}`,
+            "默认/ppocr_det.onnx",
+            "默认/ppocr_rec.onnx",
+            "默认/ppocr_keys_v1.txt",
+        ];
+        for (const path of paths) {
+            if (path.split("/").at(-1)?.includes("det")) {
+                l[1] = path;
+            } else if (path.split("/").at(-1)?.includes("rec")) {
+                l[2] = path;
+            } else {
+                l[3] = path;
+            }
+        }
+        ocrValue.push(l);
+        el.el.dispatchEvent(new CustomEvent("input"));
+    }
+    const el = view();
+    const dragEl = view("y")
+        .style({
+            width: "300px",
+            height: "100px",
+            background: "var(--m-color2)",
+            borderRadius: "var(--border-radius)",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingInline: "var(--o-padding)",
+        })
+        .add(txt("拖拽det模型、rec模型和字典文件到此处"))
+        .on("dragover", (e) => {
+            e.preventDefault();
+        })
+        .on("dragleave", () => {})
+        .on("drop", (e) => {
+            e.preventDefault();
+            console.log(e);
+            const fs = e.dataTransfer?.files || [];
+            addOCRFromPaths(
+                Array.from(fs).map((i) => webUtils.getPathForFile(i)),
+            );
+        });
+    const ocrListEl = view("y").style({ overflow: "auto", gap: "8px" });
+    for (const i in ocrModels) {
+        const pro = ele("progress")
+            .style({ display: "none" })
+            .bindSet((v: number, el) => {
+                el.value = v;
+                if (v === 1) pro.remove();
+            });
+        const lans = view("x").style({
+            "column-gap": "16px",
+            "flex-wrap": "wrap",
+        });
+        const p = path.join(configPath, "models", i);
+        const exists = fs.existsSync(p);
+        const downloadButton = button(exists ? "重新下载" : "下载").on(
+            "click",
+            () => {
+                pro.el.style.display = "block";
+                const url = mirrorSelect.gv + ocrModels[i].url;
+                download(url, p, {
+                    extract: true,
+                    rejectUnauthorized: false,
+                })
+                    .on("response", (res) => {
+                        const total = Number(res.headers["content-length"]);
+                        let now = 0;
+                        res.on("data", (data) => {
+                            now += Number(data.length);
+                            const percent = now / total;
+                            console.log(percent);
+                            pro.sv(percent); // todo 难绷的样式
+                        });
+                        res.on("end", () => {});
+                    })
+                    .then(() => {
+                        console.log("end");
+                        addOCR(p);
+                    });
+            },
+        );
+        ocrListEl.add(
+            view("y").add([
+                view("x")
+                    .add([
+                        button(ocrModels[i].name).on("click", () => {
+                            lans.clear().add(
+                                ocrModels[i].supportLang.map((i) =>
+                                    langMap[i]
+                                        ? txt(langMap[i])
+                                        : txt(displayLan.of(i), true),
+                                ),
+                            );
+                        }),
+                        downloadButton,
+                        pro,
+                    ])
+                    .style({ "align-items": "center" }),
+                lans,
+            ]),
+        );
+    }
+
+    const mirrorSelect = select(
+        ocrUrls.map((i) => ({ name: noI18n(i.name), value: i.url })),
+    );
+    const ocrDownloadEl = view().add([mirrorSelect]);
+    const addOCRModel = ele("dialog")
+        .style({ flexDirection: "column" })
+        .class(dialogFlexClass)
+        .add([
+            ocrListEl,
+            ocrDownloadEl,
+            view().add([
+                "将保存到：",
+                " ",
+                pathEl(path.join(configPath, "models")),
+            ]),
+            button(txt("关闭")).on("click", () => addOCRModel.el.close()),
+        ]);
+    const showB = button(iconEl("down")).on("click", () =>
+        addOCRModel.el.showModal(),
+    );
+    return el
+        .add([dragEl, showB, addOCRModel])
+        .bindGet(() => ocrValue)
+        .bindSet((v: setting["离线OCR"]) => {
+            ocrValue = v;
+        });
 }
 
 // @auto-path:../assets/icons/$.svg
