@@ -109,6 +109,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "工具栏.功能": {
         name: "按钮显示和排序",
+        desc: "拖拽以控制按键顺序和显示",
         el: () => sortTool(),
     },
     "工具栏.初始位置": {
