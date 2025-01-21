@@ -3,7 +3,6 @@ export interface setting {
     设置版本: string; // 用于新版本识别
     启动提示: true;
     dev: boolean;
-    新版设置: boolean;
     语言: { 语言?: string };
     保留截屏窗口: boolean;
     快捷键: {

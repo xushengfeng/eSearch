@@ -26,7 +26,6 @@ import {
     confirm,
     alert,
     setProperties,
-    dynamicSelect,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl } from "../root/root";
@@ -2393,6 +2392,7 @@ function xSelect<T extends string>(
     return el.bindGet(() => r.get()).bindSet((value: T) => r.set(value));
 }
 
+// todo 右键撤回 精度
 function xRange(
     op?: Partial<{ min: number; max: number; step: number; text: string }>,
 ) {
@@ -3796,14 +3796,6 @@ for (const [k, f] of Object.entries(bindF)) {
 }
 
 showPage(main[0]);
-
-button(t("使用旧版设置"))
-    .style({ position: "fixed", bottom: "16px", right: "16px" })
-    .on("click", () => {
-        store.set("新版设置", false);
-        ipcRenderer.send("window", "close");
-    })
-    .addInto();
 
 document.body.onclick = (e) => {
     if ((<HTMLElement>e.target).tagName === "A") {
