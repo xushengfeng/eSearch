@@ -175,16 +175,16 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () =>
             xSelect(
                 [
-                    { value: "HEX", name: "HEX" },
-                    { value: "RGB", name: "rgb" },
-                    { value: "HSL", name: "hsl" },
-                    { value: "HSV", name: "hsv" },
-                    { value: "HWB", name: "hwb" },
-                    { value: "LAB", name: "lab" },
-                    { value: "LCH", name: "lch" },
-                    { value: "OKLAB", name: "Oklab" },
-                    { value: "OKLCH", name: "Oklch" },
-                    { value: "CMYK", name: "CMYK" },
+                    { value: "HEX", name: noI18n("HEX") },
+                    { value: "RGB", name: noI18n("rgb") },
+                    { value: "HSL", name: noI18n("hsl") },
+                    { value: "HSV", name: noI18n("hsv") },
+                    { value: "HWB", name: noI18n("hwb") },
+                    { value: "LAB", name: noI18n("lab") },
+                    { value: "LCH", name: noI18n("lch") },
+                    { value: "OKLAB", name: noI18n("Oklab") },
+                    { value: "OKLCH", name: noI18n("Oklch") },
+                    { value: "CMYK", name: noI18n("CMYK") },
                 ],
                 "取色器默认格式",
             ),
@@ -366,7 +366,7 @@ const s: Partial<settingItem<SettingPath>> = {
                 [
                     ...getSet("离线OCR").map((i) => ({
                         value: i[0],
-                        name: i[0],
+                        name: noI18n(i[0]),
                     })),
                     { value: "youdao", name: "有道" },
                     { value: "baidu", name: "百度" },
@@ -443,10 +443,10 @@ const s: Partial<settingItem<SettingPath>> = {
         el: (v) =>
             xSelect<typeof v>(
                 [
-                    { value: "cpu", name: "CPU" },
-                    { value: "cuda", name: "CUDA" },
-                    { value: "coreml", name: "coreML" },
-                    { value: "directml", name: "DirectML" },
+                    { value: "cpu", name: noI18n("CPU") },
+                    { value: "cuda", name: noI18n("CUDA") },
+                    { value: "coreml", name: noI18n("coreML") },
+                    { value: "directml", name: noI18n("DirectML") },
                 ],
                 "运行后端",
             ),
@@ -560,7 +560,7 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => xNumber("fps"),
     },
     "录屏.转换.其他": {
-        name: "FFmpegff其他参数",
+        name: "FFmpeg其他参数",
         el: () => input(),
     },
     "录屏.转换.高质量gif": {
@@ -646,7 +646,7 @@ const s: Partial<settingItem<SettingPath>> = {
                             setStyle();
                         });
                     const preview = view().add(
-                        image(logo, "logo").style({ width: "200px" }),
+                        image(logo, noI18n("logo")).style({ width: "200px" }),
                     );
 
                     m.add([
@@ -1110,7 +1110,10 @@ const s: Partial<settingItem<SettingPath>> = {
                     ipcRenderer.send("setting", "reload");
                 });
             const list = xSelect(
-                lans.map((i) => ({ value: i, name: getLanName(i) })), // todo noi18n
+                lans.map((i) => ({
+                    value: i,
+                    name: noI18n(getLanName(i) ?? i),
+                })),
                 "语言",
             ).on("input", () => {
                 lan(list.gv);
@@ -1464,7 +1467,7 @@ const main: {
         ],
     },
     {
-        pageName: "OCR",
+        pageName: "文字识别（OCR）",
         settings: ["OCR.类型", "OCR.离线切换", "主页面.自动复制OCR"],
         items: [
             { title: "离线OCR", settings: ["OCR.识别段落"] },
@@ -1971,12 +1974,12 @@ function reRenderSetting(settingPath: SettingPath) {
 }
 
 function tIconEl(img: string) {
-    return image(img, "icon").class("icon");
+    return image(img, noI18n("icon")).class("icon");
 }
 
 // @auto-path:../assets/icons/$.svg
 function iconEl(img: string) {
-    return image(getImgUrl(`${img}.svg`), "icon").class("icon");
+    return image(getImgUrl(`${img}.svg`), noI18n(img)).class("icon");
 }
 
 function comment(str: string) {
@@ -1984,7 +1987,10 @@ function comment(str: string) {
 }
 
 function xSelect<T extends string>(
-    options: { value: T; name?: string | ElType<HTMLElement> }[],
+    options: {
+        value: T;
+        name?: string | ElType<HTMLElement> | ReturnType<typeof noI18n>;
+    }[],
     name: string,
 ) {
     const el = view("x", "wrap");
@@ -2072,7 +2078,7 @@ function xNumber(
     if (op?.min !== undefined) el.attr({ min: String(op.min) });
     if (op?.step !== undefined) el.attr({ step: String(op.step) });
     return view()
-        .add([el, dw ?? ""])
+        .add([el, noI18n(dw) ?? ""])
         .bindGet(() => Number(el.gv))
         .bindSet((v: number) => {
             el.sv(String(v));
@@ -2668,7 +2674,7 @@ function hotkey() {
                 return isMac ? (key.symble ?? key.primary) : key.primary;
             });
         nl.length
-            ? i.clear().add(nl.map((i) => view().add(i)))
+            ? i.clear().add(nl.map((i) => view().add(noI18n(i))))
             : i.clear().add("点击录入");
         mainKey = l.join("+");
     }
