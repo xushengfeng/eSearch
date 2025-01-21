@@ -1935,11 +1935,11 @@ function renderSetting(settingPath: SettingPath) {
         console.error(err);
         return;
     }
-    const el = setting
-        // @ts-ignore
-        .el(store.get(settingPath))
-        .sv(store.get(settingPath))
-        .on("input", (e) => {
+    // @ts-ignore
+    const el = setting.el();
+    // @ts-ignore
+    scheduler.postTask(() =>
+        el.sv(store.get(settingPath)).on("input", (e) => {
             if (e.target === e.currentTarget) {
                 const value = el.gv;
                 if (value !== null && value !== undefined) {
@@ -1955,7 +1955,8 @@ function renderSetting(settingPath: SettingPath) {
                     bindF[settingPath]?.(value);
                 }
             }
-        });
+        }),
+    );
     return view()
         .data({ name: settingPath })
         .add([p(setting.name, true), comment(setting.desc || ""), el]);
@@ -2778,7 +2779,7 @@ function getIconColor(hex: string) {
     }
 }
 
-function showPage(page: (typeof main)[0]) {
+async function showPage(page: (typeof main)[0]) {
     mainView.clear();
     mainView.add(ele("h1").add(noI18n(page.pageName)));
     if (page.desc) mainView.add(comment(page.desc));
@@ -2794,6 +2795,8 @@ function showPage(page: (typeof main)[0]) {
             for (const setting of item.settings) {
                 mainView.add(renderSetting(setting));
             }
+            // @ts-ignore
+            await scheduler.yield();
         }
     }
 }
