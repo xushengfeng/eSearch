@@ -3058,7 +3058,9 @@ function z在线生词本Dialog(
         headers: {},
         getter: [],
     };
-    const name = input().attr({ placeholder: "名称" }).sv(v.name);
+    const name = input()
+        .attr({ placeholder: t("名称") })
+        .sv(v.name);
     const url = input().sv(v.url);
     const method = select([
         { value: "get", name: noI18n("GET") },
@@ -3752,7 +3754,11 @@ const searchI = input()
             mainView.add(
                 view().add([
                     txt("", true)
-                        .sv(title ? title.join(" > ") : t("未知路径"))
+                        .sv(
+                            title
+                                ? title.map((i) => t(i)).join(" > ")
+                                : t("未知路径"),
+                        )
                         .style({
                             color: "var(--font-color-ll)",
                         }),
