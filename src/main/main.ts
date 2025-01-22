@@ -1042,6 +1042,23 @@ function feedbackUrl(op?: {
     return url.toString();
 }
 
+function feedbackUrl2(op?: {
+    title?: string;
+    main?: string;
+}) {
+    const url = new URL(
+        "https://github.com/xushengfeng/eSearch/issues/new?template=feature_request.yaml",
+    );
+    if (op?.title) url.searchParams.append("title", op.title);
+    url.searchParams.append("main", op?.main || "");
+    url.searchParams.append("v", app.getVersion());
+    url.searchParams.append(
+        "os",
+        `${process.platform} ${release()} (${process.arch})`,
+    );
+    return url.toString();
+}
+
 const theIcon =
     process.platform === "win32"
         ? join(runPath, "assets/logo/icon.ico")
@@ -2413,6 +2430,9 @@ ipcMain.on("app", (e, type, arg) => {
     }
     if (type === "feedback") {
         e.returnValue = feedbackUrl(arg);
+    }
+    if (type === "feedback2") {
+        e.returnValue = feedbackUrl2(arg);
     }
 });
 

@@ -2358,6 +2358,7 @@ function renderSetting(settingPath: KeyPath) {
 function reRenderSetting(settingPath: KeyPath) {
     const el = document.querySelector(`[data-name="${settingPath}"`);
     if (!el) return;
+    // todo sv
     console.log("rerender", settingPath);
     const nel = renderSetting(settingPath);
     if (nel) el.replaceWith(nel.el);
@@ -3737,6 +3738,15 @@ const searchI = input()
             )
             .map((i) => i[0]);
         mainView.clear();
+        if (l.length === 0)
+            mainView.add([
+                "无结果，尝试其他关键词",
+                a(
+                    ipcRenderer.sendSync("app", "feedback2", {
+                        title: t("添加设置项"),
+                    }),
+                ).add("提交新功能"),
+            ]);
         for (const i of l) {
             const title = getTitles.get(i);
             mainView.add(
