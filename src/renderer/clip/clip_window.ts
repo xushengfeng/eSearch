@@ -525,7 +525,7 @@ function long_s() {
     s = null;
 }
 
-async function startLong() {
+function startLong() {
     initLong(finalRect);
     const r = [...finalRect];
     r[0] += screenPosition[nowScreenId].x;
@@ -2751,8 +2751,9 @@ async function fabricCopy() {
 // 获取设置
 
 if (store.get("框选.自动框选.图像识别")) {
+    // biome-ignore format:
     // biome-ignore lint: 为了部分引入
-    var cv = require("@techstark/opencv-js");
+    var cv = require("@techstark/opencv-js") as typeof import('@techstark/opencv-js');
 }
 
 const 字体 = store.get("字体");
