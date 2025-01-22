@@ -28,7 +28,7 @@ import {
     setProperties,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
-import { initStyle, getImgUrl } from "../root/root";
+import { initStyle, getImgUrl, setTitle } from "../root/root";
 import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
 // biome-ignore format:
 const { ipcRenderer, shell, webUtils } = require("electron") as typeof import("electron");
@@ -3689,6 +3689,8 @@ for (const p of main) {
 }
 
 pack(document.body).style({ display: "flex" });
+
+setTitle(t("设置"));
 
 addStyle({
     h1: {

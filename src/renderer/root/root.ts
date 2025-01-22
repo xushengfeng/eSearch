@@ -35,4 +35,9 @@ function getImgUrl(name: string) {
     return new URL(`../assets/icons/${name}`, import.meta.url).href;
 }
 
-export { initStyle, getImgUrl };
+function setTitle(t: string) {
+    document.title = `eSearch ${t}`;
+    // todo 国际化
+}
+
+export { initStyle, getImgUrl, setTitle };

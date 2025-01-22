@@ -5,7 +5,7 @@ const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import { getImgUrl, initStyle } from "../root/root";
+import { getImgUrl, initStyle, setTitle } from "../root/root";
 import open_with from "../../../lib/open_with";
 import { t, lan } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
@@ -3738,7 +3738,7 @@ trackPoint(pack(toolBar), {
     },
 });
 
-document.title = t(document.title);
+setTitle(t("截屏"));
 
 // 键盘控制光标
 document.querySelector("body").onkeydown = (e) => {

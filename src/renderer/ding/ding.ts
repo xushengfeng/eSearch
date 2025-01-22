@@ -2,7 +2,7 @@ const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
-import { getImgUrl, initStyle } from "../root/root";
+import { getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import xtranslator from "xtranslator";
 import {
@@ -20,6 +20,12 @@ import {
 } from "dkh-ui";
 initStyle(store);
 pureStyle();
+
+import { lan, t } from "../../../lib/translate/translate";
+
+lan(store.get("语言.语言"));
+
+setTitle(t("贴图"));
 
 let lo: import("esearch-ocr").initType;
 let translateE = async (input: string[]) => input;

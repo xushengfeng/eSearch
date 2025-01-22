@@ -15,6 +15,11 @@ import {
 import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
+import { lan, t } from "../../../lib/translate/translate";
+
+lan(store.get("语言.语言"));
+
+document.title = t("AI 视觉");
 
 const md = new Remarkable({ breaks: true });
 

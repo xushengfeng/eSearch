@@ -18,6 +18,12 @@ import {
     view,
 } from "dkh-ui";
 
+import { lan, t } from "../../../lib/translate/translate";
+
+lan(store.get("语言.语言"));
+
+document.title = t("翻译");
+
 pureStyle();
 
 initStyle(store);

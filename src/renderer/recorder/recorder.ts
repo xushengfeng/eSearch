@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 // @ts-strict-ignore
-import { initStyle, getImgUrl } from "../root/root";
+import { initStyle, getImgUrl, setTitle } from "../root/root";
 import {
     button,
     check,
@@ -362,6 +362,7 @@ import store from "../../../lib/store/renderStore";
 initStyle(store);
 
 lan(store.get("语言.语言"));
+setTitle(t("录屏"));
 
 let recorder: MediaRecorder;
 

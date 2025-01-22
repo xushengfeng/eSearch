@@ -15,7 +15,10 @@ function iconEl(src: string) {
 }
 
 import store from "../../../lib/store/renderStore";
-import { getImgUrl } from "../root/root";
+import { getImgUrl, setTitle } from "../root/root";
+import { lan, t } from "../../../lib/translate/translate";
+lan(store.get("语言.语言"));
+setTitle(t("屏幕翻译"));
 
 const screenShots = initScreenShots({
     c: store.get("额外截屏器.命令"),

@@ -16,14 +16,14 @@ import {
     noI18n,
     pureStyle,
 } from "dkh-ui";
-import { initStyle } from "../root/root";
+import { initStyle, setTitle } from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
 import openWith from "../../../lib/open_with";
 import { t, lan } from "../../../lib/translate/translate";
 import diff_match_patch from "diff-match-patch";
-const { ipcRenderer, shell, clipboard } =
-    require("electron") as typeof import("electron");
+// biome-ignore format:
+const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
@@ -1431,7 +1431,7 @@ hotkeys("ctrl+0", () => {
     setFontSize(默认字体大小);
 });
 
-document.title = t(document.title);
+setTitle(t("主页面"));
 
 /**
  * 统计字数
@@ -1624,11 +1624,11 @@ function focusTab(li: HTMLElement) {
 
     if (li) {
         ipcRenderer.send("tab_view", li.id.replace("id", ""), "top");
-        document.title = `eSearch - ${li.querySelector("span").title}`;
+        setTitle(li.querySelector("span").title);
         body.classList.add("fill_t_s");
     } else {
         body.classList.remove("fill_t_s");
-        document.title = t("eSearch - 主页面");
+        setTitle(t("主页面"));
     }
 }
 
@@ -1643,7 +1643,7 @@ function title(id: number, arg: string) {
             .className.split(" ")
             .includes("tab_focus")
     )
-        document.title = `eSearch - ${arg}`;
+        setTitle(arg);
 }
 
 function icon(id: number, arg: Array<string>) {
@@ -1689,7 +1689,7 @@ function mainEvent(eid: string) {
         if (eid === "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
             body.classList.remove("fill_t_s");
-            document.title = t("eSearch - 主页面");
+            setTitle(t("主页面"));
         }
     }
 }
@@ -1897,8 +1897,8 @@ async function localOcr(
         const 字典 = ocrPath(l[3]);
         console.log(detp, recp, 字典);
         if (!lo) {
-            const localOCR =
-                require("esearch-ocr") as typeof import("esearch-ocr");
+            // biome-ignore format:
+            const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
             const ort = require("onnxruntime-node");
             const provider = store.get("AI.运行后端") || "cpu";
             lo = await localOCR.init({

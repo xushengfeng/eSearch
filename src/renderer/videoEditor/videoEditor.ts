@@ -17,7 +17,7 @@ import {
     dynamicSelect,
     spacer,
 } from "dkh-ui";
-import { getImgUrl, initStyle } from "../root/root";
+import { getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
@@ -27,6 +27,12 @@ type KeyCode = `${keyof typeof UiohookKey}`;
 const fs = require("node:fs") as typeof import("fs");
 
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
+
+import { lan, t } from "../../../lib/translate/translate";
+
+lan(store.get("语言.语言"));
+
+setTitle(t("超级录屏"));
 
 type superRecording = {
     time: number;

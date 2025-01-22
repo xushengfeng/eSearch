@@ -13,7 +13,7 @@ import {
     view,
 } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
-import { getImgUrl, initStyle } from "../root/root";
+import { getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 const { ipcRenderer, nativeImage, clipboard } = window.require(
     "electron",
@@ -22,6 +22,7 @@ const { writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
+import { lan, t } from "../../../lib/translate/translate";
 
 // @auto-path:../assets/icons/$.svg
 function icon(src: string) {
@@ -29,6 +30,9 @@ function icon(src: string) {
 }
 
 initStyle(store);
+lan(store.get("语言.语言"));
+
+setTitle(t("高级编辑"));
 
 const maskPens: Map<string, { w: number; ps: { x: number; y: number }[] }> =
     new Map();

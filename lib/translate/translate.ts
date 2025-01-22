@@ -25,8 +25,8 @@ function parseLan(lan: string) {
  * 切换语言
  * @param {string} lan 语言
  */
-function lan(lan: string) {
-    language = parseLan(lan);
+function lan(lan: string | undefined) {
+    language = parseLan(lan ?? "");
     if (language !== "zh-HANS") {
         l = require(path.join(rootDir, `./${language}.json`));
     }
