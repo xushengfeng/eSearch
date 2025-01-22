@@ -229,7 +229,7 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () =>
             xSelect(
                 [
-                    { value: "no", name: t("无") },
+                    { value: "no", name: "无" },
                     ...tools
                         .filter((i) => i.key !== "close" && i.key !== "screens")
                         .map((i) => ({
@@ -3600,7 +3600,7 @@ async function showPage(page: (typeof main)[0]) {
 
 function about() {
     const el = view("y").style({ alignItems: "center", marginTop: "120px" });
-    const logoEl = image(logo, "logo").style({ width: "200px" });
+    const logoEl = image(logo, noI18n("logo")).style({ width: "200px" });
     const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
     const version = button(noI18n(packageJson.version)).style({
         fontFamily: "var(--monospace)",
