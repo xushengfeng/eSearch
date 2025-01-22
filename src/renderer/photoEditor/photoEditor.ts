@@ -1,4 +1,5 @@
 import {
+    addStyle,
     button,
     check,
     ele,
@@ -80,6 +81,25 @@ function getStyleData(id: string) {
 function subTitle(text: string) {
     return txt(text).class("sub-title");
 }
+
+addStyle({
+    body: {
+        display: "flex",
+        height: "100vh",
+    },
+    canvas: {
+        maxWidth: "100%",
+        maxHeight: "100%",
+        transition: "var(--transition)",
+    },
+    "canvas:hover": {
+        boxShadow: "var(--shadow)",
+    },
+    ".sub-title": {
+        fontSize: "1.2rem",
+        fontWeight: 500,
+    },
+});
 
 const preview = view().style({
     margin: "auto",

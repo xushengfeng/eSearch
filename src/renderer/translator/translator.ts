@@ -4,7 +4,15 @@ import initScreenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
 
-import { button, type ElType, image, pureStyle, view } from "dkh-ui";
+import {
+    addClass,
+    button,
+    type ElType,
+    image,
+    pack,
+    pureStyle,
+    view,
+} from "dkh-ui";
 
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
@@ -139,12 +147,13 @@ async function run() {
         const x1 = i.box[2][0];
         const y1 = i.box[2][1];
         const item = view().style({
+            position: "absolute",
             left: `${x0}px`,
             top: `${y0}px`,
             width: `${x1 - x0}px`,
             height: `${y1 - y0}px`,
-            "line-height": `${lineHeight}px`,
-            "font-size": `${lineHeight}px`,
+            lineHeight: `${lineHeight}px`,
+            fontSize: `${lineHeight}px`,
         });
         textEl.add(item);
         textL.push({ el: item, text });
@@ -161,6 +170,11 @@ const runRun = () => {
 
 pureStyle();
 
+pack(document.body).style({
+    overflow: "hidden",
+    backgroundColor: "transparent !important",
+});
+
 const playIcon = iconEl("recume");
 const playEl = button(playIcon).on("click", () => {
     pause = !pause;
@@ -176,8 +190,20 @@ const runEl = button(iconEl("ocr")).on("click", async () => {
     mainEl.el.style.opacity = "1";
 });
 
-const toolsEl = view()
-    .class("tools")
+const toolsEl = view("x")
+    .style({ position: "absolute", right: 0, top: 0 })
+    .class(
+        addClass(
+            {},
+            {
+                "&>*": {
+                    backgroundColor: "var(--bg)",
+                    // @ts-ignore
+                    "-webkit-app-region": "no-drag",
+                },
+            },
+        ),
+    )
     .class("small-size")
     .add([
         playEl,
@@ -198,8 +224,15 @@ const OCR = await lo.init({
     detRatio: 0.75,
 });
 
-const mainEl = view().class("main");
-const textEl = view().class("text");
+const mainEl = view().style({
+    position: "absolute",
+    overflow: "hidden",
+});
+const textEl = view().style({
+    position: "relative",
+    // @ts-ignore
+    "-webkit-app-region": "drag",
+});
 mainEl.add([textEl]);
 
 mainEl.addInto();

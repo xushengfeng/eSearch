@@ -115,6 +115,10 @@ body select {
     }
 }
 
+body select {
+    field-sizing: content;
+}
+
 button:active {
     transform: var(--button-active);
 }
@@ -168,6 +172,7 @@ kbd {
 
 input[type="number"] {
     font-family: var(--monospace);
+    field-sizing: content;
 }
 
 label:has(> input[type="checkbox"]) {

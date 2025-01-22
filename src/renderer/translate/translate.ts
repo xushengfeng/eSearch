@@ -12,6 +12,7 @@ import {
     frame,
     image,
     p,
+    pack,
     pureStyle,
     spacer,
     txt,
@@ -32,6 +33,12 @@ initStyle(store);
 function iconButton(img: string) {
     return button(image(getImgUrl(`${img}.svg`), "icon").class("icon"));
 }
+
+pack(document.body).style({
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+});
 
 const input = ele("textarea").style({
     width: "100%",
