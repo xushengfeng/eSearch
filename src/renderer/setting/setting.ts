@@ -1508,6 +1508,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "更新.模式": {
         name: "更新模式",
+        desc: "适用于启动时检查",
         el: (v) =>
             xSelect<typeof v>(
                 [
@@ -2216,6 +2217,11 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
 
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
     return store.get(k);
+}
+
+function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
+    store.set(k, v);
+    reRenderSetting(k);
 }
 
 const themes: setting["全局"]["主题"][] = [
@@ -3630,9 +3636,83 @@ function about() {
             el.style({ "--x": `${xx * 8}px`, "--y": `${yy * 8}px` });
         });
     const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
-    const version = button(noI18n(packageJson.version)).style({
-        fontFamily: "var(--monospace)",
-    });
+    const version = button(noI18n(packageJson.version))
+        .style({
+            fontFamily: "var(--monospace)",
+        })
+        .on("click", () => {
+            fetch("https://api.github.com/repos/xushengfeng/eSearch/releases", {
+                method: "GET",
+                redirect: "follow",
+            })
+                .then((response) => response.json())
+                .then((re) => {
+                    console.log(re);
+                    const l: {
+                        html_url: string;
+                        name: string;
+                        body: string;
+                        assets: {
+                            browser_download_url: string;
+                            name: string;
+                        }[];
+                    }[] = re.filter((i) => !i.draft);
+                    update.clear();
+                    for (const [i, r] of l.entries()) {
+                        const div = view();
+                        const tags = view().add(
+                            ele("h1").add(noI18n(r.name)).style({
+                                fontFamily: "var(--monospace)",
+                            }),
+                        );
+                        const b = r.body.split("\n---").at(0) as string;
+                        const p = document.createElement("p");
+                        p.innerHTML = b.replace(/\r\n/g, "<br>");
+                        fetch("https://api.github.com/markdown", {
+                            body: JSON.stringify({ text: b, mode: "gfm" }),
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                        })
+                            .then((r) => r.text())
+                            .then((data) => {
+                                p.innerHTML = data;
+                            });
+                        // todo 翻译
+                        div.add([tags, p]);
+                        update.add(div);
+
+                        if (r.name === packageJson.version) {
+                            tags.add(txt("当前版本"));
+                            break;
+                        }
+                        if (i === 0) {
+                            tags.add(txt("最新版本"));
+                        }
+                        const baseName = `eSearch-${r.name}-${process.platform}-${process.arch}`;
+                        const assets = r.assets.filter((i) =>
+                            i.name.startsWith(baseName),
+                        );
+                        tags.add(
+                            assets.map((i) =>
+                                button(
+                                    noI18n(
+                                        `${t("点击下载")} ${i.name.replace(baseName, "")}`,
+                                    ),
+                                ).on("click", () => {
+                                    shell.openExternal(i.browser_download_url); // todo 镜像
+                                }),
+                            ),
+                        );
+                        tags.add(
+                            button("忽略此版本").on("click", () => {
+                                setSet("更新.忽略版本", r.name);
+                            }),
+                        );
+                    }
+                })
+                .catch((error) => console.log("error", error));
+        });
+    const update = view("y");
     const desc = p(packageJson.description);
 
     const infoEl = view("y").style({ alignItems: "center" });
@@ -3688,7 +3768,7 @@ function about() {
         ),
     ]);
 
-    return el.add([logoEl, nameEl, version, desc, infoEl]);
+    return el.add([logoEl, nameEl, version, update, desc, infoEl]);
 }
 
 lan(store.get("语言.语言") as string);
