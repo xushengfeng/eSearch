@@ -393,6 +393,13 @@ export interface setting {
         }[];
         默认配置: string;
     };
+    网络: {
+        github镜像: {
+            启用: boolean;
+            base: string;
+            api: string;
+        };
+    };
 }
 
 type 功能列表 = [

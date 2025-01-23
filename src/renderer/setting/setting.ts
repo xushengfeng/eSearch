@@ -83,6 +83,8 @@ type settingItem<t extends SettingPath> = {
     };
 };
 
+type GithubUrlType = Omit<keyof setting["网络"]["github镜像"], "启用">;
+
 const mainLan = store.get("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
     type: "language",
@@ -1477,6 +1479,17 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "排除规则",
         el: () => input(),
     },
+    "网络.github镜像.启用": {
+        name: "GitHub镜像",
+        desc: "加速Github有关网络访问",
+        el: () => xSwitch(),
+    },
+    "网络.github镜像.base": {
+        name: "基本",
+        desc: "软件资源下载",
+        el: () => input(),
+    },
+    "网络.github镜像.api": { name: "api", desc: "检查更新", el: () => input() },
     硬件加速: {
         name: "硬件加速",
         desc: "如果可用，且更改需要重启软件生效",
@@ -2147,6 +2160,14 @@ const main: {
                 settings: ["额外截屏器.命令", "额外截屏器.位置"],
             },
             { title: "后台", settings: ["保留截屏窗口"] },
+            {
+                title: "Github镜像",
+                settings: [
+                    "网络.github镜像.启用",
+                    "网络.github镜像.base",
+                    "网络.github镜像.api",
+                ],
+            },
             {
                 title: "检查更新",
                 settings: ["更新.频率", "更新.模式", "更新.忽略版本"],
@@ -3246,13 +3267,6 @@ function hotkey() {
 function ocrEl() {
     let ocrValue: setting["离线OCR"] = [];
 
-    const ocrUrl =
-        "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/";
-    const ocrUrls: { name: string; url: string }[] = [
-        { name: "ghproxy", url: `https://mirror.ghproxy.com/${ocrUrl}` },
-        { name: "GitHub", url: ocrUrl },
-    ];
-
     const ocrModels: Record<
         string,
         { url: string; name: string; supportLang: string[] }
@@ -3466,7 +3480,10 @@ function ocrEl() {
             "click",
             () => {
                 pro.el.style.display = "block";
-                const url = mirrorSelect.gv + ocrModels[i].url;
+                const url = githubUrl(
+                    `xushengfeng/eSearch-OCR/releases/download/4.0.0/${ocrModels[i].url}`,
+                    "base",
+                );
                 download(url, p, {
                     extract: true,
                     rejectUnauthorized: false,
@@ -3510,16 +3527,11 @@ function ocrEl() {
         );
     }
 
-    const mirrorSelect = select(
-        ocrUrls.map((i) => ({ name: noI18n(i.name), value: i.url })),
-    );
-    const ocrDownloadEl = view().add([mirrorSelect]);
     const addOCRModel = ele("dialog")
         .style({ flexDirection: "column" })
         .class(dialogFlexClass)
         .add([
             ocrListEl,
-            ocrDownloadEl,
             view().add([
                 "将保存到：",
                 " ",
@@ -3582,6 +3594,43 @@ function getIconColor(hex: string) {
     }
 }
 
+function githubPath(url: string): {
+    type: GithubUrlType;
+    path: string;
+} {
+    const u = url.replace("https://", "");
+    if (u.startsWith("api.github.com"))
+        return {
+            path: u.replace("api.github.com", ""),
+            type: "api",
+        };
+    if (u.startsWith("github.com"))
+        return { path: u.replace("github.com", ""), type: "base" };
+    return { path: url, type: "base" };
+}
+
+// todo 主进程也用
+
+function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
+    const s = store.get("网络.github镜像");
+    function ap(x: string) {
+        return x.replace(/\/$/, "");
+    }
+    function bp(x: string) {
+        return x.replace(/^\//, "");
+    }
+    if (!s.启用 && _type === "auto") return _path;
+    const { path, type } =
+        _type === "auto" ? githubPath(_path) : { path: _path, type: _type };
+    if (type === "api") {
+        return `${ap(s.api)}/${bp(path)}`;
+    }
+    if (type === "base") {
+        return `${ap(s.base)}/${bp(path)}`;
+    }
+    return path;
+}
+
 async function showPage(page: (typeof main)[0]) {
     mainView.clear();
     mainView.add(ele("h1").add(noI18n(page.pageName)));
@@ -3641,7 +3690,7 @@ function about() {
             fontFamily: "var(--monospace)",
         })
         .on("click", () => {
-            fetch("https://api.github.com/repos/xushengfeng/eSearch/releases", {
+            fetch(githubUrl("repos/xushengfeng/eSearch/releases", "api"), {
                 method: "GET",
                 redirect: "follow",
             })
@@ -3668,7 +3717,7 @@ function about() {
                         const b = r.body.split("\n---").at(0) as string;
                         const p = document.createElement("p");
                         p.innerHTML = b.replace(/\r\n/g, "<br>");
-                        fetch("https://api.github.com/markdown", {
+                        fetch(githubUrl("markdown", "api"), {
                             body: JSON.stringify({ text: b, mode: "gfm" }),
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -3699,7 +3748,9 @@ function about() {
                                         `${t("点击下载")} ${i.name.replace(baseName, "")}`,
                                     ),
                                 ).on("click", () => {
-                                    shell.openExternal(i.browser_download_url); // todo 镜像
+                                    shell.openExternal(
+                                        githubUrl(i.browser_download_url),
+                                    );
                                 }),
                             ),
                         );

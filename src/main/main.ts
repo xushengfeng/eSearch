@@ -2876,6 +2876,13 @@ const defaultSetting: setting = {
         方向: "y",
     },
     高级图片编辑: { 配置: [], 默认配置: "" },
+    网络: {
+        github镜像: {
+            启用: false,
+            api: "https://api.kkgithub.com/",
+            base: "https://mirror.ghproxy.com/https://github.com/",
+        },
+    },
 };
 try {
     defaultSetting.保存.保存路径.图片 = app.getPath("pictures");
@@ -2920,6 +2927,7 @@ function fixSettingTree() {
     }
     versionTrans();
     store.set("设置版本", app.getVersion());
+    store.set("网络.github镜像.启用", matchBestLan() === "zh-HANS");
 }
 
 function versionTrans() {
