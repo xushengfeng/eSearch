@@ -26,6 +26,7 @@ import {
     confirm,
     alert,
     setProperties,
+    spacer,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl, setTitle } from "../root/root";
@@ -143,11 +144,11 @@ const s: Partial<settingItem<SettingPath>> = {
     "工具栏.初始位置": {
         name: "工具栏位置",
         el: (v) => {
-            const el = view();
+            const el = xGroup("y");
             const iEvent = () => el.el.dispatchEvent(new CustomEvent("input"));
             const l = input().addInto(el).on("input", iEvent);
             const t = input().addInto(el).on("input", iEvent);
-            const b = view().addInto(el);
+            const b = xGroup("x").addInto(el);
             button("左上")
                 .addInto(b)
                 .on("click", () => {
@@ -282,10 +283,11 @@ const s: Partial<settingItem<SettingPath>> = {
             }
             const xEl = x();
             const yEl = x();
-            const el = view()
+            const el = xGroup("y")
                 .add([
-                    view().add([xEl, yEl]),
-                    view().add([
+                    xEl,
+                    yEl,
+                    xGroup("x").add([
                         button(txt("无")).on("click", () => {
                             xEl.sv([]);
                             yEl.sv([]);
@@ -1652,7 +1654,7 @@ const xs: Record<
     _clear_browswer: {
         name: "清除数据",
         el: () =>
-            view().add([
+            xGroup("x").add([
                 button("Cookie 等存储数据").on("click", () => {
                     ipcRenderer.send("setting", "clear", "storage");
                 }),
@@ -2342,6 +2344,7 @@ const dialogFlexClass = addClass(
     {
         "&[open]": {
             display: "flex",
+            gap: "var(--o-padding)",
         },
     },
 );
@@ -2402,6 +2405,10 @@ function iconEl(img: string) {
 
 function comment(str: string) {
     return p(str, true).style({ color: "var(--font-color-l)" });
+}
+
+function xGroup(r: "x" | "y" = "x") {
+    return view(r, "wrap").style({ gap: "var(--o-padding)" });
 }
 
 function xSelect<T extends string>(
@@ -2638,7 +2645,7 @@ function pathEl(path: string) {
 }
 
 function sortTool() {
-    const pel = view("x").style({ gap: "var(--o-padding)" });
+    const pel = xGroup("x");
     const toolShowEl = view().class("bar").class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
@@ -2658,9 +2665,7 @@ function sortTool() {
     });
     pel.add([
         toolShowEl,
-        view("y")
-            .style({ gap: "var(--o-padding)" })
-            .add([view().add(iconEl("hide")), toolHideEl]),
+        xGroup("y").add([view().add(iconEl("hide")), toolHideEl]),
     ]);
     function getItems(v: string[]) {
         return v.flatMap((i) => {
@@ -2701,8 +2706,8 @@ function sortList<t>(
     function onChange() {
         el.el.dispatchEvent(new CustomEvent("input"));
     }
-    const el = view();
-    const listEl = view("x", "wrap");
+    const el = xGroup("y");
+    const listEl = xGroup("x");
     new Sortable(listEl.el, {
         handle: ".sort_handle",
         onEnd: () => {
@@ -2779,6 +2784,30 @@ function sortList<t>(
                 addItem(id);
             }
         });
+}
+
+function dialogB(
+    d: ElType<HTMLDialogElement>,
+    els: ElType<HTMLElement>[],
+    onClose: () => void,
+    // biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+    onOk: () => boolean | undefined | void,
+) {
+    d.add(
+        xGroup("y").add([
+            ...els,
+            xGroup("x").add([
+                spacer(),
+                button(txt("关闭")).on("click", () => {
+                    onClose();
+                    d.el.close();
+                }),
+                button(txt("完成")).on("click", () => {
+                    if (onOk() !== false) d.el.close();
+                }),
+            ]),
+        ]),
+    );
 }
 
 function translatorD(
@@ -2917,12 +2946,12 @@ function translatorD(
         .on("input", () => {
             set(selectEl.gv);
         });
-    const keys = view("y").style({ gap: "var(--o-padding)" });
+    const keys = xGroup("y");
     const help = p("");
 
     function set(type: Engines | "") {
-        keys.clear();
-        help.clear();
+        keys.clear().style({ display: "none" });
+        help.clear().style({ display: "none" });
         testR.clear();
         if (!type) return;
         const fig = engineConfig[type];
@@ -2930,7 +2959,7 @@ function translatorD(
         for (const x of fig.key) {
             const value = v.keys[x.name] as string;
 
-            keys.add(
+            keys.style({ display: "flex" }).add(
                 view().add([
                     txt(`${x.name}`, true),
                     ele("br"),
@@ -2946,7 +2975,10 @@ function translatorD(
                 ]),
             );
         }
-        if (fig.help) help.add(a(fig.help.src).add(txt("API申请")));
+        if (fig.help)
+            help.style({ display: "" }).add(
+                a(fig.help.src).add(txt("API申请")),
+            );
     }
 
     const testEl = view();
@@ -2968,10 +3000,6 @@ function translatorD(
             throw error;
         }
     });
-
-    addTranslatorM
-        .add([idEl, selectEl, keys, help, testEl])
-        .class("add_translator");
 
     function getV() {
         if (!selectEl.gv) return null;
@@ -2995,29 +3023,30 @@ function translatorD(
 
     set(v.type);
 
-    return new Promise((re: (nv: typeof v | null) => void) => {
-        addTranslatorM.add([
-            button(txt("关闭")).on("click", () => {
-                addTranslatorM.el.close();
-                re(null);
-            }),
-            button(txt("完成")).on("click", () => {
-                const nv = getV();
-                if (
-                    nv?.type &&
-                    Object.entries(nv.keys).every(
-                        (i) =>
-                            engineConfig[nv.type]?.key.find(
-                                (j) => j.name === i[0],
-                            )?.optional || i[1],
-                    )
-                ) {
-                    re(nv);
-                    addTranslatorM.el.close();
-                }
-            }),
-        ]);
-    });
+    const { promise, resolve } = Promise.withResolvers<typeof v | null>();
+
+    dialogB(
+        addTranslatorM,
+        [idEl, selectEl, keys, help, testEl],
+        () => resolve(null),
+        () => {
+            const nv = getV();
+            if (
+                nv?.type &&
+                Object.entries(nv.keys).every(
+                    (i) =>
+                        engineConfig[nv.type]?.key.find((j) => j.name === i[0])
+                            ?.optional || i[1],
+                )
+            ) {
+                resolve(nv);
+                return true;
+            }
+            return false;
+        },
+    );
+
+    return promise;
 }
 
 function transSaveHelp() {
@@ -3048,27 +3077,20 @@ function w文件生词本Dialog(
 
     const { promise, resolve } = Promise.withResolvers<typeof v | null>();
 
-    addDialog.add([
-        view("y")
-            .style({ gap: "var(--o-padding)" })
-            .add([
-                view().add(["路径", ele("br"), filePath]),
-                transSaveHelp(),
-                view().add(["模板", ele("br"), template]),
-            ]),
-        button(txt("关闭")).on("click", () => {
-            addDialog.el.close();
-            resolve(null);
-        }),
-        button(txt("完成")).on("click", () => {
-            const nv = {
+    dialogB(
+        addDialog,
+        [
+            view().add(["路径", ele("br"), filePath]),
+            transSaveHelp(),
+            view().add(["模板", ele("br"), template]),
+        ],
+        () => resolve(null),
+        () =>
+            resolve({
                 path: filePath.gv,
                 template: template.gv,
-            };
-            resolve(nv);
-            addDialog.el.close();
-        }),
-    ]);
+            }),
+    );
 
     return promise;
 }
@@ -3117,34 +3139,29 @@ function z在线生词本Dialog(
 
     const { promise, resolve } = Promise.withResolvers<typeof v | null>();
 
-    addDialog.add([
-        name,
-        transSaveHelp(),
-        view("y")
-            .style({ gap: "var(--o-padding)" })
-            .add([
+    dialogB(
+        addDialog,
+        [
+            name,
+            transSaveHelp(),
+            xGroup("y").add([
                 view().add([noI18n("URL"), url, ele("br"), url]),
                 view().add(["请求方式", method, ele("br"), method]),
                 view().add(["请求头", headers, ele("br"), headers]),
                 view().add(["请求体", body, ele("br"), body]),
             ]),
-        button(txt("关闭")).on("click", () => {
-            addDialog.el.close();
-            resolve(null);
-        }),
-        button(txt("完成")).on("click", () => {
-            const nv = {
+        ],
+        () => resolve(null),
+        () =>
+            resolve({
                 name: name.gv,
                 body: body.gv,
                 url: url.gv,
                 method: method.gv,
                 headers: headers.gv,
                 getter: [],
-            };
-            resolve(nv);
-            addDialog.el.close();
-        }),
-    ]);
+            }),
+    );
 
     return promise;
 }
@@ -3159,26 +3176,19 @@ function searchEngineDialog(
 
     const { promise, resolve } = Promise.withResolvers<typeof v | null>();
 
-    d.add([
-        view("y")
-            .style({ gap: "var(--o-padding)" })
-            .add([
-                view().add(["引擎名称", ele("br"), nameEl]),
-                view().add(["引擎URL", ele("br"), urlEl]),
-            ]),
-        button(txt("关闭")).on("click", () => {
-            d.el.close();
-            resolve(null);
-        }),
-        button(txt("完成")).on("click", () => {
-            const nv = {
+    dialogB(
+        d,
+        [
+            view().add(["引擎名称", ele("br"), nameEl]),
+            view().add(["引擎URL", ele("br"), urlEl]),
+        ],
+        () => resolve(null),
+        () =>
+            resolve({
                 name: nameEl.gv,
                 url: urlEl.gv,
-            };
-            resolve(nv);
-            d.el.close();
-        }),
-    ]);
+            }),
+    );
 
     return promise;
 }
@@ -3261,7 +3271,8 @@ function hotkey() {
     return el
         .add([i, b])
         .bindSet((v: string) => cvalue((v ?? "").split("+")))
-        .bindGet(() => mainKey);
+        .bindGet(() => mainKey)
+        .sv("");
 }
 
 function ocrEl() {
@@ -3438,7 +3449,7 @@ function ocrEl() {
         ocrValue.push(l);
         el.el.dispatchEvent(new CustomEvent("input"));
     }
-    const el = view();
+    const el = xGroup("y");
     const dragEl = view("y")
         .style({
             width: "300px",
@@ -3633,6 +3644,7 @@ function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
 
 async function showPage(page: (typeof main)[0]) {
     mainView.clear();
+    mainViewP.el.scrollTop = 0;
     mainView.add(ele("h1").add(noI18n(page.pageName)));
     if (page.desc) mainView.add(comment(page.desc));
     if (page.settings) {
@@ -3900,11 +3912,23 @@ addStyle({
     },
 });
 
-const sideBar = view("y").addInto().style({
-    padding: "var(--o-padding)",
-    flexShrink: 0,
-    gap: "var(--o-padding)",
-});
+const sideBar = view("y")
+    .addInto()
+    .style({
+        padding: "var(--o-padding)",
+        flexShrink: 0,
+        gap: "var(--o-padding)",
+    })
+    .class(
+        addClass(
+            {},
+            {
+                "&>*:not(:has(input:checked))": {
+                    color: "var(--font-color-l)",
+                },
+            },
+        ),
+    );
 const sideBarG = radioGroup("侧栏");
 const searchBar = view()
     .addInto()
