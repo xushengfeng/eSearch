@@ -3598,9 +3598,37 @@ async function showPage(page: (typeof main)[0]) {
     }
 }
 
+window.CSS.registerProperty({
+    name: "--logo-blur",
+    syntax: "<color>",
+    inherits: false,
+    initialValue: "transparent",
+});
+
 function about() {
     const el = view("y").style({ alignItems: "center", marginTop: "120px" });
-    const logoEl = image(logo, noI18n("logo")).style({ width: "200px" });
+    const logoEl = image(logo, noI18n("logo"))
+        .style({
+            width: "200px",
+            transition: "scale 1s, --logo-blur 1s",
+            filter: "drop-shadow(var(--x) var(--y) 8px var(--logo-blur))",
+        })
+        .class(
+            addClass(
+                {},
+                {
+                    "&:hover": {
+                        "--logo-blur": "#00f4",
+                        scale: 1.1,
+                    },
+                },
+            ),
+        )
+        .on("mousemove", (e, el) => {
+            const xx = (e.offsetX / el.el.offsetWidth - 0.5) * -2;
+            const yy = (e.offsetY / el.el.offsetWidth - 0.5) * -2;
+            el.style({ "--x": `${xx * 8}px`, "--y": `${yy * 8}px` });
+        });
     const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
     const version = button(noI18n(packageJson.version)).style({
         fontFamily: "var(--monospace)",
