@@ -2161,7 +2161,7 @@ const main: {
             },
             { title: "后台", settings: ["保留截屏窗口"] },
             {
-                title: "Github镜像",
+                title: "GitHub镜像",
                 settings: [
                     "网络.github镜像.启用",
                     "网络.github镜像.base",
@@ -3717,17 +3717,41 @@ function about() {
                         const b = r.body.split("\n---").at(0) as string;
                         const p = document.createElement("p");
                         p.innerHTML = b.replace(/\r\n/g, "<br>");
-                        fetch(githubUrl("markdown", "api"), {
-                            body: JSON.stringify({ text: b, mode: "gfm" }),
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                        })
-                            .then((r) => r.text())
-                            .then((data) => {
-                                p.innerHTML = data;
-                            });
-                        // todo 翻译
-                        div.add([tags, p]);
+                        function md(b: string) {
+                            fetch(githubUrl("markdown", "api"), {
+                                body: JSON.stringify({ text: b, mode: "gfm" }),
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                            })
+                                .then((r) => r.text())
+                                .then((data) => {
+                                    p.innerHTML = data;
+                                });
+                        }
+                        md(b);
+                        const trans = button("翻译").on("click", async () => {
+                            const transE = getSet("翻译.翻译器");
+                            if (transE.length === 0) {
+                                trans.remove();
+                                return;
+                            }
+                            // biome-ignore format:
+                            const x = transE.at(0) as setting["翻译"]["翻译器"][0];
+                            // @ts-ignore
+                            translator.e[x.type].setKeys(x.keys);
+                            // @ts-ignore
+                            const t = await translator.e[x.type].run(
+                                b,
+                                "zh",
+                                getSet("语言.语言"),
+                            );
+                            md(t);
+                        });
+                        div.add([
+                            tags,
+                            getSet("语言.语言") !== "zh-HANS" ? trans : "",
+                            p,
+                        ]);
                         update.add(div);
 
                         if (r.name === packageJson.version) {
