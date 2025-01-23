@@ -44,18 +44,13 @@
         var(--font-color)
     );
 
-    --m-color1: color-mix(in srgb, var(--hover-color) 85%, var(--font-color));
-    --m-color2: color-mix(in srgb, var(--hover-color) 55%, transparent);
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     --button-active: scale(0.85);
     --border-radius: 8px;
     --blur: blur(10px);
-    --shadow: #0003 0 0 4px;
-    --height: 40px;
-    --color: #000;
+    --shadow: color-mix(in srgb, var(--emphasis-color) 80%, transparent) 0 0 4px;
     --font-color-l: color-mix(in srgb, var(--font-color) 50%, var(--bg));
     --font-color-ll: color-mix(in srgb, var(--font-color) 30%, var(--bg));
-    --border: 1px #000 solid;
     --color-size: 150px;
     --color-i-size: 10px;
     --monospace: ;
@@ -111,7 +106,7 @@ body select,
 .group {
     height: var(--b-button);
     border-radius: var(--border-radius);
-    color: var(--color);
+    color: var(--font-color);
     font-size: inherit;
     transition: var(--transition);
     user-select: none;
@@ -184,10 +179,6 @@ button:active {
     flex-shrink: 0;
 }
 
-body input:focus {
-    outline: var(--m-color1) solid 0.5px;
-}
-
 option {
     font-size: 1rem;
     background-color: var(--bg);
@@ -237,7 +228,7 @@ input[type="checkbox"] {
     padding: 0;
 }
 input[type="checkbox"]:checked {
-    background-color: var(--m-color1) !important;
+    background-color: var(--m-color-f) !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(255, 255, 255)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 8 9 19 4 14'%3E%3C/polyline%3E%3C/svg%3E");
     background-position: center;
     background-size: 0.75em auto;
@@ -270,10 +261,6 @@ input[type="checkbox"]:checked {
         --emphasis-color: var(--d-emphasis-color) !important;
         --icon-color: var(--d-icon-color) !important;
         --font-color: var(--d-font-color) !important;
-
-        --shadow: #fff9 0 0 2px;
-        --color: #fff;
-        --border: 1px #fff solid;
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;

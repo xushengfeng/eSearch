@@ -586,7 +586,7 @@ const s: Partial<settingItem<SettingPath>> = {
             const screenKeyTipEl = view().style({
                 width: "500px",
                 height: "200px",
-                outline: "2px dashed var(--m-color1)",
+                outline: "1px dashed var(--m-color-b)",
                 position: "relative",
             });
             const screenKeyTipKBD = view()
@@ -2413,7 +2413,7 @@ function xSelect<T extends string>(
     }[],
     name: string,
 ) {
-    const el = xGroup("x");
+    const el = xGroup("x").style({ marginLeft: "2px" });
     const r = radioGroup(name);
     for (const option of options) {
         el.add(

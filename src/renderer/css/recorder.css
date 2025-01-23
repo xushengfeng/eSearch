@@ -119,29 +119,13 @@ input {
     font-family: var(--main-font);
 }
 input[type="text"] {
-    border: none;
-    border-bottom: 1px solid var(--hover-color);
-    transition: var(--transition);
-    font-size: 1rem;
     width: 300px;
-}
-input[type="text"]:focus {
-    border: none;
-    border-bottom: var(--border);
 }
 input[type="text"]:disabled {
     opacity: 0.2;
 }
 input[type="number"] {
     width: 50px;
-    border: none;
-    border-bottom: 1px solid var(--hover-color);
-    font-size: 1rem;
-    transition: var(--transition);
-}
-input[type="number"]:focus {
-    border: none;
-    border-bottom: var(--border);
 }
 
 #t_nt,
