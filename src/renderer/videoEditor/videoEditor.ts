@@ -1973,32 +1973,22 @@ const transformCodec = monoTxt()
     })
     .sv([codec, isDeAcc, isEnAcc]);
 
-const actionUndo = iconBEl("left")
-    .style({ width: "24px", height: "24px" })
-    .on("click", async () => {
-        history.undo();
-        renderUiData(history.getData());
-        await transform();
-    });
+const actionUndo = iconBEl("left").on("click", async () => {
+    history.undo();
+    renderUiData(history.getData());
+    await transform();
+});
 const actionList = dynamicSelect();
-actionList.el
-    .on("change", async () => {
-        history.jump(Number(actionList.el.gv));
-        renderUiData(history.getData());
-        await transform();
-    })
-    .style({
-        height: "24px",
-        // @ts-ignore
-        fieldSizing: "content",
-    });
-const actionUnundo = iconBEl("right")
-    .style({ width: "24px", height: "24xp" })
-    .on("click", async () => {
-        history.unundo();
-        renderUiData(history.getData());
-        await transform();
-    });
+actionList.el.on("change", async () => {
+    history.jump(Number(actionList.el.gv));
+    renderUiData(history.getData());
+    await transform();
+});
+const actionUnundo = iconBEl("right").on("click", async () => {
+    history.unundo();
+    renderUiData(history.getData());
+    await transform();
+});
 
 history.on("change", () => {
     console.log("h", history.getData());

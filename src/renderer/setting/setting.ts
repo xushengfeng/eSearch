@@ -1453,7 +1453,7 @@ const s: Partial<settingItem<SettingPath>> = {
                 socks: label([input(), noI18n("SOCKS")], 1),
             } as const;
 
-            const el = view("y")
+            const el = xGroup("y")
                 .add(Object.values(els))
                 .bindGet(() => {
                     return Object.entries(els)
@@ -2301,9 +2301,7 @@ const themes: setting["全局"]["主题"][] = [
 const xselectClass = addClass(
     {
         borderRadius: "var(--border-radius)",
-        margin: "2px",
-        transition:
-            "outline-color var(--transition), box-shadow var(--transition)",
+        transition: "outline-color var(--transition)",
         display: "inline-block",
         outlineColor: "transparent",
         cursor: "pointer",
@@ -2312,11 +2310,8 @@ const xselectClass = addClass(
         "&:not(:has(.icon))": {
             paddingInline: "var(--o-padding)",
         },
-        "&:hover": {
-            boxShadow: "var(--shadow)",
-        },
         '&:has(input[type="radio"]:checked)': {
-            outline: "2px dashed var(--m-color1)",
+            outline: "2px dashed var(--m-color-f)",
         },
     },
 );
@@ -2418,10 +2413,15 @@ function xSelect<T extends string>(
     }[],
     name: string,
 ) {
-    const el = view("x", "wrap");
+    const el = xGroup("x");
     const r = radioGroup(name);
     for (const option of options) {
-        el.add(r.new(option.value, option.name).class(xselectClass));
+        el.add(
+            r
+                .new(option.value, option.name)
+                .class(xselectClass)
+                .class("x-like"),
+        );
     }
     r.on(() => el.el.dispatchEvent(new CustomEvent("input")));
     return el.bindGet(() => r.get()).bindSet((value: T) => r.set(value));
@@ -2452,13 +2452,13 @@ function xRange(
             height: "16px",
             borderRadius: "6px",
             overflow: "hidden",
-            background: "var(--m-color2)",
             cursor: "ew-resize",
         })
+        .class("x-like")
         .addInto(el);
     const thumb = view()
         .style({
-            "background-color": "var(--m-color1)",
+            backgroundColor: "var(--m-color-f)",
             borderRadius: "6px",
             height: "100%",
         })
@@ -2552,8 +2552,9 @@ function xColor() {
             height: "var(--b-button)",
             borderRadius: "var(--border-radius)",
         })
+        .class("x-like")
         .bindSet((v: string) => p.style({ background: msk(v) }));
-    const el = view("x");
+    const el = view("x").class("group");
     return el
         .add([p, i])
         .bindGet(() => i.gv)
@@ -2564,7 +2565,7 @@ function xColor() {
 }
 
 function xPath(dir = true) {
-    const el = view("x");
+    const el = view("x").class("group");
     const i = input();
     const b = button(iconEl("file")).on("click", () => {
         const path = ipcRenderer.sendSync(
@@ -2595,7 +2596,7 @@ function xSecret() {
 }
 
 function xFont() {
-    const el = view("x");
+    const el = view("x").class("group");
     const i = input().on("input", () =>
         el.el.dispatchEvent(new CustomEvent("input")),
     );
@@ -2724,6 +2725,7 @@ function sortList<t>(
     function addItem(id: string) {
         const itemEl = view("x")
             .style({ alignItems: "center" })
+            .class("small-size")
             .data({ id: id });
         const nameEl = txt(newData.get(id)?.["sort-name"] ?? "", true).on(
             "click",
@@ -2735,10 +2737,9 @@ function sortList<t>(
                 nameEl.sv(name(nv));
                 onChange();
             },
-        );
-        const sortHandle = button().class("sort_handle").add(iconEl("handle"));
+        ); // todo 必须命名
+        const sortHandle = button().add(iconEl("handle"));
         const rm = button()
-            .class("rm")
             .add(iconEl("delete"))
             .on("click", () => {
                 itemEl.remove();
@@ -3215,15 +3216,13 @@ function hotkey() {
     function ev() {
         el.el.dispatchEvent(new CustomEvent("input"));
     }
-    const el = view("x");
+    const el = view("x").class("group");
     const i = view("x")
+        .class("b-like")
         .style({
-            background: "var(--m-color2)",
             alignItems: "center",
             gap: "var(--o-padding)",
-            borderRadius: "var(--border-radius)",
-            paddingInline: "var(--o-padding)",
-            cursor: "pointer",
+            fontFamily: "var(--monospace)",
         })
         .attr({ tabIndex: 0 })
         .on("focus", () => {
@@ -3451,14 +3450,12 @@ function ocrEl() {
     }
     const el = xGroup("y");
     const dragEl = view("y")
+        .class("b-like")
         .style({
             width: "300px",
             height: "100px",
-            background: "var(--m-color2)",
-            borderRadius: "var(--border-radius)",
             alignItems: "center",
             justifyContent: "center",
-            paddingInline: "var(--o-padding)",
         })
         .add(txt("拖拽det模型、rec模型和字典文件到此处"))
         .on("dragover", (e) => {
@@ -3564,7 +3561,7 @@ function ocrEl() {
 // @auto-path:../assets/icons/$.svg
 function hotkeyP(icon = "") {
     const h = hotkey();
-    const el = view("x")
+    const el = xGroup()
         .add([icon ? view().add(iconEl(icon)) : "", h])
         .bindGet(() => h.gv)
         .bindSet((v: string) => h.sv(v));
@@ -3573,7 +3570,7 @@ function hotkeyP(icon = "") {
 }
 function hotkeyX(name: string, p: "快捷键" | "快捷键2", icon = "") {
     const h = hotkey();
-    const el = view("x")
+    const el = xGroup()
         .add([icon ? view().add(iconEl(icon)) : "", h])
         .bindGet(() => h.gv)
         .bindSet((v: string) => h.sv(v));
@@ -3721,11 +3718,7 @@ function about() {
                     update.clear();
                     for (const [i, r] of l.entries()) {
                         const div = view();
-                        const tags = view().add(
-                            ele("h1").add(noI18n(r.name)).style({
-                                fontFamily: "var(--monospace)",
-                            }),
-                        );
+                        const tags = xGroup("x");
                         const b = r.body.split("\n---").at(0) as string;
                         const p = document.createElement("p");
                         p.innerHTML = b.replace(/\r\n/g, "<br>");
@@ -3760,6 +3753,9 @@ function about() {
                             md(t);
                         });
                         div.add([
+                            ele("h1").add(noI18n(r.name)).style({
+                                fontFamily: "var(--monospace)",
+                            }),
                             tags,
                             getSet("语言.语言") !== "zh-HANS" ? trans : "",
                             p,

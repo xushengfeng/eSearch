@@ -1,6 +1,6 @@
 {
     "name": "eSearch",
-    "version": "14.4.1",
+    "version": "14.0.0",
     "description": "识屏 · 搜索",
     "main": "./out/main/main.js",
     "scripts": {

@@ -170,10 +170,6 @@ nav > button > .icon {
     background-color: var(--bg);
     transition: var(--transition);
 }
-#history_list > div:hover {
-    background-color: var(--hover-color);
-    box-shadow: var(--shadow);
-}
 .history_title {
     height: 16px;
     padding: 4px;
@@ -236,9 +232,6 @@ nav > button > .icon {
         transform: var(--button-active);
     }
 }
-#edit_b > div:hover {
-    background-color: var(--bar-hover-color);
-}
 
 #edit_b > div > .icon {
     width: 30px;
@@ -268,11 +261,9 @@ nav > button > .icon {
     grid-area: 1 / 1 / 2 / 2;
 }
 #drop {
-    display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: var(--border-radius);
-    transition: var(--transition);
+    width: 100%;
     &:active {
         transform: var(--button-active);
     }
@@ -414,9 +405,6 @@ nav > button > .icon {
     border-radius: var(--border-radius);
     overflow: hidden;
     transition: var(--transition);
-}
-#bottoms > *:hover {
-    box-shadow: var(--shadow);
 }
 
 #bottoms > div > button:active {

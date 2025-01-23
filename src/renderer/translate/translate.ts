@@ -43,7 +43,7 @@ pack(document.body).style({
 const input = ele("textarea").style({
     width: "100%",
     padding: "8px",
-    resize: "vertical",
+    border: "none",
     // @ts-ignore
     "field-sizing": "content",
     "min-height": "4lh",

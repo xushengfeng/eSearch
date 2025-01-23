@@ -22,6 +22,28 @@
     --d-font-color: #fff;
     --d-icon-color: invert(1);
 
+    --m-color-b: var(--emphasis-color);
+
+    --m-color-b: color-mix(in oklab, var(--emphasis-color) 85%, var(--bg));
+    --m-color-bb: color-mix(in oklab, var(--emphasis-color) 50%, var(--bg));
+    --m-color-bbb: color-mix(in oklab, var(--emphasis-color) 25%, var(--bg));
+
+    --m-color-f: color-mix(
+        in oklab,
+        var(--emphasis-color) 85%,
+        var(--font-color)
+    );
+    --m-color-ff: color-mix(
+        in oklab,
+        var(--emphasis-color) 50%,
+        var(--font-color)
+    );
+    --m-color-fff: color-mix(
+        in oklab,
+        var(--emphasis-color) 25%,
+        var(--font-color)
+    );
+
     --m-color1: color-mix(in srgb, var(--hover-color) 85%, var(--font-color));
     --m-color2: color-mix(in srgb, var(--hover-color) 55%, transparent);
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -40,7 +62,8 @@
     --main-font: sans-serif;
     --bar-size: 60px;
     --bar-icon: 0.7;
-    --b-button: 32px;
+    --base-size1: 32px;
+    --b-button: var(--base-size1);
     --o-padding: 8px;
     --base-size2: 24px;
     --space2: 4px;
@@ -67,8 +90,8 @@ body {
     background: transparent;
 }
 ::-webkit-scrollbar-button {
-    height: 8px;
-    width: 8px;
+    height: 0;
+    width: 0;
     background-color: transparent;
 }
 ::-webkit-scrollbar-corner {
@@ -83,27 +106,48 @@ body {
 body button,
 body input,
 body select,
-*:has(> .icon) {
-    font-family: var(--main-font);
+*:has(> .icon),
+.b-like,
+.group {
     height: var(--b-button);
-    background-color: var(--m-color2);
     border-radius: var(--border-radius);
     color: var(--color);
     font-size: inherit;
     transition: var(--transition);
     user-select: none;
     outline: none;
-    border: none;
+    background: transparent;
+    border: transparent 1px solid;
     &:focus-visible {
         outline: none;
     }
+}
+.x-like {
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    border: 1px solid var(--m-color-b);
+}
+
+:not(.group) > :where(button, input, select, *:has(> .icon), .b-like) {
+    background-color: var(--bg);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    border: 1px solid var(--m-color-b);
+}
+.group {
+    display: flex;
+    outline: 1px solid var(--m-color-b);
+    outline-offset: -1px;
+    border: none;
+    width: fit-content;
 }
 *:has(> .icon) {
     cursor: pointer;
 }
 body button,
 body input,
-body select {
+body select,
+.b-like {
     padding-inline: var(--o-padding);
 }
 
@@ -111,7 +155,6 @@ body button,
 body select {
     &:hover {
         background-color: var(--hover-color);
-        box-shadow: var(--shadow);
     }
 }
 
@@ -150,10 +193,12 @@ option {
     background-color: var(--bg);
 }
 
-textarea {
+body textarea {
     outline: none;
     background-color: transparent;
-    color: var(--color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--m-color-b);
+    padding: var(--o-padding);
 }
 
 body dialog {
@@ -186,12 +231,10 @@ input[type="checkbox"] {
     width: 16px;
     height: 16px;
     margin-right: 4px;
-    background-color: var(--m-color2);
     border-radius: 4px;
     transition: var(--transition);
-}
-input[type="checkbox"]:hover {
-    box-shadow: var(--shadow);
+    cursor: pointer;
+    padding: 0;
 }
 input[type="checkbox"]:checked {
     background-color: var(--m-color1) !important;
@@ -204,21 +247,15 @@ input[type="checkbox"]:checked {
 .bar {
     background-color: var(--bar-bg);
     backdrop-filter: var(--blur);
-    & :is(button, *:has(> .icon)) {
-        background: transparent;
+    & :is(button, *:has(> .icon), input) {
+        border: none;
+        background-color: transparent;
+    }
+    & :is(button, *:has(> .icon), input) {
         &:hover {
             background: var(--bar-hover-color);
         }
     }
-}
-
-.group {
-    background: transparent;
-    & > :is(button, select, *:has(> .icon)) {
-        background: transparent;
-    }
-    background-color: var(--m-color2);
-    border-radius: var(--border-radius);
 }
 
 .small-size {

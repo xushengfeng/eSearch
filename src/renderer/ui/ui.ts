@@ -1,4 +1,13 @@
-import { button, image, input, pack, pureStyle, select, view } from "dkh-ui";
+import {
+    button,
+    ele,
+    image,
+    input,
+    pack,
+    pureStyle,
+    select,
+    view,
+} from "dkh-ui";
 import { getImgUrl } from "../root/root";
 
 console.log("hi");
@@ -20,7 +29,12 @@ p.add([
     input().sv("hi"),
     input("number"),
     input("checkbox"),
+    view()
+        .class("group")
+        .add([button("hi"), select([])]),
 ]);
+
+ele("textarea").addInto();
 
 const p2 = view("x")
     .style({ background: "linear-gradient(blue, pink)" })

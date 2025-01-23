@@ -707,7 +707,7 @@ function showEditBar(x: number, y: number, right: boolean) {
         } else {
             editBEl.style.transition = "opacity var(--transition)";
         }
-        editBEl.className = "edit_s";
+        editBEl.className = "edit_s bar";
         let nx = x < 0 ? 0 : x;
         const pleft = editBEl.parentElement.getBoundingClientRect().left + 16;
         if (editBEl.offsetWidth + pleft + nx > window.innerWidth)
