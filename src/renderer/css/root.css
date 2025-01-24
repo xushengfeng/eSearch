@@ -48,7 +48,8 @@
     --button-active: scale(0.85);
     --border-radius: 8px;
     --blur: blur(10px);
-    --shadow: color-mix(in srgb, var(--emphasis-color) 80%, transparent) 0 0 4px;
+    --shadow: color-mix(in srgb, var(--emphasis-color) 20%, transparent) 0 0 4px,
+        color-mix(in srgb, var(--font-color) 30%, transparent) 0 0 2px;
     --font-color-l: color-mix(in srgb, var(--font-color) 50%, var(--bg));
     --font-color-ll: color-mix(in srgb, var(--font-color) 30%, var(--bg));
     --color-size: 150px;
