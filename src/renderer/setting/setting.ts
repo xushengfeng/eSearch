@@ -2377,7 +2377,13 @@ function renderSetting(settingPath: KeyPath) {
     );
     return view()
         .data({ name: settingPath })
-        .add([p(setting.name, true), comment(setting.desc || ""), el]);
+        .add([
+            p(setting.name, true).style({ marginBlock: "8px" }),
+            setting.desc
+                ? comment(setting.desc).style({ marginBlock: "8px" })
+                : "",
+            el,
+        ]);
 }
 
 function reRenderSetting(settingPath: KeyPath) {
@@ -2449,8 +2455,7 @@ function xRange(
     const track = view()
         .style({
             width: "200px",
-            height: "16px",
-            borderRadius: "6px",
+            height: "24px",
             overflow: "hidden",
             cursor: "ew-resize",
         })
@@ -2459,7 +2464,7 @@ function xRange(
     const thumb = view()
         .style({
             backgroundColor: "var(--m-color-f)",
-            borderRadius: "6px",
+            borderRadius: "inherit",
             height: "100%",
         })
         .addInto(track)
@@ -3718,7 +3723,9 @@ function about() {
                     update.clear();
                     for (const [i, r] of l.entries()) {
                         const div = view();
-                        const tags = xGroup("x");
+                        const tags = xGroup("x").style({
+                            alignItems: "center",
+                        });
                         const b = r.body.split("\n---").at(0) as string;
                         const p = document.createElement("p");
                         p.innerHTML = b.replace(/\r\n/g, "<br>");
@@ -3928,8 +3935,13 @@ const sideBar = view("y")
 const sideBarG = radioGroup("侧栏");
 const searchBar = view()
     .addInto()
-    .style({ position: "fixed", right: 0, top: 0, zIndex: 2 });
+    .style({ position: "fixed", right: "8px", top: 0, zIndex: 2 });
 const searchI = input()
+    .style({
+        borderRight: "none",
+        borderTop: "none",
+        borderRadius: "0 0 0 var(--border-radius)",
+    })
     .addInto(searchBar)
     .on("input", () => {
         if (!searchI.gv) {
@@ -3946,14 +3958,22 @@ const searchI = input()
             .map((i) => i[0]);
         mainView.clear();
         if (l.length === 0)
-            mainView.add([
-                "无结果，尝试其他关键词",
-                a(
-                    ipcRenderer.sendSync("app", "feedback2", {
-                        title: t("添加设置项"),
-                    }),
-                ).add("提交新功能"),
-            ]);
+            mainView.add(
+                xGroup("y")
+                    .style({
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: "80vh",
+                    })
+                    .add([
+                        p("无结果，尝试其他关键词"),
+                        a(
+                            ipcRenderer.sendSync("app", "feedback2", {
+                                title: t("添加设置项"),
+                            }),
+                        ).add(button("提交新功能")),
+                    ]),
+            );
         for (const i of l) {
             const title = getTitles.get(i);
             mainView.add(
@@ -4019,8 +4039,11 @@ for (const [k, f] of Object.entries(bindF)) {
 showPage(main[0]);
 
 document.body.onclick = (e) => {
-    if ((<HTMLElement>e.target).tagName === "A") {
-        const el = <HTMLAnchorElement>e.target;
+    const el = (event?.target as HTMLElement)?.closest(
+        "a",
+    ) as HTMLAnchorElement;
+    if (el) {
+        e.preventDefault();
         if (el.href.startsWith("http") || el.href.startsWith("https")) {
             e.preventDefault();
             shell.openExternal(el.href);
