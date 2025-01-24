@@ -35,6 +35,10 @@ nav > button > .icon {
     width: var(--title-bar);
 }
 
+body .hover_b {
+    background-color: var(--hover-color);
+}
+
 #edit {
     flex-grow: 1;
     display: flex;
@@ -144,12 +148,6 @@ nav > button > .icon {
 
 .text .selection {
     background-color: var(--hover-color);
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0;
-    }
 }
 
 #history_list {

@@ -13,66 +13,6 @@ body {
     transition: var(--transition);
 }
 
-#main {
-    display: flex;
-    background-color: var(--bg);
-    border-radius: var(--border-radius);
-    width: 100%;
-}
-
-#record_b {
-    display: flex;
-    opacity: 0.4;
-    pointer-events: none;
-}
-
-#start_stop_icon {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: #f00;
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    transition: var(--transition);
-}
-
-.stop {
-    width: 12px !important;
-    height: 12px !important;
-    left: 6px !important;
-    top: 6px !important;
-    border-radius: 4px !important;
-}
-
-#main > select:nth-last-of-type(1) {
-    width: auto;
-}
-#main > select {
-    width: var(--b-button);
-}
-
-#main label > input {
-    display: none;
-}
-#main label:has(input:checked) {
-    background-color: var(--hover-color) !important;
-}
-
-#time {
-    -webkit-app-region: drag;
-    flex-grow: 1;
-    line-height: 24px;
-    text-align: center;
-    font-family: var(--monospace);
-}
-
-#main button > .icon,
-#main label > .icon {
-    width: 24px;
-    user-select: none;
-}
-
 #video {
     display: flex;
     justify-content: center;
@@ -117,12 +57,6 @@ video {
 input {
     vertical-align: middle;
     font-family: var(--main-font);
-}
-input[type="text"] {
-    width: 300px;
-}
-input[type="text"]:disabled {
-    opacity: 0.2;
 }
 input[type="number"] {
     width: 50px;
@@ -175,14 +109,6 @@ select {
 }
 
 textarea {
-    margin-top: 4px;
-    padding: 8px;
     width: 100%;
-    height: 2rem;
-    border-radius: var(--border-radius);
-    border: none;
-    font-size: 1rem;
-    line-height: 1.5rem;
-    resize: vertical;
-    box-shadow: var(--shadow);
+    min-height: 2lh;
 }

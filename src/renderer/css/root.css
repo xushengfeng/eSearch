@@ -93,11 +93,6 @@ body {
     background-color: transparent;
 }
 
-/* 用于截屏界面固定 */
-.hover_b {
-    background-color: var(--hover-color);
-}
-
 body button,
 body input,
 body select,

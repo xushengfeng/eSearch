@@ -114,10 +114,6 @@ body > #dock_item {
     width: 100%;
     display: none;
 }
-#dock_item {
-    padding: 8px 8px 0 8px;
-    box-sizing: border-box;
-}
 #dock img {
     width: 100%;
 }
