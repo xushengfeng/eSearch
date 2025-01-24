@@ -248,6 +248,9 @@ input[type="checkbox"]:checked {
 .small-size {
     --b-button: var(--base-size2);
     --o-padding: var(--space2);
+    & > * {
+        --border-radius: 4px;
+    }
 }
 
 @media (prefers-color-scheme: dark) {

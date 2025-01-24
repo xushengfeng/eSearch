@@ -337,13 +337,16 @@ body .hover_b {
     right: 0;
     display: grid;
     grid-template-columns: auto auto;
-    grid-template-rows: var(--base-size2) var(--base-size2);
+    grid-template-rows: var(--b-button) var(--b-button);
     background-color: var(--bg);
     transition: var(--transition);
     transform: translateY(-120%);
-    box-shadow: var(--shadow);
-    padding: 4px;
+    padding: var(--o-padding);
+    border-top: none;
+    border-right: none;
+    border-radius: 0;
     border-bottom-left-radius: var(--border-radius);
+    gap: var(--o-padding);
 }
 #find > div {
     display: flex;
@@ -395,6 +398,7 @@ body .hover_b {
     gap: var(--o-padding);
     height: 32px;
     transition: var(--transition);
+    overflow: hidden;
 }
 
 #bottoms > * {
@@ -449,20 +453,8 @@ select {
     border-radius: var(--border-radius);
     overflow: hidden;
 }
-#buttons > div {
-    cursor: pointer;
-    width: var(--b-button);
-    height: var(--b-button);
-    transition: var(--transition);
-    background-color: var(--bg);
-    position: relative;
-}
 #buttons > div:hover {
     background-color: var(--hover-color);
-    box-shadow: var(--shadow);
-}
-#buttons > div > .icon {
-    width: var(--b-button);
 }
 
 .b_tab {
@@ -535,13 +527,14 @@ select {
 }
 
 body > div {
+    --nav-height: env(titlebar-area-height, 24px);
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 32px);
+    height: calc(100vh - var(--nav-height));
     width: 100%;
     overflow: hidden;
     position: absolute;
-    top: 32px;
+    top: var(--nav-height);
     box-sizing: border-box;
     padding: var(--o-padding);
     box-sizing: border-box;
