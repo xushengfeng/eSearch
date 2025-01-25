@@ -164,14 +164,14 @@ function translate(_text: string) {
                     e.el.style({ order: 1 });
                     if (err.message.includes("[1]")) {
                         c.sv(
-                            `${"不支持输入语言："} ${getLansName([fromLan])[0].text}`,
+                            `${t("不支持输入语言")} ${getLansName([fromLan])[0].text}`,
                         );
                     } else if (err.message.includes("[2]")) {
                         c.sv(
-                            `${"不支持输出语言："} ${getLansName([toLan])[0].text}`,
+                            `${t("不支持输出语言")} ${getLansName([toLan])[0].text}`,
                         );
                     } else
-                        c.sv("翻译失败，请重试，点击查看错误信息").on(
+                        c.sv(t("翻译失败，请重试，点击查看错误信息")).on(
                             "click",
                             () => {
                                 c.sv(String(err));
@@ -225,7 +225,7 @@ function getLansName(l: string[]) {
     const mainLan = store.get("语言.语言");
     const trans = new Intl.DisplayNames(mainLan, { type: "language" });
     const lansName = l.map((i) => ({
-        text: i === "auto" ? "自动" : (trans.of(i) ?? i),
+        text: i === "auto" ? t("自动") : (trans.of(i) ?? i),
         lan: i,
     }));
     return lansName.toSorted((a, b) => a.text.localeCompare(b.text, mainLan));
