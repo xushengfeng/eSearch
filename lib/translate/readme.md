@@ -64,12 +64,12 @@ In general, if source.json does not have a defined language, it will be output i
 - [ ] aivision
 - [ ] bg
 - [ ] capature 疑似覆盖，待检查
-- [ ] ding 疑似覆盖，待检查
+- [x] ding
 - [ ] editor
 - [ ] photoEditor
 - [ ] recorder
 - [x] recorderTip 不需要
 - [x] setting
-- [ ] translate
+- [x] translate
 - [x] translator
 - [ ] videoEditor
