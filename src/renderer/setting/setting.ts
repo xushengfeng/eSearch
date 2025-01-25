@@ -1272,7 +1272,7 @@ const s: Partial<settingItem<SettingPath>> = {
             const systemLan = ipcRenderer.sendSync("app", "systemLan");
             // 提前系统语言
             lans = [systemLan].concat(lans.filter((v) => v !== systemLan));
-            const el = view();
+            const el = xGroup("y");
             const b = button()
                 .style({ display: "none" })
                 .on("click", () => {
