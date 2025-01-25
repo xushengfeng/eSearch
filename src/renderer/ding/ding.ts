@@ -332,6 +332,7 @@ const setNewDing = (
 
 async function initOCR() {
     const l = store.get("离线OCR").find((i) => i[0] === "默认") as [
+        // todo 自定义
         string,
         string,
         string,
@@ -1015,20 +1016,20 @@ function dockI() {
         });
         const iClose = view()
             .add(iconEl("close"))
-            .attr({ title: "关闭" })
+            .attr({ title: t("关闭") })
             .on("click", () => {
                 close(i);
             });
         const iIgnore = view()
             .add(iconEl("ignore"))
-            .attr({ title: "鼠标穿透" })
+            .attr({ title: t("鼠标穿透") })
             .on("click", () => {
                 iIgnore_v = !iIgnore_v;
                 ignore(i, iIgnore_v);
             });
         const iTran = view()
             .add(iconEl("replace"))
-            .attr({ title: "窗口变换" })
+            .attr({ title: t("窗口变换") })
             .on("click", () => {
                 iTran_v = iTran_v === -1 ? 0 : -1;
                 transform(i, iTran_v);
