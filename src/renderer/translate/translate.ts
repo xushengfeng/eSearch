@@ -48,7 +48,10 @@ const input = ele("textarea").style({
     "field-sizing": "content",
     "min-height": "4lh",
 });
-const lans = view("x").style({ justifyContent: "center" });
+const lans = view("x").style({
+    justifyContent: "center",
+    gap: "var(--o-padding)",
+});
 
 const setLan = (el: HTMLSelectElement, lan: string) => {
     const supportLans = Array.from(el.querySelectorAll("option")).map(
