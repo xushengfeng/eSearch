@@ -653,7 +653,7 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => xRange({ min: 0.25, max: 5, step: 0.25 }),
     },
     "录屏.提示.鼠标.开启": {
-        name: "开启鼠标按键提示",
+        name: "鼠标按键提示",
         el: () => xSwitch(),
     },
     "录屏.提示.光标.开启": {
@@ -846,6 +846,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "翻译.翻译器": {
         name: "翻译引擎",
+        desc: "适用于屏幕翻译和搜索翻译，第一个为默认引擎",
         el: (v) =>
             sortList<(typeof v)[0]>(
                 (v) => v.name,
@@ -942,6 +943,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "主页面.高级窗口按钮": {
         name: "高级窗口按钮",
+        desc: "如置于最顶层、失去焦点自动关闭按钮等",
         el: () => xSwitch(),
     },
     "主页面.显示图片区": {
@@ -1813,6 +1815,7 @@ const main: {
             },
             {
                 title: "复制偏移",
+                desc: "复制完一个元素后，为了分辨，可以让其偏移",
                 settings: ["图像编辑.复制偏移.x", "图像编辑.复制偏移.y"],
             },
             {
