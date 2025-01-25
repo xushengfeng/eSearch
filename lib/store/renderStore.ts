@@ -13,7 +13,7 @@ type Paths<T> = T extends object
               ? `${K}` | Join<K, Paths<T[K]>>
               : never;
       }[keyof T]
-    : "";
+    : never;
 
 type SettingPath = Paths<setting>;
 
