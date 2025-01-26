@@ -522,7 +522,7 @@ app.whenReady().then(() => {
             type: "separator",
         },
         {
-            label: t("OCR(文字识别)"),
+            label: t("文字识别（OCR）"),
             click: () => {
                 sendCaptureEvent(undefined, "ocr");
             },
