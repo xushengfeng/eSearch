@@ -1729,7 +1729,7 @@ const xs: Record<
                 .style({ "font-family": "var(--monospace)" })
                 .add([
                     p(
-                        `${t("本机系统内核:")} ${os.type()} ${os.release()}`,
+                        `${t("本机系统内核：")} ${os.type()} ${os.release()}`,
                         true,
                     ),
                     ...versionL.map((i) =>
@@ -3812,12 +3812,12 @@ function about() {
 
     infoEl.add([
         view().add([
-            "项目主页:",
+            "项目主页：",
             " ",
             a(packageJson.homepage).add(noI18n(packageJson.homepage)),
         ]),
         view().add([
-            "支持该项目:",
+            "支持该项目：",
             " ",
             a(packageJson.homepage).add("为项目点亮星标🌟"),
             " ",

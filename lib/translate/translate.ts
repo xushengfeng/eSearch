@@ -40,27 +40,45 @@ function lan(lan: string | undefined) {
 function t(text: string) {
     if (!language) return text;
     if (language === "zh-HANS") return text;
-    return st(text, l);
+    return autoSt(text, l);
 }
-function st(text: string, map: typeof l) {
-    if (!text.trim()) return text;
+function st(_text: string, map: typeof l) {
+    if (!_text.trim()) return null;
+    const text = _text.trim();
     const id = source[text];
+    if (!id) {
+        console.log(`%c"${text}":"",`, "color:#f00;background:#fdd");
+        return null;
+    }
     const t = map[id];
-    if (!id) console.log(`%c"${text}":"",`, "color:#f00;background:#fdd");
-    else if (!t)
+    if (!t) {
         console.log(
             `%c${id}%c: ${text}`,
             "color:bluecolor:#00f;background:#ddf",
             "",
         );
-    return t || text;
+        return null;
+    }
+    return t;
+}
+function autoSt(_text: string, map: typeof l) {
+    if (!_text.trim()) return _text;
+    let text = _text.trim();
+    let e = "";
+    if (text.endsWith("：")) {
+        text = text.slice(0, -1);
+        e = "：";
+    }
+    const t = st(text, map);
+    if (!t) return text;
+    return e ? `${t}${autoSt("：", map)}` : t;
 }
 function tLan(text: string, lan: string) {
     if (parseLan(lan) === "zh-HANS") return text;
     const map = require(
         path.join(rootDir, `./${parseLan(lan)}.json`),
     ) as typeof l;
-    return st(text, map);
+    return autoSt(text, map);
 }
 
 const source = require(path.join(rootDir, "./source.json"));
