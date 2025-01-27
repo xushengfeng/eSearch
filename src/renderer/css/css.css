@@ -134,6 +134,8 @@ body .hover_b {
 }
 .text > textarea {
     height: 100%;
+    background: transparent;
+    outline: none !important;
 }
 .text > textarea::spelling-error {
     text-decoration: underline wavy #44f;
@@ -333,8 +335,8 @@ body .hover_b {
 
 #find {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -1px; /*隐藏outline*/
+    right: -1px;
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: var(--b-button) var(--b-button);

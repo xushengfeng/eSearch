@@ -3938,10 +3938,10 @@ const sideBar = view("y")
 const sideBarG = radioGroup("侧栏");
 const searchBar = view()
     .addInto()
-    .style({ position: "fixed", right: "8px", top: 0, zIndex: 2 });
+    .style({ position: "fixed", right: "8px", top: "-1px", zIndex: 2 });
 const searchI = input()
     .style({
-        borderRight: "none",
+        borderRight: "nocne",
         borderTop: "none",
         borderRadius: "0 0 0 var(--border-radius)",
     })

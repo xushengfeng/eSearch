@@ -106,24 +106,26 @@ body select,
     font-size: inherit;
     transition: var(--transition);
     user-select: none;
-    outline: none;
+    outline: 1px solid transparent;
     background: transparent;
-    border: transparent 1px solid;
-    &:focus-visible {
-        outline: none;
-    }
+    outline-offset: -1px;
 }
 .x-like {
     border-radius: var(--border-radius);
     transition: var(--transition);
-    border: 1px solid var(--m-color-b);
+    outline: 1px solid var(--m-color-b);
+    outline-offset: -1px;
 }
 
-:not(.group) > :where(button, input, select, *:has(> .icon), .b-like) {
+:not(.group)
+    > :where(button, input, select, textarea, *:has(> .icon), .b-like) {
     background-color: var(--bg);
     border-radius: var(--border-radius);
     transition: var(--transition);
-    border: 1px solid var(--m-color-b);
+    outline: 1px solid var(--m-color-b);
+    &:focus-visible {
+        outline: 1px solid var(--m-color-f);
+    }
 }
 .group {
     display: flex;
@@ -131,6 +133,9 @@ body select,
     outline-offset: -1px;
     border: none;
     width: fit-content;
+    & > *:focus-visible {
+        outline: 1px solid var(--m-color-b);
+    }
 }
 *:has(> .icon) {
     cursor: pointer;
@@ -181,10 +186,7 @@ option {
 }
 
 body textarea {
-    outline: none;
-    background-color: transparent;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--m-color-b);
+    outline-offset: -1px;
     padding: var(--o-padding);
 }
 
@@ -236,6 +238,7 @@ input[type="checkbox"]:checked {
     backdrop-filter: var(--blur);
     & :is(button, *:has(> .icon), input) {
         border: none;
+        outline: none;
         background-color: transparent;
     }
     & :is(button, *:has(> .icon), input) {
