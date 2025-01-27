@@ -1659,8 +1659,13 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
 }
 
 // @auto-path:../assets/icons/$.svg
+function iconEl(src: string) {
+    return image(getImgUrl(`${src}.svg`), "icon").class("icon");
+}
+
+// @auto-path:../assets/icons/$.svg
 function iconBEl(src: string) {
-    return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
+    return button().add(iconEl(src));
 }
 
 function monoTxt(text?: string) {
@@ -1821,15 +1826,12 @@ const stopPEl = view("y")
         zIndex: 9,
         justifyContent: "center",
         alignItems: "center",
+        gap: "var(--o-padding)",
     })
     .addInto();
 view()
-    .style({
-        width: "64px",
-        height: "64px",
-        borderRadius: "16px",
-        backgroundColor: "red",
-    })
+    .style({ width: "80px", height: "80px" })
+    .add(iconEl("stop_record").style({ filter: "none" }))
     .addInto(stopPEl)
     .on("click", () => {
         stopPEl.remove();
@@ -1866,8 +1868,8 @@ const actionsEl = view("x")
     .style({ justifyContent: "center", alignItems: "center" })
     .addInto();
 const playEl = check("", [
-    iconBEl("pause").style({ display: "block" }),
-    iconBEl("recume").style({ display: "block" }),
+    iconEl("pause").style({ display: "block" }),
+    iconEl("recume").style({ display: "block" }),
 ]).on("input", async () => {
     if (playEl.gv) {
         const transR = await transform();
@@ -1928,22 +1930,28 @@ const playTimeEl = nowTimeEl(() => {
     return transformCs.getDuration() || srcCs.getDuration();
 });
 
-actionsEl.add([lastKey, lastFrame, playEl, nextFrame, nextKey, playTimeEl]);
+actionsEl.add([
+    view().class("group").add([lastKey, lastFrame, playEl, nextFrame, nextKey]),
+    playTimeEl,
+]);
 
 const transformLogEl = view("x").addInto();
 
 const progressEl = () => {
     const el = view("x");
-    const p = view().style({
-        width: "200px",
-        height: "20px",
-        borderRadius: "4px",
-        backgroundColor: "#eee",
-        overflow: "hidden",
+    const p = view()
+        .style({
+            width: "200px",
+            height: "20px",
+            overflow: "hidden",
+        })
+        .class("x-like");
+    const pi = view().addInto(p).style({
+        width: "0%",
+        height: "100%",
+        backgroundColor: "var(--m-color-f)",
+        borderRadius: "inherit",
     });
-    const pi = view()
-        .addInto(p)
-        .style({ width: "0%", height: "100%", backgroundColor: "#000" });
     const t = monoTxt();
 
     return el.add([p, t]).bindSet((progress: number) => {
@@ -1999,9 +2007,9 @@ history.on("change", () => {
 });
 
 transformLogEl
-    .style({ gap: "4px" })
+    .style({ gap: "4px", alignItems: "center", padding: "var(--o-padding)" })
     .add([
-        view("x").add([actionUndo, actionList.el, actionUnundo]),
+        view("x").add([actionUndo, actionList.el, actionUnundo]).class("group"),
         transformProgressEl,
         transformTimeEl,
         transformCodec,
@@ -2486,24 +2494,38 @@ timeLineRemoveEl.el.style({
 const timeLineFrame = view("x")
     .style({ height: "150px", gap: "8px" })
     .addInto();
-const timeLineFrameHl = addClass({ border: "solid 1px #000" }, {});
+const timeLineFrameHl = addClass(
+    {
+        border: "solid 1px var(--m-color-f)",
+        borderRadius: "var(--border-radius)",
+    },
+    {},
+);
 
 const exportPx = dynamicSelect();
 
 const exportEl = frame("export", {
-    _: view("x"),
-    export: iconBEl("save").on("click", save),
-    type: select(
-        outputType
-            .filter(
-                (i) =>
-                    !("codec" in i) || ("codec" in i && codecMap.has(i.codec)),
-            )
-            .map((t) => ({ value: t.name })),
-    ).on("change", (_, el) => {
-        const type = el.gv;
-        store.set("录屏.超级录屏.格式", type);
+    _: view("x").style({
+        gap: "var(--o-padding)",
+        padding: "var(--o-padding)",
     }),
+    _x: {
+        _: view("x").class("group"),
+        export: iconBEl("save").on("click", save),
+        type: select(
+            outputType
+                .filter(
+                    (i) =>
+                        !("codec" in i) ||
+                        ("codec" in i && codecMap.has(i.codec)),
+                )
+                .map((t) => ({ value: t.name })),
+        ).on("change", (_, el) => {
+            const type = el.gv;
+            store.set("录屏.超级录屏.格式", type);
+        }),
+    },
+    _s: spacer(),
     px: exportPx.el,
     editClip: iconBEl("draw").on("click", async () => {
         const canvas = await transformCs.getFrame(willPlayI);
