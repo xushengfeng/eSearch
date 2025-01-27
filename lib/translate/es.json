@@ -1,5 +1,4 @@
 {
-    "c123d8": ": ",
     "114070": "Escala de iconos",
     "137656": "Traducción de pantalla",
     "163617": "Según el soporte de hardware específico",
@@ -36,6 +35,7 @@
     "903131": "Idioma halmuri",
     "905835": "Idioma dargwa",
     "920292": "Borrar el historial automáticamente",
+    "c123d8": ": ",
     "a5dfc5": "Búsqueda automática",
     "05316a": "Búsqueda en pantalla",
     "157bfa": "Seleccione la búsqueda",
@@ -145,7 +145,6 @@
     "3e637a": "Acción por defecto tras el encuadre",
     "61202b": "La acción se realiza en el momento en que se suelta el ratón después de encuadrar",
     "3ffe54": "Ninguno",
-    "406b6c": "OCR (reconocimiento de texto)",
     "bec776": "Buscar por imagen",
     "01d309": "Código QR",
     "938dc7": "Abrir en otras aplicaciones",
@@ -532,7 +531,6 @@
     "5060a9": "Reglas",
     "b6621e": "Reglas de exclusión",
     "ea38c7": "Frecuencia de verificación de actualizaciones",
-    "f9f2ee": "OCR",
     "58c1ba": "OCR de Baidu",
     "5aa019": "OCR de Youdao",
     "b25de6": "Dividido en grabación de pantalla estándar y grabación de pantalla súper, la grabación estándar es adecuada para grabaciones largas, la grabación de pantalla súper es adecuada para demostraciones de operación, proporciona efectos de movimiento automático de la cámara",
@@ -599,5 +597,8 @@
     "d4e286": "No se admite el idioma de entrada",
     "6d4466": "No se admite el idioma de salida",
     "3ba477": "Error de traducción, por favor inténtelo de nuevo, haga clic para ver el mensaje de error",
-    "e3caca": "Penetración del mouse"
+    "e3caca": "Penetración del mouse",
+    "7f6ea8": "Formato",
+    "5fe565": "Seleccionar entrada de audio",
+    "cc21f1": "Activar"
 }

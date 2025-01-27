@@ -1,5 +1,4 @@
 {
-    "c123d8": ": ",
     "114070": "Ikono-skalo",
     "137656": "ekrano traduko",
     "163617": "Ĝusta laŭ la hardvara subteno",
@@ -36,6 +35,7 @@
     "903131": "Harmuk",
     "905835": "Dargwa",
     "920292": "Aŭtomate malplenigi historion",
+    "c123d8": ": ",
     "a5dfc5": "Aŭtomata Serĉo",
     "05316a": "Serĉo de ekrankopio",
     "157bfa": "Kontrolu serĉon",
@@ -145,7 +145,6 @@
     "3e637a": "Defaŭlta ago post elekto de skatolo",
     "61202b": "Post kiam la skatolo estas elektita, liberigu la muson por momento por efektivigi la operacion",
     "3ffe54": "neniu",
-    "406b6c": "OCR (Teksto-Rekono)",
     "bec776": "Serĉu laŭ bildo",
     "01d309": "QR-kodo",
     "938dc7": "Malfermu aliajn apojn",
@@ -532,7 +531,6 @@
     "5060a9": "Reguloj",
     "b6621e": "Esceptaj reguloj",
     "ea38c7": "Kontrolu ĝisdatigon oftecon",
-    "f9f2ee": "OCR",
     "58c1ba": "Baido OCR",
     "5aa019": "Youdao OCR",
     "b25de6": "Dividita en norma registrado kaj supera registrado, norma registrado taŭgas por longa registrado, supera registrado taŭgas por registri operacian demonstro, provizas aŭtomatan kameran movadon efikon",
@@ -599,5 +597,8 @@
     "d4e286": "Ne subiĝas eniga lingvo",
     "6d4466": "Ne subiĝas eliga lingvo",
     "3ba477": "Tradukado malsukcesis, bonvolu reprovi, alklaku por vidi erarinformon",
-    "e3caca": "Musaj penu"
+    "e3caca": "Musaj penu",
+    "7f6ea8": "Formato",
+    "5fe565": "Elektu enigan sonon",
+    "cc21f1": "Ŝalti"
 }

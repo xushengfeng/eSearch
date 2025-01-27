@@ -1,5 +1,4 @@
 {
-    "c123d8": ": ",
     "114070": "Icon scale",
     "137656": "Screen translation",
     "163617": "According to specific hardware support",
@@ -36,6 +35,7 @@
     "903131": "Hal'mukh",
     "905835": "Dargwa",
     "920292": "Automatically clear history",
+    "c123d8": ": ",
     "a5dfc5": "Auto search",
     "05316a": "Screenshot search",
     "157bfa": "Selected search",
@@ -145,7 +145,6 @@
     "3e637a": "Default action after selection",
     "61202b": "Action to be performed the moment the mouse is released after selection",
     "3ffe54": "None",
-    "406b6c": "OCR (text recognition)",
     "bec776": "Search by image",
     "01d309": "QR code",
     "938dc7": "Open in other apps",
@@ -532,7 +531,6 @@
     "5060a9": "Rules",
     "b6621e": "Exclusion rules",
     "ea38c7": "Check update frequency",
-    "f9f2ee": "OCR",
     "58c1ba": "Baidu OCR",
     "5aa019": "Youdao OCR",
     "b25de6": "Divided into standard screen recording and super screen recording, standard screen recording is suitable for long time recording, super screen recording is suitable for recording operation demonstrations, providing automatic panning effects",
@@ -599,5 +597,8 @@
     "d4e286": "Input language not supported",
     "6d4466": "Output language not supported",
     "3ba477": "Translation failed, please retry, click to view error message",
-    "e3caca": "Mouse penetration"
+    "e3caca": "Mouse penetration",
+    "7f6ea8": "Format",
+    "5fe565": "Select Input Audio",
+    "cc21f1": "Turn On"
 }

@@ -1,5 +1,4 @@
 {
-    "c123d8": ": ",
     "114070": "Échelle d'icônes",
     "137656": "Traduction d'écran",
     "163617": "Selon le support matériel",
@@ -36,6 +35,7 @@
     "903131": "Langue halmuk",
     "905835": "Langue dargwa",
     "920292": "Effacer automatiquement l'historique",
+    "c123d8": ": ",
     "a5dfc5": "Recherche automatique",
     "05316a": "Recherche sur l'écran",
     "157bfa": "Sélectionner la recherche",
@@ -145,7 +145,6 @@
     "3e637a": "Action par défaut après le cadrage",
     "61202b": "L'action est exécutée au moment où l'on relâche la souris après le cadrage.",
     "3ffe54": "Aucun",
-    "406b6c": "OCR (reconnaissance de texte)",
     "bec776": "Recherche par image",
     "01d309": "Code QR",
     "938dc7": "Ouvrir dans d'autres applications",
@@ -532,7 +531,6 @@
     "5060a9": "Règle",
     "b6621e": "Exclusion de règle",
     "ea38c7": "Fréquence de vérification des mises à jour",
-    "f9f2ee": "OCR",
     "58c1ba": "Baidu OCR",
     "5aa019": "Youdao OCR",
     "b25de6": "Divisé en enregistrement d'écran standard et enregistrement d'écran super, l'enregistrement standard convient pour les enregistrements de longue durée, l'enregistrement super convient pour enregistrer des démonstrations opérationnelles, offrant un effet de caméra automatique",
@@ -599,5 +597,8 @@
     "d4e286": "Langue d'entrée non prise en charge",
     "6d4466": "Langue de sortie non prise en charge",
     "3ba477": "Échec de la traduction, veuillez réessayer, cliquez pour voir les messages d'erreur",
-    "e3caca": "Pénétrez avec la souris"
+    "e3caca": "Pénétrez avec la souris",
+    "7f6ea8": "Format",
+    "5fe565": "Choisir l'audio d'entrée",
+    "cc21f1": "Activer"
 }
