@@ -250,9 +250,7 @@ const settingEl = view("y")
         startStop,
         view("y")
             .add([
-                view("x")
-                    .style({ alignItems: "center" })
-                    .add([t("格式"), 格式El.el]),
+                view("y").add([t("格式"), 格式El.el]),
                 view("y").add([t("选择输入音频"), micList]),
                 view("y").add([t("摄像头"), label([cameraEl, t("开启")])]),
             ])
