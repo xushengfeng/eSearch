@@ -145,6 +145,7 @@ body input,
 body select,
 .b-like {
     padding-inline: var(--o-padding);
+    width: fit-content;
 }
 
 body button,

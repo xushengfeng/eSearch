@@ -3725,7 +3725,7 @@ function about() {
                     }[] = re.filter((i) => !i.draft);
                     update.clear();
                     for (const [i, r] of l.entries()) {
-                        const div = view();
+                        const div = xGroup("y");
                         const tags = xGroup("x").style({
                             alignItems: "center",
                         });
@@ -3805,7 +3805,7 @@ function about() {
                 })
                 .catch((error) => console.log("error", error));
         });
-    const update = view("y");
+    const update = view("y").style({ gap: "16px" });
     const desc = p(packageJson.description);
 
     const infoEl = view("y").style({ alignItems: "center" });
