@@ -459,7 +459,7 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => xSecret(),
     },
     "在线OCR.baidu.secret": {
-        name: "Secret Key：",
+        name: "Secret Key",
         el: () => xSecret(),
     },
     "在线OCR.youdao.id": {
@@ -527,11 +527,11 @@ const s: Partial<settingItem<SettingPath>> = {
                         item.supportVision,
                     );
 
-                    dialog.add([
-                        nameEl,
-                        view("y")
-                            .style({ gap: "8px" })
-                            .add([
+                    dialogB(
+                        dialog,
+                        [
+                            nameEl,
+                            xGroup("y").add([
                                 view().add([noI18n("URL"), ele("br"), urlEl]),
                                 view().add([noI18n("key"), ele("br"), keyEl]),
                                 view().add([
@@ -541,11 +541,9 @@ const s: Partial<settingItem<SettingPath>> = {
                                 ]),
                                 label([supportVision, "支持图像识别"]),
                             ]),
-                        button(txt("关闭")).on("click", () => {
-                            resolve(null);
-                            dialog.el.close();
-                        }),
-                        button(txt("完成")).on("click", () => {
+                        ],
+                        () => resolve(null),
+                        () =>
                             resolve({
                                 name: nameEl.gv,
                                 type: "chatgpt",
@@ -553,10 +551,8 @@ const s: Partial<settingItem<SettingPath>> = {
                                 key: keyEl.gv,
                                 config: configEl.gv,
                                 supportVision: supportVision.gv,
-                            });
-                            dialog.el.close();
-                        }),
-                    ]);
+                            }),
+                    );
 
                     return promise;
                 },
@@ -1449,10 +1445,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "规则",
         el: () => {
             const els = {
-                http: label([input(), noI18n("HTTP")], 1),
-                https: label([input(), noI18n("HTTPS")], 1),
-                ftp: label([input(), noI18n("FTP")], 1),
-                socks: label([input(), noI18n("SOCKS")], 1),
+                http: xGroup("y").add([noI18n("HTTP"), input()]),
+                https: xGroup("y").add([noI18n("HTTPS"), input()]),
+                ftp: xGroup("y").add([noI18n("FTP"), input()]),
+                socks: xGroup("y").add([noI18n("SOCKS"), input()]),
             } as const;
 
             const el = xGroup("y")

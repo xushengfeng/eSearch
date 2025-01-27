@@ -189,6 +189,7 @@ option {
 body textarea {
     outline-offset: -1px;
     padding: var(--o-padding);
+    width: 300px;
 }
 
 body dialog {
