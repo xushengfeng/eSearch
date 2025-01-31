@@ -9,10 +9,10 @@ Create a csv, specify an existing language for editing or specify a new language
 > The option `- a` is used to output all text. If you find that the original translation is inadequate and need to be modified, please use this option. If you need to follow up on the translation, that is, some text in eSearch has been modified, but the translation has not been modified, please do not use this option
 
 ```shell
-node -l en
+node lib/translate/tool.js -l en
 # en.csv
 # 或 or
-node -l en -a
+node lib/translate/tool.js -l en -a
 ```
 
 ```csv
@@ -40,7 +40,7 @@ with arg `-e`,output Chinese with English
 保存 save:
 
 ```shell
-node -i en.csv
+node lib/translate/tool.js -i en.csv
 ```
 
 只有在 source.json 里定义的文字才能被翻译。如果找不到需要翻译的文字，那可能是我没针对某些页面进行国际化，请在 issue 上提交 bug，指明需要国际化位置
