@@ -66,7 +66,7 @@ In general, if source.json does not have a defined language, it will be output i
 - [ ] capature 疑似覆盖，待检查
 - [x] ding
 - [ ] editor
-- [ ] photoEditor
+- [x] photoEditor
 - [ ] recorder
 - [x] recorderTip 不需要
 - [x] setting
