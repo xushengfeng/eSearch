@@ -7,8 +7,10 @@ import {
     image,
     input,
     label,
+    noI18n,
     pureStyle,
     select,
+    setTranslate,
     trackPoint,
     txt,
     view,
@@ -27,11 +29,13 @@ import { lan, t } from "../../../lib/translate/translate";
 
 // @auto-path:../assets/icons/$.svg
 function icon(src: string) {
-    return image(getImgUrl(`${src}.svg`), "icon").class("icon");
+    return image(getImgUrl(`${src}.svg`), noI18n("icon")).class("icon");
 }
 
 initStyle(store);
 lan(store.get("语言.语言"));
+
+setTranslate(t);
 
 setTitle(t("高级编辑"));
 
@@ -126,7 +130,7 @@ const controls = frame("sidebar", {
             store.set("高级图片编辑.默认配置", el.gv);
         }),
         addConf: button(icon("add")).on("click", () => {
-            const id = `新配置${crypto.randomUUID().slice(0, 5)}`;
+            const id = `${t("新配置")}${crypto.randomUUID().slice(0, 5)}`;
             const newData = structuredClone(styleData);
             newData.name = id;
             pz.push(newData);
@@ -213,9 +217,9 @@ const controls = frame("sidebar", {
         _ex_edit: {
             _: view("y").style({ gap: "var(--o-padding)" }),
             formart: select([
-                { value: "png", name: "PNG" },
-                { value: "jpg", name: "JPEG" },
-                { value: "webp", name: "WebP" },
+                { value: "png", name: noI18n("PNG") },
+                { value: "jpg", name: noI18n("JPEG") },
+                { value: "webp", name: noI18n("WebP") },
             ]).sv(
                 (() => {
                     const format = store.get("保存.默认格式");
@@ -232,11 +236,11 @@ const controls = frame("sidebar", {
                     "flex-wrap": "wrap",
                 }),
                 _s0: button("原始").on("click", () => scale(1)),
-                _s1: button("3/4").on("click", () => scale(0.75)),
-                _s2: button("1/2").on("click", () => scale(0.5)),
-                _s3: button("1/3").on("click", () => scale(0.333)),
-                _s4: button("1/4").on("click", () => scale(0.25)),
-                _s5: button("1/5").on("click", () => scale(0.2)),
+                _s1: button(noI18n("3/4")).on("click", () => scale(0.75)),
+                _s2: button(noI18n("1/2")).on("click", () => scale(0.5)),
+                _s3: button(noI18n("1/3")).on("click", () => scale(0.333)),
+                _s4: button(noI18n("1/4")).on("click", () => scale(0.25)),
+                _s5: button(noI18n("1/5")).on("click", () => scale(0.2)),
                 _autoW: button("自动宽度").on("click", () => {
                     autoScale("width");
                 }),
@@ -356,7 +360,7 @@ function getImg(base64 = false) {
 function gColors() {
     const div = view("y");
     const list = view("y");
-    const add = button("+");
+    const add = button(noI18n("+"));
 
     function createI(color: string, offset: number) {
         console.log(color, offset);
@@ -367,7 +371,7 @@ function gColors() {
                 .attr({ max: "1", min: "0", step: "0.01" })
                 .sv(String(offset))
                 .on("input", binput),
-            button("-").on("click", () => {
+            button(noI18n("-")).on("click", () => {
                 el.remove();
                 binput();
             }),
