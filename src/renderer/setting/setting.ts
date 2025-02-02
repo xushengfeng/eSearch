@@ -2471,7 +2471,7 @@ function xRange(
             el.style.width = `${((v - min) / (max - min)) * 100}%`;
         });
     const text = txt()
-        .style({ userSelect: "none" })
+        .style({ userSelect: "none", fontFamily: "var(--monospace)" })
         .attr({ tabIndex: 0 })
         .bindSet((v: number, el) => {
             el.textContent = `${sv(v)}${op?.text || ""}`;
