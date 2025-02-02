@@ -65,6 +65,12 @@
     --space2: 4px;
 }
 
+*:focus-visible {
+    outline: 1px var(--m-color-f) solid;
+    outline-offset: 1px;
+    border-radius: 2px;
+}
+
 body {
     font-family: var(--main-font);
     color: var(--font-color);
@@ -123,9 +129,6 @@ body select,
     border-radius: var(--border-radius);
     transition: var(--transition);
     outline: 1px solid var(--m-color-b);
-    &:focus-visible {
-        outline: 1px solid var(--m-color-f);
-    }
 }
 .group {
     display: flex;
@@ -133,9 +136,6 @@ body select,
     outline-offset: -1px;
     border: none;
     width: fit-content;
-    & > *:focus-visible {
-        outline: 1px solid var(--m-color-b);
-    }
 }
 *:has(> .icon) {
     cursor: pointer;
