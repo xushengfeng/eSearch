@@ -2471,8 +2471,23 @@ function xRange(
             el.style.width = `${((v - min) / (max - min)) * 100}%`;
         });
     const text = txt()
+        .style({ userSelect: "none" })
+        .attr({ tabIndex: 0 })
         .bindSet((v: number, el) => {
             el.textContent = `${sv(v)}${op?.text || ""}`;
+        })
+        .on("keydown", (e) => {
+            if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+            e.preventDefault();
+        })
+        .on("keyup", (e) => {
+            if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+            e.preventDefault();
+            const v = sv(value + (e.key === "ArrowUp" ? step : -step));
+            thumb.sv(v);
+            text.sv(v);
+            value = v;
+            el.el.dispatchEvent(new CustomEvent("input"));
         })
         .addInto(el);
     trackPoint(track, {
