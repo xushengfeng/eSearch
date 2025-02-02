@@ -1819,7 +1819,7 @@ const stopPEl = view("y")
     .style({
         width: "100vw",
         height: "100vh",
-        backgroundColor: "white",
+        backgroundColor: "var(--bg)",
         position: "fixed",
         top: 0,
         left: 0,
