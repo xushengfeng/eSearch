@@ -12,7 +12,6 @@ import {
     image,
     p,
     pack,
-    setTranslate,
     noI18n,
     pureStyle,
 } from "dkh-ui";
@@ -170,8 +169,6 @@ const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 const dmp = new diff_match_patch();
 
 lan(language);
-
-setTranslate(t);
 
 pureStyle();
 
