@@ -172,7 +172,7 @@ pureStyle();
 
 pack(document.body).style({
     overflow: "hidden",
-    backgroundColor: "transparent !important",
+    backgroundColor: "transparent",
 });
 
 const playIcon = iconEl("recume");
@@ -227,11 +227,15 @@ const OCR = await lo.init({
 const mainEl = view().style({
     position: "absolute",
     overflow: "hidden",
+    width: "100vw",
+    height: "100vh",
 });
 const textEl = view().style({
     position: "relative",
     // @ts-ignore
     "-webkit-app-region": "drag",
+    width: "100vw",
+    height: "100vh",
 });
 mainEl.add([textEl]);
 
@@ -245,7 +249,5 @@ ipcRenderer.on(
         display = _display;
         screenId = id;
         rect = _rect;
-        mainEl.style({ height: `${_rect.h}px` });
-        textEl.style({ width: `${_rect.w}px`, height: `${_rect.h}px` });
     },
 );
