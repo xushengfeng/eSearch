@@ -53,7 +53,7 @@
         "@types/sortablejs": "^1.15.8",
         "archiver": "^7.0.1",
         "csv-parse": "^5.5.5",
-        "electron": "^31.4.0",
+        "electron": "^34.2.0",
         "electron-builder": "^25.1.8",
         "electron-vite": "^2.1.0",
         "svgo": "^3.3.2",
