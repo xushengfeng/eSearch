@@ -20,6 +20,7 @@ import {
     nativeImage,
     type NativeImage,
     type View,
+    type BaseWindow,
 } from "electron";
 import type { Buffer } from "node:buffer";
 
@@ -793,7 +794,7 @@ function setMenu() {
                     label: t("撤销"),
                     click: (_i, w) => {
                         mainEdit(w, "undo");
-                        w?.webContents.undo();
+                        if (w instanceof BrowserWindow) w.webContents.undo();
                     },
                     accelerator: "CmdOrCtrl+Z",
                 },
@@ -801,7 +802,7 @@ function setMenu() {
                     label: t("重做"),
                     click: (_i, w) => {
                         mainEdit(w, "redo");
-                        w?.webContents.redo();
+                        if (w instanceof BrowserWindow) w.webContents.redo();
                     },
                     accelerator: isMac ? "Cmd+Shift+Z" : "Ctrl+Y",
                 },
@@ -810,7 +811,7 @@ function setMenu() {
                     label: t("剪切"),
                     click: (_i, w) => {
                         mainEdit(w, "cut");
-                        w?.webContents.cut();
+                        if (w instanceof BrowserWindow) w.webContents.cut();
                     },
                     accelerator: "CmdOrCtrl+X",
                 },
@@ -818,7 +819,7 @@ function setMenu() {
                     label: t("复制"),
                     click: (_i, w) => {
                         mainEdit(w, "copy");
-                        w?.webContents.copy();
+                        if (w instanceof BrowserWindow) w.webContents.copy();
                     },
                     accelerator: "CmdOrCtrl+C",
                 },
@@ -826,7 +827,7 @@ function setMenu() {
                     label: t("粘贴"),
                     click: (_i, w) => {
                         mainEdit(w, "paste");
-                        w?.webContents.paste();
+                        if (w instanceof BrowserWindow) w.webContents.paste();
                     },
                     accelerator: "CmdOrCtrl+V",
                 },
@@ -834,14 +835,15 @@ function setMenu() {
                     label: t("删除"),
                     click: (_i, w) => {
                         mainEdit(w, "delete");
-                        w?.webContents.delete();
+                        if (w instanceof BrowserWindow) w.webContents.delete();
                     },
                 },
                 {
                     label: t("全选"),
                     click: (_i, w) => {
                         mainEdit(w, "select_all");
-                        w?.webContents.selectAll();
+                        if (w instanceof BrowserWindow)
+                            w.webContents.selectAll();
                     },
                     accelerator: "CmdOrCtrl+A",
                 },
@@ -2138,8 +2140,8 @@ async function createHelpWindow() {
  * 向聚焦的主页面发送事件信息
  * @param {String} m
  */
-function mainEdit(window?: BrowserWindow, m?: string) {
-    window?.webContents.send("edit", m);
+function mainEdit(window?: BaseWindow, m?: string) {
+    if (window instanceof BrowserWindow) window.webContents.send("edit", m);
 }
 
 const searchWindowL: { [n: number]: WebContentsView } = {};
@@ -2253,8 +2255,8 @@ async function createBrowser(windowName: number, url: string) {
  * @param {BrowserWindow} w 浏览器
  * @param {String} arg 事件字符
  */
-function viewEvents(w?: BrowserWindow, arg?: string) {
-    w?.webContents.send("view_events", arg);
+function viewEvents(w?: BaseWindow, arg?: string) {
+    if (w instanceof BrowserWindow) w.webContents.send("view_events", arg);
 }
 
 ipcMain.on("tab_view", (e, id, arg, arg2) => {
