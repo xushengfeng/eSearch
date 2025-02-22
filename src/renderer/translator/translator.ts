@@ -172,7 +172,6 @@ pureStyle();
 
 pack(document.body).style({
     overflow: "hidden",
-    backgroundColor: "transparent",
 });
 
 const playIcon = iconEl("recume");

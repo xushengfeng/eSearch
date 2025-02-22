@@ -77,6 +77,10 @@ body {
     background-color: var(--bg);
 }
 
+.window_bg {
+    background-color: transparent;
+}
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
