@@ -488,28 +488,53 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[], keys: superRecording) {
     }
 
     // 获取关键时间
+    const clipList: uiData["clipList"] = [];
+    const rects: { w: number; h: number }[] = [
+        { w: v.width / 3, h: v.height / 3 },
+        { w: v.width, h: v.height },
+    ]; // 从小到大排列
+
+    function queryRect(points: { x: number; y: number }[]) {
+        const minWidth =
+            Math.max(...points.map((p) => p.x)) -
+            Math.min(...points.map((p) => p.x));
+        const minHeight =
+            Math.max(...points.map((p) => p.y)) -
+            Math.min(...points.map((p) => p.y));
+        const rect =
+            rects.find((r) => r.w >= minWidth && r.h >= minHeight) ??
+            (rects.at(-1) as (typeof rects)[0]);
+
+        const centerX = points.reduce((a, b) => a + b.x, 0) / points.length;
+        const centerY = points.reduce((a, b) => a + b.y, 0) / points.length;
+        const w = rect.w;
+        const h = rect.h;
+        const x = MathClamp(0, centerX - w / 2, v.width - w);
+        const y = MathClamp(0, centerY - h / 2, v.height - h);
+        return { x, y, w, h };
+    }
+
     let lastK: (typeof newKeys)[0] | undefined = undefined;
     const nk = newKeys.filter((k) => "mousedown" in k || "mouseup" in k);
-    const nk2: typeof newKeys = [];
+    const nk2: (typeof nk)[] = [];
+    // 寻找up->down（两个press直接的间隔）>500ms
     for (const k of nk) {
-        if (k.time - (lastK?.time ?? 0) > 500) {
-            nk2.push(k);
+        if ("mousedown" in k && k.time - (lastK?.time ?? 0) > 500) {
+            nk2.push([]);
         }
+        nk2.at(-1)?.push(k);
         lastK = k;
     }
 
-    const clipList: uiData["clipList"] = [];
+    console.log(nk2);
 
     for (const k of nk2) {
-        const chunk = time2Id.get(k.time);
+        const chunk = time2Id.get(k[0].time);
         if (!chunk) continue;
-        const w = v.width / 3;
-        const h = v.height / 3;
-        const x = MathClamp(0, k.posi.x - w / 2, v.width - w);
-        const y = MathClamp(0, k.posi.y - h / 2, v.height - h);
+        const rect = queryRect(k.map((i) => ({ x: i.posi.x, y: i.posi.y })));
         clipList.push({
             i: chunk as SrcId,
-            rect: { x, y, w: w, h: h },
+            rect,
             transition: ms2timestamp(400),
         });
     }
