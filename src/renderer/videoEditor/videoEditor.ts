@@ -383,13 +383,16 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     // 补帧
     const m = new Map<number, number>();
     const d = Math.floor(ms2timestamp(1000 / srcRate));
+    const firstTime = chunks.at(0)?.timestamp ?? 0;
     let index = 0;
     const frames = frameLength;
     const encodedChunks: EncodedVideoChunk[] = [];
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const t = frame.timestamp;
-            encoder.encode(frame, { keyFrame: index % frames === 0 });
+            const t = frame.timestamp - firstTime;
+            const sf = new VideoFrame(frame, { timestamp: t });
+            encoder.encode(sf, { keyFrame: index % frames === 0 });
+            sf.close();
             index++;
             for (let i = 1; i <= (m.get(frame.timestamp) ?? 0); i++) {
                 const f = new VideoFrame(frame, { timestamp: t + d * i });
