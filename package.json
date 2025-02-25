@@ -22,7 +22,7 @@
         "@techstark/opencv-js": "4.10.0-release.1",
         "chroma-js": "^3.1.1",
         "diff-match-patch": "^1.0.5",
-        "dkh-ui": "^0.12.4",
+        "dkh-ui": "^0.13.1",
         "download": "^8.0.0",
         "esearch-ocr": "^6.0.0",
         "esearch-seg": "^1.1.4",
