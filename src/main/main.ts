@@ -2287,11 +2287,6 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
         case "home":
             minViews(mainWindow);
             break;
-        case "save_html":
-            // @ts-ignore
-            mainWindow.html = arg2;
-            minViews(mainWindow);
-            break;
         case "dev":
             searchWindow.webContents.openDevTools();
             break;
