@@ -11,11 +11,12 @@ import {
     button,
     image,
     p,
-    pack,
     noI18n,
     pureStyle,
     input,
     select,
+    type ElType,
+    dynamicSelect,
 } from "dkh-ui";
 import { initStyle, setTitle, getImgUrl } from "../root/root";
 import hotkeys from "hotkeys-js";
@@ -99,9 +100,28 @@ function iconBEl(src: string) {
 }
 
 const nav = ele("nav");
-const navTop = iconBEl("toptop").attr({ id: "top_b" });
-const navDing = iconBEl("ding").attr({ id: "ding_b" });
-const navConcise = iconBEl("concise").attr({ id: "concise_b" });
+const navTop = iconBEl("toptop")
+    .attr({ id: "top_b" })
+    .on("click", () => {
+        alwaysOnTop = !alwaysOnTop;
+        setButtonHover(navTop, alwaysOnTop);
+        ipcRenderer.send("window", "top", alwaysOnTop);
+    });
+const navDing = iconBEl("ding")
+    .attr({ id: "ding_b" })
+    .on("click", () => {
+        blurToClose = !blurToClose;
+        store.set("主页面.失焦关闭", blurToClose);
+        setButtonHover(navDing, !blurToClose);
+    });
+const navConcise = iconBEl("concise")
+    .attr({ id: "concise_b" })
+    .on("click", () => {
+        concise = !concise;
+        store.set("主页面.简洁模式", concise);
+        setButtonHover(navConcise, concise);
+        setConciseMode(concise);
+    });
 nav.add([navTop, navDing, navConcise]).addInto();
 
 const outMainEl = view().class("fill_t").addInto();
@@ -115,18 +135,25 @@ const findEl = view()
 const findCount = view().attr({ id: "count" }).addInto(findEl);
 
 const findButtons = view().class("find_buttons").class("group").addInto(findEl);
-const findLast = iconBEl("up")
+iconBEl("up")
     .attr({ id: "find_b_last", title: "上一个匹配" })
-    .addInto(findButtons);
-const findNext = iconBEl("down")
+    .addInto(findButtons)
+    .on("click", () => {
+        findLN("↑");
+    });
+iconBEl("down")
     .attr({
         id: "find_b_next",
         title: "下一个匹配",
     })
-    .addInto(findButtons);
-const findClose = iconBEl("close")
+    .addInto(findButtons)
+    .on("click", () => {
+        findLN("↓");
+    });
+iconBEl("close")
     .attr({ id: "find_b_close", title: "关闭" })
-    .addInto(findButtons);
+    .addInto(findButtons)
+    .on("click", showFind);
 
 const findInputPel = view().class("find_f").class("group").addInto(findEl);
 const findInputEl = input()
@@ -159,7 +186,15 @@ const findReplaceAll = iconBEl("replace_all")
     .attr({ id: "find_b_replace_all", title: "全部替换" })
     .addInto(findReplacePel);
 
-const findResultEl = txt().addInto(view().class("find_t").addInto(findEl));
+const findResultEl = txt()
+    .addInto(view().class("find_t").addInto(findEl))
+    .bindSet((v: [number, number], el) => {
+        if (v) {
+            el.innerText = `${v[0]} / ${v[1]}`;
+        } else {
+            el.innerText = "";
+        }
+    });
 
 // main ui
 const mainSectionEl = view().attr({ id: "edit" }).addInto(outMainEl);
@@ -174,7 +209,18 @@ const ocrImageFile = input("file")
 const ocrImageFileDrop = view()
     .attr({ id: "drop" })
     .class("group")
-    .addInto(ocrImageInput);
+    .addInto(ocrImageInput)
+    .on("dragover", (e) => {
+        e.preventDefault();
+    })
+    .on("drop", (e) => {
+        e.preventDefault();
+        putDatatransfer(e.dataTransfer);
+    })
+    .on("paste", (e) => {
+        e.preventDefault();
+        putDatatransfer(e.clipboardData);
+    });
 const ocrImageFileDropFileInput = view()
     .attr({ id: "file_input" })
     .add(image(getImgUrl("add.svg"), "upload").class("icon"))
@@ -184,9 +230,8 @@ ocrImageFileDrop.add(txt("拖拽或粘贴图像到此处"));
 const ocrImageTextOutput = view()
     .attr({ id: "text_output" })
     .addInto(ocrImagePel);
-const ocrImageEngine = select([])
-    .attr({ id: "ocr引擎" })
-    .addInto(ocrImageTextOutput);
+const ocrImageEngine = dynamicSelect();
+ocrImageEngine.el.attr({ id: "ocr引擎" }).addInto(ocrImageTextOutput);
 const ocrImageRun = iconBEl("ocr")
     .attr({ id: "run" })
     .addInto(ocrImageTextOutput);
@@ -283,10 +328,12 @@ browserTabBs.add([
 ]);
 
 const showImageB = iconBEl("img").attr({ id: "image_b", title: "图片" });
-const showHistoryB = iconBEl("history").attr({
-    id: "history_b",
-    title: "历史记录",
-});
+const showHistoryB = iconBEl("history")
+    .attr({
+        id: "history_b",
+        title: "历史记录",
+    })
+    .on("click", showHistory);
 
 const searchB = iconBEl("search").attr({ id: "search_b", title: "搜索" });
 const searchSelectEl = select([]).attr({
@@ -323,12 +370,6 @@ function tabLi() {
     return li;
 }
 
-const editBEl = document.getElementById("edit_b");
-
-const barLink = document.getElementById("link_bar");
-const barExcel = document.getElementById("excel_bar");
-const barMdTable = document.getElementById("md_table_bar");
-
 const editTools = store.get("编辑器.工具") || [];
 
 const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = {
@@ -336,36 +377,17 @@ const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = 
     翻译: () => edit("translate"),
     打开链接: () => edit("link"),
     删除换行: () => edit("delete_enter"),
-    图片区: () => imageB.click(),
+    图片区: () => showImageB.el.click(),
     关闭: closeWindow,
 };
 
 const editToolsF: { [name: string]: () => void } = {};
 
-const findInput = <HTMLInputElement>document.getElementById("find_input");
-const replaceInput = <HTMLInputElement>document.getElementById("replace_input");
-const findT = pack(
-    <HTMLElement>document.querySelector(".find_t > span"),
-).bindSet((v: [number, number], el) => {
-    if (v) {
-        el.innerText = `${v[0]} / ${v[1]}`;
-    } else {
-        el.innerText = "";
-    }
-});
-
 const 搜索引擎List = store.get("引擎.搜索");
 const 翻译引擎List = store.get("引擎.翻译");
 const 引擎 = store.get("引擎");
 
-const searchSelect = document.getElementById("search_s") as HTMLSelectElement;
-const translateSelect = document.getElementById(
-    "translate_s",
-) as HTMLSelectElement;
-
 const 历史记录设置 = store.get("历史记录设置");
-
-const historyListEl = document.getElementById("history_list");
 
 const task = new tLog("e");
 
@@ -373,28 +395,9 @@ const language = store.get("语言.语言");
 const chartSeg = new Intl.Segmenter(language, { granularity: "grapheme" });
 const wordSeg = new Intl.Segmenter(language, { granularity: "word" });
 
-const alwaysOnTopEl = document.getElementById("top_b");
-const blurToCloseEl = document.getElementById("ding_b");
-const conciseEl = document.getElementById("concise_b");
-
-const mainEl = document.querySelector(".main") as HTMLElement;
-
-const body = document.querySelector(".fill_t") as HTMLElement;
 const liList = [];
 
-const imageB = document.getElementById("image_b");
-const dropEl = document.getElementById("drop");
-const imgsEl = document.getElementById("img_view");
-const uploadPel = document.getElementById("file_input");
-const uploadEl = document.getElementById("upload") as HTMLInputElement;
-const runEl = document.getElementById("run");
-const ocr引擎 = <HTMLSelectElement>document.getElementById("ocr引擎");
-
 const imageShow = "image_main";
-
-const editMainEl = document.getElementById("edit");
-
-const bottomEls = document.getElementById("bottoms");
 
 const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 
@@ -438,19 +441,19 @@ function redo() {
 }
 
 class xeditor {
-    rendererEl: HTMLElement;
+    rendererEl: ElType<HTMLElement>;
     text: HTMLTextAreaElement;
-    findEl: HTMLElement;
-    positionEl: HTMLElement;
+    findEl: ElType<HTMLElement>;
+    positionEl: ElType<HTMLElement>;
     selections: selections;
     find: find;
-    constructor(el: HTMLElement) {
+    constructor(el: ElType<HTMLElement>) {
         this.rendererEl = el;
-        el.classList.add("text");
-        this.text = document.createElement("textarea");
-        this.findEl = document.createElement("div");
-        this.positionEl = document.createElement("div");
-        el.append(this.positionEl, this.findEl, this.text);
+        el.class("text");
+        this.text = ele("textarea").el;
+        this.findEl = view();
+        this.positionEl = view();
+        el.add([this.positionEl, this.findEl, this.text]);
 
         this.selections = new selections(this);
         this.find = new find(this);
@@ -674,13 +677,15 @@ class selections {
     rect(s: selection) {
         const textNodes: HTMLElement[] = [];
         const l = editor.text.value.split("\n");
-        editor.positionEl.innerText = "";
+        editor.positionEl.clear();
         for (const text of l) {
-            const div = document.createElement("div");
-            div.innerText = text;
-            div.style.minHeight = `${lineHeight}px`;
-            textNodes.push(div);
-            editor.positionEl.append(div);
+            const div = view()
+                .add(text)
+                .style({
+                    minHeight: `${lineHeight}px`,
+                });
+            textNodes.push(div.el);
+            editor.positionEl.add(div);
         }
         const ps = this.ns2s(s.start, s.end);
         const range = new Range();
@@ -730,10 +735,9 @@ class find {
         if (regex) {
             try {
                 text = new RegExp(stext, "g");
-                document.getElementById("find_input").style.outline = "none";
+                findInputEl.el.style.outline = "";
             } catch (error) {
-                document.getElementById("find_input").style.outline =
-                    "red  solid 1px";
+                findInputEl.el.style.outline = "red solid 1px";
             }
         } else {
             const sstext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
@@ -761,24 +765,20 @@ class find {
     }
 
     render(s: selection[]) {
-        this.editor.findEl.innerHTML = "";
+        this.editor.findEl.clear();
         const text = this.editor.text.value;
         const ranges = s.sort((a, b) => a.start - b.start);
         for (let i = 0; i < ranges.length; i++) {
-            const span = document.createElement("span");
-            span.innerText = text.slice(ranges[i].start, ranges[i].end);
-            if (span.innerText) span.classList.add("find_h");
+            const span = txt(text.slice(ranges[i].start, ranges[i].end));
+            if (span.el.innerText) span.class("find_h");
             let after = "";
             if (i === ranges.length - 1)
                 after = text.slice(ranges[i].end, text.length);
-            const beforeEl = document.createElement("span");
-            beforeEl.innerText = text.slice(
-                ranges?.[i - 1]?.end || 0,
-                ranges[i].start,
+            const beforeEl = txt(
+                text.slice(ranges?.[i - 1]?.end || 0, ranges[i].start),
             );
-            const afterEl = document.createElement("span");
-            afterEl.innerText = after;
-            this.editor.findEl.append(beforeEl, span, afterEl);
+            const afterEl = txt(after);
+            this.editor.findEl.add([beforeEl, span, afterEl]);
         }
     }
 
@@ -790,7 +790,7 @@ class find {
     }
 }
 
-const editor = new xeditor(document.getElementById("text"));
+const editor = new xeditor(textEditor);
 
 editor.push("");
 
@@ -830,30 +830,28 @@ function editorChange() {
  * 行号
  */
 function lineNum() {
-    document.getElementById("line_num").innerHTML = "";
+    textLineNum.clear();
     const l = editor.text.value.split("\n");
-    editor.positionEl.innerText = "";
+    editor.positionEl.clear();
     let t = "";
-    const ly = document.getElementById("line_num").getBoundingClientRect().y;
+    const ly = textLineNum.el.getBoundingClientRect().y;
     for (const i in l) {
         const text = l[i];
-        const div = document.createElement("div");
-        div.innerText = text;
-        div.style.minHeight = `${lineHeight}px`;
-        editor.positionEl.append(div);
-        const rect = div.getBoundingClientRect();
+        const div = view().add(text);
+        div.el.style.minHeight = `${lineHeight}px`;
+        editor.positionEl.add(div);
+        const rect = div.el.getBoundingClientRect();
         t += `<div style="top:${rect.y - ly}px">${Number(i) + 1}</div>`;
     }
-    document.getElementById("line_num").innerHTML = t;
-    document.getElementById("line_num").style.width =
-        `${String(l.length).length}ch`;
+    textLineNum.el.innerHTML = t;
+    textLineNum.el.style.width = `${String(l.length).length}ch`;
 }
 lineNum();
 
-document.getElementById("line_num").onmousedown = (e) => {
+textLineNum.el.onmousedown = (e) => {
     e.stopPropagation();
     const el = <HTMLElement>e.target;
-    if (el === document.getElementById("line_num")) return;
+    if (el === textLineNum.el) return;
     const lI = Number(el.innerText) - 1;
 
     const s = {
@@ -863,43 +861,38 @@ document.getElementById("line_num").onmousedown = (e) => {
     editor.selections.clearAll();
     editor.selections.add(editor.selections.s2ns(s));
 };
-document.getElementById("line_num").onmouseup = (_e) => {
+textLineNum.el.onmouseup = (_e) => {
     const s = editor.selections.getS();
     editor.text.setSelectionRange(s.start, s.end);
     editor.text.focus();
 };
-document.getElementById("text").parentElement.onscroll = () => {
-    document.getElementById("line_num").style.top =
-        `-${document.getElementById("text").parentElement.scrollTop}px`;
+textEditor.el.parentElement.onscroll = () => {
+    textLineNum.el.style.top = `-${textEditor.el.parentElement.scrollTop}px`;
 };
 
 /************************************主要 */
 
 /************************************UI */
 
-function setButtonHover(el: HTMLElement, b: boolean) {
-    if (b) el.classList.add("hover_b");
-    else el.classList.remove("hover_b");
+function setButtonHover(el: ElType<HTMLElement>, b: boolean) {
+    if (b) el.el.classList.add("hover_b");
+    else el.el.classList.remove("hover_b");
 }
 
 /**字体大小 */
-document.getElementById("text_out").style.fontSize = `${
+textOut.el.style.fontSize = `${
     store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小
 }px`;
 
 document.onwheel = (e) => {
     if (e.ctrlKey) {
         const d = e.deltaY / Math.abs(e.deltaY);
-        const size = Number(
-            document
-                .getElementById("text_out")
-                .style.fontSize.replace("px", ""),
-        );
+        const size = Number(textOut.el.style.fontSize.replace("px", ""));
         setFontSize(size - d);
     }
 };
 function setFontSize(font_size: number) {
-    document.getElementById("text_out").style.fontSize = `${font_size}px`;
+    textOut.el.style.fontSize = `${font_size}px`;
     lineHeight = font_size * 1.5;
     if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
@@ -909,7 +902,7 @@ function setFontSize(font_size: number) {
 }
 
 function setTextAreaHeight() {
-    editor.text.parentElement.style.height = `calc(${editor.positionEl.offsetHeight}px + 100% - 1em)`;
+    editor.text.parentElement.style.height = `calc(${editor.positionEl.el.offsetHeight}px + 100% - 1em)`;
 }
 
 /**编辑栏 */
@@ -917,36 +910,35 @@ function showEditBar(x: number, y: number, right: boolean) {
     const get = editor.selections.get();
     // 简易判断链接并显示按钮
     if (isLink(get, false)) {
-        barLink.style.width = "30px";
+        barLinB.el.style.width = "30px";
     } else {
-        barLink.style.width = "0";
+        barLinB.el.style.width = "0";
     }
     if (get.split("\n").every((i) => i.includes("\t"))) {
-        barExcel.style.width = "30px";
-        barMdTable.style.width = "30px";
+        barExcelB.el.style.width = "30px";
+        barMdTableB.el.style.width = "30px";
     } else {
-        barExcel.style.width = "0";
-        barMdTable.style.width = "0";
+        barExcelB.el.style.width = "0";
+        barMdTableB.el.style.width = "0";
     }
 
     // 排除没选中
     if (get !== "" || right) {
         if (editBarS) {
-            editBEl.style.transition = "var(--transition)";
+            editB.el.style.transition = "var(--transition)";
         } else {
-            editBEl.style.transition = "opacity var(--transition)";
+            editB.el.style.transition = "opacity var(--transition)";
         }
-        editBEl.className = "edit_s bar";
+        editB.el.className = "edit_s bar";
         let nx = x < 0 ? 0 : x;
-        const pleft = editBEl.parentElement.getBoundingClientRect().left + 16;
-        if (editBEl.offsetWidth + pleft + nx > window.innerWidth)
-            nx = window.innerWidth - editBEl.offsetWidth - pleft;
+        const pleft = editB.el.parentElement.getBoundingClientRect().left + 16;
+        if (editB.el.offsetWidth + pleft + nx > window.innerWidth)
+            nx = window.innerWidth - editB.el.offsetWidth - pleft;
         const ny = y < 0 ? 0 : y;
-        editBEl.style.left = `${nx}px`;
-        editBEl.style.top = `${ny}px`;
+        editB.style({ left: `${nx}px`, top: `${ny}px` });
         editBarS = true;
     } else {
-        editBEl.className = "edit_h";
+        editB.el.className = "edit_h";
         editBarS = false;
     }
 }
@@ -965,7 +957,7 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
     } else {
         r = rect[2];
     }
-    const d = editor.rendererEl.getBoundingClientRect();
+    const d = editor.rendererEl.el.getBoundingClientRect();
     const x = r.x - d.x;
     const y = r.y - d.y;
     if (e.detail.button === 2) {
@@ -1011,10 +1003,10 @@ for (const i of editTools) {
     };
     editToolsF[i.name] = f;
     hotkeys(i.key, f);
-    editBEl.append(iel.el);
+    editB.add(iel);
 }
 
-editBEl.onmousedown = async (e) => {
+editB.el.onmousedown = async (e) => {
     e.stopPropagation();
     e.preventDefault();
     const el = <HTMLElement>e.target;
@@ -1045,7 +1037,7 @@ function wrap() {
 spellcheck();
 function spellcheck() {
     isCheck = !isCheck;
-    document.getElementById("text").spellcheck = isCheck;
+    textEditor.el.spellcheck = isCheck;
 }
 
 /**
@@ -1056,53 +1048,48 @@ function spellcheck() {
 function showFind() {
     findShow = !findShow;
     if (findShow) {
-        editMainEl.style.marginTop = "60px";
-        document.getElementById("find").style.transform = "translateY(0)";
-        document.getElementById("find").style.pointerEvents = "auto";
-        findInput.value = editor.selections.get();
-        findInput.select();
-        findInput.focus();
+        mainSectionEl.el.style.marginTop = "60px";
+        findEl.el.style.transform = "translateY(0)";
+        findEl.el.style.pointerEvents = "auto";
+        findInputEl.sv(editor.selections.get());
+        findInputEl.el.select();
+        findInputEl.el.focus();
         if (editor.selections.get() !== "") find_();
         countWords();
     } else {
-        editMainEl.style.marginTop = "";
-        document.getElementById("find").style.transform = "translateY(-120%)";
-        document.getElementById("find").style.pointerEvents = "none";
+        mainSectionEl.el.style.marginTop = "";
+        findEl.el.style.transform = "translateY(-120%)";
+        findEl.el.style.pointerEvents = "none";
         exitFind();
         editor.text.focus();
     }
 }
 
-document.getElementById("find_b_close").onclick = () => {
-    showFind();
-};
-
 // 正则
-document.getElementById("find_b_regex").onclick = () => {
+findRegexEl.el.onclick = () => {
     findRegex = !findRegex;
     if (findRegex) {
-        document.getElementById("find_b_regex").style.backgroundColor =
-            "var(--hover-color)";
+        findRegexEl.el.style.backgroundColor = "var(--hover-color)";
     } else {
-        document.getElementById("find_b_regex").style.backgroundColor = "";
+        findRegexEl.el.style.backgroundColor = "";
     }
     find_();
-    findInput.focus();
+    findInputEl.el.focus();
 };
 
-document.getElementById("find_input").oninput = () => {
+findInputEl.el.oninput = () => {
     // 清除样式后查找
     exitFind();
     find_();
 };
 // 查找并突出
 function find_() {
-    const match = editor.find.matchx(findInput.value, findRegex);
+    const match = editor.find.matchx(findInputEl.gv, findRegex);
     const find_l = editor.find.find(match);
     editor.find.render(find_l);
     findLNI = -1;
     findLN("↓");
-    if (findInput.value === "") {
+    if (findInputEl.gv === "") {
         exitFind();
     }
 }
@@ -1110,14 +1097,14 @@ function find_() {
 // 清除样式
 function exitFind() {
     tmpText = null;
-    findT.sv();
+    findResultEl.sv();
     editor.find.render([]);
 }
 // 跳转
 function findLN(a: "↑" | "↓") {
     const l = document.querySelectorAll(".find_h");
     if (l.length === 0) {
-        findT.sv([0, 0]);
+        findResultEl.sv([0, 0]);
         return;
     }
     if (l[findLNI]) l[findLNI].classList.remove("find_h_h");
@@ -1135,17 +1122,10 @@ function findLN(a: "↑" | "↓") {
         }
     }
     l[findLNI].classList.add("find_h_h");
-    findT.sv([findLNI + 1, l.length]);
-    document.getElementById("text_out").scrollTop =
-        (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
+    findResultEl.sv([findLNI + 1, l.length]);
+    textOut.el.scrollTop = (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
 }
-document.getElementById("find_b_last").onclick = () => {
-    findLN("↑");
-};
-document.getElementById("find_b_next").onclick = () => {
-    findLN("↓");
-};
-document.getElementById("find_input").onkeydown = (e) => {
+findInputEl.el.onkeydown = (e) => {
     if (e.key === "Enter") {
         if (document.querySelector(".find_h_h")) {
             findLN("↓");
@@ -1156,23 +1136,23 @@ document.getElementById("find_input").onkeydown = (e) => {
 };
 
 // 全部替换
-document.getElementById("find_b_replace_all").onclick = () => {
-    const m = editor.find.matchx(findInput.value, findRegex);
+findReplaceAll.el.onclick = () => {
+    const m = editor.find.matchx(findInputEl.gv, findRegex);
     if (!editor.selections.get()) editor.selectAll();
     editor.selections.replace(
-        editor.selections.get().replaceAll(m, replaceInput.value),
+        editor.selections.get().replaceAll(m, findReplaceEl.gv),
     );
     exitFind();
 
     stackAdd();
 };
 // 替换选中
-document.getElementById("find_b_replace").onclick = findReplace;
+findReplaceB.el.onclick = findReplace;
 function findReplace() {
-    const m = editor.find.matchx(findInput.value, findRegex);
+    const m = editor.find.matchx(findInputEl.gv, findRegex);
     const l = editor.find.find(m);
     const s = l[findLNI];
-    editor.find.replace(s, m, replaceInput.value);
+    editor.find.replace(s, m, findReplaceEl.gv);
     findLNI = findLNI - 1;
     const ti = findLNI;
     find_();
@@ -1181,7 +1161,7 @@ function findReplace() {
 
     stackAdd();
 }
-document.getElementById("replace_input").onkeydown = (e) => {
+findReplaceEl.el.onkeydown = (e) => {
     if (e.key === "Enter") {
         findReplace();
     }
@@ -1279,20 +1259,23 @@ function openLink(
 }
 
 /**搜索翻译按钮 */
-document.getElementById("search_b").onclick = () => {
+searchB.el.onclick = () => {
     openLink("search");
 };
-document.getElementById("translate_b").onclick = () => {
+translateB.el.onclick = () => {
     openLink("translate");
 };
 /**改变选项后搜索 */
-document.getElementById("search_s").oninput = () => {
+searchSelectEl.el.oninput = () => {
     openLink("search");
-    store.set("引擎.记忆.搜索", searchSelect.selectedOptions[0].innerText);
+    store.set("引擎.记忆.搜索", searchSelectEl.el.selectedOptions[0].innerText);
 };
-document.getElementById("translate_s").oninput = () => {
+translateSelectEl.el.oninput = () => {
     openLink("translate");
-    store.set("引擎.记忆.翻译", translateSelect.selectedOptions[0].innerText);
+    store.set(
+        "引擎.记忆.翻译",
+        translateSelectEl.el.selectedOptions[0].innerText,
+    );
 };
 /**展示搜索引擎选项 */
 for (const e of 搜索引擎List) {
@@ -1300,7 +1283,7 @@ for (const e of 搜索引擎List) {
     const op = ele("option")
         .add(noI18n(e.name))
         .attr({ value: e.url, selected });
-    searchSelect.append(op.el);
+    searchSelectEl.add(op.el);
 }
 /**展示翻译引擎选项 */
 for (const e of 翻译引擎List) {
@@ -1308,7 +1291,7 @@ for (const e of 翻译引擎List) {
     const op = ele("option")
         .add(e.url.startsWith("translate") ? t(e.name) : noI18n(e.name))
         .attr({ value: e.url, selected });
-    translateSelect.append(op.el);
+    translateSelectEl.add(op.el);
 }
 
 /************************************历史记录 */
@@ -1337,20 +1320,19 @@ function pushHistory() {
     renderHistory();
 }
 // 历史记录界面
-document.getElementById("history_b").onclick = showHistory;
 
 function showHistory() {
     if (historyShowed) {
         historyShowed = false;
-        historyListEl.style.top = "100%";
+        historyEl.el.style.top = "100%";
     } else {
         historyShowed = true;
 
-        historyListEl.style.top = "0%";
+        historyEl.el.style.top = "0%";
 
         renderHistory();
     }
-    setButtonHover(document.getElementById("history_b"), historyShowed);
+    setButtonHover(showHistoryB, historyShowed);
 }
 function renderHistory() {
     let n = {};
@@ -1360,8 +1342,8 @@ function renderHistory() {
     historyList = n;
     n = null;
     if (Object.keys(historyList).length === 0)
-        historyListEl.innerText = t("暂无历史记录");
-    else historyListEl.innerText = "";
+        historyEl.el.innerText = t("暂无历史记录");
+    else historyEl.clear();
     for (const i in historyList) {
         const t = historyList[i].text.split(/[\r\n]/g);
         const div = view().attr({ id: i });
@@ -1382,7 +1364,7 @@ function renderHistory() {
                 ]),
             textEl,
         ]);
-        historyListEl.prepend(div.el);
+        historyEl.el.prepend(div.el);
     }
 
     // 打开某项历史
@@ -1474,8 +1456,8 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
 
                     const maxLinePhotoShow = store.get("主页面.显示图片区");
                     if (maxLinePhotoShow && r.raw.length >= maxLinePhotoShow) {
-                        if (!editMainEl.classList.contains(imageShow)) {
-                            imageB.click();
+                        if (!mainSectionEl.el.classList.contains(imageShow)) {
+                            showImageB.el.click();
                         }
                     }
 
@@ -1525,8 +1507,7 @@ function editOnOther() {
                     editor.push(data);
                 });
             });
-            document.getElementById("text_out").title =
-                "正在外部编辑中，双击退出";
+            textOut.el.title = "正在外部编辑中，双击退出";
             document.addEventListener("dblclick", () => {
                 editingOnOther = true;
                 editOnOther();
@@ -1535,7 +1516,7 @@ function editOnOther() {
         data = null;
     } else {
         try {
-            document.getElementById("text_out").title = "";
+            textOut.el.title = "";
             document.removeEventListener("dblclick", () => {
                 editingOnOther = true;
                 editOnOther();
@@ -1671,10 +1652,8 @@ function countWords() {
     const chart = Array.from(chartSeg.segment(text));
     const words = Array.from(wordSeg.segment(text));
 
-    document.getElementById("count").innerText =
-        `${chart.filter((i) => i.isWordLike).length} ${t("字")}`;
-    document.getElementById("count").title =
-        `${t("段落")} ${p}\n${t("字符")} ${chart.length}\n${t("非空格字符")} ${chart.filter((i) => !i.segment.match(/\s/)).length}\n${t("词")} ${words.filter((i) => i.isWordLike).length}`;
+    findCount.el.innerText = `${chart.filter((i) => i.isWordLike).length} ${t("字")}`;
+    findCount.el.title = `${t("段落")} ${p}\n${t("字符")} ${chart.length}\n${t("非空格字符")} ${chart.filter((i) => !i.segment.match(/\s/)).length}\n${t("词")} ${words.filter((i) => i.isWordLike).length}`;
 }
 
 /************************************失焦关闭 */
@@ -1687,37 +1666,20 @@ window.onblur = () => {
     if (blurToClose && !alwaysOnTop) closeWindow();
 };
 
-alwaysOnTopEl.onclick = () => {
-    alwaysOnTop = !alwaysOnTop;
-    setButtonHover(alwaysOnTopEl, alwaysOnTop);
-    ipcRenderer.send("window", "top", alwaysOnTop);
-};
+setButtonHover(navDing, !blurToClose);
 
-setButtonHover(blurToCloseEl, !blurToClose);
-blurToCloseEl.onclick = () => {
-    blurToClose = !blurToClose;
-    store.set("主页面.失焦关闭", blurToClose);
-    setButtonHover(blurToCloseEl, !blurToClose);
-};
-
-mainEl.style.transition = "0s";
+editorOutEl.el.style.transition = "0s";
 setConciseMode(concise);
-mainEl.style.transition = "";
-setButtonHover(conciseEl, concise);
-conciseEl.onclick = () => {
-    concise = !concise;
-    store.set("主页面.简洁模式", concise);
-    setButtonHover(conciseEl, concise);
-    setConciseMode(concise);
-};
+editorOutEl.el.style.transition = "";
+setButtonHover(navConcise, concise);
 
 function setConciseMode(m: boolean) {
     if (m) {
-        bottomEls.style.height = "0";
-        body.style.gap = "0";
+        bottomEl.el.style.height = "0";
+        outMainEl.el.style.gap = "0";
     } else {
-        bottomEls.style.height = "";
-        body.style.gap = "";
+        bottomEl.el.style.height = "";
+        outMainEl.el.style.gap = "";
     }
     const bSize = {
         top:
@@ -1740,7 +1702,7 @@ if (!store.get("主页面.高级窗口按钮")) {
 
 /************************************浏览器 */
 
-body.className = "fill_t";
+outMainEl.el.className = "fill_t";
 
 // biome-ignore lint: 不搞体操了
 ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
@@ -1759,23 +1721,20 @@ ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
     if (arg === "load") {
         load(id, arg1);
     }
-    document.getElementById("tabs").classList.add("tabs_show");
+    browserTabs.el.classList.add("tabs_show");
 });
 
 ipcRenderer.on("html", (_e, h: string) => {
-    document.getElementById("tabs").innerHTML = h;
-    for (const li of document
-        .getElementById("tabs")
-        .querySelectorAll("li")
-        .values()) {
-        绑定li(li);
+    browserTabs.el.innerHTML = h;
+    for (const li of browserTabBs.queryAll("li")) {
+        绑定li(li.el);
         liList.push(li);
     }
-    document.getElementById("buttons").onclick = (e) => {
+    browserTabBs.el.onclick = (e) => {
         mainEvent((e.target as HTMLElement).id);
     };
-    if (document.getElementById("tabs").querySelector("li"))
-        document.getElementById("tabs").classList.add("tabs_show");
+    if (browserTabs.el.querySelector("li"))
+        browserTabs.el.classList.add("tabs_show");
 });
 
 function 绑定li(li: HTMLLIElement) {
@@ -1799,7 +1758,7 @@ function newTab(id: number, url: string) {
     liList.push(li);
     li.style.display = "flex";
     li.setAttribute("data-url", url);
-    document.getElementById("tabs").appendChild(li);
+    browserTabs.el.appendChild(li);
     li.id = `id${id}`;
     绑定li(li);
     focusTab(li);
@@ -1810,6 +1769,10 @@ function newTab(id: number, url: string) {
     if (store.get("浏览器.标签页.灰度")) {
         li.classList.add("tab_gray");
     }
+}
+
+function getTab(id: number) {
+    return document.getElementById(`id${id}`);
 }
 
 function closeTab(li: HTMLElement, id: number) {
@@ -1825,14 +1788,14 @@ function closeTab(li: HTMLElement, id: number) {
             }
         }
     }
-    document.getElementById("tabs").removeChild(li);
+    browserTabs.el.removeChild(li);
     if (isTabsEmpty()) {
-        document.getElementById("tabs").classList.remove("tabs_show");
+        browserTabs.el.classList.remove("tabs_show");
     }
 }
 
 function isTabsEmpty() {
-    return document.getElementById("tabs").querySelectorAll("li").length === 0;
+    return browserTabs.el.querySelectorAll("li").length === 0;
 }
 
 function focusTab(li: HTMLElement) {
@@ -1854,53 +1817,47 @@ function focusTab(li: HTMLElement) {
     if (li) {
         ipcRenderer.send("tab_view", li.id.replace("id", ""), "top");
         setTitle(li.querySelector("span").title);
-        body.classList.add("fill_t_s");
+        outMainEl.el.classList.add("fill_t_s");
     } else {
-        body.classList.remove("fill_t_s");
+        outMainEl.el.classList.remove("fill_t_s");
         setTitle(t("主页面"));
     }
 }
 
 function title(id: number, arg: string) {
     document.querySelector(`#id${id} > span`).innerHTML =
-        document.getElementById(`id${id}`).querySelector("span").title =
-        document.getElementById(`id${id}`).querySelector("img").title =
+        getTab(id).querySelector("span").title =
+        getTab(id).querySelector("img").title =
             arg;
-    if (
-        document
-            .getElementById(`id${id}`)
-            .className.split(" ")
-            .includes("tab_focus")
-    )
-        setTitle(arg);
+    if (getTab(id).className.split(" ").includes("tab_focus")) setTitle(arg);
 }
 
 function icon(id: number, arg: Array<string>) {
-    document.getElementById(`id${id}`).setAttribute("data-icon", arg[0]);
-    document.getElementById(`id${id}`).querySelector("img").src = arg[0];
+    getTab(id).setAttribute("data-icon", arg[0]);
+    getTab(id).querySelector("img").src = arg[0];
 }
 
 function url(id: number, url: string) {
-    document.querySelector(`#id${id}`).setAttribute("data-url", url);
+    getTab(id).setAttribute("data-url", url);
 }
 
 function load(id: number, loading: boolean) {
     if (loading) {
-        document.querySelector(`#id${id} > img`).classList.add("loading");
-        document.getElementById(`id${id}`).querySelector("img").src = reloadSvg;
-        document.getElementById("reload").style.display = "none";
-        document.getElementById("stop").style.display = "block";
+        getTab(id).querySelector("img").classList.add("loading");
+        getTab(id).querySelector("img").src = reloadSvg;
+        browserTabReload.el.style.display = "none";
+        browserTabStop.el.style.display = "block";
     } else {
-        document.querySelector(`#id${id} > img`).classList.remove("loading");
-        if (document.getElementById(`id${id}`).getAttribute("data-icon"))
-            document.getElementById(`id${id}`).querySelector("img").src =
-                document.getElementById(`id${id}`).getAttribute("data-icon");
-        document.getElementById("reload").style.display = "block";
-        document.getElementById("stop").style.display = "none";
+        getTab(id).querySelector("img").classList.remove("loading");
+        if (getTab(id).getAttribute("data-icon"))
+            getTab(id).querySelector("img").src =
+                getTab(id).getAttribute("data-icon");
+        browserTabReload.el.style.display = "block";
+        browserTabStop.el.style.display = "none";
     }
 }
 
-document.getElementById("buttons").onclick = (e) => {
+browserTabBs.el.onclick = (e) => {
     mainEvent((e.target as HTMLElement).id);
 };
 function mainEvent(eid: string) {
@@ -1917,7 +1874,7 @@ function mainEvent(eid: string) {
         ipcRenderer.send("tab_view", id, eid);
         if (eid === "home") {
             document.querySelector(".tab_focus").classList.remove("tab_focus");
-            body.classList.remove("fill_t_s");
+            outMainEl.el.classList.remove("fill_t_s");
             setTitle(t("主页面"));
         }
     }
@@ -1939,16 +1896,16 @@ ipcRenderer.on("view_events", (_event, arg) => {
     mainEvent(arg);
 });
 
-document.getElementById("tabs").onwheel = (e) => {
+browserTabs.el.onwheel = (e) => {
     e.preventDefault();
     const i = e.deltaX + e.deltaY + e.deltaZ >= 0 ? 1 : -1;
-    document.getElementById("tabs").scrollLeft +=
+    browserTabs.el.scrollLeft +=
         i * Math.sqrt(e.deltaX ** 2 + e.deltaY ** 2 + e.deltaZ ** 2);
 };
 
 window.onbeforeunload = () => {
     document.querySelector(".tab_focus").classList.remove("tab_focus");
-    const html = document.getElementById("tabs").innerHTML;
+    const html = browserTabs.el.innerHTML;
     ipcRenderer.send("tab_view", null, "save_html", html);
 };
 
@@ -2154,18 +2111,17 @@ async function localOcr(
             });
         }
         task.l("img_load");
-        const img = document.createElement("img");
-        img.src = arg;
-        img.onload = async () => {
+        const img = image(arg, "ocr image");
+        img.el.onload = async () => {
             const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            canvas.getContext("2d").drawImage(img, 0, 0);
+            canvas.width = img.el.width;
+            canvas.height = img.el.height;
+            canvas.getContext("2d").drawImage(img.el, 0, 0);
             task.l("ocr_s");
             lo.ocr(
                 canvas
                     .getContext("2d")
-                    .getImageData(0, 0, img.width, img.height),
+                    .getImageData(0, 0, img.el.width, img.el.height),
             )
                 .then((l) => {
                     console.log(l);
@@ -2430,27 +2386,16 @@ function onlineOcr(
     }
 }
 
-imageB.onclick = () => {
-    editMainEl.classList.toggle(imageShow);
-    setButtonHover(imageB, editMainEl.classList.contains(imageShow));
+showImageB.el.onclick = () => {
+    mainSectionEl.el.classList.toggle(imageShow);
+    setButtonHover(showImageB, mainSectionEl.el.classList.contains(imageShow));
 };
 
-dropEl.ondragover = (e) => {
-    e.preventDefault();
+ocrImageFileDropFileInput.el.onclick = () => {
+    ocrImageFile.el.click();
 };
-dropEl.ondrop = (e) => {
-    e.preventDefault();
-    putDatatransfer(e.dataTransfer);
-};
-dropEl.onpaste = (e) => {
-    e.preventDefault();
-    putDatatransfer(e.clipboardData);
-};
-uploadPel.onclick = () => {
-    uploadEl.click();
-};
-uploadEl.onchange = () => {
-    const files = uploadEl.files;
+ocrImageFile.el.onchange = () => {
+    const files = ocrImageFile.el.files;
     for (const f of files) {
         const type = f.type.split("/")[0];
         if (type !== "image") continue;
@@ -2458,33 +2403,29 @@ uploadEl.onchange = () => {
         reader.readAsDataURL(f);
         reader.onload = () => {
             const el = createImg(reader.result as string);
-            imgsEl.append(el);
+            ocrImageView.add(el);
         };
     }
 };
-runEl.classList.add("no_run");
-runEl.onclick = () => {
+ocrImageRun.el.classList.add("no_run");
+ocrImageRun.el.onclick = () => {
     runOcr();
 };
-document.getElementById("close").onclick = () => {
+ocrImageClose.el.onclick = () => {
     output = [];
-    imgsEl.innerHTML = "";
+    ocrImageView.clear();
 };
 
-for (const i of store.get("离线OCR")) {
-    const o = document.createElement("option");
-    o.innerText = `${i[0]}`;
-    o.value = `${i[0]}`;
-    ocr引擎.append(o);
-}
-ocr引擎.insertAdjacentHTML(
-    "beforeend",
-    `<option value="baidu">百度</option><option value="youdao">有道</option>`,
-);
-ocr引擎.value = store.get("OCR.记住") || store.get("OCR.类型");
-document.getElementById("ocr引擎").oninput = () => {
-    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.value);
-};
+ocrImageEngine.setList([
+    ...store.get("离线OCR").map((i) => ({ value: i[0], text: i[0] })),
+    { value: "baidu", text: "百度" },
+    { value: "youdao", text: "有道" },
+]);
+
+ocrImageEngine.el.sv(store.get("OCR.记住") || store.get("OCR.类型"));
+ocrImageEngine.el.on("input", () => {
+    if (store.get("OCR.记住")) store.set("OCR.记住", ocrImageEngine.el.gv);
+});
 
 /** 拖放数据处理 */
 function putDatatransfer(data: DataTransfer) {
@@ -2496,7 +2437,7 @@ function putDatatransfer(data: DataTransfer) {
             reader.readAsDataURL(f);
             reader.onload = () => {
                 const el = createImg(reader.result as string);
-                imgsEl.append(el);
+                ocrImageView.add(el);
             };
         }
     } else {
@@ -2504,36 +2445,33 @@ function putDatatransfer(data: DataTransfer) {
 }
 
 function createImg(src: string) {
-    const div = document.createElement("div");
-    div.classList.add("img_el");
-    const image = document.createElement("img");
-    image.src = src;
-    image.onload = () => {
-        image.setAttribute("data-w", String(image.width));
-        image.setAttribute("data-h", String(image.height));
-    };
-    div.append(image);
+    const div = view().class("img_el");
+    const img = image(src, "").on("load", () => {
+        img.data({
+            w: String(img.el.width),
+            h: String(img.el.height),
+        });
+    });
+    div.add(img);
     return div;
 }
 
 function runOcr() {
     output = [];
-    for (const el of imgsEl
-        .querySelectorAll(":scope > div > div")
-        .values() as Iterable<HTMLDivElement>) {
-        el.innerText = "";
+    for (const el of ocrImageView.queryAll(":scope > div > div")) {
+        el.clear();
     }
-    const type = ocr引擎.value;
-    const imgList = imgsEl.querySelectorAll(":scope > div > img");
+    const type = ocrImageEngine.el.gv;
+    const imgList = ocrImageView.queryAll(":scope > div > img");
     ocrTextNodes.clear();
-    imgList.forEach((el: HTMLImageElement, i) => {
+    imgList.forEach((el, i) => {
         if (type === "baidu" || type === "youdao") {
-            onlineOcr(type, el.src, (_err, r) => {
+            onlineOcr(type, el.el.src, (_err, r) => {
                 addOcrText(r.raw, i);
                 addOcrToEditor(r.text, i);
             });
         } else {
-            localOcr(type, el.src, (_err, r) => {
+            localOcr(type, el.el.src, (_err, r) => {
                 addOcrText(r.raw, i);
                 addOcrToEditor(r.text, i);
             });
@@ -2553,12 +2491,12 @@ type ocrResult = {
 }[];
 
 function addOcrText(r: ocrResult, i: number) {
-    const img = imgsEl.querySelectorAll("img")[i];
+    const img = ocrImageView.queryAll("img")[i].el;
     const w = img.naturalWidth;
     const h = img.naturalHeight;
 
-    const div = document.createElement("div");
-    img.parentElement.append(div);
+    const div = view();
+    img.parentElement.append(div.el);
     for (const i of r) {
         if (!i.text) continue;
         const x0 = i.box[0][0];
@@ -2571,7 +2509,7 @@ function addOcrText(r: ocrResult, i: number) {
             width: `${((x1 - x0) / w) * 100}%`,
             height: `${((y1 - y0) / h) * 100}%`,
         });
-        div.append(xel.el);
+        div.add(xel);
         const nc = txt(i.text).style({
             "white-space": "nowrap",
             "font-size": "16px",
@@ -2588,16 +2526,19 @@ function addOcrText(r: ocrResult, i: number) {
 
     setOcrFontSize();
 
-    addOcrSelect(div);
+    addOcrSelect(div.el);
 }
 
 function setOcrFontSize() {
-    for (const el of imgsEl.querySelectorAll("p").values()) {
-        const w = Number(el.getAttribute("data-w"));
-        const elSize = el.getBoundingClientRect();
+    for (const el of ocrImageView.queryAll("p")) {
+        const w = Number(el.el.getAttribute("data-w"));
+        const elSize = el.el.getBoundingClientRect();
         let fontSize = 16;
         fontSize = 16 * (elSize.width / w);
-        el.style.lineHeight = el.style.fontSize = `${fontSize}px`;
+        el.style({
+            lineHeight: `${fontSize}px`,
+            fontSize: `${fontSize}px`,
+        });
     }
 }
 
@@ -2607,9 +2548,9 @@ window.onresize = () => {
 };
 
 function addOcrPhoto(base: string) {
-    imgsEl.innerHTML = "";
+    ocrImageView.clear();
     const el = createImg(base);
-    imgsEl.append(el);
+    ocrImageView.add(el);
 }
 
 console.log(output);
@@ -2627,11 +2568,11 @@ function addOcrSelect(div: HTMLDivElement) {
 }
 
 let imageS = false;
-imgsEl.onpointerdown = () => {
+ocrImageView.el.onpointerdown = () => {
     imageS = true;
     CSS.highlights.clear();
 };
-imgsEl.onpointerup = () => {
+ocrImageView.el.onpointerup = () => {
     imageS = false;
     const s = getImgSelect();
     if (!s) return;
@@ -2640,7 +2581,7 @@ imgsEl.onpointerup = () => {
     editor.selections.add(s);
     editor.text.focus();
 };
-imgsEl.onpointermove = () => {
+ocrImageView.el.onpointermove = () => {
     if (!imageS) return;
     const s = getImgSelect();
     editor.find.render([s]);
