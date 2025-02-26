@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-// @ts-strict-ignore
 import { initStyle, getImgUrl, setTitle } from "../root/root";
 import {
     button,
@@ -37,7 +36,7 @@ const clipTime = Number(store.get("录屏.转换.分段")) * 1000;
 
 const nameT: { s: number; e: number }[] = [{ s: 0, e: Number.NaN }];
 
-const timeL = [];
+const timeL: number[] = [];
 function pTime() {
     const t = new Date().getTime();
     timeL.push(t);
@@ -57,9 +56,9 @@ function getT() {
         t += timeL[i] - timeL[i - 1];
     }
     if (timeL.length % 2 === 0) {
-        t += new Date().getTime() - timeL.at(-2);
+        t += new Date().getTime() - (timeL.at(-2) as number);
     } else {
-        t += new Date().getTime() - timeL.at(-1);
+        t += new Date().getTime() - (timeL.at(-1) as number);
     }
     return t;
 }
@@ -72,7 +71,7 @@ function getTime() {
         for (let i = 1; i < timeL.length - 1; i += 2) {
             t += timeL[i] - timeL[i - 1];
         }
-        t += new Date().getTime() - timeL.at(-1);
+        t += new Date().getTime() - (timeL.at(-1) as number);
         const s = Math.trunc(t / 1000);
         const m = Math.trunc(s / 60);
         const h = Math.trunc(m / 60);
@@ -277,9 +276,9 @@ async function clip() {
         v: number,
         t: number,
         a: "start" | "end" | "both",
-        t2?: number,
+        t2: number,
     ) {
-        const args = [];
+        const args: (string | number)[] = [];
         args.push("-i", path.join(output, `${v}.${type}`));
         if (a === "start") {
             args.push("-ss", t / 1000);
@@ -289,7 +288,7 @@ async function clip() {
             args.push("-ss", t / 1000, "-to", t2 / 1000);
         }
         args.push(path.join(output1, `${v}.${type}`));
-        return args;
+        return args.map((i) => String(i));
     }
     if (startV.v + 1 < endV.v) {
         for (let i = startV.v + 1; i < endV.v; i++) {
@@ -314,8 +313,8 @@ async function clip() {
         );
     } else {
         await Promise.all([
-            runFfmpeg("clip", 0, toArg(startV.v, startV.time, "start")),
-            runFfmpeg("clip", 1, toArg(endV.v, endV.time, "end")),
+            runFfmpeg("clip", 0, toArg(startV.v, startV.time, "start", 0)),
+            runFfmpeg("clip", 1, toArg(endV.v, endV.time, "end", 0)),
         ]);
     }
 }
@@ -327,7 +326,7 @@ function joinAndSave(filepath: string) {
         updataPrEl(ffprocess);
         return;
     }
-    const args = [];
+    const args: string[] = [];
 
     // 针对不同格式的合并（用switch还要加上作用域的话缩进就太多了）
     if (type === "gif") {
@@ -535,9 +534,9 @@ function iconBEl(src: string) {
 pureStyle();
 
 class time_i extends HTMLElement {
-    _value: number;
-    _min: number;
-    _max: number;
+    _value = 0;
+    _min = 0;
+    _max = 0;
     input = document.createElement("input");
 
     connectedCallback() {
@@ -641,6 +640,7 @@ class time_i extends HTMLElement {
         const mn = Math.trunc(sn / 60);
         const hn = Math.trunc(mn / 60);
         const [h, m, s, ss] =
+            // @ts-ignore
             this.querySelector("span").querySelectorAll("span");
         h.innerText = String(hn);
         m.innerText = String(mn - 60 * hn);
@@ -650,6 +650,7 @@ class time_i extends HTMLElement {
 
     sum_value() {
         const [h, m, s, ss] =
+            // @ts-ignore
             this.querySelector("span").querySelectorAll("span");
         const [hn, mn, sn, ssn] = [h, m, s, ss].map((v) => this.n(v));
         const v = hn * 3600000 + mn * 60000 + sn * 1000 + ssn;
@@ -837,7 +838,7 @@ const tTEl = txt()
         el.setAttribute("t", v);
     })
     .bindGet((el) => {
-        return el.getAttribute("t");
+        return el.getAttribute("t") ?? "";
     });
 const tEndEl = document.createElement("time-i") as time_i;
 tEndEl.id = "t_end";
@@ -870,9 +871,10 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
 const setEndEl = iconBEl("right")
     .attr({ id: "b_t_end" })
     .on("click", () => {
-        const max = timeL.at(-1) - timeL[0];
+        const last = timeL.at(-1) as number;
+        const max = last - timeL[0];
         jdtEl.attr({ max: String(max) });
-        tEndEl.svc = tStartEl.max = tEndEl.max = timeL.at(-1) - timeL[0];
+        tEndEl.svc = tStartEl.max = tEndEl.max = last - timeL[0];
     });
 
 const saveEl = iconBEl("save")
@@ -987,7 +989,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             for (const a of audioStreamS.values()) {
                 for (const i of a.getAudioTracks()) stream.addTrack(i);
             }
-            let chunks = [];
+            let chunks: Blob[] = [];
             recorder = new MediaRecorder(stream, {
                 videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
                 mimeType: "video/webm",
@@ -1036,13 +1038,13 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             }
 
             recorder.onstop = () => {
-                nameT.at(-1).e = getT();
+                (nameT.at(-1) as (typeof nameT)[0]).e = getT();
                 if (stop) {
                     ipcRenderer.send("record", "stop");
                     save(showControl);
                     console.log(nameT);
                 } else {
-                    save(null);
+                    save(() => {});
                     recorder.start();
                     nameT.push({ s: getT(), e: Number.NaN });
                 }
