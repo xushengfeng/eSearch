@@ -3573,13 +3573,7 @@ for (const k of tools) {
     else hotkeys(key, "all", tool[k]);
     key = key
         .split("+")
-        .map(
-            (k) =>
-                jsKeyCodeDisplay(
-                    ele2jsKeyCode(k),
-                    process.platform === "darwin",
-                ).primary,
-        )
+        .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k)).primary)
         .join("");
     if (k === "copy") {
         key += " 双击";
@@ -3615,13 +3609,7 @@ for (const k in canvasControlKey) {
 function showShortKey(k: string) {
     return k
         .split("+")
-        .map(
-            (k) =>
-                jsKeyCodeDisplay(
-                    ele2jsKeyCode(k),
-                    process.platform === "darwin",
-                ).primary,
-        )
+        .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k)).primary)
         .join("");
 }
 
@@ -3651,13 +3639,7 @@ for (const m of hotkeyTipX) {
         for (let s of k.keys) {
             s = s
                 .split("+")
-                .map(
-                    (k) =>
-                        jsKeyCodeDisplay(
-                            ele2jsKeyCode(k),
-                            process.platform === "darwin",
-                        ).primary,
-                )
+                .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k)).primary)
                 .join("+");
             x.add(txt(s));
         }
