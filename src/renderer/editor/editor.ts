@@ -94,6 +94,20 @@ const 浏览器打开 = store.get("浏览器中打开");
 
 const 默认字体大小 = store.get("字体.大小");
 
+const tabs = new Map<
+    number,
+    {
+        el: ElType<HTMLElement>;
+        url: string;
+        title: string;
+        icon: string;
+        setTitle: (t: string) => void;
+        setIcon: (i?: string) => void;
+    }
+>();
+
+let focusTabI = 0;
+
 // @auto-path:../assets/icons/$.svg
 function iconBEl(src: string) {
     return button(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
@@ -367,7 +381,7 @@ function tabLi() {
     const title = txt().attr({ id: "title" });
     const close = iconBEl("close");
     li.add([icon, title, close]);
-    return li;
+    return { li, icon, title, close };
 }
 
 const editTools = store.get("编辑器.工具") || [];
@@ -395,7 +409,7 @@ const language = store.get("语言.语言");
 const chartSeg = new Intl.Segmenter(language, { granularity: "grapheme" });
 const wordSeg = new Intl.Segmenter(language, { granularity: "word" });
 
-const liList = [];
+let liList: number[] = [];
 
 const imageShow = "image_main";
 
@@ -1724,24 +1738,11 @@ ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
     browserTabs.el.classList.add("tabs_show");
 });
 
-ipcRenderer.on("html", (_e, h: string) => {
-    browserTabs.el.innerHTML = h;
-    for (const li of browserTabBs.queryAll("li")) {
-        绑定li(li.el);
-        liList.push(li);
-    }
-    browserTabBs.el.onclick = (e) => {
-        mainEvent((e.target as HTMLElement).id);
-    };
-    if (browserTabs.el.querySelector("li"))
-        browserTabs.el.classList.add("tabs_show");
-});
-
 function 绑定li(li: HTMLLIElement) {
     const id = Number(li.id.replace("id", ""));
     li.onmouseup = (e) => {
         if (e.button === 0) {
-            focusTab(li);
+            focusTab(id);
         } else {
             closeTab(li, id);
         }
@@ -1754,14 +1755,33 @@ function 绑定li(li: HTMLLIElement) {
 }
 
 function newTab(id: number, url: string) {
-    const li = tabLi().el;
-    liList.push(li);
+    const r = tabLi();
+    const li = r.li.el;
+    liList.push(id);
+    tabs.set(id, {
+        el: r.li,
+        icon: "",
+        title: "",
+        url,
+        setIcon: (i) => {
+            if (i === undefined) {
+                r.icon.el.src = reloadSvg;
+                r.icon.el.classList.add("loading");
+            } else {
+                tabs.get(id).icon = i;
+                r.icon.el.src = i;
+                r.icon.el.classList.remove("loading");
+            }
+        },
+        setTitle: (t) => {
+            r.title.el.innerText = t;
+            r.icon.el.title = t;
+        },
+    });
     li.style.display = "flex";
-    li.setAttribute("data-url", url);
-    browserTabs.el.appendChild(li);
-    li.id = `id${id}`;
+    browserTabs.add(li);
     绑定li(li);
-    focusTab(li);
+    focusTab(id);
 
     if (store.get("浏览器.标签页.小")) {
         li.classList.add("tab_small");
@@ -1772,22 +1792,15 @@ function newTab(id: number, url: string) {
 }
 
 function getTab(id: number) {
-    return document.getElementById(`id${id}`);
+    return tabs.get(id);
 }
 
 function closeTab(li: HTMLElement, id: number) {
     ipcRenderer.send("tab_view", id, "close");
-    const l = document.querySelectorAll("li");
-    for (const i in l) {
-        if (l[i] === li && document.querySelector(".tab_focus") === li) {
-            // 模板排除
-            if (Number(i) === l.length - 2) {
-                focusTab(l[l.length - 3]);
-            } else {
-                focusTab(l[i + 1]);
-            }
-        }
-    }
+    focusTab(liList.at(liList.findIndex((i) => i === id) + 1) || 0);
+    liList = liList.filter((i) => i !== id);
+    tabs.delete(id);
+
     browserTabs.el.removeChild(li);
     if (isTabsEmpty()) {
         browserTabs.el.classList.remove("tabs_show");
@@ -1798,25 +1811,21 @@ function isTabsEmpty() {
     return browserTabs.el.querySelectorAll("li").length === 0;
 }
 
-function focusTab(li: HTMLElement) {
-    const l = document.querySelectorAll("li");
-    for (const i of l) {
-        if (i === li) {
-            i.classList.add("tab_focus");
+function focusTab(id: number | 0) {
+    focusTabI = id;
+    for (const [eid, el] of tabs) {
+        if (eid === id) {
+            el.el.el.classList.add("tab_focus");
         } else {
-            i.classList.remove("tab_focus");
+            el.el.el.classList.remove("tab_focus");
         }
     }
-    for (const j in liList) {
-        if (liList[j] === li) {
-            liList.splice(Number(j), 1);
-            liList.push(li);
-        }
-    }
+    liList = liList.filter((i) => i !== id);
+    liList.push(id);
 
-    if (li) {
-        ipcRenderer.send("tab_view", li.id.replace("id", ""), "top");
-        setTitle(li.querySelector("span").title);
+    if (id) {
+        ipcRenderer.send("tab_view", id, "top");
+        setTitle(getTab(id).title);
         outMainEl.el.classList.add("fill_t_s");
     } else {
         outMainEl.el.classList.remove("fill_t_s");
@@ -1825,33 +1834,25 @@ function focusTab(li: HTMLElement) {
 }
 
 function title(id: number, arg: string) {
-    document.querySelector(`#id${id} > span`).innerHTML =
-        getTab(id).querySelector("span").title =
-        getTab(id).querySelector("img").title =
-            arg;
-    if (getTab(id).className.split(" ").includes("tab_focus")) setTitle(arg);
+    getTab(id).setTitle(arg);
+    if (id === focusTabI) setTitle(arg);
 }
 
 function icon(id: number, arg: Array<string>) {
-    getTab(id).setAttribute("data-icon", arg[0]);
-    getTab(id).querySelector("img").src = arg[0];
+    getTab(id).setIcon(arg[0]);
 }
 
 function url(id: number, url: string) {
-    getTab(id).setAttribute("data-url", url);
+    getTab(id).url = url;
 }
 
 function load(id: number, loading: boolean) {
     if (loading) {
-        getTab(id).querySelector("img").classList.add("loading");
-        getTab(id).querySelector("img").src = reloadSvg;
+        getTab(id).setIcon();
         browserTabReload.el.style.display = "none";
         browserTabStop.el.style.display = "block";
     } else {
-        getTab(id).querySelector("img").classList.remove("loading");
-        if (getTab(id).getAttribute("data-icon"))
-            getTab(id).querySelector("img").src =
-                getTab(id).getAttribute("data-icon");
+        getTab(id).setIcon(getTab(id).icon);
         browserTabReload.el.style.display = "block";
         browserTabStop.el.style.display = "none";
     }
@@ -1862,18 +1863,19 @@ browserTabBs.el.onclick = (e) => {
 };
 function mainEvent(eid: string) {
     if (!eid) return;
+    if (focusTabI === 0) return;
     if (eid === "browser") {
         openInBrowser();
     } else if (eid === "add_history") {
         historyList[new Date().getTime()] = {
-            text: document.querySelector(".tab_focus").getAttribute("data-url"),
+            text: getTab(focusTabI).url,
         };
         storeHistory();
     } else {
-        const id = liList.at(-1).id.replace("id", "");
+        const id = focusTabI;
         ipcRenderer.send("tab_view", id, eid);
         if (eid === "home") {
-            document.querySelector(".tab_focus").classList.remove("tab_focus");
+            focusTab(0);
             outMainEl.el.classList.remove("fill_t_s");
             setTitle(t("主页面"));
         }
@@ -1881,7 +1883,7 @@ function mainEvent(eid: string) {
 }
 
 function openInBrowser() {
-    const url = document.querySelector(".tab_focus").getAttribute("data-url");
+    const url = getTab(focusTabI).url;
     shell.openExternal(url);
     if (store.get("浏览器.标签页.自动关闭")) {
         const id = Number(

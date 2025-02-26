@@ -2041,7 +2041,7 @@ async function createMainWindow(op: MainWinType) {
             webSecurity: false,
         },
         show: true,
-    }) as BrowserWindow & { html: string };
+    });
     mainWindowL[windowName] = {
         browser: { top: 0, bottom: 48 },
         win: mainWindow,
@@ -2068,10 +2068,6 @@ async function createMainWindow(op: MainWinType) {
             createBrowser(windowName, "./aiVision.html").then((c) => {
                 c?.executeJavaScript(`setImg("${op.content}")`);
             });
-        }
-
-        if (mainWindow.html) {
-            mainWindow.webContents.send("html", mainWindow.html);
         }
     });
 
