@@ -45,8 +45,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",
-        "@types/chroma-js": "^2.4.4",
-        "@types/color": "^3.0.3",
+        "@types/chroma-js": "^3.1.1",
         "@types/diff-match-patch": "^1.0.34",
         "@types/minimist": "^1.2.5",
         "@types/node": "^22.9.3",

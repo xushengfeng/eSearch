@@ -87,11 +87,8 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       '@types/chroma-js':
-        specifier: ^2.4.4
-        version: 2.4.4
-      '@types/color':
-        specifier: ^3.0.3
-        version: 3.0.6
+        specifier: ^3.1.1
+        version: 3.1.1
       '@types/diff-match-patch':
         specifier: ^1.0.34
         version: 1.0.36
@@ -704,17 +701,8 @@ packages:
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
-  '@types/chroma-js@2.4.4':
-    resolution: {integrity: sha512-/DTccpHTaKomqussrn+ciEvfW4k6NAHzNzs/sts1TCqg333qNxOhy8TNIoQCmbGG3Tl8KdEhkGAssb1n3mTXiQ==}
-
-  '@types/color-convert@2.0.3':
-    resolution: {integrity: sha512-2Q6wzrNiuEvYxVQqhh7sXM2mhIhvZR/Paq4FdsQkOMgWsCIkKvSGj8Le1/XalulrmgOzPMqNa0ix+ePY4hTrfg==}
-
-  '@types/color-name@1.1.4':
-    resolution: {integrity: sha512-hulKeREDdLFesGQjl96+4aoJSHY5b2GRjagzzcqCfIrWhe5vkCqIvrLbqzBaI1q94Vg8DNJZZqTR5ocdWmWclg==}
-
-  '@types/color@3.0.6':
-    resolution: {integrity: sha512-NMiNcZFRUAiUUCCf7zkAelY8eV3aKqfbzyFQlXpPIEeoNDbsEHGpb854V3gzTsGKYj830I5zPuOwU/TP5/cW6A==}
+  '@types/chroma-js@3.1.1':
+    resolution: {integrity: sha512-SFCr4edNkZ1bGaLzGz7rgR1bRzVX4MmMxwsIa3/Bh6ose8v+hRpneoizHv0KChdjxaXyjRtaMq7sCuZSzPomQA==}
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -3661,17 +3649,7 @@ snapshots:
       '@types/node': 22.9.3
       '@types/responselike': 1.0.3
 
-  '@types/chroma-js@2.4.4': {}
-
-  '@types/color-convert@2.0.3':
-    dependencies:
-      '@types/color-name': 1.1.4
-
-  '@types/color-name@1.1.4': {}
-
-  '@types/color@3.0.6':
-    dependencies:
-      '@types/color-convert': 2.0.3
+  '@types/chroma-js@3.1.1': {}
 
   '@types/debug@4.1.12':
     dependencies:

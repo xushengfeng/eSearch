@@ -1465,9 +1465,13 @@ function numberFormat(num: number) {
     return (num || 0).toFixed(1).replace(/\.?0+$/, "");
 }
 
+function rgba2str(rgba: colorRGBA) {
+    return `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
+}
+
 // 色彩空间转换
 function colorConversion(rgba: colorRGBA, type: colorFormat): string {
-    const color = chroma(rgba || [0, 0, 0, 0]);
+    const color = chroma(rgba2str(rgba || [0, 0, 0, 0]));
     if (color.alpha() !== 1) return "/";
     switch (type) {
         case "HEX":
@@ -1490,16 +1494,12 @@ function colorConversion(rgba: colorRGBA, type: colorFormat): string {
             return `hwb(${numberFormat(h)} ${numberFormat((1 - s) * v * 100)}% ${numberFormat((1 - v) * 100)}%)`;
         }
         case "LAB":
-            // @ts-ignore
             return color.css("lab");
         case "LCH":
-            // @ts-ignore
             return color.css("lch");
         case "OKLAB":
-            // @ts-ignore
             return color.css("oklab");
         case "OKLCH":
-            // @ts-ignore
             return color.css("oklch");
         default:
             return "";
@@ -1508,7 +1508,7 @@ function colorConversion(rgba: colorRGBA, type: colorFormat): string {
 
 // 改变颜色文字和样式
 function clipColorText(l: colorRGBA, type: colorFormat) {
-    const color = chroma(l);
+    const color = chroma(rgba2str(l));
     const clipColorTextColor = color.alpha() === 1 ? pickTextColor(color) : "";
     theTextColor = [color.hex(), clipColorTextColor];
 
