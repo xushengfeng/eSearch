@@ -364,32 +364,20 @@ function getWin() {
     }
 }
 
-function sCenterBar(m) {
+function showSaveBar(m: boolean) {
     hotkeys.deleteScope("c_bar");
-    if (centerBarM === m) {
-        centerBarShow = false;
-        centerBarM = null;
-    } else {
-        centerBarShow = true;
-        centerBarM = m;
-    }
-    if (m === false) centerBarShow = false;
-    if (centerBarShow) {
-        document.getElementById("save_type").style.height = "0";
-        document.getElementById("save_type").style.width = "0";
-        document.getElementById("center_bar").style.opacity = "1";
-        document.getElementById("center_bar").style.pointerEvents = "auto";
+    if (m) {
+        centerBarEl.style({
+            opacity: 1,
+            pointerEvents: "auto",
+        });
         toHotkeyScope("c_bar");
     } else {
-        document.getElementById("center_bar").style.opacity = "0";
-        document.getElementById("center_bar").style.pointerEvents = "none";
+        centerBarEl.style({
+            opacity: 0,
+            pointerEvents: "none",
+        });
         backHotkeyScope();
-    }
-    switch (m) {
-        case "save":
-            document.getElementById("save_type").style.height = "";
-            document.getElementById("save_type").style.width = "";
-            break;
     }
 }
 
@@ -822,39 +810,32 @@ function runSave() {
         save(p);
         return;
     }
-    sCenterBar("save");
-    const els = Array.from(
-        document.querySelectorAll("#suffix > div"),
-    ) as HTMLElement[];
-    const type2N = els.map((i) => i.getAttribute("data-value"));
+    showSaveBar(true);
+    const els = suffixList;
+    const type2N = saveTypeList;
+    for (const i of els) {
+        i.el.className = "";
+    }
     let i = type2N.indexOf(store.get("保存.默认格式"));
-    els[i].className = "suffix_h";
-    document.getElementById("suffix").onclick = (e) => {
-        const el = <HTMLDivElement>e.target;
-        if (el.dataset.value) {
-            ipcRenderer.send("clip_main_b", "save", el.dataset.value);
-            type = el.dataset.value as typeof type;
-            sCenterBar("save");
-        }
-    };
+    els[i].el.className = "suffix_h";
     toHotkeyScope("c_bar");
     hotkeys("enter", "c_bar", () => {
-        (<HTMLDivElement>document.querySelector("#suffix > .suffix_h")).click();
-        sCenterBar("save");
+        els[i].el.click();
+        showSaveBar(false);
     });
     const l = type2N.length;
     hotkeys("up", "c_bar", () => {
-        els[i % l].className = "";
+        els[i % l].el.className = "";
         i = i === 0 ? l - 1 : i - 1;
-        els[i % l].className = "suffix_h";
+        els[i % l].el.className = "suffix_h";
     });
     hotkeys("down", "c_bar", () => {
-        els[i % l].className = "";
+        els[i % l].el.className = "";
         i++;
-        els[i % l].className = "suffix_h";
+        els[i % l].el.className = "suffix_h";
     });
     hotkeys("esc", "c_bar", () => {
-        sCenterBar("save");
+        showSaveBar(false);
     });
 }
 async function save(message: string) {
@@ -2939,6 +2920,24 @@ whEl.addInto();
 longTip.el.addInto();
 longPreview.addInto();
 
+const centerBarEl = view().attr({ id: "center_bar" }).class("bar").addInto();
+const saveType = view()
+    .attr({ id: "save_type" })
+    .addInto(centerBarEl)
+    .add(view().add("保存文件格式为"));
+const saveTypeList: (typeof type)[] = ["png", "jpg", "webp", "svg"];
+const suffixList = saveTypeList.map((i) =>
+    view()
+        .data({ value: i })
+        .add(i)
+        .on("click", () => {
+            ipcRenderer.send("clip_main_b", "save", i);
+            type = i;
+            showSaveBar(false);
+        }),
+);
+view().attr({ id: "suffix" }).add(suffixList).addInto(saveType);
+
 const colorFillEl = colorInput("fill").on("input", () => {
     setFObjectV(colorFillEl.gv, null, null);
 });
@@ -3000,9 +2999,6 @@ const edgeRect: {
     height: number;
     type: "system" | "image";
 }[] = [];
-
-let centerBarShow = false;
-let centerBarM = null;
 
 const tool: Record<功能, () => void> = {
     screens: () => {},
