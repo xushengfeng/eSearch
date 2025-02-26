@@ -307,7 +307,7 @@ function setEditorP(zoom: number, x: number, y: number) {
         t.push(`translateY(${limitY}px)`);
         editorP.y = limitY;
     }
-    editor.style.transform = t.join(" ");
+    editor.el.style.transform = t.join(" ");
 
     whBar(finalRect);
 }
@@ -1447,7 +1447,7 @@ function mouseBar(finalRect: rect, e: MouseEvent) {
         theColor = [r, g, b, a];
         clipColorText([r, g, b, a], 取色器默认格式);
 
-        document.getElementById("clip_xy").innerText = `(${x}, ${y})`;
+        mouseBarXy.sv([x, y]);
     });
 }
 
@@ -1512,58 +1512,48 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     const clipColorTextColor = color.alpha() === 1 ? pickTextColor(color) : "";
     theTextColor = [color.hex(), clipColorTextColor];
 
-    (<HTMLDivElement>(
-        document.querySelector("#clip_copy > div > div:not(:nth-child(1))")
-    )).style.backgroundColor = color.hex();
-    const mainEl = <HTMLElement>(
-        document.querySelector(
-            `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`,
-        )
-    );
+    mouseBarCopyColor.el.style.backgroundColor = color.hex();
+    const mainEl = mouseBarCopyColor.query(`div:nth-child(${取色器格式位置})`);
     // 只改变默认格式的字体颜色和内容，并定位展示
-    mainEl.style.color = theTextColor[1];
-    mainEl.innerText = colorConversion(l, type);
+    mainEl.el.style.color = theTextColor[1];
+    mainEl.el.innerText = colorConversion(l, type);
     if (color.alpha() !== 1) {
-        mainEl.style.color = "";
+        mainEl.el.style.color = "";
     }
-    (<HTMLDivElement>(
-        document.querySelector("#clip_copy > div")
-    )).style.top = `${-32 * 取色器格式位置}px`;
+    mouseBarCopyI.el.style.top = `${-32 * 取色器格式位置}px`;
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
-function changeRightBar(v) {
-    // 拼接坐标和颜色代码
-    let t = `<div>${finalRect[2]} × ${finalRect[3]}</div>`;
-    t += `<div style="background-color:${theTextColor[0]};color:${theTextColor[1]}">`;
-    for (const i in allColorFormat) {
-        t += `<div>${colorConversion(theColor, allColorFormat[i])}</div>`;
-    }
-    document.querySelector("#clip_copy > div").innerHTML = `${t}</div>`;
-    // 复制大小和颜色
-    (<HTMLElement>(
-        document.querySelector("#clip_copy > div > div:nth-child(1)")
-    )).onclick = () => {
-        copy(document.querySelector("#clip_copy > div > div:nth-child(1)"));
-    };
-    const nodes = document.querySelectorAll(
-        "#clip_copy > div > div:not(:nth-child(1)) > div",
-    );
-    for (const element of Array.from(nodes) as HTMLElement[]) {
-        ((e) => {
-            e.onclick = () => {
-                copy(e);
-            };
-        })(element);
-    }
+function changeRightBar(v: boolean) {
+    mouseBarCopySize
+        .clear()
+        .add(`${finalRect[2]} × ${finalRect[3]}`)
+        .on("click", (_, el) => {
+            copy(el.el);
+        });
+    mouseBarCopyColor
+        .clear()
+        .style({
+            backgroundColor: theTextColor[0],
+            color: theTextColor[1],
+        })
+        .add(
+            allColorFormat.map((i) =>
+                view()
+                    .add(colorConversion(theColor, i))
+                    .on("click", (_, el) => {
+                        copy(el.el);
+                    }),
+            ),
+        );
     if (v) {
-        document.getElementById("point_color").style.height = "0";
-        document.getElementById("clip_copy").className = "clip_copy";
-        document.getElementById("mouse_bar").style.pointerEvents = "auto";
+        mouseBarColor.el.style.height = "0";
+        mouseBarCopy.el.className = "clip_copy";
+        mouseBarEl.el.style.pointerEvents = "auto";
     } else {
-        document.getElementById("clip_copy").className = "clip_copy_h";
-        document.getElementById("point_color").style.height = "";
-        document.getElementById("mouse_bar").style.pointerEvents = "none";
+        mouseBarCopy.el.className = "clip_copy_h";
+        mouseBarColor.el.style.height = "";
+        mouseBarEl.el.style.pointerEvents = "none";
     }
 }
 
@@ -2964,11 +2954,14 @@ elFromId("draw_filters_grayscale").add([
     view().attr({ id: "draw_filters_gray_luminosity" }),
 ]);
 
-const editor = document.getElementById("editor");
-editor.style.width = `${window.screen.width / 全局缩放}px`;
-const mainCanvas = <HTMLCanvasElement>document.getElementById("main_photo");
-const clipCanvas = <HTMLCanvasElement>document.getElementById("clip_photo");
-const drawCanvas = <HTMLCanvasElement>document.getElementById("draw_photo");
+const editor = view().attr({ id: "editor" }).addInto();
+const mainCanvas = ele("canvas").attr({ id: "main_photo" }).el;
+const clipCanvas = ele("canvas").attr({ id: "clip_photo" }).el;
+const drawCanvas = ele("canvas").attr({ id: "draw_photo" }).el;
+const drawP = view().attr({ id: "draw_photo_top" }).add(drawCanvas);
+editor.add([mainCanvas, clipCanvas, drawP]);
+
+editor.style({ width: `${window.screen.width / 全局缩放}px` });
 // 第一次截的一定是桌面,所以可提前定义
 mainCanvas.width =
     clipCanvas.width =
@@ -3059,7 +3052,18 @@ const drawSideEls: {
     shape: shapeEl,
 };
 
-const mouseBarEl = document.getElementById("mouse_bar");
+const mouseBarEl = view().attr({ id: "mouse_bar" }).class("bar").addInto();
+const mouseBarColor = view().attr({ id: "point_color" }).addInto(mouseBarEl);
+const mouseBarXy = view()
+    .attr({ id: "clip_xy" })
+    .addInto(mouseBarEl)
+    .bindSet((v: [number, number], el) => {
+        el.innerText = `(${v[0]}, ${v[1]})`;
+    });
+const mouseBarCopy = view().attr({ id: "clip_copy" }).addInto(mouseBarEl);
+const mouseBarCopyI = view().addInto(mouseBarCopy);
+const mouseBarCopySize = view().addInto(mouseBarCopyI);
+const mouseBarCopyColor = view().addInto(mouseBarCopyI);
 
 type hotkeyScope = "normal" | "c_bar" | "drawing";
 const hotkeyScopes: hotkeyScope[] = [];
@@ -3130,7 +3134,7 @@ const longHide = [
     drawCanvas,
     document.getElementById("draw_photo_top"),
     whEl.el,
-    mouseBarEl,
+    mouseBarEl.el,
 ];
 
 const longX = {
@@ -3449,7 +3453,10 @@ ipcRenderer.on(
 ipcRenderer.on("long_e", stopLong);
 
 document.onwheel = (e) => {
-    if (!editor.contains(e.target as HTMLElement) && e.target !== document.body)
+    if (
+        !editor.el.contains(e.target as HTMLElement) &&
+        e.target !== document.body
+    )
         return;
     if (longRunning) return;
 
@@ -3927,32 +3934,32 @@ hotkeys("ctrl+a, command+a", () => {
 });
 
 // 生成取色器
-if (!取色器显示) document.getElementById("point_color").style.display = "none";
+if (!取色器显示) mouseBarColor.style({ display: "none" });
 
 const pointColorCanvasBg = document.createElement("canvas");
 pointColorCanvasBg.style.opacity = "0.5";
 pointColorCanvasBg.width = pointColorCanvasBg.height = colorSize;
-document.getElementById("point_color").append(pointColorCanvasBg);
+mouseBarColor.add(pointColorCanvasBg);
 const pointColorCanvasBgCtx = pointColorCanvasBg.getContext("2d");
 const pointColorCanvas = document.createElement("canvas");
 pointColorCanvas.width = pointColorCanvas.height = colorSize;
-document.getElementById("point_color").append(pointColorCanvas);
+mouseBarColor.add(pointColorCanvas);
 const pointColorCanvasCtx = pointColorCanvas.getContext("2d", {
     willReadFrequently: true,
 });
 const pointCenter = document.createElement("div");
-document.getElementById("point_color").append(pointCenter);
+mouseBarColor.add(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
 pointCenter.style.top = `${((colorSize - 1) / 2) * colorISize}px`;
 
-if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style.display = "none";
+if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style({ display: "none" });
 // 鼠标跟随栏
 const mainCanvasContext = mainCanvas.getContext("2d");
 
 // 复制坐标
-document.getElementById("clip_xy").onclick = () => {
-    copy(document.getElementById("clip_xy"));
-};
+mouseBarXy.on("click", () => {
+    copy(mouseBarXy.el);
+});
 
 changeRightBar(false);
 
@@ -3984,12 +3991,17 @@ document.onmousemove = (e) => {
         const sw = window.innerWidth;
         const sh = window.innerHeight;
 
-        mouseBarEl.style.left = `${Math.min(x, sw - w - d)}px`;
-        mouseBarEl.style.top = `${Math.min(y, sh - h - d)}px`;
+        mouseBarEl.style({
+            left: `${Math.min(x, sw - w - d)}px`,
+            top: `${Math.min(y, sh - h - d)}px`,
+        });
 
         const isDrawBar = drawBar.contains(e.target as HTMLElement);
         const isToolBar = toolBar.contains(e.target as HTMLElement);
-        mouseBarEl.classList.toggle("mouse_bar_hide", isDrawBar || isToolBar);
+        mouseBarEl.el.classList.toggle(
+            "mouse_bar_hide",
+            isDrawBar || isToolBar,
+        );
 
         // 画板栏移动
         if (drawBarMoving) {
