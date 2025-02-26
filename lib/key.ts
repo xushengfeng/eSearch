@@ -1,6 +1,6 @@
 export { macKeyFomat, jsKey2ele, jsKeyCodeDisplay, ele2jsKeyCode };
 
-const macKeyFomat = (k) => {
+const macKeyFomat = (k: string) => {
     const m = {
         "`": "`",
         "¡": "1",
@@ -107,10 +107,15 @@ const jsKey2ele = (k) => {
     return m[k] || k;
 };
 
-/**
- * @type {{[k: string]: {primary?: string;secondary?: string;symble?: string;isRight?: boolean;isNumpad?: boolean;};}}
- */
-const map = {
+const _map: {
+    [k: string]: {
+        primary?: string;
+        secondary?: string;
+        symble?: string;
+        isRight?: boolean;
+        isNumpad?: boolean;
+    };
+} = {
     Backspace: { symble: "⌫" },
     Tab: { symble: "⇥" },
     Enter: { symble: "⏎" },
@@ -157,19 +162,32 @@ const map = {
     Divide: { primary: "/" },
 };
 
-for (let k in map) {
-    map[k]["primary"] = map[k].primary || k;
+const map: {
+    [k: string]: {
+        primary: string;
+        secondary?: string;
+        symble?: string;
+        isRight?: boolean;
+        isNumpad?: boolean;
+    };
+} = {};
+
+for (const [k, v] of Object.entries(_map)) {
+    map[k] = {
+        ...v,
+        primary: v.primary || k,
+    };
 }
 
-for (var i = 0; i < 25; i++) {
+for (let i = 0; i < 25; i++) {
     const k = String.fromCharCode(65 + i);
     map[`Key${k}`] = { primary: k };
 }
 
-for (let k of ["ControlRight", "AltRight", "ShiftRight", "MetaRight"]) {
+for (const k of ["ControlRight", "AltRight", "ShiftRight", "MetaRight"]) {
     const mainKey = k.replace("Right", "");
     map[k] = { ...map[mainKey] };
-    map[k]["isRight"] = true;
+    map[k].isRight = true;
 }
 const numPad = [
     "Numpad0",
@@ -199,7 +217,7 @@ const numPad = [
     "NumpadDelete",
 ];
 
-for (let key of numPad) {
+for (const key of numPad) {
     const mainKey = key.replace("Numpad", "");
     map[key] = { primary: map[mainKey]?.primary ?? mainKey, isNumpad: true };
 }
@@ -212,15 +230,15 @@ const macMap = {
 };
 
 if (process.platform === "darwin")
-    for (let k in macMap) {
+    for (const k in macMap) {
         Object.assign(map[k], macMap[k]);
     }
 
-const jsKeyCodeDisplay = (k) => {
+const jsKeyCodeDisplay = (k: string) => {
     return map[k] || { primary: k };
 };
 
-const ele2jsKeyCode = (k) => {
+const ele2jsKeyCode = (k: string) => {
     const m = {
         Up: "ArrowUp",
         Down: "ArrowDown",
