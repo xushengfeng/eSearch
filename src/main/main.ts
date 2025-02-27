@@ -2873,7 +2873,7 @@ const defaultSetting: setting = {
         github镜像: {
             启用: false,
             api: "https://api.kkgithub.com/",
-            base: "https://mirror.ghproxy.com/https://github.com/",
+            base: "https://gh.llkk.cc/https://github.com/",
         },
     },
 };
