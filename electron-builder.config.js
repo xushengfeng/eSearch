@@ -391,6 +391,6 @@ function getUrl(url) {
 console.log(
     "⚡镜像下载：\n",
     getUrl(
-        "https://mirror.ghproxy.com/https://github.com/xushengfeng/eSearch/releases/download/$v/eSearch-$v-$p-$arch.$h",
+        "https://gh.llkk.cc/https://github.com/xushengfeng/eSearch/releases/download/$v/eSearch-$v-$p-$arch.$h",
     ),
 );
