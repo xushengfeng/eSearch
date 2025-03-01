@@ -2952,7 +2952,8 @@ function translatorD(
 
     const idEl = input()
         .sv(v.name)
-        .attr({ placeholder: t("请为翻译器命名") });
+        .attr({ placeholder: t("请为翻译器命名") })
+        .style({ width: "240px" });
     const selectEl = select<Engines | "">(
         [{ value: "", name: "选择引擎类型" }].concat(
             // @ts-ignore
@@ -3047,7 +3048,14 @@ function translatorD(
 
     dialogB(
         addTranslatorM,
-        [idEl, selectEl, keys, help, testEl],
+        [
+            view("x").add([idEl, selectEl]).style({
+                gap: "var(--o-padding)",
+            }),
+            keys,
+            help,
+            testEl,
+        ],
         () => resolve(null),
         () => {
             const nv = getV();
