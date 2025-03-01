@@ -199,6 +199,8 @@ body textarea {
 body dialog {
     padding: var(--o-padding);
     border-radius: calc(var(--border-radius) + var(--o-padding));
+    color: var(--font-color);
+    background-color: var(--bg);
 }
 
 kbd {
