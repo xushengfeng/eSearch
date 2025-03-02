@@ -2,6 +2,15 @@ const { ipcRenderer, nativeImage, shell, dialog } =
     require("electron") as typeof import("electron");
 import type { MessageBoxSyncOptions } from "electron";
 
+type ReturnData = {
+    bounds: { x: number; y: number; width: number; height: number };
+    size: { width: number; height: number };
+    scaleFactor: number;
+    id: number;
+    captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
+    image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
+};
+
 function d(op: MessageBoxSyncOptions) {
     if (ipcRenderer) {
         return ipcRenderer.sendSync("dialog", op);
@@ -82,16 +91,10 @@ function dispaly2screen(
     displays?: Electron.Display[],
     imgBuffer?: Buffer,
 ): {
-    screen: (Partial<Electron.Display> & {
-        captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
-        image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
-    })[];
+    screen: ReturnData[];
     window: { rect: { x: number; y: number; w: number; h: number } }[];
 } {
-    let allScreens: (Partial<Electron.Display> & {
-        captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
-        image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
-    })[] = [];
+    let allScreens: ReturnData[] = [];
     allScreens = [];
     let buffer = imgBuffer;
 
@@ -106,11 +109,18 @@ function dispaly2screen(
     }
     if (!buffer && _command) {
         const fs = require("node:fs") as typeof import("node:fs");
-        const { execSync } = require("node:child_process") as typeof import(
-            "node:child_process"
-        );
+        // biome-ignore format:
+        const { execSync } = require("node:child_process") as typeof import("node:child_process");
         const x: (typeof allScreens)[0] = {
-            ...displays?.[0],
+            bounds: displays?.[0]?.bounds ?? {
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0,
+            },
+            size: displays?.[0]?.bounds ?? { width: 0, height: 0 },
+            scaleFactor: displays?.[0]?.scaleFactor ?? 1,
+            id: displays?.[0]?.id ?? -1,
             captureSync: (keep?: boolean) => {
                 if (x.image && keep) return x.image;
                 const command = _command as string;
@@ -150,6 +160,8 @@ function dispaly2screen(
                 {
                     bounds: { x: 0, y: 0, width: s.width, height: s.height },
                     size: { width: s.width, height: s.height },
+                    scaleFactor: 1,
+                    id: -1,
                     captureSync: () => data,
                 },
             ],
@@ -165,10 +177,13 @@ function dispaly2screen(
      * @see https://github.com/nashaofu/node-screenshots/issues/18
      */
     for (const i in displays || screens) {
-        const d = displays?.[i] || {};
+        const d = displays?.[i];
         const s = screens[i];
         const x: (typeof allScreens)[0] = {
-            ...d,
+            bounds: d?.bounds ?? { x: 0, y: 0, width: 0, height: 0 },
+            size: d?.size ?? { width: 0, height: 0 },
+            scaleFactor: d?.scaleFactor ?? 1,
+            id: d?.id ?? -1,
             captureSync: (keep?: boolean) => {
                 if (x.image && keep) return x.image;
                 const data = toCanvas(s.captureImageSync().toPngSync(true));
