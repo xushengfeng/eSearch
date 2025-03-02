@@ -48,7 +48,6 @@ import type {
 } from "../../ShareTypes.js";
 import {
     ele,
-    elFromId,
     type ElType,
     frame,
     image,
@@ -452,14 +451,14 @@ function runQr() {
 function drawM(v: boolean) {
     if (v) {
         // 绘画模式
-        document.getElementById("clip_photo").style.pointerEvents = "none";
-        document.getElementById("clip_wh").style.pointerEvents = "none";
+        clipCanvas.style.pointerEvents = "none";
+        whEl.style({ pointerEvents: "none" });
     } else {
         // 裁切模式
-        document.getElementById("clip_photo").style.pointerEvents = "auto";
+        clipCanvas.style.pointerEvents = "auto";
         fabricCanvas.discardActiveObject();
         fabricCanvas.renderAll();
-        document.getElementById("clip_wh").style.pointerEvents = "auto";
+        whEl.style({ pointerEvents: "auto" });
     }
 }
 
@@ -1487,6 +1486,10 @@ function colorConversion(rgba: colorRGBA, type: colorFormat): string {
     }
 }
 
+function getColorFormatEl() {
+    return mouseBarCopyColorList[取色器格式位置 - 1];
+}
+
 // 改变颜色文字和样式
 function clipColorText(l: colorRGBA, type: colorFormat) {
     const color = chroma(rgba2str(l));
@@ -1494,7 +1497,7 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     theTextColor = [color.hex(), clipColorTextColor];
 
     mouseBarCopyColor.el.style.backgroundColor = color.hex();
-    const mainEl = mouseBarCopyColor.query(`div:nth-child(${取色器格式位置})`);
+    const mainEl = getColorFormatEl();
     // 只改变默认格式的字体颜色和内容，并定位展示
     mainEl.el.style.color = theTextColor[1];
     mainEl.el.innerText = colorConversion(l, type);
@@ -1510,23 +1513,22 @@ function changeRightBar(v: boolean) {
         .clear()
         .add(`${finalRect[2]} × ${finalRect[3]}`)
         .on("click", (_, el) => {
-            copy(el.el);
+            copy(el);
         });
+    mouseBarCopyColorList = allColorFormat.map((i) =>
+        view()
+            .add(colorConversion(theColor, i))
+            .on("click", (_, el) => {
+                copy(el);
+            }),
+    );
     mouseBarCopyColor
         .clear()
         .style({
             backgroundColor: theTextColor[0],
             color: theTextColor[1],
         })
-        .add(
-            allColorFormat.map((i) =>
-                view()
-                    .add(colorConversion(theColor, i))
-                    .on("click", (_, el) => {
-                        copy(el.el);
-                    }),
-            ),
-        );
+        .add(mouseBarCopyColorList);
     if (v) {
         mouseBarColor.el.style.height = "0";
         mouseBarCopy.el.className = "clip_copy";
@@ -1540,10 +1542,9 @@ function changeRightBar(v: boolean) {
 
 /**
  * 复制内容
- * @param e 要复制内容的元素
  */
-function copy(e: HTMLElement) {
-    clipboard.writeText(e.innerText);
+function copy(e: ElType<HTMLElement>) {
+    clipboard.writeText(e.el.innerText);
     rightKey = false;
     changeRightBar(false);
 }
@@ -1974,9 +1975,9 @@ function setEditType<T extends keyof EditType>(
 
     for (const i in drawMainEls) {
         if (i === mainType) {
-            drawMainEls[mainType].classList.add(SELECT);
-            drawMainEls[mainType].innerHTML =
-                drawSideEls[mainType][type].innerHTML;
+            drawMainEls[mainType].el.classList.add(SELECT);
+            drawMainEls[mainType].el.innerHTML =
+                drawSideEls[mainType][type].el.innerHTML;
         } else {
             drawMainEls[i]?.classList?.remove(SELECT);
         }
@@ -2344,11 +2345,9 @@ function setDrawMode(m: typeof colorM) {
 
 function ableChangeColor() {
     if (fabricCanvas.isDrawingMode || shape || fabricCanvas.getActiveObject()) {
-        drawItemsEl.style.pointerEvents = "auto";
-        drawItemsEl.style.opacity = "1";
+        drawColorSide.style({ pointerEvents: "auto", opacity: "1" });
     } else {
-        drawItemsEl.style.pointerEvents = "none";
-        drawItemsEl.style.opacity = "0.2";
+        drawColorSide.style({ pointerEvents: "none", opacity: "0.2" });
     }
 }
 
@@ -2392,14 +2391,11 @@ function colorInput(type: "fill" | "stroke") {
         }
         i.style({ color: textColor });
 
-        const mainSideBarEl = <HTMLDivElement>(
-            document.querySelector("#draw_color > div")
-        );
         if (type === "fill") {
-            mainSideBarEl.style.backgroundColor = color.hex();
+            drawColorEl.el.style.backgroundColor = color.hex();
         }
         if (type === "stroke") {
-            mainSideBarEl.style.borderColor = color.hex();
+            drawColorEl.el.style.borderColor = color.hex();
         }
     }
     const main = view()
@@ -2418,13 +2414,17 @@ function colorInput(type: "fill" | "stroke") {
 
 /** 主编辑栏的属性预览显示为描边 */
 function setOnlyStroke(b: boolean) {
-    const el = <HTMLDivElement>document.querySelector("#draw_color > div");
+    const el = drawColorEl;
     if (b) {
-        el.style.width = "0";
-        el.style.rotate = "45deg";
+        el.style({
+            width: 0,
+            rotate: "45deg",
+        });
     } else {
-        el.style.width = "";
-        el.style.rotate = "";
+        el.style({
+            width: "",
+            rotate: "",
+        });
     }
     setDrawMode(b ? "stroke" : "fill");
 }
@@ -2440,7 +2440,7 @@ function colorBar() {
     showColor();
     // 下一层级
     function nextColor(h: string) {
-        let nextColorList: string[] = [];
+        const nextColorList: string[] = [];
         if (h === "hsl(0, 0%, 100%)") {
             for (let i = 0; i < 25; i++) {
                 const x = (100 / 24) * (24 - i);
@@ -2454,27 +2454,39 @@ function colorBar() {
                 }
             }
         }
-        let tt = "";
-        for (const n in nextColorList) {
-            tt += `<div class="color_i" style="background-color: ${nextColorList[n]}" title="${colorConversion(
-                chroma(nextColorList[n]).rgba(),
-                取色器默认格式,
-            )}"></div>`;
-        }
-        document.querySelector("#draw_color_color").innerHTML = tt;
-        nextColorList = tt = null;
+        drawColorColor.clear().add(
+            Object.values(nextColorList).map((v) => {
+                return view()
+                    .class("color_i")
+                    .style({
+                        "background-color": v,
+                    })
+                    .attr({
+                        title: colorConversion(
+                            chroma(v).rgba(),
+                            取色器默认格式,
+                        ),
+                    });
+            }),
+        );
     }
     function showColor() {
-        let t = "";
-        for (const i in colorList) {
-            const x = colorList[i];
-            t += `<div class="color_i" style="background-color: ${x}" title="${colorConversion(
-                chroma(x).rgba(),
-                取色器默认格式,
-            )}" data-i="${i}"></div>`;
-        }
-        document.querySelector("#draw_color_color").innerHTML = t;
-        t = null;
+        drawColorColor.clear().add(
+            colorList.map((x, i) => {
+                return view()
+                    .class("color_i")
+                    .style({
+                        "background-color": x,
+                    })
+                    .attr({
+                        title: colorConversion(
+                            chroma(x).rgba(),
+                            取色器默认格式,
+                        ),
+                    })
+                    .data({ i: i.toString() });
+            }),
+        );
     }
     // 事件
     function cColor(el: HTMLElement) {
@@ -2488,7 +2500,7 @@ function colorBar() {
             setFObjectV(null, color, null);
         }
     }
-    document.getElementById("draw_color_color").onpointerdown = (e) => {
+    drawColorColor.on("pointerdown", (e) => {
         const el = e.target as HTMLElement;
         if (e.button === 0) {
             cColor(el);
@@ -2501,7 +2513,7 @@ function colorBar() {
                 showColor();
             }
         }
-    };
+    });
 }
 
 /** 鼠标点击后，改变栏文字样式 */
@@ -2667,7 +2679,7 @@ function getFilters() {
                     .sv(Object.values(f[i])[0]);
                 filterRangeEl.clear().add(range);
                 for (const i of Object.values(drawSideEls.filter)) {
-                    i.classList.remove("filter_select");
+                    i.el.classList.remove("filter_select");
                 }
                 drawSideEls.filter[name].classList.add("filter_select");
             }
@@ -2940,7 +2952,7 @@ const drawSideShapes = {
     mask: iconEl("mask").attr({ title: "遮罩" }),
 } as const;
 
-const filterRangeElx = view().class("draw_filter_range");
+const filterRangeEl = view().class("draw_filters_range");
 
 const drawSideFilters = {
     pixelate: iconEl("pixelate").attr({ title: "马赛克" }),
@@ -2951,10 +2963,30 @@ const drawSideFilters = {
     hue: iconEl("hue").attr({ title: "色调" }),
     gamma: view().attr({ title: "伽马" }),
     noise: view().attr({ title: "噪点" }),
-    grayscale: view().attr({ title: "灰度" }),
 } as const;
 
-// todo more
+const drawSideFiltersMoreGray = {
+    gray_average: view().attr({ title: "平均灰度" }),
+    gray_lightness: view().attr({ title: "亮度" }),
+    gray_luminosity: view().attr({ title: "亮度" }),
+};
+
+const drawSideFiltersMore = {
+    invert: filterEl("invert", "负片"),
+    sepia: filterEl("sepia", "棕褐色"),
+    bw: filterEl("bw", "黑白"),
+    brownie: filterEl("brownie", "布朗尼"),
+    vintage: filterEl("vintage", "老式"),
+    koda: filterEl("koda", "柯达彩色胶片"),
+    techni: filterEl("techni", "特艺色彩"),
+    polaroid: filterEl("polaroid", "宝丽来"),
+} as const;
+
+const drawSideFiltersAll = {
+    ...drawSideFilters,
+    ...drawSideFiltersMoreGray,
+    ...drawSideFiltersMore,
+} as const;
 
 const drawColorSwitchP = view().attr({ id: "draw_color_switch" });
 const drawColorSwitchMark = view()
@@ -2966,6 +2998,13 @@ const drawColorP = view().attr({ id: "draw_color_p" });
 const drawColorColor = view().attr({ id: "draw_color_color" });
 const drawStrokeWidth = view().attr({ id: "draw_stroke_width" });
 
+const drawColorSide = drawSideGen2("color_size").add([
+    drawColorSwitchP,
+    drawColorP,
+    drawColorColor,
+    drawStrokeWidth,
+]);
+
 const drawSidePosition = {
     front: iconEl("position_front").attr({ title: "移动到最顶端" }),
     forwards: iconEl("position_forwards").attr({ title: "向上移动一层" }),
@@ -2974,10 +3013,18 @@ const drawSidePosition = {
 } as const;
 
 const drawSide操作 = {
-    撤回: iconEl("left").attr({ title: "撤回" }),
-    重做: iconEl("right").attr({ title: "重做" }),
-    复制: iconEl("copy").attr({ title: "复制" }),
-    删除: iconEl("clear").attr({ title: "删除" }),
+    撤回: iconEl("left")
+        .attr({ title: "撤回" })
+        .data({ key: showShortKey("Control+Z") }),
+    重做: iconEl("right")
+        .attr({ title: "重做" })
+        .data({ key: showShortKey("Control+Y") }),
+    复制: iconEl("copy")
+        .attr({ title: "复制" })
+        .data({ key: showShortKey("Control+C") }),
+    删除: iconEl("clear")
+        .attr({ title: "删除" })
+        .data({ key: showShortKey("Delete") }),
 } as const;
 
 function filterEl(name: string, title: string) {
@@ -3004,29 +3051,14 @@ drawBarSideEl.add([
     ]),
     drawSideGen2("shapes").add(drawSideGen(drawSideShapes, "shapes")),
     drawSideGen2("filters").add([
-        filterRangeElx,
+        filterRangeEl,
         ...drawSideGen(drawSideFilters, "filters"),
-
-        // todo more
+        ...Object.values(drawSideFiltersMoreGray),
         view()
             .attr({ id: "draw_filters_bs" })
-            .add([
-                filterEl("invert", "负片"),
-                filterEl("sepia", "棕褐色"),
-                filterEl("bw", "黑白"),
-                filterEl("brownie", "布朗尼"),
-                filterEl("vintage", "老式"),
-                filterEl("koda", "柯达彩色胶片"),
-                filterEl("techni", "特艺色彩"),
-                filterEl("polaroid", "宝丽来"),
-            ]),
+            .add(Object.values(drawSideFiltersMore)),
     ]),
-    drawSideGen2("color_size").add([
-        drawColorSwitchP,
-        drawColorP,
-        drawColorColor,
-        drawStrokeWidth,
-    ]),
+    drawColorSide,
     drawSideGen2("position").add(drawSideGen(drawSidePosition, "position")),
     drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")),
 ]);
@@ -3096,13 +3128,7 @@ const colorStrokeEl = colorInput("stroke").on("input", () => {
     setFObjectV(colorStrokeEl.gv, null, null);
 });
 
-elFromId("draw_color_p").add([colorFillEl, colorStrokeEl]);
-
-elFromId("draw_filters_grayscale").add([
-    view().attr({ id: "draw_filters_gray_average" }),
-    view().attr({ id: "draw_filters_gray_lightness" }),
-    view().attr({ id: "draw_filters_gray_luminosity" }),
-]);
+drawColorP.add([colorFillEl, colorStrokeEl]);
 
 const editor = view().attr({ id: "editor" }).addInto();
 const mainCanvas = ele("canvas").attr({ id: "main_photo" }).el;
@@ -3129,7 +3155,7 @@ let freeSelect: point[] = [];
 const screenPosition: { [key: string]: { x: number; y: number } } = {};
 
 const toolBar = toolBarEl.el.el;
-const drawBar = document.getElementById("draw_bar");
+const drawBar = drawBarEl.el;
 
 let nowScreenId = 0;
 
@@ -3174,29 +3200,23 @@ const tool: Record<功能, () => void> = {
     },
 };
 
-const drawMainEls: { [key in keyof EditType]: HTMLElement } = {
-    select: document.getElementById("draw_select"),
-    draw: document.getElementById("draw_free"),
-    shape: document.getElementById("draw_shapes"),
-    filter: document.getElementById("draw_filters"),
+const drawMainEls: { [key in keyof EditType]: ElType<HTMLElement> } = {
+    select: drawMainElsx.select,
+    draw: drawMainElsx.free,
+    shape: drawMainElsx.shapes,
+    filter: drawMainElsx.filters,
 };
-const shapeEl = {} as { [key in EditType["shape"]]: HTMLElement };
-const filtersEl = {} as { [key in EditType["filter"]]: HTMLElement };
 const drawSideEls: {
-    [key in keyof EditType]: { [key1 in EditType[key]]: HTMLElement };
+    [key in keyof EditType]: { [key1 in EditType[key]]: ElType<HTMLElement> };
 } = {
-    select: {
-        rect: document.getElementById("draw_select_rect"),
-        free: document.getElementById("draw_select_free"),
-        draw: document.getElementById("draw_select_draw"),
-    },
+    select: drawSideSelect,
     draw: {
-        free: document.getElementById("draw_free_pencil"),
-        eraser: document.getElementById("draw_free_eraser"),
-        spray: document.getElementById("draw_free_spray"),
+        free: drawSideFree.pencil,
+        eraser: drawSideFree.eraser,
+        spray: drawSideFree.spray,
     },
-    filter: filtersEl,
-    shape: shapeEl,
+    filter: drawSideFiltersAll,
+    shape: drawSideShapes,
 };
 
 const mouseBarEl = view().attr({ id: "mouse_bar" }).class("bar").addInto();
@@ -3211,18 +3231,12 @@ const mouseBarCopy = view().attr({ id: "clip_copy" }).addInto(mouseBarEl);
 const mouseBarCopyI = view().addInto(mouseBarCopy);
 const mouseBarCopySize = view().addInto(mouseBarCopyI);
 const mouseBarCopyColor = view().addInto(mouseBarCopyI);
+let mouseBarCopyColorList: ElType<HTMLElement>[] = [];
 
 type hotkeyScope = "normal" | "c_bar" | "drawing";
 const hotkeyScopes: hotkeyScope[] = [];
 
 const drawHotKey = store.get("截屏编辑快捷键");
-
-const canvasControlKey = {
-    draw_操作_撤回: "Control+Z",
-    draw_操作_重做: "Control+Y",
-    draw_操作_复制: "Control+C",
-    draw_操作_删除: "Delete",
-};
 
 type hotkeyTip = { name: string; keys: string[] }[];
 const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
@@ -3279,7 +3293,7 @@ const longHide = [
     mainCanvas,
     clipCanvas,
     drawCanvas,
-    document.getElementById("draw_photo_top"),
+    drawP.el,
     whEl.el,
     mouseBarEl.el,
 ];
@@ -3691,22 +3705,6 @@ toolBar.onmouseup = (e) => {
     }
 };
 
-for (const el of document
-    .querySelectorAll("#draw_shapes_i > div")
-    .values() as Iterable<HTMLInputElement>)
-    shapeEl[el.id.replace("draw_shapes_", "") as Shape] = el;
-const filtersEls = []
-    .concat(Array.from(document.querySelectorAll("#draw_filters_i > div")))
-    .concat(Array.from(document.querySelectorAll("#draw_filters_bs > div")))
-    .concat(
-        Array.from(document.querySelectorAll("#draw_filters_grayscale > div")),
-    ) as HTMLInputElement[];
-
-for (const el of filtersEls) {
-    if (el.id.startsWith("draw_filters_"))
-        filtersEl[el.id.replace("draw_filters_", "") as string] = el;
-}
-
 hotkeys.filter = (event) => {
     const tagName = (<HTMLElement>event.target).tagName;
     const v = !(
@@ -3736,28 +3734,18 @@ for (const k of tools) {
 }
 for (const i in drawHotKey) {
     const mainKey = i as keyof EditType;
-    drawMainEls[mainKey].setAttribute(
-        "data-key",
-        showShortKey(drawHotKey[mainKey].键),
-    );
+    drawMainEls[mainKey].data({ key: showShortKey(drawHotKey[mainKey].键) });
     hotkeys(drawHotKey[mainKey].键, () => {
         setEditType(mainKey, editType[mainKey]);
     });
     for (const j in drawHotKey[mainKey].副) {
-        drawSideEls[mainKey][j]?.setAttribute(
-            "data-key",
-            showShortKey(drawHotKey[mainKey].副[j]),
-        );
+        drawSideEls[mainKey][j].data({
+            key: showShortKey(drawHotKey[mainKey].副[j]),
+        });
         hotkeys(drawHotKey[mainKey].副[j], () => {
             setEditType(mainKey, j as EditType[keyof EditType]);
         });
     }
-}
-
-for (const k in canvasControlKey) {
-    document
-        .getElementById(k)
-        .setAttribute("data-key", showShortKey(canvasControlKey[k]));
 }
 
 function showShortKey(k: string) {
@@ -3878,7 +3866,7 @@ trackPoint(pack(toolBar), {
 setTitle(t("截屏"));
 
 // 键盘控制光标
-document.querySelector("body").onkeydown = (e) => {
+document.body.onkeydown = (e) => {
     const tagName = (<HTMLElement>e.target).tagName;
     if (
         (<HTMLElement>e.target).isContentEditable ||
@@ -3968,7 +3956,7 @@ clipCanvas.onmousedown = (e) => {
     }
     toolBar.style.pointerEvents =
         drawBar.style.pointerEvents =
-        document.getElementById("clip_wh").style.pointerEvents =
+        whEl.el.style.pointerEvents =
             "none";
 
     down = true;
@@ -3996,7 +3984,7 @@ document.onmouseup = (e) => {
     }
     toolBar.style.pointerEvents =
         drawBar.style.pointerEvents =
-        document.getElementById("clip_wh").style.pointerEvents =
+        whEl.el.style.pointerEvents =
             "auto";
 
     down = false;
@@ -4105,17 +4093,13 @@ const mainCanvasContext = mainCanvas.getContext("2d");
 
 // 复制坐标
 mouseBarXy.on("click", () => {
-    copy(mouseBarXy.el);
+    copy(mouseBarXy);
 });
 
 changeRightBar(false);
 
 hotkeys(store.get("其他快捷键.复制颜色"), () => {
-    copy(
-        document.querySelector(
-            `#clip_copy > div > div:not(:nth-child(1)) > div:nth-child(${取色器格式位置})`,
-        ),
-    );
+    copy(getColorFormatEl());
 });
 
 clipCanvas.ondblclick = () => {
@@ -4158,17 +4142,15 @@ document.onmousemove = (e) => {
     }
 };
 
-document.getElementById("draw_bar").addEventListener("mousedown", (e) => {
+drawBar.addEventListener("mousedown", (e) => {
     if (e.button !== 0) {
         drawBarMoving = true;
-        drawBarMovingXY[0] =
-            e.clientX - document.getElementById("draw_bar").offsetLeft;
-        drawBarMovingXY[1] =
-            e.clientY - document.getElementById("draw_bar").offsetTop;
+        drawBarMovingXY[0] = e.clientX - drawBar.offsetLeft;
+        drawBarMovingXY[1] = e.clientY - drawBar.offsetTop;
         drawBar.style.transition = "0s";
     }
 });
-document.getElementById("draw_bar").addEventListener("mouseup", (e) => {
+drawBar.addEventListener("mouseup", (e) => {
     if (e.button !== 0) {
         drawBarMoving = false;
         drawBarMovingXY = [];
@@ -4176,15 +4158,15 @@ document.getElementById("draw_bar").addEventListener("mouseup", (e) => {
     }
 });
 
-document.getElementById("draw_select_rect").onclick = () => {
+drawSideSelect.rect.on("click", () => {
     setEditType("select", "rect");
-};
-document.getElementById("draw_select_free").onclick = () => {
+});
+drawSideSelect.free.on("click", () => {
     setEditType("select", "free");
-};
-document.getElementById("draw_select_draw").onclick = () => {
+});
+drawSideSelect.draw.on("click", () => {
     setEditType("select", "draw");
-};
+});
 
 hotkeys("ctrl+z", () => {
     undo(true);
@@ -4221,8 +4203,8 @@ const freeWidth = store.get("图像编辑.默认属性.画笔粗细");
 const shapePro: setting["图像编辑"]["形状属性"] = {};
 
 // 编辑栏
-const drawMainBar = document.getElementById("draw_main");
-const drawSideBar = document.getElementById("draw_side");
+const drawMainBar = drawBarMainEl.el;
+const drawSideBar = drawBarSideEl.el;
 showSideBar(false);
 
 document
@@ -4266,44 +4248,35 @@ hotkeys(store.get("其他快捷键.隐藏或显示栏"), () => {
 });
 
 // 笔
-drawSideEls.draw.free.onclick = () => setEditType("draw", "free");
+drawSideFree.pencil.on("click", () => setEditType("draw", "free"));
 // 橡皮
-drawSideEls.draw.eraser.onclick = () => setEditType("draw", "eraser");
+drawSideFree.eraser.on("click", () => setEditType("draw", "eraser"));
 // 刷
-drawSideEls.draw.spray.onclick = () => setEditType("draw", "spray");
+drawSideFree.spray.on("click", () => setEditType("draw", "spray"));
 
 // 阴影
 const shadowBlurEl = rangeBar(0, 20, 1, "px").on("input", freeShadow);
-elFromId("shadow_blur").add(shadowBlurEl);
+drawShadowBlur.add(shadowBlurEl);
 
 // 几何
-document.getElementById("draw_shapes_i").onclick = (e) => {
-    const el = e.target as HTMLElement;
-    if (el.id.startsWith("draw_shapes_")) {
-        const shape = el.id.replace("draw_shapes_", "") as EditType["shape"];
-        setEditType("shape", shape);
-    } else {
-        return;
-    }
-};
+for (const [k, el] of Object.entries(drawSideShapes)) {
+    el.on("click", () => {
+        setEditType("shape", k as EditType["shape"]);
+    });
+}
 // 层叠位置
-document.getElementById("draw_position_i").onclick = (e) => {
-    const obj = fabricCanvas.getActiveObject();
-    switch ((<HTMLElement>e.target).id) {
-        case "draw_position_front":
-            fabricCanvas.bringObjectToFront(obj);
-            break;
-        case "draw_position_forwards":
-            fabricCanvas.bringObjectForward(obj);
-            break;
-        case "draw_position_backwards":
-            fabricCanvas.sendObjectBackwards(obj);
-            break;
-        case "draw_position_back":
-            fabricCanvas.sendObjectToBack(obj);
-            break;
-    }
-};
+drawSidePosition.front.on("click", () => {
+    fabricCanvas.bringObjectToFront(fabricCanvas.getActiveObject());
+});
+drawSidePosition.forwards.on("click", () => {
+    fabricCanvas.bringObjectForward(fabricCanvas.getActiveObject());
+});
+drawSidePosition.backwards.on("click", () => {
+    fabricCanvas.sendObjectBackwards(fabricCanvas.getActiveObject());
+});
+drawSidePosition.back.on("click", () => {
+    fabricCanvas.sendObjectToBack(fabricCanvas.getActiveObject());
+});
 
 // 删除快捷键
 hotkeys("delete", fabricDelete);
@@ -4487,11 +4460,9 @@ class arrow extends Line {
 // 颜色选择
 
 setDrawMode(colorM);
-document.getElementById("draw_color_switch").onclick = () => {
+drawColorSwitchP.on("click", () => {
     setDrawMode(colorM === "fill" ? "stroke" : "fill");
-};
-
-const drawItemsEl = document.getElementById("draw_color_size_i");
+});
 
 ableChangeColor();
 
@@ -4501,7 +4472,7 @@ const strokeWidthEl = rangeBar(0, 25, 1, "px").on("input", () => {
     setFObjectV(null, null, strokeWidthEl.gv);
 });
 
-elFromId("draw_stroke_width").add(strokeWidthEl);
+drawStrokeWidth.add(strokeWidthEl);
 
 const strokeWidthF = {
     set: (v: number) => {
@@ -4511,14 +4482,12 @@ const strokeWidthF = {
 };
 
 // 滤镜
-const filterRangeEl = elFromId("draw_filters_range");
 
 for (const id in filtetMap) {
-    (document.querySelector(`#draw_filters_${id}`) as HTMLElement).onclick =
-        () => {
-            // @ts-ignore
-            setEditType("filter", id);
-        };
+    drawSideFiltersAll[id].on("click", () => {
+        // @ts-ignore
+        setEditType("filter", id);
+    });
 }
 
 // 伽马
