@@ -1,15 +1,5 @@
 {
   "files": [],
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "typescript-strict-plugin",
-        "path": [
-          "src/renderer/**/*.ts"
-        ]
-      }
-    ]
-  },
   "references": [
     {
       "path": "./tsconfig.node.json"
