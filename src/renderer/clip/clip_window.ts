@@ -1,5 +1,4 @@
 /// <reference types="vite/client" />
-// @ts-strict-ignore
 
 const { ipcRenderer, clipboard, nativeImage } =
     require("electron") as typeof import("electron");
@@ -16,9 +15,11 @@ import {
     Circle,
     type CircleProps,
     FabricImage,
+    type FabricObject,
     IText,
     Line,
     PencilBrush,
+    type Point,
     Polygon,
     Polyline,
     Rect,
@@ -67,13 +68,14 @@ function iconEl(src: string) {
 }
 
 function selectMenu<i extends string>(data?: { name: string; value: i }[]) {
-    const select = ele("selectlist")
-        .bindGet((el: HTMLSelectElement) => {
+    const select = (ele("selectlist") as ElType<HTMLSelectElement>)
+        .bindGet((el) => {
             return el.value;
         })
-        .bindSet((v: i, el: HTMLSelectElement) => {
+        .bindSet((v: i, el) => {
             el.value = v;
-            el.title = el.querySelector(`option[value="${v}"]`)?.textContent;
+            el.title =
+                el.querySelector(`option[value="${v}"]`)?.textContent ?? "";
         })
         .add(
             data?.map((i) => {
@@ -86,7 +88,12 @@ function selectMenu<i extends string>(data?: { name: string; value: i }[]) {
     return select;
 }
 
-function rangeBar(_min: number, _max: number, _step: number, text = "") {
+function rangeBar(
+    _min: number | undefined,
+    _max: number | undefined,
+    _step: number | undefined,
+    text = "",
+) {
     const min = _min ?? 0;
     const max = _max ?? 100;
     const step = _step ?? 1;
@@ -136,10 +143,9 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
             valueHistory.push(value);
         })
         .on("mousedown", (e) => {
-            if (e.button === 2) {
+            if (e.button === 2 && valueHistory.length) {
                 e.preventDefault();
-                valueHistory.pop();
-                setV(valueHistory.pop());
+                setV(valueHistory.pop() as number);
             }
         });
 
@@ -185,7 +191,7 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
         end(e, { moved }) {
             if (!moved) {
                 if (e.button === 2 && valueHistory.length) {
-                    setV(valueHistory.pop());
+                    setV(valueHistory.pop() as number);
                 } else useI(true);
             } else {
                 valueHistory.push(value);
@@ -222,22 +228,8 @@ function rangeBar(_min: number, _max: number, _step: number, text = "") {
 }
 
 function setSetting() {
-    工具栏跟随 = store.get("工具栏跟随");
-    四角坐标 = store.get("显示四角坐标");
-    取色器默认格式 = store.get("取色器.默认格式");
-    for (const i in allColorFormat) {
-        if (取色器默认格式 === allColorFormat[i]) {
-            取色器格式位置 = Number(i) + 1;
-            break;
-        }
-    }
-    遮罩颜色 = store.get("框选.颜色.遮罩") || "#0008";
-
     initStyle(store);
 
-    取色器显示 = store.get("取色器.显示");
-    colorSize = store.get("取色器.大小");
-    colorISize = store.get("取色器.像素大小");
     const 工具栏 = store.get("工具栏");
     setProperties({
         "--color-size": `${colorSize * colorISize}px`,
@@ -246,19 +238,19 @@ function setSetting() {
         "--bar-size": `${工具栏.按钮大小}px`,
         "--bar-icon": `${工具栏.按钮图标比例}`,
     });
-    bSize = 工具栏.按钮大小;
-    记忆框选 = store.get("框选.记忆.开启");
-    记忆框选值 = store.get("框选.记忆.rects") as {
-        [id: string]: rect;
-    };
 }
 
 function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
-    canvas.getContext("2d").putImageData(img, 0, 0);
+    (canvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
+        img,
+        0,
+        0,
+    );
 }
 
 function setScreen(i: (typeof allScreens)[0]) {
     const img = i.captureSync(true).data;
+    if (!img) return;
     const w = img.width;
     const h = img.height;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
@@ -281,7 +273,7 @@ function setScreen(i: (typeof allScreens)[0]) {
 }
 
 function setEditorP(zoom: number, x: number, y: number) {
-    const t = [];
+    const t: string[] = [];
     if (zoom != null) {
         t.push(`scale(${zoom})`);
         editorP.zoom = zoom;
@@ -313,17 +305,17 @@ function setEditorP(zoom: number, x: number, y: number) {
 
 function edge() {
     const canvas = mainCanvas;
-    let src = cv.imread(canvas);
+    const src = cv.imread(canvas);
 
     cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
 
-    let dst = new cv.Mat();
+    const dst = new cv.Mat();
     const cMin = store.get("框选.自动框选.最小阈值");
     const cMax = store.get("框选.自动框选.最大阈值");
     cv.Canny(src, dst, cMin, cMax, 3, true);
 
-    let contours = new cv.MatVector();
-    let hierarchy = new cv.Mat();
+    const contours = new cv.MatVector();
+    const hierarchy = new cv.Mat();
 
     cv.findContours(
         dst,
@@ -343,8 +335,6 @@ function edge() {
     dst.delete();
     contours.delete();
     hierarchy.delete();
-
-    src = dst = contours = hierarchy = null;
 }
 
 function getWin() {
@@ -361,6 +351,11 @@ function getWin() {
             type: "system",
         });
     }
+}
+
+function getNowScreen(id = nowScreenId) {
+    const s = allScreens.find((i) => i.id === id) ?? allScreens[0];
+    return s;
 }
 
 function showSaveBar(m: boolean) {
@@ -386,7 +381,7 @@ function toHotkeyScope(scope: hotkeyScope) {
 }
 function backHotkeyScope() {
     if (hotkeyScopes.length > 1) hotkeyScopes.pop();
-    hotkeys.setScope(hotkeyScopes.at(-1));
+    hotkeys.setScope(hotkeyScopes.at(-1) ?? "normal");
     console.log(hotkeys.getScope(), hotkeyScopes);
 }
 
@@ -413,7 +408,7 @@ function 记忆框选f() {
 
 // 关闭
 function closeWin() {
-    document.querySelector("html").style.display =
+    document.documentElement.style.display =
         "none"; /* 退出时隐藏，透明窗口，动画不明显 */
     记忆框选f();
     mainCanvas.width = clipCanvas.width = drawCanvas.width = mainCanvas.width; // 确保清空画布
@@ -507,9 +502,7 @@ function initRecord() {
 }
 
 function long_s() {
-    let s = allScreens.find((i) => i.id === nowScreenId);
-    addLong(s.captureSync().data);
-    s = null;
+    addLong(getNowScreen().captureSync()?.data ?? undefined);
 }
 
 function startLong() {
@@ -522,17 +515,19 @@ function startLong() {
     if (!cv) cv = require("@techstark/opencv-js");
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
-        uIOhook.start();
-        uIOhook.on("keyup", () => {
-            long_s();
-        });
-        uIOhook.on("wheel", () => {
-            const n = new Date().getTime();
-            if (n - lastLong > 500) {
-                lastLong = n;
+        if (uIOhook) {
+            uIOhook.start();
+            uIOhook.on("keyup", () => {
                 long_s();
-            }
-        });
+            });
+            uIOhook.on("wheel", () => {
+                const n = new Date().getTime();
+                if (n - lastLong > 500) {
+                    lastLong = n;
+                    long_s();
+                }
+            });
+        }
     } else {
         longClipTime = setInterval(() => {
             long_s();
@@ -596,13 +591,13 @@ function stopLong() {
 
     lr.style({ opacity: "0" });
     ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
-    addLong(null);
+    addLong(undefined);
     for (const i of longHide) {
         i.style.display = "";
     }
 }
 
-function addLong(x: ImageData) {
+function addLong(x: ImageData | undefined) {
     if (!x) {
         uIOhook?.stop();
         uIOhook = null;
@@ -616,7 +611,11 @@ function addLong(x: ImageData) {
     // 设定canvas宽高并设置裁剪后的图像
     canvas.width = finalRect[2];
     canvas.height = finalRect[3];
-    canvas.getContext("2d").putImageData(d, -finalRect[0], -finalRect[1]);
+    (canvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
+        d,
+        -finalRect[0],
+        -finalRect[1],
+    );
 
     if (!longX.lastImg) {
         longPutImg(canvas, 0, 0);
@@ -649,7 +648,11 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     const clip1Canvas = ele("canvas").el;
     clip1Canvas.width = img1.width - dw * 2;
     clip1Canvas.height = img1.height - dh * 2;
-    clip1Canvas.getContext("2d").drawImage(img1, -dw, -dh);
+    (clip1Canvas.getContext("2d") as CanvasRenderingContext2D).drawImage(
+        img1,
+        -dw,
+        -dh,
+    );
     // match
     const src = cv.imread(img0);
     const templ = cv.imread(clip1Canvas);
@@ -671,9 +674,11 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     clip2Canvas.width = ndx !== 0 ? img1.width - dw : img1.width;
     clip2Canvas.height = ndy !== 0 ? img1.height - dh : img1.height;
     // d>0需要-dw或-dh平移，<=0不需要平移
-    clip2Canvas
-        .getContext("2d")
-        .drawImage(img1, ndx > 0 ? -dw : 0, ndy > 0 ? -dh : 0);
+    (clip2Canvas.getContext("2d") as CanvasRenderingContext2D).drawImage(
+        img1,
+        ndx > 0 ? -dw : 0,
+        ndy > 0 ? -dh : 0,
+    );
 
     return {
         dx: ndx > 0 ? dx : ndx,
@@ -687,6 +692,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
 function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
     // 前提：img大小一定小于等于最终拼接canvas
     const newCanvas = ele("canvas").el;
+    const newCtx = newCanvas.getContext("2d") as CanvasRenderingContext2D;
 
     const srcW = longX.img?.width || 0;
     const srcH = longX.img?.height || 0;
@@ -717,12 +723,11 @@ function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
         newCanvas.height = srcH;
     }
 
-    if (longX.img)
-        newCanvas.getContext("2d").drawImage(longX.img, srcDx, srcDy);
+    if (longX.img) newCtx.drawImage(longX.img, srcDx, srcDy);
 
     const nx = x - longX.imgXY.x;
     const ny = y - longX.imgXY.y;
-    newCanvas.getContext("2d").drawImage(img, nx, ny);
+    newCtx.drawImage(img, nx, ny);
     longX.img = newCanvas;
 
     longPreview.clear();
@@ -733,13 +738,18 @@ function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
 
 function pjLong() {
     const oCanvas = longX.img;
+    if (!oCanvas) return;
     mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
 
-    const ggid = oCanvas
-        .getContext("2d")
-        .getImageData(0, 0, oCanvas.width, oCanvas.height);
-    mainCanvas.getContext("2d").putImageData(ggid, 0, 0);
+    const ggid = (
+        oCanvas.getContext("2d") as CanvasRenderingContext2D
+    ).getImageData(0, 0, oCanvas.width, oCanvas.height);
+    (mainCanvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
+        ggid,
+        0,
+        0,
+    );
 
     finalRect = [0, 0, oCanvas.width, oCanvas.height];
 
@@ -759,7 +769,7 @@ function pjLong() {
 // 钉在屏幕上
 function runDing() {
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        const display = allScreens.find((i) => i.id === nowScreenId);
+        const display = getNowScreen();
         const dingWindowArg = [
             finalRect[0] / ratio + display.bounds.x,
             finalRect[1] / ratio + display.bounds.y,
@@ -773,7 +783,7 @@ function runDing() {
 }
 
 async function translate() {
-    const display = allScreens.find((i) => i.id === nowScreenId);
+    const display = getNowScreen();
     ipcRenderer.send("clip_main_b", "translate", {
         rect: {
             x: finalRect[0],
@@ -879,7 +889,7 @@ function getClipPhoto(type: "png" | "jpg" | "webp"): Promise<HTMLCanvasElement>;
 function getClipPhoto(
     type: "png" | "jpg" | "webp" | "svg",
 ): Promise<string | HTMLCanvasElement> {
-    const mainCtx = mainCanvas.getContext("2d");
+    const mainCtx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
     if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
     if (typeof fabricCanvas !== "undefined") {
@@ -896,28 +906,26 @@ function getClipPhoto(
             </svg>`;
         } else {
             svg.innerHTML = fabricCanvas.toSVG();
+            // @ts-ignore
             svg.querySelector("desc").innerHTML =
                 "Created with eSearch & Fabric.js";
         }
-        svg.querySelector("svg").setAttribute("viewBox", finalRect.join(" "));
+        const svgEl = svg.querySelector("svg") as SVGElement;
+        svgEl.setAttribute("viewBox", finalRect.join(" "));
         const image = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "image",
         );
         image.setAttribute("xlink:href", mainCanvas.toDataURL());
-        svg.querySelector("svg").insertBefore(
-            image,
-            svg.querySelector("svg").firstChild,
-        );
-        const svgT = new XMLSerializer().serializeToString(
-            svg.querySelector("svg"),
-        );
+        svgEl.insertBefore(image, svgEl.firstChild);
+        const svgT = new XMLSerializer().serializeToString(svgEl);
         if (type === "svg")
             return new Promise((resolve: (value: string) => void, _rejects) => {
                 resolve(svgT);
             });
     }
     const tmpCanvas = document.createElement("canvas");
+    const tmpctx = tmpCanvas.getContext("2d") as CanvasRenderingContext2D;
     tmpCanvas.width = finalRect[2];
     tmpCanvas.height = finalRect[3];
     const gid = mainCtx.getImageData(
@@ -926,7 +934,7 @@ function getClipPhoto(
         finalRect[2],
         finalRect[3],
     ); // 裁剪
-    tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
+    tmpctx.putImageData(gid, 0, 0);
     const image = document.createElement("img");
     image.src = fabricCanvas.toDataURL({
         left: finalRect[0],
@@ -938,11 +946,9 @@ function getClipPhoto(
     });
     return new Promise((resolve, _rejects) => {
         image.onload = () => {
-            tmpCanvas
-                .getContext("2d")
-                .drawImage(image, 0, 0, finalRect[2], finalRect[3]);
+            tmpctx.drawImage(image, 0, 0, finalRect[2], finalRect[3]);
             if (!isRect) {
-                const ctx = tmpCanvas.getContext("2d");
+                const ctx = tmpctx;
 
                 // 创建临时Canvas并保存原始内容
                 const tempCanvas = createTemporaryCanvas(tmpCanvas);
@@ -980,7 +986,7 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = originalCanvas.width;
     tempCanvas.height = originalCanvas.height;
-    const tempCtx = tempCanvas.getContext("2d");
+    const tempCtx = tempCanvas.getContext("2d") as CanvasRenderingContext2D;
     tempCtx.drawImage(originalCanvas, 0, 0);
     return tempCanvas;
 }
@@ -997,7 +1003,8 @@ function e2pXY(e: MouseEvent | PointerEvent) {
 }
 
 // 鼠标框选坐标转画布坐标,鼠标坐标转画布坐标
-function p2Rect(p1: px_position, p2: px_position): rect {
+function p2Rect(p1: px_position | null, p2: px_position | null): rect {
+    if (!p1 || !p2) return [0, 0, 0, 0];
     const { x: oX1, y: oY1 } = p1;
     const { x: oX2, y: oY2 } = p2;
     const x1 = Math.min(oX1, oX2);
@@ -1015,9 +1022,9 @@ function e2cXY(e: MouseEvent | PointerEvent) {
     return { x: Math.floor(x), y: Math.floor(y) } as px_position; // 放大后，可以进行高精度计算来获取所有像素，缩写后，看的是放大镜，这就无关紧要了
 }
 
-function pointsOutRect(points: point[]): rect {
+function pointsOutRect(points: point[]) {
     if (points.length === 0) {
-        return null; // 如果点集为空，返回null
+        return [0, 0, 0, 0] as rect;
     }
 
     let minX = points[0].x;
@@ -1034,7 +1041,7 @@ function pointsOutRect(points: point[]): rect {
     }
 
     // 返回边框的左下角和右上角坐标
-    return [minX, minY, maxX - minX, maxY - minY];
+    return [minX, minY, maxX - minX, maxY - minY] as rect;
 }
 
 // 开始操纵框选
@@ -1093,9 +1100,9 @@ function clipEnd(e: MouseEvent) {
     selecting = false;
     if (isRect) {
         const r = p2Rect(rectStartE, e2cXY(e));
-        if (rectInRect.length !== 0) {
+        if (rectInRect.length) {
             let nearestL = Number.POSITIVE_INFINITY;
-            let nr: rect = null;
+            let nr: rect | null = null;
             for (const rect of rectInRect) {
                 const center1 = {
                     x: rect[0] + rect[2] / 2,
@@ -1335,10 +1342,10 @@ function checkWhBarWidth() {
 }
 
 function changeWH(el: ElType<HTMLInputElement>) {
-    let l = whL.map((i) => i.el.value);
-    l = l.map((string) => {
+    const l0 = whL.map((i) => i.el.value);
+    const l = l0.map((string) => {
         // 排除（数字运算符空格）之外的非法输入
-        if (string.match(/[\d\+\-*/\.\s\(\)]/g).length !== string.length)
+        if (string.match(/[\d\+\-*/\.\s\(\)]/g)?.length !== string.length)
             return null;
         // todo sandbox math
         // biome-ignore lint: 已经过滤（？） 计算math
@@ -1388,7 +1395,7 @@ function mouseBar(finalRect: rect, e: MouseEvent) {
 
         pointColorCanvasBgCtx.putImageData(imageData, 0, 0);
 
-        let points = [];
+        let points: point[] = [];
 
         if (isRect || freeSelect.length < 3) {
             points.push({ x: x0, y: y0 });
@@ -1450,7 +1457,7 @@ function rgba2str(rgba: colorRGBA) {
 }
 
 // 色彩空间转换
-function colorConversion(rgba: colorRGBA, type: colorFormat): string {
+function colorConversion(rgba: colorRGBA | null, type: colorFormat): string {
     const color = chroma(rgba2str(rgba || [0, 0, 0, 0]));
     if (color.alpha() !== 1) return "/";
     switch (type) {
@@ -1551,21 +1558,26 @@ function copy(e: ElType<HTMLElement>) {
 
 /**
  * 工具栏自动跟随
- * @param x x坐标
- * @param y y坐标
  */
-function followBar(x?: number, y?: number) {
+function followBar(op?: { x: number; y: number }) {
     const zx = (finalRect[0] + editorP.x) * editorP.zoom;
     const zy = (finalRect[1] + editorP.y) * editorP.zoom;
     const zw = finalRect[2] * editorP.zoom;
     const zh = finalRect[3] * editorP.zoom;
-    if (!x && !y) {
-        const dx = undoStack.at(-1)[0] - undoStack[undoStack.length - 2][0];
-        const dy = undoStack.at(-1)[1] - undoStack[undoStack.length - 2][1];
-        // biome-ignore lint: 只有这里重新赋值
+    let x = 0;
+    let y = 0;
+    if (!op) {
+        // @ts-ignore
+        const dx = undoStack.at(-1)[0] - undoStack.at(-2)[0];
+        // @ts-ignore
+        const dy = undoStack.at(-1)[1] - undoStack.at(-2)[1];
+        // @ts-ignore
         x = followBarList.at(-1)[0] + dx / ratio;
-        // biome-ignore lint: 只有这里重新赋值
+        // @ts-ignore
         y = followBarList.at(-1)[1] + dy / ratio;
+    } else {
+        x = op.x;
+        y = op.y;
     }
     followBarList.push([x, y]);
     const [x1, y1] = [zx, zy];
@@ -1751,10 +1763,11 @@ function isInClipRect(p: editor_position) {
 
 /** 调整框选 */
 function moveRect(
-    oldFinalRect: rect,
+    oldFinalRect: rect | null,
     oldPosition: editor_position,
     position: editor_position,
 ) {
+    if (!oldFinalRect) return;
     const op = oldPosition;
     const p = position;
     const dx = p.x - op.x;
@@ -1865,10 +1878,11 @@ function isPointInPolygon(p: point): boolean {
 
 /** 调整框选 */
 function movePoly(
-    oldPoly: point[],
+    oldPoly: point[] | null,
     oldPosition: editor_position,
     position: editor_position,
 ) {
+    if (!oldPoly) return;
     const op = oldPosition;
     const p = position;
     const dx = p.x - op.x;
@@ -2065,26 +2079,23 @@ function setEditType<T extends keyof EditType>(
 function showSideBarItem(index: number) {
     const sises = [1, 1, 2, 3, 1, 1, 1];
     showSideBar(true);
-    document
-        .querySelectorAll("#draw_side > div")
-        .forEach((el: HTMLElement, i) => {
-            if (index === i) {
-                el.style.display = "";
-                const height = Math.ceil(el.children.length / sises[index]);
-                const x = sises[index];
-                const y = height;
-                el.style.width = `${x * bSize}px`;
-                let left = bSize * 1;
-                if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth)
-                    left = -bSize * x;
-                drawSideBar.style.left = `${left}px`;
-                drawSideBar.style.top = `${bSize * Math.min(i, drawMainBar.children.length - y)}px`;
-                drawSideBar.style.width = `${bSize * x}px`;
-                drawSideBar.style.height = `${bSize * y}px`;
-            } else {
-                el.style.display = "none";
-            }
-        });
+    for (const [i, el] of drawBarSideElChildren.entries()) {
+        if (index === i) {
+            const height = Math.ceil(el.el.children.length / sises[index]);
+            const x = sises[index];
+            const y = height;
+            el.style({ display: "", width: `${x * bSize}px` });
+            let left = bSize * 1;
+            if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth)
+                left = -bSize * x;
+            drawSideBar.style.left = `${left}px`;
+            drawSideBar.style.top = `${bSize * Math.min(i, drawMainBar.children.length - y)}px`;
+            drawSideBar.style.width = `${bSize * x}px`;
+            drawSideBar.style.height = `${bSize * y}px`;
+        } else {
+            el.style({ display: "none" });
+        }
+    }
 }
 
 function isInDrawBar() {
@@ -2132,10 +2143,11 @@ function freeSprayElClick() {
     fabricCanvas.freeDrawingBrush.width = getShapePro("spray").sw;
 }
 function freeShadow() {
-    fabricCanvas.freeDrawingBrush.shadow = new Shadow({
-        blur: getShapePro("free").shadow,
-        color: getShapePro("free").sc,
-    });
+    if (fabricCanvas.freeDrawingBrush)
+        fabricCanvas.freeDrawingBrush.shadow = new Shadow({
+            blur: getShapePro("free").shadow,
+            color: getShapePro("free").sc,
+        });
 }
 
 function freeDrawCursor() {
@@ -2155,7 +2167,9 @@ function freeDrawCursor() {
         }
         const d = document.createElement("div");
         d.innerHTML = svg;
-        const s = new XMLSerializer().serializeToString(d.querySelector("svg"));
+        const s = new XMLSerializer().serializeToString(
+            d.querySelector("svg") as SVGElement,
+        );
         const cursorUrl = `data:image/svg+xml;base64,${window.btoa(s)}`;
         fabricCanvas.freeDrawingCursor = `url(" ${cursorUrl} ") ${hW} ${hW}, auto`;
     } else {
@@ -2198,20 +2212,22 @@ function draw(
     const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (v === "move") {
-        fabricCanvas.remove(shapes.at(-1));
+        const obj = shapes.at(-1);
+        if (obj) fabricCanvas.remove(obj);
         shapes.splice(shapes.length - 1, 1);
     }
     const x = Math.min(x1, x2);
     const y = Math.min(y1, y2);
     const w = Math.abs(x1 - x2);
     const h = Math.abs(y1 - y2);
+    let shapeX: FabricObject | null = null;
     if (shape === "line") {
-        shapes[shapes.length] = new Line([x1, y1, x2, y2], {
+        shapeX = new Line([x1, y1, x2, y2], {
             stroke: strokeColor,
             形状: "line",
         });
     } else if (shape === "circle") {
-        shapes[shapes.length] = new Circle({
+        shapeX = new Circle({
             radius: Math.max(w, h) / 2,
             left: x,
             top: y,
@@ -2222,7 +2238,7 @@ function draw(
             形状: "circle",
         });
     } else if (shape === "rect") {
-        shapes[shapes.length] = new Rect({
+        shapeX = new Rect({
             left: x,
             top: y,
             width: w,
@@ -2234,37 +2250,35 @@ function draw(
             形状: "rect",
         });
     } else if (shape === "text") {
-        shapes.push(
-            new IText("点击输入文字", {
-                left: x,
-                top: y,
-                canChangeFill: true,
-                形状: "text",
-                fontFamily: 字体.主要字体,
-            }),
-        );
+        shapeX = new IText("点击输入文字", {
+            left: x,
+            top: y,
+            canChangeFill: true,
+            形状: "text",
+            fontFamily: 字体.主要字体,
+        });
     } else if (shape === "arrow") {
-        const line = new arrow([x1, y1, x2, y2], {
+        shapeX = new arrow([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
             形状: "arrow",
         });
-        shapes.push(line);
     } else if (shape === "mask") {
-        shapes.push(
-            new mask({
-                left: 0,
-                top: 0,
-                width: fabricCanvas.width,
-                height: fabricCanvas.height,
-                fill: fillColor,
-                rect: { x, y, w, h },
-                canChangeFill: true,
-                形状: "mask",
-            }),
-        );
+        shapeX = new mask({
+            left: 0,
+            top: 0,
+            width: fabricCanvas.width,
+            height: fabricCanvas.height,
+            fill: fillColor,
+            rect: { x, y, w, h },
+            canChangeFill: true,
+            形状: "mask",
+        });
     }
-    fabricCanvas.add(shapes.at(-1));
+    if (shapeX) {
+        shapes.push(shapeX);
+        fabricCanvas.add(shapeX);
+    }
 }
 // 多边形
 function drawPoly(shape: EditType["shape"]) {
@@ -2273,36 +2287,41 @@ function drawPoly(shape: EditType["shape"]) {
     const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (polyOP.length !== 1) {
-        fabricCanvas.remove(shapes.at(-1));
+        const obj = shapes.at(-1);
+        if (obj) fabricCanvas.remove(obj);
         shapes.splice(shapes.length - 1, 1);
     }
+    let shapeX: FabricObject | null = null;
     if (shape === "polyline") {
-        shapes.push(
-            new Polyline(polyOP, {
-                fill: "#0000",
-                stroke: strokeColor,
-                strokeWidth: strokeWidth,
-                形状: "polyline",
-            }),
-        );
+        shapeX = new Polyline(polyOP, {
+            fill: "#0000",
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            形状: "polyline",
+        });
     }
     if (shape === "polygon") {
-        shapes.push(
-            new Polygon(polyOP, {
-                fill: fillColor,
-                stroke: strokeColor,
-                strokeWidth: strokeWidth,
-                canChangeFill: true,
-                形状: "polygon",
-            }),
-        );
+        shapeX = new Polygon(polyOP, {
+            fill: fillColor,
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            canChangeFill: true,
+            形状: "polygon",
+        });
     }
-    fabricCanvas.add(shapes.at(-1));
+    if (shapeX) {
+        shapes.push(shapeX);
+        fabricCanvas.add(shapeX);
+    }
 }
 
 function drawNumber() {
-    drawNumberN = Number(shapes?.at(-1)?.text) + 1 || drawNumberN;
+    const nowShape = shapes.at(-1);
+    if (!nowShape) return;
+    // @ts-ignore
+    drawNumberN = Number(nowShape.text) + 1 || drawNumberN;
     const p = polyOP.at(-1);
+    if (!p) return;
 
     const txt = new xnumber({
         left: p.x,
@@ -2319,7 +2338,7 @@ function drawNumber() {
         形状: "number",
     });
     shapes.push(txt);
-    fabricCanvas.add(shapes.at(-1));
+    fabricCanvas.add(nowShape);
     fabricCanvas.setActiveObject(txt);
 
     drawNumberN++;
@@ -2432,25 +2451,24 @@ function setOnlyStroke(b: boolean) {
 // 色盘
 function colorBar() {
     // 主盘
-    const colorList = ["hsl(0, 0%, 100%)"];
+    const colorList = [0];
     for (let i = 0; i < 360; i += 15) {
-        colorList.push(`hsl(${i}, 100%, 50%)`);
+        colorList.push(i);
     }
     let isNext = false;
     showColor();
     // 下一层级
-    function nextColor(h: string) {
+    function nextColor(h: number) {
         const nextColorList: string[] = [];
-        if (h === "hsl(0, 0%, 100%)") {
+        if (h === 0) {
             for (let i = 0; i < 25; i++) {
                 const x = (100 / 24) * (24 - i);
                 nextColorList.push(`hsl(0, 0%, ${x}%)`);
             }
         } else {
-            const _h = Number(h.match(/hsl\(([0-9]*)/)[1]);
             for (let i = 90; i > 0; i -= 20) {
                 for (let j = 100; j > 0; j -= 20) {
-                    nextColorList.push(`hsl(${_h}, ${j}%, ${i}%)`);
+                    nextColorList.push(`hsl(${h}, ${j}%, ${i}%)`);
                 }
             }
         }
@@ -2476,7 +2494,8 @@ function colorBar() {
                 return view()
                     .class("color_i")
                     .style({
-                        "background-color": x,
+                        "background-color":
+                            x === 0 ? "#fff" : `hsl(${x}, 100%, 50%)`,
                     })
                     .attr({
                         title: colorConversion(
@@ -2518,9 +2537,13 @@ function colorBar() {
 
 /** 鼠标点击后，改变栏文字样式 */
 function getFObjectV() {
-    const pro = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
-    if (fabricCanvas.getActiveObject()) {
-        const n = fabricCanvas.getActiveObject();
+    const pro: {
+        fc: string | undefined;
+        sc: string | undefined;
+        sw: number | undefined;
+    } = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
+    const n = fabricCanvas.getActiveObject();
+    if (n) {
         // todo 当线与形一起选中，确保形不会透明
         pro.fc = n.fill?.toString();
         pro.sc = n.stroke?.toString();
@@ -2543,13 +2566,10 @@ function getFObjectV() {
             pro.sw = p?.sw;
         }
     }
-    if (!pro.fc) pro.fc = fillColor;
-    if (!pro.sc) pro.sc = strokeColor;
-    if (!pro.sw) pro.sw = strokeWidth;
     console.log(pro);
-    strokeWidthEl.sv(pro.sw);
-    colorFillEl.sv(pro.fc);
-    colorStrokeEl.sv(pro.sc);
+    strokeWidthEl.sv(pro.sw ?? strokeWidth);
+    colorFillEl.sv(pro.fc ?? fillColor);
+    colorStrokeEl.sv(pro.sc ?? strokeColor);
 
     ableChangeColor();
 }
@@ -2559,7 +2579,11 @@ function getFObjectV() {
  * @param {String} stroke 边框颜色
  * @param {Number} sw 边框宽度
  */
-function setFObjectV(fill: string, stroke: string, sw: number) {
+function setFObjectV(
+    fill: string | null,
+    stroke: string | null,
+    sw: number | null,
+) {
     if (fabricCanvas.getActiveObject()) {
         console.log(0);
         /* 选中Object */
@@ -2589,12 +2613,18 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     } else if (fabricCanvas.isDrawingMode) {
         console.log(1);
         /* 画笔 */
-        if (stroke)
-            fabricCanvas.freeDrawingBrush.color = shapePro[editType.draw].sc =
-                stroke;
-        if (sw)
-            fabricCanvas.freeDrawingBrush.width = shapePro[editType.draw].sw =
-                sw;
+        if (stroke) {
+            if (fabricCanvas.freeDrawingBrush)
+                fabricCanvas.freeDrawingBrush.color = stroke;
+            const s = shapePro[editType.draw];
+            if (s) s.sc = stroke;
+        }
+        if (sw) {
+            if (fabricCanvas.freeDrawingBrush)
+                fabricCanvas.freeDrawingBrush.width = sw;
+            const s = shapePro[editType.draw];
+            if (s) s.sw = sw;
+        }
         freeDrawCursor();
         freeShadow();
         if (mode) {
@@ -2604,7 +2634,7 @@ function setFObjectV(fill: string, stroke: string, sw: number) {
     } else {
         console.log(2);
         /* 非画笔非选中 */
-        const pro = shapePro[editType.shape];
+        const pro = shapePro[editType.shape] ?? {};
         if (fill) pro.fc = fill;
         if (stroke) pro.sc = stroke;
         if (sw) pro.sw = sw;
@@ -2622,12 +2652,16 @@ function newFilterSelect(o, no) {
     const w = Math.abs(x1 - x2);
     const h = Math.abs(y1 - y2);
 
-    const mainCtx = mainCanvas.getContext("2d");
+    const mainCtx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
     const tmpCanvas = document.createElement("canvas");
     tmpCanvas.width = w;
     tmpCanvas.height = h;
     const gid = mainCtx.getImageData(x, y, w, h); // 裁剪
-    tmpCanvas.getContext("2d").putImageData(gid, 0, 0);
+    (tmpCanvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
+        gid,
+        0,
+        0,
+    );
     const img = new FabricImage(tmpCanvas, {
         left: x,
         top: y,
@@ -2643,7 +2677,8 @@ function newFilterSelect(o, no) {
     fabricCanvas.setActiveObject(img);
 }
 
-function applyFilter(i: number, filter: filters.BaseFilter<string, unknown>) {
+// biome-ignore lint/suspicious/noExplicitAny: 适配库
+function applyFilter(i: number, filter: filters.BaseFilter<string, any>) {
     const obj = fabricCanvas.getActiveObject() as FabricImage;
     obj.filters[i] = filter;
     obj.applyFilters();
@@ -2708,7 +2743,9 @@ function exitFilter() {
 async function fabricCopy() {
     const dx = store.get("图像编辑.复制偏移.x");
     const dy = store.get("图像编辑.复制偏移.y");
-    const fabricClipboard = await fabricCanvas.getActiveObject().clone();
+    const activeObject = fabricCanvas.getActiveObject();
+    if (!activeObject) return;
+    const fabricClipboard = await activeObject.clone();
     const clonedObj = await fabricClipboard.clone();
     fabricCanvas.discardActiveObject();
     clonedObj.set({
@@ -2740,17 +2777,6 @@ if (store.get("框选.自动框选.图像识别")) {
 
 const 字体 = store.get("字体");
 
-let 工具栏跟随: string;
-let 四角坐标: boolean;
-let 遮罩颜色: string;
-let 取色器默认格式: colorFormat;
-let 取色器格式位置: number;
-let 取色器显示: boolean;
-let colorSize: number;
-let colorISize: number;
-let 记忆框选: boolean;
-let 记忆框选值: { [id: string]: rect };
-let bSize: number;
 const allColorFormat: colorFormat[] = [
     "HEX",
     "RGB",
@@ -2763,6 +2789,20 @@ const allColorFormat: colorFormat[] = [
     "OKLCH",
     "CMYK",
 ];
+
+const 工具栏跟随 = store.get("工具栏跟随");
+const 四角坐标 = store.get("显示四角坐标");
+const 遮罩颜色 = store.get("框选.颜色.遮罩") || "#0008";
+const 取色器默认格式 = store.get("取色器.默认格式");
+const 取色器格式位置 = allColorFormat.indexOf(取色器默认格式);
+const 取色器显示 = store.get("取色器.显示");
+const colorSize = store.get("取色器.大小");
+const colorISize = store.get("取色器.像素大小");
+const 记忆框选 = store.get("框选.记忆.开启");
+const 记忆框选值 = store.get("框选.记忆.rects") as {
+    [id: string]: rect;
+};
+const bSize = store.get("工具栏.按钮大小");
 
 const g光标参考线 = store.get("框选.参考线.光标");
 const x选区参考线 = store.get("框选.参考线.选区");
@@ -2921,7 +2961,8 @@ const drawMainElsx = {
     操作: iconEl("setting").attr({ id: "draw_操作", title: "操作" }),
 } as const;
 
-for (const el of Object.values(drawMainElsx)) {
+const drawBarMainElList = Object.values(drawMainElsx);
+for (const el of drawBarMainElList) {
     drawBarMainEl.add(el);
 }
 
@@ -3043,7 +3084,7 @@ function drawSideGen2(pid: string) {
         .attr({ id: `draw_${pid}_i` });
 }
 
-drawBarSideEl.add([
+const drawBarSideElChildren = [
     drawSideGen2("select").add(drawSideGen(drawSideSelect, "select")),
     drawSideGen2("free").add([
         ...drawSideGen(drawSideFree, "free"),
@@ -3061,7 +3102,9 @@ drawBarSideEl.add([
     drawColorSide,
     drawSideGen2("position").add(drawSideGen(drawSidePosition, "position")),
     drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")),
-]);
+];
+
+drawBarSideEl.add(drawBarSideElChildren);
 
 const whEl = view().attr({ id: "clip_wh" }).class("bar");
 const whX0 = input();
@@ -3162,11 +3205,11 @@ let nowScreenId = 0;
 let allScreens: ReturnType<typeof screenShots>["screen"];
 let windows: ReturnType<typeof screenShots>["window"];
 
-let nowMouseE: MouseEvent = null;
+let nowMouseE: MouseEvent;
 
 const editorP = { zoom: 1, x: 0, y: 0 };
 
-let middleB: PointerEvent;
+let middleB: PointerEvent | null = null;
 const middleP = { x: 0, y: 0 };
 
 const edgeRect: {
@@ -3284,7 +3327,7 @@ let autoDo = store.get("框选后默认操作");
 
 let lastLong = 0;
 
-let uIOhook: typeof import("uiohook-napi")["uIOhook"];
+let uIOhook: typeof import("uiohook-napi")["uIOhook"] | null;
 let longClipTime: NodeJS.Timeout;
 
 const longHide = [
@@ -3299,9 +3342,9 @@ const longHide = [
 ];
 
 const longX = {
-    img: null as HTMLCanvasElement,
+    img: null as HTMLCanvasElement | null,
     imgXY: { x: 0, y: 0 },
-    lastImg: null as HTMLCanvasElement,
+    lastImg: null as HTMLCanvasElement | null,
     lastXY: { x: 0, y: 0 },
 };
 
@@ -3316,7 +3359,7 @@ let type: setting["保存"]["默认格式"];
 let isRect = true;
 let /**是否在绘制新选区*/ selecting = false;
 let rightKey = false;
-let rectStartE: px_position = null;
+let rectStartE: px_position | null = null;
 let /**是否在更改选区*/ moving = false;
 
 type editor_position = { x: number; y: number };
@@ -3326,13 +3369,13 @@ let /** 先前坐标，用于框选的生成和调整 */ oldP = {
         x: Number.NaN,
         y: Number.NaN,
     } as editor_position;
-let oFinalRect = null as rect;
-let oPoly = null as point[];
-let theColor: [number, number, number, number] = null;
-let theTextColor = [null, null];
+let oFinalRect: rect | null = null;
+let oPoly: point[] | null = null;
+let theColor: [number, number, number, number] | null = null;
+let theTextColor: [string, string] = ["", ""];
 type colorFormat = setting["取色器"]["默认格式"];
 type colorRGBA = [number, number, number, number];
-const clipCtx = clipCanvas.getContext("2d");
+const clipCtx = clipCanvas.getContext("2d") as CanvasRenderingContext2D;
 const undoStack = [{ rect: 0, canvas: 0 }];
 const rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[];
 const canvasStack = [{}];
@@ -3353,7 +3396,7 @@ let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 let /**鼠标是否按住 */ down = false;
 let /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
 
-let rectInRect = [];
+let rectInRect: rect[] = [];
 
 const mouseBarW =
     Math.max(
@@ -3372,8 +3415,7 @@ let drawBarPosi: "right" | "left" = "right";
 const barGap = 8;
 
 // 移动画画栏
-let drawBarMoving = false;
-let drawBarMovingXY = [];
+let drawBarMovingXY: [number, number] | null = null;
 
 let nowType: keyof EditType;
 const editType: EditType = {
@@ -3399,12 +3441,12 @@ type Shape = EditType["shape"] | "";
 let shape: Shape = "";
 
 let drawingShape = false;
-const shapes = [];
+const shapes: FabricObject[] = [];
 const unnormalShapes = ["polyline", "polygon", "number"];
 const strokeShapes = ["line", "polyline", "arrow"];
 let drawOP: [number, number] = [0, 0]; // 首次按下的点
 let polyOP: point[] = []; // 多边形点
-let newFilterO = null;
+let newFilterO: Point | null = null;
 let drawNumberN = 1;
 declare module "fabric" {
     // to have the properties recognized on the instance and in the constructor
@@ -3433,7 +3475,8 @@ const filtetMap: {
             step?: number;
             text?: string;
         };
-        fun: (v?: number) => filters.BaseFilter<string, unknown>;
+        // biome-ignore lint/suspicious/noExplicitAny: 适配库
+        fun: (v?: number) => filters.BaseFilter<string, any>;
         el?: () => ElType<HTMLElement>;
     };
 } = {
@@ -3520,7 +3563,7 @@ ipcRenderer.on(
         const wx = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
         allScreens = wx.screen;
         const mainId = mainid;
-        const i = allScreens.find((i) => i.id === mainId) || allScreens[0];
+        const i = getNowScreen(mainId);
         windows = wx.window.map((w) => {
             w.rect.x -= i.bounds?.x ?? 0;
             w.rect.y -= i.bounds?.y ?? 0;
@@ -3582,7 +3625,7 @@ ipcRenderer.on(
                 }
                 el.add(div);
                 div.on("click", () => {
-                    el.query(".now_screen").el.classList.remove("now_screen");
+                    el.query(".now_screen")?.el.classList.remove("now_screen");
                     div.class("now_screen");
                     setScreen(i);
                 });
@@ -3967,7 +4010,7 @@ document.onmouseup = (e) => {
         if (selecting) {
             clipEnd(e);
             // 抬起鼠标后工具栏跟随
-            followBar(e.clientX, e.clientY);
+            followBar({ x: e.clientX, y: e.clientY });
             // 框选后默认操作
             if (autoDo !== "no" && e.button === 0) {
                 tool[autoDo]();
@@ -3978,7 +4021,7 @@ document.onmouseup = (e) => {
         if (moving) {
             moving = false;
             oFinalRect = null;
-            if (e.button === 0) followBar(e.clientX, e.clientY);
+            if (e.button === 0) followBar({ x: e.clientX, y: e.clientY });
             hisPush();
         }
     }
@@ -4075,13 +4118,15 @@ const pointColorCanvasBg = document.createElement("canvas");
 pointColorCanvasBg.style.opacity = "0.5";
 pointColorCanvasBg.width = pointColorCanvasBg.height = colorSize;
 mouseBarColor.add(pointColorCanvasBg);
-const pointColorCanvasBgCtx = pointColorCanvasBg.getContext("2d");
+const pointColorCanvasBgCtx = pointColorCanvasBg.getContext(
+    "2d",
+) as CanvasRenderingContext2D;
 const pointColorCanvas = document.createElement("canvas");
 pointColorCanvas.width = pointColorCanvas.height = colorSize;
 mouseBarColor.add(pointColorCanvas);
 const pointColorCanvasCtx = pointColorCanvas.getContext("2d", {
     willReadFrequently: true,
-});
+}) as CanvasRenderingContext2D;
 const pointCenter = document.createElement("div");
 mouseBarColor.add(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
@@ -4089,7 +4134,9 @@ pointCenter.style.top = `${((colorSize - 1) / 2) * colorISize}px`;
 
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style({ display: "none" });
 // 鼠标跟随栏
-const mainCanvasContext = mainCanvas.getContext("2d");
+const mainCanvasContext = mainCanvas.getContext(
+    "2d",
+) as CanvasRenderingContext2D;
 
 // 复制坐标
 mouseBarXy.on("click", () => {
@@ -4135,7 +4182,7 @@ document.onmousemove = (e) => {
         );
 
         // 画板栏移动
-        if (drawBarMoving) {
+        if (drawBarMovingXY) {
             drawBar.style.left = `${e.clientX - drawBarMovingXY[0]}px`;
             drawBar.style.top = `${e.clientY - drawBarMovingXY[1]}px`;
         }
@@ -4144,16 +4191,16 @@ document.onmousemove = (e) => {
 
 drawBar.addEventListener("mousedown", (e) => {
     if (e.button !== 0) {
-        drawBarMoving = true;
-        drawBarMovingXY[0] = e.clientX - drawBar.offsetLeft;
-        drawBarMovingXY[1] = e.clientY - drawBar.offsetTop;
+        drawBarMovingXY = [
+            e.clientX - drawBar.offsetLeft,
+            e.clientY - drawBar.offsetTop,
+        ];
         drawBar.style.transition = "0s";
     }
 });
 drawBar.addEventListener("mouseup", (e) => {
     if (e.button !== 0) {
-        drawBarMoving = false;
-        drawBarMovingXY = [];
+        drawBarMovingXY = null;
         drawBar.style.transition = "";
     }
 });
@@ -4207,37 +4254,33 @@ const drawMainBar = drawBarMainEl.el;
 const drawSideBar = drawBarSideEl.el;
 showSideBar(false);
 
-document
-    .querySelectorAll("#draw_main > div")
-    .forEach((e: HTMLDivElement, index) => {
-        const Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
-        e.addEventListener("mouseenter", () => {
-            // 用于防误触，防经过时误切换
-            willShowITime = setTimeout(() => {
-                showSideBarItem(index);
-            }, 100);
-        });
-        e.addEventListener("pointerleave", () => {
-            clearTimeout(willShowITime);
-            setTimeout(() => {
-                if (!isInDrawBar()) {
-                    showSideBar(false);
-                }
-            }, 100);
-        });
-        e.addEventListener("click", () => {
-            setEditType(Type[index], editType[Type[index]]);
-        });
+for (const [index, e] of drawBarMainElList.entries()) {
+    const Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
+    e.on("mouseenter", () => {
+        // 用于防误触，防经过时误切换
+        willShowITime = setTimeout(() => {
+            showSideBarItem(index);
+        }, 100);
     });
+    e.on("pointerleave", () => {
+        clearTimeout(willShowITime);
+        setTimeout(() => {
+            if (!isInDrawBar()) {
+                showSideBar(false);
+            }
+        }, 100);
+    });
+    e.on("click", () => {
+        setEditType(Type[index], editType[Type[index]]);
+    });
+}
 
-for (const el of document
-    .querySelectorAll("#draw_side > div")
-    .values() as Iterable<HTMLElement>) {
-    el.onpointerleave = () => {
+for (const el of drawBarSideElChildren) {
+    el.on("pointerleave", () => {
         setTimeout(() => {
             if (!isInDrawBar()) showSideBar(false);
         }, 100);
-    };
+    });
 }
 
 showBars(isShowBars);
@@ -4266,16 +4309,20 @@ for (const [k, el] of Object.entries(drawSideShapes)) {
 }
 // 层叠位置
 drawSidePosition.front.on("click", () => {
-    fabricCanvas.bringObjectToFront(fabricCanvas.getActiveObject());
+    const activeObject = fabricCanvas.getActiveObject();
+    if (activeObject) fabricCanvas.bringObjectToFront(activeObject);
 });
 drawSidePosition.forwards.on("click", () => {
-    fabricCanvas.bringObjectForward(fabricCanvas.getActiveObject());
+    const activeObject = fabricCanvas.getActiveObject();
+    if (activeObject) fabricCanvas.bringObjectForward(activeObject);
 });
 drawSidePosition.backwards.on("click", () => {
-    fabricCanvas.sendObjectBackwards(fabricCanvas.getActiveObject());
+    const activeObject = fabricCanvas.getActiveObject();
+    if (activeObject) fabricCanvas.sendObjectBackwards(activeObject);
 });
 drawSidePosition.back.on("click", () => {
-    fabricCanvas.sendObjectToBack(fabricCanvas.getActiveObject());
+    const activeObject = fabricCanvas.getActiveObject();
+    if (activeObject) fabricCanvas.sendObjectToBack(activeObject);
 });
 
 // 删除快捷键
@@ -4333,7 +4380,8 @@ fabricCanvas.on("mouse:up", (options) => {
     if (!unnormalShapes.includes(shape)) {
         drawingShape = false;
         if (shape !== "") {
-            fabricCanvas.setActiveObject(shapes.at(-1));
+            const obj = shapes.at(-1);
+            if (obj) fabricCanvas.setActiveObject(obj);
             hisPush();
         }
     }
@@ -4349,7 +4397,7 @@ fabricCanvas.on("mouse:up", (options) => {
         if (willFilter) {
             const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
             const index = Object.keys(filtetMap).indexOf(willFilter);
-            const filter = i.fun(i.value.value ?? 1);
+            const filter = i.fun(i.value?.value ?? 1);
             applyFilter(index, filter);
             getFilters();
         }
@@ -4374,7 +4422,7 @@ class mask extends Rect {
     render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
 
-        ctx.fillStyle = this.fill.toString();
+        ctx.fillStyle = this.fill?.toString() || "";
         ctx.fillRect(0, 0, this.width, this.height);
 
         const r = this.rect;
@@ -4406,7 +4454,7 @@ class xnumber extends Circle {
         const y = 5;
 
         // 绘制数字
-        ctx.fillStyle = this.stroke.toString() || "#000";
+        ctx.fillStyle = this.stroke?.toString() || "#000";
         ctx.font = `${this.fontSize}px ${字体.等宽字体 || "Arial"}`;
         ctx.textAlign = "center";
         ctx.fillText(String(this.text), x, y);
@@ -4447,9 +4495,9 @@ class arrow extends Line {
         ctx.lineTo(x0 + x4, y0 + y4);
         ctx.closePath();
 
-        ctx.fillStyle = this.stroke.toString();
+        ctx.fillStyle = this.stroke?.toString() || "";
         ctx.lineWidth = this.strokeWidth || 1;
-        ctx.strokeStyle = this.stroke.toString();
+        ctx.strokeStyle = this.stroke?.toString() || "";
         ctx.fill();
         ctx.stroke();
 
