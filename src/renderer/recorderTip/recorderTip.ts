@@ -56,7 +56,7 @@ function initRecord() {
 
             const mainKey = keyDisplay.primary ?? key;
             let topKey = keyDisplay?.secondary ?? keyDisplay?.symble ?? "";
-            if (keyDisplay.isNum) topKey = "";
+            if (keyDisplay.isNumpad) topKey = "";
             return {
                 main: mainKey,
                 top: topKey,
