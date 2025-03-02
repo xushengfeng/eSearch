@@ -67,25 +67,72 @@ function iconEl(src: string) {
     return view().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
-function selectMenu<i extends string>(data?: { name: string; value: i }[]) {
-    const select = (ele("selectlist") as ElType<HTMLSelectElement>)
-        .bindGet((el) => {
-            return el.value;
-        })
-        .bindSet((v: i, el) => {
-            el.value = v;
-            el.title =
-                el.querySelector(`option[value="${v}"]`)?.textContent ?? "";
-        })
-        .add(
-            data?.map((i) => {
-                return ele("option").attr({
-                    innerText: i.name,
-                    value: i.value,
-                });
-            }) || [],
-        );
-    return select;
+function selectEl<i extends string>(
+    el: ElType<HTMLElement>,
+    title: string,
+    data: { name: string; value: i }[],
+) {
+    let value: string;
+    const valueMap = new Map(
+        data.map((i) => [
+            i.value,
+            view()
+                .add(i.name)
+                .on("click", () => {
+                    setV(i.value);
+                    change();
+                }),
+        ]),
+    );
+
+    function change() {
+        el.el.dispatchEvent(new CustomEvent("change"));
+        selectEl.remove();
+        selectEl.el.hidePopover();
+    }
+
+    function setV(v: i) {
+        value = v;
+        el.attr({
+            title: `${title} - ${data.find((i) => i.value === v)?.name ?? ""}`,
+        });
+    }
+
+    function showList() {
+        for (const [v, el] of valueMap) {
+            el.el.classList.remove("selected");
+            if (v === value) el.el.classList.add("selected");
+        }
+        const rect = handleEl.el.getBoundingClientRect();
+        selectEl
+            .clear()
+            .addInto()
+            .add(Array.from(valueMap.values()))
+            .style({
+                position: "fixed",
+                zIndex: 9999,
+                top: `${rect.top}px`,
+                left: `${rect.left}px`,
+                margin: 0,
+            });
+        selectEl.el.showPopover();
+    }
+
+    const selectEl = view().attr({ popover: "auto" }).class("side_select_menu");
+    const handleEl = view()
+        .addInto(el)
+        .on("click", showList)
+        .class("side_select");
+
+    el.on("pointerup", (e) => {
+        if (e.button === 2) showList();
+    });
+
+    return el
+        .bindGet(() => value)
+        .bindSet((v: i) => {
+            setV(v);
+        });
 }
 
 function rangeBar(
@@ -487,7 +534,7 @@ function openApp() {
 }
 
 function initRecord() {
-    if (toolBarEl.els.recordm.gv === "normal") {
+    if (toolBarEl.els.record.gv === "normal") {
         ipcRenderer.send("clip_main_b", "record", {
             rect: finalRect,
             id: nowScreenId,
@@ -799,7 +846,7 @@ async function translate() {
         },
         displayId: nowScreenId,
         img: (await getClipPhoto("png")).toDataURL(),
-        type: toolBarEl.els.translatem.gv,
+        type: toolBarEl.els.translate.gv,
     } as translateWinType);
     tool.close();
 }
@@ -2837,43 +2884,36 @@ const toolBarEl = frame("tool", {
     _: view().class("bar"),
     close: iconEl("close").attr({ title: t("关闭") }),
     screens: view().attr({ title: t("屏幕管理") }),
-    ocr: {
-        _: iconEl("ocr").attr({ title: t("文字识别") }),
-        ocrE: selectMenu().class("side_select"),
-    },
-    search: {
-        _: iconEl("search").attr({ title: t("以图搜图") }),
-        searchE: selectMenu<string>([
-            { value: "baidu", name: t("百度") },
-            { value: "yandex", name: "Yandex" },
-            { value: "google", name: "Google" },
-            { value: "ai", name: "AI" },
-        ]).class("side_select"),
-    },
+    ocr: selectEl(iconEl("ocr"), t("文字识别"), [
+        ...store.get("离线OCR").map((i) => ({ value: i[0], name: i[0] })),
+        { value: "baidu", name: t("百度") },
+        { value: "youdao", name: t("有道") },
+    ]),
+    search: selectEl(iconEl("search"), t("以图搜图"), [
+        { value: "baidu", name: t("百度") },
+        { value: "yandex", name: "Yandex" },
+        { value: "google", name: "Google" },
+        { value: "ai", name: "AI" },
+    ]),
     QR: iconEl("scan").attr({ title: t("二维码") }),
     open: iconEl("open").attr({ title: t("其他应用打开") }),
     ding: iconEl("ding").attr({ title: t("屏幕贴图") }),
-    record: {
-        _: iconEl("record").attr({ title: t("录屏") }),
-        recordm: selectMenu<"normal" | "super">([
-            { name: t("标准录屏"), value: "normal" },
-            { name: t("超级录屏"), value: "super" },
-        ]).class("side_select"),
-    },
-    long: {
-        _: iconEl("long_clip").attr({ title: t("广截屏") }),
-        longm: selectMenu<"y" | "xy">([
-            { name: t("长截屏 y"), value: "y" },
-            { name: t("广截屏 xy"), value: "xy" },
-        ]).class("side_select"),
-    },
-    translate: {
-        _: iconEl("translate").attr({ title: t("屏幕翻译") }),
-        translatem: selectMenu<translateWinType["type"]>([
+    record: selectEl<"normal" | "super">(iconEl("record"), t("录屏"), [
+        { name: t("标准录屏"), value: "normal" },
+        { name: t("超级录屏"), value: "super" },
+    ]),
+    long: selectEl<"y" | "xy">(iconEl("long_clip"), t("广截屏"), [
+        { name: t("长截屏 y"), value: "y" },
+        { name: t("广截屏 xy"), value: "xy" },
+    ]),
+    translate: selectEl<translateWinType["type"]>(
+        iconEl("translate"),
+        t("屏幕翻译"),
+        [
             { name: t("贴图"), value: "ding" },
             { name: t("自动翻译"), value: "live" },
-        ]).class("side_select"),
-    },
+        ],
+    ),
     editor: iconEl("super_edit").attr({ title: t("高级图片编辑") }),
     copy: iconEl("copy").attr({ title: t("复制") }),
     save: iconEl("save").attr({ title: t("保存") }),
@@ -2898,22 +2938,22 @@ const toolList: Record<功能, ElType<HTMLElement>> = {
 
 toolBarEl.el.attr({ id: "tool_bar" });
 
-toolBarEl.els.longm.sv(store.get("广截屏.方向"));
-toolBarEl.els.longm.on("change", () => {
-    store.set("广截屏.方向", toolBarEl.els.longm.gv);
-    longFX = toolBarEl.els.longm.gv;
+toolBarEl.els.long.sv(store.get("广截屏.方向"));
+toolBarEl.els.long.on("change", () => {
+    store.set("广截屏.方向", toolBarEl.els.long.gv);
+    longFX = toolBarEl.els.long.gv;
     tool.long();
 });
 
-toolBarEl.els.recordm.sv(store.get("录屏.模式"));
-toolBarEl.els.recordm.on("change", () => {
-    store.set("录屏.模式", toolBarEl.els.recordm.gv);
+toolBarEl.els.record.sv(store.get("录屏.模式"));
+toolBarEl.els.record.on("change", () => {
+    store.set("录屏.模式", toolBarEl.els.record.gv);
     tool.record();
 });
 
-toolBarEl.els.translatem.sv(store.get("屏幕翻译.type"));
-toolBarEl.els.translatem.on("change", () => {
-    store.set("屏幕翻译.type", toolBarEl.els.translatem.gv);
+toolBarEl.els.translate.sv(store.get("屏幕翻译.type"));
+toolBarEl.els.translate.on("change", () => {
+    store.set("屏幕翻译.type", toolBarEl.els.translate.gv);
     tool.translate();
 });
 
@@ -3351,7 +3391,7 @@ const longX = {
 let longRunning = false;
 let longInited = false;
 
-let longFX: typeof toolBarEl.els.longm.gv = "y";
+let longFX: typeof toolBarEl.els.long.gv = "y";
 
 let type: setting["保存"]["默认格式"];
 
@@ -3835,16 +3875,7 @@ for (const m of hotkeyTipX) {
 setDefaultAction(autoDo);
 
 // OCR
-const ocr引擎 = toolBarEl.els.ocrE;
-for (const i of store.get("离线OCR")) {
-    ocr引擎.add(ele("option").attr({ innerText: i[0], value: i[0] }));
-}
-for (const i of [
-    { v: "baidu", t: t("百度") },
-    { v: "youdao", t: t("有道") },
-]) {
-    ocr引擎.add(ele("option").attr({ innerText: i.t, value: i.v }));
-}
+const ocr引擎 = toolBarEl.els.ocr;
 ocr引擎.sv(store.get("OCR.记住") || store.get("OCR.类型"));
 ocr引擎.on("change", () => {
     if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv);
@@ -3852,7 +3883,8 @@ ocr引擎.on("change", () => {
 });
 
 // 以图搜图
-const 识图引擎 = toolBarEl.els.searchE;
+const 识图引擎 = toolBarEl.els.search;
+// @ts-ignore
 识图引擎.sv(store.get("以图搜图.记住") || store.get("以图搜图.引擎"));
 识图引擎.on("change", () => {
     if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv);

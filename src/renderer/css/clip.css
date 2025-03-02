@@ -160,29 +160,27 @@ body input {
     top: 0px;
     border-radius: 6px;
     overflow: hidden;
-}
-.side_select::part(button) {
-    border: none;
-    appearance: none;
-    color: transparent;
     background-color: var(--bar-focus-color);
-    border-radius: 50%;
-    overflow: hidden;
 }
-.side_select::part(listbox) {
-    padding: 0px;
+
+.side_select_menu {
     background: var(--bar-bg);
     backdrop-filter: var(--blur);
     box-shadow: var(--shadow);
-    border: none;
-}
-
-.side_select > option {
-    color: var(--font-color);
-    transition: var(--transition);
-    font-size: 1rem;
-    &:hover {
-        background-color: var(--hover-color);
+    border-radius: var(--border-radius);
+    padding: 0;
+    & > * {
+        color: var(--font-color);
+        transition: var(--transition);
+        font-size: 1rem;
+        border-radius: var(--border-radius);
+        padding: 2px;
+        &:hover {
+            background-color: var(--hover-color);
+        }
+    }
+    & > .selected {
+        background-color: var(--bar-focus-color);
     }
 }
 
