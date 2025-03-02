@@ -2330,16 +2330,15 @@ function setDrawMode(m: typeof colorM) {
     if (m === "fill") {
         colorFillEl.style({ height: "" });
         colorStrokeEl.style({ height: "0" });
-        document.getElementById("draw_stroke_width").style.height = "0";
-        document.getElementById("draw_fill_storke_mark").style.top = "0";
-        document.getElementById("draw_fill_storke_mark").title = "当前为填充";
+        drawStrokeWidth.style({ height: "0" });
+        drawColorSwitchMark.style({ top: 0 }).attr({ title: "当前为填充" });
     } else {
         colorFillEl.style({ height: "0" });
         colorStrokeEl.style({ height: "" });
-        document.getElementById("draw_stroke_width").style.height = "";
-        document.getElementById("draw_fill_storke_mark").style.top =
-            "calc(var(--bar-size) / 2)";
-        document.getElementById("draw_fill_storke_mark").title = "当前为描边";
+        drawStrokeWidth.style({ height: "" });
+        drawColorSwitchMark.style({ top: "calc(var(--bar-size) / 2)" }).attr({
+            title: "当前为描边",
+        });
     }
 }
 
@@ -2880,6 +2879,158 @@ for (const g of tools) {
     else el.style({ display: "none" });
 }
 
+const drawBarEl = view().attr({ id: "draw_bar" }).addInto();
+const drawBarMainEl = view()
+    .attr({ id: "draw_main" })
+    .class("bar")
+    .addInto(drawBarEl);
+const drawBarSideEl = view()
+    .attr({ id: "draw_side" })
+    .class("bar")
+    .addInto(drawBarEl);
+
+const drawColorEl = view();
+
+const drawMainElsx = {
+    select: iconEl("rect_select").attr({
+        id: "draw_select",
+        title: "选择与控制",
+    }),
+    free: iconEl("free_draw").attr({ id: "draw_free", title: "自由绘画" }),
+    shapes: iconEl("shapes").attr({ id: "draw_shapes", title: "形状和文字" }),
+    filters: iconEl("filters").attr({ id: "draw_filters", title: "滤镜" }),
+    color: view()
+        .attr({ id: "draw_color", title: "颜色和大小" })
+        .add(drawColorEl),
+    position: iconEl("position").attr({
+        id: "draw_position",
+        title: "层叠高度",
+    }),
+    操作: iconEl("setting").attr({ id: "draw_操作", title: "操作" }),
+} as const;
+
+for (const el of Object.values(drawMainElsx)) {
+    drawBarMainEl.add(el);
+}
+
+const drawSideSelect = {
+    rect: iconEl("rect_select").attr({ title: "矩形框选" }),
+    free: iconEl("free_select").attr({ title: "自由框选" }), // todo 文字
+    draw: iconEl("draw_select").attr({ title: "移动" }),
+} as const;
+
+const drawSideFree = {
+    pencil: iconEl("draw").attr({ title: "画笔" }),
+    eraser: iconEl("eraser").attr({ title: "橡皮" }),
+    spray: iconEl("spray").attr({ title: "喷刷" }),
+} as const;
+// todo shadow_blur
+
+const drawShadowBlur = view().attr({ id: "shadow_blur" });
+
+const drawSideShapes = {
+    line: iconEl("line").attr({ title: "线条" }),
+    circle: iconEl("circle").attr({ title: "圆" }),
+    rect: iconEl("rect").attr({ title: "矩形" }),
+    polyline: iconEl("polyline").attr({ title: "折线" }),
+    polygon: iconEl("polygon").attr({ title: "多边形" }),
+    text: iconEl("text").attr({ title: "文字" }),
+    number: iconEl("number").attr({ title: "序号" }),
+    arrow: iconEl("arrow").attr({ title: "箭头" }),
+    mask: iconEl("mask").attr({ title: "遮罩" }),
+} as const;
+
+const filterRangeElx = view().class("draw_filter_range");
+
+const drawSideFilters = {
+    pixelate: iconEl("pixelate").attr({ title: "马赛克" }),
+    blur: iconEl("blur").attr({ title: "模糊" }),
+    brightness: iconEl("brightness").attr({ title: "亮度" }),
+    contrast: iconEl("contrast").attr({ title: "对比度" }),
+    saturation: iconEl("saturation").attr({ title: "饱和度" }),
+    hue: iconEl("hue").attr({ title: "色调" }),
+    gamma: view().attr({ title: "伽马" }),
+    noise: view().attr({ title: "噪点" }),
+    grayscale: view().attr({ title: "灰度" }),
+} as const;
+
+// todo more
+
+const drawColorSwitchP = view().attr({ id: "draw_color_switch" });
+const drawColorSwitchMark = view()
+    .attr({ id: "draw_fill_storke_mark" })
+    .addInto(drawColorSwitchP);
+drawColorSwitchP.add(image(getImgUrl("fill_storke.svg"), "icon").class("icon"));
+
+const drawColorP = view().attr({ id: "draw_color_p" });
+const drawColorColor = view().attr({ id: "draw_color_color" });
+const drawStrokeWidth = view().attr({ id: "draw_stroke_width" });
+
+const drawSidePosition = {
+    front: iconEl("position_front").attr({ title: "移动到最顶端" }),
+    forwards: iconEl("position_forwards").attr({ title: "向上移动一层" }),
+    backwards: iconEl("position_backwards").attr({ title: "向下移动一层" }),
+    back: iconEl("position_back").attr({ title: "移动到最底端" }),
+} as const;
+
+const drawSide操作 = {
+    撤回: iconEl("left").attr({ title: "撤回" }),
+    重做: iconEl("right").attr({ title: "重做" }),
+    复制: iconEl("copy").attr({ title: "复制" }),
+    删除: iconEl("clear").attr({ title: "删除" }),
+} as const;
+
+function filterEl(name: string, title: string) {
+    return view().attr({ id: `draw_filters_${name}`, title });
+}
+
+function drawSideGen(els: Record<string, ElType<HTMLElement>>, pid: string) {
+    return Object.entries(els).map(([k, v]) => {
+        v.attr({ id: `draw_${pid}_${k}` });
+        return v;
+    });
+}
+function drawSideGen2(pid: string) {
+    return view()
+        .class("draw_items")
+        .attr({ id: `draw_${pid}_i` });
+}
+
+drawBarSideEl.add([
+    drawSideGen2("select").add(drawSideGen(drawSideSelect, "select")),
+    drawSideGen2("free").add([
+        ...drawSideGen(drawSideFree, "free"),
+        drawShadowBlur,
+    ]),
+    drawSideGen2("shapes").add(drawSideGen(drawSideShapes, "shapes")),
+    drawSideGen2("filters").add([
+        filterRangeElx,
+        ...drawSideGen(drawSideFilters, "filters"),
+
+        // todo more
+        view()
+            .attr({ id: "draw_filters_bs" })
+            .add([
+                filterEl("invert", "负片"),
+                filterEl("sepia", "棕褐色"),
+                filterEl("bw", "黑白"),
+                filterEl("brownie", "布朗尼"),
+                filterEl("vintage", "老式"),
+                filterEl("koda", "柯达彩色胶片"),
+                filterEl("techni", "特艺色彩"),
+                filterEl("polaroid", "宝丽来"),
+            ]),
+    ]),
+    drawSideGen2("color_size").add([
+        drawColorSwitchP,
+        drawColorP,
+        drawColorColor,
+        drawStrokeWidth,
+    ]),
+    drawSideGen2("position").add(drawSideGen(drawSidePosition, "position")),
+    drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")),
+]);
+
 const whEl = view().attr({ id: "clip_wh" }).class("bar");
 const whX0 = input();
 const whY0 = input();
@@ -3067,10 +3218,10 @@ const hotkeyScopes: hotkeyScope[] = [];
 const drawHotKey = store.get("截屏编辑快捷键");
 
 const canvasControlKey = {
-    操作_撤回: "Control+Z",
-    操作_重做: "Control+Y",
-    操作_复制: "Control+C",
-    操作_删除: "Delete",
+    draw_操作_撤回: "Control+Z",
+    draw_操作_重做: "Control+Y",
+    draw_操作_复制: "Control+C",
+    draw_操作_删除: "Delete",
 };
 
 type hotkeyTip = { name: string; keys: string[] }[];
@@ -4042,18 +4193,18 @@ hotkeys("ctrl+y", () => {
     undo(false);
 });
 
-document.getElementById("操作_撤回").onclick = () => {
+drawSide操作.撤回.on("click", () => {
     undo(true);
-};
-document.getElementById("操作_重做").onclick = () => {
+});
+drawSide操作.重做.on("click", () => {
     undo(false);
-};
-document.getElementById("操作_复制").onclick = () => {
+});
+drawSide操作.复制.on("click", () => {
     fabricCopy();
-};
-document.getElementById("操作_删除").onclick = () => {
+});
+drawSide操作.删除.on("click", () => {
     fabricDelete();
-};
+});
 
 const Filters = filters;
 
