@@ -1248,10 +1248,7 @@ async function showNowFrames(centerId: TransId, force = false) {
                     width: tW,
                     height: tH,
                 })
-                .style({ width: "fit-content", overflow: "hidden" })
-                .on("click", () => {
-                    jump2idUi(srcId);
-                });
+                .style({ width: "fit-content", overflow: "hidden" });
             (
                 canvasEl.el.getContext("2d") as CanvasRenderingContext2D
             ).drawImage(
@@ -1277,7 +1274,9 @@ async function showNowFrames(centerId: TransId, force = false) {
                             : null,
                         monoTxt(String(id)),
                     ]),
-            );
+            ).on("click", () => {
+                jump2idUi(srcId);
+            });
         }
         timeLineFrame.add(c);
     }
