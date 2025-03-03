@@ -2523,7 +2523,7 @@ function colorBar() {
                     .style({
                         "background-color": v,
                     })
-                    .attr({
+                    .data({
                         title: colorConversion(
                             chroma(v).rgba(),
                             取色器默认格式,
@@ -2541,13 +2541,13 @@ function colorBar() {
                         "background-color":
                             x === 0 ? "#fff" : `hsl(${x}, 100%, 50%)`,
                     })
-                    .attr({
+                    .data({
+                        i: i.toString(),
                         title: colorConversion(
                             chroma(x).rgba(),
                             取色器默认格式,
                         ),
-                    })
-                    .data({ i: i.toString() });
+                    });
             }),
         );
     }
