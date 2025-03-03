@@ -118,6 +118,8 @@ const outputType = [
     { type: "png", name: "png" },
 ] as const;
 
+const defaultSrcId = 0 as SrcId;
+
 let isPlaying = false;
 let playI: TransId = 0 as TransId;
 let willPlayI: TransId = 0 as TransId;
@@ -1156,7 +1158,7 @@ async function playEnd() {
     playEl.sv(false);
 
     await playId(0 as TransId, true);
-    await jump2idUi(trans2src(0 as TransId) ?? 0);
+    await jump2idUi(trans2src(0 as TransId) ?? defaultSrcId);
 }
 
 function onPause() {
@@ -1240,7 +1242,7 @@ async function showNowFrames(centerId: TransId, force = false) {
                 console.log("no frame", id);
                 continue;
             }
-            const srcId = trans2src(id) ?? 0;
+            const srcId = trans2src(id) ?? defaultSrcId;
             const canvasEl = ele("canvas")
                 .attr({
                     width: tW,
@@ -1920,17 +1922,17 @@ const playEl = check("", [
 const lastFrame = iconBEl("last").on("click", (e) => {
     const x = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
     const id = Math.max(willPlayI - x, 0) as TransId;
-    jump2idUi(trans2src(id) ?? willPlayI);
+    jump2idUi(trans2src(id));
 });
 const nextFrame = iconBEl("next").on("click", (e) => {
     const x = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
     const id = Math.min(willPlayI + x, transformCs.length - 1) as TransId;
-    jump2idUi(trans2src(id) ?? willPlayI);
+    jump2idUi(trans2src(id));
 });
 const lastKey = iconBEl("last_last").on("click", (e) => {
     const x = e.shiftKey ? 60 : e.ctrlKey ? 10 : 1;
     const id = Math.max(willPlayI - srcRate * x, 0) as TransId;
-    jump2idUi(trans2src(id) ?? willPlayI);
+    jump2idUi(trans2src(id));
 });
 const nextKey = iconBEl("next_next").on("click", (e) => {
     const x = e.shiftKey ? 60 : e.ctrlKey ? 10 : 1;
@@ -1938,7 +1940,7 @@ const nextKey = iconBEl("next_next").on("click", (e) => {
         willPlayI + srcRate * x,
         transformCs.length - 1,
     ) as TransId;
-    jump2idUi(trans2src(id) ?? willPlayI);
+    jump2idUi(trans2src(id));
 });
 
 const nowTimeEl = (total: () => number) => {
@@ -2051,7 +2053,7 @@ const timeLineMain = view("x")
         const id = transformCs.time2Id(
             p * transformCs.getDuration(),
         ) as TransId;
-        jump2idUi(trans2src(id) ?? 0);
+        jump2idUi(trans2src(id) ?? defaultSrcId);
     });
 
 const timeLineControlP = view()
@@ -2320,7 +2322,7 @@ const timeLineTrack = <D>(op: {
         },
         ing: (p, _e, { startData: sd }) => {
             const pi = px2i(p.x);
-            if (!sd.d || !sd.el) return;
+            if (!sd.d || !sd.el) return null;
             const d = structuredClone(sd.d);
             const newD = structuredClone(d);
             if (sd.type === "start") {
