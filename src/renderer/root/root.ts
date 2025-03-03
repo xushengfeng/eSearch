@@ -1,4 +1,4 @@
-import { view } from "dkh-ui";
+import { initDKH, view } from "dkh-ui";
 import { t, lan } from "../../../lib/translate/translate";
 
 function initStyle(
@@ -33,6 +33,17 @@ function initStyle(
     setCSSVar("--monospace", 字体.等宽字体);
 
     lan(store.get("语言.语言"));
+
+    initDKH({
+        pureStyle: true,
+        attrMap: {
+            title: (s: string, el) => {
+                const title = t(s);
+                el.setAttribute("data-title", title);
+                el.setAttribute("aria-label", title);
+            },
+        },
+    });
 
     const topTip = view()
         .class("bar")

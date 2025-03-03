@@ -8,7 +8,6 @@ import {
     input,
     label,
     pack,
-    pureStyle,
     select,
     trackPoint,
     txt,
@@ -2576,8 +2575,6 @@ const exportEl = frame("export", {
 exportEl.els.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
 
 exportEl.el.addInto();
-
-pureStyle();
 
 pack(document.body).style({
     display: "flex",

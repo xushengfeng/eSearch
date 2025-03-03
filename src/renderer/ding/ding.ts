@@ -12,13 +12,11 @@ import {
     elFromId,
     type ElType,
     image,
-    pureStyle,
     spacer,
     trackPoint,
     txt,
     view,
 } from "dkh-ui";
-pureStyle();
 
 import { t } from "../../../lib/translate/translate";
 

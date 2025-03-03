@@ -11,7 +11,6 @@ import {
     image,
     p,
     noI18n,
-    pureStyle,
     input,
     select,
     type ElType,
@@ -29,6 +28,8 @@ const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import type { FSWatcher } from "node:fs";
+
+initStyle(store);
 
 type TabItem = {
     el: ElType<HTMLElement>;
@@ -415,10 +416,6 @@ const imageShow = "image_main";
 const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 
 const dmp = new diff_match_patch();
-
-lan(language);
-
-pureStyle();
 
 /**
  * 添加到撤销栈
@@ -1479,8 +1476,6 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
         });
     }
 });
-
-initStyle(store);
 
 function editOnOther() {
     editingOnOther = !editingOnOther;

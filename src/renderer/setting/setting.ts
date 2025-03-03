@@ -4,7 +4,6 @@ import {
     ele,
     type ElType,
     input,
-    pureStyle,
     txt,
     view,
     setTranslate,
@@ -3944,10 +3943,8 @@ function about() {
     return el.add([logoEl, nameEl, version, update, desc, infoEl]);
 }
 
-lan(store.get("语言.语言") as string);
 setTranslate((text) => t(text));
 
-pureStyle();
 initStyle(store);
 
 for (const v of Object.values(s)) {

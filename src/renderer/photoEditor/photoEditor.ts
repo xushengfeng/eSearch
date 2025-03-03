@@ -8,7 +8,6 @@ import {
     input,
     label,
     noI18n,
-    pureStyle,
     select,
     setTranslate,
     trackPoint,
@@ -683,8 +682,6 @@ function previewPen(id: string) {
     }
     ctx.stroke();
 }
-
-pureStyle();
 
 controls.el.addInto();
 preview.addInto();

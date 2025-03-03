@@ -46,12 +46,10 @@ import type {
     功能列表,
 } from "../../ShareTypes.js";
 import {
-    addStyle,
     ele,
     type ElType,
     frame,
     image,
-    initDKH,
     input,
     p,
     pack,
@@ -60,6 +58,8 @@ import {
     txt,
     view,
 } from "dkh-ui";
+
+initStyle(store);
 
 // @auto-path:../assets/icons/$.svg
 function iconEl(src: string) {
@@ -274,8 +274,6 @@ function rangeBar(
 }
 
 function setSetting() {
-    initStyle(store);
-
     const 工具栏 = store.get("工具栏");
     setProperties({
         "--color-size": `${colorSize * colorISize}px`,
@@ -2874,17 +2872,6 @@ const tools: 功能列表 = [
     "copy",
     "save",
 ];
-
-initDKH({
-    pureStyle: true,
-    attrMap: {
-        title: (s: string, el) => {
-            const title = t(s);
-            el.setAttribute("data-title", title);
-            el.setAttribute("aria-label", title);
-        },
-    },
-});
 
 const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class("bar");
 
