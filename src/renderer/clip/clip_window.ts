@@ -2877,8 +2877,8 @@ const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class("bar");
 
 const toolBarEl = frame("tool", {
     _: view().class("bar"),
-    close: iconEl("close").attr({ title: t("关闭") }),
-    screens: view().attr({ title: t("屏幕管理") }),
+    close: iconEl("close").attr({ title: "关闭" }),
+    screens: view().attr({ title: "屏幕管理" }),
     ocr: selectEl(iconEl("ocr"), t("文字识别"), [
         ...store.get("离线OCR").map((i) => ({ value: i[0], name: i[0] })),
         { value: "baidu", name: t("百度") },
@@ -2890,9 +2890,9 @@ const toolBarEl = frame("tool", {
         { value: "google", name: "Google" },
         { value: "ai", name: "AI" },
     ]),
-    QR: iconEl("scan").attr({ title: t("二维码") }),
-    open: iconEl("open").attr({ title: t("其他应用打开") }),
-    ding: iconEl("ding").attr({ title: t("屏幕贴图") }),
+    QR: iconEl("scan").attr({ title: "二维码" }),
+    open: iconEl("open").attr({ title: "其他应用打开" }),
+    ding: iconEl("ding").attr({ title: "屏幕贴图" }),
     record: selectEl<"normal" | "super">(iconEl("record"), t("录屏"), [
         { name: t("标准录屏"), value: "normal" },
         { name: t("超级录屏"), value: "super" },
@@ -2909,9 +2909,9 @@ const toolBarEl = frame("tool", {
             { name: t("自动翻译"), value: "live" },
         ],
     ),
-    editor: iconEl("super_edit").attr({ title: t("高级图片编辑") }),
-    copy: iconEl("copy").attr({ title: t("复制") }),
-    save: iconEl("save").attr({ title: t("保存") }),
+    editor: iconEl("super_edit").attr({ title: "高级图片编辑" }),
+    copy: iconEl("copy").attr({ title: "复制" }),
+    save: iconEl("save").attr({ title: "保存" }),
 });
 
 // 仅仅是为了确保功能的值都存在，在更改功能时能类型检查
