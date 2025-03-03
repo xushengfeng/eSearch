@@ -3697,7 +3697,7 @@ window.CSS.registerProperty({
 });
 
 function about() {
-    const el = view("y").style({ alignItems: "center", marginTop: "120px" });
+    const el = view("y").style({ alignItems: "center", margin: "120px 0" });
     const logoEl = image(logo, noI18n("logo"))
         .style({
             width: "200px",
