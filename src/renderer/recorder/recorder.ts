@@ -702,6 +702,16 @@ const startStop = button()
     .style({ width: "80px", height: "80px" })
     .on("click", () => {
         if (sS) {
+            if (!recordSysAudio) {
+                const audioTracks = stream.getAudioTracks();
+                for (const i of audioTracks) {
+                    i.stop();
+                    stream.removeTrack(i);
+                }
+            }
+            for (const a of audioStreamS.values()) {
+                for (const i of a.getAudioTracks()) stream.addTrack(i);
+            }
             recorder.start();
             格式El.el.style({ display: "none" });
             type = 格式El.el.gv as mimeType;
@@ -926,6 +936,13 @@ sEl.add([
 
 const devices = await navigator.mediaDevices.enumerateDevices();
 const audioL = devices.filter((i) => i.kind === "audioinput");
+let recordSysAudio = false;
+micList.add(
+    label([check(""), "系统音频"]).on("input", (_, el) => {
+        recordSysAudio = el.gv;
+    }),
+);
+
 for (const i of audioL) {
     const el = label([check(""), i.label || i.deviceId]);
     el.on("input", async () => {
@@ -970,7 +987,12 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             sS = true;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
-                    audio: false,
+                    audio: {
+                        // @ts-ignore
+                        mandatory: {
+                            chromeMediaSource: "desktop",
+                        },
+                    },
                     video: {
                         // @ts-ignore
                         mandatory: {
@@ -985,9 +1007,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
                 console.error(e);
             }
             if (!stream) return;
-            for (const a of audioStreamS.values()) {
-                for (const i of a.getAudioTracks()) stream.addTrack(i);
-            }
             let chunks: Blob[] = [];
             recorder = new MediaRecorder(stream, {
                 videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
