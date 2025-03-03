@@ -1254,6 +1254,10 @@ function drawClip() {
     else drawClipPoly(freeSelect);
 }
 
+function cleanCanvas() {
+    clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
+}
+
 /**
  * 自动框选提示
  */
@@ -1302,12 +1306,10 @@ function renderClip(e: MouseEvent) {
     }
 
     if (g光标参考线 || selecting || moving) {
-        clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
+        cleanCanvas();
         drawClip();
         inEdge({ x: e.offsetX, y: e.offsetY });
-        if (g光标参考线) {
-            ckx(e);
-        }
+        ckx(e);
     }
 
     if (!selecting && !moving) {
@@ -1477,6 +1479,7 @@ function mouseBar(finalRect: rect, e: MouseEvent) {
 }
 
 function ckx(e: MouseEvent) {
+    if (!g光标参考线) return;
     const { x, y } = e2cXY(e);
     clipCtx.fillStyle = c参考线颜色.光标参考线;
     clipCtx.fillRect(0, y, x, 1);
@@ -4022,7 +4025,9 @@ document.body.onkeydown = (e) => {
                     break;
             }
             moveRect(finalRect, { x: op.offsetX, y: op.offsetY }, { x, y });
+            cleanCanvas();
             drawClipRect();
+            ckx(nowMouseE);
         } else {
             let x = editorP.x;
             let y = editorP.y;
