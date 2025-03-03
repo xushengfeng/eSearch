@@ -195,7 +195,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "取色器.像素大小": {
         name: "取色器像素大小",
-        el: () => xRange({ min: 1, max: 10, text: "px" }),
+        el: () => xRange({ min: 1, max: 20, text: "px" }),
     },
     "取色器.默认格式": {
         name: "取色器默认格式",
