@@ -2122,12 +2122,11 @@ function setEditType<T extends keyof EditType>(
 }
 
 function showSideBarItem(index: number) {
-    const sises = [1, 1, 2, 3, 1, 1, 1];
     showSideBar(true);
-    for (const [i, el] of drawBarSideElChildren.entries()) {
+    for (const [i, { w, el }] of drawBarSideElChildren.entries()) {
         if (index === i) {
-            const height = Math.ceil(el.el.children.length / sises[index]);
-            const x = sises[index];
+            const height = Math.ceil(el.el.children.length / w);
+            const x = w;
             const y = height;
             el.style({ display: "", width: `${x * bSize}px` });
             let left = bSize * 1;
@@ -3119,27 +3118,44 @@ function drawSideGen2(pid: string) {
         .attr({ id: `draw_${pid}_i` });
 }
 
-const drawBarSideElChildren = [
-    drawSideGen2("select").add(drawSideGen(drawSideSelect, "select")),
-    drawSideGen2("free").add([
-        ...drawSideGen(drawSideFree, "free"),
-        drawShadowBlur,
-    ]),
-    drawSideGen2("shapes").add(drawSideGen(drawSideShapes, "shapes")),
-    drawSideGen2("filters").add([
-        filterRangeEl,
-        ...drawSideGen(drawSideFilters, "filters"),
-        ...Object.values(drawSideFiltersMoreGray),
-        view()
-            .attr({ id: "draw_filters_bs" })
-            .add(Object.values(drawSideFiltersMore)),
-    ]),
-    drawColorSide,
-    drawSideGen2("position").add(drawSideGen(drawSidePosition, "position")),
-    drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")),
+const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
+    {
+        w: 1,
+        el: drawSideGen2("select").add(drawSideGen(drawSideSelect, "select")),
+    },
+    {
+        w: 1,
+        el: drawSideGen2("free").add([
+            ...drawSideGen(drawSideFree, "free"),
+            drawShadowBlur,
+        ]),
+    },
+    {
+        w: 2,
+        el: drawSideGen2("shapes").add(drawSideGen(drawSideShapes, "shapes")),
+    },
+    {
+        w: 3,
+        el: drawSideGen2("filters").add([
+            filterRangeEl,
+            ...drawSideGen(drawSideFilters, "filters"),
+            ...Object.values(drawSideFiltersMoreGray),
+            view()
+                .attr({ id: "draw_filters_bs" })
+                .add(Object.values(drawSideFiltersMore)),
+        ]),
+    },
+    { w: 1, el: drawColorSide },
+    {
+        w: 1,
+        el: drawSideGen2("position").add(
+            drawSideGen(drawSidePosition, "position"),
+        ),
+    },
+    { w: 1, el: drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")) },
 ];
 
-drawBarSideEl.add(drawBarSideElChildren);
+drawBarSideEl.add(drawBarSideElChildren.map((i) => i.el));
 
 const whEl = view().attr({ id: "clip_wh" }).class("bar");
 const whX0 = input();
@@ -4303,7 +4319,7 @@ for (const [index, e] of drawBarMainElList.entries()) {
 }
 
 for (const el of drawBarSideElChildren) {
-    el.on("pointerleave", () => {
+    el.el.on("pointerleave", () => {
         setTimeout(() => {
             if (!isInDrawBar()) showSideBar(false);
         }, 100);
