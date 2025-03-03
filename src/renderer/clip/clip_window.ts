@@ -2539,7 +2539,7 @@ function colorBar() {
                     .class("color_i")
                     .style({
                         "background-color":
-                            x === 0 ? "#fff" : `hsl(${x}, 100%, 50%)`,
+                            i === 0 ? "#fff" : `hsl(${x}, 100%, 50%)`,
                     })
                     .data({
                         i: i.toString(),
