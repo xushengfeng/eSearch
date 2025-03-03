@@ -4024,9 +4024,17 @@ document.body.onkeydown = (e) => {
                     x = op.offsetX - d;
                     break;
             }
-            moveRect(finalRect, { x: op.offsetX, y: op.offsetY }, { x, y });
+            if (isRect) {
+                moveRect(finalRect, { x: op.offsetX, y: op.offsetY }, { x, y });
+            } else {
+                movePoly(
+                    freeSelect,
+                    { x: op.offsetX, y: op.offsetY },
+                    { x, y },
+                );
+            }
             cleanCanvas();
-            drawClipRect();
+            drawClip();
             ckx(nowMouseE);
         } else {
             let x = editorP.x;
