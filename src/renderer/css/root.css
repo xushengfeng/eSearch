@@ -152,8 +152,14 @@ body select,
     width: fit-content;
 }
 
+.inter-like {
+    transition: var(--transition);
+    cursor: pointer;
+}
+
 body button,
-body select {
+body select,
+.inter-like {
     &:hover {
         background-color: var(--hover-color);
     }

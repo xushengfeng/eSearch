@@ -2619,15 +2619,7 @@ function xFont() {
     const i = input().on("input", () =>
         el.el.dispatchEvent(new CustomEvent("input")),
     );
-    const s = select([]);
-    s.on("input", () => {
-        i.sv(s.gv);
-        el.el.dispatchEvent(new CustomEvent("input"));
-    }).style({
-        // @ts-ignore
-        "field-sizing": "content",
-    });
-    const q = button(iconEl("reload")).on("click", async () => {
+    const q = button(iconEl("search")).on("click", async () => {
         // @ts-ignore
         const fonts = await window.queryLocalFonts();
         const list = Array.from(
@@ -2636,25 +2628,94 @@ function xFont() {
                 ...fonts.map((i) => i.family),
             ]),
         ).sort() as string[];
-        s.clear()
-            .add(
-                list.map((i) =>
-                    ele("option")
-                        .attr({ value: i })
-                        .style({ fontFamily: i })
-                        .add(noI18n(i)),
-                ), // todo 虚拟列表
-            )
-            .sv(i.gv);
-        el.add(s);
-        q.remove();
+
+        const pageN = 15;
+        let thePage = 0;
+
+        function showPage(page: number) {
+            thePage = page;
+            const start = page * pageN;
+            const end = start + pageN;
+            const nowV = i.gv;
+            const prev = preview.gv;
+            listEl.clear();
+            for (let n = start; n < end && n < list.length; n++) {
+                listEl.add(
+                    view("x")
+                        .add(
+                            prev
+                                ? [noI18n(prev), spacer(), noI18n(list[n])]
+                                : noI18n(list[n]),
+                        )
+                        .style({
+                            fontFamily: list[n],
+                            paddingInline: "4px",
+                            borderRadius: "var(--border-radius)",
+                            backgroundColor:
+                                nowV === list[n] ? "var(--m-color-b)" : "",
+                        })
+                        .on("click", () => {
+                            i.sv(list[n]);
+                            el.el.dispatchEvent(new CustomEvent("input"));
+                            close();
+                        })
+                        .class("inter-like"),
+                );
+            }
+        }
+
+        function close() {
+            listPEl.remove();
+        }
+
+        const listPEl = ele("dialog");
+        const listP = view("y")
+            .style({ gap: "var(--o-padding)" })
+            .addInto(listPEl);
+        const preview = input()
+            .style({ width: "auto" })
+            .attr({ placeholder: t("预览字体") })
+            .on("input", () => {
+                showPage(thePage);
+            })
+            .addInto(listP);
+        const listEl = view().addInto(listP);
+        const nav = view("x").style({ overflowX: "scroll" });
+
+        const nowPage = list.includes(i.gv)
+            ? Math.floor(list.indexOf(i.gv) / pageN)
+            : 0;
+
+        showPage(nowPage);
+
+        nav.add(
+            Array.from({ length: Math.ceil(list.length / pageN) }, (_, i) =>
+                button(String(i + 1))
+                    .on("click", () => {
+                        showPage(i);
+                    })
+                    .style({
+                        backgroundColor:
+                            i === nowPage ? "var(--m-color-b)" : "",
+                    }),
+            ),
+        );
+        listP.add(
+            view("x").add([
+                nav,
+                button(iconEl("close")).on("click", () => {
+                    close();
+                }),
+            ]),
+        );
+
+        listPEl.addInto().el.showModal();
     });
     return el
         .add([i, q])
         .bindGet(() => i.gv)
         .bindSet((v: string) => {
             i.sv(v);
-            s.sv(v);
         });
 }
 
