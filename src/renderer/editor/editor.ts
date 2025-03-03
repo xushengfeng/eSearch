@@ -1431,7 +1431,12 @@ ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
             if (text) {
                 console.log(text);
 
+                editor.push(r.raw.map((i) => i.text).join("\n"));
+                stackAdd();
+
                 editor.push(text);
+                stackAdd();
+
                 editor.selectAll();
 
                 if (mainType === "search") {
