@@ -2888,43 +2888,6 @@ initDKH({
     },
 });
 
-// todo 全局组件
-const topTip = view()
-    .class("bar")
-    .style({
-        position: "fixed",
-        pointerEvents: "none",
-        padding: "2px",
-        borderRadius: "4px",
-        zIndex: 9999,
-        transition: "var(--transition) opacity",
-    })
-    .addInto()
-    .bindSet((v: string, el) => {
-        el.textContent = v;
-    });
-
-window.addEventListener("pointermove", (e) => {
-    const el = e.target as HTMLElement;
-    const tEl = el.closest("[data-title]");
-    if (!tEl) {
-        topTip.style({ opacity: 0 });
-    } else {
-        const title = tEl.getAttribute("data-title");
-        const rect = tEl.getBoundingClientRect();
-        topTip.sv(title);
-        const tw = topTip.el.offsetWidth;
-        const th = topTip.el.offsetHeight;
-        const ow = window.innerWidth;
-        const oh = window.innerHeight;
-        topTip.style({
-            opacity: 1,
-            left: `${Math.max(0, Math.min(rect.left + rect.width / 2 - tw / 2, ow - tw))}px`,
-            top: `${Math.max(0, Math.min(rect.top - th - 4, oh - th))}px`,
-        });
-    }
-});
-
 const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class("bar");
 
 const toolBarEl = frame("tool", {
