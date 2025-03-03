@@ -1146,11 +1146,11 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => hotkeyP("filters"),
     },
     "截屏编辑快捷键.select.副.rect": {
-        name: "矩形框选",
+        name: "矩形选择",
         el: () => hotkeyP("rect_select"),
     },
     "截屏编辑快捷键.select.副.free": {
-        name: "自由框选",
+        name: "自由选择",
         el: () => hotkeyP("free_select"),
     },
     "截屏编辑快捷键.select.副.draw": {

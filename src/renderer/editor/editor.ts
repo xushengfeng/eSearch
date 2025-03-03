@@ -239,7 +239,7 @@ const ocrImageFileDropFileInput = view()
     .attr({ id: "file_input" })
     .add(image(getImgUrl("add.svg"), "upload").class("icon"))
     .addInto(ocrImageFileDrop);
-ocrImageFileDrop.add(txt("拖拽或粘贴图像到此处"));
+ocrImageFileDrop.add(txt(t("拖拽或粘贴图像到此处")));
 
 const ocrImageTextOutput = view()
     .attr({ id: "text_output" })
@@ -1637,8 +1637,12 @@ function countWords() {
     const chart = Array.from(chartSeg.segment(text));
     const words = Array.from(wordSeg.segment(text));
 
-    findCount.el.innerText = `${chart.filter((i) => i.isWordLike).length} ${t("字")}`;
-    findCount.el.title = `${t("段落")} ${p}\n${t("字符")} ${chart.length}\n${t("非空格字符")} ${chart.filter((i) => !i.segment.match(/\s/)).length}\n${t("词")} ${words.filter((i) => i.isWordLike).length}`;
+    findCount
+        .clear()
+        .add(`${chart.filter((i) => i.isWordLike).length} ${t("字")}`)
+        .attr({
+            title: `${t("段落")} ${p}\n${t("字符")} ${chart.length}\n${t("非空格字符")} ${chart.filter((i) => !i.segment.match(/\s/)).length}\n${t("词")} ${words.filter((i) => i.isWordLike).length}`,
+        });
 }
 
 /************************************失焦关闭 */
