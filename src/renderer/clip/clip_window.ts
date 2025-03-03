@@ -2031,19 +2031,20 @@ function setEditType<T extends keyof EditType>(
 
     const SELECT = "select";
 
-    for (const i in drawMainEls) {
+    for (const [i, mel] of Object.entries(drawMainEls)) {
         if (i === mainType) {
-            drawMainEls[mainType].el.classList.add(SELECT);
-            drawMainEls[mainType].el.innerHTML =
-                drawSideEls[mainType][type].el.innerHTML;
+            mel.el.classList.add(SELECT);
+            mel.el.innerHTML = drawSideEls[mainType][type].el.innerHTML;
         } else {
-            drawMainEls[i]?.classList?.remove(SELECT);
+            mel.el.classList.remove(SELECT);
         }
-        for (const j in drawSideEls[i]) {
+        for (const [j, sel] of Object.entries(
+            drawSideEls[i as keyof EditType],
+        )) {
             if (i === mainType && j === type) {
-                drawSideEls[i][j]?.classList?.add(SELECT);
+                sel.el.classList.add(SELECT);
             } else {
-                drawSideEls[i][j]?.classList?.remove(SELECT);
+                sel.el.classList.remove(SELECT);
             }
         }
     }

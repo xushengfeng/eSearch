@@ -200,7 +200,7 @@ body input {
 
 /* 画 */
 .select {
-    background-color: var(--bar-focus-color);
+    background-color: var(--bar-focus-color) !important;
 }
 #draw_bar {
     left: 80px;
