@@ -59,7 +59,7 @@ function initStyle(
         })
         .addInto()
         .bindSet((v: string, el) => {
-            el.textContent = v;
+            el.innerText = v;
         });
 
     window.addEventListener("pointermove", (e) => {
