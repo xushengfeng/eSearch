@@ -2347,7 +2347,7 @@ function renderSetting(settingPath: KeyPath) {
     if (!setting) {
         const err = new Error(`Setting ${settingPath} not found`);
         console.error(err);
-        return;
+        return null;
     }
     // @ts-ignore
     const el = setting.el();
