@@ -277,6 +277,7 @@ function setSetting() {
     const 工具栏 = store.get("工具栏");
     setProperties({
         "--color-size": `${colorSize * colorISize}px`,
+        "--min-color-size": "10px",
         "--color-i-size": `${colorISize}px`,
         "--color-i-i": `${colorSize}`,
         "--bar-size": `${工具栏.按钮大小}px`,
@@ -1544,7 +1545,23 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     const mainEl = getColorFormatEl();
     // 只改变默认格式的字体颜色和内容，并定位展示
     mainEl.el.style.color = theTextColor[1];
-    mainEl.el.innerText = colorConversion(l, type);
+    const c = colorConversion(l, type);
+    const main = c.includes("(")
+        ? c
+              .match(/\((.*)\)/)[1]
+              .replace("deg", "°")
+              .replace("none", "-")
+        : c;
+    const minR = 0.6;
+    mainEl
+        .clear()
+        .style({
+            fontSize: `${Math.max(minR, Math.min((colorSize * colorISize) / (main.length * chPX), 1))}rem`,
+        })
+        .add(main);
+    const minW = main.length * chPX * minR;
+    setProperties({ "--min-color-size": `${minW}px` });
+
     if (color.alpha() !== 1) {
         mainEl.el.style.color = "";
     }
@@ -1586,11 +1603,12 @@ function changeRightBar(v: boolean) {
     } else {
         mouseBarColor.el.style.height = "";
         mouseBarCopy.style({
-            width: "var(--color-size)",
+            width: "max(var(--color-size), var(--min-color-size))",
             height: "32px",
         });
         mouseBarCopyI.el.style.top = `${-32 * (取色器格式位置 + 1)}px`;
         mouseBarEl.el.style.pointerEvents = "none";
+        if (theColor) clipColorText(theColor, 取色器默认格式);
     }
 }
 
