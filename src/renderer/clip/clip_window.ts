@@ -3007,8 +3007,8 @@ for (const el of drawBarMainElList) {
 }
 
 const drawSideSelect = {
-    rect: iconEl("rect_select").attr({ title: "矩形框选" }),
-    free: iconEl("free_select").attr({ title: "自由框选" }), // todo 文字
+    rect: iconEl("rect_select").attr({ title: "矩形选择" }),
+    free: iconEl("free_select").attr({ title: "自由选择" }),
     draw: iconEl("draw_select").attr({ title: "移动" }),
 } as const;
 
@@ -3017,7 +3017,6 @@ const drawSideFree = {
     eraser: iconEl("eraser").attr({ title: "橡皮" }),
     spray: iconEl("spray").attr({ title: "喷刷" }),
 } as const;
-// todo shadow_blur
 
 const drawShadowBlur = view().attr({ id: "shadow_blur" });
 
