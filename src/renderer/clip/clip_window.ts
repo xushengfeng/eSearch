@@ -1301,14 +1301,12 @@ function renderClip(e: MouseEvent) {
     }
 
     if (g光标参考线 || selecting || moving) {
-        requestAnimationFrame(() => {
-            clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
-            drawClip();
-            inEdge({ x: e.offsetX, y: e.offsetY });
-            if (g光标参考线) {
-                ckx(e);
-            }
-        });
+        clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
+        drawClip();
+        inEdge({ x: e.offsetX, y: e.offsetY });
+        if (g光标参考线) {
+            ckx(e);
+        }
     }
 
     if (!selecting && !moving) {
@@ -1419,67 +1417,62 @@ function changeWH(el: ElType<HTMLInputElement>) {
 }
 
 function mouseBar(finalRect: rect, e: MouseEvent) {
-    requestAnimationFrame(() => {
-        const { x, y } = e2cXY(e);
-        const [x0, y0, width, height] = finalRect;
+    const { x, y } = e2cXY(e);
+    const [x0, y0, width, height] = finalRect;
 
-        const delta = (colorSize - 1) / 2;
-        const xOffset = x - delta;
-        const yOffset = y - delta;
+    const delta = (colorSize - 1) / 2;
+    const xOffset = x - delta;
+    const yOffset = y - delta;
 
-        const imageData = mainCanvasContext.getImageData(
-            xOffset,
-            yOffset,
-            colorSize,
-            colorSize,
+    const imageData = mainCanvasContext.getImageData(
+        xOffset,
+        yOffset,
+        colorSize,
+        colorSize,
+    );
+
+    pointColorCanvasCtx.clearRect(0, 0, colorSize, colorSize);
+    pointColorCanvasBgCtx.clearRect(0, 0, colorSize, colorSize);
+
+    pointColorCanvasBgCtx.putImageData(imageData, 0, 0);
+
+    let points: point[] = [];
+
+    if (isRect || freeSelect.length < 3) {
+        points.push({ x: x0, y: y0 });
+        points.push({ x: x0, y: y0 + height });
+        points.push({ x: x0 + width, y: y0 + height });
+        points.push({ x: x0 + width, y: y0 });
+    } else {
+        points = freeSelect;
+    }
+
+    pointColorCanvasCtx.save();
+
+    pointColorCanvasCtx.beginPath();
+    pointColorCanvasCtx.moveTo(points[0].x - xOffset, points[0].y - yOffset);
+    for (let i = 1; i < points.length; i++) {
+        pointColorCanvasCtx.lineTo(
+            points[i].x - xOffset,
+            points[i].y - yOffset,
         );
+    }
+    pointColorCanvasCtx.closePath();
+    pointColorCanvasCtx.clip();
+    pointColorCanvasCtx.drawImage(pointColorCanvasBg, 0, 0);
 
-        pointColorCanvasCtx.clearRect(0, 0, colorSize, colorSize);
-        pointColorCanvasBgCtx.clearRect(0, 0, colorSize, colorSize);
+    pointColorCanvasCtx.restore();
 
-        pointColorCanvasBgCtx.putImageData(imageData, 0, 0);
+    const centerIndex = (colorSize * delta + delta) * 4;
+    let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
 
-        let points: point[] = [];
+    a /= 255;
+    const cssColor = `rgb(${r} ${g} ${b} / ${a})`;
+    pointCenter.style.background = cssColor;
+    theColor = [r, g, b, a];
+    clipColorText([r, g, b, a], 取色器默认格式);
 
-        if (isRect || freeSelect.length < 3) {
-            points.push({ x: x0, y: y0 });
-            points.push({ x: x0, y: y0 + height });
-            points.push({ x: x0 + width, y: y0 + height });
-            points.push({ x: x0 + width, y: y0 });
-        } else {
-            points = freeSelect;
-        }
-
-        pointColorCanvasCtx.save();
-
-        pointColorCanvasCtx.beginPath();
-        pointColorCanvasCtx.moveTo(
-            points[0].x - xOffset,
-            points[0].y - yOffset,
-        );
-        for (let i = 1; i < points.length; i++) {
-            pointColorCanvasCtx.lineTo(
-                points[i].x - xOffset,
-                points[i].y - yOffset,
-            );
-        }
-        pointColorCanvasCtx.closePath();
-        pointColorCanvasCtx.clip();
-        pointColorCanvasCtx.drawImage(pointColorCanvasBg, 0, 0);
-
-        pointColorCanvasCtx.restore();
-
-        const centerIndex = (colorSize * delta + delta) * 4;
-        let [r, g, b, a] = imageData.data.slice(centerIndex, centerIndex + 4);
-
-        a /= 255;
-        const cssColor = `rgb(${r} ${g} ${b} / ${a})`;
-        pointCenter.style.background = cssColor;
-        theColor = [r, g, b, a];
-        clipColorText([r, g, b, a], 取色器默认格式);
-
-        mouseBarXy.sv([x, y]);
-    });
+    mouseBarXy.sv([x, y]);
 }
 
 function ckx(e: MouseEvent) {
@@ -1592,7 +1585,10 @@ function changeRightBar(v: boolean) {
         mouseBarEl.el.style.pointerEvents = "auto";
     } else {
         mouseBarColor.el.style.height = "";
-        mouseBarCopy.style({ width: "var(--color-size)", height: "32px" });
+        mouseBarCopy.style({
+            width: "var(--color-size)",
+            height: "32px",
+        });
         mouseBarCopyI.el.style.top = `${-32 * (取色器格式位置 + 1)}px`;
         mouseBarEl.el.style.pointerEvents = "none";
     }
@@ -4206,37 +4202,39 @@ clipCanvas.ondblclick = () => {
 document.onmousemove = (e) => {
     nowMouseE = e;
 
-    renderClip(e);
-    if (!rightKey) {
-        // 鼠标跟随栏
-        mouseBar(finalRect, e);
+    requestAnimationFrame(() => {
+        renderClip(e);
+        if (!rightKey) {
+            // 鼠标跟随栏
+            mouseBar(finalRect, e);
 
-        const d = 16;
-        const x = e.clientX + d;
-        const y = e.clientY + d;
-        const w = mouseBarW;
-        const h = mouseBarH;
-        const sw = window.innerWidth;
-        const sh = window.innerHeight;
+            const d = 16;
+            const x = e.clientX + d;
+            const y = e.clientY + d;
+            const w = mouseBarW;
+            const h = mouseBarH;
+            const sw = window.innerWidth;
+            const sh = window.innerHeight;
 
-        mouseBarEl.style({
-            left: `${Math.min(x, sw - w - d)}px`,
-            top: `${Math.min(y, sh - h - d)}px`,
-        });
+            mouseBarEl.style({
+                left: `${Math.min(x, sw - w - d)}px`,
+                top: `${Math.min(y, sh - h - d)}px`,
+            });
 
-        const isDrawBar = drawBar.contains(e.target as HTMLElement);
-        const isToolBar = toolBar.contains(e.target as HTMLElement);
-        mouseBarEl.el.classList.toggle(
-            "mouse_bar_hide",
-            isDrawBar || isToolBar,
-        );
+            const isDrawBar = drawBar.contains(e.target as HTMLElement);
+            const isToolBar = toolBar.contains(e.target as HTMLElement);
+            mouseBarEl.el.classList.toggle(
+                "mouse_bar_hide",
+                isDrawBar || isToolBar,
+            );
 
-        // 画板栏移动
-        if (drawBarMovingXY) {
-            drawBar.style.left = `${e.clientX - drawBarMovingXY[0]}px`;
-            drawBar.style.top = `${e.clientY - drawBarMovingXY[1]}px`;
+            // 画板栏移动
+            if (drawBarMovingXY) {
+                drawBar.style.left = `${e.clientX - drawBarMovingXY[0]}px`;
+                drawBar.style.top = `${e.clientY - drawBarMovingXY[1]}px`;
+            }
         }
-    }
+    });
 };
 
 drawBar.addEventListener("mousedown", (e) => {
