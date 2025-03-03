@@ -6,7 +6,7 @@ import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 import open_with from "../../../lib/open_with";
-import { t, lan } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
 import store from "../../../lib/store/renderStore";
 import {
@@ -30,8 +30,6 @@ import {
     filters,
 } from "fabric";
 import { EraserBrush } from "@erase2d/fabric";
-
-lan(store.get("语言.语言"));
 
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(

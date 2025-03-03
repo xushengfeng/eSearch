@@ -24,8 +24,8 @@ function iconEl(src: string) {
 
 import store from "../../../lib/store/renderStore";
 import { getImgUrl, setTitle } from "../root/root";
-import { lan, t } from "../../../lib/translate/translate";
-lan(store.get("语言.语言"));
+import { t } from "../../../lib/translate/translate";
+
 setTitle(t("屏幕翻译"));
 
 const screenShots = initScreenShots({

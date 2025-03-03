@@ -19,15 +19,13 @@ import {
     view,
 } from "dkh-ui";
 
-import { lan, t } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 
-lan(store.get("语言.语言"));
+initStyle(store);
 
 document.title = t("翻译");
 
 pureStyle();
-
-initStyle(store);
 
 // @auto-path:../assets/icons/$.svg
 function iconButton(img: string) {

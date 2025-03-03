@@ -25,7 +25,7 @@ const { writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
-import { lan, t } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 
 // @auto-path:../assets/icons/$.svg
 function icon(src: string) {
@@ -33,7 +33,6 @@ function icon(src: string) {
 }
 
 initStyle(store);
-lan(store.get("语言.语言"));
 
 setTranslate(t);
 

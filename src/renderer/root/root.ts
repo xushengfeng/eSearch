@@ -1,4 +1,5 @@
 import { view } from "dkh-ui";
+import { t, lan } from "../../../lib/translate/translate";
 
 function initStyle(
     store: typeof import("../../../lib/store/renderStore")["default"],
@@ -30,6 +31,8 @@ function initStyle(
     const 字体 = store.get("字体");
     setCSSVar("--main-font", 字体.主要字体);
     setCSSVar("--monospace", 字体.等宽字体);
+
+    lan(store.get("语言.语言"));
 
     const topTip = view()
         .class("bar")

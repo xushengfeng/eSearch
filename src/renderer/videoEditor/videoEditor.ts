@@ -28,9 +28,9 @@ const fs = require("node:fs") as typeof import("fs");
 
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
-import { lan, t } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 
-lan(store.get("语言.语言"));
+initStyle(store);
 
 setTitle(t("超级录屏"));
 
@@ -1841,8 +1841,6 @@ const playDecoder = new VideoDecoder({
     },
 });
 playDecoder.configure(decoderVideoConfig);
-
-initStyle(store);
 
 const stopPEl = view("y")
     .style({

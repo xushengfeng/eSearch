@@ -18,12 +18,11 @@ import {
     txt,
     view,
 } from "dkh-ui";
-initStyle(store);
 pureStyle();
 
-import { lan, t } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 
-lan(store.get("语言.语言"));
+initStyle(store);
 
 setTitle(t("贴图"));
 

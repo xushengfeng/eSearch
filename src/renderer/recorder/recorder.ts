@@ -11,7 +11,7 @@ import {
     pureStyle,
     txt,
 } from "dkh-ui";
-import { t, lan } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 import { view } from "dkh-ui";
 
 // todo 把ui设定移到底部
@@ -19,7 +19,6 @@ import { view } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 initStyle(store);
 
-lan(store.get("语言.语言"));
 setTitle(t("录屏"));
 
 let recorder: MediaRecorder;
