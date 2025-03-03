@@ -1538,7 +1538,7 @@ function colorConversion(rgba: colorRGBA | null, type: colorFormat): string {
 }
 
 function getColorFormatEl() {
-    return mouseBarCopyColorList[取色器格式位置 - 1];
+    return mouseBarCopyColorList[取色器格式位置];
 }
 
 // 改变颜色文字和样式
@@ -1555,7 +1555,7 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     if (color.alpha() !== 1) {
         mainEl.el.style.color = "";
     }
-    mouseBarCopyI.el.style.top = `${-32 * 取色器格式位置}px`;
+    mouseBarCopyI.el.style.top = `${-32 * (取色器格式位置 + 1)}px`;
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
