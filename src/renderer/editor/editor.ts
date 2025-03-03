@@ -1309,8 +1309,7 @@ for (const e of 翻译引擎List) {
 
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
     const nowTime = new Date().getTime();
-    const dTime =
-        Math.round(历史记录设置.d * 86400 + 历史记录设置.h * 3600) * 1000;
+    const dTime = Math.round(历史记录设置.d * 86400) * 1000;
     for (const i of Object.keys(historyList)) {
         if (nowTime - Number(i) > dTime) {
             delete historyList[i];

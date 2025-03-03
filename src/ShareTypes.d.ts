@@ -230,7 +230,6 @@ export interface setting {
         保留历史记录: boolean;
         自动清除历史记录: boolean;
         d: number;
-        h: number;
     };
     ding_dock: [number, number];
     贴图: {

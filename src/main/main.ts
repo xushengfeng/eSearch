@@ -2745,7 +2745,6 @@ const defaultSetting: setting = {
         保留历史记录: true,
         自动清除历史记录: false,
         d: 14,
-        h: 0,
     },
     ding_dock: [0, 0],
     贴图: {

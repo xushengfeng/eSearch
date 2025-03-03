@@ -931,7 +931,7 @@ const s: Partial<settingItem<SettingPath>> = {
     }, // todo 隐藏设置
     "历史记录设置.d": {
         name: "历史记录保存天数",
-        el: () => xNumber(t("天"), { step: 0.5 }), // todo 移除小时设置
+        el: () => xNumber(t("天"), { step: 0.5 }),
     },
     时间格式: {
         name: "时间格式",
