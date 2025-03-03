@@ -364,17 +364,6 @@ body input {
 #clip_copy > div > div > div:hover {
     background-color: var(--hover-color);
 }
-.clip_copy {
-    width: 200px !important;
-    height: calc(32px * 11) !important;
-}
-.clip_copy_h {
-    width: var(--color-size) !important;
-    height: 32px !important;
-}
-.clip_copy > div {
-    top: 0 !important;
-}
 #clip_wh {
     position: absolute;
     z-index: 11;

@@ -1555,7 +1555,6 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     if (color.alpha() !== 1) {
         mainEl.el.style.color = "";
     }
-    mouseBarCopyI.el.style.top = `${-32 * (取色器格式位置 + 1)}px`;
 }
 
 // 改变鼠标跟随栏形态，展示所有颜色格式
@@ -1580,13 +1579,21 @@ function changeRightBar(v: boolean) {
             color: theTextColor[1],
         })
         .add(mouseBarCopyColorList);
+    const maxW = Math.max(
+        ...mouseBarCopyColorList.map((i) => i.el.innerText.length * chPX),
+    );
     if (v) {
         mouseBarColor.el.style.height = "0";
-        mouseBarCopy.el.className = "clip_copy";
+        mouseBarCopy.style({
+            width: `${maxW}px`,
+            height: `${32 * (allColorFormat.length + 1)}px`,
+        });
+        mouseBarCopyI.el.style.top = "0";
         mouseBarEl.el.style.pointerEvents = "auto";
     } else {
-        mouseBarCopy.el.className = "clip_copy_h";
         mouseBarColor.el.style.height = "";
+        mouseBarCopy.style({ width: "var(--color-size)", height: "32px" });
+        mouseBarCopyI.el.style.top = `${-32 * (取色器格式位置 + 1)}px`;
         mouseBarEl.el.style.pointerEvents = "none";
     }
 }
