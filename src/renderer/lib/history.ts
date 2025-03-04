@@ -1,6 +1,6 @@
 class xhistory<Data> {
     history: { data: Data; time: number; des: string }[];
-    i = -1;
+    private i = -1;
     private tmpData: Data | null = null;
     private des = "";
     private changeEvent = new Set<() => void>();
@@ -86,6 +86,9 @@ class xhistory<Data> {
 
     on(name: "change", fun: () => void) {
         if (name === "change") this.changeEvent.add(fun);
+    }
+    get index() {
+        return this.i;
     }
 }
 
