@@ -2,7 +2,6 @@ class xhistory<Data> {
     history: { data: Data; time: number; des: string }[];
     i = -1;
     private tmpData: Data | null = null;
-    // todo 缺省用序号标记
     private des = "";
     private changeEvent = new Set<() => void>();
     constructor(datas: typeof this.history, _initData: Data) {
@@ -53,7 +52,11 @@ class xhistory<Data> {
                         des: h.des,
                     });
                 }
-                this.history.push({ data, time: Date.now(), des });
+                this.history.push({
+                    data,
+                    time: Date.now(),
+                    des: des || String(this.history.length),
+                });
             }
         }
         this.i = this.history.length - 1;
