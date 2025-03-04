@@ -28,6 +28,7 @@ const fs = require("node:fs") as typeof import("fs");
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 import { t } from "../../../lib/translate/translate";
+import xhistory from "../lib/history";
 
 initStyle(store);
 
@@ -246,68 +247,6 @@ class videoChunk<Id extends number> {
 
     #byte2mb(byte: number) {
         return (byte / 1024 / 1024).toFixed(2);
-    }
-}
-
-class xhistory<Data> {
-    history: { data: Data; time: number; des: string }[];
-    i = -1;
-    private tmpData: Data | null = null;
-    private des = "";
-    private changeEvent = new Set<() => void>();
-    constructor(datas: typeof this.history, _initData: Data) {
-        this.history = datas;
-        this.history.unshift({
-            des: t("初始化"),
-            data: _initData,
-            time: new Date().getTime(),
-        });
-    }
-
-    getTmpData() {
-        return structuredClone(this.tmpData) ?? this.getData();
-    }
-
-    setDataF(fun: (data: Data) => Data, des?: string) {
-        this.tmpData = fun(this.getTmpData());
-        if (des) this.des += ` ${des}`;
-    }
-    setData(data: Data, des?: string) {
-        this.tmpData = data;
-        if (des) this.des += ` ${des}`;
-    }
-
-    apply(des = this.des) {
-        const data = structuredClone(this.tmpData);
-        if (data) {
-            this.history.push({ data, time: new Date().getTime(), des });
-        }
-        this.i = this.history.length - 1;
-        this.des = "";
-        for (const f of this.changeEvent) {
-            f();
-        }
-    }
-    giveup() {
-        this.tmpData = null;
-        this.des = "";
-    }
-
-    getData() {
-        return structuredClone(this.history.at(this.i)?.data as Data);
-    }
-    undo() {
-        this.jump(this.i - 1);
-    }
-    unundo() {
-        this.jump(this.i + 1);
-    }
-    jump(i: number) {
-        this.i = MathClamp(0, i, this.history.length - 1);
-    }
-
-    on(name: "change", fun: () => void) {
-        if (name === "change") this.changeEvent.add(fun);
     }
 }
 
@@ -2854,50 +2793,4 @@ if (testMode === "getFrame") {
         const ctx = c.el.getContext("2d") as CanvasRenderingContext2D;
         ctx.drawImage(canvas, 0, 0);
     }
-}
-
-// @ts-ignore
-if (testMode === "history") {
-    const history = new xhistory<string>([], "");
-
-    function logList() {
-        const l = structuredClone(history.history);
-        console.log(l);
-        return l;
-    }
-
-    console.assert(history.getData() === "");
-    logList();
-
-    history.setData("hi");
-    console.assert(history.getData() === "");
-    logList();
-
-    history.apply();
-    console.assert(history.getData() === "hi");
-    logList();
-
-    history.setData("hello");
-    history.apply();
-
-    history.setData("world");
-    history.apply();
-
-    history.undo();
-    console.assert(history.getData() === "hello");
-
-    history.undo();
-    console.assert(history.getData() === "hi");
-
-    history.unundo();
-    console.assert(history.getData() === "hello");
-    logList();
-
-    history.setData("end");
-    history.apply();
-    const l = logList();
-    console.assert(
-        JSON.stringify(["", "hi", "hello", "world"]),
-        JSON.stringify(l.map((i) => i.data)),
-    );
 }
