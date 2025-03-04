@@ -28,6 +28,7 @@ const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import type { FSWatcher } from "node:fs";
+import xhistory from "../lib/history";
 
 initStyle(store);
 
@@ -49,10 +50,7 @@ import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
 
 /**撤销 */
-// 定义撤销栈
-const undoStack = [""];
-// 定义位置
-let undoStackI = 0;
+const undoStack = new xhistory<string>([], "");
 
 let lineHeight = 24;
 
@@ -422,31 +420,22 @@ const dmp = new diff_match_patch();
  * @returns none
  */
 function stackAdd() {
-    if (undoStack[undoStackI] === editor.get()) return;
-    // 撤回到中途编辑，把撤回的这一片与编辑的内容一起放到末尾
-    if (undoStackI !== undoStack.length - 1)
-        undoStack.push(undoStack[undoStackI]);
-    undoStack.push(editor.get());
-    undoStackI = undoStack.length - 1;
+    undoStack.setData(editor.get());
+    undoStack.apply();
 }
 function undo() {
-    if (undoStackI > 0) {
-        undoStackI--;
-        editor.push(undoStack[undoStackI]);
-        if (findShow) {
-            exitFind();
-            find_();
-        }
+    undoStack.undo();
+    editor.push(undoStack.getData());
+    if (findShow) {
+        exitFind();
+        find_();
     }
 }
 function redo() {
-    if (undoStackI < undoStack.length - 1) {
-        undoStackI++;
-        editor.push(undoStack[undoStackI]);
-        if (findShow) {
-            exitFind();
-            find_();
-        }
+    editor.push(undoStack.getData());
+    if (findShow) {
+        exitFind();
+        find_();
     }
 }
 

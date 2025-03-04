@@ -2,6 +2,7 @@ class xhistory<Data> {
     history: { data: Data; time: number; des: string }[];
     i = -1;
     private tmpData: Data | null = null;
+    // todo 缺省用序号标记
     private des = "";
     private changeEvent = new Set<() => void>();
     constructor(datas: typeof this.history, _initData: Data) {
@@ -42,7 +43,8 @@ class xhistory<Data> {
     apply(des = this.des) {
         const data = structuredClone(this.tmpData);
         if (data) {
-            this.history.push({ data, time: new Date().getTime(), des });
+            if (data !== this.history.at(-1)?.data)
+                this.history.push({ data, time: new Date().getTime(), des });
         }
         this.i = this.history.length - 1;
         this.des = "";
