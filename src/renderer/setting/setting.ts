@@ -902,14 +902,9 @@ const s: Partial<settingItem<SettingPath>> = {
                 (el, d) => z在线生词本Dialog(el, d),
             ),
     },
-    // todo 记住字体大小类型
     "字体.大小": {
         name: "字体大小",
         el: () => xRange({ min: 1, max: 100 }),
-    },
-    "字体.记住": {
-        name: "记住主页面字体大小",
-        el: () => xSwitch(),
     },
     "编辑器.自动换行": {
         name: "自动换行",
@@ -983,7 +978,6 @@ const s: Partial<settingItem<SettingPath>> = {
                 (_v, d) => searchEngineDialog(_v, d),
             ),
     },
-    // todo 移除识图引擎
     浏览器中打开: {
         name: "浏览器中打开",
         desc: "点击搜索或翻译按钮后，将在系统默认浏览器打开搜索结果，否则在一个新的软件窗口打开",
@@ -1952,7 +1946,6 @@ const main: {
                 title: "编辑器",
                 settings: [
                     "字体.大小",
-                    "字体.记住",
                     "编辑器.自动换行",
                     "编辑器.拼写检查",
                     "编辑器.行号",

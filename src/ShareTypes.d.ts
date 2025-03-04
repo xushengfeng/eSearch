@@ -75,7 +75,6 @@ export interface setting {
     字体: {
         主要字体: string;
         等宽字体: string;
-        记住: false | number;
         大小: number;
     };
     编辑器: {
@@ -167,7 +166,6 @@ export interface setting {
     OCR: {
         类型: string;
         离线切换: boolean;
-        记住: string | false;
         识别段落: boolean;
     };
     离线OCR: [string, string, string, string][];
@@ -197,7 +195,6 @@ export interface setting {
     };
     以图搜图: {
         引擎: string;
-        记住: string | false;
     };
     自动打开链接: boolean;
     自动搜索中文占比: number;

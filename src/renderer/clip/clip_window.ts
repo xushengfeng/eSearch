@@ -3911,18 +3911,18 @@ setDefaultAction(autoDo);
 
 // OCR
 const ocr引擎 = toolBarEl.els.ocr;
-ocr引擎.sv(store.get("OCR.记住") || store.get("OCR.类型"));
+ocr引擎.sv(store.get("OCR.类型"));
 ocr引擎.on("change", () => {
-    if (store.get("OCR.记住")) store.set("OCR.记住", ocr引擎.gv);
+    store.set("OCR.类型", ocr引擎.gv);
     tool.ocr();
 });
 
 // 以图搜图
 const 识图引擎 = toolBarEl.els.search;
 // @ts-ignore
-识图引擎.sv(store.get("以图搜图.记住") || store.get("以图搜图.引擎"));
+识图引擎.sv(store.get("以图搜图.引擎"));
 识图引擎.on("change", () => {
-    if (store.get("以图搜图.记住")) store.set("以图搜图.记住", 识图引擎.gv);
+    store.set("以图搜图.引擎", 识图引擎.gv);
     tool.search();
 });
 

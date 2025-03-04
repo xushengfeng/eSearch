@@ -889,9 +889,7 @@ function setButtonHover(el: ElType<HTMLElement>, b: boolean) {
 }
 
 /**字体大小 */
-textOut.el.style.fontSize = `${
-    store.get("字体.记住") ? store.get("字体.记住") : 默认字体大小
-}px`;
+textOut.el.style.fontSize = `${默认字体大小}px`;
 
 document.onwheel = (e) => {
     if (e.ctrlKey) {
@@ -903,7 +901,6 @@ document.onwheel = (e) => {
 function setFontSize(font_size: number) {
     textOut.el.style.fontSize = `${font_size}px`;
     lineHeight = font_size * 1.5;
-    if (store.get("字体.记住")) store.set("字体.记住", font_size);
     setTimeout(() => {
         lineNum();
         setTextAreaHeight();
@@ -2421,9 +2418,9 @@ ocrImageEngine.setList([
     { value: "youdao", text: "有道" },
 ]);
 
-ocrImageEngine.el.sv(store.get("OCR.记住") || store.get("OCR.类型"));
+ocrImageEngine.el.sv(store.get("OCR.类型"));
 ocrImageEngine.el.on("input", () => {
-    if (store.get("OCR.记住")) store.set("OCR.记住", ocrImageEngine.el.gv);
+    store.set("OCR.类型", ocrImageEngine.el.gv);
 });
 
 /** 拖放数据处理 */

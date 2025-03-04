@@ -2602,7 +2602,6 @@ const defaultSetting: setting = {
     字体: {
         主要字体: "",
         等宽字体: "",
-        记住: false,
         大小: 16,
     },
     编辑器: {
@@ -2670,7 +2669,6 @@ const defaultSetting: setting = {
     OCR: {
         类型: "默认",
         离线切换: true,
-        记住: false,
         识别段落: true,
     },
     离线OCR: [
@@ -2700,7 +2698,6 @@ const defaultSetting: setting = {
     },
     以图搜图: {
         引擎: "baidu",
-        记住: false,
     },
     自动打开链接: false,
     自动搜索中文占比: 0.2,
