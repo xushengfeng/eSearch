@@ -2807,9 +2807,7 @@ const defaultSetting: setting = {
             },
         },
         音频: {
-            默认开启: false,
-            记住开启状态: false,
-            设备: "",
+            设备列表: [],
             启用系统内录: true,
         },
         转换: {

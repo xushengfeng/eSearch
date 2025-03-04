@@ -97,6 +97,8 @@ let type = store.get("录屏.转换.格式") as mimeType;
 const audioStreamS = new Map<string, MediaStream>();
 let stream: MediaStream;
 
+const sysAudioName = "00";
+
 let rect: [number, number, number, number];
 
 const { ipcRenderer } = require("electron") as typeof import("electron");
@@ -194,6 +196,12 @@ function getTimeInV(time: number) {
         }
     }
     return { v: 0, time: 0 };
+}
+
+function getAudioNames() {
+    const names = Array.from(audioStreamS.keys());
+    if (recordSysAudio) names.push(sysAudioName);
+    return names;
 }
 
 function showControl() {
@@ -940,15 +948,22 @@ let recordSysAudio = false;
 const canSysAudio = store.get("录屏.音频.启用系统内录");
 if (canSysAudio)
     micList.add(
-        label([check(""), t("系统音频")]).on("input", (_, el) => {
-            recordSysAudio = el.gv;
-        }),
+        label([check(""), t("系统音频")])
+            .on("input", (_, el) => {
+                recordSysAudio = el.gv;
+                store.set("录屏.音频.设备列表", getAudioNames());
+            })
+            .sv(store.get("录屏.音频.设备列表").includes(sysAudioName)),
     );
 
+const audioRmb = store.get("录屏.音频.设备列表");
 for (const i of audioL) {
-    const el = label([check(""), i.label || i.deviceId]);
-    el.on("input", async () => {
-        if (el.gv) {
+    const el = label([check(""), i.label || i.deviceId]).sv(
+        audioRmb.includes(i.deviceId),
+    );
+    set(el.gv);
+    async function set(v: boolean) {
+        if (v) {
             const audioStream = await navigator.mediaDevices.getUserMedia({
                 audio: { deviceId: i.deviceId },
                 video: false,
@@ -963,10 +978,13 @@ for (const i of audioL) {
             }
             audioStreamS.delete(i.deviceId);
         }
+    }
+    el.on("input", async () => {
+        await set(el.gv);
+        store.set("录屏.音频.设备列表", getAudioNames());
     });
     micList.add(el);
 }
-// todo store.set("录屏.音频.设备", selectEl.gv);
 if (!canSysAudio && audioL.length === 0) {
     micList.add(t("无音频输入设备"));
 }
