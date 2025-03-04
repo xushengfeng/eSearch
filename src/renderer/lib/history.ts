@@ -10,8 +10,9 @@ class xhistory<Data> {
         this.history.unshift({
             des: "0",
             data: _initData,
-            time: new Date().getTime(),
+            time: Date.now(),
         });
+        this.i = this.history.length - 1;
     }
 
     getTmpData() {
@@ -39,12 +40,21 @@ class xhistory<Data> {
         if (des) this.des += ` ${des}`;
     }
 
-    // todo 复制
     apply(des = this.des) {
         const data = structuredClone(this.tmpData);
         if (data) {
-            if (data !== this.history.at(-1)?.data)
-                this.history.push({ data, time: new Date().getTime(), des });
+            if (data !== this.history.at(-1)?.data) {
+                if (this.i !== this.history.length - 1) {
+                    // 中途添加，保留上一个数据
+                    const h = this.history.at(this.i);
+                    this.history.push({
+                        data: h.data,
+                        time: Date.now(),
+                        des: h.des,
+                    });
+                }
+                this.history.push({ data, time: Date.now(), des });
+            }
         }
         this.i = this.history.length - 1;
         this.des = "";
@@ -78,7 +88,7 @@ class xhistory<Data> {
 export default xhistory;
 
 // biome-ignore lint/correctness/noConstantCondition: test code
-if (false) {
+if (true) {
     const history = new xhistory<string>([], "");
 
     function logList() {
@@ -118,7 +128,7 @@ if (false) {
     history.apply();
     const l = logList();
     console.assert(
-        JSON.stringify(["", "hi", "hello", "world"]),
-        JSON.stringify(l.map((i) => i.data)),
+        JSON.stringify(["", "hi", "hello", "world", "hello", "end"]) ===
+            JSON.stringify(l.map((i) => i.data)),
     );
 }
