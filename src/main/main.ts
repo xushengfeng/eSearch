@@ -278,14 +278,11 @@ async function argRun(c: string[], first?: boolean) {
         .concat(["baidu", "youdao"]);
     const searchE = ["baidu, yandex, google"];
 
-    function getEngine(e: string, list: string[]) {
-        if (!e) console.log(`--engine [${list.join(", ")}]`);
-        let engine = e;
+    function getEngine(e: string, list: string[], df: string) {
         if (!list.includes(e)) {
             console.log(`${e} ∉ ${list.join(", ")}`);
-            engine = list[0];
         }
-        return engine;
+        return e || df;
     }
 
     if (argv.dev) {
@@ -425,7 +422,7 @@ async function argRun(c: string[], first?: boolean) {
         createMainWindow({
             type: "ocr",
             content: img.toDataURL(),
-            arg0: getEngine(e, ocrE),
+            arg0: getEngine(e, ocrE, store.get("OCR.类型")),
             mode: textMode,
         });
     } else if (argv.d || argv.ding) {
@@ -438,7 +435,7 @@ async function argRun(c: string[], first?: boolean) {
         createMainWindow({
             type: "image",
             content: img.toDataURL(),
-            arg0: getEngine(e, searchE),
+            arg0: getEngine(e, searchE, store.get("以图搜图.引擎")),
             mode: textMode,
         });
     } else if (argv.t || argv.text) {
