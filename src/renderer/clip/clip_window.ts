@@ -3846,7 +3846,7 @@ for (const k of tools) {
         .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k)).primary)
         .join("");
     if (k === "copy") {
-        key += " 双击";
+        key += ` ${t("双击")}`;
     }
     toolBarEl.els[k].data({ key: key.trim() });
 }
@@ -3893,9 +3893,9 @@ document.addEventListener("keyup", (e) => {
 });
 
 for (const m of hotkeyTipX) {
-    hotkeyTipEl.add(p(m.name));
+    hotkeyTipEl.add(p(t(m.name)));
     for (const k of m.hotkey) {
-        const x = view().add(txt(k.name));
+        const x = view().add(txt(t(k.name)));
         for (let s of k.keys) {
             s = s
                 .split("+")

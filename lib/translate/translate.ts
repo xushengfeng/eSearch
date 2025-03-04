@@ -9,6 +9,8 @@ const rootDir = path.join(
     "./lib/translate",
 );
 
+const ignore = require(path.join(rootDir, "./ignore.json")) as string[];
+
 let language = "";
 
 /**
@@ -44,6 +46,7 @@ function t(text: string) {
 }
 function st(_text: string, map: typeof l) {
     if (!_text.trim()) return null;
+    if (ignore.includes(_text)) return null;
     const text = _text.trim();
     const id = source[text];
     if (!id) {
