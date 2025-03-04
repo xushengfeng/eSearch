@@ -2318,7 +2318,7 @@ function draw(
             形状: "rect",
         });
     } else if (shape === "text") {
-        shapeX = new IText("点击输入文字", {
+        shapeX = new IText(t("点击输入文字"), {
             left: x,
             top: y,
             canChangeFill: true,
@@ -3225,7 +3225,7 @@ const centerBarEl = view().attr({ id: "center_bar" }).class("bar").addInto();
 const saveType = view()
     .attr({ id: "save_type" })
     .addInto(centerBarEl)
-    .add(view().add("保存文件格式为"));
+    .add(view().add(t("保存文件格式为")));
 const saveTypeList: (typeof type)[] = ["png", "jpg", "webp", "svg"];
 const suffixList = saveTypeList.map((i) =>
     view()
@@ -3361,7 +3361,7 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
     {
         name: "画布",
         hotkey: [
-            { name: "移动", keys: ["方向键", "wheel"] },
+            { name: "移动", keys: [t("方向键"), "wheel"] },
             { name: "缩放", keys: ["Control+wheel"] },
         ],
     },
@@ -3369,7 +3369,7 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
         name: "框选",
         hotkey: [
             { name: "全选", keys: ["Control+A"] },
-            { name: "移动和调节", keys: ["按住+方向键"] },
+            { name: "移动和调节", keys: [t("按住+方向键")] },
             { name: "×5", keys: ["+Control+"] },
             { name: "×10", keys: ["+Shift+"] },
             { name: "左上x", keys: [store.get("大小栏快捷键.左上x")] },
