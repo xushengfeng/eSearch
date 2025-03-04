@@ -1,4 +1,5 @@
 import { ele, initDKH, p, view } from "dkh-ui";
+import { t } from "../../../lib/translate/translate";
 
 initDKH({ pureStyle: true });
 
@@ -13,7 +14,7 @@ const pEl = view("y")
 const h1 = ele("h1")
     .addInto(pEl)
     .bindSet((v: string, el) => {
-        el.innerText = v;
+        el.innerText = t(v);
     });
 const details = view().addInto(pEl);
 
@@ -26,8 +27,8 @@ if (navigator.onLine) {
             details
                 .clear()
                 .add([
-                    p(`${"错误代码："}${search.get("err_code")}`),
-                    p(`${"错误描述："}${search.get("err_des")}`),
+                    p(`${t("错误代码：")}${search.get("err_code")}`),
+                    p(`${t("错误描述：")}${search.get("err_des")}`),
                 ]);
             break;
         case "render-process-gone":

@@ -62,7 +62,7 @@ In general, if source.json does not have a defined language, it will be output i
 ## 覆盖
 
 - [x] aivision
-- [ ] bg
+- [x] bg
 - [x] capature
 - [x] ding
 - [x] editor
