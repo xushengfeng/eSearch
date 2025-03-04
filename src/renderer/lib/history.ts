@@ -6,11 +6,12 @@ class xhistory<Data> {
     private changeEvent = new Set<() => void>();
     constructor(datas: typeof this.history, _initData: Data) {
         this.history = datas;
-        this.history.unshift({
-            des: "0",
-            data: _initData,
-            time: Date.now(),
-        });
+        if (this.history.length === 0)
+            this.history.unshift({
+                des: "0",
+                data: _initData,
+                time: Date.now(),
+            });
         this.i = this.history.length - 1;
     }
 
