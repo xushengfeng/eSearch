@@ -282,20 +282,20 @@ async function argRun(c: string[], first?: boolean) {
     if (argv.h || argv.help) {
         const list: (string | [string | [string, string], number, string])[] = [
             [["v", "version"], 0, app.getVersion()],
-            [["h", "help"], 0, "帮助"],
-            ["config", 0, "打开配置"],
+            [["h", "help"], 0, t("帮助")],
+            ["config", 0, t("打开配置")],
             "",
-            [["i", "input"], 0, "输入图片，如果空，则截屏"],
-            ["delay", 0, "延时截屏"],
+            [["i", "input"], 0, t("输入图片，如果空，则截屏")],
+            ["delay", 0, t("延时截屏")],
             "",
             `[${t("动作")}] [i] [more]`,
             t("动作"),
-            [["s", "save"], 0, "保存到路径或剪贴板"],
-            [["p", "path"], 1, "保存的路径"],
-            ["n", 1, "连拍数"],
-            ["dt", 1, "连拍间隔（ms）"],
-            ["clipborad", 1, "保存到剪贴板"],
-            [["o", "ocr"], 0, "文字识别"],
+            [["s", "save"], 0, t("保存到路径或剪贴板")],
+            [["p", "path"], 1, t("保存的路径")],
+            ["n", 1, t("连拍数")],
+            ["dt", 1, t("连拍间隔（ms）")],
+            ["clipborad", 1, t("保存到剪贴板")],
+            [["o", "ocr"], 0, t("文字识别")],
             [
                 "engine",
                 1,
@@ -306,16 +306,16 @@ async function argRun(c: string[], first?: boolean) {
                     .join(", "),
             ],
             ["[mode]", 1, ""],
-            [["m", "img"], 0, "以图搜图"],
+            [["m", "img"], 0, t("以图搜图")],
             ["engine", 1, "baidu, yandex, google"],
             ["[mode]", 1, ""],
-            [["d", "ding"], 0, "贴图"],
-            [["t", "text"], 0, "主页面打开文字"],
+            [["d", "ding"], 0, t("贴图")],
+            [["t", "text"], 0, t("主页面打开文字")],
             ["[mode]", 1, ""],
             "",
-            "文字处理模式，不设置则自动判断",
-            ["trans", 0, "翻译"],
-            ["search", 0, "搜索"],
+            t("文字处理模式，不设置则自动判断"),
+            ["trans", 0, t("翻译")],
+            ["search", 0, t("搜索")],
         ];
         function add(t: string) {
             return t.length === 1 ? `-${t}` : t.startsWith("[") ? t : `--${t}`;
@@ -340,7 +340,7 @@ async function argRun(c: string[], first?: boolean) {
             list1
                 .map((i) => {
                     if (typeof i === "string") return i;
-                    return `${i[0]}${" ".repeat(maxWidth - i[0].length)}${t(i[1])}`;
+                    return `${i[0]}${" ".repeat(maxWidth - i[0].length)}${i[1]}`;
                 })
                 .join("\n"),
         );
