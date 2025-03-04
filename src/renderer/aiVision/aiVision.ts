@@ -66,7 +66,7 @@ const selectModelEl = select(
 const promptsEl = view("x")
     .style({ gap: paddingVar })
     .add(
-        [{ name: "文字识别", p: "识别图片上的文字" }].map((x) =>
+        [{ name: t("文字识别"), p: "识别图片上的文字" }].map((x) =>
             button(x.name).on("click", (e) => {
                 if (e.ctrlKey) {
                     inputEl.el.setRangeText(x.p);
@@ -393,7 +393,10 @@ view("y")
                 .style({ gap: paddingVar })
                 .class("small-size")
                 .add([
-                    label([fileInputEl.style({ display: "none" }), "上传图片"]),
+                    label([
+                        fileInputEl.style({ display: "none" }),
+                        t("上传图片"),
+                    ]),
                     selectModelEl,
                     promptsEl,
                     stopEl,
