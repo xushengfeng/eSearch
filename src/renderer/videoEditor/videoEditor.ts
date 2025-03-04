@@ -2000,7 +2000,10 @@ const transformCodec = monoTxt()
             }
         }
         el.innerText = c;
-        el.title = `${x[0]} ${x[1] ? t("硬解") : t("软解")} ${x[2] ? t("硬编") : t("软编")}`;
+        el.setAttribute(
+            "data-title",
+            `${x[0]} ${x[1] ? t("硬解") : t("软解")} ${x[2] ? t("硬编") : t("软编")}`,
+        );
         el.onclick = () => {
             navigator.clipboard.writeText(x[0]);
         };
