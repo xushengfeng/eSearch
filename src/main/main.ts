@@ -2788,8 +2788,7 @@ const defaultSetting: setting = {
         自动录制延时: 3,
         视频比特率: 2.5,
         摄像头: {
-            默认开启: false,
-            记住开启状态: false,
+            开启: false,
             镜像: false,
             设备: "",
             背景: {

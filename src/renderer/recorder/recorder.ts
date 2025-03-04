@@ -746,8 +746,7 @@ const cameraEl = check("camera")
     .on("click", () => {
         try {
             cameraStreamF(cameraEl.gv);
-            if (store.get("录屏.摄像头.记住开启状态"))
-                store.set("录屏.摄像头.默认开启", cameraEl.gv);
+            store.set("录屏.摄像头.开启", cameraEl.gv);
         } catch (e) {
             console.error(e);
         }
@@ -986,7 +985,7 @@ if (!canSysAudio && audioL.length === 0) {
     micList.add(t("无音频输入设备"));
 }
 
-if (store.get("录屏.摄像头.默认开启")) {
+if (store.get("录屏.摄像头.开启")) {
     try {
         cameraStreamF(true);
         cameraEl.sv(true);

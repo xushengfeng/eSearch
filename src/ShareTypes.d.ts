@@ -262,8 +262,7 @@ export interface setting {
         自动录制延时: number;
         视频比特率: number;
         摄像头: {
-            默认开启: boolean;
-            记住开启状态: boolean;
+            开启: boolean;
             设备: string;
             镜像: boolean;
             背景: {
