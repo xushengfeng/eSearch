@@ -1971,7 +1971,7 @@ history.on("change", () => {
     actionList.setList(
         history.history.map((h, i) => ({ value: String(i), name: h.des })),
     );
-    actionList.el.sv(String(history.i));
+    actionList.el.sv(String(history.index));
 });
 
 transformLogEl
