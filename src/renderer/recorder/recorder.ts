@@ -117,11 +117,11 @@ const start = spawn(pathToFfmpeg, ["-version"]);
 start.on("error", () => {
     const m =
         process.platform === "linux"
-            ? "请安装FFmpeg，并确保软件可使用ffmpeg命令"
-            : "请重新安装软件，或进行反馈";
+            ? t("请安装FFmpeg，并确保软件可使用ffmpeg命令")
+            : t("请重新安装软件，或进行反馈");
     ipcRenderer.send("dialog", {
-        message: `FFmpeg用于处理视频，但现在软件无法使用它\n${m}`,
-        buttons: ["取消"],
+        message: `${t("FFmpeg用于处理视频，但现在软件无法使用它")}\n${m}`,
+        buttons: [t("取消")],
     } as MessageBoxSyncOptions);
 });
 console.log(pathToFfmpeg);
@@ -917,18 +917,18 @@ updataPrEl(ffprocess);
 
 const logP = ele("details").attr({ id: "log_p" }).class("hide_log");
 const logText = ele("textarea").attr({ id: "log", cols: 30, rows: 10 });
-logP.add([ele("summary").add("FFmpeg 错误日志"), logText]);
+logP.add([ele("summary").add(t("FFmpeg 错误日志")), logText]);
 
 sEl.add([
     jdtEl,
     ele("br"),
-    "开始时间：",
+    t("开始时间："),
     tStartEl,
     tNtEl,
     " / ",
     tTEl,
     playEl,
-    "结束时间：",
+    t("结束时间："),
     tEndEl,
     setEndEl,
     saveEl,
