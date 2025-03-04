@@ -4,15 +4,7 @@ import initScreenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
 
-import {
-    addClass,
-    button,
-    type ElType,
-    image,
-    pack,
-    pureStyle,
-    view,
-} from "dkh-ui";
+import { addClass, button, type ElType, image, pack, view } from "dkh-ui";
 
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
@@ -23,8 +15,10 @@ function iconEl(src: string) {
 }
 
 import store from "../../../lib/store/renderStore";
-import { getImgUrl, setTitle } from "../root/root";
+import { getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
+
+initStyle(store);
 
 setTitle(t("屏幕翻译"));
 
@@ -167,8 +161,6 @@ const runRun = () => {
         setTimeout(runRun, frequencyTime);
     }
 };
-
-pureStyle();
 
 pack(document.body).style({
     overflow: "hidden",

@@ -5,14 +5,13 @@ import {
     dynamicSelect,
     ele,
     image,
-    pureStyle,
     trackPoint,
     txt,
     view,
 } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
 
-import { getImgUrl } from "../root/root";
+import { getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
 
@@ -283,7 +282,7 @@ function iconEl(src: string) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
-pureStyle();
+initStyle(store);
 
 const rectEl = view().addInto().attr({ id: "recorder_rect" });
 const rb = view().addInto(rectEl).attr({ id: "recorder_bar" });

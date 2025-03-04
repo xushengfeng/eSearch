@@ -3,7 +3,6 @@ import {
     frame,
     image,
     input,
-    pureStyle,
     textarea,
     view,
     addStyle,
@@ -352,8 +351,6 @@ fileInputEl.on("change", async (e) => {
         newChatItem(id);
     };
 });
-
-pureStyle();
 
 addStyle({
     body: {

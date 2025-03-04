@@ -1,5 +1,6 @@
-import { ele, p, pureStyle, view } from "dkh-ui";
-pureStyle();
+import { ele, initDKH, p, view } from "dkh-ui";
+
+initDKH({ pureStyle: true });
 
 const pEl = view("y")
     .style({

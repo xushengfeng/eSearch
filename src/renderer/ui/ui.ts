@@ -1,13 +1,4 @@
-import {
-    button,
-    ele,
-    image,
-    input,
-    pack,
-    pureStyle,
-    select,
-    view,
-} from "dkh-ui";
+import { button, ele, image, initDKH, input, pack, select, view } from "dkh-ui";
 import { getImgUrl } from "../root/root";
 
 console.log("hi");
@@ -17,7 +8,7 @@ function iconBEl(src: string) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
-pureStyle();
+initDKH({ pureStyle: true });
 
 pack(document.body).style({ background: "var(--bg)" });
 

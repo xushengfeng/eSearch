@@ -8,7 +8,6 @@ import {
     image,
     input,
     label,
-    pureStyle,
     txt,
 } from "dkh-ui";
 import { t } from "../../../lib/translate/translate";
@@ -537,8 +536,6 @@ function iconEl(src: string) {
 function iconBEl(src: string) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
-
-pureStyle();
 
 class time_i extends HTMLElement {
     _value = 0;
