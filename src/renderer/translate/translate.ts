@@ -32,6 +32,7 @@ const input = ele("textarea").style({
     // @ts-ignore
     "field-sizing": "content",
     "min-height": "4lh",
+    outline: "none",
 });
 const lans = view("x").style({
     justifyContent: "center",
