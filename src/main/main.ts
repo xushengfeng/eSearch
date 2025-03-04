@@ -2801,6 +2801,7 @@ const defaultSetting: setting = {
             默认开启: false,
             记住开启状态: false,
             设备: "",
+            启用系统内录: true,
         },
         转换: {
             自动转换: false,

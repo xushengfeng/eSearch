@@ -937,11 +937,13 @@ sEl.add([
 const devices = await navigator.mediaDevices.enumerateDevices();
 const audioL = devices.filter((i) => i.kind === "audioinput");
 let recordSysAudio = false;
-micList.add(
-    label([check(""), "系统音频"]).on("input", (_, el) => {
-        recordSysAudio = el.gv;
-    }),
-);
+const canSysAudio = store.get("录屏.音频.启用系统内录");
+if (canSysAudio)
+    micList.add(
+        label([check(""), "系统音频"]).on("input", (_, el) => {
+            recordSysAudio = el.gv;
+        }),
+    );
 
 for (const i of audioL) {
     const el = label([check(""), i.label || i.deviceId]);
@@ -965,7 +967,7 @@ for (const i of audioL) {
     micList.add(el);
 }
 // todo store.set("录屏.音频.设备", selectEl.gv);
-if (audioL.length === 0) {
+if (!canSysAudio && audioL.length === 0) {
     micList.add("无音频输入设备");
 }
 
@@ -987,12 +989,14 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             sS = true;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
-                    audio: {
-                        // @ts-ignore
-                        mandatory: {
-                            chromeMediaSource: "desktop",
-                        },
-                    },
+                    audio: canSysAudio // 可能会导致应用崩溃，所以添加这个设置
+                        ? {
+                              // @ts-ignore
+                              mandatory: {
+                                  chromeMediaSource: "desktop",
+                              },
+                          }
+                        : false,
                     video: {
                         // @ts-ignore
                         mandatory: {

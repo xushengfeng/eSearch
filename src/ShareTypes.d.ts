@@ -281,6 +281,7 @@ export interface setting {
             默认开启: boolean;
             记住开启状态: boolean;
             设备: string;
+            启用系统内录: boolean;
         };
         转换: {
             自动转换: boolean;
