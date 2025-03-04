@@ -258,7 +258,7 @@ class xhistory<Data> {
     constructor(datas: typeof this.history, _initData: Data) {
         this.history = datas;
         this.history.unshift({
-            des: "初始化",
+            des: t("初始化"),
             data: _initData,
             time: new Date().getTime(),
         });
@@ -380,7 +380,7 @@ function initKeys(push: (x: Omit<superRecording[0], "time" | "posi">) => void) {
 }
 
 async function afterRecord(chunks: EncodedVideoChunk[]) {
-    transformTimeEl.sv("补帧中...");
+    transformTimeEl.sv(t("补帧中..."));
     // 补帧
     const m = new Map<number, number>();
     const d = Math.floor(ms2timestamp(1000 / srcRate));
@@ -636,7 +636,7 @@ function mapKeysOnFrames(chunks: EncodedVideoChunk[], keys: superRecording) {
         uidata.speed = speedList;
         uidata.remove = removeList;
         return uidata;
-    }, "分析镜头位置、速度、删除");
+    }, t("分析镜头位置、速度、删除"));
     history.apply();
 }
 
@@ -830,7 +830,7 @@ async function runTransform(
     const transformed = structuredClone(lastEncodedChunks);
 
     if (needEncode.size > 0) {
-        transformTimeEl.sv("开始处理");
+        transformTimeEl.sv(t("开始处理"));
         const Tdiff = performance.now();
 
         let runCount = 0;
@@ -926,7 +926,7 @@ async function runTransform(
             const Tend = performance.now();
 
             transformTimeEl.sv(
-                `处理帧数：${needDecode.size} 处理：${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/帧 总耗时：${((Tend - Tdiff) / 1000).toFixed(0)}s`,
+                `${t("处理帧数：")}${needDecode.size} ${t("处理：")}${((Tend - Tdiff) / needDecode.size).toFixed(0)}ms/f ${t("总耗时：")}${((Tend - Tdiff) / 1000).toFixed(0)}s`,
             );
         }
     }
@@ -1329,7 +1329,7 @@ function editClip(i: number) {
 
     async function save() {
         canvasView.sv("play");
-        history.setData(data, "更新镜头位置");
+        history.setData(data, t("更新镜头位置"));
         history.apply();
         uiDataSave();
     }
@@ -1340,14 +1340,14 @@ function editClip(i: number) {
 
     const centerPoint = rect2center(rect);
 
-    const clipMoveLast = button("移到上一帧").on("click", () => {
+    const clipMoveLast = button(t("移到上一帧")).on("click", () => {
         // todo 跳过其他clip
         const i = Math.max(0, clip.i - 1) as SrcId;
         clip.i = i;
         jump2id(i);
         reRener();
     });
-    const clipMoveNext = button("移到下一帧").on("click", () => {
+    const clipMoveNext = button(t("移到下一帧")).on("click", () => {
         // todo 跳过其他clip
         const i = Math.min(listLength() - 1, clip.i + 1) as SrcId;
         clip.i = i;
@@ -1373,19 +1373,19 @@ function editClip(i: number) {
                     clip.transition = el.gv;
                     reRener();
                 }),
-            "过渡",
+            t("过渡"),
         ],
         1,
     );
-    const clipRemove = button("删除").on("click", () => {
+    const clipRemove = button(t("删除")).on("click", () => {
         data.clipList.splice(i, 1);
         reRener();
         save();
     });
-    const clipSave = button("保存").on("click", () => {
+    const clipSave = button(t("保存")).on("click", () => {
         save();
     });
-    const clipGiveUp = button("放弃").on("click", () => {
+    const clipGiveUp = button(t("放弃")).on("click", () => {
         canvasView.sv("play");
         history.giveup();
         const nowUi = history.getData();
@@ -1831,7 +1831,7 @@ const playDecoder = new VideoDecoder({
     error: (e) => {
         console.error("Decode error:", e);
         const el = iconBEl("reload")
-            .attr({ title: "重新加载播放器" })
+            .attr({ title: t("重新加载播放器") })
             .on("click", () => {
                 playDecoder.configure(decoderVideoConfig);
                 el.remove();
@@ -1992,7 +1992,7 @@ const transformTimeEl = txt();
 
 const transformCodec = monoTxt()
     .bindSet((x: [string, boolean, boolean], el) => {
-        let c = "未知编码";
+        let c = t("未知编码");
         for (const [k, v] of codecMap.entries()) {
             if (v.codec === x[0]) {
                 c = k;
@@ -2000,7 +2000,7 @@ const transformCodec = monoTxt()
             }
         }
         el.innerText = c;
-        el.title = `${x[0]} ${x[1] ? "硬解" : "软解"} ${x[2] ? "硬编" : "软编"}`;
+        el.title = `${x[0]} ${x[1] ? t("硬解") : t("软解")} ${x[2] ? t("硬编") : t("软编")}`;
         el.onclick = () => {
             navigator.clipboard.writeText(x[0]);
         };
@@ -2466,7 +2466,7 @@ const timeLineSpeedEl = timeLineTrack({
         history.setDataF((uiData) => {
             uiData.speed = data;
             return uiData;
-        }, "更新速度");
+        }, t("更新速度"));
         history.apply();
         uiDataSave().then(() => {
             timeLineClipEl.setData(history.getData().clipList);
@@ -2487,7 +2487,7 @@ const timeLineEventEl = timeLineTrack({
         history.setDataF((uiData) => {
             uiData.eventList = data;
             return uiData;
-        }, "更新事件");
+        }, t("更新事件"));
         history.apply();
         uiDataSave();
     },
@@ -2506,7 +2506,7 @@ const timeLineRemoveEl = timeLineTrack({
         history.setDataF((uiData) => {
             uiData.remove = data.map((d) => ({ start: d.start, end: d.end }));
             return uiData;
-        }, "更新移除");
+        }, t("更新移除"));
         history.apply();
         uiDataSave().then(() => {
             timeLineClipEl.setData(history.getData().clipList);
@@ -2561,7 +2561,7 @@ const exportEl = frame("export", {
             ipcRenderer.send("ding_edit", buffer);
         });
     }),
-    editSrc: button("编辑原图").on("click", async () => {
+    editSrc: button(t("编辑原图")).on("click", async () => {
         const canvas = await srcCs.getFrame(trans2src(willPlayI));
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {

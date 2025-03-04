@@ -72,4 +72,4 @@ In general, if source.json does not have a defined language, it will be output i
 - [x] setting
 - [x] translate
 - [x] translator
-- [ ] videoEditor
+- [x] videoEditor
