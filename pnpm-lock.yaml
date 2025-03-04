@@ -29,8 +29,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       esearch-ocr:
-        specifier: ^6.0.0
-        version: 6.0.0(opencv.js@1.2.1)
+        specifier: ^6.0.3
+        version: 6.0.3(@techstark/opencv-js@4.10.0-release.1)
       esearch-seg:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
@@ -1464,10 +1464,10 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@6.0.0:
-    resolution: {integrity: sha512-dzKeyWg177KMC5XFXl1BoTbjOQHYv7sdL5TNEpmsHT+lBWqQhP3L+Vl8gQ6UJoQp1n/XwEfoz+mOBhXVBhXPtw==}
+  esearch-ocr@6.0.3:
+    resolution: {integrity: sha512-Y2dnu8nmOxP+V3b0EjxtLBMGMd/cUUCyAKkIBFp6bnZ7EUfPCSwuvk/p8MA6hMxewuQvU2uxzYi/vH/fT+4Puw==}
     peerDependencies:
-      opencv.js: ^1.2.1
+      '@techstark/opencv-js': 4.10.0-release.1
 
   esearch-seg@1.1.4:
     resolution: {integrity: sha512-0hoN9JTKjImH29jh5fDOTOfxH4/R9ffT/B5mlP/dh7qMbu7oxFmfyv7nX7gpfb+B2bibCa00/eWdMOD3IkfM+Q==}
@@ -2339,9 +2339,6 @@ packages:
   onetime@5.1.2:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
-
-  onnxruntime-common@1.18.0:
-    resolution: {integrity: sha512-lufrSzX6QdKrktAELG5x5VkBpapbCeS3dQwrXbN0eD9rHvU0yAWl7Ztju9FvgAKWvwd/teEKJNj3OwM6eTZh3Q==}
 
   onnxruntime-common@1.20.1:
     resolution: {integrity: sha512-YiU0s0IzYYC+gWvqD1HzLc46Du1sXpSiwzKb63PACIJr6LfL27VsXSXQvt68EzD3V0D5Bc0vyJTjmMxp0ylQiw==}
@@ -4630,11 +4627,11 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@6.0.0(opencv.js@1.2.1):
+  esearch-ocr@6.0.3(@techstark/opencv-js@4.10.0-release.1):
     dependencies:
+      '@techstark/opencv-js': 4.10.0-release.1
       js-clipper: 1.0.1
-      onnxruntime-common: 1.18.0
-      opencv.js: 1.2.1
+      onnxruntime-common: 1.20.1
 
   esearch-seg@1.1.4(opencv.js@1.2.1):
     dependencies:
@@ -5535,8 +5532,6 @@ snapshots:
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
-
-  onnxruntime-common@1.18.0: {}
 
   onnxruntime-common@1.20.1: {}
 
