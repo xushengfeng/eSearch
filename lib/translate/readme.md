@@ -58,18 +58,3 @@ Only words defined in source.json can be translated. If you can't find the text 
 一般地，若 source.json 没有定义语言，在 console 控制台以红色 🟥 字体和背景输出，若未翻译，以蓝色 🟦 字体和背景
 
 In general, if source.json does not have a defined language, it will be output in red 🟥 font and background on the console, and in blue 🟦 font and background if not translated.
-
-## 覆盖
-
-- [x] aivision
-- [x] bg
-- [x] capature
-- [x] ding
-- [x] editor
-- [x] photoEditor
-- [x] recorder
-- [x] recorderTip 不需要
-- [x] setting
-- [x] translate
-- [x] translator
-- [x] videoEditor
