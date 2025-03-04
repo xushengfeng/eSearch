@@ -58,6 +58,7 @@ import {
     txt,
     view,
 } from "dkh-ui";
+import xhistory from "../lib/history";
 
 initStyle(store);
 
@@ -1635,14 +1636,8 @@ function followBar(op?: { x: number; y: number }) {
     let x = 0;
     let y = 0;
     if (!op) {
-        // @ts-ignore
-        const dx = undoStack.at(-1)[0] - undoStack.at(-2)[0];
-        // @ts-ignore
-        const dy = undoStack.at(-1)[1] - undoStack.at(-2)[1];
-        // @ts-ignore
-        x = followBarList.at(-1)[0] + dx / ratio;
-        // @ts-ignore
-        y = followBarList.at(-1)[1] + dy / ratio;
+        x = followBarList.at(-1)[0];
+        y = followBarList.at(-1)[1];
     } else {
         x = op.x;
         y = op.y;
@@ -1968,27 +1963,9 @@ function movePoly(
  * 保存历史
  */
 function hisPush() {
-    // 撤回到中途编辑，复制撤回的这一位置参数与编辑的参数一起放到末尾
-    if (undoStackI !== undoStack.length - 1 && undoStack.length >= 2)
-        undoStack.push(undoStack[undoStackI]);
-
-    const finalRectV = [
-        finalRect[0],
-        finalRect[1],
-        finalRect[2],
-        finalRect[3],
-    ] as rect; // 防止引用源地址导致后续操作-2个被改变
     const canvas = fabricCanvas?.toJSON() || {};
-
-    if (`${rectStack.at(-1)}` !== `${finalRectV}`) rectStack.push(finalRectV);
-    if (JSON.stringify(canvasStack.at(-1)) !== JSON.stringify(canvas))
-        canvasStack.push(canvas);
-
-    undoStack.push({
-        rect: rectStack.length - 1,
-        canvas: canvasStack.length - 1,
-    });
-    undoStackI = undoStack.length - 1;
+    undoStack.setData({ rect: finalRect, canvas: canvas });
+    undoStack.apply();
 }
 /**
  * 更改历史指针
@@ -1996,19 +1973,16 @@ function hisPush() {
  */
 function undo(v: boolean) {
     if (v) {
-        if (undoStackI > 0) {
-            undoStackI--;
-        }
+        undoStack.undo();
     } else {
-        if (undoStackI < undoStack.length - 1) {
-            undoStackI++;
-        }
+        undoStack.unundo();
     }
-    const c = undoStack[undoStackI];
-    finalRect = rectStack[c.rect];
+    const c = undoStack.getData();
+    finalRect = c.rect;
+    cleanCanvas();
     drawClipRect();
     followBar();
-    if (fabricCanvas) fabricCanvas.loadFromJSON(canvasStack[c.canvas]);
+    if (fabricCanvas) fabricCanvas.loadFromJSON(c.canvas);
 }
 
 function getShapePro(name: keyof typeof shapePro) {
@@ -3451,10 +3425,10 @@ let theTextColor: [string, string] = ["", ""];
 type colorFormat = setting["取色器"]["默认格式"];
 type colorRGBA = [number, number, number, number];
 const clipCtx = clipCanvas.getContext("2d") as CanvasRenderingContext2D;
-const undoStack = [{ rect: 0, canvas: 0 }];
-const rectStack = [[0, 0, mainCanvas.width, mainCanvas.height]] as rect[];
-const canvasStack = [{}];
-let undoStackI = 0;
+const undoStack = new xhistory<{ rect: rect; canvas: object }>([], {
+    rect: [0, 0, mainCanvas.width, mainCanvas.height] as rect,
+    canvas: {},
+});
 let direction:
     | ""
     | "move"

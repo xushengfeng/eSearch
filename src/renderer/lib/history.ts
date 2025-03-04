@@ -17,15 +17,28 @@ class xhistory<Data> {
         return structuredClone(this.tmpData) ?? this.getData();
     }
 
+    /**
+     * 设置数据
+     * **记得调用apply()**
+     * @param fun 处理函数，适合修改部分数据
+     * @param des 描述
+     */
     setDataF(fun: (data: Data) => Data, des?: string) {
         this.tmpData = fun(this.getTmpData());
         if (des) this.des += ` ${des}`;
     }
+    /**
+     * 设置数据
+     * **记得调用apply()**
+     * @param data 数据
+     * @param des 描述
+     */
     setData(data: Data, des?: string) {
         this.tmpData = data;
         if (des) this.des += ` ${des}`;
     }
 
+    // todo 复制
     apply(des = this.des) {
         const data = structuredClone(this.tmpData);
         if (data) {
