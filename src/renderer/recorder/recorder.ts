@@ -940,7 +940,7 @@ let recordSysAudio = false;
 const canSysAudio = store.get("录屏.音频.启用系统内录");
 if (canSysAudio)
     micList.add(
-        label([check(""), "系统音频"]).on("input", (_, el) => {
+        label([check(""), t("系统音频")]).on("input", (_, el) => {
             recordSysAudio = el.gv;
         }),
     );
@@ -968,7 +968,7 @@ for (const i of audioL) {
 }
 // todo store.set("录屏.音频.设备", selectEl.gv);
 if (!canSysAudio && audioL.length === 0) {
-    micList.add("无音频输入设备");
+    micList.add(t("无音频输入设备"));
 }
 
 if (store.get("录屏.摄像头.默认开启")) {
