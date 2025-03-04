@@ -271,6 +271,23 @@ function sleep(time: number) {
  */
 async function argRun(c: string[], first?: boolean) {
     const argv = minimist(c.slice(1));
+
+    const ocrE = store
+        .get("离线OCR")
+        .map((i) => i[0])
+        .concat(["baidu", "youdao"]);
+    const searchE = ["baidu, yandex, google"];
+
+    function getEngine(e: string, list: string[]) {
+        if (!e) console.log(`--engine [${list.join(", ")}]`);
+        let engine = e;
+        if (!list.includes(e)) {
+            console.log(`${e} ∉ ${list.join(", ")}`);
+            engine = list[0];
+        }
+        return engine;
+    }
+
     if (argv.dev) {
         dev = true;
     }
@@ -296,18 +313,10 @@ async function argRun(c: string[], first?: boolean) {
             ["dt", 1, t("连拍间隔（ms）")],
             ["clipborad", 1, t("保存到剪贴板")],
             [["o", "ocr"], 0, t("文字识别")],
-            [
-                "engine",
-                1,
-                store
-                    .get("离线OCR")
-                    .map((i) => i[0])
-                    .concat(["baidu", "youdao"])
-                    .join(", "),
-            ],
+            ["engine", 1, ocrE.join(", ")],
             ["[mode]", 1, ""],
             [["m", "img"], 0, t("以图搜图")],
-            ["engine", 1, "baidu, yandex, google"],
+            ["engine", 1, searchE.join(", ")],
             ["[mode]", 1, ""],
             [["d", "ding"], 0, t("贴图")],
             [["t", "text"], 0, t("主页面打开文字")],
@@ -416,7 +425,7 @@ async function argRun(c: string[], first?: boolean) {
         createMainWindow({
             type: "ocr",
             content: img.toDataURL(),
-            arg0: e,
+            arg0: getEngine(e, ocrE),
             mode: textMode,
         });
     } else if (argv.d || argv.ding) {
@@ -429,7 +438,7 @@ async function argRun(c: string[], first?: boolean) {
         createMainWindow({
             type: "image",
             content: img.toDataURL(),
-            arg0: e,
+            arg0: getEngine(e, searchE),
             mode: textMode,
         });
     } else if (argv.t || argv.text) {
