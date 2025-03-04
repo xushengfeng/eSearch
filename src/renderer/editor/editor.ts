@@ -1495,7 +1495,7 @@ function editOnOther() {
                     editor.push(data);
                 });
             });
-            textOut.el.title = "正在外部编辑中，双击退出";
+            textOut.attr({ title: "正在外部编辑中，双击退出" });
             document.addEventListener("dblclick", () => {
                 editingOnOther = true;
                 editOnOther();
@@ -1503,7 +1503,7 @@ function editOnOther() {
         });
     } else {
         try {
-            textOut.el.title = "";
+            textOut.attr({ title: "" });
             document.removeEventListener("dblclick", () => {
                 editingOnOther = true;
                 editOnOther();
