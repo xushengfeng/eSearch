@@ -47,6 +47,8 @@ import translator from "xtranslator";
 
 import { hexToCSSFilter } from "hex-to-css-filter";
 
+import Fuse from "fuse.js";
+
 import _package from "../../../package.json?raw";
 const packageJson = JSON.parse(_package);
 
@@ -4062,14 +4064,11 @@ const searchI = input()
             showPage(main[sideBarG.get()]);
             return;
         }
-        const l = Object.entries(s)
-            .filter(
-                (i) =>
-                    i?.[1] &&
-                    (i[1].name.includes(searchI.gv) ||
-                        i[1].desc?.includes(searchI.gv)),
-            )
-            .map((i) => i[0]);
+        const fuse = new Fuse(Object.entries(s), {
+            keys: ["1.name", "1.desc"],
+        });
+
+        const l = fuse.search(searchI.gv).map((i) => i.item[0]);
         mainView.clear();
         if (l.length === 0)
             mainView.add(
