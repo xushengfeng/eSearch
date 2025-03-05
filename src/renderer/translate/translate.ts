@@ -176,6 +176,10 @@ function translate(_text: string) {
         "翻译.常用语言",
         [toLan, fromLan, ...cl].filter((i) => i !== "auto").slice(0, 5),
     );
+
+    if (fyq.length === 0) {
+        results.add(p(t("请在设置添加翻译器")));
+    }
 }
 
 function saveW(obj: saveData) {
