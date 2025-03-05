@@ -558,7 +558,13 @@ function startLong() {
     r[1] += screenPosition[nowScreenId].y;
     long_s();
     ipcRenderer.send("clip_main_b", "long_s", r);
-    if (!cv) cv = require("@techstark/opencv-js");
+    if (!cv) {
+        cv = require("@techstark/opencv-js");
+        cv.onRuntimeInitialized = () => {
+            console.log("load cv");
+            cvLoadPromise.resolve(true);
+        };
+    }
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
         if (uIOhook) {
@@ -643,7 +649,8 @@ function stopLong() {
     }
 }
 
-function addLong(x: ImageData | undefined) {
+async function addLong(x: ImageData | undefined) {
+    await cvLoadPromise.promise;
     if (!x) {
         uIOhook?.stop();
         uIOhook = null;
@@ -2811,10 +2818,15 @@ async function fabricCopy() {
 
 // 获取设置
 
+const cvLoadPromise = Promise.withResolvers();
 if (store.get("框选.自动框选.图像识别")) {
     // biome-ignore format:
     // biome-ignore lint: 为了部分引入
     var cv = require("@techstark/opencv-js") as typeof import('@techstark/opencv-js');
+    cv.onRuntimeInitialized = () => {
+        console.log("load cv");
+        cvLoadPromise.resolve(true);
+    };
 }
 
 const 字体 = store.get("字体");
@@ -3687,9 +3699,10 @@ ipcRenderer.on(
         setDefaultAction(act);
 
         if (autoPhotoSelectRect) {
-            setTimeout(() => {
+            cvLoadPromise.promise.then(() => {
+                console.log("edge");
                 edge();
-            }, 0);
+            });
         }
 
         getWin();
