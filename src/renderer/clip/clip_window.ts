@@ -3391,16 +3391,9 @@ let lastLong = 0;
 let uIOhook: typeof import("uiohook-napi")["uIOhook"] | null;
 let longClipTime: NodeJS.Timeout;
 
-const longHide = [
-    toolBar,
-    drawBar,
-    mainCanvas,
-    clipCanvas,
-    drawCanvas,
-    drawP.el,
-    whEl.el,
-    mouseBarEl.el,
-];
+const longHide = Array.from(document.body.children).filter(
+    (i) => i !== longTip.el.el && i !== longPreview.el,
+) as HTMLElement[];
 
 const longX = {
     img: null as HTMLCanvasElement | null,
