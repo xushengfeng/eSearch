@@ -75,15 +75,16 @@ class xhistory<Data, Diff = any> {
     }
 
     apply(des = this.des) {
-        let diff = structuredClone(this.tmpDiff);
+        let diff = this.tmpDiff;
         if (!diff) {
-            const data = structuredClone(this.tmpData);
+            const data = this.tmpData;
             if (data) {
-                const last = structuredClone(this.getDataByI(this.i));
-                const _diff = this.diffFun(last, data);
+                const last = this.getDataByI(this.i);
+                const _diff = this.diffFun(last, structuredClone(data));
                 diff = _diff;
             }
         }
+        diff = structuredClone(diff);
 
         if (diff !== null && diff !== undefined) {
             if (this.i !== this.history.length - 1) {
@@ -125,11 +126,11 @@ class xhistory<Data, Diff = any> {
             h.type === "key"
                 ? h.data
                 : this.applyFun(this.getDataByI(h.parentId), h.data);
-        return data;
+        return structuredClone(data);
     }
 
     getData() {
-        return structuredClone(this.getDataByI(this.i));
+        return this.getDataByI(this.i);
     }
     undo() {
         this.jump(this.i - 1);
