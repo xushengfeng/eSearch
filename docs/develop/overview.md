@@ -38,17 +38,17 @@
 `src/renderer/browser_bg` 主页面浏览器错误提示\
 `src/renderer/clip` 截屏界面\
 `src/renderer/css` 样式文件\
-`src/renderer/ding`贴图界面\
+`src/renderer/ding`贴图界面，贴图屏幕翻译\
 `src/renderer/editor` 主页面，编辑器，OCR、以图搜图和二维码识别也在此运行\
 `src/renderer/photoEditor` 高级图片编辑器\
 `src/renderer/recorder` 录屏提示栏、录屏编辑\
 `src/renderer/recorderTip` 录屏框选、光标和按键提示\
 `src/renderer/root` 初始化样式，保持各个页面的统一\
 `src/renderer/screenShot` 简单封装的截屏库，用于 cli 截屏、截屏界面截屏和屏幕翻译截屏\
-`src/renderer/set` 设置界面\
+`src/renderer/setting` 设置界面\
 `src/renderer/translate` 主页面翻译，封装了常用 API\
-`src/renderer/translator` 屏幕翻译\
-`src/renderer/videoEditor` 高级录屏编辑器 待开发\
+`src/renderer/translator` 实时屏幕翻译\
+`src/renderer/videoEditor` 高级录屏编辑器\
 
 `src/renderer/capture.html` 截屏页面
 
