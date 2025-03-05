@@ -2263,6 +2263,20 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     history.apply(s[k]?.name || k);
 }
 
+function bindRun(): void;
+function bindRun<t extends SettingPath>(k: t, v: GetValue<setting, t>): void;
+function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
+    if (k) {
+        bindF[k]?.(v);
+    } else {
+        for (const [k, f] of Object.entries(bindF)) {
+            const v = store.get(k);
+            // @ts-ignore
+            if (v !== undefined) f?.(v);
+        }
+    }
+}
+
 const themes: setting["全局"]["主题"][] = [
     {
         light: {
@@ -2384,8 +2398,9 @@ function renderSetting(settingPath: KeyPath) {
                           for (const p of bind[settingPath] ?? []) {
                               reRenderSetting(p);
                           }
+
                           // @ts-ignore
-                          bindF[settingPath]?.(value);
+                          bindRun(settingPath, value);
                       }
                   }
               })
@@ -4140,6 +4155,7 @@ historyEl.el
         // @ts-ignore
         store.setAll(data);
         showPage(main[sideBarG.get()]);
+        bindRun();
     })
     .attr({
         title: "修改历史",
@@ -4152,11 +4168,7 @@ function updateHistory() {
 }
 updateHistory();
 
-for (const [k, f] of Object.entries(bindF)) {
-    const v = store.get(k);
-    // @ts-ignore
-    if (v !== undefined) f?.(v);
-}
+bindRun();
 
 showPage(main[0]);
 
