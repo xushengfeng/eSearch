@@ -1,18 +1,42 @@
-class xhistory<Data> {
-    history: { data: Data; time: number; des: string }[];
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+class xhistory<Data, Diff = any> {
+    history: ((
+        | { data: Data; type: "key" }
+        | { data: Diff; type: "delta"; parentId: number }
+    ) & {
+        time: number;
+        des: string;
+    })[];
     private i = -1;
     private tmpData: Data | null = null;
+    private tmpDiff: Diff | null = null;
     private des = "";
     private changeEvent = new Set<() => void>();
-    constructor(datas: typeof this.history, _initData: Data) {
+    private diffFun: (last: Data, now: Data) => Diff | null = (last, now) =>
+        last === now ? null : (now as unknown as Diff);
+    private applyFun: (data: Data, diff: Diff) => Data = (_, d) =>
+        d as unknown as Data;
+    constructor(
+        datas: typeof this.history,
+        _initData: Data,
+        op?: {
+            diff: (last: Data, now: Data) => Diff;
+            apply: (data: Data, diff: Diff) => Data;
+        },
+    ) {
         this.history = datas;
         if (this.history.length === 0)
             this.history.unshift({
                 des: "0",
+                type: "key",
                 data: _initData,
                 time: Date.now(),
             });
         this.i = this.history.length - 1;
+        if (op) {
+            this.diffFun = op.diff;
+            this.applyFun = op.apply;
+        }
     }
 
     getTmpData() {
@@ -39,40 +63,73 @@ class xhistory<Data> {
         this.tmpData = data;
         if (des) this.des += ` ${des}`;
     }
+    /**
+     * 设置数据（手动指定diff）
+     * **记得调用apply()**
+     * @param diff 数据
+     * @param des 描述
+     */
+    setDiff(diff: Diff, des?: string) {
+        this.tmpDiff = diff;
+        if (des) this.des += ` ${des}`;
+    }
 
     apply(des = this.des) {
-        const data = structuredClone(this.tmpData);
-        if (data) {
-            if (data !== this.history.at(-1)?.data) {
-                if (this.i !== this.history.length - 1) {
-                    // 中途添加，保留上一个数据
-                    const h = this.history.at(this.i);
-                    this.history.push({
-                        data: h.data,
-                        time: Date.now(),
-                        des: h.des,
-                    });
-                }
-                this.history.push({
-                    data,
-                    time: Date.now(),
-                    des: des || String(this.history.length),
-                });
+        let diff = structuredClone(this.tmpDiff);
+        if (!diff) {
+            const data = structuredClone(this.tmpData);
+            if (data) {
+                const last = structuredClone(this.getDataByI(this.i));
+                const _diff = this.diffFun(last, data);
+                diff = _diff;
             }
         }
+
+        if (diff !== null && diff !== undefined) {
+            if (this.i !== this.history.length - 1) {
+                // 中途添加，保留上一个数据
+                const h = this.history.at(this.i);
+                this.history.push({
+                    ...h,
+                    time: Date.now(),
+                });
+            }
+            this.history.push({
+                data: diff,
+                type: "delta",
+                parentId: this.i,
+                time: Date.now(),
+                des: des || String(this.history.length),
+            });
+        }
+
         this.i = this.history.length - 1;
-        this.des = "";
+        this.cleanData();
         for (const f of this.changeEvent) {
             f();
         }
     }
-    giveup() {
+
+    private cleanData() {
         this.tmpData = null;
+        this.tmpDiff = null;
         this.des = "";
+    }
+    giveup() {
+        this.cleanData();
+    }
+
+    getDataByI(i: number): Data {
+        const h = this.history.at(i) as (typeof this.history)[0];
+        const data =
+            h.type === "key"
+                ? h.data
+                : this.applyFun(this.getDataByI(h.parentId), h.data);
+        return data;
     }
 
     getData() {
-        return structuredClone(this.history.at(this.i)?.data as Data);
+        return structuredClone(this.getDataByI(this.i));
     }
     undo() {
         this.jump(this.i - 1);
@@ -97,8 +154,11 @@ class xhistory<Data> {
 
 export default xhistory;
 
-// biome-ignore lint/correctness/noConstantCondition: test code
-if (true) {
+function getTestState() {
+    return false;
+}
+
+if (getTestState()) {
     const history = new xhistory<string>([], "");
 
     function logList() {
@@ -136,9 +196,71 @@ if (true) {
 
     history.setData("end");
     history.apply();
+    history.setData("end");
+    history.apply();
     const l = logList();
     console.assert(
         JSON.stringify(["", "hi", "hello", "world", "hello", "end"]) ===
             JSON.stringify(l.map((i) => i.data)),
+    );
+}
+
+if (getTestState()) {
+    const diff_match_patch = (await import("diff-match-patch")).default;
+    const dmp = new diff_match_patch();
+
+    const history = new xhistory<string, import("diff-match-patch").Diff[]>(
+        [],
+        "",
+        {
+            diff: (last, now) => {
+                const diff = dmp.diff_main(last, now);
+                if (diff.length === 1 && diff[0][0] === 0) return null;
+                return diff;
+            },
+            apply: (data, diff) => {
+                const patch = dmp.patch_make(diff);
+                return dmp.patch_apply(patch, data)[0];
+            },
+        },
+    );
+
+    function logList() {
+        const l = structuredClone(history.history);
+        console.log(l);
+        return l;
+    }
+
+    console.assert(history.getData() === "");
+    logList();
+
+    history.setData("he");
+    history.apply();
+    console.assert(history.getData() === "he");
+    logList();
+
+    history.setData("hello");
+    history.apply();
+
+    console.assert(history.getData() === "hello");
+
+    history.undo();
+    console.assert(history.getData() === "he");
+
+    history.unundo();
+    console.assert(history.getData() === "hello");
+    logList();
+
+    history.undo();
+    history.setData("end");
+    history.apply();
+    // 重复
+    history.setData("end");
+    history.apply();
+    const l = logList();
+
+    console.assert(
+        JSON.stringify(["", "he", "hello", "he", "end"]) ===
+            JSON.stringify(l.map((_, i) => history.getDataByI(i))),
     );
 }
