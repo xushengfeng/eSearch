@@ -50,7 +50,17 @@ import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
 
 /**撤销 */
-const undoStack = new xhistory<string>([], "");
+const undoStack = new xhistory<string>([], "", {
+    diff: (last, now) => {
+        const diff = dmp.diff_main(last, now);
+        if (diff.length === 1 && diff[0][0] === 0) return null;
+        return diff;
+    },
+    apply: (data, diff) => {
+        const patch = dmp.patch_make(diff);
+        return dmp.patch_apply(patch, data)[0];
+    },
+});
 
 let lineHeight = 24;
 
