@@ -1969,7 +1969,7 @@ const actionUnundo = iconBEl("right").on("click", async () => {
 history.on("change", () => {
     console.log("h", history.getData());
     actionList.setList(
-        history.history.map((h, i) => ({ value: String(i), name: h.des })),
+        history.list.map((h, i) => ({ value: String(i), name: h })),
     );
     actionList.el.sv(String(history.index));
 });

@@ -90,6 +90,9 @@ class xhistory<Data> {
     get index() {
         return this.i;
     }
+    get list() {
+        return this.history.map((i) => i.des);
+    }
 }
 
 export default xhistory;
