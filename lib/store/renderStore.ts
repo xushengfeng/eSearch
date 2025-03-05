@@ -37,6 +37,12 @@ const store = {
     ): void => {
         ipcRenderer.send("store", { type: "set", path, value });
     },
+    getAll: () => {
+        return ipcRenderer.sendSync("store", { type: "getAll" }) as setting;
+    },
+    setAll: (value: setting) => {
+        ipcRenderer.send("store", { type: "setAll", value });
+    },
 };
 
 export default store;

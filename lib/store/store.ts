@@ -66,6 +66,7 @@ class Store {
         const store = this.getStore();
         const pathx = keyPath.split(".");
         const lastp = pathx.pop() ?? "";
+        // @ts-ignore
         const lastobj = pathx.reduce((p, c) => {
             return p[c] || {};
         }, store);
@@ -74,6 +75,13 @@ class Store {
 
     public clear() {
         this.init();
+    }
+
+    public getAll() {
+        return this.getStore();
+    }
+    public setAll(data: data) {
+        this.setStore(data);
     }
 }
 

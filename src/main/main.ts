@@ -92,6 +92,10 @@ ipcMain.on("store", (e, x) => {
         store.set(x.path, x.value);
     } else if (x.type === "path") {
         e.returnValue = app.getPath("userData");
+    } else if (x.type === "getAll") {
+        e.returnValue = store.getAll();
+    } else if (x.type === "setAll") {
+        store.setAll(x.value);
     }
 });
 

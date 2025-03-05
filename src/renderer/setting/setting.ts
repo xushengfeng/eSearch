@@ -26,6 +26,8 @@ import {
     alert,
     setProperties,
     spacer,
+    dynamicSelect,
+    dynamicList,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl, setTitle } from "../root/root";
@@ -56,6 +58,7 @@ import {
 } from "../../../lib/key.js";
 
 import time_format from "../../../lib/time_format";
+import xhistory from "../lib/history";
 
 const download = require("download");
 
@@ -84,6 +87,27 @@ type settingItem<t extends SettingPath> = {
 };
 
 type GithubUrlType = Omit<keyof setting["网络"]["github镜像"], "启用">;
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const history = new xhistory<object, { k: string; v: any }>(
+    [],
+    store.getAll(),
+    {
+        diff: () => ({ k: "", v: "" }),
+        apply: (data, { k, v }) => {
+            let nowObj = data;
+            for (const [i, ke] of k.split(".").entries()) {
+                if (i === k.split(".").length - 1) nowObj[ke] = v;
+                nowObj = nowObj[ke];
+            }
+            return data;
+        },
+    },
+);
+
+history.on("change", () => {
+    updateHistory();
+});
 
 const mainLan = store.get("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
@@ -2232,8 +2256,11 @@ function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
 }
 
 function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
+    const old = store.get(k);
+    if (old === v) return;
     store.set(k, v);
-    reRenderSetting(k);
+    history.setDiff({ k, v });
+    history.apply(s[k]?.name || k);
 }
 
 const themes: setting["全局"]["主题"][] = [
@@ -2349,7 +2376,7 @@ function renderSetting(settingPath: KeyPath) {
                   if (e.target === e.currentTarget) {
                       const value = el.gv;
                       if (value !== null && value !== undefined) {
-                          store.set(settingPath, value);
+                          setSet(settingPath as SettingPath, value);
                           console.log(
                               `Setting ${settingPath} updated to`,
                               structuredClone(value),
@@ -3869,6 +3896,7 @@ function about() {
                         tags.add(
                             button("忽略此版本").on("click", () => {
                                 setSet("更新.忽略版本", r.name);
+                                reRenderSetting("更新.忽略版本");
                             }),
                         );
                     }
@@ -4100,6 +4128,29 @@ for (const [i, page] of main.entries()) {
 sideBarG.on(() => {
     showPage(main[sideBarG.get()]);
 });
+
+sideBar.add(spacer());
+const historyEl = dynamicSelect();
+historyEl.el
+    .addInto(sideBar)
+    .on("input", () => {
+        history.jump(Number(historyEl.el.gv));
+        const data = history.getData();
+        // todo diff 优化性能
+        // @ts-ignore
+        store.setAll(data);
+        showPage(main[sideBarG.get()]);
+    })
+    .attr({
+        title: "修改历史",
+    });
+function updateHistory() {
+    historyEl.setList(
+        history.list.map((des, i) => ({ value: String(i), name: noI18n(des) })),
+    );
+    historyEl.el.sv(String(history.list.length - 1));
+}
+updateHistory();
 
 for (const [k, f] of Object.entries(bindF)) {
     const v = store.get(k);
