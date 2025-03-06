@@ -469,25 +469,22 @@ function closeWin() {
 
 function runOcr() {
     const type = ocr引擎.gv;
-    getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        renderSend("clip_ocr", [c.toDataURL(), type]);
-    });
+    const c = getClipPhoto();
+    renderSend("clip_ocr", [c.toDataURL(), type]);
     tool.close();
 }
 
 function runSearch() {
     const type = 识图引擎.gv;
-    getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        renderSend("clip_search", [c.toDataURL(), type]);
-    });
+    const c = getClipPhoto();
+    renderSend("clip_search", [c.toDataURL(), type]);
     tool.close();
 }
 // 二维码
 function runQr() {
-    getClipPhoto("png").then(async (c: HTMLCanvasElement) => {
-        renderSend("clip_qr", [c.toDataURL()]);
-        tool.close();
-    });
+    const c = getClipPhoto();
+    renderSend("clip_qr", [c.toDataURL()]);
+    tool.close();
 }
 
 function drawM(v: boolean) {
@@ -524,12 +521,11 @@ function openApp() {
     const os = require("node:os");
     const tmpPhoto = path.join(os.tmpdir(), "/eSearch/tmp.png");
     const fs = require("node:fs");
-    getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        const f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
-        const dataBuffer = Buffer.from(f, "base64");
-        fs.writeFile(tmpPhoto, dataBuffer, () => {
-            open_with(tmpPhoto);
-        });
+    const c = getClipPhoto();
+    const f = c.toDataURL().replace(/^data:image\/\w+;base64,/, "");
+    const dataBuffer = Buffer.from(f, "base64");
+    fs.writeFile(tmpPhoto, dataBuffer, () => {
+        open_with(tmpPhoto);
     });
 }
 
@@ -822,20 +818,19 @@ function pjLong() {
 
 // 钉在屏幕上
 function runDing() {
-    getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        const display = getNowScreen();
-        renderSend("clip_ding", [
-            c.toDataURL(),
-            "ding",
-            {
-                x: finalRect[0] / ratio + display.bounds.x,
-                y: finalRect[1] / ratio + display.bounds.y,
-                w: finalRect[2] / ratio,
-                h: finalRect[3] / ratio,
-            },
-        ]);
-        tool.close();
-    });
+    const c = getClipPhoto();
+    const display = getNowScreen();
+    renderSend("clip_ding", [
+        c.toDataURL(),
+        "ding",
+        {
+            x: finalRect[0] / ratio + display.bounds.x,
+            y: finalRect[1] / ratio + display.bounds.y,
+            w: finalRect[2] / ratio,
+            h: finalRect[3] / ratio,
+        },
+    ]);
+    tool.close();
 }
 
 async function translate() {
@@ -855,7 +850,7 @@ async function translate() {
                 h: finalRect[3] / ratio,
             },
             displayId: nowScreenId,
-            img: (await getClipPhoto("png")).toDataURL(),
+            img: getClipPhoto().toDataURL(),
             type: toolBarEl.els.translate.gv,
         },
     ]);
@@ -864,10 +859,9 @@ async function translate() {
 
 // 复制
 function runCopy() {
-    getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
-        tool.close();
-    });
+    const c = getClipPhoto();
+    clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
+    tool.close();
 }
 // 保存
 function runSave() {
@@ -909,10 +903,10 @@ async function save(message: string) {
     if (message) {
         const fs = require("node:fs");
         let dataBuffer: Buffer;
-        if (type === "svg") dataBuffer = Buffer.from(await getClipPhoto("svg"));
+        if (type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
         else {
             let f = "";
-            const nc = await getClipPhoto(type);
+            const nc = getClipPhoto();
             if (type === "png") {
                 f = nc.toDataURL("image/png", 1);
             } else if (type === "jpg") {
@@ -937,16 +931,33 @@ async function save(message: string) {
         tool.close();
     }
 }
-/**
- * 获取选区图像
- * @param type 格式
- * @returns promise svg base64|canvas element
- */
-function getClipPhoto(type: "svg"): Promise<string>;
-function getClipPhoto(type: "png" | "jpg" | "webp"): Promise<HTMLCanvasElement>;
-function getClipPhoto(
-    type: "png" | "jpg" | "webp" | "svg",
-): Promise<string | HTMLCanvasElement> {
+
+function getClipPhotoSVG() {
+    const svg = document.createElement("div");
+    if (typeof fabricCanvas === "undefined") {
+        svg.innerHTML = `<!--?xml version="1.0" encoding="UTF-8" standalone="no" ?-->
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="${mainCanvas.width}" height="${mainCanvas.height}" viewBox="0 0 1920 1080" xml:space="preserve">
+            <desc>Created with eSearch</desc>
+            </svg>`;
+    } else {
+        svg.innerHTML = fabricCanvas.toSVG();
+        // @ts-ignore
+        svg.querySelector("desc").innerHTML =
+            "Created with eSearch & Fabric.js";
+    }
+    const svgEl = svg.querySelector("svg") as SVGElement;
+    svgEl.setAttribute("viewBox", finalRect.join(" "));
+    const image = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "image",
+    );
+    image.setAttribute("xlink:href", mainCanvas.toDataURL());
+    svgEl.insertBefore(image, svgEl.firstChild);
+    const svgT = new XMLSerializer().serializeToString(svgEl);
+    return svgT;
+}
+
+function getClipPhoto() {
     const mainCtx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
     if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
@@ -955,33 +966,6 @@ function getClipPhoto(
         fabricCanvas.renderAll();
     }
 
-    if (type === "svg") {
-        const svg = document.createElement("div");
-        if (typeof fabricCanvas === "undefined") {
-            svg.innerHTML = `<!--?xml version="1.0" encoding="UTF-8" standalone="no" ?-->
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="${mainCanvas.width}" height="${mainCanvas.height}" viewBox="0 0 1920 1080" xml:space="preserve">
-            <desc>Created with eSearch</desc>
-            </svg>`;
-        } else {
-            svg.innerHTML = fabricCanvas.toSVG();
-            // @ts-ignore
-            svg.querySelector("desc").innerHTML =
-                "Created with eSearch & Fabric.js";
-        }
-        const svgEl = svg.querySelector("svg") as SVGElement;
-        svgEl.setAttribute("viewBox", finalRect.join(" "));
-        const image = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "image",
-        );
-        image.setAttribute("xlink:href", mainCanvas.toDataURL());
-        svgEl.insertBefore(image, svgEl.firstChild);
-        const svgT = new XMLSerializer().serializeToString(svgEl);
-        if (type === "svg")
-            return new Promise((resolve: (value: string) => void, _rejects) => {
-                resolve(svgT);
-            });
-    }
     const tmpCanvas = document.createElement("canvas");
     const tmpctx = tmpCanvas.getContext("2d") as CanvasRenderingContext2D;
     tmpCanvas.width = finalRect[2];
@@ -993,51 +977,31 @@ function getClipPhoto(
         finalRect[3],
     ); // 裁剪
     tmpctx.putImageData(gid, 0, 0);
-    const image = document.createElement("img");
-    image.src = fabricCanvas.toDataURL({
-        left: finalRect[0],
-        top: finalRect[1],
-        width: finalRect[2],
-        height: finalRect[3],
-        format: "png",
-        multiplier: 1,
-    });
-    return new Promise((resolve, _rejects) => {
-        image.onload = () => {
-            tmpctx.drawImage(image, 0, 0, finalRect[2], finalRect[3]);
-            if (!isRect) {
-                const ctx = tmpctx;
+    if (!isRect) {
+        const ctx = tmpctx;
 
-                // 创建临时Canvas并保存原始内容
-                const tempCanvas = createTemporaryCanvas(tmpCanvas);
+        // 创建临时Canvas并保存原始内容
+        const tempCanvas = createTemporaryCanvas(tmpCanvas);
 
-                // 清除主Canvas
-                ctx.clearRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+        // 清除主Canvas
+        ctx.clearRect(0, 0, tmpCanvas.width, tmpCanvas.height);
 
-                // 定义裁剪区域
-                ctx.beginPath();
-                freeSelect.forEach((point, index) => {
-                    if (index === 0) {
-                        ctx.moveTo(
-                            point.x - finalRect[0],
-                            point.y - finalRect[1],
-                        );
-                    } else {
-                        ctx.lineTo(
-                            point.x - finalRect[0],
-                            point.y - finalRect[1],
-                        );
-                    }
-                });
-                ctx.closePath();
-                ctx.clip();
-
-                // 将原始内容重新绘制到主Canvas上
-                ctx.drawImage(tempCanvas, 0, 0);
+        // 定义裁剪区域
+        ctx.beginPath();
+        freeSelect.forEach((point, index) => {
+            if (index === 0) {
+                ctx.moveTo(point.x - finalRect[0], point.y - finalRect[1]);
+            } else {
+                ctx.lineTo(point.x - finalRect[0], point.y - finalRect[1]);
             }
-            resolve(tmpCanvas);
-        };
-    });
+        });
+        ctx.closePath();
+        ctx.clip();
+
+        // 将原始内容重新绘制到主Canvas上
+        ctx.drawImage(tempCanvas, 0, 0);
+    }
+    return tmpCanvas;
 }
 
 function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
@@ -3302,9 +3266,8 @@ const tool: Record<功能, () => void> = {
     copy: () => runCopy(),
     save: () => runSave(),
     editor: () => {
-        getClipPhoto("png").then((c: HTMLCanvasElement) => {
-            renderSend("clip_editor", [c.toDataURL()]);
-        });
+        const c = getClipPhoto();
+        renderSend("clip_editor", [c.toDataURL()]);
         tool.close();
     },
 };
