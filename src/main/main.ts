@@ -53,7 +53,7 @@ import { t, lan, getLans } from "../../lib/translate/translate";
 import main, { matchFitLan } from "xtranslator";
 import time_format from "../../lib/time_format";
 import url from "node:url";
-import { mainOn } from "../../lib/ipc";
+import { mainOn, mainSend } from "../../lib/ipc";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -470,7 +470,7 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
         lianPai();
     },
     结束广截屏: () => {
-        clipWindow?.webContents.send("long_e");
+        mainSend(clipWindow?.webContents, "clip_stop_long", []);
     },
     剪贴板贴图: () => dingFromClipBoard(),
     主页面: () => createMainWindow({ type: "text", content: "" }),
@@ -1263,13 +1263,12 @@ async function fullScreen() {
 }
 
 async function sendCaptureEvent(data?: Buffer, type?: 功能) {
-    (await getClipWin())?.webContents.send(
-        "reflash",
+    mainSend((await getClipWin())?.webContents, "clip_init", [
         screen.getAllDisplays(),
         data,
         screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id,
         type,
-    );
+    ]);
 }
 
 /** 关闭或隐藏截屏 */
@@ -1712,10 +1711,10 @@ function longWin() {
         if (clipWindow.isDestroyed()) return;
         const nowXY = screen.getCursorScreenPoint();
         const tipB = clipWindow.getBounds();
-        clipWindow.webContents.send("clip", "mouse", {
-            x: nowXY.x - tipB.x,
-            y: nowXY.y - tipB.y,
-        });
+        mainSend(clipWindow.webContents, "clip_mouse_posi", [
+            nowXY.x - tipB.x,
+            nowXY.y - tipB.y,
+        ]);
         setTimeout(mouse, 10);
     }
     mouse();
@@ -2351,6 +2350,24 @@ ipcMain.on("window", (event, type: string, v) => {
     if (type === "max") {
         win.maximize();
     }
+});
+
+mainOn("save_file_path", async ([type, isVideo]) => {
+    const savedPath = isVideo
+        ? store.get("保存.保存路径.视频") || ""
+        : store.get("保存.保存路径.图片") || "";
+    const defaultPath = join(savedPath, `${getFileName()}.${type}`);
+    if (store.get("保存.快速保存") && savedPath) {
+        return defaultPath;
+    }
+    const x = await dialog.showSaveDialog({
+        title: t("选择要保存的位置"),
+        defaultPath: defaultPath,
+        filters: [
+            { name: isVideo ? t("视频") : t("图像"), extensions: [type] },
+        ],
+    });
+    return x.filePath;
 });
 
 ipcMain.on("get_save_file_path", (event, arg: string, isVideo: boolean) => {

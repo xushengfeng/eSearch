@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
-const { ipcRenderer, clipboard, nativeImage } =
-    require("electron") as typeof import("electron");
+// biome-ignore format:
+const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
@@ -59,7 +59,7 @@ import {
     view,
 } from "dkh-ui";
 import xhistory from "../lib/history";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -873,7 +873,7 @@ function runCopy() {
 function runSave() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
-        const p = ipcRenderer.sendSync("get_save_file_path", type);
+        const p = renderSendSync("save_file_path", [type]);
         save(p);
         return;
     }
@@ -931,7 +931,7 @@ async function save(message: string) {
 
         fs.writeFile(message, dataBuffer, (err) => {
             if (!err) {
-                ipcRenderer.send("ok_save", message);
+                renderSend("ok_save", [message]);
             }
         });
         tool.close();
@@ -3610,111 +3610,101 @@ let willFilter = "";
 
 document.body.style.opacity = "0";
 
-ipcRenderer.on(
-    "reflash",
-    (
-        _a,
-        _displays: Electron.Display[],
-        imgBuffer: Buffer,
-        mainid: number,
-        act: 功能,
-    ) => {
-        const wx = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
-        allScreens = wx.screen;
-        const mainId = mainid;
-        const i = getNowScreen(mainId);
-        windows = wx.window.map((w) => {
-            w.rect.x -= i.bounds?.x ?? 0;
-            w.rect.y -= i.bounds?.y ?? 0;
-            return w;
-        });
-        console.log(allScreens, windows);
-        setScreen(i);
-        const nowScreen =
-            _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
-        if (
-            i.size.width < nowScreen.size.width ||
-            i.size.height < nowScreen.size.height
-        ) {
-            const x =
-                (nowScreen.size.width * window.devicePixelRatio) / 2 -
-                i.size.width / 2;
-            const y =
-                (nowScreen.size.height * window.devicePixelRatio) / 2 -
-                i.size.height / 2;
-            setEditorP(1 / (i.scaleFactor || devicePixelRatio), x, y);
-        } else setEditorP(1 / i.scaleFactor, 0, 0);
-        zoomW = i.size.width;
-        ratio = i.scaleFactor;
-        document.body.style.opacity = "";
+renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
+    const wx = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
+    allScreens = wx.screen;
+    const mainId = mainid;
+    const i = getNowScreen(mainId);
+    windows = wx.window.map((w) => {
+        w.rect.x -= i.bounds?.x ?? 0;
+        w.rect.y -= i.bounds?.y ?? 0;
+        return w;
+    });
+    console.log(allScreens, windows);
+    setScreen(i);
+    const nowScreen = _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
+    if (
+        i.size.width < nowScreen.size.width ||
+        i.size.height < nowScreen.size.height
+    ) {
+        const x =
+            (nowScreen.size.width * window.devicePixelRatio) / 2 -
+            i.size.width / 2;
+        const y =
+            (nowScreen.size.height * window.devicePixelRatio) / 2 -
+            i.size.height / 2;
+        setEditorP(1 / (i.scaleFactor || devicePixelRatio), x, y);
+    } else setEditorP(1 / i.scaleFactor, 0, 0);
+    zoomW = i.size.width;
+    ratio = i.scaleFactor;
+    document.body.style.opacity = "";
 
-        screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
+    screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
-        renderSend("clip_show", []);
-        const screensEl = toolList.screens;
-        if (allScreens.length > 1) {
-            let minX = 0;
-            let maxX = 0;
-            let minY = 0;
-            let maxY = 0;
-            for (const i of allScreens) {
-                const right = i.bounds.x + i.bounds.width;
-                const bottom = i.bounds.y + i.bounds.height;
-                maxX = Math.max(maxX, right);
-                maxY = Math.max(maxY, bottom);
-                minX = Math.min(minX, i.bounds.x);
-                minY = Math.min(minY, i.bounds.y);
-            }
-            const tWidth = maxX - minX;
-            const tHeight = maxY - minY;
-            const el = view();
-            for (const i of allScreens) {
-                const x = (i.bounds.x - minX) / tWidth;
-                const y = (i.bounds.y - minY) / tHeight;
-                const width = i.bounds.width / tWidth;
-                const height = i.bounds.height / tHeight;
-                const div = view().style({
-                    width: `${width * 100}%`,
-                    height: `${height * 100}%`,
-                    left: `${x * 100}%`,
-                    top: `${y * 100}%`,
-                });
-                if (i.id === nowScreenId) {
-                    div.el.classList.add("now_screen");
-                }
-                el.add(div);
-                div.on("click", () => {
-                    el.query(".now_screen")?.el.classList.remove("now_screen");
-                    div.class("now_screen");
-                    setScreen(i);
-                });
-            }
-            screensEl.clear().add(el);
-        } else {
-            screensEl.el.style.display = "none";
+    renderSend("clip_show", []);
+    const screensEl = toolList.screens;
+    if (allScreens.length > 1) {
+        let minX = 0;
+        let maxX = 0;
+        let minY = 0;
+        let maxY = 0;
+        for (const i of allScreens) {
+            const right = i.bounds.x + i.bounds.width;
+            const bottom = i.bounds.y + i.bounds.height;
+            maxX = Math.max(maxX, right);
+            maxY = Math.max(maxY, bottom);
+            minX = Math.min(minX, i.bounds.x);
+            minY = Math.min(minY, i.bounds.y);
         }
-
-        setDefaultAction(act);
-
-        if (autoPhotoSelectRect) {
-            cvLoadPromise.promise.then(() => {
-                console.log("edge");
-                edge();
+        const tWidth = maxX - minX;
+        const tHeight = maxY - minY;
+        const el = view();
+        for (const i of allScreens) {
+            const x = (i.bounds.x - minX) / tWidth;
+            const y = (i.bounds.y - minY) / tHeight;
+            const width = i.bounds.width / tWidth;
+            const height = i.bounds.height / tHeight;
+            const div = view().style({
+                width: `${width * 100}%`,
+                height: `${height * 100}%`,
+                left: `${x * 100}%`,
+                top: `${y * 100}%`,
+            });
+            if (i.id === nowScreenId) {
+                div.el.classList.add("now_screen");
+            }
+            el.add(div);
+            div.on("click", () => {
+                el.query(".now_screen")?.el.classList.remove("now_screen");
+                div.class("now_screen");
+                setScreen(i);
             });
         }
+        screensEl.clear().add(el);
+    } else {
+        screensEl.el.style.display = "none";
+    }
 
-        getWin();
+    setDefaultAction(act);
 
-        drawClipRect();
-        setTimeout(() => {
-            whBar(finalRect);
-        }, 0);
-        rightKey = false;
-        changeRightBar(false);
-    },
-);
+    if (autoPhotoSelectRect) {
+        cvLoadPromise.promise.then(() => {
+            console.log("edge");
+            edge();
+        });
+    }
 
-ipcRenderer.on("long_e", stopLong);
+    getWin();
+
+    drawClipRect();
+    setTimeout(() => {
+        whBar(finalRect);
+    }, 0);
+    rightKey = false;
+    changeRightBar(false);
+});
+
+renderOn("clip_stop_long", () => stopLong());
 
 document.onwheel = (e) => {
     if (
@@ -3917,14 +3907,10 @@ const finishLongB = longTip.els.finish.el;
 
 const lr = longTip.els.rect;
 
-ipcRenderer.on("clip", (_event, type, mouse) => {
-    if (type === "mouse") {
-        const x = mouse.x;
-        const y = mouse.y;
-        const el = document.elementsFromPoint(x, y);
-        if (longRunning) renderSend("ignoreMouse", [!el.includes(finishLongB)]);
-        else renderSend("ignoreMouse", [false]);
-    }
+renderOn("clip_mouse_posi", ([x, y]) => {
+    const el = document.elementsFromPoint(x, y);
+    if (longRunning) renderSend("ignoreMouse", [!el.includes(finishLongB)]);
+    else renderSend("ignoreMouse", [false]);
 });
 
 trackPoint(pack(toolBar), {

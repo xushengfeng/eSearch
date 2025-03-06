@@ -1,7 +1,7 @@
 // biome-ignore format:
 const { ipcRenderer, ipcMain} = require("electron") as typeof import("electron");
 
-import type { translateWinType } from "../src/ShareTypes";
+import type { translateWinType, 功能 } from "../src/ShareTypes";
 
 type Message = {
     clip_show: () => void;
@@ -9,7 +9,6 @@ type Message = {
     clip_ocr: (img: string, type: string) => void;
     clip_search: (img: string, type: string) => void;
     clip_qr: (img: string) => void;
-    clip_open: () => string;
     clip_save: (ext: string) => string;
     clip_ding: (
         img: string,
@@ -31,21 +30,31 @@ type Message = {
     ignoreMouse: (ignore: boolean) => void;
     clip_editor: (img: string) => void;
     clip_recordx: () => void;
+    save_file_path: (type: string, isVideo?: boolean) => string;
+    ok_save: (m: string) => void;
+    clip_stop_long: () => void;
+    clip_mouse_posi: (x: number, y: number) => void;
+    clip_init: (
+        displays: Electron.Display[],
+        imgBuffer: Buffer | undefined,
+        mainid: number,
+        act: 功能 | undefined,
+    ) => void;
 };
 
 const name = "ipc";
 
 function mainSend<K extends keyof Message>(
-    webContents: Electron.WebContents,
+    webContents: Electron.WebContents | undefined,
     key: K,
-    data: Message[K],
+    data: Parameters<Message[K]>,
 ): void {
-    webContents.send(name, key, data);
+    webContents?.send(name, key, data);
 }
 
 function renderOn<K extends keyof Message>(
     key: K,
-    callback: (data: Message[K]) => void,
+    callback: (data: Parameters<Message[K]>) => void,
 ) {
     ipcRenderer.on(name, (event, k, data) => {
         if (k === key) {
