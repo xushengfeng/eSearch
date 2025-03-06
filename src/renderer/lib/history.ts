@@ -16,12 +16,15 @@ class xhistory<Data, Diff = any> {
         last === now ? null : (now as unknown as Diff);
     private applyFun: (data: Data, diff: Diff) => Data = (_, d) =>
         d as unknown as Data;
+    private cache: Map<number, Data> = new Map();
+    private cacheSize = 5;
     constructor(
         datas: typeof this.history,
         _initData: Data,
         op?: {
             diff: (last: Data, now: Data) => Diff;
             apply: (data: Data, diff: Diff) => Data;
+            cacheSize?: number;
         },
     ) {
         this.history = datas;
@@ -36,6 +39,7 @@ class xhistory<Data, Diff = any> {
         if (op) {
             this.diffFun = op.diff;
             this.applyFun = op.apply;
+            if (op.cacheSize) this.cacheSize = op.cacheSize;
         }
     }
 
@@ -105,12 +109,22 @@ class xhistory<Data, Diff = any> {
         }
 
         this.i = this.history.length - 1;
+
+        this.pushCache(this.i, this.tmpData ?? this.getData());
+
         this.cleanData();
         for (const f of this.changeEvent) {
             f();
         }
     }
 
+    private pushCache(i: number, data: Data) {
+        this.cache.set(i, structuredClone(data));
+        for (const k of this.cache
+            .keys()
+            .take(Math.max(this.cache.size - this.cacheSize, 0)))
+            this.cache.delete(k);
+    }
     private cleanData() {
         this.tmpData = null;
         this.tmpDiff = null;
@@ -125,7 +139,8 @@ class xhistory<Data, Diff = any> {
         const data =
             h.type === "key"
                 ? h.data
-                : this.applyFun(this.getDataByI(h.parentId), h.data);
+                : (this.cache.get(i) ??
+                  this.applyFun(this.getDataByI(h.parentId), h.data));
         return structuredClone(data);
     }
 
@@ -156,7 +171,7 @@ class xhistory<Data, Diff = any> {
 export default xhistory;
 
 function getTestState() {
-    return false;
+    return true;
 }
 
 if (getTestState()) {
@@ -264,4 +279,12 @@ if (getTestState()) {
         JSON.stringify(["", "he", "hello", "he", "end"]) ===
             JSON.stringify(l.map((_, i) => history.getDataByI(i))),
     );
+}
+
+if (getTestState()) {
+    const history = new xhistory<number>([], 0);
+    for (let i = 0; i < 10; i++) {
+        history.setData(i);
+        history.apply();
+    }
 }
