@@ -26,13 +26,11 @@ type GetValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
       : never;
 
 const store = {
-    get: <P extends SettingPath>(
-        path: P | (unknown & {}),
-    ): GetValue<setting, P> => {
+    get: <P extends SettingPath>(path: P): GetValue<setting, P> => {
         return ipcRenderer.sendSync("store", { type: "get", path });
     },
     set: <P extends SettingPath>(
-        path: P | (unknown & {}),
+        path: P,
         value: GetValue<setting, P> | (unknown & {}),
     ): void => {
         ipcRenderer.send("store", { type: "set", path, value });

@@ -2272,6 +2272,7 @@ function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
         bindF[k]?.(v);
     } else {
         for (const [k, f] of Object.entries(bindF)) {
+            // @ts-ignore
             const v = store.get(k);
             // @ts-ignore
             if (v !== undefined) f?.(v);
@@ -2388,24 +2389,26 @@ function renderSetting(settingPath: KeyPath) {
     // @ts-ignore
     scheduler.postTask(() =>
         s[settingPath]
-            ? el.sv(store.get(settingPath)).on("input", (e) => {
-                  if (e.target === e.currentTarget) {
-                      const value = el.gv;
-                      if (value !== null && value !== undefined) {
-                          setSet(settingPath as SettingPath, value);
-                          console.log(
-                              `Setting ${settingPath} updated to`,
-                              structuredClone(value),
-                          );
-                          for (const p of bind[settingPath] ?? []) {
-                              reRenderSetting(p);
-                          }
+            ? el // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+                  .sv(store.get(settingPath as any))
+                  .on("input", (e) => {
+                      if (e.target === e.currentTarget) {
+                          const value = el.gv;
+                          if (value !== null && value !== undefined) {
+                              setSet(settingPath as SettingPath, value);
+                              console.log(
+                                  `Setting ${settingPath} updated to`,
+                                  structuredClone(value),
+                              );
+                              for (const p of bind[settingPath] ?? []) {
+                                  reRenderSetting(p);
+                              }
 
-                          // @ts-ignore
-                          bindRun(settingPath, value);
+                              // @ts-ignore
+                              bindRun(settingPath, value);
+                          }
                       }
-                  }
-              })
+                  })
             : null,
     );
     return view()

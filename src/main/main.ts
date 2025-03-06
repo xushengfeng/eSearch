@@ -1612,6 +1612,7 @@ mainOn("hotkey", ([type, name, key]) => {
         try {
             try {
                 globalShortcut.unregister(
+                    // @ts-ignore
                     store.get(`全局工具快捷键.${name}`) as string,
                 );
             } catch {}
@@ -2791,6 +2792,7 @@ function setDefaultSetting() {
             const language = matchBestLan();
             store.set(i, { 语言: language });
         } else {
+            // @ts-ignore
             store.set(i, defaultSetting[i]);
         }
     }
@@ -2808,6 +2810,7 @@ function fixSettingTree() {
                 walk(cPath);
             } else {
                 const nPath = cPath.join(".");
+                // @ts-ignore
                 if (store.get(nPath) === undefined) store.set(nPath, x[i]);
             }
         }

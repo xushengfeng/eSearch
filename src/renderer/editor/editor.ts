@@ -989,6 +989,7 @@ hotkeys("ctrl+a", () => {
 });
 
 for (const i in hotkeyMap) {
+    // @ts-ignore
     const key = store.get(`主页面快捷键.${i}`) as string;
     if (key) {
         hotkeys(key, hotkeyMap[i]);
@@ -2166,7 +2167,9 @@ function onlineOcr(
 ) {
     const arg = sarg.replace("data:image/png;base64,", "");
 
+    // @ts-ignore
     const clientId = store.get(`在线OCR.${type}.id`) as string;
+    // @ts-ignore
     const clientSecret = store.get(`在线OCR.${type}.secret`) as string;
     if (!clientId || !clientSecret)
         return callback(new Error("未填写 API Key 或 Secret Key"), null);
@@ -2228,6 +2231,7 @@ function onlineOcr(
         }
 
         function ocrGet(token: string) {
+            // @ts-ignore
             fetch(`${store.get(`在线OCR.${type}.url`)}?access_token=${token}`, {
                 method: "POST",
                 headers: {

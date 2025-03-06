@@ -37,7 +37,7 @@ class Store {
     }
 
     public set<P extends SettingPath>(
-        keyPath: P | (string & {}),
+        keyPath: P,
         value: GetValue<setting, P> | (unknown & {}),
     ): void {
         const store = this.getStore();
@@ -60,9 +60,7 @@ class Store {
         }
         this.setStore(store);
     }
-    public get<P extends SettingPath>(
-        keyPath: P | (string & {}),
-    ): GetValue<setting, P> {
+    public get<P extends SettingPath>(keyPath: P): GetValue<setting, P> {
         const store = this.getStore();
         const pathx = keyPath.split(".");
         const lastp = pathx.pop() ?? "";
