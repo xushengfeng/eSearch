@@ -29,6 +29,7 @@ import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 import { t } from "../../../lib/translate/translate";
 import xhistory from "../lib/history";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -1435,11 +1436,10 @@ async function save() {
 }
 
 function getSavePath(type: baseType) {
-    return ipcRenderer.sendSync(
-        "get_save_file_path",
+    return renderSendSync("save_file_path", [
         type,
         type === "mp4" || type === "webm",
-    );
+    ]);
 }
 
 async function saveImages() {
@@ -1483,7 +1483,7 @@ async function saveImages() {
 
     imgProgress.remove();
 
-    ipcRenderer.send("ok_save", exportPath);
+    renderSend("ok_save", [exportPath]);
 
     decoder.close();
 
@@ -1565,7 +1565,7 @@ async function saveGif() {
 
     gifProgress.remove();
 
-    ipcRenderer.send("ok_save", exportPath);
+    renderSend("ok_save", [exportPath]);
 }
 
 async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
@@ -1593,7 +1593,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     const { buffer } = muxer.target;
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved webm");
-    ipcRenderer.send("ok_save", exportPath, true);
+    renderSend("ok_save", [exportPath, true]);
 }
 
 async function saveMp4(_codec: "avc" | "vp9" | "av1") {
@@ -1622,7 +1622,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     const { buffer } = muxer.target;
     fs.writeFileSync(exportPath, Buffer.from(buffer));
     console.log("saved mp4");
-    ipcRenderer.send("ok_save", exportPath, true);
+    renderSend("ok_save", [exportPath, true]);
 }
 
 // @auto-path:../assets/icons/$.svg

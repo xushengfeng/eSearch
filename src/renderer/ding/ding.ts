@@ -1,5 +1,5 @@
-const { ipcRenderer, clipboard, nativeImage } =
-    require("electron") as typeof import("electron");
+// biome-ignore format:
+const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
 import { getImgUrl, initStyle, setTitle } from "../root/root";
@@ -19,6 +19,7 @@ import {
 } from "dkh-ui";
 
 import { t } from "../../../lib/translate/translate";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -472,10 +473,10 @@ function save(id: string) {
         getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
-    const save = ipcRenderer.sendSync("get_save_file_path", "png");
+    const save = renderSendSync("save_file_path", ["png"]);
     if (!save) return;
     fs.writeFileSync(save, b);
-    ipcRenderer.send("ok_save", save);
+    renderSend("ok_save", [save]);
 }
 function edit(id: string) {
     const b = Buffer.from(

@@ -2370,29 +2370,7 @@ mainOn("save_file_path", async ([type, isVideo]) => {
     return x.filePath;
 });
 
-ipcMain.on("get_save_file_path", (event, arg: string, isVideo: boolean) => {
-    const savedPath = isVideo
-        ? store.get("保存.保存路径.视频") || ""
-        : store.get("保存.保存路径.图片") || "";
-    const defaultPath = join(savedPath, `${getFileName()}.${arg}`);
-    if (store.get("保存.快速保存") && savedPath) {
-        event.returnValue = defaultPath;
-        return;
-    }
-    dialog
-        .showSaveDialog({
-            title: t("选择要保存的位置"),
-            defaultPath: defaultPath,
-            filters: [
-                { name: isVideo ? t("视频") : t("图像"), extensions: [arg] },
-            ],
-        })
-        .then((x) => {
-            event.returnValue = x.filePath;
-        });
-});
-
-ipcMain.on("ok_save", (_event, arg: string, isVideo: boolean) => {
+mainOn("ok_save", ([arg, isVideo]) => {
     noti(arg);
     if (isVideo) {
         store.set("保存.保存路径.视频", dirname(arg));

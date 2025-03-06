@@ -25,6 +25,7 @@ const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
 import { t } from "../../../lib/translate/translate";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
 
 // @auto-path:../assets/icons/$.svg
 function icon(src: string) {
@@ -255,17 +256,16 @@ const controls = frame("sidebar", {
         _ex_save: {
             _: view("x").style({ gap: "var(--o-padding)" }),
             save: button(icon("save")).on("click", () => {
-                const path = ipcRenderer.sendSync(
-                    "get_save_file_path",
+                const path = renderSendSync("save_file_path", [
                     controls.els.formart.gv,
-                );
+                ]);
                 if (!path) return;
                 const img = getImg(true).replace(
                     /^data:image\/\w+;base64,/,
                     "",
                 );
                 writeFileSync(path, Buffer.from(img, "base64"));
-                ipcRenderer.send("ok_save", path);
+                renderSend("ok_save", [path]);
                 ipcRenderer.send("window", "close");
             }),
             copy: button(icon("copy")).on("click", () => {
