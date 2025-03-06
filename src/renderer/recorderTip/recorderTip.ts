@@ -325,11 +325,11 @@ let segCanvas: HTMLCanvasElement = document.createElement("canvas");
 const stop = button(iconEl("stop_record").style({ filter: "none" })).on(
     "click",
     () => {
-        ipcRenderer.send("record", "state", "stop");
+        renderSend("recordState", ["stop"]);
     },
 );
 const pause = button(iconEl("play_pause")).on("click", () => {
-    ipcRenderer.send("record", "state", "pause");
+    renderSend("recordState", ["pause"]);
 });
 const timeEl = txt();
 const controlBar = view("x")

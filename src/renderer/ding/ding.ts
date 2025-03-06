@@ -20,6 +20,7 @@ import {
 
 import { t } from "../../../lib/translate/translate";
 import { renderSend, renderSendSync } from "../../../lib/ipc";
+import type { DingResize, DingStart, Dire } from "../../ShareTypes";
 
 initStyle(store);
 
@@ -54,14 +55,6 @@ ipcRenderer.on("ding", (_event, type, id, more) => {
             break;
     }
 });
-
-function sendEvent(
-    type: "close" | "move_start" | "move_end" | "back" | "resize",
-    id: string | null,
-    more?: unknown,
-) {
-    ipcRenderer.send("ding_event", type, id, more);
-}
 
 const dives: ElType<HTMLElement>[] = [];
 
@@ -370,9 +363,9 @@ ipcRenderer.on("mouse", (_e, x, y) => {
         }
     }
     if (els[0] === photoEl.el || ignorex) {
-        ipcRenderer.send("ding_ignore", true);
+        renderSend("dingIgnore", [true]);
     } else {
-        ipcRenderer.send("ding_ignore", false);
+        renderSend("dingIgnore", [false]);
     }
 
     mouseMove(els[0] as HTMLElement, x, y);
@@ -418,7 +411,7 @@ function transform(id: string, i: number) {
     }
 }
 function back(id: string) {
-    sendEvent("back", id);
+    renderSend("dingShare", [{ type: "back", id }]);
 }
 function back2(id: string) {
     const el = elFromId(id);
@@ -451,7 +444,7 @@ function back2(id: string) {
     x.opacity("100");
 }
 function close(id: string) {
-    ipcRenderer.send("ding_event", "close", id, dingData.size === 1);
+    renderSend("dingShare", [{ type: "close", id, closeAll: dingData.size === 1 }]);
 }
 function close2(id: string) {
     elFromId(id)?.remove();
@@ -603,40 +596,28 @@ let windowDiv: ElType<HTMLElement> | null = null; // todo 使用id代替
 
 let resizeSender = false;
 
-type start = {
-    id: string;
-    x: number;
-    y: number;
-    dx: number;
-    dy: number;
-    d: Dire;
-};
-
-type Resize = {
-    id: string;
-    zoom: number;
-    dx: number;
-    dy: number;
-    clip: boolean;
-};
-
 document.onmousedown = (e) => {
     const el = e.target as HTMLElement;
     const div = dives.find((d) => d.el.contains(el));
     if (div && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
         const { dx, dy } = dxdy(e, div);
-        sendEvent("move_start", null, {
-            id: div.el.id,
-            x: e.clientX,
-            y: e.clientY,
-            dx,
-            dy,
-            d: dire(div.el, { x: e.clientX, y: e.clientY }),
-        } as start);
+        renderSend("dingShare", [
+            {
+                type: "move_start",
+                more: {
+                    id: div.el.id,
+                    x: e.clientX,
+                    y: e.clientY,
+                    dx,
+                    dy,
+                    d: dire(div.el, { x: e.clientX, y: e.clientY }),
+                },
+            },
+        ]);
     }
     resizeSender = true;
 };
-function mouseStart(op: start) {
+function mouseStart(op: DingStart) {
     windowDiv = elFromId(op.id);
     const div = windowDiv as ElType<HTMLElement>;
     div.style({
@@ -667,7 +648,7 @@ function mouseMove(el: HTMLElement, x: number, y: number) {
     }
 }
 document.onmouseup = (_e) => {
-    sendEvent("move_end", null);
+    renderSend("dingShare", [{ type: "move_end" }]);
     resizeSender = false;
 };
 function mouseEnd() {
@@ -677,18 +658,6 @@ function mouseEnd() {
     direction = "";
     cursor(direction);
 }
-
-type Dire =
-    | "move"
-    | "西北"
-    | "东南"
-    | "东北"
-    | "西南"
-    | "西"
-    | "东"
-    | "北"
-    | "南"
-    | "";
 
 let direction: Dire = "";
 
@@ -931,7 +900,9 @@ function resize(
     }
 
     if (resizeSender)
-        sendEvent("resize", null, { id: id, zoom, dx, dy, clip } as Resize);
+        renderSend("dingShare", [
+            { type: "resize", more: { id: id, zoom, dx, dy, clip } },
+        ]);
 }
 
 const photoEl = view().attr({ id: "photo" }).addInto();

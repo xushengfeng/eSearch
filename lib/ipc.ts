@@ -1,8 +1,17 @@
 // biome-ignore format:
 const { ipcRenderer, ipcMain} = require("electron") as typeof import("electron");
 
-import type { MessageBoxSyncOptions, OpenDialogOptions } from "electron";
-import type { translateWinType, 功能 } from "../src/ShareTypes";
+import type {
+    MessageBoxSyncOptions,
+    NativeTheme,
+    OpenDialogOptions,
+} from "electron";
+import type {
+    DingResize,
+    DingStart,
+    translateWinType,
+    功能,
+} from "../src/ShareTypes";
 
 type Message = {
     clip_show: () => void;
@@ -65,6 +74,55 @@ type Message = {
         defalutPath: string,
         p: OpenDialogOptions["properties"],
     ) => string;
+    tabView: (
+        id: number,
+        type:
+            | "close"
+            | "top"
+            | "back"
+            | "forward"
+            | "stop"
+            | "reload"
+            | "home"
+            | "dev",
+    ) => void;
+    tabViewSize: (size: { top: number; bottom: number }) => void;
+    viewEvent: (
+        type:
+            | "close"
+            | "top"
+            | "back"
+            | "forward"
+            | "stop"
+            | "reload"
+            | "home"
+            | "dev",
+    ) => void;
+    hotkey: (type: "快捷键" | "快捷键2", name: string, key: string) => boolean;
+    reloadMainFromSetting: () => void;
+    set_default_setting: () => void;
+    reload: () => void;
+    clearStorage: () => void;
+    clearCache: () => void;
+    move_user_data: (target: string) => void;
+    getAutoStart: () => boolean;
+    setAutoStart: (value: boolean) => void;
+    theme: (t: NativeTheme["themeSource"]) => void;
+    dingIgnore: (ignore: boolean) => void;
+    recordStop: () => void;
+    recordStart: () => void;
+    recordTime: (time: string) => void;
+    recordCamera: (camera: boolean) => void;
+    recordState: (state: "stop" | "pause") => void;
+    recordSavePath: (ext: string) => void;
+    dingShare: (
+        data:
+            | { type: "close"; id: string; closeAll: boolean }
+            | { type: "move_start"; more: DingStart }
+            | { type: "move_end" }
+            | { type: "back"; id: string }
+            | { type: "resize"; more: DingResize },
+    ) => void;
 };
 
 const name = "ipc";

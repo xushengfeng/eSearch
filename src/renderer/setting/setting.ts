@@ -61,7 +61,7 @@ import {
 
 import time_format from "../../../lib/time_format";
 import xhistory from "../lib/history";
-import { renderSendSync } from "../../../lib/ipc";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
 
 const download = require("download");
 
@@ -1293,7 +1293,7 @@ const s: Partial<settingItem<SettingPath>> = {
             const b = button()
                 .style({ display: "none" })
                 .on("click", () => {
-                    ipcRenderer.send("setting", "reload");
+                    renderSend("reload", []);
                 });
             const list = xSelect(
                 lans.map((i) => ({
@@ -1424,7 +1424,7 @@ const s: Partial<settingItem<SettingPath>> = {
                 ],
                 "深色模式",
             ).on("input", (_, el) => {
-                ipcRenderer.send("setting", "theme", el.gv);
+                renderSend("theme", [el.gv]);
             }),
     },
     "全局.缩放": {
@@ -1571,9 +1571,9 @@ const xs: Record<
         el: () =>
             xSwitch()
                 .on("input", (_e, el) => {
-                    ipcRenderer.send("setting", "set_autostart", el.gv);
+                    renderSend("setAutoStart", [el.gv]);
                 })
-                .sv(ipcRenderer.sendSync("setting", "get_autostart")),
+                .sv(renderSendSync("getAutoStart", [])),
     },
     _qsq: {
         name: "取色器预览",
@@ -1673,10 +1673,10 @@ const xs: Record<
         el: () =>
             xGroup("x").add([
                 button("Cookie 等存储数据").on("click", () => {
-                    ipcRenderer.send("setting", "clear", "storage");
+                    renderSend("clearStorage", []);
                 }),
                 button("缓存").on("click", () => {
-                    ipcRenderer.send("setting", "clear", "cache");
+                    renderSend("clearCache", []);
                 }),
             ]),
     },
@@ -1722,8 +1722,8 @@ const xs: Record<
                 console.log(portablePath);
                 try {
                     fs.mkdirSync(portablePath, { recursive: true });
-                    ipcRenderer.send("setting", "move_user_data", portablePath);
-                    ipcRenderer.send("setting", "reload");
+                    renderSendSync("move_user_data", [portablePath]);
+                    renderSend("reload", []);
                 } catch (error) {
                     // @ts-ignore
                     if (error.code !== "EEXIST") {
@@ -2454,7 +2454,7 @@ function xSelect<T extends string>(
     name: string,
 ) {
     const el = xGroup("x").style({ marginLeft: "2px" });
-    const r = radioGroup(name);
+    const r = radioGroup<T>(name);
     for (const option of options) {
         el.add(
             r
@@ -3697,7 +3697,7 @@ function hotkeyX(name: string, p: "快捷键" | "快捷键2", icon = "") {
         .bindGet(() => h.gv)
         .bindSet((v: string) => h.sv(v));
     h.on("input", () => {
-        const arg = ipcRenderer.sendSync("setting", p, [name, h.gv]);
+        const arg = renderSendSync("hotkey", [p, name, h.gv]);
         if (arg) {
         } else {
             h.sv("");
@@ -3944,10 +3944,12 @@ function about() {
             ).add("更新日志"),
         ),
         view().add([
-            a(ipcRenderer.sendSync("setting", "feedback")).add("反馈问题"),
+            a(renderSendSync("feedbackBug", [])).add("反馈问题"),
             " ",
             a(
-                `https://github.com/xushengfeng/eSearch/issues/new?assignees=&labels=新需求&template=feature_request.yaml&title=建议在……添加……功能/改进&v=${packageJson.version}&os=${process.platform} ${os.release()} (${process.arch})`,
+                renderSendSync("feedbackFeature", [
+                    { title: "建议在……添加……功能/改进" },
+                ]),
             ).add("提供建议"),
         ]),
         view().add(

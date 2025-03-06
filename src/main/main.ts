@@ -36,7 +36,7 @@ import type {
     功能,
 } from "../ShareTypes";
 import { join, resolve, dirname } from "node:path";
-import { exec } from "node:child_process";
+import { exec, execSync } from "node:child_process";
 import {
     readFileSync,
     rmSync,
@@ -1055,7 +1055,7 @@ function feedbackUrl2(op?: {
     main?: string;
 }) {
     const url = new URL(
-        "https://github.com/xushengfeng/eSearch/issues/new?template=feature_request.yaml",
+        "https://github.com/xushengfeng/eSearch/issues/new?template=feature_request.yaml&labels=新需求",
     );
     if (op?.title) url.searchParams.append("title", op.title);
     url.searchParams.append("main", op?.main || "");
@@ -1455,66 +1455,45 @@ function createRecorderWindow(
     if (store.get("录屏.提示.光标.开启")) mouse();
 }
 
-ipcMain.on("record", (_event, type, arg) => {
-    switch (type) {
-        case "stop":
-            recorderTipWin.close();
-            recording = false;
-
-            break;
-        case "start":
-            recorder.minimize();
-            break;
-        case "time":
-            recorderTipWin.webContents.send("record", "time", arg);
-            break;
-        case "ff": {
-            // 处理视频
-            const savedPath = store.get("保存.保存路径.视频") || "";
-            dialog
-                .showSaveDialog({
-                    title: t("选择要保存的位置"),
-                    defaultPath: join(
-                        savedPath,
-                        `${getFileName()}.${arg.格式}`,
-                    ),
-                    filters: [{ name: t("视频"), extensions: [] }],
-                })
-                .then(async (x) => {
-                    if (x.filePath) {
-                        let fpath = x.filePath;
-                        if (!fpath.includes(".")) {
-                            fpath += `.${arg.格式}`;
-                        }
-                        recorder.webContents.send("ff", "save_path", fpath);
-                    } else {
-                        new Notification({
-                            title: `${app.name} ${t("保存视频失败")}`,
-                            body: t("用户已取消保存"),
-                            icon: `${runPath}/assets/logo/64x64.png`,
-                        }).show();
-                    }
-                });
-            break;
-        }
-        case "state":
-            recorder.webContents.send("record", "state", arg);
-            break;
-        case "camera":
-            switch (arg) {
-                case 0:
-                    // 摄像头
-                    recorderTipWin.webContents.send("record", "camera", true);
-                    break;
-                case 1:
-                    // 摄像头关
-                    recorderTipWin.webContents.send("record", "camera", true);
-                    break;
+mainOn("recordStop", () => {
+    recorderTipWin.close();
+    recording = false;
+});
+mainOn("recordStart", () => {
+    recorder.minimize();
+});
+mainOn("recordTime", ([time]) => {
+    recorderTipWin.webContents.send("record", "time", time);
+});
+mainOn("recordCamera", ([o]) => {
+    recorderTipWin.webContents.send("record", "camera", o);
+});
+mainOn("recordState", ([s]) => {
+    recorder.webContents.send("record", "state", s);
+});
+mainOn("recordSavePath", ([ext]) => {
+    const savedPath = store.get("保存.保存路径.视频") || "";
+    dialog
+        .showSaveDialog({
+            title: t("选择要保存的位置"),
+            defaultPath: join(savedPath, `${getFileName()}.${ext}`),
+            filters: [{ name: t("视频"), extensions: [] }],
+        })
+        .then(async (x) => {
+            if (x.filePath) {
+                let fpath = x.filePath;
+                if (!fpath.includes(".")) {
+                    fpath += `.${ext}`;
+                }
+                recorder.webContents.send("ff", "save_path", fpath);
+            } else {
+                new Notification({
+                    title: `${app.name} ${t("保存视频失败")}`,
+                    body: t("用户已取消保存"),
+                    icon: `${runPath}/assets/logo/64x64.png`,
+                }).show();
             }
-            break;
-        case "pause_time":
-            break;
-    }
+        });
 });
 
 function createSuperRecorderWindow() {
@@ -1536,155 +1515,118 @@ function createSuperRecorderWindow() {
         });
     });
 }
+mainOn("reloadMainFromSetting", () => {
+    if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible())
+        clipWindow.reload();
+    contextMenu.items[8].checked = store.get("浏览器中打开");
+    tray.popUpContextMenu(contextMenu);
+    tray.closeContextMenu();
+});
+mainOn("set_default_setting", async () => {
+    store.clear();
+    setDefaultSetting();
+    const dResolve = await dialog.showMessageBox({
+        title: t("重启"),
+        message: `${t("已恢复默认设置，部分设置需要重启$1生效").replace("$1", ` ${app.name} `)}`,
+        buttons: [t("重启"), t("稍后")],
+        defaultId: 0,
+        cancelId: 1,
+    });
+    if (dResolve.response === 0) {
+        app.relaunch();
+        app.exit(0);
+    }
+});
+mainOn("reload", () => {
+    app.relaunch();
+    app.exit(0);
+});
+mainOn("clearStorage", () => {
+    const ses = session.defaultSession;
+    ses.clearStorageData();
+});
+mainOn("clearCache", () => {
+    const ses = session.defaultSession;
+    Promise.all([
+        ses.clearAuthCache(),
+        ses.clearCache(),
+        ses.clearCodeCaches({}),
+        ses.clearHostResolverCache(),
+    ]);
+});
+mainOn("move_user_data", ([target]) => {
+    if (!target) return;
+    const toPath = resolve(target);
+    const prePath = app.getPath("userData");
+    mkdirSync(toPath, { recursive: true });
+    if (process.platform === "win32") {
+        execSync(`xcopy ${prePath}\\** ${toPath} /Y /s`);
+    } else {
+        execSync(`cp -r ${prePath}/** ${toPath}`);
+    }
+});
+mainOn("getAutoStart", () => {
+    if (process.platform === "linux") {
+        try {
+            execSync("test -e ~/.config/autostart/e-search.desktop");
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+    return app.getLoginItemSettings().openAtLogin;
+});
+mainOn("setAutoStart", ([arg1]) => {
+    if (process.platform === "linux") {
+        if (arg1) {
+            exec("mkdir ~/.config/autostart");
+            exec(`cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`);
+        } else {
+            exec("rm ~/.config/autostart/e-search.desktop");
+        }
+    } else {
+        app.setLoginItemSettings({ openAtLogin: arg1 });
+    }
+});
+mainOn("theme", ([arg1]) => {
+    nativeTheme.themeSource = arg1;
+    store.set("全局.深色模式", arg1);
+});
 
-ipcMain.on("setting", async (event, arg, arg1) => {
-    switch (arg) {
-        case "save_err":
-            console.log("保存设置失败");
-            break;
-        case "reload_main":
-            if (
-                clipWindow &&
-                !clipWindow.isDestroyed() &&
-                !clipWindow.isVisible()
-            )
-                clipWindow.reload();
-            contextMenu.items[8].checked = store.get("浏览器中打开");
-            tray.popUpContextMenu(contextMenu);
-            tray.closeContextMenu();
-            break;
-        case "set_default_setting": {
-            store.clear();
-            setDefaultSetting();
-            const dResolve = await dialog.showMessageBox({
-                title: t("重启"),
-                message: `${t("已恢复默认设置，部分设置需要重启$1生效").replace("$1", ` ${app.name} `)}`,
-                buttons: [t("重启"), t("稍后")],
-                defaultId: 0,
-                cancelId: 1,
-            });
-            if (dResolve.response === 0) {
-                app.relaunch();
-                app.exit(0);
+mainOn("hotkey", ([type, name, key]) => {
+    if (type === "快捷键") {
+        try {
+            try {
+                // @ts-ignore
+                globalShortcut.unregister(store.get(`快捷键.${name}.key`));
+            } catch {}
+            let ok = false;
+            if (key) {
+                ok = globalShortcut.register(key, () => {
+                    快捷键函数[name]();
+                });
             }
-            break;
+            return key ? ok : true;
+        } catch (error) {
+            return false;
         }
-        case "reload":
-            app.relaunch();
-            app.exit(0);
-            break;
-        case "clear": {
-            const ses = session.defaultSession;
-            if (arg1 === "storage") {
-                ses.clearStorageData()
-                    .then(() => {
-                        event.sender.send("setting", "storage", true);
-                    })
-                    .catch(() => {
-                        event.sender.send("setting", "storage", false);
-                    });
-            } else {
-                Promise.all([
-                    ses.clearAuthCache(),
-                    ses.clearCache(),
-                    ses.clearCodeCaches({}),
-                    ses.clearHostResolverCache(),
-                ])
-                    .then(() => {
-                        event.sender.send("setting", "cache", true);
-                    })
-                    .catch(() => {
-                        event.sender.send("setting", "cache", false);
-                    });
-            }
-            break;
-        }
-        case "move_user_data": {
-            if (!arg1) return;
-            const toPath = resolve(arg1);
-            const prePath = app.getPath("userData");
-            mkdirSync(toPath, { recursive: true });
-            if (process.platform === "win32") {
-                exec(`xcopy ${prePath}\\** ${toPath} /Y /s`);
-            } else {
-                exec(`cp -r ${prePath}/** ${toPath}`);
-            }
-            break;
-        }
-        case "get_autostart": {
-            if (process.platform === "linux") {
-                exec(
-                    "test -e ~/.config/autostart/e-search.desktop",
-                    (error, _stdout, _stderr) => {
-                        event.returnValue = !error;
-                    },
+    } else {
+        try {
+            try {
+                globalShortcut.unregister(
+                    store.get(`全局工具快捷键.${name}`) as string,
                 );
-            } else {
-                event.returnValue = app.getLoginItemSettings().openAtLogin;
+            } catch {}
+            let ok = true;
+            if (key) {
+                ok = globalShortcut.register(key, () => {
+                    sendCaptureEvent(undefined, name as 功能);
+                });
             }
-            break;
+            return ok;
+        } catch (error) {
+            return false;
         }
-        case "set_autostart": {
-            if (process.platform === "linux") {
-                if (arg1) {
-                    exec("mkdir ~/.config/autostart");
-                    exec(
-                        `cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`,
-                    );
-                } else {
-                    exec("rm ~/.config/autostart/e-search.desktop");
-                }
-            } else {
-                app.setLoginItemSettings({ openAtLogin: arg1 });
-            }
-            break;
-        }
-        case "theme":
-            nativeTheme.themeSource = arg1;
-            store.set("全局.深色模式", arg1);
-            break;
-        case "快捷键": {
-            const [name, key] = arg1;
-            try {
-                try {
-                    // @ts-ignore
-                    globalShortcut.unregister(store.get(`快捷键.${name}.key`));
-                } catch {}
-                let ok = false;
-                if (key) {
-                    ok = globalShortcut.register(key, () => {
-                        快捷键函数[arg1[0]]();
-                    });
-                }
-                event.returnValue = key ? ok : true;
-            } catch (error) {
-                event.returnValue = false;
-            }
-            break;
-        }
-        case "快捷键2": {
-            const [name, key] = arg1;
-            try {
-                try {
-                    globalShortcut.unregister(
-                        store.get(`全局工具快捷键.${name}`) as string,
-                    );
-                } catch {}
-                let ok = true;
-                if (key) {
-                    ok = globalShortcut.register(key, () => {
-                        sendCaptureEvent(undefined, name as 功能);
-                    });
-                }
-                event.returnValue = ok;
-            } catch (error) {
-                event.returnValue = false;
-            }
-            break;
-        }
-        case "feedback":
-            event.returnValue = feedbackUrl();
-            break;
     }
 });
 
@@ -1823,7 +1765,7 @@ function createDingWindow(
     dingClickThrough();
 }
 let dingThrogh: null | boolean = null;
-ipcMain.on("ding_ignore", (_event, v) => {
+mainOn("dingIgnore", ([v]) => {
     for (const id in dingwindowList) {
         if (dingwindowList[id]?.win.isDestroyed()) continue;
         dingwindowList[id]?.win?.setIgnoreMouseEvents(
@@ -1843,8 +1785,8 @@ function forceDingThrogh() {
     }
 }
 
-ipcMain.on("ding_event", (_event, type, id, more) => {
-    if (type === "close" && more) {
+mainOn("dingShare", ([data]) => {
+    if (data.type === "close" && data.closeAll) {
         for (const i in dingwindowList) {
             dingwindowList[i].win.close();
             delete dingwindowList[i];
@@ -1852,20 +1794,33 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
         return;
     }
 
-    if (type === "move_start") {
+    if (data.type === "move_start") {
         const nowXY = screen.getCursorScreenPoint();
 
         for (const i in dingwindowList) {
             const display = dingwindowList[i].display;
+            const more = { x: 0, y: 0 };
             more.x = nowXY.x - display.bounds.x;
             more.y = nowXY.y - display.bounds.y;
-            dingwindowList[i].win.webContents.send("ding", type, id, more);
+            dingwindowList[i].win.webContents.send(
+                "ding",
+                data.type,
+                null,
+                more,
+            );
         }
         return;
     }
 
     for (const i in dingwindowList) {
-        dingwindowList[i].win.webContents.send("ding", type, id, more);
+        dingwindowList[i].win.webContents.send(
+            "ding", // todo
+            data.type,
+            // @ts-ignore
+            data.id,
+            // @ts-ignore
+            data.more,
+        );
     }
 });
 mainOn("edit_pic", ([img]) => {
@@ -2221,14 +2176,13 @@ async function createBrowser(windowName: number, url: string) {
 }
 /**
  * 标签页事件
- * @param {BrowserWindow} w 浏览器
- * @param {String} arg 事件字符
  */
-function viewEvents(w?: BaseWindow, arg?: string) {
-    if (w instanceof BrowserWindow) w.webContents.send("view_events", arg);
+function viewEvents(w: BaseWindow | undefined, arg: string) {
+    // @ts-ignore
+    if (w instanceof BrowserWindow) mainSend(w.webContents, "viewEvent", [arg]); // todo type
 }
 
-ipcMain.on("tab_view", (e, id, arg, arg2) => {
+mainOn("tabView", ([id, arg], e) => {
     const mainWindow = BrowserWindow.fromWebContents(e.sender);
     const searchWindow = searchWindowL[id];
     if (!mainWindow) return;
@@ -2263,19 +2217,20 @@ ipcMain.on("tab_view", (e, id, arg, arg2) => {
         case "dev":
             searchWindow.webContents.openDevTools();
             break;
-        case "size": {
-            const bSize = Object.values(mainWindowL).find(
-                (i) => i.win === mainWindow,
-            )?.browser;
-            if (!bSize) break;
-            bSize.bottom = arg2.bottom;
-            bSize.top = arg2.top;
-            for (const w of mainWindow.contentView.children) {
-                if (w.getBounds().width !== 0)
-                    setViewSize(w, mainWindow, bSize);
-            }
-            break;
-        }
+    }
+});
+
+mainOn("tabViewSize", ([arg2], e) => {
+    const mainWindow = BrowserWindow.fromWebContents(e.sender);
+    if (!mainWindow) return;
+    const bSize = Object.values(mainWindowL).find(
+        (i) => i.win === mainWindow,
+    )?.browser;
+    if (!bSize) return;
+    bSize.bottom = arg2.bottom;
+    bSize.top = arg2.top;
+    for (const w of mainWindow.contentView.children) {
+        if (w.getBounds().width !== 0) setViewSize(w, mainWindow, bSize);
     }
 });
 

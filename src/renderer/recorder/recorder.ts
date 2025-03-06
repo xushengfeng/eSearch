@@ -42,11 +42,6 @@ function pTime() {
     for (let i = 0; i < timeL.length; i += 2) {
         if (timeL[i + 1]) d += timeL[i + 1] - timeL[i];
     }
-    ipcRenderer.send("record", "pause_time", {
-        t,
-        dt: d,
-        pause: timeL.length % 2 === 0,
-    });
 }
 function getT() {
     let t = 0;
@@ -61,7 +56,7 @@ function getT() {
     return t;
 }
 function setTime(t: string) {
-    ipcRenderer.send("record", "time", t);
+    renderSend("recordTime", [t]);
 }
 function getTime() {
     if (recorder.state === "recording") {
@@ -141,8 +136,7 @@ function c() {
 }
 
 function cameraStreamF(b: boolean) {
-    if (b) ipcRenderer.send("record", "camera", 0);
-    else ipcRenderer.send("record", "camera", 1);
+    renderSend("recordCamera", [b]);
 }
 
 function resize() {
@@ -374,7 +368,7 @@ function joinAndSave(filepath: string) {
 
 async function save() {
     store.set("录屏.转换.格式", 格式El.el.gv);
-    ipcRenderer.send("record", "ff", { 格式: type });
+    renderSend("recordSavePath", [type]); // todo 可以使用promise控制流程
 }
 
 let savePath = "";
@@ -726,7 +720,7 @@ const startStop = button()
             pTime();
             setInterval(getTime, 500);
             sS = false;
-            ipcRenderer.send("record", "start", tmpPath, type);
+            renderSend("recordStart", []);
 
             c();
         } else {
@@ -1079,7 +1073,7 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
             recorder.onstop = () => {
                 (nameT.at(-1) as (typeof nameT)[0]).e = getT();
                 if (stop) {
-                    ipcRenderer.send("record", "stop");
+                    renderSend("recordStop", []);
                     save(showControl);
                     console.log(nameT);
                 } else {
@@ -1127,17 +1121,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
 });
 
 ipcRenderer.on("ff", (_e, t, arg) => {
-    if (t === "p") {
-        if (arg === 1)
-            setTimeout(() => {
-                ipcRenderer.send("record", "close");
-            }, 400);
-    }
-    if (t === "l") {
-        const textarea = logText.el;
-        textarea.value += `\n${arg[1]}`;
-        textarea.scrollTop = textarea.scrollHeight;
-    }
     if (t === "save_path") {
         savePath = arg;
         if (isTsOk)

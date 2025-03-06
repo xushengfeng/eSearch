@@ -48,7 +48,7 @@ const tmpTextPath = path.join(
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
-import { renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend } from "../../../lib/ipc";
 
 /**撤销 */
 const undoStack = new xhistory<string>([], "", {
@@ -1682,7 +1682,7 @@ function setConciseMode(m: boolean) {
     if (m) {
         bSize.bottom = 0;
     }
-    ipcRenderer.send("tab_view", null, "size", bSize);
+    renderSend("tabViewSize", [bSize]);
 }
 
 if (!store.get("主页面.高级窗口按钮")) {
@@ -1779,7 +1779,7 @@ function getTab(id: number): TabItem {
 }
 
 function closeTab(id: number) {
-    ipcRenderer.send("tab_view", id, "close");
+    renderSend("tabView", [id, "close"]);
     focusTab(liList.at(liList.findIndex((i) => i === id) + 1) || 0);
     liList = liList.filter((i) => i !== id);
     tabs.get(id)?.el.remove();
@@ -1807,7 +1807,7 @@ function focusTab(id: number | 0) {
     liList.push(id);
 
     if (id) {
-        ipcRenderer.send("tab_view", id, "top");
+        renderSend("tabView", [id, "top"]);
         setTitle(getTab(id).title);
         outMainEl.el.classList.add("fill_t_s");
     } else {
@@ -1856,7 +1856,8 @@ function mainEvent(eid: string) {
         storeHistory();
     } else {
         const id = focusTabI;
-        ipcRenderer.send("tab_view", id, eid);
+        // @ts-ignore
+        renderSend("tabView", [id, eid]); // todo
         if (eid === "home") {
             focusTab(0);
             outMainEl.el.classList.remove("fill_t_s");
@@ -1874,8 +1875,8 @@ function openInBrowser() {
     }
 }
 
-ipcRenderer.on("view_events", (_event, arg) => {
-    mainEvent(arg);
+renderOn("viewEvent", ([type]) => {
+    mainEvent(type);
 });
 
 browserTabs.el.onwheel = (e) => {

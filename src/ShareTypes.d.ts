@@ -473,3 +473,32 @@ type myFetch = {
     body: string;
     getter: (string | number)[];
 };
+
+type Dire =
+    | "move"
+    | "西北"
+    | "东南"
+    | "东北"
+    | "西南"
+    | "西"
+    | "东"
+    | "北"
+    | "南"
+    | "";
+
+type DingStart = {
+    id: string;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    d: Dire;
+};
+
+type DingResize = {
+    id: string;
+    zoom: number;
+    dx: number;
+    dy: number;
+    clip: boolean;
+};
