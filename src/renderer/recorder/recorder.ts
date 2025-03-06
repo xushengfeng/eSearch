@@ -102,7 +102,7 @@ const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import type { MessageBoxSyncOptions } from "electron";
-import { renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend } from "../../../lib/ipc";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
     const p = path.join(__dirname, "..", "..", "lib", "ffmpeg");
@@ -1104,19 +1104,6 @@ ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
         case "start_stop":
             startStop.el.click();
             break;
-        case "state":
-            if (sourceId === "stop") {
-                startStop.el.click();
-            } else if (sourceId === "pause") {
-                if (recorder.state === "inactive") return;
-                if (recorder.state === "recording") {
-                    recorder.pause();
-                    pTime();
-                } else if (recorder.state === "paused") {
-                    recorder.resume();
-                    pTime();
-                }
-            }
     }
 });
 
@@ -1129,5 +1116,20 @@ ipcRenderer.on("ff", (_e, t, arg) => {
                 .catch(() => {
                     isClipRun = false;
                 });
+    }
+});
+
+renderOn("recordState", ([s]) => {
+    if (s === "stop") {
+        startStop.el.click();
+    } else if (s === "pause") {
+        if (recorder.state === "inactive") return;
+        if (recorder.state === "recording") {
+            recorder.pause();
+            pTime();
+        } else if (recorder.state === "paused") {
+            recorder.resume();
+            pTime();
+        }
     }
 });

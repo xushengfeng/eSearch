@@ -19,7 +19,7 @@ import {
 } from "dkh-ui";
 
 import { t } from "../../../lib/translate/translate";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { DingResize, DingStart, Dire } from "../../ShareTypes";
 
 initStyle(store);
@@ -34,24 +34,26 @@ function iconEl(src: string) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
-ipcRenderer.on("ding", (_event, type, id, more) => {
-    console.log(type, id, more);
-    switch (type) {
+renderOn("dingShare", ([data]) => {
+    console.log(data);
+    switch (data.type) {
         case "close":
-            close2(id);
+            close2(data.id);
             break;
         case "move_start":
-            mouseStart(more);
+            mouseStart(data.more);
             break;
         case "move_end":
             mouseEnd();
             break;
         case "back":
-            back2(id);
+            back2(data.id);
             break;
         case "resize":
-            if (!resizeSender)
+            if (!resizeSender) {
+                const more = data.more;
                 resize(more.id, more.zoom, more.dx, more.dy, more.clip);
+            }
             break;
     }
 });

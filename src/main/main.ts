@@ -53,7 +53,7 @@ import { t, lan, getLans } from "../../lib/translate/translate";
 import main, { matchFitLan } from "xtranslator";
 import time_format from "../../lib/time_format";
 import url from "node:url";
-import { mainOn, mainSend } from "../../lib/ipc";
+import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -1462,14 +1462,14 @@ mainOn("recordStop", () => {
 mainOn("recordStart", () => {
     recorder.minimize();
 });
-mainOn("recordTime", ([time]) => {
-    recorderTipWin.webContents.send("record", "time", time);
+mainOnReflect("recordTime", () => {
+    return [recorderTipWin.webContents];
 });
-mainOn("recordCamera", ([o]) => {
-    recorderTipWin.webContents.send("record", "camera", o);
+mainOnReflect("recordCamera", () => {
+    return [recorderTipWin.webContents];
 });
-mainOn("recordState", ([s]) => {
-    recorder.webContents.send("record", "state", s);
+mainOnReflect("recordState", () => {
+    return [recorder.webContents];
 });
 mainOn("recordSavePath", ([ext]) => {
     const savedPath = store.get("保存.保存路径.视频") || "";
@@ -1785,13 +1785,13 @@ function forceDingThrogh() {
     }
 }
 
-mainOn("dingShare", ([data]) => {
+mainOnReflect("dingShare", ([data]) => {
     if (data.type === "close" && data.closeAll) {
         for (const i in dingwindowList) {
             dingwindowList[i].win.close();
             delete dingwindowList[i];
         }
-        return;
+        return [];
     }
 
     if (data.type === "move_start") {
@@ -1799,29 +1799,12 @@ mainOn("dingShare", ([data]) => {
 
         for (const i in dingwindowList) {
             const display = dingwindowList[i].display;
-            const more = { x: 0, y: 0 };
-            more.x = nowXY.x - display.bounds.x;
-            more.y = nowXY.y - display.bounds.y;
-            dingwindowList[i].win.webContents.send(
-                "ding",
-                data.type,
-                null,
-                more,
-            );
+            data.more.x = nowXY.x - display.bounds.x;
+            data.more.y = nowXY.y - display.bounds.y;
         }
-        return;
     }
 
-    for (const i in dingwindowList) {
-        dingwindowList[i].win.webContents.send(
-            "ding", // todo
-            data.type,
-            // @ts-ignore
-            data.id,
-            // @ts-ignore
-            data.more,
-        );
-    }
+    return Object.values(dingwindowList).map((i) => i.win.webContents);
 });
 mainOn("edit_pic", ([img]) => {
     sendCaptureEvent(img);

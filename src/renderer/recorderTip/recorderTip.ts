@@ -14,7 +14,7 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 import { getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
-import { renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend } from "../../../lib/ipc";
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
@@ -373,17 +373,17 @@ ipcRenderer.on("record", async (_event, t, arg) => {
                 ]);
             }
             break;
-        case "camera":
-            console.log(arg);
-            if (arg) {
-                const id = await getAndSetStream();
-                cameraStreamF(id);
-            } else {
-                cameraStreamF(null);
-            }
-            break;
-        case "time":
-            timeEl.sv(arg);
-            break;
+    }
+});
+
+renderOn("recordTime", ([t]) => {
+    timeEl.sv(t);
+});
+renderOn("recordCamera", async ([b]) => {
+    if (b) {
+        const id = await getAndSetStream();
+        cameraStreamF(id);
+    } else {
+        cameraStreamF(null);
     }
 });

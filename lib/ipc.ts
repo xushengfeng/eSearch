@@ -178,6 +178,27 @@ function mainOn<K extends keyof Message>(
     mainOnData.set(key, callbacks);
 }
 
+/**
+ * 渲染进程之间的通信，主进程起到中转作用
+ */
+function mainOnReflect<K extends keyof Message>(
+    key: K,
+    callback: (
+        data: Parameters<Message[K]>,
+        event: Electron.IpcMainEvent,
+    ) => Electron.WebContents[],
+) {
+    // @ts-ignore 适用于无返回的函数 // todo 过滤
+    mainOn(key, async (data, event) => {
+        const webContents = await callback(data, event);
+        if (webContents) {
+            for (const wc of webContents) {
+                wc.send(name, key, data);
+            }
+        }
+    });
+}
+
 ipcRenderer?.on(name, (event, key, data) => {
     const callbacks = renderOnData.get(key);
     if (callbacks) {
@@ -203,4 +224,11 @@ ipcMain?.on(name, async (event, key, data) => {
     }
 });
 
-export { mainSend, renderOn, renderSend, renderSendSync, mainOn };
+export {
+    mainSend,
+    renderOn,
+    renderSend,
+    renderSendSync,
+    mainOn,
+    mainOnReflect,
+};
