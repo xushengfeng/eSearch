@@ -8,12 +8,11 @@ import {
     image,
     input,
     label,
+    p,
     txt,
 } from "dkh-ui";
 import { t } from "../../../lib/translate/translate";
 import { view } from "dkh-ui";
-
-// todo 把ui设定移到底部
 
 import store from "../../../lib/store/renderStore";
 initStyle(store);
@@ -100,7 +99,6 @@ const spawn = require("node:child_process").spawn as typeof import("child_proces
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
-import type { MessageBoxSyncOptions } from "electron";
 import { renderOn, renderSend } from "../../../lib/ipc";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
@@ -474,7 +472,7 @@ function updataPrEl(pr: typeof ffprocess) {
 
 type prst = "ok" | "err" | "running";
 
-type p = {
+type P = {
     [k: number]: {
         args: string[];
         testCom: string;
@@ -483,7 +481,7 @@ type p = {
     };
 };
 const ffprocess: {
-    [key in "ts" | "clip" | "join"]: p;
+    [key in "ts" | "clip" | "join"]: P;
 } = {
     ts: {},
     clip: {},
@@ -788,6 +786,14 @@ const settingEl = view("y")
     ])
     .addInto();
 
+const waitTip = ele("dialog")
+    .add([
+        p(t("等待录屏权限和录音权限获取")),
+        p(t("或者在系统设置手动批准权限")),
+    ])
+    .addInto();
+waitTip.el.showModal();
+
 const videoPEl = view().attr({ id: "video" }).addInto(mEl);
 const vpEl = view().attr({ id: "v_p" }).addInto(videoPEl);
 const videoEl = ele("video").style({ maxWidth: "none" }).addInto(vpEl).el;
@@ -993,6 +999,7 @@ if (store.get("录屏.摄像头.开启")) {
 document.body.onresize = resize;
 
 renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
+    waitTip.remove();
     rect = r;
     sS = true;
     try {
