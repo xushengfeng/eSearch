@@ -13,6 +13,21 @@ import type {
     功能,
 } from "../src/ShareTypes";
 
+type Equals<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y
+    ? 1
+    : 2
+    ? true
+    : false;
+
+// biome-ignore lint/suspicious/noExplicitAny: 相信ai
+type IsVoidFunction<T> = T extends (...args: any[]) => any
+    ? Equals<ReturnType<T>, void>
+    : false;
+
+type VoidKeys<M> = {
+    [K in keyof M]: IsVoidFunction<M[K]> extends true ? K : never;
+}[keyof M];
+
 type Message = {
     clip_show: () => void;
     clip_close: () => void;
@@ -181,14 +196,14 @@ function mainOn<K extends keyof Message>(
 /**
  * 渲染进程之间的通信，主进程起到中转作用
  */
-function mainOnReflect<K extends keyof Message>(
+function mainOnReflect<K extends VoidKeys<Message>>(
     key: K,
     callback: (
         data: Parameters<Message[K]>,
         event: Electron.IpcMainEvent,
     ) => Electron.WebContents[],
 ) {
-    // @ts-ignore 适用于无返回的函数 // todo 过滤
+    // @ts-ignore 适用于无返回的函数
     mainOn(key, async (data, event) => {
         const webContents = await callback(data, event);
         if (webContents) {
