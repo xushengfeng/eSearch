@@ -1338,7 +1338,7 @@ const recorderWinH = 24;
 let recorder: BrowserWindow;
 let recorderTipWin: BrowserWindow;
 function createRecorderWindow(
-    rect0: number[],
+    rect0: [number, number, number, number],
     screenx: { id: string; w: number; h: number; r: number },
 ) {
     const s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
@@ -1396,20 +1396,18 @@ function createRecorderWindow(
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
             let dId = sources.find((s) => s.display_id === screenx.id)?.id;
             if (!dId) dId = sources[0].id;
-            recorder.webContents.send(
-                "record",
-                "init",
+            mainSend(recorder.webContents, "recordInit", [
                 dId,
                 rect0,
                 screenx.w,
                 screenx.h,
-            );
+            ]);
         });
     });
 
     globalShortcut.register("Super+R", () => {
         if (!recorder.isDestroyed()) {
-            recorder.webContents.send("record", "start_stop");
+            mainSend(recorder.webContents, "recordStartStop", []);
         }
     });
 
@@ -1445,10 +1443,10 @@ function createRecorderWindow(
             return;
         }
         const nowXY = screen.getCursorScreenPoint();
-        recorderTipWin.webContents.send("record", "mouse", {
-            x: nowXY.x - tipB.x,
-            y: nowXY.y - tipB.y,
-        });
+        mainSend(recorderTipWin.webContents, "recordMouse", [
+            nowXY.x - tipB.x,
+            nowXY.y - tipB.y,
+        ]);
         setTimeout(mouse, 10);
     }
     recording = true;
@@ -1485,7 +1483,7 @@ mainOn("recordSavePath", ([ext]) => {
                 if (!fpath.includes(".")) {
                     fpath += `.${ext}`;
                 }
-                recorder.webContents.send("ff", "save_path", fpath);
+                mainSend(recorder.webContents, "recordSavePathReturn", [fpath]);
             } else {
                 new Notification({
                     title: `${app.name} ${t("保存视频失败")}`,
@@ -1511,7 +1509,7 @@ function createSuperRecorderWindow() {
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
             const dId = sources[0].id;
-            recorder.webContents.send("record", "init", dId);
+            mainSend(recorder.webContents, "superRecorderInit", [dId]);
         });
     });
 }
@@ -1715,9 +1713,7 @@ function createDingWindow(
             rendererPath(dingWindow, "ding.html");
             if (dev) dingWindow.webContents.openDevTools();
             dingWindow.webContents.on("did-finish-load", () => {
-                dingWindow.webContents.send("screen_id", i.id);
-                dingWindow.webContents.send(
-                    "img",
+                mainSend(dingWindow.webContents, "addDing", [
                     id,
                     x - i.bounds.x,
                     y - i.bounds.y,
@@ -1725,7 +1721,7 @@ function createDingWindow(
                     h,
                     img,
                     type,
-                );
+                ]);
             });
             dingWindow.setIgnoreMouseEvents(true);
 
@@ -1753,11 +1749,10 @@ function createDingWindow(
         for (const i in dingwindowList) {
             try {
                 const b = dingwindowList[i].win.getBounds();
-                dingwindowList[i].win.webContents.send(
-                    "mouse",
+                mainSend(dingwindowList[i].win.webContents, "dingMouse", [
                     nowXY.x - b.x,
                     nowXY.y - b.y,
-                );
+                ]);
             } catch (error) {}
         }
         setTimeout(dingClickThrough, 10);
@@ -1871,12 +1866,11 @@ function createTranslator(op: translateWinType) {
     rendererPath(win, "translator.html");
     if (dev) win.webContents.openDevTools();
     win.webContents.on("did-finish-load", () => {
-        win.webContents.send(
-            "init",
+        mainSend(win.webContents, "translatorInit", [
             op.displayId,
             screen.getAllDisplays(),
             op.rect,
-        );
+        ]);
     });
 
     win.setAlwaysOnTop(true, "screen-saver");
@@ -1894,7 +1888,7 @@ function createPhotoEditor(img: string) {
     if (dev) win.webContents.openDevTools();
 
     win.webContents.on("did-finish-load", () => {
-        win.webContents.send("img", img);
+        mainSend(win.webContents, "superPhotoEditorInit", [img]);
     });
 }
 
@@ -1914,7 +1908,7 @@ async function createMainWindow(op: MainWinType) {
         );
         const mainWindow = mainWindowL[name].win;
         op.time = new Date().getTime();
-        mainWindow.webContents.send("text", name, op);
+        mainSend(mainWindow.webContents, "editorInit", [name, op]);
         mainWindow.focus();
         return name;
     }
@@ -1973,7 +1967,7 @@ async function createMainWindow(op: MainWinType) {
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
         // 确保切换到index时能传递window_name
-        mainWindow.webContents.send("text", windowName, op);
+        mainSend(mainWindow.webContents, "editorInit", [windowName, op]);
 
         if (op.type === "image" && op.arg0 === "ai") {
             createBrowser(windowName, "./aiVision.html").then((c) => {
@@ -2045,10 +2039,10 @@ async function createHelpWindow() {
 
 /**
  * 向聚焦的主页面发送事件信息
- * @param {String} m
  */
-function mainEdit(window?: BaseWindow, m?: string) {
-    if (window instanceof BrowserWindow) window.webContents.send("edit", m);
+function mainEdit(window: BaseWindow | undefined, m: string) {
+    if (window instanceof BrowserWindow)
+        mainSend(window.webContents, "editorEvent", [m]);
 }
 
 const searchWindowL: { [n: number]: WebContentsView } = {};
@@ -2099,26 +2093,26 @@ async function createBrowser(windowName: number, url: string) {
     });
     if (dev) searchView.webContents.openDevTools();
     if (!mainWindow.isDestroyed())
-        mainWindow.webContents.send("url", view, "new", url);
+        mainSend(mainWindow.webContents, "browserNew", [view, url]);
     searchView.webContents.on("page-title-updated", (_event, title) => {
         if (!mainWindow.isDestroyed())
-            mainWindow.webContents.send("url", view, "title", title);
+            mainSend(mainWindow.webContents, "browserTitle", [view, title]);
     });
     searchView.webContents.on("page-favicon-updated", (_event, favlogo) => {
         if (!mainWindow.isDestroyed())
-            mainWindow.webContents.send("url", view, "icon", favlogo);
+            mainSend(mainWindow.webContents, "browserIcon", [view, favlogo[0]]);
     });
     searchView.webContents.on("did-navigate", (_event, url) => {
         if (!mainWindow.isDestroyed())
-            mainWindow.webContents.send("url", view, "url", url);
+            mainSend(mainWindow.webContents, "browserUrl", [view, url]);
     });
     searchView.webContents.on("did-start-loading", () => {
         if (!mainWindow.isDestroyed())
-            mainWindow.webContents.send("url", view, "load", true);
+            mainSend(mainWindow.webContents, "browserLoad", [view, true]);
     });
     searchView.webContents.on("did-stop-loading", () => {
         if (!mainWindow.isDestroyed())
-            mainWindow.webContents.send("url", view, "load", false);
+            mainSend(mainWindow.webContents, "browserLoad", [view, false]);
     });
     searchView.webContents.on("did-fail-load", (_event, err_code, err_des) => {
         rendererPath2(searchView.webContents, "browser_bg.html", {
@@ -2320,6 +2314,9 @@ mainOn("selectPath", async ([path, p]) => {
 
 mainOn("runPath", () => {
     return runPath;
+});
+mainOn("userDataPath", () => {
+    return app.getPath("userData");
 });
 
 mainOn("systemLan", () => {

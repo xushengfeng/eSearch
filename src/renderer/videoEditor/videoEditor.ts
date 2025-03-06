@@ -19,7 +19,6 @@ import {
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 
-const { ipcRenderer } = require("electron") as typeof import("electron");
 // biome-ignore format:
 const { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 type KeyCode = `${keyof typeof UiohookKey}`;
@@ -29,7 +28,7 @@ import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 import { t } from "../../../lib/translate/translate";
 import xhistory from "../lib/history";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -2525,7 +2524,7 @@ pack(document.body).style({
     overflow: "hidden",
 });
 
-ipcRenderer.on("record", async (_e, _t, sourceId) => {
+renderOn("superRecorderInit", async ([sourceId]) => {
     if (testMode) return;
     let stream: MediaStream | undefined;
     try {

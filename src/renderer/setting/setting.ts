@@ -33,7 +33,7 @@ import store from "../../../lib/store/renderStore";
 import { initStyle, getImgUrl, setTitle } from "../root/root";
 import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
 // biome-ignore format:
-const { ipcRenderer, shell, webUtils } = require("electron") as typeof import("electron");
+const { shell, webUtils } = require("electron") as typeof import("electron");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
@@ -1658,9 +1658,7 @@ const xs: Record<
                 const c = await confirm(
                     "这将清除所有的历史记录\n且不能复原\n确定清除？",
                 );
-                const configPath = ipcRenderer.sendSync("store", {
-                    type: "path",
-                });
+                const configPath = renderSendSync("userDataPath", []);
                 if (c)
                     fs.writeFileSync(
                         path.join(configPath, "history.json"),
@@ -1692,7 +1690,7 @@ const xs: Record<
     _location: {
         name: "位置信息",
         el: () => {
-            const configPath = ipcRenderer.sendSync("store", { type: "path" });
+            const configPath = renderSendSync("userDataPath", []);
             const runPath = renderSendSync("runPath", []);
             const portablePath = path.join(runPath, "portable");
 
@@ -3532,7 +3530,7 @@ function ocrEl() {
         bgc: "哈尔穆克语",
     };
 
-    const configPath = ipcRenderer.sendSync("store", { type: "path" });
+    const configPath = renderSendSync("userDataPath", []);
 
     function addOCR(p: string) {
         const stat = fs.statSync(p);

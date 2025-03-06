@@ -1,5 +1,5 @@
 // biome-ignore format:
-const { ipcRenderer, clipboard, nativeImage } = require("electron") as typeof import("electron");
+const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
 import { getImgUrl, initStyle, setTitle } from "../root/root";
@@ -355,7 +355,7 @@ async function initOCR() {
     }
 }
 
-ipcRenderer.on("mouse", (_e, x, y) => {
+renderOn("dingMouse", ([x, y]) => {
     const els = document.elementsFromPoint(x, y);
     let ignorex = false;
     for (const el of ignoreEl) {
@@ -439,7 +439,6 @@ function back2(id: string) {
         width: "100%",
         height: "",
     });
-    ipcRenderer.send("ding_p_s", el.el.id, pS);
 
     const x = elMap.find((e) => e.id === id);
     if (!x) return;
@@ -1018,7 +1017,7 @@ function dockI() {
             .addInto(dockView);
     }
 }
-ipcRenderer.on("img", (_event, wid, x, y, w, h, url, type) => {
+renderOn("addDing", ([wid, x, y, w, h, url, type]) => {
     elMap.push(setNewDing(String(wid), x, y, w, h, url, type));
 });
 

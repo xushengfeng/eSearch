@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import store from "../../../lib/store/renderStore";
-import type { MainWinType, setting } from "../../ShareTypes";
+import type { setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 import {
     view,
@@ -20,10 +20,10 @@ import { initStyle, setTitle, getImgUrl } from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
 import openWith from "../../../lib/open_with";
-import { t, lan } from "../../../lib/translate/translate";
+import { t } from "../../../lib/translate/translate";
 import diff_match_patch from "diff-match-patch";
 // biome-ignore format:
-const { ipcRenderer, shell, clipboard } = require("electron") as typeof import("electron");
+const { shell, clipboard } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
@@ -48,7 +48,7 @@ const tmpTextPath = path.join(
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
-import { renderOn, renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 
 /**撤销 */
 const undoStack = new xhistory<string>([], "", {
@@ -82,7 +82,7 @@ let tmpText: string | null;
 let findLNI = 0;
 
 const historyPath = path.join(
-    ipcRenderer.sendSync("store", { type: "path" }),
+    renderSendSync("userDataPath", []),
     "history.json",
 );
 let historyList: { [key: string]: { text: string } } = {};
@@ -1389,9 +1389,7 @@ function storeHistory() {
 
 /************************************引入 */
 
-ipcRenderer.on("init", (_event, _name: number) => {});
-
-ipcRenderer.on("text", (_event, name: number, list: MainWinType) => {
+renderOn("editorInit", ([name, list]) => {
     windowName = name;
 
     task.l("窗口创建", list.time);
@@ -1618,9 +1616,7 @@ async function edit(arg: string) {
     }
 }
 
-ipcRenderer.on("edit", (_event, arg) => {
-    edit(arg);
-});
+renderOn("editorEvent", ([arg]) => edit(arg));
 
 // ctrl滚轮控制字体大小
 
@@ -1694,23 +1690,24 @@ if (!store.get("主页面.高级窗口按钮")) {
 
 outMainEl.el.className = "fill_t";
 
-// biome-ignore lint: 不搞体操了
-ipcRenderer.on("url", (_event, id: number, arg: string, arg1: any) => {
-    if (arg === "new") {
-        newTab(id, arg1);
-    }
-    if (arg === "title") {
-        title(id, arg1);
-    }
-    if (arg === "icon") {
-        icon(id, arg1);
-    }
-    if (arg === "url") {
-        url(id, arg1);
-    }
-    if (arg === "load") {
-        load(id, arg1);
-    }
+renderOn("browserNew", ([id, url]) => {
+    newTab(id, url);
+    browserTabs.el.classList.add("tabs_show");
+});
+renderOn("browserTitle", ([id, t]) => {
+    title(id, t);
+    browserTabs.el.classList.add("tabs_show");
+});
+renderOn("browserIcon", ([id, i]) => {
+    icon(id, i);
+    browserTabs.el.classList.add("tabs_show");
+});
+renderOn("browserUrl", ([id, u]) => {
+    url(id, u);
+    browserTabs.el.classList.add("tabs_show");
+});
+renderOn("browserLoad", ([id, l]) => {
+    load(id, l);
     browserTabs.el.classList.add("tabs_show");
 });
 
@@ -1821,8 +1818,8 @@ function title(id: number, arg: string) {
     if (id === focusTabI) setTitle(arg);
 }
 
-function icon(id: number, arg: Array<string>) {
-    getTab(id).setIcon(arg[0]);
+function icon(id: number, arg: string) {
+    getTab(id).setIcon(arg);
 }
 
 function url(id: number, url: string) {

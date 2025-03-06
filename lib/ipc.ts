@@ -2,6 +2,7 @@
 const { ipcRenderer, ipcMain} = require("electron") as typeof import("electron");
 
 import type {
+    Display,
     MessageBoxSyncOptions,
     NativeTheme,
     OpenDialogOptions,
@@ -9,6 +10,7 @@ import type {
 import type {
     DingResize,
     DingStart,
+    MainWinType,
     translateWinType,
     功能,
 } from "../src/ShareTypes";
@@ -124,6 +126,13 @@ type Message = {
     setAutoStart: (value: boolean) => void;
     theme: (t: NativeTheme["themeSource"]) => void;
     dingIgnore: (ignore: boolean) => void;
+    recordInit: (
+        id: string,
+        r: [number, number, number, number],
+        screenW: number,
+        screenH: number,
+    ) => void;
+    recordStartStop: () => void;
     recordStop: () => void;
     recordStart: () => void;
     recordTime: (time: string) => void;
@@ -138,6 +147,33 @@ type Message = {
             | { type: "back"; id: string }
             | { type: "resize"; more: DingResize },
     ) => void;
+    addDing: (
+        wid: number,
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        url: string,
+        type: "translate" | "ding",
+    ) => void;
+    superRecorderInit: (sourceId: string) => void;
+    superPhotoEditorInit: (img: string) => void;
+    translatorInit: (
+        id: number,
+        display: Display[],
+        rect: { x: number; y: number; w: number; h: number },
+    ) => void;
+    recordMouse: (x: number, y: number) => void;
+    dingMouse: (x: number, y: number) => void;
+    recordSavePathReturn: (path: string) => void; // todo remove
+    editorEvent: (type: string) => void; // todo 细化
+    editorInit: (name: number, list: MainWinType) => void;
+    browserNew: (id: number, url: string) => void;
+    browserTitle: (id: number, title: string) => void;
+    browserIcon: (id: number, icon: string) => void;
+    browserUrl: (id: number, url: string) => void;
+    browserLoad: (id: number, load: boolean) => void;
+    userDataPath: () => string;
 };
 
 const name = "ipc";

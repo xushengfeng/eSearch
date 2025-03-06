@@ -1,5 +1,3 @@
-const { ipcRenderer } = require("electron") as typeof import("electron");
-
 import initScreenShots from "../screenShot/screenShot";
 
 import xtranslator from "xtranslator";
@@ -17,7 +15,7 @@ function iconEl(src: string) {
 import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
-import { renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -235,11 +233,8 @@ mainEl.addInto();
 
 mainEl.add(toolsEl);
 
-ipcRenderer.on(
-    "init",
-    (_e, id: number, _display: Electron.Display[], _rect: Rect) => {
-        display = _display;
-        screenId = id;
-        rect = _rect;
-    },
-);
+renderOn("translatorInit", ([id, _display, _rect]) => {
+    display = _display;
+    screenId = id;
+    rect = _rect;
+});

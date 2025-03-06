@@ -17,15 +17,14 @@ import {
 import type { setting } from "../../ShareTypes";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
-const { ipcRenderer, nativeImage, clipboard } = window.require(
-    "electron",
-) as typeof import("electron");
+// biome-ignore format:
+const { nativeImage, clipboard } = window.require("electron") as typeof import("electron");
 const { writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
 import { t } from "../../../lib/translate/translate";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 
 // @auto-path:../assets/icons/$.svg
 function icon(src: string) {
@@ -764,7 +763,7 @@ trackPoint(magicPenPreview, {
     },
 });
 
-ipcRenderer.on("img", (_e, data: string) => {
+renderOn("superPhotoEditorInit", ([data]) => {
     const img = new Image();
     img.onload = () => {
         photo = img;

@@ -95,7 +95,6 @@ const sysAudioName = "00";
 
 let rect: [number, number, number, number];
 
-const { ipcRenderer } = require("electron") as typeof import("electron");
 // biome-ignore format:
 const spawn = require("node:child_process").spawn as typeof import("child_process").spawn;
 const fs = require("node:fs") as typeof import("fs");
@@ -993,130 +992,114 @@ if (store.get("录屏.摄像头.开启")) {
 
 document.body.onresize = resize;
 
-ipcRenderer.on("record", async (_event, t, sourceId, r, screen_w, screen_h) => {
-    switch (t) {
-        case "init": {
-            rect = r;
-            sS = true;
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    audio: canSysAudio // 可能会导致应用崩溃，所以添加这个设置
-                        ? {
-                              // @ts-ignore
-                              mandatory: {
-                                  chromeMediaSource: "desktop",
-                              },
-                          }
-                        : false,
-                    video: {
-                        // @ts-ignore
-                        mandatory: {
-                            chromeMediaSource: "desktop",
-                            chromeMediaSourceId: sourceId,
-                            minWidth: screen_w,
-                            minHeight: screen_h,
-                        },
-                    },
-                });
-            } catch (e) {
-                console.error(e);
-            }
-            if (!stream) return;
-            let chunks: Blob[] = [];
-            recorder = new MediaRecorder(stream, {
-                videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
-                mimeType: "video/webm",
+renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
+    rect = r;
+    sS = true;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            audio: canSysAudio // 可能会导致应用崩溃，所以添加这个设置
+                ? {
+                      // @ts-ignore
+                      mandatory: {
+                          chromeMediaSource: "desktop",
+                      },
+                  }
+                : false,
+            video: {
+                // @ts-ignore
+                mandatory: {
+                    chromeMediaSource: "desktop",
+                    chromeMediaSourceId: sourceId,
+                    minWidth: screen_w,
+                    minHeight: screen_h,
+                },
+            },
+        });
+    } catch (e) {
+        console.error(e);
+    }
+    if (!stream) return;
+    let chunks: Blob[] = [];
+    recorder = new MediaRecorder(stream, {
+        videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
+        mimeType: "video/webm",
+    });
+    recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+    };
+
+    const fileName = String(new Date().getTime());
+    tmpPath = path.join(os.tmpdir(), "eSearch/", fileName);
+    output = path.join(tmpPath, "output");
+    fs.mkdirSync(tmpPath);
+    fs.mkdirSync(output);
+    let clipName = 0;
+    function save(f: () => void) {
+        const b = new Blob(chunks, { type: "video/webm" });
+        console.log(chunks, b);
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(b);
+        reader.onloadend = (_e) => {
+            const baseName = String(clipName);
+            const baseName2 = `${baseName}.${type}`;
+            const p = path.join(tmpPath, baseName);
+            const crop =
+                type === "gif" && store.get("录屏.转换.高质量gif")
+                    ? `[in]crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1`
+                    : `crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]}`;
+            const args = ["-i", p, "-vf", crop, path.join(output, baseName2)];
+            fs.writeFile(p, Buffer.from(reader.result as string), (_err) => {
+                runFfmpeg("ts", clipName, args);
+                chunks = [];
+                if (f) f();
+                clipName++;
             });
-            recorder.ondataavailable = (e) => {
-                chunks.push(e.data);
-            };
+        };
+    }
 
-            const fileName = String(new Date().getTime());
-            tmpPath = path.join(os.tmpdir(), "eSearch/", fileName);
-            output = path.join(tmpPath, "output");
-            fs.mkdirSync(tmpPath);
-            fs.mkdirSync(output);
-            let clipName = 0;
-            function save(f: () => void) {
-                const b = new Blob(chunks, { type: "video/webm" });
-                console.log(chunks, b);
-                const reader = new FileReader();
-                reader.readAsArrayBuffer(b);
-                reader.onloadend = (_e) => {
-                    const baseName = String(clipName);
-                    const baseName2 = `${baseName}.${type}`;
-                    const p = path.join(tmpPath, baseName);
-                    const crop =
-                        type === "gif" && store.get("录屏.转换.高质量gif")
-                            ? `[in]crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1`
-                            : `crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]}`;
-                    const args = [
-                        "-i",
-                        p,
-                        "-vf",
-                        crop,
-                        path.join(output, baseName2),
-                    ];
-                    fs.writeFile(
-                        p,
-                        Buffer.from(reader.result as string),
-                        (_err) => {
-                            runFfmpeg("ts", clipName, args);
-                            chunks = [];
-                            if (f) f();
-                            clipName++;
-                        },
-                    );
-                };
-            }
-
-            recorder.onstop = () => {
-                (nameT.at(-1) as (typeof nameT)[0]).e = getT();
-                if (stop) {
-                    renderSend("recordStop", []);
-                    save(showControl);
-                    console.log(nameT);
-                } else {
-                    save(() => {});
-                    recorder.start();
-                    nameT.push({ s: getT(), e: Number.NaN });
-                }
-            };
-
-            if (store.get("录屏.自动录制") === true) {
-                let t = store.get("录屏.自动录制延时");
-                function d() {
-                    if (recorder.state !== "inactive") return;
-                    setTime(String(t));
-                    setTimeout(() => {
-                        if (t === 0) {
-                            startStop.el.click();
-                        } else {
-                            t--;
-                            d();
-                        }
-                    }, 1000);
-                }
-                d();
-            }
-            break;
+    recorder.onstop = () => {
+        (nameT.at(-1) as (typeof nameT)[0]).e = getT();
+        if (stop) {
+            renderSend("recordStop", []);
+            save(showControl);
+            console.log(nameT);
+        } else {
+            save(() => {});
+            recorder.start();
+            nameT.push({ s: getT(), e: Number.NaN });
         }
-        case "start_stop":
-            startStop.el.click();
-            break;
+    };
+
+    if (store.get("录屏.自动录制") === true) {
+        let t = store.get("录屏.自动录制延时");
+        function d() {
+            if (recorder.state !== "inactive") return;
+            setTime(String(t));
+            setTimeout(() => {
+                if (t === 0) {
+                    startStop.el.click();
+                } else {
+                    t--;
+                    d();
+                }
+            }, 1000);
+        }
+        d();
     }
 });
 
-ipcRenderer.on("ff", (_e, t, arg) => {
-    if (t === "save_path") {
-        savePath = arg;
-        if (isTsOk)
-            clip()
-                .then(() => joinAndSave(arg))
-                .catch(() => {
-                    isClipRun = false;
-                });
-    }
+renderOn("recordStartStop", () => {
+    startStop.el.click();
+});
+
+renderOn("recordSavePathReturn", ([arg]) => {
+    savePath = arg;
+    if (isTsOk)
+        clip()
+            .then(() => joinAndSave(arg))
+            .catch(() => {
+                isClipRun = false;
+            });
 });
 
 renderOn("recordState", ([s]) => {

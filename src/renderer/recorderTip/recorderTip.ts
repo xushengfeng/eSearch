@@ -1,4 +1,3 @@
-const { ipcRenderer } = require("electron") as typeof import("electron");
 import {
     addClass,
     button,
@@ -361,20 +360,14 @@ trackPoint(cEl, {
     },
 });
 
-ipcRenderer.on("record", async (_event, t, arg) => {
-    switch (t) {
-        case "mouse":
-            {
-                recorderMouseEl.style.left = `${arg.x}px`;
-                recorderMouseEl.style.top = `${arg.y}px`;
-                const l = document.elementsFromPoint(arg.x, arg.y);
-                renderSend("windowIgnoreMouse", [
-                    !(l.includes(cEl.el) || l.includes(controlBar.el)),
-                ]);
-            }
-            break;
-    }
-});
+renderOn("recordMouse", ([x, y]) => {
+    recorderMouseEl.style.left = `${x}px`;
+    recorderMouseEl.style.top = `${y}px`;
+    const l = document.elementsFromPoint(x, y);
+    renderSend("windowIgnoreMouse", [
+        !(l.includes(cEl.el) || l.includes(controlBar.el)),
+    ]);
+})
 
 renderOn("recordTime", ([t]) => {
     timeEl.sv(t);
