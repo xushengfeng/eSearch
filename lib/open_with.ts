@@ -1,6 +1,6 @@
 const { exec } = require("node:child_process");
 const { ipcRenderer } = require("electron");
-function open(path) {
+function open(path: string) {
     switch (process.platform) {
         case "win32":
             exec(
