@@ -7,8 +7,7 @@ import { addClass, button, type ElType, image, pack, view } from "dkh-ui";
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(src: string) {
+function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
@@ -16,6 +15,7 @@ import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 
 initStyle(store);
 

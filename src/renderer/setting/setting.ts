@@ -62,6 +62,7 @@ import {
 import time_format from "../../../lib/time_format";
 import xhistory from "../lib/history";
 import { renderSend, renderSendSync } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 
 const download = require("download");
 
@@ -2431,8 +2432,7 @@ function tIconEl(img: string) {
     return image(img, noI18n("icon")).class("icon");
 }
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(img: string) {
+function iconEl(img: IconType) {
     return image(getImgUrl(`${img}.svg`), noI18n(img)).class("icon");
 }
 
@@ -3678,8 +3678,7 @@ function ocrEl() {
         });
 }
 
-// @auto-path:../assets/icons/$.svg
-function hotkeyP(icon = "") {
+function hotkeyP(icon: IconType | "" = "") {
     const h = hotkey();
     const el = xGroup()
         .add([icon ? view().add(iconEl(icon)) : "", h])
@@ -3688,7 +3687,11 @@ function hotkeyP(icon = "") {
     h.on("input", () => el.el.dispatchEvent(new CustomEvent("input")));
     return el;
 }
-function hotkeyX(name: string, p: "快捷键" | "快捷键2", icon = "") {
+function hotkeyX(
+    name: string,
+    p: "快捷键" | "快捷键2",
+    icon: IconType | "" = "",
+) {
     const h = hotkey();
     const el = xGroup()
         .add([icon ? view().add(iconEl(icon)) : "", h])

@@ -49,6 +49,7 @@ const tmpTextPath = path.join(
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 
 /**撤销 */
 const undoStack = new xhistory<string>([], "", {
@@ -117,8 +118,7 @@ const tabs = new Map<number, TabItem>();
 
 let focusTabI = 0;
 
-// @auto-path:../assets/icons/$.svg
-function iconBEl(src: string) {
+function iconBEl(src: IconType) {
     return button(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 
@@ -337,7 +337,7 @@ const browserTabHome = iconBEl("main").attr({ id: "home" });
 const browserTabBack = iconBEl("left").attr({ id: "back" });
 const browserTabForward = iconBEl("right").attr({ id: "forward" });
 const browserTabReload = iconBEl("reload").attr({ id: "reload" });
-const browserTabStop = iconBEl("stop").attr({ id: "stop" });
+const browserTabStop = iconBEl("close").attr({ id: "stop" });
 const browserTabBrowser = iconBEl("browser").attr({ id: "browser" });
 const browserTabAddHistory = iconBEl("add_history").attr({ id: "add_history" });
 browserTabBs.add([

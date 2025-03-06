@@ -1,10 +1,10 @@
 import { button, ele, image, initDKH, input, pack, select, view } from "dkh-ui";
 import { getImgUrl } from "../root/root";
+import type { IconType } from "../../iconTypes";
 
 console.log("hi");
 
-// @auto-path:../assets/icons/$.svg
-function iconBEl(src: string) {
+function iconBEl(src: IconType) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 

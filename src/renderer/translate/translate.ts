@@ -9,13 +9,13 @@ import store from "../../../lib/store/renderStore";
 import { button, ele, frame, image, p, pack, spacer, txt, view } from "dkh-ui";
 
 import { t } from "../../../lib/translate/translate";
+import type { IconType } from "../../iconTypes";
 
 initStyle(store);
 
 document.title = t("翻译");
 
-// @auto-path:../assets/icons/$.svg
-function iconButton(img: string) {
+function iconButton(img: IconType) {
     return button(image(getImgUrl(`${img}.svg`), "icon").class("icon"));
 }
 

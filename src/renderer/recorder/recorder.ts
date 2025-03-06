@@ -100,6 +100,7 @@ const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import { renderOn, renderSend } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
     const p = path.join(__dirname, "..", "..", "lib", "ffmpeg");
@@ -522,12 +523,10 @@ function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
     });
 }
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(src: string) {
+function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
-// @auto-path:../assets/icons/$.svg
-function iconBEl(src: string) {
+function iconBEl(src: IconType) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 

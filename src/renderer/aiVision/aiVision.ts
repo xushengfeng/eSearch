@@ -15,6 +15,7 @@ import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
 import { t } from "../../../lib/translate/translate";
+import type { IconType } from "../../iconTypes";
 
 initStyle(store);
 
@@ -42,8 +43,7 @@ type chatgptm = {
 
 const content: Map<string, aiData> = new Map();
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(src: string) {
+function iconEl(src: IconType) {
     return button().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
 

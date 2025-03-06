@@ -14,6 +14,7 @@ import { getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
 import { renderOn, renderSend } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
@@ -277,8 +278,7 @@ function drawCamera() {
     }, 10);
 }
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(src: string) {
+function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 

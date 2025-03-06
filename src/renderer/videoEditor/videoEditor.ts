@@ -29,6 +29,7 @@ import { GIFEncoder, quantize, applyPalette } from "gifenc";
 import { t } from "../../../lib/translate/translate";
 import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 
 initStyle(store);
 
@@ -1624,13 +1625,11 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     renderSend("ok_save", [exportPath, true]);
 }
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(src: string) {
+function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
-// @auto-path:../assets/icons/$.svg
-function iconBEl(src: string) {
+function iconBEl(src: IconType) {
     return button().add(iconEl(src));
 }
 

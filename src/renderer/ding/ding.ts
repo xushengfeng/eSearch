@@ -20,7 +20,8 @@ import {
 
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import type { DingResize, DingStart, Dire } from "../../ShareTypes";
+import type { DingStart, Dire } from "../../ShareTypes";
+import type { IconType } from "../../iconTypes";
 
 initStyle(store);
 
@@ -29,8 +30,7 @@ setTitle(t("贴图"));
 let lo: import("esearch-ocr").initType;
 let translateE = async (input: string[]) => input;
 
-// @auto-path:../assets/icons/$.svg
-function iconEl(src: string) {
+function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 

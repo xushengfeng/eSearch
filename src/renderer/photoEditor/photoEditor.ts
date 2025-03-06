@@ -25,9 +25,9 @@ const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
 import removeobj from "../lib/removeObj";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import type { IconType } from "../../iconTypes";
 
-// @auto-path:../assets/icons/$.svg
-function icon(src: string) {
+function icon(src: IconType) {
     return image(getImgUrl(`${src}.svg`), noI18n("icon")).class("icon");
 }
 
