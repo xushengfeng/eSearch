@@ -1,6 +1,7 @@
 // biome-ignore format:
 const { ipcRenderer, ipcMain} = require("electron") as typeof import("electron");
 
+import type { MessageBoxSyncOptions, OpenDialogOptions } from "electron";
 import type { translateWinType, 功能 } from "../src/ShareTypes";
 
 type Message = {
@@ -27,7 +28,6 @@ type Message = {
     clip_long_e: () => void;
     getMousePos: () => { x: number; y: number };
     clip_translate: (t: translateWinType) => void;
-    ignoreMouse: (ignore: boolean) => void;
     clip_editor: (img: string) => void;
     clip_recordx: () => void;
     save_file_path: (type: string, isVideo?: boolean) => string;
@@ -40,6 +40,31 @@ type Message = {
         mainid: number,
         act: 功能 | undefined,
     ) => void;
+    open_this_browser: (window_name: number, url: string) => void;
+    edit_pic: (img: Buffer<ArrayBufferLike>) => void;
+    dialogMessage: (op: MessageBoxSyncOptions) => number;
+    windowClose: () => void;
+    windowMax: () => void;
+    windowTop: (ignore: boolean) => void;
+    windowIgnoreMouse: (top: boolean) => void;
+    windowShow: () => void;
+    runPath: () => string;
+    systemLan: () => string;
+    feedbackBug: (op?: {
+        title?: string;
+        main?: string;
+        steps?: string;
+        expected?: string;
+        more?: string;
+    }) => string;
+    feedbackFeature: (op?: {
+        title?: string;
+        main?: string;
+    }) => string;
+    selectPath: (
+        defalutPath: string,
+        p: OpenDialogOptions["properties"],
+    ) => string;
 };
 
 const name = "ipc";

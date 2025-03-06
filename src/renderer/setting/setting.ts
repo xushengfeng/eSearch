@@ -61,6 +61,7 @@ import {
 
 import time_format from "../../../lib/time_format";
 import xhistory from "../lib/history";
+import { renderSendSync } from "../../../lib/ipc";
 
 const download = require("download");
 
@@ -1285,7 +1286,7 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "语言",
         el: () => {
             let lans: string[] = getLans();
-            const systemLan = ipcRenderer.sendSync("app", "systemLan");
+            const systemLan = renderSendSync("systemLan", []);
             // 提前系统语言
             lans = [systemLan].concat(lans.filter((v) => v !== systemLan));
             const el = xGroup("y");
@@ -1692,7 +1693,7 @@ const xs: Record<
         name: "位置信息",
         el: () => {
             const configPath = ipcRenderer.sendSync("store", { type: "path" });
-            const runPath = ipcRenderer.sendSync("run_path");
+            const runPath = renderSendSync("runPath", []);
             const portablePath = path.join(runPath, "portable");
 
             const portableConfigBtn = button("改为便携版");
@@ -2621,11 +2622,10 @@ function xPath(dir = true) {
     const el = view("x").class("group");
     const i = input();
     const b = button(iconEl("file")).on("click", () => {
-        const path = ipcRenderer.sendSync(
-            "get_save_path",
+        const path = renderSendSync("selectPath", [
             i.gv,
-            dir ? ["openDirectory"] : [],
-        );
+            dir ? ["openDirectory"] : ["openFile"],
+        ]);
         if (path) {
             i.sv(path);
             el.el.dispatchEvent(new CustomEvent("input"));
@@ -4081,9 +4081,9 @@ const searchI = input()
                     .add([
                         p("无结果，尝试其他关键词"),
                         a(
-                            ipcRenderer.sendSync("app", "feedback2", {
-                                title: t("添加设置项"),
-                            }),
+                            renderSendSync("feedbackFeature", [
+                                { title: t("添加设置项") },
+                            ]),
                         ).add(button("提交新功能")),
                     ]),
             );

@@ -1431,7 +1431,7 @@ async function save() {
     else if (exportEl.els.type.gv === "mp4-avc") await saveMp4("avc");
     else await saveGif();
     if (store.get("录屏.超级录屏.导出后关闭")) {
-        ipcRenderer.send("window", "close");
+        renderSend("windowClose", []);
     }
 }
 
@@ -2500,7 +2500,7 @@ const exportEl = frame("export", {
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
-            ipcRenderer.send("ding_edit", buffer);
+            renderSend("edit_pic", [buffer]);
         });
     }),
     editSrc: button(t("编辑原图")).on("click", async () => {
@@ -2508,7 +2508,7 @@ const exportEl = frame("export", {
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
-            ipcRenderer.send("ding_edit", buffer);
+            renderSend("edit_pic", [buffer]);
         });
     }),
 });
@@ -2646,11 +2646,11 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
         reader.cancel();
 
         if (cancel) {
-            ipcRenderer.send("window", "close");
+            renderSend("windowClose", []);
             return;
         }
 
-        ipcRenderer.send("window", "max");
+        renderSend("windowMax", []);
 
         await encoder.flush();
         encoder.close();
@@ -2725,7 +2725,7 @@ ipcRenderer.on("record", async (_e, _t, sourceId) => {
 
 // @ts-ignore
 if (testMode !== false) {
-    ipcRenderer.send("window", "max");
+    renderSend("windowMax", []);
     stopPEl.remove();
 }
 

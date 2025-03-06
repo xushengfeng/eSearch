@@ -107,6 +107,7 @@ const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import type { MessageBoxSyncOptions } from "electron";
+import { renderSend } from "../../../lib/ipc";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
     const p = path.join(__dirname, "..", "..", "lib", "ffmpeg");
@@ -119,10 +120,12 @@ start.on("error", () => {
         process.platform === "linux"
             ? t("请安装FFmpeg，并确保软件可使用ffmpeg命令")
             : t("请重新安装软件，或进行反馈");
-    ipcRenderer.send("dialog", {
-        message: `${t("FFmpeg用于处理视频，但现在软件无法使用它")}\n${m}`,
-        buttons: [t("取消")],
-    } as MessageBoxSyncOptions);
+    renderSend("dialogMessage", [
+        {
+            message: `${t("FFmpeg用于处理视频，但现在软件无法使用它")}\n${m}`,
+            buttons: [t("取消")],
+        },
+    ]);
 });
 console.log(pathToFfmpeg);
 
@@ -226,7 +229,7 @@ function showControl() {
     if (store.get("录屏.转换.自动转换")) {
         save();
     } else {
-        ipcRenderer.send("window", "max");
+        renderSend("windowMax", []);
     }
     setTimeout(() => {
         resize();

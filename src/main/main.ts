@@ -79,11 +79,6 @@ try {
     if (userDataPath) app.setPath("userData", userDataPath);
 } catch (e) {}
 
-// 获取运行位置
-ipcMain.on("run_path", (event) => {
-    event.returnValue = runPath;
-});
-
 const store = new Store();
 
 ipcMain.on("store", (e, x) => {
@@ -1077,9 +1072,9 @@ const theIcon =
         ? join(runPath, "assets/logo/icon.ico")
         : join(runPath, "assets/logo/1024x1024.png");
 
-ipcMain.on("dialog", (e, arg0) => {
+mainOn("dialogMessage", ([arg0]) => {
     const id = dialog.showMessageBoxSync(arg0);
-    e.returnValue = id;
+    return id;
 });
 
 // 截屏窗口
@@ -1222,9 +1217,6 @@ mainOn("getMousePos", () => {
 });
 mainOn("clip_translate", ([arg]) => {
     createTranslator(arg);
-});
-mainOn("ignoreMouse", ([arg], e) => {
-    BrowserWindow.fromWebContents(e.sender)?.setIgnoreMouseEvents(arg);
 });
 mainOn("clip_editor", ([arg]) => {
     createPhotoEditor(arg);
@@ -1876,8 +1868,8 @@ ipcMain.on("ding_event", (_event, type, id, more) => {
         dingwindowList[i].win.webContents.send("ding", type, id, more);
     }
 });
-ipcMain.on("ding_edit", (_event, img_path: Buffer<ArrayBufferLike>) => {
-    sendCaptureEvent(img_path);
+mainOn("edit_pic", ([img]) => {
+    sendCaptureEvent(img);
 });
 
 function createTranslator(op: translateWinType) {
@@ -2122,7 +2114,7 @@ function mainEdit(window?: BaseWindow, m?: string) {
 }
 
 const searchWindowL: { [n: number]: WebContentsView } = {};
-ipcMain.on("open_url", (_event, window_name, url) => {
+mainOn("open_this_browser", ([window_name, url]) => {
     createBrowser(window_name, url);
 });
 
@@ -2332,24 +2324,20 @@ function noti(filePath: string) {
     notification.show();
 }
 
-ipcMain.on("window", (event, type: string, v) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    if (!win) return;
-    if (type === "close") {
-        win.close();
-    }
-    if (type === "ignore") {
-        win.setIgnoreMouseEvents(v);
-    }
-    if (type === "top") {
-        win.setAlwaysOnTop(v);
-    }
-    if (type === "show") {
-        win.show();
-    }
-    if (type === "max") {
-        win.maximize();
-    }
+mainOn("windowIgnoreMouse", ([arg], e) => {
+    BrowserWindow.fromWebContents(e.sender)?.setIgnoreMouseEvents(arg);
+});
+mainOn("windowClose", (_, e) => {
+    BrowserWindow.fromWebContents(e.sender)?.close();
+});
+mainOn("windowMax", (_, e) => {
+    BrowserWindow.fromWebContents(e.sender)?.maximize();
+});
+mainOn("windowTop", ([top], e) => {
+    BrowserWindow.fromWebContents(e.sender)?.setAlwaysOnTop(top);
+});
+mainOn("windowShow", (_, e) => {
+    BrowserWindow.fromWebContents(e.sender)?.show();
 });
 
 mainOn("save_file_path", async ([type, isVideo]) => {
@@ -2379,31 +2367,31 @@ mainOn("ok_save", ([arg, isVideo]) => {
     }
 });
 
-ipcMain.on("get_save_path", (event, path = app.getPath("pictures"), p?) => {
-    dialog
-        .showOpenDialog({
-            title: t("选择要保存的位置"),
-            defaultPath: path,
-            properties: p || ["openDirectory"],
-        })
-        .then((x) => {
-            event.returnValue = x.filePaths[0] || "";
-        })
-        .catch(() => {
-            event.returnValue = "";
+mainOn("selectPath", async ([path, p]) => {
+    try {
+        const x = await dialog.showOpenDialog({
+            title: t("选择文件"),
+            defaultPath: path || app.getPath("pictures"),
+            properties: p,
         });
+        return x.filePaths[0] || "";
+    } catch (error) {
+        return "";
+    }
 });
 
-ipcMain.on("app", (e, type, arg) => {
-    if (type === "systemLan") {
-        e.returnValue = matchBestLan();
-    }
-    if (type === "feedback") {
-        e.returnValue = feedbackUrl(arg);
-    }
-    if (type === "feedback2") {
-        e.returnValue = feedbackUrl2(arg);
-    }
+mainOn("runPath", () => {
+    return runPath;
+});
+
+mainOn("systemLan", () => {
+    return matchBestLan();
+});
+mainOn("feedbackBug", ([arg]) => {
+    return feedbackUrl(arg);
+});
+mainOn("feedbackFeature", ([arg]) => {
+    return feedbackUrl2(arg);
 });
 
 // 默认设置

@@ -48,6 +48,7 @@ const tmpTextPath = path.join(
 
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
+import { renderSend } from "../../../lib/ipc";
 
 /**撤销 */
 const undoStack = new xhistory<string>([], "", {
@@ -64,7 +65,7 @@ const undoStack = new xhistory<string>([], "", {
 
 let lineHeight = 24;
 
-let windowName = "";
+let windowName = 0;
 let mainText = "";
 const 自动搜索 = store.get("自动搜索");
 const 自动打开链接 = store.get("自动打开链接");
@@ -127,7 +128,7 @@ const navTop = iconBEl("toptop")
     .on("click", () => {
         alwaysOnTop = !alwaysOnTop;
         setButtonHover(navTop, alwaysOnTop);
-        ipcRenderer.send("window", "top", alwaysOnTop);
+        renderSend("windowTop", [alwaysOnTop]);
     });
 const navDing = iconBEl("ding")
     .attr({ id: "ding_b" })
@@ -1257,7 +1258,7 @@ function openLink(
     if (outerBrowser) {
         shell.openExternal(url);
     } else {
-        ipcRenderer.send("open_url", windowName, url);
+        renderSend("open_this_browser", [windowName, url]);
     }
 }
 
@@ -1390,7 +1391,7 @@ function storeHistory() {
 
 ipcRenderer.on("init", (_event, _name: number) => {});
 
-ipcRenderer.on("text", (_event, name: string, list: MainWinType) => {
+ipcRenderer.on("text", (_event, name: number, list: MainWinType) => {
     windowName = name;
 
     task.l("窗口创建", list.time);
@@ -1649,7 +1650,7 @@ function countWords() {
 /************************************失焦关闭 */
 
 function closeWindow() {
-    ipcRenderer.send("window", "close");
+    renderSend("windowClose", []);
 }
 
 window.onblur = () => {

@@ -17,6 +17,7 @@ function iconEl(src: string) {
 import store from "../../../lib/store/renderStore";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
+import { renderSend } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -200,7 +201,7 @@ const toolsEl = view("x")
         playEl,
         runEl,
         button(iconEl("close")).on("click", () =>
-            ipcRenderer.send("window", "close"),
+            renderSend("windowClose", []),
         ),
     ]);
 

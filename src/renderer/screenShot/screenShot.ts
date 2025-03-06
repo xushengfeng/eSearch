@@ -1,6 +1,7 @@
 const { ipcRenderer, nativeImage, shell, dialog } =
     require("electron") as typeof import("electron");
 import type { MessageBoxSyncOptions } from "electron";
+import { renderSendSync } from "../../../lib/ipc";
 
 type ReturnData = {
     bounds: { x: number; y: number; width: number; height: number };
@@ -13,7 +14,7 @@ type ReturnData = {
 
 function d(op: MessageBoxSyncOptions) {
     if (ipcRenderer) {
-        return ipcRenderer.sendSync("dialog", op);
+        return renderSendSync("dialogMessage", [op]);
     }
     return dialog.showMessageBoxSync(op);
 }
@@ -72,12 +73,14 @@ function init(
                 const f =
                     feedback ??
                     ((m: string) =>
-                        ipcRenderer?.sendSync("app", "feedback", {
-                            title: "截屏库调用错误",
-                            main: "截屏库调用错误",
-                            steps: "截屏",
-                            more: m,
-                        }) as string);
+                        renderSendSync("feedbackBug", [
+                            {
+                                title: "截屏库调用错误",
+                                main: "截屏库调用错误",
+                                steps: "截屏",
+                                more: m,
+                            },
+                        ]));
 
                 if (id === 1) {
                     shell.openExternal(f(me));

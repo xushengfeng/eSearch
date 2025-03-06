@@ -3909,8 +3909,9 @@ const lr = longTip.els.rect;
 
 renderOn("clip_mouse_posi", ([x, y]) => {
     const el = document.elementsFromPoint(x, y);
-    if (longRunning) renderSend("ignoreMouse", [!el.includes(finishLongB)]);
-    else renderSend("ignoreMouse", [false]);
+    if (longRunning)
+        renderSend("windowIgnoreMouse", [!el.includes(finishLongB)]);
+    else renderSend("windowIgnoreMouse", [false]);
 });
 
 trackPoint(pack(toolBar), {

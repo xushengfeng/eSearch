@@ -483,7 +483,7 @@ function edit(id: string) {
         getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
-    ipcRenderer.send("ding_edit", b);
+    renderSend("edit_pic", [b]);
 }
 
 async function ocr(img: string) {

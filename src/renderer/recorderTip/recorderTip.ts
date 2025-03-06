@@ -14,6 +14,7 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 import { getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
+import { renderSend } from "../../../lib/ipc";
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
@@ -367,11 +368,9 @@ ipcRenderer.on("record", async (_event, t, arg) => {
                 recorderMouseEl.style.left = `${arg.x}px`;
                 recorderMouseEl.style.top = `${arg.y}px`;
                 const l = document.elementsFromPoint(arg.x, arg.y);
-                ipcRenderer.send(
-                    "window",
-                    "ignore",
+                renderSend("windowIgnoreMouse", [
                     !(l.includes(cEl.el) || l.includes(controlBar.el)),
-                );
+                ]);
             }
             break;
         case "camera":

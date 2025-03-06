@@ -266,12 +266,12 @@ const controls = frame("sidebar", {
                 );
                 writeFileSync(path, Buffer.from(img, "base64"));
                 renderSend("ok_save", [path]);
-                ipcRenderer.send("window", "close");
+                renderSend("windowClose", []);
             }),
             copy: button(icon("copy")).on("click", () => {
                 const img = getImg();
                 clipboard.writeImage(img);
-                ipcRenderer.send("window", "close");
+                renderSend("windowClose", []);
             }),
         },
     },

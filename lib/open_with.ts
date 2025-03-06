@@ -1,6 +1,5 @@
 import { renderSendSync } from "./ipc";
 const { exec } = require("node:child_process");
-const { ipcRenderer } = require("electron");
 function open(path: string) {
     switch (process.platform) {
         case "win32":
@@ -9,7 +8,7 @@ function open(path: string) {
             );
             break;
         case "linux": {
-            const run_path = ipcRenderer.sendSync("run_path");
+            const run_path = renderSendSync("runPath", []);
             // 判断桌面环境
             exec("echo $XDG_SESSION_DESKTOP", (e, desktop) => {
                 if (desktop === "KDE\n") {
