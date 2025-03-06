@@ -1688,7 +1688,7 @@ function createDingWindow(
 ) {
     if (Object.keys(dingwindowList).length === 0) {
         const screenL = screen.getAllDisplays();
-        const id = new Date().getTime();
+        const id = Date.now();
         for (const i of screenL) {
             const dingWindow = new BrowserWindow({
                 icon: theIcon,
@@ -1729,7 +1729,7 @@ function createDingWindow(
         }
         forceDingThrogh();
     } else {
-        const id = new Date().getTime();
+        const id = Date.now();
         for (const i in dingwindowList) {
             const b = dingwindowList[i].win.getBounds();
             dingwindowList[i].win.webContents.send(
@@ -1907,13 +1907,13 @@ async function createMainWindow(op: MainWinType) {
             ...Object.keys(mainWindowL).map((i) => Number(i)),
         );
         const mainWindow = mainWindowL[name].win;
-        op.time = new Date().getTime();
+        op.time = Date.now();
         mainSend(mainWindow.webContents, "editorInit", [name, op]);
         mainWindow.focus();
         return name;
     }
 
-    const windowName = new Date().getTime();
+    const windowName = Date.now();
     const [w, h, m] = store.get("主页面大小");
     const vr = screen.getDisplayNearestPoint(
         screen.getCursorScreenPoint(),
@@ -2062,7 +2062,7 @@ async function createBrowser(windowName: number, url: string) {
 
     if (mainWindow.isDestroyed()) return null;
     minViews(mainWindow);
-    const view = new Date().getTime();
+    const view = Date.now();
     let webPreferences: Electron.WebPreferences = {};
     if (url.startsWith("translate") || url === "./aiVision.html") {
         webPreferences = {

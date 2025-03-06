@@ -43,7 +43,7 @@ type TabItem = {
 
 const tmpTextPath = path.join(
     os.tmpdir(),
-    `/eSearch/eSearch_${new Date().getTime()}.txt`,
+    `/eSearch/eSearch_${Date.now()}.txt`,
 );
 
 import closeSvg from "../assets/icons/close.svg";
@@ -1302,7 +1302,7 @@ for (const e of 翻译引擎List) {
 // 历史记录
 
 if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历史记录) {
-    const nowTime = new Date().getTime();
+    const nowTime = Date.now();
     const dTime = Math.round(历史记录设置.d * 86400) * 1000;
     for (const i of Object.keys(historyList)) {
         if (nowTime - Number(i) > dTime) {
@@ -1314,7 +1314,7 @@ if (历史记录设置.保留历史记录 && 历史记录设置.自动清除历�
 
 function pushHistory() {
     const t = editor.get();
-    const i = new Date().getTime();
+    const i = Date.now();
     const s = { text: t };
     if (t !== "" && 历史记录设置.保留历史记录) {
         historyList[i] = s;
@@ -1847,7 +1847,7 @@ function mainEvent(eid: string) {
     if (eid === "browser") {
         openInBrowser();
     } else if (eid === "add_history") {
-        historyList[new Date().getTime()] = {
+        historyList[Date.now()] = {
             text: getTab(focusTabI).url,
         };
         storeHistory();
@@ -2001,7 +2001,7 @@ function google(image, callback) {
         "eSearch.png",
     );
     form.append("image_content", "");
-    const url = `https://lens.google.com/v3/upload?hl=zh-CN&re=df&st=${new Date().getTime()}&vpw=1041&vph=779`;
+    const url = `https://lens.google.com/v3/upload?hl=zh-CN&re=df&st=${Date.now()}&vpw=1041&vph=779`;
     fetch(url, {
         method: "POST",
         body: form,
@@ -2182,7 +2182,7 @@ function onlineOcr(
     function baiduOcr() {
         if (
             !store.get("在线OCR.baidu.token") ||
-            store.get("在线OCR.baidu.time") < new Date().getTime()
+            store.get("在线OCR.baidu.time") < Date.now()
         )
             fetch(
                 `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`,
@@ -2219,7 +2219,7 @@ function onlineOcr(
                     store.set("在线OCR.baidu.token", access_token);
                     store.set(
                         "在线OCR.baidu.time",
-                        new Date().getTime() + result.expires_in * 1000,
+                        Date.now() + result.expires_in * 1000,
                     );
                     ocrGet(access_token);
                 });
@@ -2317,7 +2317,7 @@ function onlineOcr(
             arg.length >= 20
                 ? arg.slice(0, 10) + arg.length + arg.slice(-10)
                 : arg;
-        const curtime = String(Math.round(new Date().getTime() / 1000));
+        const curtime = String(Math.round(Date.now() / 1000));
         const salt = crypto.randomUUID();
         const sign = crypto
             .createHash("sha256")

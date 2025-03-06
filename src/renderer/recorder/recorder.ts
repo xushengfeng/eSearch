@@ -35,7 +35,7 @@ const nameT: { s: number; e: number }[] = [{ s: 0, e: Number.NaN }];
 
 const timeL: number[] = [];
 function pTime() {
-    const t = new Date().getTime();
+    const t = Date.now();
     timeL.push(t);
     let d = 0;
     for (let i = 0; i < timeL.length; i += 2) {
@@ -48,9 +48,9 @@ function getT() {
         t += timeL[i] - timeL[i - 1];
     }
     if (timeL.length % 2 === 0) {
-        t += new Date().getTime() - (timeL.at(-2) as number);
+        t += Date.now() - (timeL.at(-2) as number);
     } else {
-        t += new Date().getTime() - (timeL.at(-1) as number);
+        t += Date.now() - (timeL.at(-1) as number);
     }
     return t;
 }
@@ -63,7 +63,7 @@ function getTime() {
         for (let i = 1; i < timeL.length - 1; i += 2) {
             t += timeL[i] - timeL[i - 1];
         }
-        t += new Date().getTime() - (timeL.at(-1) as number);
+        t += Date.now() - (timeL.at(-1) as number);
         const s = Math.trunc(t / 1000);
         const m = Math.trunc(s / 60);
         const h = Math.trunc(m / 60);
@@ -1035,7 +1035,7 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
         chunks.push(e.data);
     };
 
-    const fileName = String(new Date().getTime());
+    const fileName = String(Date.now());
     tmpPath = path.join(os.tmpdir(), "eSearch/", fileName);
     output = path.join(tmpPath, "output");
     fs.mkdirSync(tmpPath);

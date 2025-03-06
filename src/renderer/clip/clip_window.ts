@@ -574,7 +574,7 @@ function startLong() {
                 long_s();
             });
             uIOhook.on("wheel", () => {
-                const n = new Date().getTime();
+                const n = Date.now();
                 if (n - lastLong > 500) {
                     lastLong = n;
                     long_s();
