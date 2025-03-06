@@ -31,7 +31,7 @@ type Message = {
     clip_editor: (img: string) => void;
     clip_recordx: () => void;
     save_file_path: (type: string, isVideo?: boolean) => string;
-    ok_save: (m: string) => void;
+    ok_save: (m: string, isVideo?: boolean) => void;
     clip_stop_long: () => void;
     clip_mouse_posi: (x: number, y: number) => void;
     clip_init: (
@@ -43,6 +43,14 @@ type Message = {
 };
 
 const name = "ipc";
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const renderOnData = new Map<string, ((data: any) => void)[]>();
+const mainOnData = new Map<
+    string,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    ((data: any, event: Electron.IpcMainEvent) => any)[]
+>();
 
 function mainSend<K extends keyof Message>(
     webContents: Electron.WebContents | undefined,
@@ -56,11 +64,9 @@ function renderOn<K extends keyof Message>(
     key: K,
     callback: (data: Parameters<Message[K]>) => void,
 ) {
-    ipcRenderer.on(name, (event, k, data) => {
-        if (k === key) {
-            callback(data);
-        }
-    });
+    const callbacks = renderOnData.get(key) || [];
+    callbacks.push(callback);
+    renderOnData.set(key, callbacks);
 }
 
 function renderSend<K extends keyof Message>(
@@ -84,11 +90,34 @@ function mainOn<K extends keyof Message>(
         event: Electron.IpcMainEvent,
     ) => ReturnType<Message[K]> | Promise<ReturnType<Message[K]>>,
 ) {
-    ipcMain.on(name, async (event, k, data) => {
-        if (k === key) {
-            event.returnValue = await callback(data, event);
-        }
-    });
+    const callbacks = mainOnData.get(key) || [];
+    callbacks.push(callback);
+    mainOnData.set(key, callbacks);
 }
+
+ipcRenderer?.on(name, (event, key, data) => {
+    const callbacks = renderOnData.get(key);
+    if (callbacks) {
+        for (const callback of callbacks) {
+            callback(data);
+        }
+    } else {
+        console.log(`ipcRenderer.on: ${key} not found`);
+    }
+});
+
+ipcMain?.on(name, async (event, key, data) => {
+    const callbacks = mainOnData.get(key);
+    if (callbacks) {
+        for (const callback of callbacks) {
+            const result = await callback(data, event);
+            if (result !== undefined) {
+                event.returnValue = result;
+            }
+        }
+    } else {
+        console.log(`ipcMain.on: ${key} not found`);
+    }
+});
 
 export { mainSend, renderOn, renderSend, renderSendSync, mainOn };
