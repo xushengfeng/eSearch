@@ -59,6 +59,7 @@ import {
     view,
 } from "dkh-ui";
 import xhistory from "../lib/history";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
 
 initStyle(store);
 
@@ -72,7 +73,7 @@ function selectEl<i extends string>(
     title: string,
     data: { name: string; value: i }[],
 ) {
-    let value: string;
+    let value: i;
     const valueMap = new Map(
         data.map((i) => [
             i.value,
@@ -462,14 +463,14 @@ function closeWin() {
         uIOhook.stop();
     }
     setTimeout(() => {
-        ipcRenderer.send("clip_main_b", "window-close");
+        renderSend("clip_close", []);
     }, 50);
 }
 
 function runOcr() {
     const type = ocr引擎.gv;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        ipcRenderer.send("clip_main_b", "ocr", [c.toDataURL(), type]);
+        renderSend("clip_ocr", [c.toDataURL(), type]);
     });
     tool.close();
 }
@@ -477,14 +478,14 @@ function runOcr() {
 function runSearch() {
     const type = 识图引擎.gv;
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
-        ipcRenderer.send("clip_main_b", "search", [c.toDataURL(), type]);
+        renderSend("clip_search", [c.toDataURL(), type]);
     });
     tool.close();
 }
 // 二维码
 function runQr() {
     getClipPhoto("png").then(async (c: HTMLCanvasElement) => {
-        ipcRenderer.send("clip_main_b", "QR", c.toDataURL());
+        renderSend("clip_qr", [c.toDataURL()]);
         tool.close();
     });
 }
@@ -534,15 +535,15 @@ function openApp() {
 
 function initRecord() {
     if (toolBarEl.els.record.gv === "normal") {
-        ipcRenderer.send("clip_main_b", "record", {
-            rect: finalRect,
-            id: nowScreenId,
-            w: mainCanvas.width,
-            h: mainCanvas.height,
-            ratio: ratio,
-        });
+        renderSend("clip_record", [
+            finalRect,
+            String(nowScreenId),
+            mainCanvas.width,
+            mainCanvas.height,
+            ratio,
+        ]);
     } else {
-        ipcRenderer.send("clip_main_b", "recordx");
+        renderSend("clip_recordx", []);
     }
     tool.close();
 }
@@ -557,7 +558,7 @@ function startLong() {
     r[0] += screenPosition[nowScreenId].x;
     r[1] += screenPosition[nowScreenId].y;
     long_s();
-    ipcRenderer.send("clip_main_b", "long_s", r);
+    renderSend("clip_long_s", []);
     if (!cv) {
         cv = require("@techstark/opencv-js");
         cv.onRuntimeInitialized = () => {
@@ -642,7 +643,7 @@ function stopLong() {
     long_s();
 
     lr.style({ opacity: "0" });
-    ipcRenderer.send("clip_main_b", "long_e", nowScreenId);
+    renderSend("clip_long_e", []);
     addLong(undefined);
     for (const i of longHide) {
         i.style.display = "";
@@ -823,37 +824,41 @@ function pjLong() {
 function runDing() {
     getClipPhoto("png").then((c: HTMLCanvasElement) => {
         const display = getNowScreen();
-        const dingWindowArg = [
-            finalRect[0] / ratio + display.bounds.x,
-            finalRect[1] / ratio + display.bounds.y,
-            finalRect[2] / ratio,
-            finalRect[3] / ratio,
+        renderSend("clip_ding", [
             c.toDataURL(),
-        ];
-        ipcRenderer.send("clip_main_b", "ding", dingWindowArg);
+            "ding",
+            {
+                x: finalRect[0] / ratio + display.bounds.x,
+                y: finalRect[1] / ratio + display.bounds.y,
+                w: finalRect[2] / ratio,
+                h: finalRect[3] / ratio,
+            },
+        ]);
         tool.close();
     });
 }
 
 async function translate() {
     const display = getNowScreen();
-    ipcRenderer.send("clip_main_b", "translate", {
-        rect: {
-            x: finalRect[0],
-            y: finalRect[1],
-            w: finalRect[2],
-            h: finalRect[3],
+    renderSend("clip_translate", [
+        {
+            rect: {
+                x: finalRect[0],
+                y: finalRect[1],
+                w: finalRect[2],
+                h: finalRect[3],
+            },
+            dipRect: {
+                x: finalRect[0] / ratio + display.bounds.x,
+                y: finalRect[1] / ratio + display.bounds.y,
+                w: finalRect[2] / ratio,
+                h: finalRect[3] / ratio,
+            },
+            displayId: nowScreenId,
+            img: (await getClipPhoto("png")).toDataURL(),
+            type: toolBarEl.els.translate.gv,
         },
-        dipRect: {
-            x: finalRect[0] / ratio + display.bounds.x,
-            y: finalRect[1] / ratio + display.bounds.y,
-            w: finalRect[2] / ratio,
-            h: finalRect[3] / ratio,
-        },
-        displayId: nowScreenId,
-        img: (await getClipPhoto("png")).toDataURL(),
-        type: toolBarEl.els.translate.gv,
-    } as translateWinType);
+    ]);
     tool.close();
 }
 
@@ -3218,9 +3223,9 @@ const suffixList = saveTypeList.map((i) =>
         .data({ value: i })
         .add(i)
         .on("click", () => {
-            ipcRenderer.send("clip_main_b", "save", i);
             type = i;
             showSaveBar(false);
+            save(renderSendSync("clip_save", [i]));
         }),
 );
 view().attr({ id: "suffix" }).add(suffixList).addInto(saveType);
@@ -3298,7 +3303,7 @@ const tool: Record<功能, () => void> = {
     save: () => runSave(),
     editor: () => {
         getClipPhoto("png").then((c: HTMLCanvasElement) => {
-            ipcRenderer.send("clip_main_b", "editor", c.toDataURL());
+            renderSend("clip_editor", [c.toDataURL()]);
         });
         tool.close();
     },
@@ -3645,7 +3650,7 @@ ipcRenderer.on(
 
         screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
-        ipcRenderer.send("clip_main_b", "window-show");
+        renderSend("clip_show", []);
         const screensEl = toolList.screens;
         if (allScreens.length > 1) {
             let minX = 0;
@@ -3917,19 +3922,9 @@ ipcRenderer.on("clip", (_event, type, mouse) => {
         const x = mouse.x;
         const y = mouse.y;
         const el = document.elementsFromPoint(x, y);
-        if (longRunning)
-            ipcRenderer.send(
-                "clip_main_b",
-                "ignore_mouse",
-                !el.includes(finishLongB),
-            );
-        else ipcRenderer.send("clip_main_b", "ignore_mouse", false);
+        if (longRunning) renderSend("ignoreMouse", [!el.includes(finishLongB)]);
+        else renderSend("ignoreMouse", [false]);
     }
-});
-
-ipcRenderer.on("save_path", (_event, message) => {
-    console.log(message);
-    save(message);
 });
 
 trackPoint(pack(toolBar), {

@@ -50,9 +50,10 @@ import {
 } from "node:fs";
 import { release, tmpdir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
-import { matchFitLan } from "xtranslator";
+import main, { matchFitLan } from "xtranslator";
 import time_format from "../../lib/time_format";
 import url from "node:url";
+import { mainOn } from "../../lib/ipc";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -1149,108 +1150,87 @@ function createClipWindow() {
     return _clipWindow;
 }
 
-// * 监听截屏奇奇怪怪的事件
-ipcMain.on("clip_main_b", (event, type, arg) => {
-    switch (type) {
-        case "window-show":
-            fullScreen();
-            break;
-        case "window-close":
-            exitFullScreen();
-            isLongStart = false;
-            break;
-        case "ocr":
-            ocr(arg);
-            break;
-        case "search":
-            imageSearch(arg);
-            break;
-        case "QR":
-            createMainWindow({ type: "qr", content: arg });
-            break;
-        case "open":
-            dialog
-                .showOpenDialog({
-                    title: t("选择要打开应用的位置"),
-                })
-                .then((x) => {
-                    console.log(x);
-                    event.sender.send("open_path", x.filePaths[0]);
-                });
-            break;
-        case "save": {
-            const savedPath = store.get("保存.保存路径.图片") || "";
-            hideClip();
-            dialog
-                .showSaveDialog({
-                    title: t("选择要保存的位置"),
-                    defaultPath: join(savedPath, `${getFileName()}.${arg}`),
-                    filters: [{ name: t("图像"), extensions: [arg] }],
-                })
-                .then((x) => {
-                    event.sender.send("save_path", x.filePath);
-                    if (x.filePath) {
-                    } else {
-                        new Notification({
-                            title: `${app.name} ${t("保存文件失败")}`,
-                            body: t("用户已取消保存"),
-                            icon: `${runPath}/assets/logo/64x64.png`,
-                        }).show();
-                        clipWindow?.show();
-                        clipWindow?.setSimpleFullScreen(true);
-                    }
-                });
-            break;
-        }
-        case "ding":
-            createDingWindow(arg[0], arg[1], arg[2], arg[3], arg[4]);
-            break;
-        case "mac_app":
-            hideClip();
-            dialog
-                .showOpenDialog({
-                    defaultPath: "/Applications",
-                })
-                .then((x) => {
-                    if (x.canceled) {
-                        clipWindow?.show();
-                        clipWindow?.setSimpleFullScreen(true);
-                    }
-                    event.sender.send("mac_app_path", x.canceled, x.filePaths);
-                });
-            break;
-        case "record":
-            createRecorderWindow(arg.rect, {
-                id: arg.id,
-                w: arg.w,
-                h: arg.h,
-                r: arg.ratio,
-            });
-            break;
-        case "long_s":
-            isLongStart = true;
-            longWin();
-            break;
-        case "long_e":
-            clipWindow?.setIgnoreMouseEvents(false);
-            isLongStart = false;
-            break;
-        case "get_mouse":
-            event.returnValue = screen.getCursorScreenPoint();
-            break;
-        case "translate":
-            createTranslator(arg);
-            break;
-        case "ignore_mouse":
-            clipWindow?.setIgnoreMouseEvents(arg);
-            break;
-        case "editor":
-            createPhotoEditor(arg);
-            break;
-        case "recordx":
-            createSuperRecorderWindow();
-            break;
+mainOn("clip_show", () => {
+    fullScreen();
+});
+mainOn("clip_close", () => {
+    exitFullScreen();
+    isLongStart = false;
+});
+mainOn("clip_ocr", ([img, type]) => {
+    createMainWindow({ type: "ocr", content: img, arg0: type });
+});
+mainOn("clip_search", ([img, type]) => {
+    createMainWindow({ type: "image", content: img, arg0: type });
+});
+mainOn("clip_qr", ([img]) => {
+    createMainWindow({ type: "qr", content: img });
+});
+mainOn("clip_save", async ([type]) => {
+    const savedPath = store.get("保存.保存路径.图片") || "";
+    hideClip();
+    const x = await dialog.showSaveDialog({
+        title: t("选择要保存的位置"),
+        defaultPath: join(savedPath, `${getFileName()}.${type}`),
+        filters: [{ name: t("图像"), extensions: [type] }],
+    });
+
+    if (x.filePath) {
+    } else {
+        new Notification({
+            title: `${app.name} ${t("保存文件失败")}`,
+            body: t("用户已取消保存"),
+            icon: `${runPath}/assets/logo/64x64.png`,
+        }).show();
+        clipWindow?.show();
+        clipWindow?.setSimpleFullScreen(true);
     }
+    return x.filePath;
+});
+mainOn("clip_ding", ([img, type, rect]) => {
+    createDingWindow(rect.x, rect.y, rect.w, rect.h, img, type);
+});
+mainOn("clip_mac_app", async () => {
+    hideClip();
+    const x = await dialog.showOpenDialog({
+        defaultPath: "/Applications",
+    });
+    if (x.canceled) {
+        clipWindow?.show();
+        clipWindow?.setSimpleFullScreen(true);
+    }
+    return { canceled: x.canceled, filePaths: x.filePaths };
+});
+mainOn("clip_record", ([rect, id, w, h, r]) => {
+    createRecorderWindow(rect, {
+        id: id,
+        w: w,
+        h: h,
+        r: r,
+    });
+});
+mainOn("clip_long_s", () => {
+    isLongStart = true;
+    longWin();
+});
+mainOn("clip_long_e", () => {
+    clipWindow?.setIgnoreMouseEvents(false);
+    isLongStart = false;
+});
+mainOn("getMousePos", () => {
+    return screen.getCursorScreenPoint();
+});
+mainOn("clip_translate", ([arg]) => {
+    createTranslator(arg);
+});
+mainOn("ignoreMouse", ([arg], e) => {
+    BrowserWindow.fromWebContents(e.sender)?.setIgnoreMouseEvents(arg);
+});
+mainOn("clip_editor", ([arg]) => {
+    createPhotoEditor(arg);
+});
+mainOn("clip_recordx", () => {
+    createSuperRecorderWindow();
 });
 
 /**
@@ -1358,14 +1338,6 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
             writeFile(filePath, buffer, () => {});
         }, d * maxN);
     }
-}
-
-function ocr(arg) {
-    createMainWindow({ type: "ocr", content: arg[0], arg0: arg[1] });
-}
-
-function imageSearch(arg) {
-    createMainWindow({ type: "image", content: arg[0], arg0: arg[1] });
 }
 
 let recording = false;

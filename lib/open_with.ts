@@ -1,3 +1,4 @@
+import { renderSendSync } from "./ipc";
 const { exec } = require("node:child_process");
 const { ipcRenderer } = require("electron");
 function open(path: string) {
@@ -19,15 +20,18 @@ function open(path: string) {
             });
             break;
         }
-        case "darwin":
-            ipcRenderer.send("clip_main_b", "mac_app");
-            ipcRenderer.on("mac_app_path", (ev, c, paths) => {
-                if (!c) {
-                    const co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${path}`;
-                    exec(co);
-                }
-            });
+        case "darwin": {
+            const { canceled: c, filePaths: paths } = renderSendSync(
+                "clip_mac_app",
+                [],
+            );
+            if (!c) {
+                const co = `open -a ${paths[0].replace(/ /g, "\\ ")} ${path}`;
+                exec(co);
+            }
+
             break;
+        }
     }
 }
 export default open;
