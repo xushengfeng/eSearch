@@ -1290,6 +1290,11 @@ function inEdge(p: editor_position) {
     for (const i of rectInRect) {
         clipCtx.strokeRect(i[0], i[1], i[2], i[3]);
     }
+    clipCtx.strokeStyle = "#fff";
+    clipCtx.lineWidth = 1;
+    for (const i of rectInRect) {
+        clipCtx.strokeRect(i[0] - 1, i[1] - 1, i[2] + 2, i[3] + 2);
+    }
 }
 
 function renderClip(e: MouseEvent) {
