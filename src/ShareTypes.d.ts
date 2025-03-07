@@ -500,5 +500,5 @@ type DingResize = {
     zoom: number;
     dx: number;
     dy: number;
-    clip: boolean;
+    clip: boolean | undefined;
 };

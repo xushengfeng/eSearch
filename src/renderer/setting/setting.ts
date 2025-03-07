@@ -2267,7 +2267,7 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
 function bindRun(): void;
 function bindRun<t extends SettingPath>(k: t, v: GetValue<setting, t>): void;
 function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
-    if (k) {
+    if (k !== undefined && v !== undefined) {
         bindF[k]?.(v);
     } else {
         for (const [k, f] of Object.entries(bindF)) {

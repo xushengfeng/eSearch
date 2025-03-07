@@ -446,7 +446,7 @@ function backHotkeyScope() {
     console.log(hotkeys.getScope(), hotkeyScopes);
 }
 
-function setDefaultAction(act: setting["框选后默认操作"]) {
+function setDefaultAction(act: setting["框选后默认操作"] | undefined) {
     if (!act) return;
     autoDo = act;
     if (autoDo !== "no") {
@@ -1560,8 +1560,7 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     mainEl.el.style.color = theTextColor[1];
     const c = colorConversion(l, type);
     const main = c.includes("(")
-        ? c
-              .match(/\((.*)\)/)[1]
+        ? (c.match(/\((.*)\)/)?.[1] ?? c)
               .replace("deg", "°")
               .replace("none", "-")
         : c;
@@ -1645,8 +1644,8 @@ function followBar(op?: { x: number; y: number }) {
     let x = 0;
     let y = 0;
     if (!op) {
-        x = followBarList.at(-1)[0];
-        y = followBarList.at(-1)[1];
+        x = followBarList.at(-1)?.[0] ?? 0;
+        y = followBarList.at(-1)?.[1] ?? 0;
     } else {
         x = op.x;
         y = op.y;

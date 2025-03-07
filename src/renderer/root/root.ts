@@ -69,7 +69,7 @@ function initStyle(
             topTip.style({ opacity: 0 });
         } else {
             const title = tEl.getAttribute("data-title");
-            if (!title.trim()) {
+            if (!title?.trim()) {
                 topTip.style({ opacity: 0 });
                 return;
             }

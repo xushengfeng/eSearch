@@ -22,7 +22,7 @@ class xhistory<Data, Diff = any> {
         datas: typeof this.history,
         _initData: Data,
         op?: {
-            diff: (last: Data, now: Data) => Diff;
+            diff: (last: Data, now: Data) => Diff | null;
             apply: (data: Data, diff: Diff) => Data;
             cacheSize?: number;
         },
@@ -93,7 +93,7 @@ class xhistory<Data, Diff = any> {
         if (diff !== null && diff !== undefined) {
             if (this.i !== this.history.length - 1) {
                 // 中途添加，保留上一个数据
-                const h = this.history.at(this.i);
+                const h = this.history.at(this.i) as (typeof this.history)[0];
                 this.history.push({
                     ...h,
                     time: Date.now(),
