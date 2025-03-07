@@ -64,6 +64,18 @@ import type { IconType } from "../../iconTypes";
 
 initStyle(store);
 
+async function loadCV() {
+    if (!cv) {
+        // biome-ignore format:
+        cv = require("@techstark/opencv-js") as typeof import('@techstark/opencv-js');
+        cv.onRuntimeInitialized = () => {
+            console.log("load cv");
+            cvLoadPromise.resolve(true);
+        };
+    }
+    await cvLoadPromise.promise;
+}
+
 function iconEl(src: IconType) {
     return view().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
 }
@@ -555,13 +567,7 @@ function startLong() {
     r[1] += screenPosition[nowScreenId].y;
     long_s();
     renderSend("clip_long_s", []);
-    if (!cv) {
-        cv = require("@techstark/opencv-js");
-        cv.onRuntimeInitialized = () => {
-            console.log("load cv");
-            cvLoadPromise.resolve(true);
-        };
-    }
+    loadCV();
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
         if (uIOhook) {
@@ -647,7 +653,7 @@ function stopLong() {
 }
 
 async function addLong(x: ImageData | undefined) {
-    await cvLoadPromise.promise;
+    await loadCV();
     if (!x) {
         uIOhook?.stop();
         uIOhook = null;
@@ -2788,15 +2794,9 @@ async function fabricCopy() {
 // 获取设置
 
 const cvLoadPromise = Promise.withResolvers();
-if (store.get("框选.自动框选.图像识别")) {
-    // biome-ignore format:
-    // biome-ignore lint: 为了部分引入
-    var cv = require("@techstark/opencv-js") as typeof import('@techstark/opencv-js');
-    cv.onRuntimeInitialized = () => {
-        console.log("load cv");
-        cvLoadPromise.resolve(true);
-    };
-}
+
+// biome-ignore lint: 为了部分引入
+var cv: typeof import("@techstark/opencv-js");
 
 const 字体 = store.get("字体");
 
@@ -3650,13 +3650,6 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
 
     setDefaultAction(act);
 
-    if (autoPhotoSelectRect) {
-        cvLoadPromise.promise.then(() => {
-            console.log("edge");
-            edge();
-        });
-    }
-
     getWin();
 
     drawClipRect();
@@ -4037,10 +4030,15 @@ document.onmouseup = (e) => {
 };
 
 hotkeys("s", () => {
-    // 重新启用自动框选提示
-    rectSelect = false;
-    finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
-    drawClipRect();
+    if (autoPhotoSelectRect) {
+        loadCV().then(() => {
+            console.log("edge");
+            edge();
+            rectSelect = false;
+            finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
+            drawClipRect();
+        });
+    }
 });
 
 const whHotKeyMap = {
