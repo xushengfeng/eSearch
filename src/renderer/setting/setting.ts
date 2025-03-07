@@ -285,7 +285,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "框选.记忆.开启": {
         name: "记住框选大小",
-        desc: "开启后默认不启用自动框选",
+        desc: "开启后默认不启用自动框选，除非按[S]键重新启用",
         el: () => xSwitch(),
     },
     "框选.参考线.选区": {
