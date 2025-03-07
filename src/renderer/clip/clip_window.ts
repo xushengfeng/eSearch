@@ -4023,7 +4023,8 @@ clipCanvas.onmousedown = (e) => {
         clipStart(e, inRect);
     }
     if (e.button === 2) {
-        pickColor(e);
+        if (store.get("鼠标快捷键.右键") === "取色器") pickColor(e);
+        else tool.close();
     }
     toolBar.style.pointerEvents =
         drawBar.style.pointerEvents =
@@ -4183,7 +4184,8 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
 });
 
 clipCanvas.ondblclick = () => {
-    tool.copy();
+    if (store.get("鼠标快捷键.双击") === "复制") tool.copy();
+    else tool.save();
 };
 
 document.onmousemove = (e) => {

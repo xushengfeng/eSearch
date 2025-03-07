@@ -2376,6 +2376,10 @@ const defaultSetting: setting = {
         translate: "",
         editor: "",
     },
+    鼠标快捷键: {
+        右键: "取色器",
+        双击: "复制",
+    },
     截屏编辑快捷键: {
         select: { 键: "1", 副: { rect: "1+2", free: "1+3", draw: "1+4" } },
         draw: { 键: "2", 副: { free: "2+3", eraser: "2+4", spray: "2+5" } },

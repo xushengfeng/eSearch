@@ -377,6 +377,22 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "广截屏定时间隔",
         el: () => xRange({ min: 10, max: 1000, text: "ms" }),
     },
+    "鼠标快捷键.右键": {
+        name: "鼠标右键",
+        el: (v) =>
+            xSelect<typeof v>(
+                [{ value: "取色器" }, { value: "关闭" }],
+                "鼠标右键",
+            ),
+    },
+    "鼠标快捷键.双击": {
+        name: "鼠标双击",
+        el: (v) =>
+            xSelect<typeof v>(
+                [{ value: "复制" }, { value: "保存" }],
+                "鼠标双击",
+            ),
+    },
     "图像编辑.默认属性.填充颜色": { name: "默认填充颜色", el: () => xColor() },
     "图像编辑.默认属性.边框颜色": { name: "默认边框颜色", el: () => xColor() },
     "图像编辑.默认属性.边框宽度": {
@@ -1811,6 +1827,10 @@ const main: {
             },
             { title: "连拍", settings: ["连拍.数", "连拍.间隔"] },
             { title: "广截屏", settings: ["广截屏.模式", "广截屏.t"] },
+            {
+                title: "鼠标快捷键",
+                settings: ["鼠标快捷键.右键", "鼠标快捷键.双击"],
+            },
         ],
     },
     {

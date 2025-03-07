@@ -25,6 +25,10 @@ export interface setting {
             副: { [key1 in EditType[key]]: string };
         };
     };
+    鼠标快捷键: {
+        双击: "复制" | "保存";
+        右键: "取色器" | "关闭";
+    };
     大小栏快捷键: {
         左上x: string;
         左上y: string;
