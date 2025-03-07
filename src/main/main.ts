@@ -1726,15 +1726,15 @@ function createDingWindow(
         const id = Date.now();
         for (const i in dingwindowList) {
             const b = dingwindowList[i].win.getBounds();
-            dingwindowList[i].win.webContents.send(
-                "img",
+            mainSend(dingwindowList[i].win.webContents, "addDing", [
                 id,
                 x - b.x,
                 y - b.y,
                 w,
                 h,
                 img,
-            );
+                "ding",
+            ]);
         }
     }
     // 自动改变鼠标穿透
