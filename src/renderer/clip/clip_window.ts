@@ -3363,6 +3363,8 @@ const hotkeyTipX: { name: string; hotkey: hotkeyTip }[] = [
             { name: "右下y", keys: [store.get("大小栏快捷键.右下y")] },
             { name: "宽", keys: [store.get("大小栏快捷键.宽")] },
             { name: "高", keys: [store.get("大小栏快捷键.高")] },
+            { name: "自动框选", keys: ["S"] },
+            { name: "匹配自动框选", keys: [`Shift ${t("框选")}`] },
         ],
     },
     {
