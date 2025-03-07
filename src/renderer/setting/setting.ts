@@ -4235,6 +4235,7 @@ historyEl.el
         showPage(main[sideBarG.get()]);
         bindRun();
     })
+    .style({ maxWidth: "180px" })
     .attr({
         title: "修改历史",
     });
