@@ -46,6 +46,8 @@ import type {
     功能列表,
 } from "../../ShareTypes.js";
 import {
+    alert,
+    button,
     ele,
     type ElType,
     frame,
@@ -839,7 +841,30 @@ function runDing() {
     tool.close();
 }
 
+function checkTranslator() {
+    const fyq = store.get("翻译.翻译器");
+    if (fyq.length === 0) {
+        const d = ele("dialog")
+            .add(
+                view("y").add([
+                    t("无翻译器，请先设置翻译器"),
+                    button(t("确定"))
+                        .on("click", () => {
+                            d.remove();
+                        })
+                        .style({ width: "auto" }),
+                ]),
+            )
+            .class("bar")
+            .addInto();
+        d.el.showModal();
+    }
+    return fyq.length > 0;
+}
+
 async function translate() {
+    const c = checkTranslator();
+    if (!c) return;
     const display = getNowScreen();
     renderSend("clip_translate", [
         {
