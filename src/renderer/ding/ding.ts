@@ -508,7 +508,7 @@ async function transAndDraw(
 
     for (const [i, t] of tr.entries()) {
         const x = p[i];
-        drawText(t, ctx, x.parse.box, x.src);
+        if (t !== x.parse.text) drawText(t, ctx, x.parse.box, x.src);
     }
     // todo 多屏
     data.translation = canvas.toDataURL("image/png", 1);
