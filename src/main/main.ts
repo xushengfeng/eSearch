@@ -1575,6 +1575,9 @@ mainOn("reload", () => {
     app.relaunch();
     app.exit(0);
 });
+mainOn("exit", () => {
+    app.exit(0);
+});
 mainOn("clearStorage", () => {
     const ses = session.defaultSession;
     ses.clearStorageData();

@@ -119,6 +119,7 @@ type Message = {
     reloadMainFromSetting: () => void;
     set_default_setting: () => void;
     reload: () => void;
+    exit: () => void;
     clearStorage: () => void;
     clearCache: () => void;
     move_user_data: (target: string) => void;

@@ -80,7 +80,8 @@ type JustElmentK =
     | "_setting_file"
     | "_default_setting"
     | "_location"
-    | "_version";
+    | "_version"
+    | "_exit";
 
 type KeyPath = JustElmentK | SettingPath;
 
@@ -1817,6 +1818,10 @@ const xs: Record<
             return moreVersion;
         },
     },
+    _exit: {
+        name: "退出应用",
+        el: () => button("退出").on("click", () => renderSend("exit", [])),
+    },
 };
 
 // todo log没创建的key
@@ -2261,6 +2266,7 @@ const main: {
             { title: "开发者模式", settings: ["dev"] },
             { title: "位置信息", settings: ["_location"] },
             { title: "版本信息", settings: ["_version"] },
+            { title: "退出应用", settings: ["_exit"] },
         ],
     },
 ];
