@@ -1629,8 +1629,8 @@ function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
-function iconBEl(src: IconType) {
-    return button().add(iconEl(src));
+function iconBEl(src: IconType, title: string) {
+    return button().add(iconEl(src)).attr({ title });
 }
 
 function monoTxt(text?: string) {
@@ -1767,12 +1767,10 @@ const playDecoder = new VideoDecoder({
     },
     error: (e) => {
         console.error("Decode error:", e);
-        const el = iconBEl("reload")
-            .attr({ title: t("重新加载播放器") })
-            .on("click", () => {
-                playDecoder.configure(decoderVideoConfig);
-                el.remove();
-            });
+        const el = iconBEl("reload", "重新加载播放器").on("click", () => {
+            playDecoder.configure(decoderVideoConfig);
+            el.remove();
+        });
         transformLogEl.add(el);
     },
 });
@@ -1852,22 +1850,22 @@ const playEl = check("", [
     }
 });
 
-const lastFrame = iconBEl("last").on("click", (e) => {
+const lastFrame = iconBEl("last", "上一帧").on("click", (e) => {
     const x = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
     const id = Math.max(willPlayI - x, 0) as TransId;
     jump2idUi(trans2src(id));
 });
-const nextFrame = iconBEl("next").on("click", (e) => {
+const nextFrame = iconBEl("next", "下一帧").on("click", (e) => {
     const x = e.shiftKey ? 100 : e.ctrlKey ? 10 : 1;
     const id = Math.min(willPlayI + x, transformCs.length - 1) as TransId;
     jump2idUi(trans2src(id));
 });
-const lastKey = iconBEl("last_last").on("click", (e) => {
+const lastKey = iconBEl("last_last", "上一秒").on("click", (e) => {
     const x = e.shiftKey ? 60 : e.ctrlKey ? 10 : 1;
     const id = Math.max(willPlayI - srcRate * x, 0) as TransId;
     jump2idUi(trans2src(id));
 });
-const nextKey = iconBEl("next_next").on("click", (e) => {
+const nextKey = iconBEl("next_next", "下一秒").on("click", (e) => {
     const x = e.shiftKey ? 60 : e.ctrlKey ? 10 : 1;
     const id = Math.min(
         willPlayI + srcRate * x,
@@ -1947,7 +1945,7 @@ const transformCodec = monoTxt()
     })
     .sv([codec, isDeAcc, isEnAcc]);
 
-const actionUndo = iconBEl("left").on("click", async () => {
+const actionUndo = iconBEl("left", "撤回").on("click", async () => {
     history.undo();
     renderUiData(history.getData());
     await transform();
@@ -1958,7 +1956,7 @@ actionList.el.on("change", async () => {
     renderUiData(history.getData());
     await transform();
 });
-const actionUnundo = iconBEl("right").on("click", async () => {
+const actionUnundo = iconBEl("right", "重做").on("click", async () => {
     history.unundo();
     renderUiData(history.getData());
     await transform();
@@ -1999,6 +1997,7 @@ const timeLineControlP = view()
         paddingRight: "calc(100% - 300px)",
     })
     .addInto()
+    .attr({ title: "[Shift+滚轮] 移动\n[滚轮] 缩放" })
     .on("wheel", (e) => {
         e.preventDefault();
         const dx = e.shiftKey ? e.deltaY : e.deltaX;
@@ -2093,6 +2092,7 @@ const timeLineClip = () => {
                   );
             view()
                 .addInto(el)
+                .attr({ title: "点击编辑" })
                 .style({
                     left: ipx(beforeId),
                     width: ipx(c.i - beforeId + 1),
@@ -2160,7 +2160,9 @@ const timeLineTrack = <D>(op: {
         return x;
     }
     function itemEl(d: (typeof data)[0]) {
-        const el = view().data({ id: d.id });
+        const el = view()
+            .data({ id: d.id })
+            .attr({ title: op.setValue ? "点击编辑\n右键删除" : "右键删除" });
         setItemEl(d, el);
         op.el(el, d);
         track.add(el);
@@ -2363,9 +2365,11 @@ const timeLineTrack = <D>(op: {
 };
 
 const timeLineClipEl = timeLineClip();
-timeLineClipEl.el.style({
-    backgroundColor: "#f001",
-});
+timeLineClipEl.el
+    .style({
+        backgroundColor: "#f001",
+    })
+    .attr({ title: "双击新建镜头" });
 const timeLineSpeedEl = timeLineTrack({
     el: (el, data) => {
         el.style({
@@ -2413,9 +2417,11 @@ const timeLineSpeedEl = timeLineTrack({
         });
     },
 });
-timeLineSpeedEl.el.style({
-    backgroundColor: "#00f1",
-});
+timeLineSpeedEl.el
+    .style({
+        backgroundColor: "#00f1",
+    })
+    .attr({ title: "拖动新建速度" });
 const timeLineEventEl = timeLineTrack({
     el: (el) => {
         el.style({
@@ -2453,9 +2459,11 @@ const timeLineRemoveEl = timeLineTrack({
         });
     },
 });
-timeLineRemoveEl.el.style({
-    backgroundColor: "#0001",
-});
+timeLineRemoveEl.el
+    .style({
+        backgroundColor: "#0001",
+    })
+    .attr({ title: "拖动删除区间" });
 
 const timeLineFrame = view("x")
     .style({ height: "150px", gap: "8px" })
@@ -2477,7 +2485,7 @@ const exportEl = frame("export", {
     }),
     _x: {
         _: view("x").class("group"),
-        export: iconBEl("save").on("click", save),
+        export: iconBEl("save", "保存").on("click", save),
         type: select(
             outputType
                 .filter(
@@ -2493,7 +2501,7 @@ const exportEl = frame("export", {
     },
     _s: spacer(),
     px: exportPx.el,
-    editClip: iconBEl("draw").on("click", async () => {
+    editClip: iconBEl("draw", "编辑").on("click", async () => {
         const canvas = await transformCs.getFrame(willPlayI);
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
@@ -2690,7 +2698,7 @@ renderOn("superRecorderInit", async ([sourceId]) => {
         view("x")
             .add([
                 recordTime,
-                iconBEl("close").on("click", () => {
+                iconBEl("close", "取消录制").on("click", () => {
                     stopRecord(true);
                 }),
             ])
