@@ -118,26 +118,28 @@ const tabs = new Map<number, TabItem>();
 
 let focusTabI = 0;
 
-function iconBEl(src: IconType) {
-    return button(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
+function iconBEl(src: IconType, title: string) {
+    return button(image(getImgUrl(`${src}.svg`), "icon").class("icon")).attr({
+        title: title,
+    });
 }
 
 const nav = ele("nav");
-const navTop = iconBEl("toptop")
+const navTop = iconBEl("toptop", "窗口置顶")
     .attr({ id: "top_b" })
     .on("click", () => {
         alwaysOnTop = !alwaysOnTop;
         setButtonHover(navTop, alwaysOnTop);
         renderSend("windowTop", [alwaysOnTop]);
     });
-const navDing = iconBEl("ding")
+const navDing = iconBEl("ding", "不自动关闭")
     .attr({ id: "ding_b" })
     .on("click", () => {
         blurToClose = !blurToClose;
         store.set("主页面.失焦关闭", blurToClose);
         setButtonHover(navDing, !blurToClose);
     });
-const navConcise = iconBEl("concise")
+const navConcise = iconBEl("concise", "简洁模式")
     .attr({ id: "concise_b" })
     .on("click", () => {
         concise = !concise;
@@ -158,23 +160,22 @@ const findEl = view()
 const findCount = view().attr({ id: "count" }).addInto(findEl);
 
 const findButtons = view().class("find_buttons").class("group").addInto(findEl);
-iconBEl("up")
-    .attr({ id: "find_b_last", title: "上一个匹配" })
+iconBEl("up", "上一个匹配")
+    .attr({ id: "find_b_last" })
     .addInto(findButtons)
     .on("click", () => {
         findLN("↑");
     });
-iconBEl("down")
+iconBEl("down", "下一个匹配")
     .attr({
         id: "find_b_next",
-        title: "下一个匹配",
     })
     .addInto(findButtons)
     .on("click", () => {
         findLN("↓");
     });
-iconBEl("close")
-    .attr({ id: "find_b_close", title: "关闭" })
+iconBEl("close", "关闭")
+    .attr({ id: "find_b_close" })
     .addInto(findButtons)
     .on("click", showFind);
 
@@ -188,8 +189,8 @@ const findInputEl = input()
         spellcheck: false,
     })
     .addInto(findInputPel);
-const findRegexEl = iconBEl("regex")
-    .attr({ id: "find_b_regex", title: "正则匹配" })
+const findRegexEl = iconBEl("regex", "正则匹配")
+    .attr({ id: "find_b_regex" })
     .addInto(findInputPel);
 
 const findReplacePel = view().class("find_s").class("group").addInto(findEl);
@@ -202,11 +203,11 @@ const findReplaceEl = input()
         spellcheck: false,
     })
     .addInto(findReplacePel);
-const findReplaceB = iconBEl("replace")
-    .attr({ id: "find_b_replace", title: "替换" })
+const findReplaceB = iconBEl("replace", "替换")
+    .attr({ id: "find_b_replace" })
     .addInto(findReplacePel);
-const findReplaceAll = iconBEl("replace_all")
-    .attr({ id: "find_b_replace_all", title: "全部替换" })
+const findReplaceAll = iconBEl("replace_all", "全部替换")
+    .attr({ id: "find_b_replace_all" })
     .addInto(findReplacePel);
 
 const findResultEl = txt()
@@ -255,10 +256,10 @@ const ocrImageTextOutput = view()
     .addInto(ocrImagePel);
 const ocrImageEngine = dynamicSelect();
 ocrImageEngine.el.attr({ id: "ocr引擎" }).addInto(ocrImageTextOutput);
-const ocrImageRun = iconBEl("ocr")
+const ocrImageRun = iconBEl("ocr", "运行OCR")
     .attr({ id: "run" })
     .addInto(ocrImageTextOutput);
-const ocrImageClose = iconBEl("close")
+const ocrImageClose = iconBEl("close", "清空图片")
     .attr({ id: "close" })
     .addInto(ocrImageTextOutput);
 
@@ -284,30 +285,25 @@ const editB = view()
     .class("bar")
     .addInto(mainTextEl);
 
-const barExcelB = iconBEl("excel").attr({
+const barExcelB = iconBEl("excel", "保存Excel").attr({
     id: "excel_bar",
-    title: "保存Excel",
 });
-const barMdTableB = iconBEl("md").attr({
+const barMdTableB = iconBEl("md", "复制为md表格").attr({
     id: "md_table_bar",
-    title: "复制为md表格",
 });
-const barLinB = iconBEl("link").attr({ id: "link_bar", title: "打开链接" });
-const barSearchB = iconBEl("search").attr({ id: "search_bar", title: "搜索" });
-const barTranslateB = iconBEl("translate").attr({
+const barLinB = iconBEl("link", "打开链接").attr({ id: "link_bar" });
+const barSearchB = iconBEl("search", "搜索").attr({ id: "search_bar" });
+const barTranslateB = iconBEl("translate", "翻译").attr({
     id: "translate_bar",
-    title: "翻译",
 });
-const barSelectAllB = iconBEl("select_all").attr({
+const barSelectAllB = iconBEl("select_all", "全选").attr({
     id: "select_all_bar",
-    title: "全选",
 });
-const barCutB = iconBEl("cut").attr({ id: "cut_bar", title: "剪切" });
-const barCopyB = iconBEl("copy").attr({ id: "copy_bar", title: "复制" });
-const barPasteB = iconBEl("paste").attr({ id: "paste_bar", title: "粘贴" });
-const barDeleteEnterB = iconBEl("delete_enter").attr({
+const barCutB = iconBEl("cut", "剪切").attr({ id: "cut_bar" });
+const barCopyB = iconBEl("copy", "复制").attr({ id: "copy_bar" });
+const barPasteB = iconBEl("paste", "粘贴").attr({ id: "paste_bar" });
+const barDeleteEnterB = iconBEl("delete_enter", "自动删除换行").attr({
     id: "delete_enter_bar",
-    title: "自动删除换行",
 });
 editB.add([
     barExcelB,
@@ -333,13 +329,17 @@ const browserTabBs = view()
     .attr({ id: "buttons" })
     .class("group")
     .addInto(browserTabs);
-const browserTabHome = iconBEl("main").attr({ id: "home" });
-const browserTabBack = iconBEl("left").attr({ id: "back" });
-const browserTabForward = iconBEl("right").attr({ id: "forward" });
-const browserTabReload = iconBEl("reload").attr({ id: "reload" });
-const browserTabStop = iconBEl("close").attr({ id: "stop" });
-const browserTabBrowser = iconBEl("browser").attr({ id: "browser" });
-const browserTabAddHistory = iconBEl("add_history").attr({ id: "add_history" });
+const browserTabHome = iconBEl("main", "回到编辑器").attr({ id: "home" });
+const browserTabBack = iconBEl("left", "后退").attr({ id: "back" });
+const browserTabForward = iconBEl("right", "前进").attr({ id: "forward" });
+const browserTabReload = iconBEl("reload", "刷新").attr({ id: "reload" });
+const browserTabStop = iconBEl("close", "停止").attr({ id: "stop" });
+const browserTabBrowser = iconBEl("browser", "在浏览器中打开").attr({
+    id: "browser",
+});
+const browserTabAddHistory = iconBEl("add_history", "添加到历史记录").attr({
+    id: "add_history",
+});
 browserTabBs.add([
     browserTabHome,
     browserTabBack,
@@ -350,23 +350,21 @@ browserTabBs.add([
     browserTabAddHistory,
 ]);
 
-const showImageB = iconBEl("img").attr({ id: "image_b", title: "图片" });
-const showHistoryB = iconBEl("history")
+const showImageB = iconBEl("img", "图片").attr({ id: "image_b" });
+const showHistoryB = iconBEl("history", "历史记录")
     .attr({
         id: "history_b",
-        title: "历史记录",
     })
     .on("click", showHistory);
 
-const searchB = iconBEl("search").attr({ id: "search_b", title: "搜索" });
+const searchB = iconBEl("search", "搜索").attr({ id: "search_b" });
 const searchSelectEl = select([]).attr({
     id: "search_s",
     title: "选择搜索引擎",
 });
 
-const translateB = iconBEl("translate").attr({
+const translateB = iconBEl("translate", "翻译").attr({
     id: "translate_b",
-    title: "翻译",
 });
 const translateSelectEl = select([]).attr({
     id: "translate_s",
@@ -388,7 +386,7 @@ function tabLi() {
     const li = ele("li").class("b_tab");
     const icon = image(getImgUrl("record.svg"), "icon").class("loading");
     const title = txt().attr({ id: "title" });
-    const close = iconBEl("close");
+    const close = iconBEl("close", "关闭");
     li.add([icon, title, close]);
     return { li, icon, title, close };
 }
