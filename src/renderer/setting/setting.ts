@@ -4252,9 +4252,7 @@ bindRun();
 showPage(main[0]);
 
 document.body.onclick = (e) => {
-    const el = (event?.target as HTMLElement)?.closest(
-        "a",
-    ) as HTMLAnchorElement;
+    const el = (e.target as HTMLElement)?.closest("a") as HTMLAnchorElement;
     if (el) {
         e.preventDefault();
         if (el.href.startsWith("http") || el.href.startsWith("https")) {
