@@ -68,7 +68,6 @@
 *:focus-visible {
     outline: 1px var(--m-color-f) solid;
     outline-offset: 1px;
-    border-radius: 2px;
 }
 
 body {
