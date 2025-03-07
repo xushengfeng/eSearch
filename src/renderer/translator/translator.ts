@@ -21,6 +21,12 @@ initStyle(store);
 
 setTitle(t("屏幕翻译"));
 
+renderOn("translatorInit", ([id, _display, _rect]) => {
+    display = _display;
+    screenId = id;
+    rect = _rect;
+});
+
 const screenShots = initScreenShots({
     c: store.get("额外截屏器.命令"),
     path: store.get("额外截屏器.位置"),
@@ -232,9 +238,3 @@ mainEl.add([textEl]);
 mainEl.addInto();
 
 mainEl.add(toolsEl);
-
-renderOn("translatorInit", ([id, _display, _rect]) => {
-    display = _display;
-    screenId = id;
-    rect = _rect;
-});
