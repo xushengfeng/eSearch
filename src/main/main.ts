@@ -1008,13 +1008,6 @@ function setMenu() {
                         createHelpWindow();
                     },
                 },
-                { type: "separator" },
-                {
-                    label: t("关于"),
-                    click: () => {
-                        createSettingWindow(true);
-                    },
-                },
             ],
         },
     ] as Electron.MenuItemConstructorOptions[];
@@ -2005,7 +1998,7 @@ async function createMainWindow(op: MainWinType) {
     return windowName;
 }
 
-async function createSettingWindow(about?: boolean) {
+async function createSettingWindow() {
     const settingWindow = new BrowserWindow({
         minWidth: 600,
         backgroundColor: nativeTheme.shouldUseDarkColors
@@ -2028,7 +2021,6 @@ async function createSettingWindow(about?: boolean) {
 
     settingWindow.webContents.on("did-finish-load", () => {
         settingWindow.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
-        settingWindow.webContents.send("about", about);
     });
 }
 
