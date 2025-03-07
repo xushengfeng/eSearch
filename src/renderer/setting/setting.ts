@@ -41,6 +41,8 @@ const fs = require("node:fs") as typeof import("fs");
 import Sortable from "sortablejs";
 
 import logo from "../assets/icon.svg";
+import logoBlack from "../../../assets/logo/32x32_black.png";
+import logoWhite from "../../../assets/logo/32x32_white.png";
 import testPhoto from "../assets/sample_picture.svg";
 
 import translator from "xtranslator";
@@ -1299,6 +1301,49 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "将通过系统通知提示启动",
         el: () => xSwitch(),
     },
+    托盘: {
+        name: "托盘",
+        el: (v) => {
+            const blackLogo = () =>
+                image(logoBlack, noI18n("logo")).attr({ width: 32 });
+            const whiteLogo = () =>
+                image(logoWhite, noI18n("logo")).attr({ width: 32 });
+            return xSelect<typeof v>(
+                [
+                    {
+                        value: "彩色",
+                        name: view().add([
+                            image(logo, noI18n("logo")).attr({ width: 32 }),
+                            "默认",
+                        ]),
+                    },
+                    {
+                        value: "黑",
+                        name: view().add([blackLogo(), "黑"]),
+                    },
+                    {
+                        value: "白",
+                        name: view().add([whiteLogo(), "白"]),
+                    },
+                    {
+                        value: "跟随系统",
+                        name: view().add([
+                            isDarkMode() ? blackLogo() : whiteLogo(),
+                            "跟随系统",
+                        ]),
+                    },
+                    {
+                        value: "跟随系统反",
+                        name: view().add([
+                            isDarkMode() ? whiteLogo() : blackLogo(),
+                            "反向跟随系统",
+                        ]),
+                    },
+                ],
+                "托盘",
+            );
+        },
+    },
     "语言.语言": {
         name: "语言",
         el: () => {
@@ -2148,6 +2193,7 @@ const main: {
         items: [
             { title: "启动", settings: ["_autostart", "启动提示"] },
             { title: "语言", settings: ["语言.语言"] },
+            { title: "托盘", settings: ["托盘"] },
             {
                 title: "主搜索功能",
                 settings: [
@@ -3782,6 +3828,10 @@ function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
         return `${ap(s.base)}/${bp(path)}`;
     }
     return path;
+}
+
+function isDarkMode() {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 async function showPage(page: (typeof main)[0]) {

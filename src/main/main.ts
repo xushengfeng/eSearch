@@ -473,6 +473,14 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
 
 let contextMenu: Electron.Menu;
 let tray: Tray;
+const trayIcons: Record<string, NativeImage> = {
+    macTem: nativeImage.createFromPath(
+        `${runPath}/assets/logo/macIconTemplate.png`,
+    ),
+    color: nativeImage.createFromPath(`${runPath}/assets/logo/32x32.png`),
+    white: nativeImage.createFromPath(`${runPath}/assets/logo/32x32_white.png`),
+    black: nativeImage.createFromPath(`${runPath}/assets/logo/32x32_black.png`),
+};
 
 app.commandLine.appendSwitch(
     "enable-experimental-web-platform-features",
@@ -495,9 +503,7 @@ app.whenReady().then(() => {
     argRun(process.argv, true);
 
     // 托盘
-    tray = isMac
-        ? new Tray(`${runPath}/assets/logo/macIconTemplate.png`)
-        : new Tray(`${runPath}/assets/logo/32x32.png`);
+    tray = new Tray(`${runPath}/assets/logo/32x32.png`);
     contextMenu = Menu.buildFromTemplate([
         {
             label: `${t("自动识别")}`,
@@ -717,7 +723,39 @@ app.whenReady().then(() => {
 
     // 菜单栏设置
     setMenu();
+
+    setTray();
 });
+
+function setTray() {
+    const i = store.get("托盘");
+    if (i === "彩色") {
+        tray.setImage(trayIcons.color);
+    }
+    if (i === "白") {
+        tray.setImage(trayIcons.white);
+    }
+    if (i === "黑") {
+        tray.setImage(trayIcons.black);
+    }
+    if (i === "跟随系统" || i === "跟随系统反") {
+        if (isMac) tray.setImage(trayIcons.macTem);
+    }
+    if (i === "跟随系统") {
+        if (nativeTheme.shouldUseDarkColors) {
+            tray.setImage(trayIcons.black);
+        } else {
+            tray.setImage(trayIcons.white);
+        }
+    }
+    if (i === "跟随系统反") {
+        if (nativeTheme.shouldUseDarkColors) {
+            tray.setImage(trayIcons.white);
+        } else {
+            tray.setImage(trayIcons.black);
+        }
+    }
+}
 
 const isMac = process.platform === "darwin";
 
@@ -2322,6 +2360,10 @@ mainOn("feedbackFeature", ([arg]) => {
     return feedbackUrl2(arg);
 });
 
+nativeTheme.on("updated", () => {
+    setTray();
+});
+
 // 默认设置
 const defaultSetting: setting = {
     首次运行: false,
@@ -2330,6 +2372,7 @@ const defaultSetting: setting = {
     dev: false,
     保留截屏窗口: true,
     语言: {},
+    托盘: "彩色",
     快捷键: {
         自动识别: {
             key: "Alt+V",

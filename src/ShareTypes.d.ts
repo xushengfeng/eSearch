@@ -4,6 +4,7 @@ export interface setting {
     启动提示: true;
     dev: boolean;
     语言: { 语言?: string };
+    托盘: "彩色" | "黑" | "白" | "跟随系统" | "跟随系统反";
     保留截屏窗口: boolean;
     快捷键: {
         自动识别: { key?: string };
