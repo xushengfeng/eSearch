@@ -846,14 +846,16 @@ function checkTranslator() {
     if (fyq.length === 0) {
         const d = ele("dialog")
             .add(
-                view("y").add([
-                    t("无翻译器，请先设置翻译器"),
-                    button(t("确定"))
-                        .on("click", () => {
-                            d.remove();
-                        })
-                        .style({ width: "auto" }),
-                ]),
+                view("y")
+                    .add([
+                        t("无翻译器，请先设置翻译器"),
+                        button(t("确定"))
+                            .on("click", () => {
+                                d.remove();
+                            })
+                            .style({ width: "auto" }),
+                    ])
+                    .style({ gap: "var(--o-padding)" }),
             )
             .class("bar")
             .addInto();

@@ -207,6 +207,10 @@ body dialog {
     color: var(--font-color);
     background-color: var(--bg);
 }
+body dialog::backdrop{
+    backdrop-filter: var(--blur);
+    background-color: #0004;
+}
 
 kbd {
     display: inline-block;
