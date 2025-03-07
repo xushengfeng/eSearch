@@ -79,10 +79,18 @@ function initStyle(
             const th = topTip.el.offsetHeight;
             const ow = window.innerWidth;
             const oh = window.innerHeight;
+            const left = Math.max(
+                0,
+                Math.min(rect.left + rect.width / 2 - tw / 2, ow - tw),
+            );
+            let top = rect.top - th - 4;
+            if (top < 0) {
+                top = rect.bottom + 4;
+            }
             topTip.style({
                 opacity: 1,
-                left: `${Math.max(0, Math.min(rect.left + rect.width / 2 - tw / 2, ow - tw))}px`,
-                top: `${Math.max(0, Math.min(rect.top - th - 4, oh - th))}px`,
+                left: `${left}px`,
+                top: `${Math.min(top, oh - th)}px`,
             });
         }
     });
