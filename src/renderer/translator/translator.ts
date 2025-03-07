@@ -21,12 +21,6 @@ initStyle(store);
 
 setTitle(t("屏幕翻译"));
 
-renderOn("translatorInit", ([id, _display, _rect]) => {
-    display = _display;
-    screenId = id;
-    rect = _rect;
-});
-
 const screenShots = initScreenShots({
     c: store.get("额外截屏器.命令"),
     path: store.get("额外截屏器.位置"),
@@ -92,11 +86,6 @@ function screenshot(id: number, rect: Rect) {
     return ctx.getImageData(rect.x, rect.y, rect.w, rect.h);
 }
 
-async function ocr(imgData: ImageData) {
-    const l = await OCR.ocr(imgData);
-    return l;
-}
-
 const tCache: Map<string, string> = new Map();
 
 async function translate(text: { text: string; el: ElType<HTMLDivElement> }[]) {
@@ -127,11 +116,12 @@ const sl = () =>
     });
 
 async function run() {
+    if (!OCR) return;
     const data = screenshot(screenId, rect);
     if (!data) return;
     document.body.style.opacity = "1";
 
-    const ocrData = await ocr(data);
+    const ocrData = await OCR.ocr(data);
 
     textEl.clear();
     const textL: { text: string; el: ElType<HTMLDivElement> }[] = [];
@@ -153,6 +143,7 @@ async function run() {
             height: `${y1 - y0}px`,
             lineHeight: `${lineHeight}px`,
             fontSize: `${lineHeight}px`,
+            // todo 字体颜色
         });
         textEl.add(item);
         textL.push({ el: item, text });
@@ -171,7 +162,7 @@ pack(document.body).style({
     overflow: "hidden",
 });
 
-const playIcon = iconEl("recume");
+const playIcon = iconEl("pause");
 const playEl = button(playIcon).on("click", () => {
     pause = !pause;
     playIcon.el.src = pause ? getImgUrl("recume.svg") : getImgUrl("pause.svg");
@@ -209,7 +200,9 @@ const toolsEl = view("x")
         ),
     ]);
 
-const OCR = await lo.init({
+let OCR: Awaited<ReturnType<typeof lo.init>> | null = null;
+
+lo.init({
     detPath: detp,
     recPath: recp,
     dic: fs.readFileSync(字典).toString(),
@@ -218,6 +211,8 @@ const OCR = await lo.init({
     },
     ort: ort,
     detRatio: 0.75,
+}).then((o) => {
+    OCR = o;
 });
 
 const mainEl = view().style({
@@ -238,3 +233,10 @@ mainEl.add([textEl]);
 mainEl.addInto();
 
 mainEl.add(toolsEl);
+
+renderOn("translatorInit", ([id, _display, _rect]) => {
+    display = _display;
+    screenId = id;
+    rect = _rect;
+    runRun();
+});
