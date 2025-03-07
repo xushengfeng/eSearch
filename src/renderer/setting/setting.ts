@@ -1339,6 +1339,10 @@ const s: Partial<settingItem<SettingPath>> = {
                             "反向跟随系统",
                         ]),
                     },
+                    {
+                        value: "无",
+                        name: "无",
+                    },
                 ],
                 "托盘",
             );

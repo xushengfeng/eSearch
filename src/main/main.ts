@@ -471,8 +471,8 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
     主页面: () => createMainWindow({ type: "text", content: "" }),
 };
 
-let contextMenu: Electron.Menu;
-let tray: Tray;
+let contextMenu: Electron.Menu | null = null;
+let tray: Tray | null = null;
 const trayIcons: Record<string, NativeImage> = {
     macTem: nativeImage.createFromPath(
         `${runPath}/assets/logo/macIconTemplate.png`,
@@ -502,178 +502,180 @@ app.whenReady().then(() => {
 
     argRun(process.argv, true);
 
-    // 托盘
-    tray = new Tray(`${runPath}/assets/logo/32x32.png`);
-    contextMenu = Menu.buildFromTemplate([
-        {
-            label: `${t("自动识别")}`,
-            click: () => {
-                autoOpen();
-            },
-        },
-        {
-            label: t("截屏搜索"),
-            click: () => {
-                setTimeout(() => {
-                    showPhoto();
-                }, store.get("主搜索功能.截屏搜索延迟"));
-            },
-        },
-        {
-            label: t("选中搜索"),
-            click: () => {
-                openSelection();
-            },
-        },
-        {
-            label: t("剪贴板搜索"),
-            click: () => {
-                openClipBoard();
-            },
-        },
-        {
-            type: "separator",
-        },
-        {
-            label: t("文字识别（OCR）"),
-            click: () => {
-                sendCaptureEvent(undefined, "ocr");
-            },
-        },
-        {
-            label: t("以图搜图"),
-            click: () => {
-                sendCaptureEvent(undefined, "search");
-            },
-        },
-        {
-            type: "separator",
-        },
-        {
-            label: t("浏览器打开"),
-            type: "checkbox",
-            checked: store.get("浏览器中打开"),
-            click: (i) => {
-                store.set("浏览器中打开", i.checked);
-            },
-        },
-        {
-            type: "separator",
-        },
-        {
-            label: t("从剪贴板贴图"),
-            click: () => {
-                dingFromClipBoard();
-            },
-        },
-        {
-            type: "separator",
-        },
-        {
-            label: t("主页面模式"),
-            type: "submenu",
-            submenu: [
-                {
-                    label: t("自动"),
-                    type: "radio",
-                    checked: store.get("主页面.模式") === "auto",
-                    click: () => store.set("主页面.模式", "auto"),
+    if (store.get("托盘") !== "无") {
+        // 托盘
+        tray = new Tray(`${runPath}/assets/logo/32x32.png`);
+        contextMenu = Menu.buildFromTemplate([
+            {
+                label: `${t("自动识别")}`,
+                click: () => {
+                    autoOpen();
                 },
-                {
-                    label: t("搜索"),
-                    type: "radio",
-                    checked: store.get("主页面.模式") === "search",
-                    click: () => store.set("主页面.模式", "search"),
+            },
+            {
+                label: t("截屏搜索"),
+                click: () => {
+                    setTimeout(() => {
+                        showPhoto();
+                    }, store.get("主搜索功能.截屏搜索延迟"));
                 },
-                {
-                    label: t("翻译"),
-                    type: "radio",
-                    checked: store.get("主页面.模式") === "translate",
-                    click: () => store.set("主页面.模式", "translate"),
+            },
+            {
+                label: t("选中搜索"),
+                click: () => {
+                    openSelection();
                 },
-            ],
-        },
-        {
-            label: t("复用主页面"),
-            toolTip: t("可加快OCR加载"),
-            type: "checkbox",
-            checked: store.get("主页面.复用"),
-            click: (i) => store.set("主页面.复用", i.checked),
-        },
-        { type: "separator" },
-        {
-            label: t("主页面"),
-            click: () => {
-                createMainWindow({ type: "text", content: "" });
             },
-        },
-        {
-            label: t("设置"),
-            click: () => {
-                createSettingWindow();
+            {
+                label: t("剪贴板搜索"),
+                click: () => {
+                    openClipBoard();
+                },
             },
-        },
-        {
-            label: t("教程帮助"),
-            click: () => {
-                createHelpWindow();
+            {
+                type: "separator",
             },
-        },
-        {
-            type: "separator",
-        },
-        ...(dev
-            ? [
-                  {
-                      label: t("退出开发者模式"),
-                      click: () => {
-                          store.set("dev", false);
-                          app.relaunch();
-                          app.exit(0);
+            {
+                label: t("文字识别（OCR）"),
+                click: () => {
+                    sendCaptureEvent(undefined, "ocr");
+                },
+            },
+            {
+                label: t("以图搜图"),
+                click: () => {
+                    sendCaptureEvent(undefined, "search");
+                },
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: t("浏览器打开"),
+                type: "checkbox",
+                checked: store.get("浏览器中打开"),
+                click: (i) => {
+                    store.set("浏览器中打开", i.checked);
+                },
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: t("从剪贴板贴图"),
+                click: () => {
+                    dingFromClipBoard();
+                },
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: t("主页面模式"),
+                type: "submenu",
+                submenu: [
+                    {
+                        label: t("自动"),
+                        type: "radio",
+                        checked: store.get("主页面.模式") === "auto",
+                        click: () => store.set("主页面.模式", "auto"),
+                    },
+                    {
+                        label: t("搜索"),
+                        type: "radio",
+                        checked: store.get("主页面.模式") === "search",
+                        click: () => store.set("主页面.模式", "search"),
+                    },
+                    {
+                        label: t("翻译"),
+                        type: "radio",
+                        checked: store.get("主页面.模式") === "translate",
+                        click: () => store.set("主页面.模式", "translate"),
+                    },
+                ],
+            },
+            {
+                label: t("复用主页面"),
+                toolTip: t("可加快OCR加载"),
+                type: "checkbox",
+                checked: store.get("主页面.复用"),
+                click: (i) => store.set("主页面.复用", i.checked),
+            },
+            { type: "separator" },
+            {
+                label: t("主页面"),
+                click: () => {
+                    createMainWindow({ type: "text", content: "" });
+                },
+            },
+            {
+                label: t("设置"),
+                click: () => {
+                    createSettingWindow();
+                },
+            },
+            {
+                label: t("教程帮助"),
+                click: () => {
+                    createHelpWindow();
+                },
+            },
+            {
+                type: "separator",
+            },
+            ...(dev
+                ? [
+                      {
+                          label: t("退出开发者模式"),
+                          click: () => {
+                              store.set("dev", false);
+                              app.relaunch();
+                              app.exit(0);
+                          },
                       },
-                  },
-              ]
-            : []),
-        {
-            label: t("检查更新"),
-            click: async () => {
-                checkUpdate(true);
+                  ]
+                : []),
+            {
+                label: t("检查更新"),
+                click: async () => {
+                    checkUpdate(true);
+                },
             },
-        },
-        {
-            label: t("反馈"),
-            click: (_i, win) => {
-                shell.openExternal(
-                    feedbackUrl({
-                        title: `[${win?.getTitle()?.replace("eSearch - ", "") ?? "……界面"}] 存在……问题`,
-                    }),
-                );
+            {
+                label: t("反馈"),
+                click: (_i, win) => {
+                    shell.openExternal(
+                        feedbackUrl({
+                            title: `[${win?.getTitle()?.replace("eSearch - ", "") ?? "……界面"}] 存在……问题`,
+                        }),
+                    );
+                },
             },
-        },
-        {
-            label: t("重启"),
-            click: () => {
-                app.relaunch();
-                app.exit(0);
+            {
+                label: t("重启"),
+                click: () => {
+                    app.relaunch();
+                    app.exit(0);
+                },
             },
-        },
-        {
-            label: t("退出"),
-            click: () => {
-                app.quit();
+            {
+                label: t("退出"),
+                click: () => {
+                    app.quit();
+                },
             },
-        },
-    ]);
-    tray.setToolTip(app.getName());
-    if (store.get("点击托盘自动截图")) {
-        tray.on("click", () => {
-            showPhoto();
-        });
-        tray.on("right-click", () => {
-            tray.popUpContextMenu(contextMenu);
-        });
-    } else {
-        tray.setContextMenu(contextMenu);
+        ]);
+        tray?.setToolTip(app.getName());
+        if (store.get("点击托盘自动截图")) {
+            tray?.on("click", () => {
+                showPhoto();
+            });
+            tray?.on("right-click", () => {
+                if (contextMenu) tray?.popUpContextMenu(contextMenu);
+            });
+        } else {
+            if (contextMenu) tray?.setContextMenu(contextMenu);
+        }
     }
 
     // 启动时提示
@@ -728,6 +730,7 @@ app.whenReady().then(() => {
 });
 
 function setTray() {
+    if (!tray) return;
     const i = store.get("托盘");
     if (i === "彩色") {
         tray.setImage(trayIcons.color);
@@ -1547,9 +1550,11 @@ function createSuperRecorderWindow() {
 mainOn("reloadMainFromSetting", () => {
     if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible())
         clipWindow.reload();
-    contextMenu.items[8].checked = store.get("浏览器中打开");
-    tray.popUpContextMenu(contextMenu);
-    tray.closeContextMenu();
+    if (contextMenu && tray) {
+        contextMenu.items[8].checked = store.get("浏览器中打开");
+        tray.popUpContextMenu(contextMenu);
+        tray.closeContextMenu();
+    }
 });
 mainOn("set_default_setting", async () => {
     store.clear();
