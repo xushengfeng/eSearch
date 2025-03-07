@@ -171,7 +171,7 @@ class xhistory<Data, Diff = any> {
 export default xhistory;
 
 function getTestState() {
-    return true;
+    return false;
 }
 
 if (getTestState()) {
