@@ -63,6 +63,7 @@ export default defineConfig({
                 cache: true,
                 cacheLocation: path.join(tmpdir(), "eSearch_build"),
                 logStats: false,
+                include: /.*\svg$/,
             }),
         ],
     },
