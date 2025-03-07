@@ -1356,7 +1356,6 @@ const s: Partial<settingItem<SettingPath>> = {
             const bD = xColor();
             const fL = xColor();
             const fD = xColor();
-            type Theme = setting["全局"]["主题"];
             const el = view()
                 .add([
                     view().add([
@@ -1388,7 +1387,7 @@ const s: Partial<settingItem<SettingPath>> = {
                     x.dark.iconColor = getIconColor(x.dark.fontColor);
                     return x;
                 })
-                .bindSet((v: Theme) => {
+                .bindSet((v: Theme2) => {
                     emL.sv(v.light.emphasis);
                     emD.sv(v.dark.emphasis);
                     brL.sv(v.light.barbg);
@@ -2280,21 +2279,25 @@ function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
     }
 }
 
-const themes: setting["全局"]["主题"][] = [
+type Theme = setting["全局"]["主题"];
+
+type Theme2 = {
+    [k in keyof Theme]: Omit<Theme[k], "iconColor">;
+};
+
+const themes: Theme2[] = [
     {
         light: {
             barbg: "#FFFFFF",
             bg: "#FFFFFF",
             emphasis: "#DFDFDF",
             fontColor: "#000",
-            iconColor: "none",
         },
         dark: {
             barbg: "#333333",
             bg: "#000000",
             emphasis: "#333333",
             fontColor: "#fff",
-            iconColor: "invert(1)",
         },
     },
     {
@@ -2303,14 +2306,12 @@ const themes: setting["全局"]["主题"][] = [
             bg: "#FAFAFF",
             emphasis: "#D7E3F8",
             fontColor: "#1A1C1E",
-            iconColor: getIconColor("#1A1C1E"),
         },
         dark: {
             barbg: "#3B4858",
             bg: "#1A1C1E",
             emphasis: "#3B4858",
             fontColor: "#FAFAFF",
-            iconColor: getIconColor("#FAFAFF"),
         },
     },
     {
@@ -2319,14 +2320,12 @@ const themes: setting["全局"]["主题"][] = [
             bg: "#FCFDF6",
             emphasis: "#D5E8CF",
             fontColor: "#1A1C19",
-            iconColor: getIconColor("#1A1C19"),
         },
         dark: {
             barbg: "#3B4B38",
             bg: "#1A1C19",
             emphasis: "#3B4B38",
             fontColor: "#FCFDF6",
-            iconColor: getIconColor("#FCFDF6"),
         },
     },
 ];
