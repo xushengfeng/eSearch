@@ -1525,6 +1525,7 @@ async function saveGif() {
 
     console.log(delayMap);
 
+    let palette: [number, number, number][];
     const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
             const delay = delayMap.get(frame.timestamp);
@@ -1537,10 +1538,10 @@ async function saveGif() {
                     "2d",
                 ) as OffscreenCanvasRenderingContext2D
             ).getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
-            const palette = quantize(data, 256);
-            const index = applyPalette(data, palette);
+            const _palette = palette || quantize(data, 256);
+            const index = applyPalette(data, _palette);
             gif.writeFrame(index, width, height, {
-                palette,
+                palette: frame.timestamp === 0 ? _palette : undefined,
                 delay: delayMap.get(frame.timestamp),
             });
             i++;
@@ -1550,6 +1551,34 @@ async function saveGif() {
     });
 
     const gifProgress = progressEl().addInto(transformLogEl);
+
+    // 取10帧生成调色板
+    let paletteCanvas: OffscreenCanvas | undefined = undefined;
+    let top = 0;
+    const d = Math.floor(transformCs.length / 10);
+    for (const [id] of transformCs.entries()) {
+        if (id % d === 0) {
+            const i = await transformCs.getFrame(id);
+            if (i) {
+                const nC = new OffscreenCanvas(i.width, top + i.height);
+                if (paletteCanvas)
+                    nC.getContext("2d")?.drawImage(paletteCanvas, 0, 0);
+                nC.getContext("2d")?.drawImage(i, 0, top);
+                top += i.height;
+                paletteCanvas = nC;
+            }
+        }
+    }
+    if (paletteCanvas) {
+        const ctx = paletteCanvas.getContext(
+            "2d",
+        ) as OffscreenCanvasRenderingContext2D;
+        palette = quantize(
+            ctx.getImageData(0, 0, paletteCanvas.width, paletteCanvas.height)
+                .data,
+            256,
+        );
+    }
 
     decoder.configure(decoderVideoConfig);
     for (const [_, chunk] of transformCs.entries()) {
