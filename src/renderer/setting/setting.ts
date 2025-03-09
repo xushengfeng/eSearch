@@ -1747,7 +1747,15 @@ const xs: Record<
     _setting_file: {
         name: "设置源文件",
         desc: "直接编辑设置源文件，更多自定义设置",
-        el: () => button("打开设置源文件").on("click", () => {}),
+        el: () =>
+            button("打开设置源文件").on("click", () => {
+                shell.openPath(
+                    path.join(
+                        renderSendSync("userDataPath", []),
+                        "config.json",
+                    ),
+                );
+            }),
     },
     _default_setting: {
         name: "恢复默认设置",
