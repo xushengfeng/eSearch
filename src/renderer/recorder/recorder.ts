@@ -56,6 +56,7 @@ function getT() {
 }
 function setTime(t: string) {
     renderSend("recordTime", [t]);
+    timeEl.sv(t);
 }
 function getTime() {
     if (recorder.state === "recording") {
@@ -713,6 +714,17 @@ const startStop = button()
             recorder.start();
             格式El.el.style({ display: "none" });
             type = 格式El.el.gv as mimeType;
+            startStop
+                .clear()
+                .add(iconEl("stop_record").style({ filter: "none" }));
+            settingEl
+                .clear()
+                .add([
+                    startStop,
+                    view("x")
+                        .add([timeEl, cancelEl])
+                        .style({ alignItems: "center" }),
+                ]);
             pTime();
             setInterval(getTime, 500);
             sS = false;
@@ -733,6 +745,21 @@ const startStop = button()
             pTime();
         }
     });
+
+const timeEl = txt().style({ fontFamily: "var(--monospace)" });
+const cancelEl = iconBEl("close").on("click", () => {
+    recorder.stop();
+    for (const i of stream.getTracks()) {
+        i.stop();
+    }
+    for (const s of audioStreamS.values())
+        for (const t of s.getTracks()) {
+            t.stop();
+        }
+
+    renderSend("recordStop", []);
+    renderSend("windowClose", []);
+});
 
 const cameraEl = check("camera")
     .attr({ id: "camera" })
