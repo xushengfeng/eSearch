@@ -83,14 +83,14 @@ function initStyle(
                 0,
                 Math.min(rect.left + rect.width / 2 - tw / 2, ow - tw),
             );
-            let top = rect.top - th - 4;
-            if (top < 0) {
-                top = rect.bottom + 4;
+            let top = rect.bottom + 4;
+            if (top > oh - th) {
+                top = rect.top - th - 4;
             }
             topTip.style({
                 opacity: 1,
                 left: `${left}px`,
-                top: `${Math.min(top, oh - th)}px`,
+                top: `${Math.max(Math.min(top, oh - th), 0)}px`,
             });
         }
     });
