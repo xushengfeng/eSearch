@@ -46,7 +46,6 @@ import type {
     功能列表,
 } from "../../ShareTypes.js";
 import {
-    alert,
     button,
     ele,
     type ElType,
@@ -490,6 +489,13 @@ function runOcr() {
 
 function runSearch() {
     const type = 识图引擎.gv;
+    if (
+        type === "ai" &&
+        !store.get("AI.在线模型").find((i) => i.supportVision)
+    ) {
+        alert("无视觉模型，请在设置中添加模型");
+        return;
+    }
     const c = getClipPhoto();
     renderSend("clip_search", [c.toDataURL(), type]);
     tool.close();
@@ -841,25 +847,29 @@ function runDing() {
     tool.close();
 }
 
+function alert(m: string) {
+    const d = ele("dialog")
+        .add(
+            view("y")
+                .add([
+                    t(m),
+                    button(t("确定"))
+                        .on("click", () => {
+                            d.remove();
+                        })
+                        .style({ width: "auto" }),
+                ])
+                .style({ gap: "var(--o-padding)" }),
+        )
+        .class("bar")
+        .addInto();
+    d.el.showModal();
+}
+
 function checkTranslator() {
     const fyq = store.get("翻译.翻译器");
     if (fyq.length === 0) {
-        const d = ele("dialog")
-            .add(
-                view("y")
-                    .add([
-                        t("无翻译器，请先设置翻译器"),
-                        button(t("确定"))
-                            .on("click", () => {
-                                d.remove();
-                            })
-                            .style({ width: "auto" }),
-                    ])
-                    .style({ gap: "var(--o-padding)" }),
-            )
-            .class("bar")
-            .addInto();
-        d.el.showModal();
+        alert("无翻译器，请先设置翻译器");
     }
     return fyq.length > 0;
 }
@@ -1405,7 +1415,7 @@ function changeWH(el: ElType<HTMLInputElement>) {
     const l0 = whL.map((i) => i.el.value);
     const l = l0.map((string) => {
         // 排除（数字运算符空格）之外的非法输入
-        if (string.match(/[\d\+\-*/\.\s\(\)]/g)?.length !== string.length)
+        if (string.match(/[\d+\-*/.\s()]/g)?.length !== string.length)
             return null;
         // todo sandbox math
         // biome-ignore lint: 已经过滤（？） 计算math
