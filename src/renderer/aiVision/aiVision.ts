@@ -388,20 +388,25 @@ view("y")
     .style({ height: "100vh" })
     .add([
         showList,
-        view("y").add([
-            view("x")
-                .style({ gap: paddingVar })
-                .class("small-size")
-                .add([
-                    label([
-                        fileInputEl.style({ display: "none" }),
-                        t("上传图片"),
+        view("y")
+            .add([
+                view("x")
+                    .style({ gap: paddingVar })
+                    .class("small-size")
+                    .add([
+                        label([
+                            fileInputEl.style({ display: "none" }),
+                            t("上传图片"),
+                        ]).class("b-like"),
+                        selectModelEl,
+                        promptsEl,
+                        stopEl,
                     ]),
-                    selectModelEl,
-                    promptsEl,
-                    stopEl,
-                ]),
-            inputEl,
-        ]),
+                inputEl,
+            ])
+            .style({
+                gap: paddingVar,
+                padding: paddingVar,
+            }),
     ])
     .addInto();
