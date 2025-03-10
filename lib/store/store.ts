@@ -36,7 +36,7 @@ class Store {
         fs.writeFileSync(this.configPath, JSON.stringify(data, null, 2));
     }
 
-    public set<P extends SettingPath>(
+    set<P extends SettingPath>(
         keyPath: P,
         value: GetValue<setting, P> | (unknown & {}),
     ): void {
@@ -60,7 +60,7 @@ class Store {
         }
         this.setStore(store);
     }
-    public get<P extends SettingPath>(keyPath: P): GetValue<setting, P> {
+    get<P extends SettingPath>(keyPath: P): GetValue<setting, P> {
         const store = this.getStore();
         const pathx = keyPath.split(".");
         const lastp = pathx.pop() ?? "";
@@ -71,14 +71,14 @@ class Store {
         return lastobj[lastp];
     }
 
-    public clear() {
+    clear() {
         this.init();
     }
 
-    public getAll() {
+    getAll() {
         return this.getStore();
     }
-    public setAll(data: data) {
+    setAll(data: data) {
         this.setStore(data);
     }
 }
