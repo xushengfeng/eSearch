@@ -4,6 +4,7 @@ import {
     dynamicSelect,
     ele,
     image,
+    pack,
     trackPoint,
     txt,
     view,
@@ -284,7 +285,16 @@ function iconEl(src: IconType) {
 
 initStyle(store);
 
-const rectEl = view().addInto().attr({ id: "recorder_rect" });
+pack(document.body).style({
+    overflow: "hidden",
+    fontFamily: "var(--monospace)",
+});
+
+const rectEl = view().addInto().attr({ id: "recorder_rect" }).style({
+    width: "100vw",
+    height: "calc(100vh - 24px)",
+    position: "relative",
+});
 const rb = view().addInto(rectEl).attr({ id: "recorder_bar" });
 const keysEl = view().addInto(rb).attr({ id: "recorder_key" }).el;
 const recorderMouseEl = view()
@@ -367,7 +377,7 @@ renderOn("recordMouse", ([x, y]) => {
     renderSend("windowIgnoreMouse", [
         !(l.includes(cEl.el) || l.includes(controlBar.el)),
     ]);
-})
+});
 
 renderOn("recordTime", ([t]) => {
     timeEl.sv(t);
