@@ -1,80 +1,80 @@
 {
-    "name": "eSearch",
-    "version": "14.5.0-beta.2",
-    "description": "识屏 · 搜索",
-    "main": "./out/main/main.js",
-    "scripts": {
-        "pack": "npm run build && electron-builder --dir -c electron-builder.config.js",
-        "dist": "npm run build && electron-builder -p never -c electron-builder.config.js",
-        "start": "electron-vite --ignoreConfigWarning preview",
-        "dev": "electron-vite --ignoreConfigWarning dev",
-        "build": "electron-vite --ignoreConfigWarning build",
-        "uitest": "electron-vite -c electron.vite.config_test.ts"
-    },
-    "author": {
-        "name": "xsf",
-        "email": "xushengfeng_zg@163.com"
-    },
-    "homepage": "https://github.com/xushengfeng/eSearch/",
-    "license": "GPL-3.0",
-    "dependencies": {
-        "@erase2d/fabric": "^1.1.6",
-        "@techstark/opencv-js": "4.10.0-release.1",
-        "chroma-js": "^3.1.1",
-        "diff-match-patch": "^1.0.5",
-        "dkh-ui": "^0.14.0",
-        "download": "^8.0.0",
-        "esearch-ocr": "^6.0.3",
-        "esearch-seg": "^1.1.4",
-        "fabric": "^6.4.0",
-        "franc": "^6.2.0",
-        "fuse.js": "^7.1.0",
-        "gifenc": "^1.0.3",
-        "hex-to-css-filter": "^5.4.0",
-        "hotkeys-js": "^3.13.7",
-        "iso-639-3-to-1": "^1.0.0",
-        "minimist": "^1.2.8",
-        "mp4-muxer": "^5.1.3",
-        "node-screenshots": "^0.2.1",
-        "onnxruntime-node": "^1.18.0",
-        "qr-scanner-wechat": "^0.1.3",
-        "remarkable": "^2.0.1",
-        "sortablejs": "^1.15.2",
-        "uiohook-napi": "^1.5.4",
-        "webm-muxer": "^5.0.2",
-        "xtranslator": "^1.3.2"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@types/chroma-js": "^3.1.1",
-        "@types/diff-match-patch": "^1.0.34",
-        "@types/minimist": "^1.2.5",
-        "@types/node": "^22.9.3",
-        "@types/sortablejs": "^1.15.8",
-        "archiver": "^7.0.1",
-        "canvas": "^3.1.0",
-        "csv-parse": "^5.5.5",
-        "electron": "^34.2.0",
-        "electron-builder": "^25.1.8",
-        "electron-vite": "^2.1.0",
-        "svgo": "^3.3.2",
-        "typescript": "^5.7.2",
-        "vite": "^5.4.12",
-        "vite-plugin-image-optimizer": "^1.1.8",
-        "xtimelog": "^1.0.5"
-    },
-    "optionalDependencies": {
-        "node-screenshots-darwin-arm64": "0.1.9",
-        "node-screenshots-darwin-x64": "0.1.9",
-        "node-screenshots-linux-x64-gnu": "0.1.9",
-        "node-screenshots-linux-x64-musl": "0.1.9",
-        "node-screenshots-win32-arm64-msvc": "0.1.9",
-        "node-screenshots-win32-ia32-msvc": "0.1.9",
-        "node-screenshots-win32-x64-msvc": "0.1.9"
-    },
-    "pnpm": {
-        "neverBuiltDependencies": [
-            "canvas"
-        ]
-    }
+  "name": "eSearch",
+  "version": "14.5.0",
+  "description": "识屏 · 搜索",
+  "main": "./out/main/main.js",
+  "scripts": {
+    "pack": "npm run build && electron-builder --dir -c electron-builder.config.js",
+    "dist": "npm run build && electron-builder -p never -c electron-builder.config.js",
+    "start": "electron-vite --ignoreConfigWarning preview",
+    "dev": "electron-vite --ignoreConfigWarning dev",
+    "build": "electron-vite --ignoreConfigWarning build",
+    "uitest": "electron-vite -c electron.vite.config_test.ts"
+  },
+  "author": {
+    "name": "xsf",
+    "email": "xushengfeng_zg@163.com"
+  },
+  "homepage": "https://github.com/xushengfeng/eSearch/",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@erase2d/fabric": "^1.1.6",
+    "@techstark/opencv-js": "4.10.0-release.1",
+    "chroma-js": "^3.1.1",
+    "diff-match-patch": "^1.0.5",
+    "dkh-ui": "^0.14.0",
+    "download": "^8.0.0",
+    "esearch-ocr": "^6.0.3",
+    "esearch-seg": "^1.1.4",
+    "fabric": "^6.4.0",
+    "franc": "^6.2.0",
+    "fuse.js": "^7.1.0",
+    "gifenc": "^1.0.3",
+    "hex-to-css-filter": "^5.4.0",
+    "hotkeys-js": "^3.13.7",
+    "iso-639-3-to-1": "^1.0.0",
+    "minimist": "^1.2.8",
+    "mp4-muxer": "^5.1.3",
+    "node-screenshots": "^0.2.1",
+    "onnxruntime-node": "^1.18.0",
+    "qr-scanner-wechat": "^0.1.3",
+    "remarkable": "^2.0.1",
+    "sortablejs": "^1.15.2",
+    "uiohook-napi": "^1.5.4",
+    "webm-muxer": "^5.0.2",
+    "xtranslator": "^1.3.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/chroma-js": "^3.1.1",
+    "@types/diff-match-patch": "^1.0.34",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^22.9.3",
+    "@types/sortablejs": "^1.15.8",
+    "archiver": "^7.0.1",
+    "canvas": "^3.1.0",
+    "csv-parse": "^5.5.5",
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.1.0",
+    "svgo": "^3.3.2",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.12",
+    "vite-plugin-image-optimizer": "^1.1.8",
+    "xtimelog": "^1.0.5"
+  },
+  "optionalDependencies": {
+    "node-screenshots-darwin-arm64": "0.1.9",
+    "node-screenshots-darwin-x64": "0.1.9",
+    "node-screenshots-linux-x64-gnu": "0.1.9",
+    "node-screenshots-linux-x64-musl": "0.1.9",
+    "node-screenshots-win32-arm64-msvc": "0.1.9",
+    "node-screenshots-win32-ia32-msvc": "0.1.9",
+    "node-screenshots-win32-x64-msvc": "0.1.9"
+  },
+  "pnpm": {
+    "neverBuiltDependencies": [
+      "canvas"
+    ]
+  }
 }
