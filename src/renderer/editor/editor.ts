@@ -747,7 +747,7 @@ class find {
                 findInputEl.el.style.outline = "red solid 1px";
             }
         } else {
-            const sstext = stext.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+            const sstext = stext.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
             text = new RegExp(sstext, "gi"); // 自动转义，找文字
         }
         return text;
@@ -1187,7 +1187,7 @@ findReplaceEl.el.onkeydown = (e) => {
 function isLink(url: string, s: boolean) {
     if (s) {
         const regex =
-            /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
+            /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[\w]*))?)/g;
         if (url.match(regex) != null) {
             return true;
         }
