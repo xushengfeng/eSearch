@@ -273,10 +273,13 @@ const ocrImageClose = iconBEl("close", "清空图片")
 
 const ocrImageView = view().attr({ id: "img_view" }).addInto(ocrImagePel);
 
+const baseEditorEl = view("x").class("main").addInto(mainSectionEl);
+
 // editor ui
 const editorOutEl = view()
     .attr({ id: "top" })
-    .addInto(view().class("main").addInto(mainSectionEl));
+    .addInto(baseEditorEl)
+    .style({ flexGrow: 1 });
 
 // text editor ui
 const textOut = view()
@@ -326,6 +329,13 @@ editB.add([
     barDeleteEnterB,
 ]);
 
+// spellcheck ui
+const spellcheckEl = view("y").addInto(baseEditorEl).style({
+    height: "100%",
+    overflowX: "hidden",
+    transition: "var(--transition)",
+});
+
 // history ui
 const historyDialog = ele("dialog").addInto();
 const historyEl = view().attr({ id: "history_list" }).addInto(historyDialog);
@@ -365,6 +375,19 @@ const showHistoryB = iconBEl("history", "历史记录")
         id: "history_b",
     })
     .on("click", showHistory);
+let showedSpell = false;
+const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
+    if (showedSpell) {
+        spellcheckEl.style({ width: 0 });
+        baseEditorEl.style({ gap: 0 });
+        showedSpell = false;
+    } else {
+        spellcheckEl.style({ width: "30%" });
+        baseEditorEl.style({ gap: "var(--o-padding)" });
+        showedSpell = true;
+    }
+    setButtonHover(showSpellCheckB, showedSpell);
+});
 
 const searchB = iconBEl("search", "搜索").attr({ id: "search_b" });
 const searchSelectEl = select([]).attr({
@@ -384,6 +407,7 @@ bottomEl.add([
     browserTabs,
     showImageB,
     showHistoryB,
+    showSpellCheckB,
     view().add([searchB, searchSelectEl]).attr({ id: "search" }).class("group"),
     view()
         .add([translateB, translateSelectEl])
@@ -846,6 +870,7 @@ function editorChange() {
         const list = spellcheckDiff.updateDiffState();
 
         console.log(list);
+        renderSpellcheck(list);
     }, 1000);
 }
 
@@ -1267,6 +1292,32 @@ class spellcheckGen {
 }
 
 const spellcheckDiff = new spellcheckGen();
+
+function renderSpellcheck(list: SpellItem[]) {
+    spellcheckEl.clear();
+    for (const i of list) {
+        const item = view();
+        item.add(i.word);
+        item.add(
+            i.suggest.map((x) =>
+                view()
+                    .add(x)
+                    .on("click", () => {
+                        console.log(i);
+                        const t = editor.get();
+                        const newT =
+                            t.slice(0, i.index) +
+                            x +
+                            t.slice(i.index + i.word.length);
+                        editor.push(newT);
+                        // todo 使用api
+                        item.remove();
+                    }),
+            ),
+        );
+        spellcheckEl.add(item);
+    }
+}
 
 /************************************搜索 */
 
