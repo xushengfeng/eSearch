@@ -23,7 +23,7 @@ import openWith from "../../../lib/open_with";
 import { t } from "../../../lib/translate/translate";
 import diff_match_patch from "diff-match-patch";
 // biome-ignore format:
-const { shell, clipboard } = require("electron") as typeof import("electron");
+const { shell, clipboard, webFrame } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
@@ -51,6 +51,12 @@ import reloadSvg from "../assets/icons/reload.svg";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 
+type SpellItem = {
+    index: number;
+    word: string;
+    suggest: string[];
+};
+
 /**撤销 */
 const undoStack = new xhistory<string>([], "", {
     diff: (last, now) => {
@@ -77,6 +83,8 @@ let isWrap = !store.get("编辑器.自动换行");
 let isCheck = !store.get("编辑器.拼写检查");
 let findShow = false;
 let findRegex = false;
+
+let spellcheckTimer: number | null = null;
 
 let tmpText: string | null;
 
@@ -832,6 +840,13 @@ function editorChange() {
         countWords();
     }
     if (editingOnOther) writeEditOnOther();
+    if (spellcheckTimer !== null) clearTimeout(spellcheckTimer);
+    spellcheckTimer = window.setTimeout(() => {
+        spellcheckDiff.spellcheckLocal();
+        const list = spellcheckDiff.updateDiffState();
+
+        console.log(list);
+    }, 1000);
 }
 
 /**
@@ -1175,6 +1190,83 @@ findReplaceEl.el.onkeydown = (e) => {
         findReplace();
     }
 };
+
+/************************************拼写 */
+
+class spellcheckGen {
+    private aiSuggestText = "";
+    private localCache = new Map<string, string[]>();
+
+    spellcheckLocal() {
+        const t = editor.get();
+        const segments = this.getWords(t);
+        for (const i of segments) {
+            const s = i.segment;
+            if (webFrame.isWordMisspelled(s)) {
+                const seg = webFrame.getWordSuggestions(s);
+                this.localCache.set(s, seg);
+            }
+        }
+    }
+
+    private getWords(t: string) {
+        const spliter = new Intl.Segmenter("zh-CN", { granularity: "word" }); // todo
+        const segments = Array.from(spliter.segment(t)).filter(
+            (i) => i.isWordLike,
+        );
+        return segments;
+    }
+
+    spellcheckAi() {
+        const t = editor.get();
+
+        const newT = "test"; // todo run ai
+        this.aiSuggestText = newT;
+    }
+
+    // 应用建议或文本更新，但不重新检查计算
+    updateDiffState() {
+        const t = editor.get();
+        const list: SpellItem[] = [];
+
+        const segments = this.getWords(t);
+        for (const i of segments) {
+            const s = i.segment;
+            if (this.localCache.has(s)) {
+                const seg = this.localCache.get(s)!;
+                list.push({ word: s, suggest: seg, index: i.index });
+            }
+        }
+
+        if (!this.aiSuggestText) {
+            return list;
+        }
+
+        const diff = dmp.diff_main(t, this.aiSuggestText);
+        console.log(diff);
+        let i = 0;
+        const last = { src: "", ai: "" };
+        diff.push([0, ""]);
+        for (const d of diff) {
+            if (d[0] === 0) {
+                if (last.src !== "" || last.ai !== "")
+                    list.push({ word: last.src, suggest: [last.ai], index: i });
+                last.src = "";
+                last.ai = "";
+            } else {
+                if (d[0] === -1) last.src += d[1];
+                if (d[0] === 1) last.ai += d[1];
+            }
+
+            if (d[0] === 0 || d[0] === -1) {
+                i += d[1].length;
+            }
+        }
+        return list;
+    }
+}
+
+const spellcheckDiff = new spellcheckGen();
 
 /************************************搜索 */
 
