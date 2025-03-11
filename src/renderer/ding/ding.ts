@@ -154,6 +154,7 @@ const setNewDing = (
         .sv("100");
     const opacityElP = view("x")
         .class(concorlClass)
+        .attr({ title: "不透明度" })
         .add([iconEl("opacity"), opacityEl]);
 
     trackPoint(opacityElP, {
@@ -183,6 +184,7 @@ const setNewDing = (
         .sv("100");
     const sizeEl = view("x")
         .class(concorlClass)
+        .attr({ title: "大小" })
         .add([iconEl("size"), sizeInput]);
 
     trackPoint(sizeEl, {
@@ -229,6 +231,7 @@ const setNewDing = (
 
     const transB = button(iconEl("translate"))
         .style({ display: "none" })
+        .attr({ title: "翻译" })
         .on("click", () => {
             const d = dingData.get(wid);
             if (d) {
@@ -248,24 +251,36 @@ const setNewDing = (
             .attr({ id: "b" })
             .add([
                 transB,
-                button(iconEl("free_draw")).on("click", () => {
-                    edit(wid);
-                }),
-                button(iconEl("save")).on("click", () => {
-                    save(wid);
-                }),
-                button(iconEl("copy")).on("click", () => {
-                    copy(wid);
-                }),
-                button(iconEl("minimize")).on("click", () => {
-                    minimize(div.el);
-                }),
-                button(iconEl("back")).on("click", () => {
-                    back(wid);
-                }),
-                button(iconEl("close")).on("click", () => {
-                    close(wid);
-                }),
+                button(iconEl("free_draw"))
+                    .attr({ title: "编辑" })
+                    .on("click", () => {
+                        edit(wid);
+                    }),
+                button(iconEl("save"))
+                    .attr({ title: "保存" })
+                    .on("click", () => {
+                        save(wid);
+                    }),
+                button(iconEl("copy"))
+                    .attr({ title: "复制" })
+                    .on("click", () => {
+                        copy(wid);
+                    }),
+                button(iconEl("minimize"))
+                    .attr({ title: "最小化" })
+                    .on("click", () => {
+                        minimize(div.el);
+                    }),
+                button(iconEl("back"))
+                    .attr({ title: "归位" })
+                    .on("click", () => {
+                        back(wid);
+                    }),
+                button(iconEl("close"))
+                    .attr({ title: "关闭" })
+                    .on("click", () => {
+                        close(wid);
+                    }),
             ]),
     ]);
     // 双击行为
@@ -445,7 +460,9 @@ function back2(id: string) {
     x.opacity("100");
 }
 function close(id: string) {
-    renderSend("dingShare", [{ type: "close", id, closeAll: dingData.size === 1 }]);
+    renderSend("dingShare", [
+        { type: "close", id, closeAll: dingData.size === 1 },
+    ]);
 }
 function close2(id: string) {
     elFromId(id)?.remove();
