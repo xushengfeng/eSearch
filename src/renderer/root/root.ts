@@ -56,6 +56,7 @@ function initStyle(
             height: "auto",
             zIndex: 9999,
             transition: "var(--transition) opacity",
+            whiteSpace: "pre",
         })
         .addInto()
         .bindSet((v: string, el) => {
