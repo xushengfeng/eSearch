@@ -319,7 +319,8 @@ editB.add([
 ]);
 
 // history ui
-const historyEl = view().attr({ id: "history_list" }).addInto(editorOutEl);
+const historyDialog = ele("dialog").addInto();
+const historyEl = view().attr({ id: "history_list" }).addInto(historyDialog);
 
 // buttoms ui
 const bottomEl = view().attr({ id: "bottoms" }).addInto(outMainEl);
@@ -1326,11 +1327,11 @@ function pushHistory() {
 function showHistory() {
     if (historyShowed) {
         historyShowed = false;
-        historyEl.el.style.top = "100%";
+        historyDialog.el.close();
     } else {
         historyShowed = true;
 
-        historyEl.el.style.top = "0%";
+        historyDialog.el.showModal();
 
         renderHistory();
     }
