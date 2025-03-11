@@ -1331,9 +1331,10 @@ function showHistory() {
     } else {
         historyShowed = true;
 
-        historyDialog.el.showModal();
-
-        renderHistory();
+        document.startViewTransition(() => {
+            historyDialog.el.showModal();
+            renderHistory();
+        });
     }
     setButtonHover(showHistoryB, historyShowed);
 }
@@ -1350,7 +1351,14 @@ function renderHistory() {
             .add(txt(text, true))
             .on("click", () => {
                 editor.push(historyList[i].text);
-                showHistory();
+                textEl.style({ viewTransitionName: "history_text_click" });
+                const transition = document.startViewTransition(() => {
+                    showHistory();
+                    editor.text.style.viewTransitionName = "history_text_click";
+                });
+                transition.updateCallbackDone.then(() => {
+                    editor.text.style.viewTransitionName = "";
+                });
             });
         div.add([
             view()
