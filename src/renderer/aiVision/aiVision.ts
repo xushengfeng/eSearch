@@ -16,30 +16,13 @@ import { getImgUrl, initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
+import { runAI, type aiData } from "../lib/ai";
 
 initStyle(store);
 
 document.title = t("AI 视觉");
 
 const md = new Remarkable({ breaks: true });
-
-type aiData = {
-    role: "system" | "user" | "assistant";
-    content: {
-        text: string;
-        img?: string;
-    };
-};
-
-type chatgptm = {
-    role: "system" | "user" | "assistant";
-    content:
-        | string
-        | [
-              { type: "text"; text: string },
-              { type: "image_url"; image_url: { url: string } },
-          ];
-};
 
 const content: Map<string, aiData> = new Map();
 
@@ -73,7 +56,7 @@ const promptsEl = view("x")
                 } else {
                     setItem(x.p, "text");
                     newChatItem(currentId);
-                    runAI();
+                    runAIX();
                 }
             }),
         ),
@@ -142,13 +125,13 @@ function newChatItem(id: string) {
             const endIndex = nowIndex - 1;
             if (endIndex < 0) return;
             currentId = keys[endIndex];
-            runAI(id, true); // 由于删除，currentId可能为assistant
+            runAIX(id, true); // 由于删除，currentId可能为assistant
         }
         // 在用户信息上重载，从用户信息开始，覆盖下一条信息
         if (content.get(id)?.role === "user") {
             currentId = id;
             const nextId = keys[nowIndex + 1] || uuid();
-            runAI(nextId);
+            runAIX(nextId);
         }
     });
 
@@ -171,23 +154,6 @@ function newChatItem(id: string) {
     contentEl.add(div);
 }
 
-function toChatgptm(data: aiData): chatgptm {
-    const { role, content } = data;
-    if (content.img) {
-        return {
-            role,
-            content: [
-                { type: "text", text: content.text },
-                { type: "image_url", image_url: { url: content.img } },
-            ],
-        };
-    }
-    return {
-        role,
-        content: content.text,
-    };
-}
-
 function setModelList(isVision: boolean) {
     const oldData = selectModelEl.gv ?? model[0].name;
     const list = isVision ? model.filter((x) => x.supportVision) : model;
@@ -201,7 +167,7 @@ function setModelList(isVision: boolean) {
     selectModelEl.clear().add(elList);
 }
 
-async function runAI(targetId?: string, force = false) {
+async function runAIX(targetId?: string, force = false) {
     const x = model.find((x) => x.name === selectModelEl.gv) || model[0];
     const clipContent: typeof content = new Map();
     for (const [id, c] of content) {
@@ -213,71 +179,25 @@ async function runAI(targetId?: string, force = false) {
         pickLastItem();
         return;
     }
-    const m = {
-        messages: message.map(toChatgptm),
-        stream: true,
-    };
-    for (const i in x.config) {
-        m[i] = x.config[i];
-    }
-    const id = targetId ?? uuid();
-    let resultText = "";
 
-    const abortController = new AbortController();
+    const a = runAI(message, x);
+
+    const id = targetId ?? uuid();
+
     stopEl.sv(true);
     stopEl.el.onclick = () => {
-        abortController.abort();
+        a.stop();
         stopEl.sv(false);
     };
 
-    fetch(x.url, {
-        method: "POST",
-        headers: {
-            authorization: `Bearer ${x.key}`,
-            "content-type": "application/json",
-        },
-        signal: abortController.signal,
-        body: JSON.stringify(m),
-    }).then((res) => {
-        if (!res.body) return;
-        const reader = res.body.getReader();
-        const textDecoder = new TextDecoder();
-        reader.read().then(function readBody(result) {
-            const text = textDecoder
-                .decode(result.value)
-                .split("\n")
-                .map((i) =>
-                    i
-                        .trim()
-                        .replace(/^data:/, "")
-                        .trim(),
-                )
-                .filter((i) => i !== "");
-            for (const i of text) {
-                if (i === "[DONE]") {
-                    stopEl.sv(false);
-                    return;
-                }
-                parse(i);
-            }
-
-            reader.read().then(readBody);
-        });
-    });
-    function parse(text: string) {
-        const data = JSON.parse(text);
-        const res =
-            data.message?.content ||
-            data.choices[0].message?.content ||
-            data.choices[0].delta.content;
-        resultText += res;
+    a.stream((text, end) => {
         content.set(id, {
             role: "assistant",
-            content: { text: resultText },
+            content: { text: text },
         });
         newChatItem(id);
         pickLastItem();
-    }
+    });
 }
 
 function pickLastItem() {
@@ -333,7 +253,7 @@ inputEl
     .on("keyup", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            runAI();
+            runAIX();
             inputEl.sv("");
         }
     });
