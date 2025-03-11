@@ -16,7 +16,8 @@
       },
       "correctness": {
         "useValidForDirection": "error"
-      }
+      },
+      "style": { "noNonNullAssertion": "off" }
     }
   }
 }
