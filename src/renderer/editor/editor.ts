@@ -164,9 +164,9 @@ const outMainEl = view().class("fill_t").addInto();
 // find ui
 const findEl = view()
     .attr({ id: "find" })
+    .style({ zIndex: 1, top: 0, right: 0 })
     .class("small-size")
-    .class("x-like")
-    .addInto(outMainEl);
+    .class("x-like");
 const findCount = view().attr({ id: "count" }).addInto(findEl);
 
 const findButtons = view().class("find_buttons").class("group").addInto(findEl);
@@ -282,6 +282,8 @@ const editorOutEl = view()
     .attr({ id: "top" })
     .addInto(baseEditorEl)
     .style({ flexGrow: 1 });
+
+findEl.addInto(editorOutEl);
 
 // text editor ui
 const textOut = view()
@@ -1119,7 +1121,7 @@ function spellcheck() {
 function showFind() {
     findShow = !findShow;
     if (findShow) {
-        mainSectionEl.el.style.marginTop = "60px";
+        textOut.el.style.marginTop = "calc(60px + var(--o-padding))";
         findEl.el.style.transform = "translateY(0)";
         findEl.el.style.pointerEvents = "auto";
         findInputEl.sv(editor.selections.get());
@@ -1128,7 +1130,7 @@ function showFind() {
         if (editor.selections.get() !== "") find_();
         countWords();
     } else {
-        mainSectionEl.el.style.marginTop = "";
+        textOut.el.style.marginTop = "";
         findEl.el.style.transform = "translateY(-120%)";
         findEl.el.style.pointerEvents = "none";
         exitFind();

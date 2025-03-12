@@ -331,8 +331,6 @@ body .hover_b {
 
 #find {
     position: absolute;
-    top: -1px; /*隐藏outline*/
-    right: -1px;
     display: grid;
     grid-template-columns: auto auto;
     grid-template-rows: var(--b-button) var(--b-button);
@@ -340,10 +338,7 @@ body .hover_b {
     transition: var(--transition);
     transform: translateY(-120%);
     padding: var(--o-padding);
-    border-top: none;
-    border-right: none;
-    border-radius: 0;
-    border-bottom-left-radius: var(--border-radius);
+    border-radius: var(--border-radius);
     gap: var(--o-padding);
 }
 #find > div {
