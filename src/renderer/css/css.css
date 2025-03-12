@@ -136,6 +136,7 @@ body .hover_b {
     height: 100%;
     background: transparent;
     outline: none !important;
+    border-radius: 0;
 }
 .text > textarea::spelling-error {
     text-decoration: underline wavy #44f;
