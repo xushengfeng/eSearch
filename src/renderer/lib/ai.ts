@@ -49,6 +49,7 @@ function runAI(
     let streamFun: (text: string, end: boolean) => void = () => {};
 
     const abortController = new AbortController();
+    const { promise, resolve } = Promise.withResolvers<string>();
 
     fetch(x.url, {
         method: "POST",
@@ -77,6 +78,7 @@ function runAI(
                 if (i === "[DONE]") {
                     abortController.abort();
                     streamFun(resultText, true);
+                    resolve(resultText);
                     return;
                 }
                 parse(i);
@@ -91,12 +93,12 @@ function runAI(
             data.message?.content ||
             data.choices[0].message?.content ||
             data.choices[0].delta.content;
-        resultText += res;
+        resultText += res ?? "";
         streamFun(res, false);
     }
 
     return {
-        text: resultText,
+        text: promise,
         stream: (f: typeof streamFun) => {
             streamFun = f;
         },

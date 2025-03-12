@@ -50,6 +50,7 @@ import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { runAI } from "../lib/ai";
 
 type SpellItem = {
     index: number;
@@ -335,6 +336,14 @@ const spellcheckEl = view("y").addInto(baseEditorEl).style({
     overflowX: "hidden",
     transition: "var(--transition)",
 });
+const runAiSpellcheck = button("ai")
+    .on("click", async () => {
+        await spellcheckDiff.spellcheckAi();
+        const list = spellcheckDiff.updateDiffState();
+        renderSpellcheck(list);
+    })
+    .addInto(spellcheckEl);
+const spellcheckList = view("y").addInto(spellcheckEl).style({});
 
 // history ui
 const historyDialog = ele("dialog").addInto();
@@ -376,18 +385,21 @@ const showHistoryB = iconBEl("history", "历史记录")
     })
     .on("click", showHistory);
 let showedSpell = false;
-const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
+function switchSpell(showedSpell: boolean) {
     if (showedSpell) {
-        spellcheckEl.style({ width: 0 });
-        baseEditorEl.style({ gap: 0 });
-        showedSpell = false;
-    } else {
         spellcheckEl.style({ width: "30%" });
         baseEditorEl.style({ gap: "var(--o-padding)" });
-        showedSpell = true;
+    } else {
+        spellcheckEl.style({ width: 0 });
+        baseEditorEl.style({ gap: 0 });
     }
     setButtonHover(showSpellCheckB, showedSpell);
+}
+const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
+    showedSpell = !showedSpell;
+    switchSpell(showedSpell);
 });
+switchSpell(false);
 
 const searchB = iconBEl("search", "搜索").attr({ id: "search_b" });
 const searchSelectEl = select([]).attr({
@@ -1242,11 +1254,27 @@ class spellcheckGen {
         return segments;
     }
 
-    spellcheckAi() {
+    async spellcheckAi() {
         const t = editor.get();
 
-        const newT = "test"; // todo run ai
+        const model = store.get("AI.在线模型"); // todo 提示 设置
+        const m = model[0];
+
+        const ai = runAI(
+            [
+                {
+                    role: "user",
+                    content: {
+                        text: `这是一个OCR识别结果：\n>>>\n${t}\n\n>>>\n请更正其中的拼写错误，返回修改后的文本。不需要解释。`,
+                    },
+                },
+            ],
+            { config: m.config, key: m.key, url: m.url },
+        );
+
+        const newT = await ai.text;
         this.aiSuggestText = newT;
+        console.log(newT);
     }
 
     // 应用建议或文本更新，但不重新检查计算
@@ -1270,16 +1298,24 @@ class spellcheckGen {
         const diff = dmp.diff_main(t, this.aiSuggestText);
         console.log(diff);
         let i = 0;
-        const last = { src: "", ai: "" };
+        const last = { src: "", ai: "", i: 0 };
         diff.push([0, ""]);
         for (const d of diff) {
             if (d[0] === 0) {
                 if (last.src !== "" || last.ai !== "")
-                    list.push({ word: last.src, suggest: [last.ai], index: i });
+                    list.push({
+                        word: last.src,
+                        suggest: [last.ai],
+                        index: last.i,
+                    });
                 last.src = "";
                 last.ai = "";
+                last.i = 0;
             } else {
-                if (d[0] === -1) last.src += d[1];
+                if (d[0] === -1) {
+                    last.src += d[1];
+                    last.i = i;
+                }
                 if (d[0] === 1) last.ai += d[1];
             }
 
@@ -1294,7 +1330,7 @@ class spellcheckGen {
 const spellcheckDiff = new spellcheckGen();
 
 function renderSpellcheck(list: SpellItem[]) {
-    spellcheckEl.clear();
+    spellcheckList.clear();
     for (const i of list) {
         const item = view();
         item.add(i.word);
@@ -1315,7 +1351,7 @@ function renderSpellcheck(list: SpellItem[]) {
                     }),
             ),
         );
-        spellcheckEl.add(item);
+        spellcheckList.add(item);
     }
 }
 
