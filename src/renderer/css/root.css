@@ -22,8 +22,6 @@
     --d-font-color: #fff;
     --d-icon-color: invert(1);
 
-    --m-color-b: var(--emphasis-color);
-
     --m-color-b: color-mix(in oklab, var(--emphasis-color) 85%, var(--bg));
     --m-color-bb: color-mix(in oklab, var(--emphasis-color) 50%, var(--bg));
     --m-color-bbb: color-mix(in oklab, var(--emphasis-color) 25%, var(--bg));
@@ -88,6 +86,7 @@ body {
     border-radius: 10px;
     background: #ddd;
 }
+/* biome-ignore lint/nursery/noUnknownPseudoClass: electron supports this pseudo-class */
 ::-webkit-scrollbar-thumb:hover {
     background: #ccc;
 }
@@ -207,7 +206,7 @@ body dialog {
     color: var(--font-color);
     background-color: var(--bg);
 }
-body dialog::backdrop{
+body dialog::backdrop {
     backdrop-filter: var(--blur);
     background-color: #0004;
 }
@@ -285,6 +284,7 @@ input[type="checkbox"]:checked {
         border-radius: 10px;
         background: #444;
     }
+    /* biome-ignore lint/nursery/noUnknownPseudoClass: <explanation> */
     ::-webkit-scrollbar-thumb:hover {
         background: #555;
     }
