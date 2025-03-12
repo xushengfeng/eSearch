@@ -15,6 +15,7 @@ import {
     select,
     type ElType,
     dynamicSelect,
+    spacer,
 } from "dkh-ui";
 import { initStyle, setTitle, getImgUrl } from "../root/root";
 import hotkeys from "hotkeys-js";
@@ -347,6 +348,17 @@ const spellcheckList = view("y").addInto(spellcheckEl).style({});
 
 // history ui
 const historyDialog = ele("dialog").addInto();
+view("x")
+    .add([
+        spacer(),
+        iconBEl("close", "关闭").on("click", () =>
+            document.startViewTransition(() => {
+                showHistory();
+            }),
+        ),
+    ])
+    .style({ marginBottom: "var(--o-padding)" })
+    .addInto(historyDialog);
 const historyEl = view().attr({ id: "history_list" }).addInto(historyDialog);
 
 // buttoms ui
