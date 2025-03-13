@@ -2877,7 +2877,7 @@ function addOcrPhoto(base: string) {
                 h: String(img.el.height),
             });
         })
-        .style({ display: "block" });
+        .style({ display: "block", width: "100%" });
     const textEl = view().style({
         width: "100%",
         height: "100%",
