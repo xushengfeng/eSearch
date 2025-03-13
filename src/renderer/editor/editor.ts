@@ -126,30 +126,24 @@ function iconBEl(src: IconType, title: string) {
 }
 
 const nav = ele("nav");
-const navTop = iconBEl("toptop", "窗口置顶")
-    .attr({ id: "top_b" })
-    .on("click", () => {
-        const s = !navTopSwitch.gv;
-        navTopSwitch.sv(s);
-    });
+const navTop = iconBEl("toptop", "窗口置顶").on("click", () => {
+    const s = !navTopSwitch.gv;
+    navTopSwitch.sv(s);
+});
 const navTopSwitch = buttonSwitch(navTop, (s) => {
     renderSend("windowTop", [s]);
 });
-const navDing = iconBEl("ding", "不自动关闭")
-    .attr({ id: "ding_b" })
-    .on("click", () => {
-        const b = !navDingSwitch.gv;
-        navDingSwitch.sv(b);
-    });
+const navDing = iconBEl("ding", "不自动关闭").on("click", () => {
+    const b = !navDingSwitch.gv;
+    navDingSwitch.sv(b);
+});
 const navDingSwitch = buttonSwitch(navDing, (s) => {
     store.set("主页面.失焦关闭", !s);
 }).sv(!store.get("主页面.失焦关闭"));
-const navConcise = iconBEl("concise", "简洁模式")
-    .attr({ id: "concise_b" })
-    .on("click", () => {
-        const c = !navConciseSwitch.gv;
-        navConciseSwitch.sv(c);
-    });
+const navConcise = iconBEl("concise", "简洁模式").on("click", () => {
+    const c = !navConciseSwitch.gv;
+    navConciseSwitch.sv(c);
+});
 const navConciseSwitch = buttonSwitch(navConcise, (c) => {
     setConciseMode(c);
     store.set("主页面.简洁模式", c);
@@ -393,19 +387,15 @@ browserTabBs.add([
     browserTabAddHistory,
 ]);
 
-const showImageB = iconBEl("img", "图片").attr({ id: "image_b" });
+const showImageB = iconBEl("img", "图片");
 const imageSwitch = buttonSwitch(showImageB, (s) => {
     if (s) mainSectionEl.el.classList.add(imageShow);
     else mainSectionEl.el.classList.remove(imageShow);
 });
-const showHistoryB = iconBEl("history", "历史记录")
-    .attr({
-        id: "history_b",
-    })
-    .on("click", () => {
-        const s = !historySwitch.gv;
-        historySwitch.sv(s);
-    });
+const showHistoryB = iconBEl("history", "历史记录").on("click", () => {
+    const s = !historySwitch.gv;
+    historySwitch.sv(s);
+});
 const historySwitch = buttonSwitch(showHistoryB, showHistory).sv(false);
 const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
     const showedSpell = !showSpellCheckSwitch.gv;
