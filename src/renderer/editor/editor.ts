@@ -160,25 +160,25 @@ const findEl = view()
     .class("x-like");
 const findSwitch = buttonSwitch(view(), showFind);
 
-const findCount = view().attr({ id: "count" }).addInto(findEl);
+const findCount = view()
+    .style({
+        fontSize: "14px",
+        opacity: 0.5,
+    })
+    .addInto(findEl);
 
 const findButtons = view().class("find_buttons").class("group").addInto(findEl);
 iconBEl("up", "上一个匹配")
-    .attr({ id: "find_b_last" })
     .addInto(findButtons)
     .on("click", () => {
         findLN("↑");
     });
 iconBEl("down", "下一个匹配")
-    .attr({
-        id: "find_b_next",
-    })
     .addInto(findButtons)
     .on("click", () => {
         findLN("↓");
     });
 iconBEl("close", "关闭")
-    .attr({ id: "find_b_close" })
     .addInto(findButtons)
     .on("click", () => {
         findSwitch.sv(false);
@@ -187,33 +187,27 @@ iconBEl("close", "关闭")
 const findInputPel = view().class("find_f").class("group").addInto(findEl);
 const findInputEl = input()
     .attr({
-        id: "find_input",
         title: "查找",
         autocomplete: "off",
         autocapitalize: "off",
         spellcheck: false,
     })
     .addInto(findInputPel);
-const findRegexEl = iconBEl("regex", "正则匹配")
-    .attr({ id: "find_b_regex" })
-    .addInto(findInputPel);
+const findRegexEl = iconBEl("regex", "正则匹配").addInto(findInputPel);
 
 const findReplacePel = view().class("find_s").class("group").addInto(findEl);
 const findReplaceEl = input()
     .attr({
-        id: "replace_input",
         title: "替换",
         autocomplete: "off",
         autocapitalize: "off",
         spellcheck: false,
     })
     .addInto(findReplacePel);
-const findReplaceB = iconBEl("replace", "替换")
-    .attr({ id: "find_b_replace" })
-    .addInto(findReplacePel);
-const findReplaceAll = iconBEl("replace_all", "全部替换")
-    .attr({ id: "find_b_replace_all" })
-    .addInto(findReplacePel);
+const findReplaceB = iconBEl("replace", "替换").addInto(findReplacePel);
+const findReplaceAll = iconBEl("replace_all", "全部替换").addInto(
+    findReplacePel,
+);
 
 const findResultEl = txt()
     .addInto(view().class("find_t").addInto(findEl))
@@ -411,17 +405,13 @@ const showSpellCheckSwitch = buttonSwitch(showSpellCheckB, (showedSpell) => {
     }
 }).sv(false);
 
-const searchB = iconBEl("search", "搜索").attr({ id: "search_b" });
+const searchB = iconBEl("search", "搜索");
 const searchSelectEl = select([]).attr({
-    id: "search_s",
     title: "选择搜索引擎",
 });
 
-const translateB = iconBEl("translate", "翻译").attr({
-    id: "translate_b",
-});
+const translateB = iconBEl("translate", "翻译");
 const translateSelectEl = select([]).attr({
-    id: "translate_s",
     title: "选择翻译引擎",
 });
 
@@ -430,11 +420,8 @@ bottomEl.add([
     showImageB,
     showHistoryB,
     showSpellCheckB,
-    view().add([searchB, searchSelectEl]).attr({ id: "search" }).class("group"),
-    view()
-        .add([translateB, translateSelectEl])
-        .attr({ id: "translate" })
-        .class("group"),
+    view().add([searchB, searchSelectEl]).class("group"),
+    view().add([translateB, translateSelectEl]).class("group"),
 ]);
 
 function tabLi() {
