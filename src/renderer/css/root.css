@@ -167,7 +167,8 @@ body select {
     field-sizing: content;
 }
 
-button:active {
+button:active,
+.jh-like:active {
     transform: var(--button-active);
 }
 

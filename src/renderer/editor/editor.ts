@@ -16,6 +16,7 @@ import {
     type ElType,
     dynamicSelect,
     spacer,
+    addClass,
 } from "dkh-ui";
 import { initStyle, setTitle, getImgUrl } from "../root/root";
 import hotkeys from "hotkeys-js";
@@ -223,15 +224,27 @@ const findResultEl = txt()
 const mainSectionEl = view().attr({ id: "edit" }).addInto(outMainEl);
 
 // image ui
-const ocrImagePel = view().attr({ id: "image" }).addInto(mainSectionEl);
+const ocrImagePel = view("y")
+    .style({
+        transition: "var(--transition)",
+        gap: "var(--o-padding)",
+        overflow: "hidden",
+    })
+    .addInto(mainSectionEl);
+const ocrImageCtrl = view("x")
+    .style({ gap: "var(--o-padding)" })
+    .addInto(ocrImagePel);
 
-const ocrImageInput = view().attr({ id: "img_input" }).addInto(ocrImagePel);
+const ocrImageInput = view().style({ flexGrow: 1 }).addInto(ocrImageCtrl);
 const ocrImageFile = input("file")
-    .attr({ id: "upload", multiple: true })
+    .attr({ multiple: true })
+    .style({ display: "none" })
     .addInto(ocrImageInput);
 const ocrImageFileDrop = view()
-    .attr({ id: "drop" })
+    .style({ justifyContent: "center", alignItems: "center", width: "100%" })
     .class("group")
+    .class("jh-like")
+    .class("b-like")
     .addInto(ocrImageInput)
     .on("dragover", (e) => {
         e.preventDefault();
@@ -245,22 +258,14 @@ const ocrImageFileDrop = view()
         putDatatransfer(e.clipboardData);
     });
 const ocrImageFileDropFileInput = view()
-    .attr({ id: "file_input" })
     .add(image(getImgUrl("add.svg"), "upload").class("icon"))
     .addInto(ocrImageFileDrop);
 ocrImageFileDrop.add(txt(t("拖拽或粘贴图像到此处")));
 
-const ocrImageTextOutput = view()
-    .attr({ id: "text_output" })
-    .addInto(ocrImagePel);
 const ocrImageEngine = dynamicSelect();
-ocrImageEngine.el.attr({ id: "ocr引擎" }).addInto(ocrImageTextOutput);
-const ocrImageRun = iconBEl("ocr", "运行OCR")
-    .attr({ id: "run" })
-    .addInto(ocrImageTextOutput);
-const ocrImageClose = iconBEl("close", "清空图片")
-    .attr({ id: "close" })
-    .addInto(ocrImageTextOutput);
+ocrImageEngine.el.addInto(ocrImageCtrl);
+const ocrImageRun = iconBEl("ocr", "运行OCR").addInto(ocrImageCtrl);
+const ocrImageClose = iconBEl("close", "清空图片").addInto(ocrImageCtrl);
 
 const ocrImageView = view().attr({ id: "img_view" }).addInto(ocrImagePel);
 
@@ -383,9 +388,14 @@ browserTabBs.add([
 
 const showImageB = iconBEl("img", "图片");
 const imageSwitch = buttonSwitch(showImageB, (s) => {
-    if (s) mainSectionEl.el.classList.add(imageShow);
-    else mainSectionEl.el.classList.remove(imageShow);
-});
+    if (s) {
+        mainSectionEl.style({ gap: "var(--o-padding)" });
+        ocrImagePel.style({ height: "100%" });
+    } else {
+        mainSectionEl.style({ gap: 0 });
+        ocrImagePel.style({ height: 0 });
+    }
+}).sv(false);
 const showHistoryB = iconBEl("history", "历史记录").on("click", () => {
     const s = !historySwitch.gv;
     historySwitch.sv(s);
@@ -459,8 +469,6 @@ const chartSeg = new Intl.Segmenter(language, { granularity: "grapheme" });
 const wordSeg = new Intl.Segmenter(language, { granularity: "word" });
 
 let liList: number[] = [];
-
-const imageShow = "image_main";
 
 const ocrTextNodes: Map<HTMLDivElement, Node[]> = new Map();
 

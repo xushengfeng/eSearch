@@ -66,16 +66,6 @@ body .hover_b {
     position: relative;
 }
 
-.image_main {
-    gap: var(--o-padding);
-}
-.image_main > #image {
-    height: 100%;
-}
-.image_main > .main {
-    height: 100%;
-}
-
 #text_out {
     box-sizing: border-box;
     transition: var(--transition);
@@ -238,67 +228,7 @@ body .hover_b {
     overflow: hidden;
 }
 
-#image {
-    display: grid;
-    gap: var(--o-padding);
-    width: 100%;
-    height: 0%;
-    overflow: hidden;
-    box-sizing: border-box;
-    grid-template-columns: auto min-content;
-    grid-template-rows: auto auto;
-    background-color: var(--bg);
-    transition: var(--transition);
-}
-
-#image .icon {
-    width: 32px;
-}
-#img_input {
-    grid-area: 1 / 1 / 2 / 2;
-}
-#drop {
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    &:active {
-        transform: var(--button-active);
-    }
-}
-#drop:hover {
-    background-color: var(--hover-color);
-}
-#upload {
-    display: none;
-}
-#file_input {
-    position: relative;
-    width: var(--b-button);
-    height: var(--b-button);
-}
-
-#text_output {
-    grid-area: 1 / 2 / 2 / 3;
-    display: flex;
-    gap: var(--o-padding);
-}
-#text_output > * {
-    position: relative;
-    width: var(--b-button);
-    height: var(--b-button);
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-}
-#text_output > *:hover {
-    background-color: var(--hover-color);
-}
-
-#ocr引擎 {
-    width: auto;
-}
-
 #img_view {
-    grid-area: 2 / 1 / 3 / 3;
     overflow: auto;
 }
 #img_view > div {
