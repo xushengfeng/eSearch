@@ -1403,12 +1403,15 @@ function renderSpellcheck(list: SpellItem[]) {
         const item = view();
         const fillTxtLen = Math.max(14 - i.word.length, 0);
         const fillBefore = text.slice(
-            i.index - Math.floor(fillTxtLen / 2),
+            Math.max(0, i.index - Math.floor(fillTxtLen / 2)),
             i.index,
         );
         const fillAfter = text.slice(
             i.index + i.word.length,
-            i.index + i.word.length + Math.ceil(fillTxtLen / 2),
+            Math.min(
+                text.length,
+                i.index + i.word.length + Math.ceil(fillTxtLen / 2),
+            ),
         );
 
         function getClip(t: string) {
