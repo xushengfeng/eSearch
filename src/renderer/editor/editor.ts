@@ -2933,6 +2933,8 @@ ocrImageView.el.onpointerup = () => {
     imageS = false;
     const s = getImgSelect();
     if (!s) return;
+    editor.find.render([s]);
+    jumpToFind(0);
     editor.find.render([]);
     editor.selections.clearAll();
     editor.selections.add(s);
@@ -2941,7 +2943,10 @@ ocrImageView.el.onpointerup = () => {
 ocrImageView.el.onpointermove = () => {
     if (!imageS) return;
     const s = getImgSelect();
-    if (s) editor.find.render([s]);
+    if (s) {
+        editor.find.render([s]);
+        jumpToFind(0);
+    }
 };
 
 function getImgSelect() {
