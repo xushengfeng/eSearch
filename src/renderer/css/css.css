@@ -261,20 +261,6 @@ body .hover_b {
     font-size: 14px;
     font-family: var(--monospace);
 }
-#find button {
-    width: var(--base-size2);
-    height: var(--base-size2);
-    border-radius: 4px;
-}
-#find button > .icon {
-    width: var(--base-size2);
-}
-#find input {
-    border-radius: 4px;
-    font-size: 12px;
-    padding-inline: 4px;
-    height: 100%;
-}
 .find_h {
     background-color: var(--hover-color);
     border-radius: 2px;

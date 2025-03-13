@@ -206,6 +206,7 @@ const findInputEl = input()
         autocapitalize: "off",
         spellcheck: false,
     })
+    .style({ fontSize: "12px" })
     .addInto(findInputPel);
 const findRegexEl = iconBEl("regex", "正则匹配").addInto(findInputPel);
 
@@ -217,6 +218,7 @@ const findReplaceEl = input()
         autocapitalize: "off",
         spellcheck: false,
     })
+    .style({ fontSize: "12px" })
     .addInto(findReplacePel);
 const findReplaceB = iconBEl("replace", "替换").addInto(findReplacePel);
 const findReplaceAll = iconBEl("replace_all", "全部替换").addInto(
