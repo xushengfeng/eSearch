@@ -110,8 +110,6 @@ let editingOnOther = false;
 
 let lo: import("esearch-ocr").initType;
 
-let output: string[] = [];
-
 const 浏览器打开 = store.get("浏览器中打开");
 
 const 默认字体大小 = store.get("字体.大小");
@@ -267,7 +265,24 @@ ocrImageEngine.el.addInto(ocrImageCtrl);
 const ocrImageRun = iconBEl("ocr", "运行OCR").addInto(ocrImageCtrl);
 const ocrImageClose = iconBEl("close", "清空图片").addInto(ocrImageCtrl);
 
-const ocrImageView = view().attr({ id: "img_view" }).addInto(ocrImagePel);
+const ocrImageView = view().style({ overflowY: "auto" }).addInto(ocrImagePel);
+const ocrImageS = new Map<
+    number,
+    {
+        el: ElType<HTMLElement>;
+        textEl: ElType<HTMLDivElement>;
+        src: string;
+        imgEl: ElType<HTMLImageElement>;
+    }
+>();
+const ocrTextSelectionClass = addClass(
+    {},
+    {
+        "&::selection": {
+            backgroundColor: "#78a9fd99",
+        },
+    },
+);
 
 const baseEditorEl = view("x").class("main").addInto(mainSectionEl);
 
@@ -1635,8 +1650,7 @@ renderOn("editorInit", ([name, list]) => {
                     openTab("translate");
                 }
 
-                ocrTextNodes.clear();
-                addOcrText(r.raw, 0);
+                addOcrText(r.raw, Array.from(ocrImageS.keys())[0]);
 
                 const maxLinePhotoShow = store.get("主页面.显示图片区");
                 if (maxLinePhotoShow && r.raw.length >= maxLinePhotoShow) {
@@ -2217,6 +2231,7 @@ function ocr(
         result: { raw: ocrResult; text: string } | null,
     ) => void,
 ) {
+    clearOcrPhoto();
     addOcrPhoto(img);
     if (type === "baidu" || type === "youdao") {
         onlineOcr(type, img, (err, r) => {
@@ -2589,8 +2604,7 @@ ocrImageFile.el.onchange = () => {
         const reader = new FileReader();
         reader.readAsDataURL(f);
         reader.onload = () => {
-            const el = createImg(reader.result as string);
-            ocrImageView.add(el);
+            addOcrPhoto(reader.result as string);
         };
     }
 };
@@ -2599,8 +2613,7 @@ ocrImageRun.el.onclick = () => {
     runOcr();
 };
 ocrImageClose.el.onclick = () => {
-    output = [];
-    ocrImageView.clear();
+    clearOcrPhoto();
 };
 
 ocrImageEngine.setList([
@@ -2623,53 +2636,40 @@ function putDatatransfer(data: DataTransfer | null) {
             const reader = new FileReader();
             reader.readAsDataURL(f);
             reader.onload = () => {
-                const el = createImg(reader.result as string);
-                ocrImageView.add(el);
+                addOcrPhoto(reader.result as string);
             };
         }
     }
 }
 
-function createImg(src: string) {
-    const div = view().class("img_el");
-    const img = image(src, "").on("load", () => {
-        img.data({
-            w: String(img.el.width),
-            h: String(img.el.height),
-        });
-    });
-    div.add(img);
-    return div;
-}
-
 function runOcr() {
-    output = [];
-    for (const el of ocrImageView.queryAll(":scope > div > div")) {
-        el.clear();
-    }
+    const output: string[] = [];
     const type = ocrImageEngine.el.gv;
-    const imgList = ocrImageView.queryAll(":scope > div > img");
     ocrTextNodes.clear();
-    imgList.forEach((el, i) => {
+    let count = 0;
+    for (const [i, el] of ocrImageS) {
+        el.textEl.clear();
         if (type === "baidu" || type === "youdao") {
-            onlineOcr(type, el.el.src, (_err, r) => {
+            onlineOcr(type, el.src, (_err, r) => {
                 if (r) {
                     addOcrText(r.raw, i);
-                    addOcrToEditor(r.text, i);
+                    addOcrToEditor(r.text, count);
                 }
             });
         } else {
-            localOcr(type, el.el.src, (_err, r) => {
+            localOcr(type, el.src, (_err, r) => {
                 if (r) {
                     addOcrText(r.raw, i);
-                    addOcrToEditor(r.text, i);
+                    addOcrToEditor(r.text, count);
                 }
             });
         }
-    });
+        count++;
+    }
+
     function addOcrToEditor(text: string, i: number) {
         output[i] = text;
-        if (output.length === imgList.length) {
+        if (output.length === ocrImageS.size) {
             editor.push(output.join("\n"));
         }
     }
@@ -2681,24 +2681,31 @@ type ocrResult = {
 }[];
 
 function addOcrText(r: ocrResult, i: number) {
-    const img = ocrImageView.queryAll("img")[i].el;
+    const x = ocrImageS.get(i);
+    if (!x) return;
+    const img = x.imgEl.el;
     const w = img.naturalWidth;
     const h = img.naturalHeight;
 
-    const div = view();
-    img.parentElement?.append(div.el);
+    const div = x.textEl;
     for (const i of r) {
         if (!i.text) continue;
         const x0 = i.box[0][0];
         const y0 = i.box[0][1];
         const x1 = i.box[2][0];
         const y1 = i.box[2][1];
-        const xel = p(i.text).style({
-            left: `${(x0 / w) * 100}%`,
-            top: `${(y0 / h) * 100}%`,
-            width: `${((x1 - x0) / w) * 100}%`,
-            height: `${((y1 - y0) / h) * 100}%`,
-        });
+        const xel = p(i.text)
+            .style({
+                left: `${(x0 / w) * 100}%`,
+                top: `${(y0 / h) * 100}%`,
+                width: `${((x1 - x0) / w) * 100}%`,
+                height: `${((y1 - y0) / h) * 100}%`,
+                position: "absolute",
+                color: "transparent",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+            })
+            .class(ocrTextSelectionClass);
         div.add(xel);
         const nc = txt(i.text).style({
             "white-space": "nowrap",
@@ -2711,7 +2718,7 @@ function addOcrText(r: ocrResult, i: number) {
             h: `${size.height}`,
         });
         xel.style({ "text-align": "justify", "text-align-last": "justify" });
-        nc.el.remove();
+        nc.remove();
     }
 
     setOcrFontSize();
@@ -2737,13 +2744,41 @@ window.onresize = () => {
     lineNum();
 };
 
-function addOcrPhoto(base: string) {
+function clearOcrPhoto() {
+    ocrTextNodes.clear();
     ocrImageView.clear();
-    const el = createImg(base);
-    ocrImageView.add(el);
+    ocrImageS.clear();
 }
 
-console.log(output);
+function addOcrPhoto(base: string) {
+    const div = view().style({
+        width: "100%",
+        position: "relative",
+    });
+    const img = image(base, "")
+        .on("load", () => {
+            img.data({
+                w: String(img.el.width),
+                h: String(img.el.height),
+            });
+        })
+        .style({ display: "block" });
+    const textEl = view().style({
+        width: "100%",
+        height: "100%",
+        position: "absolute",
+        top: 0,
+    });
+    div.add([textEl, img]);
+
+    ocrImageView.add(div);
+    ocrImageS.set(Date.now(), {
+        el: div,
+        src: base,
+        imgEl: img,
+        textEl: textEl,
+    });
+}
 
 function addOcrSelect(div: HTMLDivElement) {
     const allTextNodes: Node[] = [];
