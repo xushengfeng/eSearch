@@ -1269,7 +1269,7 @@ function findLN(a: "↑" | "↓") {
 }
 function jumpToFind(i: number) {
     const el = editor.find.list[i].el.el;
-    textOut.el.scrollTop = el.offsetTop - 48 - 16;
+    mainTextEl.el.scrollTop = el.offsetTop - 48 - 16;
 }
 findInputEl.el.onkeydown = (e) => {
     if (e.key === "Enter") {
