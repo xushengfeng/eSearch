@@ -308,9 +308,6 @@ select {
     margin: 0;
     padding: 0;
     overflow-x: scroll;
-    opacity: 0;
-    pointer-events: none;
-    flex-grow: 1;
 }
 #tabs::-webkit-scrollbar {
     display: none;
@@ -400,8 +397,4 @@ select {
 
 .b_tab > button:hover {
     box-shadow: var(--shadow);
-}
-
-.fill_t_s .fill_t :is(#find, #edit) {
-    visibility: hidden;
 }

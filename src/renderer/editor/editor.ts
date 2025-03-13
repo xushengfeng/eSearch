@@ -392,6 +392,8 @@ const historyEl = view().attr({ id: "history_list" }).addInto(historyDialog);
 // buttoms ui
 const bottomEl = view().attr({ id: "bottoms" }).addInto(outMainEl);
 
+const hiddenClass = addClass({ display: "none !important" }, {});
+
 const browserTabs = view().attr({ id: "tabs" });
 const browserTabBs = view()
     .attr({ id: "buttons" })
@@ -457,13 +459,21 @@ const translateSelectEl = select([]).attr({
     title: "选择翻译引擎",
 });
 
-bottomEl.add([
-    browserTabs,
+const bottomToolsSpacer = spacer();
+
+const bottomTools = [
     showImageB,
     showHistoryB,
     showSpellCheckB,
     view().add([searchB, searchSelectEl]).class("group"),
     view().add([translateB, translateSelectEl]).class("group"),
+];
+
+bottomEl.add([
+    ...bottomTools.slice(0, -2),
+    bottomToolsSpacer,
+    browserTabs,
+    ...bottomTools.slice(-2),
 ]);
 
 function tabLi() {
@@ -1909,25 +1919,65 @@ if (!store.get("主页面.高级窗口按钮")) {
 
 /************************************浏览器 */
 
+function showTabs(b: "home" | "tab" | "hometab") {
+    function tools(b: boolean) {
+        for (const el of bottomTools) {
+            if (b) el.el.classList.remove(hiddenClass);
+            else el.el.classList.add(hiddenClass);
+        }
+    }
+    function smallTab(b: boolean) {
+        const l = Array.from(tabs.values()).map((i) => i.el.el);
+        console.log(l);
+
+        if (b) {
+            for (const el of l) el.classList.add("tab_small");
+        } else {
+            if (!store.get("浏览器.标签页.小")) {
+                for (const el of l) el.classList.remove("tab_small");
+            }
+        }
+    }
+    if (b === "tab") {
+        browserTabBs.el.classList.remove(hiddenClass);
+        browserTabs.el.classList.remove(hiddenClass);
+        tools(false);
+        smallTab(false);
+        bottomToolsSpacer.el.classList.add(hiddenClass);
+    }
+    if (b === "home") {
+        browserTabBs.el.classList.add(hiddenClass);
+        browserTabs.el.classList.add(hiddenClass);
+        tools(true);
+        smallTab(false);
+        bottomToolsSpacer.el.classList.remove(hiddenClass);
+    }
+    if (b === "hometab") {
+        browserTabBs.el.classList.add(hiddenClass);
+        browserTabs.el.classList.remove(hiddenClass);
+        tools(true);
+        smallTab(true);
+        bottomToolsSpacer.el.classList.remove(hiddenClass);
+    }
+}
+
+showTabs("home");
+
 renderOn("browserNew", ([id, url]) => {
     newTab(id, url);
-    browserTabs.el.classList.add("tabs_show");
+    showTabs("tab");
 });
 renderOn("browserTitle", ([id, t]) => {
     title(id, t);
-    browserTabs.el.classList.add("tabs_show");
 });
 renderOn("browserIcon", ([id, i]) => {
     icon(id, i);
-    browserTabs.el.classList.add("tabs_show");
 });
 renderOn("browserUrl", ([id, u]) => {
     url(id, u);
-    browserTabs.el.classList.add("tabs_show");
 });
 renderOn("browserLoad", ([id, l]) => {
     load(id, l);
-    browserTabs.el.classList.add("tabs_show");
 });
 
 function newTab(id: number, url: string) {
@@ -2002,7 +2052,7 @@ function closeTab(id: number) {
     tabs.delete(id);
 
     if (isTabsEmpty()) {
-        browserTabs.el.classList.remove("tabs_show");
+        showTabs("home");
     }
 }
 
@@ -2026,9 +2076,11 @@ function focusTab(id: number | 0) {
         renderSend("tabView", [id, "top"]);
         setTitle(getTab(id).title);
         outMainEl.el.classList.add("fill_t_s");
+        showTabs("tab");
     } else {
         outMainEl.el.classList.remove("fill_t_s");
         setTitle(t("主页面"));
+        showTabs("hometab");
     }
 }
 
