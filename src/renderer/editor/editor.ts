@@ -18,7 +18,14 @@ import {
     spacer,
     addClass,
 } from "dkh-ui";
-import { initStyle, setTitle, getImgUrl, Class, cssVar } from "../root/root";
+import {
+    initStyle,
+    setTitle,
+    getImgUrl,
+    Class,
+    cssVar,
+    cssColor,
+} from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
 import openWith from "../../../lib/open_with";
@@ -369,7 +376,7 @@ const runAiSpellcheck = button("ai")
         renderSpellcheck(list);
     })
     .addInto(spellcheckEl);
-const spellcheckList = view("y").addInto(spellcheckEl).style({});
+const spellcheckList = view("y").addInto(spellcheckEl).class(Class.gap);
 
 // history ui
 const historyDialog = ele("dialog").addInto();
@@ -1390,24 +1397,47 @@ const spellcheckDiff = new spellcheckGen();
 
 function renderSpellcheck(list: SpellItem[]) {
     spellcheckList.clear();
+    const text = editor.get();
     for (const i of list) {
         const item = view();
-        item.add(i.word);
+        const fillTxtLen = Math.max(14 - i.word.length, 0);
+        const fillBefore = text.slice(
+            i.index - Math.floor(fillTxtLen / 2),
+            i.index,
+        );
+        const fillAfter = text.slice(
+            i.index + i.word.length,
+            i.index + i.word.length + Math.ceil(fillTxtLen / 2),
+        );
+
+        function getClip(t: string) {
+            return view().add([
+                txt(fillBefore).style({ color: cssColor.font.light }),
+                t,
+                txt(fillAfter).style({ color: cssColor.font.light }),
+            ]);
+        }
+        item.add(getClip(i.word));
         item.add(
-            i.suggest.map((x) =>
-                view()
-                    .add(x)
-                    .on("click", () => {
-                        console.log(i);
-                        const t = editor.get();
-                        const newT =
-                            t.slice(0, i.index) +
-                            x +
-                            t.slice(i.index + i.word.length);
-                        editor.push(newT);
-                        // todo 使用api
-                        item.remove();
-                    }),
+            view().add(
+                i.suggest.map((x) =>
+                    view()
+                        .add(getClip(x))
+                        .on("click", () => {
+                            console.log(i);
+                            const t = editor.get();
+                            const newT =
+                                t.slice(0, i.index) +
+                                x +
+                                t.slice(i.index + i.word.length);
+                            editor.push(newT);
+                            // todo 使用api
+                            item.remove();
+                        })
+                        .style({
+                            paddingInlineStart: cssVar("o-padding"),
+                        }),
+                ),
             ),
         );
         spellcheckList.add(item);
