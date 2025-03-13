@@ -416,25 +416,6 @@ select {
     box-shadow: var(--shadow);
 }
 
-body > div {
-    --nav-height: env(titlebar-area-height, 24px);
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - var(--nav-height));
-    width: 100%;
-    overflow: hidden;
-    position: absolute;
-    top: var(--nav-height);
-    box-sizing: border-box;
-    padding: var(--o-padding);
-    box-sizing: border-box;
-    gap: var(--o-padding);
-}
-
-.fill_t {
-    background-color: var(--bg);
-}
-
 .fill_t_s .fill_t :is(#find, #edit) {
     visibility: hidden;
 }

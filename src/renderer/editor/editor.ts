@@ -149,7 +149,22 @@ const navConciseSwitch = buttonSwitch(navConcise, (c) => {
 });
 nav.add([navTop, navDing, navConcise]).addInto();
 
-const outMainEl = view().class("fill_t").addInto();
+const outMainEl = view()
+    .style({
+        "--nav-height": "env(titlebar-area-height, 24px)",
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100vh - var(--nav-height))",
+        width: "100%",
+        overflow: "hidden",
+        position: "absolute",
+        top: "var(--nav-height)",
+        padding: "var(--o-padding)",
+        boxSizing: "border-box",
+        gap: "var(--o-padding)",
+    })
+    .class("fill_t")
+    .addInto();
 
 // find ui
 const findEl = view()
@@ -1870,7 +1885,7 @@ function setConciseMode(m: boolean) {
         outMainEl.el.style.gap = "0";
     } else {
         bottomEl.el.style.height = "";
-        outMainEl.el.style.gap = "";
+        outMainEl.el.style.gap = "var(--o-padding)";
     }
     const bSize = {
         top:
@@ -1891,8 +1906,6 @@ if (!store.get("主页面.高级窗口按钮")) {
 }
 
 /************************************浏览器 */
-
-outMainEl.el.className = "fill_t";
 
 renderOn("browserNew", ([id, url]) => {
     newTab(id, url);
