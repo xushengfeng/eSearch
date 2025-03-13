@@ -1096,7 +1096,7 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
         }
     }
 
-    setImgSelect();
+    setImgSelect(editor.selections.getS());
 });
 
 hotkeys.filter = () => {
@@ -3060,14 +3060,14 @@ function editorS2ImgS(s: selection) {
     return { start: startN, end: endN };
 }
 
-function setImgSelect() {
-    if (ocrTextNodes.size === 0) return;
-    const sss = editorS2ImgS(editor.selections.getS());
+function setImgSelect(s: selection) {
+    if (ocrTextNodes.size === 0) return undefined;
+    const sss = editorS2ImgS(s);
     console.log(sss);
 
     if (!sss.start.node || !sss.end.node) {
         CSS.highlights.clear();
-        return;
+        return undefined;
     }
 
     const range = new Range();
@@ -3079,4 +3079,6 @@ function setImgSelect() {
     CSS.highlights.clear();
 
     CSS.highlights.set("img-highlight", myCustomHighlight);
+
+    return range;
 }
