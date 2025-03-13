@@ -936,6 +936,7 @@ function editorChange() {
         countWords();
     }
     if (editingOnOther) writeEditOnOther();
+    renderSpellcheck(spellcheckDiff.updateDiffState());
     if (spellcheckTimer !== null) clearTimeout(spellcheckTimer);
     spellcheckTimer = window.setTimeout(() => {
         spellcheckDiff.spellcheckLocal();
@@ -1432,7 +1433,7 @@ function renderSpellcheck(list: SpellItem[]) {
                                 t.slice(i.index + i.word.length);
                             editor.push(newT);
                             // todo 使用api
-                            item.remove();
+                            renderSpellcheck(spellcheckDiff.updateDiffState());
                         })
                         .style({
                             paddingInlineStart: cssVar("o-padding"),
