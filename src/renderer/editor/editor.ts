@@ -83,7 +83,6 @@ const 自动搜索中文占比 = store.get("自动搜索中文占比");
 let editBarS = false;
 let isWrap = !store.get("编辑器.自动换行");
 let isCheck = !store.get("编辑器.拼写检查");
-let findShow = false;
 let findRegex = false;
 
 let spellcheckTimer: number | null = null;
@@ -103,18 +102,10 @@ try {
         {};
 } catch (error) {}
 
-let historyShowed = false;
-
 let editOnOtherType: "o" | "c" | null = null;
 let fileWatcher: FSWatcher | null = null;
 
 let editingOnOther = false;
-
-let alwaysOnTop = false;
-
-let blurToClose = store.get("主页面.失焦关闭");
-
-let concise = store.get("主页面.简洁模式");
 
 let lo: import("esearch-ocr").initType;
 
@@ -138,25 +129,31 @@ const nav = ele("nav");
 const navTop = iconBEl("toptop", "窗口置顶")
     .attr({ id: "top_b" })
     .on("click", () => {
-        alwaysOnTop = !alwaysOnTop;
-        setButtonHover(navTop, alwaysOnTop);
-        renderSend("windowTop", [alwaysOnTop]);
+        const s = !navTopSwitch.gv;
+        navTopSwitch.sv(s);
     });
+const navTopSwitch = buttonSwitch(navTop, (s) => {
+    renderSend("windowTop", [s]);
+});
 const navDing = iconBEl("ding", "不自动关闭")
     .attr({ id: "ding_b" })
     .on("click", () => {
-        blurToClose = !blurToClose;
-        store.set("主页面.失焦关闭", blurToClose);
-        setButtonHover(navDing, !blurToClose);
+        const b = !navDingSwitch.gv;
+        navDingSwitch.sv(b);
     });
+const navDingSwitch = buttonSwitch(navDing, (s) => {
+    store.set("主页面.失焦关闭", !s);
+}).sv(!store.get("主页面.失焦关闭"));
 const navConcise = iconBEl("concise", "简洁模式")
     .attr({ id: "concise_b" })
     .on("click", () => {
-        concise = !concise;
-        store.set("主页面.简洁模式", concise);
-        setButtonHover(navConcise, concise);
-        setConciseMode(concise);
+        const c = !navConciseSwitch.gv;
+        navConciseSwitch.sv(c);
     });
+const navConciseSwitch = buttonSwitch(navConcise, (c) => {
+    setConciseMode(c);
+    store.set("主页面.简洁模式", c);
+});
 nav.add([navTop, navDing, navConcise]).addInto();
 
 const outMainEl = view().class("fill_t").addInto();
@@ -167,6 +164,8 @@ const findEl = view()
     .style({ zIndex: 1, top: 0, right: 0 })
     .class("small-size")
     .class("x-like");
+const findSwitch = buttonSwitch(view(), showFind);
+
 const findCount = view().attr({ id: "count" }).addInto(findEl);
 
 const findButtons = view().class("find_buttons").class("group").addInto(findEl);
@@ -187,7 +186,9 @@ iconBEl("down", "下一个匹配")
 iconBEl("close", "关闭")
     .attr({ id: "find_b_close" })
     .addInto(findButtons)
-    .on("click", showFind);
+    .on("click", () => {
+        findSwitch.sv(false);
+    });
 
 const findInputPel = view().class("find_f").class("group").addInto(findEl);
 const findInputEl = input()
@@ -355,7 +356,7 @@ view("x")
         spacer(),
         iconBEl("close", "关闭").on("click", () =>
             document.startViewTransition(() => {
-                showHistory();
+                historySwitch.sv(false);
             }),
         ),
     ])
@@ -393,13 +394,24 @@ browserTabBs.add([
 ]);
 
 const showImageB = iconBEl("img", "图片").attr({ id: "image_b" });
+const imageSwitch = buttonSwitch(showImageB, (s) => {
+    if (s) mainSectionEl.el.classList.add(imageShow);
+    else mainSectionEl.el.classList.remove(imageShow);
+});
 const showHistoryB = iconBEl("history", "历史记录")
     .attr({
         id: "history_b",
     })
-    .on("click", showHistory);
-let showedSpell = false;
-function switchSpell(showedSpell: boolean) {
+    .on("click", () => {
+        const s = !historySwitch.gv;
+        historySwitch.sv(s);
+    });
+const historySwitch = buttonSwitch(showHistoryB, showHistory).sv(false);
+const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
+    const showedSpell = !showSpellCheckSwitch.gv;
+    showSpellCheckSwitch.sv(showedSpell);
+});
+const showSpellCheckSwitch = buttonSwitch(showSpellCheckB, (showedSpell) => {
     if (showedSpell) {
         spellcheckEl.style({ width: "30%" });
         baseEditorEl.style({ gap: "var(--o-padding)" });
@@ -407,13 +419,7 @@ function switchSpell(showedSpell: boolean) {
         spellcheckEl.style({ width: 0 });
         baseEditorEl.style({ gap: 0 });
     }
-    setButtonHover(showSpellCheckB, showedSpell);
-}
-const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
-    showedSpell = !showedSpell;
-    switchSpell(showedSpell);
-});
-switchSpell(false);
+}).sv(false);
 
 const searchB = iconBEl("search", "搜索").attr({ id: "search_b" });
 const searchSelectEl = select([]).attr({
@@ -457,7 +463,7 @@ const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = 
     翻译: () => edit("translate"),
     打开链接: () => edit("link"),
     删除换行: () => edit("delete_enter"),
-    图片区: () => showImageB.el.click(),
+    图片区: () => imageSwitch.sv(!imageSwitch.gv),
     关闭: closeWindow,
 };
 
@@ -494,14 +500,14 @@ function stackAdd() {
 function undo() {
     undoStack.undo();
     editor.push(undoStack.getData());
-    if (findShow) {
+    if (findSwitch.gv) {
         exitFind();
         find_();
     }
 }
 function redo() {
     editor.push(undoStack.getData());
-    if (findShow) {
+    if (findSwitch.gv) {
         exitFind();
         find_();
     }
@@ -574,8 +580,8 @@ class xeditor {
         this.text.value = value;
         lineNum();
         setTextAreaHeight();
-        if (findShow) {
-            showFind();
+        if (findSwitch.gv) {
+            findSwitch.sv(false);
             exitFind();
         }
 
@@ -884,7 +890,7 @@ function editorChange() {
     lineNum();
     stackAdd();
     setTextAreaHeight();
-    if (findShow) {
+    if (findSwitch.gv) {
         exitFind();
         find_();
         countWords();
@@ -948,9 +954,16 @@ mainTextEl.on("scroll", () => {
 
 /************************************UI */
 
-function setButtonHover(el: ElType<HTMLElement>, b: boolean) {
-    if (b) el.el.classList.add("hover_b");
-    else el.el.classList.remove("hover_b");
+function buttonSwitch(el: ElType<HTMLElement>, fun?: (s: boolean) => void) {
+    let h = false;
+    return el
+        .bindGet(() => h)
+        .bindSet((v: boolean) => {
+            h = v;
+            fun?.(h);
+            if (v) el.el.classList.add("hover_b");
+            else el.el.classList.remove("hover_b");
+        });
 }
 
 /**字体大小 */
@@ -1118,8 +1131,7 @@ function spellcheck() {
  */
 
 // 查找ui
-function showFind() {
-    findShow = !findShow;
+function showFind(findShow: boolean) {
     if (findShow) {
         textOut.el.style.marginTop = "calc(60px + var(--o-padding))";
         findEl.el.style.transform = "translateY(0)";
@@ -1517,19 +1529,15 @@ function pushHistory() {
 }
 // 历史记录界面
 
-function showHistory() {
+function showHistory(historyShowed: boolean) {
     if (historyShowed) {
-        historyShowed = false;
-        historyDialog.el.close();
-    } else {
-        historyShowed = true;
-
         document.startViewTransition(() => {
             historyDialog.el.showModal();
             renderHistory();
         });
+    } else {
+        historyDialog.el.close();
     }
-    setButtonHover(showHistoryB, historyShowed);
 }
 function renderHistory() {
     if (Object.keys(historyList).length === 0)
@@ -1546,7 +1554,7 @@ function renderHistory() {
                 editor.push(historyList[i].text);
                 textEl.style({ viewTransitionName: "history_text_click" });
                 const transition = document.startViewTransition(() => {
-                    showHistory();
+                    historySwitch.sv(false);
                     editor.text.style.viewTransitionName = "history_text_click";
                 });
                 transition.updateCallbackDone.then(() => {
@@ -1646,9 +1654,7 @@ renderOn("editorInit", ([name, list]) => {
 
                 const maxLinePhotoShow = store.get("主页面.显示图片区");
                 if (maxLinePhotoShow && r.raw.length >= maxLinePhotoShow) {
-                    if (!mainSectionEl.el.classList.contains(imageShow)) {
-                        showImageB.el.click();
-                    }
+                    imageSwitch.sv(true);
                 }
 
                 if (store.get("主页面.自动复制OCR")) {
@@ -1748,10 +1754,10 @@ async function edit(arg: string) {
             editor.deleteEnter();
             break;
         case "show_find":
-            showFind();
+            findSwitch.sv(!findSwitch.gv);
             break;
         case "show_history":
-            showHistory();
+            historySwitch.sv(!historySwitch.gv);
             break;
         case "edit_on_other":
             editOnOtherType = "o";
@@ -1851,15 +1857,12 @@ function closeWindow() {
 }
 
 window.onblur = () => {
-    if (blurToClose && !alwaysOnTop) closeWindow();
+    if (!navDingSwitch.gv && !navTopSwitch.gv) closeWindow();
 };
 
-setButtonHover(navDing, !blurToClose);
-
 editorOutEl.el.style.transition = "0s";
-setConciseMode(concise);
+navConciseSwitch.sv(store.get("主页面.简洁模式"));
 editorOutEl.el.style.transition = "";
-setButtonHover(navConcise, concise);
 
 function setConciseMode(m: boolean) {
     if (m) {
@@ -2584,10 +2587,10 @@ function onlineOcr(
     }
 }
 
-showImageB.el.onclick = () => {
-    mainSectionEl.el.classList.toggle(imageShow);
-    setButtonHover(showImageB, mainSectionEl.el.classList.contains(imageShow));
-};
+showImageB.on("click", () => {
+    const s = !imageSwitch.gv;
+    imageSwitch.sv(s);
+});
 
 ocrImageFileDropFileInput.el.onclick = () => {
     ocrImageFile.el.click();
