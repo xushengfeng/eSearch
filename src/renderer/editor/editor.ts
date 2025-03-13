@@ -2001,7 +2001,7 @@ function newTab(id: number, url: string) {
         },
         setTitle: (t) => {
             r.title.el.innerText = t;
-            r.icon.el.title = t;
+            r.icon.data({ title: t });
         },
     });
     li.style.display = "flex";
