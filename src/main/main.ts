@@ -2193,9 +2193,19 @@ async function createBrowser(windowName: number, url: string) {
 /**
  * 标签页事件
  */
-function viewEvents(w: BaseWindow | undefined, arg: string) {
-    // @ts-ignore
-    if (w instanceof BrowserWindow) mainSend(w.webContents, "viewEvent", [arg]); // todo type
+function viewEvents(
+    w: BaseWindow | undefined,
+    arg:
+        | "home"
+        | "back"
+        | "forward"
+        | "reload"
+        | "stop"
+        | "browser"
+        | "add_history"
+        | "dev",
+) {
+    if (w instanceof BrowserWindow) mainSend(w.webContents, "viewEvent", [arg]);
 }
 
 mainOn("tabView", ([id, arg], e) => {

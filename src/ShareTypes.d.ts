@@ -507,3 +507,13 @@ type DingResize = {
     dy: number;
     clip: boolean | undefined;
 };
+
+type BrowserAction =
+    | "close"
+    | "top"
+    | "back"
+    | "forward"
+    | "stop"
+    | "reload"
+    | "home"
+    | "dev";

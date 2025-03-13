@@ -8,6 +8,7 @@ import type {
     OpenDialogOptions,
 } from "electron";
 import type {
+    BrowserAction,
     DingResize,
     DingStart,
     MainWinType,
@@ -91,30 +92,9 @@ type Message = {
         defalutPath: string,
         p: OpenDialogOptions["properties"],
     ) => string;
-    tabView: (
-        id: number,
-        type:
-            | "close"
-            | "top"
-            | "back"
-            | "forward"
-            | "stop"
-            | "reload"
-            | "home"
-            | "dev",
-    ) => void;
+    tabView: (id: number, type: BrowserAction) => void;
     tabViewSize: (size: { top: number; bottom: number }) => void;
-    viewEvent: (
-        type:
-            | "close"
-            | "top"
-            | "back"
-            | "forward"
-            | "stop"
-            | "reload"
-            | "home"
-            | "dev",
-    ) => void;
+    viewEvent: (type: BrowserAction | "add_history" | "browser") => void;
     hotkey: (type: "快捷键" | "快捷键2", name: string, key: string) => boolean;
     reloadMainFromSetting: () => void;
     set_default_setting: () => void;

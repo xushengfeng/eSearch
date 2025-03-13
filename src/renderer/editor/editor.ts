@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import store from "../../../lib/store/renderStore";
-import type { setting } from "../../ShareTypes";
+import type { BrowserAction, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 import {
     view,
@@ -399,17 +399,28 @@ const browserTabBs = view()
     .attr({ id: "buttons" })
     .class("group")
     .addInto(browserTabs);
-const browserTabHome = iconBEl("main", "回到编辑器").attr({ id: "home" });
-const browserTabBack = iconBEl("left", "后退").attr({ id: "back" });
-const browserTabForward = iconBEl("right", "前进").attr({ id: "forward" });
-const browserTabReload = iconBEl("reload", "刷新").attr({ id: "reload" });
-const browserTabStop = iconBEl("close", "停止").attr({ id: "stop" });
-const browserTabBrowser = iconBEl("browser", "在浏览器中打开").attr({
-    id: "browser",
-});
-const browserTabAddHistory = iconBEl("add_history", "添加到历史记录").attr({
-    id: "add_history",
-});
+const browserTabHome = iconBEl("main", "回到编辑器").on("click", () =>
+    mainEvent("home"),
+);
+const browserTabBack = iconBEl("left", "后退").on("click", () =>
+    mainEvent("back"),
+);
+const browserTabForward = iconBEl("right", "前进").on("click", () =>
+    mainEvent("forward"),
+);
+const browserTabReload = iconBEl("reload", "刷新").on("click", () =>
+    mainEvent("reload"),
+);
+const browserTabStop = iconBEl("close", "停止").on("click", () =>
+    mainEvent("stop"),
+);
+const browserTabBrowser = iconBEl("browser", "在浏览器中打开").on("click", () =>
+    mainEvent("browser"),
+);
+const browserTabAddHistory = iconBEl("add_history", "添加到历史记录").on(
+    "click",
+    () => mainEvent("add_history"),
+);
 browserTabBs.add([
     browserTabHome,
     browserTabBack,
@@ -2109,10 +2120,7 @@ function load(id: number, loading: boolean) {
     }
 }
 
-browserTabBs.el.onclick = (e) => {
-    mainEvent((e.target as HTMLElement).id);
-};
-function mainEvent(eid: string) {
+function mainEvent(eid: BrowserAction | "add_history" | "browser") {
     if (!eid) return;
     if (focusTabI === 0) return;
     if (eid === "browser") {
@@ -2124,8 +2132,7 @@ function mainEvent(eid: string) {
         storeHistory();
     } else {
         const id = focusTabI;
-        // @ts-ignore
-        renderSend("tabView", [id, eid]); // todo
+        renderSend("tabView", [id, eid]);
         if (eid === "home") {
             focusTab(0);
             outMainEl.el.classList.remove("fill_t_s");
