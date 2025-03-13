@@ -478,7 +478,7 @@ bottomEl.add([
 
 function tabLi() {
     const li = ele("li").class("b_tab");
-    const icon = image(getImgUrl("record.svg"), "icon").class("loading");
+    const icon = image(getImgUrl("reload.svg"), "icon").class("loading");
     const title = txt().attr({ id: "title" });
     const close = iconBEl("close", "关闭");
     li.add([icon, title, close]);

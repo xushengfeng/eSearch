@@ -1,5 +1,6 @@
 import { initDKH, view } from "dkh-ui";
 import { t, lan } from "../../../lib/translate/translate";
+import type { RawIconType } from "../../iconTypes";
 
 function initStyle(
     store: typeof import("../../../lib/store/renderStore")["default"],
@@ -97,7 +98,7 @@ function initStyle(
     });
 }
 
-function getImgUrl(name: string) {
+function getImgUrl(name: RawIconType) {
     return new URL(`../assets/icons/${name}`, import.meta.url).href;
 }
 
