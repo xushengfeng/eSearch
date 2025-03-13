@@ -34,6 +34,7 @@ import type {
     MainWinType,
     translateWinType,
     功能,
+    EditToolsType,
 } from "../ShareTypes";
 import { join, resolve, dirname } from "node:path";
 import { exec, execSync } from "node:child_process";
@@ -1007,14 +1008,6 @@ function setMenu() {
                         mainEdit(w, "show_history");
                     },
                     accelerator: "CmdOrCtrl+H",
-                },
-                {
-                    id: "show_photo",
-                    label: t("图片区"),
-                    click: (_i, w) => {
-                        mainEdit(w, "show_photo");
-                    },
-                    accelerator: "CmdOrCtrl+P",
                 },
                 { type: "separator" },
                 { label: t("实际大小"), role: "resetZoom", accelerator: "" },
@@ -2079,7 +2072,7 @@ async function createHelpWindow() {
 /**
  * 向聚焦的主页面发送事件信息
  */
-function mainEdit(window: BaseWindow | undefined, m: string) {
+function mainEdit(window: BaseWindow | undefined, m: EditToolsType) {
     if (window instanceof BrowserWindow)
         mainSend(window.webContents, "editorEvent", [m]);
 }

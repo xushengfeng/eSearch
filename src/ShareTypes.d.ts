@@ -517,3 +517,25 @@ type BrowserAction =
     | "reload"
     | "home"
     | "dev";
+
+type EditToolsType =
+    | "save"
+    | "undo"
+    | "redo"
+    | "copy"
+    | "cut"
+    | "paste"
+    | "delete"
+    | "select_all"
+    | "delete_enter"
+    | "show_find"
+    | "show_history"
+    | "edit_on_other"
+    | "choose_editer"
+    | "wrap"
+    | "spellcheck"
+    | "excel"
+    | "md_table"
+    | "link"
+    | "search"
+    | "translate";

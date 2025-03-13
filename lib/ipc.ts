@@ -11,6 +11,7 @@ import type {
     BrowserAction,
     DingResize,
     DingStart,
+    EditToolsType,
     MainWinType,
     translateWinType,
     功能,
@@ -147,7 +148,7 @@ type Message = {
     recordMouse: (x: number, y: number) => void;
     dingMouse: (x: number, y: number) => void;
     recordSavePathReturn: (path: string) => void; // todo remove
-    editorEvent: (type: string) => void; // todo 细化
+    editorEvent: (type: EditToolsType) => void;
     editorInit: (name: number, list: MainWinType) => void;
     browserNew: (id: number, url: string) => void;
     browserTitle: (id: number, title: string) => void;

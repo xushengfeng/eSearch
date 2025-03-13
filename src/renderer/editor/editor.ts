@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 import store from "../../../lib/store/renderStore";
-import type { BrowserAction, setting } from "../../ShareTypes";
+import type { BrowserAction, EditToolsType, setting } from "../../ShareTypes";
 import { tLog } from "xtimelog";
 import {
     view,
@@ -328,26 +328,19 @@ const editB = view()
     .class(Class.glassBar)
     .addInto(mainTextEl);
 
-const barExcelB = iconBEl("excel", "保存Excel").attr({
-    id: "excel_bar",
-});
-const barMdTableB = iconBEl("md", "复制为md表格").attr({
-    id: "md_table_bar",
-});
-const barLinB = iconBEl("link", "打开链接").attr({ id: "link_bar" });
-const barSearchB = iconBEl("search", "搜索").attr({ id: "search_bar" });
-const barTranslateB = iconBEl("translate", "翻译").attr({
-    id: "translate_bar",
-});
-const barSelectAllB = iconBEl("select_all", "全选").attr({
-    id: "select_all_bar",
-});
-const barCutB = iconBEl("cut", "剪切").attr({ id: "cut_bar" });
-const barCopyB = iconBEl("copy", "复制").attr({ id: "copy_bar" });
-const barPasteB = iconBEl("paste", "粘贴").attr({ id: "paste_bar" });
-const barDeleteEnterB = iconBEl("delete_enter", "自动删除换行").attr({
-    id: "delete_enter_bar",
-});
+const barExcelB = bindBar(iconBEl("excel", "保存Excel"), "excel");
+const barMdTableB = bindBar(iconBEl("md", "复制为md表格"), "md_table");
+const barLinB = bindBar(iconBEl("link", "打开链接"), "link");
+const barSearchB = bindBar(iconBEl("search", "搜索"), "search");
+const barTranslateB = bindBar(iconBEl("translate", "翻译"), "translate");
+const barSelectAllB = bindBar(iconBEl("select_all", "全选"), "select_all");
+const barCutB = bindBar(iconBEl("cut", "剪切"), "cut");
+const barCopyB = bindBar(iconBEl("copy", "复制"), "copy");
+const barPasteB = bindBar(iconBEl("paste", "粘贴"), "paste");
+const barDeleteEnterB = bindBar(
+    iconBEl("delete_enter", "自动删除换行"),
+    "delete_enter",
+);
 editB.add([
     barExcelB,
     barMdTableB,
@@ -510,8 +503,6 @@ const hotkeyMap: { [key in keyof setting["主页面快捷键"]]: () => void } = 
     图片区: () => imageSwitch.sv(!imageSwitch.gv),
     关闭: closeWindow,
 };
-
-const editToolsF: { [name: string]: () => void } = {};
 
 const 搜索引擎List = store.get("引擎.搜索");
 const 翻译引擎List = store.get("引擎.翻译");
@@ -1129,23 +1120,23 @@ for (const i of editTools) {
 
         editor.selections.replace(t, s);
     };
-    editToolsF[i.name] = f;
+    iel.on("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        f();
+    });
     hotkeys(i.key, f);
     editB.add(iel);
 }
 
-editB.el.onmousedown = async (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    const el = <HTMLElement>e.target;
-    const tool = editTools.find((i) => i.name === el.getAttribute("data-name"));
-    if (tool) {
-        editToolsF[tool.name]();
-    } else {
-        const id = el.id.replace("_bar", "");
-        edit(id);
-    }
-};
+function bindBar(el: ElType<HTMLElement>, key: EditToolsType) {
+    el.on("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        edit(key);
+    });
+    return el;
+}
 
 wrap();
 function wrap() {
@@ -1766,7 +1757,7 @@ function writeEditOnOther() {
     fs.writeFile(tmpTextPath, data, () => {});
 }
 
-async function edit(arg: string) {
+async function edit(arg: EditToolsType) {
     switch (arg) {
         case "save":
             pushHistory();
