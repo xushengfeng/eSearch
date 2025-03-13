@@ -838,6 +838,11 @@ class selections {
 
 class find {
     editor: xeditor;
+    list: {
+        selection: selection;
+        text: string;
+        el: ElType<HTMLSpanElement>;
+    }[] = [];
     constructor(editor: xeditor) {
         this.editor = editor;
     }
@@ -879,11 +884,19 @@ class find {
     }
 
     render(s: selection[]) {
+        // todo highlight api
         this.editor.findEl.clear();
+        this.list = [];
         const text = this.editor.text.value;
         const ranges = s.sort((a, b) => a.start - b.start);
         for (let i = 0; i < ranges.length; i++) {
-            const span = txt(text.slice(ranges[i].start, ranges[i].end));
+            const t = text.slice(ranges[i].start, ranges[i].end);
+            const span = txt(t);
+            this.list.push({
+                selection: ranges[i],
+                text: t,
+                el: span,
+            });
             if (span.el.innerText) span.class("find_h");
             let after = "";
             if (i === ranges.length - 1)
@@ -1231,7 +1244,7 @@ function exitFind() {
 }
 // 跳转
 function findLN(a: "↑" | "↓") {
-    const l = document.querySelectorAll(".find_h");
+    const l = editor.find.list.map((i) => i.el.el);
     if (l.length === 0) {
         findResultEl.sv([0, 0]);
         return;
@@ -1252,7 +1265,11 @@ function findLN(a: "↑" | "↓") {
     }
     l[findLNI].classList.add("find_h_h");
     findResultEl.sv([findLNI + 1, l.length]);
-    textOut.el.scrollTop = (<HTMLElement>l[findLNI]).offsetTop - 48 - 16;
+    jumpToFind(findLNI);
+}
+function jumpToFind(i: number) {
+    const el = editor.find.list[i].el.el;
+    textOut.el.scrollTop = el.offsetTop - 48 - 16;
 }
 findInputEl.el.onkeydown = (e) => {
     if (e.key === "Enter") {
