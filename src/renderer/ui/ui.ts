@@ -1,5 +1,5 @@
 import { button, ele, image, initDKH, input, pack, select, view } from "dkh-ui";
-import { getImgUrl } from "../root/root";
+import { Class, getImgUrl } from "../root/root";
 import type { IconType } from "../../iconTypes";
 
 console.log("hi");
@@ -21,7 +21,7 @@ p.add([
     input("number"),
     input("checkbox"),
     view()
-        .class("group")
+        .class(Class.group)
         .add([button("hi"), select([])]),
 ]);
 
@@ -30,5 +30,5 @@ ele("textarea").addInto();
 const p2 = view("x")
     .style({ background: "linear-gradient(blue, pink)" })
     .addInto();
-const bar = view().class("bar").addInto(p2);
+const bar = view().class(Class.glassBar).addInto(p2);
 bar.add([iconBEl("translate")]);

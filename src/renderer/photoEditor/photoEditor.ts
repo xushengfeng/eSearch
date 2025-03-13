@@ -15,7 +15,7 @@ import {
     view,
 } from "dkh-ui";
 import type { setting } from "../../ShareTypes";
-import { getImgUrl, initStyle, setTitle } from "../root/root";
+import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 // biome-ignore format:
 const { nativeImage, clipboard } = window.require("electron") as typeof import("electron");
@@ -112,12 +112,12 @@ const controls = frame("sidebar", {
     _: view("y")
         .style({
             width: "200px",
-            padding: "var(--o-padding)",
-            gap: "var(--o-padding)",
+            padding: cssVar("o-padding"),
             "overflow-y": "auto",
             "overflow-x": "hidden",
         })
-        .class("small-size"),
+        .class(Class.smallSize)
+        .class(Class.gap),
     configs: {
         _: view("x"),
         select: select([]).on("input", (_, el) => {
@@ -147,7 +147,7 @@ const controls = frame("sidebar", {
         }),
     },
     controls: {
-        _: view("y").style({ gap: "var(--o-padding)" }),
+        _: view("y").class(Class.gap),
         _raduis: {
             _: view("y"),
             _0: subTitle("圆角"),
@@ -203,17 +203,18 @@ const controls = frame("sidebar", {
             _: view("y"),
             _4: subTitle("魔法消除"),
             magicPen: label([check(""), "魔法橡皮"]),
-            magicPenList: view("x", "wrap").style({
-                "max-height": "200px",
-                "overflow-y": "auto",
-                gap: "var(--o-padding)",
-            }),
+            magicPenList: view("x", "wrap")
+                .style({
+                    "max-height": "200px",
+                    "overflow-y": "auto",
+                })
+                .class(Class.gap),
         },
     },
     export: {
-        _: view("y").style({ gap: "var(--o-padding)" }),
+        _: view("y").class(Class.gap),
         _ex_edit: {
-            _: view("y").style({ gap: "var(--o-padding)" }),
+            _: view("y").class(Class.gap),
             formart: select([
                 { value: "png", name: noI18n("PNG") },
                 { value: "jpg", name: noI18n("JPEG") },
@@ -229,10 +230,7 @@ const controls = frame("sidebar", {
                 .attr({ max: "1", min: "0", step: "0.1" })
                 .sv("1"),
             phScale: {
-                _: view("x").style({
-                    gap: "var(--o-padding)",
-                    "flex-wrap": "wrap",
-                }),
+                _: view("x", "wrap").class(Class.gap),
                 _s0: button("原始").on("click", () => scale(1)),
                 _s1: button(noI18n("3/4")).on("click", () => scale(0.75)),
                 _s2: button(noI18n("1/2")).on("click", () => scale(0.5)),
@@ -247,13 +245,13 @@ const controls = frame("sidebar", {
                 }),
             },
             _phWH: {
-                _: view("x").style({ gap: "var(--o-padding)" }),
+                _: view("x").class(Class.gap),
                 photoW: input("number"),
                 photoH: input("number"),
             },
         },
         _ex_save: {
-            _: view("x").style({ gap: "var(--o-padding)" }),
+            _: view("x").class(Class.gap),
             save: button(icon("save")).on("click", () => {
                 const path = renderSendSync("save_file_path", [
                     controls.els.formart.gv,

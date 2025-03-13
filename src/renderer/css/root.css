@@ -118,12 +118,6 @@ body select,
     background: transparent;
     outline-offset: -1px;
 }
-.x-like {
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-    outline: 1px solid var(--m-color-b);
-    outline-offset: -1px;
-}
 
 :not(.group)
     > :where(button, input, select, textarea, *:has(> .icon), .b-like) {
@@ -150,14 +144,8 @@ body select,
     width: fit-content;
 }
 
-.inter-like {
-    transition: var(--transition);
-    cursor: pointer;
-}
-
 body button,
-body select,
-.inter-like {
+body select {
     &:hover {
         background-color: var(--hover-color);
     }
@@ -167,8 +155,7 @@ body select {
     field-sizing: content;
 }
 
-button:active,
-.jh-like:active {
+button:active {
     transform: var(--button-active);
 }
 

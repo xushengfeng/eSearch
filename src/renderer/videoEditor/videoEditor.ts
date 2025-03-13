@@ -16,7 +16,14 @@ import {
     dynamicSelect,
     spacer,
 } from "dkh-ui";
-import { getImgUrl, initStyle, setTitle } from "../root/root";
+import {
+    Class,
+    cssColor,
+    cssVar,
+    getImgUrl,
+    initStyle,
+    setTitle,
+} from "../root/root";
 import store from "../../../lib/store/renderStore";
 
 // biome-ignore format:
@@ -1663,7 +1670,7 @@ function iconBEl(src: IconType, title: string) {
 }
 
 function monoTxt(text?: string) {
-    return txt(text).style({ fontFamily: "var(--monospace)" });
+    return txt(text).class(Class.mono);
 }
 
 function timeEl() {
@@ -1809,15 +1816,15 @@ const stopPEl = view("y")
     .style({
         width: "100vw",
         height: "100vh",
-        backgroundColor: "var(--bg)",
+        backgroundColor: cssColor.bg,
         position: "fixed",
         top: 0,
         left: 0,
         zIndex: 9,
         justifyContent: "center",
         alignItems: "center",
-        gap: "var(--o-padding)",
     })
+    .class(Class.gap)
     .addInto();
 view()
     .style({ width: "80px", height: "80px" })
@@ -1921,7 +1928,9 @@ const playTimeEl = nowTimeEl(() => {
 });
 
 actionsEl.add([
-    view().class("group").add([lastKey, lastFrame, playEl, nextFrame, nextKey]),
+    view()
+        .class(Class.group)
+        .add([lastKey, lastFrame, playEl, nextFrame, nextKey]),
     playTimeEl,
 ]);
 
@@ -1935,11 +1944,11 @@ const progressEl = () => {
             height: "20px",
             overflow: "hidden",
         })
-        .class("x-like");
+        .class(Class.deco);
     const pi = view().addInto(p).style({
         width: "0%",
         height: "100%",
-        backgroundColor: "var(--m-color-f)",
+        backgroundColor: cssColor.f,
         borderRadius: "inherit",
     });
     const t = monoTxt();
@@ -2002,7 +2011,9 @@ history.on("change", () => {
 transformLogEl
     .style({ gap: "4px", alignItems: "center", padding: "var(--o-padding)" })
     .add([
-        view("x").add([actionUndo, actionList.el, actionUnundo]).class("group"),
+        view("x")
+            .add([actionUndo, actionList.el, actionUnundo])
+            .class(Class.group),
         transformProgressEl,
         transformTimeEl,
         transformCodec,
@@ -2499,7 +2510,7 @@ const timeLineFrame = view("x")
     .addInto();
 const timeLineFrameHl = addClass(
     {
-        border: "solid 1px var(--m-color-f)",
+        border: `solid 1px ${cssColor.f}`,
         borderRadius: "var(--border-radius)",
     },
     {},
@@ -2508,12 +2519,13 @@ const timeLineFrameHl = addClass(
 const exportPx = dynamicSelect();
 
 const exportEl = frame("export", {
-    _: view("x").style({
-        gap: "var(--o-padding)",
-        padding: "var(--o-padding)",
-    }),
+    _: view("x")
+        .style({
+            padding: cssVar("o-padding"),
+        })
+        .class(Class.gap),
     _x: {
-        _: view("x").class("group"),
+        _: view("x").class(Class.group),
         export: iconBEl("save", "保存").on("click", save),
         type: select(
             outputType

@@ -82,9 +82,6 @@ body {
     width: 10px;
     left: 0;
     top: 0;
-    background-color: var(--bar-bg);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
     transition: var(--transition);
     z-index: 2;
 }

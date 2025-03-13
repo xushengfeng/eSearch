@@ -12,7 +12,7 @@ import {
     ele,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
-import { getImgUrl, initStyle } from "../root/root";
+import { Class, cssColor, cssVar, getImgUrl, initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
@@ -32,7 +32,7 @@ function iconEl(src: IconType) {
 
 const model = store.get("AI.在线模型");
 
-const paddingVar = "var(--o-padding)";
+const paddingVar = cssVar("o-padding");
 const inputEl = textarea()
     .style({
         width: "100%",
@@ -96,11 +96,7 @@ function newChatItem(id: string) {
         showList.add(chatItem);
     }
     const toolBar = frame("tool", {
-        _: view("x")
-            .style({
-                transition: "var(--transition)",
-            })
-            .class("small-size"),
+        _: view("x").class(Class.smallSize).class(Class.transition),
         reflash: iconEl("reload"),
         edit: iconEl("super_edit"),
         delete: iconEl("close"),
@@ -274,7 +270,7 @@ fileInputEl.on("change", async (e) => {
 
 addStyle({
     body: {
-        background: "var(--bg)",
+        background: cssColor.bg,
     },
     ".chat-item": {
         "max-width": "80%",
@@ -312,7 +308,7 @@ view("y")
             .add([
                 view("x")
                     .style({ gap: paddingVar })
-                    .class("small-size")
+                    .class(Class.smallSize)
                     .add([
                         label([
                             fileInputEl.style({ display: "none" }),

@@ -12,7 +12,7 @@ function iconEl(src: IconType) {
 }
 
 import store from "../../../lib/store/renderStore";
-import { getImgUrl, initStyle, setTitle } from "../root/root";
+import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
@@ -184,14 +184,13 @@ const toolsEl = view("x")
             {},
             {
                 "&>*": {
-                    backgroundColor: "var(--bg)",
                     // @ts-ignore
                     "-webkit-app-region": "no-drag",
                 },
             },
         ),
     )
-    .class("small-size")
+    .class(Class.smallSize, Class.screenBar)
     .add([
         playEl,
         runEl,

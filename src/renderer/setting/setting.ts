@@ -30,7 +30,14 @@ import {
     dynamicList,
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
-import { initStyle, getImgUrl, setTitle } from "../root/root";
+import {
+    initStyle,
+    getImgUrl,
+    setTitle,
+    Class,
+    cssVar,
+    cssColor,
+} from "../root/root";
 import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
 // biome-ignore format:
 const { shell, webUtils } = require("electron") as typeof import("electron");
@@ -628,7 +635,7 @@ const s: Partial<settingItem<SettingPath>> = {
             const screenKeyTipEl = view().style({
                 width: "500px",
                 height: "200px",
-                outline: "1px dashed var(--m-color-b)",
+                outline: `1px dashed ${cssColor.b}`,
                 position: "relative",
             });
             const screenKeyTipKBD = view()
@@ -1678,7 +1685,7 @@ const xs: Record<
                     view()
                         .style({
                             height: "80px",
-                            backgroundColor: "var(--bg)",
+                            backgroundColor: cssColor.bg,
                         })
                         .add([
                             view().style({
@@ -1690,14 +1697,12 @@ const xs: Record<
                                 .add(iconEl("search"))
                                 .style({ background: "transparent" }),
                             txt("测试文字"),
-                            txt("42", true).style({
-                                fontFamily: "var(--monospace)",
-                            }),
+                            txt("42", true).class(Class.mono),
                         ]),
                     view()
                         .add([
                             image(testPhoto, "").style({ width: "80px" }),
-                            view().class("bar").style({
+                            view().class(Class.glassBar).style({
                                 width: "80px",
                                 height: "80px",
                                 position: "absolute",
@@ -1714,7 +1719,7 @@ const xs: Record<
             return txt(
                 `${getSet("保存名称.前缀")}${time_format(getSet("保存名称.时间"), saveTime)}${getSet("保存名称.后缀")}`,
                 true,
-            ).style({ fontFamily: "var(--monospace)" });
+            ).class(Class.mono);
         },
     },
     _clear_history: {
@@ -1813,7 +1818,7 @@ const xs: Record<
         el: () => {
             const versionL = ["electron", "node", "chrome", "v8"];
             const moreVersion = view()
-                .style({ "font-family": "var(--monospace)" })
+                .class(Class.mono)
                 .add([
                     p(
                         `${t("本机系统内核：")} ${os.type()} ${os.release()}`,
@@ -2523,11 +2528,11 @@ function iconEl(img: IconType) {
 }
 
 function comment(str: string) {
-    return p(str, true).style({ color: "var(--font-color-l)" });
+    return p(str, true).style({ color: cssColor.font.light });
 }
 
 function xGroup(r: "x" | "y" = "x") {
-    return view(r, "wrap").style({ gap: "var(--o-padding)" });
+    return view(r, "wrap").class(Class.gap);
 }
 
 function xSelect<T extends string>(
@@ -2544,7 +2549,7 @@ function xSelect<T extends string>(
             r
                 .new(option.value, option.name)
                 .class(xselectClass)
-                .class("x-like"),
+                .class(Class.deco),
         );
     }
     r.on(() => el.el.dispatchEvent(new CustomEvent("input")));
@@ -2577,11 +2582,11 @@ function xRange(
             overflow: "hidden",
             cursor: "ew-resize",
         })
-        .class("x-like")
+        .class(Class.deco)
         .addInto(el);
     const thumb = view()
         .style({
-            backgroundColor: "var(--m-color-f)",
+            backgroundColor: cssColor.f,
             borderRadius: "inherit",
             height: "100%",
         })
@@ -2590,7 +2595,8 @@ function xRange(
             el.style.width = `${((v - min) / (max - min)) * 100}%`;
         });
     const text = txt()
-        .style({ userSelect: "none", fontFamily: "var(--monospace)" })
+        .style({ userSelect: "none" })
+        .class(Class.mono)
         .attr({ tabIndex: 0 })
         .bindSet((v: number, el) => {
             el.textContent = `${sv(v)}${op?.text || ""}`;
@@ -2690,9 +2696,9 @@ function xColor() {
             height: "var(--b-button)",
             borderRadius: "var(--border-radius)",
         })
-        .class("x-like")
+        .class(Class.deco)
         .bindSet((v: string) => p.style({ background: msk(v) }));
-    const el = view("x").class("group");
+    const el = view("x").class(Class.group);
     return el
         .add([p, i])
         .bindGet(() => i.gv)
@@ -2703,7 +2709,7 @@ function xColor() {
 }
 
 function xPath(dir = true) {
-    const el = view("x").class("group");
+    const el = view("x").class(Class.group);
     const i = input();
     const b = button(iconEl("file")).on("click", () => {
         const path = renderSendSync("selectPath", [
@@ -2733,7 +2739,7 @@ function xSecret() {
 }
 
 function xFont() {
-    const el = view("x").class("group");
+    const el = view("x").class(Class.group);
     const i = input().on("input", () =>
         el.el.dispatchEvent(new CustomEvent("input")),
     );
@@ -2769,15 +2775,14 @@ function xFont() {
                             fontFamily: list[n],
                             paddingInline: "4px",
                             borderRadius: "var(--border-radius)",
-                            backgroundColor:
-                                nowV === list[n] ? "var(--m-color-b)" : "",
+                            backgroundColor: nowV === list[n] ? cssColor.b : "",
                         })
                         .on("click", () => {
                             i.sv(list[n]);
                             el.el.dispatchEvent(new CustomEvent("input"));
                             close();
                         })
-                        .class("inter-like"),
+                        .class(Class.button),
                 );
             }
         }
@@ -2787,9 +2792,7 @@ function xFont() {
         }
 
         const listPEl = ele("dialog");
-        const listP = view("y")
-            .style({ gap: "var(--o-padding)" })
-            .addInto(listPEl);
+        const listP = view("y").class(Class.gap).addInto(listPEl);
         const preview = input()
             .style({ width: "auto" })
             .attr({ placeholder: t("预览字体") })
@@ -2813,8 +2816,7 @@ function xFont() {
                         showPage(i);
                     })
                     .style({
-                        backgroundColor:
-                            i === nowPage ? "var(--m-color-b)" : "",
+                        backgroundColor: i === nowPage ? cssColor.b : "",
                     }),
             ),
         );
@@ -2839,17 +2841,17 @@ function xFont() {
 
 function pathEl(path: string) {
     return txt(path, true)
-        .style({ "font-family": "var(--monospace)", cursor: "pointer" })
+        .class(Class.mono, Class.click)
         .on("click", () => shell.openPath(path));
 }
 
 function sortTool() {
     const pel = xGroup("x");
-    const toolShowEl = view().class("bar").class(toolBarClass).style({
+    const toolShowEl = view().class(Class.glassBar).class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
     });
-    const toolHideEl = view().class("bar").class(toolBarClass).style({
+    const toolHideEl = view().class(Class.glassBar).class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
     });
@@ -2923,7 +2925,7 @@ function sortList<t>(
     function addItem(id: string) {
         const itemEl = view("x")
             .style({ alignItems: "center" })
-            .class("small-size")
+            .class(Class.smallSize)
             .data({ id: id });
         const nameEl = txt(newData.get(id)?.["sort-name"] ?? "", true).on(
             "click",
@@ -3227,14 +3229,7 @@ function translatorD(
 
     dialogB(
         addTranslatorM,
-        [
-            view("x").add([idEl, selectEl]).style({
-                gap: "var(--o-padding)",
-            }),
-            keys,
-            help,
-            testEl,
-        ],
+        [view("x").add([idEl, selectEl]).class(Class.gap), keys, help, testEl],
         () => resolve(null),
         () => {
             const nv = getV();
@@ -3422,14 +3417,14 @@ function hotkey() {
     function ev() {
         el.el.dispatchEvent(new CustomEvent("input"));
     }
-    const el = view("x").class("group");
+    const el = view("x").class(Class.group);
     const i = view("x")
         .class("b-like")
         .style({
             alignItems: "center",
-            gap: "var(--o-padding)",
             fontFamily: "var(--monospace)",
         })
+        .class(Class.gap)
         .attr({ tabIndex: 0 })
         .on("focus", () => {
             isFocus = true;
@@ -3908,9 +3903,7 @@ function about() {
         });
     const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
     const version = button(noI18n(packageJson.version))
-        .style({
-            fontFamily: "var(--monospace)",
-        })
+        .class(Class.mono, Class.click)
         .on("click", () => {
             fetch(githubUrl("repos/xushengfeng/eSearch/releases", "api"), {
                 method: "GET",
@@ -4127,20 +4120,20 @@ addStyle({
 const sideBar = view("y")
     .addInto()
     .style({
-        padding: "var(--o-padding)",
+        padding: cssVar("o-padding"),
         flexShrink: 0,
-        gap: "var(--o-padding)",
     })
     .class(
         addClass(
             {},
             {
                 "&>*:not(:has(input:checked))": {
-                    color: "var(--font-color-l)",
+                    color: cssColor.font.light,
                 },
             },
         ),
-    );
+    )
+    .class(Class.gap);
 const sideBarG = radioGroup("侧栏");
 const searchBar = view()
     .addInto()
@@ -4191,7 +4184,7 @@ const searchI = input()
                                 : t("未知路径"),
                         )
                         .style({
-                            color: "var(--font-color-ll)",
+                            color: cssColor.font.llight,
                         }),
                     // @ts-ignore
                     renderSetting(i),
@@ -4209,7 +4202,7 @@ const mainView = view()
     .style({
         maxWidth: "680px",
         margin: "auto",
-        padding: "var(--o-padding)",
+        padding: cssVar("o-padding"),
         minHeight: "100vh",
     })
     .class(

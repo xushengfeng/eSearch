@@ -11,7 +11,7 @@ import {
 } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
 
-import { getImgUrl, initStyle } from "../root/root";
+import { Class, getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
 import { renderOn, renderSend } from "../../../lib/ipc";
@@ -285,10 +285,11 @@ function iconEl(src: IconType) {
 
 initStyle(store);
 
-pack(document.body).style({
-    overflow: "hidden",
-    fontFamily: "var(--monospace)",
-});
+pack(document.body)
+    .style({
+        overflow: "hidden",
+    })
+    .class(Class.mono);
 
 const rectEl = view().addInto().attr({ id: "recorder_rect" }).style({
     width: "100vw",
@@ -321,7 +322,7 @@ const segEl = view()
         ),
     );
 const cameraSelect = dynamicSelect();
-cEl.class("small-size").add(cameraSelect.el.style({ display: "none" }));
+cEl.class(Class.smallSize).add(cameraSelect.el.style({ display: "none" }));
 cameraSelect.el.on("change", async () => {
     const id = cameraSelect.el.gv;
     cameraStreamF(id);
@@ -342,15 +343,13 @@ const pause = button(iconEl("play_pause")).on("click", () => {
 });
 const timeEl = txt();
 const controlBar = view("x")
-    .class("small-size")
-    .class("bar")
+    .class(Class.smallSize, Class.screenBar)
     .add([stop, pause, timeEl])
     .addInto()
     .style({
         position: "fixed",
         bottom: 0,
         right: 0,
-        borderRadius: "var(--o-padding)",
     });
 
 initRecord();

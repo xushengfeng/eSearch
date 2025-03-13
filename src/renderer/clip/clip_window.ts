@@ -4,7 +4,7 @@
 const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import { getImgUrl, initStyle, setTitle } from "../root/root";
+import { Class, getImgUrl, initStyle, setTitle } from "../root/root";
 import open_with from "../../../lib/open_with";
 import { t } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
@@ -214,11 +214,11 @@ function rangeBar(
     p.add(
         view("x").add([i, text]).style({
             "justify-content": "center",
-            "font-family": "var(--monospace)",
         }),
     )
         .add(bar)
-        .class("range-b");
+        .class("range-b")
+        .class(Class.mono);
 
     function useI(b: boolean) {
         i.attr({ disabled: !b }).style({
@@ -859,9 +859,9 @@ function alert(m: string) {
                         })
                         .style({ width: "auto" }),
                 ])
-                .style({ gap: "var(--o-padding)" }),
+                .class(Class.gap),
         )
-        .class("bar")
+        .class(Class.glassBar)
         .addInto();
     d.el.showModal();
 }
@@ -2893,10 +2893,10 @@ const tools: 功能列表 = [
     "save",
 ];
 
-const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class("bar");
+const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class(Class.glassBar);
 
 const toolBarEl = frame("tool", {
-    _: view().class("bar"),
+    _: view().class(Class.glassBar),
     close: iconEl("close").attr({ title: "关闭" }),
     screens: view().attr({ title: "屏幕管理" }),
     ocr: selectEl(iconEl("ocr"), t("文字识别"), [
@@ -2989,11 +2989,11 @@ for (const g of tools) {
 const drawBarEl = view().attr({ id: "draw_bar" }).addInto();
 const drawBarMainEl = view()
     .attr({ id: "draw_main" })
-    .class("bar")
+    .class(Class.glassBar)
     .addInto(drawBarEl);
 const drawBarSideEl = view()
     .attr({ id: "draw_side" })
-    .class("bar")
+    .class(Class.glassBar)
     .addInto(drawBarEl);
 
 const drawColorEl = view();
@@ -3177,7 +3177,7 @@ const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
 
 drawBarSideEl.add(drawBarSideElChildren.map((i) => i.el));
 
-const whEl = view().attr({ id: "clip_wh" }).class("bar");
+const whEl = view().attr({ id: "clip_wh" }).class(Class.glassBar);
 const whX0 = input();
 const whY0 = input();
 const whX1 = input();
@@ -3217,7 +3217,10 @@ whEl.addInto();
 longTip.el.addInto();
 longPreview.addInto();
 
-const centerBarEl = view().attr({ id: "center_bar" }).class("bar").addInto();
+const centerBarEl = view()
+    .attr({ id: "center_bar" })
+    .class(Class.glassBar)
+    .addInto();
 const saveType = view()
     .attr({ id: "save_type" })
     .addInto(centerBarEl)
@@ -3332,7 +3335,10 @@ const drawSideEls: {
     shape: drawSideShapes,
 };
 
-const mouseBarEl = view().attr({ id: "mouse_bar" }).class("bar").addInto();
+const mouseBarEl = view()
+    .attr({ id: "mouse_bar" })
+    .class(Class.glassBar)
+    .addInto();
 const mouseBarColor = view().attr({ id: "point_color" }).addInto(mouseBarEl);
 const mouseBarXy = view()
     .attr({ id: "clip_xy" })

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { initStyle, getImgUrl, setTitle } from "../root/root";
+import { initStyle, getImgUrl, setTitle, Class, cssColor } from "../root/root";
 import {
     button,
     check,
@@ -205,7 +205,7 @@ function showControl() {
     if (cameraEl.gv) cameraStreamF(false);
     sEl.class("s_show");
     settingEl.style({ display: "none" });
-    mEl.style({ backgroundColor: "var(--bg)" });
+    mEl.style({ backgroundColor: cssColor.bg });
     videoPEl.style({ transform: "" });
     segEl.remove();
     setVideo(0);
@@ -746,7 +746,7 @@ const startStop = button()
         }
     });
 
-const timeEl = txt().style({ fontFamily: "var(--monospace)" });
+const timeEl = txt().class(Class.mono);
 const cancelEl = iconBEl("close").on("click", () => {
     recorder.stop();
     for (const i of stream.getTracks()) {
@@ -796,8 +796,8 @@ const settingEl = view("y")
         height: "100vh",
         alignItems: "center",
         justifyContent: "center",
-        gap: "var(--o-padding)",
     })
+    .class(Class.gap)
     .add([
         startStop,
         view("y")
@@ -806,9 +806,7 @@ const settingEl = view("y")
                 view("y").add([t("选择输入音频"), micList]),
                 view("y").add([t("摄像头"), label([cameraEl, t("开启")])]),
             ])
-            .style({
-                gap: "var(--o-padding)",
-            }),
+            .class(Class.gap),
     ])
     .addInto();
 
@@ -853,7 +851,7 @@ videoEl.onended = () => {
     }
 };
 
-const sEl = view().attr({ id: "s" }).class("small-size").addInto(mEl);
+const sEl = view().attr({ id: "s" }).class(Class.smallSize).addInto(mEl);
 
 const jdtEl = input("range")
     .attr({ id: "jdt" })

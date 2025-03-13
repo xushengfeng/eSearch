@@ -1,4 +1,4 @@
-import { initDKH, view } from "dkh-ui";
+import { addClass, initDKH, view } from "dkh-ui";
 import { t, lan } from "../../../lib/translate/translate";
 import type { RawIconType } from "../../iconTypes";
 
@@ -47,7 +47,7 @@ function initStyle(
     });
 
     const topTip = view()
-        .class("bar")
+        .class(Class.glassBar)
         .style({
             position: "fixed",
             pointerEvents: "none",
@@ -107,4 +107,67 @@ function setTitle(t: string) {
     // todo 国际化
 }
 
-export { initStyle, getImgUrl, setTitle };
+const cssColor = {
+    font: {
+        f0: cssVarR("font-color"),
+        light: cssVarR("font-color-l"),
+        llight: cssVarR("font-color-ll"),
+    },
+    f: cssVarR("m-color-f"),
+    ff: cssVarR("m-color-ff"),
+    fff: cssVarR("m-color-fff"),
+    b: cssVarR("m-color-b"),
+    bb: cssVarR("m-color-bb"),
+    bbb: cssVarR("m-color-bbb"),
+    main: cssVarR("--emphasis-color"),
+    bg: cssVarR("bg"),
+};
+
+const Class = {
+    gap: addClass({ gap: cssVar("o-padding") }, {}),
+    group: "group",
+    smallSize: "small-size",
+    mono: addClass({ fontFamily: cssVar("monospace") }, {}),
+    click: addClass(
+        { transition: cssVar("transition"), cursor: "pointer" },
+        { "&:active": { transform: "var(--button-active)" } },
+    ),
+    hover: addClass(
+        {},
+        { "&:hover": { backgroundColor: "var(--hover-color)" } },
+    ),
+    button: "",
+    transition: addClass({ transition: cssVar("transition") }, {}),
+    deco: addClass(
+        {
+            borderRadius: cssVarR("border-radius"),
+            outline: `1px solid ${cssColor.b}`,
+            outlineOffset: "-1px",
+        },
+        {},
+    ),
+    glassBar: "bar",
+    /** 背景是屏幕 */
+    screenBar: addClass(
+        {
+            borderRadius: cssVarR("border-radius"),
+            backgroundColor: cssColor.bg,
+        },
+        {
+            "& :is(button, *:has(> .icon), input, .deco)": {
+                outline: "none",
+            },
+        },
+    ),
+};
+
+Class.button = `${Class.click} ${Class.hover}`;
+
+function cssVar(x: "transition" | "o-padding" | "monospace") {
+    return cssVarR(x);
+}
+function cssVarR(x: string) {
+    return `var(--${x})`;
+}
+
+export { initStyle, getImgUrl, setTitle, Class, cssColor, cssVar };

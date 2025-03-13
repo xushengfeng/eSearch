@@ -2,7 +2,7 @@
 const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
-import { getImgUrl, initStyle, setTitle } from "../root/root";
+import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import xtranslator from "xtranslator";
 import {
@@ -101,15 +101,16 @@ const setNewDing = (
         .add(img)
         .class(
             addClass(
-                { position: "relative", transition: "var(--transition)" },
+                { position: "relative" },
                 { "&>*": { width: "100%", top: 0, left: 0 } },
             ),
-        );
+        )
+        .class(Class.transition);
     const toolBar = view().attr({ id: "tool_bar" });
     const toolBarC = view("x")
         .attr({ id: "tool_bar_c" })
         .style({ padding: "4px", gap: "4px", boxSizing: "border-box" })
-        .class("bar")
+        .class(Class.glassBar)
         .bindSet((v: { forceShow?: boolean; show?: boolean }, el) => {
             if (v.forceShow !== undefined)
                 el.setAttribute("data-force-show", String(v.forceShow));
@@ -389,7 +390,7 @@ renderOn("dingMouse", ([x, y]) => {
 });
 
 function minimize(el: HTMLElement) {
-    el.style.transition = "var(--transition)";
+    el.style.transition = cssVar("transition");
     setTimeout(() => {
         el.style.transition = "";
     }, 400);
@@ -435,7 +436,7 @@ function back2(id: string) {
     if (!el) return;
     const pS = dingData.get(id)?.rect;
     if (!pS) return;
-    el.el.style.transition = "var(--transition)";
+    el.el.style.transition = cssVar("transition");
     setTimeout(() => {
         el.el.style.transition = "";
         resizeSender = true;
@@ -929,6 +930,7 @@ const dockP = store.get("ding_dock");
 const dockEl = view()
     .attr({ id: "dock" })
     .style({ left: `${dockP[0]}px`, top: `${dockP[1]}px` })
+    .class(Class.screenBar)
     .addInto();
 const dockView = view().addInto(dockEl);
 
@@ -952,7 +954,7 @@ trackPoint(dockEl, {
         } else {
             store.set("ding_dock", [ingData.x, ingData.y]);
         }
-        dockEl.el.style.transition = "var(--transition)";
+        dockEl.el.style.transition = cssVar("transition");
     },
 });
 
@@ -990,7 +992,7 @@ function dockI() {
         const iPhoto = image(getUrl(i), "预览").on("click", () => {
             const div = document.getElementById(i);
             if (div?.classList.contains("minimize")) {
-                div.style.transition = "var(--transition)";
+                div.style.transition = cssVar("transition");
                 setTimeout(() => {
                     div.style.transition = "";
                 }, 400);
@@ -1027,8 +1029,7 @@ function dockI() {
                 view("x")
                     .add([iTran, iIgnore, iClose])
                     .class("i_bar")
-                    .class("small-size")
-                    .class("bar"),
+                    .class(Class.smallSize, Class.glassBar),
                 iPhoto,
             ])
             .addInto(dockView);

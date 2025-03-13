@@ -1,5 +1,5 @@
 import xtranslator, { matchFitLan } from "xtranslator";
-import { getImgUrl, initStyle } from "../root/root";
+import { Class, getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 import { francAll } from "franc";
 import convert3To1 from "iso-639-3-to-1";
@@ -34,10 +34,11 @@ const input = ele("textarea").style({
     "min-height": "4lh",
     outline: "none",
 });
-const lans = view("x").style({
-    justifyContent: "center",
-    gap: "var(--o-padding)",
-});
+const lans = view("x")
+    .style({
+        justifyContent: "center",
+    })
+    .class(Class.gap);
 
 const setLan = (el: HTMLSelectElement, lan: string) => {
     const supportLans = Array.from(el.querySelectorAll("option")).map(
@@ -107,7 +108,7 @@ function translate(_text: string) {
             title: {
                 _: view("x")
                     .style({ "align-items": "center" })
-                    .class("small-size"),
+                    .class(Class.smallSize),
                 copy,
                 save,
                 reTry,

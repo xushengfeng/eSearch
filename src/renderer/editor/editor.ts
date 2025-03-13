@@ -18,7 +18,7 @@ import {
     spacer,
     addClass,
 } from "dkh-ui";
-import { initStyle, setTitle, getImgUrl } from "../root/root";
+import { initStyle, setTitle, getImgUrl, Class, cssVar } from "../root/root";
 import hotkeys from "hotkeys-js";
 import time_format from "../../../lib/time_format";
 import openWith from "../../../lib/open_with";
@@ -159,19 +159,18 @@ const outMainEl = view()
         overflow: "hidden",
         position: "absolute",
         top: "var(--nav-height)",
-        padding: "var(--o-padding)",
+        padding: cssVar("o-padding"),
         boxSizing: "border-box",
-        gap: "var(--o-padding)",
     })
     .class("fill_t")
+    .class(Class.gap)
     .addInto();
 
 // find ui
 const findEl = view()
     .attr({ id: "find" })
     .style({ zIndex: 1, top: 0, right: 0 })
-    .class("small-size")
-    .class("x-like");
+    .class(Class.smallSize, Class.deco);
 const findSwitch = buttonSwitch(view(), showFind);
 
 const findCount = view()
@@ -181,7 +180,10 @@ const findCount = view()
     })
     .addInto(findEl);
 
-const findButtons = view().class("find_buttons").class("group").addInto(findEl);
+const findButtons = view()
+    .class("find_buttons")
+    .class(Class.group)
+    .addInto(findEl);
 iconBEl("up", "上一个匹配")
     .addInto(findButtons)
     .on("click", () => {
@@ -198,7 +200,7 @@ iconBEl("close", "关闭")
         findSwitch.sv(false);
     });
 
-const findInputPel = view().class("find_f").class("group").addInto(findEl);
+const findInputPel = view().class("find_f").class(Class.group).addInto(findEl);
 const findInputEl = input()
     .attr({
         title: "查找",
@@ -210,7 +212,10 @@ const findInputEl = input()
     .addInto(findInputPel);
 const findRegexEl = iconBEl("regex", "正则匹配").addInto(findInputPel);
 
-const findReplacePel = view().class("find_s").class("group").addInto(findEl);
+const findReplacePel = view()
+    .class("find_s")
+    .class(Class.group)
+    .addInto(findEl);
 const findReplaceEl = input()
     .attr({
         title: "替换",
@@ -241,14 +246,12 @@ const mainSectionEl = view().attr({ id: "edit" }).addInto(outMainEl);
 // image ui
 const ocrImagePel = view("y")
     .style({
-        transition: "var(--transition)",
-        gap: "var(--o-padding)",
         overflow: "hidden",
     })
+    .class(Class.gap)
+    .class(Class.transition)
     .addInto(mainSectionEl);
-const ocrImageCtrl = view("x")
-    .style({ gap: "var(--o-padding)" })
-    .addInto(ocrImagePel);
+const ocrImageCtrl = view("x").class(Class.gap).addInto(ocrImagePel);
 
 const ocrImageInput = view().style({ flexGrow: 1 }).addInto(ocrImageCtrl);
 const ocrImageFile = input("file")
@@ -257,8 +260,7 @@ const ocrImageFile = input("file")
     .addInto(ocrImageInput);
 const ocrImageFileDrop = view()
     .style({ justifyContent: "center", alignItems: "center", width: "100%" })
-    .class("group")
-    .class("jh-like")
+    .class(Class.group, Class.deco)
     .class("b-like")
     .addInto(ocrImageInput)
     .on("dragover", (e) => {
@@ -314,7 +316,7 @@ findEl.addInto(editorOutEl);
 // text editor ui
 const textOut = view()
     .attr({ id: "text_out" })
-    .class("x-like")
+    .class(Class.deco)
     .addInto(editorOutEl);
 
 const textLineNum = view().attr({ id: "line_num" }).addInto(textOut);
@@ -323,7 +325,7 @@ const textEditor = view().attr({ id: "text" }).addInto(mainTextEl);
 const editB = view()
     .attr({ id: "edit_b" })
     .class("edit_h")
-    .class("bar")
+    .class(Class.glassBar)
     .addInto(mainTextEl);
 
 const barExcelB = iconBEl("excel", "保存Excel").attr({
@@ -360,11 +362,13 @@ editB.add([
 ]);
 
 // spellcheck ui
-const spellcheckEl = view("y").addInto(baseEditorEl).style({
-    height: "100%",
-    overflowX: "hidden",
-    transition: "var(--transition)",
-});
+const spellcheckEl = view("y")
+    .addInto(baseEditorEl)
+    .style({
+        height: "100%",
+        overflowX: "hidden",
+    })
+    .class(Class.transition);
 const runAiSpellcheck = button("ai")
     .on("click", async () => {
         await spellcheckDiff.spellcheckAi();
@@ -385,7 +389,7 @@ view("x")
             }),
         ),
     ])
-    .style({ marginBottom: "var(--o-padding)" })
+    .style({ marginBottom: cssVar("o-padding") })
     .addInto(historyDialog);
 const historyEl = view().attr({ id: "history_list" }).addInto(historyDialog);
 
@@ -397,7 +401,7 @@ const hiddenClass = addClass({ display: "none !important" }, {});
 const browserTabs = view().attr({ id: "tabs" });
 const browserTabBs = view()
     .attr({ id: "buttons" })
-    .class("group")
+    .class(Class.group)
     .addInto(browserTabs);
 const browserTabHome = iconBEl("main", "回到编辑器").on("click", () =>
     mainEvent("home"),
@@ -434,7 +438,7 @@ browserTabBs.add([
 const showImageB = iconBEl("img", "图片");
 const imageSwitch = buttonSwitch(showImageB, (s) => {
     if (s) {
-        mainSectionEl.style({ gap: "var(--o-padding)" });
+        mainSectionEl.style({ gap: cssVar("o-padding") });
         ocrImagePel.style({ height: "100%" });
     } else {
         mainSectionEl.style({ gap: 0 });
@@ -453,7 +457,7 @@ const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => 
 const showSpellCheckSwitch = buttonSwitch(showSpellCheckB, (showedSpell) => {
     if (showedSpell) {
         spellcheckEl.style({ width: "30%" });
-        baseEditorEl.style({ gap: "var(--o-padding)" });
+        baseEditorEl.style({ gap: cssVar("o-padding") });
     } else {
         spellcheckEl.style({ width: 0 });
         baseEditorEl.style({ gap: 0 });
@@ -476,8 +480,8 @@ const bottomTools = [
     showImageB,
     showHistoryB,
     showSpellCheckB,
-    view().add([searchB, searchSelectEl]).class("group"),
-    view().add([translateB, translateSelectEl]).class("group"),
+    view().add([searchB, searchSelectEl]).class(Class.group),
+    view().add([translateB, translateSelectEl]).class(Class.group),
 ];
 
 bottomEl.add([
@@ -1171,7 +1175,7 @@ function spellcheck() {
 // 查找ui
 function showFind(findShow: boolean) {
     if (findShow) {
-        textOut.el.style.marginTop = "calc(60px + var(--o-padding))";
+        textOut.el.style.marginTop = `calc(60px + ${cssVar("o-padding")})`;
         findEl.el.style.transform = "translateY(0)";
         findEl.el.style.pointerEvents = "auto";
         findInputEl.sv(editor.selections.get());
@@ -1908,7 +1912,7 @@ function setConciseMode(m: boolean) {
         outMainEl.el.style.gap = "0";
     } else {
         bottomEl.el.style.height = "";
-        outMainEl.el.style.gap = "var(--o-padding)";
+        outMainEl.el.style.gap = cssVar("o-padding");
     }
     const bSize = {
         top:
