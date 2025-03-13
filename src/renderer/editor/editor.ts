@@ -1418,6 +1418,16 @@ function renderSpellcheck(list: SpellItem[]) {
                 txt(fillAfter).style({ color: cssColor.font.light }),
             ]);
         }
+        item.on("pointerenter", () => {
+            editor.find.render([
+                {
+                    start: i.index,
+                    end: i.index + i.word.length,
+                },
+            ]);
+        }).on("pointerleave", () => {
+            editor.find.render([]);
+        });
         item.add(getClip(i.word));
         item.add(
             view().add(
@@ -1437,7 +1447,8 @@ function renderSpellcheck(list: SpellItem[]) {
                         })
                         .style({
                             paddingInlineStart: cssVar("o-padding"),
-                        }),
+                        })
+                        .class(Class.click),
                 ),
             ),
         );
