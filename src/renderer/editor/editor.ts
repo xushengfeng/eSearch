@@ -2086,10 +2086,8 @@ function focusTab(id: number | 0) {
     if (id) {
         renderSend("tabView", [id, "top"]);
         setTitle(getTab(id).title);
-        outMainEl.el.classList.add("fill_t_s");
         showTabs("tab");
     } else {
-        outMainEl.el.classList.remove("fill_t_s");
         setTitle(t("主页面"));
         showTabs("hometab");
     }
@@ -2135,7 +2133,6 @@ function mainEvent(eid: BrowserAction | "add_history" | "browser") {
         renderSend("tabView", [id, eid]);
         if (eid === "home") {
             focusTab(0);
-            outMainEl.el.classList.remove("fill_t_s");
             setTitle(t("主页面"));
         }
     }
