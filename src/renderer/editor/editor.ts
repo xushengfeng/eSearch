@@ -291,7 +291,9 @@ ocrImageEngine.el.addInto(ocrImageCtrl);
 const ocrImageRun = iconBEl("ocr", "运行OCR").addInto(ocrImageCtrl);
 const ocrImageClose = iconBEl("close", "清空图片").addInto(ocrImageCtrl);
 
-const ocrImageView = view().style({ overflowY: "auto" }).addInto(ocrImagePel);
+const ocrImageView = view()
+    .style({ overflowY: "auto", scrollBehavior: "smooth" })
+    .addInto(ocrImagePel);
 const ocrImageS = new Map<
     number,
     {
@@ -1096,7 +1098,8 @@ editor.text.addEventListener("select2", (e: CustomEvent) => {
         }
     }
 
-    setImgSelect(editor.selections.getS());
+    const range = setImgSelect(editor.selections.getS());
+    jumpToImgByRange(range);
 });
 
 hotkeys.filter = () => {
@@ -3081,4 +3084,14 @@ function setImgSelect(s: selection) {
     CSS.highlights.set("img-highlight", myCustomHighlight);
 
     return range;
+}
+
+function jumpToImgByRange(range: Range | undefined) {
+    if (!range) return;
+    console.log(range);
+    const rect = range.getBoundingClientRect();
+    console.log(rect);
+    const outRect = ocrImageView.el.getBoundingClientRect();
+    const dy = rect.top - outRect.top - outRect.height / 2;
+    ocrImageView.el.scrollTop += dy;
 }
