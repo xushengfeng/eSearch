@@ -1425,12 +1425,13 @@ function renderSpellcheck(list: SpellItem[]) {
             ]);
         }
         item.on("pointerenter", () => {
-            editor.find.render([
-                {
-                    start: i.index,
-                    end: i.index + i.word.length,
-                },
-            ]);
+            const selection: selection = {
+                start: i.index,
+                end: i.index + i.word.length,
+            };
+            editor.find.render([selection]);
+            const range = setImgSelect(selection);
+            jumpToImgByRange(range);
         }).on("pointerleave", () => {
             editor.find.render([]);
         });
