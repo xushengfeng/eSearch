@@ -1404,11 +1404,10 @@ function isLink(url: string, s: boolean) {
 function showT(st: string, m: setting["主页面"]["模式"]) {
     const t = st.replace(/[\r\n]$/, "");
     editor.push(t);
-    const openOuterBrowser = 浏览器打开;
     if (m === "auto" || t === "") {
         // 严格模式
         if (isLink(t, true)) {
-            if (自动打开链接) openLink("url", t);
+            if (自动打开链接) openUrl(t);
         } else {
             const language =
                 (t.match(/[\u4e00-\u9fa5]/g)?.length ?? 0) >=
@@ -1417,60 +1416,62 @@ function showT(st: string, m: setting["主页面"]["模式"]) {
                     : "外语";
             if (自动搜索 && t.match(/[\r\n]/) == null && t !== "") {
                 if (language === "本地语言") {
-                    openLink("search", "", openOuterBrowser);
+                    openTab("search");
                 } else {
-                    openLink("translate", "", openOuterBrowser);
+                    openTab("translate");
                 }
             }
         }
     } else if (m === "search") {
-        openLink("search", "", openOuterBrowser);
+        openTab("search");
     } else if (m === "translate") {
-        openLink("translate", "", openOuterBrowser);
+        openTab("translate");
     }
     editor.selectAll();
 }
 
-function openLink(
-    id: "url" | "search" | "translate",
-    slink?: string,
-    outerBrowser?: boolean,
-) {
+function openTab(id: "search" | "translate") {
     let url = "";
-    if (id === "url" && slink) {
-        let link = slink.replace(/[(^\s)(\s$)]/g, "");
-        if (link.match(/\/\//g) == null) {
-            link = `https://${link}`;
-        }
-        url = link;
-    } else {
-        const s = editor.selections.get() || editor.get(); // 要么全部，要么选中
-        url = (<HTMLSelectElement>(
-            document.querySelector(`#${id}_s`)
-        )).value.replace("%s", encodeURIComponent(s));
-    }
+    const s = editor.selections.get() || editor.get(); // 要么全部，要么选中
+    url = (id === "search" ? searchSelectEl.gv : translateSelectEl.gv).replace(
+        "%s",
+        encodeURIComponent(s),
+    );
 
-    if (outerBrowser) {
+    if (浏览器打开) {
         shell.openExternal(url);
     } else {
         renderSend("open_this_browser", [windowName, url]);
     }
 }
 
+function openUrl(slink: string) {
+    let link = slink.replace(/[(^\s)(\s$)]/g, "");
+    if (link.match(/\/\//g) == null) {
+        link = `https://${link}`;
+    }
+
+    if (浏览器打开) {
+        shell.openExternal(link);
+    } else {
+        renderSend("open_this_browser", [windowName, link]);
+    }
+}
+
 /**搜索翻译按钮 */
 searchB.el.onclick = () => {
-    openLink("search");
+    openTab("search");
 };
 translateB.el.onclick = () => {
-    openLink("translate");
+    openTab("translate");
 };
 /**改变选项后搜索 */
 searchSelectEl.el.oninput = () => {
-    openLink("search");
+    openTab("search");
     store.set("引擎.记忆.搜索", searchSelectEl.el.selectedOptions[0].innerText);
 };
 translateSelectEl.el.oninput = () => {
-    openLink("translate");
+    openTab("translate");
     store.set(
         "引擎.记忆.翻译",
         translateSelectEl.el.selectedOptions[0].innerText,
@@ -1605,7 +1606,7 @@ renderOn("editorInit", ([name, list]) => {
         searchImg(list.content, list.arg0, (err, url) => {
             if (url) {
                 editor.push("");
-                openLink("url", url, 浏览器打开);
+                openUrl(url);
                 if (浏览器打开) {
                     // 主页面作为临时上传图片的工具，应自动关闭，不管有没有设置自动关闭标签
                     closeWindow();
@@ -1634,9 +1635,9 @@ renderOn("editorInit", ([name, list]) => {
                 editor.selectAll();
 
                 if (mainType === "search") {
-                    openLink("search");
+                    openTab("search");
                 } else if (mainType === "translate") {
-                    openLink("translate");
+                    openTab("translate");
                 }
 
                 ocrTextNodes.clear();
@@ -1801,14 +1802,14 @@ async function edit(arg: string) {
         }
         case "link": {
             const url = editor.selections.get();
-            openLink("url", url);
+            openUrl(url);
             break;
         }
         case "search":
-            openLink("search");
+            openTab("search");
             break;
         case "translate":
-            openLink("translate");
+            openTab("translate");
             break;
     }
 }
