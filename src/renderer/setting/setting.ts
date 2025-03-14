@@ -37,6 +37,7 @@ import {
     Class,
     cssVar,
     cssColor,
+    monoFont,
 } from "../root/root";
 import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
 // biome-ignore format:
@@ -2338,7 +2339,7 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
     "全局.模糊": (v) => setProperty("--blur", `blur(${v}px)`),
     "全局.不透明度": (v) => setProperty("--alpha", String(v)),
     "字体.主要字体": (v) => setProperty("--main-font", v),
-    "字体.等宽字体": (v) => setProperty("--monospace", v),
+    "字体.等宽字体": (v) => setProperty("--monospace", v || monoFont.join(",")),
 };
 
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {

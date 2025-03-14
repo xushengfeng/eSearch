@@ -31,7 +31,7 @@ function initStyle(
 
     const 字体 = store.get("字体");
     setCSSVar("--main-font", 字体.主要字体);
-    setCSSVar("--monospace", 字体.等宽字体);
+    setCSSVar("--monospace", 字体.等宽字体 || monoFont.join(","));
 
     lan(store.get("语言.语言"));
 
@@ -163,6 +163,16 @@ const Class = {
 
 Class.button = `${Class.click} ${Class.hover}`;
 
+const monoFont = [
+    "Cascadia Code Light",
+    "Courier New",
+    "Courier",
+    "Lucida Console",
+    "Monaco",
+    "Liberation Mono",
+    "Roboto Mono",
+];
+
 function cssVar(x: "transition" | "o-padding" | "monospace") {
     return cssVarR(x);
 }
@@ -170,4 +180,4 @@ function cssVarR(x: string) {
     return `var(--${x})`;
 }
 
-export { initStyle, getImgUrl, setTitle, Class, cssColor, cssVar };
+export { initStyle, getImgUrl, setTitle, Class, cssColor, cssVar, monoFont };
