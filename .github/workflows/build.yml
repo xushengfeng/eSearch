@@ -1,60 +1,50 @@
 name: Build/release
 
 on:
-    push:
-        tags:
-            - "*"
+  push:
+    tags:
+      - "*"
 
 jobs:
-    release:
-        runs-on: ${{ matrix.os }}
+  release:
+    runs-on: ${{ matrix.os }}
 
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [macos-latest, ubuntu-latest, windows-latest]
-                arch: [x64, arm64]
-            max-parallel: 3
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        arch: [x64, arm64]
+      max-parallel: 3
 
-        steps:
-            - name: Check out Git repository
-              uses: actions/checkout@v1
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
 
-            - name: Install Node.js, NPM and Yarn
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-            - name: Install Linux Lib
-              if: matrix.os == 'ubuntu-latest'
-              run: |
-                  sudo apt-get update
-                  sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev rpm
+      - name: Install Linux Lib
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libx11-dev libxext-dev libxtst-dev libxrender-dev libxmu-dev libxmuu-dev rpm
 
-            - name: ${{ matrix.os }} ${{ matrix.arch }} build
-              env:
-                  M_ARCH: ${{matrix.arch}}
-              run: |
-                  npm install -g pnpm@10.0.0
-                  pnpm install
-                  pnpm run dist
+      - name: ${{ matrix.os }} ${{ matrix.arch }} build
+        env:
+          M_ARCH: ${{matrix.arch}}
+        run: |
+          npm install -g pnpm@10.0.0
+          pnpm install
+          pnpm run dist
 
-            - name: release
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: "build/*"
-                  draft: false
-                  prerelease: true
-                  generate_release_notes: true
-              env:
-                  GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-
-            - name: winget release
-              if: matrix.os == 'windows-latest' && matrix.arch == 'x64'
-              uses: michidk/winget-updater@latest
-              with:
-                  komac-token: ${{ secrets.ACCESS_TOKEN }}
-                  identifier: "xushengfeng.eSearch"
-                  repo: "xushengfeng/eSearch"
-                  url: "https://github.com/xushengfeng/eSearch/releases/download/{VERSION}/eSearch-{VERSION}-win32-x64.exe"
-
+      - name: release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "build/*"
+          draft: false
+          prerelease: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
