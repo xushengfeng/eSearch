@@ -31,6 +31,7 @@ import time_format from "../../../lib/time_format";
 import openWith from "../../../lib/open_with";
 import { t } from "../../../lib/translate/translate";
 import diff_match_patch from "diff-match-patch";
+import "diff-match-patch-line-and-word";
 // biome-ignore format:
 const { shell, clipboard, webFrame } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
@@ -1382,7 +1383,8 @@ class spellcheckGen {
             return list;
         }
 
-        const diff = dmp.diff_main(t, this.aiSuggestText);
+        // @ts-ignore
+        const diff = dmp.diff_wordMode(t, this.aiSuggestText);
         console.log(diff);
         let i = 0;
         const last = { src: "", ai: "", i: 0 };
