@@ -35,11 +35,13 @@ Download from the website [eSearch](https://esearch-app.netlify.app/#download)
 
 or open the [releases](https://github.com/xushengfeng/eSearch/releases) tab on the right, select the package that suits your system, and download and install it.
 
-For users in China, you can use [GitHub Proxy](https://mirror.ghproxy.com) to accelerate the download.
+For users in China, you can use [GitHub Proxy](https://ghfast.top/) to accelerate the download.
 
 For ArchLinux, you can search and install `e-search` or `e-search-git` from the AUR.
 
 Using winget: `winget install esearch`
+
+There is no Homebrew package available at the moment, and we welcome volunteer maintainers to provide support.
 
 ## Launch
 

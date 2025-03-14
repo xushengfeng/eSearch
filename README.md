@@ -35,11 +35,13 @@ eSearch 是[Information-portal](https://github.com/xushengfeng/Information-porta
 
 或在右侧 [releases](https://github.com/xushengfeng/eSearch/releases) 打开标签，选择符合你系统的包并下载安装
 
-国内可以用[GitHub Proxy](https://mirror.ghproxy.com)加速下载
+国内可以用[GitHub 镜像](https://ghfast.top/)加速下载
 
 ArchLinux 可在 AUR 查找安装 `e-search`或`e-search-git`
 
 winget `winget install esearch`
+
+暂时没有 Homebrew 包，欢迎有志愿的维护者提供支持
 
 ## 启动
 
