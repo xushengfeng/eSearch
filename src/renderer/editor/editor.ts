@@ -385,7 +385,7 @@ async function runAiSpellcheck() {
     const list = spellcheckDiff.updateDiffState();
     renderSpellcheck(list);
 }
-button("ai")
+iconBEl("ai_check", "AI拼写检查")
     .on("click", async () => {
         runAiSpellcheck();
     })
