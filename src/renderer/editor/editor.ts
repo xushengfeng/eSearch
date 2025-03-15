@@ -379,13 +379,27 @@ const spellcheckEl = view("y")
         overflowY: "hidden",
     })
     .class(Class.transition);
-const runAiSpellcheck = button("ai")
+const aiSpellCheckP = view("x").class(Class.group).addInto(spellcheckEl);
+async function runAiSpellcheck() {
+    await spellcheckDiff.spellcheckAi();
+    const list = spellcheckDiff.updateDiffState();
+    renderSpellcheck(list);
+}
+button("ai")
     .on("click", async () => {
-        await spellcheckDiff.spellcheckAi();
-        const list = spellcheckDiff.updateDiffState();
-        renderSpellcheck(list);
+        runAiSpellcheck();
     })
-    .addInto(spellcheckEl);
+    .addInto(aiSpellCheckP);
+const aiModelList = store.get("AI.在线模型");
+const aiSpellCheckModel = select(
+    aiModelList.length === 0
+        ? [{ name: "无AI模型，请到设置添加在线模型", value: "" }]
+        : aiModelList.map((i) => ({ name: noI18n(i.name), value: i.name })),
+)
+    .addInto(aiSpellCheckP)
+    .on("change", () => {
+        runAiSpellcheck();
+    });
 const spellcheckList = view("y")
     .style({ overflow: "scroll" })
     .addInto(spellcheckEl)
@@ -1359,8 +1373,10 @@ class spellcheckGen {
     async spellcheckAi() {
         const t = editor.get();
 
-        const model = store.get("AI.在线模型"); // todo 提示 设置
-        const m = model[0];
+        const model = aiModelList;
+        if (model.length === 0) return;
+        const m =
+            model.find((i) => i.name === aiSpellCheckModel.gv) || model[0];
 
         const ai = runAI(
             [
