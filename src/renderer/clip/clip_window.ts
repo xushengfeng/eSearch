@@ -3350,7 +3350,7 @@ const mouseBarXy = view()
     .attr({ id: "clip_xy" })
     .addInto(mouseBarEl)
     .bindSet((v: [number, number], el) => {
-        el.innerText = `(${v[0]}, ${v[1]})`;
+        el.textContent = `(${v[0]}, ${v[1]})`;
     });
 const mouseBarCopy = view().attr({ id: "clip_copy" }).addInto(mouseBarEl);
 const mouseBarCopyI = view().addInto(mouseBarCopy);
