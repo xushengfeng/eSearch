@@ -1391,7 +1391,7 @@ function whBar(finalRect: rect) {
     const dh = 40;
     let x: number;
     x = zx + zw / 2 - dw / 2;
-    x = Math.max(0, Math.min(winWidth - dw, x));
+    x = Math.max(0, Math.min(winWidth - dw, Math.round(x)));
 
     let y: number;
     const yGap = 10;
@@ -1404,9 +1404,11 @@ function whBar(finalRect: rect) {
             y = zy + yGap;
         }
     }
-    y = Math.max(0, Math.min(winHeight - dh, y));
+    y = Math.max(0, Math.min(winHeight - dh, Math.round(y)));
 
-    whEl.style({ top: `${y}px`, right: "", left: `${x}px` });
+    whEl.style({
+        transform: `translate(${x}px, ${y}px)`,
+    });
 }
 
 function checkWhBarWidth() {
@@ -4218,16 +4220,15 @@ document.onmousemove = (e) => {
             mouseBar(finalRect, e);
 
             const d = 16;
-            const x = e.clientX + d;
-            const y = e.clientY + d;
+            const x = Math.round(e.clientX + d);
+            const y = Math.round(e.clientY + d);
             const w = mouseBarW;
             const h = mouseBarH;
             const sw = window.innerWidth;
             const sh = window.innerHeight;
 
             mouseBarEl.style({
-                left: `${Math.min(x, sw - w - d)}px`,
-                top: `${Math.min(y, sh - h - d)}px`,
+                transform: `translate(${Math.min(x, sw - w - d)}px, ${Math.min(y, sh - h - d)}px)`,
             });
 
             const isDrawBar = drawBar.contains(e.target as HTMLElement);

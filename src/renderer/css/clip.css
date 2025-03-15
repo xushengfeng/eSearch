@@ -293,8 +293,8 @@ body input {
     box-shadow: var(--shadow);
     overflow: hidden;
     pointer-events: none;
-    left: 100%;
-    top: 100%;
+    left: 0;
+    top: 0;
 }
 .mouse_bar_hide {
     transition: var(--transition);
