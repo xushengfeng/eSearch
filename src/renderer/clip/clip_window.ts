@@ -1580,11 +1580,14 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     // 只改变默认格式的字体颜色和内容，并定位展示
     mainEl.el.style.color = theTextColor[1];
     const c = colorConversion(l, type);
-    const main = c.includes("(")
-        ? (c.match(/\((.*)\)/)?.[1] ?? c)
-              .replace("deg", "°")
-              .replace("none", "-")
-        : c;
+    const s = c.indexOf("(");
+    const main =
+        s === -1
+            ? c
+            : c
+                  .slice(s + 1, -1)
+                  .replace("deg", "°")
+                  .replace("none", "-");
     const minR = 0.6;
     mainEl.style({
         fontSize: `${Math.max(minR, Math.min((colorSize * colorISize) / (main.length * chPX), 1))}rem`,
