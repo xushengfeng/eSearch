@@ -78,7 +78,11 @@ async function loadCV() {
 }
 
 function iconEl(src: IconType) {
-    return view().add(image(getImgUrl(`${src}.svg`), "icon").class("icon"));
+    return view().add(
+        image(getImgUrl(`${src}.svg`), "icon")
+            .class("icon")
+            .attr({ width: bSize }),
+    );
 }
 
 function selectEl<i extends string>(
