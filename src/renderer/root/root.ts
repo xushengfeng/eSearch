@@ -64,7 +64,7 @@ function initStyle(
             el.innerText = v;
         });
 
-    window.addEventListener("pointermove", (e) => {
+    window.addEventListener("pointerover", (e) => {
         const el = e.target as HTMLElement;
         const tEl = el.closest("[data-title]");
         if (!tEl) {
