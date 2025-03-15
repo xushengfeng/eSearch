@@ -2529,7 +2529,10 @@ function iconEl(img: IconType) {
 }
 
 function comment(str: string) {
-    return p(str, true).style({ color: cssColor.font.light });
+    return p(str, true).style({
+        color: cssColor.font.light,
+        fontSize: "0.8em",
+    });
 }
 
 function xGroup(r: "x" | "y" = "x") {
@@ -2847,7 +2850,7 @@ function pathEl(path: string) {
 }
 
 function sortTool() {
-    const pel = xGroup("x");
+    const pel = xGroup("x").style({ paddingLeft: "8px" });
     const toolShowEl = view().class(Class.glassBar).class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
@@ -4104,6 +4107,8 @@ addStyle({
         top: 0,
         background: "var(--bg)",
         zIndex: 1,
+        fontWeight: 100,
+        marginBlockStart: "28px",
     },
     'input[type="text"],input[type="password"]': {
         transition: "var(--transition)",
@@ -4123,6 +4128,7 @@ const sideBar = view("y")
     .style({
         padding: cssVar("o-padding"),
         flexShrink: 0,
+        width: "200px",
     })
     .class(
         addClass(
@@ -4211,7 +4217,7 @@ const mainView = view()
             {},
             {
                 "&>div": {
-                    marginBlock: "16px",
+                    marginBlock: "20px",
                 },
             },
         ),
@@ -4243,7 +4249,7 @@ historyEl.el
         showPage(main[sideBarG.get()]);
         bindRun();
     })
-    .style({ maxWidth: "180px" })
+    .style({ maxWidth: "100%" })
     .attr({
         title: "修改历史",
     });
