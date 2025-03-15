@@ -296,7 +296,6 @@ function setSetting() {
     const 工具栏 = store.get("工具栏");
     setProperties({
         "--color-size": `${colorSize * colorISize}px`,
-        "--min-color-size": "10px",
         "--color-i-size": `${colorISize}px`,
         "--color-i-i": `${colorSize}`,
         "--bar-size": `${工具栏.按钮大小}px`,
@@ -1594,7 +1593,7 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
     });
     mainEl.el.textContent = main;
     const minW = main.length * chPX * minR;
-    setProperties({ "--min-color-size": `${minW}px` });
+    mouseBarColorMinSize = minW;
 
     if (color.alpha() !== 1) {
         mainEl.el.style.color = "";
@@ -1637,7 +1636,7 @@ function changeRightBar(v: boolean) {
     } else {
         mouseBarColor.el.style.height = "";
         mouseBarCopy.style({
-            width: "max(var(--color-size), var(--min-color-size))",
+            width: `${Math.max(colorSize * colorISize, mouseBarColorMinSize)}px`,
             height: "32px",
         });
         mouseBarCopyI.el.style.top = `${-32 * (取色器格式位置 + 1)}px`;
@@ -3358,6 +3357,7 @@ const mouseBarCopyI = view().addInto(mouseBarCopy);
 const mouseBarCopySize = view().addInto(mouseBarCopyI);
 const mouseBarCopyColor = view().addInto(mouseBarCopyI);
 let mouseBarCopyColorList: ElType<HTMLElement>[] = [];
+let mouseBarColorMinSize = 10;
 
 type hotkeyScope = "normal" | "c_bar" | "drawing";
 const hotkeyScopes: hotkeyScope[] = [];
