@@ -249,7 +249,10 @@ const findResultEl = txt()
     });
 
 // main ui
-const mainSectionEl = view().attr({ id: "edit" }).addInto(outMainEl);
+const mainSectionEl = view()
+    .style({ overflow: "hidden" })
+    .attr({ id: "edit" })
+    .addInto(outMainEl);
 
 // image ui
 const ocrImagePel = view("y")
@@ -313,7 +316,10 @@ const ocrTextSelectionClass = addClass(
     },
 );
 
-const baseEditorEl = view("x").class("main").addInto(mainSectionEl);
+const baseEditorEl = view("x")
+    .style({ overflow: "hidden" })
+    .class("main")
+    .addInto(mainSectionEl);
 
 // editor ui
 const editorOutEl = view()
@@ -370,6 +376,7 @@ const spellcheckEl = view("y")
     .style({
         height: "100%",
         overflowX: "hidden",
+        overflowY: "hidden",
     })
     .class(Class.transition);
 const runAiSpellcheck = button("ai")
@@ -379,7 +386,10 @@ const runAiSpellcheck = button("ai")
         renderSpellcheck(list);
     })
     .addInto(spellcheckEl);
-const spellcheckList = view("y").addInto(spellcheckEl).class(Class.gap);
+const spellcheckList = view("y")
+    .style({ overflow: "scroll" })
+    .addInto(spellcheckEl)
+    .class(Class.gap);
 
 // history ui
 const historyDialog = ele("dialog").addInto();

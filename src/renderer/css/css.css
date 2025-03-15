@@ -274,7 +274,6 @@ body .hover_b {
     gap: var(--o-padding);
     height: 32px;
     transition: var(--transition);
-    overflow: hidden;
 }
 
 #bottoms > * {
