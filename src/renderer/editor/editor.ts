@@ -643,6 +643,8 @@ class xeditor {
             writeEditOnOther();
             editingOnOther = true;
         }
+
+        runSpellcheck();
     }
 
     /**
@@ -930,8 +932,6 @@ class find {
 
 const editor = new xeditor(textEditor);
 
-editor.push("");
-
 function formatSelection2(s: selection2) {
     let tmp: selection2 = {
         start: { pg: Number.NaN, of: Number.NaN },
@@ -962,6 +962,10 @@ function editorChange() {
         countWords();
     }
     if (editingOnOther) writeEditOnOther();
+    runSpellcheck();
+}
+
+function runSpellcheck() {
     renderSpellcheck(spellcheckDiff.updateDiffState());
     if (spellcheckTimer !== null) clearTimeout(spellcheckTimer);
     spellcheckTimer = window.setTimeout(() => {
@@ -3130,3 +3134,5 @@ function jumpToImgByRange(range: Range | undefined) {
     const dy = rect.top - outRect.top - outRect.height / 2;
     ocrImageView.el.scrollTop += dy;
 }
+
+editor.push("");
