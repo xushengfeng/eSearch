@@ -1586,12 +1586,10 @@ function clipColorText(l: colorRGBA, type: colorFormat) {
               .replace("none", "-")
         : c;
     const minR = 0.6;
-    mainEl
-        .clear()
-        .style({
-            fontSize: `${Math.max(minR, Math.min((colorSize * colorISize) / (main.length * chPX), 1))}rem`,
-        })
-        .add(main);
+    mainEl.style({
+        fontSize: `${Math.max(minR, Math.min((colorSize * colorISize) / (main.length * chPX), 1))}rem`,
+    });
+    mainEl.el.textContent = main;
     const minW = main.length * chPX * minR;
     setProperties({ "--min-color-size": `${minW}px` });
 
