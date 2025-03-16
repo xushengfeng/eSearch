@@ -753,5 +753,9 @@
     "aa3431": "White",
     "6e1c01": "Reverse follow system",
     "d930fb": "Concise Mode",
-    "ae962d": "No visual model, please add a model in the settings"
+    "ae962d": "No visual model, please add a model in the settings",
+    "03691b": "No AI models, please add an online model in settings",
+    "84d846": "AI Spell Check",
+    "cc9509": "Click to redirect",
+    "d8953e": "Click to browse files"
 }
