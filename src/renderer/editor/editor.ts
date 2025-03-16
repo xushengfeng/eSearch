@@ -991,8 +991,8 @@ function runSpellcheck(now = false) {
     renderSpellcheck(spellcheckDiff.updateDiffState());
     if (spellcheckTimer !== null) clearTimeout(spellcheckTimer);
     spellcheckTimer = window.setTimeout(
-        () => {
-            spellcheckDiff.spellcheckLocal();
+        async () => {
+            await spellcheckDiff.spellcheckLocal();
             const list = spellcheckDiff.updateDiffState();
 
             console.log(list);
