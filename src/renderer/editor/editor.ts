@@ -1531,11 +1531,11 @@ function renderSpellcheck(list: SpellItem[]) {
                 txt(fillAfter).style({ color: cssColor.font.light }),
             ]);
         }
+        const selection: selection = {
+            start: i.index,
+            end: i.index + Math.max(i.word.length, 1),
+        };
         item.on("pointerenter", () => {
-            const selection: selection = {
-                start: i.index,
-                end: i.index + i.word.length,
-            };
             editor.find.render([selection]);
             const range = setImgSelect(selection);
             jumpToImgByRange(range);
@@ -1546,10 +1546,6 @@ function renderSpellcheck(list: SpellItem[]) {
             getClip(i.word)
                 .attr({ title: "点击跳转" })
                 .on("click", () => {
-                    const selection: selection = {
-                        start: i.index,
-                        end: i.index + i.word.length,
-                    };
                     editor.find.render([selection]);
                     jumpToFind(0);
                     editor.find.render([]);
