@@ -1484,7 +1484,21 @@ function renderSpellcheck(list: SpellItem[]) {
         }).on("pointerleave", () => {
             editor.find.render([]);
         });
-        item.add(getClip(i.word));
+        item.add(
+            getClip(i.word)
+                .attr({ title: "点击跳转" })
+                .on("click", () => {
+                    const selection: selection = {
+                        start: i.index,
+                        end: i.index + i.word.length,
+                    };
+                    editor.find.render([selection]);
+                    jumpToFind(0);
+                    editor.find.render([]);
+                    editor.selections.add(selection);
+                    editor.text.focus();
+                }),
+        );
         item.add(
             view().add(
                 i.suggest.map((x) =>
