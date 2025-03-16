@@ -2837,18 +2837,19 @@ function runOcr() {
     let count = 0;
     for (const [i, el] of ocrImageS) {
         el.textEl.clear();
+        const index = count;
         if (type === "baidu" || type === "youdao") {
             onlineOcr(type, el.src, (_err, r) => {
                 if (r) {
                     addOcrText(r.raw, i);
-                    addOcrToEditor(r.text, count);
+                    addOcrToEditor(r.text, index);
                 }
             });
         } else {
             localOcr(type, el.src, (_err, r) => {
                 if (r) {
                     addOcrText(r.raw, i);
-                    addOcrToEditor(r.text, count);
+                    addOcrToEditor(r.text, index);
                 }
             });
         }
