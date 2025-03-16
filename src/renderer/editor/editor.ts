@@ -1572,6 +1572,7 @@ function renderSpellcheck(list: SpellItem[]) {
                                 t.slice(i.index + i.word.length);
                             editor.push(newT);
                             // todo 使用api
+                            stackAdd();
                             renderSpellcheck(spellcheckDiff.updateDiffState());
                         })
                         .style({
