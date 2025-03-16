@@ -97,7 +97,7 @@ function runAI(
                 data.choices[0]?.delta.content;
         } catch (error) {}
         resultText += res ?? "";
-        streamFun(res, false);
+        streamFun(resultText, false);
     }
 
     return {
