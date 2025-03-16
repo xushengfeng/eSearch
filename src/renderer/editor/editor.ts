@@ -566,8 +566,8 @@ const dmp = new diff_match_patch();
  * 添加到撤销栈
  * @returns none
  */
-function stackAdd() {
-    undoStack.setData(editor.get());
+function stackAdd(data = editor.get()) {
+    undoStack.setData(data);
     undoStack.apply();
 }
 function undo() {
@@ -1797,8 +1797,7 @@ renderOn("editorInit", ([name, list]) => {
             if (text) {
                 console.log(text);
 
-                editor.push(r.raw.map((i) => i.text).join("\n"));
-                stackAdd();
+                stackAdd(r.raw.map((i) => i.text).join("\n"));
 
                 editor.push(text);
                 stackAdd();
@@ -2420,10 +2419,7 @@ function google(image, callback) {
 function ocr(
     img: string,
     type: (string & {}) | "baidu" | "youdao",
-    callback: (
-        error: Error | null,
-        result: { raw: ocrResult; text: string } | null,
-    ) => void,
+    callback: (error: Error | null, result: OCROutPut | null) => void,
 ) {
     clearOcrPhoto();
     addOcrPhoto(img);
@@ -2446,10 +2442,7 @@ function ocr(
 async function localOcr(
     type: string,
     arg: string,
-    callback: (
-        error: Error | null,
-        result: { raw: ocrResult; text: string } | null,
-    ) => void,
+    callback: (error: Error | null, result: OCROutPut | null) => void,
 ) {
     try {
         task.l("ocr_load");
@@ -2558,10 +2551,7 @@ function ocrProgress(x: { name: string; num: number }[]) {
 function onlineOcr(
     type: string,
     sarg: string,
-    callback: (
-        error: Error | null,
-        result: { raw: ocrResult; text: string } | null,
-    ) => void,
+    callback: (error: Error | null, result: OCROutPut | null) => void,
 ) {
     const arg = sarg.replace("data:image/png;base64,", "");
 
@@ -2834,7 +2824,7 @@ function putDatatransfer(data: DataTransfer | null) {
 }
 
 function runOcr() {
-    const output: string[] = [];
+    const output: OCROutPut[] = [];
     const type = ocrImageEngine.el.gv;
     ocrTextNodes.clear();
     let count = 0;
@@ -2845,24 +2835,33 @@ function runOcr() {
             onlineOcr(type, el.src, (_err, r) => {
                 if (r) {
                     addOcrText(r.raw, i);
-                    addOcrToEditor(r.text, index);
+                    addOcrToEditor(r, index);
                 }
             });
         } else {
             localOcr(type, el.src, (_err, r) => {
                 if (r) {
                     addOcrText(r.raw, i);
-                    addOcrToEditor(r.text, index);
+                    addOcrToEditor(r, index);
                 }
             });
         }
         count++;
     }
 
-    function addOcrToEditor(text: string, i: number) {
+    function addOcrToEditor(text: OCROutPut, i: number) {
         output[i] = text;
         if (output.length === ocrImageS.size) {
-            editor.push(output.join("\n"));
+            stackAdd(
+                output
+                    .map((i) => i.raw.map((i) => i.text).join("\n"))
+                    .join("\n"),
+            );
+
+            editor.push(output.map((i) => i.text).join("\n"));
+            stackAdd();
+
+            editor.selectAll();
         }
     }
 }
@@ -2871,6 +2870,11 @@ type ocrResult = {
     text: string;
     box: /** lt,rt,rb,lb */ number[][];
 }[];
+
+type OCROutPut = {
+    raw: ocrResult;
+    text: string;
+};
 
 function addOcrText(r: ocrResult, i: number) {
     const x = ocrImageS.get(i);
