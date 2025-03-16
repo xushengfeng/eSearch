@@ -1361,11 +1361,13 @@ class spellcheckGen {
     private aiSuggestText = "";
     private localCache = new Map<string, string[]>();
 
-    spellcheckLocal() {
+    async spellcheckLocal() {
         const t = editor.get();
         const segments = this.getWords(t);
         for (const i of segments) {
             const s = i.segment;
+            // @ts-ignore
+            await scheduler.yield();
             if (webFrame.isWordMisspelled(s)) {
                 const seg = webFrame.getWordSuggestions(s);
                 this.localCache.set(s, seg);
