@@ -343,7 +343,9 @@ const textOut = view()
 
 const textLineNum = view().attr({ id: "line_num" }).addInto(textOut);
 const mainTextEl = view().attr({ id: "main_text" }).addInto(textOut);
-const textEditor = view().attr({ id: "text" }).addInto(mainTextEl);
+const textEditor = view()
+    .attr({ id: "text", spellcheck: false })
+    .addInto(mainTextEl);
 const editB = view()
     .attr({ id: "edit_b" })
     .class("edit_h")
@@ -491,6 +493,7 @@ const showSpellCheckSwitch = buttonSwitch(showSpellCheckB, (showedSpell) => {
     if (showedSpell) {
         spellcheckEl.style({ width: "30%" });
         baseEditorEl.style({ gap: cssVar("o-padding") });
+        if (!isCheck) runSpellcheck(true);
     } else {
         spellcheckEl.style({ width: 0 });
         baseEditorEl.style({ gap: 0 });
@@ -664,7 +667,7 @@ class xeditor {
             editingOnOther = true;
         }
 
-        runSpellcheck();
+        if (isCheck) runSpellcheck();
     }
 
     /**
@@ -982,19 +985,22 @@ function editorChange() {
         countWords();
     }
     if (editingOnOther) writeEditOnOther();
-    runSpellcheck();
+    if (isCheck) runSpellcheck();
 }
 
-function runSpellcheck() {
+function runSpellcheck(now = false) {
     renderSpellcheck(spellcheckDiff.updateDiffState());
     if (spellcheckTimer !== null) clearTimeout(spellcheckTimer);
-    spellcheckTimer = window.setTimeout(() => {
-        spellcheckDiff.spellcheckLocal();
-        const list = spellcheckDiff.updateDiffState();
+    spellcheckTimer = window.setTimeout(
+        () => {
+            spellcheckDiff.spellcheckLocal();
+            const list = spellcheckDiff.updateDiffState();
 
-        console.log(list);
-        renderSpellcheck(list);
-    }, 1000);
+            console.log(list);
+            renderSpellcheck(list);
+        },
+        now ? 0 : 1000,
+    );
 }
 
 /**
@@ -1215,7 +1221,6 @@ function wrap() {
 spellcheck();
 function spellcheck() {
     isCheck = !isCheck;
-    textEditor.el.spellcheck = isCheck;
 }
 
 /**
