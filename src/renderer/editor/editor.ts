@@ -271,7 +271,7 @@ const ocrImageFile = input("file")
     .addInto(ocrImageInput);
 const ocrImageFileDrop = view()
     .style({ justifyContent: "center", alignItems: "center", width: "100%" })
-    .class(Class.group, Class.deco)
+    .class(Class.group, Class.deco, Class.click)
     .class("b-like")
     .addInto(ocrImageInput)
     .on("dragover", (e) => {
@@ -284,8 +284,12 @@ const ocrImageFileDrop = view()
     .on("paste", (e) => {
         e.preventDefault();
         putDatatransfer(e.clipboardData);
-    });
-const ocrImageFileDropFileInput = view()
+    })
+    .on("click", () => {
+        ocrImageFile.el.click();
+    })
+    .attr({ title: "点击浏览文件" });
+view()
     .add(image(getImgUrl("add.svg"), "upload").class("icon"))
     .addInto(ocrImageFileDrop);
 ocrImageFileDrop.add(txt(t("拖拽或粘贴图像到此处")));
@@ -2783,9 +2787,6 @@ showImageB.on("click", () => {
     imageSwitch.sv(s);
 });
 
-ocrImageFileDropFileInput.el.onclick = () => {
-    ocrImageFile.el.click();
-};
 ocrImageFile.el.onchange = () => {
     const files = ocrImageFile.el.files;
     for (const f of files ?? []) {
