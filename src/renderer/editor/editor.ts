@@ -1497,7 +1497,8 @@ function renderSpellcheck(list: SpellItem[]) {
                     editor.find.render([]);
                     editor.selections.add(selection);
                     editor.text.focus();
-                }),
+                })
+                .class(Class.click1),
         );
         item.add(
             view().add(
@@ -1518,7 +1519,7 @@ function renderSpellcheck(list: SpellItem[]) {
                         .style({
                             paddingInlineStart: cssVar("o-padding"),
                         })
-                        .class(Class.click),
+                        .class(Class.click1),
                 ),
             ),
         );

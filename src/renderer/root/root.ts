@@ -132,6 +132,10 @@ const Class = {
         { transition: cssVar("transition"), cursor: "pointer" },
         { "&:active": { transform: "var(--button-active)" } },
     ),
+    click1: addClass(
+        { transition: cssVar("transition"), cursor: "pointer" },
+        {},
+    ),
     hover: addClass(
         {},
         { "&:hover": { backgroundColor: "var(--hover-color)" } },
