@@ -1435,7 +1435,10 @@ class spellcheckGen {
                     last.src += d[1];
                     last.i = i;
                 }
-                if (d[0] === 1) last.ai += d[1];
+                if (d[0] === 1) {
+                    last.ai += d[1];
+                    last.i = i;
+                }
             }
 
             if (d[0] === 0 || d[0] === -1) {
