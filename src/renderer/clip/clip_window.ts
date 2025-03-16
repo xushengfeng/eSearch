@@ -1023,6 +1023,16 @@ function getClipPhoto() {
         finalRect[3],
     ); // 裁剪
     tmpctx.putImageData(gid, 0, 0);
+    tmpctx.drawImage(
+        fabricCanvas.toCanvasElement(1, {
+            left: finalRect[0],
+            top: finalRect[1],
+            width: finalRect[2],
+            height: finalRect[3],
+        }),
+        0,
+        0,
+    );
     if (!isRect) {
         const ctx = tmpctx;
 
