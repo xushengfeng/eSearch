@@ -383,10 +383,9 @@ const spellcheckEl = view("y")
     .addInto(baseEditorEl)
     .style({
         height: "100%",
-        overflowX: "hidden",
-        overflowY: "hidden",
+        overflow: "hidden",
     })
-    .class(Class.transition);
+    .class(Class.transition, Class.gap);
 const aiSpellCheckP = view("x").class(Class.group).addInto(spellcheckEl);
 async function runAiSpellcheck() {
     await spellcheckDiff.spellcheckAi();
