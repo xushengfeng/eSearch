@@ -1429,7 +1429,8 @@ class spellcheckGen {
         const diff = dmp.diff_wordMode(t, this.aiSuggestText);
         console.log(diff);
         let i = 0;
-        const last = { src: "", ai: "", i: 0 };
+        let zI = 0;
+        const last = { src: "", ai: "" };
         diff.push([0, ""]);
         for (const d of diff) {
             if (d[0] === 0) {
@@ -1437,24 +1438,18 @@ class spellcheckGen {
                     list.push({
                         word: last.src,
                         suggest: [last.ai],
-                        index: last.i,
+                        index: zI,
                     });
                 last.src = "";
                 last.ai = "";
-                last.i = 0;
             } else {
-                if (d[0] === -1) {
-                    last.src += d[1];
-                    last.i = i;
-                }
-                if (d[0] === 1) {
-                    last.ai += d[1];
-                    last.i = i;
-                }
+                if (d[0] === -1) last.src += d[1];
+                if (d[0] === 1) last.ai += d[1];
             }
 
             if (d[0] === 0 || d[0] === -1) {
                 i += d[1].length;
+                if (d[0] === 0) zI = i;
             }
         }
         return list;
