@@ -1471,7 +1471,8 @@ function renderSpellcheck(list: SpellItem[]) {
     let lastI: SpellItem | null = null;
     for (const i of list.toSorted((a, b) => a.index - b.index)) {
         if (lastI && lastI.index === i.index && lastI.word === i.word) {
-            lastI.suggest.push(...i.suggest);
+            for (const x of i.suggest)
+                if (!lastI.suggest.includes(x)) lastI.suggest.push(x);
             continue;
         }
         l.push(i);
