@@ -1472,7 +1472,17 @@ function renderSpellcheck(list: SpellItem[]) {
             .replace(/ /g, "␣")
             .replace(/\t/g, "⇥");
     }
-    for (const i of list) {
+    const l: SpellItem[] = [];
+    let lastI: SpellItem | null = null;
+    for (const i of list.toSorted((a, b) => a.index - b.index)) {
+        if (lastI && lastI.index === i.index && lastI.word === i.word) {
+            lastI.suggest.push(...i.suggest);
+            continue;
+        }
+        l.push(i);
+        lastI = i;
+    }
+    for (const i of l) {
         const item = view();
         const fillTxtLen = Math.max(20 - i.word.length, 0);
         const fillBefore = text.slice(
