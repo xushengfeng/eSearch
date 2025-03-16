@@ -1451,9 +1451,15 @@ const spellcheckDiff = new spellcheckGen();
 function renderSpellcheck(list: SpellItem[]) {
     spellcheckList.clear();
     const text = editor.get();
+    function trans(t: string) {
+        return t
+            .replace(/[\r\n]/g, "⏎")
+            .replace(/ /g, "␣")
+            .replace(/\t/g, "⇥");
+    }
     for (const i of list) {
         const item = view();
-        const fillTxtLen = Math.max(14 - i.word.length, 0);
+        const fillTxtLen = Math.max(20 - i.word.length, 0);
         const fillBefore = text.slice(
             Math.max(0, i.index - Math.floor(fillTxtLen / 2)),
             i.index,
@@ -1468,9 +1474,9 @@ function renderSpellcheck(list: SpellItem[]) {
 
         function getClip(t: string) {
             return view().add([
-                txt(fillBefore).style({ color: cssColor.font.light }),
-                t,
-                txt(fillAfter).style({ color: cssColor.font.light }),
+                txt(trans(fillBefore)).style({ color: cssColor.font.light }),
+                trans(t),
+                txt(trans(fillAfter)).style({ color: cssColor.font.light }),
             ]);
         }
         item.on("pointerenter", () => {
