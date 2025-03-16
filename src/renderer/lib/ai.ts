@@ -88,11 +88,14 @@ function runAI(
         });
     });
     function parse(text: string) {
-        const data = JSON.parse(text);
-        const res =
-            data.message?.content ||
-            data.choices[0].message?.content ||
-            data.choices[0].delta.content;
+        let res = "";
+        try {
+            const data = JSON.parse(text);
+            res =
+                data.message?.content ||
+                data.choices[0]?.message?.content ||
+                data.choices[0]?.delta.content;
+        } catch (error) {}
         resultText += res ?? "";
         streamFun(res, false);
     }
