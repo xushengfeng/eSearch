@@ -1787,29 +1787,37 @@ const src2trans = (id: SrcId) => {
 const transformTask = new Set<(value: true | null) => void>();
 let lastTransformAbort: AbortController | undefined;
 
-const playDecoder = new VideoDecoder({
-    output: (frame: VideoFrame) => {
-        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-        ctx.drawImage(
-            frame,
-            ...zeroPoint,
-            frame.codedWidth,
-            frame.codedHeight,
-            ...zeroPoint,
-            outputV.width,
-            outputV.height,
-        );
-        frame.close();
-    },
-    error: (e) => {
-        console.error("Decode error:", e);
-        const el = iconBEl("reload", "重新加载播放器").on("click", () => {
-            playDecoder.configure(decoderVideoConfig);
-            el.remove();
-        });
-        transformLogEl.add(el);
-    },
-});
+const playDecoderGen = () =>
+    new VideoDecoder({
+        output: (frame: VideoFrame) => {
+            const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+            ctx.drawImage(
+                frame,
+                ...zeroPoint,
+                frame.codedWidth,
+                frame.codedHeight,
+                ...zeroPoint,
+                outputV.width,
+                outputV.height,
+            );
+            frame.close();
+        },
+        error: (e) => {
+            console.error("Decode error:", e);
+            const el = iconBEl("reload", "重新加载播放器").on("click", () => {
+                try {
+                    playDecoder.close();
+                } catch (error) {}
+                playDecoder = playDecoderGen();
+                playDecoder.configure(decoderVideoConfig);
+                el.remove();
+            });
+            transformLogEl.add(el);
+        },
+    });
+
+let playDecoder = playDecoderGen();
+
 playDecoder.configure(decoderVideoConfig);
 
 const stopPEl = view("y")
