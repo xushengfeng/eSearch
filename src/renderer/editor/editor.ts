@@ -291,8 +291,10 @@ const ocrImageFileDropFileInput = view()
 ocrImageFileDrop.add(txt(t("拖拽或粘贴图像到此处")));
 
 const ocrImageEngine = dynamicSelect();
-ocrImageEngine.el.addInto(ocrImageCtrl);
-const ocrImageRun = iconBEl("ocr", "运行OCR").addInto(ocrImageCtrl);
+const ocrImageRun = iconBEl("ocr", "运行OCR");
+ocrImageCtrl.add(
+    view().class(Class.group).add([ocrImageRun, ocrImageEngine.el]),
+);
 const ocrImageClose = iconBEl("close", "清空图片").addInto(ocrImageCtrl);
 
 const ocrImageView = view()
