@@ -177,7 +177,7 @@ const monoFont = [
     "Roboto Mono",
 ];
 
-function cssVar(x: "transition" | "o-padding" | "monospace") {
+function cssVar(x: "transition" | "o-padding" | "monospace" | "b-button") {
     return cssVarR(x);
 }
 function cssVarR(x: string) {

@@ -386,7 +386,12 @@ const spellcheckEl = view("y")
         overflow: "hidden",
     })
     .class(Class.transition, Class.gap);
-const aiSpellCheckP = view("x").class(Class.group).addInto(spellcheckEl);
+const spellcheckCancel = view().style({ flexShrink: 0 });
+const aiSpellCheckP = view("x").class(Class.group);
+view("x")
+    .class(Class.gap)
+    .add([aiSpellCheckP, spellcheckCancel])
+    .addInto(spellcheckEl);
 async function runAiSpellcheck() {
     await spellcheckDiff.spellcheckAi();
     const list = spellcheckDiff.updateDiffState();
@@ -1401,6 +1406,32 @@ class spellcheckGen {
             ],
             { config: m.config, key: m.key, url: m.url },
         );
+
+        const stopEl = view()
+            .attr({ title: "点击取消" })
+            .addInto(spellcheckCancel.clear())
+            .class(Class.click)
+            .on("click", () => {
+                ai.stop();
+                stopEl.remove();
+            })
+            .bindSet((v: number) => {
+                if (v === 1) stopEl.remove();
+                const p = v * 100;
+                stopEl.style({
+                    background: `conic-gradient(${cssColor.f} 0, ${cssColor.f} ${p}%, transparent ${p}%, transparent 100%)`,
+                    borderRadius: "50%",
+                    border: `1px solid ${cssColor.f}`,
+                    minWidth: cssVar("b-button"),
+                    minHeight: cssVar("b-button"),
+                });
+            });
+
+        ai.stream((te, e) => {
+            const p = e ? 1 : te.length / t.length;
+            console.log(p);
+            stopEl.sv(p);
+        });
 
         const newT = await ai.text;
         this.aiSuggestText = newT;
