@@ -488,6 +488,33 @@ app.commandLine.appendSwitch(
     "enable",
 );
 
+function handleError(e: string) {
+    if (app.isReady()) {
+        const id = dialog.showMessageBoxSync({
+            type: "error",
+            title: t("错误"),
+            message: e,
+            buttons: [t("反馈"), t("复制")],
+        });
+        if (id === 0) {
+            shell.openExternal(feedbackUrl({ title: "主进程错误", main: e }));
+        }
+        if (id === 1) {
+            clipboard.writeText(e);
+        }
+    } else {
+        dialog.showErrorBox(t("错误"), e);
+    }
+}
+
+process.on("uncaughtException", (e) => {
+    handleError(`${e.stack ?? e.name}`);
+});
+
+process.on("unhandledRejection", (e) => {
+    handleError(String(e));
+});
+
 app.whenReady().then(() => {
     console.log(
         `eSearch ${app.getVersion()} 启动\n项目地址：https://github.com/xushengfeng/eSearch`,
