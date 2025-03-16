@@ -1489,9 +1489,9 @@ function renderSpellcheck(list: SpellItem[]) {
 
         function getClip(t: string) {
             return view().add([
-                txt(trans(fillBefore)).style({ color: cssColor.font.light }),
+                txt(fillBefore).style({ color: cssColor.font.light }),
                 trans(t),
-                txt(trans(fillAfter)).style({ color: cssColor.font.light }),
+                txt(fillAfter).style({ color: cssColor.font.light }),
             ]);
         }
         item.on("pointerenter", () => {
