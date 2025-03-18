@@ -1858,7 +1858,7 @@ renderOn("editorInit", ([name, list]) => {
                 }
 
                 if (store.get("主页面.自动复制OCR")) {
-                    clipboard.writeText(text);
+                    clipboard.writeText(text.trim()); // todo 如果以后支持空格识别再考虑trim问题
                 }
                 return;
             }
