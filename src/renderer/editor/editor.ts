@@ -1860,13 +1860,16 @@ renderOn("editorInit", ([name, list]) => {
                 if (store.get("主页面.自动复制OCR")) {
                     clipboard.writeText(text.trim()); // todo 如果以后支持空格识别再考虑trim问题
                 }
-                return;
+            } else {
+                editor.push("");
             }
-            console.error(err);
+            if (err) {
+                console.error(err);
 
-            editor.push(
-                `${t("识别错误")}\n${err}\n${t("请打开开发者工具（Ctrl+Shift+I）查看详细错误")}`,
-            );
+                editor.push(
+                    `${t("识别错误")}\n${err}\n${t("请打开开发者工具（Ctrl+Shift+I）查看详细错误")}`,
+                );
+            }
 
             mainEvent("home");
         });
