@@ -63,6 +63,8 @@ import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 
+type SrcPoint = { x: number; y: number } & { readonly _: unique symbol };
+
 initStyle(store);
 
 async function loadCV() {
@@ -1069,14 +1071,18 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     return tempCanvas;
 }
 
-function e2pXYdb(e: MouseEvent | PointerEvent) {
-    const cX = (e.clientX - editorP.x * editorP.zoom) / editorP.zoom;
-    const cY = (e.clientY - editorP.y * editorP.zoom) / editorP.zoom;
+function e2srcPoint(e: MouseEvent | PointerEvent) {
+    return { x: e.clientX, y: e.clientY } as SrcPoint;
+}
+
+function src2pXYdb(e: SrcPoint) {
+    const cX = (e.x - editorP.x * editorP.zoom) / editorP.zoom;
+    const cY = (e.y - editorP.y * editorP.zoom) / editorP.zoom;
     return { x: cX, y: cY };
 }
 
-function e2pXY(e: MouseEvent | PointerEvent) {
-    const { x, y } = e2pXYdb(e);
+function src2pXY(e: SrcPoint) {
+    const { x, y } = src2pXYdb(e);
     return { x: Math.round(x), y: Math.round(y) } as editor_position;
 }
 
@@ -1092,8 +1098,8 @@ function p2Rect(p1: px_position | null, p2: px_position | null): rect {
     return [x1, y1, x2 - x1, y2 - y1];
 }
 
-function e2cXY(e: MouseEvent | PointerEvent) {
-    const { x, y } = e2pXYdb(e);
+function src2cXY(e: SrcPoint) {
+    const { x, y } = src2pXYdb(e);
     if (editorP.zoom === 1 / window.devicePixelRatio) {
         return { x: Math.ceil(x), y: Math.ceil(y) } as px_position; // 确保获取到最后的像素
     }
@@ -1124,7 +1130,7 @@ function pointsOutRect(points: point[]) {
 
 // 开始操纵框选
 function clipStart(e: MouseEvent, inRect: boolean) {
-    const p = e2pXY(e);
+    const p = src2pXY(e2srcPoint(e));
     if (isRect) {
         // 在选区内，则调整，否则新建
         if (inRect) {
@@ -1135,7 +1141,7 @@ function clipStart(e: MouseEvent, inRect: boolean) {
             moveRect(oFinalRect, p, p);
         } else {
             selecting = true;
-            rectStartE = e2cXY(e);
+            rectStartE = src2cXY(e2srcPoint(e));
             finalRect = p2Rect(rectStartE, rectStartE);
             rightKey = false;
             changeRightBar(false);
@@ -1163,7 +1169,7 @@ function clipStart(e: MouseEvent, inRect: boolean) {
 function pickColor(e: MouseEvent | PointerEvent) {
     rightKey = !rightKey;
     // 自由右键取色
-    mouseBar(finalRect, e);
+    mouseBar(finalRect, e2srcPoint(e));
     // 改成多格式样式
     if (rightKey) {
         changeRightBar(true);
@@ -1173,11 +1179,11 @@ function pickColor(e: MouseEvent | PointerEvent) {
 }
 
 function clipEnd(e: MouseEvent) {
-    const p = e2pXY(e);
+    const p = src2pXY(e2srcPoint(e));
     clipCtx.closePath();
     selecting = false;
     if (isRect) {
-        const r = p2Rect(rectStartE, e2cXY(e));
+        const r = p2Rect(rectStartE, src2cXY(e2srcPoint(e)));
         if (rectInRect.length) {
             let nearestL = Number.POSITIVE_INFINITY;
             let nr: rect | null = null;
@@ -1329,9 +1335,9 @@ function renderClip(e: MouseEvent) {
     if (selecting) {
         if (isRect) {
             // 画框
-            finalRect = p2Rect(rectStartE, e2cXY(e));
+            finalRect = p2Rect(rectStartE, src2cXY(e2srcPoint(e)));
         } else {
-            freeSelect.push(e2pXY(e));
+            freeSelect.push(src2pXY(e2srcPoint(e)));
             finalRect = pointsOutRect(freeSelect);
         }
     }
@@ -1347,7 +1353,7 @@ function renderClip(e: MouseEvent) {
         cleanCanvas();
         drawClip();
         inEdge({ x: e.offsetX, y: e.offsetY });
-        ckx(e);
+        ckx(e2srcPoint(e));
     }
 
     if (!selecting && !moving) {
@@ -1459,8 +1465,8 @@ function changeWH(el: ElType<HTMLInputElement>) {
     followBar();
 }
 
-function mouseBar(finalRect: rect, e: MouseEvent) {
-    const { x, y } = e2cXY(e);
+function mouseBar(finalRect: rect, e: SrcPoint) {
+    const { x, y } = src2cXY(e);
     const [x0, y0, width, height] = finalRect;
 
     const delta = (colorSize - 1) / 2;
@@ -1518,9 +1524,9 @@ function mouseBar(finalRect: rect, e: MouseEvent) {
     mouseBarXy.sv([x, y]);
 }
 
-function ckx(e: MouseEvent) {
+function ckx(e: SrcPoint) {
     if (!g光标参考线) return;
-    const { x, y } = e2cXY(e);
+    const { x, y } = src2cXY(e);
     clipCtx.fillStyle = c参考线颜色.光标参考线;
     clipCtx.fillRect(0, y, x, 1);
     clipCtx.fillRect(x + 1, y, clipCanvas.width - x - 1, 1);
@@ -4019,7 +4025,7 @@ document.body.onkeydown = (e) => {
             }
             cleanCanvas();
             drawClip();
-            ckx(nowMouseE);
+            ckx(e2srcPoint(nowMouseE));
         } else {
             let x = editorP.x;
             let y = editorP.y;
@@ -4040,7 +4046,7 @@ document.body.onkeydown = (e) => {
             }
             setEditorP(editorP.zoom, x, y);
             document.body.classList.add("editor_bg");
-            mouseBar(finalRect, nowMouseE);
+            mouseBar(finalRect, e2srcPoint(nowMouseE));
         }
     }
 };
@@ -4228,7 +4234,7 @@ document.onmousemove = (e) => {
         renderClip(e);
         if (!rightKey) {
             // 鼠标跟随栏
-            mouseBar(finalRect, e);
+            mouseBar(finalRect, e2srcPoint(e));
 
             const d = 16;
             const x = Math.round(e.clientX + d);
