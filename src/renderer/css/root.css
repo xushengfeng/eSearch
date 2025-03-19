@@ -43,7 +43,7 @@
     );
 
     --transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-    --button-active: scale(0.85);
+    --button-active: scale(0.95) translateZ(0);
     --border-radius: 8px;
     --blur: blur(10px);
     --shadow: color-mix(in srgb, var(--emphasis-color) 20%, transparent) 0 0 4px,
