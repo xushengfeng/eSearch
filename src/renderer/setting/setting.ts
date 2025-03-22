@@ -2942,7 +2942,7 @@ function sortList<t>(
                 onChange();
             },
         ); // todo 必须命名
-        const sortHandle = button().add(iconEl("handle"));
+        const sortHandle = button().add(iconEl("handle")).class("sort_handle");
         const rm = button()
             .add(iconEl("delete"))
             .on("click", () => {
