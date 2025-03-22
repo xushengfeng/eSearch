@@ -2939,7 +2939,7 @@ function sortList<t>(
     function addItem(id: string) {
         const itemEl = view("x")
             .style({ alignItems: "center" })
-            .class(Class.smallSize)
+            .class(Class.smallSize, Class.group)
             .data({ id: id });
         const nameEl = txt(newData.get(id)?.["sort-name"] ?? "", true).on(
             "click",
