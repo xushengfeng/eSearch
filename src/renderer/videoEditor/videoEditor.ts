@@ -84,6 +84,8 @@ type baseType = (typeof outputType)[number]["type"];
 
 const testMode: "getFrame" | "history" | false = false;
 
+const sourceIdPromise = Promise.withResolvers<string>();
+
 const zeroPoint = [0, 0] as const;
 
 let lastUiData: uiData | null = null;
@@ -1679,6 +1681,10 @@ function timeEl() {
     });
 }
 
+renderOn("superRecorderInit", ([sourceId]) =>
+    sourceIdPromise.resolve(sourceId),
+);
+
 const history = new xhistory<uiData>([], {
     clipList: [],
     eventList: [],
@@ -2580,8 +2586,9 @@ pack(document.body).style({
     overflow: "hidden",
 });
 
-renderOn("superRecorderInit", async ([sourceId]) => {
+(async () => {
     if (testMode) return;
+    const sourceId = await sourceIdPromise.promise;
     let stream: MediaStream | undefined;
     try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -2776,7 +2783,7 @@ renderOn("superRecorderInit", async ([sourceId]) => {
             recordTime.sv(nowTime - keys[0].time);
         }
     }
-});
+})();
 
 // @ts-ignore
 if (testMode !== false) {
