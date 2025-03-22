@@ -825,9 +825,20 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => input(),
     },
     // 代码提示
-    // todo 移除保存格式，使用上次记住的
     // todo 根据文件后缀识别
     // todo 不记住svg
+    "保存.默认格式": {
+        name: "截屏默认格式",
+        el: (v) =>
+            xSelect<typeof v>(
+                [
+                    { value: "png", name: "PNG" },
+                    { value: "jpg", name: "JPG" },
+                    { value: "webp", name: "WebP" },
+                ],
+                "截屏默认格式",
+            ),
+    },
     "保存.保存并复制": {
         name: "保存并复制",
         el: () => xSwitch(),
@@ -2023,6 +2034,7 @@ const main: {
             "_filename",
             "保存.保存并复制",
             "保存.快速保存",
+            "保存.默认格式",
         ],
     },
     {
