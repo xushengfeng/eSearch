@@ -948,36 +948,42 @@ function runSave() {
     });
 }
 async function save(message: string) {
-    if (message) {
-        const fs = require("node:fs");
-        let dataBuffer: Buffer;
-        if (type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
-        else {
-            let f = "";
-            const nc = getClipPhoto();
-            if (type === "png") {
-                f = nc.toDataURL("image/png", 1);
-            } else if (type === "jpg") {
-                f = nc.toDataURL("image/jpeg", 1);
-            } else if (type === "webp") {
-                f = nc.toDataURL("image/webp", 1);
-            }
-            dataBuffer = Buffer.from(
-                f.replace(/^data:image\/\w+;base64,/, ""),
-                "base64",
-            );
-            if (store.get("保存.保存并复制")) {
-                clipboard.writeImage(nativeImage.createFromDataURL(f));
-            }
-        }
+    if (!message) return;
+    const iType = message.split(".")?.pop()?.toLowerCase() as
+        | setting["保存"]["默认格式"]
+        | undefined;
+    const _type = iType && saveTypeList.includes(iType) ? iType : type;
 
-        fs.writeFile(message, dataBuffer, (err) => {
-            if (!err) {
-                renderSend("ok_save", [message]);
-            }
-        });
-        tool.close();
+    if (_type !== "svg") store.set("保存.默认格式", _type);
+
+    const fs = require("node:fs");
+    let dataBuffer: Buffer;
+    if (_type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
+    else {
+        let f = "";
+        const nc = getClipPhoto();
+        if (_type === "png") {
+            f = nc.toDataURL("image/png", 1);
+        } else if (_type === "jpg") {
+            f = nc.toDataURL("image/jpeg", 1);
+        } else if (_type === "webp") {
+            f = nc.toDataURL("image/webp", 1);
+        }
+        dataBuffer = Buffer.from(
+            f.replace(/^data:image\/\w+;base64,/, ""),
+            "base64",
+        );
+        if (store.get("保存.保存并复制")) {
+            clipboard.writeImage(nativeImage.createFromDataURL(f));
+        }
     }
+
+    fs.writeFile(message, dataBuffer, (err) => {
+        if (!err) {
+            renderSend("ok_save", [message]);
+        }
+    });
+    tool.close();
 }
 
 function getClipPhotoSVG() {

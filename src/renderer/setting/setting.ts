@@ -825,8 +825,6 @@ const s: Partial<settingItem<SettingPath>> = {
         el: () => input(),
     },
     // 代码提示
-    // todo 根据文件后缀识别
-    // todo 不记住svg
     "保存.默认格式": {
         name: "截屏默认格式",
         el: (v) =>
