@@ -1,4 +1,4 @@
-import type { setting, 功能 } from "../../ShareTypes";
+import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
 import type { SettingPath, GetValue } from "../../../lib/store/renderStore";
 import {
     ele,
@@ -100,8 +100,6 @@ type settingItem<t extends SettingPath> = {
         el: (value: GetValue<setting, key>) => ElType<HTMLElement>;
     };
 };
-
-type GithubUrlType = Omit<keyof setting["网络"]["github镜像"], "启用">;
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const history = new xhistory<object, { k: string; v: any }>(
@@ -3820,41 +3818,8 @@ function getIconColor(hex: string) {
     }
 }
 
-function githubPath(url: string): {
-    type: GithubUrlType;
-    path: string;
-} {
-    const u = url.replace("https://", "");
-    if (u.startsWith("api.github.com"))
-        return {
-            path: u.replace("api.github.com", ""),
-            type: "api",
-        };
-    if (u.startsWith("github.com"))
-        return { path: u.replace("github.com", ""), type: "base" };
-    return { path: url, type: "base" };
-}
-
-// todo 主进程也用
-
 function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
-    const s = store.get("网络.github镜像");
-    function ap(x: string) {
-        return x.replace(/\/$/, "");
-    }
-    function bp(x: string) {
-        return x.replace(/^\//, "");
-    }
-    if (!s.启用 && _type === "auto") return _path;
-    const { path, type } =
-        _type === "auto" ? githubPath(_path) : { path: _path, type: _type };
-    if (type === "api") {
-        return `${ap(s.api)}/${bp(path)}`;
-    }
-    if (type === "base") {
-        return `${ap(s.base)}/${bp(path)}`;
-    }
-    return path;
+    return renderSendSync("githubUrl", [_path, _type]);
 }
 
 function isDarkMode() {

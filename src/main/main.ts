@@ -35,6 +35,7 @@ import type {
     translateWinType,
     功能,
     EditToolsType,
+    GithubUrlType,
 } from "../ShareTypes";
 import { join, resolve, dirname } from "node:path";
 import { exec, execSync } from "node:child_process";
@@ -2920,6 +2921,43 @@ function versionCompare(v1: string, v2: string) {
     }
     return 0;
 }
+
+function githubPath(url: string): {
+    type: GithubUrlType;
+    path: string;
+} {
+    const u = url.replace("https://", "");
+    if (u.startsWith("api.github.com"))
+        return {
+            path: u.replace("api.github.com", ""),
+            type: "api",
+        };
+    if (u.startsWith("github.com"))
+        return { path: u.replace("github.com", ""), type: "base" };
+    return { path: url, type: "base" };
+}
+
+function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
+    const s = store.get("网络.github镜像");
+    function ap(x: string) {
+        return x.replace(/\/$/, "");
+    }
+    function bp(x: string) {
+        return x.replace(/^\//, "");
+    }
+    if (!s.启用 && _type === "auto") return _path;
+    const { path, type } =
+        _type === "auto" ? githubPath(_path) : { path: _path, type: _type };
+    if (type === "api") {
+        return `${ap(s.api)}/${bp(path)}`;
+    }
+    if (type === "base") {
+        return `${ap(s.base)}/${bp(path)}`;
+    }
+    return path;
+}
+
+mainOn("githubUrl", ([p, t]) => githubUrl(p, t));
 
 function checkUpdate(s手动检查?: boolean) {
     const version = store.get("设置版本");

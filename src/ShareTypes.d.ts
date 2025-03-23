@@ -539,3 +539,5 @@ type EditToolsType =
     | "link"
     | "search"
     | "translate";
+
+type GithubUrlType = Omit<keyof setting["网络"]["github镜像"], "启用">;

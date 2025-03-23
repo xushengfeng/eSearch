@@ -12,6 +12,7 @@ import type {
     DingResize,
     DingStart,
     EditToolsType,
+    GithubUrlType,
     MainWinType,
     translateWinType,
     功能,
@@ -156,6 +157,7 @@ type Message = {
     browserUrl: (id: number, url: string) => void;
     browserLoad: (id: number, load: boolean) => void;
     userDataPath: () => string;
+    githubUrl: (path: string, _type?: GithubUrlType | "auto") => string;
 };
 
 const name = "ipc";
