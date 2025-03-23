@@ -253,41 +253,6 @@ const build = {
             } catch (error) {
                 console.log(error);
             }
-
-        const appPath = path.join(
-            c.appOutDir,
-            process.platform === "darwin"
-                ? "e-search.app/Contents/Resources/app"
-                : "resources/app",
-        );
-
-        const appDir = path.join(c.outDir, "app");
-        fs.cpSync(appPath, appDir, { recursive: true });
-        const ignoreDir = ["node_modules/onnxruntime-node", "ocr"];
-        for (const i of ignoreDir) {
-            fs.rmSync(path.join(appDir, i), { recursive: true });
-        }
-
-        const outputFilePath = path.join(
-            c.outDir,
-            `app-${process.platform}-${arch}`,
-        );
-
-        const output = fs.createWriteStream(outputFilePath);
-        const archive = archiver("zip", {
-            zlib: { level: 9 },
-        });
-
-        archive.pipe(output);
-        archive.directory(appDir, "app");
-        archive.finalize();
-
-        return new Promise((rj) => {
-            output.on("close", () => {
-                console.log("生成核心包");
-                rj(true);
-            });
-        });
     },
 };
 
