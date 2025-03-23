@@ -3882,6 +3882,7 @@ function about() {
         });
     const nameEl = p(packageJson.name, true).style({ fontSize: "2rem" });
     const version = button(noI18n(packageJson.version))
+        .attr({ title: "点击检查更新" })
         .class(Class.mono, Class.click)
         .on("click", () => {
             fetch(githubUrl("repos/xushengfeng/eSearch/releases", "api"), {
