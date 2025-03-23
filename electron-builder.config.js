@@ -315,6 +315,17 @@ const ignoreModule = [
     "acorn",
     "cssstyle",
     "psl",
+    "js-clipper",
+    "iso-639-3-to-1",
+    "fuse.js",
+    "iconv-lite",
+    "esprima",
+    "decimal.js",
+    "franc",
+    "tar-fs",
+    "node-abi",
+    "tr46",
+    "argparse",
 ];
 for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
