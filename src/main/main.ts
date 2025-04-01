@@ -1422,7 +1422,6 @@ function createRecorderWindow(
     recorder = new BrowserWindow({
         icon: theIcon,
         autoHideMenuBar: true,
-        resizable: process.platform === "linux",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
