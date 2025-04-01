@@ -362,7 +362,9 @@ function joinAndSave(filepath: string) {
     }
     args.push(filepath);
 
-    runFfmpeg("join", 0, args);
+    runFfmpeg("join", 0, args).then((r) => {
+        if (r) renderSend("ok_save", [filepath]);
+    });
 }
 
 async function save() {
@@ -499,7 +501,7 @@ function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
         logs: [],
     };
     updataPrEl(ffprocess);
-    return new Promise((re, rj) => {
+    return new Promise<boolean>((re, rj) => {
         ffmpeg.on("close", (code) => {
             if (code === 0) {
                 setFFState(type, n, "ok");
