@@ -4118,6 +4118,9 @@ hotkeys("s", () => {
             drawClipRect();
         });
     }
+    rectSelect = false;
+    finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
+    drawClipRect();
 });
 
 const whHotKeyMap = {
