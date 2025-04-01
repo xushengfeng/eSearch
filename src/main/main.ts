@@ -1530,7 +1530,7 @@ mainOn("recordSavePath", ([ext]) => {
         .showSaveDialog({
             title: t("选择要保存的位置"),
             defaultPath: join(savedPath, `${getFileName()}.${ext}`),
-            filters: [{ name: t("视频"), extensions: [] }],
+            filters: [{ name: t("视频"), extensions: [ext] }],
         })
         .then(async (x) => {
             if (x.filePath) {
