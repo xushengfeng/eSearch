@@ -2385,12 +2385,7 @@ function baidu(
     while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    form.append(
-        "image",
-        new Blob([u8arr], { type: "image/png" }),
-        "eSearch.png",
-    );
-    form.append("from", "pc");
+    form.append("image", new Blob([u8arr], { type: "image/png" }), "blob");
     post("https://graph.baidu.com/upload", { body: form }, (err, result) => {
         if (err) {
             callback(err, null);
