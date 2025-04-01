@@ -10,19 +10,23 @@ type data = {
 
 class Store {
     private configPath: string;
+    private data: data | undefined;
 
     constructor() {
         this.configPath = path.join(app.getPath("userData"), "config.json");
         if (!fs.existsSync(this.configPath)) {
             this.init();
         }
+        this.data = this.getStore();
     }
 
     private init() {
         fs.writeFileSync(this.configPath, "{}");
+        this.data = {};
     }
 
     private getStore() {
+        if (this.data) return this.data;
         let str = "{}";
         try {
             str = fs.readFileSync(this.configPath).toString() || "{}";
@@ -33,6 +37,7 @@ class Store {
     }
 
     private setStore(data: data) {
+        this.data = data;
         fs.writeFileSync(this.configPath, JSON.stringify(data, null, 2));
     }
 
