@@ -1355,12 +1355,11 @@ function renderClip(e: MouseEvent) {
         }
     }
 
-    if (g光标参考线 || selecting || moving) {
-        cleanCanvas();
-        drawClip();
-        inEdge({ x: e.offsetX, y: e.offsetY });
-        ckx(e2srcPoint(e));
-    }
+    // todo 拆分canvas
+    cleanCanvas();
+    drawClip();
+    inEdge({ x: e.offsetX, y: e.offsetY });
+    ckx(e2srcPoint(e));
 
     if (!selecting && !moving) {
         // 只是悬浮光标时生效，防止在新建或调整选区时光标发生突变
