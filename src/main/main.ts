@@ -1505,7 +1505,7 @@ function createRecorderWindow(
         setTimeout(mouse, 10);
     }
     recording = true;
-    if (store.get("录屏.提示.光标.开启")) mouse();
+    mouse();
 }
 
 mainOn("recordStop", () => {
