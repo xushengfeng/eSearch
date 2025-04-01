@@ -1390,8 +1390,8 @@ let recording = false;
 const recorderWinW = 264;
 const recorderWinH = 24;
 
-let recorder: BrowserWindow;
-let recorderTipWin: BrowserWindow;
+let _recorder: BrowserWindow;
+let _recorderTipWin: BrowserWindow;
 function createRecorderWindow(
     rect0: [number, number, number, number],
     screenx: { id: string; w: number; h: number; r: number },
@@ -1419,7 +1419,7 @@ function createRecorderWindow(
     y = Math.min(y, sy1 - h);
     x = Math.round(x);
     y = Math.round(y);
-    recorder = new BrowserWindow({
+    const recorder = new BrowserWindow({
         icon: theIcon,
         autoHideMenuBar: true,
         webPreferences: {
@@ -1428,6 +1428,7 @@ function createRecorderWindow(
             sandbox: false,
         },
     });
+    _recorder = recorder;
     rendererPath(recorder, "recorder.html");
     if (dev) recorder.webContents.openDevTools();
 
@@ -1467,7 +1468,7 @@ function createRecorderWindow(
 
     const border = 2;
     const rect1 = rect0.map((v) => Math.round(v / ratio));
-    recorderTipWin = new BrowserWindow({
+    const recorderTipWin = new BrowserWindow({
         x: rect1[0] - border,
         y: rect1[1] - border,
         width: rect1[2] + border * 2,
@@ -1482,6 +1483,7 @@ function createRecorderWindow(
             sandbox: false,
         },
     });
+    _recorderTipWin = recorderTipWin;
     rendererPath(recorderTipWin, "recorderTip.html");
     if (dev) recorderTipWin.webContents.openDevTools();
 
@@ -1507,21 +1509,28 @@ function createRecorderWindow(
     mouse();
 }
 
+function checkWin(win: BrowserWindow) {
+    return win && !win.isDestroyed();
+}
+
 mainOn("recordStop", () => {
-    recorderTipWin.close();
+    if (checkWin(_recorderTipWin)) _recorderTipWin.close();
     recording = false;
 });
 mainOn("recordStart", () => {
-    recorder.minimize();
+    if (checkWin(_recorder)) _recorder.minimize();
 });
 mainOnReflect("recordTime", () => {
-    return [recorderTipWin.webContents];
+    if (checkWin(_recorderTipWin)) return [_recorderTipWin.webContents];
+    return [];
 });
 mainOnReflect("recordCamera", () => {
-    return [recorderTipWin.webContents];
+    if (checkWin(_recorderTipWin)) return [_recorderTipWin.webContents];
+    return [];
 });
 mainOnReflect("recordState", () => {
-    return [recorder.webContents];
+    if (checkWin(_recorder)) return [_recorder.webContents];
+    return [];
 });
 mainOn("recordSavePath", ([ext]) => {
     const savedPath = store.get("保存.保存路径.视频") || "";
@@ -1537,7 +1546,10 @@ mainOn("recordSavePath", ([ext]) => {
                 if (!fpath.includes(".")) {
                     fpath += `.${ext}`;
                 }
-                mainSend(recorder.webContents, "recordSavePathReturn", [fpath]);
+                if (checkWin(_recorder))
+                    mainSend(_recorder.webContents, "recordSavePathReturn", [
+                        fpath,
+                    ]);
             } else {
                 new Notification({
                     title: `${app.name} ${t("保存视频失败")}`,
