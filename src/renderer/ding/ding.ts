@@ -509,17 +509,18 @@ async function transAndDraw(
 ) {
     const data = dingData.get(el.el.id);
     if (!data) return;
+    const image = el.query(".img > img")!.el;
     const canvas = ele("canvas")
         .attr({
-            width: data.rect[2],
-            height: data.rect[3],
+            width: image.naturalWidth,
+            height: image.naturalHeight,
         })
         .style({ position: "absolute", pointerEvents: "none" })
         // @ts-ignore
         .addInto(el.query(".img")).el;
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     // @ts-ignore
-    ctx.drawImage(el.query(".img > img").el, 0, 0);
+    ctx.drawImage(image, 0, 0);
     console.log(p);
     const tr = await translateE(p.map((i) => i.parse.text));
     console.log(tr);

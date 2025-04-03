@@ -1877,18 +1877,7 @@ mainOn("edit_pic", ([img]) => {
     sendCaptureEvent(img);
 });
 
-function createTranslator(op: translateWinType) {
-    if (op.type === "ding") {
-        createDingWindow(
-            op.rect.x,
-            op.rect.y,
-            op.rect.w,
-            op.rect.h,
-            op.img,
-            "translate",
-        );
-        return;
-    }
+function createTranslator(op: Omit<translateWinType, "type">) {
     const win = new BrowserWindow({
         transparent: true,
         frame: false,

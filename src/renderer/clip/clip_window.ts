@@ -880,28 +880,40 @@ function checkTranslator() {
 }
 
 async function translate() {
-    const c = checkTranslator();
-    if (!c) return;
+    const t = checkTranslator();
+    if (!t) return;
     const display = getNowScreen();
-    renderSend("clip_translate", [
-        {
-            rect: {
-                x: finalRect[0],
-                y: finalRect[1],
-                w: finalRect[2],
-                h: finalRect[3],
-            },
-            dipRect: {
+    const c = getClipPhoto();
+    if (toolBarEl.els.translate.gv === "ding") {
+        renderSend("clip_ding", [
+            c.toDataURL(),
+            "translate",
+            {
                 x: finalRect[0] / ratio + display.bounds.x,
                 y: finalRect[1] / ratio + display.bounds.y,
                 w: finalRect[2] / ratio,
                 h: finalRect[3] / ratio,
             },
-            displayId: nowScreenId,
-            img: getClipPhoto().toDataURL(),
-            type: toolBarEl.els.translate.gv,
-        },
-    ]);
+        ]);
+    } else
+        renderSend("clip_translate", [
+            {
+                rect: {
+                    x: finalRect[0],
+                    y: finalRect[1],
+                    w: finalRect[2],
+                    h: finalRect[3],
+                },
+                dipRect: {
+                    x: finalRect[0] / ratio + display.bounds.x,
+                    y: finalRect[1] / ratio + display.bounds.y,
+                    w: finalRect[2] / ratio,
+                    h: finalRect[3] / ratio,
+                },
+                displayId: nowScreenId,
+                img: getClipPhoto().toDataURL(),
+            },
+        ]);
     tool.close();
 }
 
