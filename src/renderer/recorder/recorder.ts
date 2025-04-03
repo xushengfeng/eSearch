@@ -363,7 +363,7 @@ function joinAndSave(filepath: string) {
     args.push(filepath);
 
     runFfmpeg("join", 0, args).then((r) => {
-        if (r) renderSend("ok_save", [filepath]);
+        if (r) renderSend("ok_save", [filepath, true]);
     });
 }
 
