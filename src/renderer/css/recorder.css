@@ -59,7 +59,8 @@ input {
     font-family: var(--main-font);
 }
 input[type="number"] {
-    width: 50px;
+    width: 16px;
+    padding: 0;
 }
 
 #t_nt,
