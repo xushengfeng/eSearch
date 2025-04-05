@@ -2069,10 +2069,10 @@ editorOutEl.el.style.transition = "";
 
 function setConciseMode(m: boolean) {
     if (m) {
-        bottomEl.el.style.height = "0";
+        bottomEl.style({ height: 0, overflow: "hidden" });
         outMainEl.el.style.gap = "0";
     } else {
-        bottomEl.el.style.height = "";
+        bottomEl.style({ height: "", overflow: "" });
         outMainEl.el.style.gap = cssVar("o-padding");
     }
     const bSize = {
