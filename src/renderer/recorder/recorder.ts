@@ -234,7 +234,7 @@ let playName = 0;
 
 function clipV() {
     tStartEl.sv(0);
-    setEndEl.el.click();
+    setEnd();
 
     tTEl.sv(tFormat(tEndEl.gv - tStartEl.gv));
     tNtEl.sv(tFormat(0));
@@ -687,10 +687,10 @@ class time_i extends HTMLElement {
         return this.value;
     }
     sv(v: number) {
-        this.set_value(v);
+        this.value = v;
     }
     set svc(v: number) {
-        this.set_value(v);
+        this.value = v;
     }
 }
 
@@ -909,14 +909,14 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
             videoPlay();
         }
     });
-const setEndEl = iconBEl("right")
-    .attr({ id: "b_t_end" })
-    .on("click", () => {
-        const last = timeL.at(-1) as number;
-        const max = last - timeL[0];
-        jdtEl.attr({ max: String(max) });
-        tEndEl.svc = tStartEl.max = tEndEl.max = last - timeL[0];
-    });
+const setEndEl = iconBEl("right").attr({ id: "b_t_end" }).on("click", setEnd);
+
+function setEnd() {
+    const last = timeL.at(-1) as number;
+    const max = last - timeL[0];
+    jdtEl.attr({ max: String(max) });
+    tEndEl.svc = tStartEl.max = tEndEl.max = last - timeL[0];
+}
 
 const saveEl = iconBEl("save")
     .attr({ id: "save", disabled: true })
