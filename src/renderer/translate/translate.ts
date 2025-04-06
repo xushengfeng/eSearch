@@ -6,7 +6,18 @@ import convert3To1 from "iso-639-3-to-1";
 
 import store from "../../../lib/store/renderStore";
 
-import { button, ele, frame, image, p, pack, spacer, txt, view } from "dkh-ui";
+import {
+    button,
+    ele,
+    frame,
+    image,
+    p,
+    pack,
+    pText,
+    spacer,
+    txt,
+    view,
+} from "dkh-ui";
 
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
@@ -116,7 +127,7 @@ function translate(_text: string) {
                 _spacer: spacer(),
                 name: txt(i.name).style({ opacity: 0.5 }),
             },
-            content: p(""),
+            content: pText(""),
         });
         results.add(e.el);
         const c = e.els.content;
