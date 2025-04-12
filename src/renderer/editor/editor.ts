@@ -2222,8 +2222,12 @@ function getTab(id: number): TabItem {
 
 function closeTab(id: number) {
     renderSend("tabView", [id, "close"]);
-    focusTab(liList.at(liList.findIndex((i) => i === id) + 1) || 0);
+    const beforeIndex = Math.min(
+        liList.findIndex((i) => i === id),
+        liList.length - 1,
+    );
     liList = liList.filter((i) => i !== id);
+    focusTab(liList[beforeIndex] ?? 0);
     tabs.get(id)?.el.remove();
     tabs.delete(id);
 
