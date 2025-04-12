@@ -2154,6 +2154,12 @@ async function createBrowser(windowName: number, url: string) {
     if (dev) searchView.webContents.openDevTools();
     if (!mainWindow.isDestroyed())
         mainSend(mainWindow.webContents, "browserNew", [view, url]);
+
+    searchView.webContents.session.setPermissionRequestHandler((_, __, cb) =>
+        cb(false),
+    );
+    searchView.webContents.session.setPermissionCheckHandler(() => false);
+
     searchView.webContents.on("page-title-updated", (_event, title) => {
         if (!mainWindow.isDestroyed())
             mainSend(mainWindow.webContents, "browserTitle", [view, title]);
