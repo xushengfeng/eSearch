@@ -2869,12 +2869,15 @@ function sortTool() {
     });
     new Sortable(toolShowEl.el, {
         group: "tools",
-        onChange: () => {
+        onEnd: () => {
             pel.el.dispatchEvent(new CustomEvent("input"));
         },
     });
     new Sortable(toolHideEl.el, {
         group: "tools",
+        onEnd: () => {
+            pel.el.dispatchEvent(new CustomEvent("input"));
+        },
     });
     pel.add([
         toolShowEl,
