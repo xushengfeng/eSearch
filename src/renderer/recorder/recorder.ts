@@ -186,8 +186,14 @@ function setPlayT(time: number) {
 /** 获取绝对时间对应的视频和相对时间 */
 function getTimeInV(time: number) {
     for (let i = 0; i < nameT.length; i++) {
-        if (nameT[i].s <= time && time < (nameT?.[i + 1]?.s || nameT[i].e)) {
-            return { v: i, time: time - nameT[i].s };
+        if (
+            nameT[i].s <= time &&
+            (time < nameT?.[i + 1]?.s || time <= nameT[i].e)
+        ) {
+            return {
+                v: i,
+                time: Math.min(time - nameT[i].s, nameT[i].e - nameT[i].s),
+            };
         }
     }
     return { v: 0, time: 0 };
