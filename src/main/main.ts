@@ -2148,7 +2148,8 @@ async function createBrowser(windowName: number, url: string) {
     const bSize = mainWindowL[windowName].browser;
     setViewSize(searchView, mainWindow, bSize);
     searchView.webContents.setWindowOpenHandler(({ url }) => {
-        createBrowser(windowName, url);
+        if (url.startsWith("http") || url.startsWith("https"))
+            createBrowser(windowName, url);
         return { action: "deny" };
     });
     if (dev) searchView.webContents.openDevTools();
