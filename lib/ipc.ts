@@ -72,6 +72,7 @@ type Message = {
     open_this_browser: (window_name: number, url: string) => void;
     edit_pic: (img: Buffer<ArrayBufferLike>) => void;
     dialogMessage: (op: MessageBoxSyncOptions) => number;
+    openUrl: (url: string) => void;
     windowClose: () => void;
     windowMax: () => void;
     windowTop: (ignore: boolean) => void;

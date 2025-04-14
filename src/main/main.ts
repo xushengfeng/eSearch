@@ -2273,6 +2273,10 @@ mainOn("tabView", ([id, arg], e) => {
     }
 });
 
+mainOn("openUrl", ([url]) => {
+    shell.openExternal(url);
+});
+
 mainOn("tabViewSize", ([arg2], e) => {
     const mainWindow = BrowserWindow.fromWebContents(e.sender);
     if (!mainWindow) return;

@@ -2309,7 +2309,7 @@ function mainEvent(eid: BrowserAction | "add_history" | "browser") {
 
 function openInBrowser() {
     const url = getTab(focusTabI).url;
-    shell.openExternal(url);
+    renderSend("openUrl", [url]);
     if (store.get("浏览器.标签页.自动关闭")) {
         closeTab(focusTabI);
         if (isTabsEmpty() && editor.get().trim() === "") closeWindow();
