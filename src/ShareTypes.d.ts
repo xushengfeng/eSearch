@@ -246,11 +246,13 @@ export interface setting {
     主页面: {
         模式: "auto" | "search" | "translate";
         复用: boolean;
+        复用后聚焦: boolean;
         失焦关闭: boolean;
         简洁模式: boolean;
         高级窗口按钮: boolean;
         显示图片区: number;
         自动复制OCR: boolean;
+        复制OCR后提示: boolean;
     };
     主页面大小: [number, number, boolean];
     时间格式: string;

@@ -1006,6 +1006,15 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "自动复制OCR结果",
         el: () => xSwitch(),
     },
+    "主页面.复制OCR后提示": {
+        name: "复制OCR后提示",
+        el: () => xSwitch(),
+    },
+    "主页面.复用后聚焦": {
+        name: "复用后聚焦",
+        desc: "使用OCR等操作复用窗口时，该窗口是否主动弹出聚焦",
+        el: () => xSwitch(),
+    },
     自动搜索: {
         name: "自动搜索",
         desc: "识屏或直接打开主页面，若文字为一行，则自动搜索",
@@ -1938,7 +1947,12 @@ const main: {
     },
     {
         pageName: "文字识别（OCR）",
-        settings: ["OCR.类型", "OCR.离线切换", "主页面.自动复制OCR"],
+        settings: [
+            "OCR.类型",
+            "OCR.离线切换",
+            "主页面.自动复制OCR",
+            "主页面.复制OCR后提示",
+        ],
         items: [
             { title: "离线OCR", settings: ["离线OCR", "OCR.识别段落"] },
             {
@@ -2079,7 +2093,11 @@ const main: {
             },
             {
                 title: "界面",
-                settings: ["主页面.高级窗口按钮", "主页面.显示图片区"],
+                settings: [
+                    "主页面.高级窗口按钮",
+                    "主页面.显示图片区",
+                    "主页面.复用后聚焦",
+                ],
             },
         ],
     },

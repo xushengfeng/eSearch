@@ -1970,7 +1970,7 @@ async function createMainWindow(op: MainWinType) {
         const mainWindow = mainWindowL[name].win;
         op.time = Date.now();
         mainSend(mainWindow.webContents, "editorInit", [name, op]);
-        mainWindow.focus();
+        if (store.get("主页面.复用后聚焦")) mainWindow.focus();
         return name;
     }
 
@@ -2336,6 +2336,15 @@ function noti(filePath: string) {
     });
     notification.show();
 }
+
+mainOn("noti", ([{ title, body }]) => {
+    const notification = new Notification({
+        title: `${app.name} ${title}`,
+        body: body,
+        icon: `${runPath}/assets/logo/64x64.png`,
+    });
+    notification.show();
+});
 
 mainOn("windowIgnoreMouse", ([arg], e) => {
     BrowserWindow.fromWebContents(e.sender)?.setIgnoreMouseEvents(arg);
@@ -2751,11 +2760,13 @@ const defaultSetting: setting = {
     主页面: {
         模式: "auto",
         复用: true,
+        复用后聚焦: true,
         失焦关闭: false,
         简洁模式: false,
         高级窗口按钮: true,
         显示图片区: 10,
         自动复制OCR: false,
+        复制OCR后提示: false,
     },
     主页面大小: [800, 600, false],
     时间格式: "MM/DD hh:mm:ss",

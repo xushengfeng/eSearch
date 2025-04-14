@@ -73,6 +73,7 @@ type Message = {
     edit_pic: (img: Buffer<ArrayBufferLike>) => void;
     dialogMessage: (op: MessageBoxSyncOptions) => number;
     openUrl: (url: string) => void;
+    noti: (op: { body: string; title: string }) => void;
     windowClose: () => void;
     windowMax: () => void;
     windowTop: (ignore: boolean) => void;
