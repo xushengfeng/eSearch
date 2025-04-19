@@ -736,6 +736,8 @@ class xeditor {
                     ) {
                         // 上一行末与此行首为中文字符
                         ot += "";
+                    } else if (t?.[i - 1] === "-") {
+                        ot = ot.slice(0, -1);
                     } else {
                         ot += " ";
                     }
