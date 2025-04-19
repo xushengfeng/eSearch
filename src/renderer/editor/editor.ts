@@ -1485,6 +1485,11 @@ class spellcheckGen {
         }
         return list;
     }
+
+    clear() {
+        this.localCache.clear();
+        this.aiSuggestText = "";
+    }
 }
 
 const spellcheckDiff = new spellcheckGen();
@@ -1834,6 +1839,9 @@ renderOn("editorInit", ([name, list]) => {
         editor.push(`${t("文字识别中……")} ${t("请等候")}`);
         ocr(list.content, list.arg0, (err, r) => {
             const text = r?.text;
+
+            spellcheckDiff.clear();
+
             if (text) {
                 console.log(text);
 
