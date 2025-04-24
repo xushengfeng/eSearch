@@ -710,6 +710,7 @@ const startStop = button()
     .on("click", () => {
         if (sS) {
             if (!recordSysAudio) {
+                // 下面是用来移除系统音频
                 const audioTracks = stream.getAudioTracks();
                 for (const i of audioTracks) {
                     i.stop();
@@ -974,7 +975,6 @@ sEl.add([
 
 const devices = await navigator.mediaDevices.enumerateDevices();
 const audioL = devices.filter((i) => i.kind === "audioinput");
-let recordSysAudio = false;
 const canSysAudio = store.get("录屏.音频.启用系统内录");
 if (canSysAudio)
     micList.add(
@@ -987,6 +987,9 @@ if (canSysAudio)
     );
 
 const audioRmb = store.get("录屏.音频.设备列表");
+
+let recordSysAudio = audioRmb.includes(sysAudioName);
+
 for (const i of audioL) {
     const el = label([check(""), i.label || i.deviceId]).sv(
         audioRmb.includes(i.deviceId),
