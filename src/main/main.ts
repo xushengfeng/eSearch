@@ -452,8 +452,10 @@ async function argRun(c: string[], first?: boolean) {
     }
 }
 
-async function rmR(dir_path: string) {
-    rmSync(dir_path, { recursive: true });
+function rmR(dir_path: string) {
+    try {
+        rmSync(dir_path, { recursive: true });
+    } catch (error) {}
 }
 
 // 快捷键
