@@ -32,8 +32,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       esearch-ocr:
-        specifier: ^6.0.3
-        version: 6.0.3(@techstark/opencv-js@4.10.0-release.1)
+        specifier: ^7.0.0
+        version: 7.0.0
       esearch-seg:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
@@ -1469,10 +1469,8 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@6.0.3:
-    resolution: {integrity: sha512-Y2dnu8nmOxP+V3b0EjxtLBMGMd/cUUCyAKkIBFp6bnZ7EUfPCSwuvk/p8MA6hMxewuQvU2uxzYi/vH/fT+4Puw==}
-    peerDependencies:
-      '@techstark/opencv-js': 4.10.0-release.1
+  esearch-ocr@7.0.0:
+    resolution: {integrity: sha512-NWG/O1Lh4OQmYRFmozZxj2Hg2Aa9WzuciP6kE4qmKl+M0HU0G4SYwT1Xb+47AzNAYrEm9FirHZwXewLyL0XVvg==}
 
   esearch-seg@1.1.4:
     resolution: {integrity: sha512-0hoN9JTKjImH29jh5fDOTOfxH4/R9ffT/B5mlP/dh7qMbu7oxFmfyv7nX7gpfb+B2bibCa00/eWdMOD3IkfM+Q==}
@@ -1912,9 +1910,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  js-clipper@1.0.1:
-    resolution: {integrity: sha512-0XYAS0ZoCki5K0fWwj8j8ug4mgxHXReW3ayPbVqr4zXPJuIs2pyvemL1sALadsEiAywZwW5Ify1XfU4bNJvokg==}
-
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -2333,9 +2328,6 @@ packages:
   onetime@5.1.2:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
-
-  onnxruntime-common@1.20.1:
-    resolution: {integrity: sha512-YiU0s0IzYYC+gWvqD1HzLc46Du1sXpSiwzKb63PACIJr6LfL27VsXSXQvt68EzD3V0D5Bc0vyJTjmMxp0ylQiw==}
 
   onnxruntime-common@1.21.0:
     resolution: {integrity: sha512-Q632iLLrtCAVOTO65dh2+mNbQir/QNTVBG3h/QdZBpns7mZ0RYbLRBgGABPbpU9351AgYy7SJf1WaeVwMrBFPQ==}
@@ -4595,11 +4587,9 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@6.0.3(@techstark/opencv-js@4.10.0-release.1):
+  esearch-ocr@7.0.0:
     dependencies:
-      '@techstark/opencv-js': 4.10.0-release.1
-      js-clipper: 1.0.1
-      onnxruntime-common: 1.20.1
+      onnxruntime-common: 1.21.0
 
   esearch-seg@1.1.4(opencv.js@1.2.1):
     dependencies:
@@ -5072,8 +5062,6 @@ snapshots:
       filelist: 1.0.4
       minimatch: 3.1.2
 
-  js-clipper@1.0.1: {}
-
   js-tokens@4.0.0: {}
 
   js-yaml@4.1.0:
@@ -5458,8 +5446,6 @@ snapshots:
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
-
-  onnxruntime-common@1.20.1: {}
 
   onnxruntime-common@1.21.0: {}
 
