@@ -2933,8 +2933,6 @@ function versionTrans() {
         }
     }
     if (versionCompare(version, "14.6.4") <= 0) {
-        console.log("1111111");
-
         const ocr = store.get("离线OCR") as unknown as [
             string,
             string,

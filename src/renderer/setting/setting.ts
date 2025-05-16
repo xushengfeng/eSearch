@@ -73,6 +73,7 @@ import time_format from "../../../lib/time_format";
 import xhistory from "../lib/history";
 import { renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { defaultOcrId } from "../ocr/ocr";
 
 const download = require("download");
 
@@ -2741,16 +2742,28 @@ function xColor() {
 function xPath(dir = true) {
     const el = view("x").class(Class.group);
     const i = input();
-    const b = button(iconEl("file")).on("click", () => {
-        const path = renderSendSync("selectPath", [
-            i.gv,
-            dir ? ["openDirectory"] : ["openFile"],
-        ]);
-        if (path) {
-            i.sv(path);
+    const b = button(iconEl("file"))
+        .on("click", () => {
+            const path = renderSendSync("selectPath", [
+                i.gv,
+                dir ? ["openDirectory"] : ["openFile"],
+            ]);
+            if (path) {
+                i.sv(path);
+                el.el.dispatchEvent(new CustomEvent("input"));
+            }
+        })
+        .on("dragover", (e) => {
+            e.preventDefault();
+        })
+        .on("dragleave", () => {})
+        .on("drop", (e) => {
+            e.preventDefault();
+            console.log(e);
+            const fs = Array.from(e.dataTransfer?.files || [])[0];
+            i.sv(webUtils.getPathForFile(fs));
             el.el.dispatchEvent(new CustomEvent("input"));
-        }
-    });
+        });
     return el
         .add([i, b])
         .bindGet(() => i.gv)
@@ -3509,8 +3522,6 @@ function hotkey() {
 }
 
 function ocrEl() {
-    let ocrValue: setting["离线OCR"] = [];
-
     const ocrModels: Record<
         string,
         { url: string; name: string; supportLang: string[] }
@@ -3650,39 +3661,195 @@ function ocrEl() {
 
     const configPath = renderSendSync("userDataPath", []);
 
-    function addOCR(p: string, scripts?: string[]) {
+    const defaultOcr: setting["离线OCR"][0] = {
+        id: defaultOcrId,
+        name: "默认",
+        detPath: "",
+        recPath: "",
+        dicPath: "",
+        scripts: ["zh-HANS", "zh-HANT", "en"],
+    };
+
+    const mainEl = sortList<setting["离线OCR"][0]>(
+        (v) => v.name,
+        (_item, dialog) => {
+            const { promise, resolve } = Promise.withResolvers<typeof _item>();
+            const xxxid = crypto.randomUUID().slice(0, 7);
+
+            const item = _item || {
+                id: xxxid,
+                name: "",
+                detPath: "",
+                recPath: "",
+                dicPath: "",
+                scripts: [],
+            };
+
+            const nameEl = input().sv(item.name);
+            const detPathEl = xPath().sv(item.detPath);
+            const recPathEl = xPath().sv(item.recPath);
+            const dicPathEl = xPath().sv(item.dicPath);
+            const scriptsEl = input()
+                .bindGet((el) => el.value.split(","))
+                .bindSet((v: string[], el) => {
+                    el.value = v.join(", ");
+                })
+                .sv(item.scripts);
+
+            const downloadEl = view("y").add(
+                button(iconEl("down")).on("click", () => {
+                    downloadEl.clear().add(
+                        getOcrList((i, p) => {
+                            const pro = (() => {
+                                const mel = view().style({
+                                    overflow: "hidden",
+                                    width: "300px",
+                                    height: "20px",
+                                    borderRadius: "var(--border-radius)",
+                                    backgroundColor: cssColor.b,
+                                });
+                                const bel = view().style({
+                                    width: "100%",
+                                    height: "100%",
+                                    backgroundColor: cssColor.f,
+                                });
+                                return mel.add(bel).bindSet((v: number) => {
+                                    bel.style({
+                                        width: `${Math.floor(v * 100)}%`,
+                                    });
+                                });
+                            })();
+                            downloadEl.clear().add([pro]);
+                            const url = githubUrl(
+                                `xushengfeng/eSearch-OCR/releases/download/4.0.0/${ocrModels[i].url}`,
+                                "base",
+                            );
+                            try {
+                                fs.rmdirSync(p);
+                            } catch (error) {}
+                            download(url, p, {
+                                extract: true,
+                            })
+                                .on("response", (res) => {
+                                    const total = Number(
+                                        res.headers["content-length"],
+                                    );
+                                    let now = 0;
+                                    res.on("data", (data) => {
+                                        now += Number(data.length);
+                                        const percent = now / total;
+                                        console.log(percent);
+                                        pro.sv(percent);
+                                    });
+                                    res.on("end", () => {
+                                        console.log("download end");
+                                    });
+                                })
+                                .then(() => {
+                                    console.log("end");
+                                    downloadEl.clear();
+                                    const paths = getDownloadOcrPaths(p);
+                                    if (nameEl.gv === "") {
+                                        nameEl.sv(t(ocrModels[i].name));
+                                    }
+                                    detPathEl.sv(paths.detPath);
+                                    recPathEl.sv(paths.recPath);
+                                    dicPathEl.sv(paths.dicPath);
+                                    scriptsEl.sv(ocrModels[i].supportLang);
+                                });
+                        }),
+                    );
+                }),
+            );
+
+            dialogB(
+                dialog,
+                [
+                    nameEl,
+                    downloadEl,
+                    xGroup("y").add([
+                        view().add(["检测模型（det）", ele("br"), detPathEl]),
+                        view().add(["识别模型（rec）", ele("br"), recPathEl]),
+                        view().add(["识别字典（.txt）", ele("br"), dicPathEl]),
+                        view().add(["语言字符", ele("br"), scriptsEl]),
+                    ]),
+                ],
+                () => resolve(null),
+                () =>
+                    resolve({
+                        id: item.id,
+                        name: nameEl.gv || `${t("新模型")}${xxxid}`,
+                        detPath: detPathEl.gv,
+                        recPath: recPathEl.gv,
+                        dicPath: dicPathEl.gv,
+                        scripts: scriptsEl.gv,
+                    }),
+            );
+
+            return promise;
+        },
+    );
+
+    function getOcrList(click: (id: string, p: string) => void) {
+        const ocrListEl = view("y")
+            .style({ overflow: "auto", maxHeight: "200px" })
+            .class(Class.gap);
+        for (const i in ocrModels) {
+            const lans = view("x", "wrap").style({
+                "column-gap": "16px",
+            });
+            const p = path.join(configPath, "models", i);
+            const exists = fs.existsSync(p);
+            const downloadButton = button(exists ? "重新下载" : "下载").on(
+                "click",
+                () => {
+                    click(i, p);
+                },
+            );
+            ocrListEl.add(
+                view("y").add([
+                    view("x")
+                        .class(Class.gap)
+                        .add([
+                            button(ocrModels[i].name).on("click", () => {
+                                lans.clear().add(
+                                    ocrModels[i].supportLang.map((i) =>
+                                        langMap[i]
+                                            ? txt(langMap[i])
+                                            : txt(displayLan.of(i), true),
+                                    ),
+                                );
+                            }),
+                            downloadButton,
+                        ])
+                        .style({ "align-items": "center" }),
+                    lans,
+                ]),
+            );
+        }
+        return ocrListEl;
+    }
+
+    function getDownloadOcrPaths(p: string) {
         const stat = fs.statSync(p);
         if (stat.isDirectory()) {
             const files = fs.readdirSync(p);
             const downPath = path.join(p, files[0]);
             if (fs.statSync(downPath).isDirectory()) {
-                addOCRFromPaths(
+                return pareOcrPaths(
                     fs.readdirSync(downPath).map((i) => path.join(downPath, i)),
-                    scripts,
-                );
-            } else {
-                addOCRFromPaths(
-                    files.map((i) => path.join(p, i)),
-                    scripts,
                 );
             }
-        } else {
-            const files = fs.readdirSync(path.join(p, "../"));
-            addOCRFromPaths(
-                files.map((i) => path.join(p, "../", i)),
-                scripts,
-            );
+            return pareOcrPaths(files.map((i) => path.join(p, i)));
         }
+        const files = fs.readdirSync(path.join(p, "../"));
+        return pareOcrPaths(files.map((i) => path.join(p, "../", i)));
     }
-    function addOCRFromPaths(paths: string[], scripts?: string[]) {
-        const id = crypto.randomUUID().slice(0, 7);
-        const l: setting["离线OCR"][0] = {
-            id: id,
-            name: `新模型${id}`,
+    function pareOcrPaths(paths: string[]) {
+        const l = {
             detPath: "",
             recPath: "",
             dicPath: "",
-            scripts: scripts || [],
         };
         for (const path of paths) {
             if (path.split("/").at(-1)?.includes("det")) {
@@ -3693,117 +3860,19 @@ function ocrEl() {
                 l.dicPath = path;
             }
         }
-        ocrValue.push(l);
-        el.el.dispatchEvent(new CustomEvent("input"));
+        return l;
     }
     const el = xGroup("y");
-    // todo 使用弹窗来配置
-    const dragEl = view("y")
-        .class("b-like")
-        .style({
-            width: "300px",
-            height: "100px",
-            alignItems: "center",
-            justifyContent: "center",
-        })
-        .add(txt("拖拽det模型、rec模型和字典文件到此处"))
-        .on("dragover", (e) => {
-            e.preventDefault();
-        })
-        .on("dragleave", () => {})
-        .on("drop", (e) => {
-            e.preventDefault();
-            console.log(e);
-            const fs = e.dataTransfer?.files || [];
-            addOCRFromPaths(
-                Array.from(fs).map((i) => webUtils.getPathForFile(i)),
-            );
-        });
-    const ocrListEl = view("y").style({ overflow: "auto", gap: "8px" });
-    for (const i in ocrModels) {
-        const pro = ele("progress")
-            .style({ display: "none" })
-            .bindSet((v: number, el) => {
-                el.value = v;
-                if (v === 1) pro.remove();
-            });
-        const lans = view("x").style({
-            "column-gap": "16px",
-            "flex-wrap": "wrap",
-        });
-        const p = path.join(configPath, "models", i);
-        const exists = fs.existsSync(p);
-        const downloadButton = button(exists ? "重新下载" : "下载").on(
-            "click",
-            () => {
-                pro.el.style.display = "block";
-                const url = githubUrl(
-                    `xushengfeng/eSearch-OCR/releases/download/4.0.0/${ocrModels[i].url}`,
-                    "base",
-                );
-                download(url, p, {
-                    extract: true,
-                    rejectUnauthorized: false,
-                })
-                    .on("response", (res) => {
-                        const total = Number(res.headers["content-length"]);
-                        let now = 0;
-                        res.on("data", (data) => {
-                            now += Number(data.length);
-                            const percent = now / total;
-                            console.log(percent);
-                            pro.sv(percent); // todo 难绷的样式
-                        });
-                        res.on("end", () => {});
-                    })
-                    .then(() => {
-                        console.log("end");
-                        addOCR(p, ocrModels[i].supportLang);
-                    });
-            },
-        );
-        ocrListEl.add(
-            view("y").add([
-                view("x")
-                    .add([
-                        button(ocrModels[i].name).on("click", () => {
-                            lans.clear().add(
-                                ocrModels[i].supportLang.map((i) =>
-                                    langMap[i]
-                                        ? txt(langMap[i])
-                                        : txt(displayLan.of(i), true),
-                                ),
-                            );
-                        }),
-                        downloadButton,
-                        pro,
-                    ])
-                    .style({ "align-items": "center" }),
-                lans,
-            ]),
-        );
-    }
 
-    const addOCRModel = ele("dialog")
-        .style({ flexDirection: "column" })
-        .class(dialogFlexClass)
-        .add([
-            ocrListEl,
-            view().add([
-                "将保存到：",
-                " ",
-                pathEl(path.join(configPath, "models")),
-            ]),
-            button(txt("关闭")).on("click", () => addOCRModel.el.close()),
-        ]);
-    const showB = button(iconEl("down")).on("click", () =>
-        addOCRModel.el.showModal(),
-    );
     return el
-        .add([dragEl, showB, addOCRModel])
-        .bindGet(() => ocrValue)
+        .add([
+            mainEl.on("input", () =>
+                el.el.dispatchEvent(new CustomEvent("input")),
+            ),
+        ])
+        .bindGet(() => [defaultOcr, ...mainEl.gv])
         .bindSet((v: setting["离线OCR"]) => {
-            ocrValue = v;
+            mainEl.sv(v.filter((i) => i.id !== defaultOcrId));
         });
 }
 
