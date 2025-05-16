@@ -1,7 +1,6 @@
 // @ts-check
 const fs = require("node:fs");
 const path = require("node:path");
-const archiver = require("archiver");
 const { execSync } = require("node:child_process");
 const download = require("download");
 
@@ -18,11 +17,13 @@ const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
  */
 const platform2 = platformMap[platform];
 
+const githubUrl = "https://github.com/";
+
 const beforePack = async () => {
     if (!fs.existsSync("./ocr/ppocr/默认")) {
         fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
         await download(
-            "https://github.com/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip",
+            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip`,
             "./ocr/ppocr/默认/",
             {
                 extract: true,
@@ -33,7 +34,7 @@ const beforePack = async () => {
     if (!fs.existsSync("./assets/onnx/seg")) {
         fs.mkdirSync("./assets/onnx/seg", { recursive: true });
         await download(
-            "https://github.com/xushengfeng/eSearch-seg/releases/download/1.0.0/seg.onnx",
+            `${githubUrl}/xushengfeng/eSearch-seg/releases/download/1.0.0/seg.onnx`,
             "./assets/onnx/seg/",
             { rejectUnauthorized: false },
         );
@@ -41,7 +42,7 @@ const beforePack = async () => {
     if (!fs.existsSync("./assets/onnx/inpaint")) {
         fs.mkdirSync("./assets/onnx/inpaint", { recursive: true });
         await download(
-            "https://github.com/xushengfeng/eSearch/releases/download/13.1.6/migan_pipeline_v2.onnx",
+            `${githubUrl}/xushengfeng/eSearch/releases/download/13.1.6/migan_pipeline_v2.onnx`,
             "./assets/onnx/inpaint/",
             { rejectUnauthorized: false },
         );
@@ -50,7 +51,7 @@ const beforePack = async () => {
         fs.writeFileSync(
             "./lib/copy.exe",
             await download(
-                "https://github.com/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe",
+                `${githubUrl}/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe`,
                 {
                     rejectUnauthorized: false,
                 },
@@ -61,11 +62,11 @@ const beforePack = async () => {
         const winpath = "ffmpeg-n6.1-latest-win64-gpl-6.1";
         const o = {
             win32: {
-                x64: "https://github.com/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-win32-x64.zip",
+                x64: `${githubUrl}/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-win32-x64.zip`,
             },
             darwin: {
-                x64: "https://github.com/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-x64.zip",
-                arm64: "https://github.com/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-arm64.zip",
+                x64: `${githubUrl}/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-x64.zip`,
+                arm64: `${githubUrl}/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-arm64.zip`,
             },
         };
         if (o?.[process.platform]?.[arch]) {
