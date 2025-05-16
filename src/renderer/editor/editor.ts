@@ -61,6 +61,7 @@ import reloadSvg from "../assets/icons/reload.svg";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
+import { initLocalOCR } from "../ocr/ocr";
 
 type SpellItem = {
     index: number;
@@ -2505,47 +2506,23 @@ async function localOcr(
 ) {
     try {
         task.l("ocr_load");
-        const l = store.get("离线OCR").find((i) => i[0] === type);
-        if (!l) return callback(new Error("未找到OCR模型"), null);
-        function ocrPath(p: string) {
-            return path.join(
-                path.isAbsolute(p)
-                    ? ""
-                    : path.join(__dirname, "../../ocr/ppocr"),
-                p,
-            );
-        }
-        const detp = ocrPath(l[1]);
-        const recp = ocrPath(l[2]);
-        const 字典 = ocrPath(l[3]);
-        console.log(detp, recp, 字典);
+        const x = await initLocalOCR(store, type, (type, a, n) => {
+            if (type === "det") {
+                ocrProgress([
+                    { name: t("检测"), num: n / a },
+                    { name: t("识别"), num: 0 },
+                ]);
+            }
+            if (type === "rec") {
+                ocrProgress([
+                    { name: t("检测"), num: 1 },
+                    { name: t("识别"), num: n / a },
+                ]);
+            }
+        });
+        if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
-            // biome-ignore format:
-            const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
-            const ort = require("onnxruntime-node");
-            const provider = store.get("AI.运行后端") || "cpu";
-            lo = await localOCR.init({
-                detPath: detp,
-                recPath: recp,
-                dic: fs.readFileSync(字典).toString(),
-                detRatio: 0.75,
-                ort,
-                ortOption: { executionProviders: [{ name: provider }] },
-                onProgress: (type, a, n) => {
-                    if (type === "det") {
-                        ocrProgress([
-                            { name: t("检测"), num: n / a },
-                            { name: t("识别"), num: 0 },
-                        ]);
-                    }
-                    if (type === "rec") {
-                        ocrProgress([
-                            { name: t("检测"), num: 1 },
-                            { name: t("识别"), num: n / a },
-                        ]);
-                    }
-                },
-            });
+            lo = x;
         }
         task.l("img_load");
         const img = image(arg, "ocr image");

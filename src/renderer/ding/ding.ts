@@ -20,6 +20,7 @@ import {
 
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import { initLocalOCR } from "../ocr/ocr";
 import type { DingStart, Dire } from "../../ShareTypes";
 import type { IconType } from "../../iconTypes";
 
@@ -340,34 +341,9 @@ const setNewDing = (
 };
 
 async function initOCR() {
-    const l = store.get("离线OCR").find((i) => i[0] === "默认") as [
-        // todo 自定义
-        string,
-        string,
-        string,
-        string,
-    ];
-    function ocrPath(p: string) {
-        return path.join(
-            path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"),
-            p,
-        );
-    }
-    const detp = ocrPath(l[1]);
-    const recp = ocrPath(l[2]);
-    const 字典 = ocrPath(l[3]);
     if (!lo) {
-        const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
-        const ort = require("onnxruntime-node");
-        const provider = store.get("AI.运行后端") || "cpu";
-        lo = await localOCR.init({
-            detPath: detp,
-            recPath: recp,
-            dic: fs.readFileSync(字典).toString(),
-            detRatio: 0.75,
-            ort,
-            ortOption: { executionProviders: [{ name: provider }] },
-        });
+        const x = await initLocalOCR(store, "默认");
+        if (x) lo = x;
     }
 }
 

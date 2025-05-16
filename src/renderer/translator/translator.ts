@@ -16,6 +16,7 @@ import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { initLocalOCR } from "../ocr/ocr";
 
 initStyle(store);
 
@@ -50,24 +51,6 @@ let display: Electron.Display[];
 const frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
 
 let pause = false;
-
-const lo = require("esearch-ocr") as typeof import("esearch-ocr");
-const ort = require("onnxruntime-node");
-const l: [string, string, string, string] = [
-    "默认",
-    "默认/ppocr_det.onnx",
-    "默认/ppocr_rec.onnx",
-    "默认/ppocr_keys_v1.txt",
-];
-function ocrPath(p: string) {
-    return path.join(
-        path.isAbsolute(p) ? "" : path.join(__dirname, "../../ocr/ppocr"),
-        p,
-    );
-}
-const detp = ocrPath(l[1]);
-const recp = ocrPath(l[2]);
-const 字典 = ocrPath(l[3]);
 
 function screenshot(id: number, rect: Rect) {
     const l = screenShots(display).screen;
@@ -199,20 +182,9 @@ const toolsEl = view("x")
         ),
     ]);
 
-let OCR: Awaited<ReturnType<typeof lo.init>> | null = null;
+let OCR: Awaited<ReturnType<typeof import("esearch-ocr").init>> | null = null;
 
-lo.init({
-    detPath: detp,
-    recPath: recp,
-    dic: fs.readFileSync(字典).toString(),
-    ortOption: {
-        executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
-    },
-    ort: ort,
-    detRatio: 0.75,
-}).then((o) => {
-    OCR = o;
-});
+OCR = await initLocalOCR(store, "默认");
 
 const mainEl = view().style({
     position: "absolute",
