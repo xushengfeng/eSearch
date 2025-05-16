@@ -10,9 +10,9 @@ async function ocr(
 ) {
     const ocrList = store.get("离线OCR");
     const defaultPaths = {
-        det: "默认/ppocr_det.onnx",
-        rec: "默认/ppocr_rec.onnx",
-        dic: "默认/ppocr_keys_v1.txt",
+        det: "ppocr_det.onnx",
+        rec: "ppocr_v4_rec_doc.onnx",
+        dic: "ppocrv4_doc_dict.txt",
     };
     const defaultOcr = ocrList.find((i) => i[0] === "默认");
     if (defaultOcr) {
@@ -33,7 +33,7 @@ async function ocr(
         if (!p) return "";
         const xp = path.isAbsolute(p)
             ? p
-            : path.join(__dirname, "../../ocr/ppocr", p);
+            : path.join(__dirname, "../../assets/onnx/ppocr", p);
         if (fs.existsSync(xp)) return xp;
         return "";
     }

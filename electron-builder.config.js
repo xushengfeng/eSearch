@@ -17,14 +17,14 @@ const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
  */
 const platform2 = platformMap[platform];
 
-const githubUrl = "https://github.com/";
+const githubUrl = "https://github.com";
 
 const beforePack = async () => {
-    if (!fs.existsSync("./ocr/ppocr/默认")) {
-        fs.mkdirSync("./ocr/ppocr/默认", { recursive: true });
+    if (!fs.existsSync("./assets/onnx/ppocr")) {
+        fs.mkdirSync("./assets/onnx/ppocr", { recursive: true });
         await download(
-            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip`,
-            "./ocr/ppocr/默认/",
+            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch_v4_doc.zip`,
+            "./assets/onnx/ppocr/",
             {
                 extract: true,
                 rejectUnauthorized: false,
