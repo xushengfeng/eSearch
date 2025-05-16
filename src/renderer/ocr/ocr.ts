@@ -1,7 +1,9 @@
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 
-export { ocr as initLocalOCR };
+export { ocr as initLocalOCR, defaultOcrId };
+
+const defaultOcrId = "0";
 
 async function ocr(
     store: typeof import("../../../lib/store/renderStore")["default"],
@@ -14,20 +16,22 @@ async function ocr(
         rec: "ppocr_v4_rec_doc.onnx",
         dic: "ppocrv4_doc_dict.txt",
     };
-    const defaultOcr = ocrList.find((i) => i[0] === "默认");
+    const defaultOcr = ocrList.find((i) => i.id === defaultOcrId);
     if (defaultOcr) {
-        defaultOcr[1] = defaultPaths.det;
-        defaultOcr[2] = defaultPaths.rec;
-        defaultOcr[3] = defaultPaths.dic;
+        defaultOcr.detPath = defaultPaths.det;
+        defaultOcr.recPath = defaultPaths.rec;
+        defaultOcr.dicPath = defaultPaths.dic;
     } else {
-        ocrList.push([
-            "默认",
-            defaultPaths.det,
-            defaultPaths.rec,
-            defaultPaths.dic,
-        ]);
+        ocrList.push({
+            id: defaultOcrId,
+            name: "",
+            detPath: defaultPaths.det,
+            recPath: defaultPaths.rec,
+            dicPath: defaultPaths.dic,
+            scripts: ["zh-HANS", "zh-HANT", "en"],
+        });
     }
-    const l = store.get("离线OCR").find((i) => i[0] === type);
+    const l = store.get("离线OCR").find((i) => i.id === type);
     if (!l) return null;
     function ocrPath(p: string) {
         if (!p) return "";
@@ -37,9 +41,9 @@ async function ocr(
         if (fs.existsSync(xp)) return xp;
         return "";
     }
-    const detp = ocrPath(l[1]) || ocrPath(defaultPaths.det);
-    const recp = ocrPath(l[2]) || ocrPath(defaultPaths.rec);
-    const 字典 = ocrPath(l[3]) || ocrPath(defaultPaths.dic);
+    const detp = ocrPath(l.detPath) || ocrPath(defaultPaths.det);
+    const recp = ocrPath(l.recPath) || ocrPath(defaultPaths.rec);
+    const 字典 = ocrPath(l.dicPath) || ocrPath(defaultPaths.dic);
     console.log(detp, recp, 字典);
     if (!detp || !recp || !字典) {
         console.error("OCR路径错误");

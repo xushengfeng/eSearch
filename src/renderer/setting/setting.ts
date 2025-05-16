@@ -446,8 +446,8 @@ const s: Partial<settingItem<SettingPath>> = {
             xSelect(
                 [
                     ...getSet("离线OCR").map((i) => ({
-                        value: i[0],
-                        name: noI18n(i[0]),
+                        value: i.id,
+                        name: noI18n(i.name),
                     })),
                     { value: "youdao", name: "有道" },
                     { value: "baidu", name: "百度" },
@@ -3515,7 +3515,11 @@ function ocrEl() {
         string,
         { url: string; name: string; supportLang: string[] }
     > = {
-        ch: { url: "ch.zip", name: "中英混合", supportLang: ["zh-HANS", "en"] },
+        ch: {
+            url: "ch_v4_doc.zip",
+            name: "中英混合",
+            supportLang: ["zh-HANS", "zh-HANT", "en"],
+        },
         en: { url: "en.zip", name: "英文", supportLang: ["en"] },
         chinese_cht: {
             url: "chinese_cht.zip",
@@ -3646,7 +3650,7 @@ function ocrEl() {
 
     const configPath = renderSendSync("userDataPath", []);
 
-    function addOCR(p: string) {
+    function addOCR(p: string, scripts?: string[]) {
         const stat = fs.statSync(p);
         if (stat.isDirectory()) {
             const files = fs.readdirSync(p);
@@ -3654,35 +3658,46 @@ function ocrEl() {
             if (fs.statSync(downPath).isDirectory()) {
                 addOCRFromPaths(
                     fs.readdirSync(downPath).map((i) => path.join(downPath, i)),
+                    scripts,
                 );
             } else {
-                addOCRFromPaths(files.map((i) => path.join(p, i)));
+                addOCRFromPaths(
+                    files.map((i) => path.join(p, i)),
+                    scripts,
+                );
             }
         } else {
             const files = fs.readdirSync(path.join(p, "../"));
-            addOCRFromPaths(files.map((i) => path.join(p, "../", i)));
+            addOCRFromPaths(
+                files.map((i) => path.join(p, "../", i)),
+                scripts,
+            );
         }
     }
-    function addOCRFromPaths(paths: string[]) {
-        const l: [string, string, string, string] = [
-            `新模型${crypto.randomUUID().slice(0, 7)}`,
-            "",
-            "",
-            "",
-        ];
+    function addOCRFromPaths(paths: string[], scripts?: string[]) {
+        const id = crypto.randomUUID().slice(0, 7);
+        const l: setting["离线OCR"][0] = {
+            id: id,
+            name: `新模型${id}`,
+            detPath: "",
+            recPath: "",
+            dicPath: "",
+            scripts: scripts || [],
+        };
         for (const path of paths) {
             if (path.split("/").at(-1)?.includes("det")) {
-                l[1] = path;
+                l.detPath = path;
             } else if (path.split("/").at(-1)?.includes("rec")) {
-                l[2] = path;
+                l.recPath = path;
             } else {
-                l[3] = path;
+                l.dicPath = path;
             }
         }
         ocrValue.push(l);
         el.el.dispatchEvent(new CustomEvent("input"));
     }
     const el = xGroup("y");
+    // todo 使用弹窗来配置
     const dragEl = view("y")
         .class("b-like")
         .style({
@@ -3743,7 +3758,7 @@ function ocrEl() {
                     })
                     .then(() => {
                         console.log("end");
-                        addOCR(p);
+                        addOCR(p, ocrModels[i].supportLang);
                     });
             },
         );

@@ -16,7 +16,7 @@ import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
-import { initLocalOCR } from "../ocr/ocr";
+import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
 
 initStyle(store);
 
@@ -184,7 +184,7 @@ const toolsEl = view("x")
 
 let OCR: Awaited<ReturnType<typeof import("esearch-ocr").init>> | null = null;
 
-OCR = await initLocalOCR(store, "默认");
+OCR = await initLocalOCR(store, defaultOcrId);
 
 const mainEl = view().style({
     position: "absolute",

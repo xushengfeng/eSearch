@@ -173,7 +173,14 @@ export interface setting {
         离线切换: boolean;
         识别段落: boolean;
     };
-    离线OCR: [string, string, string, string][];
+    离线OCR: {
+        id: string;
+        name: string;
+        detPath: string;
+        recPath: string;
+        dicPath: string;
+        scripts: string[];
+    }[];
     AI: {
         运行后端: "cpu" | "cuda" | "coreml" | "directml";
         在线模型: {

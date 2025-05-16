@@ -2939,7 +2939,7 @@ const toolBarEl = frame("tool", {
     close: iconEl("close").attr({ title: "关闭" }),
     screens: view().attr({ title: "屏幕管理" }),
     ocr: selectEl(iconEl("ocr"), t("文字识别"), [
-        ...store.get("离线OCR").map((i) => ({ value: i[0], name: i[0] })),
+        ...store.get("离线OCR").map((i) => ({ value: i.id, name: i.name })),
         { value: "baidu", name: t("百度") },
         { value: "youdao", name: t("有道") },
     ]),

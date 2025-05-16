@@ -2834,7 +2834,7 @@ ocrImageClose.el.onclick = () => {
 };
 
 ocrImageEngine.setList([
-    ...store.get("离线OCR").map((i) => ({ value: i[0], text: i[0] })),
+    ...store.get("离线OCR").map((i) => ({ value: i.id, text: i.name })),
     { value: "baidu", text: "百度" },
     { value: "youdao", text: "有道" },
 ]);

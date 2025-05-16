@@ -2666,7 +2666,16 @@ const defaultSetting: setting = {
         离线切换: true,
         识别段落: true,
     },
-    离线OCR: [["默认", "", "", ""]],
+    离线OCR: [
+        {
+            id: "0",
+            name: "默认",
+            detPath: "",
+            recPath: "",
+            dicPath: "",
+            scripts: ["zh-HANS", "zh-HANT", "en"],
+        },
+    ],
     AI: {
         运行后端: "cpu",
         在线模型: [],
@@ -2921,6 +2930,38 @@ function versionTrans() {
         const oldSetting = store.get("贴图.窗口.变换");
         if (typeof oldSetting === "string") {
             store.set("贴图.窗口.变换", [oldSetting]);
+        }
+    }
+    if (versionCompare(version, "14.6.4") <= 0) {
+        console.log("1111111");
+
+        const ocr = store.get("离线OCR") as unknown as [
+            string,
+            string,
+            string,
+            string,
+        ][];
+        const newOcr: {
+            id: string;
+            name: string;
+            detPath: string;
+            recPath: string;
+            dicPath: string;
+            scripts: string[];
+        }[] = [];
+        for (const i of ocr) {
+            newOcr.push({
+                id: i[0] === "默认" ? "0" : i[0],
+                name: i[0],
+                detPath: i[1],
+                recPath: i[2],
+                dicPath: i[3],
+                scripts: [],
+            });
+        }
+        store.set("离线OCR", newOcr);
+        if (store.get("OCR.类型") === "默认") {
+            store.set("OCR.类型", "0");
         }
     }
 }

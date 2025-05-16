@@ -20,7 +20,7 @@ import {
 
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import { initLocalOCR } from "../ocr/ocr";
+import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
 import type { DingStart, Dire } from "../../ShareTypes";
 import type { IconType } from "../../iconTypes";
 
@@ -342,7 +342,7 @@ const setNewDing = (
 
 async function initOCR() {
     if (!lo) {
-        const x = await initLocalOCR(store, "默认");
+        const x = await initLocalOCR(store, defaultOcrId);
         if (x) lo = x;
     }
 }
