@@ -3666,9 +3666,9 @@ function ocrEl() {
     function addOCRFromPaths(paths: string[]) {
         const l: [string, string, string, string] = [
             `新模型${crypto.randomUUID().slice(0, 7)}`,
-            "默认/ppocr_det.onnx",
-            "默认/ppocr_rec.onnx",
-            "默认/ppocr_keys_v1.txt",
+            "",
+            "",
+            "",
         ];
         for (const path of paths) {
             if (path.split("/").at(-1)?.includes("det")) {

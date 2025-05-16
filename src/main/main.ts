@@ -2664,14 +2664,7 @@ const defaultSetting: setting = {
         离线切换: true,
         识别段落: true,
     },
-    离线OCR: [
-        [
-            "默认",
-            "默认/ppocr_det.onnx",
-            "默认/ppocr_rec.onnx",
-            "默认/ppocr_keys_v1.txt",
-        ],
-    ],
+    离线OCR: [["默认", "", "", ""]],
     AI: {
         运行后端: "cpu",
         在线模型: [],
