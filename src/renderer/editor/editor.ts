@@ -61,7 +61,7 @@ import reloadSvg from "../assets/icons/reload.svg";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
-import { initLocalOCR } from "../ocr/ocr";
+import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
 
 type SpellItem = {
     index: number;
@@ -2834,9 +2834,12 @@ ocrImageClose.el.onclick = () => {
 };
 
 ocrImageEngine.setList([
-    ...store.get("离线OCR").map((i) => ({ value: i.id, text: i.name })),
-    { value: "baidu", text: "百度" },
-    { value: "youdao", text: "有道" },
+    ...store.get("离线OCR").map((i) => ({
+        value: i.id,
+        name: i.id === defaultOcrId ? t(i.name) : i.name,
+    })),
+    { value: "baidu", name: t("百度") },
+    { value: "youdao", name: t("有道") },
 ]);
 
 ocrImageEngine.el.sv(store.get("OCR.类型"));
