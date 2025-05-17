@@ -1,4 +1,4 @@
-type ort = typeof import("onnxruntime-common");
+type ort = typeof import("onnxruntime-node");
 
 async function removeObj(op: {
     ort: ort;

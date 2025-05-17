@@ -21,7 +21,7 @@ import store from "../../../lib/store/renderStore";
 const { nativeImage, clipboard } = window.require("electron") as typeof import("electron");
 const { writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
-const ort = require("onnxruntime-node") as typeof import("onnxruntime-common");
+const ort = require("onnxruntime-node") as typeof import("onnxruntime-node");
 import removeobj from "../lib/removeObj";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
