@@ -465,6 +465,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "识别段落",
         el: () => xSwitch(),
     },
+    "OCR.整体方向识别": {
+        name: "整体方向识别",
+        el: () => xSwitch(),
+    },
     离线OCR: {
         name: "离线OCR",
         el: () => ocrEl(),
@@ -1955,7 +1959,10 @@ const main: {
             "主页面.复制OCR后提示",
         ],
         items: [
-            { title: "离线OCR", settings: ["离线OCR", "OCR.识别段落"] },
+            {
+                title: "离线OCR",
+                settings: ["离线OCR", "OCR.识别段落", "OCR.整体方向识别"],
+            },
             {
                 title: "百度OCR",
                 settings: [

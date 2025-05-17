@@ -172,6 +172,7 @@ export interface setting {
         类型: string;
         离线切换: boolean;
         识别段落: boolean;
+        整体方向识别: boolean;
     };
     离线OCR: {
         id: string;

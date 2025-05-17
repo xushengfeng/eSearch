@@ -62,6 +62,7 @@ import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
 import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
+import { rotateImg } from "esearch-ocr";
 
 type SpellItem = {
     index: number;
@@ -1861,7 +1862,7 @@ renderOn("editorInit", ([name, list]) => {
                     openTab("translate");
                 }
 
-                addOcrText(r.raw, Array.from(ocrImageS.keys())[0]);
+                addOcrText(r.raw, Array.from(ocrImageS.keys())[0], r.rotate);
 
                 const maxLinePhotoShow = store.get("主页面.显示图片区");
                 if (maxLinePhotoShow && r.raw.length >= maxLinePhotoShow) {
@@ -2506,20 +2507,25 @@ async function localOcr(
 ) {
     try {
         task.l("ocr_load");
-        const x = await initLocalOCR(store, type, (type, a, n) => {
-            if (type === "det") {
-                ocrProgress([
-                    { name: t("检测"), num: n / a },
-                    { name: t("识别"), num: 0 },
-                ]);
-            }
-            if (type === "rec") {
-                ocrProgress([
-                    { name: t("检测"), num: 1 },
-                    { name: t("识别"), num: n / a },
-                ]);
-            }
-        });
+        const x = await initLocalOCR(
+            store,
+            type,
+            (type, a, n) => {
+                if (type === "det") {
+                    ocrProgress([
+                        { name: t("检测"), num: n / a },
+                        { name: t("识别"), num: 0 },
+                    ]);
+                }
+                if (type === "rec") {
+                    ocrProgress([
+                        { name: t("检测"), num: 1 },
+                        { name: t("识别"), num: n / a },
+                    ]);
+                }
+            },
+            { docCls: store.get("OCR.整体方向识别") },
+        );
         if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
             lo = x;
@@ -2549,7 +2555,7 @@ async function localOcr(
                     const ll = l.columns
                         .flatMap((i) => i.src)
                         .map((i) => ({ box: i.box, text: i.text }));
-                    callback(null, { raw: ll, text: t });
+                    callback(null, { raw: ll, text: t, rotate: l.docDir });
                     task.l("ocr_e");
                     task.clear();
                 })
@@ -2880,7 +2886,7 @@ function runOcr() {
         } else {
             localOcr(type, el.src, (_err, r) => {
                 if (r) {
-                    addOcrText(r.raw, i);
+                    addOcrText(r.raw, i, r.rotate);
                     addOcrToEditor(r, index);
                 }
             });
@@ -2913,11 +2919,34 @@ type ocrResult = {
 type OCROutPut = {
     raw: ocrResult;
     text: string;
+    rotate?: number;
 };
 
-function addOcrText(r: ocrResult, i: number) {
+async function addOcrText(r: ocrResult, i: number, rotate?: number) {
     const x = ocrImageS.get(i);
     if (!x) return;
+    if (rotate !== undefined && rotate % 360 !== 0) {
+        const img = x.imgEl.el;
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const c = new OffscreenCanvas(w, h);
+        const ctx = c.getContext("2d")!;
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, w, h);
+        const nData = rotateImg(data, 360 - rotate);
+        const nCanvas = ele("canvas").attr({
+            width: nData.width,
+            height: nData.height,
+        });
+        const nCtx = nCanvas.el.getContext("2d")!;
+        nCtx.putImageData(nData, 0, 0);
+        img.src = nCanvas.el.toDataURL();
+        await new Promise((re) => {
+            img.onload = () => {
+                re(0);
+            };
+        });
+    }
     const img = x.imgEl.el;
     const w = img.naturalWidth;
     const h = img.naturalHeight;

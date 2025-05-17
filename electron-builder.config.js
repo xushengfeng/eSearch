@@ -17,7 +17,7 @@ const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
  */
 const platform2 = platformMap[platform];
 
-const githubUrl = "https://github.com";
+const githubUrl = "https://github.moeyy.xyz/https://github.com";
 
 const beforePack = async () => {
     if (!fs.existsSync("./assets/onnx/ppocr")) {
@@ -27,6 +27,15 @@ const beforePack = async () => {
             "./assets/onnx/ppocr/",
             {
                 extract: true,
+                rejectUnauthorized: false,
+            },
+        );
+    }
+    if (!fs.existsSync("./assets/onnx/ppocr/doc_cls.onnx")) {
+        await download(
+            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/8.1.0/doc_cls.onnx`,
+            "./assets/onnx/ppocr/",
+            {
                 rejectUnauthorized: false,
             },
         );

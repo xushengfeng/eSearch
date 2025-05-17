@@ -9,12 +9,16 @@ async function ocr(
     store: typeof import("../../../lib/store/renderStore")["default"],
     type: string,
     onProgress?: (type: "det" | "rec", total: number, count: number) => void,
+    op?: {
+        docCls?: boolean;
+    },
 ) {
     const ocrList = store.get("离线OCR");
     const defaultPaths = {
         det: "ppocr_det.onnx",
         rec: "ppocr_v4_rec_doc.onnx",
         dic: "ppocrv4_doc_dict.txt",
+        docCls: "doc_cls.onnx",
     };
     const defaultOcr = ocrList.find((i) => i.id === defaultOcrId);
     if (defaultOcr) {
@@ -31,7 +35,7 @@ async function ocr(
             scripts: ["zh-HANS", "zh-HANT", "en"],
         });
     }
-    const l = store.get("离线OCR").find((i) => i.id === type);
+    const l = ocrList.find((i) => i.id === type);
     if (!l) return null;
     function ocrPath(p: string) {
         if (!p) return "";
@@ -44,6 +48,7 @@ async function ocr(
     const detp = ocrPath(l.detPath) || ocrPath(defaultPaths.det);
     const recp = ocrPath(l.recPath) || ocrPath(defaultPaths.rec);
     const 字典 = ocrPath(l.dicPath) || ocrPath(defaultPaths.dic);
+    const docCls = op?.docCls ? ocrPath(defaultPaths.docCls) : undefined;
     console.log(detp, recp, 字典);
     if (!detp || !recp || !字典) {
         console.error("OCR路径错误");
@@ -61,5 +66,6 @@ async function ocr(
         ort,
         ortOption: { executionProviders: [{ name: provider }] },
         onProgress: onProgress,
+        docClsPath: docCls,
     });
 }
