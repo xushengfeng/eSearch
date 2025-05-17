@@ -183,7 +183,7 @@ export interface setting {
         scripts: string[];
     }[];
     AI: {
-        运行后端: "cpu" | "cuda" | "coreml" | "directml";
+        运行后端: "cpu" | "cuda" | "coreml" | "directml" | "webgpu";
         在线模型: {
             name: string;
             type: "chatgpt";

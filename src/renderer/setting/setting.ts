@@ -533,6 +533,7 @@ const s: Partial<settingItem<SettingPath>> = {
             xSelect<typeof v>(
                 [
                     { value: "cpu", name: noI18n("CPU") },
+                    { value: "webgpu", name: noI18n("WebGPU") },
                     { value: "cuda", name: noI18n("CUDA") },
                     { value: "coreml", name: noI18n("coreML") },
                     { value: "directml", name: noI18n("DirectML") },
