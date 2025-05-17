@@ -17,7 +17,8 @@ const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
  */
 const platform2 = platformMap[platform];
 
-const githubUrl = "https://github.moeyy.xyz/https://github.com";
+// const githubUrl = "https://github.moeyy.xyz/https://github.com" || true;
+const githubUrl = "https://github.com";
 
 const beforePack = async () => {
     if (!fs.existsSync("./assets/onnx/ppocr")) {
