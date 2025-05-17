@@ -3531,6 +3531,11 @@ function ocrEl() {
             name: "中英混合",
             supportLang: ["zh-HANS", "zh-HANT", "en"],
         },
+        fast_ch: {
+            url: "ch.zip",
+            name: "中英混合（快速）",
+            supportLang: ["zh-HANS", "en"],
+        },
         en: { url: "en.zip", name: "英文", supportLang: ["en"] },
         chinese_cht: {
             url: "chinese_cht.zip",
