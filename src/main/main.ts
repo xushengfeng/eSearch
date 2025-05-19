@@ -2665,7 +2665,7 @@ const defaultSetting: setting = {
         类型: "默认",
         离线切换: true,
         识别段落: true,
-        整体方向识别: true,
+        整体方向识别: false,
     },
     离线OCR: [
         {
