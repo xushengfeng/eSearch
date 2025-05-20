@@ -463,10 +463,12 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "OCR.识别段落": {
         name: "识别段落",
+        desc: "通过排版识别算法分析段落和阅读顺序，如果遇到错误的段落顺序，可以尝试关闭",
         el: () => xSwitch(),
     },
     "OCR.整体方向识别": {
         name: "整体方向识别",
+        desc: "识别整体方向并纠正，不适合竖排文字",
         el: () => xSwitch(),
     },
     离线OCR: {
