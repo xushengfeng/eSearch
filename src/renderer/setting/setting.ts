@@ -3538,7 +3538,7 @@ function ocrEl() {
     > = {
         ch: {
             url: "ch_v4_doc.zip",
-            name: "中英混合",
+            name: "中英混合（高精度）",
             supportLang: ["zh-HANS", "zh-HANT", "en"],
         },
         fast_ch: {
