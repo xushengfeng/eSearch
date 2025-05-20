@@ -32,7 +32,9 @@ async function ocr(
             detPath: defaultPaths.det,
             recPath: defaultPaths.rec,
             dicPath: defaultPaths.dic,
-            scripts: ["zh-HANS", "zh-HANT", "en"],
+            scripts: ["zh-HANS", "en"],
+            accuracy: "low",
+            speed: "fast",
         });
     }
     const l = ocrList.find((i) => i.id === type);

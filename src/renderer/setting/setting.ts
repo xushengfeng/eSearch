@@ -3534,12 +3534,20 @@ function hotkey() {
 function ocrEl() {
     const ocrModels: Record<
         string,
-        { url: string; name: string; supportLang: string[] }
+        {
+            url: string;
+            name: string;
+            supportLang: string[];
+            accuracy?: "high" | "low";
+            speed?: "fast" | "slow";
+        }
     > = {
         ch: {
             url: "ch_v4_doc.zip",
             name: "中英混合（高精度）",
             supportLang: ["zh-HANS", "zh-HANT", "en"],
+            accuracy: "high",
+            speed: "slow",
         },
         fast_ch: {
             url: "ch.zip",
@@ -3682,7 +3690,9 @@ function ocrEl() {
         detPath: "",
         recPath: "",
         dicPath: "",
-        scripts: ["zh-HANS", "zh-HANT", "en"],
+        scripts: ["zh-HANS", "en"],
+        accuracy: "low",
+        speed: "fast",
     };
 
     const mainEl = sortList<setting["离线OCR"][0]>(
@@ -3691,14 +3701,18 @@ function ocrEl() {
             const { promise, resolve } = Promise.withResolvers<typeof _item>();
             const xxxid = crypto.randomUUID().slice(0, 7);
 
-            const item = _item || {
-                id: xxxid,
-                name: "",
-                detPath: "",
-                recPath: "",
-                dicPath: "",
-                scripts: [],
-            };
+            const item =
+                _item ||
+                ({
+                    id: xxxid,
+                    name: "",
+                    detPath: "",
+                    recPath: "",
+                    dicPath: "",
+                    scripts: [],
+                    accuracy: "low",
+                    speed: "fast",
+                } satisfies setting["离线OCR"][0]);
 
             const nameEl = input().sv(item.name);
             const detPathEl = xPath().sv(item.detPath);
@@ -3710,6 +3724,15 @@ function ocrEl() {
                     el.value = v.join(", ");
                 })
                 .sv(item.scripts);
+
+            const accuracyEl = select<setting["离线OCR"][0]["accuracy"]>([
+                { value: "low", name: "低精度" },
+                { value: "high", name: "高精度" },
+            ]).sv(item.accuracy);
+            const speedEl = select<setting["离线OCR"][0]["speed"]>([
+                { value: "fast", name: "快速" },
+                { value: "slow", name: "慢速" },
+            ]).sv(item.speed);
 
             const downloadEl = view("y").add(
                 button(iconEl("down")).on("click", () => {
@@ -3771,6 +3794,10 @@ function ocrEl() {
                                     recPathEl.sv(paths.recPath);
                                     dicPathEl.sv(paths.dicPath);
                                     scriptsEl.sv(ocrModels[i].supportLang);
+                                    accuracyEl.sv(
+                                        ocrModels[i].accuracy ?? "low",
+                                    );
+                                    speedEl.sv(ocrModels[i].speed ?? "fast");
                                 });
                         }),
                     );
@@ -3787,6 +3814,8 @@ function ocrEl() {
                         view().add(["识别模型（rec）", ele("br"), recPathEl]),
                         view().add(["识别字典（.txt）", ele("br"), dicPathEl]),
                         view().add(["语言字符", ele("br"), scriptsEl]),
+                        view().add(["精度", ele("br"), accuracyEl]),
+                        view().add(["速度", ele("br"), speedEl]),
                     ]),
                 ],
                 () => resolve(null),
@@ -3798,6 +3827,8 @@ function ocrEl() {
                         recPath: recPathEl.gv,
                         dicPath: dicPathEl.gv,
                         scripts: scriptsEl.gv,
+                        accuracy: accuracyEl.gv,
+                        speed: speedEl.gv,
                     }),
             );
 

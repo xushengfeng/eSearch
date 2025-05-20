@@ -2674,7 +2674,9 @@ const defaultSetting: setting = {
             detPath: "",
             recPath: "",
             dicPath: "",
-            scripts: ["zh-HANS", "zh-HANT", "en"],
+            scripts: ["zh-HANS", "en"],
+            accuracy: "low",
+            speed: "fast",
         },
     ],
     AI: {

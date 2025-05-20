@@ -181,6 +181,8 @@ export interface setting {
         recPath: string;
         dicPath: string;
         scripts: string[];
+        accuracy: "high" | "low";
+        speed: "fast" | "slow";
     }[];
     AI: {
         运行后端: "cpu" | "cuda" | "coreml" | "directml" | "webgpu";
