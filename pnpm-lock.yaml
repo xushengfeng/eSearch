@@ -68,7 +68,7 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       onnxruntime-node:
-        specifier: ^1.22.0
+        specifier: ^1.21.0
         version: 1.22.0
       qr-scanner-wechat:
         specifier: ^0.1.3
