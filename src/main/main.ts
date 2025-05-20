@@ -110,8 +110,6 @@ if (
     dev = false;
 }
 
-const devCSS = "[data-dev]{display:none}";
-
 if (dev) {
     setInterval(() => {
         const usage = process.memoryUsage();
@@ -1173,10 +1171,6 @@ function createClipWindow() {
             zoomFactor: store.get("全局.缩放") || 1.0,
         },
     });
-
-    if (!dev) {
-        _clipWindow.webContents.insertCSS(devCSS);
-    }
 
     if (!dev) _clipWindow.setAlwaysOnTop(true, "screen-saver");
 

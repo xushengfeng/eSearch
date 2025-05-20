@@ -1,10 +1,11 @@
-import { addClass, initDKH, view } from "dkh-ui";
+import { addClass, addStyle, initDKH, view } from "dkh-ui";
 import { t, lan } from "../../../lib/translate/translate";
 import type { RawIconType } from "../../iconTypes";
 
 function initStyle(
     store: typeof import("../../../lib/store/renderStore")["default"],
 ) {
+    if (!store.get("dev")) addStyle({ "[data-dev]": { display: "none" } });
     function setCSSVar(name: string, value: string) {
         if (value) document.documentElement.style.setProperty(name, value);
     }
