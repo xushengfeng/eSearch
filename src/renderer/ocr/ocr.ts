@@ -16,8 +16,8 @@ async function ocr(
     const ocrList = store.get("离线OCR");
     const defaultPaths = {
         det: "ppocr_det.onnx",
-        rec: "ppocr_v4_rec_doc.onnx",
-        dic: "ppocrv4_doc_dict.txt",
+        rec: "ppocr_rec.onnx",
+        dic: "ppocr_keys_v1.txt",
         docCls: "doc_cls.onnx",
     };
     const defaultOcr = ocrList.find((i) => i.id === defaultOcrId);

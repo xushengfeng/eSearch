@@ -24,7 +24,7 @@ const beforePack = async () => {
     if (!fs.existsSync("./assets/onnx/ppocr")) {
         fs.mkdirSync("./assets/onnx/ppocr", { recursive: true });
         await download(
-            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch_v4_doc.zip`,
+            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip`,
             "./assets/onnx/ppocr/",
             {
                 extract: true,
