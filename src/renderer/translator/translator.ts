@@ -4,19 +4,16 @@ import xtranslator from "xtranslator";
 
 import { addClass, button, type ElType, image, pack, view } from "dkh-ui";
 
-const path = require("node:path") as typeof import("path");
-const fs = require("node:fs") as typeof import("fs");
-
 function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
 import store from "../../../lib/store/renderStore";
-import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
+import { Class, getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
-import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
+import { defaultOcrId, loadOCR } from "../ocr/ocr";
 
 initStyle(store);
 
@@ -184,7 +181,9 @@ const toolsEl = view("x")
 
 let OCR: Awaited<ReturnType<typeof import("esearch-ocr").init>> | null = null;
 
-OCR = await initLocalOCR(store, defaultOcrId);
+const ocrX = loadOCR(store, defaultOcrId);
+
+OCR = ocrX ? await ocrX.ocr.init(ocrX.config) : null;
 
 const mainEl = view().style({
     position: "absolute",

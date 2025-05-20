@@ -61,7 +61,7 @@ import reloadSvg from "../assets/icons/reload.svg";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
-import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
+import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { rotateImg } from "esearch-ocr";
 
 type SpellItem = {
@@ -2507,28 +2507,26 @@ async function localOcr(
 ) {
     try {
         task.l("ocr_load");
-        const x = await initLocalOCR(
-            store,
-            type,
-            (type, a, n) => {
-                if (type === "det") {
-                    ocrProgress([
-                        { name: t("检测"), num: n / a },
-                        { name: t("识别"), num: 0 },
-                    ]);
-                }
-                if (type === "rec") {
-                    ocrProgress([
-                        { name: t("检测"), num: 1 },
-                        { name: t("识别"), num: n / a },
-                    ]);
-                }
-            },
-            { docCls: store.get("OCR.整体方向识别") },
-        );
+        const x = loadOCR(store, type);
         if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
-            lo = x;
+            lo = await x.ocr.init({
+                ...x.config,
+                onProgress: (type, a, n) => {
+                    if (type === "det") {
+                        ocrProgress([
+                            { name: t("检测"), num: n / a },
+                            { name: t("识别"), num: 0 },
+                        ]);
+                    }
+                    if (type === "rec") {
+                        ocrProgress([
+                            { name: t("检测"), num: 1 },
+                            { name: t("识别"), num: n / a },
+                        ]);
+                    }
+                },
+            });
         }
         task.l("img_load");
         const img = image(arg, "ocr image");

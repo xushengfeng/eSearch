@@ -1,14 +1,13 @@
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 
-export { ocr as initLocalOCR, defaultOcrId };
+export { loadOCR, defaultOcrId };
 
 const defaultOcrId = "0";
 
-async function ocr(
+function loadOCR(
     store: typeof import("../../../lib/store/renderStore")["default"],
     type: string,
-    onProgress?: (type: "det" | "rec", total: number, count: number) => void,
     op?: {
         docCls?: boolean;
     },
@@ -60,14 +59,16 @@ async function ocr(
     const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
     const ort = require("onnxruntime-node");
     const provider = store.get("AI.运行后端") || "cpu";
-    return await localOCR.init({
-        detPath: detp,
-        recPath: recp,
-        dic: fs.readFileSync(字典).toString(),
-        detRatio: 0.75,
-        ort,
-        ortOption: { executionProviders: [{ name: provider }] },
-        onProgress: onProgress,
-        docClsPath: docCls,
-    });
+    return {
+        ocr: localOCR,
+        config: {
+            detPath: detp,
+            recPath: recp,
+            dic: fs.readFileSync(字典).toString(),
+            detRatio: 0.75,
+            ort,
+            ortOption: { executionProviders: [{ name: provider }] },
+            docClsPath: docCls,
+        } satisfies Parameters<typeof localOCR.init>[0],
+    };
 }

@@ -1,7 +1,6 @@
 // biome-ignore format:
 const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 const fs = require("node:fs") as typeof import("fs");
-const path = require("node:path") as typeof import("path");
 import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import xtranslator from "xtranslator";
@@ -20,7 +19,7 @@ import {
 
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import { defaultOcrId, initLocalOCR } from "../ocr/ocr";
+import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import type { DingStart, Dire } from "../../ShareTypes";
 import type { IconType } from "../../iconTypes";
 
@@ -342,8 +341,8 @@ const setNewDing = (
 
 async function initOCR() {
     if (!lo) {
-        const x = await initLocalOCR(store, defaultOcrId);
-        if (x) lo = x;
+        const x = loadOCR(store, defaultOcrId);
+        if (x) lo = await x.ocr.init(x.config);
     }
 }
 
