@@ -32,8 +32,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       esearch-ocr:
-        specifier: ^8.1.1
-        version: 8.1.1
+        specifier: ^8.3.0
+        version: 8.3.0
       esearch-seg:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
@@ -1465,8 +1465,8 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@8.1.1:
-    resolution: {integrity: sha512-Q8b9YxPFCT3+fxkv5P5jfxs+xFYI1LbUx+cq86uONHZ/McDIGE3W/ABQy71ED4o54wzZeS2xGvtVnVXZwWnlmA==}
+  esearch-ocr@8.3.0:
+    resolution: {integrity: sha512-rM3Kv9qM4mJwup0qF5CmpFbg77GLe7F6snJvW5gXzJNLpVGKjOZ3sCPVw6ZuNXo5hpcfWrsnwD8W5EuC9F4r4Q==}
 
   esearch-seg@1.1.4:
     resolution: {integrity: sha512-0hoN9JTKjImH29jh5fDOTOfxH4/R9ffT/B5mlP/dh7qMbu7oxFmfyv7nX7gpfb+B2bibCa00/eWdMOD3IkfM+Q==}
@@ -2315,9 +2315,6 @@ packages:
   onetime@5.1.2:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
-
-  onnxruntime-common@1.21.0:
-    resolution: {integrity: sha512-Q632iLLrtCAVOTO65dh2+mNbQir/QNTVBG3h/QdZBpns7mZ0RYbLRBgGABPbpU9351AgYy7SJf1WaeVwMrBFPQ==}
 
   onnxruntime-common@1.22.0:
     resolution: {integrity: sha512-vcuaNWgtF2dGQu/EP5P8UI5rEPEYqXG2sPPe5j9lg2TY/biJF8eWklTMwlDO08iuXq48xJo0awqIpK5mPG+IxA==}
@@ -4560,9 +4557,9 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@8.1.1:
+  esearch-ocr@8.3.0:
     dependencies:
-      onnxruntime-common: 1.21.0
+      onnxruntime-common: 1.22.0
 
   esearch-seg@1.1.4(opencv.js@1.2.1):
     dependencies:
@@ -5412,8 +5409,6 @@ snapshots:
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
-
-  onnxruntime-common@1.21.0: {}
 
   onnxruntime-common@1.22.0: {}
 
