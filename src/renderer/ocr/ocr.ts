@@ -1,3 +1,5 @@
+import type { InitOcrBase } from "esearch-ocr";
+
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 
@@ -62,13 +64,23 @@ function loadOCR(
     return {
         ocr: localOCR,
         config: {
-            detPath: detp,
-            recPath: recp,
-            dic: fs.readFileSync(字典).toString(),
-            detRatio: 0.75,
+            det: {
+                input: detp,
+                ratio: 0.75,
+            },
+            rec: {
+                input: recp,
+                decodeDic: fs.readFileSync(字典).toString(),
+            },
+            ...(docCls
+                ? {
+                      docCls: {
+                          input: docCls,
+                      },
+                  }
+                : {}),
             ort,
             ortOption: { executionProviders: [{ name: provider }] },
-            docClsPath: docCls,
-        } satisfies Parameters<typeof localOCR.init>[0],
+        } as InitOcrBase,
     };
 }

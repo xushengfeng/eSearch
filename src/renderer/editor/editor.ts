@@ -2510,23 +2510,19 @@ async function localOcr(
         const x = loadOCR(store, type);
         if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
-            lo = await x.ocr.init({
-                ...x.config,
-                onProgress: (type, a, n) => {
-                    if (type === "det") {
-                        ocrProgress([
-                            { name: t("检测"), num: n / a },
-                            { name: t("识别"), num: 0 },
-                        ]);
-                    }
-                    if (type === "rec") {
-                        ocrProgress([
-                            { name: t("检测"), num: 1 },
-                            { name: t("识别"), num: n / a },
-                        ]);
-                    }
-                },
-            });
+            x.config.det.on = () => {
+                ocrProgress([
+                    { name: t("检测"), num: 1 },
+                    { name: t("识别"), num: 0 },
+                ]);
+            };
+            x.config.rec.on = (i, _, a) => {
+                ocrProgress([
+                    { name: t("检测"), num: 1 },
+                    { name: t("识别"), num: (i + 1) / a },
+                ]);
+            };
+            lo = await x.ocr.init(x.config);
         }
         task.l("img_load");
         const img = image(arg, "ocr image");
@@ -2537,6 +2533,10 @@ async function localOcr(
             const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
             ctx.drawImage(img.el, 0, 0);
             task.l("ocr_s");
+            ocrProgress([
+                { name: t("检测"), num: 0 },
+                { name: t("识别"), num: 0 },
+            ]);
             lo.ocr(ctx.getImageData(0, 0, img.el.width, img.el.height))
                 .then((l) => {
                     console.log(l);
