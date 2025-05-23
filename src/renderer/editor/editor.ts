@@ -313,6 +313,10 @@ const ocrImageS = new Map<
         textEl: ElType<HTMLDivElement>;
         src: string;
         imgEl: ElType<HTMLImageElement>;
+        maskEls: {
+            pel: ElType<HTMLDivElement>;
+            masks: Map<number, ElType<HTMLDivElement>>;
+        };
     }
 >();
 const ocrTextSelectionClass = addClass(
@@ -1867,7 +1871,7 @@ renderOn("editorInit", ([name, list]) => {
                 const maxLinePhotoShow = store.get("主页面.显示图片区");
                 if (maxLinePhotoShow && r.raw.length >= maxLinePhotoShow) {
                     imageSwitch.sv(true);
-                }
+                } else imageSwitch.sv(false);
 
                 if (store.get("主页面.自动复制OCR")) {
                     clipboard.writeText(text.trim()); // todo 如果以后支持空格识别再考虑trim问题
@@ -2510,13 +2514,39 @@ async function localOcr(
         const x = loadOCR(store, type);
         if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
-            x.config.det.on = () => {
-                ocrProgress([
-                    { name: t("检测"), num: 1 },
-                    { name: t("识别"), num: 0 },
-                ]);
+            x.config.det.on = (dr) => {
+                mainSectionEl.style({ gap: cssVar("o-padding") });
+                ocrImagePel.style({ height: "100%" }); // todo 全屏
+
+                const x = Array.from(ocrImageS.values())[0];
+                if (!x) return; // todo 获取准确的任务
+                const w = x.imgEl.el.naturalWidth;
+                const h = x.imgEl.el.naturalHeight;
+
+                for (const [index, i] of dr.entries()) {
+                    const x0 = i.box[0][0];
+                    const y0 = i.box[0][1];
+                    const x1 = i.box[2][0];
+                    const y1 = i.box[2][1];
+                    const xel = view().style({
+                        // todo 提取
+                        left: `${(x0 / w) * 100}%`,
+                        top: `${(y0 / h) * 100}%`,
+                        width: `${((x1 - x0) / w) * 100}%`,
+                        height: `${((y1 - y0) / h) * 100}%`,
+                        position: "absolute",
+                        overflow: "hidden",
+                        backdropFilter: "blur(10px)",
+                    });
+                    x.maskEls.pel.add(xel);
+                    x.maskEls.masks.set(index, xel);
+                }
             };
             x.config.rec.on = (i, _, a) => {
+                const x = Array.from(ocrImageS.values())[0];
+                if (!x) return; // todo 获取准确的任务
+                x.maskEls.masks.get(i)?.remove();
+
                 ocrProgress([
                     { name: t("检测"), num: 1 },
                     { name: t("识别"), num: (i + 1) / a },
@@ -3032,6 +3062,15 @@ function addOcrPhoto(base: string) {
         src: base,
         imgEl: img,
         textEl: textEl,
+        maskEls: {
+            pel: view().addInto(div).style({
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                top: 0,
+            }),
+            masks: new Map(),
+        },
     });
 }
 

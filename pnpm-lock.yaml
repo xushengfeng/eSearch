@@ -32,8 +32,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       esearch-ocr:
-        specifier: ^8.4.1
-        version: 8.4.1
+        specifier: ^8.4.2
+        version: 8.4.2
       esearch-seg:
         specifier: ^1.1.4
         version: 1.1.4(opencv.js@1.2.1)
@@ -1469,8 +1469,8 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@8.4.1:
-    resolution: {integrity: sha512-NSH+J+bylFrLQW0VIAsJR5VZLzdRCsGXUC3Rvnxgtd73WtKL5Fmw4a1idVZ1DF9ODTv83rzocktI9o6sN56hpg==}
+  esearch-ocr@8.4.2:
+    resolution: {integrity: sha512-jUrVB7m0U9nAc2FA3Q7je9hB9xkLO+6fQSgilJbO2otRtgkFvoUK4DTdbC4g5zcKDiJRcZHdkXXxmo56y0JodA==}
 
   esearch-seg@1.1.4:
     resolution: {integrity: sha512-0hoN9JTKjImH29jh5fDOTOfxH4/R9ffT/B5mlP/dh7qMbu7oxFmfyv7nX7gpfb+B2bibCa00/eWdMOD3IkfM+Q==}
@@ -4585,7 +4585,7 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@8.4.1:
+  esearch-ocr@8.4.2:
     dependencies:
       onnxruntime-common: 1.22.0
 

@@ -25,7 +25,7 @@
     "diff-match-patch-line-and-word": "^0.1.3",
     "dkh-ui": "^0.14.0",
     "download": "^8.0.0",
-    "esearch-ocr": "^8.4.1",
+    "esearch-ocr": "^8.4.2",
     "esearch-seg": "^1.1.4",
     "fabric": "^6.4.0",
     "franc": "^6.2.0",
