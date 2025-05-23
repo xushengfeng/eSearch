@@ -2522,19 +2522,11 @@ async function localOcr(
                 if (!x) return; // todo 获取准确的任务
                 const w = x.imgEl.el.naturalWidth;
                 const h = x.imgEl.el.naturalHeight;
+                const boxT = ocrBox2Style(w, h);
 
                 for (const [index, i] of dr.entries()) {
-                    const x0 = i.box[0][0];
-                    const y0 = i.box[0][1];
-                    const x1 = i.box[2][0];
-                    const y1 = i.box[2][1];
                     const xel = view().style({
-                        // todo 提取
-                        left: `${(x0 / w) * 100}%`,
-                        top: `${(y0 / h) * 100}%`,
-                        width: `${((x1 - x0) / w) * 100}%`,
-                        height: `${((y1 - y0) / h) * 100}%`,
-                        position: "absolute",
+                        ...boxT(i.box),
                         overflow: "hidden",
                         backdropFilter: "blur(10px)",
                     });
@@ -2934,7 +2926,12 @@ function runOcr() {
 
 type ocrResult = {
     text: string;
-    box: /** lt,rt,rb,lb */ number[][];
+    box: /** lt,rt,rb,lb */ [
+        [number, number],
+        [number, number],
+        [number, number],
+        [number, number],
+    ];
 }[];
 
 type OCROutPut = {
@@ -2971,21 +2968,14 @@ async function addOcrText(r: ocrResult, i: number, rotate?: number) {
     const img = x.imgEl.el;
     const w = img.naturalWidth;
     const h = img.naturalHeight;
+    const boxT = ocrBox2Style(w, h);
 
     const div = x.textEl;
     for (const i of r) {
         if (!i.text) continue;
-        const x0 = i.box[0][0];
-        const y0 = i.box[0][1];
-        const x1 = i.box[2][0];
-        const y1 = i.box[2][1];
         const xel = p(i.text)
             .style({
-                left: `${(x0 / w) * 100}%`,
-                top: `${(y0 / h) * 100}%`,
-                width: `${((x1 - x0) / w) * 100}%`,
-                height: `${((y1 - y0) / h) * 100}%`,
-                position: "absolute",
+                ...boxT(i.box),
                 color: "transparent",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -3009,6 +2999,29 @@ async function addOcrText(r: ocrResult, i: number, rotate?: number) {
     setOcrFontSize();
 
     addOcrSelect(div.el);
+}
+
+function ocrBox2Style(w: number, h: number) {
+    return (
+        box: [
+            [number, number],
+            [number, number],
+            [number, number],
+            [number, number],
+        ],
+    ) => {
+        const x0 = box[0][0];
+        const y0 = box[0][1];
+        const x1 = box[2][0];
+        const y1 = box[2][1];
+        return {
+            left: `${(x0 / w) * 100}%`,
+            top: `${(y0 / h) * 100}%`,
+            width: `${((x1 - x0) / w) * 100}%`,
+            height: `${((y1 - y0) / h) * 100}%`,
+            position: "absolute",
+        } as Parameters<ElType<HTMLElement>["style"]>[0];
+    };
 }
 
 function setOcrFontSize() {
