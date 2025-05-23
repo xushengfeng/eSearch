@@ -303,8 +303,13 @@ ocrImageCtrl.add(
 );
 const ocrImageClose = iconBEl("close", "清空图片").addInto(ocrImageCtrl);
 
+const ocrImageViewWidthK = "--width";
 const ocrImageView = view()
-    .style({ overflowY: "auto", scrollBehavior: "smooth" })
+    .style({
+        overflowY: "auto",
+        scrollBehavior: "smooth",
+        [ocrImageViewWidthK]: "100%",
+    })
     .addInto(ocrImagePel);
 const ocrImageS = new Map<
     number,
@@ -2516,7 +2521,12 @@ async function localOcr(
         if (!lo) {
             x.config.det.on = (dr) => {
                 mainSectionEl.style({ gap: cssVar("o-padding") });
-                ocrImagePel.style({ height: "100%" }); // todo 全屏
+                ocrImagePel.style({ height: "100%" });
+                baseEditorEl.style({ height: "0" });
+
+                ocrImageView.style({
+                    [ocrImageViewWidthK]: "min(100%, 300px)",
+                });
 
                 const x = Array.from(ocrImageS.values())[0];
                 if (!x) return; // todo 获取准确的任务
@@ -2539,7 +2549,14 @@ async function localOcr(
                 if (!x) return; // todo 获取准确的任务
                 x.maskEls.masks.get(i)?.remove();
 
-                if (i + 1 === a) x.maskEls.pel.clear();
+                if (i + 1 === a) {
+                    x.maskEls.pel.clear();
+                    // todo 所有任务完成才执行
+                    baseEditorEl.style({ height: "100%" });
+                    ocrImageView.style({
+                        [ocrImageViewWidthK]: "100%",
+                    });
+                }
 
                 ocrProgress([
                     { name: t("检测"), num: 1 },
@@ -3059,7 +3076,9 @@ function clearOcrPhoto() {
 
 function addOcrPhoto(base: string) {
     const pel = view("y").style({
-        width: "100%",
+        width: `var(${ocrImageViewWidthK})`,
+        marginInline: "auto",
+        transition: cssVar("transition"),
     });
     const div = view()
         .style({
@@ -3090,7 +3109,7 @@ function addOcrPhoto(base: string) {
     });
     div.add([textEl, img, animateMask]);
 
-    ocrImageView.add(div);
+    ocrImageView.add(pel);
     ocrImageS.set(Date.now(), {
         el: pel,
         src: base,
