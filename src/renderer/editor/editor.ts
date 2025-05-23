@@ -3058,10 +3058,15 @@ function clearOcrPhoto() {
 }
 
 function addOcrPhoto(base: string) {
-    const div = view().style({
+    const pel = view("y").style({
         width: "100%",
-        position: "relative",
     });
+    const div = view()
+        .style({
+            width: "100%",
+            position: "relative",
+        })
+        .addInto(pel);
     const img = image(base, "")
         .on("load", () => {
             img.data({
@@ -3076,22 +3081,23 @@ function addOcrPhoto(base: string) {
         position: "absolute",
         top: 0,
     });
-    div.add([textEl, img]);
+    const animateMask = view().addInto(div).style({
+        width: "100%",
+        height: "100%",
+        position: "absolute",
+        top: 0,
+        pointerEvents: "none",
+    });
+    div.add([textEl, img, animateMask]);
 
     ocrImageView.add(div);
     ocrImageS.set(Date.now(), {
-        el: div,
+        el: pel,
         src: base,
         imgEl: img,
         textEl: textEl,
         maskEls: {
-            pel: view().addInto(div).style({
-                width: "100%",
-                height: "100%",
-                position: "absolute",
-                top: 0,
-                pointerEvents: "none",
-            }),
+            pel: animateMask,
             masks: new Map(),
         },
     });
