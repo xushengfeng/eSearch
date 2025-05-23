@@ -3012,13 +3012,20 @@ function ocrBox2Style(w: number, h: number) {
     ) => {
         const x0 = box[0][0];
         const y0 = box[0][1];
-        const x1 = box[2][0];
-        const y1 = box[2][1];
+        const W = Math.sqrt(
+            (box[0][0] - box[1][0]) ** 2 + (box[0][1] - box[1][1]) ** 2,
+        );
+        const H = Math.sqrt(
+            (box[2][0] - box[1][0]) ** 2 + (box[2][1] - box[1][1]) ** 2,
+        );
+        const angle = Math.atan2(box[1][1] - box[0][1], box[1][0] - box[0][0]);
         return {
             left: `${(x0 / w) * 100}%`,
             top: `${(y0 / h) * 100}%`,
-            width: `${((x1 - x0) / w) * 100}%`,
-            height: `${((y1 - y0) / h) * 100}%`,
+            width: `${(W / w) * 100}%`,
+            height: `${(H / h) * 100}%`,
+            rotate: `${(angle * 180) / Math.PI}deg`,
+            transformOrigin: "left top",
             position: "absolute",
         } as Parameters<ElType<HTMLElement>["style"]>[0];
     };
