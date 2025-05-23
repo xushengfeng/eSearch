@@ -2539,6 +2539,8 @@ async function localOcr(
                 if (!x) return; // todo 获取准确的任务
                 x.maskEls.masks.get(i)?.remove();
 
+                if (i + 1 === a) x.maskEls.pel.clear();
+
                 ocrProgress([
                     { name: t("检测"), num: 1 },
                     { name: t("识别"), num: (i + 1) / a },
@@ -3088,6 +3090,7 @@ function addOcrPhoto(base: string) {
                 height: "100%",
                 position: "absolute",
                 top: 0,
+                pointerEvents: "none",
             }),
             masks: new Map(),
         },
