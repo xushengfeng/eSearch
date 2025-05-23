@@ -2526,41 +2526,34 @@ async function localOcr(
         }
         task.l("img_load");
         const img = image(arg, "ocr image");
-        img.el.onload = async () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.el.width;
-            canvas.height = img.el.height;
-            const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-            ctx.drawImage(img.el, 0, 0);
-            task.l("ocr_s");
-            ocrProgress([
-                { name: t("检测"), num: 0 },
-                { name: t("识别"), num: 0 },
-            ]);
-            lo.ocr(ctx.getImageData(0, 0, img.el.width, img.el.height))
-                .then((l) => {
-                    console.log(l);
-                    let t = "";
-                    if (store.get("OCR.识别段落")) {
-                        for (const i of l.parragraphs) {
-                            t += `${i.text}\n`;
-                        }
-                    } else {
-                        for (const i of l.columns.flatMap((i) => i.src)) {
-                            t += `${i.text}\n`;
-                        }
+        task.l("ocr_s");
+        ocrProgress([
+            { name: t("检测"), num: 0 },
+            { name: t("识别"), num: 0 },
+        ]);
+        lo.ocr(img.el)
+            .then((l) => {
+                console.log(l);
+                let t = "";
+                if (store.get("OCR.识别段落")) {
+                    for (const i of l.parragraphs) {
+                        t += `${i.text}\n`;
                     }
-                    const ll = l.columns
-                        .flatMap((i) => i.src)
-                        .map((i) => ({ box: i.box, text: i.text }));
-                    callback(null, { raw: ll, text: t, rotate: l.docDir });
-                    task.l("ocr_e");
-                    task.clear();
-                })
-                .catch((e) => {
-                    callback(e, null);
-                });
-        };
+                } else {
+                    for (const i of l.columns.flatMap((i) => i.src)) {
+                        t += `${i.text}\n`;
+                    }
+                }
+                const ll = l.columns
+                    .flatMap((i) => i.src)
+                    .map((i) => ({ box: i.box, text: i.text }));
+                callback(null, { raw: ll, text: t, rotate: l.docDir });
+                task.l("ocr_e");
+                task.clear();
+            })
+            .catch((e) => {
+                callback(e, null);
+            });
     } catch (error) {
         callback(error as Error, null);
     }
