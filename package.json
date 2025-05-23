@@ -60,7 +60,7 @@
     "electron-vite": "^2.1.0",
     "svgo": "^3.3.2",
     "typescript": "^5.7.2",
-    "vite": "^5.4.12",
+    "vite": "^5.4.19",
     "vite-plugin-image-optimizer": "^1.1.8",
     "xtimelog": "^1.0.5"
   },
