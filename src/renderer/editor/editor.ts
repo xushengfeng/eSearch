@@ -2568,21 +2568,12 @@ async function localOcr(
                         [ocrImageViewWidthK]: "100%",
                     });
                 }
-
-                ocrProgress([
-                    { name: t("检测"), num: 1 },
-                    { name: t("识别"), num: (i + 1) / a },
-                ]);
             };
             lo = await x.ocr.init(x.config);
         }
         task.l("img_load");
         const img = image(arg, "ocr image");
         task.l("ocr_s");
-        ocrProgress([
-            { name: t("检测"), num: 0 },
-            { name: t("识别"), num: 0 },
-        ]);
         lo.ocr(img.el)
             .then((l) => {
                 console.log(l);
@@ -2609,22 +2600,6 @@ async function localOcr(
     } catch (error) {
         callback(error as Error, null);
     }
-}
-
-function ocrProgress(x: { name: string; num: number }[]) {
-    editor.text.style.fontFamily = "monospace";
-    const text: string[] = [];
-    const nameLenght = Math.max(...x.map((i) => i.name.length));
-    const w = 20;
-    for (const i of x) {
-        let t = "";
-        t += i.name.padEnd(nameLenght + 1);
-        t += "#".repeat(Math.floor(w * i.num)).padEnd(w, "-");
-        t += ` ${(i.num * 100).toFixed(0)}%`;
-        text.push(t);
-    }
-    editor.push(text.join("\n"));
-    if (x.every((i) => i.num === 1)) editor.text.style.fontFamily = "";
 }
 
 /**
