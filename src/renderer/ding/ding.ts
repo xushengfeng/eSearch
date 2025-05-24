@@ -231,9 +231,8 @@ const setNewDing = (
     };
 
     const transB = button(iconEl("translate"))
-        .style({ display: "none" })
         .attr({ title: "翻译" })
-        .on("click", () => {
+        .on("click", async () => {
             const d = dingData.get(wid);
             if (d) {
                 const t = d.isTranslate;
@@ -241,6 +240,10 @@ const setNewDing = (
                 if (t) {
                     div.query("canvas")?.style({ display: "none" });
                 } else {
+                    if (!d.translation) {
+                        const p = await translate(url);
+                        transAndDraw(div, p);
+                    }
                     div.query("canvas")?.style({ display: "" });
                 }
             }
@@ -314,22 +317,9 @@ const setNewDing = (
     resize(wid, 1, 0, 0);
 
     if (type === "translate") {
-        const transE = store.get("翻译.翻译器");
-
-        if (transE.length > 0) {
-            const x = transE[0];
-            // @ts-ignore
-            xtranslator.e[x.type].setKeys(x.keys);
-            const lan = store.get("屏幕翻译.语言");
-            translateE = (input: string[]) =>
-                // @ts-ignore
-                xtranslator.e[x.type].run(input, lan.from, lan.to);
-        }
-        initOCR().then(async () => {
-            const p = await ocr(url);
+        translate(url).then((p) => {
             transAndDraw(div, p);
         });
-        transB.style({ display: "" });
     }
 
     return {
@@ -338,6 +328,23 @@ const setNewDing = (
         id: wid,
     };
 };
+
+async function translate(url: string) {
+    const transE = store.get("翻译.翻译器");
+
+    if (transE.length > 0) {
+        const x = transE[0];
+        // @ts-ignore
+        xtranslator.e[x.type].setKeys(x.keys);
+        const lan = store.get("屏幕翻译.语言");
+        translateE = (input: string[]) =>
+            // @ts-ignore
+            xtranslator.e[x.type].run(input, lan.from, lan.to);
+    }
+    await initOCR();
+    const p = await ocr(url);
+    return p;
+}
 
 async function initOCR() {
     if (!lo) {
