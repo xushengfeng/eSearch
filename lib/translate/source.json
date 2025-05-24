@@ -780,5 +780,7 @@
     "低精度": "af655e",
     "高精度": "eec03d",
     "快速": "ea0e1e",
-    "慢速": "8ad232"
+    "慢速": "8ad232",
+    "文字识别需要VS运行库才能正常使用": "3fbaff",
+    "请下载并安装 Microsoft Visual C++ Runtime": "bbcc2a"
 }

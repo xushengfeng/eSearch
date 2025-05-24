@@ -2516,7 +2516,18 @@ async function localOcr(
 ) {
     try {
         task.l("ocr_load");
-        const x = loadOCR(store, type);
+        let x: ReturnType<typeof loadOCR> = null;
+        try {
+            x = loadOCR(store, type);
+        } catch (error) {
+            if (error instanceof Error) {
+                if (error.message.includes("A dynamic link library")) {
+                    const x = `${t("文字识别需要VS运行库才能正常使用")}\n${t("请下载并安装 Microsoft Visual C++ Runtime")}\nhttps://aka.ms/vs/17/release/vc_redist.${process.arch}.exe`;
+                    callback(new Error(x), null);
+                }
+            }
+            return callback(error as Error, null);
+        }
         if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
             x.config.det.on = (dr) => {
