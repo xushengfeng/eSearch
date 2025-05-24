@@ -509,6 +509,10 @@ async function transAndDraw(
     data.isTranslate = true;
 }
 
+function distance(a: [number, number], b: [number, number]) {
+    return Math.sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2);
+}
+
 function drawText(
     text: string,
     ctx: CanvasRenderingContext2D,
@@ -518,12 +522,13 @@ function drawText(
     const textList = Array.from(seg.segment(text));
 
     const firstline = boxSrc[0].box;
-    const lineHeight = firstline[2][1] - firstline[0][1];
+    const lineHeight = distance(firstline[3], firstline[0]);
     const lineNum = boxSrc.length;
     let fontSize = lineHeight;
     ctx.font = `${fontSize}px serif`;
     const textWidth = ctx.measureText(text).width;
-    const boxWidth = box[2][0] - box[0][0];
+    const boxWidth = distance(box[1], box[0]);
+    const boxHeight = distance(box[3], box[0]);
     const oneLineWidth = boxWidth * lineNum;
     if (textWidth > oneLineWidth) {
         fontSize = Math.floor((fontSize * oneLineWidth) / textWidth);
@@ -531,27 +536,38 @@ function drawText(
     }
 
     const gap =
-        lineNum === 1
-            ? 0
-            : (box[2][1] - box[0][1] - lineHeight * lineNum) / (lineNum - 1);
+        lineNum === 1 ? 0 : (boxHeight - lineHeight * lineNum) / (lineNum - 1);
     const lines = splitText(textList, ctx, boxWidth); // todo 严格等于lineNum
 
     for (const b of boxSrc) {
         ctx.fillStyle = color2rgb(b.style.bg);
-        ctx.fillRect(
-            b.box[0][0],
-            b.box[0][1],
-            b.box[2][0] - b.box[0][0],
-            b.box[2][1] - b.box[0][1],
-        );
+        ctx.strokeStyle = color2rgb(b.style.bg); // 拓展外边
+        ctx.beginPath();
+        ctx.moveTo(b.box[0][0], b.box[0][1]);
+        ctx.lineTo(b.box[1][0], b.box[1][1]);
+        ctx.lineTo(b.box[2][0], b.box[2][1]);
+        ctx.lineTo(b.box[3][0], b.box[3][1]);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
     }
 
-    const x = box[0][0];
+    const angle = Math.atan2(box[1][1] - box[0][1], box[1][0] - box[0][0]);
+    const yBaseVector = [
+        (box[3][0] - box[0][0]) / boxHeight,
+        (box[3][1] - box[0][1]) / boxHeight,
+    ];
     ctx.textBaseline = "top";
     ctx.fillStyle = color2rgb(boxSrc[0].style.text);
     for (const [i, line] of lines.entries()) {
-        const y = box[0][1] + i * lineHeight + i * gap;
-        ctx.fillText(line, x, y, boxWidth);
+        const yn = i * lineHeight + i * gap;
+        const x = box[0][0] + yBaseVector[0] * yn;
+        const y = box[0][1] + yBaseVector[1] * yn;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillText(line, 0, 0, boxWidth);
+        ctx.restore();
     }
 }
 
