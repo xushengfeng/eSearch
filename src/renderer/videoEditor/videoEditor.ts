@@ -369,7 +369,7 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
         height: v.height,
     });
     decoder.configure(decoderVideoConfig);
-    let lastTime = 0;
+    let lastTime = chunks[0].timestamp;
     for (const c of chunks) {
         const count = Math.round((c.timestamp - lastTime) / d);
         if (count > 1) {
