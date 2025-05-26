@@ -2574,10 +2574,8 @@ async function localOcr(
             };
             lo = await x.ocr.init(x.config);
         }
-        task.l("img_load");
-        const img = image(arg, "ocr image");
         task.l("ocr_s");
-        lo.ocr(img.el)
+        lo.ocr(arg)
             .then((l) => {
                 console.log(l);
                 let t = "";
