@@ -2567,6 +2567,9 @@ async function localOcr(
                     ocrImageView.style({
                         [ocrImageViewWidthK]: "100%",
                     });
+                    setTimeout(() => {
+                        setOcrFontSize();
+                    }, 400);
                 }
             };
             lo = await x.ocr.init(x.config);
