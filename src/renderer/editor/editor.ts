@@ -2531,6 +2531,7 @@ async function localOcr(
         if (!x) return callback(new Error("未找到OCR模型"), null);
         if (!lo) {
             x.config.det.on = (dr) => {
+                if (dr.length <= 2) return;
                 mainSectionEl.style({ gap: cssVar("o-padding") });
                 ocrImagePel.style({ height: "100%" });
                 baseEditorEl.style({ height: "0" });
