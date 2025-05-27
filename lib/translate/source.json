@@ -782,5 +782,9 @@
     "快速": "ea0e1e",
     "慢速": "8ad232",
     "文字识别需要VS运行库才能正常使用": "3fbaff",
-    "请下载并安装 Microsoft Visual C++ Runtime": "bbcc2a"
+    "请下载并安装 Microsoft Visual C++ Runtime": "bbcc2a",
+    "空格优化": "80d799",
+    "标准版v5": "61c674",
+    "标准版v5 max": "e189a7",
+    "截屏默认格式": "835e54"
 }
