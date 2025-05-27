@@ -1,5 +1,5 @@
 import xtranslator, { matchFitLan } from "xtranslator";
-import { Class, getImgUrl, initStyle } from "../root/root";
+import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 import { francAll } from "franc";
 import convert3To1 from "iso-639-3-to-1";
@@ -30,11 +30,13 @@ function iconButton(img: IconType) {
     return button(image(getImgUrl(`${img}.svg`), "icon").class("icon"));
 }
 
-pack(document.body).style({
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-});
+pack(document.body)
+    .style({
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+    })
+    .class(Class.gap);
 
 const input = ele("textarea").style({
     width: "100%",
@@ -43,7 +45,10 @@ const input = ele("textarea").style({
     // @ts-ignore
     "field-sizing": "content",
     "min-height": "4lh",
+    maxHeight: "50%",
     outline: "none",
+    transition: "none",
+    flexShrink: 0,
 });
 const lans = view("x")
     .style({
@@ -128,6 +133,10 @@ function translate(_text: string) {
                 name: txt(i.name).style({ opacity: 0.5 }),
             },
             content: pText(""),
+            reTrans: pText("").style({
+                marginBlockStart: "8px",
+                color: cssColor.font.light,
+            }),
         });
         results.add(e.el);
         const c = e.els.content;
@@ -157,7 +166,7 @@ function translate(_text: string) {
                         const t = await ff
                             // @ts-ignore
                             .run(ttext, toLan, fromLan);
-                        c.sv(`${ttext}\n<->\n${t}`);
+                        e.els.reTrans.sv(t);
                     });
                 })
                 .catch((err) => {
