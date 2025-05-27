@@ -3748,7 +3748,7 @@ function ocrEl() {
             const recPathEl = xPath().sv(item.recPath);
             const dicPathEl = xPath().sv(item.dicPath);
             const scriptsEl = input()
-                .bindGet((el) => el.value.split(","))
+                .bindGet((el) => el.value.split(",").map((i) => i.trim()))
                 .bindSet((v: string[], el) => {
                     el.value = v.join(", ");
                 })
