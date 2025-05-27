@@ -3541,6 +3541,9 @@ function ocrEl() {
             supportLang: string[];
             accuracy?: "high" | "low";
             speed?: "fast" | "slow";
+            optimize?: {
+                space: boolean;
+            };
         }
     > = {
         standard_v5_mobile: {
@@ -3550,6 +3553,9 @@ function ocrEl() {
             supportLang: ["zh-HANS", "zh-HANT", "en", "ja"],
             accuracy: "high",
             speed: "fast",
+            optimize: {
+                space: false,
+            },
         },
         standard_v5_server: {
             url: "ppocr_v5_server.zip",
@@ -3558,6 +3564,9 @@ function ocrEl() {
             supportLang: ["zh-HANS", "zh-HANT", "en", "ja"],
             accuracy: "high",
             speed: "slow",
+            optimize: {
+                space: false,
+            },
         },
         ch: {
             url: "ch_v4_doc.zip",
@@ -3729,6 +3738,9 @@ function ocrEl() {
                     scripts: [],
                     accuracy: "low",
                     speed: "fast",
+                    optimize: {
+                        space: true,
+                    },
                 } satisfies setting["离线OCR"][0]);
 
             const nameEl = input().sv(item.name);
@@ -3750,6 +3762,10 @@ function ocrEl() {
                 { value: "fast", name: "快速" },
                 { value: "slow", name: "慢速" },
             ]).sv(item.speed);
+            const optimizeSpaceEl = label([
+                check("optimize.space"),
+                "空格优化",
+            ]).sv(item.optimize?.space ?? true);
 
             const downloadEl = view("y").add(
                 button(iconEl("down")).on("click", () => {
@@ -3833,6 +3849,7 @@ function ocrEl() {
                         view().add(["语言字符", ele("br"), scriptsEl]),
                         view().add(["精度", ele("br"), accuracyEl]),
                         view().add(["速度", ele("br"), speedEl]),
+                        view().add([optimizeSpaceEl]),
                     ]),
                 ],
                 () => resolve(null),
@@ -3846,6 +3863,9 @@ function ocrEl() {
                         scripts: scriptsEl.gv,
                         accuracy: accuracyEl.gv,
                         speed: speedEl.gv,
+                        optimize: {
+                            space: optimizeSpaceEl.gv,
+                        },
                     }),
             );
 

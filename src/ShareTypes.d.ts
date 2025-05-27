@@ -183,6 +183,9 @@ export interface setting {
         scripts: string[];
         accuracy: "high" | "low";
         speed: "fast" | "slow";
+        optimize?: {
+            space: boolean;
+        };
     }[];
     AI: {
         运行后端: "cpu" | "cuda" | "coreml" | "directml" | "webgpu";

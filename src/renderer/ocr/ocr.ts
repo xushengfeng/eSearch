@@ -71,6 +71,9 @@ function loadOCR(
             rec: {
                 input: recp,
                 decodeDic: fs.readFileSync(字典).toString(),
+                optimize: {
+                    space: l.optimize?.space,
+                },
             },
             ...(docCls
                 ? {
