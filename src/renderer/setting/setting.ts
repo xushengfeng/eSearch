@@ -3878,15 +3878,16 @@ function ocrEl() {
             .style({ overflow: "auto", maxHeight: "200px" })
             .class(Class.gap);
         for (const i in ocrModels) {
+            const desc = p();
             const lans = view("x", "wrap").style({
                 "column-gap": "16px",
             });
-            const p = path.join(configPath, "models", i);
-            const exists = fs.existsSync(p);
+            const pa = path.join(configPath, "models", i);
+            const exists = fs.existsSync(pa);
             const downloadButton = button(exists ? "重新下载" : "下载").on(
                 "click",
                 () => {
-                    click(i, p);
+                    click(i, pa);
                 },
             );
             ocrListEl.add(
@@ -3895,6 +3896,7 @@ function ocrEl() {
                         .class(Class.gap)
                         .add([
                             button(ocrModels[i].name).on("click", () => {
+                                desc.sv(ocrModels[i].desc);
                                 lans.clear().add(
                                     ocrModels[i].supportLang.map((i) =>
                                         langMap[i]
@@ -3906,6 +3908,7 @@ function ocrEl() {
                             downloadButton,
                         ])
                         .style({ "align-items": "center" }),
+                    desc,
                     lans,
                 ]),
             );
