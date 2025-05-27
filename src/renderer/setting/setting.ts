@@ -3537,11 +3537,28 @@ function ocrEl() {
         {
             url: string;
             name: string;
+            desc?: string;
             supportLang: string[];
             accuracy?: "high" | "low";
             speed?: "fast" | "slow";
         }
     > = {
+        standard_v5_mobile: {
+            url: "ppocr_v5_mobile.zip",
+            name: "标准版v5",
+            desc: "paddle OCR v5 mobile",
+            supportLang: ["zh-HANS", "zh-HANT", "en", "ja"],
+            accuracy: "high",
+            speed: "fast",
+        },
+        standard_v5_server: {
+            url: "ppocr_v5_server.zip",
+            name: "标准版v5 max",
+            desc: "paddle OCR v5 server",
+            supportLang: ["zh-HANS", "zh-HANT", "en", "ja"],
+            accuracy: "high",
+            speed: "slow",
+        },
         ch: {
             url: "ch_v4_doc.zip",
             name: "中英混合（高精度）",
