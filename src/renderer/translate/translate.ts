@@ -1,6 +1,7 @@
 import xtranslator, { matchFitLan } from "xtranslator";
 import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
+const { clipboard } = require("electron") as typeof import("electron");
 import { francAll } from "franc";
 import convert3To1 from "iso-639-3-to-1";
 
@@ -151,7 +152,7 @@ function translate(_text: string) {
                     const ttext = _ttext.trim();
                     c.sv(ttext);
                     copy.on("click", () => {
-                        navigator.clipboard.writeText(ttext);
+                        clipboard.writeText(ttext);
                     });
                     save.on("click", () => {
                         saveW({
