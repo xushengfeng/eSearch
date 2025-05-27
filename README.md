@@ -95,15 +95,19 @@ winget `winget install esearch`
 
 ### OCR（文字识别）
 
-开箱即用的离线 OCR（[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)），框选文字后按下回车键即可
+开箱即用的离线 OCR（[eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)，基于[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)），框选文字后按下回车键即可
+
+大字符集，支持生僻字、特殊符号（需要在设置下载 v5 模型）
 
 离线 OCR 支持段落识别，也可以使用基于标点符号的分段算法
+
+支持竖排文本，支持图片旋转识别
 
 同时也支持百度、有道的在线 OCR
 
 可后期编辑文字，在图片上选择文字，同步选区到编辑区，方便校对
 
-支持多语言（需要在设置额外下载）
+支持多语言：中文、英文、韩文、日文、泰卢固文、卡纳达文、泰米尔文、拉丁文、阿拉伯字母、斯拉夫字母、梵文字母（需要在设置额外下载）
 
 ### 以图搜图
 

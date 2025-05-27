@@ -95,15 +95,19 @@ Can set filters and transformations (such as mirroring) through CSS
 
 ### OCR (Optical Character Recognition)
 
-Out-of-the-box offline OCR ([eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR)), just select the text and press Enter
+Out-of-the-box offline OCR ([eSearch-OCR](https://github.com/xushengfeng/eSearch-OCR), based on [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)), simply select the text and press the Enter key.
 
-Offline OCR supports paragraph recognition and can use punctuation-based segmentation algorithms
+Large character set, supports rare characters and special symbols (requires downloading the v5 model in settings).
 
-Also supports online OCR from Baidu and Youdao
+Offline OCR supports paragraph recognition, and can also use a segmentation algorithm based on punctuation.
 
-Can edit text later, select text on images, and sync selection to the editing area for easy proofing
+Supports vertical text and image rotation recognition.
 
-Supports multiple languages (extra download required in settings)
+Also supports online OCR from Baidu and Youdao.
+
+Editable text after recognition, select text on the image, and sync the selection to the editing area for easy proofreading.
+
+Supports multiple languages: Chinese, English, Korean, Japanese, Telugu, Kannada, Tamil, Latin, Arabic letters, Slavic letters, and Sanskrit letters (requires additional downloads in settings).
 
 ### Image Search
 
