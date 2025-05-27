@@ -780,5 +780,11 @@
     "af655e": "baja precisión",
     "eec03d": "alta precisión",
     "ea0e1e": "rápido",
-    "8ad232": "lento"
+    "8ad232": "lento",
+    "3fbaff": "El reconocimiento de texto requiere la biblioteca de ejecución de VS para funcionar correctamente",
+    "bbcc2a": "Por favor, descargue e instale Microsoft Visual C++ Runtime",
+    "80d799": "Optimización de espacios",
+    "61c674": "Versión estándar v5",
+    "e189a7": "Versión estándar v5 max",
+    "835e54": "Formato predeterminado de captura de pantalla"
 }

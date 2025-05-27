@@ -780,5 +780,11 @@
     "af655e": "Low Precision",
     "eec03d": "High Precision",
     "ea0e1e": "Fast",
-    "8ad232": "Slow"
+    "8ad232": "Slow",
+    "3fbaff": "Text recognition requires VS runtime to function properly",
+    "bbcc2a": "Please download and install Microsoft Visual C++ Runtime",
+    "80d799": "Space optimization",
+    "61c674": "Standard version v5",
+    "e189a7": "Standard version v5 max",
+    "835e54": "Default screenshot format"
 }

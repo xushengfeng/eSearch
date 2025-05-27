@@ -780,5 +780,11 @@
     "af655e": "Basse précision",
     "eec03d": "Haute précision",
     "ea0e1e": "Rapide",
-    "8ad232": "Lent"
+    "8ad232": "Lent",
+    "3fbaff": "La reconnaissance de texte nécessite le runtime VS pour fonctionner correctement",
+    "bbcc2a": "Veuillez télécharger et installer Microsoft Visual C++ Runtime",
+    "80d799": "Optimisation d'espace",
+    "61c674": "Version standard v5",
+    "e189a7": "Version standard v5 max",
+    "835e54": "Format par défaut de capture d'écran"
 }
