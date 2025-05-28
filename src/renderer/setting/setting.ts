@@ -3831,6 +3831,9 @@ function ocrEl() {
                                         ocrModels[i].accuracy ?? "low",
                                     );
                                     speedEl.sv(ocrModels[i].speed ?? "fast");
+                                    optimizeSpaceEl.sv(
+                                        ocrModels[i].optimize?.space ?? true,
+                                    );
                                 });
                         }),
                     );
