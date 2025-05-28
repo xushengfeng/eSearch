@@ -8,7 +8,10 @@ type ReturnData = {
     size: { width: number; height: number };
     scaleFactor: number;
     id: number;
-    captureSync: () => ReturnType<typeof toCanvas>;
+    capture: () => {
+        toImageData: () => ImageData;
+        toNativeImage: () => Electron.NativeImage;
+    };
 };
 
 function d(op: MessageBoxSyncOptions) {
@@ -123,7 +126,7 @@ function dispaly2screen(
             size: displays?.[0]?.bounds ?? { width: 0, height: 0 },
             scaleFactor: displays?.[0]?.scaleFactor ?? 1,
             id: displays?.[0]?.id ?? -1,
-            captureSync: () => {
+            capture: () => {
                 const command = _command as string;
                 try {
                     const path = commandSavePath;
@@ -137,7 +140,10 @@ function dispaly2screen(
                         buttons: [_t("确定")],
                     } as MessageBoxSyncOptions);
 
-                    return { data: null, image: nativeImage.createEmpty() };
+                    return {
+                        toImageData: () => emptyImageData(),
+                        toNativeImage: () => nativeImage.createEmpty(),
+                    };
                 }
 
                 const data = toCanvas(buffer);
@@ -146,7 +152,10 @@ function dispaly2screen(
                 x.bounds = { x: 0, y: 0, width: s.width, height: s.height };
                 x.size = { width: s.width, height: s.height };
                 x.scaleFactor = 1;
-                return data;
+                return {
+                    toImageData: () => data.data,
+                    toNativeImage: () => data.image,
+                };
             },
         };
         return { screen: [x], window: [] };
@@ -162,7 +171,10 @@ function dispaly2screen(
                     size: { width: s.width, height: s.height },
                     scaleFactor: 1,
                     id: -1,
-                    captureSync: () => data,
+                    capture: () => ({
+                        toImageData: () => data.data,
+                        toNativeImage: () => data.image,
+                    }),
                 },
             ],
             window: [],
@@ -184,9 +196,21 @@ function dispaly2screen(
             size: d?.size ?? { width: 0, height: 0 },
             scaleFactor: d?.scaleFactor ?? 1,
             id: d?.id ?? -1,
-            captureSync: () => {
-                const data = toCanvas(s.captureImageSync().toPngSync(true));
-                return data;
+            capture: () => {
+                const data = s.captureImageSync();
+                return {
+                    toImageData: () =>
+                        toCanvas2(
+                            data.toRawSync(true),
+                            data.width,
+                            data.height,
+                        ),
+                    toNativeImage: () => {
+                        return nativeImage.createFromBuffer(
+                            data.toPngSync(true),
+                        );
+                    },
+                };
             },
         };
         allScreens.push(x);
@@ -199,11 +223,21 @@ function dispaly2screen(
     };
 }
 
+function emptyImageData() {
+    return {
+        width: 0,
+        height: 0,
+        data: new Uint8ClampedArray(0),
+        colorSpace: "srgb",
+    } as const;
+}
+
 function toCanvas(img: Buffer) {
     const image = nativeImage.createFromBuffer(img);
     const { width: w, height: h } = image.getSize();
 
-    if (typeof ImageData === "undefined") return { data: null, image };
+    if (typeof ImageData === "undefined")
+        return { data: emptyImageData(), image };
     const bitmap = image.toBitmap();
     const x = new Uint8ClampedArray(bitmap.length);
     for (let i = 0; i < bitmap.length; i += 4) {
@@ -215,6 +249,12 @@ function toCanvas(img: Buffer) {
     }
     const d = new ImageData(x, w, h);
     return { data: d, image };
+}
+
+function toCanvas2(img: Buffer, w: number, h: number) {
+    const x = new Uint8ClampedArray(img);
+    const d = new ImageData(x, w, h);
+    return d;
 }
 
 export default init;

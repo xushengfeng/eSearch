@@ -53,7 +53,7 @@ function screenshot(id: number, rect: Rect) {
     const l = screenShots(display).screen;
     const screen = l.find((i) => i.id === id) || l[0];
     if (!screen) return null;
-    const img = screen.captureSync().data;
+    const img = screen.capture().toImageData();
     if (!img) return null;
     const canvas = document.createElement("canvas");
 

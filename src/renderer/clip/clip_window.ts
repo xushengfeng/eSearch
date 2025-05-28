@@ -316,7 +316,7 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
 function setScreen(i: (typeof allScreens)[0]) {
     let _img = screenShotCache.get(i.id);
     if (!_img) {
-        const __img = i.captureSync().data;
+        const __img = i.capture().toImageData();
         if (__img) {
             screenShotCache.set(i.id, __img);
             _img = __img;
@@ -578,7 +578,7 @@ function initRecord() {
 }
 
 function long_s() {
-    addLong(getNowScreen().captureSync()?.data ?? undefined);
+    addLong(getNowScreen().capture()?.toImageData() ?? undefined);
 }
 
 function startLong() {

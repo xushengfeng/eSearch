@@ -363,7 +363,7 @@ async function argRun(c: string[], first?: boolean) {
         if (!path) {
             const screenShots = initScreenShots(...screenShotArgs);
             await sleep(argv.delay || 0);
-            img = screenShots().screen.at(0)?.captureSync().image;
+            img = screenShots().screen.at(0)?.capture().toNativeImage();
         } else {
             img = nativeImage.createFromBuffer(readFileSync(path));
         }
@@ -401,7 +401,9 @@ async function argRun(c: string[], first?: boolean) {
             const screenShots = initScreenShots(...screenShotArgs);
             for (let i = 0; i < n; i++) {
                 setTimeout(() => {
-                    const image = screenShots()[0].captureSync().image;
+                    const image = screenShots()
+                        .screen[0].capture()
+                        .toNativeImage();
                     const buffer = image.toPNG();
                     const filePath = join(sp, `${i}.png`);
                     writeFile(filePath, buffer, () => {});
@@ -1339,7 +1341,7 @@ function hideClip() {
 function quickClip() {
     const screenShots = initScreenShots(...screenShotArgs);
     for (const c of screenShots().screen) {
-        const image: NativeImage = c.captureSync().image;
+        const image: NativeImage = c.capture().toNativeImage();
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);
         } else if (
@@ -1374,7 +1376,7 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
     mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
         setTimeout(() => {
-            const image = screenShots()[0].captureSync().image;
+            const image = screenShots().screen[0].capture().toNativeImage();
             const buffer = image.toPNG();
             const filePath = join(dirPath, `${i}.png`);
             writeFile(filePath, buffer, () => {});
