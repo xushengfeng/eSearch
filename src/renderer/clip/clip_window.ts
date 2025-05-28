@@ -314,7 +314,15 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
 }
 
 function setScreen(i: (typeof allScreens)[0]) {
-    const img = i.captureSync(true).data;
+    let _img = screenShotCache.get(i.id);
+    if (!_img) {
+        const __img = i.captureSync().data;
+        if (__img) {
+            screenShotCache.set(i.id, __img);
+            _img = __img;
+        }
+    }
+    const img = _img;
     if (!img) return;
     const w = img.width;
     const h = img.height;
@@ -2877,6 +2885,8 @@ const cvLoadPromise = Promise.withResolvers();
 
 // biome-ignore lint: 为了部分引入
 var cv: typeof import("@techstark/opencv-js");
+
+const screenShotCache = new Map<number, ImageData>();
 
 const 字体 = store.get("字体");
 

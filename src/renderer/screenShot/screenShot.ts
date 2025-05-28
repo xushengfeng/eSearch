@@ -8,8 +8,7 @@ type ReturnData = {
     size: { width: number; height: number };
     scaleFactor: number;
     id: number;
-    captureSync: (keep?: boolean) => ReturnType<typeof toCanvas>;
-    image?: ReturnType<typeof toCanvas>; // 缓存，在切换屏幕时不重新截屏
+    captureSync: () => ReturnType<typeof toCanvas>;
 };
 
 function d(op: MessageBoxSyncOptions) {
@@ -124,8 +123,7 @@ function dispaly2screen(
             size: displays?.[0]?.bounds ?? { width: 0, height: 0 },
             scaleFactor: displays?.[0]?.scaleFactor ?? 1,
             id: displays?.[0]?.id ?? -1,
-            captureSync: (keep?: boolean) => {
-                if (x.image && keep) return x.image;
+            captureSync: () => {
                 const command = _command as string;
                 try {
                     const path = commandSavePath;
@@ -143,7 +141,6 @@ function dispaly2screen(
                 }
 
                 const data = toCanvas(buffer);
-                if (keep) x.image = data;
                 const image = data.image;
                 const s = image.getSize();
                 x.bounds = { x: 0, y: 0, width: s.width, height: s.height };
@@ -155,7 +152,7 @@ function dispaly2screen(
         return { screen: [x], window: [] };
     }
     if (buffer) {
-        const data = toCanvas(buffer); // 闭包，这里就不用缓存到image了
+        const data = toCanvas(buffer);
         const image = data.image;
         const s = image.getSize();
         return {
@@ -187,10 +184,8 @@ function dispaly2screen(
             size: d?.size ?? { width: 0, height: 0 },
             scaleFactor: d?.scaleFactor ?? 1,
             id: d?.id ?? -1,
-            captureSync: (keep?: boolean) => {
-                if (x.image && keep) return x.image;
+            captureSync: () => {
                 const data = toCanvas(s.captureImageSync().toPngSync(true));
-                if (keep) x.image = data;
                 return data;
             },
         };
