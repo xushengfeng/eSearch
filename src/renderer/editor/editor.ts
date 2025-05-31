@@ -416,13 +416,16 @@ iconBEl("ai_check", "AI拼写检查")
 const aiModelList = store.get("AI.在线模型");
 const aiSpellCheckModel = select(
     aiModelList.length === 0
-        ? [{ name: "无AI模型，请到设置添加在线模型", value: "" }]
+        ? [{ name: "无AI模型", value: "" }]
         : aiModelList.map((i) => ({ name: noI18n(i.name), value: i.name })),
 )
     .addInto(aiSpellCheckP)
     .on("change", () => {
         runAiSpellcheck();
     });
+if (aiModelList.length === 0) {
+    aiSpellCheckModel.attr({ title: "请到设置添加在线模型" });
+}
 const spellcheckList = view("y")
     .style({ overflow: "scroll" })
     .addInto(spellcheckEl)
