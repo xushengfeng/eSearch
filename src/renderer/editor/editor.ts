@@ -448,7 +448,7 @@ const bottomEl = view().attr({ id: "bottoms" }).addInto(outMainEl);
 
 const hiddenClass = addClass({ display: "none !important" }, {});
 
-const browserTabs = view().attr({ id: "tabs" });
+const browserTabs = view().attr({ id: "tabs" }).class(Class.gap);
 const browserTabBs = view()
     .attr({ id: "buttons" })
     .class(Class.group)
