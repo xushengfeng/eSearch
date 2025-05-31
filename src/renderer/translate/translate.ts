@@ -125,7 +125,8 @@ function translate(_text: string) {
             title: {
                 _: view("x")
                     .style({ "align-items": "center" })
-                    .class(Class.smallSize),
+                    .class(Class.smallSize)
+                    .class(Class.gap),
                 copy,
                 save,
                 reTry,
