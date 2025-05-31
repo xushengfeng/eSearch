@@ -361,6 +361,7 @@ const editB = view()
     .attr({ id: "edit_b" })
     .class("edit_h")
     .class(Class.glassBar)
+    .class(Class.group)
     .addInto(mainTextEl);
 
 const barExcelB = bindBar(iconBEl("excel", "保存Excel"), "excel");
@@ -1130,7 +1131,8 @@ function showEditBar(x: number, y: number, right: boolean) {
         } else {
             editB.el.style.transition = "opacity var(--transition)";
         }
-        editB.el.className = "edit_s bar";
+        editB.el.classList.remove("edit_h");
+        editB.el.classList.add("edit_s");
         let nx = x < 0 ? 0 : x;
         const pleft = mainTextEl.el.getBoundingClientRect().left + 16;
         if (editB.el.offsetWidth + pleft + nx > window.innerWidth)
@@ -1139,7 +1141,8 @@ function showEditBar(x: number, y: number, right: boolean) {
         editB.style({ left: `${nx}px`, top: `${ny}px` });
         editBarS = true;
     } else {
-        editB.el.className = "edit_h";
+        editB.el.classList.remove("edit_s");
+        editB.el.classList.add("edit_h");
         editBarS = false;
     }
 }
