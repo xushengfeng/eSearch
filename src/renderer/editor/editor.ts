@@ -2307,10 +2307,10 @@ function load(id: number, loading: boolean) {
     if (loading) {
         getTab(id).setIcon();
         browserTabReload.el.style.display = "none";
-        browserTabStop.el.style.display = "block";
+        browserTabStop.el.style.display = "";
     } else {
         getTab(id).setIcon(getTab(id).icon);
-        browserTabReload.el.style.display = "block";
+        browserTabReload.el.style.display = "";
         browserTabStop.el.style.display = "none";
     }
 }
