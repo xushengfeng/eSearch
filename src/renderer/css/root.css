@@ -63,11 +63,6 @@
     --space2: 4px;
 }
 
-*:focus-visible {
-    outline: 1px var(--m-color-f) solid;
-    outline-offset: 1px;
-}
-
 body {
     font-family: var(--main-font);
     color: var(--font-color);
