@@ -2091,9 +2091,11 @@ window.onblur = () => {
     if (!navDingSwitch.gv && !navTopSwitch.gv) closeWindow();
 };
 
-editorOutEl.el.style.transition = "0s";
+bottomEl.el.style.transition = "0s";
 navConciseSwitch.sv(store.get("主页面.简洁模式"));
-editorOutEl.el.style.transition = "";
+setTimeout(() => {
+    bottomEl.el.style.transition = "";
+}, 0);
 
 function setConciseMode(m: boolean) {
     if (m) {
