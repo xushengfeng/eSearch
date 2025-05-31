@@ -235,6 +235,7 @@ input[type="checkbox"]:checked {
 .bar {
     background-color: var(--bar-bg);
     backdrop-filter: var(--blur);
+    outline: none;
     & :is(button, *:has(> .icon), input) {
         border: none;
         outline: none;
