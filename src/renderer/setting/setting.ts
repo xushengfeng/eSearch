@@ -2615,7 +2615,7 @@ function xRange(
         const nv1 = Math.max(min, Math.min(max, Number.parseFloat(nv)));
         return nv1;
     }
-    const el = view("x").style({ alignItems: "center" });
+    const el = view("x").style({ alignItems: "center" }).class(Class.gap);
     const track = view()
         .style({
             width: "200px",
@@ -2739,7 +2739,7 @@ function xColor() {
         })
         .class(Class.deco)
         .bindSet((v: string) => p.style({ background: msk(v) }));
-    const el = view("x").class(Class.group);
+    const el = view("x").class(Class.group).style({ width: baseWidth });
     return el
         .add([p, i])
         .bindGet(() => i.gv)
@@ -2750,7 +2750,7 @@ function xColor() {
 }
 
 function xPath(dir = true) {
-    const el = view("x").class(Class.group);
+    const el = view("x").class(Class.group).style({ width: baseWidth });
     const i = input();
     const b = button(iconEl("file"))
         .on("click", () => {
@@ -2792,7 +2792,7 @@ function xSecret() {
 }
 
 function xFont() {
-    const el = view("x").class(Class.group);
+    const el = view("x").class(Class.group).style({ width: baseWidth });
     const i = input().on("input", () =>
         el.el.dispatchEvent(new CustomEvent("input")),
     );
@@ -4266,6 +4266,8 @@ pack(document.body).style({ display: "flex" });
 
 setTitle(t("设置"));
 
+const baseWidth = "300px";
+
 addStyle({
     h1: {
         fontSize: "3rem",
@@ -4282,7 +4284,7 @@ addStyle({
     },
     'input[type="text"],input[type="password"]': {
         transition: "var(--transition)",
-        width: "300px",
+        width: baseWidth,
         fontFamily: "var(--monospace)",
     },
     'input[type="number"]': {
