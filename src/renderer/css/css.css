@@ -9,16 +9,16 @@ body {
 }
 
 :root {
-    --title-bar: calc(env(titlebar-area-height, 24px) - 4px);
+    --title-bar: calc(env(titlebar-area-height, 24px) - var(--o-padding));
 }
 
 nav {
     position: absolute;
     left: calc(env(titlebar-area-x, 0) + var(--o-padding));
-    top: 2px;
+    top: var(--o-padding);
     width: calc(env(titlebar-area-width, 100%) - var(--o-padding));
     height: var(--title-bar);
-    gap: 2px;
+    gap: var(--space2);
     overflow: hidden;
     -webkit-app-region: drag;
     display: flex;

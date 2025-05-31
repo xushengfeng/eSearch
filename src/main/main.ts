@@ -1998,6 +1998,7 @@ async function createMainWindow(op: MainWinType) {
             symbolColor: nativeTheme.shouldUseDarkColors
                 ? store.get("全局.主题.dark.fontColor")
                 : store.get("全局.主题.light.fontColor"),
+            height: 32,
         },
         webPreferences: {
             nodeIntegration: true,
