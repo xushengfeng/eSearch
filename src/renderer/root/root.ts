@@ -122,6 +122,7 @@ const cssColor = {
         f0: cssVarR("font-color"),
         light: cssVarR("font-color-l"),
         llight: cssVarR("font-color-ll"),
+        main: cssVarR("font-color-emphasis"),
     },
     f: cssVarR("m-color-f"),
     ff: cssVarR("m-color-ff"),

@@ -2494,9 +2494,8 @@ const themes: Theme2[] = [
 const xselectClass = addClass(
     {
         borderRadius: "var(--border-radius)",
-        transition: "outline-color var(--transition)",
+        transition: "background var(--transition)",
         display: "inline-block",
-        outlineColor: "transparent",
         cursor: "pointer",
     },
     {
@@ -2504,7 +2503,8 @@ const xselectClass = addClass(
             paddingInline: "var(--o-padding)",
         },
         '&:has(input[type="radio"]:checked)': {
-            outline: "2px dashed var(--m-color-f)",
+            background: cssColor.main,
+            color: cssColor.font.main,
         },
     },
 );
