@@ -2571,7 +2571,7 @@ function renderSetting(settingPath: KeyPath) {
                   })
             : null,
     );
-    return view("x", "wrap")
+    const pel = view("x", "wrap")
         .style({ justifyContent: "space-between" })
         .class(Class.gap)
         .data({ name: settingPath })
@@ -2582,6 +2582,13 @@ function renderSetting(settingPath: KeyPath) {
             ]),
             el,
         ]);
+    if (el.el.getAttribute("data-xtype") === "switch") {
+        pel.style({ cursor: "pointer" }).on("click", (e) => {
+            if (el.el.contains(e.target as HTMLElement)) return;
+            el.el.click();
+        });
+    }
+    return pel;
 }
 
 function reRenderSetting(settingPath: KeyPath) {
@@ -2735,10 +2742,13 @@ function xNumber(
 }
 
 function xSwitch() {
-    const i = input("checkbox").on("input", () => {
-        el.el.dispatchEvent(new CustomEvent("input"));
+    const i = input("checkbox").style({
+        width: "24px",
+        height: "24px",
+        borderRadius: "var(--border-radius)",
     });
-    const el = label([i, "启用"])
+    const el = i
+        .data({ xtype: "switch" })
         .bindGet(() => i.el.checked)
         .bindSet((v: boolean) => {
             i.el.checked = v;
