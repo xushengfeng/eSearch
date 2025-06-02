@@ -4314,15 +4314,11 @@ const sideBar = view("y")
     )
     .class(Class.gap);
 const sideBarG = radioGroup("侧栏");
-const searchBar = view()
-    .addInto()
-    .style({ position: "fixed", right: "8px", top: "-1px", zIndex: 2 });
+const searchBar = view().style({
+    padding: cssVar("o-padding"),
+});
 const searchI = input()
-    .style({
-        borderRight: "nocne",
-        borderTop: "none",
-        borderRadius: "0 0 0 var(--border-radius)",
-    })
+    .style({ width: "100%" })
     .addInto(searchBar)
     .on("input", () => {
         if (!searchI.gv) {
@@ -4376,6 +4372,7 @@ const mainViewP = view().addInto().style({
     height: "100vh",
     flexGrow: "1",
 });
+mainViewP.add(searchBar);
 const mainView = view()
     .addInto(mainViewP)
     .style({
