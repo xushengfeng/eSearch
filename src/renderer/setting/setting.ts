@@ -1439,7 +1439,7 @@ const s: Partial<settingItem<SettingPath>> = {
             function change() {
                 el.el.dispatchEvent(new CustomEvent("input"));
             }
-            const themeSelect = view("x").add(
+            const themeSelect = xGroup().add(
                 themes.map((i) =>
                     button()
                         .style({
@@ -1463,17 +1463,17 @@ const s: Partial<settingItem<SettingPath>> = {
             const fD = xColor();
             const fEL = xColor();
             const fED = xColor();
-            const el = view()
+            const el = xGroup("y")
                 .class(blockSetting)
                 .add([
-                    view().add([
-                        view().add(["强调色", view("x").add([emL, emD])]),
-                        view().add(["透明背景", view("x").add([brL, brD])]),
-                        view().add(["普通背景", view("x").add([bL, bD])]),
-                        view().add(["文字和图标颜色", view("x").add([fL, fD])]),
+                    xGroup("y").add([
+                        view().add(["强调色", xGroup().add([emL, emD])]),
+                        view().add(["透明背景", xGroup().add([brL, brD])]),
+                        view().add(["普通背景", xGroup().add([bL, bD])]),
+                        view().add(["文字和图标颜色", xGroup().add([fL, fD])]),
                         view().add([
                             "强调色中的内容颜色",
-                            view("x").add([fEL, fED]),
+                            xGroup().add([fEL, fED]),
                         ]),
                     ]),
                     themeSelect,
@@ -2498,7 +2498,7 @@ const xselectClass = addClass(
     {
         borderRadius: "var(--border-radius)",
         transition: "background var(--transition)",
-        display: "inline-block",
+        display: "inline-flex",
         cursor: "pointer",
     },
     {
@@ -2629,7 +2629,7 @@ function xSelect<T extends string>(
     }[],
     name: string,
 ) {
-    const el = xGroup("x").style({ marginLeft: "2px" }).class(blockSetting);
+    const el = xGroup("x").class(blockSetting);
     const r = radioGroup<T>(name);
     for (const option of options) {
         el.add(
@@ -3060,6 +3060,7 @@ function sortList<t>(
             });
         itemEl.add([sortHandle, nameEl, rm]);
         listEl.add(itemEl);
+        listEl.add(addBtn);
     }
 
     const addBtn = button(iconEl("add")).on("click", async () => {
@@ -3078,7 +3079,7 @@ function sortList<t>(
 
     return el
         .class(blockSetting)
-        .add([listEl, addBtn, dialog])
+        .add([listEl, dialog])
         .bindGet(() => {
             const list = listEl
                 .queryAll("[data-id]")
@@ -3098,6 +3099,7 @@ function sortList<t>(
             for (const id of newData.keys()) {
                 addItem(id);
             }
+            listEl.add(addBtn);
         });
 }
 
