@@ -167,11 +167,11 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "工具栏.按钮大小": {
         name: "按钮大小",
-        el: () => xRange({ min: 16, max: 80, text: "px" }),
+        el: () => xNumber("px", { min: 4 }),
     },
     "工具栏.按钮图标比例": {
         name: "图标比例",
-        el: () => xRange({ min: 0.01, max: 1, step: 0.01 }),
+        el: () => xNumber("", { min: 0.01, max: 1, step: 0.01 }),
     },
     "工具栏.功能": {
         name: "按钮显示和排序",
@@ -229,11 +229,11 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "取色器.大小": {
         name: "取色器大小",
-        el: () => xRange({ min: 1, max: 31, step: 2 }),
+        el: () => xNumber("", { min: 1, step: 2 }),
     },
     "取色器.像素大小": {
         name: "取色器像素大小",
-        el: () => xRange({ min: 1, max: 20, text: "px" }),
+        el: () => xNumber("px", { min: 1 }),
     },
     "取色器.默认格式": {
         name: "取色器默认格式",
@@ -287,11 +287,11 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "框选.自动框选.最小阈值": {
         name: "最小阈值",
-        el: () => xRange({ min: 0, max: 255 }),
+        el: () => xNumber("", { min: 0, max: 255 }),
     },
     "框选.自动框选.最大阈值": {
         name: "最大阈值",
-        el: () => xRange({ min: 0, max: 255 }),
+        el: () => xNumber("", { min: 0, max: 255 }),
     },
     "框选.记忆.开启": {
         name: "记住框选大小",
@@ -371,10 +371,13 @@ const s: Partial<settingItem<SettingPath>> = {
             ),
     },
     "快速截屏.路径": { name: "快速截屏路径", el: () => xPath() },
-    "连拍.数": { name: "单次连拍数量", el: () => xRange({ min: 2, max: 25 }) },
+    "连拍.数": {
+        name: "单次连拍数量",
+        el: () => xNumber("", { min: 2, max: 25 }),
+    },
     "连拍.间隔": {
         name: "连拍间隔时间",
-        el: () => xRange({ min: 10, max: 1000, text: "ms" }),
+        el: () => xNumber("ms", { min: 10, max: 1000 }),
     },
     "广截屏.模式": {
         name: "广截屏模式",
@@ -386,7 +389,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "广截屏.t": {
         name: "广截屏定时间隔",
-        el: () => xRange({ min: 10, max: 1000, text: "ms" }),
+        el: () => xNumber("ms", { min: 10 }),
     },
     "鼠标快捷键.右键": {
         name: "鼠标右键",
@@ -408,20 +411,20 @@ const s: Partial<settingItem<SettingPath>> = {
     "图像编辑.默认属性.边框颜色": { name: "默认边框颜色", el: () => xColor() },
     "图像编辑.默认属性.边框宽度": {
         name: "默认边框宽度",
-        el: () => xRange({ min: 0, max: 20, text: "px" }),
+        el: () => xNumber("px", { min: 0, max: 20 }),
     },
     "图像编辑.默认属性.画笔颜色": { name: "默认画笔颜色", el: () => xColor() },
     "图像编辑.默认属性.画笔粗细": {
         name: "默认画笔粗细",
-        el: () => xRange({ min: 0, max: 20, text: "px" }),
+        el: () => xNumber("px", { min: 0, max: 20 }),
     },
     "图像编辑.复制偏移.x": {
         name: "复制偏移x轴",
-        el: () => xRange({ min: -50, max: 50, text: "px" }),
+        el: () => xNumber("px", { min: -50, max: 50 }),
     },
     "图像编辑.复制偏移.y": {
         name: "复制偏移y轴",
-        el: () => xRange({ min: -50, max: 50, text: "px" }),
+        el: () => xNumber("px", { min: -50, max: 50 }),
     },
     "图像编辑.arrow.type": {
         name: "箭头样式",
@@ -436,11 +439,11 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "图像编辑.arrow.w": {
         name: "箭头高度",
-        el: () => xRange({ min: 0, max: 50, text: "px" }),
+        el: () => xNumber("px", { min: 0, max: 50 }),
     },
     "图像编辑.arrow.h": {
         name: "箭头宽度",
-        el: () => xRange({ min: 0, max: 50, text: "px" }),
+        el: () => xNumber("px", { min: 0, max: 50 }),
     },
     "OCR.类型": {
         name: "OCR类型",
@@ -626,11 +629,11 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "录屏.自动录制延时": {
         name: "自动录制",
-        el: () => xRange({ min: 0, max: 10, text: "s" }),
+        el: () => xNumber("s", { min: 0, max: 10 }),
     },
     "录屏.视频比特率": {
         name: "视频比特率",
-        el: () => xRange({ min: 1, max: 40, text: "Mbps", step: 0.5 }),
+        el: () => xNumber("Mbps", { min: 1, max: 40, step: 0.5 }),
     },
     "录屏.提示.键盘.开启": {
         name: "录屏键盘提示",
@@ -701,15 +704,15 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "录屏.提示.键盘.位置.offsetX": {
         name: "键盘提示偏移x",
-        el: () => xRange({ min: 0, text: "px" }),
+        el: () => xNumber("px", { min: 0 }),
     },
     "录屏.提示.键盘.位置.offsetY": {
         name: "键盘提示偏移y",
-        el: () => xRange({ min: 0, text: "px" }),
+        el: () => xNumber("px", { min: 0 }),
     },
     "录屏.提示.键盘.大小": {
         name: "键盘提示大小",
-        el: () => xRange({ min: 0.25, max: 5, step: 0.25 }),
+        el: () => xNumber("", { min: 0.25, max: 5, step: 0.25 }),
     },
     "录屏.提示.鼠标.开启": {
         name: "鼠标按键提示",
@@ -747,7 +750,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "录屏.摄像头.背景.模糊": {
         name: "背景模糊程度",
-        el: () => xRange({ min: 1, max: 120, text: "px" }),
+        el: () => xNumber("px", { min: 1 }),
     },
     "录屏.摄像头.背景.imgUrl": { name: "背景图片路径", el: () => xPath(false) },
     "录屏.摄像头.背景.videoUrl": {
@@ -811,7 +814,7 @@ const s: Partial<settingItem<SettingPath>> = {
     "录屏.超级录屏.关键帧间隔": {
         name: "关键帧间隔",
         desc: "越小处理速度越快，但会增加内存占用",
-        el: () => xRange({ max: 500, min: 1 }),
+        el: () => xNumber("", { max: 500, min: 1 }),
     },
     "录屏.超级录屏.自动停止录制": {
         name: "自动停止录制",
@@ -973,7 +976,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "字体.大小": {
         name: "字体大小",
-        el: () => xRange({ min: 1, max: 100 }),
+        el: () => xNumber("px", { min: 1 }),
     },
     "编辑器.自动换行": {
         name: "自动换行",
@@ -1011,7 +1014,7 @@ const s: Partial<settingItem<SettingPath>> = {
     "主页面.显示图片区": {
         name: "显示图片区",
         desc: "OCR结果行数大于等于该值，自动显示图片区。0为不显示", // todo 再多一个设置
-        el: () => xRange({ min: 0, max: 35, step: 1 }),
+        el: () => xNumber("", { min: 0, max: 35, step: 1 }),
     },
     "主页面.自动复制OCR": {
         name: "自动复制OCR结果",
@@ -1038,7 +1041,7 @@ const s: Partial<settingItem<SettingPath>> = {
     自动搜索中文占比: {
         name: "自动搜索中文占比",
         desc: "在中英混合中，数值越小，则整段文字越容易被程序认为是中文主要", // todo 用语言库 区分母语
-        el: () => xRange({ min: 0.002, max: 1, step: 0.01 }),
+        el: () => xNumber("", { min: 0.002, max: 1, step: 0.01 }),
     },
     "引擎.搜索": {
         name: "搜索引擎",
@@ -1520,11 +1523,11 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "全局.模糊": {
         name: "模糊",
-        el: () => xRange({ min: 0, max: 50, text: "px" }),
+        el: () => xNumber("px", { min: 0, max: 50 }),
     },
     "全局.不透明度": {
         name: "不透明度",
-        el: () => xRange({ min: 0, max: 1, step: 0.05 }),
+        el: () => xNumber("", { min: 0, max: 1, step: 0.05 }),
     },
     "全局.深色模式": {
         name: "深色模式",
@@ -1542,7 +1545,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "全局.缩放": {
         name: "全局缩放",
-        el: () => xRange({ min: 0.1, max: 3, step: 0.05 }),
+        el: () => xNumber("", { min: 0.1, max: 3, step: 0.05 }),
     },
     "字体.主要字体": {
         name: "主要字体",
@@ -2733,12 +2736,18 @@ function xNumber(
     if (op?.max !== undefined) el.attr({ max: String(op.max) });
     if (op?.min !== undefined) el.attr({ min: String(op.min) });
     if (op?.step !== undefined) el.attr({ step: String(op.step) });
-    return view()
-        .add([el, noI18n(dw) ?? ""])
+    const pel = view("x")
+        .class(Class.group)
+        .style({ paddingInline: cssVar("o-padding"), alignItems: "center" })
+        .add([el.style({ paddingInline: 0 }), noI18n(dw) ?? ""])
         .bindGet(() => Number(el.gv))
         .bindSet((v: number) => {
             el.sv(String(v));
         });
+    el.on("input", () => {
+        pel.el.dispatchEvent(new CustomEvent("input"));
+    });
+    return pel;
 }
 
 function xSwitch() {
