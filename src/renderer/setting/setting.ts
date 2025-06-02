@@ -176,12 +176,12 @@ const s: Partial<settingItem<SettingPath>> = {
     "工具栏.功能": {
         name: "按钮显示和排序",
         desc: "拖拽以控制按键顺序和显示",
-        el: () => sortTool(),
+        el: () => sortTool().class(blockSetting),
     },
     "工具栏.初始位置": {
         name: "工具栏位置",
         el: (v) => {
-            const el = xGroup("y");
+            const el = xGroup("y").class(blockSetting);
             const iEvent = () => el.el.dispatchEvent(new CustomEvent("input"));
             const l = input().addInto(el).on("input", iEvent);
             const t = input().addInto(el).on("input", iEvent);
@@ -321,6 +321,7 @@ const s: Partial<settingItem<SettingPath>> = {
             const xEl = x();
             const yEl = x();
             const el = xGroup("y")
+                .class(blockSetting)
                 .add([
                     xEl,
                     yEl,
@@ -688,7 +689,9 @@ const s: Partial<settingItem<SettingPath>> = {
                 },
             });
 
-            return screenKeyTipEl
+            return view()
+                .class(blockSetting)
+                .add(screenKeyTipEl)
                 .bindGet(() => nv)
                 .bindSet((v) => {
                     nv = v;
@@ -718,7 +721,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "录屏.提示.光标.样式": {
         name: "光标提示样式",
-        el: () => ele("textarea"),
+        el: () => ele("textarea").class(blockSetting),
     },
     "录屏.摄像头.开启": {
         name: "开启摄像头",
@@ -1416,6 +1419,7 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "若选中的文字符合文本框的规则，将使用截屏搜索而不是选择搜索",
         el: (_v) =>
             textarea()
+                .class(blockSetting)
                 .bindGet((el) => el.value.split("\n").filter((i) => i !== ""))
                 .bindSet((v: typeof _v, el) => {
                     el.value = v.join("\n");
@@ -1457,6 +1461,7 @@ const s: Partial<settingItem<SettingPath>> = {
             const fEL = xColor();
             const fED = xColor();
             const el = view()
+                .class(blockSetting)
                 .add([
                     view().add([
                         view().add(["强调色", view("x").add([emL, emD])]),
@@ -1579,6 +1584,7 @@ const s: Partial<settingItem<SettingPath>> = {
             } as const;
 
             const el = xGroup("y")
+                .class(blockSetting)
                 .add(Object.values(els))
                 .bindGet(() => {
                     return Object.entries(els)
@@ -1703,49 +1709,56 @@ const xs: Record<
                     width: `${iSize * colorSize}px`,
                     height: `${iSize * colorSize}px`,
                 });
-            return el;
+            return view().class(blockSetting).add(el);
         },
     },
     _theme: {
         name: "样式预览",
         el: () =>
-            view("x")
-                .style({
-                    boxShadow: "var(--shadow)",
-                    width: "max-content",
-                    borderRadius: "var(--border-radius)",
-                    overflow: "hidden",
-                })
-                .add([
-                    view()
+            view()
+                .class(blockSetting)
+                .add(
+                    view("x")
                         .style({
-                            height: "80px",
-                            backgroundColor: cssColor.bg,
+                            boxShadow: "var(--shadow)",
+                            width: "max-content",
+                            borderRadius: "var(--border-radius)",
+                            overflow: "hidden",
                         })
                         .add([
-                            view().style({
-                                width: "20px",
-                                height: "20px",
-                                backgroundColor: "var(--emphasis-color)",
-                            }),
                             view()
-                                .add(iconEl("search"))
-                                .style({ background: "transparent" }),
-                            txt("测试文字"),
-                            txt("42", true).class(Class.mono),
+                                .style({
+                                    height: "80px",
+                                    backgroundColor: cssColor.bg,
+                                })
+                                .add([
+                                    view().style({
+                                        width: "20px",
+                                        height: "20px",
+                                        backgroundColor:
+                                            "var(--emphasis-color)",
+                                    }),
+                                    view()
+                                        .add(iconEl("search"))
+                                        .style({ background: "transparent" }),
+                                    txt("测试文字"),
+                                    txt("42", true).class(Class.mono),
+                                ]),
+                            view()
+                                .add([
+                                    image(testPhoto, "").style({
+                                        width: "80px",
+                                    }),
+                                    view().class(Class.glassBar).style({
+                                        width: "80px",
+                                        height: "80px",
+                                        position: "absolute",
+                                        top: 0,
+                                    }),
+                                ])
+                                .style({ position: "relative" }),
                         ]),
-                    view()
-                        .add([
-                            image(testPhoto, "").style({ width: "80px" }),
-                            view().class(Class.glassBar).style({
-                                width: "80px",
-                                height: "80px",
-                                position: "absolute",
-                                top: 0,
-                            }),
-                        ])
-                        .style({ position: "relative" }),
-                ]),
+                ),
     },
     _filename: {
         name: "文件名预览",
@@ -1809,25 +1822,29 @@ const xs: Record<
             const portablePath = path.join(runPath, "portable");
 
             const portableConfigBtn = button("改为便携版");
-            const pathInfo = view().add([
-                view().add([
-                    "配置目录：",
-                    "",
-                    pathEl(configPath),
-                    fs.existsSync(portablePath) ? "便携版" : portableConfigBtn,
-                ]),
-                view().add([
-                    "文字记录：",
-                    " ",
-                    pathEl(path.join(configPath, "history.json")),
-                ]),
-                view().add([
-                    "临时目录：",
-                    " ",
-                    pathEl(path.join(os.tmpdir(), "eSearch")),
-                ]),
-                view().add(["运行目录：", " ", pathEl(runPath)]),
-            ]);
+            const pathInfo = view()
+                .class(blockSetting)
+                .add([
+                    view().add([
+                        "配置目录：",
+                        "",
+                        pathEl(configPath),
+                        fs.existsSync(portablePath)
+                            ? "便携版"
+                            : portableConfigBtn,
+                    ]),
+                    view().add([
+                        "文字记录：",
+                        " ",
+                        pathEl(path.join(configPath, "history.json")),
+                    ]),
+                    view().add([
+                        "临时目录：",
+                        " ",
+                        pathEl(path.join(os.tmpdir(), "eSearch")),
+                    ]),
+                    view().add(["运行目录：", " ", pathEl(runPath)]),
+                ]);
             portableConfigBtn.on("click", async () => {
                 const c = await confirm("将转为便携版，并迁移数据，重启软件");
                 if (!c) return;
@@ -1853,6 +1870,7 @@ const xs: Record<
         el: () => {
             const versionL = ["electron", "node", "chrome", "v8"];
             const moreVersion = view()
+                .class(blockSetting)
                 .class(Class.mono)
                 .add([
                     p(
@@ -2553,13 +2571,15 @@ function renderSetting(settingPath: KeyPath) {
                   })
             : null,
     );
-    return view()
+    return view("x", "wrap")
+        .style({ justifyContent: "space-between" })
+        .class(Class.gap)
         .data({ name: settingPath })
         .add([
-            p(setting.name, true).style({ marginBlock: "8px" }),
-            setting.desc
-                ? comment(setting.desc).style({ marginBlock: "8px" })
-                : "",
+            view().add([
+                p(setting.name, true),
+                setting.desc ? comment(setting.desc) : "",
+            ]),
             el,
         ]);
 }
@@ -2599,7 +2619,7 @@ function xSelect<T extends string>(
     }[],
     name: string,
 ) {
-    const el = xGroup("x").style({ marginLeft: "2px" });
+    const el = xGroup("x").style({ marginLeft: "2px" }).class(blockSetting);
     const r = radioGroup<T>(name);
     for (const option of options) {
         el.add(
@@ -2631,7 +2651,9 @@ function xRange(
         const nv1 = Math.max(min, Math.min(max, Number.parseFloat(nv)));
         return nv1;
     }
-    const el = view("x").style({ alignItems: "center" }).class(Class.gap);
+    const el = view("x")
+        .style({ alignItems: "center" })
+        .class(Class.gap, blockSetting);
     const track = view()
         .style({
             width: "200px",
@@ -2755,7 +2777,7 @@ function xColor() {
         })
         .class(Class.deco)
         .bindSet((v: string) => p.style({ background: msk(v) }));
-    const el = view("x").class(Class.group).style({ width: baseWidth });
+    const el = view("x").class(Class.group).style({ width: baseWidth2 });
     return el
         .add([p, i])
         .bindGet(() => i.gv)
@@ -3036,6 +3058,7 @@ function sortList<t>(
     const dialog = ele("dialog");
 
     return el
+        .class(blockSetting)
         .add([listEl, addBtn, dialog])
         .bindGet(() => {
             const list = listEl
@@ -3245,7 +3268,7 @@ function translatorD(
                                 ? JSON.stringify(value, null, 2)
                                 : value) || "",
                         )
-                        .style({ width: "100%" }),
+                        .class(blockSetting),
                 ]),
             );
         }
@@ -3970,6 +3993,7 @@ function ocrEl() {
     const el = xGroup("y");
 
     return el
+        .class(blockSetting)
         .add([
             mainEl.on("input", () =>
                 el.el.dispatchEvent(new CustomEvent("input")),
@@ -4283,6 +4307,14 @@ pack(document.body).style({ display: "flex" });
 setTitle(t("设置"));
 
 const baseWidth = "300px";
+const baseWidth2 = "150px";
+
+const blockSetting = addClass(
+    {
+        width: "100%",
+    },
+    {},
+);
 
 addStyle({
     h1: {
