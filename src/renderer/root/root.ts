@@ -27,8 +27,17 @@ function initStyle(
     setCSSVar("--d-emphasis-color", theme.dark.emphasis);
     setCSSVar("--font-color", theme.light.fontColor);
     setCSSVar("--d-font-color", theme.dark.fontColor);
+    setCSSVar("--font-color-emphasis", theme.light.fontInEmphasis);
+    setCSSVar("--d-font-color-emphasis", theme.dark.fontInEmphasis);
     setCSSVar("--icon-color", theme.light.iconColor);
     setCSSVar("--d-icon-color", theme.dark.iconColor);
+
+    function checkIconColor(c: string) {
+        return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='${c}' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 8 9 19 4 14'></polyline></svg>`)}")`;
+    }
+
+    setCSSVar("--check-icon", checkIconColor(theme.light.fontInEmphasis));
+    setCSSVar("--d-check-icon", checkIconColor(theme.dark.fontInEmphasis));
 
     const 字体 = store.get("字体");
     setCSSVar("--main-font", 字体.主要字体);

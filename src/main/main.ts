@@ -2559,6 +2559,7 @@ const defaultSetting: setting = {
                 bg: "#FFFFFF",
                 emphasis: "#dfdfdf",
                 fontColor: "#000",
+                fontInEmphasis: "#000",
                 iconColor: "none",
             },
             dark: {
@@ -2566,6 +2567,7 @@ const defaultSetting: setting = {
                 bg: "#000000",
                 emphasis: "#333",
                 fontColor: "#fff",
+                fontInEmphasis: "#fff",
                 iconColor: "invert(1)",
             },
         },

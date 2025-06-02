@@ -6,12 +6,14 @@
     --bg: #fff;
     --emphasis-color: #dfdfdf;
     --font-color: #000;
+    --font-color-emphasis: #000;
     --icon-color: none;
 
     --d-bar-bg0: #000;
     --d-bg: #000;
     --d-emphasis-color: #333;
     --d-font-color: #fff;
+    --d-font-color-emphasis: #fff;
     --d-icon-color: invert(1);
 
     /* bar */
@@ -66,6 +68,9 @@
     --o-padding: 8px;
     --base-size2: 24px;
     --space2: 4px;
+
+    --check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(255, 255, 255)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 8 9 19 4 14'%3E%3C/polyline%3E%3C/svg%3E");
+    --d-check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(0, 0, 0)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 8 9 19 4 14'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 body {
@@ -86,7 +91,6 @@ body {
     border-radius: 10px;
     background: #ddd;
 }
-/* biome-ignore lint/nursery/noUnknownPseudoClass: electron supports this pseudo-class */
 ::-webkit-scrollbar-thumb:hover {
     background: #ccc;
 }
@@ -231,7 +235,7 @@ input[type="checkbox"] {
 }
 input[type="checkbox"]:checked {
     background-color: var(--m-color) !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(255, 255, 255)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 8 9 19 4 14'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: var(--check-icon);
     background-position: center;
     background-size: 0.75em auto;
     background-repeat: no-repeat;
@@ -268,12 +272,13 @@ input[type="checkbox"]:checked {
         --emphasis-color: var(--d-emphasis-color) !important;
         --icon-color: var(--d-icon-color) !important;
         --font-color: var(--d-font-color) !important;
+        --font-color-emphasis: var(--d-font-color-emphasis) !important;
+        --check-icon: var(--d-check-icon) !important;
     }
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;
         background: #444;
     }
-    /* biome-ignore lint/nursery/noUnknownPseudoClass: <explanation> */
     ::-webkit-scrollbar-thumb:hover {
         background: #555;
     }

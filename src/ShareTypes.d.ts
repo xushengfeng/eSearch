@@ -66,6 +66,7 @@ export interface setting {
                 bg: string;
                 emphasis: string;
                 fontColor: string;
+                fontInEmphasis: string;
                 iconColor: string; // filters
             };
         };

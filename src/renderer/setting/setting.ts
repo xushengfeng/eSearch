@@ -1454,13 +1454,19 @@ const s: Partial<settingItem<SettingPath>> = {
             const bD = xColor();
             const fL = xColor();
             const fD = xColor();
+            const fEL = xColor();
+            const fED = xColor();
             const el = view()
                 .add([
                     view().add([
-                        view().add(["强调色", view().add([emL, emD])]),
-                        view().add(["透明背景", view().add([brL, brD])]),
-                        view().add(["普通背景", view().add([bL, bD])]),
-                        view().add(["文字和图标颜色", view().add([fL, fD])]),
+                        view().add(["强调色", view("x").add([emL, emD])]),
+                        view().add(["透明背景", view("x").add([brL, brD])]),
+                        view().add(["普通背景", view("x").add([bL, bD])]),
+                        view().add(["文字和图标颜色", view("x").add([fL, fD])]),
+                        view().add([
+                            "强调色中的内容颜色",
+                            view("x").add([fEL, fED]),
+                        ]),
                     ]),
                     themeSelect,
                 ])
@@ -1471,6 +1477,7 @@ const s: Partial<settingItem<SettingPath>> = {
                             barbg: brL.gv,
                             bg: bL.gv,
                             fontColor: fL.gv,
+                            fontInEmphasis: fEL.gv,
                             iconColor: "",
                         },
                         dark: {
@@ -1478,9 +1485,10 @@ const s: Partial<settingItem<SettingPath>> = {
                             barbg: brD.gv,
                             bg: bD.gv,
                             fontColor: fD.gv,
+                            fontInEmphasis: fED.gv,
                             iconColor: "",
                         },
-                    } as Theme;
+                    } satisfies Theme;
                     x.light.iconColor = getIconColor(x.light.fontColor);
                     x.dark.iconColor = getIconColor(x.dark.fontColor);
                     return x;
@@ -1494,9 +1502,11 @@ const s: Partial<settingItem<SettingPath>> = {
                     bD.sv(v.dark.bg);
                     fL.sv(v.light.fontColor);
                     fD.sv(v.dark.fontColor);
+                    fEL.sv(v.light.fontInEmphasis);
+                    fED.sv(v.dark.fontInEmphasis);
                 });
 
-            for (const i of [emL, emD, brL, brD, bL, bD, fL, fD]) {
+            for (const i of [emL, emD, brL, brD, bL, bD, fL, fD, fEL, fED]) {
                 i.on("input", () => change());
             }
 
@@ -2419,12 +2429,14 @@ const themes: Theme2[] = [
             bg: "#FFFFFF",
             emphasis: "#DFDFDF",
             fontColor: "#000",
+            fontInEmphasis: "#000",
         },
         dark: {
             barbg: "#333333",
             bg: "#000000",
             emphasis: "#333333",
             fontColor: "#fff",
+            fontInEmphasis: "#fff",
         },
     },
     {
@@ -2433,12 +2445,14 @@ const themes: Theme2[] = [
             bg: "#FAFAFF",
             emphasis: "#D7E3F8",
             fontColor: "#1A1C1E",
+            fontInEmphasis: "#1A1C1E",
         },
         dark: {
             barbg: "#3B4858",
             bg: "#1A1C1E",
             emphasis: "#3B4858",
             fontColor: "#FAFAFF",
+            fontInEmphasis: "#FAFAFF",
         },
     },
     {
@@ -2447,12 +2461,14 @@ const themes: Theme2[] = [
             bg: "#FCFDF6",
             emphasis: "#D5E8CF",
             fontColor: "#1A1C19",
+            fontInEmphasis: "#1A1C19",
         },
         dark: {
             barbg: "#3B4B38",
             bg: "#1A1C19",
             emphasis: "#3B4B38",
             fontColor: "#FCFDF6",
+            fontInEmphasis: "#FCFDF6",
         },
     },
 ];
