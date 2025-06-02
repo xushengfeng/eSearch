@@ -1438,7 +1438,7 @@ class spellcheckGen {
                 if (v === 1) stopEl.remove();
                 const p = v * 100;
                 stopEl.style({
-                    background: `conic-gradient(${cssColor.f} 0, ${cssColor.f} ${p}%, transparent ${p}%, transparent 100%)`,
+                    background: `conic-gradient(${cssColor.main} 0, ${cssColor.main} ${p}%, transparent ${p}%, transparent 100%)`,
                     borderRadius: "50%",
                     border: `1px solid ${cssColor.f}`,
                     minWidth: cssVar("b-button"),

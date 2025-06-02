@@ -120,7 +120,7 @@ const cssColor = {
     b: cssVarR("m-color-b"),
     bb: cssVarR("m-color-bb"),
     bbb: cssVarR("m-color-bbb"),
-    main: cssVarR("--emphasis-color"),
+    main: cssVarR("m-color"),
     bg: cssVarR("bg"),
 };
 

@@ -2627,7 +2627,7 @@ function xRange(
         .addInto(el);
     const thumb = view()
         .style({
-            backgroundColor: cssColor.f,
+            backgroundColor: cssColor.main,
             borderRadius: "inherit",
             height: "100%",
         })
@@ -3782,7 +3782,7 @@ function ocrEl() {
                                 const bel = view().style({
                                     width: "100%",
                                     height: "100%",
-                                    backgroundColor: cssColor.f,
+                                    backgroundColor: cssColor.main,
                                 });
                                 return mel.add(bel).bindSet((v: number) => {
                                     bel.style({

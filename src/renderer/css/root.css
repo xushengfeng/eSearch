@@ -1,12 +1,20 @@
 :root {
     --alpha: 60%;
 
+    /* base */
     --bar-bg0: #fff;
     --bg: #fff;
     --emphasis-color: #dfdfdf;
     --font-color: #000;
     --icon-color: none;
 
+    --d-bar-bg0: #000;
+    --d-bg: #000;
+    --d-emphasis-color: #333;
+    --d-font-color: #fff;
+    --d-icon-color: invert(1);
+
+    /* bar */
     --bar-bg: color-mix(in srgb, var(--bar-bg0) var(--alpha), transparent);
     --hover-color: var(--emphasis-color);
     --bar-hover-color: color-mix(
@@ -16,15 +24,12 @@
     );
     --bar-focus-color: var(--emphasis-color);
 
-    --d-bar-bg0: #000;
-    --d-bg: #000;
-    --d-emphasis-color: #333;
-    --d-font-color: #fff;
-    --d-icon-color: invert(1);
-
+    /* colors */
     --m-color-b: color-mix(in oklab, var(--emphasis-color) 85%, var(--bg));
     --m-color-bb: color-mix(in oklab, var(--emphasis-color) 50%, var(--bg));
     --m-color-bbb: color-mix(in oklab, var(--emphasis-color) 25%, var(--bg));
+
+    --m-color: var(--emphasis-color);
 
     --m-color-f: color-mix(
         in oklab,
@@ -225,7 +230,7 @@ input[type="checkbox"] {
     padding: 0;
 }
 input[type="checkbox"]:checked {
-    background-color: var(--m-color-f) !important;
+    background-color: var(--m-color) !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(255, 255, 255)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 8 9 19 4 14'%3E%3C/polyline%3E%3C/svg%3E");
     background-position: center;
     background-size: 0.75em auto;

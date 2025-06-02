@@ -1962,7 +1962,7 @@ const progressEl = () => {
     const pi = view().addInto(p).style({
         width: "0%",
         height: "100%",
-        backgroundColor: cssColor.f,
+        backgroundColor: cssColor.main,
         borderRadius: "inherit",
     });
     const t = monoTxt();
