@@ -52,7 +52,6 @@
     "@types/minimist": "^1.2.5",
     "@types/node": "^22.9.3",
     "@types/sortablejs": "^1.15.8",
-    "archiver": "^7.0.1",
     "canvas": "^3.1.0",
     "csv-parse": "^5.5.5",
     "electron": "^35.0.1",
