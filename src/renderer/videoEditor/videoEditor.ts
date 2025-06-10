@@ -37,6 +37,7 @@ import { t } from "../../../lib/translate/translate";
 import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import floydSteinberg from "../lib/dither";
 
 initStyle(store);
 
@@ -1431,14 +1432,20 @@ async function uiDataSave() {
 
 async function save() {
     if (exportEl.els.type.gv === "png") await saveImages();
-    else if (exportEl.els.type.gv === "gif") await saveGif();
+    else if (exportEl.els.type.gv === "gif")
+        await saveGif({
+            dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
+        });
     else if (exportEl.els.type.gv === "webm-av1") await saveWebm("av1");
     else if (exportEl.els.type.gv === "webm-vp9") await saveWebm("vp9");
     else if (exportEl.els.type.gv === "webm-vp8") await saveWebm("vp8");
     else if (exportEl.els.type.gv === "mp4-av1") await saveMp4("av1");
     else if (exportEl.els.type.gv === "mp4-vp9") await saveMp4("vp9");
     else if (exportEl.els.type.gv === "mp4-avc") await saveMp4("avc");
-    else await saveGif();
+    else
+        await saveGif({
+            dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
+        });
     if (store.get("录屏.超级录屏.导出后关闭")) {
         renderSend("windowClose", []);
     }
@@ -1499,7 +1506,9 @@ async function saveImages() {
     console.log("decoded");
 }
 
-async function saveGif() {
+async function saveGif(op?: {
+    dither: "floyd-steinberg" | "none";
+}) {
     const exportPath = getSavePath("gif");
     if (!exportPath) return;
 
@@ -1548,7 +1557,11 @@ async function saveGif() {
                 ) as OffscreenCanvasRenderingContext2D
             ).getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
             const _palette = palette || quantize(data, 256);
-            const index = applyPalette(data, _palette);
+            const d =
+                op?.dither === "floyd-steinberg"
+                    ? floydSteinberg(data, width, height, _palette)
+                    : data;
+            const index = applyPalette(d, _palette);
             gif.writeFrame(index, width, height, {
                 palette: frame.timestamp === 0 ? _palette : undefined,
                 delay: delayMap.get(frame.timestamp),
@@ -2530,6 +2543,27 @@ const timeLineFrameHl = addClass(
     {},
 );
 
+const exportConfigEls = {
+    gif: (() => {
+        const el = view("x").style({ paddingInline: "8px" });
+        const dither = label([check("dither"), "平滑颜色"]).style({
+            display: "flex",
+            alignItems: "center",
+        });
+        el.add(dither);
+        return el
+            .bindGet(() => ({
+                dither: dither.gv,
+            }))
+            .bindSet((v: { dither: boolean }) => {
+                dither.sv(v.dither);
+            });
+    })(),
+    mp4: view("x"),
+    webm: view("x"),
+    png: view("x"),
+} satisfies Record<(typeof outputType)[number]["type"], ElType<HTMLElement>>;
+
 const exportPx = dynamicSelect();
 
 const exportEl = frame("export", {
@@ -2552,8 +2586,11 @@ const exportEl = frame("export", {
         ).on("change", (_, el) => {
             const type = el.gv;
             store.set("录屏.超级录屏.格式", type);
+            const config = exportConfigEls[type.split("-")[0]];
+            exportEl.els.exportConfig.clear().add(config);
         }),
     },
+    exportConfig: view("x").class(Class.deco).style({ alignItems: "center" }),
     _s: spacer(),
     px: exportPx.el,
     editClip: iconBEl("draw", "编辑").on("click", async () => {
@@ -2576,6 +2613,8 @@ const exportEl = frame("export", {
 
 // @ts-ignore
 exportEl.els.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
+const exconfig = exportConfigEls[exportEl.els.type.gv.split("-")[0]];
+exportEl.els.exportConfig.clear().add(exconfig);
 
 exportEl.el.addInto();
 
