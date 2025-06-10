@@ -2401,7 +2401,8 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     const old = getSet(k);
     if (old === v) return;
     const initV = xget(oldStore as unknown as Record<string, unknown>, k);
-    if (initV === v) {
+    const isSame = initV === v; // todo
+    if (isSame) {
         nowStoreKV.delete(k);
     } else {
         nowStoreKV.add(k);
@@ -2423,6 +2424,12 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
             }),
         ]);
     }
+
+    const el = mainView.query(
+        `[data-name="${k}"]`,
+    ) as unknown as ElType<HTMLElement>;
+    if (el) setEidtedItem(el, !isSame);
+
     xset(nowStore as unknown as Record<string, unknown>, k, v);
     store.set(k, v);
 }
@@ -2439,6 +2446,19 @@ function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
             // @ts-ignore
             if (v !== undefined) f?.(v);
         }
+    }
+}
+
+const editedItem = addClass(
+    { borderInlineStart: `1px solid ${cssColor.f}`, paddingInlineStart: "2px" },
+    {},
+);
+
+function setEidtedItem(el: ElType<HTMLElement>, x: boolean) {
+    if (x) {
+        el.class(editedItem).attr({ title: "已修改，右键撤销" });
+    } else {
+        el.attr({ title: "" }).el.classList.remove(editedItem);
     }
 }
 
@@ -2596,11 +2616,32 @@ function renderSetting(settingPath: KeyPath) {
             el.el.click();
         });
     }
+    setEidtedItem(pel, nowStoreKV.has(settingPath as SettingPath));
+    pel.on("contextmenu", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        contextMenu.clear();
+        let s = false;
+        if (nowStoreKV.has(settingPath as SettingPath)) {
+            contextMenu.add(view().add("撤销修改")).on("click", () => {
+                setSet(
+                    settingPath as SettingPath,
+                    xget(
+                        oldStore as unknown as Record<string, unknown>,
+                        settingPath as SettingPath,
+                    ),
+                );
+                reRenderSetting(settingPath);
+            });
+            s = true;
+        }
+        if (s) showContextMenu(e);
+    });
     return pel;
 }
 
 function reRenderSetting(settingPath: KeyPath) {
-    const el = document.querySelector(`[data-name="${settingPath}"`);
+    const el = document.querySelector(`[data-name="${settingPath}"]`);
     if (!el) return;
     // todo sv
     console.log("rerender", settingPath);
@@ -4471,6 +4512,28 @@ const mainView = view()
     );
 
 mainViewP.add(about());
+
+const contextMenuP = view()
+    .style({ margin: 0, padding: 0, borderRadius: cssVar("o-padding") })
+    .class(Class.glassBar, Class.smallSize)
+    .attr({ popover: "auto" })
+    .addInto();
+const contextMenu = view("y")
+    .class(Class.click)
+    .style({ padding: cssVar("o-padding") })
+    .on("click", () => {
+        contextMenuP.el.hidePopover();
+    })
+    .addInto(contextMenuP);
+
+function showContextMenu(e: MouseEvent) {
+    contextMenuP.style({
+        // 保证焦点在菜单上
+        left: `${e.clientX - 4}px`,
+        top: `${e.clientY - 4}px`,
+    });
+    contextMenuP.el.showPopover();
+}
 
 for (const [i, page] of main.entries()) {
     const sideEl = view().add(
