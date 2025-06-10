@@ -167,6 +167,12 @@ const Class = {
         },
         {},
     ),
+    textItem: addClass(
+        {
+            paddingInline: "var(--o-padding)",
+        },
+        {},
+    ),
     glassBar: "bar",
     /** 背景是屏幕 */
     screenBar: addClass(
