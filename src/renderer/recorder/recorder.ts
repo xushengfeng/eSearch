@@ -907,7 +907,7 @@ tEndEl.oninput = () => {
 const playEl = check("play", [iconEl("recume"), iconEl("pause")])
     .attr({ id: "v_play" })
     .style({
-        display: "inline-block",
+        display: "inline-flex",
     })
     .on("change", () => {
         if (playEl.gv) {
