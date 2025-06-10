@@ -161,6 +161,12 @@ const Class = {
         },
         {},
     ),
+    noDeco: addClass(
+        {
+            outline: "none",
+        },
+        {},
+    ),
     glassBar: "bar",
     /** 背景是屏幕 */
     screenBar: addClass(

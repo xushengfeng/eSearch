@@ -120,12 +120,8 @@ const outputType = [
     // { type: "webp", name: "webp" }, // todo
     // { type: "apng", name: "apng" }, // todo
     // { type: "avif", name: "avif" }, // todo
-    { type: "webm", codec: "vp8", name: "webm-vp8" },
-    { type: "webm", codec: "vp9", name: "webm-vp9" },
-    { type: "webm", codec: "av1", name: "webm-av1" },
-    { type: "mp4", codec: "avc", name: "mp4-avc" },
-    { type: "mp4", codec: "vp9", name: "mp4-vp9" },
-    { type: "mp4", codec: "av1", name: "mp4-av1" },
+    { type: "webm", name: "webm" },
+    { type: "mp4", name: "mp4" },
     { type: "png", name: "png" },
 ] as const;
 
@@ -1436,12 +1432,10 @@ async function save() {
         await saveGif({
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
         });
-    else if (exportEl.els.type.gv === "webm-av1") await saveWebm("av1");
-    else if (exportEl.els.type.gv === "webm-vp9") await saveWebm("vp9");
-    else if (exportEl.els.type.gv === "webm-vp8") await saveWebm("vp8");
-    else if (exportEl.els.type.gv === "mp4-av1") await saveMp4("av1");
-    else if (exportEl.els.type.gv === "mp4-vp9") await saveMp4("vp9");
-    else if (exportEl.els.type.gv === "mp4-avc") await saveMp4("avc");
+    else if (exportEl.els.type.gv === "webm")
+        await saveWebm({ codec: exportConfigEls.webm.gv.codec });
+    else if (exportEl.els.type.gv === "mp4")
+        await saveMp4({ codec: exportConfigEls.mp4.gv.codec });
     else
         await saveGif({
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
@@ -1619,7 +1613,7 @@ async function saveGif(op?: {
     renderSend("ok_save", [exportPath]);
 }
 
-async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
+async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
     const exportPath = getSavePath("webm");
     if (!exportPath) return;
 
@@ -1628,14 +1622,14 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
         video: {
-            codec: `V_${_codec.toUpperCase()}`,
+            codec: `V_${op.codec.toUpperCase()}`,
             width: outputV.width,
             height: outputV.height,
             frameRate: srcRate,
         },
     });
 
-    await transform({ codec: _codec });
+    await transform({ codec: op.codec });
 
     for (const [_, chunk] of transformCs.entries()) {
         muxer.addVideoChunk(chunk);
@@ -1647,7 +1641,7 @@ async function saveWebm(_codec: "vp8" | "vp9" | "av1") {
     renderSend("ok_save", [exportPath, true]);
 }
 
-async function saveMp4(_codec: "avc" | "vp9" | "av1") {
+async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
     const exportPath = getSavePath("mp4");
     if (!exportPath) return;
 
@@ -1656,7 +1650,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
     const muxer = new Muxer({
         target: new ArrayBufferTarget(),
         video: {
-            codec: _codec,
+            codec: op.codec,
             width: outputV.width,
             height: outputV.height,
             frameRate: srcRate,
@@ -1664,7 +1658,7 @@ async function saveMp4(_codec: "avc" | "vp9" | "av1") {
         fastStart: false,
     });
 
-    await transform({ codec: _codec });
+    await transform({ codec: op.codec });
 
     for (const [_, chunk] of transformCs.entries()) {
         muxer.addVideoChunk(chunk);
@@ -1787,6 +1781,8 @@ const encoderVideoConfig = {
     codec: codec,
     hardwareAcceleration: isEnAcc ? "prefer-hardware" : "no-preference",
 } as const;
+const baseCodec =
+    Array.from(codecMap).find(([c, v]) => v.codec === codec)?.[0] || "vp8";
 console.log("codec", codecMap, decoderVideoConfig, encoderVideoConfig);
 
 const transformCs = new videoChunk<TransId>([]);
@@ -2559,8 +2555,62 @@ const exportConfigEls = {
                 dither.sv(v.dither);
             });
     })(),
-    mp4: view("x"),
-    webm: view("x"),
+    mp4: (() => {
+        const el = view("x").style({ paddingInline: "8px" });
+        const codec = label(
+            [
+                select([
+                    { value: "avc" },
+                    { value: "vp9" },
+                    { value: "av1" },
+                ] as const).class(Class.noDeco),
+                "编码",
+            ],
+            1,
+        )
+            .style({
+                display: "flex",
+                alignItems: "center",
+            })
+            // @ts-ignore
+            .sv(baseCodec);
+        el.add(codec);
+        return el
+            .bindGet(() => ({
+                codec: codec.gv,
+            }))
+            .bindSet((v: { codec: "vp9" | "avc" | "av1" }) => {
+                codec.sv(v.codec);
+            });
+    })(),
+    webm: (() => {
+        const el = view("x").style({ paddingInline: "8px" });
+        const codec = label(
+            [
+                select([
+                    { value: "vp8" },
+                    { value: "vp9" },
+                    { value: "av1" },
+                ] as const).class(Class.noDeco),
+                "编码",
+            ],
+            1,
+        )
+            .style({
+                display: "flex",
+                alignItems: "center",
+            })
+            // @ts-ignore
+            .sv(baseCodec);
+        el.add(codec);
+        return el
+            .bindGet(() => ({
+                codec: codec.gv,
+            }))
+            .bindSet((v: { codec: "vp8" | "vp9" | "av1" }) => {
+                codec.sv(v.codec);
+            });
+    })(),
     png: view("x"),
 } satisfies Record<(typeof outputType)[number]["type"], ElType<HTMLElement>>;
 
@@ -2576,17 +2626,11 @@ const exportEl = frame("export", {
         _: view("x").class(Class.group),
         export: iconBEl("save", "保存").on("click", save),
         type: select(
-            outputType
-                .filter(
-                    (i) =>
-                        !("codec" in i) ||
-                        ("codec" in i && codecMap.has(i.codec)),
-                )
-                .map((t) => ({ value: t.name })),
+            outputType.map((t) => ({ value: t.type, name: t.name })),
         ).on("change", (_, el) => {
             const type = el.gv;
             store.set("录屏.超级录屏.格式", type);
-            const config = exportConfigEls[type.split("-")[0]];
+            const config = exportConfigEls[type];
             exportEl.els.exportConfig.clear().add(config);
         }),
     },
@@ -2613,7 +2657,7 @@ const exportEl = frame("export", {
 
 // @ts-ignore
 exportEl.els.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
-const exconfig = exportConfigEls[exportEl.els.type.gv.split("-")[0]];
+const exconfig = exportConfigEls[exportEl.els.type.gv];
 exportEl.els.exportConfig.clear().add(exconfig);
 
 exportEl.el.addInto();
