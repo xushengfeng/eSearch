@@ -70,10 +70,10 @@ import {
 } from "../../../lib/key.js";
 
 import time_format from "../../../lib/time_format";
-import xhistory from "../lib/history";
 import { renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { defaultOcrId } from "../ocr/ocr";
+import { xget, xset } from "../../../lib/store/parse";
 
 const download = require("download");
 
@@ -102,28 +102,11 @@ type settingItem<t extends SettingPath> = {
     };
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const history = new xhistory<object, { k: string; v: any }>(
-    [],
-    store.getAll(),
-    {
-        diff: () => ({ k: "", v: "" }),
-        apply: (data, { k, v }) => {
-            let nowObj = data;
-            for (const [i, ke] of k.split(".").entries()) {
-                if (i === k.split(".").length - 1) nowObj[ke] = v;
-                nowObj = nowObj[ke];
-            }
-            return data;
-        },
-    },
-);
+const oldStore = store.getAll();
+const nowStore = structuredClone(oldStore);
+const nowStoreKV = new Set<SettingPath>();
 
-history.on("change", () => {
-    updateHistory();
-});
-
-const mainLan = store.get("语言.语言");
+const mainLan = getSet("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
     type: "language",
 });
@@ -196,7 +179,7 @@ const s: Partial<settingItem<SettingPath>> = {
             button("右上")
                 .addInto(b)
                 .on("click", () => {
-                    const size = store.get("工具栏.按钮大小");
+                    const size = getSet("工具栏.按钮大小");
                     l.sv(`calc(100vw - 10px - ${size} * 2 - 8px)`);
                     t.sv("100px");
                     iEvent();
@@ -2411,15 +2394,37 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
 };
 
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
-    return store.get(k);
+    return xget(nowStore as unknown as Record<string, unknown>, k);
 }
 
 function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
-    const old = store.get(k);
+    const old = getSet(k);
     if (old === v) return;
+    const initV = xget(oldStore as unknown as Record<string, unknown>, k);
+    if (initV === v) {
+        nowStoreKV.delete(k);
+    } else {
+        nowStoreKV.add(k);
+    }
+    historyEl.clear();
+    if (nowStoreKV.size > 0) {
+        historyEl.add([
+            button("更改的设置").on("click", () => {
+                renderSettingList(Array.from(nowStoreKV));
+            }),
+            button("放弃本次修改").on("click", () => {
+                for (const x of Array.from(nowStoreKV)) {
+                    setSet(
+                        x,
+                        xget(oldStore as unknown as Record<string, unknown>, x),
+                    );
+                    reRenderSetting(x);
+                }
+            }),
+        ]);
+    }
+    xset(nowStore as unknown as Record<string, unknown>, k, v);
     store.set(k, v);
-    history.setDiff({ k, v });
-    history.apply(s[k]?.name || k);
 }
 
 function bindRun(): void;
@@ -2430,7 +2435,7 @@ function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
     } else {
         for (const [k, f] of Object.entries(bindF)) {
             // @ts-ignore
-            const v = store.get(k);
+            const v = getSet(k);
             // @ts-ignore
             if (v !== undefined) f?.(v);
         }
@@ -2553,7 +2558,7 @@ function renderSetting(settingPath: KeyPath) {
     scheduler.postTask(() =>
         s[settingPath]
             ? el // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-                  .sv(store.get(settingPath as any))
+                  .sv(getSet(settingPath as any))
                   .on("input", (e) => {
                       if (e.target === e.currentTarget) {
                           const value = el.gv;
@@ -2601,6 +2606,28 @@ function reRenderSetting(settingPath: KeyPath) {
     console.log("rerender", settingPath);
     const nel = renderSetting(settingPath);
     if (nel) el.replaceWith(nel.el);
+}
+
+function renderSettingList(l: string[]) {
+    mainView.clear();
+    for (const i of l) {
+        const title = getTitles.get(i);
+        mainView.add(
+            view().add([
+                txt("", true)
+                    .sv(
+                        title
+                            ? title.map((i) => t(i)).join(" > ")
+                            : t("未知路径"),
+                    )
+                    .style({
+                        color: cssColor.font.llight,
+                    }),
+                // @ts-ignore
+                renderSetting(i),
+            ]),
+        );
+    }
 }
 
 function tIconEl(img: string) {
@@ -4399,9 +4426,8 @@ const searchI = input()
         });
 
         const l = fuse.search(searchI.gv).map((i) => i.item[0]);
-        mainView.clear();
         if (l.length === 0)
-            mainView.add(
+            mainView.clear().add(
                 xGroup("y")
                     .style({
                         alignItems: "center",
@@ -4417,24 +4443,7 @@ const searchI = input()
                         ).add(button("提交新功能")),
                     ]),
             );
-        for (const i of l) {
-            const title = getTitles.get(i);
-            mainView.add(
-                view().add([
-                    txt("", true)
-                        .sv(
-                            title
-                                ? title.map((i) => t(i)).join(" > ")
-                                : t("未知路径"),
-                        )
-                        .style({
-                            color: cssColor.font.llight,
-                        }),
-                    // @ts-ignore
-                    renderSetting(i),
-                ]),
-            );
-        }
+        renderSettingList(l);
     });
 const mainViewP = view().addInto().style({
     overflowY: "scroll",
@@ -4475,29 +4484,8 @@ sideBarG.on(() => {
 });
 
 sideBar.add(spacer());
-const historyEl = dynamicSelect();
-historyEl.el
-    .addInto(sideBar)
-    .on("input", () => {
-        history.jump(Number(historyEl.el.gv));
-        const data = history.getData();
-        // todo diff 优化性能
-        // @ts-ignore
-        store.setAll(data);
-        showPage(main[sideBarG.get()]);
-        bindRun();
-    })
-    .style({ maxWidth: "100%" })
-    .attr({
-        title: "修改历史",
-    });
-function updateHistory() {
-    historyEl.setList(
-        history.list.map((des, i) => ({ value: String(i), name: noI18n(des) })),
-    );
-    historyEl.el.sv(String(history.list.length - 1));
-}
-updateHistory();
+const historyEl = view("y").class(Class.gap);
+historyEl.addInto(sideBar);
 
 bindRun();
 

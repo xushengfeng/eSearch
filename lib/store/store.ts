@@ -1,6 +1,9 @@
 const { app } = require("electron");
 const fs = require("node:fs") as typeof import("fs");
 const path = require("node:path") as typeof import("path");
+
+import { xget, xset } from "./parse";
+
 import type { GetValue, SettingPath } from "./renderStore";
 import type { setting } from "../../src/ShareTypes";
 
@@ -46,34 +49,12 @@ class Store {
         value: GetValue<setting, P> | (unknown & {}),
     ): void {
         const store = this.getStore();
-        const pathx = keyPath.split(".");
-        let obj = store;
-        for (let i = 0; i < pathx.length; i++) {
-            const p = pathx[i];
-            if (i === pathx.length - 1) obj[p] = value;
-            else {
-                if (obj[p]?.constructor !== Object) {
-                    if (!Number.isNaN(Number(pathx[i + 1]))) {
-                        obj[p] = [];
-                    } else {
-                        obj[p] = {};
-                    }
-                }
-                // @ts-ignore
-                obj = obj[p];
-            }
-        }
+        xset(store, keyPath, value);
         this.setStore(store);
     }
     get<P extends SettingPath>(keyPath: P): GetValue<setting, P> {
         const store = this.getStore();
-        const pathx = keyPath.split(".");
-        const lastp = pathx.pop() ?? "";
-        // @ts-ignore
-        const lastobj = pathx.reduce((p, c) => {
-            return p[c] || {};
-        }, store);
-        return lastobj[lastp];
+        return xget(store, keyPath);
     }
 
     clear() {
