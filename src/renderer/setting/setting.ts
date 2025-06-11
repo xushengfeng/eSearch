@@ -1810,13 +1810,7 @@ const xs: Record<
                     for (const [x] of Object.entries(s)) {
                         setSet(
                             x as SettingPath,
-                            xget(
-                                defaultSetting as unknown as Record<
-                                    string,
-                                    unknown
-                                >,
-                                x as SettingPath,
-                            ),
+                            getFromStore(defaultSetting, x as SettingPath),
                         );
                     }
                 }),
@@ -1826,13 +1820,7 @@ const xs: Record<
                         ([x]) =>
                             !isSettingItemSame(
                                 getSet(x as SettingPath),
-                                xget(
-                                    defaultSetting as unknown as Record<
-                                        string,
-                                        unknown
-                                    >,
-                                    x as SettingPath,
-                                ),
+                                getFromStore(defaultSetting, x as SettingPath),
                             ),
                     );
                     renderSettingList(ss.map((i) => i[0]));
@@ -2432,14 +2420,21 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
     "字体.等宽字体": (v) => setProperty("--monospace", v || monoFont.join(",")),
 };
 
+function getFromStore<t extends SettingPath>(
+    store: setting,
+    k: t,
+): GetValue<setting, t> {
+    return xget(store as unknown as Record<string, unknown>, k);
+}
+
 function getSet<t extends SettingPath>(k: t): GetValue<setting, t> {
-    return xget(nowStore as unknown as Record<string, unknown>, k);
+    return getFromStore(nowStore, k);
 }
 
 function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     const old = getSet(k);
     if (old === v) return;
-    const initV = xget(oldStore as unknown as Record<string, unknown>, k);
+    const initV = getFromStore(oldStore, k);
     const isSame = isSettingItemSame(initV, v);
     if (isSame) {
         nowStoreKV.delete(k);
@@ -2454,10 +2449,7 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
             }),
             button("放弃本次修改").on("click", () => {
                 for (const x of Array.from(nowStoreKV)) {
-                    setSet(
-                        x,
-                        xget(oldStore as unknown as Record<string, unknown>, x),
-                    );
+                    setSet(x, getFromStore(oldStore, x));
                     reRenderSetting(x);
                 }
             }),
@@ -2675,25 +2667,21 @@ function renderSetting(settingPath: KeyPath) {
             contextMenu.add(view().add("撤销修改")).on("click", () => {
                 setSet(
                     settingPath as SettingPath,
-                    xget(
-                        oldStore as unknown as Record<string, unknown>,
-                        settingPath as SettingPath,
-                    ),
+                    getFromStore(oldStore, settingPath as SettingPath),
                 );
                 reRenderSetting(settingPath);
             });
             s = true;
         }
-        // @ts-ignore
-        if (getSet(settingPath) !== xget(getDefaultSetting(), settingPath)) {
+        if (
+            getSet(settingPath as SettingPath) !==
+            getFromStore(getDefaultSetting(), settingPath as SettingPath)
+        ) {
             contextMenu.add(view().add("恢复默认值")).on("click", () => {
                 setSet(
                     settingPath as SettingPath,
-                    xget(
-                        getDefaultSetting() as unknown as Record<
-                            string,
-                            unknown
-                        >,
+                    getFromStore(
+                        getDefaultSetting(),
                         settingPath as SettingPath,
                     ),
                 );
