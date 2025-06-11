@@ -1383,11 +1383,6 @@ const s: Partial<settingItem<SettingPath>> = {
             // 提前系统语言
             lans = [systemLan].concat(lans.filter((v) => v !== systemLan));
             const el = xGroup("y");
-            const b = button()
-                .style({ display: "none" })
-                .on("click", () => {
-                    renderSend("reload", []);
-                });
             const list = xSelect(
                 lans.map((i) => ({
                     value: i,
@@ -1396,11 +1391,10 @@ const s: Partial<settingItem<SettingPath>> = {
                 "语言",
             ).on("input", () => {
                 lan(list.gv);
-                b.style({ display: "" }).el.innerText = t("重启软件以生效");
                 el.el.dispatchEvent(new CustomEvent("input"));
             });
             return el
-                .add([b, list])
+                .add([list])
                 .bindGet(() => list.gv)
                 .bindSet((v) => list.sv(v));
         },
@@ -2420,6 +2414,50 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
     "字体.等宽字体": (v) => setProperty("--monospace", v || monoFont.join(",")),
 };
 
+const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
+    {
+        f: (h) => {
+            console.log("截屏更新");
+            reloadScreenShot.clear();
+            if (h)
+                reloadScreenShot.add(
+                    button("重启截屏以生效").on("click", () => {
+                        renderSend("reloadMainFromSetting", []);
+                    }),
+                );
+        },
+        keys: [
+            "工具栏跟随",
+            "工具栏",
+            "鼠标跟随栏",
+            "取色器",
+            "框选",
+            "显示四角坐标",
+            "框选后默认操作",
+            "框选",
+            "快速截屏",
+            "工具快捷键",
+            "截屏编辑快捷键",
+            "大小栏快捷键",
+            "全局",
+            "字体",
+        ],
+    },
+    {
+        f: (h) => {
+            console.log("应用重启");
+            reloadEl.clear();
+            if (h)
+                reloadEl.add(
+                    button("重启软件以生效").on("click", () => {
+                        renderSend("reload", []);
+                    }),
+                );
+        },
+        keys: ["语言", "托盘", "保留截屏窗口", "dev"],
+    },
+];
+
 function getFromStore<t extends SettingPath>(
     store: setting,
     k: t,
@@ -2461,6 +2499,8 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     ) as unknown as ElType<HTMLElement>;
     if (el) setEidtedItem(el, !isSame);
 
+    bindRun2();
+
     xset(nowStore as unknown as Record<string, unknown>, k, v);
     store.set(k, v);
 }
@@ -2477,6 +2517,17 @@ function bindRun<t extends SettingPath>(k?: t, v?: GetValue<setting, t>) {
             // @ts-ignore
             if (v !== undefined) f?.(v);
         }
+    }
+}
+
+function bindRun2() {
+    for (const f of bindF2) {
+        const x = f.keys.find(
+            (k) =>
+                nowStoreKV.has(k) ||
+                Array.from(nowStoreKV).find((x) => x.startsWith(`${k}.`)),
+        );
+        f.f(Boolean(x));
     }
 }
 
@@ -4601,6 +4652,10 @@ sideBarG.on(() => {
 });
 
 sideBar.add(spacer());
+
+const reloadEl = view().addInto(sideBar);
+const reloadScreenShot = view().addInto(sideBar);
+
 const historyEl = view("y").class(Class.gap);
 historyEl.addInto(sideBar);
 
