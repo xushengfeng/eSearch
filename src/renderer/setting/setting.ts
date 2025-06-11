@@ -766,7 +766,6 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "开启才可以在界面进一步选择是否内录",
         el: () => xSwitch(),
     },
-    "录屏.转换.自动转换": { name: "自动转换", el: () => xSwitch() },
     "录屏.转换.分段": {
         name: "分段转换间隔时间",
         desc: "边录制边转换以提升效率，0为不分段",
@@ -2067,7 +2066,6 @@ const main: {
             {
                 title: "转换",
                 settings: [
-                    "录屏.转换.自动转换",
                     "录屏.转换.分段",
                     "录屏.转换.格式",
                     "录屏.转换.码率",

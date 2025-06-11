@@ -2794,7 +2794,6 @@ const defaultSetting: setting = {
             启用系统内录: true,
         },
         转换: {
-            自动转换: false,
             格式: "webm",
             码率: 2.5,
             帧率: 30,

@@ -225,11 +225,8 @@ function showControl() {
     });
     clipV();
     saveEl.el.disabled = false;
-    if (store.get("录屏.转换.自动转换")) {
-        save();
-    } else {
-        renderSend("windowMax", []);
-    }
+    renderSend("windowMax", []);
+
     setTimeout(() => {
         resize();
         mEl.style({ transition: "none" });

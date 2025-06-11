@@ -300,7 +300,6 @@ export interface setting {
             启用系统内录: boolean;
         };
         转换: {
-            自动转换: boolean;
             格式: string;
             码率: number;
             帧率: number;
