@@ -1586,20 +1586,8 @@ mainOn("reloadMainFromSetting", () => {
         tray.closeContextMenu();
     }
 });
-mainOn("set_default_setting", async () => {
-    store.clear();
-    setDefaultSetting();
-    const dResolve = await dialog.showMessageBox({
-        title: t("重启"),
-        message: `${t("已恢复默认设置，部分设置需要重启$1生效").replace("$1", ` ${app.name} `)}`,
-        buttons: [t("重启"), t("稍后")],
-        defaultId: 0,
-        cancelId: 1,
-    });
-    if (dResolve.response === 0) {
-        app.relaunch();
-        app.exit(0);
-    }
+mainOn("getDefaultSetting", async () => {
+    return defaultSetting;
 });
 mainOn("reload", () => {
     app.relaunch();
@@ -2429,7 +2417,7 @@ const defaultSetting: setting = {
     启动提示: true,
     dev: false,
     保留截屏窗口: true,
-    语言: {},
+    语言: { 语言: matchBestLan() },
     托盘: "彩色",
     快捷键: {
         自动识别: {

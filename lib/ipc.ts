@@ -14,6 +14,7 @@ import type {
     EditToolsType,
     GithubUrlType,
     MainWinType,
+    setting,
     translateWinType,
     功能,
 } from "../src/ShareTypes";
@@ -101,7 +102,7 @@ type Message = {
     viewEvent: (type: BrowserAction | "add_history" | "browser") => void;
     hotkey: (type: "快捷键" | "快捷键2", name: string, key: string) => boolean;
     reloadMainFromSetting: () => void;
-    set_default_setting: () => void;
+    getDefaultSetting: () => setting;
     reload: () => void;
     exit: () => void;
     clearStorage: () => void;

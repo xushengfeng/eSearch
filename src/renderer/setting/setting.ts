@@ -106,6 +106,8 @@ const oldStore = store.getAll();
 const nowStore = structuredClone(oldStore);
 const nowStoreKV = new Set<SettingPath>();
 
+let defaultSetting: null | setting = null;
+
 const mainLan = getSet("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
     type: "language",
@@ -1798,7 +1800,39 @@ const xs: Record<
     },
     _default_setting: {
         name: "恢复默认设置",
-        el: () => button("恢复"),
+        el: () =>
+            xGroup().add([
+                button("恢复").on("click", () => {
+                    const defaultSetting = getDefaultSetting();
+                    for (const [x] of Object.entries(s)) {
+                        setSet(
+                            x as SettingPath,
+                            xget(
+                                defaultSetting as unknown as Record<
+                                    string,
+                                    unknown
+                                >,
+                                x as SettingPath,
+                            ),
+                        );
+                    }
+                }),
+                button("显示更改的设置").on("click", () => {
+                    const defaultSetting = getDefaultSetting();
+                    const ss = Object.entries(s).filter(
+                        ([x]) =>
+                            getSet(x as SettingPath) !==
+                            xget(
+                                defaultSetting as unknown as Record<
+                                    string,
+                                    unknown
+                                >,
+                                x as SettingPath,
+                            ), // todo
+                    );
+                    renderSettingList(ss.map((i) => i[0]));
+                }),
+            ]),
     },
     _location: {
         name: "位置信息",
@@ -2565,6 +2599,12 @@ const dialogFlexClass = addClass(
     },
 );
 
+function getDefaultSetting() {
+    if (defaultSetting) return defaultSetting;
+    defaultSetting = renderSendSync("getDefaultSetting", []);
+    return defaultSetting;
+}
+
 function renderSetting(settingPath: KeyPath) {
     const setting = s[settingPath] || xs[settingPath];
     if (!setting) {
@@ -2628,6 +2668,23 @@ function renderSetting(settingPath: KeyPath) {
                     settingPath as SettingPath,
                     xget(
                         oldStore as unknown as Record<string, unknown>,
+                        settingPath as SettingPath,
+                    ),
+                );
+                reRenderSetting(settingPath);
+            });
+            s = true;
+        }
+        // @ts-ignore
+        if (getSet(settingPath) !== xget(getDefaultSetting(), settingPath)) {
+            contextMenu.add(view().add("恢复默认值")).on("click", () => {
+                setSet(
+                    settingPath as SettingPath,
+                    xget(
+                        getDefaultSetting() as unknown as Record<
+                            string,
+                            unknown
+                        >,
                         settingPath as SettingPath,
                     ),
                 );
