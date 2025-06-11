@@ -121,6 +121,7 @@ export interface setting {
             最小阈值: number;
             最大阈值: number;
         };
+        识别窗口: boolean;
         记忆: { 开启: boolean; rects: { [screenId: string]: number[] } };
         颜色: {
             遮罩: string;

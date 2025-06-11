@@ -1332,6 +1332,7 @@ function inEdge(p: editor_position) {
 
     rectInRect = [];
     for (const i of edgeRect) {
+        if (!识别窗口 && i.type === "system") continue;
         const x0 = i.x;
         const y0 = i.y;
         const x1 = i.x + i.width;
@@ -2915,6 +2916,7 @@ const 记忆框选 = store.get("框选.记忆.开启");
 const 记忆框选值 = store.get("框选.记忆.rects") as {
     [id: string]: rect;
 };
+const 识别窗口 = store.get("框选.识别窗口");
 const bSize = store.get("工具栏.按钮大小");
 
 const g光标参考线 = store.get("框选.参考线.光标");
