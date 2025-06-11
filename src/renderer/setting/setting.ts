@@ -2420,11 +2420,14 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
             console.log("截屏更新");
             reloadScreenShot.clear();
             if (h)
-                reloadScreenShot.add(
-                    button("重启截屏以生效").on("click", () => {
-                        renderSend("reloadMainFromSetting", []);
-                    }),
-                );
+                reloadScreenShot
+                    .add(
+                        button("重启截屏以生效").on("click", () => {
+                            renderSend("reloadMainFromSetting", []);
+                        }),
+                    )
+                    .style({ display: "" });
+            else reloadScreenShot.style({ display: "none" });
         },
         keys: [
             "工具栏跟随",
@@ -2448,11 +2451,14 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
             console.log("应用重启");
             reloadEl.clear();
             if (h)
-                reloadEl.add(
-                    button("重启软件以生效").on("click", () => {
-                        renderSend("reload", []);
-                    }),
-                );
+                reloadEl
+                    .add(
+                        button("重启软件以生效").on("click", () => {
+                            renderSend("reload", []);
+                        }),
+                    )
+                    .style({ display: "" });
+            else reloadEl.style({ display: "none" });
         },
         keys: ["语言", "托盘", "保留截屏窗口", "dev"],
     },
@@ -4543,6 +4549,8 @@ const sideBar = view("y")
         padding: cssVar("o-padding"),
         flexShrink: 0,
         width: "200px",
+        height: "100vh",
+        overflowY: "auto",
     })
     .class(
         addClass(
