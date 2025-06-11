@@ -112,7 +112,7 @@ body select,
 *:has(> .icon),
 .b-like,
 .group {
-    min-height: var(--b-button);
+    height: var(--b-button);
     border-radius: var(--border-radius);
     color: var(--font-color);
     font-size: inherit;

@@ -4660,6 +4660,17 @@ sideBarG.on(() => {
 });
 
 sideBar.add(spacer());
+sideBar.class(
+    addClass(
+        {},
+        {
+            "& button:not(:has(.icon))": {
+                height: "auto",
+                minHeight: cssVar("b-button"),
+            },
+        },
+    ),
+);
 
 const reloadEl = view().addInto(sideBar);
 const reloadScreenShot = view().addInto(sideBar);
