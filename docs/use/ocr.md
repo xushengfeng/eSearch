@@ -87,18 +87,17 @@ OCR把他们视为5个段
 
 你可以直接在设置里下载，那里提供了文字与语言的对应，比如德语对应拉丁文。下载后自动添加到 OCR 模型列表。
 
-也可以在[这里](https://esearch-app.netlify.app/ocr.html)下载，都提供了语言到文字的对应，还可以在 [GitHub](https://github.com/xushengfeng/eSearch-OCR/releases/tag/4.0.0)下载，模型都是一样的，GitHub 上没有文字提示。下载完毕后，解压到文件夹里，你会看到 1~3 个文件，打开 设置-OCR 在一旁准备。选择下载的**全部文件**，**一起**拖拽到设置里，添加完毕。之后你可以更改 OCR 名字。
+也可以在[这里](https://esearch-app.netlify.app/ocr.html)下载，都提供了语言到文字的对应，还可以在 [GitHub](https://github.com/xushengfeng/eSearch-OCR/releases/tag/4.0.0)下载，模型都是一样的，GitHub 上没有文字提示。下载完毕后，解压到文件夹里，你会看到 1~3 个文件。打开 设置-OCR 添加模型，文件名有`det`的为检测模型，部分语言不附带，留空将使用默认模型。文件名有`rec`的为识别模型。`.txt`为字典文件。之后你可以更改 OCR 名字。
 
 自己训练：
 
 - 使用 paddleocr 训练模型
-- 在[paddle2onnx](https://www.paddlepaddle.org.cn/paddle/visualdl/modelconverter/x2paddle)在线转换为 onnx 模型，也可以使用[Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX)本地转换
-- 将检测模型命名为包含 `det` 的文件，将识别模型命名为包含 `rec` 的文件
-- 全选，拖拽到设置 OCR 的位置，添加完毕。
+- 使用[Paddle2ONNX](https://github.com/PaddlePaddle/Paddle2ONNX)本地转换
+- 根据上面的方式添加
 
 ## AI 后端
 
-默认使用 CPU 运行模型，还支持 CUDA、coreML（mac）、DirectML（Windows）。可叹 onnxruntime Node.js 暂时不支持 Vulkan，我也没有 CUDA，所以还没测试，**理论上**如果你的设置支持以上三种后端，应该可以更快运行模型。
+默认使用 CPU 运行模型，还支持 CUDA、coreML（mac）、DirectML（Windows）。**理论上**如果你的设置支持以上三种后端，应该可以更快运行模型。部分模型或设备不支持一些后端，如有错误，请改回 CPU 后端。
 
 目前模型在 CPU 运行时也保持在可接受的速度。
 
