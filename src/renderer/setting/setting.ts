@@ -2707,7 +2707,7 @@ function renderSetting(settingPath: KeyPath) {
         .data({ name: settingPath })
         .add([
             view().add([
-                p(setting.name, true),
+                p(setting.name, true).style({ fontSize: "1.1em" }),
                 setting.desc ? comment(setting.desc) : "",
             ]),
             el,
@@ -4622,7 +4622,7 @@ const mainView = view()
             {},
             {
                 "&>div": {
-                    marginBlock: "20px",
+                    marginBlock: "22px",
                 },
             },
         ),
