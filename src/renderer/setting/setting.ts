@@ -74,8 +74,11 @@ import { renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { defaultOcrId } from "../ocr/ocr";
 import { xget, xset } from "../../../lib/store/parse";
+import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
 
 const download = require("download");
+
+export { isDeepStrictEqual };
 
 type Engines = keyof typeof translator.e;
 
@@ -1821,14 +1824,16 @@ const xs: Record<
                     const defaultSetting = getDefaultSetting();
                     const ss = Object.entries(s).filter(
                         ([x]) =>
-                            getSet(x as SettingPath) !==
-                            xget(
-                                defaultSetting as unknown as Record<
-                                    string,
-                                    unknown
-                                >,
-                                x as SettingPath,
-                            ), // todo
+                            !isSettingItemSame(
+                                getSet(x as SettingPath),
+                                xget(
+                                    defaultSetting as unknown as Record<
+                                        string,
+                                        unknown
+                                    >,
+                                    x as SettingPath,
+                                ),
+                            ),
                     );
                     renderSettingList(ss.map((i) => i[0]));
                 }),
@@ -2435,7 +2440,7 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     const old = getSet(k);
     if (old === v) return;
     const initV = xget(oldStore as unknown as Record<string, unknown>, k);
-    const isSame = initV === v; // todo
+    const isSame = isSettingItemSame(initV, v);
     if (isSame) {
         nowStoreKV.delete(k);
     } else {
@@ -2603,6 +2608,10 @@ function getDefaultSetting() {
     if (defaultSetting) return defaultSetting;
     defaultSetting = renderSendSync("getDefaultSetting", []);
     return defaultSetting;
+}
+
+function isSettingItemSame(a: unknown, b: unknown) {
+    return isDeepStrictEqual(a, b);
 }
 
 function renderSetting(settingPath: KeyPath) {
