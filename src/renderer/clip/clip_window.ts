@@ -2829,7 +2829,7 @@ function getFilters() {
                 for (const i of Object.values(drawSideEls.filter)) {
                     i.el.classList.remove("filter_select");
                 }
-                drawSideEls.filter[name].classList.add("filter_select");
+                drawSideEls.filter[name].el.classList.add("filter_select");
             }
         }
     }
