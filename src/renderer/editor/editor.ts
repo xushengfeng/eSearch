@@ -362,7 +362,7 @@ const editB = view()
     .class("edit_h")
     .class(Class.glassBar)
     .class(Class.group)
-    .addInto(mainTextEl);
+    .addInto(textOut);
 
 const barExcelB = bindBar(iconBEl("excel", "保存Excel"), "excel");
 const barMdTableB = bindBar(iconBEl("md", "复制为md表格"), "md_table");
@@ -1133,11 +1133,25 @@ function showEditBar(x: number, y: number, right: boolean) {
         }
         editB.el.classList.remove("edit_h");
         editB.el.classList.add("edit_s");
-        let nx = x < 0 ? 0 : x;
-        const pleft = mainTextEl.el.getBoundingClientRect().left + 16;
-        if (editB.el.offsetWidth + pleft + nx > window.innerWidth)
-            nx = window.innerWidth - editB.el.offsetWidth - pleft;
-        const ny = y < 0 ? 0 : y;
+        const mainTextRect = mainTextEl.el.getBoundingClientRect();
+        const outTextRect = textOut.el.getBoundingClientRect();
+        const outRect = {
+            left: mainTextRect.left - outTextRect.left,
+            top: mainTextRect.top - outTextRect.top,
+        };
+        const scrollLeft = mainTextEl.el.scrollLeft;
+        const scrollTop = mainTextEl.el.scrollTop;
+        // 转为outTextEl的坐标
+        const _x = x + outRect.left - scrollLeft;
+        const _y = y + outRect.top - scrollTop;
+        const nx = Math.max(
+            0,
+            Math.min(_x, outTextRect.width - editB.el.offsetWidth),
+        );
+        const ny = Math.max(
+            0,
+            Math.min(_y, outTextRect.height - editB.el.offsetHeight),
+        );
         editB.style({ left: `${nx}px`, top: `${ny}px` });
         editBarS = true;
     } else {
