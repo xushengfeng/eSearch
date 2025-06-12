@@ -2860,7 +2860,7 @@ const defaultSetting: setting = {
     高级图片编辑: { 配置: [], 默认配置: "" },
     网络: {
         github镜像: {
-            启用: false,
+            启用: true,
             api: "https://api.kkgithub.com/",
             base: "https://github.moeyy.xyz/https://github.com/",
         },
