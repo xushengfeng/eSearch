@@ -2149,11 +2149,6 @@ function setConciseMode(m: boolean) {
     renderSend("tabViewSize", [bSize]);
 }
 
-if (!store.get("主页面.高级窗口按钮")) {
-    nav.style({ height: 0 });
-    outMainEl.style({ height: "100%", top: 0 });
-}
-
 /************************************浏览器 */
 
 function showTabs(b: "home" | "tab" | "hometab") {

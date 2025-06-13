@@ -2567,7 +2567,6 @@ const defaultSetting: setting = {
         复用后聚焦: true,
         失焦关闭: false,
         简洁模式: false,
-        高级窗口按钮: true,
         显示图片区: 10,
         自动复制OCR: false,
         复制OCR后提示: false,
