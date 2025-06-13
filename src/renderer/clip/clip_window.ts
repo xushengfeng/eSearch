@@ -4,7 +4,7 @@
 const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import { Class, getImgUrl, initStyle, setTitle } from "../root/root";
+import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 import open_with from "../../../lib/open_with";
 import { t } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
@@ -1388,16 +1388,18 @@ function whBar(finalRect: rect) {
     const w = String(finalRect[2]);
     const h = String(finalRect[3]);
     const ch =
-        x0.length +
-        2 + // ", "
-        y0.length +
-        x1.length +
-        2 + // ", "
-        y1.length +
+        (四角坐标
+            ? x0.length +
+              1 + // ","
+              y0.length +
+              x1.length +
+              1 + // ","
+              y1.length
+            : 0) +
         w.length +
-        3 + // " × "
+        1 + // "×"
         h.length;
-    const width = ch * chPX + 16 * 3;
+    const width = ch * chPX + (四角坐标 ? 8 * 4 : 8 * 2);
     whX0.el.value = x0;
     whY0.el.value = y0;
     whX1.el.value = x1;
@@ -3206,7 +3208,7 @@ const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
 
 drawBarSideEl.add(drawBarSideElChildren.map((i) => i.el));
 
-const whEl = view().attr({ id: "clip_wh" }).class(Class.glassBar);
+const whEl = view("x").attr({ id: "clip_wh" }).class(Class.glassBar, Class.gap);
 const whX0 = input();
 const whY0 = input();
 const whX1 = input();
@@ -3217,11 +3219,11 @@ const whXYStyle = { display: 四角坐标 ? "block" : "none" };
 whEl.add([
     view()
         .style(whXYStyle)
-        .add([whX0, txt(", "), whY0]),
+        .add([whX0, txt(",").style({ color: cssColor.ff }), whY0]),
     view()
         .style(whXYStyle)
-        .add([whX1, txt(", "), whY1]),
-    view().add([whW, txt(" × "), whH]),
+        .add([whX1, txt(",").style({ color: cssColor.ff }), whY1]),
+    view().add([whW, txt("×").style({ color: cssColor.ff }), whH]),
 ]);
 
 let chPX = 0;

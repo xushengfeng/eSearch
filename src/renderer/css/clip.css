@@ -370,9 +370,9 @@ body input {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     display: flex;
+    padding: var(--o-padding);
 }
 #clip_wh > div {
-    margin: 8px;
     font-family: var(--monospace);
 }
 #clip_wh > div > input {
