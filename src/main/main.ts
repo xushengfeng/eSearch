@@ -935,6 +935,22 @@ const theIcon =
         ? join(runPath, "assets/logo/icon.ico")
         : join(runPath, "assets/logo/1024x1024.png");
 
+const baseWinConfig: () => Electron.BrowserWindowConstructorOptions = () => {
+    const bg = nativeTheme.shouldUseDarkColors
+        ? store.get("全局.主题.dark.bg")
+        : store.get("全局.主题.light.bg");
+    return {
+        icon: theIcon,
+        autoHideMenuBar: true,
+        backgroundColor: bg,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false,
+        },
+    };
+};
+
 mainOn("dialogMessage", ([arg0]) => {
     const id = dialog.showMessageBoxSync(arg0);
     return id;
@@ -1223,15 +1239,7 @@ function createRecorderWindow(
     y = Math.min(y, sy1 - h);
     x = Math.round(x);
     y = Math.round(y);
-    const recorder = new BrowserWindow({
-        icon: theIcon,
-        autoHideMenuBar: true,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            sandbox: false,
-        },
-    });
+    const recorder = new BrowserWindow(baseWinConfig());
     _recorder = recorder;
     rendererPath(recorder, "recorder.html");
     if (dev) recorder.webContents.openDevTools();
@@ -1365,14 +1373,7 @@ mainOn("recordSavePath", ([ext]) => {
 });
 
 function createSuperRecorderWindow() {
-    const recorder = new BrowserWindow({
-        icon: theIcon,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            sandbox: false,
-        },
-    });
+    const recorder = new BrowserWindow(baseWinConfig());
     recorder.minimize();
     rendererPath(recorder, "videoEditor.html");
     if (dev) recorder.webContents.openDevTools();
@@ -1731,13 +1732,7 @@ function createTranslator(op: Omit<translateWinType, "type">) {
 }
 
 function createPhotoEditor(img: string) {
-    const win = new BrowserWindow({
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-        },
-        autoHideMenuBar: true,
-    });
+    const win = new BrowserWindow(baseWinConfig());
 
     rendererPath(win, "photoEditor.html");
     if (dev) win.webContents.openDevTools();
@@ -1786,8 +1781,7 @@ async function createMainWindow(op: MainWinType) {
         width: w,
         height: h,
         minWidth: 400,
-        backgroundColor: bg,
-        icon: theIcon,
+        ...baseWinConfig(),
         titleBarStyle: "hidden",
         titleBarOverlay: {
             color: bg,
@@ -1796,12 +1790,6 @@ async function createMainWindow(op: MainWinType) {
                 : store.get("全局.主题.light.fontColor"),
             height: 32,
         },
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            webSecurity: false,
-        },
-        show: true,
     });
     mainWindowL[windowName] = {
         browser: { top: 0, bottom: 48 },
@@ -1863,17 +1851,7 @@ async function createMainWindow(op: MainWinType) {
 async function createSettingWindow() {
     const settingWindow = new BrowserWindow({
         minWidth: 600,
-        backgroundColor: nativeTheme.shouldUseDarkColors
-            ? store.get("全局.主题.dark.bg")
-            : store.get("全局.主题.light.bg"),
-        icon: theIcon,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            webSecurity: false,
-        },
-        show: true,
-        autoHideMenuBar: true,
+        ...baseWinConfig(),
     });
 
     rendererPath(settingWindow, "setting.html");
