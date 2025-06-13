@@ -159,6 +159,17 @@ const navConciseSwitch = buttonSwitch(navConcise, (c) => {
 });
 nav.add([navTop, navDing, navConcise]).addInto();
 
+const editOnOtherEl = iconBEl("super_edit", "其他编辑器打开")
+    .on("click", () => {
+        editOnOtherType = "o";
+        editOnOther();
+    })
+    .on("contextmenu", () => {
+        editOnOtherType = "c";
+        editOnOther();
+    });
+nav.add([editOnOtherEl]);
+
 const outMainEl = view()
     .style({
         "--nav-height": "env(titlebar-area-height, 24px)",
