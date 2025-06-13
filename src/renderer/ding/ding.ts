@@ -500,8 +500,7 @@ async function transAndDraw(
         .style({ position: "absolute", pointerEvents: "none" })
         // @ts-ignore
         .addInto(el.query(".img")).el;
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    // @ts-ignore
+    const ctx = canvas.getContext("2d")!;
     ctx.drawImage(image, 0, 0);
     console.log(p);
     const tr = await translateE(p.map((i) => i.parse.text));

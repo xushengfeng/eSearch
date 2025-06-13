@@ -400,9 +400,7 @@ function gColors() {
 
 const canvas = ele("canvas");
 const magicPenPreview = ele("canvas");
-const magicPenPreviewCtx = magicPenPreview.el.getContext(
-    "2d",
-) as CanvasRenderingContext2D;
+const magicPenPreviewCtx = magicPenPreview.el.getContext("2d")!;
 
 preview.add([canvas, magicPenPreview]);
 
@@ -614,9 +612,7 @@ async function magicPen() {
     const outW = magicPenPreview.el.width;
     const outH = magicPenPreview.el.height;
     const maskImg = new OffscreenCanvas(outW, outH);
-    const maskCtx = maskImg.getContext(
-        "2d",
-    ) as OffscreenCanvasRenderingContext2D;
+    const maskCtx = maskImg.getContext("2d")!;
     maskCtx.clearRect(0, 0, outW, outH);
     maskCtx.fillStyle = "#fff";
     maskCtx.fillRect(0, 0, outW, outH);
@@ -655,9 +651,7 @@ async function magicPen() {
         width: w,
         height: h,
     });
-    const outputCtx = outputCanvas.el.getContext(
-        "2d",
-    ) as CanvasRenderingContext2D;
+    const outputCtx = outputCanvas.el.getContext("2d")!;
     outputCtx.putImageData(outputData, 0, 0);
     outputImg.src = outputCanvas.el.toDataURL("image/png", 1);
 }

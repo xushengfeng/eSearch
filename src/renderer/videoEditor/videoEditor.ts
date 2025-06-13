@@ -267,7 +267,7 @@ function MathClamp(min: number, value: number, max: number) {
 
 function frameTrans2Canvas(frame: VideoFrame) {
     const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
-    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+    const ctx = canvas.getContext("2d")!;
     ctx.drawImage(frame, 0, 0);
     frame.close();
     return canvas;
@@ -974,7 +974,7 @@ function transformX(frame: VideoFrame, frameX: FrameX) {
 
 function renderFrameX(frame: VideoFrame, frameX: FrameX) {
     const canvas = new OffscreenCanvas(outputV.width, outputV.height);
-    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+    const ctx = canvas.getContext("2d")!;
     const clip = frameX.rect;
     ctx.drawImage(
         frame,
@@ -1133,15 +1133,17 @@ async function showThumbnails() {
                 maxWidth: "100%",
                 maxHeight: "100%",
             });
-        (canvasEl.el.getContext("2d") as CanvasRenderingContext2D).drawImage(
-            canvas,
-            ...zeroPoint,
-            outputV.width,
-            outputV.height,
-            ...zeroPoint,
-            tW,
-            tH,
-        );
+        canvasEl.el
+            .getContext("2d")!
+            .drawImage(
+                canvas,
+                ...zeroPoint,
+                outputV.width,
+                outputV.height,
+                ...zeroPoint,
+                tW,
+                tH,
+            );
         timeLineMain.add(
             view()
                 .style({
@@ -1194,17 +1196,17 @@ async function showNowFrames(centerId: TransId, force = false) {
                     height: tH,
                 })
                 .style({ width: "fit-content", overflow: "hidden" });
-            (
-                canvasEl.el.getContext("2d") as CanvasRenderingContext2D
-            ).drawImage(
-                canvas,
-                ...zeroPoint,
-                outputV.width,
-                outputV.height,
-                ...zeroPoint,
-                tW,
-                tH,
-            );
+            canvasEl.el
+                .getContext("2d")!
+                .drawImage(
+                    canvas,
+                    ...zeroPoint,
+                    outputV.width,
+                    outputV.height,
+                    ...zeroPoint,
+                    tW,
+                    tH,
+                );
             c.add(canvasEl);
 
             c.add(
@@ -1545,11 +1547,9 @@ async function saveGif(op?: {
                 frame.close();
                 return;
             }
-            const { data, width, height } = (
-                frameTrans2Canvas(frame).getContext(
-                    "2d",
-                ) as OffscreenCanvasRenderingContext2D
-            ).getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
+            const { data, width, height } = frameTrans2Canvas(frame)
+                .getContext("2d")!
+                .getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
             const _palette = palette || quantize(data, 256);
             const d =
                 op?.dither === "floyd-steinberg"
@@ -1586,9 +1586,7 @@ async function saveGif(op?: {
         }
     }
     if (paletteCanvas) {
-        const ctx = paletteCanvas.getContext(
-            "2d",
-        ) as OffscreenCanvasRenderingContext2D;
+        const ctx = paletteCanvas.getContext("2d")!;
         palette = quantize(
             ctx.getImageData(0, 0, paletteCanvas.width, paletteCanvas.height)
                 .data,
@@ -1805,7 +1803,7 @@ let lastTransformAbort: AbortController | undefined;
 const playDecoderGen = () =>
     new VideoDecoder({
         output: (frame: VideoFrame) => {
-            const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+            const ctx = canvas.getContext("2d")!;
             ctx.drawImage(
                 frame,
                 ...zeroPoint,
@@ -2890,9 +2888,7 @@ if (testMode === "getFrame") {
     });
     for (let i = 0; i < 600; i++) {
         const canvas = new OffscreenCanvas(1920, 1080);
-        const ctx = canvas.getContext(
-            "2d",
-        ) as OffscreenCanvasRenderingContext2D;
+        const ctx = canvas.getContext("2d")!;
         // 写数字
         ctx.font = "80px Arial";
         ctx.fillStyle = "red";
@@ -2935,7 +2931,7 @@ if (testMode === "getFrame") {
         const c = ele("canvas")
             .attr({ width: canvas.width, height: canvas.height })
             .addInto(show);
-        const ctx = c.el.getContext("2d") as CanvasRenderingContext2D;
+        const ctx = c.el.getContext("2d")!;
         ctx.drawImage(canvas, 0, 0);
     }
 }

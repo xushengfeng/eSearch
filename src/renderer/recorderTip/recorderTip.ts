@@ -261,8 +261,8 @@ async function initSeg() {
 }
 
 function drawCamera() {
-    const canvasCtx = cameraCanvas.getContext("2d") as CanvasRenderingContext2D;
-    const segCtx = segCanvas.getContext("2d") as CanvasRenderingContext2D;
+    const canvasCtx = cameraCanvas.getContext("2d")!;
+    const segCtx = segCanvas.getContext("2d")!;
     cameraCanvas.width = videoEl.videoWidth;
     cameraCanvas.height = videoEl.videoHeight;
     console.log(videoEl.videoHeight);

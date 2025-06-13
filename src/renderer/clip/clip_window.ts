@@ -306,11 +306,7 @@ function setSetting() {
 }
 
 function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
-    (canvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
-        img,
-        0,
-        0,
-    );
+    canvas.getContext("2d")!.putImageData(img, 0, 0);
 }
 
 function setScreen(i: (typeof allScreens)[0]) {
@@ -688,11 +684,7 @@ async function addLong(x: ImageData | undefined) {
     // 设定canvas宽高并设置裁剪后的图像
     canvas.width = finalRect[2];
     canvas.height = finalRect[3];
-    (canvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
-        d,
-        -finalRect[0],
-        -finalRect[1],
-    );
+    canvas.getContext("2d")!.putImageData(d, -finalRect[0], -finalRect[1]);
 
     if (!longX.lastImg) {
         longPutImg(canvas, 0, 0);
@@ -725,11 +717,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     const clip1Canvas = ele("canvas").el;
     clip1Canvas.width = img1.width - dw * 2;
     clip1Canvas.height = img1.height - dh * 2;
-    (clip1Canvas.getContext("2d") as CanvasRenderingContext2D).drawImage(
-        img1,
-        -dw,
-        -dh,
-    );
+    clip1Canvas.getContext("2d")!.drawImage(img1, -dw, -dh);
     // match
     const src = cv.imread(img0);
     const templ = cv.imread(clip1Canvas);
@@ -751,11 +739,9 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     clip2Canvas.width = ndx !== 0 ? img1.width - dw : img1.width;
     clip2Canvas.height = ndy !== 0 ? img1.height - dh : img1.height;
     // d>0需要-dw或-dh平移，<=0不需要平移
-    (clip2Canvas.getContext("2d") as CanvasRenderingContext2D).drawImage(
-        img1,
-        ndx > 0 ? -dw : 0,
-        ndy > 0 ? -dh : 0,
-    );
+    clip2Canvas
+        .getContext("2d")!
+        .drawImage(img1, ndx > 0 ? -dw : 0, ndy > 0 ? -dh : 0);
 
     return {
         dx: ndx > 0 ? dx : ndx,
@@ -769,7 +755,7 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
 function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
     // 前提：img大小一定小于等于最终拼接canvas
     const newCanvas = ele("canvas").el;
-    const newCtx = newCanvas.getContext("2d") as CanvasRenderingContext2D;
+    const newCtx = newCanvas.getContext("2d")!;
 
     const srcW = longX.img?.width || 0;
     const srcH = longX.img?.height || 0;
@@ -819,14 +805,10 @@ function pjLong() {
     mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
     mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
 
-    const ggid = (
-        oCanvas.getContext("2d") as CanvasRenderingContext2D
-    ).getImageData(0, 0, oCanvas.width, oCanvas.height);
-    (mainCanvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
-        ggid,
-        0,
-        0,
-    );
+    const ggid = oCanvas
+        .getContext("2d")!
+        .getImageData(0, 0, oCanvas.width, oCanvas.height);
+    mainCanvas.getContext("2d")!.putImageData(ggid, 0, 0);
 
     finalRect = [0, 0, oCanvas.width, oCanvas.height];
 
@@ -1032,7 +1014,7 @@ function getClipPhotoSVG() {
 }
 
 function getClipPhoto() {
-    const mainCtx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
+    const mainCtx = mainCanvas.getContext("2d")!;
     if (!finalRect) finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
 
     if (typeof fabricCanvas !== "undefined") {
@@ -1041,7 +1023,7 @@ function getClipPhoto() {
     }
 
     const tmpCanvas = document.createElement("canvas");
-    const tmpctx = tmpCanvas.getContext("2d") as CanvasRenderingContext2D;
+    const tmpctx = tmpCanvas.getContext("2d")!;
     tmpCanvas.width = finalRect[2];
     tmpCanvas.height = finalRect[3];
     const gid = mainCtx.getImageData(
@@ -1092,7 +1074,7 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = originalCanvas.width;
     tempCanvas.height = originalCanvas.height;
-    const tempCtx = tempCanvas.getContext("2d") as CanvasRenderingContext2D;
+    const tempCtx = tempCanvas.getContext("2d")!;
     tempCtx.drawImage(originalCanvas, 0, 0);
     return tempCanvas;
 }
@@ -2765,16 +2747,12 @@ function newFilterSelect(o, no) {
     const w = Math.abs(x1 - x2);
     const h = Math.abs(y1 - y2);
 
-    const mainCtx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
+    const mainCtx = mainCanvas.getContext("2d")!;
     const tmpCanvas = document.createElement("canvas");
     tmpCanvas.width = w;
     tmpCanvas.height = h;
     const gid = mainCtx.getImageData(x, y, w, h); // 裁剪
-    (tmpCanvas.getContext("2d") as CanvasRenderingContext2D).putImageData(
-        gid,
-        0,
-        0,
-    );
+    tmpCanvas.getContext("2d")!.putImageData(gid, 0, 0);
     const img = new FabricImage(tmpCanvas, {
         left: x,
         top: y,
@@ -3498,7 +3476,7 @@ let theColor: [number, number, number, number] | null = null;
 let theTextColor: [string, string] = ["", ""];
 type colorFormat = setting["取色器"]["默认格式"];
 type colorRGBA = [number, number, number, number];
-const clipCtx = clipCanvas.getContext("2d") as CanvasRenderingContext2D;
+const clipCtx = clipCanvas.getContext("2d")!;
 const undoStack = new xhistory<{ rect: rect; canvas: object }>([], {
     rect: [0, 0, mainCanvas.width, mainCanvas.height] as rect,
     canvas: {},
@@ -4223,15 +4201,13 @@ const pointColorCanvasBg = document.createElement("canvas");
 pointColorCanvasBg.style.opacity = "0.5";
 pointColorCanvasBg.width = pointColorCanvasBg.height = colorSize;
 mouseBarColor.add(pointColorCanvasBg);
-const pointColorCanvasBgCtx = pointColorCanvasBg.getContext(
-    "2d",
-) as CanvasRenderingContext2D;
+const pointColorCanvasBgCtx = pointColorCanvasBg.getContext("2d")!;
 const pointColorCanvas = document.createElement("canvas");
 pointColorCanvas.width = pointColorCanvas.height = colorSize;
 mouseBarColor.add(pointColorCanvas);
 const pointColorCanvasCtx = pointColorCanvas.getContext("2d", {
     willReadFrequently: true,
-}) as CanvasRenderingContext2D;
+})!;
 const pointCenter = document.createElement("div");
 mouseBarColor.add(pointCenter);
 pointCenter.style.left = `${((colorSize - 1) / 2) * colorISize}px`;
@@ -4239,9 +4215,7 @@ pointCenter.style.top = `${((colorSize - 1) / 2) * colorISize}px`;
 
 if (!store.get("鼠标跟随栏.显示")) mouseBarEl.style({ display: "none" });
 // 鼠标跟随栏
-const mainCanvasContext = mainCanvas.getContext(
-    "2d",
-) as CanvasRenderingContext2D;
+const mainCanvasContext = mainCanvas.getContext("2d")!;
 
 // 复制坐标
 mouseBarXy.on("click", () => {
