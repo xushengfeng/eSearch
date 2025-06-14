@@ -92,7 +92,7 @@ function selectEl<i extends string>(
     title: string,
     data: { name: string; value: i }[],
 ) {
-    let value: i;
+    let value = data[0].value;
     const valueMap = new Map(
         data.map((i) => [
             i.value,
@@ -112,9 +112,9 @@ function selectEl<i extends string>(
     }
 
     function setV(v: i) {
-        value = v;
+        value = data.find((i) => i.value === v)?.value ?? data[0].value;
         el.data({
-            title: `${title} - ${data.find((i) => i.value === v)?.name ?? ""}`,
+            title: `${title} - ${data.find((i) => i.value === value)?.name ?? ""}`,
         });
     }
 
