@@ -4011,7 +4011,7 @@ function ocrEl() {
                                     width: "300px",
                                     height: "20px",
                                     borderRadius: "var(--border-radius)",
-                                    backgroundColor: cssColor.b,
+                                    backgroundColor: cssColor.bb,
                                 });
                                 const bel = view().style({
                                     width: "100%",
