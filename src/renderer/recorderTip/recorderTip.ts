@@ -11,7 +11,7 @@ import {
 } from "dkh-ui";
 import { jsKeyCodeDisplay } from "../../../lib/key";
 
-import { Class, getImgUrl, initStyle } from "../root/root";
+import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
 import { renderOn, renderSend } from "../../../lib/ipc";
@@ -350,6 +350,7 @@ const controlBar = view("x")
         position: "fixed",
         bottom: 0,
         right: 0,
+        borderRadius: cssVar("o-padding"),
     });
 
 initRecord();
