@@ -100,7 +100,13 @@ type Message = {
     tabView: (id: number, type: BrowserAction) => void;
     tabViewSize: (size: { top: number; bottom: number }) => void;
     viewEvent: (type: BrowserAction | "add_history" | "browser") => void;
-    hotkey: (type: "快捷键" | "快捷键2", name: string, key: string) => boolean;
+    hotkey:
+        | ((
+              type: "快捷键",
+              name: keyof setting["快捷键"],
+              key: string,
+          ) => boolean)
+        | ((type: "快捷键2", name: 功能, key: string) => boolean);
     reloadMainFromSetting: () => void;
     getDefaultSetting: () => setting;
     reload: () => void;

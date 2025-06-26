@@ -56,6 +56,7 @@ import main, { matchFitLan } from "xtranslator";
 import time_format from "../../lib/time_format";
 import url from "node:url";
 import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
+import { typedEntries } from "../../lib/utils";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -274,7 +275,7 @@ async function argRun(c: string[], first?: boolean) {
 
     const ocrE = store
         .get("离线OCR")
-        .map((i) => i[0])
+        .map((i) => `${i.id}(${i.name})`)
         .concat(["baidu", "youdao"]);
     const searchE = ["baidu, yandex, google"];
 
@@ -717,22 +718,20 @@ app.whenReady().then(() => {
             icon: `${runPath}/assets/logo/64x64.png`,
         }).show();
 
-    const 快捷键: object = store.get("快捷键");
-    for (const k in 快捷键) {
-        const m = 快捷键[k];
+    const 快捷键 = store.get("快捷键");
+    for (const [k, m] of typedEntries(快捷键)) {
         try {
             if (m.key)
                 globalShortcut.register(m.key, () => {
                     快捷键函数[k]();
                 });
         } catch (error) {
-            快捷键[k].key = undefined;
+            m.key = "";
             store.set("快捷键", 快捷键);
         }
     }
     const 工具快捷键 = store.get("全局工具快捷键");
-    for (const k in 工具快捷键) {
-        const m = 工具快捷键[k] as string;
+    for (const [k, m] of typedEntries(工具快捷键)) {
         try {
             if (m)
                 globalShortcut.register(m, () => {
@@ -1483,7 +1482,7 @@ mainOn("hotkey", ([type, name, key]) => {
             let ok = true;
             if (key) {
                 ok = globalShortcut.register(key, () => {
-                    sendCaptureEvent(undefined, name as 功能);
+                    sendCaptureEvent(undefined, name);
                 });
             }
             return ok;
@@ -2683,9 +2682,11 @@ function fixSettingTree() {
     if (store.get("设置版本") === app.getVersion() && !dev) return;
     walk([]);
     function walk(path: string[]) {
+        // @ts-expect-error
         const x = path.reduce((o, i) => o[i], defaultSetting);
         for (const i in x) {
             const cPath = path.concat([i]); // push
+            // @ts-expect-error
             if (x[i].constructor === Object) {
                 walk(cPath);
             } else {
@@ -2801,6 +2802,7 @@ function checkUpdate(s手动检查?: boolean) {
                 version.includes("beta") ||
                 version.includes("alpha") ||
                 m === "dev";
+            // @ts-expect-error
             const first = re.find((r) =>
                 isDev ? true : !r.draft && !r.prerelease,
             );
