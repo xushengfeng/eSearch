@@ -16,6 +16,7 @@ import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { typedEntries } from "../../../lib/utils";
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
@@ -33,10 +34,10 @@ function initRecord() {
 
         keysEl.style.fontSize = `${store.get("录屏.提示.键盘.大小") * 16}px`;
 
-        const keycode2key = {};
+        const keycode2key: Record<number, string | number> = {};
 
-        for (const i in UiohookKey) {
-            keycode2key[UiohookKey[i]] = i;
+        for (const [i, v] of typedEntries(UiohookKey)) {
+            keycode2key[v] = i;
         }
         console.log(keycode2key);
 
@@ -120,14 +121,15 @@ function initRecord() {
     }
 
     function rMouse() {
-        const m2m = { 1: 0, 3: 1, 2: 2 };
-        const mouseEl = recorderMouseEl.querySelectorAll("div");
+        const m2m = { 1: mouseKey.left, 3: mouseKey.center, 2: mouseKey.right };
 
         uIOhook.on("mousedown", (e) => {
-            mouseEl[m2m[e.button as number]].style.backgroundColor = "#00f";
+            const b = e.button as 1 | 2 | 3;
+            m2m[b].el.style.backgroundColor = "#00f";
         });
         uIOhook.on("mouseup", (e) => {
-            mouseEl[m2m[e.button as number]].style.backgroundColor = "";
+            const b = e.button as 1 | 2 | 3;
+            m2m[b].el.style.backgroundColor = "";
         });
 
         let time_out: NodeJS.Timeout;
@@ -136,8 +138,10 @@ function initRecord() {
             const x = {
                 3: { 1: "wheel_u", "-1": "wheel_d" },
                 4: { 1: "wheel_l", "-1": "wheel_r" },
-            };
-            recorderMouseEl.className = x[e.direction][e.rotation];
+            } as const;
+            if (e.rotation === 1 || e.rotation === -1)
+                recorderMouseEl.className = x[e.direction][e.rotation];
+            else recorderMouseEl.className = "";
             clearTimeout(time_out);
             time_out = setTimeout(() => {
                 recorderMouseEl.className = "";
@@ -298,11 +302,16 @@ const rectEl = view().addInto().attr({ id: "recorder_rect" }).style({
 });
 const rb = view().addInto(rectEl).attr({ id: "recorder_bar" });
 const keysEl = view().addInto(rb).attr({ id: "recorder_key" }).el;
+const mouseKey = {
+    left: view(),
+    center: view(),
+    right: view(),
+};
 const recorderMouseEl = view()
     .addInto()
     .attr({ id: "mouse_c" })
     .class("mouse")
-    .add([view(), view(), view()]).el;
+    .add([mouseKey.left, mouseKey.center, mouseKey.right]).el;
 
 const cEl = view()
     .addInto()
