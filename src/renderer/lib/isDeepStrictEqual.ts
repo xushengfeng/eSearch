@@ -22,6 +22,7 @@ function isDeepStrictEqual(a: unknown, b: unknown) {
         const bKeys = Object.keys(b);
         if (aKeys.length !== bKeys.length) return false;
         for (const key of aKeys) {
+            // @ts-expect-error
             if (!bKeys.includes(key) || !isDeepStrictEqual(a[key], b[key])) {
                 return false;
             }

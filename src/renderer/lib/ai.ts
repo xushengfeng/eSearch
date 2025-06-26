@@ -35,10 +35,12 @@ function toChatgptm(data: aiData): chatgptm {
 
 function runAI(
     message: aiData[],
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    x: { config: Record<string, any>; url: string; key: string },
+    x: { config: Record<string, unknown>; url: string; key: string },
 ) {
-    const m = {
+    const m: { messages: chatgptm[]; stream: boolean } & Record<
+        string,
+        unknown
+    > = {
         messages: message.map(toChatgptm),
         stream: true,
     };
