@@ -2659,39 +2659,40 @@ function isSettingItemSame(a: unknown, b: unknown) {
 }
 
 function renderSetting(settingPath: KeyPath) {
-    const setting = s[settingPath] || xs[settingPath];
+    const setting = Object.hasOwn(s, settingPath)
+        ? s[settingPath as SettingPath]
+        : Object.hasOwn(xs, settingPath)
+          ? xs[settingPath as JustElmentK]
+          : null;
     if (!setting) {
         const err = new Error(`Setting ${settingPath} not found`);
         console.error(err);
         return null;
     }
+    const el = setting.el(0 as never);
     // @ts-ignore
-    const el = setting.el();
-    // @ts-ignore
-    scheduler.postTask(() =>
-        s[settingPath]
-            ? el // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-                  .sv(getSet(settingPath as any))
-                  .on("input", (e) => {
-                      if (e.target === e.currentTarget) {
-                          const value = el.gv;
-                          if (value !== null && value !== undefined) {
-                              setSet(settingPath as SettingPath, value);
-                              console.log(
-                                  `Setting ${settingPath} updated to`,
-                                  structuredClone(value),
-                              );
-                              for (const p of bind[settingPath] ?? []) {
-                                  reRenderSetting(p);
-                              }
+    scheduler.postTask(() => {
+        if (Object.hasOwn(s, settingPath)) {
+            const sp = settingPath as SettingPath;
+            el.sv(getSet(sp)).on("input", (e) => {
+                if (e.target === e.currentTarget) {
+                    const value = el.gv;
+                    if (value !== null && value !== undefined) {
+                        setSet(sp, value);
+                        console.log(
+                            `Setting ${settingPath} updated to`,
+                            structuredClone(value),
+                        );
+                        for (const p of bind[settingPath] ?? []) {
+                            reRenderSetting(p);
+                        }
 
-                              // @ts-ignore
-                              bindRun(settingPath, value);
-                          }
-                      }
-                  })
-            : null,
-    );
+                        bindRun(sp, value);
+                    }
+                }
+            });
+        }
+    });
     const pel = view("x", "wrap")
         .style({ justifyContent: "space-between" })
         .class(Class.gap)
@@ -3501,7 +3502,7 @@ function translatorD(
 
     function getV() {
         if (!selectEl.gv) return null;
-        const key = {};
+        const key: Record<string, string | object> = {};
         const ee = engineConfig[selectEl.gv];
         if (!ee) return null;
         const e = ee.key;
@@ -3927,7 +3928,7 @@ function ocrEl() {
         },
     };
 
-    const langMap = {
+    const langMap: Record<string, string> = {
         pi: "巴利语",
         abq: "阿布哈兹语",
         ady: "阿迪格语",
@@ -4142,7 +4143,7 @@ function ocrEl() {
                                 desc.sv(ocrModels[i].desc);
                                 lans.clear().add(
                                     ocrModels[i].supportLang.map((i) =>
-                                        langMap[i]
+                                        i in langMap
                                             ? txt(langMap[i])
                                             : txt(displayLan.of(i), true),
                                     ),
@@ -4341,7 +4342,9 @@ function about() {
                             browser_download_url: string;
                             name: string;
                         }[];
-                    }[] = re.filter((i) => !i.draft);
+                    }[] =
+                        // @ts-expect-error
+                        re.filter((i) => !i.draft);
                     update.clear();
                     for (const [i, r] of l.entries()) {
                         const div = xGroup("y");
