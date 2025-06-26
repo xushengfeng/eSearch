@@ -357,7 +357,7 @@ export interface setting {
             id: string;
             name: string;
             type: keyof typeof import("xtranslator")["default"]["e"];
-            keys: Record<string, unknown>;
+            keys: Record<string, string | object>;
         }[];
         收藏: {
             文件: { path: string; template: string }[];

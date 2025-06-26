@@ -3312,12 +3312,14 @@ function translatorD(
     _v: setting["翻译"]["翻译器"][0] | null,
     addTranslatorM: ElType<HTMLDialogElement>,
 ) {
-    const v = _v ?? {
-        id: crypto.randomUUID().slice(0, 7),
-        name: "",
-        keys: {},
-        type: "",
-    };
+    const v =
+        _v ??
+        ({
+            id: crypto.randomUUID().slice(0, 7),
+            name: "",
+            keys: {},
+            type: "google",
+        } as setting["翻译"]["翻译器"][0]);
 
     const engineConfig: Partial<
         Record<
@@ -3456,7 +3458,7 @@ function translatorD(
         const fig = engineConfig[type];
         if (!fig) return;
         for (const x of fig.key) {
-            const value = v.keys[x.name] as string;
+            const value = v.keys[x.name];
 
             keys.style({ display: "flex" }).add(
                 view().add([
@@ -3467,8 +3469,8 @@ function translatorD(
                         .data({ key: x.name })
                         .sv(
                             (x.type === "json"
-                                ? JSON.stringify(value, null, 2)
-                                : value) || "",
+                                ? JSON.stringify(value as object, null, 2)
+                                : (value as string)) || "",
                         )
                         .class(blockSetting),
                 ]),
