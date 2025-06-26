@@ -459,8 +459,7 @@ function setDefaultAction(act: setting["框选后默认操作"] | undefined) {
     if (!act) return;
     autoDo = act;
     if (autoDo !== "no") {
-        toolBarEl.els[autoDo].el.style.backgroundColor =
-            "var(--bar-focus-color)";
+        toolsX[autoDo].el.el.style.backgroundColor = "var(--bar-focus-color)";
     }
 }
 
@@ -494,7 +493,7 @@ function runOcr() {
     const type = ocr引擎.gv;
     const c = getClipPhoto();
     renderSend("clip_ocr", [c.toDataURL(), type]);
-    tool.close();
+    toolsX.close.f();
 }
 
 function runSearch() {
@@ -508,13 +507,13 @@ function runSearch() {
     }
     const c = getClipPhoto();
     renderSend("clip_search", [c.toDataURL(), type]);
-    tool.close();
+    toolsX.close.f();
 }
 // 二维码
 function runQr() {
     const c = getClipPhoto();
     renderSend("clip_qr", [c.toDataURL()]);
-    tool.close();
+    toolsX.close.f();
 }
 
 function drawM(v: boolean) {
@@ -560,7 +559,7 @@ function openApp() {
 }
 
 function initRecord() {
-    if (toolBarEl.els.record.gv === "normal") {
+    if (toolsX.record.el.gv === "normal") {
         renderSend("clip_record", [
             finalRect,
             String(nowScreenId),
@@ -571,7 +570,7 @@ function initRecord() {
     } else {
         renderSend("clip_recordx", []);
     }
-    tool.close();
+    toolsX.close.f();
 }
 
 function long_s() {
@@ -840,7 +839,7 @@ function runDing() {
             h: finalRect[3] / ratio,
         },
     ]);
-    tool.close();
+    toolsX.close.f();
 }
 
 function alert(m: string) {
@@ -875,7 +874,7 @@ async function translate() {
     if (!t) return;
     const display = getNowScreen();
     const c = getClipPhoto();
-    if (toolBarEl.els.translate.gv === "ding") {
+    if (toolsX.translate.el.gv === "ding") {
         renderSend("clip_ding", [
             c.toDataURL(),
             "translate",
@@ -905,14 +904,14 @@ async function translate() {
                 img: getClipPhoto().toDataURL(),
             },
         ]);
-    tool.close();
+    toolsX.close.f();
 }
 
 // 复制
 function runCopy() {
     const c = getClipPhoto();
     clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
-    tool.close();
+    toolsX.close.f();
 }
 // 保存
 function runSave() {
@@ -986,7 +985,7 @@ async function save(message: string) {
             renderSend("ok_save", [message]);
         }
     });
-    tool.close();
+    toolsX.close.f();
 }
 
 function getClipPhotoSVG() {
@@ -2741,10 +2740,10 @@ function setFObjectV(
 }
 
 function newFilterSelect(o: point, no: point) {
-    const x1 = o.x.toFixed();
-    const y1 = o.y.toFixed();
-    const x2 = no.x.toFixed();
-    const y2 = no.y.toFixed();
+    const x1 = Math.round(o.x);
+    const y1 = Math.round(o.y);
+    const x2 = Math.round(no.x);
+    const y2 = Math.round(no.y);
     const x = Math.min(x1, x2);
     const y = Math.min(y1, y2);
     const w = Math.abs(x1 - x2);
@@ -2927,84 +2926,111 @@ const tools: 功能列表 = [
 
 const hotkeyTipEl = view().attr({ id: "hotkeys_tip" }).class(Class.glassBar);
 
-const toolBarEl = frame("tool", {
-    _: view().class(Class.glassBar),
-    close: iconEl("close").attr({ title: "关闭" }),
-    screens: view().attr({ title: "屏幕管理" }),
-    ocr: selectEl(iconEl("ocr"), t("文字识别"), [
-        ...store.get("离线OCR").map((i) => ({ value: i.id, name: i.name })),
-        { value: "baidu", name: t("百度") },
-        { value: "youdao", name: t("有道") },
-    ]),
-    search: selectEl(iconEl("search"), t("以图搜图"), [
-        { value: "baidu", name: t("百度") },
-        { value: "yandex", name: "Yandex" },
-        { value: "google", name: "Google" },
-        { value: "ai", name: "AI" },
-    ]),
-    QR: iconEl("scan").attr({ title: "二维码" }),
-    open: iconEl("open").attr({ title: "其他应用打开" }),
-    ding: iconEl("ding").attr({ title: "屏幕贴图" }),
-    record: selectEl<"normal" | "super">(iconEl("record"), t("录屏"), [
-        { name: t("标准录屏"), value: "normal" },
-        { name: t("超级录屏"), value: "super" },
-    ]),
-    long: selectEl<"y" | "xy">(iconEl("long_clip"), t("广截屏"), [
-        { name: t("长截屏 y"), value: "y" },
-        { name: t("广截屏 xy"), value: "xy" },
-    ]),
-    translate: selectEl<translateWinType["type"]>(
-        iconEl("translate"),
-        t("屏幕翻译"),
-        [
-            { name: t("贴图"), value: "ding" },
-            { name: t("自动翻译"), value: "live" },
-        ],
-    ),
-    editor: iconEl("super_edit").attr({ title: "高级图片编辑" }),
-    copy: iconEl("copy").attr({ title: "复制" }),
-    save: iconEl("save").attr({ title: "保存" }),
-});
-
-// 仅仅是为了确保功能的值都存在，在更改功能时能类型检查
-const toolList: Record<功能, ElType<HTMLElement>> = {
-    close: toolBarEl.els.close,
-    screens: toolBarEl.els.screens,
-    ocr: toolBarEl.els.ocr,
-    search: toolBarEl.els.search,
-    QR: toolBarEl.els.QR,
-    open: toolBarEl.els.open,
-    ding: toolBarEl.els.ding,
-    record: toolBarEl.els.record,
-    long: toolBarEl.els.long,
-    translate: toolBarEl.els.translate,
-    editor: toolBarEl.els.editor,
-    copy: toolBarEl.els.copy,
-    save: toolBarEl.els.save,
+const toolsX: Record<功能, { el: ElType<HTMLElement>; f: () => void }> = {
+    close: {
+        el: iconEl("close").attr({ title: "关闭" }),
+        f: () => closeWin(),
+    },
+    screens: { el: view().attr({ title: "屏幕管理" }), f: () => {} },
+    ocr: {
+        el: selectEl(iconEl("ocr"), t("文字识别"), [
+            ...store.get("离线OCR").map((i) => ({ value: i.id, name: i.name })),
+            { value: "baidu", name: t("百度") },
+            { value: "youdao", name: t("有道") },
+        ]),
+        f: () => runOcr(),
+    },
+    search: {
+        el: selectEl(iconEl("search"), t("以图搜图"), [
+            { value: "baidu", name: t("百度") },
+            { value: "yandex", name: "Yandex" },
+            { value: "google", name: "Google" },
+            { value: "ai", name: "AI" },
+        ]),
+        f: () => runSearch(),
+    },
+    QR: { el: iconEl("scan").attr({ title: "二维码" }), f: () => runQr() },
+    open: {
+        el: iconEl("open").attr({ title: "其他应用打开" }),
+        f: () => openApp(),
+    },
+    ding: {
+        el: iconEl("ding").attr({ title: "屏幕贴图" }),
+        f: () => runDing(),
+    },
+    record: {
+        el: selectEl<"normal" | "super">(iconEl("record"), t("录屏"), [
+            { name: t("标准录屏"), value: "normal" },
+            { name: t("超级录屏"), value: "super" },
+        ]),
+        f: () => initRecord(),
+    },
+    long: {
+        el: selectEl<"y" | "xy">(iconEl("long_clip"), t("广截屏"), [
+            { name: t("长截屏 y"), value: "y" },
+            { name: t("广截屏 xy"), value: "xy" },
+        ]),
+        f: () => startLong(),
+    },
+    translate: {
+        el: selectEl<translateWinType["type"]>(
+            iconEl("translate"),
+            t("屏幕翻译"),
+            [
+                { name: t("贴图"), value: "ding" },
+                { name: t("自动翻译"), value: "live" },
+            ],
+        ),
+        f: () => translate(),
+    },
+    editor: {
+        el: iconEl("super_edit").attr({ title: "高级图片编辑" }),
+        f: () => {
+            const c = getClipPhoto();
+            renderSend("clip_editor", [c.toDataURL()]);
+            toolsX.close.f();
+        },
+    },
+    copy: { el: iconEl("copy").attr({ title: "复制" }), f: () => runCopy() },
+    save: { el: iconEl("save").attr({ title: "保存" }), f: () => runSave() },
 };
 
-toolBarEl.el.attr({ id: "tool_bar" });
+for (const [_, { el, f }] of Object.entries(toolsX)) {
+    el.on("pointerup", (e) => {
+        if (e.button === 0) {
+            f();
+        } else if (e.button === 1) {
+            el.el.style.backgroundColor = ""; // todo class
+            autoDo = "no";
+        }
+    });
+}
 
-toolBarEl.els.long.sv(store.get("广截屏.方向"));
-toolBarEl.els.long.on("change", () => {
-    store.set("广截屏.方向", toolBarEl.els.long.gv);
-    longFX = toolBarEl.els.long.gv;
-    tool.long();
+const toolBarEl = view().attr({ id: "tool_bar" }).class(Class.glassBar);
+for (const [id, { el }] of Object.entries(toolsX)) {
+    toolBarEl.add(el.attr({ id: `tool_${id}` }));
+}
+
+toolsX.long.el.sv(store.get("广截屏.方向"));
+toolsX.long.el.on("change", () => {
+    store.set("广截屏.方向", toolsX.long.el.gv);
+    longFX = toolsX.long.el.gv;
+    toolsX.long.f();
 });
 
-toolBarEl.els.record.sv(store.get("录屏.模式"));
-toolBarEl.els.record.on("change", () => {
-    store.set("录屏.模式", toolBarEl.els.record.gv);
-    tool.record();
+toolsX.record.el.sv(store.get("录屏.模式"));
+toolsX.record.el.on("change", () => {
+    store.set("录屏.模式", toolsX.record.el.gv);
+    toolsX.record.f();
 });
 
-toolBarEl.els.translate.sv(store.get("屏幕翻译.type"));
-toolBarEl.els.translate.on("change", () => {
-    store.set("屏幕翻译.type", toolBarEl.els.translate.gv);
-    tool.translate();
+toolsX.translate.el.sv(store.get("屏幕翻译.type"));
+toolsX.translate.el.on("change", () => {
+    store.set("屏幕翻译.type", toolsX.translate.el.gv);
+    toolsX.translate.f();
 });
 
-toolBarEl.el.style({
+toolBarEl.style({
     left: store.get("工具栏.初始位置.left"),
     top: store.get("工具栏.初始位置.top"),
 });
@@ -3013,7 +3039,7 @@ const toolsOrder = store.get("工具栏.功能");
 for (const g of tools) {
     const id = g;
     const i = toolsOrder.indexOf(id);
-    const el = toolBarEl.els[id];
+    const el = toolsX[id].el;
     if (i !== -1) el.style({ order: String(i) });
     else el.style({ display: "none" });
 }
@@ -3244,7 +3270,7 @@ const longTip = frame("long_tip", {
 const longPreview = view().style({ position: "fixed" });
 
 hotkeyTipEl.addInto();
-toolBarEl.el.addInto();
+toolBarEl.addInto();
 whEl.addInto();
 longTip.el.addInto();
 longPreview.addInto();
@@ -3303,7 +3329,7 @@ let finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
 let freeSelect: point[] = [];
 const screenPosition: { [key: string]: { x: number; y: number } } = {};
 
-const toolBar = toolBarEl.el.el;
+const toolBar = toolBarEl.el;
 const drawBar = drawBarEl.el;
 
 let nowScreenId = 0;
@@ -3325,28 +3351,6 @@ const edgeRect: {
     height: number;
     type: "system" | "image";
 }[] = [];
-
-const tool: Record<功能, () => void> = {
-    screens: () => {},
-    close: () => closeWin(),
-    ocr: () => runOcr(),
-    search: () => runSearch(),
-    QR: () => runQr(),
-    open: () => openApp(),
-    record: () => initRecord(),
-    long: () => startLong(),
-    translate: () => translate(),
-    // 钉在屏幕上
-    ding: () => runDing(),
-    // 复制
-    copy: () => runCopy(),
-    save: () => runSave(),
-    editor: () => {
-        const c = getClipPhoto();
-        renderSend("clip_editor", [c.toDataURL()]);
-        tool.close();
-    },
-};
 
 const drawMainEls: { [key in keyof EditType]: ElType<HTMLElement> } = {
     select: drawMainElsx.select,
@@ -3455,7 +3459,7 @@ const longX = {
 let longRunning = false;
 let longInited = false;
 
-let longFX: typeof toolBarEl.els.long.gv = "y";
+let longFX: typeof toolsX.long.el.gv = "y";
 
 let type: setting["保存"]["默认格式"];
 
@@ -3687,7 +3691,7 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
     screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
     renderSend("clip_show", []);
-    const screensEl = toolList.screens;
+    const screensEl = toolsX.screens.el;
     if (allScreens.length > 1) {
         let minX = 0;
         let maxX = 0;
@@ -3822,20 +3826,6 @@ document.addEventListener("pointerup", (_e) => {
     middleB = null;
 });
 
-// 工具栏按钮
-toolBar.onmouseup = (e) => {
-    const el = <HTMLElement>e.target;
-    if (el.parentElement !== toolBar) return;
-    if (e.button === 0) {
-        tool[el.id.replace("tool_", "")]();
-    }
-    // 中键取消抬起操作
-    if (e.button === 1) {
-        el.style.backgroundColor = "";
-        autoDo = "no";
-    }
-};
-
 hotkeys.filter = (event) => {
     const tagName = (<HTMLElement>event.target).tagName;
     const v = !(
@@ -3851,9 +3841,9 @@ toHotkeyScope("normal");
 for (const k of tools) {
     let key = store.get(`工具快捷键.${k}`) as string;
     if (["esc", "escape"].includes(key.toLowerCase()))
-        hotkeys(key, "normal", tool[k]);
-    else if (key.toLowerCase() === "enter") hotkeys(key, "normal", tool[k]);
-    else hotkeys(key, "all", tool[k]);
+        hotkeys(key, "normal", toolsX[k].f);
+    else if (key.toLowerCase() === "enter") hotkeys(key, "normal", toolsX[k].f);
+    else hotkeys(key, "all", toolsX[k].f);
     key = key
         .split("+")
         .map((k) => jsKeyCodeDisplay(ele2jsKeyCode(k)).primary)
@@ -3861,7 +3851,7 @@ for (const k of tools) {
     if (k === "copy") {
         key += ` ${t("双击")}`;
     }
-    toolBarEl.els[k].data({ key: key.trim() });
+    toolsX[k].el.data({ key: key.trim() });
 }
 for (const i in drawHotKey) {
     const mainKey = i as keyof EditType;
@@ -3923,20 +3913,20 @@ for (const m of hotkeyTipX) {
 setDefaultAction(autoDo);
 
 // OCR
-const ocr引擎 = toolBarEl.els.ocr;
+const ocr引擎 = toolsX.ocr.el;
 ocr引擎.sv(store.get("OCR.类型"));
 ocr引擎.on("change", () => {
     store.set("OCR.类型", ocr引擎.gv);
-    tool.ocr();
+    toolsX.ocr.f();
 });
 
 // 以图搜图
-const 识图引擎 = toolBarEl.els.search;
+const 识图引擎 = toolsX.search.el;
 // @ts-ignore
 识图引擎.sv(store.get("以图搜图.引擎"));
 识图引擎.on("change", () => {
     store.set("以图搜图.引擎", 识图引擎.gv);
-    tool.search();
+    toolsX.search.f();
 });
 
 trackLocation();
@@ -4073,7 +4063,7 @@ clipCanvas.onmousedown = (e) => {
     }
     if (e.button === 2) {
         if (store.get("鼠标快捷键.右键") === "取色器") pickColor(e);
-        else tool.close();
+        else toolsX.close.f();
     }
     toolBar.style.pointerEvents =
         drawBar.style.pointerEvents =
@@ -4091,7 +4081,7 @@ document.onmouseup = (e) => {
             followBar({ x: e.clientX, y: e.clientY });
             // 框选后默认操作
             if (autoDo !== "no" && e.button === 0) {
-                tool[autoDo]();
+                toolsX[autoDo].f();
             }
             isShowBars = true;
             showBars(isShowBars);
@@ -4232,8 +4222,8 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
 });
 
 clipCanvas.ondblclick = () => {
-    if (store.get("鼠标快捷键.双击") === "复制") tool.copy();
-    else tool.save();
+    if (store.get("鼠标快捷键.双击") === "复制") toolsX.copy.f();
+    else toolsX.save.f();
 };
 
 document.onmousemove = (e) => {
