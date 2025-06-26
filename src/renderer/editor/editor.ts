@@ -63,6 +63,7 @@ import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { rotateImg } from "esearch-ocr";
+import { typedEntries } from "../../../lib/utils";
 
 type SpellItem = {
     index: number;
@@ -1212,11 +1213,10 @@ hotkeys("ctrl+a", () => {
     editor.selectAll();
 });
 
-for (const i in hotkeyMap) {
-    // @ts-ignore
-    const key = store.get(`主页面快捷键.${i}`) as string;
-    if (key) {
-        hotkeys(key, hotkeyMap[i]);
+for (const [i] of typedEntries(hotkeyMap)) {
+    const keys = store.get("主页面快捷键");
+    if (keys[i]) {
+        hotkeys(keys[i], hotkeyMap[i]);
     }
 }
 
@@ -2417,6 +2417,7 @@ function searchImg(
 function post(
     url: string,
     options: RequestInit,
+    // @ts-expect-error
     cb: (err: Error | null, result) => void,
 ) {
     fetch(url, Object.assign(options, { method: "POST" }))
@@ -2467,7 +2468,7 @@ function yandex(
     const b = Buffer.from(image, "base64");
     const url =
         "https://yandex.com/images-apphost/image-download?cbird=111&images_avatars_size=preview&images_avatars_namespace=images-cbir";
-    post(url, { body: b }, (err, result) => {
+    post(url, { body: b }, (err, result: { url: string }) => {
         if (err) return callback(err, null);
         console.log(result);
         const img_url = result.url;
@@ -2477,12 +2478,15 @@ function yandex(
             )}`;
             callback(null, b_url);
         } else {
-            callback(new Error(result), null);
+            callback(new Error(JSON.stringify(result)), null);
         }
     });
 }
 
-function google(image, callback) {
+function google(
+    image: string,
+    callback: (err: Error | null, url: string | null) => void,
+) {
     const form = new FormData();
     const bstr = window.atob(image);
     let n = bstr.length;
@@ -2727,7 +2731,33 @@ function onlineOcr(
                 });
         }
 
-        function baiduFormat(result) {
+        interface BaiduOcrResult {
+            error_msg?: string;
+            error_code?: number;
+            tables_result?: {
+                header: { words: string[] };
+                body: {
+                    row_start: number;
+                    col_start: number;
+                    words: string;
+                }[];
+                footer: { words: string[] };
+            }[];
+            words_result: {
+                words: string;
+                location?: {
+                    top: number;
+                    left: number;
+                    width: number;
+                    height: number;
+                };
+            }[];
+            paragraphs_result?: {
+                words_result_idx: number[];
+            }[];
+        }
+
+        function baiduFormat(result: BaiduOcrResult) {
             if (result.error_msg || result.error_code)
                 return callback(new Error(JSON.stringify(result)), null);
 
@@ -2772,12 +2802,7 @@ function onlineOcr(
             const r: ocrResult = [];
             if (result.words_result[0]?.location)
                 for (const i of result.words_result) {
-                    const l = i.location as {
-                        top: number;
-                        left: number;
-                        width: number;
-                        height: number;
-                    };
+                    const l = i.location!;
                     r.push({
                         box: [
                             [l.left, l.top],
@@ -2832,7 +2857,20 @@ function onlineOcr(
             .catch((e) => {
                 return callback(e, null);
             });
-        function youdao_format(result) {
+
+        interface YoudaoOcrResult {
+            errorCode: string;
+            Result: {
+                regions: {
+                    lines: {
+                        boundingBox: string;
+                        text: string;
+                    }[];
+                }[];
+            };
+        }
+
+        function youdao_format(result: YoudaoOcrResult) {
             if (result.errorCode !== "0")
                 return callback(new Error(JSON.stringify(result)), null);
             const r: ocrResult = [];
@@ -2841,7 +2879,7 @@ function onlineOcr(
                 let t = "";
                 for (const j of i.lines) {
                     const p = j.boundingBox as string;
-                    const pl = p.split(",").map((x) => Number(x));
+                    const pl = p.split(",").map((x: string) => Number(x));
                     r.push({
                         box: [
                             [pl[0], pl[1]],
