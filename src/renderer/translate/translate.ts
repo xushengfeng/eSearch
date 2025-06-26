@@ -3,6 +3,7 @@ import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 const { clipboard } = require("electron") as typeof import("electron");
 import { francAll } from "franc";
+// @ts-expect-error
 import convert3To1 from "iso-639-3-to-1";
 
 import store from "../../../lib/store/renderStore";
@@ -171,7 +172,7 @@ function translate(_text: string) {
                         e.els.reTrans.sv(t);
                     });
                 })
-                .catch((err) => {
+                .catch((err: Error) => {
                     console.error(err);
                     e.el.style({ order: 1 });
                     if (err.message.includes("[1]")) {
