@@ -62,7 +62,7 @@ import {
 import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
-import { typedEntries } from "../../../lib/utils";
+import { typedEntries, typedKeys } from "../../../lib/utils";
 
 type SrcPoint = { x: number; y: number } & { readonly _: unique symbol };
 
@@ -2787,7 +2787,7 @@ function getFilters() {
         const i = values.indexOf(fl);
         if (fl.value) {
             if (f[i]) {
-                const name = Object.keys(filtetMap)[i];
+                const name = typedKeys(filtetMap)[i];
                 const range = (
                     fl.el?.() ??
                     rangeBar(
@@ -3853,18 +3853,20 @@ for (const k of tools) {
     }
     toolsX[k].el.data({ key: key.trim() });
 }
-for (const i in drawHotKey) {
-    const mainKey = i as keyof EditType;
-    drawMainEls[mainKey].data({ key: showShortKey(drawHotKey[mainKey].键) });
-    hotkeys(drawHotKey[mainKey].键, () => {
+for (const [mainKey, k] of typedEntries(drawHotKey)) {
+    drawMainEls[mainKey].data({ key: showShortKey(k.键) });
+    hotkeys(k.键, () => {
         setEditType(mainKey, editType[mainKey]);
     });
-    for (const j in drawHotKey[mainKey].副) {
-        drawSideEls[mainKey][j].data({
-            key: showShortKey(drawHotKey[mainKey].副[j]),
-        });
-        hotkeys(drawHotKey[mainKey].副[j], () => {
-            setEditType(mainKey, j as EditType[keyof EditType]);
+    for (const [j, v] of typedEntries(k.副)) {
+        try {
+            // @ts-expect-error
+            drawSideEls[mainKey][j].data({
+                key: showShortKey(v),
+            });
+        } catch (error) {}
+        hotkeys(v, () => {
+            setEditType(mainKey, j);
         });
     }
 }
