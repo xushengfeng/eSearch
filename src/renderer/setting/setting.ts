@@ -920,7 +920,7 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "屏幕翻译语言来源",
         el: () => {
             const firstItem = getSet("翻译.翻译器").at(0);
-            const e = translator.e[firstItem?.type ?? ""];
+            const e = translator.getEngine(firstItem?.type ?? "");
             if (!e) return select([]);
             const list = select(
                 getLansName(e.lan).map((i) => ({
@@ -935,7 +935,7 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "屏幕翻译语言目标",
         el: () => {
             const firstItem = getSet("翻译.翻译器").at(0);
-            const e = translator.e[firstItem?.type ?? ""];
+            const e = translator.getEngine(firstItem?.type ?? "");
             if (!e) return select([]);
             const list = select(
                 getLansName(e.targetLan).map((i) => ({

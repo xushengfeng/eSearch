@@ -30,12 +30,17 @@ let translateE = async (input: string[]) => input;
 
 if (transE.length > 0) {
     const x = transE[0];
-    // @ts-ignore
-    xtranslator.e[x.type].setKeys(x.keys);
-    const lan = store.get("屏幕翻译.语言");
-    translateE = (input: string[]) =>
-        // @ts-ignore
-        xtranslator.e[x.type].run(input, lan.from, lan.to);
+    const e = xtranslator.getEngine(x.type);
+    if (e) {
+        e.setKeys(x.keys);
+        const lan = store.get("屏幕翻译.语言");
+        translateE = (input: string[]) =>
+            e.run(
+                input,
+                lan.from as (typeof xtranslator.languages.normal)[number],
+                lan.to as (typeof xtranslator.languages.normal)[number],
+            );
+    }
 }
 
 type Rect = { x: number; y: number; w: number; h: number };
