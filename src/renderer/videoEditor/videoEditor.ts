@@ -31,6 +31,7 @@ const { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohoo
 type KeyCode = `${keyof typeof UiohookKey}`;
 const fs = require("node:fs") as typeof import("fs");
 
+// @ts-expect-error
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 import { t } from "../../../lib/translate/translate";
@@ -38,6 +39,7 @@ import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import floydSteinberg from "../lib/dither";
+import { typedEntries } from "../../../lib/utils";
 
 initStyle(store);
 
@@ -141,7 +143,10 @@ class videoChunk<Id extends number> {
     list: EncodedVideoChunk[] = [];
 
     private _timestamp2Id = new Map<number, number>();
-    private tasks = new Map<number, ((OffscreenCanvas) => void)[]>();
+    private tasks = new Map<
+        number,
+        ((OffscreenCanvas: OffscreenCanvas) => void)[]
+    >();
     private willDecodeIs = new Set<number>();
     private lastAddDecodeI = -1;
     private frameDecoder = new VideoDecoder({
@@ -279,8 +284,8 @@ function listLength() {
 
 function initKeys(push: (x: Omit<superRecording[0], "time" | "posi">) => void) {
     const keyCodeMap = new Map<number, KeyCode>();
-    for (const i in UiohookKey) {
-        keyCodeMap.set(UiohookKey[i], i as KeyCode);
+    for (const [i, v] of typedEntries(UiohookKey)) {
+        keyCodeMap.set(v, String(i) as KeyCode);
     }
 
     uIOhook.on("keydown", (e) => {
@@ -303,12 +308,12 @@ function initKeys(push: (x: Omit<superRecording[0], "time" | "posi">) => void) {
 
     uIOhook.on("mousedown", (e) => {
         push({
-            mousedown: map[e.button as number],
+            mousedown: map[e.button as 1 | 2 | 3],
         });
     });
     uIOhook.on("mouseup", (e) => {
         push({
-            mouseup: map[e.button as number],
+            mouseup: map[e.button as 1 | 2 | 3],
         });
     });
 
@@ -755,7 +760,7 @@ async function runTransform(
     const nowUi = history.getData();
 
     const forceRerendAll = (() => {
-        for (const [i, v] of Object.entries(op ?? {})) {
+        for (const [i, v] of typedEntries(op ?? {})) {
             if (v !== lastTransOpt[i]) return true;
         }
         return false;
@@ -879,7 +884,7 @@ async function runTransform(
 
     if (signal.aborted) return;
 
-    for (const i in op) lastTransOpt[i] = op[i];
+    for (const [i, v] of typedEntries(op || {})) if (v) lastTransOpt[i] = v;
     lastUiData = nowUi;
 
     trans2srcM.clear();
