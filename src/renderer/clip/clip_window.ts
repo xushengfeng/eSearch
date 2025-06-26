@@ -2143,7 +2143,7 @@ function setEditType<T extends keyof EditType>(
         ableChangeColor();
     }
     if (mainType === "filter") {
-        willFilter = type;
+        willFilter = type as EditType["filter"];
         exitFree();
         exitShape();
         newFilterSelecting = true;
@@ -3653,7 +3653,7 @@ const filtetMap: {
     },
 };
 
-let willFilter = "";
+let willFilter: EditType["filter"] | "" = "";
 
 // ------
 
@@ -3977,14 +3977,14 @@ document.body.onkeydown = (e) => {
         return;
     if (longRunning) return;
     if (hotkeys.getScope() === "c_bar") return;
-    const o = {
+    const o: Record<string, "up" | "right" | "down" | "left"> = {
         ArrowUp: "up",
         ArrowRight: "right",
         ArrowDown: "down",
         ArrowLeft: "left",
     };
     if (nowType === "draw" || nowType === "shape") {
-        if (!o[e.key]) return;
+        if (!(e.key in o)) return;
         let v = strokeWidthEl.gv;
         v += e.key === "ArrowUp" || e.key === "ArrowRight" ? 1 : -1;
         v = Math.max(1, v);
@@ -3994,7 +3994,7 @@ document.body.onkeydown = (e) => {
     let v = 1;
     if (e.ctrlKey) v = v * 5;
     if (e.shiftKey) v = v * 10;
-    if (o[e.key]) {
+    if (e.key in o) {
         if (direction) {
             const op = nowMouseE;
             let x = op.offsetX;
@@ -4463,7 +4463,7 @@ fabricCanvas.on("mouse:up", (options) => {
     getFObjectV();
     getFilters();
 
-    if (newFilterSelecting) {
+    if (newFilterSelecting && newFilterO) {
         newFilterSelect(newFilterO, fabricCanvas.getPointer(options.e));
         getFilters();
         hisPush();
@@ -4605,9 +4605,8 @@ const strokeWidthF = {
 
 // 滤镜
 
-for (const id in filtetMap) {
+for (const [id] of typedEntries(filtetMap)) {
     drawSideFiltersAll[id].on("click", () => {
-        // @ts-ignore
         setEditType("filter", id);
     });
 }
