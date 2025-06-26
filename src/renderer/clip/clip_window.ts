@@ -62,6 +62,7 @@ import {
 import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { typedEntries } from "../../../lib/utils";
 
 type SrcPoint = { x: number; y: number } & { readonly _: unique symbol };
 
@@ -980,7 +981,7 @@ async function save(message: string) {
         }
     }
 
-    fs.writeFile(message, dataBuffer, (err) => {
+    fs.writeFile(message, dataBuffer, (err: Error | null) => {
         if (!err) {
             renderSend("ok_save", [message]);
         }
@@ -2739,7 +2740,7 @@ function setFObjectV(
     }
 }
 
-function newFilterSelect(o, no) {
+function newFilterSelect(o: point, no: point) {
     const x1 = o.x.toFixed();
     const y1 = o.y.toFixed();
     const x2 = no.x.toFixed();
@@ -4136,10 +4137,10 @@ const whHotKeyMap = {
 };
 
 const whHotkey = store.get("大小栏快捷键");
-for (const i in whHotkey) {
+for (const [i] of typedEntries(whHotkey)) {
     if (whHotkey[i])
         hotkeys(whHotkey[i], { keyup: true, keydown: false }, () => {
-            whHotKeyMap[i].focus();
+            whHotKeyMap[i].el.focus();
         });
 }
 
