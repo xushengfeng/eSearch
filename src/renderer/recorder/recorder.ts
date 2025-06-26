@@ -102,6 +102,7 @@ const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { typedEntries } from "../../../lib/utils";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
     const p = path.join(__dirname, "..", "..", "lib", "ffmpeg");
@@ -401,9 +402,9 @@ const prText = {
     },
 };
 
-for (const i in prText) {
-    for (const j in prText[i]) {
-        prText[i][j] = t(prText[i][j]);
+for (const [_, v] of typedEntries(prText)) {
+    for (const [j] of typedEntries(v)) {
+        v[j] = t(v[j]);
     }
 }
 
@@ -631,8 +632,7 @@ class time_i extends HTMLElement {
         };
     }
 
-    /** @param {HTMLSpanElement} el*/
-    n(el) {
+    n(el: HTMLSpanElement) {
         return Number(el.innerText);
     }
 
