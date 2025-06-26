@@ -1871,14 +1871,6 @@ async function createHelpWindow() {
     );
 }
 
-/**
- * 向聚焦的主页面发送事件信息
- */
-function mainEdit(window: BaseWindow | undefined, m: EditToolsType) {
-    if (window instanceof BrowserWindow)
-        mainSend(window.webContents, "editorEvent", [m]);
-}
-
 const searchWindowL: { [n: number]: WebContentsView } = {};
 mainOn("open_this_browser", ([window_name, url]) => {
     createBrowser(window_name, url);
