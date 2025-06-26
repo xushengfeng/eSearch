@@ -49,6 +49,7 @@
     "@biomejs/biome": "^1.9.4",
     "@types/chroma-js": "^3.1.1",
     "@types/diff-match-patch": "^1.0.34",
+    "@types/download": "^8.0.5",
     "@types/minimist": "^1.2.5",
     "@types/node": "^22.9.3",
     "@types/remarkable": "^2.0.8",

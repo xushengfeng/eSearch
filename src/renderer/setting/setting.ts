@@ -76,7 +76,7 @@ import { defaultOcrId } from "../ocr/ocr";
 import { xget, xset } from "../../../lib/store/parse";
 import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
 
-const download = require("download");
+const download = require("download") as typeof import("download");
 
 export { isDeepStrictEqual };
 
@@ -655,7 +655,7 @@ const s: Partial<settingItem<SettingPath>> = {
                 const posi = nv;
                 const px = posi.x === "+" ? "right" : "left";
                 const py = posi.y === "+" ? "bottom" : "top";
-                for (const x of ["left", "right", "top", "bottom"]) {
+                for (const x of ["left", "right", "top", "bottom"] as const) {
                     screenKeyTipKBD.el.style[x] = "";
                 }
                 screenKeyTipKBD.style({
@@ -1068,83 +1068,83 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "快捷键.自动识别.key": {
         name: "自动识别",
-        el: () => hotkeyX("自动识别", "快捷键"),
+        el: () => hotkeyX(["自动识别", "1"]),
     },
     "快捷键.截屏搜索.key": {
         name: "截屏搜索",
-        el: () => hotkeyX("截屏搜索", "快捷键"),
+        el: () => hotkeyX(["截屏搜索", "1"]),
     },
     "快捷键.选中搜索.key": {
         name: "选中搜索",
-        el: () => hotkeyX("选中搜索", "快捷键"),
+        el: () => hotkeyX(["选中搜索", "1"]),
     },
     "快捷键.剪贴板搜索.key": {
         name: "剪贴板搜索",
-        el: () => hotkeyX("剪贴板搜索", "快捷键"),
+        el: () => hotkeyX(["剪贴板搜索", "1"]),
     },
     "快捷键.快速截屏.key": {
         name: "快速截屏",
-        el: () => hotkeyX("快速截屏", "快捷键"),
+        el: () => hotkeyX(["快速截屏", "1"]),
     },
     "快捷键.连拍.key": {
         name: "连拍",
-        el: () => hotkeyX("连拍", "快捷键"),
+        el: () => hotkeyX(["连拍", "1"]),
     },
     "快捷键.结束广截屏.key": {
         name: "结束广截屏",
-        el: () => hotkeyX("结束广截屏", "快捷键"),
+        el: () => hotkeyX(["结束广截屏", "1"]),
     },
     "快捷键.剪贴板贴图.key": {
         name: "剪贴板贴图",
-        el: () => hotkeyX("剪贴板贴图", "快捷键"),
+        el: () => hotkeyX(["剪贴板贴图", "1"]),
     },
     "快捷键.主页面.key": {
         name: "主页面",
-        el: () => hotkeyX("主页面", "快捷键"),
+        el: () => hotkeyX(["主页面", "1"]),
     },
     "全局工具快捷键.ocr": {
         name: getToolsN("ocr"),
-        el: () => hotkeyX("ocr", "快捷键2", "ocr"),
+        el: () => hotkeyX(["ocr", "2"], "ocr"),
     },
     "全局工具快捷键.search": {
         name: getToolsN("search"),
-        el: () => hotkeyX("search", "快捷键2", "search"),
+        el: () => hotkeyX(["search", "2"], "search"),
     },
     "全局工具快捷键.QR": {
         name: getToolsN("QR"),
-        el: () => hotkeyX("QR", "快捷键2", "scan"),
+        el: () => hotkeyX(["QR", "2"], "scan"),
     },
     "全局工具快捷键.open": {
         name: getToolsN("open"),
-        el: () => hotkeyX("open", "快捷键2", "open"),
+        el: () => hotkeyX(["open", "2"], "open"),
     },
     "全局工具快捷键.ding": {
         name: getToolsN("ding"),
-        el: () => hotkeyX("ding", "快捷键2", "ding"),
+        el: () => hotkeyX(["ding", "2"], "ding"),
     },
     "全局工具快捷键.record": {
         name: getToolsN("record"),
-        el: () => hotkeyX("record", "快捷键2", "record"),
+        el: () => hotkeyX(["record", "2"], "record"),
     },
     "全局工具快捷键.long": {
         name: getToolsN("long"),
-        el: () => hotkeyX("long", "快捷键2", "long_clip"),
+        el: () => hotkeyX(["long", "2"], "long_clip"),
     },
     "全局工具快捷键.copy": {
         name: getToolsN("copy"),
-        el: () => hotkeyX("copy", "快捷键2", "copy"),
+        el: () => hotkeyX(["copy", "2"], "copy"),
     },
     "全局工具快捷键.save": {
         name: getToolsN("save"),
-        el: () => hotkeyX("save", "快捷键2", "save"),
+        el: () => hotkeyX(["save", "2"], "save"),
     },
     "全局工具快捷键.translate": {
         name: getToolsN("translate"),
-        el: () => hotkeyX("translate", "快捷键2", "translate"),
+        el: () => hotkeyX(["translate", "2"], "translate"),
     },
     "全局工具快捷键.editor": {
         name: getToolsN("editor"),
-        el: () => hotkeyX("editor", "快捷键2", "super_edit"),
+        el: () => hotkeyX(["editor", "2"], "super_edit"),
     },
     "工具快捷键.close": {
         name: getToolsN("close"),
@@ -3028,8 +3028,14 @@ function xFont() {
         el.el.dispatchEvent(new CustomEvent("input")),
     );
     const q = button(iconEl("search")).on("click", async () => {
-        // @ts-ignore
-        const fonts = await window.queryLocalFonts();
+        const fonts =
+            // @ts-ignore
+            (await window.queryLocalFonts()) as {
+                postscriptName: string;
+                fullName: string;
+                family: string;
+                style: string;
+            }[];
         const list = Array.from(
             new Set([
                 ...fonts.map((i) => i.fullName),
@@ -4210,8 +4216,7 @@ function hotkeyP(icon: IconType | "" = "") {
     return el;
 }
 function hotkeyX(
-    name: string,
-    p: "快捷键" | "快捷键2",
+    x: [keyof setting["快捷键"], "1"] | [功能, "2"],
     icon: IconType | "" = "",
 ) {
     const h = hotkey();
@@ -4220,7 +4225,10 @@ function hotkeyX(
         .bindGet(() => h.gv)
         .bindSet((v: string) => h.sv(v));
     h.on("input", () => {
-        const arg = renderSendSync("hotkey", [p, name, h.gv]);
+        const arg =
+            x[1] === "1"
+                ? renderSendSync("hotkey", ["快捷键", x[0], h.gv])
+                : renderSendSync("hotkey", ["快捷键2", x[0], h.gv]);
         if (arg) {
         } else {
             h.sv("");
@@ -4255,7 +4263,11 @@ function isDarkMode() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-async function showPage(page: (typeof main)[0]) {
+async function showPage(page: (typeof main)[0] | undefined) {
+    if (!page) {
+        console.warn("Page not found");
+        return;
+    }
     mainView.clear();
     mainViewP.el.scrollTop = 0;
     mainView.add(ele("h1").add(noI18n(page.pageName)));
@@ -4567,7 +4579,7 @@ const searchI = input()
     .addInto(searchBar)
     .on("input", () => {
         if (!searchI.gv) {
-            showPage(main[sideBarG.get()]);
+            showPage(main.at(Number(sideBarG.get())));
             return;
         }
         const fuse = new Fuse(Object.entries(s), {
@@ -4651,7 +4663,7 @@ for (const [i, page] of main.entries()) {
 }
 
 sideBarG.on(() => {
-    showPage(main[sideBarG.get()]);
+    showPage(main.at(Number(sideBarG.get())));
 });
 
 sideBar.add(spacer());
