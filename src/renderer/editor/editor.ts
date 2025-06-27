@@ -196,16 +196,13 @@ const outMainEl = view()
     .addInto();
 
 // find ui
-const findEl = view()
+const findEl = view("x")
     .attr({ id: "find" })
     .style({ zIndex: 1, top: 0, right: 0 })
-    .class(Class.smallSize, Class.deco);
+    .class(Class.smallSize, Class.deco, Class.gap);
 const findSwitch = buttonSwitch(view(), showFind);
 
-const findButtons = view()
-    .class("find_buttons")
-    .class(Class.group)
-    .addInto(findEl);
+const findButtons = view().class(Class.group);
 iconBEl("up", "上一个匹配")
     .addInto(findButtons)
     .on("click", () => {
@@ -222,7 +219,7 @@ iconBEl("close", "关闭")
         findSwitch.sv(false);
     });
 
-const findInputPel = view().class("find_f").class(Class.group).addInto(findEl);
+const findInputPel = view().class(Class.group);
 const findInputEl = input()
     .attr({
         title: "查找",
@@ -234,10 +231,7 @@ const findInputEl = input()
     .addInto(findInputPel);
 const findRegexEl = iconBEl("regex", "正则匹配").addInto(findInputPel);
 
-const findReplacePel = view()
-    .class("find_s")
-    .class(Class.group)
-    .addInto(findEl);
+const findReplacePel = view().class(Class.group);
 const findReplaceEl = input()
     .attr({
         title: "替换",
@@ -253,7 +247,8 @@ const findReplaceAll = iconBEl("replace_all", "全部替换").addInto(
 );
 
 const findResultEl = txt()
-    .addInto(view().class("find_t").addInto(findEl))
+    .class(Class.mono)
+    .style({ fontSize: "12px" })
     .bindSet((v: [number, number], el) => {
         if (v) {
             el.innerText = `${v[0]} / ${v[1]}`;
@@ -261,6 +256,17 @@ const findResultEl = txt()
             el.innerText = "";
         }
     });
+
+findEl.add([
+    view("y")
+        .add([findInputPel, findReplacePel])
+        .style({ alignItems: "flex-start" })
+        .class(Class.gap),
+    view("y")
+        .add([findButtons, findResultEl])
+        .style({ alignItems: "flex-end" })
+        .class(Class.gap),
+]);
 
 // main ui
 const mainSectionEl = view()

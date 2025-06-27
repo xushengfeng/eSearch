@@ -236,32 +236,10 @@ body .hover_b {
 
 #find {
     position: absolute;
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-template-rows: var(--b-button) var(--b-button);
     background-color: var(--bg);
     transition: var(--transition);
     transform: translateY(-120%);
     padding: var(--o-padding);
-    border-radius: var(--border-radius);
-    gap: var(--o-padding);
-}
-#find > div {
-    display: flex;
-    align-items: center;
-}
-.find_buttons {
-    grid-area: 1 / 3 / 2 / 4;
-}
-.find_f {
-    grid-area: 1 / 2 / 2 / 3;
-}
-.find_s {
-    grid-area: 2 / 2 / 3 / 3;
-}
-.find_t > span {
-    font-size: 14px;
-    font-family: var(--monospace);
 }
 .find_h {
     background-color: var(--hover-color);
