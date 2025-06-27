@@ -135,29 +135,17 @@ function iconBEl(src: IconType, title: string) {
 }
 
 const nav = ele("nav");
-const navTop = iconBEl("toptop", "窗口置顶").on("click", () => {
-    const s = !navTopSwitch.gv;
-    navTopSwitch.sv(s);
-});
-const navTopSwitch = buttonSwitch(navTop, (s) => {
+const navTopSwitch = buttonSwitch(iconBEl("toptop", "窗口置顶"), (s) => {
     renderSend("windowTop", [s]);
 });
-const navDing = iconBEl("ding", "不自动关闭").on("click", () => {
-    const b = !navDingSwitch.gv;
-    navDingSwitch.sv(b);
-});
-const navDingSwitch = buttonSwitch(navDing, (s) => {
+const navDingSwitch = buttonSwitch(iconBEl("ding", "不自动关闭"), (s) => {
     store.set("主页面.失焦关闭", !s);
 }).sv(!store.get("主页面.失焦关闭"));
-const navConcise = iconBEl("concise", "简洁模式").on("click", () => {
-    const c = !navConciseSwitch.gv;
-    navConciseSwitch.sv(c);
-});
-const navConciseSwitch = buttonSwitch(navConcise, (c) => {
+const navConciseSwitch = buttonSwitch(iconBEl("concise", "简洁模式"), (c) => {
     setConciseMode(c);
     store.set("主页面.简洁模式", c);
 });
-nav.add([navTop, navDing, navConcise]).addInto();
+nav.add([navTopSwitch, navDingSwitch, navConciseSwitch]).addInto();
 
 const editOnOtherEl = iconBEl("super_edit", "其他编辑器打开")
     .on("click", () => {
@@ -199,7 +187,18 @@ const findEl = view("x")
     .attr({ id: "find" })
     .style({ zIndex: 1, top: 0, right: 0 })
     .class(Class.smallSize, Class.deco, Class.gap);
-const findSwitch = buttonSwitch(view(), showFind);
+const findSwitch = (() => {
+    let h = false;
+    return {
+        get gv() {
+            return h;
+        },
+        sv: (s: boolean) => {
+            h = s;
+            showFind(s);
+        },
+    };
+})();
 
 const findButtons = view().class(Class.group);
 iconBEl("up", "上一个匹配")
@@ -228,16 +227,10 @@ const findInputEl = input()
     })
     .style({ fontSize: "12px" })
     .addInto(findInputPel);
-const findRegexEl = buttonSwitch(
-    iconBEl("regex", "正则匹配").on("click", () => {
-        const s = !findRegexEl.gv;
-        findRegexEl.sv(s);
-    }),
-    () => {
-        find_();
-        findInputEl.el.focus();
-    },
-).addInto(findInputPel);
+const findRegexEl = buttonSwitch(iconBEl("regex", "正则匹配"), () => {
+    find_();
+    findInputEl.el.focus();
+}).addInto(findInputPel);
 
 const findReplacePel = view().class(Class.group);
 const findReplaceEl = input()
@@ -459,7 +452,13 @@ const spellcheckList = view("y")
     .class(Class.gap);
 
 // history ui
-const historyDialog = ele("dialog").addInto();
+const historyDialog = ele("dialog")
+    .on("close", () => {
+        document.startViewTransition(() => {
+            historySwitch.sv(false);
+        });
+    })
+    .addInto();
 view("x")
     .add([
         spacer(),
@@ -515,8 +514,7 @@ browserTabBs.add([
     browserTabAddHistory,
 ]);
 
-const showImageB = iconBEl("img", "图片");
-const imageSwitch = buttonSwitch(showImageB, (s) => {
+const imageSwitch = buttonSwitch(iconBEl("img", "图片"), (s) => {
     if (s) {
         mainSectionEl.style({ gap: cssVar("o-padding") });
         ocrImagePel.style({ height: "100%" });
@@ -525,25 +523,23 @@ const imageSwitch = buttonSwitch(showImageB, (s) => {
         ocrImagePel.style({ height: 0 });
     }
 }).sv(false);
-const showHistoryB = iconBEl("history", "历史记录").on("click", () => {
-    const s = !historySwitch.gv;
-    historySwitch.sv(s);
-});
-const historySwitch = buttonSwitch(showHistoryB, showHistory).sv(false);
-const showSpellCheckB = iconBEl("super_edit", "拼写检查").on("click", () => {
-    const showedSpell = !showSpellCheckSwitch.gv;
-    showSpellCheckSwitch.sv(showedSpell);
-});
-const showSpellCheckSwitch = buttonSwitch(showSpellCheckB, (showedSpell) => {
-    if (showedSpell) {
-        spellcheckEl.style({ width: "30%" });
-        baseEditorEl.style({ gap: cssVar("o-padding") });
-        if (!isCheck) runSpellcheck(true);
-    } else {
-        spellcheckEl.style({ width: 0 });
-        baseEditorEl.style({ gap: 0 });
-    }
-}).sv(false);
+const historySwitch = buttonSwitch(
+    iconBEl("history", "历史记录"),
+    showHistory,
+).sv(false);
+const showSpellCheckSwitch = buttonSwitch(
+    iconBEl("super_edit", "拼写检查"),
+    (showedSpell) => {
+        if (showedSpell) {
+            spellcheckEl.style({ width: "30%" });
+            baseEditorEl.style({ gap: cssVar("o-padding") });
+            if (!isCheck) runSpellcheck(true);
+        } else {
+            spellcheckEl.style({ width: 0 });
+            baseEditorEl.style({ gap: 0 });
+        }
+    },
+).sv(false);
 
 const searchB = iconBEl("search", "搜索");
 const searchSelectEl = select([]).attr({
@@ -558,9 +554,9 @@ const translateSelectEl = select([]).attr({
 const bottomToolsSpacer = spacer();
 
 const bottomTools = [
-    showImageB,
-    showHistoryB,
-    showSpellCheckB,
+    imageSwitch,
+    historySwitch,
+    showSpellCheckSwitch,
     view().add([searchB, searchSelectEl]).class(Class.group),
     view().add([translateB, translateSelectEl]).class(Class.group),
 ];
@@ -1100,7 +1096,11 @@ mainTextEl.on("scroll", () => {
 
 function buttonSwitch(el: ElType<HTMLElement>, fun?: (s: boolean) => void) {
     let h = false;
-    return el
+    const x = el
+        .on("click", () => {
+            h = !h;
+            x.sv(h);
+        })
         .bindGet(() => h)
         .bindSet((v: boolean) => {
             h = v;
@@ -1108,6 +1108,7 @@ function buttonSwitch(el: ElType<HTMLElement>, fun?: (s: boolean) => void) {
             if (v) el.el.classList.add("hover_b");
             else el.el.classList.remove("hover_b");
         });
+    return x;
 }
 
 /**字体大小 */
@@ -2917,11 +2918,6 @@ function onlineOcr(
         }
     }
 }
-
-showImageB.on("click", () => {
-    const s = !imageSwitch.gv;
-    imageSwitch.sv(s);
-});
 
 ocrImageFile.el.onchange = () => {
     const files = ocrImageFile.el.files;
