@@ -171,6 +171,13 @@ const editOnOtherEl = iconBEl("super_edit", "其他编辑器打开")
     });
 nav.add([editOnOtherEl]);
 
+const ziCount = view().style({
+    // @ts-ignore
+    "-webkit-app-region": "no-drag",
+    color: cssColor.font.light,
+});
+nav.add([spacer(), ziCount]);
+
 const outMainEl = view()
     .style({
         "--nav-height": "env(titlebar-area-height, 24px)",
@@ -194,13 +201,6 @@ const findEl = view()
     .style({ zIndex: 1, top: 0, right: 0 })
     .class(Class.smallSize, Class.deco);
 const findSwitch = buttonSwitch(view(), showFind);
-
-const findCount = view()
-    .style({
-        fontSize: "14px",
-        opacity: 0.5,
-    })
-    .addInto(findEl);
 
 const findButtons = view()
     .class("find_buttons")
@@ -1015,8 +1015,8 @@ function editorChange() {
     if (findSwitch.gv) {
         exitFind();
         find_();
-        countWords();
     }
+    countWords();
     if (editingOnOther) writeEditOnOther();
     if (isCheck) runSpellcheck();
 }
@@ -1293,7 +1293,6 @@ function showFind(findShow: boolean) {
         findInputEl.el.select();
         findInputEl.el.focus();
         if (editor.selections.get() !== "") find_();
-        countWords();
     } else {
         textOut.el.style.marginTop = "";
         findEl.el.style.transform = "translateY(-120%)";
@@ -2110,9 +2109,20 @@ function countWords() {
     const chart = Array.from(chartSeg.segment(text));
     const words = Array.from(wordSeg.segment(text));
 
-    findCount
+    ziCount
         .clear()
-        .add(`${chart.filter((i) => i.isWordLike).length} ${t("字")}`)
+        .add(
+            `${
+                Array.from(
+                    chartSeg.segment(
+                        words
+                            .filter((i) => i.isWordLike)
+                            .map((i) => i.segment)
+                            .join(""),
+                    ),
+                ).length
+            } ${t("字")}`,
+        )
         .attr({
             title: `${t("段落")} ${p}\n${t("字符")} ${chart.length}\n${t("非空格字符")} ${chart.filter((i) => !i.segment.match(/\s/)).length}\n${t("词")} ${words.filter((i) => i.isWordLike).length}`,
         });
