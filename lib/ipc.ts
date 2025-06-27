@@ -11,7 +11,6 @@ import type {
     BrowserAction,
     DingResize,
     DingStart,
-    EditToolsType,
     GithubUrlType,
     MainWinType,
     setting,
@@ -158,7 +157,6 @@ type Message = {
     recordMouse: (x: number, y: number) => void;
     dingMouse: (x: number, y: number) => void;
     recordSavePathReturn: (path: string) => void; // todo remove
-    editorEvent: (type: EditToolsType) => void;
     editorInit: (name: number, list: MainWinType) => void;
     browserNew: (id: number, url: string) => void;
     browserTitle: (id: number, title: string) => void;

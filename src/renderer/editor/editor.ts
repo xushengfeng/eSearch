@@ -1209,6 +1209,14 @@ hotkeys.filter = () => {
     return true;
 };
 
+hotkeys("ctrl+f", () => {
+    edit("show_find");
+});
+
+hotkeys("ctrl+h", () => {
+    edit("show_history");
+});
+
 hotkeys("ctrl+a", () => {
     editor.selectAll();
 });
@@ -2084,8 +2092,6 @@ async function edit(arg: EditToolsType) {
             break;
     }
 }
-
-renderOn("editorEvent", ([arg]) => edit(arg));
 
 // ctrl滚轮控制字体大小
 
