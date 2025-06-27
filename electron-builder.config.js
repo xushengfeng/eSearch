@@ -2,7 +2,60 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { execSync } = require("node:child_process");
-const download = require("download");
+const yauzl = require("yauzl");
+
+/**
+ * @param {string} url
+ */
+async function downloadBuffer(url) {
+    console.log(url);
+    const b = await (await fetch(url)).arrayBuffer();
+    return Buffer.from(b);
+}
+/**
+ * @param {string} url
+ * @param {string} targetDir
+ */
+async function download(url, targetDir) {
+    const b = await downloadBuffer(url);
+    fs.mkdirSync(targetDir, { recursive: true });
+    const fileName = url.split("/").at(-1);
+    if (fileName) fs.writeFileSync(path.join(targetDir, fileName), b);
+}
+/**
+ * @param {string} url
+ * @param {string} targetDir
+ */
+async function downloadUnzip(url, targetDir) {
+    const b = await downloadBuffer(url);
+    fs.mkdirSync(targetDir, { recursive: true });
+    const fileName = url.split("/").at(-1);
+    yauzl.fromBuffer(b, { lazyEntries: true }, (err, zipfile) => {
+        if (err) throw err;
+        zipfile.readEntry();
+        console.log(`开始解压 ${fileName} 到 ${targetDir}`);
+        zipfile.on("entry", (entry) => {
+            const filePath = path.join(targetDir, entry.fileName);
+            if (/\/$/.test(entry.fileName)) {
+                fs.mkdirSync(filePath, { recursive: true });
+                zipfile.readEntry();
+            } else {
+                zipfile.openReadStream(entry, (err, readStream) => {
+                    if (err) throw err;
+                    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+                    const writeStream = fs.createWriteStream(filePath);
+                    readStream.pipe(writeStream);
+                    writeStream.on("finish", () => {
+                        zipfile.readEntry();
+                    });
+                });
+            }
+        });
+        zipfile.on("end", () => {
+            zipfile.close();
+        });
+    });
+}
 
 const arch =
     (process.env.npm_config_arch || process.env.M_ARCH || process.arch) ===
@@ -17,28 +70,21 @@ const platformMap = { linux: "linux", win32: "win", darwin: "mac" };
  */
 const platform2 = platformMap[platform];
 
-// const githubUrl = "https://github.moeyy.xyz/https://github.com" || true;
+// const githubUrl = "https://gh-proxy.com/https://github.com" || true;
 const githubUrl = "https://github.com";
 
 const beforePack = async () => {
     if (!fs.existsSync("./assets/onnx/ppocr")) {
         fs.mkdirSync("./assets/onnx/ppocr", { recursive: true });
-        await download(
+        await downloadUnzip(
             `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip`,
             "./assets/onnx/ppocr/",
-            {
-                extract: true,
-                rejectUnauthorized: false,
-            },
         );
     }
     if (!fs.existsSync("./assets/onnx/ppocr/doc_cls.onnx")) {
         await download(
             `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/8.1.0/doc_cls.onnx`,
             "./assets/onnx/ppocr/",
-            {
-                rejectUnauthorized: false,
-            },
         );
     }
     if (!fs.existsSync("./assets/onnx/seg")) {
@@ -46,7 +92,6 @@ const beforePack = async () => {
         await download(
             `${githubUrl}/xushengfeng/eSearch-seg/releases/download/1.0.0/seg.onnx`,
             "./assets/onnx/seg/",
-            { rejectUnauthorized: false },
         );
     }
     if (!fs.existsSync("./assets/onnx/inpaint")) {
@@ -54,17 +99,13 @@ const beforePack = async () => {
         await download(
             `${githubUrl}/xushengfeng/eSearch/releases/download/13.1.6/migan_pipeline_v2.onnx`,
             "./assets/onnx/inpaint/",
-            { rejectUnauthorized: false },
         );
     }
     if (process.platform === "win32" && !fs.existsSync("./lib/copy.exe")) {
         fs.writeFileSync(
             "./lib/copy.exe",
-            await download(
+            await downloadBuffer(
                 `${githubUrl}/xushengfeng/ctrlc/releases/download/0.1.0/copy.exe`,
-                {
-                    rejectUnauthorized: false,
-                },
             ),
         );
     }
@@ -81,10 +122,10 @@ const beforePack = async () => {
         };
         if (o?.[process.platform]?.[arch]) {
             fs.mkdirSync("./lib/ffmpeg");
-            await download(o[process.platform][process.arch], "./lib/ffmpeg/", {
-                extract: true,
-                rejectUnauthorized: false,
-            });
+            await downloadUnzip(
+                o[process.platform][process.arch],
+                "./lib/ffmpeg/",
+            );
             if (process.platform === "win32") {
                 fs.copyFileSync(
                     path.join("./lib/ffmpeg/", winpath, "bin", "ffmpeg.exe"),

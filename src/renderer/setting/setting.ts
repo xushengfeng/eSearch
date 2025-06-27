@@ -76,7 +76,7 @@ import { defaultOcrId } from "../ocr/ocr";
 import { xget, xset } from "../../../lib/store/parse";
 import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
 
-const download = require("download") as typeof import("download");
+let yauzl: typeof import("yauzl") | null = null;
 
 export { isDeepStrictEqual };
 
@@ -4041,43 +4041,66 @@ function ocrEl() {
                             try {
                                 fs.rmdirSync(p);
                             } catch (error) {}
-                            download(url, p, {
-                                extract: true,
-                            })
-                                .on("response", (res) => {
-                                    const total = Number(
-                                        res.headers["content-length"],
+                            fetch(url).then(async (res) => {
+                                if (!res.ok) {
+                                    throw new Error(
+                                        `下载失败: ${res.status} ${res.statusText}`,
                                     );
-                                    let now = 0;
-                                    res.on("data", (data) => {
-                                        now += Number(data.length);
-                                        const percent = now / total;
-                                        console.log(percent);
-                                        pro.sv(percent);
-                                    });
-                                    res.on("end", () => {
-                                        console.log("download end");
-                                    });
-                                })
-                                .then(() => {
-                                    console.log("end");
-                                    downloadEl.clear();
-                                    const paths = getDownloadOcrPaths(p);
-                                    if (nameEl.gv === "") {
-                                        nameEl.sv(t(ocrModels[i].name));
+                                }
+                                if (!res.body) {
+                                    throw new Error("响应体中无数据");
+                                }
+
+                                const contentLength =
+                                    res.headers.get("content-length");
+                                const totalBytes = contentLength
+                                    ? Number.parseInt(contentLength)
+                                    : undefined;
+
+                                const reader = res.body.getReader();
+
+                                let downloadedBytes = 0;
+
+                                const chunks = [];
+
+                                try {
+                                    while (true) {
+                                        const { done, value } =
+                                            await reader.read();
+                                        if (done) break;
+                                        chunks.push(value);
+                                        downloadedBytes += value.length;
+                                        if (totalBytes) {
+                                            const percent =
+                                                downloadedBytes / totalBytes;
+                                            console.log(percent);
+                                            pro.sv(percent);
+                                        }
                                     }
-                                    detPathEl.sv(paths.detPath);
-                                    recPathEl.sv(paths.recPath);
-                                    dicPathEl.sv(paths.dicPath);
-                                    scriptsEl.sv(ocrModels[i].supportLang);
-                                    accuracyEl.sv(
-                                        ocrModels[i].accuracy ?? "low",
-                                    );
-                                    speedEl.sv(ocrModels[i].speed ?? "fast");
-                                    optimizeSpaceEl.sv(
-                                        ocrModels[i].optimize?.space ?? true,
-                                    );
-                                });
+                                } finally {
+                                }
+
+                                const buffer = await new Blob(
+                                    chunks,
+                                ).arrayBuffer();
+                                const b = Buffer.from(buffer);
+                                await unzip(b, p);
+                                console.log("end");
+                                downloadEl.clear();
+                                const paths = getDownloadOcrPaths(p);
+                                if (nameEl.gv === "") {
+                                    nameEl.sv(t(ocrModels[i].name));
+                                }
+                                detPathEl.sv(paths.detPath);
+                                recPathEl.sv(paths.recPath);
+                                dicPathEl.sv(paths.dicPath);
+                                scriptsEl.sv(ocrModels[i].supportLang);
+                                accuracyEl.sv(ocrModels[i].accuracy ?? "low");
+                                speedEl.sv(ocrModels[i].speed ?? "fast");
+                                optimizeSpaceEl.sv(
+                                    ocrModels[i].optimize?.space ?? true,
+                                );
+                            });
                         }),
                     );
                 }),
@@ -4207,6 +4230,45 @@ function ocrEl() {
         .bindSet((v: setting["离线OCR"]) => {
             mainEl.sv(v.filter((i) => i.id !== defaultOcrId));
         });
+}
+
+function unzip(b: Buffer, targetDir: string) {
+    if (!yauzl) yauzl = require("yauzl");
+    const p = Promise.withResolvers<void>();
+    yauzl!.fromBuffer(b, { lazyEntries: true }, (err, zipfile) => {
+        if (err) {
+            p.reject(err);
+            return;
+        }
+        zipfile.readEntry();
+        zipfile.on("entry", (entry) => {
+            const filePath = path.join(targetDir, entry.fileName);
+            if (/\/$/.test(entry.fileName)) {
+                fs.mkdirSync(filePath, {
+                    recursive: true,
+                });
+                zipfile.readEntry();
+            } else {
+                zipfile.openReadStream(entry, (err, readStream) => {
+                    if (err) {
+                        p.reject(err);
+                        return;
+                    }
+                    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+                    const writeStream = fs.createWriteStream(filePath);
+                    readStream.pipe(writeStream);
+                    writeStream.on("finish", () => {
+                        zipfile.readEntry();
+                    });
+                });
+            }
+        });
+        zipfile.on("end", () => {
+            zipfile.close();
+            p.resolve();
+        });
+    });
+    return p.promise;
 }
 
 function hotkeyP(icon: IconType | "" = "") {
