@@ -95,7 +95,6 @@ const 自动搜索中文占比 = store.get("自动搜索中文占比");
 let editBarS = false;
 let isWrap = !store.get("编辑器.自动换行");
 let isCheck = !store.get("编辑器.拼写检查");
-let findRegex = false;
 
 let spellcheckTimer: number | null = null;
 
@@ -229,7 +228,16 @@ const findInputEl = input()
     })
     .style({ fontSize: "12px" })
     .addInto(findInputPel);
-const findRegexEl = iconBEl("regex", "正则匹配").addInto(findInputPel);
+const findRegexEl = buttonSwitch(
+    iconBEl("regex", "正则匹配").on("click", () => {
+        const s = !findRegexEl.gv;
+        findRegexEl.sv(s);
+    }),
+    () => {
+        find_();
+        findInputEl.el.focus();
+    },
+).addInto(findInputPel);
 
 const findReplacePel = view().class(Class.group);
 const findReplaceEl = input()
@@ -1308,18 +1316,6 @@ function showFind(findShow: boolean) {
     }
 }
 
-// 正则
-findRegexEl.el.onclick = () => {
-    findRegex = !findRegex;
-    if (findRegex) {
-        findRegexEl.el.style.backgroundColor = "var(--hover-color)";
-    } else {
-        findRegexEl.el.style.backgroundColor = "";
-    }
-    find_();
-    findInputEl.el.focus();
-};
-
 findInputEl.el.oninput = () => {
     // 清除样式后查找
     exitFind();
@@ -1327,7 +1323,7 @@ findInputEl.el.oninput = () => {
 };
 // 查找并突出
 function find_() {
-    const match = editor.find.matchx(findInputEl.gv, findRegex);
+    const match = editor.find.matchx(findInputEl.gv, findRegexEl.gv);
     const find_l = editor.find.find(match);
     editor.find.render(find_l);
     findLNI = -1;
@@ -1384,7 +1380,7 @@ findInputEl.el.onkeydown = (e) => {
 
 // 全部替换
 findReplaceAll.el.onclick = () => {
-    const m = editor.find.matchx(findInputEl.gv, findRegex);
+    const m = editor.find.matchx(findInputEl.gv, findRegexEl.gv);
     if (!m) return;
     if (!editor.selections.get()) editor.selectAll();
     editor.selections.replace(
@@ -1397,7 +1393,7 @@ findReplaceAll.el.onclick = () => {
 // 替换选中
 findReplaceB.el.onclick = findReplace;
 function findReplace() {
-    const m = editor.find.matchx(findInputEl.gv, findRegex);
+    const m = editor.find.matchx(findInputEl.gv, findRegexEl.gv);
     if (!m) return;
     const l = editor.find.find(m);
     const s = l[findLNI];
