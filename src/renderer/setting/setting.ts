@@ -4642,6 +4642,7 @@ const searchBar = view().style({
     padding: cssVar("o-padding"),
 });
 const searchI = input()
+    .attr({ placeholder: t("搜索设置") })
     .style({ width: "100%" })
     .addInto(searchBar)
     .on("input", () => {
