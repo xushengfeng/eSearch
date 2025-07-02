@@ -32,8 +32,8 @@ importers:
         specifier: ^8.4.4
         version: 8.4.4
       esearch-seg:
-        specifier: ^1.1.4
-        version: 1.1.4(opencv.js@1.2.1)
+        specifier: ^1.1.8
+        version: 1.1.8
       fabric:
         specifier: ^6.4.0
         version: 6.4.0(canvas@3.1.0)
@@ -1397,10 +1397,8 @@ packages:
   esearch-ocr@8.4.4:
     resolution: {integrity: sha512-4A6KdgyJdHp03+ySX+4rDMh91T1FIjTTsAjF7GTfjEKSGE9FvwsNFLul1s/on+2kyOSb4qs7UuQcaGl9wiebcQ==}
 
-  esearch-seg@1.1.4:
-    resolution: {integrity: sha512-0hoN9JTKjImH29jh5fDOTOfxH4/R9ffT/B5mlP/dh7qMbu7oxFmfyv7nX7gpfb+B2bibCa00/eWdMOD3IkfM+Q==}
-    peerDependencies:
-      opencv.js: ^1.2.1
+  esearch-seg@1.1.8:
+    resolution: {integrity: sha512-y5qnzDw+265M7iU8Y/K9TRhMGfrOAgkdDkgUJuLSLsINgqHa1m2HBCbv2jR4zzvOAWtO7sAGOHybkJYr8kvK6g==}
 
   esprima@4.0.1:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
@@ -2107,9 +2105,6 @@ packages:
   onnxruntime-node@1.21.0:
     resolution: {integrity: sha512-NeaCX6WW2L8cRCSqy3bInlo5ojjQqu2fD3D+9W5qb5irwxhEyWKXeH2vZ8W9r6VxaMPUan+4/7NDwZMtouZxEw==}
     os: [win32, darwin, linux]
-
-  opencv.js@1.2.1:
-    resolution: {integrity: sha512-+ji5Pk3eyz+RRSeZr2kLZNJpjsKoGyPJOjFWng7+Cuq9ylHakBqJMxDGlBW1+qdju3k8DadWOiHJ6JaF28UpKA==}
 
   ora@5.4.1:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
@@ -4180,9 +4175,7 @@ snapshots:
     dependencies:
       onnxruntime-common: 1.22.0
 
-  esearch-seg@1.1.4(opencv.js@1.2.1):
-    dependencies:
-      opencv.js: 1.2.1
+  esearch-seg@1.1.8: {}
 
   esprima@4.0.1:
     optional: true
@@ -4868,8 +4861,6 @@ snapshots:
       global-agent: 3.0.0
       onnxruntime-common: 1.21.0
       tar: 7.4.3
-
-  opencv.js@1.2.1: {}
 
   ora@5.4.1:
     dependencies:
