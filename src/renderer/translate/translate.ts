@@ -119,7 +119,7 @@ function translate(_text: string) {
             f();
         });
         const checkEl = iconButton("replace").style({
-            display: fromLan === "auto" ? "none" : "",
+            display: fromLan === "auto" ? "none" : "", // todo 读取自动语言
         });
         const e = frame(`result${i.id}`, {
             _: view().style({ width: "100%" }),
