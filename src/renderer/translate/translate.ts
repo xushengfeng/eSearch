@@ -111,7 +111,7 @@ function translate(_text: string) {
         const copy = iconButton("copy");
         const save = iconButton("star").style({
             display:
-                showCang.fetch.length && showCang.文件.length
+                showCang.fetch.length || showCang.文件.length
                     ? "block"
                     : "none",
         });
@@ -207,8 +207,17 @@ function translate(_text: string) {
 }
 
 function saveW(obj: saveData) {
-    saveFile(obj);
-    saveFetch(obj);
+    try {
+        saveFile(obj);
+    } catch (error) {
+        console.error("保存到文件失败", error);
+    }
+    try {
+        saveFetch(obj);
+    } catch (error) {
+        console.error("保存到网络失败", error);
+    }
+    // todo 提示
 }
 
 function saveTemplate(t: string, obj: saveData) {
