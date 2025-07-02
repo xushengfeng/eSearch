@@ -480,11 +480,15 @@ let contextMenu: Electron.Menu | null = null;
 let tray: Tray | null = null;
 const trayIcons: Record<string, NativeImage> = {
     macTem: nativeImage.createFromPath(
-        `${runPath}/assets/logo/macIconTemplate.png`,
+        `${runPath}/assets/logo/bw/macIconTemplate.png`,
     ),
     color: nativeImage.createFromPath(`${runPath}/assets/logo/32x32.png`),
-    white: nativeImage.createFromPath(`${runPath}/assets/logo/32x32_white.png`),
-    black: nativeImage.createFromPath(`${runPath}/assets/logo/32x32_black.png`),
+    white: nativeImage.createFromPath(
+        `${runPath}/assets/logo/bw/32x32_white.png`,
+    ),
+    black: nativeImage.createFromPath(
+        `${runPath}/assets/logo/bw/32x32_black.png`,
+    ),
 };
 
 app.commandLine.appendSwitch(

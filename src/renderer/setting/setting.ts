@@ -49,8 +49,8 @@ const fs = require("node:fs") as typeof import("fs");
 import Sortable from "sortablejs";
 
 import logo from "../assets/icon.svg";
-import logoBlack from "../../../assets/logo/32x32_black.png";
-import logoWhite from "../../../assets/logo/32x32_white.png";
+import logoBlack from "../../../assets/logo/bw/32x32_black.png";
+import logoWhite from "../../../assets/logo/bw/32x32_white.png";
 import testPhoto from "../assets/sample_picture.svg";
 
 import translator from "xtranslator";
