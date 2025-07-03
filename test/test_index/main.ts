@@ -589,6 +589,10 @@ try {
     fs.mkdirSync(testConfigTempPath, { recursive: true });
 } catch (error) {}
 
+console.log(
+    `共${testResultsL.length}个测试，通过${testResultsL.filter((i) => i.state === true).length}，未通过${testResultsL.filter((i) => i.state === false).length}，将进行${testResultsL.filter((i) => i.state === null).length}个测试`,
+);
+
 const isEdit = await confirm({
     message: "是否编辑需要测试的项目？",
 });
