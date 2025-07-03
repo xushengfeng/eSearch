@@ -600,19 +600,17 @@ const isEdit = await confirm({
 if (isEdit) {
     const r = testResultsL.map((i) => ({
         name: `${i.name}${i.state === false ? " (失败)" : ""}`,
-        value: i.state === null,
+        checked: i.state === null,
+        value: i.name,
     }));
     const results = await checkbox({
         message: "请选择需要测试的功能",
         choices: r,
     });
-    const x: { name: string; state: state }[] = [];
-    for (const [i, t] of r.entries()) {
-        x.push({
-            name: t.name,
-            state: results[i] === false ? testResultsL[i].state : null,
-        });
-    }
+    const x: { name: string; state: state }[] = testResultsL.map((i) => ({
+        name: i.name,
+        state: results.includes(i.name) ? null : i.state,
+    }));
     saveTestResults(x);
 }
 
