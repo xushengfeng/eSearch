@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import { checkbox, confirm, select } from "@inquirer/prompts";
 import type { setting } from "../../src/ShareTypes";
+import path from "node:path";
+import os from "node:os";
+import { execSync } from "node:child_process";
 
 type state = boolean | null;
 
@@ -57,6 +60,7 @@ const testList: {
 ];
 
 const testResultsPath = "./test_results.json";
+const testConfigTempPath = path.join(os.tmpdir(), "eSearch_test_dir");
 const testResults: { name: string; state: state }[] = fs.existsSync(
     testResultsPath,
 )
@@ -549,8 +553,13 @@ async function selectTest() {
         choices: toTest.map((i) => ({ name: i.name, value: i.name })),
     });
 
-    // todo temp config
-    // todo run app
+    fs.writeFileSync(
+        path.join(testConfigTempPath, "config.json"),
+        JSON.stringify(defaultSetting, null, 4),
+    );
+    execSync(
+        `"${"../../build/linux-unpacked/e-search"}" --userData "${testConfigTempPath}"`,
+    );
 
     const result = await select({
         message: "运行结束，选择测试结果",
@@ -568,6 +577,10 @@ async function selectTest() {
     );
     await selectTest();
 }
+
+try {
+    fs.mkdirSync(testConfigTempPath, { recursive: true });
+} catch (error) {}
 
 const isEdit = await confirm({
     message: "是否编辑需要测试的项目？",

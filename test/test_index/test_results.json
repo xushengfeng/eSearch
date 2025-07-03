@@ -1,11 +1,11 @@
 [
     {
         "name": "截屏.框选裁切",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.取色器",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.自由画笔",

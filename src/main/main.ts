@@ -73,6 +73,7 @@ try {
     } catch (error) {}
     const portable = "portable";
     const userDataPath =
+        minimist(process.argv.slice(1)).userData ||
         preloadConfig ||
         (statSync(join(runPath, portable)).isDirectory()
             ? join(runPath, portable)
