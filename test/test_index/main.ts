@@ -309,7 +309,7 @@ const defaultSetting: setting = {
         },
     },
     OCR: {
-        类型: "默认",
+        类型: "0",
         离线切换: true,
         识别段落: true,
         整体方向识别: false,

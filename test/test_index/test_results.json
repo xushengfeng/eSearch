@@ -49,7 +49,7 @@
     },
     {
         "name": "ocr.识别文字",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.ocr同步",
