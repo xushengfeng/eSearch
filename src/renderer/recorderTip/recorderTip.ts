@@ -269,7 +269,6 @@ function drawCamera() {
     const segCtx = segCanvas.getContext("2d")!;
     cameraCanvas.width = videoEl.videoWidth;
     cameraCanvas.height = videoEl.videoHeight;
-    console.log(videoEl.videoHeight);
     canvasCtx.drawImage(videoEl, 0, 0, cameraCanvas.width, cameraCanvas.height);
     seg.seg(
         canvasCtx.getImageData(0, 0, cameraCanvas.width, cameraCanvas.height),
@@ -317,7 +316,6 @@ const cEl = view()
     .addInto()
     .style({ position: "fixed", left: 0, top: 0, width: "100px" });
 
-// todo 摄像头比例
 // todo 记忆
 
 const videoEl = ele("video").addInto(cEl).el;
@@ -377,6 +375,11 @@ trackPoint(cEl, {
     ing: (p) => {
         cEl.style({ left: `${p.x}px`, top: `${p.y}px` });
     },
+});
+
+cEl.on("wheel", (e) => {
+    const r = cEl.el.getBoundingClientRect();
+    cEl.style({ width: `${r.width * (1 + e.deltaY / 600)}px` });
 });
 
 renderOn("recordMouse", ([x, y]) => {
