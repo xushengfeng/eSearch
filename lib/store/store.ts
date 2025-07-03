@@ -1,6 +1,4 @@
-const { app } = require("electron");
 const fs = require("node:fs") as typeof import("fs");
-const path = require("node:path") as typeof import("path");
 
 import { xget, xset } from "./parse";
 
@@ -15,8 +13,8 @@ class Store {
     private configPath: string;
     private data: data | undefined;
 
-    constructor() {
-        this.configPath = path.join(app.getPath("userData"), "config.json");
+    constructor(op: { configPath: string }) {
+        this.configPath = op.configPath;
         if (!fs.existsSync(this.configPath)) {
             this.init();
         }
@@ -42,6 +40,10 @@ class Store {
     private setStore(data: data) {
         this.data = data;
         fs.writeFileSync(this.configPath, JSON.stringify(data, null, 2));
+    }
+
+    path() {
+        return this.configPath;
     }
 
     set<P extends SettingPath>(

@@ -82,7 +82,9 @@ try {
     if (userDataPath) app.setPath("userData", userDataPath);
 } catch (e) {}
 
-const store = new Store();
+const store = new Store({
+    configPath: join(app.getPath("userData"), "config.json"),
+});
 
 ipcMain.on("store", (e, x) => {
     if (x.type === "get") {
@@ -90,7 +92,7 @@ ipcMain.on("store", (e, x) => {
     } else if (x.type === "set") {
         store.set(x.path, x.value);
     } else if (x.type === "path") {
-        e.returnValue = app.getPath("userData");
+        e.returnValue = store.path();
     } else if (x.type === "getAll") {
         e.returnValue = store.getAll();
     } else if (x.type === "setAll") {
