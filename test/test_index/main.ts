@@ -4,6 +4,7 @@ import type { setting } from "../../src/ShareTypes";
 import path from "node:path";
 import os from "node:os";
 import { execSync } from "node:child_process";
+import { xset } from "../../lib/store/parse.ts";
 
 type state = boolean | null;
 
@@ -23,7 +24,7 @@ const testList: {
     {
         name: "截屏.autodo",
         config: {
-            框选后默认操作: "OCR",
+            框选后默认操作: "ocr",
         },
     },
     { name: "截屏.保存", crossState: true },
@@ -71,7 +72,7 @@ const isMac = process.platform === "darwin";
 
 const defaultSetting: setting = {
     首次运行: false,
-    设置版本: "0.0.0",
+    设置版本: "15.0.0",
     启动提示: true,
     dev: false,
     保留截屏窗口: true,
@@ -553,9 +554,15 @@ async function selectTest() {
         choices: toTest.map((i) => ({ name: i.name, value: i.name })),
     });
 
+    const settingX = structuredClone(defaultSetting);
+    const c = toTest.find((i) => i.name === toT)?.config;
+    if (c) {
+        // @ts-expect-error
+        for (const [k, v] of Object.entries(c)) xset(settingX, k, v);
+    }
     fs.writeFileSync(
         path.join(testConfigTempPath, "config.json"),
-        JSON.stringify(defaultSetting, null, 4),
+        JSON.stringify(settingX, null, 4),
     );
     execSync(
         `"${"../../build/linux-unpacked/e-search"}" --userData "${testConfigTempPath}"`,

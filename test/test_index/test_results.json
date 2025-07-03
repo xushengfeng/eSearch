@@ -33,7 +33,7 @@
     },
     {
         "name": "截屏.autodo",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.保存",
