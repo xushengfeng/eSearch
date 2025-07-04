@@ -9,27 +9,27 @@
     },
     {
         "name": "截屏.自由画笔",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.几何",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.马赛克",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.模糊",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.方向键调节",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.四则运算式",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.autodo",
@@ -37,15 +37,15 @@
     },
     {
         "name": "截屏.保存",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.保存到剪贴板",
-        "state": null
+        "state": true
     },
     {
         "name": "截屏.滚动截屏",
-        "state": null
+        "state": true
     },
     {
         "name": "ocr.识别文字",
@@ -53,31 +53,31 @@
     },
     {
         "name": "主页面.ocr同步",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.搜索",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.校对",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.翻译",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.翻译.复制",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.翻译.保存",
-        "state": null
+        "state": true
     },
     {
         "name": "主页面.以图搜图.yandex",
-        "state": null
+        "state": false
     },
     {
         "name": "主页面.以图搜图.ai",
@@ -109,7 +109,7 @@
     },
     {
         "name": "贴图.翻译",
-        "state": null
+        "state": false
     },
     {
         "name": "贴图.变换",
@@ -121,7 +121,7 @@
     },
     {
         "name": "二维码",
-        "state": null
+        "state": true
     },
     {
         "name": "标准录屏",

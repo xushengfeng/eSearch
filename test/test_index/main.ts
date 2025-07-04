@@ -8,6 +8,40 @@ import { xset } from "../../lib/store/parse.ts";
 
 type state = boolean | null;
 
+const testConfigTempPath = path.join(os.tmpdir(), "eSearch_test_dir");
+
+const someSetting = {
+    "引擎.翻译": [{ name: "翻译", url: "translate/?text=%s" }],
+    "翻译.翻译器": [
+        {
+            id: "a7cb77b",
+            name: "SiliconFlow",
+            keys: {
+                key: process.env.ai_key,
+                url: "https://api.siliconflow.cn/v1/chat/completions",
+                config: {
+                    model: "Qwen/Qwen2.5-7B-Instruct",
+                },
+                sysPrompt: "",
+                userPrompt: "",
+            },
+            type: "chatgpt",
+        },
+        {
+            id: "f7dd79f",
+            name: "google",
+            keys: {},
+            type: "google",
+        },
+        {
+            id: "69951dd",
+            name: "Yandex",
+            keys: {},
+            type: "yandex",
+        },
+    ],
+};
+
 const testList: {
     name: string;
     crossState?: true; // win mac linux
@@ -29,14 +63,61 @@ const testList: {
     },
     { name: "截屏.保存", crossState: true },
     { name: "截屏.保存到剪贴板", crossState: true },
-    { name: "截屏.滚动截屏", crossState: true },
+    {
+        name: "截屏.滚动截屏",
+        crossState: true,
+        config: {
+            "快捷键.结束广截屏.key": "Meta+X",
+            "广截屏.模式": "定时",
+            "广截屏.t": 800,
+        },
+    },
     { name: "ocr.识别文字" },
     { name: "主页面.ocr同步" },
     { name: "主页面.搜索" },
-    { name: "主页面.校对" },
-    { name: "主页面.翻译" },
-    { name: "主页面.翻译.复制" },
-    { name: "主页面.翻译.保存" },
+    {
+        name: "主页面.校对",
+        config: {
+            "AI.在线模型": [
+                {
+                    name: "硅基流动",
+                    type: "chatgpt",
+                    url: "https://api.siliconflow.cn/v1/chat/completions",
+                    key: process.env.ai_key,
+                    config: {
+                        model: "Qwen/Qwen2.5-7B-Instruct",
+                    },
+                    supportVision: false,
+                },
+            ],
+        },
+    },
+    {
+        name: "主页面.翻译",
+        config: {
+            "翻译.翻译器": someSetting["翻译.翻译器"],
+        },
+    },
+    {
+        name: "主页面.翻译.复制",
+        config: {
+            "引擎.翻译": someSetting["引擎.翻译"],
+            "翻译.翻译器": someSetting["翻译.翻译器"],
+        },
+    },
+    {
+        name: "主页面.翻译.保存",
+        config: {
+            "引擎.翻译": someSetting["引擎.翻译"],
+            "翻译.翻译器": someSetting["翻译.翻译器"],
+            "翻译.收藏.文件": [
+                {
+                    path: path.join(testConfigTempPath, "/myWord.csv"),
+                    template: "${from}, ${to}, ${fromT}, ${toT}",
+                },
+            ],
+        },
+    },
     { name: "主页面.以图搜图.yandex" },
     { name: "主页面.以图搜图.ai" },
     { name: "贴图.多个", crossState: true },
@@ -45,7 +126,12 @@ const testList: {
     { name: "贴图.透明" },
     { name: "贴图.归位" },
     { name: "贴图.鼠标穿透", crossState: true },
-    { name: "贴图.翻译" },
+    {
+        name: "贴图.翻译",
+        config: {
+            "翻译.翻译器": someSetting["翻译.翻译器"],
+        },
+    },
     { name: "贴图.变换" },
     { name: "屏幕翻译" },
     { name: "二维码" },
@@ -61,7 +147,6 @@ const testList: {
 ];
 
 const testResultsPath = "./test_results.json";
-const testConfigTempPath = path.join(os.tmpdir(), "eSearch_test_dir");
 const testResults: { name: string; state: state }[] = fs.existsSync(
     testResultsPath,
 )
