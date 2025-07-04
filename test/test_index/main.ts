@@ -586,6 +586,7 @@ async function selectTest() {
 }
 
 try {
+    fs.rmSync(testConfigTempPath, { recursive: true });
     fs.mkdirSync(testConfigTempPath, { recursive: true });
 } catch (error) {}
 
