@@ -302,6 +302,7 @@ async function argRun(c: string[], first?: boolean) {
             [["v", "version"], 0, app.getVersion()],
             [["h", "help"], 0, t("帮助")],
             ["config", 0, t("打开配置")],
+            ["userData", 0, t("用户数据路径")],
             "",
             [["i", "input"], 0, t("输入图片，如果空，则截屏")],
             ["delay", 0, t("延时截屏")],
