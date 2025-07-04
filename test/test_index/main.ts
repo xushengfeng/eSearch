@@ -40,6 +40,7 @@ const someSetting = {
             type: "yandex",
         },
     ],
+    "贴图.强制鼠标穿透": "alt+x",
 };
 
 const testList: {
@@ -120,19 +121,43 @@ const testList: {
     },
     { name: "主页面.以图搜图.yandex" },
     { name: "主页面.以图搜图.ai" },
-    { name: "贴图.多个", crossState: true },
-    { name: "贴图.滚轮缩放" },
-    { name: "贴图.局部放大" },
-    { name: "贴图.透明" },
-    { name: "贴图.归位" },
-    { name: "贴图.鼠标穿透", crossState: true },
+    {
+        name: "贴图.多个",
+        crossState: true,
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
+    {
+        name: "贴图.滚轮缩放",
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
+    {
+        name: "贴图.局部放大",
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
+    {
+        name: "贴图.透明",
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
+    {
+        name: "贴图.归位",
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
+    {
+        name: "贴图.鼠标穿透",
+        crossState: true,
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
     {
         name: "贴图.翻译",
         config: {
             "翻译.翻译器": someSetting["翻译.翻译器"],
+            "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"],
         },
     },
-    { name: "贴图.变换" },
+    {
+        name: "贴图.变换",
+        config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
+    },
     { name: "屏幕翻译" },
     { name: "二维码" },
     { name: "标准录屏", crossState: true },
