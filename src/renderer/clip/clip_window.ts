@@ -1420,25 +1420,16 @@ function whBar(finalRect: rect) {
     const zx = (finalRect[0] + editorP.x) * editorP.zoom;
     const zy = (finalRect[1] + editorP.y) * editorP.zoom;
     const zw = finalRect[2] * editorP.zoom;
-    const zh = finalRect[3] * editorP.zoom;
     const dw = width;
     const dh = 40;
+    const gap = 8;
+
     let x: number;
     x = zx + zw / 2 - dw / 2;
-    x = Math.max(0, Math.min(winWidth - dw, Math.round(x)));
+    x = Math.max(gap, Math.min(winWidth - dw - gap, Math.round(x)));
 
-    let y: number;
-    const yGap = 10;
-    if (zy - (dh + yGap) >= 0) {
-        y = zy - (dh + yGap); // 不超出时在外
-    } else {
-        if (zy + zh + yGap + dh <= winHeight) {
-            y = zy + zh + yGap;
-        } else {
-            y = zy + yGap;
-        }
-    }
-    y = Math.max(0, Math.min(winHeight - dh, Math.round(y)));
+    let y = zy - dh - gap;
+    y = Math.max(gap, Math.min(winHeight - dh - gap, Math.round(y)));
 
     whEl.style({
         transform: `translate(${x}px, ${y}px)`,
