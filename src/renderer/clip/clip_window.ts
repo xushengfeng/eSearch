@@ -3145,7 +3145,11 @@ const drawColorSwitchP = view().attr({ id: "draw_color_switch" });
 const drawColorSwitchMark = view()
     .attr({ id: "draw_fill_storke_mark" })
     .addInto(drawColorSwitchP);
-drawColorSwitchP.add(image(getImgUrl("fill_storke.svg"), "icon").class("icon"));
+drawColorSwitchP.add(
+    image(getImgUrl("fill_storke.svg"), "icon")
+        .class("icon")
+        .style({ zIndex: 1 }),
+);
 
 const drawColorP = view().attr({ id: "draw_color_p" });
 const drawColorColor = view().attr({ id: "draw_color_color" });
