@@ -890,8 +890,9 @@ function resize(
     const bar = el.query("#tool_bar_c") as ElType<HTMLElement>;
     const w = pS[2];
     let zoomN = "";
-    if (w <= 360) {
-        zoomN = String(w / 360);
+    const smallSize = 390;
+    if (w <= smallSize) {
+        zoomN = String(w / smallSize);
     } else {
         zoomN = "";
     }
