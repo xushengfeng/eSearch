@@ -109,7 +109,7 @@
     },
     {
         "name": "贴图.翻译",
-        "state": false
+        "state": true
     },
     {
         "name": "贴图.变换",

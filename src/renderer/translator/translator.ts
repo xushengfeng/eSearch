@@ -37,8 +37,12 @@ if (transE.length > 0) {
         translateE = (input: string[]) =>
             e.run(
                 input,
-                lan.from as (typeof xtranslator.languages.normal)[number],
-                lan.to as (typeof xtranslator.languages.normal)[number],
+                (lan.from ||
+                    "auto") as (typeof xtranslator.languages.normal)[number],
+                (lan.to ||
+                    store.get(
+                        "语言.语言",
+                    )) as (typeof xtranslator.languages.normal)[number],
             );
     }
 }
