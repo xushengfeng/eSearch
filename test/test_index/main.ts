@@ -40,6 +40,10 @@ const someSetting = {
             type: "yandex",
         },
     ],
+    "屏幕翻译.语言": {
+        from: "auto",
+        to: "zh-HANS",
+    },
     "贴图.强制鼠标穿透": "alt+x",
 };
 
@@ -151,6 +155,7 @@ const testList: {
         name: "贴图.翻译",
         config: {
             "翻译.翻译器": someSetting["翻译.翻译器"],
+            "屏幕翻译.语言": someSetting["屏幕翻译.语言"],
             "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"],
         },
     },
@@ -158,7 +163,13 @@ const testList: {
         name: "贴图.变换",
         config: { "贴图.强制鼠标穿透": someSetting["贴图.强制鼠标穿透"] },
     },
-    { name: "屏幕翻译" },
+    {
+        name: "屏幕翻译",
+        config: {
+            "翻译.翻译器": someSetting["翻译.翻译器"],
+            "屏幕翻译.语言": someSetting["屏幕翻译.语言"],
+        },
+    },
     { name: "二维码" },
     { name: "标准录屏", crossState: true },
     { name: "标准录屏.摄像头", crossState: true },

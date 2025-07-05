@@ -866,8 +866,16 @@ function checkTranslator() {
     const fyq = store.get("翻译.翻译器");
     if (fyq.length === 0) {
         alert("无翻译器，请先设置翻译器");
+        return false;
     }
-    return fyq.length > 0;
+    if (
+        store.get("屏幕翻译.语言.to") === "" ||
+        store.get("屏幕翻译.语言.from") === ""
+    ) {
+        alert("请设置屏幕翻译的语言");
+        return false;
+    }
+    return true;
 }
 
 async function translate() {
