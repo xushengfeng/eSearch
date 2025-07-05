@@ -1471,6 +1471,7 @@ function changeWH(el: ElType<HTMLInputElement>) {
     }
     finalRectFix();
     hisPush();
+    cleanCanvas();
     drawClipRect();
     followBar();
 }
