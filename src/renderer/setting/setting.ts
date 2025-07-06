@@ -4620,6 +4620,9 @@ addStyle({
         fontWeight: 100,
         marginBlockStart: "28px",
     },
+    a: {
+        textDecoration: "underline",
+    },
     'input[type="text"],input[type="password"]': {
         transition: "var(--transition)",
         width: baseWidth,
