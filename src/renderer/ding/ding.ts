@@ -357,7 +357,7 @@ async function translate(url: string) {
 
 async function initOCR() {
     if (!lo) {
-        const x = loadOCR(store, defaultOcrId);
+        const x = loadOCR(store, store.get("OCR.类型") || defaultOcrId);
         if (x) lo = await x.ocr.init(x.config);
     }
 }

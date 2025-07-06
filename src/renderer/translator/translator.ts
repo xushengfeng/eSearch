@@ -190,7 +190,7 @@ const toolsEl = view("x")
 
 let OCR: Awaited<ReturnType<typeof import("esearch-ocr").init>> | null = null;
 
-const ocrX = loadOCR(store, defaultOcrId);
+const ocrX = loadOCR(store, store.get("OCR.类型") || defaultOcrId);
 
 OCR = ocrX ? await ocrX.ocr.init(ocrX.config) : null;
 
