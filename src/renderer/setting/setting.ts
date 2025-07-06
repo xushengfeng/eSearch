@@ -887,30 +887,28 @@ const s: Partial<settingItem<SettingPath>> = {
                         image(logo, noI18n("logo")).style({ width: "200px" }),
                     );
 
-                    m.add([
-                        t,
-                        xGroup().add([
-                            "参考：",
-                            a(
-                                "https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform",
-                            ).add(noI18n("MDN transform")),
-                            a(
-                                "https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter",
-                            ).add(noI18n("MDN filter")),
-                            a(
-                                "https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_filters",
-                            ).add(noI18n("MDN SVG filters")),
-                        ]),
-                        preview,
-                        button("关闭").on("click", () => {
-                            resolve(null);
-                            m.el.close();
-                        }),
-                        button("完成").on("click", () => {
-                            resolve(t.gv);
-                            m.el.close();
-                        }),
-                    ]);
+                    dialogB(
+                        m,
+                        [
+                            t,
+                            xGroup().add([
+                                "参考：",
+                                a(
+                                    "https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform",
+                                ).add(noI18n("MDN transform")),
+                                a(
+                                    "https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter",
+                                ).add(noI18n("MDN filter")),
+                                a(
+                                    "https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_filters",
+                                ).add(noI18n("MDN SVG filters")),
+                            ]),
+                            preview,
+                        ],
+                        () => resolve(null),
+                        () => resolve(t.gv),
+                    );
+
                     setStyle();
 
                     return promise;
