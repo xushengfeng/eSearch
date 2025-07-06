@@ -861,7 +861,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "贴图.窗口.变换": {
         name: "窗口变换",
-        desc: "变换使用 CSS 代码",
+        desc: "为贴图添加如翻转、模糊等变换，通过数字键0-9切换",
         el: (v) =>
             sortList<(typeof v)[0]>(
                 (v) => v.split("\n").at(0) ?? "",
@@ -875,6 +875,10 @@ const s: Partial<settingItem<SettingPath>> = {
                     }
 
                     const t = textarea()
+                        .attr({
+                            placeholder:
+                                "CSS key: value;\ntransform: rotate(0deg);",
+                        })
                         .sv(v ?? "")
                         .on("input", () => {
                             setStyle();
@@ -885,6 +889,18 @@ const s: Partial<settingItem<SettingPath>> = {
 
                     m.add([
                         t,
+                        xGroup().add([
+                            "参考：",
+                            a(
+                                "https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform",
+                            ).add(noI18n("MDN transform")),
+                            a(
+                                "https://developer.mozilla.org/zh-CN/docs/Web/CSS/filter",
+                            ).add(noI18n("MDN filter")),
+                            a(
+                                "https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_filters",
+                            ).add(noI18n("MDN SVG filters")),
+                        ]),
                         preview,
                         button("关闭").on("click", () => {
                             resolve(null);
