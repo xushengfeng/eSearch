@@ -1623,7 +1623,6 @@ const s: Partial<settingItem<SettingPath>> = {
     "网络.github镜像.api": { name: "api", desc: "检查更新", el: () => input() },
     硬件加速: {
         name: "硬件加速",
-        desc: "如果可用，且更改需要重启软件生效",
         el: () => xSwitch(),
     },
     "额外截屏器.命令": {
@@ -2469,7 +2468,7 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
                     .style({ display: "" });
             else reloadEl.style({ display: "none" });
         },
-        keys: ["语言", "托盘", "保留截屏窗口", "dev"],
+        keys: ["语言", "托盘", "保留截屏窗口", "dev", "硬件加速"],
     },
 ];
 
