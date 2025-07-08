@@ -2998,12 +2998,13 @@ const toolsX: Record<功能, { el: ElType<HTMLElement>; f: () => void }> = {
 
 for (const [_, { el, f }] of Object.entries(toolsX)) {
     el.on("pointerup", (e) => {
-        if (e.button === 0) {
-            f();
-        } else if (e.button === 1) {
-            el.el.style.backgroundColor = ""; // todo class
-            autoDo = "no";
-        }
+        if (e.target === el.el)
+            if (e.button === 0) {
+                f();
+            } else if (e.button === 1) {
+                el.el.style.backgroundColor = ""; // todo class
+                autoDo = "no";
+            }
     });
 }
 
