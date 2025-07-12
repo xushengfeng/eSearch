@@ -1524,10 +1524,44 @@ function longWin() {
     mouse();
 }
 
+function dingObj() {
+    const obj = new Map<
+        number,
+        { win: BrowserWindow; display: Electron.Display }
+    >();
+    return {
+        set: (
+            id: number,
+            v: { win: BrowserWindow; display: Electron.Display },
+        ) => {
+            obj.set(id, v);
+            v.win.on("closed", () => {
+                obj.delete(id);
+            });
+        },
+        delete: (id: number) => {
+            const x = obj.get(id);
+            if (x && !x.win.isDestroyed()) {
+                x.win.close();
+            }
+            return obj.delete(id);
+        },
+        entries: () => {
+            return Array.from(obj.entries()).filter(
+                ([_, v]) => !v.win.isDestroyed(),
+            );
+        },
+        keys: () => {
+            return Array.from(obj.keys());
+        },
+        size: () => {
+            return obj.size;
+        },
+    };
+}
+
 // ding窗口
-const dingwindowList: {
-    [key: string]: { win: BrowserWindow; display: Electron.Display };
-} = {};
+const dingwindowList = dingObj();
 
 function dingFromClipBoard() {
     const img = clipboard.readImage();
@@ -1558,7 +1592,7 @@ function createDingWindow(
     img: string,
     type: "translate" | "ding" = "ding",
 ) {
-    if (Object.keys(dingwindowList).length === 0) {
+    if (dingwindowList.size() === 0) {
         const screenL = screen.getAllDisplays();
         const id = Date.now();
         for (const i of screenL) {
@@ -1580,20 +1614,21 @@ function createDingWindow(
                 width: i.bounds.width,
                 height: i.bounds.height,
             });
-            dingwindowList[i.id] = { win: dingWindow, display: i };
+            dingwindowList.set(i.id, { win: dingWindow, display: i });
 
             rendererPath(dingWindow, "ding.html");
             if (dev) dingWindow.webContents.openDevTools();
             dingWindow.webContents.on("did-finish-load", () => {
-                mainSend(dingWindow.webContents, "addDing", [
-                    id,
-                    x - i.bounds.x,
-                    y - i.bounds.y,
-                    w,
-                    h,
-                    img,
-                    type,
-                ]);
+                if (!dingWindow.isDestroyed())
+                    mainSend(dingWindow.webContents, "addDing", [
+                        id,
+                        x - i.bounds.x,
+                        y - i.bounds.y,
+                        w,
+                        h,
+                        img,
+                        type,
+                    ]);
             });
             dingWindow.setIgnoreMouseEvents(true);
 
@@ -1602,9 +1637,9 @@ function createDingWindow(
         forceDingThrogh();
     } else {
         const id = Date.now();
-        for (const i in dingwindowList) {
-            const b = dingwindowList[i].win.getBounds();
-            mainSend(dingwindowList[i].win.webContents, "addDing", [
+        for (const [_, win] of dingwindowList.entries()) {
+            const b = win.win.getBounds();
+            mainSend(win.win.webContents, "addDing", [
                 id,
                 x - b.x,
                 y - b.y,
@@ -1618,14 +1653,12 @@ function createDingWindow(
     // 自动改变鼠标穿透
     function dingClickThrough() {
         const nowXY = screen.getCursorScreenPoint();
-        for (const i in dingwindowList) {
-            try {
-                const b = dingwindowList[i].win.getBounds();
-                mainSend(dingwindowList[i].win.webContents, "dingMouse", [
-                    nowXY.x - b.x,
-                    nowXY.y - b.y,
-                ]);
-            } catch (error) {}
+        for (const [_, win] of dingwindowList.entries()) {
+            const b = win.win.getBounds();
+            mainSend(win.win.webContents, "dingMouse", [
+                nowXY.x - b.x,
+                nowXY.y - b.y,
+            ]);
         }
         setTimeout(dingClickThrough, 10);
     }
@@ -1633,11 +1666,8 @@ function createDingWindow(
 }
 let dingThrogh: null | boolean = null;
 mainOn("dingIgnore", ([v]) => {
-    for (const id in dingwindowList) {
-        if (dingwindowList[id]?.win.isDestroyed()) continue;
-        dingwindowList[id]?.win?.setIgnoreMouseEvents(
-            dingThrogh === null ? v : dingThrogh,
-        );
+    for (const [_, win] of dingwindowList.entries()) {
+        win.win.setIgnoreMouseEvents(dingThrogh === null ? v : dingThrogh);
     }
 });
 
@@ -1645,8 +1675,8 @@ function forceDingThrogh() {
     if (store.get("贴图.强制鼠标穿透")) {
         globalShortcut.register(store.get("贴图.强制鼠标穿透"), () => {
             dingThrogh = !dingThrogh;
-            for (const id in dingwindowList) {
-                dingwindowList[id]?.win?.setIgnoreMouseEvents(dingThrogh);
+            for (const [_, win] of dingwindowList.entries()) {
+                win.win.setIgnoreMouseEvents(dingThrogh);
             }
         });
     }
@@ -1654,9 +1684,8 @@ function forceDingThrogh() {
 
 mainOnReflect("dingShare", ([data]) => {
     if (data.type === "close" && data.closeAll) {
-        for (const i in dingwindowList) {
-            dingwindowList[i].win.close();
-            delete dingwindowList[i];
+        for (const i of dingwindowList.keys()) {
+            dingwindowList.delete(i);
         }
         return [];
     }
@@ -1664,14 +1693,13 @@ mainOnReflect("dingShare", ([data]) => {
     if (data.type === "move_start") {
         const nowXY = screen.getCursorScreenPoint();
 
-        for (const i in dingwindowList) {
-            const display = dingwindowList[i].display;
+        for (const [_, { display }] of dingwindowList.entries()) {
             data.more.x = nowXY.x - display.bounds.x;
             data.more.y = nowXY.y - display.bounds.y;
         }
     }
 
-    return Object.values(dingwindowList).map((i) => i.win.webContents);
+    return dingwindowList.entries().map(([_, { win }]) => win.webContents);
 });
 mainOn("edit_pic", ([img]) => {
     sendCaptureEvent(img);
