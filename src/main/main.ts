@@ -1428,11 +1428,14 @@ mainOn("move_user_data", ([target]) => {
     const toPath = resolve(target);
     const prePath = app.getPath("userData");
     mkdirSync(toPath, { recursive: true });
-    if (process.platform === "win32") {
-        execSync(`xcopy ${prePath}\\** ${toPath} /Y /s`);
-    } else {
-        execSync(`cp -r ${prePath}/** ${toPath}`);
-    }
+    try {
+        if (process.platform === "win32") {
+            execSync(`xcopy "${prePath}\\**" "${toPath}" /Y /s`);
+        } else {
+            execSync(`cp -r "${prePath}/**" "${toPath}"`);
+        }
+    } catch (error) {}
+    // todo 错误返回
 });
 mainOn("getAutoStart", () => {
     if (process.platform === "linux") {
