@@ -476,7 +476,9 @@ function save(id: string) {
         getUrl(id).replace(/^data:image\/\w+;base64,/, ""),
         "base64",
     );
+    renderSend("windowTopest", [false]);
     const save = renderSendSync("save_file_path", ["png"]);
+    renderSend("windowTopest", [true]);
     if (!save) return;
     fs.writeFileSync(save, b);
     renderSend("ok_save", [save]);

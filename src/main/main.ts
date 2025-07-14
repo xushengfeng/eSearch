@@ -2162,6 +2162,12 @@ mainOn("windowMax", (_, e) => {
 mainOn("windowTop", ([top], e) => {
     BrowserWindow.fromWebContents(e.sender)?.setAlwaysOnTop(top);
 });
+mainOn("windowTopest", ([top], e) => {
+    BrowserWindow.fromWebContents(e.sender)?.setAlwaysOnTop(
+        top,
+        "screen-saver",
+    );
+});
 mainOn("windowShow", (_, e) => {
     BrowserWindow.fromWebContents(e.sender)?.show();
 });

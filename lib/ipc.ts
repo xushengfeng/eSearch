@@ -77,6 +77,7 @@ type Message = {
     windowClose: () => void;
     windowMax: () => void;
     windowTop: (ignore: boolean) => void;
+    windowTopest: (ignore: boolean) => void;
     windowIgnoreMouse: (top: boolean) => void;
     windowShow: () => void;
     runPath: () => string;
