@@ -1048,7 +1048,9 @@ mainOn("clip_save", async ([type]) => {
     hideClip();
     const x = await dialog.showSaveDialog({
         title: t("选择要保存的位置"),
-        defaultPath: join(savedPath, `${getFileName()}.${type}`),
+        defaultPath: savedPath
+            ? join(savedPath, `${getFileName()}.${type}`)
+            : undefined,
         filters: [{ name: t("图像"), extensions: [type] }],
     });
 
@@ -1356,7 +1358,9 @@ mainOn("recordSavePath", ([ext]) => {
     dialog
         .showSaveDialog({
             title: t("选择要保存的位置"),
-            defaultPath: join(savedPath, `${getFileName()}.${ext}`),
+            defaultPath: savedPath
+                ? join(savedPath, `${getFileName()}.${ext}`)
+                : undefined,
             filters: [{ name: t("视频"), extensions: [ext] }],
         })
         .then(async (x) => {
@@ -2182,7 +2186,7 @@ mainOn("save_file_path", async ([type, isVideo]) => {
     }
     const x = await dialog.showSaveDialog({
         title: t("选择要保存的位置"),
-        defaultPath: defaultPath,
+        defaultPath: savedPath ? defaultPath : undefined,
         filters: [
             { name: isVideo ? t("视频") : t("图像"), extensions: [type] },
         ],
