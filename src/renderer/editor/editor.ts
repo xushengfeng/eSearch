@@ -693,7 +693,7 @@ class xeditor {
      * 写入编辑器
      * @param value 传入text
      */
-    push(value: string) {
+    push(value: string, unwrite = false) {
         this.text.value = value;
         lineNum();
         setTextAreaHeight();
@@ -702,10 +702,8 @@ class xeditor {
             exitFind();
         }
 
-        if (editingOnOther) {
-            editingOnOther = false;
+        if (!unwrite) {
             writeEditOnOther();
-            editingOnOther = true;
         }
 
         if (isCheck) runSpellcheck();
@@ -1969,7 +1967,7 @@ function editOnOther() {
             fileWatcher = fs.watch(tmpTextPath, () => {
                 fs.readFile(tmpTextPath, "utf8", (e, data) => {
                     if (e) console.log(e);
-                    editor.push(data);
+                    editor.push(data, true);
                 });
             });
             textOut.attr({ title: "正在外部编辑中，双击退出" });
@@ -1992,6 +1990,7 @@ function editOnOther() {
 }
 
 function writeEditOnOther() {
+    if (!editingOnOther) return;
     const data = Buffer.from(editor.get());
     fs.writeFile(tmpTextPath, data, () => {});
 }
