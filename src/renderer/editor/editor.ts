@@ -113,10 +113,7 @@ try {
         {};
 } catch (error) {}
 
-let editOnOtherType: "o" | "c" | null = null;
 let fileWatcher: FSWatcher | null = null;
-
-let editingOnOther = false;
 
 let lo: import("esearch-ocr").initType;
 
@@ -147,15 +144,14 @@ const navConciseSwitch = buttonSwitch(iconBEl("concise", "简洁模式"), (c) =>
 });
 nav.add([navTopSwitch, navDingSwitch, navConciseSwitch]).addInto();
 
-const editOnOtherEl = iconBEl("super_edit", "其他编辑器打开")
-    .on("click", () => {
-        editOnOtherType = "o";
-        editOnOther();
-    })
-    .on("contextmenu", () => {
-        editOnOtherType = "c";
-        editOnOther();
-    });
+const editOnOtherEl = buttonSwitch(
+    iconBEl("super_edit", "其他编辑器打开"),
+    (c) => {
+        editOnOther(c);
+    },
+).on("contextmenu", () => {
+    clipboard.writeText(tmpTextPath);
+});
 nav.add([editOnOtherEl]);
 
 const ziCount = view().style({
@@ -1025,7 +1021,7 @@ function editorChange() {
         find_();
     }
     countWords();
-    if (editingOnOther) writeEditOnOther();
+    if (editOnOtherEl.gv) writeEditOnOther();
     if (isCheck) runSpellcheck();
 }
 
@@ -1954,35 +1950,20 @@ renderOn("editorInit", ([name, list]) => {
     }
 });
 
-function editOnOther() {
-    editingOnOther = !editingOnOther;
+function editOnOther(editingOnOther: boolean) {
     if (editingOnOther) {
         const data = Buffer.from(editor.get());
         fs.writeFile(tmpTextPath, data, () => {
-            if (editOnOtherType === "o") {
-                shell.openPath(tmpTextPath);
-            } else if (editOnOtherType === "c") {
-                openWith(tmpTextPath);
-            }
+            shell.openPath(tmpTextPath);
             fileWatcher = fs.watch(tmpTextPath, () => {
                 fs.readFile(tmpTextPath, "utf8", (e, data) => {
                     if (e) console.log(e);
                     editor.push(data, true);
                 });
             });
-            textOut.attr({ title: "正在外部编辑中，双击退出" });
-            document.addEventListener("dblclick", () => {
-                editingOnOther = true;
-                editOnOther();
-            });
         });
     } else {
         try {
-            textOut.attr({ title: "" });
-            document.removeEventListener("dblclick", () => {
-                editingOnOther = true;
-                editOnOther();
-            });
             fileWatcher?.close();
             fs.unlink(tmpTextPath, () => {});
         } catch {}
@@ -1990,7 +1971,7 @@ function editOnOther() {
 }
 
 function writeEditOnOther() {
-    if (!editingOnOther) return;
+    if (!editOnOtherEl.gv) return;
     const data = Buffer.from(editor.get());
     fs.writeFile(tmpTextPath, data, () => {});
 }
@@ -2029,14 +2010,6 @@ async function edit(arg: EditToolsType) {
             break;
         case "show_history":
             historySwitch.sv(!historySwitch.gv);
-            break;
-        case "edit_on_other":
-            editOnOtherType = "o";
-            editOnOther();
-            break;
-        case "choose_editer":
-            editOnOtherType = "c";
-            editOnOther();
             break;
         case "wrap":
             wrap();
