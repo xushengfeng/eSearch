@@ -1,3 +1,5 @@
+import type Electron from "electron";
+
 export interface setting {
     首次运行: false;
     设置版本: string; // 用于新版本识别
