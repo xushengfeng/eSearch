@@ -49,8 +49,9 @@ import {
     writeFile,
     writeFileSync,
     statSync,
+    cpSync,
 } from "node:fs";
-import { release, tmpdir } from "node:os";
+import { release, tmpdir, homedir } from "node:os";
 import { t, lan, getLans } from "../../lib/translate/translate";
 import main, { matchFitLan } from "xtranslator";
 import time_format from "../../lib/time_format";
@@ -1444,8 +1445,11 @@ mainOn("move_user_data", ([target]) => {
 mainOn("getAutoStart", () => {
     if (process.platform === "linux") {
         try {
-            execSync("test -e ~/.config/autostart/e-search.desktop");
-            return true;
+            const autoStartPath = join(
+                homedir(),
+                ".config/autostart/e-search.desktop",
+            );
+            return existsSync(autoStartPath);
         } catch (error) {
             return false;
         }
@@ -1454,12 +1458,16 @@ mainOn("getAutoStart", () => {
 });
 mainOn("setAutoStart", ([arg1]) => {
     if (process.platform === "linux") {
-        if (arg1) {
-            exec("mkdir ~/.config/autostart");
-            exec(`cp ${runPath}/assets/e-search.desktop ~/.config/autostart/`);
-        } else {
-            exec("rm ~/.config/autostart/e-search.desktop");
-        }
+        try {
+            const autoStartDir = join(homedir(), ".config/autostart");
+            const autoStartFile = join(autoStartDir, "e-search.desktop");
+            if (arg1) {
+                mkdirSync(autoStartDir, { recursive: true });
+                cpSync(`${runPath}/assets/e-search.desktop`, autoStartFile);
+            } else {
+                rmSync(autoStartFile, { recursive: true });
+            }
+        } catch {}
     } else {
         app.setLoginItemSettings({ openAtLogin: arg1 });
     }
