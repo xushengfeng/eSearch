@@ -2696,7 +2696,7 @@ const defaultSetting: setting = {
         github镜像: {
             启用: true,
             api: "https://api.kkgithub.com/",
-            base: "https://github.moeyy.xyz/https://github.com/",
+            base: "https://gh-proxy.com/https://github.com/",
         },
     },
 };
