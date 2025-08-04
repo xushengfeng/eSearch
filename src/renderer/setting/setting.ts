@@ -107,9 +107,12 @@ type settingItem<t extends SettingPath> = {
 
 const oldStore = store.getAll();
 const nowStore = structuredClone(oldStore);
-const nowStoreKV = new Set<SettingPath>();
+const nowStoreK = new Set<SettingPath>();
 
 let defaultSetting: null | setting = null;
+
+const settingMemKey = "设置记忆";
+const oldSettingMemo = getSettingMem();
 
 const mainLan = getSet("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
@@ -1916,7 +1919,9 @@ const main: {
     settings?: KeyPath[];
     desc?: string;
     items?: { title: string; desc?: string; settings: KeyPath[] }[];
+    isMemo?: boolean;
 }[] = [
+    { pageName: "常用", isMemo: true },
     {
         pageName: "截屏",
         items: [
@@ -2472,6 +2477,24 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
     },
 ];
 
+function getSettingMem() {
+    const xs: SettingPath[] = [
+        "OCR.类型",
+        "离线OCR",
+        "翻译.翻译器",
+        "AI.在线模型",
+        "快捷键.截屏搜索.key",
+        "语言.语言",
+    ];
+    try {
+        return JSON.parse(
+            localStorage.getItem(settingMemKey) || "",
+        ) as SettingPath[];
+    } catch (error) {
+        return xs;
+    }
+}
+
 function getFromStore<t extends SettingPath>(
     store: setting,
     k: t,
@@ -2488,19 +2511,25 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     if (old === v) return;
     const initV = getFromStore(oldStore, k);
     const isSame = isSettingItemSame(initV, v);
-    if (isSame) {
-        nowStoreKV.delete(k);
-    } else {
-        nowStoreKV.add(k);
+    nowStoreK.delete(k);
+    if (!isSame) {
+        nowStoreK.add(k);
     }
+
+    const nSettingMemo = [
+        ...Array.from(nowStoreK).toReversed(),
+        ...oldSettingMemo.filter((i) => !nowStoreK.has(i)),
+    ].slice(0, 24);
+    localStorage.setItem(settingMemKey, JSON.stringify(nSettingMemo));
+
     historyEl.clear();
-    if (nowStoreKV.size > 0) {
+    if (nowStoreK.size > 0) {
         historyEl.add([
             button("更改的设置").on("click", () => {
-                renderSettingList(Array.from(nowStoreKV));
+                renderSettingList(Array.from(nowStoreK));
             }),
             button("放弃本次修改").on("click", () => {
-                for (const x of Array.from(nowStoreKV)) {
+                for (const x of Array.from(nowStoreK)) {
                     setSet(x, getFromStore(oldStore, x));
                     reRenderSetting(x);
                 }
@@ -2538,8 +2567,8 @@ function bindRun2() {
     for (const f of bindF2) {
         const x = f.keys.find(
             (k) =>
-                nowStoreKV.has(k) ||
-                Array.from(nowStoreKV).find((x) => x.startsWith(`${k}.`)),
+                nowStoreK.has(k) ||
+                Array.from(nowStoreK).find((x) => x.startsWith(`${k}.`)),
         );
         f.f(Boolean(x));
     }
@@ -2723,13 +2752,13 @@ function renderSetting(settingPath: KeyPath) {
             el.el.click();
         });
     }
-    setEidtedItem(pel, nowStoreKV.has(settingPath as SettingPath));
+    setEidtedItem(pel, nowStoreK.has(settingPath as SettingPath));
     pel.on("contextmenu", (e) => {
         e.preventDefault();
         e.stopPropagation();
         contextMenu.clear();
         let s = false;
-        if (nowStoreKV.has(settingPath as SettingPath)) {
+        if (nowStoreK.has(settingPath as SettingPath)) {
             contextMenu.add(view().add("撤销修改")).on("click", () => {
                 setSet(
                     settingPath as SettingPath,
@@ -4364,6 +4393,12 @@ async function showPage(page: (typeof main)[0] | undefined) {
             }
             // @ts-ignore
             await scheduler.yield();
+        }
+    }
+    if (page.isMemo) {
+        const m = getSettingMem();
+        for (const setting of m) {
+            mainView.add(renderSetting(setting));
         }
     }
 }
