@@ -21,6 +21,6 @@ function getUrl(url: string) {
 console.log(
     "⚡镜像下载：\n",
     getUrl(
-        "https://github.moeyy.xyz/https://github.com/xushengfeng/eSearch/releases/download/$v/eSearch-$v-$p-$arch.$h",
+        "https://gh-proxy.com/https://github.com/xushengfeng/eSearch/releases/download/$v/eSearch-$v-$p-$arch.$h",
     ),
 );
