@@ -393,7 +393,7 @@ const ignoreModule = [
     "iconv-lite",
     "esprima",
     "decimal.js",
-    "franc",
+    "@xushengfeng/fasttext_wasm",
     "tar-fs",
     "node-abi",
     "tr46",

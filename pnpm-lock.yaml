@@ -10,12 +10,18 @@ importers:
 
   .:
     dependencies:
+      '@echogarden/fasttext-wasm':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@erase2d/fabric':
         specifier: ^1.1.6
         version: 1.1.6(fabric@6.4.0(canvas@3.1.0))
       '@techstark/opencv-js':
         specifier: 4.10.0-release.1
         version: 4.10.0-release.1
+      '@xushengfeng/fasttext_wasm':
+        specifier: ^1.0.2
+        version: 1.0.2
       chroma-js:
         specifier: ^3.1.1
         version: 3.1.1
@@ -37,9 +43,6 @@ importers:
       fabric:
         specifier: ^6.4.0
         version: 6.4.0(canvas@3.1.0)
-      franc:
-        specifier: ^6.2.0
-        version: 6.2.0
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -52,9 +55,6 @@ importers:
       hotkeys-js:
         specifier: ^3.13.7
         version: 3.13.7
-      iso-639-3-to-1:
-        specifier: ^1.0.0
-        version: 1.0.0
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
@@ -317,6 +317,9 @@ packages:
   '@develar/schema-utils@2.6.5':
     resolution: {integrity: sha512-0cp4PsWQ/9avqTVMCtZ+GirikIA36ikvjtHweU4/j8yLtgObI0+JUPhYFScgwlteveGB1rt3Cm8UhN04XayDig==}
     engines: {node: '>= 8.9.0'}
+
+  '@echogarden/fasttext-wasm@0.1.0':
+    resolution: {integrity: sha512-spZGRZMUpJsGMJri6+Ea86ECTeFXr2ZQei5xrviVfo8u57OU8Uo0JqW/rUOgn55tVbIxEqfYrHT5u0OUYOKLvQ==}
 
   '@electron/asar@3.2.18':
     resolution: {integrity: sha512-2XyvMe3N3Nrs8cV39IKELRHTYUWFKrmqqSY1U+GMlc0jvqjIVnoxhNd2H4JolWQncbJi1DCvb5TNxZuI2fEjWg==}
@@ -976,6 +979,9 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
+  '@xushengfeng/fasttext_wasm@1.0.2':
+    resolution: {integrity: sha512-vTNVeCIGqDpKCzvnoZmnBPJlv2OiX/PRW0PdsurYckIinO6OHXhJPLu4WQkDJZn4IwHXJOgsb26PGzlmo0mhog==}
+
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     deprecated: Use your platform's native atob() and btoa() methods instead
@@ -1263,9 +1269,6 @@ packages:
   clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
-
-  collapse-white-space@2.1.0:
-    resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
 
   color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
@@ -1687,9 +1690,6 @@ packages:
     resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
     engines: {node: '>= 6'}
 
-  franc@6.2.0:
-    resolution: {integrity: sha512-rcAewP7PSHvjq7Kgd7dhj82zE071kX5B4W1M4ewYMf/P+i6YsDQmj62Xz3VQm9zyUzUXwhIde/wHLGCMrM+yGg==}
-
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
 
@@ -1954,9 +1954,6 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  iso-639-3-to-1@1.0.0:
-    resolution: {integrity: sha512-oBhwbVD5hfZT6e+CcokEH3n5zIEp03MOzbjDvsRAUVGIRqD8qc9h2A3NzXP5+srDpxypb6YrBal7tN/NlYVbpg==}
-
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
@@ -2192,9 +2189,6 @@ packages:
   mute-stream@2.0.0:
     resolution: {integrity: sha512-WWdIxpyjEn+FhQJQQv9aQAYlHoNVdzIzUySNV1gHUPDSdZJ3yZn7pAAbQcV7B56Mvu881q9FZV+0Vx2xC44VWA==}
     engines: {node: ^18.17.0 || >=20.5.0}
-
-  n-gram@2.0.2:
-    resolution: {integrity: sha512-S24aGsn+HLBxUGVAUFOwGpKs7LBcG4RudKU//eWzt/mQ97/NMKQxDWHyHx63UNWk/OOdihgmzoETn1tf5nQDzQ==}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -2807,9 +2801,6 @@ packages:
     resolution: {integrity: sha512-l7FvfAHlcmulp8kr+flpQZmVwtu7nfRV7NZujtN0OqES8EL4O4e0qqzL0DC5gAvx/ZC/9lk6rhcUwYvkBnBnYA==}
     engines: {node: '>=12'}
 
-  trigram-utils@2.0.1:
-    resolution: {integrity: sha512-nfWIXHEaB+HdyslAfMxSqWKDdmqY9I32jS7GnqpdWQnLH89r6A5sdk3fDVYqGAZ0CrT8ovAFSAo6HRiWcWNIGQ==}
-
   truncate-utf8-bytes@1.0.2:
     resolution: {integrity: sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==}
 
@@ -3237,6 +3228,8 @@ snapshots:
     dependencies:
       ajv: 6.12.6
       ajv-keywords: 3.5.2(ajv@6.12.6)
+
+  '@echogarden/fasttext-wasm@0.1.0': {}
 
   '@electron/asar@3.2.18':
     dependencies:
@@ -3833,6 +3826,8 @@ snapshots:
 
   '@xmldom/xmldom@0.8.10': {}
 
+  '@xushengfeng/fasttext_wasm@1.0.2': {}
+
   abab@2.0.6:
     optional: true
 
@@ -4246,8 +4241,6 @@ snapshots:
       mimic-response: 1.0.1
 
   clone@1.0.4: {}
-
-  collapse-white-space@2.1.0: {}
 
   color-convert@2.0.1:
     dependencies:
@@ -4745,10 +4738,6 @@ snapshots:
       hasown: 2.0.2
       mime-types: 2.1.35
 
-  franc@6.2.0:
-    dependencies:
-      trigram-utils: 2.0.1
-
   fs-constants@1.0.0: {}
 
   fs-extra@10.1.0:
@@ -5039,8 +5028,6 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  iso-639-3-to-1@1.0.0: {}
-
   jackspeak@3.4.3:
     dependencies:
       '@isaacs/cliui': 8.0.2
@@ -5286,8 +5273,6 @@ snapshots:
   ms@2.1.3: {}
 
   mute-stream@2.0.0: {}
-
-  n-gram@2.0.2: {}
 
   nanoid@3.3.11: {}
 
@@ -5888,11 +5873,6 @@ snapshots:
     dependencies:
       punycode: 2.3.1
     optional: true
-
-  trigram-utils@2.0.1:
-    dependencies:
-      collapse-white-space: 2.1.0
-      n-gram: 2.0.2
 
   truncate-utf8-bytes@1.0.2:
     dependencies:

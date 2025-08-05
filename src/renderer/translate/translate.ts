@@ -2,9 +2,7 @@ import xtranslator, { matchFitLan } from "xtranslator";
 import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
 const { clipboard } = require("electron") as typeof import("electron");
-import { francAll } from "franc";
-// @ts-expect-error
-import convert3To1 from "iso-639-3-to-1";
+import { initFastText } from "@xushengfeng/fasttext_wasm";
 
 import store from "../../../lib/store/renderStore";
 
@@ -266,11 +264,7 @@ function pick2First(list: { text: string; lan: string }[], toPick: string[]) {
 }
 
 function detectLan(text: string) {
-    const fromLan =
-        francAll(text)
-            .map((i) => convert3To1(i[0]))
-            .filter((i) => i)
-            .at(0) ?? "auto";
+    const fromLan = fasttext.identify(text)?.alpha2 ?? "auto";
     console.log("检测语言：", fromLan);
 
     const m = matchFitLan(fromLan, c常用语言);
@@ -320,6 +314,10 @@ lansTo.add(
 );
 
 input.el.value = inputText;
+
+const ft = (await initFastText()).FastText();
+const fasttext = await ft.loadModel();
+
 if (inputText) {
     detectLan(inputText);
     translate(inputText);
