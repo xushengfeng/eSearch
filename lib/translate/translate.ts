@@ -64,7 +64,7 @@ function st(_text: string, map: typeof l) {
     }
     return t;
 }
-function autoSt(_text: string, map: typeof l) {
+function autoSt(_text: string, map: typeof l): string {
     if (!_text.trim()) return _text;
     let text = _text.trim();
     let e = "";
