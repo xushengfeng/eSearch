@@ -55,14 +55,16 @@ type Message = {
     ) => void;
     clip_long_s: () => void;
     clip_long_e: () => void;
-    getMousePos: () => { x: number; y: number };
+    getMousePos: () => {
+        ab: { x: number; y: number };
+        po: { x: number; y: number };
+    };
     clip_translate: (t: Omit<translateWinType, "type">) => void;
     clip_editor: (img: string) => void;
     clip_recordx: () => void;
     save_file_path: (type: string, isVideo?: boolean) => string;
     ok_save: (m: string, isVideo?: boolean) => void;
     clip_stop_long: () => void;
-    clip_mouse_posi: (x: number, y: number) => void;
     clip_init: (
         displays: Electron.Display[],
         imgBuffer: Buffer | undefined,
@@ -155,7 +157,6 @@ type Message = {
         display: Display[],
         rect: { x: number; y: number; w: number; h: number },
     ) => void;
-    recordMouse: (x: number, y: number) => void;
     dingMouse: (x: number, y: number) => void;
     recordSavePathReturn: (path: string) => void; // todo remove
     editorInit: (name: number, list: MainWinType) => void;

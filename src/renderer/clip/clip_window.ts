@@ -612,6 +612,14 @@ function initLong(rect: number[]) {
     longRunning = true;
     longInited = true;
 
+    longMouse = setInterval(() => {
+        const { x, y } = renderSendSync("getMousePos", []).po;
+        const el = document.elementsFromPoint(x, y);
+        if (longRunning)
+            renderSend("windowIgnoreMouse", [!el.includes(finishLongB)]);
+        else renderSend("windowIgnoreMouse", [false]);
+    }, 1000);
+
     for (const i of longHide) {
         i.style.display = "none";
     }
@@ -676,6 +684,7 @@ async function addLong(x: ImageData | undefined) {
         uIOhook?.stop();
         uIOhook = null;
         clearInterval(longClipTime);
+        if (longMouse !== null) clearInterval(longMouse);
         pjLong();
         return;
     }
@@ -3464,6 +3473,7 @@ const longX = {
 
 let longRunning = false;
 let longInited = false;
+let longMouse: NodeJS.Timeout | null = null;
 
 let longFX: typeof toolsX.long.el.gv = "y";
 
@@ -3942,13 +3952,6 @@ trackLocation();
 const finishLongB = longTip.els.finish.el;
 
 const lr = longTip.els.rect;
-
-renderOn("clip_mouse_posi", ([x, y]) => {
-    const el = document.elementsFromPoint(x, y);
-    if (longRunning)
-        renderSend("windowIgnoreMouse", [!el.includes(finishLongB)]);
-    else renderSend("windowIgnoreMouse", [false]);
-});
 
 trackPoint(pack(toolBar), {
     start: (e) => {

@@ -1033,7 +1033,6 @@ mainOn("clip_show", () => {
 });
 mainOn("clip_close", () => {
     exitFullScreen();
-    isLongStart = false;
 });
 mainOn("clip_ocr", ([img, type]) => {
     createMainWindow({ type: "ocr", content: img, arg0: type });
@@ -1090,15 +1089,18 @@ mainOn("clip_record", ([rect, id, w, h, r]) => {
     });
 });
 mainOn("clip_long_s", () => {
-    isLongStart = true;
-    longWin();
+    clipWindow?.setIgnoreMouseEvents(true);
 });
 mainOn("clip_long_e", () => {
     clipWindow?.setIgnoreMouseEvents(false);
-    isLongStart = false;
 });
-mainOn("getMousePos", () => {
-    return screen.getCursorScreenPoint();
+mainOn("getMousePos", (_, e) => {
+    const w = BrowserWindow.fromWebContents(e.sender)?.getBounds();
+    const p = screen.getCursorScreenPoint();
+    return {
+        po: { x: p.x - (w?.x || 0), y: p.y - (w?.y || 0) },
+        ab: p,
+    };
 });
 mainOn("clip_translate", ([arg]) => {
     createTranslator(arg);
@@ -1313,22 +1315,7 @@ function createRecorderWindow(
 
     recorderTipWin.setIgnoreMouseEvents(true);
 
-    const tipB = recorderTipWin.getBounds();
-
-    function mouse() {
-        if (recorderTipWin.isDestroyed()) return;
-        if (!recording || recorder.isDestroyed()) {
-            return;
-        }
-        const nowXY = screen.getCursorScreenPoint();
-        mainSend(recorderTipWin.webContents, "recordMouse", [
-            nowXY.x - tipB.x,
-            nowXY.y - tipB.y,
-        ]);
-        setTimeout(mouse, 10);
-    }
     recording = true;
-    mouse();
 }
 
 function checkWin(win: BrowserWindow) {
@@ -1516,28 +1503,6 @@ mainOn("hotkey", ([type, name, key]) => {
 });
 
 // 长截屏
-
-let isLongStart = false;
-
-function longWin() {
-    clipWindow?.setIgnoreMouseEvents(true);
-    function mouse() {
-        if (!isLongStart) {
-            clipWindow?.setIgnoreMouseEvents(false);
-            return;
-        }
-        if (!clipWindow) return;
-        if (clipWindow.isDestroyed()) return;
-        const nowXY = screen.getCursorScreenPoint();
-        const tipB = clipWindow.getBounds();
-        mainSend(clipWindow.webContents, "clip_mouse_posi", [
-            nowXY.x - tipB.x,
-            nowXY.y - tipB.y,
-        ]);
-        setTimeout(mouse, 10);
-    }
-    mouse();
-}
 
 function dingObj() {
     const obj = new Map<

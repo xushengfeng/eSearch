@@ -14,7 +14,7 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
-import { renderOn, renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { typedEntries } from "../../../lib/utils";
 
@@ -382,14 +382,15 @@ cEl.on("wheel", (e) => {
     cEl.style({ width: `${r.width * (1 + e.deltaY / 600)}px` });
 });
 
-renderOn("recordMouse", ([x, y]) => {
+setInterval(() => {
+    const { x, y } = renderSendSync("getMousePos", []).po;
     recorderMouseEl.style.left = `${x}px`;
     recorderMouseEl.style.top = `${y}px`;
     const l = document.elementsFromPoint(x, y);
     renderSend("windowIgnoreMouse", [
         !(l.includes(cEl.el) || l.includes(controlBar.el)),
     ]);
-});
+}, 10);
 
 renderOn("recordTime", ([t]) => {
     timeEl.sv(t);
