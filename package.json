@@ -67,15 +67,6 @@
     "vitest": "^3.2.3",
     "xtimelog": "^1.0.5"
   },
-  "optionalDependencies": {
-    "node-screenshots-darwin-arm64": "0.1.9",
-    "node-screenshots-darwin-x64": "0.1.9",
-    "node-screenshots-linux-x64-gnu": "0.1.9",
-    "node-screenshots-linux-x64-musl": "0.1.9",
-    "node-screenshots-win32-arm64-msvc": "0.1.9",
-    "node-screenshots-win32-ia32-msvc": "0.1.9",
-    "node-screenshots-win32-x64-msvc": "0.1.9"
-  },
   "pnpm": {
     "neverBuiltDependencies": [
       "canvas"
