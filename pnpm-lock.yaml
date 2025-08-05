@@ -10,9 +10,6 @@ importers:
 
   .:
     dependencies:
-      '@echogarden/fasttext-wasm':
-        specifier: ^0.1.0
-        version: 0.1.0
       '@erase2d/fabric':
         specifier: ^1.1.6
         version: 1.1.6(fabric@6.4.0(canvas@3.1.0))
@@ -317,9 +314,6 @@ packages:
   '@develar/schema-utils@2.6.5':
     resolution: {integrity: sha512-0cp4PsWQ/9avqTVMCtZ+GirikIA36ikvjtHweU4/j8yLtgObI0+JUPhYFScgwlteveGB1rt3Cm8UhN04XayDig==}
     engines: {node: '>= 8.9.0'}
-
-  '@echogarden/fasttext-wasm@0.1.0':
-    resolution: {integrity: sha512-spZGRZMUpJsGMJri6+Ea86ECTeFXr2ZQei5xrviVfo8u57OU8Uo0JqW/rUOgn55tVbIxEqfYrHT5u0OUYOKLvQ==}
 
   '@electron/asar@3.2.18':
     resolution: {integrity: sha512-2XyvMe3N3Nrs8cV39IKELRHTYUWFKrmqqSY1U+GMlc0jvqjIVnoxhNd2H4JolWQncbJi1DCvb5TNxZuI2fEjWg==}
@@ -3228,8 +3222,6 @@ snapshots:
     dependencies:
       ajv: 6.12.6
       ajv-keywords: 3.5.2(ajv@6.12.6)
-
-  '@echogarden/fasttext-wasm@0.1.0': {}
 
   '@electron/asar@3.2.18':
     dependencies:

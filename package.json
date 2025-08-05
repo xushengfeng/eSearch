@@ -18,7 +18,6 @@
   "homepage": "https://github.com/xushengfeng/eSearch/",
   "license": "GPL-3.0",
   "dependencies": {
-    "@echogarden/fasttext-wasm": "^0.1.0",
     "@erase2d/fabric": "^1.1.6",
     "@techstark/opencv-js": "4.10.0-release.1",
     "@xushengfeng/fasttext_wasm": "^1.0.2",
