@@ -53,8 +53,6 @@ type Message = {
         h: number,
         r: number,
     ) => void;
-    clip_long_s: () => void;
-    clip_long_e: () => void;
     getMousePos: () => {
         ab: { x: number; y: number };
         po: { x: number; y: number };

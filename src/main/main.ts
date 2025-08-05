@@ -1088,12 +1088,6 @@ mainOn("clip_record", ([rect, id, w, h, r]) => {
         r: r,
     });
 });
-mainOn("clip_long_s", () => {
-    clipWindow?.setIgnoreMouseEvents(true);
-});
-mainOn("clip_long_e", () => {
-    clipWindow?.setIgnoreMouseEvents(false);
-});
 mainOn("getMousePos", (_, e) => {
     const w = BrowserWindow.fromWebContents(e.sender)?.getBounds();
     const p = screen.getCursorScreenPoint();

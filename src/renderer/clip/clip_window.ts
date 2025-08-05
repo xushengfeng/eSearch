@@ -584,7 +584,7 @@ function startLong() {
     r[0] += screenPosition[nowScreenId].x;
     r[1] += screenPosition[nowScreenId].y;
     long_s();
-    renderSend("clip_long_s", []);
+    renderSend("windowIgnoreMouse", [true]);
     loadCV();
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
@@ -671,7 +671,7 @@ function stopLong() {
     long_s();
 
     lr.style({ opacity: "0" });
-    renderSend("clip_long_e", []);
+    renderSend("windowIgnoreMouse", [false]);
     addLong(undefined);
     for (const i of longHide) {
         i.style.display = "";
