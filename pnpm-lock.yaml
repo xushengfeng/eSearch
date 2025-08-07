@@ -70,9 +70,6 @@ importers:
       remarkable:
         specifier: ^2.0.1
         version: 2.0.1
-      sortablejs:
-        specifier: ^1.15.2
-        version: 1.15.2
       uiohook-napi:
         specifier: ^1.5.4
         version: 1.5.4
@@ -107,9 +104,6 @@ importers:
       '@types/remarkable':
         specifier: ^2.0.8
         version: 2.0.8
-      '@types/sortablejs':
-        specifier: ^1.15.8
-        version: 1.15.8
       '@types/yauzl':
         specifier: ^2.10.3
         version: 2.10.3
@@ -908,9 +902,6 @@ packages:
 
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
-
-  '@types/sortablejs@1.15.8':
-    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
 
   '@types/verror@1.10.10':
     resolution: {integrity: sha512-l4MM0Jppn18hb9xmM6wwD1uTdShpf9Pn80aXTStnK1C94gtPvJcV2FrDmbOQUAQfJ1cKZHktkQUDwEqaAKXMMg==}
@@ -2579,9 +2570,6 @@ packages:
     resolution: {integrity: sha512-pe4Y2yzru68lXCb38aAqRf5gvN8YdjP1lok5o0J7BOHljkyCGKVz7H3vpVIXKD27rj2giOJ7DwVyk/GWrPHDWA==}
     engines: {node: '>= 10.0.0', npm: '>= 3.0.0'}
 
-  sortablejs@1.15.2:
-    resolution: {integrity: sha512-FJF5jgdfvoKn1MAKSdGs33bIqLi3LmsgVTliuX6iITj834F+JRQZN90Z93yql8h0K2t0RwDPBmxwlbZfDcxNZA==}
-
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -3700,8 +3688,6 @@ snapshots:
   '@types/responselike@1.0.3':
     dependencies:
       '@types/node': 22.9.3
-
-  '@types/sortablejs@1.15.8': {}
 
   '@types/verror@1.10.10':
     optional: true
@@ -5605,8 +5591,6 @@ snapshots:
     dependencies:
       ip-address: 9.0.5
       smart-buffer: 4.2.0
-
-  sortablejs@1.15.2: {}
 
   source-map-js@1.2.0: {}
 

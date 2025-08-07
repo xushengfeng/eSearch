@@ -371,7 +371,6 @@ const ignoreDir = [
 const ignoreModule = [
     "qr-scanner-wechat",
     "tar",
-    "sortablejs",
     "hotkeys-js",
     "hex-to-css-filter",
     "dkh-ui",

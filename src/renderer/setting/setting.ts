@@ -46,8 +46,6 @@ const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
 
-import Sortable from "sortablejs";
-
 import logo from "../assets/icon.svg";
 import logoBlack from "../../../assets/logo/bw/32x32_black.png";
 import logoWhite from "../../../assets/logo/bw/32x32_white.png";
@@ -3178,6 +3176,133 @@ function pathEl(path: string) {
         .on("click", () => shell.openPath(path));
 }
 
+function sortable() {
+    const groupId = `sortable-${crypto.randomUUID()}`;
+    console.log(groupId);
+
+    return (
+        pel: ElType<HTMLElement>,
+        op: {
+            dir?: "x" | "y";
+            handle?: (el: ElType<HTMLElement>) => boolean;
+            onEnd: () => void;
+        },
+    ) => {
+        const idKey = "sortableid";
+        const dataType = "esearch/sortable";
+
+        function bindEl(child: ElType<HTMLElement>) {
+            child
+                .attr({ draggable: true })
+                .on("dragstart", (e) => {
+                    const canMove =
+                        !op.handle ||
+                        op.handle(
+                            pack(
+                                document.elementFromPoint(
+                                    e.clientX,
+                                    e.clientY,
+                                ) as HTMLElement,
+                            ),
+                        );
+                    if (!canMove) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    const transfer = e.dataTransfer;
+                    if (!transfer) return;
+
+                    const thisId = crypto.randomUUID();
+                    transfer.setData(
+                        dataType,
+                        JSON.stringify({ id: thisId, group: groupId }),
+                    );
+                    child.data({ [idKey]: thisId });
+                })
+                .on("dragend", () => {
+                    child.el.removeAttribute(`data-${idKey}`);
+                });
+        }
+        function getChild() {
+            return pel.queryAll(":scope > *");
+        }
+        for (const child of getChild()) {
+            bindEl(child);
+        }
+        pel.on("pointerdown", () => {
+            const childNodes = getChild();
+            for (const child of childNodes) {
+                if (!child.el.draggable) bindEl(child);
+            }
+        });
+        pel.on("dragover", (e) => {
+            e.preventDefault();
+        });
+        pel.on("drop", (e) => {
+            e.preventDefault();
+
+            const data = e.dataTransfer?.getData(dataType);
+            if (!data) return;
+            const { id, group } = JSON.parse(data) as {
+                id: string;
+                group: string;
+            };
+            if (group !== groupId) return;
+
+            const el = pack(document.body).query(`[data-${idKey}="${id}"]`);
+            if (!el) return;
+
+            const target = e.target as HTMLElement;
+            if (el.el.contains(target)) return;
+
+            const mousePoint = { x: e.clientX, y: e.clientY };
+            const dir = op.dir || "y";
+            function dis(
+                p1: { x: number; y: number },
+                p2: { x: number; y: number },
+            ) {
+                return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+            }
+            const cel = getChild().reduce(
+                (closest, child) => {
+                    const rect = child.el.getBoundingClientRect();
+                    const offset =
+                        dir === "y"
+                            ? dis(mousePoint, {
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top,
+                              })
+                            : dis(mousePoint, {
+                                  x: rect.left,
+                                  y: rect.top + rect.height / 2,
+                              });
+                    if (offset < closest.offset) {
+                        return { offset, el: child };
+                    }
+                    return closest;
+                },
+                {
+                    offset: Number.POSITIVE_INFINITY,
+                    el: null as ElType<HTMLElement> | null,
+                },
+            ).el;
+            for (const i of getChild())
+                i.style({ viewTransitionName: crypto.randomUUID() });
+
+            document.startViewTransition(() => {
+                if (!cel) {
+                    pel.el.appendChild(el.el);
+                } else {
+                    pel.el.insertBefore(el.el, cel.el);
+                }
+
+                op.onEnd();
+            });
+        });
+    };
+}
+
 function sortTool() {
     const pel = xGroup("x").style({ paddingLeft: "8px" });
     const toolShowEl = view().class(Class.glassBar).class(toolBarClass).style({
@@ -3188,14 +3313,13 @@ function sortTool() {
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
     });
-    new Sortable(toolShowEl.el, {
-        group: "tools",
+    const s = sortable();
+    s(toolShowEl, {
         onEnd: () => {
             pel.el.dispatchEvent(new CustomEvent("input"));
         },
     });
-    new Sortable(toolHideEl.el, {
-        group: "tools",
+    s(toolHideEl, {
         onEnd: () => {
             pel.el.dispatchEvent(new CustomEvent("input"));
         },
@@ -3245,8 +3369,9 @@ function sortList<t>(
     }
     const el = xGroup("y");
     const listEl = xGroup("x");
-    new Sortable(listEl.el, {
-        handle: ".sort_handle",
+    sortable()(listEl, {
+        handle: (el) => el.el.classList.contains("sort_handle"),
+        dir: "x",
         onEnd: () => {
             onChange();
         },
