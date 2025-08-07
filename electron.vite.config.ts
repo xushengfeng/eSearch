@@ -1,9 +1,10 @@
 import { defineConfig } from "electron-vite";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
+import { analyzer } from "vite-bundle-analyzer";
 import * as path from "node:path";
 import { tmpdir } from "node:os";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     main: {
         build: {
             minify: "esbuild",
@@ -65,6 +66,7 @@ export default defineConfig({
                 logStats: false,
                 include: /.*\svg$/,
             }),
+            mode === "analyze" ? analyzer() : undefined,
         ],
     },
-});
+}));
