@@ -2750,13 +2750,15 @@ function versionTrans() {
 }
 
 function versionCompare(v1: string, v2: string) {
-    const v1Arr = v1.split(".");
-    const v2Arr = v2.split(".");
+    const v1Arr = v1.split("-")[0].split(".");
+    const v2Arr = v2.split("-")[0].split(".");
     for (let i = 0; i < v1Arr.length; i++) {
-        if (v1Arr[i] > v2Arr[i]) {
+        const a = Number(v1Arr.at(i) ?? 0);
+        const b = Number(v2Arr.at(i) ?? 0);
+        if (a > b) {
             return 1;
         }
-        if (v1Arr[i] < v2Arr[i]) {
+        if (a < b) {
             return -1;
         }
     }
@@ -2819,13 +2821,14 @@ function checkUpdate(s手动检查?: boolean) {
             if (m === "dev") {
                 if (firstName !== version) update = true;
             } else if (m === "小版本" || s手动检查) {
-                if (
-                    firstName.split(".").slice(0, 2).join(".") !==
-                    version.split(".").slice(0, 2).join(".")
-                )
-                    update = true;
+                if (versionCompare(firstName, version) > 0) update = true;
             } else {
-                if (firstName.split(".").at(0) !== version.split(".").at(0))
+                if (
+                    versionCompare(
+                        firstName.split(".").at(0)!,
+                        version.split(".").at(0)!,
+                    ) > 0
+                )
                     update = true;
             }
             if (store.get("更新.忽略版本") !== firstName)
