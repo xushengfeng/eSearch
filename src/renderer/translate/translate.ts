@@ -109,9 +109,7 @@ function translate(_text: string) {
         const copy = iconButton("copy");
         const save = iconButton("star").style({
             display:
-                showCang.fetch.length || showCang.文件.length
-                    ? "block"
-                    : "none",
+                showCang.fetch.length || showCang.文件.length ? "" : "none",
         });
         const reTry = iconButton("reload").on("click", () => {
             f();
