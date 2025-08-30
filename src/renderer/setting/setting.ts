@@ -2448,13 +2448,20 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
             "框选",
             "显示四角坐标",
             "框选后默认操作",
-            "框选",
             "快速截屏",
             "工具快捷键",
             "截屏编辑快捷键",
             "大小栏快捷键",
+            "其他快捷键",
             "全局",
             "字体",
+            "额外截屏器",
+            "广截屏",
+            "图像编辑.arrow",
+            "离线OCR",
+            "OCR.类型",
+            "以图搜图.引擎",
+            "鼠标快捷键",
         ],
     },
     {
@@ -2471,7 +2478,15 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
                     .style({ display: "" });
             else reloadEl.style({ display: "none" });
         },
-        keys: ["语言", "托盘", "保留截屏窗口", "dev", "硬件加速"],
+        keys: [
+            "语言",
+            "托盘",
+            "保留截屏窗口",
+            "dev",
+            "硬件加速",
+            "额外截屏器",
+            "更新.频率",
+        ],
     },
 ];
 
