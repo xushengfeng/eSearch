@@ -3596,7 +3596,12 @@ function translatorD(
             key: [
                 { name: "key" },
                 { name: "url", optional: true },
-                { name: "config", text: t("请求体自定义"), area: true },
+                {
+                    name: "config",
+                    text: t("请求体自定义"),
+                    area: true,
+                    type: "json",
+                },
                 {
                     name: "userPrompt",
                     text: t("用户提示词，${t}为文字，${to}，${from}"),
