@@ -4180,80 +4180,88 @@ function ocrEl() {
             const downloadEl = view("y").add(
                 button(iconEl("down")).on("click", () => {
                     downloadEl.clear().add(
-                        getOcrList((i, p) => {
-                            const pro = (() => {
-                                const mel = view().style({
-                                    overflow: "hidden",
-                                    width: "300px",
-                                    height: "20px",
-                                    borderRadius: "var(--border-radius)",
-                                    backgroundColor: cssColor.bb,
-                                });
-                                const bel = view().style({
-                                    width: "100%",
-                                    height: "100%",
-                                    backgroundColor: cssColor.main,
-                                });
-                                return mel.add(bel).bindSet((v: number) => {
-                                    bel.style({
-                                        width: `${Math.floor(v * 100)}%`,
+                        getOcrList((i, p, download) => {
+                            if (download) {
+                                const pro = (() => {
+                                    const mel = view().style({
+                                        overflow: "hidden",
+                                        width: baseWidth,
+                                        height: "20px",
+                                        borderRadius: "var(--border-radius)",
+                                        backgroundColor: cssColor.bb,
                                     });
-                                });
-                            })();
-                            downloadEl.clear().add([pro]);
-                            const url = githubUrl(
-                                `xushengfeng/eSearch-OCR/releases/download/4.0.0/${ocrModels[i].url}`,
-                                "base",
-                            );
-                            try {
-                                fs.rmdirSync(p);
-                            } catch (error) {}
-                            fetch(url).then(async (res) => {
-                                if (!res.ok) {
-                                    throw new Error(
-                                        `下载失败: ${res.status} ${res.statusText}`,
-                                    );
-                                }
-                                if (!res.body) {
-                                    throw new Error("响应体中无数据");
-                                }
-
-                                const contentLength =
-                                    res.headers.get("content-length");
-                                const totalBytes = contentLength
-                                    ? Number.parseInt(contentLength)
-                                    : undefined;
-
-                                const reader = res.body.getReader();
-
-                                let downloadedBytes = 0;
-
-                                const chunks = [];
-
+                                    const bel = view().style({
+                                        width: "100%",
+                                        height: "100%",
+                                        backgroundColor: cssColor.main,
+                                    });
+                                    return mel.add(bel).bindSet((v: number) => {
+                                        bel.style({
+                                            width: `${Math.floor(v * 100)}%`,
+                                        });
+                                    });
+                                })();
+                                downloadEl.clear().add([pro]);
+                                const url = githubUrl(
+                                    `xushengfeng/eSearch-OCR/releases/download/4.0.0/${ocrModels[i].url}`,
+                                    "base",
+                                );
                                 try {
-                                    while (true) {
-                                        const { done, value } =
-                                            await reader.read();
-                                        if (done) break;
-                                        chunks.push(value);
-                                        downloadedBytes += value.length;
-                                        if (totalBytes) {
-                                            const percent =
-                                                downloadedBytes / totalBytes;
-                                            console.log(percent);
-                                            pro.sv(percent);
-                                        }
+                                    fs.rmdirSync(p);
+                                } catch (error) {}
+                                fetch(url).then(async (res) => {
+                                    if (!res.ok) {
+                                        throw new Error(
+                                            `下载失败: ${res.status} ${res.statusText}`,
+                                        );
                                     }
-                                } finally {
-                                }
+                                    if (!res.body) {
+                                        throw new Error("响应体中无数据");
+                                    }
 
-                                const buffer = await new Blob(
-                                    chunks,
-                                ).arrayBuffer();
-                                const b = Buffer.from(buffer);
-                                await unzip(b, p);
-                                console.log("end");
-                                downloadEl.clear();
+                                    const contentLength =
+                                        res.headers.get("content-length");
+                                    const totalBytes = contentLength
+                                        ? Number.parseInt(contentLength)
+                                        : undefined;
+
+                                    const reader = res.body.getReader();
+
+                                    let downloadedBytes = 0;
+
+                                    const chunks = [];
+
+                                    try {
+                                        while (true) {
+                                            const { done, value } =
+                                                await reader.read();
+                                            if (done) break;
+                                            chunks.push(value);
+                                            downloadedBytes += value.length;
+                                            if (totalBytes) {
+                                                const percent =
+                                                    downloadedBytes /
+                                                    totalBytes;
+                                                console.log(percent);
+                                                pro.sv(percent);
+                                            }
+                                        }
+                                    } finally {
+                                    }
+
+                                    const buffer = await new Blob(
+                                        chunks,
+                                    ).arrayBuffer();
+                                    const b = Buffer.from(buffer);
+                                    await unzip(b, p);
+                                    console.log("end");
+                                    downloadEl.clear();
+                                    setValue(p);
+                                });
+                            } else {
+                                setValue(p);
+                            }
+                            function setValue(p: string) {
                                 const paths = getDownloadOcrPaths(p);
                                 if (nameEl.gv === "") {
                                     nameEl.sv(t(ocrModels[i].name));
@@ -4267,7 +4275,7 @@ function ocrEl() {
                                 optimizeSpaceEl.sv(
                                     ocrModels[i].optimize?.space ?? true,
                                 );
-                            });
+                            }
                         }),
                     );
                 }),
@@ -4309,9 +4317,11 @@ function ocrEl() {
         },
     );
 
-    function getOcrList(click: (id: string, p: string) => void) {
+    function getOcrList(
+        click: (id: string, p: string, download: boolean) => void,
+    ) {
         const ocrListEl = view("y")
-            .style({ overflow: "auto", maxHeight: "200px" })
+            .style({ overflow: "auto", maxHeight: "200px", width: baseWidth })
             .class(Class.gap);
         for (const i in ocrModels) {
             const desc = p();
@@ -4323,12 +4333,12 @@ function ocrEl() {
             const downloadButton = button(exists ? "重新下载" : "下载").on(
                 "click",
                 () => {
-                    click(i, pa);
+                    click(i, pa, true);
                 },
             );
             ocrListEl.add(
                 view("y").add([
-                    view("x")
+                    view("x", "wrap")
                         .class(Class.gap)
                         .add([
                             button(ocrModels[i].name).on("click", () => {
@@ -4342,6 +4352,11 @@ function ocrEl() {
                                 );
                             }),
                             downloadButton,
+                            exists
+                                ? button("使用").on("click", () =>
+                                      click(i, pa, false),
+                                  )
+                                : null,
                         ])
                         .style({ "align-items": "center" }),
                     desc,
