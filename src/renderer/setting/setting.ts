@@ -3579,11 +3579,13 @@ function translatorD(
                 {
                     name: "sysPrompt",
                     text: t("系统提示词，${t}为文字，${to}，${from}"),
+                    area: true,
                     optional: true,
                 },
                 {
                     name: "userPrompt",
                     text: t("用户提示词，${t}为文字，${to}，${from}"),
+                    area: true,
                     optional: true,
                 },
             ],
@@ -3598,6 +3600,7 @@ function translatorD(
                 {
                     name: "userPrompt",
                     text: t("用户提示词，${t}为文字，${to}，${from}"),
+                    area: true,
                     optional: true,
                 },
             ],
@@ -3615,7 +3618,7 @@ function translatorD(
     const idEl = input()
         .sv(v.name)
         .attr({ placeholder: t("请为翻译器命名") })
-        .style({ width: "240px" });
+        .style({ minWidth: 0 });
     const selectEl = select<Engines | "">(
         [{ value: "", name: "选择引擎类型" }].concat(
             // @ts-ignore
@@ -3710,7 +3713,15 @@ function translatorD(
 
     dialogB(
         addTranslatorM,
-        [view("x").add([idEl, selectEl]).class(Class.gap), keys, help, testEl],
+        [
+            view("x")
+                .add([idEl, selectEl])
+                .style({ width: baseWidth })
+                .class(Class.gap),
+            keys,
+            help,
+            testEl,
+        ],
         () => resolve(null),
         () => {
             const nv = getV();
