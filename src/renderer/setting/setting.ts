@@ -73,6 +73,7 @@ import type { IconType } from "../../iconTypes";
 import { defaultOcrId } from "../ocr/ocr";
 import { xget, xset } from "../../../lib/store/parse";
 import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
+import { tryx } from "../lib/utils";
 
 let yauzl: typeof import("yauzl") | null = null;
 
@@ -3699,9 +3700,22 @@ function translatorD(
         if (!ee) return null;
         const e = ee.key;
         for (const el of keys.queryAll("input, textarea")) {
-            const type = e.find((i) => i.name === el.el.dataset.key)?.type;
-            key[el.el.dataset?.key ?? ""] =
-                type === "json" ? JSON.parse(el.el.value) : el.el.value;
+            const name = el.el.dataset.key;
+            if (!name) continue;
+            const type = e.find((i) => i.name === name)?.type;
+            let value: object | string = el.el.value;
+            if (type === "json") {
+                if (value.trim() === "") value = {};
+                else {
+                    const [v, e] = tryx(() => JSON.parse(el.el.value));
+                    if (e) {
+                        alert(`${name} ${t("JSON格式错误")}`);
+                    } else {
+                        value = v;
+                    }
+                }
+            }
+            key[name] = value;
         }
         const nv: typeof v = {
             id: v.id,
