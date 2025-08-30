@@ -4,6 +4,7 @@ import { xget, xset } from "./parse";
 
 import type { GetValue, SettingPath } from "./renderStore";
 import type { setting } from "../../src/ShareTypes";
+import { safeJSONParse } from "../utils";
 
 type data = {
     [key: string]: unknown;
@@ -34,7 +35,7 @@ class Store {
         } catch (error) {
             this.init();
         }
-        return JSON.parse(str) as data;
+        return safeJSONParse<data>(str, {});
     }
 
     private setStore(data: data) {

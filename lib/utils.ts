@@ -1,4 +1,4 @@
-export { typedEntries, typedKeys, tryx, tryD };
+export { typedEntries, typedKeys, tryx, tryD, safeJSONParse };
 
 // biome-ignore lint/suspicious/noExplicitAny: 相信ai
 type Entry<T> = T extends any ? { [K in keyof T]: [K, T[K]] }[keyof T] : never;
@@ -24,4 +24,8 @@ function tryD<T>(fn: () => T, defaultV: T): T {
     } catch {
         return defaultV;
     }
+}
+
+function safeJSONParse<T>(x: string | null | undefined, defaultV: T): T {
+    return tryD(() => JSON.parse(x ?? ""), defaultV);
 }

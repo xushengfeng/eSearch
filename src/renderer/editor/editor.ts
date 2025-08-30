@@ -63,7 +63,7 @@ import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { rotateImg } from "esearch-ocr";
-import { typedEntries } from "../../../lib/utils";
+import { typedEntries, tryD, safeJSONParse } from "../../../lib/utils";
 
 type SpellItem = {
     index: number;
@@ -106,12 +106,9 @@ const historyPath = path.join(
     renderSendSync("userDataPath", []),
     "history.json",
 );
-let historyList: { [key: string]: { text: string } } = {};
-try {
-    historyList =
-        JSON.parse(fs.readFileSync(historyPath).toString() || "{}").历史记录 ||
-        {};
-} catch (error) {}
+const historyList: { [key: string]: { text: string } } =
+    safeJSONParse(fs.readFileSync(historyPath).toString(), { 历史记录: {} })
+        .历史记录 || {};
 
 let fileWatcher: FSWatcher | null = null;
 

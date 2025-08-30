@@ -73,7 +73,7 @@ import type { IconType } from "../../iconTypes";
 import { defaultOcrId } from "../ocr/ocr";
 import { xget, xset } from "../../../lib/store/parse";
 import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
-import { tryx } from "../lib/utils";
+import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
 
 let yauzl: typeof import("yauzl") | null = null;
 
@@ -571,14 +571,10 @@ const s: Partial<settingItem<SettingPath>> = {
                             }
                         })
                         .bindGet((el) => {
-                            try {
-                                return JSON.parse(el.value) as Record<
-                                    string,
-                                    unknown
-                                >;
-                            } catch (e) {
-                                return {};
-                            }
+                            return safeJSONParse<Record<string, unknown>>(
+                                el.value,
+                                {},
+                            );
                         })
                         .sv(item.config)
                         .style(textStyle(6));
@@ -2500,13 +2496,10 @@ function getSettingMem() {
         "快捷键.截屏搜索.key",
         "语言.语言",
     ];
-    try {
-        return JSON.parse(
-            localStorage.getItem(settingMemKey) || "",
-        ) as SettingPath[];
-    } catch (error) {
-        return xs;
-    }
+    return safeJSONParse<SettingPath[]>(
+        localStorage.getItem(settingMemKey),
+        xs,
+    );
 }
 
 function getFromStore<t extends SettingPath>(
