@@ -2209,7 +2209,7 @@ const timeLineTrack = <D>(op: {
     const track = view().addInto(timeLineControl);
 
     function setData(d: { start: SrcId; end: SrcId; value: D }[]) {
-        data = d.map((d) => ({ ...d, id: uuid() }));
+        data = structuredClone(d).map((d) => ({ ...d, id: uuid() }));
         render();
     }
     function ipx(n: number) {
@@ -2239,7 +2239,23 @@ const timeLineTrack = <D>(op: {
             width: ipx(d.end - d.start + 1),
         });
     }
-    function render() {
+    function render(changeElId?: string) {
+        if (changeElId) {
+            const da = data.find((d) => d.id === changeElId);
+            if (!da) {
+                console.warn("找不到对应元素", changeElId);
+                return;
+            }
+            const el = track.query(
+                `[data-id="${changeElId}"]`,
+            ) as ElType<HTMLElement>;
+            if (el) {
+                setItemEl(da, el);
+            } else {
+                itemEl(da);
+            }
+            return;
+        }
         track.clear();
         for (const d of data) {
             itemEl(d);
@@ -2282,6 +2298,24 @@ const timeLineTrack = <D>(op: {
         );
     }
 
+    function limitLeft(d: (typeof data)[0], pi: SrcId) {
+        const oldStart = d.start;
+        const left = Math.max(
+            ...data.map((d) => d.end).filter((s) => s < oldStart),
+            -1,
+        );
+        return MathClamp(left + 1, oldStart + pi, d.end) as SrcId;
+    }
+
+    function limitRight(d: (typeof data)[0], pi: SrcId) {
+        const oldEnd = d.end;
+        const right = Math.min(
+            ...data.map((d) => d.start).filter((e) => e > oldEnd),
+            listLength(),
+        );
+        return MathClamp(d.start, oldEnd + pi, right - 1) as SrcId;
+    }
+
     trackPoint(track, {
         all: (e) => {
             const x = getX(e);
@@ -2308,8 +2342,7 @@ const timeLineTrack = <D>(op: {
                     value: op.newValue(),
                 };
                 data.push(d);
-                itemEl(d);
-                type = "end";
+                render(d.id);
                 itemId = d.id;
             }
             return {
@@ -2317,10 +2350,8 @@ const timeLineTrack = <D>(op: {
                 y: 0,
                 data: {
                     type: type,
-                    d: data.find((d) => d.id === itemId) as (typeof data)[0],
-                    el: track.query(
-                        `[data-id="${itemId}"]`,
-                    ) as ElType<HTMLElement>,
+                    d: data.find((d) => d.id === itemId)!,
+                    el: track.query(`[data-id="${itemId}"]`)!,
                 },
             };
         },
@@ -2329,21 +2360,19 @@ const timeLineTrack = <D>(op: {
             if (!sd.d || !sd.el) return null;
             const d = structuredClone(sd.d);
             const newD = structuredClone(d);
+            if (sd.type === "none") {
+                if (pi > 0) {
+                    newD.end = limitRight(d, pi);
+                }
+                if (pi < 0) {
+                    newD.start = limitLeft(d, pi);
+                }
+            }
             if (sd.type === "start") {
-                const oldStart = sd.d.start;
-                const left = Math.max(
-                    ...data.map((d) => d.end).filter((s) => s < oldStart),
-                    -1,
-                );
-                newD.start = MathClamp(left + 1, oldStart + pi, d.end) as SrcId;
+                newD.start = limitLeft(d, pi);
             }
             if (sd.type === "end") {
-                const oldEnd = d.end;
-                const right = Math.min(
-                    ...data.map((d) => d.start).filter((e) => e > oldEnd),
-                    listLength(),
-                );
-                newD.end = MathClamp(d.start, oldEnd + pi, right - 1) as SrcId;
+                newD.end = limitRight(d, pi);
             }
             if (sd.type === "center") {
                 const width = d.end - d.start;
