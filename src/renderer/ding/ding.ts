@@ -967,6 +967,9 @@ const dingPhotoClass = addClass(
         "&:hover": {
             boxShadow: "var(--shadow)",
         },
+        "&:focus": {
+            outline: "none",
+        },
     },
 );
 const dingPhotoHightClass = addClass({ boxShadow: "var(--shadow)" }, {});
