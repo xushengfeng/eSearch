@@ -365,7 +365,7 @@ const s: Partial<settingItem<SettingPath>> = {
                 "快速截屏模式",
             ),
     },
-    "快速截屏.路径": { name: "快速截屏路径", el: () => xPath() },
+    "快速截屏.路径": { name: "快速截屏路径", el: () => xPath(true) },
     "连拍.数": {
         name: "单次连拍数量",
         el: () => xNumber("", { min: 2, max: 25 }),
@@ -3030,7 +3030,7 @@ function xColor() {
         });
 }
 
-function xPath(dir = true) {
+function xPath(dir: boolean) {
     const el = view("x").class(Class.group).style({ width: baseWidth });
     const i = input();
     const b = button(iconEl("file"))
@@ -4192,9 +4192,9 @@ function ocrEl() {
                 } satisfies setting["离线OCR"][0]);
 
             const nameEl = input().sv(item.name);
-            const detPathEl = xPath().sv(item.detPath);
-            const recPathEl = xPath().sv(item.recPath);
-            const dicPathEl = xPath().sv(item.dicPath);
+            const detPathEl = xPath(false).sv(item.detPath);
+            const recPathEl = xPath(false).sv(item.recPath);
+            const dicPathEl = xPath(false).sv(item.dicPath);
             const scriptsEl = input()
                 .bindGet((el) => el.value.split(",").map((i) => i.trim()))
                 .bindSet((v: string[], el) => {
