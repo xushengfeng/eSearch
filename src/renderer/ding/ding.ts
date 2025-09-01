@@ -649,8 +649,6 @@ document.onmousedown = (e) => {
                 type: "move_start",
                 more: {
                     id: div.el.id,
-                    x: e.clientX,
-                    y: e.clientY,
                     dx,
                     dy,
                     d: dire(div.el, { x: e.clientX, y: e.clientY }),
@@ -663,9 +661,12 @@ document.onmousedown = (e) => {
 function mouseStart(op: DingStart) {
     windowDiv = elFromId(op.id);
     const div = windowDiv as ElType<HTMLElement>;
+    const {
+        po: { x, y },
+    } = renderSendSync("getMousePos", []);
     div.style({
-        left: `${op.x - div.el.offsetWidth * op.dx}px`,
-        top: `${op.y - div.el.offsetHeight * op.dy}px`,
+        left: `${x - div.el.offsetWidth * op.dx}px`,
+        top: `${y - div.el.offsetHeight * op.dy}px`,
     });
     oPs = [
         div.el.offsetLeft,
@@ -673,7 +674,7 @@ function mouseStart(op: DingStart) {
         div.el.offsetWidth,
         div.el.offsetHeight,
     ];
-    changing = { x: op.x, y: op.y };
+    changing = { x: x, y: y };
     direction = op.d;
     cursor(direction);
 }

@@ -510,8 +510,6 @@ type Dire =
 
 type DingStart = {
     id: string;
-    x: number;
-    y: number;
     dx: number;
     dy: number;
     d: Dire;

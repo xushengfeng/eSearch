@@ -1664,15 +1664,6 @@ mainOnReflect("dingShare", ([data]) => {
         return [];
     }
 
-    if (data.type === "move_start") {
-        const nowXY = screen.getCursorScreenPoint();
-
-        for (const [_, { display }] of dingwindowList.entries()) {
-            data.more.x = nowXY.x - display.bounds.x;
-            data.more.y = nowXY.y - display.bounds.y;
-        }
-    }
-
     return dingwindowList.entries().map(([_, { win }]) => win.webContents);
 });
 mainOn("edit_pic", ([img]) => {
