@@ -671,7 +671,7 @@ async function selectTest() {
     }
 
     const toT = await select({
-        message: "选择进行的测试",
+        message: "选择进行的测试（测试结束后退出软件以进行下一步）",
         choices: toTest.map((i) => ({ name: i.name, value: i.name })),
     });
 
