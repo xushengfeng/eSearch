@@ -1009,12 +1009,63 @@ const imageClass = addClass(
 );
 
 const dockP = store.get("ding_dock");
+
+const dockClassSmall = addClass(
+    {
+        height: "40px",
+        width: "12px",
+        left: "var(--dock-left)",
+        top: "var(--dock-top)",
+    },
+    {},
+);
+
 const dockEl = view()
     .attr({ id: "dock" })
-    .style({ left: `${dockP[0]}px`, top: `${dockP[1]}px` })
+    .bindSet((v: { x: number; y: number }, el) => {
+        dockEl.style({
+            "--dock-left": `${v.x}px`,
+            "--dock-top": `${v.y}px`,
+        });
+    })
+    .style({
+        position: "fixed",
+        zIndex: "2",
+    })
     .class(Class.screenBar)
+    .class(dockClassSmall)
     .addInto();
-const dockView = view().addInto(dockEl);
+dockEl.sv({ x: dockP[0], y: dockP[1] });
+
+const dockClassBigLeft = addClass(
+    {
+        height: "100%",
+        width: "200px",
+        top: "0",
+        left: "0",
+        borderRadius: "0",
+    },
+    {},
+);
+
+const dockClassBigRight = addClass(
+    {
+        height: "100%",
+        width: "200px",
+        top: "0",
+        left: "calc(100vw - 200px)",
+        borderRadius: "0",
+    },
+    {},
+);
+const dockView = view()
+    .style({
+        overflowX: "hidden",
+        overflowY: "auto",
+        width: "100%",
+        display: "none",
+    })
+    .addInto(dockEl);
 
 let dockShow = false;
 
@@ -1024,10 +1075,7 @@ trackPoint(dockEl, {
         return { x: dockEl.el.offsetLeft, y: dockEl.el.offsetTop };
     },
     ing: (p) => {
-        dockEl.style({
-            left: `${p.x}px`,
-            top: `${p.y}px`,
-        });
+        dockEl.sv(p);
         return p;
     },
     end: (_, { moved, ingData }) => {
@@ -1048,16 +1096,16 @@ const showDock = () => {
             // @ts-ignore
             document.querySelector("html").offsetWidth / 2
         ) {
-            dockEl.el.classList.remove("dock_right");
-            dockEl.el.classList.add("dock_left");
+            dockEl.el.classList.remove(dockClassBigRight);
+            dockEl.el.classList.add(dockClassBigLeft);
         } else {
-            dockEl.el.classList.remove("dock_left");
-            dockEl.el.classList.add("dock_right");
+            dockEl.el.classList.remove(dockClassBigLeft);
+            dockEl.el.classList.add(dockClassBigRight);
         }
-        dockEl.el.classList.add("dock");
         dockView.style({ display: "block" });
     } else {
-        dockEl.el.className = "";
+        dockEl.el.classList.remove(dockClassBigLeft);
+        dockEl.el.classList.remove(dockClassBigRight);
         dockEl.el.style.transition = "";
         dockView.style({ display: "none" });
     }
@@ -1071,20 +1119,22 @@ function dockI() {
         let iTran_v = -1;
 
         const dockItem = view();
-        const iPhoto = image(getUrl(i), "预览").on("click", () => {
-            const div = document.getElementById(i);
-            if (div?.classList.contains(minimizeClass)) {
-                div.style.transition = cssVar("transition");
-                setTimeout(() => {
-                    div.style.transition = "";
-                }, 400);
-                div.classList.remove(minimizeClass);
-            } else {
-                back(i);
-            }
-            if (div) div.style.zIndex = String(toppest + 1);
-            toppest += 1;
-        });
+        const iPhoto = image(getUrl(i), "预览")
+            .style({ width: "100%" })
+            .on("click", () => {
+                const div = document.getElementById(i);
+                if (div?.classList.contains(minimizeClass)) {
+                    div.style.transition = cssVar("transition");
+                    setTimeout(() => {
+                        div.style.transition = "";
+                    }, 400);
+                    div.classList.remove(minimizeClass);
+                } else {
+                    back(i);
+                }
+                if (div) div.style.zIndex = String(toppest + 1);
+                toppest += 1;
+            });
         const iClose = view()
             .add(iconEl("close"))
             .attr({ title: "关闭" })
@@ -1110,7 +1160,11 @@ function dockI() {
             .add([
                 view("x")
                     .add([iTran, iIgnore, iClose])
-                    .class("i_bar")
+                    .style({
+                        position: "absolute",
+                        right: "8px",
+                        borderRadius: cssVar("o-padding"),
+                    })
                     .class(Class.smallSize, Class.glassBar),
                 iPhoto,
             ])
