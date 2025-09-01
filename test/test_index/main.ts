@@ -718,6 +718,15 @@ console.log(
     `共${testResultsL.length}个测试，通过${testResultsL.filter((i) => i.state === true).length}，未通过${testResultsL.filter((i) => i.state === false).length}，将进行${testResultsL.filter((i) => i.state === null).length}个测试`,
 );
 
+const needRebuild = await confirm({
+    message: "是否需要重新构建项目？",
+    default: false,
+});
+
+if (needRebuild) {
+    execSync("npm run pack");
+}
+
 const isEdit = await confirm({
     message: "是否编辑需要测试的项目？",
 });
