@@ -85,19 +85,19 @@
     },
     {
         "name": "贴图.多个",
-        "state": null
+        "state": true
     },
     {
         "name": "贴图.滚轮缩放",
-        "state": null
+        "state": true
     },
     {
         "name": "贴图.局部放大",
-        "state": null
+        "state": true
     },
     {
         "name": "贴图.透明",
-        "state": null
+        "state": true
     },
     {
         "name": "贴图.归位",
