@@ -584,7 +584,7 @@ function updatePreview() {
         ctx.roundRect(padX, padY, photoWidth, photoHeight, raduis);
         ctx.fill();
 
-        canvas.style({ "border-radius": `${outerRadius}px` });
+        canvas.style({ borderRadius: `${outerRadius}px` });
     }
 
     setPhoto();

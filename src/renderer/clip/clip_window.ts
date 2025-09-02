@@ -178,8 +178,8 @@ function rangeBar(
         top: "0",
         height: "100%",
         background: "var(--bar-focus-color)",
-        "border-radius": "inherit",
-        "z-index": "-1",
+        borderRadius: "inherit",
+        zIndex: "-1",
     });
     const i = input()
         .style({
