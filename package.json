@@ -55,7 +55,7 @@
     "@types/yauzl": "^2.10.3",
     "canvas": "^3.1.0",
     "csv-parse": "^5.5.5",
-    "electron": "^35.7.0",
+    "electron": "^35.7.5",
     "electron-builder": "^26.0.12",
     "electron-vite": "^3.1.0",
     "inquirer": "^12.7.0",
