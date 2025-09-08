@@ -2197,6 +2197,10 @@ mainOn("feedbackFeature", ([arg]) => {
     return feedbackUrl2(arg);
 });
 
+mainOn("getScreens", () => {
+    return screen.getAllDisplays();
+});
+
 nativeTheme.on("updated", () => {
     setTray();
 });

@@ -1631,6 +1631,40 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "位置",
         el: () => xPath(false),
     },
+    自定义屏幕属性: {
+        name: "自定义屏幕属性",
+        el: (v) =>
+            sortList<(typeof v)[0]>(
+                (v) => String(v.id),
+                (_item, dialog) => {
+                    const { promise, resolve } =
+                        Promise.withResolvers<typeof _item>();
+                    const item = _item || { id: Number.NaN, scaleFactor: 1 };
+                    const screens = renderSendSync("getScreens", []);
+                    const screenSelect = select(
+                        screens.map((i) => ({
+                            name: i.label || String(i.id),
+                            value: String(i.id),
+                        })),
+                    ).sv(String(item.id));
+                    const scaleFactor = xNumber("", { min: 0.1 }).sv(
+                        item.scaleFactor,
+                    );
+
+                    dialogB(
+                        dialog,
+                        [screenSelect, view().add(["缩放比例", scaleFactor])],
+                        () => resolve(null),
+                        () =>
+                            resolve({
+                                id: Number(screenSelect.gv),
+                                scaleFactor: scaleFactor.gv,
+                            }),
+                    );
+                    return promise;
+                },
+            ),
+    },
     保留截屏窗口: {
         name: "保留截屏窗口",
         desc: "内存占用多，截屏快；反之内存占用少，但截屏慢",
@@ -2342,7 +2376,11 @@ const main: {
             },
             {
                 title: "外部截屏器",
-                settings: ["额外截屏器.命令", "额外截屏器.位置"],
+                settings: [
+                    "额外截屏器.命令",
+                    "额外截屏器.位置",
+                    "自定义屏幕属性",
+                ],
             },
             { title: "后台", settings: ["保留截屏窗口"] },
             {

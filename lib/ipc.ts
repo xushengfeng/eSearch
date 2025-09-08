@@ -165,6 +165,7 @@ type Message = {
     browserLoad: (id: number, load: boolean) => void;
     userDataPath: () => string;
     githubUrl: (path: string, _type?: GithubUrlType | "auto") => string;
+    getScreens: () => Display[];
 };
 
 const name = "ipc";
