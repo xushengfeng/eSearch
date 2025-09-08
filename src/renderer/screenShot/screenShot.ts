@@ -98,6 +98,7 @@ function dispaly2screen(
 ): {
     screen: ReturnData[];
     window: { rect: { x: number; y: number; w: number; h: number } }[];
+    type: "normal" | "img" | "command";
 } {
     let allScreens: ReturnData[] = [];
     allScreens = [];
@@ -109,7 +110,7 @@ function dispaly2screen(
                 message: _t("Linux arm64 平台需要额外截屏软件"),
                 buttons: [_t("确定")],
             } as MessageBoxSyncOptions);
-            return { screen: [], window: [] };
+            return { screen: [], window: [], type: "normal" };
         }
     }
     if (!buffer && _command) {
@@ -158,7 +159,7 @@ function dispaly2screen(
                 };
             },
         };
-        return { screen: [x], window: [] };
+        return { screen: [x], window: [], type: "command" };
     }
     if (buffer) {
         const data = toCanvas(buffer);
@@ -178,6 +179,7 @@ function dispaly2screen(
                 },
             ],
             window: [],
+            type: "img",
         };
     }
 
@@ -220,6 +222,7 @@ function dispaly2screen(
         window: windows.map((w) => ({
             rect: { x: w.x, y: w.y, w: w.width, h: w.height },
         })),
+        type: "normal",
     };
 }
 

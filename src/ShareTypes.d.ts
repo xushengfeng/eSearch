@@ -371,6 +371,7 @@ export interface setting {
         命令: string;
         位置: string;
     };
+    自定义屏幕属性: { id: number; scaleFactor: number }[];
     连拍: {
         数: number;
         间隔: number;

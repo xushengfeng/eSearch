@@ -3688,20 +3688,31 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
     console.log(allScreens, windows);
     setScreen(i);
     const nowScreen = _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
-    if (
-        i.size.width < nowScreen.size.width ||
-        i.size.height < nowScreen.size.height
-    ) {
-        const x =
-            (nowScreen.size.width * window.devicePixelRatio) / 2 -
-            i.size.width / 2;
-        const y =
-            (nowScreen.size.height * window.devicePixelRatio) / 2 -
-            i.size.height / 2;
-        setEditorP(1 / (i.scaleFactor || devicePixelRatio), x, y);
-    } else setEditorP(1 / i.scaleFactor, 0, 0);
-    zoomW = i.size.width;
-    ratio = i.scaleFactor;
+    if (wx.type === "normal") {
+        setEditorP(1 / i.scaleFactor, 0, 0);
+        zoomW = i.size.width;
+        ratio = i.scaleFactor;
+    } else if (wx.type === "command") {
+        const x = store.get("自定义屏幕属性");
+        const s = x.find((i) => i.id === mainId);
+        zoomW = i.size.width;
+        if (s) ratio = s.scaleFactor;
+        else ratio = nowScreen.scaleFactor;
+    } else if (wx.type === "img")
+        if (
+            i.size.width < nowScreen.size.width ||
+            i.size.height < nowScreen.size.height
+        ) {
+            const x =
+                (nowScreen.size.width * window.devicePixelRatio) / 2 -
+                i.size.width / 2;
+            const y =
+                (nowScreen.size.height * window.devicePixelRatio) / 2 -
+                i.size.height / 2;
+            setEditorP(1 / devicePixelRatio, x, y);
+            zoomW = i.size.width;
+            ratio = devicePixelRatio;
+        }
     document.body.style.opacity = "";
 
     screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
@@ -3813,7 +3824,7 @@ document.onwheel = (e) => {
 document.onkeyup = (e) => {
     if (e.key === "0") {
         if (e.ctrlKey) {
-            setEditorP(1 / window.devicePixelRatio, 0, 0);
+            setEditorP(1 / window.devicePixelRatio, 0, 0); // todo 统一缩放标准
             zoomW = mainCanvas.width;
         }
     }
