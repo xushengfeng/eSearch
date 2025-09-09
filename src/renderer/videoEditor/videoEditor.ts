@@ -33,6 +33,14 @@ const fs = require("node:fs") as typeof import("fs");
 
 // @ts-expect-error
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
+import {
+    Output,
+    WebMOutputFormat,
+    Mp4OutputFormat,
+    BufferTarget,
+    EncodedVideoPacketSource,
+    EncodedPacket,
+} from "mediabunny";
 
 import { t } from "../../../lib/translate/translate";
 import xhistory from "../lib/history";
@@ -1620,57 +1628,66 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
     const exportPath = getSavePath("webm");
     if (!exportPath) return;
 
-    // biome-ignore format:
-    const { Muxer, ArrayBufferTarget } = require("webm-muxer") as typeof import("webm-muxer");
-    const muxer = new Muxer({
-        target: new ArrayBufferTarget(),
-        video: {
-            codec: `V_${op.codec.toUpperCase()}`,
-            width: outputV.width,
-            height: outputV.height,
-            frameRate: srcRate,
-        },
+    const output = new Output({
+        format: new WebMOutputFormat({
+            appendOnly: false,
+        }),
+        target: new BufferTarget(),
     });
+
+    const videoSource = new EncodedVideoPacketSource(op.codec);
+    output.addVideoTrack(videoSource, {
+        frameRate: srcRate,
+    });
+
+    await output.start();
 
     await transform({ codec: op.codec });
 
     for (const [_, chunk] of transformCs.entries()) {
-        muxer.addVideoChunk(chunk);
+        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk));
     }
-    muxer.finalize();
-    const { buffer } = muxer.target;
-    fs.writeFileSync(exportPath, Buffer.from(buffer));
-    console.log("saved webm");
-    renderSend("ok_save", [exportPath, true]);
+    await output.finalize();
+    const { buffer } = output.target;
+    if (buffer) {
+        fs.writeFileSync(exportPath, Buffer.from(buffer)); // todo stream
+        console.log("saved webm");
+        renderSend("ok_save", [exportPath, true]);
+    } else {
+        // todo
+    }
 }
 
 async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
     const exportPath = getSavePath("mp4");
     if (!exportPath) return;
 
-    // biome-ignore format:
-    const { Muxer, ArrayBufferTarget } = require("mp4-muxer") as typeof import("mp4-muxer");
-    const muxer = new Muxer({
-        target: new ArrayBufferTarget(),
-        video: {
-            codec: op.codec,
-            width: outputV.width,
-            height: outputV.height,
-            frameRate: srcRate,
-        },
-        fastStart: false,
+    const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new BufferTarget(),
     });
+
+    const videoSource = new EncodedVideoPacketSource(op.codec);
+    output.addVideoTrack(videoSource, {
+        frameRate: srcRate,
+    });
+
+    await output.start();
 
     await transform({ codec: op.codec });
 
     for (const [_, chunk] of transformCs.entries()) {
-        muxer.addVideoChunk(chunk);
+        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk));
     }
-    muxer.finalize();
-    const { buffer } = muxer.target;
-    fs.writeFileSync(exportPath, Buffer.from(buffer));
-    console.log("saved mp4");
-    renderSend("ok_save", [exportPath, true]);
+    await output.finalize();
+    const { buffer } = output.target;
+    if (buffer) {
+        fs.writeFileSync(exportPath, Buffer.from(buffer)); // todo stream
+        console.log("saved webm");
+        renderSend("ok_save", [exportPath, true]);
+    } else {
+        // todo
+    }
 }
 
 function iconEl(src: IconType) {
