@@ -132,6 +132,12 @@ const outputType = [
     // { type: "avif", name: "avif" }, // todo
     { type: "webm", name: "webm" },
     { type: "mp4", name: "mp4" },
+    // { type: "mkv", name: "mkv" },
+    // { type: "mov", name: "mov" },
+    // { type: "avi", name: "avi" },
+    // { type: "ts", name: "ts" },
+    // { type: "mpeg", name: "mpeg" },
+    // { type: "flv", name: "flv" },
     { type: "png", name: "png" },
 ] as const;
 
