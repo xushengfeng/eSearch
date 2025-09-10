@@ -981,19 +981,20 @@ async function save(message: string) {
     let dataBuffer: Buffer;
     if (_type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
     else {
-        let f = "";
+        let f: Blob | null = null;
         const nc = getClipPhoto();
         if (_type === "png") {
-            f = nc.toDataURL("image/png", 1);
+            f = await getBlob(nc, "image/png");
         } else if (_type === "jpg") {
-            f = nc.toDataURL("image/jpeg", 1);
+            f = await getBlob(nc, "image/jpeg");
         } else if (_type === "webp") {
-            f = nc.toDataURL("image/webp", 1);
+            f = await getBlob(nc, "image/webp");
         }
-        dataBuffer = Buffer.from(
-            f.replace(/^data:image\/\w+;base64,/, ""),
-            "base64",
-        );
+        if (!f) {
+            // todo error
+            return;
+        }
+        dataBuffer = Buffer.from(await f.arrayBuffer());
         if (store.get("保存.保存并复制")) {
             clipboard.writeImage(nativeImage.createFromBuffer(dataBuffer));
         }
@@ -1098,6 +1099,18 @@ function createTemporaryCanvas(originalCanvas: HTMLCanvasElement) {
     const tempCtx = tempCanvas.getContext("2d")!;
     tempCtx.drawImage(originalCanvas, 0, 0);
     return tempCanvas;
+}
+
+async function getBlob(c: HTMLCanvasElement, type: string, q = 1) {
+    const { promise, resolve } = Promise.withResolvers<Blob | null>();
+    c.toBlob(
+        (blob) => {
+            resolve(blob);
+        },
+        type,
+        q,
+    );
+    return promise;
 }
 
 function e2srcPoint(e: MouseEvent | PointerEvent) {
