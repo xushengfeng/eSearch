@@ -773,8 +773,14 @@ async function runTransform(
 
     const nowUi = history.getData();
 
+    const joinOp = {
+        codec: baseCodec,
+        size: `${outputV.width}x${outputV.height}`,
+        ...op,
+    };
+
     const forceRerendAll = (() => {
-        for (const [i, v] of typedEntries(op ?? {})) {
+        for (const [i, v] of typedEntries(joinOp)) {
             if (v !== lastTransOpt[i]) return true;
         }
         return false;
@@ -838,16 +844,16 @@ async function runTransform(
             },
             error: (e) => console.error("Encode error:", e),
         });
-        const c = codecMap.get(op?.codec ?? "");
+        const c = codecMap.get(joinOp.codec);
+        if (!c) {
+            // todo 提示不支持
+            return;
+        }
         encoder.configure({
-            ...(c
-                ? {
-                      codec: c.codec,
-                      hardwareAcceleration: c.isEnAcc
-                          ? "prefer-hardware"
-                          : "no-preference",
-                  }
-                : encoderVideoConfig),
+            codec: c.codec,
+            hardwareAcceleration: c.isEnAcc
+                ? "prefer-hardware"
+                : "no-preference",
             width: outputV.width,
             height: outputV.height,
             framerate: srcRate,
@@ -898,7 +904,7 @@ async function runTransform(
 
     if (signal.aborted) return;
 
-    for (const [i, v] of typedEntries(op || {})) if (v) lastTransOpt[i] = v;
+    for (const [i, v] of typedEntries(joinOp)) if (v) lastTransOpt[i] = v;
     lastUiData = nowUi;
 
     trans2srcM.clear();
@@ -1795,6 +1801,7 @@ await (async () => {
 })();
 
 const [codec, isDeAcc, isEnAcc] = (() => {
+    // todo use codecMap key instead
     const l = Array.from(codecMap.values());
     if (store.get("录屏.超级录屏.编码选择") === "性能优先") {
         l.toSorted(
