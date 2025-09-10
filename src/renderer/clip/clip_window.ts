@@ -3688,8 +3688,8 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
     console.log(allScreens, windows);
     setScreen(i);
     const nowScreen = _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
+    const xy = { x: 0, y: 0 };
     if (wx.type === "normal") {
-        setEditorP(1 / i.scaleFactor, 0, 0);
         zoomW = i.size.width;
         ratio = i.scaleFactor;
     } else if (wx.type === "command") {
@@ -3709,10 +3709,13 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
             const y =
                 (nowScreen.size.height * window.devicePixelRatio) / 2 -
                 i.size.height / 2;
-            setEditorP(1 / devicePixelRatio, x, y);
+            xy.x = x;
+            xy.y = y;
             zoomW = i.size.width;
             ratio = devicePixelRatio;
         }
+    setEditorP(ratio, 0, 0);
+
     document.body.style.opacity = "";
 
     screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
