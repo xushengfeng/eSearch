@@ -935,6 +935,7 @@ function runCopy() {
 function runSave() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
+        renderSend("clip_hide", []);
         const p = renderSendSync("save_file_path", [type]);
         save(p);
         return;
@@ -994,16 +995,18 @@ async function save(message: string) {
             "base64",
         );
         if (store.get("保存.保存并复制")) {
-            clipboard.writeImage(nativeImage.createFromDataURL(f));
+            clipboard.writeImage(nativeImage.createFromBuffer(dataBuffer));
         }
     }
 
     fs.writeFile(message, dataBuffer, (err: Error | null) => {
         if (!err) {
             renderSend("ok_save", [message]);
+            toolsX.close.f();
+        } else {
+            // todo error
         }
     });
-    toolsX.close.f();
 }
 
 function getClipPhotoSVG() {
@@ -3306,6 +3309,7 @@ const suffixList = saveTypeList.map((i) =>
         .on("click", () => {
             type = i;
             showSaveBar(false);
+            renderSend("clip_hide", []);
             save(renderSendSync("clip_save", [i]));
         }),
 );

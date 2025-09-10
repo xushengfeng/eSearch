@@ -39,6 +39,7 @@ type Message = {
     clip_ocr: (img: string, type: string) => void;
     clip_search: (img: string, type: string) => void;
     clip_qr: (img: string) => void;
+    clip_hide: () => void;
     clip_save: (ext: string) => string;
     clip_ding: (
         img: string,

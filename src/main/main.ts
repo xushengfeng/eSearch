@@ -1043,9 +1043,11 @@ mainOn("clip_search", ([img, type]) => {
 mainOn("clip_qr", ([img]) => {
     createMainWindow({ type: "qr", content: img });
 });
+mainOn("clip_hide", async () => {
+    hideClip();
+});
 mainOn("clip_save", async ([type]) => {
     const savedPath = store.get("保存.保存路径.图片") || "";
-    hideClip();
     const x = await dialog.showSaveDialog({
         title: t("选择要保存的位置"),
         defaultPath: savedPath
