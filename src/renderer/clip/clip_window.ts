@@ -3714,7 +3714,7 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
             zoomW = i.size.width;
             ratio = devicePixelRatio;
         }
-    setEditorP(ratio, 0, 0);
+    setEditorP(1 / ratio, 0, 0);
 
     document.body.style.opacity = "";
 
