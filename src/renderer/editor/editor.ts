@@ -107,8 +107,12 @@ const historyPath = path.join(
     "history.json",
 );
 const historyList: { [key: string]: { text: string } } =
-    safeJSONParse(fs.readFileSync(historyPath).toString(), { 历史记录: {} })
-        .历史记录 || {};
+    safeJSONParse(
+        tryD(() => fs.readFileSync(historyPath).toString(), ""),
+        {
+            历史记录: {},
+        },
+    ).历史记录 || {};
 
 let fileWatcher: FSWatcher | null = null;
 
