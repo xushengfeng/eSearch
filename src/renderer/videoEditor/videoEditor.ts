@@ -1651,7 +1651,13 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
     await transform({ codec: op.codec });
 
     for (const [_, chunk] of transformCs.entries()) {
-        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk));
+        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk), {
+            decoderConfig: {
+                ...decoderVideoConfig,
+                codedWidth: outputV.width,
+                codedHeight: outputV.height,
+            },
+        });
     }
     await output.finalize();
     const { buffer } = output.target;
@@ -1683,13 +1689,19 @@ async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
     await transform({ codec: op.codec });
 
     for (const [_, chunk] of transformCs.entries()) {
-        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk));
+        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk), {
+            decoderConfig: {
+                ...decoderVideoConfig,
+                codedWidth: outputV.width,
+                codedHeight: outputV.height,
+            },
+        });
     }
     await output.finalize();
     const { buffer } = output.target;
     if (buffer) {
         fs.writeFileSync(exportPath, Buffer.from(buffer)); // todo stream
-        console.log("saved webm");
+        console.log("saved mp4");
         renderSend("ok_save", [exportPath, true]);
     } else {
         // todo
