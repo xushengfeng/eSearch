@@ -265,6 +265,10 @@ input[type="checkbox"]:checked {
     }
 }
 
+[popover] {
+    color: inherit;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --bar-bg0: var(--d-bar-bg0) !important;
