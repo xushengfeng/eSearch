@@ -313,10 +313,15 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
 function setScreen(i: (typeof allScreens)[0]) {
     let _img = screenShotCache.get(i.id);
     if (!_img) {
-        const __img = i.capture().toImageData();
-        if (__img) {
-            screenShotCache.set(i.id, __img);
-            _img = __img;
+        try {
+            const __img = i.capture().toImageData();
+            if (__img) {
+                screenShotCache.set(i.id, __img);
+                _img = __img;
+            }
+        } catch (error) {
+            console.error("Error capturing screen:", error);
+            // todo tip
         }
     }
     const img = _img;
