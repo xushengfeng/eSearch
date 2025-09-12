@@ -13,6 +13,8 @@
 [![aur](https://img.shields.io/badge/aur-e--search-blue?logo=archlinux)](https://aur.archlinux.org/packages/e-search)
 [![aur1](https://img.shields.io/badge/aur-e--search--git-blue?logo=archlinux)](https://aur.archlinux.org/packages/e-search-git)
 
+[![QQ群](https://img.shields.io/badge/QQ群-1057170038-blue.svg?&color=12b7f5&logo=qq)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=1qoIvXZ5RAICkw_1DchHAaUdnck-wZwJ&authKey=tbBmRbmLJFIJi3dNbMROFpU%2B89V0J572DKUylwacd1%2FgCSg52Ql8Lu5RYGSZQkhc&noverify=0&group_code=1057170038)
+
 ## Introduction
 
 eSearch is a :electron: rewrite of [Information-portal](https://github.com/xushengfeng/Information-portal.git) with many additional features.
