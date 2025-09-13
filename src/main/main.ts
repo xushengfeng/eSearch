@@ -1735,6 +1735,7 @@ function createTranslator(op: Omit<translateWinType, "type">) {
 
 function createPhotoEditor(img: string) {
     const win = new BrowserWindow(baseWinConfig());
+    win.maximize();
 
     rendererPath(win, "photoEditor.html");
     if (dev) win.webContents.openDevTools();
