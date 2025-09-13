@@ -357,6 +357,8 @@ const ignoreDir = [
     "**/*.ts",
     "src",
     "docs",
+    "script",
+    "test",
     "node_modules/**/*.flow",
     "node_modules/**/*.md",
     "node_modules/**/*.h", // uiohook
