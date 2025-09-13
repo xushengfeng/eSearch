@@ -124,30 +124,16 @@ const controls = frame("sidebar", {
         .class(Class.gap),
     configs: {
         _: view("x"),
-        select: select([]).on("input", (_, el) => {
-            if (!el.gv) return;
-            styleData = getStyleData(el.gv);
-            setConfig();
-            updatePreview();
-            store.set("高级图片编辑.默认配置", el.gv);
-        }),
+        select: pzSelect().sv(pz),
         addConf: button(icon("add")).on("click", () => {
             const id = `${t("新配置")}${crypto.randomUUID().slice(0, 5)}`;
             const newData = structuredClone(styleData);
             newData.name = id;
-            pz.push(newData);
+            pz.unshift(newData);
             store.set("高级图片编辑.配置", pz);
-            setSelect(id);
-        }),
-        delConf: button(icon("close")).on("click", () => {
-            const name = controls.els.select.gv;
-            if (!name) return;
-            pz.splice(
-                pz.findIndex((i) => i.name === name),
-                1,
-            );
-            store.set("高级图片编辑.配置", pz);
-            setSelect();
+            store.set("高级图片编辑.默认配置", id);
+            controls.els.select.sv(pz);
+            applyStyle(newData);
         }),
     },
     controls: {
@@ -277,17 +263,40 @@ const controls = frame("sidebar", {
         },
     },
 });
-function setSelect(id?: string) {
-    controls.els.select.clear();
-    controls.els.select.add(
-        [{ value: "", name: "添加" }]
-            .concat(pz.map((i) => ({ value: i.name, name: i.name })))
-            .map((i) => ele("option").attr({ value: i.value, text: i.name })),
-    );
-    const nid = id || "";
 
-    controls.els.select.sv(nid);
-    if (nid) store.set("高级图片编辑.默认配置", nid);
+function pzSelect() {
+    const el = view("x", "wrap").class(Class.gap);
+    return el.bindSet((pz: setting["高级图片编辑"]["配置"]) => {
+        el.clear().add(
+            pz.map((i) =>
+                view("x")
+                    .add(
+                        txt(i.name)
+                            .class(Class.click)
+                            .on("click", () => {
+                                applyStyle(i);
+                            }),
+                    )
+                    .add(
+                        button(icon("close")).on("click", () => {
+                            pz.splice(
+                                pz.findIndex((x) => x.name === i.name),
+                                1,
+                            );
+                            store.set("高级图片编辑.配置", pz);
+                            store.set("高级图片编辑.默认配置", pz[0]?.name);
+                            controls.els.select.sv(pz);
+                        }),
+                    ),
+            ),
+        );
+    });
+}
+
+function applyStyle(i: setting["高级图片编辑"]["配置"][0]) {
+    styleData = structuredClone(i);
+    setConfig();
+    updatePreview();
 }
 
 function setBgUI(type: (typeof styleData)["bgType"]) {
@@ -694,11 +703,8 @@ for (const key in configMap) {
                 styleData[configMap[k].path as string] = v;
             }
         updatePreview();
-        controls.els.select.sv("");
     });
 }
-
-setSelect(store.get("高级图片编辑.默认配置"));
 
 setConfig();
 
