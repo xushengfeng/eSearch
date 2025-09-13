@@ -112,7 +112,7 @@ const preview = view().style({
     alignItems: "center",
 });
 const controls = frame("sidebar", {
-    _: view("y")
+    _: flexLayout("y")
         .style({
             minWidth: "200px",
             maxWidth: "400px",
@@ -120,8 +120,7 @@ const controls = frame("sidebar", {
             "overflow-y": "auto",
             "overflow-x": "hidden",
         })
-        .class(Class.smallSize)
-        .class(Class.gap),
+        .class(Class.smallSize),
     configs: {
         _: view("x"),
         select: pzSelect().sv(pz),
@@ -137,7 +136,7 @@ const controls = frame("sidebar", {
         }),
     },
     controls: {
-        _: view("y").class(Class.gap),
+        _: flexLayout("y"),
         _raduis: {
             _: view("y"),
             _0: subTitle("圆角"),
@@ -145,7 +144,7 @@ const controls = frame("sidebar", {
             outerRadius: label([check(""), "外圆角"]),
         },
         background: {
-            _: view("y"),
+            _: flexLayout("y"),
             _1: subTitle("背景"),
             bgType: select<(typeof styleData)["bgType"]>([
                 { value: "color", name: "纯色" },
@@ -164,7 +163,7 @@ const controls = frame("sidebar", {
             bgColor: input(),
             bgUrl: input(),
             bgGradient: {
-                _: view("y"),
+                _: flexLayout("y"),
                 angle: input("number"),
                 // repeat: input("checkbox"),
                 // repeatSize: input("number"),
@@ -174,10 +173,10 @@ const controls = frame("sidebar", {
             },
         },
         _shadow: {
-            _: view("y"),
+            _: flexLayout("y"),
             _2: subTitle("阴影"),
             shadow: {
-                _: view("x"),
+                _: flexLayout("x"),
                 sx: input("number"),
                 sy: input("number"),
                 blur: input("number"),
@@ -185,26 +184,28 @@ const controls = frame("sidebar", {
             },
         },
         _padding: {
-            _: view("y"),
+            _: flexLayout("y"),
             _3: subTitle("边距"),
-            padding: { _: view("x"), px: input("number"), py: input("number") },
+            padding: {
+                _: flexLayout("x"),
+                px: input("number"),
+                py: input("number"),
+            },
         },
         magic: {
-            _: view("y"),
+            _: flexLayout("y"),
             _4: subTitle("魔法消除"),
             magicPen: label([check(""), "魔法橡皮"]),
-            magicPenList: view("x", "wrap")
-                .style({
-                    "max-height": "200px",
-                    "overflow-y": "auto",
-                })
-                .class(Class.gap),
+            magicPenList: flexLayout("x").style({
+                "max-height": "200px",
+                "overflow-y": "auto",
+            }),
         },
     },
     export: {
-        _: view("y").class(Class.gap),
+        _: flexLayout("y"),
         _ex_edit: {
-            _: view("y").class(Class.gap),
+            _: flexLayout("y"),
             formart: select([
                 { value: "png", name: noI18n("PNG") },
                 { value: "jpg", name: noI18n("JPEG") },
@@ -220,7 +221,7 @@ const controls = frame("sidebar", {
                 .attr({ max: "1", min: "0", step: "0.1" })
                 .sv("1"),
             phScale: {
-                _: view("x", "wrap").class(Class.gap),
+                _: flexLayout("x"),
                 _s0: button("原始").on("click", () => scale(1)),
                 _s1: button(noI18n("3/4")).on("click", () => scale(0.75)),
                 _s2: button(noI18n("1/2")).on("click", () => scale(0.5)),
@@ -235,13 +236,13 @@ const controls = frame("sidebar", {
                 }),
             },
             _phWH: {
-                _: view("x").class(Class.gap),
+                _: flexLayout("x"),
                 photoW: input("number"),
                 photoH: input("number"),
             },
         },
         _ex_save: {
-            _: view("x").class(Class.gap),
+            _: flexLayout("x"),
             save: button(icon("save")).on("click", () => {
                 const path = renderSendSync("save_file_path", [
                     controls.els.formart.gv,
@@ -264,8 +265,12 @@ const controls = frame("sidebar", {
     },
 });
 
+function flexLayout(a: "x" | "y") {
+    return (a === "x" ? view(a, "wrap") : view(a)).class(Class.gap);
+}
+
 function pzSelect() {
-    const el = view("x", "wrap").class(Class.gap);
+    const el = flexLayout("x");
     return el.bindSet((pz: setting["高级图片编辑"]["配置"]) => {
         el.clear().add(
             pz.map((i) =>
@@ -366,8 +371,8 @@ function getImg(base64 = false) {
 }
 
 function gColors() {
-    const div = view("y");
-    const list = view("y");
+    const div = flexLayout("y");
+    const list = flexLayout("y");
     const add = button(noI18n("+"));
 
     function createI(color: string, offset: number) {
