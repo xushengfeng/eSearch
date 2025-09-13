@@ -74,6 +74,7 @@ function getStyleData(id: string) {
     if (!data) return defaultConfig;
     for (const key in defaultConfig) {
         if (!(key in data)) {
+            // @ts-expect-error
             data[key] = defaultConfig[key];
         }
     }
@@ -107,11 +108,14 @@ const preview = view().style({
     margin: "auto",
     position: "relative",
     height: "100%",
+    display: "flex",
+    alignItems: "center",
 });
 const controls = frame("sidebar", {
     _: view("y")
         .style({
-            width: "200px",
+            minWidth: "200px",
+            maxWidth: "400px",
             padding: cssVar("o-padding"),
             "overflow-y": "auto",
             "overflow-x": "hidden",
@@ -498,7 +502,6 @@ function updatePreview() {
 
     magicPenPreview
         .style({
-            top: 0,
             position: "absolute",
         })
         .attr({ width: finalWidth, height: finalHeight });
@@ -684,8 +687,10 @@ for (const key in configMap) {
         const v = el.gv as string;
         if (configMap[k])
             if (configMap[k].parse) {
+                // @ts-expect-error
                 styleData[configMap[k].path as string] = configMap[k].parse(v);
             } else {
+                // @ts-expect-error
                 styleData[configMap[k].path as string] = v;
             }
         updatePreview();
