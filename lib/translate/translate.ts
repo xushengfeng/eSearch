@@ -94,7 +94,8 @@ function getLans() {
             return (
                 file.endsWith(".json") &&
                 !file.startsWith("source") &&
-                !file.startsWith(".")
+                !file.startsWith(".") &&
+                file !== "ignore.json"
             );
         })
         .map((l) => l.replace(".json", ""));
