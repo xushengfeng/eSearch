@@ -4780,11 +4780,6 @@ function about() {
             " ",
             a("https://github.com/xushengfeng").add("赞赏"),
         ]),
-        view().add(
-            a(
-                `https://github.com/xushengfeng/eSearch/releases/tag/${packageJson.version}`,
-            ).add("更新日志"),
-        ),
         view().add([
             a(renderSendSync("feedbackBug", [])).add("反馈问题"),
             " ",
@@ -4806,16 +4801,9 @@ function about() {
                 noI18n(packageJson.license),
             ),
         ]),
-        view().add([
-            "本软件基于",
-            " ",
-            a(
-                "https://github.com/xushengfeng/eSearch-website/blob/master/public/readme/all_license.json",
-            ).add("这些软件"),
-        ]),
         view().add(
             noI18n(
-                `Copyright (C) 2021 ${packageJson.author.name} ${packageJson.author.email}`,
+                `Copyright © 2021-${new Date().getFullYear()} ${packageJson.author.name} ${packageJson.author.email}`,
             ),
         ),
     ]);
