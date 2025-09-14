@@ -1532,9 +1532,7 @@ const s: Partial<settingItem<SettingPath>> = {
                     { value: "dark", name: "深色" },
                 ],
                 "深色模式",
-            ).on("input", (_, el) => {
-                renderSend("theme", [el.gv]);
-            }),
+            ),
     },
     "全局.缩放": {
         name: "全局缩放",
@@ -2454,6 +2452,7 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
             "--d-icon-color": theme.dark.iconColor,
         });
     },
+    "全局.深色模式": (v) => renderSend("theme", [v]),
     "全局.模糊": (v) => setProperty("--blur", `blur(${v}px)`),
     "全局.不透明度": (v) => setProperty("--alpha", String(v)),
     "字体.主要字体": (v) => setProperty("--main-font", v),
@@ -2587,6 +2586,7 @@ function setSet<t extends SettingPath>(k: t, v: GetValue<setting, t>) {
     ) as unknown as ElType<HTMLElement>;
     if (el) setEidtedItem(el, !isSame);
 
+    bindRun(k, v);
     bindRun2();
 
     xset(nowStore as unknown as Record<string, unknown>, k, v);
@@ -2773,8 +2773,6 @@ function renderSetting(settingPath: KeyPath) {
                         for (const p of bind[settingPath] ?? []) {
                             reRenderSetting(p);
                         }
-
-                        bindRun(sp, value);
                     }
                 }
             });
