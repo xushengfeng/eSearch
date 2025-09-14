@@ -2802,29 +2802,37 @@ function renderSetting(settingPath: KeyPath) {
         contextMenu.clear();
         let s = false;
         if (nowStoreK.has(settingPath as SettingPath)) {
-            contextMenu.add(view().add("撤销修改")).on("click", () => {
-                setSet(
-                    settingPath as SettingPath,
-                    getFromStore(oldStore, settingPath as SettingPath),
-                );
-                reRenderSetting(settingPath);
-            });
+            contextMenu.add(
+                view()
+                    .add("撤销修改")
+                    .on("click", () => {
+                        setSet(
+                            settingPath as SettingPath,
+                            getFromStore(oldStore, settingPath as SettingPath),
+                        );
+                        reRenderSetting(settingPath);
+                    }),
+            );
             s = true;
         }
         if (
             getSet(settingPath as SettingPath) !==
             getFromStore(getDefaultSetting(), settingPath as SettingPath)
         ) {
-            contextMenu.add(view().add("恢复默认值")).on("click", () => {
-                setSet(
-                    settingPath as SettingPath,
-                    getFromStore(
-                        getDefaultSetting(),
-                        settingPath as SettingPath,
-                    ),
-                );
-                reRenderSetting(settingPath);
-            });
+            contextMenu.add(
+                view()
+                    .add("恢复默认值")
+                    .on("click", () => {
+                        setSet(
+                            settingPath as SettingPath,
+                            getFromStore(
+                                getDefaultSetting(),
+                                settingPath as SettingPath,
+                            ),
+                        );
+                        reRenderSetting(settingPath);
+                    }),
+            );
             s = true;
         }
         if (s) showContextMenu(e);
