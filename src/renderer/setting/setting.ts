@@ -3776,7 +3776,7 @@ function translatorD(
             console.log(r);
             if (r) testR.el.innerText = t("测试成功");
         } catch (error) {
-            testR.el.innerText = String(error);
+            testR.el.innerText = `${t("测试失败")} ${String(error)}`;
             throw error;
         }
     });
