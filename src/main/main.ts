@@ -58,6 +58,7 @@ import time_format from "../../lib/time_format";
 import url from "node:url";
 import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
 import { typedEntries } from "../../lib/utils";
+import { githubMirrorList } from "../../lib/github_mirror";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -2659,8 +2660,12 @@ const defaultSetting: setting = {
     网络: {
         github镜像: {
             启用: true,
-            api: "https://api.kkgithub.com/",
-            base: "https://gh-proxy.com/https://github.com/",
+            api: githubMirrorList.api[
+                Math.floor(Math.random() * githubMirrorList.api.length)
+            ],
+            base: githubMirrorList.base[
+                Math.floor(Math.random() * githubMirrorList.base.length)
+            ],
         },
     },
 };

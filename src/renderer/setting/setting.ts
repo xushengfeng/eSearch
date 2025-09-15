@@ -74,6 +74,7 @@ import { defaultOcrId } from "../ocr/ocr";
 import { xget, xset } from "../../../lib/store/parse";
 import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
 import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
+import { githubMirrorList } from "../../../lib/github_mirror";
 
 let yauzl: typeof import("yauzl") | null = null;
 
@@ -1614,9 +1615,25 @@ const s: Partial<settingItem<SettingPath>> = {
     "网络.github镜像.base": {
         name: "基本",
         desc: "软件资源下载",
-        el: () => input(),
+        el: () =>
+            selectUrl(
+                githubMirrorList.base.map((i) => ({
+                    name: new URL(i).hostname,
+                    url: i,
+                })),
+            ),
     },
-    "网络.github镜像.api": { name: "api", desc: "检查更新", el: () => input() },
+    "网络.github镜像.api": {
+        name: "api",
+        desc: "检查更新",
+        el: () =>
+            selectUrl(
+                githubMirrorList.api.map((i) => ({
+                    name: new URL(i).hostname,
+                    url: i,
+                })),
+            ),
+    },
     硬件加速: {
         name: "硬件加速",
         el: () => xSwitch(),
@@ -3526,6 +3543,40 @@ function dialogB(
             ]),
         ]),
     );
+}
+
+function selectUrl(l: { name: string; url: string }[]) {
+    const el = xGroup("y").class(blockSetting);
+    const i = input().on("input", () => {
+        el.el.dispatchEvent(new CustomEvent("input"));
+    });
+    const list = xGroup("x").add(
+        l.map((v) =>
+            button(noI18n(v.name)).on("click", () => {
+                i.sv(v.url);
+                el.el.dispatchEvent(new CustomEvent("input"));
+            }),
+        ),
+    );
+    const test = button("测试").on("click", () => {
+        fetch(new URL(i.gv).origin)
+            .then(() => {
+                testResult.sv("测试成功");
+            })
+            .catch(() => {
+                testResult.sv("测试失败");
+            });
+    });
+    const testResult = txt();
+    return el
+        .add([
+            xGroup("x")
+                .style({ alignItems: "center" })
+                .add([i, test, testResult]),
+            list,
+        ])
+        .bindGet(() => i.gv)
+        .bindSet((v: string) => i.sv(v));
 }
 
 function translatorD(
