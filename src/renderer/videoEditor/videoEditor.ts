@@ -2611,7 +2611,7 @@ timeLineRemoveEl.el
     .attr({ title: "拖动删除区间" });
 
 const timeLineFrame = view("x")
-    .style({ height: "150px", gap: "8px" })
+    .style({ minHeight: "150px", gap: "8px" })
     .addInto();
 const timeLineFrameHl = addClass(
     {
