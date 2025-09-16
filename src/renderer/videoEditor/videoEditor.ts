@@ -284,6 +284,14 @@ function MathClamp(min: number, value: number, max: number) {
     return Math.min(Math.max(min, value), max);
 }
 
+function getFreeMemory() {
+    const mem = process.getSystemMemoryInfo();
+    const sysFree = (mem.free + mem.swapFree) * 1024;
+    // @ts-ignore
+    const processFree = performance.memory.jsHeapSizeLimit;
+    return Math.min(sysFree, processFree);
+}
+
 function frameTrans2Canvas(frame: VideoFrame) {
     const canvas = new OffscreenCanvas(frame.codedWidth, frame.codedHeight);
     const ctx = canvas.getContext("2d")!;
@@ -1978,16 +1986,16 @@ const nextKey = iconBEl("next_next", "下一秒").on("click", (e) => {
     jump2idUi(trans2src(id));
 });
 
-const nowTimeEl = (total: () => number) => {
+const nowTimeEl = (total?: () => number) => {
     const el = view("x");
     const t = timeEl().sv(0);
     const all = timeEl().sv(0);
     let tt = 0;
-    return el.add([t, "/", all]).bindSet((time: number | null) => {
+    return el.add(total ? [t, "/", all] : t).bindSet((time: number | null) => {
         const nt = time ?? tt;
         tt = nt;
         t.sv(nt);
-        all.sv(total());
+        if (total) all.sv(total());
     });
 };
 
@@ -2768,6 +2776,15 @@ pack(document.body).style({
     const encoder = new VideoEncoder({
         output: (c: EncodedVideoChunk) => {
             encodedChunks.push(c);
+            encodeSize += c.byteLength;
+            const freeMem = getFreeMemory();
+            const willUseMem = encodeSize * 2; // 未来编辑时会复制一份，*2是考虑到稳帧
+            if (freeMem - willUseMem < 20 * 1024 * 1024) {
+                console.warn("内存不足，停止录制");
+                stopRecord();
+            } else if (freeMem - willUseMem < 50 * 1024 * 1024) {
+                renderSend("recordMemWarning", []);
+            }
         },
         error: (e) => console.error("Encode error:", e),
     });
@@ -2820,6 +2837,7 @@ pack(document.body).style({
     // 读取视频帧并编码
 
     let encodedChunks: EncodedVideoChunk[] = [];
+    let encodeSize = 0;
 
     const keys: superRecording = [];
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
@@ -2902,11 +2920,7 @@ pack(document.body).style({
         timeLineControl.sv(window.innerWidth / listLength());
     };
 
-    const finalTime = store.get("录屏.超级录屏.自动停止录制") * 60 * 1000;
-
-    setTimeout(() => stopRecord(), finalTime);
-
-    const recordTime = nowTimeEl(() => finalTime);
+    const recordTime = nowTimeEl();
     stopPEl.add(
         view("x")
             .add([

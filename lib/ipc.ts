@@ -151,6 +151,7 @@ type Message = {
     ) => void;
     superRecorderInit: (sourceId: string) => void;
     superPhotoEditorInit: (img: string) => void;
+    recordMemWarning: () => void;
     translatorInit: (
         id: number,
         display: Display[],

@@ -2211,6 +2211,13 @@ mainOn("getScreens", () => {
     return screen.getAllDisplays();
 });
 
+mainOn("recordMemWarning", () => {
+    new Notification({
+        title: `${app.name} ${t("录屏内存不足")}`,
+        body: t("将自动结束录屏"),
+    }).show();
+});
+
 nativeTheme.on("updated", () => {
     setTray();
 });
@@ -2630,7 +2637,6 @@ const defaultSetting: setting = {
             关键帧间隔: 150,
             格式: "gif",
             缩放: 2,
-            自动停止录制: 5,
             导出后关闭: false,
         },
     },
