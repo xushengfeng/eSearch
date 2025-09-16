@@ -590,6 +590,12 @@ app.whenReady().then(() => {
                 },
             },
             {
+                label: t("超级录屏"),
+                click: () => {
+                    createSuperRecorderWindow();
+                },
+            },
+            {
                 type: "separator",
             },
             {
