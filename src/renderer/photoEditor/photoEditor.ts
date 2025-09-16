@@ -123,7 +123,7 @@ const controls = frame("sidebar", {
         .class(Class.smallSize),
     configs: {
         _: view("x"),
-        select: pzSelect().sv(pz),
+        select: pzSelect().sv(pz.map((i) => getStyleData(i.name))),
         addConf: button(icon("add")).on("click", () => {
             const id = `${t("新配置")}${crypto.randomUUID().slice(0, 5)}`;
             const newData = structuredClone(styleData);
