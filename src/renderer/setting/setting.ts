@@ -3800,6 +3800,10 @@ function translatorD(
             }
             key[name] = value;
         }
+        if (selectEl.gv === "deepl") {
+            // @ts-expect-error
+            key.free = true;
+        }
         const nv: typeof v = {
             id: v.id,
             name: idEl.gv,
