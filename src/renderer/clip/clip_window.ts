@@ -30,6 +30,7 @@ import {
     filters,
 } from "fabric";
 import { EraserBrush } from "@erase2d/fabric";
+import bmp from "bmp-js";
 
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(
@@ -985,7 +986,24 @@ async function save(message: string) {
     const fs = require("node:fs");
     let dataBuffer: Buffer;
     if (_type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
-    else {
+    else if (_type === "bmp") {
+        const nc = getClipPhoto();
+        const mainCtx = nc.getContext("2d")!;
+        const data = mainCtx.getImageData(0, 0, nc.width, nc.height);
+        const abgrArray = new Uint8Array(data.data.length);
+        for (let i = 0; i < data.data.length; i += 4) {
+            abgrArray[i] = data.data[i + 3];
+            abgrArray[i + 1] = data.data[i + 2];
+            abgrArray[i + 2] = data.data[i + 1];
+            abgrArray[i + 3] = data.data[i];
+        }
+        const arrayBuffer = bmp.encode({
+            data: Buffer.from(abgrArray),
+            width: data.width,
+            height: data.height,
+        }).data;
+        dataBuffer = arrayBuffer;
+    } else {
         let f: Blob | null = null;
         const nc = getClipPhoto();
         if (_type === "png") {
@@ -1001,7 +1019,7 @@ async function save(message: string) {
         }
         dataBuffer = Buffer.from(await f.arrayBuffer());
         if (store.get("保存.保存并复制")) {
-            clipboard.writeImage(nativeImage.createFromBuffer(dataBuffer));
+            clipboard.writeImage(nativeImage.createFromBuffer(dataBuffer)); // todo tip
         }
     }
 
@@ -3319,7 +3337,7 @@ const saveType = view()
     .attr({ id: "save_type" })
     .addInto(centerBarEl)
     .add(view().add(t("保存文件格式为")));
-const saveTypeList: (typeof type)[] = ["png", "jpg", "webp", "svg"];
+const saveTypeList: (typeof type)[] = ["png", "jpg", "webp", "bmp", "svg"];
 const suffixList = saveTypeList.map((i) =>
     view()
         .data({ value: i })

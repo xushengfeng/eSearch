@@ -19,6 +19,9 @@ importers:
       '@xushengfeng/fasttext_wasm':
         specifier: ^1.0.2
         version: 1.0.2
+      bmp-js:
+        specifier: ^0.1.0
+        version: 0.1.0
       chroma-js:
         specifier: ^3.1.1
         version: 3.1.1
@@ -86,6 +89,9 @@ importers:
       '@inquirer/prompts':
         specifier: ^7.6.0
         version: 7.6.0(@types/node@22.9.3)
+      '@types/bmp-js':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@types/chroma-js':
         specifier: ^3.1.1
         version: 3.1.1
@@ -866,6 +872,9 @@ packages:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
 
+  '@types/bmp-js@0.1.2':
+    resolution: {integrity: sha512-BF6u+M+KySDBKfr1DQOT3+z42n4/tq62uf9ong4i2SLLpa7mJqPwEmKbNgMzlVliT/jtE6elxyD/0X1mja8jLg==}
+
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
@@ -1113,6 +1122,9 @@ packages:
 
   bluebird@3.7.2:
     resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
+
+  bmp-js@0.1.0:
+    resolution: {integrity: sha512-vHdS19CnY3hwiNdkaqk93DvjVLfbEcI8mys4UjuWrlX1haDmroo8o4xCzh4wD6DGV6HxRCyauwhHRqMTfERtjw==}
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -3678,6 +3690,10 @@ snapshots:
 
   '@trysound/sax@0.2.0': {}
 
+  '@types/bmp-js@0.1.2':
+    dependencies:
+      '@types/node': 22.9.3
+
   '@types/cacheable-request@6.0.3':
     dependencies:
       '@types/http-cache-semantics': 4.0.4
@@ -4011,6 +4027,8 @@ snapshots:
       bluebird: 3.7.2
 
   bluebird@3.7.2: {}
+
+  bmp-js@0.1.0: {}
 
   boolbase@1.0.0: {}
 
