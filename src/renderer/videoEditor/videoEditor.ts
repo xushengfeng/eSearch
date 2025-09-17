@@ -41,6 +41,7 @@ import {
     EncodedVideoPacketSource,
     EncodedPacket,
 } from "mediabunny";
+import UPNG from "@pdf-lib/upng";
 
 import { t } from "../../../lib/translate/translate";
 import xhistory from "../lib/history";
@@ -128,7 +129,7 @@ const bitrate = store.get("录屏.转换.码率") * 1024 * 1024;
 const outputType = [
     { type: "gif", name: "gif" },
     // { type: "webp", name: "webp" }, // todo
-    // { type: "apng", name: "apng" }, // todo
+    { type: "apng", name: "apng" },
     // { type: "avif", name: "avif" }, // todo
     { type: "webm", name: "webm" },
     { type: "mp4", name: "mp4" },
@@ -1467,6 +1468,7 @@ async function save() {
         await saveGif({
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
         });
+    else if (exportEl.els.type.gv === "apng") await saveApng();
     else if (exportEl.els.type.gv === "webm")
         await saveWebm({ codec: exportConfigEls.webm.gv.codec });
     else if (exportEl.els.type.gv === "mp4")
@@ -1640,6 +1642,79 @@ async function saveGif(op?: {
     fs.writeFileSync(exportPath, Buffer.from(bytes));
 
     gifProgress.remove();
+
+    renderSend("ok_save", [exportPath]);
+}
+
+async function saveApng() {
+    const exportPath = getSavePath("apng");
+    if (!exportPath) return;
+
+    await transform();
+
+    let i = 0;
+
+    const delayMap = new Map<number, number>();
+    const heightDt = ms2timestamp(1000 / srcRate);
+    const lowDt = ms2timestamp(1000 / 15); // todo 设置
+    let lastT = 0;
+    const zeroByte = (transformCs.at(0 as TransId) as EncodedVideoChunk)
+        .byteLength;
+    for (const [i, chunk] of transformCs.entries()) {
+        if (i === 0) {
+            delayMap.set(chunk.timestamp, 0);
+        } else {
+            const delay = chunk.timestamp - lastT;
+            if (chunk.byteLength < 0.3 * zeroByte) {
+                if (delay < lowDt) continue;
+                delayMap.set(chunk.timestamp, timestamp2ms(delay));
+                lastT = chunk.timestamp;
+            } else if (delay >= heightDt * 0.8) {
+                // 容错，快0.8都是可接受的
+                delayMap.set(chunk.timestamp, timestamp2ms(delay));
+                lastT = chunk.timestamp;
+            }
+        }
+    }
+
+    console.log(delayMap);
+
+    const images: ArrayBuffer[] = [];
+    const dels: number[] = [];
+    const decoder = new VideoDecoder({
+        output: (frame: VideoFrame) => {
+            const delay = delayMap.get(frame.timestamp);
+            if (delay === undefined) {
+                frame.close();
+                return;
+            }
+            const { data } = frameTrans2Canvas(frame)
+                .getContext("2d")!
+                .getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
+            images.push(data.buffer);
+            dels.push(delay);
+            i++;
+            apngProgress.sv(i / transformCs.length);
+        },
+        error: (e) => console.error("Decode error:", e),
+    });
+
+    const apngProgress = progressEl().addInto(transformLogEl);
+
+    decoder.configure(decoderVideoConfig);
+    for (const [_, chunk] of transformCs.entries()) {
+        if (chunk.type === "key") await decoder.flush();
+        decoder.decode(chunk);
+    }
+
+    await decoder.flush();
+    decoder.close();
+
+    const bytes = UPNG.encode(images, outputV.width, outputV.height, 0, dels);
+
+    fs.writeFileSync(exportPath, Buffer.from(bytes));
+
+    apngProgress.remove();
 
     renderSend("ok_save", [exportPath]);
 }
@@ -2637,6 +2712,7 @@ const exportConfigEls = {
                 dither.sv(v.dither);
             });
     })(),
+    apng: view(),
     mp4: (() => {
         const el = view("x").style({ paddingInline: "8px" });
         const codec = label(
