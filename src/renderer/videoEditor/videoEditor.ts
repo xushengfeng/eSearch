@@ -2829,7 +2829,6 @@ pack(document.body).style({
     outputV.width = Math.round(videoWidth / lastR);
     outputV.height = Math.round(videoHeight / lastR);
 
-    // @ts-ignore
     const reader = new MediaStreamTrackProcessor({
         track: videoTrack,
     }).readable.getReader();
