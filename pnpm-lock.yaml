@@ -20,8 +20,8 @@ importers:
         specifier: 4.10.0-release.1
         version: 4.10.0-release.1
       '@xushengfeng/fasttext_wasm':
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       bmp-js:
         specifier: ^0.1.0
         version: 0.1.0
@@ -80,8 +80,8 @@ importers:
         specifier: ^1.5.4
         version: 1.5.4
       xtranslator:
-        specifier: ^1.5.0
-        version: 1.5.0
+        specifier: ^1.5.1
+        version: 1.5.1
       yauzl:
         specifier: ^3.2.0
         version: 3.2.0
@@ -977,8 +977,8 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
-  '@xushengfeng/fasttext_wasm@1.0.2':
-    resolution: {integrity: sha512-vTNVeCIGqDpKCzvnoZmnBPJlv2OiX/PRW0PdsurYckIinO6OHXhJPLu4WQkDJZn4IwHXJOgsb26PGzlmo0mhog==}
+  '@xushengfeng/fasttext_wasm@1.0.3':
+    resolution: {integrity: sha512-FaZFebXnMxvI5sNumiXDHFSKE+TqXc9Ah8McVToMZBxzgCtcrrUpI3LQZWFWoamSsfUe950AVkLP69PVFCOk2Q==}
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -3000,8 +3000,8 @@ packages:
   xtimelog@1.0.5:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
 
-  xtranslator@1.5.0:
-    resolution: {integrity: sha512-D/conGkNKiUeyWB43eRfVqKtvNlF3A7biPmdO9YMIL1QVW4HAogmfFd+2hr1Mv/JH/axRkEFOIX/4YFNzrwR+A==}
+  xtranslator@1.5.1:
+    resolution: {integrity: sha512-RB58khK8Zg8YWhqScBZcs/rTJaqvi7taE7kltl5NRmQ2fFW97Ik1I6uNH+WojDh0zYKHQUj9m42rHyvpQCEC8A==}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -3819,7 +3819,7 @@ snapshots:
 
   '@xmldom/xmldom@0.8.10': {}
 
-  '@xushengfeng/fasttext_wasm@1.0.2': {}
+  '@xushengfeng/fasttext_wasm@1.0.3': {}
 
   abab@2.0.6:
     optional: true
@@ -6063,7 +6063,7 @@ snapshots:
 
   xtimelog@1.0.5: {}
 
-  xtranslator@1.5.0: {}
+  xtranslator@1.5.1: {}
 
   y18n@5.0.8: {}
 
