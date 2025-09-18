@@ -154,8 +154,6 @@ let stop = false;
 
 const clipTime = Number(store.get("录屏.转换.分段")) * 1000;
 
-const nameT: { s: number; e: number }[] = [{ s: 0, e: Number.NaN }];
-
 const timeL: number[] = [];
 function pTime() {
     const t = Date.now();
@@ -283,39 +281,9 @@ function resize() {
     }
 }
 
-let editting = false;
-
-/** 获取绝对时间 */
-function getPlayT() {
-    let t = 0;
-    for (let i = 0; i < playName; i++) {
-        t += nameT[i].e - nameT[i].s;
-    }
-    t += videoEl.currentTime * 1000;
-    return t;
-}
-
 /** 通过绝对时间设定视频和其相对时间 */
 function setPlayT(time: number) {
-    const x = getTimeInV(time);
-    playName = x.v;
-    videoEl.currentTime = x.time / 1000;
-}
-
-/** 获取绝对时间对应的视频和相对时间 */
-function getTimeInV(time: number) {
-    for (let i = 0; i < nameT.length; i++) {
-        if (
-            nameT[i].s <= time &&
-            (time < nameT?.[i + 1]?.s || time <= nameT[i].e)
-        ) {
-            return {
-                v: i,
-                time: Math.min(time - nameT[i].s, nameT[i].e - nameT[i].s),
-            };
-        }
-    }
-    return { v: 0, time: 0 };
+    videoEl.currentTime = time / 1000;
 }
 
 function getAudioNames() {
@@ -325,7 +293,6 @@ function getAudioNames() {
 }
 
 function showControl() {
-    editting = true;
     playEl.sv(true);
     if (cameraEl.gv) cameraStreamF(false);
     sEl.class("s_show");
@@ -349,8 +316,6 @@ function showControl() {
         mEl.style({ transition: "none" });
     }, 400);
 }
-
-let playName = 0;
 
 function clipV() {
     tStartEl.sv(0);
@@ -1018,20 +983,8 @@ const proEl = (id: string) =>
         );
 
 const prTs = proEl("ts");
-const prClip = proEl("clip");
-const prJoin = proEl("join");
-
-const prEl = {
-    ts: prTs,
-    clip: prClip,
-    join: prJoin,
-};
 
 updataPrEl();
-
-const logP = ele("details").attr({ id: "log_p" }).class("hide_log");
-const logText = ele("textarea").attr({ id: "log", cols: 30, rows: 10 });
-logP.add([ele("summary").add(t("FFmpeg 错误日志")), logText]);
 
 sEl.add([
     jdtEl,
@@ -1047,9 +1000,6 @@ sEl.add([
     setEndEl,
     saveEl,
     prTs,
-    prClip,
-    prJoin,
-    logP,
 ]);
 
 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1183,7 +1133,6 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
     }
 
     recorder.onstop = () => {
-        (nameT.at(-1) as (typeof nameT)[0]).e = getT();
         renderSend("recordStop", []);
         stopRecord();
     };
