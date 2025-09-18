@@ -484,14 +484,12 @@ function 记忆框选f() {
 // 关闭
 async function closeWin() {
     mainCanvas.width = clipCanvas.width = drawCanvas.width = mainCanvas.width; // 确保清空画布
-    // @ts-ignore
-    await scheduler.yield();
     document.documentElement.style.display = "none";
     记忆框选f();
     if (uIOhook) {
         uIOhook.stop();
     }
-    // @ts-ignore
+    // @ts-expect-error
     await scheduler.yield();
     renderSend("clip_close", []);
 }
