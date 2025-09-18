@@ -285,10 +285,6 @@ function resize() {
 
 let editting = false;
 
-function setVideo(n: number) {
-    videoEl.src = `${tmpPath}/${n}`;
-}
-
 /** 获取绝对时间 */
 function getPlayT() {
     let t = 0;
@@ -302,7 +298,6 @@ function getPlayT() {
 /** 通过绝对时间设定视频和其相对时间 */
 function setPlayT(time: number) {
     const x = getTimeInV(time);
-    setVideo(x.v);
     playName = x.v;
     videoEl.currentTime = x.time / 1000;
 }
@@ -338,9 +333,7 @@ function showControl() {
     mEl.style({ backgroundColor: cssColor.bg });
     videoPEl.style({ transform: "" });
     segEl.remove();
-    setVideo(0);
-    videoEl.style.left = `${-rect[0]}px`;
-    videoEl.style.top = `${-rect[1]}px`;
+    // setVideo(0);// todo
     vpEl.style({
         width: `${rect[2]}px`,
         minWidth: `${rect[2]}px`,
@@ -722,36 +715,229 @@ waitTip.el.showModal();
 
 const videoPEl = view().attr({ id: "video" }).addInto(mEl);
 const vpEl = view().attr({ id: "v_p" }).addInto(videoPEl);
-const videoEl = ele("video").style({ maxWidth: "none" }).addInto(vpEl).el;
+
+// WebCodecs 播放器组件
+class WebCodecsPlayer {
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
+    private audioCtx: AudioContext | null = null;
+    private videoDecoder: VideoDecoder | null = null;
+    private audioDecoders: AudioDecoder[] = [];
+    private videoFrames: VideoFrame[] = [];
+    private audioBuffers: AudioBuffer[] = [];
+    private audioBufferSource: AudioBufferSourceNode | null = null;
+    private videoChunks: EncodedVideoChunk[] = [];
+    private audioChunksList: EncodedAudioChunk[][] = [];
+    private playing = false;
+    private currentFrame = 0;
+    private rafId: number | null = null;
+    private duration = 0;
+    private _currentTime = 0;
+    private startTime = 0;
+    public onended?: () => void;
+
+    constructor(parent: HTMLElement) {
+        this.canvas = document.createElement("canvas");
+        this.ctx = this.canvas.getContext("2d")!;
+        parent.appendChild(this.canvas);
+    }
+
+    async setVideoData(data: VideoData, width = 1280, height = 720) {
+        this.videoChunks = data.video;
+        this.audioChunksList = data.audio;
+        this.videoFrames = [];
+        this.audioBuffers = [];
+        this.currentFrame = 0;
+        this._currentTime = 0;
+        this.canvas.width = width;
+        this.canvas.height = height;
+        // 解码视频
+        await this.decodeVideo(width, height);
+        // 解码音频
+        await this.decodeAudio();
+        this.duration =
+            this.videoFrames.length > 0
+                ? this.videoFrames.at(-1)!.timestamp / 1000
+                : 0;
+    }
+
+    private async decodeVideo(width: number, height: number) {
+        return new Promise<void>((resolve) => {
+            this.videoFrames = [];
+            this.videoDecoder = new VideoDecoder({
+                output: (frame) => {
+                    this.videoFrames.push(frame);
+                },
+                error: (e) => console.error("VideoDecoder error", e),
+            });
+            this.videoDecoder.configure(decoderVideoConfig);
+            for (const chunk of this.videoChunks) {
+                this.videoDecoder.decode(chunk);
+            }
+            this.videoDecoder.flush().then(resolve);
+        });
+    }
+
+    private async decodeAudio() {
+        if (this.audioChunksList.length === 0) return;
+        this.audioBuffers = [];
+        this.audioDecoders = [];
+        if (!this.audioCtx) {
+            this.audioCtx = new (
+                window.AudioContext ||
+                (
+                    window as unknown as {
+                        webkitAudioContext: typeof AudioContext;
+                    }
+                ).webkitAudioContext
+            )();
+        }
+        // 只处理第一轨道
+        const chunks = this.audioChunksList[0];
+        const audioFrames: AudioData[] = [];
+        await new Promise<void>((resolve) => {
+            const decoder = new AudioDecoder({
+                output: (frame: AudioData) => {
+                    audioFrames.push(frame);
+                },
+                error: (e) => console.error("AudioDecoder error", e),
+            });
+            decoder.configure({
+                codec: "opus",
+                sampleRate: 48000,
+                numberOfChannels: 2,
+            });
+            for (const chunk of chunks) {
+                decoder.decode(chunk);
+            }
+            decoder.flush().then(resolve);
+        });
+        // 合并所有 AudioData 为一个 AudioBuffer
+        if (audioFrames.length > 0) {
+            const sampleRate = audioFrames[0].sampleRate;
+            const channels = audioFrames[0].numberOfChannels;
+            let totalLength = 0;
+            for (const frame of audioFrames) {
+                totalLength += frame.numberOfFrames;
+            }
+            const audioBuffer = this.audioCtx.createBuffer(
+                channels,
+                totalLength,
+                sampleRate,
+            );
+            let offset = 0;
+            for (const frame of audioFrames) {
+                for (let ch = 0; ch < channels; ch++) {
+                    const tmp = new Float32Array(frame.numberOfFrames);
+                    frame.copyTo(tmp, { planeIndex: ch });
+                    audioBuffer.getChannelData(ch).set(tmp, offset);
+                }
+                offset += frame.numberOfFrames;
+            }
+            this.audioBuffers = [audioBuffer];
+        }
+    }
+
+    play() {
+        if (this.playing) return;
+        this.playing = true;
+        this.startTime = performance.now() - this._currentTime * 1000;
+        this.renderFrame();
+        // 音频播放
+        if (this.audioBuffers.length > 0 && this.audioCtx) {
+            if (this.audioBufferSource) {
+                this.audioBufferSource.stop();
+            }
+            this.audioBufferSource = this.audioCtx.createBufferSource();
+            this.audioBufferSource.buffer = this.audioBuffers[0];
+            this.audioBufferSource.connect(this.audioCtx.destination);
+            this.audioBufferSource.start(0, this._currentTime);
+            this.audioBufferSource.onended = () => {
+                this.pause();
+                this.onended?.();
+            };
+        }
+    }
+
+    pause() {
+        this.playing = false;
+        if (this.rafId) cancelAnimationFrame(this.rafId);
+        if (this.audioBufferSource) {
+            this.audioBufferSource.stop();
+            this.audioBufferSource.disconnect();
+            this.audioBufferSource = null;
+        }
+    }
+
+    seek(time: number) {
+        // time 单位秒
+        this._currentTime = Math.max(0, Math.min(time, this.duration));
+        // 找到对应帧
+        this.currentFrame = this.findFrameByTime(this._currentTime);
+        if (this.playing) {
+            this.pause();
+            this.play();
+        } else {
+            this.renderFrame(true);
+        }
+    }
+
+    get currentTime() {
+        if (this.playing) {
+            return (performance.now() - this.startTime) / 1000;
+        }
+        return this._currentTime;
+    }
+    set currentTime(t: number) {
+        this.seek(t);
+    }
+
+    private findFrameByTime(time: number) {
+        // 根据时间查找最近帧
+        for (let i = 0; i < this.videoFrames.length; i++) {
+            if (this.videoFrames[i].timestamp / 1000 >= time) {
+                return i;
+            }
+        }
+        return this.videoFrames.length - 1;
+    }
+
+    private renderFrame(force = false) {
+        if (!this.playing && !force) return;
+        // 根据当前时间同步渲染帧
+        const now = this.playing
+            ? (performance.now() - this.startTime) / 1000
+            : this._currentTime;
+        const idx = this.findFrameByTime(now);
+        const frame = this.videoFrames[idx];
+        if (frame) {
+            this.ctx.drawImage(
+                frame,
+                0,
+                0,
+                this.canvas.width,
+                this.canvas.height,
+            );
+        }
+        this.currentFrame = idx;
+        if (this.playing && now < this.duration) {
+            this.rafId = requestAnimationFrame(() => this.renderFrame());
+        } else if (this.playing) {
+            this.pause();
+            this.onended?.();
+        }
+    }
+}
+
 const segEl = view().attr({ id: "seg" }).addInto(vpEl);
 
-videoEl.onpause = () => {
-    playEl.sv(true);
-};
-videoEl.onplay = () => {
-    playEl.sv(false);
-};
+// 替换 videoEl 为 WebCodecsPlayer
+const videoEl = new WebCodecsPlayer(vpEl.el);
 
-videoEl.ontimeupdate = () => {
-    if (!editting) return;
-    tNtEl.sv(tFormat(getPlayT() - tStartEl.gv));
-    if (getPlayT() > tEndEl.gv) {
-        videoEl.pause();
-        tNtEl.sv(tTEl.gv);
-    }
-    jdtEl.sv(getPlayT());
-};
-
-videoEl.onended = () => {
-    if (playName < nameT.length - 1) {
-        playName++;
-        setVideo(playName);
-        videoEl.play();
-    } else {
-        tNtEl.sv(tTEl.gv);
-        jdtEl.svc = Number(jdtEl.el.max);
-    }
-};
+// 相关方法适配
+function setVideo(videoData: VideoData) {
+    videoEl.setVideoData(videoData);
+}
 
 const sEl = view().attr({ id: "s" }).class(Class.smallSize).addInto(mEl);
 
