@@ -19,7 +19,130 @@ initStyle(store);
 
 setTitle(t("录屏"));
 
-let recorder: MediaRecorder;
+type VideoData = {
+    video: EncodedVideoChunk[];
+    audio: EncodedAudioChunk[][];
+};
+
+// WebCodecs多音轨录制器
+class WebCodecsRecorder {
+    private videoTrack: MediaStreamVideoTrack;
+    private audioTracks: MediaStreamAudioTrack[];
+    private videoEncoder: VideoEncoder;
+    private audioEncoders: AudioEncoder[] = [];
+    private videoChunks: EncodedVideoChunk[] = [];
+    private audioChunksList: EncodedAudioChunk[][] = [];
+    public state: "inactive" | "recording" | "paused" = "inactive";
+    public ondataavailable?: (data: VideoData) => void;
+    public onstop?: () => void;
+    public rect: [number, number, number, number];
+
+    constructor(
+        stream: MediaStream,
+        videoConfig: VideoEncoderConfig,
+        audioConfig?: AudioEncoderConfig,
+        rect?: [number, number, number, number],
+    ) {
+        this.videoTrack = stream.getVideoTracks()[0];
+        this.audioTracks = stream.getAudioTracks();
+        this.videoEncoder = new VideoEncoder({
+            output: (chunk) => this.videoChunks.push(chunk),
+            // todo 警告大小
+            error: (e) => console.error("VideoEncoder error", e),
+        });
+        this.videoEncoder.configure(videoConfig);
+        if (audioConfig) {
+            this.audioTracks.forEach((track, idx) => {
+                this.audioChunksList[idx] = [];
+                const encoder = new AudioEncoder({
+                    output: (chunk) => this.audioChunksList[idx].push(chunk),
+                    error: (e) => console.error("AudioEncoder error", e),
+                });
+                encoder.configure(audioConfig);
+                this.audioEncoders[idx] = encoder;
+            });
+        }
+        this.rect = rect ?? [0, 0, 0, 0];
+    }
+
+    async start() {
+        this.state = "recording";
+        // 视频帧处理
+        const videoReader = new MediaStreamTrackProcessor({
+            track: this.videoTrack,
+        }).readable.getReader();
+        const [cropX, cropY, cropW, cropH] = this.rect;
+        const processVideo = async () => {
+            while (this.state === "recording") {
+                const { value, done } = await videoReader.read();
+                if (done) break;
+                const frame = value;
+                if (cropW > 0 && cropH > 0) {
+                    // 真实裁切，生成新帧
+                    const bitmap = await createImageBitmap(
+                        frame,
+                        cropX,
+                        cropY,
+                        cropW,
+                        cropH,
+                    );
+                    const canvas = new OffscreenCanvas(cropW, cropH);
+                    const ctx = canvas.getContext("2d")!;
+                    ctx.drawImage(bitmap, 0, 0, cropW, cropH);
+                    const croppedFrame = new VideoFrame(canvas, {
+                        timestamp: frame.timestamp,
+                    });
+                    this.videoEncoder.encode(croppedFrame);
+                    croppedFrame.close();
+                    bitmap.close();
+                } else {
+                    this.videoEncoder.encode(frame);
+                }
+                frame.close();
+            }
+        };
+        processVideo();
+        // 多音频轨道处理
+        this.audioTracks.forEach((track, idx) => {
+            const reader = new MediaStreamTrackProcessor({
+                track,
+            }).readable.getReader();
+            const encoder = this.audioEncoders[idx];
+            const processAudio = async () => {
+                while (this.state === "recording") {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    encoder.encode(value);
+                }
+            };
+            processAudio();
+        });
+    }
+
+    stop() {
+        this.state = "inactive";
+        this.videoEncoder.flush();
+        for (const enc of this.audioEncoders) enc.flush();
+        this.ondataavailable?.({
+            video: this.videoChunks,
+            audio: this.audioChunksList,
+        });
+        this.onstop?.();
+    }
+
+    pause() {
+        this.state = "paused";
+        // todo
+    }
+
+    resume() {
+        if (this.state === "paused") {
+            this.state = "recording";
+        }
+    }
+}
+
+let recorder: WebCodecsRecorder;
 
 /** 临时保存的原始视频位置 */
 let tmpPath: string;
@@ -263,121 +386,14 @@ function videoPlay() {
     videoEl.play();
 }
 
-const clipPath: string[] = [];
-let isClipRun = false;
-/** 获取要切割的视频和位置 */
-async function clip() {
-    if (isClipRun) return;
-    isClipRun = true;
-    const start = tStartEl.gv;
-    const end = tEndEl.gv;
-    const startV = getTimeInV(start);
-    const endV = getTimeInV(end);
-    const output1 = path.join(tmpPath, "output1");
-    try {
-        fs.rmSync(output1, { recursive: true });
-    } catch (error) {}
-    fs.mkdirSync(output1);
-    function toArg(
-        v: number,
-        t: number,
-        a: "start" | "end" | "both",
-        t2: number,
-    ) {
-        const args: (string | number)[] = [];
-        args.push("-i", path.join(output, `${v}.${type}`));
-        if (a === "start") {
-            args.push("-ss", t / 1000);
-        } else if (a === "end") {
-            args.push("-to", t / 1000);
-        } else {
-            args.push("-ss", t / 1000, "-to", t2 / 1000);
-        }
-        args.push(path.join(output1, `${v}.${type}`));
-        return args.map((i) => String(i));
-    }
-    if (startV.v + 1 < endV.v) {
-        for (let i = startV.v + 1; i < endV.v; i++) {
-            fs.copyFileSync(
-                path.join(output, `${i}.${type}`),
-                path.join(output1, `${i}.${type}`),
-            );
-        }
-    }
-    for (let i = startV.v; i <= endV.v; i++) {
-        clipPath.push(
-            path
-                .join(output1, `${i}.${type}`)
-                .replaceAll(path.sep, path.posix.sep),
-        );
-    }
-    if (startV.v === endV.v) {
-        await runFfmpeg(
-            "clip",
-            0,
-            toArg(startV.v, startV.time, "both", endV.time),
-        );
-    } else {
-        await Promise.all([
-            runFfmpeg("clip", 0, toArg(startV.v, startV.time, "start", 0)),
-            runFfmpeg("clip", 1, toArg(endV.v, endV.time, "end", 0)),
-        ]);
-    }
-}
-
-function joinAndSave(filepath: string) {
-    if (clipPath.length === 1) {
-        fs.cpSync(clipPath[0], filepath);
-        ffprocess.join[0] = { args: [], finish: "ok", logs: [], testCom: "" };
-        updataPrEl(ffprocess);
-        return;
-    }
-    const args: string[] = [];
-
-    // 针对不同格式的合并（用switch还要加上作用域的话缩进就太多了）
-    if (type === "gif") {
-        for (const i of clipPath) {
-            args.push("-i", i);
-        }
-        args.push("-filter_complex");
-        let t = "";
-        for (const i in clipPath) {
-            t += `[${i}:v:0]`;
-        }
-        t += `concat=n=${clipPath.length}:v=1[outv]`;
-        args.push(`"${t}"`, "-map", '"[outv]"');
-    } else if (
-        type === "webm" ||
-        type === "mp4" ||
-        type === "ts" ||
-        type === "mkv" ||
-        type === "mov" ||
-        type === "flv" ||
-        type === "mpeg"
-    ) {
-        let t = "";
-        for (const i of clipPath) {
-            t += `file ${i}\n`;
-        }
-        const textPath = path.join(tmpPath, "output1", "x.txt");
-        fs.writeFileSync(textPath, t);
-        args.push("-f", "concat", "-safe", "0", "-i", textPath, "-c", "copy");
-    } else if (type === "avi") {
-    }
-    args.push(filepath);
-
-    runFfmpeg("join", 0, args).then((r) => {
-        if (r) renderSend("ok_save", [filepath, true]);
-    });
+function joinAndSave(data: VideoData, filepath: string) {
+    // todo
 }
 
 async function save() {
     store.set("录屏.转换.格式", 格式El.el.gv);
     renderSend("recordSavePath", [type]); // todo 可以使用promise控制流程
 }
-
-let savePath = "";
-let isTsOk = false;
 
 const prText = {
     wait: {
@@ -408,127 +424,7 @@ for (const [_, v] of typedEntries(prText)) {
     }
 }
 
-function setFFState(type: keyof typeof prEl, n: number, state: prst) {
-    ffprocess[type][n].finish = state;
-    if (
-        type === "ts" &&
-        Object.values(ffprocess[type]).every((i) => i.finish === "ok")
-    ) {
-        if (savePath) {
-            clip()
-                .then(() => joinAndSave(savePath))
-                .catch(() => {
-                    isClipRun = false;
-                });
-        }
-    }
-}
-
-function updataPrEl(pr: typeof ffprocess) {
-    for (const i in pr) {
-        const key = i as "ts" | "clip" | "join";
-        const prILen = Object.keys(pr[key]).length;
-        if (prILen === 0) {
-            prEl[key].el.innerText = `${prText.wait[key]}`;
-        } else {
-            const stI: { [key in prst]: number } = {
-                ok: 0,
-                err: 0,
-                running: 0,
-            };
-            for (const j in pr[key]) {
-                stI[pr[key][j].finish]++;
-            }
-            if (stI.err > 0) {
-                prEl[key].el.innerText =
-                    `${prText.error[key]} ${t("点击重试")}`;
-                prEl[key].class("pro_error");
-                prEl[key].el.onclick = () => {
-                    for (const i in pr[key]) {
-                        if (pr[key][i].finish === "err") {
-                            runFfmpeg(key, Number(i), pr[key][i].args);
-                        }
-                    }
-                    logText.el.value += "\n\n重试\n\n";
-                };
-                logP.el.classList.remove("hide_log");
-                for (const i in pr[key]) {
-                    if (pr[key][i].finish === "err") {
-                        logText.el.value += `\n命令：\n${pr[key][i].testCom}\n\n输出：\n${pr[key][i].logs.map((i) => i.text).join("\n")}`;
-                    }
-                }
-                logText.el.scrollTop = logText.el.scrollHeight;
-            } else if (stI.ok === prILen) {
-                prEl[key].el.innerText = `${prText.ok[key]}`;
-                prEl[key].el.style.width = "100%";
-                prEl[key].class("pro_ok");
-                if (key === "ts") {
-                    isTsOk = true;
-                    if (!savePath) {
-                        prEl[key].el.innerText += ` ${t("等待保存")}`;
-                    }
-                }
-            } else {
-                prEl[key].el.innerText =
-                    `${prText.running[key]} ${stI.running}/${prILen}`;
-                prEl[key].el.style.width = `${(stI.running / prILen) * 100}%`;
-                prEl[key].class("pro_running");
-            }
-        }
-    }
-}
-
-type prst = "ok" | "err" | "running";
-
-type P = {
-    [k: number]: {
-        args: string[];
-        testCom: string;
-        logs: { text: string }[];
-        finish: "ok" | "err" | "running";
-    };
-};
-const ffprocess: {
-    [key in "ts" | "clip" | "join"]: P;
-} = {
-    ts: {},
-    clip: {},
-    join: {},
-};
-
-function runFfmpeg(type: "ts" | "clip" | "join", n: number, args: string[]) {
-    const ffmpeg = spawn(pathToFfmpeg, args);
-    ffprocess[type][n] = {
-        args,
-        testCom: `ffmpeg ${args.join(" ")}`,
-        finish: "running",
-        logs: [],
-    };
-    updataPrEl(ffprocess);
-    return new Promise<boolean>((re, rj) => {
-        ffmpeg.on("close", (code) => {
-            if (code === 0) {
-                setFFState(type, n, "ok");
-                updataPrEl(ffprocess);
-                console.log(ffprocess);
-                re(true);
-            } else {
-                setFFState(type, n, "err");
-                updataPrEl(ffprocess);
-                console.log(ffprocess);
-                rj(false);
-            }
-        });
-        ffmpeg.stdout.on("data", (data: Uint8Array) => {
-            ffprocess[type][n].logs.push({ text: data.toString() });
-            console.log(data.toString());
-        });
-        ffmpeg.stderr.on("data", (data: Uint8Array) => {
-            ffprocess[type][n].logs.push({ text: data.toString() });
-            console.log(data.toString());
-        });
-    });
-}
+function updataPrEl() {}
 
 function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
@@ -945,7 +841,7 @@ const prEl = {
     join: prJoin,
 };
 
-updataPrEl(ffprocess);
+updataPrEl();
 
 const logP = ele("details").attr({ id: "log_p" }).class("hide_log");
 const logText = ele("textarea").attr({ id: "log", cols: 30, rows: 10 });
@@ -1030,6 +926,20 @@ if (store.get("录屏.摄像头.开启")) {
 
 document.body.onresize = resize;
 
+const [codec, isDeAcc, isEnAcc] = ["vp8", false, false];
+const decoderVideoConfig = {
+    codec: codec,
+    hardwareAcceleration: isDeAcc ? "prefer-hardware" : "no-preference",
+} as const;
+const encoderVideoConfig = {
+    codec: codec,
+    hardwareAcceleration: isEnAcc ? "prefer-hardware" : "no-preference",
+} as const;
+const baseCodec = "vp8";
+
+const srcRate = store.get("录屏.转换.帧率");
+const bitrate = store.get("录屏.转换.码率") * 1024 * 1024;
+
 renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
     waitTip.remove();
     rect = r;
@@ -1058,55 +968,38 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
         console.error(e);
     }
     if (!stream) return;
-    let chunks: Blob[] = [];
-    recorder = new MediaRecorder(stream, {
-        videoBitsPerSecond: store.get("录屏.视频比特率") * 10 ** 6,
-        mimeType: "video/webm",
-    });
-    recorder.ondataavailable = (e) => {
-        chunks.push(e.data);
+
+    const chunks: VideoData = {
+        video: [],
+        audio: [],
     };
 
+    const videoTrack = stream.getVideoTracks()[0];
+    const videoWidth = videoTrack.getSettings().width ?? screen.width;
+    const videoHeight = videoTrack.getSettings().height ?? screen.height;
+    recorder = new WebCodecsRecorder(stream, {
+        ...encoderVideoConfig,
+        width: videoWidth,
+        height: videoHeight,
+        framerate: srcRate,
+        bitrate: bitrate,
+    });
+    recorder.ondataavailable = (e) => {
+        chunks.video = e.video;
+        chunks.audio = e.audio;
+    };
     const fileName = String(Date.now());
     tmpPath = path.join(os.tmpdir(), "eSearch/", fileName);
     output = path.join(tmpPath, "output");
-    fs.mkdirSync(tmpPath);
-    fs.mkdirSync(output);
-    let clipName = 0;
-    function save(f: () => void) {
-        const b = new Blob(chunks, { type: "video/webm" });
-        console.log(chunks, b);
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(b);
-        reader.onloadend = (_e) => {
-            const baseName = String(clipName);
-            const baseName2 = `${baseName}.${type}`;
-            const p = path.join(tmpPath, baseName);
-            const crop =
-                type === "gif" && store.get("录屏.转换.高质量gif")
-                    ? `[in]crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]},split[split1][split2];[split1]palettegen=stats_mode=single[pal];[split2][pal]paletteuse=new=1`
-                    : `crop=${rect[2]}:${rect[3]}:${rect[0]}:${rect[1]}`;
-            const args = ["-i", p, "-vf", crop, path.join(output, baseName2)];
-            fs.writeFile(p, Buffer.from(reader.result as string), (_err) => {
-                runFfmpeg("ts", clipName, args);
-                chunks = [];
-                if (f) f();
-                clipName++;
-            });
-        };
+
+    function stopRecord() {
+        showControl();
     }
 
     recorder.onstop = () => {
         (nameT.at(-1) as (typeof nameT)[0]).e = getT();
-        if (stop) {
-            renderSend("recordStop", []);
-            save(showControl);
-            console.log(nameT);
-        } else {
-            save(() => {});
-            recorder.start();
-            nameT.push({ s: getT(), e: Number.NaN });
-        }
+        renderSend("recordStop", []);
+        stopRecord();
     };
 
     if (store.get("录屏.自动录制") === true) {
@@ -1131,15 +1024,7 @@ renderOn("recordStartStop", () => {
     startStop.el.click();
 });
 
-renderOn("recordSavePathReturn", ([arg]) => {
-    savePath = arg;
-    if (isTsOk)
-        clip()
-            .then(() => joinAndSave(arg))
-            .catch(() => {
-                isClipRun = false;
-            });
-});
+renderOn("recordSavePathReturn", ([arg]) => {});
 
 renderOn("recordState", ([s]) => {
     if (s === "stop") {
