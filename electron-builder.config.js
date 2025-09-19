@@ -129,34 +129,6 @@ const beforePack = async () => {
             ),
         );
     }
-    if (!checkPath("./lib/ffmpeg")) {
-        const winpath = "ffmpeg-n6.1-latest-win64-gpl-6.1";
-        const o = {
-            win32: {
-                x64: `${githubUrl}/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-win32-x64.zip`,
-            },
-            darwin: {
-                x64: `${githubUrl}/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-x64.zip`,
-                arm64: `${githubUrl}/xushengfeng/eSearch/releases/download/13.0.0-beta.1/ffmpeg-darwin-arm64.zip`,
-            },
-        };
-        if (o?.[process.platform]?.[arch]) {
-            ensureDir("./lib/ffmpeg");
-            await downloadUnzip(
-                o[process.platform][process.arch],
-                "./lib/ffmpeg/",
-            );
-            if (process.platform === "win32") {
-                fs.copyFileSync(
-                    path.join("./lib/ffmpeg/", winpath, "bin", "ffmpeg.exe"),
-                    path.join("./lib/ffmpeg/", "ffmpeg.exe"),
-                );
-                fs.rmSync(path.join("./lib/ffmpeg/", winpath), {
-                    recursive: true,
-                });
-            }
-        }
-    }
     // 指定arch pnpm似乎不支持，手动安装和剔除
     if ((platform === "win32" || platform === "darwin") && arch === "arm64") {
         execSync("pnpm add node-screenshots --force");
@@ -236,12 +208,6 @@ const build = {
             "!node_modules/onnxruntime-node/bin/napi-v3/win32",
             "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
         ],
-    },
-    deb: {
-        depends: ["ffmpeg"],
-    },
-    rpm: {
-        depends: ["ffmpeg-free"],
     },
     mac: {
         files: [

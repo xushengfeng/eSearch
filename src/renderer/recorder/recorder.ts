@@ -230,6 +230,7 @@ if (process.platform === "win32" || process.platform === "darwin") {
     const n = process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg";
     pathToFfmpeg = path.join(p, n);
 }
+// todo 在导出检测
 const start = spawn(pathToFfmpeg, ["-version"]);
 start.on("error", () => {
     const m =
