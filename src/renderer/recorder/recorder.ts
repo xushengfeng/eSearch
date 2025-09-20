@@ -1,4 +1,40 @@
 /// <reference types="vite/client" />
+
+// 时间单位品牌类型
+type Seconds = number & { __unit: "s" };
+type Milliseconds = number & { __unit: "ms" };
+type Microseconds = number & { __unit: "us" };
+
+// 构造函数
+function seconds(val: number): Seconds {
+    return val as Seconds;
+}
+function milliseconds(val: number): Milliseconds {
+    return val as Milliseconds;
+}
+function microseconds(val: number): Microseconds {
+    return val as Microseconds;
+}
+
+// 转换函数
+function sToMs(s: Seconds): Milliseconds {
+    return milliseconds(s * 1000);
+}
+function msToS(ms: Milliseconds): Seconds {
+    return seconds(ms / 1000);
+}
+function usToS(us: Microseconds): Seconds {
+    return seconds(us / 1_000_000);
+}
+function sToUs(s: Seconds): Microseconds {
+    return microseconds(s * 1_000_000);
+}
+function msToUs(ms: Milliseconds): Microseconds {
+    return microseconds(ms * 1000);
+}
+function usToMs(us: Microseconds): Milliseconds {
+    return milliseconds(us / 1000);
+}
 import { initStyle, getImgUrl, setTitle, Class, cssColor } from "../root/root";
 import {
     button,
@@ -26,6 +62,10 @@ type VideoData = {
 
 // WebCodecs多音轨录制器
 class WebCodecsRecorder {
+    /** 安全减法，保持类型 */
+    private mathSub<T extends number>(a: T, b: T): T {
+        return (a - b) as T;
+    }
     private videoTrack: MediaStreamVideoTrack;
     private audioTracks: MediaStreamAudioTrack[];
     private videoEncoder: VideoEncoder;
@@ -36,6 +76,12 @@ class WebCodecsRecorder {
     public ondataavailable?: (data: VideoData) => void;
     public onstop?: () => void;
     public rect: [number, number, number, number];
+    /** 录制基准时间（微秒） */
+    private startTimestamp: Microseconds = microseconds(0);
+    /** 暂停累计时长（微秒） */
+    private pausedDuration: Microseconds = microseconds(0);
+    /** 暂停开始时间（微秒） */
+    private pauseStart: Microseconds = microseconds(0);
 
     constructor(
         stream: MediaStream,
@@ -44,7 +90,7 @@ class WebCodecsRecorder {
         rect?: [number, number, number, number],
     ) {
         this.videoTrack = stream.getVideoTracks()[0];
-        this.audioTracks = stream.getAudioTracks();
+        this.audioTracks = audioConfig ? stream.getAudioTracks() : [];
         this.videoEncoder = new VideoEncoder({
             output: (chunk) => this.videoChunks.push(chunk),
             // todo 警告大小
@@ -67,6 +113,10 @@ class WebCodecsRecorder {
 
     async start() {
         this.state = "recording";
+        // 录制基准时间（微秒）
+        this.startTimestamp = microseconds(performance.now() * 1000);
+        this.pausedDuration = microseconds(0);
+        this.pauseStart = microseconds(0);
         // 视频帧处理
         const videoReader = new MediaStreamTrackProcessor({
             track: this.videoTrack,
@@ -77,6 +127,13 @@ class WebCodecsRecorder {
                 const { value, done } = await videoReader.read();
                 if (done) break;
                 const frame = value;
+                // 计算真实录制时间戳
+                const nowUs = microseconds(performance.now() * 1000);
+                const timestamp = this.mathSub(nowUs, this.startTimestamp);
+                const realTimestamp = this.mathSub(
+                    timestamp,
+                    this.pausedDuration,
+                );
                 if (cropW > 0 && cropH > 0) {
                     // 真实裁切，生成新帧
                     const bitmap = await createImageBitmap(
@@ -90,13 +147,18 @@ class WebCodecsRecorder {
                     const ctx = canvas.getContext("2d")!;
                     ctx.drawImage(bitmap, 0, 0, cropW, cropH);
                     const croppedFrame = new VideoFrame(canvas, {
-                        timestamp: frame.timestamp,
+                        timestamp: realTimestamp,
                     });
                     this.videoEncoder.encode(croppedFrame);
                     croppedFrame.close();
                     bitmap.close();
                 } else {
-                    this.videoEncoder.encode(frame);
+                    // 重新生成 VideoFrame，修正 timestamp
+                    const newFrame = new VideoFrame(frame, {
+                        timestamp: realTimestamp,
+                    });
+                    this.videoEncoder.encode(newFrame);
+                    newFrame.close();
                 }
                 frame.close();
             }
@@ -112,7 +174,32 @@ class WebCodecsRecorder {
                 while (this.state === "recording") {
                     const { value, done } = await reader.read();
                     if (done) break;
-                    encoder.encode(value);
+                    // 计算真实录制时间戳
+                    const nowUs = microseconds(performance.now() * 1000);
+                    const timestamp = this.mathSub(nowUs, this.startTimestamp);
+                    const realTimestamp = microseconds(
+                        timestamp - this.pausedDuration,
+                    );
+                    // todo
+                    // 重新生成 AudioData，修正 timestamp
+                    if (value.format !== null) {
+                        // 获取每个 channel 的数据
+                        const channels = value.numberOfChannels;
+                        const frames = value.numberOfFrames;
+                        const sampleRate = value.sampleRate;
+                        const buffers: Array<Float32Array> = [];
+                        for (let ch = 0; ch < channels; ch++) {
+                            const buf = new Float32Array(frames);
+                            value.copyTo(buf, { planeIndex: ch });
+                            buffers.push(buf);
+                        }
+                        // 重新构造 AudioData（如需同步 timestamp，可用自定义 PCM 编码器，否则直接用 value）
+                        // 这里只能将 timestamp 逻辑交由后续处理，WebCodecs 不允许直接构造 AudioData
+                        // 所以此处直接编码原始 value，后续解码/播放时用 timestamp 逻辑同步
+                        encoder.encode(value);
+                    } else {
+                        encoder.encode(value);
+                    }
                 }
             };
             processAudio();
@@ -131,12 +218,19 @@ class WebCodecsRecorder {
     }
 
     pause() {
+        if (this.state !== "recording") return;
         this.state = "paused";
-        // todo
+        // 记录暂停开始时间
+        this.pauseStart = microseconds(performance.now() * 1000);
     }
 
     resume() {
         if (this.state === "paused") {
+            // 累计暂停时长
+            const nowUs = microseconds(performance.now() * 1000);
+            this.pausedDuration = microseconds(
+                this.pausedDuration + (nowUs - this.pauseStart),
+            );
             this.state = "recording";
         }
     }
@@ -162,18 +256,6 @@ function pTime() {
     for (let i = 0; i < timeL.length; i += 2) {
         if (timeL[i + 1]) d += timeL[i + 1] - timeL[i];
     }
-}
-function getT() {
-    let t = 0;
-    for (let i = 1; i < timeL.length - 1; i += 2) {
-        t += timeL[i] - timeL[i - 1];
-    }
-    if (timeL.length % 2 === 0) {
-        t += Date.now() - (timeL.at(-2) as number);
-    } else {
-        t += Date.now() - (timeL.at(-1) as number);
-    }
-    return t;
 }
 function setTime(t: string) {
     renderSend("recordTime", [t]);
@@ -246,17 +328,6 @@ start.on("error", () => {
 });
 console.log(pathToFfmpeg);
 
-/** 自动分段 */
-function c() {
-    if (clipTime === 0) return;
-    setTimeout(() => {
-        if (!stop) {
-            recorder.stop();
-            c();
-        }
-    }, clipTime);
-}
-
 function cameraStreamF(b: boolean) {
     renderSend("recordCamera", [b]);
 }
@@ -301,14 +372,12 @@ function showControl() {
     mEl.style({ backgroundColor: cssColor.bg });
     videoPEl.style({ transform: "" });
     segEl.remove();
-    // setVideo(0);// todo
     vpEl.style({
         width: `${rect[2]}px`,
         minWidth: `${rect[2]}px`,
         height: `${rect[3]}px`,
         minHeight: `${rect[3]}px`,
     });
-    clipV();
     saveEl.el.disabled = false;
     renderSend("windowMax", []);
 
@@ -503,7 +572,7 @@ class time_i extends HTMLElement {
         h.innerText = String(hn);
         m.innerText = String(mn - 60 * hn);
         s.innerText = String(sn - 60 * mn).padStart(2, "0");
-        ss.innerText = String(tn).padStart(3, "0");
+        ss.innerText = String(Math.round(tn)).padStart(3, "0");
     }
 
     sum_value() {
@@ -590,8 +659,6 @@ const startStop = button()
             setInterval(getTime, 500);
             sS = false;
             renderSend("recordStart", []);
-
-            c();
         } else {
             stop = true;
             recorder.stop();
@@ -697,9 +764,9 @@ class WebCodecsPlayer {
     private playing = false;
     private currentFrame = 0;
     private rafId: number | null = null;
-    private duration = 0;
-    private _currentTime = 0;
-    private startTime = 0;
+    private _duration: Seconds = seconds(0);
+    private _currentTime: Seconds = seconds(0);
+    private startTime: Milliseconds = milliseconds(0);
     public onended?: () => void;
 
     constructor(parent: HTMLElement) {
@@ -714,17 +781,18 @@ class WebCodecsPlayer {
         this.videoFrames = [];
         this.audioBuffers = [];
         this.currentFrame = 0;
-        this._currentTime = 0;
+        this._currentTime = seconds(0);
         this.canvas.width = width;
         this.canvas.height = height;
         // 解码视频
         await this.decodeVideo(width, height);
         // 解码音频
         await this.decodeAudio();
-        this.duration =
+        // duration 统一为秒
+        this._duration =
             this.videoFrames.length > 0
-                ? this.videoFrames.at(-1)!.timestamp / 1000
-                : 0;
+                ? usToS(this.videoFrames.at(-1)!.timestamp as Microseconds)
+                : seconds(0);
     }
 
     private async decodeVideo(width: number, height: number) {
@@ -793,10 +861,19 @@ class WebCodecsPlayer {
             );
             let offset = 0;
             for (const frame of audioFrames) {
-                for (let ch = 0; ch < channels; ch++) {
-                    const tmp = new Float32Array(frame.numberOfFrames);
-                    frame.copyTo(tmp, { planeIndex: ch });
-                    audioBuffer.getChannelData(ch).set(tmp, offset);
+                const frameChannels = Math.min(
+                    frame.numberOfChannels,
+                    audioBuffer.numberOfChannels,
+                );
+                for (let ch = 0; ch < frameChannels; ch++) {
+                    let tmp: Float32Array;
+                    try {
+                        tmp = new Float32Array(frame.numberOfFrames);
+                        frame.copyTo(tmp, { planeIndex: ch });
+                        audioBuffer
+                            .getChannelData(ch)
+                            .set(tmp.subarray(0, frame.numberOfFrames), offset);
+                    } catch {}
                 }
                 offset += frame.numberOfFrames;
             }
@@ -804,11 +881,22 @@ class WebCodecsPlayer {
         }
     }
 
+    private pnow() {
+        return performance.now() as Milliseconds;
+    }
+
+    private clamp<T extends number>(v: T, min: T, max: T) {
+        return Math.max(min, Math.min(v, max)) as T;
+    }
+
+    private mathSub<T extends number>(a: T, b: T) {
+        return (a - b) as T;
+    }
+
     play() {
         if (this.playing) return;
         this.playing = true;
-        this.startTime = performance.now() - this._currentTime * 1000;
-        this.renderFrame();
+        this.startTime = this.mathSub(this.pnow(), sToMs(this._currentTime));
         // 音频播放
         if (this.audioBuffers.length > 0 && this.audioCtx) {
             if (this.audioBufferSource) {
@@ -823,6 +911,8 @@ class WebCodecsPlayer {
                 this.onended?.();
             };
         }
+        // 启动视频帧渲染循环
+        this.renderLoop();
     }
 
     pause() {
@@ -834,12 +924,13 @@ class WebCodecsPlayer {
             this.audioBufferSource = null;
         }
     }
-
-    seek(time: number) {
+    seek(time: Seconds) {
         // time 单位秒
-        this._currentTime = Math.max(0, Math.min(time, this.duration));
+        this._currentTime = this.clamp(time, seconds(0), this._duration);
+
         // 找到对应帧
         this.currentFrame = this.findFrameByTime(this._currentTime);
+        console.log(time, this.currentFrame);
         if (this.playing) {
             this.pause();
             this.play();
@@ -848,32 +939,40 @@ class WebCodecsPlayer {
         }
     }
 
-    get currentTime() {
+    get duration(): number {
+        return this._duration;
+    }
+
+    get currentTime(): number {
         if (this.playing) {
-            return (performance.now() - this.startTime) / 1000;
+            return msToS(this.mathSub(this.pnow(), this.startTime));
         }
         return this._currentTime;
     }
     set currentTime(t: number) {
-        this.seek(t);
+        this.seek(t as Seconds);
     }
 
-    private findFrameByTime(time: number) {
-        // 根据时间查找最近帧
+    private findFrameByTime(time: Seconds): number {
+        // 输入秒，帧 timestamp 是微秒
+        const us = sToUs(time);
         for (let i = 0; i < this.videoFrames.length; i++) {
-            if (this.videoFrames[i].timestamp / 1000 >= time) {
+            if ((this.videoFrames[i].timestamp as Microseconds) >= us) {
                 return i;
             }
         }
         return this.videoFrames.length - 1;
     }
 
-    private renderFrame(force = false) {
-        if (!this.playing && !force) return;
-        // 根据当前时间同步渲染帧
-        const now = this.playing
-            ? (performance.now() - this.startTime) / 1000
-            : this._currentTime;
+    // 视频帧渲染主循环
+    private renderLoop() {
+        if (!this.playing) return;
+        const now: Seconds = msToS(this.mathSub(this.pnow(), this.startTime));
+        if (now >= this._duration) {
+            this.pause();
+            this.onended?.();
+            return;
+        }
         const idx = this.findFrameByTime(now);
         const frame = this.videoFrames[idx];
         if (frame) {
@@ -886,12 +985,25 @@ class WebCodecsPlayer {
             );
         }
         this.currentFrame = idx;
-        if (this.playing && now < this.duration) {
-            this.rafId = requestAnimationFrame(() => this.renderFrame());
-        } else if (this.playing) {
-            this.pause();
-            this.onended?.();
+        this.rafId = requestAnimationFrame(() => this.renderLoop());
+    }
+
+    // 兼容 seek/暂停时的单帧渲染
+    private renderFrame(force = false) {
+        if (!this.playing && !force) return;
+        const now: Seconds = this._currentTime;
+        const idx = this.findFrameByTime(now);
+        const frame = this.videoFrames[idx];
+        if (frame) {
+            this.ctx.drawImage(
+                frame,
+                0,
+                0,
+                this.canvas.width,
+                this.canvas.height,
+            );
         }
+        this.currentFrame = idx;
     }
 }
 
@@ -901,8 +1013,8 @@ const segEl = view().attr({ id: "seg" }).addInto(vpEl);
 const videoEl = new WebCodecsPlayer(vpEl.el);
 
 // 相关方法适配
-function setVideo(videoData: VideoData) {
-    videoEl.setVideoData(videoData);
+async function setVideo(videoData: VideoData) {
+    await videoEl.setVideoData(videoData);
 }
 
 const sEl = view().attr({ id: "s" }).class(Class.smallSize).addInto(mEl);
@@ -964,10 +1076,9 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
 const setEndEl = iconBEl("right").attr({ id: "b_t_end" }).on("click", setEnd);
 
 function setEnd() {
-    const last = timeL.at(-1) as number;
-    const max = last - timeL[0];
+    const max = videoEl.duration * 1000;
     jdtEl.attr({ max: String(max) });
-    tEndEl.svc = tStartEl.max = tEndEl.max = last - timeL[0];
+    tEndEl.svc = tStartEl.max = tEndEl.max = max;
 }
 
 const saveEl = iconBEl("save")
@@ -1114,13 +1225,17 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
     const videoTrack = stream.getVideoTracks()[0];
     const videoWidth = videoTrack.getSettings().width ?? screen.width;
     const videoHeight = videoTrack.getSettings().height ?? screen.height;
-    recorder = new WebCodecsRecorder(stream, {
-        ...encoderVideoConfig,
-        width: videoWidth,
-        height: videoHeight,
-        framerate: srcRate,
-        bitrate: bitrate,
-    });
+    recorder = new WebCodecsRecorder(
+        stream,
+        {
+            ...encoderVideoConfig,
+            width: videoWidth,
+            height: videoHeight,
+            framerate: srcRate,
+            bitrate: bitrate,
+        },
+        { codec: "opus", sampleRate: 48000, numberOfChannels: 2 },
+    );
     recorder.ondataavailable = (e) => {
         chunks.video = e.video;
         chunks.audio = e.audio;
@@ -1129,8 +1244,10 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
     tmpPath = path.join(os.tmpdir(), "eSearch/", fileName);
     output = path.join(tmpPath, "output");
 
-    function stopRecord() {
+    async function stopRecord() {
         showControl();
+        await setVideo(chunks);
+        clipV();
     }
 
     recorder.onstop = () => {
