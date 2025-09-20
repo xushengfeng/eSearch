@@ -49,7 +49,7 @@ type Message = {
     clip_mac_app: () => { canceled: boolean; filePaths: string[] };
     clip_record: (
         rect: [number, number, number, number],
-        id: string,
+        id: number,
         w: number,
         h: number,
         r: number,

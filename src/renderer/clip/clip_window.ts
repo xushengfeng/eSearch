@@ -567,7 +567,7 @@ function initRecord() {
     if (toolsX.record.el.gv === "normal") {
         renderSend("clip_record", [
             finalRect,
-            String(nowScreenId),
+            nowScreenId,
             mainCanvas.width,
             mainCanvas.height,
             ratio,
