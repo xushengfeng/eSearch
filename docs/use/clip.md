@@ -224,6 +224,12 @@
 flameshot full -p /dev/shm/esearch-img.png
 ```
 
+或
+
+```shell
+scrot /dev/shm/esearch-img.png
+```
+
 你可以使用 flameshot 或桌面环境的截屏工具，将截屏保存到`/dev/shm/esearch-img.png`（你也可以设置其他位置），**eSearch**会自动识别并打开。
 
 既然都用 flameshot，那用 eSearch 岂不是画蛇添足？虽然 eSearch 在一些方面还比不过 flameshot，但在取色器、OCR 校对、广截屏、搜索翻译等方面我用得还是挺顺手的，建议选择适合自己的工具。
