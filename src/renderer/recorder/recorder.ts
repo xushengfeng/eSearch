@@ -414,8 +414,133 @@ function videoPlay() {
     videoEl.play();
 }
 
-function joinAndSave(data: VideoData, filepath: string) {
+/**
+ * 对首个GOP进行重新解码编码，实现精确剪辑
+ * @param gopChunks GOP内所有chunk
+ * @param startUs 剪辑起始时间（微秒）
+ * @param decoderConfig 解码器配置
+ * @returns 重新编码后的chunk数组
+ */
+async function reencodeGopForStart(
+    gopChunks: EncodedVideoChunk[],
+    startUs: Microseconds,
+    decoderConfig: VideoDecoderConfig,
+): Promise<EncodedVideoChunk[]> {
+    // 解码GOP所有chunk
+    const frames: VideoFrame[] = [];
+    // todo ai 说这样写promise就这样吧，以后在处理
+    await new Promise<void>((resolve) => {
+        const decoder = new VideoDecoder({
+            output: (frame) => frames.push(frame),
+            error: (e) => console.error("GOP解码错误", e),
+        });
+        decoder.configure(decoderConfig);
+        for (const chunk of gopChunks) decoder.decode(chunk);
+        decoder.flush().then(resolve);
+    });
+    // 只保留 timestamp >= startUs 的帧
+    const filteredFrames = frames.filter(
+        (f) => (f.timestamp as Microseconds) >= startUs,
+    );
+    // 重新编码
+    const encoded: EncodedVideoChunk[] = [];
+    await new Promise<void>((resolve) => {
+        const encoder = new VideoEncoder({
+            output: (chunk) => encoded.push(chunk),
+            error: (e) => console.error("GOP编码错误", e),
+        });
+        encoder.configure({
+            ...decoderConfig,
+            width: filteredFrames[0]?.displayWidth ?? 1280,
+            height: filteredFrames[0]?.displayHeight ?? 720,
+        });
+        for (const frame of filteredFrames) encoder.encode(frame);
+        encoder.flush().then(resolve);
+    });
+    for (const f of frames) f.close();
+    return encoded;
+}
+
+async function clipVideoData(
+    data: VideoData,
+    start: Milliseconds,
+    end: Milliseconds,
+) {
+    // 视频部分：只保留涉及的GOP（关键帧及其后续帧）
+    const videoChunks = data.video;
+    // 找到起始关键帧
+    const startUs = msToUs(start);
+    const endUs = msToUs(end);
+    let startIdx = 0;
+    let endIdx = videoChunks.length - 1;
+    for (let i = 0; i < videoChunks.length; i++) {
+        const chunk = videoChunks[i];
+        if (chunk.timestamp >= startUs && chunk.type === "key") {
+            startIdx = i;
+            break;
+        }
+    }
+    for (let i = startIdx; i < videoChunks.length; i++) {
+        const chunk = videoChunks[i];
+        if (chunk.timestamp > endUs && chunk.type === "key") {
+            endIdx = i - 1;
+            break;
+        }
+    }
+    // GOP优化：如果 startUs > 第一个关键帧 timestamp，则对首GOP重新解码编码
+    let clippedVideo: EncodedVideoChunk[] = [];
+    const decoderConfig = {
+        codec: "vp8",
+        hardwareAcceleration: "no-preference",
+    } as const;
+    if (startIdx > 0 && startUs > videoChunks[startIdx].timestamp) {
+        // 找到首GOP所有chunk
+        const gopStart = startIdx;
+        let gopEnd = startIdx;
+        for (let i = gopStart + 1; i <= endIdx; i++) {
+            if (videoChunks[i].type === "key") {
+                gopEnd = i - 1;
+                break;
+            }
+            gopEnd = i;
+        }
+        // 重新解码编码首GOP
+        // 注意：此处为异步，需在调用处 await
+        // 其余GOP直接保留
+        const beforeGop = videoChunks.slice(startIdx, gopEnd + 1);
+        // 重新编码首GOP
+        const reencoded = await reencodeGopForStart(
+            beforeGop,
+            startUs,
+            decoderConfig,
+        );
+        clippedVideo = reencoded.concat(
+            videoChunks.slice(gopEnd + 1, endIdx + 1),
+        );
+    } else {
+        clippedVideo = videoChunks.slice(startIdx, endIdx + 1);
+    }
+    // 音频部分：按时间裁剪
+    const clippedAudio: EncodedAudioChunk[][] = [];
+    for (const trackChunks of data.audio) {
+        const arr = trackChunks.filter(
+            (chunk) => chunk.timestamp >= startUs && chunk.timestamp <= endUs,
+        );
+        clippedAudio.push(arr);
+    }
+    return {
+        video: clippedVideo,
+        audio: clippedAudio,
+    };
+}
+
+async function clipAndSave(data: VideoData, filepath: string) {
     // todo
+    const rdata = await clipVideoData(
+        data,
+        milliseconds(tStartEl.gv),
+        milliseconds(tEndEl.gv),
+    );
 }
 
 async function save() {
