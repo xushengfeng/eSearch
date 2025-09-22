@@ -408,10 +408,6 @@ function clipV() {
     tNtEl.sv(tFormat(0));
 }
 
-/**
- *
- * @param x 输入秒
- */
 function tFormat(x: number) {
     const t = x;
     const s = Math.trunc(t / 1000);
@@ -957,6 +953,9 @@ class WebCodecsPlayer {
     private _currentTime: Seconds = seconds(0);
     private startTime: Milliseconds = milliseconds(0);
     public onended?: () => void;
+    public onplay?: () => void;
+    public onpause?: () => void;
+    public ontimeupdate?: () => void;
 
     constructor(parent: HTMLElement) {
         this.canvas = document.createElement("canvas");
@@ -1102,6 +1101,7 @@ class WebCodecsPlayer {
         }
         // 启动视频帧渲染循环
         this.renderLoop();
+        this.onplay?.();
     }
 
     pause() {
@@ -1112,20 +1112,20 @@ class WebCodecsPlayer {
             this.audioBufferSource.disconnect();
             this.audioBufferSource = null;
         }
+        this.onpause?.();
     }
     seek(time: Seconds) {
         // time 单位秒
         this._currentTime = this.clamp(time, seconds(0), this._duration);
-
         // 找到对应帧
         this.currentFrame = this.findFrameByTime(this._currentTime);
-        console.log(time, this.currentFrame);
         if (this.playing) {
             this.pause();
             this.play();
         } else {
             this.renderFrame(true);
         }
+        this.ontimeupdate?.();
     }
 
     get duration(): number {
@@ -1157,6 +1157,7 @@ class WebCodecsPlayer {
     private renderLoop() {
         if (!this.playing) return;
         const now: Seconds = msToS(this.mathSub(this.pnow(), this.startTime));
+        this.ontimeupdate?.();
         if (now >= this._duration) {
             this.pause();
             this.onended?.();
@@ -1198,8 +1199,24 @@ class WebCodecsPlayer {
 
 const segEl = view().attr({ id: "seg" }).addInto(vpEl);
 
-// 替换 videoEl 为 WebCodecsPlayer
 const videoEl = new WebCodecsPlayer(vpEl.el);
+
+videoEl.onpause = () => {
+    playEl.sv(true);
+};
+videoEl.onplay = () => {
+    playEl.sv(false);
+};
+
+videoEl.ontimeupdate = () => {
+    tNtEl.sv(tFormat(sToMs(seconds(videoEl.currentTime))));
+    jdtEl.sv(sToMs(seconds(videoEl.currentTime)));
+};
+
+videoEl.onended = () => {
+    tNtEl.sv(tTEl.gv);
+    jdtEl.svc = Number(jdtEl.el.max);
+};
 
 // 相关方法适配
 async function setVideo(videoData: VideoData) {
