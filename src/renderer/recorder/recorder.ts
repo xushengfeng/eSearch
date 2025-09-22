@@ -292,7 +292,7 @@ type mimeType =
     | "ts"
     | "mpeg"
     | "flv";
-let type = store.get("录屏.转换.格式") as mimeType;
+const lastType = store.get("录屏.转换.格式") as mimeType;
 
 const audioStreamS = new Map<string, MediaStream>();
 let stream: MediaStream;
@@ -300,6 +300,16 @@ let stream: MediaStream;
 const sysAudioName = "00";
 
 let rect: [number, number, number, number];
+
+import {
+    Output,
+    WebMOutputFormat,
+    Mp4OutputFormat,
+    BufferTarget,
+    EncodedVideoPacketSource,
+    EncodedPacket,
+    EncodedAudioPacketSource,
+} from "mediabunny";
 
 // biome-ignore format:
 const spawn = require("node:child_process").spawn as typeof import("child_process").spawn;
@@ -544,11 +554,62 @@ async function clipAndSave(data: VideoData, filepath: string) {
         milliseconds(tStartEl.gv),
         milliseconds(tEndEl.gv),
     );
+    if (格式El.el.gv === "mp4") {
+        await saveMp4(rdata, filepath);
+    }
+}
+
+async function saveMp4(data: VideoData, filepath: string) {
+    const exportPath = filepath;
+    const output = new Output({
+        format: new Mp4OutputFormat(),
+        target: new BufferTarget(),
+    });
+
+    // @ts-expect-error
+    const videoSource = new EncodedVideoPacketSource(codec);
+    output.addVideoTrack(videoSource, {
+        frameRate: srcRate,
+    });
+
+    const audioSources: EncodedAudioPacketSource[] = [];
+    for (const trackChunks of data.audio) {
+        const audioSource = new EncodedAudioPacketSource("opus");
+        output.addAudioTrack(audioSource);
+        audioSources.push(audioSource);
+    }
+
+    await output.start();
+
+    for (const [_, chunk] of data.video.entries()) {
+        await videoSource.add(EncodedPacket.fromEncodedChunk(chunk), {
+            decoderConfig: {
+                ...decoderVideoConfig,
+                codedWidth: outputV.width,
+                codedHeight: outputV.height,
+            },
+        });
+    }
+    for (const trackChunks of data.audio) {
+        const audioSource = audioSources.shift()!;
+        for (const [_, chunk] of trackChunks.entries()) {
+            await audioSource.add(EncodedPacket.fromEncodedChunk(chunk), {});
+        }
+    }
+    await output.finalize();
+    const { buffer } = output.target;
+    if (buffer) {
+        fs.writeFileSync(exportPath, Buffer.from(buffer)); // todo stream
+        console.log("saved mp4");
+        renderSend("ok_save", [exportPath, true]);
+    } else {
+        // todo
+    }
 }
 
 async function save() {
     store.set("录屏.转换.格式", 格式El.el.gv);
-    const t = renderSendSync("recordSavePath", [type]);
+    const t = renderSendSync("recordSavePath", [格式El.el.gv]);
     if (t && recordData) {
         clipAndSave(recordData, t);
     }
@@ -773,8 +834,6 @@ const startStop = button()
                 for (const i of a.getAudioTracks()) stream.addTrack(i);
             }
             recorder.start();
-            格式El.el.style({ display: "none" });
-            type = 格式El.el.gv as mimeType;
             startStop
                 .clear()
                 .add(iconEl("stop_record").style({ filter: "none" }));
@@ -844,7 +903,7 @@ const types: mimeType[] = [
     "flv",
 ];
 格式El.setList(types.map((i) => ({ value: i, text: i })));
-格式El.el.el.value = type;
+格式El.el.el.value = lastType;
 
 const settingEl = view("y")
     .style({
@@ -861,7 +920,6 @@ const settingEl = view("y")
         startStop,
         view("y")
             .add([
-                view("y").add([t("格式"), 格式El.el]),
                 view("y").add([t("选择输入音频"), micList]),
                 view("y").add([t("摄像头"), label([cameraEl, t("开启")])]),
             ])
@@ -1241,8 +1299,7 @@ sEl.add([
     t("结束时间："),
     tEndEl,
     setEndEl,
-    saveEl,
-    prTs,
+    view("x").add([saveEl, 格式El.el, prTs]),
 ]);
 
 const devices = await navigator.mediaDevices.enumerateDevices();
@@ -1316,6 +1373,11 @@ const encoderVideoConfig = {
 } as const;
 const baseCodec = "vp8";
 
+const outputV = {
+    width: 1280,
+    height: 720,
+};
+
 const srcRate = store.get("录屏.转换.帧率");
 const bitrate = store.get("录屏.转换.码率") * 1024 * 1024;
 
@@ -1353,6 +1415,9 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
         audio: [],
     };
 
+    outputV.width = r[2];
+    outputV.height = r[3];
+
     const videoTrack = stream.getVideoTracks()[0];
     const videoWidth = videoTrack.getSettings().width ?? screen.width;
     const videoHeight = videoTrack.getSettings().height ?? screen.height;
@@ -1366,6 +1431,7 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
             bitrate: bitrate,
         },
         { codec: "opus", sampleRate: 48000, numberOfChannels: 2 },
+        r,
     );
     recorder.ondataavailable = (e) => {
         chunks.video = e.video;
