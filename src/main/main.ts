@@ -1326,34 +1326,30 @@ mainOnReflect("recordState", () => {
     if (checkWin(_recorder)) return [_recorder.webContents];
     return [];
 });
-mainOn("recordSavePath", ([ext]) => {
+mainOn("recordSavePath", async ([ext]) => {
     const savedPath = store.get("保存.保存路径.视频") || "";
-    dialog
-        .showSaveDialog({
-            title: t("选择要保存的位置"),
-            defaultPath: savedPath
-                ? join(savedPath, `${getFileName()}.${ext}`)
-                : undefined,
-            filters: [{ name: t("视频"), extensions: [ext] }],
-        })
-        .then(async (x) => {
-            if (x.filePath) {
-                let fpath = x.filePath;
-                if (!fpath.includes(".")) {
-                    fpath += `.${ext}`;
-                }
-                if (checkWin(_recorder))
-                    mainSend(_recorder.webContents, "recordSavePathReturn", [
-                        fpath,
-                    ]);
-            } else {
-                new Notification({
-                    title: `${app.name} ${t("保存视频失败")}`,
-                    body: t("用户已取消保存"),
-                    icon: `${runPath}/assets/logo/64x64.png`,
-                }).show();
-            }
-        });
+    const x = await dialog.showSaveDialog({
+        title: t("选择要保存的位置"),
+        defaultPath: savedPath
+            ? join(savedPath, `${getFileName()}.${ext}`)
+            : undefined,
+        filters: [{ name: t("视频"), extensions: [ext] }],
+    });
+
+    if (x.filePath) {
+        let fpath = x.filePath;
+        if (!fpath.includes(".")) {
+            fpath += `.${ext}`;
+        }
+        if (checkWin(_recorder)) return fpath;
+    } else {
+        new Notification({
+            title: `${app.name} ${t("保存视频失败")}`,
+            body: t("用户已取消保存"),
+            icon: `${runPath}/assets/logo/64x64.png`,
+        }).show();
+    }
+    return "";
 });
 
 function createSuperRecorderWindow() {
