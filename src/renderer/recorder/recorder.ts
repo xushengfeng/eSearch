@@ -1,5 +1,32 @@
 /// <reference types="vite/client" />
 
+import { initStyle, getImgUrl, setTitle, Class, cssColor } from "../root/root";
+import {
+    button,
+    check,
+    dynamicSelect,
+    ele,
+    image,
+    input,
+    label,
+    p,
+    txt,
+} from "dkh-ui";
+import { t } from "../../../lib/translate/translate";
+import { view } from "dkh-ui";
+
+import store from "../../../lib/store/renderStore";
+initStyle(store);
+
+setTitle(t("录屏"));
+
+type VideoData = {
+    video: EncodedVideoChunk[];
+    audio: EncodedAudioChunk[][];
+};
+
+let recordData: VideoData | null = null;
+
 // 时间单位品牌类型
 type Seconds = number & { __unit: "s" };
 type Milliseconds = number & { __unit: "ms" };
@@ -35,30 +62,6 @@ function msToUs(ms: Milliseconds): Microseconds {
 function usToMs(us: Microseconds): Milliseconds {
     return milliseconds(us / 1000);
 }
-import { initStyle, getImgUrl, setTitle, Class, cssColor } from "../root/root";
-import {
-    button,
-    check,
-    dynamicSelect,
-    ele,
-    image,
-    input,
-    label,
-    p,
-    txt,
-} from "dkh-ui";
-import { t } from "../../../lib/translate/translate";
-import { view } from "dkh-ui";
-
-import store from "../../../lib/store/renderStore";
-initStyle(store);
-
-setTitle(t("录屏"));
-
-type VideoData = {
-    video: EncodedVideoChunk[];
-    audio: EncodedAudioChunk[][];
-};
 
 // WebCodecs多音轨录制器
 class WebCodecsRecorder {
@@ -303,7 +306,7 @@ const spawn = require("node:child_process").spawn as typeof import("child_proces
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
-import { renderOn, renderSend } from "../../../lib/ipc";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { typedEntries } from "../../../lib/utils";
 let pathToFfmpeg = "ffmpeg";
@@ -545,7 +548,10 @@ async function clipAndSave(data: VideoData, filepath: string) {
 
 async function save() {
     store.set("录屏.转换.格式", 格式El.el.gv);
-    renderSend("recordSavePath", [type]); // todo 可以使用promise控制流程
+    const t = renderSendSync("recordSavePath", [type]);
+    if (t && recordData) {
+        clipAndSave(recordData, t);
+    }
 }
 
 const prText = {
@@ -1372,6 +1378,7 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
     async function stopRecord() {
         showControl();
         await setVideo(chunks);
+        recordData = chunks;
         clipV();
     }
 
@@ -1401,8 +1408,6 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
 renderOn("recordStartStop", () => {
     startStop.el.click();
 });
-
-renderOn("recordSavePathReturn", ([arg]) => {});
 
 renderOn("recordState", ([s]) => {
     if (s === "stop") {
