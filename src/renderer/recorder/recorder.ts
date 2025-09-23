@@ -941,17 +941,20 @@ class WebCodecsPlayer {
     private audioCtx: AudioContext | null = null;
     private videoDecoder: VideoDecoder | null = null;
     private audioDecoders: AudioDecoder[] = [];
-    private videoFrames: VideoFrame[] = [];
     private audioBuffers: AudioBuffer[] = [];
     private audioBufferSource: AudioBufferSourceNode | null = null;
     private videoChunks: EncodedVideoChunk[] = [];
     private audioChunksList: EncodedAudioChunk[][] = [];
     private playing = false;
-    private currentFrame = 0;
     private rafId: number | null = null;
     private _duration: Seconds = seconds(0);
     private _currentTime: Seconds = seconds(0);
     private startTime: Milliseconds = milliseconds(0);
+    private currentFrameIdx = -1;
+    private lastKeyFrameIdx = 0;
+    private lastDecodedFrame: VideoFrame | null = null;
+    private decodeQueue: number[] = [];
+    private isDecoding = false;
     public onended?: () => void;
     public onplay?: () => void;
     public onpause?: () => void;
@@ -966,38 +969,86 @@ class WebCodecsPlayer {
     async setVideoData(data: VideoData, width = 1280, height = 720) {
         this.videoChunks = data.video;
         this.audioChunksList = data.audio;
-        this.videoFrames = [];
         this.audioBuffers = [];
-        this.currentFrame = 0;
+        this.currentFrameIdx = -1;
         this._currentTime = seconds(0);
         this.canvas.width = width;
         this.canvas.height = height;
-        // 解码视频
-        await this.decodeVideo(width, height);
-        // 解码音频
-        await this.decodeAudio();
-        // duration 统一为秒
-        this._duration =
-            this.videoFrames.length > 0
-                ? usToS(this.videoFrames.at(-1)!.timestamp as Microseconds)
-                : seconds(0);
-    }
-
-    private async decodeVideo(width: number, height: number) {
-        return new Promise<void>((resolve) => {
-            this.videoFrames = [];
+        this.lastDecodedFrame?.close();
+        this.lastDecodedFrame = null;
+        this.decodeQueue = [];
+        this.isDecoding = false;
+        if (!this.videoDecoder) {
             this.videoDecoder = new VideoDecoder({
-                output: (frame) => {
-                    this.videoFrames.push(frame);
-                },
+                output: (frame) => this.handleDecodedFrame(frame),
                 error: (e) => console.error("VideoDecoder error", e),
             });
-            this.videoDecoder.configure(decoderVideoConfig);
-            for (const chunk of this.videoChunks) {
-                this.videoDecoder.decode(chunk);
+        }
+        this.videoDecoder.configure(decoderVideoConfig);
+        await this.decodeAudio();
+        if (this.videoChunks.length > 0) {
+            const lastChunk = this.videoChunks.at(-1)!;
+            this._duration = usToS(lastChunk.timestamp as Microseconds);
+        } else {
+            this._duration = seconds(0);
+        }
+    }
+
+    // 按需解码关键帧到目标帧，解码队列驱动
+    private handleDecodedFrame(frame: VideoFrame) {
+        // 只保留当前帧
+        if (this.lastDecodedFrame) this.lastDecodedFrame.close();
+        this.lastDecodedFrame = frame;
+        this.isDecoding = false;
+    }
+
+    private findKeyFrameIdx(idx: number): number {
+        for (let i = idx; i >= 0; i--) {
+            if (this.videoChunks[i].type === "key") return i;
+        }
+        return 0;
+    }
+
+    /**
+     * 连续播放时从上次解码位置继续解码到目标帧，只有seek/跳转时才从关键帧头开始
+     */
+    private async decodeToFrame(
+        idx: number,
+        forceFlush = false,
+    ): Promise<VideoFrame | null> {
+        if (!this.videoChunks.length || !this.videoDecoder) return null;
+        this.isDecoding = true;
+        let startIdx: number;
+        // seek/跳转时，从关键帧头开始
+        if (forceFlush) {
+            startIdx = this.findKeyFrameIdx(idx);
+            // 关闭上一次帧
+            if (this.lastDecodedFrame) {
+                this.lastDecodedFrame.close();
+                this.lastDecodedFrame = null;
             }
-            this.videoDecoder.flush().then(resolve);
-        });
+            await this.videoDecoder.flush();
+        } else {
+            // 连续播放时，从上次解码到的位置继续
+            startIdx = this.currentFrameIdx;
+            // 如果当前帧已经是目标帧，直接返回
+            if (startIdx === idx && this.lastDecodedFrame) {
+                this.isDecoding = false;
+                return this.lastDecodedFrame;
+            }
+            startIdx++;
+        }
+
+        // 依次decode到目标帧
+        for (let i = startIdx; i <= idx; i++) {
+            this.videoDecoder.decode(this.videoChunks[i]);
+        }
+        this.isDecoding = false;
+        if (!this.lastDecodedFrame) {
+            console.warn(`decodeToFrame: 未能解码到目标帧 idx=${idx}`);
+            return null;
+        }
+        return this.lastDecodedFrame;
     }
 
     private async decodeAudio() {
@@ -1099,8 +1150,7 @@ class WebCodecsPlayer {
                 this.onended?.();
             };
         }
-        // 启动视频帧渲染循环
-        this.renderLoop();
+        this.rafId = requestAnimationFrame(() => this.renderLoop());
         this.onplay?.();
     }
 
@@ -1117,14 +1167,13 @@ class WebCodecsPlayer {
     seek(time: Seconds) {
         // time 单位秒
         this._currentTime = this.clamp(time, seconds(0), this._duration);
-        // 找到对应帧
-        this.currentFrame = this.findFrameByTime(this._currentTime);
         if (this.playing) {
             this.pause();
             this.play();
         } else {
-            this.renderFrame(true);
         }
+        this.renderFrame(true);
+        this.currentFrameIdx = this.findFrameByTime(this._currentTime);
         this.ontimeupdate?.();
     }
 
@@ -1145,16 +1194,16 @@ class WebCodecsPlayer {
     private findFrameByTime(time: Seconds): number {
         // 输入秒，帧 timestamp 是微秒
         const us = sToUs(time);
-        for (let i = 0; i < this.videoFrames.length; i++) {
-            if ((this.videoFrames[i].timestamp as Microseconds) >= us) {
+        for (let i = 0; i < this.videoChunks.length; i++) {
+            if (this.videoChunks[i].timestamp >= us) {
                 return i;
             }
         }
-        return this.videoFrames.length - 1;
+        return this.videoChunks.length - 1;
     }
 
     // 视频帧渲染主循环
-    private renderLoop() {
+    private async renderLoop() {
         if (!this.playing) return;
         const now: Seconds = msToS(this.mathSub(this.pnow(), this.startTime));
         this.ontimeupdate?.();
@@ -1164,7 +1213,8 @@ class WebCodecsPlayer {
             return;
         }
         const idx = this.findFrameByTime(now);
-        const frame = this.videoFrames[idx];
+        // 连续播放时不强制flush
+        const frame = await this.decodeToFrame(idx, false);
         if (frame) {
             this.ctx.drawImage(
                 frame,
@@ -1174,16 +1224,17 @@ class WebCodecsPlayer {
                 this.canvas.height,
             );
         }
-        this.currentFrame = idx;
+        this.currentFrameIdx = idx;
         this.rafId = requestAnimationFrame(() => this.renderLoop());
     }
 
     // 兼容 seek/暂停时的单帧渲染
-    private renderFrame(force = false) {
+    private async renderFrame(force = false) {
         if (!this.playing && !force) return;
         const now: Seconds = this._currentTime;
         const idx = this.findFrameByTime(now);
-        const frame = this.videoFrames[idx];
+        // seek/跳转时强制flush
+        const frame = await this.decodeToFrame(idx, true);
         if (frame) {
             this.ctx.drawImage(
                 frame,
@@ -1193,7 +1244,7 @@ class WebCodecsPlayer {
                 this.canvas.height,
             );
         }
-        this.currentFrame = idx;
+        this.currentFrameIdx = idx;
     }
 }
 
