@@ -359,7 +359,6 @@ function getAudioNames() {
 function showControl() {
     playEl.sv(true);
     if (cameraEl.gv) cameraStreamF(false);
-    sEl.class("s_show");
     settingEl.style({ display: "none" });
     mEl.style({ backgroundColor: cssColor.bg });
     videoPEl.style({ transform: "" });
@@ -749,10 +748,16 @@ class time_i extends HTMLElement {
 
 window.customElements.define("time-i", time_i);
 
-const mEl = view().attr({ id: "m" }).addInto();
+const mEl = view("y")
+    .style({
+        width: "100vw",
+        height: "100vh",
+        alignItems: "center",
+        overflow: "hidden",
+    })
+    .addInto();
 const startStop = button()
     .add(iconEl("start_record").style({ filter: "none" }))
-    .attr({ id: "start_stop" })
     .style({ width: "80px", height: "80px" })
     .on("click", () => {
         if (sS) {
@@ -813,16 +818,14 @@ const cancelEl = iconBEl("close").on("click", () => {
     renderSend("windowClose", []);
 });
 
-const cameraEl = check("camera")
-    .attr({ id: "camera" })
-    .on("click", () => {
-        try {
-            cameraStreamF(cameraEl.gv);
-            store.set("录屏.摄像头.开启", cameraEl.gv);
-        } catch (e) {
-            console.error(e);
-        }
-    });
+const cameraEl = check("camera").on("click", () => {
+    try {
+        cameraStreamF(cameraEl.gv);
+        store.set("录屏.摄像头.开启", cameraEl.gv);
+    } catch (e) {
+        console.error(e);
+    }
+});
 const micList = view("y");
 
 const 格式El = dynamicSelect();
@@ -848,6 +851,7 @@ const settingEl = view("y")
         height: "100vh",
         alignItems: "center",
         justifyContent: "center",
+        background: cssColor.bg,
     })
     .class(Class.gap)
     .add([
@@ -869,7 +873,15 @@ const waitTip = ele("dialog")
     .addInto();
 waitTip.el.showModal();
 
-const videoPEl = view().attr({ id: "video" }).addInto(mEl);
+const videoPEl = view("y")
+    .style({
+        flexGrow: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 0,
+        minWidth: 0,
+    })
+    .addInto(mEl);
 
 // WebCodecs 播放器组件
 class WebCodecsPlayer {
@@ -1211,10 +1223,9 @@ async function setVideo(videoData: VideoData) {
     await videoEl.setVideoData(videoData);
 }
 
-const sEl = view().attr({ id: "s" }).class(Class.smallSize).addInto(mEl);
+const sEl = view().class(Class.smallSize).style({ flexShrink: 0 }).addInto(mEl);
 
 const jdtEl = input("range")
-    .attr({ id: "jdt" })
     .bindGet((el) => Number(el.value))
     .bindSet((v: number, el) => {
         el.value = String(v);
@@ -1225,13 +1236,10 @@ const jdtEl = input("range")
 
 const tStartEl = document.createElement("time-i") as time_i;
 tStartEl.id = "t_start";
-const tNtEl = txt()
-    .attr({ id: "t_nt" })
-    .bindSet((v: string, el) => {
-        el.innerText = v;
-    });
+const tNtEl = txt().bindSet((v: string, el) => {
+    el.innerText = v;
+});
 const tTEl = txt()
-    .attr({ id: "t_t" })
     .bindSet((v: string, el) => {
         el.innerText = v;
         el.setAttribute("t", v);
@@ -1256,7 +1264,6 @@ tEndEl.oninput = () => {
 };
 
 const playEl = check("play", [iconEl("recume"), iconEl("pause")])
-    .attr({ id: "v_play" })
     .style({
         display: "inline-flex",
     })
@@ -1267,7 +1274,7 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
             videoPlay();
         }
     });
-const setEndEl = iconBEl("right").attr({ id: "b_t_end" }).on("click", setEnd);
+const setEndEl = iconBEl("right").on("click", setEnd);
 
 function setEnd() {
     const max = videoEl.duration * 1000;
@@ -1276,17 +1283,10 @@ function setEnd() {
 }
 
 const saveEl = iconBEl("save")
-    .attr({ id: "save", disabled: true })
+    .attr({ disabled: true })
     .on("click", () => save());
 
-const proEl = (id: string) =>
-    view()
-        .class("pro_p")
-        .add(
-            view()
-                .class("pro")
-                .attr({ id: `pr_${id}` }),
-        );
+const proEl = (id: string) => view().add(view());
 
 const prTs = proEl("ts");
 
