@@ -345,27 +345,6 @@ function cameraStreamF(b: boolean) {
     renderSend("recordCamera", [b]);
 }
 
-function resize() {
-    const p = {
-        h: videoPEl.el.offsetHeight,
-        w: videoPEl.el.offsetWidth,
-    };
-    const c = {
-        h: vpEl.el.offsetHeight,
-        w: vpEl.el.offsetWidth,
-    };
-    const k0 = p.h / p.w;
-    const k1 = c.h / c.w;
-    if (k0 >= k1) {
-        console.log(p.w, c.w);
-        // @ts-ignore
-        vpEl.el.style.zoom = p.w / c.w;
-    } else {
-        // @ts-ignore
-        vpEl.el.style.zoom = p.h / c.h;
-    }
-}
-
 /** 通过绝对时间设定视频和其相对时间 */
 function setPlayT(time: number) {
     videoEl.currentTime = time / 1000;
@@ -384,20 +363,8 @@ function showControl() {
     settingEl.style({ display: "none" });
     mEl.style({ backgroundColor: cssColor.bg });
     videoPEl.style({ transform: "" });
-    segEl.remove();
-    vpEl.style({
-        width: `${rect[2]}px`,
-        minWidth: `${rect[2]}px`,
-        height: `${rect[3]}px`,
-        minHeight: `${rect[3]}px`,
-    });
     saveEl.el.disabled = false;
     renderSend("windowMax", []);
-
-    setTimeout(() => {
-        resize();
-        mEl.style({ transition: "none" });
-    }, 400);
 }
 
 function clipV() {
@@ -608,35 +575,6 @@ async function save() {
     const t = renderSendSync("recordSavePath", [格式El.el.gv]);
     if (t && recordData) {
         clipAndSave(recordData, t);
-    }
-}
-
-const prText = {
-    wait: {
-        ts: "等待转换",
-        clip: "等待裁剪",
-        join: "等待合并",
-    },
-    running: {
-        ts: "正在转换",
-        clip: "正在裁剪",
-        join: "正在合并",
-    },
-    ok: {
-        ts: "转换完成",
-        clip: "裁剪完成",
-        join: "合并完成",
-    },
-    error: {
-        ts: "转换失败",
-        clip: "裁剪失败",
-        join: "合并失败",
-    },
-};
-
-for (const [_, v] of typedEntries(prText)) {
-    for (const [j] of typedEntries(v)) {
-        v[j] = t(v[j]);
     }
 }
 
@@ -932,7 +870,6 @@ const waitTip = ele("dialog")
 waitTip.el.showModal();
 
 const videoPEl = view().attr({ id: "video" }).addInto(mEl);
-const vpEl = view().attr({ id: "v_p" }).addInto(videoPEl);
 
 // WebCodecs 播放器组件
 class WebCodecsPlayer {
@@ -962,6 +899,8 @@ class WebCodecsPlayer {
 
     constructor(parent: HTMLElement) {
         this.canvas = document.createElement("canvas");
+        this.canvas.style.maxWidth = "100%";
+        this.canvas.style.maxHeight = "100%";
         this.ctx = this.canvas.getContext("2d")!;
         parent.appendChild(this.canvas);
     }
@@ -1248,9 +1187,7 @@ class WebCodecsPlayer {
     }
 }
 
-const segEl = view().attr({ id: "seg" }).addInto(vpEl);
-
-const videoEl = new WebCodecsPlayer(vpEl.el);
+const videoEl = new WebCodecsPlayer(videoPEl.el);
 
 videoEl.onpause = () => {
     playEl.sv(true);
@@ -1427,8 +1364,6 @@ if (store.get("录屏.摄像头.开启")) {
         console.error(e);
     }
 }
-
-document.body.onresize = resize;
 
 const [codec, isDeAcc, isEnAcc] = ["vp8", false, false];
 const decoderVideoConfig = {
