@@ -1,6 +1,13 @@
 /// <reference types="vite/client" />
 
-import { initStyle, getImgUrl, setTitle, Class, cssColor } from "../root/root";
+import {
+    initStyle,
+    getImgUrl,
+    setTitle,
+    Class,
+    cssColor,
+    cssVar,
+} from "../root/root";
 import {
     button,
     check,
@@ -10,6 +17,7 @@ import {
     input,
     label,
     p,
+    trackPoint,
     txt,
 } from "dkh-ui";
 import { t } from "../../../lib/translate/translate";
@@ -63,6 +71,9 @@ function usToMs(us: Microseconds): Milliseconds {
     return milliseconds(us / 1000);
 }
 
+function mathSub<T extends number>(a: T, b: T): T {
+    return (a - b) as T;
+}
 // WebCodecs多音轨录制器
 class WebCodecsRecorder {
     /** 安全减法，保持类型 */
@@ -346,8 +357,8 @@ function cameraStreamF(b: boolean) {
 }
 
 /** 通过绝对时间设定视频和其相对时间 */
-function setPlayT(time: number) {
-    videoEl.currentTime = time / 1000;
+function setPlayT(time: Milliseconds) {
+    videoEl.currentTime = msToS(time);
 }
 
 function getAudioNames() {
@@ -366,15 +377,20 @@ function showControl() {
     renderSend("windowMax", []);
 }
 
-function clipV() {
-    tStartEl.sv(0);
-    setEnd();
-
-    tTEl.sv(tFormat(tEndEl.gv - tStartEl.gv));
-    tNtEl.sv(tFormat(0));
+function getAvailableDuration() {
+    return (jdtEl.gv.max -
+        (jdtEl.gv.startTrim + jdtEl.gv.endTrim)) as Milliseconds;
 }
 
-function tFormat(x: number) {
+function clipV() {
+    tStartEl.sv(milliseconds(0));
+    tEndEl.sv(milliseconds(0));
+
+    tTEl.sv(tFormat(getAvailableDuration()));
+    tNtEl.sv(tFormat(milliseconds(0)));
+}
+
+function tFormat(x: Milliseconds) {
     const t = x;
     const s = Math.trunc(t / 1000);
     const m = Math.trunc(s / 60);
@@ -589,7 +605,7 @@ function iconBEl(src: IconType) {
 class time_i extends HTMLElement {
     _value = 0;
     _min = 0;
-    _max = 0;
+    _max = Number.POSITIVE_INFINITY;
     // 用函数实现input的+-控件，支持value读写、step/max/min
     _step = 1;
     _inputView = this.createInputView();
@@ -649,10 +665,8 @@ class time_i extends HTMLElement {
     }
 
     connectedCallback() {
-        this._value = Number(this.getAttribute("value")) || 0;
-        this._min = Number(this.getAttribute("min")) || 0;
-        this._max = Number(this.getAttribute("max")) || 0;
         const i = document.createElement("span");
+        i.classList.add(Class.mono);
         this.appendChild(i);
         i.innerHTML = `<span contenteditable="true"></span>:<span contenteditable="true"></span>:<span contenteditable="true"></span>.<span contenteditable="true"></span>`;
         this._inputView = this.createInputView();
@@ -782,7 +796,7 @@ class time_i extends HTMLElement {
         if (this._inputView) this._inputView.max = v;
     }
     get min() {
-        return this._min;
+        return this._min as Milliseconds;
     }
     set min(x) {
         const v = Number(x) || 0;
@@ -791,12 +805,12 @@ class time_i extends HTMLElement {
         if (this._inputView) this._inputView.min = v;
     }
     get gv() {
-        return this.value;
+        return this.value as Milliseconds;
     }
-    sv(v: number) {
+    sv(v: Milliseconds) {
         this.value = v;
     }
-    set svc(v: number) {
+    set svc(v: Milliseconds) {
         this.value = v;
     }
 }
@@ -809,6 +823,7 @@ const mEl = view("y")
         height: "100vh",
         alignItems: "center",
         overflow: "hidden",
+        padding: cssVar("o-padding"),
     })
     .addInto();
 const startStop = button()
@@ -1183,18 +1198,18 @@ class WebCodecsPlayer {
         this.ontimeupdate?.();
     }
 
-    get duration(): number {
+    get duration() {
         return this._duration;
     }
 
-    get currentTime(): number {
+    get currentTime(): Seconds {
         if (this.playing) {
             return msToS(this.mathSub(this.pnow(), this.startTime));
         }
         return this._currentTime;
     }
-    set currentTime(t: number) {
-        this.seek(t as Seconds);
+    set currentTime(t: Seconds) {
+        this.seek(t);
     }
 
     private findFrameByTime(time: Seconds): number {
@@ -1265,57 +1280,176 @@ videoEl.onplay = () => {
 
 videoEl.ontimeupdate = () => {
     tNtEl.sv(tFormat(sToMs(seconds(videoEl.currentTime))));
-    jdtEl.sv(sToMs(seconds(videoEl.currentTime)));
+    jdtEl.sv({ value: sToMs(seconds(videoEl.currentTime)) });
 };
 
 videoEl.onended = () => {
     tNtEl.sv(tTEl.gv);
-    jdtEl.svc = Number(jdtEl.el.max);
+    jdtEl.sv({ value: jdtEl.gv.max });
 };
 
 // 相关方法适配
 async function setVideo(videoData: VideoData) {
     await videoEl.setVideoData(videoData);
+    jdtEl.sv({ max: sToMs(videoEl.duration), value: milliseconds(0) });
 }
 
-const sEl = view().class(Class.smallSize).style({ flexShrink: 0 }).addInto(mEl);
+const sEl = view("y")
+    .class(Class.smallSize)
+    .class(Class.gap)
+    .class()
+    .style({ flexShrink: 0 })
+    .addInto(mEl);
 
-const jdtEl = input("range")
-    .bindGet((el) => Number(el.value))
-    .bindSet((v: number, el) => {
-        el.value = String(v);
-    })
-    .on("input", () => {
-        setPlayT(jdtEl.gv);
+const jdtEl = (<T = Milliseconds>() => {
+    const v = {
+        max: 0,
+        startTrim: 0,
+        endTrim: 0,
+        value: 0,
+    };
+
+    function limit(n: number) {
+        return Math.max(
+            0 + v.startTrim,
+            Math.min(n, Number(v.max - v.endTrim)),
+        );
+    }
+    function inputEvent() {
+        el.el.dispatchEvent(new Event("input"));
+    }
+
+    const el = view()
+        .style({
+            position: "relative",
+            height: "18px",
+            width: "100%",
+            overflow: "hidden",
+        })
+        .class(Class.deco);
+    const startRm = view()
+        .style({
+            position: "absolute",
+            height: "100%",
+            backgroundColor: "black",
+            left: 0,
+            top: 0,
+            pointerEvents: "none",
+            borderRadius: cssVar("o-padding"),
+        })
+        .bindSet((n: number, el) => {
+            const p = (n / v.max) * 100;
+            el.style.width = `${p}%`;
+        });
+    const endRm = view()
+        .style({
+            position: "absolute",
+            height: "100%",
+            backgroundColor: "black",
+            right: 0,
+            top: 0,
+            pointerEvents: "none",
+            borderRadius: cssVar("o-padding"),
+        })
+        .bindSet((n: number, el) => {
+            const p = (n / v.max) * 100;
+            el.style.width = `${p}%`;
+        });
+    const nowPoint = view()
+        .style({
+            position: "absolute",
+            height: "100%",
+            width: "2px",
+            backgroundColor: "red",
+            pointerEvents: "none",
+        })
+        .bindSet((n: number, el) => {
+            const p = (n / v.max) * 100;
+            el.style.left = `calc(${p}% - 1px)`;
+        });
+
+    el.add([startRm, endRm, nowPoint]);
+
+    trackPoint(el, {
+        start: (e) => {
+            return { data: { value: v.value }, x: 0, y: 0 };
+        },
+        ing: (p, _, { startData: { value } }) => {
+            const n = limit((p.x / el.el.clientWidth) * v.max + value);
+            nowPoint.sv(n);
+            v.value = n;
+            inputEvent();
+        },
+        end: (e, { moved }) => {
+            if (!moved) {
+                const x = e.clientX - el.el.getBoundingClientRect().left;
+                const n = limit((x / el.el.clientWidth) * v.max);
+                v.value = n;
+                nowPoint.sv(n);
+                inputEvent();
+            }
+        },
     });
+
+    return el
+        .bindGet(() => ({
+            max: v.max as T,
+            startTrim: v.startTrim as T,
+            endTrim: v.endTrim as T,
+            value: v.value as T,
+        }))
+        .bindSet(
+            (nv: {
+                max?: T;
+                value?: T;
+                startTrim?: T;
+                endTrim?: T;
+            }) => {
+                if (nv.max !== undefined) {
+                    v.max = nv.max as number;
+                    const n = limit(v.value);
+                    nowPoint.sv(n);
+                }
+                if (nv.value !== undefined) {
+                    v.value = limit(nv.value as number);
+                    nowPoint.sv(v.value);
+                }
+                if (nv.startTrim !== undefined) {
+                    v.startTrim = nv.startTrim as number;
+                    startRm.sv(v.startTrim);
+                    const n = limit(v.value);
+                    nowPoint.sv(n);
+                }
+                if (nv.endTrim !== undefined) {
+                    v.endTrim = nv.endTrim as number;
+                    endRm.sv(v.endTrim);
+                    const n = limit(v.value);
+                    nowPoint.sv(n);
+                }
+            },
+        );
+})().on("input", () => {
+    setPlayT(jdtEl.gv.value);
+});
 
 const tStartEl = document.createElement("time-i") as time_i;
-tStartEl.id = "t_start";
-const tNtEl = txt().bindSet((v: string, el) => {
-    el.innerText = v;
-});
-const tTEl = txt()
-    .bindSet((v: string, el) => {
-        el.innerText = v;
-        el.setAttribute("t", v);
-    })
-    .bindGet((el) => {
-        return el.getAttribute("t") ?? "";
-    });
+const tNtEl = txt();
+const tTEl = txt();
 const tEndEl = document.createElement("time-i") as time_i;
-tEndEl.id = "t_end";
 
 tStartEl.oninput = () => {
-    const t = tStartEl.gv / 1000;
-    videoEl.currentTime = tEndEl.min = t;
-    jdtEl.el.min = String(t);
-    tTEl.sv(tFormat(tEndEl.gv - tStartEl.gv));
+    const t = tStartEl.gv;
+    videoEl.currentTime = msToS(t);
+    tEndEl.max = jdtEl.gv.max;
+    jdtEl.sv({ startTrim: t });
+    tTEl.sv(tFormat(getAvailableDuration()));
 };
 tEndEl.oninput = () => {
-    const t = tEndEl.gv / 1000;
-    videoEl.currentTime = tStartEl.max = t;
-    jdtEl.el.max = String(t);
-    tTEl.sv(tFormat(tEndEl.gv - tStartEl.gv));
+    const t = tEndEl.gv;
+    videoEl.currentTime = mathSub(videoEl.duration, msToS(t));
+    tStartEl.max = jdtEl.gv.max;
+    jdtEl.sv({ endTrim: t });
+    tTEl.sv(tFormat(getAvailableDuration()));
 };
 
 const playEl = check("play", [iconEl("recume"), iconEl("pause")])
@@ -1329,13 +1463,6 @@ const playEl = check("play", [iconEl("recume"), iconEl("pause")])
             videoPlay();
         }
     });
-const setEndEl = iconBEl("right").on("click", setEnd);
-
-function setEnd() {
-    const max = videoEl.duration * 1000;
-    jdtEl.attr({ max: String(max) });
-    tEndEl.svc = tStartEl.max = tEndEl.max = max;
-}
 
 const saveEl = iconBEl("save")
     .attr({ disabled: true })
@@ -1349,17 +1476,20 @@ updataPrEl();
 
 sEl.add([
     jdtEl,
-    ele("br"),
-    t("开始时间："),
-    tStartEl,
-    tNtEl,
-    " / ",
-    tTEl,
-    playEl,
-    t("结束时间："),
-    tEndEl,
-    setEndEl,
-    view("x").add([saveEl, 格式El.el, prTs]),
+    view("x")
+        .class(Class.gap)
+        .style({ alignItems: "center" })
+        .add([
+            t("裁切头："),
+            tStartEl,
+            tNtEl.class(Class.mono),
+            txt(" / ").class(Class.mono),
+            tTEl.class(Class.mono),
+            playEl,
+            t("裁切尾："),
+            tEndEl,
+        ]),
+    view("x").class(Class.gap).add([saveEl, 格式El.el, prTs]),
 ]);
 
 const devices = await navigator.mediaDevices.enumerateDevices();
