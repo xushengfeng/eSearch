@@ -87,6 +87,7 @@ class WebCodecsRecorder {
     private videoChunks: EncodedVideoChunk[] = [];
     private audioChunksList: EncodedAudioChunk[][] = [];
     public state: "inactive" | "recording" | "paused" = "inactive";
+    private encodedFrames = 0;
     public ondataavailable?: (data: VideoData) => void;
     public onstop?: () => void;
     public rect: [number, number, number, number];
@@ -127,6 +128,8 @@ class WebCodecsRecorder {
 
     async start() {
         this.state = "recording";
+        this.encodedFrames = 0;
+        const gopLength = store.get("录屏.超级录屏.关键帧间隔");
         // 录制基准时间（微秒）
         this.startTimestamp = microseconds(performance.now() * 1000);
         this.pausedDuration = microseconds(0);
@@ -163,7 +166,10 @@ class WebCodecsRecorder {
                     const croppedFrame = new VideoFrame(canvas, {
                         timestamp: realTimestamp,
                     });
-                    this.videoEncoder.encode(croppedFrame);
+                    this.videoEncoder.encode(croppedFrame, {
+                        keyFrame: this.encodedFrames % gopLength === 0,
+                    });
+                    this.encodedFrames++;
                     croppedFrame.close();
                     bitmap.close();
                 } else {
