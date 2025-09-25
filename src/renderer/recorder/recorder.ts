@@ -1064,6 +1064,7 @@ class WebCodecsPlayer {
         for (let i = startIdx; i <= idx; i++) {
             this.videoDecoder.decode(this.videoChunks[i]);
         }
+        if (forceFlush) await this.videoDecoder.flush();
         this.isDecoding = false;
         if (!this.lastDecodedFrame) {
             console.warn(`decodeToFrame: 未能解码到目标帧 idx=${idx}`);
