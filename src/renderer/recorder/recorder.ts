@@ -1058,6 +1058,14 @@ class WebCodecsPlayer {
                 return this.lastDecodedFrame;
             }
             startIdx++;
+            if (startIdx > idx) {
+                startIdx = this.findKeyFrameIdx(idx);
+                if (this.lastDecodedFrame) {
+                    this.lastDecodedFrame.close();
+                    this.lastDecodedFrame = null;
+                }
+                await this.videoDecoder.flush();
+            }
         }
 
         // 依次decode到目标帧
@@ -1070,6 +1078,7 @@ class WebCodecsPlayer {
             console.warn(`decodeToFrame: 未能解码到目标帧 idx=${idx}`);
             return null;
         }
+        this.currentFrameIdx = idx;
         return this.lastDecodedFrame;
     }
 
@@ -1246,7 +1255,6 @@ class WebCodecsPlayer {
                 this.canvas.height,
             );
         }
-        this.currentFrameIdx = idx;
         this.rafId = requestAnimationFrame(() => this.renderLoop());
     }
 
@@ -1266,7 +1274,6 @@ class WebCodecsPlayer {
                 this.canvas.height,
             );
         }
-        this.currentFrameIdx = idx;
     }
 }
 
