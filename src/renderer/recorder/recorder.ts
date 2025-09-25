@@ -590,7 +590,63 @@ class time_i extends HTMLElement {
     _value = 0;
     _min = 0;
     _max = 0;
-    input = document.createElement("input");
+    // 用函数实现input的+-控件，支持value读写、step/max/min
+    _step = 1;
+    _inputView = this.createInputView();
+    createInputView() {
+        const container = document.createElement("span");
+        const minus = document.createElement("button");
+        minus.textContent = "-";
+        const plus = document.createElement("button");
+        plus.textContent = "+";
+        container.appendChild(minus);
+        container.appendChild(plus);
+        let _value = this._value;
+        let _step = this._step;
+        let _max = this._max;
+        let _min = this._min;
+        const obj = {
+            el: container,
+            get value() {
+                return _value;
+            },
+            set value(v: number) {
+                _value = Math.max(_min, Math.min(_max, Number(v)));
+            },
+            get step() {
+                return _step;
+            },
+            set step(v: number) {
+                _step = Number(v) || 1;
+            },
+            get max() {
+                return _max;
+            },
+            set max(v: number) {
+                _max = Number(v) || 0;
+            },
+            get min() {
+                return _min;
+            },
+            set min(v: number) {
+                _min = Number(v) || 0;
+            },
+            addEventListener(
+                ...args: Parameters<typeof container.addEventListener>
+            ) {
+                container.addEventListener(...args);
+            },
+        };
+        minus.onclick = () => {
+            obj.value = obj.value - obj.step;
+            obj.el.dispatchEvent(new Event("input"));
+        };
+        plus.onclick = () => {
+            obj.value = obj.value + obj.step;
+            obj.el.dispatchEvent(new Event("input"));
+        };
+        return obj;
+    }
 
     connectedCallback() {
         this._value = Number(this.getAttribute("value")) || 0;
@@ -599,25 +655,24 @@ class time_i extends HTMLElement {
         const i = document.createElement("span");
         this.appendChild(i);
         i.innerHTML = `<span contenteditable="true"></span>:<span contenteditable="true"></span>:<span contenteditable="true"></span>.<span contenteditable="true"></span>`;
-        const 加减 = this.input;
-        加减.type = "number";
-        this.appendChild(加减);
-        加减.max = this._max.toString();
-        加减.min = this._min.toString();
-        加减.value = this._value.toString();
+        this._inputView = this.createInputView();
+        this.appendChild(this._inputView.el);
+        this._inputView.max = this._max;
+        this._inputView.min = this._min;
+        this._inputView.value = this._value;
         const [h, m, s, ss] = i.querySelectorAll("span");
 
         h.onfocus = () => {
-            加减.step = "3600000";
+            this._inputView.step = 3600000;
         };
         m.onfocus = () => {
-            加减.step = "60000";
+            this._inputView.step = 60000;
         };
         s.onfocus = () => {
-            加减.step = "1000";
+            this._inputView.step = 1000;
         };
         ss.onfocus = () => {
-            加减.step = "1";
+            this._inputView.step = 1;
         };
 
         h.oninput = () => {
@@ -663,22 +718,22 @@ class time_i extends HTMLElement {
                         this.sum_value() < this._min
                     ) {
                         el.innerText = dv;
-                        加减.value = this.sum_value().toString();
+                        this._inputView.value = this.sum_value();
                     } else {
                         this._value = this.sum_value();
-                        加减.value = this.sum_value().toString();
+                        this._inputView.value = this.sum_value();
                     }
                 } else {
                     el.innerText = dv;
-                    加减.value = this.sum_value().toString();
+                    this._inputView.value = this.sum_value();
                 }
             }
         };
 
-        加减.oninput = () => {
-            this.set_value(Number(加减.value));
+        this._inputView.addEventListener("input", () => {
+            this.set_value(this._inputView.value);
             this.dispatchEvent(new Event("input"));
-        };
+        });
     }
 
     n(el: HTMLSpanElement) {
@@ -715,7 +770,7 @@ class time_i extends HTMLElement {
     set value(v: number) {
         this.set_value(v);
         this.setAttribute("value", String(v));
-        this.input.value = v.toString();
+        if (this._inputView) this._inputView.value = v;
     }
     get max() {
         return this._max;
@@ -724,7 +779,7 @@ class time_i extends HTMLElement {
         const v = Number(x) || 0;
         this._max = v;
         this.setAttribute("max", String(v));
-        this.input.max = v.toString();
+        if (this._inputView) this._inputView.max = v;
     }
     get min() {
         return this._min;
@@ -733,7 +788,7 @@ class time_i extends HTMLElement {
         const v = Number(x) || 0;
         this._max = v;
         this.setAttribute("min", String(v));
-        this.input.min = v.toString();
+        if (this._inputView) this._inputView.min = v;
     }
     get gv() {
         return this.value;
