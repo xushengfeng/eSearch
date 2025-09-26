@@ -536,7 +536,7 @@ async function clipAndSave(data: VideoData, filepath: string) {
     const rdata = await clipVideoData(
         data,
         milliseconds(tStartEl.gv),
-        milliseconds(tEndEl.gv),
+        mathSub(jdtEl.gv.max, milliseconds(tEndEl.gv)),
     );
     if (格式El.el.gv === "mp4") {
         await saveMp4(rdata, filepath);
