@@ -1304,7 +1304,7 @@ videoEl.onended = () => {
 
 // 相关方法适配
 async function setVideo(videoData: VideoData) {
-    await videoEl.setVideoData(videoData);
+    await videoEl.setVideoData(videoData, outputV.width, outputV.height);
     jdtEl.sv({ max: sToMs(videoEl.duration), value: milliseconds(0) });
 }
 
@@ -1620,15 +1620,12 @@ renderOn("recordInit", async ([sourceId, r, screen_w, screen_h]) => {
     outputV.width = r[2];
     outputV.height = r[3];
 
-    const videoTrack = stream.getVideoTracks()[0];
-    const videoWidth = videoTrack.getSettings().width ?? screen.width;
-    const videoHeight = videoTrack.getSettings().height ?? screen.height;
     recorder = new WebCodecsRecorder(
         stream,
         {
             ...encoderVideoConfig,
-            width: videoWidth,
-            height: videoHeight,
+            width: outputV.width,
+            height: outputV.height,
             framerate: srcRate,
             bitrate: bitrate,
         },
