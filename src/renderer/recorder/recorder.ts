@@ -213,12 +213,45 @@ class WebCodecsRecorder {
                             value.copyTo(buf, { planeIndex: ch });
                             buffers.push(buf);
                         }
-                        // 重新构造 AudioData（如需同步 timestamp，可用自定义 PCM 编码器，否则直接用 value）
-                        // 这里只能将 timestamp 逻辑交由后续处理，WebCodecs 不允许直接构造 AudioData
-                        // 所以此处直接编码原始 value，后续解码/播放时用 timestamp 逻辑同步
-                        encoder.encode(value);
+                        // 合并所有通道数据为一个 ArrayBuffer（交错方式）
+                        const interleaved = new Float32Array(frames * channels);
+                        for (let i = 0; i < frames; i++) {
+                            for (let ch = 0; ch < channels; ch++) {
+                                interleaved[i * channels + ch] = buffers[ch][i];
+                            }
+                        }
+                        const audioData = new AudioData({
+                            format: value.format,
+                            sampleRate,
+                            numberOfFrames: frames,
+                            numberOfChannels: channels,
+                            timestamp: realTimestamp,
+                            data: interleaved.buffer,
+                        });
+                        encoder.encode(audioData);
+                        audioData.close();
                     } else {
-                        encoder.encode(value);
+                        // 兜底：只编码单通道，保证音调正常
+                        try {
+                            const frames = value.numberOfFrames ?? 128;
+                            const sampleRate = value.sampleRate ?? 48000;
+                            const buf = new Float32Array(frames);
+                            if (typeof value.copyTo === "function") {
+                                value.copyTo(buf, { planeIndex: 0 });
+                            }
+                            const audioData = new AudioData({
+                                format: "f32",
+                                sampleRate,
+                                numberOfFrames: frames,
+                                numberOfChannels: 1,
+                                timestamp: realTimestamp,
+                                data: buf.buffer,
+                            });
+                            encoder.encode(audioData);
+                            audioData.close();
+                        } catch {
+                            encoder.encode(value);
+                        }
                     }
                 }
             };
@@ -577,7 +610,13 @@ async function saveMp4(data: VideoData, filepath: string) {
     for (const trackChunks of data.audio) {
         const audioSource = audioSources.shift()!;
         for (const [_, chunk] of trackChunks.entries()) {
-            await audioSource.add(EncodedPacket.fromEncodedChunk(chunk), {});
+            await audioSource.add(EncodedPacket.fromEncodedChunk(chunk), {
+                decoderConfig: {
+                    codec: "opus",
+                    numberOfChannels: 2,
+                    sampleRate: 48000,
+                },
+            }); // todo
         }
     }
     await output.finalize();
@@ -1304,6 +1343,7 @@ videoEl.onended = () => {
 
 // 相关方法适配
 async function setVideo(videoData: VideoData) {
+    console.log("set video data", videoData);
     await videoEl.setVideoData(videoData, outputV.width, outputV.height);
     jdtEl.sv({ max: sToMs(videoEl.duration), value: milliseconds(0) });
 }
