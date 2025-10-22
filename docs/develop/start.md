@@ -35,6 +35,9 @@ git clone --depth=1 https://github.com/xushengfeng/eSearch.git
 pnpm install
 ```
 
+> [!TIP]
+> 如果不需要 cuda，或者网络问题，可以设置环境变量 `ONNXRUNTIME_NODE_INSTALL_CUDA="skip"`
+
 ## 运行与编译
 
 运行：
