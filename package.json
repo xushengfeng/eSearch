@@ -64,7 +64,7 @@
     "inquirer": "^12.7.0",
     "svgo": "^3.3.2",
     "typescript": "^5.8.3",
-    "vite": "^7.1.5",
+    "vite": "^7.1.11",
     "vite-bundle-analyzer": "^1.2.0",
     "vite-plugin-image-optimizer": "^1.1.8",
     "vitest": "^3.2.3",
