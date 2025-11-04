@@ -1132,18 +1132,14 @@ class WebCodecsPlayer {
         this.audioBuffers = [];
         this.audioDecoders = [];
         if (!this.audioCtx) {
-            this.audioCtx = new (
-                window.AudioContext ||
-                (
-                    window as unknown as {
-                        webkitAudioContext: typeof AudioContext;
-                    }
-                ).webkitAudioContext
-            )();
+            this.audioCtx = new window.AudioContext();
         }
+
         // 只处理第一轨道
         const chunks = this.audioChunksList[0];
         const audioFrames: AudioData[] = [];
+
+        // 解码所有 chunk 为 AudioData
         await new Promise<void>((resolve) => {
             const decoder = new AudioDecoder({
                 output: (frame: AudioData) => {
@@ -1161,39 +1157,48 @@ class WebCodecsPlayer {
             }
             decoder.flush().then(resolve);
         });
-        // 合并所有 AudioData 为一个 AudioBuffer
-        if (audioFrames.length > 0) {
-            const sampleRate = audioFrames[0].sampleRate;
-            const channels = audioFrames[0].numberOfChannels;
-            let totalLength = 0;
-            for (const frame of audioFrames) {
-                totalLength += frame.numberOfFrames;
-            }
-            const audioBuffer = this.audioCtx.createBuffer(
-                channels,
-                totalLength,
+
+        if (audioFrames.length === 0) {
+            console.warn("No audioFrames decoded, audioBuffers will be empty.");
+            return;
+        }
+
+        console.log(audioFrames);
+
+        const audioContext = this.audioCtx;
+
+        const buffers: AudioBuffer[] = [];
+        for (let i = 0; i < audioFrames.length; i++) {
+            const audioData = audioFrames[i];
+            const frameFrames = audioData.numberOfFrames;
+            const frameChannels = audioData.numberOfChannels;
+            const sampleRate = audioData.sampleRate || 48000;
+
+            // 创建对应的 AudioBuffer
+            const audioBuffer = audioContext.createBuffer(
+                frameChannels,
+                frameFrames,
                 sampleRate,
             );
-            let offset = 0;
-            for (const frame of audioFrames) {
-                const frameChannels = Math.min(
-                    frame.numberOfChannels,
-                    audioBuffer.numberOfChannels,
-                );
-                for (let ch = 0; ch < frameChannels; ch++) {
-                    let tmp: Float32Array;
-                    try {
-                        tmp = new Float32Array(frame.numberOfFrames);
-                        frame.copyTo(tmp, { planeIndex: ch });
-                        audioBuffer
-                            .getChannelData(ch)
-                            .set(tmp.subarray(0, frame.numberOfFrames), offset);
-                    } catch {}
+
+            const fl32data = new Float32Array(
+                audioData.numberOfFrames * audioData.numberOfChannels,
+            );
+            audioData.copyTo(fl32data, { planeIndex: 0, format: "f32" });
+            for (let ch = 0; ch < frameChannels; ch++) {
+                for (let f = 0; f < frameFrames; f++) {
+                    audioBuffer.getChannelData(ch)[f] =
+                        fl32data[f * frameChannels + ch];
                 }
-                offset += frame.numberOfFrames;
             }
-            this.audioBuffers = [audioBuffer];
+
+            // 释放 AudioData
+            audioData.close();
+            buffers.push(audioBuffer);
         }
+
+        // 将生成的 AudioBuffer 列表保存用于播放（保持与现有播放逻辑兼容）
+        this.audioBuffers = buffers;
     }
 
     private pnow() {
@@ -1214,17 +1219,30 @@ class WebCodecsPlayer {
         this.startTime = this.mathSub(this.pnow(), sToMs(this._currentTime));
         // 音频播放
         if (this.audioBuffers.length > 0 && this.audioCtx) {
+            console.log(
+                "[play] audioBuffers exist, creating AudioBufferSourceNode...",
+            );
             if (this.audioBufferSource) {
                 this.audioBufferSource.stop();
             }
             this.audioBufferSource = this.audioCtx.createBufferSource();
-            this.audioBufferSource.buffer = this.audioBuffers[0];
+            this.audioBufferSource.buffer = this.audioBuffers[0]; // todo 查找
             this.audioBufferSource.connect(this.audioCtx.destination);
+            console.log(
+                "[play] audioBufferSource created, buffer duration:",
+                this.audioBufferSource.buffer.duration,
+            );
+            console.log("[play] start offset:", this._currentTime);
             this.audioBufferSource.start(0, this._currentTime);
             this.audioBufferSource.onended = () => {
-                this.pause();
-                this.onended?.();
+                // this.pause();
+                // this.onended?.();
+                console.log("play end");
             };
+        } else {
+            console.warn(
+                "[play] No audioBuffers or audioCtx, cannot play audio.",
+            );
         }
         this.rafId = requestAnimationFrame(() => this.renderLoop());
         this.onplay?.();
