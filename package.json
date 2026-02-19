@@ -31,7 +31,7 @@
     "dkh-ui": "^0.14.0",
     "esearch-ocr": "^8.4.4",
     "esearch-seg": "^1.1.8",
-    "fabric": "^6.4.0",
+    "fabric": "^7.2.0",
     "fuse.js": "^7.1.0",
     "gifenc": "^1.0.3",
     "hex-to-css-filter": "^5.4.0",
