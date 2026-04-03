@@ -62,7 +62,7 @@
     "electron-builder": "^26.8.1",
     "electron-vite": "^4.0.0",
     "inquirer": "^12.7.0",
-    "svgo": "^3.3.2",
+    "svgo": "^3.3.3",
     "typescript": "^5.8.3",
     "vite": "^7.1.11",
     "vite-bundle-analyzer": "^1.2.0",
