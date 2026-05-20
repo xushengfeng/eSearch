@@ -582,9 +582,6 @@ function long_s() {
 
 function startLong() {
     initLong(finalRect);
-    const r = [...finalRect];
-    r[0] += screenPosition[nowScreenId].x;
-    r[1] += screenPosition[nowScreenId].y;
     long_s();
     renderSend("windowIgnoreMouse", [true]);
     loadCV();
@@ -3378,7 +3375,6 @@ type rect = [number, number, number, number];
 type point = { x: number; y: number };
 let finalRect = [0, 0, mainCanvas.width, mainCanvas.height] as rect;
 let freeSelect: point[] = [];
-const screenPosition: { [key: string]: { x: number; y: number } } = {};
 
 const toolBar = toolBarEl.el;
 const drawBar = drawBarEl.el;
@@ -3753,8 +3749,6 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
     setEditorP(1 / ratio, 0, 0);
 
     document.body.style.opacity = "";
-
-    screenPosition[i.id] = { x: i.bounds.x, y: i.bounds.y };
 
     renderSend("clip_show", []);
     const screensEl = toolsX.screens.el;
