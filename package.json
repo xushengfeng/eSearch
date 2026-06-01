@@ -67,7 +67,7 @@
     "vite": "^7.3.2",
     "vite-bundle-analyzer": "^1.2.0",
     "vite-plugin-image-optimizer": "^1.1.8",
-    "vitest": "^3.2.3",
+    "vitest": "^4.1.0",
     "xtimelog": "^1.0.5"
   },
   "optionalDependencies": {
