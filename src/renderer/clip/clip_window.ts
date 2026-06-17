@@ -31,6 +31,7 @@ import {
 } from "fabric";
 import { EraserBrush } from "@erase2d/fabric";
 import bmp from "bmp-js";
+import { findOffset } from "picture_match";
 
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(
@@ -678,7 +679,6 @@ function stopLong() {
 }
 
 async function addLong(x: ImageData | undefined) {
-    await loadCV();
     if (!x) {
         uIOhook?.stop();
         uIOhook = null;
@@ -701,8 +701,9 @@ async function addLong(x: ImageData | undefined) {
         return;
     }
 
-    const match = longMatch(longX.lastImg, canvas);
-    console.log(match);
+    const match = await longMatch(longX.lastImg, canvas);
+
+    if (!match.clipedImg) return;
 
     const dx = longFX === "xy" ? match.dx : 0;
     const dy = match.dy;
@@ -714,7 +715,20 @@ async function addLong(x: ImageData | undefined) {
     longX.lastXY.y += match.srcDY;
 }
 
-function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
+async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
+    // match
+    const m = await findOffset(
+        img0.getContext("2d")!.getImageData(0, 0, img0.width, img0.height),
+        img1.getContext("2d")!.getImageData(0, 0, img1.width, img1.height),
+    );
+
+    // 图片应该反过来移动才能拼接上
+    const dx = -m.dx;
+    const dy = -m.dy;
+
+    // 下面考虑裁切，因为页面可能存在固定区域，以顶栏为例，向下拼接会导致顶栏重复
+    // 但是注意到，向下拼接实际上可以覆盖一定的底栏
+    // 因此，向下拼接，裁去顶部可以了
     // clip img1 “回”字中间的“口”
     function clip(v: number) {
         const x = v - Math.max((v / 3) * 1, 50);
@@ -722,46 +736,49 @@ function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     }
     const dw = longFX === "xy" ? clip(img1.width) : 0; // “目”中间的“口”
     const dh = clip(img1.height);
-
-    const clip1Canvas = ele("canvas").el;
-    clip1Canvas.width = img1.width - dw * 2;
-    clip1Canvas.height = img1.height - dh * 2;
-    clip1Canvas.getContext("2d")!.drawImage(img1, -dw, -dh);
-    // match
-    const src = cv.imread(img0);
-    const templ = cv.imread(clip1Canvas);
-    const dst = new cv.Mat();
-    const mask = new cv.Mat();
-    cv.matchTemplate(src, templ, dst, cv.TM_CCOEFF, mask);
-    const result = cv.minMaxLoc(dst, mask);
-    const maxPoint = result.maxLoc;
-    const dx = maxPoint.x;
-    const dy = maxPoint.y;
-    src.delete();
-    dst.delete();
-    mask.delete();
     // clip img1
-    const ndx = dx - dw;
-    const ndy = dy - dh;
     // 0:裁切九宫格边的三个格 !=0:裁出“田”字
-    const clip2Canvas = ele("canvas").el;
-    clip2Canvas.width = ndx !== 0 ? img1.width - dw : img1.width;
-    clip2Canvas.height = ndy !== 0 ? img1.height - dh : img1.height;
-    // d>0需要-dw或-dh平移，<=0不需要平移
-    clip2Canvas
-        .getContext("2d")!
-        .drawImage(img1, ndx > 0 ? -dw : 0, ndy > 0 ? -dh : 0);
+    const clip2Canvas = new OffscreenCanvas(img1.width, img1.height);
+
+    if (dx === 0 && dy === 0) {
+        return {
+            dx: 0,
+            dy: 0,
+            srcDX: dx,
+            srcDY: dy,
+            clipedImg: undefined,
+        };
+    }
+    if (dx === 0) {
+        clip2Canvas.width = img1.width;
+        clip2Canvas.height = img1.height - dh;
+        clip2Canvas.getContext("2d")!.drawImage(img1, 0, dy > 0 ? -dh : 0);
+    } else if (dy === 0) {
+        clip2Canvas.width = img1.width - dw;
+        clip2Canvas.height = img1.height;
+        clip2Canvas.getContext("2d")!.drawImage(img1, dx > 0 ? -dw : 0, 0);
+    } else {
+        clip2Canvas.width = img1.width - dw;
+        clip2Canvas.height = img1.height - dh;
+        clip2Canvas
+            .getContext("2d")!
+            .drawImage(img1, dx > 0 ? -dw : 0, dy > 0 ? -dh : 0);
+    }
 
     return {
-        dx: ndx > 0 ? dx : ndx,
-        dy: ndy > 0 ? dy : ndy,
-        srcDX: ndx,
-        srcDY: ndy,
+        dx: dx > 0 ? dx + dw : dx,
+        dy: dy > 0 ? dy + dh : dy,
+        srcDX: dx,
+        srcDY: dy,
         clipedImg: clip2Canvas,
     };
 }
 
-function longPutImg(img: HTMLCanvasElement, x: number, y: number) {
+function longPutImg(
+    img: HTMLCanvasElement | OffscreenCanvas,
+    x: number,
+    y: number,
+) {
     // 前提：img大小一定小于等于最终拼接canvas
     const newCanvas = ele("canvas").el;
     const newCtx = newCanvas.getContext("2d")!;
