@@ -4134,6 +4134,39 @@ function ocrEl() {
             };
         }
     > = {
+        v6_tiny: {
+            url: "ppocr_v6_tiny.zip",
+            name: "v6 tiny",
+            desc: "paddle OCR v6 tiny",
+            supportLang: ["zh-HANS", "en"],
+            accuracy: "low",
+            speed: "fast",
+            optimize: {
+                space: false,
+            },
+        },
+        v6_small: {
+            url: "ppocr_v6_small.zip",
+            name: "v6 small",
+            desc: "paddle OCR v6 small",
+            supportLang: ["*"],
+            accuracy: "low",
+            speed: "fast",
+            optimize: {
+                space: false,
+            },
+        },
+        v6_medium: {
+            url: "ppocr_v6_medium.zip",
+            name: "v6 medium",
+            desc: "paddle OCR v6 medium",
+            supportLang: ["*"],
+            accuracy: "high",
+            speed: "slow",
+            optimize: {
+                space: false,
+            },
+        },
         standard_v5_mobile: {
             url: "ppocr_v5_mobile.zip",
             name: "标准版v5",
