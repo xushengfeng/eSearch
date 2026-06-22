@@ -2994,6 +2994,10 @@ const toolsX: Record<功能, { el: ElType<HTMLElement>; f: () => void }> = {
     ocr: {
         el: selectEl(iconEl("ocr"), t("文字识别"), [
             ...store.get("离线OCR").map((i) => ({ value: i.id, name: i.name })),
+            ...store
+                .get("AI.在线模型")
+                .filter((i) => i.supportVision)
+                .map((i) => ({ value: `ai-${i.name}`, name: i.name })),
             { value: "baidu", name: t("百度") },
             { value: "youdao", name: t("有道") },
         ]),
