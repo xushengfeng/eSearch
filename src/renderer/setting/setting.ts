@@ -451,6 +451,12 @@ const s: Partial<settingItem<SettingPath>> = {
                         value: i.id,
                         name: noI18n(i.name),
                     })),
+                    ...getSet("AI.在线模型")
+                        .filter((i) => i.supportVision)
+                        .map((i) => ({
+                            value: `ai-${i.name}`,
+                            name: noI18n(i.name),
+                        })),
                     { value: "youdao", name: "有道" },
                     { value: "baidu", name: "百度" },
                 ],
@@ -2529,6 +2535,7 @@ console.log("s-m", sKeys.difference(mKeys), "m-s", mKeys.difference(sKeys));
 
 const bind: { [k in KeyPath]?: KeyPath[] } = {
     离线OCR: ["OCR.类型"],
+    "AI.在线模型": ["OCR.类型"],
     "翻译.翻译器": ["屏幕翻译.语言.from", "屏幕翻译.语言.to"],
     "录屏.提示.键盘.位置.offsetX": ["录屏.提示.键盘.位置"],
     "录屏.提示.键盘.位置.offsetY": ["录屏.提示.键盘.位置"],
