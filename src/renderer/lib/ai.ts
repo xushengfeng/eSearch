@@ -35,7 +35,12 @@ function toChatgptm(data: aiData): chatgptm {
 
 function runAI(
     message: aiData[],
-    x: { config: Record<string, unknown>; url: string; key: string },
+    x: {
+        config: Record<string, unknown>;
+        url: string;
+        key: string;
+        model: string;
+    },
 ) {
     const m: { messages: chatgptm[]; stream: boolean } & Record<
         string,
@@ -47,13 +52,21 @@ function runAI(
     for (const i in x.config) {
         m[i] = x.config[i];
     }
+    if (x.model) m.model = x.model;
     let resultText = "";
     let streamFun: (text: string, end: boolean) => void = () => {};
 
     const abortController = new AbortController();
     const { promise, resolve } = Promise.withResolvers<string>();
 
-    fetch(x.url, {
+    let url = x.url;
+    if (x.url.replace(/\/$/, "").endsWith("v1/chat/completions")) {
+        url = x.url;
+    } else {
+        url = new URL("v1/chat/completions", x.url).toString();
+    }
+
+    fetch(url, {
         method: "POST",
         headers: {
             authorization: `Bearer ${x.key}`,

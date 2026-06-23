@@ -199,6 +199,7 @@ export interface setting {
             supportVision: boolean;
             url: string;
             key: string;
+            model: string;
             config: Record<string, unknown>;
         }[];
     };

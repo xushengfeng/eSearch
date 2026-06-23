@@ -1460,7 +1460,7 @@ class spellcheckGen {
                     },
                 },
             ],
-            { config: m.config, key: m.key, url: m.url },
+            m,
         );
 
         const stopEl = view()

@@ -41,14 +41,8 @@ function llmOCR(
     if (!aiConfig) return callback(new Error("未找到模型"), null);
     if (!aiConfig.supportVision)
         return callback(new Error("模型不支持视觉"), null);
-    const url = aiConfig.url;
-    const key = aiConfig.key;
     const prompt = "recognize the text in the image and return it in text raw";
-    runAI([{ role: "user", content: { text: prompt, img } }], {
-        url,
-        key,
-        config: aiConfig.config,
-    })
+    runAI([{ role: "user", content: { text: prompt, img } }], aiConfig)
         .text.then((text) => {
             return callback(null, {
                 raw: [

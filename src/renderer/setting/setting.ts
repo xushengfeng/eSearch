@@ -557,6 +557,7 @@ const s: Partial<settingItem<SettingPath>> = {
                         url: "",
                         key: "",
                         supportVision: false,
+                        model: "",
                         type: "chatgpt",
                         config: {},
                     };
@@ -564,6 +565,46 @@ const s: Partial<settingItem<SettingPath>> = {
                     const nameEl = input().sv(item.name);
                     const urlEl = input().sv(item.url);
                     const keyEl = input().sv(item.key);
+                    const modelEl = input().sv(item.model);
+                    const fetchModelList = button("获取模型列表").on(
+                        "click",
+                        async () => {
+                            const [r, error] = tryx(async () => {
+                                const url = urlEl.gv;
+                                const key = keyEl.gv;
+                                const res = await fetch(
+                                    new URL("v1/models", url),
+                                    {
+                                        headers: {
+                                            Authorization: `Bearer ${key}`,
+                                        },
+                                    },
+                                );
+                                const data = (await res.json()) as {
+                                    data: { id: string }[];
+                                };
+                                modelListEl.clear().add(
+                                    data.data.map((i) =>
+                                        button()
+                                            .add(i.id)
+                                            .on("click", () =>
+                                                modelEl.sv(i.id),
+                                            ),
+                                    ),
+                                );
+                            });
+                            if (error) {
+                                console.error(error);
+                            } else {
+                                console.log(r);
+                            }
+                        },
+                    );
+                    const modelListEl = xGroup("x").style({
+                        width: baseWidth,
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                    });
                     const configEl = textarea()
                         .bindSet((v, el) => {
                             try {
@@ -589,10 +630,16 @@ const s: Partial<settingItem<SettingPath>> = {
                     dialogB(
                         dialog,
                         [
-                            nameEl,
                             xGroup("y").add([
+                                view().add(["名称", ele("br"), nameEl]),
                                 view().add([noI18n("URL"), ele("br"), urlEl]),
                                 view().add([noI18n("key"), ele("br"), keyEl]),
+                                view().add([
+                                    fetchModelList,
+                                    ele("br"),
+                                    modelListEl,
+                                ]),
+                                view().add(["模型名称", ele("br"), modelEl]),
                                 view().add([
                                     "请求体自定义",
                                     ele("br"),
@@ -608,7 +655,7 @@ const s: Partial<settingItem<SettingPath>> = {
                                                     {
                                                         role: "user",
                                                         content: {
-                                                            text: "你好",
+                                                            text: "Say this is a test",
                                                         },
                                                     },
                                                 ],
@@ -616,6 +663,7 @@ const s: Partial<settingItem<SettingPath>> = {
                                                     config: configEl.gv,
                                                     url: urlEl.gv,
                                                     key: keyEl.gv,
+                                                    model: modelEl.gv,
                                                 },
                                             ).text;
 
@@ -643,6 +691,7 @@ const s: Partial<settingItem<SettingPath>> = {
                                 type: "chatgpt",
                                 url: urlEl.gv,
                                 key: keyEl.gv,
+                                model: modelEl.gv,
                                 config: configEl.gv,
                                 supportVision: supportVision.gv,
                             }),
