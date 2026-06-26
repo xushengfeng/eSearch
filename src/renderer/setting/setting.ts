@@ -76,6 +76,7 @@ import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
 import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
 import { githubMirrorList } from "../../../lib/github_mirror";
 import { runAI } from "../lib/ai";
+import { ocrList } from "../ocr/ocr_omni";
 
 let yauzl: typeof import("yauzl") | null = null;
 
@@ -444,24 +445,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "OCR.类型": {
         name: "OCR类型",
-        el: () =>
-            xSelect(
-                [
-                    ...getSet("离线OCR").map((i) => ({
-                        value: i.id,
-                        name: noI18n(i.name),
-                    })),
-                    ...getSet("AI.在线模型")
-                        .filter((i) => i.supportVision)
-                        .map((i) => ({
-                            value: `ai-${i.name}`,
-                            name: noI18n(i.name),
-                        })),
-                    { value: "youdao", name: "有道" },
-                    { value: "baidu", name: "百度" },
-                ],
-                "OCR类型",
-            ),
+        el: () => xSelect(ocrList(store), "OCR类型"),
     },
     "OCR.离线切换": {
         name: "OCR离线切换",

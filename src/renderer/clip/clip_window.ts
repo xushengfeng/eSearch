@@ -65,6 +65,7 @@ import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { typedEntries, typedKeys } from "../../../lib/utils";
+import { ocrList } from "../ocr/ocr_omni";
 
 type SrcPoint = { x: number; y: number } & { readonly _: unique symbol };
 
@@ -2992,15 +2993,14 @@ const toolsX: Record<功能, { el: ElType<HTMLElement>; f: () => void }> = {
     },
     screens: { el: view().attr({ title: "屏幕管理" }), f: () => {} },
     ocr: {
-        el: selectEl(iconEl("ocr"), t("文字识别"), [
-            ...store.get("离线OCR").map((i) => ({ value: i.id, name: i.name })),
-            ...store
-                .get("AI.在线模型")
-                .filter((i) => i.supportVision)
-                .map((i) => ({ value: `ai-${i.name}`, name: i.name })),
-            { value: "baidu", name: t("百度") },
-            { value: "youdao", name: t("有道") },
-        ]),
+        el: selectEl(
+            iconEl("ocr"),
+            t("文字识别"),
+            ocrList(store).map((v) => ({
+                name: typeof v.name === "string" ? t(v.name) : v.name.text,
+                value: v.value,
+            })),
+        ),
         f: () => runOcr(),
     },
     search: {

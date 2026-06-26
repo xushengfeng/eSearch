@@ -65,6 +65,7 @@ import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { rotateImg } from "esearch-ocr";
 import { typedEntries, tryD, safeJSONParse, tryx } from "../../../lib/utils";
 import { ocrOnline } from "../ocr/ocr_online";
+import { ocrList } from "../ocr/ocr_omni";
 
 type SpellItem = {
     index: number;
@@ -2657,14 +2658,12 @@ ocrImageClose.el.onclick = () => {
     clearOcrPhoto();
 };
 
-ocrImageEngine.setList([
-    ...store.get("离线OCR").map((i) => ({
-        value: i.id,
-        name: i.id === defaultOcrId ? t(i.name) : i.name,
+ocrImageEngine.setList(
+    ocrList(store).map((v) => ({
+        name: typeof v.name === "string" ? t(v.name) : v.name.text,
+        value: v.value,
     })),
-    { value: "baidu", name: t("百度") },
-    { value: "youdao", name: t("有道") },
-]);
+);
 
 ocrImageEngine.el.sv(store.get("OCR.类型"));
 ocrImageEngine.el.on("input", () => {
