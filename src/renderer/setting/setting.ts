@@ -571,7 +571,7 @@ const s: Partial<settingItem<SettingPath>> = {
                     const nameEl = input().sv(item.name);
                     const urlEl = input().sv(item.url);
                     const keyEl = input().sv(item.key);
-                    const modelEl = input().sv(item.model);
+                    const modelEl = input().sv(item.model ?? "");
                     const fetchModelList = button("获取模型列表").on(
                         "click",
                         async () => {
