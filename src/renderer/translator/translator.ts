@@ -190,6 +190,7 @@ const textEl = view().style({
     "-webkit-app-region": "drag",
     width: "100vw",
     height: "100vh",
+    background: "rgb(255,255,255,0.5)",
 });
 mainEl.add([textEl]);
 
