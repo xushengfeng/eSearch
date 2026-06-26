@@ -32,6 +32,7 @@ import {
 import { EraserBrush } from "@erase2d/fabric";
 import bmp from "bmp-js";
 import { findOffset } from "picture_match";
+import { detectBorders } from "../../../../../edge_det/dist/";
 
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(
@@ -70,18 +71,6 @@ import { ocrList } from "../ocr/ocr_omni";
 type SrcPoint = { x: number; y: number } & { readonly _: unique symbol };
 
 initStyle(store);
-
-async function loadCV() {
-    if (!cv) {
-        // biome-ignore format:
-        cv = require("@techstark/opencv-js") as typeof import('@techstark/opencv-js');
-        cv.onRuntimeInitialized = () => {
-            console.log("load cv");
-            cvLoadPromise.resolve(true);
-        };
-    }
-    await cvLoadPromise.promise;
-}
 
 function iconEl(src: IconType) {
     return view().add(
@@ -381,36 +370,34 @@ function setEditorP(zoom: number, x: number, y: number) {
 
 function edge() {
     const canvas = mainCanvas;
-    const src = cv.imread(canvas);
 
-    cv.cvtColor(src, src, cv.COLOR_RGBA2RGB);
-
-    const dst = new cv.Mat();
     const cMin = store.get("框选.自动框选.最小阈值");
     const cMax = store.get("框选.自动框选.最大阈值");
-    cv.Canny(src, dst, cMin, cMax, 3, true);
 
-    const contours = new cv.MatVector();
-    const hierarchy = new cv.Mat();
-
-    cv.findContours(
-        dst,
-        contours,
-        hierarchy,
-        cv.RETR_CCOMP,
-        cv.CHAIN_APPROX_SIMPLE,
+    const borders = detectBorders(
+        new Uint8Array(
+            canvas
+                .getContext("2d")!
+                .getImageData(0, 0, canvas.width, canvas.height).data,
+        ),
+        canvas.width,
+        canvas.height,
+        {
+            lowThreshold: cMin,
+            highThreshold: cMax,
+            minArea: 3,
+        },
     );
 
-    for (let i = 0; i < contours.size(); i++) {
-        const cnt = contours.get(i);
-        const r = cv.boundingRect(cnt);
-        edgeRect.push({ ...r, type: "image" });
+    for (const r of borders) {
+        edgeRect.push({
+            x: r.x,
+            y: r.y,
+            width: r.w,
+            height: r.h,
+            type: "image",
+        });
     }
-
-    src.delete();
-    dst.delete();
-    contours.delete();
-    hierarchy.delete();
 }
 
 function getWin() {
@@ -586,7 +573,6 @@ function startLong() {
     initLong(finalRect);
     long_s();
     renderSend("windowIgnoreMouse", [true]);
-    loadCV();
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
         if (uIOhook) {
@@ -1378,7 +1364,6 @@ function cleanCanvas() {
  */
 function inEdge(p: editor_position) {
     if (rectSelect) return;
-    console.log(1);
 
     rectInRect = [];
     for (const i of edgeRect) {
@@ -2922,11 +2907,6 @@ async function fabricCopy() {
 
 // 获取设置
 
-const cvLoadPromise = Promise.withResolvers();
-
-// biome-ignore lint: 为了部分引入
-var cv: typeof import("@techstark/opencv-js");
-
 const screenShotCache = new Map<number, ImageData>();
 
 const 字体 = store.get("字体");
@@ -4180,13 +4160,13 @@ document.onmouseup = (e) => {
 
 hotkeys("s", () => {
     if (autoPhotoSelectRect) {
-        loadCV().then(() => {
-            console.log("edge");
-            edge();
-            rectSelect = false;
-            finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
-            drawClipRect();
-        });
+        // loadCV().then(() => {
+        console.log("edge");
+        edge();
+        rectSelect = false;
+        finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
+        drawClipRect();
+        // });
     }
     rectSelect = false;
     finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
