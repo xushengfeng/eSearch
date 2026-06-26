@@ -16,9 +16,6 @@ importers:
       '@pdf-lib/upng':
         specifier: ^1.0.1
         version: 1.0.1
-      '@techstark/opencv-js':
-        specifier: 4.10.0-release.1
-        version: 4.10.0-release.1
       '@xushengfeng/fasttext_wasm':
         specifier: ^1.0.3
         version: 1.0.3
@@ -1204,9 +1201,6 @@ packages:
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
     engines: {node: '>=10'}
-
-  '@techstark/opencv-js@4.10.0-release.1':
-    resolution: {integrity: sha512-S4XELidRiQeA0q1s9VQLo540wCxUo24r1O4C+LqZ6llX+sPCXvZCPv3Ice8dEIr0uavyZ8YZeKXSBdDgMXSXjw==}
 
   '@tootallnate/once@2.0.0':
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
@@ -4223,8 +4217,6 @@ snapshots:
   '@szmarczak/http-timer@4.0.6':
     dependencies:
       defer-to-connect: 2.0.1
-
-  '@techstark/opencv-js@4.10.0-release.1': {}
 
   '@tootallnate/once@2.0.0': {}
 

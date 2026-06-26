@@ -280,7 +280,7 @@ const s: Partial<settingItem<SettingPath>> = {
     },
     "框选.自动框选.图像识别": {
         name: "框选图像识别",
-        desc: "使用OpenCV自动识别边缘轮廓",
+        desc: "使用算法自动识别边缘轮廓",
         el: () => xSwitch(),
     },
     "框选.自动框选.最小阈值": {
