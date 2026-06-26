@@ -1,7 +1,5 @@
 import initScreenShots from "../screenShot/screenShot";
 
-import xtranslator from "xtranslator";
-
 import { addClass, button, type ElType, image, pack, view } from "dkh-ui";
 
 function iconEl(src: IconType) {
@@ -15,6 +13,8 @@ import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { loadTranslator } from "../lib/translate";
+
+const { clipboard } = require("electron") as typeof import("electron");
 
 initStyle(store);
 
@@ -163,6 +163,10 @@ const toolsEl = view("x")
     .add([
         playEl,
         runEl,
+        button(iconEl("copy")).on("click", () => {
+            const text = textEl.el.innerText;
+            clipboard.writeText(text);
+        }),
         button(iconEl("close")).on("click", () =>
             renderSend("windowClose", []),
         ),
