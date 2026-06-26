@@ -24,6 +24,7 @@ import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import type { DingStart, Dire } from "../../ShareTypes";
 import type { IconType } from "../../iconTypes";
+import { loadTranslator } from "../lib/translate";
 
 initStyle(store);
 
@@ -384,26 +385,7 @@ const setNewDing = (
 };
 
 async function preTranAndOcr(url: string) {
-    const transE = store.get("翻译.翻译器");
-
-    if (transE.length > 0) {
-        const x = transE[0];
-        const e = xtranslator.getEngine(x.type);
-        if (e) {
-            e.setKeys(x.keys);
-            const lan = store.get("屏幕翻译.语言");
-            translateE = (input: string[]) =>
-                e.run(
-                    input,
-                    (lan.from ||
-                        "auto") as (typeof xtranslator.languages.normal)[number],
-                    (lan.to ||
-                        store.get(
-                            "语言.语言",
-                        )) as (typeof xtranslator.languages.normal)[number],
-                );
-        }
-    }
+    translateE = loadTranslator(store);
     await initOCR();
     const p = await ocr(url);
     return p;

@@ -21,6 +21,7 @@ import {
 
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
+import { getTranslators } from "../lib/translate";
 
 initStyle(store);
 
@@ -279,9 +280,7 @@ const inputText = decodeURIComponent(
 const fyq = store.get("翻译.翻译器");
 const fanyiqi = new Map(
     fyq.map((f) => {
-        const e = xtranslator.es[f.type]();
-        // @ts-ignore
-        e.setKeys(f.keys);
+        const e = getTranslators(store, f);
         return [f.id, e];
     }),
 );
@@ -289,10 +288,19 @@ const fanyiqi = new Map(
 const showCang = store.get("翻译.收藏");
 
 const allFromLan = Array.from(
-    new Set(fyq.flatMap((f) => xtranslator.e[f.type]?.lan)),
+    new Set(
+        fyq.flatMap(
+            (f) => xtranslator.e[f.type === "llm" ? "chatgpt" : f.type]?.lan,
+        ),
+    ),
 );
 const allToLan = Array.from(
-    new Set(fyq.flatMap((f) => xtranslator.e[f.type]?.targetLan)),
+    new Set(
+        fyq.flatMap(
+            (f) =>
+                xtranslator.e[f.type === "llm" ? "chatgpt" : f.type]?.targetLan,
+        ),
+    ),
 );
 
 console.log("allFromLan", allFromLan);

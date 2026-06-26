@@ -81,7 +81,7 @@ let yauzl: typeof import("yauzl") | null = null;
 
 export { isDeepStrictEqual };
 
-type Engines = keyof typeof translator.e;
+type Engines = keyof typeof translator.e | "llm";
 
 type JustElmentK =
     | "_autostart"
@@ -3694,13 +3694,19 @@ function translatorD(
             Engines,
             {
                 t: string | ReturnType<typeof noI18n>;
-                key: {
+                key: ({
                     name: string;
                     text?: string;
-                    type?: "json";
-                    area?: boolean;
                     optional?: boolean;
-                }[];
+                } & (
+                    | {
+                          type: "select";
+                          list: { name: string; value: string }[];
+                      }
+                    | {
+                          type?: "json" | "textarea";
+                      }
+                ))[];
                 help?: { src: string };
             }
         >
@@ -3750,6 +3756,20 @@ function translatorD(
                 src: "https://learn.microsoft.com/zh-cn/azure/cognitive-services/translator/how-to-create-translator-resource#authentication-keys-and-endpoint-url",
             },
         },
+        llm: {
+            t: "大模型",
+            key: [
+                {
+                    name: "name",
+                    text: t("模型名称"),
+                    type: "select",
+                    list: getSet("AI.在线模型").map((i) => ({
+                        name: i.name,
+                        value: i.name,
+                    })),
+                },
+            ],
+        },
         chatgpt: {
             t: noI18n("ChatGPT"),
             key: [
@@ -3759,19 +3779,18 @@ function translatorD(
                     name: "config",
                     text: t("请求体自定义"),
                     type: "json",
-                    area: true,
                     optional: true,
                 },
                 {
                     name: "sysPrompt",
                     text: t("系统提示词，${t}为文字，${to}，${from}"),
-                    area: true,
+                    type: "textarea",
                     optional: true,
                 },
                 {
                     name: "userPrompt",
                     text: t("用户提示词，${t}为文字，${to}，${from}"),
-                    area: true,
+                    type: "textarea",
                     optional: true,
                 },
             ],
@@ -3785,13 +3804,12 @@ function translatorD(
                 {
                     name: "config",
                     text: t("请求体自定义"),
-                    area: true,
                     type: "json",
                 },
                 {
                     name: "userPrompt",
                     text: t("用户提示词，${t}为文字，${to}，${from}"),
-                    area: true,
+                    type: "textarea",
                     optional: true,
                 },
             ],
@@ -3840,7 +3858,15 @@ function translatorD(
                 view().add([
                     txt(`${x.name}`, true),
                     ele("br"),
-                    (x.area ? textarea() : input())
+
+                    (x.type === "select"
+                        ? select(x.list)
+                        : x.type === "textarea"
+                          ? textarea()
+                          : x.type === "json"
+                            ? textarea()
+                            : input()
+                    )
                         .attr({ placeholder: x.text || "", spellcheck: false })
                         .data({ key: x.name })
                         .sv(
@@ -3866,10 +3892,30 @@ function translatorD(
         testR.el.innerText = t("正在测试...");
         const v = getV();
         if (!v) return;
-        // @ts-ignore
-        translator.e[v.type].setKeys(v.keys);
+        if (v.type === "llm") {
+            const model = getSet("AI.在线模型").find(
+                (i) => i.name === v.keys.name,
+            );
+            if (!model) {
+                testR.el.innerText = t("模型不存在");
+                return;
+            }
+            translator.e.chatgpt.setKeys({
+                url: new URL("v1/chat/completions", model.url).toString(),
+                key: model.key,
+                config: {
+                    model: model.model,
+                },
+            });
+        } else {
+            // @ts-ignore
+            translator.e[v.type].setKeys(v.keys);
+        }
         try {
-            const r = await translator.e[v.type].test();
+            const r =
+                await translator.e[
+                    v.type === "llm" ? "chatgpt" : v.type
+                ].test();
             console.log(r);
             if (r) testR.el.innerText = t("测试成功");
         } catch (error) {
@@ -3884,7 +3930,7 @@ function translatorD(
         const ee = engineConfig[selectEl.gv];
         if (!ee) return null;
         const e = ee.key;
-        for (const el of keys.queryAll("input, textarea")) {
+        for (const el of keys.queryAll("input, textarea, select")) {
             const name = el.el.dataset.key;
             if (!name) continue;
             const type = e.find((i) => i.name === name)?.type;

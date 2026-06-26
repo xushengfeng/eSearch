@@ -14,6 +14,7 @@ import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
+import { loadTranslator } from "../lib/translate";
 
 initStyle(store);
 
@@ -24,28 +25,7 @@ const screenShots = initScreenShots({
     path: store.get("额外截屏器.位置"),
 });
 
-const transE = store.get("翻译.翻译器");
-
-let translateE = async (input: string[]) => input;
-
-if (transE.length > 0) {
-    const x = transE[0];
-    const e = xtranslator.getEngine(x.type);
-    if (e) {
-        e.setKeys(x.keys);
-        const lan = store.get("屏幕翻译.语言");
-        translateE = (input: string[]) =>
-            e.run(
-                input,
-                (lan.from ||
-                    "auto") as (typeof xtranslator.languages.normal)[number],
-                (lan.to ||
-                    store.get(
-                        "语言.语言",
-                    )) as (typeof xtranslator.languages.normal)[number],
-            );
-    }
-}
+const translateE = loadTranslator(store) || (async (input: string[]) => input);
 
 type Rect = { x: number; y: number; w: number; h: number };
 let rect: Rect = { x: 0, y: 0, w: 0, h: 0 };
