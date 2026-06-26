@@ -204,7 +204,7 @@ function dispaly2screen(
     return {
         screen: allScreens,
         window: windows.map((w) => ({
-            rect: { x: w.x, y: w.y, w: w.width, h: w.height },
+            rect: { x: w.x(), y: w.y(), w: w.width(), h: w.height() },
         })),
         type: "normal",
     };
