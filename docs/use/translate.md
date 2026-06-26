@@ -134,27 +134,11 @@ URL：`http://127.0.0.1:8765`
 }
 ```
 
-## 使用本地 LLM 模型翻译
+## 使用 LLM 模型翻译
 
-你可以使用任何技术栈部署 LLM，但需要兼容 OpenAI 的 API。下面以 ollama 为例。
+支持本地LLM或者在线LLM。
 
-你需要在[ollama 官网](https://ollama.com/)下载并安装 ollama，添加模型。
-
-在设置中添加翻译器，翻译引擎选择“ChatGPT”，填入 url：`http://localhost:11434/api/chat` ，config 则填入`{"model":"你的模型"}`，测试通过后，点击完成。拖动翻译器到第一个来默认启用。
-
-注意 config 的冒号、引号均为英文，可以复制上面的 config 再修改。
-
-### 其他免费 LLM 翻译服务
-
-翻译引擎类型均为“ChatGPT”，记得设置 model。
-
-[SiliconCloud](https://siliconflow.cn/zh-cn/siliconcloud)，需要注册
-
-url: `https://api.siliconflow.cn/v1/chat/completions`
-
-[GPT_API_free](https://github.com/chatanywhere/GPT_API_free)，需要 GitHub 账号绑定
-
-url: `https://api.chatanywhere.tech/v1/chat/completions`
+先添加在线AI，见[文档](./ai.md)。然后添加翻译器，类型选择“大模型”
 
 ## 其他免费翻译服务
 
