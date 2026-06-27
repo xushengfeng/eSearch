@@ -492,14 +492,14 @@ let contextMenu: Electron.Menu | null = null;
 let tray: Tray | null = null;
 const trayIcons: Record<string, NativeImage> = {
     macTem: nativeImage.createFromPath(
-        `${runPath}/assets/logo/bw/macIconTemplate.png`,
+        join(runPath, "assets/logo/bw/macIconTemplate.png"),
     ),
-    color: nativeImage.createFromPath(`${runPath}/assets/logo/32x32.png`),
+    color: nativeImage.createFromPath(join(runPath, "assets/logo/32x32.png")),
     white: nativeImage.createFromPath(
-        `${runPath}/assets/logo/bw/32x32_white.png`,
+        join(runPath, "assets/logo/bw/32x32_white.png"),
     ),
     black: nativeImage.createFromPath(
-        `${runPath}/assets/logo/bw/32x32_black.png`,
+        join(runPath, "assets/logo/bw/32x32_black.png"),
     ),
 };
 
@@ -552,7 +552,7 @@ app.whenReady().then(() => {
 
     if (store.get("托盘") !== "无") {
         // 托盘
-        tray = new Tray(`${runPath}/assets/logo/32x32.png`);
+        tray = new Tray(join(runPath, "assets/logo/32x32.png"));
         contextMenu = Menu.buildFromTemplate([
             {
                 label: `${t("自动识别")}`,
@@ -741,7 +741,7 @@ app.whenReady().then(() => {
         new Notification({
             title: app.name,
             body: `${app.name} ${t("已经在后台启动")}`,
-            icon: `${runPath}/assets/logo/64x64.png`,
+            icon: join(runPath, "assets/logo/64x64.png"),
         }).show();
 
     const 快捷键 = store.get("快捷键");
@@ -1078,7 +1078,7 @@ mainOn("clip_save", async ([type]) => {
         new Notification({
             title: `${app.name} ${t("保存文件失败")}`,
             body: t("用户已取消保存"),
-            icon: `${runPath}/assets/logo/64x64.png`,
+            icon: join(runPath, "assets/logo/64x64.png"),
         }).show();
         clipWindow?.show();
         clipWindow?.setSimpleFullScreen(true);
@@ -1378,7 +1378,7 @@ mainOn("recordSavePath", ([ext]) => {
                 new Notification({
                     title: `${app.name} ${t("保存视频失败")}`,
                     body: t("用户已取消保存"),
-                    icon: `${runPath}/assets/logo/64x64.png`,
+                    icon: join(runPath, "assets/logo/64x64.png"),
                 }).show();
             }
         });
@@ -1463,7 +1463,7 @@ mainOn("setAutoStart", ([arg1]) => {
             const autoStartFile = join(autoStartDir, "e-search.desktop");
             if (arg1) {
                 mkdirSync(autoStartDir, { recursive: true });
-                cpSync(`${runPath}/assets/e-search.desktop`, autoStartFile);
+                cpSync(join(runPath, "assets/e-search.desktop"), autoStartFile);
             } else {
                 rmSync(autoStartFile, { recursive: true });
             }
@@ -2123,7 +2123,7 @@ function noti(filePath: string) {
     const notification = new Notification({
         title: `${app.name} ${t("保存文件成功")}`,
         body: `${t("已保存文件到")} ${filePath}`,
-        icon: `${runPath}/assets/logo/64x64.png`,
+        icon: join(runPath, "assets/logo/64x64.png"),
     });
     notification.on("click", () => {
         shell.showItemInFolder(filePath);
@@ -2135,7 +2135,7 @@ mainOn("noti", ([{ title, body }]) => {
     const notification = new Notification({
         title: `${app.name} ${title}`,
         body: body,
-        icon: `${runPath}/assets/logo/64x64.png`,
+        icon: join(runPath, "assets/logo/64x64.png"),
     });
     notification.show();
 });
@@ -2901,7 +2901,7 @@ function showVersion(arg?: { v: string; url: string } | "err") {
     const notification = new Notification({
         title,
         body: b,
-        icon: `${runPath}/assets/logo/64x64.png`,
+        icon: join(runPath, "assets/logo/64x64.png"),
     });
     notification.on("click", () => {
         shell.openExternal(url);
