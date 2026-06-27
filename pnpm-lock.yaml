@@ -35,8 +35,8 @@ importers:
         specifier: ^0.14.2
         version: 0.14.2
       edge_det:
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.3
+        version: 0.1.3
       esearch-ocr:
         specifier: ^8.5.0
         version: 8.5.0
@@ -1765,8 +1765,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  edge_det@0.1.0:
-    resolution: {integrity: sha512-yTr1Uu4W1uUhcqkSPlg7Stv35L9FWM8AnMh4mBXxn2bt5/dczM5CjtlUJ4zrrb27jOPdo5EEDmlG4Yp3zfdX4g==}
+  edge_det@0.1.3:
+    resolution: {integrity: sha512-Ip51A+DaD8aMG3f2PW0FJsEyjMzxppcMAk055RzUyoKdepTakA4A6vqgyul9zBEmoBewZpmihYPM7IjD1y9iOg==}
 
   ejs@3.1.10:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
@@ -4897,7 +4897,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  edge_det@0.1.0: {}
+  edge_det@0.1.3: {}
 
   ejs@3.1.10:
     dependencies:

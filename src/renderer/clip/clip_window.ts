@@ -32,7 +32,7 @@ import {
 import { EraserBrush } from "@erase2d/fabric";
 import bmp from "bmp-js";
 import { findOffset } from "picture_match";
-import { detectBorders } from "../../../../../edge_det/dist/";
+import { detectBorders } from "edge_det";
 
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(
@@ -4160,13 +4160,11 @@ document.onmouseup = (e) => {
 
 hotkeys("s", () => {
     if (autoPhotoSelectRect) {
-        // loadCV().then(() => {
         console.log("edge");
         edge();
         rectSelect = false;
         finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
         drawClipRect();
-        // });
     }
     rectSelect = false;
     finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
