@@ -909,6 +909,7 @@ const s: Partial<settingItem<SettingPath>> = {
                     { value: "png", name: "PNG" },
                     { value: "jpg", name: "JPG" },
                     { value: "webp", name: "WebP" },
+                    { value: "bmp", name: "BMP" },
                 ],
                 "截屏默认格式",
             ),
