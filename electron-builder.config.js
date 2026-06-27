@@ -395,6 +395,8 @@ const ignoreModule = [
     "node-abi",
     "tr46",
     "argparse",
+    "mediabunny",
+    "picture_match",
 ];
 for (const i of ignoreModule) {
     ignoreDir.push(`node_modules/${i}`);
