@@ -58,6 +58,11 @@
         color-mix(in srgb, var(--font-color) 30%, transparent) 0 0 2px;
     --font-color-l: color-mix(in srgb, var(--font-color) 50%, var(--bg));
     --font-color-ll: color-mix(in srgb, var(--font-color) 30%, var(--bg));
+    --border-color: color-mix(
+        in oklab,
+        var(--emphasis-color) 90%,
+        var(--font-color)
+    );
     --color-size: 150px;
     --color-i-size: 10px;
     --monospace: ;
@@ -129,11 +134,11 @@ body select,
     background-color: var(--bg);
     border-radius: var(--border-radius);
     transition: var(--transition);
-    outline: 1px solid var(--m-color-b);
+    outline: 1px solid var(--border-color);
 }
 .group {
     display: flex;
-    outline: 1px solid var(--m-color-b);
+    outline: 1px solid var(--border-color);
     outline-offset: -1px;
     border: none;
     width: fit-content;

@@ -156,7 +156,7 @@ const Class = {
     deco: addClass(
         {
             borderRadius: cssVarR("border-radius"),
-            outline: `1px solid ${cssColor.b}`,
+            outline: `1px solid ${cssVarR("border-color")}`,
             outlineOffset: "-1px",
         },
         {},
