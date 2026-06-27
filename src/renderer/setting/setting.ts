@@ -5116,12 +5116,16 @@ const sideBar = view("y")
     )
     .class(Class.gap);
 const sideBarG = radioGroup("侧栏");
-const searchBar = view().style({
+const searchBar = view("x").style({
     padding: cssVar("o-padding"),
+    justifyContent: "center",
 });
 const searchI = input()
     .attr({ placeholder: t("搜索设置") })
-    .style({ width: "100%" })
+    .style({
+        width: "100%",
+        maxWidth: `calc(680px - ${cssVar("o-padding")} * 2)`,
+    })
     .addInto(searchBar)
     .on("input", () => {
         if (!searchI.gv) {
