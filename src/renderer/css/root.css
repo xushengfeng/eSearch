@@ -53,7 +53,8 @@
     --button-active: scale(0.95) translateZ(0);
     --border-radius: 8px;
     --blur: blur(10px);
-    --shadow: color-mix(in srgb, var(--emphasis-color) 20%, transparent) 0 0 4px,
+    --shadow:
+        color-mix(in srgb, var(--emphasis-color) 20%, transparent) 0 0 4px,
         color-mix(in srgb, var(--font-color) 30%, transparent) 0 0 2px;
     --font-color-l: color-mix(in srgb, var(--font-color) 50%, var(--bg));
     --font-color-ll: color-mix(in srgb, var(--font-color) 30%, var(--bg));
@@ -227,7 +228,6 @@ input[type="checkbox"] {
     display: inline-block;
     width: 16px;
     height: 16px;
-    margin-right: 4px;
     border-radius: 4px;
     transition: var(--transition);
     cursor: pointer;
