@@ -318,6 +318,10 @@ for (const i of otherPlatform) {
 }
 files?.push(`!node_modules/uiohook-napi/prebuilds/${platform}-${archFilter}`);
 
+if (arch !== process.arch) {
+    execSync("pnpm install --force"); // 安装node-screenshots
+}
+
 // 移除 node-screenshots其他平台架构
 const nodeScreenshotsList = [
     "win32-x64-msvc",
