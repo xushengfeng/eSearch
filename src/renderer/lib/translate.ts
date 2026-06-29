@@ -29,9 +29,10 @@ export function getTranslators(
     store: typeof import("../../../lib/store/renderStore")["default"],
     settingItem: setting["翻译"]["翻译器"][0],
 ): InstanceType<(typeof xtranslator)["Translator"]> | undefined {
-    const e = xtranslator.getEngine(
-        settingItem.type === "llm" ? "chatgpt" : settingItem.type,
-    );
+    const e =
+        xtranslator.es[
+            settingItem.type === "llm" ? "chatgpt" : settingItem.type
+        ]();
     if (e) {
         if (settingItem.type === "llm") {
             const model = store
@@ -40,13 +41,15 @@ export function getTranslators(
             if (!model) {
                 return;
             }
-            xtranslator.e.chatgpt.setKeys({
+            // @ts-ignore
+            e.setKeys({
                 url: new URL("v1/chat/completions", model.url).toString(),
                 key: model.key,
                 config: {
                     model: model.model,
                 },
             });
+            // @ts-ignore
         } else e.setKeys(settingItem.keys);
         return e;
     }
