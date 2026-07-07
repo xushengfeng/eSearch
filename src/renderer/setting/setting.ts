@@ -563,7 +563,7 @@ const s: Partial<settingItem<SettingPath>> = {
                                 const url = urlEl.gv;
                                 const key = keyEl.gv;
                                 const res = await fetch(
-                                    new URL("v1/models", url),
+                                    new URL("models", url),
                                     {
                                         headers: {
                                             Authorization: `Bearer ${key}`,
@@ -3886,7 +3886,7 @@ function translatorD(
                 return;
             }
             translator.e.chatgpt.setKeys({
-                url: new URL("v1/chat/completions", model.url).toString(),
+                url: new URL("chat/completions", model.url).toString(),
                 key: model.key,
                 config: {
                     model: model.model,

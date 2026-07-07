@@ -43,7 +43,7 @@ export function getTranslators(
             }
             // @ts-ignore
             e.setKeys({
-                url: new URL("v1/chat/completions", model.url).toString(),
+                url: new URL("chat/completions", model.url).toString(),
                 key: model.key,
                 config: {
                     model: model.model,

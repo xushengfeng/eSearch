@@ -63,7 +63,7 @@ function runAI(
     if (x.url.replace(/\/$/, "").endsWith("v1/chat/completions")) {
         url = x.url;
     } else {
-        url = new URL("v1/chat/completions", x.url).toString();
+        url = new URL("chat/completions", x.url).toString();
     }
 
     fetch(url, {
