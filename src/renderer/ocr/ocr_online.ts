@@ -20,9 +20,9 @@ export function ocrOnline(
     ) => void,
 ) {
     if (type === "baidu") {
-        baiduOcr(store, arg, callback);
+        baiduOcr(store, type, arg, callback);
     } else if (type === "youdao") {
-        youdaoOcr(store, arg, callback);
+        youdaoOcr(store, type, arg, callback);
     } else {
         llmOCR(store, type, arg, callback);
     }
@@ -66,15 +66,14 @@ function llmOCR(
 
 function baiduOcr(
     store: typeof import("../../../lib/store/renderStore")["default"],
+    type: string,
     sarg: string,
     callback: (
         err: Error | null,
         result: { raw: ocrResult; text: string } | null,
     ) => void,
 ) {
-    // @ts-ignore
     const clientId = store.get(`在线OCR.${type}.id`) as string;
-    // @ts-ignore
     const clientSecret = store.get(`在线OCR.${type}.secret`) as string;
     if (!clientId || !clientSecret)
         return callback(new Error("未填写 API Key 或 Secret Key"), null);
@@ -110,13 +109,13 @@ function baiduOcr(
                     Date.now() + result.expires_in * 1000,
                 );
                 ocrGet(access_token);
-            });
+            })
+            .catch((e) => callback(e, null));
     else {
         ocrGet(store.get("在线OCR.baidu.token"));
     }
 
     function ocrGet(token: string) {
-        // @ts-ignore
         fetch(`${store.get(`在线OCR.${type}.url`)}?access_token=${token}`, {
             method: "POST",
             headers: {
@@ -131,7 +130,8 @@ function baiduOcr(
             .then((v) => v.json())
             .then((result) => {
                 baiduFormat(result);
-            });
+            })
+            .catch((e) => callback(e, null));
     }
 
     interface BaiduOcrResult {
@@ -222,15 +222,14 @@ function baiduOcr(
 
 function youdaoOcr(
     store: typeof import("../../../lib/store/renderStore")["default"],
+    type: string,
     sarg: string,
     callback: (
         err: Error | null,
         result: { raw: ocrResult; text: string } | null,
     ) => void,
 ) {
-    // @ts-ignore
     const clientId = store.get(`在线OCR.${type}.id`) as string;
-    // @ts-ignore
     const clientSecret = store.get(`在线OCR.${type}.secret`) as string;
     if (!clientId || !clientSecret)
         return callback(new Error("未填写 API Key 或 Secret Key"), null);

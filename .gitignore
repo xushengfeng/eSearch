@@ -18,3 +18,4 @@ script/make_aur/e-search/usr/share/icons/
 script/make_aur/e-search/usr/lib/e-search/app/
 script/make_aur/*.aur
 script/make_aur/e-search/usr/share/applications/e-search.desktop
+package-lock.json
