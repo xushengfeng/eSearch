@@ -20,9 +20,9 @@ export function ocrOnline(
     ) => void,
 ) {
     if (type === "baidu") {
-        baiduOcr(store, type, arg, callback);
+        baiduOcr(store, arg, callback);
     } else if (type === "youdao") {
-        youdaoOcr(store, type, arg, callback);
+        youdaoOcr(store, arg, callback);
     } else {
         llmOCR(store, type, arg, callback);
     }
@@ -66,15 +66,14 @@ function llmOCR(
 
 function baiduOcr(
     store: typeof import("../../../lib/store/renderStore")["default"],
-    type: string,
     sarg: string,
     callback: (
         err: Error | null,
         result: { raw: ocrResult; text: string } | null,
     ) => void,
 ) {
-    const clientId = store.get(`在线OCR.${type}.id`) as string;
-    const clientSecret = store.get(`在线OCR.${type}.secret`) as string;
+    const clientId = store.get("在线OCR.baidu.id");
+    const clientSecret = store.get("在线OCR.baidu.secret");
     if (!clientId || !clientSecret)
         return callback(new Error("未填写 API Key 或 Secret Key"), null);
     const arg = sarg.replace("data:image/png;base64,", "");
@@ -116,7 +115,7 @@ function baiduOcr(
     }
 
     function ocrGet(token: string) {
-        fetch(`${store.get(`在线OCR.${type}.url`)}?access_token=${token}`, {
+        fetch(`${store.get("在线OCR.baidu.url")}?access_token=${token}`, {
             method: "POST",
             headers: {
                 "content-type": "application/x-www-form-urlencoded",
@@ -222,15 +221,14 @@ function baiduOcr(
 
 function youdaoOcr(
     store: typeof import("../../../lib/store/renderStore")["default"],
-    type: string,
     sarg: string,
     callback: (
         err: Error | null,
         result: { raw: ocrResult; text: string } | null,
     ) => void,
 ) {
-    const clientId = store.get(`在线OCR.${type}.id`) as string;
-    const clientSecret = store.get(`在线OCR.${type}.secret`) as string;
+    const clientId = store.get("在线OCR.youdao.id");
+    const clientSecret = store.get("在线OCR.youdao.secret");
     if (!clientId || !clientSecret)
         return callback(new Error("未填写 API Key 或 Secret Key"), null);
     const arg = sarg.replace("data:image/png;base64,", "");
