@@ -4297,8 +4297,19 @@ document.onmousemove = (e) => {
             const sw = window.innerWidth;
             const sh = window.innerHeight;
 
+            let _x = x;
+            let _y = y;
+            if (x > sw - w - d && y > sh - h - d) {
+                _x = x - w - d - d;
+                _y = y - h - d - d;
+            } else if (x > sw - w - d) {
+                _x = sw - w - d;
+            } else if (y > sh - h - d) {
+                _y = sh - h - d;
+            }
+
             mouseBarEl.style({
-                transform: `translate(${Math.min(x, sw - w - d)}px, ${Math.min(y, sh - h - d)}px)`,
+                transform: `translate(${_x}px, ${_y}px)`,
             });
 
             const isDrawBar = drawBar.contains(e.target as HTMLElement);
