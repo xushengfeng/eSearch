@@ -5133,9 +5133,12 @@ const searchI = input()
             showPage(main.at(Number(sideBarG.get())));
             return;
         }
-        const fuse = new Fuse(Object.entries(s), {
-            keys: ["1.name", "1.desc"],
-        });
+        const fuse = new Fuse(
+            Object.assign(Object.entries(s), Object.entries(xs)),
+            {
+                keys: ["1.name", "1.desc"],
+            },
+        );
 
         const l = fuse.search(searchI.gv).map((i) => i.item[0]);
         if (l.length === 0)
