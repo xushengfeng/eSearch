@@ -1697,6 +1697,18 @@ function changeRightBar(v: boolean) {
         ...mouseBarCopyColorList.map((i) => i.el.innerText.length * chPX),
     );
     if (v) {
+        const width = maxW;
+        const height = 32 * (allColorFormat.length + 2);
+        const winWidth = window.innerWidth;
+        const winHeight = window.innerHeight;
+
+        const newX = Math.min(mouseBarX, winWidth - width - 16);
+        const newY = Math.min(mouseBarY, winHeight - height - 16);
+
+        mouseBarEl.class(Class.transition).style({
+            transform: `translate(${newX}px, ${newY}px)`,
+        });
+
         mouseBarColor.el.style.height = "0";
         mouseBarCopy.style({
             width: `${maxW}px`,
@@ -1705,6 +1717,12 @@ function changeRightBar(v: boolean) {
         mouseBarCopyI.el.style.top = "0";
         mouseBarEl.el.style.pointerEvents = "auto";
     } else {
+        mouseBarEl.style({
+            transform: `translate(${mouseBarX}px, ${mouseBarY}px)`,
+        });
+        setTimeout(() => {
+            mouseBarEl.el.classList.remove(Class.transition);
+        }, 400);
         mouseBarColor.el.style.height = "";
         mouseBarCopy.style({
             width: `${Math.max(colorSize * colorISize, mouseBarColorMinSize)}px`,
@@ -3566,6 +3584,9 @@ const mouseBarW =
     ) + 4;
 const mouseBarH = 4 + colorSize * colorISize + 32 * 2;
 
+let mouseBarX = 0;
+let mouseBarY = 0;
+
 // 工具栏跟随
 const followBarList = [[0, 0]];
 let drawBarPosi: "right" | "left" = "right";
@@ -4307,6 +4328,9 @@ document.onmousemove = (e) => {
             } else if (y > sh - h - d) {
                 _y = sh - h - d;
             }
+
+            mouseBarX = _x;
+            mouseBarY = _y;
 
             mouseBarEl.style({
                 transform: `translate(${_x}px, ${_y}px)`,
