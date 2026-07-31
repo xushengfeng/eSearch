@@ -553,6 +553,11 @@ app.whenReady().then(() => {
     if (store.get("托盘") !== "无") {
         // 托盘
         tray = new Tray(join(runPath, "assets/logo/32x32.png"));
+
+        function update() {
+            tray?.setContextMenu(contextMenu);
+        }
+
         contextMenu = Menu.buildFromTemplate([
             {
                 label: `${t("自动识别")}`,
@@ -614,6 +619,7 @@ app.whenReady().then(() => {
                 checked: store.get("浏览器中打开"),
                 click: (i) => {
                     store.set("浏览器中打开", i.checked);
+                    update();
                 },
             },
             {
@@ -636,19 +642,28 @@ app.whenReady().then(() => {
                         label: t("自动"),
                         type: "radio",
                         checked: store.get("主页面.模式") === "auto",
-                        click: () => store.set("主页面.模式", "auto"),
+                        click: () => {
+                            store.set("主页面.模式", "auto");
+                            update();
+                        },
                     },
                     {
                         label: t("搜索"),
                         type: "radio",
                         checked: store.get("主页面.模式") === "search",
-                        click: () => store.set("主页面.模式", "search"),
+                        click: () => {
+                            store.set("主页面.模式", "search");
+                            update();
+                        },
                     },
                     {
                         label: t("翻译"),
                         type: "radio",
                         checked: store.get("主页面.模式") === "translate",
-                        click: () => store.set("主页面.模式", "translate"),
+                        click: () => {
+                            store.set("主页面.模式", "translate");
+                            update();
+                        },
                     },
                 ],
             },
@@ -657,7 +672,10 @@ app.whenReady().then(() => {
                 toolTip: t("可加快OCR加载"),
                 type: "checkbox",
                 checked: store.get("主页面.复用"),
-                click: (i) => store.set("主页面.复用", i.checked),
+                click: (i) => {
+                    store.set("主页面.复用", i.checked);
+                    update();
+                },
             },
             { type: "separator" },
             {
