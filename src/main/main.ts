@@ -131,6 +131,13 @@ if (dev) {
     }, 1500);
 }
 
+const logs: {
+    from: "screenShot" | "ding" | "mainWindow" | "translator";
+    message: string;
+    type: "info" | "warning" | "error";
+    lineCount: number;
+}[] = [];
+
 const screenShotArgs = [
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
     (m: string) =>
@@ -999,6 +1006,13 @@ mainOn("dialogMessage", ([arg0]) => {
     return id;
 });
 
+function pushLog(op: (typeof logs)[0]) {
+    if (logs.length > 50) {
+        logs.shift();
+    }
+    logs.push(op);
+}
+
 // 截屏窗口
 let clipWindow: BrowserWindow | null = null;
 let clipWindowLoaded = false;
@@ -1059,6 +1073,15 @@ function createClipWindow() {
     });
     _clipWindow.webContents.once("did-finish-load", () => {
         clipWindowLoaded = true;
+    });
+    _clipWindow.webContents.on("console-message", (d) => {
+        if (d.level !== "debug")
+            pushLog({
+                from: "screenShot",
+                lineCount: d.lineNumber,
+                type: d.level,
+                message: d.message,
+            });
     });
     return _clipWindow;
 }
@@ -1641,6 +1664,15 @@ function createDingWindow(
                         type,
                     ]);
             });
+            dingWindow.webContents.on("console-message", (d) => {
+                if (d.level !== "debug")
+                    pushLog({
+                        from: "ding",
+                        lineCount: d.lineNumber,
+                        message: d.message,
+                        type: d.level,
+                    });
+            });
             dingWindow.setIgnoreMouseEvents(true);
 
             dingWindow.setAlwaysOnTop(true, "screen-saver");
@@ -1764,6 +1796,15 @@ function createTranslator(op: Omit<translateWinType, "type">) {
             op.rect,
         ]);
     });
+    win.webContents.on("console-message", (d) => {
+        if (d.level !== "debug")
+            pushLog({
+                from: "translator",
+                lineCount: d.lineNumber,
+                message: d.message,
+                type: d.level,
+            });
+    });
 
     win.setAlwaysOnTop(true, "screen-saver");
 }
@@ -1856,6 +1897,15 @@ async function createMainWindow(op: MainWinType) {
                 c?.executeJavaScript(`setImg("${op.content}")`);
             });
         }
+    });
+    mainWindow.webContents.on("console-message", (d) => {
+        if (d.level !== "debug")
+            pushLog({
+                from: "mainWindow",
+                lineCount: d.lineNumber,
+                message: d.message,
+                type: d.level,
+            });
     });
 
     mainWindow.on("close", () => {
@@ -2246,6 +2296,10 @@ mainOn("recordMemWarning", () => {
         title: `${app.name} ${t("录屏内存不足")}`,
         body: t("将自动结束录屏"),
     }).show();
+});
+
+mainOn("getLogs", () => {
+    return logs;
 });
 
 nativeTheme.on("updated", () => {

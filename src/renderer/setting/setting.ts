@@ -94,6 +94,7 @@ type JustElmentK =
     | "_setting_file"
     | "_default_setting"
     | "_location"
+    | "_logs"
     | "_version"
     | "_exit";
 
@@ -2010,6 +2011,21 @@ const xs: Record<
             return pathInfo;
         },
     },
+    _logs: {
+        name: "获取日志",
+        el: () => {
+            const el = xGroup("y").class(blockSetting);
+            const b = button("点击获取").on("click", () => {
+                const data = renderSendSync("getLogs", []);
+                v.sv(JSON.stringify(data, null, 2));
+            });
+            const v = textarea("暂无日志，点击按钮获取").attr({
+                readOnly: true,
+            });
+            el.add([b, v]);
+            return el;
+        },
+    },
     _version: {
         name: "版本信息",
         el: () => {
@@ -2491,6 +2507,7 @@ const main: {
             },
             { title: "开发者模式", settings: ["dev"] },
             { title: "位置信息", settings: ["_location"] },
+            { title: "获取日志", settings: ["_logs"] },
             { title: "版本信息", settings: ["_version"] },
             { title: "退出应用", settings: ["_exit"] },
         ],
