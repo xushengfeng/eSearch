@@ -1,4 +1,4 @@
-export { typedEntries, typedKeys, tryx, tryD, safeJSONParse };
+export { typedEntries, typedKeys, tryx, tryD, tryxAwait, safeJSONParse };
 
 // biome-ignore lint/suspicious/noExplicitAny: 相信ai
 type Entry<T> = T extends any ? { [K in keyof T]: [K, T[K]] }[keyof T] : never;
@@ -13,6 +13,16 @@ function typedKeys<T extends object>(obj: T): (keyof T)[] {
 function tryx<T>(fn: () => T): [T, null] | [null, Error] {
     try {
         return [fn(), null];
+    } catch (e) {
+        return [null, e as Error];
+    }
+}
+
+async function tryxAwait<T>(
+    fn: () => Promise<T>,
+): Promise<[T, null] | [null, Error]> {
+    try {
+        return [await fn(), null];
     } catch (e) {
         return [null, e as Error];
     }

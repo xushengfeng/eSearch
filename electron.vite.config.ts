@@ -68,5 +68,8 @@ export default defineConfig(({ mode }) => ({
             }),
             mode === "analyze" ? analyzer() : undefined,
         ],
+        define: {
+            "process.platform": "process.platform",
+        },
     },
 }));

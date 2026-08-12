@@ -1,7 +1,9 @@
 const { ipcRenderer, nativeImage, shell, dialog } =
     require("electron") as typeof import("electron");
-import type { MessageBoxSyncOptions } from "electron";
+import type { MessageBoxSyncOptions, NativeImage } from "electron";
 import { renderSendSync } from "../../../lib/ipc";
+import { waylandShotInit } from "./waylandShot";
+import { tryxAwait } from "../../../lib/utils";
 
 type ReturnData = {
     bounds: { x: number; y: number; width: number; height: number };
@@ -27,11 +29,13 @@ let Screenshots: typeof import("node-screenshots");
 
 let _command: string | undefined;
 let commandSavePath = "/dev/shm/esearch-img.png";
+let _useXDGDesktopProtal = false;
 
 function init(
     command: { c: string; path?: string },
     feedback?: (m: string) => string,
     t?: (t: string) => string,
+    useXDGDesktopProtal?: boolean,
 ) {
     _command = command.c;
     if (command.path) commandSavePath = command.path;
@@ -82,6 +86,7 @@ function init(
                 }
             }
         }
+    if (useXDGDesktopProtal) _useXDGDesktopProtal = true;
     return dispaly2screen;
 }
 
@@ -93,15 +98,13 @@ async function dispaly2screen(
     window: { rect: { x: number; y: number; w: number; h: number } }[];
     type: "normal" | "img" | "command";
 }> {
-    let allScreens: ReturnData[] = [];
-    allScreens = [];
     let buffer = imgBuffer;
 
     if (!buffer && _command) {
         const fs = require("node:fs") as typeof import("node:fs");
         // biome-ignore format:
         const { execSync } = require("node:child_process") as typeof import("node:child_process");
-        const x: (typeof allScreens)[0] = {
+        const x: ReturnData = {
             bounds: displays?.[0]?.bounds ?? {
                 x: 0,
                 y: 0,
@@ -167,8 +170,79 @@ async function dispaly2screen(
         };
     }
 
+    if (process.platform === "linux" && _useXDGDesktopProtal) {
+        // biome-ignore format:
+        const fs = require("node:fs/promises") as typeof import("node:fs/promises");
+        const c = await waylandShotInit();
+        const allScreens: ReturnData[] = [];
+        const empty = {
+            toImageData: () => emptyImageData(),
+            toNativeImage: () => nativeImage.createEmpty(),
+        };
+        if (displays)
+            for (const d of displays) {
+                const x: ReturnData = {
+                    bounds: d.bounds,
+                    size: d.size,
+                    scaleFactor: d.scaleFactor,
+                    id: d.id,
+                    capture: async () => {
+                        const imgPath = await c.capture();
+                        if (!imgPath) return empty;
+
+                        const [imgBuffer] = await tryxAwait(() =>
+                            fs.readFile(imgPath),
+                        );
+                        if (imgBuffer === null) return empty;
+                        const data = toCanvas(imgBuffer);
+                        const image = data.image;
+                        fs.rm(imgPath);
+                        // 在kde和gnome上，其他桌面环境也如此，获取的是多屏拼接图像
+                        // 存在不同缩放时，会保证任何屏幕物理像素都被截取，缩放后几何关系表留
+                        // 即选取缩放数值最大的作为基准，其物理像素不能舍去，其他屏幕放大（得到更多像素）
+                        // 存在放大后缩小的模糊问题
+                        const globalScale = Math.max(
+                            ...displays.map((i) => i.scaleFactor),
+                        );
+                        const pix = {
+                            x: d.bounds.x * globalScale,
+                            y: d.bounds.y * globalScale,
+                            height: d.bounds.height * globalScale,
+                            width: d.bounds.width * globalScale,
+                        };
+                        const pixScreen = image.crop(pix);
+                        const phy = pixScreen.resize({
+                            width: d.bounds.width * d.scaleFactor,
+                            height: d.bounds.height * d.scaleFactor,
+                            quality: "best",
+                        });
+
+                        return {
+                            toImageData: () => nImage2Imagedata(phy).data,
+                            toNativeImage: () => {
+                                return pixScreen;
+                            },
+                        };
+                    },
+                };
+                allScreens.push(x);
+            }
+        else {
+            allScreens.push({
+                bounds: { x: 0, y: 0, width: 0, height: 0 },
+                size: { width: 0, height: 0 },
+                scaleFactor: 1,
+                id: -1,
+                capture: async () => empty,
+            });
+        }
+        return { screen: allScreens, type: "normal", window: [] };
+    }
+
     const screens = Screenshots.Monitor.all();
     const windows = Screenshots.Window.all();
+
+    const allScreens: ReturnData[] = [];
     // todo 更新算法
     /**
      * 修复屏幕信息
@@ -177,7 +251,7 @@ async function dispaly2screen(
     for (const i in displays || screens) {
         const d = displays?.[i];
         const s = screens[i];
-        const x: (typeof allScreens)[0] = {
+        const x: ReturnData = {
             bounds: d?.bounds ?? { x: 0, y: 0, width: 0, height: 0 },
             size: d?.size ?? { width: 0, height: 0 },
             scaleFactor: d?.scaleFactor ?? 1,
@@ -233,6 +307,10 @@ function emptyImageData() {
 
 function toCanvas(img: Buffer) {
     const image = nativeImage.createFromBuffer(img);
+    return nImage2Imagedata(image);
+}
+
+function nImage2Imagedata(image: NativeImage) {
     const { width: w, height: h } = image.getSize();
 
     if (typeof ImageData === "undefined")

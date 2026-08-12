@@ -38,6 +38,7 @@
     "hotkeys-js": "^3.13.7",
     "mediabunny": "^1.14.3",
     "minimist": "^1.2.8",
+    "myde-dbus": "^0.5.2",
     "node-screenshots": "^0.2.8",
     "onnxruntime-node": "^1.21.0",
     "picture_match": "^0.1.4",
