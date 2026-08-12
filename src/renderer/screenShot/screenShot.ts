@@ -8,10 +8,10 @@ type ReturnData = {
     size: { width: number; height: number };
     scaleFactor: number;
     id: number;
-    capture: () => {
+    capture: () => Promise<{
         toImageData: () => ImageData;
         toNativeImage: () => Electron.NativeImage;
-    };
+    }>;
 };
 
 function d(op: MessageBoxSyncOptions) {
@@ -85,14 +85,14 @@ function init(
     return dispaly2screen;
 }
 
-function dispaly2screen(
+async function dispaly2screen(
     displays?: Electron.Display[],
     imgBuffer?: Buffer,
-): {
+): Promise<{
     screen: ReturnData[];
     window: { rect: { x: number; y: number; w: number; h: number } }[];
     type: "normal" | "img" | "command";
-} {
+}> {
     let allScreens: ReturnData[] = [];
     allScreens = [];
     let buffer = imgBuffer;
@@ -111,7 +111,7 @@ function dispaly2screen(
             size: displays?.[0]?.bounds ?? { width: 0, height: 0 },
             scaleFactor: displays?.[0]?.scaleFactor ?? 1,
             id: displays?.[0]?.id ?? -1,
-            capture: () => {
+            capture: async () => {
                 const command = _command as string;
                 try {
                     const path = commandSavePath;
@@ -156,7 +156,7 @@ function dispaly2screen(
                     size: { width: s.width, height: s.height },
                     scaleFactor: 1,
                     id: -1,
-                    capture: () => ({
+                    capture: async () => ({
                         toImageData: () => data.data,
                         toNativeImage: () => data.image,
                     }),
@@ -182,8 +182,8 @@ function dispaly2screen(
             size: d?.size ?? { width: 0, height: 0 },
             scaleFactor: d?.scaleFactor ?? 1,
             id: d?.id ?? -1,
-            capture: () => {
-                const data = s.captureImageSync();
+            capture: async () => {
+                const data = await s.captureImage();
                 return {
                     toImageData: () =>
                         toCanvas2(
@@ -200,6 +200,18 @@ function dispaly2screen(
             },
         };
         allScreens.push(x);
+    }
+    if (allScreens.length === 0) {
+        allScreens.push({
+            bounds: { x: 0, y: 0, width: 0, height: 0 },
+            size: { width: 0, height: 0 },
+            scaleFactor: 1,
+            id: -1,
+            capture: async () => ({
+                toImageData: () => emptyImageData(),
+                toNativeImage: () => nativeImage.createEmpty(),
+            }),
+        });
     }
     return {
         screen: allScreens,

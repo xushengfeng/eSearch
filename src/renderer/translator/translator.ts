@@ -38,11 +38,11 @@ const frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
 
 let pause = false;
 
-function screenshot(id: number, rect: Rect) {
-    const l = screenShots(display).screen;
+async function screenshot(id: number, rect: Rect) {
+    const l = (await screenShots(display)).screen;
     const screen = l.find((i) => i.id === id) || l[0];
     if (!screen) return null;
-    const img = screen.capture().toImageData();
+    const img = (await screen.capture()).toImageData();
     if (!img) return null;
     const canvas = document.createElement("canvas");
 
@@ -86,7 +86,7 @@ const sl = () =>
 
 async function run() {
     if (!OCR) return;
-    const data = screenshot(screenId, rect);
+    const data = await screenshot(screenId, rect);
     if (!data) return;
     document.body.style.opacity = "1";
 

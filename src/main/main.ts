@@ -379,7 +379,9 @@ async function argRun(c: string[], first?: boolean) {
         if (!path) {
             const screenShots = initScreenShots(...screenShotArgs);
             await sleep(argv.delay || 0);
-            img = screenShots().screen.at(0)?.capture().toNativeImage();
+            img = (
+                await (await screenShots()).screen[0].capture()
+            ).toNativeImage();
         } else {
             img = nativeImage.createFromBuffer(readFileSync(path));
         }
@@ -416,10 +418,10 @@ async function argRun(c: string[], first?: boolean) {
             } catch (error) {}
             const screenShots = initScreenShots(...screenShotArgs);
             for (let i = 0; i < n; i++) {
-                setTimeout(() => {
-                    const image = screenShots()
-                        .screen[0].capture()
-                        .toNativeImage();
+                setTimeout(async () => {
+                    const image = (
+                        await (await screenShots()).screen[0].capture()
+                    ).toNativeImage();
                     const buffer = image.toPNG();
                     const filePath = join(sp, `${i}.png`);
                     writeFile(filePath, buffer, () => {});
@@ -1226,10 +1228,10 @@ function hideClip() {
 }
 
 /** 快速截屏 */
-function quickClip() {
+async function quickClip() {
     const screenShots = initScreenShots(...screenShotArgs);
-    for (const c of screenShots().screen) {
-        const image: NativeImage = c.capture().toNativeImage();
+    for (const c of (await screenShots()).screen) {
+        const image: NativeImage = (await c.capture()).toNativeImage();
         if (store.get("快速截屏.模式") === "clip") {
             clipboard.writeImage(image);
         } else if (
@@ -1263,8 +1265,10 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
     const dirPath = checkFile(join(basePath, getFileName()));
     mkdirSync(dirPath, { recursive: true });
     for (let i = 0; i < maxN; i++) {
-        setTimeout(() => {
-            const image = screenShots().screen[0].capture().toNativeImage();
+        setTimeout(async () => {
+            const image = (
+                await (await screenShots()).screen[0].capture()
+            ).toNativeImage();
             const buffer = image.toPNG();
             const filePath = join(dirPath, `${i}.png`);
             writeFile(filePath, buffer, () => {});

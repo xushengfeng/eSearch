@@ -302,11 +302,11 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
     canvas.getContext("2d")!.putImageData(img, 0, 0);
 }
 
-function setScreen(i: (typeof allScreens)[0]) {
+async function setScreen(i: (typeof allScreens)[0]) {
     let _img = screenShotCache.get(i.id);
     if (!_img) {
         try {
-            const __img = i.capture().toImageData();
+            const __img = (await i.capture()).toImageData();
             if (__img) {
                 screenShotCache.set(i.id, __img);
                 _img = __img;
@@ -476,7 +476,6 @@ async function closeWin() {
     if (uIOhook) {
         uIOhook.stop();
     }
-    // @ts-expect-error
     await scheduler.yield();
     renderSend("clip_close", []);
 }
@@ -565,13 +564,13 @@ function initRecord() {
     toolsX.close.f();
 }
 
-function long_s() {
-    addLong(getNowScreen().capture()?.toImageData() ?? undefined);
+async function long_s() {
+    addLong((await getNowScreen().capture()).toImageData() ?? undefined);
 }
 
-function startLong() {
+async function startLong() {
     initLong(finalRect);
-    long_s();
+    await long_s();
     renderSend("windowIgnoreMouse", [true]);
     if (store.get("广截屏.模式") === "自动") {
         uIOhook = require("uiohook-napi").uIOhook;
@@ -3400,8 +3399,8 @@ const drawBar = drawBarEl.el;
 
 let nowScreenId = 0;
 
-let allScreens: ReturnType<typeof screenShots>["screen"];
-let windows: ReturnType<typeof screenShots>["window"];
+let allScreens: Awaited<ReturnType<typeof screenShots>>["screen"];
+let windows: Awaited<ReturnType<typeof screenShots>>["window"];
 
 let nowMouseE: MouseEvent;
 
@@ -3729,8 +3728,8 @@ let willFilter: EditType["filter"] | "" = "";
 
 document.body.style.opacity = "0";
 
-renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
-    const wx = screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
+renderOn("clip_init", async ([_displays, imgBuffer, mainid, act]) => {
+    const wx = await screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
     allScreens = wx.screen;
     const mainId = mainid;
     const i = getNowScreen(mainId);
@@ -3740,7 +3739,7 @@ renderOn("clip_init", ([_displays, imgBuffer, mainid, act]) => {
         return w;
     });
     console.log(allScreens, windows);
-    setScreen(i);
+    await setScreen(i);
     const nowScreen = _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
     const xy = { x: 0, y: 0 };
     if (wx.type === "normal") {
