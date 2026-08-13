@@ -17,8 +17,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@xushengfeng/fasttext_wasm':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: 1.0.6
+        version: 1.0.6
       bmp-js:
         specifier: ^0.1.0
         version: 0.1.0
@@ -38,11 +38,11 @@ importers:
         specifier: ^0.1.3
         version: 0.1.3
       esearch-ocr:
-        specifier: ^8.5.0
-        version: 8.5.0
+        specifier: 8.5.2
+        version: 8.5.2
       esearch-seg:
-        specifier: ^1.1.8
-        version: 1.1.8
+        specifier: 1.1.9
+        version: 1.1.9
       fabric:
         specifier: ^6.9.1
         version: 6.9.1(canvas@3.1.0)
@@ -1302,8 +1302,8 @@ packages:
     resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
     engines: {node: '>=10.0.0'}
 
-  '@xushengfeng/fasttext_wasm@1.0.3':
-    resolution: {integrity: sha512-FaZFebXnMxvI5sNumiXDHFSKE+TqXc9Ah8McVToMZBxzgCtcrrUpI3LQZWFWoamSsfUe950AVkLP69PVFCOk2Q==}
+  '@xushengfeng/fasttext_wasm@1.0.6':
+    resolution: {integrity: sha512-eb9cfn91DKxZQtvc57gHlLnHaRdPtrwqNY7ngduTQ//+zII9iw//We0LTEZ0ujYoPuRF4QbdXk3MTPX1oOaxUw==}
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -1884,11 +1884,11 @@ packages:
     engines: {node: '>=6.0'}
     hasBin: true
 
-  esearch-ocr@8.5.0:
-    resolution: {integrity: sha512-PIZGWkx4MyrDWETYcNoYH96DkcpqGVphgmjOcC91TI8AClJcsZSvrzDLWfzWugbsJfx7Fd78XOwXaVjmysrpoA==}
+  esearch-ocr@8.5.2:
+    resolution: {integrity: sha512-F06NKlvOEiDX6VewWjQ3JLffYHx8DC5V5AOp8ZCq6xwWg9y8PeNNMtqw272k3lAuipxhfK2k0DzsJL3Hay8ipQ==}
 
-  esearch-seg@1.1.8:
-    resolution: {integrity: sha512-y5qnzDw+265M7iU8Y/K9TRhMGfrOAgkdDkgUJuLSLsINgqHa1m2HBCbv2jR4zzvOAWtO7sAGOHybkJYr8kvK6g==}
+  esearch-seg@1.1.9:
+    resolution: {integrity: sha512-Kzes3U2a8GcfFBA6f43MVwP0lhEL+F5z0/oI50Ph8yqR6Sc4ZBR2kJUfOVKYL9DBMR/Bswq12miSC9YNyWsRnw==}
 
   esprima@4.0.1:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
@@ -4335,7 +4335,7 @@ snapshots:
 
   '@xmldom/xmldom@0.8.11': {}
 
-  '@xushengfeng/fasttext_wasm@1.0.3': {}
+  '@xushengfeng/fasttext_wasm@1.0.6': {}
 
   abab@2.0.6:
     optional: true
@@ -5098,11 +5098,11 @@ snapshots:
       source-map: 0.6.1
     optional: true
 
-  esearch-ocr@8.5.0:
+  esearch-ocr@8.5.2:
     dependencies:
       onnxruntime-common: 1.22.0
 
-  esearch-seg@1.1.8: {}
+  esearch-seg@1.1.9: {}
 
   esprima@4.0.1:
     optional: true
