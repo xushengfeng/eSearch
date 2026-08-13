@@ -62,14 +62,14 @@
         "canvas": "^3.1.0",
         "csv-parse": "^5.5.5",
         "electron": "^40.8.5",
-        "electron-builder": "^26.15.3",
-        "electron-vite": "^4.0.0",
+        "electron-builder": "^26.15.7",
+        "electron-vite": "^4.0.1",
         "inquirer": "^12.7.0",
         "typescript": "^5.8.3",
-        "vite": "^7.3.5",
+        "vite": "^7.3.6",
         "vite-bundle-analyzer": "^1.2.0",
         "vite-plugin-image-optimizer": "^1.1.8",
-        "vitest": "^3.2.3",
+        "vitest": "^4.1.10",
         "xtimelog": "^1.0.5"
     },
     "optionalDependencies": {
