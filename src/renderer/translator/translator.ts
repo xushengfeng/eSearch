@@ -11,10 +11,9 @@ import { Class, getImgUrl, initStyle, setTitle } from "../root/root";
 import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import type { IconType } from "../../iconTypes";
+import { writeText } from "../lib/clipboard";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { loadTranslator } from "../lib/translate";
-
-const { clipboard } = require("electron") as typeof import("electron");
 
 initStyle(store);
 
@@ -170,7 +169,7 @@ const toolsEl = view("x")
         runEl,
         button(iconEl("copy")).on("click", () => {
             const text = textEl.el.innerText;
-            clipboard.writeText(text);
+            writeText(text);
         }),
         button(iconEl("close")).on("click", () =>
             renderSend("windowClose", []),

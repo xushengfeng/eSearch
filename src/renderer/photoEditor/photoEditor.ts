@@ -19,7 +19,8 @@ import type { setting } from "../../ShareTypes";
 import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
 // biome-ignore format:
-const { nativeImage, clipboard } = window.require("electron") as typeof import("electron");
+const { nativeImage } = window.require("electron") as typeof import("electron");
+import { writeImage } from "../lib/clipboard";
 const { writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-node");
@@ -279,9 +280,9 @@ const controls = frame("sidebar", {
                 renderSend("ok_save", [path]);
                 renderSend("windowClose", []);
             }),
-            copy: button(icon("copy")).on("click", () => {
-                const img = getImg();
-                clipboard.writeImage(img);
+            copy: button(icon("copy")).on("click", async () => {
+                const img = await getImg("blob");
+                await writeImage(img);
                 renderSend("windowClose", []);
             }),
         },
@@ -362,7 +363,8 @@ function autoScale(type: "width" | "height") {
 
 function getImg(): Electron.NativeImage;
 function getImg(base64: true): string;
-function getImg(base64 = false) {
+function getImg(blob: "blob"): Promise<Blob>;
+function getImg(base64: boolean | "blob" = false) {
     const x = ele("canvas").attr({
         width: Number(els.photoW.gv),
         height: Number(els.photoH.gv),
@@ -387,6 +389,9 @@ function getImg(base64 = false) {
         bmp: "image/bmp",
     };
     const url = x.toDataURL(type[els.formart.gv], Number(els.quality.gv));
+    if (base64 === "blob") {
+        return fetch(url).then((r) => r.blob());
+    }
     if (base64) return url;
     return nativeImage.createFromDataURL(url);
 }

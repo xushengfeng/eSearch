@@ -1,8 +1,8 @@
 import xtranslator, { matchFitLan } from "xtranslator";
 import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
 const fs = require("node:fs") as typeof import("fs");
-const { clipboard } = require("electron") as typeof import("electron");
 import { initFastText } from "@xushengfeng/fasttext_wasm";
+import { writeText } from "../lib/clipboard";
 
 import store from "../../../lib/store/renderStore";
 
@@ -151,7 +151,7 @@ function translate(_text: string) {
                     const ttext = _ttext.trim();
                     c.sv(ttext);
                     copy.on("click", () => {
-                        clipboard.writeText(ttext);
+                        writeText(ttext);
                     });
                     save.on("click", () => {
                         saveW({

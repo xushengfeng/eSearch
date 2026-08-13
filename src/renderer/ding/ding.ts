@@ -1,5 +1,5 @@
 // biome-ignore format:
-const { clipboard, nativeImage } = require("electron") as typeof import("electron");
+import { writeImage } from "../lib/clipboard";
 const fs = require("node:fs") as typeof import("fs");
 import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 import store from "../../../lib/store/renderStore";
@@ -504,8 +504,11 @@ function getUrl(id: string) {
     const _isTranslate = data.isTranslate;
     return _isTranslate ? data.translation : data.url;
 }
-function copy(id: string) {
-    clipboard.writeImage(nativeImage.createFromDataURL(getUrl(id)));
+async function copy(id: string) {
+    const url = getUrl(id);
+    const response = await fetch(url);
+    const blob = await response.blob();
+    await writeImage(blob);
 }
 function save(id: string) {
     const b = Buffer.from(

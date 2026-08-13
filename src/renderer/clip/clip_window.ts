@@ -1,7 +1,5 @@
 /// <reference types="vite/client" />
 
-// biome-ignore format:
-const { clipboard, nativeImage } = require("electron") as typeof import("electron");
 import hotkeys from "hotkeys-js";
 import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
 import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
@@ -9,6 +7,8 @@ import open_with from "../../../lib/open_with";
 import { t } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
 import store from "../../../lib/store/renderStore";
+import { writeImage, writeText } from "../lib/clipboard";
+
 import {
     ActiveSelection,
     Canvas,
@@ -930,9 +930,10 @@ async function translate() {
 }
 
 // 复制
-function runCopy() {
+async function runCopy() {
     const c = getClipPhoto();
-    clipboard.writeImage(nativeImage.createFromDataURL(c.toDataURL()));
+    const blob = await getBlob(c, "image/png");
+    if (blob) await writeImage(blob);
     toolsX.close.f();
 }
 // 保存
@@ -1017,7 +1018,7 @@ async function save(message: string) {
         }
         dataBuffer = Buffer.from(await f.arrayBuffer());
         if (store.get("保存.保存并复制")) {
-            clipboard.writeImage(nativeImage.createFromBuffer(dataBuffer)); // todo tip
+            await writeImage(f); // todo tip
         }
     }
 
@@ -1739,7 +1740,7 @@ function changeRightBar(v: boolean) {
  * 复制内容
  */
 function copy(e: ElType<HTMLElement>) {
-    clipboard.writeText(e.el.innerText);
+    writeText(e.el.innerText);
     rightKey = false;
     changeRightBar(false);
 }

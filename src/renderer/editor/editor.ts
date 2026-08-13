@@ -33,7 +33,8 @@ import { t } from "../../../lib/translate/translate";
 import diff_match_patch from "diff-match-patch";
 import "diff-match-patch-line-and-word";
 // biome-ignore format:
-const { shell, clipboard, webFrame } = require("electron") as typeof import("electron");
+const { shell, webFrame } = require("electron") as typeof import("electron");
+import { readText, writeText } from "../lib/clipboard";
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
@@ -159,7 +160,7 @@ const editOnOtherEl = buttonSwitch(
         editOnOther(c);
     },
 ).on("contextmenu", () => {
-    clipboard.writeText(tmpTextPath);
+    writeText(tmpTextPath);
 });
 nav.add([editOnOtherEl]);
 
@@ -740,14 +741,14 @@ class xeditor {
     }
     copy() {
         const t = editor.selections.get();
-        clipboard.writeText(t);
+        writeText(t);
     }
     cut() {
         this.copy();
         this.delete();
     }
-    paste() {
-        const t = clipboard.readText();
+    async paste() {
+        const t = await readText();
         editor.selections.replace(t);
     }
     selectAll() {
@@ -1924,7 +1925,7 @@ renderOn("editorInit", ([name, list]) => {
                 } else imageSwitch.sv(false);
 
                 if (store.get("主页面.自动复制OCR")) {
-                    clipboard.writeText(text.trim()); // todo 如果以后支持空格识别再考虑trim问题
+                    writeText(text.trim()); // todo 如果以后支持空格识别再考虑trim问题
                     if (store.get("主页面.复制OCR后提示"))
                         renderSend("noti", [
                             {
@@ -2060,7 +2061,7 @@ async function edit(arg: EditToolsType) {
                     table2.push(s);
                 }
             });
-            clipboard.writeText(table2.join("\n"));
+            writeText(table2.join("\n"));
             break;
         }
         case "link": {
