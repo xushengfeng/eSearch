@@ -1038,6 +1038,14 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "自动屏幕翻译定时",
         el: () => xNumber("ms"),
     },
+    "屏幕翻译.color.bg": {
+        name: "屏幕翻译背景色",
+        el: () => xColor(),
+    },
+    "屏幕翻译.color.text": {
+        name: "屏幕翻译文字颜色",
+        el: () => xColor(),
+    },
     "翻译.收藏.文件": {
         name: "文件生词本",
         el: (v) =>
@@ -2267,6 +2275,8 @@ const main: {
                     "屏幕翻译.语言.from",
                     "屏幕翻译.语言.to",
                     "屏幕翻译.dTime",
+                    "屏幕翻译.color.bg",
+                    "屏幕翻译.color.text",
                 ],
             },
             {

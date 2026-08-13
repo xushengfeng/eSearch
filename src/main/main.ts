@@ -2734,7 +2734,7 @@ const defaultSetting: setting = {
     屏幕翻译: {
         type: "ding",
         dTime: 3000,
-        css: { bg: "", text: "" },
+        color: { bg: "rgb(255,255,255,0.5)", text: "" },
         语言: {
             from: "",
             to: "",

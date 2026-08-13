@@ -39,6 +39,8 @@ let screenId = Number.NaN;
 let display: Electron.Display[];
 
 const frequencyTime: number = store.get("屏幕翻译.dTime") || 3000;
+const bgColor = store.get("屏幕翻译.color.bg") || "rgb(255,255,255,0.5)";
+const textColor = store.get("屏幕翻译.color.text") || "#000";
 
 let pause = false;
 
@@ -116,7 +118,7 @@ async function run() {
             height: `${y1 - y0}px`,
             lineHeight: `${lineHeight}px`,
             fontSize: `${lineHeight}px`,
-            // todo 字体颜色
+            color: textColor,
         });
         textEl.add(item);
         textL.push({ el: item, text });
@@ -194,7 +196,8 @@ const textEl = view().style({
     "-webkit-app-region": "drag",
     width: "100vw",
     height: "100vh",
-    background: "rgb(255,255,255,0.5)",
+    background: bgColor,
+    color: textColor,
 });
 mainEl.add([textEl]);
 

@@ -345,7 +345,7 @@ export interface setting {
     屏幕翻译: {
         type: translateWinType["type"];
         dTime: number;
-        css: {
+        color: {
             bg: string;
             text: string;
         };
