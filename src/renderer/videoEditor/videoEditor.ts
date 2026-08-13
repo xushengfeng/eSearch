@@ -1463,15 +1463,15 @@ async function uiDataSave() {
 }
 
 async function save() {
-    if (exportEl.els.type.gv === "png") await saveImages();
-    else if (exportEl.els.type.gv === "gif")
+    if (exportEls.type.gv === "png") await saveImages();
+    else if (exportEls.type.gv === "gif")
         await saveGif({
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
         });
-    else if (exportEl.els.type.gv === "apng") await saveApng();
-    else if (exportEl.els.type.gv === "webm")
+    else if (exportEls.type.gv === "apng") await saveApng();
+    else if (exportEls.type.gv === "webm")
         await saveWebm({ codec: exportConfigEls.webm.gv.codec });
-    else if (exportEl.els.type.gv === "mp4")
+    else if (exportEls.type.gv === "mp4")
         await saveMp4({ codec: exportConfigEls.mp4.gv.codec });
     else
         await saveGif({
@@ -2774,6 +2774,19 @@ const exportConfigEls = {
 
 const exportPx = dynamicSelect();
 
+// 新建 Record 变量存储 UI 元素
+const exportEls = {
+    type: select(
+        outputType.map((t) => ({ value: t.type, name: t.name })),
+    ).on("change", (_, el) => {
+        const type = el.gv;
+        store.set("录屏.超级录屏.格式", type);
+        const config = exportConfigEls[type];
+        exportEls.exportConfig.clear().add(config);
+    }),
+    exportConfig: view("x").class(Class.deco).style({ alignItems: "center" }),
+};
+
 const exportEl = frame("export", {
     _: view("x")
         .style({
@@ -2783,16 +2796,9 @@ const exportEl = frame("export", {
     _x: {
         _: view("x").class(Class.group),
         export: iconBEl("save", "保存").on("click", save),
-        type: select(
-            outputType.map((t) => ({ value: t.type, name: t.name })),
-        ).on("change", (_, el) => {
-            const type = el.gv;
-            store.set("录屏.超级录屏.格式", type);
-            const config = exportConfigEls[type];
-            exportEl.els.exportConfig.clear().add(config);
-        }),
+        type: exportEls.type,
     },
-    exportConfig: view("x").class(Class.deco).style({ alignItems: "center" }),
+    exportConfig: exportEls.exportConfig,
     _s: spacer(),
     px: exportPx.el,
     editClip: iconBEl("draw", "编辑").on("click", async () => {
@@ -2814,9 +2820,9 @@ const exportEl = frame("export", {
 });
 
 // @ts-ignore
-exportEl.els.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
-const exconfig = exportConfigEls[exportEl.els.type.gv];
-exportEl.els.exportConfig.clear().add(exconfig);
+exportEls.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
+const exconfig = exportConfigEls[exportEls.type.gv];
+exportEls.exportConfig.clear().add(exconfig);
 
 exportEl.el.addInto();
 
