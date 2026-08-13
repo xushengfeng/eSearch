@@ -627,6 +627,7 @@ const defaultSetting: setting = {
         常用语言: [],
     },
     额外截屏器: { 命令: "", 位置: "" },
+    使用XDGDesktopPortal: false,
     连拍: {
         数: 5,
         间隔: 100,

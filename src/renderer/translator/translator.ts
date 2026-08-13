@@ -20,10 +20,15 @@ initStyle(store);
 
 setTitle(t("屏幕翻译"));
 
-const screenShots = initScreenShots({
-    c: store.get("额外截屏器.命令"),
-    path: store.get("额外截屏器.位置"),
-});
+const screenShots = initScreenShots(
+    {
+        c: store.get("额外截屏器.命令"),
+        path: store.get("额外截屏器.位置"),
+    },
+    undefined,
+    undefined,
+    store.get("使用XDGDesktopPortal"),
+);
 
 const translateE = loadTranslator(store) || (async (input: string[]) => input);
 

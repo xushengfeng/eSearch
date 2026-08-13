@@ -148,6 +148,7 @@ const screenShotArgs = [
             more: m,
         }),
     t,
+    store.get("使用XDGDesktopPortal"),
 ] as const;
 
 const keepClip = store.get("保留截屏窗口");
@@ -2748,6 +2749,7 @@ const defaultSetting: setting = {
         常用语言: [],
     },
     额外截屏器: { 命令: "", 位置: "" },
+    使用XDGDesktopPortal: false,
     自定义屏幕属性: [],
     连拍: {
         数: 5,

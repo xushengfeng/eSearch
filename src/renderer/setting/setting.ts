@@ -1726,6 +1726,11 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "截屏保存位置",
         el: () => xPath(false),
     },
+    使用XDGDesktopPortal: {
+        name: "使用 XDG Desktop Portal",
+        desc: "在 Linux 上使用 XDG Desktop Portal 进行截屏，适用于 Wayland 等环境，但是在多屏分数缩放可能存在模糊",
+        el: () => xSwitch(),
+    },
     自定义屏幕属性: {
         name: "自定义屏幕属性",
         el: (v) =>
@@ -2485,6 +2490,10 @@ const main: {
                 settings: ["_setting_file", "_default_setting", "硬件加速"],
             },
             {
+                title: "截屏",
+                settings: ["使用XDGDesktopPortal"],
+            },
+            {
                 title: "外部截屏器",
                 settings: [
                     "额外截屏器.命令",
@@ -2604,6 +2613,7 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
             "全局",
             "字体",
             "额外截屏器",
+            "使用XDGDesktopPortal",
             "广截屏",
             "图像编辑.arrow",
             "离线OCR",

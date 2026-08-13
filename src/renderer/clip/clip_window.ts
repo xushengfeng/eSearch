@@ -39,6 +39,7 @@ const screenShots = initScreenShots(
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
     undefined,
     t,
+    store.get("使用XDGDesktopPortal"),
 );
 
 import type {
