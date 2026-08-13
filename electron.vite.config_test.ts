@@ -13,7 +13,10 @@ export default defineConfig({
         build: {
             rollupOptions: {
                 input: {
-                    editor: path.resolve(__dirname, "src/renderer/ui_test.html"),
+                    editor: path.resolve(
+                        __dirname,
+                        "src/renderer/ui_test.html",
+                    ),
                 },
             },
             assetsInlineLimit: 0,

@@ -10,9 +10,7 @@
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
             },
-            "runtimeArgs": [
-                "--sourcemap"
-            ]
+            "runtimeArgs": ["--sourcemap"]
         }
     ]
 }

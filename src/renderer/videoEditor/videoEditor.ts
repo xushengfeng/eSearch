@@ -1,21 +1,22 @@
 import {
+    type ElType,
     addClass,
     button,
     check,
+    dynamicSelect,
     ele,
-    type ElType,
     frame,
+    image,
     input,
     label,
     pack,
     select,
+    spacer,
     trackPoint,
     txt,
     view,
-    image,
-    dynamicSelect,
-    spacer,
 } from "dkh-ui";
+import store from "../../../lib/store/renderStore";
 import {
     Class,
     cssColor,
@@ -24,31 +25,30 @@ import {
     initStyle,
     setTitle,
 } from "../root/root";
-import store from "../../../lib/store/renderStore";
 
 // biome-ignore format:
 const { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
 type KeyCode = `${keyof typeof UiohookKey}`;
 const fs = require("node:fs") as typeof import("fs");
 
+import UPNG from "@pdf-lib/upng";
 // @ts-expect-error
-import { GIFEncoder, quantize, applyPalette } from "gifenc";
+import { GIFEncoder, applyPalette, quantize } from "gifenc";
 import {
+    BufferTarget,
+    EncodedPacket,
+    EncodedVideoPacketSource,
+    Mp4OutputFormat,
     Output,
     WebMOutputFormat,
-    Mp4OutputFormat,
-    BufferTarget,
-    EncodedVideoPacketSource,
-    EncodedPacket,
 } from "mediabunny";
-import UPNG from "@pdf-lib/upng";
 
-import { t } from "../../../lib/translate/translate";
-import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import { t } from "../../../lib/translate/translate";
+import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
 import floydSteinberg from "../lib/dither";
-import { typedEntries } from "../../../lib/utils";
+import xhistory from "../lib/history";
 
 initStyle(store);
 
@@ -1691,7 +1691,7 @@ async function saveApng() {
             const { data } = frameTrans2Canvas(frame)
                 .getContext("2d")!
                 .getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
-            images.push(data.buffer);
+            images.push(data.buffer as ArrayBuffer);
             dels.push(delay);
             i++;
             apngProgress.sv(i / transformCs.length);
@@ -2776,14 +2776,15 @@ const exportPx = dynamicSelect();
 
 // 新建 Record 变量存储 UI 元素
 const exportEls = {
-    type: select(
-        outputType.map((t) => ({ value: t.type, name: t.name })),
-    ).on("change", (_, el) => {
-        const type = el.gv;
-        store.set("录屏.超级录屏.格式", type);
-        const config = exportConfigEls[type];
-        exportEls.exportConfig.clear().add(config);
-    }),
+    type: select(outputType.map((t) => ({ value: t.type, name: t.name }))).on(
+        "change",
+        (_, el) => {
+            const type = el.gv;
+            store.set("录屏.超级录屏.格式", type);
+            const config = exportConfigEls[type];
+            exportEls.exportConfig.clear().add(config);
+        },
+    ),
     exportConfig: view("x").class(Class.deco).style({ alignItems: "center" }),
 };
 

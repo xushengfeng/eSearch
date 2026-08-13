@@ -1,7 +1,7 @@
 export { macKeyFomat, jsKey2ele, jsKeyCodeDisplay, ele2jsKeyCode };
 
 const macKeyFomat = (k: string) => {
-    const m = {
+    const m: { [key: string]: string } = {
         "`": "`",
         "¡": "1",
         "™": "2",
@@ -95,8 +95,8 @@ const macKeyFomat = (k: string) => {
     return m[k] || k;
 };
 
-const jsKey2ele = (k) => {
-    const m = {
+const jsKey2ele = (k: string) => {
+    const m: { [key: string]: string } = {
         ArrowUp: "Up",
         ArrowDown: "Down",
         ArrowLeft: "Left",
@@ -222,7 +222,7 @@ for (const key of numPad) {
     map[key] = { primary: map[mainKey]?.primary ?? mainKey, isNumpad: true };
 }
 
-const macMap = {
+const macMap: { [key: string]: { primary: string; symble?: string } } = {
     Control: { primary: "Control" },
     Alt: { primary: "Option" },
     Meta: { primary: "Command", symble: "⌘" },
@@ -239,7 +239,7 @@ const jsKeyCodeDisplay = (k: string) => {
 };
 
 const ele2jsKeyCode = (k: string) => {
-    const m = {
+    const m: { [key: string]: string } = {
         Up: "ArrowUp",
         Down: "ArrowDown",
         Left: "ArrowLeft",

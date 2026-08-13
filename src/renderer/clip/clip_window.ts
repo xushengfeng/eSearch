@@ -477,6 +477,7 @@ async function closeWin() {
     if (uIOhook) {
         uIOhook.stop();
     }
+    // @ts-expect-error
     await scheduler.yield();
     renderSend("clip_close", []);
 }

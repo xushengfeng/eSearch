@@ -1,26 +1,24 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "sourceMap": false,
-    "strict": true,
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "types": [
-      "node"
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "sourceMap": false,
+        "strict": true,
+        "jsx": "preserve",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "composite": true,
+        "types": ["node"]
+    },
+    "include": [
+        "electron.vite.config.*",
+        "src/main/*",
+        "src/preload/*",
+        "lib/**/*.ts",
+        "src/renderer/screenShot/*"
     ]
-  },
-  "include": [
-    "electron.vite.config.*",
-    "src/main/*",
-    "src/preload/*",
-    "lib/**/*.ts",
-    "src/renderer/screenShot/*"
-  ],
 }

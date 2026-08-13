@@ -10,13 +10,16 @@ function open(path: string) {
         case "linux": {
             const run_path = renderSendSync("runPath", []);
             // 判断桌面环境
-            exec("echo $XDG_SESSION_DESKTOP", (e, desktop) => {
-                if (desktop === "KDE\n") {
-                    exec(`cd ${run_path}lib && ./kde-open-with ${path}`);
-                } else {
-                    exec(`cd ${run_path}lib && ./gtk-open-with ${path}`);
-                }
-            });
+            exec(
+                "echo $XDG_SESSION_DESKTOP",
+                (e: Error | null, desktop: string) => {
+                    if (desktop === "KDE\n") {
+                        exec(`cd ${run_path}lib && ./kde-open-with ${path}`);
+                    } else {
+                        exec(`cd ${run_path}lib && ./gtk-open-with ${path}`);
+                    }
+                },
+            );
             break;
         }
         case "darwin": {

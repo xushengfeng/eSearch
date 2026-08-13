@@ -1,26 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "sourceMap": false,
-    "strict": true,
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
-  },
-  "include": [
-    "src/renderer/**/*.ts",
-    "src/preload/*.d.ts",
-    "lib/**/*.ts",
-  ]
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "sourceMap": false,
+        "strict": true,
+        "jsx": "preserve",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "composite": true,
+        "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    },
+    "include": ["src/renderer/**/*.ts", "src/preload/*.d.ts", "lib/**/*.ts"]
 }

@@ -1,6 +1,6 @@
 function format(_fmt: string, date: Date) {
     let fmt = _fmt;
-    const opt = {
+    const opt: { [key: string]: string | number } = {
         YYYY: date.getFullYear(),
         YY: date.getFullYear() % 1000,
         MM: String(date.getMonth() + 1).padStart(2, "0"),

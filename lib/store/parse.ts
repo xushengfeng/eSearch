@@ -1,5 +1,5 @@
-import type { GetValue, SettingPath } from "./renderStore";
 import type { setting } from "../../src/ShareTypes";
+import type { GetValue, SettingPath } from "./renderStore";
 
 export { xset, xget };
 
@@ -36,5 +36,8 @@ function xget<P extends SettingPath>(
     const lastobj = pathx.reduce((p, c) => {
         return p[c] || {};
     }, store);
-    return lastobj[lastp];
+    return (lastobj as unknown as Record<string, unknown>)[lastp] as GetValue<
+        setting,
+        P
+    >;
 }
