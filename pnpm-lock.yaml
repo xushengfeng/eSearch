@@ -86,8 +86,8 @@ importers:
         specifier: ^1.5.4
         version: 1.5.4
       xtranslator:
-        specifier: ^1.5.8
-        version: 1.5.8
+        specifier: ^1.5.9
+        version: 1.5.9
       yauzl:
         specifier: ^3.2.1
         version: 3.2.1
@@ -3313,8 +3313,8 @@ packages:
   xtimelog@1.0.5:
     resolution: {integrity: sha512-M8DoIE08hRSfpE3elPleWQGTDAam5NZX3iciEFcw1tJckQ1L5gNREXgVAMjy7IiwzCcDpHGDiFEKIU2Szxyztg==}
 
-  xtranslator@1.5.8:
-    resolution: {integrity: sha512-RiQbqVQiPNzrPsK9rJ6iVDrMNyIbm8uz4JktpsNqT/MO8qm/7dA7Id91raVk0VyQI0OldEfYzxx9x3EIXHCM9g==}
+  xtranslator@1.5.9:
+    resolution: {integrity: sha512-v1mLpzkZaD0bqC6+fS9fxt6axzRIy6hhrZSWxEoTjdpsCU4iLatpAjJHpzX6o5B/GLLtli5fdb3+B4LhkBVKow==}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -6554,7 +6554,7 @@ snapshots:
 
   xtimelog@1.0.5: {}
 
-  xtranslator@1.5.8: {}
+  xtranslator@1.5.9: {}
 
   y18n@5.0.8: {}
 
