@@ -3,6 +3,7 @@ import {
     button,
     check,
     ele,
+    type ElType,
     frame,
     image,
     input,
@@ -111,6 +112,61 @@ const preview = view().style({
     display: "flex",
     alignItems: "center",
 });
+
+// 新建 Record 变量存储 UI 元素
+const els = {
+    select: pzSelect().sv(pz.map((i) => getStyleData(i.name))),
+    raduis: input("number"),
+    outerRadius: label([check(""), "外圆角"]),
+    bgType: select<(typeof styleData)["bgType"]>([
+        { value: "color", name: "纯色" },
+        { value: "image", name: "图片" },
+        { value: "linear-gradient", name: "线性渐变" },
+        { value: "radial-gradient", name: "径向渐变" },
+        { value: "conic-gradient", name: "圆锥渐变" },
+    ])
+        .on("input", (_, el) => {
+            setBgUI(el.gv);
+        })
+        .bindSet((v: (typeof styleData)["bgType"], el) => {
+            setBgUI(v);
+            el.value = v;
+        }),
+    bgColor: input(),
+    bgUrl: input(),
+    bgGradient: flexLayout("y"),
+    angle: input("number"),
+    gx: input("number").attr({ max: "1", min: "0", step: "0.01" }),
+    gy: input("number").attr({ max: "1", min: "0", step: "0.01" }),
+    gColors: gColors(),
+    sx: input("number"),
+    sy: input("number"),
+    blur: input("number"),
+    scolor: input(),
+    px: input("number"),
+    py: input("number"),
+    magicPen: label([check(""), "魔法橡皮"]),
+    magicPenList: flexLayout("x").style({
+        "max-height": "200px",
+        "overflow-y": "auto",
+    }),
+    formart: select([
+        { value: "png", name: noI18n("PNG") },
+        { value: "jpg", name: noI18n("JPEG") },
+        { value: "webp", name: noI18n("WebP") },
+        { value: "bmp", name: noI18n("BMP") },
+    ]).sv(
+        (() => {
+            const format = store.get("保存.默认格式");
+            if (format === "svg") return "png";
+            return format;
+        })(),
+    ),
+    quality: input("number").attr({ max: "1", min: "0", step: "0.1" }).sv("1"),
+    photoW: input("number"),
+    photoH: input("number"),
+};
+
 const controls = frame("sidebar", {
     _: flexLayout("y")
         .style({
@@ -123,7 +179,7 @@ const controls = frame("sidebar", {
         .class(Class.smallSize),
     configs: {
         _: view("x"),
-        select: pzSelect().sv(pz.map((i) => getStyleData(i.name))),
+        select: els.select,
         addConf: button(icon("add")).on("click", () => {
             const id = `${t("新配置")}${crypto.randomUUID().slice(0, 5)}`;
             const newData = structuredClone(styleData);
@@ -131,7 +187,7 @@ const controls = frame("sidebar", {
             pz.unshift(newData);
             store.set("高级图片编辑.配置", pz);
             store.set("高级图片编辑.默认配置", id);
-            controls.els.select.sv(pz);
+            els.select.sv(pz);
             applyStyle(newData);
         }),
     },
@@ -140,47 +196,31 @@ const controls = frame("sidebar", {
         _raduis: {
             _: view("y"),
             _0: subTitle("圆角"),
-            raduis: input("number"),
-            outerRadius: label([check(""), "外圆角"]),
+            raduis: els.raduis,
+            outerRadius: els.outerRadius,
         },
         background: {
             _: flexLayout("y"),
             _1: subTitle("背景"),
-            bgType: select<(typeof styleData)["bgType"]>([
-                { value: "color", name: "纯色" },
-                { value: "image", name: "图片" },
-                { value: "linear-gradient", name: "线性渐变" },
-                { value: "radial-gradient", name: "径向渐变" },
-                { value: "conic-gradient", name: "圆锥渐变" },
-            ])
-                .on("input", (_, el) => {
-                    setBgUI(el.gv);
-                })
-                .bindSet((v: (typeof styleData)["bgType"], el) => {
-                    setBgUI(v);
-                    el.value = v;
-                }),
-            bgColor: input(),
-            bgUrl: input(),
-            bgGradient: {
-                _: flexLayout("y"),
-                angle: input("number"),
-                // repeat: input("checkbox"),
-                // repeatSize: input("number"),
-                gx: input("number").attr({ max: "1", min: "0", step: "0.01" }),
-                gy: input("number").attr({ max: "1", min: "0", step: "0.01" }),
-                gColors: gColors(),
-            },
+            bgType: els.bgType,
+            bgColor: els.bgColor,
+            bgUrl: els.bgUrl,
+            bgGradient: els.bgGradient.add([
+                els.angle,
+                els.gx,
+                els.gy,
+                els.gColors,
+            ]),
         },
         _shadow: {
             _: flexLayout("y"),
             _2: subTitle("阴影"),
             shadow: {
                 _: flexLayout("x"),
-                sx: input("number"),
-                sy: input("number"),
-                blur: input("number"),
-                scolor: input(),
+                sx: els.sx,
+                sy: els.sy,
+                blur: els.blur,
+                scolor: els.scolor,
             },
         },
         _padding: {
@@ -188,39 +228,23 @@ const controls = frame("sidebar", {
             _3: subTitle("边距"),
             padding: {
                 _: flexLayout("x"),
-                px: input("number"),
-                py: input("number"),
+                px: els.px,
+                py: els.py,
             },
         },
         magic: {
             _: flexLayout("y"),
             _4: subTitle("魔法消除"),
-            magicPen: label([check(""), "魔法橡皮"]),
-            magicPenList: flexLayout("x").style({
-                "max-height": "200px",
-                "overflow-y": "auto",
-            }),
+            magicPen: els.magicPen,
+            magicPenList: els.magicPenList,
         },
     },
     export: {
         _: flexLayout("y"),
         _ex_edit: {
             _: flexLayout("y"),
-            formart: select([
-                { value: "png", name: noI18n("PNG") },
-                { value: "jpg", name: noI18n("JPEG") },
-                { value: "webp", name: noI18n("WebP") },
-                { value: "bmp", name: noI18n("BMP") },
-            ]).sv(
-                (() => {
-                    const format = store.get("保存.默认格式");
-                    if (format === "svg") return "png";
-                    return format;
-                })(),
-            ),
-            quality: input("number")
-                .attr({ max: "1", min: "0", step: "0.1" })
-                .sv("1"),
+            formart: els.formart,
+            quality: els.quality,
             phScale: {
                 _: flexLayout("x"),
                 _s0: button("原始").on("click", () => scale(1)),
@@ -238,16 +262,14 @@ const controls = frame("sidebar", {
             },
             _phWH: {
                 _: flexLayout("x"),
-                photoW: input("number"),
-                photoH: input("number"),
+                photoW: els.photoW,
+                photoH: els.photoH,
             },
         },
         _ex_save: {
             _: flexLayout("x"),
             save: button(icon("save")).on("click", () => {
-                const path = renderSendSync("save_file_path", [
-                    controls.els.formart.gv,
-                ]);
+                const path = renderSendSync("save_file_path", [els.formart.gv]);
                 if (!path) return;
                 const img = getImg(true).replace(
                     /^data:image\/\w+;base64,/,
@@ -291,7 +313,7 @@ function pzSelect() {
                             );
                             store.set("高级图片编辑.配置", pz);
                             store.set("高级图片编辑.默认配置", pz[0]?.name);
-                            controls.els.select.sv(pz);
+                            els.select.sv(pz);
                         }),
                     ),
             ),
@@ -307,30 +329,30 @@ function applyStyle(i: setting["高级图片编辑"]["配置"][0]) {
 
 function setBgUI(type: (typeof styleData)["bgType"]) {
     if (type === "image") {
-        controls.els.bgUrl.style({ display: "" });
-        controls.els.bgGradient.style({ display: "none" });
-        controls.els.bgColor.style({ display: "none" });
+        els.bgUrl.style({ display: "" });
+        els.bgGradient.style({ display: "none" });
+        els.bgColor.style({ display: "none" });
     } else if (type === "color") {
-        controls.els.bgUrl.style({ display: "none" });
-        controls.els.bgGradient.style({ display: "none" });
-        controls.els.bgColor.style({ display: "" });
+        els.bgUrl.style({ display: "none" });
+        els.bgGradient.style({ display: "none" });
+        els.bgColor.style({ display: "" });
     } else {
-        controls.els.bgUrl.style({ display: "none" });
-        controls.els.bgGradient.style({ display: "" });
-        controls.els.bgColor.style({ display: "none" });
+        els.bgUrl.style({ display: "none" });
+        els.bgGradient.style({ display: "" });
+        els.bgColor.style({ display: "none" });
     }
 }
 
 function scale(num: number) {
-    controls.els.photoH.sv(String(Math.round(canvas.el.height * num)));
-    controls.els.photoW.sv(String(Math.round(canvas.el.width * num)));
+    els.photoH.sv(String(Math.round(canvas.el.height * num)));
+    els.photoW.sv(String(Math.round(canvas.el.width * num)));
 }
 
 function autoScale(type: "width" | "height") {
     const sw = canvas.el.width;
     const sh = canvas.el.height;
-    const wEl = controls.els.photoW;
-    const hEl = controls.els.photoH;
+    const wEl = els.photoW;
+    const hEl = els.photoH;
     if (type === "width") {
         wEl.sv(String(Math.round((Number(hEl.gv) / sh) * sw)));
     } else {
@@ -342,8 +364,8 @@ function getImg(): Electron.NativeImage;
 function getImg(base64: true): string;
 function getImg(base64 = false) {
     const x = ele("canvas").attr({
-        width: Number(controls.els.photoW.gv),
-        height: Number(controls.els.photoH.gv),
+        width: Number(els.photoW.gv),
+        height: Number(els.photoH.gv),
     }).el;
     const ctx = x.getContext("2d");
     if (!ctx) throw new Error("canvas context is null");
@@ -364,10 +386,7 @@ function getImg(base64 = false) {
         webp: "image/webp",
         bmp: "image/bmp",
     };
-    const url = x.toDataURL(
-        type[controls.els.formart.gv],
-        Number(controls.els.quality.gv),
-    );
+    const url = x.toDataURL(type[els.formart.gv], Number(els.quality.gv));
     if (base64) return url;
     return nativeImage.createFromDataURL(url);
 }
@@ -426,7 +445,7 @@ preview.add([canvas, magicPenPreview]);
 
 const configMap: Partial<
     Record<
-        keyof typeof controls.els,
+        keyof typeof els,
         {
             path: keyof typeof styleData;
             parse?: (v: string) => unknown;
@@ -457,9 +476,10 @@ let photoSrc: HTMLImageElement | null = null;
 let photo: HTMLImageElement | null = null;
 
 function setConfig() {
+    if (configMap === undefined) return;
     for (const key in configMap) {
         const k = key as keyof typeof configMap;
-        const el = controls.els[k];
+        const el = els[k];
         // @ts-ignore
         const value = configMap[k].init
             ? // @ts-ignore
@@ -506,12 +526,8 @@ function updatePreview() {
     const finalWidth = photoWidth + 2 * padX;
     const finalHeight = photoHeight + 2 * padY;
 
-    controls.els.photoW
-        .sv(finalWidth.toString())
-        .attr({ max: finalWidth.toString() });
-    controls.els.photoH
-        .sv(finalHeight.toString())
-        .attr({ max: finalHeight.toString() });
+    els.photoW.sv(finalWidth.toString()).attr({ max: finalWidth.toString() });
+    els.photoH.sv(finalHeight.toString()).attr({ max: finalHeight.toString() });
 
     canvas.el.width = finalWidth;
     canvas.el.height = finalHeight;
@@ -698,7 +714,7 @@ preview.addInto();
 
 for (const key in configMap) {
     const k = key as keyof typeof configMap;
-    const el = controls.els[k];
+    const el = els[k];
     el.on("input", () => {
         const v = el.gv as string;
         if (configMap[k])
@@ -717,7 +733,7 @@ setConfig();
 
 trackPoint(magicPenPreview, {
     start: (e) => {
-        if (!controls.els.magicPen.gv) return null;
+        if (!els.magicPen.gv) return null;
         const id = crypto.randomUUID();
         maskPens.set(id, {
             ps: [],
@@ -768,7 +784,7 @@ trackPoint(magicPenPreview, {
             })
             .on("pointerenter", () => previewPen(id))
             .on("pointerleave", () => previewPen(""));
-        controls.els.magicPenList.add(items);
+        els.magicPenList.add(items);
         magicPen();
     },
 });
