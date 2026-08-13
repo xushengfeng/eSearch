@@ -85,8 +85,5 @@
         "node-screenshots-win32-arm64-msvc": "0.2.8",
         "node-screenshots-win32-ia32-msvc": "0.2.8",
         "node-screenshots-win32-x64-msvc": "0.2.8"
-    },
-    "pnpm": {
-        "neverBuiltDependencies": ["canvas"]
     }
 }
