@@ -13,10 +13,10 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 
 import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
 
-import store from "../../../lib/store/renderStore";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import type { IconType } from "../../iconTypes";
+import store from "../../../lib/store/renderStore";
 import { typedEntries } from "../../../lib/utils";
+import type { IconType } from "../../iconTypes";
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))

@@ -1,6 +1,6 @@
 import { button, ele, image, initDKH, input, pack, select, view } from "dkh-ui";
-import { Class, getImgUrl } from "../root/root";
 import type { IconType } from "../../iconTypes";
+import { Class, getImgUrl } from "../root/root";
 
 console.log("hi");
 

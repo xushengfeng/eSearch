@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-import { initStyle, getImgUrl, setTitle, Class, cssColor } from "../root/root";
 import {
     button,
     check,
@@ -11,8 +9,10 @@ import {
     p,
     txt,
 } from "dkh-ui";
-import { t } from "../../../lib/translate/translate";
 import { view } from "dkh-ui";
+import { t } from "../../../lib/translate/translate";
+/// <reference types="vite/client" />
+import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
 import store from "../../../lib/store/renderStore";
 initStyle(store);
@@ -101,8 +101,8 @@ const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
 import { renderOn, renderSend } from "../../../lib/ipc";
-import type { IconType } from "../../iconTypes";
 import { typedEntries } from "../../../lib/utils";
+import type { IconType } from "../../iconTypes";
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
     const p = path.join(__dirname, "..", "..", "lib", "ffmpeg");

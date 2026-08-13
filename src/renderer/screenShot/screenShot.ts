@@ -2,8 +2,8 @@ const { ipcRenderer, nativeImage, shell, dialog } =
     require("electron") as typeof import("electron");
 import type { MessageBoxSyncOptions, NativeImage } from "electron";
 import { renderSendSync } from "../../../lib/ipc";
-import { waylandShotInit } from "./waylandShot";
 import { tryxAwait } from "../../../lib/utils";
+import { waylandShotInit } from "./waylandShot";
 
 type ReturnData = {
     bounds: { x: number; y: number; width: number; height: number };

@@ -1,16 +1,13 @@
 // biome-ignore format:
 import { writeImage } from "../lib/clipboard";
 const fs = require("node:fs") as typeof import("fs");
-import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
-import store from "../../../lib/store/renderStore";
-import xtranslator from "xtranslator";
 import {
+    type ElType,
     addClass,
     addStyle,
     button,
-    ele,
     elFromId,
-    type ElType,
+    ele,
     image,
     initDKH,
     spacer,
@@ -18,13 +15,16 @@ import {
     txt,
     view,
 } from "dkh-ui";
+import xtranslator from "xtranslator";
+import store from "../../../lib/store/renderStore";
+import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 
-import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import { defaultOcrId, loadOCR } from "../ocr/ocr";
+import { t } from "../../../lib/translate/translate";
 import type { DingStart, Dire } from "../../ShareTypes";
 import type { IconType } from "../../iconTypes";
 import { loadTranslator } from "../lib/translate";
+import { defaultOcrId, loadOCR } from "../ocr/ocr";
 
 initStyle(store);
 

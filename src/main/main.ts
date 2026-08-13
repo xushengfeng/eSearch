@@ -1,64 +1,64 @@
 /// <reference types="vite/client" />
 
-import {
-    app,
-    Tray,
-    Menu,
-    clipboard,
-    globalShortcut,
-    BrowserWindow,
-    ipcMain,
-    dialog,
-    Notification,
-    shell,
-    nativeTheme,
-    WebContentsView,
-    screen,
-    desktopCapturer,
-    session,
-    crashReporter,
-    nativeImage,
-    type NativeImage,
-    type View,
-    type BaseWindow,
-} from "electron";
 import type { Buffer } from "node:buffer";
+import {
+    type BaseWindow,
+    BrowserWindow,
+    Menu,
+    type NativeImage,
+    Notification,
+    Tray,
+    type View,
+    WebContentsView,
+    app,
+    clipboard,
+    crashReporter,
+    desktopCapturer,
+    dialog,
+    globalShortcut,
+    ipcMain,
+    nativeImage,
+    nativeTheme,
+    screen,
+    session,
+    shell,
+} from "electron";
 
 import minimist from "minimist";
 
 import initScreenShots from "../renderer/screenShot/screenShot";
 
-import Store from "../../lib/store/store";
-import type {
-    setting,
-    MainWinType,
-    translateWinType,
-    功能,
-    EditToolsType,
-    GithubUrlType,
-} from "../ShareTypes";
-import { join, resolve, dirname } from "node:path";
 import { exec, execSync } from "node:child_process";
 import {
-    readFileSync,
-    rmSync,
+    cpSync,
     existsSync,
     mkdir,
-    readFile,
     mkdirSync,
+    readFile,
+    readFileSync,
+    rmSync,
+    statSync,
     writeFile,
     writeFileSync,
-    statSync,
-    cpSync,
 } from "node:fs";
-import { release, tmpdir, homedir } from "node:os";
-import { t, lan, getLans } from "../../lib/translate/translate";
-import main, { matchFitLan } from "xtranslator";
-import time_format from "../../lib/time_format";
+import { homedir, release, tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import url from "node:url";
-import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
-import { typedEntries } from "../../lib/utils";
+import main, { matchFitLan } from "xtranslator";
 import { githubMirrorList } from "../../lib/github_mirror";
+import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
+import Store from "../../lib/store/store";
+import time_format from "../../lib/time_format";
+import { getLans, lan, t } from "../../lib/translate/translate";
+import { typedEntries } from "../../lib/utils";
+import type {
+    EditToolsType,
+    GithubUrlType,
+    MainWinType,
+    setting,
+    translateWinType,
+    功能,
+} from "../ShareTypes";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");

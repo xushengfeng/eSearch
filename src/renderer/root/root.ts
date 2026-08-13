@@ -1,5 +1,5 @@
 import { addClass, addStyle, initDKH, view } from "dkh-ui";
-import { t, lan } from "../../../lib/translate/translate";
+import { lan, t } from "../../../lib/translate/translate";
 import type { RawIconType } from "../../iconTypes";
 
 function initStyle(

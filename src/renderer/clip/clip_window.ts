@@ -1,14 +1,17 @@
 /// <reference types="vite/client" />
 
-import hotkeys from "hotkeys-js";
-import { jsKeyCodeDisplay, ele2jsKeyCode } from "../../../lib/key";
-import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
-import open_with from "../../../lib/open_with";
-import { t } from "../../../lib/translate/translate";
 import chroma from "chroma-js";
+import hotkeys from "hotkeys-js";
+import { ele2jsKeyCode, jsKeyCodeDisplay } from "../../../lib/key";
+import open_with from "../../../lib/open_with";
 import store from "../../../lib/store/renderStore";
+import { t } from "../../../lib/translate/translate";
 import { writeImage, writeText } from "../lib/clipboard";
+import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
+import { EraserBrush } from "@erase2d/fabric";
+import bmp from "bmp-js";
+import { detectBorders } from "edge_det";
 import {
     ActiveSelection,
     Canvas,
@@ -29,10 +32,7 @@ import {
     classRegistry,
     filters,
 } from "fabric";
-import { EraserBrush } from "@erase2d/fabric";
-import bmp from "bmp-js";
 import { findOffset } from "picture_match";
-import { detectBorders } from "edge_det";
 
 import initScreenShots from "../screenShot/screenShot";
 const screenShots = initScreenShots(
@@ -42,17 +42,10 @@ const screenShots = initScreenShots(
     store.get("使用XDGDesktopPortal"),
 );
 
-import type {
-    setting,
-    EditType,
-    功能,
-    translateWinType,
-    功能列表,
-} from "../../ShareTypes.js";
 import {
+    type ElType,
     button,
     ele,
-    type ElType,
     frame,
     image,
     input,
@@ -63,10 +56,17 @@ import {
     txt,
     view,
 } from "dkh-ui";
-import xhistory from "../lib/history";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import type { IconType } from "../../iconTypes";
 import { typedEntries, typedKeys } from "../../../lib/utils";
+import type {
+    EditType,
+    setting,
+    translateWinType,
+    功能,
+    功能列表,
+} from "../../ShareTypes.js";
+import type { IconType } from "../../iconTypes";
+import xhistory from "../lib/history";
 import { ocrList } from "../ocr/ocr_omni";
 
 type SrcPoint = { x: number; y: number } & { readonly _: unique symbol };

@@ -1,54 +1,54 @@
-import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
-import type { SettingPath, GetValue } from "../../../lib/store/renderStore";
 import {
-    ele,
     type ElType,
-    input,
-    txt,
-    view,
-    setTranslate,
-    radioGroup,
-    trackPoint,
-    button,
-    label,
-    image,
-    addStyle,
-    p,
-    noI18n,
-    pack,
-    addClass,
-    textarea,
     a,
-    select,
-    setProperty,
+    addClass,
+    addStyle,
+    alert,
+    button,
     check,
     confirm,
-    alert,
-    setProperties,
-    spacer,
-    dynamicSelect,
     dynamicList,
+    dynamicSelect,
+    ele,
+    image,
+    input,
+    label,
+    noI18n,
+    p,
+    pack,
+    radioGroup,
+    select,
+    setProperties,
+    setProperty,
+    setTranslate,
+    spacer,
+    textarea,
+    trackPoint,
+    txt,
+    view,
 } from "dkh-ui";
+import type { GetValue, SettingPath } from "../../../lib/store/renderStore";
 import store from "../../../lib/store/renderStore";
+import { getLanName, getLans, lan, t } from "../../../lib/translate/translate";
+import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
 import {
-    initStyle,
-    getImgUrl,
-    setTitle,
     Class,
-    cssVar,
     cssColor,
+    cssVar,
+    getImgUrl,
+    initStyle,
     monoFont,
+    setTitle,
 } from "../root/root";
-import { t, lan, getLanName, getLans } from "../../../lib/translate/translate";
 // biome-ignore format:
 const { shell, webUtils } = require("electron") as typeof import("electron");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
 
-import logo from "../assets/icon.svg";
 import logoBlack from "../../../assets/logo/bw/32x32_black.png";
 import logoWhite from "../../../assets/logo/bw/32x32_white.png";
+import logo from "../assets/icon.svg";
 import testPhoto from "../assets/sample_picture.svg";
 
 import translator from "xtranslator";
@@ -61,21 +61,21 @@ import _package from "../../../package.json?raw";
 const packageJson = JSON.parse(_package);
 
 import {
-    macKeyFomat,
+    ele2jsKeyCode,
     jsKey2ele,
     jsKeyCodeDisplay,
-    ele2jsKeyCode,
+    macKeyFomat,
 } from "../../../lib/key.js";
 
-import time_format from "../../../lib/time_format";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
-import type { IconType } from "../../iconTypes";
-import { defaultOcrId } from "../ocr/ocr";
-import { xget, xset } from "../../../lib/store/parse";
-import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
-import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
 import { githubMirrorList } from "../../../lib/github_mirror";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
+import { xget, xset } from "../../../lib/store/parse";
+import time_format from "../../../lib/time_format";
+import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
+import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
+import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
+import { defaultOcrId } from "../ocr/ocr";
 import { ocrList } from "../ocr/ocr_omni";
 
 let yauzl: typeof import("yauzl") | null = null;

@@ -1,19 +1,19 @@
 import initScreenShots from "../screenShot/screenShot";
 
-import { addClass, button, type ElType, image, pack, view } from "dkh-ui";
+import { type ElType, addClass, button, image, pack, view } from "dkh-ui";
 
 function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");
 }
 
-import store from "../../../lib/store/renderStore";
-import { Class, getImgUrl, initStyle, setTitle } from "../root/root";
-import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend } from "../../../lib/ipc";
+import store from "../../../lib/store/renderStore";
+import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
 import { writeText } from "../lib/clipboard";
-import { defaultOcrId, loadOCR } from "../ocr/ocr";
 import { loadTranslator } from "../lib/translate";
+import { defaultOcrId, loadOCR } from "../ocr/ocr";
+import { Class, getImgUrl, initStyle, setTitle } from "../root/root";
 
 initStyle(store);
 

@@ -1,9 +1,9 @@
 import {
+    type ElType,
     addStyle,
     button,
     check,
     ele,
-    type ElType,
     frame,
     image,
     input,
@@ -15,19 +15,19 @@ import {
     txt,
     view,
 } from "dkh-ui";
+import store from "../../../lib/store/renderStore";
 import type { setting } from "../../ShareTypes";
 import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
-import store from "../../../lib/store/renderStore";
 // biome-ignore format:
 const { nativeImage } = window.require("electron") as typeof import("electron");
 import { writeImage } from "../lib/clipboard";
 const { writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
 const ort = require("onnxruntime-node") as typeof import("onnxruntime-node");
-import removeobj from "../lib/removeObj";
-import { t } from "../../../lib/translate/translate";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
+import removeobj from "../lib/removeObj";
 
 function icon(src: IconType) {
     return image(getImgUrl(`${src}.svg`), noI18n("icon")).class("icon");

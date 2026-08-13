@@ -50,15 +50,11 @@ pnpm run dist
   - screenShot/ 截屏库
 - **src/ShareTypes.d.ts**: 共享类型定义
 
-## 代码规范
-- 使用 Biome 进行 lint 和格式化
-- 缩进: 4 空格
-- 启用 import 排序
-- 禁止非空断言 (`noNonNullAssertion: off`)
-
 ## 常用流程
 
-ts修改都需要biome格式化和ts类型检查(`pnpm run typecheck`)
+ts修改都需要biome格式化(`pnpm run format`)和ts类型检查(`pnpm run typecheck`)，还要(`pnpm run lint`)
+
+新文件可以`pnpm run fix`进行更强格式化和引入重排
 
 ### 修改界面或者功能
 

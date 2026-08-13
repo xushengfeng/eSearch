@@ -1,22 +1,22 @@
 import {
+    addStyle,
     button,
+    ele,
     frame,
     image,
     input,
+    label,
+    pack,
+    select,
     textarea,
     view,
-    addStyle,
-    label,
-    select,
-    pack,
-    ele,
 } from "dkh-ui";
-import store from "../../../lib/store/renderStore";
-import { Class, cssColor, cssVar, getImgUrl, initStyle } from "../root/root";
 import { Remarkable } from "remarkable";
+import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
-import { runAI, type aiData } from "../lib/ai";
+import { type aiData, runAI } from "../lib/ai";
+import { Class, cssColor, cssVar, getImgUrl, initStyle } from "../root/root";
 
 initStyle(store);
 

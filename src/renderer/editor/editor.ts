@@ -1,36 +1,36 @@
 /// <reference types="vite/client" />
 
-import store from "../../../lib/store/renderStore";
-import type { BrowserAction, EditToolsType, setting } from "../../ShareTypes";
-import { tLog } from "xtimelog";
+import diff_match_patch from "diff-match-patch";
 import {
-    view,
-    txt,
-    ele,
-    button,
-    image,
-    p,
-    noI18n,
-    input,
-    select,
     type ElType,
-    dynamicSelect,
-    spacer,
     addClass,
+    button,
+    dynamicSelect,
+    ele,
+    image,
+    input,
+    noI18n,
+    p,
+    select,
+    spacer,
+    txt,
+    view,
 } from "dkh-ui";
+import hotkeys from "hotkeys-js";
+import { tLog } from "xtimelog";
+import openWith from "../../../lib/open_with";
+import store from "../../../lib/store/renderStore";
+import time_format from "../../../lib/time_format";
+import { t } from "../../../lib/translate/translate";
+import type { BrowserAction, EditToolsType, setting } from "../../ShareTypes";
 import {
+    Class,
+    cssColor,
+    cssVar,
+    getImgUrl,
     initStyle,
     setTitle,
-    getImgUrl,
-    Class,
-    cssVar,
-    cssColor,
 } from "../root/root";
-import hotkeys from "hotkeys-js";
-import time_format from "../../../lib/time_format";
-import openWith from "../../../lib/open_with";
-import { t } from "../../../lib/translate/translate";
-import diff_match_patch from "diff-match-patch";
 import "diff-match-patch-line-and-word";
 // biome-ignore format:
 const { shell, webFrame } = require("electron") as typeof import("electron");
@@ -57,16 +57,16 @@ const tmpTextPath = path.join(
     `/eSearch/eSearch_${Date.now()}.txt`,
 );
 
+import { rotateImg } from "esearch-ocr";
+import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import { safeJSONParse, tryD, tryx, typedEntries } from "../../../lib/utils";
+import type { IconType } from "../../iconTypes";
 import closeSvg from "../assets/icons/close.svg";
 import reloadSvg from "../assets/icons/reload.svg";
-import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
-import type { IconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
-import { rotateImg } from "esearch-ocr";
-import { typedEntries, tryD, safeJSONParse, tryx } from "../../../lib/utils";
-import { ocrOnline } from "../ocr/ocr_online";
 import { ocrList } from "../ocr/ocr_omni";
+import { ocrOnline } from "../ocr/ocr_online";
 
 type SpellItem = {
     index: number;
