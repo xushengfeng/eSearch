@@ -463,6 +463,11 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "识别整体方向并纠正，不适合竖排文字",
         el: () => xSwitch(),
     },
+    "OCR.全局det路径": {
+        name: "全局检测模型路径",
+        desc: "所有离线OCR模型共用的检测模型路径，留空使用默认模型",
+        el: () => xPath(false),
+    },
     离线OCR: {
         name: "离线OCR",
         el: () => ocrEl(),
@@ -2169,7 +2174,12 @@ const main: {
         items: [
             {
                 title: "离线OCR",
-                settings: ["离线OCR", "OCR.识别段落", "OCR.整体方向识别"],
+                settings: [
+                    "离线OCR",
+                    "OCR.全局det路径",
+                    "OCR.识别段落",
+                    "OCR.整体方向识别",
+                ],
             },
             {
                 title: "百度OCR",

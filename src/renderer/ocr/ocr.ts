@@ -21,16 +21,17 @@ function loadOCR(
         dic: "ppocr_keys_v1.txt",
         docCls: "doc_cls.onnx",
     };
+    const globalDetPath = store.get("OCR.全局det路径") || defaultPaths.det;
     const defaultOcr = ocrList.find((i) => i.id === defaultOcrId);
     if (defaultOcr) {
-        defaultOcr.detPath = defaultPaths.det;
+        defaultOcr.detPath = globalDetPath;
         defaultOcr.recPath = defaultPaths.rec;
         defaultOcr.dicPath = defaultPaths.dic;
     } else {
         ocrList.push({
             id: defaultOcrId,
             name: "",
-            detPath: defaultPaths.det,
+            detPath: globalDetPath,
             recPath: defaultPaths.rec,
             dicPath: defaultPaths.dic,
             scripts: ["zh-HANS", "en"],
@@ -48,7 +49,10 @@ function loadOCR(
         if (fs.existsSync(xp)) return xp;
         return "";
     }
-    const detp = ocrPath(l.detPath) || ocrPath(defaultPaths.det);
+    const detp =
+        ocrPath(l.detPath) ||
+        ocrPath(globalDetPath) ||
+        ocrPath(defaultPaths.det);
     const recp = ocrPath(l.recPath) || ocrPath(defaultPaths.rec);
     const 字典 = ocrPath(l.dicPath) || ocrPath(defaultPaths.dic);
     const docCls = op?.docCls ? ocrPath(defaultPaths.docCls) : undefined;

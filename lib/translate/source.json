@@ -821,5 +821,7 @@
     "模型名称": "10b2dc",
     "大模型": "a7114d",
     "使用 XDG Desktop Portal": "21efe7",
-    "在 Linux 上使用 XDG Desktop Portal 进行截屏，适用于 Wayland 等环境，但是在多屏分数缩放可能存在模糊": "b9c720"
+    "在 Linux 上使用 XDG Desktop Portal 进行截屏，适用于 Wayland 等环境，但是在多屏分数缩放可能存在模糊": "b9c720",
+    "全局检测模型路径": "ef8a00",
+    "所有离线OCR模型共用的检测模型路径，留空使用默认模型": "1194ea"
 }

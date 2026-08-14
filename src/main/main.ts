@@ -2557,6 +2557,7 @@ const defaultSetting: setting = {
         离线切换: true,
         识别段落: true,
         整体方向识别: false,
+        全局det路径: "ppocr_det.onnx",
     },
     离线OCR: [
         {
