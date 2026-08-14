@@ -94,10 +94,10 @@ const platform2 = platformMap[platform];
 const githubUrl = "https://github.com";
 
 const beforePack = async () => {
-    if (!checkPath("./assets/onnx/ppocr")) {
+    if (!checkPath("./assets/onnx/ppocr/ppocr6_small_rec.onnx")) {
         ensureDir("./assets/onnx/ppocr");
         await downloadUnzip(
-            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ch.zip`,
+            `${githubUrl}/xushengfeng/eSearch-OCR/releases/download/4.0.0/ppocr_v6_small.zip`,
             "./assets/onnx/ppocr/",
         );
     }

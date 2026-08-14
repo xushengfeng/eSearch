@@ -16,9 +16,9 @@ function loadOCR(
 ) {
     const ocrList = store.get("离线OCR");
     const defaultPaths = {
-        det: "ppocr_det.onnx",
-        rec: "ppocr_rec.onnx",
-        dic: "ppocr_keys_v1.txt",
+        det: "ppocr6_small_det.onnx",
+        rec: "ppocr6_small_rec.onnx",
+        dic: "dic.txt",
         docCls: "doc_cls.onnx",
     };
     const globalDetPath = store.get("OCR.全局det路径") || defaultPaths.det;
