@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 export default defineConfig(({ mode }) => ({
     main: {
         build: {
-            minify: "esbuild",
+            minify: false,
         },
     },
     renderer: {
@@ -56,7 +56,7 @@ export default defineConfig(({ mode }) => ({
                 },
             },
             assetsInlineLimit: 0,
-            minify: "esbuild",
+            minify: false,
             sourcemap: true,
         },
         plugins: [
