@@ -552,7 +552,11 @@ app.whenReady().then(() => {
 
     crashReporter.start({ uploadToServer: false });
 
-    if (store.get("首次运行") === undefined) setDefaultSetting();
+    store.setDefaultData(defaultSetting);
+
+    if (store.get("首次运行") === undefined) {
+        store.set("首次运行", false);
+    }
     fixSettingTree();
 
     // 初始化语言
@@ -2788,37 +2792,9 @@ function matchBestLan() {
     return "zh-HANS";
 }
 
-function setDefaultSetting() {
-    for (const i in defaultSetting) {
-        if (i === "语言") {
-            const language = matchBestLan();
-            store.set(i, { 语言: language });
-        } else {
-            // @ts-ignore
-            store.set(i, defaultSetting[i]);
-        }
-    }
-}
-
 // 增加设置项后，防止undefined
 function fixSettingTree() {
     if (store.get("设置版本") === app.getVersion() && !dev) return;
-    walk([]);
-    function walk(path: string[]) {
-        // @ts-expect-error
-        const x = path.reduce((o, i) => o[i], defaultSetting);
-        for (const i in x) {
-            const cPath = path.concat([i]); // push
-            // @ts-expect-error
-            if (x[i].constructor === Object) {
-                walk(cPath);
-            } else {
-                const nPath = cPath.join(".");
-                // @ts-ignore
-                if (store.get(nPath) === undefined) store.set(nPath, x[i]);
-            }
-        }
-    }
     versionTrans();
     store.set("设置版本", app.getVersion());
     store.set("网络.github镜像.启用", matchBestLan() === "zh-HANS");
