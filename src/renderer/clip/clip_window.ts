@@ -826,8 +826,10 @@ function pjLong() {
 
     finalRect = [0, 0, oCanvas.width, oCanvas.height];
 
-    fabricCanvas.setWidth(oCanvas.width);
-    fabricCanvas.setHeight(oCanvas.height);
+    fabricCanvas.setDimensions({
+        width: oCanvas.width,
+        height: oCanvas.height,
+    });
 
     longPreview.style({ display: "none" });
     longPreview.clear();
@@ -2386,6 +2388,8 @@ function draw(
     if (shape === "line") {
         shapeX = new Line([x1, y1, x2, y2], {
             stroke: strokeColor,
+            originX: "left",
+            originY: "top",
             形状: "line",
         });
     } else if (shape === "circle") {
@@ -2393,6 +2397,8 @@ function draw(
             radius: Math.max(w, h) / 2,
             left: x,
             top: y,
+            originX: "left",
+            originY: "top",
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
@@ -2405,6 +2411,8 @@ function draw(
             top: y,
             width: w,
             height: h,
+            originX: "left",
+            originY: "top",
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
@@ -2415,6 +2423,8 @@ function draw(
         shapeX = new IText(t("点击输入文字"), {
             left: x,
             top: y,
+            originX: "left",
+            originY: "top",
             canChangeFill: true,
             形状: "text",
             fontFamily: 字体.主要字体,
@@ -2459,6 +2469,8 @@ function drawPoly(shape: EditType["shape"]) {
             fill: "#0000",
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            originX: "left",
+            originY: "top",
             形状: "polyline",
         });
     }
@@ -2467,6 +2479,8 @@ function drawPoly(shape: EditType["shape"]) {
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            originX: "left",
+            originY: "top",
             canChangeFill: true,
             形状: "polygon",
         });
@@ -2823,6 +2837,8 @@ function newFilterSelect(o: point, no: point) {
     const img = new FabricImage(tmpCanvas, {
         left: x,
         top: y,
+        originX: "left",
+        originY: "top",
         lockMovementX: true,
         lockMovementY: true,
         lockRotation: true,
@@ -4555,7 +4571,7 @@ fabricCanvas.on("mouse:up", (options) => {
     getFilters();
 
     if (newFilterSelecting && newFilterO) {
-        newFilterSelect(newFilterO, fabricCanvas.getPointer(options.e));
+        newFilterSelect(newFilterO, fabricCanvas.getScenePoint(options.e));
         getFilters();
         hisPush();
 
