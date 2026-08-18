@@ -36,7 +36,7 @@ jobs:
           M_ARCH: ${{matrix.arch}}
           USE_HARD_LINKS: false
         run: |
-          npm install -g pnpm@10.0.0
+          npm install -g pnpm@10.17.0
           pnpm install
           pnpm run dist
 
