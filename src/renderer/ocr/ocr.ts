@@ -65,6 +65,8 @@ function loadOCR(
     const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
     const ort = require("onnxruntime-node");
     const provider = store.get("AI.运行后端") || "cpu";
+    console.log("ocr provider", provider);
+
     return {
         ocr: localOCR,
         config: {

@@ -532,10 +532,21 @@ const s: Partial<settingItem<SettingPath>> = {
             xSelect<typeof v>(
                 [
                     { value: "cpu", name: noI18n("CPU") },
-                    // { value: "webgpu", name: noI18n("WebGPU") },
-                    { value: "cuda", name: noI18n("CUDA") },
-                    { value: "coreml", name: noI18n("coreML") },
-                    { value: "directml", name: noI18n("DirectML") },
+                    { value: "webgpu", name: noI18n("WebGPU") },
+                    ...(process.platform === "linux"
+                        ? [{ value: "cuda" as const, name: noI18n("CUDA") }]
+                        : []),
+                    ...(process.platform === "darwin"
+                        ? [{ value: "coreml" as const, name: noI18n("coreML") }]
+                        : []),
+                    ...(process.platform === "win32"
+                        ? [
+                              {
+                                  value: "directml" as const,
+                                  name: noI18n("DirectML"),
+                              },
+                          ]
+                        : []),
                 ],
                 "运行后端",
             ),
