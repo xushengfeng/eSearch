@@ -44,7 +44,7 @@
         "minimist": "^1.2.8",
         "myde-dbus": "^0.5.2",
         "node-screenshots": "^0.2.8",
-        "onnxruntime-node": "^1.21.0",
+        "onnxruntime-node": "^1.27.0",
         "picture_match": "^0.1.4",
         "qr-scanner-wechat": "^0.1.3",
         "remarkable": "^2.0.1",
