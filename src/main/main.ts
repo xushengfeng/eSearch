@@ -2581,6 +2581,9 @@ const defaultSetting: setting = {
             scripts: ["zh-HANS", "en"],
             accuracy: "low",
             speed: "fast",
+            optimize: {
+                space: false,
+            },
         },
     ],
     AI: {
