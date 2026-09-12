@@ -3761,10 +3761,6 @@ function translatorD(
             }
         >
     > = {
-        tencentTransmart: {
-            t: "腾讯交互式翻译",
-            key: [],
-        },
         google: {
             t: "谷歌翻译",
             key: [],
