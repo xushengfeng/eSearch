@@ -197,8 +197,8 @@ const build = {
         files: [
             "!assets/logo/icon.icns",
             "!assets/logo/icon.ico",
-            "!node_modules/onnxruntime-node/bin/napi-v3/win32",
-            "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
+            "!node_modules/onnxruntime-node/bin/napi-v6/win32",
+            "!node_modules/onnxruntime-node/bin/napi-v6/darwin",
         ],
     },
     deb: {
@@ -214,8 +214,8 @@ const build = {
             "!assets/logo/1024x1024.png",
             "!assets/logo/512x512.png",
             "!assets/logo/icon.ico",
-            "!node_modules/onnxruntime-node/bin/napi-v3/win32",
-            "!node_modules/onnxruntime-node/bin/napi-v3/linux",
+            "!node_modules/onnxruntime-node/bin/napi-v6/win32",
+            "!node_modules/onnxruntime-node/bin/napi-v6/linux",
         ],
         target: [
             {
@@ -249,8 +249,8 @@ const build = {
             "!assets/logo/icon.icns",
             "!assets/logo/1024x1024.png",
             "!assets/logo/512x512.png",
-            "!node_modules/onnxruntime-node/bin/napi-v3/linux",
-            "!node_modules/onnxruntime-node/bin/napi-v3/darwin",
+            "!node_modules/onnxruntime-node/bin/napi-v6/linux",
+            "!node_modules/onnxruntime-node/bin/napi-v6/darwin",
         ],
     },
     nsis: {
@@ -299,9 +299,9 @@ const otherPlatform = Object.keys(platformMap).filter((i) => i !== platform);
 // @ts-ignore
 const files = build[platform2]?.files;
 
-// 移除 onnxruntime-node/bin/napi-v3/
+// 移除 onnxruntime-node/bin/napi-v6/
 files?.push(
-    `!node_modules/onnxruntime-node/bin/napi-v3/${platform}/${archFilter}`,
+    `!node_modules/onnxruntime-node/bin/napi-v6/${platform}/${archFilter}`,
 );
 
 // 移除 uiohook-napi/prebuilds
