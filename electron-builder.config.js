@@ -166,6 +166,9 @@ const build = {
         mirror: "https://npmmirror.com/mirrors/electron/",
     },
     npmRebuild: false,
+    electronFuses: {
+        runAsNode: false,
+    },
     fileAssociations: [
         {
             ext: "svg",
