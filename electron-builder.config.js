@@ -169,6 +169,18 @@ const build = {
     electronFuses: {
         runAsNode: false,
     },
+    electronLanguages: fs
+        .readdirSync(path.join(__dirname, "lib/translate"))
+        .filter((file) => {
+            return (
+                file.endsWith(".json") &&
+                !file.startsWith("source") &&
+                !file.startsWith(".")
+            );
+        })
+        .map((i) => i.replace(".json", ""))
+        .concat("zh-HANS")
+        .map((i) => i.split("-")[0]),
     fileAssociations: [
         {
             ext: "svg",
@@ -260,38 +272,6 @@ const build = {
         oneClick: false,
         allowToChangeInstallationDirectory: true,
         differentialPackage: false,
-    },
-    afterPack: async (c) => {
-        const localsPath = path.join(c.appOutDir, "locales");
-        const suportLan = fs
-            .readdirSync(path.join(__dirname, "lib/translate"))
-            .filter((file) => {
-                return (
-                    file.endsWith(".json") &&
-                    !file.startsWith("source") &&
-                    !file.startsWith(".")
-                );
-            })
-            .map((i) => i.replace(".json", ""))
-            .concat("zh-HANS")
-            .map((i) => i.split("-")[0]);
-        if (process.platform !== "darwin")
-            try {
-                const files = fs
-                    .readdirSync(localsPath)
-                    .filter(
-                        (i) =>
-                            !suportLan.includes(
-                                i.replace(".pak", "").split("-")[0],
-                            ),
-                    );
-                for (const i of files) {
-                    fs.rmSync(path.join(localsPath, i));
-                }
-                console.log("移除原生语言包");
-            } catch (error) {
-                console.log(error);
-            }
     },
 };
 
