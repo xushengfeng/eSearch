@@ -192,7 +192,6 @@ const testResults: { name: string; state: state }[] = fs.existsSync(
 const isMac = process.platform === "darwin";
 
 const defaultSetting: setting = {
-    首次运行: false,
     设置版本: "15.0.0",
     启动提示: true,
     dev: false,

@@ -562,9 +562,6 @@ app.whenReady().then(() => {
 
     store.setDefaultData(defaultSetting);
 
-    if (store.get("首次运行") === undefined) {
-        store.set("首次运行", false);
-    }
     fixSettingTree();
 
     // 初始化语言
@@ -2325,7 +2322,6 @@ nativeTheme.on("updated", () => {
 
 // 默认设置
 const defaultSetting: setting = {
-    首次运行: false,
     设置版本: app.getVersion(),
     启动提示: true,
     dev: false,
