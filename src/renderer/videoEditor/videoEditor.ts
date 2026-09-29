@@ -1079,6 +1079,13 @@ async function afterTrans() {
     onPlay(transformCs.getTime(oldI));
 }
 
+/** afterTrans 会 flush 播放解码器，记录其任务，开始播放前需等待它完成，避免竞态 */
+let afterTransTask: Promise<void> = Promise.resolve();
+function runAfterTrans() {
+    afterTransTask = afterTrans().catch((e) => console.error("afterTrans", e));
+    return afterTransTask;
+}
+
 async function playId(i: TransId, force = false) {
     if (i === playI && !force) return;
 
@@ -1539,7 +1546,7 @@ function editClip(i: number) {
 async function uiDataSave() {
     const transR = await transform();
     if (!transR) return;
-    afterTrans();
+    runAfterTrans();
 }
 
 async function save() {
@@ -2251,6 +2258,8 @@ const playEl = check("", [
     if (playEl.gv) {
         const transR = await transform();
         if (!transR) return;
+        // afterTrans 可能正在重同步播放解码器，等它完成再播放
+        await afterTransTask;
         isPlaying = true;
         if (playI === transformCs.length - 1) {
             playI = 0 as TransId;
@@ -3165,7 +3174,7 @@ pack(document.body).style({
             size: `${outputV.width}x${outputV.height}`,
         });
         if (!transR) return;
-        afterTrans();
+        runAfterTrans();
     });
 
     const lastR = store.get("录屏.超级录屏.缩放") ?? 1;
@@ -3266,7 +3275,7 @@ pack(document.body).style({
         setPlaySize();
 
         if (transR) {
-            afterTrans();
+            runAfterTrans();
         }
 
         const nowUi = history.getData();
