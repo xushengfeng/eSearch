@@ -124,6 +124,15 @@ export class AudioCapture {
         this.levelCbs.push(cb);
     }
 
+    private emitLevel(level: number) {
+        for (const cb of this.levelCbs) cb(level);
+    }
+
+    private anyActive() {
+        for (const s of this.sources.values()) if (s.active) return true;
+        return false;
+    }
+
     /** 每个视频帧读取时调用，用于校准音画时钟 */
     noteVideoTs(ts: number) {
         this.vOff = Math.min(this.vOff, ts - performance.now() * 1000);
@@ -232,6 +241,7 @@ export class AudioCapture {
         if (!s) return;
         s.active = on;
         s.gain.gain.value = on ? 1 : 0;
+        if (!this.anyActive()) this.emitLevel(0);
         const ctx = this.ctx;
         if (ctx?.state === "suspended") {
             ctx.resume().catch((e) => console.warn(e));
@@ -312,6 +322,7 @@ export class AudioCapture {
         s.node.disconnect();
         s.gain.disconnect();
         if (s.owned) for (const t of s.stream.getTracks()) t.stop();
+        if (!this.anyActive()) this.emitLevel(0);
     }
 
     private startReader() {
@@ -374,8 +385,7 @@ export class AudioCapture {
             value.close();
             if (planes.length > this.outChannels)
                 planes = planes.slice(0, this.outChannels);
-            const level = rmsOf(planes[0]);
-            for (const cb of this.levelCbs) cb(level);
+            this.emitLevel(rmsOf(planes[0]));
             if (inRate !== this.outRate)
                 planes = planes.map((p) => resample(p, inRate, this.outRate));
             const encoder = await this.ensureEncoder();

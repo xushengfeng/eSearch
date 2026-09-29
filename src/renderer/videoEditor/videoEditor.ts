@@ -1990,6 +1990,102 @@ view()
         stopRecord();
     });
 
+// 录制面板：音频输入控制与音量电平
+const audioLevelInEl = view().style({
+    width: "0%",
+    height: "100%",
+    backgroundColor: cssColor.main,
+});
+const audioLevelEl = view()
+    .style({ width: "120px", height: "8px", overflow: "hidden" })
+    .class(Class.deco)
+    .add(audioLevelInEl);
+let lastLevelT = 0;
+audioCapture.onLevel((level) => {
+    const now = performance.now();
+    if (now - lastLevelT < 100) return;
+    lastLevelT = now;
+    audioLevelInEl.style({ width: `${Math.min(1, level * 4) * 100}%` });
+});
+
+function saveAudioNames() {
+    store.set("录屏.音频.设备列表", audioCapture.activeIds());
+}
+
+const audioListEl = view("y")
+    .style({
+        display: "none",
+        maxHeight: "30vh",
+        overflowY: "auto",
+        minWidth: "200px",
+        maxWidth: "60vw",
+    })
+    .class(Class.deco);
+
+async function renderAudioList() {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const mics = devices.filter((i) => i.kind === "audioinput");
+    const canSys = store.get("录屏.音频.启用系统内录");
+    const sysKey = audioCapture.sysKey;
+    const sysEl = label([check(""), t("系统音频")])
+        .attr({
+            title: canSys ? "系统内录" : "开启才可以在界面进一步选择是否内录",
+        })
+        .sv(audioCapture.isActive(sysKey))
+        .on("input", async (_, el) => {
+            if (!canSys) {
+                el.sv(false);
+                return;
+            }
+            const ok = await audioCapture.setSystem(el.gv);
+            el.sv(ok && audioCapture.isActive(sysKey));
+            if (ok) saveAudioNames();
+        });
+    const micEls = mics.map((i) =>
+        label([check(""), i.label || i.deviceId])
+            .style({
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+            })
+            .sv(audioCapture.isActive(audioCapture.micKey(i.deviceId)))
+            .on("input", async (_, el) => {
+                const key = audioCapture.micKey(i.deviceId);
+                const ok = await audioCapture.setMic(i.deviceId, el.gv);
+                el.sv(ok && audioCapture.isActive(key));
+                if (ok) saveAudioNames();
+            }),
+    );
+    audioListEl
+        .clear()
+        .add([
+            ...micEls,
+            sysEl,
+            mics.length === 0 && !canSys ? txt(t("无音频输入设备")) : null,
+        ]);
+}
+
+let audioListShow = false;
+const audioBtn = iconBEl("mic", "选择输入音频").on("click", () => {
+    audioListShow = !audioListShow;
+    audioListEl.style({ display: audioListShow ? "flex" : "none" });
+    if (audioListShow) renderAudioList();
+});
+
+stopPEl.add(
+    view("y")
+        .class(Class.gap)
+        .style({ alignItems: "center" })
+        .add([
+            view("x")
+                .class(Class.gap)
+                .style({ alignItems: "center" })
+                .add([audioBtn, audioLevelEl]),
+            audioListEl,
+        ]),
+);
+
 const canvasEl = ele("canvas").style({
     overflow: "hidden",
     width: "fit-content",
