@@ -2155,6 +2155,7 @@ const audioListEl = view("y")
         overflowY: "auto",
         minWidth: "200px",
         maxWidth: "60vw",
+        padding: cssVar("o-padding"),
     })
     .class(Class.deco);
 
