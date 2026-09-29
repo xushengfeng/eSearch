@@ -49,6 +49,7 @@ import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
 import floydSteinberg from "../lib/dither";
 import xhistory from "../lib/history";
+import { type SrcAudio, audioCapture, sysAudioId } from "./audio";
 
 initStyle(store);
 
@@ -107,6 +108,9 @@ const lastTransOpt: { codec: string; size: string } = {
 };
 
 let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
+
+/** 录制得到的音频，见 docs/develop/superRecorderAudio.md */
+let srcAudio: SrcAudio | null = null;
 
 // 播放、导出
 const outputV = {
@@ -2838,21 +2842,54 @@ pack(document.body).style({
     if (testMode) return;
     const sourceId = await sourceIdPromise.promise;
     let stream: MediaStream | undefined;
+    const audioDevices = store.get("录屏.音频.设备列表");
+    const wantSysAudio =
+        store.get("录屏.音频.启用系统内录") &&
+        audioDevices.includes(sysAudioId);
+    const videoConstraint = {
+        mandatory: {
+            chromeMediaSource: "desktop",
+            chromeMediaSourceId: sourceId,
+        },
+    };
     try {
         stream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: {
-                // @ts-ignore
-                mandatory: {
-                    chromeMediaSource: "desktop",
-                    chromeMediaSourceId: sourceId,
-                },
-            },
+            audio: wantSysAudio
+                ? {
+                      // @ts-ignore
+                      mandatory: {
+                          chromeMediaSource: "desktop",
+                      },
+                  }
+                : false,
+            // @ts-ignore
+            video: videoConstraint,
         });
     } catch (e) {
         console.error(e);
     }
+    if (!stream && wantSysAudio) {
+        // 系统内录获取失败时回退为纯视频，保证录制可用
+        console.warn("超级录屏：获取系统音频失败，回退为无音频");
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                // @ts-ignore
+                video: videoConstraint,
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
     if (!stream) return;
+
+    audioCapture.setSourceId(sourceId);
+    audioCapture.setSystemTrack(
+        wantSysAudio ? (stream.getAudioTracks()[0] ?? null) : null,
+        stream,
+        wantSysAudio,
+    );
+    audioCapture.initFromSettings();
 
     const videoTrack = stream.getVideoTracks()[0];
 
@@ -2964,6 +3001,13 @@ pack(document.body).style({
 
         reader.cancel();
 
+        const audioStop = audioCapture
+            .stop(encodedChunks.at(0)?.timestamp)
+            .catch((e: unknown) => {
+                console.error(e);
+                return null;
+            });
+
         if (cancel) {
             renderSend("windowClose", []);
             return;
@@ -2973,6 +3017,8 @@ pack(document.body).style({
 
         await encoder.flush();
         encoder.close();
+
+        srcAudio = await audioStop;
 
         history.apply();
 
@@ -3020,6 +3066,7 @@ pack(document.body).style({
     while (true) {
         const { done, value: videoFrame } = await reader.read();
         if (done) break;
+        audioCapture.noteVideoTs(videoFrame.timestamp);
         if (encoder.encodeQueueSize > 2) {
             videoFrame.close();
         } else {
