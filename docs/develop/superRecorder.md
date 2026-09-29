@@ -105,3 +105,7 @@ await encoder.flush();
 不同容器支持的视频格式也不同，参考[mdn](https://developer.mozilla.org/zh-CN/docs/Web/Media/Formats/Video_codecs#%E7%BC%96%E8%A7%A3%E7%A0%81%E5%99%A8%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF)
 
 浏览器并没有提供容器包装器，只提供了编码器，所以我们需要其他的库，如 mp4box.js，我使用 mp4-muxer 和 wemb-muxer。
+
+## 音频
+
+超级录屏的声音（麦克风、系统内录）走 WebCodecs 的 `AudioEncoder` 编码为 opus，编辑时按时间轴解码成 PCM 并跟随删除/变速重排，预览用 Web Audio 播放，导出时经 mediabunny 的 `AudioBufferSource` 混入容器。采集时钟与视频时间戳的对齐方式、模块划分、已知限制见[超级录屏 · 录音功能计划](./superRecorderAudio.md)。

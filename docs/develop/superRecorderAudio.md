@@ -2,6 +2,8 @@
 
 [超级录屏](./superRecorder.md) 目前只录画面（`videoEditor.ts` 中 `getUserMedia` 的 `audio: false`），本文档记录为它添加录音（麦克风 + 系统内录）的调研结论、设计方案、实施顺序和后续优化点。
 
+> **状态**：实施顺序 1~9 已全部完成并分批提交；「已知限制 & 后续优化」「测试要点」中的条目为后续跟进项（勾选框未勾即待办）。回归验证见 `test/superRecorderAudioE2E.mjs`。
+
 ## 目标
 
 1. 录制：可选麦克风（可多选）、可选系统内录，录制面板可控、可看音量电平。
@@ -30,7 +32,7 @@
 ```
 麦克风 track ─┐                                    ┌─ opus EncodedAudioChunk[]（录制结果，≈1MB/min）
 系统内录 track ─┼→ AudioContext(混音/增益) → MediaStreamTrackProcessor
-              │        └ 每路 GainNode：勾选=1，取消=0（静音即不写入）
+              │        └ 每路 GainNode：勾选=1，取消=0（取消后只写入静音，不保留原始声音）
               └→ AudioEncoder(opus) ───────────────┘
                                    ↓ 停止录制后（按需解码，用完即弃）
                         AudioDecoder → 源时间轴 PCM (AudioBuffer)
@@ -45,12 +47,12 @@
 
 1. **编码存 opus，不存 PCM**：录音 48k 立体声 float PCM ≈ 23MB/min，opus 128kbps ≈ 1MB/min。录制期只留编码 chunk；PCM 只在「变换/播放/导出」时按需解码，且源 PCM 在生成变换结果后即释放，稳态内存 ≈ 1MB/min(源) + 23MB/min(变换结果)。
 2. **时钟对齐**：视频帧时间戳与音频 `AudioData` 时间戳（尤其经 AudioContext 处理后）可能不在同一纪元。统一用 `performance.now()` 作参考：
-   - 录制中持续累计 `vOff = min(videoTs - perfNow*1000)`、`aOff = min(audioTs - perfNow*1000)`；
-   - 停止时算出首帧在录制时间轴的位置 `t0 = (firstVideoTs - vOff)/1000 - recStartPerf`；
-   - 每个音频 chunk 的最终时间 = `(ts - aOff)/1000 - recStartPerf - t0`（ms，相对视频第 0 帧）。
+   - 录制中持续累计 `vOff = min(videoTs - perfNow*1000)`、`aOff = min(audioTs - perfNow*1000)`（µs）；
+   - 停止时求出换算常量 `originUs = aOff + firstVideoTs - vOff`（`firstVideoTs` 为首个视频帧原始时间戳）；
+   - 每个音频 chunk 的最终时间 = `(ts - originUs) / 1000`（ms，相对视频第 0 帧，负值丢弃）。
    - 误差 = 两路各自的最小采集延迟之差，经验值约 10~30ms，已标记为后续优化点。
 3. **混音走 AudioContext**：每路 `createMediaStreamSource → GainNode → destination`，勾选/取消用增益开关（不中断混音输出，时间轴连续）；音量电平取混音 PCM 的 RMS。单路也走同一路径，保证只有一条代码路径。
-   - 系统内录的 track 若未在录制开始时取得（默认不请求，保持现有行为不变），中途勾选时补一次 `getUserMedia({audio, video})`，丢弃其视频轨；失败则回退并提示。
+   - 系统内录的 track 若未在录制开始时取得（默认不请求，保持现有行为不变），中途勾选时补一次 `getUserMedia({audio, video})`；其视频轨保留到录制结束（中途停止可能连带停掉同一会话的音频），失败则回退并提示。
 4. **opus 参数自适应**：编码 `sampleRate/numberOfChannels` 取第一帧 AudioData；若采样率不在 opus 支持集（8/12/16/24/48k，如 44100）则转 48000，声道 >2 则降混为 2。转换统一输出 `f32-planar`。
 5. **编辑跟随 `getFrameXs` 的时间线**：变换段由 `frameXs` 推导 —— 段起点 = `frameXs[i].timestamp`（输出时间轴），源区间 = `[srcCs.getTime(i), srcCs.getTime(i+1))`，输出时长 = `frameXs[i+1].timestamp - frameXs[i].timestamp`；被删除帧不产出段。
    - 变速：每段切成子 AudioBuffer，`AudioBufferSourceNode.playbackRate = speed`，在一个 `OfflineAudioContext` 里排程后 `startRendering()` 一次渲染完成 —— 属「有 API 就用」，**会变调**，已列入后续优化（time-stretch）。
@@ -61,8 +63,8 @@
 
 | 文件 | 内容 |
 | --- | --- |
-| `src/renderer/videoEditor/audio.ts`（新增） | 采集 `AudioCapture`（混音/编码/电平/时钟偏移）、解码 `decodeSrcAudio`、变换 `buildTransAudio`、播放 `audioPlay/audioStop` |
-| `src/renderer/videoEditor/videoEditor.ts` | IIFE 内接入采集与停止、帧循环上报时间戳、录制面板音频控件（设备勾选/系统内录/电平条）、`runTransform` 尾部构建变换音频、`playEl/pause/playEnd` 挂播放、`saveWebm/saveMp4` 加音轨 |
+| `src/renderer/videoEditor/audio.ts`（新增） | 采集 `AudioCapture`（混音/增益/编码/电平/时钟偏移）、解码 `decodeSrcAudio`、变换 `buildTransAudio` |
+| `src/renderer/videoEditor/videoEditor.ts` | IIFE 内接入采集与停止、帧循环上报时间戳、录制面板音频控件（设备勾选/系统内录/电平条）、`runTransform` 尾部构建变换音频、`playEl/pause/playEnd` 挂预览音频播放、`saveWebm/saveMp4` 加音轨 |
 | `lib/translate/source.json` | 新增文案 id（`node lib/translate/tool.js -u`） |
 | `docs/use/record.md` | 去掉「超级录屏不支持录制声音」 |
 | `docs/develop/superRecorder.md` | 增加音频一节，链接本文档 |
@@ -75,9 +77,22 @@
 4. `超级录屏 音频跟随时间轴编辑` —— 解码源 PCM、`buildTransAudio`（删除/变速）、接入 `runTransform`。
 5. `超级录屏 预览播放声音` —— 播放/暂停/结束/跳转同步。
 6. `超级录屏 导出视频包含音频` —— mp4/webm 加音轨 + codec 回退 + 未包含提示。
-7. `超级录屏 音频文档与翻译` —— 使用文档、设计文档、翻译串收尾。
+7. `超级录屏 播放前等待转场同步` —— 修复预览播放与 `afterTrans()` 中 `playDecoder.flush()` 的竞态（端到端测试中稳定复现，会让预览卡死）。
+8. `超级录屏 音频分段合并优化` —— 相邻同速帧合并成段，避免逐帧建几十万个节点。
+9. `超级录屏 音频功能文档与端到端测试` —— 使用文档、设计文档、`test/superRecorderAudioE2E.mjs`。
 
 每个提交都跑 `pnpm run format`、`pnpm run typecheck`、`pnpm run lint`。
+
+### 端到端测试
+
+`test/superRecorderAudioE2E.mjs` 用 CDP 驱动打包后的真实应用自动跑完整链路（fake 音频设备，不需要麦克风）：
+
+```shell
+pnpm run build
+node test/superRecorderAudioE2E.mjs   # 全部通过 exit 0，有失败 exit 1
+```
+
+脚本会自建临时 userData、清理上次残留的 Electron（含被中断的运行）、启动时占用的调试端口冲突会先被清掉；结束或被中断时都会回收整个 Electron 进程组，不会留下孤儿进程。
 
 ## 已知限制 & 后续优化
 
@@ -91,10 +106,18 @@
 
 ## 测试要点
 
-- [ ] 无音频设备 / 系统内录失败：录制、播放、导出均不回归（保持 `audio:false` 路径等价）。
-- [ ] 只麦克风、只系统内录、两者混合三种情况的录制与回放。
-- [ ] 录制中勾选/取消设备：设置持久化、电平条反应、最终文件时长正确。
-- [ ] 删除区间后音画同步；变速段落有声且时长与画面一致。
-- [ ] 播放/暂停/上一帧/下一帧/时间轴跳转后声音位置正确；播放到结尾停止。
-- [ ] mp4（各编码）、webm 导出可播（VLC + 浏览器），gif/apng/png 正常无音频。
-- [ ] 取消录制后麦克风、系统内录设备被释放（系统托盘/隐私指示灯熄灭）。
+已由 `test/superRecorderAudioE2E.mjs`（CDP 驱动真实构建 + Chromium fake 音频设备）验证：
+
+- [x] 录制面板出现、麦克风按钮展开设备列表、勾选设备、实时电平、选择持久化到 `录屏.音频.设备列表`。
+- [x] 只麦克风录制出 opus 音频，预览播放创建 `AudioBufferSourceNode` 并从当前媒体时间出声。
+- [x] mp4、webm 导出均含 opus 音轨，`ffprobe` 时长与视频一致、频谱与源信号（440/660/880Hz）比例一致（无采样率/音高错误）。
+- [x] 没有任何音频输入时，录制、变换、导出与原行为一致（不回归）。
+
+待人工验证（需要真实硬件/系统内录）：
+
+- [ ] 系统内录（真实 loopback，含 `启用系统内录` 关闭时面板置灰提示）。
+- [ ] 录制中取消已勾选设备：设备释放（系统隐私指示灯熄灭）、后续文件时长正确。
+- [ ] 删除区间、变速区间后音画同步（变速段落有声且时长与画面一致）。
+- [ ] 暂停/上一帧/下一帧/时间轴跳转后声音位置正确；播放到结尾停止。
+- [ ] 双麦克风混音；无音频输入设备时的提示文案。
+- [ ] gif/apng/png 导出不受影响；取消录制后设备释放。
