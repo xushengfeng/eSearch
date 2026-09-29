@@ -35,12 +35,16 @@ import UPNG from "@pdf-lib/upng";
 // @ts-expect-error
 import { GIFEncoder, applyPalette, quantize } from "gifenc";
 import {
+    AudioBufferSource,
+    type AudioCodec,
     BufferTarget,
     EncodedPacket,
     EncodedVideoPacketSource,
     Mp4OutputFormat,
     Output,
+    type OutputFormat,
     WebMOutputFormat,
+    getFirstEncodableAudioCodec,
 } from "mediabunny";
 
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
@@ -1565,6 +1569,43 @@ function getSavePath(type: baseType) {
     ]);
 }
 
+const audioExportBitrate = 128000;
+
+/** 按容器支持与浏览器可编码能力选择音轨编码，不能带音频时返回 null */
+async function createAudioSource(format: OutputFormat) {
+    if (!transAudio) return null;
+    const supported = format.getSupportedCodecs();
+    const candidates: AudioCodec[] =
+        format instanceof Mp4OutputFormat
+            ? ["aac", "opus", "mp3"]
+            : ["opus", "vorbis"];
+    const list = candidates.filter((c) => supported.includes(c));
+    const codec = await getFirstEncodableAudioCodec(list, {
+        sampleRate: transAudio.sampleRate,
+        numberOfChannels: transAudio.numberOfChannels,
+        bitrate: audioExportBitrate,
+    });
+    if (!codec) {
+        console.warn("超级录屏：没有可编码的音频编码", list);
+        return null;
+    }
+    return new AudioBufferSource({
+        codec,
+        bitrate: audioExportBitrate,
+    });
+}
+
+/** 本次导出本应包含音频却没有时提示 */
+function tipNoAudio() {
+    console.warn("超级录屏：本次导出未包含音频");
+    const el = txt(t("导出未包含音频")).style({
+        color: cssColor.f,
+        padding: "0 4px",
+    });
+    transformLogEl.add(el);
+    setTimeout(() => el.remove(), 8000);
+}
+
 async function saveImages() {
     // todo 大小警告
     const exportPath = getSavePath("png");
@@ -1799,6 +1840,8 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
     const exportPath = getSavePath("webm");
     if (!exportPath) return;
 
+    await transform({ codec: op.codec });
+
     const output = new Output({
         format: new WebMOutputFormat({
             appendOnly: false,
@@ -1811,9 +1854,10 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
         frameRate: srcRate,
     });
 
-    await output.start();
+    const audioSource = await createAudioSource(output.format);
+    if (audioSource) output.addAudioTrack(audioSource);
 
-    await transform({ codec: op.codec });
+    await output.start();
 
     for (const [_, chunk] of transformCs.entries()) {
         await videoSource.add(EncodedPacket.fromEncodedChunk(chunk), {
@@ -1823,6 +1867,11 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
                 codedHeight: outputV.height,
             },
         });
+    }
+    if (audioSource && transAudio) {
+        await audioSource.add(transAudio);
+    } else if (srcAudio) {
+        tipNoAudio();
     }
     await output.finalize();
     const { buffer } = output.target;
@@ -1839,6 +1888,8 @@ async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
     const exportPath = getSavePath("mp4");
     if (!exportPath) return;
 
+    await transform({ codec: op.codec });
+
     const output = new Output({
         format: new Mp4OutputFormat(),
         target: new BufferTarget(),
@@ -1849,9 +1900,10 @@ async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
         frameRate: srcRate,
     });
 
-    await output.start();
+    const audioSource = await createAudioSource(output.format);
+    if (audioSource) output.addAudioTrack(audioSource);
 
-    await transform({ codec: op.codec });
+    await output.start();
 
     for (const [_, chunk] of transformCs.entries()) {
         await videoSource.add(EncodedPacket.fromEncodedChunk(chunk), {
@@ -1861,6 +1913,11 @@ async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
                 codedHeight: outputV.height,
             },
         });
+    }
+    if (audioSource && transAudio) {
+        await audioSource.add(transAudio);
+    } else if (srcAudio) {
+        tipNoAudio();
     }
     await output.finalize();
     const { buffer } = output.target;
