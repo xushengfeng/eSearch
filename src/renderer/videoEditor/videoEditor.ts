@@ -1104,6 +1104,40 @@ async function playId(i: TransId, force = false) {
     console.log("play", playI);
 }
 
+let audioCtx: AudioContext | null = null;
+let playNode: AudioBufferSourceNode | null = null;
+
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch((e) => console.warn(e));
+    }
+    return audioCtx;
+}
+
+/** 从媒体时间 offsetMs 处开始播放预览音频 */
+function audioStart(offsetMs: number) {
+    audioStop();
+    if (!transAudio) return;
+    const ctx = getAudioCtx();
+    const node = ctx.createBufferSource();
+    node.buffer = transAudio;
+    node.connect(ctx.destination);
+    node.start(0, Math.max(0, offsetMs / 1000));
+    playNode = node;
+}
+
+function audioStop() {
+    if (!playNode) return;
+    try {
+        playNode.stop();
+    } catch (e) {
+        console.error(e);
+    }
+    playNode.disconnect();
+    playNode = null;
+}
+
 async function play() {
     if (!isPlaying) return;
 
@@ -1168,12 +1202,14 @@ async function jump2idUi(id: SrcId) {
 
 function pause() {
     isPlaying = false;
+    audioStop();
 
     onPause();
 }
 
 async function playEnd() {
     isPlaying = false;
+    audioStop();
     playEl.sv(false);
 
     await playId(0 as TransId, true);
@@ -2167,6 +2203,7 @@ const playEl = check("", [
         }
 
         resetPlayTime();
+        audioStart(timestamp2ms(transformCs.at(playI)?.timestamp ?? 0));
         play();
     } else {
         pause();
