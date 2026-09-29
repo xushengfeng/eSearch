@@ -585,16 +585,35 @@ export async function buildTransAudio(
         outDur: number;
     }[] = [];
     let totalMs = 0;
+    let cur: (typeof segments)[0] | null = null;
+    const push = () => {
+        if (cur) segments.push(cur);
+        cur = null;
+    };
     for (let i = 0; i < frames.length; i++) {
         const f = frames[i];
-        if (f.isRemoved) continue;
+        if (f.isRemoved) {
+            push();
+            continue;
+        }
         totalMs = Math.max(totalMs, f.timestamp);
         const outDur = (frames[i + 1]?.timestamp ?? f.timestamp) - f.timestamp;
         const srcStart = srcTimes[i] ?? 0;
         const srcDur = (srcTimes[i + 1] ?? srcStart) - srcStart;
-        if (outDur <= 0 || srcDur <= 0) continue;
-        segments.push({ srcStart, srcDur, outStart: f.timestamp, outDur });
+        if (outDur <= 0 || srcDur <= 0) {
+            push();
+            continue;
+        }
+        // 相邻且速度相同的帧合并成一段，避免逐帧建节点
+        if (cur && Math.abs(cur.srcDur / cur.outDur - srcDur / outDur) < 1e-6) {
+            cur.srcDur += srcDur;
+            cur.outDur += outDur;
+            continue;
+        }
+        push();
+        cur = { srcStart, srcDur, outStart: f.timestamp, outDur };
     }
+    push();
     if (segments.length === 0 || totalMs <= 0) return null;
     const sr = src.sampleRate;
     const length = Math.max(1, Math.ceil((totalMs / 1000) * sr));
