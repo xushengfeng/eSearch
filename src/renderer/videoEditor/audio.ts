@@ -464,3 +464,149 @@ export class AudioCapture {
 }
 
 export const audioCapture = new AudioCapture();
+
+/** 解码录制音频，放到源时间轴上（0 为首个视频帧），返回的 PCM 只应临时使用 */
+export async function decodeSrcAudio(
+    audio: SrcAudio,
+    durationMs: number,
+): Promise<AudioBuffer | null> {
+    if (audio.chunks.length === 0) return null;
+    const { sampleRate, numberOfChannels, originUs } = audio;
+    // 多留 1 秒，容纳最后一个视频帧之后的音频
+    const length = Math.max(
+        1,
+        Math.ceil((durationMs / 1000) * sampleRate) + sampleRate,
+    );
+    const planes = Array.from(
+        { length: numberOfChannels },
+        () => new Float32Array(length),
+    );
+    let nextIdx = 0;
+    const decoder = new AudioDecoder({
+        output: (d) => {
+            const ms = (d.timestamp - originUs) / 1000;
+            let start = Math.round((ms / 1000) * sampleRate);
+            let skip = 0;
+            if (start < 0) {
+                skip = -start;
+                start = 0;
+            }
+            if (start < nextIdx) {
+                skip += nextIdx - start;
+                start = nextIdx;
+            }
+            const inPlanes = planarF32(d);
+            const frames = d.numberOfFrames;
+            d.close();
+            if (skip >= frames || start >= length) return;
+            const n = Math.min(frames - skip, length - start);
+            for (let c = 0; c < planes.length; c++) {
+                const p = inPlanes[Math.min(c, inPlanes.length - 1)];
+                if (!p) continue;
+                planes[c].set(p.subarray(skip, skip + n), start);
+            }
+            nextIdx = Math.max(nextIdx, start + n);
+        },
+        error: (e) => console.error("Audio decode error:", e),
+    });
+    decoder.configure({
+        codec: "opus",
+        sampleRate,
+        numberOfChannels,
+    });
+    try {
+        for (let i = 0; i < audio.chunks.length; i++) {
+            // 分批 flush，避免解码队列积压
+            if (i > 0 && i % 250 === 0) await decoder.flush();
+            decoder.decode(audio.chunks[i]);
+        }
+        await decoder.flush();
+    } catch (e) {
+        console.error(e);
+    }
+    decoder.close();
+    if (nextIdx === 0) return null;
+    const buffer = new AudioBuffer({
+        length,
+        numberOfChannels,
+        sampleRate,
+    });
+    for (let c = 0; c < planes.length; c++) buffer.copyToChannel(planes[c], c);
+    return buffer;
+}
+
+function sliceBuffer(buf: AudioBuffer, startMs: number, durMs: number) {
+    const sr = buf.sampleRate;
+    const start = Math.max(0, Math.round((startMs / 1000) * sr));
+    if (start >= buf.length) return null;
+    const len = Math.max(
+        1,
+        Math.min(Math.round((durMs / 1000) * sr), buf.length - start),
+    );
+    const out = new AudioBuffer({
+        length: len,
+        numberOfChannels: buf.numberOfChannels,
+        sampleRate: sr,
+    });
+    const tmp = new Float32Array(len);
+    for (let c = 0; c < buf.numberOfChannels; c++) {
+        tmp.fill(0);
+        buf.copyFromChannel(tmp, c, start);
+        out.copyToChannel(tmp, c);
+    }
+    return out;
+}
+
+/**
+ * 按编辑结果把源音频变换到输出时间轴：
+ * 删除的帧区间不发声，变速区间直接改播放速率（会变调，后续可优化为 time-stretch）。
+ * 时间线口径必须与 getFrameXs 一致。
+ * @param frameXs getFrameXs 的结果
+ * @param srcTimes 每个源帧的时间（ms）
+ * @param srcDurationMs 源视频时长（ms）
+ */
+export async function buildTransAudio(
+    audio: SrcAudio,
+    frameXs: { timestamp: number; isRemoved: boolean }[],
+    srcTimes: number[],
+    srcDurationMs: number,
+): Promise<AudioBuffer | null> {
+    const src = await decodeSrcAudio(audio, srcDurationMs);
+    if (!src) return null;
+    // frameXs 的时间戳与 EncodedVideoChunk 一致为 µs，这里统一转成 ms
+    const frames = frameXs.map((f) => ({
+        timestamp: f.timestamp / 1000,
+        isRemoved: f.isRemoved,
+    }));
+    const segments: {
+        srcStart: number;
+        srcDur: number;
+        outStart: number;
+        outDur: number;
+    }[] = [];
+    let totalMs = 0;
+    for (let i = 0; i < frames.length; i++) {
+        const f = frames[i];
+        if (f.isRemoved) continue;
+        totalMs = Math.max(totalMs, f.timestamp);
+        const outDur = (frames[i + 1]?.timestamp ?? f.timestamp) - f.timestamp;
+        const srcStart = srcTimes[i] ?? 0;
+        const srcDur = (srcTimes[i + 1] ?? srcStart) - srcStart;
+        if (outDur <= 0 || srcDur <= 0) continue;
+        segments.push({ srcStart, srcDur, outStart: f.timestamp, outDur });
+    }
+    if (segments.length === 0 || totalMs <= 0) return null;
+    const sr = src.sampleRate;
+    const length = Math.max(1, Math.ceil((totalMs / 1000) * sr));
+    const ctx = new OfflineAudioContext(src.numberOfChannels, length, sr);
+    for (const seg of segments) {
+        const buffer = sliceBuffer(src, seg.srcStart, seg.srcDur);
+        if (!buffer) continue;
+        const node = ctx.createBufferSource();
+        node.buffer = buffer;
+        node.playbackRate.value = seg.srcDur / seg.outDur;
+        node.connect(ctx.destination);
+        node.start(seg.outStart / 1000);
+    }
+    return await ctx.startRendering();
+}

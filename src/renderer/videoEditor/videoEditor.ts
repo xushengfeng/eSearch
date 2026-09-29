@@ -49,7 +49,12 @@ import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
 import floydSteinberg from "../lib/dither";
 import xhistory from "../lib/history";
-import { type SrcAudio, audioCapture, sysAudioId } from "./audio";
+import {
+    type SrcAudio,
+    audioCapture,
+    buildTransAudio,
+    sysAudioId,
+} from "./audio";
 
 initStyle(store);
 
@@ -111,6 +116,9 @@ let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
 
 /** 录制得到的音频，见 docs/develop/superRecorderAudio.md */
 let srcAudio: SrcAudio | null = null;
+/** 变换后的音频，与 transformCs 同一时间轴 */
+let transAudio: AudioBuffer | null = null;
+let lastAudioUi = "";
 
 // 播放、导出
 const outputV = {
@@ -945,6 +953,34 @@ async function runTransform(
     });
 
     await transformCs.setList(lastEncodedChunks);
+
+    await updateAudio(nowUi, frameXs);
+}
+
+/** 让音频跟随编辑（删除、变速），失败时退化为无音频，不影响视频流程 */
+async function updateAudio(nowUi: uiData, frameXs: FrameX[]) {
+    try {
+        const uiJson = JSON.stringify(nowUi);
+        if (uiJson === lastAudioUi) return;
+        if (!srcAudio) {
+            transAudio = null;
+            return;
+        }
+        const srcTimes: number[] = [];
+        for (let i = 0; i < srcCs.length; i++) {
+            srcTimes.push(srcCs.getTime(i as SrcId));
+        }
+        transAudio = await buildTransAudio(
+            srcAudio,
+            frameXs,
+            srcTimes,
+            srcCs.getDuration(),
+        );
+        lastAudioUi = uiJson;
+    } catch (e) {
+        console.error("超级录屏：音频变换失败", e);
+        transAudio = null;
+    }
 }
 
 function diffFrameXs(old: FrameX[], now: FrameX[]) {
