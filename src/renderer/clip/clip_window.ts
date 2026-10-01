@@ -566,8 +566,23 @@ function initRecord() {
     toolsX.close.f();
 }
 
+let longBusy = false;
+let longCapped = false;
+
 async function long_s() {
-    addLong((await getNowScreen().capture()).toImageData() ?? undefined);
+    // 上一帧还没拼完就跳过这一帧：并发进 addLong 会抢 longX.lastImg/lastXY，
+    // 拼出来的偏移互相错位，是"越滚越乱、最后像卡死"的直接来源
+    if (longBusy || longCapped) return;
+    longBusy = true;
+    try {
+        await addLong((await getNowScreen().capture()).toImageData() ?? undefined);
+    } catch (error) {
+        console.error(`长截图单帧失败: ${error}`);
+        // 中途抛异常时不能把鼠标穿透留着，否则整个桌面看起来都点不动
+        renderSend("windowIgnoreMouse", [false]);
+    } finally {
+        longBusy = false;
+    }
 }
 
 async function startLong() {
@@ -579,7 +594,12 @@ async function startLong() {
         if (uIOhook) {
             uIOhook.start();
             uIOhook.on("keyup", () => {
-                long_s();
+                // 原来每次全局抬键都抓一整屏，完全不限流
+                const n = Date.now();
+                if (n - lastLong > 300) {
+                    lastLong = n;
+                    long_s();
+                }
             });
             uIOhook.on("wheel", () => {
                 const n = Date.now();
@@ -599,6 +619,7 @@ async function startLong() {
 function initLong(rect: number[]) {
     longRunning = true;
     longInited = true;
+    longCapped = false;
 
     longMouse = setInterval(() => {
         const { x, y } = renderSendSync("getMousePos", []).po;
@@ -654,9 +675,13 @@ function initLong(rect: number[]) {
     });
 }
 
-function stopLong() {
+async function stopLong() {
     // 再截屏以覆盖结束按钮
-    long_s();
+    await long_s();
+    // 等上一次抓取真的拼完，否则最后一帧会落在 pjLong 之后，成品少一截
+    for (let i = 0; longBusy && i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 50));
+    }
 
     lr.style({ opacity: "0" });
     renderSend("windowIgnoreMouse", [false]);
@@ -762,6 +787,11 @@ async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     };
 }
 
+// 每帧都新建画布重绘整张累积图，尺寸一大 Chromium 就不给 2d 上下文、合成器也开始掉帧，
+// 用户看到的就是"越滚越卡直到整个窗口冻死"。到顶就停，保住已经拼好的部分。
+// 60M 像素 ≈ 240MB RGBA ≈ 2560 宽下 23400 高（约 16 屏）。
+const 长截图最大像素 = 60_000_000;
+
 function longPutImg(
     img: HTMLCanvasElement | OffscreenCanvas,
     x: number,
@@ -769,7 +799,12 @@ function longPutImg(
 ) {
     // 前提：img大小一定小于等于最终拼接canvas
     const newCanvas = ele("canvas").el;
-    const newCtx = newCanvas.getContext("2d")!;
+    const newCtx = newCanvas.getContext("2d");
+    if (!newCtx) {
+        longCapped = true;
+        console.error("长截图：拿不到 2d 上下文，停止拼接");
+        return;
+    }
 
     const srcW = longX.img?.width || 0;
     const srcH = longX.img?.height || 0;
@@ -798,6 +833,14 @@ function longPutImg(
         newCanvas.height = y + img.height - maxY + srcH;
     } else {
         newCanvas.height = srcH;
+    }
+
+    if (newCanvas.width * newCanvas.height > 长截图最大像素) {
+        longCapped = true;
+        console.warn(
+            `长截图已达 ${长截图最大像素} 像素上限，停止继续拼接（保留已拼好的部分）`,
+        );
+        return;
     }
 
     if (longX.img) newCtx.drawImage(longX.img, srcDx, srcDy);
