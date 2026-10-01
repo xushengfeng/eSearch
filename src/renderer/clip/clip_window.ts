@@ -787,10 +787,11 @@ async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     };
 }
 
-// 每帧都新建画布重绘整张累积图，尺寸一大 Chromium 就不给 2d 上下文、合成器也开始掉帧，
-// 用户看到的就是"越滚越卡直到整个窗口冻死"。到顶就停，保住已经拼好的部分。
-// 60M 像素 ≈ 240MB RGBA ≈ 2560 宽下 23400 高（约 16 屏）。
-const 长截图最大像素 = 60_000_000;
+// 每帧都新建画布、把已拼好的整张重绘一遍。实测这台机器（2560x1440 选区，Electron 44
+// 的 Chromium）：累积到 37M 像素时重绘一帧 0.1ms，到 44M 就跳到 182ms，之后稳定在
+// 200~330ms/帧 —— 断崖在 40M 附近，之后每帧都要几百毫秒，滚动越快积压越多，就是
+// issue #122 里"卡死"的实测来源。上限压在断崖下面。
+const 长截图最大像素 = 40_000_000;
 
 function longPutImg(
     img: HTMLCanvasElement | OffscreenCanvas,
