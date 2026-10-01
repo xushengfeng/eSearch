@@ -783,24 +783,27 @@ app.whenReady().then(() => {
 
     const 快捷键 = store.get("快捷键");
     for (const [k, m] of typedEntries(快捷键)) {
-        try {
-            if (m.key)
-                globalShortcut.register(m.key, () => {
-                    快捷键函数[k]();
-                });
-        } catch (error) {
+        if (!m.key) continue;
+        // globalShortcut.register 冲突时返回 false，并不抛异常
+        if (
+            !globalShortcut.register(m.key, () => {
+                快捷键函数[k]();
+            })
+        ) {
+            console.error(`快捷键注册失败：${k} = ${m.key}`);
             m.key = "";
             store.set("快捷键", 快捷键);
         }
     }
     const 工具快捷键 = store.get("全局工具快捷键");
     for (const [k, m] of typedEntries(工具快捷键)) {
-        try {
-            if (m)
-                globalShortcut.register(m, () => {
-                    sendCaptureEvent(undefined, k as 功能);
-                });
-        } catch (error) {
+        if (!m) continue;
+        if (
+            !globalShortcut.register(m, () => {
+                sendCaptureEvent(undefined, k as 功能);
+            })
+        ) {
+            console.error(`全局工具快捷键注册失败：${k} = ${m}`);
             工具快捷键[k] = "";
             store.set("全局工具快捷键", 工具快捷键);
         }
@@ -1533,41 +1536,34 @@ mainOn("theme", ([arg1]) => {
 });
 
 mainOn("hotkey", ([type, name, key]) => {
-    if (type === "快捷键") {
+    // 先注册新键，成功后再注销旧键：失败时旧绑定原样保留
+    const [storeKey, action] =
+        type === "快捷键"
+            ? ([
+                  `快捷键.${name}.key`,
+                  () => 快捷键函数[name as keyof typeof 快捷键函数](),
+              ] as const)
+            : ([
+                  `全局工具快捷键.${name}`,
+                  () => sendCaptureEvent(undefined, name as 功能),
+              ] as const);
+    // @ts-ignore
+    const old = store.get(storeKey) as string;
+    if (key && key === old) return true;
+    let ok = true;
+    if (key) {
         try {
-            try {
-                // @ts-ignore
-                globalShortcut.unregister(store.get(`快捷键.${name}.key`));
-            } catch {}
-            let ok = false;
-            if (key) {
-                ok = globalShortcut.register(key, () => {
-                    快捷键函数[name]();
-                });
-            }
-            return key ? ok : true;
-        } catch (error) {
-            return false;
-        }
-    } else {
-        try {
-            try {
-                globalShortcut.unregister(
-                    // @ts-ignore
-                    store.get(`全局工具快捷键.${name}`) as string,
-                );
-            } catch {}
-            let ok = true;
-            if (key) {
-                ok = globalShortcut.register(key, () => {
-                    sendCaptureEvent(undefined, name);
-                });
-            }
-            return ok;
-        } catch (error) {
-            return false;
+            ok = globalShortcut.register(key, action);
+        } catch {
+            ok = false;
         }
     }
+    if (!ok) {
+        console.error(`快捷键注册失败：${name} = ${key}（保留 ${old || "空"}）`);
+        return false;
+    }
+    if (old) globalShortcut.unregister(old);
+    return true;
 });
 
 // 长截屏
