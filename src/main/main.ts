@@ -1455,7 +1455,12 @@ mainOn("reloadMainFromSetting", () => {
     if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible())
         clipWindow.reload();
     if (contextMenu && tray) {
-        contextMenu.items[8].checked = store.get("浏览器中打开");
+        // 原来写死 items[8]，但 8 是"超级录屏"后面那个 separator，"浏览器打开"
+        // 复选框在 9 —— 按下标取菜单项本身就是这个 bug 的成因，改成按 label 找
+        const browserItem = contextMenu.items.find(
+            i => i.label === t("浏览器打开"),
+        );
+        if (browserItem) browserItem.checked = store.get("浏览器中打开");
         tray.popUpContextMenu(contextMenu);
         tray.closeContextMenu();
     }
