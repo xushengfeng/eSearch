@@ -426,7 +426,7 @@ async function argRun(c: string[], first?: boolean) {
                     const buffer = image.toPNG();
                     const filePath = join(sp, `${i}.png`);
                     writeFile(filePath, buffer, () => {});
-                }, dt * n);
+                }, dt * i);
             }
         } else {
             const img = await getImg();
