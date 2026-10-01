@@ -271,6 +271,13 @@ ipcMain?.on(name, async (event, key, data) => {
                 event.returnValue = result;
             }
         }
+        // renderSendSync 的调用方在等 returnValue 才被唤醒。handler 返回 undefined
+        // 时（用户取消保存对话框、或本来就没有返回值的 handler）它永远不会被赋值，
+        // 调用方所在的渲染进程就此永久阻塞——全屏置顶的截屏覆盖层连 Esc 都收不到。
+        // 兜一个 null，让"取消"变成一个可判定的返回值（调用方已有 if (!x) return 分支）。
+        if (event.returnValue === undefined) {
+            event.returnValue = null;
+        }
     } else {
         console.log(`ipcMain.on: ${key} not found`);
     }
