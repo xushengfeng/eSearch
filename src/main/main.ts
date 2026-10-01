@@ -408,7 +408,7 @@ async function argRun(c: string[], first?: boolean) {
                           getFileName(),
                       ),
                   )
-                : statSync(savePath).isDirectory()
+                : existsSync(savePath) && statSync(savePath).isDirectory()
                   ? checkFile(join(savePath, getFileName()))
                   : savePath;
 
@@ -434,7 +434,10 @@ async function argRun(c: string[], first?: boolean) {
             if (argv.clipboard) {
                 clipboard.writeImage(img);
             } else {
-                writeFileSync(`${sp}.png`, img.toPNG());
+                const file = sp.endsWith(".png") ? sp : `${sp}.png`;
+                mkdirSync(dirname(file), { recursive: true });
+                writeFileSync(file, img.toPNG());
+                console.log(`已保存截图: ${file}`);
             }
         }
     } else if (argv.o || argv.ocr) {
@@ -567,7 +570,10 @@ app.whenReady().then(() => {
     // 初始化语言
     lan(store.get("语言.语言") || "");
 
-    argRun(process.argv, true);
+    argRun(process.argv, true).catch((err) => {
+        console.error(`命令行执行失败: ${err?.stack ?? err}`);
+        process.exitCode = 1;
+    });
 
     if (store.get("托盘") !== "无") {
         // 托盘
