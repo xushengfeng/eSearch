@@ -506,6 +506,12 @@ class videoChunk<Id extends number> {
         this.getters.add(g);
         return g;
     }
+    /** 编辑增量发布：就地替换某帧编码数据（timestamp 不变，
+     * 索引/映射/缓存键均不受影响）。
+     * 调用方保证该帧此前被脏区拦截、无在途解码 */
+    replaceAt(i: Id, chunk: EncodedVideoChunk) {
+        this.list[i] = chunk;
+    }
     /** 默认序列，供一次性/测试使用；界面各层请各自 getGetter 持有 */
     getFrame(index: Id, signal?: AbortSignal) {
         if (!this.defGetter) this.defGetter = this.getGetter();
@@ -1020,6 +1026,57 @@ function easeOutQuint(x: number): number {
     return 1 - (1 - x) ** 5; // todo 更多 easing
 }
 
+/** 本次编辑尚未重编码完成的帧（trans id 空间）；null = 无进行中的编辑。
+ * 脏帧的加载请求会挂起等待其处理完成，播放到脏帧则暂停 */
+let dirtyTransIds: Set<number> | null = null;
+/** 编辑代数：每轮 runTransform 提前段递增；被中断的旧 run 迟到的
+ * 编码输出按代数校验丢弃，不污染新一轮的脏区 */
+let dirtyRunId = 0;
+/** 脏帧处理完成的等待者：trans id → 结算函数 */
+const dirtyWaiters = new Map<number, ((ok: boolean) => void)[]>();
+
+function isDirty(id: TransId) {
+    return dirtyTransIds?.has(id) ?? false;
+}
+/** 等待帧退出脏区（编辑处理到它）；signal 抛弃（新跳转）时返回 false */
+function waitDirty(id: TransId, signal?: AbortSignal): Promise<boolean> {
+    if (!isDirty(id)) return Promise.resolve(true);
+    if (signal?.aborted) return Promise.resolve(false);
+    const { promise, resolve } = Promise.withResolvers<boolean>();
+    const ws = dirtyWaiters.get(id) ?? [];
+    ws.push(resolve);
+    dirtyWaiters.set(id, ws);
+    signal?.addEventListener("abort", () => resolve(false), { once: true });
+    return promise;
+}
+/** 放行全部等待者并清空脏区（编辑完成 / 失败 / 无事可做） */
+function clearDirty() {
+    dirtyTransIds = null;
+    for (const ws of dirtyWaiters.values()) {
+        for (const w of ws) w(true);
+    }
+    dirtyWaiters.clear();
+}
+/** 单帧重编码完成：增量发布到预览列表、解除脏标记并唤醒该帧等待者；
+ * runId 与当前编辑代数不符（该 run 已被新编辑打断）时丢弃 */
+function publishFrame(srcId: number, chunk: EncodedVideoChunk, runId: number) {
+    if (runId !== dirtyRunId) return;
+    const transId = src2trans(srcId as SrcId);
+    if (transId === undefined) return;
+    transformCs.replaceAt(transId, chunk);
+    if (dirtyTransIds?.delete(transId)) {
+        const ws = dirtyWaiters.get(transId);
+        if (ws) {
+            dirtyWaiters.delete(transId);
+            for (const w of ws) w(true);
+        }
+    }
+}
+/** 脏帧的结构占位：首次编码无基底时保持列表长度（脏区拦截保证不会被解码） */
+function placeholderChunk(timestamp: number, type: "key" | "delta") {
+    return new EncodedVideoChunk({ data: new Uint8Array(0), timestamp, type });
+}
+
 /** 正在进行的转换；相同请求（参数 + ui 数据）直接加入，不打断它 */
 let runningTransform: { key: string; promise: Promise<true | null> } | null =
     null;
@@ -1047,6 +1104,8 @@ async function transform(op?: Partial<typeof lastTransOpt>) {
         })
         .catch((e) => {
             console.log(e);
+            // 编辑失败：放行脏区等待者，避免跳转/预览永久挂起
+            clearDirty();
             // 出错时也要结算，避免调用方永远等待
             for (const task of waiters) task(null);
         })
@@ -1080,7 +1139,11 @@ async function runTransform(
         return false;
     })();
     if (!forceRerendAll) {
-        if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) return;
+        if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) {
+            // 无事可做（如撤销回原样）：放行上一轮遗留的脏区等待者
+            clearDirty();
+            return;
+        }
     }
     console.trace("transform");
     const lastFrameXs = getFrameXs(lastUiData);
@@ -1093,6 +1156,51 @@ async function runTransform(
     const needDecode = new Set<number>();
 
     const transformed = structuredClone(lastEncodedChunks);
+
+    // ———— 增量发布：结构立即生效、脏区先建立，预览/播放不必等全部处理完成 ————
+    // 1. 补齐结构：移除帧 → null；首次编码无基底的帧放占位（保持列表长度，
+    //    脏区拦截保证占位不会被解码）
+    for (const [i, f] of frameXs.entries()) {
+        if (f.isRemoved) {
+            transformed[i] = null;
+            continue;
+        }
+        if (transformed[i] === undefined) {
+            transformed[i] = placeholderChunk(
+                f.timestamp,
+                f.isKey ? "key" : "delta",
+            );
+        }
+    }
+    // 2. 立即重建映射（remove 结构变化即时反映到时长/跳转/播放头）
+    trans2srcM.clear();
+    src2transM.clear();
+    let transCount = 0;
+    for (const [i, f] of frameXs.entries()) {
+        trans2srcM.set(transCount, i);
+        src2transM.set(i, transCount);
+        if (!f.isRemoved) transCount++;
+    }
+    // 3. 建立脏区：未重编码完成的帧，其加载请求将等待处理完成
+    dirtyRunId++;
+    const myRunId = dirtyRunId;
+    const nextDirty = new Set<number>();
+    for (const id of needEncode) {
+        if (frameXs.at(id)?.isRemoved) continue;
+        const t = src2transM.get(id);
+        if (t !== undefined) nextDirty.add(t);
+    }
+    dirtyTransIds = nextDirty;
+    // 新脏区之外的旧等待者（新编辑不再涉及的帧）直接放行
+    for (const [id, ws] of [...dirtyWaiters]) {
+        if (!dirtyTransIds.has(id)) {
+            dirtyWaiters.delete(id);
+            for (const w of ws) w(true);
+        }
+    }
+    // 4. 发布基底列表（结构生效；脏帧内容暂为上次结果，但被脏区拦截不加载）
+    transformProgressEl.sv(0);
+    await transformCs.setList(transformed);
 
     if (needEncode.size > 0) {
         transformTimeEl.sv(t("开始处理"));
@@ -1135,6 +1243,8 @@ async function runTransform(
                 }
                 transformed[id] = c;
                 run();
+                // 单帧处理完成：立即发布（内容可见）并唤醒等待该帧的加载
+                publishFrame(id, c, myRunId);
             },
             error: (e) => console.error("Encode error:", e),
         });
@@ -1216,18 +1326,6 @@ async function runTransform(
 
     for (const [i, v] of typedEntries(joinOp)) if (v) lastTransOpt[i] = v;
     lastUiData = nowUi;
-
-    trans2srcM.clear();
-    src2transM.clear();
-
-    let transCount = 0;
-    for (const [i, f] of frameXs.entries()) {
-        trans2srcM.set(transCount, i);
-        src2transM.set(i, transCount);
-        if (f.isRemoved) transformed[i] = null;
-        else transCount++;
-    }
-
     console.log(trans2srcM, src2transM);
 
     lastEncodedChunks = transformed.map((chunk, i) => {
@@ -1241,7 +1339,10 @@ async function runTransform(
         });
     });
 
-    await transformCs.setList(lastEncodedChunks);
+    // 结构与内容已通过「开头 setList + 逐帧 publishFrame」增量发布，
+    // 这里不再整体 setList——否则会作废编辑期间进行中的加载
+    transformProgressEl.sv(1);
+    clearDirty();
 
     await updateAudio(nowUi, frameXs);
 }
@@ -1354,24 +1455,23 @@ function renderFrameX(frame: VideoFrame, frameX: FrameX) {
 }
 
 async function afterTrans() {
-    const oldI = Math.min(willPlayI, transformCs.length - 1) as TransId;
-    // 主画面 / 预览轴 / 帧轴相互独立，并行加载
-    await Promise.all([
-        jump2id(oldI),
-        showThumbnails(),
-        showNowFrames(oldI, true),
-    ]);
-    // 加载期间可能有新的跳转，以最新播放头为准，避免覆盖跳转结果
     const i = Math.min(willPlayI, transformCs.length - 1) as TransId;
+    // 立即对齐播放头与播放序列（不等内容处理——脏帧由各自加载路径等待），
+    // 使 afterTransTask 快速完成，编辑进行中即可播放/交互
     playI = i;
     willPlayI = i;
-    // 预热播放解码序列（暂停时 sink 屏蔽输出，仅让 k 帧序列就位，
-    // 正式播放首轮即可接续排帧，不必现解整个 Gop）
-    playFrameGet.playRequest(i);
     onPlay(transformCs.getTime(i));
+    // 预热播放解码序列（脏帧跳过：不排旧内容，避免占位/过期帧混入序列）
+    if (!isDirty(i)) playFrameGet.playRequest(i);
+    // 主画面 / 预览轴 / 帧轴后台加载：干净帧直接显示，脏帧自动等待
+    // 对应区域处理完成（录屏后首次编辑：预留帧序列先执行、逐帧跟进）
+    Promise.all([jump2id(i), showThumbnails(), showNowFrames(i, true)]).catch(
+        (e) => console.error("afterTrans", e),
+    );
 }
 
-/** afterTrans 会 flush 播放解码器，记录其任务，开始播放前需等待它完成，避免竞态 */
+/** 记录最近一次 afterTrans（播放头对齐 + 预览刷新发起）；
+ * 它快速完成（不等内容处理），播放启动前等待它避免播放头竞态 */
 let afterTransTask: Promise<void> = Promise.resolve();
 function runAfterTrans() {
     afterTransTask = afterTrans().catch((e) => console.error("afterTrans", e));
@@ -1438,6 +1538,13 @@ async function play() {
     onPlay(dTime);
 
     const i = transformCs.time2Id(dTime);
+    // 编辑尚未处理到此处（脏区）：暂停播放（时间与音频停止），
+    // 编辑推进后用户可继续播放
+    if (isDirty(i)) {
+        playEl.sv(false);
+        pause();
+        return;
+    }
     await playId(i);
 
     // 按时间判断结尾而非 playI：掉帧跳过排入时 playI 可能滞后，
@@ -1475,6 +1582,9 @@ let seekAbort: AbortController | undefined;
 
 async function jump2id(id: TransId, signal?: AbortSignal) {
     const gen = ++jumpGen;
+    // 编辑未处理到此帧：等处理完成再加载（可被新跳转抛弃）；
+    // 已处理好的帧则立即加载
+    if (!(await waitDirty(id, signal))) return;
     const fcanvas = await mainFrameGet.getFrame(id, signal);
     if (!fcanvas) {
         if (!signal?.aborted) console.log("no frame", id);
@@ -1555,8 +1665,8 @@ function onPause() {
 /** 预览轴刷新：一轮 6 帧完整获取，不因代码自动刷新而丢弃；
  * 并发轮各自填充自己的格子，最新一轮的格子在 DOM 中，天然收敛 */
 async function showThumbnails() {
-    const transR = await transform();
-    if (!transR) return;
+    // 结构发布即可，不等编辑内容处理完成——编辑期间预览照常进行
+    transform();
 
     const tW = 300;
     const tH = Math.floor((tW * outputV.height) / outputV.width);
@@ -1585,7 +1695,12 @@ async function showThumbnails() {
                 })
                 .add(canvasEl),
         );
-        const p = thumbFrameGet.getFrame(id);
+        // 脏帧等编辑处理到它再加载；已处理好的帧立即加载
+        const p = isDirty(id)
+            ? waitDirty(id).then((ok) =>
+                  ok ? thumbFrameGet.getFrame(id) : null,
+              )
+            : thumbFrameGet.getFrame(id);
         fills.push(async () => {
             const canvas = await p;
             if (!canvas) {
@@ -1617,8 +1732,8 @@ async function showNowFrames(
     force = false,
     signal?: AbortSignal,
 ) {
-    const transR = await transform();
-    if (!transR) return;
+    // 结构发布即可，不等编辑内容处理完成——编辑期间预览照常进行
+    transform();
 
     const tW = 300;
     const tH = Math.floor((tW * outputV.height) / outputV.width);
@@ -1637,6 +1752,14 @@ async function showNowFrames(
 
     /** 需要（重新）加载的格子，全部先发出请求再并行填充 */
     const pending: { i: number; p: Promise<OffscreenCanvas | null> }[] = [];
+    /** 脏帧等编辑处理到它再加载（可被新跳转抛弃）；
+     * 已处理好的帧立即同步发出，保持同批合批 flush */
+    const load = (id: TransId) =>
+        isDirty(id)
+            ? waitDirty(id, signal).then((ok) =>
+                  ok ? previewFrameGet.getFrame(id, signal) : null,
+              )
+            : previewFrameGet.getFrame(id, signal);
     for (let i = centerId - showHalf; i <= centerId + showHalf; i++) {
         const id = i as TransId;
         const inRange = 0 <= i && i < transformCs.length;
@@ -1682,12 +1805,12 @@ async function showNowFrames(
                     .on("click", () => {
                         jump2idUi(srcId);
                     });
-                pending.push({ i, p: previewFrameGet.getFrame(id, signal) });
+                pending.push({ i, p: load(id) });
             }
             timeLineFrame.add(cellEl);
         } else if (inRange && exist.el.getAttribute("data-loaded") !== "1") {
             // 上一次加载被抛弃，重新填充
-            pending.push({ i, p: previewFrameGet.getFrame(id, signal) });
+            pending.push({ i, p: load(id) });
         }
     }
 
@@ -1702,12 +1825,13 @@ async function showNowFrames(
     }
 
     // 提前量：窗口外、预取半径内的帧与窗口请求同批发出（共享一次 flush、
-    // 一条序列顺序解码），只解码入缓存、不建格子不显示；跳转进窗口时命中
+    // 一条序列顺序解码），只解码入缓存、不建格子不显示；跳转进窗口时命中。
+    // 脏帧走 load 的等待路径——绝不把旧内容/占位解码进缓存
     const prefetch: Promise<OffscreenCanvas | null>[] = [];
     for (let i = centerId - prefetchHalf; i <= centerId + prefetchHalf; i++) {
         if (centerId - showHalf <= i && i <= centerId + showHalf) continue;
         if (i < 0 || i >= transformCs.length) continue;
-        prefetch.push(previewFrameGet.getFrame(i as TransId, signal));
+        prefetch.push(load(i as TransId));
     }
     // 预取不阻塞显示，失败静默（下一轮刷新自然重试）
     Promise.all(prefetch).catch((e) => console.log(e));
@@ -1927,9 +2051,11 @@ function editClip(i: number) {
 }
 
 async function uiDataSave() {
-    const transR = await transform();
-    if (!transR) return;
+    // 启动编辑（结构立即发布、后台增量重编码），不等待完成——
+    // 预览立即刷新：干净帧直接显示，脏帧自动等待各自处理完成
+    const p = transform();
     runAfterTrans();
+    await p;
 }
 
 async function save() {
@@ -2636,14 +2762,15 @@ const playEl = check("", [
     iconEl("recume").style({ display: "block" }),
 ]).on("input", async () => {
     if (playEl.gv) {
-        const transR = await transform();
-        if (!transR) {
-            // 被新的转换取代，恢复未播放状态
+        // 启动/加入编辑处理但不等待完成——编辑期间脏区外即可播放
+        transform();
+        // afterTrans 可能正在对齐播放头，等它完成（快速，不等脏帧内容）
+        await afterTransTask;
+        if (isDirty(willPlayI)) {
+            // 起播点在编辑脏区：先不播放，处理到该帧后可再播
             playEl.sv(false);
             return;
         }
-        // afterTrans 可能正在重同步播放解码器，等它完成再播放
-        await afterTransTask;
         isPlaying = true;
         // 开启输出直通绘制（pause/playEnd 会关闭，防止迟到输出覆盖静止帧）
         playFrameGet.setSink(drawPlayFrame);
@@ -2762,18 +2889,25 @@ const transformCodec = monoTxt()
 const actionUndo = iconBEl("left", "撤回").on("click", async () => {
     history.undo();
     renderUiData(history.getData());
-    await transform();
+    // 启动编辑并立即刷新预览（脏帧自动等待处理完成），不阻塞交互
+    const p = transform();
+    runAfterTrans();
+    await p;
 });
 const actionList = dynamicSelect();
 actionList.el.on("change", async () => {
     history.jump(Number(actionList.el.gv));
     renderUiData(history.getData());
-    await transform();
+    const p = transform();
+    runAfterTrans();
+    await p;
 });
 const actionUnundo = iconBEl("right", "重做").on("click", async () => {
     history.unundo();
     renderUiData(history.getData());
-    await transform();
+    const p = transform();
+    runAfterTrans();
+    await p;
 });
 
 history.on("change", () => {
@@ -3428,6 +3562,8 @@ const exportEl = frame("export", {
     _s: spacer(),
     px: exportPx.el,
     editClip: iconBEl("draw", "编辑").on("click", async () => {
+        // 编辑脏区：等处理到当前帧再取快照（内容才是最新的）
+        if (!(await waitDirty(willPlayI))) return;
         const canvas = await mainFrameGet.getFrame(willPlayI);
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
@@ -3556,11 +3692,12 @@ pack(document.body).style({
         outputV.width = Math.round(v.width / x);
         outputV.height = Math.round(v.height / x);
         setPlaySize();
-        const transR = await transform({
+        // 尺寸编辑：立即刷新预览（脏帧自动等待），不阻塞
+        const p = transform({
             size: `${outputV.width}x${outputV.height}`,
         });
-        if (!transR) return;
         runAfterTrans();
+        await p;
     });
 
     const lastR = store.get("录屏.超级录屏.缩放") ?? 1;
@@ -3656,17 +3793,20 @@ pack(document.body).style({
 
         onPlay(0);
 
-        const transR = await transform();
+        // 启动首次编码（后台增量进行，逐帧完成即可见），
+        // 预留帧序列立即加载、自动等待对应区域处理完成——
+        // 不再等所有待处理帧完成才开始显示
+        const p = transform();
 
         setPlaySize();
+        runAfterTrans();
 
-        if (transR) {
-            runAfterTrans();
-        }
-
+        // UI 初始化不依赖编码完成，立即执行
         const nowUi = history.getData();
         renderUiData(nowUi);
         timeLineControl.sv(window.innerWidth / listLength());
+
+        await p;
     };
 
     const recordTime = nowTimeEl();
