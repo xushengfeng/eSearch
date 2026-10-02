@@ -1707,12 +1707,7 @@ function createDingWindow(
             ]);
         }
     }
-    // 自动改变鼠标穿透：全局只跑一个循环。
-    // 原来每次 createDingWindow 都会新挂一个 10ms 循环、且从不自停，于是循环数
-    // 等于"本次启动以来贴过多少张"而不是"当前有几张"：每张贴图每 10ms 各收一次
-    // dingMouse，渲染进程就要做一次 elementsFromPoint 并回一条 dingIgnore，主进程
-    // 再对每个窗各调一次 setIgnoreMouseEvents。实测 1 张 95 次/秒、4 张 380 次/秒；
-    // 把贴图全关掉再贴第 5 张会跳到 476 次/秒——那 4 个僵尸循环还在跑。
+    // 自动改变鼠标穿透
     if (!dingClickThroughRunning) {
         dingClickThroughRunning = true;
         dingClickThrough();
