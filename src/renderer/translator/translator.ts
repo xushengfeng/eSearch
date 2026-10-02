@@ -126,12 +126,6 @@ async function run() {
     translate(textL);
 }
 
-// 只允许存在一条刷新链。原来是 `setTimeout(runRun, frequencyTime)` 自己续期、
-// 而"暂停→继续"每次点击都会无条件再调一次 runRun()：点暂停时那条链的下一跳还
-// 排在队列里，60ms 后点继续又起一条新的，等旧的那跳到点时 pause 已经是 false，
-// 它照常续期 ⇒ 两条链并存。实测在真翻译窗里数 setTimeout(runRun) 的调用次数：
-// 初始 1.00 条链，做 1 次快速暂停/继续 1.33 条，做 3 次 3.33 条，每循环一次加一条，
-// 表现为翻译刷新越来越密、OCR 一遍叠一遍。
 let refreshTimer: null | ReturnType<typeof setTimeout> = null;
 const runRun = () => {
     if (refreshTimer) clearTimeout(refreshTimer);
