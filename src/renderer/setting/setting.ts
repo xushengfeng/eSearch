@@ -4906,18 +4906,24 @@ function hotkeyX(
     icon: IconType | "" = "",
 ) {
     const h = hotkey();
+    // 上一次注册成功的键；注册失败时回滚到它，而不是把用户的绑定清空
+    let applied = h.gv;
     const el = xGroup()
         .add([icon ? view().add(iconEl(icon)) : "", h])
         .bindGet(() => h.gv)
         .bindSet((v: string) => h.sv(v));
     h.on("input", () => {
+        const next = h.gv;
         const arg =
             x[1] === "1"
-                ? renderSendSync("hotkey", ["快捷键", x[0], h.gv])
-                : renderSendSync("hotkey", ["快捷键2", x[0], h.gv]);
+                ? renderSendSync("hotkey", ["快捷键", x[0], next])
+                : renderSendSync("hotkey", ["快捷键2", x[0], next]);
         if (arg) {
+            applied = next;
+            el.el.title = "";
         } else {
-            h.sv("");
+            h.sv(applied);
+            el.el.title = t("快捷键注册失败，可能被其他程序占用");
         }
         el.el.dispatchEvent(new CustomEvent("input"));
     });
