@@ -408,7 +408,22 @@ async function argRun(c: string[], first?: boolean) {
                 await (await screenShots()).screen[0].capture()
             ).toNativeImage();
         } else {
-            img = nativeImage.createFromBuffer(readFileSync(path));
+            // minimist 在 "--i" 后面没跟值时给的是布尔 true，直接进 readFileSync
+            // 会抛 ERR_INVALID_ARG_TYPE；路径不存在时抛 ENOENT。两种都该说人话。
+            if (typeof path !== "string") {
+                console.error(`--i/--input 需要跟一个文件路径`);
+                return undefined;
+            }
+            try {
+                img = nativeImage.createFromBuffer(readFileSync(path));
+            } catch (error) {
+                console.error(`读取图片失败 ${path}: ${error}`);
+                return undefined;
+            }
+            if (img.isEmpty()) {
+                console.error(`${path} 不是可识别的图片文件`);
+                return undefined;
+            }
         }
         return img;
     }
