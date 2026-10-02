@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
 
-import type { Buffer } from "node:buffer";
+import { Buffer } from "node:buffer";
 import {
     type BaseWindow,
     BrowserWindow,
+    ClipboardItem,
     Menu,
     type NativeImage,
     Notification,
@@ -206,7 +207,7 @@ if (!store.get("硬件加速")) {
  * 复制选区，存在变化，回调
  */
 async function copyText(callback: (t: string) => void) {
-    const oClipboard = clipboard.readText();
+    const oClipboard = await clipboard.readText();
     if (process.platform === "darwin") {
         exec(
             `osascript -e 'tell application "System Events"' -e 'delay 0.1' -e 'key code 8 using command down' -e 'end tell'`,
@@ -217,8 +218,8 @@ async function copyText(callback: (t: string) => void) {
         // @ts-ignore
         exec(store.get("主搜索功能.linux_copy") || "xdotool key ctrl+c");
     }
-    setTimeout(() => {
-        const t = clipboard.readText();
+    setTimeout(async () => {
+        const t = await clipboard.readText();
         let v = "";
         if (oClipboard !== t) v = t;
         for (const i of store.get("主搜索功能.自动搜索排除")) {
@@ -228,8 +229,32 @@ async function copyText(callback: (t: string) => void) {
             }
         }
         callback(v);
-        clipboard.writeText(oClipboard);
+        await clipboard.writeText(oClipboard);
     }, 300);
+}
+
+/** 读取剪贴板图片（Electron 44 移除了 clipboard.readImage） */
+async function readImageFromClipboard() {
+    const items = await clipboard.read();
+    for (const mime of ["image/png", "image/jpeg"] as const) {
+        const item = items.find((i) => i.types.includes(mime));
+        if (!item) continue;
+        const data = await item.getType(mime);
+        if (!("arrayBuffer" in data)) continue;
+        return nativeImage.createFromBuffer(
+            Buffer.from(await data.arrayBuffer()),
+        );
+    }
+    return nativeImage.createEmpty();
+}
+
+/** 写入图片到剪贴板（Electron 44 移除了 clipboard.writeImage） */
+async function writeImageToClipboard(image: NativeImage) {
+    await clipboard.write([
+        new ClipboardItem({
+            "image/png": new Blob([image.toPNG()], { type: "image/png" }),
+        }),
+    ]);
 }
 
 /** 自动判断选中搜索还是截屏搜索 */
@@ -251,12 +276,11 @@ function openSelection() {
 }
 
 /** 剪贴板搜索 */
-function openClipBoard() {
-    const t = clipboard.readText(
+async function openClipBoard() {
+    const t =
         process.platform === "linux" && store.get("主搜索功能.剪贴板选区搜索")
-            ? "selection"
-            : "clipboard",
-    );
+            ? await clipboard.selection.readText()
+            : await clipboard.readText();
     createMainWindow({ type: "text", content: t });
 }
 
@@ -432,7 +456,7 @@ async function argRun(c: string[], first?: boolean) {
             const img = await getImg();
             if (!img) return;
             if (argv.clipboard) {
-                clipboard.writeImage(img);
+                await writeImageToClipboard(img);
             } else {
                 writeFileSync(`${sp}.png`, img.toPNG());
             }
@@ -1243,7 +1267,7 @@ async function quickClip() {
     for (const c of (await screenShots()).screen) {
         const image: NativeImage = (await c.capture()).toNativeImage();
         if (store.get("快速截屏.模式") === "clip") {
-            clipboard.writeImage(image);
+            await writeImageToClipboard(image);
         } else if (
             store.get("快速截屏.模式") === "path" &&
             store.get("快速截屏.路径")
@@ -1611,8 +1635,8 @@ function dingObj() {
 // ding窗口
 const dingwindowList = dingObj();
 
-function dingFromClipBoard() {
-    const img = clipboard.readImage();
+async function dingFromClipBoard() {
+    const img = await readImageFromClipboard();
     if (img.getSize().height && img.getSize().width) {
         console.log("ding img");
         ding(img);
