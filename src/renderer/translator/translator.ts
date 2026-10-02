@@ -126,11 +126,16 @@ async function run() {
     translate(textL);
 }
 
+let refreshTimer: null | ReturnType<typeof setTimeout> = null;
 const runRun = () => {
-    if (!pause) {
-        run();
-        setTimeout(runRun, frequencyTime);
-    }
+    if (refreshTimer) clearTimeout(refreshTimer);
+    refreshTimer = null;
+    if (pause) return;
+    run();
+    refreshTimer = setTimeout(() => {
+        refreshTimer = null;
+        runRun();
+    }, frequencyTime);
 };
 
 pack(document.body).style({
