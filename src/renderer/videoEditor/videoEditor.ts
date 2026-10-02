@@ -185,7 +185,6 @@ class frameGetter<Id extends number> {
     /** 已解码帧缓存（按字节限制的 LRU），命中后同步返回 */
     private frameCache = new Map<number, OffscreenCanvas>();
     private frameCacheSize = 0;
-    private lastDecoderRebuild = 0;
     private decoder: VideoDecoder;
     /** 进行中的合批 flush，同一批请求共享 */
     private flushScheduled: Promise<void> | null = null;
@@ -203,22 +202,28 @@ class frameGetter<Id extends number> {
             output: (frame) => this.#onOutput(frame),
             error: (e) => {
                 console.error("Decode error:", e);
-                // 解码器出错后不可用：先让挂起请求失败（调用方下次重试），
-                // 再限时重建，否则之后所有请求都会失败
-                this.#resetPending();
-                const now = performance.now();
-                if (now - this.lastDecoderRebuild > 1000) {
-                    this.lastDecoderRebuild = now;
-                    try {
-                        this.decoder.close();
-                    } catch (err) {
-                        console.log(err);
-                    }
-                    this.decoder = this.#newDecoder();
-                    this.decoder.configure(decoderVideoConfig);
-                }
+                // 出错后 codec 已不可用：无条件重建自愈。
+                //（曾有限流跳过重建——但 error 后 codec 已 closed，后续
+                // decode 只同步抛 InvalidStateError、不再触发 error 回调，
+                // 会永久死亡）
+                this.#rebuildDecoder();
             },
         });
+    }
+    /** codec 死亡自愈：关闭旧实例、作废挂起请求并新建（error 回调或
+     * InvalidStateError 捕获时触发）。挂起请求 resolve(null) 由
+     * fetchFrame 按最新状态重试，新序列从 k 帧干净重建 */
+    #rebuildDecoder() {
+        console.log("decoder rebuild");
+        try {
+            this.decoder.close();
+        } catch (e) {
+            console.log(e);
+        }
+        this.#resetPending();
+        this.lastAddDecodeI = -1;
+        this.decoder = this.#newDecoder();
+        this.decoder.configure(decoderVideoConfig);
     }
     #onOutput(frame: VideoFrame) {
         const id = this.chunk.timestamp2Id(frame.timestamp) as number;
@@ -279,7 +284,16 @@ class frameGetter<Id extends number> {
             // 等当前执行块结束，本批所有解码已排入队列
             await Promise.resolve();
             this.flushScheduled = null;
-            const f = this.decoder.flush();
+            let f: Promise<void>;
+            try {
+                f = this.decoder.flush();
+            } catch (e) {
+                // codec 已关闭（closed codec）：重建自愈，
+                // 本批 flush 放弃——调用方的重试会用新 decoder 重新排入
+                console.log(e);
+                this.#rebuildDecoder();
+                return;
+            }
             // flush 之后必须以 k 帧开头，后续请求从 k 帧重排
             this.lastAddDecodeI = -1;
             await f.catch((e) => console.log(e));
@@ -297,16 +311,32 @@ class frameGetter<Id extends number> {
         for (let j = Math.max(thisKey, 0); j <= to; j++) {
             const c = list[j];
             if (!c) continue;
-            try {
-                this.decoder.decode(c);
-            } catch (e) {
-                // 排入失败保持 k 帧起点，下一轮从 k 帧重来
-                console.log("decode", e);
-                return;
-            }
-            this.willDecodeIs.add(j);
+            if (!this.#tryDecode(j, c)) return;
         }
         this.lastAddDecodeI = to;
+    }
+    /** 排入单帧：占位（空数据）帧绝不入解码（会打死 codec），
+     * codec 已关闭时重建自愈；返回 false 表示本序列放弃，由调用方重试 */
+    #tryDecode(j: number, c: EncodedVideoChunk): boolean {
+        if (c.byteLength === 0) {
+            // 占位帧（待渲染的空数据）混入解码序列——正常场景它必在脏区、
+            // 请求会先等待渲染完成；走到这里说明序列依赖越过脏区边界，
+            // 放弃该序列（有限丢帧）而不是打死 codec 造成全局丢帧
+            console.log("placeholder in decode sequence", j);
+            return false;
+        }
+        try {
+            this.decoder.decode(c);
+        } catch (e) {
+            console.log("decode", e);
+            if (e instanceof DOMException && e.name === "InvalidStateError") {
+                // codec 已关闭：重建后由调用方重试
+                this.#rebuildDecoder();
+            }
+            return false;
+        }
+        this.willDecodeIs.add(j);
+        return true;
     }
     /** 把 i 及其必需的前序帧排入解码队列（保持顺序完整：同序列从已排位置
      * 的下一帧连续补全，不重复不跳过；跨 k 帧则从目标所在 k 帧完整排到 i）；
@@ -335,16 +365,12 @@ class frameGetter<Id extends number> {
         for (let j = startI; j <= i; j++) {
             const c = this.chunk.list[j];
             if (!c) continue;
-            try {
-                this.decoder.decode(c);
-            } catch (e) {
-                // 解码器异常（如 flush 后的 k 帧约束、或已被 error 关闭）：
-                // 回滚已排位置，下轮从断点完整顺序重排，不留下半截序列状态
-                console.log("decode", e);
+            if (!this.#tryDecode(j, c)) {
+                // 占位混入或 codec 已死：回滚已排位置，
+                // 返回 false 交给调用方重试（重建后从 k 帧完整重排）
                 this.lastAddDecodeI = prevLastAdd;
                 return false;
             }
-            this.willDecodeIs.add(j);
         }
 
         this.lastAddDecodeI = i;
@@ -1062,17 +1088,30 @@ function clearDirty() {
 /** 统一帧获取：序列（id/时间）同步确定，具体内容异步——
  * 不变帧（不在渲染范围）的 promise 立即消费、保持同批合批；
  * 需要渲染的帧挂延迟 promise，该帧渲染完成后再解码。
- * 结构前后差别由转换逻辑（runTransform）内部处理，调用方无感；
- * signal 抛弃（新跳转）返回 null */
-function fetchFrame(
+ * 结构前后差别由转换逻辑（runTransform）内部处理，调用方无感。
+ * 被新任务打断（setList 作废返回 null）不产生空白：循环重试，
+ * 每轮先按最新脏区判断走“立即”或“等待”，遵循最新任务的获得与
+ * 等待逻辑；signal 抛弃（新跳转）或重试耗尽返回 null */
+async function fetchFrame(
     getter: frameGetter<TransId>,
     id: TransId,
     signal?: AbortSignal,
 ): Promise<OffscreenCanvas | null> {
-    if (!isDirty(id)) return getter.getFrame(id, signal);
-    return waitDirty(id, signal).then((ok) =>
-        ok ? getter.getFrame(id, signal) : null,
-    );
+    for (let n = 0; n < 3; n++) {
+        if (signal?.aborted) return null;
+        if (isDirty(id)) {
+            // 需要渲染的帧：等它处理完成（等待期间可能又被新任务标脏，
+            // 重走循环按新任务的脏区重新判断）
+            if (!(await waitDirty(id, signal))) return null;
+            continue;
+        }
+        const canvas = await getter.getFrame(id, signal);
+        if (canvas) return canvas;
+        if (signal?.aborted) return null;
+        // null：被新任务的 setList 作废或解码失败——
+        // 作废发生时新任务状态已就绪，立即按其序列/脏区重试
+    }
+    return null;
 }
 /** 单帧重编码完成：增量发布到预览列表、解除脏标记并唤醒该帧等待者；
  * runId 与当前编辑代数不符（该 run 已被新编辑打断）时丢弃 */
@@ -1098,10 +1137,25 @@ function placeholderChunk(timestamp: number, type: "key" | "delta") {
 let runningTransform: { key: string; promise: Promise<true | null> } | null =
     null;
 
+/** 等待处理链完全完成：任务只会被“加入的新任务”打断（同步接管其状态），
+ * 被取代（resolve null）或完成后若仍有后续任务则继续等待——
+ * 消费方（导出）永远拿到链尾的完成态，不会基于半截状态工作 */
+async function waitProcessing(op?: Partial<typeof lastTransOpt>) {
+    await transform(op);
+    while (runningTransform) {
+        await runningTransform.promise;
+    }
+}
+
 async function transform(op?: Partial<typeof lastTransOpt>) {
     const key = JSON.stringify([op ?? null, history.getData()]);
+    // 同一任务直接加入（不打断）
     if (runningTransform?.key === key) return runningTransform.promise;
 
+    // 打断总是由“加入新任务”驱动：abort 后新 runTransform 的同步段
+    // 立即接管旧任务的半截状态（脏区/映射/列表/等待者交接），
+    // 不存在只中止不接管的裸打断；预览与播放与本任务同批启动，
+    // 从首次获取起就遵循本任务的获得与等待逻辑
     lastTransformAbort?.abort();
     const { promise, resolve } = Promise.withResolvers<true | null>();
     for (const task of transformTask) {
@@ -2216,7 +2270,7 @@ async function saveImages() {
         fs.mkdirSync(exportPath, { recursive: true });
     } catch (error) {}
 
-    await transform(); // todo 不可取消
+    await waitProcessing(); // todo 不可取消
 
     let i = 0;
     const decoder = new VideoDecoder({
@@ -2263,7 +2317,7 @@ async function saveGif(op?: {
 
     const gif = GIFEncoder();
 
-    await transform();
+    await waitProcessing();
 
     let i = 0;
 
@@ -2369,7 +2423,7 @@ async function saveApng() {
     const exportPath = getSavePath("apng");
     if (!exportPath) return;
 
-    await transform();
+    await waitProcessing();
 
     let i = 0;
 
@@ -2442,7 +2496,7 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
     const exportPath = getSavePath("webm");
     if (!exportPath) return;
 
-    await transform({ codec: op.codec });
+    await waitProcessing({ codec: op.codec });
 
     const output = new Output({
         format: new WebMOutputFormat({
@@ -2490,7 +2544,7 @@ async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
     const exportPath = getSavePath("mp4");
     if (!exportPath) return;
 
-    await transform({ codec: op.codec });
+    await waitProcessing({ codec: op.codec });
 
     const output = new Output({
         format: new Mp4OutputFormat(),
