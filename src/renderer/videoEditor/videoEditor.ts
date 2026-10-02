@@ -171,6 +171,8 @@ let mousePosi: { x: number; y: number } = { x: 0, y: 0 };
 
 /** 解码帧缓存上限（RGBA 字节），反复预览/跳转时免重复解码 */
 const frameCacheLimit = 256 * 1024 * 1024;
+/** 播放解码队列深度上限：超过说明供给跟不上消耗，拒排本轮（掉帧维持播放） */
+const playQueueLimit = 10;
 
 /** 一路独立的帧获取序列：自带解码器、缓存与调度状态，多路并用互不干扰 */
 class frameGetter<Id extends number> {
@@ -187,6 +189,9 @@ class frameGetter<Id extends number> {
     private decoder: VideoDecoder;
     /** 进行中的合批 flush，同一批请求共享 */
     private flushScheduled: Promise<void> | null = null;
+    /** 连续播放输出直通回调：有 sink 时输出直接交给它绘制，
+     * 不做 OffscreenCanvas 拷贝与入缓存（播放每帧拷贝是性能倒退） */
+    private sink: ((frame: VideoFrame) => void) | null = null;
 
     constructor(private chunk: videoChunk<Id>) {
         this.decoder = this.#newDecoder();
@@ -217,6 +222,17 @@ class frameGetter<Id extends number> {
     }
     #onOutput(frame: VideoFrame) {
         const id = this.chunk.timestamp2Id(frame.timestamp) as number;
+        if (id >= 0) this.willDecodeIs.delete(id);
+        if (this.sink) {
+            // 连续播放：直通绘制，不拷贝入缓存；sink 与本方法负责关闭帧
+            try {
+                this.sink(frame);
+            } catch (e) {
+                console.log(e);
+            }
+            frame.close();
+            return;
+        }
         if (id < 0) {
             frame.close();
             return;
@@ -232,7 +248,6 @@ class frameGetter<Id extends number> {
             // 没有请求者的中间帧不做 canvas 拷贝，直接丢弃，避免抢占播放资源
             frame.close();
         }
-        this.willDecodeIs.delete(id);
     }
     /** 作废全部挂起请求，避免解码状态残留导致永久等待 */
     #resetPending() {
@@ -293,6 +308,75 @@ class frameGetter<Id extends number> {
         }
         this.lastAddDecodeI = to;
     }
+    /** 把 i 及其必需的前序帧排入解码队列（保持顺序完整：同序列从已排位置
+     * 的下一帧连续补全，不重复不跳过；跨 k 帧则从目标所在 k 帧完整排到 i）；
+     * 返回 false 表示排入失败（解码器异常，error 回调会限时重建自愈） */
+    #schedule(i: number): boolean {
+        if (this.willDecodeIs.has(i)) return true;
+        const prevLastAdd = this.lastAddDecodeI;
+        // 要么在当前解码序列之后，要么在其他片段
+        // 在当前解码序列之后，可以补充序列，在其他片段，则要重新添加序列（因为k帧已经不同了）
+        const thisKey = this.chunk.list
+            .slice(0, i + 1)
+            .findLastIndex((c) => c.type === "key");
+
+        const nowDecodingKey = this.chunk.list
+            .slice(0, this.lastAddDecodeI + 1)
+            .findLastIndex((c) => c.type === "key");
+
+        // 同一 k 帧序列且目标在已排位置之后：从已排位置的下一帧顺序补全
+        //（不重复已排帧，也不跳过中间帧）；否则（跨 k 帧或目标在已排位置前）
+        // 必须从 i 所在 k 帧完整排到 i，保证参考链从 k 帧开始严格顺序
+        const startI =
+            thisKey === nowDecodingKey && i > this.lastAddDecodeI
+                ? this.lastAddDecodeI + 1
+                : Math.max(thisKey, 0);
+
+        for (let j = startI; j <= i; j++) {
+            const c = this.chunk.list[j];
+            if (!c) continue;
+            try {
+                this.decoder.decode(c);
+            } catch (e) {
+                // 解码器异常（如 flush 后的 k 帧约束、或已被 error 关闭）：
+                // 回滚已排位置，下轮从断点完整顺序重排，不留下半截序列状态
+                console.log("decode", e);
+                this.lastAddDecodeI = prevLastAdd;
+                return false;
+            }
+            this.willDecodeIs.add(j);
+        }
+
+        this.lastAddDecodeI = i;
+        return true;
+    }
+    /** 播放意图变更（跳转）时调用：丢弃解码队列中旧序列的残留帧，
+     * 下次排帧从新位置所在 k 帧完整顺序重建——
+     * 旧序列状态与新位置混杂（重复 delta、残留输出）是花屏的来源 */
+    resetPlaySeq() {
+        this.willDecodeIs.clear();
+        this.lastAddDecodeI = -1;
+        try {
+            // 丢弃队列中未完成的旧序列解码
+            this.decoder.reset();
+            this.decoder.configure(decoderVideoConfig);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    /** 设置连续播放的输出直通回调（null = 关闭，迟到输出直接作废） */
+    setSink(fn: ((frame: VideoFrame) => void) | null) {
+        this.sink = fn;
+    }
+    /** 连续播放排帧：只排解码不 flush（flush 会打断 GOP 连续 delta 序列），
+     * 输出经 sink 直通绘制。返回 false = 队列积压或解码失败，
+     * 调用方跳过本轮即“掉帧”，时间继续推进、维持播放 */
+    playRequest(i: Id): boolean {
+        if (i < 0 || i >= this.chunk.length) return false;
+        // 解码供给跟不上消耗：拒排本轮，让队列消化后再排
+        if (this.decoder.decodeQueueSize > playQueueLimit) return false;
+        return this.#schedule(i);
+    }
     #on(
         i: number,
         cb: (canvas: OffscreenCanvas | null) => void,
@@ -308,41 +392,7 @@ class frameGetter<Id extends number> {
         const task = this.tasks.get(i) ?? [];
         task.push(cb);
         this.tasks.set(i, task);
-        if (!this.willDecodeIs.has(i)) {
-            // 要么在当前解码序列之后，要么在其他片段
-            // 在当前解码序列之后，可以补充序列，在其他片段，则要重新添加序列（因为k帧已经不同了）
-            const thisKey = this.chunk.list
-                .slice(0, i + 1)
-                .findLastIndex((c) => c.type === "key");
-
-            const nowDecodingKey = this.chunk.list
-                .slice(0, this.lastAddDecodeI + 1)
-                .findLastIndex((c) => c.type === "key");
-
-            // i 在当前序列之后时接着补；否则（含 i 已被解码输出、不在待解码集合中）
-            // 必须从 i 所在 k 帧重新开始，否则不会触发解码，请求将永远等待
-            const startI =
-                thisKey === nowDecodingKey && i > this.lastAddDecodeI
-                    ? this.lastAddDecodeI
-                    : thisKey;
-
-            for (let j = Math.max(startI, 0); j <= i; j++) {
-                const c = this.chunk.list[j];
-                if (!c) continue;
-                try {
-                    this.decoder.decode(c);
-                } catch (e) {
-                    // 解码器异常（如 flush 后的 k 帧约束、或已被 error 关闭）：
-                    // 不结算，交给 getFrame 从 k 帧重排重试
-                    console.log("decode", e);
-                    return false;
-                }
-                this.willDecodeIs.add(j);
-            }
-
-            this.lastAddDecodeI = i;
-        }
-        return true;
+        return this.#schedule(i);
     }
     async getFrame(index: Id, signal?: AbortSignal) {
         const cached = this.#cacheGet(index);
@@ -1311,11 +1361,13 @@ async function afterTrans() {
         showThumbnails(),
         showNowFrames(oldI, true),
     ]);
-    await playDecoder.flush();
     // 加载期间可能有新的跳转，以最新播放头为准，避免覆盖跳转结果
     const i = Math.min(willPlayI, transformCs.length - 1) as TransId;
-    await playId(0 as TransId, true);
-    await playId(i, true);
+    playI = i;
+    willPlayI = i;
+    // 预热播放解码序列（暂停时 sink 屏蔽输出，仅让 k 帧序列就位，
+    // 正式播放首轮即可接续排帧，不必现解整个 Gop）
+    playFrameGet.playRequest(i);
     onPlay(transformCs.getTime(i));
 }
 
@@ -1334,34 +1386,15 @@ async function playId(i: TransId, force = false) {
         console.log("no chunk", i);
         return;
     }
-    try {
-        if (c.type === "key") {
-            playDecoder.decode(c);
-            playI = i;
-            willPlayI = i;
-            return;
-        }
-        const beforeId = transformCs.list
-            .slice(0, i)
-            .findLastIndex((c) => c.type === "key");
-
-        const fillI = i < playI || playI < beforeId ? beforeId : playI + 1;
-
-        for (let n = fillI; n < i; n++) {
-            playDecoder.decode(
-                transformCs.at(n as TransId) as EncodedVideoChunk,
-            );
-        }
-        playDecoder.decode(c);
-    } catch (e) {
-        // 解码器异常（如硬件解码器被抢占后 error 关闭）不中断播放循环，
-        // 该帧跳过、下帧继续；彻底失效时由播放器的重新加载入口恢复
-        console.error("play decode", e);
+    // 播放意图回退（循环到头、编辑后重开）时重置迟到帧过滤基线
+    if (c.timestamp < playLastDrawTs) playLastDrawTs = c.timestamp;
+    if (!playFrameGet.playRequest(i)) {
+        // 供给不足或解码失败：跳过本轮（掉帧），
+        // 时间继续推进维持播放，下轮队列消化后再排
         return;
     }
     playI = i;
     willPlayI = i;
-    console.log("play", playI);
 }
 
 let audioCtx: AudioContext | null = null;
@@ -1407,7 +1440,9 @@ async function play() {
     const i = transformCs.time2Id(dTime);
     await playId(i);
 
-    if (playI === transformCs.length - 1) {
+    // 按时间判断结尾而非 playI：掉帧跳过排入时 playI 可能滞后，
+    // 仍需按时收尾（音频独立播完，画面正常归零）
+    if (i >= transformCs.length - 1) {
         playEnd();
     }
 
@@ -1475,6 +1510,9 @@ async function jump2idUi(id: SrcId) {
         playEl.sv(false);
         pause();
     }
+    // 播放序列与新位置无关：丢弃解码队列中旧序列残留，
+    // 下次播放从新位置所在 k 帧完整顺序解码，避免旧状态混杂导致花屏
+    playFrameGet.resetPlaySeq();
     // 用户触发的丢弃：只抛弃上一个用户跳转轮未完成的请求
     //（自动刷新的轮次不挂此 signal，不会被丢弃）
     seekAbort?.abort();
@@ -1490,6 +1528,9 @@ async function jump2idUi(id: SrcId) {
 function pause() {
     isPlaying = false;
     audioStop();
+    // 关闭直通绘制：暂停后迟到的解码输出全部作废，
+    // 不覆盖跳转/静止帧；下次播放时重新开启
+    playFrameGet.setSink(null);
 
     onPause();
 }
@@ -1497,6 +1538,8 @@ function pause() {
 async function playEnd() {
     isPlaying = false;
     audioStop();
+    // 屏蔽尾部迟到输出，随后 jump2idUi 归零画面不被覆盖
+    playFrameGet.setSink(null);
     playEl.sv(false);
 
     await playId(0 as TransId, true);
@@ -2396,12 +2439,13 @@ console.log("codec", codecMap, decoderVideoConfig, encoderVideoConfig);
 const transformCs = new videoChunk<TransId>([]);
 const srcCs = new videoChunk<SrcId>([]);
 
-/** 各 UI 层独立的帧获取序列：暂停主画面 / 帧轴 / 预览轴 / 导出 / 镜头编辑，互不干扰 */
+/** 各 UI 层独立的帧获取序列：暂停主画面 / 帧轴 / 预览轴 / 导出 / 镜头编辑 / 播放，互不干扰 */
 const mainFrameGet = transformCs.getGetter();
 const previewFrameGet = transformCs.getGetter();
 const thumbFrameGet = transformCs.getGetter();
 const exportFrameGet = transformCs.getGetter();
 const clipFrameGet = srcCs.getGetter();
+const playFrameGet = transformCs.getGetter();
 
 const trans2srcM = new Map<number, number>();
 const src2transM = new Map<number, number>();
@@ -2417,38 +2461,26 @@ const src2trans = (id: SrcId) => {
 const transformTask = new Set<(value: true | null) => void>();
 let lastTransformAbort: AbortController | undefined;
 
-const playDecoderGen = () =>
-    new VideoDecoder({
-        output: (frame: VideoFrame) => {
-            const ctx = canvas.getContext("2d")!;
-            ctx.drawImage(
-                frame,
-                ...zeroPoint,
-                frame.codedWidth,
-                frame.codedHeight,
-                ...zeroPoint,
-                outputV.width,
-                outputV.height,
-            );
-            frame.close();
-        },
-        error: (e) => {
-            console.error("Decode error:", e);
-            const el = iconBEl("reload", "重新加载播放器").on("click", () => {
-                try {
-                    playDecoder.close();
-                } catch (error) {}
-                playDecoder = playDecoderGen();
-                playDecoder.configure(decoderVideoConfig);
-                el.remove();
-            });
-            transformLogEl.add(el);
-        },
-    });
-
-let playDecoder = playDecoderGen();
-
-playDecoder.configure(decoderVideoConfig);
+/** 迟到帧过滤基线：暂停/结束时由 sink 关闭作废，
+ * 播放意图回退时由 playId 重置，保证输出按时间单调绘制不回跳 */
+let playLastDrawTs = 0;
+/** 播放输出直通绘制：不拷贝入缓存（保持单次 drawImage 路径），
+ * 丢弃迟到的旧帧——解码供给跟不上时掉帧，但时间与音频继续、维持播放 */
+const drawPlayFrame = (frame: VideoFrame) => {
+    if (frame.timestamp < playLastDrawTs) return;
+    playLastDrawTs = frame.timestamp;
+    canvas
+        .getContext("2d")
+        ?.drawImage(
+            frame,
+            ...zeroPoint,
+            frame.codedWidth,
+            frame.codedHeight,
+            ...zeroPoint,
+            outputV.width,
+            outputV.height,
+        );
+};
 
 const stopPEl = view("y")
     .style({
@@ -2613,6 +2645,8 @@ const playEl = check("", [
         // afterTrans 可能正在重同步播放解码器，等它完成再播放
         await afterTransTask;
         isPlaying = true;
+        // 开启输出直通绘制（pause/playEnd 会关闭，防止迟到输出覆盖静止帧）
+        playFrameGet.setSink(drawPlayFrame);
         if (playI === transformCs.length - 1) {
             playI = 0 as TransId;
         }
