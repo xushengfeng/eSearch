@@ -1158,21 +1158,23 @@ async function runTransform(
     const transformed = structuredClone(lastEncodedChunks);
 
     // ———— 增量发布：结构立即生效、脏区先建立，预览/播放不必等全部处理完成 ————
-    // 1. 补齐结构：移除帧 → null；首次编码无基底的帧放占位（保持列表长度，
-    //    脏区拦截保证占位不会被解码）
+    // 1. 补齐结构：移除帧 → null；无基底的帧放占位（保持列表长度，脏区拦截
+    //    保证占位不会被解码）——含“上一轮已删除、本轮恢复”的帧（值为 null）
     for (const [i, f] of frameXs.entries()) {
         if (f.isRemoved) {
             transformed[i] = null;
             continue;
         }
-        if (transformed[i] === undefined) {
+        if (transformed[i] === undefined || transformed[i] === null) {
             transformed[i] = placeholderChunk(
                 f.timestamp,
                 f.isKey ? "key" : "delta",
             );
         }
     }
-    // 2. 立即重建映射（remove 结构变化即时反映到时长/跳转/播放头）
+    // 2. 立即重建映射（remove 结构变化即时反映到时长/跳转/播放头）；
+    //    重建前快照用于检测结构变化（如删除帧导致 trans id 空间平移）
+    const oldStruct = new Map(trans2srcM);
     trans2srcM.clear();
     src2transM.clear();
     let transCount = 0;
@@ -1181,6 +1183,9 @@ async function runTransform(
         src2transM.set(i, transCount);
         if (!f.isRemoved) transCount++;
     }
+    const structChanged =
+        oldStruct.size !== trans2srcM.size ||
+        [...trans2srcM].some(([k, v]) => oldStruct.get(k) !== v);
     // 3. 建立脏区：未重编码完成的帧，其加载请求将等待处理完成
     dirtyRunId++;
     const myRunId = dirtyRunId;
@@ -1190,14 +1195,29 @@ async function runTransform(
         const t = src2transM.get(id);
         if (t !== undefined) nextDirty.add(t);
     }
-    dirtyTransIds = nextDirty;
-    // 新脏区之外的旧等待者（新编辑不再涉及的帧）直接放行
-    for (const [id, ws] of [...dirtyWaiters]) {
-        if (!dirtyTransIds.has(id)) {
-            dirtyWaiters.delete(id);
-            for (const w of ws) w(true);
+    if (structChanged) {
+        // 结构变化使挂起等待者的 trans id 全部失效：作废（返回 false），
+        // 结构刷新（afterTrans）后调用方会用新 id 重新请求
+        for (const ws of dirtyWaiters.values()) {
+            for (const w of ws) w(false);
+        }
+        dirtyWaiters.clear();
+        // 播放头意图经 src 空间（结构稳定）换算到新结构，避免指向平移后的错位帧
+        const oldSrc = oldStruct.get(
+            MathClamp(willPlayI, 0, Math.max(oldStruct.size - 1, 0)),
+        );
+        const newId = oldSrc === undefined ? undefined : src2transM.get(oldSrc);
+        if (newId !== undefined) willPlayI = newId as TransId;
+    } else {
+        // 结构未变（id 稳定）：新脏区之外的旧等待者直接放行
+        for (const [id, ws] of [...dirtyWaiters]) {
+            if (!nextDirty.has(id)) {
+                dirtyWaiters.delete(id);
+                for (const w of ws) w(true);
+            }
         }
     }
+    dirtyTransIds = nextDirty;
     // 4. 发布基底列表（结构生效；脏帧内容暂为上次结果，但被脏区拦截不加载）
     transformProgressEl.sv(0);
     await transformCs.setList(transformed);
