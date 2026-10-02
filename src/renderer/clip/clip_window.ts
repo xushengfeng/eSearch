@@ -790,12 +790,6 @@ async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     };
 }
 
-// 每帧都新建画布、把已拼好的整张重绘一遍。实测这台机器（2560x1440 选区，Electron 44
-// 的 Chromium）：累积到 37M 像素时重绘一帧 0.1ms，到 44M 就跳到 182ms，之后稳定在
-// 200~330ms/帧 —— 断崖在 40M 附近，之后每帧都要几百毫秒，滚动越快积压越多，就是
-// issue #122 里"卡死"的实测来源。上限压在断崖下面。
-const 长截图最大像素 = 40_000_000;
-
 function longPutImg(
     img: HTMLCanvasElement | OffscreenCanvas,
     x: number,
@@ -837,14 +831,6 @@ function longPutImg(
         newCanvas.height = y + img.height - maxY + srcH;
     } else {
         newCanvas.height = srcH;
-    }
-
-    if (newCanvas.width * newCanvas.height > 长截图最大像素) {
-        longCapped = true;
-        console.warn(
-            `长截图已达 ${长截图最大像素} 像素上限，停止继续拼接（保留已拼好的部分）`,
-        );
-        return;
     }
 
     if (longX.img) newCtx.drawImage(longX.img, srcDx, srcDy);
