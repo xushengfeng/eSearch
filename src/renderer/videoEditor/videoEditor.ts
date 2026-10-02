@@ -369,10 +369,12 @@ class frameGetter<Id extends number> {
         this.sink = fn;
     }
     /** 连续播放排帧：只排解码不 flush（flush 会打断 GOP 连续 delta 序列），
-     * 输出经 sink 直通绘制。返回 false = 队列积压或解码失败，
-     * 调用方跳过本轮即“掉帧”，时间继续推进、维持播放 */
+     * 输出经 sink 直通绘制。返回 false = 位于脏区（等渲染）、队列积压或
+     * 解码失败，调用方跳过本轮即“掉帧”，时间继续推进、维持播放 */
     playRequest(i: Id): boolean {
         if (i < 0 || i >= this.chunk.length) return false;
+        // 脏区（待渲染）帧不排：播放层统一处理，占位/旧内容不可入播放序列
+        if (dirtyTransIds?.has(i)) return false;
         // 解码供给跟不上消耗：拒排本轮，让队列消化后再排
         if (this.decoder.decodeQueueSize > playQueueLimit) return false;
         return this.#schedule(i);
@@ -1057,6 +1059,21 @@ function clearDirty() {
     }
     dirtyWaiters.clear();
 }
+/** 统一帧获取：序列（id/时间）同步确定，具体内容异步——
+ * 不变帧（不在渲染范围）的 promise 立即消费、保持同批合批；
+ * 需要渲染的帧挂延迟 promise，该帧渲染完成后再解码。
+ * 结构前后差别由转换逻辑（runTransform）内部处理，调用方无感；
+ * signal 抛弃（新跳转）返回 null */
+function fetchFrame(
+    getter: frameGetter<TransId>,
+    id: TransId,
+    signal?: AbortSignal,
+): Promise<OffscreenCanvas | null> {
+    if (!isDirty(id)) return getter.getFrame(id, signal);
+    return waitDirty(id, signal).then((ok) =>
+        ok ? getter.getFrame(id, signal) : null,
+    );
+}
 /** 单帧重编码完成：增量发布到预览列表、解除脏标记并唤醒该帧等待者；
  * runId 与当前编辑代数不符（该 run 已被新编辑打断）时丢弃 */
 function publishFrame(srcId: number, chunk: EncodedVideoChunk, runId: number) {
@@ -1138,91 +1155,140 @@ async function runTransform(
         }
         return false;
     })();
+    let resume = false;
     if (!forceRerendAll) {
         if (JSON.stringify(nowUi) === JSON.stringify(lastUiData)) {
-            // 无事可做（如撤销回原样）：放行上一轮遗留的脏区等待者
-            clearDirty();
-            return;
+            if (dirtyTransIds === null) {
+                // 无事可做（如撤销回原样）：放行上一轮遗留的脏区等待者
+                clearDirty();
+                return;
+            }
+            // 上一 run 中断遗留：JSON 相同证明结构已随提前段发布且 lastUiData
+            // 已同步，列表与之仅差未完成的内容（脏区）——补完编码即可，
+            // 不重跑提前段，避免回滚上一 run 已发布的帧
+            resume = true;
         }
     }
     console.trace("transform");
-    const lastFrameXs = getFrameXs(lastUiData);
     const frameXs = getFrameXs(nowUi);
 
-    const needEncode = forceRerendAll
-        ? new Set(Array.from({ length: frameXs.length }, (_, i) => i))
-        : diffFrameXs(lastFrameXs, frameXs);
+    let needEncode: Set<number>;
+    if (resume) {
+        // 遗留脏区反推回 src 空间，作为本轮编码范围
+        needEncode = new Set<number>();
+        for (const t of dirtyTransIds ?? []) {
+            const s = trans2srcM.get(t);
+            if (s !== undefined) needEncode.add(s);
+        }
+    } else {
+        const lastFrameXs = getFrameXs(lastUiData);
+        // 注意区分两类帧：diffFrameXs 产出的 needReRender 是“逻辑变化帧”，
+        // 经 GOP 依赖扩展后才是 needEncode“实际渲染帧”（依赖帧虽未变化也
+        // 须重渲染）——脏区/编码范围一律按 needEncode（渲染范围）计算
+        needEncode = forceRerendAll
+            ? new Set(Array.from({ length: frameXs.length }, (_, i) => i))
+            : diffFrameXs(lastFrameXs, frameXs);
+    }
 
     const needDecode = new Set<number>();
-
-    const transformed = structuredClone(lastEncodedChunks);
-
-    // ———— 增量发布：结构立即生效、脏区先建立，预览/播放不必等全部处理完成 ————
-    // 1. 补齐结构：移除帧 → null；无基底的帧放占位（保持列表长度，脏区拦截
-    //    保证占位不会被解码）——含“上一轮已删除、本轮恢复”的帧（值为 null）
-    for (const [i, f] of frameXs.entries()) {
-        if (f.isRemoved) {
-            transformed[i] = null;
-            continue;
-        }
-        if (transformed[i] === undefined || transformed[i] === null) {
-            transformed[i] = placeholderChunk(
-                f.timestamp,
-                f.isKey ? "key" : "delta",
-            );
-        }
-    }
-    // 2. 立即重建映射（remove 结构变化即时反映到时长/跳转/播放头）；
-    //    重建前快照用于检测结构变化（如删除帧导致 trans id 空间平移）
-    const oldStruct = new Map(trans2srcM);
-    trans2srcM.clear();
-    src2transM.clear();
-    let transCount = 0;
-    for (const [i, f] of frameXs.entries()) {
-        trans2srcM.set(transCount, i);
-        src2transM.set(i, transCount);
-        if (!f.isRemoved) transCount++;
-    }
-    const structChanged =
-        oldStruct.size !== trans2srcM.size ||
-        [...trans2srcM].some(([k, v]) => oldStruct.get(k) !== v);
-    // 3. 建立脏区：未重编码完成的帧，其加载请求将等待处理完成
+    // 编辑代数：被中断的旧 run 迟到的编码输出按代数校验丢弃（须先于一切 await）
     dirtyRunId++;
     const myRunId = dirtyRunId;
-    const nextDirty = new Set<number>();
-    for (const id of needEncode) {
-        if (frameXs.at(id)?.isRemoved) continue;
-        const t = src2transM.get(id);
-        if (t !== undefined) nextDirty.add(t);
-    }
-    if (structChanged) {
-        // 结构变化使挂起等待者的 trans id 全部失效：作废（返回 false），
-        // 结构刷新（afterTrans）后调用方会用新 id 重新请求
-        for (const ws of dirtyWaiters.values()) {
-            for (const w of ws) w(false);
+
+    let transformed: (EncodedVideoChunk | null)[];
+
+    if (resume) {
+        // 结构已发布：把当前列表摊回 src 空间作基底，
+        // 保留上一 run 已发布的帧内容（不重发布、不回滚）
+        transformed = new Array(frameXs.length).fill(null);
+        for (const [t, s] of trans2srcM) {
+            transformed[s] = transformCs.at(t as TransId) ?? null;
         }
-        dirtyWaiters.clear();
-        // 播放头意图经 src 空间（结构稳定）换算到新结构，避免指向平移后的错位帧
-        const oldSrc = oldStruct.get(
-            MathClamp(willPlayI, 0, Math.max(oldStruct.size - 1, 0)),
-        );
-        const newId = oldSrc === undefined ? undefined : src2transM.get(oldSrc);
-        if (newId !== undefined) willPlayI = newId as TransId;
     } else {
-        // 结构未变（id 稳定）：新脏区之外的旧等待者直接放行
-        for (const [id, ws] of [...dirtyWaiters]) {
-            if (!nextDirty.has(id)) {
-                dirtyWaiters.delete(id);
-                for (const w of ws) w(true);
+        transformed = structuredClone(lastEncodedChunks);
+
+        // ———— 增量发布：结构立即生效、脏区先建立，预览/播放不必等全部处理完成 ————
+        // 1. 补齐结构：移除帧 → null；无基底的帧放占位（保持列表长度，脏区拦截
+        //    保证占位不会被解码）——含“上一轮已删除、本轮恢复”的帧（值为 null）
+        //    同时统一时间坐标：变速/删除会移动 timeMap，非脏帧内容不变但
+        //    时间戳必须同步到新播放时间，否则 list 新旧时间戳混用——
+        //    time2Id（时间→帧索引）、时长、以及 setList 建的 timestamp2Id
+        //    会与 replaceAt 的新时间戳对不上，导致解码输出映射失败、帧不显示
+        for (const [i, f] of frameXs.entries()) {
+            if (f.isRemoved) {
+                transformed[i] = null;
+                continue;
+            }
+            const c = transformed[i];
+            if (c === undefined || c === null) {
+                transformed[i] = placeholderChunk(
+                    f.timestamp,
+                    f.isKey ? "key" : "delta",
+                );
+            } else if (c.timestamp !== f.timestamp) {
+                const data = new Uint8Array(c.byteLength);
+                c.copyTo(data);
+                transformed[i] = new EncodedVideoChunk({
+                    data,
+                    timestamp: f.timestamp,
+                    type: c.type,
+                });
             }
         }
+        // 2. 立即重建映射（remove 结构变化即时反映到时长/跳转/播放头）；
+        //    重建前快照用于检测结构变化（如删除帧导致 trans id 空间平移）
+        const oldStruct = new Map(trans2srcM);
+        trans2srcM.clear();
+        src2transM.clear();
+        let transCount = 0;
+        for (const [i, f] of frameXs.entries()) {
+            trans2srcM.set(transCount, i);
+            src2transM.set(i, transCount);
+            if (!f.isRemoved) transCount++;
+        }
+        const structChanged =
+            oldStruct.size !== trans2srcM.size ||
+            [...trans2srcM].some(([k, v]) => oldStruct.get(k) !== v);
+        // 3. 建立脏区：未重编码完成的帧，其加载请求将等待处理完成
+        const nextDirty = new Set<number>();
+        for (const id of needEncode) {
+            if (frameXs.at(id)?.isRemoved) continue;
+            const t = src2transM.get(id);
+            if (t !== undefined) nextDirty.add(t);
+        }
+        if (structChanged) {
+            // 结构变化使挂起等待者的 trans id 全部失效：作废（返回 false），
+            // 结构刷新（afterTrans）后调用方会用新 id 重新请求
+            for (const ws of dirtyWaiters.values()) {
+                for (const w of ws) w(false);
+            }
+            dirtyWaiters.clear();
+            // 播放头意图经 src 空间（结构稳定）换算到新结构，避免指向平移后的错位帧
+            const oldSrc = oldStruct.get(
+                MathClamp(willPlayI, 0, Math.max(oldStruct.size - 1, 0)),
+            );
+            const newId =
+                oldSrc === undefined ? undefined : src2transM.get(oldSrc);
+            if (newId !== undefined) willPlayI = newId as TransId;
+        } else {
+            // 结构未变（id 稳定）：新脏区之外的旧等待者直接放行
+            for (const [id, ws] of [...dirtyWaiters]) {
+                if (!nextDirty.has(id)) {
+                    dirtyWaiters.delete(id);
+                    for (const w of ws) w(true);
+                }
+            }
+        }
+        dirtyTransIds = nextDirty;
+        // 结构发布即同步 lastUiData：中断后列表与 lastUiData 保持一致，
+        // 后续相同 JSON 的请求走 resume 补完，而不是误判“无事可做”
+        lastUiData = nowUi;
+        // 4. 发布基底列表（结构生效；脏帧内容暂为上次结果，但被脏区拦截不加载）
+        await transformCs.setList(transformed);
     }
-    dirtyTransIds = nextDirty;
-    // 4. 发布基底列表（结构生效；脏帧内容暂为上次结果，但被脏区拦截不加载）
-    transformProgressEl.sv(0);
-    await transformCs.setList(transformed);
 
     if (needEncode.size > 0) {
+        transformProgressEl.sv(0);
         transformTimeEl.sv(t("开始处理"));
         const Tdiff = performance.now();
 
@@ -1261,10 +1327,20 @@ async function runTransform(
                     console.log("no id", c.timestamp);
                     return;
                 }
-                transformed[id] = c;
+                // 坐标统一：列表基底与尾部 copyTo 都是“播放时间”坐标
+                //（getFrameXs 的 timeMap），encoder 输出是 src 时间戳——
+                // 直接入列会导致 timestamp2Id 映射不上，该帧加载失败
+                const data = new Uint8Array(c.byteLength);
+                c.copyTo(data);
+                const u = new EncodedVideoChunk({
+                    data,
+                    timestamp: frameXs.at(id)?.timestamp ?? 0,
+                    type: c.type,
+                });
+                transformed[id] = u;
                 run();
                 // 单帧处理完成：立即发布（内容可见）并唤醒等待该帧的加载
-                publishFrame(id, c, myRunId);
+                publishFrame(id, u, myRunId);
             },
             error: (e) => console.error("Encode error:", e),
         });
@@ -1481,8 +1557,9 @@ async function afterTrans() {
     playI = i;
     willPlayI = i;
     onPlay(transformCs.getTime(i));
-    // 预热播放解码序列（脏帧跳过：不排旧内容，避免占位/过期帧混入序列）
-    if (!isDirty(i)) playFrameGet.playRequest(i);
+    // 预热播放解码序列（脏帧由 playRequest 统一拒绝，不把待渲染内容
+    // 排进播放序列）
+    playFrameGet.playRequest(i);
     // 主画面 / 预览轴 / 帧轴后台加载：干净帧直接显示，脏帧自动等待
     // 对应区域处理完成（录屏后首次编辑：预留帧序列先执行、逐帧跟进）
     Promise.all([jump2id(i), showThumbnails(), showNowFrames(i, true)]).catch(
@@ -1602,10 +1679,8 @@ let seekAbort: AbortController | undefined;
 
 async function jump2id(id: TransId, signal?: AbortSignal) {
     const gen = ++jumpGen;
-    // 编辑未处理到此帧：等处理完成再加载（可被新跳转抛弃）；
-    // 已处理好的帧则立即加载
-    if (!(await waitDirty(id, signal))) return;
-    const fcanvas = await mainFrameGet.getFrame(id, signal);
+    // 内容层异步：不变帧立即加载，渲染中的帧等完成（可被新跳转抛弃）
+    const fcanvas = await fetchFrame(mainFrameGet, id, signal);
     if (!fcanvas) {
         if (!signal?.aborted) console.log("no frame", id);
         return;
@@ -1715,12 +1790,8 @@ async function showThumbnails() {
                 })
                 .add(canvasEl),
         );
-        // 脏帧等编辑处理到它再加载；已处理好的帧立即加载
-        const p = isDirty(id)
-            ? waitDirty(id).then((ok) =>
-                  ok ? thumbFrameGet.getFrame(id) : null,
-              )
-            : thumbFrameGet.getFrame(id);
+        // 统一内容获取：不变帧立即、渲染中的帧等完成
+        const p = fetchFrame(thumbFrameGet, id);
         fills.push(async () => {
             const canvas = await p;
             if (!canvas) {
@@ -1772,14 +1843,8 @@ async function showNowFrames(
 
     /** 需要（重新）加载的格子，全部先发出请求再并行填充 */
     const pending: { i: number; p: Promise<OffscreenCanvas | null> }[] = [];
-    /** 脏帧等编辑处理到它再加载（可被新跳转抛弃）；
-     * 已处理好的帧立即同步发出，保持同批合批 flush */
-    const load = (id: TransId) =>
-        isDirty(id)
-            ? waitDirty(id, signal).then((ok) =>
-                  ok ? previewFrameGet.getFrame(id, signal) : null,
-              )
-            : previewFrameGet.getFrame(id, signal);
+    /** 统一内容获取：不变帧立即、渲染中的帧等完成（见 fetchFrame） */
+    const load = (id: TransId) => fetchFrame(previewFrameGet, id, signal);
     for (let i = centerId - showHalf; i <= centerId + showHalf; i++) {
         const id = i as TransId;
         const inRange = 0 <= i && i < transformCs.length;
@@ -2262,7 +2327,8 @@ async function saveGif(op?: {
     const d = Math.floor(transformCs.length / 10);
     for (const [id] of transformCs.entries()) {
         if (id % d === 0) {
-            const i = await exportFrameGet.getFrame(id);
+            // 统一内容获取：渲染中的帧等完成（导出被新编辑取代时也安全）
+            const i = await fetchFrame(exportFrameGet, id);
             if (i) {
                 const nC = new OffscreenCanvas(i.width, top + i.height);
                 if (paletteCanvas)
@@ -3582,9 +3648,8 @@ const exportEl = frame("export", {
     _s: spacer(),
     px: exportPx.el,
     editClip: iconBEl("draw", "编辑").on("click", async () => {
-        // 编辑脏区：等处理到当前帧再取快照（内容才是最新的）
-        if (!(await waitDirty(willPlayI))) return;
-        const canvas = await mainFrameGet.getFrame(willPlayI);
+        // 统一内容获取：渲染中的帧等完成，保证快照内容最新
+        const canvas = await fetchFrame(mainFrameGet, willPlayI);
         if (!canvas) return;
         canvas.convertToBlob({ type: "image/png" }).then(async (blob) => {
             const buffer = Buffer.from(await blob.arrayBuffer());
