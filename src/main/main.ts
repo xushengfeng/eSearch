@@ -290,7 +290,9 @@ if (!isFirstInstance) {
     app.quit();
 } else {
     app.on("second-instance", (_event, commanLine, _workingDirectory) => {
-        argRun(commanLine);
+        argRun(commanLine).catch(err => {
+            console.error(`命令行执行失败: ${err?.stack ?? err}`);
+        });
     });
 }
 
@@ -1326,8 +1328,10 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
             ).toNativeImage();
             const buffer = image.toPNG();
             const filePath = join(dirPath, `${i}.png`);
-            writeFile(filePath, buffer, () => {});
-        }, d * maxN);
+            writeFile(filePath, buffer, err => {
+                if (err) console.error(`连拍第 ${i} 张写入失败: ${err.message}`);
+            });
+        }, d * i);
     }
 }
 
