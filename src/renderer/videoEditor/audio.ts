@@ -535,7 +535,12 @@ export async function decodeSrcAudio(
     return buffer;
 }
 
-function sliceBuffer(buf: AudioBuffer, startMs: number, durMs: number) {
+function sliceBuffer(
+    buf: AudioBuffer,
+    startMs: number,
+    durMs: number,
+    padFrames = 0,
+) {
     const sr = buf.sampleRate;
     const start = Math.max(0, Math.round((startMs / 1000) * sr));
     if (start >= buf.length) return null;
@@ -544,7 +549,7 @@ function sliceBuffer(buf: AudioBuffer, startMs: number, durMs: number) {
         Math.min(Math.round((durMs / 1000) * sr), buf.length - start),
     );
     const out = new AudioBuffer({
-        length: len,
+        length: len + padFrames,
         numberOfChannels: buf.numberOfChannels,
         sampleRate: sr,
     });
@@ -557,9 +562,196 @@ function sliceBuffer(buf: AudioBuffer, startMs: number, durMs: number) {
     return out;
 }
 
+/** 变速段尾部越界保护（ms），见 timeStretch */
+const stretchGuardMs = 50;
+/** 上一段尾部塌陷后，下一段开头的淡入时长（ms），避免接缝爆音 */
+const seamFadeMs = 40;
+
+/**
+ * WSOLA 时间伸缩：把 src 的前 srcLen 帧拉伸到 outFrames 帧且保持音高（变速不改变调）。
+ * 分析帧在输出内按 1:1 推进，尾部会读到 srcLen 之后，故调用方需在 srcLen 之后
+ * 留出越界保护（下一段源音频，缺失时为静音），读取不得越过 src.length。
+ * 长段落会周期性让出事件循环，避免卡住界面。
+ */
+async function timeStretch(
+    src: AudioBuffer,
+    srcLen: number,
+    outFrames: number,
+): Promise<AudioBuffer> {
+    const sr = src.sampleRate;
+    const nch = src.numberOfChannels;
+    const xLen = src.length;
+    const frames = Math.max(1, outFrames);
+    const out = new AudioBuffer({
+        length: frames,
+        numberOfChannels: nch,
+        sampleRate: sr,
+    });
+    if (srcLen <= 0 || xLen === 0) return out;
+
+    // 分析帧 ~43ms：短了盖不住基频周期，长了抹掉瞬态；耗时 ∝ 帧长 × 输出帧数
+    let frame = 1 << Math.max(6, Math.floor(Math.log2(0.043 * sr)));
+    const cap =
+        1 << Math.max(6, Math.floor(Math.log2(Math.min(srcLen, frames))));
+    if (frame > cap) frame = cap;
+    while (frame > 8 && srcLen + frame > xLen) frame >>= 1;
+    if (srcLen + frame > xLen) return out;
+
+    const half = frame >> 1;
+    const radius = Math.max(1, half >> 1); // ±10.7ms，覆盖 ≥47Hz 基频的相位搜索
+    const dec = sr < 32000 ? 2 : frames > 16_000_000 ? 8 : 4;
+    const lDec = Math.max(1, Math.floor(half / dec));
+    const maxA = srcLen;
+
+    const chans: Float32Array[] = [];
+    for (let c = 0; c < nch; c++) chans.push(src.getChannelData(c));
+    const x0 = chans[0];
+
+    // 粗搜索用的降采样信号，盒式平滑抗混叠
+    const box = dec * 2;
+    const dLen = Math.floor(xLen / dec) + 1;
+    const d = new Float32Array(dLen);
+    for (let i = 0; i < dLen; i++) {
+        const c = i * dec;
+        const a = Math.max(0, c - box);
+        const b = Math.min(xLen, c + box);
+        if (b <= a) continue;
+        let s = 0;
+        for (let j = a; j < b; j++) s += x0[j];
+        d[i] = s / (b - a);
+    }
+
+    const win = new Float32Array(frame);
+    for (let i = 0; i < frame; i++)
+        win[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / frame);
+
+    const ha = (half * srcLen) / frames;
+    const kFrames = Math.ceil(frames / half);
+
+    // 参考信号取上一分析帧的后半，候选需与它在重叠区相位对齐
+    const search = (nominal: number, aPrev: number): number => {
+        const r0 = aPrev + half;
+        const i0 = Math.min(Math.max(0, Math.floor(r0 / dec)), dLen - lDec);
+        const rm = r0 - i0 * dec;
+        let jMin = Math.floor((nominal - radius - rm) / dec);
+        let jMax = Math.ceil((nominal + radius - rm) / dec);
+        if (jMin < 0) jMin = 0;
+        const jLimit = Math.min(Math.floor((maxA - rm) / dec), dLen - lDec);
+        if (jMax > jLimit) jMax = jLimit;
+        let bestJ = Math.round((nominal - rm) / dec);
+        if (bestJ < jMin) bestJ = jMin;
+        if (bestJ > jMax) bestJ = jMax;
+        if (jMin <= jMax) {
+            let refSq = 0;
+            for (let t = 0; t < lDec; t++) {
+                const v = d[i0 + t];
+                refSq += v * v;
+            }
+            if (refSq > 1e-12) {
+                let csq = 0;
+                for (let t = 0; t < lDec; t++) {
+                    const v = d[jMin + t];
+                    csq += v * v;
+                }
+                let bestScore = Number.NEGATIVE_INFINITY;
+                for (let j = jMin; j <= jMax; j++) {
+                    if (j > jMin) {
+                        const add = d[j + lDec - 1];
+                        const sub = d[j - 1];
+                        csq += add * add - sub * sub;
+                    }
+                    if (csq <= 1e-12) continue;
+                    let dot = 0;
+                    for (let t = 0; t < lDec; t++) dot += d[j + t] * d[i0 + t];
+                    const score = dot / Math.sqrt(csq * refSq);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestJ = j;
+                    }
+                }
+            }
+        }
+        // 全速率细搜索，消除抽取栅格的量化误差
+        let bestP = Math.min(maxA, Math.max(0, bestJ * dec + rm));
+        let refSqF = 0;
+        for (let m = 0; m < half; m++) {
+            const v = x0[r0 + m];
+            refSqF += v * v;
+        }
+        if (refSqF > 1e-12) {
+            const p0 = bestJ * dec + rm;
+            const qStart = Math.max(0, p0 - dec);
+            let q = qStart;
+            const qEnd = Math.min(maxA, p0 + dec);
+            let csqF = 0;
+            for (let m = 0; m < half; m++) {
+                const v = x0[q + m];
+                csqF += v * v;
+            }
+            let bestScore = Number.NEGATIVE_INFINITY;
+            for (; q <= qEnd; q++) {
+                if (q > qStart) {
+                    const add = x0[q + half - 1];
+                    const sub = x0[q - 1];
+                    csqF += add * add - sub * sub;
+                }
+                if (csqF <= 1e-12) continue;
+                let dot = 0;
+                for (let m = 0; m < half; m++) dot += x0[q + m] * x0[r0 + m];
+                const score = dot / Math.sqrt(csqF * refSqF);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestP = q;
+                }
+            }
+        }
+        return bestP;
+    };
+
+    const outs: Float32Array[] = [];
+    for (let c = 0; c < nch; c++) outs.push(out.getChannelData(c));
+
+    let aPrev = 0;
+    for (let k = 0; k < kFrames; k++) {
+        const syn = k * half;
+        const a = k === 0 ? 0 : search(k * ha, aPrev);
+        aPrev = a;
+        for (let c = 0; c < nch; c++) {
+            const xi = chans[c];
+            const o = outs[c];
+            for (let n = 0; n < frame; n++) {
+                const idx = syn + n;
+                if (idx >= frames) break;
+                o[idx] += xi[a + n] * win[n];
+            }
+        }
+        if ((k & 1023) === 1023) await new Promise((r) => setTimeout(r, 0));
+    }
+    // Hann 50% 叠加和恒为 1，仅首帧前半无前邻，单独除一次窗
+    for (let c = 0; c < nch; c++) {
+        const o = outs[c];
+        for (let s = 0; s < frames; s++) {
+            const w = s < half ? win[s] : 1;
+            if (w > 1e-6) o[s] /= w;
+            else o[s] = 0;
+        }
+    }
+    return out;
+}
+
+function fadeIn(buf: AudioBuffer, ms: number) {
+    const n = Math.min(buf.length, Math.round((ms / 1000) * buf.sampleRate));
+    if (n <= 1) return;
+    for (let c = 0; c < buf.numberOfChannels; c++) {
+        const d = buf.getChannelData(c);
+        for (let i = 0; i < n; i++)
+            d[i] *= 0.5 - 0.5 * Math.cos((Math.PI * i) / n);
+    }
+}
+
 /**
  * 按编辑结果把源音频变换到输出时间轴：
- * 删除的帧区间不发声，变速区间直接改播放速率（会变调，后续可优化为 time-stretch）。
+ * 删除的帧区间不发声，变速区间用 WSOLA time-stretch 保持音高（不改变调）。
  * 时间线口径必须与 getFrameXs 一致。
  * @param frameXs getFrameXs 的结果
  * @param srcTimes 每个源帧的时间（ms）
@@ -618,12 +810,40 @@ export async function buildTransAudio(
     const sr = src.sampleRate;
     const length = Math.max(1, Math.ceil((totalMs / 1000) * sr));
     const ctx = new OfflineAudioContext(src.numberOfChannels, length, sr);
-    for (const seg of segments) {
-        const buffer = sliceBuffer(src, seg.srcStart, seg.srcDur);
-        if (!buffer) continue;
+    const padFrames = Math.round((stretchGuardMs / 1000) * sr);
+    let fadeNext = false;
+    for (let i = 0; i < segments.length; i++) {
+        const seg = segments[i];
+        const start = Math.round((seg.srcStart / 1000) * sr);
+        const srcLen = Math.max(
+            1,
+            Math.min(Math.round((seg.srcDur / 1000) * sr), src.length - start),
+        );
+        const outFrames = Math.max(1, Math.round((seg.outDur / 1000) * sr));
+        const stretch = srcLen !== outFrames;
+        const next = segments[i + 1];
+        // 越界保护只能取下一段的源音频；中间隔着删除区间时不能越界
+        const guard =
+            stretch && next && next.srcStart - seg.srcStart - seg.srcDur < 1
+                ? stretchGuardMs
+                : 0;
+        const slice = sliceBuffer(
+            src,
+            seg.srcStart,
+            seg.srcDur + guard,
+            stretch ? padFrames : 0,
+        );
+        if (!slice) continue;
+        if (fadeNext) fadeIn(slice, seamFadeMs);
+        fadeNext = stretch && guard === 0;
         const node = ctx.createBufferSource();
-        node.buffer = buffer;
-        node.playbackRate.value = seg.srcDur / seg.outDur;
+        node.buffer = stretch
+            ? await timeStretch(
+                  slice,
+                  Math.min(srcLen, slice.length),
+                  outFrames,
+              )
+            : slice;
         node.connect(ctx.destination);
         node.start(seg.outStart / 1000);
     }

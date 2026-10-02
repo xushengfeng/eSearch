@@ -37,7 +37,7 @@
                                    ↓ 停止录制后（按需解码，用完即弃）
                         AudioDecoder → 源时间轴 PCM (AudioBuffer)
                                    ↓ buildTransAudio(frameXs)
-                  OfflineAudioContext 调度（删除区间不排、变速段 playbackRate）
+                  OfflineAudioContext 调度（删除区间不排、变速段 time-stretch）
                                    ↓
                 变换后 PCM (AudioBuffer) ─┬→ 预览播放 AudioBufferSourceNode
                                           └→ 导出 mediabunny AudioBufferSource
@@ -55,7 +55,7 @@
    - 系统内录的 track 若未在录制开始时取得（默认不请求，保持现有行为不变），中途勾选时补一次 `getUserMedia({audio, video})`；其视频轨保留到录制结束（中途停止可能连带停掉同一会话的音频），失败则回退并提示。
 4. **opus 参数自适应**：编码 `sampleRate/numberOfChannels` 取第一帧 AudioData；若采样率不在 opus 支持集（8/12/16/24/48k，如 44100）则转 48000，声道 >2 则降混为 2。转换统一输出 `f32-planar`。
 5. **编辑跟随 `getFrameXs` 的时间线**：变换段由 `frameXs` 推导 —— 段起点 = `frameXs[i].timestamp`（输出时间轴），源区间 = `[srcCs.getTime(i), srcCs.getTime(i+1))`，输出时长 = `frameXs[i+1].timestamp - frameXs[i].timestamp`；被删除帧不产出段。
-   - 变速：每段切成子 AudioBuffer，`AudioBufferSourceNode.playbackRate = speed`，在一个 `OfflineAudioContext` 里排程后 `startRendering()` 一次渲染完成 —— 属「有 API 就用」，**会变调**，已列入后续优化（time-stretch）。
+   - 变速：`timeStretch`（WSOLA）把段落源音频拉伸到输出时长且**保持音高**，再与删除区间一起排进 `OfflineAudioContext`，`startRendering()` 一次渲染完成。
 6. **导出**：`saveWebm/saveMp4` 中 `format.getSupportedCodecs()` ∩ 候选列表（mp4: aac→mp3→opus；webm: opus→vorbis）→ `getFirstEncodableAudioCodec` → `output.addAudioTrack(new AudioBufferSource({codec, bitrate}))`，在视频包之后 `await audioSource.add(transPcm)`。取不到可编码音频 codec 时退化为无音频并在界面提示。
 7. **播放**：播放/暂停/结束时用 `AudioBufferSourceNode` 启停，offset 取 `transformCs.getTime(playI)`，与现有 `resetPlayTime()` 的媒体时间一致；时钟同源（单调钟），不额外做漂移校正。
 
@@ -96,7 +96,8 @@ node test/superRecorderAudioE2E.mjs   # 全部通过 exit 0，有失败 exit 1
 
 ## 已知限制 & 后续优化
 
-- [ ] **变速会变调**：当前是 `playbackRate` 重采样（最简实现）。后续可换 time-stretch（WSOLA/phase vocoder）或分段 OfflineAudioContext + `preservesPitch`（`AudioBufferSourceNode` 无此属性，需要另寻 API）。
+- [x] **变速会变调**：已实现 `timeStretch`（WSOLA，见 `audio.ts`）time-stretch，加速/减速都保持音高。`AudioBufferSourceNode` 没有 `preservesPitch`（Chromium 152 实测，只有 `HTMLMediaElement` 有），Web Audio 也没有别的可用 API，只能自己实现。
+- [ ] **变速段接缝精度**：分析帧在输出内按 1:1 推进，段尾的源内容位置与相邻段起点最多差一个分析步长（≈10~20ms）。已有越界保护（取下一段源音频，缺失时下一段淡入）避免尾部塌陷与爆音，但瞬态处仍可能听出拼接痕迹。
 - [ ] **A/V 对齐精度**：目前依赖两路最小延迟差（约 10~30ms）。后续可在录制首帧时做一次音频脉冲校准，或直接统一使用采集时间戳纪元（需实测 Chrome 各平台行为）。
 - [ ] **时间轴音轨可视化**：波形/静音区间显示（可用 `timeLineTrack` 工厂或独立 canvas 层），并支持单段静音。
 - [ ] **单独导出音频**（m4a/opus/wav）。
@@ -117,7 +118,8 @@ node test/superRecorderAudioE2E.mjs   # 全部通过 exit 0，有失败 exit 1
 
 - [ ] 系统内录（真实 loopback，含 `启用系统内录` 关闭时面板置灰提示）。
 - [ ] 录制中取消已勾选设备：设备释放（系统隐私指示灯熄灭）、后续文件时长正确。
-- [ ] 删除区间、变速区间后音画同步（变速段落有声且时长与画面一致）。
+- [ ] 删除区间、变速区间后音画同步（变速段落有声且时长与画面一致，快放/慢放人声均不变调）。
+- [ ] 变速段与相邻段的接缝处无爆音、无明显拼接痕迹（含接删除区间时的淡入）。
 - [ ] 暂停/上一帧/下一帧/时间轴跳转后声音位置正确；播放到结尾停止。
 - [ ] 双麦克风混音；无音频输入设备时的提示文案。
 - [ ] gif/apng/png 导出不受影响；取消录制后设备释放。
