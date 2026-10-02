@@ -1292,6 +1292,10 @@ const recorderWinH = 24;
 
 let _recorder: BrowserWindow;
 let _recorderTipWin: BrowserWindow;
+let _recorderInit: null | {
+    rect0: [number, number, number, number];
+    screenx: { id: string; w: number; h: number; r: number };
+} = null;
 function createRecorderWindow(
     rect0: [number, number, number, number],
     screenx: { id: string; w: number; h: number; r: number },
@@ -1339,18 +1343,12 @@ function createRecorderWindow(
         }
     });
 
-    mainOn("recorderReady", () => {
-        desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
-            let dId = sources.find((s) => s.display_id === screenx.id)?.id;
-            if (!dId) dId = sources[0].id;
-            mainSend(recorder.webContents, "recordInit", [
-                dId,
-                rect0,
-                screenx.w,
-                screenx.h,
-            ]);
-        });
-    });
+    // 原来这个 handler 注册在 createRecorderWindow 里面，于是每打开一次录屏就多一个、
+    // 且永远留在 mainOnData 的数组里：实测开 1 / 2 / 3 个窗之后注册数依次是 1 / 2 / 3。
+    // 任何一个录屏窗发一次 recorderReady，全部历史 handler 都会跑一遍 —— 也就是
+    // N 次 desktopCapturer.getSources()（Windows 上这个调用要枚举屏幕并生成缩略图），
+    // 并且每个都往自己那个（可能早已关闭的）窗回 recordInit。
+    _recorderInit = { rect0, screenx };
 
     globalShortcut.register("Super+R", () => {
         if (!recorder.isDestroyed()) {
@@ -1385,6 +1383,25 @@ function createRecorderWindow(
 
     recording = true;
 }
+
+// 全局只注册一次。handler 用模块级的 _recorder / _recorderInit，所以不会因为
+// 反复注册而累积（原来每个录屏窗都注册一个，实测注册数 = 开过的窗数）。
+mainOn("recorderReady", () => {
+    if (!checkWin(_recorder) || !_recorderInit) return;
+    const { rect0, screenx } = _recorderInit;
+    desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
+        if (!checkWin(_recorder)) return;
+        const dId =
+            sources.find((s) => s.display_id === screenx.id)?.id ?? sources[0]?.id;
+        if (!dId) return;
+        mainSend(_recorder.webContents, "recordInit", [
+            dId,
+            rect0,
+            screenx.w,
+            screenx.h,
+        ]);
+    });
+});
 
 function checkWin(win: BrowserWindow) {
     return win && !win.isDestroyed();
