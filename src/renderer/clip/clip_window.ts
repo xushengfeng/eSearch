@@ -570,12 +570,15 @@ let longBusy = false;
 let longCapped = false;
 
 async function long_s() {
-    // 上一帧还没拼完就跳过这一帧：并发进 addLong 会抢 longX.lastImg/lastXY，
-    // 拼出来的偏移互相错位，是"越滚越乱、最后像卡死"的直接来源
+    // 上一帧还没拼完就跳过这一帧：
+    // 并发进 addLong 会抢 longX.lastImg/lastXY，
+    // 拼出来的偏移互相错位
     if (longBusy || longCapped) return;
     longBusy = true;
     try {
-        await addLong((await getNowScreen().capture()).toImageData() ?? undefined);
+        await addLong(
+            (await getNowScreen().capture()).toImageData() ?? undefined,
+        );
     } catch (error) {
         console.error(`长截图单帧失败: ${error}`);
         // 中途抛异常时不能把鼠标穿透留着，否则整个桌面看起来都点不动

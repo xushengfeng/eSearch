@@ -290,7 +290,7 @@ if (!isFirstInstance) {
     app.quit();
 } else {
     app.on("second-instance", (_event, commanLine, _workingDirectory) => {
-        argRun(commanLine).catch(err => {
+        argRun(commanLine).catch((err) => {
             console.error(`命令行执行失败: ${err?.stack ?? err}`);
         });
     });
@@ -410,10 +410,10 @@ async function argRun(c: string[], first?: boolean) {
                 await (await screenShots()).screen[0].capture()
             ).toNativeImage();
         } else {
-            // minimist 在 "--i" 后面没跟值时给的是布尔 true，直接进 readFileSync
-            // 会抛 ERR_INVALID_ARG_TYPE；路径不存在时抛 ENOENT。两种都该说人话。
+            // minimist 在 "--i" 后面没跟值时给的是布尔 true
+            // 直接进 readFileSync会抛 ERR_INVALID_ARG_TYPE
             if (typeof path !== "string") {
-                console.error(`--i/--input 需要跟一个文件路径`);
+                console.error("--i/--input 需要跟一个文件路径");
                 return undefined;
             }
             try {
@@ -831,7 +831,6 @@ app.whenReady().then(() => {
     const 快捷键 = store.get("快捷键");
     for (const [k, m] of typedEntries(快捷键)) {
         if (!m.key) continue;
-        // globalShortcut.register 冲突时返回 false，并不抛异常
         if (
             !globalShortcut.register(m.key, () => {
                 快捷键函数[k]();
@@ -1331,8 +1330,9 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
             ).toNativeImage();
             const buffer = image.toPNG();
             const filePath = join(dirPath, `${i}.png`);
-            writeFile(filePath, buffer, err => {
-                if (err) console.error(`连拍第 ${i} 张写入失败: ${err.message}`);
+            writeFile(filePath, buffer, (err) => {
+                if (err)
+                    console.error(`连拍第 ${i} 张写入失败: ${err.message}`);
             });
         }, d * i);
     }
@@ -1507,10 +1507,8 @@ mainOn("reloadMainFromSetting", () => {
     if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible())
         clipWindow.reload();
     if (contextMenu && tray) {
-        // 原来写死 items[8]，但 8 是"超级录屏"后面那个 separator，"浏览器打开"
-        // 复选框在 9 —— 按下标取菜单项本身就是这个 bug 的成因，改成按 label 找
         const browserItem = contextMenu.items.find(
-            i => i.label === t("浏览器打开"),
+            (i) => i.label === t("浏览器打开"),
         );
         if (browserItem) browserItem.checked = store.get("浏览器中打开");
         tray.popUpContextMenu(contextMenu);
@@ -1613,7 +1611,9 @@ mainOn("hotkey", ([type, name, key]) => {
         }
     }
     if (!ok) {
-        console.error(`快捷键注册失败：${name} = ${key}（保留 ${old || "空"}）`);
+        console.error(
+            `快捷键注册失败：${name} = ${key}（保留 ${old || "空"}）`,
+        );
         return false;
     }
     if (old) globalShortcut.unregister(old);

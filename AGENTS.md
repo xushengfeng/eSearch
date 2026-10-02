@@ -1,9 +1,11 @@
 # eSearch 项目指南
 
 ## 项目概述
+
 eSearch 是一个基于 Electron 的跨平台桌面应用，提供截屏、OCR、搜索、翻译、贴图、屏幕翻译、以图搜图、滚动截屏、录屏等功能。
 
 ## 技术栈
+
 - **框架**: Electron + electron-vite
 - **语言**: TypeScript
 - **包管理器**: pnpm
@@ -11,6 +13,7 @@ eSearch 是一个基于 Electron 的跨平台桌面应用，提供截屏、OCR�
 - **测试**: Vitest
 
 ## 常用命令
+
 ```bash
 # 安装依赖
 pnpm install
@@ -26,10 +29,10 @@ pnpm run start
 
 # 打包
 pnpm run dist
-
 ```
 
 ## 项目结构
+
 - **src/main/**: Electron 主进程，入口为 main.ts
 - **src/renderer/**: 渲染进程，包含多个功能页面：
   - aiVision/ ai识图 作为主页面子页面
@@ -43,7 +46,8 @@ pnpm run dist
   - translate/ - 翻译，展示不同翻译器结果 作为主页面子页面
   - translator/ 屏幕翻译
   - videoEditor/ 高级录屏，包括跟踪鼠标、视频编辑
-  还有一些库
+
+还有一些库
   - lib/ 杂项 公共功能
   - ocr/ - OCR相关
   - root/ 界面样式定义
@@ -55,6 +59,8 @@ pnpm run dist
 ts修改都需要biome格式化(`pnpm run format`)和ts类型检查(`pnpm run typecheck`)，还要(`pnpm run lint`)
 
 新文件可以`pnpm run fix`进行更强格式化和引入重排
+
+关于注释，非必要不注释，只有不合常规或者代码算法逻辑过于复杂才需要。修改的内容，如以前是什么样，进行了什么行为，完全不用写进注释，diff和commit已经能描述
 
 ### 修改界面或者功能
 
