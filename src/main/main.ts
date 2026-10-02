@@ -1762,18 +1762,26 @@ function createDingWindow(
         }
     }
     // 自动改变鼠标穿透
-    function dingClickThrough() {
-        const nowXY = screen.getCursorScreenPoint();
-        for (const [_, win] of dingwindowList.entries()) {
-            const b = win.win.getBounds();
-            mainSend(win.win.webContents, "dingMouse", [
-                nowXY.x - b.x,
-                nowXY.y - b.y,
-            ]);
-        }
-        setTimeout(dingClickThrough, 10);
+    if (!dingClickThroughRunning) {
+        dingClickThroughRunning = true;
+        dingClickThrough();
     }
-    dingClickThrough();
+}
+let dingClickThroughRunning = false;
+function dingClickThrough() {
+    if (dingwindowList.size() === 0) {
+        dingClickThroughRunning = false;
+        return;
+    }
+    const nowXY = screen.getCursorScreenPoint();
+    for (const [_, win] of dingwindowList.entries()) {
+        const b = win.win.getBounds();
+        mainSend(win.win.webContents, "dingMouse", [
+            nowXY.x - b.x,
+            nowXY.y - b.y,
+        ]);
+    }
+    setTimeout(dingClickThrough, 10);
 }
 let dingThrogh: null | boolean = null;
 mainOn("dingIgnore", ([v]) => {
