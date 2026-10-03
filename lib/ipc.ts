@@ -33,6 +33,15 @@ type VoidKeys<M> = {
     [K in keyof M]: IsVoidFunction<M[K]> extends true ? K : never;
 }[keyof M];
 
+/** 录屏选区，坐标为截屏画布像素，相对所选屏幕 */
+export type RecordRect = {
+    rect: [number, number, number, number];
+    id: string;
+    w: number;
+    h: number;
+    r: number;
+};
+
 type Message = {
     clip_show: () => void;
     clip_close: () => void;
@@ -60,7 +69,8 @@ type Message = {
     };
     clip_translate: (t: Omit<translateWinType, "type">) => void;
     clip_editor: (img: string) => void;
-    clip_recordx: () => void;
+    /** 普通录屏：固定录制区域；超级录屏：不传 */
+    clip_recordx: (opt?: RecordRect) => void;
     save_file_path: (type: string, isVideo?: boolean) => string;
     ok_save: (m: string, isVideo?: boolean) => void;
     clip_stop_long: () => void;
@@ -150,7 +160,7 @@ type Message = {
         url: string,
         type: "translate" | "ding",
     ) => void;
-    superRecorderInit: (sourceId: string) => void;
+    superRecorderInit: (sourceId: string, fixed?: RecordRect) => void;
     superPhotoEditorInit: (img: string) => void;
     recordMemWarning: () => void;
     translatorInit: (

@@ -48,6 +48,7 @@ import url from "node:url";
 import main, { matchFitLan } from "xtranslator";
 import { githubMirrorList } from "../../lib/github_mirror";
 import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
+import type { RecordRect } from "../../lib/ipc";
 import Store from "../../lib/store/store";
 import time_format from "../../lib/time_format";
 import { getLans, lan, t } from "../../lib/translate/translate";
@@ -163,13 +164,12 @@ function mainUrl(fileName: string) {
 }
 
 /** 加载网页 */
-function rendererPath(window: BrowserWindow, fileName: string) {
-    if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-        const x = new url.URL(mainUrl(fileName));
-        window.loadURL(x.toString());
-    } else {
-        window.loadFile(mainUrl(fileName));
-    }
+function rendererPath(
+    window: BrowserWindow,
+    fileName: string,
+    q?: Electron.LoadFileOptions,
+) {
+    rendererPath2(window.webContents, fileName, q ?? {});
     window.webContents.on("will-navigate", (event) => {
         event.preventDefault();
     });
@@ -1223,8 +1223,8 @@ mainOn("clip_translate", ([arg]) => {
 mainOn("clip_editor", ([arg]) => {
     createPhotoEditor(arg);
 });
-mainOn("clip_recordx", () => {
-    createSuperRecorderWindow();
+mainOn("clip_recordx", ([opt]) => {
+    createSuperRecorderWindow(opt);
 });
 
 /**
@@ -1410,11 +1410,31 @@ function createRecorderWindow(
         }
     });
 
+    const recorderTipWin = createRecorderTipWindow(
+        rect0,
+        ratio,
+        screenx.id,
+        true,
+    );
+
+    recording = true;
+}
+
+/** 录屏提示覆盖层：框选区域的虚线、键盘鼠标提示、摄像头、悬浮控制条 */
+function createRecorderTipWindow(
+    rect0: [number, number, number, number],
+    ratio: number,
+    displayId: string,
+    pause: boolean,
+) {
     const border = 2;
+    const display = screen
+        .getAllDisplays()
+        .find((d) => String(d.id) === displayId);
     const rect1 = rect0.map((v) => Math.round(v / ratio));
     const recorderTipWin = new BrowserWindow({
-        x: rect1[0] - border,
-        y: rect1[1] - border,
+        x: (display?.bounds.x ?? 0) + rect1[0] - border,
+        y: (display?.bounds.y ?? 0) + rect1[1] - border,
         width: rect1[2] + border * 2,
         height: rect1[3] + border * 2 + 24,
         transparent: true,
@@ -1428,14 +1448,17 @@ function createRecorderWindow(
         },
     });
     _recorderTipWin = recorderTipWin;
-    rendererPath(recorderTipWin, "recorderTip.html");
+    rendererPath(
+        recorderTipWin,
+        "recorderTip.html",
+        pause ? {} : { query: { nopause: "1" } },
+    );
     if (dev) recorderTipWin.webContents.openDevTools();
 
     recorderTipWin.setAlwaysOnTop(true, "screen-saver");
 
     recorderTipWin.setIgnoreMouseEvents(true);
-
-    recording = true;
+    return recorderTipWin;
 }
 
 function checkWin(win: BrowserWindow) {
@@ -1491,15 +1514,34 @@ mainOn("recordSavePath", ([ext]) => {
         });
 });
 
-function createSuperRecorderWindow() {
+function createSuperRecorderWindow(fixed?: RecordRect) {
     const recorder = new BrowserWindow(baseWinConfig());
     recorder.minimize();
     rendererPath(recorder, "videoEditor.html");
     if (dev) recorder.webContents.openDevTools();
+    if (fixed) {
+        _recorder = recorder;
+        const tip = createRecorderTipWindow(
+            fixed.rect,
+            fixed.r,
+            fixed.id,
+            false,
+        );
+        tip.webContents.on("did-finish-load", () => {
+            mainSend(tip.webContents, "recordCamera", [
+                store.get("录屏.摄像头.开启"),
+            ]);
+        });
+        recorder.on("close", () => {
+            if (!tip.isDestroyed()) tip.close();
+        });
+    }
     recorder.webContents.on("did-finish-load", () => {
         desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
-            const dId = sources[0].id;
-            mainSend(recorder.webContents, "superRecorderInit", [dId]);
+            let dId = sources[0].id;
+            if (fixed)
+                dId = sources.find((s) => s.display_id === fixed.id)?.id ?? dId;
+            mainSend(recorder.webContents, "superRecorderInit", [dId, fixed]);
         });
     });
 }

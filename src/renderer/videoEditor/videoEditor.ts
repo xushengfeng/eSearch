@@ -48,6 +48,7 @@ import {
 } from "mediabunny";
 
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import type { RecordRect } from "../../../lib/ipc";
 import { t } from "../../../lib/translate/translate";
 import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
@@ -106,7 +107,12 @@ type baseType = (typeof outputType)[number]["type"];
 
 const testMode: "getFrame" | "history" | false = false;
 
-const sourceIdPromise = Promise.withResolvers<string>();
+type superInit = {
+    sourceId: string;
+    fixed?: RecordRect;
+};
+
+const initPromise = Promise.withResolvers<superInit>();
 
 const zeroPoint = [0, 0] as const;
 
@@ -609,6 +615,8 @@ function listLength() {
     return srcCs.length;
 }
 
+let hookStarted = false;
+
 function initKeys(push: (x: Omit<superRecording[0], "time" | "posi">) => void) {
     const keyCodeMap = new Map<number, KeyCode>();
     for (const [i, v] of typedEntries(UiohookKey)) {
@@ -655,6 +663,7 @@ function initKeys(push: (x: Omit<superRecording[0], "time" | "posi">) => void) {
     });
 
     uIOhook.start();
+    hookStarted = true;
 }
 
 async function afterRecord(chunks: EncodedVideoChunk[]) {
@@ -722,7 +731,10 @@ async function afterRecord(chunks: EncodedVideoChunk[]) {
     return encodedChunks;
 }
 
-let stopRecord: (cancel?: boolean) => void = () => {};
+/** 录制还没开始时停止录制视为直接关闭窗口 */
+let stopRecord: (cancel?: boolean) => void = () => {
+    renderSend("windowClose", []);
+};
 
 function ms2timestamp(t: number) {
     return t * 1000;
@@ -742,6 +754,31 @@ function formatTime(t: number) {
     const s = Math.floor((t % 60000) / 1000);
     const ms = Math.floor(t % 1000);
     return `${numberPad(h)}:${numberPad(m)}:${numberPad(s)}.${numberPad(ms, 3)}`;
+}
+
+/** 选区（截屏画布像素）换算到录制帧坐标 */
+function toVideoRect(
+    rect: [number, number, number, number],
+    screenW: number,
+    screenH: number,
+) {
+    const [x, y, w, h] = rect;
+    return {
+        x: Math.round((x * v.width) / screenW),
+        y: Math.round((y * v.height) / screenH),
+        w: Math.max(1, Math.round((w * v.width) / screenW)),
+        h: Math.max(1, Math.round((h * v.height) / screenH)),
+    };
+}
+
+/** 录屏提示条上的计时，和旧版录屏格式一致 */
+function tipTime(t: number) {
+    const s = Math.trunc(t / 1000);
+    const m = Math.trunc(s / 60);
+    const h = Math.trunc(m / 60);
+    return `${h === 0 ? "" : `${h}:`}${m - 60 * h}:${String(
+        s - 60 * m,
+    ).padStart(2, "0")}`;
 }
 
 function mapKeysOnFrames(chunks: EncodedVideoChunk[], keys: superRecording) {
@@ -2604,9 +2641,14 @@ function timeEl() {
     });
 }
 
-renderOn("superRecorderInit", ([sourceId]) =>
-    sourceIdPromise.resolve(sourceId),
-);
+renderOn("superRecorderInit", ([sourceId, fixed]) => {
+    if (fixed) setTitle(t("普通录屏"));
+    initPromise.resolve({ sourceId, fixed });
+});
+
+renderOn("recordState", ([state]) => {
+    if (state === "stop") stopRecord();
+});
 
 const history = new xhistory<uiData>([], {
     clipList: [],
@@ -2767,7 +2809,6 @@ view()
     .add(iconEl("stop_record").style({ filter: "none" }))
     .addInto(stopPEl)
     .on("click", () => {
-        stopPEl.remove();
         stopRecord();
     });
 
@@ -3736,7 +3777,7 @@ pack(document.body).style({
 
 (async () => {
     if (testMode) return;
-    const sourceId = await sourceIdPromise.promise;
+    const { sourceId, fixed } = await initPromise.promise;
     let stream: MediaStream | undefined;
     const audioDevices = store.get("录屏.音频.设备列表");
     const wantSysAudio =
@@ -3818,6 +3859,8 @@ pack(document.body).style({
     v.width = videoWidth;
     v.height = videoHeight;
 
+    const fixedRect = fixed ? toVideoRect(fixed.rect, fixed.w, fixed.h) : null;
+
     exportPx.setList(
         [1, 2, 3, 4, 8].map((i) => ({
             value: String(i),
@@ -3857,46 +3900,52 @@ pack(document.body).style({
 
     const keys: superRecording = [];
     keys.push({ time: performance.now(), isStart: true, posi: { x: 0, y: 0 } });
-    initKeys((x) => {
-        keys.push({
-            time: performance.now(),
-            posi: mousePosi,
-            ...x,
-        });
-    });
     const lisenerS = new AbortController();
-    window.addEventListener(
-        "focus",
-        () => {
+    if (!fixed) {
+        initKeys((x) => {
             keys.push({
                 time: performance.now(),
                 posi: mousePosi,
-                wFoucus: true,
+                ...x,
             });
-        },
-        { signal: lisenerS.signal },
-    );
-    window.addEventListener(
-        "blur",
-        () => {
-            keys.push({
-                time: performance.now(),
-                posi: mousePosi,
-                wBlur: true,
-            });
-        },
-        { signal: lisenerS.signal },
-    );
+        });
+        window.addEventListener(
+            "focus",
+            () => {
+                keys.push({
+                    time: performance.now(),
+                    posi: mousePosi,
+                    wFoucus: true,
+                });
+            },
+            { signal: lisenerS.signal },
+        );
+        window.addEventListener(
+            "blur",
+            () => {
+                keys.push({
+                    time: performance.now(),
+                    posi: mousePosi,
+                    wBlur: true,
+                });
+            },
+            { signal: lisenerS.signal },
+        );
+    }
 
     stopRecord = async (cancel?: boolean) => {
         stopRecord = () => {}; // 只运行一次
 
+        stopPEl.remove();
+
         console.log("stop");
 
-        uIOhook.stop();
+        if (hookStarted) uIOhook.stop();
         lisenerS.abort();
 
         reader.cancel();
+
+        if (fixed) renderSend("recordStop", []);
 
         const audioStop = audioCapture
             .stop(encodedChunks.at(0)?.timestamp)
@@ -3928,7 +3977,18 @@ pack(document.body).style({
 
         srcCs.setList(afterCuncks);
 
-        mapKeysOnFrames(afterCuncks, keys);
+        if (fixedRect) {
+            const rect = fixedRect;
+            history.setDataF((uidata) => {
+                uidata.clipList = [
+                    { i: 0 as SrcId, rect, transition: ms2timestamp(400) },
+                ];
+                return uidata;
+            }, t("固定录制区域"));
+            history.apply();
+        } else {
+            mapKeysOnFrames(afterCuncks, keys);
+        }
 
         onPlay(0);
 
@@ -3980,7 +4040,9 @@ pack(document.body).style({
         const nowTime = performance.now();
         if (nowTime - lastTime > 300) {
             lastTime = nowTime;
-            recordTime.sv(nowTime - keys[0].time);
+            const d = nowTime - keys[0].time;
+            recordTime.sv(d);
+            if (fixed) renderSend("recordTime", [tipTime(d)]);
         }
     }
 })();

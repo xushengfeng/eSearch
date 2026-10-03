@@ -41,11 +41,11 @@ pnpm run dist
   - ding/ - 贴图功能 还有贴图翻译
   - setting/ - 设置
   - photoEditor 高级图片编辑
-  - recorder/ - 普通录屏
+  - recorder/ - 录屏（旧）
   - recorderTip/ - 录屏覆盖层，如显示倒计时、结束等
   - translate/ - 翻译，展示不同翻译器结果 作为主页面子页面
   - translator/ 屏幕翻译
-  - videoEditor/ 高级录屏，包括跟踪鼠标、视频编辑
+  - videoEditor/ 超级录屏、普通录屏，包括跟踪鼠标、视频编辑
 
 还有一些库
   - lib/ 杂项 公共功能

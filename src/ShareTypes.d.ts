@@ -281,7 +281,7 @@ export interface setting {
         忽略版本: string;
     };
     录屏: {
-        模式: "normal" | "super";
+        模式: "old" | "normal" | "super";
         自动录制: boolean;
         自动录制延时: number;
         视频比特率: number;

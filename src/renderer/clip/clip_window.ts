@@ -552,7 +552,20 @@ function openApp() {
 }
 
 function initRecord() {
-    if (toolsX.record.el.gv === "normal") {
+    const mode = toolsX.record.el.gv;
+    if (mode === "normal") {
+        renderSend("clip_recordx", [
+            {
+                rect: finalRect,
+                id: String(nowScreenId),
+                w: mainCanvas.width,
+                h: mainCanvas.height,
+                r: ratio,
+            },
+        ]);
+    } else if (mode === "super") {
+        renderSend("clip_recordx", []);
+    } else {
         renderSend("clip_record", [
             finalRect,
             String(nowScreenId),
@@ -560,8 +573,6 @@ function initRecord() {
             mainCanvas.height,
             ratio,
         ]);
-    } else {
-        renderSend("clip_recordx", []);
     }
     toolsX.close.f();
 }
@@ -3071,8 +3082,9 @@ const toolsX: Record<功能, { el: ElType<HTMLElement>; f: () => void }> = {
         f: () => runDing(),
     },
     record: {
-        el: selectEl<"normal" | "super">(iconEl("record"), t("录屏"), [
-            { name: t("标准录屏"), value: "normal" },
+        el: selectEl<"old" | "normal" | "super">(iconEl("record"), t("录屏"), [
+            { name: t("录屏（旧）"), value: "old" },
+            { name: t("普通录屏"), value: "normal" },
             { name: t("超级录屏"), value: "super" },
         ]),
         f: () => initRecord(),

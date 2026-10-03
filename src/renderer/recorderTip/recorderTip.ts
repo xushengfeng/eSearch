@@ -360,6 +360,8 @@ const controlBar = view("x")
         borderRadius: cssVar("o-padding"),
     });
 
+if (new URLSearchParams(location.search).has("nopause")) pause.el.remove();
+
 initRecord();
 
 navigator.mediaDevices.ondevicechange = async () => {

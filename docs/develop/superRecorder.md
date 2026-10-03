@@ -2,7 +2,7 @@
 
 通过记录鼠标的坐标和点击，自动运镜。
 
-核心是视频裁切。使用 FFmpeg 是自然的选择，wasm 太慢，普通录屏的裁剪是通过命令控制 FFmpeg 二进制来实现的。
+核心是视频裁切。使用 FFmpeg 是自然的选择，wasm 太慢，录屏（旧）的裁剪是通过命令控制 FFmpeg 二进制来实现的。
 
 观察 Electron（Chrome）的运行目录，我们可以发现有一个`ffmpeg.dll`或`libffmpeg.so`库，用于浏览器的媒体解码和渲染。浏览器有的，我们就不需要额外引入 FFmpeg 了，现在有一个新的 web api：[WebCodecs](https://developer.mozilla.org/zh-CN/docs/Web/API/WebCodecs_API)，可以调用浏览器的媒体解码编码能力。
 

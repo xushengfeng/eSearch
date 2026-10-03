@@ -18,12 +18,12 @@
   - 编辑：`uiData{clipList,speed,eventList,remove}` → `getFrameXs()` 得到逐帧 `FrameX` → `runTransform()` 只重编码变化帧。
   - 播放：无 `<video>`，canvas + `play()/pause()/jump2id()` 手写播放器，时间轴 `timeLineTrack` 工厂。
   - 导出：`mediabunny`（`Output` + `EncodedVideoPacketSource` + `BufferTarget`），不走 ffmpeg。
-- 普通录屏 `src/renderer/recorder/recorder.ts` 已有可借鉴的音频实现：
+- 录屏（旧） `src/renderer/recorder/recorder.ts` 已有可借鉴的音频实现：
   - 麦克风：`enumerateDevices()` 过滤 `audioinput`，`getUserMedia({audio:{deviceId}})`，选择结果持久化到 `录屏.音频.设备列表`（`"00"` 表示系统音频）。
   - 系统内录：`getUserMedia({ audio: {mandatory:{chromeMediaSource:"desktop"}}, video: {...} })` 与视频同一调用（受 `录屏.音频.启用系统内录` 门控，注释说明可能导致应用崩溃）。
 - mediabunny 1.14.3 已具备所需能力：`Output.addAudioTrack`、`AudioBufferSource`（PCM 直接进封装器，内部用 WebCodecs 编码）、`EncodedAudioPacketSource`、`getFirstEncodableAudioCodec`、`format.getSupportedCodecs()`。
 - 全仓库此前没有任何 `AudioContext` / `AudioEncoder` 使用，音频链路需全新实现。
-- 设置项：复用 `录屏.音频.设备列表`、`录屏.音频.启用系统内录`（普通录屏已在用，语义通用），**不需要新增设置项**。
+- 设置项：复用 `录屏.音频.设备列表`、`录屏.音频.启用系统内录`（录屏（旧）已在用，语义通用），**不需要新增设置项**。
 
 ## 设计
 
@@ -101,7 +101,7 @@ node test/superRecorderAudioE2E.mjs   # 全部通过 exit 0，有失败 exit 1
 - [ ] **A/V 对齐精度**：目前依赖两路最小延迟差（约 10~30ms）。后续可在录制首帧时做一次音频脉冲校准，或直接统一使用采集时间戳纪元（需实测 Chrome 各平台行为）。
 - [ ] **时间轴音轨可视化**：波形/静音区间显示（可用 `timeLineTrack` 工厂或独立 canvas 层），并支持单段静音。
 - [ ] **单独导出音频**（m4a/opus/wav）。
-- [ ] **mp4 音频优先 AAC**：Linux 上 WebCodecs 通常不能编 AAC，会回退 opus（部分播放器不认），后续可考虑接入 ffmpeg 兜底（已有普通录屏的 ffmpeg 打包链路）。
+- [ ] **mp4 音频优先 AAC**：Linux 上 WebCodecs 通常不能编 AAC，会回退 opus（部分播放器不认），后续可考虑接入 ffmpeg 兜底（已有录屏（旧）的 ffmpeg 打包链路）。
 - [ ] **录制面板之外的录制前配置**：目前设备选择在设置（持久化）与录制面板（实时）两处，若要「点开即选」，需给超级录屏加一个录制确认页。
 - [ ] **内存预算**：`encodeSize` 只统计视频，音频（≈1MB/min + 变换 PCM）未纳入停止/告警计算。
 
