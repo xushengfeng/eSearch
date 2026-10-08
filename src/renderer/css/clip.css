@@ -276,7 +276,10 @@ body input {
 #clip_photo {
     z-index: 10;
     cursor: crosshair;
-    image-rendering: pixelated;
+}
+#clip_photo div {
+    position: absolute;
+    pointer-events: none;
 }
 #draw_photo_top {
     z-index: 9;

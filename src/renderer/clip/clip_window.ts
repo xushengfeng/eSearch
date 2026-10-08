@@ -321,8 +321,9 @@ async function setScreen(i: (typeof allScreens)[0]) {
     if (!img) return;
     const w = img.width;
     const h = img.height;
-    mainCanvas.width = clipCanvas.width = drawCanvas.width = w;
-    mainCanvas.height = clipCanvas.height = drawCanvas.height = h;
+    mainCanvas.width = drawCanvas.width = w;
+    mainCanvas.height = drawCanvas.height = h;
+    setClipSize(w, h);
     toCanvas(mainCanvas, img);
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     if (记忆框选)
@@ -339,6 +340,7 @@ async function setScreen(i: (typeof allScreens)[0]) {
 }
 
 function setEditorP(zoom: number, x: number, y: number) {
+    const oldZoom = editorP.zoom;
     const t: string[] = [];
     if (zoom != null) {
         t.push(`scale(${zoom})`);
@@ -366,7 +368,26 @@ function setEditorP(zoom: number, x: number, y: number) {
     }
     editor.el.style.transform = t.join(" ");
 
+    // 线的本地宽度随缩放变化
+    if (editorP.zoom !== oldZoom) refreshLines();
     whBar(finalRect);
+}
+
+/** 参考线在编辑器内的本地宽度：缩放后屏幕上至少 1 逻辑像素，放大时随缩放变粗 */
+function lineW() {
+    return Math.max(1, 1 / editorP.zoom);
+}
+
+function setElBox(el: HTMLElement, x: number, y: number, w: number, h: number) {
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.width = `${Math.max(0, w)}px`;
+    el.style.height = `${Math.max(0, h)}px`;
+}
+
+function setClipSize(w: number, h: number) {
+    clipEl.style.width = `${w}px`;
+    clipEl.style.height = `${h}px`;
 }
 
 function edge() {
@@ -471,7 +492,8 @@ function 记忆框选f() {
 
 // 关闭
 async function closeWin() {
-    mainCanvas.width = clipCanvas.width = drawCanvas.width = mainCanvas.width; // 确保清空画布
+    mainCanvas.width = drawCanvas.width = mainCanvas.width; // 确保清空画布
+    cleanClip();
     document.documentElement.style.display = "none";
     记忆框选f();
     if (uIOhook) {
@@ -512,11 +534,11 @@ function runQr() {
 function drawM(v: boolean) {
     if (v) {
         // 绘画模式
-        clipCanvas.style.pointerEvents = "none";
+        clipEl.style.pointerEvents = "none";
         whEl.style({ pointerEvents: "none" });
     } else {
         // 裁切模式
-        clipCanvas.style.pointerEvents = "auto";
+        clipEl.style.pointerEvents = "auto";
         fabricCanvas.discardActiveObject();
         fabricCanvas.renderAll();
         whEl.style({ pointerEvents: "auto" });
@@ -860,8 +882,9 @@ function longPutImg(
 function pjLong() {
     const oCanvas = longX.img;
     if (!oCanvas) return;
-    mainCanvas.width = clipCanvas.width = drawCanvas.width = oCanvas.width;
-    mainCanvas.height = clipCanvas.height = drawCanvas.height = oCanvas.height;
+    mainCanvas.width = drawCanvas.width = oCanvas.width;
+    mainCanvas.height = drawCanvas.height = oCanvas.height;
+    setClipSize(oCanvas.width, oCanvas.height);
 
     const ggid = oCanvas
         .getContext("2d")!
@@ -1290,7 +1313,6 @@ function pickColor(e: MouseEvent | PointerEvent) {
 
 function clipEnd(e: MouseEvent) {
     const p = src2pXY(e2srcPoint(e));
-    clipCtx.closePath();
     selecting = false;
     if (isRect) {
         const r = p2Rect(rectStartE, src2cXY(e2srcPoint(e)));
@@ -1334,29 +1356,44 @@ function clipEnd(e: MouseEvent) {
     hisPush();
 }
 
+/** 切换遮罩形态，null 为不显示 */
+function showMask(type: "rect" | "poly" | null) {
+    const rectV = type === "rect";
+    for (const el of clipMaskRect) el.el.style.display = rectV ? "" : "none";
+    for (const el of clipSelectLines) el.el.style.display = rectV ? "" : "none";
+    clipMaskPoly.el.style.display = type === "poly" ? "" : "none";
+}
+
+function drawSelectLines() {
+    const [x, y, width, height] = finalRect;
+    const w = lineW();
+    clipSelectLineX.forEach((el, i) => {
+        const px = x + x选区参考线.x[i] * width + 0.5 - w / 2;
+        setElBox(el.el, px, y, w, height);
+    });
+    clipSelectLineY.forEach((el, i) => {
+        const py = y + x选区参考线.y[i] * height + 0.5 - w / 2;
+        setElBox(el.el, x, py, width, w);
+    });
+}
+
 /** 画框(遮罩) */
 function drawClipRect() {
-    const cw = clipCanvas.width;
-    const ch = clipCanvas.height;
+    const cw = mainCanvas.width;
+    const ch = mainCanvas.height;
 
     const x = finalRect[0];
     const y = finalRect[1];
     const width = finalRect[2];
     const height = finalRect[3];
 
-    clipCtx.fillStyle = 遮罩颜色;
+    showMask("rect");
+    setElBox(clipMaskRect[0].el, 0, 0, cw, y);
+    setElBox(clipMaskRect[1].el, 0, y + height, cw, ch - y - height);
+    setElBox(clipMaskRect[2].el, 0, y, x, height);
+    setElBox(clipMaskRect[3].el, x + width, y, cw - x - width, height);
 
-    clipCtx.fillRect(0, 0, cw, ch);
-    clipCtx.clearRect(x, y, width, height);
-
-    for (const ix of x选区参考线.x) {
-        clipCtx.fillStyle = c参考线颜色.选区参考线;
-        clipCtx.fillRect(x + ix * width, y, 1, height);
-    }
-    for (const iy of x选区参考线.y) {
-        clipCtx.fillStyle = c参考线颜色.选区参考线;
-        clipCtx.fillRect(x, y + iy * height, width, 1);
-    }
+    drawSelectLines();
 
     // 大小栏
     whBar(finalRect);
@@ -1364,35 +1401,21 @@ function drawClipRect() {
 
 /** 画多边形(遮罩) */
 function drawClipPoly(points: point[]) {
-    const ctx = clipCtx;
-    const canvas = clipCanvas;
-
-    if (points.length < 2) return;
-
-    ctx.fillStyle = 遮罩颜色;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 创建内部镂空效果
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
+    if (points.length < 2) {
+        showMask(null);
+        return;
     }
-    ctx.fillStyle = "#fff";
-    ctx.closePath();
-    ctx.fill();
 
-    // 恢复默认绘图模式
-    ctx.globalCompositeOperation = "source-over";
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
-    }
-    ctx.fillStyle = "#0000";
-    ctx.closePath();
-    ctx.fill();
+    const cw = mainCanvas.width;
+    const ch = mainCanvas.height;
+
+    showMask("poly");
+    setElBox(clipMaskPoly.el, 0, 0, cw, ch);
+    const path = points
+        .map((p, i) => `${i === 0 ? "M" : "L"}${p.x} ${p.y}`)
+        .join("");
+    // evenodd 让选区多边形成为遮罩的洞
+    clipMaskPoly.el.style.clipPath = `path(evenodd, "M0 0H${cw}V${ch}H0Z${path}Z")`;
 
     // 大小栏
     whBar(pointsOutRect(points));
@@ -1403,14 +1426,27 @@ function drawClip() {
     else drawClipPoly(freeSelect);
 }
 
-function cleanCanvas() {
-    clipCtx.clearRect(0, 0, clipCanvas.width, clipCanvas.height);
+function cleanClip() {
+    showMask(null);
+    for (const el of clipCkx) setElBox(el.el, 0, 0, 0, 0);
+    clipEdge.el.replaceChildren();
+}
+
+/** 缩放、平移后刷新参考线，本地线宽随缩放变化 */
+function refreshLines() {
+    if (isRect) drawSelectLines();
+    if (nowMouseE) {
+        const e = e2srcPoint(nowMouseE);
+        ckx(e);
+        inEdge(src2pXYdb(e));
+    }
 }
 
 /**
  * 自动框选提示
  */
 function inEdge(p: editor_position) {
+    clipEdge.el.replaceChildren();
     if (rectSelect) return;
 
     rectInRect = [];
@@ -1424,15 +1460,14 @@ function inEdge(p: editor_position) {
             rectInRect.push([i.x, i.y, i.width, i.height]);
         }
     }
-    clipCtx.strokeStyle = "#000";
-    clipCtx.lineWidth = 1;
+    const w = lineW();
     for (const i of rectInRect) {
-        clipCtx.strokeRect(i[0], i[1], i[2], i[3]);
-    }
-    clipCtx.strokeStyle = "#fff";
-    clipCtx.lineWidth = 1;
-    for (const i of rectInRect) {
-        clipCtx.strokeRect(i[0] - 1, i[1] - 1, i[2] + 2, i[3] + 2);
+        const el = document.createElement("div");
+        setElBox(el, i[0], i[1], i[2], i[3]);
+        el.style.boxSizing = "border-box";
+        el.style.border = `${w}px solid #000`;
+        el.style.outline = `${w}px solid #fff`;
+        clipEdge.el.appendChild(el);
     }
 }
 
@@ -1459,8 +1494,6 @@ function renderClip(e: MouseEvent) {
         }
     }
 
-    // todo 拆分canvas
-    cleanCanvas();
     drawClip();
     inEdge({ x: e.offsetX, y: e.offsetY });
     ckx(e2srcPoint(e));
@@ -1563,7 +1596,6 @@ function changeWH(el: ElType<HTMLInputElement>) {
     }
     finalRectFix();
     hisPush();
-    cleanCanvas();
     drawClipRect();
     followBar();
 }
@@ -1630,12 +1662,13 @@ function mouseBar(finalRect: rect, e: SrcPoint) {
 function ckx(e: SrcPoint) {
     if (!g光标参考线) return;
     const { x, y } = src2cXY(e);
-    clipCtx.fillStyle = c参考线颜色.光标参考线;
-    clipCtx.fillRect(0, y, x, 1);
-    clipCtx.fillRect(x + 1, y, clipCanvas.width - x - 1, 1);
-
-    clipCtx.fillRect(x, 0, 1, y);
-    clipCtx.fillRect(x, y + 1, 1, clipCanvas.height - y - 1);
+    const w = lineW();
+    const cx = x + 0.5 - w / 2;
+    const cy = y + 0.5 - w / 2;
+    setElBox(clipCkx[0].el, 0, cy, cx, w);
+    setElBox(clipCkx[1].el, cx + w, cy, mainCanvas.width - cx - w, w);
+    setElBox(clipCkx[2].el, cx, 0, w, cy);
+    setElBox(clipCkx[3].el, cx, cy + w, w, mainCanvas.height - cy - w);
 }
 
 function numberFormat(num: number) {
@@ -1948,42 +1981,42 @@ function isInClipRect(p: editor_position) {
 
         // 光标样式
         if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y0 + num)) {
-            clipCanvas.style.cursor = "nwse-resize";
+            clipEl.style.cursor = "nwse-resize";
             direction = "西北";
         } else if (inRange(x1 - num, p.x, x1) && inRange(y1 - num, p.y, y1)) {
-            clipCanvas.style.cursor = "nwse-resize";
+            clipEl.style.cursor = "nwse-resize";
             direction = "东南";
         } else if (inRange(y0, p.y, y0 + num) && inRange(x1 - num, p.x, x1)) {
-            clipCanvas.style.cursor = "nesw-resize";
+            clipEl.style.cursor = "nesw-resize";
             direction = "东北";
         } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x0 + num)) {
-            clipCanvas.style.cursor = "nesw-resize";
+            clipEl.style.cursor = "nesw-resize";
             direction = "西南";
         } else if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y1)) {
-            clipCanvas.style.cursor = "ew-resize";
+            clipEl.style.cursor = "ew-resize";
             direction = "西";
         } else if (inRange(x1 - num, p.x, x1) && inRange(y0, p.y, y1)) {
-            clipCanvas.style.cursor = "ew-resize";
+            clipEl.style.cursor = "ew-resize";
             direction = "东";
         } else if (inRange(y0, p.y, y0 + num) && inRange(x0, p.x, x1)) {
-            clipCanvas.style.cursor = "ns-resize";
+            clipEl.style.cursor = "ns-resize";
             direction = "北";
         } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x1)) {
-            clipCanvas.style.cursor = "ns-resize";
+            clipEl.style.cursor = "ns-resize";
             direction = "南";
         } else if (
             inRange(x0 + num, p.x, x1 - num, "()") &&
             inRange(y0 + num, p.y, y1 - num, "()")
         ) {
-            clipCanvas.style.cursor = "move";
+            clipEl.style.cursor = "move";
             direction = "move";
         } else {
-            clipCanvas.style.cursor = "crosshair";
+            clipEl.style.cursor = "crosshair";
             direction = "";
         }
     } else {
         // 全屏可框选
-        clipCanvas.style.cursor = "crosshair";
+        clipEl.style.cursor = "crosshair";
         direction = "";
         inRect = false;
     }
@@ -2091,15 +2124,23 @@ function moveRect(
     finalRectFix();
 }
 function isPointInPolygon(p: point): boolean {
+    // 射线法判断点是否在选区多边形内
     let inside = false;
-
-    inside = clipCtx.isPointInPath(p.x, p.y);
+    for (let i = 0, j = freeSelect.length - 1; i < freeSelect.length; j = i++) {
+        const { x: xi, y: yi } = freeSelect[i];
+        const { x: xj, y: yj } = freeSelect[j];
+        if (
+            yi > p.y !== yj > p.y &&
+            p.x < ((xj - xi) * (p.y - yi)) / (yj - yi) + xi
+        )
+            inside = !inside;
+    }
 
     if (inside) {
-        clipCanvas.style.cursor = "move";
+        clipEl.style.cursor = "move";
         direction = "move";
     } else {
-        clipCanvas.style.cursor = "crosshair";
+        clipEl.style.cursor = "crosshair";
         direction = "";
     }
     return inside;
@@ -2145,7 +2186,6 @@ function undo(v: boolean) {
     }
     const c = undoStack.getData();
     finalRect = c.rect;
-    cleanCanvas();
     drawClipRect();
     followBar();
     if (fabricCanvas) fabricCanvas.loadFromJSON(c.canvas);
@@ -3437,21 +3477,50 @@ drawColorP.add([colorFillEl, colorStrokeEl]);
 
 const editor = view().attr({ id: "editor" }).addInto();
 const mainCanvas = ele("canvas").attr({ id: "main_photo" }).el;
-const clipCanvas = ele("canvas").attr({ id: "clip_photo" }).el;
+const clipEl = ele("div").attr({ id: "clip_photo" }).el;
 const drawCanvas = ele("canvas").attr({ id: "draw_photo" }).el;
 const drawP = view().attr({ id: "draw_photo_top" }).add(drawCanvas);
-editor.add([mainCanvas, clipCanvas, drawP]);
+editor.add([mainCanvas, clipEl, drawP]);
+
+/** 遮罩：矩形用四块围合，自由多边形用 clip-path 挖洞 */
+const clipMaskRect = Array.from({ length: 4 }, () =>
+    view().style({ background: 遮罩颜色 }),
+);
+const clipMaskPoly = view().style({ background: 遮罩颜色 });
+/** 选区参考线 */
+const clipSelectLineX = x选区参考线.x.map(() =>
+    view().style({ background: c参考线颜色.选区参考线 }),
+);
+const clipSelectLineY = x选区参考线.y.map(() =>
+    view().style({ background: c参考线颜色.选区参考线 }),
+);
+const clipSelectLines = [...clipSelectLineX, ...clipSelectLineY];
+/** 光标参考线：左右横线、上下竖线 */
+const clipCkx = Array.from({ length: 4 }, () =>
+    view().style({ background: c参考线颜色.光标参考线 }),
+);
+/** 自动框选提示 */
+const clipEdge = view().style({
+    left: "0",
+    top: "0",
+    width: "100%",
+    height: "100%",
+});
+clipEl.append(
+    ...clipMaskRect.map((i) => i.el),
+    clipMaskPoly.el,
+    ...clipSelectLines.map((i) => i.el),
+    clipEdge.el,
+    ...clipCkx.map((i) => i.el),
+);
 
 editor.style({ width: `${window.screen.width / 全局缩放}px` });
 // 第一次截的一定是桌面,所以可提前定义
-mainCanvas.width =
-    clipCanvas.width =
-    drawCanvas.width =
-        window.screen.width * window.devicePixelRatio;
-mainCanvas.height =
-    clipCanvas.height =
-    drawCanvas.height =
-        window.screen.height * window.devicePixelRatio;
+mainCanvas.width = drawCanvas.width =
+    window.screen.width * window.devicePixelRatio;
+mainCanvas.height = drawCanvas.height =
+    window.screen.height * window.devicePixelRatio;
+setClipSize(mainCanvas.width, mainCanvas.height);
 let zoomW = 0;
 type rect = [number, number, number, number];
 type point = { x: number; y: number };
@@ -3613,7 +3682,6 @@ let theColor: [number, number, number, number] | null = null;
 let theTextColor: [string, string] = ["", ""];
 type colorFormat = setting["取色器"]["默认格式"];
 type colorRGBA = [number, number, number, number];
-const clipCtx = clipCanvas.getContext("2d")!;
 const undoStack = new xhistory<{ rect: rect; canvas: object }>([], {
     rect: [0, 0, mainCanvas.width, mainCanvas.height] as rect,
     canvas: {},
@@ -4163,7 +4231,6 @@ document.body.onkeydown = (e) => {
                     { x, y },
                 );
             }
-            cleanCanvas();
             drawClip();
             ckx(e2srcPoint(nowMouseE));
         } else {
@@ -4191,7 +4258,7 @@ document.body.onkeydown = (e) => {
     }
 };
 
-clipCanvas.onmousedown = (e) => {
+clipEl.onmousedown = (e) => {
     let inRect = false;
     if (isRect) {
         inRect = isInClipRect({ x: e.offsetX, y: e.offsetY });
@@ -4247,11 +4314,11 @@ hotkeys("s", () => {
         console.log("edge");
         edge();
         rectSelect = false;
-        finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
+        finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
         drawClipRect();
     }
     rectSelect = false;
-    finalRect = [0, 0, clipCanvas.width, clipCanvas.height];
+    finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     drawClipRect();
 });
 
@@ -4320,7 +4387,7 @@ for (const xel of whL) {
 hotkeys("ctrl+a, command+a", () => {
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     hisPush();
-    clipCanvas.style.cursor = "crosshair";
+    clipEl.style.cursor = "crosshair";
     direction = "";
     drawClipRect();
 });
@@ -4359,7 +4426,7 @@ hotkeys(store.get("其他快捷键.复制颜色"), () => {
     copy(getColorFormatEl());
 });
 
-clipCanvas.ondblclick = () => {
+clipEl.ondblclick = () => {
     if (store.get("鼠标快捷键.双击") === "复制") toolsX.copy.f();
     else toolsX.save.f();
 };
