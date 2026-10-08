@@ -892,6 +892,8 @@ function pjLong() {
     mainCanvas.getContext("2d")!.putImageData(ggid, 0, 0);
 
     finalRect = [0, 0, oCanvas.width, oCanvas.height];
+    // 尺寸变了，立即按当前形态重绘
+    drawClip();
 
     fabricCanvas.setDimensions({
         width: oCanvas.width,
@@ -1352,9 +1354,14 @@ function clipEnd(e: MouseEvent) {
         freeSelect.push(p);
         finalRect = pointsOutRect(freeSelect);
     }
+    // 此时 selecting 已为 false，选区已定，直接重绘
+    drawClip();
     renderClip(e);
     hisPush();
 }
+
+/** 已绘制的遮罩形态，用于判断是否需要重绘 */
+let drawnMask: "rect" | "poly" | null = null;
 
 /** 切换遮罩形态，null 为不显示 */
 function showMask(type: "rect" | "poly" | null) {
@@ -1387,6 +1394,7 @@ function drawClipRect() {
     const width = finalRect[2];
     const height = finalRect[3];
 
+    drawnMask = "rect";
     showMask("rect");
     setElBox(clipMaskRect[0].el, 0, 0, cw, y);
     setElBox(clipMaskRect[1].el, 0, y + height, cw, ch - y - height);
@@ -1401,6 +1409,7 @@ function drawClipRect() {
 
 /** 画多边形(遮罩) */
 function drawClipPoly(points: point[]) {
+    drawnMask = "poly";
     if (points.length < 2) {
         showMask(null);
         return;
@@ -1427,6 +1436,7 @@ function drawClip() {
 }
 
 function cleanClip() {
+    drawnMask = null;
     showMask(null);
     for (const el of clipCkx) setElBox(el.el, 0, 0, 0, 0);
     clipEdge.el.replaceChildren();
@@ -1494,7 +1504,9 @@ function renderClip(e: MouseEvent) {
         }
     }
 
-    drawClip();
+    // 仅选区变化或绘制形态变化时重绘遮罩
+    if (selecting || moving || drawnMask !== (isRect ? "rect" : "poly"))
+        drawClip();
     inEdge({ x: e.offsetX, y: e.offsetY });
     ckx(e2srcPoint(e));
 
