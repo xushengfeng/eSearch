@@ -379,15 +379,29 @@ function lineW() {
 }
 
 function setElBox(el: HTMLElement, x: number, y: number, w: number, h: number) {
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    el.style.width = `${Math.max(0, w)}px`;
-    el.style.height = `${Math.max(0, h)}px`;
+    const s = el.style;
+    const l = `${x}px`;
+    const t = `${y}px`;
+    const width = `${Math.max(0, w)}px`;
+    const height = `${Math.max(0, h)}px`;
+    // 值没变就不写，避免无谓的样式重算和重绘
+    if (s.left !== l) s.left = l;
+    if (s.top !== t) s.top = t;
+    if (s.width !== width) s.width = width;
+    if (s.height !== height) s.height = height;
 }
 
 function setClipSize(w: number, h: number) {
     clipEl.style.width = `${w}px`;
     clipEl.style.height = `${h}px`;
+}
+
+let clipCursor = "";
+/** cursor 是继承属性，值没变不写，避免整层样式重算 */
+function setClipCursor(c: string) {
+    if (clipCursor === c) return;
+    clipCursor = c;
+    clipEl.style.cursor = c;
 }
 
 function edge() {
@@ -1360,11 +1374,15 @@ function clipEnd(e: MouseEvent) {
     hisPush();
 }
 
-/** 已绘制的遮罩形态，用于判断是否需要重绘 */
-let drawnMask: "rect" | "poly" | null = null;
+/** 遮罩当前的显示形态，未绘制过为 undefined */
+let maskType: "rect" | "poly" | null | undefined;
+/** 自动框选提示的上一次内容 */
+let edgeKey = "";
 
 /** 切换遮罩形态，null 为不显示 */
 function showMask(type: "rect" | "poly" | null) {
+    if (type === maskType) return;
+    maskType = type;
     const rectV = type === "rect";
     for (const el of clipMaskRect) el.el.style.display = rectV ? "" : "none";
     for (const el of clipSelectLines) el.el.style.display = rectV ? "" : "none";
@@ -1394,7 +1412,6 @@ function drawClipRect() {
     const width = finalRect[2];
     const height = finalRect[3];
 
-    drawnMask = "rect";
     showMask("rect");
     setElBox(clipMaskRect[0].el, 0, 0, cw, y);
     setElBox(clipMaskRect[1].el, 0, y + height, cw, ch - y - height);
@@ -1409,7 +1426,6 @@ function drawClipRect() {
 
 /** 画多边形(遮罩) */
 function drawClipPoly(points: point[]) {
-    drawnMask = "poly";
     if (points.length < 2) {
         showMask(null);
         return;
@@ -1436,8 +1452,8 @@ function drawClip() {
 }
 
 function cleanClip() {
-    drawnMask = null;
     showMask(null);
+    edgeKey = "";
     for (const el of clipCkx) setElBox(el.el, 0, 0, 0, 0);
     clipEdge.el.replaceChildren();
 }
@@ -1456,8 +1472,10 @@ function refreshLines() {
  * 自动框选提示
  */
 function inEdge(p: editor_position) {
-    clipEdge.el.replaceChildren();
-    if (rectSelect) return;
+    if (rectSelect) {
+        setEdge([]);
+        return;
+    }
 
     rectInRect = [];
     for (const i of edgeRect) {
@@ -1470,15 +1488,25 @@ function inEdge(p: editor_position) {
             rectInRect.push([i.x, i.y, i.width, i.height]);
         }
     }
+    setEdge(rectInRect);
+}
+
+/** 提示框没变化就不动 DOM */
+function setEdge(rects: rect[]) {
     const w = lineW();
-    for (const i of rectInRect) {
-        const el = document.createElement("div");
-        setElBox(el, i[0], i[1], i[2], i[3]);
-        el.style.boxSizing = "border-box";
-        el.style.border = `${w}px solid #000`;
-        el.style.outline = `${w}px solid #fff`;
-        clipEdge.el.appendChild(el);
-    }
+    const key = `${w}|${rects.map((i) => i.join(",")).join(";")}`;
+    if (key === edgeKey) return;
+    edgeKey = key;
+    clipEdge.el.replaceChildren(
+        ...rects.map((i) => {
+            const el = document.createElement("div");
+            setElBox(el, i[0], i[1], i[2], i[3]);
+            el.style.boxSizing = "border-box";
+            el.style.border = `${w}px solid #000`;
+            el.style.outline = `${w}px solid #fff`;
+            return el;
+        }),
+    );
 }
 
 function renderClip(e: MouseEvent) {
@@ -1504,9 +1532,9 @@ function renderClip(e: MouseEvent) {
         }
     }
 
-    // 仅选区变化或绘制形态变化时重绘遮罩
-    if (selecting || moving || drawnMask !== (isRect ? "rect" : "poly"))
-        drawClip();
+    // 仅选区变化或遮罩形态变化时重绘遮罩
+    const mask = isRect ? "rect" : freeSelect.length >= 2 ? "poly" : null;
+    if (selecting || moving || maskType !== mask) drawClip();
     inEdge({ x: e.offsetX, y: e.offsetY });
     ckx(e2srcPoint(e));
 
@@ -1993,42 +2021,42 @@ function isInClipRect(p: editor_position) {
 
         // 光标样式
         if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y0 + num)) {
-            clipEl.style.cursor = "nwse-resize";
+            setClipCursor("nwse-resize");
             direction = "西北";
         } else if (inRange(x1 - num, p.x, x1) && inRange(y1 - num, p.y, y1)) {
-            clipEl.style.cursor = "nwse-resize";
+            setClipCursor("nwse-resize");
             direction = "东南";
         } else if (inRange(y0, p.y, y0 + num) && inRange(x1 - num, p.x, x1)) {
-            clipEl.style.cursor = "nesw-resize";
+            setClipCursor("nesw-resize");
             direction = "东北";
         } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x0 + num)) {
-            clipEl.style.cursor = "nesw-resize";
+            setClipCursor("nesw-resize");
             direction = "西南";
         } else if (inRange(x0, p.x, x0 + num) && inRange(y0, p.y, y1)) {
-            clipEl.style.cursor = "ew-resize";
+            setClipCursor("ew-resize");
             direction = "西";
         } else if (inRange(x1 - num, p.x, x1) && inRange(y0, p.y, y1)) {
-            clipEl.style.cursor = "ew-resize";
+            setClipCursor("ew-resize");
             direction = "东";
         } else if (inRange(y0, p.y, y0 + num) && inRange(x0, p.x, x1)) {
-            clipEl.style.cursor = "ns-resize";
+            setClipCursor("ns-resize");
             direction = "北";
         } else if (inRange(y1 - num, p.y, y1) && inRange(x0, p.x, x1)) {
-            clipEl.style.cursor = "ns-resize";
+            setClipCursor("ns-resize");
             direction = "南";
         } else if (
             inRange(x0 + num, p.x, x1 - num, "()") &&
             inRange(y0 + num, p.y, y1 - num, "()")
         ) {
-            clipEl.style.cursor = "move";
+            setClipCursor("move");
             direction = "move";
         } else {
-            clipEl.style.cursor = "crosshair";
+            setClipCursor("crosshair");
             direction = "";
         }
     } else {
         // 全屏可框选
-        clipEl.style.cursor = "crosshair";
+        setClipCursor("crosshair");
         direction = "";
         inRect = false;
     }
@@ -2149,10 +2177,10 @@ function isPointInPolygon(p: point): boolean {
     }
 
     if (inside) {
-        clipEl.style.cursor = "move";
+        setClipCursor("move");
         direction = "move";
     } else {
-        clipEl.style.cursor = "crosshair";
+        setClipCursor("crosshair");
         direction = "";
     }
     return inside;
@@ -4399,7 +4427,7 @@ for (const xel of whL) {
 hotkeys("ctrl+a, command+a", () => {
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     hisPush();
-    clipEl.style.cursor = "crosshair";
+    setClipCursor("crosshair");
     direction = "";
     drawClipRect();
 });
@@ -4445,16 +4473,17 @@ clipEl.ondblclick = () => {
 
 document.onmousemove = (e) => {
     nowMouseE = e;
-
+    // 一帧内的多次移动只渲染最后一次
     requestAnimationFrame(() => {
-        renderClip(e);
+        const ev = nowMouseE;
+        renderClip(ev);
         if (!rightKey) {
             // 鼠标跟随栏
-            mouseBar(finalRect, e2srcPoint(e));
+            mouseBar(finalRect, e2srcPoint(ev));
 
             const d = 16;
-            const x = Math.round(e.clientX + d);
-            const y = Math.round(e.clientY + d);
+            const x = Math.round(ev.clientX + d);
+            const y = Math.round(ev.clientY + d);
             const w = mouseBarW;
             const h = mouseBarH;
             const sw = window.innerWidth;
@@ -4478,8 +4507,8 @@ document.onmousemove = (e) => {
                 transform: `translate(${_x}px, ${_y}px)`,
             });
 
-            const isDrawBar = drawBar.contains(e.target as HTMLElement);
-            const isToolBar = toolBar.contains(e.target as HTMLElement);
+            const isDrawBar = drawBar.contains(ev.target as HTMLElement);
+            const isToolBar = toolBar.contains(ev.target as HTMLElement);
             mouseBarEl.el.classList.toggle(
                 "mouse_bar_hide",
                 isDrawBar || isToolBar,
@@ -4487,8 +4516,8 @@ document.onmousemove = (e) => {
 
             // 画板栏移动
             if (drawBarMovingXY) {
-                drawBar.style.left = `${e.clientX - drawBarMovingXY[0]}px`;
-                drawBar.style.top = `${e.clientY - drawBarMovingXY[1]}px`;
+                drawBar.style.left = `${ev.clientX - drawBarMovingXY[0]}px`;
+                drawBar.style.top = `${ev.clientY - drawBarMovingXY[1]}px`;
             }
         }
     });

@@ -276,6 +276,8 @@ body input {
 #clip_photo {
     z-index: 10;
     cursor: crosshair;
+    /* 独立合成层，遮罩和参考线重绘不再牵动截图画布所在的层 */
+    will-change: transform;
 }
 #clip_photo div {
     position: absolute;
