@@ -9,6 +9,7 @@ import type {
 } from "electron";
 import type {
     BrowserAction,
+    ClipItem,
     DingResize,
     DingStart,
     GithubUrlType,
@@ -185,6 +186,30 @@ type Message = {
         type: "info" | "warning" | "error";
         lineCount: number;
     }[];
+    /** trash 为 true 时只返回回收站（已删除）条目，否则只返回正常条目 */
+    clipHistoryGet: (trash: boolean) => {
+        items: ClipItem[];
+        paused: boolean;
+        warning: string | null;
+    };
+    clipHistoryThumb: (id: string) => string;
+    /** 落盘是否已加密；warning 非 null 表示降级为明文 */
+    clipHistoryEncryption: () => {
+        encrypted: boolean;
+        warning: string | null;
+    };
+    clipHistoryCopy: (id: string) => void;
+    clipHistoryPin: (id: string, pinned: boolean) => void;
+    clipHistoryRemove: (id: string) => void;
+    clipHistoryRestore: (id: string) => void;
+    clipHistoryPurge: (id: string) => void;
+    clipHistoryEmptyTrash: () => void;
+    clipHistoryClear: () => void;
+    clipHistorySetPaused: (paused: boolean) => void;
+    /** 设置页改了剪贴板历史配置后即时生效（轻量版，不刷新托盘菜单） */
+    clipHistoryApplySetting: () => void;
+    /** 主进程 → 页面：历史发生变化 */
+    clipHistoryChange: () => void;
 };
 
 const name = "ipc";

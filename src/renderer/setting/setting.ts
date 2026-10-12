@@ -91,6 +91,7 @@ type JustElmentK =
     | "_filename"
     | "_clear_history"
     | "_clear_browswer"
+    | "_clear_clip_history"
     | "_setting_file"
     | "_default_setting"
     | "_location"
@@ -1129,6 +1130,31 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "使用OCR等操作复用窗口时，该窗口是否主动弹出聚焦",
         el: () => xSwitch(),
     },
+    "剪贴板历史.开启": {
+        name: "记录剪贴板",
+        desc: "开启后，复制过的文字、图片和文件路径会被记录，可从任务栏按钮或托盘菜单打开面板查看",
+        el: () => xSwitch(),
+    },
+    "剪贴板历史.存储目录": {
+        name: "存储目录",
+        desc: "留空则保存在程序数据目录下；修改后已有记录会自动迁移",
+        el: () => xPath(true),
+    },
+    "剪贴板历史.轮询间隔": {
+        name: "轮询间隔",
+        desc: "数值越小越及时，但更耗电",
+        el: () => xNumber(t("毫秒"), { min: 100, max: 5000, step: 100 }),
+    },
+    "剪贴板历史.保留条数": {
+        name: "保留条数",
+        desc: "固定与回收站中的条目不计入，0 表示不限制",
+        el: () => xNumber(t("条"), { min: 0, max: 10000, step: 10 }),
+    },
+    "剪贴板历史.保留天数": {
+        name: "保留天数",
+        desc: "0 表示不限制",
+        el: () => xNumber(t("天"), { min: 0, max: 365, step: 1 }),
+    },
     自动搜索: {
         name: "自动搜索",
         desc: "识屏或直接打开主页面，若文字为一行，则自动搜索",
@@ -1944,6 +1970,17 @@ const xs: Record<
                     );
             }),
     },
+    _clear_clip_history: {
+        name: "清空剪贴板历史",
+        desc: "被固定的记录不会被清除",
+        el: () =>
+            button("清空未固定记录").on("click", async () => {
+                const c = await confirm(
+                    "这将清除所有未固定的剪贴板记录，且不能复原。确定清除？",
+                );
+                if (c) renderSend("clipHistoryClear", []);
+            }),
+    },
     _clear_browswer: {
         name: "清除数据",
         el: () =>
@@ -2092,6 +2129,8 @@ const main: {
     pageName: string;
     settings?: KeyPath[];
     desc?: string;
+    /** 页面顶部的醒目提示；返回 null 表示当前无需提示 */
+    banner?: () => ElType<HTMLElement> | null;
     items?: { title: string; desc?: string; settings: KeyPath[] }[];
     isMemo?: boolean;
 }[] = [
@@ -2338,6 +2377,25 @@ const main: {
             {
                 title: "界面",
                 settings: ["主页面.显示图片区", "主页面.复用后聚焦"],
+            },
+        ],
+    },
+    {
+        pageName: "剪贴板历史",
+        banner: () => clipHistoryBanner(),
+        items: [
+            {
+                title: "记录",
+                settings: ["剪贴板历史.开启", "剪贴板历史.轮询间隔"],
+            },
+            {
+                title: "存储",
+                settings: [
+                    "剪贴板历史.存储目录",
+                    "剪贴板历史.保留条数",
+                    "剪贴板历史.保留天数",
+                    "_clear_clip_history",
+                ],
             },
         ],
     },
@@ -2596,6 +2654,20 @@ const bind: { [k in KeyPath]?: KeyPath[] } = {
     "取色器.像素大小": ["_qsq"],
 };
 
+let clipApplyTimer: ReturnType<typeof setTimeout> | undefined;
+/**
+ * 让剪贴板历史的配置改动即时生效。
+ * 存储目录是文本输入框，逐字符触发 input，所以做防抖，
+ * 避免输入路径的过程中反复迁移目录。
+ */
+function applyClipHistorySetting() {
+    if (clipApplyTimer !== undefined) clearTimeout(clipApplyTimer);
+    clipApplyTimer = setTimeout(() => {
+        clipApplyTimer = undefined;
+        renderSend("clipHistoryApplySetting", []);
+    }, 800);
+}
+
 const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
     "工具栏.按钮大小": (v) => setProperty("--bar-size", `${v}px`),
     "工具栏.按钮图标比例": (v) => setProperty("--bar-icon", String(v)),
@@ -2618,6 +2690,11 @@ const bindF: { [k in SettingPath]?: (v: GetValue<setting, k>) => void } = {
     "全局.不透明度": (v) => setProperty("--alpha", String(v)),
     "字体.主要字体": (v) => setProperty("--main-font", v),
     "字体.等宽字体": (v) => setProperty("--monospace", v || monoFont.join(",")),
+    "剪贴板历史.开启": () => applyClipHistorySetting(),
+    "剪贴板历史.存储目录": () => applyClipHistorySetting(),
+    "剪贴板历史.轮询间隔": () => applyClipHistorySetting(),
+    "剪贴板历史.保留条数": () => applyClipHistorySetting(),
+    "剪贴板历史.保留天数": () => applyClipHistorySetting(),
 };
 
 const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
@@ -3046,6 +3123,28 @@ function comment(str: string) {
         color: cssColor.font.light,
         fontSize: "0.8em",
     });
+}
+
+/** 页面顶部的醒目提示条 */
+function banner(text: string) {
+    return view("y")
+        .class(Class.deco)
+        .style({
+            padding: cssVar("o-padding"),
+            color: cssColor.main,
+            outline: `1px solid ${cssColor.main}`,
+            outlineOffset: "-1px",
+            backgroundColor:
+                "color-mix(in srgb, var(--font-color-emphasis) 12%, transparent)",
+        })
+        .add(txt(text));
+}
+
+/** 剪贴板历史：safeStorage 不可用时落盘会降级为明文，需在设置页显著提示 */
+function clipHistoryBanner() {
+    const r = renderSendSync("clipHistoryEncryption", []);
+    if (r.encrypted || !r.warning) return null;
+    return banner(r.warning);
 }
 
 function xGroup(r: "x" | "y" = "x") {
@@ -4963,6 +5062,10 @@ async function showPage(page: (typeof main)[0] | undefined) {
     mainViewP.el.scrollTop = 0;
     mainView.add(ele("h1").add(noI18n(page.pageName)));
     if (page.desc) mainView.add(comment(page.desc));
+    if (page.banner) {
+        const b = page.banner();
+        if (b) mainView.add(b);
+    }
     if (page.settings) {
         for (const setting of page.settings) {
             mainView.add(renderSetting(setting));

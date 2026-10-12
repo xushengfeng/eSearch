@@ -61,6 +61,7 @@ import type {
     translateWinType,
     功能,
 } from "../ShareTypes";
+import ClipboardHistory from "./clipboardHistory";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -154,6 +155,30 @@ const screenShotArgs = [
 ] as const;
 
 const keepClip = store.get("保留截屏窗口");
+
+/** 剪贴板历史 */
+let clipHistory: ClipboardHistory | null = null;
+/**
+ * 剪贴板历史面板的独立窗口。
+ * 它同时承担「任务栏入口」的角色：程序启动即以最小化状态创建，
+ * 关闭只是最小化，这样托盘与任务栏都能随时唤出面板。
+ */
+let clipHistoryWindow: BrowserWindow | null = null;
+
+/** 剪贴板历史的数据目录，未自定义时放在 userData 下 */
+function clipDir() {
+    const def = join(app.getPath("userData"), "剪贴板历史");
+    const custom = store.get("剪贴板历史.存储目录");
+    if (!custom) return def;
+    // 拒绝把存储目录设成盘符根目录或用户主目录：
+    // 否则索引与图片会被直接写到这些位置，既不整洁也容易写入失败。
+    const r = resolve(custom);
+    if (r === resolve(custom, "..") || r === resolve(app.getPath("home"))) {
+        console.warn(`剪贴板历史存储目录不合适，已回退到默认目录：${custom}`);
+        return def;
+    }
+    return custom;
+}
 
 function mainUrl(fileName: string) {
     if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
@@ -295,6 +320,17 @@ if (!isFirstInstance) {
         });
     });
 }
+
+/** 是否正在真正退出程序（用于区分「关闭窗口」与「退出应用」） */
+let isQuitting = false;
+app.on("before-quit", () => {
+    isQuitting = true;
+});
+
+app.on("window-all-closed", () => {
+    // 剪贴板历史窗口关闭即最小化、常驻任务栏，正常情况下不会走到这里。
+    // 兜底：不退出，保持托盘 / 任务栏驻留，由托盘菜单「退出」结束程序。
+});
 
 function sleep(time: number) {
     if (!time) return;
@@ -652,6 +688,21 @@ app.whenReady().then(() => {
                 },
             },
             {
+                label: t("剪贴板历史"),
+                click: () => {
+                    showClipHistoryWindow();
+                },
+            },
+            {
+                label: t("暂停记录"),
+                type: "checkbox",
+                checked: store.get("剪贴板历史.暂停"),
+                click: (i) => {
+                    clipHistory?.setPaused(i.checked);
+                    update();
+                },
+            },
+            {
                 type: "separator",
             },
             {
@@ -855,13 +906,34 @@ app.whenReady().then(() => {
         }
     }
 
+    // 剪贴板历史
+    clipHistory = new ClipboardHistory({
+        userData: app.getPath("userData"),
+        cfg: {
+            dir: clipDir(),
+            interval: store.get("剪贴板历史.轮询间隔"),
+            maxCount: store.get("剪贴板历史.保留条数"),
+            maxDays: store.get("剪贴板历史.保留天数"),
+        },
+        paused: store.get("剪贴板历史.暂停"),
+    });
+    clipHistory.onPausedChange = (p) => store.set("剪贴板历史.暂停", p);
+    clipHistory.onChange(() => {
+        const wc = clipHistoryWindow?.webContents;
+        if (wc && !wc.isDestroyed()) mainSend(wc, "clipHistoryChange", []);
+    });
+    if (store.get("剪贴板历史.开启")) clipHistory.start();
+    notiClipHistoryFirstRun();
+
     // tmp目录
     if (!existsSync(tmpDir)) mkdir(tmpDir, () => {});
     if (keepClip) {
         clipWindow = createClipWindow();
-    } else {
-        new BrowserWindow({ show: false });
     }
+
+    // 常驻剪贴板历史窗口：它才是任务栏入口，启动时以最小化状态创建。
+    // 主页面（搜索 / 翻译编辑器）不再常驻，改回按需打开。
+    createClipHistoryWindow({ startMinimized: true });
 
     nativeTheme.themeSource = store.get("全局.深色模式");
 
@@ -1545,7 +1617,26 @@ function createSuperRecorderWindow(fixed?: RecordRect) {
         });
     });
 }
+/** 把设置里的剪贴板历史配置同步到运行中的实例 */
+function applyClipHistorySetting() {
+    if (!clipHistory) return;
+    const dir = clipDir();
+    if (clipHistory.getConfig().dir !== dir) clipHistory.setDir(dir);
+    clipHistory.setConfig({
+        interval: store.get("剪贴板历史.轮询间隔"),
+        maxCount: store.get("剪贴板历史.保留条数"),
+        maxDays: store.get("剪贴板历史.保留天数"),
+    });
+    if (store.get("剪贴板历史.开启")) clipHistory.start();
+    else clipHistory.stop();
+}
+
+mainOn("clipHistoryApplySetting", () => {
+    applyClipHistorySetting();
+});
+
 mainOn("reloadMainFromSetting", () => {
+    applyClipHistorySetting();
     if (clipWindow && !clipWindow.isDestroyed() && !clipWindow.isVisible())
         clipWindow.reload();
     if (contextMenu && tray) {
@@ -1553,6 +1644,10 @@ mainOn("reloadMainFromSetting", () => {
             (i) => i.label === t("浏览器打开"),
         );
         if (browserItem) browserItem.checked = store.get("浏览器中打开");
+        const pauseItem = contextMenu.items.find(
+            (i) => i.label === t("暂停记录"),
+        );
+        if (pauseItem) pauseItem.checked = store.get("剪贴板历史.暂停");
         tray.popUpContextMenu(contextMenu);
         tray.closeContextMenu();
     }
@@ -1944,11 +2039,147 @@ const mainWindowL: {
 } = {};
 
 const mainToSearchL: { [n: number]: Array<number> } = {};
+
+/**
+ * 窗口尺寸 / 坐标的滞回阈值。
+ * Electron 读回的窗口尺寸总比创建时多几像素（Windows 会把窗口吸附到自己的网格），
+ * 原样存取会让窗口每开关一次就长大一点。只有变化超过阈值才写回 store，
+ * 既消除漂移，也不影响用户真正调整窗口。
+ */
+const WIN_SIZE_EPS = 10;
+
+/** 尺寸或坐标的变化是否值得写回 store */
+function sizeChanged(next: readonly number[], prev: readonly number[]) {
+    return (
+        Math.abs(next[0] - prev[0]) >= WIN_SIZE_EPS ||
+        Math.abs(next[1] - prev[1]) >= WIN_SIZE_EPS
+    );
+}
+
+/**
+ * 窗口是否至少有一部分落在某个显示器的工作区内。
+ * 用于判断上次记住的位置是否还有效——换了显示器、拔了外接屏或改了分辨率后，
+ * 旧坐标可能完全落在屏幕外，此时要回退到默认位置，否则窗口唤出来看不见。
+ */
+function isPositionVisible(x: number, y: number, w: number, h: number) {
+    return screen.getAllDisplays().some((d) => {
+        const a = d.workArea;
+        return x < a.x + a.width && x + w > a.x && y < a.y + a.height && y + h > a.y;
+    });
+}
+
+/**
+ * 主搜索窗口存在时，剪贴板面板让出置顶。
+ * 否则永久置顶的面板会盖住 OCR / 搜索 / 翻译的结果窗口。
+ */
+function syncClipHistoryTop() {
+    if (!clipHistoryWindow || clipHistoryWindow.isDestroyed()) return;
+    clipHistoryWindow.setAlwaysOnTop(
+        Object.keys(mainWindowL).length === 0,
+    );
+}
+
+/**
+ * 创建剪贴板历史面板的独立窗口。
+ * 已存在时直接返回，不重复创建——面板全局只有一个。
+ * @param o.startMinimized 以最小化状态创建（程序启动时用，避免开机就弹窗）
+ */
+function createClipHistoryWindow(o?: { startMinimized?: boolean }) {
+    if (clipHistoryWindow && !clipHistoryWindow.isDestroyed()) {
+        return clipHistoryWindow;
+    }
+    const [w, h] = store.get("剪贴板历史.窗口大小");
+    const [sx, sy] = store.get("剪贴板历史.窗口位置");
+    // [-1,-1] 是「还没记录过位置」的哨兵（defaultSetting 的初值），不是「左上角」。
+    // 不排掉它的话，首次启动面板会贴在屏幕左上角而不是系统默认位置。
+    const hasSavedPos = !(sx === -1 && sy === -1);
+    const pos =
+        hasSavedPos && isPositionVisible(sx, sy, w, h) ? { x: sx, y: sy } : {};
+    const win = new BrowserWindow({
+        width: w,
+        height: h,
+        minWidth: 320,
+        minHeight: 320,
+        ...pos,
+        show: !o?.startMinimized,
+        alwaysOnTop: true,
+        ...baseWinConfig(),
+    });
+    clipHistoryWindow = win;
+    syncClipHistoryTop();
+
+    rendererPath(win, "clipboardHistory.html");
+
+    win.webContents.on("did-finish-load", () => {
+        win.webContents.setZoomFactor(store.get("全局.缩放") || 1.0);
+    });
+
+    if (o?.startMinimized) {
+        // 等渲染好再显示，避免启动时白屏闪烁
+        win.once("ready-to-show", () => {
+            if (win.isDestroyed()) return;
+            win.show();
+            win.minimize();
+        });
+    }
+
+    win.on("close", (e) => {
+        const b = win.getNormalBounds();
+        const size: [number, number] = [b.width, b.height];
+        if (sizeChanged(size, store.get("剪贴板历史.窗口大小")))
+            store.set("剪贴板历史.窗口大小", size);
+        const at: [number, number] = [b.x, b.y];
+        if (sizeChanged(at, store.get("剪贴板历史.窗口位置")))
+            store.set("剪贴板历史.窗口位置", at);
+        // 关闭即最小化：面板是任务栏入口，点 × 只是收起来，图标要一直留着。
+        // 想真正退出程序请用托盘菜单的「退出」。
+        if (!isQuitting) {
+            e.preventDefault();
+            win.minimize();
+        }
+    });
+
+    win.on("closed", () => {
+        clipHistoryWindow = null;
+    });
+
+    return win;
+}
+
+/** 唤出剪贴板历史面板：托盘菜单、首次运行通知、任务栏按钮共用这一个入口 */
+function showClipHistoryWindow() {
+    const win = createClipHistoryWindow();
+    if (win.isDestroyed()) return;
+    if (win.isMinimized()) win.restore();
+    win.show();
+    win.focus();
+    syncClipHistoryTop();
+}
+
+/**
+ * 首次运行提示：剪贴板历史默认开启，这里明确告知用户，
+ * 点击通知即可打开面板，避免「悄悄记录」的观感。
+ */
+function notiClipHistoryFirstRun() {
+    if (!store.get("剪贴板历史.开启") || store.get("剪贴板历史.已提示"))
+        return;
+    store.set("剪贴板历史.已提示", true);
+    const notification = new Notification({
+        title: `${app.name} ${t("剪贴板历史")}`,
+        body: t(
+            "已开始记录你复制的文字、图片和文件路径。点击查看，可在托盘菜单或设置中暂停或关闭。",
+        ),
+        icon: join(runPath, "assets/logo/64x64.png"),
+    });
+    notification.on("click", () => {
+        showClipHistoryWindow();
+    });
+    notification.show();
+}
+
 async function createMainWindow(op: MainWinType) {
     if (store.get("主页面.复用") && Object.keys(mainWindowL).length > 0) {
-        const name = Math.max(
-            ...Object.keys(mainWindowL).map((i) => Number(i)),
-        );
+        const name = Math.max(...Object.keys(mainWindowL).map((i) => Number(i)));
         const mainWindow = mainWindowL[name].win;
         op.time = Date.now();
         mainSend(mainWindow.webContents, "editorInit", [name, op]);
@@ -1988,6 +2219,8 @@ async function createMainWindow(op: MainWinType) {
         browser: { top: 0, bottom: 48 },
         win: mainWindow,
     };
+    // 主搜索窗口出现，剪贴板面板让出置顶
+    syncClipHistoryTop();
 
     mainToSearchL[windowName] = [];
 
@@ -2023,11 +2256,11 @@ async function createMainWindow(op: MainWinType) {
     });
 
     mainWindow.on("close", () => {
-        store.set("主页面大小", [
-            mainWindow.getNormalBounds().width,
-            mainWindow.getNormalBounds().height,
-            mainWindow.isMaximized(),
-        ]);
+        const b = mainWindow.getNormalBounds();
+        const maxed = mainWindow.isMaximized();
+        const prev = store.get("主页面大小");
+        if (maxed !== prev[2] || sizeChanged([b.width, b.height], [prev[0], prev[1]]))
+            store.set("主页面大小", [b.width, b.height, maxed]);
         for (const i of mainWindow.contentView.children) {
             if (i instanceof WebContentsView) i.webContents.close();
         }
@@ -2035,6 +2268,8 @@ async function createMainWindow(op: MainWinType) {
 
     mainWindow.on("closed", () => {
         delete mainWindowL[windowName];
+        // 主搜索窗口都没了，剪贴板面板恢复置顶
+        syncClipHistoryTop();
     });
 
     // 浏览器大小适应
@@ -2325,6 +2560,54 @@ mainOn("noti", ([{ title, body }]) => {
 mainOn("windowIgnoreMouse", ([arg], e) => {
     BrowserWindow.fromWebContents(e.sender)?.setIgnoreMouseEvents(arg);
 });
+mainOn("clipHistoryGet", ([trash]) => {
+    if (!clipHistory) return { items: [], paused: false, warning: null };
+    return {
+        items: trash ? clipHistory.listTrash() : clipHistory.list(),
+        paused: clipHistory.isPaused(),
+        warning: clipHistory.getWarning(),
+    };
+});
+mainOn("clipHistoryEncryption", () => {
+    const warning = clipHistory?.getWarning() ?? null;
+    return { encrypted: !warning, warning };
+});
+mainOn("clipHistoryThumb", ([id]) => {
+    const png = clipHistory?.getImage(id);
+    if (!png) return "";
+    const img = nativeImage.createFromBuffer(png);
+    if (img.isEmpty()) return "";
+    const resized =
+        img.getSize().width > 200
+            ? img.resize({ width: 200, quality: "good" })
+            : img;
+    return resized.toDataURL();
+});
+mainOn("clipHistoryCopy", async ([id]) => {
+    await clipHistory?.copyBack(id);
+});
+mainOn("clipHistoryPin", ([id, pinned]) => {
+    clipHistory?.setPinned(id, pinned);
+});
+mainOn("clipHistoryRemove", ([id]) => {
+    clipHistory?.remove(id);
+});
+mainOn("clipHistoryRestore", ([id]) => {
+    clipHistory?.restore(id);
+});
+mainOn("clipHistoryPurge", ([id]) => {
+    clipHistory?.purge(id);
+});
+mainOn("clipHistoryEmptyTrash", () => {
+    clipHistory?.emptyTrash();
+});
+mainOn("clipHistoryClear", () => {
+    clipHistory?.clear();
+});
+mainOn("clipHistorySetPaused", ([paused]) => {
+    clipHistory?.setPaused(paused);
+});
+
 mainOn("windowClose", (_, e) => {
     BrowserWindow.fromWebContents(e.sender)?.close();
 });
@@ -2778,6 +3061,18 @@ const defaultSetting: setting = {
         复制OCR后提示: false,
     },
     主页面大小: [800, 600, false],
+    剪贴板历史: {
+        开启: true,
+        存储目录: "",
+        轮询间隔: 500,
+        保留条数: 200,
+        保留天数: 7,
+        暂停: false,
+        已提示: false,
+        窗口大小: [420, 640],
+        /** 面板窗口上次的坐标；[-1, -1] 表示还没记录过，用系统默认位置 */
+        窗口位置: [-1, -1],
+    },
     时间格式: "MM/DD hh:mm:ss",
     硬件加速: true,
     更新: {

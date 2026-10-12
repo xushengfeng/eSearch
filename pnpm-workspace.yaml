@@ -1,2 +1,5 @@
 onlyBuiltDependencies:
   - onnxruntime-node
+  # electron 的 postinstall 负责下载 Electron 二进制；pnpm 10 默认跳过安装脚本，
+  # 不放开这一项会导致 node_modules/electron/dist 为空、应用无法启动。
+  - electron
