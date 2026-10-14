@@ -2082,6 +2082,22 @@ async function createHelpWindow() {
 }
 
 const searchWindowL: { [n: number]: WebContentsView } = {};
+const browserViewWcIds = new Set<number>();
+const clipboardPermissions = new Set([
+    "clipboard-sanitized-write",
+    "clipboard-read",
+]);
+
+// 权限拦截只该作用于网页视图本身，否则会连带禁掉截屏等自家窗口的剪贴板
+function allowOwnClipboard(
+    webContents: Electron.WebContents | null,
+    permission: string,
+) {
+    return (
+        clipboardPermissions.has(permission) &&
+        !(webContents && browserViewWcIds.has(webContents.id))
+    );
+}
 mainOn("open_this_browser", ([window_name, url]) => {
     createBrowser(window_name, url);
 });
@@ -2132,10 +2148,13 @@ async function createBrowser(windowName: number, url: string) {
     if (!mainWindow.isDestroyed())
         mainSend(mainWindow.webContents, "browserNew", [view, url]);
 
-    searchView.webContents.session.setPermissionRequestHandler((_, __, cb) =>
-        cb(false),
+    browserViewWcIds.add(searchView.webContents.id);
+    searchView.webContents.session.setPermissionRequestHandler(
+        (wc, permission, cb) => cb(allowOwnClipboard(wc, permission)),
     );
-    searchView.webContents.session.setPermissionCheckHandler(() => false);
+    searchView.webContents.session.setPermissionCheckHandler((wc, permission) =>
+        allowOwnClipboard(wc, permission),
+    );
 
     searchView.webContents.on("page-title-updated", (_event, title) => {
         if (!mainWindow.isDestroyed())
