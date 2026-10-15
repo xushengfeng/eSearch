@@ -84,7 +84,13 @@ try {
             : "");
     console.log(`userDataPath: ${userDataPath}`);
 
-    if (userDataPath) app.setPath("userData", userDataPath);
+    if (userDataPath) {
+        // Electron 只会建默认的那个 userData 目录；setPath 换成自定义路径后目录要自己建，
+        // 否则 Store 第一次写 config.json 就是 ENOENT（一个没被 catch 的启动期异常）。
+        // mkdir 失败就让异常落到下面的 catch：宁可用默认目录，也不要启动就弹错。
+        mkdirSync(userDataPath, { recursive: true });
+        app.setPath("userData", userDataPath);
+    }
 } catch (e) {}
 
 const store = new Store({
