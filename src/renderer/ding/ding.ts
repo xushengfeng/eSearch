@@ -1,13 +1,14 @@
-// biome-ignore format:
 import { writeImage } from "../lib/clipboard";
+
 const fs = require("node:fs") as typeof import("fs");
+
 import {
-    type ElType,
     addClass,
     addStyle,
     button,
-    elFromId,
+    type ElType,
     ele,
+    elFromId,
     image,
     initDKH,
     spacer,
@@ -16,15 +17,14 @@ import {
     view,
 } from "dkh-ui";
 import xtranslator from "xtranslator";
-import store from "../../../lib/store/renderStore";
-import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
-
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
-import type { DingStart, Dire } from "../../ShareTypes";
 import type { IconType } from "../../iconTypes";
+import type { DingStart, Dire } from "../../ShareTypes";
 import { loadTranslator } from "../lib/translate";
 import { defaultOcrId, loadOCR } from "../ocr/ocr";
+import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 
 initStyle(store);
 
@@ -177,7 +177,7 @@ const setNewDing = (
     trackPoint(opacityElP, {
         start: () => {
             toolBarC.sv({ forceShow: true });
-            return { x: 0, y: 0, data: Number.parseInt(opacityEl.gv) };
+            return { x: 0, y: 0, data: Number.parseInt(opacityEl.gv, 10) };
         },
         ing: (p, _e, { startData }) => {
             const d = Math.round(p.x / 2);
@@ -196,7 +196,7 @@ const setNewDing = (
             el.innerText = `${v}%`;
         })
         .bindGet((el) => {
-            return Number.parseInt(el.innerText);
+            return Number.parseInt(el.innerText, 10);
         })
         .sv("100");
     const sizeEl = view("x")

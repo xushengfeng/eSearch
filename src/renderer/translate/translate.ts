@@ -1,26 +1,26 @@
 import xtranslator, { matchFitLan } from "xtranslator";
 import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
+
 const fs = require("node:fs") as typeof import("fs");
+
 import { initFastText } from "@xushengfeng/fasttext_wasm";
-import { writeText } from "../lib/clipboard";
-
-import store from "../../../lib/store/renderStore";
-
 import {
     button,
     ele,
     frame,
     image,
     p,
-    pText,
     pack,
+    pText,
     spacer,
     txt,
     view,
 } from "dkh-ui";
 
+import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
+import { writeText } from "../lib/clipboard";
 import { getTranslators } from "../lib/translate";
 
 initStyle(store);

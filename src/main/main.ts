@@ -1,34 +1,6 @@
 /// <reference types="vite/client" />
 
 import { Buffer } from "node:buffer";
-import {
-    type BaseWindow,
-    BrowserWindow,
-    ClipboardItem,
-    Menu,
-    type NativeImage,
-    Notification,
-    Tray,
-    type View,
-    WebContentsView,
-    app,
-    clipboard,
-    crashReporter,
-    desktopCapturer,
-    dialog,
-    globalShortcut,
-    ipcMain,
-    nativeImage,
-    nativeTheme,
-    screen,
-    session,
-    shell,
-} from "electron";
-
-import minimist from "minimist";
-
-import initScreenShots from "../renderer/screenShot/screenShot";
-
 import { exec, execSync } from "node:child_process";
 import {
     cpSync,
@@ -45,14 +17,39 @@ import {
 import { homedir, release, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import url from "node:url";
+import {
+    app,
+    type BaseWindow,
+    BrowserWindow,
+    ClipboardItem,
+    clipboard,
+    crashReporter,
+    desktopCapturer,
+    dialog,
+    globalShortcut,
+    ipcMain,
+    Menu,
+    type NativeImage,
+    Notification,
+    nativeImage,
+    nativeTheme,
+    screen,
+    session,
+    shell,
+    Tray,
+    type View,
+    WebContentsView,
+} from "electron";
+import minimist from "minimist";
 import main, { matchFitLan } from "xtranslator";
 import { githubMirrorList } from "../../lib/github_mirror";
-import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
 import type { RecordRect } from "../../lib/ipc";
+import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
 import Store from "../../lib/store/store";
 import time_format from "../../lib/time_format";
 import { getLans, lan, t } from "../../lib/translate/translate";
 import { typedEntries } from "../../lib/utils";
+import initScreenShots from "../renderer/screenShot/screenShot";
 import type {
     EditToolsType,
     GithubUrlType,
@@ -408,7 +405,7 @@ async function argRun(c: string[], first?: boolean) {
 
     const path = argv.i || argv.input;
     async function getImg() {
-        let img: NativeImage | undefined = undefined;
+        let img: NativeImage | undefined;
         if (!path) {
             const screenShots = initScreenShots(...screenShotArgs);
             await sleep(argv.delay || 0);
@@ -1030,10 +1027,7 @@ function feedbackUrl(op?: {
     return url.toString();
 }
 
-function feedbackUrl2(op?: {
-    title?: string;
-    main?: string;
-}) {
+function feedbackUrl2(op?: { title?: string; main?: string }) {
     const url = new URL(
         "https://github.com/xushengfeng/eSearch/issues/new?template=feature_request.yaml&labels=新需求",
     );
@@ -2113,7 +2107,6 @@ async function createBrowser(windowName: number, url: string) {
     console.log(url);
 
     if (!windowName)
-        // biome-ignore lint: init window
         windowName = await createMainWindow({ type: "text", content: "" });
 
     const mainWindow = mainWindowL[windowName].win;

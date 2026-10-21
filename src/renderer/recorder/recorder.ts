@@ -8,13 +8,13 @@ import {
     label,
     p,
     txt,
+    view,
 } from "dkh-ui";
-import { view } from "dkh-ui";
+import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 /// <reference types="vite/client" />
 import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
-import store from "../../../lib/store/renderStore";
 initStyle(store);
 
 setTitle(t("录屏"));
@@ -95,14 +95,16 @@ const sysAudioName = "00";
 
 let rect: [number, number, number, number];
 
-// biome-ignore format:
-const spawn = require("node:child_process").spawn as typeof import("child_process").spawn;
+const spawn = require("node:child_process")
+    .spawn as typeof import("child_process").spawn;
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
+
 import { renderOn, renderSend } from "../../../lib/ipc";
 import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
+
 let pathToFfmpeg = "ffmpeg";
 if (process.platform === "win32" || process.platform === "darwin") {
     const p = path.join(__dirname, "..", "..", "lib", "ffmpeg");

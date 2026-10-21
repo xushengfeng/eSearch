@@ -126,5 +126,5 @@ function runAI(
     };
 }
 
-export { runAI };
 export type { aiData };
+export { runAI };

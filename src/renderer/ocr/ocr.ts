@@ -3,7 +3,7 @@ import type { InitOcrBase } from "esearch-ocr";
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 
-export { loadOCR, defaultOcrId };
+export { defaultOcrId, loadOCR };
 
 const defaultOcrId = "0";
 
@@ -61,7 +61,6 @@ function loadOCR(
         console.error("OCR路径错误");
         return null;
     }
-    // biome-ignore format:
     const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
     const ort = require("onnxruntime-node");
     const provider = store.get("AI.运行后端") || "cpu";

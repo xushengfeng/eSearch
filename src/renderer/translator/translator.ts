@@ -1,6 +1,5 @@
+import { addClass, button, type ElType, image, pack, view } from "dkh-ui";
 import initScreenShots from "../screenShot/screenShot";
-
-import { type ElType, addClass, button, image, pack, view } from "dkh-ui";
 
 function iconEl(src: IconType) {
     return image(getImgUrl(`${src}.svg`), "icon").class("icon");

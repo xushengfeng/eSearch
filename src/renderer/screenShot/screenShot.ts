@@ -1,5 +1,6 @@
 const { ipcRenderer, nativeImage, shell, dialog } =
     require("electron") as typeof import("electron");
+
 import type { MessageBoxSyncOptions, NativeImage } from "electron";
 import { renderSendSync } from "../../../lib/ipc";
 import { tryxAwait } from "../../../lib/utils";
@@ -113,8 +114,8 @@ async function dispaly2screen(
 
     if (!buffer && _command) {
         const fs = require("node:fs") as typeof import("node:fs");
-        // biome-ignore format:
-        const { execSync } = require("node:child_process") as typeof import("node:child_process");
+        const { execSync } =
+            require("node:child_process") as typeof import("node:child_process");
         const x: ReturnData = {
             bounds: displays?.[0]?.bounds ?? {
                 x: 0,
@@ -182,8 +183,8 @@ async function dispaly2screen(
     }
 
     if (process.platform === "linux" && _useXDGDesktopProtal) {
-        // biome-ignore format:
-        const fs = require("node:fs/promises") as typeof import("node:fs/promises");
+        const fs =
+            require("node:fs/promises") as typeof import("node:fs/promises");
         const c = await waylandShotInit();
         const allScreens: ReturnData[] = [];
         const empty = {

@@ -1,5 +1,4 @@
 import {
-    type ElType,
     a,
     addClass,
     addStyle,
@@ -9,6 +8,7 @@ import {
     confirm,
     dynamicList,
     dynamicSelect,
+    type ElType,
     ele,
     image,
     input,
@@ -40,35 +40,31 @@ import {
     monoFont,
     setTitle,
 } from "../root/root";
-// biome-ignore format:
+
 const { shell, webUtils } = require("electron") as typeof import("electron");
 const path = require("node:path") as typeof import("path");
 const os = require("node:os") as typeof import("os");
 const fs = require("node:fs") as typeof import("fs");
 
+import Fuse from "fuse.js";
+import { hexToCSSFilter } from "hex-to-css-filter";
+import translator from "xtranslator";
 import logoBlack from "../../../assets/logo/bw/32x32_black.png";
 import logoWhite from "../../../assets/logo/bw/32x32_white.png";
+import _package from "../../../package.json?raw";
 import logo from "../assets/icon.svg";
 import testPhoto from "../assets/sample_picture.svg";
 
-import translator from "xtranslator";
-
-import { hexToCSSFilter } from "hex-to-css-filter";
-
-import Fuse from "fuse.js";
-
-import _package from "../../../package.json?raw";
 const packageJson = JSON.parse(_package);
 
+import { githubMirrorList } from "../../../lib/github_mirror";
+import { renderSend, renderSendSync } from "../../../lib/ipc";
 import {
     ele2jsKeyCode,
     jsKey2ele,
     jsKeyCodeDisplay,
     macKeyFomat,
 } from "../../../lib/key.js";
-
-import { githubMirrorList } from "../../../lib/github_mirror";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
 import { xget, xset } from "../../../lib/store/parse";
 import time_format from "../../../lib/time_format";
 import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
@@ -3672,7 +3668,7 @@ function dialogB(
     d: ElType<HTMLDialogElement>,
     els: ElType<HTMLElement>[],
     onClose: () => void,
-    // biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+    // biome-ignore lint/suspicious/noConfusingVoidType: 保留回调签名
     onOk: () => boolean | undefined | void,
 ) {
     d.add(
@@ -4316,7 +4312,7 @@ function inpaintEl() {
                     }
                     const contentLength = res.headers.get("content-length");
                     const totalBytes = contentLength
-                        ? Number.parseInt(contentLength)
+                        ? Number.parseInt(contentLength, 10)
                         : undefined;
                     const reader = res.body.getReader();
                     let downloadedBytes = 0;
@@ -4661,7 +4657,7 @@ function ocrEl() {
                                     const contentLength =
                                         res.headers.get("content-length");
                                     const totalBytes = contentLength
-                                        ? Number.parseInt(contentLength)
+                                        ? Number.parseInt(contentLength, 10)
                                         : undefined;
 
                                     const reader = res.body.getReader();
@@ -5068,7 +5064,7 @@ function about() {
                                 trans.remove();
                                 return;
                             }
-                            // biome-ignore format:
+                            // biome-ignore format: 保持原格式
                             const x = transE.at(0) as setting["翻译"]["翻译器"][0];
                             // @ts-ignore
                             translator.e[x.type].setKeys(x.keys);

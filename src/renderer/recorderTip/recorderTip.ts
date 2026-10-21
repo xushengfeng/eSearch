@@ -9,20 +9,18 @@ import {
     txt,
     view,
 } from "dkh-ui";
-import { jsKeyCodeDisplay } from "../../../lib/key";
-
-import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
-
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
+import { jsKeyCodeDisplay } from "../../../lib/key";
 import store from "../../../lib/store/renderStore";
 import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
+import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
 
 function initRecord() {
     if (store.get("录屏.提示.键盘.开启") || store.get("录屏.提示.鼠标.开启"))
-        // biome-ignore format:
         // biome-ignore lint: 部分引入
-        var { uIOhook, UiohookKey } = require("uiohook-napi") as typeof import("uiohook-napi");
+        var { uIOhook, UiohookKey } =
+            require("uiohook-napi") as typeof import("uiohook-napi");
 
     function rKey() {
         const posi = store.get("录屏.提示.键盘.位置");

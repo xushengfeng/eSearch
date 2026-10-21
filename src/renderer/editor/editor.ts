@@ -2,10 +2,10 @@
 
 import diff_match_patch from "diff-match-patch";
 import {
-    type ElType,
     addClass,
     button,
     dynamicSelect,
+    type ElType,
     ele,
     image,
     input,
@@ -32,12 +32,15 @@ import {
     setTitle,
 } from "../root/root";
 import "diff-match-patch-line-and-word";
-// biome-ignore format:
+
 const { shell, webFrame } = require("electron") as typeof import("electron");
+
 import { readText, writeText } from "../lib/clipboard";
+
 const fs = require("node:fs") as typeof import("fs");
 const os = require("node:os") as typeof import("os");
 const path = require("node:path") as typeof import("path");
+
 import type { FSWatcher } from "node:fs";
 import xhistory from "../lib/history";
 
@@ -2280,10 +2283,7 @@ function getTab(id: number): TabItem {
 
 function closeTab(id: number) {
     renderSend("tabView", [id, "close"]);
-    const beforeIndex = Math.min(
-        liList.findIndex((i) => i === id),
-        liList.length - 1,
-    );
+    const beforeIndex = Math.min(liList.indexOf(id), liList.length - 1);
     liList = liList.filter((i) => i !== id);
     focusTab(liList[beforeIndex] ?? 0);
     tabs.get(id)?.el.remove();

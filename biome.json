@@ -1,7 +1,14 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-    "organizeImports": {
-        "enabled": true
+    "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+    "files": {
+        "includes": ["**", "!!src/renderer/assets"]
+    },
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": "on"
+            }
+        }
     },
     "formatter": {
         "indentStyle": "space",
@@ -10,14 +17,25 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "recommended": true,
+            "preset": "recommended",
             "complexity": {
+                "noImportantStyles": "off",
                 "useDateNow": "error"
             },
             "correctness": {
+                "noUnusedFunctionParameters": "off",
+                "noUnusedImports": "off",
+                "noUnusedVariables": "off",
                 "useValidForDirection": "error"
             },
-            "style": { "noNonNullAssertion": "off" }
+            "style": {
+                "noDescendingSpecificity": "off",
+                "noNonNullAssertion": "off"
+            },
+            "suspicious": {
+                "noTemplateCurlyInString": "off",
+                "noTsIgnore": "off"
+            }
         }
     }
 }

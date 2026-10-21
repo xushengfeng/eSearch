@@ -214,4 +214,4 @@ function cssVarR(x: string) {
     return `var(--${x})`;
 }
 
-export { initStyle, getImgUrl, setTitle, Class, cssColor, cssVar, monoFont };
+export { Class, cssColor, cssVar, getImgUrl, initStyle, monoFont, setTitle };

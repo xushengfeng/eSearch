@@ -1,24 +1,18 @@
 /// <reference types="vite/client" />
 
-import chroma from "chroma-js";
-import hotkeys from "hotkeys-js";
-import { ele2jsKeyCode, jsKeyCodeDisplay } from "../../../lib/key";
-import open_with from "../../../lib/open_with";
-import store from "../../../lib/store/renderStore";
-import { t } from "../../../lib/translate/translate";
-import { writeImage, writeText } from "../lib/clipboard";
-import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
-
 import { EraserBrush } from "@erase2d/fabric";
 import bmp from "bmp-js";
+import chroma from "chroma-js";
 import { detectBorders } from "edge_det";
 import {
     ActiveSelection,
     Canvas,
     Circle,
     type CircleProps,
+    classRegistry,
     FabricImage,
     type FabricObject,
+    filters,
     IText,
     Line,
     PencilBrush,
@@ -29,12 +23,18 @@ import {
     type RectProps,
     Shadow,
     SprayBrush,
-    classRegistry,
-    filters,
 } from "fabric";
+import hotkeys from "hotkeys-js";
 import { findOffset } from "picture_match";
+import { ele2jsKeyCode, jsKeyCodeDisplay } from "../../../lib/key";
+import open_with from "../../../lib/open_with";
+import store from "../../../lib/store/renderStore";
+import { t } from "../../../lib/translate/translate";
+import { writeImage, writeText } from "../lib/clipboard";
+import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
 import initScreenShots from "../screenShot/screenShot";
+
 const screenShots = initScreenShots(
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
     undefined,
@@ -43,8 +43,8 @@ const screenShots = initScreenShots(
 );
 
 import {
-    type ElType,
     button,
+    type ElType,
     ele,
     frame,
     image,
@@ -58,6 +58,7 @@ import {
 } from "dkh-ui";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import { typedEntries, typedKeys } from "../../../lib/utils";
+import type { IconType } from "../../iconTypes";
 import type {
     EditType,
     setting,
@@ -65,7 +66,6 @@ import type {
     功能,
     功能列表,
 } from "../../ShareTypes.js";
-import type { IconType } from "../../iconTypes";
 import xhistory from "../lib/history";
 import { ocrList } from "../ocr/ocr_omni";
 

@@ -1,4 +1,4 @@
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: 适配库类型
 class xhistory<Data, Diff = any> {
     history: ((
         | { data: Data; type: "key" }

@@ -1,4 +1,5 @@
 import { dbusClient, dbusIO } from "myde-dbus";
+
 const net = require("node:net") as typeof import("node:net");
 
 export async function waylandShotInit() {
