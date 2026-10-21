@@ -276,10 +276,25 @@ body input {
 #clip_photo {
     z-index: 10;
     cursor: crosshair;
-    /* 独立合成层，遮罩和参考线重绘不再牵动截图画布所在的层 */
-    will-change: transform;
 }
-#clip_photo div {
+#clip_mask,
+#clip_line {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+#clip_mask {
+    z-index: 9;
+}
+#clip_line {
+    z-index: 10;
+}
+#clip_mask div,
+#clip_line div {
     position: absolute;
     pointer-events: none;
 }

@@ -340,7 +340,6 @@ async function setScreen(i: (typeof allScreens)[0]) {
 }
 
 function setEditorP(zoom: number, x: number, y: number) {
-    const oldZoom = editorP.zoom;
     const t: string[] = [];
     if (zoom != null) {
         t.push(`scale(${zoom})`);
@@ -368,14 +367,31 @@ function setEditorP(zoom: number, x: number, y: number) {
     }
     editor.el.style.transform = t.join(" ");
 
-    // 线的本地宽度随缩放变化
-    if (editorP.zoom !== oldZoom) refreshLines();
+    refreshClipUi();
     whBar(finalRect);
 }
 
-/** 参考线在编辑器内的本地宽度：缩放后屏幕上至少 1 逻辑像素，放大时随缩放变粗 */
+/** 截图坐标 → 屏幕逻辑像素 */
+function src2screenX(x: number) {
+    return (x + editorP.x) * editorP.zoom;
+}
+function src2screenY(y: number) {
+    return (y + editorP.y) * editorP.zoom;
+}
+
+/** 对齐设备像素，避免线落在半个像素上发虚 */
+function snapPx(v: number) {
+    return Math.round(v * window.devicePixelRatio) / window.devicePixelRatio;
+}
+
+/**
+ * 线宽（屏幕逻辑像素）：不小于 1 逻辑像素；
+ * 放大后为 1 个截图像素，并随 editor 缩放变粗
+ */
 function lineW() {
-    return Math.max(1, 1 / editorP.zoom);
+    const dpr = window.devicePixelRatio;
+    const w = Math.max(1, editorP.zoom) * dpr;
+    return Math.max(Math.ceil(dpr), Math.round(w)) / dpr;
 }
 
 function setElBox(el: HTMLElement, x: number, y: number, w: number, h: number) {
@@ -389,6 +405,21 @@ function setElBox(el: HTMLElement, x: number, y: number, w: number, h: number) {
     if (s.top !== t) s.top = t;
     if (s.width !== width) s.width = width;
     if (s.height !== height) s.height = height;
+}
+
+/** 用屏幕坐标设置盒子，四条边都对齐设备像素 */
+function setScreenRect(
+    el: HTMLElement,
+    left: number,
+    top: number,
+    right: number,
+    bottom: number,
+) {
+    const l = snapPx(left);
+    const t = snapPx(top);
+    const r = snapPx(right);
+    const b = snapPx(bottom);
+    setElBox(el, l, t, Math.max(0, r - l), Math.max(0, b - t));
 }
 
 function setClipSize(w: number, h: number) {
@@ -1392,13 +1423,17 @@ function showMask(type: "rect" | "poly" | null) {
 function drawSelectLines() {
     const [x, y, width, height] = finalRect;
     const w = lineW();
+    const top = src2screenY(y);
+    const bottom = src2screenY(y + height);
+    const left = src2screenX(x);
+    const right = src2screenX(x + width);
     clipSelectLineX.forEach((el, i) => {
-        const px = x + x选区参考线.x[i] * width + 0.5 - w / 2;
-        setElBox(el.el, px, y, w, height);
+        const px = src2screenX(x + x选区参考线.x[i] * width);
+        setScreenRect(el.el, px - w / 2, top, px + w / 2, bottom);
     });
     clipSelectLineY.forEach((el, i) => {
-        const py = y + x选区参考线.y[i] * height + 0.5 - w / 2;
-        setElBox(el.el, x, py, width, w);
+        const py = src2screenY(y + x选区参考线.y[i] * height);
+        setScreenRect(el.el, left, py - w / 2, right, py + w / 2);
     });
 }
 
@@ -1413,10 +1448,39 @@ function drawClipRect() {
     const height = finalRect[3];
 
     showMask("rect");
-    setElBox(clipMaskRect[0].el, 0, 0, cw, y);
-    setElBox(clipMaskRect[1].el, 0, y + height, cw, ch - y - height);
-    setElBox(clipMaskRect[2].el, 0, y, x, height);
-    setElBox(clipMaskRect[3].el, x + width, y, cw - x - width, height);
+
+    // 画布在屏幕上的可见范围
+    const vx0 = Math.max(0, src2screenX(0));
+    const vy0 = Math.max(0, src2screenY(0));
+    const vx1 = Math.max(vx0, Math.min(window.innerWidth, src2screenX(cw)));
+    const vy1 = Math.max(vy0, Math.min(window.innerHeight, src2screenY(ch)));
+    // 选区在画布可见范围内的屏幕坐标
+    const hx0 = Math.min(vx1, Math.max(vx0, src2screenX(x)));
+    const hy0 = Math.min(vy1, Math.max(vy0, src2screenY(y)));
+    const hx1 = Math.min(vx1, Math.max(hx0, src2screenX(x + width)));
+    const hy1 = Math.min(vy1, Math.max(hy0, src2screenY(y + height)));
+    // 洞的边缘对齐设备像素；贴着画布边缘时直接使用画布边缘，避免出现暗边
+    const hxl = Math.min(vx1, Math.max(vx0, hx0 === vx0 ? vx0 : snapPx(hx0)));
+    const hyt = Math.min(vy1, Math.max(vy0, hy0 === vy0 ? vy0 : snapPx(hy0)));
+    const hxr = Math.min(vx1, Math.max(hxl, hx1 === vx1 ? vx1 : snapPx(hx1)));
+    const hyb = Math.min(vy1, Math.max(hyt, hy1 === vy1 ? vy1 : snapPx(hy1)));
+
+    setElBox(clipMaskRect[0].el, vx0, vy0, vx1 - vx0, Math.max(0, hyt - vy0));
+    setElBox(clipMaskRect[1].el, vx0, hyb, vx1 - vx0, Math.max(0, vy1 - hyb));
+    setElBox(
+        clipMaskRect[2].el,
+        vx0,
+        hyt,
+        Math.max(0, hxl - vx0),
+        Math.max(0, hyb - hyt),
+    );
+    setElBox(
+        clipMaskRect[3].el,
+        hxr,
+        hyt,
+        Math.max(0, vx1 - hxr),
+        Math.max(0, hyb - hyt),
+    );
 
     drawSelectLines();
 
@@ -1435,12 +1499,25 @@ function drawClipPoly(points: point[]) {
     const ch = mainCanvas.height;
 
     showMask("poly");
-    setElBox(clipMaskPoly.el, 0, 0, cw, ch);
+
+    // 只覆盖画布的可见范围，避免多边形超出画布时在背景上出现遮罩
+    const vx0 = Math.max(0, src2screenX(0));
+    const vy0 = Math.max(0, src2screenY(0));
+    const vx1 = Math.max(vx0, Math.min(window.innerWidth, src2screenX(cw)));
+    const vy1 = Math.max(vy0, Math.min(window.innerHeight, src2screenY(ch)));
+    const w = Math.max(0, vx1 - vx0);
+    const h = Math.max(0, vy1 - vy0);
+    setElBox(clipMaskPoly.el, vx0, vy0, w, h);
+
     const path = points
-        .map((p, i) => `${i === 0 ? "M" : "L"}${p.x} ${p.y}`)
+        .map((p, i) => {
+            const px = snapPx(src2screenX(p.x)) - vx0;
+            const py = snapPx(src2screenY(p.y)) - vy0;
+            return `${i === 0 ? "M" : "L"}${px} ${py}`;
+        })
         .join("");
     // evenodd 让选区多边形成为遮罩的洞
-    clipMaskPoly.el.style.clipPath = `path(evenodd, "M0 0H${cw}V${ch}H0Z${path}Z")`;
+    clipMaskPoly.el.style.clipPath = `path(evenodd, "M0 0H${w}V${h}H0Z${path}Z")`;
 
     // 大小栏
     whBar(pointsOutRect(points));
@@ -1458,9 +1535,9 @@ function cleanClip() {
     clipEdge.el.replaceChildren();
 }
 
-/** 缩放、平移后刷新参考线，本地线宽随缩放变化 */
-function refreshLines() {
-    if (isRect) drawSelectLines();
+/** 缩放、平移后刷新遮罩和参考线 */
+function refreshClipUi() {
+    drawClip();
     if (nowMouseE) {
         const e = e2srcPoint(nowMouseE);
         ckx(e);
@@ -1494,13 +1571,19 @@ function inEdge(p: editor_position) {
 /** 提示框没变化就不动 DOM */
 function setEdge(rects: rect[]) {
     const w = lineW();
-    const key = `${w}|${rects.map((i) => i.join(",")).join(";")}`;
+    const key = `${w}|${editorP.zoom}|${editorP.x}|${editorP.y}|${rects.map((i) => i.join(",")).join(";")}`;
     if (key === edgeKey) return;
     edgeKey = key;
     clipEdge.el.replaceChildren(
         ...rects.map((i) => {
             const el = document.createElement("div");
-            setElBox(el, i[0], i[1], i[2], i[3]);
+            setScreenRect(
+                el,
+                src2screenX(i[0]),
+                src2screenY(i[1]),
+                src2screenX(i[0] + i[2]),
+                src2screenY(i[1] + i[3]),
+            );
             el.style.boxSizing = "border-box";
             el.style.border = `${w}px solid #000`;
             el.style.outline = `${w}px solid #fff`;
@@ -1703,12 +1786,16 @@ function ckx(e: SrcPoint) {
     if (!g光标参考线) return;
     const { x, y } = src2cXY(e);
     const w = lineW();
-    const cx = x + 0.5 - w / 2;
-    const cy = y + 0.5 - w / 2;
-    setElBox(clipCkx[0].el, 0, cy, cx, w);
-    setElBox(clipCkx[1].el, cx + w, cy, mainCanvas.width - cx - w, w);
-    setElBox(clipCkx[2].el, cx, 0, w, cy);
-    setElBox(clipCkx[3].el, cx, cy + w, w, mainCanvas.height - cy - w);
+    const cx = src2screenX(x + 0.5);
+    const cy = src2screenY(y + 0.5);
+    const left = src2screenX(0);
+    const top = src2screenY(0);
+    const right = src2screenX(mainCanvas.width);
+    const bottom = src2screenY(mainCanvas.height);
+    setScreenRect(clipCkx[0].el, left, cy - w / 2, cx - w / 2, cy + w / 2);
+    setScreenRect(clipCkx[1].el, cx + w / 2, cy - w / 2, right, cy + w / 2);
+    setScreenRect(clipCkx[2].el, cx - w / 2, top, cx + w / 2, cy - w / 2);
+    setScreenRect(clipCkx[3].el, cx - w / 2, cy + w / 2, cx + w / 2, bottom);
 }
 
 function numberFormat(num: number) {
@@ -3522,11 +3609,22 @@ const drawCanvas = ele("canvas").attr({ id: "draw_photo" }).el;
 const drawP = view().attr({ id: "draw_photo_top" }).add(drawCanvas);
 editor.add([mainCanvas, clipEl, drawP]);
 
+/** 遮罩和参考线用屏幕坐标绘制，不参与 editor 缩放 */
+const clipMaskLayer = view().attr({ id: "clip_mask" }).addInto();
+const clipLineLayer = view().attr({ id: "clip_line" }).addInto();
+
 /** 遮罩：矩形用四块围合，自由多边形用 clip-path 挖洞 */
 const clipMaskRect = Array.from({ length: 4 }, () =>
     view().style({ background: 遮罩颜色 }),
 );
-const clipMaskPoly = view().style({ background: 遮罩颜色 });
+const clipMaskPoly = view().style({
+    background: 遮罩颜色,
+    left: "0",
+    top: "0",
+    width: "100%",
+    height: "100%",
+    display: "none",
+});
 /** 选区参考线 */
 const clipSelectLineX = x选区参考线.x.map(() =>
     view().style({ background: c参考线颜色.选区参考线 }),
@@ -3546,13 +3644,12 @@ const clipEdge = view().style({
     width: "100%",
     height: "100%",
 });
-clipEl.append(
-    ...clipMaskRect.map((i) => i.el),
-    clipMaskPoly.el,
+clipMaskLayer.add([...clipMaskRect.map((i) => i.el), clipMaskPoly.el]);
+clipLineLayer.add([
     ...clipSelectLines.map((i) => i.el),
     clipEdge.el,
     ...clipCkx.map((i) => i.el),
-);
+]);
 
 editor.style({ width: `${window.screen.width / 全局缩放}px` });
 // 第一次截的一定是桌面,所以可提前定义
