@@ -379,6 +379,24 @@ function src2screenY(y: number) {
     return (y + editorP.y) * editorP.zoom;
 }
 
+/** 画布在屏幕上的可见范围 */
+function visibleCanvasRect() {
+    const x0 = Math.max(0, src2screenX(0));
+    const y0 = Math.max(0, src2screenY(0));
+    return {
+        x0,
+        y0,
+        x1: Math.max(
+            x0,
+            Math.min(window.innerWidth, src2screenX(mainCanvas.width)),
+        ),
+        y1: Math.max(
+            y0,
+            Math.min(window.innerHeight, src2screenY(mainCanvas.height)),
+        ),
+    };
+}
+
 /** 对齐设备像素，避免线落在半个像素上发虚 */
 function snapPx(v: number) {
     return Math.round(v * window.devicePixelRatio) / window.devicePixelRatio;
@@ -420,6 +438,68 @@ function setScreenRect(
     const r = snapPx(right);
     const b = snapPx(bottom);
     setElBox(el, l, t, Math.max(0, r - l), Math.max(0, b - t));
+}
+
+/** 把多边形裁到矩形内，避免生成超大的 clip-path 坐标 */
+function clipPolygonToRect(
+    points: { x: number; y: number }[],
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+) {
+    const clip = (
+        poly: { x: number; y: number }[],
+        inside: (p: { x: number; y: number }) => boolean,
+        cross: (
+            a: { x: number; y: number },
+            b: { x: number; y: number },
+        ) => { x: number; y: number },
+    ) => {
+        const out: { x: number; y: number }[] = [];
+        for (let i = 0; i < poly.length; i++) {
+            const a = poly[i];
+            const b = poly[(i + 1) % poly.length];
+            const aIn = inside(a);
+            const bIn = inside(b);
+            if (aIn) out.push(a);
+            if (aIn !== bIn) out.push(cross(a, b));
+        }
+        return out;
+    };
+    let out = clip(
+        points,
+        (p) => p.x >= x0,
+        (a, b) => ({
+            x: x0,
+            y: a.y + ((x0 - a.x) * (b.y - a.y)) / (b.x - a.x),
+        }),
+    );
+    out = clip(
+        out,
+        (p) => p.x <= x1,
+        (a, b) => ({
+            x: x1,
+            y: a.y + ((x1 - a.x) * (b.y - a.y)) / (b.x - a.x),
+        }),
+    );
+    out = clip(
+        out,
+        (p) => p.y >= y0,
+        (a, b) => ({
+            x: a.x + ((y0 - a.y) * (b.x - a.x)) / (b.y - a.y),
+            y: y0,
+        }),
+    );
+    out = clip(
+        out,
+        (p) => p.y <= y1,
+        (a, b) => ({
+            x: a.x + ((y1 - a.y) * (b.x - a.x)) / (b.y - a.y),
+            y: y1,
+        }),
+    );
+    return out;
 }
 
 function setClipSize(w: number, h: number) {
@@ -1423,25 +1503,33 @@ function showMask(type: "rect" | "poly" | null) {
 function drawSelectLines() {
     const [x, y, width, height] = finalRect;
     const w = lineW();
-    const top = src2screenY(y);
-    const bottom = src2screenY(y + height);
-    const left = src2screenX(x);
-    const right = src2screenX(x + width);
+    const vc = visibleCanvasRect();
+    const top = Math.max(vc.y0, src2screenY(y));
+    const bottom = Math.min(vc.y1, src2screenY(y + height));
+    const left = Math.max(vc.x0, src2screenX(x));
+    const right = Math.min(vc.x1, src2screenX(x + width));
+    const spanH = Math.max(0, bottom - top);
+    const spanW = Math.max(0, right - left);
     clipSelectLineX.forEach((el, i) => {
         const px = src2screenX(x + x选区参考线.x[i] * width);
-        setScreenRect(el.el, px - w / 2, top, px + w / 2, bottom);
+        if (spanH <= 0 || px < vc.x0 || px > vc.x1) {
+            setElBox(el.el, 0, 0, 0, 0);
+            return;
+        }
+        setScreenRect(el.el, px - w / 2, top, px + w / 2, top + spanH);
     });
     clipSelectLineY.forEach((el, i) => {
         const py = src2screenY(y + x选区参考线.y[i] * height);
-        setScreenRect(el.el, left, py - w / 2, right, py + w / 2);
+        if (spanW <= 0 || py < vc.y0 || py > vc.y1) {
+            setElBox(el.el, 0, 0, 0, 0);
+            return;
+        }
+        setScreenRect(el.el, left, py - w / 2, left + spanW, py + w / 2);
     });
 }
 
 /** 画框(遮罩) */
 function drawClipRect() {
-    const cw = mainCanvas.width;
-    const ch = mainCanvas.height;
-
     const x = finalRect[0];
     const y = finalRect[1];
     const width = finalRect[2];
@@ -1450,10 +1538,7 @@ function drawClipRect() {
     showMask("rect");
 
     // 画布在屏幕上的可见范围
-    const vx0 = Math.max(0, src2screenX(0));
-    const vy0 = Math.max(0, src2screenY(0));
-    const vx1 = Math.max(vx0, Math.min(window.innerWidth, src2screenX(cw)));
-    const vy1 = Math.max(vy0, Math.min(window.innerHeight, src2screenY(ch)));
+    const { x0: vx0, y0: vy0, x1: vx1, y1: vy1 } = visibleCanvasRect();
     // 选区在画布可见范围内的屏幕坐标
     const hx0 = Math.min(vx1, Math.max(vx0, src2screenX(x)));
     const hy0 = Math.min(vy1, Math.max(vy0, src2screenY(y)));
@@ -1495,29 +1580,37 @@ function drawClipPoly(points: point[]) {
         return;
     }
 
-    const cw = mainCanvas.width;
-    const ch = mainCanvas.height;
-
     showMask("poly");
 
     // 只覆盖画布的可见范围，避免多边形超出画布时在背景上出现遮罩
-    const vx0 = Math.max(0, src2screenX(0));
-    const vy0 = Math.max(0, src2screenY(0));
-    const vx1 = Math.max(vx0, Math.min(window.innerWidth, src2screenX(cw)));
-    const vy1 = Math.max(vy0, Math.min(window.innerHeight, src2screenY(ch)));
+    const { x0: vx0, y0: vy0, x1: vx1, y1: vy1 } = visibleCanvasRect();
     const w = Math.max(0, vx1 - vx0);
     const h = Math.max(0, vy1 - vy0);
     setElBox(clipMaskPoly.el, vx0, vy0, w, h);
 
-    const path = points
-        .map((p, i) => {
-            const px = snapPx(src2screenX(p.x)) - vx0;
-            const py = snapPx(src2screenY(p.y)) - vy0;
-            return `${i === 0 ? "M" : "L"}${px} ${py}`;
-        })
-        .join("");
-    // evenodd 让选区多边形成为遮罩的洞
-    clipMaskPoly.el.style.clipPath = `path(evenodd, "M0 0H${w}V${h}H0Z${path}Z")`;
+    const clipped = clipPolygonToRect(
+        points.map((p) => ({
+            x: src2screenX(p.x),
+            y: src2screenY(p.y),
+        })),
+        vx0,
+        vy0,
+        vx1,
+        vy1,
+    );
+    if (clipped.length < 3) {
+        clipMaskPoly.el.style.clipPath = "none";
+    } else {
+        const path = clipped
+            .map((p, i) => {
+                const px = snapPx(p.x) - vx0;
+                const py = snapPx(p.y) - vy0;
+                return `${i === 0 ? "M" : "L"}${px} ${py}`;
+            })
+            .join("");
+        // evenodd 让选区多边形成为遮罩的洞
+        clipMaskPoly.el.style.clipPath = `path(evenodd, "M0 0H${w}V${h}H0Z${path}Z")`;
+    }
 
     // 大小栏
     whBar(pointsOutRect(points));
@@ -1786,16 +1879,48 @@ function ckx(e: SrcPoint) {
     if (!g光标参考线) return;
     const { x, y } = src2cXY(e);
     const w = lineW();
-    const cx = src2screenX(x + 0.5);
-    const cy = src2screenY(y + 0.5);
-    const left = src2screenX(0);
-    const top = src2screenY(0);
-    const right = src2screenX(mainCanvas.width);
-    const bottom = src2screenY(mainCanvas.height);
-    setScreenRect(clipCkx[0].el, left, cy - w / 2, cx - w / 2, cy + w / 2);
-    setScreenRect(clipCkx[1].el, cx + w / 2, cy - w / 2, right, cy + w / 2);
-    setScreenRect(clipCkx[2].el, cx - w / 2, top, cx + w / 2, cy - w / 2);
-    setScreenRect(clipCkx[3].el, cx - w / 2, cy + w / 2, cx + w / 2, bottom);
+    const vc = visibleCanvasRect();
+    const centerX = src2screenX(x + 0.5);
+    const centerY = src2screenY(y + 0.5);
+    if (
+        vc.x1 <= vc.x0 ||
+        vc.y1 <= vc.y0 ||
+        centerX < vc.x0 ||
+        centerX > vc.x1 ||
+        centerY < vc.y0 ||
+        centerY > vc.y1
+    ) {
+        for (const el of clipCkx) setElBox(el.el, 0, 0, 0, 0);
+        return;
+    }
+    setScreenRect(
+        clipCkx[0].el,
+        vc.x0,
+        centerY - w / 2,
+        centerX - w / 2,
+        centerY + w / 2,
+    );
+    setScreenRect(
+        clipCkx[1].el,
+        centerX + w / 2,
+        centerY - w / 2,
+        vc.x1,
+        centerY + w / 2,
+    );
+    setScreenRect(
+        clipCkx[2].el,
+        centerX - w / 2,
+        vc.y0,
+        centerX + w / 2,
+        centerY - w / 2,
+    );
+    setScreenRect(
+        clipCkx[3].el,
+        centerX - w / 2,
+        centerY + w / 2,
+        centerX + w / 2,
+        vc.y1,
+    );
 }
 
 function numberFormat(num: number) {

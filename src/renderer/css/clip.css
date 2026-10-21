@@ -288,6 +288,7 @@ body input {
     height: 100%;
     overflow: hidden;
     pointer-events: none;
+    contain: paint;
 }
 #clip_mask {
     z-index: 9;
