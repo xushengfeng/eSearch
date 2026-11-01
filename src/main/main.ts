@@ -1933,7 +1933,8 @@ function createDingSingle(
         y,
         width: w,
         height: h,
-        resizable: false,
+        resizable: true,
+        thickFrame: false,
     });
     dingSingleList.set(id, win);
     win.on("closed", () => {
