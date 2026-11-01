@@ -65,14 +65,14 @@
         "canvas": "^3.1.0",
         "csv-parse": "^7.0.2",
         "electron": "44.9.3",
-        "electron-builder": "^26.15.7",
+        "electron-builder": "^26.18.0",
         "electron-vite": "^4.0.1",
         "inquirer": "^12.7.0",
         "typescript": "^5.8.3",
         "vite": "^7.3.7",
         "vite-bundle-analyzer": "^1.2.0",
         "vite-plugin-image-optimizer": "^1.1.8",
-        "vitest": "^4.1.11",
+        "vitest": "^4.1.12",
         "xtimelog": "^1.0.5"
     },
     "optionalDependencies": {
@@ -85,5 +85,28 @@
         "node-screenshots-win32-arm64-msvc": "0.2.8",
         "node-screenshots-win32-ia32-msvc": "0.2.8",
         "node-screenshots-win32-x64-msvc": "0.2.8"
+    },
+    "pnpm": {
+        "overrides": {
+            "@babel/core": "7.29.6",
+            "@xmldom/xmldom@0.8": "0.8.15",
+            "@xmldom/xmldom@0.9": "0.9.12",
+            "adm-zip": "0.6.1",
+            "brace-expansion@1": "1.1.21",
+            "brace-expansion@2": "2.1.7",
+            "brace-expansion@5": "5.0.12",
+            "browserslist": "4.28.7",
+            "builder-util-runtime": "9.7.0",
+            "electron-builder-squirrel-windows": "26.18.0",
+            "fast-uri@3": "3.1.9",
+            "js-yaml@4": "4.3.2",
+            "lodash": "4.18.1",
+            "minimatch@10": "11.0.3",
+            "minimatch@9": "11.0.3",
+            "tar": "7.5.22",
+            "tmp": "0.2.7",
+            "undici@6": "6.29.1",
+            "undici@7": "7.30.1"
+        }
     }
 }
