@@ -1,7 +1,18 @@
 {
     "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    },
     "files": {
-        "includes": ["**", "!!src/renderer/assets"]
+        "includes": [
+            "**",
+            "!**/assets",
+            "!docs",
+            "!script/make_aur/e-search",
+            "!test/test_index/test_results.json"
+        ]
     },
     "assist": {
         "actions": {

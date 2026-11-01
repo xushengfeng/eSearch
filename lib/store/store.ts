@@ -1,10 +1,9 @@
 const fs = require("node:fs") as typeof import("fs");
 
-import { xget, xset } from "./parse";
-
-import type { GetValue, SettingPath } from "./renderStore";
 import type { setting } from "../../src/ShareTypes";
 import { safeJSONParse } from "../utils";
+import { xget, xset } from "./parse";
+import type { GetValue, SettingPath } from "./renderStore";
 
 type data = {
     [key: string]: unknown;
@@ -13,7 +12,10 @@ type data = {
 function deepMerge(target: data, source: data): data {
     const result = { ...target };
     for (const key in source) {
-        if (source[key]?.constructor === Object && target[key]?.constructor === Object) {
+        if (
+            source[key]?.constructor === Object &&
+            target[key]?.constructor === Object
+        ) {
             result[key] = deepMerge(target[key] as data, source[key] as data);
         } else if (target[key] === undefined) {
             result[key] = source[key];

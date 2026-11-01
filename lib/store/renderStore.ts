@@ -1,4 +1,5 @@
 const { ipcRenderer } = require("electron");
+
 import type { setting } from "../../src/ShareTypes"; // 使用类型映射和条件类型来解析路径
 
 type Join<K, P> = K extends string | number
@@ -45,4 +46,4 @@ const store = {
 
 export default store;
 
-export type { SettingPath, GetValue };
+export type { GetValue, SettingPath };

@@ -8,13 +8,13 @@
 // → 预览播放（检查是否创建音频节点）→ 导出 mp4/webm → ffprobe 校验音轨
 // → 检查设备选择已持久化。
 // 全部通过 exit 0，否则 exit 1；产物与日志在 os.tmpdir()/esearch-superRecorder-audio-e2e。
-import { spawn, execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import {
     mkdirSync,
-    writeFileSync,
     readdirSync,
-    rmSync,
     readFileSync,
+    rmSync,
+    writeFileSync,
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -303,7 +303,11 @@ let main;
 const consoleMsgs = [];
 try {
     // 主进程（node inspector）
-    const nodeT = await waitTarget(INSPECT_PORT, (t) => t.type === "node", 40000);
+    const nodeT = await waitTarget(
+        INSPECT_PORT,
+        (t) => t.type === "node",
+        40000,
+    );
     main = await Session.connect(nodeT.webSocketDebuggerUrl);
     await main.send("Runtime.enable");
     console.log("connected to main");
@@ -330,7 +334,7 @@ try {
 
     const pageT = await waitTarget(
         DEBUG_PORT,
-        (t) => t.url && t.url.includes("videoEditor.html"),
+        (t) => t.url?.includes("videoEditor.html"),
         30000,
     );
     page = await Session.connect(pageT.webSocketDebuggerUrl);
@@ -416,7 +420,11 @@ try {
         })()
     `);
     console.log("audio check:", checkInfo);
-    check("音频列表可勾选设备", String(checkInfo).includes(":"), String(checkInfo));
+    check(
+        "音频列表可勾选设备",
+        String(checkInfo).includes(":"),
+        String(checkInfo),
+    );
     await sleep(500);
     const checked = await page.eval(`
         (() => {
@@ -465,7 +473,11 @@ try {
             break;
         }
     }
-    check("录制结束并完成变换", ready, `(canvas=${await page.eval("document.querySelectorAll('canvas').length")})`);
+    check(
+        "录制结束并完成变换",
+        ready,
+        `(canvas=${await page.eval("document.querySelectorAll('canvas').length")})`,
+    );
     dumpMsgs("变换完成", true);
 
     // 预览播放 3 秒
@@ -500,11 +512,7 @@ try {
     try {
         createOk = JSON.parse(playInfo).create === 1;
     } catch {}
-    check(
-        "预览播放创建了音频节点",
-        createOk,
-        String(playInfo).slice(0, 200),
-    );
+    check("预览播放创建了音频节点", createOk, String(playInfo).slice(0, 200));
 
     // 导出 mp4
     await page.eval(`
@@ -529,13 +537,27 @@ try {
     if (mp4) {
         const info = execFileSync(
             "ffprobe",
-            ["-v", "error", "-show_entries", "stream=index,codec_type,codec_name,duration", "-of", "json", mp4],
+            [
+                "-v",
+                "error",
+                "-show_entries",
+                "stream=index,codec_type,codec_name,duration",
+                "-of",
+                "json",
+                mp4,
+            ],
             { encoding: "utf8" },
         );
         console.log("ffprobe mp4:", info);
         const parsed = JSON.parse(info);
-        const audio = (parsed.streams || []).find((s) => s.codec_type === "audio");
-        check("mp4 包含音频流", !!audio, audio ? `${audio.codec_name} ${audio.duration}s` : "");
+        const audio = (parsed.streams || []).find(
+            (s) => s.codec_type === "audio",
+        );
+        check(
+            "mp4 包含音频流",
+            !!audio,
+            audio ? `${audio.codec_name} ${audio.duration}s` : "",
+        );
     }
 
     // 切到 webm 再导出一次
@@ -573,17 +595,31 @@ try {
     if (webm) {
         const info = execFileSync(
             "ffprobe",
-            ["-v", "error", "-show_entries", "stream=index,codec_type,codec_name,duration", "-of", "json", webm],
+            [
+                "-v",
+                "error",
+                "-show_entries",
+                "stream=index,codec_type,codec_name,duration",
+                "-of",
+                "json",
+                webm,
+            ],
             { encoding: "utf8" },
         );
         console.log("ffprobe webm:", info);
         const parsed = JSON.parse(info);
-        const audio = (parsed.streams || []).find((s) => s.codec_type === "audio");
-        check("webm 包含音频流", !!audio, audio ? `${audio.codec_name} ${audio.duration}s` : "");
+        const audio = (parsed.streams || []).find(
+            (s) => s.codec_type === "audio",
+        );
+        check(
+            "webm 包含音频流",
+            !!audio,
+            audio ? `${audio.codec_name} ${audio.duration}s` : "",
+        );
     }
 } catch (e) {
     console.log("FATAL:", e);
-    result.fail.push("fatal: " + e.message);
+    result.fail.push(`fatal: ${e.message}`);
 } finally {
     try {
         const cfg = JSON.parse(
@@ -602,7 +638,8 @@ try {
         (m) => m.type === "exception" || m.type === "error",
     );
     console.log("\n=== console errors/exceptions ===");
-    for (const e of errs) console.log(e.type, ":", String(e.text).slice(0, 500));
+    for (const e of errs)
+        console.log(e.type, ":", String(e.text).slice(0, 500));
     console.log("=== console (all, tail) ===");
     for (const m of consoleMsgs.slice(-40))
         console.log(m.type, ":", String(m.text).slice(0, 200));

@@ -1,5 +1,7 @@
-export { t, tLan, lan, getLans, getLanName };
+export { getLanName, getLans, lan, t, tLan };
+
 import { matchFitLan } from "xtranslator";
+
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
 const rootDirL = __dirname.split(path.sep);

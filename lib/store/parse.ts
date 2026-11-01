@@ -1,7 +1,7 @@
 import type { setting } from "../../src/ShareTypes";
 import type { GetValue, SettingPath } from "./renderStore";
 
-export { xset, xget };
+export { xget, xset };
 
 function xset<P extends SettingPath>(
     store: Record<string, unknown>,

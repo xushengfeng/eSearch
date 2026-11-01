@@ -1,4 +1,5 @@
 import { renderSendSync } from "./ipc";
+
 const { exec } = require("node:child_process");
 function open(path: string) {
     switch (process.platform) {

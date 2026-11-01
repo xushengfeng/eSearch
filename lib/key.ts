@@ -1,4 +1,4 @@
-export { macKeyFomat, jsKey2ele, jsKeyCodeDisplay, ele2jsKeyCode };
+export { ele2jsKeyCode, jsKey2ele, jsKeyCodeDisplay, macKeyFomat };
 
 const macKeyFomat = (k: string) => {
     const m: { [key: string]: string } = {

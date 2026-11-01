@@ -5019,8 +5019,9 @@ function about() {
                                 trans.remove();
                                 return;
                             }
-                            // biome-ignore format: 保持原格式
-                            const x = transE.at(0) as setting["翻译"]["翻译器"][0];
+                            const x = transE.at(
+                                0,
+                            ) as setting["翻译"]["翻译器"][0];
                             // @ts-ignore
                             translator.e[x.type].setKeys(x.keys);
                             // @ts-ignore

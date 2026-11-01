@@ -1,10 +1,10 @@
-import fs from "node:fs";
-import { checkbox, confirm, select } from "@inquirer/prompts";
-import type { setting } from "../../src/ShareTypes";
-import path from "node:path";
-import os from "node:os";
 import { execSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { checkbox, confirm, select } from "@inquirer/prompts";
 import { xset } from "../../lib/store/parse.ts";
+import type { setting } from "../../src/ShareTypes";
 
 type state = boolean | null;
 

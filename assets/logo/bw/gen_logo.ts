@@ -1,4 +1,3 @@
-// biome-ignore format:
 import { createCanvas, loadImage,ImageData } from "canvas";
 import { writeFileSync } from "node:fs";
 

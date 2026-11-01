@@ -31,4 +31,4 @@ function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export { runApp, initConfig, restoreConfig, sleep };
+export { initConfig, restoreConfig, runApp, sleep };

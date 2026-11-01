@@ -1,7 +1,7 @@
+import { tmpdir } from "node:os";
+import * as path from "node:path";
 import { defineConfig } from "electron-vite";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
-import * as path from "node:path";
-import { tmpdir } from "node:os";
 
 export default defineConfig({
     main: {
