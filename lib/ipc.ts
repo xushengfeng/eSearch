@@ -168,7 +168,20 @@ type Message = {
         display: Display[],
         rect: { x: number; y: number; w: number; h: number },
     ) => void;
-    dingMouse: (x: number, y: number) => void;
+    /** 指针相对贴图窗口的坐标，以及屏幕坐标 */
+    dingMouse: (x: number, y: number, absX?: number, absY?: number) => void;
+    /** 独立窗口模式：初始化单个贴图 */
+    dingInit: (
+        id: number,
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        url: string,
+        type: "translate" | "ding",
+    ) => void;
+    /** 独立窗口模式：移动、缩放系统窗口 */
+    dingSetBounds: (x: number, y: number, w: number, h: number) => void;
     recordSavePathReturn: (path: string) => void; // todo remove
     editorInit: (name: number, list: MainWinType) => void;
     browserNew: (id: number, url: string) => void;

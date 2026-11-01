@@ -1662,7 +1662,7 @@ mainOn("hotkey", ([type, name, key]) => {
     return true;
 });
 
-// 长截屏
+// 贴图
 
 function dingObj() {
     const obj = new Map<
@@ -1700,8 +1700,15 @@ function dingObj() {
     };
 }
 
-// ding窗口
-const dingwindowList = dingObj();
+/** 全屏覆盖层：每个显示器一个窗口，窗口内模拟多个贴图 */
+const dingOverlayList = dingObj();
+/** 独立系统窗口：每个贴图一个窗口 */
+const dingSingleList = new Map<number, BrowserWindow>();
+
+let dingId = 0;
+let dingThrogh: null | boolean = null;
+let dingThroghInited = false;
+let dingTickRunning = false;
 
 async function dingFromClipBoard() {
     const img = await readImageFromClipboard();
@@ -1724,69 +1731,76 @@ function ding(img: NativeImage) {
     );
 }
 
-function createDingWindow(
+function dingWindowOptions(): Electron.BrowserWindowConstructorOptions {
+    return {
+        icon: theIcon,
+        transparent: true,
+        frame: false,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        autoHideMenuBar: true,
+        enableLargerThanScreen: true, // mac
+        hasShadow: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    };
+}
+
+function initDingWindow(win: BrowserWindow) {
+    if (dev) win.webContents.openDevTools();
+    win.webContents.on("console-message", (d) => {
+        if (d.level !== "debug")
+            pushLog({
+                from: "ding",
+                lineCount: d.lineNumber,
+                message: d.message,
+                type: d.level,
+            });
+    });
+    win.setAlwaysOnTop(true, "screen-saver");
+}
+
+/** 覆盖层模式：窗口铺满显示器，贴图在窗口内 */
+function createDingOverlay(
+    id: number,
     x: number,
     y: number,
     w: number,
     h: number,
     img: string,
-    type: "translate" | "ding" = "ding",
+    type: "translate" | "ding",
 ) {
-    if (dingwindowList.size() === 0) {
-        const screenL = screen.getAllDisplays();
-        const id = Date.now();
-        for (const i of screenL) {
-            const dingWindow = new BrowserWindow({
-                icon: theIcon,
-                transparent: true,
-                frame: false,
-                alwaysOnTop: true,
-                skipTaskbar: true,
-                autoHideMenuBar: true,
-                enableLargerThanScreen: true, // mac
-                hasShadow: false,
-                webPreferences: {
-                    nodeIntegration: true,
-                    contextIsolation: false,
-                },
-                x: i.bounds.x,
-                y: i.bounds.y,
-                width: i.bounds.width,
-                height: i.bounds.height,
+    if (dingOverlayList.size() === 0) {
+        for (const display of screen.getAllDisplays()) {
+            const bounds = display.bounds;
+            const win = new BrowserWindow({
+                ...dingWindowOptions(),
+                x: bounds.x,
+                y: bounds.y,
+                width: bounds.width,
+                height: bounds.height,
             });
-            dingwindowList.set(i.id, { win: dingWindow, display: i });
-
-            rendererPath(dingWindow, "ding.html");
-            if (dev) dingWindow.webContents.openDevTools();
-            dingWindow.webContents.on("did-finish-load", () => {
-                if (!dingWindow.isDestroyed())
-                    mainSend(dingWindow.webContents, "addDing", [
+            dingOverlayList.set(display.id, { win, display });
+            rendererPath(win, "ding.html");
+            initDingWindow(win);
+            win.webContents.on("did-finish-load", () => {
+                if (!win.isDestroyed())
+                    mainSend(win.webContents, "addDing", [
                         id,
-                        x - i.bounds.x,
-                        y - i.bounds.y,
+                        x - bounds.x,
+                        y - bounds.y,
                         w,
                         h,
                         img,
                         type,
                     ]);
             });
-            dingWindow.webContents.on("console-message", (d) => {
-                if (d.level !== "debug")
-                    pushLog({
-                        from: "ding",
-                        lineCount: d.lineNumber,
-                        message: d.message,
-                        type: d.level,
-                    });
-            });
-            dingWindow.setIgnoreMouseEvents(true);
-
-            dingWindow.setAlwaysOnTop(true, "screen-saver");
+            win.setIgnoreMouseEvents(true);
         }
-        forceDingThrogh();
     } else {
-        const id = Date.now();
-        for (const [_, win] of dingwindowList.entries()) {
+        for (const [_, win] of dingOverlayList.entries()) {
             const b = win.win.getBounds();
             mainSend(win.win.webContents, "addDing", [
                 id,
@@ -1795,59 +1809,141 @@ function createDingWindow(
                 w,
                 h,
                 img,
-                "ding",
+                type,
             ]);
         }
     }
-    // 自动改变鼠标穿透
-    if (!dingClickThroughRunning) {
-        dingClickThroughRunning = true;
-        dingClickThrough();
+}
+
+/** 独立模式：贴图本身就是一个系统窗口 */
+function createDingSingle(
+    id: number,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    img: string,
+    type: "translate" | "ding",
+) {
+    const win = new BrowserWindow({
+        ...dingWindowOptions(),
+        x,
+        y,
+        width: w,
+        height: h,
+        resizable: false,
+    });
+    dingSingleList.set(id, win);
+    win.on("closed", () => {
+        dingSingleList.delete(id);
+    });
+    if (dingThrogh) win.setIgnoreMouseEvents(true);
+    rendererPath(win, "ding.html", { query: { mode: "single" } });
+    initDingWindow(win);
+    win.webContents.on("did-finish-load", () => {
+        if (win.isDestroyed()) return;
+        mainSend(win.webContents, "dingInit", [id, x, y, w, h, img, type]);
+    });
+    // 窗口被系统缩放时保持图片比例
+    win.setAspectRatio(w / h);
+}
+
+function createDingWindow(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    img: string,
+    type: "translate" | "ding" = "ding",
+) {
+    const id = ++dingId;
+    if (store.get("贴图.窗口.独立窗口")) {
+        createDingSingle(id, x, y, w, h, img, type);
+    } else {
+        createDingOverlay(id, x, y, w, h, img, type);
+    }
+    forceDingThrogh();
+    if (!dingTickRunning) {
+        dingTickRunning = true;
+        dingTick();
     }
 }
-let dingClickThroughRunning = false;
-function dingClickThrough() {
-    if (dingwindowList.size() === 0) {
-        dingClickThroughRunning = false;
+
+/** 给所有贴图窗口同步指针位置，用于鼠标穿透和自定义拖动缩放 */
+function dingTick() {
+    const overlays = dingOverlayList.entries();
+    const singles = Array.from(dingSingleList.values());
+    if (overlays.length === 0 && singles.length === 0) {
+        dingTickRunning = false;
         return;
     }
-    const nowXY = screen.getCursorScreenPoint();
-    for (const [_, win] of dingwindowList.entries()) {
-        const b = win.win.getBounds();
-        mainSend(win.win.webContents, "dingMouse", [
-            nowXY.x - b.x,
-            nowXY.y - b.y,
+    const p = screen.getCursorScreenPoint();
+    const send = (win: BrowserWindow) => {
+        if (win.isDestroyed()) return;
+        const b = win.getBounds();
+        mainSend(win.webContents, "dingMouse", [
+            p.x - b.x,
+            p.y - b.y,
+            p.x,
+            p.y,
         ]);
-    }
-    setTimeout(dingClickThrough, 10);
+    };
+    for (const [_, { win }] of overlays) send(win);
+    for (const win of singles) send(win);
+    setTimeout(dingTick, 10);
 }
-let dingThrogh: null | boolean = null;
+
 mainOn("dingIgnore", ([v]) => {
-    for (const [_, win] of dingwindowList.entries()) {
+    for (const [_, win] of dingOverlayList.entries()) {
         win.win.setIgnoreMouseEvents(dingThrogh === null ? v : dingThrogh);
     }
 });
 
+mainOn("dingSetBounds", ([x, y, w, h], e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (!win || win.isDestroyed()) return;
+    const bounds = {
+        x: Math.round(x),
+        y: Math.round(y),
+        width: Math.max(1, Math.round(w)),
+        height: Math.max(1, Math.round(h)),
+    };
+    const now = win.getBounds();
+    if (
+        now.x === bounds.x &&
+        now.y === bounds.y &&
+        now.width === bounds.width &&
+        now.height === bounds.height
+    )
+        return;
+    win.setBounds(bounds);
+});
+
 function forceDingThrogh() {
-    if (store.get("贴图.强制鼠标穿透")) {
-        globalShortcut.register(store.get("贴图.强制鼠标穿透"), () => {
-            dingThrogh = !dingThrogh;
-            for (const [_, win] of dingwindowList.entries()) {
-                win.win.setIgnoreMouseEvents(dingThrogh);
-            }
-        });
-    }
+    if (dingThroghInited) return;
+    const key = store.get("贴图.强制鼠标穿透");
+    if (!key) return;
+    dingThroghInited = true;
+    globalShortcut.register(key, () => {
+        dingThrogh = !dingThrogh;
+        for (const [_, { win }] of dingOverlayList.entries()) {
+            win.setIgnoreMouseEvents(dingThrogh);
+        }
+        for (const win of dingSingleList.values()) {
+            win.setIgnoreMouseEvents(dingThrogh);
+        }
+    });
 }
 
 mainOnReflect("dingShare", ([data]) => {
     if (data.type === "close" && data.closeAll) {
-        for (const i of dingwindowList.keys()) {
-            dingwindowList.delete(i);
+        for (const i of dingOverlayList.keys()) {
+            dingOverlayList.delete(i);
         }
         return [];
     }
 
-    return dingwindowList.entries().map(([_, { win }]) => win.webContents);
+    return dingOverlayList.entries().map(([_, { win }]) => win.webContents);
 });
 mainOn("edit_pic", ([img]) => {
     sendCaptureEvent(img);
@@ -2776,6 +2872,7 @@ const defaultSetting: setting = {
             变换: ["transform: rotateY(180deg);"],
             双击: "归位",
             提示: false,
+            独立窗口: false,
         },
         强制鼠标穿透: "",
     },

@@ -257,6 +257,8 @@ export interface setting {
             变换: string[];
             双击: "归位" | "关闭";
             提示: boolean;
+            /** 每个贴图使用独立的系统窗口 */
+            独立窗口: boolean;
         };
         强制鼠标穿透: string;
     };
