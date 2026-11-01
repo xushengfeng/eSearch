@@ -402,6 +402,19 @@ export interface setting {
             "padding.x": number;
             "padding.y": number;
             autoPadding: boolean;
+            "transform.rotate": number;
+            "transform.flipX": boolean;
+            "transform.flipY": boolean;
+            "transform.quad": [
+                number,
+                number,
+                number,
+                number,
+                number,
+                number,
+                number,
+                number,
+            ];
             bgType:
                 | "color"
                 | "image"
