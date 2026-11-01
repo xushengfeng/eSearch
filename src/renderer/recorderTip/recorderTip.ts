@@ -343,13 +343,10 @@ const stop = button(iconEl("stop_record").style({ filter: "none" })).on(
         renderSend("recordState", ["stop"]);
     },
 );
-const pause = button(iconEl("play_pause")).on("click", () => {
-    renderSend("recordState", ["pause"]);
-});
 const timeEl = txt().class(Class.textItem);
 const controlBar = view("x")
     .class(Class.smallSize, Class.screenBar)
-    .add([stop, pause, timeEl])
+    .add([stop, timeEl])
     .addInto()
     .style({
         position: "fixed",
@@ -357,8 +354,6 @@ const controlBar = view("x")
         right: 0,
         borderRadius: cssVar("o-padding"),
     });
-
-if (new URLSearchParams(location.search).has("nopause")) pause.el.remove();
 
 initRecord();
 

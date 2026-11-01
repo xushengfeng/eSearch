@@ -1203,14 +1203,6 @@ mainOn("clip_mac_app", async () => {
     }
     return { canceled: x.canceled, filePaths: x.filePaths };
 });
-mainOn("clip_record", ([rect, id, w, h, r]) => {
-    createRecorderWindow(rect, {
-        id: id,
-        w: w,
-        h: h,
-        r: r,
-    });
-});
 mainOn("getMousePos", (_, e) => {
     const w = BrowserWindow.fromWebContents(e.sender)?.getBounds();
     const p = screen.getCursorScreenPoint();
@@ -1341,94 +1333,14 @@ function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数"))
     }
 }
 
-let recording = false;
-const recorderWinW = 264;
-const recorderWinH = 24;
-
 let _recorder: BrowserWindow;
 let _recorderTipWin: BrowserWindow;
-function createRecorderWindow(
-    rect0: [number, number, number, number],
-    screenx: { id: string; w: number; h: number; r: number },
-) {
-    const s = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    const ratio = screenx.r;
-    const p = {
-        x: screen.getCursorScreenPoint().x,
-        y: screen.getCursorScreenPoint().y,
-    };
-    const rect = rect0.map((v) => v / ratio);
-    const sx = s.bounds.x;
-    const sy = s.bounds.y;
-    const sx1 = sx + s.bounds.width;
-    const sy1 = sy + s.bounds.height;
-    const hx = sx + rect[0] + rect[2] / 2;
-    const hy = sy + rect[1] + rect[3] / 2;
-    const w = recorderWinW;
-    const h = recorderWinH;
-    let x = p.x <= hx ? sx + rect[0] : sx + rect[0] + rect[2] - w;
-    let y = p.y <= hy ? sy + rect[1] - h - 8 : sy + rect[1] + rect[3] + 8;
-    x = Math.max(x, sx);
-    x = Math.min(x, sx1 - w);
-    y = Math.max(y, sy);
-    y = Math.min(y, sy1 - h);
-    x = Math.round(x);
-    y = Math.round(y);
-    const recorder = new BrowserWindow(baseWinConfig());
-    _recorder = recorder;
-    rendererPath(recorder, "recorder.html");
-    if (dev) recorder.webContents.openDevTools();
-
-    recorder.on("close", () => {
-        store.set("录屏.大小.x", recorder.getBounds().x);
-        store.set("录屏.大小.y", recorder.getBounds().y);
-        try {
-            recorderTipWin.close();
-        } catch (error) {}
-    });
-
-    recorder.on("resize", () => {
-        if (recorder.isResizable()) {
-            store.set("录屏.大小.width", recorder.getBounds().width);
-            store.set("录屏.大小.height", recorder.getBounds().height);
-        }
-    });
-
-    mainOn("recorderReady", () => {
-        desktopCapturer.getSources({ types: ["screen"] }).then((sources) => {
-            let dId = sources.find((s) => s.display_id === screenx.id)?.id;
-            if (!dId) dId = sources[0].id;
-            mainSend(recorder.webContents, "recordInit", [
-                dId,
-                rect0,
-                screenx.w,
-                screenx.h,
-            ]);
-        });
-    });
-
-    globalShortcut.register("Super+R", () => {
-        if (!recorder.isDestroyed()) {
-            mainSend(recorder.webContents, "recordStartStop", []);
-        }
-    });
-
-    const recorderTipWin = createRecorderTipWindow(
-        rect0,
-        ratio,
-        screenx.id,
-        true,
-    );
-
-    recording = true;
-}
 
 /** 录屏提示覆盖层：框选区域的虚线、键盘鼠标提示、摄像头、悬浮控制条 */
 function createRecorderTipWindow(
     rect0: [number, number, number, number],
     ratio: number,
     displayId: string,
-    pause: boolean,
 ) {
     const border = 2;
     const display = screen
@@ -1451,11 +1363,9 @@ function createRecorderTipWindow(
         },
     });
     _recorderTipWin = recorderTipWin;
-    rendererPath(
-        recorderTipWin,
-        "recorderTip.html",
-        pause ? {} : { query: { nopause: "1" } },
-    );
+    rendererPath(recorderTipWin, "recorderTip.html", {
+        query: { nopause: "1" },
+    });
     if (dev) recorderTipWin.webContents.openDevTools();
 
     recorderTipWin.setAlwaysOnTop(true, "screen-saver");
@@ -1470,10 +1380,6 @@ function checkWin(win: BrowserWindow) {
 
 mainOn("recordStop", () => {
     if (checkWin(_recorderTipWin)) _recorderTipWin.close();
-    recording = false;
-});
-mainOn("recordStart", () => {
-    if (checkWin(_recorder)) _recorder.minimize();
 });
 mainOnReflect("recordTime", () => {
     if (checkWin(_recorderTipWin)) return [_recorderTipWin.webContents];
@@ -1487,35 +1393,6 @@ mainOnReflect("recordState", () => {
     if (checkWin(_recorder)) return [_recorder.webContents];
     return [];
 });
-mainOn("recordSavePath", ([ext]) => {
-    const savedPath = store.get("保存.保存路径.视频") || "";
-    dialog
-        .showSaveDialog({
-            title: t("选择要保存的位置"),
-            defaultPath: savedPath
-                ? join(savedPath, `${getFileName()}.${ext}`)
-                : undefined,
-            filters: [{ name: t("视频"), extensions: [ext] }],
-        })
-        .then(async (x) => {
-            if (x.filePath) {
-                let fpath = x.filePath;
-                if (!fpath.includes(".")) {
-                    fpath += `.${ext}`;
-                }
-                if (checkWin(_recorder))
-                    mainSend(_recorder.webContents, "recordSavePathReturn", [
-                        fpath,
-                    ]);
-            } else {
-                new Notification({
-                    title: `${app.name} ${t("保存视频失败")}`,
-                    body: t("用户已取消保存"),
-                    icon: join(runPath, "assets/logo/64x64.png"),
-                }).show();
-            }
-        });
-});
 
 function createSuperRecorderWindow(fixed?: RecordRect) {
     const recorder = new BrowserWindow(baseWinConfig());
@@ -1524,12 +1401,7 @@ function createSuperRecorderWindow(fixed?: RecordRect) {
     if (dev) recorder.webContents.openDevTools();
     if (fixed) {
         _recorder = recorder;
-        const tip = createRecorderTipWindow(
-            fixed.rect,
-            fixed.r,
-            fixed.id,
-            false,
-        );
+        const tip = createRecorderTipWindow(fixed.rect, fixed.r, fixed.id);
         tip.webContents.on("did-finish-load", () => {
             mainSend(tip.webContents, "recordCamera", [
                 store.get("录屏.摄像头.开启"),
@@ -3167,9 +3039,6 @@ const defaultSetting: setting = {
     },
     录屏: {
         模式: "normal",
-        自动录制: true,
-        自动录制延时: 3,
-        视频比特率: 2.5,
         摄像头: {
             开启: false,
             镜像: false,
@@ -3187,12 +3056,8 @@ const defaultSetting: setting = {
             启用系统内录: true,
         },
         转换: {
-            格式: "webm",
             码率: 2.5,
             帧率: 30,
-            其他: "",
-            高质量gif: false,
-            分段: 10,
         },
         提示: {
             键盘: {
@@ -3207,12 +3072,6 @@ const defaultSetting: setting = {
                 开启: false,
                 样式: "width: 24px;\nheight: 24px;\nborder-radius: 50%;\nbackground-color: #ff08;",
             },
-        },
-        大小: {
-            x: 0,
-            y: 0,
-            width: 800,
-            height: 600,
         },
         超级录屏: {
             编码选择: "性能优先",

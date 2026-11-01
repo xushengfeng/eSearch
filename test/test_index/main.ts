@@ -172,30 +172,6 @@ const testList: {
     },
     { name: "二维码" },
     { name: "普通录屏", crossState: true },
-    {
-        name: "录屏（旧）",
-        crossState: true,
-        config: { "录屏.模式": "old" },
-    },
-    {
-        name: "录屏（旧）.摄像头",
-        crossState: true,
-        config: { "录屏.模式": "old" },
-    },
-    {
-        name: "录屏（旧）.麦克风",
-        crossState: true,
-        config: { "录屏.模式": "old" },
-    },
-    {
-        name: "录屏（旧）.系统声音",
-        crossState: true,
-        config: { "录屏.模式": "old" },
-    },
-    { name: "录屏（旧）.短视频", config: { "录屏.模式": "old" } },
-    { name: "录屏（旧）.长视频", config: { "录屏.模式": "old" } },
-    { name: "录屏（旧）.光标和键盘", config: { "录屏.模式": "old" } },
-    { name: "录屏（旧）.虚拟背景", config: { "录屏.模式": "old" } },
     { name: "截屏美化" },
 ];
 
@@ -569,9 +545,6 @@ const defaultSetting: setting = {
     },
     录屏: {
         模式: "normal",
-        自动录制: true,
-        自动录制延时: 3,
-        视频比特率: 2.5,
         摄像头: {
             开启: false,
             镜像: false,
@@ -589,12 +562,8 @@ const defaultSetting: setting = {
             启用系统内录: true,
         },
         转换: {
-            格式: "webm",
             码率: 2.5,
             帧率: 30,
-            其他: "",
-            高质量gif: false,
-            分段: 10,
         },
         提示: {
             键盘: {
@@ -609,12 +578,6 @@ const defaultSetting: setting = {
                 开启: false,
                 样式: "width: 24px;\nheight: 24px;\nborder-radius: 50%;\nbackground-color: #ff08;",
             },
-        },
-        大小: {
-            x: 0,
-            y: 0,
-            width: 800,
-            height: 600,
         },
         超级录屏: {
             编码选择: "性能优先",

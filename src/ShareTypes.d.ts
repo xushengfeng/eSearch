@@ -289,10 +289,7 @@ export interface setting {
         忽略版本: string;
     };
     录屏: {
-        模式: "old" | "normal" | "super";
-        自动录制: boolean;
-        自动录制延时: number;
-        视频比特率: number;
+        模式: "normal" | "super";
         摄像头: {
             开启: boolean;
             设备: string;
@@ -310,12 +307,8 @@ export interface setting {
             启用系统内录: boolean;
         };
         转换: {
-            格式: string;
             码率: number;
             帧率: number;
-            其他: string;
-            高质量gif: boolean;
-            分段: number;
         };
         提示: {
             键盘: {
@@ -335,12 +328,6 @@ export interface setting {
                 开启: boolean;
                 样式: string;
             };
-        };
-        大小: {
-            x: number;
-            y: number;
-            width: number;
-            height: number;
         };
         超级录屏: {
             编码选择: "性能优先" | "内存优先";

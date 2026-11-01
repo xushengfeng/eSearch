@@ -41,7 +41,6 @@
 `src/renderer/ding`贴图界面，贴图屏幕翻译\
 `src/renderer/editor` 主页面，编辑器，OCR、以图搜图和二维码识别也在此运行\
 `src/renderer/photoEditor` 高级图片编辑器\
-`src/renderer/recorder` 录屏提示栏、录屏编辑\
 `src/renderer/recorderTip` 录屏框选、光标和按键提示\
 `src/renderer/root` 初始化样式，保持各个页面的统一\
 `src/renderer/screenShot` 简单封装的截屏库，用于 cli 截屏、截屏界面截屏和屏幕翻译截屏\

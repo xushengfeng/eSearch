@@ -60,13 +60,6 @@ type Message = {
         rect: { w: number; h: number; x: number; y: number },
     ) => void;
     clip_mac_app: () => { canceled: boolean; filePaths: string[] };
-    clip_record: (
-        rect: [number, number, number, number],
-        id: string,
-        w: number,
-        h: number,
-        r: number,
-    ) => void;
     getMousePos: () => {
         ab: { x: number; y: number };
         po: { x: number; y: number };
@@ -134,20 +127,10 @@ type Message = {
     setAutoStart: (value: boolean) => void;
     theme: (t: NativeTheme["themeSource"]) => void;
     dingIgnore: (ignore: boolean) => void;
-    recorderReady: () => void;
-    recordInit: (
-        id: string,
-        r: [number, number, number, number],
-        screenW: number,
-        screenH: number,
-    ) => void;
-    recordStartStop: () => void;
     recordStop: () => void;
-    recordStart: () => void;
     recordTime: (time: string) => void;
     recordCamera: (camera: boolean) => void;
-    recordState: (state: "stop" | "pause") => void;
-    recordSavePath: (ext: string) => void;
+    recordState: (state: "stop") => void;
     dingShare: (
         data:
             | { type: "close"; id: string; closeAll: boolean }
@@ -235,7 +218,6 @@ type Message = {
     dingPickerSources: (sources: CaptureSourceInfo[]) => void;
     /** 选源页临时降低/恢复置顶，避免挡住系统选择框 */
     dingPickerTop: (top: boolean) => void;
-    recordSavePathReturn: (path: string) => void; // todo remove
     editorInit: (name: number, list: MainWinType) => void;
     browserNew: (id: number, url: string) => void;
     browserTitle: (id: number, title: string) => void;

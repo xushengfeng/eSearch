@@ -238,7 +238,7 @@ In the case that other platforms do not have a separate package as a library lik
 
 ### Why is the installation package so big
 
-In addition to the use of Electron, there are also onnx runtime libraries (used to run AI models), offline Optical Character Recognition models, screen recording portrait recognition models, object removal models for advanced editing, FFmpeg (used for screen recording format conversion, Linux has libraries so it is not included), etc.
+In addition to the use of Electron, there are also onnx runtime libraries (used to run AI models), offline Optical Character Recognition models, screen recording portrait recognition models, object removal models for advanced editing, etc.
 
 ### After updating, new errors appear that didn't exist before
 

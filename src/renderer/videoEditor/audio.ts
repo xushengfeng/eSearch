@@ -2,7 +2,7 @@
 // 见 docs/develop/superRecorderAudio.md
 import store from "../../../lib/store/renderStore";
 
-/** 系统内录在 录屏.音频.设备列表 中的占位 id，与 recorder.ts 保持一致 */
+/** 系统内录在 录屏.音频.设备列表 中的占位 id */
 export const sysAudioId = "00";
 
 const sysKey = "sys";

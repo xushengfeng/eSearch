@@ -25,10 +25,6 @@ export default defineConfig(({ mode }) => ({
                         __dirname,
                         "src/renderer/dingPicker.html",
                     ),
-                    recorder: path.resolve(
-                        __dirname,
-                        "src/renderer/recorder.html",
-                    ),
                     recorderTip: path.resolve(
                         __dirname,
                         "src/renderer/recorderTip.html",

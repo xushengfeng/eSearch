@@ -11,7 +11,6 @@ preload_config
 portable
 lib/win_rect.exe
 lib/copy.exe
-lib/ffmpeg
 assets/onnx
 lib/translate/*.csv
 script/make_aur/e-search/usr/share/icons/

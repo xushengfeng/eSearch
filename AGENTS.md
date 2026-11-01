@@ -41,7 +41,6 @@ pnpm run dist
   - ding/ - 贴图功能 还有贴图翻译
   - setting/ - 设置
   - photoEditor 高级图片编辑
-  - recorder/ - 录屏（旧）
   - recorderTip/ - 录屏覆盖层，如显示倒计时、结束等
   - translate/ - 翻译，展示不同翻译器结果 作为主页面子页面
   - translator/ 屏幕翻译

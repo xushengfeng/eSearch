@@ -770,7 +770,7 @@ function toVideoRect(
     };
 }
 
-/** 录屏提示条上的计时，和旧版录屏格式一致 */
+/** 录屏提示条上的计时 */
 function tipTime(t: number) {
     const s = Math.trunc(t / 1000);
     const m = Math.trunc(s / 60);
@@ -2643,8 +2643,8 @@ renderOn("superRecorderInit", ([sourceId, fixed]) => {
     initPromise.resolve({ sourceId, fixed });
 });
 
-renderOn("recordState", ([state]) => {
-    if (state === "stop") stopRecord();
+renderOn("recordState", () => {
+    stopRecord();
 });
 
 const history = new xhistory<uiData>([], {
