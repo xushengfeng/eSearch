@@ -22,6 +22,7 @@ import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 const { nativeImage } = window.require("electron") as typeof import("electron");
 
 import { writeImage } from "../lib/clipboard";
+import { colorPicker } from "../lib/colorPicker";
 
 const { existsSync, writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
@@ -185,7 +186,7 @@ const els = {
             setBgUI(v);
             el.value = v;
         }),
-    bgColor: input(),
+    bgColor: colorPicker({ live: true }),
     bgUrl: input(),
     bgGradient: flexLayout("y"),
     angle: input("number"),
@@ -195,7 +196,7 @@ const els = {
     sx: input("number"),
     sy: input("number"),
     blur: input("number"),
-    scolor: input(),
+    scolor: colorPicker({ live: true }),
     px: input("number"),
     py: input("number"),
     rotate: input("number").attr({ step: "1" }),
@@ -496,21 +497,34 @@ function gColors() {
     const div = flexLayout("y");
     const list = flexLayout("y");
     const add = button(noI18n("+"));
+    const rows = new Map<
+        HTMLElement,
+        {
+            color: ReturnType<typeof colorPicker>;
+            offset: ReturnType<typeof input>;
+        }
+    >();
 
     function createI(color: string, offset: number) {
-        console.log(color, offset);
-
+        const colorEl = colorPicker({
+            width: "130px",
+            live: true,
+        }).sv(color);
+        const offsetEl = input("number")
+            .attr({ max: "1", min: "0", step: "0.01" })
+            .sv(String(offset));
         const el = view("x").add([
-            input().sv(color).on("input", binput).style({ width: "100%" }),
-            input("number")
-                .attr({ max: "1", min: "0", step: "0.01" })
-                .sv(String(offset))
-                .on("input", binput),
+            colorEl,
+            offsetEl,
             button(noI18n("-")).on("click", () => {
+                rows.delete(el.el);
                 el.remove();
                 binput();
             }),
         ]);
+        colorEl.on("input", binput);
+        offsetEl.on("input", binput);
+        rows.set(el.el, { color: colorEl, offset: offsetEl });
         return el;
     }
 
@@ -525,12 +539,13 @@ function gColors() {
     return div
         .add([list, add])
         .bindGet(() => {
-            return list.queryAll("div").map((i) => {
-                const l = i.queryAll("input");
-                return { offset: Number(l[1].el.value), color: l[0].el.value };
-            });
+            return Array.from(rows.values()).map(({ color, offset }) => ({
+                offset: Number(offset.gv),
+                color: color.gv,
+            }));
         })
         .bindSet((v: (typeof styleData)["bg.gradient"]) => {
+            rows.clear();
             list.clear();
             for (const item of v) {
                 list.add(createI(item.color, item.offset));

@@ -830,5 +830,8 @@
     "21efe7": "Use XDG Desktop Portal",
     "b9c720": "Use XDG Desktop Portal for screenshots on Linux. Suitable for Wayland environments, but may be blurry with fractional scaling across multiple monitors.",
     "ef8a00": "Global detection model path",
-    "1194ea": "Detection model path shared by all offline OCR models. Leave blank to use the default model."
+    "1194ea": "Detection model path shared by all offline OCR models. Leave blank to use the default model.",
+    "b24ca9": "Hue",
+    "4eb149": "Transparent",
+    "4dc9c0": "Saturation and brightness"
 }

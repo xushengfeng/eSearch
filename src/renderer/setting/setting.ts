@@ -31,6 +31,7 @@ import type { GetValue, SettingPath } from "../../../lib/store/renderStore";
 import store from "../../../lib/store/renderStore";
 import { getLanName, getLans, lan, t } from "../../../lib/translate/translate";
 import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
+import { colorPicker } from "../lib/colorPicker";
 import {
     Class,
     cssColor,
@@ -3228,44 +3229,7 @@ function xSwitch() {
 }
 
 function xColor() {
-    function msk(t: string) {
-        return `linear-gradient(${t},${t}),
-        conic-gradient(
-                rgb(204, 204, 204) 25%,
-                rgb(255, 255, 255) 0deg,
-                rgb(255, 255, 255) 50%,
-                rgb(204, 204, 204) 0deg,
-                rgb(204, 204, 204) 75%,
-                rgb(255, 255, 255) 0deg
-            )
-            0% 0% / 8px 8px`;
-    }
-    const i = input()
-        .on("input", () => {
-            p.sv(i.gv);
-            el.el.dispatchEvent(new CustomEvent("input"));
-        })
-        .style({
-            // @ts-ignore
-            "field-sizing": "content",
-            width: "auto",
-        });
-    const p = view()
-        .style({
-            width: "var(--b-button)",
-            height: "var(--b-button)",
-            borderRadius: "var(--border-radius)",
-        })
-        .class(Class.deco)
-        .bindSet((v: string) => p.style({ background: msk(v) }));
-    const el = view("x").class(Class.group).style({ width: baseWidth2 });
-    return el
-        .add([p, i])
-        .bindGet(() => i.gv)
-        .bindSet((v: string) => {
-            i.sv(v);
-            p.sv(v);
-        });
+    return colorPicker({ width: baseWidth2 });
 }
 
 function xPath(dir: boolean) {
