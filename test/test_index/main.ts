@@ -214,6 +214,7 @@ const defaultSetting: setting = {
         QR: "",
         open: "",
         ding: "",
+        dingLive: "",
         record: "",
         long: "",
         copy: "",
@@ -229,6 +230,7 @@ const defaultSetting: setting = {
         QR: "",
         open: "",
         ding: "",
+        dingLive: "",
         record: "",
         long: "",
         copy: isMac ? "Command+C" : "Control+C",
@@ -426,6 +428,7 @@ const defaultSetting: setting = {
         离线切换: true,
         识别段落: true,
         整体方向识别: false,
+        全局det路径: "",
     },
     离线OCR: [
         {
@@ -515,8 +518,13 @@ const defaultSetting: setting = {
             变换: ["transform: rotateY(180deg);"],
             双击: "归位",
             提示: false,
+            独立窗口: false,
         },
         强制鼠标穿透: "",
+        动态: {
+            帧率: 30,
+            最大数量: 4,
+        },
     },
     代理: {
         mode: "direct",
@@ -584,14 +592,13 @@ const defaultSetting: setting = {
             关键帧间隔: 150,
             格式: "gif",
             缩放: 2,
-            自动停止录制: 5,
             导出后关闭: false,
         },
     },
     屏幕翻译: {
         type: "ding",
         dTime: 3000,
-        css: { bg: "", text: "" },
+        color: { bg: "", text: "" },
         语言: {
             from: "",
             to: "",
@@ -607,6 +614,7 @@ const defaultSetting: setting = {
     },
     额外截屏器: { 命令: "", 位置: "" },
     使用XDGDesktopPortal: false,
+    自定义屏幕属性: [],
     连拍: {
         数: 5,
         间隔: 100,

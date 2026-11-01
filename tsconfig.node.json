@@ -19,6 +19,9 @@
         "src/main/*",
         "src/preload/*",
         "lib/**/*.ts",
-        "src/renderer/screenShot/*"
+        "src/renderer/screenShot/*",
+        "script/**/*.ts",
+        "script/**/*.cts",
+        "script/**/*.mts"
     ]
 }

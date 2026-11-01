@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.node.json",
+    "compilerOptions": {
+        "composite": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true
+    },
+    "include": [
+        "lib/**/*.ts",
+        "test/**/*.ts",
+        "test/**/*.mts",
+        "electron.vite.config_test.ts"
+    ]
+}
