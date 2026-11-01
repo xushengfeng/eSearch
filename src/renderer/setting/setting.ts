@@ -127,6 +127,11 @@ const tools: { key: 功能; icon: string; title: string }[] = [
     { key: "QR", icon: getImgUrl("scan.svg"), title: t("二维码") },
     { key: "open", icon: getImgUrl("open.svg"), title: t("其他应用打开") },
     { key: "ding", icon: getImgUrl("ding.svg"), title: t("屏幕贴图") },
+    {
+        key: "dingLive",
+        icon: getImgUrl("live_ding.svg"),
+        title: t("动态贴图"),
+    },
     { key: "record", icon: getImgUrl("record.svg"), title: t("录屏") },
     { key: "long", icon: getImgUrl("long_clip.svg"), title: t("广截屏") },
     {
@@ -1012,6 +1017,16 @@ const s: Partial<settingItem<SettingPath>> = {
         desc: "使用阴影提示贴图窗口",
         el: () => xSwitch(),
     },
+    "贴图.动态.帧率": {
+        name: "动态贴图帧率",
+        desc: "窗口视频流的帧率",
+        el: () => xNumber("fps", { min: 1, max: 60 }),
+    },
+    "贴图.动态.最大数量": {
+        name: "动态贴图数量上限",
+        desc: "同时存在的动态贴图数量，超过后不再创建",
+        el: () => xNumber("", { min: 1, max: 32 }),
+    },
     "翻译.翻译器": {
         name: "翻译引擎",
         desc: "适用于屏幕翻译和搜索翻译，第一个为默认引擎",
@@ -1236,6 +1251,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: getToolsN("ding"),
         el: () => hotkeyX(["ding", "2"], "ding"),
     },
+    "全局工具快捷键.dingLive": {
+        name: getToolsN("dingLive"),
+        el: () => hotkeyX(["dingLive", "2"], "live_ding"),
+    },
     "全局工具快捷键.record": {
         name: getToolsN("record"),
         el: () => hotkeyX(["record", "2"], "record"),
@@ -1283,6 +1302,10 @@ const s: Partial<settingItem<SettingPath>> = {
     "工具快捷键.ding": {
         name: getToolsN("ding"),
         el: () => hotkeyP("ding"),
+    },
+    "工具快捷键.dingLive": {
+        name: getToolsN("dingLive"),
+        el: () => hotkeyP("live_ding"),
     },
     "工具快捷键.record": {
         name: getToolsN("record"),
@@ -2297,6 +2320,8 @@ const main: {
             "贴图.窗口.双击",
             "贴图.窗口.变换",
             "贴图.窗口.提示",
+            "贴图.动态.帧率",
+            "贴图.动态.最大数量",
         ],
     },
     {
@@ -2462,6 +2487,7 @@ const main: {
                     "全局工具快捷键.QR",
                     "全局工具快捷键.open",
                     "全局工具快捷键.ding",
+                    "全局工具快捷键.dingLive",
                     "全局工具快捷键.record",
                     "全局工具快捷键.long",
                     "全局工具快捷键.copy",

@@ -6,6 +6,20 @@ import { renderSendSync } from "../../../lib/ipc";
 import { tryxAwait } from "../../../lib/utils";
 import { waylandShotInit } from "./waylandShot";
 
+type WindowData = {
+    /** node-screenshots 的原始矩形 */
+    rect: { x: number; y: number; w: number; h: number };
+    /** 虚拟桌面 DIP 矩形 */
+    dipRect: { x: number; y: number; w: number; h: number };
+    id: number;
+    pid: number;
+    appName: string;
+    title: string;
+    z: number;
+    minimized: boolean;
+    displayId: number | null;
+};
+
 type ReturnData = {
     bounds: { x: number; y: number; width: number; height: number };
     size: { width: number; height: number };
@@ -37,6 +51,109 @@ function getCenterDistance(
     return Math.sqrt(
         (centerA.x - centerB.x) ** 2 + (centerA.y - centerB.y) ** 2,
     );
+}
+
+function displayOfMonitor(
+    monitor: ReturnType<
+        ReturnType<
+            typeof import("node-screenshots").Window.all
+        >[number]["currentMonitor"]
+    >,
+    displays: Electron.Display[],
+    winRect: { x: number; y: number; w: number; h: number },
+): { display: Electron.Display; f: number } | null {
+    let best: { display: Electron.Display; f: number } | null = null;
+    let bestScore = Number.NEGATIVE_INFINITY;
+    const mw = monitor.width();
+    const mh = monitor.height();
+    if (!(mw > 0) || !(mh > 0)) return null;
+    const monitorAspect = mw / mh;
+    for (const display of displays) {
+        const f = mw / display.bounds.width;
+        if (!Number.isFinite(f) || f <= 0) continue;
+        const cand = {
+            x: display.bounds.x + (winRect.x - monitor.x()) / f,
+            y: display.bounds.y + (winRect.y - monitor.y()) / f,
+            w: winRect.w / f,
+            h: winRect.h / f,
+        };
+        const iw =
+            Math.min(cand.x + cand.w, display.bounds.x + display.bounds.width) -
+            Math.max(cand.x, display.bounds.x);
+        const ih =
+            Math.min(
+                cand.y + cand.h,
+                display.bounds.y + display.bounds.height,
+            ) - Math.max(cand.y, display.bounds.y);
+        const inter = iw > 0 && ih > 0 ? iw * ih : 0;
+        // 监视器 id 能对上时直接采用；否则用换算后的窗口相交面积和宽高比
+        const aspectDiff = Math.abs(
+            monitorAspect - display.bounds.width / display.bounds.height,
+        );
+        const score =
+            (monitor.id() === display.id ? 1e15 : 0) +
+            inter -
+            aspectDiff * 1e6 -
+            Math.abs(Math.log(f));
+        if (score > bestScore) {
+            bestScore = score;
+            best = { display, f };
+        }
+    }
+    return best;
+}
+
+export function getWindowInfos(
+    displays?: Electron.Display[],
+    list?: ReturnType<typeof Screenshots.Window.all>,
+): WindowData[] {
+    if (!list) {
+        try {
+            if (!Screenshots) Screenshots = require("node-screenshots");
+            list = Screenshots.Window.all();
+        } catch {
+            return [];
+        }
+    }
+    return list.map((win) => {
+        const rect = {
+            x: win.x(),
+            y: win.y(),
+            w: win.width(),
+            h: win.height(),
+        };
+        let dipRect = rect;
+        let displayId: number | null = null;
+        if (displays?.length) {
+            try {
+                const monitor = win.currentMonitor();
+                const matched = displayOfMonitor(monitor, displays, rect);
+                if (matched) {
+                    const { display, f } = matched;
+                    dipRect = {
+                        x: display.bounds.x + (rect.x - monitor.x()) / f,
+                        y: display.bounds.y + (rect.y - monitor.y()) / f,
+                        w: rect.w / f,
+                        h: rect.h / f,
+                    };
+                    displayId = display.id;
+                }
+            } catch {
+                dipRect = rect;
+            }
+        }
+        return {
+            rect,
+            dipRect,
+            id: win.id(),
+            pid: win.pid(),
+            appName: win.appName(),
+            title: win.title(),
+            z: win.z(),
+            minimized: win.isMinimized(),
+            displayId,
+        };
+    });
 }
 
 let _command: string | undefined;
@@ -107,7 +224,7 @@ async function dispaly2screen(
     imgBuffer?: Buffer,
 ): Promise<{
     screen: ReturnData[];
-    window: { rect: { x: number; y: number; w: number; h: number } }[];
+    window: WindowData[];
     type: "normal" | "img" | "command";
 }> {
     let buffer = imgBuffer;
@@ -408,9 +525,7 @@ async function dispaly2screen(
 
     return {
         screen: allScreens,
-        window: windows.map((w) => ({
-            rect: { x: w.x(), y: w.y(), w: w.width(), h: w.height() },
-        })),
+        window: getWindowInfos(displays, windows),
         type: "normal",
     };
 }

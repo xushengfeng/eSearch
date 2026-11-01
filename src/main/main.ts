@@ -51,8 +51,10 @@ import { getLans, lan, t } from "../../lib/translate/translate";
 import { typedEntries } from "../../lib/utils";
 import initScreenShots from "../renderer/screenShot/screenShot";
 import type {
+    CaptureSourceInfo,
     EditToolsType,
     GithubUrlType,
+    LiveDingData,
     MainWinType,
     setting,
     translateWinType,
@@ -1262,6 +1264,7 @@ async function sendCaptureEvent(data?: Buffer, type?: 功能) {
         data,
         screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).id,
         type,
+        process.pid,
     ]);
 }
 
@@ -1704,6 +1707,92 @@ function dingObj() {
 const dingOverlayList = dingObj();
 /** 独立系统窗口：每个贴图一个窗口 */
 const dingSingleList = new Map<number, BrowserWindow>();
+/** 处于动态状态的贴图 id，用于数量限制和清理 */
+const liveDingIds = new Set<number>();
+/** 所有存活的贴图 id，覆盖层广播时用它判断是否全部关闭 */
+const activeDingIds = new Set<number>();
+/** 选源页待处理的动态贴图请求 */
+const pendingLivePicks = new Map<
+    number,
+    {
+        poster: string;
+        rect: { x: number; y: number; w: number; h: number };
+        displayId: number;
+        replace?: { sender: Electron.WebContents; id: number };
+    }
+>();
+
+async function getWindowSources(): Promise<CaptureSourceInfo[]> {
+    try {
+        // PipeWire 需要同时请求窗口和屏幕，门户才会返回用户选择的那一个
+        const types: Array<"window" | "screen"> =
+            process.platform === "linux" ? ["window", "screen"] : ["window"];
+        const sources = await desktopCapturer.getSources({
+            types,
+            thumbnailSize: { width: 320, height: 180 },
+            fetchWindowIcons: true,
+        });
+        return sources
+            .filter((s) => !s.id.endsWith(":1") && !s.id.startsWith("screen:"))
+            .map((s) => ({
+                id: s.id,
+                name: s.name,
+                thumbnail: s.thumbnail.isEmpty()
+                    ? ""
+                    : `data:image/jpeg;base64,${s.thumbnail.toJPEG(75).toString("base64")}`,
+                appIcon:
+                    s.appIcon && !s.appIcon.isEmpty()
+                        ? s.appIcon.toDataURL()
+                        : "",
+                displayId: s.display_id,
+            }));
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+async function createLiveDingPicker(data: {
+    poster: string;
+    rect: { x: number; y: number; w: number; h: number };
+    displayId: number;
+    sources?: CaptureSourceInfo[];
+    replace?: { sender: Electron.WebContents; id: number };
+}) {
+    const display =
+        screen.getAllDisplays().find((d) => d.id === data.displayId) ??
+        screen.getDisplayNearestPoint({
+            x: Math.round(data.rect.x),
+            y: Math.round(data.rect.y),
+        });
+    // 先取源再创建全屏窗口，避免置顶窗口挡住 PipeWire 的系统选择框
+    const sources =
+        data.sources !== undefined ? data.sources : await getWindowSources();
+    const win = new BrowserWindow({
+        ...baseWinConfig(),
+        x: display.bounds.x,
+        y: display.bounds.y,
+        width: display.bounds.width,
+        height: display.bounds.height,
+        frame: false,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+    });
+    pendingLivePicks.set(win.id, data);
+    rendererPath(win, "dingPicker.html");
+    win.setAlwaysOnTop(true, "screen-saver");
+    win.focus();
+    win.webContents.focus();
+    win.on("closed", () => {
+        pendingLivePicks.delete(win.id);
+    });
+    win.webContents.on("did-finish-load", () => {
+        if (win.isDestroyed()) return;
+        mainSend(win.webContents, "dingPickerInit", [
+            { sources, rect: data.rect, poster: data.poster },
+        ]);
+    });
+}
 
 let dingId = 0;
 let dingThrogh: null | boolean = null;
@@ -1771,6 +1860,8 @@ function createDingOverlay(
     h: number,
     img: string,
     type: "translate" | "ding",
+    live?: LiveDingData,
+    displayId?: number,
 ) {
     if (dingOverlayList.size() === 0) {
         for (const display of screen.getAllDisplays()) {
@@ -1786,21 +1877,25 @@ function createDingOverlay(
             rendererPath(win, "ding.html");
             initDingWindow(win);
             win.webContents.on("did-finish-load", () => {
-                if (!win.isDestroyed())
-                    mainSend(win.webContents, "addDing", [
-                        id,
-                        x - bounds.x,
-                        y - bounds.y,
-                        w,
-                        h,
-                        img,
-                        type,
-                    ]);
+                if (win.isDestroyed()) return;
+                if (live && display.id !== displayId) return;
+                mainSend(win.webContents, "addDing", [
+                    id,
+                    x - bounds.x,
+                    y - bounds.y,
+                    w,
+                    h,
+                    img,
+                    type,
+                    live,
+                    live ? displayId : undefined,
+                ]);
             });
             win.setIgnoreMouseEvents(true);
         }
     } else {
-        for (const [_, win] of dingOverlayList.entries()) {
+        for (const [displayIdNow, win] of dingOverlayList.entries()) {
+            if (live && displayIdNow !== displayId) continue;
             const b = win.win.getBounds();
             mainSend(win.win.webContents, "addDing", [
                 id,
@@ -1810,6 +1905,8 @@ function createDingOverlay(
                 h,
                 img,
                 type,
+                live,
+                live ? displayId : undefined,
             ]);
         }
     }
@@ -1824,7 +1921,12 @@ function createDingSingle(
     h: number,
     img: string,
     type: "translate" | "ding",
+    live?: LiveDingData,
 ) {
+    const displayId = screen.getDisplayNearestPoint({
+        x: Math.round(x + w / 2),
+        y: Math.round(y + h / 2),
+    }).id;
     const win = new BrowserWindow({
         ...dingWindowOptions(),
         x,
@@ -1836,13 +1938,25 @@ function createDingSingle(
     dingSingleList.set(id, win);
     win.on("closed", () => {
         dingSingleList.delete(id);
+        liveDingIds.delete(id);
+        activeDingIds.delete(id);
     });
     if (dingThrogh) win.setIgnoreMouseEvents(true);
     rendererPath(win, "ding.html", { query: { mode: "single" } });
     initDingWindow(win);
     win.webContents.on("did-finish-load", () => {
         if (win.isDestroyed()) return;
-        mainSend(win.webContents, "dingInit", [id, x, y, w, h, img, type]);
+        mainSend(win.webContents, "dingInit", [
+            id,
+            x,
+            y,
+            w,
+            h,
+            img,
+            type,
+            live,
+            displayId,
+        ]);
     });
     // 窗口被系统缩放时保持图片比例
     win.setAspectRatio(w / h);
@@ -1855,12 +1969,31 @@ function createDingWindow(
     h: number,
     img: string,
     type: "translate" | "ding" = "ding",
+    live?: LiveDingData,
 ) {
     const id = ++dingId;
+    let displayId: number | undefined;
+    if (live) {
+        const max = store.get("贴图.动态.最大数量") || 4;
+        if (liveDingIds.size >= max) {
+            new Notification({
+                title: `${app.name} ${t("动态贴图")}`,
+                body: t("动态贴图数量已达到上限"),
+                icon: join(runPath, "assets/logo/64x64.png"),
+            }).show();
+            return;
+        }
+        liveDingIds.add(id);
+        displayId = screen.getDisplayNearestPoint({
+            x: Math.round(x + w / 2),
+            y: Math.round(y + h / 2),
+        }).id;
+    }
+    activeDingIds.add(id);
     if (store.get("贴图.窗口.独立窗口")) {
-        createDingSingle(id, x, y, w, h, img, type);
+        createDingSingle(id, x, y, w, h, img, type, live);
     } else {
-        createDingOverlay(id, x, y, w, h, img, type);
+        createDingOverlay(id, x, y, w, h, img, type, live, displayId);
     }
     forceDingThrogh();
     if (!dingTickRunning) {
@@ -1936,14 +2069,137 @@ function forceDingThrogh() {
 }
 
 mainOnReflect("dingShare", ([data]) => {
-    if (data.type === "close" && data.closeAll) {
-        for (const i of dingOverlayList.keys()) {
-            dingOverlayList.delete(i);
+    if (data.type === "close") {
+        const id = Number(data.id);
+        liveDingIds.delete(id);
+        activeDingIds.delete(id);
+        if (activeDingIds.size === 0) {
+            for (const i of dingOverlayList.keys()) {
+                dingOverlayList.delete(i);
+            }
+            liveDingIds.clear();
+            return [];
         }
-        return [];
     }
 
     return dingOverlayList.entries().map(([_, { win }]) => win.webContents);
+});
+
+mainOn("getCaptureSources", async ([requestId], e) => {
+    mainSend(e.sender, "captureSources", [requestId, await getWindowSources()]);
+});
+
+mainOn("clip_ding_live", ([data]) => {
+    if (!data.target) {
+        void createLiveDingPicker(data);
+        return;
+    }
+    createDingWindow(
+        data.rect.x,
+        data.rect.y,
+        data.rect.w,
+        data.rect.h,
+        data.poster,
+        "ding",
+        {
+            sourceId: data.target.sourceId,
+            windowId: data.target.windowId,
+            appName: data.target.appName,
+            title: data.target.title,
+            crop: data.target.crop,
+            fps: store.get("贴图.动态.帧率") || 30,
+        },
+    );
+});
+
+mainOn("dingLivePick", ([data], e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (!win) return;
+    const pending = pendingLivePicks.get(win.id);
+    if (!pending) return;
+    pendingLivePicks.delete(win.id);
+    if (pending.replace) {
+        const live: LiveDingData = {
+            sourceId: data.sourceId,
+            windowId: Number(data.sourceId.split(":")[1]) || undefined,
+            appName: data.appName,
+            title: data.title,
+            crop: data.crop,
+            fps: store.get("贴图.动态.帧率") || 30,
+        };
+        if (!pending.replace.sender.isDestroyed()) {
+            mainSend(pending.replace.sender, "dingLiveSwitch", [
+                pending.replace.id,
+                live,
+                data.poster,
+            ]);
+        }
+        win.close();
+        return;
+    }
+    win.once("closed", () => {
+        createDingWindow(
+            data.rect.x,
+            data.rect.y,
+            data.rect.w,
+            data.rect.h,
+            data.poster,
+            "ding",
+            {
+                sourceId: data.sourceId,
+                windowId: Number(data.sourceId.split(":")[1]) || undefined,
+                appName: data.appName,
+                title: data.title,
+                crop: data.crop,
+                fps: store.get("贴图.动态.帧率") || 30,
+            },
+        );
+    });
+    win.close();
+});
+
+mainOn("dingLiveChangeSource", ([data], e) => {
+    const display =
+        screen.getAllDisplays().find((d) => d.id === data.displayId) ??
+        screen.getDisplayNearestPoint({
+            x: Math.round(data.rect.x),
+            y: Math.round(data.rect.y),
+        });
+    void createLiveDingPicker({
+        poster: data.poster,
+        rect: data.rect,
+        displayId: display.id,
+        replace: { sender: e.sender, id: data.id },
+    });
+});
+
+mainOn("dingLiveCancel", (_data, e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (!win) return;
+    pendingLivePicks.delete(win.id);
+    win.close();
+});
+
+mainOn("dingLiveStop", ([id]) => {
+    liveDingIds.delete(id);
+});
+
+mainOn("dingPickerRefresh", async (_data, e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (!win) return;
+    win.hide();
+    const sources = await getWindowSources();
+    if (win.isDestroyed()) return;
+    win.show();
+    win.setAlwaysOnTop(true, "screen-saver");
+    win.focus();
+    mainSend(win.webContents, "dingPickerSources", [sources]);
+});
+
+mainOn("dingPickerTop", ([top], e) => {
+    const win = BrowserWindow.fromWebContents(e.sender);
+    if (!win || win.isDestroyed()) return;
+    win.setAlwaysOnTop(top, "screen-saver");
 });
 mainOn("edit_pic", ([img]) => {
     sendCaptureEvent(img);
@@ -2565,6 +2821,7 @@ const defaultSetting: setting = {
         QR: "",
         open: "",
         ding: "",
+        dingLive: "",
         record: "",
         long: "",
         copy: "",
@@ -2580,6 +2837,7 @@ const defaultSetting: setting = {
         QR: "",
         open: "",
         ding: "",
+        dingLive: "",
         record: "",
         long: "",
         copy: isMac ? "Command+C" : "Control+C",
@@ -2697,6 +2955,7 @@ const defaultSetting: setting = {
             "QR",
             "open",
             "ding",
+            "dingLive",
             "record",
             "long",
             "translate",
@@ -2875,6 +3134,10 @@ const defaultSetting: setting = {
             独立窗口: false,
         },
         强制鼠标穿透: "",
+        动态: {
+            帧率: 30,
+            最大数量: 4,
+        },
     },
     代理: {
         mode: "direct",
@@ -3025,6 +3288,14 @@ function fixSettingTree() {
 
 function versionTrans() {
     const version = store.get("设置版本");
+    if (versionCompare(version, "15.6.1") <= 0) {
+        const list = store.get("工具栏.功能");
+        if (!list.includes("dingLive")) {
+            const i = list.indexOf("ding");
+            list.splice(i === -1 ? list.length : i + 1, 0, "dingLive");
+            store.set("工具栏.功能", list);
+        }
+    }
     if (versionCompare(version, "14.1.0") <= 0) {
         const oldSetting = store.get("贴图.窗口.变换");
         if (typeof oldSetting === "string") {

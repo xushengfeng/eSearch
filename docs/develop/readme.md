@@ -6,6 +6,8 @@
 - [整体说明](overview.md)
 - [主进程](main.md)
 - [截屏](clip.md)
+- [贴图](ding.md)
+- [动态贴图](liveDing.md)
 - [OCR](ocr.md)
 - [高级图片编辑](photoEditor.md)
 - [超级录屏](superRecorder.md)

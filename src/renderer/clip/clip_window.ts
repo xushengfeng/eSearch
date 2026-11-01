@@ -33,7 +33,7 @@ import { t } from "../../../lib/translate/translate";
 import { writeImage, writeText } from "../lib/clipboard";
 import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
-import initScreenShots from "../screenShot/screenShot";
+import initScreenShots, { getWindowInfos } from "../screenShot/screenShot";
 
 const screenShots = initScreenShots(
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
@@ -60,7 +60,9 @@ import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import { typedEntries, typedKeys } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
 import type {
+    CaptureSourceInfo,
     EditType,
+    LiveDingTarget,
     setting,
     translateWinType,
     功能,
@@ -1033,6 +1035,210 @@ function pjLong() {
     lr.style({ width: "0", height: "0" });
 
     longRunning = false;
+}
+
+type DipRect = { x: number; y: number; w: number; h: number };
+type WindowInfo = ReturnType<typeof getWindowInfos>[number];
+
+function intersectRect(a: DipRect, b: DipRect): DipRect | null {
+    const x = Math.max(a.x, b.x);
+    const y = Math.max(a.y, b.y);
+    const x2 = Math.min(a.x + a.w, b.x + b.w);
+    const y2 = Math.min(a.y + a.h, b.y + b.h);
+    if (x2 <= x || y2 <= y) return null;
+    return { x, y, w: x2 - x, h: y2 - y };
+}
+
+function rectArea(r: DipRect | null) {
+    return r ? r.w * r.h : 0;
+}
+
+function requestCaptureSources(): Promise<CaptureSourceInfo[]> {
+    return new Promise((resolve) => {
+        const id = ++captureSourceRequestId;
+        const timer = setTimeout(() => {
+            captureSourceRequests.delete(id);
+            resolve([]);
+        }, 120_000);
+        captureSourceRequests.set(id, (sources) => {
+            clearTimeout(timer);
+            resolve(sources);
+        });
+        renderSend("getCaptureSources", [id]);
+    });
+}
+
+function normalizeWindowName(name: string) {
+    return name
+        .replace(/^[●•*]\s*/, "")
+        .replace(/\[\*\]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+}
+
+function stripAppSuffix(name: string) {
+    return name.replace(/\s+[-–—]\s+[^-–—]+$/, "");
+}
+
+/** 先用窗口 id，再用唯一标题匹配 */
+function matchWindowSource(win: WindowInfo, sources: CaptureSourceInfo[]) {
+    const id = Number(win.id);
+    for (const source of sources) {
+        const p = source.id.split(":");
+        if (p[0] === "window" && Number(p[1]) === id) return source;
+    }
+    const title = normalizeWindowName(win.title);
+    if (!title) return null;
+    const exact = sources.filter((source) => {
+        const name = normalizeWindowName(source.name);
+        return (
+            name === title ||
+            (stripAppSuffix(name) !== "" &&
+                stripAppSuffix(name) === stripAppSuffix(title))
+        );
+    });
+    return exact.length === 1 ? exact[0] : null;
+}
+
+function chooseLiveWindow(
+    sel: DipRect,
+    list: WindowInfo[],
+): { win: WindowInfo; rect: DipRect } | null {
+    const usable = list.filter((win) => {
+        if (win.pid === mainPid) return false;
+        if (win.minimized) return false;
+        if (currentDisplays.length > 0 && win.displayId === null) return false;
+        if (!(win.dipRect.w > 1) || !(win.dipRect.h > 1)) return false;
+        return allScreens.some(
+            (screen) =>
+                rectArea(
+                    intersectRect(win.dipRect, {
+                        x: screen.bounds.x,
+                        y: screen.bounds.y,
+                        w: screen.bounds.width,
+                        h: screen.bounds.height,
+                    }),
+                ) > 0,
+        );
+    });
+    const autoLocate =
+        usable.length >= 2 ||
+        (usable.length === 1 &&
+            rectArea(intersectRect(sel, usable[0].dipRect)) > 0);
+    if (!autoLocate) return null;
+
+    const overlaps = usable
+        .map((win) => ({ win, rect: intersectRect(sel, win.dipRect) }))
+        .filter((i): i is { win: WindowInfo; rect: DipRect } => !!i.rect);
+    if (!overlaps.length) return null;
+
+    const maxArea = Math.max(...overlaps.map((i) => rectArea(i.rect)));
+    const center = { x: sel.x + sel.w / 2, y: sel.y + sel.h / 2 };
+    const atCenter = overlaps
+        .filter(
+            ({ win }) =>
+                win.dipRect.x <= center.x &&
+                center.x <= win.dipRect.x + win.dipRect.w &&
+                win.dipRect.y <= center.y &&
+                center.y <= win.dipRect.y + win.dipRect.h,
+        )
+        .sort((a, b) => b.win.z - a.win.z)[0];
+    const chosen =
+        atCenter && rectArea(atCenter.rect) >= maxArea * 0.6
+            ? atCenter
+            : overlaps.sort((a, b) => rectArea(b.rect) - rectArea(a.rect))[0];
+
+    if (rectArea(chosen.rect) < rectArea(sel) * 0.2) return null;
+    return chosen;
+}
+
+function cropPoster(
+    photo: HTMLCanvasElement,
+    sel: DipRect,
+    sticker: DipRect,
+    scale: number,
+) {
+    const x = Math.max(
+        0,
+        Math.min(photo.width - 1, Math.round((sticker.x - sel.x) * scale)),
+    );
+    const y = Math.max(
+        0,
+        Math.min(photo.height - 1, Math.round((sticker.y - sel.y) * scale)),
+    );
+    const w = Math.max(
+        1,
+        Math.min(photo.width - x, Math.round(sticker.w * scale)),
+    );
+    const h = Math.max(
+        1,
+        Math.min(photo.height - y, Math.round(sticker.h * scale)),
+    );
+    if (x === 0 && y === 0 && w >= photo.width - 1 && h >= photo.height - 1)
+        return photo.toDataURL();
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas
+        .getContext("2d")!
+        .drawImage(photo, x, y, w, h, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL();
+}
+
+async function runLiveDing() {
+    if (liveDingRunning) return;
+    liveDingRunning = true;
+    try {
+        const display = getNowScreen();
+        const sel: DipRect = {
+            x: finalRect[0] / ratio + display.bounds.x,
+            y: finalRect[1] / ratio + display.bounds.y,
+            w: finalRect[2] / ratio,
+            h: finalRect[3] / ratio,
+        };
+        const photo = getClipPhoto();
+        const list = getWindowInfos(currentDisplays);
+        const chosen = chooseLiveWindow(sel, list);
+        let sticker = sel;
+        let target: LiveDingTarget | null = null;
+        let sources: CaptureSourceInfo[] | undefined;
+        if (chosen) {
+            // PipeWire 会弹系统选择框，先隐藏全屏截屏层，避免挡住它
+            renderSend("clip_hide", []);
+            sources = await requestCaptureSources();
+            const source = matchWindowSource(chosen.win, sources);
+            if (source) {
+                sticker = chosen.rect;
+                const win = chosen.win.dipRect;
+                const clamp = (v: number) => Math.max(0, Math.min(1, v));
+                target = {
+                    sourceId: source.id,
+                    windowId: chosen.win.id,
+                    appName: chosen.win.appName,
+                    title: chosen.win.title,
+                    crop: {
+                        x: clamp((sticker.x - win.x) / win.w),
+                        y: clamp((sticker.y - win.y) / win.h),
+                        w: clamp(sticker.w / win.w),
+                        h: clamp(sticker.h / win.h),
+                    },
+                };
+            }
+        }
+        renderSend("clip_ding_live", [
+            {
+                poster: cropPoster(photo, sel, sticker, ratio),
+                rect: sticker,
+                displayId: nowScreenId,
+                target,
+                sources,
+            },
+        ]);
+        toolsX.close.f();
+    } finally {
+        liveDingRunning = false;
+    }
 }
 
 // 钉在屏幕上
@@ -3328,6 +3534,7 @@ const tools: 功能列表 = [
     "QR",
     "open",
     "ding",
+    "dingLive",
     "record",
     "long",
     "translate",
@@ -3372,6 +3579,10 @@ const toolsX: Record<功能, { el: ElType<HTMLElement>; f: () => void }> = {
     ding: {
         el: iconEl("ding").attr({ title: "屏幕贴图" }),
         f: () => runDing(),
+    },
+    dingLive: {
+        el: iconEl("live_ding").attr({ title: "动态贴图" }),
+        f: () => runLiveDing(),
     },
     record: {
         el: selectEl<"old" | "normal" | "super">(iconEl("record"), t("录屏"), [
@@ -3796,6 +4007,17 @@ let nowScreenId = 0;
 
 let allScreens: Awaited<ReturnType<typeof screenShots>>["screen"];
 let windows: Awaited<ReturnType<typeof screenShots>>["window"];
+/** 当前截屏会话的显示器信息 */
+let currentDisplays: Electron.Display[] = [];
+/** 主进程 pid，用于排除应用自身窗口 */
+let mainPid = 0;
+/** 窗口视频源的请求回调 */
+const captureSourceRequests = new Map<
+    number,
+    (sources: CaptureSourceInfo[]) => void
+>();
+let captureSourceRequestId = 0;
+let liveDingRunning = false;
 
 let nowMouseE: MouseEvent;
 
@@ -4122,7 +4344,9 @@ let willFilter: EditType["filter"] | "" = "";
 
 document.body.style.opacity = "0";
 
-renderOn("clip_init", async ([_displays, imgBuffer, mainid, act]) => {
+renderOn("clip_init", async ([_displays, imgBuffer, mainid, act, pid]) => {
+    currentDisplays = _displays;
+    mainPid = pid ?? 0;
     const wx = await screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
     allScreens = wx.screen;
     const mainId = mainid;
@@ -4223,6 +4447,11 @@ renderOn("clip_init", async ([_displays, imgBuffer, mainid, act]) => {
 
 renderOn("clip_stop_long", () => stopLong());
 
+renderOn("captureSources", ([requestId, sources]) => {
+    const cb = captureSourceRequests.get(requestId);
+    captureSourceRequests.delete(requestId);
+    cb?.(sources);
+});
 document.onwheel = (e) => {
     if (
         !editor.el.contains(e.target as HTMLElement) &&

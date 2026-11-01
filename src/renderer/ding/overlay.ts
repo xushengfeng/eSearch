@@ -9,7 +9,7 @@ import {
 } from "dkh-ui";
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import store from "../../../lib/store/renderStore";
-import type { DingStart, Dire } from "../../ShareTypes";
+import type { DingStart, Dire, LiveDingData } from "../../ShareTypes";
 import { Class, cssVar } from "../root/root";
 import {
     createDingItem,
@@ -87,7 +87,9 @@ function close(id: string) {
 }
 
 function close2(id: string) {
-    items.get(id)?.el.remove();
+    const item = items.get(id);
+    item?.destroy();
+    item?.el.remove();
     items.delete(id);
     dockI();
 }
@@ -457,14 +459,20 @@ export function init() {
         mouseMove(els[0] as HTMLElement, x, y);
     });
 
-    renderOn("addDing", ([wid, x, y, w, h, url, type]) => {
-        addDing(String(wid), x, y, w, h, url, type);
+    renderOn("addDing", ([wid, x, y, w, h, url, type, live, displayId]) => {
+        addDing(String(wid), x, y, w, h, url, type, live, displayId);
+    });
+
+    renderOn("dingLiveSwitch", ([id, live, poster]) => {
+        items.get(String(id))?.switchSource(live, poster);
     });
 
     document.onmousedown = (e) => {
         const el = e.target as HTMLElement;
         const item = itemOf(el);
-        if (item && (el.id === "tool_bar_c" || el.tagName === "IMG")) {
+        if (item?.isAdjusting()) return;
+        const inImage = item ? item.imageEl.el.contains(el) : false;
+        if (item && (el.id === "tool_bar_c" || inImage)) {
             const { dx, dy } = dxdy(e, item.el);
             renderSend("dingShare", [
                 {
@@ -498,6 +506,8 @@ function addDing(
     h: number,
     url: string,
     type: "translate" | "ding",
+    live?: LiveDingData,
+    displayId?: number,
 ) {
     const data: DingItemData = {
         id: wid,
@@ -505,6 +515,8 @@ function addDing(
         url,
         translation: "",
         isTranslate: false,
+        live,
+        displayId,
     };
     const item = createDingItem({
         data,

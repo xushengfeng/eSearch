@@ -30,24 +30,35 @@ export async function preTranAndOcr(url: string) {
 
 export class UnConfigTranslateError extends Error {}
 
+function loadImage(url: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = url;
+    });
+}
+
 /** 将翻译结果绘制到图片上 */
 export async function drawTranslation(
     imgView: { el: HTMLElement },
     data: DingItemData,
     p: OcrResult,
+    srcUrl?: string,
 ) {
     const image = imgView.el.querySelector("img");
     if (!image) return;
+    const source = srcUrl ? await loadImage(srcUrl) : image;
     const canvas = ele("canvas")
         .attr({
-            width: image.naturalWidth,
-            height: image.naturalHeight,
+            width: source.naturalWidth || source.width,
+            height: source.naturalHeight || source.height,
         })
         .style({ position: "absolute", pointerEvents: "none" })
         .addInto(imgView.el).el;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.drawImage(image, 0, 0);
+    ctx.drawImage(source, 0, 0);
     console.log(p);
     if (!translateE) throw new UnConfigTranslateError();
     const tr = await translateE(p.map((i) => i.parse.text));

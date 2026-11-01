@@ -55,7 +55,7 @@ export function init() {
         applyFrame(resizeFrame(frame, base, z, dx, dy), z);
     }
 
-    renderOn("dingInit", ([id, x, y, w, h, url, type]) => {
+    renderOn("dingInit", ([id, x, y, w, h, url, type, live, displayId]) => {
         if (item) return;
         nativeDrag = isNativeDrag();
         base = [x, y, w, h];
@@ -66,6 +66,8 @@ export function init() {
             url,
             translation: "",
             isTranslate: false,
+            live,
+            displayId,
         };
         item = createDingItem({
             data,
@@ -87,6 +89,11 @@ export function init() {
         if (type === "translate") {
             item.translate();
         }
+    });
+
+    renderOn("dingLiveSwitch", ([id, live, poster]) => {
+        if (item && item.data.id === String(id))
+            item.switchSource(live, poster);
     });
 
     renderOn("dingMouse", ([x, y, absX, absY]) => {
@@ -113,9 +120,10 @@ export function init() {
 
     document.onmousedown = (e) => {
         if (!item || nativeDrag) return;
+        if (item.isAdjusting()) return;
         const el = e.target as HTMLElement;
-        const stickerImg = el.tagName === "IMG" && !el.closest("#tool_bar_c");
-        if (el.id !== "tool_bar_c" && !stickerImg) return;
+        const inImage = item.imageEl.el.contains(el);
+        if (el.id !== "tool_bar_c" && !inImage) return;
         const { ab, po } = renderSendSync("getMousePos", []);
         frame = {
             x: ab.x - po.x,
@@ -155,5 +163,9 @@ export function init() {
         dragging = false;
         direction = "";
         cursor(direction);
+    });
+
+    window.addEventListener("beforeunload", () => {
+        item?.destroy();
     });
 }

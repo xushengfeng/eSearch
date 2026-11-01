@@ -9,10 +9,14 @@ import type {
 } from "electron";
 import type {
     BrowserAction,
+    CaptureSourceInfo,
     DingResize,
     DingStart,
     GithubUrlType,
+    LiveDingData,
+    LiveDingTarget,
     MainWinType,
+    NormRect,
     setting,
     translateWinType,
     功能,
@@ -79,6 +83,7 @@ type Message = {
         imgBuffer: Buffer | undefined,
         mainid: number,
         act: 功能 | undefined,
+        mainPid?: number,
     ) => void;
     open_this_browser: (window_name: number, url: string) => void;
     edit_pic: (img: Buffer<ArrayBufferLike>) => void;
@@ -159,6 +164,8 @@ type Message = {
         h: number,
         url: string,
         type: "translate" | "ding",
+        live?: LiveDingData,
+        displayId?: number,
     ) => void;
     superRecorderInit: (sourceId: string, fixed?: RecordRect) => void;
     superPhotoEditorInit: (img: string) => void;
@@ -179,9 +186,55 @@ type Message = {
         h: number,
         url: string,
         type: "translate" | "ding",
+        live?: LiveDingData,
+        displayId?: number,
     ) => void;
     /** 独立窗口模式：移动、缩放系统窗口 */
     dingSetBounds: (x: number, y: number, w: number, h: number) => void;
+    /** 截屏页请求窗口视频源 */
+    getCaptureSources: (requestId: number) => void;
+    captureSources: (requestId: number, sources: CaptureSourceInfo[]) => void;
+    /** 动态贴图；target 为空表示需要用户选择窗口 */
+    clip_ding_live: (data: {
+        poster: string;
+        rect: { x: number; y: number; w: number; h: number };
+        displayId: number;
+        target: LiveDingTarget | null;
+        /** 已经取到的窗口源，避免 PipeWire 再次弹选择框 */
+        sources?: CaptureSourceInfo[];
+    }) => void;
+    /** 选源页初始化 */
+    dingPickerInit: (data: {
+        sources: CaptureSourceInfo[];
+        rect: { x: number; y: number; w: number; h: number };
+        poster: string;
+    }) => void;
+    /** 选源页确认 */
+    dingLivePick: (data: {
+        sourceId: string;
+        crop: NormRect;
+        poster: string;
+        rect: { x: number; y: number; w: number; h: number };
+        appName?: string;
+        title?: string;
+    }) => void;
+    dingLiveCancel: () => void;
+    /** 动态贴图转为静态，主进程释放数量额度 */
+    dingLiveStop: (id: number) => void;
+    /** 动态贴图更换窗口源 */
+    dingLiveChangeSource: (data: {
+        id: number;
+        rect: { x: number; y: number; w: number; h: number };
+        poster: string;
+        displayId?: number;
+    }) => void;
+    /** 主进程通知贴图切换源 */
+    dingLiveSwitch: (id: number, live: LiveDingData, poster: string) => void;
+    /** 选源页重新请求窗口列表（会再次弹出系统选择框） */
+    dingPickerRefresh: () => void;
+    dingPickerSources: (sources: CaptureSourceInfo[]) => void;
+    /** 选源页临时降低/恢复置顶，避免挡住系统选择框 */
+    dingPickerTop: (top: boolean) => void;
     recordSavePathReturn: (path: string) => void; // todo remove
     editorInit: (name: number, list: MainWinType) => void;
     browserNew: (id: number, url: string) => void;

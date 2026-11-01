@@ -261,6 +261,12 @@ export interface setting {
             独立窗口: boolean;
         };
         强制鼠标穿透: string;
+        动态: {
+            /** 视频帧率 */
+            帧率: number;
+            /** 同时存在的动态贴图数量 */
+            最大数量: number;
+        };
     };
     代理: Electron.ProxyConfig;
     主页面: {
@@ -430,6 +436,7 @@ type 功能列表 = [
     "QR",
     "open",
     "ding",
+    "dingLive",
     "record",
     "long",
     "translate",
@@ -525,6 +532,35 @@ type DingResize = {
     dx: number;
     dy: number;
     clip: boolean | undefined;
+};
+
+/** 相对视频帧的归一化裁剪 */
+export type NormRect = { x: number; y: number; w: number; h: number };
+
+/** 动态贴图绑定的窗口视频流 */
+export type LiveDingData = {
+    sourceId: string;
+    windowId?: number;
+    appName?: string;
+    title?: string;
+    crop: NormRect;
+    fps: number;
+};
+
+export type LiveDingTarget = {
+    sourceId: string;
+    crop: NormRect;
+    windowId?: number;
+    appName?: string;
+    title?: string;
+};
+
+export type CaptureSourceInfo = {
+    id: string;
+    name: string;
+    thumbnail: string;
+    appIcon: string;
+    displayId: string;
 };
 
 type BrowserAction =
