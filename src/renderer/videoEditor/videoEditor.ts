@@ -139,12 +139,27 @@ const outputV = {
     height: 0,
 };
 
+/** 输出画面宽高比：普通录屏取截屏选区，超级录屏取整屏 */
+let outputAspect = 0;
+
 // todo 节省内存，可以降低原始分辨率，像鼠标坐标也要缩小
 // src原始分辨率
 const v = {
     width: 0,
     height: 0,
 };
+
+/** 覆盖整屏的最大输出比例镜头框 */
+function fullClipRect() {
+    const aspect = outputAspect || v.width / v.height;
+    let w = v.width;
+    let h = w / aspect;
+    if (h > v.height) {
+        h = v.height;
+        w = h * aspect;
+    }
+    return { x: (v.width - w) / 2, y: (v.height - h) / 2, w, h };
+}
 
 const frameLength = store.get("录屏.超级录屏.关键帧间隔");
 
@@ -1007,7 +1022,7 @@ function getFrameXs(_data: uiData | null) {
 
     for (const [i, c] of srcCs.entries()) {
         const f: FrameX = {
-            rect: { x: 0, y: 0, w: v.width, h: v.height },
+            rect: fullClipRect(),
             timestamp: getTime(c.timestamp) ?? 0,
             event: [],
             isRemoved: false,
@@ -2056,13 +2071,19 @@ function editClip(i: number) {
         return {
             x: rect.x + rect.w / 2,
             y: rect.y + rect.h / 2,
-            ratio: rect.w / v.width,
+            ratio: rect.h / v.height,
         };
     }
 
     function center2rect(center: center) {
-        const w = Math.min(v.width * center.ratio, v.width);
-        const h = Math.min(v.height * center.ratio, v.height);
+        // 镜头框保持输出画面比例，普通录屏选区比例与整屏不同时不会被拉伸
+        const aspect = outputAspect || v.width / v.height;
+        let h = Math.min(v.height * center.ratio, v.height);
+        let w = h * aspect;
+        if (w > v.width) {
+            w = v.width;
+            h = w / aspect;
+        }
         let x = center.x - w / 2;
         let y = center.y - h / 2;
         x = MathClamp(0, x, v.width - w);
@@ -3565,7 +3586,7 @@ const timeLineClip = () => {
             );
             const newClip: clip = {
                 i: i as SrcId,
-                rect: { x: 0, y: 0, w: v.width, h: v.height },
+                rect: fullClipRect(),
                 transition: ms2timestamp(400),
             };
             data.clipList.push(newClip);
@@ -4218,19 +4239,23 @@ pack(document.body).style({
     v.height = videoHeight;
 
     const fixedRect = fixed ? toVideoRect(fixed.rect, fixed.w, fixed.h) : null;
+    /** 输出尺寸基准：普通录屏取截屏选区，超级录屏取整屏 */
+    const outBaseW = fixedRect?.w ?? v.width;
+    const outBaseH = fixedRect?.h ?? v.height;
+    outputAspect = outBaseW / outBaseH;
 
     exportPx.setList(
         [1, 2, 3, 4, 8].map((i) => ({
             value: String(i),
-            name: `/${i} ${Math.round(v.width / i)} x ${Math.round(v.height / i)}`,
+            name: `/${i} ${Math.round(outBaseW / i)} x ${Math.round(outBaseH / i)}`,
         })),
     );
 
     exportPx.el.on("change", async () => {
         const x = Number(exportPx.el.gv);
         store.set("录屏.超级录屏.缩放", x);
-        outputV.width = Math.round(v.width / x);
-        outputV.height = Math.round(v.height / x);
+        outputV.width = Math.round(outBaseW / x);
+        outputV.height = Math.round(outBaseH / x);
         setPlaySize();
         // 尺寸编辑：立即刷新预览（脏帧自动等待），不阻塞
         const p = transform({
@@ -4244,8 +4269,8 @@ pack(document.body).style({
 
     exportPx.el.sv(String(lastR));
 
-    outputV.width = Math.round(videoWidth / lastR);
-    outputV.height = Math.round(videoHeight / lastR);
+    outputV.width = Math.round(outBaseW / lastR);
+    outputV.height = Math.round(outBaseH / lastR);
 
     const reader = new MediaStreamTrackProcessor({
         track: videoTrack,
