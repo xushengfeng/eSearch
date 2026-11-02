@@ -12,6 +12,7 @@ portable
 lib/win_rect.exe
 lib/copy.exe
 assets/onnx
+assets/fonts
 lib/translate/*.csv
 script/make_aur/e-search/usr/share/icons/
 script/make_aur/e-search/usr/lib/e-search/app/

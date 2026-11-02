@@ -31,8 +31,9 @@ async function download(url, targetDir) {
 /**
  * @param {string} url
  * @param {string} targetDir
+ * @param {(name: string) => string | false} [pick]
  */
-async function downloadUnzip(url, targetDir) {
+async function downloadUnzip(url, targetDir, pick) {
     const b = await downloadBuffer(url);
     ensureDir(targetDir);
     const fileName = url.split("/").at(-1);
@@ -42,7 +43,12 @@ async function downloadUnzip(url, targetDir) {
             zipfile.readEntry();
             console.log(`开始解压 ${fileName} 到 ${targetDir}`);
             zipfile.on("entry", (entry) => {
-                const filePath = path.join(targetDir, entry.fileName);
+                const rel = pick ? pick(entry.fileName) : entry.fileName;
+                if (!rel) {
+                    zipfile.readEntry();
+                    return;
+                }
+                const filePath = path.join(targetDir, rel);
                 if (/\/$/.test(entry.fileName)) {
                     ensureDir(filePath);
                     zipfile.readEntry();
@@ -94,6 +100,26 @@ const platform2 = platformMap[platform];
 const githubUrl = "https://github.com";
 
 const beforePack = async () => {
+    if (!checkPath("./assets/fonts/FiraCode-Regular.woff2")) {
+        await downloadUnzip(
+            `${githubUrl}/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip`,
+            "./assets/fonts/",
+            (name) => {
+                const m = /^woff2\/(FiraCode-(?:Regular|Bold)\.woff2)$/.exec(
+                    name,
+                );
+                return m ? m[1] : false;
+            },
+        );
+    }
+    if (!checkPath("./assets/fonts/LICENSE")) {
+        fs.writeFileSync(
+            "./assets/fonts/LICENSE",
+            await downloadBuffer(
+                `${githubUrl}/tonsky/FiraCode/raw/6.2/LICENSE`,
+            ),
+        );
+    }
     if (!checkPath("./assets/onnx/ppocr/ppocr6_small_rec.onnx")) {
         ensureDir("./assets/onnx/ppocr");
         await downloadUnzip(

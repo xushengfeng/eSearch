@@ -2,6 +2,9 @@ import { addClass, addStyle, initDKH, view } from "dkh-ui";
 import { lan, t } from "../../../lib/translate/translate";
 import type { RawIconType } from "../../iconTypes";
 
+const fs = require("node:fs") as typeof import("node:fs");
+const path = require("node:path") as typeof import("node:path");
+
 function initStyle(
     store: typeof import("../../../lib/store/renderStore")["default"],
 ) {
@@ -40,6 +43,7 @@ function initStyle(
     setCSSVar("--d-check-icon", checkIconColor(theme.dark.fontInEmphasis));
 
     const 字体 = store.get("字体");
+    initEmbeddedMonoFont();
     setCSSVar("--main-font", 字体.主要字体);
     setCSSVar("--monospace", 字体.等宽字体 || monoFont.join(","));
 
@@ -197,7 +201,38 @@ const Class = {
 
 Class.button = `${Class.click} ${Class.hover}`;
 
+const embeddedMonoFont = "FiraCode";
+
+function initEmbeddedMonoFont() {
+    const dirs = [
+        path.join(__dirname, "../../assets/fonts"),
+        path.join(process.cwd(), "assets/fonts"),
+    ];
+    const fonts = [
+        ["FiraCode-Regular.woff2", "400"],
+        ["FiraCode-Bold.woff2", "700"],
+    ] as const;
+    for (const [file, weight] of fonts) {
+        const fontPath = dirs
+            .map((dir) => path.join(dir, file))
+            .find((p) => fs.existsSync(p));
+        if (!fontPath) continue;
+        const data = fs.readFileSync(fontPath);
+        document.fonts.add(
+            new FontFace(
+                embeddedMonoFont,
+                data.buffer.slice(
+                    data.byteOffset,
+                    data.byteOffset + data.byteLength,
+                ) as ArrayBuffer,
+                { weight },
+            ),
+        );
+    }
+}
+
 const monoFont = [
+    embeddedMonoFont,
     "Cascadia Code Light",
     "Courier New",
     "Courier",
