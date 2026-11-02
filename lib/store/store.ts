@@ -9,6 +9,10 @@ type data = {
     [key: string]: unknown;
 };
 
+type StringSettingPath = {
+    [P in SettingPath]: GetValue<setting, P> extends string ? P : never;
+}[SettingPath];
+
 function deepMerge(target: data, source: data): data {
     const result = { ...target };
     for (const key in source) {
@@ -80,6 +84,15 @@ class Store {
         const value = xget(store, keyPath);
         if (value !== undefined) return value;
         return xget(this.defaultData as Record<string, unknown>, keyPath);
+    }
+    /** 读取字符串设置；配置被改坏（如路径变成布尔）时回退到默认值，避免传给 path 接口 */
+    getString<P extends StringSettingPath>(keyPath: P): string {
+        const value: unknown = this.get(keyPath);
+        if (typeof value === "string") return value;
+        if (value !== undefined) {
+            console.error(`设置 ${keyPath} 应为字符串，实际为 ${typeof value}`);
+        }
+        return "";
     }
 
     clear() {

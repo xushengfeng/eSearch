@@ -64,6 +64,48 @@ import type {
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
 
+/** minimist 解析出的值：参数后没跟值时为 boolean，纯数字会被解析为 number */
+type Argv = Record<string, string | number | boolean | string[] | undefined> & {
+    _: string[];
+};
+
+/**
+ * 读取字符串参数。没传返回 undefined；传了但值不合法时打印提示并返回 undefined。
+ */
+function argString(argv: Argv, ...names: string[]): string | undefined {
+    for (const name of names) {
+        const value = argv[name];
+        if (value === undefined || value === false) continue;
+        if (typeof value === "string") return value;
+        if (typeof value === "number") return String(value);
+        if (Array.isArray(value)) {
+            console.error(`--${name} 只能出现一次`);
+        } else {
+            console.error(`--${name} 需要跟一个值`);
+        }
+    }
+    return undefined;
+}
+
+/** 读取数字参数，不合法时打印提示并返回 undefined */
+function argNumber(argv: Argv, ...names: string[]): number | undefined {
+    const value = argString(argv, ...names);
+    if (value === undefined) return undefined;
+    const n = Number(value);
+    if (Number.isNaN(n)) {
+        console.error(`--${names[0]} 需要跟一个数字`);
+        return undefined;
+    }
+    return n;
+}
+
+/** 参数是否出现过（即使值为 boolean 也表示出现了但没跟值） */
+function argPresent(argv: Argv, ...names: string[]): boolean {
+    return names.some(
+        (name) => argv[name] !== undefined && argv[name] !== false,
+    );
+}
+
 // 自定义用户路径
 try {
     let preloadConfig = "";
@@ -76,7 +118,7 @@ try {
     } catch (error) {}
     const portable = "portable";
     const userDataPath =
-        minimist(process.argv.slice(1)).userData ||
+        argString(minimist(process.argv.slice(1)) as Argv, "userData") ||
         preloadConfig ||
         (statSync(join(runPath, portable)).isDirectory()
             ? join(runPath, portable)
@@ -315,7 +357,7 @@ function sleep(time: number) {
  * @param {string[]} c 命令
  */
 async function argRun(c: string[], first?: boolean) {
-    const argv = minimist(c.slice(1));
+    const argv = minimist(c.slice(1)) as Argv;
 
     const ocrE = store
         .get("离线OCR")
@@ -323,11 +365,12 @@ async function argRun(c: string[], first?: boolean) {
         .concat(["baidu", "youdao"]);
     const searchE = ["baidu, yandex, google"];
 
-    function getEngine(e: string, list: string[], df: string) {
+    function getEngine(e: string | undefined, list: string[], df: string) {
+        if (!e) return df;
         if (!list.includes(e)) {
             console.log(`${e} ∉ ${list.join(", ")}`);
         }
-        return e || df;
+        return e;
     }
 
     if (argv.dev) {
@@ -405,22 +448,22 @@ async function argRun(c: string[], first?: boolean) {
         if (first) app.exit();
     }
 
-    const path = argv.i || argv.input;
+    const path = argString(argv, "i", "input");
+    if (path === undefined && argPresent(argv, "i", "input")) return;
+    const text = argString(argv, "t", "text");
+    if (text === undefined && argPresent(argv, "t", "text")) return;
+    const engine = argString(argv, "engine");
+    if (engine === undefined && argPresent(argv, "engine")) return;
+
     async function getImg() {
         let img: NativeImage | undefined;
         if (!path) {
             const screenShots = initScreenShots(...screenShotArgs);
-            await sleep(argv.delay || 0);
+            await sleep(argNumber(argv, "delay") ?? 0);
             img = (
                 await (await screenShots()).screen[0].capture()
             ).toNativeImage();
         } else {
-            // minimist 在 "--i" 后面没跟值时给的是布尔 true
-            // 直接进 readFileSync会抛 ERR_INVALID_ARG_TYPE
-            if (typeof path !== "string") {
-                console.error("--i/--input 需要跟一个文件路径");
-                return undefined;
-            }
             try {
                 img = nativeImage.createFromBuffer(readFileSync(path));
             } catch (error) {
@@ -439,24 +482,23 @@ async function argRun(c: string[], first?: boolean) {
         : argv.search
           ? "search"
           : "auto";
-    const e = argv.engine;
     if (argv.s || argv.save) {
-        const n = argv.n as number;
-        const dt = (argv.dt as number) || 100;
+        const n = argNumber(argv, "n");
+        if (n === undefined && argPresent(argv, "n")) return;
+        const dt = argNumber(argv, "dt") ?? 100;
 
-        const savePath = argv.p || argv.path;
-        const sp =
-            typeof savePath !== "string"
-                ? checkFile(
-                      join(
-                          store.get("快速截屏.路径") ||
-                              store.get("保存.保存路径.图片"),
-                          getFileName(),
-                      ),
-                  )
-                : existsSync(savePath) && statSync(savePath).isDirectory()
-                  ? checkFile(join(savePath, getFileName()))
-                  : savePath;
+        const savePath = argString(argv, "p", "path");
+        const sp = !savePath
+            ? checkFile(
+                  join(
+                      store.getString("快速截屏.路径") ||
+                          store.getString("保存.保存路径.图片"),
+                      getFileName(),
+                  ),
+              )
+            : existsSync(savePath) && statSync(savePath).isDirectory()
+              ? checkFile(join(savePath, getFileName()))
+              : savePath;
 
         if (n) {
             if (!sp) return;
@@ -492,7 +534,7 @@ async function argRun(c: string[], first?: boolean) {
         createMainWindow({
             type: "ocr",
             content: img.toDataURL(),
-            arg0: getEngine(e, ocrE, store.get("OCR.类型")),
+            arg0: getEngine(engine, ocrE, store.get("OCR.类型")),
             mode: textMode,
         });
     } else if (argv.d || argv.ding) {
@@ -505,13 +547,13 @@ async function argRun(c: string[], first?: boolean) {
         createMainWindow({
             type: "image",
             content: img.toDataURL(),
-            arg0: getEngine(e, searchE, store.get("以图搜图.引擎")),
+            arg0: getEngine(engine, searchE, store.get("以图搜图.引擎")),
             mode: textMode,
         });
-    } else if (argv.t || argv.text) {
+    } else if (text !== undefined) {
         createMainWindow({
             type: "text",
-            content: argv.t || argv.text,
+            content: text,
             mode: textMode,
         });
     } else if (argv.c) {
@@ -1168,7 +1210,7 @@ mainOn("clip_hide", async () => {
     hideClip();
 });
 mainOn("clip_save", async ([type]) => {
-    const savedPath = store.get("保存.保存路径.图片") || "";
+    const savedPath = store.getString("保存.保存路径.图片");
     const x = await dialog.showSaveDialog({
         title: t("选择要保存的位置"),
         defaultPath: savedPath
@@ -1290,10 +1332,10 @@ async function quickClip() {
             await writeImageToClipboard(image);
         } else if (
             store.get("快速截屏.模式") === "path" &&
-            store.get("快速截屏.路径")
+            store.getString("快速截屏.路径")
         ) {
             const filename = checkFile(
-                join(store.get("快速截屏.路径"), `${getFileName()}.png`),
+                join(store.getString("快速截屏.路径"), `${getFileName()}.png`),
             );
             if (!image) return;
             writeFileSync(filename, image.toPNG());
@@ -1313,7 +1355,7 @@ function checkFile(name: string, baseName = name, n = 1) {
 
 /** 连拍 */
 function lianPai(d = store.get("连拍.间隔"), maxN = store.get("连拍.数")) {
-    const basePath = store.get("快速截屏.路径");
+    const basePath = store.getString("快速截屏.路径");
     if (!basePath) return;
     const screenShots = initScreenShots(...screenShotArgs);
     const dirPath = checkFile(join(basePath, getFileName()));
@@ -1456,7 +1498,7 @@ mainOn("clearCache", () => {
     ]);
 });
 mainOn("move_user_data", ([target]) => {
-    if (!target) return;
+    if (typeof target !== "string" || !target) return;
     const toPath = resolve(target);
     const prePath = app.getPath("userData");
     mkdirSync(toPath, { recursive: true });
@@ -2589,8 +2631,8 @@ mainOn("windowShow", (_, e) => {
 
 mainOn("save_file_path", async ([type, isVideo]) => {
     const savedPath = isVideo
-        ? store.get("保存.保存路径.视频") || ""
-        : store.get("保存.保存路径.图片") || "";
+        ? store.getString("保存.保存路径.视频")
+        : store.getString("保存.保存路径.图片");
     const defaultPath = join(savedPath, `${getFileName()}.${type}`);
     if (store.get("保存.快速保存") && savedPath) {
         return defaultPath;
@@ -2606,6 +2648,7 @@ mainOn("save_file_path", async ([type, isVideo]) => {
 });
 
 mainOn("ok_save", ([arg, isVideo]) => {
+    if (typeof arg !== "string" || !arg) return;
     noti(arg);
     if (isVideo) {
         store.set("保存.保存路径.视频", dirname(arg));
@@ -2618,7 +2661,10 @@ mainOn("selectPath", async ([path, p]) => {
     try {
         const x = await dialog.showOpenDialog({
             title: t("选择文件"),
-            defaultPath: path || app.getPath("pictures"),
+            defaultPath:
+                typeof path === "string" && path
+                    ? path
+                    : app.getPath("pictures"),
             properties: p,
         });
         return x.filePaths[0] || "";
