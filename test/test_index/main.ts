@@ -592,6 +592,7 @@ const defaultSetting: setting = {
             编码选择: "性能优先",
             关键帧间隔: 150,
             格式: "gif",
+            webp质量: 80,
             缩放: 2,
             导出后关闭: false,
         },

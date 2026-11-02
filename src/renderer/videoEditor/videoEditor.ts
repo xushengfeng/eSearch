@@ -31,7 +31,6 @@ const { uIOhook, UiohookKey } =
 type KeyCode = `${keyof typeof UiohookKey}`;
 const fs = require("node:fs") as typeof import("fs");
 
-import UPNG from "@pdf-lib/upng";
 // @ts-expect-error
 import { applyPalette, GIFEncoder, quantize } from "gifenc";
 import {
@@ -53,6 +52,7 @@ import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
 import floydSteinberg from "../lib/dither";
 import xhistory from "../lib/history";
+import { type ApngFrame, muxApng } from "./apngMuxer";
 import {
     audioCapture,
     buildTransAudio,
@@ -61,6 +61,8 @@ import {
 } from "./audio";
 import type { AvifSample } from "./avifMuxer";
 import { muxAvif } from "./avifMuxer";
+import { encodePngIdat } from "./pngEncoder";
+import { muxWebp, type WebpFrame } from "./webpMuxer";
 
 initStyle(store);
 
@@ -151,7 +153,7 @@ const bitrate = store.get("录屏.转换.码率") * 1024 * 1024;
 
 const outputType = [
     { type: "gif", name: "gif" },
-    // { type: "webp", name: "webp" }, // todo
+    { type: "webp", name: "webp" },
     { type: "apng", name: "apng" },
     { type: "avif", name: "avif" },
     { type: "webm", name: "webm" },
@@ -2241,6 +2243,8 @@ async function save() {
         await saveGif({
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
         });
+    else if (exportEls.type.gv === "webp")
+        await saveWebp({ quality: exportConfigEls.webp.gv.quality });
     else if (exportEls.type.gv === "apng") await saveApng();
     else if (exportEls.type.gv === "avif") await saveAvif();
     else if (exportEls.type.gv === "webm")
@@ -2348,16 +2352,8 @@ async function saveImages() {
     console.log("decoded");
 }
 
-async function saveGif(op?: { dither: "floyd-steinberg" | "none" }) {
-    const exportPath = getSavePath("gif");
-    if (!exportPath) return;
-
-    const gif = GIFEncoder();
-
-    await waitProcessing();
-
-    let i = 0;
-
+/** 按编码尺寸和帧间隔挑选导出帧 */
+function getFrameDelays() {
     const delayMap = new Map<number, number>();
     const heightDt = ms2timestamp(1000 / srcRate);
     const lowDt = ms2timestamp(1000 / 15); // todo 设置
@@ -2380,6 +2376,203 @@ async function saveGif(op?: { dither: "floyd-steinberg" | "none" }) {
             }
         }
     }
+    return delayMap;
+}
+
+/** 串行处理导出的每一帧，避免同时持有过多整帧 RGBA */
+async function forEachExportFrame(
+    handler: (
+        canvas: OffscreenCanvas,
+        timestamp: number,
+    ) => Promise<void> | void,
+    onProgress?: () => void,
+) {
+    const delayMap = getFrameDelays();
+    let chain: Promise<void> = Promise.resolve();
+    let pending = 0;
+    const decoder = new VideoDecoder({
+        output: (frame) => {
+            if (!delayMap.has(frame.timestamp)) {
+                frame.close();
+                return;
+            }
+            const canvas = frameTrans2Canvas(frame);
+            chain = chain
+                .then(() => handler(canvas, frame.timestamp))
+                .catch((e) => console.error("Animated export error:", e));
+            pending++;
+        },
+        error: (e) => console.error("Decode error:", e),
+    });
+    decoder.configure(decoderVideoConfig);
+    for (const chunk of transformCs.list) {
+        if (chunk.type === "key") await decoder.flush();
+        decoder.decode(chunk);
+        if (pending >= 4) {
+            await chain;
+            pending = 0;
+        }
+    }
+    await decoder.flush();
+    await chain;
+    decoder.close();
+}
+
+type MaskRect = {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    mask: Uint8Array;
+};
+
+/** 与上一帧对比，返回变化区域和逐像素遮罩 */
+function diffMask(
+    prev: Uint8ClampedArray,
+    cur: Uint8ClampedArray,
+    pad: number,
+): MaskRect | null {
+    const width = outputV.width;
+    const height = outputV.height;
+    const a = new Uint32Array(prev.buffer, prev.byteOffset, width * height);
+    const b = new Uint32Array(cur.buffer, cur.byteOffset, width * height);
+    let x0 = width;
+    let y0 = height;
+    let x1 = -1;
+    let y1 = -1;
+    for (let y = 0; y < height; y++) {
+        const row = y * width;
+        for (let x = 0; x < width; x++) {
+            if (a[row + x] !== b[row + x]) {
+                if (x < x0) x0 = x;
+                if (x > x1) x1 = x;
+                if (y < y0) y0 = y;
+                y1 = y;
+            }
+        }
+    }
+    if (x1 < 0) return null;
+    const x = Math.max(0, x0 - pad);
+    const y = Math.max(0, y0 - pad);
+    const w = Math.min(width - x, x1 - x0 + 1 + pad * 2);
+    const h = Math.min(height - y, y1 - y0 + 1 + pad * 2);
+    const mask = new Uint8Array(w * h);
+    for (let yy = 0; yy < h; yy++) {
+        for (let xx = 0; xx < w; xx++) {
+            const i = (y + yy) * width + x + xx;
+            mask[yy * w + xx] = a[i] !== b[i] ? 255 : 0;
+        }
+    }
+    if (pad > 0) {
+        const tmp = new Uint8Array(w * h);
+        for (let yy = 0; yy < h; yy++) {
+            for (let xx = 0; xx < w; xx++) {
+                let m = 0;
+                for (let k = -pad; k <= pad && !m; k++) {
+                    const nx = xx + k;
+                    if (nx >= 0 && nx < w && mask[yy * w + nx]) m = 255;
+                }
+                tmp[yy * w + xx] = m;
+            }
+        }
+        for (let yy = 0; yy < h; yy++) {
+            for (let xx = 0; xx < w; xx++) {
+                let m = 0;
+                for (let k = -pad; k <= pad && !m; k++) {
+                    const ny = yy + k;
+                    if (ny >= 0 && ny < h && tmp[ny * w + xx]) m = 255;
+                }
+                mask[yy * w + xx] = m;
+            }
+        }
+    }
+    return { x, y, w, h, mask };
+}
+
+/** WebP 帧偏移必须是偶数，左/上补齐并同步遮罩 */
+function alignEven(bb: MaskRect): MaskRect {
+    const x = bb.x & ~1;
+    const y = bb.y & ~1;
+    const dx = bb.x - x;
+    const dy = bb.y - y;
+    let w = Math.min(outputV.width - x, bb.w + dx);
+    let h = Math.min(outputV.height - y, bb.h + dy);
+    if (w & 1) w = Math.min(outputV.width - x, w + 1);
+    if (h & 1) h = Math.min(outputV.height - y, h + 1);
+    const mask = new Uint8Array(w * h);
+    for (let yy = 0; yy < bb.h; yy++) {
+        for (let xx = 0; xx < bb.w; xx++) {
+            if (bb.mask[yy * bb.w + xx]) mask[(yy + dy) * w + xx + dx] = 255;
+        }
+    }
+    return { x, y, w, h, mask };
+}
+
+/** 按遮罩裁出 RGBA，未变化像素 alpha = 0（混合模式用） */
+function cropWithMask(
+    data: Uint8ClampedArray,
+    bb: MaskRect,
+    zeroTransparent: boolean,
+) {
+    const width = outputV.width;
+    const out = new Uint8ClampedArray(bb.w * bb.h * 4);
+    for (let y = 0; y < bb.h; y++) {
+        for (let x = 0; x < bb.w; x++) {
+            const s = ((bb.y + y) * width + bb.x + x) * 4;
+            const d = (y * bb.w + x) * 4;
+            const on = bb.mask[y * bb.w + x] !== 0;
+            out[d] = on || !zeroTransparent ? data[s] : 0;
+            out[d + 1] = on || !zeroTransparent ? data[s + 1] : 0;
+            out[d + 2] = on || !zeroTransparent ? data[s + 2] : 0;
+            out[d + 3] = on ? 255 : 0;
+        }
+    }
+    return out;
+}
+
+/** 每帧时长(ms)按相邻导出帧时间戳计算 */
+function pushTimedFrame<T extends { delayMs: number }>(
+    frames: (T & { timestamp: number })[],
+    frame: T,
+    timestamp: number,
+    frameIntervalMs: number,
+) {
+    const last = frames.at(-1);
+    if (last)
+        last.delayMs = Math.max(
+            1,
+            Math.round((timestamp - last.timestamp) / 1000),
+        );
+    frames.push({ ...frame, timestamp, delayMs: frameIntervalMs });
+}
+
+function finishTimedFrames<T extends { delayMs: number }>(
+    frames: (T & { timestamp: number })[],
+    lastTimestamp: number,
+    frameIntervalMs: number,
+) {
+    const last = frames.at(-1);
+    if (last)
+        last.delayMs = Math.max(
+            1,
+            Math.round(
+                (lastTimestamp + frameIntervalMs * 1000 - last.timestamp) /
+                    1000,
+            ),
+        );
+}
+
+async function saveGif(op?: { dither: "floyd-steinberg" | "none" }) {
+    const exportPath = getSavePath("gif");
+    if (!exportPath) return;
+
+    const gif = GIFEncoder();
+
+    await waitProcessing();
+
+    let i = 0;
+
+    const delayMap = getFrameDelays();
 
     console.log(delayMap);
 
@@ -2461,71 +2654,152 @@ async function saveApng() {
     if (!exportPath) return;
 
     await waitProcessing();
+    if (!transformCs.length) return;
 
-    let i = 0;
+    const frames: (ApngFrame & { timestamp: number })[] = [];
+    const frameIntervalMs = 1000 / srcRate;
+    let prev: Uint8ClampedArray | null = null;
+    let lastTimestamp = 0;
+    let processed = 0;
+    const progress = progressEl().addInto(transformLogEl);
 
-    const delayMap = new Map<number, number>();
-    const heightDt = ms2timestamp(1000 / srcRate);
-    const lowDt = ms2timestamp(1000 / 15); // todo 设置
-    let lastT = 0;
-    const zeroByte = (transformCs.at(0 as TransId) as EncodedVideoChunk)
-        .byteLength;
-    for (const [i, chunk] of transformCs.entries()) {
-        if (i === 0) {
-            delayMap.set(chunk.timestamp, 0);
-        } else {
-            const delay = chunk.timestamp - lastT;
-            if (chunk.byteLength < 0.3 * zeroByte) {
-                if (delay < lowDt) continue;
-                delayMap.set(chunk.timestamp, timestamp2ms(delay));
-                lastT = chunk.timestamp;
-            } else if (delay >= heightDt * 0.8) {
-                // 容错，快0.8都是可接受的
-                delayMap.set(chunk.timestamp, timestamp2ms(delay));
-                lastT = chunk.timestamp;
-            }
-        }
-    }
-
-    console.log(delayMap);
-
-    const images: ArrayBuffer[] = [];
-    const dels: number[] = [];
-    const decoder = new VideoDecoder({
-        output: (frame: VideoFrame) => {
-            const delay = delayMap.get(frame.timestamp);
-            if (delay === undefined) {
-                frame.close();
-                return;
-            }
-            const { data } = frameTrans2Canvas(frame)
+    await forEachExportFrame(
+        (canvas, timestamp) => {
+            lastTimestamp = timestamp;
+            const data = canvas
                 .getContext("2d")!
-                .getImageData(0, 0, outputV.width, outputV.height); // todo 导出时缩放
-            images.push(data.buffer as ArrayBuffer);
-            dels.push(delay);
-            i++;
-            apngProgress.sv(i / transformCs.length);
+                .getImageData(0, 0, outputV.width, outputV.height).data;
+            const diff = prev ? diffMask(prev, data, 0) : null;
+            if (prev && !diff) return;
+            const rect: MaskRect = diff ?? {
+                x: 0,
+                y: 0,
+                w: outputV.width,
+                h: outputV.height,
+                mask: new Uint8Array(outputV.width * outputV.height).fill(255),
+            };
+            const idat = encodePngIdat(
+                cropWithMask(data, rect, true),
+                rect.w,
+                rect.h,
+            );
+            pushTimedFrame(
+                frames,
+                {
+                    idat,
+                    w: rect.w,
+                    h: rect.h,
+                    x: rect.x,
+                    y: rect.y,
+                    delayMs: frameIntervalMs,
+                    blend: frames.length ? 1 : 0,
+                },
+                timestamp,
+                frameIntervalMs,
+            );
+            prev = data;
         },
-        error: (e) => console.error("Decode error:", e),
+        () => progress.sv(++processed / transformCs.length),
+    );
+
+    finishTimedFrames(frames, lastTimestamp, frameIntervalMs);
+    const bytes = muxApng({
+        width: outputV.width,
+        height: outputV.height,
+        frames,
     });
-
-    const apngProgress = progressEl().addInto(transformLogEl);
-
-    decoder.configure(decoderVideoConfig);
-    for (const [_, chunk] of transformCs.entries()) {
-        if (chunk.type === "key") await decoder.flush();
-        decoder.decode(chunk);
-    }
-
-    await decoder.flush();
-    decoder.close();
-
-    const bytes = UPNG.encode(images, outputV.width, outputV.height, 0, dels);
-
     fs.writeFileSync(exportPath, Buffer.from(bytes));
+    progress.remove();
+    renderSend("ok_save", [exportPath]);
+}
 
-    apngProgress.remove();
+async function saveWebp(op: { quality: number }) {
+    const exportPath = getSavePath("webp");
+    if (!exportPath) return;
 
+    await waitProcessing();
+    if (!transformCs.length) return;
+
+    const frames: (WebpFrame & { timestamp: number })[] = [];
+    const frameIntervalMs = 1000 / srcRate;
+    let refCanvas: OffscreenCanvas | undefined;
+    let refCtx: OffscreenCanvasRenderingContext2D | undefined;
+    let refData: Uint8ClampedArray | null = null;
+    let lastTimestamp = 0;
+    let processed = 0;
+    const progress = progressEl().addInto(transformLogEl);
+
+    await forEachExportFrame(
+        async (canvas, timestamp) => {
+            lastTimestamp = timestamp;
+            const data = canvas
+                .getContext("2d")!
+                .getImageData(0, 0, outputV.width, outputV.height).data;
+            let rect = refData ? diffMask(refData, data, 2) : null;
+            if (refData && !rect) return;
+            if (!rect)
+                rect = {
+                    x: 0,
+                    y: 0,
+                    w: outputV.width,
+                    h: outputV.height,
+                    mask: new Uint8Array(outputV.width * outputV.height).fill(
+                        255,
+                    ),
+                };
+            rect = alignEven(rect);
+            const cropped = cropWithMask(data, rect, false);
+            const small = new OffscreenCanvas(rect.w, rect.h);
+            small
+                .getContext("2d")!
+                .putImageData(new ImageData(cropped, rect.w, rect.h), 0, 0);
+            const blob = await small.convertToBlob({
+                type: "image/webp",
+                quality: 0.8,
+            });
+            pushTimedFrame(
+                frames,
+                {
+                    webp: new Uint8Array(await blob.arrayBuffer()),
+                    w: rect.w,
+                    h: rect.h,
+                    x: rect.x,
+                    y: rect.y,
+                    delayMs: frameIntervalMs,
+                    blend: frames.length ? 1 : 0,
+                },
+                timestamp,
+                frameIntervalMs,
+            );
+
+            // 参考帧必须用解码后的结果，否则有损编码的差异会在下一帧形成接缝
+            const bmp = await createImageBitmap(blob);
+            if (!refCanvas) {
+                refCanvas = new OffscreenCanvas(outputV.width, outputV.height);
+                refCtx = refCanvas.getContext("2d", {
+                    willReadFrequently: true,
+                })!;
+            }
+            refCtx!.drawImage(bmp, rect.x, rect.y);
+            bmp.close();
+            refData = refCtx!.getImageData(
+                0,
+                0,
+                outputV.width,
+                outputV.height,
+            ).data;
+        },
+        () => progress.sv(++processed / transformCs.length),
+    );
+
+    finishTimedFrames(frames, lastTimestamp, frameIntervalMs);
+    const bytes = muxWebp({
+        width: outputV.width,
+        height: outputV.height,
+        frames,
+    });
+    fs.writeFileSync(exportPath, Buffer.from(bytes));
+    progress.remove();
     renderSend("ok_save", [exportPath]);
 }
 
@@ -3697,6 +3971,36 @@ const exportConfigEls = {
             });
     })(),
     apng: view(),
+    webp: (() => {
+        const el = view("x").style({
+            paddingInline: "8px",
+            alignItems: "center",
+            gap: "6px",
+        });
+        const value = txt();
+        const quality = input("range")
+            .attr({ min: "1", max: "100", step: "1" })
+            .style({ width: "120px" })
+            .on("input", () => value.sv(`${quality.gv}%`))
+            .on("change", () =>
+                store.set("录屏.超级录屏.webp质量", Number(quality.gv)),
+            );
+        quality.sv(String(store.get("录屏.超级录屏.webp质量") ?? 80));
+        value.sv(`${quality.gv}%`);
+        el.add([
+            label([quality, "质量"], 1).style({
+                display: "flex",
+                alignItems: "center",
+            }),
+            value,
+        ]);
+        return el
+            .bindGet(() => ({ quality: Number(quality.gv) }))
+            .bindSet((v: { quality: number }) => {
+                quality.sv(String(v.quality));
+                value.sv(`${v.quality}%`);
+            });
+    })(),
     avif: view(),
     mp4: (() => {
         const el = view("x").style({ paddingInline: "8px" });
