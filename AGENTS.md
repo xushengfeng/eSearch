@@ -61,6 +61,8 @@ ts修改都需要biome格式化(`pnpm run format`)和ts类型检查(`pnpm run ty
 
 关于注释，非必要不注释，只有不合常规或者代码算法逻辑过于复杂才需要。修改的内容，如以前是什么样，进行了什么行为，完全不用写进注释，diff和commit已经能描述
 
+修复 bug 后，在 [Issue 索引](./docs/develop/issues.md) 搜索相关关键词，确认改动覆盖的 issue，复测后再关闭；重复的指向主 issue。
+
 ### 修改界面或者功能
 
 使用dkh-ui创建、修改dom和css，单ts文件覆盖界面绘制
