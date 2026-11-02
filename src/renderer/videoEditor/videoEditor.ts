@@ -59,6 +59,8 @@ import {
     type SrcAudio,
     sysAudioId,
 } from "./audio";
+import type { AvifSample } from "./avifMuxer";
+import { muxAvif } from "./avifMuxer";
 
 initStyle(store);
 
@@ -151,7 +153,7 @@ const outputType = [
     { type: "gif", name: "gif" },
     // { type: "webp", name: "webp" }, // todo
     { type: "apng", name: "apng" },
-    // { type: "avif", name: "avif" }, // todo
+    { type: "avif", name: "avif" },
     { type: "webm", name: "webm" },
     { type: "mp4", name: "mp4" },
     // { type: "mkv", name: "mkv" },
@@ -2240,6 +2242,7 @@ async function save() {
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
         });
     else if (exportEls.type.gv === "apng") await saveApng();
+    else if (exportEls.type.gv === "avif") await saveAvif();
     else if (exportEls.type.gv === "webm")
         await saveWebm({ codec: exportConfigEls.webm.gv.codec });
     else if (exportEls.type.gv === "mp4")
@@ -2524,6 +2527,50 @@ async function saveApng() {
     apngProgress.remove();
 
     renderSend("ok_save", [exportPath]);
+}
+
+/** AVIF 直接封装已编码的 AV1 帧，不重新解码 */
+async function saveAvif() {
+    const exportPath = getSavePath("avif");
+    if (!exportPath) return;
+    if (!codecMap.has("av1")) return;
+
+    await waitProcessing({ codec: "av1" });
+
+    const chunks = transformCs.list;
+    if (!chunks.length) return;
+
+    const timescale = Math.max(1, Math.round(srcRate));
+    const frameDuration = 1e6 / timescale;
+    const samples: AvifSample[] = [];
+    for (const [i, chunk] of chunks.entries()) {
+        const next = chunks[i + 1];
+        // 帧间隔换算到 timescale；末帧没有下一帧，沿用编码时长或固定帧长
+        const delta = next
+            ? next.timestamp - chunk.timestamp
+            : (chunk.duration ?? frameDuration);
+        const data = new Uint8Array(chunk.byteLength);
+        chunk.copyTo(data);
+        samples.push({
+            data,
+            duration: Math.max(1, Math.round((delta * timescale) / 1e6)),
+            key: chunk.type === "key",
+        });
+    }
+
+    try {
+        const bytes = muxAvif({
+            width: outputV.width,
+            height: outputV.height,
+            timescale,
+            samples,
+            fallbackCodec: codecMap.get("av1")?.codec,
+        });
+        fs.writeFileSync(exportPath, Buffer.from(bytes));
+        renderSend("ok_save", [exportPath]);
+    } catch (e) {
+        console.error("AVIF 导出失败", e);
+    }
 }
 
 async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
@@ -3650,6 +3697,7 @@ const exportConfigEls = {
             });
     })(),
     apng: view(),
+    avif: view(),
     mp4: (() => {
         const el = view("x").style({ paddingInline: "8px" });
         const codec = label(
@@ -3711,9 +3759,14 @@ const exportConfigEls = {
 
 const exportPx = dynamicSelect();
 
+/** AV1 编码不可用时隐藏 avif */
+const exportTypes = outputType.filter(
+    (t) => t.type !== "avif" || codecMap.has("av1"),
+);
+
 // 新建 Record 变量存储 UI 元素
 const exportEls = {
-    type: select(outputType.map((t) => ({ value: t.type, name: t.name }))).on(
+    type: select(exportTypes.map((t) => ({ value: t.type, name: t.name }))).on(
         "change",
         (_, el) => {
             const type = el.gv;
@@ -3758,8 +3811,12 @@ const exportEl = frame("export", {
     }),
 });
 
+const savedExportType = store.get("录屏.超级录屏.格式");
+const initExportType = exportTypes.some((t) => t.type === savedExportType)
+    ? (savedExportType as (typeof outputType)[number]["type"])
+    : "gif";
 // @ts-ignore
-exportEls.type.sv(store.get("录屏.超级录屏.格式") ?? "gif");
+exportEls.type.sv(initExportType);
 const exconfig = exportConfigEls[exportEls.type.gv];
 exportEls.exportConfig.clear().add(exconfig);
 
