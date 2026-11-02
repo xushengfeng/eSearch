@@ -477,6 +477,7 @@ const defaultSetting: setting = {
         保存路径: { 图片: "", 视频: "" },
         快速保存: false,
         保存并复制: false,
+        复制为文件: false,
     },
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     框选后默认操作: "no",

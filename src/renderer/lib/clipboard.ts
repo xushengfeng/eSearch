@@ -1,3 +1,6 @@
+import { renderSendSync } from "../../../lib/ipc";
+import store from "../../../lib/store/renderStore";
+
 export async function writeText(text: string): Promise<void> {
     await navigator.clipboard.writeText(text);
 }
@@ -7,6 +10,14 @@ export async function readText(): Promise<string> {
 }
 
 export async function writeImage(blob: Blob): Promise<void> {
+    // 在复制时读取设置，保证修改后立即生效
+    if (store.get("保存.复制为文件")) {
+        renderSendSync("copy_image_file", [
+            await blob.arrayBuffer(),
+            blob.type,
+        ]);
+        return;
+    }
     const item = new ClipboardItem({ [blob.type]: blob });
     await navigator.clipboard.write([item]);
 }

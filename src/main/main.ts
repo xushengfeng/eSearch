@@ -7,6 +7,7 @@ import {
     existsSync,
     mkdir,
     mkdirSync,
+    readdirSync,
     readFile,
     readFileSync,
     rmSync,
@@ -14,8 +15,9 @@ import {
     writeFile,
     writeFileSync,
 } from "node:fs";
+import { writeFile as writeFileAsync } from "node:fs/promises";
 import { homedir, release, tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import url from "node:url";
 import {
     app,
@@ -63,6 +65,7 @@ import type {
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
+const clipboardDir = join(tmpDir, "clipboard");
 
 /** minimist 解析出的值：参数后没跟值时为 boolean，纯数字会被解析为 number */
 type Argv = Record<string, string | number | boolean | string[] | undefined> & {
@@ -295,11 +298,67 @@ async function readImageFromClipboard() {
     return nativeImage.createEmpty();
 }
 
-/** 写入图片到剪贴板（Electron 44 移除了 clipboard.writeImage） */
-async function writeImageToClipboard(image: NativeImage) {
+const imageExt: Record<string, string> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+    "image/bmp": "bmp",
+    "image/gif": "gif",
+    "image/svg+xml": "svg",
+};
+
+/**
+ * 复制图片为缓存文件，可粘贴到文件夹。
+ * Electron 会把 text/uri-list 映射为系统的文件剪贴板格式。
+ */
+async function writeImageFileToClipboard(buffer: Buffer, type: string) {
+    mkdirSync(clipboardDir, { recursive: true });
+    const file = join(
+        clipboardDir,
+        `eSearch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${imageExt[type] ?? "png"}`,
+    );
+    await writeFileAsync(file, buffer);
+    // 剪贴板只保留当前文件，避免缓存目录堆积
+    for (const name of readdirSync(clipboardDir)) {
+        if (name === basename(file)) continue;
+        try {
+            rmSync(join(clipboardDir, name), { force: true });
+        } catch {}
+    }
     await clipboard.write([
         new ClipboardItem({
-            "image/png": new Blob([image.toPNG()], { type: "image/png" }),
+            "text/uri-list": url.pathToFileURL(file).href,
+        }),
+    ]);
+}
+
+/** 启动时只清理超过一天的剪贴板缓存，保留当天的文件让剪贴板在重启后仍可粘贴 */
+function cleanClipboardDir() {
+    let names: string[];
+    try {
+        names = readdirSync(clipboardDir);
+    } catch {
+        return;
+    }
+    const expire = Date.now() - 24 * 60 * 60 * 1000;
+    for (const name of names) {
+        const path = join(clipboardDir, name);
+        try {
+            if (statSync(path).mtimeMs < expire) rmSync(path, { force: true });
+        } catch {}
+    }
+}
+
+/** 写入图片到剪贴板（Electron 44 移除了 clipboard.writeImage） */
+async function writeImageToClipboard(image: NativeImage) {
+    const png = image.toPNG();
+    if (store.get("保存.复制为文件")) {
+        await writeImageFileToClipboard(png, "image/png");
+        return;
+    }
+    await clipboard.write([
+        new ClipboardItem({
+            "image/png": new Blob([png], { type: "image/png" }),
         }),
     ]);
 }
@@ -654,6 +713,8 @@ app.whenReady().then(() => {
     store.setDefaultData(defaultSetting);
 
     fixSettingTree();
+
+    cleanClipboardDir();
 
     // 初始化语言
     lan(store.get("语言.语言") || "");
@@ -1233,6 +1294,9 @@ mainOn("clip_save", async ([type]) => {
 });
 mainOn("clip_ding", ([img, type, rect]) => {
     createDingWindow(rect.x, rect.y, rect.w, rect.h, img, type);
+});
+mainOn("copy_image_file", async ([buffer, type]) => {
+    await writeImageFileToClipboard(Buffer.from(buffer), type);
 });
 mainOn("clip_mac_app", async () => {
     hideClip();
@@ -3009,6 +3073,7 @@ const defaultSetting: setting = {
         保存路径: { 图片: "", 视频: "" },
         快速保存: false,
         保存并复制: false,
+        复制为文件: false,
     },
     保存名称: { 前缀: "eSearch-", 时间: "YYYY-MM-DD-HH-mm-ss-S", 后缀: "" },
     框选后默认操作: "no",

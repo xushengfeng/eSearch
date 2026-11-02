@@ -48,6 +48,7 @@ export type RecordRect = {
 type Message = {
     clip_show: () => void;
     clip_close: () => void;
+    copy_image_file: (buffer: ArrayBuffer, type: string) => void;
     clip_ocr: (img: string, type: string) => void;
     clip_search: (img: string, type: string) => void;
     clip_qr: (img: string) => void;

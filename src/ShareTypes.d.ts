@@ -234,6 +234,8 @@ export interface setting {
         保存路径: { 图片: string; 视频: string };
         快速保存: boolean;
         保存并复制: boolean;
+        /** 复制图片时写入缓存文件，可粘贴到文件夹 */
+        复制为文件: boolean;
     };
     保存名称: { 前缀: string; 时间: string; 后缀: string };
     框选后默认操作: "no" | 功能;
