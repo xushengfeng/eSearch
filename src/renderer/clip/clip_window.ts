@@ -623,9 +623,7 @@ async function closeWin() {
     cleanClip();
     document.documentElement.style.display = "none";
     记忆框选f();
-    if (uIOhook) {
-        uIOhook.stop();
-    }
+    stopLongInput();
     // @ts-expect-error
     await scheduler.yield();
     renderSend("clip_close", []);
@@ -728,9 +726,10 @@ async function long_s() {
     if (longBusy || longCapped) return;
     longBusy = true;
     try {
-        await addLong(
-            (await getNowScreen().capture()).toImageData() ?? undefined,
-        );
+        const data = (await getNowScreen().capture()).toImageData();
+        // 截屏失败时拿到的是 0x0 的空图，不能当成一帧
+        if (!data?.width || !data?.height) return;
+        await addLong(data);
     } catch (error) {
         console.error(`长截图单帧失败: ${error}`);
         // 中途抛异常时不能把鼠标穿透留着，否则整个桌面看起来都点不动
@@ -740,35 +739,74 @@ async function long_s() {
     }
 }
 
+/** libuiohook 依赖 X11，Wayland 会话下启动会报 XkbGetKeyboard 且收不到事件 */
+function isWaylandSession() {
+    if (process.platform !== "linux") return false;
+    const ozone = process.argv.find((a) => a.startsWith("--ozone-platform="));
+    if (ozone) return ozone === "--ozone-platform=wayland";
+    return (
+        process.env.XDG_SESSION_TYPE === "wayland" ||
+        !!process.env.WAYLAND_DISPLAY
+    );
+}
+
+function startLongInterval() {
+    if (longClipTime) clearInterval(longClipTime);
+    longClipTime = setInterval(() => {
+        long_s();
+    }, store.get("广截屏.t"));
+}
+
+function stopLongInput() {
+    uIOhook?.removeAllListeners();
+    uIOhook?.stop();
+    uIOhook = null;
+    clearInterval(longClipTime);
+    longClipTime = undefined;
+    if (longMouse !== null) {
+        clearInterval(longMouse);
+        longMouse = null;
+    }
+}
+
+function startLongInput() {
+    if (store.get("广截屏.模式") !== "自动" || isWaylandSession()) {
+        startLongInterval();
+        return;
+    }
+    try {
+        uIOhook = require("uiohook-napi").uIOhook;
+        if (!uIOhook) throw new Error("uiohook 不可用");
+        uIOhook.start();
+        uIOhook.on("keyup", () => {
+            // 原来每次全局抬键都抓一整屏，完全不限流
+            const n = Date.now();
+            if (n - lastLong > 300) {
+                lastLong = n;
+                long_s();
+            }
+        });
+        uIOhook.on("wheel", () => {
+            const n = Date.now();
+            if (n - lastLong > 500) {
+                lastLong = n;
+                long_s();
+            }
+        });
+    } catch (error) {
+        console.error(`长截图无法监听按键和滚轮，改用定时截取: ${error}`);
+        uIOhook = null;
+        startLongInterval();
+    }
+}
+
 async function startLong() {
     initLong(finalRect);
-    await long_s();
+    // 先装好触发方式再截第一帧：Wayland 下第一帧可能等 portal 很久甚至失败，
+    // 放在后面会让定时截取一直没开始
+    startLongInput();
     renderSend("windowIgnoreMouse", [true]);
-    if (store.get("广截屏.模式") === "自动") {
-        uIOhook = require("uiohook-napi").uIOhook;
-        if (uIOhook) {
-            uIOhook.start();
-            uIOhook.on("keyup", () => {
-                // 原来每次全局抬键都抓一整屏，完全不限流
-                const n = Date.now();
-                if (n - lastLong > 300) {
-                    lastLong = n;
-                    long_s();
-                }
-            });
-            uIOhook.on("wheel", () => {
-                const n = Date.now();
-                if (n - lastLong > 500) {
-                    lastLong = n;
-                    long_s();
-                }
-            });
-        }
-    } else {
-        longClipTime = setInterval(() => {
-            long_s();
-        }, store.get("广截屏.t"));
-    }
+    await long_s();
 }
 
 function initLong(rect: number[]) {
@@ -848,10 +886,7 @@ async function stopLong() {
 
 async function addLong(x: ImageData | undefined) {
     if (!x) {
-        uIOhook?.stop();
-        uIOhook = null;
-        clearInterval(longClipTime);
-        if (longMouse !== null) clearInterval(longMouse);
+        stopLongInput();
         pjLong();
         return;
     }
@@ -4116,7 +4151,7 @@ let autoDo = store.get("框选后默认操作");
 let lastLong = 0;
 
 let uIOhook: typeof import("uiohook-napi")["uIOhook"] | null;
-let longClipTime: NodeJS.Timeout;
+let longClipTime: NodeJS.Timeout | undefined;
 
 const longHide = Array.from(document.body.children).filter(
     (i) => i !== longTip.el.el && i !== longPreview.el,
