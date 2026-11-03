@@ -15,6 +15,7 @@ import type {
     GithubUrlType,
     LiveDingData,
     LiveDingTarget,
+    LongControlInit,
     MainWinType,
     NormRect,
     setting,
@@ -71,6 +72,32 @@ type Message = {
     save_file_path: (type: string, isVideo?: boolean) => string;
     ok_save: (m: string, isVideo?: boolean) => void;
     clip_stop_long: () => void;
+    /** 截屏页进入紧凑长截屏：首帧已完成，交给主进程摆控制窗 */
+    long_compact_start: (data: {
+        displayId: number;
+        rect: [number, number, number, number];
+        ratio: number;
+        direction: "y" | "xy";
+        preview?: { data: string; w: number; h: number };
+    }) => void;
+    /** 紧凑模式的新拼接预览 */
+    long_compact_preview: (data: {
+        data: string;
+        w: number;
+        h: number;
+    }) => void;
+    /** 主进程通知截屏页开始抓帧 */
+    long_compact_run: (preview: boolean) => void;
+    /** 紧凑长截屏完成，恢复全屏编辑器 */
+    long_compact_end: () => void;
+    long_control_init: (data: LongControlInit) => void;
+    long_control_preview: (data: {
+        data: string;
+        w: number;
+        h: number;
+    }) => void;
+    long_control_start: () => void;
+    long_control_stop: () => void;
     clip_init: (
         displays: Electron.Display[],
         imgBuffer: Buffer | undefined,

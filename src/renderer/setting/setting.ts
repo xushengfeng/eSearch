@@ -389,6 +389,18 @@ const s: Partial<settingItem<SettingPath>> = {
                 "广截屏模式",
             ),
     },
+    "广截屏.显示模式": {
+        name: "广截屏显示模式",
+        el: (v) =>
+            xSelect<typeof v>(
+                [
+                    { value: "自动", name: "自动" },
+                    { value: "覆盖", name: "覆盖" },
+                    { value: "紧凑", name: "紧凑" },
+                ],
+                "广截屏显示模式",
+            ),
+    },
     "广截屏.t": {
         name: "广截屏定时间隔",
         el: () => xNumber("ms", { min: 10 }),
@@ -2142,7 +2154,10 @@ const main: {
                 settings: ["快速截屏.模式", "快速截屏.路径"],
             },
             { title: "连拍", settings: ["连拍.数", "连拍.间隔"] },
-            { title: "广截屏", settings: ["广截屏.模式", "广截屏.t"] },
+            {
+                title: "广截屏",
+                settings: ["广截屏.模式", "广截屏.显示模式", "广截屏.t"],
+            },
             {
                 title: "鼠标快捷键",
                 settings: ["鼠标快捷键.右键", "鼠标快捷键.双击"],

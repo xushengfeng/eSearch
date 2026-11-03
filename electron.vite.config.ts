@@ -29,6 +29,10 @@ export default defineConfig(({ mode }) => ({
                         __dirname,
                         "src/renderer/recorderTip.html",
                     ),
+                    longControl: path.resolve(
+                        __dirname,
+                        "src/renderer/longControl.html",
+                    ),
                     browser_bg: path.resolve(
                         __dirname,
                         "src/renderer/browser_bg.html",

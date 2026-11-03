@@ -379,6 +379,7 @@ export interface setting {
         模式: "自动" | "定时";
         t: number;
         方向: "y" | "xy";
+        显示模式: "自动" | "覆盖" | "紧凑";
     };
     高级图片编辑: {
         配置: {
@@ -599,3 +600,20 @@ type EditToolsType =
     | "translate";
 
 type GithubUrlType = Omit<keyof setting["网络"]["github镜像"], "启用">;
+
+/** 紧凑长截屏控制窗的方向提示 */
+export type LongControlHint = {
+    text: string;
+    subtext?: string;
+    arrow?: "left" | "right" | "up" | "down" | "other";
+    warn?: boolean;
+};
+
+/** 紧凑长截屏控制窗初始化数据 */
+export type LongControlInit = {
+    wayland: boolean;
+    started: boolean;
+    preview: boolean;
+    hint?: LongControlHint;
+    firstPreview?: { data: string; w: number; h: number };
+};

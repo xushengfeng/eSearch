@@ -1,0 +1,187 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+#lc_root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: var(--font-color);
+    font-family: var(--main-font);
+    background: var(--bg);
+    border-radius: var(--border-radius);
+}
+
+#lc_head {
+    height: 36px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    background: color-mix(in srgb, var(--emphasis-color) 25%, var(--bg));
+    -webkit-app-region: drag;
+    cursor: grab;
+    user-select: none;
+}
+
+#lc_head button {
+    -webkit-app-region: no-drag;
+    background: transparent;
+    outline: none;
+}
+
+#lc_head button:hover {
+    background: var(--bar-hover-color);
+}
+
+.lc_grip {
+    flex: none;
+    color: var(--font-color-l);
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+#lc_title {
+    flex: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#lc_status {
+    min-width: 0;
+    font-size: 11px;
+    color: var(--font-color-l);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#lc_status.warn {
+    color: #e5484d;
+}
+
+#lc_space {
+    flex: 1;
+}
+
+#lc_btn {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+}
+
+#lc_close {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+}
+
+#lc_close:hover {
+    background: var(--bar-hover-color);
+}
+
+#lc_sub {
+    flex: none;
+    height: 22px;
+    padding: 0 8px 4px;
+    color: var(--font-color-l);
+    font-size: 10.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-app-region: drag;
+    user-select: none;
+}
+
+#lc_preview {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    -webkit-app-region: drag;
+}
+
+#lc_img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+}
+
+#lc_card {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 7px;
+    border: 1px dashed #e5484d;
+    border-radius: 6px;
+    background: var(--bg);
+    box-shadow: var(--shadow);
+    -webkit-app-region: drag;
+    cursor: grab;
+    user-select: none;
+}
+
+.lc_card_text {
+    min-width: 0;
+}
+
+.lc_card_title {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.lc_card_sub {
+    margin-top: 1px;
+    color: var(--font-color-l);
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lc_card_arrow {
+    margin-left: auto;
+    flex: none;
+    color: #e5484d;
+    font-size: 14px;
+    font-weight: 700;
+}

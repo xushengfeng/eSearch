@@ -51,12 +51,15 @@ import Store from "../../lib/store/store";
 import time_format from "../../lib/time_format";
 import { getLans, lan, t } from "../../lib/translate/translate";
 import { typedEntries } from "../../lib/utils";
+import { isWaylandSession } from "../../lib/wayland";
 import initScreenShots from "../renderer/screenShot/screenShot";
 import type {
     CaptureSourceInfo,
     EditToolsType,
     GithubUrlType,
     LiveDingData,
+    LongControlHint,
+    LongControlInit,
     MainWinType,
     setting,
     translateWinType,
@@ -687,7 +690,11 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
         lianPai();
     },
     结束广截屏: () => {
-        mainSend(clipWindow?.webContents, "clip_stop_long", []);
+        if (longCompactActive) {
+            requestLongControlStop();
+        } else {
+            mainSend(clipWindow?.webContents, "clip_stop_long", []);
+        }
     },
     剪贴板贴图: () => dingFromClipBoard(),
     主页面: () => createMainWindow({ type: "text", content: "" }),
@@ -1269,6 +1276,7 @@ function createClipWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            backgroundThrottling: false,
             zoomFactor: store.get("全局.缩放") || 1.0,
         },
     });
@@ -1281,6 +1289,7 @@ function createClipWindow() {
 
     _clipWindow.webContents.on("render-process-gone", (_e, d) => {
         console.log(d);
+        closeLongControl();
         const id = dialog.showMessageBoxSync({
             message: t("截屏程序崩溃，是否重启？"),
             buttons: [t("重启"), t("退出应用")],
@@ -1303,8 +1312,454 @@ function createClipWindow() {
                 message: d.message,
             });
     });
+    _clipWindow.on("closed", () => {
+        closeLongControl();
+    });
     return _clipWindow;
 }
+
+// 紧凑长截屏控制窗
+const LONG_CONTROL_HEADER = 36;
+const LONG_CONTROL_PAD = 6;
+const LONG_CONTROL_MIN_PREVIEW = 160;
+const LONG_CONTROL_MARGIN = 12;
+const LONG_CONTROL_MIN_WIDTH = 240;
+const LONG_CONTROL_MAX_WIDTH = 360;
+const LONG_CONTROL_BUTTON_WIDTH = 240;
+const LONG_CONTROL_BUTTON_HEIGHT = 42;
+const LONG_CONTROL_BUTTON_HEIGHT_HINT = 58;
+
+type LongControlPlacement = {
+    preview: boolean;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    maxHeight: number;
+    hint?: LongControlHint;
+};
+
+type LongControlInfo = {
+    displayId: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    maxHeight: number;
+    preview: boolean;
+    wayland: boolean;
+    workArea: { x: number; y: number; width: number; height: number };
+};
+
+let longControlWindow: BrowserWindow | null = null;
+let longControlPhase: "idle" | "positioning" | "running" | "finishing" = "idle";
+let longControlInfo: LongControlInfo | null = null;
+let longCompactActive = false;
+
+function longControlPreviewHeight(
+    width: number,
+    imageW: number,
+    imageH: number,
+) {
+    const contentWidth = Math.max(1, width - LONG_CONTROL_PAD * 2);
+    const imageHeight = Math.max(1, (imageH * contentWidth) / imageW);
+    return (
+        LONG_CONTROL_HEADER +
+        LONG_CONTROL_PAD * 2 +
+        Math.max(LONG_CONTROL_MIN_PREVIEW, imageHeight)
+    );
+}
+
+function displayDirection(
+    from: Electron.Display,
+    to: Electron.Display,
+): "left" | "right" | "up" | "down" | "other" {
+    const fx = from.bounds.x + from.bounds.width / 2;
+    const fy = from.bounds.y + from.bounds.height / 2;
+    const tx = to.bounds.x + to.bounds.width / 2;
+    const ty = to.bounds.y + to.bounds.height / 2;
+    const dx = tx - fx;
+    const dy = ty - fy;
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return "other";
+    if (Math.abs(dx) >= Math.abs(dy)) return dx > 0 ? "right" : "left";
+    return dy > 0 ? "down" : "up";
+}
+
+function directionText(
+    direction: "left" | "right" | "up" | "down" | "other",
+    screen = false,
+) {
+    if (screen) {
+        if (direction === "left") return t("拖到左侧屏幕");
+        if (direction === "right") return t("拖到右侧屏幕");
+        if (direction === "up") return t("拖到上方屏幕");
+        if (direction === "down") return t("拖到下方屏幕");
+        return t("拖到其他屏幕");
+    }
+    if (direction === "left") return t("拖到选区左侧");
+    if (direction === "right") return t("拖到选区右侧");
+    if (direction === "up") return t("拖到选区上方");
+    if (direction === "down") return t("拖到选区下方");
+    return t("拖到选区外");
+}
+
+function longControlPlacement(
+    display: Electron.Display,
+    rect: [number, number, number, number],
+    ratio: number,
+    preview?: { w: number; h: number },
+): LongControlPlacement {
+    const work = display.workArea;
+    const margin = LONG_CONTROL_MARGIN;
+    const wayland = isWaylandSession();
+    const sel = {
+        x: display.bounds.x + rect[0] / ratio,
+        y: display.bounds.y + rect[1] / ratio,
+        w: rect[2] / ratio,
+        h: rect[3] / ratio,
+    };
+    const selRight = sel.x + sel.w;
+    const selBottom = sel.y + sel.h;
+    const rightSpace = work.x + work.width - selRight - margin;
+    const leftSpace = sel.x - work.x - margin;
+
+    if (
+        preview &&
+        preview.w > 0 &&
+        preview.h > 0 &&
+        (rightSpace >= LONG_CONTROL_MIN_WIDTH ||
+            leftSpace >= LONG_CONTROL_MIN_WIDTH)
+    ) {
+        const side = rightSpace >= leftSpace ? "right" : "left";
+        const space = side === "right" ? rightSpace : leftSpace;
+        const width = Math.round(
+            Math.max(
+                LONG_CONTROL_MIN_WIDTH,
+                Math.min(LONG_CONTROL_MAX_WIDTH, space),
+            ),
+        );
+        const x = Math.round(
+            side === "right" ? selRight + margin : sel.x - width - margin,
+        );
+        const y = work.y + margin;
+        const maxHeight = Math.max(
+            LONG_CONTROL_BUTTON_HEIGHT_HINT,
+            work.height - margin * 2,
+        );
+        const height = Math.min(
+            maxHeight,
+            longControlPreviewHeight(width, preview.w, preview.h),
+        );
+        return {
+            preview: true,
+            x,
+            y,
+            width,
+            height: Math.round(height),
+            maxHeight,
+            hint: wayland
+                ? {
+                      text: directionText(side),
+                      subtext: t("标题栏贴住屏幕顶部"),
+                      arrow: side,
+                  }
+                : undefined,
+        };
+    }
+
+    const width = LONG_CONTROL_BUTTON_WIDTH;
+    const height = wayland
+        ? LONG_CONTROL_BUTTON_HEIGHT_HINT
+        : LONG_CONTROL_BUTTON_HEIGHT;
+    const clampX = (v: number) =>
+        Math.round(
+            Math.max(
+                work.x + margin,
+                Math.min(work.x + work.width - width - margin, v),
+            ),
+        );
+    const clampY = (v: number) =>
+        Math.round(
+            Math.max(
+                work.y + margin,
+                Math.min(work.y + work.height - height - margin, v),
+            ),
+        );
+    const centerX = clampX(sel.x + sel.w / 2 - width / 2);
+    const centerY = clampY(sel.y + sel.h / 2 - height / 2);
+    const candidates: {
+        side: "left" | "right" | "up" | "down";
+        x: number;
+        y: number;
+    }[] = [
+        { side: "down", x: centerX, y: Math.round(selBottom + margin) },
+        { side: "right", x: Math.round(selRight + margin), y: centerY },
+        { side: "up", x: centerX, y: Math.round(sel.y - height - margin) },
+        { side: "left", x: Math.round(sel.x - width - margin), y: centerY },
+    ];
+    const fits = (p: { x: number; y: number }) =>
+        p.x >= work.x + margin &&
+        p.y >= work.y + margin &&
+        p.x + width <= work.x + work.width - margin &&
+        p.y + height <= work.y + work.height - margin;
+    const found = candidates.find(fits);
+    if (found) {
+        return {
+            preview: false,
+            x: found.x,
+            y: found.y,
+            width,
+            height,
+            maxHeight: work.height - margin * 2,
+            hint: wayland
+                ? {
+                      text: directionText(found.side),
+                      arrow: found.side,
+                  }
+                : undefined,
+        };
+    }
+
+    const other = screen.getAllDisplays().find((d) => d.id !== display.id);
+    if (other) {
+        const direction = displayDirection(display, other);
+        return {
+            preview: false,
+            x: other.workArea.x + margin,
+            y: other.workArea.y + margin,
+            width,
+            height,
+            maxHeight: other.workArea.height - margin * 2,
+            hint: wayland
+                ? {
+                      text: directionText(direction, true),
+                      arrow: direction,
+                  }
+                : undefined,
+        };
+    }
+
+    // 四周和别的屏幕都没有位置时，贴选区底边放。
+    // 每帧底部的控制窗会被后面的画面覆盖，最后一帧截取前会隐藏它，
+    // 和覆盖模式里结束按钮的处理方式一致。
+    const x = Math.round(
+        Math.max(
+            work.x + margin,
+            Math.min(
+                work.x + work.width - width - margin,
+                sel.x + sel.w / 2 - width / 2,
+            ),
+        ),
+    );
+    const y = Math.round(
+        Math.max(
+            work.y + margin,
+            Math.min(
+                work.y + work.height - height - margin,
+                selBottom - height,
+            ),
+        ),
+    );
+    return {
+        preview: false,
+        x,
+        y,
+        width,
+        height,
+        maxHeight: work.height - margin * 2,
+        hint: wayland
+            ? {
+                  text: t("拖到选区底部"),
+                  subtext: t("结束时自动隐藏"),
+                  arrow: "down",
+              }
+            : undefined,
+    };
+}
+
+function closeLongControl() {
+    const win = longControlWindow;
+    longControlWindow = null;
+    longControlPhase = "idle";
+    longControlInfo = null;
+    longCompactActive = false;
+    if (win && !win.isDestroyed()) {
+        win.close();
+    }
+}
+
+function requestLongControlStop() {
+    if (!longCompactActive || longControlPhase === "finishing") return;
+    longControlPhase = "finishing";
+    const win = longControlWindow;
+    if (win && !win.isDestroyed()) win.hide();
+    setTimeout(() => {
+        if (clipWindow && !clipWindow.isDestroyed()) {
+            mainSend(clipWindow.webContents, "clip_stop_long", []);
+        }
+    }, 100);
+}
+
+function updateLongControlHeight(preview: { w: number; h: number }) {
+    const win = longControlWindow;
+    const info = longControlInfo;
+    if (!win || win.isDestroyed() || !info?.preview) return;
+    if (preview.w <= 0 || preview.h <= 0) return;
+
+    let maxHeight = info.maxHeight;
+    if (!info.wayland) {
+        const [, y] = win.getPosition();
+        maxHeight = Math.max(
+            LONG_CONTROL_BUTTON_HEIGHT_HINT,
+            info.workArea.y + info.workArea.height - LONG_CONTROL_MARGIN - y,
+        );
+    }
+    const height = Math.round(
+        Math.min(
+            maxHeight,
+            longControlPreviewHeight(info.width, preview.w, preview.h),
+        ),
+    );
+    if (height <= info.height + 8) return;
+    info.height = height;
+    if (info.wayland) {
+        win.setSize(info.width, height);
+    } else {
+        const [x, y] = win.getPosition();
+        win.setBounds({ x, y, width: info.width, height });
+    }
+}
+
+function createLongControlWindow(data: {
+    displayId: number;
+    rect: [number, number, number, number];
+    ratio: number;
+    direction: "y" | "xy";
+    preview?: { data: string; w: number; h: number };
+}) {
+    closeLongControl();
+    longCompactActive = true;
+    const display =
+        screen.getAllDisplays().find((d) => d.id === data.displayId) ??
+        screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const wayland = isWaylandSession();
+    const placement = longControlPlacement(
+        display,
+        data.rect,
+        data.ratio,
+        data.preview,
+    );
+    longControlPhase = "positioning";
+    longControlInfo = {
+        displayId: display.id,
+        x: placement.x,
+        y: placement.y,
+        width: placement.width,
+        height: placement.height,
+        maxHeight: placement.maxHeight,
+        preview: placement.preview,
+        wayland,
+        workArea: {
+            x: display.workArea.x,
+            y: display.workArea.y,
+            width: display.workArea.width,
+            height: display.workArea.height,
+        },
+    };
+
+    const win = new BrowserWindow({
+        x: placement.x,
+        y: placement.y,
+        width: placement.width,
+        height: placement.height,
+        show: false,
+        frame: false,
+        transparent: true,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        autoHideMenuBar: true,
+        hasShadow: false,
+        resizable: true,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            backgroundThrottling: false,
+        },
+    });
+    longControlWindow = win;
+    if (!dev) win.setAlwaysOnTop(true, "screen-saver");
+    rendererPath(win, "longControl.html");
+    if (dev) win.webContents.openDevTools();
+
+    win.on("closed", () => {
+        if (longControlWindow !== win) return;
+        longControlWindow = null;
+        if (longCompactActive) requestLongControlStop();
+    });
+
+    win.webContents.on("did-fail-load", () => {
+        console.error("紧凑长截屏控制窗加载失败");
+        requestLongControlStop();
+    });
+    win.webContents.on("render-process-gone", () => {
+        requestLongControlStop();
+    });
+
+    win.webContents.once("did-finish-load", () => {
+        if (longControlWindow !== win) return;
+        const info: LongControlInit = {
+            wayland,
+            started: !wayland,
+            preview: placement.preview,
+            hint: placement.hint,
+            firstPreview: data.preview,
+        };
+        mainSend(win.webContents, "long_control_init", [info]);
+        win.showInactive();
+        if (!wayland) {
+            longControlPhase = "running";
+            mainSend(clipWindow?.webContents, "long_compact_run", [
+                placement.preview,
+            ]);
+        }
+    });
+}
+
+mainOn("long_compact_start", ([data]) => {
+    try {
+        createLongControlWindow(data);
+    } catch (error) {
+        console.error("创建紧凑长截屏控制窗失败", error);
+        mainSend(clipWindow?.webContents, "clip_stop_long", []);
+    }
+});
+
+mainOn("long_compact_preview", ([data]) => {
+    if (!longCompactActive || longControlPhase === "finishing") return;
+    const win = longControlWindow;
+    const info = longControlInfo;
+    if (!win || win.isDestroyed() || !info?.preview) return;
+    mainSend(win.webContents, "long_control_preview", [data]);
+    updateLongControlHeight(data);
+});
+
+mainOn("long_control_start", () => {
+    if (!longCompactActive || longControlPhase !== "positioning") return;
+    const preview = longControlInfo?.preview ?? false;
+    longControlPhase = "running";
+    mainSend(clipWindow?.webContents, "long_compact_run", [preview]);
+});
+
+mainOn("long_control_stop", () => {
+    requestLongControlStop();
+});
+
+mainOn("long_compact_end", async () => {
+    if (!longCompactActive) return;
+    const displayId = longControlInfo?.displayId;
+    closeLongControl();
+    await fullScreen(displayId);
+});
 
 mainOn("clip_show", () => {
     fullScreen();
@@ -1397,10 +1852,12 @@ function showPhoto(imgPath?: string) {
     }
 }
 
-async function fullScreen() {
-    const nearestScreen = screen.getDisplayNearestPoint(
-        screen.getCursorScreenPoint(),
-    );
+async function fullScreen(displayId?: number) {
+    const nearestScreen =
+        (displayId !== undefined
+            ? screen.getAllDisplays().find((d) => d.id === displayId)
+            : undefined) ??
+        screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
     const win = await getClipWin();
     win.setBounds({
         x: nearestScreen.bounds.x,
@@ -1408,6 +1865,7 @@ async function fullScreen() {
     });
     win.show();
     win.setSimpleFullScreen(true);
+    win.focus();
 }
 
 async function sendCaptureEvent(data?: Buffer, type?: 功能) {
@@ -1422,6 +1880,7 @@ async function sendCaptureEvent(data?: Buffer, type?: 功能) {
 
 /** 关闭或隐藏截屏 */
 function exitFullScreen() {
+    closeLongControl();
     if (keepClip) {
         clipWindow?.setSimpleFullScreen(false);
         clipWindow?.hide();
@@ -3275,6 +3734,7 @@ const defaultSetting: setting = {
         模式: "自动",
         t: 800,
         方向: "y",
+        显示模式: "自动",
     },
     高级图片编辑: { 配置: [], 默认配置: "" },
     网络: {

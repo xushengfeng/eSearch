@@ -30,6 +30,7 @@ import { ele2jsKeyCode, jsKeyCodeDisplay } from "../../../lib/key";
 import open_with from "../../../lib/open_with";
 import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
+import { isWaylandSession } from "../../../lib/wayland";
 import { writeImage, writeText } from "../lib/clipboard";
 import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
@@ -718,6 +719,50 @@ function initRecord() {
 
 let longBusy = false;
 let longCapped = false;
+let longCompact = false;
+let longCompactPreview = false;
+let longCompactStarted = false;
+let longPreviewLastTime = 0;
+
+function resetLongRunState() {
+    longCapped = false;
+    longRunning = true;
+    longInited = true;
+    longCompact = false;
+    longCompactPreview = false;
+    longCompactStarted = false;
+    longPreviewLastTime = 0;
+    finishLongInside = false;
+    longX.img = null;
+    longX.imgXY = { x: 0, y: 0 };
+    longX.lastImg = null;
+    longX.lastXY = { x: 0, y: 0 };
+}
+
+function makeLongPreview(): [string, number, number] | undefined {
+    const img = longX.img;
+    if (!img?.width || !img?.height) return;
+    const canvas = document.createElement("canvas");
+    const scale = Math.min(360 / img.width, 1000 / img.height);
+    canvas.width = Math.max(1, Math.round(img.width * scale));
+    canvas.height = Math.max(1, Math.round(img.height * scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return [canvas.toDataURL("image/webp", 0.82), canvas.width, canvas.height];
+}
+
+function queueLongPreview() {
+    if (!longCompact || !longCompactPreview) return;
+    const now = performance.now();
+    if (now - longPreviewLastTime < 250) return;
+    const preview = makeLongPreview();
+    if (!preview) return;
+    longPreviewLastTime = now;
+    renderSend("long_compact_preview", [
+        { data: preview[0], w: preview[1], h: preview[2] },
+    ]);
+}
 
 async function long_s(forceLast = false) {
     // 上一帧还没拼完就跳过这一帧：
@@ -733,21 +778,10 @@ async function long_s(forceLast = false) {
     } catch (error) {
         console.error(`长截图单帧失败: ${error}`);
         // 中途抛异常时不能把鼠标穿透留着，否则整个桌面看起来都点不动
-        renderSend("windowIgnoreMouse", [false]);
+        if (!longCompact) renderSend("windowIgnoreMouse", [false]);
     } finally {
         longBusy = false;
     }
-}
-
-/** libuiohook 依赖 X11，Wayland 会话下启动会报 XkbGetKeyboard 且收不到事件 */
-function isWaylandSession() {
-    if (process.platform !== "linux") return false;
-    const ozone = process.argv.find((a) => a.startsWith("--ozone-platform="));
-    if (ozone) return ozone === "--ozone-platform=wayland";
-    return (
-        process.env.XDG_SESSION_TYPE === "wayland" ||
-        !!process.env.WAYLAND_DISPLAY
-    );
 }
 
 function startLongInterval() {
@@ -800,7 +834,51 @@ function startLongInput() {
     }
 }
 
+function longDisplayMode() {
+    const mode = store.get("广截屏.显示模式");
+    if (mode === "自动") return isWaylandSession() ? "紧凑" : "覆盖";
+    return mode;
+}
+
+async function startLongCompact() {
+    longCompact = true;
+    longCompactPreview = false;
+    longCompactStarted = false;
+    longPreviewLastTime = 0;
+
+    记忆框选值[nowScreenId] = [
+        finalRect[0],
+        finalRect[1],
+        finalRect[2],
+        finalRect[3],
+    ];
+    store.set("框选.记忆.rects", 记忆框选值);
+
+    // 先隐藏全屏截屏层再抓首帧：Wayland 下 portal 提示框不会再被遮罩挡住
+    renderSendSync("clip_hide", []);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    await long_s();
+
+    const preview = makeLongPreview();
+    renderSend("long_compact_start", [
+        {
+            displayId: nowScreenId,
+            rect: finalRect,
+            ratio,
+            direction: longFX,
+            preview: preview
+                ? { data: preview[0], w: preview[1], h: preview[2] }
+                : undefined,
+        },
+    ]);
+}
+
 async function startLong() {
+    resetLongRunState();
+    if (longDisplayMode() === "紧凑") {
+        await startLongCompact();
+        return;
+    }
     initLong(finalRect);
     // 先装好触发方式再截第一帧：Wayland 下第一帧可能等 portal 很久甚至失败，
     // 放在后面会让定时截取一直没开始
@@ -875,6 +953,25 @@ async function stopLong() {
     for (let i = 0; longBusy && i < 40; i++) {
         await new Promise((r) => setTimeout(r, 50));
     }
+
+    if (longCompact) {
+        // 控制窗可能贴在选区底部，和覆盖模式的结束按钮一样，
+        // 用隐藏控制窗后的最后一帧覆盖掉它
+        longCompactPreview = false;
+        try {
+            await long_s(true);
+        } finally {
+            longCompact = false;
+            longCompactStarted = false;
+            try {
+                await addLong(undefined);
+            } finally {
+                renderSend("long_compact_end", []);
+            }
+        }
+        return;
+    }
+
     // 结束按钮压在选区里时，先藏起来并等界面刷新，再截最后一帧覆盖它
     if (finishLongInside) {
         lr.style({ opacity: "0" });
@@ -1041,6 +1138,11 @@ function longPutImg(
     const ny = y - longX.imgXY.y;
     newCtx.drawImage(img, nx, ny);
     longX.img = newCanvas;
+
+    if (longCompact) {
+        queueLongPreview();
+        return;
+    }
 
     longPreview.clear();
     newCanvas.style.maxWidth = "100%";
@@ -4489,6 +4591,13 @@ renderOn("clip_init", async ([_displays, imgBuffer, mainid, act, pid]) => {
 });
 
 renderOn("clip_stop_long", () => stopLong());
+
+renderOn("long_compact_run", ([preview]) => {
+    if (!longCompact || longCompactStarted) return;
+    longCompactStarted = true;
+    longCompactPreview = preview;
+    startLongInput();
+});
 
 renderOn("captureSources", ([requestId, sources]) => {
     const cb = captureSourceRequests.get(requestId);
