@@ -426,10 +426,6 @@ body input {
     cursor: pointer;
 }
 
-#long_finish:hover {
-    background-color: transparent;
-}
-
 /* 编辑栏 */
 .range-b {
     font-size: calc(var(--bar-size) / 3.75);

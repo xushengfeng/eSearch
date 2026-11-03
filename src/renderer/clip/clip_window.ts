@@ -719,7 +719,7 @@ function initRecord() {
 let longBusy = false;
 let longCapped = false;
 
-async function long_s() {
+async function long_s(forceLast = false) {
     // 上一帧还没拼完就跳过这一帧：
     // 并发进 addLong 会抢 longX.lastImg/lastXY，
     // 拼出来的偏移互相错位
@@ -729,7 +729,7 @@ async function long_s() {
         const data = (await getNowScreen().capture()).toImageData();
         // 截屏失败时拿到的是 0x0 的空图，不能当成一帧
         if (!data?.width || !data?.height) return;
-        await addLong(data);
+        await addLong(data, forceLast);
     } catch (error) {
         console.error(`长截图单帧失败: ${error}`);
         // 中途抛异常时不能把鼠标穿透留着，否则整个桌面看起来都点不动
@@ -836,20 +836,20 @@ function initLong(rect: number[]) {
         top: `${rect[1] / ratio}px`,
         width: `${rect[2] / ratio}px`,
         height: `${rect[3] / ratio}px`,
+        opacity: "",
     });
     const w = 16;
     let right = 0;
     let botton = 0;
-    if ((rect[2] + rect[3]) / ratio + w > window.innerHeight) {
-        if ((rect[0] + rect[2]) / ratio + w > window.innerWidth) {
-        } else {
-            right = -w;
-        }
-    } else {
+    // 优先放在选区下方，放不下再放右侧，都放不下才盖在选区里
+    if ((rect[1] + rect[3]) / ratio + w <= window.innerHeight) {
         botton = -w;
+    } else if ((rect[0] + rect[2]) / ratio + w <= window.innerWidth) {
+        right = -w;
     }
     finishLongB.style.right = `${right}px`;
     finishLongB.style.bottom = `${botton}px`;
+    finishLongInside = right === 0 && botton === 0;
     finishLongB.onclick = stopLong;
 
     let longWidth = 0;
@@ -869,12 +869,19 @@ function initLong(rect: number[]) {
 }
 
 async function stopLong() {
-    // 再截屏以覆盖结束按钮
-    await long_s();
-    // 等上一次抓取真的拼完，否则最后一帧会落在 pjLong 之后，成品少一截
+    // 先停掉按键/滚轮/定时触发，避免最后一帧还没截又来了新帧
+    stopLongInput();
+    // 等已经在抓的那一帧拼完，否则下面的最后一帧会直接被跳过
     for (let i = 0; longBusy && i < 40; i++) {
         await new Promise((r) => setTimeout(r, 50));
     }
+    // 结束按钮压在选区里时，先藏起来并等界面刷新，再截最后一帧覆盖它
+    if (finishLongInside) {
+        lr.style({ opacity: "0" });
+        // 等一帧让结束按钮真的从画面上消失；窗口不在前台时 rAF 可能被节流，用定时器更稳
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    await long_s(finishLongInside);
 
     lr.style({ opacity: "0" });
     renderSend("windowIgnoreMouse", [false]);
@@ -884,7 +891,7 @@ async function stopLong() {
     }
 }
 
-async function addLong(x: ImageData | undefined) {
+async function addLong(x: ImageData | undefined, forceLast = false) {
     if (!x) {
         stopLongInput();
         pjLong();
@@ -906,7 +913,15 @@ async function addLong(x: ImageData | undefined) {
 
     const match = await longMatch(longX.lastImg, canvas);
 
-    if (!match.clipedImg) return;
+    if (!match.clipedImg) {
+        // 结束截屏时页面已经不动，匹配偏移是 0，最后一帧会被丢弃。
+        // 但结束按钮刚被藏起来，需要用它覆盖上一帧同位置，按钮才不会留在成品里。
+        if (forceLast) {
+            longPutImg(canvas, longX.lastXY.x, longX.lastXY.y);
+            longX.lastImg = canvas;
+        }
+        return;
+    }
 
     const dx = longFX === "xy" ? match.dx : 0;
     const dy = match.dy;
@@ -4167,6 +4182,8 @@ const longX = {
 let longRunning = false;
 let longInited = false;
 let longMouse: NodeJS.Timeout | null = null;
+/** 结束按钮无法避开选区时会盖住画面，结束时需要先藏起来再截最后一帧 */
+let finishLongInside = false;
 
 let longFX: typeof toolsX.long.el.gv = "y";
 
