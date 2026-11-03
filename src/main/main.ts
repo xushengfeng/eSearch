@@ -283,7 +283,39 @@ async function copyText(callback: (t: string) => void) {
     }, 300);
 }
 
-/** 读取剪贴板图片（Electron 44 移除了 clipboard.readImage） */
+const imageFileRe = /\.(png|jpe?g|webp|bmp|gif|svg|ico|avif|tiff?)$/i;
+
+/** 读取剪贴板中的图片文件路径：支持 text/uri-list 和纯文本路径 */
+async function readImagePathFromClipboard(items: ClipboardItem[]) {
+    async function readText(type: string) {
+        const item = items.find((i) => i.types.includes(type));
+        if (!item) return "";
+        const data = await item.getType(type);
+        if (!("arrayBuffer" in data)) return "";
+        return Buffer.from(await data.arrayBuffer()).toString("utf8");
+    }
+    const text =
+        (await readText("text/uri-list")) ||
+        (await readText("text/plain")) ||
+        (await clipboard.readText());
+    for (const line of text.split(/\r?\n/)) {
+        const value = line.trim().replace(/^["']|["']$/g, "");
+        if (!value || value.startsWith("#")) continue;
+        let path = value;
+        try {
+            if (/^file:/i.test(value)) path = url.fileURLToPath(value);
+        } catch {
+            continue;
+        }
+        if (!imageFileRe.test(path)) continue;
+        try {
+            if (statSync(path).isFile()) return path;
+        } catch {}
+    }
+    return "";
+}
+
+/** 读取剪贴板图片，图片文件路径也会读取（Electron 44 移除了 clipboard.readImage） */
 async function readImageFromClipboard() {
     const items = await clipboard.read();
     for (const mime of ["image/png", "image/jpeg"] as const) {
@@ -294,6 +326,11 @@ async function readImageFromClipboard() {
         return nativeImage.createFromBuffer(
             Buffer.from(await data.arrayBuffer()),
         );
+    }
+    const path = await readImagePathFromClipboard(items);
+    if (path) {
+        const img = nativeImage.createFromPath(path);
+        if (!img.isEmpty()) return img;
     }
     return nativeImage.createEmpty();
 }
