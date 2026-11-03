@@ -27,6 +27,11 @@ import {
 import hotkeys from "hotkeys-js";
 import { findOffset } from "picture_match";
 import { ele2jsKeyCode, jsKeyCodeDisplay } from "../../../lib/key";
+import {
+    type LongFrame,
+    type LongStep,
+    LongStitcher,
+} from "../../../lib/longStitch";
 import open_with from "../../../lib/open_with";
 import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
@@ -724,15 +729,177 @@ let longCompactPreview = false;
 let longCompactStarted = false;
 let longPreviewLastTime = 0;
 
-type LongClip = {
-    srcDX: number;
-    srcDY: number;
-    dw: number;
-    dh: number;
-    drawX: number;
-    drawY: number;
+let longStitcher: LongStitcher | null = null;
+type LongDebugRecord = {
+    file: string;
+    width: number;
+    height: number;
+    data: Buffer;
+    meta: Record<string, unknown>;
 };
-let lastLongClip: LongClip | null = null;
+
+let longDebugRecords: LongDebugRecord[] = [];
+let longDebugManifest: Record<string, unknown> | null = null;
+let longDebugBytes = 0;
+let longDebugTruncated = false;
+const MAX_LONG_DEBUG_BYTES = 100 * 1024 * 1024;
+
+declare global {
+    interface Window {
+        exportLongDebug: () => string | undefined;
+    }
+}
+
+function resetLongDebug() {
+    longDebugRecords = [];
+    longDebugManifest = {
+        version: 1,
+        createdAt: new Date().toISOString(),
+        mode: longDisplayMode(),
+        direction: longFX,
+        displayId: nowScreenId,
+        rect: finalRect,
+        ratio,
+        screen: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+        },
+        settings: {
+            模式: store.get("广截屏.模式"),
+            t: store.get("广截屏.t"),
+        },
+    };
+    longDebugBytes = 0;
+    longDebugTruncated = false;
+}
+
+function recordLongDebug(frame: LongFrame, step: LongStep, forceLast: boolean) {
+    try {
+        const zlib = require("node:zlib") as typeof import("node:zlib");
+        const data = zlib.deflateRawSync(
+            Buffer.from(
+                frame.data.buffer,
+                frame.data.byteOffset,
+                frame.data.byteLength,
+            ),
+        );
+        if (longDebugBytes + data.byteLength > MAX_LONG_DEBUG_BYTES) {
+            if (!longDebugTruncated) {
+                longDebugTruncated = true;
+                console.warn("长截屏调试数据超过内存上限，停止记录后续帧");
+            }
+            return;
+        }
+        longDebugBytes += data.byteLength;
+        const index = longDebugRecords.length;
+        const file = `${String(index).padStart(4, "0")}.rgba.z`;
+        longDebugRecords.push({
+            file,
+            width: frame.width,
+            height: frame.height,
+            data,
+            meta: {
+                index,
+                file,
+                width: frame.width,
+                height: frame.height,
+                time: Date.now(),
+                offset: step.offset,
+                appliedOffset: step.applied,
+                margins: step.margins,
+                patch: step.patch,
+                bounds: step.bounds,
+                final: step.final,
+                forceLast,
+            },
+        });
+    } catch (error) {
+        console.error("记录长截屏调试帧失败", error);
+    }
+}
+
+function exportLongDebug() {
+    if (!longDebugManifest || longDebugRecords.length === 0) {
+        console.warn("没有可导出的长截屏调试数据");
+        return;
+    }
+    try {
+        const fs = require("node:fs") as typeof import("node:fs");
+        const path = require("node:path") as typeof import("node:path");
+        const zlib = require("node:zlib") as typeof import("node:zlib");
+        const base = renderSendSync("userDataPath", []);
+        if (!base) return;
+        const dir = path.join(base, "long-debug", String(Date.now()));
+        fs.mkdirSync(path.join(dir, "frames"), { recursive: true });
+        for (const record of longDebugRecords) {
+            fs.writeFileSync(
+                path.join(dir, "frames", record.file),
+                record.data,
+            );
+        }
+        fs.writeFileSync(
+            path.join(dir, "frames.jsonl"),
+            `${longDebugRecords.map((r) => JSON.stringify(r.meta)).join("\n")}\n`,
+        );
+        let resultMeta: { width: number; height: number } | undefined;
+        if (longX.img) {
+            const ctx = longX.img.getContext("2d");
+            if (ctx) {
+                const image = ctx.getImageData(
+                    0,
+                    0,
+                    longX.img.width,
+                    longX.img.height,
+                );
+                fs.writeFileSync(
+                    path.join(dir, "result.rgba.z"),
+                    zlib.deflateRawSync(
+                        Buffer.from(
+                            image.data.buffer,
+                            image.data.byteOffset,
+                            image.data.byteLength,
+                        ),
+                    ),
+                );
+                resultMeta = {
+                    width: longX.img.width,
+                    height: longX.img.height,
+                };
+                fs.writeFileSync(
+                    path.join(dir, "result.json"),
+                    JSON.stringify({
+                        ...resultMeta,
+                        frameCount: longDebugRecords.length,
+                    }),
+                );
+            }
+        }
+        const manifest = {
+            ...longDebugManifest,
+            frameCount: longDebugRecords.length,
+            truncated: longDebugTruncated,
+            exportedAt: new Date().toISOString(),
+            result: resultMeta,
+        };
+        fs.writeFileSync(
+            path.join(dir, "manifest.json"),
+            JSON.stringify(manifest, null, 2),
+        );
+        fs.writeFileSync(
+            path.join(dir, "README.txt"),
+            `长截屏调试数据\n\n帧文件为 raw RGBA + zlib deflateRaw，元数据见 frames.jsonl。\n复现：pnpm long-stitch "${dir}" [--from N] [--to N] [--step N]\n`,
+        );
+        console.log("长截屏调试数据已导出", dir);
+        longDebugRecords = [];
+        longDebugBytes = 0;
+        return dir;
+    } catch (error) {
+        console.error("导出长截屏调试数据失败", error);
+        return;
+    }
+}
+
+window.exportLongDebug = exportLongDebug;
 
 function resetLongRunState() {
     longCapped = false;
@@ -743,16 +910,9 @@ function resetLongRunState() {
     longCompactStarted = false;
     longPreviewLastTime = 0;
     finishLongInside = false;
-    lastLongClip = null;
+    longStitcher = new LongStitcher({ findOffset, direction: longFX });
     longX.img = null;
     longX.imgXY = { x: 0, y: 0 };
-    longX.lastImg = null;
-    longX.lastXY = { x: 0, y: 0 };
-}
-
-function longClipSize(v: number) {
-    const x = v - Math.max((v / 3) * 1, 50);
-    return Math.floor(Math.max(x, 0) / 2);
 }
 
 function makeLongPreview(): [string, number, number] | undefined {
@@ -781,8 +941,7 @@ function queueLongPreview() {
 }
 
 async function long_s(forceLast = false) {
-    // 上一帧还没拼完就跳过这一帧：
-    // 并发进 addLong 会抢 longX.lastImg/lastXY，
+    // 上一帧还没拼完就跳过这一帧：并发进 addLong 会抢拼接状态，
     // 拼出来的偏移互相错位
     if (longBusy || longCapped) return;
     longBusy = true;
@@ -890,6 +1049,7 @@ async function startLongCompact() {
 
 async function startLong() {
     resetLongRunState();
+    resetLongDebug();
     if (longDisplayMode() === "紧凑") {
         await startLongCompact();
         return;
@@ -1009,137 +1169,40 @@ async function addLong(x: ImageData | undefined, forceLast = false) {
         pjLong();
         return;
     }
-    // 原始区域
     const canvas = ele("canvas").el;
-    const d = x;
-    // 设定canvas宽高并设置裁剪后的图像
     canvas.width = finalRect[2];
     canvas.height = finalRect[3];
-    canvas.getContext("2d")!.putImageData(d, -finalRect[0], -finalRect[1]);
-
-    if (!longX.lastImg) {
-        longPutImg(canvas, 0, 0);
-        longX.lastImg = canvas;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+        longCapped = true;
+        console.error("长截图：拿不到 2d 上下文，停止拼接");
         return;
     }
+    ctx.putImageData(x, -finalRect[0], -finalRect[1]);
 
-    const match = await longMatch(longX.lastImg, canvas);
-
-    if (!match.clipedImg) {
-        // 结束截屏时页面已经不动，匹配偏移是 0，最后一帧会被丢弃。
-        // 但结束按钮/控制窗刚被藏起来，需要按上一帧的裁切方式部分覆盖，
-        // 不能整帧覆盖，否则会把顶栏等固定区域也重画一遍。
-        if (forceLast) {
-            const clip = lastLongClip;
-            const srcDX = clip?.srcDX ?? 0;
-            const srcDY = clip?.srcDY ?? 1;
-            const dw = clip?.dw ?? 0;
-            const dh = clip?.dh ?? longClipSize(canvas.height);
-            const drawX = clip?.drawX ?? longX.lastXY.x;
-            const drawY = clip?.drawY ?? longX.lastXY.y + dh;
-            const clipped = clipLongImage(canvas, srcDX, srcDY, dw, dh);
-            if (clipped) longPutImg(clipped, drawX, drawY);
-            longX.lastImg = canvas;
-        }
-        return;
+    if (!longStitcher) {
+        longStitcher = new LongStitcher({
+            findOffset,
+            direction: longFX,
+        });
     }
-
-    const dx = longFX === "xy" ? match.dx : 0;
-    const dy = match.dy;
-    const putImg = match.clipedImg;
-    const drawX = dx + longX.lastXY.x;
-    const drawY = dy + longX.lastXY.y;
-    longPutImg(putImg, drawX, drawY);
-    lastLongClip = {
-        srcDX: match.srcDX,
-        srcDY: match.srcDY,
-        dw: match.dw,
-        dh: match.dh,
-        drawX,
-        drawY,
+    const frame: LongFrame = {
+        width: canvas.width,
+        height: canvas.height,
+        data: ctx.getImageData(0, 0, canvas.width, canvas.height).data,
     };
-
-    longX.lastImg = canvas;
-    longX.lastXY.x += longFX === "xy" ? match.srcDX : 0;
-    longX.lastXY.y += match.srcDY;
+    const step = await longStitcher.addFrame(frame, forceLast);
+    recordLongDebug(frame, step, forceLast);
+    applyLongStep(canvas, step);
 }
 
-/** 按拼接方向裁掉固定区域，返回待绘制的部分 */
-function clipLongImage(
-    img1: HTMLCanvasElement,
-    dx: number,
-    dy: number,
-    dw: number,
-    dh: number,
-) {
-    if (dx === 0 && dy === 0) return;
-    const clip2Canvas = new OffscreenCanvas(img1.width, img1.height);
-    if (dx === 0) {
-        clip2Canvas.width = Math.max(1, img1.width);
-        clip2Canvas.height = Math.max(1, img1.height - dh);
-        clip2Canvas.getContext("2d")!.drawImage(img1, 0, dy > 0 ? -dh : 0);
-    } else if (dy === 0) {
-        clip2Canvas.width = Math.max(1, img1.width - dw);
-        clip2Canvas.height = Math.max(1, img1.height);
-        clip2Canvas.getContext("2d")!.drawImage(img1, dx > 0 ? -dw : 0, 0);
-    } else {
-        clip2Canvas.width = Math.max(1, img1.width - dw);
-        clip2Canvas.height = Math.max(1, img1.height - dh);
-        clip2Canvas
-            .getContext("2d")!
-            .drawImage(img1, dx > 0 ? -dw : 0, dy > 0 ? -dh : 0);
-    }
-    return clip2Canvas;
-}
+function applyLongStep(frameCanvas: HTMLCanvasElement, step: LongStep) {
+    const patch = step.patch;
+    if (!patch) return;
 
-async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
-    // match
-    const m = await findOffset(
-        img0.getContext("2d")!.getImageData(0, 0, img0.width, img0.height),
-        img1.getContext("2d")!.getImageData(0, 0, img1.width, img1.height),
-    );
-
-    // 图片应该反过来移动才能拼接上
-    const dx = -m.dx;
-    const dy = -m.dy;
-
-    // 下面考虑裁切，因为页面可能存在固定区域，以顶栏为例，向下拼接会导致顶栏重复
-    // 但是注意到，向下拼接实际上可以覆盖一定的底栏
-    // 因此，向下拼接，裁去顶部可以了
-    // clip img1 “回”字中间的“口”
-    const dw = longFX === "xy" ? longClipSize(img1.width) : 0; // “目”中间的“口”
-    const dh = longClipSize(img1.height);
-
-    if (dx === 0 && dy === 0) {
-        return {
-            dx: 0,
-            dy: 0,
-            srcDX: dx,
-            srcDY: dy,
-            dw,
-            dh,
-            clipedImg: undefined,
-        };
-    }
-
-    return {
-        dx: dx > 0 ? dx + dw : dx,
-        dy: dy > 0 ? dy + dh : dy,
-        srcDX: dx,
-        srcDY: dy,
-        dw,
-        dh,
-        clipedImg: clipLongImage(img1, dx, dy, dw, dh),
-    };
-}
-
-function longPutImg(
-    img: HTMLCanvasElement | OffscreenCanvas,
-    x: number,
-    y: number,
-) {
-    // 前提：img大小一定小于等于最终拼接canvas
     const newCanvas = ele("canvas").el;
+    newCanvas.width = step.bounds.width;
+    newCanvas.height = step.bounds.height;
     const newCtx = newCanvas.getContext("2d");
     if (!newCtx) {
         longCapped = true;
@@ -1147,41 +1210,25 @@ function longPutImg(
         return;
     }
 
-    const srcW = longX.img?.width || 0;
-    const srcH = longX.img?.height || 0;
-    const minX = longX.imgXY.x;
-    const minY = longX.imgXY.y;
-    const maxX = minX + srcW;
-    const maxY = minY + srcH;
-
-    let srcDx = 0;
-    let srcDy = 0;
-
-    if (x < minX) {
-        srcDx = minX - x;
-        newCanvas.width = srcDx + srcW;
-        longX.imgXY.x -= srcDx;
-    } else if (x + img.width > maxX) {
-        newCanvas.width = x + img.width - maxX + srcW;
-    } else {
-        newCanvas.width = srcW;
+    const old = longX.img;
+    const oldXY = longX.imgXY;
+    if (old) {
+        newCtx.drawImage(old, oldXY.x - step.bounds.x, oldXY.y - step.bounds.y);
     }
-    if (y < minY) {
-        srcDy = minY - y;
-        newCanvas.height = srcDy + srcH;
-        longX.imgXY.y -= srcDy;
-    } else if (y + img.height > maxY) {
-        newCanvas.height = y + img.height - maxY + srcH;
-    } else {
-        newCanvas.height = srcH;
-    }
+    newCtx.drawImage(
+        frameCanvas,
+        patch.sx,
+        patch.sy,
+        patch.sw,
+        patch.sh,
+        patch.dx - step.bounds.x,
+        patch.dy - step.bounds.y,
+        patch.sw,
+        patch.sh,
+    );
 
-    if (longX.img) newCtx.drawImage(longX.img, srcDx, srcDy);
-
-    const nx = x - longX.imgXY.x;
-    const ny = y - longX.imgXY.y;
-    newCtx.drawImage(img, nx, ny);
     longX.img = newCanvas;
+    longX.imgXY = { x: step.bounds.x, y: step.bounds.y };
 
     if (longCompact) {
         queueLongPreview();
@@ -4321,8 +4368,6 @@ const longHide = Array.from(document.body.children).filter(
 const longX = {
     img: null as HTMLCanvasElement | null,
     imgXY: { x: 0, y: 0 },
-    lastImg: null as HTMLCanvasElement | null,
-    lastXY: { x: 0, y: 0 },
 };
 
 let longRunning = false;
