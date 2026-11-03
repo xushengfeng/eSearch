@@ -70,10 +70,6 @@ body {
     text-overflow: ellipsis;
 }
 
-#lc_status.warn {
-    color: #e5484d;
-}
-
 #lc_space {
     flex: 1;
 }

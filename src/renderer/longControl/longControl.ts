@@ -87,14 +87,12 @@ function update() {
         status.el.textContent = hint
             ? `${arrow} ${hint.text}`
             : t("拖到选区外");
-        status.el.classList.toggle("warn", !!hint?.warn);
         sub.el.textContent = hint?.subtext ?? t("拖到选区外");
         cardSub.el.textContent = hint?.subtext ?? t("拖到选区外");
         cardArrow.el.textContent = arrow;
         setPrimaryIcon("recume.svg", "开始");
     } else {
         status.el.textContent = t("抓帧中");
-        status.el.classList.remove("warn");
         sub.el.textContent = t("抓帧中");
         setPrimaryIcon("stop_record.svg", "结束", true);
     }

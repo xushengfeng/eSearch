@@ -606,7 +606,6 @@ export type LongControlHint = {
     text: string;
     subtext?: string;
     arrow?: "left" | "right" | "up" | "down" | "other";
-    warn?: boolean;
 };
 
 /** 紧凑长截屏控制窗初始化数据 */

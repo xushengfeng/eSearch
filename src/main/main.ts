@@ -1341,8 +1341,6 @@ type LongControlPlacement = {
 
 type LongControlInfo = {
     displayId: number;
-    x: number;
-    y: number;
     width: number;
     height: number;
     maxHeight: number;
@@ -1634,7 +1632,6 @@ function createLongControlWindow(data: {
     displayId: number;
     rect: [number, number, number, number];
     ratio: number;
-    direction: "y" | "xy";
     preview?: { data: string; w: number; h: number };
 }) {
     closeLongControl();
@@ -1652,8 +1649,6 @@ function createLongControlWindow(data: {
     longControlPhase = "positioning";
     longControlInfo = {
         displayId: display.id,
-        x: placement.x,
-        y: placement.y,
         width: placement.width,
         height: placement.height,
         maxHeight: placement.maxHeight,

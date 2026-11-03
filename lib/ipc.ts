@@ -77,7 +77,6 @@ type Message = {
         displayId: number;
         rect: [number, number, number, number];
         ratio: number;
-        direction: "y" | "xy";
         preview?: { data: string; w: number; h: number };
     }) => void;
     /** 紧凑模式的新拼接预览 */

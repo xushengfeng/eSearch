@@ -724,6 +724,16 @@ let longCompactPreview = false;
 let longCompactStarted = false;
 let longPreviewLastTime = 0;
 
+type LongClip = {
+    srcDX: number;
+    srcDY: number;
+    dw: number;
+    dh: number;
+    drawX: number;
+    drawY: number;
+};
+let lastLongClip: LongClip | null = null;
+
 function resetLongRunState() {
     longCapped = false;
     longRunning = true;
@@ -733,10 +743,16 @@ function resetLongRunState() {
     longCompactStarted = false;
     longPreviewLastTime = 0;
     finishLongInside = false;
+    lastLongClip = null;
     longX.img = null;
     longX.imgXY = { x: 0, y: 0 };
     longX.lastImg = null;
     longX.lastXY = { x: 0, y: 0 };
+}
+
+function longClipSize(v: number) {
+    const x = v - Math.max((v / 3) * 1, 50);
+    return Math.floor(Math.max(x, 0) / 2);
 }
 
 function makeLongPreview(): [string, number, number] | undefined {
@@ -865,7 +881,6 @@ async function startLongCompact() {
             displayId: nowScreenId,
             rect: finalRect,
             ratio,
-            direction: longFX,
             preview: preview
                 ? { data: preview[0], w: preview[1], h: preview[2] }
                 : undefined,
@@ -1012,9 +1027,18 @@ async function addLong(x: ImageData | undefined, forceLast = false) {
 
     if (!match.clipedImg) {
         // 结束截屏时页面已经不动，匹配偏移是 0，最后一帧会被丢弃。
-        // 但结束按钮刚被藏起来，需要用它覆盖上一帧同位置，按钮才不会留在成品里。
+        // 但结束按钮/控制窗刚被藏起来，需要按上一帧的裁切方式部分覆盖，
+        // 不能整帧覆盖，否则会把顶栏等固定区域也重画一遍。
         if (forceLast) {
-            longPutImg(canvas, longX.lastXY.x, longX.lastXY.y);
+            const clip = lastLongClip;
+            const srcDX = clip?.srcDX ?? 0;
+            const srcDY = clip?.srcDY ?? 1;
+            const dw = clip?.dw ?? 0;
+            const dh = clip?.dh ?? longClipSize(canvas.height);
+            const drawX = clip?.drawX ?? longX.lastXY.x;
+            const drawY = clip?.drawY ?? longX.lastXY.y + dh;
+            const clipped = clipLongImage(canvas, srcDX, srcDY, dw, dh);
+            if (clipped) longPutImg(clipped, drawX, drawY);
             longX.lastImg = canvas;
         }
         return;
@@ -1023,11 +1047,49 @@ async function addLong(x: ImageData | undefined, forceLast = false) {
     const dx = longFX === "xy" ? match.dx : 0;
     const dy = match.dy;
     const putImg = match.clipedImg;
-    longPutImg(putImg, dx + longX.lastXY.x, dy + longX.lastXY.y);
+    const drawX = dx + longX.lastXY.x;
+    const drawY = dy + longX.lastXY.y;
+    longPutImg(putImg, drawX, drawY);
+    lastLongClip = {
+        srcDX: match.srcDX,
+        srcDY: match.srcDY,
+        dw: match.dw,
+        dh: match.dh,
+        drawX,
+        drawY,
+    };
 
     longX.lastImg = canvas;
     longX.lastXY.x += longFX === "xy" ? match.srcDX : 0;
     longX.lastXY.y += match.srcDY;
+}
+
+/** 按拼接方向裁掉固定区域，返回待绘制的部分 */
+function clipLongImage(
+    img1: HTMLCanvasElement,
+    dx: number,
+    dy: number,
+    dw: number,
+    dh: number,
+) {
+    if (dx === 0 && dy === 0) return;
+    const clip2Canvas = new OffscreenCanvas(img1.width, img1.height);
+    if (dx === 0) {
+        clip2Canvas.width = Math.max(1, img1.width);
+        clip2Canvas.height = Math.max(1, img1.height - dh);
+        clip2Canvas.getContext("2d")!.drawImage(img1, 0, dy > 0 ? -dh : 0);
+    } else if (dy === 0) {
+        clip2Canvas.width = Math.max(1, img1.width - dw);
+        clip2Canvas.height = Math.max(1, img1.height);
+        clip2Canvas.getContext("2d")!.drawImage(img1, dx > 0 ? -dw : 0, 0);
+    } else {
+        clip2Canvas.width = Math.max(1, img1.width - dw);
+        clip2Canvas.height = Math.max(1, img1.height - dh);
+        clip2Canvas
+            .getContext("2d")!
+            .drawImage(img1, dx > 0 ? -dw : 0, dy > 0 ? -dh : 0);
+    }
+    return clip2Canvas;
 }
 
 async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
@@ -1045,15 +1107,8 @@ async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
     // 但是注意到，向下拼接实际上可以覆盖一定的底栏
     // 因此，向下拼接，裁去顶部可以了
     // clip img1 “回”字中间的“口”
-    function clip(v: number) {
-        const x = v - Math.max((v / 3) * 1, 50);
-        return Math.floor(Math.max(x, 0) / 2);
-    }
-    const dw = longFX === "xy" ? clip(img1.width) : 0; // “目”中间的“口”
-    const dh = clip(img1.height);
-    // clip img1
-    // 0:裁切九宫格边的三个格 !=0:裁出“田”字
-    const clip2Canvas = new OffscreenCanvas(img1.width, img1.height);
+    const dw = longFX === "xy" ? longClipSize(img1.width) : 0; // “目”中间的“口”
+    const dh = longClipSize(img1.height);
 
     if (dx === 0 && dy === 0) {
         return {
@@ -1061,23 +1116,10 @@ async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
             dy: 0,
             srcDX: dx,
             srcDY: dy,
+            dw,
+            dh,
             clipedImg: undefined,
         };
-    }
-    if (dx === 0) {
-        clip2Canvas.width = img1.width;
-        clip2Canvas.height = img1.height - dh;
-        clip2Canvas.getContext("2d")!.drawImage(img1, 0, dy > 0 ? -dh : 0);
-    } else if (dy === 0) {
-        clip2Canvas.width = img1.width - dw;
-        clip2Canvas.height = img1.height;
-        clip2Canvas.getContext("2d")!.drawImage(img1, dx > 0 ? -dw : 0, 0);
-    } else {
-        clip2Canvas.width = img1.width - dw;
-        clip2Canvas.height = img1.height - dh;
-        clip2Canvas
-            .getContext("2d")!
-            .drawImage(img1, dx > 0 ? -dw : 0, dy > 0 ? -dh : 0);
     }
 
     return {
@@ -1085,7 +1127,9 @@ async function longMatch(img0: HTMLCanvasElement, img1: HTMLCanvasElement) {
         dy: dy > 0 ? dy + dh : dy,
         srcDX: dx,
         srcDY: dy,
-        clipedImg: clip2Canvas,
+        dw,
+        dh,
+        clipedImg: clipLongImage(img1, dx, dy, dw, dh),
     };
 }
 
