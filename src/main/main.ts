@@ -658,18 +658,25 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
 
 let contextMenu: Electron.Menu | null = null;
 let tray: Tray | null = null;
-const trayIcons: Record<string, NativeImage> = {
-    macTem: nativeImage.createFromPath(
-        join(runPath, "assets/logo/bw/macIconTemplate.png"),
-    ),
-    color: nativeImage.createFromPath(join(runPath, "assets/logo/32x32.png")),
-    white: nativeImage.createFromPath(
-        join(runPath, "assets/logo/bw/32x32_white.png"),
-    ),
-    black: nativeImage.createFromPath(
-        join(runPath, "assets/logo/bw/32x32_black.png"),
-    ),
+
+/** 依次读取可用的图标；全部失败返回 null，避免把路径交给 Electron 时直接抛出错误 */
+function loadIcon(...paths: string[]) {
+    for (const p of paths) {
+        if (!existsSync(p)) continue;
+        const image = nativeImage.createFromPath(p);
+        if (!image.isEmpty()) return image;
+    }
+    console.error(`图标加载失败：${paths.join("、")}`);
+    return null;
+}
+
+const trayIcons = {
+    macTem: loadIcon(join(runPath, "assets/logo/bw/macIconTemplate.png")),
+    color: loadIcon(join(runPath, "assets/logo/32x32.png")),
+    white: loadIcon(join(runPath, "assets/logo/bw/32x32_white.png")),
+    black: loadIcon(join(runPath, "assets/logo/bw/32x32_black.png")),
 };
+const notifyIcon = loadIcon(join(runPath, "assets/logo/64x64.png"));
 
 app.commandLine.appendSwitch(
     "enable-experimental-web-platform-features",
@@ -726,7 +733,16 @@ app.whenReady().then(() => {
 
     if (store.get("托盘") !== "无") {
         // 托盘
-        tray = new Tray(join(runPath, "assets/logo/32x32.png"));
+        const trayImage = trayIcons.color ?? trayIcons.white ?? trayIcons.black;
+        if (trayImage) {
+            try {
+                tray = new Tray(trayImage);
+            } catch (e) {
+                console.error(`托盘创建失败：${e}`);
+            }
+        } else {
+            console.error("托盘图标不可用，跳过托盘");
+        }
 
         function update() {
             tray?.setContextMenu(contextMenu);
@@ -933,7 +949,7 @@ app.whenReady().then(() => {
         new Notification({
             title: app.name,
             body: `${app.name} ${t("已经在后台启动")}`,
-            icon: join(runPath, "assets/logo/64x64.png"),
+            icon: notifyIcon ?? undefined,
         }).show();
 
     const 快捷键 = store.get("快捷键");
@@ -981,32 +997,31 @@ app.whenReady().then(() => {
 
 function setTray() {
     if (!tray) return;
+    const setImage = (image: NativeImage | null) => {
+        if (image) tray?.setImage(image);
+    };
     const i = store.get("托盘");
     if (i === "彩色") {
-        tray.setImage(trayIcons.color);
+        setImage(trayIcons.color);
     }
     if (i === "白") {
-        tray.setImage(trayIcons.white);
+        setImage(trayIcons.white);
     }
     if (i === "黑") {
-        tray.setImage(trayIcons.black);
+        setImage(trayIcons.black);
     }
     if (i === "跟随系统" || i === "跟随系统反") {
-        if (isMac) tray.setImage(trayIcons.macTem);
+        if (isMac) setImage(trayIcons.macTem);
     }
     if (i === "跟随系统") {
-        if (nativeTheme.shouldUseDarkColors) {
-            tray.setImage(trayIcons.black);
-        } else {
-            tray.setImage(trayIcons.white);
-        }
+        setImage(
+            nativeTheme.shouldUseDarkColors ? trayIcons.black : trayIcons.white,
+        );
     }
     if (i === "跟随系统反") {
-        if (nativeTheme.shouldUseDarkColors) {
-            tray.setImage(trayIcons.white);
-        } else {
-            tray.setImage(trayIcons.black);
-        }
+        setImage(
+            nativeTheme.shouldUseDarkColors ? trayIcons.white : trayIcons.black,
+        );
     }
 }
 
@@ -1146,17 +1161,19 @@ function feedbackUrl2(op?: { title?: string; main?: string }) {
     return url.toString();
 }
 
-const theIcon =
+const theIcon = loadIcon(
     process.platform === "win32"
         ? join(runPath, "assets/logo/icon.ico")
-        : join(runPath, "assets/logo/1024x1024.png");
+        : join(runPath, "assets/logo/1024x1024.png"),
+    join(runPath, "assets/logo/64x64.png"),
+);
 
 const baseWinConfig: () => Electron.BrowserWindowConstructorOptions = () => {
     const bg = nativeTheme.shouldUseDarkColors
         ? store.get("全局.主题.dark.bg")
         : store.get("全局.主题.light.bg");
     return {
-        icon: theIcon,
+        icon: theIcon ?? undefined,
         autoHideMenuBar: true,
         backgroundColor: bg,
         webPreferences: {
@@ -1198,7 +1215,7 @@ const getClipWin = async () => {
 /** 初始化截屏后台窗口 */
 function createClipWindow() {
     const _clipWindow = new BrowserWindow({
-        icon: theIcon,
+        icon: theIcon ?? undefined,
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
@@ -1285,7 +1302,7 @@ mainOn("clip_save", async ([type]) => {
         new Notification({
             title: `${app.name} ${t("保存文件失败")}`,
             body: t("用户已取消保存"),
-            icon: join(runPath, "assets/logo/64x64.png"),
+            icon: notifyIcon ?? undefined,
         }).show();
         clipWindow?.show();
         clipWindow?.setSimpleFullScreen(true);
@@ -1800,7 +1817,7 @@ function ding(img: NativeImage) {
 
 function dingWindowOptions(): Electron.BrowserWindowConstructorOptions {
     return {
-        icon: theIcon,
+        icon: theIcon ?? undefined,
         transparent: true,
         frame: false,
         alwaysOnTop: true,
@@ -1958,7 +1975,7 @@ function createDingWindow(
             new Notification({
                 title: `${app.name} ${t("动态贴图")}`,
                 body: t("动态贴图数量已达到上限"),
-                icon: join(runPath, "assets/logo/64x64.png"),
+                icon: notifyIcon ?? undefined,
             }).show();
             return;
         }
@@ -2654,7 +2671,7 @@ function noti(filePath: string) {
     const notification = new Notification({
         title: `${app.name} ${t("保存文件成功")}`,
         body: `${t("已保存文件到")} ${filePath}`,
-        icon: join(runPath, "assets/logo/64x64.png"),
+        icon: notifyIcon ?? undefined,
     });
     notification.on("click", () => {
         shell.showItemInFolder(filePath);
@@ -2666,7 +2683,7 @@ mainOn("noti", ([{ title, body }]) => {
     const notification = new Notification({
         title: `${app.name} ${title}`,
         body: body,
-        icon: join(runPath, "assets/logo/64x64.png"),
+        icon: notifyIcon ?? undefined,
     });
     notification.show();
 });
@@ -3427,7 +3444,7 @@ function showVersion(arg?: { v: string; url: string } | "err") {
     const notification = new Notification({
         title,
         body: b,
-        icon: join(runPath, "assets/logo/64x64.png"),
+        icon: notifyIcon ?? undefined,
     });
     notification.on("click", () => {
         shell.openExternal(url);
