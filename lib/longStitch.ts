@@ -212,10 +212,12 @@ function refineOffset(
 
 /**
  * 把画面分成上边距、中间、下边距三块。
- * 识别用整帧，拼接时按滚动方向裁掉前导边距：
- * 向下裁顶部，向上裁底部，横向同理。
+ * 识别时按滚动方向裁掉前导边距，避免固定栏参与匹配。
  *
- * 这样固定/吸顶栏不会进入匹配模板，也不会被重复拼到中间。
+ * 拼接区域不和识别共用边距，而是按实际滚动量只贴新露出来的部分：
+ * 向下滚贴底部的新内容，向上滚贴顶部的新内容。
+ * 拼接区域再向重叠方向多留 padding，滚动量很大时扩大到前导边距为止。
+ * 固定/吸顶栏因此不会进入匹配模板，也不会被重复拼到中间。
  */
 export class LongStitcher {
     private readonly findOffset: LongOffsetFinder;
@@ -223,6 +225,7 @@ export class LongStitcher {
     private readonly configuredMargins: Partial<LongMargins>;
     private readonly refine: boolean;
     private readonly refineRadius: number;
+    private readonly padding: number;
     private lastFrame: LongFrame | null = null;
     private lastPatch: LongPatch | null = null;
     private lastX = 0;
@@ -238,12 +241,15 @@ export class LongStitcher {
         /** 是否在 findOffset 结果附近做整数像素精修 */
         refine?: boolean;
         refineRadius?: number;
+        /** 拼接时在滚动量算出的边界外多贴多少像素，容忍偏移误差 */
+        padding?: number;
     }) {
         this.findOffset = options.findOffset;
         this.direction = options.direction ?? "y";
         this.configuredMargins = options.margins ?? {};
         this.refine = options.refine ?? true;
         this.refineRadius = options.refineRadius ?? 12;
+        this.padding = options.padding ?? 8;
     }
 
     get bounds(): LongBounds {
@@ -304,23 +310,41 @@ export class LongStitcher {
         margins: LongMargins,
     ): LongPatch {
         const { left, right, top, bottom } = margins;
-        const sx = dx > 0 ? left : 0;
-        const sy = dy > 0 ? top : 0;
-        const sw = Math.max(
-            1,
-            frame.width - (dx !== 0 ? (dx > 0 ? left : right) : 0),
-        );
-        const sh = Math.max(
-            1,
-            frame.height - (dy !== 0 ? (dy > 0 ? top : bottom) : 0),
-        );
+        const pad = this.padding;
+        const clamp = (v: number, min: number, max: number) =>
+            Math.max(min, Math.min(v, max));
+
+        let sx = 0;
+        let sw = frame.width;
+        let sy = 0;
+        let sh = frame.height;
+
+        if (dx > 0) {
+            // 新内容从右边出来，贴新内容带并保留右栏
+            sx = clamp(frame.width - right - dx - pad, left, frame.width - 1);
+            sw = frame.width - sx;
+        } else if (dx < 0) {
+            // 新内容从左边出来，贴新内容带并保留左栏
+            sw = clamp(left - dx + pad, 1, frame.width - right);
+        }
+
+        if (dy > 0) {
+            // 新内容从底部出来，贴新内容带并保留底栏。
+            // 滚动量太大时只能贴到顶边距，被固定栏挡住的内容补不回来
+            sy = clamp(frame.height - bottom - dy - pad, top, frame.height - 1);
+            sh = frame.height - sy;
+        } else if (dy < 0) {
+            // 新内容从顶部出来，贴新内容带并保留顶栏
+            sh = clamp(top - dy + pad, 1, frame.height - bottom);
+        }
+
         return {
             sx,
             sy,
             sw,
             sh,
-            dx: this.lastX + dx + (dx > 0 ? left : 0),
-            dy: this.lastY + dy + (dy > 0 ? top : 0),
+            dx: this.lastX + dx + sx,
+            dy: this.lastY + dy + sy,
         };
     }
 

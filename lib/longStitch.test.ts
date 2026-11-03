@@ -387,8 +387,13 @@ async function stitch(
     margins: { top: number; bottom: number; left?: number; right?: number },
     stickyMark = false,
     finder = findOffset,
+    options: { refine?: boolean; padding?: number } = {},
 ) {
-    const stitcher = new LongStitcher({ findOffset: finder, margins });
+    const stitcher = new LongStitcher({
+        findOffset: finder,
+        margins,
+        ...options,
+    });
     let canvas: StitchCanvas = {
         bounds: { x: 0, y: 0, width: 0, height: 0 },
         data: new Uint8ClampedArray(0),
@@ -439,6 +444,25 @@ function expectRedOnlyAtEdges(
             end: bounds.y + bounds.height - 1,
         },
     ]);
+}
+
+/**
+ * 按已知滚动序列返回偏移，跳过图像匹配，用来测拼接几何。
+ * 最后一帧会以 forceLast 再喂一次，所以最后一对返回 0。
+ */
+function scrollFinder(scrolls: number[], direction: "y" | "xy" = "y") {
+    let index = 0;
+    return async () => {
+        const i = Math.min(index, scrolls.length - 1);
+        index++;
+        if (i >= scrolls.length - 1) {
+            return { dx: 0, dy: 0, confidence: 1 };
+        }
+        const delta = scrolls[i + 1] - scrolls[i];
+        return direction === "y"
+            ? { dx: 0, dy: -delta, confidence: 1 }
+            : { dx: -delta, dy: 0, confidence: 1 };
+    };
 }
 
 describe("LongStitcher", () => {
@@ -545,5 +569,99 @@ describe("LongStitcher", () => {
         );
         expectSameImage(canvas, expected);
         expectRedOnlyAtEdges(canvas, 24, 20);
+    });
+
+    it("滚动量很大时拼接区域扩大到前导边距", async () => {
+        const scrolls = [0, 150, 300];
+        const { canvas, expected } = await stitch(
+            scrolls,
+            { top: 24, bottom: 20 },
+            false,
+            scrollFinder(scrolls),
+            { refine: false },
+        );
+        expectSameImage(canvas, expected);
+        expectRedOnlyAtEdges(canvas, 24, 20);
+    });
+
+    it("滚动量达到内容高度时贴到前导边距为止", async () => {
+        const margins = { top: 24, bottom: 20 };
+        const scrolls = [0, HEIGHT - margins.top - margins.bottom];
+        const { canvas, expected } = await stitch(
+            scrolls,
+            margins,
+            false,
+            scrollFinder(scrolls),
+            { refine: false },
+        );
+        expectSameImage(canvas, expected);
+        expectRedOnlyAtEdges(canvas, margins.top, margins.bottom);
+    });
+
+    it("滚动量超过内容高度时把可见内容硬贴上去", async () => {
+        const margins = { top: 24, bottom: 20 };
+        const scrolls = [0, 260];
+        const { canvas } = await stitch(
+            scrolls,
+            margins,
+            false,
+            scrollFinder(scrolls),
+            { refine: false },
+        );
+
+        const frames = scrolls.map((scroll) =>
+            makeFrame(scroll, margins.top, margins.bottom),
+        );
+        const height = scrolls[1] + HEIGHT;
+        const expected: Raster = {
+            width: WIDTH,
+            height,
+            data: new Uint8ClampedArray(WIDTH * height * 4),
+        };
+        copyRect(expected, frames[0], 0, 0, WIDTH, HEIGHT, 0, 0);
+        copyRect(
+            expected,
+            frames[1],
+            0,
+            margins.top,
+            WIDTH,
+            HEIGHT - margins.top,
+            0,
+            scrolls[1] + margins.top,
+        );
+        expectSameImage(canvas, expected);
+    });
+
+    it("横向滚动量很大时左右栏也不会串到中间", async () => {
+        const left = 24;
+        const right = 20;
+        const scrolls = [0, WIDTH - left - right];
+        const stitcher = new LongStitcher({
+            findOffset: scrollFinder(scrolls, "xy"),
+            direction: "xy",
+            margins: { top: 0, bottom: 0, left, right },
+            refine: false,
+        });
+        let canvas: StitchCanvas = {
+            bounds: { x: 0, y: 0, width: 0, height: 0 },
+            data: new Uint8ClampedArray(0),
+        };
+        const frames = scrolls.map((scroll) => makeFrameX(scroll, left, right));
+        for (const frame of frames) {
+            canvas = applyStep(canvas, await stitcher.addFrame(frame), frame);
+        }
+        const last = frames.at(-1);
+        if (last) {
+            canvas = applyStep(
+                canvas,
+                await stitcher.addFrame(last, true),
+                last,
+            );
+        }
+        expectSameImage(
+            canvas,
+            expectedLongImageX(frames, scrolls, left, right),
+        );
+        expectRedOnlyAtHorizontalEdges(canvas, left, right);
     });
 });
