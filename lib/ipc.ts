@@ -351,11 +351,15 @@ ipcRenderer?.on(name, (event, key, data) => {
 ipcMain?.on(name, async (event, key, data) => {
     const callbacks = mainOnData.get(key);
     if (callbacks) {
-        for (const callback of callbacks) {
-            const result = await callback(data, event);
-            if (result !== undefined) {
-                event.returnValue = result;
+        try {
+            for (const callback of callbacks) {
+                const result = await callback(data, event);
+                if (result !== undefined) {
+                    event.returnValue = result;
+                }
             }
+        } catch (error) {
+            console.error(`ipcMain.on: ${key}`, error);
         }
         // renderSendSync 的调用方在等 returnValue 才被唤醒。handler 返回 undefined
         // 时（用户取消保存对话框、或本来就没有返回值的 handler）它永远不会被赋值，

@@ -4919,7 +4919,13 @@ function getIconColor(hex: string) {
 }
 
 function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
-    return renderSendSync("githubUrl", [_path, _type]);
+    const url = renderSendSync("githubUrl", [_path, _type]);
+    if (url) return url;
+    if (_type === "api")
+        return `https://api.github.com/${_path.replace(/^\//, "")}`;
+    if (_type === "base")
+        return `https://github.com/${_path.replace(/^\//, "")}`;
+    return _path;
 }
 
 function isDarkMode() {

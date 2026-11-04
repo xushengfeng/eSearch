@@ -82,8 +82,22 @@ class Store {
     get<P extends SettingPath>(keyPath: P): GetValue<setting, P> {
         const store = this.getStore();
         const value = xget(store, keyPath);
-        if (value !== undefined) return value;
-        return xget(this.defaultData as Record<string, unknown>, keyPath);
+        const defaultValue = xget(
+            this.defaultData as Record<string, unknown>,
+            keyPath,
+        );
+        if (value === undefined) return defaultValue as GetValue<setting, P>;
+        // 读取对象时补齐默认值，避免配置里缺少新增字段时拿到不完整的对象
+        if (
+            value?.constructor === Object &&
+            defaultValue?.constructor === Object
+        ) {
+            return deepMerge(value as data, defaultValue as data) as GetValue<
+                setting,
+                P
+            >;
+        }
+        return value as GetValue<setting, P>;
     }
     /** 读取字符串设置；配置被改坏（如路径变成布尔）时回退到默认值，避免传给 path 接口 */
     getString<P extends StringSettingPath>(keyPath: P): string {

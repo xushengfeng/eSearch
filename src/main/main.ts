@@ -3854,14 +3854,16 @@ function githubPath(url: string): {
 }
 
 function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
-    const s = store.get("网络.github镜像");
+    const enabled = store.get("网络.github镜像.启用");
+    const api = store.get("网络.github镜像.api") || "https://api.github.com/";
+    const base = store.get("网络.github镜像.base") || "https://github.com/";
     function ap(x: string) {
         return x.replace(/\/$/, "");
     }
     function bp(x: string) {
         return x.replace(/^\//, "");
     }
-    if (!s.启用) {
+    if (!enabled) {
         if (_type === "auto") return _path;
         return _type === "api"
             ? `https://api.github.com/${bp(_path)}`
@@ -3870,10 +3872,10 @@ function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
     const { path, type } =
         _type === "auto" ? githubPath(_path) : { path: _path, type: _type };
     if (type === "api") {
-        return `${ap(s.api)}/${bp(path)}`;
+        return `${ap(api)}/${bp(path)}`;
     }
     if (type === "base") {
-        return `${ap(s.base)}/${bp(path)}`;
+        return `${ap(base)}/${bp(path)}`;
     }
     return path;
 }
