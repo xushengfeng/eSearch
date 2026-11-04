@@ -336,7 +336,6 @@ export interface setting {
             关键帧间隔: number;
             缩放: number;
             格式: string;
-            webp质量: number;
             导出后关闭: boolean;
         };
     };

@@ -2264,8 +2264,7 @@ async function save() {
         await saveGif({
             dither: exportConfigEls.gif.gv.dither ? "floyd-steinberg" : "none",
         });
-    else if (exportEls.type.gv === "webp")
-        await saveWebp({ quality: exportConfigEls.webp.gv.quality });
+    else if (exportEls.type.gv === "webp") await saveWebp();
     else if (exportEls.type.gv === "apng") await saveApng();
     else if (exportEls.type.gv === "avif") await saveAvif();
     else if (exportEls.type.gv === "webm")
@@ -2734,7 +2733,7 @@ async function saveApng() {
     renderSend("ok_save", [exportPath]);
 }
 
-async function saveWebp(op: { quality: number }) {
+async function saveWebp() {
     const exportPath = getSavePath("webp");
     if (!exportPath) return;
 
@@ -2776,7 +2775,7 @@ async function saveWebp(op: { quality: number }) {
                 .putImageData(new ImageData(cropped, rect.w, rect.h), 0, 0);
             const blob = await small.convertToBlob({
                 type: "image/webp",
-                quality: 0.8,
+                quality: 1,
             });
             pushTimedFrame(
                 frames,
@@ -3992,36 +3991,7 @@ const exportConfigEls = {
             });
     })(),
     apng: view(),
-    webp: (() => {
-        const el = view("x").style({
-            paddingInline: "8px",
-            alignItems: "center",
-            gap: "6px",
-        });
-        const value = txt();
-        const quality = input("range")
-            .attr({ min: "1", max: "100", step: "1" })
-            .style({ width: "120px" })
-            .on("input", () => value.sv(`${quality.gv}%`))
-            .on("change", () =>
-                store.set("录屏.超级录屏.webp质量", Number(quality.gv)),
-            );
-        quality.sv(String(store.get("录屏.超级录屏.webp质量") ?? 80));
-        value.sv(`${quality.gv}%`);
-        el.add([
-            label([quality, "质量"], 1).style({
-                display: "flex",
-                alignItems: "center",
-            }),
-            value,
-        ]);
-        return el
-            .bindGet(() => ({ quality: Number(quality.gv) }))
-            .bindSet((v: { quality: number }) => {
-                quality.sv(String(v.quality));
-                value.sv(`${v.quality}%`);
-            });
-    })(),
+    webp: view(),
     avif: view(),
     mp4: (() => {
         const el = view("x").style({ paddingInline: "8px" });
