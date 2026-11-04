@@ -2,7 +2,7 @@ import { button, image, txt, view } from "dkh-ui";
 import { renderOn, renderSend } from "../../../lib/ipc";
 import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
-import type { LongControlHint } from "../../ShareTypes";
+import type { LongControlHint, LongWarnLevel } from "../../ShareTypes";
 import { getImgUrl, initStyle, setTitle } from "../root/root";
 
 initStyle(store);
@@ -14,6 +14,10 @@ const head = view().attr({ id: "lc_head" }).addInto(root);
 const grip = txt("⠿").class("lc_grip").addInto(head);
 const title = txt(t("长截屏")).attr({ id: "lc_title" }).addInto(head);
 const status = txt("").attr({ id: "lc_status" }).addInto(head);
+const warnEl = txt("")
+    .attr({ id: "lc_warn" })
+    .style({ display: "none" })
+    .addInto(head);
 const space = view().attr({ id: "lc_space" }).addInto(head);
 function iconEl(name: "recume.svg" | "stop_record.svg" | "close.svg") {
     return image(getImgUrl(name), "icon").class("icon");
@@ -47,6 +51,7 @@ let started = true;
 let starting = false;
 let previewEnabled = false;
 let hint: LongControlHint | undefined;
+let warnLevel: LongWarnLevel = 0;
 
 function arrowText(arrow: LongControlHint["arrow"]) {
     if (arrow === "left") return "←";
@@ -73,6 +78,7 @@ function setPrimaryIcon(
 
 function update() {
     const positioning = wayland && !started;
+    const showWarning = !positioning && warnLevel > 0;
     const showPreview = previewEnabled;
     const showCard = positioning && showPreview;
     const showSub = positioning && !showPreview;
@@ -81,6 +87,10 @@ function update() {
     sub.style({ display: showSub ? "block" : "none" });
     card.style({ display: showCard ? "flex" : "none" });
     closeBtn.style({ display: positioning ? "grid" : "none" });
+    warnEl.style({ display: showWarning ? "block" : "none" });
+    if (showWarning) {
+        warnEl.el.textContent = t(warnLevel === 2 ? "滚动过快" : "滚动偏快");
+    }
 
     if (positioning) {
         const arrow = arrowText(hint?.arrow);
@@ -92,10 +102,20 @@ function update() {
         cardArrow.el.textContent = arrow;
         setPrimaryIcon("recume.svg", "开始");
     } else {
-        status.el.textContent = t("抓帧中");
+        status.el.textContent = showWarning
+            ? t(warnLevel === 2 ? "可能漏内容" : "请放慢滚动")
+            : t("抓帧中");
         sub.el.textContent = t("抓帧中");
         setPrimaryIcon("stop_record.svg", "结束", true);
     }
+}
+
+function setWarn(level: LongWarnLevel) {
+    if (level === warnLevel) return;
+    warnLevel = level;
+    root.el.classList.toggle("lc_warn1", level === 1);
+    root.el.classList.toggle("lc_warn2", level === 2);
+    update();
 }
 
 function stop() {
@@ -141,6 +161,10 @@ renderOn("long_control_init", ([data]) => {
 renderOn("long_control_preview", ([data]) => {
     if (!previewEnabled) return;
     setPreview(data.data);
+});
+
+renderOn("long_control_warn", ([level]) => {
+    setWarn(level);
 });
 
 update();

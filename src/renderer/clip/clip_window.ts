@@ -31,6 +31,7 @@ import {
     type LongFrame,
     type LongStep,
     LongStitcher,
+    longOverlapLevel,
 } from "../../../lib/longStitch";
 import open_with from "../../../lib/open_with";
 import store from "../../../lib/store/renderStore";
@@ -69,6 +70,7 @@ import type {
     CaptureSourceInfo,
     EditType,
     LiveDingTarget,
+    LongWarnLevel,
     setting,
     translateWinType,
     功能,
@@ -728,6 +730,8 @@ let longCompact = false;
 let longCompactPreview = false;
 let longCompactStarted = false;
 let longPreviewLastTime = 0;
+let longWarnLevel: LongWarnLevel = 0;
+let longWarnTimer: NodeJS.Timeout | undefined;
 
 let longStitcher: LongStitcher | null = null;
 type LongDebugRecord = {
@@ -906,6 +910,7 @@ function resetLongRunState() {
     longRunning = true;
     longInited = true;
     longCompact = false;
+    clearLongWarn();
     longCompactPreview = false;
     longCompactStarted = false;
     longPreviewLastTime = 0;
@@ -938,6 +943,47 @@ function queueLongPreview() {
     renderSend("long_compact_preview", [
         { data: preview[0], w: preview[1], h: preview[2] },
     ]);
+}
+
+function setLongWarn(level: LongWarnLevel) {
+    if (level === longWarnLevel) return;
+    longWarnLevel = level;
+    if (longCompact) {
+        renderSend("long_compact_warn", [level]);
+    } else {
+        renderLongWarn();
+    }
+}
+
+function updateLongWarn(step: LongStep, forceLast: boolean) {
+    if (forceLast) return;
+    const level = longOverlapLevel(
+        step.offset?.overlap,
+        step.offset?.confidence,
+    );
+    if (level > 0) {
+        setLongWarn(level);
+        if (longWarnTimer) clearTimeout(longWarnTimer);
+        // 自动模式下停手后不会再有新帧，靠超时收掉提示
+        longWarnTimer = setTimeout(() => {
+            longWarnTimer = undefined;
+            setLongWarn(0);
+        }, 1600);
+        return;
+    }
+    if (longWarnTimer) {
+        clearTimeout(longWarnTimer);
+        longWarnTimer = undefined;
+    }
+    setLongWarn(0);
+}
+
+function clearLongWarn() {
+    if (longWarnTimer) {
+        clearTimeout(longWarnTimer);
+        longWarnTimer = undefined;
+    }
+    setLongWarn(0);
 }
 
 async function long_s(forceLast = false) {
@@ -1128,6 +1174,8 @@ async function stopLong() {
     for (let i = 0; longBusy && i < 40; i++) {
         await new Promise((r) => setTimeout(r, 50));
     }
+    // 在抓最后一帧前收掉提示，避免它进入拼接画面
+    clearLongWarn();
 
     if (longCompact) {
         // 控制窗可能贴在选区底部，和覆盖模式的结束按钮一样，
@@ -1192,6 +1240,7 @@ async function addLong(x: ImageData | undefined, forceLast = false) {
         data: ctx.getImageData(0, 0, canvas.width, canvas.height).data,
     };
     const step = await longStitcher.addFrame(frame, forceLast);
+    updateLongWarn(step, forceLast);
     recordLongDebug(frame, step, forceLast);
     applyLongStep(canvas, step);
 }
@@ -1264,6 +1313,7 @@ function pjLong() {
 
     longPreview.style({ display: "none" });
     longPreview.clear();
+    clearLongWarn();
 
     document.body.classList.add("editor_bg");
 
@@ -4881,6 +4931,52 @@ trackLocation();
 const finishLongB = longTip.els.finish.el;
 
 const lr = longTip.els.rect;
+const longWarnEl = view().attr({ id: "long_warn" }).addInto(lr);
+
+function longWarnText(level: LongWarnLevel) {
+    return level === 2 ? t("滚动过快，可能漏内容") : t("滚动偏快，请放慢");
+}
+
+function renderLongWarn() {
+    const el = longWarnEl.el;
+    if (!longWarnLevel) {
+        el.style.display = "none";
+        return;
+    }
+    el.classList.toggle("long_warn_danger", longWarnLevel === 2);
+    el.textContent = longWarnText(longWarnLevel);
+    el.style.display = "block";
+    positionLongWarn();
+}
+
+function positionLongWarn() {
+    const el = longWarnEl.el;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const gap = 8;
+    const x = finalRect[0] / ratio;
+    const y = finalRect[1] / ratio;
+    const rw = finalRect[2] / ratio;
+    const rh = finalRect[3] / ratio;
+    let left = rw / 2 - w / 2;
+    let top = rh + gap;
+    if (y + rh + gap + h <= window.innerHeight) {
+        // 优先放在选区下方，其次上方、右侧、左侧
+    } else if (y - gap - h >= 0) {
+        top = -gap - h;
+    } else if (x + rw + gap + w <= window.innerWidth) {
+        left = rw + gap;
+        top = rh / 2 - h / 2;
+    } else if (x - gap - w >= 0) {
+        left = -gap - w;
+        top = rh / 2 - h / 2;
+    } else {
+        // 四周都没有空间时贴在结束按钮旁，跟随最后一帧一起隐藏
+        left = Math.max(0, rw - w);
+        top = Math.max(0, rh - h - 24);
+    }
+    longWarnEl.style({ left: `${left}px`, top: `${top}px` });
+}
 
 trackPoint(pack(toolBar), {
     start: (e) => {

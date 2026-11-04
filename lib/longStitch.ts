@@ -1,3 +1,5 @@
+import type { LongWarnLevel } from "../src/ShareTypes";
+
 export type LongFrame = {
     width: number;
     height: number;
@@ -86,7 +88,27 @@ export type LongOffset = {
     dx: number;
     dy: number;
     confidence: number;
+    /** 与上一帧的重叠比例，0~1 */
+    overlap?: number;
 };
+
+/** 重叠比例低于该值时提示滚动偏快 */
+export const LONG_OVERLAP_WARN = 0.7;
+/** 重叠比例低于该值时提示滚动过快 */
+export const LONG_OVERLAP_DANGER = 0.55;
+/** 低于该置信度视为匹配不可信 */
+export const LONG_OVERLAP_CONFIDENCE = 0.4;
+
+export function longOverlapLevel(
+    overlap: number | undefined,
+    confidence = 1,
+): LongWarnLevel {
+    if (confidence < LONG_OVERLAP_CONFIDENCE) return 2;
+    if (overlap === undefined || Number.isNaN(overlap)) return 0;
+    if (overlap < LONG_OVERLAP_DANGER) return 2;
+    if (overlap < LONG_OVERLAP_WARN) return 1;
+    return 0;
+}
 
 export type LongOffsetFinder = (
     a: LongFrame,
@@ -432,6 +454,7 @@ export class LongStitcher {
                         dx: -match.dx,
                         dy: -match.dy,
                         confidence: match.confidence,
+                        overlap: raw.overlap,
                     },
                     applied: match,
                     margins,
@@ -449,6 +472,7 @@ export class LongStitcher {
                     dx: -match.dx,
                     dy: -match.dy,
                     confidence: match.confidence,
+                    overlap: raw.overlap,
                 },
                 applied: match,
                 margins,
@@ -471,6 +495,7 @@ export class LongStitcher {
                 dx: -match.dx,
                 dy: -match.dy,
                 confidence: match.confidence,
+                overlap: raw.overlap,
             },
             applied: match,
             margins,

@@ -812,5 +812,11 @@
     "21efe7": "Usar XDG Desktop Portal",
     "b9c720": "Usar XDG Desktop Portal para capturas en Linux. Adecuado para entornos Wayland, pero puede ser borroso con escalado fraccionario en múltiples monitores.",
     "ef8a00": "Ruta del modelo de detección global",
-    "1194ea": "Ruta del modelo de detección compartida por todos los modelos OCR sin conexión. Déjelo vacío para usar el modelo predeterminado."
+    "1194ea": "Ruta del modelo de detección compartida por todos los modelos OCR sin conexión. Déjelo vacío para usar el modelo predeterminado.",
+    "75a6e5": "Desplazamiento algo rápido, ve más despacio",
+    "46427f": "Desplazamiento demasiado rápido, puede perderse contenido",
+    "57fd0a": "Algo rápido",
+    "c21620": "Demasiado rápido",
+    "d0ca9a": "Ve más despacio",
+    "19e776": "Puede perderse contenido"
 }

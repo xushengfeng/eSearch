@@ -426,6 +426,26 @@ body input {
     cursor: pointer;
 }
 
+#long_warn {
+    position: absolute;
+    z-index: 1000;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: #3a2600;
+    background: #f5b93d;
+    box-shadow: 0 2px 10px #0006;
+    pointer-events: none;
+    display: none;
+}
+
+#long_warn.long_warn_danger {
+    color: #fff;
+    background: #c9343a;
+}
+
 /* 编辑栏 */
 .range-b {
     font-size: calc(var(--bar-size) / 3.75);

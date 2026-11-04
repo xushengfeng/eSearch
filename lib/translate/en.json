@@ -816,5 +816,11 @@
     "1194ea": "Detection model path shared by all offline OCR models. Leave blank to use the default model.",
     "b24ca9": "Hue",
     "4eb149": "Transparent",
-    "4dc9c0": "Saturation and brightness"
+    "4dc9c0": "Saturation and brightness",
+    "75a6e5": "Scrolling a bit fast, please slow down",
+    "46427f": "Scrolling too fast, content may be missed",
+    "57fd0a": "A bit fast",
+    "c21620": "Too fast",
+    "d0ca9a": "Slow down",
+    "19e776": "Content may be missed"
 }

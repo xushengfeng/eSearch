@@ -16,6 +16,7 @@ import type {
     LiveDingData,
     LiveDingTarget,
     LongControlInit,
+    LongWarnLevel,
     MainWinType,
     NormRect,
     setting,
@@ -87,9 +88,13 @@ type Message = {
     }) => void;
     /** 主进程通知截屏页开始抓帧 */
     long_compact_run: (preview: boolean) => void;
+    /** 紧凑模式滚动速度预警 */
+    long_compact_warn: (level: LongWarnLevel) => void;
     /** 紧凑长截屏完成，恢复全屏编辑器 */
     long_compact_end: () => void;
     long_control_init: (data: LongControlInit) => void;
+    /** 紧凑控制窗滚动速度预警 */
+    long_control_warn: (level: LongWarnLevel) => void;
     long_control_preview: (data: {
         data: string;
         w: number;

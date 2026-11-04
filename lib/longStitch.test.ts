@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
     type LongBounds,
     type LongFrame,
+    type LongOffsetFinder,
     type LongStep,
     LongStitcher,
+    longOverlapLevel,
 } from "./longStitch";
 
 const WIDTH = 160;
@@ -386,7 +388,7 @@ async function stitch(
     scrolls: number[],
     margins: { top: number; bottom: number; left?: number; right?: number },
     stickyMark = false,
-    finder = findOffset,
+    finder: LongOffsetFinder = findOffset,
     options: { refine?: boolean; padding?: number } = {},
 ) {
     const stitcher = new LongStitcher({
@@ -677,5 +679,31 @@ describe("LongStitcher", () => {
             expectedLongImageX(frames, scrolls, left, right),
         );
         expectRedOnlyAtHorizontalEdges(canvas, left, right);
+    });
+});
+
+describe("longOverlapLevel", () => {
+    it("按重叠比例和置信度分级", () => {
+        expect(longOverlapLevel(0.8, 0.9)).toBe(0);
+        expect(longOverlapLevel(0.6, 0.9)).toBe(1);
+        expect(longOverlapLevel(0.4, 0.9)).toBe(2);
+        expect(longOverlapLevel(0.9, 0.2)).toBe(2);
+        expect(longOverlapLevel(undefined, 1)).toBe(0);
+    });
+
+    it("把 findOffset 的 overlap 带到 offset 上", async () => {
+        const overlap = 0.42;
+        const stitcher = new LongStitcher({
+            findOffset: async () => ({
+                dx: 0,
+                dy: -60,
+                confidence: 0.9,
+                overlap,
+            }),
+            refine: false,
+        });
+        await stitcher.addFrame(makeFrame(0, 0, 0));
+        const step = await stitcher.addFrame(makeFrame(60, 0, 0));
+        expect(step.offset?.overlap).toBe(overlap);
     });
 });

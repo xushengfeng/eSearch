@@ -1738,6 +1738,13 @@ mainOn("long_compact_preview", ([data]) => {
     updateLongControlHeight(data);
 });
 
+mainOn("long_compact_warn", ([level]) => {
+    if (!longCompactActive || longControlPhase !== "running") return;
+    const win = longControlWindow;
+    if (!win || win.isDestroyed()) return;
+    mainSend(win.webContents, "long_control_warn", [level]);
+});
+
 mainOn("long_control_start", () => {
     if (!longCompactActive || longControlPhase !== "positioning") return;
     const preview = longControlInfo?.preview ?? false;

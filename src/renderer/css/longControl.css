@@ -70,6 +70,37 @@ body {
     text-overflow: ellipsis;
 }
 
+#lc_warn {
+    flex: none;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    line-height: 1.4;
+    color: #3a2600;
+    background: #f5b93d;
+    white-space: nowrap;
+}
+
+#lc_root.lc_warn1 #lc_head {
+    background: color-mix(in srgb, #f5b93d 30%, var(--bg));
+}
+
+#lc_root.lc_warn2 #lc_head {
+    background: color-mix(in srgb, #e5484d 32%, var(--bg));
+}
+
+#lc_root.lc_warn2 #lc_warn {
+    color: #fff;
+    background: #c9343a;
+    animation: lc_warn_pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes lc_warn_pulse {
+    50% {
+        opacity: 0.55;
+    }
+}
+
 #lc_space {
     flex: 1;
 }

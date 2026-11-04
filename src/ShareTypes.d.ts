@@ -601,6 +601,9 @@ type EditToolsType =
 
 type GithubUrlType = Omit<keyof setting["网络"]["github镜像"], "启用">;
 
+/** 长截屏滚动速度预警级别：0 正常，1 偏快，2 过快 */
+export type LongWarnLevel = 0 | 1 | 2;
+
 /** 紧凑长截屏控制窗的方向提示 */
 export type LongControlHint = {
     text: string;
