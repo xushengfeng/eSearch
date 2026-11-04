@@ -556,6 +556,20 @@ describe("LongStitcher", () => {
         expectSameImage(canvas, expected);
         expectRedOnlyAtEdges(canvas, 100, 20);
     });
+    it("亚像素偏移先取整再精修", async () => {
+        const subpixel = async (a: LongFrame, b: LongFrame) => {
+            const match = await findOffset(a, b);
+            return { ...match, dx: match.dx - 0.0004, dy: match.dy - 0.0004 };
+        };
+        const { canvas, expected } = await stitch(
+            [0, 60, 120],
+            { top: 24, bottom: 20 },
+            false,
+            subpixel,
+        );
+        expectSameImage(canvas, expected);
+        expectRedOnlyAtEdges(canvas, 24, 20);
+    });
     it("匹配偏几像素时整数精修能纠正", async () => {
         const biased = async (a: LongFrame, b: LongFrame) => {
             const match = await findOffset(a, b);

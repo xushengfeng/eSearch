@@ -93,8 +93,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       picture_match:
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.2.0
+        version: 0.2.0
       qr-scanner-wechat:
         specifier: ^0.1.3
         version: 0.1.3
@@ -2429,8 +2429,8 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
-  picture_match@0.1.4:
-    resolution: {integrity: sha512-VbvFkHuEa+f+Ce4nGNleZvSekvzyfyc5Nq5RkNMJ0u1tEIoPEyX3G/d2Qtb01zmdFPZLbBzEs+LrUxi4AJUvlQ==}
+  picture_match@0.2.0:
+    resolution: {integrity: sha512-Y+fdvPe8YwwAHnElzQM7upYMIXI9j3p1rU15JlfS5PvyqEdGLcdbqQ2BvaU4RwfN2MO3dmBBBXamA91uefLd8g==}
 
   pkijs@3.4.3:
     resolution: {integrity: sha512-V9kOzaItwDgqlryhXysQsAXUEKi5O7kqWUaP3dXI7MLvkPqWWMb4wVb1QAtmEDCKI+XIAINsZoNKMFF7sZb1eg==}
@@ -5190,7 +5190,7 @@ snapshots:
 
   picomatch@4.0.7: {}
 
-  picture_match@0.1.4: {}
+  picture_match@0.2.0: {}
 
   pkijs@3.4.3:
     dependencies:

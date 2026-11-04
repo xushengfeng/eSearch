@@ -392,7 +392,13 @@ export class LongStitcher {
         const margins = this.getMargins(frame);
         const matchA = this.matchFrame(this.lastFrame, margins);
         const matchB = this.matchFrame(frame, margins);
-        const found = await this.findOffset(matchA, matchB);
+        const raw = await this.findOffset(matchA, matchB);
+        // 长截屏按整数像素拼接，先把亚像素结果取整，再交给精修
+        const found = {
+            ...raw,
+            dx: Math.round(raw.dx),
+            dy: Math.round(raw.dy),
+        };
         const match = this.refine
             ? refineOffset(
                   matchA,
