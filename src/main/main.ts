@@ -703,15 +703,35 @@ const 快捷键函数: Record<keyof setting["快捷键"], () => void> = {
 let contextMenu: Electron.Menu | null = null;
 let tray: Tray | null = null;
 
-/** 依次读取可用的图标；全部失败返回 null，避免把路径交给 Electron 时直接抛出错误 */
+/** 图标文件不可用时使用，内嵌 32x32 PNG，保证托盘和窗口始终有图标 */
+const fallbackIcon = nativeImage.createFromBuffer(
+    Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAJ1AAACdQF32cIiAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAABSBJREFUWIXFl9tvVFUUxr+1zjnTaecUOg2iRpAKViS+GRQvaYIPPvhC0pjggyb66i1RizxwswTkEhsDROIzgQSBBwx/AQkxKZiSaIJG7AMUKCINtEU6M+fsvT8fzsz0zK2XqPEkO5k056zvt9f61tq7wP/8yOJepzz3AdardX0KrBaHbjiUPIebYvWOEsOXjmMEEP6rAOsGuEqc2yIW/XB4QhwgLpGp/FYnld834XiWkQ6NnJGxfwTQM8iuzIzZKU4/FIe2qnB6NYeAOBRBfuNi3TtyRqYWDbB6B3vVmXPi5NkkoDSKzw8BsRhVyqbhU/LrggFW7Y5f86ycFYeltWLJ63E7YDMEveTvXgkIioK2aUBNEwiHSaX0D38n5+cFeGoP19LZYSG60kGcEsU8EHeUP2yWCQtkpwW5CYFfaoCYJuSVH0/KlZYAPYPscoG5JE5606kt5YhSFwDWprtxSRUknBBkpxogrlojL6Y9oWkAmzW7qNJLBagABSh0A8X8IsTL4DN5YqbboRorWc94vtveNAOPD3GV0vwmTqpuN1mi1NlotDnF64yZnRRkH9R2h4tkbaVFqxmg2i1UtFEJKmADIgrnEDd0Xgl3/UjvioFr1RVRSNiA6SxkNeMGaktACj32z77ExGzN0m5hMzP4cvxhENzYFiy/vt1bfiP22jJFHlAL2ww26iCcpiGkPylwuQSPHY1eoJNLlQ9AwLQ3cbuFbSv6r17bJhfruwcAendyg6P9AYBXX6K2KUBTc4KQ9ZePyYgCgPGkL20W5zdvNY1xoJU4APy+Ry56Roaa+YNBOXY5ExD0VUsgkDVpAGhTs9lbW/1drcQrz9Ws7hBX8cSs+Wo2qATErakCOM91UVIATXYvVu5BxM0HgEExYuVefWeQSdVnIdAFAD4AULUEEnBlJJvUKx0AXPjRLUhQaxbKm6tolKMpAFA4nh4+jRkQiGM3BunPnwH6sMzXA5CpMiQak1UAq7xd4wFpNJE60RUZs2c+/d6HZr860QYAr9YHFIxWAURxMd2nNkAyA+rq6Fn5vGcfN7QSX7eVL3lGPms2FZ1fCwBfL6BaCVI6j5sxdVxR6dO2vwR+oTEQAGs9GRqzugODYipp7y2afV5JBtTW7b4sHrfXxBr75Yj2AMKqscIT0RF1+LicbnixoGOi+XhNeoGOIvfUCsSg2zNoSLuUJ2mxiyBqMnr410PeJ9USAIDNmINUFCp9agOitKT1WaBG1C/JMi/CspbiDiiFhK2mn6CiqNSvK7pVgMLmjlsQHk0PiyhHRCEXfgLWiUc5IArrzecOXTk8e1mtuQ/4QWYvFVfTEIU8UMjXZ2EecQKFbqKQZ63xiHGX8/enNWsA7m+WKfHdJiom0xDFpcTkSiLKJbZpKY5kx1MrieKS2Z6nJlDhn/po9rZ9I63ZdLqFJ+ONIM+Km70XVrpDDdD2APALAj+a7XHrM3VfrGvfCOi8I3AKRCFMqZPvXPvCP9USAACWnC4+7YyeE4d19RCtOqOZR7wYf+Sv6yMmoBeFyQUlytGUQrw+8X5wXlsBTG/OjgZ+8LJTfkVFMX2Upkdq3Z0vtVig8qDvvLWx796OQpiyOKIQfpTju3NmIP20ny486UXegDr0i8PKuTPBMbHyvdAfGh+QG5UYPbvNW3EHT0Qh/FKOiHP4tPBm5tDi/jklZemx+Hkh+oS6Rq3Lg4BS74NulAYXJj7KXG71+bJv441RyPfiHH4q/BwcxuACjvf/+vkb2+KVIc9a/ukAAAAASUVORK5CYII=",
+        "base64",
+    ),
+);
+
+/** 依次读取可用的图标；文件缺失、损坏或路径打不开时换下一个，全部失败用内置图标 */
 function loadIcon(...paths: string[]) {
     for (const p of paths) {
         if (!existsSync(p)) continue;
-        const image = nativeImage.createFromPath(p);
-        if (!image.isEmpty()) return image;
+        try {
+            const image = nativeImage.createFromPath(p);
+            if (!image.isEmpty()) return image;
+        } catch (error) {
+            console.error(`读取图标失败：${p}`, error);
+        }
+        if (p.toLowerCase().endsWith(".ico")) continue;
+        try {
+            // 路径本身打不开时，直接读文件内容再解码
+            const image = nativeImage.createFromBuffer(readFileSync(p));
+            if (!image.isEmpty()) return image;
+        } catch (error) {
+            console.error(`解码图标失败：${p}`, error);
+        }
     }
-    console.error(`图标加载失败：${paths.join("、")}`);
-    return null;
+    console.error(`图标加载失败，使用内置图标：${paths.join("、")}`);
+    return fallbackIcon;
 }
 
 const trayIcons = {
@@ -777,15 +797,10 @@ app.whenReady().then(() => {
 
     if (store.get("托盘") !== "无") {
         // 托盘
-        const trayImage = trayIcons.color ?? trayIcons.white ?? trayIcons.black;
-        if (trayImage) {
-            try {
-                tray = new Tray(trayImage);
-            } catch (e) {
-                console.error(`托盘创建失败：${e}`);
-            }
-        } else {
-            console.error("托盘图标不可用，跳过托盘");
+        try {
+            tray = new Tray(trayIcons.color);
+        } catch (e) {
+            console.error(`托盘创建失败：${e}`);
         }
 
         function update() {
@@ -993,7 +1008,7 @@ app.whenReady().then(() => {
         new Notification({
             title: app.name,
             body: `${app.name} ${t("已经在后台启动")}`,
-            icon: notifyIcon ?? undefined,
+            icon: notifyIcon,
         }).show();
 
     const 快捷键 = store.get("快捷键");
@@ -1217,7 +1232,7 @@ const baseWinConfig: () => Electron.BrowserWindowConstructorOptions = () => {
         ? store.get("全局.主题.dark.bg")
         : store.get("全局.主题.light.bg");
     return {
-        icon: theIcon ?? undefined,
+        icon: theIcon,
         autoHideMenuBar: true,
         backgroundColor: bg,
         webPreferences: {
@@ -1259,7 +1274,7 @@ const getClipWin = async () => {
 /** 初始化截屏后台窗口 */
 function createClipWindow() {
     const _clipWindow = new BrowserWindow({
-        icon: theIcon ?? undefined,
+        icon: theIcon,
         width: screen.getPrimaryDisplay().workAreaSize.width,
         height: screen.getPrimaryDisplay().workAreaSize.height,
         show: false,
@@ -1796,7 +1811,7 @@ mainOn("clip_save", async ([type]) => {
         new Notification({
             title: `${app.name} ${t("保存文件失败")}`,
             body: t("用户已取消保存"),
-            icon: notifyIcon ?? undefined,
+            icon: notifyIcon,
         }).show();
         clipWindow?.show();
         clipWindow?.setSimpleFullScreen(true);
@@ -2315,7 +2330,7 @@ function ding(img: NativeImage) {
 
 function dingWindowOptions(): Electron.BrowserWindowConstructorOptions {
     return {
-        icon: theIcon ?? undefined,
+        icon: theIcon,
         transparent: true,
         frame: false,
         alwaysOnTop: true,
@@ -2473,7 +2488,7 @@ function createDingWindow(
             new Notification({
                 title: `${app.name} ${t("动态贴图")}`,
                 body: t("动态贴图数量已达到上限"),
-                icon: notifyIcon ?? undefined,
+                icon: notifyIcon,
             }).show();
             return;
         }
@@ -3169,7 +3184,7 @@ function noti(filePath: string) {
     const notification = new Notification({
         title: `${app.name} ${t("保存文件成功")}`,
         body: `${t("已保存文件到")} ${filePath}`,
-        icon: notifyIcon ?? undefined,
+        icon: notifyIcon,
     });
     notification.on("click", () => {
         shell.showItemInFolder(filePath);
@@ -3181,7 +3196,7 @@ mainOn("noti", ([{ title, body }]) => {
     const notification = new Notification({
         title: `${app.name} ${title}`,
         body: body,
-        icon: notifyIcon ?? undefined,
+        icon: notifyIcon,
     });
     notification.show();
 });
@@ -3944,7 +3959,7 @@ function showVersion(arg?: { v: string; url: string } | "err") {
     const notification = new Notification({
         title,
         body: b,
-        icon: notifyIcon ?? undefined,
+        icon: notifyIcon,
     });
     notification.on("click", () => {
         shell.openExternal(url);
