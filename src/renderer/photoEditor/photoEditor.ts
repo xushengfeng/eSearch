@@ -17,12 +17,16 @@ import {
 } from "dkh-ui";
 import store from "../../../lib/store/renderStore";
 import type { setting } from "../../ShareTypes";
-import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
-
-const { nativeImage } = window.require("electron") as typeof import("electron");
-
 import { writeImage } from "../lib/clipboard";
 import { colorPicker } from "../lib/colorPicker";
+import {
+    clipboardImageFormat,
+    encodeCanvasImage,
+    type ImageFormat,
+    imageFormatMime,
+    isImageFormatSupported,
+} from "../lib/imageExport";
+import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 
 const { existsSync, writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
@@ -167,6 +171,8 @@ const preview = view().style({
     padding: "32px",
 });
 
+const avifSupported = await isImageFormatSupported("avif");
+
 // 新建 Record 变量存储 UI 元素
 const els = {
     select: pzSelect().sv(pz.map((i) => getStyleData(i.name))),
@@ -225,10 +231,14 @@ const els = {
         { value: "jpg", name: noI18n("JPEG") },
         { value: "webp", name: noI18n("WebP") },
         { value: "bmp", name: noI18n("BMP") },
+        ...(avifSupported
+            ? [{ value: "avif" as const, name: noI18n("AVIF") }]
+            : []),
     ]).sv(
         (() => {
             const format = store.get("保存.默认格式");
             if (format === "svg") return "png";
+            if (format === "avif" && !avifSupported) return "png";
             return format;
         })(),
     ),
@@ -365,20 +375,31 @@ const controls = frame("sidebar", {
         },
         _ex_save: {
             _: flexLayout("x"),
-            save: button(icon("save")).on("click", () => {
+            save: button(icon("save")).on("click", async () => {
                 const path = renderSendSync("save_file_path", [els.formart.gv]);
                 if (!path) return;
-                const img = getImg(true).replace(
-                    /^data:image\/\w+;base64,/,
-                    "",
-                );
-                writeFileSync(path, Buffer.from(img, "base64"));
+                try {
+                    writeFileSync(path, await getImgBytes());
+                } catch (e) {
+                    console.error("保存失败", e);
+                    return;
+                }
                 renderSend("ok_save", [path]);
                 renderSend("windowClose", []);
             }),
             copy: button(icon("copy")).on("click", async () => {
-                const img = await getImg("blob");
-                await writeImage(img);
+                const format = clipboardImageFormat(
+                    els.formart.gv as ImageFormat,
+                );
+                try {
+                    const img = await getImgBytes(format);
+                    await writeImage(
+                        new Blob([img], { type: imageFormatMime[format] }),
+                    );
+                } catch (e) {
+                    console.error("复制失败", e);
+                    return;
+                }
                 renderSend("windowClose", []);
             }),
         },
@@ -458,10 +479,7 @@ function autoScale(type: "width" | "height") {
     }
 }
 
-function getImg(): Electron.NativeImage;
-function getImg(base64: true): string;
-function getImg(blob: "blob"): Promise<Blob>;
-function getImg(base64: boolean | "blob" = false) {
+function getImgBytes(format: ImageFormat = els.formart.gv as ImageFormat) {
     const x = ele("canvas").attr({
         width: Number(els.photoW.gv),
         height: Number(els.photoH.gv),
@@ -479,18 +497,7 @@ function getImg(base64: boolean | "blob" = false) {
         x.width,
         x.height,
     );
-    const type = {
-        png: "image/png",
-        jpg: "image/jpeg",
-        webp: "image/webp",
-        bmp: "image/bmp",
-    };
-    const url = x.toDataURL(type[els.formart.gv], Number(els.quality.gv));
-    if (base64 === "blob") {
-        return fetch(url).then((r) => r.blob());
-    }
-    if (base64) return url;
-    return nativeImage.createFromDataURL(url);
+    return encodeCanvasImage(x, format, Number(els.quality.gv));
 }
 
 function gColors() {

@@ -618,3 +618,92 @@ export function muxAvif(opts: MuxAvifOptions) {
     );
     return concat(ftyp, meta, moov, mdat);
 }
+
+export type MuxAvifStillOptions = {
+    width: number;
+    height: number;
+    /** 单帧 AV1 码流（含 sequence header） */
+    data: Uint8Array;
+    /** 不传则从码流解析 */
+    info?: Av1SequenceInfo;
+    /** 解析失败时用于兜底的 codec string，如 av01.1.04M.08 */
+    fallbackCodec?: string;
+};
+
+/** 静止图像 AVIF 封装；alpha 需要辅助 item，暂不支持 */
+export function muxAvifStill(opts: MuxAvifStillOptions) {
+    const { width, height, data } = opts;
+    if (data.length > 0xffff_ffff) throw new Error("mdat too large");
+    const info =
+        opts.info ??
+        parseAv1SequenceHeader(data) ??
+        (opts.fallbackCodec ? infoFromCodec(opts.fallbackCodec) : null);
+    if (!info) throw new Error("no AV1 sequence header");
+    const brand = info.profile === 0 && info.bitDepth === 8 ? "MA1B" : "MA1A";
+
+    const ftyp = box(
+        "ftyp",
+        str("avif"),
+        u32(0),
+        ...["avif", "mif1", "miaf", brand].map(str),
+    );
+
+    const build = (colorOffset: number) => {
+        const iloc = fullbox(
+            "iloc",
+            0,
+            0,
+            u8(0x44, 0),
+            u16(1),
+            u16(1),
+            u16(0),
+            u16(1),
+            u32(colorOffset),
+            u32(data.length),
+        );
+        const iinf = fullbox(
+            "iinf",
+            0,
+            0,
+            u16(1),
+            fullbox(
+                "infe",
+                2,
+                0,
+                u16(1),
+                u16(0),
+                str("av01"),
+                str("Color"),
+                u8(0),
+            ),
+        );
+        const ipco = box(
+            "ipco",
+            ispe(width, height),
+            pixi(info.bitDepth),
+            av1C(info),
+            nclx(info),
+        );
+        const ipma = fullbox(
+            "ipma",
+            0,
+            0,
+            u32(1),
+            u16(1),
+            u8(4, 1, 2, 0x83, 4),
+        );
+        return fullbox(
+            "meta",
+            0,
+            0,
+            fullbox("hdlr", 0, 0, u32(0), str("pict"), zeros(12), u8(0)),
+            fullbox("pitm", 0, 0, u16(1)),
+            iloc,
+            iinf,
+            box("iprp", ipco, ipma),
+        );
+    };
+
+    const dataStart = ftyp.length + build(0).length + 8;
+    return concat(ftyp, build(dataStart), box("mdat", data));
+}

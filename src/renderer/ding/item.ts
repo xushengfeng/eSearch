@@ -17,6 +17,12 @@ import type {
     NormRect,
 } from "../../ShareTypes";
 import { writeImage } from "../lib/clipboard";
+import {
+    encodeImageSource,
+    type ImageFormat,
+    imageFormatMime,
+    isImageFormatSupported,
+} from "../lib/imageExport";
 import { Class, getImgUrl } from "../root/root";
 import { dxdy, type Frame } from "./layout";
 import { drawTranslation, preTranAndOcr, UnConfigTranslateError } from "./ocr";
@@ -241,17 +247,34 @@ export async function copyDing(data: DingItemData, url = getUrl(data)) {
     await writeImage(blob);
 }
 
-export function saveDing(data: DingItemData, url = getUrl(data)) {
-    const b = Buffer.from(
-        url.replace(/^data:image\/\w+;base64,/, ""),
-        "base64",
-    );
+export async function saveDing(data: DingItemData, url = getUrl(data)) {
+    const format = await dingSaveFormat();
     renderSend("windowTopest", [false]);
-    const save = renderSendSync("save_file_path", ["png"]);
+    const save = renderSendSync("save_file_path", [format]);
     renderSend("windowTopest", [true]);
     if (!save) return;
-    fs.writeFileSync(save, b);
+    try {
+        fs.writeFileSync(save, await encodeDingSource(url, format));
+    } catch (e) {
+        console.error("保存失败", e);
+        return;
+    }
     renderSend("ok_save", [save]);
+}
+
+async function dingSaveFormat(): Promise<ImageFormat> {
+    const format = store.get("保存.默认格式");
+    if (format === "svg") return "png";
+    if (await isImageFormatSupported(format)) return format;
+    return "png";
+}
+
+/** 源数据就是目标格式时直接写入，避免重新编码 */
+async function encodeDingSource(url: string, format: ImageFormat) {
+    const match = /^data:(image\/[\w.+-]+);base64,/.exec(url);
+    if (match?.[1] === imageFormatMime[format])
+        return Buffer.from(url.slice(match[0].length), "base64");
+    return encodeImageSource(url, format);
 }
 
 export function editDing(data: DingItemData, url = getUrl(data)) {

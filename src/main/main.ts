@@ -344,6 +344,7 @@ const imageExt: Record<string, string> = {
     "image/webp": "webp",
     "image/bmp": "bmp",
     "image/gif": "gif",
+    "image/avif": "avif",
     "image/svg+xml": "svg",
 };
 

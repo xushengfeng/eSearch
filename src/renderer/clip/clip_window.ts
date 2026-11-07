@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 
 import { EraserBrush } from "@erase2d/fabric";
-import bmp from "bmp-js";
 import chroma from "chroma-js";
 import { detectBorders } from "edge_det";
 import {
@@ -38,6 +37,12 @@ import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 import { isWaylandSession } from "../../../lib/wayland";
 import { writeImage, writeText } from "../lib/clipboard";
+import {
+    clipboardImageFormat,
+    encodeCanvasImage,
+    imageFormatMime,
+    isImageFormatSupported,
+} from "../lib/imageExport";
 import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
 import initScreenShots, { getWindowInfos } from "../screenShot/screenShot";
@@ -1639,6 +1644,7 @@ function runSave() {
         i.el.className = "";
     }
     let i = type2N.indexOf(store.get("保存.默认格式"));
+    if (i < 0) i = 0;
     els[i].el.className = "suffix_h";
     toHotkeyScope("c_bar");
     hotkeys("enter", "c_bar", () => {
@@ -1670,43 +1676,29 @@ async function save(message: string) {
     if (_type !== "svg") store.set("保存.默认格式", _type);
 
     const fs = require("node:fs");
-    let dataBuffer: Buffer;
-    if (_type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
-    else if (_type === "bmp") {
-        const nc = getClipPhoto();
-        const mainCtx = nc.getContext("2d")!;
-        const data = mainCtx.getImageData(0, 0, nc.width, nc.height);
-        const abgrArray = new Uint8Array(data.data.length);
-        for (let i = 0; i < data.data.length; i += 4) {
-            abgrArray[i] = data.data[i + 3];
-            abgrArray[i + 1] = data.data[i + 2];
-            abgrArray[i + 2] = data.data[i + 1];
-            abgrArray[i + 3] = data.data[i];
+    let dataBuffer: Uint8Array;
+    try {
+        if (_type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
+        else {
+            const nc = getClipPhoto();
+            dataBuffer = await encodeCanvasImage(nc, _type);
+            if (store.get("保存.保存并复制")) {
+                // 剪贴板只稳定支持常见类型，其他格式另编码一份 png
+                const copyType = clipboardImageFormat(_type);
+                const copyBuffer =
+                    copyType === _type
+                        ? dataBuffer
+                        : await encodeCanvasImage(nc, "png");
+                await writeImage(
+                    new Blob([copyBuffer], {
+                        type: imageFormatMime[copyType],
+                    }),
+                ); // todo tip
+            }
         }
-        const arrayBuffer = bmp.encode({
-            data: Buffer.from(abgrArray),
-            width: data.width,
-            height: data.height,
-        }).data;
-        dataBuffer = arrayBuffer;
-    } else {
-        let f: Blob | null = null;
-        const nc = getClipPhoto();
-        if (_type === "png") {
-            f = await getBlob(nc, "image/png");
-        } else if (_type === "jpg") {
-            f = await getBlob(nc, "image/jpeg");
-        } else if (_type === "webp") {
-            f = await getBlob(nc, "image/webp");
-        }
-        if (!f) {
-            // todo error
-            return;
-        }
-        dataBuffer = Buffer.from(await f.arrayBuffer());
-        if (store.get("保存.保存并复制")) {
-            await writeImage(f); // todo tip
-        }
+    } catch (e) {
+        console.error("保存失败", e);
+        return;
     }
 
     fs.writeFile(message, dataBuffer, (err: Error | null) => {
@@ -4199,7 +4191,9 @@ const saveType = view()
     .attr({ id: "save_type" })
     .addInto(centerBarEl)
     .add(view().add(t("保存文件格式为")));
-const saveTypeList: (typeof type)[] = ["png", "jpg", "webp", "bmp", "svg"];
+const saveTypeList: (typeof type)[] = ["png", "jpg", "webp", "bmp"];
+if (await isImageFormatSupported("avif")) saveTypeList.push("avif");
+saveTypeList.push("svg");
 const suffixList = saveTypeList.map((i) =>
     view()
         .data({ value: i })
