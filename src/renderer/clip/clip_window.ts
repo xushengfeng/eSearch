@@ -336,8 +336,10 @@ async function setScreen(i: (typeof allScreens)[0]) {
     if (!img) return;
     const w = img.width;
     const h = img.height;
-    mainCanvas.width = drawCanvas.width = w;
-    mainCanvas.height = drawCanvas.height = h;
+    mainCanvas.width = w;
+    mainCanvas.height = h;
+    // 由 Fabric 同步上下层画布，避免尺寸不一致导致点击位置偏移
+    fabricCanvas.setDimensions({ width: w, height: h });
     setClipSize(w, h);
     toCanvas(mainCanvas, img);
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
@@ -1298,8 +1300,8 @@ function applyLongStep(frameCanvas: HTMLCanvasElement, step: LongStep) {
 function pjLong() {
     const oCanvas = longX.img;
     if (!oCanvas) return;
-    mainCanvas.width = drawCanvas.width = oCanvas.width;
-    mainCanvas.height = drawCanvas.height = oCanvas.height;
+    mainCanvas.width = oCanvas.width;
+    mainCanvas.height = oCanvas.height;
     setClipSize(oCanvas.width, oCanvas.height);
 
     const ggid = oCanvas
@@ -5353,7 +5355,9 @@ drawSide操作.删除.on("click", () => {
 
 const Filters = filters;
 
-const fabricCanvas = new Canvas("draw_photo");
+const fabricCanvas = new Canvas("draw_photo", {
+    enableRetinaScaling: false,
+});
 
 hisPush();
 
