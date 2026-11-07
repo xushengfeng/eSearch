@@ -127,6 +127,12 @@ const lastTransOpt: { codec: string; size: string } = {
 
 let lastEncodedChunks: (EncodedVideoChunk | null)[] = [];
 
+/** 最近一次转换编码的编解码器描述（如 avcC），封装 MP4 时需要 */
+let transformEncoderMeta: {
+    codec: string;
+    description: Uint8Array;
+} | null = null;
+
 /** 录制得到的音频，见 docs/develop/superRecorderAudio.md */
 let srcAudio: SrcAudio | null = null;
 /** 变换后的音频，与 transformCs 同一时间轴 */
@@ -138,6 +144,11 @@ const outputV = {
     width: 0,
     height: 0,
 };
+
+/** H.264 只支持偶数宽高，输出尺寸统一取偶数，偏差不超过 1px */
+function evenSize(size: number) {
+    return Math.max(2, Math.round(size / 2) * 2);
+}
 
 /** 输出画面宽高比：普通录屏取截屏选区，超级录屏取整屏 */
 let outputAspect = 0;
@@ -1194,12 +1205,14 @@ let runningTransform: { key: string; promise: Promise<true | null> } | null =
 
 /** 等待处理链完全完成：任务只会被“加入的新任务”打断（同步接管其状态），
  * 被取代（resolve null）或完成后若仍有后续任务则继续等待——
- * 消费方（导出）永远拿到链尾的完成态，不会基于半截状态工作 */
+ * 消费方（导出）永远拿到链尾的完成态，不会基于半截状态工作。
+ * 返回 false 表示这一轮转换出错，导出应中止 */
 async function waitProcessing(op?: Partial<typeof lastTransOpt>) {
-    await transform(op);
+    let ok = await transform(op);
     while (runningTransform) {
-        await runningTransform.promise;
+        ok = await runningTransform.promise;
     }
+    return ok === true;
 }
 
 async function transform(op?: Partial<typeof lastTransOpt>) {
@@ -1430,7 +1443,25 @@ async function runTransform(
             error: (e) => console.error("Decode error:", e),
         });
         const encoder = new VideoEncoder({
-            output: (c: EncodedVideoChunk) => {
+            output: (
+                c: EncodedVideoChunk,
+                metadata?: EncodedVideoChunkMetadata,
+            ) => {
+                const description = metadata?.decoderConfig?.description;
+                if (description && metadata?.decoderConfig) {
+                    const bytes =
+                        description instanceof ArrayBuffer
+                            ? new Uint8Array(description).slice()
+                            : new Uint8Array(
+                                  description.buffer,
+                                  description.byteOffset,
+                                  description.byteLength,
+                              ).slice();
+                    transformEncoderMeta = {
+                        codec: metadata.decoderConfig.codec,
+                        description: bytes,
+                    };
+                }
                 const id = srcCs.timestamp2Id(c.timestamp);
                 if (id === -1) {
                     console.log("no id", c.timestamp);
@@ -2915,12 +2946,8 @@ async function saveWebm(op: { codec: "vp8" | "vp9" | "av1" }) {
     }
 }
 
-async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
-    const exportPath = getSavePath("mp4");
-    if (!exportPath) return;
-
-    await waitProcessing({ codec: op.codec });
-
+/** 把 transformCs 封装为 MP4；返回 null 表示没有数据 */
+async function encodeMp4(op: { codec: "avc" | "vp9" | "av1"; audio: boolean }) {
     const output = new Output({
         format: new Mp4OutputFormat(),
         target: new BufferTarget(),
@@ -2931,34 +2958,59 @@ async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
         frameRate: srcRate,
     });
 
-    const audioSource = await createAudioSource(output.format);
+    const audioSource = op.audio
+        ? await createAudioSource(output.format)
+        : null;
     if (audioSource) output.addAudioTrack(audioSource);
 
     await output.start();
 
+    const codecString =
+        codecMap.get(op.codec)?.codec ?? decoderVideoConfig.codec;
+    const avcDescription =
+        op.codec === "avc" && transformEncoderMeta?.codec === codecString
+            ? transformEncoderMeta.description
+            : null;
+    if (op.codec === "avc" && !avcDescription)
+        throw new Error("缺少 H.264 编码配置，无法封装 MP4");
+    const description = avcDescription ? { description: avcDescription } : {};
     for (const [_, chunk] of transformCs.entries()) {
         await videoSource.add(EncodedPacket.fromEncodedChunk(chunk), {
             decoderConfig: {
                 ...decoderVideoConfig,
+                codec: codecString,
                 codedWidth: outputV.width,
                 codedHeight: outputV.height,
+                ...description,
             },
         });
     }
     if (audioSource && transAudio) {
         await audioSource.add(transAudio);
-    } else if (srcAudio) {
+    } else if (op.audio && srcAudio) {
         tipNoAudio();
     }
     await output.finalize();
     const { buffer } = output.target;
-    if (buffer) {
-        fs.writeFileSync(exportPath, Buffer.from(buffer)); // todo stream
-        console.log("saved mp4");
-        renderSend("ok_save", [exportPath, true]);
-    } else {
-        // todo
+    return buffer ? new Uint8Array(buffer) : null;
+}
+
+async function saveMp4(op: { codec: "avc" | "vp9" | "av1" }) {
+    const exportPath = getSavePath("mp4");
+    if (!exportPath) return;
+
+    if (!(await waitProcessing({ codec: op.codec }))) return;
+    let bytes: Uint8Array | null;
+    try {
+        bytes = await encodeMp4({ codec: op.codec, audio: true });
+    } catch (e) {
+        console.error("MP4 导出失败", e);
+        return;
     }
+    if (!bytes) return;
+    fs.writeFileSync(exportPath, Buffer.from(bytes)); // todo stream
+    console.log("saved mp4");
+    renderSend("ok_save", [exportPath, true]);
 }
 
 function iconEl(src: IconType) {
@@ -4217,15 +4269,15 @@ pack(document.body).style({
     exportPx.setList(
         [1, 2, 3, 4, 8].map((i) => ({
             value: String(i),
-            name: `/${i} ${Math.round(outBaseW / i)} x ${Math.round(outBaseH / i)}`,
+            name: `/${i} ${evenSize(outBaseW / i)} x ${evenSize(outBaseH / i)}`,
         })),
     );
 
     exportPx.el.on("change", async () => {
         const x = Number(exportPx.el.gv);
         store.set("录屏.超级录屏.缩放", x);
-        outputV.width = Math.round(outBaseW / x);
-        outputV.height = Math.round(outBaseH / x);
+        outputV.width = evenSize(outBaseW / x);
+        outputV.height = evenSize(outBaseH / x);
         setPlaySize();
         // 尺寸编辑：立即刷新预览（脏帧自动等待），不阻塞
         const p = transform({
@@ -4239,8 +4291,8 @@ pack(document.body).style({
 
     exportPx.el.sv(String(lastR));
 
-    outputV.width = Math.round(outBaseW / lastR);
-    outputV.height = Math.round(outBaseH / lastR);
+    outputV.width = evenSize(outBaseW / lastR);
+    outputV.height = evenSize(outBaseH / lastR);
 
     const reader = new MediaStreamTrackProcessor({
         track: videoTrack,
