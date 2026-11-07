@@ -206,7 +206,7 @@ body input {
     left: 80px;
     top: 100px;
     width: var(--bar-size);
-    height: calc(var(--bar-size) * 7);
+    height: calc(var(--bar-size) * 4);
     position: fixed;
     z-index: 100;
     transition:
@@ -562,4 +562,106 @@ body input {
 }
 #draw_filters_bs > div:hover {
     background-color: var(--hover-color);
+}
+
+/* 元素属性栏 */
+#element_bar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 101;
+    display: none;
+    width: max-content;
+    min-width: 178px;
+    max-width: min(320px, calc(100vw - 16px));
+    max-height: calc(100vh - 16px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 4px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+#element_bar_header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 2px 4px;
+}
+#element_bar_header > :first-child {
+    flex: 1;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#element_bar_body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+#element_bar .prop_row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 24px;
+}
+#element_bar .prop_row > :first-child {
+    flex: 0 0 auto;
+    min-width: 34px;
+    color: var(--font-color);
+    opacity: 0.82;
+    font-size: 12px;
+}
+#element_bar .prop_row > :last-child {
+    min-width: 0;
+}
+#element_bar input[type="number"],
+#element_bar input[type="text"] {
+    width: 64px;
+    height: 22px;
+    font-size: 12px;
+    padding: 0 4px;
+    border-radius: 4px;
+}
+#element_bar input[type="color"] {
+    width: 32px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+}
+#element_bar select {
+    height: 22px;
+    min-width: 72px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+#element_bar textarea {
+    width: 100%;
+    min-height: 48px;
+    font-size: 12px;
+    resize: vertical;
+    border-radius: 4px;
+}
+#element_bar .range-b {
+    width: 100px;
+    height: 22px;
+    font-size: 11px;
+    border-radius: 4px;
+}
+#element_bar .prop_action {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+#element_bar .prop_actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding-top: 2px;
+}
+#element_bar .prop_mixed {
+    opacity: 0.45;
 }

@@ -63,7 +63,9 @@ import {
     input,
     p,
     pack,
+    select,
     setProperties,
+    textarea,
     trackPoint,
     txt,
     view,
@@ -386,6 +388,7 @@ function setEditorP(zoom: number, x: number, y: number) {
 
     refreshClipUi();
     whBar(finalRect);
+    scheduleElementBarPosition();
 }
 
 /** 截图坐标 → 屏幕逻辑像素 */
@@ -675,12 +678,14 @@ function drawM(v: boolean) {
         // 绘画模式
         clipEl.style.pointerEvents = "none";
         whEl.style({ pointerEvents: "none" });
+        refreshPropertyPanel();
     } else {
         // 裁切模式
         clipEl.style.pointerEvents = "auto";
         fabricCanvas.discardActiveObject();
         fabricCanvas.renderAll();
         whEl.style({ pointerEvents: "auto" });
+        hideElementBar();
     }
 }
 
@@ -2915,6 +2920,10 @@ function hisPush() {
  * @param {boolean} v true向前 false向后
  */
 function undo(v: boolean) {
+    if (propertyHistoryTimer) {
+        clearTimeout(propertyHistoryTimer);
+        propertyHistoryTimer = undefined;
+    }
     if (v) {
         undoStack.undo();
     } else {
@@ -2967,6 +2976,9 @@ function setEditType<T extends keyof EditType>(
     mainType: T,
     type: EditType[T],
 ): void {
+    if (mainType !== "select") {
+        fabricCanvas.discardActiveObject();
+    }
     if (!(mainType === "select" && type === "draw")) {
         editType[mainType] = type;
         nowType = mainType;
@@ -3068,6 +3080,7 @@ function setEditType<T extends keyof EditType>(
         mainType === "draw" ||
             (mainType === "shape" && strokeShapes.includes(type)),
     );
+    refreshPropertyPanel();
 }
 
 function showSideBarItem(index: number) {
@@ -3116,6 +3129,8 @@ function showBars(b: boolean) {
             i.style.opacity = "0";
         }
     }
+    if (b) refreshPropertyPanel();
+    else hideElementBar();
 }
 function pencilElClick() {
     fabricCanvas.freeDrawingBrush = new PencilBrush(fabricCanvas);
@@ -3963,14 +3978,6 @@ const drawMainElsx = {
     free: iconEl("free_draw").attr({ id: "draw_free", title: "自由绘画" }),
     shapes: iconEl("shapes").attr({ id: "draw_shapes", title: "形状和文字" }),
     filters: iconEl("filters").attr({ id: "draw_filters", title: "滤镜" }),
-    color: view()
-        .attr({ id: "draw_color", title: "颜色和大小" })
-        .add(drawColorEl),
-    position: iconEl("position").attr({
-        id: "draw_position",
-        title: "层叠高度",
-    }),
-    操作: iconEl("setting").attr({ id: "draw_操作", title: "操作" }),
 } as const;
 
 const drawBarMainElList = Object.values(drawMainElsx);
@@ -4106,10 +4113,7 @@ const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
     },
     {
         w: 1,
-        el: drawSideGen2("free").add([
-            ...drawSideGen(drawSideFree, "free"),
-            drawShadowBlur,
-        ]),
+        el: drawSideGen2("free").add(drawSideGen(drawSideFree, "free")),
     },
     {
         w: 2,
@@ -4118,7 +4122,6 @@ const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
     {
         w: 3,
         el: drawSideGen2("filters").add([
-            filterRangeEl,
             ...drawSideGen(drawSideFilters, "filters"),
             ...Object.values(drawSideFiltersMoreGray),
             view()
@@ -4126,17 +4129,20 @@ const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
                 .add(Object.values(drawSideFiltersMore)),
         ]),
     },
-    { w: 1, el: drawColorSide },
-    {
-        w: 1,
-        el: drawSideGen2("position").add(
-            drawSideGen(drawSidePosition, "position"),
-        ),
-    },
-    { w: 1, el: drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")) },
 ];
 
 drawBarSideEl.add(drawBarSideElChildren.map((i) => i.el));
+
+const elementBar = view()
+    .attr({ id: "element_bar" })
+    .class(Class.glassBar)
+    .addInto();
+const elementBarHeader = view()
+    .attr({ id: "element_bar_header" })
+    .addInto(elementBar);
+const elementBarBody = view()
+    .attr({ id: "element_bar_body" })
+    .addInto(elementBar);
 
 const whEl = view("x").attr({ id: "clip_wh" }).class(Class.glassBar, Class.gap);
 const whX0 = input();
@@ -5295,9 +5301,12 @@ document.onmousemove = (e) => {
 
             const isDrawBar = drawBar.contains(ev.target as HTMLElement);
             const isToolBar = toolBar.contains(ev.target as HTMLElement);
+            const isElementBar = elementBar.el.contains(
+                ev.target as HTMLElement,
+            );
             mouseBarEl.el.classList.toggle(
                 "mouse_bar_hide",
-                isDrawBar || isToolBar,
+                isDrawBar || isToolBar || isElementBar,
             );
 
             // 画板栏移动
@@ -5370,6 +5379,730 @@ const freeColor = store.get("图像编辑.默认属性.画笔颜色");
 const freeWidth = store.get("图像编辑.默认属性.画笔粗细");
 
 const shapePro: setting["图像编辑"]["形状属性"] = {};
+
+// 属性栏
+let elementBarVisible = false;
+let elementBarSide: "right" | "left" | "bottom" | "top" = "right";
+let elementBarRaf = 0;
+let propertyHistoryTimer: NodeJS.Timeout | undefined;
+
+function schedulePropertyHistory() {
+    if (propertyHistoryTimer) clearTimeout(propertyHistoryTimer);
+    propertyHistoryTimer = setTimeout(() => {
+        propertyHistoryTimer = undefined;
+        hisPush();
+    }, 250);
+}
+
+function setElementBarVisible(v: boolean) {
+    elementBarVisible = v;
+    elementBar.el.style.display = v ? "block" : "none";
+    if (v) scheduleElementBarPosition();
+}
+
+function hideElementBar() {
+    setElementBarVisible(false);
+}
+
+function actionButton(label: string, f: () => void) {
+    return txt(t(label)).class(Class.click).class("prop_action").on("click", f);
+}
+
+function propertyRow(label: string, control: ElType<HTMLElement>) {
+    return view("x")
+        .class("prop_row")
+        .add([txt(t(label)), control]);
+}
+
+function commonValue<T>(
+    objects: FabricObject[],
+    get: (o: FabricObject) => T | undefined,
+): T | undefined {
+    const values = objects.map(get);
+    return values.every((v) => v === values[0]) ? values[0] : undefined;
+}
+
+function applyActive(f: (o: FabricObject) => void) {
+    const objects = fabricCanvas.getActiveObjects();
+    if (!objects.length) return;
+    for (const o of objects) {
+        f(o);
+        o.setCoords();
+    }
+    fabricCanvas.requestRenderAll();
+    schedulePropertyHistory();
+    scheduleElementBarPosition();
+}
+
+function propertyNumber(
+    label: string,
+    get: () => number | undefined,
+    set: (v: number) => void,
+    step = 1,
+) {
+    const i = input("number").attr({ step: String(step) });
+    const v = get();
+    if (v === undefined) {
+        i.el.placeholder = "—";
+        i.el.classList.add("prop_mixed");
+    } else {
+        i.el.value = String(Math.round(v * 100) / 100);
+    }
+    i.on("input", () => {
+        const n = Number(i.gv);
+        if (!Number.isFinite(n)) return;
+        i.el.classList.remove("prop_mixed");
+        set(n);
+    });
+    return propertyRow(label, i);
+}
+
+function propertyRange(
+    label: string,
+    min: number,
+    max: number,
+    step: number,
+    get: () => number | undefined,
+    set: (v: number) => void,
+) {
+    const r = rangeBar(min, max, step).on("input", () => {
+        r.el.classList.remove("prop_mixed");
+        set(r.gv);
+    });
+    const v = get();
+    if (v === undefined) {
+        r.el.classList.add("prop_mixed");
+    } else {
+        r.sv(v);
+    }
+    return propertyRow(label, r);
+}
+
+function propertyColor(
+    label: string,
+    get: () => string | undefined,
+    set: (v: string) => void,
+) {
+    const color = input("color");
+    const alpha = rangeBar(0, 1, 0.01);
+    const value = get();
+    const c = value ? chroma(value) : chroma("#fff");
+    color.el.value = c.hex("rgb");
+    alpha.sv(c.alpha());
+    if (value === undefined) color.el.classList.add("prop_mixed");
+    const apply = () => {
+        color.el.classList.remove("prop_mixed");
+        set(chroma(color.gv).alpha(alpha.gv).css());
+        schedulePropertyHistory();
+    };
+    color.on("input", apply);
+    alpha.on("input", apply);
+    return propertyRow(
+        label,
+        view("x")
+            .style({ gap: "4px", alignItems: "center" })
+            .add([color, alpha]),
+    );
+}
+
+function propertySelect(
+    label: string,
+    options: { name: string; value: string }[],
+    get: () => string | undefined,
+    set: (v: string) => void,
+) {
+    const s = select(options);
+    const v = get();
+    if (v !== undefined) s.sv(v);
+    s.on("change", () => {
+        set(s.gv);
+        schedulePropertyHistory();
+    });
+    return propertyRow(label, s);
+}
+
+function propertyText(
+    label: string,
+    get: () => string | undefined,
+    set: (v: string) => void,
+) {
+    const ta = textarea();
+    const v = get();
+    if (v !== undefined) ta.el.value = v;
+    ta.on("input", () => {
+        set(ta.gv);
+        schedulePropertyHistory();
+    });
+    return propertyRow(label, ta).style({ alignItems: "flex-start" });
+}
+
+function getObjectKind(o: FabricObject): string {
+    if (o.形状) return o.形状;
+    if (o.type === "i-text" || o.type === "textbox") return "text";
+    if (o.type === "path") return "path";
+    if (o.type === "image") return "filter";
+    return o.type;
+}
+
+function kindTitle(kind: string | null) {
+    const names: Record<string, string> = {
+        rect: "矩形",
+        circle: "圆",
+        line: "线条",
+        polyline: "折线",
+        polygon: "多边形",
+        text: "文字",
+        number: "序号",
+        arrow: "箭头",
+        mask: "遮罩",
+        path: "画笔",
+        filter: "滤镜",
+    };
+    return kind ? t(names[kind] ?? kind) : "";
+}
+
+function setShapeDefault(
+    kind: EditType["shape"],
+    key: "fc" | "sc" | "sw",
+    value: string | number,
+) {
+    const pro = getShapePro(kind);
+    pro[key] = value as never;
+    shapePro[kind] = pro;
+    store.set(`图像编辑.形状属性.${kind}.${key}` as never, value as never);
+}
+
+function setArrowDefault(key: "w" | "h", value: number) {
+    const config = store.get("图像编辑.arrow");
+    config[key] = value;
+    store.set("图像编辑.arrow", config);
+    arrowConfig[key] = value;
+}
+
+function addHeader(title: string, close = false) {
+    const list: ElType<HTMLElement>[] = [
+        txt(title).style({ fontWeight: "bold", fontSize: "12px" }),
+    ];
+    if (close) {
+        list.push(
+            actionButton("关闭", () => {
+                fabricCanvas.discardActiveObject();
+                refreshPropertyPanel();
+            }),
+        );
+    }
+    elementBarHeader.clear().add(list);
+}
+
+function addActions(objects: FabricObject[]) {
+    const row = view("x").class("prop_actions");
+    const layer = (label: string, f: (o: FabricObject) => void) =>
+        actionButton(label, () => {
+            for (const o of objects) f(o);
+            fabricCanvas.requestRenderAll();
+            hisPush();
+        });
+    row.add([
+        layer("置顶", (o) => fabricCanvas.bringObjectToFront(o)),
+        layer("上移", (o) => fabricCanvas.bringObjectForward(o)),
+        layer("下移", (o) => fabricCanvas.sendObjectBackwards(o)),
+        layer("置底", (o) => fabricCanvas.sendObjectToBack(o)),
+        actionButton("撤销", () => undo(true)),
+        actionButton("重做", () => undo(false)),
+        actionButton("复制", () => fabricCopy()),
+        actionButton("删除", () => fabricDelete()),
+    ]);
+    elementBarBody.add(row);
+}
+
+function renderShapeToolPanel(kind: EditType["shape"]) {
+    addHeader(`${kindTitle(kind)} · 默认`);
+    const fill = (v: string) => {
+        setShapeDefault(kind, "fc", v);
+    };
+    const stroke = (v: string) => {
+        setShapeDefault(kind, "sc", v);
+    };
+    const width = (v: number) => {
+        setShapeDefault(kind, "sw", v);
+    };
+
+    if (!["line", "arrow", "polyline"].includes(kind))
+        elementBarBody.add(
+            propertyColor(
+                kind === "text" ? "文字颜色" : "填充",
+                () => getShapePro(kind).fc,
+                fill,
+            ),
+        );
+    if (kind !== "mask")
+        elementBarBody.add(
+            propertyColor("描边", () => getShapePro(kind).sc, stroke),
+        );
+    if (!["mask", "text"].includes(kind))
+        elementBarBody.add(
+            propertyRange("线宽", 0, 25, 1, () => getShapePro(kind).sw, width),
+        );
+
+    if (kind === "arrow") {
+        elementBarBody.add([
+            propertyNumber(
+                "头宽",
+                () => arrowConfig.w,
+                (v) => setArrowDefault("w", v),
+            ),
+            propertyNumber(
+                "头高",
+                () => arrowConfig.h,
+                (v) => setArrowDefault("h", v),
+            ),
+        ]);
+    }
+    setElementBarVisible(true);
+}
+
+function renderDrawToolPanel(modeType: EditType["draw"]) {
+    addHeader(
+        `${modeType === "eraser" ? "橡皮" : modeType === "spray" ? "喷刷" : "画笔"} · 默认`,
+    );
+    const pro = getShapePro(modeType);
+    if (modeType !== "eraser")
+        elementBarBody.add(
+            propertyColor(
+                "颜色",
+                () => pro.sc,
+                (v) => setFObjectV(null, v, null),
+            ),
+        );
+    elementBarBody.add([
+        propertyRange(
+            "粗细",
+            0,
+            25,
+            1,
+            () => pro.sw,
+            (v) => setFObjectV(null, null, v),
+        ),
+        propertyRange(
+            "阴影",
+            0,
+            20,
+            1,
+            () => pro.shadow ?? 0,
+            (v) => {
+                const p = getShapePro(modeType);
+                p.shadow = v;
+                shapePro[modeType] = p;
+                store.set(`图像编辑.形状属性.${modeType}.shadow`, v);
+                freeShadow();
+            },
+        ),
+    ]);
+    setElementBarVisible(true);
+}
+
+function renderFilterToolPanel() {
+    if (!willFilter) {
+        hideElementBar();
+        return;
+    }
+    addHeader("滤镜 · 默认");
+    const f = filtetMap[willFilter];
+    if (f.value) {
+        elementBarBody.add(
+            propertyRange(
+                "强度",
+                f.value.min ?? 0,
+                f.value.max,
+                f.value.step ?? 1,
+                () => f.value?.value,
+                (v) => {
+                    f.value!.value = v;
+                },
+            ),
+        );
+    }
+    setElementBarVisible(true);
+}
+
+function renderToolPropertyPanel() {
+    elementBarHeader.clear();
+    elementBarBody.clear();
+    if (nowType === "shape" && shape) {
+        renderShapeToolPanel(shape);
+    } else if (nowType === "draw" && mode) {
+        renderDrawToolPanel(mode);
+    } else if (nowType === "filter") {
+        renderFilterToolPanel();
+    } else {
+        hideElementBar();
+        return;
+    }
+    if (!elementBarVisible) return;
+    elementBarBody.add(
+        view("x")
+            .class("prop_actions")
+            .add([
+                actionButton("撤销", () => undo(true)),
+                actionButton("重做", () => undo(false)),
+            ]),
+    );
+}
+
+function renderElementPropertyPanel(objects: FabricObject[]) {
+    const kinds = new Set(objects.map(getObjectKind));
+    const kind = kinds.size === 1 ? [...kinds][0] : null;
+    const single = objects.length === 1;
+    addHeader(single ? kindTitle(kind) : `${objects.length} 个元素`, true);
+    elementBarBody.clear();
+
+    if (single && kind !== "mask") {
+        const o = objects[0];
+        elementBarBody.add([
+            propertyNumber(
+                "X",
+                () => o.left,
+                (v) => applyActive((x) => x.set({ left: v })),
+            ),
+            propertyNumber(
+                "Y",
+                () => o.top,
+                (v) => applyActive((x) => x.set({ top: v })),
+            ),
+        ]);
+        if (["rect", "circle", "ellipse", "filter"].includes(kind ?? "")) {
+            elementBarBody.add([
+                propertyNumber(
+                    "宽",
+                    () => o.getScaledWidth(),
+                    (v) =>
+                        applyActive((x) => {
+                            if (x.width) x.set({ scaleX: v / x.width });
+                        }),
+                ),
+                propertyNumber(
+                    "高",
+                    () => o.getScaledHeight(),
+                    (v) =>
+                        applyActive((x) => {
+                            if (x.height) x.set({ scaleY: v / x.height });
+                        }),
+                ),
+            ]);
+        }
+        elementBarBody.add([
+            propertyNumber(
+                "角度",
+                () => o.angle,
+                (v) => applyActive((x) => x.set({ angle: v })),
+            ),
+            propertyRange(
+                "透明度",
+                0,
+                1,
+                0.01,
+                () => o.opacity,
+                (v) => applyActive((x) => x.set({ opacity: v })),
+            ),
+        ]);
+    } else if (!single) {
+        elementBarBody.add(
+            propertyRange(
+                "透明度",
+                0,
+                1,
+                0.01,
+                () => commonValue(objects, (o) => o.opacity),
+                (v) => applyActive((x) => x.set({ opacity: v })),
+            ),
+        );
+    }
+
+    const canFill = objects.every((o) => o.canChangeFill);
+    const canStroke = objects.every(
+        (o) => getObjectKind(o) !== "mask" && getObjectKind(o) !== "filter",
+    );
+    if (canFill)
+        elementBarBody.add(
+            propertyColor(
+                "填充",
+                () => commonValue(objects, (o) => o.fill?.toString()),
+                (v) => applyActive((o) => o.set("fill", v)),
+            ),
+        );
+    if (canStroke) {
+        elementBarBody.add([
+            propertyColor(
+                "描边",
+                () => commonValue(objects, (o) => o.stroke?.toString()),
+                (v) => applyActive((o) => o.set("stroke", v)),
+            ),
+            propertyRange(
+                "线宽",
+                0,
+                25,
+                1,
+                () => commonValue(objects, (o) => o.strokeWidth),
+                (v) => applyActive((o) => o.set("strokeWidth", v)),
+            ),
+        ]);
+    }
+
+    if (single && kind) {
+        const o = objects[0];
+        if (kind === "text") {
+            elementBarBody.add([
+                propertyText(
+                    "内容",
+                    () => (o as IText).text,
+                    (v) =>
+                        applyActive((x) => {
+                            const t = x as IText;
+                            t.set("text", v);
+                            t.initDimensions();
+                        }),
+                ),
+                propertyNumber(
+                    "字号",
+                    () => (o as IText).fontSize,
+                    (v) =>
+                        applyActive((x) => {
+                            const t = x as IText;
+                            t.set("fontSize", v);
+                            t.initDimensions();
+                        }),
+                ),
+                propertySelect(
+                    "对齐",
+                    [
+                        { name: "左", value: "left" },
+                        { name: "中", value: "center" },
+                        { name: "右", value: "right" },
+                    ],
+                    () => (o as IText).textAlign,
+                    (v) => applyActive((x) => x.set("textAlign", v)),
+                ),
+            ]);
+        } else if (kind === "number") {
+            const n = o as xnumber;
+            elementBarBody.add([
+                propertyNumber(
+                    "数值",
+                    () => Number(n.text),
+                    (v) => applyActive((x) => x.set("text", String(v))),
+                ),
+                propertyNumber(
+                    "字号",
+                    () => n.fontSize,
+                    (v) => applyActive((x) => x.set("fontSize", v)),
+                ),
+                propertyNumber(
+                    "半径",
+                    () => n.radius,
+                    (v) => applyActive((x) => x.set("radius", v)),
+                ),
+            ]);
+        } else if (kind === "arrow") {
+            const a = o as arrow;
+            elementBarBody.add([
+                propertyNumber(
+                    "头宽",
+                    () => a.arrowW,
+                    (v) => applyActive((x) => x.set("arrowW", v)),
+                ),
+                propertyNumber(
+                    "头高",
+                    () => a.arrowH,
+                    (v) => applyActive((x) => x.set("arrowH", v)),
+                ),
+                propertySelect(
+                    "样式",
+                    [
+                        { name: "实心", value: "fill" },
+                        { name: "空心", value: "stroke" },
+                    ],
+                    () => a.arrowType,
+                    (v) => applyActive((x) => x.set("arrowType", v)),
+                ),
+            ]);
+        } else if (kind === "mask") {
+            const m = o as mask;
+            elementBarBody.add([
+                propertyNumber(
+                    "洞口X",
+                    () => m.rect.x,
+                    (v) =>
+                        applyActive((x) => {
+                            (x as mask).rect.x = v;
+                        }),
+                ),
+                propertyNumber(
+                    "洞口Y",
+                    () => m.rect.y,
+                    (v) =>
+                        applyActive((x) => {
+                            (x as mask).rect.y = v;
+                        }),
+                ),
+                propertyNumber(
+                    "洞口宽",
+                    () => m.rect.w,
+                    (v) =>
+                        applyActive((x) => {
+                            (x as mask).rect.w = v;
+                        }),
+                ),
+                propertyNumber(
+                    "洞口高",
+                    () => m.rect.h,
+                    (v) =>
+                        applyActive((x) => {
+                            (x as mask).rect.h = v;
+                        }),
+                ),
+            ]);
+        } else if (kind === "rect") {
+            const r = o as Rect;
+            elementBarBody.add(
+                propertyNumber(
+                    "圆角",
+                    () => r.rx || 0,
+                    (v) => applyActive((x) => x.set({ rx: v, ry: v })),
+                ),
+            );
+        } else if (kind === "filter") {
+            const img = o as FabricImage;
+            const values = Object.values(filtetMap);
+            values.forEach((fl, index) => {
+                if (!fl.value) return;
+                const filter = img.filters?.[index];
+                if (!filter) return;
+                const value = Object.values(filter).find(
+                    (v) => typeof v === "number",
+                );
+                if (typeof value !== "number") return;
+                elementBarBody.add(
+                    propertyRange(
+                        "强度",
+                        fl.value.min ?? 0,
+                        fl.value.max,
+                        fl.value.step ?? 1,
+                        () => value,
+                        (v) => {
+                            applyFilter(index, fl.fun(v));
+                            schedulePropertyHistory();
+                        },
+                    ),
+                );
+            });
+        }
+    }
+
+    addActions(objects);
+    setElementBarVisible(true);
+}
+
+function refreshPropertyPanel() {
+    if (!fabricCanvas) return;
+    const objects = fabricCanvas.getActiveObjects();
+    if (!objects.length) {
+        renderToolPropertyPanel();
+        return;
+    }
+    renderElementPropertyPanel(objects);
+}
+
+function scheduleElementBarPosition() {
+    if (!elementBarVisible || elementBarRaf) return;
+    elementBarRaf = requestAnimationFrame(() => {
+        elementBarRaf = 0;
+        positionElementBar();
+    });
+}
+
+function positionElementBar() {
+    if (!elementBarVisible) return;
+    const objects = fabricCanvas.getActiveObjects();
+    let r:
+        | { left: number; top: number; width: number; height: number }
+        | undefined;
+    if (objects.length) {
+        const rects = objects.map((o) => o.getBoundingRect());
+        const left = Math.min(...rects.map((i) => i.left));
+        const top = Math.min(...rects.map((i) => i.top));
+        const right = Math.max(...rects.map((i) => i.left + i.width));
+        const bottom = Math.max(...rects.map((i) => i.top + i.height));
+        r = {
+            left: (left + editorP.x) * editorP.zoom,
+            top: (top + editorP.y) * editorP.zoom,
+            width: (right - left) * editorP.zoom,
+            height: (bottom - top) * editorP.zoom,
+        };
+    } else {
+        const bar = drawBar.getBoundingClientRect();
+        r = {
+            left: bar.right,
+            top: bar.top,
+            width: 0,
+            height: bar.height,
+        };
+    }
+    const margin = 8;
+    const gap = 8;
+    const w = elementBar.el.offsetWidth || 180;
+    const h = elementBar.el.offsetHeight || 100;
+    const maxX = window.innerWidth - w - margin;
+    const maxY = window.innerHeight - h - margin;
+    const space = {
+        right: window.innerWidth - (r.left + r.width) - gap,
+        left: r.left - gap,
+        bottom: window.innerHeight - (r.top + r.height) - gap,
+        top: r.top - gap,
+    };
+    const order: (keyof typeof space)[] =
+        elementBarSide === "left"
+            ? ["left", "right", "bottom", "top"]
+            : elementBarSide === "bottom"
+              ? ["bottom", "top", "right", "left"]
+              : elementBarSide === "top"
+                ? ["top", "bottom", "right", "left"]
+                : ["right", "left", "bottom", "top"];
+    const fits = (side: keyof typeof space) =>
+        side === "right" || side === "left"
+            ? space[side] >= w
+            : space[side] >= h;
+    const side =
+        order.find(fits) ?? order.sort((a, b) => space[b] - space[a])[0];
+    elementBarSide = side;
+    let x = 0;
+    let y = 0;
+    if (side === "right") {
+        x = r.left + r.width + gap;
+        y = r.top;
+    } else if (side === "left") {
+        x = r.left - w - gap;
+        y = r.top;
+    } else if (side === "bottom") {
+        x = r.left;
+        y = r.top + r.height + gap;
+    } else {
+        x = r.left;
+        y = r.top - h - gap;
+    }
+    x = Math.max(margin, Math.min(maxX, x));
+    y = Math.max(margin, Math.min(maxY, y));
+    elementBar.el.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`;
+}
+
+fabricCanvas.on("selection:created", refreshPropertyPanel);
+fabricCanvas.on("selection:updated", refreshPropertyPanel);
+fabricCanvas.on("selection:cleared", refreshPropertyPanel);
+fabricCanvas.on("object:moving", scheduleElementBarPosition);
+fabricCanvas.on("object:scaling", scheduleElementBarPosition);
+fabricCanvas.on("object:rotating", scheduleElementBarPosition);
+fabricCanvas.on("object:modified", refreshPropertyPanel);
+new ResizeObserver(scheduleElementBarPosition).observe(elementBar.el);
+window.addEventListener("resize", scheduleElementBarPosition);
 
 // 编辑栏
 const drawMainBar = drawBarMainEl.el;
@@ -5533,6 +6266,7 @@ fabricCanvas.on("mouse:up", (options) => {
             const filter = i.fun(i.value?.value ?? 1);
             applyFilter(index, filter);
             getFilters();
+            refreshPropertyPanel();
         }
     }
 
