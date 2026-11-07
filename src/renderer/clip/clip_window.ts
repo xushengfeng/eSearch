@@ -2925,7 +2925,10 @@ function undo(v: boolean) {
     finalRect = c.rect;
     drawClipRect();
     followBar();
-    if (fabricCanvas) fabricCanvas.loadFromJSON(c.canvas);
+    if (fabricCanvas)
+        fabricCanvas.loadFromJSON(c.canvas).then(() => {
+            fabricCanvas.renderAll();
+        });
 }
 
 function getShapePro(name: keyof typeof shapePro) {
