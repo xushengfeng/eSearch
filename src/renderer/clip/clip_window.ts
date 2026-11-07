@@ -3261,9 +3261,13 @@ function draw(
             fontFamily: 字体.主要字体,
         });
     } else if (shape === "arrow") {
+        const arrowDefaults = store.get("图像编辑.arrow");
         shapeX = new arrow([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            arrowW: arrowDefaults.w,
+            arrowH: arrowDefaults.h,
+            arrowType: arrowDefaults.type,
             形状: "arrow",
         });
     } else if (shape === "mask") {
@@ -5597,30 +5601,38 @@ const arrowConfig = store.get("图像编辑.arrow");
 
 class arrow extends Line {
     static type = "arrow";
-    render(ctx: CanvasRenderingContext2D): void {
-        ctx.save();
+    static customProperties = ["arrowW", "arrowH", "arrowType", "形状"];
+    declare arrowW: number;
+    declare arrowH: number;
+    declare arrowType: "fill" | "stroke";
+    constructor(
+        points?: ConstructorParameters<typeof Line>[0],
+        options?: ConstructorParameters<typeof Line>[1] & {
+            arrowW?: number;
+            arrowH?: number;
+            arrowType?: "fill" | "stroke";
+        },
+    ) {
+        super(points, options);
+    }
+    _render(ctx: CanvasRenderingContext2D): void {
+        super._render(ctx);
 
-        const { x1, x2, y1, y2 } = this;
-
+        const { x1, y1, x2, y2 } = this.calcLinePoints();
         const angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
-        const w = arrowConfig.w;
-        const h = arrowConfig.h;
+        const w = this.arrowW ?? arrowConfig.w;
+        const h = this.arrowH ?? arrowConfig.h;
+        const type = this.arrowType ?? arrowConfig.type;
 
         const [x3, y3] = rotate(-w / 2, h, angle);
         const [x4, y4] = rotate(w / 2, h, angle);
 
-        const x0 = (x2 - x1) / 2;
-        const y0 = (y2 - y1) / 2;
-
-        ctx.translate(x1 + x0, y1 + y0);
-
-        this._render(ctx);
-
+        ctx.save();
         ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x0 + x3, y0 + y3);
-        if (arrowConfig.type === "stroke") ctx.moveTo(x0, y0);
-        ctx.lineTo(x0 + x4, y0 + y4);
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 + x3, y2 + y3);
+        if (type === "stroke") ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 + x4, y2 + y4);
         ctx.closePath();
 
         ctx.fillStyle = this.stroke?.toString() || "";
@@ -5628,10 +5640,12 @@ class arrow extends Line {
         ctx.strokeStyle = this.stroke?.toString() || "";
         ctx.fill();
         ctx.stroke();
-
         ctx.restore();
     }
 }
+
+classRegistry.setClass(arrow);
+classRegistry.setSVGClass(arrow);
 
 // 颜色选择
 
