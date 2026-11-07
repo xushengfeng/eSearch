@@ -5460,6 +5460,13 @@ drawSidePosition.back.on("click", () => {
 hotkeys("delete", fabricDelete);
 
 fabricCanvas.on("mouse:down", (options) => {
+    if (
+        shape !== "" &&
+        (shape === "number" || unnormalShapes.includes(shape)) &&
+        (options.e as MouseEvent).detail > 1
+    ) {
+        return;
+    }
     // 非常规状态下点击
     if (shape !== "" && !options.target) {
         drawingShape = true;
