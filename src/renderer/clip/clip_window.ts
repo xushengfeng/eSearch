@@ -3038,6 +3038,11 @@ function setEditType<T extends keyof EditType>(
         fabricCanvas.defaultCursor = "crosshair";
     }
     if (mainType === "shape") {
+        if (shape !== type) {
+            polyOP = [];
+            drawingShape = false;
+            drawNumberN = 1;
+        }
         shape = type as Shape;
         if (shape) {
             const sPro = getShapePro(shape);
@@ -3312,14 +3317,8 @@ function drawPoly(shape: EditType["shape"]) {
     }
 }
 
-function drawNumber() {
-    const nowShape = shapes.at(-1);
-    if (!nowShape) return;
-    // @ts-ignore
-    drawNumberN = Number(nowShape.text) + 1 || drawNumberN;
-    const p = polyOP.at(-1);
-    if (!p) return;
-
+function drawNumber(p: point) {
+    const pro = getShapePro("number");
     const txt = new xnumber({
         left: p.x,
         top: p.y,
@@ -3327,18 +3326,19 @@ function drawNumber() {
         radius: 12,
         originX: "center",
         originY: "center",
-        fill: getShapePro("number").fc,
-        stroke: getShapePro("number").sc,
-        strokeWidth: getShapePro("number").sw,
+        fill: pro.fc,
+        stroke: pro.sc,
+        strokeWidth: pro.sw,
         canChangeFill: true,
         text: String(drawNumberN),
         形状: "number",
     });
     shapes.push(txt);
-    fabricCanvas.add(nowShape);
+    fabricCanvas.add(txt);
     fabricCanvas.setActiveObject(txt);
 
     drawNumberN++;
+    hisPush();
 }
 
 /** 切换当前颜色设定的ui */
@@ -3728,6 +3728,7 @@ function exitShape() {
     fabricCanvas.selection = true;
     fabricCanvas.defaultCursor = "auto";
     polyOP = [];
+    drawNumberN = 1;
 }
 function exitFilter() {
     newFilterSelecting = false;
@@ -5455,8 +5456,9 @@ fabricCanvas.on("mouse:down", (options) => {
         fabricCanvas.selection = false;
         const x = options.viewportPoint.x;
         const y = options.viewportPoint.y;
-        // 折线与多边形要多次点击，在poly_o_p存储点
-        if (!unnormalShapes.includes(shape)) {
+        if (shape === "number") {
+            drawNumber({ x, y });
+        } else if (!unnormalShapes.includes(shape)) {
             drawOP = [x, y];
             draw(shape, "start", drawOP[0], drawOP[1], x, y);
         } else {
@@ -5464,15 +5466,10 @@ fabricCanvas.on("mouse:down", (options) => {
             const polyOPL = polyOP.at(-1);
             if (!(x === polyOPL?.x && y === polyOPL?.y)) {
                 polyOP.push({ x: x, y: y });
-                if (shape === "number") {
-                    drawNumber();
-                } else {
-                    drawPoly(shape);
-                }
+                drawPoly(shape);
             } else {
                 hisPush();
                 polyOP = [];
-                drawNumberN = 1;
             }
         }
     }
@@ -5497,8 +5494,8 @@ fabricCanvas.on("mouse:move", (options) => {
     }
 });
 fabricCanvas.on("mouse:up", (options) => {
+    drawingShape = false;
     if (!unnormalShapes.includes(shape)) {
-        drawingShape = false;
         if (shape !== "") {
             const obj = shapes.at(-1);
             if (obj) fabricCanvas.setActiveObject(obj);
@@ -5557,6 +5554,7 @@ classRegistry.setSVGClass(mask);
 
 class xnumber extends Circle {
     static type = "number";
+    static customProperties = ["text", "fontSize", "canChangeFill", "形状"];
     declare fontSize: number;
     declare text: string;
     constructor(
@@ -5567,7 +5565,6 @@ class xnumber extends Circle {
     }
     render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
-        ctx.translate(this.left, this.top);
         this._render(ctx);
 
         const x = 0;
