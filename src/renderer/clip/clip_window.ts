@@ -3102,6 +3102,7 @@ function showSideBarItem(index: number) {
             el.style({ display: "none" });
         }
     }
+    scheduleElementBarPosition();
 }
 
 function isInDrawBar() {
@@ -3116,6 +3117,7 @@ function showSideBar(show: boolean) {
     } else {
         drawSideBar.classList.add("draw_side_hide");
     }
+    scheduleElementBarPosition();
 }
 
 function showBars(b: boolean) {
@@ -6023,10 +6025,26 @@ function scheduleElementBarPosition() {
 function positionElementBar() {
     if (!elementBarVisible) return;
     const objects = fabricCanvas.getActiveObjects();
-    let r:
-        | { left: number; top: number; width: number; height: number }
-        | undefined;
-    if (objects.length) {
+    const toolMode = objects.length === 0;
+    let r: { left: number; top: number; width: number; height: number };
+    if (toolMode) {
+        const bar = drawBar.getBoundingClientRect();
+        const sideVisible =
+            !drawBarSideEl.el.classList.contains("draw_side_hide");
+        const side = sideVisible
+            ? drawBarSideEl.el.getBoundingClientRect()
+            : undefined;
+        const left = Math.min(bar.left, side?.left ?? bar.left);
+        const top = Math.min(bar.top, side?.top ?? bar.top);
+        const right = Math.max(bar.right, side?.right ?? bar.right);
+        const bottom = Math.max(bar.bottom, side?.bottom ?? bar.bottom);
+        r = {
+            left,
+            top,
+            width: right - left,
+            height: bottom - top,
+        };
+    } else {
         const rects = objects.map((o) => o.getBoundingRect());
         const left = Math.min(...rects.map((i) => i.left));
         const top = Math.min(...rects.map((i) => i.top));
@@ -6037,14 +6055,6 @@ function positionElementBar() {
             top: (top + editorP.y) * editorP.zoom,
             width: (right - left) * editorP.zoom,
             height: (bottom - top) * editorP.zoom,
-        };
-    } else {
-        const bar = drawBar.getBoundingClientRect();
-        r = {
-            left: bar.right,
-            top: bar.top,
-            width: 0,
-            height: bar.height,
         };
     }
     const margin = 8;
@@ -6059,14 +6069,15 @@ function positionElementBar() {
         bottom: window.innerHeight - (r.top + r.height) - gap,
         top: r.top - gap,
     };
-    const order: (keyof typeof space)[] =
-        elementBarSide === "left"
-            ? ["left", "right", "bottom", "top"]
-            : elementBarSide === "bottom"
-              ? ["bottom", "top", "right", "left"]
-              : elementBarSide === "top"
-                ? ["top", "bottom", "right", "left"]
-                : ["right", "left", "bottom", "top"];
+    const order: (keyof typeof space)[] = toolMode
+        ? ["bottom", "top"]
+        : elementBarSide === "left"
+          ? ["left", "right", "bottom", "top"]
+          : elementBarSide === "bottom"
+            ? ["bottom", "top", "right", "left"]
+            : elementBarSide === "top"
+              ? ["top", "bottom", "right", "left"]
+              : ["right", "left", "bottom", "top"];
     const fits = (side: keyof typeof space) =>
         side === "right" || side === "left"
             ? space[side] >= w
@@ -6108,6 +6119,7 @@ window.addEventListener("resize", scheduleElementBarPosition);
 const drawMainBar = drawBarMainEl.el;
 const drawSideBar = drawBarSideEl.el;
 showSideBar(false);
+new ResizeObserver(scheduleElementBarPosition).observe(drawBarSideEl.el);
 
 for (const [index, e] of drawBarMainElList.entries()) {
     const Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
