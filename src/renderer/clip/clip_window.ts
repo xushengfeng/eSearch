@@ -3274,11 +3274,19 @@ function draw(
         shapeX = new mask({
             left: 0,
             top: 0,
+            originX: "left",
+            originY: "top",
             width: fabricCanvas.width,
             height: fabricCanvas.height,
             fill: fillColor,
             rect: { x, y, w, h },
             canChangeFill: true,
+            lockMovementX: true,
+            lockMovementY: true,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            hasControls: false,
             形状: "mask",
         });
     }
@@ -5542,6 +5550,7 @@ fabricCanvas.on("mouse:up", (options) => {
 
 class mask extends Rect {
     static type = "mask";
+    static customProperties = ["rect", "形状", "canChangeFill"];
     declare rect: { x: number; y: number; w: number; h: number };
     constructor(
         options?: Partial<
