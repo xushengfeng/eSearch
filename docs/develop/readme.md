@@ -6,6 +6,7 @@
 - [整体说明](overview.md)
 - [主进程](main.md)
 - [截屏](clip.md)
+- [截屏编辑器计划](clipEditorPlan.md)
 - [贴图](ding.md)
 - [动态贴图](liveDing.md)
 - [OCR](ocr.md)
