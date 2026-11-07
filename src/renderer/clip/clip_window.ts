@@ -3295,7 +3295,7 @@ function draw(
             width: fabricCanvas.width,
             height: fabricCanvas.height,
             fill: fillColor,
-            rect: { x, y, w, h },
+            rect: { x, y, w, h, r: 0 },
             canChangeFill: true,
             lockMovementX: true,
             lockMovementY: true,
@@ -5816,6 +5816,21 @@ function propertySelect(
     return propertyRow(label, s);
 }
 
+function propertyInput(
+    label: string | ElType<HTMLElement>,
+    get: () => string | undefined,
+    set: (v: string) => void,
+) {
+    const i = input();
+    const v = get();
+    if (v !== undefined) i.sv(v);
+    i.on("input", () => {
+        set(i.gv);
+        schedulePropertyHistory();
+    });
+    return propertyRow(label, i);
+}
+
 function propertyText(
     label: string,
     get: () => string | undefined,
@@ -5829,6 +5844,85 @@ function propertyText(
         schedulePropertyHistory();
     });
     return propertyRow(label, ta).style({ alignItems: "flex-start" });
+}
+
+function toggleButton(
+    label: string,
+    get: () => boolean,
+    set: (v: boolean) => void,
+) {
+    const b = button(label).style({
+        minWidth: "20px",
+        width: "20px",
+        height: "18px",
+        padding: 0,
+        fontSize: "10px",
+    });
+    const sync = () => {
+        b.style({
+            background: get() ? "var(--bar-focus-color)" : "transparent",
+        });
+    };
+    b.on("click", () => {
+        set(!get());
+        sync();
+        schedulePropertyHistory();
+    });
+    sync();
+    return b;
+}
+
+function addLineEndpoints(o: Line) {
+    elementBarBody.add([
+        propertyPair(
+            "起点X",
+            numberControl(
+                () => o.x1,
+                (v) =>
+                    applyActive((x) => {
+                        (x as Line).set({ x1: v });
+                        x.setCoords();
+                    }),
+                1,
+                0,
+            ),
+            "起点Y",
+            numberControl(
+                () => o.y1,
+                (v) =>
+                    applyActive((x) => {
+                        (x as Line).set({ y1: v });
+                        x.setCoords();
+                    }),
+                1,
+                0,
+            ),
+        ),
+        propertyPair(
+            "终点X",
+            numberControl(
+                () => o.x2,
+                (v) =>
+                    applyActive((x) => {
+                        (x as Line).set({ x2: v });
+                        x.setCoords();
+                    }),
+                1,
+                0,
+            ),
+            "终点Y",
+            numberControl(
+                () => o.y2,
+                (v) =>
+                    applyActive((x) => {
+                        (x as Line).set({ y2: v });
+                        x.setCoords();
+                    }),
+                1,
+                0,
+            ),
+        ),
+    ]);
 }
 
 function getObjectKind(o: FabricObject): string {
@@ -6146,6 +6240,35 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 (v) => applyActive((o) => o.set("strokeWidth", v)),
             ),
         ]);
+        if (single) {
+            elementBarBody.add(
+                propertySelect(
+                    "虚线",
+                    [
+                        { name: "实线", value: "solid" },
+                        { name: "虚线", value: "dash" },
+                        { name: "点线", value: "dot" },
+                    ],
+                    () => {
+                        const dash = (objects[0] as FabricObject)
+                            .strokeDashArray;
+                        if (!dash) return "solid";
+                        return dash[0] <= 2 ? "dot" : "dash";
+                    },
+                    (v) =>
+                        applyActive((o) =>
+                            o.set(
+                                "strokeDashArray",
+                                v === "solid"
+                                    ? null
+                                    : v === "dot"
+                                      ? [2, 4]
+                                      : [8, 6],
+                            ),
+                        ),
+                ),
+            );
+        }
     }
 
     if (single && kind) {
@@ -6162,6 +6285,16 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                             t.initDimensions();
                         }),
                 ),
+                propertyInput(
+                    "字体",
+                    () => (o as IText).fontFamily,
+                    (v) =>
+                        applyActive((x) => {
+                            const t = x as IText;
+                            t.set("fontFamily", v);
+                            t.initDimensions();
+                        }),
+                ),
                 propertyNumber(
                     "字号",
                     () => (o as IText).fontSize,
@@ -6172,6 +6305,49 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                             t.initDimensions();
                         }),
                 ),
+                propertyRow(
+                    "样式",
+                    view("x")
+                        .style({ gap: "2px", alignItems: "center" })
+                        .add([
+                            toggleButton(
+                                "B",
+                                () => (o as IText).fontWeight === "bold",
+                                (v) =>
+                                    applyActive((x) => {
+                                        const t = x as IText;
+                                        t.set(
+                                            "fontWeight",
+                                            v ? "bold" : "normal",
+                                        );
+                                        t.initDimensions();
+                                    }),
+                            ),
+                            toggleButton(
+                                "I",
+                                () => (o as IText).fontStyle === "italic",
+                                (v) =>
+                                    applyActive((x) => {
+                                        const t = x as IText;
+                                        t.set(
+                                            "fontStyle",
+                                            v ? "italic" : "normal",
+                                        );
+                                        t.initDimensions();
+                                    }),
+                            ),
+                            toggleButton(
+                                "U",
+                                () => (o as IText).underline === true,
+                                (v) =>
+                                    applyActive((x) => {
+                                        const t = x as IText;
+                                        t.set("underline", v);
+                                        t.initDimensions();
+                                    }),
+                            ),
+                        ]),
+                ),
                 propertySelect(
                     "对齐",
                     [
@@ -6181,6 +6357,30 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     ],
                     () => (o as IText).textAlign,
                     (v) => applyActive((x) => x.set("textAlign", v)),
+                ),
+                propertyNumber(
+                    "行高",
+                    () => (o as IText).lineHeight,
+                    (v) =>
+                        applyActive((x) => {
+                            const t = x as IText;
+                            t.set("lineHeight", v);
+                            t.initDimensions();
+                        }),
+                    0.01,
+                    2,
+                ),
+                propertyNumber(
+                    "字距",
+                    () => (o as IText).charSpacing,
+                    (v) =>
+                        applyActive((x) => {
+                            const t = x as IText;
+                            t.set("charSpacing", v);
+                            t.initDimensions();
+                        }),
+                    1,
+                    0,
                 ),
             ]);
         } else if (kind === "number") {
@@ -6202,8 +6402,11 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     (v) => applyActive((x) => x.set("radius", v)),
                 ),
             ]);
+        } else if (kind === "line") {
+            addLineEndpoints(o as Line);
         } else if (kind === "arrow") {
             const a = o as arrow;
+            addLineEndpoints(a);
             elementBarBody.add([
                 propertyNumber(
                     "头宽",
@@ -6258,6 +6461,14 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     (v) =>
                         applyActive((x) => {
                             (x as mask).rect.h = v;
+                        }),
+                ),
+                propertyNumber(
+                    propIcon("corner", "洞口圆角"),
+                    () => m.rect.r ?? 0,
+                    (v) =>
+                        applyActive((x) => {
+                            (x as mask).rect.r = v;
                         }),
                 ),
             ]);
@@ -6588,10 +6799,18 @@ fabricCanvas.on("mouse:up", (options) => {
 class mask extends Rect {
     static type = "mask";
     static customProperties = ["rect", "形状", "canChangeFill"];
-    declare rect: { x: number; y: number; w: number; h: number };
+    declare rect: { x: number; y: number; w: number; h: number; r?: number };
     constructor(
         options?: Partial<
-            RectProps & { rect: { x: number; y: number; w: number; h: number } }
+            RectProps & {
+                rect: {
+                    x: number;
+                    y: number;
+                    w: number;
+                    h: number;
+                    r?: number;
+                };
+            }
         >,
     ) {
         super();
@@ -6604,7 +6823,15 @@ class mask extends Rect {
         ctx.fillRect(0, 0, this.width, this.height);
 
         const r = this.rect;
-        ctx.clearRect(r.x, r.y, r.w, r.h);
+        const radius = Math.min(r.r ?? 0, r.w / 2, r.h / 2);
+        if (radius > 0) {
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.beginPath();
+            ctx.roundRect(r.x, r.y, r.w, r.h, radius);
+            ctx.fill();
+        } else {
+            ctx.clearRect(r.x, r.y, r.w, r.h);
+        }
 
         ctx.restore();
     }
