@@ -711,3 +711,18 @@ body input {
 #element_bar .prop_mixed {
     opacity: 0.45;
 }
+#element_bar .prop_swatch {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+.color_swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    cursor: pointer;
+}

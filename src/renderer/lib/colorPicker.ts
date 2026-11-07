@@ -42,10 +42,13 @@ export function colorPicker(
         presets?: string[] | false;
         /** 拖动时实时触发 input 事件 */
         live?: boolean;
+        /** 直接展开取色区域，不使用弹出层 */
+        inline?: boolean;
     } = {},
 ): ElType<HTMLDivElement> {
     const alphaEnabled = opts.alpha ?? true;
     const live = opts.live ?? false;
+    const inline = opts.inline ?? false;
 
     let color = chroma.rgb(0, 0, 0, 0);
     let hue = 0;
@@ -276,7 +279,20 @@ export function colorPicker(
         })
         .attr({ popover: "manual" })
         .add([sv, hueTrack, alphaTrack, presets, valueText]);
-    root.add(pop);
+    if (inline) {
+        root.clear().add([text, sv, hueTrack, alphaTrack, presets, valueText]);
+        root.el.classList.remove(Class.group);
+        root.style({
+            "flex-flow": "column",
+            alignItems: "stretch",
+            height: "auto",
+            width: "100%",
+            outline: "none",
+        });
+        text.style({ width: "100%" });
+    } else {
+        root.add(pop);
+    }
 
     if (!alphaEnabled) alphaTrack.style({ display: "none" });
 

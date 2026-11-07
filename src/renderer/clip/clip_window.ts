@@ -37,6 +37,7 @@ import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 import { isWaylandSession } from "../../../lib/wayland";
 import { writeImage, writeText } from "../lib/clipboard";
+import { colorPicker } from "../lib/colorPicker";
 import {
     clipboardImageFormat,
     encodeCanvasImage,
@@ -4158,6 +4159,187 @@ const elementBarBody = view()
     .attr({ id: "element_bar_body" })
     .addInto(elementBar);
 
+// 颜色弹层：旧色盘 + 项目取色器
+let colorPopoverTarget: ((v: string) => void) | null = null;
+let colorPopoverAnchor: HTMLElement | null = null;
+let colorPopoverTab: "grid" | "picker" = "grid";
+const colorPopover = view("y")
+    .class(Class.gap, Class.deco)
+    .style({
+        position: "fixed",
+        inset: "auto",
+        margin: 0,
+        padding: "4px",
+        width: "224px",
+        maxHeight: "calc(100vh - 8px)",
+        overflowY: "auto",
+        background: "var(--bg)",
+        color: "var(--font-color)",
+        boxShadow: "var(--shadow)",
+        visibility: "hidden",
+        zIndex: "120",
+    })
+    .attr({ popover: "manual" });
+const colorTabs = view("x").style({ gap: "2px" });
+const colorGrid = view().style({
+    display: "grid",
+    gridTemplateColumns: "repeat(5, 1fr)",
+    gap: "2px",
+});
+const inlinePicker = colorPicker({
+    inline: true,
+    live: true,
+    alpha: true,
+    width: "100%",
+});
+const colorTabGrid = button(t("色盘"))
+    .style({ padding: "1px 6px", fontSize: "11px" })
+    .on("click", () => setColorTab("grid"));
+const colorTabPicker = button(t("取色器"))
+    .style({ padding: "1px 6px", fontSize: "11px" })
+    .on("click", () => setColorTab("picker"));
+colorTabs.add([colorTabGrid, colorTabPicker]);
+colorPopover.add([colorTabs, colorGrid, inlinePicker]).addInto();
+inlinePicker.el.style.display = "none";
+
+function setColorTab(tab: "grid" | "picker") {
+    colorPopoverTab = tab;
+    colorGrid.style({ display: tab === "grid" ? "grid" : "none" });
+    inlinePicker.style({ display: tab === "picker" ? "flex" : "none" });
+    colorTabGrid.style({
+        background: tab === "grid" ? "var(--bar-focus-color)" : "transparent",
+    });
+    colorTabPicker.style({
+        background: tab === "picker" ? "var(--bar-focus-color)" : "transparent",
+    });
+    if (colorPopover.el.matches(":popover-open")) positionColorPopover();
+}
+
+function renderColorGrid(hue?: number) {
+    colorGrid.clear();
+    const colors: { color: string; hue: number }[] = [];
+    if (hue === undefined) {
+        colors.push({ color: "#fff", hue: 0 });
+        for (let i = 0; i < 360; i += 15) {
+            colors.push({ color: chroma.hsl(i, 100, 50).css(), hue: i });
+        }
+    } else {
+        for (let l = 90; l > 0; l -= 20) {
+            for (let s = 90; s > 0; s -= 20) {
+                colors.push({ color: chroma.hsl(hue, s, l).css(), hue });
+            }
+        }
+    }
+    for (const item of colors) {
+        const swatch = view()
+            .class("color_swatch")
+            .style({ "background-color": item.color })
+            .data({
+                title: colorConversion(
+                    chroma(item.color).rgba(),
+                    取色器默认格式,
+                ),
+            })
+            .on("pointerdown", (e) => {
+                if (e.button === 0) {
+                    applyPopoverColor(chroma(item.color).alpha(1).css(), false);
+                } else {
+                    renderColorGrid(hue === undefined ? item.hue : undefined);
+                }
+            });
+        colorGrid.add(swatch);
+    }
+    if (colorPopover.el.matches(":popover-open")) positionColorPopover();
+}
+
+function applyPopoverColor(v: string, fromPicker: boolean) {
+    try {
+        const c = chroma(v);
+        if (!fromPicker) inlinePicker.sv(c.css());
+        colorPopoverTarget?.(c.css());
+    } catch {}
+}
+
+inlinePicker.on("input", () => {
+    applyPopoverColor(inlinePicker.gv, true);
+});
+
+function positionColorPopover() {
+    if (!colorPopover.el.matches(":popover-open") || !colorPopoverAnchor)
+        return;
+    const rect = colorPopoverAnchor.getBoundingClientRect();
+    const width = colorPopover.el.offsetWidth;
+    const height = colorPopover.el.offsetHeight;
+    const gap = 6;
+    const margin = 4;
+    const below = rect.bottom + gap;
+    const top =
+        below + height <= window.innerHeight - margin ||
+        rect.top - height - gap < margin
+            ? below
+            : rect.top - height - gap;
+    colorPopover.style({
+        left: `${Math.max(
+            margin,
+            Math.min(window.innerWidth - width - margin, rect.left),
+        )}px`,
+        top: `${Math.max(
+            margin,
+            Math.min(window.innerHeight - height - margin, top),
+        )}px`,
+        visibility: "visible",
+    });
+}
+
+function onColorOutside(e: PointerEvent) {
+    const target = e.target as Node | null;
+    if (!target) return;
+    if (
+        colorPopover.el.contains(target) ||
+        colorPopoverAnchor?.contains(target)
+    )
+        return;
+    closeColorPopover();
+}
+
+function onColorKey(e: KeyboardEvent) {
+    if (e.key === "Escape") closeColorPopover();
+}
+
+function closeColorPopover() {
+    if (colorPopover.el.matches(":popover-open")) colorPopover.el.hidePopover();
+    colorPopover.el.style.visibility = "hidden";
+    colorPopoverTarget = null;
+    colorPopoverAnchor = null;
+    document.removeEventListener("pointerdown", onColorOutside, true);
+    document.removeEventListener("keydown", onColorKey, true);
+    window.removeEventListener("resize", positionColorPopover);
+    document.removeEventListener("scroll", positionColorPopover, true);
+}
+
+function openColorPopover(
+    anchor: HTMLElement,
+    get: () => string,
+    apply: (v: string) => void,
+) {
+    colorPopoverTarget = apply;
+    colorPopoverAnchor = anchor;
+    const color = get();
+    inlinePicker.sv(color);
+    renderColorGrid();
+    setColorTab(colorPopoverTab);
+    if (!colorPopover.el.matches(":popover-open")) {
+        colorPopover.el.showPopover();
+        document.addEventListener("pointerdown", onColorOutside, true);
+        document.addEventListener("keydown", onColorKey, true);
+        window.addEventListener("resize", positionColorPopover);
+        document.addEventListener("scroll", positionColorPopover, true);
+    }
+    positionColorPopover();
+}
+
+colorPopover.on("contextmenu", (e) => e.preventDefault());
+
 const whEl = view("x").attr({ id: "clip_wh" }).class(Class.glassBar, Class.gap);
 const whX0 = input();
 const whY0 = input();
@@ -5415,6 +5597,7 @@ function setElementBarVisible(v: boolean) {
 }
 
 function hideElementBar() {
+    closeColorPopover();
     setElementBarVisible(false);
 }
 
@@ -5553,6 +5736,9 @@ function propertyRange(
 }
 
 function colorControl(get: () => string | undefined, set: (v: string) => void) {
+    const swatch = view()
+        .class("prop_swatch")
+        .attr({ title: t("颜色") });
     const color = input().class("prop_color_input");
     const alpha = rangeBar(0, 1, 0.01).class("prop_alpha");
     const value = get();
@@ -5563,26 +5749,36 @@ function colorControl(get: () => string | undefined, set: (v: string) => void) {
             "background-color": inputColor.hex(),
             color: pickTextColor(inputColor),
         });
+        swatch.style({ "background-color": inputColor.hex() });
+    };
+    const applyValue = (v: string) => {
+        try {
+            c = chroma(v);
+        } catch {
+            return;
+        }
+        color.el.classList.remove("prop_mixed");
+        showColor(c);
+        alpha.sv(c.alpha());
+        set(c.css());
+        schedulePropertyHistory();
     };
     showColor(c);
     alpha.sv(c.alpha());
     if (value === undefined) color.el.classList.add("prop_mixed");
     const apply = () => {
         try {
-            c = chroma(color.gv).alpha(alpha.gv);
-        } catch {
-            return;
-        }
-        color.el.classList.remove("prop_mixed");
-        showColor(c);
-        set(c.css());
-        schedulePropertyHistory();
+            applyValue(chroma(color.gv).alpha(alpha.gv).css());
+        } catch {}
     };
     color.on("input", apply);
     alpha.on("input", apply);
+    swatch.on("click", () =>
+        openColorPopover(swatch.el, () => c.css(), applyValue),
+    );
     return view("x")
         .style({ gap: "3px", alignItems: "center", minWidth: 0 })
-        .add([color, alpha]);
+        .add([swatch, color, alpha]);
 }
 
 function propertyColor(
@@ -5680,12 +5876,13 @@ function addHeader(
         txt(title).style({ fontWeight: "bold", fontSize: "12px" }),
     ];
     if (options.advanced) {
-        list.push(
-            smallIcon("setting", "高级", () => {
-                propertyAdvanced = !propertyAdvanced;
-                refreshPropertyPanel();
-            }),
-        );
+        const advanced = smallIcon("setting", "高级", () => {
+            propertyAdvanced = !propertyAdvanced;
+            refreshPropertyPanel();
+        });
+        if (propertyAdvanced)
+            advanced.style({ background: "var(--bar-focus-color)" });
+        list.push(advanced);
     }
     if (options.copy) {
         list.push(smallIcon("copy", "复制", () => fabricCopy()));
@@ -6094,6 +6291,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
 }
 
 function refreshPropertyPanel() {
+    closeColorPopover();
     if (!fabricCanvas) return;
     const objects = fabricCanvas.getActiveObjects();
     if (!objects.length) {
