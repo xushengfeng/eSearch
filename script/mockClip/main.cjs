@@ -7,6 +7,7 @@ const HEIGHT = 640;
 const OUT_DIR = "/tmp/opencode";
 const CONFIG_PATH = path.join(OUT_DIR, "mockClip-config.json");
 const visible = process.argv.includes("--visible");
+const offscreen = process.argv.includes("--offscreen");
 
 const defaults = require("./defaults.cjs");
 
@@ -250,11 +251,13 @@ app.whenReady().then(async () => {
         width: WIDTH,
         height: HEIGHT,
         useContentSize: true,
-        show: visible,
+        show: visible && !offscreen,
         title: "eSearch mock clip",
         alwaysOnTop: false,
         skipTaskbar: !visible,
         webPreferences: {
+            offscreen,
+            paintWhenInitiallyHidden: true,
             nodeIntegration: true,
             contextIsolation: false,
             sandbox: false,
@@ -263,8 +266,13 @@ app.whenReady().then(async () => {
         },
     });
 
-    win.webContents.on("console-message", (_event, _level, _line, message) => {
-        console.log("[renderer]", message);
+    win.webContents.on("console-message", (...args) => {
+        const details = args[1];
+        if (details && typeof details === "object" && "message" in details) {
+            console.log("[renderer]", details.message);
+        } else {
+            console.log("[renderer]", args.slice(1).join(" "));
+        }
     });
     win.webContents.on("did-finish-load", () => {
         setTimeout(sendClipInit, 300);

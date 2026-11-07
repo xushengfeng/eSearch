@@ -8,7 +8,7 @@
 pnpm run mock:clip
 ```
 
-默认窗口隐藏，只在后台渲染。需要手动查看界面时：
+默认使用离屏渲染并隐藏窗口，Fabric 的 `requestAnimationFrame` 仍会执行，因此画布会正常更新。需要手动查看界面时：
 
 ```bash
 pnpm run mock:clip:visible
