@@ -4675,6 +4675,10 @@ renderOn("clip_init", async ([_displays, imgBuffer, mainid, act, pid]) => {
             ratio = devicePixelRatio;
         }
     setEditorP(1 / ratio, 0, 0);
+    undoStack.reset({
+        rect: finalRect,
+        canvas: fabricCanvas.toJSON(),
+    });
 
     document.body.style.opacity = "";
 

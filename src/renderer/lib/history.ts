@@ -147,6 +147,18 @@ class xhistory<Data, Diff = any> {
     getData() {
         return this.getDataByI(this.i);
     }
+    reset(data: Data, des = "0") {
+        this.history.length = 0;
+        this.history.push({
+            des,
+            type: "key",
+            data: structuredClone(data),
+            time: Date.now(),
+        });
+        this.i = 0;
+        this.cache.clear();
+        this.cleanData();
+    }
     undo() {
         this.jump(this.i - 1);
     }
