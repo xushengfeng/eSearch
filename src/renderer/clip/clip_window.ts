@@ -2930,7 +2930,7 @@ function undo(v: boolean) {
 
 function getShapePro(name: keyof typeof shapePro) {
     const v = {
-        fc: fillColor,
+        fc: name === "text" ? strokeColor : fillColor,
         sc: strokeColor,
         sw: strokeWidth,
         shadow: 0,
@@ -3214,6 +3214,7 @@ function draw(
     if (shape === "line") {
         shapeX = new Line([x1, y1, x2, y2], {
             stroke: strokeColor,
+            strokeWidth: strokeWidth,
             originX: "left",
             originY: "top",
             形状: "line",
@@ -3251,6 +3252,7 @@ function draw(
             top: y,
             originX: "left",
             originY: "top",
+            fill: fillColor,
             canChangeFill: true,
             形状: "text",
             fontFamily: 字体.主要字体,
@@ -5419,7 +5421,13 @@ drawSideFree.eraser.on("click", () => setEditType("draw", "eraser"));
 drawSideFree.spray.on("click", () => setEditType("draw", "spray"));
 
 // 阴影
-const shadowBlurEl = rangeBar(0, 20, 1, "px").on("input", freeShadow);
+const shadowBlurEl = rangeBar(0, 20, 1, "px").on("input", () => {
+    const pro = getShapePro("free");
+    pro.shadow = shadowBlurEl.gv;
+    shapePro.free = pro;
+    store.set("图像编辑.形状属性.free.shadow", shadowBlurEl.gv);
+    freeShadow();
+});
 drawShadowBlur.add(shadowBlurEl);
 
 // 几何
@@ -5563,9 +5571,9 @@ class xnumber extends Circle {
         super();
         this.setOptions(options);
     }
-    render(ctx: CanvasRenderingContext2D): void {
+    _render(ctx: CanvasRenderingContext2D): void {
+        super._render(ctx);
         ctx.save();
-        this._render(ctx);
 
         const x = 0;
         const y = 5;
