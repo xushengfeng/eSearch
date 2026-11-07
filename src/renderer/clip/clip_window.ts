@@ -3284,6 +3284,7 @@ function draw(
             arrowW: arrowDefaults.w,
             arrowH: arrowDefaults.h,
             arrowType: arrowDefaults.type,
+            objectCaching: false,
             形状: "arrow",
         });
     } else if (shape === "mask") {
@@ -3360,6 +3361,7 @@ function drawNumber(p: point) {
         strokeWidth: pro.sw,
         canChangeFill: true,
         text: String(drawNumberN),
+        objectCaching: false,
         形状: "number",
     });
     fabricCanvas.add(txt);
@@ -6904,14 +6906,18 @@ class arrow extends Line {
         ctx.beginPath();
         ctx.moveTo(x2, y2);
         ctx.lineTo(x2 + x3, y2 + y3);
-        if (type === "stroke") ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 + x4, y2 + y4);
-        ctx.closePath();
+        if (type === "stroke") {
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 + x4, y2 + y4);
+        } else {
+            ctx.lineTo(x2 + x4, y2 + y4);
+            ctx.closePath();
+        }
 
         ctx.fillStyle = this.stroke?.toString() || "";
         ctx.lineWidth = this.strokeWidth || 1;
         ctx.strokeStyle = this.stroke?.toString() || "";
-        ctx.fill();
+        if (type !== "stroke") ctx.fill();
         ctx.stroke();
         ctx.restore();
     }
