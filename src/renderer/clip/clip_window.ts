@@ -3045,6 +3045,7 @@ function setEditType<T extends keyof EditType>(
             polyOP = [];
             drawingShape = false;
             drawNumberN = 1;
+            removePreviewShape();
         }
         shape = type as Shape;
         if (shape) {
@@ -3205,9 +3206,7 @@ function draw(
     const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (v === "move") {
-        const obj = shapes.at(-1);
-        if (obj) fabricCanvas.remove(obj);
-        shapes.splice(shapes.length - 1, 1);
+        removePreviewShape();
     }
     const x = Math.min(x1, x2);
     const y = Math.min(y1, y2);
@@ -3291,7 +3290,7 @@ function draw(
         });
     }
     if (shapeX) {
-        shapes.push(shapeX);
+        previewShape = shapeX;
         fabricCanvas.add(shapeX);
     }
 }
@@ -3302,9 +3301,7 @@ function drawPoly(shape: EditType["shape"]) {
     const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
     if (polyOP.length !== 1) {
-        const obj = shapes.at(-1);
-        if (obj) fabricCanvas.remove(obj);
-        shapes.splice(shapes.length - 1, 1);
+        removePreviewShape();
     }
     let shapeX: FabricObject | null = null;
     if (shape === "polyline") {
@@ -3329,7 +3326,7 @@ function drawPoly(shape: EditType["shape"]) {
         });
     }
     if (shapeX) {
-        shapes.push(shapeX);
+        previewShape = shapeX;
         fabricCanvas.add(shapeX);
     }
 }
@@ -3350,7 +3347,6 @@ function drawNumber(p: point) {
         text: String(drawNumberN),
         形状: "number",
     });
-    shapes.push(txt);
     fabricCanvas.add(txt);
     fabricCanvas.setActiveObject(txt);
 
@@ -3733,6 +3729,7 @@ function exitShape() {
     fabricCanvas.defaultCursor = "auto";
     polyOP = [];
     drawNumberN = 1;
+    removePreviewShape();
 }
 function exitFilter() {
     newFilterSelecting = false;
@@ -4519,7 +4516,14 @@ type Shape = EditType["shape"] | "";
 let shape: Shape = "";
 
 let drawingShape = false;
-const shapes: FabricObject[] = [];
+let previewShape: FabricObject | null = null;
+
+function removePreviewShape() {
+    if (previewShape) {
+        fabricCanvas.remove(previewShape);
+        previewShape = null;
+    }
+}
 const unnormalShapes = ["polyline", "polygon", "number"];
 const strokeShapes = ["line", "polyline", "arrow"];
 let drawOP: [number, number] = [0, 0]; // 首次按下的点
@@ -5485,8 +5489,10 @@ fabricCanvas.on("mouse:down", (options) => {
                 polyOP.push({ x: x, y: y });
                 drawPoly(shape);
             } else {
+                if (previewShape) fabricCanvas.setActiveObject(previewShape);
                 hisPush();
                 polyOP = [];
+                previewShape = null;
             }
         }
     }
@@ -5514,8 +5520,8 @@ fabricCanvas.on("mouse:up", (options) => {
     drawingShape = false;
     if (!unnormalShapes.includes(shape)) {
         if (shape !== "") {
-            const obj = shapes.at(-1);
-            if (obj) fabricCanvas.setActiveObject(obj);
+            if (previewShape) fabricCanvas.setActiveObject(previewShape);
+            previewShape = null;
             hisPush();
         }
     }
