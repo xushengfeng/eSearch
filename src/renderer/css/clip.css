@@ -206,7 +206,7 @@ body input {
     left: 80px;
     top: 100px;
     width: var(--bar-size);
-    height: calc(var(--bar-size) * 4);
+    height: calc(var(--bar-size) * 6);
     position: fixed;
     z-index: 100;
     transition:
@@ -667,6 +667,47 @@ body input {
     min-width: 0;
     padding-top: 1px;
 }
+
+#element_bar .prop_icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    color: var(--font-color);
+    font-size: 9px;
+    line-height: 1;
+}
+#element_bar .prop_icon.fill {
+    background: currentColor;
+}
+#element_bar .prop_icon.stroke {
+    border: 2px solid currentColor;
+}
+#element_bar .prop_icon.corner {
+    border-top: 2px solid currentColor;
+    border-left: 2px solid currentColor;
+    border-top-left-radius: 9px;
+}
+#element_bar .prop_icon.text {
+    border: 1px solid currentColor;
+}
+#element_bar_header .icon {
+    width: 16px;
+    height: 16px;
+}
+#element_bar .prop_color_input {
+    width: 62px;
+    font-family: var(--monospace);
+    font-size: 10px;
+}
+#element_bar .prop_alpha {
+    width: 48px;
+}
+
 #element_bar .prop_mixed {
     opacity: 0.45;
 }

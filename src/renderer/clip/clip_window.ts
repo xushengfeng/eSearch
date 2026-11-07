@@ -3980,6 +3980,11 @@ const drawMainElsx = {
     free: iconEl("free_draw").attr({ id: "draw_free", title: "自由绘画" }),
     shapes: iconEl("shapes").attr({ id: "draw_shapes", title: "形状和文字" }),
     filters: iconEl("filters").attr({ id: "draw_filters", title: "滤镜" }),
+    position: iconEl("position").attr({
+        id: "draw_position",
+        title: "层叠高度",
+    }),
+    操作: iconEl("setting").attr({ id: "draw_操作", title: "操作" }),
 } as const;
 
 const drawBarMainElList = Object.values(drawMainElsx);
@@ -4131,6 +4136,13 @@ const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
                 .add(Object.values(drawSideFiltersMore)),
         ]),
     },
+    {
+        w: 1,
+        el: drawSideGen2("position").add(
+            drawSideGen(drawSidePosition, "position"),
+        ),
+    },
+    { w: 1, el: drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")) },
 ];
 
 drawBarSideEl.add(drawBarSideElChildren.map((i) => i.el));
@@ -5406,14 +5418,36 @@ function hideElementBar() {
     setElementBarVisible(false);
 }
 
-function actionButton(label: string, f: () => void) {
-    return txt(t(label)).class(Class.click).class("prop_action").on("click", f);
+let propertyAdvanced = false;
+
+function smallIcon(src: IconType, title: string, f: () => void) {
+    return view()
+        .class(Class.click)
+        .attr({ title: t(title) })
+        .add(
+            image(getImgUrl(`${src}.svg`), "icon")
+                .class("icon")
+                .style({ width: "16px", height: "16px" }),
+        )
+        .on("click", f);
 }
 
-function propertyRow(label: string, control: ElType<HTMLElement>) {
-    return view("x")
-        .class("prop_row")
-        .add([txt(t(label)).class("prop_label"), control]);
+function propIcon(kind: "fill" | "stroke" | "corner" | "width", title: string) {
+    const el = view()
+        .class("prop_icon")
+        .class(kind)
+        .attr({ title: t(title) });
+    if (kind === "width") el.add(txt("线").style({ fontSize: "9px" }));
+    return el;
+}
+
+function propertyRow(
+    label: string | ElType<HTMLElement>,
+    control: ElType<HTMLElement>,
+) {
+    const lead =
+        typeof label === "string" ? txt(t(label)).class("prop_label") : label;
+    return view("x").class("prop_row").add([lead, control]);
 }
 
 function propertyPair(
@@ -5478,7 +5512,7 @@ function numberControl(
 }
 
 function propertyNumber(
-    label: string,
+    label: string | ElType<HTMLElement>,
     get: () => number | undefined,
     set: (v: number) => void,
     step = 1,
@@ -5508,7 +5542,7 @@ function rangeControl(
 }
 
 function propertyRange(
-    label: string,
+    label: string | ElType<HTMLElement>,
     min: number,
     max: number,
     step: number,
@@ -5518,31 +5552,45 @@ function propertyRange(
     return propertyRow(label, rangeControl(min, max, step, get, set));
 }
 
-function propertyColor(
-    label: string,
-    get: () => string | undefined,
-    set: (v: string) => void,
-) {
-    const color = input("color");
-    const alpha = rangeBar(0, 1, 0.01);
+function colorControl(get: () => string | undefined, set: (v: string) => void) {
+    const color = input().class("prop_color_input");
+    const alpha = rangeBar(0, 1, 0.01).class("prop_alpha");
     const value = get();
-    const c = value ? chroma(value) : chroma("#fff");
-    color.el.value = c.hex("rgb");
+    let c = value ? chroma(value) : chroma("#fff");
+    const showColor = (inputColor: chroma.Color) => {
+        color.sv(inputColor.hex());
+        color.style({
+            "background-color": inputColor.hex(),
+            color: pickTextColor(inputColor),
+        });
+    };
+    showColor(c);
     alpha.sv(c.alpha());
     if (value === undefined) color.el.classList.add("prop_mixed");
     const apply = () => {
+        try {
+            c = chroma(color.gv).alpha(alpha.gv);
+        } catch {
+            return;
+        }
         color.el.classList.remove("prop_mixed");
-        set(chroma(color.gv).alpha(alpha.gv).css());
+        showColor(c);
+        set(c.css());
         schedulePropertyHistory();
     };
     color.on("input", apply);
     alpha.on("input", apply);
-    return propertyRow(
-        label,
-        view("x")
-            .style({ gap: "4px", alignItems: "center" })
-            .add([color, alpha]),
-    );
+    return view("x")
+        .style({ gap: "3px", alignItems: "center", minWidth: 0 })
+        .add([color, alpha]);
+}
+
+function propertyColor(
+    label: string | ElType<HTMLElement>,
+    get: () => string | undefined,
+    set: (v: string) => void,
+) {
+    return propertyRow(label, colorControl(get, set));
 }
 
 function propertySelect(
@@ -5619,42 +5667,41 @@ function setArrowDefault(key: "w" | "h", value: number) {
     arrowConfig[key] = value;
 }
 
-function addHeader(title: string, close = false) {
+function addHeader(
+    title: string,
+    options: {
+        close?: boolean;
+        copy?: boolean;
+        remove?: boolean;
+        advanced?: boolean;
+    } = {},
+) {
     const list: ElType<HTMLElement>[] = [
         txt(title).style({ fontWeight: "bold", fontSize: "12px" }),
     ];
-    if (close) {
+    if (options.advanced) {
         list.push(
-            actionButton("关闭", () => {
-                fabricCanvas.discardActiveObject();
+            smallIcon("setting", "高级", () => {
+                propertyAdvanced = !propertyAdvanced;
                 refreshPropertyPanel();
             }),
         );
     }
+    if (options.copy) {
+        list.push(smallIcon("copy", "复制", () => fabricCopy()));
+    }
+    if (options.remove) {
+        list.push(smallIcon("delete", "删除", () => fabricDelete()));
+    }
+    if (options.close) {
+        list.push(
+            smallIcon("close", "关闭", () => {
+                fabricCanvas.discardActiveObject();
+                hideElementBar();
+            }),
+        );
+    }
     elementBarHeader.clear().add(list);
-}
-
-function addActions(objects: FabricObject[]) {
-    const row = view("x")
-        .class("prop_actions")
-        .style({ "flex-wrap": "wrap" });
-    const layer = (label: string, f: (o: FabricObject) => void) =>
-        actionButton(label, () => {
-            for (const o of objects) f(o);
-            fabricCanvas.requestRenderAll();
-            hisPush();
-        });
-    row.add([
-        layer("置顶", (o) => fabricCanvas.bringObjectToFront(o)),
-        layer("上移", (o) => fabricCanvas.bringObjectForward(o)),
-        layer("下移", (o) => fabricCanvas.sendObjectBackwards(o)),
-        layer("置底", (o) => fabricCanvas.sendObjectToBack(o)),
-        actionButton("撤销", () => undo(true)),
-        actionButton("重做", () => undo(false)),
-        actionButton("复制", () => fabricCopy()),
-        actionButton("删除", () => fabricDelete()),
-    ]);
-    elementBarBody.add(row);
 }
 
 function renderShapeToolPanel(kind: EditType["shape"]) {
@@ -5672,18 +5719,29 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
     if (!["line", "arrow", "polyline"].includes(kind))
         elementBarBody.add(
             propertyColor(
-                kind === "text" ? "文字颜色" : "填充",
+                propIcon("fill", kind === "text" ? "文字颜色" : "填充"),
                 () => getShapePro(kind).fc,
                 fill,
             ),
         );
     if (kind !== "mask")
         elementBarBody.add(
-            propertyColor("描边", () => getShapePro(kind).sc, stroke),
+            propertyColor(
+                propIcon("stroke", "描边"),
+                () => getShapePro(kind).sc,
+                stroke,
+            ),
         );
     if (!["mask", "text"].includes(kind))
         elementBarBody.add(
-            propertyRange("线宽", 0, 25, 1, () => getShapePro(kind).sw, width),
+            propertyRange(
+                propIcon("width", "线宽"),
+                0,
+                25,
+                1,
+                () => getShapePro(kind).sw,
+                width,
+            ),
         );
 
     if (kind === "arrow") {
@@ -5711,14 +5769,14 @@ function renderDrawToolPanel(modeType: EditType["draw"]) {
     if (modeType !== "eraser")
         elementBarBody.add(
             propertyColor(
-                "颜色",
+                propIcon("stroke", "颜色"),
                 () => pro.sc,
                 (v) => setFObjectV(null, v, null),
             ),
         );
     elementBarBody.add([
         propertyRange(
-            "粗细",
+            propIcon("width", "粗细"),
             0,
             25,
             1,
@@ -5780,25 +5838,21 @@ function renderToolPropertyPanel() {
         hideElementBar();
         return;
     }
-    if (!elementBarVisible) return;
-    elementBarBody.add(
-        view("x")
-            .class("prop_actions")
-            .add([
-                actionButton("撤销", () => undo(true)),
-                actionButton("重做", () => undo(false)),
-            ]),
-    );
 }
 
 function renderElementPropertyPanel(objects: FabricObject[]) {
     const kinds = new Set(objects.map(getObjectKind));
     const kind = kinds.size === 1 ? [...kinds][0] : null;
     const single = objects.length === 1;
-    addHeader(single ? kindTitle(kind) : `${objects.length} 个元素`, true);
+    addHeader(single ? kindTitle(kind) : `${objects.length} 个元素`, {
+        close: true,
+        copy: true,
+        remove: true,
+        advanced: single && kind !== "mask",
+    });
     elementBarBody.clear();
 
-    if (single && kind !== "mask") {
+    if (single && kind !== "mask" && propertyAdvanced) {
         const o = objects[0];
         const geometry: ElType<HTMLElement>[] = [
             propertyPair(
@@ -5845,36 +5899,15 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             );
         }
         geometry.push(
-            propertyPair(
+            propertyNumber(
                 "角度",
-                numberControl(
-                    () => o.angle,
-                    (v) => applyActive((x) => x.set({ angle: v })),
-                    1,
-                    1,
-                ),
-                "透明度",
-                rangeControl(
-                    0,
-                    1,
-                    0.01,
-                    () => o.opacity,
-                    (v) => applyActive((x) => x.set({ opacity: v })),
-                ),
+                () => o.angle,
+                (v) => applyActive((x) => x.set({ angle: v })),
+                1,
+                1,
             ),
         );
         elementBarBody.add(geometry);
-    } else if (!single) {
-        elementBarBody.add(
-            propertyRange(
-                "透明度",
-                0,
-                1,
-                0.01,
-                () => commonValue(objects, (o) => o.opacity),
-                (v) => applyActive((x) => x.set({ opacity: v })),
-            ),
-        );
     }
 
     const canFill = objects.every((o) => o.canChangeFill);
@@ -5884,7 +5917,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
     if (canFill)
         elementBarBody.add(
             propertyColor(
-                "填充",
+                propIcon("fill", kind === "text" ? "文字颜色" : "填充"),
                 () => commonValue(objects, (o) => o.fill?.toString()),
                 (v) => applyActive((o) => o.set("fill", v)),
             ),
@@ -5892,12 +5925,12 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
     if (canStroke) {
         elementBarBody.add([
             propertyColor(
-                "描边",
+                propIcon("stroke", "描边"),
                 () => commonValue(objects, (o) => o.stroke?.toString()),
                 (v) => applyActive((o) => o.set("stroke", v)),
             ),
             propertyRange(
-                "线宽",
+                propIcon("width", "线宽"),
                 0,
                 25,
                 1,
@@ -6024,7 +6057,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             const r = o as Rect;
             elementBarBody.add(
                 propertyNumber(
-                    "圆角",
+                    propIcon("corner", "圆角"),
                     () => r.rx || 0,
                     (v) => applyActive((x) => x.set({ rx: v, ry: v })),
                 ),
@@ -6057,7 +6090,6 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
         }
     }
 
-    addActions(objects);
     setElementBarVisible(true);
 }
 
@@ -6195,7 +6227,7 @@ for (const [index, e] of drawBarMainElList.entries()) {
         }, 100);
     });
     e.on("click", () => {
-        setEditType(Type[index], editType[Type[index]]);
+        if (index < 4) setEditType(Type[index], editType[Type[index]]);
     });
 }
 
