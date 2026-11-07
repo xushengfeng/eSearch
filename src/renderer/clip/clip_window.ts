@@ -3609,19 +3609,6 @@ function setFObjectV(
             }
             if (stroke) i.set("stroke", stroke);
             if (sw) i.set("strokeWidth", sw);
-            if (i.形状) {
-                store.set(`图像编辑.形状属性.${i.形状}.fc`, fill || fillColor);
-                store.set(
-                    `图像编辑.形状属性.${i.形状}.sc`,
-                    stroke || strokeColor,
-                );
-                store.set(`图像编辑.形状属性.${i.形状}.sw`, sw || strokeWidth);
-                shapePro[i.形状] = {
-                    fc: fill || fillColor,
-                    sc: stroke || strokeColor,
-                    sw: sw || strokeWidth,
-                };
-            }
         }
         fabricCanvas.renderAll();
     } else if (fabricCanvas.isDrawingMode) {
