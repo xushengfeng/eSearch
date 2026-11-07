@@ -721,8 +721,9 @@ body input {
     box-sizing: border-box;
 }
 .color_swatch {
-    width: 18px;
-    height: 18px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
     border-radius: 3px;
     cursor: pointer;
 }

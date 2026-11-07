@@ -4164,7 +4164,7 @@ let colorPopoverTarget: ((v: string) => void) | null = null;
 let colorPopoverAnchor: HTMLElement | null = null;
 let colorPopoverTab: "grid" | "picker" = "grid";
 const colorPopover = view("y")
-    .class(Class.gap, Class.deco)
+    .class(Class.gap, Class.glassBar)
     .style({
         position: "fixed",
         inset: "auto",
@@ -4173,8 +4173,8 @@ const colorPopover = view("y")
         width: "224px",
         maxHeight: "calc(100vh - 8px)",
         overflowY: "auto",
-        background: "var(--bg)",
         color: "var(--font-color)",
+        borderRadius: "var(--border-radius)",
         boxShadow: "var(--shadow)",
         visibility: "hidden",
         zIndex: "120",
@@ -4183,6 +4183,7 @@ const colorPopover = view("y")
 const colorTabs = view("x").style({ gap: "2px" });
 const colorGrid = view().style({
     display: "grid",
+    width: "100%",
     gridTemplateColumns: "repeat(5, 1fr)",
     gap: "2px",
 });
@@ -4221,12 +4222,22 @@ function renderColorGrid(hue?: number) {
     if (hue === undefined) {
         colors.push({ color: "#fff", hue: 0 });
         for (let i = 0; i < 360; i += 15) {
-            colors.push({ color: chroma.hsl(i, 100, 50).css(), hue: i });
+            colors.push({ color: chroma.hsl(i, 1, 0.5).css(), hue: i });
+        }
+    } else if (hue === 0) {
+        for (let i = 0; i < 25; i++) {
+            colors.push({
+                color: chroma.hsl(0, 0, (24 - i) / 24).css(),
+                hue: 0,
+            });
         }
     } else {
         for (let l = 90; l > 0; l -= 20) {
-            for (let s = 90; s > 0; s -= 20) {
-                colors.push({ color: chroma.hsl(hue, s, l).css(), hue });
+            for (let s = 100; s > 0; s -= 20) {
+                colors.push({
+                    color: chroma.hsl(hue, s / 100, l / 100).css(),
+                    hue,
+                });
             }
         }
     }
