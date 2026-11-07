@@ -5413,7 +5413,24 @@ function actionButton(label: string, f: () => void) {
 function propertyRow(label: string, control: ElType<HTMLElement>) {
     return view("x")
         .class("prop_row")
-        .add([txt(t(label)), control]);
+        .add([txt(t(label)).class("prop_label"), control]);
+}
+
+function propertyPair(
+    labelA: string,
+    controlA: ElType<HTMLElement>,
+    labelB: string,
+    controlB: ElType<HTMLElement>,
+) {
+    return view("x")
+        .class("prop_row")
+        .class("prop_pair")
+        .add([
+            txt(t(labelA)).class("prop_label"),
+            controlA,
+            txt(t(labelB)).class("prop_label"),
+            controlB,
+        ]);
 }
 
 function commonValue<T>(
@@ -5436,11 +5453,11 @@ function applyActive(f: (o: FabricObject) => void) {
     scheduleElementBarPosition();
 }
 
-function propertyNumber(
-    label: string,
+function numberControl(
     get: () => number | undefined,
     set: (v: number) => void,
     step = 1,
+    digits = 2,
 ) {
     const i = input("number").attr({ step: String(step) });
     const v = get();
@@ -5448,7 +5465,8 @@ function propertyNumber(
         i.el.placeholder = "—";
         i.el.classList.add("prop_mixed");
     } else {
-        i.el.value = String(Math.round(v * 100) / 100);
+        const precision = 10 ** digits;
+        i.el.value = String(Math.round(v * precision) / precision);
     }
     i.on("input", () => {
         const n = Number(i.gv);
@@ -5456,11 +5474,20 @@ function propertyNumber(
         i.el.classList.remove("prop_mixed");
         set(n);
     });
-    return propertyRow(label, i);
+    return i;
 }
 
-function propertyRange(
+function propertyNumber(
     label: string,
+    get: () => number | undefined,
+    set: (v: number) => void,
+    step = 1,
+    digits = 2,
+) {
+    return propertyRow(label, numberControl(get, set, step, digits));
+}
+
+function rangeControl(
     min: number,
     max: number,
     step: number,
@@ -5477,7 +5504,18 @@ function propertyRange(
     } else {
         r.sv(v);
     }
-    return propertyRow(label, r);
+    return r;
+}
+
+function propertyRange(
+    label: string,
+    min: number,
+    max: number,
+    step: number,
+    get: () => number | undefined,
+    set: (v: number) => void,
+) {
+    return propertyRow(label, rangeControl(min, max, step, get, set));
 }
 
 function propertyColor(
@@ -5597,7 +5635,9 @@ function addHeader(title: string, close = false) {
 }
 
 function addActions(objects: FabricObject[]) {
-    const row = view("x").class("prop_actions");
+    const row = view("x")
+        .class("prop_actions")
+        .style({ "flex-wrap": "wrap" });
     const layer = (label: string, f: (o: FabricObject) => void) =>
         actionButton(label, () => {
             for (const o of objects) f(o);
@@ -5760,53 +5800,70 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
 
     if (single && kind !== "mask") {
         const o = objects[0];
-        elementBarBody.add([
-            propertyNumber(
+        const geometry: ElType<HTMLElement>[] = [
+            propertyPair(
                 "X",
-                () => o.left,
-                (v) => applyActive((x) => x.set({ left: v })),
-            ),
-            propertyNumber(
+                numberControl(
+                    () => o.left,
+                    (v) => applyActive((x) => x.set({ left: v })),
+                    1,
+                    0,
+                ),
                 "Y",
-                () => o.top,
-                (v) => applyActive((x) => x.set({ top: v })),
+                numberControl(
+                    () => o.top,
+                    (v) => applyActive((x) => x.set({ top: v })),
+                    1,
+                    0,
+                ),
             ),
-        ]);
+        ];
         if (["rect", "circle", "ellipse", "filter"].includes(kind ?? "")) {
-            elementBarBody.add([
-                propertyNumber(
+            geometry.push(
+                propertyPair(
                     "宽",
-                    () => o.getScaledWidth(),
-                    (v) =>
-                        applyActive((x) => {
-                            if (x.width) x.set({ scaleX: v / x.width });
-                        }),
-                ),
-                propertyNumber(
+                    numberControl(
+                        () => o.getScaledWidth(),
+                        (v) =>
+                            applyActive((x) => {
+                                if (x.width) x.set({ scaleX: v / x.width });
+                            }),
+                        1,
+                        0,
+                    ),
                     "高",
-                    () => o.getScaledHeight(),
-                    (v) =>
-                        applyActive((x) => {
-                            if (x.height) x.set({ scaleY: v / x.height });
-                        }),
+                    numberControl(
+                        () => o.getScaledHeight(),
+                        (v) =>
+                            applyActive((x) => {
+                                if (x.height) x.set({ scaleY: v / x.height });
+                            }),
+                        1,
+                        0,
+                    ),
                 ),
-            ]);
+            );
         }
-        elementBarBody.add([
-            propertyNumber(
+        geometry.push(
+            propertyPair(
                 "角度",
-                () => o.angle,
-                (v) => applyActive((x) => x.set({ angle: v })),
-            ),
-            propertyRange(
+                numberControl(
+                    () => o.angle,
+                    (v) => applyActive((x) => x.set({ angle: v })),
+                    1,
+                    1,
+                ),
                 "透明度",
-                0,
-                1,
-                0.01,
-                () => o.opacity,
-                (v) => applyActive((x) => x.set({ opacity: v })),
+                rangeControl(
+                    0,
+                    1,
+                    0.01,
+                    () => o.opacity,
+                    (v) => applyActive((x) => x.set({ opacity: v })),
+                ),
             ),
-        ]);
+        );
+        elementBarBody.add(geometry);
     } else if (!single) {
         elementBarBody.add(
             propertyRange(
