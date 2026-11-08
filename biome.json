@@ -11,6 +11,7 @@
             "!**/assets",
             "!docs",
             "!script/make_aur/e-search",
+            "!src/main/bergamot-translator.js",
             "!test/test_index/test_results.json"
         ]
     },

@@ -1,4 +1,4 @@
-import xtranslator, { matchFitLan } from "xtranslator";
+import { matchFitLan } from "xtranslator";
 import { Class, cssColor, getImgUrl, initStyle } from "../root/root";
 
 const fs = require("node:fs") as typeof import("fs");
@@ -21,7 +21,7 @@ import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
 import { writeText } from "../lib/clipboard";
-import { getTranslators } from "../lib/translate";
+import { getEngineLans, getTranslators } from "../lib/translate";
 
 initStyle(store);
 
@@ -288,19 +288,10 @@ const fanyiqi = new Map(
 const showCang = store.get("翻译.收藏");
 
 const allFromLan = Array.from(
-    new Set(
-        fyq.flatMap(
-            (f) => xtranslator.e[f.type === "llm" ? "chatgpt" : f.type]?.lan,
-        ),
-    ),
+    new Set(fyq.flatMap((f) => getEngineLans(f.type)?.lan ?? [])),
 );
 const allToLan = Array.from(
-    new Set(
-        fyq.flatMap(
-            (f) =>
-                xtranslator.e[f.type === "llm" ? "chatgpt" : f.type]?.targetLan,
-        ),
-    ),
+    new Set(fyq.flatMap((f) => getEngineLans(f.type)?.targetLan ?? [])),
 );
 
 console.log("allFromLan", allFromLan);

@@ -355,7 +355,10 @@ export interface setting {
         翻译器: {
             id: string;
             name: string;
-            type: keyof typeof import("xtranslator")["default"]["e"] | "llm";
+            type:
+                | keyof typeof import("xtranslator")["default"]["e"]
+                | "llm"
+                | "bergamot";
             keys: Record<string, string | object>;
         }[];
         收藏: {

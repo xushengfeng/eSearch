@@ -253,6 +253,11 @@ type Message = {
     browserUrl: (id: number, url: string) => void;
     browserLoad: (id: number, load: boolean) => void;
     userDataPath: () => string;
+    bergamot_translate: (data: {
+        texts: string[];
+        from: string;
+        to: string;
+    }) => string[];
     githubUrl: (path: string, _type?: GithubUrlType | "auto") => string;
     getScreens: () => Display[];
     getLogs: () => {
@@ -316,6 +321,37 @@ function mainOn<K extends keyof Message>(
     mainOnData.set(key, callbacks);
 }
 
+const mainHandleData = new Map<
+    string,
+    (
+        data: unknown,
+        event: Electron.IpcMainInvokeEvent,
+    ) => unknown | Promise<unknown>
+>();
+
+function mainHandle<K extends keyof Message>(
+    key: K,
+    callback: (
+        data: Parameters<Message[K]>,
+        event: Electron.IpcMainInvokeEvent,
+    ) => ReturnType<Message[K]> | Promise<ReturnType<Message[K]>>,
+) {
+    mainHandleData.set(
+        key,
+        callback as (
+            data: unknown,
+            event: Electron.IpcMainInvokeEvent,
+        ) => unknown,
+    );
+}
+
+function renderInvoke<K extends keyof Message>(
+    key: K,
+    data: Parameters<Message[K]>,
+): Promise<ReturnType<Message[K]>> {
+    return ipcRenderer.invoke(name, key, data);
+}
+
 /**
  * 渲染进程之间的通信，主进程起到中转作用
  */
@@ -348,6 +384,14 @@ ipcRenderer?.on(name, (event, key, data) => {
     }
 });
 
+ipcMain?.handle(name, async (event, key, data) => {
+    const callback = mainHandleData.get(key);
+    if (!callback) {
+        throw new Error(`ipcMain.handle: ${key} not found`);
+    }
+    return callback(data, event);
+});
+
 ipcMain?.on(name, async (event, key, data) => {
     const callbacks = mainOnData.get(key);
     if (callbacks) {
@@ -374,9 +418,11 @@ ipcMain?.on(name, async (event, key, data) => {
 });
 
 export {
+    mainHandle,
     mainOn,
     mainOnReflect,
     mainSend,
+    renderInvoke,
     renderOn,
     renderSend,
     renderSendSync,

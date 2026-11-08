@@ -65,6 +65,7 @@ import type {
     translateWinType,
     功能,
 } from "../ShareTypes";
+import { initBergamot } from "./bergamot";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -781,6 +782,8 @@ app.whenReady().then(() => {
     );
 
     crashReporter.start({ uploadToServer: false });
+
+    initBergamot();
 
     store.setDefaultData(defaultSetting);
 

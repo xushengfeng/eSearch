@@ -33,6 +33,11 @@ import { getLanName, getLans, lan, t } from "../../../lib/translate/translate";
 import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
 import { colorPicker } from "../lib/colorPicker";
 import {
+    BergamotTranslator,
+    getEngineLans,
+    getTranslators,
+} from "../lib/translate";
+import {
     Class,
     cssColor,
     cssVar,
@@ -79,7 +84,7 @@ let yauzl: typeof import("yauzl") | null = null;
 
 export { isDeepStrictEqual };
 
-type Engines = keyof typeof translator.e | "llm";
+type Engines = keyof typeof translator.e | "llm" | "bergamot";
 
 type JustElmentK =
     | "_autostart"
@@ -1027,7 +1032,7 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "屏幕翻译语言来源",
         el: () => {
             const firstItem = getSet("翻译.翻译器").at(0);
-            const e = translator.getEngine(firstItem?.type ?? "");
+            const e = getEngineLans(firstItem?.type ?? "");
             if (!e) return select([]);
             const list = select(
                 getLansName(e.lan).map((i) => ({
@@ -1042,7 +1047,7 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "屏幕翻译语言目标",
         el: () => {
             const firstItem = getSet("翻译.翻译器").at(0);
-            const e = translator.getEngine(firstItem?.type ?? "");
+            const e = getEngineLans(firstItem?.type ?? "");
             if (!e) return select([]);
             const list = select(
                 getLansName(e.targetLan).map((i) => ({
@@ -3734,6 +3739,10 @@ function translatorD(
             }
         >
     > = {
+        bergamot: {
+            t: t("Firefox 本地模型"),
+            key: [],
+        },
         google: {
             t: "谷歌翻译",
             key: [],
@@ -3926,15 +3935,17 @@ function translatorD(
                     model: model.model,
                 },
             });
-        } else {
+        } else if (v.type !== "bergamot") {
             // @ts-ignore
             translator.e[v.type].setKeys(v.keys);
         }
         try {
             const r =
-                await translator.e[
-                    v.type === "llm" ? "chatgpt" : v.type
-                ].test();
+                v.type === "bergamot"
+                    ? await new BergamotTranslator().test()
+                    : await translator.e[
+                          v.type === "llm" ? "chatgpt" : v.type
+                      ].test();
             console.log(r);
             if (r) testR.el.innerText = t("测试成功");
         } catch (error) {
@@ -5050,13 +5061,12 @@ function about() {
                             const x = transE.at(
                                 0,
                             ) as setting["翻译"]["翻译器"][0];
-                            // @ts-ignore
-                            translator.e[x.type].setKeys(x.keys);
-                            // @ts-ignore
-                            const t = await translator.e[x.type].run(
+                            const e = getTranslators(store, x);
+                            if (!e) return;
+                            const t = await e.run(
                                 b,
                                 "zh",
-                                getSet("语言.语言"),
+                                getSet("语言.语言") || "zh-Hans",
                             );
                             md(t);
                         });
