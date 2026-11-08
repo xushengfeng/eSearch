@@ -180,6 +180,8 @@ function translate(_text: string) {
                         c.sv(
                             `${t("不支持输出语言")} ${getLansName([toLan])[0].text}`,
                         );
+                    } else if (i.type === "bergamot") {
+                        c.sv(err.message);
                     } else
                         c.sv(t("翻译失败，请重试，点击查看错误信息")).on(
                             "click",

@@ -612,6 +612,10 @@ const defaultSetting: setting = {
             文件: [],
         },
         常用语言: [],
+        Firefox本地模型: {
+            from: "en",
+            to: "zh-Hans",
+        },
     },
     额外截屏器: { 命令: "", 位置: "" },
     使用XDGDesktopPortal: false,

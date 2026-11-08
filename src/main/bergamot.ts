@@ -1,11 +1,10 @@
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
-import { mkdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Worker } from "node:worker_threads";
-import { app, Notification } from "electron";
+import { app } from "electron";
 import { mainHandle } from "../../lib/ipc";
-import { t } from "../../lib/translate/translate";
 import glueSource from "./bergamot-translator.js?raw";
 import workerSource from "./bergamot-worker.cjs?raw";
 
@@ -115,12 +114,12 @@ const SERVER_ENV: Record<string, string> = {
 };
 
 let modelRecordsPromise: Promise<FileRecord[]> | undefined;
+let wasmRecordPromise: Promise<FileRecord> | undefined;
 let runtimePromise: Promise<FileSpec> | undefined;
 const downloads = new Map<string, Promise<string>>();
 const routes = new Map<string, WorkerEntry>();
 let routeLock = Promise.resolve();
 let nextId = 0;
-let notifiedDownload = false;
 
 function cacheDir() {
     return join(app.getPath("userData"), "bergamot");
@@ -240,21 +239,6 @@ function modelFilePath(record: FileRecord, dir: string) {
     );
 }
 
-function notifyDownload() {
-    if (notifiedDownload) return;
-    notifiedDownload = true;
-    try {
-        if (Notification.isSupported()) {
-            new Notification({
-                title: t("Firefox 本地模型"),
-                body: t("首次使用需要下载翻译模型，请稍候"),
-            }).show();
-        }
-    } catch (error) {
-        console.error("通知发送失败", error);
-    }
-}
-
 async function download(record: FileRecord, dir: string): Promise<string> {
     const dest = modelFilePath(record, dir);
     if (existsSync(dest)) return dest;
@@ -280,41 +264,62 @@ async function download(record: FileRecord, dir: string): Promise<string> {
     return promise;
 }
 
+function getWasmRecord() {
+    wasmRecordPromise ??= fetchJson<RecordsResponse>(WASM_URL)
+        .then((records) => {
+            const record = records.data
+                .filter(
+                    (item) =>
+                        item.name === "bergamot-translator" &&
+                        parseVersion(item.version)?.major ===
+                            WASM_MAJOR_VERSION,
+                )
+                .sort(
+                    (a, b) =>
+                        (parseVersion(b.version)?.minor ?? 0) -
+                        (parseVersion(a.version)?.minor ?? 0),
+                )[0];
+            if (!record) {
+                throw new Error("找不到 Firefox 翻译运行时");
+            }
+            return record;
+        })
+        .catch((error) => {
+            wasmRecordPromise = undefined;
+            throw error;
+        });
+    return wasmRecordPromise;
+}
+
+function runtimeFile(record: FileRecord, path: string): FileSpec {
+    return {
+        path,
+        hash: record.attachment.hash,
+        decompressedHash: record.decompressedHash,
+    };
+}
+
 async function getRuntime(): Promise<FileSpec> {
     runtimePromise ??= (async () => {
-        const records = await fetchJson<RecordsResponse>(WASM_URL);
-        const record = records.data
-            .filter(
-                (item) =>
-                    item.name === "bergamot-translator" &&
-                    parseVersion(item.version)?.major === WASM_MAJOR_VERSION,
-            )
-            .sort(
-                (a, b) =>
-                    (parseVersion(b.version)?.minor ?? 0) -
-                    (parseVersion(a.version)?.minor ?? 0),
-            )[0];
-
-        if (!record) {
-            throw new Error("找不到 Firefox 翻译运行时");
-        }
-
-        const dir = join(cacheDir(), "runtime");
-        if (!existsSync(modelFilePath(record, dir))) {
-            notifyDownload();
-        }
-        const path = await download(record, dir);
-        return {
-            path,
-            hash: record.attachment.hash,
-            decompressedHash: record.decompressedHash,
-        };
+        const record = await getWasmRecord();
+        const path = await download(record, join(cacheDir(), "runtime"));
+        return runtimeFile(record, path);
     })().catch((error) => {
         runtimePromise = undefined;
         throw error;
     });
 
     return runtimePromise;
+}
+
+async function getCachedRuntime(): Promise<FileSpec> {
+    const record = await getWasmRecord();
+    const dir = join(cacheDir(), "runtime");
+    const path = modelFilePath(record, dir);
+    if (!existsSync(path)) {
+        throw new Error("Firefox 本地模型运行时未下载，请在设置中下载");
+    }
+    return runtimeFile(record, path);
 }
 
 async function getModel(
@@ -326,10 +331,6 @@ async function getModel(
 
     const dir = join(cacheDir(), "models", `${from}-${to}`, set.version);
     const records = Object.entries(set.files) as [FileType, FileRecord][];
-    if (records.some(([, record]) => !existsSync(modelFilePath(record, dir)))) {
-        notifyDownload();
-    }
-
     const files: Partial<Record<FileType, FileSpec>> = {};
     await Promise.all(
         records.map(async ([role, record]) => {
@@ -341,6 +342,36 @@ async function getModel(
             };
         }),
     );
+
+    return {
+        key: `${from}-${to}@${set.version}`,
+        from,
+        to,
+        files,
+    };
+}
+
+async function getCachedModel(
+    from: string,
+    to: string,
+): Promise<ModelSpec | undefined> {
+    const set = selectModelSet(await modelRecords(), from, to);
+    if (!set) return undefined;
+
+    const dir = join(cacheDir(), "models", `${from}-${to}`, set.version);
+    const records = Object.entries(set.files) as [FileType, FileRecord][];
+    if (records.some(([, record]) => !existsSync(modelFilePath(record, dir)))) {
+        return undefined;
+    }
+
+    const files: Partial<Record<FileType, FileSpec>> = {};
+    for (const [role, record] of records) {
+        files[role] = {
+            path: modelFilePath(record, dir),
+            hash: record.attachment.hash,
+            decompressedHash: record.decompressedHash,
+        };
+    }
 
     return {
         key: `${from}-${to}@${set.version}`,
@@ -368,17 +399,41 @@ function detectLang(texts: string[]) {
     return "en";
 }
 
-async function getRouteModels(from: string, to: string): Promise<ModelSpec[]> {
-    const direct = await getModel(from, to);
+async function routeModels(
+    from: string,
+    to: string,
+    get: (from: string, to: string) => Promise<ModelSpec | undefined>,
+): Promise<ModelSpec[] | undefined> {
+    const direct = await get(from, to);
     if (direct) return [direct];
 
     if (from !== "en" && to !== "en") {
-        const source = await getModel(from, "en");
-        const target = await getModel("en", to);
+        const [source, target] = await Promise.all([
+            get(from, "en"),
+            get("en", to),
+        ]);
         if (source && target) return [source, target];
     }
 
-    throw new Error(`Firefox 本地模型不支持 ${from} → ${to}`);
+    return undefined;
+}
+
+async function downloadRouteModels(from: string, to: string) {
+    const models = await routeModels(from, to, getModel);
+    if (!models) {
+        throw new Error(`Firefox 本地模型不支持 ${from} → ${to}`);
+    }
+    return models;
+}
+
+async function getCachedRouteModels(from: string, to: string) {
+    const models = await routeModels(from, to, getCachedModel);
+    if (!models) {
+        throw new Error(
+            `Firefox 本地模型未下载或不支持 ${from} → ${to}，请在设置 → 翻译 → 本地模型中下载`,
+        );
+    }
+    return models;
 }
 
 function spawnWorker(specs: ModelSpec[], runtime: FileSpec) {
@@ -431,7 +486,7 @@ function spawnWorker(specs: ModelSpec[], runtime: FileSpec) {
     return entry;
 }
 
-async function getRoute(specs: ModelSpec[]) {
+async function getRoute(specs: ModelSpec[], runtime: FileSpec) {
     const key = specs.map((spec) => spec.key).join(">");
     const existing = routes.get(key);
     if (existing) {
@@ -453,7 +508,6 @@ async function getRoute(specs: ModelSpec[]) {
             return current;
         }
 
-        const runtime = await getRuntime();
         const entry = spawnWorker(specs, runtime);
         routes.set(key, entry);
 
@@ -483,6 +537,8 @@ function send(entry: WorkerEntry, texts: string[]) {
     });
 }
 
+export type BergamotStatus = "ready" | "missing" | "unsupported" | "error";
+
 export async function translateBergamot(
     texts: string[],
     from: string,
@@ -498,9 +554,73 @@ export async function translateBergamot(
     }
     if (source === target) return texts;
 
-    const specs = await getRouteModels(source, target);
-    const entry = await getRoute(specs);
+    const runtime = await getCachedRuntime();
+    const specs = await getCachedRouteModels(source, target);
+    const entry = await getRoute(specs, runtime);
     return send(entry, texts);
+}
+
+export async function downloadBergamot(from: string, to: string) {
+    const source = normalizeLang(from);
+    const target = normalizeLang(to);
+
+    if (source === "auto" || target === "auto") {
+        throw new Error("请选择具体语言");
+    }
+    if (source === target) return;
+
+    await getRuntime();
+    await downloadRouteModels(source, target);
+}
+
+export async function bergamotStatus(
+    from: string,
+    to: string,
+): Promise<BergamotStatus> {
+    const source = normalizeLang(from);
+    const target = normalizeLang(to);
+
+    if (source === "auto" || target === "auto") return "missing";
+    if (source === target) return "ready";
+
+    try {
+        const runtimeRecord = await getWasmRecord();
+        const runtimePath = modelFilePath(
+            runtimeRecord,
+            join(cacheDir(), "runtime"),
+        );
+        if (!existsSync(runtimePath)) return "missing";
+
+        const cached = await routeModels(source, target, getCachedModel);
+        if (cached) return "ready";
+
+        const direct = selectModelSet(await modelRecords(), source, target);
+        if (direct) return "missing";
+
+        if (source !== "en" && target !== "en") {
+            const [sourceSet, targetSet] = await Promise.all([
+                selectModelSet(await modelRecords(), source, "en"),
+                selectModelSet(await modelRecords(), "en", target),
+            ]);
+            if (sourceSet && targetSet) return "missing";
+        }
+
+        return "unsupported";
+    } catch (error) {
+        console.error("检查 Firefox 本地模型失败", error);
+        return "error";
+    }
+}
+
+export async function clearBergamotCache() {
+    for (const entry of routes.values()) {
+        void entry.worker.terminate();
+    }
+    routes.clear();
+    runtimePromise = undefined;
+    await Promise.allSettled([...downloads.values()]);
+    downloads.clear();
+    await rm(cacheDir(), { recursive: true, force: true });
 }
 
 let inited = false;
@@ -511,4 +631,11 @@ export function initBergamot() {
     mainHandle("bergamot_translate", ([data]) =>
         translateBergamot(data.texts, data.from, data.to),
     );
+    mainHandle("bergamot_download", ([data]) =>
+        downloadBergamot(data.from, data.to),
+    );
+    mainHandle("bergamot_status", ([data]) =>
+        bergamotStatus(data.from, data.to),
+    );
+    mainHandle("bergamot_clear", () => clearBergamotCache());
 }

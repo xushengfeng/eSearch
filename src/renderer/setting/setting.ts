@@ -33,6 +33,7 @@ import { getLanName, getLans, lan, t } from "../../../lib/translate/translate";
 import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
 import { colorPicker } from "../lib/colorPicker";
 import {
+    BERGAMOT_LANGS,
     BergamotTranslator,
     getEngineLans,
     getTranslators,
@@ -64,7 +65,7 @@ import testPhoto from "../assets/sample_picture.svg";
 const packageJson = JSON.parse(_package);
 
 import { githubMirrorList } from "../../../lib/github_mirror";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
+import { renderInvoke, renderSend, renderSendSync } from "../../../lib/ipc";
 import {
     ele2jsKeyCode,
     jsKey2ele,
@@ -1027,6 +1028,101 @@ const s: Partial<settingItem<SettingPath>> = {
                 // @ts-ignore
                 (el, d) => translatorD(el, d),
             ),
+    },
+    "翻译.Firefox本地模型": {
+        name: "Firefox 本地模型",
+        desc: "手动下载 Firefox 本地翻译模型",
+        el: (v) => {
+            const lans = getLansName([...BERGAMOT_LANGS]).map((i) => ({
+                value: i.lan,
+                name: noI18n(i.text),
+            }));
+            const from = select(lans).sv(v?.from || "en");
+            const to = select(lans).sv(v?.to || "zh-Hans");
+            const status = p("");
+            const download = button(txt(t("下载")));
+            const clearBtn = button(txt(t("清除缓存")));
+
+            const save = () => {
+                setSet("翻译.Firefox本地模型", {
+                    from: from.gv,
+                    to: to.gv,
+                });
+            };
+
+            const refresh = async () => {
+                status.el.innerText = t("检查中...");
+                try {
+                    const s = await renderInvoke("bergamot_status", [
+                        { from: from.gv, to: to.gv },
+                    ]);
+                    status.el.innerText =
+                        s === "ready"
+                            ? t("已下载")
+                            : s === "unsupported"
+                              ? t("不支持该语言对")
+                              : s === "error"
+                                ? t("检查失败")
+                                : t("未下载");
+                } catch (error) {
+                    status.el.innerText = `${t("检查失败")} ${String(error)}`;
+                }
+            };
+
+            const setBusy = (busy: boolean) => {
+                download.el.disabled = busy;
+                clearBtn.el.disabled = busy;
+            };
+
+            from.on("input", () => {
+                save();
+                void refresh();
+            });
+            to.on("input", () => {
+                save();
+                void refresh();
+            });
+            download.on("click", async () => {
+                setBusy(true);
+                status.el.innerText = t("下载中...");
+                try {
+                    await renderInvoke("bergamot_download", [
+                        { from: from.gv, to: to.gv },
+                    ]);
+                    await refresh();
+                } catch (error) {
+                    status.el.innerText = `${t("下载失败")} ${String(error)}`;
+                } finally {
+                    setBusy(false);
+                }
+            });
+            clearBtn.on("click", async () => {
+                if (!(await confirm(t("确定清除已下载的 Firefox 本地模型？"))))
+                    return;
+                setBusy(true);
+                try {
+                    await renderInvoke("bergamot_clear", []);
+                    await refresh();
+                } catch (error) {
+                    status.el.innerText = `${t("下载失败")} ${String(error)}`;
+                } finally {
+                    setBusy(false);
+                }
+            });
+
+            void refresh();
+            return view("y")
+                .class(Class.gap)
+                .add([
+                    view("x")
+                        .class(Class.gap)
+                        .add([from, to, download, clearBtn]),
+                    status,
+                    p(t("非英语语言对会经英语中转，需要下载两段模型")).style({
+                        opacity: 0.6,
+                    }),
+                ]);
+        },
     },
     "屏幕翻译.语言.from": {
         name: "屏幕翻译语言来源",
@@ -2311,6 +2407,10 @@ const main: {
         pageName: "翻译",
         settings: ["翻译.翻译器"],
         items: [
+            {
+                title: "本地模型",
+                settings: ["翻译.Firefox本地模型"],
+            },
             {
                 title: "屏幕翻译",
                 settings: [

@@ -258,6 +258,12 @@ type Message = {
         from: string;
         to: string;
     }) => string[];
+    bergamot_download: (data: { from: string; to: string }) => void;
+    bergamot_status: (data: {
+        from: string;
+        to: string;
+    }) => "ready" | "missing" | "unsupported" | "error";
+    bergamot_clear: () => void;
     githubUrl: (path: string, _type?: GithubUrlType | "auto") => string;
     getScreens: () => Display[];
     getLogs: () => {
