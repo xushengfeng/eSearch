@@ -65,7 +65,12 @@ import testPhoto from "../assets/sample_picture.svg";
 const packageJson = JSON.parse(_package);
 
 import { githubMirrorList } from "../../../lib/github_mirror";
-import { renderInvoke, renderSend, renderSendSync } from "../../../lib/ipc";
+import {
+    renderInvoke,
+    renderOn,
+    renderSend,
+    renderSendSync,
+} from "../../../lib/ipc";
 import {
     ele2jsKeyCode,
     jsKey2ele,
@@ -1032,93 +1037,21 @@ const s: Partial<settingItem<SettingPath>> = {
     "翻译.Firefox本地模型": {
         name: "Firefox 本地模型",
         desc: "手动下载 Firefox 本地翻译模型",
-        el: (v) => {
-            const lans = getLansName([...BERGAMOT_LANGS]).map((i) => ({
-                value: i.lan,
-                name: noI18n(i.text),
-            }));
-            const from = select(lans).sv(v?.from || "en");
-            const to = select(lans).sv(v?.to || "zh-Hans");
-            const status = p("");
-            const download = button(txt(t("下载")));
-            const clearBtn = button(txt(t("清除缓存")));
-
-            const save = () => {
-                setSet("翻译.Firefox本地模型", {
-                    from: from.gv,
-                    to: to.gv,
-                });
-            };
-
-            const refresh = async () => {
-                status.el.innerText = t("检查中...");
-                try {
-                    const s = await renderInvoke("bergamot_status", [
-                        { from: from.gv, to: to.gv },
-                    ]);
-                    status.el.innerText =
-                        s === "ready"
-                            ? t("已下载")
-                            : s === "unsupported"
-                              ? t("不支持该语言对")
-                              : s === "error"
-                                ? t("检查失败")
-                                : t("未下载");
-                } catch (error) {
-                    status.el.innerText = `${t("检查失败")} ${String(error)}`;
-                }
-            };
-
-            const setBusy = (busy: boolean) => {
-                download.el.disabled = busy;
-                clearBtn.el.disabled = busy;
-            };
-
-            from.on("input", () => {
-                save();
-                void refresh();
-            });
-            to.on("input", () => {
-                save();
-                void refresh();
-            });
-            download.on("click", async () => {
-                setBusy(true);
-                status.el.innerText = t("下载中...");
-                try {
-                    await renderInvoke("bergamot_download", [
-                        { from: from.gv, to: to.gv },
-                    ]);
-                    await refresh();
-                } catch (error) {
-                    status.el.innerText = `${t("下载失败")} ${String(error)}`;
-                } finally {
-                    setBusy(false);
-                }
-            });
-            clearBtn.on("click", async () => {
-                if (!(await confirm(t("确定清除已下载的 Firefox 本地模型？"))))
-                    return;
-                setBusy(true);
-                try {
-                    await renderInvoke("bergamot_clear", []);
-                    await refresh();
-                } catch (error) {
-                    status.el.innerText = `${t("下载失败")} ${String(error)}`;
-                } finally {
-                    setBusy(false);
-                }
-            });
-
-            void refresh();
-            return view("y")
+        el: () => {
+            const open = button(txt(t("下载/管理模型"))).on(
+                "click",
+                openBergamotDialog,
+            );
+            return view("x")
                 .class(Class.gap)
+                .style({ alignItems: "center" })
                 .add([
-                    view("x")
-                        .class(Class.gap)
-                        .add([from, to, download, clearBtn]),
-                    status,
-                    p(t("非英语语言对会经英语中转，需要下载两段模型")).style({
+                    open,
+                    p(
+                        t(
+                            "模型是单向的，双向使用请分别下载两个方向；非英语语言对会经英语中转，需要下载两段模型",
+                        ),
+                    ).style({
                         opacity: 0.6,
                     }),
                 ]);
@@ -4429,6 +4362,281 @@ function inpaintEl() {
     render();
 
     return view().class(blockSetting).add(el);
+}
+
+type BergamotProgress = {
+    from: string;
+    to: string;
+    file: string;
+    received: number;
+    total?: number;
+};
+
+let onBergamotProgress: ((data: BergamotProgress) => void) | undefined;
+
+renderOn("bergamot_progress", ([data]) => {
+    onBergamotProgress?.(data);
+});
+
+function openBergamotDialog() {
+    const d = ele("dialog");
+    d.addInto();
+
+    const lans = getLansName([...BERGAMOT_LANGS]).map((i) => ({
+        value: i.lan,
+        name: noI18n(i.text),
+    }));
+    const from = select(lans).sv("en");
+    const to = select(lans).sv("zh-Hans");
+    const status = p("");
+    const download = button(txt(t("下载")));
+    const clearBtn = button(txt(t("清除缓存")));
+    const progressMap = new Map<string, { received: number; total?: number }>();
+    const bar = view().style({
+        width: "0%",
+        height: "100%",
+        backgroundColor: cssColor.main,
+        transition: "width .2s",
+    });
+    const barTrack = view()
+        .style({
+            overflow: "hidden",
+            width: "100%",
+            height: "16px",
+            borderRadius: "var(--border-radius)",
+            backgroundColor: cssColor.bb,
+        })
+        .add(bar);
+
+    const setBar = (percent: number) => {
+        bar.style({
+            width: `${Math.max(0, Math.min(100, Math.floor(percent * 100)))}%`,
+        });
+    };
+
+    const resetProgress = () => {
+        progressMap.clear();
+        setBar(0);
+    };
+
+    const updateProgress = (data: BergamotProgress) => {
+        if (data.from !== from.gv || data.to !== to.gv) return;
+        progressMap.set(data.file, {
+            received: data.received,
+            total: data.total,
+        });
+        let received = 0;
+        let total = 0;
+        for (const item of progressMap.values()) {
+            received += item.received;
+            total += item.total ?? 0;
+        }
+        if (total > 0) {
+            setBar(received / total);
+            status.el.innerText = `${t("下载中...")} ${Math.floor(
+                (received / total) * 100,
+            )}%`;
+        } else {
+            const current = progressMap.get(data.file);
+            if (current?.total) {
+                setBar(current.received / current.total);
+            }
+            status.el.innerText = `${t("下载中...")} ${data.file}`;
+        }
+    };
+
+    const refreshStatus = async () => {
+        status.el.innerText = t("检查中...");
+        try {
+            const s = await renderInvoke("bergamot_status", [
+                { from: from.gv, to: to.gv },
+            ]);
+            status.el.innerText =
+                s === "ready"
+                    ? t("已下载")
+                    : s === "unsupported"
+                      ? t("不支持该语言对")
+                      : s === "error"
+                        ? t("检查失败")
+                        : t("未下载");
+        } catch (error) {
+            status.el.innerText = `${t("检查失败")} ${String(error)}`;
+        }
+    };
+
+    const modelsEl = view("y").class(Class.gap);
+
+    const refreshModels = async () => {
+        modelsEl.clear();
+        try {
+            const data = await renderInvoke("bergamot_models", []);
+            modelsEl.add(
+                p(data.runtime ? t("运行时已下载") : t("运行时未下载")),
+            );
+            if (data.models.length === 0) {
+                modelsEl.add(p(t("暂无已下载模型")));
+                return;
+            }
+            for (const model of data.models) {
+                const names = new Map(
+                    getLansName([model.from, model.to]).map((i) => [
+                        i.lan,
+                        i.text,
+                    ]),
+                );
+                modelsEl.add(
+                    view("x")
+                        .class(Class.gap)
+                        .style({ alignItems: "center" })
+                        .add([
+                            txt(
+                                `${names.get(model.from) ?? model.from} → ${
+                                    names.get(model.to) ?? model.to
+                                }`,
+                            ),
+                            txt(
+                                `${model.version} · ${(
+                                    model.size / 1e6
+                                ).toFixed(1)}MB`,
+                            ).style({ opacity: 0.6 }),
+                            button(txt(t("删除"))).on("click", async () => {
+                                if (!(await confirm(t("确定删除这个模型？"))))
+                                    return;
+                                await renderInvoke("bergamot_remove_model", [
+                                    { from: model.from, to: model.to },
+                                ]);
+                                await refreshModels();
+                                await refreshStatus();
+                            }),
+                        ]),
+                );
+            }
+        } catch (error) {
+            modelsEl.add(p(`${t("检查失败")} ${String(error)}`));
+        }
+    };
+
+    const directionsEl = view("y").style({
+        maxHeight: "200px",
+        overflow: "auto",
+    });
+    for (const lang of BERGAMOT_LANGS) {
+        if (lang === "en") continue;
+        const name = getLansName([lang])[0]?.text ?? lang;
+        directionsEl.add(
+            view("x")
+                .class(Class.gap)
+                .style({ alignItems: "center" })
+                .add([
+                    txt(name),
+                    button(txt("en →")).on("click", () => {
+                        if (busy) return;
+                        from.sv("en");
+                        to.sv(lang);
+                        resetProgress();
+                        void refreshStatus();
+                    }),
+                    button(txt("→ en")).on("click", () => {
+                        if (busy) return;
+                        from.sv(lang);
+                        to.sv("en");
+                        resetProgress();
+                        void refreshStatus();
+                    }),
+                ]),
+        );
+    }
+
+    let busy = false;
+    const setBusy = (value: boolean) => {
+        busy = value;
+        download.el.disabled = value;
+        clearBtn.el.disabled = value;
+        from.el.disabled = value;
+        to.el.disabled = value;
+    };
+
+    from.on("input", () => {
+        resetProgress();
+        void refreshStatus();
+    });
+    to.on("input", () => {
+        resetProgress();
+        void refreshStatus();
+    });
+
+    download.on("click", async () => {
+        setBusy(true);
+        resetProgress();
+        status.el.innerText = t("下载中...");
+        try {
+            await renderInvoke("bergamot_download", [
+                { from: from.gv, to: to.gv },
+            ]);
+            setBar(1);
+            await refreshStatus();
+            await refreshModels();
+        } catch (error) {
+            status.el.innerText = `${t("下载失败")} ${String(error)}`;
+        } finally {
+            setBusy(false);
+        }
+    });
+
+    clearBtn.on("click", async () => {
+        if (!(await confirm(t("确定清除已下载的 Firefox 本地模型？")))) return;
+        setBusy(true);
+        try {
+            await renderInvoke("bergamot_clear", []);
+            resetProgress();
+            await refreshStatus();
+            await refreshModels();
+        } catch (error) {
+            status.el.innerText = `${t("下载失败")} ${String(error)}`;
+        } finally {
+            setBusy(false);
+        }
+    });
+
+    const content = view("y")
+        .class(Class.gap)
+        .style({
+            width: "min(680px, 90vw)",
+            maxHeight: "70vh",
+            overflow: "auto",
+        })
+        .add([
+            ele("h2").add(txt(t("Firefox 本地模型"))),
+            view("x")
+                .class(Class.gap)
+                .style({ alignItems: "center" })
+                .add([from, to, download]),
+            barTrack,
+            status,
+            ele("h3").add(txt(t("已支持语言方向"))),
+            directionsEl,
+            ele("h3").add(txt(t("已下载模型"))),
+            modelsEl,
+            view("x").add([clearBtn]),
+        ]);
+
+    onBergamotProgress = updateProgress;
+    d.el.addEventListener("close", () => {
+        if (onBergamotProgress === updateProgress) {
+            onBergamotProgress = undefined;
+        }
+        d.el.remove();
+    });
+
+    dialogB(
+        d,
+        [content],
+        () => undefined,
+        () => undefined,
+    );
+    d.el.showModal();
+    void refreshStatus();
+    void refreshModels();
 }
 
 function ocrEl() {

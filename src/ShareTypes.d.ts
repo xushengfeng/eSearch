@@ -366,10 +366,7 @@ export interface setting {
             fetch: myFetch[];
         };
         常用语言: string[];
-        Firefox本地模型: {
-            from: string;
-            to: string;
-        };
+        Firefox本地模型: Record<string, never>;
     };
     额外截屏器: {
         命令: string;

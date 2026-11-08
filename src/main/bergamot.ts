@@ -1,10 +1,18 @@
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
-import { mkdir, rename, rm, writeFile } from "node:fs/promises";
+import {
+    mkdir,
+    readdir,
+    readFile,
+    rename,
+    rm,
+    stat,
+    writeFile,
+} from "node:fs/promises";
 import { join } from "node:path";
 import { Worker } from "node:worker_threads";
 import { app } from "electron";
-import { mainHandle } from "../../lib/ipc";
+import { mainHandle, mainSend } from "../../lib/ipc";
 import glueSource from "./bergamot-translator.js?raw";
 import workerSource from "./bergamot-worker.cjs?raw";
 
@@ -65,6 +73,45 @@ type ModelSpec = {
     from: string;
     to: string;
     files: Partial<Record<FileType, FileSpec>>;
+};
+
+type Progress = {
+    file: string;
+    received: number;
+    total?: number;
+};
+
+type ProgressCallback = (progress: Progress) => void;
+
+type DownloadProgress = Progress & {
+    from: string;
+    to: string;
+};
+
+type DownloadProgressCallback = (progress: DownloadProgress) => void;
+
+type ModelInfo = {
+    from: string;
+    to: string;
+    version: string;
+    size: number;
+};
+
+type ManifestFile = {
+    filename: string;
+    hash: string;
+    decompressedHash?: string;
+};
+
+type ModelManifest = {
+    from: string;
+    to: string;
+    version: string;
+    files: Partial<Record<FileType, ManifestFile>>;
+};
+
+type RuntimeManifest = {
+    file: ManifestFile;
 };
 
 type Pending = {
@@ -135,14 +182,35 @@ async function fetchJson<T>(url: string): Promise<T> {
     return (await response.json()) as T;
 }
 
-async function fetchBytes(url: string): Promise<Buffer> {
+async function fetchBytes(
+    url: string,
+    onProgress?: (progress: { received: number; total?: number }) => void,
+): Promise<Buffer> {
     const response = await fetch(url, {
         signal: AbortSignal.timeout(300_000),
     });
     if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${url}`);
     }
-    return Buffer.from(await response.arrayBuffer());
+
+    const length = response.headers.get("content-length");
+    const total = length ? Number(length) : undefined;
+
+    if (!response.body) {
+        return Buffer.from(await response.arrayBuffer());
+    }
+
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let received = 0;
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        onProgress?.({ received, total });
+    }
+    return Buffer.concat(chunks, received);
 }
 
 function modelRecords() {
@@ -239,7 +307,31 @@ function modelFilePath(record: FileRecord, dir: string) {
     );
 }
 
-async function download(record: FileRecord, dir: string): Promise<string> {
+function manifestFilePath(dir: string) {
+    return join(dir, "manifest.json");
+}
+
+function manifestFileToSpec(dir: string, file: ManifestFile): FileSpec {
+    return {
+        path: join(dir, `${file.hash.slice(0, 16)}-${file.filename}`),
+        hash: file.hash,
+        decompressedHash: file.decompressedHash,
+    };
+}
+
+async function readManifest<T>(path: string): Promise<T | undefined> {
+    try {
+        return JSON.parse(await readFile(path, "utf8")) as T;
+    } catch (error) {
+        return undefined;
+    }
+}
+
+async function download(
+    record: FileRecord,
+    dir: string,
+    onProgress?: ProgressCallback,
+): Promise<string> {
     const dest = modelFilePath(record, dir);
     if (existsSync(dest)) return dest;
 
@@ -249,7 +341,12 @@ async function download(record: FileRecord, dir: string): Promise<string> {
     const promise = (async () => {
         await mkdir(dir, { recursive: true });
         const url = new URL(record.attachment.location, ATTACHMENTS_URL).href;
-        const bytes = await fetchBytes(url);
+        const bytes = await fetchBytes(url, (progress) =>
+            onProgress?.({
+                ...progress,
+                file: record.attachment.filename,
+            }),
+        );
         const hash = createHash("sha256").update(bytes).digest("hex");
         if (hash !== record.attachment.hash) {
             throw new Error(`模型校验失败: ${record.name}`);
@@ -299,10 +396,23 @@ function runtimeFile(record: FileRecord, path: string): FileSpec {
     };
 }
 
-async function getRuntime(): Promise<FileSpec> {
+async function getRuntime(onProgress?: ProgressCallback): Promise<FileSpec> {
     runtimePromise ??= (async () => {
         const record = await getWasmRecord();
-        const path = await download(record, join(cacheDir(), "runtime"));
+        const dir = join(cacheDir(), "runtime");
+        const path = await download(record, dir, onProgress);
+        const manifest: RuntimeManifest = {
+            file: {
+                filename: record.attachment.filename,
+                hash: record.attachment.hash,
+                decompressedHash: record.decompressedHash,
+            },
+        };
+        await writeFile(manifestFilePath(dir), JSON.stringify(manifest)).catch(
+            (error) => {
+                console.error("写入运行时清单失败", error);
+            },
+        );
         return runtimeFile(record, path);
     })().catch((error) => {
         runtimePromise = undefined;
@@ -313,8 +423,14 @@ async function getRuntime(): Promise<FileSpec> {
 }
 
 async function getCachedRuntime(): Promise<FileSpec> {
-    const record = await getWasmRecord();
     const dir = join(cacheDir(), "runtime");
+    const manifest = await readManifest<RuntimeManifest>(manifestFilePath(dir));
+    if (manifest?.file) {
+        const spec = manifestFileToSpec(dir, manifest.file);
+        if (existsSync(spec.path)) return spec;
+    }
+
+    const record = await getWasmRecord();
     const path = modelFilePath(record, dir);
     if (!existsSync(path)) {
         throw new Error("Firefox 本地模型运行时未下载，请在设置中下载");
@@ -325,6 +441,7 @@ async function getCachedRuntime(): Promise<FileSpec> {
 async function getModel(
     from: string,
     to: string,
+    onProgress?: ProgressCallback,
 ): Promise<ModelSpec | undefined> {
     const set = selectModelSet(await modelRecords(), from, to);
     if (!set) return undefined;
@@ -334,13 +451,32 @@ async function getModel(
     const files: Partial<Record<FileType, FileSpec>> = {};
     await Promise.all(
         records.map(async ([role, record]) => {
-            const path = await download(record, dir);
+            const path = await download(record, dir, onProgress);
             files[role] = {
                 path,
                 hash: record.attachment.hash,
                 decompressedHash: record.decompressedHash,
             };
         }),
+    );
+
+    const manifest: ModelManifest = {
+        from,
+        to,
+        version: set.version,
+        files: {},
+    };
+    for (const [role, record] of records) {
+        manifest.files[role] = {
+            filename: record.attachment.filename,
+            hash: record.attachment.hash,
+            decompressedHash: record.decompressedHash,
+        };
+    }
+    await writeFile(manifestFilePath(dir), JSON.stringify(manifest)).catch(
+        (error) => {
+            console.error("写入模型清单失败", error);
+        },
     );
 
     return {
@@ -355,6 +491,51 @@ async function getCachedModel(
     from: string,
     to: string,
 ): Promise<ModelSpec | undefined> {
+    const pairPath = join(cacheDir(), "models", `${from}-${to}`);
+    if (existsSync(pairPath)) {
+        const versions = await readdir(pairPath);
+        versions.sort(
+            (a, b) =>
+                (parseVersion(b)?.minor ?? 0) - (parseVersion(a)?.minor ?? 0),
+        );
+        for (const version of versions) {
+            const dir = join(pairPath, version);
+            const manifest = await readManifest<ModelManifest>(
+                manifestFilePath(dir),
+            );
+            if (!manifest || manifest.from !== from || manifest.to !== to) {
+                continue;
+            }
+
+            const files: Partial<Record<FileType, FileSpec>> = {};
+            let complete = true;
+            for (const [role, file] of Object.entries(manifest.files) as [
+                FileType,
+                ManifestFile,
+            ][]) {
+                const spec = manifestFileToSpec(dir, file);
+                if (!existsSync(spec.path)) {
+                    complete = false;
+                    break;
+                }
+                files[role] = spec;
+            }
+            if (
+                complete &&
+                files.model &&
+                files.lex &&
+                (files.vocab || (files.srcvocab && files.trgvocab))
+            ) {
+                return {
+                    key: `${from}-${to}@${version}`,
+                    from,
+                    to,
+                    files,
+                };
+            }
+        }
+    }
+
     const set = selectModelSet(await modelRecords(), from, to);
     if (!set) return undefined;
 
@@ -418,8 +599,14 @@ async function routeModels(
     return undefined;
 }
 
-async function downloadRouteModels(from: string, to: string) {
-    const models = await routeModels(from, to, getModel);
+async function downloadRouteModels(
+    from: string,
+    to: string,
+    onProgress?: ProgressCallback,
+) {
+    const models = await routeModels(from, to, (source, target) =>
+        getModel(source, target, onProgress),
+    );
     if (!models) {
         throw new Error(`Firefox 本地模型不支持 ${from} → ${to}`);
     }
@@ -560,7 +747,11 @@ export async function translateBergamot(
     return send(entry, texts);
 }
 
-export async function downloadBergamot(from: string, to: string) {
+export async function downloadBergamot(
+    from: string,
+    to: string,
+    onProgress?: DownloadProgressCallback,
+) {
     const source = normalizeLang(from);
     const target = normalizeLang(to);
 
@@ -569,8 +760,11 @@ export async function downloadBergamot(from: string, to: string) {
     }
     if (source === target) return;
 
-    await getRuntime();
-    await downloadRouteModels(source, target);
+    const report = (progress: Progress) =>
+        onProgress?.({ ...progress, from: source, to: target });
+
+    await getRuntime(report);
+    await downloadRouteModels(source, target, report);
 }
 
 export async function bergamotStatus(
@@ -584,12 +778,11 @@ export async function bergamotStatus(
     if (source === target) return "ready";
 
     try {
-        const runtimeRecord = await getWasmRecord();
-        const runtimePath = modelFilePath(
-            runtimeRecord,
-            join(cacheDir(), "runtime"),
-        );
-        if (!existsSync(runtimePath)) return "missing";
+        try {
+            await getCachedRuntime();
+        } catch (error) {
+            return "missing";
+        }
 
         const cached = await routeModels(source, target, getCachedModel);
         if (cached) return "ready";
@@ -623,6 +816,95 @@ export async function clearBergamotCache() {
     await rm(cacheDir(), { recursive: true, force: true });
 }
 
+export async function listDownloadedModels() {
+    const base = join(cacheDir(), "models");
+    const runtimeDir = join(cacheDir(), "runtime");
+    const runtime =
+        existsSync(runtimeDir) &&
+        (await readdir(runtimeDir)).some((file) => file !== "manifest.json");
+    const models: ModelInfo[] = [];
+
+    if (!existsSync(base)) {
+        return { runtime, models };
+    }
+
+    const pairByDir = new Map<string, { from: string; to: string }>();
+    try {
+        const records = await modelRecords();
+        for (const record of records) {
+            pairByDir.set(`${record.sourceLanguage}-${record.targetLanguage}`, {
+                from: record.sourceLanguage,
+                to: record.targetLanguage,
+            });
+        }
+    } catch (error) {
+        console.error("读取模型列表失败，使用本地清单", error);
+    }
+
+    for (const pairDir of await readdir(base)) {
+        const pairPath = join(base, pairDir);
+        for (const version of await readdir(pairPath)) {
+            const dir = join(pairPath, version);
+            let files: string[];
+            try {
+                files = await readdir(dir);
+            } catch (error) {
+                console.error(`读取模型目录失败: ${dir}`, error);
+                continue;
+            }
+            if (!files.some((file) => file !== "manifest.json")) continue;
+
+            const manifest = await readManifest<ModelManifest>(
+                manifestFilePath(dir),
+            );
+            const pair = manifest
+                ? { from: manifest.from, to: manifest.to }
+                : pairByDir.get(pairDir);
+            if (!pair) continue;
+
+            let size = 0;
+            for (const file of files) {
+                try {
+                    size += (await stat(join(dir, file))).size;
+                } catch (error) {
+                    console.error(`读取模型文件失败: ${file}`, error);
+                }
+            }
+            models.push({ ...pair, version, size });
+        }
+    }
+
+    models.sort(
+        (a, b) =>
+            a.from.localeCompare(b.from) ||
+            a.to.localeCompare(b.to) ||
+            b.version.localeCompare(a.version),
+    );
+    return { runtime, models };
+}
+
+export async function removeBergamotModel(from: string, to: string) {
+    const source = normalizeLang(from);
+    const target = normalizeLang(to);
+    const pairKey = `${source}-${target}`;
+
+    for (const [key, entry] of routes) {
+        const pairs = key.split(">").map((part) => part.split("@")[0]);
+        if (pairs.includes(pairKey)) {
+            routes.delete(key);
+            void entry.worker.terminate();
+        }
+    }
+
+    const prefix = join(cacheDir(), "models", pairKey);
+    await Promise.allSettled(
+        [...downloads.entries()]
+            .filter(([dest]) => dest.startsWith(prefix))
+            .map(([, pending]) => pending),
+    );
+    await rm(prefix, { recursive: true, force: true });
+}
+
 let inited = false;
 
 export function initBergamot() {
@@ -631,11 +913,17 @@ export function initBergamot() {
     mainHandle("bergamot_translate", ([data]) =>
         translateBergamot(data.texts, data.from, data.to),
     );
-    mainHandle("bergamot_download", ([data]) =>
-        downloadBergamot(data.from, data.to),
+    mainHandle("bergamot_download", ([data], event) =>
+        downloadBergamot(data.from, data.to, (progress) => {
+            mainSend(event.sender, "bergamot_progress", [progress]);
+        }),
     );
     mainHandle("bergamot_status", ([data]) =>
         bergamotStatus(data.from, data.to),
+    );
+    mainHandle("bergamot_models", () => listDownloadedModels());
+    mainHandle("bergamot_remove_model", ([data]) =>
+        removeBergamotModel(data.from, data.to),
     );
     mainHandle("bergamot_clear", () => clearBergamotCache());
 }

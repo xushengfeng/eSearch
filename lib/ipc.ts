@@ -259,6 +259,23 @@ type Message = {
         to: string;
     }) => string[];
     bergamot_download: (data: { from: string; to: string }) => void;
+    bergamot_progress: (data: {
+        from: string;
+        to: string;
+        file: string;
+        received: number;
+        total?: number;
+    }) => void;
+    bergamot_models: () => {
+        runtime: boolean;
+        models: {
+            from: string;
+            to: string;
+            version: string;
+            size: number;
+        }[];
+    };
+    bergamot_remove_model: (data: { from: string; to: string }) => void;
     bergamot_status: (data: {
         from: string;
         to: string;
@@ -289,7 +306,8 @@ function mainSend<K extends keyof Message>(
     key: K,
     data: Parameters<Message[K]>,
 ): void {
-    webContents?.send(name, key, data);
+    if (!webContents || webContents.isDestroyed()) return;
+    webContents.send(name, key, data);
 }
 
 function renderOn<K extends keyof Message>(
