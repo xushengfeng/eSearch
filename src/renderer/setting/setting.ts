@@ -4464,12 +4464,65 @@ function openBergamotDialog() {
         }
     };
 
+    const directionsEl = view("x", "wrap").style({ gap: "8px" });
     const modelsEl = view("y").class(Class.gap);
+
+    const renderDirections = (models: { from: string; to: string }[]) => {
+        directionsEl.clear();
+        const directions = new Map<
+            string,
+            { from: string; to: string; via: boolean }
+        >();
+        const add = (from: string, to: string, via: boolean) => {
+            if (from === to) return;
+            const key = `${from}>${to}`;
+            if (directions.has(key)) return;
+            directions.set(key, { from, to, via });
+        };
+
+        for (const model of models) {
+            add(model.from, model.to, false);
+        }
+        const inbound = models.filter((model) => model.to === "en");
+        const outbound = models.filter((model) => model.from === "en");
+        for (const source of inbound) {
+            for (const target of outbound) {
+                add(source.from, target.to, true);
+            }
+        }
+
+        if (directions.size === 0) {
+            directionsEl.add(p(t("暂无可用方向")));
+            return;
+        }
+
+        for (const direction of directions.values()) {
+            const names = new Map(
+                getLansName([direction.from, direction.to]).map((i) => [
+                    i.lan,
+                    i.text,
+                ]),
+            );
+            const label = `${names.get(direction.from) ?? direction.from} → ${
+                names.get(direction.to) ?? direction.to
+            }${direction.via ? ` · ${t("组合")}` : ""}`;
+            directionsEl.add(
+                button(txt(label)).on("click", () => {
+                    if (busy) return;
+                    from.sv(direction.from);
+                    to.sv(direction.to);
+                    resetProgress();
+                    void refreshStatus();
+                }),
+            );
+        }
+    };
 
     const refreshModels = async () => {
         modelsEl.clear();
         try {
             const data = await renderInvoke("bergamot_models", []);
+            renderDirections(data.models);
             modelsEl.add(
                 p(data.runtime ? t("运行时已下载") : t("运行时未下载")),
             );
@@ -4512,40 +4565,11 @@ function openBergamotDialog() {
                 );
             }
         } catch (error) {
+            directionsEl.clear();
+            directionsEl.add(p(t("暂无可用方向")));
             modelsEl.add(p(`${t("检查失败")} ${String(error)}`));
         }
     };
-
-    const directionsEl = view("y").style({
-        maxHeight: "200px",
-        overflow: "auto",
-    });
-    for (const lang of BERGAMOT_LANGS) {
-        if (lang === "en") continue;
-        const name = getLansName([lang])[0]?.text ?? lang;
-        directionsEl.add(
-            view("x")
-                .class(Class.gap)
-                .style({ alignItems: "center" })
-                .add([
-                    txt(name),
-                    button(txt("en →")).on("click", () => {
-                        if (busy) return;
-                        from.sv("en");
-                        to.sv(lang);
-                        resetProgress();
-                        void refreshStatus();
-                    }),
-                    button(txt("→ en")).on("click", () => {
-                        if (busy) return;
-                        from.sv(lang);
-                        to.sv("en");
-                        resetProgress();
-                        void refreshStatus();
-                    }),
-                ]),
-        );
-    }
 
     let busy = false;
     const setBusy = (value: boolean) => {
@@ -4601,21 +4625,20 @@ function openBergamotDialog() {
     const content = view("y")
         .class(Class.gap)
         .style({
-            width: "min(680px, 90vw)",
-            maxHeight: "70vh",
+            width: "min(760px, 92vw)",
+            maxHeight: "80vh",
             overflow: "auto",
         })
         .add([
-            ele("h2").add(txt(t("Firefox 本地模型"))),
             view("x")
                 .class(Class.gap)
                 .style({ alignItems: "center" })
                 .add([from, to, download]),
             barTrack,
             status,
-            ele("h3").add(txt(t("已支持语言方向"))),
+            txt(t("已下载模型支持的方向"), true),
             directionsEl,
-            ele("h3").add(txt(t("已下载模型"))),
+            txt(t("已下载模型"), true),
             modelsEl,
             view("x").add([clearBtn]),
         ]);

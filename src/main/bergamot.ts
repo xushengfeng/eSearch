@@ -829,8 +829,9 @@ export async function listDownloadedModels() {
     }
 
     const pairByDir = new Map<string, { from: string; to: string }>();
+    let records: FileRecord[] = [];
     try {
-        const records = await modelRecords();
+        records = await modelRecords();
         for (const record of records) {
             pairByDir.set(`${record.sourceLanguage}-${record.targetLanguage}`, {
                 from: record.sourceLanguage,
@@ -861,6 +862,38 @@ export async function listDownloadedModels() {
                 ? { from: manifest.from, to: manifest.to }
                 : pairByDir.get(pairDir);
             if (!pair) continue;
+
+            let complete = false;
+            if (manifest) {
+                const manifestFiles = Object.values(
+                    manifest.files,
+                ) as ManifestFile[];
+                complete =
+                    !!manifest.files.model &&
+                    !!manifest.files.lex &&
+                    (!!manifest.files.vocab ||
+                        (!!manifest.files.srcvocab &&
+                            !!manifest.files.trgvocab)) &&
+                    manifestFiles.every((file) =>
+                        existsSync(manifestFileToSpec(dir, file).path),
+                    );
+            } else {
+                const set = records.filter(
+                    (record) =>
+                        `${record.sourceLanguage}-${record.targetLanguage}` ===
+                            pairDir && record.version === version,
+                );
+                const roles = new Set(set.map((record) => record.fileType));
+                complete =
+                    roles.has("model") &&
+                    roles.has("lex") &&
+                    (roles.has("vocab") ||
+                        (roles.has("srcvocab") && roles.has("trgvocab"))) &&
+                    set.every((record) =>
+                        existsSync(modelFilePath(record, dir)),
+                    );
+            }
+            if (!complete) continue;
 
             let size = 0;
             for (const file of files) {
