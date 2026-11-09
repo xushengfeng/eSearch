@@ -19,7 +19,6 @@ import {
     Polygon,
     Polyline,
     Rect,
-    type RectProps,
     Shadow,
     SprayBrush,
 } from "fabric";
@@ -3289,21 +3288,14 @@ function draw(
         });
     } else if (shape === "mask") {
         shapeX = new mask({
-            left: 0,
-            top: 0,
+            left: x,
+            top: y,
             originX: "left",
             originY: "top",
-            width: fabricCanvas.width,
-            height: fabricCanvas.height,
+            width: w,
+            height: h,
             fill: fillColor,
-            rect: { x, y, w, h, r: 0 },
             canChangeFill: true,
-            lockMovementX: true,
-            lockMovementY: true,
-            lockRotation: true,
-            lockScalingX: true,
-            lockScalingY: true,
-            hasControls: false,
             形状: "mask",
         });
     }
@@ -6152,11 +6144,11 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
         close: true,
         copy: true,
         remove: true,
-        advanced: single && kind !== "mask",
+        advanced: single,
     });
     elementBarBody.clear();
 
-    if (single && kind !== "mask" && propertyAdvanced) {
+    if (single && propertyAdvanced) {
         const o = objects[0];
         const geometry: ElType<HTMLElement>[] = [
             propertyPair(
@@ -6176,7 +6168,9 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 ),
             ),
         ];
-        if (["rect", "circle", "ellipse", "filter"].includes(kind ?? "")) {
+        if (
+            ["rect", "circle", "ellipse", "filter", "mask"].includes(kind ?? "")
+        ) {
             geometry.push(
                 propertyPair(
                     "宽",
@@ -6430,55 +6424,11 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     (v) => applyActive((x) => x.set("arrowType", v)),
                 ),
             ]);
-        } else if (kind === "mask") {
-            const m = o as mask;
-            elementBarBody.add([
-                propertyNumber(
-                    "洞口X",
-                    () => m.rect.x,
-                    (v) =>
-                        applyActive((x) => {
-                            (x as mask).rect.x = v;
-                        }),
-                ),
-                propertyNumber(
-                    "洞口Y",
-                    () => m.rect.y,
-                    (v) =>
-                        applyActive((x) => {
-                            (x as mask).rect.y = v;
-                        }),
-                ),
-                propertyNumber(
-                    "洞口宽",
-                    () => m.rect.w,
-                    (v) =>
-                        applyActive((x) => {
-                            (x as mask).rect.w = v;
-                        }),
-                ),
-                propertyNumber(
-                    "洞口高",
-                    () => m.rect.h,
-                    (v) =>
-                        applyActive((x) => {
-                            (x as mask).rect.h = v;
-                        }),
-                ),
-                propertyNumber(
-                    propIcon("corner", "洞口圆角"),
-                    () => m.rect.r ?? 0,
-                    (v) =>
-                        applyActive((x) => {
-                            (x as mask).rect.r = v;
-                        }),
-                ),
-            ]);
-        } else if (kind === "rect") {
+        } else if (kind === "rect" || kind === "mask") {
             const r = o as Rect;
             elementBarBody.add(
                 propertyNumber(
-                    propIcon("corner", "圆角"),
+                    propIcon("corner", kind === "mask" ? "洞口圆角" : "圆角"),
                     () => r.rx || 0,
                     (v) => applyActive((x) => x.set({ rx: v, ry: v })),
                 ),
@@ -6800,41 +6750,25 @@ fabricCanvas.on("mouse:up", (options) => {
 
 class mask extends Rect {
     static type = "mask";
-    static customProperties = ["rect", "形状", "canChangeFill"];
-    declare rect: { x: number; y: number; w: number; h: number; r?: number };
-    constructor(
-        options?: Partial<
-            RectProps & {
-                rect: {
-                    x: number;
-                    y: number;
-                    w: number;
-                    h: number;
-                    r?: number;
-                };
-            }
-        >,
-    ) {
-        super();
-        this.setOptions(options);
-    }
+    static customProperties = ["形状", "canChangeFill"];
     render(ctx: CanvasRenderingContext2D): void {
+        const canvas = this.canvas;
+        if (!canvas) return;
+
         ctx.save();
-
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width, canvas.height);
+        this.transform(ctx);
+        const radius = Math.min(this.rx || 0, this.width / 2, this.height / 2);
+        ctx.roundRect(
+            -this.width / 2,
+            -this.height / 2,
+            this.width,
+            this.height,
+            radius,
+        );
         ctx.fillStyle = this.fill?.toString() || "";
-        ctx.fillRect(0, 0, this.width, this.height);
-
-        const r = this.rect;
-        const radius = Math.min(r.r ?? 0, r.w / 2, r.h / 2);
-        if (radius > 0) {
-            ctx.globalCompositeOperation = "destination-out";
-            ctx.beginPath();
-            ctx.roundRect(r.x, r.y, r.w, r.h, radius);
-            ctx.fill();
-        } else {
-            ctx.clearRect(r.x, r.y, r.w, r.h);
-        }
-
+        ctx.fill("evenodd");
         ctx.restore();
     }
 }
