@@ -78,37 +78,71 @@ function initStyle(
             el.innerText = v;
         });
 
+    const tipDelay = 400;
+    let tipEl: HTMLElement | null = null;
+    let tipTimer: ReturnType<typeof setTimeout> | undefined;
+
+    function hideTip() {
+        clearTimeout(tipTimer);
+        tipTimer = undefined;
+        tipEl = null;
+        topTip.style({ opacity: 0 });
+    }
+
+    function showTip(el: HTMLElement) {
+        const title = el.getAttribute("data-title");
+        if (!title?.trim()) {
+            hideTip();
+            return;
+        }
+        const rect = el.getBoundingClientRect();
+        topTip.sv(title);
+        const tw = topTip.el.offsetWidth;
+        const th = topTip.el.offsetHeight;
+        const ow = window.innerWidth;
+        const oh = window.innerHeight;
+        const left = Math.max(
+            0,
+            Math.min(rect.left + rect.width / 2 - tw / 2, ow - tw),
+        );
+        let top = rect.bottom + 4;
+        if (top > oh - th) {
+            top = rect.top - th - 4;
+        }
+        topTip.style({
+            opacity: 1,
+            left: `${left}px`,
+            top: `${Math.max(Math.min(top, oh - th), 0)}px`,
+        });
+    }
+
     window.addEventListener("pointerover", (e) => {
         const el = e.target as HTMLElement;
-        const tEl = el.closest("[data-title]");
+        const tEl = el.closest<HTMLElement>("[data-title]");
         if (!tEl) {
-            topTip.style({ opacity: 0 });
-        } else {
-            const title = tEl.getAttribute("data-title");
-            if (!title?.trim()) {
-                topTip.style({ opacity: 0 });
-                return;
-            }
-            const rect = tEl.getBoundingClientRect();
-            topTip.sv(title);
-            const tw = topTip.el.offsetWidth;
-            const th = topTip.el.offsetHeight;
-            const ow = window.innerWidth;
-            const oh = window.innerHeight;
-            const left = Math.max(
-                0,
-                Math.min(rect.left + rect.width / 2 - tw / 2, ow - tw),
-            );
-            let top = rect.bottom + 4;
-            if (top > oh - th) {
-                top = rect.top - th - 4;
-            }
-            topTip.style({
-                opacity: 1,
-                left: `${left}px`,
-                top: `${Math.max(Math.min(top, oh - th), 0)}px`,
-            });
+            hideTip();
+            return;
         }
+        if (tEl === tipEl) return;
+        hideTip();
+        tipEl = tEl;
+        tipTimer = setTimeout(() => {
+            tipTimer = undefined;
+            if (tipEl === tEl) showTip(tEl);
+        }, tipDelay);
+    });
+
+    window.addEventListener("pointerout", (e) => {
+        if (!tipEl) return;
+        const to = e.relatedTarget as Node | null;
+        if (to && tipEl.contains(to)) return;
+        hideTip();
+    });
+
+    window.addEventListener("blur", hideTip);
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) hideTip();
     });
 }
 
