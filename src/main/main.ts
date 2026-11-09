@@ -3906,40 +3906,53 @@ function checkUpdate(s手动检查?: boolean) {
     const m = store.get("更新.模式");
     fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
         .then((v) => v.json())
-        .then((re) => {
-            const isDev =
-                version.includes("beta") ||
-                version.includes("alpha") ||
-                m === "dev";
-            // @ts-expect-error
-            const first = re.find((r) =>
-                isDev ? true : !r.draft && !r.prerelease,
-            );
-            let update = false;
-            const firstName = first.name;
-            if (m === "dev") {
-                if (firstName !== version) update = true;
-            } else if (m === "小版本" || s手动检查) {
-                if (versionCompare(firstName, version) > 0) update = true;
-            } else {
-                if (
-                    versionCompare(
-                        firstName.split(".").at(0)!,
-                        version.split(".").at(0)!,
-                    ) > 0
-                )
-                    update = true;
-            }
-            if (store.get("更新.忽略版本") !== firstName)
-                if (update) {
-                    showVersion({
-                        v: first.name,
-                        url: first.html_url,
-                    });
-                } else if (s手动检查) {
-                    showVersion();
+        .then(
+            (
+                re: {
+                    tag_name: string;
+                    name: string;
+                    html_url: string;
+                    draft: boolean;
+                    prerelease: boolean;
+                }[],
+            ) => {
+                const isDev =
+                    version.includes("beta") ||
+                    version.includes("alpha") ||
+                    m === "dev";
+                const first = re
+                    .filter((r) => /^\d/.test(r.tag_name))
+                    .find((r) => (isDev ? true : !r.draft && !r.prerelease));
+                if (!first) {
+                    if (s手动检查) showVersion("err");
+                    return;
                 }
-        })
+                let update = false;
+                const firstName = first.name;
+                if (m === "dev") {
+                    if (firstName !== version) update = true;
+                } else if (m === "小版本" || s手动检查) {
+                    if (versionCompare(firstName, version) > 0) update = true;
+                } else {
+                    if (
+                        versionCompare(
+                            firstName.split(".").at(0)!,
+                            version.split(".").at(0)!,
+                        ) > 0
+                    )
+                        update = true;
+                }
+                if (store.get("更新.忽略版本") !== firstName)
+                    if (update) {
+                        showVersion({
+                            v: first.name,
+                            url: first.html_url,
+                        });
+                    } else if (s手动检查) {
+                        showVersion();
+                    }
+            },
+        )
         .catch(() => {
             if (s手动检查) showVersion("err");
         });

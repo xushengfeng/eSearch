@@ -5348,6 +5348,7 @@ function about() {
                     const l: {
                         html_url: string;
                         name: string;
+                        tag_name: string;
                         body: string;
                         assets: {
                             browser_download_url: string;
@@ -5355,7 +5356,7 @@ function about() {
                         }[];
                     }[] =
                         // @ts-expect-error
-                        re.filter((i) => !i.draft);
+                        re.filter((i) => !i.draft && /^\d/.test(i.tag_name));
                     update.clear();
                     for (const [i, r] of l.entries()) {
                         const div = xGroup("y");
