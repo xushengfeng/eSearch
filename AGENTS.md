@@ -47,10 +47,11 @@ pnpm run dist
   - videoEditor/ 超级录屏、普通录屏，包括跟踪鼠标、视频编辑
 
 还有一些库
-  - lib/ 杂项 公共功能
-  - ocr/ - OCR相关
-  - root/ 界面样式定义
-  - screenShot/ 截屏库
+
+- lib/ 杂项 公共功能
+- ocr/ - OCR相关
+- root/ 界面样式定义
+- screenShot/ 截屏库
 - **src/ShareTypes.d.ts**: 共享类型定义
 
 ## 常用流程
@@ -70,6 +71,8 @@ ts修改都需要biome格式化(`pnpm run format`)和ts类型检查(`pnpm run ty
 如果修改文本，需要修改翻译
 
 不用测试
+
+详细见 docs/develop/ui.md
 
 ### 进程交互
 
