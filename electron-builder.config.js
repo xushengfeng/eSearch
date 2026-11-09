@@ -100,7 +100,7 @@ const platform2 = platformMap[platform];
 // const githubUrl = "https://gh-proxy.com/https://github.com" || true;
 const githubUrl = "https://github.com";
 
-const BERGAMOT_REPO = "xushengfeng/esearch";
+const BERGAMOT_REPO = "xushengfeng/eSearch";
 const BERGAMOT_RELEASE = "bergamot-v1";
 const BERGAMOT_ASSETS = "./assets/bergamot";
 const BERGAMOT_RECORDS_URL =

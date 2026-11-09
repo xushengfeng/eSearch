@@ -4,10 +4,6 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-const RECORDS_URL =
-    "https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-models-v2/records";
-const WASM_URL =
-    "https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-wasm-v2/records";
 const ATTACHMENTS_URL = "https://firefox-settings-attachments.cdn.mozilla.net/";
 
 const OUT = process.env.BERGAMOT_ASSETS_DIR || "bergamot-assets";
@@ -42,14 +38,6 @@ function matchesDesktop(expression) {
 
 function assetName(from, to, version, role, filename) {
     return `bergamot-${from}-${to}-${version}-${role}-${filename}`;
-}
-
-async function fetchJson(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${url}`);
-    }
-    return response.json();
 }
 
 async function fetchBuffer(url) {
@@ -142,11 +130,94 @@ function selectSets(records) {
     return selected;
 }
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function ensureRelease() {
+    try {
+        execFileSync("gh", ["release", "view", TAG], { stdio: "ignore" });
+    } catch (error) {
+        execFileSync(
+            "gh",
+            [
+                "release",
+                "create",
+                TAG,
+                "--title",
+                "Bergamot models",
+                "--notes",
+                "Firefox Translations Bergamot models and runtime for eSearch.",
+            ],
+            { stdio: "inherit" },
+        );
+    }
+}
+
+function existingAssets() {
+    try {
+        const output = execFileSync(
+            "gh",
+            [
+                "release",
+                "view",
+                TAG,
+                "--json",
+                "assets",
+                "--jq",
+                ".assets[].name",
+            ],
+            { encoding: "utf8" },
+        );
+        return new Set(output.split("\n").filter(Boolean));
+    } catch (error) {
+        return new Set();
+    }
+}
+
+async function uploadAssets(assets) {
+    let pending = [...assets];
+    for (let pass = 0; pass < 20 && pending.length > 0; pass++) {
+        const existing = existingAssets();
+        pending = pending.filter((asset) => !existing.has(asset));
+        if (pending.length === 0) break;
+
+        const batch = pending.slice(0, 40);
+        console.log(
+            `上传 ${assets.length - pending.length + 1}-${
+                assets.length - pending.length + batch.length
+            }/${assets.length}`,
+        );
+        try {
+            execFileSync("gh", ["release", "upload", TAG, ...batch], {
+                stdio: "inherit",
+            });
+            pending = pending.slice(batch.length);
+        } catch (error) {
+            console.log(`上传批次失败，重试: ${error.message}`);
+            await sleep(3000);
+        }
+    }
+    if (pending.length > 0) {
+        throw new Error(`还有 ${pending.length} 个资源未上传`);
+    }
+}
+
 async function main() {
     await mkdir(OUT, { recursive: true });
 
-    const models = await fetchJson(RECORDS_URL);
-    const wasm = await fetchJson(WASM_URL);
+    const models = JSON.parse(
+        await readFile(
+            new URL("./bergamot-records-v1.json", import.meta.url),
+            "utf8",
+        ),
+    );
+    const wasm = JSON.parse(
+        await readFile(
+            new URL("./bergamot-wasm-v1.json", import.meta.url),
+            "utf8",
+        ),
+    );
     const sets = selectSets(models.data);
 
     const manifest = {
@@ -174,7 +245,6 @@ async function main() {
     const wasmUrl = new URL(wasmRecord.attachment.location, ATTACHMENTS_URL)
         .href;
     console.log(`运行时 ${wasmRecord.release} (${wasmRecord.version})`);
-    await download(wasmUrl, join(OUT, wasmAsset), wasmRecord.attachment.hash);
     manifest.runtime = {
         version: wasmRecord.version,
         release: wasmRecord.release,
@@ -228,12 +298,37 @@ async function main() {
             )} MB`,
     );
 
+    let existing = new Set();
+    if (UPLOAD) {
+        ensureRelease();
+        existing = existingAssets();
+    }
+
+    const needWasm = !UPLOAD || !existing.has(wasmAsset);
+    if (needWasm) {
+        await download(
+            wasmUrl,
+            join(OUT, wasmAsset),
+            wasmRecord.attachment.hash,
+        );
+    }
+
+    const missingEntries = UPLOAD
+        ? entries.filter((entry) => !existing.has(entry.asset))
+        : entries;
+    console.log(
+        UPLOAD
+            ? `已上传 ${entries.length - missingEntries.length}/${entries.length}，` +
+                  `待下载 ${missingEntries.length}`
+            : `待下载 ${missingEntries.length}`,
+    );
+
     let downloaded = 0;
-    await mapLimit(entries, CONCURRENCY, async (entry) => {
+    await mapLimit(missingEntries, CONCURRENCY, async (entry) => {
         await download(entry.url, join(OUT, entry.asset), entry.hash);
         downloaded++;
-        if (downloaded % 10 === 0 || downloaded === entries.length) {
-            console.log(`下载 ${downloaded}/${entries.length}`);
+        if (downloaded % 10 === 0 || downloaded === missingEntries.length) {
+            console.log(`下载 ${downloaded}/${missingEntries.length}`);
         }
     });
 
@@ -243,46 +338,19 @@ async function main() {
 
     if (!UPLOAD) return;
 
-    try {
-        execFileSync("gh", ["release", "view", TAG], { stdio: "ignore" });
-    } catch (error) {
-        execFileSync(
-            "gh",
-            [
-                "release",
-                "create",
-                TAG,
-                "--title",
-                "Bergamot models",
-                "--notes",
-                "Firefox Translations Bergamot models and runtime for eSearch.",
-            ],
-            { stdio: "inherit" },
-        );
-    }
-
-    const assets = entries.map((entry) => join(OUT, entry.asset));
-    const batchSize = 40;
-    for (let i = 0; i < assets.length; i += batchSize) {
-        const batch = assets.slice(i, i + batchSize);
-        console.log(`上传 ${i + 1}-${i + batch.length}/${assets.length}`);
-        execFileSync("gh", ["release", "upload", TAG, ...batch, "--clobber"], {
+    await uploadAssets(missingEntries.map((entry) => join(OUT, entry.asset)));
+    if (needWasm) {
+        console.log("上传运行时");
+        execFileSync("gh", ["release", "upload", TAG, join(OUT, wasmAsset)], {
             stdio: "inherit",
         });
     }
-    console.log("上传运行时和清单");
-    execFileSync(
-        "gh",
-        [
-            "release",
-            "upload",
-            TAG,
-            join(OUT, wasmAsset),
-            manifestPath,
-            "--clobber",
-        ],
-        { stdio: "inherit" },
-    );
+    if (!existing.has("manifest.json")) {
+        console.log("上传清单");
+        execFileSync("gh", ["release", "upload", TAG, manifestPath], {
+            stdio: "inherit",
+        });
+    }
     console.log("完成");
 }
 

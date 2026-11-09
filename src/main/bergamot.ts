@@ -21,7 +21,7 @@ import workerSource from "./bergamot-worker.cjs?raw";
  * 运行时和模型由 eSearch release 托管，模型从设置页手动下载。
  */
 
-const REPO = "xushengfeng/esearch";
+const REPO = "xushengfeng/eSearch";
 const RELEASE_TAG = "bergamot-v1";
 const MAX_ROUTES = 1;
 
@@ -257,13 +257,11 @@ async function downloadFile(
 
     const promise = (async () => {
         await mkdir(dir, { recursive: true });
-        const bytes = await fetchBytes(
-            releaseAssetUrl(asset),
-            (progress) =>
-                onProgress?.({
-                    ...progress,
-                    file: file.filename,
-                }),
+        const bytes = await fetchBytes(releaseAssetUrl(asset), (progress) =>
+            onProgress?.({
+                ...progress,
+                file: file.filename,
+            }),
         );
         const hash = createHash("sha256").update(bytes).digest("hex");
         if (hash !== file.hash) {
