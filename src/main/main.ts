@@ -783,7 +783,7 @@ app.whenReady().then(() => {
 
     crashReporter.start({ uploadToServer: false });
 
-    initBergamot();
+    initBergamot((path) => githubUrl(path, "base"));
 
     store.setDefaultData(defaultSetting);
 

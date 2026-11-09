@@ -1,0 +1,24 @@
+name: Bergamot assets
+
+on:
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    upload:
+        runs-on: ubuntu-latest
+        timeout-minutes: 360
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+
+            - name: Download and upload models
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  BERGAMOT_RELEASE: bergamot-v1
+              run: node script/bergamot_assets.mjs --upload

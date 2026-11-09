@@ -18,54 +18,58 @@ import workerSource from "./bergamot-worker.cjs?raw";
 
 /**
  * Firefox Translations 的 Bergamot 运行时和模型（MPL-2.0）。
- * 运行时 v0.6.0 / wasm 4.0，模型从 Mozilla Remote Settings 下载，不随应用分发。
+ * 运行时和模型由 eSearch release 托管，模型从设置页手动下载。
  */
 
-const RECORDS_URL =
-    "https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-models-v2/records";
-const WASM_URL =
-    "https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-wasm-v2/records";
-const ATTACHMENTS_URL = "https://firefox-settings-attachments.cdn.mozilla.net/";
-
-const MODEL_MAJOR_VERSION = 3;
-const WASM_MAJOR_VERSION = 4;
+const REPO = "xushengfeng/esearch";
+const RELEASE_TAG = "bergamot-v1";
 const MAX_ROUTES = 1;
 
 const FILE_TYPES = ["model", "lex", "vocab", "srcvocab", "trgvocab"] as const;
 
 type FileType = (typeof FILE_TYPES)[number];
 
-type FileRecord = {
-    name: string;
-    version: string;
-    fileType: FileType;
-    sourceLanguage: string;
-    targetLanguage: string;
-    attachment: {
-        hash: string;
-        size: number;
-        location: string;
-        filename: string;
-        mimetype: string;
-    };
+type ManifestFile = {
+    asset?: string;
+    filename: string;
+    hash: string;
     decompressedHash?: string;
-    decompressedSize?: number;
-    filter_expression?: string;
+    size?: number;
 };
 
-type RecordsResponse = { data: FileRecord[] };
+type ManifestModel = {
+    from: string;
+    to: string;
+    version: string;
+    files: Partial<Record<FileType, ManifestFile>>;
+};
+
+type ManifestRuntime = ManifestFile & {
+    version: string;
+    release: string;
+};
+
+type BergamotManifest = {
+    generated?: string;
+    runtime: ManifestRuntime;
+    models: Record<string, ManifestModel>;
+};
+
+type LocalModelManifest = {
+    from: string;
+    to: string;
+    version: string;
+    files: Partial<Record<FileType, ManifestFile>>;
+};
+
+type LocalRuntimeManifest = {
+    file: ManifestFile;
+};
 
 type FileSpec = {
     path: string;
     hash: string;
     decompressedHash?: string;
-};
-
-type ModelSet = {
-    from: string;
-    to: string;
-    version: string;
-    files: Partial<Record<FileType, FileRecord>>;
 };
 
 type ModelSpec = {
@@ -95,23 +99,6 @@ type ModelInfo = {
     to: string;
     version: string;
     size: number;
-};
-
-type ManifestFile = {
-    filename: string;
-    hash: string;
-    decompressedHash?: string;
-};
-
-type ModelManifest = {
-    from: string;
-    to: string;
-    version: string;
-    files: Partial<Record<FileType, ManifestFile>>;
-};
-
-type RuntimeManifest = {
-    file: ManifestFile;
 };
 
 type Pending = {
@@ -155,13 +142,8 @@ const LANG_ALIAS: Record<string, string> = {
     yue: "zh-Hant",
 };
 
-const SERVER_ENV: Record<string, string> = {
-    "appinfo.OS": "Linux",
-    channel: "release",
-};
-
-let modelRecordsPromise: Promise<FileRecord[]> | undefined;
-let wasmRecordPromise: Promise<FileRecord> | undefined;
+let githubBase = (path: string) => `https://github.com/${path}`;
+let manifestPromise: Promise<BergamotManifest> | undefined;
 let runtimePromise: Promise<FileSpec> | undefined;
 const downloads = new Map<string, Promise<string>>();
 const routes = new Map<string, WorkerEntry>();
@@ -170,6 +152,16 @@ let nextId = 0;
 
 function cacheDir() {
     return join(app.getPath("userData"), "bergamot");
+}
+
+function bundledDir() {
+    return join(app.getAppPath(), "assets", "bergamot");
+}
+
+function releaseAssetUrl(asset: string) {
+    return githubBase(
+        `${REPO}/releases/download/${RELEASE_TAG}/${encodeURIComponent(asset)}`,
+    );
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -213,98 +205,18 @@ async function fetchBytes(
     return Buffer.concat(chunks, received);
 }
 
-function modelRecords() {
-    modelRecordsPromise ??= fetchJson<RecordsResponse>(RECORDS_URL)
-        .then((data) => data.data)
-        .catch((error) => {
-            modelRecordsPromise = undefined;
-            throw error;
-        });
-    return modelRecordsPromise;
-}
-
-function parseVersion(version: string) {
-    const match = /^(\d+)\.(\d+)$/.exec(version);
-    return match
-        ? { major: Number(match[1]), minor: Number(match[2]) }
-        : undefined;
-}
-
-/**
- * 判断 Remote Settings 的 filter_expression 是否适用于桌面版 Firefox。
- * Firefox 的模型列表只用到 env.appinfo.OS 和 env.channel 两个变量。
- */
-function matchesDesktop(expression: string | undefined) {
-    if (!expression || expression.trim() === "") return true;
-    return expression.split("||").some((clause) =>
-        clause.split("&&").every((atom) => {
-            const match = /^\s*env\.([\w.]+)\s*(==|!=)\s*'([^']*)'\s*$/.exec(
-                atom,
-            );
-            if (!match) return false;
-            const value = SERVER_ENV[match[1]];
-            if (value === undefined) return false;
-            return match[2] === "==" ? value === match[3] : value !== match[3];
-        }),
-    );
-}
-
-function selectModelSet(
-    records: FileRecord[],
-    from: string,
-    to: string,
-): ModelSet | undefined {
-    const byVersion = new Map<string, ModelSet>();
-
-    for (const record of records) {
-        if (record.sourceLanguage !== from || record.targetLanguage !== to) {
-            continue;
-        }
-        const version = parseVersion(record.version);
-        if (!version || version.major !== MODEL_MAJOR_VERSION) continue;
-        if (!FILE_TYPES.includes(record.fileType)) continue;
-
-        const set =
-            byVersion.get(record.version) ??
-            ({
-                from,
-                to,
-                version: record.version,
-                files: {},
-            } satisfies ModelSet);
-        set.files[record.fileType] = record;
-        byVersion.set(record.version, set);
-    }
-
-    const complete = [...byVersion.values()].filter(
-        ({ files }) =>
-            files.model &&
-            files.lex &&
-            (files.vocab || (files.srcvocab && files.trgvocab)),
-    );
-
-    const desktop = complete.filter(({ files }) =>
-        Object.values(files).every(
-            (file) =>
-                file !== undefined && matchesDesktop(file.filter_expression),
-        ),
-    );
-    const candidates = desktop.length > 0 ? desktop : complete;
-
-    candidates.sort((a, b) => {
-        const av = parseVersion(a.version);
-        const bv = parseVersion(b.version);
-        return (bv?.minor ?? 0) - (av?.minor ?? 0);
+function getManifest() {
+    manifestPromise ??= fetchJson<BergamotManifest>(
+        releaseAssetUrl("manifest.json"),
+    ).catch((error) => {
+        manifestPromise = undefined;
+        throw error;
     });
-
-    return candidates[0];
+    return manifestPromise;
 }
 
-function modelFilePath(record: FileRecord, dir: string) {
-    return join(
-        dir,
-        `${record.attachment.hash.slice(0, 16)}-${record.attachment.filename}`,
-    );
+function modelFilePath(file: ManifestFile, dir: string) {
+    return join(dir, `${file.hash.slice(0, 16)}-${file.filename}`);
 }
 
 function manifestFilePath(dir: string) {
@@ -313,7 +225,7 @@ function manifestFilePath(dir: string) {
 
 function manifestFileToSpec(dir: string, file: ManifestFile): FileSpec {
     return {
-        path: join(dir, `${file.hash.slice(0, 16)}-${file.filename}`),
+        path: modelFilePath(file, dir),
         hash: file.hash,
         decompressedHash: file.decompressedHash,
     };
@@ -327,12 +239,17 @@ async function readManifest<T>(path: string): Promise<T | undefined> {
     }
 }
 
-async function download(
-    record: FileRecord,
+async function downloadFile(
+    file: ManifestFile,
     dir: string,
     onProgress?: ProgressCallback,
 ): Promise<string> {
-    const dest = modelFilePath(record, dir);
+    if (!file.asset) {
+        throw new Error(`模型文件 ${file.filename} 缺少下载地址`);
+    }
+    const asset = file.asset;
+
+    const dest = modelFilePath(file, dir);
     if (existsSync(dest)) return dest;
 
     const pending = downloads.get(dest);
@@ -340,16 +257,17 @@ async function download(
 
     const promise = (async () => {
         await mkdir(dir, { recursive: true });
-        const url = new URL(record.attachment.location, ATTACHMENTS_URL).href;
-        const bytes = await fetchBytes(url, (progress) =>
-            onProgress?.({
-                ...progress,
-                file: record.attachment.filename,
-            }),
+        const bytes = await fetchBytes(
+            releaseAssetUrl(asset),
+            (progress) =>
+                onProgress?.({
+                    ...progress,
+                    file: file.filename,
+                }),
         );
         const hash = createHash("sha256").update(bytes).digest("hex");
-        if (hash !== record.attachment.hash) {
-            throw new Error(`模型校验失败: ${record.name}`);
+        if (hash !== file.hash) {
+            throw new Error(`模型校验失败: ${file.filename}`);
         }
         const tmp = `${dest}.tmp`;
         await writeFile(tmp, bytes);
@@ -361,59 +279,56 @@ async function download(
     return promise;
 }
 
-function getWasmRecord() {
-    wasmRecordPromise ??= fetchJson<RecordsResponse>(WASM_URL)
-        .then((records) => {
-            const record = records.data
-                .filter(
-                    (item) =>
-                        item.name === "bergamot-translator" &&
-                        parseVersion(item.version)?.major ===
-                            WASM_MAJOR_VERSION,
-                )
-                .sort(
-                    (a, b) =>
-                        (parseVersion(b.version)?.minor ?? 0) -
-                        (parseVersion(a.version)?.minor ?? 0),
-                )[0];
-            if (!record) {
-                throw new Error("找不到 Firefox 翻译运行时");
-            }
-            return record;
-        })
-        .catch((error) => {
-            wasmRecordPromise = undefined;
-            throw error;
-        });
-    return wasmRecordPromise;
-}
-
-function runtimeFile(record: FileRecord, path: string): FileSpec {
+async function getBundledRuntime(): Promise<FileSpec | undefined> {
+    const dir = bundledDir();
+    const runtime = await readManifest<ManifestRuntime>(
+        join(dir, "runtime.json"),
+    );
+    if (!runtime?.asset) return undefined;
+    const path = join(dir, runtime.asset);
+    if (!existsSync(path)) return undefined;
     return {
         path,
-        hash: record.attachment.hash,
-        decompressedHash: record.decompressedHash,
+        hash: runtime.hash,
+        decompressedHash: runtime.decompressedHash,
     };
+}
+
+async function getCachedRuntimeLocal(): Promise<FileSpec | undefined> {
+    const dir = join(cacheDir(), "runtime");
+    const manifest = await readManifest<LocalRuntimeManifest>(
+        manifestFilePath(dir),
+    );
+    if (!manifest?.file) return undefined;
+    const spec = manifestFileToSpec(dir, manifest.file);
+    if (!existsSync(spec.path)) return undefined;
+    return spec;
 }
 
 async function getRuntime(onProgress?: ProgressCallback): Promise<FileSpec> {
     runtimePromise ??= (async () => {
-        const record = await getWasmRecord();
+        const bundled = await getBundledRuntime();
+        if (bundled) return bundled;
+
+        const cached = await getCachedRuntimeLocal();
+        if (cached) return cached;
+
+        const manifest = await getManifest();
         const dir = join(cacheDir(), "runtime");
-        const path = await download(record, dir, onProgress);
-        const manifest: RuntimeManifest = {
-            file: {
-                filename: record.attachment.filename,
-                hash: record.attachment.hash,
-                decompressedHash: record.decompressedHash,
-            },
+        const path = await downloadFile(manifest.runtime, dir, onProgress);
+        const local: LocalRuntimeManifest = {
+            file: manifest.runtime,
         };
-        await writeFile(manifestFilePath(dir), JSON.stringify(manifest)).catch(
+        await writeFile(manifestFilePath(dir), JSON.stringify(local)).catch(
             (error) => {
                 console.error("写入运行时清单失败", error);
             },
         );
-        return runtimeFile(record, path);
+        return {
+            path,
+            hash: manifest.runtime.hash,
+            decompressedHash: manifest.runtime.decompressedHash,
+        };
     })().catch((error) => {
         runtimePromise = undefined;
         throw error;
@@ -423,19 +338,13 @@ async function getRuntime(onProgress?: ProgressCallback): Promise<FileSpec> {
 }
 
 async function getCachedRuntime(): Promise<FileSpec> {
-    const dir = join(cacheDir(), "runtime");
-    const manifest = await readManifest<RuntimeManifest>(manifestFilePath(dir));
-    if (manifest?.file) {
-        const spec = manifestFileToSpec(dir, manifest.file);
-        if (existsSync(spec.path)) return spec;
-    }
+    const bundled = await getBundledRuntime();
+    if (bundled) return bundled;
 
-    const record = await getWasmRecord();
-    const path = modelFilePath(record, dir);
-    if (!existsSync(path)) {
-        throw new Error("Firefox 本地模型运行时未下载，请在设置中下载");
-    }
-    return runtimeFile(record, path);
+    const cached = await getCachedRuntimeLocal();
+    if (cached) return cached;
+
+    throw new Error("Firefox 本地模型运行时缺失，请重新构建或安装");
 }
 
 async function getModel(
@@ -443,44 +352,38 @@ async function getModel(
     to: string,
     onProgress?: ProgressCallback,
 ): Promise<ModelSpec | undefined> {
-    const set = selectModelSet(await modelRecords(), from, to);
-    if (!set) return undefined;
+    const manifest = await getManifest();
+    const entry = manifest.models[`${from}-${to}`];
+    if (!entry) return undefined;
 
-    const dir = join(cacheDir(), "models", `${from}-${to}`, set.version);
-    const records = Object.entries(set.files) as [FileType, FileRecord][];
+    const dir = join(cacheDir(), "models", `${from}-${to}`, entry.version);
     const files: Partial<Record<FileType, FileSpec>> = {};
+    const records = Object.entries(entry.files) as [FileType, ManifestFile][];
     await Promise.all(
-        records.map(async ([role, record]) => {
-            const path = await download(record, dir, onProgress);
+        records.map(async ([role, file]) => {
+            const path = await downloadFile(file, dir, onProgress);
             files[role] = {
                 path,
-                hash: record.attachment.hash,
-                decompressedHash: record.decompressedHash,
+                hash: file.hash,
+                decompressedHash: file.decompressedHash,
             };
         }),
     );
 
-    const manifest: ModelManifest = {
+    const local: LocalModelManifest = {
         from,
         to,
-        version: set.version,
-        files: {},
+        version: entry.version,
+        files: entry.files,
     };
-    for (const [role, record] of records) {
-        manifest.files[role] = {
-            filename: record.attachment.filename,
-            hash: record.attachment.hash,
-            decompressedHash: record.decompressedHash,
-        };
-    }
-    await writeFile(manifestFilePath(dir), JSON.stringify(manifest)).catch(
+    await writeFile(manifestFilePath(dir), JSON.stringify(local)).catch(
         (error) => {
             console.error("写入模型清单失败", error);
         },
     );
 
     return {
-        key: `${from}-${to}@${set.version}`,
+        key: `${from}-${to}@${entry.version}`,
         from,
         to,
         files,
@@ -496,11 +399,11 @@ async function getCachedModel(
         const versions = await readdir(pairPath);
         versions.sort(
             (a, b) =>
-                (parseVersion(b)?.minor ?? 0) - (parseVersion(a)?.minor ?? 0),
+                Number(b.split(".")[1] ?? 0) - Number(a.split(".")[1] ?? 0),
         );
         for (const version of versions) {
             const dir = join(pairPath, version);
-            const manifest = await readManifest<ModelManifest>(
+            const manifest = await readManifest<LocalModelManifest>(
                 manifestFilePath(dir),
             );
             if (!manifest || manifest.from !== from || manifest.to !== to) {
@@ -536,26 +439,23 @@ async function getCachedModel(
         }
     }
 
-    const set = selectModelSet(await modelRecords(), from, to);
-    if (!set) return undefined;
+    const manifest = await getManifest();
+    const entry = manifest.models[`${from}-${to}`];
+    if (!entry) return undefined;
 
-    const dir = join(cacheDir(), "models", `${from}-${to}`, set.version);
-    const records = Object.entries(set.files) as [FileType, FileRecord][];
-    if (records.some(([, record]) => !existsSync(modelFilePath(record, dir)))) {
+    const dir = join(cacheDir(), "models", `${from}-${to}`, entry.version);
+    const records = Object.entries(entry.files) as [FileType, ManifestFile][];
+    if (records.some(([, file]) => !existsSync(modelFilePath(file, dir)))) {
         return undefined;
     }
 
     const files: Partial<Record<FileType, FileSpec>> = {};
-    for (const [role, record] of records) {
-        files[role] = {
-            path: modelFilePath(record, dir),
-            hash: record.attachment.hash,
-            decompressedHash: record.decompressedHash,
-        };
+    for (const [role, file] of records) {
+        files[role] = manifestFileToSpec(dir, file);
     }
 
     return {
-        key: `${from}-${to}@${set.version}`,
+        key: `${from}-${to}@${entry.version}`,
         from,
         to,
         files,
@@ -778,24 +678,20 @@ export async function bergamotStatus(
     if (source === target) return "ready";
 
     try {
-        try {
-            await getCachedRuntime();
-        } catch (error) {
-            return "missing";
-        }
-
+        await getCachedRuntime();
         const cached = await routeModels(source, target, getCachedModel);
         if (cached) return "ready";
 
-        const direct = selectModelSet(await modelRecords(), source, target);
-        if (direct) return "missing";
+        const manifest = await getManifest();
+        if (manifest.models[`${source}-${target}`]) return "missing";
 
         if (source !== "en" && target !== "en") {
-            const [sourceSet, targetSet] = await Promise.all([
-                selectModelSet(await modelRecords(), source, "en"),
-                selectModelSet(await modelRecords(), "en", target),
-            ]);
-            if (sourceSet && targetSet) return "missing";
+            if (
+                manifest.models[`${source}-en`] &&
+                manifest.models[`en-${target}`]
+            ) {
+                return "missing";
+            }
         }
 
         return "unsupported";
@@ -818,28 +714,19 @@ export async function clearBergamotCache() {
 
 export async function listDownloadedModels() {
     const base = join(cacheDir(), "models");
-    const runtimeDir = join(cacheDir(), "runtime");
     const runtime =
-        existsSync(runtimeDir) &&
-        (await readdir(runtimeDir)).some((file) => file !== "manifest.json");
+        !!(await getBundledRuntime()) || !!(await getCachedRuntimeLocal());
     const models: ModelInfo[] = [];
 
     if (!existsSync(base)) {
         return { runtime, models };
     }
 
-    const pairByDir = new Map<string, { from: string; to: string }>();
-    let records: FileRecord[] = [];
+    let manifest: BergamotManifest | undefined;
     try {
-        records = await modelRecords();
-        for (const record of records) {
-            pairByDir.set(`${record.sourceLanguage}-${record.targetLanguage}`, {
-                from: record.sourceLanguage,
-                to: record.targetLanguage,
-            });
-        }
+        manifest = await getManifest();
     } catch (error) {
-        console.error("读取模型列表失败，使用本地清单", error);
+        console.error("读取模型清单失败，使用本地清单", error);
     }
 
     for (const pairDir of await readdir(base)) {
@@ -855,44 +742,33 @@ export async function listDownloadedModels() {
             }
             if (!files.some((file) => file !== "manifest.json")) continue;
 
-            const manifest = await readManifest<ModelManifest>(
+            const local = await readManifest<LocalModelManifest>(
                 manifestFilePath(dir),
             );
-            const pair = manifest
-                ? { from: manifest.from, to: manifest.to }
-                : pairByDir.get(pairDir);
+            const release = manifest?.models[pairDir];
+            const pair = local
+                ? { from: local.from, to: local.to }
+                : release
+                  ? { from: release.from, to: release.to }
+                  : undefined;
             if (!pair) continue;
 
-            let complete = false;
-            if (manifest) {
-                const manifestFiles = Object.values(
-                    manifest.files,
-                ) as ManifestFile[];
-                complete =
-                    !!manifest.files.model &&
-                    !!manifest.files.lex &&
-                    (!!manifest.files.vocab ||
-                        (!!manifest.files.srcvocab &&
-                            !!manifest.files.trgvocab)) &&
-                    manifestFiles.every((file) =>
-                        existsSync(manifestFileToSpec(dir, file).path),
-                    );
-            } else {
-                const set = records.filter(
-                    (record) =>
-                        `${record.sourceLanguage}-${record.targetLanguage}` ===
-                            pairDir && record.version === version,
+            const entry = manifest?.models[pairDir];
+            const sourceFiles = local?.files ?? entry?.files;
+            if (!sourceFiles) continue;
+
+            const records = Object.entries(sourceFiles) as [
+                FileType,
+                ManifestFile,
+            ][];
+            const complete =
+                !!sourceFiles.model &&
+                !!sourceFiles.lex &&
+                (!!sourceFiles.vocab ||
+                    (!!sourceFiles.srcvocab && !!sourceFiles.trgvocab)) &&
+                records.every(([, file]) =>
+                    existsSync(modelFilePath(file, dir)),
                 );
-                const roles = new Set(set.map((record) => record.fileType));
-                complete =
-                    roles.has("model") &&
-                    roles.has("lex") &&
-                    (roles.has("vocab") ||
-                        (roles.has("srcvocab") && roles.has("trgvocab"))) &&
-                    set.every((record) =>
-                        existsSync(modelFilePath(record, dir)),
-                    );
-            }
             if (!complete) continue;
 
             let size = 0;
@@ -940,9 +816,10 @@ export async function removeBergamotModel(from: string, to: string) {
 
 let inited = false;
 
-export function initBergamot() {
+export function initBergamot(getBaseUrl: (path: string) => string) {
     if (inited) return;
     inited = true;
+    githubBase = getBaseUrl;
     mainHandle("bergamot_translate", ([data]) =>
         translateBergamot(data.texts, data.from, data.to),
     );
