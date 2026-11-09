@@ -1038,23 +1038,9 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "Firefox 本地模型",
         desc: "手动下载 Firefox 本地翻译模型",
         el: () => {
-            const open = button(txt(t("下载/管理模型"))).on(
-                "click",
-                openBergamotDialog,
-            );
-            return view("x")
-                .class(Class.gap)
-                .style({ alignItems: "center" })
-                .add([
-                    open,
-                    p(
-                        t(
-                            "模型是单向的，双向使用请分别下载两个方向；非英语语言对会经英语中转，需要下载两段模型",
-                        ),
-                    ).style({
-                        opacity: 0.6,
-                    }),
-                ]);
+            const el = button(iconEl("down")).on("click", openBergamotDialog);
+            el.el.title = t("下载/管理模型");
+            return el;
         },
     },
     "屏幕翻译.语言.from": {
@@ -4389,6 +4375,11 @@ function openBergamotDialog() {
     const from = select(lans).sv("en");
     const to = select(lans).sv("zh-Hans");
     const status = p("");
+    const setStatus = (text: string) => {
+        status.el.innerText = text;
+        status.el.style.display = text ? "" : "none";
+    };
+    setStatus("");
     const download = button(txt(t("下载")));
     const clearBtn = button(txt(t("清除缓存")));
     const progressMap = new Map<string, { received: number; total?: number }>();
@@ -4433,38 +4424,41 @@ function openBergamotDialog() {
         }
         if (total > 0) {
             setBar(received / total);
-            status.el.innerText = `${t("下载中...")} ${Math.floor(
-                (received / total) * 100,
-            )}%`;
+            setStatus(
+                `${t("下载中...")} ${Math.floor((received / total) * 100)}%`,
+            );
         } else {
             const current = progressMap.get(data.file);
             if (current?.total) {
                 setBar(current.received / current.total);
             }
-            status.el.innerText = `${t("下载中...")} ${data.file}`;
+            setStatus(`${t("下载中...")} ${data.file}`);
         }
     };
 
     const refreshStatus = async () => {
-        status.el.innerText = t("检查中...");
+        setStatus(t("检查中..."));
         try {
             const s = await renderInvoke("bergamot_status", [
                 { from: from.gv, to: to.gv },
             ]);
-            status.el.innerText =
+            setStatus(
                 s === "ready"
-                    ? t("已下载")
+                    ? ""
                     : s === "unsupported"
                       ? t("不支持该语言对")
                       : s === "error"
                         ? t("检查失败")
-                        : t("未下载");
+                        : t("未下载"),
+            );
         } catch (error) {
-            status.el.innerText = `${t("检查失败")} ${String(error)}`;
+            setStatus(`${t("检查失败")} ${String(error)}`);
         }
     };
 
-    const directionsEl = view("x", "wrap").style({ gap: "8px" });
+    const directionsEl = view("x", "wrap").style({
+        gap: "8px 20px",
+    });
     const modelsEl = view("y").class(Class.gap);
 
     const renderDirections = (models: { from: string; to: string }[]) => {
@@ -4506,15 +4500,7 @@ function openBergamotDialog() {
             const label = `${names.get(direction.from) ?? direction.from} → ${
                 names.get(direction.to) ?? direction.to
             }${direction.via ? ` · ${t("组合")}` : ""}`;
-            directionsEl.add(
-                button(txt(label)).on("click", () => {
-                    if (busy) return;
-                    from.sv(direction.from);
-                    to.sv(direction.to);
-                    resetProgress();
-                    void refreshStatus();
-                }),
-            );
+            directionsEl.add(txt(label));
         }
     };
 
@@ -4523,9 +4509,9 @@ function openBergamotDialog() {
         try {
             const data = await renderInvoke("bergamot_models", []);
             renderDirections(data.models);
-            modelsEl.add(
-                p(data.runtime ? t("运行时已下载") : t("运行时未下载")),
-            );
+            if (!data.runtime) {
+                modelsEl.add(p(t("运行时未下载")));
+            }
             if (data.models.length === 0) {
                 modelsEl.add(p(t("暂无已下载模型")));
                 return;
@@ -4592,7 +4578,7 @@ function openBergamotDialog() {
     download.on("click", async () => {
         setBusy(true);
         resetProgress();
-        status.el.innerText = t("下载中...");
+        setStatus(t("下载中..."));
         try {
             await renderInvoke("bergamot_download", [
                 { from: from.gv, to: to.gv },
@@ -4601,7 +4587,7 @@ function openBergamotDialog() {
             await refreshStatus();
             await refreshModels();
         } catch (error) {
-            status.el.innerText = `${t("下载失败")} ${String(error)}`;
+            setStatus(`${t("下载失败")} ${String(error)}`);
         } finally {
             setBusy(false);
         }
@@ -4616,7 +4602,7 @@ function openBergamotDialog() {
             await refreshStatus();
             await refreshModels();
         } catch (error) {
-            status.el.innerText = `${t("下载失败")} ${String(error)}`;
+            setStatus(`${t("下载失败")} ${String(error)}`);
         } finally {
             setBusy(false);
         }
@@ -4634,6 +4620,11 @@ function openBergamotDialog() {
                 .class(Class.gap)
                 .style({ alignItems: "center" })
                 .add([from, to, download]),
+            p(
+                t(
+                    "模型是单向的，双向使用请分别下载两个方向；非英语语言对会经英语中转，需要下载两段模型",
+                ),
+            ).style({ opacity: 0.6 }),
             barTrack,
             status,
             txt(t("已下载模型支持的方向"), true),
