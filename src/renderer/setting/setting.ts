@@ -33,6 +33,12 @@ import { getLanName, getLans, lan, t } from "../../../lib/translate/translate";
 import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
 import { colorPicker } from "../lib/colorPicker";
 import {
+    BERGAMOT_LANGS,
+    BergamotTranslator,
+    getEngineLans,
+    getTranslators,
+} from "../lib/translate";
+import {
     Class,
     cssColor,
     cssVar,
@@ -59,7 +65,12 @@ import testPhoto from "../assets/sample_picture.svg";
 const packageJson = JSON.parse(_package);
 
 import { githubMirrorList } from "../../../lib/github_mirror";
-import { renderSend, renderSendSync } from "../../../lib/ipc";
+import {
+    renderInvoke,
+    renderOn,
+    renderSend,
+    renderSendSync,
+} from "../../../lib/ipc";
 import {
     ele2jsKeyCode,
     jsKey2ele,
@@ -79,7 +90,7 @@ let yauzl: typeof import("yauzl") | null = null;
 
 export { isDeepStrictEqual };
 
-type Engines = keyof typeof translator.e | "llm";
+type Engines = keyof typeof translator.e | "llm" | "bergamot";
 
 type JustElmentK =
     | "_autostart"
@@ -1023,11 +1034,23 @@ const s: Partial<settingItem<SettingPath>> = {
                 (el, d) => translatorD(el, d),
             ),
     },
+    "翻译.Firefox本地模型": {
+        name: "Firefox 本地模型",
+        desc: "手动下载 Firefox 本地翻译模型",
+        el: () => {
+            const el = button(iconEl("down"))
+                .on("click", openBergamotDialog)
+                .attr({
+                    title: t("下载/管理模型"),
+                });
+            return el;
+        },
+    },
     "屏幕翻译.语言.from": {
         name: "屏幕翻译语言来源",
         el: () => {
             const firstItem = getSet("翻译.翻译器").at(0);
-            const e = translator.getEngine(firstItem?.type ?? "");
+            const e = getEngineLans(firstItem?.type ?? "");
             if (!e) return select([]);
             const list = select(
                 getLansName(e.lan).map((i) => ({
@@ -1042,7 +1065,7 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "屏幕翻译语言目标",
         el: () => {
             const firstItem = getSet("翻译.翻译器").at(0);
-            const e = translator.getEngine(firstItem?.type ?? "");
+            const e = getEngineLans(firstItem?.type ?? "");
             if (!e) return select([]);
             const list = select(
                 getLansName(e.targetLan).map((i) => ({
@@ -2306,6 +2329,10 @@ const main: {
         pageName: "翻译",
         settings: ["翻译.翻译器"],
         items: [
+            {
+                title: "本地模型",
+                settings: ["翻译.Firefox本地模型"],
+            },
             {
                 title: "屏幕翻译",
                 settings: [
@@ -3734,6 +3761,10 @@ function translatorD(
             }
         >
     > = {
+        bergamot: {
+            t: t("Firefox 本地模型"),
+            key: [],
+        },
         google: {
             t: "谷歌翻译",
             key: [],
@@ -3926,15 +3957,17 @@ function translatorD(
                     model: model.model,
                 },
             });
-        } else {
+        } else if (v.type !== "bergamot") {
             // @ts-ignore
             translator.e[v.type].setKeys(v.keys);
         }
         try {
             const r =
-                await translator.e[
-                    v.type === "llm" ? "chatgpt" : v.type
-                ].test();
+                v.type === "bergamot"
+                    ? await new BergamotTranslator().test()
+                    : await translator.e[
+                          v.type === "llm" ? "chatgpt" : v.type
+                      ].test();
             console.log(r);
             if (r) testR.el.innerText = t("测试成功");
         } catch (error) {
@@ -4318,6 +4351,309 @@ function inpaintEl() {
     render();
 
     return view().class(blockSetting).add(el);
+}
+
+type BergamotProgress = {
+    from: string;
+    to: string;
+    file: string;
+    received: number;
+    total?: number;
+};
+
+let onBergamotProgress: ((data: BergamotProgress) => void) | undefined;
+
+renderOn("bergamot_progress", ([data]) => {
+    onBergamotProgress?.(data);
+});
+
+function openBergamotDialog() {
+    const d = ele("dialog");
+    d.addInto();
+
+    const lans = getLansName([...BERGAMOT_LANGS]).map((i) => ({
+        value: i.lan,
+        name: noI18n(i.text),
+    }));
+    const from = select(lans).sv("en");
+    const to = select(lans).sv("zh-Hans");
+    const status = p("");
+    const setStatus = (text: string) => {
+        status.el.innerText = text;
+        status.el.style.display = text ? "" : "none";
+    };
+    setStatus("");
+    const download = button(txt(t("下载")));
+    const clearBtn = button(txt(t("清除缓存")));
+    const progressMap = new Map<string, { received: number; total?: number }>();
+    const bar = view().style({
+        width: "0%",
+        height: "100%",
+        backgroundColor: cssColor.main,
+        transition: "width .2s",
+    });
+    const barTrack = view()
+        .style({
+            overflow: "hidden",
+            width: "100%",
+            height: "16px",
+            borderRadius: "var(--border-radius)",
+            backgroundColor: cssColor.bb,
+        })
+        .add(bar);
+
+    const setBar = (percent: number) => {
+        bar.style({
+            width: `${Math.max(0, Math.min(100, Math.floor(percent * 100)))}%`,
+        });
+    };
+
+    const resetProgress = () => {
+        progressMap.clear();
+        setBar(0);
+    };
+
+    const updateProgress = (data: BergamotProgress) => {
+        if (data.from !== from.gv || data.to !== to.gv) return;
+        progressMap.set(data.file, {
+            received: data.received,
+            total: data.total,
+        });
+        let received = 0;
+        let total = 0;
+        for (const item of progressMap.values()) {
+            received += item.received;
+            total += item.total ?? 0;
+        }
+        if (total > 0) {
+            setBar(received / total);
+            setStatus(
+                `${t("下载中...")} ${Math.floor((received / total) * 100)}%`,
+            );
+        } else {
+            const current = progressMap.get(data.file);
+            if (current?.total) {
+                setBar(current.received / current.total);
+            }
+            setStatus(`${t("下载中...")} ${data.file}`);
+        }
+    };
+
+    const refreshStatus = async () => {
+        setStatus(t("检查中..."));
+        try {
+            const s = await renderInvoke("bergamot_status", [
+                { from: from.gv, to: to.gv },
+            ]);
+            setStatus(
+                s === "ready"
+                    ? ""
+                    : s === "unsupported"
+                      ? t("不支持该语言对")
+                      : s === "error"
+                        ? t("检查失败")
+                        : t("未下载"),
+            );
+        } catch (error) {
+            setStatus(`${t("检查失败")} ${String(error)}`);
+        }
+    };
+
+    const directionsEl = view("x", "wrap").style({
+        gap: "8px 20px",
+    });
+    const modelsEl = view("y").class(Class.gap);
+
+    const renderDirections = (models: { from: string; to: string }[]) => {
+        directionsEl.clear();
+        const directions = new Map<
+            string,
+            { from: string; to: string; via: boolean }
+        >();
+        const add = (from: string, to: string, via: boolean) => {
+            if (from === to) return;
+            const key = `${from}>${to}`;
+            if (directions.has(key)) return;
+            directions.set(key, { from, to, via });
+        };
+
+        for (const model of models) {
+            add(model.from, model.to, false);
+        }
+        const inbound = models.filter((model) => model.to === "en");
+        const outbound = models.filter((model) => model.from === "en");
+        for (const source of inbound) {
+            for (const target of outbound) {
+                add(source.from, target.to, true);
+            }
+        }
+
+        if (directions.size === 0) {
+            directionsEl.add(p(t("暂无可用方向")));
+            return;
+        }
+
+        for (const direction of directions.values()) {
+            const names = new Map(
+                getLansName([direction.from, direction.to]).map((i) => [
+                    i.lan,
+                    i.text,
+                ]),
+            );
+            const label = `${names.get(direction.from) ?? direction.from} → ${
+                names.get(direction.to) ?? direction.to
+            }${direction.via ? ` · ${t("组合")}` : ""}`;
+            directionsEl.add(txt(label));
+        }
+    };
+
+    const refreshModels = async () => {
+        modelsEl.clear();
+        try {
+            const data = await renderInvoke("bergamot_models", []);
+            renderDirections(data.models);
+            if (!data.runtime) {
+                modelsEl.add(p(t("运行时未下载")));
+            }
+            if (data.models.length === 0) {
+                modelsEl.add(p(t("暂无已下载模型")));
+                return;
+            }
+            for (const model of data.models) {
+                const names = new Map(
+                    getLansName([model.from, model.to]).map((i) => [
+                        i.lan,
+                        i.text,
+                    ]),
+                );
+                modelsEl.add(
+                    view("x")
+                        .class(Class.gap)
+                        .style({ alignItems: "center" })
+                        .add([
+                            txt(
+                                `${names.get(model.from) ?? model.from} → ${
+                                    names.get(model.to) ?? model.to
+                                }`,
+                            ),
+                            txt(
+                                `${model.version} · ${(
+                                    model.size / 1e6
+                                ).toFixed(1)}MB`,
+                            ).style({ opacity: 0.6 }),
+                            button(txt(t("删除"))).on("click", async () => {
+                                if (!(await confirm(t("确定删除这个模型？"))))
+                                    return;
+                                await renderInvoke("bergamot_remove_model", [
+                                    { from: model.from, to: model.to },
+                                ]);
+                                await refreshModels();
+                                await refreshStatus();
+                            }),
+                        ]),
+                );
+            }
+        } catch (error) {
+            directionsEl.clear();
+            directionsEl.add(p(t("暂无可用方向")));
+            modelsEl.add(p(`${t("检查失败")} ${String(error)}`));
+        }
+    };
+
+    let busy = false;
+    const setBusy = (value: boolean) => {
+        busy = value;
+        download.el.disabled = value;
+        clearBtn.el.disabled = value;
+        from.el.disabled = value;
+        to.el.disabled = value;
+    };
+
+    from.on("input", () => {
+        resetProgress();
+        void refreshStatus();
+    });
+    to.on("input", () => {
+        resetProgress();
+        void refreshStatus();
+    });
+
+    download.on("click", async () => {
+        setBusy(true);
+        resetProgress();
+        setStatus(t("下载中..."));
+        try {
+            await renderInvoke("bergamot_download", [
+                { from: from.gv, to: to.gv },
+            ]);
+            setBar(1);
+            await refreshStatus();
+            await refreshModels();
+        } catch (error) {
+            setStatus(`${t("下载失败")} ${String(error)}`);
+        } finally {
+            setBusy(false);
+        }
+    });
+
+    clearBtn.on("click", async () => {
+        if (!(await confirm(t("确定清除已下载的 Firefox 本地模型？")))) return;
+        setBusy(true);
+        try {
+            await renderInvoke("bergamot_clear", []);
+            resetProgress();
+            await refreshStatus();
+            await refreshModels();
+        } catch (error) {
+            setStatus(`${t("下载失败")} ${String(error)}`);
+        } finally {
+            setBusy(false);
+        }
+    });
+
+    const content = view("y")
+        .class(Class.gap)
+        .style({
+            width: "min(760px, 92vw)",
+            maxHeight: "80vh",
+            overflow: "auto",
+        })
+        .add([
+            view("x")
+                .class(Class.gap)
+                .style({ alignItems: "center" })
+                .add([from, to, download]),
+            p(
+                t(
+                    "模型是单向的，双向使用请分别下载两个方向；非英语语言对会经英语中转，需要下载两段模型",
+                ),
+            ).style({ opacity: 0.6 }),
+            barTrack,
+            status,
+            txt(t("已下载模型支持的方向"), true),
+            directionsEl,
+            txt(t("已下载模型"), true),
+            modelsEl,
+            view("x").add([clearBtn]),
+        ]);
+
+    onBergamotProgress = updateProgress;
+    d.el.addEventListener("close", () => {
+        if (onBergamotProgress === updateProgress) {
+            onBergamotProgress = undefined;
+        }
+        d.el.remove();
+    });
+
+    dialogB(
+        d,
+        [content],
+        () => undefined,
+        () => undefined,
+    );
+    d.el.showModal();
+    void refreshStatus();
+    void refreshModels();
 }
 
 function ocrEl() {
@@ -5050,13 +5386,12 @@ function about() {
                             const x = transE.at(
                                 0,
                             ) as setting["翻译"]["翻译器"][0];
-                            // @ts-ignore
-                            translator.e[x.type].setKeys(x.keys);
-                            // @ts-ignore
-                            const t = await translator.e[x.type].run(
+                            const e = getTranslators(store, x);
+                            if (!e) return;
+                            const t = await e.run(
                                 b,
                                 "zh",
-                                getSet("语言.语言"),
+                                getSet("语言.语言") || "zh-Hans",
                             );
                             md(t);
                         });

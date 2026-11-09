@@ -65,6 +65,7 @@ import type {
     translateWinType,
     功能,
 } from "../ShareTypes";
+import { initBergamot } from "./bergamot";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -781,6 +782,8 @@ app.whenReady().then(() => {
     );
 
     crashReporter.start({ uploadToServer: false });
+
+    initBergamot((path) => githubUrl(path, "base"));
 
     store.setDefaultData(defaultSetting);
 
@@ -3739,6 +3742,7 @@ const defaultSetting: setting = {
             文件: [],
         },
         常用语言: [],
+        Firefox本地模型: {},
     },
     额外截屏器: { 命令: "", 位置: "" },
     使用XDGDesktopPortal: false,

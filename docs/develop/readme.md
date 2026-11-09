@@ -11,5 +11,6 @@
 - [动态贴图](liveDing.md)
 - [OCR](ocr.md)
 - [高级图片编辑](photoEditor.md)
+- [Firefox 本地翻译](firefoxTranslation.md)
 - [超级录屏](superRecorder.md)
 - [Issue 索引](issues.md)

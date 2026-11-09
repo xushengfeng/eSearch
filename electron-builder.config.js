@@ -2,6 +2,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { execSync } = require("node:child_process");
+const { createHash } = require("node:crypto");
 const yauzl = require("yauzl");
 
 function ensureDir(dir) {
@@ -99,7 +100,145 @@ const platform2 = platformMap[platform];
 // const githubUrl = "https://gh-proxy.com/https://github.com" || true;
 const githubUrl = "https://github.com";
 
+const BERGAMOT_REPO = "xushengfeng/eSearch";
+const BERGAMOT_RELEASE = "bergamot-v1";
+const BERGAMOT_ASSETS = "./assets/bergamot";
+const BERGAMOT_RECORDS_URL =
+    "https://firefox.settings.services.mozilla.com/v1/buckets/main/collections/translations-wasm-v2/records";
+const BERGAMOT_ATTACHMENTS_URL =
+    "https://firefox-settings-attachments.cdn.mozilla.net/";
+const bergamotMirrors = [
+    "https://github.com/",
+    "https://gh.llkk.cc/https://github.com/",
+    "https://gh-proxy.com/https://github.com/",
+    "https://ghfast.top/https://github.com/",
+    "https://ghfile.geekertao.top/https://github.com/",
+];
+
+function sha256(bytes) {
+    return createHash("sha256").update(bytes).digest("hex");
+}
+
+async function downloadBergamotRuntimeFromRelease() {
+    const releasePath = `${BERGAMOT_REPO}/releases/download/${BERGAMOT_RELEASE}`;
+    let manifest;
+    let lastError;
+    for (const mirror of bergamotMirrors) {
+        try {
+            manifest = JSON.parse(
+                (
+                    await downloadBuffer(
+                        `${mirror}${releasePath}/manifest.json`,
+                    )
+                ).toString(),
+            );
+            break;
+        } catch (error) {
+            lastError = error;
+            console.log(`Bergamot 清单镜像失败 ${mirror}: ${error.message}`);
+        }
+    }
+    if (!manifest?.runtime?.asset) {
+        throw lastError || new Error("Bergamot release 缺少 runtime");
+    }
+
+    const runtime = manifest.runtime;
+    for (const mirror of bergamotMirrors) {
+        try {
+            const bytes = await downloadBuffer(
+                `${mirror}${releasePath}/${runtime.asset}`,
+            );
+            if (sha256(bytes) !== runtime.hash) {
+                throw new Error(`Bergamot 运行时校验失败: ${mirror}`);
+            }
+            return { runtime, bytes };
+        } catch (error) {
+            lastError = error;
+            console.log(`Bergamot 运行时镜像失败 ${mirror}: ${error.message}`);
+        }
+    }
+    throw lastError;
+}
+
+async function downloadBergamotRuntimeFromMozilla() {
+    const records = JSON.parse(
+        (await downloadBuffer(BERGAMOT_RECORDS_URL)).toString(),
+    );
+    const record = records.data
+        .filter(
+            (item) =>
+                item.name === "bergamot-translator" &&
+                /^4\.\d+$/.test(item.version),
+        )
+        .sort(
+            (a, b) =>
+                Number(b.version.split(".")[1]) -
+                Number(a.version.split(".")[1]),
+        )[0];
+    if (!record) throw new Error("找不到 Mozilla 4.x Bergamot 运行时");
+
+    const bytes = await downloadBuffer(
+        new URL(record.attachment.location, BERGAMOT_ATTACHMENTS_URL).href,
+    );
+    if (sha256(bytes) !== record.attachment.hash) {
+        throw new Error("Mozilla Bergamot 运行时校验失败");
+    }
+    return {
+        runtime: {
+            version: record.version,
+            release: record.release,
+            asset: `bergamot-translator-${record.version}.wasm.zst`,
+            filename: record.attachment.filename,
+            hash: record.attachment.hash,
+            decompressedHash: record.decompressedHash,
+            size: record.attachment.size,
+        },
+        bytes,
+    };
+}
+
+async function downloadBergamotRuntime() {
+    ensureDir(BERGAMOT_ASSETS);
+    const runtimePath = path.join(BERGAMOT_ASSETS, "runtime.json");
+
+    if (checkPath(runtimePath)) {
+        try {
+            const runtime = JSON.parse(fs.readFileSync(runtimePath, "utf8"));
+            const wasmPath = path.join(BERGAMOT_ASSETS, runtime.asset);
+            if (
+                runtime.asset &&
+                checkPath(wasmPath) &&
+                sha256(fs.readFileSync(wasmPath)) === runtime.hash
+            ) {
+                return;
+            }
+        } catch (error) {
+            console.log(`本地 Bergamot 运行时清单无效: ${error.message}`);
+        }
+    }
+
+    let result;
+    try {
+        result = await downloadBergamotRuntimeFromRelease();
+    } catch (error) {
+        console.log(`Bergamot release 不可用，回退 Mozilla: ${error.message}`);
+        result = await downloadBergamotRuntimeFromMozilla();
+    }
+
+    fs.writeFileSync(
+        path.join(BERGAMOT_ASSETS, result.runtime.asset),
+        result.bytes,
+    );
+    fs.writeFileSync(
+        runtimePath,
+        `${JSON.stringify(result.runtime, null, 2)}\n`,
+    );
+    console.log(`Bergamot 运行时已下载: ${result.runtime.asset}`);
+}
+
 const beforePack = async () => {
+    await downloadBergamotRuntime();
+
     if (!checkPath("./assets/fonts/FiraCode-Regular.woff2")) {
         await downloadUnzip(
             `${githubUrl}/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip`,
