@@ -1038,8 +1038,11 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "Firefox 本地模型",
         desc: "手动下载 Firefox 本地翻译模型",
         el: () => {
-            const el = button(iconEl("down")).on("click", openBergamotDialog);
-            el.el.title = t("下载/管理模型");
+            const el = button(iconEl("down"))
+                .on("click", openBergamotDialog)
+                .attr({
+                    title: t("下载/管理模型"),
+                });
             return el;
         },
     },
