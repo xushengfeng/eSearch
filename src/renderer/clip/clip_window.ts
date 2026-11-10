@@ -10,6 +10,7 @@ import {
     type CircleProps,
     Control,
     classRegistry,
+    controlsUtils,
     FabricImage,
     type FabricObject,
     filters,
@@ -3315,7 +3316,7 @@ function drawPoly(shape: EditType["shape"]) {
     }
     let shapeX: FabricObject | null = null;
     if (shape === "polyline") {
-        shapeX = new Polyline(polyOP, {
+        shapeX = new polyline(polyOP, {
             fill: "#0000",
             stroke: strokeColor,
             strokeWidth: strokeWidth,
@@ -3325,7 +3326,7 @@ function drawPoly(shape: EditType["shape"]) {
         });
     }
     if (shape === "polygon") {
-        shapeX = new Polygon(polyOP, {
+        shapeX = new polygon(polyOP, {
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
@@ -5572,6 +5573,7 @@ const Filters = filters;
 const fabricCanvas = new Canvas("draw_photo", {
     enableRetinaScaling: false,
 });
+fabricCanvas.setTargetFindTolerance(5);
 
 hisPush();
 
@@ -6962,6 +6964,33 @@ class arrow extends line {
 
 classRegistry.setClass(arrow);
 classRegistry.setSVGClass(arrow);
+
+class polyline extends Polyline {
+    constructor(
+        points?: ConstructorParameters<typeof Polyline>[0],
+        options?: ConstructorParameters<typeof Polyline>[1],
+    ) {
+        super(points, options);
+        this.controls = controlsUtils.createPolyControls(this.points.length);
+        this.hasBorders = false;
+        this.perPixelTargetFind = true;
+    }
+}
+
+class polygon extends Polygon {
+    constructor(
+        points?: ConstructorParameters<typeof Polygon>[0],
+        options?: ConstructorParameters<typeof Polygon>[1],
+    ) {
+        super(points, options);
+        this.controls = controlsUtils.createPolyControls(this.points.length);
+        this.hasBorders = false;
+        this.perPixelTargetFind = true;
+    }
+}
+
+classRegistry.setClass(polyline);
+classRegistry.setClass(polygon);
 
 // 颜色选择
 
