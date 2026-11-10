@@ -3985,7 +3985,7 @@ const colorPopover = view("y").class(Class.gap, Class.glassBar).style({
     inset: "auto",
     display: "none",
     margin: 0,
-    padding: "4px",
+    padding: "0px",
     width: "224px",
     maxHeight: "calc(100vh - 8px)",
     overflowX: "hidden",
@@ -3996,12 +3996,11 @@ const colorPopover = view("y").class(Class.gap, Class.glassBar).style({
     visibility: "hidden",
     zIndex: "120",
 });
-const colorTabs = view("x").style({ gap: "2px" });
+const colorTabs = view("x");
 const colorGrid = view().style({
     display: "grid",
     width: "100%",
     gridTemplateColumns: "repeat(5, 1fr)",
-    gap: "2px",
 });
 const inlinePicker = colorPicker({
     inline: true,
