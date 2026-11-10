@@ -3978,25 +3978,24 @@ const elementBarBody = view()
 // 颜色弹层：旧色盘 + 项目取色器
 let colorPopoverTarget: ((v: string) => void) | null = null;
 let colorPopoverAnchor: HTMLElement | null = null;
+let colorPopoverOpen = false;
 let colorPopoverTab: "grid" | "picker" = "grid";
-const colorPopover = view("y")
-    .class(Class.gap, Class.glassBar)
-    .style({
-        position: "fixed",
-        inset: "auto",
-        margin: 0,
-        padding: "4px",
-        width: "224px",
-        maxHeight: "calc(100vh - 8px)",
-        overflowX: "hidden",
-        overflowY: "auto",
-        color: "var(--font-color)",
-        borderRadius: "var(--border-radius)",
-        boxShadow: "var(--shadow)",
-        visibility: "hidden",
-        zIndex: "120",
-    })
-    .attr({ popover: "manual" });
+const colorPopover = view("y").class(Class.gap, Class.glassBar).style({
+    position: "fixed",
+    inset: "auto",
+    display: "none",
+    margin: 0,
+    padding: "4px",
+    width: "224px",
+    maxHeight: "calc(100vh - 8px)",
+    overflowX: "hidden",
+    overflowY: "auto",
+    color: "var(--font-color)",
+    borderRadius: "var(--border-radius)",
+    boxShadow: "var(--shadow)",
+    visibility: "hidden",
+    zIndex: "120",
+});
 const colorTabs = view("x").style({ gap: "2px" });
 const colorGrid = view().style({
     display: "grid",
@@ -4030,7 +4029,7 @@ function setColorTab(tab: "grid" | "picker") {
     colorTabPicker.style({
         background: tab === "picker" ? "var(--bar-focus-color)" : "transparent",
     });
-    if (colorPopover.el.matches(":popover-open")) positionColorPopover();
+    if (colorPopoverOpen) positionColorPopover();
 }
 
 function renderColorGrid(hue?: number) {
@@ -4077,7 +4076,7 @@ function renderColorGrid(hue?: number) {
             });
         colorGrid.add(swatch);
     }
-    if (colorPopover.el.matches(":popover-open")) positionColorPopover();
+    if (colorPopoverOpen) positionColorPopover();
 }
 
 function applyPopoverColor(v: string, fromPicker: boolean) {
@@ -4093,8 +4092,7 @@ inlinePicker.on("input", () => {
 });
 
 function positionColorPopover() {
-    if (!colorPopover.el.matches(":popover-open") || !colorPopoverAnchor)
-        return;
+    if (!colorPopoverOpen || !colorPopoverAnchor) return;
     const rect = colorPopoverAnchor.getBoundingClientRect();
     const width = colorPopover.el.offsetWidth;
     const height = colorPopover.el.offsetHeight;
@@ -4135,8 +4133,10 @@ function onColorKey(e: KeyboardEvent) {
 }
 
 function closeColorPopover() {
-    if (colorPopover.el.matches(":popover-open")) colorPopover.el.hidePopover();
-    colorPopover.el.style.visibility = "hidden";
+    if (colorPopoverOpen) {
+        colorPopoverOpen = false;
+        colorPopover.style({ display: "none", visibility: "hidden" });
+    }
     colorPopoverTarget = null;
     colorPopoverAnchor = null;
     document.removeEventListener("pointerdown", onColorOutside, true);
@@ -4152,17 +4152,18 @@ function openColorPopover(
 ) {
     colorPopoverTarget = apply;
     colorPopoverAnchor = anchor;
-    const color = get();
-    inlinePicker.sv(color);
-    renderColorGrid();
-    setColorTab(colorPopoverTab);
-    if (!colorPopover.el.matches(":popover-open")) {
-        colorPopover.el.showPopover();
+    if (!colorPopoverOpen) {
+        colorPopoverOpen = true;
+        colorPopover.style({ display: "flex" });
         document.addEventListener("pointerdown", onColorOutside, true);
         document.addEventListener("keydown", onColorKey, true);
         window.addEventListener("resize", positionColorPopover);
         document.addEventListener("scroll", positionColorPopover, true);
     }
+    const color = get();
+    inlinePicker.sv(color);
+    renderColorGrid();
+    setColorTab(colorPopoverTab);
     positionColorPopover();
 }
 
@@ -5311,9 +5312,12 @@ document.onmousemove = (e) => {
             const isElementBar = elementBar.el.contains(
                 ev.target as HTMLElement,
             );
+            const isColorPopover =
+                colorPopoverOpen &&
+                colorPopover.el.contains(ev.target as HTMLElement);
             mouseBarEl.el.classList.toggle(
                 "mouse_bar_hide",
-                isDrawBar || isToolBar || isElementBar,
+                isDrawBar || isToolBar || isElementBar || isColorPopover,
             );
 
             // 画板栏移动

@@ -283,7 +283,7 @@ export function colorPicker(
         .attr({ popover: "manual" })
         .add([sv, hueTrack, alphaTrack, presets, valueText]);
     if (inline) {
-        root.clear().add([text, sv, hueTrack, alphaTrack, presets, valueText]);
+        root.clear().add([text, sv, hueTrack, alphaTrack, presets]);
         root.el.classList.remove(Class.group);
         root.style({
             "flex-flow": "column",
