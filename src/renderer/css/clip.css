@@ -617,7 +617,6 @@ body input {
 #element_bar .prop_pair > .prop_label {
     min-width: auto;
 }
-#element_bar input[type="number"],
 #element_bar input[type="text"] {
     width: 52px;
     height: 20px;
@@ -632,12 +631,6 @@ body input {
     border: none;
     border-radius: 3px;
     background: transparent;
-}
-#element_bar select {
-    height: 20px;
-    min-width: 58px;
-    font-size: 11px;
-    border-radius: 3px;
 }
 #element_bar textarea {
     width: 100%;
@@ -706,6 +699,99 @@ body input {
 }
 #element_bar .prop_alpha {
     width: 48px;
+}
+
+#element_bar .prop_num {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    height: 20px;
+    min-width: 58px;
+    border-radius: 3px;
+    outline: 1px solid var(--border-color);
+    outline-offset: -1px;
+    background-color: transparent;
+    overflow: hidden;
+    cursor: ew-resize;
+}
+#element_bar .prop_num_btn {
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 100%;
+    color: var(--font-color);
+    opacity: 0.75;
+    cursor: pointer;
+}
+#element_bar .prop_num_btn::before {
+    content: "";
+    width: 8px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+}
+#element_bar .prop_num_btn.plus::after {
+    content: "";
+    position: absolute;
+    width: 1.5px;
+    height: 8px;
+    border-radius: 1px;
+    background: currentColor;
+}
+#element_bar .prop_num_btn:hover {
+    background-color: var(--hover-color);
+    opacity: 1;
+}
+#element_bar .prop_num_value {
+    flex: 1 1 auto;
+    min-width: 24px;
+    padding: 0 2px;
+    color: var(--font-color);
+    font-family: var(--monospace);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: ew-resize;
+}
+
+#element_bar .prop_options {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 20px;
+    border-radius: 3px;
+    outline: 1px solid var(--border-color);
+    outline-offset: -1px;
+    overflow: hidden;
+}
+#element_bar .prop_option {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 4px;
+    overflow: hidden;
+    color: var(--font-color);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+#element_bar .prop_option + .prop_option {
+    box-shadow: inset 1px 0 var(--border-color);
+}
+#element_bar .prop_option:hover {
+    background-color: var(--hover-color);
+}
+#element_bar .prop_option.selected {
+    background-color: var(--bar-focus-color);
 }
 
 #element_bar .prop_mixed {

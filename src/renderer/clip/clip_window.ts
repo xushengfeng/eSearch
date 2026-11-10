@@ -66,7 +66,6 @@ import {
     input,
     p,
     pack,
-    select,
     setProperties,
     textarea,
     trackPoint,
@@ -5684,23 +5683,53 @@ function numberControl(
     set: (v: number) => void,
     step = 1,
     digits = 2,
+    min?: number,
+    max?: number,
 ) {
-    const i = input("number").attr({ step: String(step) });
-    const v = get();
-    if (v === undefined) {
-        i.el.placeholder = "—";
-        i.el.classList.add("prop_mixed");
-    } else {
-        const precision = 10 ** digits;
-        i.el.value = String(Math.round(v * precision) / precision);
-    }
-    i.on("input", () => {
-        const n = Number(i.gv);
-        if (!Number.isFinite(n)) return;
-        i.el.classList.remove("prop_mixed");
-        set(n);
+    const precision = 10 ** digits;
+    const round = (v: number) => Math.round(v * precision) / precision;
+    const fix = (v: number) => {
+        const lo = min ?? Number.NEGATIVE_INFINITY;
+        const hi = max ?? Number.POSITIVE_INFINITY;
+        return round(Math.min(hi, Math.max(lo, v)));
+    };
+    let value = get();
+    const valueEl = txt("", true).class("prop_num_value");
+    const show = () => {
+        if (value === undefined) {
+            valueEl.el.textContent = "—";
+            valueEl.el.classList.add("prop_mixed");
+        } else {
+            valueEl.el.textContent = String(round(value));
+            valueEl.el.classList.remove("prop_mixed");
+        }
+    };
+    const setValue = (v: number) => {
+        value = fix(v);
+        show();
+        set(value);
+    };
+    show();
+    const minus = view()
+        .class("prop_num_btn")
+        .class("minus")
+        .attr({ title: t("减少") })
+        .on("pointerdown", (e) => e.stopPropagation())
+        .on("click", () => setValue((value ?? 0) - step));
+    const plus = view()
+        .class("prop_num_btn")
+        .class("plus")
+        .attr({ title: t("增加") })
+        .on("pointerdown", (e) => e.stopPropagation())
+        .on("click", () => setValue((value ?? 0) + step));
+    const el = view("x").class("prop_num").add([minus, valueEl, plus]);
+    trackPoint(el, {
+        start: () => ({ x: 0, y: 0, data: fix(value ?? 0) }),
+        ing: (p, _e, { startData }) => {
+            setValue(startData + p.x * step);
+        },
     });
-    return i;
+    return el;
 }
 
 function propertyNumber(
@@ -5709,39 +5738,30 @@ function propertyNumber(
     set: (v: number) => void,
     step = 1,
     digits = 2,
+    min?: number,
+    max?: number,
 ) {
-    return propertyRow(label, numberControl(get, set, step, digits));
+    return propertyRow(label, numberControl(get, set, step, digits, min, max));
 }
 
-function rangeControl(
-    min: number,
-    max: number,
-    step: number,
-    get: () => number | undefined,
-    set: (v: number) => void,
-) {
-    const r = rangeBar(min, max, step).on("input", () => {
-        r.el.classList.remove("prop_mixed");
-        set(r.gv);
-    });
-    const v = get();
-    if (v === undefined) {
-        r.el.classList.add("prop_mixed");
-    } else {
-        r.sv(v);
-    }
-    return r;
+function stepDigits(step: number) {
+    const text = String(step);
+    const dot = text.indexOf(".");
+    return dot === -1 ? 0 : text.length - dot - 1;
 }
 
 function propertyRange(
     label: string | ElType<HTMLElement>,
     min: number,
-    max: number,
+    max: number | undefined,
     step: number,
     get: () => number | undefined,
     set: (v: number) => void,
 ) {
-    return propertyRow(label, rangeControl(min, max, step, get, set));
+    return propertyRow(
+        label,
+        numberControl(get, set, step, stepDigits(step), min, max),
+    );
 }
 
 function colorControl(get: () => string | undefined, set: (v: string) => void) {
@@ -5754,10 +5774,12 @@ function colorControl(get: () => string | undefined, set: (v: string) => void) {
     let c = value ? chroma(value) : chroma("#fff");
     const showColor = (inputColor: chroma.Color) => {
         color.sv(inputColor.hex());
-        color.style({
-            "background-color": inputColor.hex(),
-            color: pickTextColor(inputColor),
-        });
+        color.style({ color: pickTextColor(inputColor) });
+        color.el.style.setProperty(
+            "background-color",
+            inputColor.hex(),
+            "important",
+        );
         swatch.style({ "background-color": inputColor.hex() });
     };
     const applyValue = (v: string) => {
@@ -5804,14 +5826,30 @@ function propertySelect(
     get: () => string | undefined,
     set: (v: string) => void,
 ) {
-    const s = select(options);
-    const v = get();
-    if (v !== undefined) s.sv(v);
-    s.on("change", () => {
-        set(s.gv);
-        schedulePropertyHistory();
-    });
-    return propertyRow(label, s);
+    const buttons = options.map((item) => ({
+        value: item.value,
+        el: view()
+            .class("prop_option")
+            .attr({ title: t(item.name) })
+            .add(txt(item.name))
+            .on("click", () => {
+                if (get() === item.value) return;
+                set(item.value);
+                sync(item.value);
+                schedulePropertyHistory();
+            }),
+    }));
+    const sync = (v: string | undefined) => {
+        for (const b of buttons)
+            b.el.el.classList.toggle("selected", b.value === v);
+    };
+    sync(get());
+    return propertyRow(
+        label,
+        view("x")
+            .class("prop_options")
+            .add(buttons.map((b) => b.el)),
+    );
 }
 
 function propertyInput(
@@ -6037,7 +6075,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
             propertyRange(
                 propIcon("width", "线宽"),
                 0,
-                25,
+                undefined,
                 1,
                 () => getShapePro(kind).sw,
                 width,
@@ -6050,11 +6088,17 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                 "头宽",
                 () => arrowConfig.w,
                 (v) => setArrowDefault("w", v),
+                1,
+                0,
+                0,
             ),
             propertyNumber(
                 "头高",
                 () => arrowConfig.h,
                 (v) => setArrowDefault("h", v),
+                1,
+                0,
+                0,
             ),
         ]);
     }
@@ -6078,7 +6122,7 @@ function renderDrawToolPanel(modeType: EditType["draw"]) {
         propertyRange(
             propIcon("width", "粗细"),
             0,
-            25,
+            undefined,
             1,
             () => pro.sw,
             (v) => setFObjectV(null, null, v),
@@ -6086,7 +6130,7 @@ function renderDrawToolPanel(modeType: EditType["draw"]) {
         propertyRange(
             "阴影",
             0,
-            20,
+            undefined,
             1,
             () => pro.shadow ?? 0,
             (v) => {
@@ -6186,6 +6230,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                             }),
                         1,
                         0,
+                        0,
                     ),
                     "高",
                     numberControl(
@@ -6195,6 +6240,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                                 if (x.height) x.set({ scaleY: v / x.height });
                             }),
                         1,
+                        0,
                         0,
                     ),
                 ),
@@ -6234,7 +6280,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             propertyRange(
                 propIcon("width", "线宽"),
                 0,
-                25,
+                undefined,
                 1,
                 () => commonValue(objects, (o) => o.strokeWidth),
                 (v) => applyActive((o) => o.set("strokeWidth", v)),
@@ -6304,6 +6350,9 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                             t.set("fontSize", v);
                             t.initDimensions();
                         }),
+                    1,
+                    0,
+                    0,
                 ),
                 propertyRow(
                     "样式",
@@ -6369,6 +6418,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         }),
                     0.01,
                     2,
+                    0,
                 ),
                 propertyNumber(
                     "字距",
@@ -6395,11 +6445,17 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     "字号",
                     () => n.fontSize,
                     (v) => applyActive((x) => x.set("fontSize", v)),
+                    1,
+                    0,
+                    0,
                 ),
                 propertyNumber(
                     "半径",
                     () => n.radius,
                     (v) => applyActive((x) => x.set("radius", v)),
+                    1,
+                    0,
+                    0,
                 ),
             ]);
         } else if (kind === "line") {
@@ -6412,11 +6468,17 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     "头宽",
                     () => a.arrowW,
                     (v) => applyActive((x) => x.set("arrowW", v)),
+                    1,
+                    0,
+                    0,
                 ),
                 propertyNumber(
                     "头高",
                     () => a.arrowH,
                     (v) => applyActive((x) => x.set("arrowH", v)),
+                    1,
+                    0,
+                    0,
                 ),
                 propertySelect(
                     "样式",
@@ -6435,6 +6497,9 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     propIcon("corner", kind === "mask" ? "洞口圆角" : "圆角"),
                     () => r.rx || 0,
                     (v) => applyActive((x) => x.set({ rx: v, ry: v })),
+                    1,
+                    0,
+                    0,
                 ),
             );
             if (kind === "mask")
@@ -6447,6 +6512,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                                 x.set("feather", Math.max(0, v)),
                             ),
                         1,
+                        0,
                         0,
                     ),
                 );
