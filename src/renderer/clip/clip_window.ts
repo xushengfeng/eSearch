@@ -2941,37 +2941,97 @@ function undo(v: boolean) {
         });
 }
 
+type ShapeDash = "solid" | "dash" | "dot";
+
+const dashOptions = [
+    { name: "实线", value: "solid" },
+    { name: "虚线", value: "dash" },
+    { name: "点线", value: "dot" },
+];
+
+const shapeStyleDefaults = {
+    dash: "solid" as ShapeDash,
+    rx: 0,
+    feather: 0,
+    fontSize: 40,
+    fontFamily: "",
+    fontWeight: "normal" as "normal" | "bold",
+    fontStyle: "normal" as "normal" | "italic",
+    underline: false,
+    textAlign: "left" as "left" | "center" | "right",
+    lineHeight: 1.16,
+    charSpacing: 0,
+    radius: 12,
+};
+type ShapeStyleKey = keyof typeof shapeStyleDefaults;
+let shapeMainFont: string | undefined;
+
+function shapeStyleKeys(name: keyof typeof shapePro): ShapeStyleKey[] {
+    if (name === "mask") return ["rx", "feather"];
+    if (name === "rect") return ["dash", "rx"];
+    if (name === "text")
+        return [
+            "dash",
+            "fontFamily",
+            "fontSize",
+            "fontWeight",
+            "fontStyle",
+            "underline",
+            "textAlign",
+            "lineHeight",
+            "charSpacing",
+        ];
+    if (name === "number") return ["dash", "fontSize", "radius"];
+    if (name === "free" || name === "eraser" || name === "spray") return [];
+    return ["dash"];
+}
+
+function getShapeStyle(name: keyof typeof shapePro) {
+    const out = { ...shapeStyleDefaults };
+    if (shapeMainFont === undefined) shapeMainFont = store.get("字体").主要字体;
+    out.fontFamily = shapeMainFont;
+    if (name === "number") out.fontSize = 16;
+    const pro = shapePro[name] ?? {};
+    for (const k of shapeStyleKeys(name)) {
+        if (pro[k] !== undefined) {
+            (out as Record<string, unknown>)[k] = pro[k];
+            continue;
+        }
+        const stored = store.get(`图像编辑.形状属性.${name}.${k}` as never);
+        const value = stored ?? out[k];
+        (pro as Record<string, unknown>)[k] = value;
+        (out as Record<string, unknown>)[k] = value;
+    }
+    return out;
+}
+
+function dashArray(dash: string | undefined) {
+    return dash === "dot" ? [2, 4] : dash === "dash" ? [8, 6] : null;
+}
+
 function getShapePro(name: keyof typeof shapePro) {
+    if (!shapePro[name]) shapePro[name] = {};
     const v = {
         fc: name === "text" ? strokeColor : fillColor,
         sc: strokeColor,
         sw: strokeWidth,
         shadow: 0,
+        ...getShapeStyle(name),
     };
-    const free: (typeof name)[] = ["free", "eraser", "spray"];
-    if (free.includes(name)) {
+    if (name === "free" || name === "eraser" || name === "spray") {
         v.sc = freeColor;
         v.sw = freeWidth;
     }
-    if (!shapePro[name]) shapePro[name] = {};
 
     for (const x of ["fc", "sc", "sw", "shadow"] as const) {
         if (shapePro[name][x]) {
-            // @ts-ignore
-            v[x] = shapePro[name][x];
+            v[x] = shapePro[name][x] as never;
         } else {
-            // @ts-ignore
             shapePro[name][x] = v[x] =
                 store.get(`图像编辑.形状属性.${name}.${x}`) ?? v[x];
         }
     }
-    const nv: { fc: string; sc: string; sw: number; shadow?: number } = {
-        fc: v.fc,
-        sc: v.sc,
-        sw: v.sw,
-    };
-    if (free.includes(name)) nv.shadow = v.shadow;
-    return nv;
+    return v;
 }
 
 function setEditType<T extends keyof EditType>(
@@ -3223,6 +3283,7 @@ function draw(
 ) {
     const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
+    const dash = dashArray(pro.dash);
     if (v === "move") {
         removePreviewShape();
     }
@@ -3235,6 +3296,7 @@ function draw(
         shapeX = new line([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             originX: "left",
             originY: "top",
             形状: "line",
@@ -3249,6 +3311,7 @@ function draw(
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             canChangeFill: true,
             形状: "circle",
         });
@@ -3258,11 +3321,14 @@ function draw(
             top: y,
             width: w,
             height: h,
+            rx: pro.rx,
+            ry: pro.rx,
             originX: "left",
             originY: "top",
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             canChangeFill: true,
             形状: "rect",
         });
@@ -3273,15 +3339,26 @@ function draw(
             originX: "left",
             originY: "top",
             fill: fillColor,
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             canChangeFill: true,
             形状: "text",
-            fontFamily: 字体.主要字体,
+            fontFamily: pro.fontFamily,
+            fontSize: pro.fontSize,
+            fontWeight: pro.fontWeight,
+            fontStyle: pro.fontStyle,
+            underline: pro.underline,
+            textAlign: pro.textAlign,
+            lineHeight: pro.lineHeight,
+            charSpacing: pro.charSpacing,
         });
     } else if (shape === "arrow") {
         const arrowDefaults = store.get("图像编辑.arrow");
         shapeX = new arrow([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             arrowW: arrowDefaults.w,
             arrowH: arrowDefaults.h,
             arrowType: arrowDefaults.type,
@@ -3289,17 +3366,21 @@ function draw(
             形状: "arrow",
         });
     } else if (shape === "mask") {
-        shapeX = new mask({
+        const m = new mask({
             left: x,
             top: y,
             originX: "left",
             originY: "top",
             width: w,
             height: h,
+            rx: pro.rx,
+            ry: pro.rx,
             fill: fillColor,
             canChangeFill: true,
             形状: "mask",
         });
+        m.feather = pro.feather;
+        shapeX = m;
     }
     if (shapeX) {
         previewShape = shapeX;
@@ -3310,6 +3391,7 @@ function draw(
 function drawPoly(shape: EditType["shape"]) {
     const pro = getShapePro(shape);
     const [fillColor, strokeColor, strokeWidth] = [pro.fc, pro.sc, pro.sw];
+    const dash = dashArray(pro.dash);
     if (polyOP.length !== 1) {
         removePreviewShape();
     }
@@ -3319,6 +3401,7 @@ function drawPoly(shape: EditType["shape"]) {
             fill: "#0000",
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             originX: "left",
             originY: "top",
             形状: "polyline",
@@ -3329,6 +3412,7 @@ function drawPoly(shape: EditType["shape"]) {
             fill: fillColor,
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dash,
             originX: "left",
             originY: "top",
             canChangeFill: true,
@@ -3346,13 +3430,14 @@ function drawNumber(p: point) {
     const txt = new xnumber({
         left: p.x,
         top: p.y,
-        fontSize: 16,
-        radius: 12,
+        fontSize: pro.fontSize,
+        radius: pro.radius,
         originX: "center",
         originY: "center",
         fill: pro.fc,
         stroke: pro.sc,
         strokeWidth: pro.sw,
+        strokeDashArray: dashArray(pro.dash),
         canChangeFill: true,
         text: String(drawNumberN),
         objectCaching: false,
@@ -5988,20 +6073,23 @@ function kindTitle(kind: string | null) {
 
 function setShapeDefault(
     kind: EditType["shape"],
-    key: "fc" | "sc" | "sw",
-    value: string | number,
+    key: "fc" | "sc" | "sw" | ShapeStyleKey,
+    value: string | number | boolean,
 ) {
-    const pro = getShapePro(kind);
-    pro[key] = value as never;
+    const pro = shapePro[kind] ?? {};
+    (pro as Record<string, unknown>)[key] = value;
     shapePro[kind] = pro;
     store.set(`图像编辑.形状属性.${kind}.${key}` as never, value as never);
 }
 
-function setArrowDefault(key: "w" | "h", value: number) {
+function setArrowDefault(
+    key: "w" | "h" | "type",
+    value: number | "fill" | "stroke",
+) {
     const config = store.get("图像编辑.arrow");
-    config[key] = value;
+    config[key] = value as never;
     store.set("图像编辑.arrow", config);
-    arrowConfig[key] = value;
+    arrowConfig[key] = value as never;
 }
 
 function addHeader(
@@ -6062,7 +6150,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                 fill,
             ),
         );
-    if (kind !== "mask")
+    if (kind !== "mask") {
         elementBarBody.add(
             propertyColor(
                 propIcon("stroke", "描边"),
@@ -6070,7 +6158,6 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                 stroke,
             ),
         );
-    if (!["mask", "text"].includes(kind))
         elementBarBody.add(
             propertyRange(
                 propIcon("width", "线宽"),
@@ -6081,6 +6168,135 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                 width,
             ),
         );
+        elementBarBody.add(
+            propertySelect(
+                "虚线",
+                dashOptions,
+                () => getShapePro(kind).dash,
+                (v) => setShapeDefault(kind, "dash", v),
+            ),
+        );
+    }
+
+    if (kind === "rect" || kind === "mask") {
+        elementBarBody.add(
+            propertyNumber(
+                propIcon("corner", kind === "mask" ? "洞口圆角" : "圆角"),
+                () => getShapePro(kind).rx,
+                (v) => setShapeDefault(kind, "rx", v),
+                1,
+                0,
+                0,
+            ),
+        );
+        if (kind === "mask")
+            elementBarBody.add(
+                propertyNumber(
+                    "羽化",
+                    () => getShapePro(kind).feather,
+                    (v) => setShapeDefault(kind, "feather", v),
+                    1,
+                    0,
+                    0,
+                ),
+            );
+    }
+
+    if (kind === "text") {
+        elementBarBody.add([
+            propertyInput(
+                "字体",
+                () => getShapePro("text").fontFamily,
+                (v) => setShapeDefault("text", "fontFamily", v),
+            ),
+            propertyNumber(
+                "字号",
+                () => getShapePro("text").fontSize,
+                (v) => setShapeDefault("text", "fontSize", v),
+                1,
+                0,
+                0,
+            ),
+            propertyRow(
+                "样式",
+                view("x")
+                    .style({ gap: "2px", alignItems: "center" })
+                    .add([
+                        toggleButton(
+                            "B",
+                            () => getShapePro("text").fontWeight === "bold",
+                            (v) =>
+                                setShapeDefault(
+                                    "text",
+                                    "fontWeight",
+                                    v ? "bold" : "normal",
+                                ),
+                        ),
+                        toggleButton(
+                            "I",
+                            () => getShapePro("text").fontStyle === "italic",
+                            (v) =>
+                                setShapeDefault(
+                                    "text",
+                                    "fontStyle",
+                                    v ? "italic" : "normal",
+                                ),
+                        ),
+                        toggleButton(
+                            "U",
+                            () => getShapePro("text").underline === true,
+                            (v) => setShapeDefault("text", "underline", v),
+                        ),
+                    ]),
+            ),
+            propertySelect(
+                "对齐",
+                [
+                    { name: "左", value: "left" },
+                    { name: "中", value: "center" },
+                    { name: "右", value: "right" },
+                ],
+                () => getShapePro("text").textAlign,
+                (v) => setShapeDefault("text", "textAlign", v),
+            ),
+            propertyNumber(
+                "行高",
+                () => getShapePro("text").lineHeight,
+                (v) => setShapeDefault("text", "lineHeight", v),
+                0.01,
+                2,
+                0,
+            ),
+            propertyNumber(
+                "字距",
+                () => getShapePro("text").charSpacing,
+                (v) => setShapeDefault("text", "charSpacing", v),
+                1,
+                0,
+            ),
+        ]);
+    }
+
+    if (kind === "number") {
+        elementBarBody.add([
+            propertyNumber(
+                "字号",
+                () => getShapePro("number").fontSize,
+                (v) => setShapeDefault("number", "fontSize", v),
+                1,
+                0,
+                0,
+            ),
+            propertyNumber(
+                "半径",
+                () => getShapePro("number").radius,
+                (v) => setShapeDefault("number", "radius", v),
+                1,
+                0,
+                0,
+            ),
+        ]);
+    }
 
     if (kind === "arrow") {
         elementBarBody.add([
@@ -6099,6 +6315,15 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                 1,
                 0,
                 0,
+            ),
+            propertySelect(
+                "样式",
+                [
+                    { name: "实心", value: "fill" },
+                    { name: "空心", value: "stroke" },
+                ],
+                () => arrowConfig.type,
+                (v) => setArrowDefault("type", v as "fill" | "stroke"),
             ),
         ]);
     }
@@ -6290,11 +6515,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             elementBarBody.add(
                 propertySelect(
                     "虚线",
-                    [
-                        { name: "实线", value: "solid" },
-                        { name: "虚线", value: "dash" },
-                        { name: "点线", value: "dot" },
-                    ],
+                    dashOptions,
                     () => {
                         const dash = (objects[0] as FabricObject)
                             .strokeDashArray;
@@ -6303,14 +6524,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     },
                     (v) =>
                         applyActive((o) =>
-                            o.set(
-                                "strokeDashArray",
-                                v === "solid"
-                                    ? null
-                                    : v === "dot"
-                                      ? [2, 4]
-                                      : [8, 6],
-                            ),
+                            o.set("strokeDashArray", dashArray(v)),
                         ),
                 ),
             );

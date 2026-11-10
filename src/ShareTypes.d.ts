@@ -152,6 +152,18 @@ export interface setting {
                 sc?: string;
                 sw?: number;
                 shadow?: number;
+                dash?: "solid" | "dash" | "dot";
+                rx?: number;
+                feather?: number;
+                fontSize?: number;
+                fontFamily?: string;
+                fontWeight?: "normal" | "bold";
+                fontStyle?: "normal" | "italic";
+                underline?: boolean;
+                textAlign?: "left" | "center" | "right";
+                lineHeight?: number;
+                charSpacing?: number;
+                radius?: number;
             };
         };
         记忆: EditType;
