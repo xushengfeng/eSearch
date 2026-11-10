@@ -397,7 +397,12 @@ const defaultSetting: setting = {
             y: 10,
         },
         形状属性: {
-            arrow: { sw: 3 },
+            arrow: {
+                sw: 3,
+                arrowW: 10,
+                arrowH: 16,
+                arrowType: "stroke",
+            },
             mask: { fc: "#0005" },
         },
         记忆: {
@@ -405,11 +410,6 @@ const defaultSetting: setting = {
             draw: "free",
             shape: "rect",
             filter: "pixelate",
-        },
-        arrow: {
-            type: "stroke",
-            w: 10,
-            h: 16,
         },
         收藏: {
             color: [],

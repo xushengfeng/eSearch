@@ -2966,6 +2966,26 @@ const shapeStyleDefaults = {
 type ShapeStyleKey = keyof typeof shapeStyleDefaults;
 let shapeMainFont: string | undefined;
 
+const arrowStyleDefaults = {
+    arrowW: 10,
+    arrowH: 16,
+    arrowType: "stroke" as "fill" | "stroke",
+};
+type ArrowStyleKey = keyof typeof arrowStyleDefaults;
+
+function getArrowPro() {
+    if (!shapePro.arrow) shapePro.arrow = {};
+    const pro = shapePro.arrow;
+    const out = { ...arrowStyleDefaults };
+    for (const k of Object.keys(arrowStyleDefaults) as ArrowStyleKey[]) {
+        const value =
+            pro[k] ?? store.get(`图像编辑.形状属性.arrow.${k}`) ?? out[k];
+        (pro as Record<string, unknown>)[k] = value;
+        out[k] = value as never;
+    }
+    return out;
+}
+
 function shapeStyleKeys(name: keyof typeof shapePro): ShapeStyleKey[] {
     if (name === "mask") return ["rx", "feather"];
     if (name === "rect") return ["dash", "rx"];
@@ -3091,7 +3111,6 @@ function setEditType<T extends keyof EditType>(
     if (mainType === "draw") {
         fabricCanvas.isDrawingMode = true;
         mode = type as EditType["draw"];
-        freeInit();
         if (type === "free") {
             pencilElClick();
         }
@@ -3104,7 +3123,6 @@ function setEditType<T extends keyof EditType>(
         exitShape();
         exitFilter();
         freeDrawCursor();
-        ableChangeColor();
     }
     if (mainType === "filter") {
         willFilter = type as EditType["filter"];
@@ -3121,27 +3139,15 @@ function setEditType<T extends keyof EditType>(
             removePreviewShape();
         }
         shape = type as Shape;
-        if (shape) {
-            const sPro = getShapePro(shape);
-            colorFillEl.sv(sPro.fc);
-            colorStrokeEl.sv(sPro.sc);
-            strokeWidthEl.sv(sPro.sw);
-        }
 
         exitFree();
         exitFilter();
         fabricCanvas.defaultCursor = "crosshair";
-
-        ableChangeColor();
     }
 
     if (!(mainType === "select" && type === "draw"))
         store.set(`图像编辑.记忆.${mainType}`, type);
 
-    setOnlyStroke(
-        mainType === "draw" ||
-            (mainType === "shape" && strokeShapes.includes(type)),
-    );
     refreshPropertyPanel();
 }
 
@@ -3249,19 +3255,10 @@ function freeDrawCursor() {
     }
 }
 
-function freeInit() {
-    const { sc, sw, shadow } = getShapePro(mode);
-    setDrawMode("stroke");
-    colorStrokeEl.sv(sc);
-    strokeWidthEl.sv(sw);
-    shadowBlurEl.sv(shadow);
-}
-
 function fabricDelete() {
     for (const o of fabricCanvas.getActiveObjects()) {
         fabricCanvas.remove(o);
     }
-    getFObjectV();
     getFilters();
     hisPush();
 }
@@ -3354,14 +3351,14 @@ function draw(
             charSpacing: pro.charSpacing,
         });
     } else if (shape === "arrow") {
-        const arrowDefaults = store.get("图像编辑.arrow");
+        const arrowPro = getArrowPro();
         shapeX = new arrow([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
             strokeDashArray: dash,
-            arrowW: arrowDefaults.w,
-            arrowH: arrowDefaults.h,
-            arrowType: arrowDefaults.type,
+            arrowW: arrowPro.arrowW,
+            arrowH: arrowPro.arrowH,
+            arrowType: arrowPro.arrowType,
             objectCaching: false,
             形状: "arrow",
         });
@@ -3450,32 +3447,6 @@ function drawNumber(p: point) {
     hisPush();
 }
 
-/** 切换当前颜色设定的ui */
-function setDrawMode(m: typeof colorM) {
-    colorM = m;
-    if (m === "fill") {
-        colorFillEl.style({ height: "" });
-        colorStrokeEl.style({ height: "0" });
-        drawStrokeWidth.style({ height: "0" });
-        drawColorSwitchMark.style({ top: 0 }).attr({ title: "当前为填充" });
-    } else {
-        colorFillEl.style({ height: "0" });
-        colorStrokeEl.style({ height: "" });
-        drawStrokeWidth.style({ height: "" });
-        drawColorSwitchMark.style({ top: "calc(var(--bar-size) / 2)" }).attr({
-            title: "当前为描边",
-        });
-    }
-}
-
-function ableChangeColor() {
-    if (fabricCanvas.isDrawingMode || shape || fabricCanvas.getActiveObject()) {
-        drawColorSide.style({ pointerEvents: "auto", opacity: "1" });
-    } else {
-        drawColorSide.style({ pointerEvents: "none", opacity: "0.2" });
-    }
-}
-
 function pickTextColor(bg: chroma.Color, c1 = "#fff", c2 = "#000") {
     // todo 主题色
     if (chroma.contrast(bg, c1) > chroma.contrast(bg, c2)) {
@@ -3484,251 +3455,35 @@ function pickTextColor(bg: chroma.Color, c1 = "#fff", c2 = "#000") {
     return c2;
 }
 
-function colorInput(type: "fill" | "stroke") {
-    const i = input().on("input", () => {
-        setC();
-        main.el.dispatchEvent(new Event("input"));
-    });
-    const alpha = rangeBar(0, 1, 0.01).on("input", () => {
-        setC();
-        main.el.dispatchEvent(new Event("input"));
-    });
-
-    function getInputV() {
-        return chroma(i.gv).alpha(Number(alpha.gv));
-    }
-    function setC() {
-        const color = getInputV();
-        i.style({ "background-color": color.hex() });
-
-        let textColor = "#000";
-        const tColor = color;
-        const bgColor = chroma(
-            window
-                .getComputedStyle(document.documentElement)
-                .getPropertyValue("--bar-bg0"),
-        );
-        if (tColor.alpha() >= 0.5 || tColor.alpha() === undefined) {
-            textColor = pickTextColor(tColor); // todo 直接混合
-        } else {
-            // 低透明度背景呈现栏的颜色
-            textColor = pickTextColor(bgColor);
-        }
-        i.style({ color: textColor });
-
-        if (type === "fill") {
-            drawColorEl.el.style.backgroundColor = color.hex();
-        }
-        if (type === "stroke") {
-            drawColorEl.el.style.borderColor = color.hex();
-        }
-    }
-    const main = view()
-        .add([i, alpha])
-        .bindSet((v: string) => {
-            const color = chroma(v);
-            i.sv(color.hex());
-            alpha.sv(color.alpha());
-            setC();
-        })
-        .bindGet(() => {
-            return getInputV().hex();
-        });
-    return main;
-}
-
-/** 主编辑栏的属性预览显示为描边 */
-function setOnlyStroke(b: boolean) {
-    const el = drawColorEl;
-    if (b) {
-        el.style({
-            width: 0,
-            rotate: "45deg",
-        });
-    } else {
-        el.style({
-            width: "",
-            rotate: "",
-        });
-    }
-    setDrawMode(b ? "stroke" : "fill");
-}
-
-// 色盘
-function colorBar() {
-    // 主盘
-    const colorList = [0];
-    for (let i = 0; i < 360; i += 15) {
-        colorList.push(i);
-    }
-    let isNext = false;
-    showColor();
-    // 下一层级
-    function nextColor(h: number) {
-        const nextColorList: string[] = [];
-        if (h === 0) {
-            for (let i = 0; i < 25; i++) {
-                const x = (100 / 24) * (24 - i);
-                nextColorList.push(`hsl(0, 0%, ${x}%)`);
-            }
-        } else {
-            for (let i = 90; i > 0; i -= 20) {
-                for (let j = 100; j > 0; j -= 20) {
-                    nextColorList.push(`hsl(${h}, ${j}%, ${i}%)`);
-                }
-            }
-        }
-        drawColorColor.clear().add(
-            Object.values(nextColorList).map((v) => {
-                return view()
-                    .class("color_i")
-                    .style({
-                        "background-color": v,
-                    })
-                    .data({
-                        title: colorConversion(
-                            chroma(v).rgba(),
-                            取色器默认格式,
-                        ),
-                    });
-            }),
-        );
-    }
-    function showColor() {
-        drawColorColor.clear().add(
-            colorList.map((x, i) => {
-                return view()
-                    .class("color_i")
-                    .style({
-                        "background-color":
-                            i === 0 ? "#fff" : `hsl(${x}, 100%, 50%)`,
-                    })
-                    .data({
-                        i: i.toString(),
-                        title: colorConversion(
-                            chroma(x).rgba(),
-                            取色器默认格式,
-                        ),
-                    });
-            }),
-        );
-    }
-    // 事件
-    function cColor(el: HTMLElement) {
-        const color = el.style.backgroundColor;
-        if (colorM === "fill") {
-            colorFillEl.sv(color);
-            setFObjectV(color, null, null);
-        }
-        if (colorM === "stroke") {
-            colorStrokeEl.sv(color);
-            setFObjectV(null, color, null);
-        }
-    }
-    drawColorColor.on("pointerdown", (e) => {
-        const el = e.target as HTMLElement;
-        if (e.button === 0) {
-            cColor(el);
-        } else {
-            isNext = !isNext;
-            if (isNext) {
-                const index = Number(el.getAttribute("data-i"));
-                nextColor(colorList[index]);
-            } else {
-                showColor();
-            }
-        }
-    });
-}
-
-/** 鼠标点击后，改变栏文字样式 */
-function getFObjectV() {
-    const pro: {
-        fc: string | undefined;
-        sc: string | undefined;
-        sw: number | undefined;
-    } = { fc: fillColor, sc: strokeColor, sw: strokeWidth };
-    const n = fabricCanvas.getActiveObject();
-    if (n) {
-        // todo 当线与形一起选中，确保形不会透明
-        pro.fc = n.fill?.toString();
-        pro.sc = n.stroke?.toString();
-        pro.sw = n.strokeWidth;
-        if ((n as FabricImage).filters) {
-            pro.fc = fillColor;
-            pro.sc = strokeColor;
-            pro.sw = strokeWidth;
-        }
-        setOnlyStroke(!n.canChangeFill);
-    } else if (fabricCanvas.isDrawingMode) {
-        pro.fc = shapePro.free?.sc;
-        pro.sc = shapePro.free?.sc;
-        pro.sw = shapePro.free?.sw;
-    } else {
-        if (nowType === "shape" || nowType === "draw") {
-            const p = shapePro[editType[nowType]];
-            pro.fc = p?.fc;
-            pro.sc = p?.sc;
-            pro.sw = p?.sw;
-        }
-    }
-    strokeWidthEl.sv(pro.sw ?? strokeWidth);
-    colorFillEl.sv(pro.fc ?? fillColor);
-    colorStrokeEl.sv(pro.sc ?? strokeColor);
-
-    ableChangeColor();
-}
-/**
- * 更改全局或选中形状的颜色
- * @param {String} fill 填充颜色
- * @param {String} stroke 边框颜色
- * @param {Number} sw 边框宽度
- */
-function setFObjectV(
-    fill: string | null,
-    stroke: string | null,
-    sw: number | null,
-) {
-    if (fabricCanvas.getActiveObject()) {
-        /* 选中Object */
-        const n = fabricCanvas.getActiveObjects();
-        for (const i of n) {
-            if (fill) {
-                // 只改变形的颜色
-                if (i.canChangeFill) i.set("fill", fill);
-            }
-            if (stroke) i.set("stroke", stroke);
-            if (sw) i.set("strokeWidth", sw);
-        }
-        fabricCanvas.renderAll();
-    } else if (fabricCanvas.isDrawingMode) {
-        /* 画笔 */
-        if (stroke) {
-            if (fabricCanvas.freeDrawingBrush)
-                fabricCanvas.freeDrawingBrush.color = stroke;
-            const s = shapePro[editType.draw];
-            if (s) s.sc = stroke;
-        }
-        if (sw) {
-            if (fabricCanvas.freeDrawingBrush)
-                fabricCanvas.freeDrawingBrush.width = sw;
-            const s = shapePro[editType.draw];
-            if (s) s.sw = sw;
-        }
+/** 画笔类工具的颜色和粗细 */
+function setFreePro(key: "sc" | "sw", value: string | number) {
+    const brush = fabricCanvas.freeDrawingBrush;
+    if (key === "sc" && brush && typeof value === "string") {
+        brush.color = value;
         freeDrawCursor();
-        freeShadow();
-        if (mode) {
-            store.set(`图像编辑.形状属性.${mode}.sc`, stroke || strokeColor);
-            store.set(`图像编辑.形状属性.${mode}.sw`, sw || strokeWidth);
-        }
-    } else {
-        /* 非画笔非选中 */
-        const pro = shapePro[editType.shape] ?? {};
-        if (fill) pro.fc = fill;
-        if (stroke) pro.sc = stroke;
-        if (sw) pro.sw = sw;
-        store.set(`图像编辑.形状属性.${editType.shape}`, pro);
     }
+    if (key === "sw" && brush && typeof value === "number") {
+        brush.width = value;
+        freeDrawCursor();
+    }
+    freeShadow();
+    setShapeDefault(editType.draw, key, value);
+}
+
+/** 用滚轮或方向键调整当前工具的线宽 */
+function adjustStrokeWidth(delta: number) {
+    const kind = nowType === "draw" ? mode : nowType === "shape" ? shape : "";
+    if (!kind) return;
+    const sw = Math.max(
+        1,
+        Math.floor((getShapePro(kind).sw ?? strokeWidth) + delta),
+    );
+    if (fabricCanvas.isDrawingMode && fabricCanvas.freeDrawingBrush) {
+        fabricCanvas.freeDrawingBrush.width = sw;
+        freeDrawCursor();
+    }
+    setShapeDefault(kind, "sw", sw);
+    refreshPropertyPanel();
 }
 
 function newFilterSelect(o: point, no: point) {
@@ -4052,8 +3807,6 @@ const drawBarSideEl = view()
     .class(Class.glassBar)
     .addInto(drawBarEl);
 
-const drawColorEl = view();
-
 const drawMainElsx = {
     select: iconEl("rect_select").attr({
         id: "draw_select",
@@ -4085,8 +3838,6 @@ const drawSideFree = {
     eraser: iconEl("eraser").attr({ title: "橡皮" }),
     spray: iconEl("spray").attr({ title: "喷刷" }),
 } as const;
-
-const drawShadowBlur = view().attr({ id: "shadow_blur" });
 
 const drawSideShapes = {
     line: iconEl("line").attr({ title: "线条" }),
@@ -4135,27 +3886,6 @@ const drawSideFiltersAll = {
     ...drawSideFiltersMoreGray,
     ...drawSideFiltersMore,
 } as const;
-
-const drawColorSwitchP = view().attr({ id: "draw_color_switch" });
-const drawColorSwitchMark = view()
-    .attr({ id: "draw_fill_storke_mark" })
-    .addInto(drawColorSwitchP);
-drawColorSwitchP.add(
-    image(getImgUrl("fill_storke.svg"), "icon")
-        .class("icon")
-        .style({ zIndex: 1 }),
-);
-
-const drawColorP = view().attr({ id: "draw_color_p" });
-const drawColorColor = view().attr({ id: "draw_color_color" });
-const drawStrokeWidth = view().attr({ id: "draw_stroke_width" });
-
-const drawColorSide = drawSideGen2("color_size").add([
-    drawColorSwitchP,
-    drawColorP,
-    drawColorColor,
-    drawStrokeWidth,
-]);
 
 const drawSidePosition = {
     front: iconEl("position_front").attr({ title: "移动到最顶端" }),
@@ -4496,15 +4226,6 @@ const suffixList = saveTypeList.map((i) =>
 );
 view().attr({ id: "suffix" }).add(suffixList).addInto(saveType);
 
-const colorFillEl = colorInput("fill").on("input", () => {
-    setFObjectV(colorFillEl.gv, null, null);
-});
-const colorStrokeEl = colorInput("stroke").on("input", () => {
-    setFObjectV(colorStrokeEl.gv, null, null);
-});
-
-drawColorP.add([colorFillEl, colorStrokeEl]);
-
 const editor = view().attr({ id: "editor" }).addInto();
 const mainCanvas = ele("canvas").attr({ id: "main_photo" }).el;
 const clipEl = ele("div").attr({ id: "clip_photo" }).el;
@@ -4810,7 +4531,6 @@ function removePreviewShape() {
     }
 }
 const unnormalShapes = ["polyline", "polygon", "number"];
-const strokeShapes = ["line", "polyline", "arrow"];
 let drawOP: [number, number] = [0, 0]; // 首次按下的点
 let polyOP: point[] = []; // 多边形点
 let newFilterO: Point | null = null;
@@ -4827,9 +4547,6 @@ declare module "fabric" {
         形状?: Shape;
     }
 }
-
-/** 规定当前色盘对应的是填充还是边框 */
-let colorM: "fill" | "stroke" = "fill";
 
 let newFilterSelecting = false;
 
@@ -5047,10 +4764,7 @@ document.onwheel = (e) => {
     document.body.classList.add("editor_bg");
 
     if ((nowType === "draw" || nowType === "shape") && !e.ctrlKey) {
-        let v = strokeWidthEl.gv;
-        v += e.deltaY / 50;
-        v = Math.max(1, v);
-        strokeWidthF.set(v);
+        adjustStrokeWidth(e.deltaY / 50);
         return;
     }
 
@@ -5314,10 +5028,9 @@ document.body.onkeydown = (e) => {
     };
     if (nowType === "draw" || nowType === "shape") {
         if (!(e.key in o)) return;
-        let v = strokeWidthEl.gv;
-        v += e.key === "ArrowUp" || e.key === "ArrowRight" ? 1 : -1;
-        v = Math.max(1, v);
-        strokeWidthF.set(v);
+        adjustStrokeWidth(
+            e.key === "ArrowUp" || e.key === "ArrowRight" ? 1 : -1,
+        );
         return;
     }
     let v = 1;
@@ -5763,6 +5476,24 @@ function applyActive(f: (o: FabricObject) => void) {
     scheduleElementBarPosition();
 }
 
+/** 元素属性对应的形状记忆，滤镜图片没有 */
+function objectShapeKind(kind: string | null) {
+    if (!kind || kind === "filter") return null;
+    return (kind === "path" ? "free" : kind) as keyof typeof shapePro;
+}
+
+/** 修改选中元素的属性时，同样记为同形状下次的默认属性 */
+function applyActiveRemember(
+    kind: string | null,
+    key: "fc" | "sc" | "sw" | ShapeStyleKey | ArrowStyleKey,
+    value: string | number | boolean,
+    f: (o: FabricObject) => void,
+) {
+    applyActive(f);
+    const memoryKind = objectShapeKind(kind);
+    if (memoryKind) setShapeDefault(memoryKind, key, value);
+}
+
 function numberControl(
     get: () => number | undefined,
     set: (v: number) => void,
@@ -6072,24 +5803,14 @@ function kindTitle(kind: string | null) {
 }
 
 function setShapeDefault(
-    kind: EditType["shape"],
-    key: "fc" | "sc" | "sw" | ShapeStyleKey,
+    kind: keyof typeof shapePro,
+    key: "fc" | "sc" | "sw" | "shadow" | ShapeStyleKey | ArrowStyleKey,
     value: string | number | boolean,
 ) {
     const pro = shapePro[kind] ?? {};
     (pro as Record<string, unknown>)[key] = value;
     shapePro[kind] = pro;
     store.set(`图像编辑.形状属性.${kind}.${key}` as never, value as never);
-}
-
-function setArrowDefault(
-    key: "w" | "h" | "type",
-    value: number | "fill" | "stroke",
-) {
-    const config = store.get("图像编辑.arrow");
-    config[key] = value as never;
-    store.set("图像编辑.arrow", config);
-    arrowConfig[key] = value as never;
 }
 
 function addHeader(
@@ -6302,16 +6023,16 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
         elementBarBody.add([
             propertyNumber(
                 "头宽",
-                () => arrowConfig.w,
-                (v) => setArrowDefault("w", v),
+                () => getArrowPro().arrowW,
+                (v) => setShapeDefault("arrow", "arrowW", v),
                 1,
                 0,
                 0,
             ),
             propertyNumber(
                 "头高",
-                () => arrowConfig.h,
-                (v) => setArrowDefault("h", v),
+                () => getArrowPro().arrowH,
+                (v) => setShapeDefault("arrow", "arrowH", v),
                 1,
                 0,
                 0,
@@ -6322,8 +6043,13 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                     { name: "实心", value: "fill" },
                     { name: "空心", value: "stroke" },
                 ],
-                () => arrowConfig.type,
-                (v) => setArrowDefault("type", v as "fill" | "stroke"),
+                () => getArrowPro().arrowType,
+                (v) =>
+                    setShapeDefault(
+                        "arrow",
+                        "arrowType",
+                        v as "fill" | "stroke",
+                    ),
             ),
         ]);
     }
@@ -6334,13 +6060,12 @@ function renderDrawToolPanel(modeType: EditType["draw"]) {
     addHeader(
         `${modeType === "eraser" ? "橡皮" : modeType === "spray" ? "喷刷" : "画笔"} · 默认`,
     );
-    const pro = getShapePro(modeType);
     if (modeType !== "eraser")
         elementBarBody.add(
             propertyColor(
                 propIcon("stroke", "颜色"),
-                () => pro.sc,
-                (v) => setFObjectV(null, v, null),
+                () => getShapePro(modeType).sc,
+                (v) => setFreePro("sc", v),
             ),
         );
     elementBarBody.add([
@@ -6349,20 +6074,17 @@ function renderDrawToolPanel(modeType: EditType["draw"]) {
             0,
             undefined,
             1,
-            () => pro.sw,
-            (v) => setFObjectV(null, null, v),
+            () => getShapePro(modeType).sw,
+            (v) => setFreePro("sw", v),
         ),
         propertyRange(
             "阴影",
             0,
             undefined,
             1,
-            () => pro.shadow ?? 0,
+            () => getShapePro(modeType).shadow ?? 0,
             (v) => {
-                const p = getShapePro(modeType);
-                p.shadow = v;
-                shapePro[modeType] = p;
-                store.set(`图像编辑.形状属性.${modeType}.shadow`, v);
+                setShapeDefault(modeType, "shadow", v);
                 freeShadow();
             },
         ),
@@ -6494,7 +6216,8 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             propertyColor(
                 propIcon("fill", kind === "text" ? "文字颜色" : "填充"),
                 () => commonValue(objects, (o) => o.fill?.toString()),
-                (v) => applyActive((o) => o.set("fill", v)),
+                (v) =>
+                    applyActiveRemember(kind, "fc", v, (o) => o.set("fill", v)),
             ),
         );
     if (canStroke) {
@@ -6502,7 +6225,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             propertyColor(
                 propIcon("stroke", "描边"),
                 () => commonValue(objects, (o) => o.stroke?.toString()),
-                (v) => applyActive((o) => o.set("stroke", v)),
+                (v) =>
+                    applyActiveRemember(kind, "sc", v, (o) =>
+                        o.set("stroke", v),
+                    ),
             ),
             propertyRange(
                 propIcon("width", "线宽"),
@@ -6510,7 +6236,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 undefined,
                 1,
                 () => commonValue(objects, (o) => o.strokeWidth),
-                (v) => applyActive((o) => o.set("strokeWidth", v)),
+                (v) =>
+                    applyActiveRemember(kind, "sw", v, (o) =>
+                        o.set("strokeWidth", v),
+                    ),
             ),
         ]);
         if (single) {
@@ -6525,7 +6254,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         return dash[0] <= 2 ? "dot" : "dash";
                     },
                     (v) =>
-                        applyActive((o) =>
+                        applyActiveRemember(kind, "dash", v, (o) =>
                             o.set("strokeDashArray", dashArray(v)),
                         ),
                 ),
@@ -6551,7 +6280,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     "字体",
                     () => (o as IText).fontFamily,
                     (v) =>
-                        applyActive((x) => {
+                        applyActiveRemember(kind, "fontFamily", v, (x) => {
                             const t = x as IText;
                             t.set("fontFamily", v);
                             t.initDimensions();
@@ -6561,7 +6290,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     "字号",
                     () => (o as IText).fontSize,
                     (v) =>
-                        applyActive((x) => {
+                        applyActiveRemember(kind, "fontSize", v, (x) => {
                             const t = x as IText;
                             t.set("fontSize", v);
                             t.initDimensions();
@@ -6579,37 +6308,52 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                                 "B",
                                 () => (o as IText).fontWeight === "bold",
                                 (v) =>
-                                    applyActive((x) => {
-                                        const t = x as IText;
-                                        t.set(
-                                            "fontWeight",
-                                            v ? "bold" : "normal",
-                                        );
-                                        t.initDimensions();
-                                    }),
+                                    applyActiveRemember(
+                                        kind,
+                                        "fontWeight",
+                                        v ? "bold" : "normal",
+                                        (x) => {
+                                            const t = x as IText;
+                                            t.set(
+                                                "fontWeight",
+                                                v ? "bold" : "normal",
+                                            );
+                                            t.initDimensions();
+                                        },
+                                    ),
                             ),
                             toggleButton(
                                 "I",
                                 () => (o as IText).fontStyle === "italic",
                                 (v) =>
-                                    applyActive((x) => {
-                                        const t = x as IText;
-                                        t.set(
-                                            "fontStyle",
-                                            v ? "italic" : "normal",
-                                        );
-                                        t.initDimensions();
-                                    }),
+                                    applyActiveRemember(
+                                        kind,
+                                        "fontStyle",
+                                        v ? "italic" : "normal",
+                                        (x) => {
+                                            const t = x as IText;
+                                            t.set(
+                                                "fontStyle",
+                                                v ? "italic" : "normal",
+                                            );
+                                            t.initDimensions();
+                                        },
+                                    ),
                             ),
                             toggleButton(
                                 "U",
                                 () => (o as IText).underline === true,
                                 (v) =>
-                                    applyActive((x) => {
-                                        const t = x as IText;
-                                        t.set("underline", v);
-                                        t.initDimensions();
-                                    }),
+                                    applyActiveRemember(
+                                        kind,
+                                        "underline",
+                                        v,
+                                        (x) => {
+                                            const t = x as IText;
+                                            t.set("underline", v);
+                                            t.initDimensions();
+                                        },
+                                    ),
                             ),
                         ]),
                 ),
@@ -6621,13 +6365,16 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         { name: "右", value: "right" },
                     ],
                     () => (o as IText).textAlign,
-                    (v) => applyActive((x) => x.set("textAlign", v)),
+                    (v) =>
+                        applyActiveRemember(kind, "textAlign", v, (x) =>
+                            x.set("textAlign", v),
+                        ),
                 ),
                 propertyNumber(
                     "行高",
                     () => (o as IText).lineHeight,
                     (v) =>
-                        applyActive((x) => {
+                        applyActiveRemember(kind, "lineHeight", v, (x) => {
                             const t = x as IText;
                             t.set("lineHeight", v);
                             t.initDimensions();
@@ -6640,7 +6387,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     "字距",
                     () => (o as IText).charSpacing,
                     (v) =>
-                        applyActive((x) => {
+                        applyActiveRemember(kind, "charSpacing", v, (x) => {
                             const t = x as IText;
                             t.set("charSpacing", v);
                             t.initDimensions();
@@ -6660,7 +6407,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 propertyNumber(
                     "字号",
                     () => n.fontSize,
-                    (v) => applyActive((x) => x.set("fontSize", v)),
+                    (v) =>
+                        applyActiveRemember(kind, "fontSize", v, (x) =>
+                            x.set("fontSize", v),
+                        ),
                     1,
                     0,
                     0,
@@ -6668,7 +6418,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 propertyNumber(
                     "半径",
                     () => n.radius,
-                    (v) => applyActive((x) => x.set("radius", v)),
+                    (v) =>
+                        applyActiveRemember(kind, "radius", v, (x) =>
+                            x.set("radius", v),
+                        ),
                     1,
                     0,
                     0,
@@ -6680,7 +6433,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 propertyNumber(
                     "头宽",
                     () => a.arrowW,
-                    (v) => applyActive((x) => x.set("arrowW", v)),
+                    (v) =>
+                        applyActiveRemember(kind, "arrowW", v, (x) =>
+                            x.set("arrowW", v),
+                        ),
                     1,
                     0,
                     0,
@@ -6688,7 +6444,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 propertyNumber(
                     "头高",
                     () => a.arrowH,
-                    (v) => applyActive((x) => x.set("arrowH", v)),
+                    (v) =>
+                        applyActiveRemember(kind, "arrowH", v, (x) =>
+                            x.set("arrowH", v),
+                        ),
                     1,
                     0,
                     0,
@@ -6700,7 +6459,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         { name: "空心", value: "stroke" },
                     ],
                     () => a.arrowType,
-                    (v) => applyActive((x) => x.set("arrowType", v)),
+                    (v) =>
+                        applyActiveRemember(kind, "arrowType", v, (x) =>
+                            x.set("arrowType", v),
+                        ),
                 ),
             ]);
         } else if (kind === "rect" || kind === "mask") {
@@ -6709,7 +6471,10 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 propertyNumber(
                     propIcon("corner", kind === "mask" ? "洞口圆角" : "圆角"),
                     () => r.rx || 0,
-                    (v) => applyActive((x) => x.set({ rx: v, ry: v })),
+                    (v) =>
+                        applyActiveRemember(kind, "rx", v, (x) =>
+                            x.set({ rx: v, ry: v }),
+                        ),
                     1,
                     0,
                     0,
@@ -6721,8 +6486,11 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         "羽化",
                         () => (o as mask).feather ?? 0,
                         (v) =>
-                            applyActive((x) =>
-                                x.set("feather", Math.max(0, v)),
+                            applyActiveRemember(
+                                kind,
+                                "feather",
+                                Math.max(0, v),
+                                (x) => x.set("feather", Math.max(0, v)),
                             ),
                         1,
                         0,
@@ -6921,16 +6689,6 @@ drawSideFree.eraser.on("click", () => setEditType("draw", "eraser"));
 // 刷
 drawSideFree.spray.on("click", () => setEditType("draw", "spray"));
 
-// 阴影
-const shadowBlurEl = rangeBar(0, 20, 1, "px").on("input", () => {
-    const pro = getShapePro("free");
-    pro.shadow = shadowBlurEl.gv;
-    shapePro.free = pro;
-    store.set("图像编辑.形状属性.free.shadow", shadowBlurEl.gv);
-    freeShadow();
-});
-drawShadowBlur.add(shadowBlurEl);
-
 // 几何
 for (const [k, el] of Object.entries(drawSideShapes)) {
     el.on("click", () => {
@@ -7021,7 +6779,6 @@ fabricCanvas.on("mouse:up", (options) => {
         }
     }
 
-    getFObjectV();
     getFilters();
 
     if (newFilterSelecting && newFilterO) {
@@ -7277,8 +7034,6 @@ class line extends Line {
 
 classRegistry.setClass(line);
 
-const arrowConfig = store.get("图像编辑.arrow");
-
 class arrow extends line {
     static type = "arrow";
     static customProperties = ["arrowW", "arrowH", "arrowType", "形状"];
@@ -7299,7 +7054,7 @@ class arrow extends line {
         const scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         return Math.max(
             super.getHitWidth(),
-            ((this.arrowW ?? arrowConfig.w) / 2) * scale,
+            ((this.arrowW ?? getArrowPro().arrowW) / 2) * scale,
         );
     }
     _render(ctx: CanvasRenderingContext2D): void {
@@ -7307,9 +7062,10 @@ class arrow extends line {
 
         const { x1, y1, x2, y2 } = this.calcLinePoints();
         const angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
-        const w = this.arrowW ?? arrowConfig.w;
-        const h = this.arrowH ?? arrowConfig.h;
-        const type = this.arrowType ?? arrowConfig.type;
+        const pro = getArrowPro();
+        const w = this.arrowW ?? pro.arrowW;
+        const h = this.arrowH ?? pro.arrowH;
+        const type = this.arrowType ?? pro.arrowType;
 
         const [x3, y3] = rotate(-w / 2, h, angle);
         const [x4, y4] = rotate(w / 2, h, angle);
@@ -7364,30 +7120,6 @@ class polygon extends Polygon {
 
 classRegistry.setClass(polyline);
 classRegistry.setClass(polygon);
-
-// 颜色选择
-
-setDrawMode(colorM);
-drawColorSwitchP.on("click", () => {
-    setDrawMode(colorM === "fill" ? "stroke" : "fill");
-});
-
-ableChangeColor();
-
-colorBar();
-
-const strokeWidthEl = rangeBar(0, 25, 1, "px").on("input", () => {
-    setFObjectV(null, null, strokeWidthEl.gv);
-});
-
-drawStrokeWidth.add(strokeWidthEl);
-
-const strokeWidthF = {
-    set: (v: number) => {
-        strokeWidthEl.sv(v);
-        setFObjectV(null, null, Math.floor(v));
-    },
-};
 
 // 滤镜
 

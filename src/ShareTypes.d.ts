@@ -157,14 +157,12 @@ export interface setting {
                 lineHeight?: number;
                 charSpacing?: number;
                 radius?: number;
+                arrowW?: number;
+                arrowH?: number;
+                arrowType?: "fill" | "stroke";
             };
         };
         记忆: EditType;
-        arrow: {
-            type: "fill" | "stroke";
-            w: number;
-            h: number;
-        };
         收藏: {
             color: string[];
             形状: {
