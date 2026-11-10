@@ -26,6 +26,19 @@ pnpm run mock:clip:debug
 npx electron script/mockClip/main.cjs --remote-debugging-port=9224
 ```
 
+## 参数
+
+- `--size=2880x1800`：模拟图尺寸，默认 `960x640`。
+- `--overlay`：用和真实截屏一致的全屏透明置顶窗口显示，适合在 weston 等独立合成器里测渲染性能。
+- `--visible`：显示普通窗口，方便手动查看界面。
+
+```bash
+# 在独立的 weston headless 里按真实分辨率测渲染
+XDG_RUNTIME_DIR=/tmp/opencode/xdg weston --backend=headless-backend.so --width=2880 --height=1800 --socket=wayland-es --renderer=gl &
+WAYLAND_DISPLAY=wayland-es XDG_RUNTIME_DIR=/tmp/opencode/xdg \
+  DISPLAY= npx electron script/mockClip/main.cjs --overlay --size=2880x1800 --remote-debugging-port=9226
+```
+
 ## 说明
 
 - 模拟图片在 `main.cjs` 里生成，尺寸 `960x640`，带网格和色块。

@@ -2,12 +2,19 @@ const { app, BrowserWindow, ipcMain, nativeImage } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const WIDTH = 960;
-const HEIGHT = 640;
+/** --size=2880x1800 可模拟其他分辨率，默认 960x640 */
+const sizeArg = process.argv
+    .find((i) => i.startsWith("--size="))
+    ?.slice("--size=".length);
+const [WIDTH, HEIGHT] = (sizeArg ?? "960x640")
+    .split("x")
+    .map((i) => Number.parseInt(i, 10) || 0);
 const OUT_DIR = "/tmp/opencode";
 const CONFIG_PATH = path.join(OUT_DIR, "mockClip-config.json");
 const visible = process.argv.includes("--visible");
 const offscreen = process.argv.includes("--offscreen");
+/** 模拟真实截屏窗口：透明、全屏、置顶 */
+const overlay = process.argv.includes("--overlay");
 
 const defaults = require("./defaults.cjs");
 
@@ -251,10 +258,18 @@ app.whenReady().then(async () => {
         width: WIDTH,
         height: HEIGHT,
         useContentSize: true,
-        show: visible && !offscreen,
+        show: overlay || (visible && !offscreen),
         title: "eSearch mock clip",
-        alwaysOnTop: false,
+        alwaysOnTop: overlay,
         skipTaskbar: !visible,
+        transparent: overlay,
+        frame: !overlay,
+        fullscreen: overlay,
+        hasShadow: overlay ? false : undefined,
+        movable: overlay ? false : undefined,
+        resizable: overlay ? false : undefined,
+        autoHideMenuBar: overlay,
+        enableLargerThanScreen: overlay,
         webPreferences: {
             offscreen,
             paintWhenInitiallyHidden: true,
