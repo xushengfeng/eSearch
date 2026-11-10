@@ -5661,11 +5661,11 @@ fabricCanvas.setTargetFindTolerance(5);
 
 hisPush();
 
-const fillColor = store.get("图像编辑.默认属性.填充颜色");
-const strokeColor = store.get("图像编辑.默认属性.边框颜色");
-const strokeWidth = store.get("图像编辑.默认属性.边框宽度");
-const freeColor = store.get("图像编辑.默认属性.画笔颜色");
-const freeWidth = store.get("图像编辑.默认属性.画笔粗细");
+const fillColor = "#fff";
+const strokeColor = "#333";
+const strokeWidth = 1;
+const freeColor = "#333";
+const freeWidth = 2;
 
 const shapePro: setting["图像编辑"]["形状属性"] = {};
 

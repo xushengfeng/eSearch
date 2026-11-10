@@ -135,13 +135,6 @@ export interface setting {
         };
     };
     图像编辑: {
-        默认属性: {
-            填充颜色: string;
-            边框颜色: string;
-            边框宽度: number;
-            画笔颜色: string;
-            画笔粗细: number;
-        };
         复制偏移: {
             x: number;
             y: number;

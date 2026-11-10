@@ -432,17 +432,6 @@ const s: Partial<settingItem<SettingPath>> = {
                 "鼠标双击",
             ),
     },
-    "图像编辑.默认属性.填充颜色": { name: "默认填充颜色", el: () => xColor() },
-    "图像编辑.默认属性.边框颜色": { name: "默认边框颜色", el: () => xColor() },
-    "图像编辑.默认属性.边框宽度": {
-        name: "默认边框宽度",
-        el: () => xNumber("px", { min: 0, max: 20 }),
-    },
-    "图像编辑.默认属性.画笔颜色": { name: "默认画笔颜色", el: () => xColor() },
-    "图像编辑.默认属性.画笔粗细": {
-        name: "默认画笔粗细",
-        el: () => xNumber("px", { min: 0, max: 20 }),
-    },
     "图像编辑.复制偏移.x": {
         name: "复制偏移x轴",
         el: () => xNumber("px", { min: -50, max: 50 }),
@@ -450,25 +439,6 @@ const s: Partial<settingItem<SettingPath>> = {
     "图像编辑.复制偏移.y": {
         name: "复制偏移y轴",
         el: () => xNumber("px", { min: -50, max: 50 }),
-    },
-    "图像编辑.arrow.type": {
-        name: "箭头样式",
-        el: (v) =>
-            xSelect<typeof v>(
-                [
-                    { value: "fill", name: "实心" },
-                    { value: "stroke", name: "空心" },
-                ],
-                "箭头样式",
-            ),
-    },
-    "图像编辑.arrow.w": {
-        name: "箭头高度",
-        el: () => xNumber("px", { min: 0, max: 50 }),
-    },
-    "图像编辑.arrow.h": {
-        name: "箭头宽度",
-        el: () => xNumber("px", { min: 0, max: 50 }),
     },
     "OCR.类型": {
         name: "OCR类型",
@@ -2192,27 +2162,9 @@ const main: {
         pageName: "图像编辑",
         items: [
             {
-                title: "默认属性",
-                settings: [
-                    "图像编辑.默认属性.填充颜色",
-                    "图像编辑.默认属性.边框颜色",
-                    "图像编辑.默认属性.边框宽度",
-                    "图像编辑.默认属性.画笔颜色",
-                    "图像编辑.默认属性.画笔粗细",
-                ],
-            },
-            {
                 title: "复制偏移",
                 desc: "复制完一个元素后，为了分辨，可以让其偏移",
                 settings: ["图像编辑.复制偏移.x", "图像编辑.复制偏移.y"],
-            },
-            {
-                title: "箭头样式",
-                settings: [
-                    "图像编辑.arrow.type",
-                    "图像编辑.arrow.w",
-                    "图像编辑.arrow.h",
-                ],
             },
         ],
     },
@@ -2690,7 +2642,6 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
             "额外截屏器",
             "使用XDGDesktopPortal",
             "广截屏",
-            "图像编辑.arrow",
             "离线OCR",
             "OCR.类型",
             "以图搜图.引擎",
