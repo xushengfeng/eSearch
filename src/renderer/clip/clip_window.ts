@@ -4031,19 +4031,20 @@ function setColorTab(tab: "grid" | "picker") {
     if (colorPopoverOpen) positionColorPopover();
 }
 
-function renderColorGrid(hue?: number) {
+function renderColorGrid(hue?: number, gray = false) {
     colorGrid.clear();
-    const colors: { color: string; hue: number }[] = [];
+    const colors: { color: string; hue: number; gray?: boolean }[] = [];
     if (hue === undefined) {
-        colors.push({ color: "#fff", hue: 0 });
+        colors.push({ color: "#fff", hue: 0, gray: true });
         for (let i = 0; i < 360; i += 15) {
             colors.push({ color: chroma.hsl(i, 1, 0.5).css(), hue: i });
         }
-    } else if (hue === 0) {
+    } else if (gray) {
         for (let i = 0; i < 25; i++) {
             colors.push({
                 color: chroma.hsl(0, 0, (24 - i) / 24).css(),
                 hue: 0,
+                gray: true,
             });
         }
     } else {
@@ -4061,16 +4062,19 @@ function renderColorGrid(hue?: number) {
             .class("color_swatch")
             .style({ "background-color": item.color })
             .data({
-                title: colorConversion(
+                title: `${colorConversion(
                     chroma(item.color).rgba(),
                     取色器默认格式,
-                ),
+                )}\n${hue === undefined ? t("右键查看更多") : t("右键返回")}`,
             })
             .on("pointerdown", (e) => {
                 if (e.button === 0) {
                     applyPopoverColor(chroma(item.color).alpha(1).css(), false);
                 } else {
-                    renderColorGrid(hue === undefined ? item.hue : undefined);
+                    renderColorGrid(
+                        hue === undefined ? item.hue : undefined,
+                        item.gray,
+                    );
                 }
             });
         colorGrid.add(swatch);
