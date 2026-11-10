@@ -166,7 +166,9 @@ function splitText(
 let seg: Intl.Segmenter;
 try {
     seg = new Intl.Segmenter(
-        store.get("屏幕翻译.语言.to") ?? navigator.language ?? "zh-HANS",
+        store.get("屏幕翻译.语言.to") ||
+            store.get("语言.语言") ||
+            navigator.language,
         { granularity: "word" },
     );
 } catch (error) {

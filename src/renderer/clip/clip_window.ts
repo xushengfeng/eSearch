@@ -1579,13 +1579,6 @@ function checkTranslator() {
         alert("无翻译器，请先设置翻译器");
         return false;
     }
-    if (
-        store.get("屏幕翻译.语言.to") === "" ||
-        store.get("屏幕翻译.语言.from") === ""
-    ) {
-        alert("请设置屏幕翻译的语言");
-        return false;
-    }
     return true;
 }
 

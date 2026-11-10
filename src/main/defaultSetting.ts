@@ -423,8 +423,8 @@ const defaultSetting: setting = {
         dTime: 3000,
         color: { bg: "rgb(255,255,255,0.5)", text: "" },
         语言: {
-            from: "",
-            to: "",
+            from: "auto",
+            to: matchBestLan(),
         },
     },
     翻译: {

@@ -3316,6 +3316,12 @@ function fixSettingTree() {
 
 function versionTrans() {
     const version = store.get("设置版本");
+    if (store.get("屏幕翻译.语言.from") === "") {
+        store.set("屏幕翻译.语言.from", "auto");
+    }
+    if (store.get("屏幕翻译.语言.to") === "") {
+        store.set("屏幕翻译.语言.to", matchBestLan());
+    }
     if (versionCompare(version, "15.6.1") <= 0) {
         const list = store.get("工具栏.功能");
         if (!list.includes("dingLive")) {

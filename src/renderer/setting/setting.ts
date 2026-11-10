@@ -55,7 +55,7 @@ const fs = require("node:fs") as typeof import("fs");
 
 import Fuse from "fuse.js";
 import { hexToCSSFilter } from "hex-to-css-filter";
-import translator from "xtranslator";
+import translator, { matchFitLan } from "xtranslator";
 import logoBlack from "../../../assets/logo/bw/32x32_black.png";
 import logoWhite from "../../../assets/logo/bw/32x32_white.png";
 import _package from "../../../package.json?raw";
@@ -1022,13 +1022,21 @@ const s: Partial<settingItem<SettingPath>> = {
             const firstItem = getSet("翻译.翻译器").at(0);
             const e = getEngineLans(firstItem?.type ?? "");
             if (!e) return select([]);
+            const fallback =
+                matchFitLan("auto", e.lan) ??
+                matchFitLan(getSet("语言.语言") ?? "", e.lan) ??
+                matchFitLan("en", e.lan) ??
+                e.lan[0] ??
+                "";
             const list = select(
                 getLansName(e.lan).map((i) => ({
                     value: i.lan,
                     name: noI18n(i.text),
                 })),
             );
-            return list;
+            return list.bindSet((v: string, el) => {
+                el.value = matchFitLan(v, e.lan) ?? fallback;
+            });
         },
     },
     "屏幕翻译.语言.to": {
@@ -1037,13 +1045,20 @@ const s: Partial<settingItem<SettingPath>> = {
             const firstItem = getSet("翻译.翻译器").at(0);
             const e = getEngineLans(firstItem?.type ?? "");
             if (!e) return select([]);
+            const fallback =
+                matchFitLan(getSet("语言.语言") ?? "", e.targetLan) ??
+                matchFitLan("en", e.targetLan) ??
+                e.targetLan[0] ??
+                "";
             const list = select(
                 getLansName(e.targetLan).map((i) => ({
                     value: i.lan,
                     name: noI18n(i.text),
                 })),
             );
-            return list;
+            return list.bindSet((v: string, el) => {
+                el.value = matchFitLan(v, e.targetLan) ?? fallback;
+            });
         },
     },
     "屏幕翻译.dTime": {
