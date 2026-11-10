@@ -8,14 +8,12 @@ import {
     Canvas,
     Circle,
     type CircleProps,
-    Control,
     classRegistry,
     controlsUtils,
     FabricImage,
     type FabricObject,
     filters,
     IText,
-    Line,
     PencilBrush,
     Point,
     Polygon,
@@ -3290,14 +3288,21 @@ function draw(
     const h = Math.abs(y1 - y2);
     let shapeX: FabricObject | null = null;
     if (shape === "line") {
-        shapeX = new line([x1, y1, x2, y2], {
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-            strokeDashArray: dash,
-            originX: "left",
-            originY: "top",
-            形状: "line",
-        });
+        shapeX = new line(
+            [
+                { x: x1, y: y1 },
+                { x: x2, y: y2 },
+            ],
+            {
+                fill: null,
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
+                strokeDashArray: dash,
+                originX: "left",
+                originY: "top",
+                形状: "line",
+            },
+        );
     } else if (shape === "circle") {
         shapeX = new Circle({
             radius: Math.max(w, h) / 2,
@@ -3352,16 +3357,23 @@ function draw(
         });
     } else if (shape === "arrow") {
         const arrowPro = getArrowPro();
-        shapeX = new arrow([x1, y1, x2, y2], {
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-            strokeDashArray: dash,
-            arrowW: arrowPro.arrowW,
-            arrowH: arrowPro.arrowH,
-            arrowType: arrowPro.arrowType,
-            objectCaching: false,
-            形状: "arrow",
-        });
+        shapeX = new arrow(
+            [
+                { x: x1, y: y1 },
+                { x: x2, y: y2 },
+            ],
+            {
+                fill: null,
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
+                strokeDashArray: dash,
+                arrowW: arrowPro.arrowW,
+                arrowH: arrowPro.arrowH,
+                arrowType: arrowPro.arrowType,
+                objectCaching: false,
+                形状: "arrow",
+            },
+        );
     } else if (shape === "mask") {
         const m = new mask({
             left: x,
@@ -5724,28 +5736,59 @@ function toggleButton(
     return b;
 }
 
-function addLineEndpoints(o: Line) {
+function lineEndpoint(o: Polyline, index: "start" | "end") {
+    const point =
+        index === "start" ? o.points[0] : o.points[o.points.length - 1];
+    return new Point(point).subtract(o.pathOffset).transform(o.calcOwnMatrix());
+}
+
+function setLineEndpoint(
+    o: Polyline,
+    index: "start" | "end",
+    axis: "x" | "y",
+    value: number,
+) {
+    const pointIndex = index === "start" ? 0 : o.points.length - 1;
+    const anchorIndex = pointIndex === 0 ? o.points.length - 1 : 0;
+    const matrix = o.calcOwnMatrix();
+    const anchorBefore = new Point(o.points[anchorIndex])
+        .subtract(o.pathOffset)
+        .transform(matrix);
+    const point = lineEndpoint(o, index);
+    point[axis] = value;
+    o.points[pointIndex] = util
+        .sendPointToPlane(point, undefined, matrix)
+        .add(o.pathOffset);
+    o.setDimensions();
+    const anchorAfter = new Point(o.points[anchorIndex])
+        .subtract(o.pathOffset)
+        .transform(o.calcOwnMatrix());
+    const diff = anchorAfter.subtract(anchorBefore);
+    o.set({ left: o.left - diff.x, top: o.top - diff.y });
+    o.setCoords();
+    o.set("dirty", true);
+}
+
+function addLineEndpoints(o: Polyline) {
     elementBarBody.add([
         propertyPair(
             "起点X",
             numberControl(
-                () => o.x1,
+                () => lineEndpoint(o, "start").x,
                 (v) =>
-                    applyActive((x) => {
-                        (x as Line).set({ x1: v });
-                        x.setCoords();
-                    }),
+                    applyActive((x) =>
+                        setLineEndpoint(x as Polyline, "start", "x", v),
+                    ),
                 1,
                 0,
             ),
             "起点Y",
             numberControl(
-                () => o.y1,
+                () => lineEndpoint(o, "start").y,
                 (v) =>
-                    applyActive((x) => {
-                        (x as Line).set({ y1: v });
-                        x.setCoords();
-                    }),
+                    applyActive((x) =>
+                        setLineEndpoint(x as Polyline, "start", "y", v),
+                    ),
                 1,
                 0,
             ),
@@ -5753,23 +5796,21 @@ function addLineEndpoints(o: Line) {
         propertyPair(
             "终点X",
             numberControl(
-                () => o.x2,
+                () => lineEndpoint(o, "end").x,
                 (v) =>
-                    applyActive((x) => {
-                        (x as Line).set({ x2: v });
-                        x.setCoords();
-                    }),
+                    applyActive((x) =>
+                        setLineEndpoint(x as Polyline, "end", "x", v),
+                    ),
                 1,
                 0,
             ),
             "终点Y",
             numberControl(
-                () => o.y2,
+                () => lineEndpoint(o, "end").y,
                 (v) =>
-                    applyActive((x) => {
-                        (x as Line).set({ y2: v });
-                        x.setCoords();
-                    }),
+                    applyActive((x) =>
+                        setLineEndpoint(x as Polyline, "end", "y", v),
+                    ),
                 1,
                 0,
             ),
@@ -6204,7 +6245,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
         );
         elementBarBody.add(geometry);
         if (kind === "line" || kind === "arrow")
-            addLineEndpoints(objects[0] as Line);
+            addLineEndpoints(objects[0] as Polyline);
     }
 
     const canFill = objects.every((o) => o.canChangeFill);
@@ -6942,66 +6983,25 @@ classRegistry.setSVGClass(xnumber);
 
 const lineHitWidth = 12;
 
-function createLineEndpointControl(index: 0 | 1) {
-    return new Control({
-        actionName: "modifyLine",
-        cursorStyle: "crosshair",
-        positionHandler(_dim, _matrix, target) {
-            const o = target as Line;
-            const { x1, y1, x2, y2 } = o.calcLinePoints();
-            const p = index === 0 ? new Point(x1, y1) : new Point(x2, y2);
-            return p.transform(
-                util.multiplyTransformMatrices(
-                    o.getViewportTransform(),
-                    o.calcTransformMatrix(),
-                ),
-            );
-        },
-        actionHandler(_eventData, transform, x, y) {
-            const o = transform.target as Line;
-            const { x1, y1, x2, y2 } = o;
-            const matrix = o.calcOwnMatrix();
-            const center = new Point((x1 + x2) / 2, (y1 + y2) / 2);
-            const point = util
-                .sendPointToPlane(new Point(x, y), undefined, matrix)
-                .add(center);
-            const anchor = index === 0 ? new Point(x2, y2) : new Point(x1, y1);
-            const anchorBefore = anchor.subtract(center).transform(matrix);
-            o.set(
-                index === 0
-                    ? { x1: point.x, y1: point.y }
-                    : { x2: point.x, y2: point.y },
-            );
-            const newCenter = new Point((o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2);
-            const anchorAfter = anchor
-                .subtract(newCenter)
-                .transform(o.calcOwnMatrix());
-            o.set({
-                left: o.left - (anchorAfter.x - anchorBefore.x),
-                top: o.top - (anchorAfter.y - anchorBefore.y),
-            });
-            o.setCoords();
-            o.set("dirty", true);
-            return true;
-        },
-    });
-}
-
-const lineControls = {
-    p1: createLineEndpointControl(0),
-    p2: createLineEndpointControl(1),
-};
-
-class line extends Line {
-    static createControls() {
-        return { controls: lineControls };
-    }
+class line extends Polyline {
+    static type = "line";
+    static customProperties = ["形状"];
     constructor(
-        points?: ConstructorParameters<typeof Line>[0],
-        options?: ConstructorParameters<typeof Line>[1],
+        points?: ConstructorParameters<typeof Polyline>[0],
+        options?: ConstructorParameters<typeof Polyline>[1],
     ) {
         super(points, options);
+        this.controls = controlsUtils.createPolyControls(this.points.length, {
+            cursorStyle: "crosshair",
+        });
         this.hasBorders = false;
+    }
+    getLocalPoints() {
+        const { pathOffset } = this;
+        return [
+            new Point(this.points[0]).subtract(pathOffset),
+            new Point(this.points[this.points.length - 1]).subtract(pathOffset),
+        ];
     }
     getHitWidth() {
         const scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
@@ -7012,22 +7012,22 @@ class line extends Line {
         );
     }
     calcACoords() {
-        const { x1, y1, x2, y2 } = this.calcLinePoints();
         const matrix = this.calcOwnMatrix();
-        const p1 = new Point(x1, y1).transform(matrix);
-        const p2 = new Point(x2, y2).transform(matrix);
-        const dx = p2.x - p1.x;
-        const dy = p2.y - p1.y;
+        const [start, end] = this.getLocalPoints().map((p) =>
+            p.transform(matrix),
+        );
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
         const length = Math.hypot(dx, dy);
         if (!length) return super.calcACoords();
         const half = this.getHitWidth();
         const nx = (-dy / length) * half;
         const ny = (dx / length) * half;
         return {
-            tl: new Point(p1.x + nx, p1.y + ny),
-            tr: new Point(p2.x + nx, p2.y + ny),
-            br: new Point(p2.x - nx, p2.y - ny),
-            bl: new Point(p1.x - nx, p1.y - ny),
+            tl: new Point(start.x + nx, start.y + ny),
+            tr: new Point(end.x + nx, end.y + ny),
+            br: new Point(end.x - nx, end.y - ny),
+            bl: new Point(start.x - nx, start.y - ny),
         };
     }
 }
@@ -7041,8 +7041,8 @@ class arrow extends line {
     declare arrowH: number;
     declare arrowType: "fill" | "stroke";
     constructor(
-        points?: ConstructorParameters<typeof Line>[0],
-        options?: ConstructorParameters<typeof Line>[1] & {
+        points?: ConstructorParameters<typeof Polyline>[0],
+        options?: ConstructorParameters<typeof Polyline>[1] & {
             arrowW?: number;
             arrowH?: number;
             arrowType?: "fill" | "stroke";
@@ -7060,8 +7060,9 @@ class arrow extends line {
     _render(ctx: CanvasRenderingContext2D): void {
         super._render(ctx);
 
-        const { x1, y1, x2, y2 } = this.calcLinePoints();
-        const angle = Math.atan2(y2 - y1, x2 - x1) + Math.PI / 2;
+        const [start, end] = this.getLocalPoints();
+        const angle =
+            Math.atan2(end.y - start.y, end.x - start.x) + Math.PI / 2;
         const pro = getArrowPro();
         const w = this.arrowW ?? pro.arrowW;
         const h = this.arrowH ?? pro.arrowH;
@@ -7072,13 +7073,13 @@ class arrow extends line {
 
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 + x3, y2 + y3);
+        ctx.moveTo(end.x, end.y);
+        ctx.lineTo(end.x + x3, end.y + y3);
         if (type === "stroke") {
-            ctx.moveTo(x2, y2);
-            ctx.lineTo(x2 + x4, y2 + y4);
+            ctx.moveTo(end.x, end.y);
+            ctx.lineTo(end.x + x4, end.y + y4);
         } else {
-            ctx.lineTo(x2 + x4, y2 + y4);
+            ctx.lineTo(end.x + x4, end.y + y4);
             ctx.closePath();
         }
 
