@@ -6481,6 +6481,8 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             ),
         );
         elementBarBody.add(geometry);
+        if (kind === "line" || kind === "arrow")
+            addLineEndpoints(objects[0] as Line);
     }
 
     const canFill = objects.every((o) => o.canChangeFill);
@@ -6672,11 +6674,8 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     0,
                 ),
             ]);
-        } else if (kind === "line") {
-            addLineEndpoints(o as Line);
         } else if (kind === "arrow") {
             const a = o as arrow;
-            addLineEndpoints(a);
             elementBarBody.add([
                 propertyNumber(
                     "头宽",
