@@ -158,7 +158,8 @@ export function colorPicker(
     const hueTrack = view()
         .style({
             position: "relative",
-            width: "100%",
+            width: "calc(100% - 14px)",
+            margin: "0 7px",
             height: "12px",
             borderRadius: "6px",
             background:
@@ -194,7 +195,8 @@ export function colorPicker(
     const alphaTrack = view()
         .style({
             position: "relative",
-            width: "100%",
+            width: "calc(100% - 14px)",
+            margin: "0 7px",
             height: "12px",
             borderRadius: "6px",
             cursor: "pointer",
@@ -272,6 +274,7 @@ export function colorPicker(
             margin: 0,
             padding: "var(--o-padding)",
             width: "232px",
+            overflow: "hidden",
             background: "var(--bg)",
             color: "var(--font-color)",
             boxShadow: "var(--shadow)",

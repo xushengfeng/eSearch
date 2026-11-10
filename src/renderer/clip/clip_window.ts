@@ -3988,6 +3988,7 @@ const colorPopover = view("y")
         padding: "4px",
         width: "224px",
         maxHeight: "calc(100vh - 8px)",
+        overflowX: "hidden",
         overflowY: "auto",
         color: "var(--font-color)",
         borderRadius: "var(--border-radius)",
