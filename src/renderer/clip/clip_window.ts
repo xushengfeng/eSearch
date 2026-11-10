@@ -8,6 +8,7 @@ import {
     Canvas,
     Circle,
     type CircleProps,
+    Control,
     classRegistry,
     FabricImage,
     type FabricObject,
@@ -15,12 +16,13 @@ import {
     IText,
     Line,
     PencilBrush,
-    type Point,
+    Point,
     Polygon,
     Polyline,
     Rect,
     Shadow,
     SprayBrush,
+    util,
 } from "fabric";
 import hotkeys from "hotkeys-js";
 import { findOffset } from "picture_match";
@@ -3230,7 +3232,7 @@ function draw(
     const h = Math.abs(y1 - y2);
     let shapeX: FabricObject | null = null;
     if (shape === "line") {
-        shapeX = new Line([x1, y1, x2, y2], {
+        shapeX = new line([x1, y1, x2, y2], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
             originX: "left",
@@ -6806,9 +6808,103 @@ class xnumber extends Circle {
 classRegistry.setClass(xnumber);
 classRegistry.setSVGClass(xnumber);
 
+const lineHitWidth = 12;
+
+function createLineEndpointControl(index: 0 | 1) {
+    return new Control({
+        actionName: "modifyLine",
+        cursorStyle: "crosshair",
+        positionHandler(_dim, _matrix, target) {
+            const o = target as Line;
+            const { x1, y1, x2, y2 } = o.calcLinePoints();
+            const p = index === 0 ? new Point(x1, y1) : new Point(x2, y2);
+            return p.transform(
+                util.multiplyTransformMatrices(
+                    o.getViewportTransform(),
+                    o.calcTransformMatrix(),
+                ),
+            );
+        },
+        actionHandler(_eventData, transform, x, y) {
+            const o = transform.target as Line;
+            const { x1, y1, x2, y2 } = o;
+            const matrix = o.calcOwnMatrix();
+            const center = new Point((x1 + x2) / 2, (y1 + y2) / 2);
+            const point = util
+                .sendPointToPlane(new Point(x, y), undefined, matrix)
+                .add(center);
+            const anchor = index === 0 ? new Point(x2, y2) : new Point(x1, y1);
+            const anchorBefore = anchor.subtract(center).transform(matrix);
+            o.set(
+                index === 0
+                    ? { x1: point.x, y1: point.y }
+                    : { x2: point.x, y2: point.y },
+            );
+            const newCenter = new Point((o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2);
+            const anchorAfter = anchor
+                .subtract(newCenter)
+                .transform(o.calcOwnMatrix());
+            o.set({
+                left: o.left - (anchorAfter.x - anchorBefore.x),
+                top: o.top - (anchorAfter.y - anchorBefore.y),
+            });
+            o.setCoords();
+            o.set("dirty", true);
+            return true;
+        },
+    });
+}
+
+const lineControls = {
+    p1: createLineEndpointControl(0),
+    p2: createLineEndpointControl(1),
+};
+
+class line extends Line {
+    static createControls() {
+        return { controls: lineControls };
+    }
+    constructor(
+        points?: ConstructorParameters<typeof Line>[0],
+        options?: ConstructorParameters<typeof Line>[1],
+    ) {
+        super(points, options);
+        this.hasBorders = false;
+    }
+    getHitWidth() {
+        const scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
+        const zoom = this.canvas?.getZoom() ?? 1;
+        return Math.max(
+            (this.strokeWidth * scale) / 2,
+            lineHitWidth / 2 / zoom,
+        );
+    }
+    calcACoords() {
+        const { x1, y1, x2, y2 } = this.calcLinePoints();
+        const matrix = this.calcOwnMatrix();
+        const p1 = new Point(x1, y1).transform(matrix);
+        const p2 = new Point(x2, y2).transform(matrix);
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const length = Math.hypot(dx, dy);
+        if (!length) return super.calcACoords();
+        const half = this.getHitWidth();
+        const nx = (-dy / length) * half;
+        const ny = (dx / length) * half;
+        return {
+            tl: new Point(p1.x + nx, p1.y + ny),
+            tr: new Point(p2.x + nx, p2.y + ny),
+            br: new Point(p2.x - nx, p2.y - ny),
+            bl: new Point(p1.x - nx, p1.y - ny),
+        };
+    }
+}
+
+classRegistry.setClass(line);
+
 const arrowConfig = store.get("图像编辑.arrow");
 
-class arrow extends Line {
+class arrow extends line {
     static type = "arrow";
     static customProperties = ["arrowW", "arrowH", "arrowType", "形状"];
     declare arrowW: number;
@@ -6823,6 +6919,13 @@ class arrow extends Line {
         },
     ) {
         super(points, options);
+    }
+    getHitWidth() {
+        const scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
+        return Math.max(
+            super.getHitWidth(),
+            ((this.arrowW ?? arrowConfig.w) / 2) * scale,
+        );
     }
     _render(ctx: CanvasRenderingContext2D): void {
         super._render(ctx);
