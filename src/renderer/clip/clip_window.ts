@@ -6437,6 +6437,19 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     (v) => applyActive((x) => x.set({ rx: v, ry: v })),
                 ),
             );
+            if (kind === "mask")
+                elementBarBody.add(
+                    propertyNumber(
+                        "羽化",
+                        () => (o as mask).feather ?? 0,
+                        (v) =>
+                            applyActive((x) =>
+                                x.set("feather", Math.max(0, v)),
+                            ),
+                        1,
+                        0,
+                    ),
+                );
         } else if (kind === "filter") {
             const img = o as FabricImage;
             const values = Object.values(filtetMap);
@@ -6754,26 +6767,107 @@ fabricCanvas.on("mouse:up", (options) => {
 
 class mask extends Rect {
     static type = "mask";
-    static customProperties = ["形状", "canChangeFill"];
+    static customProperties = ["形状", "canChangeFill", "feather"];
+    /** 羽化半径，单位为对象坐标 */
+    declare feather?: number;
+    private bandCanvas?: HTMLCanvasElement;
+
     render(ctx: CanvasRenderingContext2D): void {
         const canvas = this.canvas;
         if (!canvas) return;
 
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        this.transform(ctx);
+        const feather = Math.max(0, this.feather ?? 0);
         const radius = Math.min(this.rx || 0, this.width / 2, this.height / 2);
-        ctx.roundRect(
+        const fill = this.fill?.toString() || "";
+
+        if (feather <= 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 0, canvas.width, canvas.height);
+            this.transform(ctx);
+            ctx.roundRect(
+                -this.width / 2,
+                -this.height / 2,
+                this.width,
+                this.height,
+                radius,
+            );
+            ctx.fillStyle = fill;
+            ctx.fill("evenodd");
+            ctx.restore();
+            return;
+        }
+
+        // 只在洞口附近做模糊，避免整幅画布参与滤镜计算
+        const center = this.getCenterPoint();
+        const matrix = this.calcTransformMatrix();
+        const scale = util.qrDecompose(matrix);
+        const factor = (Math.abs(scale.scaleX) + Math.abs(scale.scaleY)) / 2;
+        const blur = feather * factor;
+        const size =
+            Math.hypot(this.width * scale.scaleX, this.height * scale.scaleY) +
+            blur * 6;
+        const left = Math.max(0, Math.round(center.x - size / 2));
+        const top = Math.max(0, Math.round(center.y - size / 2));
+        const right = Math.min(canvas.width, Math.round(center.x + size / 2));
+        const bottom = Math.min(canvas.height, Math.round(center.y + size / 2));
+        const width = right - left;
+        const height = bottom - top;
+        if (width <= 0 || height <= 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.restore();
+            return;
+        }
+
+        const band = this.getBandCanvas(width, height);
+        const bctx = band.getContext("2d")!;
+        bctx.setTransform(1, 0, 0, 1, 0, 0);
+        bctx.filter = "none";
+        bctx.globalCompositeOperation = "source-over";
+        bctx.clearRect(0, 0, width, height);
+        bctx.fillStyle = fill;
+        bctx.fillRect(0, 0, width, height);
+        bctx.globalCompositeOperation = "destination-out";
+        bctx.translate(-left, -top);
+        bctx.transform(...matrix);
+        bctx.beginPath();
+        bctx.roundRect(
             -this.width / 2,
             -this.height / 2,
             this.width,
             this.height,
             radius,
         );
-        ctx.fillStyle = this.fill?.toString() || "";
+        bctx.filter = `blur(${blur}px)`;
+        bctx.fillStyle = "#000";
+        bctx.fill();
+
+        // 洞外区域平铺，和羽化区域按整数像素拼接，避免接缝
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, canvas.width, canvas.height);
+        ctx.rect(left, top, width, height);
+        ctx.fillStyle = fill;
         ctx.fill("evenodd");
         ctx.restore();
+        ctx.drawImage(band, left, top);
+    }
+
+    private getBandCanvas(width: number, height: number) {
+        if (
+            !this.bandCanvas ||
+            this.bandCanvas.width !== width ||
+            this.bandCanvas.height !== height
+        ) {
+            this.bandCanvas = document.createElement("canvas");
+            this.bandCanvas.width = width;
+            this.bandCanvas.height = height;
+        }
+        return this.bandCanvas;
     }
 }
 
