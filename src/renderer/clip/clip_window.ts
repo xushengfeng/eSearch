@@ -4755,7 +4755,7 @@ let newFilterSelecting = false;
 const filtetMap: {
     [key in EditType["filter"]]: {
         value?: {
-            value: number;
+            value: number | number[];
             max: number;
             min?: number;
             step?: number;
@@ -4825,8 +4825,7 @@ const filtetMap: {
             new Filters.Gamma({
                 gamma: v as unknown as [number, number, number],
             }),
-        // @ts-ignore
-        value: { value: [1, 1, 1] },
+        value: { value: [1, 1, 1], min: 0.01, max: 2.2, step: 0.01 },
         el: gammaEl,
     },
 };
@@ -5655,10 +5654,7 @@ for (const [key, filter] of typedEntries(filtetMap)) {
         | number
         | number[]
         | undefined;
-    if (stored !== undefined) {
-        (filter.value as unknown as { value: number | number[] }).value =
-            stored;
-    }
+    if (stored !== undefined) filter.value.value = stored;
 }
 
 // 属性栏
@@ -5876,6 +5872,31 @@ function propertyRange(
     return propertyRow(
         label,
         numberControl(get, set, step, stepDigits(step), min, max, text),
+    );
+}
+
+function gammaPropertyRanges(
+    get: () => number[] | undefined,
+    set: (v: [number, number, number]) => void,
+) {
+    const { min = 0.01, max = 2.2, step = 0.01 } = filtetMap.gamma.value ?? {};
+    return ["R", "G", "B"].map((label, index) =>
+        propertyRange(
+            label,
+            min,
+            max,
+            step,
+            () => get()?.[index],
+            (v) => {
+                const next = [...(get() ?? [1, 1, 1])] as [
+                    number,
+                    number,
+                    number,
+                ];
+                next[index] = v;
+                set(next);
+            },
+        ),
     );
 }
 
@@ -6683,14 +6704,24 @@ function renderFilterToolPanel() {
     addHeader("滤镜 · 默认");
     const filterKey = willFilter;
     const f = filtetMap[filterKey];
-    if (f.value) {
+    if (filterKey === "gamma") {
+        elementBarBody.add(
+            gammaPropertyRanges(
+                () => f.value?.value as number[] | undefined,
+                (v) => {
+                    if (f.value) f.value.value = v;
+                    setShapeDefault(filterKey, "value", v);
+                },
+            ),
+        );
+    } else if (f.value) {
         elementBarBody.add(
             propertyRange(
                 "强度",
                 f.value.min ?? 0,
                 f.value.max,
                 f.value.step ?? 1,
-                () => f.value?.value,
+                () => f.value?.value as number | undefined,
                 (v) => {
                     f.value!.value = v;
                     setShapeDefault(filterKey, "value", v);
@@ -7095,11 +7126,32 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                 if (!fl.value) return;
                 const filter = img.filters?.[index];
                 if (!filter) return;
+                const filterKey = typedKeys(filtetMap)[index];
+                if (filterKey === "gamma") {
+                    elementBarBody.add(
+                        gammaPropertyRanges(
+                            () =>
+                                (
+                                    img.filters?.[index] as
+                                        | filters.Gamma
+                                        | undefined
+                                )?.gamma,
+                            (v) => {
+                                applyFilter(
+                                    index,
+                                    new Filters.Gamma({ gamma: v }),
+                                );
+                                setShapeDefault(filterKey, "value", v);
+                                schedulePropertyHistory();
+                            },
+                        ),
+                    );
+                    return;
+                }
                 const value = Object.values(filter).find(
                     (v) => typeof v === "number",
                 );
                 if (typeof value !== "number") return;
-                const filterKey = typedKeys(filtetMap)[index];
                 elementBarBody.add(
                     propertyRange(
                         "强度",
@@ -7401,7 +7453,7 @@ fabricCanvas.on("mouse:up", (options) => {
         if (willFilter) {
             const i = filtetMap[willFilter] as (typeof filtetMap)["pixelate"];
             const index = Object.keys(filtetMap).indexOf(willFilter);
-            const filter = i.fun(i.value?.value ?? 1);
+            const filter = i.fun((i.value?.value ?? 1) as number);
             applyFilter(index, filter);
             getFilters();
             refreshPropertyPanel();
