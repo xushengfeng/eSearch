@@ -5427,6 +5427,37 @@ window.CSS.registerProperty({
     initialValue: "transparent",
 });
 
+const updateLogClass = addClass(
+    {},
+    {
+        h1: {
+            fontSize: "1.4em",
+            marginBlock: "0.5em 0.3em",
+        },
+        h2: {
+            fontSize: "1.2em",
+            position: "static",
+            zIndex: "auto",
+            background: "none",
+            marginBlock: "0.5em 0.3em",
+        },
+        h3: {
+            fontSize: "1.1em",
+            marginBlock: "0.5em 0.3em",
+        },
+        "h4,h5,h6": {
+            fontSize: "1em",
+            marginBlock: "0.5em 0.3em",
+        },
+        "p,ul,ol": {
+            marginBlock: "0.4em",
+        },
+        "ul,ol": {
+            paddingInlineStart: "1.4em",
+        },
+    },
+);
+
 function about() {
     const el = view("y").style({ alignItems: "center", margin: "120px 0" });
     const logoEl = image(logo, noI18n("logo"))
@@ -5460,7 +5491,13 @@ function about() {
                 method: "GET",
                 redirect: "follow",
             })
-                .then((response) => response.json())
+                .then((response) => {
+                    if (!response.ok)
+                        throw new Error(
+                            `HTTP ${response.status} ${response.statusText}`,
+                        );
+                    return response.json();
+                })
                 .then((re) => {
                     console.log(re);
                     const l: {
@@ -5556,9 +5593,26 @@ function about() {
                         );
                     }
                 })
-                .catch((error) => console.log("error", error));
+                .catch((error) => {
+                    console.error(error);
+                    update.clear().add(
+                        view("y")
+                            .style({ gap: "4px" })
+                            .add([
+                                p(t("无法检查更新"), true),
+                                comment(t("请检查网络，稍后重试")),
+                                comment(
+                                    error instanceof Error
+                                        ? error.message
+                                        : String(error),
+                                ),
+                            ]),
+                    );
+                });
         });
-    const update = view("y").style({ gap: "16px" });
+    const update = view("y")
+        .style({ gap: "16px", width: "100%" })
+        .class(updateLogClass);
     const desc = p(packageJson.description);
 
     const infoEl = view("y").style({ alignItems: "center" });
