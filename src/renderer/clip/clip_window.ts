@@ -3057,22 +3057,29 @@ function setEditType<T extends keyof EditType>(
     }
 
     const SELECT = "select";
+    const activeSide = drawSideEls[mainType][type];
+    let hiddenActive = true;
+    for (const tool of drawMainTools) {
+        if (tool.category === "more") continue;
+        const active =
+            tool.category === mainType &&
+            (tool.type === undefined || tool.type === type);
+        if (active) hiddenActive = false;
+        tool.el.el.classList.toggle(SELECT, active);
+        tool.el.el.innerHTML = active ? activeSide.el.innerHTML : tool.html;
+    }
+    const moreTool = drawMainTools.find((tool) => tool.category === "more")!;
+    moreTool.el.el.classList.toggle(SELECT, hiddenActive);
+    const hiddenHTML = activeSide.el.querySelector("img")
+        ? activeSide.el.innerHTML
+        : moreTool.html;
+    moreTool.el.el.innerHTML = hiddenActive ? hiddenHTML : moreTool.html;
 
-    for (const [i, mel] of Object.entries(drawMainEls)) {
-        if (i === mainType) {
-            mel.el.classList.add(SELECT);
-            mel.el.innerHTML = drawSideEls[mainType][type].el.innerHTML;
-        } else {
-            mel.el.classList.remove(SELECT);
-        }
+    for (const [i, items] of Object.entries(drawSideEls)) {
         for (const [j, sel] of Object.entries(
-            drawSideEls[i as keyof EditType],
+            items as Record<string, ElType<HTMLElement>>,
         )) {
-            if (i === mainType && j === type) {
-                sel.el.classList.add(SELECT);
-            } else {
-                sel.el.classList.remove(SELECT);
-            }
+            sel.el.classList.toggle(SELECT, i === mainType && j === type);
         }
     }
 
@@ -3141,19 +3148,25 @@ function setEditType<T extends keyof EditType>(
     refreshPropertyPanel();
 }
 
-function showSideBarItem(index: number) {
+function showSideBarIndex(index: number) {
     showSideBar(true);
-    for (const [i, { w, el }] of drawBarSideElChildren.entries()) {
+    for (const [
+        i,
+        { w, el, anchorCategory },
+    ] of drawBarSideElChildren.entries()) {
         if (index === i) {
             const height = Math.ceil(el.el.children.length / w);
             const x = w;
             const y = height;
+            const anchor = drawMainTools.findIndex(
+                (tool) => tool.category === anchorCategory,
+            );
             el.style({ display: "", width: `${x * bSize}px` });
             let left = bSize * 1;
             if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth)
                 left = -bSize * x;
             drawSideBar.style.left = `${left}px`;
-            drawSideBar.style.top = `${bSize * Math.min(i, drawMainBar.children.length - y)}px`;
+            drawSideBar.style.top = `${bSize * Math.min(anchor, drawMainBar.children.length - y)}px`;
             drawSideBar.style.width = `${bSize * x}px`;
             drawSideBar.style.height = `${bSize * y}px`;
         } else {
@@ -3161,6 +3174,14 @@ function showSideBarItem(index: number) {
         }
     }
     scheduleElementBarPosition();
+}
+
+function showSideBarByCategory(category: "select" | "more") {
+    showSideBarIndex(
+        drawBarSideElChildren.findIndex(
+            (item) => item.anchorCategory === category,
+        ),
+    );
 }
 
 function isInDrawBar() {
@@ -3808,23 +3829,66 @@ const drawBarSideEl = view()
     .class(Class.glassBar)
     .addInto(drawBarEl);
 
-const drawMainElsx = {
-    select: iconEl("rect_select").attr({
+const drawMainToolDefs: {
+    category: keyof EditType | "more";
+    type?: string;
+    icon: IconType;
+    id: string;
+    title: string;
+}[] = [
+    {
+        category: "select",
+        icon: "rect_select",
         id: "draw_select",
-        title: "选择与控制",
-    }),
-    free: iconEl("free_draw").attr({ id: "draw_free", title: "自由绘画" }),
-    shapes: iconEl("shapes").attr({ id: "draw_shapes", title: "形状和文字" }),
-    filters: iconEl("filters").attr({ id: "draw_filters", title: "滤镜" }),
-    position: iconEl("position").attr({
-        id: "draw_position",
-        title: "层叠高度",
-    }),
-    操作: iconEl("setting").attr({ id: "draw_操作", title: "操作" }),
-} as const;
-
-const drawBarMainElList = Object.values(drawMainElsx);
-for (const el of drawBarMainElList) {
+        title: "选择",
+    },
+    {
+        category: "draw",
+        type: "free",
+        icon: "draw",
+        id: "draw_free",
+        title: "画笔",
+    },
+    {
+        category: "shape",
+        type: "rect",
+        icon: "rect",
+        id: "draw_rect",
+        title: "矩形",
+    },
+    {
+        category: "shape",
+        type: "text",
+        icon: "text",
+        id: "draw_text",
+        title: "文字",
+    },
+    {
+        category: "shape",
+        type: "arrow",
+        icon: "arrow",
+        id: "draw_arrow",
+        title: "箭头",
+    },
+    {
+        category: "filter",
+        type: "pixelate",
+        icon: "pixelate",
+        id: "draw_pixelate",
+        title: "马赛克",
+    },
+    {
+        category: "more",
+        icon: "more",
+        id: "draw_more",
+        title: "更多",
+    },
+];
+const drawMainTools = drawMainToolDefs.map((tool) => {
+    const el = iconEl(tool.icon).attr({ id: tool.id, title: tool.title });
+    return { ...tool, el, html: el.el.innerHTML };
+});
+for (const { el } of drawMainTools) {
     drawBarMainEl.add(el);
 }
 
@@ -3861,14 +3925,14 @@ const drawSideFilters = {
     contrast: iconEl("contrast").attr({ title: "对比度" }),
     saturation: iconEl("saturation").attr({ title: "饱和度" }),
     hue: iconEl("hue").attr({ title: "色调" }),
-    gamma: view().attr({ title: "伽马" }),
-    noise: view().attr({ title: "噪点" }),
+    gamma: filterTextEl("伽马"),
+    noise: filterTextEl("噪点"),
 } as const;
 
 const drawSideFiltersMoreGray = {
-    gray_average: view().attr({ title: "平均灰度" }),
-    gray_lightness: view().attr({ title: "亮度" }),
-    gray_luminosity: view().attr({ title: "亮度" }),
+    gray_average: filterTextEl("平均灰度"),
+    gray_lightness: filterTextEl("亮度"),
+    gray_luminosity: filterTextEl("亮度"),
 };
 
 const drawSideFiltersMore = {
@@ -3910,8 +3974,12 @@ const drawSide操作 = {
         .data({ key: showShortKey("Delete") }),
 } as const;
 
+function filterTextEl(title: string) {
+    return view().attr({ title }).add(t(title));
+}
+
 function filterEl(name: string, title: string) {
-    return view().attr({ id: `draw_filters_${name}`, title });
+    return filterTextEl(title).attr({ id: `draw_filters_${name}` });
 }
 
 function drawSideGen(els: Record<string, ElType<HTMLElement>>, pid: string) {
@@ -3926,36 +3994,50 @@ function drawSideGen2(pid: string) {
         .attr({ id: `draw_${pid}_i` });
 }
 
-const drawBarSideElChildren: { w: number; el: ElType<HTMLElement> }[] = [
+drawSideGen(drawSideSelect, "select");
+drawSideGen(drawSideFree, "free");
+drawSideGen(drawSideShapes, "shapes");
+drawSideGen(drawSideFilters, "filters");
+drawSideGen(drawSidePosition, "position");
+drawSideGen(drawSide操作, "操作");
+
+const drawMoreItems = [
+    drawSideFree.eraser,
+    drawSideFree.spray,
+    drawSideShapes.line,
+    drawSideShapes.circle,
+    drawSideShapes.polyline,
+    drawSideShapes.polygon,
+    drawSideShapes.number,
+    drawSideShapes.mask,
+    drawSideFilters.blur,
+    drawSideFilters.brightness,
+    drawSideFilters.contrast,
+    drawSideFilters.saturation,
+    drawSideFilters.hue,
+    drawSideFilters.gamma,
+    drawSideFilters.noise,
+    ...Object.values(drawSideFiltersMoreGray),
+    ...Object.values(drawSideFiltersMore),
+    ...Object.values(drawSidePosition),
+    ...Object.values(drawSide操作),
+];
+
+const drawBarSideElChildren: {
+    w: number;
+    el: ElType<HTMLElement>;
+    anchorCategory: keyof EditType | "more";
+}[] = [
     {
         w: 1,
-        el: drawSideGen2("select").add(drawSideGen(drawSideSelect, "select")),
+        el: drawSideGen2("select").add(Object.values(drawSideSelect)),
+        anchorCategory: "select",
     },
     {
-        w: 1,
-        el: drawSideGen2("free").add(drawSideGen(drawSideFree, "free")),
+        w: 6,
+        el: drawSideGen2("more").add(drawMoreItems),
+        anchorCategory: "more",
     },
-    {
-        w: 2,
-        el: drawSideGen2("shapes").add(drawSideGen(drawSideShapes, "shapes")),
-    },
-    {
-        w: 3,
-        el: drawSideGen2("filters").add([
-            ...drawSideGen(drawSideFilters, "filters"),
-            ...Object.values(drawSideFiltersMoreGray),
-            view()
-                .attr({ id: "draw_filters_bs" })
-                .add(Object.values(drawSideFiltersMore)),
-        ]),
-    },
-    {
-        w: 1,
-        el: drawSideGen2("position").add(
-            drawSideGen(drawSidePosition, "position"),
-        ),
-    },
-    { w: 1, el: drawSideGen2("操作").add(drawSideGen(drawSide操作, "操作")) },
 ];
 
 drawBarSideEl.add(drawBarSideElChildren.map((i) => i.el));
@@ -4330,12 +4412,6 @@ const edgeRect: {
     type: "system" | "image";
 }[] = [];
 
-const drawMainEls: { [key in keyof EditType]: ElType<HTMLElement> } = {
-    select: drawMainElsx.select,
-    draw: drawMainElsx.free,
-    shape: drawMainElsx.shapes,
-    filter: drawMainElsx.filters,
-};
 const drawSideEls: {
     [key in keyof EditType]: { [key1 in EditType[key]]: ElType<HTMLElement> };
 } = {
@@ -4864,7 +4940,13 @@ for (const k of tools) {
     toolsX[k].el.data({ key: key.trim() });
 }
 for (const [mainKey, k] of typedEntries(drawHotKey)) {
-    drawMainEls[mainKey].data({ key: showShortKey(k.键) });
+    for (const tool of drawMainTools) {
+        if (tool.category !== mainKey) continue;
+        const key = tool.type
+            ? (k.副 as Record<string, string>)[tool.type]
+            : k.键;
+        tool.el.data({ key: showShortKey(key) });
+    }
     hotkeys(k.键, () => {
         setEditType(mainKey, editType[mainKey]);
     });
@@ -6964,25 +7046,47 @@ const drawSideBar = drawBarSideEl.el;
 showSideBar(false);
 new ResizeObserver(scheduleElementBarPosition).observe(drawBarSideEl.el);
 
-for (const [index, e] of drawBarMainElList.entries()) {
-    const Type: (keyof EditType)[] = ["select", "draw", "shape", "filter"];
-    e.on("mouseenter", () => {
-        // 用于防误触，防经过时误切换
-        willShowITime = setTimeout(() => {
-            showSideBarItem(index);
-        }, 100);
-    });
-    e.on("pointerleave", () => {
-        clearTimeout(willShowITime);
-        setTimeout(() => {
-            if (!isInDrawBar()) {
-                showSideBar(false);
+for (const tool of drawMainTools) {
+    const e = tool.el;
+    const category = tool.category;
+    if (category === "select" || category === "more") {
+        e.on("mouseenter", () => {
+            // 用于防误触，防经过时误切换
+            willShowITime = setTimeout(() => {
+                showSideBarByCategory(category);
+            }, 100);
+        });
+        e.on("pointerleave", () => {
+            clearTimeout(willShowITime);
+            setTimeout(() => {
+                if (!isInDrawBar()) {
+                    showSideBar(false);
+                }
+            }, 100);
+        });
+        e.on("contextmenu", (ev) => {
+            ev.preventDefault();
+            showSideBarByCategory(category);
+        });
+        if (category === "select") {
+            e.on("click", () => {
+                setEditType("select", editType.select);
+            });
+        }
+    } else {
+        e.on("mouseenter", () => {
+            clearTimeout(willShowITime);
+            showSideBar(false);
+        });
+        e.on("click", () => {
+            if (tool.type) {
+                setEditType(
+                    tool.category as keyof EditType,
+                    tool.type as never,
+                );
             }
-        }, 100);
-    });
-    e.on("click", () => {
-        if (index < 4) setEditType(Type[index], editType[Type[index]]);
-    });
+        });
+    }
 }
 
 for (const el of drawBarSideElChildren) {
