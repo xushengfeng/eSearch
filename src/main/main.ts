@@ -3401,8 +3401,11 @@ function githubPath(url: string): {
 
 function githubUrl(_path: string, _type: GithubUrlType | "auto" = "auto") {
     const enabled = store.get("网络.github镜像.启用");
-    const api = store.get("网络.github镜像.api") || "https://api.github.com/";
-    const base = store.get("网络.github镜像.base") || "https://github.com/";
+    const api =
+        store.getString("网络.github镜像.api").trim() ||
+        "https://api.github.com/";
+    const base =
+        store.getString("网络.github镜像.base").trim() || "https://github.com/";
     function ap(x: string) {
         return x.replace(/\/$/, "");
     }
@@ -3431,7 +3434,7 @@ mainOn("githubUrl", ([p, t]) => githubUrl(p, t));
 function checkUpdate(s手动检查?: boolean) {
     const version = store.get("设置版本");
     const m = store.get("更新.模式");
-    fetch("https://api.github.com/repos/xushengfeng/eSearch/releases")
+    fetch(githubUrl("repos/xushengfeng/eSearch/releases", "api"))
         .then((v) => v.json())
         .then(
             (

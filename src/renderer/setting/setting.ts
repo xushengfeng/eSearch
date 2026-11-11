@@ -1823,6 +1823,7 @@ const s: Partial<settingItem<SettingPath>> = {
                     name: new URL(i).hostname,
                     url: i,
                 })),
+                "https://github.com/",
             ),
     },
     "网络.github镜像.api": {
@@ -1834,6 +1835,7 @@ const s: Partial<settingItem<SettingPath>> = {
                     name: new URL(i).hostname,
                     url: i,
                 })),
+                "https://api.github.com/",
             ),
     },
     硬件加速: {
@@ -3796,7 +3798,7 @@ function dialogB(
     );
 }
 
-function selectUrl(l: { name: string; url: string }[]) {
+function selectUrl(l: { name: string; url: string }[], fallbackUrl?: string) {
     const el = xGroup("y").class(blockSetting);
     const i = input().on("input", () => {
         el.el.dispatchEvent(new CustomEvent("input"));
@@ -3810,7 +3812,19 @@ function selectUrl(l: { name: string; url: string }[]) {
         ),
     );
     const test = button("测试").on("click", () => {
-        fetch(new URL(i.gv).origin)
+        const target = i.gv || fallbackUrl;
+        if (!target) {
+            testResult.sv("测试失败");
+            return;
+        }
+        let origin: string;
+        try {
+            origin = new URL(target).origin;
+        } catch {
+            testResult.sv("测试失败");
+            return;
+        }
+        fetch(origin)
             .then(() => {
                 testResult.sv("测试成功");
             })
