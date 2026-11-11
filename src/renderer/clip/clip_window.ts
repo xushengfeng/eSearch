@@ -3053,8 +3053,11 @@ function setEditType<T extends keyof EditType>(
         fabricCanvas.discardActiveObject();
     }
     if (!(mainType === "select" && type === "draw")) {
-        editType[mainType] = type;
         nowType = mainType;
+        if (mainType === "select") {
+            selectEditType = type as EditType["select"];
+            store.set("图像编辑.记忆.select", selectEditType);
+        }
     }
 
     const SELECT = "select";
@@ -3145,14 +3148,14 @@ function setEditType<T extends keyof EditType>(
         fabricCanvas.defaultCursor = "crosshair";
     }
 
-    if (!(mainType === "select" && type === "draw"))
-        store.set(`图像编辑.记忆.${mainType}`, type);
-
     refreshPropertyPanel();
 }
 
+let currentSideIndex: number | null = null;
+
 function showSideBarIndex(index: number) {
     showSideBar(true);
+    currentSideIndex = index;
     for (const [
         i,
         { w, el, anchorCategory },
@@ -3195,6 +3198,21 @@ function showSideBarByCategory(category: "select" | "more") {
     showSideBarIndex(index);
 }
 
+function toggleMoreSideBar() {
+    const index = drawBarSideElChildren.findIndex(
+        (item) => item.anchorCategory === "more",
+    );
+    if (index === -1) return;
+    if (
+        currentSideIndex === index &&
+        !drawBarSideEl.el.classList.contains("draw_side_hide")
+    ) {
+        showSideBar(false);
+    } else {
+        showSideBarIndex(index);
+    }
+}
+
 function isInDrawBar() {
     return drawBar.contains(
         document.elementFromPoint(nowMouseE.clientX, nowMouseE.clientY),
@@ -3206,6 +3224,7 @@ function showSideBar(show: boolean) {
         drawSideBar.classList.remove("draw_side_hide");
     } else {
         drawSideBar.classList.add("draw_side_hide");
+        currentSideIndex = null;
     }
     scheduleElementBarPosition();
 }
@@ -3500,7 +3519,7 @@ function setFreePro(key: "sc" | "sw", value: string | number) {
         freeDrawCursor();
     }
     freeShadow();
-    setShapeDefault(editType.draw, key, value);
+    setShapeDefault(mode ?? "free", key, value);
 }
 
 /** 用滚轮或方向键调整当前工具的线宽 */
@@ -3995,6 +4014,7 @@ const hiddenDrawTools = drawToolEntries.filter(
 );
 
 type DrawMainTool = {
+    key: string;
     category: keyof EditType | "more" | "action";
     type?: string;
     el: ElType<HTMLElement>;
@@ -4003,6 +4023,7 @@ type DrawMainTool = {
 };
 
 function createMainTool(
+    key: string,
     category: DrawMainTool["category"],
     type: string | undefined,
     icon: IconType | undefined,
@@ -4028,18 +4049,20 @@ function createMainTool(
                   })
                   .add(t(title))
     ).attr({ id, title });
-    return { category, type, el, html: el.el.innerHTML, run };
+    return { key, category, type, el, html: el.el.innerHTML, run };
 }
 
 const selectMainTool = createMainTool(
+    "select",
     "select",
     undefined,
     "rect_select",
     "选择",
     "draw_select",
-    () => setEditType("select", editType.select),
+    () => setEditType("select", selectEditType),
 );
 const moreMainTool = createMainTool(
+    "more",
     "more",
     undefined,
     "more",
@@ -4050,6 +4073,7 @@ const visibleMainTools = visibleDrawTools.map((entry) => {
     const [category, type] = entry.key.split(".");
     const isAction = category === "position" || category === "action";
     const tool = createMainTool(
+        entry.key,
         isAction ? "action" : (category as keyof EditType),
         isAction ? undefined : type,
         entry.icon,
@@ -4634,18 +4658,8 @@ const barGap = 8;
 let drawBarMovingXY: [number, number] | null = null;
 
 let nowType: keyof EditType;
-const editType: EditType = {
-    select: "rect",
-    draw: "free",
-    filter: "pixelate",
-    shape: "rect",
-};
-const editTypeRecord = store.get("图像编辑.记忆") as EditType;
-
-editType.select = editTypeRecord.select || editType.select;
-editType.draw = editTypeRecord.draw || editType.draw;
-editType.filter = editTypeRecord.filter || editType.filter;
-editType.shape = editTypeRecord.shape || editType.shape;
+let selectEditType: EditType["select"] =
+    store.get("图像编辑.记忆.select") || "rect";
 
 let willShowITime: NodeJS.Timeout;
 
@@ -4990,28 +5004,80 @@ for (const k of tools) {
     }
     toolsX[k].el.data({ key: key.trim() });
 }
-for (const [mainKey, k] of typedEntries(drawHotKey)) {
-    for (const tool of drawMainTools) {
-        if (tool.category !== mainKey) continue;
-        const key = tool.type
-            ? (k.副 as Record<string, string>)[tool.type]
-            : k.键;
-        tool.el.data({ key: showShortKey(key) });
+const { more: moreHotKey, ...drawToolHotKey } = drawHotKey;
+const moreKey = moreHotKey.键;
+const toolShortcutKeys = new Map<string, string>();
+const digitTargets = new Map<string, string>();
+const digitActions = new Map<string, () => void>();
+const positionalTools = drawMainTools.filter(
+    (tool) => tool.category !== "more",
+);
+for (const [i, tool] of positionalTools.slice(0, 9).entries()) {
+    const digit = String(i + 1);
+    digitTargets.set(digit, tool.key);
+    digitActions.set(digit, () => tool.run?.());
+}
+const moreTool = drawMainTools.find((tool) => tool.category === "more");
+if (moreTool && moreKey) {
+    if (/^[0-9]$/.test(moreKey)) {
+        digitTargets.set(moreKey, moreTool.key);
+        digitActions.set(moreKey, toggleMoreSideBar);
+    } else {
+        hotkeys(moreKey, toggleMoreSideBar);
     }
-    hotkeys(k.键, () => {
-        setEditType(mainKey, editType[mainKey]);
-    });
+}
+
+for (const [mainKey, k] of typedEntries(drawToolHotKey)) {
     for (const [j, v] of typedEntries(k.副)) {
+        const toolKey = `${mainKey}.${j}`;
+        if (v) toolShortcutKeys.set(toolKey, v);
         try {
             // @ts-expect-error
             drawSideEls[mainKey][j].data({
                 key: showShortKey(v),
             });
         } catch (error) {}
+        if (!v) continue;
+        if (/^[0-9]$/.test(v)) {
+            digitTargets.set(v, toolKey);
+            digitActions.set(v, () => setEditType(mainKey, j));
+            continue;
+        }
         hotkeys(v, () => {
             setEditType(mainKey, j);
         });
     }
+}
+
+for (const [digit, action] of digitActions) {
+    hotkeys(digit, action);
+}
+
+for (const tool of drawMainTools) {
+    if (tool.category === "more") {
+        const key =
+            !moreKey ||
+            (/^[0-9]$/.test(moreKey) && digitTargets.get(moreKey) !== "more")
+                ? ""
+                : moreKey;
+        tool.el.data({ key: showShortKey(key) });
+        continue;
+    }
+    let digit: string | undefined;
+    for (const [d, target] of digitTargets) {
+        if (target === tool.key) {
+            digit = d;
+            break;
+        }
+    }
+    tool.el.data({
+        key: showShortKey(
+            digit ??
+                toolShortcutKeys.get(tool.key) ??
+                tool.el.el.dataset.key ??
+                "",
+        ),
+    });
 }
 
 function showShortKey(k: string) {
@@ -5532,6 +5598,18 @@ const freeColor = "#333";
 const freeWidth = 2;
 
 const shapePro: setting["图像编辑"]["形状属性"] = {};
+
+for (const [key, filter] of typedEntries(filtetMap)) {
+    if (!filter.value) continue;
+    const stored = store.get(`图像编辑.形状属性.${key}.value` as never) as
+        | number
+        | number[]
+        | undefined;
+    if (stored !== undefined) {
+        (filter.value as unknown as { value: number | number[] }).value =
+            stored;
+    }
+}
 
 // 属性栏
 let elementBarVisible = false;
@@ -6249,8 +6327,15 @@ function kindTitle(kind: string | null) {
 
 function setShapeDefault(
     kind: keyof typeof shapePro,
-    key: "fc" | "sc" | "sw" | "shadow" | ShapeStyleKey | ArrowStyleKey,
-    value: string | number | boolean,
+    key:
+        | "fc"
+        | "sc"
+        | "sw"
+        | "shadow"
+        | "value"
+        | ShapeStyleKey
+        | ArrowStyleKey,
+    value: string | number | boolean | number[],
 ) {
     const pro = shapePro[kind] ?? {};
     (pro as Record<string, unknown>)[key] = value;
@@ -6544,7 +6629,8 @@ function renderFilterToolPanel() {
         return;
     }
     addHeader("滤镜 · 默认");
-    const f = filtetMap[willFilter];
+    const filterKey = willFilter;
+    const f = filtetMap[filterKey];
     if (f.value) {
         elementBarBody.add(
             propertyRange(
@@ -6555,6 +6641,7 @@ function renderFilterToolPanel() {
                 () => f.value?.value,
                 (v) => {
                     f.value!.value = v;
+                    setShapeDefault(filterKey, "value", v);
                 },
             ),
         );
@@ -6959,6 +7046,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                     (v) => typeof v === "number",
                 );
                 if (typeof value !== "number") return;
+                const filterKey = typedKeys(filtetMap)[index];
                 elementBarBody.add(
                     propertyRange(
                         "强度",
@@ -6967,7 +7055,9 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         fl.value.step ?? 1,
                         () => value,
                         (v) => {
+                            fl.value!.value = v;
                             applyFilter(index, fl.fun(v));
+                            setShapeDefault(filterKey, "value", v);
                             schedulePropertyHistory();
                         },
                     ),
@@ -7586,4 +7676,4 @@ hotkeys("Ctrl+v", () => {
     fabricCopy();
 });
 
-setEditType("select", editType.select);
+setEditType("select", selectEditType);

@@ -67,24 +67,23 @@ const defaultSetting: setting = {
         双击: "复制",
     },
     截屏编辑快捷键: {
-        select: { 键: "1", 副: { rect: "1+2", free: "1+3", draw: "1+4" } },
-        draw: { 键: "2", 副: { free: "2+3", eraser: "2+4", spray: "2+5" } },
+        select: { 副: { rect: "1+2", free: "1+3", draw: "1+4" } },
+        more: { 键: "0" },
+        draw: { 副: { free: "2+3", eraser: "2+4", spray: "2+5" } },
         shape: {
-            键: "3",
             副: {
                 line: "3+4",
                 circle: "3+5",
                 rect: "3+6",
-                polyline: "5",
-                polygon: "6",
-                text: "7",
-                number: "8",
-                arrow: "9",
+                polyline: "",
+                polygon: "",
+                text: "",
+                number: "",
+                arrow: "",
                 mask: "3+e",
             },
         },
         filter: {
-            键: "4",
             副: {
                 pixelate: "4+5",
                 blur: "4+6",
@@ -243,9 +242,6 @@ const defaultSetting: setting = {
         },
         记忆: {
             select: "rect",
-            draw: "free",
-            shape: "rect",
-            filter: "pixelate",
         },
         收藏: {
             color: [],

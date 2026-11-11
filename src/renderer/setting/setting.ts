@@ -1337,21 +1337,9 @@ const s: Partial<settingItem<SettingPath>> = {
         name: getToolsN("editor"),
         el: () => hotkeyP("super_edit"),
     },
-    "截屏编辑快捷键.select.键": {
-        name: "选择与控制",
-        el: () => hotkeyP("rect_select"),
-    },
-    "截屏编辑快捷键.draw.键": {
-        name: "自由绘画",
-        el: () => hotkeyP("free_draw"),
-    },
-    "截屏编辑快捷键.shape.键": {
-        name: "形状和文字",
-        el: () => hotkeyP("shapes"),
-    },
-    "截屏编辑快捷键.filter.键": {
-        name: "滤镜",
-        el: () => hotkeyP("filters"),
+    "截屏编辑快捷键.more.键": {
+        name: "更多",
+        el: () => hotkeyP("more"),
     },
     "截屏编辑快捷键.select.副.rect": {
         name: "矩形选择",
@@ -1373,10 +1361,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "橡皮",
         el: () => hotkeyP("eraser"),
     },
-    // "截屏编辑快捷键.draw.副.spary": {
-    //     name: "喷刷",
-    //     el: () => hotkeyP(),
-    // },
+    "截屏编辑快捷键.draw.副.spray": {
+        name: "喷刷",
+        el: () => hotkeyP("spray"),
+    },
     "截屏编辑快捷键.shape.副.line": {
         name: "线条",
         el: () => hotkeyP("line"),
@@ -1408,6 +1396,86 @@ const s: Partial<settingItem<SettingPath>> = {
     "截屏编辑快捷键.shape.副.arrow": {
         name: "箭头",
         el: () => hotkeyP("arrow"),
+    },
+    "截屏编辑快捷键.shape.副.mask": {
+        name: "遮罩",
+        el: () => hotkeyP("mask"),
+    },
+    "截屏编辑快捷键.filter.副.pixelate": {
+        name: "马赛克",
+        el: () => hotkeyP("pixelate"),
+    },
+    "截屏编辑快捷键.filter.副.blur": {
+        name: "模糊",
+        el: () => hotkeyP("blur"),
+    },
+    "截屏编辑快捷键.filter.副.brightness": {
+        name: "亮度",
+        el: () => hotkeyP("brightness"),
+    },
+    "截屏编辑快捷键.filter.副.contrast": {
+        name: "对比度",
+        el: () => hotkeyP("contrast"),
+    },
+    "截屏编辑快捷键.filter.副.saturation": {
+        name: "饱和度",
+        el: () => hotkeyP("saturation"),
+    },
+    "截屏编辑快捷键.filter.副.hue": {
+        name: "色调",
+        el: () => hotkeyP("hue"),
+    },
+    "截屏编辑快捷键.filter.副.gamma": {
+        name: "伽马",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.noise": {
+        name: "噪点",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.invert": {
+        name: "负片",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.sepia": {
+        name: "棕褐色",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.bw": {
+        name: "黑白",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.brownie": {
+        name: "布朗尼",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.vintage": {
+        name: "老式",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.koda": {
+        name: "柯达彩色胶片",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.techni": {
+        name: "特艺色彩",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.polaroid": {
+        name: "宝丽来",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.gray_average": {
+        name: "平均灰度",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.gray_lightness": {
+        name: "亮度",
+        el: () => hotkeyP(),
+    },
+    "截屏编辑快捷键.filter.副.gray_luminosity": {
+        name: "亮度",
+        el: () => hotkeyP(),
     },
     "大小栏快捷键.左上x": {
         name: "左上x",
@@ -2415,15 +2483,6 @@ const main: {
                 ],
             },
             {
-                title: "截屏编辑栏",
-                settings: [
-                    "截屏编辑快捷键.select.键",
-                    "截屏编辑快捷键.draw.键",
-                    "截屏编辑快捷键.shape.键",
-                    "截屏编辑快捷键.filter.键",
-                ],
-            },
-            {
                 title: "截屏选择与控制",
                 settings: [
                     "截屏编辑快捷键.select.副.rect",
@@ -2432,10 +2491,15 @@ const main: {
                 ],
             },
             {
+                title: "截屏编辑栏",
+                settings: ["截屏编辑快捷键.more.键"],
+            },
+            {
                 title: "截屏自由绘画",
                 settings: [
                     "截屏编辑快捷键.draw.副.free",
                     "截屏编辑快捷键.draw.副.eraser",
+                    "截屏编辑快捷键.draw.副.spray",
                 ],
             },
             {
@@ -2449,6 +2513,31 @@ const main: {
                     "截屏编辑快捷键.shape.副.text",
                     "截屏编辑快捷键.shape.副.number",
                     "截屏编辑快捷键.shape.副.arrow",
+                    "截屏编辑快捷键.shape.副.mask",
+                ],
+            },
+            {
+                title: "截屏滤镜",
+                settings: [
+                    "截屏编辑快捷键.filter.副.pixelate",
+                    "截屏编辑快捷键.filter.副.blur",
+                    "截屏编辑快捷键.filter.副.brightness",
+                    "截屏编辑快捷键.filter.副.contrast",
+                    "截屏编辑快捷键.filter.副.saturation",
+                    "截屏编辑快捷键.filter.副.hue",
+                    "截屏编辑快捷键.filter.副.gamma",
+                    "截屏编辑快捷键.filter.副.noise",
+                    "截屏编辑快捷键.filter.副.invert",
+                    "截屏编辑快捷键.filter.副.sepia",
+                    "截屏编辑快捷键.filter.副.bw",
+                    "截屏编辑快捷键.filter.副.brownie",
+                    "截屏编辑快捷键.filter.副.vintage",
+                    "截屏编辑快捷键.filter.副.koda",
+                    "截屏编辑快捷键.filter.副.techni",
+                    "截屏编辑快捷键.filter.副.polaroid",
+                    "截屏编辑快捷键.filter.副.gray_average",
+                    "截屏编辑快捷键.filter.副.gray_lightness",
+                    "截屏编辑快捷键.filter.副.gray_luminosity",
                 ],
             },
             {

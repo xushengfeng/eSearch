@@ -223,6 +223,7 @@ body input {
     width: var(--bar-size);
     height: var(--bar-size);
     border-radius: calc(var(--bar-size) / 6);
+    position: relative;
     transition: var(--transition);
     &:not(:has(.range-b)):active {
         transform: var(--button-active);

@@ -22,10 +22,11 @@ export interface setting {
     全局工具快捷键: { [key in 功能]: string };
     工具快捷键: { [key in 功能]: string };
     截屏编辑快捷键: {
-        [key in keyof EditType]: {
-            键: string;
-            副: { [key1 in EditType[key]]: string };
-        };
+        select: { 副: { [key in EditType["select"]]: string } };
+        draw: { 副: { [key in EditType["draw"]]: string } };
+        shape: { 副: { [key in EditType["shape"]]: string } };
+        filter: { 副: { [key in EditType["filter"]]: string } };
+        more: { 键: string };
     };
     鼠标快捷键: {
         双击: "复制" | "保存";
@@ -143,7 +144,8 @@ export interface setting {
             y: number;
         };
         形状属性: {
-            [k in EditType["shape"] | EditType["draw"]]?: {
+            [k in EditType["shape"] | EditType["draw"] | EditType["filter"]]?: {
+                value?: number | number[];
                 fc?: string;
                 sc?: string;
                 sw?: number;
@@ -165,7 +167,9 @@ export interface setting {
                 arrowType?: "fill" | "stroke";
             };
         };
-        记忆: EditType;
+        记忆: {
+            select: EditType["select"];
+        };
         收藏: {
             color: string[];
             形状: {
