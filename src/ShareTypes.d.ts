@@ -135,6 +135,9 @@ export interface setting {
         };
     };
     图像编辑: {
+        编辑栏: {
+            功能: string[];
+        };
         复制偏移: {
             x: number;
             y: number;

@@ -206,7 +206,7 @@ body input {
     left: 80px;
     top: 100px;
     width: var(--bar-size);
-    height: calc(var(--bar-size) * 7);
+    height: auto;
     position: fixed;
     z-index: 100;
     transition:

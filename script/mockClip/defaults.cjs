@@ -79,6 +79,15 @@ module.exports = {
         },
     },
     图像编辑: {
+        编辑栏: {
+            功能: [
+                "draw.free",
+                "shape.rect",
+                "shape.text",
+                "shape.arrow",
+                "filter.pixelate",
+            ],
+        },
         默认属性: {
             填充颜色: "#fff",
             边框颜色: "#333",

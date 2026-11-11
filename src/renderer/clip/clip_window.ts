@@ -37,6 +37,7 @@ import store from "../../../lib/store/renderStore";
 import { t } from "../../../lib/translate/translate";
 import { isWaylandSession } from "../../../lib/wayland";
 import { writeImage, writeText } from "../lib/clipboard";
+import { clipDrawTools } from "../lib/clipDrawTools";
 import { colorPicker } from "../lib/colorPicker";
 import {
     clipboardImageFormat,
@@ -3068,12 +3069,14 @@ function setEditType<T extends keyof EditType>(
         tool.el.el.classList.toggle(SELECT, active);
         tool.el.el.innerHTML = active ? activeSide.el.innerHTML : tool.html;
     }
-    const moreTool = drawMainTools.find((tool) => tool.category === "more")!;
-    moreTool.el.el.classList.toggle(SELECT, hiddenActive);
-    const hiddenHTML = activeSide.el.querySelector("img")
-        ? activeSide.el.innerHTML
-        : moreTool.html;
-    moreTool.el.el.innerHTML = hiddenActive ? hiddenHTML : moreTool.html;
+    const moreTool = drawMainTools.find((tool) => tool.category === "more");
+    if (moreTool) {
+        moreTool.el.el.classList.toggle(SELECT, hiddenActive);
+        const hiddenHTML = activeSide.el.querySelector("img")
+            ? activeSide.el.innerHTML
+            : moreTool.html;
+        moreTool.el.el.innerHTML = hiddenActive ? hiddenHTML : moreTool.html;
+    }
 
     for (const [i, items] of Object.entries(drawSideEls)) {
         for (const [j, sel] of Object.entries(
@@ -3161,12 +3164,20 @@ function showSideBarIndex(index: number) {
             const anchor = drawMainTools.findIndex(
                 (tool) => tool.category === anchorCategory,
             );
+            const barTop = drawBar.getBoundingClientRect().top;
+            const top = Math.max(
+                -barTop + 4,
+                Math.min(
+                    bSize * Math.min(anchor, drawMainBar.children.length - y),
+                    window.innerHeight - barTop - bSize * y - 4,
+                ),
+            );
             el.style({ display: "", width: `${x * bSize}px` });
             let left = bSize * 1;
             if (drawBar.offsetLeft + bSize + bSize * x > window.innerWidth)
                 left = -bSize * x;
             drawSideBar.style.left = `${left}px`;
-            drawSideBar.style.top = `${bSize * Math.min(anchor, drawMainBar.children.length - y)}px`;
+            drawSideBar.style.top = `${top}px`;
             drawSideBar.style.width = `${bSize * x}px`;
             drawSideBar.style.height = `${bSize * y}px`;
         } else {
@@ -3177,11 +3188,11 @@ function showSideBarIndex(index: number) {
 }
 
 function showSideBarByCategory(category: "select" | "more") {
-    showSideBarIndex(
-        drawBarSideElChildren.findIndex(
-            (item) => item.anchorCategory === category,
-        ),
+    const index = drawBarSideElChildren.findIndex(
+        (item) => item.anchorCategory === category,
     );
+    if (index === -1) return;
+    showSideBarIndex(index);
 }
 
 function isInDrawBar() {
@@ -3829,69 +3840,6 @@ const drawBarSideEl = view()
     .class(Class.glassBar)
     .addInto(drawBarEl);
 
-const drawMainToolDefs: {
-    category: keyof EditType | "more";
-    type?: string;
-    icon: IconType;
-    id: string;
-    title: string;
-}[] = [
-    {
-        category: "select",
-        icon: "rect_select",
-        id: "draw_select",
-        title: "选择",
-    },
-    {
-        category: "draw",
-        type: "free",
-        icon: "draw",
-        id: "draw_free",
-        title: "画笔",
-    },
-    {
-        category: "shape",
-        type: "rect",
-        icon: "rect",
-        id: "draw_rect",
-        title: "矩形",
-    },
-    {
-        category: "shape",
-        type: "text",
-        icon: "text",
-        id: "draw_text",
-        title: "文字",
-    },
-    {
-        category: "shape",
-        type: "arrow",
-        icon: "arrow",
-        id: "draw_arrow",
-        title: "箭头",
-    },
-    {
-        category: "filter",
-        type: "pixelate",
-        icon: "pixelate",
-        id: "draw_pixelate",
-        title: "马赛克",
-    },
-    {
-        category: "more",
-        icon: "more",
-        id: "draw_more",
-        title: "更多",
-    },
-];
-const drawMainTools = drawMainToolDefs.map((tool) => {
-    const el = iconEl(tool.icon).attr({ id: tool.id, title: tool.title });
-    return { ...tool, el, html: el.el.innerHTML };
-});
-for (const { el } of drawMainTools) {
-    drawBarMainEl.add(el);
-}
-
 const drawSideSelect = {
     rect: iconEl("rect_select").attr({ title: "矩形选择" }),
     free: iconEl("free_select").attr({ title: "自由选择" }),
@@ -4001,27 +3949,130 @@ drawSideGen(drawSideFilters, "filters");
 drawSideGen(drawSidePosition, "position");
 drawSideGen(drawSide操作, "操作");
 
-const drawMoreItems = [
-    drawSideFree.eraser,
-    drawSideFree.spray,
-    drawSideShapes.line,
-    drawSideShapes.circle,
-    drawSideShapes.polyline,
-    drawSideShapes.polygon,
-    drawSideShapes.number,
-    drawSideShapes.mask,
-    drawSideFilters.blur,
-    drawSideFilters.brightness,
-    drawSideFilters.contrast,
-    drawSideFilters.saturation,
-    drawSideFilters.hue,
-    drawSideFilters.gamma,
-    drawSideFilters.noise,
-    ...Object.values(drawSideFiltersMoreGray),
-    ...Object.values(drawSideFiltersMore),
-    ...Object.values(drawSidePosition),
-    ...Object.values(drawSide操作),
+function getDrawToolEl(key: string) {
+    const [category, type] = key.split(".");
+    if (category === "draw") {
+        if (type === "free") return drawSideFree.pencil;
+        const map = {
+            eraser: drawSideFree.eraser,
+            spray: drawSideFree.spray,
+        } as const;
+        return map[type as keyof typeof map];
+    }
+    if (category === "shape")
+        return drawSideShapes[type as keyof typeof drawSideShapes];
+    if (category === "filter")
+        return drawSideFiltersAll[type as keyof typeof drawSideFiltersAll];
+    if (category === "position")
+        return drawSidePosition[type as keyof typeof drawSidePosition];
+    if (category === "action") {
+        const map = {
+            undo: drawSide操作.撤回,
+            redo: drawSide操作.重做,
+            copy: drawSide操作.复制,
+            delete: drawSide操作.删除,
+        } as const;
+        return map[type as keyof typeof map];
+    }
+    throw new Error(`未知编辑栏工具: ${key}`);
+}
+
+const drawToolEntries = clipDrawTools.map((meta) => ({
+    ...meta,
+    el: getDrawToolEl(meta.key),
+}));
+const drawToolEntryMap = new Map(
+    drawToolEntries.map((entry) => [entry.key, entry]),
+);
+const configuredDrawToolKeys = store.get("图像编辑.编辑栏.功能");
+const visibleDrawTools = configuredDrawToolKeys.flatMap((key) => {
+    const entry = drawToolEntryMap.get(key);
+    return entry ? [entry] : [];
+});
+const visibleDrawToolKeys = new Set(visibleDrawTools.map((entry) => entry.key));
+const hiddenDrawTools = drawToolEntries.filter(
+    (entry) => !visibleDrawToolKeys.has(entry.key),
+);
+
+type DrawMainTool = {
+    category: keyof EditType | "more" | "action";
+    type?: string;
+    el: ElType<HTMLElement>;
+    html: string;
+    run?: () => void;
+};
+
+function createMainTool(
+    category: DrawMainTool["category"],
+    type: string | undefined,
+    icon: IconType | undefined,
+    title: string,
+    id: string,
+    run?: () => void,
+): DrawMainTool {
+    const el = (
+        icon
+            ? iconEl(icon)
+            : view()
+                  .style({
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      position: "relative",
+                      padding: "4px",
+                      boxSizing: "border-box",
+                      fontSize: "calc(var(--bar-size) / 5)",
+                      lineHeight: "1.1",
+                      textAlign: "center",
+                      cursor: "pointer",
+                  })
+                  .add(t(title))
+    ).attr({ id, title });
+    return { category, type, el, html: el.el.innerHTML, run };
+}
+
+const selectMainTool = createMainTool(
+    "select",
+    undefined,
+    "rect_select",
+    "选择",
+    "draw_select",
+    () => setEditType("select", editType.select),
+);
+const moreMainTool = createMainTool(
+    "more",
+    undefined,
+    "more",
+    "更多",
+    "draw_more",
+);
+const visibleMainTools = visibleDrawTools.map((entry) => {
+    const [category, type] = entry.key.split(".");
+    const isAction = category === "position" || category === "action";
+    const tool = createMainTool(
+        isAction ? "action" : (category as keyof EditType),
+        isAction ? undefined : type,
+        entry.icon,
+        entry.title,
+        `draw_main_${entry.key.replace(/\./g, "_")}`,
+        isAction
+            ? () => entry.el.el.click()
+            : () => setEditType(category as keyof EditType, type as never),
+    );
+    const key = entry.el.el.dataset.key;
+    if (key) tool.el.data({ key });
+    return tool;
+});
+const drawMainTools: DrawMainTool[] = [
+    selectMainTool,
+    ...visibleMainTools,
+    ...(hiddenDrawTools.length > 0 ? [moreMainTool] : []),
 ];
+for (const { el } of drawMainTools) {
+    drawBarMainEl.add(el);
+}
+
+const drawMoreItems = hiddenDrawTools.map((entry) => entry.el);
 
 const drawBarSideElChildren: {
     w: number;
@@ -7070,7 +7121,7 @@ for (const tool of drawMainTools) {
         });
         if (category === "select") {
             e.on("click", () => {
-                setEditType("select", editType.select);
+                tool.run?.();
             });
         }
     } else {
@@ -7079,12 +7130,7 @@ for (const tool of drawMainTools) {
             showSideBar(false);
         });
         e.on("click", () => {
-            if (tool.type) {
-                setEditType(
-                    tool.category as keyof EditType,
-                    tool.type as never,
-                );
-            }
+            tool.run?.();
         });
     }
 }

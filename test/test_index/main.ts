@@ -392,6 +392,15 @@ const defaultSetting: setting = {
         },
     },
     图像编辑: {
+        编辑栏: {
+            功能: [
+                "draw.free",
+                "shape.rect",
+                "shape.text",
+                "shape.arrow",
+                "filter.pixelate",
+            ],
+        },
         复制偏移: {
             x: 10,
             y: 10,

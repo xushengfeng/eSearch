@@ -31,6 +31,7 @@ import type { GetValue, SettingPath } from "../../../lib/store/renderStore";
 import store from "../../../lib/store/renderStore";
 import { getLanName, getLans, lan, t } from "../../../lib/translate/translate";
 import type { GithubUrlType, setting, 功能 } from "../../ShareTypes";
+import { clipDrawTools } from "../lib/clipDrawTools";
 import { colorPicker } from "../lib/colorPicker";
 import {
     BERGAMOT_LANGS,
@@ -80,7 +81,7 @@ import {
 import { xget, xset } from "../../../lib/store/parse";
 import time_format from "../../../lib/time_format";
 import { safeJSONParse, tryD, tryx } from "../../../lib/utils";
-import type { IconType } from "../../iconTypes";
+import type { IconType, RawIconType } from "../../iconTypes";
 import { runAI } from "../lib/ai";
 import { isDeepStrictEqual } from "../lib/isDeepStrictEqual";
 import { defaultOcrId } from "../ocr/ocr";
@@ -164,6 +165,12 @@ function getToolsN(k: 功能) {
     return (tools.find((i) => i.key === k) as (typeof tools)[0]).title;
 }
 
+const drawTools = clipDrawTools.map((i) => ({
+    key: i.key,
+    icon: i.icon ? getImgUrl(`${i.icon}.svg` as RawIconType) : undefined,
+    title: t(i.title),
+}));
+
 const s: Partial<settingItem<SettingPath>> = {
     工具栏跟随: {
         name: "工具栏跟随",
@@ -185,6 +192,11 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "按钮显示和排序",
         desc: "拖拽以控制按键顺序和显示",
         el: () => sortTool().class(blockSetting),
+    },
+    "图像编辑.编辑栏.功能": {
+        name: "按钮显示和排序",
+        desc: "拖拽以控制按键顺序和显示",
+        el: () => sortTool(drawTools, { hideWrap: true }).class(blockSetting),
     },
     "工具栏.初始位置": {
         name: "工具栏位置",
@@ -2128,6 +2140,10 @@ const main: {
                     "工具栏.稍后出现",
                 ],
             },
+            {
+                title: "编辑栏",
+                settings: ["图像编辑.编辑栏.功能"],
+            },
             { title: "鼠标跟随栏", settings: ["鼠标跟随栏.显示"] },
             {
                 title: "取色器",
@@ -2642,6 +2658,7 @@ const bindF2: { f: (has: boolean) => void; keys: SettingPath[] }[] = [
         keys: [
             "工具栏跟随",
             "工具栏",
+            "图像编辑.编辑栏",
             "鼠标跟随栏",
             "取色器",
             "框选",
@@ -3486,8 +3503,14 @@ function sortable() {
     };
 }
 
-function sortTool() {
-    const pel = xGroup("x").style({ paddingLeft: "8px" });
+function sortTool(
+    toolList: { key: string; icon?: string; title: string }[] = tools,
+    options: { hideWrap?: boolean } = {},
+) {
+    const pel = xGroup("x").style({
+        paddingLeft: "8px",
+        alignItems: "flex-start",
+    });
     const toolShowEl = view().class(Class.glassBar).class(toolBarClass).style({
         minWidth: "var(--b-button)",
         minHeight: "var(--b-button)",
@@ -3507,18 +3530,40 @@ function sortTool() {
             pel.el.dispatchEvent(new CustomEvent("input"));
         },
     });
-    pel.add([
-        toolShowEl,
-        xGroup("y").add([view().add(iconEl("hide")), toolHideEl]),
-    ]);
+    const hideGroup = xGroup("y").add([view().add(iconEl("hide")), toolHideEl]);
+    pel.add([toolShowEl, hideGroup]);
+    if (options.hideWrap) hideGroup.style({ alignItems: "flex-start" });
+    function updateHideLayout(count: number) {
+        if (!options.hideWrap) return;
+        const cols = Math.max(1, Math.min(6, Math.ceil(Math.sqrt(count))));
+        toolHideEl.style({
+            display: "flex",
+            flexWrap: "wrap",
+            alignContent: "flex-start",
+            width: `calc(var(--bar-size) * ${cols})`,
+        });
+    }
     function getItems(v: string[]) {
         return v.flatMap((i) => {
-            const x = tools.find((x) => x.key === i);
+            const x = toolList.find((x) => x.key === i);
             if (!x) {
                 console.log(`${i} is udf`);
                 return [];
             }
-            return view().data({ n: i }).add(tIconEl(x.icon));
+            return view()
+                .data({ n: i })
+                .style({
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "4px",
+                    boxSizing: "border-box",
+                    fontSize: "calc(var(--bar-size) / 5)",
+                    lineHeight: "1.1",
+                    textAlign: "center",
+                    cursor: "pointer",
+                })
+                .add(x.icon ? tIconEl(x.icon) : x.title);
         });
     }
     return pel
@@ -3529,14 +3574,13 @@ function sortTool() {
             return l;
         })
         .bindSet((v: string[]) => {
-            toolShowEl.clear().add(getItems(v));
-            toolHideEl
-                .clear()
-                .add(
-                    getItems(
-                        tools.map((i) => i.key).filter((i) => !v.includes(i)),
-                    ),
-                );
+            const showItems = getItems(v);
+            const hideItems = getItems(
+                toolList.map((i) => i.key).filter((i) => !v.includes(i)),
+            );
+            toolShowEl.clear().add(showItems);
+            toolHideEl.clear().add(hideItems);
+            updateHideLayout(hideItems.length);
         });
 }
 
