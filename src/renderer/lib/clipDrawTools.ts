@@ -13,6 +13,7 @@ export const clipDrawTools: ClipDrawToolMeta[] = [
     { key: "shape.line", icon: "line", title: "线条" },
     { key: "shape.circle", icon: "circle", title: "圆" },
     { key: "shape.rect", icon: "rect", title: "矩形" },
+    { key: "shape.frame", icon: "frame", title: "框" },
     { key: "shape.polyline", icon: "polyline", title: "折线" },
     { key: "shape.polygon", icon: "polygon", title: "多边形" },
     { key: "shape.text", icon: "text", title: "文字" },

@@ -3034,7 +3034,7 @@ function getArrowPro() {
 
 function shapeStyleKeys(name: keyof typeof shapePro): ShapeStyleKey[] {
     if (name === "mask") return ["rx", "feather"];
-    if (name === "rect") return ["dash", "rx"];
+    if (name === "rect" || name === "frame") return ["dash", "rx"];
     if (name === "text")
         return [
             "fontFamily",
@@ -3096,6 +3096,7 @@ function getShapePro(name: keyof typeof shapePro) {
                 store.get(`图像编辑.形状属性.${name}.${x}`) ?? v[x];
         }
     }
+    if (name === "frame") v.sw = Math.max(1, v.sw);
     return v;
 }
 
@@ -3430,6 +3431,22 @@ function draw(
             strokeDashArray: dash,
             canChangeFill: true,
             形状: "rect",
+        });
+    } else if (shape === "frame") {
+        shapeX = new Frame({
+            left: x,
+            top: y,
+            width: w,
+            height: h,
+            rx: pro.rx,
+            ry: pro.rx,
+            originX: "left",
+            originY: "top",
+            fill: null,
+            stroke: strokeColor,
+            strokeWidth: Math.max(1, strokeWidth),
+            strokeDashArray: dash,
+            形状: "frame",
         });
     } else if (shape === "text") {
         shapeX = new IText(t("点击输入文字"), {
@@ -3929,6 +3946,7 @@ const drawSideShapes = {
     line: iconEl("line").attr({ title: "线条" }),
     circle: iconEl("circle").attr({ title: "圆" }),
     rect: iconEl("rect").attr({ title: "矩形" }),
+    frame: iconEl("frame").attr({ title: "框" }),
     polyline: iconEl("polyline").attr({ title: "折线" }),
     polygon: iconEl("polygon").attr({ title: "多边形" }),
     text: iconEl("text").attr({ title: "文字" }),
@@ -6384,6 +6402,7 @@ function getObjectKind(o: FabricObject): string {
 function kindTitle(kind: string | null) {
     const names: Record<string, string> = {
         rect: "矩形",
+        frame: "框",
         circle: "圆",
         line: "线条",
         polyline: "折线",
@@ -6464,7 +6483,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
         setShapeDefault(kind, "sw", v);
     };
 
-    if (!["line", "arrow", "polyline"].includes(kind))
+    if (!["line", "arrow", "polyline", "frame"].includes(kind))
         elementBarBody.add(
             propertyColor(
                 propIcon("fill", kind === "text" ? "文字颜色" : "填充"),
@@ -6483,7 +6502,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
         elementBarBody.add(
             propertyRange(
                 propIcon("width", "线宽"),
-                0,
+                kind === "frame" ? 1 : 0,
                 undefined,
                 1,
                 () => getShapePro(kind).sw,
@@ -6500,7 +6519,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
         );
     }
 
-    if (kind === "rect" || kind === "mask") {
+    if (kind === "rect" || kind === "frame" || kind === "mask") {
         elementBarBody.add(
             propertyNumber(
                 propIcon("corner", kind === "mask" ? "洞口圆角" : "圆角"),
@@ -6851,7 +6870,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
             ),
             propertyRange(
                 propIcon("width", "线宽"),
-                0,
+                kind === "frame" ? 1 : 0,
                 undefined,
                 1,
                 () => commonValue(objects, (o) => o.strokeWidth),
@@ -7087,7 +7106,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         ),
                 ),
             ]);
-        } else if (kind === "rect" || kind === "mask") {
+        } else if (kind === "rect" || kind === "frame" || kind === "mask") {
             const r = o as Rect;
             elementBarBody.add(
                 propertyNumber(
@@ -7573,6 +7592,18 @@ class mask extends Rect {
 
 classRegistry.setClass(mask);
 classRegistry.setSVGClass(mask);
+
+class Frame extends Rect {
+    static type = "frame";
+    static customProperties = ["形状"];
+    constructor(options?: ConstructorParameters<typeof Rect>[0]) {
+        super(options);
+        this.set({ fill: null });
+        if (this.strokeWidth < 1) this.set("strokeWidth", 1);
+    }
+}
+
+classRegistry.setClass(Frame);
 
 class xnumber extends Circle {
     static type = "number";

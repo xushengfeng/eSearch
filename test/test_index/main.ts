@@ -253,6 +253,7 @@ const defaultSetting: setting = {
                 line: "3+4",
                 circle: "3+5",
                 rect: "3+6",
+                frame: "",
                 polyline: "",
                 polygon: "",
                 text: "",

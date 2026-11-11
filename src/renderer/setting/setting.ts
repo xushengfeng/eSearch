@@ -1376,6 +1376,10 @@ const s: Partial<settingItem<SettingPath>> = {
         name: "矩形",
         el: () => hotkeyP("rect"),
     },
+    "截屏编辑快捷键.shape.副.frame": {
+        name: "框",
+        el: () => hotkeyP("frame"),
+    },
     "截屏编辑快捷键.shape.副.polyline": {
         name: "折线",
         el: () => hotkeyP("polyline"),
@@ -2509,6 +2513,7 @@ const main: {
                     "截屏编辑快捷键.shape.副.line",
                     "截屏编辑快捷键.shape.副.circle",
                     "截屏编辑快捷键.shape.副.rect",
+                    "截屏编辑快捷键.shape.副.frame",
                     "截屏编辑快捷键.shape.副.polyline",
                     "截屏编辑快捷键.shape.副.polygon",
                     "截屏编辑快捷键.shape.副.text",

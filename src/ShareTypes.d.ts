@@ -471,6 +471,7 @@ type EditType = {
         | "line"
         | "circle"
         | "rect"
+        | "frame"
         | "polyline"
         | "polygon"
         | "text"
