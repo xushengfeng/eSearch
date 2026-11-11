@@ -544,6 +544,41 @@ body input {
     padding: 0 3px;
     border-radius: 3px;
 }
+#element_bar .prop_font {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: stretch;
+    min-width: 0;
+    height: 20px;
+    border-radius: 3px;
+    outline: 1px solid var(--border-color);
+    outline-offset: -1px;
+    overflow: hidden;
+}
+#element_bar .prop_font > input {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    height: 100%;
+    padding: 0 4px;
+    font-size: 11px;
+    background: transparent;
+}
+#element_bar .prop_font_btn {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 100%;
+    padding: 0;
+    opacity: 0.75;
+    cursor: pointer;
+}
+#element_bar .prop_font_btn:hover {
+    background-color: var(--hover-color);
+    opacity: 1;
+}
 #element_bar input[type="color"] {
     width: 26px;
     height: 20px;
@@ -730,6 +765,19 @@ body input {
 .color_tab {
     line-height: 1;
     text-box: trim-both cap alphabetic;
+}
+#font_panel .font_item {
+    display: flex;
+    overflow: hidden;
+    padding-inline: 4px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+#font_panel .font_item:hover {
+    background-color: var(--hover-color);
 }
 .color_swatch {
     width: 100%;

@@ -5320,9 +5320,16 @@ document.onmousemove = (e) => {
             const isColorPopover =
                 colorPopoverOpen &&
                 colorPopover.el.contains(ev.target as HTMLElement);
+            const isFontPanel =
+                fontPanelOpen &&
+                fontPanel.el.contains(ev.target as HTMLElement);
             mouseBarEl.el.classList.toggle(
                 "mouse_bar_hide",
-                isDrawBar || isToolBar || isElementBar || isColorPopover,
+                isDrawBar ||
+                    isToolBar ||
+                    isElementBar ||
+                    isColorPopover ||
+                    isFontPanel,
             );
 
             // 画板栏移动
@@ -5419,6 +5426,7 @@ function setElementBarVisible(v: boolean) {
 
 function hideElementBar() {
     closeColorPopover();
+    closeFontPanel();
     setElementBarVisible(false);
 }
 
@@ -5722,6 +5730,246 @@ function propertyInput(
     return propertyRow(label, i);
 }
 
+/** 本地字体列表，首次打开时加载 */
+let localFonts: string[] | null = null;
+async function getLocalFonts() {
+    if (localFonts) return localFonts;
+    try {
+        const fonts = await (
+            window as unknown as {
+                queryLocalFonts?: () => Promise<
+                    { fullName: string; family: string }[]
+                >;
+            }
+        ).queryLocalFonts?.();
+        localFonts = Array.from(
+            new Set((fonts ?? []).flatMap((f) => [f.fullName, f.family])),
+        )
+            .filter(Boolean)
+            .sort();
+    } catch {
+        localFonts = [];
+    }
+    return localFonts;
+}
+
+const fontItemHeight = 24;
+let fontPanelOpen = false;
+let fontPanelOwner: HTMLElement | null = null;
+let fontPanelButton: HTMLElement | null = null;
+let fontPanelTarget: ((v: string) => void) | null = null;
+let fontPanelValue = "";
+let fontList: string[] = [];
+let fontRenderFrame = 0;
+
+const fontPanel = view("y")
+    .attr({ id: "font_panel" })
+    .class(Class.gap, Class.glassBar)
+    .style({
+        position: "fixed",
+        inset: "auto",
+        display: "none",
+        margin: 0,
+        padding: "4px",
+        width: "240px",
+        maxHeight: "calc(100vh - 8px)",
+        overflow: "hidden",
+        color: "var(--font-color)",
+        borderRadius: "var(--border-radius)",
+        boxShadow: "var(--shadow)",
+        visibility: "hidden",
+        zIndex: "120",
+    })
+    .addInto();
+const fontSearch = input()
+    .attr({ placeholder: t("搜索字体") })
+    .style({ width: "100%", height: "24px", fontSize: "12px" })
+    .on("input", () => renderFonts(true));
+const fontScroll = view().style({
+    position: "relative",
+    height: "260px",
+    maxHeight: "calc(100vh - 60px)",
+    overflowY: "auto",
+});
+const fontSpacer = view().style({ position: "relative" });
+fontScroll.add(fontSpacer);
+fontPanel.add([fontSearch, fontScroll]);
+fontScroll.on("scroll", () => {
+    if (fontRenderFrame) return;
+    fontRenderFrame = requestAnimationFrame(() => {
+        fontRenderFrame = 0;
+        renderFonts();
+    });
+});
+
+function renderFonts(reset = false) {
+    if (reset) {
+        const query = fontSearch.gv.trim().toLowerCase();
+        const all = localFonts ?? [];
+        fontList = query
+            ? all.filter((f) => f.toLowerCase().includes(query))
+            : all;
+        fontScroll.el.scrollTop = 0;
+    }
+    const height = fontScroll.el.clientHeight || 260;
+    const start = Math.max(
+        0,
+        Math.floor(fontScroll.el.scrollTop / fontItemHeight) - 4,
+    );
+    const end = Math.min(
+        fontList.length,
+        start + Math.ceil(height / fontItemHeight) + 8,
+    );
+    fontSpacer.style({ height: `${fontList.length * fontItemHeight}px` });
+    fontSpacer.clear();
+    for (let n = start; n < end; n++) {
+        const name = fontList[n];
+        fontSpacer.add(
+            view("x")
+                .class("font_item")
+                .style({
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: `${n * fontItemHeight}px`,
+                    height: `${fontItemHeight}px`,
+                    alignItems: "center",
+                    background:
+                        name === fontPanelValue ? "var(--bar-focus-color)" : "",
+                })
+                .add(txt(name, true))
+                .on("click", () => {
+                    fontPanelTarget?.(name);
+                    closeFontPanel();
+                }),
+        );
+    }
+}
+
+function positionFontPanel() {
+    if (!fontPanelOpen || !fontPanelOwner) return;
+    const rect = fontPanelOwner.getBoundingClientRect();
+    const width = fontPanel.el.offsetWidth;
+    const height = fontPanel.el.offsetHeight;
+    const gap = 4;
+    const margin = 4;
+    let left = rect.right + gap;
+    let top = rect.top;
+    if (left + width > window.innerWidth - margin) {
+        left = rect.left;
+        top = rect.bottom + gap;
+        if (top + height > window.innerHeight - margin) {
+            top = rect.top - height - gap;
+        }
+    }
+    fontPanel.style({
+        left: `${Math.max(
+            margin,
+            Math.min(window.innerWidth - width - margin, left),
+        )}px`,
+        top: `${Math.max(
+            margin,
+            Math.min(window.innerHeight - height - margin, top),
+        )}px`,
+        visibility: "visible",
+    });
+}
+
+function onFontOutside(e: PointerEvent) {
+    const target = e.target as Node | null;
+    if (!target) return;
+    if (fontPanel.el.contains(target) || fontPanelButton?.contains(target))
+        return;
+    closeFontPanel();
+}
+
+function onFontKey(e: KeyboardEvent) {
+    if (e.key === "Escape") closeFontPanel();
+}
+
+function closeFontPanel() {
+    if (!fontPanelOpen) return;
+    fontPanelOpen = false;
+    fontPanel.style({ display: "none", visibility: "hidden" });
+    fontPanelOwner = null;
+    fontPanelButton = null;
+    fontPanelTarget = null;
+    document.removeEventListener("pointerdown", onFontOutside, true);
+    document.removeEventListener("keydown", onFontKey, true);
+    window.removeEventListener("resize", positionFontPanel);
+    document.removeEventListener("scroll", positionFontPanel, true);
+}
+
+async function openFontPanel(
+    owner: HTMLElement,
+    buttonEl: HTMLElement,
+    value: string,
+    apply: (v: string) => void,
+) {
+    if (fontPanelOpen) closeFontPanel();
+    fontPanelOpen = true;
+    fontPanelOwner = owner;
+    fontPanelButton = buttonEl;
+    fontPanelTarget = apply;
+    fontPanelValue = value;
+    fontSearch.sv("");
+    fontPanel.style({ display: "flex" });
+    renderFonts(true);
+    positionFontPanel();
+    document.addEventListener("pointerdown", onFontOutside, true);
+    document.addEventListener("keydown", onFontKey, true);
+    window.addEventListener("resize", positionFontPanel);
+    document.addEventListener("scroll", positionFontPanel, true);
+    await getLocalFonts();
+    if (!fontPanelOpen) return;
+    renderFonts(true);
+    const index = fontList.indexOf(fontPanelValue);
+    if (index >= 0) {
+        fontScroll.el.scrollTop = Math.max(
+            0,
+            index * fontItemHeight -
+                fontScroll.el.clientHeight / 2 +
+                fontItemHeight / 2,
+        );
+        renderFonts();
+        positionFontPanel();
+    }
+    fontSearch.el.focus();
+}
+
+function propertyFont(
+    label: string,
+    get: () => string | undefined,
+    set: (v: string) => void,
+) {
+    const valueEl = input().class("prop_font_value");
+    const current = get();
+    valueEl.sv(current ?? "");
+    const update = (v: string, syncInput: boolean) => {
+        if (syncInput) valueEl.sv(v);
+        set(v);
+        schedulePropertyHistory();
+    };
+    valueEl.on("input", () => update(valueEl.gv, false));
+    const pick = button()
+        .class("prop_font_btn")
+        .attr({ title: t("选择字体") })
+        .add(
+            image(getImgUrl("search.svg"), "icon")
+                .class("icon")
+                .style({ width: "14px", height: "14px" }),
+        );
+    const control = view("x").class("prop_font").add([valueEl, pick]);
+    pick.on("click", () => {
+        if (fontPanelOpen && fontPanelOwner === control.el) {
+            closeFontPanel();
+            return;
+        }
+        openFontPanel(control.el, pick.el, valueEl.gv, (v) => update(v, true));
+    });
+    return propertyRow(label, control);
+}
+
 function propertyText(
     label: string,
     get: () => string | undefined,
@@ -5991,7 +6239,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
 
     if (kind === "text") {
         elementBarBody.add([
-            propertyInput(
+            propertyFont(
                 "字体",
                 () => getShapePro("text").fontFamily,
                 (v) => setShapeDefault("text", "fontFamily", v),
@@ -6186,6 +6434,7 @@ function renderFilterToolPanel() {
 }
 
 function renderToolPropertyPanel() {
+    closeFontPanel();
     elementBarHeader.clear();
     elementBarBody.clear();
     if (nowType === "shape" && shape) {
@@ -6201,6 +6450,7 @@ function renderToolPropertyPanel() {
 }
 
 function renderElementPropertyPanel(objects: FabricObject[]) {
+    closeFontPanel();
     const kinds = new Set(objects.map(getObjectKind));
     const kind = kinds.size === 1 ? [...kinds][0] : null;
     const single = objects.length === 1;
@@ -6345,7 +6595,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                             t.initDimensions();
                         }),
                 ),
-                propertyInput(
+                propertyFont(
                     "字体",
                     () => (o as IText).fontFamily,
                     (v) =>
