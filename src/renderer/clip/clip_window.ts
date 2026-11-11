@@ -4771,7 +4771,7 @@ const filtetMap: {
         fun: (v) => new Filters.Pixelate({ blocksize: v }),
     },
     blur: {
-        value: { value: 1, max: 5, text: "%", step: 0.01 },
+        value: { value: 1, max: 5, step: 0.01 },
         fun: (v) => new Filters.Blur({ blur: v }),
     },
     brightness: {
@@ -5790,6 +5790,7 @@ function numberControl(
     digits = 2,
     min?: number,
     max?: number,
+    text = "",
 ) {
     const precision = 10 ** digits;
     const round = (v: number) => Math.round(v * precision) / precision;
@@ -5805,7 +5806,7 @@ function numberControl(
             valueEl.el.textContent = "—";
             valueEl.el.classList.add("prop_mixed");
         } else {
-            valueEl.el.textContent = String(round(value));
+            valueEl.el.textContent = String(round(value)) + text;
             valueEl.el.classList.remove("prop_mixed");
         }
     };
@@ -5870,10 +5871,11 @@ function propertyRange(
     step: number,
     get: () => number | undefined,
     set: (v: number) => void,
+    text = "",
 ) {
     return propertyRow(
         label,
-        numberControl(get, set, step, stepDigits(step), min, max),
+        numberControl(get, set, step, stepDigits(step), min, max, text),
     );
 }
 
@@ -6693,6 +6695,7 @@ function renderFilterToolPanel() {
                     f.value!.value = v;
                     setShapeDefault(filterKey, "value", v);
                 },
+                f.value.text,
             ),
         );
     }
@@ -7110,6 +7113,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                             setShapeDefault(filterKey, "value", v);
                             schedulePropertyHistory();
                         },
+                        fl.value.text,
                     ),
                 );
             });
