@@ -125,7 +125,6 @@ const nowStoreK = new Set<SettingPath>();
 let defaultSetting: null | setting = null;
 
 const settingMemKey = "设置记忆";
-const oldSettingMemo = getSettingMem();
 
 const mainLan = getSet("语言.语言");
 const displayLan = new Intl.DisplayNames(mainLan, {
@@ -2691,6 +2690,8 @@ for (const p of main) {
 
 console.log("s-m", sKeys.difference(mKeys), "m-s", mKeys.difference(sKeys));
 
+const oldSettingMemo = getSettingMem();
+
 const bind: { [k in KeyPath]?: KeyPath[] } = {
     离线OCR: ["OCR.类型"],
     "AI.在线模型": ["OCR.类型"],
@@ -2804,10 +2805,14 @@ function getSettingMem() {
         "快捷键.截屏搜索.key",
         "语言.语言",
     ];
-    return safeJSONParse<SettingPath[]>(
+    const memo = safeJSONParse<SettingPath[]>(
         localStorage.getItem(settingMemKey),
         xs,
     );
+    const validMemo = memo.filter((k) => sKeys.has(k));
+    if (validMemo.length !== memo.length)
+        localStorage.setItem(settingMemKey, JSON.stringify(validMemo));
+    return validMemo;
 }
 
 function getFromStore<t extends SettingPath>(
