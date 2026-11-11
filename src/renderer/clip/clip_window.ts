@@ -5595,21 +5595,23 @@ function propertyRange(
 
 function colorControl(get: () => string | undefined, set: (v: string) => void) {
     const swatch = view()
-        .class("prop_swatch")
+        .style({
+            width: "20px",
+            height: "20px",
+            outline: "1px solid var(--border-color)",
+            outlineOffset: "-1px",
+            borderRadius: "3px",
+        })
         .attr({ title: t("颜色") });
     const color = input().class("prop_color_input");
+    const bgGroup = view("x").add(swatch).add(color);
     const alpha = rangeBar(0, 1, 0.01).class("prop_alpha");
     const value = get();
     let c = value ? chroma(value) : chroma("#fff");
     const showColor = (inputColor: chroma.Color) => {
         color.sv(inputColor.hex());
         color.style({ color: pickTextColor(inputColor) });
-        color.el.style.setProperty(
-            "background-color",
-            inputColor.hex(),
-            "important",
-        );
-        swatch.style({ "background-color": inputColor.hex() });
+        bgGroup.style({ "background-color": inputColor.hex() });
     };
     const applyValue = (v: string) => {
         try {
@@ -5637,8 +5639,13 @@ function colorControl(get: () => string | undefined, set: (v: string) => void) {
         openColorPopover(swatch.el, () => c.css(), applyValue),
     );
     return view("x")
-        .style({ gap: "3px", alignItems: "center", minWidth: 0 })
-        .add([swatch, color, alpha]);
+        .style({
+            alignItems: "center",
+            minWidth: 0,
+            borderRadius: "3px",
+            overflow: "hidden",
+        })
+        .add([bgGroup, alpha]);
 }
 
 function propertyColor(
@@ -5716,17 +5723,9 @@ function toggleButton(
     get: () => boolean,
     set: (v: boolean) => void,
 ) {
-    const b = button(label).style({
-        minWidth: "20px",
-        width: "20px",
-        height: "18px",
-        padding: 0,
-        fontSize: "10px",
-    });
+    const b = button(label).class("prop_toggle");
     const sync = () => {
-        b.style({
-            background: get() ? "var(--bar-focus-color)" : "transparent",
-        });
+        b.el.classList.toggle("selected", get());
     };
     b.on("click", () => {
         set(!get());
@@ -5864,9 +5863,7 @@ function addHeader(
         advanced?: boolean;
     } = {},
 ) {
-    const list: ElType<HTMLElement>[] = [
-        txt(title).style({ fontWeight: "bold", fontSize: "12px" }),
-    ];
+    const list: ElType<HTMLElement>[] = [txt(title)];
     if (options.advanced) {
         const advanced = smallIcon("setting", "高级", () => {
             propertyAdvanced = !propertyAdvanced;

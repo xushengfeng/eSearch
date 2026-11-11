@@ -508,7 +508,6 @@ body input {
 }
 #element_bar_header > :first-child {
     flex: 1;
-    font-weight: bold;
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -517,7 +516,7 @@ body input {
 #element_bar_body {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 2px;
 }
 #element_bar .prop_row {
     display: flex;
@@ -557,6 +556,8 @@ body input {
     font-size: 11px;
     resize: vertical;
     border-radius: 3px;
+    padding: 0;
+    background-color: transparent;
 }
 #element_bar .range-b {
     width: 72px;
@@ -710,6 +711,22 @@ body input {
     background-color: var(--hover-color);
 }
 #element_bar .prop_option.selected {
+    background-color: var(--bar-focus-color);
+}
+#element_bar .prop_toggle {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border-radius: 3px;
+    outline: 1px solid var(--border-color);
+    outline-offset: -1px;
+    color: var(--font-color);
+    font-size: 11px;
+}
+#element_bar .prop_toggle:hover {
+    background-color: var(--hover-color);
+}
+#element_bar .prop_toggle.selected {
     background-color: var(--bar-focus-color);
 }
 
