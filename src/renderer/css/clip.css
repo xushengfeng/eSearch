@@ -530,7 +530,9 @@ body input {
     color: var(--font-color);
     opacity: 0.82;
     font-size: 11px;
+    line-height: 1;
     white-space: nowrap;
+    text-box: trim-both cap alphabetic;
 }
 #element_bar .prop_pair > .prop_label {
     min-width: auto;
@@ -651,10 +653,11 @@ body input {
     font-family: var(--monospace);
     font-size: 10px;
     font-variant-numeric: tabular-nums;
+    line-height: 1;
     text-align: center;
     white-space: nowrap;
-    overflow: hidden;
     cursor: ew-resize;
+    text-box: trim-both cap alphabetic;
 }
 
 #element_bar .prop_options {
@@ -681,6 +684,10 @@ body input {
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
+}
+#element_bar .prop_option > span {
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
 }
 #element_bar .prop_option + .prop_option {
     box-shadow: inset 1px 0 var(--border-color);
@@ -719,6 +726,10 @@ body input {
     border-radius: 3px;
     cursor: pointer;
     box-sizing: border-box;
+}
+.color_tab {
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
 }
 .color_swatch {
     width: 100%;

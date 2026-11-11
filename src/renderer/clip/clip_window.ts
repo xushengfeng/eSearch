@@ -4009,9 +4009,11 @@ const inlinePicker = colorPicker({
     width: "100%",
 });
 const colorTabGrid = button(t("色盘"))
+    .class("color_tab")
     .style({ padding: "1px 6px", fontSize: "11px" })
     .on("click", () => setColorTab("grid"));
 const colorTabPicker = button(t("取色器"))
+    .class("color_tab")
     .style({ padding: "1px 6px", fontSize: "11px" })
     .on("click", () => setColorTab("picker"));
 colorTabs.add([colorTabGrid, colorTabPicker]);

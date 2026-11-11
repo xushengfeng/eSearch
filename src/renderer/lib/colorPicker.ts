@@ -87,6 +87,8 @@ export function colorPicker(
             width: "auto",
             minWidth: 0,
             fontFamily: "var(--monospace)",
+            lineHeight: "1",
+            paddingTop: "1px",
         })
         .on("input", () => {
             const c = parseColor(text.gv);
