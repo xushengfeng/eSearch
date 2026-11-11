@@ -2,7 +2,7 @@
 
 import { EraserBrush } from "@erase2d/fabric";
 import chroma from "chroma-js";
-import { detectBorders } from "edge_det";
+import type { Border } from "edge_det";
 import {
     ActiveSelection,
     Canvas,
@@ -48,6 +48,7 @@ import {
 import { Class, cssColor, getImgUrl, initStyle, setTitle } from "../root/root";
 
 import initScreenShots, { getWindowInfos } from "../screenShot/screenShot";
+import EdgeWorker from "./edgeWorker?worker";
 
 const screenShots = initScreenShots(
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
@@ -345,6 +346,7 @@ async function setScreen(i: (typeof allScreens)[0]) {
     fabricCanvas.setDimensions({ width: w, height: h });
     setClipSize(w, h);
     toCanvas(mainCanvas, img);
+    resetImageEdge();
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     if (记忆框选)
         if (记忆框选值?.[i.id]?.[2]) {
@@ -354,6 +356,7 @@ async function setScreen(i: (typeof allScreens)[0]) {
         } // 记忆框选边不为0时
     drawClipRect();
     nowScreenId = i.id;
+    if (store.get("框选.自动框选.图像识别")) setTimeout(ensureImageEdge, 0);
 
     if (w < window.innerWidth || h < window.innerHeight)
         document.body.classList.add("editor_bg");
@@ -536,36 +539,76 @@ function setClipCursor(c: string) {
     clipEl.style.cursor = c;
 }
 
-function edge() {
-    const canvas = mainCanvas;
+let edgeWorker: Worker | null = null;
+let edgeRequestId = 0;
+let edgeState: "idle" | "running" | "done" = "idle";
 
-    const cMin = store.get("框选.自动框选.最小阈值");
-    const cMax = store.get("框选.自动框选.最大阈值");
-
-    const borders = detectBorders(
-        new Uint8Array(
-            canvas
-                .getContext("2d")!
-                .getImageData(0, 0, canvas.width, canvas.height).data,
-        ),
-        canvas.width,
-        canvas.height,
-        {
-            lowThreshold: cMin,
-            highThreshold: cMax,
-            minArea: 3,
-        },
-    );
-
-    for (const r of borders) {
-        edgeRect.push({
-            x: r.x,
-            y: r.y,
-            width: r.w,
-            height: r.h,
-            type: "image",
-        });
+/** 清掉视觉识别结果，窗口结果保留 */
+function clearImageEdge() {
+    for (let i = edgeRect.length - 1; i >= 0; i--) {
+        if (edgeRect[i].type === "image") edgeRect.splice(i, 1);
     }
+}
+
+/** 切换屏幕时作废进行中的识别 */
+function resetImageEdge() {
+    edgeRequestId++;
+    edgeState = "idle";
+    clearImageEdge();
+    setEdge([]);
+}
+
+function getEdgeWorker() {
+    if (edgeWorker) return edgeWorker;
+    const worker = new EdgeWorker();
+    worker.onmessage = (e: MessageEvent<{ id: number; borders: Border[] }>) => {
+        const { id, borders } = e.data;
+        if (id !== edgeRequestId) return;
+        edgeState = "done";
+        for (const r of borders) {
+            edgeRect.push({
+                x: r.x,
+                y: r.y,
+                width: r.w,
+                height: r.h,
+                type: "image",
+            });
+        }
+        refreshEdgeHint();
+    };
+    worker.onerror = (e) => {
+        console.error("图像识别失败", e.message);
+        worker.terminate();
+        if (edgeWorker === worker) {
+            edgeWorker = null;
+            edgeState = "idle";
+        }
+    };
+    edgeWorker = worker;
+    return worker;
+}
+
+/** 每个屏幕只识别一次，按 S 时若未识别过则补上 */
+function ensureImageEdge() {
+    if (edgeState !== "idle") return;
+    const canvas = mainCanvas;
+    const width = canvas.width;
+    const height = canvas.height;
+    const data = canvas.getContext("2d")?.getImageData(0, 0, width, height);
+    if (!data) return;
+    edgeState = "running";
+    const id = ++edgeRequestId;
+    getEdgeWorker().postMessage(
+        {
+            id,
+            buffer: data.data.buffer,
+            width,
+            height,
+            lowThreshold: store.get("框选.自动框选.最小阈值"),
+            highThreshold: store.get("框选.自动框选.最大阈值"),
+        },
+        [data.data.buffer],
+    );
 }
 
 function getWin() {
@@ -2119,6 +2162,12 @@ function refreshClipUi() {
         ckx(e);
         inEdge(src2pXYdb(e));
     }
+}
+
+/** 只刷新自动框选提示，不动当前选区 */
+function refreshEdgeHint() {
+    if (!nowMouseE) return;
+    inEdge(src2pXYdb(e2srcPoint(nowMouseE)));
 }
 
 /**
@@ -4628,7 +4677,6 @@ let direction:
     | "西南"
     | "东北"
     | "西北";
-const autoPhotoSelectRect = store.get("框选.自动框选.图像识别");
 let /**鼠标是否移动过，用于自动框选点击判断 */ moved = false;
 let /**鼠标是否按住 */ down = false;
 let /**是否选好了选区，若手动选好，自动框选提示关闭 */ rectSelect = false;
@@ -5351,15 +5399,11 @@ document.onmouseup = (e) => {
 };
 
 hotkeys("s", () => {
-    if (autoPhotoSelectRect) {
-        edge();
-        rectSelect = false;
-        finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
-        drawClipRect();
-    }
     rectSelect = false;
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     drawClipRect();
+    ensureImageEdge();
+    refreshEdgeHint();
 });
 
 const whHotKeyMap = {
