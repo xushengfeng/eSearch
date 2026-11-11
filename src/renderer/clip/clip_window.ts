@@ -717,11 +717,16 @@ function runQr() {
     toolsX.close.f();
 }
 
+/** 是否处于绘画模式，绘画时不触发自动框选 */
+let drawingMode = false;
+
 function drawM(v: boolean) {
+    drawingMode = v;
     if (v) {
         // 绘画模式
         clipEl.style.pointerEvents = "none";
         whEl.style({ pointerEvents: "none" });
+        setEdge([]);
         refreshPropertyPanel();
     } else {
         // 裁切模式
@@ -2174,7 +2179,7 @@ function refreshEdgeHint() {
  * 自动框选提示
  */
 function inEdge(p: editor_position) {
-    if (rectSelect) {
+    if (rectSelect || drawingMode) {
         setEdge([]);
         return;
     }
@@ -5399,6 +5404,7 @@ document.onmouseup = (e) => {
 };
 
 hotkeys("s", () => {
+    if (drawingMode) return;
     rectSelect = false;
     finalRect = [0, 0, mainCanvas.width, mainCanvas.height];
     drawClipRect();
