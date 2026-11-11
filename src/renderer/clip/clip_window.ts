@@ -4767,11 +4767,11 @@ const filtetMap: {
     };
 } = {
     pixelate: {
-        value: { value: 16, max: 20, text: "px" },
+        value: { min: 1, value: 16, max: 200, text: "px" },
         fun: (v) => new Filters.Pixelate({ blocksize: v }),
     },
     blur: {
-        value: { value: 1, max: 5, text: "%", step: 0.1 },
+        value: { value: 1, max: 5, text: "%", step: 0.01 },
         fun: (v) => new Filters.Blur({ blur: v }),
     },
     brightness: {
