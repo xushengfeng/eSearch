@@ -5439,7 +5439,16 @@ function propIcon(kind: "fill" | "stroke" | "corner" | "width", title: string) {
         .class("prop_icon")
         .class(kind)
         .attr({ title: t(title) });
-    if (kind === "width") el.add(txt("线").style({ fontSize: "9px" }));
+    if (kind === "fill" || kind === "stroke") {
+        const iconSrc = kind === "fill" ? "fill.svg" : "storke.svg";
+        el.add(
+            image(getImgUrl(iconSrc), "icon")
+                .class("icon")
+                .style({ width: "16px", height: "16px" }),
+        );
+    } else if (kind === "width") {
+        el.add(txt("线").style({ fontSize: "9px" }));
+    }
     return el;
 }
 
@@ -5541,16 +5550,24 @@ function numberControl(
     show();
     const minus = view()
         .class("prop_num_btn")
-        .class("minus")
         .attr({ title: t("减少") })
         .on("pointerdown", (e) => e.stopPropagation())
-        .on("click", () => setValue((value ?? 0) - step));
+        .on("click", () => setValue((value ?? 0) - step))
+        .add(
+            image(getImgUrl("minus.svg"), "icon")
+                .class("icon")
+                .style({ width: "12px", height: "12px" }),
+        );
     const plus = view()
         .class("prop_num_btn")
-        .class("plus")
         .attr({ title: t("增加") })
         .on("pointerdown", (e) => e.stopPropagation())
-        .on("click", () => setValue((value ?? 0) + step));
+        .on("click", () => setValue((value ?? 0) + step))
+        .add(
+            image(getImgUrl("add.svg"), "icon")
+                .class("icon")
+                .style({ width: "12px", height: "12px" }),
+        );
     const el = view("x").class("prop_num").add([minus, valueEl, plus]);
     trackPoint(el, {
         start: () => ({ x: 0, y: 0, data: fix(value ?? 0) }),
@@ -5719,11 +5736,19 @@ function propertyText(
 }
 
 function toggleButton(
-    label: string,
+    icon: IconType,
+    title: string,
     get: () => boolean,
     set: (v: boolean) => void,
 ) {
-    const b = button(label).class("prop_toggle");
+    const b = button()
+        .class("prop_toggle")
+        .attr({ title: t(title) })
+        .add(
+            image(getImgUrl(`${icon}.svg`), "icon")
+                .class("icon")
+                .style({ width: "16px", height: "16px" }),
+        );
     const sync = () => {
         b.el.classList.toggle("selected", get());
     };
@@ -5983,7 +6008,8 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                     .style({ gap: "2px", alignItems: "center" })
                     .add([
                         toggleButton(
-                            "B",
+                            "bold",
+                            "加粗",
                             () => getShapePro("text").fontWeight === "bold",
                             (v) =>
                                 setShapeDefault(
@@ -5993,7 +6019,8 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                                 ),
                         ),
                         toggleButton(
-                            "I",
+                            "italic",
+                            "斜体",
                             () => getShapePro("text").fontStyle === "italic",
                             (v) =>
                                 setShapeDefault(
@@ -6003,7 +6030,8 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                                 ),
                         ),
                         toggleButton(
-                            "U",
+                            "underline",
+                            "下划线",
                             () => getShapePro("text").underline === true,
                             (v) => setShapeDefault("text", "underline", v),
                         ),
@@ -6344,7 +6372,8 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                         .style({ gap: "2px", alignItems: "center" })
                         .add([
                             toggleButton(
-                                "B",
+                                "bold",
+                                "加粗",
                                 () => (o as IText).fontWeight === "bold",
                                 (v) =>
                                     applyActiveRemember(
@@ -6362,7 +6391,8 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                                     ),
                             ),
                             toggleButton(
-                                "I",
+                                "italic",
+                                "斜体",
                                 () => (o as IText).fontStyle === "italic",
                                 (v) =>
                                     applyActiveRemember(
@@ -6380,7 +6410,8 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
                                     ),
                             ),
                             toggleButton(
-                                "U",
+                                "underline",
+                                "下划线",
                                 () => (o as IText).underline === true,
                                 (v) =>
                                     applyActiveRemember(
