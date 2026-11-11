@@ -2982,7 +2982,6 @@ function shapeStyleKeys(name: keyof typeof shapePro): ShapeStyleKey[] {
     if (name === "rect") return ["dash", "rx"];
     if (name === "text")
         return [
-            "dash",
             "fontFamily",
             "fontSize",
             "fontWeight",
@@ -3334,9 +3333,6 @@ function draw(
             originX: "left",
             originY: "top",
             fill: fillColor,
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-            strokeDashArray: dash,
             canChangeFill: true,
             形状: "text",
             fontFamily: pro.fontFamily,
@@ -6185,7 +6181,7 @@ function renderShapeToolPanel(kind: EditType["shape"]) {
                 fill,
             ),
         );
-    if (kind !== "mask") {
+    if (kind !== "mask" && kind !== "text") {
         elementBarBody.add(
             propertyColor(
                 propIcon("stroke", "描边"),
@@ -6528,7 +6524,7 @@ function renderElementPropertyPanel(objects: FabricObject[]) {
 
     const canFill = objects.every((o) => o.canChangeFill);
     const canStroke = objects.every(
-        (o) => getObjectKind(o) !== "mask" && getObjectKind(o) !== "filter",
+        (o) => !["mask", "filter", "text"].includes(getObjectKind(o) ?? ""),
     );
     if (canFill)
         elementBarBody.add(
