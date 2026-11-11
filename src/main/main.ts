@@ -44,6 +44,7 @@ import {
 } from "electron";
 import minimist from "minimist";
 import main from "xtranslator";
+import { githubMirrorList } from "../../lib/github_mirror";
 import type { RecordRect } from "../../lib/ipc";
 import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
 import Store from "../../lib/store/store";
@@ -3321,6 +3322,17 @@ function versionTrans() {
     }
     if (store.get("屏幕翻译.语言.to") === "") {
         store.set("屏幕翻译.语言.to", matchBestLan());
+    }
+    if (versionCompare(version, "15.7.1") <= 0) {
+        if (store.get("网络.github镜像.api") === "https://api.kkgithub.com/") {
+            store.set("网络.github镜像.api", githubMirrorList.api[0]);
+        }
+        if (
+            store.get("网络.github镜像.base") ===
+            "https://gh.llkk.cc/https://github.com/"
+        ) {
+            store.set("网络.github镜像.base", githubMirrorList.base[0]);
+        }
     }
     if (versionCompare(version, "15.6.1") <= 0) {
         const list = store.get("工具栏.功能");

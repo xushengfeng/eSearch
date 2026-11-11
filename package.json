@@ -17,6 +17,7 @@
         "typecheck": "npx tsc -b --noEmit --force",
         "test": "vitest run",
         "long-stitch": "node script/long-stitch.mjs",
+        "check:github-mirror": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON script/check_github_mirror.mjs",
         "format": "biome format --write .",
         "lint": "biome check .",
         "fix": "biome check --write ."

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { checkbox, confirm, select } from "@inquirer/prompts";
+import { githubMirrorList } from "../../lib/github_mirror.ts";
 import { xset } from "../../lib/store/parse.ts";
 import type { setting } from "../../src/ShareTypes";
 
@@ -629,8 +630,8 @@ const defaultSetting: setting = {
     网络: {
         github镜像: {
             启用: true,
-            api: "https://api.kkgithub.com/",
-            base: "https://github.moeyy.xyz/https://github.com/",
+            api: githubMirrorList.api[0],
+            base: githubMirrorList.base[0],
         },
     },
 };
