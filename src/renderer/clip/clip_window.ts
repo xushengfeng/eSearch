@@ -5926,6 +5926,7 @@ function colorControl(get: () => string | undefined, set: (v: string) => void) {
             outline: "1px solid var(--border-color)",
             outlineOffset: "-1px",
             borderRadius: "3px",
+            cursor: "pointer",
         })
         .attr({ title: t("颜色") });
     const color = input().class("prop_color_input");
