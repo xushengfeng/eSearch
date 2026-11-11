@@ -224,6 +224,7 @@ const defaultSetting: setting = {
                 "shape.rect",
                 "shape.text",
                 "shape.arrow",
+                "shape.number",
                 "filter.pixelate",
             ],
         },
