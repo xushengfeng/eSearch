@@ -220,6 +220,7 @@ app.whenReady().then(async () => {
             case "clip_translate":
             case "clip_recordx":
             case "clip_ding":
+            case "copy_image":
             case "copy_image_file":
             case "ok_save":
             case "clip_stop_long":

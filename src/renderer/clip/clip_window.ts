@@ -1680,9 +1680,7 @@ async function runCopy() {
 function runSave() {
     if (store.get("保存.快速保存")) {
         type = store.get("保存.默认格式");
-        renderSend("clip_hide", []);
-        const p = renderSendSync("save_file_path", [type]);
-        save(p);
+        save(() => renderSendSync("save_file_path", [type]));
         return;
     }
     showSaveBar(true);
@@ -1714,40 +1712,44 @@ function runSave() {
         showSaveBar(false);
     });
 }
-async function save(message: string) {
-    if (!message) return;
-    const iType = message.split(".")?.pop()?.toLowerCase() as
-        | setting["保存"]["默认格式"]
-        | undefined;
-    const _type = iType && saveTypeList.includes(iType) ? iType : type;
-
-    if (_type !== "svg") store.set("保存.默认格式", _type);
-
+async function save(getPath: () => string) {
     const fs = require("node:fs");
+    const nc = getClipPhoto();
     let dataBuffer: Uint8Array;
     try {
-        if (_type === "svg") dataBuffer = Buffer.from(getClipPhotoSVG());
-        else {
-            const nc = getClipPhoto();
-            dataBuffer = await encodeCanvasImage(nc, _type);
-            if (store.get("保存.保存并复制")) {
-                // 剪贴板只稳定支持常见类型，其他格式另编码一份 png
-                const copyType = clipboardImageFormat(_type);
-                const copyBuffer =
-                    copyType === _type
-                        ? dataBuffer
-                        : await encodeCanvasImage(nc, "png");
-                await writeImage(
-                    new Blob([copyBuffer], {
-                        type: imageFormatMime[copyType],
-                    }),
-                ); // todo tip
-            }
-        }
+        dataBuffer =
+            type === "svg"
+                ? Buffer.from(getClipPhotoSVG())
+                : await encodeCanvasImage(nc, type);
     } catch (e) {
         console.error("保存失败", e);
         return;
     }
+
+    if (type !== "svg" && store.get("保存.保存并复制")) {
+        // 剪贴板只稳定支持常见类型，其他格式另编码一份 png
+        const copyType = clipboardImageFormat(type);
+        try {
+            const copyBuffer =
+                copyType === type
+                    ? dataBuffer
+                    : await encodeCanvasImage(nc, "png");
+            // 等待剪贴板写入完成后再隐藏窗口
+            await writeImage(
+                new Blob([copyBuffer], {
+                    type: imageFormatMime[copyType],
+                }),
+            ); // todo tip
+        } catch (e) {
+            console.error("复制失败", e);
+        }
+    }
+
+    renderSend("clip_hide", []);
+    const message = getPath();
+    if (!message) return;
+
+    if (type !== "svg") store.set("保存.默认格式", type);
 
     fs.writeFile(message, dataBuffer, (err: Error | null) => {
         if (!err) {
@@ -4457,8 +4459,7 @@ const suffixList = saveTypeList.map((i) =>
         .on("click", () => {
             type = i;
             showSaveBar(false);
-            renderSend("clip_hide", []);
-            save(renderSendSync("clip_save", [i]));
+            save(() => renderSendSync("clip_save", [i]));
         }),
 );
 view().attr({ id: "suffix" }).add(suffixList).addInto(saveType);

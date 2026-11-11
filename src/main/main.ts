@@ -1825,6 +1825,11 @@ mainOn("clip_save", async ([type]) => {
 mainOn("clip_ding", ([img, type, rect]) => {
     createDingWindow(rect.x, rect.y, rect.w, rect.h, img, type);
 });
+mainOn("copy_image", async ([buffer, type]) => {
+    await clipboard.write([
+        new ClipboardItem({ [type]: new Blob([buffer], { type }) }),
+    ]);
+});
 mainOn("copy_image_file", async ([buffer, type]) => {
     await writeImageFileToClipboard(Buffer.from(buffer), type);
 });
