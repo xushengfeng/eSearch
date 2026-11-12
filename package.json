@@ -49,7 +49,7 @@
         "minimist": "^1.2.8",
         "myde-dbus": "^0.5.2",
         "node-screenshots": "^0.2.8",
-        "onnxruntime-node": "^1.27.0",
+        "onnxruntime-node": "^1.31.1",
         "pako": "^3.0.3",
         "picture_match": "^0.2.0",
         "qr-scanner-wechat": "^0.1.3",

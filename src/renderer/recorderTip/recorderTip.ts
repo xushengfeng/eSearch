@@ -14,6 +14,7 @@ import { jsKeyCodeDisplay } from "../../../lib/key";
 import store from "../../../lib/store/renderStore";
 import { typedEntries } from "../../../lib/utils";
 import type { IconType } from "../../iconTypes";
+import ort from "../lib/ort";
 import { Class, cssVar, getImgUrl, initStyle } from "../root/root";
 
 function initRecord() {
@@ -248,7 +249,7 @@ async function initSeg() {
     seg = require("esearch-seg") as typeof import("esearch-seg");
     await seg.init({
         segPath: path.join(__dirname, "../../assets/onnx/seg", "seg.onnx"),
-        ort: require("onnxruntime-node"),
+        ort,
         ortOption: {
             executionProviders: [{ name: store.get("AI.运行后端") || "cpu" }],
         },

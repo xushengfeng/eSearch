@@ -87,8 +87,8 @@ importers:
         specifier: ^0.2.8
         version: 0.2.8
       onnxruntime-node:
-        specifier: ^1.27.0
-        version: 1.27.0
+        specifier: ^1.31.1
+        version: 1.31.1
       pako:
         specifier: ^3.0.3
         version: 3.0.3
@@ -2380,11 +2380,11 @@ packages:
   onnxruntime-common@1.22.0:
     resolution: {integrity: sha512-vcuaNWgtF2dGQu/EP5P8UI5rEPEYqXG2sPPe5j9lg2TY/biJF8eWklTMwlDO08iuXq48xJo0awqIpK5mPG+IxA==}
 
-  onnxruntime-common@1.27.0:
-    resolution: {integrity: sha512-3KxL5wIVqa8Ex08jxSzncm9CMgw8CjOFyOQ7SxvG9o0cVLlhTNKXyIQuTbtX4tGPJEf73OER2xrjt4HJSBL4ow==}
+  onnxruntime-common@1.31.1:
+    resolution: {integrity: sha512-F+nnYNiQtmNJ95V6R/isBJqiVpdANCrsMEg1OaF+Bkbl3GAtzWLR7Ng17Ld0QtYtYJyotOHPJzOQn1Y6PLZjpg==}
 
-  onnxruntime-node@1.27.0:
-    resolution: {integrity: sha512-QEzGwrvNBgv4uPVdnbHsOGG4G6T96mdlcFI8aAKPjMU8wOPpVocPXb6k3QGkaZagVTv2G9Bnnbo6Z3JdXr1fQw==}
+  onnxruntime-node@1.31.1:
+    resolution: {integrity: sha512-ijnSghbDHVWaQ2nDPmVccPlCHI8kH1Mx1aJ4a/qzRP16bBcVs4E3EqZQKZCkhWnbqN1tuQWxagimFtDpbPYYQw==}
     os: [win32, darwin, linux]
 
   p-cancelable@2.1.1:
@@ -5153,13 +5153,13 @@ snapshots:
 
   onnxruntime-common@1.22.0: {}
 
-  onnxruntime-common@1.27.0: {}
+  onnxruntime-common@1.31.1: {}
 
-  onnxruntime-node@1.27.0:
+  onnxruntime-node@1.31.1:
     dependencies:
       adm-zip: 0.6.1
       global-agent: 4.1.3
-      onnxruntime-common: 1.27.0
+      onnxruntime-common: 1.31.1
 
   p-cancelable@2.1.1: {}
 

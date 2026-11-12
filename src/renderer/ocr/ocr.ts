@@ -1,4 +1,5 @@
 import type { InitOcrBase } from "esearch-ocr";
+import ort from "../lib/ort";
 
 const path = require("node:path") as typeof import("path");
 const fs = require("node:fs") as typeof import("fs");
@@ -62,7 +63,6 @@ function loadOCR(
         return null;
     }
     const localOCR = require("esearch-ocr") as typeof import("esearch-ocr");
-    const ort = require("onnxruntime-node");
     const provider = store.get("AI.运行后端") || "cpu";
     console.log("ocr provider", provider);
 

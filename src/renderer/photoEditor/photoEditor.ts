@@ -30,11 +30,11 @@ import { Class, cssVar, getImgUrl, initStyle, setTitle } from "../root/root";
 
 const { existsSync, writeFileSync } = require("node:fs") as typeof import("fs");
 const { join } = require("node:path") as typeof import("path");
-const ort = require("onnxruntime-node") as typeof import("onnxruntime-node");
 
 import { renderOn, renderSend, renderSendSync } from "../../../lib/ipc";
 import { t } from "../../../lib/translate/translate";
 import type { IconType } from "../../iconTypes";
+import ort from "../lib/ort";
 import removeobj from "../lib/removeObj";
 
 function icon(src: IconType) {
