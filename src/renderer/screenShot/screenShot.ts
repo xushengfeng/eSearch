@@ -1,10 +1,9 @@
-const { ipcRenderer, nativeImage, shell, dialog } =
+const { ipcRenderer, nativeImage, shell, dialog, screen } =
     require("electron") as typeof import("electron");
 
 import type { MessageBoxSyncOptions, NativeImage } from "electron";
-import { renderSendSync } from "../../../lib/ipc";
-import { tryxAwait } from "../../../lib/utils";
-import { waylandShotInit } from "./waylandShot";
+import type { PortalCapture } from "../../../lib/ipc";
+import { renderInvoke, renderSendSync } from "../../../lib/ipc";
 
 type WindowData = {
     /** node-screenshots 的原始矩形 */
@@ -159,12 +158,14 @@ export function getWindowInfos(
 let _command: string | undefined;
 let commandSavePath = "/dev/shm/esearch-img.png";
 let _useXDGDesktopProtal = false;
+let _capturePortalScreens: (() => Promise<PortalCapture[]>) | undefined;
 
 function init(
     command: { c: string; path?: string },
     feedback?: (m: string) => string,
     t?: (t: string) => string,
     useXDGDesktopProtal?: boolean,
+    capturePortalScreens?: () => Promise<PortalCapture[]>,
 ) {
     _command = command.c;
     if (command.path) commandSavePath = command.path;
@@ -215,7 +216,8 @@ function init(
                 }
             }
         }
-    if (useXDGDesktopProtal) _useXDGDesktopProtal = true;
+    _useXDGDesktopProtal = Boolean(useXDGDesktopProtal);
+    _capturePortalScreens = capturePortalScreens;
     return dispaly2screen;
 }
 
@@ -300,70 +302,61 @@ async function dispaly2screen(
     }
 
     if (process.platform === "linux" && _useXDGDesktopProtal) {
-        const fs =
-            require("node:fs/promises") as typeof import("node:fs/promises");
-        const c = await waylandShotInit();
         const allScreens: ReturnData[] = [];
-        const empty = {
-            toImageData: () => emptyImageData(),
-            toNativeImage: () => nativeImage.createEmpty(),
-        };
-        if (displays)
-            for (const d of displays) {
-                const x: ReturnData = {
-                    bounds: d.bounds,
-                    size: d.size,
-                    scaleFactor: d.scaleFactor,
-                    id: d.id,
-                    capture: async () => {
-                        const imgPath = await c.capture();
-                        if (!imgPath) return empty;
-
-                        const [imgBuffer] = await tryxAwait(() =>
-                            fs.readFile(imgPath),
+        const portalDisplays =
+            displays ??
+            (ipcRenderer
+                ? renderSendSync("getScreens", [])
+                : screen.getAllDisplays());
+        if (!portalDisplays.length) {
+            throw new Error("Cannot capture a screenshot without any displays");
+        }
+        for (const d of portalDisplays) {
+            const x: ReturnData = {
+                bounds: d.bounds,
+                size: d.size,
+                scaleFactor: d.scaleFactor,
+                id: d.id,
+                capture: async () => {
+                    const captures = await (ipcRenderer
+                        ? renderInvoke("capturePortalScreens", [])
+                        : _capturePortalScreens?.());
+                    if (!captures?.length) {
+                        throw new Error(
+                            "Screenshot Portal capture service is unavailable",
                         );
-                        if (imgBuffer === null) return empty;
-                        const data = toCanvas(imgBuffer);
-                        const image = data.image;
-                        fs.rm(imgPath);
-                        // 在kde和gnome上，其他桌面环境也如此，获取的是多屏拼接图像
-                        // 存在不同缩放时，会保证任何屏幕物理像素都被截取，缩放后几何关系表留
-                        // 即选取缩放数值最大的作为基准，其物理像素不能舍去，其他屏幕放大（得到更多像素）
-                        // 存在放大后缩小的模糊问题
-                        const globalScale = Math.max(
-                            ...displays.map((i) => i.scaleFactor),
+                    }
+                    const source =
+                        captures.find(
+                            (capture) => capture.displayId === String(d.id),
+                        ) ?? (captures.length === 1 ? captures[0] : undefined);
+                    if (!source) {
+                        throw new Error(
+                            `Screenshot Portal did not return a screenshot for display ${d.id}`,
                         );
-                        const pix = {
-                            x: d.bounds.x * globalScale,
-                            y: d.bounds.y * globalScale,
-                            height: d.bounds.height * globalScale,
-                            width: d.bounds.width * globalScale,
-                        };
-                        const pixScreen = image.crop(pix);
-                        const phy = pixScreen.resize({
-                            width: d.bounds.width * d.scaleFactor,
-                            height: d.bounds.height * d.scaleFactor,
-                            quality: "best",
-                        });
+                    }
 
-                        return {
-                            toImageData: () => nImage2Imagedata(phy).data,
-                            toNativeImage: () => {
-                                return pixScreen;
-                            },
-                        };
-                    },
-                };
-                allScreens.push(x);
-            }
-        else {
-            allScreens.push({
-                bounds: { x: 0, y: 0, width: 0, height: 0 },
-                size: { width: 0, height: 0 },
-                scaleFactor: 1,
-                id: -1,
-                capture: async () => empty,
-            });
+                    const image = nativeImage.createFromDataURL(source.dataUrl);
+                    const size = image.getSize();
+                    if (
+                        image.isEmpty() ||
+                        size.width <= 0 ||
+                        size.height <= 0
+                    ) {
+                        throw new Error(
+                            `Screenshot Portal returned an empty screenshot for display ${d.id}`,
+                        );
+                    }
+                    x.size = size;
+                    x.scaleFactor = size.width / d.bounds.width;
+
+                    return {
+                        toImageData: () => nImage2Imagedata(image).data,
+                        toNativeImage: () => image,
+                    };
+                },
+            };
+            allScreens.push(x);
         }
         return { screen: allScreens, type: "normal", window: [] };
     }

@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
     main: {
         build: {
             minify: false,
+            rollupOptions: {
+                external: ["dbus-next"],
+            },
         },
     },
     renderer: {

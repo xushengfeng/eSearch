@@ -322,22 +322,21 @@ function toCanvas(canvas: HTMLCanvasElement, img: ImageData) {
     canvas.getContext("2d")!.putImageData(img, 0, 0);
 }
 
-async function setScreen(i: (typeof allScreens)[0]) {
+async function setScreen(i: (typeof allScreens)[0]): Promise<boolean> {
     let _img = screenShotCache.get(i.id);
     if (!_img) {
         try {
             const __img = (await i.capture()).toImageData();
-            if (__img) {
+            if (__img?.width > 0 && __img?.height > 0) {
                 screenShotCache.set(i.id, __img);
                 _img = __img;
             }
         } catch (error) {
             console.error("Error capturing screen:", error);
-            // todo tip
         }
     }
     const img = _img;
-    if (!img) return;
+    if (!img) return false;
     const w = img.width;
     const h = img.height;
     mainCanvas.width = w;
@@ -360,6 +359,7 @@ async function setScreen(i: (typeof allScreens)[0]) {
 
     if (w < window.innerWidth || h < window.innerHeight)
         document.body.classList.add("editor_bg");
+    return true;
 }
 
 function setEditorP(zoom: number, x: number, y: number) {
@@ -4858,6 +4858,13 @@ document.body.style.opacity = "0";
 renderOn("clip_init", async ([_displays, imgBuffer, mainid, act, pid]) => {
     currentDisplays = _displays;
     mainPid = pid ?? 0;
+    if (
+        !imgBuffer &&
+        process.platform === "linux" &&
+        store.get("使用XDGDesktopPortal")
+    ) {
+        renderSend("clip_hide", []);
+    }
     const wx = await screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片
     allScreens = wx.screen;
     const mainId = mainid;
@@ -4867,7 +4874,10 @@ renderOn("clip_init", async ([_displays, imgBuffer, mainid, act, pid]) => {
         w.rect.y -= i.bounds?.y ?? 0;
         return w;
     });
-    await setScreen(i);
+    if (!(await setScreen(i))) {
+        renderSend("clip_close", []);
+        return;
+    }
     const nowScreen = _displays.find((i) => i.id === mainId) || _displays[0]; // 非截屏，是屏幕
     const xy = { x: 0, y: 0 };
     if (wx.type === "normal") {

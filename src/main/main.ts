@@ -46,7 +46,7 @@ import minimist from "minimist";
 import main from "xtranslator";
 import { githubMirrorList } from "../../lib/github_mirror";
 import type { RecordRect } from "../../lib/ipc";
-import { mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
+import { mainHandle, mainOn, mainOnReflect, mainSend } from "../../lib/ipc";
 import Store from "../../lib/store/store";
 import time_format from "../../lib/time_format";
 import { lan, t } from "../../lib/translate/translate";
@@ -67,6 +67,7 @@ import type {
 } from "../ShareTypes";
 import { initBergamot } from "./bergamot";
 import defaultSetting, { matchBestLan } from "./defaultSetting";
+import { createPortalCapture } from "./portalCapture";
 
 const runPath = join(resolve(__dirname, ""), "../../");
 const tmpDir = join(tmpdir(), "eSearch");
@@ -196,6 +197,8 @@ const logs: {
     lineCount: number;
 }[] = [];
 
+const portalCapture = createPortalCapture();
+
 const screenShotArgs = [
     { c: store.get("额外截屏器.命令"), path: store.get("额外截屏器.位置") },
     (m: string) =>
@@ -207,6 +210,7 @@ const screenShotArgs = [
         }),
     t,
     store.get("使用XDGDesktopPortal"),
+    portalCapture.capture,
 ] as const;
 
 const keepClip = store.get("保留截屏窗口");
@@ -1258,6 +1262,34 @@ function pushLog(op: (typeof logs)[0]) {
     }
     logs.push(op);
 }
+
+mainHandle("capturePortalScreens", async () => {
+    try {
+        const captures = await portalCapture.capture();
+
+        pushLog({
+            from: "screenShot",
+            lineCount: 0,
+            type: "info",
+            message: `Screenshot Portal returned ${captures.length} screen image(s): ${captures
+                .map(
+                    (source) =>
+                        `${source.name} (${source.displayId}) ${source.size.width}x${source.size.height}`,
+                )
+                .join(", ")}`,
+        });
+        return captures;
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        pushLog({
+            from: "screenShot",
+            lineCount: 0,
+            type: "error",
+            message: `Screenshot Portal capture failed: ${message}`,
+        });
+        throw error;
+    }
+});
 
 // 截屏窗口
 let clipWindow: BrowserWindow | null = null;

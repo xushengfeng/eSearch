@@ -24,6 +24,13 @@ import type {
     功能,
 } from "../src/ShareTypes";
 
+export type PortalCapture = {
+    displayId: string;
+    name: string;
+    dataUrl: string;
+    size: { width: number; height: number };
+};
+
 type Equals<X, Y> =
     (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
         ? true
@@ -206,6 +213,7 @@ type Message = {
     /** 截屏页请求窗口视频源 */
     getCaptureSources: (requestId: number) => void;
     captureSources: (requestId: number, sources: CaptureSourceInfo[]) => void;
+    capturePortalScreens: () => PortalCapture[];
     /** 动态贴图；target 为空表示需要用户选择窗口 */
     clip_ding_live: (data: {
         poster: string;
