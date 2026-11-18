@@ -4856,6 +4856,7 @@ let willFilter: EditType["filter"] | "" = "";
 document.body.style.opacity = "0";
 
 renderOn("clip_init", async ([_displays, imgBuffer, mainid, act, pid]) => {
+    console.log("clip_init displays:", _displays);
     currentDisplays = _displays;
     mainPid = pid ?? 0;
     const wx = await screenShots(_displays, imgBuffer); // 只是截屏 也可能是小图片

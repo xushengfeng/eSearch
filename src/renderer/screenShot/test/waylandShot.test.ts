@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import { getSessionBusPath } from "../../../../lib/wayland";
 import { waylandShotInit } from "../waylandShot";
 
 const TIMEOUT = 30000;
@@ -10,7 +11,7 @@ async function main() {
     }
 
     console.log("初始化 waylandShot...");
-    const { capture } = await waylandShotInit();
+    const { capture } = await waylandShotInit(getSessionBusPath());
 
     console.log("调用 capture...");
     console.log("如果弹出截屏界面，请直接按 Esc 取消或选择区域");

@@ -4,6 +4,7 @@ const { ipcRenderer, nativeImage, shell, dialog } =
 import type { MessageBoxSyncOptions, NativeImage } from "electron";
 import { renderSendSync } from "../../../lib/ipc";
 import { tryxAwait } from "../../../lib/utils";
+import { getSessionBusPath } from "../../../lib/wayland";
 import { waylandShotInit } from "./waylandShot";
 
 type WindowData = {
@@ -302,7 +303,11 @@ async function dispaly2screen(
     if (process.platform === "linux" && _useXDGDesktopProtal) {
         const fs =
             require("node:fs/promises") as typeof import("node:fs/promises");
-        const c = await waylandShotInit();
+        const c = await waylandShotInit(
+            ipcRenderer
+                ? renderSendSync("dbusSessionBusPath", [])
+                : getSessionBusPath(),
+        );
         const allScreens: ReturnData[] = [];
         const empty = {
             toImageData: () => emptyImageData(),

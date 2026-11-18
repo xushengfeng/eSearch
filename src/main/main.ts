@@ -51,7 +51,7 @@ import Store from "../../lib/store/store";
 import time_format from "../../lib/time_format";
 import { lan, t } from "../../lib/translate/translate";
 import { typedEntries } from "../../lib/utils";
-import { isWaylandSession } from "../../lib/wayland";
+import { getSessionBusPath, isWaylandSession } from "../../lib/wayland";
 import initScreenShots from "../renderer/screenShot/screenShot";
 import type {
     CaptureSourceInfo,
@@ -3295,6 +3295,10 @@ mainOn("feedbackFeature", ([arg]) => {
 
 mainOn("getScreens", () => {
     return screen.getAllDisplays();
+});
+
+mainOn("dbusSessionBusPath", () => {
+    return getSessionBusPath();
 });
 
 mainOn("recordMemWarning", () => {

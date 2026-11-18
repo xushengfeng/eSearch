@@ -284,6 +284,8 @@ type Message = {
     bergamot_clear: () => void;
     githubUrl: (path: string, _type?: GithubUrlType | "auto") => string;
     getScreens: () => Display[];
+    /** 会话 D-Bus 总线地址，Wayland 截屏用 */
+    dbusSessionBusPath: () => string;
     getLogs: () => {
         from: "screenShot" | "ding" | "mainWindow" | "translator";
         message: string;

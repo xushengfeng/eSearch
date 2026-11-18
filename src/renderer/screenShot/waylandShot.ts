@@ -1,94 +1,104 @@
-import { dbusClient, dbusIO } from "myde-dbus";
+import { dbusClient, dbusIO, type dbusMessage, MessageType } from "myde-dbus";
 
 const net = require("node:net") as typeof import("node:net");
+const { randomUUID } = require("node:crypto") as typeof import("node:crypto");
+const { fileURLToPath } = require("node:url") as typeof import("node:url");
 
-export async function waylandShotInit() {
+const destination = "org.freedesktop.portal.Desktop";
+const requestInterface = "org.freedesktop.portal.Request";
+const responseMatch = `type='signal',sender='${destination}',interface='${requestInterface}',member='Response'`;
+const responseTimeout = 60_000;
+
+/** 从 Response 信号中取出截图文件 uri */
+function responseUri(body: unknown[]) {
+    const [code, results] = body as [
+        number,
+        [string, { value?: unknown }][] | undefined,
+    ];
+    if (code !== 0 || !results) return;
+    for (const [key, value] of results) {
+        if (key !== "uri") continue;
+        const uri = Array.isArray(value.value) ? value.value[0] : value.value;
+        return typeof uri === "string" ? uri : undefined;
+    }
+}
+
+export async function waylandShotInit(sessionBusPath: string) {
     const socket = new net.Socket();
 
-    await new Promise((resolve) =>
-        socket.connect("/run/user/1000/bus", () => resolve(0)),
-    );
+    await new Promise<void>((resolve, reject) => {
+        socket.once("error", reject);
+        socket.connect(sessionBusPath, () => resolve());
+    });
 
     const io = new dbusIO({ socket: socket });
     await io.connect();
 
     const client = new dbusClient({ io });
+    const meta = await client.getMetaInterface();
+    const screenshot = await (await client.getService(destination)).getObject(
+        "/org/freedesktop/portal/desktop",
+    );
+    const screenshotIface = await screenshot.getInterface(
+        "org.freedesktop.portal.Screenshot",
+    );
+
+    // 在发请求前订阅，Portal 请求可能在 Screenshot 返回前就已完成
+    await meta.AddMatch(responseMatch);
 
     return {
         capture: async (): Promise<string | undefined> => {
+            // Portal 用 sender + handle_token 组成 Request 路径，token 不能重复
+            const token = `esearch_${randomUUID().replaceAll("-", "")}`;
+
+            let requestPath: string | undefined;
+            const earlyResponses = new Map<string, unknown[]>();
+            let resolveResponse: (body: unknown[] | undefined) => void =
+                () => {};
+            const response = new Promise<unknown[] | undefined>((resolve) => {
+                resolveResponse = resolve;
+            });
+            const timer = setTimeout(
+                () => resolveResponse(undefined),
+                responseTimeout,
+            );
+            const onMessage = (message: dbusMessage) => {
+                if (
+                    message.getType() !== MessageType.Signal ||
+                    message.getInterface() !== requestInterface ||
+                    message.getMember() !== "Response"
+                )
+                    return;
+                const path = message.getPath();
+                if (!path) return;
+                if (path === requestPath) resolveResponse(message.getBody());
+                else if (!requestPath)
+                    earlyResponses.set(path, message.getBody());
+            };
+            io.addMessageHandler(onMessage);
+
             try {
-                const service = await client.getService(
-                    "org.freedesktop.portal.Desktop",
-                );
-
-                let screenshotUri: string | undefined;
-                let responseReceived = false;
-
-                // 调用 Screenshot 方法，返回 Request 对象路径
-                const screenshotObj = await service.getObject(
-                    "/org/freedesktop/portal/desktop",
-                );
-                const screenshotIface = await screenshotObj.getInterface(
-                    "org.freedesktop.portal.Screenshot",
-                );
-
-                // 获取返回的 Request 对象路径
-                const result = await screenshotIface
+                const [handle] = await screenshotIface
                     .call("Screenshot", "sa{sv}", "", [
-                        ["handle_token", { signature: "s", value: "esearch" }],
+                        ["handle_token", { signature: "s", value: token }],
                         ["interactive", { signature: "b", value: false }],
                     ])
                     .as<"o">();
+                requestPath = handle;
+                const early = earlyResponses.get(handle);
+                earlyResponses.clear();
+                if (early) resolveResponse(early);
 
-                const requestPath = result[0];
-
-                // 在 Request 对象上监听 Response 信号
-                const requestObj = await service.getObject(requestPath);
-                const requestIface = await requestObj.getInterface(
-                    "org.freedesktop.portal.Request",
-                );
-
-                const unsubscribe = await requestIface.on(
-                    "Response",
-                    (...args: unknown[]) => {
-                        const responseCode = args[0] as number;
-                        const results = args[1] as
-                            | [string, { signature: string; value: unknown }][]
-                            | undefined;
-
-                        if (responseCode === 0 && results) {
-                            for (const [key, val] of results) {
-                                if (key === "uri") {
-                                    // val.value 可能是字符串或数组
-                                    screenshotUri = Array.isArray(val.value)
-                                        ? (val.value[0] as string)
-                                        : (val.value as string);
-                                }
-                            }
-                        }
-                        responseReceived = true;
-                    },
-                );
-
-                const timeout = 3000;
-                const startTime = Date.now();
-                while (!responseReceived && Date.now() - startTime < timeout) {
-                    await new Promise((resolve) => setTimeout(resolve, 100));
-                }
-
-                unsubscribe();
-
-                if (screenshotUri) {
-                    if (screenshotUri.startsWith("file://")) {
-                        return screenshotUri.slice(7);
-                    }
-                    return screenshotUri;
-                }
-
-                return undefined;
+                const body = await response;
+                const uri = body && responseUri(body);
+                if (!uri) return;
+                return uri.startsWith("file://") ? fileURLToPath(uri) : uri;
             } catch (error) {
                 console.error("Wayland screenshot failed:", error);
                 return undefined;
+            } finally {
+                clearTimeout(timer);
+                io.removeMessageHandler(onMessage);
             }
         },
     };
